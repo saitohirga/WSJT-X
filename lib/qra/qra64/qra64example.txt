@@ -1,0 +1,50 @@
+Example:
+
+qra64 -a2 -t2 -b10.0 -m1 -q2 -s-28.0
+
+Simulate fast-fading decoding (-t2) with 
+USER_AP (-a2)
+B90 = 10.0 Hz (-b10.0)
+Lorentz model (-m1)
+submode QRA64C (-q2)
+Input SNR = -28.0 dB (-s-28.0)
+
+(type qra64 -h for command syntax)
+
+Command Output:
+
+Simulating the QRA64 decoder with fast-fading metric
+B90=10.00 Hz - Fading Model=Lorentz - Submode=QRA64C
+
+K1JT decoder enabled for [K1JT  ?     ?/blank]
+K1JT decoder enabled for [K1JT IV3NWV ?]
+K1JT decoder enabled for [?    IV3NWV ?/blank]
+K1JT decoder enabled for [K1JT IV3NWV JN66]
+K1JT decoder enabled for [CQ   IV3NWV ?/b/JN66]
+
+Encoding msg: [K1JT IV3NWV JN66]
+Decoding with K1JT's decoder
+....................................................................................................
+
+Transimtted msgs:100
+Decoded msgs:
+
+  0 with [?    ?    ?] AP0
+  0 with [CQ   ?    ?] AP27
+  0 with [CQ   ?     ] AP42
+  4 with [CALL ?    ?] AP29
+  0 with [CALL ?     ] AP44
+  0 with [CALL CALL ?] AP57
+  2 with [?    CALL ?] AP29
+  0 with [?    CALL  ] AP44
+ 91 with [CALL CALL G] AP72
+  0 with [CQ   CALL ?] AP55
+  0 with [CQ   CALL  ] AP70
+  0 with [CQ   CALL G] AP70
+
+Total: 97/100 (0 undetected errors)
+
+Estimated SNR (average in dB) = -28.39 dB
+
+Input SNR = -28.0dB ap-mode=USER AP
+

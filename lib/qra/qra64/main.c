@@ -1,6 +1,6 @@
 /*
 main.c 
-QRA64 mode encode/decode test
+QRA64 mode encode/decode tests
 
 (c) 2016 - Nico Palermo, IV3NWV
 
@@ -145,21 +145,22 @@ symbol.
   normrnd_s(rp,NSAMPLES,0,sigma);
   normrnd_s(rq,NSAMPLES,0,sigma);
 
-  if (channel_type == CHANNEL_AWGN) 
-    for (k=0;k<QRA64_N;k++) 
-      rp[k*QRA64_M+x[k]]+=A;
-  else 
-    if (channel_type == CHANNEL_RAYLEIGH) {
-      normrnd_s(chp,QRA64_N,0,sigmach);
-      normrnd_s(chq,QRA64_N,0,sigmach);
-      for (k=0;k<QRA64_N;k++) {
-	rp[k*QRA64_M+x[k]]+=A*chp[k];
-	rq[k*QRA64_M+x[k]]+=A*chq[k];
-      }
-    }
-    else {
-      return 0;	// unknown channel type
-    }
+  if(EbNodB>-15) 
+	if (channel_type == CHANNEL_AWGN) 
+	    for (k=0;k<QRA64_N;k++) 
+		  rp[k*QRA64_M+x[k]]+=A;
+	else 
+		if (channel_type == CHANNEL_RAYLEIGH) {
+			normrnd_s(chp,QRA64_N,0,sigmach);
+			normrnd_s(chq,QRA64_N,0,sigmach);
+			for (k=0;k<QRA64_N;k++) {
+				rp[k*QRA64_M+x[k]]+=A*chp[k];
+				rq[k*QRA64_M+x[k]]+=A*chq[k];
+				}
+			}
+		else {
+		return 0;	// unknown channel type
+		}
 
   // compute the squares of the amplitudes of the received samples
   for (k=0;k<NSAMPLES;k++) 
@@ -342,7 +343,7 @@ a particular type decode among the above 6 cases succeded.
 
   int ndecok[12] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   int nundet = 0;
-  int ntx = 100,ndec=0;
+  int ntx = 200,ndec=0;
 
   qra64codec *codec_iv3nwv = qra64_init(mode);   // codec for IV3NWV
   qra64codec *codec_k1jt   = qra64_init(mode);     // codec for K1JT
@@ -351,16 +352,16 @@ a particular type decode among the above 6 cases succeded.
 		   QRA64_SNR_EBNO_OFFSET);
 
 // This will enable K1JT's decoder to look for calls directed to him [K1JT ? ?/b]
-  printf("K1JT decoder enabled for [K1JT  ?     ?/blank]\n");
-  qra64_apset(codec_k1jt, CALL_K1JT,0,0,APTYPE_MYCALL);
+//  printf("K1JT decoder enabled for [K1JT  ?     ?/blank]\n");
+//  qra64_apset(codec_k1jt, CALL_K1JT,0,0,APTYPE_MYCALL);
 
 // This will enable K1JT's decoder to look for IV3NWV calls directed to him [K1JT IV3NWV ?/b]
-  printf("K1JT decoder enabled for [K1JT IV3NWV ?]\n");
-  qra64_apset(codec_k1jt, CALL_K1JT,CALL_IV3NWV,0,APTYPE_BOTHCALLS);
+//  printf("K1JT decoder enabled for [K1JT IV3NWV ?]\n");
+//  qra64_apset(codec_k1jt, CALL_CQ,CALL_IV3NWV,0,APTYPE_BOTHCALLS);
 
 // This will enable K1JT's decoder to look for msges sent by IV3NWV [? IV3NWV ?]
-  printf("K1JT decoder enabled for [?    IV3NWV ?/blank]\n");
-  qra64_apset(codec_k1jt, 0,CALL_IV3NWV,GRID_BLANK,APTYPE_HISCALL);
+//  printf("K1JT decoder enabled for [?    IV3NWV ?/blank]\n");
+//  qra64_apset(codec_k1jt, 0,CALL_IV3NWV,GRID_BLANK,APTYPE_HISCALL);
 
 // This will enable K1JT's decoder to look for full-knowledge [K1JT IV3NWV JN66] msgs
   printf("K1JT decoder enabled for [K1JT IV3NWV JN66]\n");
@@ -372,8 +373,12 @@ a particular type decode among the above 6 cases succeded.
 
 
   // Dx station IV3NWV calls
-  printf("\nIV3NWV encoder sends msg: [CQ IV3NWV JN66]\n\n");
+  printf("\nIV3NWV encoder sends msg: [K1JT IV3NWV JN66]\n\n");
   encodemsg_jt65(x,CALL_CQ,CALL_IV3NWV,GRID_JN66);
+
+//  printf("\nIV3NWV encoder sends msg: [CQ IV3NWV JN66]\n\n");
+//  encodemsg_jt65(x,CALL_CQ,CALL_IV3NWV,GRID_JN66);
+
 //  printf("\nIV3NWV encoder sends msg: [CQ IV3NWV]\n\n");
 //  encodemsg_jt65(x,CALL_CQ,CALL_IV3NWV,GRID_BLANK);
   qra64_encode(codec_iv3nwv, y, x);
@@ -409,6 +414,88 @@ a particular type decode among the above 6 cases succeded.
   return 0;
 }
 
+int test_fastfading(float EbNodB, float B90, int fadingModel, int submode, int apmode)
+{
+  int x[QRA64_K], xdec[QRA64_K];
+  int y[QRA64_N];
+  float *rx;
+  float ebnodbest, ebnodbavg=0;
+  int rc,k;
+
+  int ndecok[12] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  int nundet = 0;
+  int ntx = 100,ndec=0;
+
+  qra64codec *codec_iv3nwv; 
+  qra64codec *codec_k1jt; 
+
+  codec_iv3nwv=qra64_init(QRA_NOAP);  
+  codec_k1jt  =qra64_init(apmode);  
+
+  printf("\nSimulating the QRA64 decoder with fast-fading metric\n");
+  printf("B90=%.2f Hz - Fading Model=%s - Submode=QRA64%c\n\n",B90,fadingModel?"Lorentz":"Gauss",submode+'A');
+
+  if (apmode==QRA_USERAP) {
+	// This will enable K1JT's decoder to look for calls directed to him [K1JT ? ?/b]
+	printf("K1JT decoder enabled for [K1JT  ?     ?/blank]\n");
+	qra64_apset(codec_k1jt, CALL_K1JT,0,0,APTYPE_MYCALL);
+
+	// This will enable K1JT's decoder to look for IV3NWV calls directed to him [K1JT IV3NWV ?/b]
+	printf("K1JT decoder enabled for [K1JT IV3NWV ?]\n");
+	qra64_apset(codec_k1jt, CALL_CQ,CALL_IV3NWV,0,APTYPE_BOTHCALLS);
+
+	// This will enable K1JT's decoder to look for msges sent by IV3NWV [? IV3NWV ?]
+	printf("K1JT decoder enabled for [?    IV3NWV ?/blank]\n");
+	qra64_apset(codec_k1jt, 0,CALL_IV3NWV,GRID_BLANK,APTYPE_HISCALL);
+
+	// This will enable K1JT's decoder to look for full-knowledge [K1JT IV3NWV JN66] msgs
+	printf("K1JT decoder enabled for [K1JT IV3NWV JN66]\n");
+	qra64_apset(codec_k1jt, CALL_K1JT,CALL_IV3NWV,GRID_JN66,APTYPE_FULL);
+
+	// This will enable K1JT's decoder to look for calls from IV3NWV [CQ IV3NWV ?/b] msgs
+	printf("K1JT decoder enabled for [CQ   IV3NWV ?/b/JN66]\n");
+	qra64_apset(codec_k1jt, 0,CALL_IV3NWV,GRID_JN66,APTYPE_CQHISCALL);
+
+  }
+  printf("\nEncoding msg: [K1JT IV3NWV JN66]\n");
+  encodemsg_jt65(x,CALL_K1JT,CALL_IV3NWV,GRID_JN66);
+  qra64_encode(codec_iv3nwv, y, x);
+
+  printf("Decoding with K1JT's decoder\n");
+  for (k=0;k<ntx;k++) {
+    printf(".");
+	rc = qra64_fastfading_channel(&rx,y,submode,EbNodB,B90,fadingModel);
+	if (rc<0) {
+		printf("qra64_fastfading_channel error. rc=%d\n",rc);
+		return -1;
+		}
+    rc = qra64_decode_fastfading(codec_k1jt,&ebnodbest,xdec,rx,submode,B90,fadingModel);
+	if (rc>=0) {
+	  ebnodbavg +=ebnodbest;
+	  if (memcmp(xdec,x,12*sizeof(int))==0)
+		ndecok[rc]++;
+	  else
+	    nundet++;
+	}
+  }
+  printf("\n\n");
+
+  printf("Transimtted msgs:%d\nDecoded msgs:\n\n",ntx);
+  for (k=0;k<12;k++) {
+    printf("%3d with %s\n",ndecok[k],decode_type[k]);
+    ndec += ndecok[k];
+  }
+  printf("\nTotal: %d/%d (%d undetected errors)\n\n",ndec,ntx,nundet);
+  printf("");
+
+  ebnodbavg/=(ndec+nundet);
+  printf("Estimated SNR (average in dB) = %.2f dB\n\n",ebnodbavg-QRA64_SNR_EBNO_OFFSET);
+
+  return 0;
+}
+
+
+
 void syntax(void)
 {
   printf("\nQRA64 Mode Tests\n");
@@ -421,6 +508,11 @@ void syntax(void)
   printf("       -a<ap-type> : set decode type 0=NOAP 1=AUTOAP (default) 2=USERAP\n");
   printf("       -t<testtype>: 0=simulate seq of msgs between IV3NWV and K1JT (default)\n");
   printf("                     1=simulate K1JT receiving K1JT IV3NWV JN66\n");
+  printf("                     2=simulate fast-fading routines (option -c ignored)\n");
+  printf("Options used only for fast-fading simulations:\n");
+  printf("       -b          : 90%% fading bandwidth in Hz [1..230 Hz] (default = 2.5 Hz)\n");
+  printf("       -m          : fading model. 0=Gauss, 1=Lorentz (default = Lorentz)\n");
+  printf("       -q          : qra64 submode. 0=QRA64A,... 4=QRA64E (default = QRA64A)\n");
   printf("       -h: this help\n");
 }
 
@@ -433,55 +525,88 @@ int main(int argc, char* argv[])
   unsigned int testtype=0;
   int   nqso = 100;
   float EbNodB;
+  float B90 = 2.5;
+  int fadingModel = 1;
+  int submode = 0;
 
 // Parse the command line
   while(--argc) {
     argv++;
+
     if (strncmp(*argv,"-h",2)==0) {
       syntax();
       return 0;
-    } else {
-      if (strncmp(*argv,"-a",2)==0) {
-	mode = ( int)atoi((*argv)+2);
-	if (mode>2) {
-	  printf("Invalid decoding mode\n");
-	  syntax();
-	  return -1;
-	}
-      } else {
+	  } 
+	else 
+	if (strncmp(*argv,"-a",2)==0) {
+		mode = ( int)atoi((*argv)+2);
+		if (mode>2) {
+			printf("Invalid decoding mode\n");
+			syntax();
+			return -1;
+			}
+		} 
+	else
 	if (strncmp(*argv,"-s",2)==0) {
-	  SNRdB = (float)atof((*argv)+2);
-	  if (SNRdB>20 || SNRdB<-40) {
-	    printf("SNR should be in the range [-40..20]\n");
+		SNRdB = (float)atof((*argv)+2);
+		if (SNRdB>20 || SNRdB<-50) {
+			printf("SNR should be in the range [-50..20]\n");
+			syntax();
+			return -1;
+			}
+		} 
+	else 
+	if (strncmp(*argv,"-t",2)==0) {
+	    testtype = ( int)atoi((*argv)+2);
+	    if (testtype>2) {
+			printf("Invalid test type\n");
+			syntax();
+			return -1;
+			}
+		}
+	else 
+	if (strncmp(*argv,"-c",2)==0) {
+		channel = ( int)atoi((*argv)+2);
+	    if (channel>CHANNEL_RAYLEIGH) {
+			printf("Invalid channel type\n");
+			syntax();
+			return -1;
+			}
+	    } 
+	else
+	if (strncmp(*argv,"-b",2)==0) {
+	    B90 = (float)atof((*argv)+2);
+	    if (B90<1 || B90>230) {
+			printf("Invalid B90\n");
+			syntax();
+			return -1;
+			}
+		}
+	else
+	if (strncmp(*argv,"-m",2)==0) {
+	    fadingModel = (int)atoi((*argv)+2);
+	    if (fadingModel<0 || fadingModel>1) {
+			printf("Invalid fading model\n");
+			syntax();
+			return -1;
+			}
+		}
+	else
+	if (strncmp(*argv,"-q",2)==0) {
+	    submode = (int)atoi((*argv)+2);
+	    if (submode<0 || submode>4) {
+			printf("Invalid submode\n");
+			syntax();
+			return -1;
+			}
+		}
+	else {
+	    printf("Invalid option\n");
 	    syntax();
 	    return -1;
-	  }
-	} else {
-	  if (strncmp(*argv,"-t",2)==0) {
-	    testtype = ( int)atoi((*argv)+2);
-	    if (testtype>1) {
-	      printf("Invalid test type\n");
-	      syntax();
-	      return -1;
 	    }
-	  } else {
-	    if (strncmp(*argv,"-c",2)==0) {
-	      channel = ( int)atoi((*argv)+2);
-	      if (channel>CHANNEL_RAYLEIGH) {
-		printf("Invalid channel type\n");
-		syntax();
-		return -1;
-	      }
-	    } else {
-	      printf("Invalid option\n");
-	      syntax();
-	      return -1;
-	    }
-	  }
 	}
-      }
-    }
-  }
+
   
   EbNodB = SNRdB+QRA64_SNR_EBNO_OFFSET;	
   
@@ -490,21 +615,33 @@ int main(int argc, char* argv[])
 #endif
 
   if (testtype==0) {
-    for (k=0;k<nqso;k++) {
-      printf("\n\n------------------------\n");
-      rc = test_proc_1(channel, EbNodB, mode);
-      if (rc==0)
-	nok++;
-    }
-    printf("\n\n%d/%d QSOs to end without repetitions\n",nok,nqso);
-  } else {
-    test_proc_2(channel, EbNodB, mode);
-  }
-  
-  printf("Input SNR = %.1fdB channel=%s ap-mode=%s\n\n",
+	for (k=0;k<nqso;k++) {
+		printf("\n\n------------------------\n");
+		rc = test_proc_1(channel, EbNodB, mode);
+		if (rc==0)
+			nok++;
+		}
+	printf("\n\n%d/%d QSOs to end without repetitions\n",nok,nqso);
+	printf("Input SNR = %.1fdB channel=%s ap-mode=%s\n\n",
+		SNRdB,
+		channel==CHANNEL_AWGN?"AWGN":"RAYLEIGH",
+		apmode_type[mode]
+		);
+	} 
+  else if (testtype==1) {
+	test_proc_2(channel, EbNodB, mode);
+	printf("Input SNR = %.1fdB channel=%s ap-mode=%s\n\n",
+		SNRdB,
+		channel==CHANNEL_AWGN?"AWGN":"RAYLEIGH",
+		apmode_type[mode]
+		);
+	}
+  else {
+	test_fastfading(EbNodB,B90,fadingModel,submode,mode);
+	printf("Input SNR = %.1fdB ap-mode=%s\n\n",
 	 SNRdB,
-	 channel==CHANNEL_AWGN?"AWGN":"RAYLEIGH",
 	 apmode_type[mode]
 	 );
+  }
   return 0;
 }
