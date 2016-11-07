@@ -15,7 +15,8 @@ void qra64_enc_(int x[], int y[])
 }
 
 void qra64_dec_(float r[], int* nc1, int* nc2, int* ng2, int* APtype, 
-		int* iset, int xdec[], float* snr, int* rc)
+		int* iset, int* ns0, float* b0, int* nf0,
+		int xdec[], float* snr, int* rc)
 {
 /*
   APtype:
@@ -43,9 +44,9 @@ void qra64_dec_(float r[], int* nc1, int* nc2, int* ng2, int* APtype,
   static int nc1z=-1;
   float EbNodBEstimated;
   int err=0;
-  int nSubmode=0;
-  int nFadingModel=1;
-  float b90=1.0;
+  int nSubmode=*ns0;
+  float b90=*b0;
+  int nFadingModel=*nf0;
 
 #ifdef NICO_WANTS_SNR_DUMP  
   FILE *fout;
