@@ -2,7 +2,7 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mode64,mycall_12,hiscall_12,   &
      hisgrid_6,sync,nsnr,dtx,nfreq,decoded,nft)
 
   use packjt
-  parameter (NFFT=2*6912,NZ=5760,NMAX=60*12000)
+  parameter (NFFT=2*6912,NZ=5760,NMAX=60*12000,LN=1152*63)
   character decoded*22
   character*12 mycall_12,hiscall_12
   character*6 mycall,hiscall,hisgrid_6
@@ -13,7 +13,7 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mode64,mycall_12,hiscall_12,   &
 !  integer*8 count0,count1,clkfreq
   real a(3)
   real dd(NMAX)                              !Raw data sampled at 12000 Hz
-  real s3(0:63,1:63)                         !Symbol spectra
+  real s3(LN)                                !Symbol spectra
   integer dat4(12)                           !Decoded message (as 12 integers)
   data nc1z/-1/,nc2z/-1/,ng2z/-1/
   save
@@ -41,6 +41,8 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mode64,mycall_12,hiscall_12,   &
   
   npts2=216000
   naptype=4
+  LL=64*(mode64+2)
+  NN=63
   do itry0=1,3
      idf0=itry0/2
      if(mod(itry0,2).eq.0) idf0=-idf0
@@ -52,7 +54,7 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mode64,mycall_12,hiscall_12,   &
         if(mod(itry1,2).eq.0) idf1=-idf1
         a(2)=-0.67*(idf1 + 0.67*kpk)
         call twkfreq(c00,c0,npts2,4000.0,a)
-        call spec64(c0,npts2,mode64,jpk,s3)
+        call spec64(c0,npts2,mode64,jpk,s3,LL,NN)
         call qra64_dec(s3,nc1,nc2,ng2,naptype,0,dat4,snr2,irc)
         decoded='                      '
         if(irc.ge.0) then
