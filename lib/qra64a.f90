@@ -27,9 +27,13 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mode64,mycall_12,hiscall_12,   &
   call packcall(mycall,nc1,ltext)
   call packcall(hiscall,nc2,ltext)
   call packgrid(hisgrid,ng2,ltext)
+  nSubmode=nint(log(float(mode64)/log(2.0)))
+  b90=1.0
+  nFadingModel=1
   if(nc1.ne.nc1z .or. nc2.ne.nc2z .or. ng2.ne.ng2z) then
      do naptype=0,5
-        call qra64_dec(s3,nc1,nc2,ng2,naptype,1,dat4,snr2,irc)
+        call qra64_dec(s3,nc1,nc2,ng2,naptype,1,nSubmode,b90,      &
+             nFadingModel,dat4,snr2,irc)
      enddo
      nc1z=nc1
      nc2z=nc2
@@ -55,7 +59,8 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mode64,mycall_12,hiscall_12,   &
         a(2)=-0.67*(idf1 + 0.67*kpk)
         call twkfreq(c00,c0,npts2,4000.0,a)
         call spec64(c0,npts2,mode64,jpk,s3,LL,NN)
-        call qra64_dec(s3,nc1,nc2,ng2,naptype,0,dat4,snr2,irc)
+        call qra64_dec(s3,nc1,nc2,ng2,naptype,0,nSubmode,b90,      &
+             nFadingModel,dat4,snr2,irc)
         decoded='                      '
         if(irc.ge.0) then
            call unpackmsg(dat4,decoded)           !Unpack the user message

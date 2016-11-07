@@ -6,8 +6,6 @@ subroutine spec64(c0,npts2,mode64,jpk,s3,LL,NN)
   real s3(LL,NN)                             !Synchronized symbol spectra
 
   nfft6=nsps
-  fsample=4000.0
-  df=fsample/nfft6
   do j=1,63
      jj=j+7                                  !Skip first Costas array
      if(j.ge.32) jj=j+14                     !Skip middle Costas array
