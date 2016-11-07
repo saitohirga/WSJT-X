@@ -27,7 +27,7 @@ subroutine sync64(dd,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,snrdb,c0)
      k=-1
      phi=0.
      do j=0,6                               !Compute complex Costas waveform
-        dphi=twopi*icos7(j)*dfgen/4000.0
+        dphi=twopi*10.0*icos7(j)*dfgen/4000.0
         do i=1,2304
            phi=phi + dphi
            if(phi.gt.twopi) phi=phi-twopi

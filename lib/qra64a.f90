@@ -15,8 +15,6 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mode64,mycall_12,hiscall_12,   &
   real dd(NMAX)                              !Raw data sampled at 12000 Hz
   real s3(0:63,1:63)                         !Symbol spectra
   integer dat4(12)                           !Decoded message (as 12 integers)
-  integer icos7(0:6)
-  data icos7/2,5,6,0,4,1,3/                  !Costas 7x7 pattern
   data nc1z/-1/,nc2z/-1/,ng2z/-1/
   save
 
