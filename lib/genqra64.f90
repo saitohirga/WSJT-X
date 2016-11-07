@@ -39,11 +39,11 @@ subroutine genqra64(msg0,ichk,msgsent,itone,itype)
      if(ichk.ne.0) go to 999             !Return if checking only
      call qra64_enc(dgen,sent)           !Encode using QRA64
 
-     itone(1:7)=icos7                    !Insert 7x7 Costas array in 3 places
+     itone(1:7)=10*icos7                    !Insert 7x7 Costas array in 3 places
      itone(8:39)=sent(1:32)
-     itone(40:46)=icos7
+     itone(40:46)=10*icos7
      itone(47:77)=sent(33:63)
-     itone(78:84)=icos7
+     itone(78:84)=10*icos7
   endif
 
 999 return
