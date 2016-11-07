@@ -3855,6 +3855,11 @@ void MainWindow::on_dxCallEntry_textChanged (QString const& call)
   statusUpdate ();
 }
 
+void MainWindow::on_dxCallEntry_returnPressed ()
+{
+  on_lookupButton_clicked();
+}
+
 void MainWindow::on_dxGridEntry_textChanged (QString const& grid)
 {
   if (ui->dxGridEntry->hasAcceptableInput ()) {
@@ -4179,7 +4184,6 @@ void MainWindow::on_actionQRA64_triggered()
   m_wideGraph->setModeTx(m_modeTx);
   ui->sbSubmode->setMaximum(4);
   ui->sbSubmode->setValue(m_nSubMode);
-  ui->cbTxLock->setEnabled(true);
   ui->actionInclude_averaging->setEnabled(false);
   ui->actionInclude_correlation->setEnabled(false);
 }
@@ -5178,10 +5182,6 @@ void MainWindow::transmitDisplay (bool transmitting)
 //        ui->TxFreqSpinBox->setEnabled (false);
         ui->TxFreqSpinBox->setEnabled (true);
 //###
-        if(m_mode!="QRA64") {
-          ui->cbTxLock->setChecked(false);
-//          ui->cbTxLock->setEnabled(false);
-        }
       } else {
         ui->TxFreqSpinBox->setEnabled (QSY_allowed and !m_bFastMode);
         ui->pbR2T->setEnabled (QSY_allowed);
