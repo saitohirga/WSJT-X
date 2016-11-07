@@ -43,6 +43,9 @@ void qra64_dec_(float r[], int* nc1, int* nc2, int* ng2, int* APtype,
   static int nc1z=-1;
   float EbNodBEstimated;
   int err=0;
+  int nSubmode=0;
+  int nFadingModel=1;
+  float b90=1.0;
 
 #ifdef NICO_WANTS_SNR_DUMP  
   FILE *fout;
@@ -53,7 +56,9 @@ void qra64_dec_(float r[], int* nc1, int* nc2, int* ng2, int* APtype,
   if(err<0) printf("ERROR: qra64_apset returned %d\n",err);
 
   if(*iset==0) {
-    *rc = qra64_decode(pqra64codec,&EbNodBEstimated,xdec,r);
+    //    *rc = qra64_decode(pqra64codec,&EbNodBEstimated,xdec,r);
+    *rc = qra64_decode_fastfading(pqra64codec,&EbNodBEstimated,xdec,r,
+				  nSubmode,b90,nFadingModel);
     *snr = EbNodBEstimated - 31.0;
 
 #ifdef NICO_WANTS_SNR_DUMP  
