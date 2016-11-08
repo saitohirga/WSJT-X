@@ -22,6 +22,7 @@ subroutine iscat(cdat0,npts0,nh,npct,t2,pick,cfile6,minsync,ntol,   &
   data icos/0,1,3,2/
   data nsync/4/,nlen/2/,ndat/18/
   data c42/'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ /.?@-'/
+  save cdat,s0
 
   nlines = 0
   fsample=3100.78125                   !Sample rate after 9/32 downsampling
