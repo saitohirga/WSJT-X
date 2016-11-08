@@ -44,4 +44,4 @@ slow modes, select *Measure reference spectrum* from the *File* menu.
 Wait for about a minute and then hit the *Stop* button.  A file named
 `refspec.dat` should appear in your log directory.  
 
-[ ... more to come ...]
+ [ ... more to come ...]
