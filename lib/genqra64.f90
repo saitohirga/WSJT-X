@@ -8,6 +8,7 @@ subroutine genqra64(msg0,ichk,msgsent,itone,itype)
   character*22 msgsent          !Message as it will be received
   integer itone(84)
   character*3 cok               !'   ' or 'OOO'
+  logical old_qra_sync
   integer dgen(13)
   integer sent(63)
   integer icos7(0:6)
@@ -39,11 +40,15 @@ subroutine genqra64(msg0,ichk,msgsent,itone,itype)
      if(ichk.ne.0) go to 999             !Return if checking only
      call qra64_enc(dgen,sent)           !Encode using QRA64
 
-     itone(1:7)=10*icos7                    !Insert 7x7 Costas array in 3 places
+     nsync=10
+     inquire(file='old_qra_sync',exist=old_qra_sync)
+     if(old_qra_sync) nsync=1
+
+     itone(1:7)=nsync*icos7              !Insert 7x7 Costas array in 3 places
      itone(8:39)=sent(1:32)
-     itone(40:46)=10*icos7
+     itone(40:46)=nsync*icos7
      itone(47:77)=sent(33:63)
-     itone(78:84)=10*icos7
+     itone(78:84)=nsync*icos7
   endif
 
 999 return

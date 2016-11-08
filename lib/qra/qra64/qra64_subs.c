@@ -59,7 +59,7 @@ void qra64_dec_(float r[], int* nc1, int* nc2, int* ng2, int* APtype,
   if(*iset==0) {
     //    *rc = qra64_decode(pqra64codec,&EbNodBEstimated,xdec,r);
     *rc = qra64_decode_fastfading(pqra64codec,&EbNodBEstimated,xdec,r,
-				  nSubmode,b90,nFadingModel);
+    				  nSubmode,b90,nFadingModel);
     *snr = EbNodBEstimated - 31.0;
 
 #ifdef NICO_WANTS_SNR_DUMP  
@@ -69,3 +69,4 @@ void qra64_dec_(float r[], int* nc1, int* nc2, int* ng2, int* APtype,
 #endif
   }
 }
+

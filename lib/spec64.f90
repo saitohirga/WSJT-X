@@ -11,7 +11,7 @@ subroutine spec64(c0,npts2,mode64,jpk,s3,LL,NN)
      if(j.ge.32) jj=j+14                     !Skip middle Costas array
      ja=jpk + (jj-1)*nfft6
      jb=ja+nfft6-1
-     cs(0:nfft6-1)=1.3e-8*c0(ja:jb)
+     cs(0:nfft6-1)=c0(ja:jb)
      call four2a(cs,nfft6,1,-1,1)
      do ii=1,LL
         i=ii-65
@@ -19,6 +19,13 @@ subroutine spec64(c0,npts2,mode64,jpk,s3,LL,NN)
         s3(ii,j)=real(cs(i))**2 + aimag(cs(i))**2
      enddo
   enddo
+
+!  df=4000.0/nfft6
+!  do i=1,LL
+!     freq=(i-65)*df
+!     write(73,3002) i-65,freq,(1.e-6*s3(i,j),j=1,5)
+!3002 format(i5,6f10.3)
+!  enddo
 
   return
 end subroutine spec64
