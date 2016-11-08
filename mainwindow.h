@@ -422,6 +422,8 @@ private:
   bool    m_bFastDone;
   bool    m_bAltV;
   bool    m_bNoMoreFiles;
+  bool    m_bQRAsyncWarned;
+
   float   m_pctZap;
   int			m_ihsym;
   int			m_nzap;

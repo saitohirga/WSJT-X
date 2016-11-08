@@ -10,6 +10,7 @@ subroutine sync64(dd,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,snrdb,c0)
   real s0(0:NSPC-1)                          !Sum of s1+s2+s3
   real s0a(0:NSPC-1)                         !Best synchromized spectrum (saved)
   real s0b(0:NSPC-1)                         !tmp
+  logical old_qra_sync
   integer icos7(0:6)                         !Costas 7x7 tones
   integer ipk0(1)
   complex cc(0:NSPC-1)                       !Costas waveform
@@ -22,12 +23,15 @@ subroutine sync64(dd,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,snrdb,c0)
   save
 
   if(mode64.ne.mode64z) then
+     nsync=10
+     inquire(file='old_qra_sync',exist=old_qra_sync)
+     if(old_qra_sync) nsync=1
      twopi=8.0*atan(1.0)
      dfgen=mode64*12000.0/6912.0
      k=-1
      phi=0.
      do j=0,6                               !Compute complex Costas waveform
-        dphi=twopi*10.0*icos7(j)*dfgen/4000.0
+        dphi=twopi*nsync*icos7(j)*dfgen/4000.0
         do i=1,2304
            phi=phi + dphi
            if(phi.gt.twopi) phi=phi-twopi

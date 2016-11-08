@@ -655,6 +655,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
                   "1 W","2 W","5 W","10 W","20 W","50 W","100 W","200 W","500 W","1 kW"};
 
   m_msg[0][0]=0;
+  m_bQRAsyncWarned=false;
 
   for(int i=0; i<28; i++)  {                      //Initialize dBm values
     float dbm=(10.0*i)/3.0 - 30.0;
@@ -4186,6 +4187,13 @@ void MainWindow::on_actionQRA64_triggered()
   ui->sbSubmode->setValue(m_nSubMode);
   ui->actionInclude_averaging->setEnabled(false);
   ui->actionInclude_correlation->setEnabled(false);
+
+  QFile f(m_appDir + "/old_qra_sync");
+  if(f.exists() and !m_bQRAsyncWarned) {
+    MessageBox::warning_message (this, tr ("***  WARNING  *** "),
+       "Using old QRA64 sync pattern.");
+    m_bQRAsyncWarned=true;
+  }
 }
 
 void MainWindow::on_actionISCAT_triggered()
