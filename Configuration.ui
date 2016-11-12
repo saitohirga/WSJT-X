@@ -1509,11 +1509,7 @@ both here.</string>
         </widget>
        </item>
        <item row="0" column="0">
-        <widget class="QLineEdit" name="add_macro_line_edit">
-         <property name="maxLength">
-          <number>13</number>
-         </property>
-        </widget>
+        <widget class="QLineEdit" name="add_macro_line_edit"/>
        </item>
        <item row="0" column="2">
         <widget class="QPushButton" name="delete_macro_push_button">
@@ -2586,12 +2582,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="TX_mode_button_group"/>
+  <buttongroup name="PTT_method_button_group"/>
   <buttongroup name="split_mode_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
-  <buttongroup name="TX_mode_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
-  <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
  </buttongroups>
 </ui>
