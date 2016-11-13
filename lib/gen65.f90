@@ -41,6 +41,8 @@ subroutine gen65(msg0,ichk,msgsent,itone,itype)
      enddo
 
      call chkmsg(message,cok,nspecial,flip)
+     ntest=0
+     if(flip.lt.0.0) ntest=1
      if(nspecial.eq.0) then
         call packmsg(message,dgen,itype)    !Pack message into 72 bits
         call unpackmsg(dgen,msgsent)        !Unpack to get message sent
@@ -52,7 +54,7 @@ subroutine gen65(msg0,ichk,msgsent,itone,itype)
         nsym=126                            !Symbols per transmission
         k=0
         do j=1,nsym
-           if(nprc(j).eq.0) then
+           if(nprc(j).eq.ntest) then
               k=k+1
               itone(j)=sent(k)+2
            else
