@@ -38,8 +38,7 @@ program qra64sim
   read(arg,*) nfiles
   call getarg(7,arg)
   read(arg,*) snrdb
-  
-  if(mode64.ge.8) nsigs=1
+
   rms=100.
   fsample=12000.d0                   !Sample rate (Hz)
   dt=1.d0/fsample                    !Sample interval (s)
@@ -70,7 +69,6 @@ program qra64sim
      do isig=1,nsigs                 !Generate requested number of sigs
         if(mod(nsigs,2).eq.0) f0=1500.0 + dfsig*(isig-0.5-nsigs/2)
         if(mod(nsigs,2).eq.1) f0=1500.0 + dfsig*(isig-(nsigs+1)/2)
-        if(mode64.ge.8) f0=700.0
         xsnr=snrdb
         if(snrdb.eq.0.0) xsnr=-20 - isig
 
