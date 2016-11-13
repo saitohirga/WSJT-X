@@ -24,7 +24,7 @@
   <tr>
     <td align="right">Erase button:</td>
     <td><b>Click</b> to erase QSO window.<br/>
-        Double-click to erase QSO and Band Activity windows.
+        <b>Double-click</b> to erase QSO and Band Activity windows.
     </td>
   </tr>
 </table>
