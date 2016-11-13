@@ -4534,6 +4534,7 @@ void MainWindow::on_bandComboBox_activated (int index)
 
 void MainWindow::band_changed (Frequency f)
 {
+  bool monitor_off=!m_monitoring;
   // Set the attenuation value if options are checked
   QString curBand = ui->bandComboBox->currentText();
   if (m_config.pwrBandTxMemory() && !m_tune) {
@@ -4576,6 +4577,7 @@ void MainWindow::band_changed (Frequency f)
     if (m_astroWidget) m_astroWidget->nominal_frequency (m_freqNominal, m_freqTxNominal);
     setRig ();
     setXIT (ui->TxFreqSpinBox->value ());
+    if(monitor_off) monitor(false);
   }
 }
 
