@@ -2360,7 +2360,7 @@ void MainWindow::writeAllTxt(QString message)
       if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
         QTextStream out(&f);
         if(m_RxLog==1) {
-          out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
+          out << QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm")
               << "  " << qSetRealNumberPrecision (12) << (m_freqNominal / 1.e6) << " MHz  "
               << m_mode << endl;
           m_RxLog=0;
@@ -2437,7 +2437,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
         QTextStream out(&f);
         if(m_RxLog==1) {
-          out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
+          out << QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm")
               << "  " << qSetRealNumberPrecision (12) << (m_freqNominal / 1.e6) << " MHz  "
               << m_mode << endl;
           m_RxLog=0;
@@ -4911,7 +4911,7 @@ void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const&
               QFile f2 {m_dataDir.absoluteFilePath ("ALL.TXT")};
               if (f2.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
                 QTextStream out(&f2);
-                out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
+                out << QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm")
                     << "  " << qSetRealNumberPrecision (12) << (m_freqNominal / 1.e6) << " MHz  "
                     << m_mode << endl;
                 f2.close();
