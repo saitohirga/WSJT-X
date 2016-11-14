@@ -1,6 +1,28 @@
-Example:
+$ qra64_nico -h
 
-qra64 -a2 -t2 -b10.0 -m1 -q2 -s-28.0
+QRA64 Mode Tests
+2016, Nico Palermo - IV3NWV
+
+---------------------------
+
+Syntax: qra64 [-s<snrdb>] [-c<channel>] [-a<ap-type>] [-t<testtype>] [-h]
+Options:
+       -s<snrdb>   : set simulation SNR in 2500 Hz BW (default:-27.5 dB)
+       -c<channel> : set channel type 0=AWGN (default) 1=Rayleigh
+       -a<ap-type> : set decode type 0=NOAP 1=AUTOAP (default) 2=USERAP
+       -t<testtype>: 0=simulate seq of msgs between IV3NWV and K1JT (default)
+                     1=simulate K1JT receiving K1JT IV3NWV JN66
+                     2=simulate fast-fading routines (option -c ignored)
+Options used only for fast-fading simulations:
+       -b          : 90% fading bandwidth in Hz [1..230 Hz] (default = 2.5 Hz)
+       -m          : fading model. 0=Gauss, 1=Lorentz (default = Lorentz)
+       -q          : qra64 submode. 0=QRA64A,... 4=QRA64E (default = QRA64A)
+       -h: this help
+
+
+#############################################################################
+
+$ qra64 -a2 -t2 -b10.0 -m1 -q2 -s-28.0
 
 Simulate fast-fading decoding (-t2) with 
 USER_AP (-a2)
