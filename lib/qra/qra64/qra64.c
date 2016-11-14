@@ -40,7 +40,7 @@ resulting code is a (12,63) code
 #include "../qracodes/qracodes.h"
 #include "../qracodes/qra13_64_64_irr_e.h"
 #include "../qracodes/pdmath.h"
-#include "../qracodes/normrnd.h"
+//#include "../qracodes/normrnd.h"
 
 // Code parameters of the QRA64 mode 
 #define QRA64_CODE  qra_13_64_64_irr_e
@@ -526,7 +526,7 @@ int qra64_decode_fastfading(
 }
 
 
-
+/*
 int qra64_fastfading_channel(float **rxen, const int *xmsg, const int submode, const float EbN0dB, const float B90, const int fadingModel)
 {
 	// Simulate transmission over a fading channel and non coherent detection
@@ -647,7 +647,7 @@ int qra64_fastfading_channel(float **rxen, const int *xmsg, const int submode, c
 
 	return 0;	
 }
-
+*/
 
 
 // Static functions definitions ----------------------------------------------
