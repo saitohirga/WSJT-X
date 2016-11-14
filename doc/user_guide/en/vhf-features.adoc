@@ -209,20 +209,22 @@ To configure _WSJT-X_ for MSK144 operation:
 
 - To match decoding depth to your computer's capability, click
 *Monitor* (if it's not already green) to start a receiving sequence.
-Observe the percentage of CPU usage displayed on the _Receiving_ label
-in the Status Bar:
+Observe the percentage figure displayed on the _Receiving_ label in
+the Status Bar:
 
 image::Rx_pct_MSK144.png[align="center",alt="MSK144 Percent CPU"]
 
-- The displayed number (here 17%) indicates the fraction of CPU
-capability being used by the MSK144 real-time decoder.  If it is well
-below 100% you may increase the decoding depth from *Fast* to *Normal*
-or *Deep*, and increase *F Tol* from 100 to 200 Hz.
+- The displayed number (here 17%) indicates the fraction of available
+time being used for execution of the MSK144 real-time decoder.  If
+this number is well below 100% you may increase the decoding depth
+from *Fast* to *Normal* or *Deep*, and increase *F Tol* from 100 to
+200 Hz.
 
-NOTE: Most modern multi-core computers can easily handle the
-optimum parameters *Deep* and *F Tol 200*.  Older and slower machines
-may not be able to keep up at these settings; in that case there will
-be a modest loss in decoding capability for the weakest pings.
+NOTE: Most modern multi-core computers can easily handle the optimum
+parameters *Deep* and *F Tol 200*.  Older and slower machines may not
+be able to keep up at these settings; at the *Fast* and *Normal*
+settings there will be a small loss in decoding capability (relative
+to *Deep*) for the weakest pings.
 
 - T/R sequences of 15 seconds or less requires selecting your
 transmitted messages very quickly.  Check *Auto Seq* to have the
