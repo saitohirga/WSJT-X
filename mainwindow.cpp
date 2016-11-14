@@ -2966,6 +2966,10 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
+    QString txFreq;
+    txFreq.sprintf("R: %.3f  T: %.3f  C: %.3f",m_freqNominal/1000000.0,
+                   m_freqTxNominal/1000000.0,m_callingFrequency/1000000.0);
+    auto_tx_label.setText(txFreq);
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
       if(!m_bVHFwarned) vhfWarning();
     } else {
@@ -3202,7 +3206,7 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   QString t;                         //Full contents
   if(m_mode=="ISCAT") {
     MessageBox::information_message (this,
-                                     "Double-click not presently implemented for ISCAT mode");
+        "Double-click not presently implemented for ISCAT mode");
   }
 
   if(shift) t="";                    //Silence compiler warning
@@ -3283,18 +3287,16 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   if(t4.size () < 6) return;             //Skip the rest if no decoded text
 
   int frequency = decodedtext.frequencyOffset();
-  if (ui->RxFreqSpinBox->isEnabled () and m_mode != "MSK144")
-    {
-      ui->RxFreqSpinBox->setValue (frequency);    //Set Rx freq
+  if (ui->RxFreqSpinBox->isEnabled () and m_mode != "MSK144") {
+    ui->RxFreqSpinBox->setValue (frequency);    //Set Rx freq
+  }
+
+  if(decodedtext.isTX() and !m_config.enable_VHF_features()) {
+    if (ctrl && ui->TxFreqSpinBox->isEnabled()) {
+      ui->TxFreqSpinBox->setValue(frequency); //Set Tx freq
     }
-  if (decodedtext.isTX())
-    {
-      if (ctrl && ui->TxFreqSpinBox->isEnabled ())
-        {
-          ui->TxFreqSpinBox->setValue(frequency); //Set Tx freq
-        }
-      return;
-    }
+    return;
+  }
 
   int nmod=ntsec % (2*m_TRperiod);
   m_txFirst=(nmod!=0);
@@ -3333,9 +3335,9 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   }
 
   QString firstcall = decodedtext.call();
-  if(!m_bFastMode) {
-  // Don't change Tx freq if in a fast mode; also not if a station is calling me,
-  // unless m_lockTxFreq is true or CTRL is held down
+  if(!m_bFastMode and !m_config.enable_VHF_features()) {
+  // Don't change Tx freq if in a fast mode, or VHF features enabled; also not if a
+  // station is calling me, unless m_lockTxFreq is true or CTRL is held down.
     if ((firstcall!=m_config.my_callsign () and firstcall != m_baseCall) or
         m_lockTxFreq or ctrl) {
       if (ui->TxFreqSpinBox->isEnabled ()) {
