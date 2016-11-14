@@ -5776,7 +5776,7 @@ void MainWindow::setRig ()
 {
   if(m_transmitting && !m_config.tx_QSY_allowed ()) return;
   if ((m_monitoring || m_transmitting)
-      && m_config.is_transceiver_online ())
+      && m_config.transceiver_online ())
     {
       if(m_transmitting && m_config.split_mode ())
         {
