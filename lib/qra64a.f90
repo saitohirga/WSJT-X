@@ -29,9 +29,13 @@ subroutine qra64a(dd,nutc,nf1,nf2,nfqso,ntol,mode64,mycall_12,hiscall_12,   &
   call packcall(mycall,nc1,ltext)
   call packcall(hiscall,nc2,ltext)
   call packgrid(hisgrid,ng2,ltext)
-  nSubmode=nint(log(float(mode64)/log(2.0)))
+  nSubmode=0
+  if(mode64.eq.2) nSubmode=1
+  if(mode64.eq.4) nSubmode=2
+  if(mode64.eq.8) nSubmode=3
+  if(mode64.eq.16) nSubmode=4
   b90=1.0
-  nFadingModel=0
+  nFadingModel=1
   if(nc1.ne.nc1z .or. nc2.ne.nc2z .or. ng2.ne.ng2z) then
      do naptype=0,5
         call qra64_dec(s3,nc1,nc2,ng2,naptype,1,nSubmode,b90,      &
