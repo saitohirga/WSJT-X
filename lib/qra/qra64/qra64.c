@@ -40,7 +40,7 @@ resulting code is a (12,63) code
 #include "../qracodes/qracodes.h"
 #include "../qracodes/qra13_64_64_irr_e.h"
 #include "../qracodes/pdmath.h"
-//#include "../qracodes/normrnd.h"
+#include "../qracodes/normrnd.h"
 
 // Code parameters of the QRA64 mode 
 #define QRA64_CODE  qra_13_64_64_irr_e
