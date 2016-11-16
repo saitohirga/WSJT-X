@@ -23,7 +23,7 @@ program jt9
   integer :: arglen,stat,offset,remain,mode=0,flow=200,fsplit=2700,          &
        fhigh=4000,nrxfreq=1500,ntrperiod=1,ndepth=1,nexp_decode=0
   logical :: read_files = .true., tx9 = .false., display_help = .false.
-  type (option) :: long_options(23) = [ &
+  type (option) :: long_options(24) = [ &
     option ('help', .false., 'h', 'Display this help message', ''),          &
     option ('shmem',.true.,'s','Use shared memory for sample data','KEY'),   &
     option ('tr-period', .true., 'p', 'Tx/Rx period, default MINUTES=1',     &
@@ -51,6 +51,7 @@ program jt9
     option ('jt65', .false., '6', 'JT65 mode', ''),                          &
     option ('jt9', .false., '9', 'JT9 mode', ''),                            &
     option ('jt4', .false., '4', 'JT4 mode', ''),                            &
+    option ('qra64', .false., 'q', 'QRA64 mode', ''),                        &
     option ('sub-mode', .true., 'b', 'Sub mode, default SUBMODE=A', 'A'),    &
     option ('depth', .true., 'd',                                            &
         'JT9 decoding depth (1-3), default DEPTH=1', 'DEPTH'),               &
@@ -73,7 +74,7 @@ program jt9
   nsubmode = 0
 
   do
-     call getopt('hs:e:a:b:r:m:p:d:f:w:t:964TL:S:H:c:G:x:g:X:',long_options,c,   &
+     call getopt('hs:e:a:b:r:m:p:d:f:w:t:964qTL:S:H:c:G:x:g:X:',long_options,c,   &
           optarg,arglen,stat,offset,remain,.true.)
      if (stat .ne. 0) then
         exit
@@ -106,6 +107,8 @@ program jt9
            read (optarg(:arglen), *) fsplit
         case ('H')
            read (optarg(:arglen), *) fhigh
+        case ('q')
+           mode = 164
         case ('4')
            mode = 4
         case ('6')
@@ -146,7 +149,7 @@ program jt9
      end do
      go to 999
   endif
-
+  
   iret=fftwf_init_threads()            !Initialize FFTW threading 
 
 ! Default to 1 thread, but use nthreads for the big ones
@@ -255,9 +258,12 @@ program jt9
      shared_data%params%ndepth=ndepth
      shared_data%params%dttol=3.
 
-     shared_data%params%minsync=-1      !### TEST ONLY
-     shared_data%params%nfqso=1500      !### TEST ONLY
-     mycall="K1ABC       "              !### TEST ONLY
+     shared_data%params%minsync=0       !### TEST ONLY
+!     shared_data%params%nfqso=1500      !### TEST ONLY
+     mycall="G3WDG       "              !### TEST ONLY
+     hiscall="VK7MO       "             !### TEST ONLY
+     mycall="QE37        "              !### TEST ONLY
+     if(mode.eq.164 .and. nsubmode.lt.100) nsubmode=nsubmode+100
 
      shared_data%params%naggressive=10
      shared_data%params%n2pass=1
