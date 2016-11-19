@@ -2602,6 +2602,8 @@ void MainWindow::guiUpdate()
   double tx1=0.0;
   double tx2=txDuration;
   if((icw[0]>0) and (!m_bFast9)) tx2 += icw[0]*2560.0/48000.0;  //Full length including CW ID
+  if(tx2>m_TRperiod) tx2=m_TRperiod;
+
   if(!m_txFirst and !m_mode.startsWith ("WSPR")) {
     tx1 += m_TRperiod;
     tx2 += m_TRperiod;
