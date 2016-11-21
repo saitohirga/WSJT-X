@@ -1389,7 +1389,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
 {
   // things that might change that we need know about
   auto callsign = m_config.my_callsign ();
-
+  bool bvhf0=m_config.enable_VHF_features();
   if (QDialog::Accepted == m_config.exec ()) {
     if (m_config.my_callsign () != callsign) {
       m_baseCall = Radio::base_callsign (m_config.my_callsign ());
@@ -1427,7 +1427,10 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     if(m_mode=="JT4") on_actionJT4_triggered();
     if(m_mode=="JT9") on_actionJT9_triggered();
     if(m_mode=="JT9+JT65") on_actionJT9_JT65_triggered();
-    if(m_mode=="JT65") on_actionJT65_triggered();
+    if(m_mode=="JT65") {
+      on_actionJT65_triggered();
+      if(m_config.enable_VHF_features() != bvhf0) genStdMsgs(m_rpt);
+    }
     if(m_mode=="QRA64") on_actionQRA64_triggered();
     if(m_mode=="ISCAT") on_actionISCAT_triggered();
     if(m_mode=="MSK144") on_actionMSK144_triggered();
@@ -3539,8 +3542,7 @@ void MainWindow::genStdMsgs(QString rpt)
   QString t00=t0;
   t=t0 + m_config.my_grid ().mid(0,4);
   msgtype(t, ui->tx1);
-  if(ui->cbShMsgs->isVisible() and  ui->cbShMsgs->isChecked() and
-     m_mode=="JT65") {
+  if(m_config.enable_VHF_features() and  ui->cbShMsgs->isChecked() and m_mode=="JT65") {
     t=t+" OOO";
     msgtype(t, ui->tx2);
     msgtype("RO", ui->tx3);

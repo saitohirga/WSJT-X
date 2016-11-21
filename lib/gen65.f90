@@ -46,6 +46,8 @@ subroutine gen65(msg0,ichk,msgsent,itone,itype)
      if(nspecial.eq.0) then
         call packmsg(message,dgen,itype)    !Pack message into 72 bits
         call unpackmsg(dgen,msgsent)        !Unpack to get message sent
+        msgsent(20:22)=cok
+        call fmtmsg(msgsent,iz)
         if(ichk.ne.0) go to 999             !Return if checking only
 
         call rs_encode(dgen,sent)           !Apply Reed-Solomon code
