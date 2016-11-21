@@ -259,10 +259,10 @@ program jt9
      shared_data%params%dttol=3.
 
      shared_data%params%minsync=0       !### TEST ONLY
-!     shared_data%params%nfqso=1500      !### TEST ONLY
+!     shared_data%params%nfqso=1500     !### TEST ONLY
      mycall="G3WDG       "              !### TEST ONLY
      hiscall="VK7MO       "             !### TEST ONLY
-     mycall="QE37        "              !### TEST ONLY
+     hisgrid="QE37        "             !### TEST ONLY
      if(mode.eq.164 .and. nsubmode.lt.100) nsubmode=nsubmode+100
 
      shared_data%params%naggressive=10
