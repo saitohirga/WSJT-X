@@ -22,7 +22,6 @@ subroutine genqra64(msg0,ichk,msgsent,itone,itype)
 2    itone(1)=nfreq
      write(msgsent,1000) nfreq
 1000 format(i5,' Hz')
-     print*,'aa ',msgsent
   else
      message=msg0
      do i=1,22
