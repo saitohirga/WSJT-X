@@ -27,7 +27,6 @@ program qra64sim
   call getarg(1,msg)
   call getarg(2,csubmode)
   mode64=2**(ichar(csubmode)-ichar('A'))
-  print*,csubmode,' ',mode64
   call getarg(3,arg)
   read(arg,*) nsigs
   call getarg(4,arg)

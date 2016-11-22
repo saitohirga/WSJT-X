@@ -155,12 +155,14 @@ image::JT65B.png[align="center",alt="JT65B"]
 === QRA64
 
 QRA64 is an experimental mode in the Version 1.7 alpha release of
-_WSJT-X_.  In most ways you will find operation of QRA64 similar to
-JT65.  The following screen shot shows an example of a QRA64C
-transmission from DL7YC recorded at G3WDG over the EME path at 24 GHz,
-at a time when Doppler spread on the path was 78 Hz.  The red curve
-with a peak at 967 Hz shows that the decoder has detected its
-synchronizing symbols, and the decode is successful.
+_WSJT-X_.  The mode is designed especially for EME on VHF and higher
+bands; operation is generally similar to JT65.  The following screen
+shot shows an example of a QRA64C transmission from DL7YC recorded at
+G3WDG over the EME path at 24 GHz.  Doppler spread on the path was 78
+Hz, so although the signal is reasonable strong its tones are
+broadened enough to make them hardto see on the waterfall.  The red
+curve shows that the decoder has achieved synchronization with a
+signal at about 970 Hz.
 
 image::QRA64.png[align="center",alt="QRA64"]
 
