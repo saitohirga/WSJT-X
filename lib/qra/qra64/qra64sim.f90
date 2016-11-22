@@ -70,7 +70,7 @@ program qra64sim
      do isig=1,nsigs                 !Generate requested number of sigs
         if(mod(nsigs,2).eq.0) f0=1500.0 + dfsig*(isig-0.5-nsigs/2)
         if(mod(nsigs,2).eq.1) f0=1500.0 + dfsig*(isig-(nsigs+1)/2)
-        if(mode64.ge.8) f0=700.0
+        if(nsigs.eq.1) f0=1000.0
         xsnr=snrdb
         if(snrdb.eq.0.0) xsnr=-20 - isig
 
