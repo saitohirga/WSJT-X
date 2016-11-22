@@ -818,6 +818,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_bAltV=false;
   m_bNoMoreFiles=false;
   m_bVHFwarned=false;
+  m_bDoubleClicked=false;
   m_wait=0;
   ui->txrb1->setChecked(true);
 
@@ -3231,6 +3232,7 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   if(!m_decodedText2) messages= ui->decodedTextBrowser2->toPlainText();
   if(m_decodedText2) messages= ui->decodedTextBrowser->toPlainText();
   if(ui->cbCQRx->isChecked()) m_bDoubleClickAfterCQnnn=true;
+  m_bDoubleClicked=true;
   processMessage(messages, position, ctrl);
 }
 
@@ -3504,7 +3506,8 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
       }
     }
   if(m_transmitting) m_restart=true;
-  if(m_config.quick_call()) auto_tx_mode(true);
+  if(m_config.quick_call() and m_bDoubleClicked) auto_tx_mode(true);
+  m_bDoubleClicked=false;
 }
 
 void MainWindow::genStdMsgs(QString rpt)

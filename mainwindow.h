@@ -423,6 +423,7 @@ private:
   bool    m_bAltV;
   bool    m_bNoMoreFiles;
   bool    m_bQRAsyncWarned;
+  bool    m_bDoubleClicked;
 
   float   m_pctZap;
   int			m_ihsym;
