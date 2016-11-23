@@ -239,7 +239,7 @@ contains
     integer i,nft,nap(0:11)
     logical is_deep,is_average
     character decoded*22,csync*2,cflags*3
-    data nap/0,2,4,2,4,5,2,4,7,5,7,7/
+    data nap/0,2,4,2,4,5,2,4,6,5,6,6/
 
     if(width.eq.-9999.0) stop              !Silence compiler warning
 !$omp critical(decode_results)
