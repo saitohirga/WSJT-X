@@ -3506,7 +3506,8 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
       }
     }
   if(m_transmitting) m_restart=true;
-  if(m_config.quick_call() and m_bDoubleClicked) auto_tx_mode(true);
+  if(ui->cbAutoSeq->isVisible() and ui->cbAutoSeq->isChecked() and !m_bDoubleClicked) return;
+  if(m_config.quick_call()) auto_tx_mode(true);
   m_bDoubleClicked=false;
 }
 
