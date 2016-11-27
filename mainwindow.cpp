@@ -4444,6 +4444,12 @@ void MainWindow::on_actionInclude_correlation_triggered()
   ui->actionInclude_correlation->setChecked(m_ndepth&32);
 }
 
+void MainWindow::on_actionEnable_AP_DXcall_triggered()
+{
+  m_ndepth=m_ndepth ^ 64;
+  ui->actionEnable_AP_DXcall->setChecked(m_ndepth&64);
+}
+
 void MainWindow::on_inGain_valueChanged(int n)
 {
   m_inGain=n;
@@ -5218,6 +5224,7 @@ void::MainWindow::VHF_features_enabled(bool b)
   ui->actionInclude_averaging->setEnabled(b);
   ui->actionInclude_correlation->setEnabled(b);
   ui->actionMessage_averaging->setEnabled(b);
+  ui->actionEnable_AP_DXcall->setEnabled(m_mode=="QRA64");
   if(!b and m_msgAvgWidget!=NULL) {
     if(m_msgAvgWidget->isVisible()) m_msgAvgWidget->close();
   }

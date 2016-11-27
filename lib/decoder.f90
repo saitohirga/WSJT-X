@@ -236,10 +236,10 @@ contains
     integer, intent(in) :: nsum
     integer, intent(in) :: minsync
 
-    integer i,nft,nap(0:11)
+    integer i,nft,nap(-1:11)
     logical is_deep,is_average
     character decoded*22,csync*2,cflags*3
-    data nap/0,2,4,2,4,5,2,4,6,5,6,6/
+    data nap/-1,0,2,4,2,4,5,2,4,6,5,6,6/
 
     if(width.eq.-9999.0) stop              !Silence compiler warning
 !$omp critical(decode_results)
@@ -254,11 +254,11 @@ contains
        if(nft.lt.0) then
           write(*,1009) params%nutc,snr,dt,freq,csync,decoded
        else
-          write(*,1009) params%nutc,snr,dt,freq,csync,decoded,nap(nft)
-1009      format(i4.4,i4,f5.1,i5,1x,a2,1x,a22,i2)
+          write(*,1009) params%nutc,snr,dt,freq,csync,decoded,nap(nft),nft
+1009      format(i4.4,i4,f5.1,i5,1x,a2,1x,a22,i2,i3)
        endif
        write(13,1011) params%nutc,nint(sync),snr,dt,float(freq),drift,    &
-            decoded,nft
+            decoded,nap(nft),nft
 1011   format(i4.4,i4,i5,f6.2,f8.0,i4,3x,a22,' QRA64',i3)
        go to 100
     endif

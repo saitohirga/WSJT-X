@@ -218,6 +218,7 @@ private slots:
   void on_actionMessage_averaging_triggered();
   void on_actionInclude_averaging_triggered();
   void on_actionInclude_correlation_triggered();
+  void on_actionEnable_AP_DXcall_triggered();
   void VHF_features_enabled(bool b);
   void on_sbSubmode_valueChanged(int n);
   void on_cbShMsgs_toggled(bool b);

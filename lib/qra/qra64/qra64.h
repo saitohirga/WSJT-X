@@ -48,7 +48,7 @@
 #define APTYPE_MYCALL    1  // [mycall ?       ?/blank]
 #define APTYPE_HISCALL   2  // [?      hiscall ?/blank]
 #define APTYPE_BOTHCALLS 3  // [mycall hiscall ?]
-#define APTYPE_FULL	     4  // [mycall hiscall grid]
+#define APTYPE_FULL	 4  // [mycall hiscall grid]
 #define APTYPE_CQHISCALL 5  // [cq/qrz hiscall ?/blank]
 #define APTYPE_SIZE	(APTYPE_CQHISCALL+1)
 
@@ -58,9 +58,9 @@ typedef struct {
   int apmsg_set[APTYPE_SIZE];     // indicate which ap type knowledge has 
                                   // been set by the user
 // ap messages buffers
-  int apmsg_cqqrz[12];		      // [cq/qrz ?       ?/blank] 
-  int apmsg_call1[12];		      // [mycall ?       ?/blank] 
-  int apmsg_call2[12];		      // [?      hiscall ?/blank] 
+  int apmsg_cqqrz[12];		  // [cq/qrz ?       ?/blank] 
+  int apmsg_call1[12];		  // [mycall ?       ?/blank] 
+  int apmsg_call2[12];		  // [?      hiscall ?/blank] 
   int apmsg_call1_call2[12];      // [mycall hiscall ?]
   int apmsg_call1_call2_grid[12]; // [mycall hiscall grid]
   int apmsg_cq_call2[12];         // [cq     hiscall ?/blank] 
@@ -146,7 +146,7 @@ int qra64_decode_fastfading(
 				qra64codec *pcodec,		// ptr to the codec structure
 				float *ebno,			// ptr to where the estimated Eb/No value will be saved
 				int *x,					// ptr to decoded message 
-				float *rxen,		    // ptr to received symbol energies array
+				const float *rxen,		// ptr to received symbol energies array
 				const int submode,		// submode idx (0=QRA64A ... 4=QRA64E)
 				const float B90,	    // spread bandwidth (90% fractional energy)
 				const int fadingModel); // 0=Gaussian 1=Lorentzian fade model

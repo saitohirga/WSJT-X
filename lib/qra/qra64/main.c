@@ -88,6 +88,7 @@ unsigned GetTickCount(void) {
 // channel types
 #define CHANNEL_AWGN     0
 #define CHANNEL_RAYLEIGH 1
+#define CHANNEL_FASTFADE 2
 
 #define JT65_SNR_EBNO_OFFSET 29.1f		// with the synch used in JT65
 #define QRA64_SNR_EBNO_OFFSET 31.0f		// with the costas array synch 
@@ -414,17 +415,18 @@ a particular type decode among the above 6 cases succeded.
   return 0;
 }
 
-int test_fastfading(float EbNodB, float B90, int fadingModel, int submode, int apmode)
+int test_fastfading(float EbNodB, float B90, int fadingModel, int submode, int apmode, int olddec, int channel_type, int ntx)
 {
   int x[QRA64_K], xdec[QRA64_K];
   int y[QRA64_N];
   float *rx;
   float ebnodbest, ebnodbavg=0;
   int rc,k;
+  float rxolddec[QRA64_N*QRA64_M];	// holds the energies at nominal tone freqs
 
   int ndecok[12] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   int nundet = 0;
-  int ntx = 100,ndec=0;
+  int ndec=0;
 
   qra64codec *codec_iv3nwv; 
   qra64codec *codec_k1jt; 
@@ -432,21 +434,41 @@ int test_fastfading(float EbNodB, float B90, int fadingModel, int submode, int a
   codec_iv3nwv=qra64_init(QRA_NOAP);  
   codec_k1jt  =qra64_init(apmode);  
 
-  printf("\nSimulating the QRA64 decoder with fast-fading metric\n");
-  printf("B90=%.2f Hz - Fading Model=%s - Submode=QRA64%c\n\n",B90,fadingModel?"Lorentz":"Gauss",submode+'A');
+  if (channel_type==2) {	// fast-fading case
+	printf("Simulating the fast-fading channel\n");
+	printf("B90=%.2f Hz - Fading Model=%s - Submode=QRA64%c\n",B90,fadingModel?"Lorentz":"Gauss",submode+'A');
+	printf("Decoder metric = %s\n",olddec?"AWGN":"Matched to fast-fading signal");
+	}
+  else {
+    printf("Simulating the %s channel\n",channel_type?"Rayleigh block fading":"AWGN");
+	printf("Decoder metric = AWGN\n");
+	}
+
+
+  printf("\nEncoding msg [K1JT IV3NWV JN66]\n");
+  encodemsg_jt65(x,CALL_K1JT,CALL_IV3NWV,GRID_JN66);
+// printf("[");
+//  for (k=0;k<11;k++) printf("%02hX ",x[k]); printf("%02hX]\n",x[11]);
+
+  qra64_encode(codec_iv3nwv, y, x);
+  printf("%d transmissions will be simulated\n\n",ntx);
 
   if (apmode==QRA_USERAP) {
+	// This will enable K1JT's decoder to look for cq/qrz calls [CQ/QRZ ? ?/b]
+	printf("K1JT decoder enabled for [CQ    ?     ?/blank]\n");
+	qra64_apset(codec_k1jt, CALL_K1JT,0,0,APTYPE_CQQRZ);
+
 	// This will enable K1JT's decoder to look for calls directed to him [K1JT ? ?/b]
 	printf("K1JT decoder enabled for [K1JT  ?     ?/blank]\n");
 	qra64_apset(codec_k1jt, CALL_K1JT,0,0,APTYPE_MYCALL);
 
-	// This will enable K1JT's decoder to look for IV3NWV calls directed to him [K1JT IV3NWV ?/b]
-	printf("K1JT decoder enabled for [K1JT IV3NWV ?]\n");
-	qra64_apset(codec_k1jt, CALL_CQ,CALL_IV3NWV,0,APTYPE_BOTHCALLS);
-
 	// This will enable K1JT's decoder to look for msges sent by IV3NWV [? IV3NWV ?]
 	printf("K1JT decoder enabled for [?    IV3NWV ?/blank]\n");
 	qra64_apset(codec_k1jt, 0,CALL_IV3NWV,GRID_BLANK,APTYPE_HISCALL);
+
+	// This will enable K1JT's decoder to look for IV3NWV calls directed to him [K1JT IV3NWV ?/b]
+	printf("K1JT decoder enabled for [K1JT IV3NWV ?]\n");
+	qra64_apset(codec_k1jt, CALL_K1JT,CALL_IV3NWV,0,APTYPE_BOTHCALLS);
 
 	// This will enable K1JT's decoder to look for full-knowledge [K1JT IV3NWV JN66] msgs
 	printf("K1JT decoder enabled for [K1JT IV3NWV JN66]\n");
@@ -457,39 +479,84 @@ int test_fastfading(float EbNodB, float B90, int fadingModel, int submode, int a
 	qra64_apset(codec_k1jt, 0,CALL_IV3NWV,GRID_JN66,APTYPE_CQHISCALL);
 
   }
-  printf("\nEncoding msg: [K1JT IV3NWV JN66]\n");
-  encodemsg_jt65(x,CALL_K1JT,CALL_IV3NWV,GRID_JN66);
-  qra64_encode(codec_iv3nwv, y, x);
 
-  printf("Decoding with K1JT's decoder\n");
+  printf("\nNow decoding with K1JT's decoder...\n");
+/*
+  if (channel_type==2) 	// simulate a fast-faded signal
+	  printf("Simulating a fast-fading channel with given B90 and spread type\n");
+  else
+	  printf("Simulating a %s channel\n",channel_type?"Rayleigh block fading":"AWGN");
+*/
   for (k=0;k<ntx;k++) {
-    printf(".");
-	rc = qra64_fastfading_channel(&rx,y,submode,EbNodB,B90,fadingModel);
-	if (rc<0) {
-		printf("qra64_fastfading_channel error. rc=%d\n",rc);
-		return -1;
+
+	  if ((k%10)==0)
+	    printf("  %5.1f %%\r",100.0*k/ntx);
+//		printf(".");	// work in progress
+
+	if (channel_type==2) {	
+		// generate a fast-faded signal
+		rc = qra64_fastfading_channel(&rx,y,submode,EbNodB,B90,fadingModel);
+		if (rc<0) {
+			printf("\nqra64_fastfading_channel error. rc=%d\n",rc);
+			return -1;
+			}
 		}
-    rc = qra64_decode_fastfading(codec_k1jt,&ebnodbest,xdec,rx,submode,B90,fadingModel);
+	else // generate a awgn or Rayleigh block fading signal
+		rx = mfskchannel(y, channel_type, EbNodB);
+
+
+	if (channel_type==2)	// fast-fading case
+		if (olddec==1) {
+			int k, j;
+			int jj = 1<<submode;
+			int bps = QRA64_M*(2+jj);
+			float *rxbase;
+			float *out = rxolddec;
+			// calc energies at nominal freqs
+			for (k=0;k<QRA64_N;k++) {
+				rxbase = rx + QRA64_M + k*bps;
+				for (j=0;j<QRA64_M;j++) {
+					*out++=*rxbase;
+					rxbase+=jj;
+					}
+				}
+			// decode with awgn decoder
+			rc = qra64_decode(codec_k1jt,&ebnodbest,xdec,rxolddec);
+			}
+		else // use fast-fading decoder
+			rc = qra64_decode_fastfading(codec_k1jt,&ebnodbest,xdec,rx,submode,B90,fadingModel);
+	else // awgn or rayleigh channel. use the old decoder whatever the olddec option is
+		rc = qra64_decode(codec_k1jt,&ebnodbest,xdec,rx);
+
+
+
 	if (rc>=0) {
 	  ebnodbavg +=ebnodbest;
 	  if (memcmp(xdec,x,12*sizeof(int))==0)
 		ndecok[rc]++;
-	  else
-	    nundet++;
-	}
+	  else {
+		fprintf(stderr,"\nUndetected error with rc=%d\n",rc);
+		nundet++;
+		}
+	  }
+
   }
+  printf("  %5.1f %%\r",100.0*k/ntx);
+
   printf("\n\n");
 
-  printf("Transimtted msgs:%d\nDecoded msgs:\n\n",ntx);
+  printf("Msgs transmitted:%d\nMsg decoded:\n\n",ntx);
   for (k=0;k<12;k++) {
-    printf("%3d with %s\n",ndecok[k],decode_type[k]);
+    printf("rc=%2d   %3d with %s\n",k,ndecok[k],decode_type[k]);
     ndec += ndecok[k];
   }
   printf("\nTotal: %d/%d (%d undetected errors)\n\n",ndec,ntx,nundet);
   printf("");
 
-  ebnodbavg/=(ndec+nundet);
-  printf("Estimated SNR (average in dB) = %.2f dB\n\n",ebnodbavg-QRA64_SNR_EBNO_OFFSET);
+  if (ndec>0) {
+	ebnodbavg/=(ndec+nundet);
+	printf("Estimated SNR (average in dB) = %.2f dB\n\n",ebnodbavg-QRA64_SNR_EBNO_OFFSET);
+	}
 
   return 0;
 }
@@ -498,22 +565,34 @@ int test_fastfading(float EbNodB, float B90, int fadingModel, int submode, int a
 
 void syntax(void)
 {
+
   printf("\nQRA64 Mode Tests\n");
   printf("2016, Nico Palermo - IV3NWV\n\n");
   printf("---------------------------\n\n");
   printf("Syntax: qra64 [-s<snrdb>] [-c<channel>] [-a<ap-type>] [-t<testtype>] [-h]\n");
   printf("Options: \n");
   printf("       -s<snrdb>   : set simulation SNR in 2500 Hz BW (default:-27.5 dB)\n");
-  printf("       -c<channel> : set channel type 0=AWGN (default) 1=Rayleigh\n");
+  printf("       -c<channel> : set channel type 0=AWGN (default) 1=Rayleigh 2=Fast-fading\n");
   printf("       -a<ap-type> : set decode type 0=NOAP 1=AUTOAP (default) 2=USERAP\n");
   printf("       -t<testtype>: 0=simulate seq of msgs between IV3NWV and K1JT (default)\n");
   printf("                     1=simulate K1JT receiving K1JT IV3NWV JN66\n");
-  printf("                     2=simulate fast-fading routines (option -c ignored)\n");
-  printf("Options used only for fast-fading simulations:\n");
+  printf("                     2=simulate fast-fading/awgn/rayliegh decoders performance\n");
+  printf("       -n<ntx>     : simulate the transmission of ntx codewords (default=100)\n");
+
+  printf("Options used only for fast-fading simulations (-c2):\n");
   printf("       -b          : 90%% fading bandwidth in Hz [1..230 Hz] (default = 2.5 Hz)\n");
   printf("       -m          : fading model. 0=Gauss, 1=Lorentz (default = Lorentz)\n");
   printf("       -q          : qra64 submode. 0=QRA64A,... 4=QRA64E (default = QRA64A)\n");
+  printf("       -d          : use the old awgn decoder\n");
   printf("       -h: this help\n");
+  printf("Example:\n");
+  printf("        qra64 -t2 -c2 -a2 -b50 -m1 -q2 -n10000 -s-26\n");
+  printf("        runs the error performance test (-t2)\n");
+  printf("        with USER_AP (-a2)\n");
+  printf("        simulating a fast fading channel (-c2)\n");
+  printf("        with B90 = 50 Hz (-b50), Lorentz Doppler (-m1), mode QRA64C (-q2)\n");
+  printf("        ntx = 10000 codewords (-n10000) and SNR = -26 dB (-s-26)\n");
+
 }
 
 int main(int argc, char* argv[])
@@ -528,6 +607,8 @@ int main(int argc, char* argv[])
   float B90 = 2.5;
   int fadingModel = 1;
   int submode = 0;
+  int olddec = 0;
+  int ntx = 100;
 
 // Parse the command line
   while(--argc) {
@@ -538,6 +619,15 @@ int main(int argc, char* argv[])
       return 0;
 	  } 
 	else 
+	if (strncmp(*argv,"-n",2)==0) {
+		ntx = ( int)atoi((*argv)+2);
+		if (ntx<100 || ntx>1000000) {
+			printf("Invalid -n option. ntx must be in the range [100..1000000]\n");
+			syntax();
+			return -1;
+			}
+		} 
+	else
 	if (strncmp(*argv,"-a",2)==0) {
 		mode = ( int)atoi((*argv)+2);
 		if (mode>2) {
@@ -567,7 +657,7 @@ int main(int argc, char* argv[])
 	else 
 	if (strncmp(*argv,"-c",2)==0) {
 		channel = ( int)atoi((*argv)+2);
-	    if (channel>CHANNEL_RAYLEIGH) {
+	    if (channel>CHANNEL_FASTFADE) {
 			printf("Invalid channel type\n");
 			syntax();
 			return -1;
@@ -600,6 +690,10 @@ int main(int argc, char* argv[])
 			return -1;
 			}
 		}
+	else
+	if (strncmp(*argv,"-d",2)==0) {
+		olddec = 1;
+		}
 	else {
 	    printf("Invalid option\n");
 	    syntax();
@@ -607,6 +701,11 @@ int main(int argc, char* argv[])
 	    }
 	}
 
+  if (testtype<2) // old tests
+	  if (channel==CHANNEL_FASTFADE) {
+		printf("Invalid Option. Test type 0 and 1 supports only AWGN or Rayleigh Channel model\n");
+		return -1;
+		}
   
   EbNodB = SNRdB+QRA64_SNR_EBNO_OFFSET;	
   
@@ -637,11 +736,11 @@ int main(int argc, char* argv[])
 		);
 	}
   else {
-	test_fastfading(EbNodB,B90,fadingModel,submode,mode);
 	printf("Input SNR = %.1fdB ap-mode=%s\n\n",
 	 SNRdB,
 	 apmode_type[mode]
 	 );
+	test_fastfading(EbNodB,B90,fadingModel,submode,mode,olddec, channel, ntx);
   }
   return 0;
 }

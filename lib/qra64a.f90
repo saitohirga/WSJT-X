@@ -1,5 +1,5 @@
-subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,mycall_12,   &
-     hiscall_12,hisgrid_6,sync,nsnr,dtx,nfreq,decoded,nft)
+subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
+     mycall_12,hiscall_12,hisgrid_6,sync,nsnr,dtx,nfreq,decoded,nft)
 
   use packjt
   use timer_module, only: timer
@@ -12,13 +12,14 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,mycall_12,   &
   logical ltext
   complex c00(0:720000)                      !Complex spectrum of dd()
   complex c0(0:720000)                       !Complex data for dd()
-!  integer*8 count0,count1,clkfreq
   real a(3)
   real dd(NMAX)                              !Raw data sampled at 12000 Hz
   real s3(LN)                                !Symbol spectra
   real s3a(LN)                               !Symbol spectra
   integer dat4(12)                           !Decoded message (as 12 integers)
   integer dat4x(12)
+  integer nap(0:11)
+  data nap/0,2,4,2,4,5,2,4,6,5,6,6/
   data nc1z/-1/,nc2z/-1/,ng2z/-1/
   save
 
@@ -40,8 +41,11 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,mycall_12,   &
   if(mode64.eq.16) nSubmode=4
   b90=1.0
   nFadingModel=1
+  maxaptype=4
+  if(iand(ndepth,64).ne.0) maxaptype=5
   if(nc1.ne.nc1z .or. nc2.ne.nc2z .or. ng2.ne.ng2z) then
-     do naptype=0,5
+     do naptype=0,maxaptype
+        if(naptype.eq.2 .and. maxaptype.eq.4) cycle
         call qra64_dec(s3,nc1,nc2,ng2,naptype,1,nSubmode,b90,      &
              nFadingModel,dat4,snr2,irc)
      enddo
@@ -51,7 +55,6 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,mycall_12,   &
   endif
 
   maxf1=0
-!  write(60) npts,dd(1:npts),nf1,nf2,nfqso,ntol,mode64,maxf1
   call timer('sync64  ',0)
   call sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,sync,c00)
   call timer('sync64  ',1)
@@ -59,12 +62,11 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,mycall_12,   &
   if(sync.lt.float(minsync)) go to 900
   
   npts2=npts/2
-  itz=10
+  itz=11
   if(mode64.eq.4) itz=9
   if(mode64.eq.2) itz=7
   if(mode64.eq.1) itz=5
   
-  naptype=4
   LL=64*(mode64+2)
   NN=63
 !  do itry0=1,3
@@ -81,8 +83,8 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,mycall_12,   &
         a(2)=-0.67*(idf1 + 0.67*kpk)
         call twkfreq(c00,c0,npts2,6000.0,a)
         call spec64(c0,npts2,mode64,jpk,s3a,LL,NN)
-        ircmin=99
-        do iter=itz,0,-1
+        napmin=99
+        do iter=itz,0,-2
            b90=1.728**iter
            s3(1:LL*NN)=s3a(1:LL*NN)
            call timer('qra64_de',0)
@@ -91,21 +93,22 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,mycall_12,   &
            call timer('qra64_de',1)
            if(abs(snr2).gt.30.) snr2=-30.0
            if(irc.eq.0) go to 10
-           if(irc.gt.0 .and. irc.le.ircmin) then
+           if(irc.lt.0) cycle
+           if(irc.gt.0 .and. nap(irc).le.napmin) then
               dat4x=dat4
               b90x=b90
               snr2x=snr2
-              ircmin=irc
+              napmin=nap(irc)
+              irckeep=irc
            endif
         enddo
-        if(ircmin.ne.99) then
+        if(napmin.ne.99) then
               dat4=dat4x
               b90=b90x
               snr2=snr2x
-              irc=ircmin
+              irc=irckeep
         endif
 10      decoded='                      '
-!        write(73,3001) iter,b90,snr2,irc
         if(irc.ge.0) then
            call unpackmsg(dat4,decoded)           !Unpack the user message
            call fmtmsg(decoded,iz)
@@ -129,11 +132,7 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,mycall_12,   &
      if(nSubmode.eq.2) nsnr=nint(10.0*log10(sy)-34.0)   !C
      if(nSubmode.eq.3) nsnr=nint(10.0*log10(sy)-29.0)   !D
      if(nSubmode.eq.4) nsnr=nint(10.0*log10(sy)-24.0)   !E
-  endif
-
-!  write(70,3303) sync,snr2,nsnr,irc
-!3303 format(2f8.1,2i5)
-  
+  endif  
   call timer('qra64a  ',1)
 
   return

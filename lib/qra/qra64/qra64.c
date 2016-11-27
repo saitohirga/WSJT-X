@@ -58,19 +58,22 @@ static int qra64_decode_attempts(qra64codec *pcodec, int *xdec, const float *ix)
 static int qra64_do_decode(int *x, const float *pix, const int *ap_mask, 
 			    const int *ap_x);
 static float qra64_fastfading_estim_noise_std(
-				float *rxen, 
+				const float *rxen, 
 				const float esnometric, 
 				const int submode);
+
 static void qra64_fastfading_intrinsics(
 				float *pix, 
-				const float *rxamp, 
+				const float *rxen, 
 				const float *hptr, 
 				const int    hlen, 
-				const float cmetric, 
+				const float sigma,
+				const float EsNoMetric, 
 				const int submode);
+
 static float qra64_fastfading_msg_esno(
 			const int *ydec,
-			const float *rxamp, 
+			const float *rxen, 
 			const float sigma,
 			const float EsNoMetric,
 			const int hlen, 
@@ -78,13 +81,30 @@ static float qra64_fastfading_msg_esno(
 
 
 // a-priori information masks for fields in JT65-like msgs --------------------
-#define MASK_CQQRZ      0xFFFFFFC // CQ/QRZ calls common bits
+
+// when defined limits the AP masks to reduce the false decode rate
+#define LIMIT_AP_MASKS
+
+#ifdef LIMIT_AP_MASKS
+#define MASK_CQQRZ      0xFFFFFFC 
+#define MASK_CALL1      0xFFFFFFC
+#define MASK_CALL2      0xFFFFFFC
+#define MASK_GRIDFULL	0x3FFC
+#define MASK_GRIDFULL12	0x3FFC	  
+#define MASK_GRIDBIT	0x8000	  
+#else
+#define MASK_CQQRZ      0xFFFFFFC 
 #define MASK_CALL1      0xFFFFFFF
 #define MASK_CALL2      0xFFFFFFF
 #define MASK_GRIDFULL	0xFFFF
-#define MASK_GRIDFULL12	0x3FFC	  // less aggressive mask (to be used with full AP decoding)
+#define MASK_GRIDFULL12	0x3FFC	  
 #define MASK_GRIDBIT	0x8000	  // b[15] is 1 for free text, 0 otherwise
+#endif
+
 // ----------------------------------------------------------------------------
+
+
+
 
 qra64codec *qra64_init(int flags)
 {
@@ -248,6 +268,7 @@ void qra64_encode(qra64codec *pcodec, int *y, const int *x)
 }
 
 #define EBNO_MIN -10.0f		// minimum Eb/No value returned by the decoder (in dB)
+// AWGN metric decoder
 int qra64_decode(qra64codec *pcodec, float *ebno, int *x, const float *rxen)
 {
   int k;
@@ -336,18 +357,21 @@ int qra64_decode(qra64codec *pcodec, float *ebno, int *x, const float *rxen)
   return rc;	
 }
 
-// Tables of fading amplitudes coefficients for QRA64 (Ts=6912/12000)
+//
+// Fast-fading / Rayleigh channel metric decoder ----------------------------------------------
+//
+// Tables of fading energies coefficients for QRA64 (Ts=6912/12000)
 // As the fading is assumed to be symmetric around the nominal frequency
 // only the leftmost and the central coefficient are stored in the tables.
-// (files have been generated with the Matlab code efgengauss.m and efgenlorentz.m)
-#include "fadampgauss.c"
-#include "fadamplorentz.c"
+// (files have been generated with the Matlab code efgengaussenergy.m and efgenlorentzenergy.m)
+#include "fadengauss.c"
+#include "fadenlorentz.c"
 
 int qra64_decode_fastfading(
 				qra64codec *pcodec,		// ptr to the codec structure
 				float *ebno,			// ptr to where the estimated Eb/No value will be saved
 				int *x,					// ptr to decoded message 
-				float *rxen,		    // ptr to received symbol energies array
+				const float *rxen,		// ptr to received symbol energies array
 				const int submode,		// submode idx (0=QRA64A ... 4=QRA64E)
 				const float B90,	    // spread bandwidth (90% fractional energy)
 				const int fadingModel)  // 0=Gaussian 1=Lorentzian fade model
@@ -413,7 +437,8 @@ int qra64_decode_fastfading(
   float noisestd;					// estimated noise std
   float esno,ebnoval;				// estimated Eb/No
   float tempf;
-  float EsNoMetric, cmetric;
+  float EsNoMetric;
+
   int rc;
   int hidx, hlen;
   const float *hptr;
@@ -434,14 +459,14 @@ int qra64_decode_fastfading(
 		return -19;				// index of weighting function out of range
 
 	if (fadingModel==0) {	 // gaussian fading model
-		// point to gaussian weighting taps
-		hlen = hlen_tab_gauss[hidx];	 // hlen = (L+1)/2 (where L=(odd) number of taps of w fun)
-		hptr = hptr_tab_gauss[hidx];     // pointer to the first (L+1)/2 coefficients of w fun
+		// point to gaussian energy weighting taps
+		hlen = glen_tab_gauss[hidx];	 // hlen = (L+1)/2 (where L=(odd) number of taps of w fun)
+		hptr = gptr_tab_gauss[hidx];     // pointer to the first (L+1)/2 coefficients of w fun
 		}
 	else if (fadingModel==1) {
-		// point to lorentzian weighting taps
-		hlen = hlen_tab_lorentz[hidx];	 // hlen = (L+1)/2 (where L=(odd) number of taps of w fun)
-		hptr = hptr_tab_lorentz[hidx];     // pointer to the first (L+1)/2 coefficients of w fun
+		// point to lorentzian energy weighting taps
+		hlen = glen_tab_lorentz[hidx];	 // hlen = (L+1)/2 (where L=(odd) number of taps of w fun)
+		hptr = gptr_tab_lorentz[hidx];     // pointer to the first (L+1)/2 coefficients of w fun
 		}
 	else 
 		return -20;			// invalid fading model index
@@ -455,18 +480,15 @@ int qra64_decode_fastfading(
 	tempf = 8.0f*(float)log((float)B90)/(float)log(240.0f);
 	EsNoMetric = pcodec->decEsNoMetric*(float)pow(10.0f,tempf/10.0f);
 
+
+
 	// Step 1 ----------------------------------------------------------------------------------- 
 	// Evaluate the noise stdev from the received energies at nominal tone frequencies
-    // and transform energies to amplitudes
-	tempf = hptr[hlen-1];				// amplitude weigth at nominal freq;
-	tempf = tempf*tempf;				// fractional energy at nominal freq. bin
-	
 	noisestd = qra64_fastfading_estim_noise_std(rxen, EsNoMetric, submode);
-	cmetric = (float)sqrt(M_PI_2*EsNoMetric)/noisestd;
 
 	// Step 2 -----------------------------------------------------------------------------------
 	// Compute message symbols probability distributions
-	qra64_fastfading_intrinsics(ix, rxen, hptr, hlen, cmetric, submode);
+	qra64_fastfading_intrinsics(ix, rxen, hptr, hlen, noisestd, EsNoMetric, submode);
 
 	// Step 3 ---------------------------------------------------------------------------
 	// De-puncture observations adding a uniform distribution for the crc symbol
@@ -508,7 +530,7 @@ int qra64_decode_fastfading(
 	// we could compute the unbiased esno with:
 	// esno = esno/0.9;
 	
-	// this would be the exact value if the noisestd were not overestimated at high Eb/No
+	// Es/N0 --> Eb/N0 conversion
 	ebnoval = 1.0f/(1.0f*QRA64_K/QRA64_N*QRA64_m)*esno; 
 
 	// compute value in dB
@@ -526,7 +548,7 @@ int qra64_decode_fastfading(
 }
 
 
-/*
+
 int qra64_fastfading_channel(float **rxen, const int *xmsg, const int submode, const float EbN0dB, const float B90, const int fadingModel)
 {
 	// Simulate transmission over a fading channel and non coherent detection
@@ -548,10 +570,9 @@ int qra64_fastfading_channel(float **rxen, const int *xmsg, const int submode, c
 
 	float iq[2];
 	float *curi, *curq;
+	float sigmasig[65];	// signal standard deviation taps
 
-//	float tote=0;	// debug
-
-	float N0, EsN0, Es, A, sigmanoise, sigmasig;
+	float N0, EsN0, Es, sigmanoise;
 
 	if (rxen==NULL)
 		return -1;		// rxen must be a non-null ptr 
@@ -575,7 +596,7 @@ int qra64_fastfading_channel(float **rxen, const int *xmsg, const int submode, c
 	if (B90<1.0f || B90>238.0f)	
 		return -18;				// B90 out of range
 
-	// compute index to most appropriate amplitude weighting function coefficients
+	// compute index to most appropriate energy weighting function coefficients
     hidx = (int)(log((float)B90)/log(1.09f) - 0.499f);
 
 	if (hidx<0 || hidx > 64) 
@@ -583,13 +604,13 @@ int qra64_fastfading_channel(float **rxen, const int *xmsg, const int submode, c
 
 	if (fadingModel==0) {	 // gaussian fading model
 		// point to gaussian weighting taps
-		hlen = hlen_tab_gauss[hidx];	 // hlen = (L+1)/2 (where L=(odd) number of taps of w fun)
-		hptr = hptr_tab_gauss[hidx];     // pointer to the first (L+1)/2 coefficients of w fun
+		hlen = glen_tab_gauss[hidx];	 // hlen = (L+1)/2 (where L=(odd) number of taps of w fun)
+		hptr = gptr_tab_gauss[hidx];     // pointer to the first (L+1)/2 coefficients of w fun
 		}
 	else if (fadingModel==1) {
 		// point to lorentzian weighting taps
-		hlen = hlen_tab_lorentz[hidx];	 // hlen = (L+1)/2 (where L=(odd) number of taps of w fun)
-		hptr = hptr_tab_lorentz[hidx];     // pointer to the first (L+1)/2 coefficients of w fun
+		hlen = glen_tab_lorentz[hidx];	 // hlen = (L+1)/2 (where L=(odd) number of taps of w fun)
+		hptr = gptr_tab_lorentz[hidx];     // pointer to the first (L+1)/2 coefficients of w fun
 		}
 	else 
 		return -20;			// invalid fading model index
@@ -600,13 +621,15 @@ int qra64_fastfading_channel(float **rxen, const int *xmsg, const int submode, c
 	sigmanoise = (float)sqrt(N0/2);
 	EsN0 = (float)pow(10.0f,EbN0dB/10.0f)*QRA64_m*QRA64_K/QRA64_N; // Es/No = m*R*Eb/No
 	Es   = EsN0*N0;
-	A    = (float)sqrt(Es/2.0f);	// unfaded tone amplitude (i^2+q^2 = Es/2+Es/2 = Es)
 
+	// compute signal bin sigmas
+	for (n=0;n<hlen;n++)
+		sigmasig[n] = (float)sqrt(hptr[n]*Es/2.0f);
 
 	// Generate gaussian noise iq components
 	normrnd_s(channel_out, bpm*2, 0 , sigmanoise);
 
-	// Add message symbols energies
+	// Add symbols, bin by bin energies
 	for (n=0;n<QRA64_N;n++) {					
 
 		cursym  = channel_out+n*bps + QRA64_M; // point to n-th symbol
@@ -616,25 +639,17 @@ int qra64_fastfading_channel(float **rxen, const int *xmsg, const int submode, c
 		
 		// generate Rayleigh faded bins with given average energy and add to noise
 		for (j=0;j<hlen;j++) {	
-			sigmasig = A*hptr[j];
-			normrnd_s(iq, 2, 0 , sigmasig);
-//			iq[0]=sigmasig*sqrt(2); iq[1]=0;	debug: used to verify Eb/No 
+			normrnd_s(iq, 2, 0 , sigmasig[j]);
 			*curi++ += iq[0];
 			*curq++ += iq[1];
-//			tote +=iq[0]*iq[0]+iq[1]*iq[1];		// debug
 			}
 		for (j=hlen-2;j>=0;j--) {	
-			sigmasig = A*hptr[j];
-			normrnd_s(iq, 2, 0 , sigmasig);
-//			iq[0]=sigmasig*sqrt(2); iq[1]=0;	debug: used to verify Eb/No
+			normrnd_s(iq, 2, 0 , sigmasig[j]);
 			*curi++ += iq[0];
 			*curq++ += iq[1];
-//			tote +=iq[0]*iq[0]+iq[1]*iq[1];		// debug
 			}
 
 		}
-
-//	tote = tote/QRA64_N;	// debug
 
 	// compute total bin energies (S+N) and store in first half of buffer
 	curi = channel_out;
@@ -647,14 +662,14 @@ int qra64_fastfading_channel(float **rxen, const int *xmsg, const int submode, c
 
 	return 0;	
 }
-*/
+
 
 
 // Static functions definitions ----------------------------------------------
 
 // fast-fading static functions --------------------------------------------------------------
 
-static float qra64_fastfading_estim_noise_std(float *rxen, const float esnometric, const int submode)
+static float qra64_fastfading_estim_noise_std(const float *rxen, const float esnometric, const int submode)
 {
 	// estimate the noise standard deviation from nominal frequency symbol bins
 	// transform energies to amplitudes
@@ -671,11 +686,9 @@ static float qra64_fastfading_estim_noise_std(float *rxen, const float esnometri
 
 	// estimate noise std
 	sigmaest = 0;
-	for (k=0;k<bpm;k++) {
+	for (k=0;k<bpm;k++) 
 		sigmaest += rxen[k];
-		// convert energies to amplitudes for later use
-		rxen[k] = (float)sqrt(rxen[k]);	// we do it in place to avoid memory allocations
-		}
+
 	sigmaest = sigmaest/bpm;
 	sigmaest = (float)sqrt(sigmaest/(1.0f+esnometric/bps)/2.0f); 
 
@@ -686,52 +699,55 @@ static float qra64_fastfading_estim_noise_std(float *rxen, const float esnometri
 
 static void qra64_fastfading_intrinsics(
 				float *pix, 
-				const float *rxamp, 
+				const float *rxen, 
 				const float *hptr, 
 				const int    hlen, 
-				const float cmetric, 
+				const float sigmaest,
+				const float EsNoMetric, 
 				const int submode)
 {
 
 	// For each symbol in a message:
 	// a) Compute tones loglikelihoods as a sum of products between of the expected 
-	// amplitude fading coefficient and received amplitudes.
-	// Each product is computed as log(I0(hk*xk*cmetric)) where hk is the average fading amplitude,
-	// xk is the received amplitude at bin offset k, and cmetric is a constant dependend on the
-	// Eb/N0 value for which the metric is optimized
-	// The function y = log(I0(x)) is approximated as y = x^2/(x+e)
+	// energy fading coefficient and received energies.
 	// b) Compute intrinsic symbols probability distributions from symbols loglikelihoods
 
 	int n,k,j, bps, bpt;
 	const float *cursym, *curbin;
 	float *curix;
-	float u, maxloglh, loglh, sumix;
+	float u, maxloglh, loglh, sumix,hh;
+	float w[65];
+	int hhsz  = hlen-1;
+	int hlast = 2*hhsz;
+	float npwrest = 2.0f*sigmaest*sigmaest;
 
 	bpt = 1<<submode;				// bins per tone
 	bps = QRA64_M*(2+bpt);			// bins per symbol
 
+	u = EsNoMetric;
+	// compute weights from energy tables
+	for (j=0;j<hlen;j++) {	
+		hh = hptr[j]*u; 
+		w[j] = hh/(1+hh)/npwrest;
+		}
+
 	for (n=0;n<QRA64_N;n++) {			// for each symbol in the message
-		cursym = rxamp+n*bps + QRA64_M;	// point to current symbol nominal bin
+		cursym = rxen+n*bps + QRA64_M;	// point to current symbol nominal bin
 		maxloglh = 0;
 		curix  = pix+n*QRA64_M;		
 		for (k=0;k<QRA64_M;k++) {   // for each tone in the current symbol
-			curbin = cursym + k*bpt -hlen+1;	// ptr to lowest bin of the current tone
-			// compute tone loglikelihood as a weighted sum of bins loglikelihoods
+			curbin = cursym + k*bpt -hlen+1;
+			// compute tone loglikelihood (symmetric fir with given weights)
 			loglh = 0.f;
-			for (j=0;j<hlen;j++) {	
-				u = *curbin++ * hptr[j]*cmetric;
-				u = u*u/(u+(float)M_E);	// log(I0(u)) approx.
-				loglh = loglh + u;	
-				}
-			for (j=hlen-2;j>=0;j--) {	
-				u = *curbin++ * hptr[j]*cmetric;
-				u = u*u/(u+(float)M_E);	// log(I0(u)) approx.
-				loglh = loglh + u;
-				}
+			for (j=0;j<hhsz;j++) 
+				loglh += w[j]*(curbin[j] + curbin[hlast-j]);	
+			loglh += w[hhsz]*curbin[hhsz];
+
 			if (loglh>maxloglh)		// keep track of the max loglikelihood
 				maxloglh = loglh;
 			curix[k]=loglh;
 			}
+
 		// scale to likelihoods
 		sumix = 0.f;
 		for (k=0;k<QRA64_M;k++) {   
@@ -748,7 +764,7 @@ static void qra64_fastfading_intrinsics(
 
 static float qra64_fastfading_msg_esno(
 			const int *ydec,
-			const float *rxamp, 
+			const float *rxen, 
 			const float sigma,
 			const float EsNoMetric,
 			const int hlen, 
@@ -766,19 +782,13 @@ static float qra64_fastfading_msg_esno(
 
 	msgsn = 0;
 	for (n=0;n<QRA64_N;n++) {					
-		cursym  = rxamp+n*bps + QRA64_M; // point to n-th symbol amplitudes
+		cursym  = rxen+n*bps + QRA64_M; // point to n-th symbol amplitudes
 		curtone = cursym+ydec[n]*bpt;	 // point to decoded tone amplitudes
 		curbin  = curtone-hlen+1;		 // point to first bin amplitude
 		
 		// sum bin energies
-		for (j=0;j<hlen;j++) {	
-			u = *curbin++; 
-			msgsn += u*u;	
-			}
-		for (j=hlen-2;j>=0;j--) {	
-			u = *curbin++; 
-			msgsn += u*u;	
-			}
+		for (j=0;j<tothlen;j++)
+			msgsn += curbin[j];		
 
 		}
 
@@ -809,6 +819,39 @@ static float qra64_fastfading_msg_esno(
 
 }
 
+#ifdef LIMIT_AP_MASKS
+
+static int call1_match(const int *papmsg, const int *pdec)
+{
+	// assumes MASK_CALL1   =   0xFFFFFFC
+	int u = papmsg[4]^pdec[4];
+	return (u&0x3C)==0;
+}
+static int call2_match(const int *papmsg, const int *pdec)
+{
+	// assumes MASK_CALL2   =   0xFFFFFFC
+	int u = papmsg[9]^pdec[9];
+	return  (u&0x30)==0;
+}
+static int grid_match(const int *papmsg, const int *pdec)
+{
+	// assumes MASK_GRIDFULL =	0x3FFC
+	int u = papmsg[11]^pdec[11];
+	int rc = (u&0x03)==0;
+
+	u = papmsg[9]^pdec[9];
+
+	return (u&0x0C)==0 && rc;
+}
+
+#else
+#define call1_match(a,b) (1)
+#define call2_match(a,b) (1)
+#define grid_match(a,b) (1)
+#endif
+
+
+
 
 // Attempt to decode given intrisic information
 static int qra64_decode_attempts(qra64codec *pcodec, int *xdec, const float *ix)
@@ -826,39 +869,64 @@ static int qra64_decode_attempts(qra64codec *pcodec, int *xdec, const float *ix)
 
   // Here we handle decoding with AP knowledge
 
+
   // Attempt to decode CQ calls
   rc = qra64_do_decode(xdec,ix,pcodec->apmask_cqqrz, pcodec->apmsg_cqqrz); 
-  if (rc>=0) return 1;    // decoded [cq/qrz ? ?]
+  if (rc>=0) 
+	  return 1;    // decoded [cq/qrz ? ?]
 
   rc = qra64_do_decode(xdec, ix, pcodec->apmask_cqqrz_ooo, 
 		       pcodec->apmsg_cqqrz);	                        
-  if (rc>=0) return 2;    // decoded [cq ? ooo]
+  if (rc>=0) 
+	  // check that ooo really matches
+	  if (grid_match(pcodec->apmsg_cqqrz,xdec))
+		  return 2;    // decoded [cq/qrz ? ooo]
 
   // attempt to decode calls directed to us 
   if (pcodec->apmsg_set[APTYPE_MYCALL]) {
 	rc = qra64_do_decode(xdec, ix, pcodec->apmask_call1, 
 		       pcodec->apmsg_call1);		                
-	if (rc>=0) return 3;    // decoded [mycall ? ?]
+	if (rc>=0) 
+		// check that mycall really matches
+		if (call1_match(pcodec->apmsg_call1,xdec))
+			return 3;    // decoded [mycall ? ?]
+
 	rc = qra64_do_decode(xdec, ix, pcodec->apmask_call1_ooo, 
 		       pcodec->apmsg_call1);	                    
-	if (rc>=0) return 4;    // decoded [mycall ? ooo]
+	if (rc>=0) 
+		// check that mycall and ooo really match
+		if (call1_match(pcodec->apmsg_call1,xdec) && 
+			grid_match(pcodec->apmsg_call1,xdec))
+			return 4;    // decoded [mycall ? ooo]
 	}
 
-  // attempt to decode [mycall srccall ?] msgs
+  // attempt to decode [mycall hiscall ?] msgs
   if (pcodec->apmsg_set[APTYPE_BOTHCALLS]) {
 	rc = qra64_do_decode(xdec, ix, pcodec->apmask_call1_call2, 
 		       pcodec->apmsg_call1_call2);	                
-	if (rc>=0) return 5;    // decoded [mycall srccall ?]	
+	if (rc>=0) 
+		// check that mycall and hiscall really match
+		if (call1_match(pcodec->apmsg_call1_call2,xdec) && 
+			call2_match(pcodec->apmsg_call1_call2,xdec))
+			return 5;    // decoded [mycall srccall ?]	
 	}
 
   // attempt to decode [? hiscall ?/b] msgs
   if (pcodec->apmsg_set[APTYPE_HISCALL]) {
 	rc = qra64_do_decode(xdec, ix, pcodec->apmask_call2, 
 		       pcodec->apmsg_call2);		                
-	if (rc>=0) return 6;    // decoded [? hiscall ?]
+	if (rc>=0) 
+		// check that hiscall really match
+		if (call2_match(pcodec->apmsg_call2,xdec))
+			return 6;    // decoded [? hiscall ?]
+
 	rc = qra64_do_decode(xdec, ix, pcodec->apmask_call2_ooo, 
 		       pcodec->apmsg_call2);	                    
-	if (rc>=0) return 7;    // decoded [? hiscall ooo]
+	if (rc>=0) 
+		// check that hiscall and ooo match
+		if (call2_match(pcodec->apmsg_call2,xdec) &&
+			grid_match(pcodec->apmsg_call2,xdec))
+			return 7;    // decoded [? hiscall ooo]
 	}
 
   // attempt to decode [cq/qrz hiscall ?/b/grid] msgs
@@ -866,7 +934,10 @@ static int qra64_decode_attempts(qra64codec *pcodec, int *xdec, const float *ix)
 
 	rc = qra64_do_decode(xdec, ix, pcodec->apmask_cq_call2, 
 				pcodec->apmsg_cq_call2);		                
-	if (rc>=0) return 9;	// decoded [cq/qrz hiscall ?]
+	if (rc>=0) 
+		// check that hiscall matches
+		if (call2_match(pcodec->apmsg_call2,xdec))
+			return 9;	// decoded [cq/qrz hiscall ?]
 
 	rc = qra64_do_decode(xdec, ix, pcodec->apmask_cq_call2_ooo, 
 		       pcodec->apmsg_cq_call2_grid);	
@@ -874,11 +945,9 @@ static int qra64_decode_attempts(qra64codec *pcodec, int *xdec, const float *ix)
 		// Full AP mask need special handling
 		// To minimize false decodes we check the decoded message
 		// with what passed in the ap_set call
-		if (memcmp(pcodec->apmsg_cq_call2_grid,xdec, QRA64_K*sizeof(int))!=0) 
-			return -1;
-		else
+		if (memcmp(pcodec->apmsg_cq_call2_grid,xdec, QRA64_K*sizeof(int))==0) 
 			return 11;		// decoded [cq/qrz hiscall grid]
-		};    
+		}    
 
 	rc = qra64_do_decode(xdec, ix, pcodec->apmask_cq_call2_ooo, 
 		       pcodec->apmsg_cq_call2);	                    
@@ -886,9 +955,7 @@ static int qra64_decode_attempts(qra64codec *pcodec, int *xdec, const float *ix)
 		// Full AP mask need special handling
 		// To minimize false decodes we check the decoded message
 		// with what passed in the ap_set call
-		if (memcmp(pcodec->apmsg_cq_call2,xdec, QRA64_K*sizeof(int))!=0) 
-			return -1;
-		else
+		if (memcmp(pcodec->apmsg_cq_call2,xdec, QRA64_K*sizeof(int))==0) 
 			return 10;    // decoded [cq/qrz hiscall ]
 		}
 	}
@@ -902,15 +969,13 @@ static int qra64_decode_attempts(qra64codec *pcodec, int *xdec, const float *ix)
 		// All the three msg fields were given.
 		// To minimize false decodes we check the decoded message
 		// with what passed in the ap_set call
-		if (memcmp(pcodec->apmsg_call1_call2_grid,xdec, QRA64_K*sizeof(int))!=0) 
-			return -1;
-		else
+		if (memcmp(pcodec->apmsg_call1_call2_grid,xdec, QRA64_K*sizeof(int))==0) 
 			return 8;	   // decoded [mycall hiscall grid]
 		}
 	}
 
   // all decoding attempts failed
-  return rc;
+  return -1;
 }
 
 

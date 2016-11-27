@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>890</width>
+    <height>560</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>WSJT-X   by K1JT</string>
   </property>
@@ -2280,7 +2288,7 @@ QPushButton[state=&quot;ok&quot;] {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>756</width>
+     <width>890</width>
      <height>21</height>
     </rect>
    </property>
@@ -2323,6 +2331,7 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="separator"/>
     <addaction name="actionInclude_averaging"/>
     <addaction name="actionInclude_correlation"/>
+    <addaction name="actionEnable_AP_DXcall"/>
    </widget>
    <widget class="QMenu" name="menuSave">
     <property name="title">
@@ -2835,6 +2844,17 @@ QPushButton[state=&quot;ok&quot;] {
   <action name="actionRelease_Notes">
    <property name="text">
     <string>Release Notes</string>
+   </property>
+  </action>
+  <action name="actionEnable_AP_DXcall">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Enable AP for DX Call</string>
+   </property>
+   <property name="shortcut">
+    <string/>
    </property>
   </action>
  </widget>
