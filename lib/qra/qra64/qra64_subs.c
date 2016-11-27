@@ -45,7 +45,7 @@ void qra64_dec_(float r[], int* nc1, int* nc2, int* ng2, int* APtype,
      10    [CQ/QRZ HisCall   _ ]  68    5   Optional
      11    [CQ/QRZ HisCall Grid]  68    ?   Optional
 */
-  static int nc1z=-1;
+
   float EbNodBEstimated;
   int err=0;
   int nSubmode=*ns0;

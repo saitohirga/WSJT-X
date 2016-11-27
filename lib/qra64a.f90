@@ -19,8 +19,8 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   integer dat4(12)                           !Decoded message (as 12 integers)
   integer dat4x(12)
   integer nap(0:11)
-  data nap/0,2,4,2,4,5,2,4,6,5,6,6/
-  data nc1z/-1/,nc2z/-1/,ng2z/-1/
+  data nap/0,2,3,2,3,4,2,3,6,4,6,6/
+  data nc1z/-1/,nc2z/-1/,ng2z/-1/,maxaptypez/-1/
   save
 
   call timer('qra64a  ',0)
@@ -43,7 +43,8 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   nFadingModel=1
   maxaptype=4
   if(iand(ndepth,64).ne.0) maxaptype=5
-  if(nc1.ne.nc1z .or. nc2.ne.nc2z .or. ng2.ne.ng2z) then
+  if(nc1.ne.nc1z .or. nc2.ne.nc2z .or. ng2.ne.ng2z .or.            &
+     maxaptype.ne.maxaptypez) then
      do naptype=0,maxaptype
         if(naptype.eq.2 .and. maxaptype.eq.4) cycle
         call qra64_dec(s3,nc1,nc2,ng2,naptype,1,nSubmode,b90,      &
@@ -52,7 +53,9 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
      nc1z=nc1
      nc2z=nc2
      ng2z=ng2
+     maxaptypez=maxaptype
   endif
+  naptype=maxaptype
 
   maxf1=0
   call timer('sync64  ',0)
@@ -94,11 +97,12 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
            if(abs(snr2).gt.30.) snr2=-30.0
            if(irc.eq.0) go to 10
            if(irc.lt.0) cycle
-           if(irc.gt.0 .and. nap(irc).le.napmin) then
+           iirc=max(0,min(irc,11))
+           if(irc.gt.0 .and. nap(iirc).le.napmin) then
               dat4x=dat4
               b90x=b90
               snr2x=snr2
-              napmin=nap(irc)
+              napmin=nap(iirc)
               irckeep=irc
            endif
         enddo
