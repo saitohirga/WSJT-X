@@ -219,7 +219,6 @@ private slots:
   void on_actionInclude_averaging_triggered();
   void on_actionInclude_correlation_triggered();
   void VHF_features_enabled(bool b);
-  void on_cbAutoSeq_toggled(bool b);
   void on_sbSubmode_valueChanged(int n);
   void on_cbShMsgs_toggled(bool b);
   void on_cbTx6_toggled(bool b);
@@ -233,7 +232,6 @@ private slots:
   void WSPR_config(bool b);
   void uploadSpots();
   void TxAgain();
-  void RxQSY();
   void uploadResponse(QString response);
   void on_WSPRfreqSpinBox_valueChanged(int n);
   void on_pbTxNext_clicked(bool b);
@@ -246,8 +244,8 @@ private slots:
   void on_sbTR_valueChanged(int index);
   void on_sbFtol_valueChanged(int index);
   void on_cbFast9_clicked(bool b);
-  void on_sbCQRxFreq_valueChanged(int n);
-  void on_cbCQRx_toggled(bool b);
+  void on_sbCQTxFreq_valueChanged(int n);
+  void on_cbCQTx_toggled(bool b);
   void on_actionMSK144_triggered();
   void on_actionQRA64_triggered();
   void splash_done ();
@@ -310,7 +308,6 @@ private:
   Transceiver::TransceiverState m_rigState;
   Frequency  m_lastDialFreq;
   QString m_lastBand;
-  Frequency  m_callingFrequency;
   Frequency  m_dialFreqRxWSPR;  // best guess at WSPR QRG
 
   Detector * m_detector;
@@ -372,7 +369,6 @@ private:
   qint32  m_RxFreq;
   qint32  m_TRperiodFast;
   qint32  m_nTx73;
-  qint32  m_freqCQ;
   qint32  m_UTCdisk;
   qint32  m_wait;
 
@@ -400,7 +396,6 @@ private:
   int     m_lastMessageType;
   QString m_lastMessageSent;
   bool    m_lockTxFreq;
-  bool    m_bAutoSeq;
   bool    m_bShMsgs;
   bool    m_uploadSpots;
   bool    m_uploading;
@@ -469,7 +464,6 @@ private:
   QTimer uploadTimer;
   QTimer tuneATU_Timer;
   QTimer TxAgainTimer;
-  QTimer RxQSYTimer;
   QTimer minuteTimer;
   QTimer splashTimer;
   QTimer p1Timer;
@@ -534,6 +528,7 @@ private:
   void createStatusBar();
   void updateStatusBar();
   void genStdMsgs(QString rpt);
+  void genCQMsg();
   void clearDX ();
   void lookup();
   void ba2msg(QByteArray ba, char* message);
@@ -556,11 +551,11 @@ private:
   void enable_DXCC_entity (bool on);
   void switch_mode (Mode);
   void WSPR_scheduling ();
-  void setRig ();
+  void setRig (Frequency = 0);  // zero frequency means no change
   void WSPR_history(Frequency dialFreq, int ndecodes);
   QString WSPR_hhmm(int n);
   void fast_config(bool b);
-  void CQRxFreq();
+  void CQTxFreq();
   QString save_wave_file (QString const& name
                           , short const * data
                           , int seconds

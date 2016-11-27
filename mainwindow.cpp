@@ -141,7 +141,7 @@ namespace
   bool message_is_73 (int type, QStringList const& msg_parts)
   {
     return type >= 0
-      && ((type < 6 && msg_parts.contains ("73"))
+      && (((type < 6 || 7 == type) && msg_parts.contains ("73"))
           || (type == 6 && !msg_parts.filter ("73").isEmpty ()));
   }
 
@@ -179,7 +179,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_fastGraph (new FastGraph(m_settings)),
   m_logDlg (new LogQSO (program_title (), m_settings, this)),
   m_lastDialFreq {0},
-  m_callingFrequency {0},
   m_dialFreqRxWSPR {0},
   m_detector {new Detector {RX_SAMPLE_RATE, NTMAX, downSampleFactor}},
   m_FFTSize {6192 / 2},         // conservative value to avoid buffer overruns
@@ -214,7 +213,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_nPick {0},
   m_TRperiodFast {-1},
   m_nTx73 {0},
-  m_freqCQ {0},
   m_btxok {false},
   m_diskData {false},
   m_loopall {false},
@@ -642,9 +640,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   TxAgainTimer.setSingleShot(true);
   connect(&TxAgainTimer, SIGNAL(timeout()), this, SLOT(TxAgain()));
 
-  RxQSYTimer.setSingleShot(true);
-  connect(&RxQSYTimer, SIGNAL(timeout()), this, SLOT(RxQSY()));
-
   connect(m_wideGraph.data (), SIGNAL(setFreq3(int,int)),this,
           SLOT(setFreq4(int,int)));
 
@@ -774,7 +769,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_wideGraph->setLockTxFreq(m_lockTxFreq);
   ui->sbFtol->setValue(m_FtolIndex);
   on_sbFtol_valueChanged(m_FtolIndex);
-  ui->cbAutoSeq->setChecked(m_bAutoSeq);
   ui->cbShMsgs->setChecked(m_bShMsgs);
   ui->cbFast9->setChecked(m_bFast9);
   if(m_bFast9) m_bFastMode=true;
@@ -803,7 +797,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->sbTxPercent->setValue(m_pctx);
   ui->TxPowerComboBox->setCurrentIndex(int(0.3*(m_dBm + 30.0)+0.2));
   ui->cbUploadWSPR_Spots->setChecked(m_uploadSpots);
-  ui->sbCQRxFreq->setValue(m_freqCQ);
   ui->cbTxLock->setChecked(m_lockTxFreq);
   if((m_ndepth&7)==1) ui->actionQuickDecode->setChecked(true);
   if((m_ndepth&7)==2) ui->actionMediumDecode->setChecked(true);
@@ -932,7 +925,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("DTtol",m_DTtol);
   m_settings->setValue("FtolIndex",m_FtolIndex);
   m_settings->setValue("MinSync",m_minSync);
-  m_settings->setValue("AutoSeq",m_bAutoSeq);
+  m_settings->setValue ("AutoSeq", ui->cbAutoSeq->isChecked ());
   m_settings->setValue("ShMsgs",m_bShMsgs);
   m_settings->setValue ("DialFreq", QVariant::fromValue(m_lastMonitoredFrequency));
   m_settings->setValue("InGain",m_inGain);
@@ -949,7 +942,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("TRindex",m_TRindex);
   m_settings->setValue("FastMode",m_bFastMode);
   m_settings->setValue("Fast9",m_bFast9);
-  m_settings->setValue("CQRxfreq",m_freqCQ);
+  m_settings->setValue ("CQTxfreq", ui->sbCQTxFreq->value ());
   m_settings->setValue("pwrBandTxMemory",m_pwrBandTxMemory);
   m_settings->setValue("pwrBandTuneMemory",m_pwrBandTuneMemory);
   m_settings->endGroup();
@@ -989,7 +982,7 @@ void MainWindow::readSettings()
   m_FtolIndex=m_settings->value("FtolIndex",21).toInt();
 //  ui->FTol_combo_box->setCurrentText(m_settings->value("FTol","500").toString ());
   ui->syncSpinBox->setValue(m_settings->value("MinSync",0).toInt());
-  m_bAutoSeq=m_settings->value("AutoSeq",false).toBool();
+  ui->cbAutoSeq->setChecked (m_settings->value ("AutoSeq", false).toBool());
   m_bShMsgs=m_settings->value("ShMsgs",false).toBool();
   m_bFast9=m_settings->value("Fast9",false).toBool();
   m_bFastMode=m_settings->value("FastMode",false).toBool();
@@ -1012,7 +1005,7 @@ void MainWindow::readSettings()
   m_block_pwr_tooltip = true;
   ui->outAttenuation->setValue (m_settings->value ("OutAttenuation", 0).toInt ());
   m_block_pwr_tooltip = false;
-  m_freqCQ=m_settings->value("CQRxFreq",285).toInt();
+  ui->sbCQTxFreq->setValue (m_settings->value ("CQTxFreq", 280).toInt());
   m_noSuffix=m_settings->value("NoSuffix",false).toBool();
   int n=m_settings->value("GUItab",0).toInt();
   ui->tabWidget->setCurrentIndex(n);
@@ -1308,8 +1301,9 @@ void MainWindow::fastSink(qint64 frames)
     int i1=message.indexOf(m_baseCall);
     int i2=message.indexOf(m_hisCall);
     if(i1>10 and i2>i1+3) {
-      if(m_bAutoSeq and ((message.indexOf(" 73") < 0) or (m_ntx!=6))) {
-        processMessage(message,43,false);
+      if (ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked ()
+         && (message.indexOf (" 73") < 0 || m_ntx != 6)) {
+        processMessage (message,43,false);
       }
     }
     writeAllTxt(message);
@@ -1449,7 +1443,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     ui->label_7->setText("Rx Frequency");
   }
   update_watchdog_label ();
-  if(!m_splitMode) ui->cbCQRx->setChecked(false);
+  if(!m_splitMode) ui->cbCQTx->setChecked(false);
 }
 
 void MainWindow::on_monitorButton_clicked (bool checked)
@@ -1464,10 +1458,7 @@ void MainWindow::on_monitorButton_clicked (bool checked)
           if (m_config.monitor_last_used ())
             {
               // put rig back where it was when last in control
-              m_freqNominal = m_lastMonitoredFrequency;
-              m_freqTxNominal = m_freqNominal;
-              if (m_astroWidget) m_astroWidget->nominal_frequency (m_freqNominal, m_freqTxNominal);
-              setRig ();
+              setRig (m_lastMonitoredFrequency);
               setXIT (ui->TxFreqSpinBox->value ());
             }
         }
@@ -2309,9 +2300,10 @@ void::MainWindow::fast_decode_done()
   for(int i=0; i<100; i++) {
     int i1=msg0.indexOf(m_baseCall);
     int i2=msg0.indexOf(m_hisCall);
-    if((m_mode=="MSK144" or m_bFast9) and m_bAutoSeq and tmax>=0.0 and
-       i1>10 and i2>i1+3) {
-      if((msg0.indexOf(" 73") < 0) or (m_ntx!=6)) {
+    if ((m_mode == "MSK144" || m_bFast9)
+       && ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked ()
+       && tmax >= 0.0 && i1 > 10 && i2 > i1 + 3) {
+      if (msg0.indexOf (" 73") < 0 || m_ntx != 6) {
         processMessage(msg0,43,false);
       }
     }
@@ -2698,16 +2690,6 @@ void MainWindow::guiUpdate()
       setRig ();
       setXIT (ui->TxFreqSpinBox->value ());
 
-// If "CQ nnn ..." feature is active, set the proper Tx frequency
-      if(m_config.offsetRxFreq() && ui->cbCQRx->isChecked() &&
-         (m_monitoring || m_transmitting) && m_config.is_transceiver_online ()
-         && m_config.split_mode ()) {
-          // All conditions are met, reset the transceiver Tx frequency:
-        Frequency tx_frequency {6 == m_ntx ? m_callingFrequency :
-              m_freqTxNominal / 1000000 * 1000000 + 1000 * m_freqCQ + m_XIT};
-        Q_EMIT m_config.transceiver_tx_frequency (tx_frequency);
-      }
-
       Q_EMIT m_config.transceiver_ptt (true);            //Assert the PTT
       ptt1Timer.start(int(1000.0*m_config.txDelay()));   //Start-of-transmission sequencer delay
     }
@@ -2972,10 +2954,6 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-    QString txFreq;
-    txFreq.sprintf("R: %.3f  T: %.3f  C: %.3f",m_freqNominal/1000000.0,
-                   m_freqTxNominal/1000000.0,m_callingFrequency/1000000.0);
-    auto_tx_label.setText(txFreq);
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
       if(!m_bVHFwarned) vhfWarning();
     } else {
@@ -3111,26 +3089,16 @@ void MainWindow::stopTx()
 void MainWindow::stopTx2()
 {
   Q_EMIT m_config.transceiver_ptt (false);      //Lower PTT
-  if(m_mode=="JT9" and m_bFast9 and ui->cbAutoSeq->isChecked() and m_ntx==5 and (m_nTx73>=5)) {
-    on_stopTxButton_clicked();
-    m_nTx73=0;
+  if (m_mode == "JT9" && m_bFast9
+      && ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked()
+      && m_ntx == 5 && m_nTx73 >= 5) {
+    on_stopTxButton_clicked ();
+    m_nTx73 = 0;
   }
   if(m_mode.startsWith ("WSPR") and m_ntr==-1 and !m_tuneup) {
     m_wideGraph->setWSPRtransmitted();
     WSPR_scheduling ();
     m_ntr=0;
-  }
-  if(m_config.offsetRxFreq() and ui->cbCQRx->isChecked()) {
-//    Q_EMIT m_config.transceiver_frequency(m_freqNominal);
-    RxQSYTimer.start(50);
-  }
-}
-
-void MainWindow::RxQSY()
-{
-  // this appears to be a null directive
-  if (m_config.is_transceiver_online ()) {
-    Q_EMIT m_config.transceiver_frequency(m_freqNominal);
   }
 }
 
@@ -3231,7 +3199,10 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   QString messages;
   if(!m_decodedText2) messages= ui->decodedTextBrowser2->toPlainText();
   if(m_decodedText2) messages= ui->decodedTextBrowser->toPlainText();
-  if(ui->cbCQRx->isChecked()) m_bDoubleClickAfterCQnnn=true;
+  if(ui->cbCQTx->isEnabled () && ui->cbCQTx->isEnabled () && ui->cbCQTx->isChecked())
+    {
+      m_bDoubleClickAfterCQnnn=true;
+    }
   m_bDoubleClicked=true;
   processMessage(messages, position, ctrl);
 }
@@ -3254,27 +3225,13 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
     i1=t2a.indexOf(" CQ ");
     if(i1>10) {
       bool ok;
-      int kHz=t2a.mid(i1+4,3).toInt(&ok);
-      if(ok and kHz>=0 and kHz<=999) {
-        t2a=t2a.mid(0,i1+4) + t2a.mid(i1+8,-1);
+      Frequency kHz {t2a.mid (i1+4,3).toUInt (&ok)};
+      if(ok && kHz <= 999) {
+        t2a = t2a.mid (0, i1+4) + t2a.mid (i1+8, -1);
         if (m_config.is_transceiver_online ()) {
-          Frequency frequency {m_freqNominal / 1000000 * 1000000 + 1000*kHz}; //QSY Freq for answering CQ nnn
-          QString t;
-          t.sprintf("QSY %7.3f", frequency / 1e6);
-          ui->decodedTextBrowser2->displayQSY(t);
-          // ui->labDialFreq->setText (Radio::pretty_frequency_MHz_string (frequency));
-          if (m_config.is_transceiver_online ()) {
-            Q_EMIT m_config.transceiver_frequency (frequency);
-          }
-
-          if ((m_monitoring || m_transmitting)
-              && m_config.is_transceiver_online ()
-              && m_config.split_mode ())
-            {
-            // All conditions are met, reset the transmit dial frequency:
-            Q_EMIT m_config.transceiver_tx_frequency(frequency);
-          }
-
+          //QSY Freq for answering CQ nnn
+          setRig (m_freqNominal / 1000000 * 1000000 + 1000 * kHz);
+          ui->decodedTextBrowser2->displayQSY (QString {"QSY %1"}.arg (m_freqNominal / 1e6, 7, 'f', 3));
         }
       }
     }
@@ -3506,28 +3463,40 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
       }
     }
   if(m_transmitting) m_restart=true;
-  if(ui->cbAutoSeq->isVisible() and ui->cbAutoSeq->isChecked() and !m_bDoubleClicked) return;
+  if (ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked () && !m_bDoubleClicked) return;
   if(m_config.quick_call()) auto_tx_mode(true);
   m_bDoubleClicked=false;
 }
 
-void MainWindow::genStdMsgs(QString rpt)
+void MainWindow::genCQMsg ()
 {
-  QString t;
-  if(m_config.my_callsign() !="" and m_config.my_grid() !="")
+  if(m_config.my_callsign().size () && m_config.my_grid().size ())
     {
-      t="CQ " + m_config.my_callsign() + " " + m_config.my_grid().mid(0,4);
-      if(m_config.offsetRxFreq() and ui->cbCQRx->isChecked()) {
-        t.sprintf("CQ %3.3d ",m_freqCQ);
-        t += m_config.my_callsign() + " " + m_config.my_grid().mid(0,4);
+      if (m_config.offsetRxFreq ()
+          && ui->cbCQTx->isEnabled () && ui->cbCQTx->isVisible () && ui->cbCQTx->isChecked ())
+        {
+          msgtype (
+                   QString {"CQ %1 %2 %3"}
+                   .arg (m_freqNominal / 1000 - m_freqNominal / 1000000 * 1000, 3, 10, QChar {'0'})
+                      .arg (m_config.my_callsign())
+                      .arg (m_config.my_grid ().left (4)),
+                   ui->tx6);
       }
-      if(m_mode=="JT4") t="@1000  (TUNE)";
-      msgtype(t, ui->tx6);
+      else
+        {
+          msgtype (QString {"CQ %1 %2"}.arg (m_config.my_callsign ()).arg (m_config.my_grid ().left (4)), ui->tx6);
+        }
+      if (m_mode=="JT4") msgtype ("@1000  (TUNE)", ui->tx6);
     }
   else
     {
-      ui->tx6->setText("");
+      ui->tx6->clear ();
     }
+}
+
+void MainWindow::genStdMsgs(QString rpt)
+{
+  genCQMsg ();
   QString hisCall=ui->dxCallEntry->text();
   if(!hisCall.size ()) {
     ui->labAz->clear ();
@@ -3544,7 +3513,7 @@ void MainWindow::genStdMsgs(QString rpt)
 
   QString t0=hisBase + " " + m_baseCall + " ";
   QString t00=t0;
-  t=t0 + m_config.my_grid ().mid(0,4);
+  QString t {t0 + m_config.my_grid ().left (4)};
   msgtype(t, ui->tx1);
   if(m_config.enable_VHF_features() and  ui->cbShMsgs->isChecked() and m_mode=="JT65") {
     t=t+" OOO";
@@ -3584,11 +3553,15 @@ void MainWindow::genStdMsgs(QString rpt)
       t=hisBase + " " + m_config.my_callsign ();
       msgtype(t, ui->tx1);
       t="CQ " + m_config.my_callsign ();
-      if(m_config.offsetRxFreq() and ui->cbCQRx->isChecked()) {
-        t.sprintf("CQ %3.3d ",m_freqCQ);
-        t += m_config.my_callsign ();
+      if(m_config.offsetRxFreq()
+         && ui->cbCQTx->isEnabled () && ui->cbCQTx->isVisible () && ui->cbCQTx->isChecked()) {
+        msgtype (
+                 QString {"CQ %1 %2"}
+                    .arg (m_freqNominal / 1000 - m_freqNominal / 1000000 * 1000, 3, 10, QChar {'0'})
+                    .arg (m_config.my_callsign()),
+                 ui->tx6);
       }
-      msgtype(t, ui->tx6);
+      else msgtype(t, ui->tx6);
     } else {
       switch (m_config.type_2_msg_gen ())
         {
@@ -3961,9 +3934,9 @@ void MainWindow::displayWidgets(int n)
     if(i==4) ui->rptSpinBox->setVisible(b);
     if(i==5) ui->sbTR->setVisible(b);
     if(i==6) {
-      ui->sbCQRxFreq->setVisible(b);
-      ui->cbCQRx->setVisible(b);
-      ui->cbCQRx->setEnabled(b);
+      ui->sbCQTxFreq->setVisible(b);
+      ui->cbCQTx->setVisible(b);
+      ui->cbCQTx->setEnabled(b);
     }
     if(i==7) ui->cbShMsgs->setVisible(b);
     if(i==8) ui->cbFast9->setVisible(b);
@@ -4510,7 +4483,6 @@ void MainWindow::on_bandComboBox_currentIndexChanged (int index)
   if (source_index.isValid ())
     {
       frequency = frequencies->frequency_list ()[source_index.row ()].frequency_;
-      m_callingFrequency = frequency;
     }
 
   // Lookup band
@@ -4582,10 +4554,7 @@ void MainWindow::band_changed (Frequency f)
     if (!m_transmitting) monitor (true);
     float r=m_freqNominal/(f+0.0001);
     if(r<0.9 or r>1.1) m_bVHFwarned=false;
-    m_freqNominal = f;
-    m_freqTxNominal = m_freqNominal;
-    if (m_astroWidget) m_astroWidget->nominal_frequency (m_freqNominal, m_freqTxNominal);
-    setRig ();
+    setRig (f);
     setXIT (ui->TxFreqSpinBox->value ());
     if(monitor_off) monitor(false);
   }
@@ -4823,7 +4792,16 @@ void MainWindow::on_pbTxMode_clicked()
 void MainWindow::setXIT(int n, Frequency base)
 {
   if (m_transmitting && !m_config.tx_QSY_allowed ()) return;
-  if(m_mode=="MSK144") return;
+  // If "CQ nnn ..." feature is active, set the proper Tx frequency
+  if(m_config.split_mode () && m_config.offsetRxFreq()
+     && ui->cbCQTx->isEnabled () && ui->cbCQTx->isVisible () && ui->cbCQTx->isChecked())
+    {
+      if (6 == m_ntx)
+        {
+          // All conditions are met, use calling frequency
+          base = m_freqNominal / 1000000 * 1000000 + 1000 * ui->sbCQTxFreq->value () + m_XIT;
+        }
+    }
   if (!base) base = m_freqNominal;
   m_XIT = 0;
   if (!m_bSimplex) {
@@ -4866,11 +4844,8 @@ void MainWindow::setFreq4(int rxFreq, int txFreq)
       // for VHF & up we adjust Tx dial frequency to equalize Tx to Rx
       // when user CTRL+clicks on waterfall
       auto temp = ui->TxFreqSpinBox->value ();
-      m_freqNominal += txFreq - temp;
-      m_freqTxNominal += txFreq - temp;
       ui->RxFreqSpinBox->setValue (temp);
-      if (m_astroWidget) m_astroWidget->nominal_frequency (m_freqNominal, m_freqTxNominal);
-      setRig ();
+      setRig (m_freqNominal + txFreq - temp);
       setXIT (ui->TxFreqSpinBox->value ());
     }
   }
@@ -4904,14 +4879,16 @@ void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const&
           if (temp != m_freqNominal)
             {
               m_freqTxNominal = m_freqNominal;
+              genCQMsg ();
             }
 
           if (m_monitoring)
             {
               m_lastMonitoredFrequency = m_freqNominal;
             }
-          if (m_lastDialFreq != m_freqNominal and ((m_mode!="MSK144") or
-              !ui->cbCQRx->isChecked())) {
+          if (m_lastDialFreq != m_freqNominal &&
+              (m_mode != "MSK144"
+               || !(ui->cbCQTx->isEnabled () && ui->cbCQTx->isVisible () && ui->cbCQTx->isChecked()))) {
             m_lastDialFreq = m_freqNominal;
             m_secBandChanged=QDateTime::currentMSecsSinceEpoch()/1000;
             if(s.frequency () < 30000000u && !m_mode.startsWith ("WSPR")) {
@@ -5104,8 +5081,8 @@ void MainWindow::transmit (double snr)
   }
 
 // In auto-sequencing mode, stop after 5 transmissions of "73" message.
-  if(m_bFastMode or m_bFast9) {
-    if(ui->cbAutoSeq->isChecked()) {
+  if (m_bFastMode || m_bFast9) {
+    if (ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked ()) {
       if(m_ntx==5) {
         m_nTx73 += 1;
       } else {
@@ -5244,11 +5221,6 @@ void::MainWindow::VHF_features_enabled(bool b)
   if(!b and m_msgAvgWidget!=NULL) {
     if(m_msgAvgWidget->isVisible()) m_msgAvgWidget->close();
   }
-}
-
-void MainWindow::on_cbAutoSeq_toggled(bool b)
-{
-  m_bAutoSeq=b;
 }
 
 void MainWindow::on_sbTR_valueChanged(int index)
@@ -5780,13 +5752,19 @@ void MainWindow::astroUpdate ()
     }
 }
 
-void MainWindow::setRig ()
+void MainWindow::setRig (Frequency f)
 {
-  if(m_transmitting && !m_config.tx_QSY_allowed ()) return;
-  if ((m_monitoring || m_transmitting)
-      && m_config.transceiver_online ())
+  if (f)
     {
-      if(m_transmitting && m_config.split_mode ())
+      m_freqNominal = f;
+      genCQMsg ();
+      m_freqTxNominal = m_freqNominal;
+      if (m_astroWidget) m_astroWidget->nominal_frequency (m_freqNominal, m_freqTxNominal);
+    }
+  if(m_transmitting && !m_config.tx_QSY_allowed ()) return;
+  if ((m_monitoring || m_transmitting) && m_config.transceiver_online ())
+    {
+      if (m_transmitting && m_config.split_mode ())
         {
           Q_EMIT m_config.transceiver_tx_frequency (m_freqTxNominal + m_astroCorrection.tx);
         }
@@ -5821,32 +5799,21 @@ void MainWindow::on_actionSave_reference_spectrum_triggered()
   m_bRefSpec=true;
 }
 
-void MainWindow::on_sbCQRxFreq_valueChanged(int n)
+void MainWindow::on_sbCQTxFreq_valueChanged(int)
 {
-  m_freqCQ=n;
-  genStdMsgs(m_rpt);
-  CQRxFreq();
+  setXIT (ui->TxFreqSpinBox->value ());
 }
 
-void MainWindow::on_cbCQRx_toggled(bool b)
+void MainWindow::on_cbCQTx_toggled(bool b)
 {
-  ui->sbCQRxFreq->setEnabled(b);
-  genStdMsgs(m_rpt);
+  ui->sbCQTxFreq->setEnabled(b);
+  genCQMsg();
   if(b) {
     ui->txrb6->setChecked(true);
     m_ntx=6;
   }
-  CQRxFreq();
-}
-
-void MainWindow::CQRxFreq()
-{
-  Frequency rx_frequency {m_config.offsetRxFreq () && ui->cbCQRx->isChecked () ?
-      m_freqNominal / 1000000 * 1000000 + 1000 * m_freqCQ :
-      m_callingFrequency};
-  if (m_config.is_transceiver_online ()) {
-    Q_EMIT m_config.transceiver_frequency (rx_frequency);
-  }
+  setRig ();
+  setXIT (ui->TxFreqSpinBox->value ());
 }
 
 void MainWindow::statusUpdate () const
