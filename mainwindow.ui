@@ -927,18 +927,15 @@ QLabel[oob=&quot;true&quot;] {
                  <item row="10" column="0">
                   <layout class="QHBoxLayout" name="horizontalLayout_11">
                    <item>
-                    <widget class="QSpinBox" name="sbCQRxFreq">
+                    <widget class="QSpinBox" name="sbCQTxFreq">
                      <property name="enabled">
                       <bool>false</bool>
                      </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>100</width>
-                       <height>16777215</height>
-                      </size>
+                     <property name="toolTip">
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Frequency to call CQ on in kHz above the current MHz&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="prefix">
-                      <string>CQ Rx </string>
+                      <string>Tx CQ </string>
                      </property>
                      <property name="minimum">
                       <number>1</number>
@@ -947,20 +944,17 @@ QLabel[oob=&quot;true&quot;] {
                       <number>999</number>
                      </property>
                      <property name="value">
-                      <number>285</number>
+                      <number>280</number>
                      </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QCheckBox" name="cbCQRx">
+                    <widget class="QCheckBox" name="cbCQTx">
                      <property name="enabled">
                       <bool>false</bool>
                      </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>20</width>
-                       <height>16777215</height>
-                      </size>
+                     <property name="toolTip">
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this to call CQ on the &amp;quot;Tx CQ&amp;quot; frequency. Rx will be on the current frequency and the CQ message wiill include the current Rx frequency so callers know which frequency to reply on.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="text">
                       <string/>
@@ -980,7 +974,7 @@ QLabel[oob=&quot;true&quot;] {
                   <enum>QTabWidget::Triangular</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>1</number>
                  </property>
                  <widget class="QWidget" name="tab">
                   <attribute name="title">
@@ -2282,6 +2276,14 @@ QPushButton[state=&quot;ok&quot;] {
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>756</width>
+     <height>21</height>
+    </rect>
+   </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
@@ -2876,8 +2878,8 @@ QPushButton[state=&quot;ok&quot;] {
   <tabstop>sbFtol</tabstop>
   <tabstop>rptSpinBox</tabstop>
   <tabstop>sbTR</tabstop>
-  <tabstop>sbCQRxFreq</tabstop>
-  <tabstop>cbCQRx</tabstop>
+  <tabstop>sbCQTxFreq</tabstop>
+  <tabstop>cbCQTx</tabstop>
   <tabstop>cbShMsgs</tabstop>
   <tabstop>cbFast9</tabstop>
   <tabstop>cbAutoSeq</tabstop>
