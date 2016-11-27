@@ -408,7 +408,7 @@ void MultiSettings::impl::create_menu_actions (QMainWindow * main_window, QMenu 
 
   if (name_change_emit_pending_)
     {
-      Q_EMIT parent_->configurationNameChanged (current_);
+      Q_EMIT parent_->configurationNameChanged (current_.replace (QRegularExpression {R"(&([^&]))"}, R"(\1)").replace ("&&", "&"));
       name_change_emit_pending_ = false;
     }
 }

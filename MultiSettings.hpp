@@ -91,7 +91,7 @@ public:
   bool exit ();
 
   // emitted when the name of the current configuration changes
-  Q_SIGNAL void configurationNameChanged (QString const& name) const;
+  Q_SIGNAL void configurationNameChanged (QString name) const;
 
 private:
   class impl;
