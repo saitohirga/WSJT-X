@@ -32,7 +32,7 @@ End of line information::
  `f` - Franke-Taylor or Fano algorithm +
  `M` - Message length (characters) +
  `N` - Number of Rx intervals or frames averaged +
- `R` - Amount of _a priori_ information used by decoder +
+ `R` - Return code from QRA64 decoder +
  `T` - Length of analyzed region (s)
 
 === Reference Spectrum

@@ -159,12 +159,27 @@ _WSJT-X_.  The mode is designed especially for EME on VHF and higher
 bands; operation is generally similar to JT65.  The following screen
 shot shows an example of a QRA64C transmission from DL7YC recorded at
 G3WDG over the EME path at 24 GHz.  Doppler spread on the path was 78
-Hz, so although the signal is reasonable strong its tones are
-broadened enough to make them hardto see on the waterfall.  The red
+Hz, so although the signal is reasonably strong its tones are
+broadened enough to make them hard to see on the waterfall.  The red
 curve shows that the decoder has achieved synchronization with a
-signal at about 970 Hz.
+signal at approximately 967 Hz.
 
 image::QRA64.png[align="center",alt="QRA64"]
+
+The QRA64 decoder makes no use of a callsign database.  Instead, it
+takes advantage of _a priori_ (already known) information such as the
+one's own callsign and the encoded form of message word `CQ`.  In
+normal usage, as a QSO progresses the available _a priori_ (AP)
+information increases to include the callsign of the station being
+worked and perhaps also his/her 4-digit grid locator.  The decoder
+always begins by attempting to decode the full message using no AP
+information.  If this attempt fails, additional attempts are made
+using available AP information to provide initial hypotheses about the
+message content.  At the end of each iteration the decoder computes
+the extrinsic probability of the most likely value for each of the
+message's 12 six-bit information symbols.  A decode is declared only
+when the total probability for all 12 symbols has converged to an
+unambiguous value very close to 1.
 
 === ISCAT
 

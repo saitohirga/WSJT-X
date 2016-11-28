@@ -126,12 +126,11 @@ separation is 110250/4096 = 26.92 Hz multiplied by n for JT65A, with n
 
 QRA64 is an experimental mode intended for EME and other extreme
 weak-signal applications.  Its internal code was designed by IV3NWV.
-The protocol uses a (63,12) Q-ary Repeat Accumulate code that is
-inherently better than the Reed Solomon (63,12) code used in JT65,
-yielding a 1.3 dB advantage. A new synchronizing scheme is based on
-three 7 x 7 Costas arrays.  This change yields another 1.9 dB
-advantage.  A few details of the QRA64 protocol are still subject to
-change, as more experience is gained.
+The protocol uses a (63,12) **Q**-ary **R**epeat **A**ccumulate code
+that is inherently better than the Reed Solomon (63,12) code used in
+JT65, yielding a 1.3 dB advantage. A new synchronizing scheme is based
+on three 7 x 7 Costas arrays.  This change yields another 1.9 dB
+advantage. 
 
 In most respects the current implementation of QRA64 is operationally
 similar to JT65.  QRA64 does not use two-tone shorthand messages, and
@@ -141,8 +140,7 @@ QSO progresses -- for example, when reports are being exchanged and
 you have already decoded both callsigns in a previous transmission.
 QRA64 presently offers no message averaging capability, though that
 feature may be added.  In early tests, many EME QSOs were made using
-submodes QRA64A-E on bands from 144 MHz to 10 GHz.  Optimum processing
-of signals with large Doppler spread remains to be implemented.
+submodes QRA64A-E on bands from 144 MHz to 24 GHz.  
 
 [[SLOW_SUMMARY]]
 ==== Summary
