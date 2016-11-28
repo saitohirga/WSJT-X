@@ -308,6 +308,7 @@ set (wsjt_FSRCS
   lib/avecho.f90
   lib/averms.f90
   lib/azdist.f90
+  lib/badmsg.f90
   lib/bpdecode40.f90
   lib/bpdecode144.f90
   lib/baddata.f90

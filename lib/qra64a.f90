@@ -96,6 +96,7 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
            call timer('qra64_de',1)
            if(abs(snr2).gt.30.) snr2=-30.0
            if(irc.eq.0) go to 10
+           if(irc.gt.0) call badmsg(irc,dat4,nc1,nc2,ng2)
            if(irc.lt.0) cycle
            iirc=max(0,min(irc,11))
            if(irc.gt.0 .and. nap(iirc).le.napmin) then
