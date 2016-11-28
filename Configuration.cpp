@@ -541,7 +541,6 @@ private:
   bool x2ToneSpacing_;
   bool contestMode_;
   bool realTimeDecode_;
-  bool offsetRxFreq_;
   QString udp_server_name_;
   port_type udp_server_port_;
   bool accept_udp_requests_;
@@ -630,7 +629,6 @@ bool Configuration::twoPass() const {return m_->twoPass_;}
 bool Configuration::x2ToneSpacing() const {return m_->x2ToneSpacing_;}
 bool Configuration::contestMode() const {return m_->contestMode_;}
 bool Configuration::realTimeDecode() const {return m_->realTimeDecode_;}
-bool Configuration::offsetRxFreq () const {return m_->offsetRxFreq_;}
 bool Configuration::split_mode () const {return m_->split_mode ();}
 QString Configuration::udp_server_name () const {return m_->udp_server_name_;}
 auto Configuration::udp_server_port () const -> port_type {return m_->udp_server_port_;}
@@ -1061,7 +1059,6 @@ void Configuration::impl::initialize_models ()
   ui_->cbContestMode->setChecked(contestMode_);
   ui_->cbRealTime->setChecked(realTimeDecode_);
   ui_->cbRealTime->setVisible(false);                    //Tempoary -- probably will remove this control
-  ui_->offset_Rx_freq_check_box->setChecked(offsetRxFreq_);
   ui_->type_2_msg_gen_combo_box->setCurrentIndex (type_2_msg_gen_);
   ui_->rig_combo_box->setCurrentText (rig_params_.rig_name);
   ui_->TX_mode_button_group->button (data_mode_)->setChecked (true);
@@ -1289,7 +1286,6 @@ void Configuration::impl::read_settings ()
   x2ToneSpacing_ = settings_->value("x2ToneSpacing",false).toBool ();
   contestMode_ = settings_->value("ContestMode",false).toBool ();
   realTimeDecode_ = settings_->value("RealTimeDecode",false).toBool ();
-  offsetRxFreq_ = settings_->value("OffsetRx",false).toBool();
   rig_params_.poll_interval = settings_->value ("Polling", 0).toInt ();
   rig_params_.split_mode = settings_->value ("SplitMode", QVariant::fromValue (TransceiverFactory::split_mode_none)).value<TransceiverFactory::SplitMode> ();
   udp_server_name_ = settings_->value ("UDPServer", "127.0.0.1").toString ();
@@ -1389,7 +1385,6 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("x2ToneSpacing", x2ToneSpacing_);
   settings_->setValue ("ContestMode", contestMode_);
   settings_->setValue ("RealTimeDecode", realTimeDecode_);
-  settings_->setValue("OffsetRx",offsetRxFreq_);
   settings_->setValue ("UDPServer", udp_server_name_);
   settings_->setValue ("UDPServerPort", udp_server_port_);
   settings_->setValue ("AcceptUDPRequests", accept_udp_requests_);
@@ -1785,7 +1780,6 @@ void Configuration::impl::accept ()
   x2ToneSpacing_ = ui_->cbx2ToneSpacing->isChecked ();
   contestMode_ = ui_->cbContestMode->isChecked ();
   realTimeDecode_ = ui_->cbRealTime->isChecked ();
-  offsetRxFreq_ = ui_->offset_Rx_freq_check_box->isChecked();
   frequency_calibration_intercept_ = ui_->calibration_intercept_spin_box->value ();
   frequency_calibration_slope_ppm_ = ui_->calibration_slope_ppm_spin_box->value ();
   pwrBandTxMemory_ = ui_->checkBoxPwrBandTxMemory->isChecked ();
