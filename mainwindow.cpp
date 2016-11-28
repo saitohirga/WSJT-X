@@ -3472,8 +3472,7 @@ void MainWindow::genCQMsg ()
 {
   if(m_config.my_callsign().size () && m_config.my_grid().size ())
     {
-      if (m_config.offsetRxFreq ()
-          && ui->cbCQTx->isEnabled () && ui->cbCQTx->isVisible () && ui->cbCQTx->isChecked ())
+      if (ui->cbCQTx->isEnabled () && ui->cbCQTx->isVisible () && ui->cbCQTx->isChecked ())
         {
           msgtype (
                    QString {"CQ %1 %2 %3"}
@@ -3553,8 +3552,7 @@ void MainWindow::genStdMsgs(QString rpt)
       t=hisBase + " " + m_config.my_callsign ();
       msgtype(t, ui->tx1);
       t="CQ " + m_config.my_callsign ();
-      if(m_config.offsetRxFreq()
-         && ui->cbCQTx->isEnabled () && ui->cbCQTx->isVisible () && ui->cbCQTx->isChecked()) {
+      if(ui->cbCQTx->isEnabled () && ui->cbCQTx->isVisible () && ui->cbCQTx->isChecked()) {
         msgtype (
                  QString {"CQ %1 %2"}
                     .arg (m_freqNominal / 1000 - m_freqNominal / 1000000 * 1000, 3, 10, QChar {'0'})
@@ -4799,8 +4797,8 @@ void MainWindow::setXIT(int n, Frequency base)
 {
   if (m_transmitting && !m_config.tx_QSY_allowed ()) return;
   // If "CQ nnn ..." feature is active, set the proper Tx frequency
-  if(m_config.split_mode () && m_config.offsetRxFreq()
-     && ui->cbCQTx->isEnabled () && ui->cbCQTx->isVisible () && ui->cbCQTx->isChecked())
+  if(m_config.split_mode () && ui->cbCQTx->isEnabled () && ui->cbCQTx->isVisible () &&
+     ui->cbCQTx->isChecked())
     {
       if (6 == m_ntx)
         {
