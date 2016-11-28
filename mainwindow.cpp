@@ -4012,7 +4012,7 @@ void MainWindow::on_actionJT9_triggered()
   m_mode="JT9";
   bool bVHF=m_config.enable_VHF_features();
   if(bVHF) {
-    displayWidgets(nWidgets("11111000100011111001000"));
+    displayWidgets(nWidgets("11111010110011111001000"));
   } else {
     displayWidgets(nWidgets("11101000000011100001000"));
   }
@@ -4039,6 +4039,7 @@ void MainWindow::on_actionJT9_triggered()
     ui->cbFast9->setEnabled(false);
     ui->cbFast9->setChecked(false);
   }
+  ui->cbAutoSeq->setVisible(m_bFast9);
   ui->sbSubmode->setMaximum(7);
   fast_config(m_bFastMode);
   if(m_bFast9) {
@@ -4050,6 +4051,7 @@ void MainWindow::on_actionJT9_triggered()
     ui->decodedTextLabel->setText("UTC     dB    T Freq    Message");
     ui->decodedTextLabel2->setText("UTC     dB    T Freq    Message");
   } else {
+    ui->cbAutoSeq->setChecked(false);
     m_TRperiod=60;
     ui->decodedTextLabel->setText("UTC   dB   DT Freq    Message");
     ui->decodedTextLabel2->setText("UTC   dB   DT Freq    Message");
@@ -5284,7 +5286,7 @@ void MainWindow::on_cbFast9_clicked(bool b)
 {
   if(m_mode=="JT9") {
     m_bFast9=b;
-    ui->cbAutoSeq->setVisible(b);
+//    ui->cbAutoSeq->setVisible(b);
     on_actionJT9_triggered();
   }
 
