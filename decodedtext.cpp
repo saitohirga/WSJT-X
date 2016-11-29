@@ -133,6 +133,8 @@ QString DecodedText::call()
 void DecodedText::deCallAndGrid(/*out*/QString& call, QString& grid)
 {
   auto msg = _string;
+  int i0=msg.indexOf("CQ ");
+  if(i0>0 and mid(i0+3,3).toInt()>0) msg=msg.mid(0,i0+3) + msg.mid(i0+7,-1);
   msg = msg.replace (QRegularExpression {" CQ ([A-Z]{2,2}) "}, " CQ_\\1 ").mid (column_qsoText);
   int i1 = msg.indexOf(" ");
   call = msg.mid(i1+1);
