@@ -548,7 +548,7 @@ int qra64_decode_fastfading(
 }
 
 
-
+/*
 int qra64_fastfading_channel(float **rxen, const int *xmsg, const int submode, const float EbN0dB, const float B90, const int fadingModel)
 {
 	// Simulate transmission over a fading channel and non coherent detection
@@ -662,7 +662,7 @@ int qra64_fastfading_channel(float **rxen, const int *xmsg, const int submode, c
 
 	return 0;	
 }
-
+*/
 
 
 // Static functions definitions ----------------------------------------------
