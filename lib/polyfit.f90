@@ -1,7 +1,7 @@
 subroutine polyfit(x,y,sigmay,npts,nterms,mode,a,chisqr)
   implicit real*8 (a-h,o-z)
   real*8 x(npts), y(npts), sigmay(npts), a(nterms)
-  real*8 sumx(19), sumy(10), array(10,10)
+  real*8 sumx(10), sumy(10), array(10,10)
 
 ! Accumulate weighted sums
   nmax = 2*nterms-1
