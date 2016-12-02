@@ -61,20 +61,19 @@ subroutine sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,   &
   nh3=nfft3/2
   df3=6000.0/nfft3
   
-  fa=max(nf1,nfqso-ntol)
-  fb=min(nf2,nfqso+ntol)
-  iaa=max(maxf1,nint(fa/df3))
-  ibb=min(NSPC-1-maxf1,nint(fb/df3))
+  faa=max(nf1,nfqso-ntol)
+  fbb=min(nf2,nfqso+ntol)
+  iaa=nint(faa/df3)
+  ibb=nint(fbb/df3)
 
-  maxtol=max(ntol,500)
-  fa=max(nf1,nfqso-maxtol)
-  fb=min(nf2,nfqso+maxtol)
-  ia=max(maxf1,nint(fa/df3))
-  ib=min(NSPC-1-maxf1,nint(fb/df3))
-  id=0.1*(ib-ia)
+  fa=max(nf1,nfqso-1000)
+  fb=min(nf2,nfqso+1000)
+  ia=nint(fa/df3)
+  ib=nint(fb/df3)
 
   iz=ib-ia+1
   sync=0.
+  smaxall=0.
   jpk=0
   ja=0
   jb=7.5*6000
@@ -96,6 +95,7 @@ subroutine sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,   &
      s1=0.
      s2=0.
      s3=0.
+     s0b=0.
      do i=ia,ib
         freq=i*df3
         s1(i)=real(c1(i))**2 + aimag(c1(i))**2
@@ -106,54 +106,46 @@ subroutine sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,   &
 
      call timer('sync64_2',0)
      s0(ia:ib)=s1(ia:ib) + s2(ia:ib) + s3(ia:ib)
+     call pctile(s0(ia:ib),iz,45,ave)
      s0(:ia-1)=0.
      s0(ib+1:)=0.
      smax=0.
-     do na=0,5
+     do na=0,3
         nadd=7*(2**na)
         if(nadd.gt.161) nadd=161
         if(mod(nadd,2).eq.0) nadd=nadd+1
         call smo(s0(ia:ib)/nadd,iz,s0b(ia:ib),nadd)
         call smo(s0b(ia:ib)/nadd,iz,s0(ia:ib),nadd)
-        call pctile(s0(ia:ib),ib-ia+1,45,ave)
         rms=ave/sqrt(float(nadd))
         s=0.
-        if(rms.gt.0.0) s=(maxval(s0(ia:ib))-ave)/rms
-!###
-!        ipk0=maxloc(s0(ia:ib))
-!        ip=ipk0(1) + ia - 1
-!        write(63,3004) j1,na,ip,ave,rms,s
-!3004    format(3i6,3f8.1)
-!###        
+        sall=0.
+        if(rms.gt.0.0) then
+           s=(maxval(s0(iaa:ibb))-ave)/rms
+           sall=(maxval(s0(ia:ib))-ave)/rms
+        endif
+        if(sall.gt.smaxall) then
+           smaxall=sall
+           s0a=(s0-ave)/rms
+        endif
         if(s.gt.smax) then
            smax=s
            nabest=na
-           avebest=ave
-           rmsbest=rms
            s0c(ia:ib)=s0(ia:ib)
         endif
      enddo
      s0=s0c
      ipk0=maxloc(s0(ia:ib))
      ip=ipk0(1) + ia - 1
-!     write(60,3002) avebest,rmsbest,sync,smax,nfqso,iaa,ip,ibb,nabest
-!3002 format(4f8.1,5i6,2f8.1)
+     
      if(smax.gt.sync .and. ip.ge.iaa .and. ip.le.ibb) then
         jpk=j1
-        s0a=(s0-avebest)/rmsbest
         sync=smax
         dtx=jpk/6000.0 - 1.0
         ipk=ip
         f0=ip*df3
-!        write(61,3002) avebest,rmsbest,sync,smax,nfqso,iaa,ip,ibb,nabest, &
-!             f0,dtx
      endif
      call timer('sync64_2',1)
   enddo
-!  write(*,3001) nfqso,ntol,nint(fa),nint(fb),ia,ib,iaa,ibb,nabest,nskip
-!3001 format(10i6)
-!     flush(60)
-!     flush(61)
 
   s0a=s0a+2.0
   write(17) ia,ib,s0a(ia:ib)                !Save data for red curve
