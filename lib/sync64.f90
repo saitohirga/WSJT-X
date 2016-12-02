@@ -115,9 +115,16 @@ subroutine sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,   &
         if(mod(nadd,2).eq.0) nadd=nadd+1
         call smo(s0(ia:ib)/nadd,iz,s0b(ia:ib),nadd)
         call smo(s0b(ia:ib)/nadd,iz,s0(ia:ib),nadd)
-        call averms(s0(ia+id:ib-id),iz-2*id,nskip,ave,rms)
+        call pctile(s0(ia:ib),ib-ia+1,45,ave)
+        rms=ave/sqrt(float(nadd))
         s=0.
         if(rms.gt.0.0) s=(maxval(s0(ia:ib))-ave)/rms
+!###
+!        ipk0=maxloc(s0(ia:ib))
+!        ip=ipk0(1) + ia - 1
+!        write(63,3004) j1,na,ip,ave,rms,s
+!3004    format(3i6,3f8.1)
+!###        
         if(s.gt.smax) then
            smax=s
            nabest=na
@@ -129,6 +136,8 @@ subroutine sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,   &
      s0=s0c
      ipk0=maxloc(s0(ia:ib))
      ip=ipk0(1) + ia - 1
+!     write(60,3002) avebest,rmsbest,sync,smax,nfqso,iaa,ip,ibb,nabest
+!3002 format(4f8.1,5i6,2f8.1)
      if(smax.gt.sync .and. ip.ge.iaa .and. ip.le.ibb) then
         jpk=j1
         s0a=(s0-avebest)/rmsbest
@@ -136,9 +145,15 @@ subroutine sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,   &
         dtx=jpk/6000.0 - 1.0
         ipk=ip
         f0=ip*df3
+!        write(61,3002) avebest,rmsbest,sync,smax,nfqso,iaa,ip,ibb,nabest, &
+!             f0,dtx
      endif
      call timer('sync64_2',1)
   enddo
+!  write(*,3001) nfqso,ntol,nint(fa),nint(fb),ia,ib,iaa,ibb,nabest,nskip
+!3001 format(10i6)
+!     flush(60)
+!     flush(61)
 
   s0a=s0a+2.0
   write(17) ia,ib,s0a(ia:ib)                !Save data for red curve
