@@ -2705,7 +2705,7 @@ QPushButton[state=&quot;ok&quot;] {
   </action>
   <action name="actionShort_list_of_add_on_prefixes_and_suffixes">
    <property name="text">
-    <string>Short list of add-on prefixes and suffixes</string>
+    <string>List of Type 1 prefixes and suffixes</string>
    </property>
   </action>
   <action name="actionSettings">
