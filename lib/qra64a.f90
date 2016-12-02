@@ -62,7 +62,12 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   call sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,sync,c00)
   call timer('sync64  ',1)
   irc=-99
-  if(sync.lt.float(minsync)) go to 900
+  
+!  sync=5
+!  dtx=0.
+!  f0=1000.
+  
+!  if(sync.lt.minsync+3.5) go to 900
   
   npts2=npts/2
   itz=11
@@ -86,9 +91,21 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
         a(2)=-0.67*(idf1 + 0.67*kpk)
         call twkfreq(c00,c0,npts2,6000.0,a)
         call spec64(c0,npts2,mode64,jpk,s3a,LL,NN)
+
+!### Parameters 3000.0 and 10.0 might be better optimized?
+        call pctile(s3a,LL*NN,45,base)
+        s3max=3000.0
+        if(sync.gt.5.0) s3max=15000.0/sync
+        s3max=max(10.0,s3max)
+        do i=1,LL*NN
+           if(s3a(i).gt.s3max*base) s3a(i)=s3max*base
+        enddo
+        s3pk=maxval(s3a(1:LL*NN))
+        
         napmin=99
         do iter=itz,0,-2
            b90=1.728**iter
+           if(b90.gt.230.0) cycle
            s3(1:LL*NN)=s3a(1:LL*NN)
            call timer('qra64_de',0)
            call qra64_dec(s3,nc1,nc2,ng2,naptype,0,nSubmode,b90,      &
@@ -114,6 +131,7 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
               irc=irckeep
         endif
 10      decoded='                      '
+
         if(irc.ge.0) then
            call unpackmsg(dat4,decoded)           !Unpack the user message
            call fmtmsg(decoded,iz)
@@ -131,7 +149,7 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
      irc=-1
   endif
   if(irc.lt.0) then
-     sy=max(1.0,sync+1.0)
+     sy=max(1.0,sync-2.5)
      if(nSubmode.eq.0) nsnr=nint(10.0*log10(sy)-38.0)   !A
      if(nSubmode.eq.1) nsnr=nint(10.0*log10(sy)-36.0)   !B
      if(nSubmode.eq.2) nsnr=nint(10.0*log10(sy)-34.0)   !C
