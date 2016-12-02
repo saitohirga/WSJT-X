@@ -77,8 +77,8 @@ subroutine sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,   &
   sync=0.
   jpk=0
   ja=0
-  jb=6*5000
-  jstep=100
+  jb=7.5*6000
+  jstep=200
   ipk=0
   nskip=max(14,10*mode64)
   
