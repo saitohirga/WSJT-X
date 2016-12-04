@@ -139,15 +139,6 @@ void RemoteFile::download (QUrl const& url)
                  listener_->download_progress (bytes_received, total_bytes);
                }
            });
-  connect (reply_, &QNetworkReply::sslErrors, [this] (QList<QSslError> const& errors) {
-      QString message;
-      for (auto const& error: errors)
-        {
-          message += '\n' + reply_->request ().url ().toDisplayString () + ": "
-            + error.errorString ();
-        }
-      listener_->error ("Network SSL Errors", message);
-    });
 }
 
 void RemoteFile::abort ()
