@@ -332,8 +332,9 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
       "Please be patient,\n"
       "this may take a few minutes", QString {}, 0, 1, this},
   m_messageClient {new MessageClient {QApplication::applicationName (),
-                   m_config.udp_server_name (), m_config.udp_server_port (),
-                   this}},
+        version (), revision (),
+        m_config.udp_server_name (), m_config.udp_server_port (),
+        this}},
   psk_Reporter {new PSK_Reporter {m_messageClient, this}},
   m_manual {network_manager}
 {

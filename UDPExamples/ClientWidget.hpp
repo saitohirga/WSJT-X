@@ -21,7 +21,8 @@ class ClientWidget
 
 public:
   explicit ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemModel * beacons_model
-                         , QString const& id, QWidget * parent = nullptr);
+                         , QString const& id, QString const& version, QString const& revision
+                         , QWidget * parent = nullptr);
 
   Q_SLOT void update_status (QString const& id, Frequency f, QString const& mode, QString const& dx_call
                              , QString const& report, QString const& tx_mode, bool tx_enabled

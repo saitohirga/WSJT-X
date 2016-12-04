@@ -94,9 +94,27 @@ void ClientWidget::IdFilterModel::rx_df (int df)
     }
 }
 
+namespace
+{
+  QString make_title (QString const& id, QString const& version, QString const& revision)
+  {
+    QString title {id};
+    if (version.size ())
+      {
+        title += QString {" v%1"}.arg (version);
+      }
+    if (revision.size ())
+      {
+        title += QString {" (%1)"}.arg (revision);
+      }
+    return title;
+  }
+}
+
 ClientWidget::ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemModel * beacons_model
-                            , QString const& id, QWidget * parent)
-  : QDockWidget {id, parent}
+                            , QString const& id, QString const& version, QString const& revision
+                            , QWidget * parent)
+  : QDockWidget {make_title (id, version, revision), parent}
   , id_ {id}
   , decodes_proxy_model_ {id_}
   , decodes_table_view_ {new QTableView}

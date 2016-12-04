@@ -21,9 +21,12 @@ class MessageClient::impl
   Q_OBJECT;
 
 public:
-  impl (QString const& id, port_type server_port, MessageClient * self)
+  impl (QString const& id, QString const& version, QString const& revision,
+        port_type server_port, MessageClient * self)
     : self_ {self}
     , id_ {id}
+    , version_ {version}
+    , revision_ {revision}
     , server_port_ {server_port}
     , schema_ {2}  // use 2 prior to negotiation not 1 which is broken
     , heartbeat_timer_ {new QTimer {this}}
@@ -66,6 +69,8 @@ public:
 
   MessageClient * self_;
   QString id_;
+  QString version_;
+  QString revision_;
   QString server_string_;
   port_type server_port_;
   QHostAddress server_;
@@ -188,6 +193,11 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
 
             default:
               // Ignore
+              //
+              // Note that although server  heartbeat messages are not
+              // parsed here  they are  still partially parsed  in the
+              // message reader class to  negotiate the maximum schema
+              // number being used on the network.
               break;
             }
         }
@@ -208,7 +218,8 @@ void MessageClient::impl::heartbeat ()
     {
       QByteArray message;
       NetworkMessage::Builder hb {&message, NetworkMessage::Heartbeat, id_, schema_};
-      hb << NetworkMessage::Builder::schema_number; // maximum schema number accepted
+      hb << NetworkMessage::Builder::schema_number // maximum schema number accepted
+         << version_.toUtf8 () << revision_.toUtf8 ();
       if (OK == check_status (hb))
         {
           writeDatagram (message, server_, server_port_);
@@ -273,9 +284,10 @@ auto MessageClient::impl::check_status (QDataStream const& stream) const -> Stre
   return result;
 }
 
-MessageClient::MessageClient (QString const& id, QString const& server, port_type server_port, QObject * self)
+MessageClient::MessageClient (QString const& id, QString const& version, QString const& revision,
+                              QString const& server, port_type server_port, QObject * self)
   : QObject {self}
-  , m_ {id, server_port, this}
+  , m_ {id, version, revision, server_port, this}
 {
   connect (&*m_, static_cast<void (impl::*) (impl::SocketError)> (&impl::error)
            , [this] (impl::SocketError e)

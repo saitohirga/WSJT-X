@@ -32,7 +32,7 @@ public:
                        , QString const& name);
 
 private:
-  void add_client (QString const& id);
+  void add_client (QString const& id, QString const& version, QString const& revision);
   void remove_client (QString const& id);
 
   QStandardItemModel * log_;
