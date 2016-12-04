@@ -2527,7 +2527,7 @@ void MainWindow::pskPost(DecodedText decodedtext)
   Frequency frequency = m_freqNominal + audioFrequency;
   pskSetLocal ();
   if(grid_regexp.exactMatch (grid)) {
-//    qDebug() << "To PSKreporter:" << deCall << grid << frequency << msgmode << snr;
+    // qDebug() << "To PSKreporter:" << deCall << grid << frequency << msgmode << snr;
     psk_Reporter->addRemoteStation(deCall,grid,QString::number(frequency),msgmode,
            QString::number(snr),QString::number(QDateTime::currentDateTime().toTime_t()));
   }
@@ -3247,7 +3247,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   }
 
   auto t3 = decodedtext.string ();
-  auto t4 = t3.replace (QRegularExpression {" CQ ([A-Z]{2,2}) "}, " CQ_\\1 ").split (" ", QString::SkipEmptyParts);
+  auto t4 = t3.replace (QRegularExpression {" CQ ([A-Z]{2,2}|[0-9]{3,3}) "}, " CQ_\\1 ").split (" ", QString::SkipEmptyParts);
   if(t4.size () < 6) return;             //Skip the rest if no decoded text
 
   int frequency = decodedtext.frequencyOffset();

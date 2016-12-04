@@ -111,7 +111,7 @@ void PSK_Reporter::sendReport()
 
     // Send data to PSK Reporter site
     if (!m_pskReporterAddress.isNull()) {
-        m_messageClient->send_raw_datagram (report, m_pskReporterAddress, 4739);
+      m_messageClient->send_raw_datagram (report, m_pskReporterAddress, 4739);
     }
 }
 
