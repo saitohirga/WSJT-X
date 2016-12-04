@@ -182,7 +182,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
             m_nsps=4096.0*12000.0/11025.0;
             m_ic=2246949;
             m_nspd=2560;               // 22.5 WPM
-            if(icw[0]*m_nspd/48000.0 > 4.1) m_nspd=4.1*48000/icw[0];  //Faster CW for long calls
+            if(icw[0]*m_nspd/48000.0 > 4.0) m_nspd=4.0*48000.0/icw[0];  //Faster CW for long calls
           }
           bCwId=true;
           unsigned ic0 = m_symbolsLength * 4 * m_nsps;
