@@ -81,11 +81,11 @@ bool DecodedText::report(QString const& myBaseCall, QString const& dxBaseCall, /
 {
     QString msg=_string.mid(column_qsoText).trimmed();
     if(msg.length() < 1) return false;
-    msg=(msg+"                      ").mid(0,22);
-    int i1=msg.indexOf("\r");
+    msg = msg.remove (QRegularExpression {"[<>]"});
+    int i1=msg.indexOf('\r');
     if (i1>0)
-        msg=msg.mid(0,i1-1) + "                      ";
-    bool b = stdmsg_(msg.mid(0,22).toLatin1().constData(),22);  // stdmsg is a fortran routine that packs the text, unpacks it and compares the result
+      msg=msg.left (i1-1);
+    bool b = stdmsg_ ((msg + "                      ").toLatin1().constData(),22);  // stdmsg is a fortran routine that packs the text, unpacks it and compares the result
 
     QStringList w=msg.split(" ",QString::SkipEmptyParts);
     if(w.size ()
@@ -124,7 +124,7 @@ bool DecodedText::report(QString const& myBaseCall, QString const& dxBaseCall, /
 QString DecodedText::call()
 {
   auto call = _string;
-  call = call.replace (QRegularExpression {" CQ ([A-Z]{2,2}) "}, " CQ_\\1 ").mid (column_qsoText);
+  call = call.replace (QRegularExpression {" CQ ([A-Z]{2,2}|[0-9]{3,3}) "}, " CQ_\\1 ").mid (column_qsoText);
   int i = call.indexOf(" ");
   return call.mid(0,i);
 }
@@ -133,9 +133,7 @@ QString DecodedText::call()
 void DecodedText::deCallAndGrid(/*out*/QString& call, QString& grid)
 {
   auto msg = _string;
-  int i0=msg.indexOf("CQ ");
-  if(i0>0 and mid(i0+3,3).toInt()>0) msg=msg.mid(0,i0+3) + msg.mid(i0+7,-1);
-  msg = msg.replace (QRegularExpression {" CQ ([A-Z]{2,2}) "}, " CQ_\\1 ").mid (column_qsoText);
+  msg = msg.replace (QRegularExpression {" CQ ([A-Z]{2,2}|[0-9]{3,3}) "}, " CQ_\\1 ").mid (column_qsoText);
   int i1 = msg.indexOf(" ");
   call = msg.mid(i1+1);
   int i2 = call.indexOf(" ");
