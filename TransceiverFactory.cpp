@@ -121,7 +121,7 @@ std::unique_ptr<Transceiver> TransceiverFactory::create (ParameterPack const& pa
           }
 
         // wrap the basic Transceiver object instance with a decorator object that talks to ham Radio Deluxe
-        result.reset (new HRDTransceiver {std::move (basic_transceiver), params.network_port, PTT_method_CAT == params.ptt_type, params.poll_interval});
+        result.reset (new HRDTransceiver {std::move (basic_transceiver), params.network_port, PTT_method_CAT == params.ptt_type, params.audio_source, params.poll_interval});
         if (target_thread)
           {
             result->moveToThread (target_thread);

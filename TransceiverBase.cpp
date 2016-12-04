@@ -216,38 +216,6 @@ void TransceiverBase::update_PTT (bool state)
   actual_.ptt (state);
 }
 
-bool TransceiverBase::maybe_low_resolution (Radio::Frequency low_res,
-                                            Radio::Frequency high_res)
-{
-  if (resolution_ != Resolution::truncate
-      && low_res == (high_res + 5) / 10 * 10) // rounded to 10's
-    {
-      resolution_ = Resolution::round;
-      return true;
-    }
-  if (resolution_ != Resolution::round
-      && low_res == high_res / 10 * 10) // truncated to 10's
-    {
-      resolution_ = Resolution::truncate;
-      return true;
-    }
-
-  if (resolution_ != Resolution::truncate
-      && low_res == (high_res + 50) / 100 * 100) // rounded to 100's
-    {
-      resolution_ = Resolution::round;
-      return true;
-    }
-  if (resolution_ != Resolution::round
-      && low_res == high_res / 100 * 100) // truncated to 100's
-    {
-      resolution_ = Resolution::truncate;
-      return true;
-    }
-
-  return false;
-}
-
 void TransceiverBase::update_complete (bool force_signal)
 {
   if ((do_pre_update () && actual_ != last_) || force_signal)

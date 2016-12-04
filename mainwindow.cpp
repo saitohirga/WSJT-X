@@ -711,7 +711,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
   QStringList jt9_args {
     "-s", QApplication::applicationName () // shared memory key,
-                                           // includes rig-name
+                                           // includes rig
 #ifdef NDEBUG
       , "-w", "1"               //FFTW patience - release
 #else
@@ -5728,20 +5728,30 @@ void MainWindow::astroUpdate ()
           && m_config.split_mode ())
         {
           // adjust for rig resolution
-          if (m_config.transceiver_resolution () > 1)
+          if (m_config.transceiver_resolution () > 2)
             {
               correction.rx = (correction.rx + 50) / 100 * 100;
               correction.tx = (correction.tx + 50) / 100 * 100;
+            }
+          else if (m_config.transceiver_resolution () > 1)
+            {
+              correction.rx = (correction.rx + 10) / 20 * 20;
+              correction.tx = (correction.tx + 10) / 20 * 20;
             }
           else if (m_config.transceiver_resolution () > 0)
             {
               correction.rx = (correction.rx + 5) / 10 * 10;
               correction.tx = (correction.tx + 5) / 10 * 10;
             }
-          else if (m_config.transceiver_resolution () < -1)
+          else if (m_config.transceiver_resolution () < -2)
             {
               correction.rx = correction.rx / 100 * 100;
               correction.tx = correction.tx / 100 * 100;
+            }
+          else if (m_config.transceiver_resolution () < -1)
+            {
+              correction.rx = correction.rx / 20 * 20;
+              correction.tx = correction.tx / 20 * 20;
             }
           else if (m_config.transceiver_resolution () < 0)
             {

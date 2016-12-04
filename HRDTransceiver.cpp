@@ -21,7 +21,7 @@ namespace
 
 void HRDTransceiver::register_transceivers (TransceiverFactory::Transceivers * registry, int id)
 {
-  (*registry)[HRD_transceiver_name] = TransceiverFactory::Capabilities (id, TransceiverFactory::Capabilities::network, true);
+  (*registry)[HRD_transceiver_name] = TransceiverFactory::Capabilities (id, TransceiverFactory::Capabilities::network, true, true /* maybe */);
 }
 
 struct HRDMessage
@@ -69,11 +69,13 @@ struct HRDMessage
 HRDTransceiver::HRDTransceiver (std::unique_ptr<TransceiverBase> wrapped
                                 , QString const& server
                                 , bool use_for_ptt
+                                , TransceiverFactory::TXAudioSource audio_source
                                 , int poll_interval
                                 , QObject * parent)
   : PollingTransceiver {poll_interval, parent}
   , wrapped_ {std::move (wrapped)}
   , use_for_ptt_ {use_for_ptt}
+  , audio_source_ {audio_source}
   , server_ {server}
   , hrd_ {0}
   , protocol_ {none}
@@ -84,14 +86,11 @@ HRDTransceiver::HRDTransceiver (std::unique_ptr<TransceiverBase> wrapped
   , vfo_toggle_button_ {-1}
   , mode_A_dropdown_ {-1}
   , mode_B_dropdown_ {-1}
+  , data_mode_button_ {-1}
   , data_mode_dropdown_ {-1}
-  , data_mode_dropdown_selection_on_ {-1}
-  , data_mode_dropdown_selection_off_ {-1}
   , split_mode_button_ {-1}
   , split_mode_dropdown_ {-1}
   , split_mode_dropdown_write_only_ {false}
-  , split_mode_dropdown_selection_on_ {-1}
-  , split_mode_dropdown_selection_off_ {-1}
   , split_off_button_ {-1}
   , tx_A_button_ {-1}
   , tx_B_button_ {-1}
@@ -99,6 +98,7 @@ HRDTransceiver::HRDTransceiver (std::unique_ptr<TransceiverBase> wrapped
   , rx_B_button_ {-1}
   , receiver_dropdown_ {-1}
   , ptt_button_ {-1}
+  , alt_ptt_button_ {-1}
   , reversed_ {false}
 {
 }
@@ -206,7 +206,7 @@ int HRDTransceiver::do_start ()
   HRD_info << "Dropdowns:\n";
   Q_FOREACH (auto const& dd, dropdown_names_)
     {
-      auto selections = send_command ("get dropdown-list {" + dd + "}").trimmed ().split (',', QString::SkipEmptyParts);
+      auto selections = send_command ("get dropdown-list {" + dd + "}").trimmed ().split (',');
       TRACE_CAT ("HRDTransceiver", "\t" << dd << ": {" << selections.join (", ") << "}");
       HRD_info << "\t" << dd << ": {" << selections.join (", ") << "}\n";
       dropdowns_[dd] = selections;
@@ -233,8 +233,8 @@ int HRDTransceiver::do_start ()
 
   vfo_toggle_button_ = find_button (QRegExp ("^(A~/~B)$"));
 
-  split_mode_button_ = find_button (QRegExp ("^(Spl~On|Spl_On|Split)$"));
-  split_off_button_ = find_button (QRegExp ("^(Spl~Off|Spl_Off)$"));
+  split_mode_button_ = find_button (QRegExp ("^(Spl~On|Spl_On|Split|Split~On)$"));
+  split_off_button_ = find_button (QRegExp ("^(Spl~Off|Spl_Off|Split~Off)$"));
 
   if ((split_mode_dropdown_ = find_dropdown (QRegExp ("^(Split)$"))) >= 0)
     {
@@ -264,14 +264,23 @@ int HRDTransceiver::do_start ()
       map_modes (mode_B_dropdown_, &mode_B_map_);
     }
 
-  // Some newer Icoms have a Data drop down with (Off, On, D1, D2, D3)
+  // Can't do this with ^Data$ as the button name because some Kenwood
+  // rigs have a "Data" button which is for turning the DSP on and off
+  //data_mode_button_ = find_button (QRegExp ("^(Data)$"));
+
+  // Some newer Icoms have a Data drop down with (Off,On,D1,D2,D3)
+  // Some newer Icoms have a Data drop down with (Off,D1,D2,D3)
+  // Some newer Icoms have a Data drop down with
+  // (Off,,D1-FIL1,D1-FIL2,D1-FIL3) the missing value counts as an
+  // index value - I think it is a drop down separator line
   if ((data_mode_dropdown_ = find_dropdown (QRegExp ("^(Data)$"))) >= 0)
     {
-      data_mode_dropdown_selection_on_ = find_dropdown_selection (data_mode_dropdown_, QRegExp ("^(On)$"));
+      data_mode_dropdown_selection_on_ = find_dropdown_selection (data_mode_dropdown_, QRegExp ("^(On|D1|D1-FIL1)$"));
       data_mode_dropdown_selection_off_ = find_dropdown_selection (data_mode_dropdown_, QRegExp ("^(Off)$"));
     }
 
   ptt_button_ = find_button (QRegExp ("^(TX)$"));
+  alt_ptt_button_ = find_button (QRegExp ("^(TX~Alt|TX~Data)$"));
 
   if (vfo_count_ == 1 && ((vfo_B_button_ >= 0 && vfo_A_button_ >= 0) || vfo_toggle_button_ >= 0))
     {
@@ -308,8 +317,19 @@ int HRDTransceiver::do_start ()
         {
         case -5: resolution = -1; break;  // 10Hz truncated
         case 5: resolution = 1; break;    // 10Hz rounded
+        case -15: resolution = -2; break; // 20Hz truncated
         case -55: resolution = -2; break; // 100Hz truncated
         case 45: resolution = 2; break;   // 100Hz rounded
+        }
+      if (1 == resolution)      // may be 20Hz rounded
+        {
+          test_frequency = f - f % 100 + 51;
+          send_simple_command ("set frequency-hz " + QString::number (test_frequency));
+          new_frequency = send_command ("get frequency").toUInt ();
+          if (9 == static_cast<Radio::FrequencyDelta> (new_frequency - test_frequency))
+            {
+              resolution = 2;   // 20Hz rounded
+            }
         }
       send_simple_command ("set frequency-hz " + QString::number (f));
     }
@@ -339,13 +359,14 @@ int HRDTransceiver::find_dropdown (QRegExp const& re) const
 
 std::vector<int> HRDTransceiver::find_dropdown_selection (int dropdown, QRegExp const& re) const
 {
-  std::vector<int> indices;
+  std::vector<int> indices;     // this will always contain at least a
+                                // -1
   auto list = dropdowns_.value (dropdown_names_.value (dropdown));
   int index {0};
   while (-1 != (index = list.lastIndexOf (re, index - 1)))
     {
-      // search backwards because more specialized modes tend to be later in
-      // list
+      // search backwards because more specialized modes tend to be
+      // later in list
       indices.push_back (index);
       if (!index)
         {
@@ -359,9 +380,9 @@ void HRDTransceiver::map_modes (int dropdown, ModeMap *map)
 {
   // order matters here (both in the map and in the regexps)
   map->push_back (std::forward_as_tuple (CW, find_dropdown_selection (dropdown, QRegExp ("^(CW|CW\\(N\\))|CWL$"))));
-  map->push_back (std::forward_as_tuple (CW_R, find_dropdown_selection (dropdown, QRegExp ("^(CW-R|CW|CWU)$"))));
-  map->push_back (std::forward_as_tuple (LSB, find_dropdown_selection (dropdown, QRegExp ("^(LSB)$"))));
-  map->push_back (std::forward_as_tuple (USB, find_dropdown_selection (dropdown, QRegExp ("^(USB)$"))));
+  map->push_back (std::forward_as_tuple (CW_R, find_dropdown_selection (dropdown, QRegExp ("^(CW-R|CW-R\\(N\\)|CW|CWU)$"))));
+  map->push_back (std::forward_as_tuple (LSB, find_dropdown_selection (dropdown, QRegExp ("^(LSB\\(N\\)|LSB)$"))));
+  map->push_back (std::forward_as_tuple (USB, find_dropdown_selection (dropdown, QRegExp ("^(USB\\(N\\)|USB)$"))));
   map->push_back (std::forward_as_tuple (DIG_U, find_dropdown_selection (dropdown, QRegExp ("^(DIG|DIGU|DATA-U|PKT-U|DATA|USER-U|USB)$"))));
   map->push_back (std::forward_as_tuple (DIG_L, find_dropdown_selection (dropdown, QRegExp ("^(DIG|DIGL|DATA-L|PKT-L|DATA-R|USER-L|LSB)$"))));
   map->push_back (std::forward_as_tuple (FSK, find_dropdown_selection (dropdown, QRegExp ("^(DIG|FSK|RTTY|RTTY-LSB)$"))));
@@ -448,7 +469,11 @@ void HRDTransceiver::do_ptt (bool on)
   TRACE_CAT ("HRDTransceiver", on);
   if (use_for_ptt_)
     {
-      if (ptt_button_ >= 0)
+      if (alt_ptt_button_ >= 0 && TransceiverFactory::TX_audio_source_rear == audio_source_)
+        {
+          set_button (alt_ptt_button_, on);
+        }
+      else if (ptt_button_ >= 0)
         {
           set_button (ptt_button_, on);
         }
@@ -485,7 +510,23 @@ void HRDTransceiver::set_button (int button_index, bool checked)
 
 void HRDTransceiver::set_data_mode (MODE m)
 {
-  if (data_mode_dropdown_ >= 0)
+  if (data_mode_button_ >= 0)
+    {
+      switch (m)
+        {
+        case DIG_U:
+        case DIG_L:
+        case DIG_FM:
+          set_button (data_mode_button_, true);
+          break;
+        default:
+          set_button (data_mode_button_, false);
+          break;
+        }
+    }
+  else if (data_mode_dropdown_ >= 0
+      && data_mode_dropdown_selection_off_.size ()
+      && data_mode_dropdown_selection_on_.size ())
     {
       switch (m)
         {
@@ -503,9 +544,12 @@ void HRDTransceiver::set_data_mode (MODE m)
 
 auto HRDTransceiver::get_data_mode (MODE m, bool quiet) -> MODE
 {
-  if (data_mode_dropdown_ >= 0)
+  if (data_mode_dropdown_ >= 0
+      && data_mode_dropdown_selection_off_.size ())
     {
       auto selection = get_dropdown (data_mode_dropdown_, quiet);
+      // can't check for on here as there may be multiple on values so
+      // we must rely on the initial parse finding valid on values
       if (selection >= 0 && selection != data_mode_dropdown_selection_off_.front ())
         {
           switch (m)
@@ -547,11 +591,11 @@ void HRDTransceiver::do_tx_frequency (Frequency tx, MODE mode, bool /*no_ignore*
   // re-check if reversed VFOs
   bool rx_A {true};
   bool rx_B {false};
-  if (receiver_dropdown_ >= 0)
+  if (receiver_dropdown_ >= 0 && rx_A_selection_.size ())
     {
       auto selection = get_dropdown (receiver_dropdown_);
       rx_A = selection == rx_A_selection_.front ();
-      if (!rx_A)
+      if (!rx_A && rx_B_selection_.size ())
         {
           rx_B = selection == rx_B_selection_.front ();
         }
@@ -590,7 +634,8 @@ void HRDTransceiver::do_tx_frequency (Frequency tx, MODE mode, bool /*no_ignore*
                   set_data_mode (mode);
                   set_button (reversed_ ? rx_B_button_ : rx_A_button_);
                 }
-              else if (receiver_dropdown_ >= 0)
+              else if (receiver_dropdown_ >= 0
+                       && rx_A_selection_.size () && rx_B_selection_.size ())
                 {
                   set_dropdown (receiver_dropdown_, (reversed_ ? rx_A_selection_ : rx_B_selection_).front ());
                   set_dropdown (mode_A_dropdown_, lookup_mode (mode, mode_A_map_));
@@ -652,7 +697,9 @@ void HRDTransceiver::do_tx_frequency (Frequency tx, MODE mode, bool /*no_ignore*
           set_button (split_mode_button_, split);
         }
     }
-  else if (split_mode_dropdown_ >= 0)
+  else if (split_mode_dropdown_ >= 0
+           && split_mode_dropdown_selection_off_.size ()
+           && split_mode_dropdown_selection_on_.size ())
     {
       set_dropdown (split_mode_dropdown_, split ? split_mode_dropdown_selection_on_.front () : split_mode_dropdown_selection_off_.front ());
     }
@@ -666,7 +713,8 @@ void HRDTransceiver::do_tx_frequency (Frequency tx, MODE mode, bool /*no_ignore*
                 {
                   set_button (reversed_ ? rx_B_button_ : rx_A_button_);
                 }
-              else if (receiver_dropdown_ >= 0)
+              else if (receiver_dropdown_ >= 0
+                       && rx_A_selection_.size () && rx_B_selection_.size ())
                 {
                   set_dropdown (receiver_dropdown_, (reversed_ ? rx_B_selection_ : rx_A_selection_).front ());
                 }
@@ -685,7 +733,8 @@ void HRDTransceiver::do_tx_frequency (Frequency tx, MODE mode, bool /*no_ignore*
                 {
                   set_button (reversed_ ? rx_B_button_ : rx_A_button_);
                 }
-              else if (receiver_dropdown_ >= 0)
+              else if (receiver_dropdown_ >= 0
+                       && rx_A_selection_.size () && rx_B_selection_.size ())
                 {
                   set_dropdown (receiver_dropdown_, (reversed_ ? rx_B_selection_ : rx_A_selection_).front ());
                 }
@@ -729,7 +778,8 @@ void HRDTransceiver::do_mode (MODE mode)
                   set_dropdown (mode_A_dropdown_, lookup_mode (mode, mode_A_map_));
                   set_button (rx_B_button_);
                 }
-              else if (receiver_dropdown_ >= 0)
+              else if (receiver_dropdown_ >= 0
+                       && rx_A_selection_.size () && rx_B_selection_.size ())
                 {
                   set_dropdown (receiver_dropdown_, rx_A_selection_.front ());
                   set_dropdown (mode_A_dropdown_, lookup_mode (mode, mode_A_map_));
@@ -766,7 +816,8 @@ void HRDTransceiver::do_mode (MODE mode)
                   set_dropdown (mode_A_dropdown_, lookup_mode (mode, mode_A_map_));
                   set_button (rx_A_button_);
                 }
-              else if (receiver_dropdown_ >= 0)
+              else if (receiver_dropdown_ >= 0
+                       && rx_A_selection_.size () && rx_B_selection_.size ())
                 {
                   set_dropdown (receiver_dropdown_, rx_B_selection_.front ());
                   set_dropdown (mode_A_dropdown_, lookup_mode (mode, mode_A_map_));
@@ -825,9 +876,16 @@ void HRDTransceiver::poll ()
   is_button_checked (tx_A_button_);
   is_button_checked (tx_B_button_);
   is_button_checked (ptt_button_);
+  is_button_checked (alt_ptt_button_);
   get_dropdown (mode_A_dropdown_);
   get_dropdown (mode_B_dropdown_);
-  get_dropdown (data_mode_dropdown_);
+  is_button_checked (data_mode_button_);
+  if (data_mode_dropdown_ >=0
+      && data_mode_dropdown_selection_off_.size ()
+      && data_mode_dropdown_selection_on_.size ())
+    {
+      get_dropdown (data_mode_dropdown_);
+    }
   if (!split_mode_dropdown_write_only_)
     {
       get_dropdown (split_mode_dropdown_);
@@ -841,7 +899,7 @@ void HRDTransceiver::poll ()
     {
       // we are probably dealing with an Icom and have to guess SPLIT mode :(
     }
-  else if (split_mode_button_ >= 0)
+  else if (split_mode_button_ >= 0 && !(tx_A_button_ >= 0 && tx_B_button_ >= 0))
     {
       update_split (is_button_checked (split_mode_button_, quiet));
     }
@@ -850,7 +908,8 @@ void HRDTransceiver::poll ()
       if (!split_mode_dropdown_write_only_)
         {
           auto selection = get_dropdown (split_mode_dropdown_, quiet);
-          if (selection >= 0)
+          if (selection >= 0
+              && split_mode_dropdown_selection_off_.size ())
             {
               update_split (selection == split_mode_dropdown_selection_on_.front ());
             }
@@ -872,11 +931,11 @@ void HRDTransceiver::poll ()
       // some rigs have dual Rx, we take VFO A/MAIN receiving as
       // normal and only say reversed when only VFO B/SUB is active
       // i.e. VFO A/MAIN muted VFO B/SUB active
-      if (receiver_dropdown_ >= 0)
+      if (receiver_dropdown_ >= 0 && rx_A_selection_.size ())
         {
           auto selection = get_dropdown (receiver_dropdown_);
           rx_A = selection == rx_A_selection_.front ();
-          if (!rx_A)
+          if (!rx_A && rx_B_selection_.size ())
             {
               rx_B = selection == rx_B_selection_.front ();
             }
