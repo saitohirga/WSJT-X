@@ -26,6 +26,7 @@
 
 #include "revision_utils.hpp"
 #include "qt_helpers.hpp"
+#include "NetworkAccessManager.hpp"
 #include "soundout.h"
 #include "soundin.h"
 #include "Modulator.hpp"
@@ -157,9 +158,10 @@ namespace
 //--------------------------------------------------- MainWindow constructor
 MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
                        MultiSettings * multi_settings, QSharedMemory *shdmem,
-                       unsigned downSampleFactor, QNetworkAccessManager * network_manager,
+                       unsigned downSampleFactor,
                        QSplashScreen * splash, QWidget *parent) :
   QMainWindow(parent),
+  m_network_manager {this},
   m_valid {true},
   m_splash {splash},
   m_dataDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)},
@@ -254,7 +256,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_onAirFreq0 {0.0},
   m_first_error {true},
   tx_status_label {"Receiving"},
-  wsprNet {new WSPRNet {network_manager, this}},
+  wsprNet {new WSPRNet {&m_network_manager, this}},
   m_appDir {QApplication::applicationDirPath ()},
   m_palette {"Linrad"},
   m_mode {"JT9"},
@@ -336,7 +338,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
         m_config.udp_server_name (), m_config.udp_server_port (),
         this}},
   psk_Reporter {new PSK_Reporter {m_messageClient, this}},
-  m_manual {network_manager}
+  m_manual {&m_network_manager}
 {
   ui->setupUi(this);
   createStatusBar();
@@ -485,10 +487,10 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->actionMediumDecode->setActionGroup(DepthGroup);
   ui->actionDeepestDecode->setActionGroup(DepthGroup);
 
-  connect (ui->download_samples_action, &QAction::triggered, [this, network_manager] () {
+  connect (ui->download_samples_action, &QAction::triggered, [this] () {
       if (!m_sampleDownloader)
         {
-          m_sampleDownloader.reset (new SampleDownloader {m_settings, &m_config, network_manager, this});
+          m_sampleDownloader.reset (new SampleDownloader {m_settings, &m_config, &m_network_manager, this});
         }
       m_sampleDownloader->show ();
     });

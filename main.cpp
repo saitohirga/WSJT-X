@@ -8,8 +8,6 @@
 
 #include <QDateTime>
 #include <QApplication>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
 #include <QRegularExpression>
 #include <QObject>
 #include <QSettings>
@@ -316,25 +314,8 @@ int main(int argc, char *argv[])
                                                                   ).toBool () ? 1u : 4u;
           }
 
-          QNetworkAccessManager network_manager {&a};
-
           // run the application UI
-          MainWindow w(temp_dir, multiple, &multi_settings, &mem_jt9, downSampleFactor, &network_manager, &splash);
-
-          // set up handling for any SSL issues
-          QObject::connect (&network_manager, &QNetworkAccessManager::sslErrors, [&w] (QNetworkReply * reply, QList<QSslError> const& errors) {
-              QString message;
-              for (auto const& error: errors)
-                {
-                  message += '\n' + reply->request ().url ().toDisplayString () + ": "
-                    + error.errorString ();
-                }
-              if (QMessageBox::Ignore == QMessageBox::question (&w, "Network SSL Errors", message, QMessageBox::Abort | QMessageBox::Ignore))
-                {
-                  reply->ignoreSslErrors ();
-                }
-            });
-
+          MainWindow w(temp_dir, multiple, &multi_settings, &mem_jt9, downSampleFactor, &splash);
           w.show();
           splash.raise ();
           QObject::connect (&a, SIGNAL (lastWindowClosed()), &a, SLOT (quit()));
