@@ -35,6 +35,7 @@
 #include "commons.h"
 #include "astro.h"
 #include "MessageBox.hpp"
+#include "NetworkAccessManager.hpp"
 
 #define NUM_JT4_SYMBOLS 206                //(72+31)*2, embedded sync
 #define NUM_JT65_SYMBOLS 126               //63 data + 63 sync
@@ -55,7 +56,6 @@ namespace Ui {
 }
 
 class QSettings;
-class QNetworkAccessManager;
 class QLineEdit;
 class QFont;
 class QHostInfo;
@@ -88,7 +88,6 @@ public:
 
   explicit MainWindow(QDir const& temp_directory, bool multiple, MultiSettings *,
                       QSharedMemory *shdmem, unsigned downSampleFactor,
-                      QNetworkAccessManager * network_manager,
                       QSplashScreen *,
                       QWidget *parent = nullptr);
   ~MainWindow();
@@ -279,6 +278,7 @@ private:
   void astroUpdate ();
   void writeAllTxt(QString message);
 
+  NetworkAccessManager m_network_manager;
   bool m_valid;
   QSplashScreen * m_splash;
   QDir m_dataDir;
