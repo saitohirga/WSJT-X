@@ -24,3 +24,13 @@ on the screen shown below.  For this tutorial you will need at least
 the JT9 and JT9+JT65 files.
 
 image::download_samples.png[align="center",alt="Downlod Samples"]
+
+TIP: For this download to work automatically, certain OpenSSL
+libraries must be present in your system.  United States export laws
+forbid the inclusion of OpenSSL libraries in our installer package.
+However, you may install them yourself.  For Windows you can get an
+approved package here:
+http://slproweb.com/products/Win32OpenSSL.html. You will need at least
+the *Win32 v1.0.2j Light* package. Take the default options in the
+installer, particularly the option to install into the Windows system
+directory.
