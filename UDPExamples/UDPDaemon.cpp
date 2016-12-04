@@ -112,7 +112,7 @@ public:
   }
 
 private:
-  void add_client (QString const& id)
+  void add_client (QString const& id, QString const& version, QString const& revision)
   {
     auto client = new Client {id};
     connect (server_, &MessageServer::status_update, client, &Client::update_status);
@@ -120,7 +120,16 @@ private:
     connect (server_, &MessageServer::WSPR_decode, client, &Client::beacon_spot_added);
     clients_[id] = client;
     server_->replay (id);
-    std::cout << "Discovered WSJT-X instance: " << id.toStdString () << std::endl;
+    std::cout << "Discovered WSJT-X instance: " << id.toStdString ();
+    if (version.size ())
+      {
+        std::cout << " v" << version.toStdString ();
+      }
+    if (revision.size ())
+      {
+        std::cout << " (" << revision.toStdString () << ")";
+      }
+    std::cout << std::endl;
   }
 
   void remove_client (QString const& id)

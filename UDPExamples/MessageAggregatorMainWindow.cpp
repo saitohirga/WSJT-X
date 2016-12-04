@@ -126,9 +126,9 @@ void MessageAggregatorMainWindow::log_qso (QString const& /*id*/, QDateTime time
   log_table_view_->scrollToBottom ();
 }
 
-void MessageAggregatorMainWindow::add_client (QString const& id)
+void MessageAggregatorMainWindow::add_client (QString const& id, QString const& version, QString const& revision)
 {
-  auto dock = new ClientWidget {decodes_model_, beacons_model_, id, this};
+  auto dock = new ClientWidget {decodes_model_, beacons_model_, id, version, revision, this};
   dock->setAttribute (Qt::WA_DeleteOnClose);
   auto view_action = dock->toggleViewAction ();
   view_action->setEnabled (true);

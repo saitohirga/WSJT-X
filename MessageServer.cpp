@@ -21,8 +21,10 @@ class MessageServer::impl
   Q_OBJECT;
 
 public:
-  impl (MessageServer * self)
+  impl (MessageServer * self, QString const& version, QString const& revision)
     : self_ {self}
+    , version_ {version}
+    , revision_ {revision}
     , port_ {0u}
     , clock_ {new QTimer {this}}
   {
@@ -60,6 +62,8 @@ public:
   }
 
   MessageServer * self_;
+  QString version_;
+  QString revision_;
   port_type port_;
   QHostAddress multicast_group_address_;
   static BindMode constexpr bind_mode_ = ShareAddress | ReuseAddressHint;
@@ -145,6 +149,8 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
           if (!clients_.contains (id))
             {
               auto& client = (clients_[id] = {sender, sender_port});
+              QByteArray client_version;
+              QByteArray client_revision;
 
               if (NetworkMessage::Heartbeat == in.type ())
                 {
@@ -159,7 +165,8 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                       // negotiated schema number
                       QByteArray message;
                       NetworkMessage::Builder hb {&message, NetworkMessage::Heartbeat, id, client.negotiated_schema_number_};
-                      hb << NetworkMessage::Builder::schema_number; // maximum schema number accepted
+                      hb << NetworkMessage::Builder::schema_number // maximum schema number accepted
+                         << version_.toUtf8 () << revision_.toUtf8 ();
                       if (impl::OK == check_status (hb))
                         {
                           writeDatagram (message, client.sender_address_, client.sender_port_);
@@ -169,8 +176,11 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                           Q_EMIT self_->error ("Error creating UDP message");
                         }
                     }
+                  // we don't care if this fails to read
+                  in >> client_version >> client_revision;
                 }
-              Q_EMIT self_->client_opened (id);
+              Q_EMIT self_->client_opened (id, QString::fromUtf8 (client_version),
+                                           QString::fromUtf8 (client_revision));
             }
           clients_[id].last_activity_ = QDateTime::currentDateTime ();
   
@@ -350,9 +360,9 @@ auto MessageServer::impl::check_status (QDataStream const& stream) const -> Stre
   return result;
 }
 
-MessageServer::MessageServer (QObject * parent)
+MessageServer::MessageServer (QObject * parent, QString const& version, QString const& revision)
   : QObject {parent}
-  , m_ {this}
+  , m_ {this, version, revision}
 {
 }
 

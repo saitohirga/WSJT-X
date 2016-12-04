@@ -78,6 +78,8 @@
  * Heartbeat     Out/In    0                      quint32
  *                         Id (unique key)        utf8
  *                         Maximum schema number  quint32
+ *                         version                utf8
+ *                         revision               utf8
  *
  *    The heartbeat  message shall be  sent on a periodic  basis every
  *    NetworkMessage::pulse   seconds   (see    below),   the   WSJT-X

@@ -32,7 +32,8 @@ public:
   // instantiate and initiate a host lookup on the server
   //
   // messages will be silently dropped until a server host lookup is complete
-  MessageClient (QString const& id, QString const& server, port_type server_port, QObject * parent = nullptr);
+  MessageClient (QString const& id, QString const& version, QString const& revision,
+                 QString const& server, port_type server_port, QObject * parent = nullptr);
 
   // query server details
   QHostAddress server_address () const;

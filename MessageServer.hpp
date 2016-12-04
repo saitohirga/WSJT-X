@@ -31,12 +31,14 @@ public:
   using port_type = quint16;
   using Frequency = Radio::Frequency;
 
-  MessageServer (QObject * parent = nullptr);
+  MessageServer (QObject * parent = nullptr,
+                 QString const& version = QString {}, QString const& revision = QString {});
 
   // start or restart the server, if the multicast_group_address
   // argument is given it is assumed to be a multicast group address
   // which the server will join
-  Q_SLOT void start (port_type port, QHostAddress const& multicast_group_address = QHostAddress {});
+  Q_SLOT void start (port_type port,
+                     QHostAddress const& multicast_group_address = QHostAddress {});
 
   // ask the client with identification 'id' to make the same action
   // as a double click on the decode would
@@ -59,7 +61,7 @@ public:
 
   // the following signals are emitted when a client broadcasts the
   // matching message
-  Q_SIGNAL void client_opened (QString const& id);
+  Q_SIGNAL void client_opened (QString const& id, QString const& version, QString const& revision);
   Q_SIGNAL void status_update (QString const& id, Frequency, QString const& mode, QString const& dx_call
                                , QString const& report, QString const& tx_mode, bool tx_enabled
                                , bool transmitting, bool decoding, qint32 rx_df, qint32 tx_df
