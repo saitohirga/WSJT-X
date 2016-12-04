@@ -34,6 +34,7 @@ public:
   explicit HRDTransceiver (std::unique_ptr<TransceiverBase> wrapped
                            , QString const& server
                            , bool use_for_ptt
+                           , TransceiverFactory::TXAudioSource
                            , int poll_interval
                            , QObject * parent = nullptr);
 
@@ -79,6 +80,8 @@ private:
   std::unique_ptr<TransceiverBase> wrapped_; // may be null
 
   bool use_for_ptt_;            // Use HRD for PTT.
+  TransceiverFactory::TXAudioSource audio_source_; // Select rear/data
+                                                   // audio if available
 
   QString server_;              // The TCP/IP addrress and port for
                                 // the HRD server.
@@ -132,9 +135,9 @@ private:
 
   ModeMap mode_B_map_;          // The map of modes for VFO B.
 
+  int data_mode_button_;        // Button to select DATA mode
   int data_mode_dropdown_;      // Index of data mode drop down, may
                                 // be -1 if no such drop down exists
-
   std::vector<int> data_mode_dropdown_selection_on_; // The drop down
                                 // selection to turn on data mode.
 
@@ -183,6 +186,8 @@ private:
   std::vector<int> rx_B_selection_;
 
   int ptt_button_;              // The button to toggle PTT.
+  int alt_ptt_button_;          // The alternative button to toggle
+                                // PTT - used to select rear audio.
 
   bool reversed_;               // True if VFOs are reversed.
 };

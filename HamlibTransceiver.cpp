@@ -568,8 +568,19 @@ int HamlibTransceiver::do_start ()
         {
         case -5: resolution = -1; break;  // 10Hz truncated
         case 5: resolution = 1; break;    // 10Hz rounded
-        case -55: resolution = -2; break; // 100Hz truncated
-        case 45: resolution = 2; break;   // 100Hz rounded
+        case -15: resolution = -2; break; // 20Hz truncated
+        case -55: resolution = -3; break; // 100Hz truncated
+        case 45: resolution = 3; break;   // 100Hz rounded
+        }
+      if (1 == resolution)      // may be 20Hz rounded
+        {
+          test_frequency = f - f % 100 + 51;
+          error_check (rig_set_freq (rig_.data (), RIG_VFO_CURR, test_frequency), tr ("setting frequency"));
+          error_check (rig_get_freq (rig_.data (), RIG_VFO_CURR, &new_frequency), tr ("getting current VFO frequency"));
+          if (9 == static_cast<Radio::FrequencyDelta> (new_frequency - test_frequency))
+            {
+              resolution = 2;   // 20Hz rounded
+            }
         }
       error_check (rig_set_freq (rig_.data (), RIG_VFO_CURR, current_frequency), tr ("setting frequency"));
     }

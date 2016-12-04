@@ -221,8 +221,29 @@ int OmniRigTransceiver::do_start ()
             {
             case -5: resolution = -1; break;  // 10Hz truncated
             case 5: resolution = 1; break;    // 10Hz rounded
+            case -15: resolution = -2; break; // 20Hz truncated
             case -55: resolution = -2; break; // 100Hz truncated
             case 45: resolution = 2; break;   // 100Hz rounded
+            }
+          if (1 == resolution)  // may be 20Hz rounded
+            {
+              test_frequency = f - f % 100 + 51;
+              if (OmniRig::PM_FREQ & writable_params_)
+                {
+                  rig_->SetFreq (test_frequency);
+                }
+              else if (reversed_ && (OmniRig::PM_FREQB & writable_params_))
+                {
+                  rig_->SetFreqB (test_frequency);
+                }
+              else if (!reversed_ && (OmniRig::PM_FREQA & writable_params_))
+                {
+                  rig_->SetFreqA (test_frequency);
+                }
+              if (9 == rig_->GetRxFrequency () - test_frequency)
+                {
+                  resolution = 2;   // 20Hz rounded
+                }
             }
           if (OmniRig::PM_FREQ & writable_params_)
             {

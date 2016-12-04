@@ -60,13 +60,9 @@ class TransceiverBase
 {
   Q_OBJECT;
 
-private:
-  enum class Resolution {accurate, round, truncate};
-
 protected:
   TransceiverBase (QObject * parent)
     : Transceiver {parent}
-    , resolution_ {Resolution::accurate}
     , last_sequence_number_ {0}
   {}
 
@@ -155,7 +151,6 @@ private:
   TransceiverState requested_;
   TransceiverState actual_;
   TransceiverState last_;
-  Resolution resolution_;            // rig accuracy
   unsigned last_sequence_number_;    // from set state operation
 };
 

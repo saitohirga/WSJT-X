@@ -88,8 +88,22 @@ int DXLabSuiteCommanderTransceiver::do_start ()
                 {
                 case -5: resolution = -1; break;  // 10Hz truncated
                 case 5: resolution = 1; break;    // 10Hz rounded
+                case -15: resolution = -2; break; // 20Hz truncated
                 case -55: resolution = -2; break; // 100Hz truncated
                 case 45: resolution = 2; break;   // 100Hz rounded
+                }
+              if (1 == resolution)      // may be 20Hz rounded
+                {
+                  test_frequency = f - f % 100 + 51;
+                  f_string = frequency_to_string (test_frequency);
+                  params =  ("<xcvrfreq:%1>" + f_string).arg (f_string.size ());
+                  simple_command (("<command:10>CmdSetFreq<parameters:%1>" + params).arg (params.size ()));
+                  reply = command_with_reply ("<command:10>CmdGetFreq<parameters:0>");
+                  new_frequency = string_to_frequency (reply.mid (reply.indexOf ('>') + 1));
+                  if (9 == static_cast<Radio::FrequencyDelta> (new_frequency - test_frequency))
+                    {
+                      resolution = 2;   // 20Hz rounded
+                    }
                 }
               f_string = frequency_to_string (f);
               params =  ("<xcvrfreq:%1>" + f_string).arg (f_string.size ());
