@@ -249,7 +249,7 @@ many times as will fit into a Tx sequence.
 
 ==== JT9
 
-The JT9 slow modes all use keying rate 4.375 baud.  By contrast, with
+The JT9 slow modes all use keying rate 12000/6912 = 1.736 baud.  By contrast, with
 the *Fast* setting submodes JT9E-H adjust the keying rate to match the
 increased tone spacings.  Message durations are therefore much
 shorter, and they are sent repeatedly throughout each Tx sequence.
