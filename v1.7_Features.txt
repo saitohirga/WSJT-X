@@ -1,5 +1,5 @@
-		Alpha Release: WSJT-X Version 1.7
-		---------------------------------
+		Beta Release: WSJT-X Version 1.7
+		--------------------------------
 
 Short list of new features
 --------------------------
