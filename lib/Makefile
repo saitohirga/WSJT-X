@@ -1,14 +1,22 @@
+# Set paths
+EXE_DIR = ..\\..\\wsjtx_install
+QT_DIR = C:/wsjt-env/Qt5/5.2.1/mingw48_32
+FFTW3_DIR = ..
+
+INCPATH = -I${QT_DIR}/include/QtCore -I${QT_DIR}/include 
+
+# Compilers
 CC = gcc
 CXX = g++
 FC = gfortran
 AR = ar cr
+RANLIB = ranlib
 MKDIR = mkdir -p
 CP = cp
-RANLIB = ranlib
 RM = rm -f
 
-FFLAGS = -O3 -funroll-loops -Wall -Wno-conversion -fno-second-underscore -DUNIX
-CFLAGS = -I. -fPIE
+FFLAGS = -O2 -fbounds-check -Wall -Wno-conversion
+CFLAGS = -O2 -I. 
 
 # Default rules
 %.o: %.c
@@ -21,34 +29,41 @@ CFLAGS = -I. -fPIE
 	${FC} ${FFLAGS} -c $<
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
-%.mod: %.f90
-	${FC} ${FFLAGS} -c $<
 
-#all:    jt4.mod testjt4 testfast9
-all:	testjt65
+all:	 qratest.exe
 
-OBJS1 = testjt4.o jt4.o sync4.o ps4.o four2a.o flat1a.o smo.o xcor4.o \
-	slope.o peakup.o db.o pctile.o sort.o timer.o image.o zplt.o
+OBJS1 = qratest.o qra64a.o sync64.o four2a.o smo.o smo121.o averms.o \
+	timer_module.o packjt.o twkfreq.o spec64.o fmtmsg.o pctile.o \
+	grid2deg.o deg2grid.o shell.o badmsg.o qra64_subs.o \
+	qracodes.o npfwht.o pdmath.o qra12_63_64_irr_b.o \
+	qra13_64_64_irr_e.o qra64.o
 
-testjt4: $(OBJS1) 
-	$(FC) -o testjt4 $(OBJS1) -L. -lfftw3f_threads -lfftw3f 
+qra64_subs.o: qra/qra64/qra64_subs.c
+	gcc -c -O2 -o qra64_subs.o qra/qra64/qra64_subs.c
 
-OBJS2 = t2.o image.o
-t2:     $(OBJS2)
-	$(FC) -o t2 $(OBJS2)
+qracodes.o: qra/qracodes/qracodes.c
+	gcc -c -O2 -o qracodes.o qra/qracodes/qracodes.c
 
-OBJS3 = testfast9.o fast9.o four2a.o pctile.o db.o interleave9.o jt9fano.o \
-	sort.o fano232.o packjt.o deg2grid.o grid2deg.o fmtmsg.o \
-	spec9f.o foldspec9f.o sync9f.o softsym9f.o
-testfast9: $(OBJS3)
-	$(FC) -o testfast9 $(OBJS3) C:\JTSDK\fftw3f\libfftw3f-3.dll
+qra64.o: qra/qra64/qra64.c
+	gcc -c -O2 -o qra64.o qra/qra64/qra64.c
 
-OBJS4 = testjt65.o symspec65.o four2a.o db.o flat65.o pctile.o shell.o \
-	xcor.o setup65.o slope.o peakup.o sync65.o
-testjt65: $(OBJS4)
-	$(FC) -o testjt65 $(OBJS4) C:\JTSDK\fftw3f\libfftw3f-3.dll
+npfwht.o: qra/qracodes/npfwht.c
+	gcc -c -O2 -o npfwht.o qra/qracodes/npfwht.c
+
+pdmath.o: qra/qracodes/pdmath.c
+	gcc -c -O2 -o pdmath.o qra/qracodes/pdmath.c
+
+qra12_63_64_irr_b.o: qra/qracodes/qra12_63_64_irr_b.c
+	gcc -c -O2 -o qra12_63_64_irr_b.o  qra/qracodes/qra12_63_64_irr_b.c
+
+qra13_64_64_irr_e.o: qra/qracodes/qra13_64_64_irr_e.c
+	gcc -c -O2 -o qra13_64_64_irr_e.o  qra/qracodes/qra13_64_64_irr_e.c
+
+
+qratest.exe: $(OBJS1)
+	$(FC) -o qratest.exe $(OBJS1) C:\JTSDK\fftw3f\libfftw3f-3.dll
 
 .PHONY : clean
 
 clean:
-	$(RM) *.o libjt9.a testjt4
+	$(RM) *.o qratest.exe 
