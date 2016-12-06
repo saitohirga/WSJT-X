@@ -23,9 +23,9 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   data nc1z/-1/,nc2z/-1/,ng2z/-1/,maxaptypez/-1/
   save
 
+  if(nfqso.lt.nf1 .or. nfqso.gt.nf2) go to 900
   call timer('qra64a  ',0)
   decoded='                      '
-  if(nfqso.lt.nf1 .or. nfqso.gt.nf2) go to 900
   nft=99
   nsnr=-30
   mycall=mycall_12(1:6)                     !### May need fixing ###
@@ -59,15 +59,10 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
 
   maxf1=0
   call timer('sync64  ',0)
-  call sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,sync,c00)
+  call sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk0,kpk,sync,c00)
   call timer('sync64  ',1)
   irc=-99
-  
-!  sync=5
-!  dtx=0.
-!  f0=1000.
-  
-!  if(sync.lt.minsync+3.5) go to 900
+  s3lim=20.
   
   npts2=npts/2
   itz=11
@@ -77,77 +72,74 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   
   LL=64*(mode64+2)
   NN=63
-!  do itry0=1,3
-  do itry0=1,1
-     idf0=itry0/2
-     if(mod(itry0,2).eq.0) idf0=-idf0
-     a(1)=-(f0+0.248*(idf0-0.33*kpk))
-     nfreq=nint(-a(1))
-     a(3)=0.
-!     do itry1=1,3
-     do itry1=1,1
-        idf1=itry1/2
-        if(mod(itry1,2).eq.0) idf1=-idf1
-        a(2)=-0.67*(idf1 + 0.67*kpk)
-        call twkfreq(c00,c0,npts2,6000.0,a)
-        call spec64(c0,npts2,mode64,jpk,s3a,LL,NN)
-
-!### Parameters 3000.0 and 10.0 might be better optimized?
-        call pctile(s3a,LL*NN,45,base)
-        s3max=3000.0
-        if(sync.gt.5.0) s3max=15000.0/sync
-        s3max=max(10.0,s3max)
-        do i=1,LL*NN
-           if(s3a(i).gt.s3max*base) s3a(i)=s3max*base
-        enddo
-        s3pk=maxval(s3a(1:LL*NN))
-        
-        napmin=99
-        do iter=itz,0,-2
-           b90=1.728**iter
-           if(b90.gt.230.0) cycle
-           s3(1:LL*NN)=s3a(1:LL*NN)
-           call timer('qra64_de',0)
-           call qra64_dec(s3,nc1,nc2,ng2,naptype,0,nSubmode,b90,      &
-                nFadingModel,dat4,snr2,irc)
-           call timer('qra64_de',1)
-           if(abs(snr2).gt.30.) snr2=-30.0
-           if(irc.eq.0) go to 10
-           if(irc.gt.0) call badmsg(irc,dat4,nc1,nc2,ng2)
-           if(irc.lt.0) cycle
-           iirc=max(0,min(irc,11))
-           if(irc.gt.0 .and. nap(iirc).le.napmin) then
-              dat4x=dat4
-              b90x=b90
-              snr2x=snr2
-              napmin=nap(iirc)
-              irckeep=irc
-           endif
-        enddo
-        if(napmin.ne.99) then
-              dat4=dat4x
-              b90=b90x
-              snr2=snr2x
-              irc=irckeep
-        endif
-10      decoded='                      '
-
-        if(irc.ge.0) then
-           call unpackmsg(dat4,decoded)           !Unpack the user message
-           call fmtmsg(decoded,iz)
-           nft=100 + irc
-           nsnr=nint(snr2)
-        else
-           snr2=0.
+  napmin=99
+  do itry0=1,7
+     idt=itry0/2
+     if(mod(itry0,2).eq.0) idt=-idt
+     jpk=jpk0 + 1500*idt
+     a=0.
+     a(1)=-f0
+     nfreq=nint(f0)
+     call twkfreq(c00,c0,npts2,6000.0,a)
+     call spec64(c0,npts2,mode64,jpk,s3a,LL,NN)
+     call pctile(s3a,LL*NN,45,base)
+     s3a=s3a/base
+     where(s3a(1:LL*NN)>s3lim) s3a(1:LL*NN)=s3lim
+     do iter=itz,0,-2
+        b90=1.728**iter
+        if(b90.gt.230.0) cycle
+        s3(1:LL*NN)=s3a(1:LL*NN)
+        call timer('qra64_de',0)
+        call qra64_dec(s3,nc1,nc2,ng2,naptype,0,nSubmode,b90,      &
+             nFadingModel,dat4,snr2,irc)
+        call timer('qra64_de',1)
+        if(abs(snr2).gt.30.) snr2=-30.0
+        if(irc.eq.0) go to 10
+        if(irc.gt.0) call badmsg(irc,dat4,nc1,nc2,ng2)
+        iirc=max(0,min(irc,11))
+        if(irc.gt.0 .and. nap(iirc).lt.napmin) then
+           dat4x=dat4
+           b90x=b90
+           snr2x=snr2
+           napmin=nap(iirc)
+           irckeep=irc
+           dtxkeep=jpk/6000.0 - 1.0
+           itry0keep=itry0
+           iterkeep=iter
         endif
      enddo
+     if(irc.eq.0) exit
   enddo
-900 continue
-  if(index(decoded,"000AAA ").ge.1) then
-! Suppress a certain type of garbage decode.
-     decoded='                      '
-     irc=-1
+
+  if(napmin.ne.99) then
+     dat4=dat4x
+     b90=b90x
+     snr2=snr2x
+     irc=irckeep
+     dtx=dtxkeep
+     itry0=itry0keep
+     iter=iterkeep
   endif
+10 decoded='                      '
+
+  if(irc.ge.0) then
+     call unpackmsg(dat4,decoded)           !Unpack the user message
+     call fmtmsg(decoded,iz)
+     if(index(decoded,"000AAA ").ge.1) then
+        ! Suppress a certain type of garbage decode.
+        decoded='                      '
+        irc=-1
+     endif
+     nft=100 + irc
+     nsnr=nint(snr2)
+  else
+     snr2=0.
+  endif
+  
+  write(60,3100) nutc,nsnr,dtx,f0,sync,itry0,iter,irc,decoded
+3100 format(i4.4,i4,f6.2,2f7.1,3i4,2x,a22)
+  flush(60)
+  
   if(irc.lt.0) then
      sy=max(1.0,sync-2.5)
      if(nSubmode.eq.0) nsnr=nint(10.0*log10(sy)-38.0)   !A
@@ -158,5 +150,5 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   endif  
   call timer('qra64a  ',1)
 
-  return
+900 return
 end subroutine qra64a
