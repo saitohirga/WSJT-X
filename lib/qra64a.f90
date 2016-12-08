@@ -24,10 +24,11 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   save
 
   call timer('qra64a  ',0)
-  if(nfqso.lt.nf1 .or. nfqso.gt.nf2) go to 900
+  irc=-1
   decoded='                      '
   nft=99
-  nsnr=-30
+  if(nfqso.lt.nf1 .or. nfqso.gt.nf2) go to 900
+
   mycall=mycall_12(1:6)                     !### May need fixing ###
   hiscall=hiscall_12(1:6)
   hisgrid=hisgrid_6(1:4)
@@ -95,7 +96,7 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
         call qra64_dec(s3,nc1,nc2,ng2,naptype,0,nSubmode,b90,      &
              nFadingModel,dat4,snr2,irc)
         call timer('qra64_de',1)
-        if(abs(snr2).gt.30.) snr2=-30.0
+!        if(abs(snr2).gt.30.) snr2=-30.0
         if(irc.eq.0) go to 10
         if(irc.gt.0) call badmsg(irc,dat4,nc1,nc2,ng2)
         iirc=max(0,min(irc,11))
@@ -137,17 +138,16 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   else
      snr2=0.
   endif
-  
-  if(irc.lt.0) then
-     sy=max(1.0,sync-2.5)
-     if(nSubmode.eq.0) nsnr=nint(10.0*log10(sy)-38.0)   !A
-     if(nSubmode.eq.1) nsnr=nint(10.0*log10(sy)-36.0)   !B
-     if(nSubmode.eq.2) nsnr=nint(10.0*log10(sy)-34.0)   !C
+
+900 if(irc.lt.0) then
+     sy=max(1.0,sync)
+     if(nSubmode.eq.0) nsnr=nint(10.0*log10(sy)-35.0)   !A
+     if(nSubmode.eq.1) nsnr=nint(10.0*log10(sy)-34.0)   !B
+     if(nSubmode.eq.2) nsnr=nint(10.0*log10(sy)-29.0)   !C
      if(nSubmode.eq.3) nsnr=nint(10.0*log10(sy)-29.0)   !D
      if(nSubmode.eq.4) nsnr=nint(10.0*log10(sy)-24.0)   !E
   endif
-
-900 call timer('qra64a  ',1)
+  call timer('qra64a  ',1)
 
   return
 end subroutine qra64a
