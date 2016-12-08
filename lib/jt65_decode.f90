@@ -99,6 +99,12 @@ contains
     if(nsubmode.ge.100) then
 ! This is QRA64 mode
        mode64=2**(nsubmode-100)
+!###
+!       open(60,file='qra64_data.bin',access='stream',position='append')
+!       write(60) dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
+!            mycall,hiscall,hisgrid
+!       close(60)
+!###
        call qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
             mycall,hiscall,hisgrid,sync,nsnr,dtx,nfreq,decoded,nft)
        if (associated(this%callback)) then

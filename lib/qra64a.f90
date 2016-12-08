@@ -61,26 +61,28 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   call timer('sync64  ',0)
   call sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk0,kpk,sync,c00)
   call timer('sync64  ',1)
+  if(sync.lt.3.4) go to 900
+  a=0.
+  a(1)=-f0
+  nfreq=nint(f0)
+  npts2=npts/2
+  call twkfreq(c00,c0,npts2,6000.0,a)
+
   irc=-99
   s3lim=20.
   
-  npts2=npts/2
   itz=11
   if(mode64.eq.4) itz=9
   if(mode64.eq.2) itz=7
   if(mode64.eq.1) itz=5
-  
+
   LL=64*(mode64+2)
   NN=63
   napmin=99
-  do itry0=1,7
+  do itry0=1,5
      idt=itry0/2
      if(mod(itry0,2).eq.0) idt=-idt
-     jpk=jpk0 + 1500*idt
-     a=0.
-     a(1)=-f0
-     nfreq=nint(f0)
-     call twkfreq(c00,c0,npts2,6000.0,a)
+     jpk=jpk0 + 750*idt
      call spec64(c0,npts2,mode64,jpk,s3a,LL,NN)
      call pctile(s3a,LL*NN,45,base)
      s3a=s3a/base
@@ -135,10 +137,6 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   else
      snr2=0.
   endif
-  
-  write(60,3100) nutc,nsnr,dtx,f0,sync,itry0,iter,irc,decoded
-3100 format(i4.4,i4,f6.2,2f7.1,3i4,2x,a22)
-  flush(60)
   
   if(irc.lt.0) then
      sy=max(1.0,sync-2.5)

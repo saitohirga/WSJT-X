@@ -27,15 +27,12 @@ subroutine sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,   &
   save
 
   if(mode64.ne.mode64z) then
-     nsync=10
-     inquire(file='old_qra_sync',exist=old_qra_sync)
-     if(old_qra_sync) nsync=1
      twopi=8.0*atan(1.0)
      dfgen=mode64*12000.0/6912.0
      k=-1
      phi=0.
      do j=0,6                               !Compute complex Costas waveform
-        dphi=twopi*nsync*icos7(j)*dfgen/6000.0
+        dphi=twopi*10.0*icos7(j)*dfgen/6000.0
         do i=1,NSPS
            phi=phi + dphi
            if(phi.gt.twopi) phi=phi-twopi
@@ -61,15 +58,17 @@ subroutine sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,   &
   nh3=nfft3/2
   df3=6000.0/nfft3
   
-  faa=max(nf1,nfqso-ntol)
-  fbb=min(nf2,nfqso+ntol)
-  iaa=nint(faa/df3)
-  ibb=nint(fbb/df3)
+  fa=max(nf1,nfqso-ntol)
+  fb=min(nf2,nfqso+ntol)
+  iaa=max(0,nint(fa/df3))
+  ibb=min(NSPC-1,nint(fb/df3))
 
-  fa=max(nf1,nfqso-1000)
-  fb=min(nf2,nfqso+1000)
-  ia=nint(fa/df3)
-  ib=nint(fb/df3)
+  maxtol=max(ntol,500)
+  fa=max(nf1,nfqso-maxtol)
+  fb=min(nf2,nfqso+maxtol)
+  ia=max(0,nint(fa/df3))
+  ib=min(NSPC-1,nint(fb/df3))
+  id=0.1*(ib-ia)
 
   iz=ib-ia+1
   sync=0.
@@ -77,10 +76,13 @@ subroutine sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,   &
   jpk=0
   ja=0
   jb=7.5*6000
-  jstep=200
+  jstep=100
   ipk=0
-  nskip=max(14,10*mode64)
-  
+  kpk=0
+  nadd=10*mode64
+  if(mod(nadd,2).eq.0) nadd=nadd+1       !Make nadd odd
+  nskip=max(49,nadd)
+    
   do j1=ja,jb,jstep
      call timer('sync64_1',0)
      j2=j1 + 39*NSPS
@@ -91,7 +93,6 @@ subroutine sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,   &
      call four2a(c2,nfft3,1,-1,1)
      c3=1.e-4*c0(j3:j3+NSPC-1) * conjg(cc)
      call four2a(c3,nfft3,1,-1,1)
-     s0=0.
      s1=0.
      s2=0.
      s3=0.
@@ -106,33 +107,26 @@ subroutine sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,   &
 
      call timer('sync64_2',0)
      s0(ia:ib)=s1(ia:ib) + s2(ia:ib) + s3(ia:ib)
-     call pctile(s0(ia:ib),iz,45,ave)
      s0(:ia-1)=0.
      s0(ib+1:)=0.
-     smax=0.
-     do na=0,3
-        nadd=7*(2**na)
-        if(nadd.gt.161) nadd=161
-        if(mod(nadd,2).eq.0) nadd=nadd+1
-        call smo(s0(ia:ib)/nadd,iz,s0b(ia:ib),nadd)
-        call smo(s0b(ia:ib)/nadd,iz,s0(ia:ib),nadd)
-        rms=ave/sqrt(float(nadd))
-        s=0.
-        sall=0.
-        if(rms.gt.0.0) then
-           s=(maxval(s0(iaa:ibb))-ave)/rms
-           sall=(maxval(s0(ia:ib))-ave)/rms
-        endif
-        if(sall.gt.smaxall) then
-           smaxall=sall
-           s0a=(s0-ave)/rms
-        endif
-        if(s.gt.smax) then
-           smax=s
-           nabest=na
-           s0c(ia:ib)=s0(ia:ib)
-        endif
-     enddo
+     if(nadd.ge.3) then
+        do ii=1,3
+           s0b(ia:ib)=s0(ia:ib)
+           call smo(s0b(ia:ib),iz,s0(ia:ib),nadd)
+        enddo
+     endif
+     call averms(s0(ia+id:ib-id),iz-2*id,nskip,ave,rms)
+     s=(maxval(s0(ia:ib))-ave)/rms
+     ipk0=maxloc(s0(ia:ib))
+     ip=ipk0(1) + ia - 1
+     if(s.gt.sync .and. ip.ge.iaa .and. ip.le.ibb) then
+        jpk=j1
+        s0a=(s0-ave)/rms
+        sync=s
+        dtx=jpk/6000.0 - 1.0
+        ipk=ip
+        f0=ip*df3
+     endif
      s0=s0c
      ipk0=maxloc(s0(ia:ib))
      ip=ipk0(1) + ia - 1
