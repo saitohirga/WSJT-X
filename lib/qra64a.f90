@@ -23,8 +23,8 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   data nc1z/-1/,nc2z/-1/,ng2z/-1/,maxaptypez/-1/
   save
 
-  if(nfqso.lt.nf1 .or. nfqso.gt.nf2) go to 900
   call timer('qra64a  ',0)
+  if(nfqso.lt.nf1 .or. nfqso.gt.nf2) go to 900
   decoded='                      '
   nft=99
   nsnr=-30
@@ -145,8 +145,9 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
      if(nSubmode.eq.2) nsnr=nint(10.0*log10(sy)-34.0)   !C
      if(nSubmode.eq.3) nsnr=nint(10.0*log10(sy)-29.0)   !D
      if(nSubmode.eq.4) nsnr=nint(10.0*log10(sy)-24.0)   !E
-  endif  
-  call timer('qra64a  ',1)
+  endif
 
-900 return
+900 call timer('qra64a  ',1)
+
+  return
 end subroutine qra64a

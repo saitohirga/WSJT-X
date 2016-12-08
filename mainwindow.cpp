@@ -984,7 +984,8 @@ void MainWindow::readSettings()
   m_nSubMode=m_settings->value("SubMode",0).toInt();
   m_FtolIndex=m_settings->value("FtolIndex",21).toInt();
 //  ui->FTol_combo_box->setCurrentText(m_settings->value("FTol","500").toString ());
-  ui->syncSpinBox->setValue(m_settings->value("MinSync",0).toInt());
+  m_minSync=m_settings->value("MinSync",0).toInt();
+  ui->syncSpinBox->setValue(m_minSync);
   ui->cbAutoSeq->setChecked (m_settings->value ("AutoSeq", false).toBool());
   m_bShMsgs=m_settings->value("ShMsgs",false).toBool();
   m_bFast9=m_settings->value("Fast9",false).toBool();
