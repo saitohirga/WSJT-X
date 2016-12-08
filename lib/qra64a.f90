@@ -61,7 +61,7 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   call timer('sync64  ',0)
   call sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk0,kpk,sync,c00)
   call timer('sync64  ',1)
-  if(sync.lt.3.4) go to 900
+  if((sync-3.4).lt.float(minsync)) go to 900
   a=0.
   a(1)=-f0
   nfreq=nint(f0)
