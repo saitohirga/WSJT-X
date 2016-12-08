@@ -1,19 +1,6 @@
-# Set paths
-EXE_DIR = ..\\..\\wsjtx_install
-QT_DIR = C:/wsjt-env/Qt5/5.2.1/mingw48_32
-FFTW3_DIR = ..
-
-INCPATH = -I${QT_DIR}/include/QtCore -I${QT_DIR}/include 
-
-# Compilers
 CC = gcc
 CXX = g++
 FC = gfortran
-AR = ar cr
-RANLIB = ranlib
-MKDIR = mkdir -p
-CP = cp
-RM = rm -f
 
 FFLAGS = -O2 -fbounds-check -Wall -Wno-conversion
 CFLAGS = -O2 -I. 
