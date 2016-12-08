@@ -6,17 +6,22 @@ program qratest
   character c*1,label*3
 
   nargs=iargc()
-  if(nargs.lt.1 .or. nargs.gt.3) then
-     print*,'Usage: qratest nfile [f0 fTol]'
+  if(nargs.lt.1 .or. nargs.gt.4) then
+     print*,'Usage: qratest nfile [sync f0 fTol]'
      go to 999
   endif
   call getarg(1,arg)
   read(arg,*) nfile
+  minsync0=-1
+  nfqso0=-1
+  ntol0=-1
   if(nargs.gt.1) then
      call getarg(2,arg)
-     read(arg,*) maxf1
+     read(arg,*) minsync0
      call getarg(3,arg)
-     read(arg,*) ntol
+     read(arg,*) nfqso0
+     call getarg(4,arg)
+     read(arg,*) ntol0
   endif
   ndepth=3
   nft=99
@@ -27,6 +32,11 @@ program qratest
      read(60,end=999) dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth, &
           mycall,hiscall,hisgrid
      if(ifile.lt.nfile) cycle
+     
+     if(minsync0.ne.-1) minsync=minsync0
+     if(nfqso0.ne.-1) nfqso=nfqso0
+     if(ntol0.ne.-1) ntol=ntol0
+
      call qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,      &
           mycall,hiscall,hisgrid,sync,nsnr,dtx,nfreq,decoded,nft)
      c='a'
