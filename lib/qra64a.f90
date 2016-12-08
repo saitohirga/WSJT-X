@@ -62,10 +62,10 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   call timer('sync64  ',0)
   call sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk0,kpk,sync,c00)
   call timer('sync64  ',1)
+  nfreq=nint(f0)
   if((sync-3.4).lt.float(minsync)) go to 900
   a=0.
   a(1)=-f0
-  nfreq=nint(f0)
   npts2=npts/2
   call twkfreq(c00,c0,npts2,6000.0,a)
 
@@ -96,7 +96,6 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
         call qra64_dec(s3,nc1,nc2,ng2,naptype,0,nSubmode,b90,      &
              nFadingModel,dat4,snr2,irc)
         call timer('qra64_de',1)
-!        if(abs(snr2).gt.30.) snr2=-30.0
         if(irc.eq.0) go to 10
         if(irc.gt.0) call badmsg(irc,dat4,nc1,nc2,ng2)
         iirc=max(0,min(irc,11))

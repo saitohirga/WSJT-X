@@ -20,7 +20,7 @@ subroutine badmsg(irc,dat,nc1,nc2,ng2)
   ig=ishft(iand(dat(10),15),12) + ishft(dat(11),6) + dat(12)
   
 ! Test for blank, -01 to -30, R-01 to R-30, RO, RRR, 73
-  if(ig.ge.32401 .and. ig.le.32461) return
+  if(ig.ge.32401 .and. ig.le.32464) return
 
   if(ig.ge.14220 .and. ig.le.14229) return  !-41 to -50
   if(ig.ge.14040 .and. ig.le.14049) return  !-31 to -40
