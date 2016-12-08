@@ -249,7 +249,7 @@ contains
     if(ft.ge.80) then                      !QRA64 mode
        nft=ft-100
        csync=': '
-       if(sync.ge.float(minsync) .or. nft.ge.0) csync=':*'
+       if(sync-3.4.ge.float(minsync) .or. nft.ge.0) csync=':*'
        if(nft.lt.0) then
           write(*,1009) params%nutc,snr,dt,freq,csync,decoded
        else
