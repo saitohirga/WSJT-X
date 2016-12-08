@@ -3,7 +3,7 @@ program qratest
   parameter (NMAX=60*12000) 
   real dd(NMAX)
   character arg*8,mycall*12,hiscall*12,hisgrid*6,decoded*22
-  character c*1,label*3
+  character c*1
 
   nargs=iargc()
   if(nargs.lt.1 .or. nargs.gt.4) then
@@ -44,8 +44,8 @@ program qratest
      if(mode64.eq.4) c='c'
      if(mode64.eq.8) c='d'
      if(mode64.eq.16) c='e'
-     write(*,1000) ifile,c,nutc,nsnr,dtx,nfreq,decoded,nft-100
-1000 format(i4,1x,a1,1x,i4.4,i4,f6.2,i5,1x,a22,i3)
+     write(*,1000) ifile,c,nutc,nsnr,dtx,nfreq,decoded,nft-100,sync-3.4
+1000 format(i4,1x,a1,1x,i4.4,i4,f6.2,i5,1x,a22,i3,f6.2)
      if(ifile.eq.nfile) exit
   enddo
 
