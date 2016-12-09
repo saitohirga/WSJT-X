@@ -806,6 +806,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   if((m_ndepth&7)==3) ui->actionDeepestDecode->setChecked(true);
   ui->actionInclude_averaging->setChecked((m_ndepth&16)>0);
   ui->actionInclude_correlation->setChecked((m_ndepth&32)>0);
+  ui->actionEnable_AP_DXcall->setChecked((m_ndepth&64)>0);
 
   m_UTCdisk=-1;
   m_ntx = 1;
@@ -2185,6 +2186,7 @@ void MainWindow::decode()                                       //decode()
   qint32 depth {m_ndepth};
   if (!ui->actionInclude_averaging->isEnabled ()) depth &= ~16;
   if (!ui->actionInclude_correlation->isEnabled ()) depth &= ~32;
+  if (!ui->actionEnable_AP_DXcall->isEnabled ()) depth &= ~64;
   dec_data.params.ndepth=depth;
   dec_data.params.n2pass=1;
   if(m_config.twoPass()) dec_data.params.n2pass=2;
@@ -4420,19 +4422,19 @@ void MainWindow::on_RxFreqSpinBox_valueChanged(int n)
 
 void MainWindow::on_actionQuickDecode_triggered()
 {
-  m_ndepth=(m_ndepth&48) + 1;
+  m_ndepth=(m_ndepth&112) + 1;
   ui->actionQuickDecode->setChecked(true);
 }
 
 void MainWindow::on_actionMediumDecode_triggered()
 {
-  m_ndepth=(m_ndepth&48) + 2;
+  m_ndepth=(m_ndepth&112) + 2;
   ui->actionMediumDecode->setChecked(true);
 }
 
 void MainWindow::on_actionDeepestDecode_triggered()
 {
-  m_ndepth=(m_ndepth&48) + 3;
+  m_ndepth=(m_ndepth&112) + 3;
   ui->actionDeepestDecode->setChecked(true);
 }
 
