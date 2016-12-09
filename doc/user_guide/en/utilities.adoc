@@ -17,7 +17,7 @@ symbols in a transmitted message is 206.  To run `jt4code`, enter the
 program name followed by a JT4 message enclosed in quotes.  In Windows
 the command and program output might look like this:
 
- C:\WSJTX> jt4code "G0XYZ K1ABC FN42"
+ C:\WSJTX\bin> jt4code "G0XYZ K1ABC FN42"
       Message                 Decoded                Err? Type
  -------------------------------------------------------------------
   1.  G0XYZ K1ABC FN42        G0XYZ K1ABC FN42            1: Std Msg
@@ -36,7 +36,7 @@ sync tone.  The total number of symbols in a transmitted message is
 85.  Enter the program name followed by a JT9 message enclosed in
 quotes:
 
- C:\WSJTX> jt9code "G0XYZ K1ABC FN42"
+ C:\WSJTX\bin> jt9code "G0XYZ K1ABC FN42"
       Message                 Decoded                Err? Type
  -------------------------------------------------------------------
   1.  G0XYZ K1ABC FN42        G0XYZ K1ABC FN42            1: Std Msg
@@ -56,7 +56,7 @@ A typical execution of `jt65code` is shown below.  The program
 displays the packed message of 72 bits, shown here as 12 six-bit
 symbol values, followed by the channel symbols:
 
- C:\WSJTX> jt65code "G0XYZ K1ABC FN42"
+ C:\WSJTX\bin> jt65code "G0XYZ K1ABC FN42"
       Message                 Decoded                Err? Type
  ----------------------------------------------------------------------
   1.  G0XYZ K1ABC FN42        G0XYZ K1ABC FN42            1:    Std Msg
@@ -73,7 +73,7 @@ JT9 and JT65, try looking at the channel symbols after changing a
 single character in the message.  For example, change the grid locator
 from FN42 to FN43 in the JT65 message:
 
- C:\WSJTX> jt65code "G0XYZ K1ABC FN43"
+ C:\WSJTX\bin> jt65code "G0XYZ K1ABC FN43"
       Message                 Decoded                Err? Type
  ----------------------------------------------------------------------
   1.  G0XYZ K1ABC FN43        G0XYZ K1ABC FN43            1:    Std Msg
@@ -89,11 +89,30 @@ You will discover that every possible JT65 message differs from every
 other possible JT65 message in at least 52 of the 63
 information-carrying channel symbols.
 
+Here's an example using the QRA64 mode:
+
+ C:\WSJTX\bin qra64code "KA1ABC WB9XYZ EN37"
+      Message                 Decoded                Err? Type
+ --------------------------------------------------------------------------
+   1 KA1ABC WB9XYZ EN37      KA1ABC WB9XYZ EN37          1:    Std Msg
+
+ Packed message, 6-bit symbols  34 16 49 32 51 26 31 40 41 22  0 41
+
+ Information-carrying channel symbols
+   34 16 49 32 51 26 31 40 41 22  0 41 16 46 14 24 58 45 22 45 38 54  7 23  2 49 32 50 20 33
+   55 51  7 31 31 46 41 25 55 14 62 33 29 24  2 49  4 38 15 21  1 41 56 56 16 44 17 30 46 36
+   23 23 41
+
+ Channel symbols including sync
+   20 50 60  0 40 10 30 34 16 49 32 51 26 31 40 41 22  0 41 16 46 14 24 58 45 22 45 38 54  7
+   23  2 49 32 50 20 33 55 51 20 50 60  0 40 10 30  7 31 31 46 41 25 55 14 62 33 29 24  2 49
+    4 38 15 21  1 41 56 56 16 44 17 30 46 36 23 23 41 20 50 60  0 40 10 30
+
 Execution of any of these utility programs with "-t" as the only
 command-line argument produces examples of all supported message
 types.  For example, using `jt65code -t`:
 
- C:\WSJTX> jt65code -t
+ C:\WSJTX\bin> jt65code -t
  
       Message                 Decoded                Err? Type
  --------------------------------------------------------------------------
@@ -135,12 +154,20 @@ MSK144 uses a binary channel code, so transmitted symbols have the value
 the I (in-phase) channel, odd numbered symbols on the Q (quadrature)
 channel.  A typical execution of `msk144code` is shown below.
 
- C:\WSJTX> msk144code "K1ABC W9XYZ EN37"
+ C:\WSJTX\bin> msk144code "K1ABC W9XYZ EN37"
 
       Message                 Decoded                Err? Type
  --------------------------------------------------------------------------
   1.  K1ABC W9XYZ EN37        K1ABC W9XYZ EN37            1: Std Msg
 
- Channel symbols (72 per line):
+ Channel symbols
  110000100011001101010101001000111111001001001100110010011100001001000000
  010110001011101111001010111011001100110101011000111101100010111100100011
+
+ C:\WSJTX\bin> msk144code "<KA1ABC WB9XYZ> R-03"
+      Message                 Decoded                Err? Type
+ --------------------------------------------------------------------------
+  1.  <KA1ABC WB9XYZ> R-03    <KA1ABC WB9XYZ> R-03        7: Hashed calls
+
+ Channel symbols
+ 1000011100001000111011111010011011111010
