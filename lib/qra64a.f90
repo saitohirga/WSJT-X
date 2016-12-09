@@ -85,7 +85,7 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
      if(mod(itry0,2).eq.0) idt=-idt
      jpk=jpk0 + 750*idt
      call spec64(c0,npts2,mode64,jpk,s3a,LL,NN)
-     call pctile(s3a,LL*NN,45,base)
+     call pctile(s3a,LL*NN,40,base)
      s3a=s3a/base
      where(s3a(1:LL*NN)>s3lim) s3a(1:LL*NN)=s3lim
      do iter=itz,0,-2
