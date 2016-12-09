@@ -60,7 +60,7 @@ program msk144code
      n=144
      if(msg(1:1).eq."<") n=40
      write(*,1030) i4tone(1:n)
-1030 format(/'Channel symbols (72 per line):'/(72i1))
+1030 format(/'Channel symbols'/(72i1))
   endif
 
 999 end program msk144code

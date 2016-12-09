@@ -54,13 +54,13 @@ program QRA64code
 
   if(nmsg.eq.1) then
      write(*,1030) dgen
-1030 format(/'Packed message, 6-bit symbols: ',12i3) !Display packed symbols
+1030 format(/'Packed message, 6-bit symbols ',12i3) !Display packed symbols
 
      write(*,1040) sent
-1040 format(/'Information-carrying channel symbols:'/(i5,29i3))
+1040 format(/'Information-carrying channel symbols'/(i5,29i3))
 
      write(*,1050) 10*icos7,sent(1:32),10*icos7,sent(33:63),10*icos7
-1050 format(/'Channel symbols including sync:'/(i5,29i3))
+1050 format(/'Channel symbols including sync'/(i5,29i3))
   endif
   
 999 end program QRA64code
