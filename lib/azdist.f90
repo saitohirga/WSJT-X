@@ -49,22 +49,26 @@ subroutine azdist(grid1,grid2,utch,nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter)
      HotABetter=.true.
      go to 900
   endif
-
   call grid2deg(MyGrid,dlong1,dlat1)
   call grid2deg(HisGrid,dlong2,dlat2)
   eps=1.e-6
-  if(abs(dlat1-dlat2).lt.eps .and. abs(dlong1-dlong2).lt.eps) then
-     Az=0.
-     Dmiles=0.
-     Dkm=0.0
-     El=0.
-     HotA=0.
-     HotB=0.
-     HotABetter=.true.
+  Az=0.
+  Dmiles=0.
+  Dkm=0.0
+  El=0.
+  HotA=0.
+  HotB=0.
+  HotABetter=.true.
+  if(abs(dlat1-dlat2).lt.eps .and. abs(dlong1-dlong2).lt.eps) go to 900
+
+  difflong=mod(dlong1-dlong2+720.0,360.0)
+  if(abs(dlat1+dlat2).lt.eps .and. abs(difflong-180.0).lt.eps) then
+! Antipodes
+     Dkm=20400
      go to 900
-  else
-     call geodist(dlat1,dlong1,dlat2,dlong2,Az,Baz,Dkm)
   endif
+
+  call geodist(dlat1,dlong1,dlat2,dlong2,Az,Baz,Dkm)
 
   ndkm=Dkm/100
   j=ndkm-4
