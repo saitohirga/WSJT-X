@@ -30,7 +30,7 @@ public:
     show ();
     raise ();
     activateWindow ();
-    directory_.refresh ();
+    directory_.refresh (http_only_check_box_.isChecked ());
   }
 
 protected:
@@ -46,6 +46,7 @@ private:
     SettingsGroup g (settings_, title);
     settings_->setValue ("geometry", saveGeometry ());
     settings_->setValue ("SamplesURL", url_line_edit_.text ());
+    settings_->setValue ("HTTPOnly", http_only_check_box_.isChecked ());
   }
 
   Q_SLOT void button_clicked (QAbstractButton *);
@@ -58,6 +59,7 @@ private:
   QWidget details_widget_;
   QFormLayout details_layout_;
   QLineEdit url_line_edit_;
+  QCheckBox http_only_check_box_;
 };
 
 #include "SampleDownloader.moc"
@@ -92,6 +94,7 @@ SampleDownloader::impl::impl (QSettings * settings
     SettingsGroup g {settings_, title};
     restoreGeometry (settings_->value ("geometry", saveGeometry ()).toByteArray ());
     url_line_edit_.setText (settings_->value ("SamplesURL", PROJECT_SAMPLES_URL).toString ());
+    http_only_check_box_.setChecked (settings_->value ("HTTPOnly", false).toBool ());
     directory_.url_root (url_line_edit_.text ());
   }
 
@@ -107,6 +110,8 @@ SampleDownloader::impl::impl (QSettings * settings
   details_widget_.hide ();
   details_layout_.setMargin (0);
   details_layout_.addRow ("Base URL for samples:", &url_line_edit_);
+  details_layout_.addRow ("Only use HTTP:", &http_only_check_box_);
+  http_only_check_box_.setToolTip ("Check this is you get SSL/TLS errors");
   details_widget_.setLayout (&details_layout_);
 
   main_layout_.addLayout (&left_layout_, 0, 0);
@@ -120,12 +125,15 @@ SampleDownloader::impl::impl (QSettings * settings
   connect (&url_line_edit_, &QLineEdit::editingFinished, [this] () {
       if (directory_.url_root (url_line_edit_.text ()))
         {
-          directory_.refresh ();
+          directory_.refresh (http_only_check_box_.isChecked ());
         }
       else
         {
           MessageBox::warning_message (this, tr ("Input Error"), tr ("Invalid URL format"));
         }
+    });
+  connect (&http_only_check_box_, &QAbstractButton::toggled, [this] (bool checked) {
+      directory_.refresh (checked);
     });
 }
 
@@ -142,7 +150,7 @@ void SampleDownloader::impl::button_clicked (QAbstractButton * button)
       break;
 
     case QDialogButtonBox::ResetRole:
-      directory_.refresh ();
+      directory_.refresh (http_only_check_box_.isChecked ());
       break;
 
     default:
