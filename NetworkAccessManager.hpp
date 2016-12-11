@@ -19,7 +19,7 @@ class NetworkAccessManager
   : public QNetworkAccessManager
 {
 public:
-  NetworkAccessManager (QWidget * parent = nullptr)
+  NetworkAccessManager (QWidget * parent)
     : QNetworkAccessManager (parent)
   {
     // handle SSL errors that have not been cached as allowed
@@ -27,21 +27,34 @@ public:
     // exception cache
     connect (this, &QNetworkAccessManager::sslErrors, [this, &parent] (QNetworkReply * reply, QList<QSslError> const& errors) {
         QString message;
+        QList<QSslError> new_errors;
         for (auto const& error: errors)
           {
-            message += '\n' + reply->request ().url ().toDisplayString () + ": "
-              + error.errorString ();
+            if (!allowed_ssl_errors_.contains (error))
+              {
+                new_errors << error;
+                message += '\n' + reply->request ().url ().toDisplayString () + ": "
+                  + error.errorString ();
+              }
           }
-        QString certs;
-        for (auto const& cert : reply->sslConfiguration ().peerCertificateChain ())
+        if (new_errors.size ())
           {
-            certs += cert.toText () + '\n';
+            QString certs;
+            for (auto const& cert : reply->sslConfiguration ().peerCertificateChain ())
+              {
+                certs += cert.toText () + '\n';
+              }
+            if (MessageBox::Ignore == MessageBox::query_message (parent, tr ("Network SSL Errors"), message, certs, MessageBox::Abort | MessageBox::Ignore))
+              {
+                // accumulate new SSL error exceptions that have been allowed
+                allowed_ssl_errors_.append (new_errors);
+                reply->ignoreSslErrors (allowed_ssl_errors_);
+              }
           }
-        if (MessageBox::Ignore == MessageBox::query_message (parent, tr ("Network SSL Errors"), message, certs, MessageBox::Abort | MessageBox::Ignore))
+        else
           {
-            // accumulate SSL error exceptions that have been allowed
-            allowed_ssl_errors_.append (errors);
-            reply->ignoreSslErrors (errors);
+            // no new exceptions so silently ignore the ones already allowed
+            reply->ignoreSslErrors (allowed_ssl_errors_);
           }
       });
   }
