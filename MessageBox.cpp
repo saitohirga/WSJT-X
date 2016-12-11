@@ -29,7 +29,7 @@ void MessageBox::about_Qt_message (QWidget * parent)
 
 namespace
 {
-  QMessageBox::StandardButton show_it (QWidget *parent, MessageBox::Icon icon
+  QMessageBox::StandardButton show_it (QWidget * parent, MessageBox::Icon icon
                                        , QString const& text
                                        , QString const& informative
                                        , QString const& detail
