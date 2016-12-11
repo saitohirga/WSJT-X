@@ -37,6 +37,7 @@ Directory::Directory (Configuration const * configuration
   : QTreeWidget {parent}
   , configuration_ {configuration}
   , network_manager_ {network_manager}
+  , http_only_ {false}
   , root_dir_ {configuration_->save_directory ()}
   , contents_ {this
         , network_manager_
@@ -79,12 +80,12 @@ bool Directory::url_root (QUrl root)
     {
       root.setPath (root.path () + '/');
     }
-  if (root.isValid ())
+  bool valid = root.isValid ();
+  if (valid)
     {
       url_root_ = root;
-      refresh ();
     }
-  return root.isValid ();
+  return valid;
 }
 
 void Directory::error (QString const& title, QString const& message)
@@ -92,7 +93,7 @@ void Directory::error (QString const& title, QString const& message)
   MessageBox::warning_message (this, title, message);
 }
 
-bool Directory::refresh ()
+bool Directory::refresh (bool http_only)
 {
   abort ();
   clear ();
@@ -100,6 +101,7 @@ bool Directory::refresh ()
   root_dir_ = configuration_->save_directory ();
   QDir contents_dir {root_dir_.absoluteFilePath (samples_dir_name)};
   contents_.local_file_path (contents_dir.absoluteFilePath (contents_file_name));
+  contents_.http_only (http_only_ = http_only);
   QUrl url {url_root_.resolved (QDir {root_dir_.relativeFilePath (samples_dir_name)}.filePath (contents_file_name))};
   if (url.isValid ())
     {
@@ -175,7 +177,7 @@ void Directory::parse_entries (QJsonArray const& entries, QDir const& dir, QTree
                         {
                           auto node = new FileNode {parent, network_manager_
                                                     , QDir {root_dir_.filePath (dir.path ())}.absoluteFilePath (name)
-                                                    , url};
+                                                    , url, http_only_};
                           FileNode::sync_blocker b {node};
                           node->setIcon (0, file_icon_);
                           node->setCheckState (0, node->local () ? Qt::Checked : Qt::Unchecked);
@@ -255,28 +257,27 @@ namespace
   // maximum bytes to expect
   //
   int recurse_children (QTreeWidgetItem const * item, int * counted
-			, qint64 * bytes, qint64 * max)
+                        , qint64 * bytes, qint64 * max)
   {
     int items {0};
     for (int index {0}; index < item->childCount (); ++index)
       {
-	auto const * child = item->child (index);
-	qDebug () << "Item name:" << child->text (0);
-	if (child->type () == FileNode::Type)  // only count files
-	  {
-	    ++items;
-	    if (auto size = child->data (1, Qt::UserRole).toLongLong ())
-	      {
-		*max += size;
-		++*counted;
-	      }
-	    *bytes += child->data (1, Qt::DisplayRole).toLongLong ();
-	  }
-	else
-	  {
-	    // recurse into sub-directory subtrees
-	    items += recurse_children (child, counted, bytes, max);
-	  }
+        auto const * child = item->child (index);
+        if (child->type () == FileNode::Type)  // only count files
+          {
+            ++items;
+            if (auto size = child->data (1, Qt::UserRole).toLongLong ())
+              {
+                *max += size;
+                ++*counted;
+              }
+            *bytes += child->data (1, Qt::DisplayRole).toLongLong ();
+          }
+        else
+          {
+            // recurse into sub-directory subtrees
+            items += recurse_children (child, counted, bytes, max);
+          }
       }
     return items;
   }

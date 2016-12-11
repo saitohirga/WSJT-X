@@ -6,6 +6,7 @@
 #include <QUrl>
 #include <QFileInfo>
 #include <QSaveFile>
+#include <QPointer>
 
 class QNetworkAccessManager;
 class QNetworkReply;
@@ -38,7 +39,8 @@ public:
   };
 
   explicit RemoteFile (ListenerInterface * listener, QNetworkAccessManager * network_manager
-                       , QString const& local_file_path, QObject * parent = nullptr);
+                       , QString const& local_file_path, bool http_only = false
+                       , QObject * parent = nullptr);
 
   // true if local file exists or will do very soon
   bool local () const;
@@ -55,8 +57,11 @@ public:
   QString local_file_path () const {return local_file_.absoluteFilePath ();}
   QUrl url () const {return url_;}
 
+  // always use an http scheme for remote URLs
+  void http_only (bool flag = true) {http_only_ = flag;}
+
 private:
-  void download (QUrl const& url);
+  void download (QUrl url);
   void reply_finished ();
 
   Q_SLOT void store ();
@@ -68,8 +73,9 @@ private:
   ListenerInterface * listener_;
   QNetworkAccessManager * network_manager_;
   QFileInfo local_file_;
+  bool http_only_;
   QUrl url_;
-  QNetworkReply * reply_;
+  QPointer<QNetworkReply> reply_;
   bool is_valid_;
   unsigned redirect_count_;
   QSaveFile file_;

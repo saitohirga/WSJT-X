@@ -10,12 +10,12 @@
 #include "moc_RemoteFile.cpp"
 
 RemoteFile::RemoteFile (ListenerInterface * listener, QNetworkAccessManager * network_manager
-                        , QString const& local_file_path, QObject * parent)
+                        , QString const& local_file_path, bool http_only, QObject * parent)
   : QObject {parent}
   , listener_ {listener}
   , network_manager_ {network_manager}
   , local_file_ {local_file_path}
-  , reply_ {nullptr}
+  , http_only_ {http_only}
   , is_valid_ {false}
   , redirect_count_ {0}
   , file_ {local_file_path}
@@ -107,13 +107,17 @@ bool RemoteFile::sync (QUrl const& url, bool local, bool force)
   return true;
 }
 
-void RemoteFile::download (QUrl const& url)
+void RemoteFile::download (QUrl url)
 {
   if (QNetworkAccessManager::Accessible != network_manager_->networkAccessible ()) {
     // try and recover network access for QNAM
     network_manager_->setNetworkAccessible (QNetworkAccessManager::Accessible);
   }
 
+  if (url.isValid () && (!QSslSocket::supportsSsl () || http_only_))
+    {
+      url.setScheme ("http");
+    }
   QNetworkRequest request {url};
   request.setRawHeader ("User-Agent", "WSJT Sample Downloader");
   request.setOriginatingObject (this);
@@ -151,9 +155,10 @@ void RemoteFile::abort ()
 
 void RemoteFile::reply_finished ()
 {
-  auto saved_reply = reply_;
-  auto redirect_url = reply_->attribute (QNetworkRequest::RedirectionTargetAttribute).toUrl ();
-  if (!redirect_url.isEmpty ())
+  if (!reply_) return;          // we probably deleted it in an
+                                // earlier call
+  QUrl redirect_url {reply_->attribute (QNetworkRequest::RedirectionTargetAttribute).toUrl ()};
+  if (reply_->error () == QNetworkReply::NoError && !redirect_url.isEmpty ())
     {
       if (listener_->redirect_request (redirect_url))
         {
@@ -210,7 +215,7 @@ void RemoteFile::reply_finished ()
             {
               // now get the body content
               is_valid_ = true;
-              download (reply_->url () .resolved (redirect_url));
+              download (reply_->url ().resolved (redirect_url));
             }
           else
             {
@@ -219,9 +224,10 @@ void RemoteFile::reply_finished ()
             }
         }
     }
-  if (reply_->isFinished ()) reply_ = nullptr;
-  disconnect (saved_reply);
-  saved_reply->deleteLater ();  // finished with QNetworkReply
+  if (reply_ && reply_->isFinished ())
+    {
+      reply_->deleteLater ();
+    }
 }
 
 void RemoteFile::store ()
