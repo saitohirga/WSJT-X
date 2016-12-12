@@ -133,9 +133,9 @@ void RemoteFile::download (QUrl url)
       reply_ = network_manager_->get (request);
     }
 
-  connect (reply_, &QNetworkReply::finished, this, &RemoteFile::reply_finished);
-  connect (reply_, &QNetworkReply::readyRead, this, &RemoteFile::store);
-  connect (reply_, &QNetworkReply::downloadProgress
+  connect (reply_.data (), &QNetworkReply::finished, this, &RemoteFile::reply_finished);
+  connect (reply_.data (), &QNetworkReply::readyRead, this, &RemoteFile::store);
+  connect (reply_.data (), &QNetworkReply::downloadProgress
            , [this] (qint64 bytes_received, qint64 total_bytes) {
              // report progress of wanted file
              if (is_valid_)
