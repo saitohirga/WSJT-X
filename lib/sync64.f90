@@ -1,12 +1,10 @@
-subroutine sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,   &
-     sync,c0)
+subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,dtx,f0,jpk,sync,sync2,width)
 
   use timer_module, only: timer
 
   parameter (NMAX=60*12000)                  !Max size of raw data at 12000 Hz
   parameter (NSPS=3456)                      !Samples per symbol at 6000 Hz
   parameter (NSPC=7*NSPS)                    !Samples per Costas array
-  real dd(NMAX)                              !Raw data
   real s1(0:NSPC-1)                          !Power spectrum of Costas 1
   real s2(0:NSPC-1)                          !Power spectrum of Costas 2
   real s3(0:NSPC-1)                          !Power spectrum of Costas 3
@@ -14,7 +12,7 @@ subroutine sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,   &
   real s0a(0:NSPC-1)                         !Best synchromized spectrum (saved)
   real s0b(0:NSPC-1)                         !tmp
   real s0c(0:NSPC-1)                         !tmp
-  logical old_qra_sync
+  real a(5)
   integer icos7(0:6)                         !Costas 7x7 tones
   integer ipk0(1)
   complex cc(0:NSPC-1)                       !Costas waveform
@@ -43,17 +41,6 @@ subroutine sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,   &
      mode64z=mode64
   endif
 
-  nfft1=672000
-  nfft2=nfft1/2
-  df1=12000.0/nfft1
-  fac=2.0/nfft1
-  c0(0:npts-1)=fac*dd(1:npts)
-  c0(npts:nfft1)=0.
-  call four2a(c0,nfft1,1,-1,1)             !Forward c2c FFT
-  c0(nfft2/2+1:nfft2)=0.
-  c0(0)=0.5*c0(0)
-  call four2a(c0,nfft2,1,1,1)              !Inverse c2c FFT; c0 is analytic sig
-  npts2=npts/2                            !Downsampled complex data length
   nfft3=NSPC
   nh3=nfft3/2
   df3=6000.0/nfft3
@@ -144,6 +131,36 @@ subroutine sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk,kpk,   &
   s0a=s0a+2.0
   write(17) ia,ib,s0a(ia:ib)                !Save data for red curve
   close(17)
+
+  nskip=50
+  call lorentzian(s0a(ia+nskip:ib-nskip),iz-2*nskip,a)
+  f0a=(a(3)+ia+49)*df3
+  w1=df3*a(4)
+  w2=2*nadd*df3
+  width=w1
+  if(w1.gt.1.2*w2) width=sqrt(w1**2 - w2**2)
+
+  sq=0.
+  do i=1,20
+     j=ia+nskip+1
+     k=ib-nskip-21+i
+     sq=sq + (s0a(j)-a(1))**2 + (s0a(k)-a(1))**2
+  enddo
+  rms=sqrt(sq/40.0)
+  sync2=10.0*log10(a(2)/rms)
+
+!  do i=1,iz-2*nskip
+!     x=i
+!     z=(x-a(3))/(0.5*a(4))
+!     yfit=a(1)
+!     if(abs(z).lt.3.0) then
+!        d=1.0 + z*z
+!        yfit=a(1) + a(2)*(1.0/d - 0.1)
+!     endif
+!     j=i+ia+49
+!     write(76,1110) j*df3,s0a(j),yfit
+!1110 format(3f10.3)
+!  enddo
 
   return
 end subroutine sync64

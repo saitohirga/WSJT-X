@@ -58,12 +58,13 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   endif
   naptype=maxaptype
 
-  maxf1=0
+  call ana64(dd,npts,c00)
+  
   call timer('sync64  ',0)
-  call sync64(dd,npts,nf1,nf2,nfqso,ntol,mode64,maxf1,dtx,f0,jpk0,kpk,sync,c00)
+  call sync64(c00,nf1,nf2,nfqso,ntol,mode64,dtx,f0,jpk0,sync,sync2,width)
   call timer('sync64  ',1)
   nfreq=nint(f0)
-  if((sync-3.4).lt.float(minsync)) go to 900
+  if((sync-3.4).lt.float(minsync) .or. sync2.lt.-2.0 .or.width.gt.240.0) go to 900
   a=0.
   a(1)=-f0
   npts2=npts/2
@@ -91,6 +92,7 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
      do iter=itz,0,-2
         b90=1.728**iter
         if(b90.gt.230.0) cycle
+        if(b90.lt.0.15*width) exit
         s3(1:LL*NN)=s3a(1:LL*NN)
         call timer('qra64_de',0)
         call qra64_dec(s3,nc1,nc2,ng2,naptype,0,nSubmode,b90,      &
@@ -147,6 +149,10 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
      if(nSubmode.eq.4) nsnr=nint(10.0*log10(sy)-24.0)   !E
   endif
   call timer('qra64a  ',1)
+
+  write(83,4001) nutc,sync,sync2,b90,width,b90/width,nsnr,dtx,nfreq,decoded,nft-100
+4001 format(i4.4,5f6.1,i4,f6.2,i5,1x,a22,i3)
+
 
   return
 end subroutine qra64a
