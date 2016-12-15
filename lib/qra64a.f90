@@ -150,9 +150,5 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   endif
   call timer('qra64a  ',1)
 
-  write(83,4001) nutc,sync,sync2,b90,width,b90/width,nsnr,dtx,nfreq,decoded,nft-100
-4001 format(i4.4,5f6.1,i4,f6.2,i5,1x,a22,i3)
-
-
   return
 end subroutine qra64a
