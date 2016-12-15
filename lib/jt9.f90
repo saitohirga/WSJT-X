@@ -298,12 +298,12 @@ program jt9
   call timer('jt9     ',101)
 
 999 continue
-  ! Output decoder statistics
+! Output decoder statistics
   call fini_timer ()
-  open (unit=12, file=trim(data_dir)//'/timer.out', status='unknown', position='append')
-  write(12,1100) n65a,ntry65a,n65b,ntry65b,numfano,num9
-1100 format(58('-')/'   JT65_1  Tries_1  JT65_2 Tries_2    JT9   Tries'/  &
-            58('-')/6i8)
+!  open (unit=12, file=trim(data_dir)//'/timer.out', status='unknown', position='append')
+!  write(12,1100) n65a,ntry65a,n65b,ntry65b,numfano,num9
+!1100 format(58('-')/'   JT65_1  Tries_1  JT65_2 Tries_2    JT9   Tries'/  &
+!            58('-')/6i8)
 
 ! Save wisdom and free memory
   iret=fftwf_export_wisdom_to_filename(wisfile)

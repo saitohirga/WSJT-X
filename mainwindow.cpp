@@ -692,8 +692,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
     }
 #endif
 
-  auto_tx_label.setText (m_config.quick_call () ? "Auto-Tx-Enable Armed" : "Auto-Tx-Enable Disarmed");
-
   {
     //delete any .quit file that might have been left lying around
     //since its presence will cause jt9 to exit a soon as we start it
@@ -1414,8 +1412,6 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
                                           m_msAudioOutputBuffered);
     }
 
-    auto_tx_label.setText (m_config.quick_call () ? "Auto-Tx-Enable Armed" : "Auto-Tx-Enable Disarmed");
-
     displayDialFrequency ();
     bool vhf {m_config.enable_VHF_features()};
     m_wideGraph->setVHF(vhf);
@@ -1729,10 +1725,6 @@ void MainWindow::createStatusBar()                           //createStatusBar
   last_tx_label.setFrameStyle (QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget (&last_tx_label);
 
-  auto_tx_label.setAlignment (Qt::AlignHCenter);
-  auto_tx_label.setMinimumSize (QSize {150, 18});
-  auto_tx_label.setFrameStyle (QFrame::Panel | QFrame::Sunken);
-
   band_hopping_label.setAlignment (Qt::AlignHCenter);
   band_hopping_label.setMinimumSize (QSize {90, 18});
   band_hopping_label.setFrameStyle (QFrame::Panel | QFrame::Sunken);
@@ -1772,21 +1764,15 @@ void MainWindow::setup_status_bar (bool vhf)
   }
   last_tx_label.setText (QString {});
   if (m_mode.contains (QRegularExpression {R"(^(Echo|ISCAT))"})) {
-    if (auto_tx_label.isVisible ()) statusBar ()->removeWidget (&auto_tx_label);
     if (band_hopping_label.isVisible ()) statusBar ()->removeWidget (&band_hopping_label);
   } else if (m_mode.startsWith ("WSPR")) {
     mode_label.setStyleSheet ("QLabel{background-color: #ff66ff}");
-    if (auto_tx_label.isVisible ()) statusBar ()->removeWidget (&auto_tx_label);
     if (!band_hopping_label.isVisible ()) {
       statusBar ()->addWidget (&band_hopping_label);
       band_hopping_label.show ();
     }
   } else {
     if (band_hopping_label.isVisible ()) statusBar ()->removeWidget (&band_hopping_label);
-    if (!auto_tx_label.isVisible ()) {
-      statusBar ()->addWidget (&auto_tx_label);
-      auto_tx_label.show ();
-    }
   }
 }
 
