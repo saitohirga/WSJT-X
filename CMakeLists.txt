@@ -300,6 +300,7 @@ endif (WIN32)
 set (wsjt_FSRCS
   lib/afc65b.f90
   lib/afc9.f90
+  lib/ana64.f90
   lib/ana932.f90
   lib/analytic.f90
   lib/astro.f90
