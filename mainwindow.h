@@ -581,6 +581,8 @@ private:
   int  nWidgets(QString t);
   void displayWidgets(int n);
   void vhfWarning();
+  QChar current_submode () const; // returns QChar {0} if sub mode is
+                                  // not appropriate
 };
 
 extern int killbyname(const char* progName);

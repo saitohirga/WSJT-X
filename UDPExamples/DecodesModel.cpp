@@ -22,9 +22,10 @@ namespace
   QFont text_font {"Courier", 10};
 
   QList<QStandardItem *> make_row (QString const& client_id, QTime time, qint32 snr, float delta_time
-                                   , quint32 delta_frequency, QString const& mode, QString const& message)
+                                   , quint32 delta_frequency, QString const& mode, QString const& message
+                                   , bool is_fast)
   {
-    auto time_item = new QStandardItem {time.toString ("hh:mm")};
+    auto time_item = new QStandardItem {time.toString (is_fast ? "hh:mm:ss" : "hh:mm")};
     time_item->setData (time);
     time_item->setTextAlignment (Qt::AlignRight);
 
@@ -66,7 +67,8 @@ DecodesModel::DecodesModel (QObject * parent)
 }
 
 void DecodesModel::add_decode (bool is_new, QString const& client_id, QTime time, qint32 snr, float delta_time
-                               , quint32 delta_frequency, QString const& mode, QString const& message)
+                               , quint32 delta_frequency, QString const& mode, QString const& message
+                               , bool is_fast)
 {
   if (!is_new)
     {
@@ -93,12 +95,13 @@ void DecodesModel::add_decode (bool is_new, QString const& client_id, QTime time
         }
       if (target_row >= 0)
         {
-          insertRow (target_row + 1, make_row (client_id, time, snr, delta_time, delta_frequency, mode, message));
+          insertRow (target_row + 1, make_row (client_id, time, snr, delta_time, delta_frequency, mode
+                                               , message, is_fast));
           return;
         }
     }
 
-  appendRow (make_row (client_id, time, snr, delta_time, delta_frequency, mode, message));
+  appendRow (make_row (client_id, time, snr, delta_time, delta_frequency, mode, message, is_fast));
 }
 
 void DecodesModel::clear_decodes (QString const& client_id)

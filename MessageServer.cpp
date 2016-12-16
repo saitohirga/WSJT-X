@@ -214,15 +214,19 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                 QByteArray de_grid;
                 QByteArray dx_grid;
                 bool watchdog_timeout {false};
+                QByteArray sub_mode;
+                bool fast_mode {false};
                 in >> f >> mode >> dx_call >> report >> tx_mode >> tx_enabled >> transmitting >> decoding
-                   >> rx_df >> tx_df >> de_call >> de_grid >> dx_grid >> watchdog_timeout;
+                   >> rx_df >> tx_df >> de_call >> de_grid >> dx_grid >> watchdog_timeout >> sub_mode
+                   >> fast_mode;
                 if (check_status (in) != Fail)
                   {
                     Q_EMIT self_->status_update (id, f, QString::fromUtf8 (mode), QString::fromUtf8 (dx_call)
                                                  , QString::fromUtf8 (report), QString::fromUtf8 (tx_mode)
                                                  , tx_enabled, transmitting, decoding, rx_df, tx_df
                                                  , QString::fromUtf8 (de_call), QString::fromUtf8 (de_grid)
-                                                 , QString::fromUtf8 (dx_grid), watchdog_timeout);
+                                                 , QString::fromUtf8 (dx_grid), watchdog_timeout
+                                                 , QString::fromUtf8 (sub_mode), fast_mode);
                   }
               }
               break;

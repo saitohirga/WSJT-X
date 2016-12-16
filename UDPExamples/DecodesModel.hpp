@@ -32,7 +32,7 @@ public:
   explicit DecodesModel (QObject * parent = nullptr);
 
   Q_SLOT void add_decode (bool is_new, QString const& client_id, QTime time, qint32 snr, float delta_time
-                          , quint32 delta_frequency, QString const& mode, QString const& message);
+                          , quint32 delta_frequency, QString const& mode, QString const& message, bool is_fast);
   Q_SLOT void clear_decodes (QString const& client_id);
   Q_SLOT void do_reply (QModelIndex const& source);
 
