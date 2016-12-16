@@ -124,6 +124,7 @@ ClientWidget::ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemMod
   , auto_off_button_ {new QPushButton {tr ("&Auto Off")}}
   , halt_tx_button_ {new QPushButton {tr ("&Halt Tx")}}
   , mode_label_ {new QLabel}
+  , fast_mode_ {false}
   , frequency_label_ {new QLabel}
   , dx_label_ {new QLabel}
   , rx_df_label_ {new QLabel}
@@ -215,14 +216,17 @@ void ClientWidget::update_status (QString const& id, Frequency f, QString const&
                                   , QString const& report, QString const& tx_mode, bool tx_enabled
                                   , bool transmitting, bool decoding, qint32 rx_df, qint32 tx_df
                                   , QString const& de_call, QString const& /*de_grid*/, QString const& dx_grid
-                                  , bool watchdog_timeout)
+                                  , bool watchdog_timeout, QString const& sub_mode, bool fast_mode)
 {
   if (id == id_)
     {
+      fast_mode_ = fast_mode;
       decodes_proxy_model_.de_call (de_call);
       decodes_proxy_model_.rx_df (rx_df);
-      mode_label_->setText (QString {"Mode: %1%2"}
+      mode_label_->setText (QString {"Mode: %1%2%3%4"}
            .arg (mode)
+           .arg (sub_mode)
+           .arg (fast_mode && !mode.contains (QRegularExpression {R"(ISCAT|MSK144)"}) ? "fast" : "")
            .arg (tx_mode.isEmpty () || tx_mode == mode ? "" : '(' + tx_mode + ')'));
       frequency_label_->setText ("QRG: " + Radio::pretty_frequency_MHz_string (f));
       dx_label_->setText (dx_call.size () >= 0 ? QString {"DX: %1%2"}.arg (dx_call)

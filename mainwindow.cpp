@@ -1310,6 +1310,7 @@ void MainWindow::fastSink(qint64 frames)
         processMessage (message,43,false);
       }
     }
+    if (m_mode != "ISCAT") postDecode (true, decodedtext.string ());
     writeAllTxt(message);
     bool stdMsg = decodedtext.report(m_baseCall,
                   Radio::base_callsign(ui->dxCallEntry->text()),m_rptRcvd);
@@ -1747,12 +1748,15 @@ void MainWindow::createStatusBar()                           //createStatusBar
 
 void MainWindow::setup_status_bar (bool vhf)
 {
-  mode_label.setText ("QRA64" == m_mode ? QString {"QRA64"} : m_mode);
-  if (m_mode.contains (QRegularExpression {R"(^(JT65|JT9|JT4|ISCAT|QRA64)$)"})) {
-    if (vhf || "JT4" == m_mode || "ISCAT" == m_mode) {
-      mode_label.setText (mode_label.text () + " " + QChar {short (m_nSubMode + 65)});
+  auto submode = current_submode ();
+  if (vhf && submode != '\0')
+    {
+      mode_label.setText (m_mode + " " + submode);
     }
-  }
+  else
+    {
+      mode_label.setText (m_mode);
+    }
   if ("ISCAT" == m_mode) {
     mode_label.setStyleSheet ("QLabel{background-color: #ff9933}");
   } else if ("JT9" == m_mode) {
@@ -2328,6 +2332,7 @@ void::MainWindow::fast_decode_done()
       tmax=t;
       m_bDecoded=true;
     }
+    postDecode (true, decodedtext.string ());
     writeAllTxt(message);
 
     if(m_mode=="JT9" or m_mode=="MSK144") {
@@ -3977,7 +3982,6 @@ void MainWindow::on_actionJT4_triggered()
   WSPR_config(false);
   switch_mode (Modes::JT4);
   m_modeTx="JT4";
-  statusChanged();
   m_TRperiod=60;
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
@@ -4005,6 +4009,7 @@ void MainWindow::on_actionJT4_triggered()
     ui->sbSubmode->setValue(0);
     ui->sbTR->setValue(0);
   }
+  statusChanged();
 }
 
 void MainWindow::on_actionJT9_triggered()
@@ -4021,7 +4026,6 @@ void MainWindow::on_actionJT9_triggered()
   WSPR_config(false);
   switch_mode (Modes::JT9);
   if(m_modeTx!="JT9") on_pbTxMode_clicked();
-  statusChanged();
   m_nsps=6912;
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
@@ -4061,6 +4065,7 @@ void MainWindow::on_actionJT9_triggered()
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
   ui->label_6->setText("Band Activity");
   ui->label_7->setText("Rx Frequency");
+  statusChanged();
 }
 
 void MainWindow::on_actionJT9_JT65_triggered()
@@ -4074,7 +4079,6 @@ void MainWindow::on_actionJT9_JT65_triggered()
     m_modeTx="JT9";
   }
   m_nSubMode=0;                    //Dual-mode always means JT9 and JT65A
-  statusChanged();
   m_TRperiod=60;
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
@@ -4097,6 +4101,7 @@ void MainWindow::on_actionJT9_JT65_triggered()
   ui->sbTR->setValue(0);
   ui->label_6->setText("Band Activity");
   ui->label_7->setText("Rx Frequency");
+  statusChanged();
 }
 
 void MainWindow::on_actionJT65_triggered()
@@ -4118,7 +4123,6 @@ void MainWindow::on_actionJT65_triggered()
   WSPR_config(false);
   switch_mode (Modes::JT65);
   if(m_modeTx!="JT65") on_pbTxMode_clicked();
-  statusChanged();
   m_TRperiod=60;
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);   // TODO - not thread safe
@@ -4148,6 +4152,7 @@ void MainWindow::on_actionJT65_triggered()
     ui->label_6->setText("Band Activity");
     ui->label_7->setText("Rx Frequency");
   }
+  statusChanged();
 }
 
 void MainWindow::on_actionQRA64_triggered()
@@ -4213,6 +4218,7 @@ void MainWindow::on_actionISCAT_triggered()
   ui->sbSubmode->setMaximum(1);
   if(m_nSubMode==0) ui->TxFreqSpinBox->setValue(1012);
   if(m_nSubMode==1) ui->TxFreqSpinBox->setValue(560);
+  statusChanged ();
 }
 
 void MainWindow::on_actionMSK144_triggered()
@@ -4222,7 +4228,6 @@ void MainWindow::on_actionMSK144_triggered()
   m_modeTx="MSK144";
   ui->actionMSK144->setChecked(true);
   switch_mode (Modes::MSK144);
-  statusChanged();
   m_nsps=6;
   m_FFTSize = 7 * 512;
   Q_EMIT FFTSize (m_FFTSize);
@@ -4257,6 +4262,7 @@ void MainWindow::on_actionMSK144_triggered()
   ui->rptSpinBox->setSingleStep(1);
   ui->sbFtol->setMinimum(22);
   ui->sbFtol->setMaximum(25);
+  statusChanged();
 }
 
 void MainWindow::on_actionWSPR_triggered()
@@ -4266,7 +4272,6 @@ void MainWindow::on_actionWSPR_triggered()
   WSPR_config(true);
   switch_mode (Modes::WSPR);
   m_modeTx="WSPR";                                    //### not needed ?? ###
-  statusChanged();
   m_TRperiod=120;
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
@@ -4285,6 +4290,7 @@ void MainWindow::on_actionWSPR_triggered()
   m_bFast9=false;
   fast_config(false);
   ui->TxFreqSpinBox->setValue(ui->WSPRfreqSpinBox->value());
+  statusChanged();
 }
 
 void MainWindow::on_actionEcho_triggered()
@@ -4308,7 +4314,6 @@ void MainWindow::on_actionEcho_triggered()
   m_wideGraph->setModeTx(m_modeTx);
   ui->TxFreqSpinBox->setValue(1500);
   ui->TxFreqSpinBox->setEnabled (false);
-  statusChanged();
   if(!m_echoGraph->isVisible()) m_echoGraph->show();
   if (!ui->actionAstronomical_data->isChecked ()) {
     ui->actionAstronomical_data->setChecked (true);
@@ -4318,6 +4323,7 @@ void MainWindow::on_actionEcho_triggered()
   fast_config(false);
   WSPR_config(true);
   ui->decodedTextLabel->setText("   UTC      N   Level    Sig      DF    Width   Q");
+  statusChanged();
 }
 
 
@@ -5253,15 +5259,30 @@ void MainWindow::on_sbTR_valueChanged(int index)
   m_fastGraph->setTRperiod(m_TRperiod);
 }
 
+QChar MainWindow::current_submode () const
+{
+  QChar submode {0};
+  if (m_mode.contains (QRegularExpression {R"(^(JT65|JT9|JT4|ISCAT|QRA64)$)"})
+      && (m_config.enable_VHF_features () || "JT4" == m_mode || "ISCAT" == m_mode))
+    {
+      submode = m_nSubMode + 65;
+    }
+  return submode;
+}
+
 void MainWindow::on_sbSubmode_valueChanged(int n)
 {
   m_nSubMode=n;
   m_wideGraph->setSubMode(m_nSubMode);
-  mode_label.setText (m_mode);
-  if ((m_mode != "JT9+JT65" and m_mode != "MSK144" and
-       !m_mode.startsWith ("WSPR")) || !m_config.enable_VHF_features ()) {
-    mode_label.setText (mode_label.text () + " " + QChar {short (m_nSubMode + 65)});
-  }
+  auto submode = current_submode ();
+  if (submode != '\0')
+    {
+      mode_label.setText (m_mode + " " + submode);
+    }
+  else
+    {
+      mode_label.setText (m_mode);
+    }
   if(m_mode=="ISCAT") {
     if(m_nSubMode==0) ui->TxFreqSpinBox->setValue(1012);
     if(m_nSubMode==1) ui->TxFreqSpinBox->setValue(560);
@@ -5280,6 +5301,7 @@ void MainWindow::on_sbSubmode_valueChanged(int n)
     if(m_bFast9) ui->TxFreqSpinBox->setValue(700);
   }
   if(m_transmitting and m_bFast9 and m_nSubMode>=4) transmit(99.0);
+  statusUpdate ();
 }
 
 void MainWindow::on_cbFast9_clicked(bool b)
@@ -5298,6 +5320,7 @@ void MainWindow::on_cbFast9_clicked(bool b)
   progressBar.setMaximum(m_TRperiod);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   fast_config(b);
+  statusChanged ();
 }
 
 
@@ -5412,6 +5435,7 @@ void MainWindow::replayDecodes ()
                 {
                   eom_pos = message.size () - 1;
                 }
+              // TODO - how to skip ISCAT decodes
               postDecode (false, message.left (eom_pos + 1));
             }
         }
@@ -5425,7 +5449,9 @@ void MainWindow::postDecode (bool is_new, QString const& message)
   auto const& parts = decode.left (22).split (' ', QString::SkipEmptyParts);
   if (parts.size () >= 5)
     {
-      m_messageClient->decode (is_new, QTime::fromString (parts[0], "hhmm"), parts[1].toInt ()
+      m_messageClient->decode (is_new
+                               , QTime::fromString (parts[0], parts[0].size () > 4 ? "hhmmss" : "hhmm")
+                               , parts[1].toInt ()
                                , parts[2].toFloat (), parts[3].toUInt (), parts[4][0], decode.mid (22));
     }
 }
@@ -5836,13 +5862,15 @@ void MainWindow::on_cbCQTx_toggled(bool b)
 void MainWindow::statusUpdate () const
 {
   if (!ui) return;
+  auto submode = current_submode ();
   m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
                                   QString::number (ui->rptSpinBox->value ()),
                                   m_modeTx, ui->autoButton->isChecked (),
                                   m_transmitting, m_decoderBusy,
                                   ui->RxFreqSpinBox->value (), ui->TxFreqSpinBox->value (),
                                   m_config.my_callsign (), m_config.my_grid (),
-                                  m_hisGrid, m_tx_watchdog);
+                                  m_hisGrid, m_tx_watchdog,
+                                  submode != '\0' ? QString {submode} : QString {}, m_bFastMode);
 }
 
 void MainWindow::childEvent (QChildEvent * e)

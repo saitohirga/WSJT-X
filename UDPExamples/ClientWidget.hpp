@@ -24,11 +24,13 @@ public:
                          , QString const& id, QString const& version, QString const& revision
                          , QWidget * parent = nullptr);
 
+  bool fast_mode () const {return fast_mode_;}
+
   Q_SLOT void update_status (QString const& id, Frequency f, QString const& mode, QString const& dx_call
                              , QString const& report, QString const& tx_mode, bool tx_enabled
                              , bool transmitting, bool decoding, qint32 rx_df, qint32 tx_df
                              , QString const& de_call, QString const& de_grid, QString const& dx_grid
-                             , bool watchdog_timeout);
+                             , bool watchdog_timeout, QString const& sub_mode, bool fast_mode);
   Q_SLOT void decode_added (bool is_new, QString const& client_id, QTime, qint32 snr
                             , float delta_time, quint32 delta_frequency, QString const& mode
                             , QString const& message);
@@ -69,6 +71,7 @@ private:
   QAbstractButton * auto_off_button_;
   QAbstractButton * halt_tx_button_;
   QLabel * mode_label_;
+  bool fast_mode_;
   QLabel * frequency_label_;
   QLabel * dx_label_;
   QLabel * rx_df_label_;

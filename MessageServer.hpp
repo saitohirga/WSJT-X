@@ -66,7 +66,7 @@ public:
                                , QString const& report, QString const& tx_mode, bool tx_enabled
                                , bool transmitting, bool decoding, qint32 rx_df, qint32 tx_df
                                , QString const& de_call, QString const& de_grid, QString const& dx_grid
-                               , bool watchdog_timeout);
+                               , bool watchdog_timeout, QString const& sub_mode, bool fast_mode);
   Q_SIGNAL void client_closed (QString const& id);
   Q_SIGNAL void decode (bool is_new, QString const& id, QTime time, qint32 snr, float delta_time
                         , quint32 delta_frequency, QString const& mode, QString const& message);

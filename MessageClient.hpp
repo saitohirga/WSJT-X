@@ -50,7 +50,8 @@ public:
   Q_SLOT void status_update (Frequency, QString const& mode, QString const& dx_call, QString const& report
                              , QString const& tx_mode, bool tx_enabled, bool transmitting, bool decoding
                              , qint32 rx_df, qint32 tx_df, QString const& de_call, QString const& de_grid
-                             , QString const& dx_grid, bool watchdog_timeout);
+                             , QString const& dx_grid, bool watchdog_timeout, QString const& sub_mode
+                             , bool fast_mode);
   Q_SLOT void decode (bool is_new, QTime time, qint32 snr, float delta_time, quint32 delta_frequency
                       , QString const& mode, QString const& message);
   Q_SLOT void WSPR_decode (bool is_new, QTime time, qint32 snr, float delta_time, Frequency

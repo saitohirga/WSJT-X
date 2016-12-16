@@ -122,6 +122,8 @@
  *                         DE grid                utf8
  *                         DX grid                utf8
  *                         Tx Watchdog            bool
+ *                         Sub-mode               utf8
+ *                         Fast mode              bool
  *
  *    WSJT-X  sends this  status message  when various  internal state
  *    changes to allow the server to  track the relevant state of each
@@ -132,7 +134,7 @@
  *      "Enable Tx" button status changes,
  *      Dial frequency changes,
  *      Changes to the "DX Call" field,
- *      Operating mode changes,
+ *      Operating mode, sub-mode or fast mode changes,
  *      Transmit mode changed (in dual JT9+JT65 mode),
  *      Changes to the "Rpt" spinner,
  *      After an old decodes replay sequence (see Replay below),
