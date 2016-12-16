@@ -115,9 +115,9 @@ check the box labeled *Sh*.
 
 - Select *Deep* from the *Decode* menu.  You may also choose to
 *Enable averaging* over successive transmissions and/or *Enable deep
-Search* (correlation decoding).
+search* (correlation decoding).
 
-image::decoding_depth.png[align="center",alt="Decoding Depth"]
+image::decode-menu.png[align="center",alt="Decode Menu"]
 
 The following screen shot shows one transmission from a 10 GHz EME
 QSO using submode JT4F.

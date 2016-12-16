@@ -15,6 +15,11 @@ represent different bands:
 
 image::psk-reporter.png[align="left",alt="PSK Reporter"]
 
+The following screen shot shows the PSK Reporter map configured to
+show MSK144 reports:
+
+image::psk-reporter_2.png[align="left",alt="PSK Reporter"]
+
 * {jtalert}, by VK3AMA, is available only for Windows.  It provides
 many operating aids including automatic logging to several third-party
 logging programs, audio and visual alerts following a number of
