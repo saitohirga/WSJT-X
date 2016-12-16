@@ -7,18 +7,17 @@ information about operating conditions.
 image::status-bar-a.png[align="left",alt="Status Bar"]
 
 Labels on the *Status Bar* display such information as the program's
-current operating state, configuration name, operating mode, the
-content of your most recent transmitted message, and whether
-*Double-click on call sets Tx enable* has been selected on the
-*Settings | General* tab. The first label (operating state) can be
-Receiving, Tx (for Transmitting), Tune, or the name of file opened
-from the *File* menu; this label is highlighted in green for
-Receiving, yellow for Tx, red for Tune, and light blue for a file
-name.  When transmitting, the Tx message is displayed exactly as it
-will be decoded by receiving stations.  The second label (as shown
-above) will be absent if you are using the *Default* setting on the
-*Configurations* menu.  A progress bar shows the elapsed fraction of a
-Tx or Rx sequence.  Finally, if the Watchdog timer was enabled on the
-*settings | General* tab, a label in the lower right-hand corner
-displays the number of minutes remaining before timeout.
+current operating state, configuration name, operating mode, and the
+content of your most recent transmitted message. The first label
+(operating state) can be Receiving, Tx (for Transmitting), Tune, or
+the name of file opened from the *File* menu; this label is
+highlighted in green for Receiving, yellow for Tx, red for Tune, and
+light blue for a file name.  When transmitting, the Tx message is
+displayed exactly as it will be decoded by receiving stations.  The
+second label (as shown above) will be absent if you are using the
+*Default* setting on the *Configurations* menu.  A progress bar shows
+the elapsed fraction of a Tx or Rx sequence.  Finally, if the Watchdog
+timer was enabled on the *settings | General* tab, a label in the
+lower right-hand corner displays the number of minutes remaining
+before timeout.
 

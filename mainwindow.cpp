@@ -1417,6 +1417,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     bool vhf {m_config.enable_VHF_features()};
     m_wideGraph->setVHF(vhf);
     if (!vhf) ui->sbSubmode->setValue (0);
+
     setup_status_bar (vhf);
     bool b = vhf && (m_mode=="JT4" or m_mode=="JT65" or m_mode=="ISCAT" or
                      m_mode=="JT9" or m_mode=="MSK144");
@@ -1446,6 +1447,12 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
   }
   update_watchdog_label ();
   if(!m_splitMode) ui->cbCQTx->setChecked(false);
+  if(!m_config.enable_VHF_features()) {
+    ui->actionInclude_averaging->setEnabled(false);
+    ui->actionInclude_correlation->setEnabled(false);
+    ui->actionInclude_averaging->setChecked(false);
+    ui->actionInclude_correlation->setChecked(false);
+  }
 }
 
 void MainWindow::on_monitorButton_clicked (bool checked)
