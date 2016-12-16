@@ -1063,6 +1063,7 @@ void MainWindow::fixStop()
     if(m_config.decode_at_52s()) m_hsymStop=179;
   } else if (m_mode=="QRA64"){
     m_hsymStop=179;
+    if(m_config.decode_at_52s()) m_hsymStop=186;
   }
 }
 
