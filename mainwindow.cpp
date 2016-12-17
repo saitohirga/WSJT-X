@@ -4688,7 +4688,7 @@ void MainWindow::on_rptSpinBox_valueChanged(int n)
   int ntx0=m_ntx;
   QString t=ui->tx5->currentText();
   genStdMsgs(m_rpt);
-  ui->tx5->setCurrentText(t);
+  if(!m_bDoubleClicked) ui->tx5->setCurrentText(t);
   m_ntx=ntx0;
   if(m_ntx==1) ui->txrb1->setChecked(true);
   if(m_ntx==2) ui->txrb2->setChecked(true);
