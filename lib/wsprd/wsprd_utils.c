@@ -301,7 +301,8 @@ int unpk_(signed char *message, char *hashtab, char *call_loc_pow, char *callsig
     } else if ( ntype < 0 ) {
         ndbm=-(ntype+1);
         memset(grid6,0,sizeof(char)*7);
-        size_t len=strlen(callsign);
+//        size_t len=strlen(callsign);
+        size_t len=6;
         strncat(grid6,callsign+len-1,1);
         strncat(grid6,callsign,len-1);
         int nu=ndbm%10;

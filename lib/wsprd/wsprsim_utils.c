@@ -59,8 +59,9 @@ long unsigned int pack_call(char *callsign) {
             }
         }
     } else if( isdigit(*(callsign+1)) ) {
-        for (i=0; i<call_len; i++) {
-            if( i==0 || callsign[i-1]==0 ) {
+        call6[0]=32;
+        for (i=1; i<call_len+1; i++) {
+            if( callsign[i-1]==0 ) {
                 call6[i]=32;
             } else {
                 call6[i]=*(callsign+i-1);
