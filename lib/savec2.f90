@@ -47,7 +47,7 @@ integer function savec2(c2name,ntrseconds,f0m1500)
   i1=index(c2name,'.c2')
   outfile=c2name(i1-11:i1+2)
   open(18,file=c2name,status='unknown',access='stream', iostat=ioerr)
-  if (ioerr.ne.0) then
+  if (ioerr.eq.0) then
      write(18) outfile,ntrminutes,f0m1500,c2(0:45000-1)
      close(18)
   endif
