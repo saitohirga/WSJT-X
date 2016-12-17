@@ -17,11 +17,11 @@ program msk144code
      print*,' '
      print*,'Examples:'
      print*,'       msk144code "KA1ABC WB9XYZ EN37"'
-     print*,'       msk144code "<KA1ABC WB9XYZ> R-03"'     
+     print*,'       msk144code "<KA1ABC WB9XYZ> R-03"'
+     print*,'       msk144code "KA1ABC WB9XYZ R EN37"'
      go to 999
   endif
 
-  bcontest=.false.
   call getarg(1,msg)
   nmsg=1
   if(msg(1:2).eq."-t") then
@@ -29,7 +29,8 @@ program msk144code
      testmsg(NTEST+2)="<KA1ABC WB9XYZ> R+03" 
      testmsg(NTEST+3)="<KA1ABC WB9XYZ> RRR" 
      testmsg(NTEST+4)="<KA1ABC WB9XYZ> 73" 
-     nmsg=NTEST+4
+     testmsg(NTEST+5)="KA1ABC WB9XYZ R EN37"
+     nmsg=NTEST+5
   endif
 
   write(*,1010)
@@ -38,6 +39,9 @@ program msk144code
   do imsg=1,nmsg
      if(nmsg.gt.1) msg=testmsg(imsg)
      call fmtmsg(msg,iz)                !To upper case, collapse multiple blanks
+     i1=len(trim(msg))-5
+     bcontest=.false.
+     if(msg(i1:i1+1).eq.'R ') bcontest=.true.
      ichk=0
      call genmsk144(msg,mygrid,ichk,bcontest,msgsent,i4tone,itype)
 

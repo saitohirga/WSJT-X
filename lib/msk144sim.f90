@@ -13,7 +13,6 @@ program msk144sim
   integer itone(144)                   !Message bits
   integer*1 bcontest
   data mygrid/"EN50wc"/
-  data bcontest/0/
 
   nargs=iargc()
   if(nargs.ne.5) then
@@ -35,7 +34,9 @@ program msk144sim
 !sig is the peak amplitude of the ping. 
   sig=sqrt(2.0)*10.0**(0.05*snrdb)
   h=default_header(12000,NMAX)
-
+  i1=len(trim(msg))-5
+  bcontest=.false.
+  if(msg(i1:i1+1).eq.'R ') bcontest=.true.
   ichk=0
   call genmsk144(msg,mygrid,ichk,bcontest,msgsent,itone,itype) 
   twopi=8.d0*atan(1.d0)

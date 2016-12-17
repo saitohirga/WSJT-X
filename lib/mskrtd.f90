@@ -1,5 +1,5 @@
-subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,hiscall,   &
-     bshmsg,line)
+subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
+     bshmsg,bcontest,line)
 
 ! Real-time decoder for MSK144.  
 ! Analysis block size = NZ = 7168 samples, t_block = 0.597333 s 
@@ -15,6 +15,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,hiscall,   &
   character*22 msglast               !!! temporary - used for dupechecking
   character*80 line                  !Formatted line with UTC dB T Freq Msg
   character*12 mycall,hiscall
+  character*6 mygrid
 
   complex cdat(NFFT1)                !Analytic signal
   complex c(NSPM)                    !Coherently averaged complex data
@@ -29,7 +30,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,hiscall,   &
   real pow(8)
   real xmc(NPATTERNS)
 
-  logical*1 bshmsg
+  logical*1 bshmsg,bcontest
   logical first
   data first/.true./
   data iavpatterns/ &
@@ -162,6 +163,9 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,hiscall,   &
      nsnrlast=nsnr
      if( nsnr .lt. -8 ) nsnr=-8
      if( nsnr .gt. 24 ) nsnr=24
+     if(bcontest .and. msgreceived(1:1).ne.'<') then
+        call fix_contest_msg(mycall(1:6),mygrid,hiscall(1:6),msgreceived)
+     endif
      write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,    &
           navg,char(0)
 1020 format(i6.6,i4,f5.1,i5,a3,a22,i2,a1)
@@ -171,3 +175,4 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,hiscall,   &
   return
 end subroutine mskrtd
 
+include 'fix_contest_msg.f90'

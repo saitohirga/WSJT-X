@@ -354,6 +354,7 @@ set (wsjt_FSRCS
   lib/fil4.f90
   lib/fil6521.f90
   lib/filbig.f90
+  lib/fix_contest_msg.f90
   lib/flat1.f90
   lib/flat1a.f90
   lib/flat1b.f90
