@@ -67,8 +67,9 @@ extern "C" {
                 int* minw, float* px, float s[], float* df3, int* nhsym, int* npts8);
 
   void hspec_(short int d2[], int* k, int* nutc0, int* ntrperiod, int* nrxfreq, int* ntol,
-              bool* bmsk144, int* ingain, char mycall[], char hiscall[], bool* bshmsg,
-              float green[], float s[], int* jh, char line[], int len1, int len2, int len3);
+              bool* bmsk144, bool* bcontest, int* ingain, char mycall[], char hiscall[],
+              bool* bshmsg, float green[], float s[], int* jh, char line[],
+              char mygrid[], int len1, int len2, int len3, int len4);
 
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, int len1, int len2);
@@ -1274,7 +1275,6 @@ void MainWindow::fastSink(qint64 frames)
   if(m_diskData) nutc0=m_UTCdisk;
   char line[80];
   bool bmsk144=((m_mode=="MSK144") and (m_monitoring or m_diskData));
-//  bmsk144=bmsk144 && m_config.realTimeDecode();
   line[0]=0;
 
   m_RxFreq=ui->RxFreqSpinBox->value ();
@@ -1283,10 +1283,12 @@ void MainWindow::fastSink(qint64 frames)
   strncpy(dec_data.params.mycall, (m_config.my_callsign()+"            ").toLatin1(),12);
   QString hisCall {ui->dxCallEntry->text ()};
   bool bshmsg=ui->cbShMsgs->isChecked();
+  bool bcontest=m_config.contestMode();
   strncpy(dec_data.params.hiscall,(hisCall + "            ").toLatin1 ().constData (), 12);
-  hspec_(dec_data.d2,&k,&nutc0,&nTRpDepth,&m_RxFreq,&m_Ftol,&bmsk144,&m_inGain,
-         &dec_data.params.mycall[0],&dec_data.params.hiscall[0],&bshmsg,
-         fast_green,fast_s,&fast_jh,&line[0],12,12,80);
+  strncpy(dec_data.params.mygrid, (m_config.my_grid()+"      ").toLatin1(),6);
+  hspec_(dec_data.d2,&k,&nutc0,&nTRpDepth,&m_RxFreq,&m_Ftol,&bmsk144,&bcontest,
+         &m_inGain,&dec_data.params.mycall[0],&dec_data.params.hiscall[0],&bshmsg,
+         fast_green,fast_s,&fast_jh,&line[0],&dec_data.params.mygrid[0],12,12,80,6);
   float px = fast_green[fast_jh];
   QString t;
   t.sprintf(" Rx noise: %5.1f ",px);
@@ -3416,8 +3418,8 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
         }
       } else {
         if(m_mode=="MSK144" and m_config.contestMode()) {
-          m_ntx=4;
-          ui->txrb4->setChecked(true);
+          m_ntx=3;
+          ui->txrb3->setChecked(true);
         } else {
           m_ntx=2;
           ui->txrb2->setChecked(true);
@@ -3528,21 +3530,31 @@ void MainWindow::genStdMsgs(QString rpt)
   } else {
     int n=rpt.toInt();
     rpt.sprintf("%+2.2d",n);
-    if(m_mode=="MSK144" and m_bShMsgs) {
-      int i=t0.length()-1;
-      t0="<" + t0.mid(0,i) + "> "; 
-      if(n<=-2) n=-3;
-      if(n>=-1 and n<=1) n=0;
-      if(n>=2 and n<=4) n=3;
-      if(n>=5 and n<=7) n=6;
-      if(n>=8 and n<=11) n=10;
-      if(n>=12 and n<=14) n=13;
-      if(n>=15) n=16;
-      rpt.sprintf("%+2.2d",n);
+
+    if(m_mode=="MSK144") {
+      if(m_config.contestMode()) {
+        rpt=m_config.my_grid().mid(0,4);
+      }
+      if(m_bShMsgs) {
+        int i=t0.length()-1;
+        t0="<" + t0.mid(0,i) + "> ";
+        if(n<=-2) n=-3;
+        if(n>=-1 and n<=1) n=0;
+        if(n>=2 and n<=4) n=3;
+        if(n>=5 and n<=7) n=6;
+        if(n>=8 and n<=11) n=10;
+        if(n>=12 and n<=14) n=13;
+        if(n>=15) n=16;
+        rpt.sprintf("%+2.2d",n);
+      }
     }
     t=t00 + rpt;
     msgtype(t, ui->tx2);
-    t=t0 + "R" + rpt;
+    if(m_mode=="MSK144" and m_config.contestMode()) {
+      t=t0 + "R " + rpt;
+    } else {
+      t=t0 + "R" + rpt;
+    }
     msgtype(t, ui->tx3);
     t=t0 + "RRR";
     if(m_mode=="JT4" and m_bShMsgs) t="@1500  (RRR)";
@@ -3779,8 +3791,13 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
   bool text=false;
   bool short65=false;
   if(itype==6) text=true;
-  if(itype==7 and m_config.enable_VHF_features() and (m_mode=="JT65" or m_mode=="MSK144")) short65=true;
+  if(itype==7 and m_config.enable_VHF_features() and
+     (m_mode=="JT65" or m_mode=="MSK144")) short65=true;
   if(m_mode=="MSK144" and t.mid(0,1)=="<") text=false;
+  if(m_mode=="MSK144" and m_config.contestMode()) {
+    int i0=t.trimmed().length()-7;
+    if(t.mid(i0,3)==" R ") text=false;
+  }
   QPalette p(tx->palette());
   if(text) {
     p.setColor(QPalette::Base,"#ffccff");

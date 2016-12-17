@@ -78,15 +78,15 @@ subroutine genmsk144(msg0,mygrid,ichk,bcontest,msgsent,i4tone,itype)
      endif
 
      if(bcontest) then
-        i0=index(message,' R ') + 3
+        i0=index(message,' R ') + 3              !Check for ' R ' in message
         g1=message(i0:i0+3)//'  '
-        if(isgrid(g1)) then
+        if(isgrid(g1)) then                      !Check for ' R grid'
            call grid2deg(g1,dlong,dlat)
            dlong=dlong+180.0
            if(dlong.gt.180.0) dlong=dlong-360.0
            dlat=-dlat
-           call deg2grid(dlong,dlat,g2)
-           message=message(1:i0-3)//g2(1:4)
+           call deg2grid(dlong,dlat,g2)          !g2=antipodes grid
+           message=message(1:i0-3)//g2(1:4)      !Send message with g2
         endif
      endif
 
