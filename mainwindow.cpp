@@ -1392,6 +1392,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
   // things that might change that we need know about
   auto callsign = m_config.my_callsign ();
   bool bvhf0=m_config.enable_VHF_features();
+  bool bcontest0=m_config.contestMode();
   if (QDialog::Accepted == m_config.exec ()) {
     if (m_config.my_callsign () != callsign) {
       m_baseCall = Radio::base_callsign (m_config.my_callsign ());
@@ -1434,7 +1435,10 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     }
     if(m_mode=="QRA64") on_actionQRA64_triggered();
     if(m_mode=="ISCAT") on_actionISCAT_triggered();
-    if(m_mode=="MSK144") on_actionMSK144_triggered();
+    if(m_mode=="MSK144") {
+      on_actionMSK144_triggered();
+      if(m_config.contestMode() != bcontest0) genStdMsgs(m_rpt);
+    }
     if(m_mode=="WSPR") on_actionWSPR_triggered();
     if(m_mode=="Echo") on_actionEcho_triggered();
   }
