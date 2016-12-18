@@ -274,6 +274,15 @@ with constant envelope, equivalent to a Minimum Shift Keying (MSK)
 waveform.  Frame duration is 72 ms, so the effective character
 transmission rate for standard messages is up to 250 cps.
 
+Contest Mode in MSK144 conveys an additional acknowledgment bit (the
+"`R`" in a message of the form `W9XYZ K1ABC R FN42`) by using the fact
+that meteor scatter and other propagation modes usable with MSK144 are
+generally effective only out to distances of order 2500 km.  To convey
+the message fragment `R FN42`, WSJT-X encodes the locator as that of
+its antipodes.  The receiving program recognizes a locator with
+distance greater than 10,000 km, does the reverse transformation, and
+inserts the implied "`R`".
+
 MSK144 also supports short-form messages that can be used after QSO
 partners have exchanged both callsigns.  Short messages consist of 4
 bits encoding a signal report, R+report, RRR, or 73, together with a
