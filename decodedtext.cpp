@@ -134,11 +134,18 @@ void DecodedText::deCallAndGrid(/*out*/QString& call, QString& grid)
 {
   auto msg = _string;
   msg = msg.replace (QRegularExpression {" CQ ([A-Z]{2,2}|[0-9]{3,3}) "}, " CQ_\\1 ").mid (column_qsoText);
-  int i1 = msg.indexOf(" ");
-  call = msg.mid(i1+1);
-  int i2 = call.indexOf(" ");
-  grid = call.mid(i2+1,4);
-  call = call.mid(0,i2).replace(">","");
+  int i1 = msg.indexOf (" ");
+  call = msg.mid (i1 + 1);
+  int i2 = call.indexOf (" ");
+  if (" R " == call.mid (i2, 3)) // MSK144 contest mode report
+    {
+      grid = call.mid (i2 + 3, 4);
+    }
+  else
+    {
+      grid = call.mid (i2 + 1, 4);
+    }
+  call = call.left (i2).replace (">", "");
 }
 
 int DecodedText::timeInSeconds()
