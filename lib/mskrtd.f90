@@ -163,7 +163,8 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
      nsnrlast=nsnr
      if( nsnr .lt. -8 ) nsnr=-8
      if( nsnr .gt. 24 ) nsnr=24
-     if(bcontest .and. msgreceived(1:1).ne.'<') then
+!     if(bcontest .and. msgreceived(1:1).ne.'<') then
+     if(msgreceived(1:1).ne.'<') then
         call fix_contest_msg(mycall(1:6),mygrid,hiscall(1:6),msgreceived)
      endif
      write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,    &
