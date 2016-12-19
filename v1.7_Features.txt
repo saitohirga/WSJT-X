@@ -1,5 +1,5 @@
-		Beta Release: WSJT-X Version 1.7
-		--------------------------------
+		Release: WSJT-X Version 1.7.0
+		-----------------------------
 
 Short list of new features
 --------------------------
@@ -97,10 +97,9 @@ identify.
 Final Comments
 --------------
 
-Remember that you are using a pre-release version of WSJT-X.  We will
-be grateful for any and all reports from test users; these will surely
-help us to make further improvements to WSJT-X.  The most helpful bug
-reports describe the problem clearly and include a complete recipe to
-reproduce it.  Feature requests are also welcome.  Send your reports
-to wsjtgroup@yahoogroups.com, or to the developers list
-wsjt-devel@lists.sourceforge.net.
+We will be grateful for any and all reports from users; these will
+surely help us to make further improvements to WSJT-X.  The most
+helpful bug reports describe the problem clearly and include a
+complete recipe to reproduce it.  Feature requests are also welcome.
+Send your reports to wsjtgroup@yahoogroups.com, or to the developers
+list wsjt-devel@lists.sourceforge.net.
