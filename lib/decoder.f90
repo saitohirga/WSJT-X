@@ -73,6 +73,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   endif
 
   npts65=52*12000
+  if(params%nmode.eq.164) npts65=54*12000
   if(baddata(id2,npts65)) then
      nsynced=0
      ndecoded=0
