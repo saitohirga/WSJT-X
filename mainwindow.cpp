@@ -2372,8 +2372,9 @@ void MainWindow::writeAllTxt(QString message)
               << m_mode << endl;
           m_RxLog=0;
         }
-        int n=message.length();
-        out << message.mid(0,n-2) << endl;
+//        int n=message.length();
+//        out << message.mid(0,n-2) << endl;
+        out << message << endl;
         f.close();
       } else {
         MessageBox::warning_message (this, tr ("File Open Error")
