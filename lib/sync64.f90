@@ -11,7 +11,6 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,dtx,f0,jpk,sync,sync2,width)
   real s0(0:NSPC-1)                          !Sum of s1+s2+s3
   real s0a(0:NSPC-1)                         !Best synchromized spectrum (saved)
   real s0b(0:NSPC-1)                         !tmp
-  real s0c(0:NSPC-1)                         !tmp
   real a(5)
   integer icos7(0:6)                         !Costas 7x7 tones
   integer ipk0(1)
@@ -56,9 +55,8 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,dtx,f0,jpk,sync,sync2,width)
   ia=max(0,nint(fa/df3))
   ib=min(NSPC-1,nint(fb/df3))
   id=0.1*(ib-ia)
-
   iz=ib-ia+1
-  sync=0.
+  sync=-1.e30
   smaxall=0.
   jpk=0
   ja=0
@@ -69,16 +67,16 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,dtx,f0,jpk,sync,sync2,width)
   nadd=10*mode64
   if(mod(nadd,2).eq.0) nadd=nadd+1       !Make nadd odd
   nskip=max(49,nadd)
-    
+
   do j1=ja,jb,jstep
      call timer('sync64_1',0)
      j2=j1 + 39*NSPS
      j3=j1 + 77*NSPS
      c1=1.e-4*c0(j1:j1+NSPC-1) * conjg(cc)
-     call four2a(c1,nfft3,1,-1,1)
      c2=1.e-4*c0(j2:j2+NSPC-1) * conjg(cc)
-     call four2a(c2,nfft3,1,-1,1)
      c3=1.e-4*c0(j3:j3+NSPC-1) * conjg(cc)
+     call four2a(c1,nfft3,1,-1,1)
+     call four2a(c2,nfft3,1,-1,1)
      call four2a(c3,nfft3,1,-1,1)
      s1=0.
      s2=0.
@@ -102,11 +100,13 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,dtx,f0,jpk,sync,sync2,width)
            call smo(s0b(ia:ib),iz,s0(ia:ib),nadd)
         enddo
      endif
-     call averms(s0(ia+id:ib-id),iz-2*id,nskip,ave,rms)
-     s=(maxval(s0(ia:ib))-ave)/rms
-     ipk0=maxloc(s0(ia:ib))
-     ip=ipk0(1) + ia - 1
-     if(s.gt.sync .and. ip.ge.iaa .and. ip.le.ibb) then
+     if(j1.eq.ja) then
+        call averms(s0(ia+id:ib-id),iz-2*id,nskip,ave,rms)
+     endif
+     s=(maxval(s0(iaa:ibb))-ave)/rms
+     ipk0=maxloc(s0(iaa:ibb))
+     ip=ipk0(1) + iaa - 1
+     if(s.gt.sync) then
         jpk=j1
         s0a=(s0-ave)/rms
         sync=s
@@ -114,20 +114,9 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,dtx,f0,jpk,sync,sync2,width)
         ipk=ip
         f0=ip*df3
      endif
-     s0=s0c
-     ipk0=maxloc(s0(ia:ib))
-     ip=ipk0(1) + ia - 1
-     
-     if(smax.gt.sync .and. ip.ge.iaa .and. ip.le.ibb) then
-        jpk=j1
-        sync=smax
-        dtx=jpk/6000.0 - 1.0
-        ipk=ip
-        f0=ip*df3
-     endif
      call timer('sync64_2',1)
   enddo
-
+     
   s0a=s0a+2.0
   write(17) ia,ib,s0a(ia:ib)                !Save data for red curve
   close(17)
@@ -146,8 +135,8 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,dtx,f0,jpk,sync,sync2,width)
      k=ib-nskip-21+i
      sq=sq + (s0a(j)-a(1))**2 + (s0a(k)-a(1))**2
   enddo
-  rms=sqrt(sq/40.0)
-  sync2=10.0*log10(a(2)/rms)
+  rms2=sqrt(sq/40.0)
+  sync2=10.0*log10(a(2)/rms2)
 
 !  do i=1,iz-2*nskip
 !     x=i
