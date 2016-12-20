@@ -1,4 +1,4 @@
-subroutine msk144decodeframe(c,msgreceived,nsuccess)
+subroutine msk144decodeframe(c,softbits,msgreceived,nsuccess)
 !  use timer_module, only: timer
 
   parameter (NSPM=864)
