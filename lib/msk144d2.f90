@@ -9,14 +9,19 @@ program msk144d2
 
   character c
   character*80 line
-  logical :: display_help=.false.
-  logical*1 bShMsgs
-  type(wav_header) :: wav
-  integer*2 id2(30*12000)
-  integer*2 ichunk(7*1024)
   character*500 infile
   character*12 mycall,hiscall
+  character*6 mygrid
   character(len=500) optarg
+
+  logical :: display_help=.false.
+  logical*1 bShMsgs
+  logical*1 bcontest
+
+  type(wav_header) :: wav
+
+  integer*2 id2(30*12000)
+  integer*2 ichunk(7*1024)
 
   type (option) :: long_options(8) = [ &
        option ('ndepth',.true.,'c','ndepth',''), &  
@@ -35,6 +40,7 @@ program msk144d2
   mycall=''
   hiscall=''
   bShMsgs=.false.
+  bcontest=.false.
  
   do
      call getopt('c:d:ef:hm:n:s',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
@@ -96,7 +102,7 @@ program msk144d2
        tsec=(i-1)/12000.0
        tt=sum(float(abs(id2(i:i+7*512-1))))
        if( tt .ne. 0.0 ) then
-         call mskrtd(ichunk,nutc,tsec,ntol,nrxfreq,ndepth,mycall,hiscall,bShMsgs,line)
+         call mskrtd(ichunk,nutc,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,bShMsgs,bcontest,line)
          if( index(line,"^") .ne. 0 .or. index(line,"&") .ne. 0 ) then
            write(*,*) line
          endif
