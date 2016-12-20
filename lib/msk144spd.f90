@@ -1,4 +1,4 @@
-subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret,navg)
+subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret,navg,ct,softbits)
 ! MSK144 short-ping-decoder
 
   use timer_module, only: timer
@@ -23,6 +23,7 @@ subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret,navg)
   real rcw(12)
   real ferrs(MAXCAND)
   real snrs(MAXCAND)
+  real softbits(144)
   real tonespec(NFFT)
   real tpat(NPATTERNS)
   real*8 dt, df, fs, pi, twopi
@@ -177,7 +178,7 @@ subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret,navg)
           if( is.eq.2) ic0=max(1,ic0-1)
           if( is.eq.3) ic0=min(NSPM,ic0+1)
           ct=cshift(c,ic0-1)
-          call msk144decodeframe(ct,msgreceived,ndecodesuccess)
+          call msk144decodeframe(ct,softbits,msgreceived,ndecodesuccess)
 
           if( ndecodesuccess .gt. 0 ) then
             tret=(nstart(icand)+NSPM/2)/fs
