@@ -64,7 +64,7 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   call sync64(c00,nf1,nf2,nfqso,ntol,mode64,dtx,f0,jpk0,sync,sync2,width)
   call timer('sync64  ',1)
   nfreq=nint(f0)
-  if((sync-3.4).lt.float(minsync) .or. sync2.lt.-5.0 .or.width.gt.340.0) go to 900
+  if((sync-3.4).lt.float(minsync) .or.width.gt.340.0) go to 900
   a=0.
   a(1)=-f0
   npts2=npts/2
