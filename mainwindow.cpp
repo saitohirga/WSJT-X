@@ -5233,7 +5233,7 @@ void MainWindow::transmitDisplay (bool transmitting)
       ui->pbT2R->setEnabled (QSY_allowed);
     }
 
-    if (!m_mode.startsWith ("WSPR")) {
+    if (m_mode!="WSPR") {
       if(m_config.enable_VHF_features ()) {
 //### During tests, at least, allow use of Tx Freq spinner with VHF features enabled.
         // used fixed 1000Hz Tx DF for VHF & up QSO modes
