@@ -38,6 +38,7 @@ program msk144d2
   ntol=100
   nrxfreq=1500
   mycall=''
+  mygrid='EN50WC'
   hiscall=''
   bShMsgs=.false.
   bcontest=.false.
