@@ -1045,6 +1045,10 @@ target_link_libraries (qra64code wsjt_fort wsjt_cxx)
 add_executable (jt9code lib/jt9code.f90 wsjtx.rc)
 target_link_libraries (jt9code wsjt_fort wsjt_cxx)
 
+add_executable (wsprcode lib/wsprcode/wsprcode.f90 lib/wsprcode/nhash.c
+	       wsjtx.rc)
+target_link_libraries (wsprcode wsjt_fort wsjt_cxx)
+
 add_executable (wsprd ${wsprd_CSRCS})
 target_include_directories (wsprd PRIVATE ${FFTW3_INCLUDE_DIRS})
 target_link_libraries (wsprd ${FFTW3_LIBRARIES})
