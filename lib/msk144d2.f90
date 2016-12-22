@@ -17,13 +17,14 @@ program msk144d2
   logical :: display_help=.false.
   logical*1 bShMsgs
   logical*1 bcontest
+  logical*1 brxequal
 
   type(wav_header) :: wav
 
   integer*2 id2(30*12000)
   integer*2 ichunk(7*1024)
 
-  type (option) :: long_options(8) = [ &
+  type (option) :: long_options(9) = [ &
        option ('ndepth',.true.,'c','ndepth',''), &  
        option ('dxcall',.true.,'d','hiscall',''), &  
        option ('evemode',.true.,'e','',''), &
@@ -31,6 +32,7 @@ program msk144d2
        option ('help',.false.,'h','Display this help message',''), &
        option ('mycall',.true.,'m','mycall',''), &
        option ('nftol',.true.,'n','nftol',''), &
+       option ('rxequalize',.false.,'r','Rx Equalize',''), &
        option ('short',.false.,'s','enable Sh','') &
        ]
   t0=0.0
@@ -42,9 +44,10 @@ program msk144d2
   hiscall=''
   bShMsgs=.false.
   bcontest=.false.
+  brxequal=.false.
  
   do
-     call getopt('c:d:ef:hm:n:s',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
+     call getopt('c:d:ef:hm:n:rs',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
      if( nstat .ne. 0 ) then
         exit
      end if
@@ -63,6 +66,8 @@ program msk144d2
         read (optarg(:narglen), *) mycall
      case ('n')
         read (optarg(:narglen), *) ntol
+     case ('r')
+        brxequal=.true. 
      case ('s')
         bShMsgs=.true. 
      end select
@@ -103,8 +108,12 @@ program msk144d2
        tsec=(i-1)/12000.0
        tt=sum(float(abs(id2(i:i+7*512-1))))
        if( tt .ne. 0.0 ) then
-         call mskrtd(ichunk,nutc,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,bShMsgs,bcontest,line)
-         if( index(line,"^") .ne. 0 .or. index(line,"&") .ne. 0 ) then
+         call mskrtd(ichunk,nutc,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,bShMsgs, &
+                     bcontest,brxequal,line)
+         if( index(line,"&") .ne. 0 .or.   &
+              index(line,"^") .ne. 0 .or.   &
+              index(line,"!") .ne. 0 .or.   &
+              index(line,"@") .ne. 0 ) then 
            write(*,*) line
          endif
        endif
