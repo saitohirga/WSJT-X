@@ -23,7 +23,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   end type counting_jt9_decoder
 
   real ss(184,NSMAX)
-  logical baddata,newdat65,newdat9,single_decode,bVHF
+  logical baddata,newdat65,newdat9,single_decode,bVHF,bad0
   integer*2 id2(NTMAX*12000)
   type(params_block) :: params
   real*4 dd(NTMAX*12000)
@@ -45,7 +45,29 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 
   rms=sqrt(dot_product(float(id2(300000:310000)),            &
        float(id2(300000:310000)))/10000.0)
-  if(rms.lt.2.0) go to 800 
+  if(rms.lt.2.0) go to 800
+
+! Zap data at start that might come from T/R switching transient?
+  nadd=100
+  k=0
+  bad0=.false.
+  do i=1,240
+     sq=0.
+     do n=1,nadd
+        k=k+1
+        sq=sq + float(id2(k))**2
+     enddo
+     rms=sqrt(sq/nadd)
+     if(rms.gt.10000.0) then
+        bad0=.true.
+        kbad=k
+        rmsbad=rms
+     endif
+  enddo
+  if(bad0) then
+     nz=min(NTMAX*12000,kbad+100)
+     id2(1:nz)=0
+  endif
 
   if (params%nagain) then
      open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown',                          &
@@ -90,7 +112,8 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 !$omp section
   if(params%nmode.eq.65 .or. params%nmode.eq.164 .or.                      &
        (params%nmode.eq.(65+9) .and. params%ntxmode.eq.65)) then
-! We're in JT65 mode, or should do JT65 first
+! We're in JT65 or QRA64 mode, or should do JT65 first
+
      if(newdat65) dd(1:npts65)=id2(1:npts65)
      nf1=params%nfa
      nf2=params%nfb
@@ -98,7 +121,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      call my_jt65%decode(jt65_decoded,dd,npts65,newdat65,params%nutc,      &
           nf1,nf2,params%nfqso,ntol65,params%nsubmode,params%minsync,      &
           logical(params%nagain),params%n2pass,logical(params%nrobust),    &
-          ntrials,params%naggressive,params%ndepth,                        &
+          ntrials,params%naggressive,params%ndepth,params%emedelay,        &
           logical(params%nclearave),params%mycall,params%hiscall,          &
           params%hisgrid,params%nexp_decode)
      call timer('jt65a   ',1)
@@ -123,7 +146,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
         call my_jt65%decode(jt65_decoded,dd,npts65,newdat65,params%nutc,   &
              nf1,nf2,params%nfqso,ntol65,params%nsubmode,params%minsync,   &
              logical(params%nagain),params%n2pass,logical(params%nrobust), &
-             ntrials,params%naggressive,params%ndepth,                     &
+             ntrials,params%naggressive,params%ndepth,params%emedelay,     &
              logical(params%nclearave),params%mycall,params%hiscall,       &
              params%hisgrid,params%nexp_decode)
         call timer('jt65a   ',1)

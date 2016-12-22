@@ -1,4 +1,5 @@
-subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,dtx,f0,jpk,sync,sync2,width)
+subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,emedelay,dtx,f0,jpk,sync,  &
+     sync2,width)
 
   use timer_module, only: timer
 
@@ -60,7 +61,7 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,dtx,f0,jpk,sync,sync2,width)
   smaxall=0.
   jpk=0
   ja=0
-  jb=7.5*6000
+  jb=(5.0+emedelay)*6000
   jstep=100
   ipk=0
   kpk=0
@@ -100,9 +101,7 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,dtx,f0,jpk,sync,sync2,width)
            call smo(s0b(ia:ib),iz,s0(ia:ib),nadd)
         enddo
      endif
-     if(j1.eq.ja) then
-        call averms(s0(ia+id:ib-id),iz-2*id,nskip,ave,rms)
-     endif
+     call averms(s0(ia+id:ib-id),iz-2*id,nskip,ave,rms)
      s=(maxval(s0(iaa:ibb))-ave)/rms
      ipk0=maxloc(s0(iaa:ibb))
      ip=ipk0(1) + iaa - 1
@@ -116,7 +115,7 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,dtx,f0,jpk,sync,sync2,width)
      endif
      call timer('sync64_2',1)
   enddo
-     
+
   s0a=s0a+2.0
   write(17) ia,ib,s0a(ia:ib)                !Save data for red curve
   close(17)

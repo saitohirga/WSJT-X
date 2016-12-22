@@ -37,7 +37,7 @@ contains
 
   subroutine decode(this,callback,dd0,npts,newdat,nutc,nf1,nf2,nfqso,     &
        ntol,nsubmode,minsync,nagain,n2pass,nrobust,ntrials,naggressive,   &
-       ndepth,clearave,mycall,hiscall,hisgrid,nexp_decode)
+       ndepth,emedelay,clearave,mycall,hiscall,hisgrid,nexp_decode)
 
 !  Process dd0() data to find and decode JT65 signals.
 
@@ -48,7 +48,7 @@ contains
 
     class(jt65_decoder), intent(inout) :: this
     procedure(jt65_decode_callback) :: callback
-    real, intent(in) :: dd0(NZMAX)
+    real, intent(in) :: dd0(NZMAX),emedelay
     integer, intent(in) :: npts, nutc, nf1, nf2, nfqso, ntol     &
          , nsubmode, minsync, n2pass, ntrials, naggressive, ndepth      &
          , nexp_decode
@@ -106,7 +106,7 @@ contains
 !       close(60)
 !###
        call qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
-            mycall,hiscall,hisgrid,sync,nsnr,dtx,nfreq,decoded,nft)
+            emedeley,mycall,hiscall,hisgrid,sync,nsnr,dtx,nfreq,decoded,nft)
        if (associated(this%callback)) then
           ndrift=0
           nflip=1
