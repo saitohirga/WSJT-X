@@ -421,6 +421,7 @@ set (wsjt_FSRCS
   lib/msk40_freq_search.f90
   lib/msk144_freq_search.f90
   lib/mskrtd.f90
+  lib/msk144signalquality.f90
   lib/msk144sim.f90
   lib/mskrtd.f90
   lib/options.f90

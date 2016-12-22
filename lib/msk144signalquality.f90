@@ -1,4 +1,5 @@
-subroutine msk144signalquality(cframe,snr,freq,t0,softbits,msg,dxcall,nbiterrors,eyeopening,trained,pcoeffs)
+  subroutine msk144signalquality(cframe,snr,freq,t0,softbits,msg,dxcall,  &
+       nbiterrors,eyeopening,trained,pcoeffs)
 
   character*22 msg,msgsent
   character*12 dxcall
@@ -35,7 +36,8 @@ subroutine msk144signalquality(cframe,snr,freq,t0,softbits,msg,dxcall,nbiterrors
   real d(1024)
   real phase(864)
   real twopi,freq,phi,dphi0,dphi1,dphi
-  real*8 x(145),y(145),pp(145),sigmay(145),a(5),chisqr,pcoeffs(5)
+  real*8 x(145),y(145),pp(145),sigmay(145),a(5),chisqr
+  real pcoeffs(3)
 
   data first/.true./
   save cross_avg,abscross_avg,wt_avg,first,currently_training,   &
@@ -51,7 +53,7 @@ subroutine msk144signalquality(cframe,snr,freq,t0,softbits,msg,dxcall,nbiterrors
     training_dxcall(1:12)=' '
     trained=.false.
     currently_training=.false.
-    pcoeffs(1:5)=0.0
+    pcoeffs(1:3)=0.0
     first=.false.
   endif
 
@@ -68,7 +70,7 @@ subroutine msk144signalquality(cframe,snr,freq,t0,softbits,msg,dxcall,nbiterrors
     currently_training=.false.
     training_dxcall(1:12)=' '
     trained_dxcall(1:12)=' '
-    pcoeffs(1:5)=0.0
+    pcoeffs(1:3)=0.0
 write(*,*) 'reset to untrained state '
   endif
 
@@ -79,7 +81,7 @@ write(*,*) 'reset to untrained state '
     currently_training=.true.
     training_dxcall=trim(dxcall)
     trained_dxcall(1:12)=' '
-    pcoeffs(1:5)=0.0
+    pcoeffs(1:3)=0.0
 write(*,*) 'start training on call ',training_dxcall
   endif
 
@@ -87,7 +89,7 @@ write(*,*) 'start training on call ',training_dxcall
     trained=.false. ! just to be sure
     trained_dxcall(1:12)=' '
     training_dxcall=dxcall
-    pcoeffs(1:5)=0.0
+    pcoeffs(1:3)=0.0
   endif
 
 ! use decoded message to figure out how many bit errors in the frame 
@@ -167,8 +169,7 @@ write(*,*) 'start training on call ',training_dxcall
       nfft=1024
       d=0
       d(1:864)=waveform(0:863)
-      a=0
-      call analytic(d,npts,nfft,canalytic,a,.false.) ! don't equalize the model
+      call analytic(d,npts,nfft,canalytic,pcoeffs,.false.,.false.) ! don't equalize the model
       call tweak1(canalytic,nfft,-freq,cmodel)
       call four2a(cframe(1:864),864,1,-1,1)
       call four2a(cmodel(1:864),864,1,-1,1)
@@ -207,7 +208,7 @@ write(*,*) 'training ',navg,sqrt(chisqr),rmsdiff
           write(19,*) i,real(cframe(i)),imag(cframe(i))
         enddo
         close(19)
-        pcoeffs=a
+        pcoeffs=a(3:5)
         trained_dxcall=dxcall
         training_dxcall(1:12)=' '
         currently_training=.false.
