@@ -2314,7 +2314,7 @@ Right click for insert and delete options.</string>
             </property>
            </widget>
           </item>
-          <item row="9" column="0">
+          <item row="10" column="0">
            <widget class="QCheckBox" name="cbRealTime">
             <property name="enabled">
              <bool>false</bool>

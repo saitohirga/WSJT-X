@@ -31,7 +31,6 @@
  
   real abscross_avg(864)
   real softbits(144)
-  real softav(144)
   real waveform(0:863)  
   real d(1024)
   real phase(864)
@@ -41,7 +40,7 @@
 
   data first/.true./
   save cross_avg,abscross_avg,wt_avg,first,currently_training,   &
-       navg,softav,tlast,training_dxcall,trained_dxcall
+       navg,tlast,training_dxcall,trained_dxcall
 
   if (first) then
     navg=0
