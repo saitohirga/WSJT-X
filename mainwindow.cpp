@@ -1987,23 +1987,26 @@ void MainWindow::read_wav_file (QString const& fname)
               }
           }
         BWFFile file {QAudioFormat {}, fname};
-        file.open (BWFFile::ReadOnly);
-        auto bytes_per_frame = file.format ().bytesPerFrame ();
-        qint64 max_bytes = std::min (std::size_t (m_TRperiod * RX_SAMPLE_RATE),
-                                     sizeof (dec_data.d2) / sizeof (dec_data.d2[0]))
-          * bytes_per_frame;
-        auto n = file.read (reinterpret_cast<char *> (dec_data.d2),
+        bool ok=file.open (BWFFile::ReadOnly);
+        if(ok) {
+          auto bytes_per_frame = file.format ().bytesPerFrame ();
+          qint64 max_bytes = std::min (std::size_t (m_TRperiod * RX_SAMPLE_RATE),
+              sizeof (dec_data.d2) / sizeof (dec_data.d2[0]))* bytes_per_frame;
+          auto n = file.read (reinterpret_cast<char *> (dec_data.d2),
                             std::min (max_bytes, file.size ()));
-        int frames_read = n / bytes_per_frame;
+          int frames_read = n / bytes_per_frame;
         // zero unfilled remaining sample space
-        std::memset (&dec_data.d2[0] + n, 0, max_bytes - n);
-        if (11025 == file.format ().sampleRate ())
-          {
+          std::memset (&dec_data.d2[0] + n, 0, max_bytes - n);
+          if (11025 == file.format ().sampleRate ()) {
             short sample_size = file.format ().sampleSize ();
             wav12_ (dec_data.d2, dec_data.d2, &frames_read, &sample_size);
           }
-        dec_data.params.kin = frames_read;
-        dec_data.params.newdat = 1;
+          dec_data.params.kin = frames_read;
+          dec_data.params.newdat = 1;
+        } else {
+          dec_data.params.kin = 0;
+          dec_data.params.newdat = 0;
+        }
       }));
 }
 
@@ -2044,20 +2047,23 @@ void MainWindow::on_actionDecode_remaining_files_in_directory_triggered()
 
 void MainWindow::diskDat()                                   //diskDat()
 {
-  int k;
-  int kstep=m_FFTSize;
-  m_diskData=true;
+  if(dec_data.params.kin>0) {
+    int k;
+    int kstep=m_FFTSize;
+    m_diskData=true;
+    float db=m_config.degrade();
+    float bw=m_config.RxBandwidth();
+    if(db > 0.0) degrade_snr_(dec_data.d2,&dec_data.params.kin,&db,&bw);
 
-  float db=m_config.degrade();
-  float bw=m_config.RxBandwidth();
-  if(db > 0.0) degrade_snr_(dec_data.d2,&dec_data.params.kin,&db,&bw);
-
-  for(int n=1; n<=m_hsymStop; n++) {                      // Do the waterfall spectra
-    k=(n+1)*kstep;
-    if(k > dec_data.params.kin) break;
-    dec_data.params.npts8=k/8;
-    dataSink(k);
-    qApp->processEvents();                                //Update the waterfall
+    for(int n=1; n<=m_hsymStop; n++) {                      // Do the waterfall spectra
+      k=(n+1)*kstep;
+      if(k > dec_data.params.kin) break;
+      dec_data.params.npts8=k/8;
+      dataSink(k);
+      qApp->processEvents();                                //Update the waterfall
+    }
+  } else {
+    MessageBox::information_message(this, tr("No data read from disk. Wrong file format?"));
   }
 }
 

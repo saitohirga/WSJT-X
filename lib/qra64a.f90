@@ -1,5 +1,5 @@
 subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
-     mycall_12,hiscall_12,hisgrid_6,sync,nsnr,dtx,nfreq,decoded,nft)
+     emedelay,mycall_12,hiscall_12,hisgrid_6,sync,nsnr,dtx,nfreq,decoded,nft)
 
   use packjt
   use timer_module, only: timer
@@ -59,15 +59,17 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   naptype=maxaptype
 
   call ana64(dd,npts,c00)
+  npts2=npts/2
   
   call timer('sync64  ',0)
-  call sync64(c00,nf1,nf2,nfqso,ntol,mode64,dtx,f0,jpk0,sync,sync2,width)
+  call sync64(c00,nf1,nf2,nfqso,ntol,mode64,emedelay,dtx,f0,jpk0,sync,  &
+       sync2,width)
   call timer('sync64  ',1)
   nfreq=nint(f0)
+  if(mode64.eq.1 .and. minsync.ge.0 .and. (sync-7.0).lt.minsync) go to 900
 !  if((sync-3.4).lt.float(minsync) .or.width.gt.340.0) go to 900
   a=0.
   a(1)=-f0
-  npts2=npts/2
   call twkfreq(c00,c0,npts2,6000.0,a)
 
   irc=-99
@@ -149,5 +151,8 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   endif
   call timer('qra64a  ',1)
 
+!  write(71,3001) nutc,dtx,f0,sync,sync2,width,minsync,decoded
+!3001 format(i4.4,f7.2,4f8.1,i3,2x,a22)
+  
   return
 end subroutine qra64a

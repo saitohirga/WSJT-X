@@ -32,8 +32,8 @@ contains
          nutc=nutc,nf1=nflow,nf2=nfhigh,nfqso=nfqso,ntol=ntol,             &
          nsubmode=nsubmode, minsync=-1,nagain=.false.,n2pass=n2pass,       &
          nrobust=nrobust,ntrials=ntrials,naggressive=naggressive,          &
-         ndepth=ndepth,clearave=nclearave,mycall=mycall,hiscall=hiscall,   &
-         hisgrid=hisgrid,nexp_decode=nexp_decode)
+         ndepth=ndepth,emedelay=0.0,clearave=nclearave,mycall=mycall,      &
+         hiscall=hiscall,hisgrid=hisgrid,nexp_decode=nexp_decode)
     call timer('jt65a   ',1)
   end subroutine test
 
