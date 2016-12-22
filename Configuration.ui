@@ -2295,6 +2295,16 @@ Right click for insert and delete options.</string>
            </widget>
           </item>
           <item row="8" column="0">
+           <widget class="QCheckBox" name="cbRxEqualize">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Correct for Rx filter group-delay variation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>MSK144 Rx Equalization</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="0">
            <widget class="QCheckBox" name="cbx2ToneSpacing">
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate Tx audio with twice the normal tone spacing.  Intended for special LF/MF transmitters that use a divide-by-2 before generating RF.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -2511,6 +2521,7 @@ soundcard changes</string>
   <tabstop>sbBandwidth</tabstop>
   <tabstop>sbTxDelay</tabstop>
   <tabstop>cbContestMode</tabstop>
+  <tabstop>cbRxEqualize</tabstop>
   <tabstop>cbx2ToneSpacing</tabstop>
   <tabstop>cbRealTime</tabstop>
  </tabstops>

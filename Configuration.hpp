@@ -123,6 +123,7 @@ public:
   bool twoPass() const;
   bool x2ToneSpacing() const;
   bool contestMode() const;
+  bool rxEqualize() const;
   bool realTimeDecode() const;
   bool MyDx() const;
   bool CQMyN() const;

@@ -1,5 +1,5 @@
 subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
-     bshmsg,bcontest,line)
+     bshmsg,bcontest,brxequal,line)
 
 ! Real-time decoder for MSK144.  
 ! Analysis block size = NZ = 7168 samples, t_block = 0.597333 s 
@@ -30,11 +30,11 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   real pow(8)
   real softbits(144)
   real xmc(NPATTERNS)
-  real*8 pcoeffs(5)
+  real pcoeffs(3)
 
-  logical*1 bshmsg,bcontest
+  logical*1 bshmsg,bcontest,brxequal
   logical first
-  logical*1 equalized
+  logical*1 trained 
 
   data first/.true./
   data iavpatterns/ &
@@ -43,14 +43,14 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
        1,1,1,1,1,0,0,0, &
        1,1,1,1,1,1,1,0/
   data xmc/2.0,4.5,2.5,3.5/     !Used to set time at center of averaging mask
-  save first,tsec0,nutc00,pnoise,nsnrlast,msglast,cdat,pcoeffs,equalized
+  save first,tsec0,nutc00,pnoise,nsnrlast,msglast,cdat,pcoeffs,trained
 
   if(first) then
      tsec0=tsec
      nutc00=nutc0
      pnoise=-1.0
-     pcoeffs(1:5)=0.0
-     equalized=.false.
+     pcoeffs(1:3)=0.0
+     trained=.false.
      first=.false.
   endif
 
@@ -74,7 +74,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   fac=1.0/rms
   d(1:NZ)=fac*d(1:NZ)
   d(NZ+1:NFFT1)=0.
-  call analytic(d,NZ,NFFT1,cdat,pcoeffs,.true.) !Convert to analytic signal and filter
+  call analytic(d,NZ,NFFT1,cdat,pcoeffs,brxequal,.true.) !Convert to analytic signal and filter
 
 ! Calculate average power for each frame and for the entire block.
 ! If decode is successful, largest power will be taken as signal+noise.
@@ -101,8 +101,6 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
 
   if( nsuccess .eq. 1 ) then
     tdec=tsec+tdec
-    decsym=' & '
-    if( equalized ) decsym=' ^ '
     ipk=0
     is=0
     goto 900
@@ -125,7 +123,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
      if( nsyncsuccess .eq. 0 ) cycle
 
      do ipk=1,npeaks
-        do is=1,3    ! With equalization, this loop may not be necessary
+        do is=1,3   
            ic0=npkloc(ipk)
            if(is.eq.2) ic0=max(1,ic0-1)
            if(is.eq.3) ic0=min(NSPM,ic0+1)
@@ -133,9 +131,6 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
            call msk144decodeframe(ct,softbits,msgreceived,ndecodesuccess)
            if(ndecodesuccess .gt. 0) then
               tdec=tsec+xmc(iavg)*tframe
-              decsym=' & '
-              if( equalized ) decsym=' ^ '
-              if( equalized .and. is .ne. 1 ) decsym=' ! ' !help decide if is dither is needed
               goto 900
            endif
         enddo                         !Slicer dither
@@ -165,7 +160,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   nsnr=nint(snr0)
 
   call msk144signalquality(ct,snr0,fest,tdec,softbits,msgreceived,hiscall,   &
-                           ncorrected,eyeopening,equalized,pcoeffs)
+                           ncorrected,eyeopening,trained,pcoeffs)
 
 ! Dupe check. Only print if new message, or higher snr.
   if(msgreceived.ne.msglast .or. nsnr.gt.nsnrlast .or. tsec.lt.tsec0) then
@@ -177,6 +172,10 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
      if(msgreceived(1:1).ne.'<') then
         call fix_contest_msg(mycall(1:6),mygrid,hiscall(1:6),msgreceived)
      endif
+     decsym=' & '
+     if( brxequal .and. (.not. trained) ) decsym=' ^ '
+     if( brxequal .and. trained ) decsym=' $ '
+     if( (.not. brxequal) .and. trained ) decsym=' @ '
      write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,    &
           navg,ncorrected,eyeopening,char(0)
 1020 format(i6.6,i4,f5.1,i5,a3,a22,i2,i3,f5.1,a1)
@@ -187,5 +186,3 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
 end subroutine mskrtd
 
 include 'fix_contest_msg.f90'
-
-include 'msk144signalquality.f90'
