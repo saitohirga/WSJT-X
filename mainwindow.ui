@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>890</width>
+    <height>560</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>WSJT-X   by K1JT</string>
   </property>
@@ -1066,6 +1074,12 @@ QLabel[oob=&quot;true&quot;] {
                    </item>
                    <item row="1" column="2">
                     <widget class="QPushButton" name="txb1">
+                     <property name="maximumSize">
+                      <size>
+                       <width>30</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
                      <property name="toolTip">
                       <string>Switch to this Tx message NOW</string>
                      </property>
@@ -1108,6 +1122,12 @@ QLabel[oob=&quot;true&quot;] {
                    </item>
                    <item row="2" column="2">
                     <widget class="QPushButton" name="txb2">
+                     <property name="maximumSize">
+                      <size>
+                       <width>30</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
                      <property name="toolTip">
                       <string>Switch to this Tx message NOW</string>
                      </property>
@@ -1147,6 +1167,12 @@ QLabel[oob=&quot;true&quot;] {
                    </item>
                    <item row="3" column="2">
                     <widget class="QPushButton" name="txb3">
+                     <property name="maximumSize">
+                      <size>
+                       <width>30</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
                      <property name="toolTip">
                       <string>Switch to this Tx message NOW</string>
                      </property>
@@ -1186,6 +1212,12 @@ QLabel[oob=&quot;true&quot;] {
                    </item>
                    <item row="4" column="2">
                     <widget class="QPushButton" name="txb4">
+                     <property name="maximumSize">
+                      <size>
+                       <width>30</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
                      <property name="toolTip">
                       <string>Switch to this Tx message NOW</string>
                      </property>
@@ -1237,6 +1269,12 @@ list. The list can be maintained in Settings (F2).</string>
                    </item>
                    <item row="5" column="2">
                     <widget class="QPushButton" name="txb5">
+                     <property name="maximumSize">
+                      <size>
+                       <width>30</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
                      <property name="toolTip">
                       <string>Switch to this Tx message NOW</string>
                      </property>
@@ -1282,6 +1320,12 @@ list. The list can be maintained in Settings (F2).</string>
                    </item>
                    <item row="6" column="2">
                     <widget class="QPushButton" name="txb6">
+                     <property name="maximumSize">
+                      <size>
+                       <width>30</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
                      <property name="toolTip">
                       <string>Switch to this Tx message NOW</string>
                      </property>
@@ -2276,6 +2320,14 @@ QPushButton[state=&quot;ok&quot;] {
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>890</width>
+     <height>21</height>
+    </rect>
+   </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
