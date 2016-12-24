@@ -241,6 +241,7 @@ private slots:
   void on_actionFast_Graph_triggered();
   void fast_decode_done();
   void on_actionSave_reference_spectrum_triggered();
+  void on_actionClear_reference_spectrum_triggered();
   void on_sbTR_valueChanged(int index);
   void on_sbFtol_valueChanged(int index);
   void on_cbFast9_clicked(bool b);
@@ -414,6 +415,7 @@ private:
   bool    m_bFastDecodeCalled;
   bool    m_bDoubleClickAfterCQnnn;
   bool    m_bRefSpec;
+  bool    m_bClearRefSpec;
   bool    m_bUseRef;
   bool    m_bFastDone;
   bool    m_bAltV;
