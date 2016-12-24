@@ -113,8 +113,8 @@ extern "C" {
                     int len1, int len2, int len3);
   void degrade_snr_(short d2[], int* n, float* db, float* bandwidth);
   void wav12_(short d2[], short d1[], int* nbytes, short* nbitsam2);
-  void refspectrum_(short int d2[], bool* brefspec, bool* buseref,
-                    const char* c_fname, int len);
+  void refspectrum_(short int d2[], bool* bclearrefspec, bool* brefspec,
+                    bool* buseref, const char* c_fname, int len);
 }
 
 int volatile itone[NUM_ISCAT_SYMBOLS];	//Audio tones for all Tx symbols
@@ -248,6 +248,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_bFastDecodeCalled {false},
   m_bDoubleClickAfterCQnnn {false},
   m_bRefSpec {false},
+  m_bClearRefSpec {false},
   m_ihsym {0},
   m_nzap {0},
   m_px {0.0},
@@ -1091,7 +1092,9 @@ void MainWindow::dataSink(qint64 frames)
   }
 
   m_bUseRef=m_wideGraph->useRef();
-  refspectrum_(&dec_data.d2[k-m_nsps/2],&m_bRefSpec,&m_bUseRef,c_fname,len);
+  refspectrum_(&dec_data.d2[k-m_nsps/2],&m_bClearRefSpec,&m_bRefSpec,
+      &m_bUseRef,c_fname,len);
+  m_bClearRefSpec=false;
 
 // Get power, spectrum, and ihsym
   int trmin=m_TRperiod/60;
@@ -5872,6 +5875,11 @@ void MainWindow::on_actionSave_reference_spectrum_triggered()
 {
   if(!m_monitoring) on_monitorButton_clicked (true);
   m_bRefSpec=true;
+}
+
+void MainWindow::on_actionClear_reference_spectrum_triggered()
+{
+  m_bClearRefSpec=true;
 }
 
 void MainWindow::on_sbCQTxFreq_valueChanged(int)

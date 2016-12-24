@@ -1,4 +1,4 @@
-subroutine refspectrum(id2,brefspec,buseref,fname)
+subroutine refspectrum(id2,bclear,brefspec,buseref,fname)
 
 ! Input:
 !  id2       i*2        Raw 16-bit integer data, 12000 Hz sample rate
@@ -6,7 +6,7 @@ subroutine refspectrum(id2,brefspec,buseref,fname)
 
   parameter (NFFT=6912,NH=NFFT/2)
   integer*2 id2(NFFT)
-  logical*1 brefspec,buseref
+  logical*1 bclear,brefspec,buseref
 
   real x0(0:NH-1)                         !Input samples
   real x1(0:NH-1)                         !Output samples (delayed by one block)
@@ -37,6 +37,7 @@ subroutine refspectrum(id2,brefspec,buseref,fname)
      x1s=0.
      first=.false.
   endif
+  if(bclear) s=0.
 
   if(brefspec) then
      x(0:NH-1)=0.001*id2(1:NH)
@@ -96,7 +97,6 @@ subroutine refspectrum(id2,brefspec,buseref,fname)
            if(s(i).gt.0.0) filter(i)=20.0*log10(fil(i))
         enddo
 
-!        open(16,file='refspec.dat',status='unknown')
         open(16,file=fname,status='unknown')
         do i=1,NH
            freq=i*df
@@ -111,7 +111,6 @@ subroutine refspectrum(id2,brefspec,buseref,fname)
 
   if(buseref) then
      if(firstuse) then
-!        open(16,file='refspec.dat',status='unknown')
         fil=1.0
         open(16,file=fname,status='old',err=10)
         do i=1,NH
