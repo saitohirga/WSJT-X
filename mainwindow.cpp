@@ -1648,6 +1648,17 @@ void MainWindow::displayDialFrequency ()
       ui->bandComboBox->setCurrentText (band_name);
       m_wideGraph->setRxBand (band_name);
       m_lastBand = band_name;
+      // For 60M we'll move the JT9 offset to zero
+      static int saveRxRange = -1;
+      if (saveRxRange < 0) saveRxRange = m_wideGraph->Fmin();
+      if (band_name == "60m") {
+          saveRxRange = m_wideGraph->Fmin();
+          m_wideGraph->setRxRange(0);
+
+      }
+      else {
+          m_wideGraph->setRxRange(saveRxRange);
+      }
     }
 
   // search working frequencies for one we are within 10kHz of (1 Mhz
@@ -2819,7 +2830,6 @@ void MainWindow::guiUpdate()
       m_currentMessage = "TUNE";
       m_currentMessageType = -1;
     }
-    last_tx_label.setText("Last Tx:  " + m_currentMessage.trimmed());
     if(m_restart) {
       QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
       if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append))
@@ -3122,6 +3132,7 @@ void MainWindow::stopTx2()
     WSPR_scheduling ();
     m_ntr=0;
   }
+  last_tx_label.setText("Last Tx: " + m_currentMessage.trimmed());
 }
 
 void MainWindow::ba2msg(QByteArray ba, char message[])             //ba2msg()
