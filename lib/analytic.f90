@@ -8,7 +8,7 @@ subroutine analytic(d,npts,nfft,c,dpc,bseq,bdeq)
   real h(NFFTMAX/2)         ! real BPF magnitude
   real dpc(3),dpclast(3)    ! dynamic phase coeffs
   real spc(3),spclast(3)    ! static phase coeffs
-  real ac(5)                ! currently unused static amp coeffs
+  real sac(5),saclast(5)    ! amp coeffs
   real fp     
 
   complex corrs(NFFTMAX/2)  ! allpass static phase correction 
@@ -22,10 +22,11 @@ subroutine analytic(d,npts,nfft,c,dpc,bseq,bdeq)
   data nfft0/0/
   data bseqlast/.false./
   data spclast/0.0,0.0,0.0/
+  data saclast/1.0,0.0,0.0,0.0,0.0/
   data spc/-0.952,0.768,-0.565/  ! baseline phase coeffs for TS2000
-  data ac/1.0,0.05532,0.11438,0.12918,0.09274/ ! amp coeffs for TS2000
+  data sac/1.0,0.05532,0.11438,0.12918,0.09274/ ! amp coeffs for TS2000
 
-  save nfft0,h,spc,spclast,dpclast,ac,pi,t,beta
+  save corrs,corrd,nfft0,h,sac,spc,saclast,spclast,dpclast,pi,t,beta
 
   df=12000.0/nfft
   nh=nfft/2
@@ -39,20 +40,24 @@ subroutine analytic(d,npts,nfft,c,dpc,bseq,bdeq)
         h(i)=1.0
         if(abs(f).gt.(1-beta)/(2*t) .and. abs(f).le.(1+beta)/(2*t)) then
            h(i)=h(i)*0.5*(1+cos((pi*t/beta )*(abs(f)-(1-beta)/(2*t))))
+        elseif( abs(f) .gt. (1+beta)/(2*t) ) then
+           h(i)=0.0
         endif
      enddo
      nfft0=nfft
   endif
 
-  if( any(spclast .ne. spc) .or. any(dpclast .ne. dpc) ) then
+  if( any(spclast .ne. spc) .or. any(saclast .ne. sac) .or. any(dpclast .ne. dpc) ) then
      spclast=spc
      dpclast=dpc
+     saclast=sac
      do i=1,nh+1
         ff=(i-1)*df
         f=ff-1500.0
         fp=f/1000.0
         ps=fp*fp*(spc(1)+fp*(spc(2)+fp*spc(3)))
-        corrs(i)=cmplx(cos(ps),sin(ps))
+        amp=sac(1)+fp*(sac(2)+fp*(sac(3)+fp*(sac(4)+fp*sac(5))))
+        corrs(i)=amp*cmplx(cos(ps),sin(ps))
         pd=fp*fp*(dpc(1)+fp*(dpc(2)+fp*dpc(3)))
         corrd(i)=cmplx(cos(pd),sin(pd))
      enddo
@@ -76,7 +81,5 @@ subroutine analytic(d,npts,nfft,c,dpc,bseq,bdeq)
   c(1)=0.5*c(1)                            !Half of DC term
   c(nh+2:nfft)=0.                          !Zero the negative frequencies
   call four2a(c,nfft,1,1,1)                !Inverse c2c FFT
-  spclast=spc
-  dpclast=dpc
   return
 end subroutine analytic

@@ -205,7 +205,7 @@ write(*,*) 'training ',navg,sqrt(chisqr),rmsdiff
         close(18)
         open(19,file='cframe.dat',status='unknown')
         do i=1,864
-          write(19,*) i,real(cframe(i)),imag(cframe(i))
+          write(19,*) i,real(cframe(i)),imag(cframe(i)),real(cross_avg(i)),imag(cross_avg(i))
         enddo
         close(19)
         pcoeffs=a(3:5)
