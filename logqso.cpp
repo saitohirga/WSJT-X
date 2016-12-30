@@ -49,7 +49,7 @@ void LogQSO::storeSettings () const
 }
 
 void LogQSO::initLogQSO(QString hisCall, QString hisGrid, QString mode,
-                        QString rptSent, QString rptRcvd, QDateTime dateTime,
+                        QString rptSent, QString rptRcvd, QDateTime dateTimeOn, QDateTime dateTimeOff,
                         Radio::Frequency dialFreq, QString myCall, QString myGrid,
                         bool noSuffix, bool toRTTY, bool dBtoComments)
 {
@@ -72,11 +72,16 @@ void LogQSO::initLogQSO(QString hisCall, QString hisGrid, QString mode,
   ui->mode->setText(mode);
   ui->sent->setText(rptSent);
   ui->rcvd->setText(rptRcvd);
-  m_dateTime=dateTime;
-  QString date=dateTime.toString("yyyy-MM-dd");
-  ui->date->setText(date);
-  QString time=dateTime.toString("hhmm");
-  ui->time->setText(time);
+  m_dateTimeOn=dateTimeOn;
+  m_dateTimeOff=dateTimeOff;
+  QString dateOn=dateTimeOn.toString("yyyy-MM-dd");
+  ui->dateOn->setText(dateOn);
+  QString timeOn=dateTimeOn.toString("hhmm");
+  ui->timeOn->setText(timeOn);
+  QString dateOff=dateTimeOff.toString("yyyy-MM-dd");
+  ui->dateOff->setText(dateOff);
+  QString timeOff=dateTimeOff.toString("hhmm");
+  ui->timeOff->setText(timeOff);
   m_dialFreq=dialFreq;
   m_myCall=myCall;
   m_myGrid=myGrid;
@@ -88,7 +93,7 @@ void LogQSO::initLogQSO(QString hisCall, QString hisGrid, QString mode,
 
 void LogQSO::accept()
 {
-  QString hisCall,hisGrid,mode,rptSent,rptRcvd,date,time,band;
+  QString hisCall,hisGrid,mode,rptSent,rptRcvd,dateOn,dateOff,timeOn,timeOff,band;
   QString comments,name;
 
   hisCall=ui->call->text();
@@ -96,9 +101,12 @@ void LogQSO::accept()
   mode=ui->mode->text();
   rptSent=ui->sent->text();
   rptRcvd=ui->rcvd->text();
-  date=ui->date->text();
-  date=date.mid(0,4) + date.mid(5,2) + date.mid(8,2);
-  time=ui->time->text();
+  dateOn=ui->dateOn->text();
+  dateOn=dateOn.mid(0,4) + dateOn.mid(5,2) + dateOn.mid(8,2);
+  timeOn=ui->timeOn->text();
+  dateOff=ui->dateOff->text();
+  dateOff=dateOff.mid(0,4) + dateOff.mid(5,2) + dateOff.mid(8,2);
+  timeOff=ui->timeOff->text();
   band=ui->band->text();
   name=ui->name->text();
   m_txPower=ui->txPower->text();
@@ -111,7 +119,7 @@ void LogQSO::accept()
   ADIF adifile;
   auto adifilePath = QDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)}.absoluteFilePath ("wsjtx_log.adi");
   adifile.init(adifilePath);
-  if (!adifile.addQSOToFile(hisCall,hisGrid,mode,rptSent,rptRcvd,date,time,band,comments,name,strDialFreq,m_myCall,m_myGrid,m_txPower))
+  if (!adifile.addQSOToFile(hisCall,hisGrid,mode,rptSent,rptRcvd,dateOn,timeOn,dateOff,timeOff,band,comments,name,strDialFreq,m_myCall,m_myGrid,m_txPower))
   {
     MessageBox::warning_message (this, tr ("Log file error"),
                                  tr ("Cannot open \"%1\"").arg (adifilePath));
@@ -124,8 +132,10 @@ void LogQSO::accept()
                                  tr ("Cannot open \"%1\" for append").arg (f.fileName ()),
                                  tr ("Error: %1").arg (f.errorString ()));
   } else {
-    QString logEntry=m_dateTime.date().toString("yyyy-MMM-dd,") +
-      m_dateTime.time().toString("hh:mm,") + hisCall + "," +
+    QString logEntry=m_dateTimeOn.date().toString("yyyy-MM-dd,") +
+      m_dateTimeOn.time().toString("hh:mm,") +
+      m_dateTimeOff.date().toString("yyyy-MM-dd,") +
+      m_dateTimeOff.time().toString("hh:mm,") + hisCall + "," +
       hisGrid + "," + strDialFreq + "," + mode +
       "," + rptSent + "," + rptRcvd + "," + m_txPower +
       "," + comments + "," + name;
@@ -135,7 +145,7 @@ void LogQSO::accept()
   }
 
 //Clean up and finish logging
-  Q_EMIT acceptQSO (m_dateTime, hisCall, hisGrid, m_dialFreq, mode, rptSent, rptRcvd, m_txPower, comments, name);
+  Q_EMIT acceptQSO (m_dateTimeOff, hisCall, hisGrid, m_dialFreq, mode, rptSent, rptRcvd, m_txPower, comments, name,m_dateTimeOn);
   QDialog::accept();
 }
 

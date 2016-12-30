@@ -80,6 +80,7 @@ private slots:
   void on_zero2dSlider_valueChanged(int value);
   void on_smoSpinBox_valueChanged(int n);  
   void on_sbPercent2dPlot_valueChanged(int n);
+  void on_hideControls();
 
 private:
   void   readPalette();
@@ -104,7 +105,7 @@ private:
   bool   m_bFlatten;
   bool   m_bRef;
   bool   m_bHaveTransmitted;    //Set true at end of a WSPR transmission
-
+  bool   m_bHideControls;
   QString m_mode;
   QString m_modeTx;
   QString m_waterfallPalette;

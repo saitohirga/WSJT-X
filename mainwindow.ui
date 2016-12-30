@@ -2357,6 +2357,8 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="actionMessage_averaging"/>
     <addaction name="actionEcho_Graph"/>
     <addaction name="actionFast_Graph"/>
+    <addaction name="separator"/>
+    <addaction name="actionHide_Controls"/>
    </widget>
    <widget class="QMenu" name="menuDecode">
     <property name="title">
@@ -2897,6 +2899,17 @@ QPushButton[state=&quot;ok&quot;] {
   <action name="actionClear_reference_spectrum">
    <property name="text">
     <string>Clear reference spectrum</string>
+   </property>
+  </action>
+  <action name="actionHide_Controls">
+   <property name="text">
+    <string>Hide menus and labels</string>
+   </property>
+   <property name="toolTip">
+    <string>Reduces window size by removing controls and some spacing</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+M</string>
    </property>
   </action>
  </widget>

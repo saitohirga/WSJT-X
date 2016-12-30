@@ -26,7 +26,7 @@ public:
   explicit LogQSO(QString const& programTitle, QSettings *, QWidget *parent = 0);
   ~LogQSO();
   void initLogQSO(QString hisCall, QString hisGrid, QString mode,
-                  QString rptSent, QString rptRcvd, QDateTime dateTime,
+                  QString rptSent, QString rptRcvd, QDateTime dateTimeOn,QDateTime dateTimeOff,
                   Radio::Frequency dialFreq, QString myCall, QString myGrid,
                   bool noSuffix, bool toRTTY, bool dBtoComments);
 
@@ -34,11 +34,11 @@ public slots:
   void accept();
 
 signals:
-  void acceptQSO (QDateTime const&, QString const& call, QString const& grid
+  void acceptQSO (QDateTime const& QSO_date_off, QString const& call, QString const& grid
                   , Radio::Frequency dial_freq, QString const& mode
                   , QString const& rpt_sent, QString const& rpt_received
                   , QString const& tx_power, QString const& comments
-                  , QString const& name);
+                  , QString const& name, QDateTime const& QSO_date_on);
 
 protected:
   void hideEvent (QHideEvent *);
@@ -54,7 +54,8 @@ private:
   Radio::Frequency m_dialFreq;
   QString m_myCall;
   QString m_myGrid;
-  QDateTime m_dateTime;
+  QDateTime m_dateTimeOn;
+  QDateTime m_dateTimeOff;
 };
 
 #endif // LogQSO_H

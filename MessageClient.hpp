@@ -57,10 +57,10 @@ public:
   Q_SLOT void WSPR_decode (bool is_new, QTime time, qint32 snr, float delta_time, Frequency
                            , qint32 drift, QString const& callsign, QString const& grid, qint32 power);
   Q_SLOT void clear_decodes ();
-  Q_SLOT void qso_logged (QDateTime time, QString const& dx_call, QString const& dx_grid
+  Q_SLOT void qso_logged (QDateTime timeOff, QString const& dx_call, QString const& dx_grid
                           , Frequency dial_frequency, QString const& mode, QString const& report_sent
                           , QString const& report_received, QString const& tx_power, QString const& comments
-                          , QString const& name);
+                          , QString const& name, QDateTime timeOn);
 
   // this slot may be used to send arbitrary UDP datagrams to and
   // destination allowing the underlying socket to be used for general

@@ -134,7 +134,7 @@ int ADIF::getCount()
     
 
 // open ADIF file and append the QSO details. Return true on success
-bool ADIF::addQSOToFile(const QString hisCall, const QString hisGrid, const QString mode, const QString rptSent, const QString rptRcvd, const QString date, const QString time, const QString band,
+bool ADIF::addQSOToFile(const QString hisCall, const QString hisGrid, const QString mode, const QString rptSent, const QString rptRcvd, const QString dateOn, const QString timeOn, QString dateOff, const QString timeOff, const QString band,
                         const QString comments, const QString name, const QString strDialFreq, const QString m_myCall, const QString m_myGrid, const QString m_txPower)
 {
     QFile f2(_filename);
@@ -152,8 +152,10 @@ bool ADIF::addQSOToFile(const QString hisCall, const QString hisGrid, const QStr
         t+=" <mode:" + QString::number(mode.length()) + ">" + mode;
         t+=" <rst_sent:" + QString::number(rptSent.length()) + ">" + rptSent;
         t+=" <rst_rcvd:" + QString::number(rptRcvd.length()) + ">" + rptRcvd;
-        t+=" <qso_date:8>" + date;
-        t+=" <time_on:4>" + time;
+        t+=" <qso_date:8>" + dateOn;
+        t+=" <time_on:4>" + timeOn;
+        t+=" <qso_date_off:8>" + dateOff;
+        t+=" <time_off:4>" + timeOff;
         t+=" <band:" + QString::number(band.length()) + ">" + band;
         t+=" <freq:" + QString::number(strDialFreq.length()) + ">" + strDialFreq;
         t+=" <station_callsign:" + QString::number(m_myCall.length()) + ">" +

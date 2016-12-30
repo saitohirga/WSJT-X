@@ -148,7 +148,11 @@ private slots:
   void on_EraseButton_clicked();
   void on_txb1_clicked();
   void on_txFirstCheckBox_stateChanged(int arg1);
+  void set_dateTimeQSO(int m_ntx);
   void set_ntx(int n);
+  void on_txrb1_toggled(bool status);
+  void on_txrb2_toggled(bool status);
+  void on_txrb3_toggled(bool status);
   void on_txb2_clicked();
   void on_txb3_clicked();
   void on_txb4_clicked();
@@ -196,7 +200,7 @@ private slots:
                   , Frequency dial_freq, QString const& mode
                   , QString const& rpt_sent, QString const& rpt_received
                   , QString const& tx_power, QString const& comments
-                  , QString const& name);
+                  , QString const& name, QDateTime const&);
   void on_bandComboBox_currentIndexChanged (int index);
   void on_bandComboBox_activated (int index);
   void on_readFreq_clicked();
@@ -239,6 +243,7 @@ private slots:
   void on_actionEcho_triggered();
   void on_actionISCAT_triggered();
   void on_actionFast_Graph_triggered();
+  void on_actionHide_Controls_triggered();
   void fast_decode_done();
   void on_actionSave_reference_spectrum_triggered();
   void on_actionClear_reference_spectrum_triggered();
@@ -422,6 +427,7 @@ private:
   bool    m_bNoMoreFiles;
   bool    m_bQRAsyncWarned;
   bool    m_bDoubleClicked;
+  bool    m_bHideControls;
 
   float   m_pctZap;
   int			m_ihsym;
@@ -495,7 +501,9 @@ private:
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;
 
-  QDateTime m_dateTimeQSO;
+  QDateTime m_dateTimeQSOOn;
+  QDateTime m_dateTimeQSOOff;
+  QDateTime m_dateTimeDefault;
 
   QSharedMemory *mem_jt9;
   LogBook m_logBook;
@@ -523,7 +531,7 @@ private:
   DisplayManual m_manual;
   QHash<QString, QVariant> m_pwrBandTxMemory; // Remembers power level by band
   QHash<QString, QVariant> m_pwrBandTuneMemory; // Remembers power level by band for tuning
-
+  QByteArray m_geometryNoControls;
   //---------------------------------------------------- private functions
   void readSettings();
   void setDecodedTextFont (QFont const&);

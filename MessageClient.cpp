@@ -400,17 +400,17 @@ void MessageClient::clear_decodes ()
     }
 }
 
-void MessageClient::qso_logged (QDateTime time, QString const& dx_call, QString const& dx_grid
+void MessageClient::qso_logged (QDateTime timeOff, QString const& dx_call, QString const& dx_grid
                                 , Frequency dial_frequency, QString const& mode, QString const& report_sent
                                 , QString const& report_received, QString const& tx_power
-                                , QString const& comments, QString const& name)
+                                , QString const& comments, QString const& name, QDateTime timeOn)
 {
    if (m_->server_port_ && !m_->server_string_.isEmpty ())
     {
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::QSOLogged, m_->id_, m_->schema_};
-      out << time << dx_call.toUtf8 () << dx_grid.toUtf8 () << dial_frequency << mode.toUtf8 ()
-          << report_sent.toUtf8 () << report_received.toUtf8 () << tx_power.toUtf8 () << comments.toUtf8 () << name.toUtf8 ();
+      out << timeOff << dx_call.toUtf8 () << dx_grid.toUtf8 () << dial_frequency << mode.toUtf8 ()
+          << report_sent.toUtf8 () << report_received.toUtf8 () << tx_power.toUtf8 () << comments.toUtf8 () << name.toUtf8 () << timeOn;
       m_->send_message (out, message);
     }
 }
