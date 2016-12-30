@@ -87,3 +87,13 @@ spectra, thereby smoothing the curves over multiple bins.
 
 - Click the *Colors* button to cycle through 6 possible choices of
 color and line width for the plots.
+
+[[CONTROLS_MISCELLANEOUS]]
+=== Miscellaneous
+
+Most windows can be resized as desired.  If you are short of screen
+space you can make the Main Window and Wide Graph smaller by hiding
+some controls and labels.  To enable this feature type *Ctrl+M* with
+focus on the appropriate window.  (For the Main Window you can select
+*Hide menus and labels* on the *View* menu.)  Type *Ctrl+M* again
+to make the controls visible once more.

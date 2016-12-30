@@ -273,7 +273,7 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
 
             case NetworkMessage::QSOLogged:
               {
-                QDateTime time;
+                QDateTime timeOff;
                 QByteArray dx_call;
                 QByteArray dx_grid;
                 Frequency dial_frequency;
@@ -283,14 +283,15 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                 QByteArray tx_power;
                 QByteArray comments;
                 QByteArray name;
-                in >> time >> dx_call >> dx_grid >> dial_frequency >> mode >> report_sent >> report_received
-                   >> tx_power >> comments >> name;
+				QDateTime timeOn;
+                in >> timeOff >> dx_call >> dx_grid >> dial_frequency >> mode >> report_sent >> report_received
+                   >> tx_power >> comments >> name >> timeOn;
                 if (check_status (in) != Fail)
                   {
-                    Q_EMIT self_->qso_logged (id, time, QString::fromUtf8 (dx_call), QString::fromUtf8 (dx_grid)
+                    Q_EMIT self_->qso_logged (id, timeOff, QString::fromUtf8 (dx_call), QString::fromUtf8 (dx_grid)
                                               , dial_frequency, QString::fromUtf8 (mode), QString::fromUtf8 (report_sent)
                                               , QString::fromUtf8 (report_received), QString::fromUtf8 (tx_power)
-                                              , QString::fromUtf8 (comments), QString::fromUtf8 (name));
+                                              , QString::fromUtf8 (comments), QString::fromUtf8 (name), timeOn);
                   }
               }
               break;

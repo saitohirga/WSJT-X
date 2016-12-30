@@ -28,7 +28,7 @@ class ADIF
 		int getCount();
 		
         // open ADIF file and append the QSO details. Return true on success
-        bool addQSOToFile(const QString hisCall, const QString hisGrid, const QString mode, const QString rptSent, const QString rptRcvd, const QString date, const QString time, const QString band,
+        bool addQSOToFile(const QString hisCall, const QString hisGrid, const QString mode, const QString rptSent, const QString rptRcvd, const QString dateOn, const QString timeOn, const QString dateOff, const QString timeOff, const QString band,
                                 const QString comments, const QString name, const QString strDialFreq, const QString m_myCall, const QString m_myGrid, const QString m_txPower);
 
         static QString bandFromFrequency(double dialFreq);

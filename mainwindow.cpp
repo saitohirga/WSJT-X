@@ -504,6 +504,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   txMsgButtonGroup->addButton(ui->txrb4,4);
   txMsgButtonGroup->addButton(ui->txrb5,5);
   txMsgButtonGroup->addButton(ui->txrb6,6);
+  set_dateTimeQSO(-1);
   connect(txMsgButtonGroup,SIGNAL(buttonClicked(int)),SLOT(set_ntx(int)));
   connect(ui->decodedTextBrowser2,SIGNAL(selectCallsign(bool,bool)),this,
           SLOT(doubleClickOnCall(bool,bool)));
@@ -679,6 +680,9 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
   m_audioThread.start (m_audioThreadPriority);
 
+  m_dateTimeDefault=QDateTime(QDate(1900,1,1),QTime(0,0));
+  m_dateTimeQSOOn=m_dateTimeDefault;
+
 #ifdef WIN32
   if (!m_multiple)
     {
@@ -849,6 +853,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (&splashTimer, &QTimer::timeout, this, &MainWindow::splash_done);
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
+  m_bHideControls = !m_bHideControls; // we're not toggling here so we start in opposite state
+  on_actionHide_Controls_triggered();
 
   // this must be the last statement of constructor
   if (!m_valid) throw std::runtime_error {"Fatal initialization exception"};
@@ -904,6 +910,7 @@ void MainWindow::writeSettings()
 {
   m_settings->beginGroup("MainWindow");
   m_settings->setValue ("geometry", saveGeometry ());
+  m_settings->setValue ("geometryNoControls", m_geometryNoControls);
   m_settings->setValue ("state", saveState ());
   m_settings->setValue("MRUdir", m_path);
   m_settings->setValue("TxFirst",m_txFirst);
@@ -912,6 +919,7 @@ void MainWindow::writeSettings()
   m_settings->setValue ("AstroDisplayed", m_astroWidget && m_astroWidget->isVisible());
   m_settings->setValue ("MsgAvgDisplayed", m_msgAvgWidget && m_msgAvgWidget->isVisible());
   m_settings->setValue ("FreeText", ui->freeTextMsg->currentText ());
+  m_settings->setValue ("HideControls", m_bHideControls);
   m_settings->endGroup();
 
   m_settings->beginGroup("Common");
@@ -958,6 +966,7 @@ void MainWindow::readSettings()
 {
   m_settings->beginGroup("MainWindow");
   restoreGeometry (m_settings->value ("geometry", saveGeometry ()).toByteArray ());
+  m_geometryNoControls = m_settings->value ("geometryNoControls",saveGeometry()).toByteArray();
   restoreState (m_settings->value ("state", saveState ()).toByteArray ());
   ui->dxCallEntry->setText (m_settings->value ("DXcall", QString {}).toString ());
   ui->dxGridEntry->setText (m_settings->value ("DXgrid", QString {}).toString ());
@@ -967,6 +976,7 @@ void MainWindow::readSettings()
   auto displayMsgAvg = m_settings->value ("MsgAvgDisplayed", false).toBool ();
   if (m_settings->contains ("FreeText")) ui->freeTextMsg->setCurrentText (
         m_settings->value ("FreeText").toString ());
+  m_bHideControls = m_settings->value("HideControls", false).toBool ();
   m_settings->endGroup();
 
   // do this outside of settings group because it uses groups internally
@@ -1550,6 +1560,12 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         }
       }
       break;
+    case Qt::Key_M:
+     if(e->modifiers() & Qt::ControlModifier) {
+        on_actionHide_Controls_triggered();
+        return;
+      }
+      break;
     case Qt::Key_F4:
       clearDX ();
       ui->dxCallEntry->setFocus();
@@ -1917,6 +1933,59 @@ void MainWindow::on_actionEcho_Graph_triggered()
 void MainWindow::on_actionFast_Graph_triggered()
 {
   m_fastGraph->show();
+}
+
+// This allows the window to shrink by removing certain things
+// and reducing space used by controls
+void MainWindow::on_actionHide_Controls_triggered()
+{
+  m_bHideControls = !m_bHideControls;
+  int spacing = m_bHideControls ? 1 : 6;
+
+  if (m_bHideControls) {
+      statusBar ()->removeWidget (&auto_tx_label);
+      minimumSize().setHeight(450);
+      minimumSize().setWidth(700);
+      restoreGeometry(m_geometryNoControls);
+      updateGeometry();
+      //resize(450,700); // how to auto-shrink it?
+  }
+  else {
+      m_geometryNoControls = saveGeometry();
+      statusBar ()->addWidget(&auto_tx_label);
+      minimumSize().setHeight(520);
+      minimumSize().setWidth(770);
+  }
+  ui->menuBar->setVisible(!m_bHideControls);
+  ui->label_6->setVisible(!m_bHideControls);
+  ui->line->setVisible(!m_bHideControls);
+  ui->line_2->setVisible(!m_bHideControls);
+  ui->label_7->setVisible(!m_bHideControls);
+  ui->decodedTextLabel->setVisible(!m_bHideControls);
+  ui->decodedTextLabel2->setVisible(!m_bHideControls);
+  ui->gridLayout_5->layout()->setSpacing(spacing);
+  ui->horizontalLayout->layout()->setSpacing(spacing);
+  ui->horizontalLayout_2->layout()->setSpacing(spacing);
+  ui->horizontalLayout_3->layout()->setSpacing(spacing);
+  ui->horizontalLayout_4->layout()->setSpacing(spacing);
+  ui->horizontalLayout_5->layout()->setSpacing(spacing);
+  ui->horizontalLayout_6->layout()->setSpacing(spacing);
+  ui->horizontalLayout_7->layout()->setSpacing(spacing);
+  ui->horizontalLayout_8->layout()->setSpacing(spacing);
+  ui->horizontalLayout_9->layout()->setSpacing(spacing);
+  ui->horizontalLayout_10->layout()->setSpacing(spacing);
+  ui->horizontalLayout_11->layout()->setSpacing(spacing);
+  ui->horizontalLayout_12->layout()->setSpacing(spacing);
+  ui->horizontalLayout_13->layout()->setSpacing(spacing);
+  ui->horizontalLayout_14->layout()->setSpacing(spacing);
+  ui->verticalLayout->layout()->setSpacing(spacing);
+  ui->verticalLayout_2->layout()->setSpacing(spacing);
+  ui->verticalLayout_3->layout()->setSpacing(spacing);
+  ui->verticalLayout_4->layout()->setSpacing(spacing);
+  ui->verticalLayout_5->layout()->setSpacing(spacing);
+  ui->verticalLayout_7->layout()->setSpacing(spacing);
+  ui->verticalLayout_8->layout()->setSpacing(spacing);
+  ui->tab->layout()->setSpacing(spacing);
 }
 
 void MainWindow::on_actionAstronomical_data_toggled (bool checked)
@@ -2595,6 +2664,7 @@ void MainWindow::on_EraseButton_clicked()                          //Erase
     }
   }
   m_msErase=ms;
+  set_dateTimeQSO(-1);
 }
 
 void MainWindow::decodeBusy(bool b)                             //decodeBusy()
@@ -3153,9 +3223,49 @@ void MainWindow::on_txFirstCheckBox_stateChanged(int nstate)        //TxFirst
   m_txFirst = (nstate==2);
 }
 
+void MainWindow::set_dateTimeQSO(int m_ntx)
+{
+    // m_ntx = -1 resets to default time
+    // Our QSO start time can be fairly well determined from Tx 2 and Tx 3 -- the grid reports
+    // If we CQ'd and sending sigrpt then 2 minutes ago n=2
+    // If we're on msg 3 then 3 minutes ago n=3 -- might have sat on msg1 for a while
+    // If we've already set our time on just return.
+    // This should mean that Tx2 or Tx3 has been repeated so don't update the start time
+    // We reset it in several places
+    if (m_ntx == -1) { // we use a default date to detect change
+        m_dateTimeQSOOn=m_dateTimeDefault;
+    }
+    else if (m_dateTimeQSOOn != m_dateTimeDefault) {
+        return;
+    }
+    else { // we also take of m_TRperiod/2 to allow for late clicks
+        m_dateTimeQSOOn=QDateTime::currentDateTimeUtc().addSecs((-(m_ntx-1)*m_TRperiod)-m_TRperiod/2);
+    }
+}
+
 void MainWindow::set_ntx(int n)                                   //set_ntx()
 {
   m_ntx=n;
+}
+
+void MainWindow::on_txrb1_toggled(bool status)
+{
+    // if Tx 1 is clicked we won't use it so reset to default
+    // We may hang on this message for quite a while trying
+    // to get a response perhaps when another QSO is going on
+    if (status) set_dateTimeQSO(-1);
+}
+
+void MainWindow::on_txrb2_toggled(bool status)
+{
+  // Tx 2 means we already have CQ'd so good reference
+  if (status) set_dateTimeQSO(m_ntx);
+}
+
+void MainWindow::on_txrb3_toggled(bool status)
+{
+  // Tx 3 means we should havel already have done Tx 1 so good reference
+  if (status) set_dateTimeQSO(m_ntx);
 }
 
 void MainWindow::on_txb1_clicked()                                //txb1
@@ -3198,10 +3308,12 @@ void MainWindow::on_txb6_clicked()                                //txb6
   m_ntx=6;
   ui->txrb6->setChecked(true);
   if (m_transmitting) m_restart=true;
+  if (ui->txrb6->text().contains("CQ")) set_dateTimeQSO(-1);
 }
 
 void MainWindow::doubleClickOnCall2(bool shift, bool ctrl)
 {
+  set_dateTimeQSO(-1); // reset our QSO start time
   m_decodedText2=true;
   doubleClickOnCall(shift,ctrl);
   m_decodedText2=false;
@@ -3211,6 +3323,7 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
 {
   QTextCursor cursor;
   QString t;                         //Full contents
+  set_dateTimeQSO(-1); // reset our QSO start time
   if(m_mode=="ISCAT") {
     MessageBox::information_message (this,
         "Double-click not presently implemented for ISCAT mode");
@@ -3935,24 +4048,27 @@ void MainWindow::on_genStdMsgsPushButton_clicked()         //genStdMsgs button
 void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
 {
   if (!m_hisCall.size ()) return;
-  m_dateTimeQSO=QDateTime::currentDateTimeUtc();
-
+  // m_dateTimeQSOOn should really already be set but we'll ensure it gets set to something just in case
+  if (m_dateTimeQSOOn==m_dateTimeDefault)
+      m_dateTimeQSOOn=QDateTime::currentDateTimeUtc();
+  m_dateTimeQSOOff = QDateTime::currentDateTimeUtc();
   m_logDlg->initLogQSO (m_hisCall, m_hisGrid, m_modeTx, m_rptSent, m_rptRcvd,
-                        m_dateTimeQSO, m_freqNominal + ui->TxFreqSpinBox->value(),
+                        m_dateTimeQSOOn, m_dateTimeQSOOff, m_freqNominal + ui->TxFreqSpinBox->value(),
                         m_config.my_callsign(), m_config.my_grid(), m_noSuffix,
                         m_config.log_as_RTTY(), m_config.report_in_comments());
+  m_dateTimeQSOOn = m_dateTimeDefault;
 }
 
-void MainWindow::acceptQSO2(QDateTime const& QSO_date, QString const& call, QString const& grid
+void MainWindow::acceptQSO2(QDateTime const& QSO_date_off, QString const& call, QString const& grid
                             , Frequency dial_freq, QString const& mode
                             , QString const& rpt_sent, QString const& rpt_received
                             , QString const& tx_power, QString const& comments
-                            , QString const& name)
+                            , QString const& name, QDateTime const& QSO_date_on)
 {
-  QString date = m_dateTimeQSO.toString("yyyyMMdd");
+  QString date = m_dateTimeQSOOn.toString("yyyyMMdd");
   m_logBook.addAsWorked (m_hisCall, m_config.bands ()->find (m_freqNominal), m_modeTx, date);
 
-  m_messageClient->qso_logged (QSO_date, call, grid, dial_freq, mode, rpt_sent, rpt_received, tx_power, comments, name);
+  m_messageClient->qso_logged (QSO_date_off, call, grid, dial_freq, mode, rpt_sent, rpt_received, tx_power, comments, name, QSO_date_on);
 
   if (m_config.clear_DX ())
     {
@@ -4645,6 +4761,7 @@ void MainWindow::on_pbCallCQ_clicked()
   m_ntx=7;
   ui->rbGenMsg->setChecked(true);
   if(m_transmitting) m_restart=true;
+  set_dateTimeQSO(-1);
 }
 
 void MainWindow::on_pbAnswerCaller_clicked()
@@ -4658,6 +4775,7 @@ void MainWindow::on_pbAnswerCaller_clicked()
   m_ntx=7;
   ui->rbGenMsg->setChecked(true);
   if(m_transmitting) m_restart=true;
+  set_dateTimeQSO(2);
 }
 
 void MainWindow::on_pbSendRRR_clicked()
@@ -4689,6 +4807,7 @@ void MainWindow::on_pbSendReport_clicked()
   m_ntx=7;
   ui->rbGenMsg->setChecked(true);
   if(m_transmitting) m_restart=true;
+  set_dateTimeQSO(3);
 }
 
 void MainWindow::on_pbSend73_clicked()
