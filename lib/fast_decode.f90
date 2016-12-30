@@ -1,4 +1,4 @@
-subroutine fast_decode(id2,narg,ntrperiod,bShMsgs,line,mycall_12,   &
+subroutine fast_decode(id2,narg,ntrperiod,line,mycall_12,   &
      hiscall_12)
 
   parameter (NMAX=30*12000)
@@ -6,7 +6,6 @@ subroutine fast_decode(id2,narg,ntrperiod,bShMsgs,line,mycall_12,   &
   integer*2 id2a(NMAX)
   integer*2 id2b(NMAX)
   integer narg(0:14)
-  logical*1 bShMsgs
   real dat(30*12000)
   complex cdat(262145),cdat2(262145)
   real psavg(450)
@@ -48,42 +47,6 @@ subroutine fast_decode(id2,narg,ntrperiod,bShMsgs,line,mycall_12,   &
   if(nmode.eq.102) then
      call fast9(id2,narg,line)
      go to 900
-  else if(nmode.eq.104) then
-! MSK144 mode
-     if(newdat.eq.1) then
-        id2b=id2a                     !Data for lower panel
-        id2a=id2                      !Data for upper panel
-        nutcb=nutca
-        nutca=nutc
-     endif
-     ia=max(1,nint(t0*12000.0))
-     ib=nint(t1*12000.0)
-     if(ib.gt.ntrperiod*12000) ib=ntrperiod*12000
-     nz=ib-ia+1
-
-     if(newdat.eq.1) then
-! Full sequence of new data
-        call msk144_decode(id2a(ia),nz,nutca,0,mycall,hiscall,   &
-             bShMsgs,ntol,t0,line)
-        go to 100
-     endif
-
-     if(npick.eq.1) then
-! Pick-decode from upper panel
-        call msk144_decode(id2(ia),nz,nutc,0,mycall,hiscall,   &
-             bShMsgs,ntol,t0,line)
-        go to 100
-     endif
-
-     if(npick.eq.2) then
-! Pick-decode from lower panel
-!        write(*,3001) newdat,npick,nutca
-        call msk144_decode(id2b(ia),nz,nutca,0,mycall,hiscall,   &
-             bShMsgs,ntol,t0,line)
-     endif
-100  continue
-     go to 900
-
   endif
 
   if(newdat.eq.1) then
