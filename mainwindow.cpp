@@ -108,7 +108,7 @@ extern "C" {
                 float* level, float* sigdb, float* snr, float* dfreq,
                 float* width);
 
-  void fast_decode_(short id2[], int narg[], int* ntrperiod, bool* bShMsgs,
+  void fast_decode_(short id2[], int narg[], int* ntrperiod,
                     char msg[], char mycall[], char hiscall[],
                     int len1, int len2, int len3);
   void degrade_snr_(short d2[], int* n, float* db, float* bandwidth);
@@ -2383,7 +2383,7 @@ void MainWindow::decode()                                       //decode()
     narg[14]=m_config.aggressive();
     memcpy(d2b,dec_data.d2,2*360000);
     watcher3.setFuture (QtConcurrent::run (std::bind (fast_decode_,&d2b[0],
-        &narg[0],&m_TRperiod,&m_bShMsgs,&m_msg[0][0],
+        &narg[0],&m_TRperiod,&m_msg[0][0],
         dec_data.params.mycall,dec_data.params.hiscall,8000,12,12)));
   } else {
     memcpy(to, from, qMin(mem_jt9->size(), size));
