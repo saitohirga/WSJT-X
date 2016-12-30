@@ -142,9 +142,11 @@ namespace
 
   bool message_is_73 (int type, QStringList const& msg_parts)
   {
+    qDebug() << type;
     return type >= 0
-      && (((type < 6 || 7 == type) && msg_parts.contains ("73"))
-          || (type == 6 && !msg_parts.filter ("73").isEmpty ()));
+      && (((type < 6 || 7 == type)
+      && (msg_parts.contains ("73") or msg_parts.contains ("RRR")))
+      || (type == 6 && !msg_parts.filter ("73").isEmpty ()));
   }
 
   int ms_minute_error ()
