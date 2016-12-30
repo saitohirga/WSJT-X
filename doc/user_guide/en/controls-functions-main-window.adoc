@@ -9,11 +9,13 @@ image::main-ui-controls.png[align="left",width=650,alt="Main UI Controls"]
 about a QSO you have nearly completed.  You can edit or add to this
 information before clicking *OK* to log the QSO.  If you check *Prompt
 me to log QSO* on the *Setup* menu, the program will raise the
-confirmation screen automatically when you send a message
-containing "`73`".  *Start Date* and *Start Time* are set when you click
-to send the *Tx 2* or *Tx 3* message, and backed up by one or two
-minutes, respectively.  End date and time are set when the *Log
-QSO* screen is invoked.
+confirmation screen automatically when you send a message containing
++RRR+ or +73+.  *Start Date* and *Start Time* are set when you
+click to send the *Tx 2* or *Tx 3* message, and backed up by one or
+two sequence lengths, respectively.  (Note that the actual start time
+may have been earlier if repeats of early transmissions were
+required.)  End date and time are set when the *Log QSO* screen is
+invoked.
 
 //.Log QSO Window
 image::log-qso.png[align="center",alt="Log QSO"]
