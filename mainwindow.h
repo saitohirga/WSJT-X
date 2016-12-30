@@ -46,6 +46,7 @@
 #define NUM_QRA64_SYMBOLS 84               //63 data + 21 sync
 #define NUM_CW_SYMBOLS 250
 #define TX_SAMPLE_RATE 48000
+#define N_WIDGETS 24
 
 extern int volatile itone[NUM_ISCAT_SYMBOLS];   //Audio tones for all Tx symbols
 extern int volatile icw[NUM_CW_SYMBOLS];	    //Dits for CW ID
@@ -404,6 +405,7 @@ private:
   QString m_lastMessageSent;
   bool    m_lockTxFreq;
   bool    m_bShMsgs;
+  bool    m_bSWL;
   bool    m_uploadSpots;
   bool    m_uploading;
   bool    m_txNext;
