@@ -237,6 +237,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_lastMessageType {-1},
   m_lockTxFreq {false},
   m_bShMsgs {false},
+  m_bSWL {false},
   m_uploading {false},
   m_txNext {false},
   m_grid6 {false},
@@ -779,6 +780,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->sbFtol->setValue(m_FtolIndex);
   on_sbFtol_valueChanged(m_FtolIndex);
   ui->cbShMsgs->setChecked(m_bShMsgs);
+  ui->cbSWL->setChecked(m_bSWL);
   ui->cbFast9->setChecked(m_bFast9);
   if(m_bFast9) m_bFastMode=true;
 
@@ -941,6 +943,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("MinSync",m_minSync);
   m_settings->setValue ("AutoSeq", ui->cbAutoSeq->isChecked ());
   m_settings->setValue("ShMsgs",m_bShMsgs);
+  m_settings->setValue("SWL",ui->cbSWL->isChecked());
   m_settings->setValue ("DialFreq", QVariant::fromValue(m_lastMonitoredFrequency));
   m_settings->setValue("InGain",m_inGain);
   m_settings->setValue("OutAttenuation", ui->outAttenuation->value ());
@@ -967,6 +970,9 @@ void MainWindow::writeSettings()
 void MainWindow::readSettings()
 {
   m_settings->beginGroup("MainWindow");
+  m_bHideControls = m_settings->value("HideControls", false).toBool ();
+  m_bHideControls = !m_bHideControls; // we're not toggling here so we start in opposite state
+  on_actionHide_Controls_triggered();
   restoreGeometry (m_settings->value ("geometry", saveGeometry ()).toByteArray ());
   m_geometryNoControls = m_settings->value ("geometryNoControls",saveGeometry()).toByteArray();
   restoreState (m_settings->value ("state", saveState ()).toByteArray ());
@@ -978,7 +984,6 @@ void MainWindow::readSettings()
   auto displayMsgAvg = m_settings->value ("MsgAvgDisplayed", false).toBool ();
   if (m_settings->contains ("FreeText")) ui->freeTextMsg->setCurrentText (
         m_settings->value ("FreeText").toString ());
-  m_bHideControls = m_settings->value("HideControls", false).toBool ();
   m_settings->endGroup();
 
   // do this outside of settings group because it uses groups internally
@@ -1001,6 +1006,7 @@ void MainWindow::readSettings()
   ui->syncSpinBox->setValue(m_minSync);
   ui->cbAutoSeq->setChecked (m_settings->value ("AutoSeq", false).toBool());
   m_bShMsgs=m_settings->value("ShMsgs",false).toBool();
+  m_bSWL=m_settings->value("SWL",false).toBool();
   m_bFast9=m_settings->value("Fast9",false).toBool();
   m_bFastMode=m_settings->value("FastMode",false).toBool();
   m_TRindex=m_settings->value("TRindex",0).toInt();
@@ -4080,9 +4086,9 @@ void MainWindow::acceptQSO2(QDateTime const& QSO_date_off, QString const& call, 
 
 int MainWindow::nWidgets(QString t)
 {
-  Q_ASSERT(t.length()==23);
+  Q_ASSERT(t.length()==N_WIDGETS);
   int n=0;
-  for(int i=0; i<23; i++) {
+  for(int i=0; i<N_WIDGETS; i++) {
     n=n + n + t.mid(i,1).toInt();
   }
   return n;
@@ -4090,9 +4096,9 @@ int MainWindow::nWidgets(QString t)
 
 void MainWindow::displayWidgets(int n)
 {
-  int j=1<<22;
+  int j=1<<(N_WIDGETS-1);
   bool b;
-  for(int i=0; i<23; i++) {
+  for(int i=0; i<N_WIDGETS; i++) {
     b=(n&j) != 0;
     if(i==0) ui->txFirstCheckBox->setVisible(b);
     if(i==1) ui->TxFreqSpinBox->setVisible(b);
@@ -4130,6 +4136,10 @@ void MainWindow::displayWidgets(int n)
         if(m_echoGraph->isVisible()) m_echoGraph->hide();
       }
     }
+    if(i==23) {
+      ui->cbSWL->setVisible(b);
+      ui->cbSWL->setEnabled(b and ui->cbShMsgs->isChecked());
+    }
     j=j>>1;
   }
 }
@@ -4139,9 +4149,9 @@ void MainWindow::on_actionJT4_triggered()
   m_mode="JT4";
   bool bVHF=m_config.enable_VHF_features();
   if(bVHF) {
-    displayWidgets(nWidgets("11111001001011011011000"));
+    displayWidgets(nWidgets("111110010010110110110000"));
   } else {
-    displayWidgets(nWidgets("11101000000011100011110"));
+    displayWidgets(nWidgets("111010000000111000111100"));
   }
   WSPR_config(false);
   switch_mode (Modes::JT4);
@@ -4181,9 +4191,9 @@ void MainWindow::on_actionJT9_triggered()
   m_mode="JT9";
   bool bVHF=m_config.enable_VHF_features();
   if(bVHF) {
-    displayWidgets(nWidgets("11111010110011111001000"));
+    displayWidgets(nWidgets("111110101100111110010000"));
   } else {
-    displayWidgets(nWidgets("11101000000011100001000"));
+    displayWidgets(nWidgets("111010000000111000010000"));
   }
   m_bFast9=ui->cbFast9->isChecked();
   m_bFastMode=m_bFast9;
@@ -4235,7 +4245,7 @@ void MainWindow::on_actionJT9_triggered()
 void MainWindow::on_actionJT9_JT65_triggered()
 {
   m_mode="JT9+JT65";
-  displayWidgets(nWidgets("11101000000111100001000"));
+  displayWidgets(nWidgets("111010000001111000010000"));
   WSPR_config(false);
   switch_mode (Modes::JT65);
   if(m_modeTx != "JT65") {
@@ -4280,9 +4290,9 @@ void MainWindow::on_actionJT65_triggered()
   m_mode="JT65";
   bool bVHF=m_config.enable_VHF_features();
   if(bVHF) {
-    displayWidgets(nWidgets("11111001000011111011000"));
+    displayWidgets(nWidgets("111110010000111110110000"));
   } else {
-    displayWidgets(nWidgets("11101000000011100001110"));
+    displayWidgets(nWidgets("111010000000111000011100"));
   }
   WSPR_config(false);
   switch_mode (Modes::JT65);
@@ -4325,7 +4335,7 @@ void MainWindow::on_actionQRA64_triggered()
   on_actionJT65_triggered();
   m_nSubMode=n;
   m_mode="QRA64";
-  displayWidgets(nWidgets("11111000000011111000000"));
+  displayWidgets(nWidgets("111110000000111110000000"));
   m_modeTx="QRA64";
   ui->actionQRA64->setChecked(true);
   switch_mode (Modes::QRA64);
@@ -4351,7 +4361,7 @@ void MainWindow::on_actionQRA64_triggered()
 void MainWindow::on_actionISCAT_triggered()
 {
   m_mode="ISCAT";
-  displayWidgets(nWidgets("10011100000000011000000"));
+  displayWidgets(nWidgets("100111000000000110000000"));
   m_modeTx="ISCAT";
   ui->actionISCAT->setChecked(true);
   m_TRperiod=ui->sbTR->cleanText().toInt();
@@ -4387,7 +4397,7 @@ void MainWindow::on_actionISCAT_triggered()
 
 void MainWindow::on_actionMSK144_triggered()
 {
-  displayWidgets(nWidgets("10111111010000000001000"));
+  displayWidgets(nWidgets("101111110100000000010001"));
   m_mode="MSK144";
   m_modeTx="MSK144";
   ui->actionMSK144->setChecked(true);
@@ -4432,7 +4442,7 @@ void MainWindow::on_actionMSK144_triggered()
 void MainWindow::on_actionWSPR_triggered()
 {
   m_mode="WSPR";
-  displayWidgets(nWidgets("00000000000000000101000"));
+  displayWidgets(nWidgets("000000000000000001010000"));
   WSPR_config(true);
   switch_mode (Modes::WSPR);
   m_modeTx="WSPR";                                    //### not needed ?? ###
@@ -4461,7 +4471,7 @@ void MainWindow::on_actionEcho_triggered()
 {
   on_actionJT4_triggered();
   m_mode="Echo";
-  displayWidgets(nWidgets("00000000000000000000001"));
+  displayWidgets(nWidgets("000000000000000000000010"));
   ui->actionEcho->setChecked(true);
   m_TRperiod=3;
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
@@ -5494,7 +5504,9 @@ void MainWindow::on_cbFast9_clicked(bool b)
 void MainWindow::on_cbShMsgs_toggled(bool b)
 {
   ui->cbTx6->setEnabled(b);
+  ui->cbSWL->setEnabled(b);
   m_bShMsgs=b;
+  if(!b) ui->cbSWL->setChecked(false);
   if(m_bShMsgs and (m_mode=="MSK144")) ui->rptSpinBox->setValue(1);
   int itone0=itone[0];
   int ntx=m_ntx;
