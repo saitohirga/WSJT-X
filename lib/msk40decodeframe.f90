@@ -1,4 +1,5 @@
-subroutine msk40decodeframe(c,mycall,hiscall,xsnr,msgreceived,nsuccess)
+subroutine msk40decodeframe(c,mycall,hiscall,xsnr,msgreceived,     &
+                            nsuccess,bswl,nhasharray,nrecent)
 !  use timer_module, only: timer
 
   parameter (NSPM=240)
@@ -11,6 +12,7 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,msgreceived,nsuccess)
   integer*1 cw(32)
   integer*1 decoded(16)
   integer s8r(8),hardbits(40)
+  integer nhasharray(nrecent,nrecent)
   real*8 dt, fs, pi, twopi
   real cbi(42),cbq(42)
   real pp(12)

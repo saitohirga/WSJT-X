@@ -68,7 +68,7 @@ extern "C" {
 
   void hspec_(short int d2[], int* k, int* nutc0, int* ntrperiod, int* nrxfreq, int* ntol,
               bool* bmsk144, bool* bcontest, bool* brxequalize, int* ingain, char mycall[], 
-              char hiscall[], bool* bshmsg, float green[], float s[], int* jh,
+              char hiscall[], bool* bshmsg, bool* bswl, float green[], float s[], int* jh,
               char line[], char mygrid[], int len1, int len2, int len3, int len4);
 
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
@@ -1306,10 +1306,11 @@ void MainWindow::fastSink(qint64 frames)
   bool bshmsg=ui->cbShMsgs->isChecked();
   bool bcontest=m_config.contestMode();
   bool brxequalize=m_config.rxEqualize();
+  bool bswl=ui->cbSWL->isChecked();
   strncpy(dec_data.params.hiscall,(hisCall + "            ").toLatin1 ().constData (), 12);
   strncpy(dec_data.params.mygrid, (m_config.my_grid()+"      ").toLatin1(),6);
   hspec_(dec_data.d2,&k,&nutc0,&nTRpDepth,&m_RxFreq,&m_Ftol,&bmsk144,&bcontest,&brxequalize,
-         &m_inGain,&dec_data.params.mycall[0],&dec_data.params.hiscall[0],&bshmsg,
+         &m_inGain,&dec_data.params.mycall[0],&dec_data.params.hiscall[0],&bshmsg,&bswl,
          fast_green,fast_s,&fast_jh,&line[0],&dec_data.params.mygrid[0],12,12,80,6);
   float px = fast_green[fast_jh];
   QString t;

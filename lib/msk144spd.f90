@@ -1,10 +1,13 @@
-subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret,navg,ct,softbits)
+subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret,navg,ct,   &
+  softbits,recent_calls,nrecent)
+
 ! MSK144 short-ping-decoder
 
   use timer_module, only: timer
 
   parameter (NSPM=864, MAXSTEPS=100, NFFT=NSPM, MAXCAND=5, NPATTERNS=6)
   character*22 msgreceived
+  character*12 recent_calls(nrecent)
   complex cbig(n)
   complex cdat(3*NSPM)                    !Analytic signal
   complex c(NSPM)
@@ -178,7 +181,8 @@ subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret,navg,ct,softb
           if( is.eq.2) ic0=max(1,ic0-1)
           if( is.eq.3) ic0=min(NSPM,ic0+1)
           ct=cshift(c,ic0-1)
-          call msk144decodeframe(ct,softbits,msgreceived,ndecodesuccess)
+          call msk144decodeframe(ct,softbits,msgreceived,ndecodesuccess,    &
+                                 recent_calls,nrecent)
 
           if( ndecodesuccess .gt. 0 ) then
             tret=(nstart(icand)+NSPM/2)/fs

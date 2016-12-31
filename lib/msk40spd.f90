@@ -1,4 +1,5 @@
-subroutine msk40spd(cbig,n,ntol,mycall,hiscall,nsuccess,msgreceived,fc,fret,tret,navg)
+subroutine msk40spd(cbig,n,ntol,mycall,hiscall,nsuccess,msgreceived,fc,   &
+                    fret,tret,navg,nhasharray,nrecent)
 ! msk40 short-ping-decoder
 
   use timer_module, only: timer
@@ -17,6 +18,7 @@ subroutine msk40spd(cbig,n,ntol,mycall,hiscall,nsuccess,msgreceived,fc,fret,tret
   integer navpatterns(3,NPATTERNS)
   integer navmask(3)
   integer nstart(MAXCAND)
+  integer nhasharray(nrecent,nrecent)
   logical ismask(NFFT)
   real detmet(-2:MAXSTEPS+3)
   real detmet2(-2:MAXSTEPS+3)
@@ -176,7 +178,8 @@ subroutine msk40spd(cbig,n,ntol,mycall,hiscall,nsuccess,msgreceived,fc,fret,tret
           if( is.eq.2) ic0=max(1,ic0-1)
           if( is.eq.3) ic0=min(NSPM,ic0+1)
           ct=cshift(c,ic0-1)
-          call msk40decodeframe(ct,mycall,hiscall,xsnr,msgreceived,ndecodesuccess)
+          call msk40decodeframe(ct,mycall,hiscall,xsnr,msgreceived,   &
+                                ndecodesuccess,nhasharray,nrecent)
 
           if( ndecodesuccess .gt. 0 ) then
 !write(*,*) icand, iav, ipk, is, tret, fret, msgreceived
