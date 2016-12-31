@@ -18,6 +18,7 @@ program msk144d2
   logical*1 bShMsgs
   logical*1 bcontest
   logical*1 brxequal
+  logical*1 bswl
 
   type(wav_header) :: wav
 
@@ -45,6 +46,7 @@ program msk144d2
   bShMsgs=.false.
   bcontest=.false.
   brxequal=.false.
+  bswl=.true.
  
   do
      call getopt('c:d:ef:hm:n:rs',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
@@ -109,7 +111,7 @@ program msk144d2
        tt=sum(float(abs(id2(i:i+7*512-1))))
        if( tt .ne. 0.0 ) then
          call mskrtd(ichunk,nutc,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,bShMsgs, &
-                     bcontest,brxequal,line)
+                     bcontest,brxequal,bswl,line)
          if( index(line,"&") .ne. 0 .or.   &
               index(line,"^") .ne. 0 .or.   &
               index(line,"!") .ne. 0 .or.   &
