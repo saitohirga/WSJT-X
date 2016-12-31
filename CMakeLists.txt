@@ -468,6 +468,9 @@ set (wsjt_FSRCS
   lib/tweak1.f90
   lib/twkfreq.f90
   lib/twkfreq65.f90
+  lib/unpackmsg144.f90
+  lib/update_recent_calls.f90
+  lib/update_hasharray.f90
   lib/wav11.f90
   lib/wav12.f90
   lib/wavhdr.f90

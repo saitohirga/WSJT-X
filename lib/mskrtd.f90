@@ -1,5 +1,5 @@
 subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
-     bshmsg,bcontest,brxequal,line)
+     bshmsg,bcontest,brxequal,bswl,line)
 
 ! Real-time decoder for MSK144.  
 ! Analysis block size = NZ = 7168 samples, t_block = 0.597333 s 
@@ -9,6 +9,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   parameter (NSPM=864)               !Number of samples per message frame
   parameter (NFFT1=8192)             !FFT size for making analytic signal
   parameter (NPATTERNS=4)            !Number of frame averaging patterns to try
+  parameter (NRECENT=10)             !Number of recent calls to remember
 
   character*3 decsym                 !"&" for mskspd or "^" for long averages
   character*22 msgreceived           !Decoded message
@@ -16,6 +17,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   character*80 line                  !Formatted line with UTC dB T Freq Msg
   character*12 mycall,hiscall
   character*6 mygrid
+  character*12 recent_calls(NRECENT)
 
   complex cdat(NFFT1)                !Analytic signal
   complex c(NSPM)                    !Coherently averaged complex data
@@ -25,6 +27,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   integer iavmask(8)
   integer iavpatterns(8,NPATTERNS)
   integer npkloc(10)
+  integer nhasharray(NRECENT,NRECENT)
 
   real d(NFFT1)
   real pow(8)
@@ -32,7 +35,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   real xmc(NPATTERNS)
   real pcoeffs(3)
 
-  logical*1 bshmsg,bcontest,brxequal
+  logical*1 bshmsg,bcontest,brxequal,bswl
   logical first
   logical*1 trained 
 
@@ -43,13 +46,16 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
        1,1,1,1,1,0,0,0, &
        1,1,1,1,1,1,1,0/
   data xmc/2.0,4.5,2.5,3.5/     !Used to set time at center of averaging mask
-  save first,tsec0,nutc00,pnoise,nsnrlast,msglast,cdat,pcoeffs,trained
+  save first,tsec0,nutc00,pnoise,nsnrlast,msglast,cdat,pcoeffs,trained,recent_calls,nhasharray
 
   if(first) then
      tsec0=tsec
      nutc00=nutc0
      pnoise=-1.0
      pcoeffs(1:3)=0.0
+     do i=1,nrecent
+       recent_calls(i)(1:12)=' '
+     enddo
      trained=.false.
      first=.false.
   endif
@@ -92,11 +98,11 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
 ! center a 3-frame analysis window and attempts to decode each of the 
 ! 3 frames along with 2- and 3-frame averages. 
   np=8*NSPM
-  call msk144spd(cdat,np,ntol,nsuccess,msgreceived,fc,fest,tdec,navg,ct,softbits)
+  call msk144spd(cdat,np,ntol,nsuccess,msgreceived,fc,fest,tdec,navg,ct,softbits,recent_calls,nrecent)
 
   if(nsuccess.eq.0 .and. bshmsg) then
      call msk40spd(cdat,np,ntol,mycall(1:6),hiscall(1:6),nsuccess,         &
-          msgreceived,fc,fest,tdec,navg)
+          msgreceived,fc,fest,tdec,navg,bswl,nhasharray,nrecent)
   endif
 
   if( nsuccess .eq. 1 ) then
@@ -128,7 +134,8 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
            if(is.eq.2) ic0=max(1,ic0-1)
            if(is.eq.3) ic0=min(NSPM,ic0+1)
            ct=cshift(c,ic0-1)
-           call msk144decodeframe(ct,softbits,msgreceived,ndecodesuccess)
+           call msk144decodeframe(ct,softbits,msgreceived,ndecodesuccess, &
+                                  recent_calls,nrecent)
            if(ndecodesuccess .gt. 0) then
               tdec=tsec+xmc(iavg)*tframe
               goto 900
@@ -164,6 +171,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
 
 ! Dupe check. Only print if new message, or higher snr.
   if(msgreceived.ne.msglast .or. nsnr.gt.nsnrlast .or. tsec.lt.tsec0) then
+     call update_hasharray(recent_calls,nrecent,nhasharray)
      msglast=msgreceived
      nsnrlast=nsnr
      if( nsnr .lt. -8 ) nsnr=-8
@@ -176,6 +184,10 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
      if( brxequal .and. (.not. trained) ) decsym=' ^ '
      if( brxequal .and. trained ) decsym=' $ '
      if( (.not. brxequal) .and. trained ) decsym=' @ '
+     if( msgreceived(1:1).eq.'<') then
+       ncorrected=0
+       eyeopening=0.0
+     endif
      write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,    &
           navg,ncorrected,eyeopening,char(0)
 1020 format(i6.6,i4,f5.1,i5,a3,a22,i2,i3,f5.1,a1)
