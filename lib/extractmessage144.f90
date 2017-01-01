@@ -5,13 +5,11 @@ subroutine extractmessage144(decoded,msgreceived,nhashflag,recent_calls,nrecent)
 
   character*22 msgreceived
   character*12 call1,call2
-  character*12  recent_calls(nrecent)
+  character*12 recent_calls(nrecent)
   integer*1 decoded(80)
   integer*1, target::  i1Dec8BitBytes(10)
   integer*1 i1hashdec
   integer*4 i4Dec6BitWords(12)
-  logical first
-  data first/.true./
 
 ! Collapse 80 decoded bits to 10 bytes. Bytes 1-9 are the message, byte 10 is the hash
   do ibyte=1,10
