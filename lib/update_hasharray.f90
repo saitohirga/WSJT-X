@@ -7,7 +7,7 @@ subroutine update_hasharray(recent_calls,nrecent,nhasharray)
   nhasharray=-1
   do i=1,nrecent
     do j=i+1,nrecent
-      if( recent_calls(i) .ne. '  ' .and. recent_calls(j) .ne. '  ' ) then
+      if( recent_calls(i)(1:2) .ne. '  ' .and. recent_calls(j)(1:2) .ne. '  ' ) then
         hashmsg=trim(recent_calls(i))//' '//trim(recent_calls(j))
         call fmtmsg(hashmsg,iz)
         call hash(hashmsg,22,ihash)
