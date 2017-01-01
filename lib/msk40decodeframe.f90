@@ -1,11 +1,12 @@
-subroutine msk40decodeframe(c,mycall,hiscall,xsnr,msgreceived,     &
-                            nsuccess,bswl,nhasharray,nrecent)
+subroutine msk40decodeframe(c,mycall,hiscall,xsnr,bswl,nhasharray,             &
+                            recent_calls,nrecent,msgreceived,nsuccess)
 !  use timer_module, only: timer
 
   parameter (NSPM=240)
   character*4 rpt(0:15)
   character*6 mycall,hiscall,mycall0,hiscall0
   character*22 hashmsg,msgreceived
+  character*12 recent_calls(nrecent)
   complex cb(42)
   complex cfac,cca
   complex c(NSPM)
@@ -19,6 +20,7 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,msgreceived,     &
   real softbits(40)
   real llr(32)
   logical first
+  logical bswl
   data first/.true./
   data s8r/1,0,1,1,0,0,0,1/
   data mycall0/'dummy'/,hiscall0/'dummy'/
@@ -133,7 +135,21 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,msgreceived,     &
       write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(mycall),   &
                                     trim(hiscall),">",rpt(nrxrpt)
       return
-    endif 
+    elseif(bswl .and. nhammd.le.4 .and. cord.lt.0.65) then
+      do i=1,nrecent
+        do j=i+1,nrecent
+          if( nrxhash .eq. nhasharray(i,j) ) then
+            nsuccess=1
+            write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(recent_calls(i)),   &
+                                  trim(recent_calls(j)),">",rpt(nrxrpt)
+          elseif( nrxhash .eq. nhasharray(j,i) ) then
+            nsuccess=1
+            write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(recent_calls(j)),   &
+                                  trim(recent_calls(i)),">",rpt(nrxrpt)
+          endif
+        enddo
+      enddo
+    endif
   endif
 
   return

@@ -1,5 +1,5 @@
-subroutine msk40spd(cbig,n,ntol,mycall,hiscall,nsuccess,msgreceived,fc,   &
-                    fret,tret,navg,nhasharray,nrecent)
+subroutine msk40spd(cbig,n,ntol,mycall,hiscall,bswl,nhasharray,recent_calls,   &
+                    nrecent,nsuccess,msgreceived,fc,fret,tret,navg)
 ! msk40 short-ping-decoder
 
   use timer_module, only: timer
@@ -7,6 +7,7 @@ subroutine msk40spd(cbig,n,ntol,mycall,hiscall,nsuccess,msgreceived,fc,   &
   parameter (NSPM=240, MAXSTEPS=150, NFFT=NSPM, MAXCAND=5, NPATTERNS=6)
   character*6 mycall,hiscall
   character*22 msgreceived
+  character*12 recent_calls(nrecent)
   complex cbig(n)
   complex cdat(3*NSPM)                    !Analytic signal
   complex c(NSPM)
@@ -20,6 +21,7 @@ subroutine msk40spd(cbig,n,ntol,mycall,hiscall,nsuccess,msgreceived,fc,   &
   integer nstart(MAXCAND)
   integer nhasharray(nrecent,nrecent)
   logical ismask(NFFT)
+  logical bswl
   real detmet(-2:MAXSTEPS+3)
   real detmet2(-2:MAXSTEPS+3)
   real detfer(MAXSTEPS)
@@ -82,7 +84,6 @@ subroutine msk40spd(cbig,n,ntol,mycall,hiscall,nsuccess,msgreceived,fc,   &
 
 ! Coarse carrier frequency sync - seek tones at 2000 Hz and 4000 Hz in 
 ! squared signal spectrum.
-! search range for coarse frequency error is +/- 100 Hz
 
     ctmp=ctmp**2
     ctmp(1:12)=ctmp(1:12)*rcw
@@ -169,7 +170,8 @@ subroutine msk40spd(cbig,n,ntol,mycall,hiscall,nsuccess,msgreceived,fc,   &
     xsnr=snrs(icand)
     do iav=1,NPATTERNS
       navmask=navpatterns(1:3,iav) 
-      call msk40sync(cdat,3,ntol0,deltaf,navmask,npeaks,fo,fest,npkloc,nsyncsuccess,c)
+      call msk40sync(cdat,3,ntol0,deltaf,navmask,npeaks,fo,fest,npkloc,       &
+                     nsyncsuccess,c)
       if( nsyncsuccess .eq. 0 ) cycle
 
       do ipk=1,npeaks
@@ -178,9 +180,8 @@ subroutine msk40spd(cbig,n,ntol,mycall,hiscall,nsuccess,msgreceived,fc,   &
           if( is.eq.2) ic0=max(1,ic0-1)
           if( is.eq.3) ic0=min(NSPM,ic0+1)
           ct=cshift(c,ic0-1)
-          call msk40decodeframe(ct,mycall,hiscall,xsnr,msgreceived,   &
-                                ndecodesuccess,nhasharray,nrecent)
-
+          call msk40decodeframe(ct,mycall,hiscall,xsnr,bswl,nhasharray,        &
+                                recent_calls,nrecent,msgreceived,ndecodesuccess)   
           if( ndecodesuccess .gt. 0 ) then
 !write(*,*) icand, iav, ipk, is, tret, fret, msgreceived
             tret=(nstart(icand)+NSPM/2)/fs
