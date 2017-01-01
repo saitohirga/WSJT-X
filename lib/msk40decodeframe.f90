@@ -149,7 +149,12 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,bswl,nhasharray,             &
           endif
         enddo
       enddo
-    endif
+      if( nsuccess .eq. 0 .and. nhammd.le.1 .and. cord .lt. 0.65 ) then
+!write(*,*) 'decodeframe ',nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma
+        nsuccess=1
+        write(msgreceived,'(a1,i4.4,a1,1x,a4)') "<",nrxhash,">",rpt(nrxrpt)
+      endif
+    endif 
   endif
 
   return
