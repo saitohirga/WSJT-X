@@ -143,8 +143,7 @@ namespace
   bool message_is_73 (int type, QStringList const& msg_parts)
   {
     return type >= 0
-      && (((type < 6 || 7 == type)
-      && (msg_parts.contains ("73") or msg_parts.contains ("RRR")))
+      && (((type < 6 || 7 == type) && msg_parts.contains ("73"))
       || (type == 6 && !msg_parts.filter ("73").isEmpty ()));
   }
 
@@ -3939,10 +3938,10 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
   gen65_(message,&ichk,msgsent,itone0,&itype,len1,len1);
   msgsent[22]=0;
   bool text=false;
-  bool short65=false;
+  bool shortMsg=false;
   if(itype==6) text=true;
   if(itype==7 and m_config.enable_VHF_features() and
-     (m_mode=="JT65" or m_mode=="MSK144")) short65=true;
+     m_mode=="JT65") shortMsg=true;
   if(m_mode=="MSK144" and t.mid(0,1)=="<") text=false;
   if(m_mode=="MSK144" and m_config.contestMode()) {
     int i0=t.trimmed().length()-7;
@@ -3952,7 +3951,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
   if(text) {
     p.setColor(QPalette::Base,"#ffccff");
   } else {
-    if(short65) {
+    if(shortMsg) {
       p.setColor(QPalette::Base,"#66ffff");
     } else {
       p.setColor(QPalette::Base,Qt::white);
