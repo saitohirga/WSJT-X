@@ -197,7 +197,7 @@ write(*,*) 'start training on call ',training_dxcall
       rmsdiff=sum( (pp-phase((864/2-nm/2):(864/2+nm/2)))**2 )/145.0
 write(*,*) 'training ',navg,sqrt(chisqr),rmsdiff
 !      if( (sqrt(chisqr).lt.1.5) .and. (rmsdiff.lt.1.1) .and. (navg.ge.5) ) then 
-      if( (sqrt(chisqr).lt.1.5) .and. (rmsdiff.lt.1.1) .and. (navg.ge.2) ) then 
+      if( (sqrt(chisqr).lt.1.8) .and. (rmsdiff.lt.0.5) .and. (navg.ge.2) ) then 
         open(18,file='phasefit.dat',status='unknown') 
         do i=1, 145
           write(18,*) x(i),pp(i),y(i),sigmay(i)

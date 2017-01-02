@@ -135,7 +135,7 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,bswl,nhasharray,             &
       write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(mycall),   &
                                     trim(hiscall),">",rpt(nrxrpt)
       return
-    elseif(bswl .and. nhammd.le.2 .and. cord.lt.0.25 .and. xsnr .gt. 0.0) then
+    elseif(bswl .and. nhammd.le.2 .and. cord.lt.0.40 .and. xsnr .gt. -3.0) then
       do i=1,nrecent
         do j=i+1,nrecent
           if( nrxhash .eq. nhasharray(i,j) ) then
@@ -151,7 +151,7 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,bswl,nhasharray,             &
           endif
         enddo
       enddo
-      if(nsuccess.eq.0 .and. nhammd.le.1 .and. cord.lt.0.10 .and. xsnr.gt.3.0 ) then
+      if(nsuccess.eq.0 .and. nhammd.le.2 .and. cord.lt.0.40 .and. xsnr.gt.0.0 ) then
 !write(*,*) 'decodeframe ',nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma
         nsuccess=1
         write(msgreceived,'(a1,i4.4,a1,1x,a4)') "<",nrxhash,">",rpt(nrxrpt)
