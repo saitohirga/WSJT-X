@@ -28,7 +28,7 @@ program msk144d2
   type (option) :: long_options(9) = [ &
        option ('ndepth',.true.,'c','ndepth',''), &  
        option ('dxcall',.true.,'d','hiscall',''), &  
-       option ('evemode',.true.,'e','',''), &
+       option ('evemode',.true.,'e','Must be used with -s.',''), &
        option ('frequency',.true.,'f','rxfreq',''), &
        option ('help',.false.,'h','Display this help message',''), &
        option ('mycall',.true.,'m','mycall',''), &
@@ -59,7 +59,7 @@ program msk144d2
      case ('d')
         read (optarg(:narglen), *) hiscall
      case ('e')
-        t0=1e-4
+        bswl=.true. 
      case ('f')
         read (optarg(:narglen), *) nrxfreq
      case ('h')
