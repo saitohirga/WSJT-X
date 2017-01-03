@@ -468,7 +468,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Toggle Tx Enable On/Off</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Toggle Auto-Tx On/Off&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="styleSheet">
            <string notr="true">QPushButton:checked {
