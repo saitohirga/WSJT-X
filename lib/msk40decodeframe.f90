@@ -20,7 +20,7 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,bswl,nhasharray,             &
   real softbits(40)
   real llr(32)
   logical first
-  logical bswl
+  logical*1 bswl
   data first/.true./
   data s8r/1,0,1,1,0,0,0,1/
   data mycall0/'dummy'/,hiscall0/'dummy'/
@@ -57,9 +57,13 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,bswl,nhasharray,             &
 
   if(mycall.ne.mycall0 .or. hiscall.ne.hiscall0) then
     hashmsg=trim(mycall)//' '//trim(hiscall)
-    call fmtmsg(hashmsg,iz)
-    call hash(hashmsg,22,ihash)
-    ihash=iand(ihash,4095)
+    if( hashmsg .ne. ' ' ) then
+      call fmtmsg(hashmsg,iz)
+      call hash(hashmsg,22,ihash)
+      ihash=iand(ihash,4095)
+    else
+      ihash=9999  ! so that it can never match a received hash
+    endif
     mycall0=mycall
     hiscall0=hiscall
   endif
@@ -130,7 +134,7 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,bswl,nhasharray,             &
     nrxrpt=iand(imsg,15)
     nrxhash=(imsg-nrxrpt)/16
     if(nhammd.le.4 .and. cord .lt. 0.65 .and. nrxhash.eq.ihash) then
-!write(*,*) 'decodeframe ',nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma
+!write(*,*) 'decodeframe 1',nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma
       nsuccess=1    
       write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(mycall),   &
                                     trim(hiscall),">",rpt(nrxrpt)
@@ -139,21 +143,21 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,bswl,nhasharray,             &
       do i=1,nrecent
         do j=i+1,nrecent
           if( nrxhash .eq. nhasharray(i,j) ) then
-            nsuccess=1
+            nsuccess=2
             write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(recent_calls(i)),   &
                                   trim(recent_calls(j)),">",rpt(nrxrpt)
-!write(*,*) 'decodeframe ',nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma
+!write(*,*) 'decodeframe 2',nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma
           elseif( nrxhash .eq. nhasharray(j,i) ) then
-            nsuccess=1
+            nsuccess=2
             write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(recent_calls(j)),   &
                                   trim(recent_calls(i)),">",rpt(nrxrpt)
-!write(*,*) 'decodeframe ',nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma
+!write(*,*) 'decodeframe 3',nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma
           endif
         enddo
       enddo
       if(nsuccess.eq.0 .and. nhammd.le.2 .and. cord.lt.0.40 .and. xsnr.gt.0.0 ) then
-!write(*,*) 'decodeframe ',nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma
-        nsuccess=1
+!write(*,*) 'decodeframe 4',bswl,nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma
+        nsuccess=3
         write(msgreceived,'(a1,i4.4,a1,1x,a4)') "<",nrxhash,">",rpt(nrxrpt)
       endif
     endif 

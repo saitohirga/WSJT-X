@@ -46,7 +46,7 @@ program msk144d2
   bShMsgs=.false.
   bcontest=.false.
   brxequal=.false.
-  bswl=.true.
+  bswl=.false.
  
   do
      call getopt('c:d:ef:hm:n:rs',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
