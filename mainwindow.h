@@ -255,6 +255,7 @@ private slots:
   void on_cbCQTx_toggled(bool b);
   void on_actionMSK144_triggered();
   void on_actionQRA64_triggered();
+  void on_actionFreqCal_triggered();
   void splash_done ();
 
 private:

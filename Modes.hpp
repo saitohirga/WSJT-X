@@ -48,6 +48,7 @@ public:
     ISCAT,
     MSK144,
     QRA64,
+    FreqCal,
     MODES_END_SENTINAL_AND_COUNT // this must be last
   };
   Q_ENUM (Mode)

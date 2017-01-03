@@ -2439,6 +2439,8 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="actionWSPR"/>
     <addaction name="separator"/>
     <addaction name="actionEcho"/>
+    <addaction name="separator"/>
+    <addaction name="actionFreqCal"/>
    </widget>
    <widget class="QMenu" name="menuConfig">
     <property name="title">
@@ -2938,6 +2940,14 @@ QPushButton[state=&quot;ok&quot;] {
    </property>
    <property name="shortcut">
     <string>Ctrl+M</string>
+   </property>
+  </action>
+  <action name="actionFreqCal">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>FreqCal</string>
    </property>
   </action>
  </widget>
