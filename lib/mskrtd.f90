@@ -39,6 +39,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   logical*1 first
   logical*1 trained 
   logical*1 bshdecode
+  logical*1 noprint
  
   data first/.true./
   data iavpatterns/ &
@@ -106,7 +107,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
      call msk40spd(cdat,np,ntol,mycall(1:6),hiscall(1:6),bswl,nhasharray,     &
                    recent_calls,nrecent,nsuccess,msgreceived,fc,fest,tdec,navg)
   endif
-  if( nsuccess .eq. 1 ) then
+  if( nsuccess .ge. 1 ) then
     tdec=tsec+tdec
     ipk=0
     is=0
@@ -193,9 +194,13 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
        ncorrected=0
        eyeopening=0.0
      endif
-     write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,    &
-          navg,ncorrected,eyeopening,char(0)
-1020 format(i6.6,i4,f5.1,i5,a3,a22,i2,i3,f5.1,a1)
+     noprint = bswl .and.                                                       & 
+       ((nsuccess.eq.2 .and. nsnr.lt.-3).or.(nsuccess.eq.3 .and. nsnr.lt.-3))
+     if( .not.noprint ) then
+       write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,    &
+            navg,ncorrected,eyeopening,char(0)
+1020   format(i6.6,i4,f5.1,i5,a3,a22,i2,i3,f5.1,a1)
+     endif
   endif
 999 tsec0=tsec
 

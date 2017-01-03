@@ -21,7 +21,7 @@ subroutine msk40spd(cbig,n,ntol,mycall,hiscall,bswl,nhasharray,recent_calls,   &
   integer nstart(MAXCAND)
   integer nhasharray(nrecent,nrecent)
   logical ismask(NFFT)
-  logical bswl
+  logical*1 bswl
   real detmet(-2:MAXSTEPS+3)
   real detmet2(-2:MAXSTEPS+3)
   real detfer(MAXSTEPS)
@@ -187,7 +187,7 @@ subroutine msk40spd(cbig,n,ntol,mycall,hiscall,bswl,nhasharray,recent_calls,   &
             tret=(nstart(icand)+NSPM/2)/fs
             fret=fest
             navg=sum(navmask)
-            nsuccess=1
+            nsuccess=ndecodesuccess
             return
           endif 
         enddo
