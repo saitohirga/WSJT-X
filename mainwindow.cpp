@@ -67,7 +67,7 @@ extern "C" {
                 int* minw, float* px, float s[], float* df3, int* nhsym, int* npts8);
 
   void hspec_(short int d2[], int* k, int* nutc0, int* ntrperiod, int* nrxfreq, int* ntol,
-              bool* bmsk144, bool* bcontest, bool* brxequalize, int* ingain, char mycall[], 
+              bool* bmsk144, bool* bcontest, bool* brxequalize, int* ingain, char mycall[],
               char hiscall[], bool* bshmsg, bool* bswl, float green[], float s[], int* jh,
               char line[], char mygrid[], int len1, int len2, int len3, int len4);
 
@@ -479,6 +479,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->actionISCAT->setActionGroup(modeGroup);
   ui->actionMSK144->setActionGroup(modeGroup);
   ui->actionQRA64->setActionGroup(modeGroup);
+  ui->actionFreqCal->setActionGroup(modeGroup);
 
   QActionGroup* saveGroup = new QActionGroup(this);
   ui->actionNone->setActionGroup(saveGroup);
@@ -676,11 +677,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   auto t = "UTC   dB   DT Freq    Message";
   ui->decodedTextLabel->setText(t);
   ui->decodedTextLabel2->setText(t);
-
   readSettings();		         //Restore user's setup params
-
   m_audioThread.start (m_audioThreadPriority);
-
   m_dateTimeDefault=QDateTime(QDate(1900,1,1),QTime(0,0));
   m_dateTimeQSOOn=m_dateTimeDefault;
 
@@ -787,11 +785,12 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   if(m_mode=="JT65") on_actionJT65_triggered();
   if(m_mode=="JT9+JT65") on_actionJT9_JT65_triggered();
   if(m_mode=="WSPR") on_actionWSPR_triggered();
-  if(m_mode=="Echo") on_actionEcho_triggered();
   if(m_mode=="ISCAT") on_actionISCAT_triggered();
   if(m_mode=="MSK144") on_actionMSK144_triggered();
   if(m_mode=="QRA64") on_actionQRA64_triggered();
-  if(m_mode=="Echo") monitor(false); //Don't auto-start Monitor in Echo mode.
+  if(m_mode=="Echo") on_actionEcho_triggered();
+  if(m_mode=="Echo") monitor(false);   //Don't auto-start Monitor in Echo mode.
+  if(m_mode=="FreqCal") on_actionFreqCal_triggered();
 
   ui->sbSubmode->setValue (vhf ? m_nSubMode : 0);
   ui->sbTR->setValue(m_TRindex);
@@ -1082,6 +1081,8 @@ void MainWindow::fixStop()
   } else if (m_mode=="QRA64"){
     m_hsymStop=179;
     if(m_config.decode_at_52s()) m_hsymStop=186;
+  } else if (m_mode=="FreqCal"){
+    m_hsymStop=100;
   }
 }
 
@@ -1162,6 +1163,10 @@ void MainWindow::dataSink(qint64 frames)
         monitor(false);
         m_bEchoTxed=false;
       }
+      return;
+    }
+    if(m_mode=="FreqCal") {
+      qDebug() << "A" << m_ihsym;
       return;
     }
     if( m_dialFreqRxWSPR==0) m_dialFreqRxWSPR=m_freqNominal;
@@ -1455,6 +1460,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       if(m_config.enable_VHF_features() != bvhf0) genStdMsgs(m_rpt);
     }
     if(m_mode=="QRA64") on_actionQRA64_triggered();
+    if(m_mode=="FreqCal") on_actionFreqCal_triggered();
     if(m_mode=="ISCAT") on_actionISCAT_triggered();
     if(m_mode=="MSK144") {
       on_actionMSK144_triggered();
@@ -1817,7 +1823,8 @@ void MainWindow::setup_status_bar (bool vhf)
     mode_label.setStyleSheet ("QLabel{background-color: #99ff33}");
   } else if ("MSK144" == m_mode) {
     mode_label.setStyleSheet ("QLabel{background-color: #ff6666}");
-  }
+  } else if ("FreqCal" == m_mode) {
+    mode_label.setStyleSheet ("QLabel{background-color: #ff9933}");  }
   last_tx_label.setText (QString {});
   if (m_mode.contains (QRegularExpression {R"(^(Echo|ISCAT))"})) {
     if (band_hopping_label.isVisible ()) statusBar ()->removeWidget (&band_hopping_label);
@@ -4499,6 +4506,33 @@ void MainWindow::on_actionEcho_triggered()
   statusChanged();
 }
 
+void MainWindow::on_actionFreqCal_triggered()
+{
+  on_actionEcho_triggered();
+  if(m_echoGraph->isVisible()) m_echoGraph->hide();
+  if(ui->actionAstronomical_data->isChecked()) {
+    ui->actionAstronomical_data->setChecked (false);
+  }
+  m_mode="FreqCal";
+  displayWidgets(nWidgets("000000000000000000000000"));
+  ui->actionFreqCal->setChecked(true);
+  m_TRperiod=30;
+  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
+  m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
+  m_nsps=6912;                        //For symspec only
+  m_FFTSize = m_nsps / 2;
+  Q_EMIT FFTSize (m_FFTSize);
+  m_hsymStop=100;
+  switch_mode(Modes::FreqCal);
+  setup_status_bar (true);
+  m_wideGraph->setMode(m_mode);
+  m_bFastMode=true;
+  m_bFast9=false;
+  fast_config(false);
+//  WSPR_config(true);
+  ui->decodedTextLabel->setText("   UTC      N   Level    Sig      DF    Width   Q");
+  statusChanged();
+}
 
 void MainWindow::switch_mode (Mode mode)
 {
