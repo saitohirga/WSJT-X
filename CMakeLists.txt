@@ -363,6 +363,7 @@ set (wsjt_FSRCS
   lib/foldspec9f.f90
   lib/four2a.f90
   lib/fqso_first.f90
+  lib/freqcal.f90
   lib/gen4.f90
   lib/gen65.f90
   lib/gen9.f90

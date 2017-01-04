@@ -102,6 +102,7 @@ extern "C" {
   int ptt_(int nport, int ntx, int* iptt, int* nopen);
 
   void wspr_downsample_(short int d2[], int* k);
+
   int savec2_(char* fname, int* TR_seconds, double* dial_freq, int len1);
 
   void avecho_( short id2[], int* dop, int* nfrit, int* nqual, float* f1,
@@ -112,9 +113,13 @@ extern "C" {
                     char msg[], char mycall[], char hiscall[],
                     int len1, int len2, int len3);
   void degrade_snr_(short d2[], int* n, float* db, float* bandwidth);
+
   void wav12_(short d2[], short d1[], int* nbytes, short* nbitsam2);
+
   void refspectrum_(short int d2[], bool* bclearrefspec, bool* brefspec,
                     bool* buseref, const char* c_fname, int len);
+
+  void freqcal_(short d2[], int* k, int* nfreq, int* ntol, char line[], int len);
 }
 
 int volatile itone[NUM_ISCAT_SYMBOLS];	//Audio tones for all Tx symbols
@@ -1090,6 +1095,7 @@ void MainWindow::fixStop()
 void MainWindow::dataSink(qint64 frames)
 {
   static float s[NSMAX];
+  char line[27];
 
   int k (frames);
   QString fname {QDir::toNativeSeparators(m_dataDir.absoluteFilePath ("refspec.dat"))};
@@ -1133,6 +1139,18 @@ void MainWindow::dataSink(qint64 frames)
   }
 
   fixStop();
+  if(m_mode=="FreqCal" and m_ihsym>=16 and m_ihsym%8==0) {
+    m_RxFreq=ui->RxFreqSpinBox->value ();
+    freqcal_(&dec_data.d2[0],&k,&m_RxFreq,&m_Ftol,&line[0],27);
+    QString t=QString::fromLatin1(line);
+
+    DecodedText decodedtext;
+    decodedtext=t;
+    ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
+         m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
+         m_config.color_NewCall());
+  }
+
   if(m_ihsym==3*m_hsymStop/4) {
     m_dialFreqRxWSPR=m_freqNominal;
   }
@@ -1166,7 +1184,6 @@ void MainWindow::dataSink(qint64 frames)
       return;
     }
     if(m_mode=="FreqCal") {
-      qDebug() << "A" << m_ihsym;
       return;
     }
     if( m_dialFreqRxWSPR==0) m_dialFreqRxWSPR=m_freqNominal;
@@ -1971,12 +1988,14 @@ void MainWindow::on_actionHide_Controls_triggered()
       minimumSize().setWidth(770);
   }
   ui->menuBar->setVisible(!m_bHideControls);
-  ui->label_6->setVisible(!m_bHideControls);
+  if(m_mode!="FreqCal") {
+    ui->label_6->setVisible(!m_bHideControls);
+    ui->label_7->setVisible(!m_bHideControls);
+    ui->decodedTextLabel2->setVisible(!m_bHideControls);
+    ui->line_2->setVisible(!m_bHideControls);
+  }
   ui->line->setVisible(!m_bHideControls);
-  ui->line_2->setVisible(!m_bHideControls);
-  ui->label_7->setVisible(!m_bHideControls);
   ui->decodedTextLabel->setVisible(!m_bHideControls);
-  ui->decodedTextLabel2->setVisible(!m_bHideControls);
   ui->gridLayout_5->layout()->setSpacing(spacing);
   ui->horizontalLayout->layout()->setSpacing(spacing);
   ui->horizontalLayout_2->layout()->setSpacing(spacing);
@@ -4508,14 +4527,13 @@ void MainWindow::on_actionEcho_triggered()
 
 void MainWindow::on_actionFreqCal_triggered()
 {
-  on_actionEcho_triggered();
-  if(m_echoGraph->isVisible()) m_echoGraph->hide();
-  if(ui->actionAstronomical_data->isChecked()) {
-    ui->actionAstronomical_data->setChecked (false);
-  }
+  on_actionJT9_triggered();
+  displayWidgets(nWidgets("001100000000000000000000"));
   m_mode="FreqCal";
-  displayWidgets(nWidgets("000000000000000000000000"));
   ui->actionFreqCal->setChecked(true);
+  switch_mode(Modes::FreqCal);
+  m_wideGraph->setMode(m_mode);
+  statusChanged();
   m_TRperiod=30;
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
@@ -4523,15 +4541,8 @@ void MainWindow::on_actionFreqCal_triggered()
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
   m_hsymStop=100;
-  switch_mode(Modes::FreqCal);
   setup_status_bar (true);
-  m_wideGraph->setMode(m_mode);
-  m_bFastMode=true;
-  m_bFast9=false;
-  fast_config(false);
-//  WSPR_config(true);
-  ui->decodedTextLabel->setText("   UTC      N   Level    Sig      DF    Width   Q");
-  statusChanged();
+  ui->decodedTextLabel->setText(" Freq      S/N");
 }
 
 void MainWindow::switch_mode (Mode mode)
@@ -4558,6 +4569,15 @@ void MainWindow::switch_mode (Mode mode)
     ui->RxFreqSpinBox->setSingleStep(1);
   }
   m_bVHFwarned=false;
+  bool b=m_mode=="FreqCal";
+  ui->tabWidget->setVisible(!b);
+  if(b) {
+    ui->DX_controls_widget->setVisible(false);
+    ui->decodedTextBrowser2->setVisible(false);
+    ui->decodedTextLabel2->setVisible(false);
+    ui->label_6->setVisible(false);
+    ui->label_7->setVisible(false);
+  }
 }
 
 void MainWindow::WSPR_config(bool b)

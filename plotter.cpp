@@ -422,6 +422,15 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
     x2=XfromFreq(1600);
     painter0.drawLine(x1,29,x2,29);
   }
+
+  if(m_mode=="FreqCal") {                   //FreqCal
+    x1=XfromFreq(m_rxFreq-m_tol);
+    x2=XfromFreq(m_rxFreq+m_tol);
+    painter0.drawLine(x1,29,x2,29);
+    x1=XfromFreq(m_rxFreq);
+    painter0.drawLine(x1,24,x1,30);
+  }
+
   if(m_mode=="JT9" or m_mode=="JT65" or m_mode=="JT9+JT65" or m_mode=="QRA64") {
 
     if(m_mode=="QRA64" or (m_mode=="JT65" and m_bVHF)) {
