@@ -57,7 +57,7 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,bswl,nhasharray,             &
 
   if(mycall.ne.mycall0 .or. hiscall.ne.hiscall0) then
     hashmsg=trim(mycall)//' '//trim(hiscall)
-    if( hashmsg .ne. ' ' ) then
+    if( hashmsg .ne. ' ' .and. hiscall .ne. ''  ) then ! protect against blank mycall/hiscall
       call fmtmsg(hashmsg,iz)
       call hash(hashmsg,22,ihash)
       ihash=iand(ihash,4095)
@@ -133,6 +133,7 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,bswl,nhasharray,             &
     enddo
     nrxrpt=iand(imsg,15)
     nrxhash=(imsg-nrxrpt)/16
+
     if(nhammd.le.4 .and. cord .lt. 0.65 .and. nrxhash.eq.ihash) then
 !write(*,*) 'decodeframe 1',nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma
       nsuccess=1    
