@@ -624,6 +624,12 @@ QLabel[oob=&quot;true&quot;] {
                  </item>
                  <item row="5" column="0">
                   <widget class="LettersSpinBox" name="sbFtol">
+                   <property name="maximumSize">
+                    <size>
+                     <width>120</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
                    <property name="toolTip">
                     <string>Frequency tolerance (Hz)</string>
                    </property>
@@ -773,6 +779,12 @@ QLabel[oob=&quot;true&quot;] {
                  </item>
                  <item row="4" column="0">
                   <widget class="QSpinBox" name="RxFreqSpinBox">
+                   <property name="maximumSize">
+                    <size>
+                     <width>120</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
                    <property name="toolTip">
                     <string>Audio Rx frequency</string>
                    </property>
