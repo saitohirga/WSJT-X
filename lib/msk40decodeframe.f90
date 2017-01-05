@@ -135,30 +135,32 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,bswl,nhasharray,             &
     nrxhash=(imsg-nrxrpt)/16
 
     if(nhammd.le.4 .and. cord .lt. 0.65 .and. nrxhash.eq.ihash) then
-!write(*,*) 'decodeframe 1',nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma
+!write(*,*) 'decodeframe 1',nbadsync,nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma
       nsuccess=1    
       write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(mycall),   &
                                     trim(hiscall),">",rpt(nrxrpt)
       return
-    elseif(bswl .and. nhammd.le.2 .and. cord.lt.0.40 .and. xsnr .gt. -3.0) then
+!    elseif(bswl .and. nhammd.le.2 .and. cord.lt.0.40 .and. xsnr .gt. -3.0) then
+    elseif(bswl .and. nhammd.le.4 .and. cord.lt.0.65 ) then
       do i=1,nrecent
         do j=i+1,nrecent
           if( nrxhash .eq. nhasharray(i,j) ) then
             nsuccess=2
             write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(recent_calls(i)),   &
                                   trim(recent_calls(j)),">",rpt(nrxrpt)
-!write(*,*) 'decodeframe 2',nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma
+!write(*,*) 'decodeframe 2',nbadsync,nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma
           elseif( nrxhash .eq. nhasharray(j,i) ) then
             nsuccess=2
             write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(recent_calls(j)),   &
                                   trim(recent_calls(i)),">",rpt(nrxrpt)
-!write(*,*) 'decodeframe 3',nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma
+!write(*,*) 'decodeframe 3',nbadsync,nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma
           endif
         enddo
       enddo
-      if(nsuccess.eq.0 .and. nhammd.le.2 .and. cord.lt.0.40 .and. xsnr.gt.0.0 ) then
-!write(*,*) 'decodeframe 4',bswl,nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma
+!      if(nsuccess.eq.0 .and. nhammd.le.2 .and. cord.lt.0.40 .and. xsnr.gt. -3.0 ) then
+      if(nsuccess.eq.0) then
         nsuccess=3
+!write(*,*) 'decodeframe 4',bswl,nbadsync,nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma,nsuccess
         write(msgreceived,'(a1,i4.4,a1,1x,a4)') "<",nrxhash,">",rpt(nrxrpt)
       endif
     endif 
