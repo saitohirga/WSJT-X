@@ -209,6 +209,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
      nsnrlast=nsnr
      if(.not. bshdecode) then
         call update_hasharray(recent_calls,nrecent,nhasharray)
+! Should we call fix_contest_msg() only if bcontest is true?
         call fix_contest_msg(mycall(1:6),mygrid,hiscall(1:6),msgreceived)
      endif
      write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,           &
@@ -236,8 +237,6 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
 
   return
 end subroutine mskrtd
-
-include 'fix_contest_msg.f90'
 
 subroutine update_recent_shmsgs(message,msgs,nsize)
   character*22 msgs(nsize)
