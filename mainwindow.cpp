@@ -1088,7 +1088,7 @@ void MainWindow::fixStop()
     m_hsymStop=179;
     if(m_config.decode_at_52s()) m_hsymStop=186;
   } else if (m_mode=="FreqCal"){
-    m_hsymStop=100;
+    m_hsymStop=96;
   }
 }
 
@@ -1145,12 +1145,25 @@ void MainWindow::dataSink(qint64 frames)
     int nkhz=(m_freqNominal+m_RxFreq)/1000;
     freqcal_(&dec_data.d2[0],&k,&nkhz,&m_RxFreq,&m_Ftol,&line[0],80);
     QString t=QString::fromLatin1(line);
-
     DecodedText decodedtext;
     decodedtext=t;
     ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
          m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
          m_config.color_NewCall());
+// Append results text to file "fmt.all".
+    QFile f {m_dataDir.absoluteFilePath ("fmt.all")};
+    if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
+      QTextStream out(&f);
+      out << t << endl;
+      f.close();
+    } else {
+      MessageBox::warning_message (this, tr ("File Open Error")
+                                   , tr ("Cannot open \"%1\" for append: %2")
+                                   .arg (f.fileName ()).arg (f.errorString ()));
+    }
+    if(m_ihsym==96) {
+      on_actionFrequency_calibration_triggered();
+    }
   }
 
   if(m_ihsym==3*m_hsymStop/4) {
@@ -4542,8 +4555,9 @@ void MainWindow::on_actionFreqCal_triggered()
   m_nsps=6912;                        //For symspec only
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
-  m_hsymStop=100;
+  m_hsymStop=96;
   ui->RxFreqSpinBox->setValue(1500);
+  m_RxFreq=1500;
   setup_status_bar (true);
 //                               18:15:47      0  1  1500  1550.349     0.100    3.5   10.2
   ui->decodedTextLabel->setText("  UTC      Freq CAL Offset  fMeas       DF     Level   S/N");
