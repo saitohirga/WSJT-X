@@ -119,7 +119,8 @@ extern "C" {
   void refspectrum_(short int d2[], bool* bclearrefspec, bool* brefspec,
                     bool* buseref, const char* c_fname, int len);
 
-  void freqcal_(short d2[], int* k, int* nfreq, int* ntol, char line[], int len);
+  void freqcal_(short d2[], int* k, int* nkhz,int* noffset, int* ntol,
+                char line[], int len);
 }
 
 int volatile itone[NUM_ISCAT_SYMBOLS];	//Audio tones for all Tx symbols
@@ -1095,7 +1096,7 @@ void MainWindow::fixStop()
 void MainWindow::dataSink(qint64 frames)
 {
   static float s[NSMAX];
-  char line[27];
+  char line[80];
 
   int k (frames);
   QString fname {QDir::toNativeSeparators(m_dataDir.absoluteFilePath ("refspec.dat"))};
@@ -1141,7 +1142,8 @@ void MainWindow::dataSink(qint64 frames)
   fixStop();
   if(m_mode=="FreqCal" and m_ihsym>=16 and m_ihsym%8==0) {
     m_RxFreq=ui->RxFreqSpinBox->value ();
-    freqcal_(&dec_data.d2[0],&k,&m_RxFreq,&m_Ftol,&line[0],27);
+    int nkhz=(m_freqNominal+m_RxFreq)/1000;
+    freqcal_(&dec_data.d2[0],&k,&nkhz,&m_RxFreq,&m_Ftol,&line[0],80);
     QString t=QString::fromLatin1(line);
 
     DecodedText decodedtext;
@@ -4541,8 +4543,10 @@ void MainWindow::on_actionFreqCal_triggered()
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
   m_hsymStop=100;
+  ui->RxFreqSpinBox->setValue(1500);
   setup_status_bar (true);
-  ui->decodedTextLabel->setText(" Freq      S/N");
+//                               18:15:47      0  1  1500  1550.349     0.100    3.5   10.2
+  ui->decodedTextLabel->setText("  UTC      Freq CAL Offset  fMeas       DF     Level   S/N");
 }
 
 void MainWindow::switch_mode (Mode mode)
@@ -6068,15 +6072,25 @@ void MainWindow::fastPick(int x0, int x1, int y)
   }
 }
 
-void MainWindow::on_actionSave_reference_spectrum_triggered()
+void MainWindow::on_actionMeasure_reference_spectrum_triggered()
 {
   if(!m_monitoring) on_monitorButton_clicked (true);
   m_bRefSpec=true;
 }
 
-void MainWindow::on_actionClear_reference_spectrum_triggered()
+void MainWindow::on_actionErase_reference_spectrum_triggered()
 {
   m_bClearRefSpec=true;
+}
+
+void MainWindow::on_actionFrequency_calibration_triggered()
+{
+  static int n=-1;
+  double fMHz[]={0.660,0.880,1.210,2.500,3.330,5.000,
+                  7.850,10.000,14.670,15.000,20.000};
+  m_freqNominal=1000000.0*fMHz[++n] - m_RxFreq + 0.5;
+  if(n>=10) n=-1;
+  on_bandComboBox_activated(-1);
 }
 
 void MainWindow::on_sbCQTxFreq_valueChanged(int)
