@@ -10,14 +10,16 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   parameter (NFFT1=8192)             !FFT size for making analytic signal
   parameter (NPATTERNS=4)            !Number of frame averaging patterns to try
   parameter (NRECENT=10)             !Number of recent calls to remember
+  parameter (NSHMEM=250)              !Number of recent SWL messages to remember
 
   character*3 decsym                 !"&" for mskspd or "^" for long averages
   character*22 msgreceived           !Decoded message
-  character*22 msglast               !!! temporary - used for dupechecking
+  character*22 msglast,msglastswl   !Used for dupechecking
   character*80 line                  !Formatted line with UTC dB T Freq Msg
   character*12 mycall,hiscall
   character*6 mygrid
   character*12 recent_calls(NRECENT)
+  character*22 recent_shmsgs(NSHMEM)
 
   complex cdat(NFFT1)                !Analytic signal
   complex c(NSPM)                    !Coherently averaged complex data
@@ -28,6 +30,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   integer iavpatterns(8,NPATTERNS)
   integer npkloc(10)
   integer nhasharray(NRECENT,NRECENT)
+  integer nsnrlast,nsnrlastswl
 
   real d(NFFT1)
   real pow(8)
@@ -39,7 +42,8 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   logical*1 first
   logical*1 trained 
   logical*1 bshdecode
-  logical*1 noprint
+  logical*1 seenb4
+  logical*1 bflag
  
   data first/.true./
   data iavpatterns/ &
@@ -48,8 +52,8 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
        1,1,1,1,1,0,0,0, &
        1,1,1,1,1,1,1,0/
   data xmc/2.0,4.5,2.5,3.5/     !Used to set time at center of averaging mask
-  save first,tsec0,nutc00,pnoise,nsnrlast,msglast,cdat,pcoeffs,trained,       &
-       recent_calls,nhasharray
+  save first,tsec0,nutc00,pnoise,cdat,pcoeffs,trained,msglast,msglastswl,     &
+       nsnrlast,nsnrlastswl,recent_calls,nhasharray,recent_shmsgs
 
   if(first) then
      tsec0=tsec
@@ -59,7 +63,14 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
      do i=1,nrecent
        recent_calls(i)(1:12)=' '
      enddo
+     do i=1,nshmem
+       recent_shmsgs(i)(1:22)=' '
+     enddo
      trained=.false.
+     msglast='                      '
+     msglastswl='                      '
+     nsnrlast=-99
+     nsnrlastswl=-99
      first=.false.
   endif
 
@@ -68,7 +79,9 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
 ! Dupe checking setup 
   if(nutc00.ne.nutc0 .or. tsec.lt.tsec0) then ! reset dupe checker
     msglast='                      '
+    msglastswl='                      '
     nsnrlast=-99
+    nsnrlastswl=-99
     nutc00=nutc0
   endif
   
@@ -83,7 +96,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   fac=1.0/rms
   d(1:NZ)=fac*d(1:NZ)
   d(NZ+1:NFFT1)=0.
-  call analytic(d,NZ,NFFT1,cdat,pcoeffs,brxequal,.true.) !Convert to analytic signal and filter
+  call analytic(d,NZ,NFFT1,cdat,pcoeffs,brxequal,.true.) 
 
 ! Calculate average power for each frame and for the entire block.
 ! If decode is successful, largest power will be taken as signal+noise.
@@ -101,13 +114,13 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
 ! center a 3-frame analysis window and attempts to decode each of the 
 ! 3 frames along with 2- and 3-frame averages. 
   np=8*NSPM
-  call msk144spd(cdat,np,ntol,nsuccess,msgreceived,fc,fest,tdec,navg,ct,      &
+  call msk144spd(cdat,np,ntol,ndecodesuccess,msgreceived,fc,fest,tdec,navg,ct, &
                  softbits,recent_calls,nrecent)
-  if(nsuccess.eq.0 .and. bshmsg) then
-     call msk40spd(cdat,np,ntol,mycall(1:6),hiscall(1:6),bswl,nhasharray,     &
-                   recent_calls,nrecent,nsuccess,msgreceived,fc,fest,tdec,navg)
+  if(ndecodesuccess.eq.0 .and. bshmsg) then
+     call msk40spd(cdat,np,ntol,mycall(1:6),hiscall(1:6),bswl,nhasharray,      &
+              recent_calls,nrecent,ndecodesuccess,msgreceived,fc,fest,tdec,navg)
   endif
-  if( nsuccess .ge. 1 ) then
+  if( ndecodesuccess .ge. 1 ) then
     tdec=tsec+tdec
     ipk=0
     is=0
@@ -126,7 +139,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
      navg=sum(iavmask)
      deltaf=10.0/real(navg)  ! search increment for frequency sync
      npeaks=2
-     call msk144sync(cdat(1:8*NSPM),8,ntol,deltaf,iavmask,npeaks,fc,   &
+     call msk144sync(cdat(1:8*NSPM),8,ntol,deltaf,iavmask,npeaks,fc,           &
           fest,npkloc,nsyncsuccess,xmax,c)
      if( nsyncsuccess .eq. 0 ) cycle
 
@@ -173,34 +186,51 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
 
   if(.not. bshdecode) then
     call msk144signalquality(ct,snr0,fest,tdec,softbits,msgreceived,hiscall,   &
-                           ncorrected,eyeopening,trained,pcoeffs)
+                             ncorrected,eyeopening,trained,pcoeffs)
   endif
 
-! Dupe check. Only print if new message, or higher snr.
-  if(msgreceived.ne.msglast .or. nsnr.gt.nsnrlast .or. tsec.lt.tsec0) then
-     call update_hasharray(recent_calls,nrecent,nhasharray)
+  decsym=' & '
+  if( brxequal .and. (.not. trained) ) decsym=' ^ '
+  if( brxequal .and. trained ) decsym=' $ '
+  if( (.not. brxequal) .and. trained ) decsym=' @ '
+  if( msgreceived(1:1).eq.'<') then
+    ncorrected=0
+    eyeopening=0.0
+  endif
+
+  if( nsnr .lt. -8 ) nsnr=-8
+  if( nsnr .gt. 24 ) nsnr=24
+
+! Dupe check. 
+  bflag=ndecodesuccess.eq.1 .and.                                              &
+        (msgreceived.ne.msglast .or. nsnr.gt.nsnrlast .or. tsec.lt.tsec0)
+  if(bflag) then
      msglast=msgreceived
      nsnrlast=nsnr
-     if( nsnr .lt. -8 ) nsnr=-8
-     if( nsnr .gt. 24 ) nsnr=24
      if(.not. bshdecode) then
+        call update_hasharray(recent_calls,nrecent,nhasharray)
         call fix_contest_msg(mycall(1:6),mygrid,hiscall(1:6),msgreceived)
      endif
-     decsym=' & '
-     if( brxequal .and. (.not. trained) ) decsym=' ^ '
-     if( brxequal .and. trained ) decsym=' $ '
-     if( (.not. brxequal) .and. trained ) decsym=' @ '
-     if( msgreceived(1:1).eq.'<') then
-       ncorrected=0
-       eyeopening=0.0
-     endif
-     noprint = bswl .and.                                                       & 
-       ((nsuccess.eq.2 .and. nsnr.lt.-3).or.(nsuccess.eq.3 .and. nsnr.lt.-3))
-     if( .not.noprint ) then
-       write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,    &
-            navg,ncorrected,eyeopening,char(0)
-1020   format(i6.6,i4,f5.1,i5,a3,a22,i2,i3,f5.1,a1)
-     endif
+     write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,           &
+          navg,ncorrected,eyeopening,char(0)
+1020 format(i6.6,i4,f5.1,i5,a3,a22,i2,i3,f5.1,a1)
+  elseif(bswl .and. ndecodesuccess.ge.2) then 
+    seenb4=.false.
+    do i=1,nshmem
+      if( msgreceived .eq. recent_shmsgs(i) ) then
+        seenb4=.true.
+      endif
+    enddo
+    call update_recent_shmsgs(msgreceived,recent_shmsgs,nshmem)
+    bflag=seenb4 .and.                                                        &
+      (msgreceived.ne.msglastswl .or. nsnr.gt.nsnrlastswl .or. tsec.lt.tsec0) & 
+      .and. nsnr.gt.-6
+    if(bflag) then
+      msglastswl=msgreceived
+      nsnrlastswl=nsnr
+      write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,    &
+          navg,ncorrected,eyeopening,char(0)
+    endif
   endif
 999 tsec0=tsec
 
@@ -208,3 +238,23 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
 end subroutine mskrtd
 
 include 'fix_contest_msg.f90'
+
+subroutine update_recent_shmsgs(message,msgs,nsize)
+  character*22 msgs(nsize)
+  character*22 message
+  logical*1 seen
+
+  seen=.false.
+  do i=1,nsize
+    if( msgs(i) .eq. message ) seen=.true. 
+  enddo
+
+  if( .not. seen ) then
+    do i=nsize,2,-1
+      msgs(i)=msgs(i-1)
+    enddo
+    msgs(1)=message
+  endif
+
+  return
+end subroutine update_recent_shmsgs
