@@ -10,7 +10,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   parameter (NFFT1=8192)             !FFT size for making analytic signal
   parameter (NPATTERNS=4)            !Number of frame averaging patterns to try
   parameter (NRECENT=10)             !Number of recent calls to remember
-  parameter (NSHMEM=250)              !Number of recent SWL messages to remember
+  parameter (NSHMEM=50)              !Number of recent SWL messages to remember
 
   character*3 decsym                 !"&" for mskspd or "^" for long averages
   character*22 msgreceived           !Decoded message
