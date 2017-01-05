@@ -11,7 +11,7 @@ program msk144sim
   type(hdr) h                          !Header for .wav file
   integer*2 iwave(0:NMAX-1)
   integer itone(144)                   !Message bits
-  integer*1 bcontest
+  logical*1 bcontest
   data mygrid/"EN50wc"/
 
   nargs=iargc()
