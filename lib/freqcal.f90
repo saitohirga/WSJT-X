@@ -10,6 +10,7 @@ subroutine freqcal(id2,k,nkhz,noffset,ntol,line)
   data n/0/,k0/9999999/
   save n,k0
 
+  if(k.lt.NFFT) go to 900
   if(k.lt.k0) n=0
   k0=k
      
@@ -52,7 +53,9 @@ subroutine freqcal(id2,k,nkhz,noffset,ntol,line)
   ferr=fpeak-noffset
   write(line,1100)  nhr,nmin,nsec,nkhz,ncal,noffset,fpeak,ferr,pave,   &
           snr,callsign,cflag,char(0)
+  write(61,1100)  nhr,nmin,nsec,nkhz,ncal,noffset,fpeak,ferr,pave,   &
+          snr,callsign,cflag,char(0)
 1100 format(i2.2,':',i2.2,':',i2.2,i7,i3,i6,2f10.3,2f7.1,2x,a6,2x,a1,a1)
 
-  return
+900 return
 end subroutine freqcal
