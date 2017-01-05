@@ -2376,9 +2376,6 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="actionOpen_next_in_directory"/>
     <addaction name="actionDecode_remaining_files_in_directory"/>
     <addaction name="separator"/>
-    <addaction name="actionSave_reference_spectrum"/>
-    <addaction name="actionClear_reference_spectrum"/>
-    <addaction name="separator"/>
     <addaction name="actionDelete_all_wav_files_in_SaveDir"/>
     <addaction name="actionErase_ALL_TXT"/>
     <addaction name="actionErase_wsjtx_log_adi"/>
@@ -2459,12 +2456,21 @@ QPushButton[state=&quot;ok&quot;] {
      <string>Configurations</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionMeasure_reference_spectrum"/>
+    <addaction name="actionErase_reference_spectrum"/>
+    <addaction name="actionFrequency_calibration"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuConfig"/>
    <addaction name="menuView"/>
    <addaction name="menuMode"/>
    <addaction name="menuDecode"/>
    <addaction name="menuSave"/>
+   <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -2893,11 +2899,6 @@ QPushButton[state=&quot;ok&quot;] {
     <string>F9</string>
    </property>
   </action>
-  <action name="actionSave_reference_spectrum">
-   <property name="text">
-    <string>Measure reference spectrum</string>
-   </property>
-  </action>
   <action name="download_samples_action">
    <property name="text">
     <string>&amp;Download Samples ...</string>
@@ -2938,11 +2939,6 @@ QPushButton[state=&quot;ok&quot;] {
     <string/>
    </property>
   </action>
-  <action name="actionClear_reference_spectrum">
-   <property name="text">
-    <string>Clear reference spectrum</string>
-   </property>
-  </action>
   <action name="actionHide_Controls">
    <property name="text">
     <string>Hide menus and labels</string>
@@ -2960,6 +2956,24 @@ QPushButton[state=&quot;ok&quot;] {
    </property>
    <property name="text">
     <string>FreqCal</string>
+   </property>
+  </action>
+  <action name="actionMeasure_reference_spectrum">
+   <property name="text">
+    <string>Measure reference spectrum</string>
+   </property>
+  </action>
+  <action name="actionErase_reference_spectrum">
+   <property name="text">
+    <string>Erase reference spectrum</string>
+   </property>
+  </action>
+  <action name="actionFrequency_calibration">
+   <property name="text">
+    <string>Frequency calibration</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F10</string>
    </property>
   </action>
  </widget>

@@ -246,8 +246,9 @@ private slots:
   void on_actionFast_Graph_triggered();
   void on_actionHide_Controls_triggered();
   void fast_decode_done();
-  void on_actionSave_reference_spectrum_triggered();
-  void on_actionClear_reference_spectrum_triggered();
+  void on_actionMeasure_reference_spectrum_triggered();
+  void on_actionErase_reference_spectrum_triggered();
+  void on_actionFrequency_calibration_triggered();
   void on_sbTR_valueChanged(int index);
   void on_sbFtol_valueChanged(int index);
   void on_cbFast9_clicked(bool b);

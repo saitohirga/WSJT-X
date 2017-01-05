@@ -1,10 +1,10 @@
-subroutine freqcal(id2,k,nfreq,ntol,line)
+subroutine freqcal(id2,k,nkhz,noffset,ntol,line)
 
   parameter (NZ=30*12000,NFFT=55296,NH=NFFT/2)
   integer*2 id2(0:NZ-1)
   real x(0:NFFT-1)
   real s(NH)
-  character line*27
+  character line*80,cflag*1
   complex cx(0:NH)
   equivalence (x,cx)
   data n/0/,k0/9999999/
@@ -16,8 +16,8 @@ subroutine freqcal(id2,k,nfreq,ntol,line)
   x=0.001*id2(k-NFFT:k-1)
   call four2a(x,NFFT,1,-1,0)       !Compute spectrum, r2c
   df=12000.0/NFFT
-  ia=nint((nfreq-ntol)/df)
-  ib=nint((nfreq+ntol)/df)
+  ia=nint((noffset-ntol)/df)
+  ib=nint((noffset+ntol)/df)
   smax=0.
   s=0.
   do i=ia,ib
@@ -39,13 +39,20 @@ subroutine freqcal(id2,k,nfreq,ntol,line)
      endif
   enddo
   ave=sum/nsum
-  pave=db(ave) + 8.0
   snr=db(smax/ave)
-!  if(snr.lt.20.0) cflag='*'
+  pave=db(ave) + 8.0
+  cflag=' '
+  if(snr.lt.20.0) cflag='*'
   n=n+1
-  write(line,1100)  fpeak,snr
-1100 format(2f8.1)
-  line(27:27)=char(0)
+  nsec=mod(time(),86400)
+  nhr=nsec/3600
+  nmin=mod(nsec/60,60)
+  nsec=mod(nsec,60)
+  ncal=1
+  ferr=fpeak-noffset
+  write(line,1100)  nhr,nmin,nsec,nkhz,ncal,noffset,fpeak,ferr,pave,   &
+          snr,callsign,cflag,char(0)
+1100 format(i2.2,':',i2.2,':',i2.2,i7,i3,i6,2f10.3,2f7.1,2x,a6,2x,a1,a1)
 
   return
 end subroutine freqcal
