@@ -815,9 +815,9 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   if((m_ndepth&7)==1) ui->actionQuickDecode->setChecked(true);
   if((m_ndepth&7)==2) ui->actionMediumDecode->setChecked(true);
   if((m_ndepth&7)==3) ui->actionDeepestDecode->setChecked(true);
-  ui->actionInclude_averaging->setChecked((m_ndepth&16)>0);
-  ui->actionInclude_correlation->setChecked((m_ndepth&32)>0);
-  ui->actionEnable_AP_DXcall->setChecked((m_ndepth&64)>0);
+  ui->actionInclude_averaging->setChecked(m_ndepth&16);
+  ui->actionInclude_correlation->setChecked(m_ndepth&32);
+  ui->actionEnable_AP_DXcall->setChecked(m_ndepth&64);
 
   m_UTCdisk=-1;
   m_ntx = 1;
@@ -4665,40 +4665,34 @@ void MainWindow::on_RxFreqSpinBox_valueChanged(int n)
     }
 }
 
-void MainWindow::on_actionQuickDecode_triggered()
+void MainWindow::on_actionQuickDecode_toggled (bool checked)
 {
-  m_ndepth=(m_ndepth&112) + 1;
-  ui->actionQuickDecode->setChecked(true);
+  m_ndepth ^= (-checked ^ m_ndepth) & 0x00000001;
 }
 
-void MainWindow::on_actionMediumDecode_triggered()
+void MainWindow::on_actionMediumDecode_toggled (bool checked)
 {
-  m_ndepth=(m_ndepth&112) + 2;
-  ui->actionMediumDecode->setChecked(true);
+  m_ndepth ^= (-checked ^ m_ndepth) & 0x00000002;
 }
 
-void MainWindow::on_actionDeepestDecode_triggered()
+void MainWindow::on_actionDeepestDecode_toggled (bool checked)
 {
-  m_ndepth=(m_ndepth&112) + 3;
-  ui->actionDeepestDecode->setChecked(true);
+  m_ndepth ^= (-checked ^ m_ndepth) & 0x00000003;
 }
 
-void MainWindow::on_actionInclude_averaging_triggered()
+void MainWindow::on_actionInclude_averaging_toggled (bool checked)
 {
-    m_ndepth=m_ndepth ^ 16;
-  ui->actionInclude_averaging->setChecked(m_ndepth&16);
+  m_ndepth ^= (-checked ^ m_ndepth) & 0x00000010;
 }
 
-void MainWindow::on_actionInclude_correlation_triggered()
+void MainWindow::on_actionInclude_correlation_toggled (bool checked)
 {
-  m_ndepth=m_ndepth ^ 32;
-  ui->actionInclude_correlation->setChecked(m_ndepth&32);
+  m_ndepth ^= (-checked ^ m_ndepth) & 0x00000020;
 }
 
-void MainWindow::on_actionEnable_AP_DXcall_triggered()
+void MainWindow::on_actionEnable_AP_DXcall_toggled (bool checked)
 {
-  m_ndepth=m_ndepth ^ 64;
-  ui->actionEnable_AP_DXcall->setChecked(m_ndepth&64);
+  m_ndepth ^= (-checked ^ m_ndepth) & 0x00000040;
 }
 
 void MainWindow::on_inGain_valueChanged(int n)
@@ -5471,15 +5465,15 @@ void MainWindow::on_sbFtol_valueChanged(int index)
 void::MainWindow::VHF_features_enabled(bool b)
 {
   if(m_mode!="JT4" and m_mode!="JT65") b=false;
-  if(!b and (ui->actionInclude_averaging->isChecked() or
+  if(b and (ui->actionInclude_averaging->isChecked() or
              ui->actionInclude_correlation->isChecked())) {
-    on_actionDeepestDecode_triggered();
+    ui->actionDeepestDecode->setChecked (true);
   }
   ui->actionInclude_averaging->setEnabled(b);
   ui->actionInclude_correlation->setEnabled(b);
   ui->actionMessage_averaging->setEnabled(b);
   ui->actionEnable_AP_DXcall->setEnabled(m_mode=="QRA64");
-  if(!b and m_msgAvgWidget!=NULL) {
+  if(!b && m_msgAvgWidget) {
     if(m_msgAvgWidget->isVisible()) m_msgAvgWidget->close();
   }
 }

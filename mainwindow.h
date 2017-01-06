@@ -172,9 +172,9 @@ private slots:
   void on_actionJT4_triggered();
   void on_TxFreqSpinBox_valueChanged(int arg1);
   void on_actionSave_decoded_triggered();
-  void on_actionQuickDecode_triggered();
-  void on_actionMediumDecode_triggered();
-  void on_actionDeepestDecode_triggered();
+  void on_actionQuickDecode_toggled (bool);
+  void on_actionMediumDecode_toggled (bool);
+  void on_actionDeepestDecode_toggled (bool);
   void on_inGain_valueChanged(int n);
   void bumpFqso(int n);
   void on_actionErase_ALL_TXT_triggered();
@@ -220,9 +220,9 @@ private slots:
   void stopTuneATU();
   void auto_tx_mode(bool);
   void on_actionMessage_averaging_triggered();
-  void on_actionInclude_averaging_triggered();
-  void on_actionInclude_correlation_triggered();
-  void on_actionEnable_AP_DXcall_triggered();
+  void on_actionInclude_averaging_toggled (bool);
+  void on_actionInclude_correlation_toggled (bool);
+  void on_actionEnable_AP_DXcall_toggled (bool);
   void VHF_features_enabled(bool b);
   void on_sbSubmode_valueChanged(int n);
   void on_cbShMsgs_toggled(bool b);
