@@ -86,7 +86,9 @@ HRDTransceiver::HRDTransceiver (std::unique_ptr<TransceiverBase> wrapped
   , vfo_toggle_button_ {-1}
   , mode_A_dropdown_ {-1}
   , mode_B_dropdown_ {-1}
-  , data_mode_button_ {-1}
+  , data_mode_toggle_button_ {-1}
+  , data_mode_on_button_ {-1}
+  , data_mode_off_button_ {-1}
   , data_mode_dropdown_ {-1}
   , split_mode_button_ {-1}
   , split_mode_dropdown_ {-1}
@@ -266,13 +268,17 @@ int HRDTransceiver::do_start ()
 
   // Can't do this with ^Data$ as the button name because some Kenwood
   // rigs have a "Data" button which is for turning the DSP on and off
-  //data_mode_button_ = find_button (QRegExp ("^(Data)$"));
+  //data_mode_toggle_button_ = find_button (QRegExp ("^(Data)$"));
+
+  data_mode_on_button_ = find_button (QRegExp ("^(DATA-ON\\(mid\\))$"));
+  data_mode_off_button_ = find_button (QRegExp ("^(DATA-OFF)$"));
 
   // Some newer Icoms have a Data drop down with (Off,On,D1,D2,D3)
   // Some newer Icoms have a Data drop down with (Off,D1,D2,D3)
-  // Some newer Icoms have a Data drop down with
+  // Some newer Icoms (IC-7300) have a Data drop down with
   // (Off,,D1-FIL1,D1-FIL2,D1-FIL3) the missing value counts as an
-  // index value - I think it is a drop down separator line
+  // index value - I think it is a drop down separator line - this
+  // appears to be an HRD defect and we cannot work around it
   if ((data_mode_dropdown_ = find_dropdown (QRegExp ("^(Data)$"))) >= 0)
     {
       data_mode_dropdown_selection_on_ = find_dropdown_selection (data_mode_dropdown_, QRegExp ("^(On|D1|D1-FIL1)$"));
@@ -510,17 +516,31 @@ void HRDTransceiver::set_button (int button_index, bool checked)
 
 void HRDTransceiver::set_data_mode (MODE m)
 {
-  if (data_mode_button_ >= 0)
+  if (data_mode_toggle_button_ >= 0)
     {
       switch (m)
         {
         case DIG_U:
         case DIG_L:
         case DIG_FM:
-          set_button (data_mode_button_, true);
+          set_button (data_mode_toggle_button_, true);
           break;
         default:
-          set_button (data_mode_button_, false);
+          set_button (data_mode_toggle_button_, false);
+          break;
+        }
+    }
+  else if (data_mode_on_button_ >= 0 && data_mode_off_button_ >= 0)
+    {
+      switch (m)
+        {
+        case DIG_U:
+        case DIG_L:
+        case DIG_FM:
+          set_button (data_mode_on_button_, true);
+          break;
+        default:
+          set_button (data_mode_off_button_, true);
           break;
         }
     }
@@ -879,7 +899,9 @@ void HRDTransceiver::poll ()
   is_button_checked (alt_ptt_button_);
   get_dropdown (mode_A_dropdown_);
   get_dropdown (mode_B_dropdown_);
-  is_button_checked (data_mode_button_);
+  is_button_checked (data_mode_toggle_button_);
+  is_button_checked (data_mode_on_button_);
+  is_button_checked (data_mode_off_button_);
   if (data_mode_dropdown_ >=0
       && data_mode_dropdown_selection_off_.size ()
       && data_mode_dropdown_selection_on_.size ())

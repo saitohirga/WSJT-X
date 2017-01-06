@@ -135,7 +135,9 @@ private:
 
   ModeMap mode_B_map_;          // The map of modes for VFO B.
 
-  int data_mode_button_;        // Button to select DATA mode
+  int data_mode_toggle_button_; // Button to toggle DATA mode
+  int data_mode_on_button_;     // Button to enable DATA mode
+  int data_mode_off_button_;    // Button to disable DATA mode
   int data_mode_dropdown_;      // Index of data mode drop down, may
                                 // be -1 if no such drop down exists
   std::vector<int> data_mode_dropdown_selection_on_; // The drop down
