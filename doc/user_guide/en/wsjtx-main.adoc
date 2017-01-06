@@ -232,3 +232,7 @@ include::acknowledgements.adoc[]
 == License
 include::../../common/license.adoc[]
 
+ifeval::["{backend}" != "html5"]
+[index]
+== Index
+endif::[]
