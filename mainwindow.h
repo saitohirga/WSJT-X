@@ -226,6 +226,7 @@ private slots:
   void VHF_features_enabled(bool b);
   void on_sbSubmode_valueChanged(int n);
   void on_cbShMsgs_toggled(bool b);
+  void on_cbSWL_toggled(bool b);
   void on_cbTx6_toggled(bool b);
   void networkError (QString const&);
   void on_ClrAvgButton_clicked();

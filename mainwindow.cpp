@@ -4178,7 +4178,6 @@ void MainWindow::displayWidgets(int n)
     }
     if(i==23) {
       ui->cbSWL->setVisible(b);
-      ui->cbSWL->setEnabled(b and ui->cbShMsgs->isChecked());
     }
     j=j>>1;
   }
@@ -5569,9 +5568,8 @@ void MainWindow::on_cbFast9_clicked(bool b)
 void MainWindow::on_cbShMsgs_toggled(bool b)
 {
   ui->cbTx6->setEnabled(b);
-  ui->cbSWL->setEnabled(b);
   m_bShMsgs=b;
-  if(!b) ui->cbSWL->setChecked(false);
+  if(b) ui->cbSWL->setChecked(false);
   if(m_bShMsgs and (m_mode=="MSK144")) ui->rptSpinBox->setValue(1);
   int itone0=itone[0];
   int ntx=m_ntx;
@@ -5583,6 +5581,11 @@ void MainWindow::on_cbShMsgs_toggled(bool b)
   if(ntx==4) ui->txrb4->setChecked(true);
   if(ntx==5) ui->txrb5->setChecked(true);
   if(ntx==6) ui->txrb6->setChecked(true);
+}
+
+void MainWindow::on_cbSWL_toggled(bool b)
+{
+  if(b) ui->cbShMsgs->setChecked(false);
 }
 
 void MainWindow::on_cbTx6_toggled(bool b)

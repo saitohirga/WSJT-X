@@ -116,7 +116,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   np=8*NSPM
   call msk144spd(cdat,np,ntol,ndecodesuccess,msgreceived,fc,fest,tdec,navg,ct, &
                  softbits,recent_calls,nrecent)
-  if(ndecodesuccess.eq.0 .and. bshmsg) then
+  if(ndecodesuccess.eq.0 .and. (bshmsg.or.bswl)) then
      call msk40spd(cdat,np,ntol,mycall(1:6),hiscall(1:6),bswl,nhasharray,      &
               recent_calls,nrecent,ndecodesuccess,msgreceived,fc,fest,tdec,navg)
   endif
