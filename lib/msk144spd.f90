@@ -61,7 +61,6 @@ subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret,navg,ct,   &
      first=.false.
   endif
 
-
   ! fill the detmet, detferr arrays
   nstep=(n-NSPM)/216  ! 72ms/4=18ms steps
   detmet=0
@@ -69,12 +68,12 @@ subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret,navg,ct,   &
   detfer=-999.99
   nfhi=2*(fc+500)
   nflo=2*(fc-500)
-  ihlo=(nfhi-2*ntol)/df+1
-  ihhi=(nfhi+2*ntol)/df+1
-  illo=(nflo-2*ntol)/df+1
-  ilhi=(nflo+2*ntol)/df+1
-  i2000=nflo/df+1
-  i4000=nfhi/df+1
+  ihlo=nint((nfhi-2*ntol)/df) + 1
+  ihhi=nint((nfhi+2*ntol)/df) + 1
+  illo=nint((nflo-2*ntol)/df) + 1
+  ilhi=nint((nflo+2*ntol)/df) + 1
+  i2000=nint(nflo/df) + 1
+  i4000=nint(nfhi/df) + 1
   do istp=1,nstep
     ns=1+216*(istp-1)
     ne=ns+NSPM-1
@@ -182,8 +181,7 @@ subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret,navg,ct,   &
           if( is.eq.3) ic0=min(NSPM,ic0+1)
           ct=cshift(c,ic0-1)
           call msk144decodeframe(ct,softbits,msgreceived,ndecodesuccess,    &
-                                 recent_calls,nrecent)
-
+               recent_calls,nrecent)
           if( ndecodesuccess .gt. 0 ) then
             tret=(nstart(icand)+NSPM/2)/fs
             fret=fest
