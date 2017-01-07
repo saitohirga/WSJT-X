@@ -4,12 +4,13 @@ subroutine freqcal(id2,k,nkhz,noffset,ntol,line)
   integer*2 id2(0:NZ-1)
   real x(0:NFFT-1)
   real s(NH)
-  character line*80,cflag*1
+  character line*80,cflag*1,callsign*6
   complex cx(0:NH)
   equivalence (x,cx)
   data n/0/,k0/9999999/
   save n,k0
 
+  callsign='      '
   if(k.lt.NFFT) go to 900
   if(k.lt.k0) n=0
   k0=k
