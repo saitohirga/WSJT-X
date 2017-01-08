@@ -17,6 +17,7 @@
 #include <QDebug>
 #include <QDebugStateSaver>
 
+#include "Radio.hpp"
 #include "Bands.hpp"
 #include "pimpl_impl.hpp"
 
@@ -480,7 +481,7 @@ bool FrequencyList::impl::setData (QModelIndex const& model_index, QVariant cons
         case frequency_column:
           if (value.canConvert<Frequency> ())
             {
-              auto frequency = value.value<Frequency> ();
+              Radio::Frequency frequency {qvariant_cast <Radio::Frequency> (value)};
               if (frequency != item.frequency_)
                 {
                   item.frequency_ = frequency;
