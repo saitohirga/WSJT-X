@@ -64,8 +64,10 @@ public:
     {
     }
 
-    Item const& operator * ();
+    Item const& operator * () const;
+    Item const * operator -> () const;
     bool operator != (const_iterator const&) const;
+    bool operator == (const_iterator const&) const;
     const_iterator& operator ++ ();
 
   private:

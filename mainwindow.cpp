@@ -44,7 +44,6 @@
 #include "Radio.hpp"
 #include "Bands.hpp"
 #include "TransceiverFactory.hpp"
-#include "FrequencyList.hpp"
 #include "StationList.hpp"
 #include "LiveFrequencyValidator.hpp"
 #include "MessageClient.hpp"
@@ -220,6 +219,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_nWSPRdecodes {0},
   m_k0 {9999999},
   m_nPick {0},
+  m_current_frequency_list_iter {m_config.frequencies ()->end ()},
   m_TRperiodFast {-1},
   m_nTx73 {0},
   m_btxok {false},
@@ -4546,6 +4546,7 @@ void MainWindow::on_actionFreqCal_triggered()
   m_mode="FreqCal";
   ui->actionFreqCal->setChecked(true);
   switch_mode(Modes::FreqCal);
+  m_current_frequency_list_iter = m_config.frequencies ()->begin ();
   m_wideGraph->setMode(m_mode);
   statusChanged();
   m_TRperiod=30;
@@ -4560,6 +4561,7 @@ void MainWindow::on_actionFreqCal_triggered()
   setup_status_bar (true);
 //                               18:15:47      0  1  1500  1550.349     0.100    3.5   10.2
   ui->decodedTextLabel->setText("  UTC      Freq CAL Offset  fMeas       DF     Level   S/N");
+  on_actionFrequency_calibration_triggered ();
 }
 
 void MainWindow::switch_mode (Mode mode)
@@ -6096,12 +6098,15 @@ void MainWindow::on_actionErase_reference_spectrum_triggered()
 
 void MainWindow::on_actionFrequency_calibration_triggered()
 {
-  static int n=-1;
-  double fMHz[]={0.660,0.880,1.210,2.500,3.330,5.000,
-                  7.850,10.000,14.670,15.000,20.000};
-  m_freqNominal=1000000.0*fMHz[++n] - m_RxFreq + 0.5;
-  if(n>=10) n=-1;
-  on_bandComboBox_activated(-1);
+  if (m_current_frequency_list_iter != m_config.frequencies ()->end ())
+    {
+      setRig (m_current_frequency_list_iter->frequency_ - m_RxFreq + 0.5);
+      if (++m_current_frequency_list_iter == m_config.frequencies ()->end ())
+        {
+          // loop back to beginning
+          m_current_frequency_list_iter = m_config.frequencies ()->begin ();
+        }
+    }
 }
 
 void MainWindow::on_sbCQTxFreq_valueChanged(int)

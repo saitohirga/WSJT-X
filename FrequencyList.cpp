@@ -32,26 +32,37 @@ namespace
       {474200, Modes::JT65},
       {474200, Modes::JT9},
       {474200, Modes::WSPR},
+      {660000, Modes::FreqCal},
+      {880000, Modes::FreqCal},
+      {1210000, Modes::FreqCal},
       {1836600, Modes::WSPR},
       {1838000, Modes::JT65},
       {1840000, Modes::JT9},
+      {2500000, Modes::FreqCal},
+      {3330000, Modes::FreqCal},
       {3576000, Modes::JT65},
       {3578000, Modes::JT9},
       {3592600, Modes::WSPR},
       {5357000, Modes::JT65},
+      {5000000, Modes::FreqCal},
       {5287200, Modes::WSPR},
       {7038600, Modes::WSPR},
       {7076000, Modes::JT65},
       {7078000, Modes::JT9},
+      {7850000, Modes::FreqCal},
+      {10000000, Modes::FreqCal},
       {10138000, Modes::JT65},
       {10138700, Modes::WSPR},
       {10140000, Modes::JT9},
       {14095600, Modes::WSPR},
       {14076000, Modes::JT65},
       {14078000, Modes::JT9},
+      {14670000, Modes::FreqCal},
+      {15000000, Modes::FreqCal},
       {18102000, Modes::JT65},
       {18104000, Modes::JT9},
       {18104600, Modes::WSPR},
+      {20000000, Modes::FreqCal},
       {21076000, Modes::JT65},
       {21078000, Modes::JT9},
       {21094600, Modes::WSPR},
@@ -573,14 +584,24 @@ QMimeData * FrequencyList::impl::mimeData (QModelIndexList const& items) const
   return mime_data;
 }
 
-auto FrequencyList::const_iterator::operator * () -> Item const&
+auto FrequencyList::const_iterator::operator * () const -> Item const&
 {
   return parent_->frequency_list ().at(parent_->mapToSource (parent_->index (row_, 0)).row ());
+}
+
+auto FrequencyList::const_iterator::operator -> () const -> Item const *
+{
+  return &parent_->frequency_list ().at(parent_->mapToSource (parent_->index (row_, 0)).row ());
 }
 
 bool FrequencyList::const_iterator::operator != (const_iterator const& rhs) const
 {
   return parent_ != rhs.parent_ || row_ != rhs.row_;
+}
+
+bool FrequencyList::const_iterator::operator == (const_iterator const& rhs) const
+{
+  return parent_ == rhs.parent_ && row_ == rhs.row_;
 }
 
 auto FrequencyList::const_iterator::operator ++ () -> const_iterator&
