@@ -25,6 +25,7 @@
 #include "commons.h"
 #include "Radio.hpp"
 #include "Modes.hpp"
+#include "FrequencyList.hpp"
 #include "Configuration.hpp"
 #include "WSPRBandHopping.hpp"
 #include "Transceiver.hpp"
@@ -378,6 +379,7 @@ private:
   qint32  m_FtolIndex;
   qint32  m_Ftol;
   qint32  m_RxFreq;
+  FrequencyList::const_iterator m_current_frequency_list_iter;
   qint32  m_TRperiodFast;
   qint32  m_nTx73;
   qint32  m_UTCdisk;
