@@ -18,6 +18,7 @@
 
 #include "pimpl_impl.hpp"
 
+#include "Radio.hpp"
 #include "Bands.hpp"
 #include "FrequencyList.hpp"
 
@@ -403,9 +404,16 @@ bool StationList::impl::setData (QModelIndex const& model_index, QVariant const&
 
         case offset_column:
           {
-            stations_[row].offset_ = value.value<FrequencyDelta> ();
-            Q_EMIT dataChanged (model_index, model_index, roles);
-            changed = true;
+            if (value.canConvert<FrequencyDelta> ())
+              {
+                FrequencyDelta offset {qvariant_cast<Radio::FrequencyDelta> (value)};
+                if (offset != stations_[row].offset_)
+                  {
+                    stations_[row].offset_ = offset;
+                    Q_EMIT dataChanged (model_index, model_index, roles);
+                    changed = true;
+                  }
+              }
           }
           break;
 

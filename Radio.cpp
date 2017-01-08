@@ -1,6 +1,7 @@
 #include "Radio.hpp"
 
 #include <cmath>
+#include <limits>
 
 #include <QString>
 #include <QChar>
@@ -19,32 +20,53 @@ namespace Radio
   }
 
 
-  Frequency frequency (QVariant const& v, int scale, QLocale const& locale)
+  Frequency frequency (QVariant const& v, int scale, bool * ok, QLocale const& locale)
   {
-    double value {0};
+    double value {0.};
     if (QVariant::String == v.type ())
       {
-        value = locale.toDouble (v.value<QString> ());
+        value = locale.toDouble (v.value<QString> (), ok);
       }
     else
       {
         value = v.toDouble ();
+        if (ok) *ok = true;
       }
-    return std::llround (value * std::pow (10., scale));
+    value *= std::pow (10., scale);
+    if (ok)
+      {
+        if (value < 0. || value > std::numeric_limits<Frequency>::max ())
+          {
+            value = 0.;
+            *ok = false;
+          }
+      }
+    return std::llround (value);
   }
 
-  FrequencyDelta frequency_delta (QVariant const& v, int scale, QLocale const& locale)
+  FrequencyDelta frequency_delta (QVariant const& v, int scale, bool * ok, QLocale const& locale)
   {
-    double value {0};
+    double value {0.};
     if (QVariant::String == v.type ())
       {
-        value = locale.toDouble (v.value<QString> ());
+        value = locale.toDouble (v.value<QString> (), ok);
       }
     else
       {
         value = v.toDouble ();
+        if (ok) *ok = true;
       }
-    return std::llround (value * std::pow (10., scale));
+    value *= std::pow (10., scale);
+    if (ok)
+      {
+        if (value < -std::numeric_limits<Frequency>::max ()
+            || value > std::numeric_limits<Frequency>::max ())
+          {
+            value = 0.;
+            *ok = false;
+          }
+      }
+    return std::llround (value);
   }
 
 
