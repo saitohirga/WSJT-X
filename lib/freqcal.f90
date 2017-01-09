@@ -3,7 +3,7 @@ subroutine freqcal(id2,k,nkhz,noffset,ntol,line)
   parameter (NZ=30*12000,NFFT=55296,NH=NFFT/2)
   integer*2 id2(0:NZ-1)
   real x(0:NFFT-1)
-  real s(NH)
+  real s(0:NH)
   character line*80,cflag*1
   complex cx(0:NH)
   equivalence (x,cx)
@@ -17,8 +17,13 @@ subroutine freqcal(id2,k,nkhz,noffset,ntol,line)
   x=0.001*id2(k-NFFT:k-1)
   call four2a(x,NFFT,1,-1,0)       !Compute spectrum, r2c
   df=12000.0/NFFT
-  ia=nint((noffset-ntol)/df)
-  ib=nint((noffset+ntol)/df)
+  if (ntol.gt.noffset) then
+     ia=0
+     ib=nint((noffset*2)/df)
+  else
+     ia=nint((noffset-ntol)/df)
+     ib=nint((noffset+ntol)/df)
+  endif
   smax=0.
   s=0.
   do i=ia,ib
