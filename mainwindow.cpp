@@ -1536,6 +1536,8 @@ void MainWindow::on_monitorButton_clicked (bool checked)
               setRig (m_lastMonitoredFrequency);
               setXIT (ui->TxFreqSpinBox->value ());
             }
+          // ensure FreqCal triggers
+          on_RxFreqSpinBox_valueChanged (ui->RxFreqSpinBox->value ());
         }
 
       //Get Configuration in/out of strict split and mode checking
@@ -4557,7 +4559,6 @@ void MainWindow::on_actionFreqCal_triggered()
   m_hsymStop=96;
   m_frequency_list_fcal_iter = m_config.frequencies ()->begin ();
   ui->RxFreqSpinBox->setValue(1500);
-  on_RxFreqSpinBox_valueChanged (ui->RxFreqSpinBox->value ()); // ensure triggers
   setup_status_bar (true);
 //                               18:15:47      0  1  1500  1550.349     0.100    3.5   10.2
   ui->decodedTextLabel->setText("  UTC      Freq CAL Offset  fMeas       DF     Level   S/N");
