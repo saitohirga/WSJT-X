@@ -219,7 +219,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_nWSPRdecodes {0},
   m_k0 {9999999},
   m_nPick {0},
-  m_current_frequency_list_iter {m_config.frequencies ()->end ()},
+  m_frequency_list_fcal_iter {m_config.frequencies ()->end ()},
   m_TRperiodFast {-1},
   m_nTx73 {0},
   m_btxok {false},
@@ -4546,7 +4546,6 @@ void MainWindow::on_actionFreqCal_triggered()
   m_mode="FreqCal";
   ui->actionFreqCal->setChecked(true);
   switch_mode(Modes::FreqCal);
-  m_current_frequency_list_iter = m_config.frequencies ()->begin ();
   m_wideGraph->setMode(m_mode);
   statusChanged();
   m_TRperiod=30;
@@ -4556,11 +4555,12 @@ void MainWindow::on_actionFreqCal_triggered()
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
   m_hsymStop=96;
+  m_frequency_list_fcal_iter = m_config.frequencies ()->begin ();
   ui->RxFreqSpinBox->setValue(1500);
+  on_RxFreqSpinBox_valueChanged (ui->RxFreqSpinBox->value ()); // ensure triggers
   setup_status_bar (true);
 //                               18:15:47      0  1  1500  1550.349     0.100    3.5   10.2
   ui->decodedTextLabel->setText("  UTC      Freq CAL Offset  fMeas       DF     Level   S/N");
-  on_actionFrequency_calibration_triggered ();
 }
 
 void MainWindow::switch_mode (Mode mode)
@@ -4655,6 +4655,11 @@ void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
 void MainWindow::on_RxFreqSpinBox_valueChanged(int n)
 {
   m_wideGraph->setRxFreq(n);
+  if (m_mode == "FreqCal"
+      && m_frequency_list_fcal_iter != m_config.frequencies ()->end ())
+    {
+      setRig (m_frequency_list_fcal_iter->frequency_ - n);
+    }
   if (m_lockTxFreq && ui->TxFreqSpinBox->isEnabled ())
     {
       ui->TxFreqSpinBox->setValue (n);
@@ -6097,14 +6102,19 @@ void MainWindow::on_actionErase_reference_spectrum_triggered()
 
 void MainWindow::on_actionFrequency_calibration_triggered()
 {
-  if (m_current_frequency_list_iter != m_config.frequencies ()->end ())
+  // pick the next time signal
+  if (m_frequency_list_fcal_iter != m_config.frequencies ()->end ())
     {
-      setRig (m_current_frequency_list_iter->frequency_ - ui->RxFreqSpinBox->value ());
-      if (++m_current_frequency_list_iter == m_config.frequencies ()->end ())
+      if (++m_frequency_list_fcal_iter == m_config.frequencies ()->end ())
         {
           // loop back to beginning
-          m_current_frequency_list_iter = m_config.frequencies ()->begin ();
+          m_frequency_list_fcal_iter = m_config.frequencies ()->begin ();
         }
+    }
+  // allow for empty list
+  if (m_frequency_list_fcal_iter != m_config.frequencies ()->end ())
+    {
+      setRig (m_frequency_list_fcal_iter->frequency_ - ui->RxFreqSpinBox->value ());
     }
 }
 
