@@ -1141,9 +1141,9 @@ void MainWindow::dataSink(qint64 frames)
 
   fixStop();
   if(m_mode=="FreqCal" and m_ihsym>=16 and m_ihsym%8==0) {
-    m_RxFreq=ui->RxFreqSpinBox->value ();
-    int nkhz=(m_freqNominal+m_RxFreq)/1000;
-    freqcal_(&dec_data.d2[0],&k,&nkhz,&m_RxFreq,&m_Ftol,&line[0],80);
+    int RxFreq=ui->RxFreqSpinBox->value ();
+    int nkhz=(m_freqNominal+RxFreq)/1000;
+    freqcal_(&dec_data.d2[0],&k,&nkhz,&RxFreq,&m_Ftol,&line[0],80);
     QString t=QString::fromLatin1(line);
     DecodedText decodedtext;
     decodedtext=t;
@@ -1333,7 +1333,7 @@ void MainWindow::fastSink(qint64 frames)
   bool bmsk144=((m_mode=="MSK144") and (m_monitoring or m_diskData));
   line[0]=0;
 
-  m_RxFreq=ui->RxFreqSpinBox->value ();
+  int RxFreq=ui->RxFreqSpinBox->value ();
   int nTRpDepth=m_TRperiod + 1000*(m_ndepth & 3);
   qint64 ms0 = QDateTime::currentMSecsSinceEpoch();
   strncpy(dec_data.params.mycall, (m_config.my_callsign()+"            ").toLatin1(),12);
@@ -1344,7 +1344,7 @@ void MainWindow::fastSink(qint64 frames)
   bool bswl=ui->cbSWL->isChecked();
   strncpy(dec_data.params.hiscall,(hisCall + "            ").toLatin1 ().constData (), 12);
   strncpy(dec_data.params.mygrid, (m_config.my_grid()+"      ").toLatin1(),6);
-  hspec_(dec_data.d2,&k,&nutc0,&nTRpDepth,&m_RxFreq,&m_Ftol,&bmsk144,&bcontest,&brxequalize,
+  hspec_(dec_data.d2,&k,&nutc0,&nTRpDepth,&RxFreq,&m_Ftol,&bmsk144,&bcontest,&brxequalize,
          &m_inGain,&dec_data.params.mycall[0],&dec_data.params.hiscall[0],&bshmsg,&bswl,
          fast_green,fast_s,&fast_jh,&line[0],&dec_data.params.mygrid[0],12,12,80,6);
   float px = fast_green[fast_jh];
@@ -4557,7 +4557,6 @@ void MainWindow::on_actionFreqCal_triggered()
   Q_EMIT FFTSize (m_FFTSize);
   m_hsymStop=96;
   ui->RxFreqSpinBox->setValue(1500);
-  m_RxFreq=1500;
   setup_status_bar (true);
 //                               18:15:47      0  1  1500  1550.349     0.100    3.5   10.2
   ui->decodedTextLabel->setText("  UTC      Freq CAL Offset  fMeas       DF     Level   S/N");
@@ -6100,7 +6099,7 @@ void MainWindow::on_actionFrequency_calibration_triggered()
 {
   if (m_current_frequency_list_iter != m_config.frequencies ()->end ())
     {
-      setRig (m_current_frequency_list_iter->frequency_ - m_RxFreq + 0.5);
+      setRig (m_current_frequency_list_iter->frequency_ - ui->RxFreqSpinBox->value ());
       if (++m_current_frequency_list_iter == m_config.frequencies ()->end ())
         {
           // loop back to beginning
