@@ -1,4 +1,4 @@
-Short-list of Add-On DXCC Prefixes:
+Type 1 Prefixes and Suffixes:
 
  1A    1S    3A    3B6   3B8   3B9   3C    3C0   3D2   3D2C  3D2R  3DA   3V    3W    3X   
  3Y    3YB   3YP   4J    4L    4S    4U1I  4U1U  4W    4X    5A    5B    5H    5N    5R   
