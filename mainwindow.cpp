@@ -219,7 +219,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_nWSPRdecodes {0},
   m_k0 {9999999},
   m_nPick {0},
-  m_frequency_list_fcal_iter {m_config.frequencies ()->end ()},
+  m_frequency_list_fcal_iter {m_config.frequencies ()->begin ()},
   m_TRperiodFast {-1},
   m_nTx73 {0},
   m_btxok {false},
@@ -6105,7 +6105,11 @@ void MainWindow::on_actionFrequency_calibration_triggered()
   // pick the next time signal
   if (m_frequency_list_fcal_iter != m_config.frequencies ()->end ())
     {
-      if (++m_frequency_list_fcal_iter == m_config.frequencies ()->end ())
+      while (++m_frequency_list_fcal_iter != m_config.frequencies () ->end ()
+             && m_frequency_list_fcal_iter->mode_ == Modes::NULL_MODE)
+        {
+        }
+      if (m_frequency_list_fcal_iter == m_config.frequencies ()->end ())
         {
           // loop back to beginning
           m_frequency_list_fcal_iter = m_config.frequencies ()->begin ();
