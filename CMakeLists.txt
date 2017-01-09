@@ -1077,6 +1077,12 @@ target_link_libraries (msk144sim wsjt_fort wsjt_cxx)
 add_executable (msk144d2 lib/msk144d2.f90 wsjtx.rc)
 target_link_libraries (msk144d2 wsjt_fort wsjt_cxx)
 
+add_executable (fmtave lib/fmtave.f90 wsjtx.rc)
+
+add_executable (fcal lib/fcal.f90 wsjtx.rc)
+
+add_executable (fmeasure lib/fmeasure.f90 wsjtx.rc)
+
 add_executable (jt9 ${jt9_FSRCS} ${jt9_CXXSRCS} wsjtx.rc)
 if (${OPENMP_FOUND} OR APPLE)
   if (APPLE)
@@ -1229,7 +1235,7 @@ install (TARGETS udp_daemon message_aggregator
   )
 
 install (TARGETS jt9 jt65code qra64code qra64sim jt9code jt4code
-  msk144code wsprd
+  msk144code wsprd fmtave fcal fmeasure
   RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
   )
