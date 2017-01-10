@@ -57,9 +57,13 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
 
 2  if(ndphi.eq.1) dphi=30*iloop/57.2957795
 
-  do nqd=1,0,-1
-!  do nqd=1,1,-1
-     if(nqd.eq.1) then                     !Quick decode, at fQSO
+  nqdz=1
+  if(bqra64) nqdz=2
+  do nqd=nqdz,0,-1
+     if(nqd.eq.2) then
+        fa=1000.0*fqso
+        fb=1000.0*fqso
+     else if(nqd.eq.1) then                     !Quick decode, at fQSO
         fa=1000.0*(fqso+0.001*mousedf) - ntol
         fb=1000.0*(fqso+0.001*mousedf) + ntol + 4*53.8330078
      else                                  !Wideband decode at all freqs
@@ -70,6 +74,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
      ib=nint(fb/df) + 16385
      ia=max(51,ia)
      ib=min(32768-51,ib)
+     write(66,*) 'A',nqd,ia,ib
 
      km=0
      nkm=1
@@ -83,8 +88,6 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
      jpz=1
      if(xpol) jpz=4
 
-!     ia=17160
-!     ib=17160
      do i=ia,ib                               !Search over freq range
         freq=0.001*(i-16385)*df
 !  Find the local base level for each polarization; update every 10 bins.
@@ -113,72 +116,72 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
            endif
         enddo
 
-        if(smax.gt.1.1) then
+        if(smax.gt.1.1 .or. ia.eq.ib) then
 
+           if(nqd.lt.2) then
 !  Look for JT65 sync patterns and shorthand square-wave patterns.
-           call timer('ccf65   ',0)
-!           ssmax=4.0*(rmsdd/22.5)**2
-!           ssmax=savg(jpmax,i)
-           ssmax=smax
-           call ccf65(ss(1,1,i),nhsym,nfast,ssmax,sync1,ipol,jpz,dt,     &
-                flipk,syncshort,snr2,ipol2,dt2)
-           call timer('ccf65   ',1)
+              call timer('ccf65   ',0)
+              ssmax=smax
+              call ccf65(ss(1,1,i),nhsym,nfast,ssmax,sync1,ipol,jpz,dt,     &
+                   flipk,syncshort,snr2,ipol2,dt2)
+              call timer('ccf65   ',1)
 
 ! ########################### Search for Shorthand Messages #################
 !  Is there a shorthand tone above threshold?
-           thresh0=1.0
+              thresh0=1.0
 !  Use lower thresh0 at fQSO
-           if(nqd.eq.1 .and. ntol.le.100) thresh0=0.
-           if(syncshort.gt.thresh0) then
+              if(nqd.eq.1 .and. ntol.le.100) thresh0=0.
+              if(syncshort.gt.thresh0) then
 ! ### Do shorthand AFC here (or maybe after finding a pair?) ###
-              short(1,i)=syncshort
-              short(2,i)=dt2
-              short(3,i)=ipol2
-           
+                 short(1,i)=syncshort
+                 short(2,i)=dt2
+                 short(3,i)=ipol2
+
 !  Check to see if lower tone of shorthand pair was found.
-              do j=2,4
-                 i0=i-nint(j*mode65*10.0*(11025.0/4096.0)/df)
+                 do j=2,4
+                    i0=i-nint(j*mode65*10.0*(11025.0/4096.0)/df)
 !  Should this be i0 +/- 1, or just i0?
 !  Should we also insist that difference in DT be either 1.5 or -1.5 s?
-                 if(short(1,i0).gt.thresh0) then
-                    fshort=0.001*(i0-16385)*df
-                    noffset=0
-                    if(nqd.eq.1) noffset=nint(1000.0*(fshort-fqso)-mousedf)
-                    if(abs(noffset).le.ntol) then
+                    if(short(1,i0).gt.thresh0) then
+                       fshort=0.001*(i0-16385)*df
+                       noffset=0
+                       if(nqd.eq.1) noffset=nint(1000.0*(fshort-fqso)-mousedf)
+                       if(abs(noffset).le.ntol) then
 !  Keep only the best candidate within ftol.
 !### NB: sync2 was not defined here!
 !                       sync2=syncshort                   !### try this ???
-                       if(fshort-fshort0.le.ftol .and. syncshort.gt.syncshort0 &
-                            .and. nkm.eq.2) km=km-1
-                       if(fshort-fshort0.gt.ftol .or.                     &
-                            syncshort.gt.syncshort0) then
-                          if(km.lt.MAXMSG) km=km+1
-                          sig(km,1)=nfile
-                          sig(km,2)=nutc
-                          sig(km,3)=fshort + 0.5*(nfa+nfb)
-                          sig(km,4)=syncshort
-                          sig(km,5)=dt2
-                          sig(km,6)=45*(ipol2-1)/57.2957795
-                          sig(km,7)=0
-                          sig(km,8)=snr2
-                          sig(km,9)=0
-                          sig(km,10)=0
+                          if(fshort-fshort0.le.ftol .and.         &
+                               syncshort.gt.syncshort0 .and. nkm.eq.2) km=km-1
+                          if(fshort-fshort0.gt.ftol .or.                     &
+                               syncshort.gt.syncshort0) then
+                             if(km.lt.MAXMSG) km=km+1
+                             sig(km,1)=nfile
+                             sig(km,2)=nutc
+                             sig(km,3)=fshort + 0.5*(nfa+nfb)
+                             sig(km,4)=syncshort
+                             sig(km,5)=dt2
+                             sig(km,6)=45*(ipol2-1)/57.2957795
+                             sig(km,7)=0
+                             sig(km,8)=snr2
+                             sig(km,9)=0
+                             sig(km,10)=0
 !                           sig(km,11)=rms0
-                          sig(km,12)=savg(ipol2,i)
-                          sig(km,13)=0
-                          sig(km,14)=0
-                          sig(km,15)=0
-                          sig(km,16)=0
+                             sig(km,12)=savg(ipol2,i)
+                             sig(km,13)=0
+                             sig(km,14)=0
+                             sig(km,15)=0
+                             sig(km,16)=0
 !                           sig(km,17)=0
-                          sig(km,18)=0
-                          msg(km)=shmsg0(j)
-                          fshort0=fshort
-                          syncshort0=syncshort
-                          nkm=2
+                             sig(km,18)=0
+                             msg(km)=shmsg0(j)
+                             fshort0=fshort
+                             syncshort0=syncshort
+                             nkm=2
+                          endif
                        endif
                     endif
-                 endif
-              enddo
+                 enddo
+              endif
            endif
 
 ! ########################### Search for Normal Messages ###########
@@ -187,8 +190,8 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
 !  Use lower thresh1 at fQSO
            if(nqd.eq.1 .and. ntol.le.100) thresh1=0.
            noffset=0
-           if(nqd.eq.1) noffset=nint(1000.0*(freq-fqso)-mousedf)
-
+           if(nqd.ge.1) noffset=nint(1000.0*(freq-fqso)-mousedf)
+           if(nqd.eq.2) sync1=thresh1+1.0
            if(sync1.gt.thresh1 .and. abs(noffset).le.ntol) then
 !  Keep only the best candidate within ftol.
 !  (Am I deleting any good decodes by doing this?)
@@ -206,6 +209,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                     call flush(13)
                     go to 999
                  endif
+                 write(66,*) 'B',nqd,f00
                  call timer('decode1a',0)
                  ifreq=i
                  ikHz=nint(freq+0.5*(nfa+nfb)-foffset)-nfshift
@@ -215,6 +219,10 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                       ndphi,iloop,nutc,ikHz,idf,ipol,ntol,bqra64,sync2,   &
                       a,dt,pol,nkv,nhist,nsum,nsave,qual,decoded)
                  call timer('decode1a',1)
+                 if(nqd.eq.2) then
+                    write(66,*) 'C  call QRA64 decoder here...'
+                    cycle
+                 endif
 
                  if(km.lt.MAXMSG) km=km+1
                  sig(km,1)=nfile
@@ -242,7 +250,6 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
               endif
            endif
         endif
-!70      continue
      enddo
 
      if(nqd.eq.1) then
