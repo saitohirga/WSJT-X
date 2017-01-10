@@ -1140,7 +1140,10 @@ void MainWindow::dataSink(qint64 frames)
   }
 
   fixStop();
-  if(m_mode=="FreqCal" and m_ihsym>=16 and m_ihsym%8==0) {
+  if (m_mode == "FreqCal"
+      // only calculate after 1st chunk, also skip chunk where rig
+      // changed frequency
+      && !(m_ihsym % 8) && m_ihsym > 8 && m_ihsym <= 96) {
     int RxFreq=ui->RxFreqSpinBox->value ();
     int nkhz=(m_freqNominal+RxFreq)/1000;
     freqcal_(&dec_data.d2[0],&k,&nkhz,&RxFreq,&m_Ftol,&line[0],80);
