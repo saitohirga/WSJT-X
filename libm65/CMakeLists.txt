@@ -118,23 +118,22 @@ set (FSRCS
   setup65.f90
   sleep_msec.f90
   sort.f90
-
-symspec.f90
+  sun.f90
+  symspec.f90
   timer.f90
   timf2.f90
   tm2.f90
+  toxyz.f90
+  trimlist.f90
+  twkfreq.f90
+  unpackcall.f90
+  unpackgrid.f90
+  unpackmsg.f90
+  unpacktext.f90
   zplot.f90
 
   f77_wisdom.f
   ssort.f
-  sun.f
-  toxyz.f
-  trimlist.f
-  twkfreq.f
-  unpackcall.f
-  unpackgrid.f
-  unpackmsg.f
-  unpacktext.f
   )
 
 set (CSRCS
