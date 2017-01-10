@@ -101,30 +101,31 @@ set (FSRCS
   map65a.f90
   moon2.f90
   moondop.f90
+  nchar.f90
   noisegen.f90
+  packcall.f90
+  packdxcc.f90
+  packgrid.f90
+  packmsg.f90
+  packtext.f90
+  pctile.f90
   pfxdump.f90
   recvpkt.f90
   rfile3a.f90
   s3avg.f90
   sec_midn.f90
+  set.f90
+  setup65.f90
   sleep_msec.f90
-  symspec.f90
+  sort.f90
+
+symspec.f90
   timer.f90
   timf2.f90
   tm2.f90
   zplot.f90
 
   f77_wisdom.f
-  nchar.f
-  packcall.f
-  packdxcc.f
-  packgrid.f
-  packmsg.f
-  packtext.f
-  pctile.f
-  set.f
-  setup65.f
-  sort.f
   ssort.f
   sun.f
   toxyz.f
