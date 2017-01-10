@@ -47,9 +47,9 @@ program fcal
   call fit(fd,deltaf,r,iz,a,b,sigmaa,sigmab,rms)
 
   write(*,1002) 
-1002 format('    Freq      DF     Meas Freq     Resid  Call'/        &
+1002 format('    Freq      DF     Meas Freq     Resid'/        &
             '   (MHz)     (Hz)      (MHz)        (Hz)'/        &
-            '------------------------------------------------')       
+            '-----------------------------------------')       
   do i=1,iz
      fm=fd(i) + 1.d-6*deltaf(i)
      calfac=1.d0 + 1.d-6*deltaf(i)/fd(i)

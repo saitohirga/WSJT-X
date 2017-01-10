@@ -3,18 +3,29 @@ subroutine freqcal(id2,k,nkhz,noffset,ntol,line)
   parameter (NZ=30*12000,NFFT=55296,NH=NFFT/2)
   integer*2 id2(0:NZ-1)
   real x(0:NFFT-1)
+  real w(0:NFFT-1)                      !Window function
   real s(0:NH)
   character line*80,cflag*1
+  logical first
   complex cx(0:NH)
   equivalence (x,cx)
-  data n/0/,k0/9999999/
-  save n,k0
+  data n/0/,k0/9999999/,first/.true./
+  save n,k0,w,first
 
+  if(first) then
+     pi=4.0*atan(1.0)
+     do i=0,NFFT-1
+        ww=sin(i*pi/NFFT)
+        w(i)=ww*ww/NFFT
+     enddo
+     first=.false.
+  endif
+  
   if(k.lt.NFFT) go to 900
   if(k.lt.k0) n=0
   k0=k
      
-  x=0.001*id2(k-NFFT:k-1)
+  x=w*id2(k-NFFT:k-1)              !Apply window
   call four2a(x,NFFT,1,-1,0)       !Compute spectrum, r2c
   df=12000.0/NFFT
   if (ntol.gt.noffset) then
