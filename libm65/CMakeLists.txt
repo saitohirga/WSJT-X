@@ -88,11 +88,19 @@ set (FSRCS
   getdphi.f90
   getpfx1.f90
   getpfx2.f90
+  graycode.f90
   graycode65.f90
+  grid2deg.f90
+  grid2k.f90
+  indexx.f90
+  interleave63.f90
   iqcal.f90
   iqfix.f90
   jt65code.f90
+  k2grid.f90
   map65a.f90
+  moon2.f90
+  moondop.f90
   noisegen.f90
   pfxdump.f90
   recvpkt.f90
@@ -107,14 +115,6 @@ set (FSRCS
   zplot.f90
 
   f77_wisdom.f
-  graycode.f
-  grid2deg.f
-  grid2k.f
-  indexx.f
-  interleave63.f
-  k2grid.f
-  moon2.f
-  moondop.f
   nchar.f
   packcall.f
   packdxcc.f
