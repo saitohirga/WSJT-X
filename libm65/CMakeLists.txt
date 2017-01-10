@@ -55,28 +55,46 @@ FortranCInterface_HEADER (FC.h MACRO_NAMESPACE "FC_" SYMBOL_NAMESPACE "FC_"
 
 
 set (FSRCS
+  afc65b.f90
+  astro.f90
   astro0.f90
   astrosub.f90
+  ccf2.f90
   ccf65.f90
   cgen65.f90
+  chkhist.f90
+  chkmsg.f90
+  coord.f90
+  dcoord.f90
   decode0.f90
   decode1a.f90
+  decode65b.f90
   deep65.f90
+  deg2grid.f90
   demod64a.f90
   display.f90
+  dot.f90
   dpol.f90
+  encode65.f90
   extract.f90
+  fchisq.f90
+  fil6521.f90
+  filbig.f90
   four2a.f90
   ftninit.f90
   ftnquit.f90
   gen65.f90
+  geocentric.f90
   getdphi.f90
+  getpfx1.f90
+  getpfx2.f90
   graycode65.f90
   iqcal.f90
   iqfix.f90
   jt65code.f90
   map65a.f90
   noisegen.f90
+  pfxdump.f90
   recvpkt.f90
   rfile3a.f90
   s3avg.f90
@@ -88,24 +106,7 @@ set (FSRCS
   tm2.f90
   zplot.f90
 
-  afc65b.f
-  astro.f
-  ccf2.f
-  chkhist.f
-  chkmsg.f
-  coord.f
-  dcoord.f
-  decode65b.f
-  deg2grid.f
-  dot.f
-  encode65.f
   f77_wisdom.f
-  fchisq.f
-  fil6521.f
-  filbig.f
-  geocentric.f
-  getpfx1.f
-  getpfx2.f
   graycode.f
   grid2deg.f
   grid2k.f
@@ -121,7 +122,6 @@ set (FSRCS
   packmsg.f
   packtext.f
   pctile.f
-  pfxdump.f
   set.f
   setup65.f
   sort.f
