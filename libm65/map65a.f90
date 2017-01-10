@@ -21,7 +21,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   character mycall*12,hiscall*12,mygrid*6,hisgrid*6,grid*6,cp*1
   integer indx(MAXMSG),nsiz(MAXMSG)
   logical done(MAXMSG)
-  logical xpol
+  logical xpol,bqra64
   character decoded*22,blank*22,cmode*2
   real short(3,NFFT)                 !SNR dt ipol for potential shorthands
   real qphi(12)
@@ -33,6 +33,8 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   data nfile/0/,nutc0/-999/,nid/0/,ip000/1/,ip001/1/,mousefqso0/-999/
   save
 
+  bqra64=nfast.ge.100
+  nfast=mod(nfast,100)
   mcall3a=mcall3b
   mousefqso0=mousefqso
   xpol=(nxpol.ne.0)
@@ -210,8 +212,8 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                  idf=nint(1000.0*(freq+0.5*(nfa+nfb)-foffset-(ikHz+nfshift)))
                  call decode1a(dd,newdat,f00,nflip,mode65,nfast,nfsample, &
                       xpol,mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,   &
-                      ndphi,iloop,nutc,ikHz,idf,ipol,ntol,sync2,a,dt,     &
-                      pol,nkv,nhist,nsum,nsave,qual,decoded)
+                      ndphi,iloop,nutc,ikHz,idf,ipol,ntol,bqra64,sync2,   &
+                      a,dt,pol,nkv,nhist,nsum,nsave,qual,decoded)
                  call timer('decode1a',1)
 
                  if(km.lt.MAXMSG) km=km+1

@@ -1142,6 +1142,8 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionNo_Deep_Search"/>
     <addaction name="actionNormal_Deep_Search"/>
     <addaction name="actionAggressive_Deep_Search"/>
+    <addaction name="separator"/>
+    <addaction name="actionDecode_QRA64_near_QSO_frequency"/>
    </widget>
    <widget class="QMenu" name="menuSave">
     <property name="title">
@@ -1542,6 +1544,14 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="shortcut">
     <string>Alt+T</string>
+   </property>
+  </action>
+  <action name="actionDecode_QRA64_near_QSO_frequency">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Decode QRA64 near QSO frequency</string>
    </property>
   </action>
  </widget>

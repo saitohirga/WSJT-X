@@ -152,6 +152,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_colors="000066ff0000ffff00969696646464";
   m_nfast=1;
   m_nsave=0;
+  m_bQRA64=false;
   bTune=false;
   txPower=100;
   iqAmp=0;
@@ -371,6 +372,7 @@ void MainWindow::writeSettings()
   settings.setValue("NDepth",m_ndepth);
   settings.setValue("NEME",m_onlyEME);
   settings.setValue("KB8RQ",m_kb8rq);
+  settings.setValue("DecodeQRA64",m_bQRA64);
   settings.setValue("NB",m_NB);
   settings.setValue("NBslider",m_NBslider);
   settings.setValue("GainX",(double)m_gainx);
@@ -462,6 +464,8 @@ void MainWindow::readSettings()
   ui->actionOnly_EME_calls->setChecked(m_onlyEME);
   m_kb8rq=settings.value("KB8RQ",false).toBool();
   ui->actionF4_sets_Tx6->setChecked(m_kb8rq);
+  m_bQRA64=settings.value("DecodeQRA64",false).toBool();
+  ui->actionDecode_QRA64_near_QSO_frequency->setChecked(m_bQRA64);
   m_NB=settings.value("NB",false).toBool();
   ui->NBcheckBox->setChecked(m_NB);
   m_NBslider=settings.value("NBslider",40).toInt();
@@ -1258,6 +1262,7 @@ void MainWindow::decode()                                       //decode()
   if(m_xpol) datcom_.nxpol=1;
   datcom_.mode65=m_mode65;
   datcom_.nfast=m_nfast;
+  if(m_bQRA64) datcom_.nfast += 100;
   datcom_.nsave=m_nsave;
 
   QString mcall=(m_myCall+"            ").mid(0,12);
@@ -2158,4 +2163,9 @@ void MainWindow::on_actionTx_Tune_triggered()
   g_pTxTune->set_iqPhase(iqPhase);
   g_pTxTune->set_txPower(txPower);
   g_pTxTune->show();
+}
+
+void MainWindow::on_actionDecode_QRA64_near_QSO_frequency_triggered(bool b)
+{
+  m_bQRA64=b;
 }

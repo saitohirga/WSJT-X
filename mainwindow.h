@@ -128,6 +128,7 @@ private slots:
   void on_actionJT65C2_triggered();
   void on_actionEdit_wsjt_log_triggered();
   void on_actionTx_Tune_triggered();
+  void on_actionDecode_QRA64_near_QSO_frequency_triggered(bool b);
 
 private:
     Ui::MainWindow *ui;
@@ -196,6 +197,7 @@ private:
     bool    m_10db;
     bool    m_initIQplus;
     bool    m_bIQxt;
+    bool    m_bQRA64;
 
     float   m_gainx;
     float   m_gainy;
