@@ -3,6 +3,8 @@ subroutine gen65(message,mode65,nfast,samfac,nsendingsh,msgsent,iwave,nwave)
 ! Encodes a JT65 message into a wavefile.  
 ! Executes in 17 ms on opti-745.
 
+  use packjt
+  
   parameter (NMAX=2*60*11025)   !Max length of wave file
   character*22 message          !Message to be generated
   character*22 msgsent          !Message as it will be received
@@ -33,7 +35,7 @@ subroutine gen65(message,mode65,nfast,samfac,nsendingsh,msgsent,iwave,nwave)
 
   call chkmsg(message,cok,nspecial,flip)
   if(nspecial.eq.0) then
-     call packmsg(message,dgen)          !Pack message into 72 bits
+     call packmsg(message,dgen,itype)    !Pack message into 72 bits
      nsendingsh=0
      if(iand(dgen(10),8).ne.0) nsendingsh=-1    !Plain text flag
 

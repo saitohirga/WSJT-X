@@ -81,6 +81,7 @@ set (FSRCS
   fchisq.f90
   fil6521.f90
   filbig.f90
+  fmtmsg.f90
   four2a.f90
   ftninit.f90
   ftnquit.f90
@@ -104,11 +105,7 @@ set (FSRCS
   moondop.f90
   nchar.f90
   noisegen.f90
-  packcall.f90
-  packdxcc.f90
-  packgrid.f90
-  packmsg.f90
-  packtext.f90
+  packjt.f90
   pctile.f90
   pfxdump.f90
   qra64b.f90
@@ -128,10 +125,6 @@ set (FSRCS
   toxyz.f90
   trimlist.f90
   twkfreq.f90
-  unpackcall.f90
-  unpackgrid.f90
-  unpackmsg.f90
-  unpacktext.f90
   zplot.f90
 
   f77_wisdom.f

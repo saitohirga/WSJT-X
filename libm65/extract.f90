@@ -1,5 +1,6 @@
 subroutine extract(s3,nadd,ncount,nhist,decoded,ltext)
 
+  use packjt
   real s3(64,63)
   real tmp(4032)
   character decoded*22
