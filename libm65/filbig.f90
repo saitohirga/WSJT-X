@@ -14,6 +14,7 @@ subroutine filbig(dd,nmax,nfast,f0,newdat,nfsample,xpol,c4a,c4b,n4)
   integer*8 plan1,plan2,plan3,plan4,plan5
   logical first,xpol
   include 'fftw3.f'
+  common/cacb/ca,cb
   equivalence (rfilt,cfilt)
   data first/.true./,npatience/1/,nfast0/0/
   data halfpulse/114.97547150,36.57879257,-20.93789101,                &

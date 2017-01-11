@@ -74,7 +74,6 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
      ib=nint(fb/df) + 16385
      ia=max(51,ia)
      ib=min(32768-51,ib)
-     write(66,*) 'A',nqd,ia,ib
 
      km=0
      nkm=1
@@ -209,7 +208,6 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                     call flush(13)
                     go to 999
                  endif
-                 write(66,*) 'B',nqd,f00
                  call timer('decode1a',0)
                  ifreq=i
                  ikHz=nint(freq+0.5*(nfa+nfb)-foffset)-nfshift
@@ -220,7 +218,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                       a,dt,pol,nkv,nhist,nsum,nsave,qual,decoded)
                  call timer('decode1a',1)
                  if(nqd.eq.2) then
-                    write(66,*) 'C  call QRA64 decoder here...'
+                    call qra64b(nutc,ikhz)
                     cycle
                  endif
 

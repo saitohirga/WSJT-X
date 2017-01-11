@@ -22,7 +22,8 @@ get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 
 if (Fortran_COMPILER_NAME MATCHES "gfortran.*")
   # gfortran
-  set (CMAKE_Fortran_FLAGS_RELEASE "-funroll-all-loops -fno-f2c -O3")
+  #  set (CMAKE_Fortran_FLAGS_RELEASE "-funroll-all-loops -fno-f2c -O3")
+  set (CMAKE_Fortran_FLAGS_RELEASE "-O2 -fbounds-check")
   set (CMAKE_Fortran_FLAGS_DEBUG   "-fno-f2c -O0 -g")
 elseif (Fortran_COMPILER_NAME MATCHES "ifort.*")
   # ifort (untested)
@@ -110,6 +111,7 @@ set (FSRCS
   packtext.f90
   pctile.f90
   pfxdump.f90
+  qra64b.f90
   recvpkt.f90
   rfile3a.f90
   s3avg.f90
