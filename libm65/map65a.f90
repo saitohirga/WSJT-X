@@ -348,7 +348,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
 1013    format('<QuickDecodeDone>',2i4)
         flush(6)
      endif
-     if(nagain.eq.1) go to 999
+     if(nagain.eq.1 .and. nqd.eq.1) go to 999
   enddo
 
 !  Trim the list and produce a sorted index and sizes of groups.
