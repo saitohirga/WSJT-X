@@ -2,7 +2,9 @@ subroutine freqcal(id2,k,nkhz,noffset,ntol,line)
 
   parameter (NZ=30*12000,NFFT=55296,NH=NFFT/2)
   integer*2 id2(0:NZ-1)
+  complex sp,sn
   real x(0:NFFT-1)
+  real xi(0:NFFT-1)
   real w(0:NFFT-1)                      !Window function
   real s(0:NH)
   character line*80,cflag*1
@@ -10,13 +12,15 @@ subroutine freqcal(id2,k,nkhz,noffset,ntol,line)
   complex cx(0:NH)
   equivalence (x,cx)
   data n/0/,k0/9999999/,first/.true./
-  save n,k0,w,first
+  save n,k0,w,first,pi,fs,xi
 
   if(first) then
      pi=4.0*atan(1.0)
+     fs=12000.0
      do i=0,NFFT-1
         ww=sin(i*pi/NFFT)
         w(i)=ww*ww/NFFT
+        xi(i)=2.0*pi*i
      enddo
      first=.false.
   endif
@@ -27,7 +31,7 @@ subroutine freqcal(id2,k,nkhz,noffset,ntol,line)
      
   x=w*id2(k-NFFT:k-1)              !Apply window
   call four2a(x,NFFT,1,-1,0)       !Compute spectrum, r2c
-  df=12000.0/NFFT
+  df=fs/NFFT
   if (ntol.gt.noffset) then
      ia=0
      ib=nint((noffset*2)/df)
@@ -47,15 +51,20 @@ subroutine freqcal(id2,k,nkhz,noffset,ntol,line)
   
   call peakup(s(ipk-1),s(ipk),s(ipk+1),dx)
   fpeak=df * (ipk+dx)
-  sum=0.
+  ap=(fpeak/fs+1.0/(2.0*NFFT))
+  an=(fpeak/fs-1.0/(2.0*NFFT))
+  sp=sum(id2((k-NFFT):k-1)*cmplx(cos(xi*ap),-sin(xi*ap)))
+  sn=sum(id2((k-NFFT):k-1)*cmplx(cos(xi*an),-sin(xi*an)))
+  fpeak=fpeak+fs*(abs(sp)-abs(sn))/(abs(sp)+abs(sn))/(2*NFFT)
+  xsum=0.
   nsum=0
   do i=ia,ib
      if(abs(i-ipk).gt.10) then
-        sum=sum+s(i)
+        xsum=xsum+s(i)
         nsum=nsum+1
      endif
   enddo
-  ave=sum/nsum
+  ave=xsum/nsum
   snr=db(smax/ave)
   pave=db(ave) + 8.0
   cflag=' '
