@@ -1088,7 +1088,7 @@ void MainWindow::fixStop()
     m_hsymStop=179;
     if(m_config.decode_at_52s()) m_hsymStop=186;
   } else if (m_mode=="FreqCal"){
-    m_hsymStop=96;
+    m_hsymStop=((int(m_TRperiod/0.288))/8)*8;
   }
 }
 
@@ -1143,7 +1143,7 @@ void MainWindow::dataSink(qint64 frames)
   if (m_mode == "FreqCal"
       // only calculate after 1st chunk, also skip chunk where rig
       // changed frequency
-      && !(m_ihsym % 8) && m_ihsym > 8 && m_ihsym <= 96) {
+      && !(m_ihsym % 8) && m_ihsym > 8 && m_ihsym <= m_hsymStop) {
     int RxFreq=ui->RxFreqSpinBox->value ();
     int nkhz=(m_freqNominal+RxFreq)/1000;
     freqcal_(&dec_data.d2[0],&k,&nkhz,&RxFreq,&m_Ftol,&line[0],80);
@@ -1164,8 +1164,8 @@ void MainWindow::dataSink(qint64 frames)
                                    , tr ("Cannot open \"%1\" for append: %2")
                                    .arg (f.fileName ()).arg (f.errorString ()));
     }
-    if(m_ihsym==96) {
-      on_actionFrequency_calibration_triggered();
+    if(m_ihsym==m_hsymStop and m_bFreqCalStep) {
+      freqCalStep();
     }
   }
 
@@ -1625,6 +1625,9 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         on_actionDecode_remaining_files_in_directory_triggered();
         return;
       }
+      break;
+    case Qt::Key_F10:
+      if(e->modifiers() & Qt::ControlModifier) freqCalStep();
       break;
     case Qt::Key_F11:
       n=11;
@@ -3109,6 +3112,7 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
+
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
       if(!m_bVHFwarned) vhfWarning();
     } else {
@@ -4225,7 +4229,6 @@ void MainWindow::on_actionJT4_triggered()
     ui->sbSubmode->setValue(m_nSubMode);
   } else {
     ui->sbSubmode->setValue(0);
-    ui->sbTR->setValue(0);
   }
   statusChanged();
 }
@@ -4316,7 +4319,6 @@ void MainWindow::on_actionJT9_JT65_triggered()
   m_bFast9=false;
   fast_config(false);
   ui->sbSubmode->setValue(0);
-  ui->sbTR->setValue(0);
   ui->label_6->setText("Band Activity");
   ui->label_7->setText("Rx Frequency");
   statusChanged();
@@ -4366,7 +4368,6 @@ void MainWindow::on_actionJT65_triggered()
     ui->label_7->setText("Average Decodes");
   } else {
     ui->sbSubmode->setValue(0);
-    ui->sbTR->setValue(0);
     ui->label_6->setText("Band Activity");
     ui->label_7->setText("Rx Frequency");
   }
@@ -4547,19 +4548,20 @@ void MainWindow::on_actionEcho_triggered()
 void MainWindow::on_actionFreqCal_triggered()
 {
   on_actionJT9_triggered();
-  displayWidgets(nWidgets("001100000000000000000000"));
+  displayWidgets(nWidgets("001101000000000000000000"));
   m_mode="FreqCal";
   ui->actionFreqCal->setChecked(true);
   switch_mode(Modes::FreqCal);
   m_wideGraph->setMode(m_mode);
   statusChanged();
-  m_TRperiod=30;
+  ui->sbTR->setValue(14);
+  m_TRperiod=ui->sbTR->cleanText().toInt();
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
   m_nsps=6912;                        //For symspec only
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
-  m_hsymStop=96;
+  m_hsymStop=((int(m_TRperiod/0.288))/8)*8;
   m_frequency_list_fcal_iter = m_config.frequencies ()->begin ();
   ui->RxFreqSpinBox->setValue(1500);
   setup_status_bar (true);
@@ -4633,7 +4635,6 @@ void MainWindow::WSPR_config(bool b)
 void MainWindow::fast_config(bool b)
 {
   m_bFastMode=b;
-//  ui->ClrAvgButton->setVisible(!b);
   ui->TxFreqSpinBox->setEnabled(!b);
   ui->sbTR->setVisible(b);
   if(b and (m_bFast9 or m_mode=="MSK144" or m_mode=="ISCAT")) {
@@ -5491,9 +5492,10 @@ void MainWindow::on_sbTR_valueChanged(int index)
 {
   m_TRindex=index;
 //  if(!m_bFastMode and n>m_nSubMode) m_MinW=m_nSubMode;
-  if(m_bFastMode) {
+  if(m_bFastMode or m_mode=="FreqCal") {
     m_TRperiod=ui->sbTR->cleanText().toInt();
-    if(m_TRperiod<5 or m_TRperiod>30) m_TRperiod=30;
+    if(m_TRperiod<5 or m_TRperiod>30) m_TRperiod=15;
+    m_TRindex=ui->sbTR->value();
     m_TRperiodFast=m_TRperiod;
     progressBar.setMaximum(m_TRperiod);
   }
@@ -6104,26 +6106,24 @@ void MainWindow::on_actionErase_reference_spectrum_triggered()
   m_bClearRefSpec=true;
 }
 
-void MainWindow::on_actionFrequency_calibration_triggered()
+void MainWindow::on_actionFrequency_calibration_triggered(bool b)
 {
-  // pick the next time signal
-  if (m_frequency_list_fcal_iter != m_config.frequencies ()->end ())
-    {
-      while (++m_frequency_list_fcal_iter != m_config.frequencies () ->end ()
-             && m_frequency_list_fcal_iter->mode_ == Modes::NULL_MODE)
-        {
-        }
-      if (m_frequency_list_fcal_iter == m_config.frequencies ()->end ())
-        {
-          // loop back to beginning
-          m_frequency_list_fcal_iter = m_config.frequencies ()->begin ();
-        }
-    }
+//  m_bFreqCalStep=ui->actionFrequency_calibration->isChecked();
+  m_bFreqCalStep=b;
+}
+
+void MainWindow::freqCalStep()
+{
+  FrequencyList::const_iterator flist=m_frequency_list_fcal_iter;
+  if (++flist == m_config.frequencies ()->end ()) {
+    m_frequency_list_fcal_iter = m_config.frequencies ()->begin ();
+  } else {
+   ++m_frequency_list_fcal_iter;
+ }
   // allow for empty list
-  if (m_frequency_list_fcal_iter != m_config.frequencies ()->end ())
-    {
-      setRig (m_frequency_list_fcal_iter->frequency_ - ui->RxFreqSpinBox->value ());
-    }
+  if (m_frequency_list_fcal_iter != m_config.frequencies ()->end ()) {
+    setRig (m_frequency_list_fcal_iter->frequency_ - ui->RxFreqSpinBox->value ());
+  }
 }
 
 void MainWindow::on_sbCQTxFreq_valueChanged(int)
