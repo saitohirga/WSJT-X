@@ -1164,7 +1164,7 @@ void MainWindow::dataSink(qint64 frames)
                                    , tr ("Cannot open \"%1\" for append: %2")
                                    .arg (f.fileName ()).arg (f.errorString ()));
     }
-    if(m_ihsym==m_hsymStop and m_bFreqCalStep) {
+    if(m_ihsym==m_hsymStop && ui->actionFrequency_calibration->isChecked()) {
       freqCalStep();
     }
   }
@@ -4813,10 +4813,18 @@ void MainWindow::band_changed (Frequency f)
     m_bandEdited = false;
     psk_Reporter->sendReport();      // Upload any queued spots before changing band
     if (!m_transmitting) monitor (true);
-    float r=m_freqNominal/(f+0.0001);
-    if(r<0.9 or r>1.1) m_bVHFwarned=false;
-    setRig (f);
-    setXIT (ui->TxFreqSpinBox->value ());
+    if ("FreqCal" == m_mode)
+      {
+        m_frequency_list_fcal_iter = m_config.frequencies ()->find (f);
+        setRig (f - ui->RxFreqSpinBox->value ());
+      }
+    else
+      {
+        float r=m_freqNominal/(f+0.0001);
+        if(r<0.9 or r>1.1) m_bVHFwarned=false;
+        setRig (f);
+        setXIT (ui->TxFreqSpinBox->value ());
+      }
     if(monitor_off) monitor(false);
   }
 }
@@ -6106,20 +6114,12 @@ void MainWindow::on_actionErase_reference_spectrum_triggered()
   m_bClearRefSpec=true;
 }
 
-void MainWindow::on_actionFrequency_calibration_triggered(bool b)
-{
-//  m_bFreqCalStep=ui->actionFrequency_calibration->isChecked();
-  m_bFreqCalStep=b;
-}
-
 void MainWindow::freqCalStep()
 {
-  FrequencyList::const_iterator flist=m_frequency_list_fcal_iter;
-  if (++flist == m_config.frequencies ()->end ()) {
+  if (++m_frequency_list_fcal_iter == m_config.frequencies ()->end ()) {
     m_frequency_list_fcal_iter = m_config.frequencies ()->begin ();
-  } else {
-   ++m_frequency_list_fcal_iter;
- }
+  }
+
   // allow for empty list
   if (m_frequency_list_fcal_iter != m_config.frequencies ()->end ()) {
     setRig (m_frequency_list_fcal_iter->frequency_ - ui->RxFreqSpinBox->value ());

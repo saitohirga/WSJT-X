@@ -250,7 +250,6 @@ private slots:
   void fast_decode_done();
   void on_actionMeasure_reference_spectrum_triggered();
   void on_actionErase_reference_spectrum_triggered();
-  void on_actionFrequency_calibration_triggered(bool b);
   void on_sbTR_valueChanged(int index);
   void on_sbFtol_valueChanged(int index);
   void on_cbFast9_clicked(bool b);
@@ -526,7 +525,6 @@ private:
   bool m_tx_watchdog;           // true when watchdog triggered
   bool m_block_pwr_tooltip;
   bool m_PwrBandSetOK;
-  bool m_bFreqCalStep;
   bool m_bVHFwarned;
   Frequency m_lastMonitoredFrequency;
   double m_toneSpacing;

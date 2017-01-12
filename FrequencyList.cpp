@@ -310,7 +310,9 @@ bool FrequencyList::filterAcceptsRow (int source_row, QModelIndex const& /* pare
   if (m_->mode_filter_ != Modes::NULL_MODE)
     {
       auto const& item = m_->frequency_list_[source_row];
-      result = item.mode_ == Modes::NULL_MODE || m_->mode_filter_ == item.mode_;
+      // we pass NULL_MODE mode rows unless filtering for FreqCal mode
+      result = (Modes::NULL_MODE == item.mode_ && m_->mode_filter_ != Modes::FreqCal)
+        || m_->mode_filter_ == item.mode_;
     }
   return result;
 }
@@ -610,14 +612,27 @@ auto FrequencyList::const_iterator::operator ++ () -> const_iterator&
   return *this;
 }
 
-auto FrequencyList::begin () const -> FrequencyList::const_iterator
+auto FrequencyList::begin () const -> const_iterator
 {
   return const_iterator (this, 0);
 }
 
-auto FrequencyList::end () const -> FrequencyList::const_iterator
+auto FrequencyList::end () const -> const_iterator
 {
   return const_iterator (this, rowCount ());
+}
+
+auto FrequencyList::find (Frequency f) const -> const_iterator
+{
+  int row {0};
+  for (; row < rowCount (); ++row)
+    {
+      if (m_->frequency_list_[mapToSource (index (row, 0)).row ()].frequency_ == f)
+        {
+          break;
+        }
+    }
+  return const_iterator (this, row);
 }
 
 auto FrequencyList::filtered_bands () const -> BandSet

@@ -91,6 +91,9 @@ public:
   const_iterator begin () const;
   const_iterator end () const;
 
+  // Find a row with a given frequency
+  const_iterator find (Frequency) const;
+
   // Bands of the frequencies
   BandSet all_bands (Mode = Modes::NULL_MODE) const;
   BandSet filtered_bands () const;
