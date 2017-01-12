@@ -650,7 +650,7 @@ QLabel[oob=&quot;true&quot;] {
                  <item row="9" column="0">
                   <widget class="LettersSpinBox" name="sbTR">
                    <property name="toolTip">
-                    <string>Tx/Rx sequence length</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tx/Rx or Frequency calibration sequence length&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
@@ -2969,11 +2969,11 @@ QPushButton[state=&quot;ok&quot;] {
    </property>
   </action>
   <action name="actionFrequency_calibration">
-   <property name="text">
-    <string>Frequency calibration</string>
+   <property name="checkable">
+    <bool>true</bool>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+F10</string>
+   <property name="text">
+    <string>Execute frequency calibration cycle</string>
    </property>
   </action>
  </widget>
