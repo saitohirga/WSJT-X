@@ -29,10 +29,8 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
   save
 
 ! For now:
-  nf1=200
-  nf2=2200
-!  nfqso=808
-!  ntol=1000
+  nf1=-3000
+  nf2=3000
   mode64=1
   minsync=-1
   ndepth=3
@@ -71,8 +69,10 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
   naptype=maxaptype
   npts2=NFFT2
 
-!1 read(67,end=999) nutc,cx,cy
+!###  
   c00(0:NFFT2-1)=conjg(cy)
+!###
+
   call sync64(c00,nf1,nf2,nfqso,ntol,mode64,emedelay,dtx,f0,jpk0,sync,  &
        sync2,width)
 
@@ -161,18 +161,16 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
 !  write(*,1011) nutc/100,nsnr,dtx,nfreq,decoded
 !1011 format(i4.4,i4,f5.1,i5,1x,2x,1x,a22)
 
-  nkhz=108
   npol=0
   cp='H'
-  nsync=sync
   ntxpol=0
   if(irc.ge.0) then
-     write(*,1010) nkHz,nfreq,npol,nutc/100,dtx,nsnr,decoded,irc,ntxpol,cp
+     write(*,1010) ikHz,nfreq,npol,nutc/100,dtx,nsnr,decoded,irc,ntxpol,cp
 !1010 format('!',i3,i5,i4,i7.6,f5.1,i4,2x,a22,i2,i5,i5,1x,a1)
 !1010 format(i3,i5,i4,i5.4,f5.1,i5,2x,a22,i2,i5,1x,a1)
 1010 format('!',i3,i5,i4,i6.4,f5.1,i5,2x,a22,i2,i5,1x,a1)
   else
-     write(*,1010) nkHz,nfreq,npol,nutc/100,dtx,nsync
+     write(*,1010) ikHz,nfreq,npol,nutc/100,dtx,nsnr
   endif
 
 !  goto 1

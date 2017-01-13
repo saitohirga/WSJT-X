@@ -1,4 +1,4 @@
-subroutine qra64b(nutc,nqd,ikhz,idf,ntol,xpol,mycall_12,hiscall_12,   &
+subroutine qra64b(nutc,nqd,ikhz,mousedf,ntol,xpol,mycall_12,hiscall_12,   &
      hisgrid_6)
 
   parameter (NFFT1=5376000)              !56*96000
@@ -11,7 +11,7 @@ subroutine qra64b(nutc,nqd,ikhz,idf,ntol,xpol,mycall_12,hiscall_12,   &
   common/cacb/ca,cb
   
   df=96000.0/NFFT1
-  k0=(ikhz-75.7)*1000.0/df
+  k0=(ikhz-75.74)*1000.0/df
   nh=nfft2/2
   fac=1.0/NFFT2
   cx(0:nh)=ca(k0:k0+nh)
@@ -26,7 +26,7 @@ subroutine qra64b(nutc,nqd,ikhz,idf,ntol,xpol,mycall_12,hiscall_12,   &
   call four2a(cy,NFFT2,1,-1,1)
 
 !  write(67) nutc,cx,cy
-  call qra64c(cx,cy,nutc,nqd,ikhz,idf,ntol,xplo,mycall_12,    &
+  call qra64c(cx,cy,nutc,nqd,ikhz,mousedf,ntol,xplo,mycall_12,    &
        hiscall_12,hisgrid_6)
 
   return

@@ -190,7 +190,10 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
            if(nqd.eq.1 .and. ntol.le.100) thresh1=0.
            noffset=0
            if(nqd.ge.1) noffset=nint(1000.0*(freq-fqso)-mousedf)
-           if(nqd.eq.2) sync1=thresh1+1.0
+           if(nqd.eq.2) then
+              sync1=thresh1+1.0
+              noffset=0
+           endif
            if(sync1.gt.thresh1 .and. abs(noffset).le.ntol) then
 !  Keep only the best candidate within ftol.
 !  (Am I deleting any good decodes by doing this?)
