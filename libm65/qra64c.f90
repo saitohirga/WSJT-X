@@ -105,8 +105,10 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
         if(b90.gt.230.0) cycle
         if(b90.lt.0.15*width) exit
         s3(1:LL*NN)=s3a(1:LL*NN)
+        call timer('qra64_de',0)
         call qra64_dec(s3,nc1,nc2,ng2,naptype,0,nSubmode,b90,      &
              nFadingModel,dat4,snr2,irc)
+        call timer('qra64_de',1)
         if(irc.eq.0) go to 10
         if(irc.gt.0) call badmsg(irc,dat4,nc1,nc2,ng2)
         iirc=max(0,min(irc,11))

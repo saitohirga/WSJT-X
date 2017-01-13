@@ -45,19 +45,13 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,emedelay,dtx,f0,jpk,sync,  &
   nh3=nfft3/2
   df3=6000.0/nfft3
   
-!  fa=max(nf1,nfqso-ntol)
-!  fb=min(nf2,nfqso+ntol)
-  fa=nfqso-ntol
-  fb=nfqso+ntol
-  iaa=max(0,nint(fa/df3)+nh3)
-  ibb=min(NSPC-1,nint(fb/df3)+nh3)
-  write(74,3401) nf1,nf2,nfqso,ntol,iaa,ibb,fa,fb
-3401 format(6i6,2f8.1)
-  flush(74)
+  faa=nfqso-ntol
+  fbb=nfqso+ntol
+  iaa=max(0,nint(faa/df3)+nh3)
+  ibb=min(NSPC-1,nint(fbb/df3)+nh3)
 
-  maxtol=max(ntol,500)
-  fa=max(nf1,nfqso-maxtol)
-  fb=min(nf2,nfqso+maxtol)
+  fa=-3000.0
+  fb=3000.0
   ia=max(0,nint(fa/df3)+nh3)
   ib=min(NSPC-1,nint(fb/df3)+nh3)
 
@@ -125,7 +119,7 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,emedelay,dtx,f0,jpk,sync,  &
      call timer('sync64_2',1)
   enddo
 
-  s0a=s0a+2.0
+!  s0a=s0a+2.0
 !  write(17) ia,ib,s0a(ia:ib)                !Save data for red curve
 !  close(17)
 
@@ -160,13 +154,6 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,emedelay,dtx,f0,jpk,sync,  &
 1110 format(3f10.3)
   enddo
   flush(76)
-
-  !###
-  write(75,3301) ntol,maxtol,nfqso,fa,fb,iaa*df3,ibb*df3,dtx,f0,sync
-3301 format(3i6,7f8.1)
-  flush(75)
-!###
-  
 
   return
 end subroutine sync64
