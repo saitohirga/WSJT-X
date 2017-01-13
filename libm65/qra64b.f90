@@ -9,7 +9,8 @@ subroutine qra64b(nutc,nqd,ikhz,mousedf,ntol,xpol,mycall_12,hiscall_12,   &
   character*12 mycall_12,hiscall_12
   character*6 hisgrid_6
   common/cacb/ca,cb
-  
+
+  open(17,file='red.dat',status='unknown')
   df=96000.0/NFFT1
   k0=(ikhz-75.74)*1000.0/df
   nh=nfft2/2
@@ -28,6 +29,7 @@ subroutine qra64b(nutc,nqd,ikhz,mousedf,ntol,xpol,mycall_12,hiscall_12,   &
 !  write(67) nutc,cx,cy
   call qra64c(cx,cy,nutc,nqd,ikhz,mousedf,ntol,xplo,mycall_12,    &
        hiscall_12,hisgrid_6)
-
+  close(17)
+  
   return
 end subroutine qra64b

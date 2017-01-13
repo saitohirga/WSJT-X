@@ -1,6 +1,8 @@
 #include "plotter.h"
 #include <math.h>
 #include <QDebug>
+#include <fstream>
+#include <iostream>
 
 #define MAX_SCREENSIZE 2048
 
@@ -127,6 +129,27 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
     UTCstr();
     painter2.drawText(5,10,m_sutc);
   }
+
+  if(m_line==63) {
+    std::ifstream f;
+    f.open("./red.dat");
+    if(f) {
+      int x;
+      float freq,sync;
+//      float df = 0.001*m_fSample/32768.0;
+      QPen pen0(Qt::red, 3);
+      painter2.setPen(pen0);
+      for(int i=0; i<50; i++) {
+        f >> freq >> sync;
+//        x = (freq - m_ZoomStartFreq)/df;
+        x=500;
+//        qDebug() << "a" << m_line << freq << sync << x;
+        painter2.drawLine(x,15,x,30);
+      }
+    }
+  }
+
+
   m_paintAllZoom=false;
   x00=x0;
 

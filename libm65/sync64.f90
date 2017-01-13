@@ -87,7 +87,6 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,emedelay,dtx,f0,jpk,sync,  &
      s3=0.
      s0b=0.
      do i=ia,ib
-        freq=i*df3
         s1(i)=real(c1(i))**2 + aimag(c1(i))**2
         s2(i)=real(c2(i))**2 + aimag(c2(i))**2
         s3(i)=real(c3(i))**2 + aimag(c3(i))**2
@@ -119,10 +118,6 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,emedelay,dtx,f0,jpk,sync,  &
      call timer('sync64_2',1)
   enddo
 
-!  s0a=s0a+2.0
-!  write(17) ia,ib,s0a(ia:ib)                !Save data for red curve
-!  close(17)
-
   nskip=50
   call lorentzian(s0a(ia+nskip:ib-nskip),iz-2*nskip,a)
   f0a=(a(3)+ia+49)*df3
@@ -140,8 +135,10 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,emedelay,dtx,f0,jpk,sync,  &
   rms2=sqrt(sq/40.0)
   sync2=10.0*log10(a(2)/rms2)
 
+  slimit=2.0
+  rewind 17
   rewind 76
-  do i=1,iz-2*nskip
+  do i=2,iz-2*nskip-1,3
      x=i
      z=(x-a(3))/(0.5*a(4))
      yfit=a(1)
@@ -150,9 +147,13 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,emedelay,dtx,f0,jpk,sync,  &
         yfit=a(1) + a(2)*(1.0/d - 0.1)
      endif
      j=i+ia+49
-     write(76,1110) j*df3-3000.0,s0a(j),yfit
+     freq=j*df3-3000.0
+     ss=(s0a(j-1)+s0a(j)+s0a(j+1))/3.0
+     if(ss.gt.slimit) write(17,1110) freq,ss
+     write(76,1110) freq,ss,yfit
 1110 format(3f10.3)
   enddo
+  flush(17)
   flush(76)
 
   return
