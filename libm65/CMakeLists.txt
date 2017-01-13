@@ -60,6 +60,8 @@ set (FSRCS
   astro.f90
   astro0.f90
   astrosub.f90
+  averms.f90
+  badmsg.f90
   ccf2.f90
   ccf65.f90
   cgen65.f90
@@ -79,6 +81,7 @@ set (FSRCS
   encode65.f90
   extract.f90
   fchisq.f90
+  fchisq0.f90
   fil6521.f90
   filbig.f90
   fmtmsg.f90
@@ -100,6 +103,7 @@ set (FSRCS
   iqfix.f90
   jt65code.f90
   k2grid.f90
+  lorentzian.f90
   map65a.f90
   moon2.f90
   moondop.f90
@@ -107,24 +111,31 @@ set (FSRCS
   noisegen.f90
   packjt.f90
   pctile.f90
+  pctile2.f90
   pfxdump.f90
   qra64b.f90
+  qra64c.f90
   recvpkt.f90
   rfile3a.f90
   s3avg.f90
   sec_midn.f90
   set.f90
   setup65.f90
+  shell.f90
   sleep_msec.f90
+  smo.f90
   sort.f90
+  spec64.f90
   sun.f90
   symspec.f90
+  sync64.f90
   timer.f90
   timf2.f90
   tm2.f90
   toxyz.f90
   trimlist.f90
   twkfreq.f90
+  twkfreq2.f90
   zplot.f90
 
   f77_wisdom.f
@@ -141,6 +152,15 @@ set (CSRCS
   tmoonsub.c
   usleep.c
   wrapkarn.c
+
+  ../../wsjtx/lib/qra/qra64/qra64.c
+  ../../wsjtx/lib/qra/qra64/qra64_subs.c
+  ../../wsjtx/lib/qra/qracodes/npfwht.c
+  ../../wsjtx/lib/qra/qracodes/pdmath.c 
+  ../../wsjtx/lib/qra/qracodes/qra12_63_64_irr_b.c
+  ../../wsjtx/lib/qra/qracodes/qra13_64_64_irr_e.c
+  ../../wsjtx/lib/qra/qracodes/qracodes.c
+  ../../wsjtx/lib/qra/qracodes/normrnd.c
 )
 
 if (WIN32)

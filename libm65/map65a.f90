@@ -33,7 +33,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   data nfile/0/,nutc0/-999/,nid/0/,ip000/1/,ip001/1/,mousefqso0/-999/
   save
 
-  bqra64=nfast.ge.100
+  bqra64=nfast.ge.100  
   nfast=mod(nfast,100)
   mcall3a=mcall3b
   mousefqso0=mousefqso
@@ -218,7 +218,8 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                       a,dt,pol,nkv,nhist,nsum,nsave,qual,decoded)
                  call timer('decode1a',1)
                  if(nqd.eq.2) then
-                    call qra64b(nutc,ikhz)
+                    call qra64b(nutc,nqd,ikhz,mousedf,ntol,xpol,mycall,   &
+                         hiscall,hisgrid)
                     cycle
                  endif
 
@@ -348,6 +349,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
 1013    format('<QuickDecodeDone>',2i4)
         flush(6)
      endif
+     if(nqd.eq.2) exit                    !### TESTING: do only QRA64
      if(nagain.eq.1 .and. nqd.eq.1) go to 999
   enddo
 
