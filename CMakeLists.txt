@@ -107,26 +107,6 @@ set_property (DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS_RELEASE QT_NO_WARNIN
 # build the subdirectories
 add_subdirectory (libm65)
 
-# fetch kvasd
-
-if (APPLE)
-  set (kvasd_NAME http://svn.berlios.de/wsvn/wsjt/trunk/KVASD_gfortran_Mac${CMAKE_EXECUTABLE_SUFFIX})
-else ()
-  set (kvasd_NAME http://www.physics.princeton.edu/pulsar/K1JT/kvasd${CMAKE_EXECUTABLE_SUFFIX})
-endif ()
-file (
-  DOWNLOAD ${kvasd_NAME} contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX}
-  STATUS kvasd_STATUS
-  LOG kvasd_LOG
-  SHOW_PROGRESS
-  )
-message (${kvasd_LOG})
-list (GET kvasd_STATUS 0 kvasd_RC)
-if (!kvasd_RC)
-  message (FATAL_ERROR "${kvasd_STATUS}")
-endif (!kvasd_RC)
-add_custom_target (kvasd DEPENDS contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX})
-
 # UI generation
 qt5_wrap_ui (GENUISRCS ${UISRCS})
 
@@ -137,7 +117,6 @@ if (WIN32)
   target_link_libraries (map65)
   set_target_properties (map65 PROPERTIES LINK_FLAGS_RELEASE "${LINKER_FLAGS_RELEASE} -mwindows")
 endif (WIN32)
-add_dependencies (map65 kvasd)
 qt5_use_modules (map65 Widgets Multimedia OpenGL)
 
 
@@ -156,18 +135,12 @@ install (FILES
   DESTINATION bin
   )
 
-install (
-  PROGRAMS ${CMAKE_BINARY_DIR}/contrib/kvasd${CMAKE_EXECUTABLE_SUFFIX}
-  DESTINATION bin
-)
-
 if (WIN32)
   install (
     FILES ${fftw3f_LIBRARIES} ${usb_RUNTIME} 
     DESTINATION bin COMPONENT Runtime
     )
 endif (WIN32)
-
 
 # a custom target that is always built
 ADD_CUSTOM_TARGET (revisiontag ALL)
