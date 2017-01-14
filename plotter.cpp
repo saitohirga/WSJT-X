@@ -36,6 +36,7 @@ CPlotter::CPlotter(QWidget *parent) :                  //CPlotter Constructor
   m_fSample = 96000;
   m_paintAllZoom = false;
   m_TxDF=0;
+  m_bDecodeFinished=false;
 }
 
 CPlotter::~CPlotter() { }                                      // Destructor
@@ -130,12 +131,12 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
     painter2.drawText(5,10,m_sutc);
   }
 
-  if(m_line==63) {
+//  if(m_line==63) {
+  if(m_bDecodeFinished) {
     std::ifstream f;
     f.open("./red.dat");
     if(f) {
       int x,y;
-      int y0=30;
       float freq,sync;
       QPen pen0(Qt::red,1);
       painter2.setPen(pen0);
@@ -145,12 +146,12 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
         x=(freq - m_ZoomStartFreq)/df;
         y=(sync-1.5)*2.0;
         if(y>15.0) y=15.0;
-        if(x>=0 and x<=w) painter2.drawLine(x,y0-y,x,y0);
+        if(x>=0 and x<=w) painter2.drawLine(x,0,x,y);
       }
       f.close();
     }
+    m_bDecodeFinished=false;
   }
-
 
   m_paintAllZoom=false;
   x00=x0;
@@ -159,6 +160,12 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
   QRect source2(0,0,w,h);
   painter.drawPixmap(target2,m_ZoomWaterfallPixmap,source2);
   m_paintEventBusy=false;
+}
+
+void CPlotter::DecodeFinished()
+{
+  m_bDecodeFinished=true;
+  update();                              //trigger a new paintEvent
 }
 
 void CPlotter::draw(float s[], int i0, float splot[])                 //draw()

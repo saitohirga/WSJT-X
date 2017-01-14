@@ -39,6 +39,7 @@ public:
   void   setFsample(int n);
   void   setMode65(int n);
   void   setPeriod(int n);
+  void   setDecodeFinished();
   double fGreen();
   void   rx570();
   void   tx570();

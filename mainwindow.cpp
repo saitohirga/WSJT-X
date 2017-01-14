@@ -1330,6 +1330,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       QString t2;
       t2.sprintf("Avg: %d",m_nsum);
       lab6->setText(t2);
+      if(m_bQRA64) g_pWideGraph->setDecodeFinished();
     }
     if(t.indexOf("<DecodeFinished>") >= 0) {
       if(m_widebandDecode) {

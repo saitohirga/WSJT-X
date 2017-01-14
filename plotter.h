@@ -26,6 +26,7 @@ public:
   QSize minimumSizeHint() const;
   QSize sizeHint() const;
   QColor  m_ColorTbl[256];
+  bool    m_bDecodeFinished;
   int     m_plotZero;
   int     m_plotGain;
   float   m_fSpan;
@@ -58,6 +59,7 @@ public:
   void setFQSO(int n, bool bf);
   void setFcal(int n);
   void setNkhz(int n);
+  void DecodeFinished();
   void DrawOverlay();
   int  fQSO();
   int  DF();

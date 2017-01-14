@@ -247,6 +247,10 @@ void WideGraph::setFcal(int n)
   ui->widePlot->setFcal(n);
 }
 
+void WideGraph::setDecodeFinished()
+{
+  ui->widePlot->DecodeFinished();
+}
 
 int WideGraph::DF()
 {

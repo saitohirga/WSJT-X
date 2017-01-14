@@ -349,7 +349,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
      endif
      
      if(ndphi.eq.1 .and.iloop.eq.12) call getdphi(qphi)
-     if(nqd.eq.1) then
+     if(nqd.ge.1) then
         write(*,1013) nsum,nsave
 1013    format('<QuickDecodeDone>',2i4)
         flush(6)
