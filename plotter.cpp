@@ -721,33 +721,6 @@ void CPlotter::setPalette(QString palette)                      //setPalette()
     }
     m_ColorTbl[255].setRgb(255,255,100);
   }
-
-  if(palette=="Blue") {
-    FILE* fp=fopen("blue.dat","r");
-    int n,r,g,b;
-    float xr,xg,xb;
-    for(int i=0; i<256; i++) {
-//      fscanf(fp,"%d%f%f%f",&n,&xr,&xg,&xb);
-      r=255.0*xr + 0.5;
-      g=255.0*xg + 0.5;
-      b=255.0*xb + 0.5;
-      m_ColorTbl[i].setRgb(r,g,b);
-    }
-  }
-
-  if(palette=="AFMHot") {
-    FILE* fp=fopen("afmhot.dat","r");
-    int n,r,g,b;
-    float xr,xg,xb;
-    for(int i=0; i<256; i++) {
-//      fscanf(fp,"%d%f%f%f",&n,&xr,&xg,&xb);
-      r=255.0*xr + 0.5;
-      g=255.0*xg + 0.5;
-      b=255.0*xb + 0.5;
-      m_ColorTbl[i].setRgb(r,g,b);
-    }
-  }
-
 }
 
 void CPlotter::setFsample(int n)

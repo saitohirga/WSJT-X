@@ -6,7 +6,7 @@ int ptt_(int *nport, int *ntx, int *iptt)
   static HANDLE hFile;
   static int open=0;
   char s[10];
-  int i3,i4,i5,i6,i9,i00;
+  int i3=0,i4=0,i5=0,i6=0,i9=0,i00=0;
 
   if(*nport==0) {
     *iptt=*ntx;
@@ -38,5 +38,6 @@ int ptt_(int *nport, int *ntx, int *iptt)
     *iptt=0;
     open=0;
   }
+  if((i00+i3+i4+i5+i6+i9)==-99) return -1;  //Silence compiler warning
   return 0;
 }

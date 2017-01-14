@@ -1122,8 +1122,6 @@ p, li { white-space: pre-wrap; }
      </property>
      <addaction name="actionLinrad"/>
      <addaction name="actionCuteSDR"/>
-     <addaction name="actionAFMHot"/>
-     <addaction name="actionBlue"/>
     </widget>
     <addaction name="actionAstro_Data"/>
     <addaction name="actionBand_Map"/>

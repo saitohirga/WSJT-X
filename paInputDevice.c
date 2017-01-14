@@ -5,7 +5,7 @@
 void paInputDevice(int id, char* hostAPI_DeviceName, int* minChan, 
 		   int* maxChan, int* minSpeed, int* maxSpeed)
 {
-  int i, j, k;
+  int i;
   char pa_device_name[128];     
   char pa_device_hostapi[128]; 
   double pa_device_max_speed;
@@ -16,7 +16,7 @@ void paInputDevice(int id, char* hostAPI_DeviceName, int* minChan,
   int pa_device_min_channels;
   char p2[50];
   char *p,*p1;
-  static int iret, numDevices, valid_dev_cnt;
+  static int iret, valid_dev_cnt;
 
   iret=pa_get_device_info (id,
                           &pa_device_name,
