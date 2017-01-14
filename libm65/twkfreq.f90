@@ -1,28 +1,25 @@
-subroutine twkfreq(c4aa,c4bb,n5,a)
+subroutine twkfreq(c3,c4,npts,fsample,a)
 
-  complex c4aa(n5)
-  complex c4bb(n5)
-  real a(5)
+  complex c3(npts)
+  complex c4(npts)
   complex w,wstep
+  real a(3)
   data twopi/6.283185307/
 
-! Apply AFC corrections to the c4aa and c4bb data
+! Mix the complex signal
   w=1.0
   wstep=1.0
-  x0=0.5*(n5+1)
-  s=2.0/n5
-  do i=1,n5
+  x0=0.5*(npts+1)
+  s=2.0/npts
+  do i=1,npts
      x=s*(i-x0)
-     if(mod(i,1000).eq.1) then
-        p2=1.5*x*x - 0.5
-!            p3=2.5*(x**3) - 1.5*x
-!            p4=4.375*(x**4) - 3.75*(x**2) + 0.375
-        dphi=(a(1) + x*a(2) + p2*a(3)) * (twopi/1378.125)
-        wstep=cmplx(cos(dphi),sin(dphi))
-     endif
+     p2=1.5*x*x - 0.5
+!          p3=2.5*(x**3) - 1.5*x
+!          p4=4.375*(x**4) - 3.75*(x**2) + 0.375
+     dphi=(a(1) + x*a(2) + p2*a(3)) * (twopi/fsample)
+     wstep=cmplx(cos(dphi),sin(dphi))
      w=w*wstep
-     c4aa(i)=w*c4aa(i)
-     c4bb(i)=w*c4bb(i)
+     c4(i)=w*c3(i)
   enddo
 
   return

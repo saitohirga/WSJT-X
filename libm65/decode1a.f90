@@ -83,7 +83,7 @@ subroutine decode1a(dd,newdat,f0,nflip,mode65,nfast,nfsample,xpol,          &
 ! accommodate the full JT65C bandwidth.
 
   call timer('twkfreq ',0)
-  call twkfreq(cx,cy,n5,a)
+  call twkfreq(cx,cy,n5,1378.125,a)
   call timer('twkfreq ',1)
 
 ! Compute spectrum at best polarization for each half symbol.

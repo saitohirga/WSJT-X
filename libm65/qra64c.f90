@@ -80,7 +80,7 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
   if(mode64.eq.1 .and. minsync.ge.0 .and. (sync-7.0).lt.minsync) go to 900
   a=0.
   a(1)=-f0
-  call twkfreq2(c00,c0,npts2,6000.0,a)
+  call twkfreq(c00,c0,npts2,6000.0,a)
 
   irc=-99
   s3lim=20.
