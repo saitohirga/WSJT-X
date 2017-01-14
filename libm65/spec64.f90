@@ -24,7 +24,7 @@ subroutine spec64(c0,npts2,mode64,jpk,s3,LL,NN)
 
   df=6000.0/nfft
   do i=1,LL
-     call pctile2(s3(i,1:NN),NN,45,xbase0(i)) !Get baseline for passband shape
+     call pctile(s3(i,1:NN),NN,45,xbase0(i)) !Get baseline for passband shape
   enddo
   
   nh=25

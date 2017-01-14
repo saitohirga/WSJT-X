@@ -12,7 +12,6 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   real*4 ss(4,322,NFFT),savg(4,NFFT)
   real tavg(-50:50)                  !Temp for finding local base level
   real base(4)                       !Local basel level at 4 pol'ns
-  real tmp (200)                     !Temp storage for pctile sorting
   real sig(MAXMSG,30)                !Parameters of detected signals
   real a(5)
   real*8 fcenter
@@ -102,7 +101,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                     go to 999
                  endif
               enddo
-              call pctile(tavg,tmp,101,50,base(jp))
+              call pctile(tavg,101,50,base(jp))
            enddo
         endif
 

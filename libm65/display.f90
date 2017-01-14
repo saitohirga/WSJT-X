@@ -58,7 +58,7 @@ subroutine display(nkeep,ftol)
   endif
 
   call flush(26)
-  call indexx(nz,freqkHz,indx)
+  call indexx(freqkHz,nz,indx)
 
   nstart=1
   k3=0
@@ -81,7 +81,7 @@ subroutine display(nkeep,ftol)
         endif
         kz=k
         if(nstart.eq.1) then
-           call indexx(kz,utc2,indx2)
+           call indexx(utc2,kz,indx2)
            k3=0
            do k=1,kz
               k3=min(k3+1,400)
@@ -89,7 +89,7 @@ subroutine display(nkeep,ftol)
            enddo
            nstart=0
         else
-           call indexx(kz,utc2,indx2)
+           call indexx(utc2,kz,indx2)
            do k=1,kz
               k3=min(k3+1,400)
               line3(k3)=line2(indx2(k))
@@ -108,7 +108,7 @@ subroutine display(nkeep,ftol)
      j0=j
   enddo
   kz=k
-  call indexx(kz,utc2,indx2)
+  call indexx(utc2,kz,indx2)
   do k=1,kz
      k3=min(k3+1,400)
      line3(k3)=line2(indx2(k))

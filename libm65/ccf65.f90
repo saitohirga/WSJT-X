@@ -12,7 +12,6 @@ subroutine ccf65(ss,nhsym,nfast,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
   real pr2(NFFT)                   !JT65 shorthand pattern
   complex cpr2(0:NH)               !Complex FT of pr2
   real tmp1(322)
-  real tmp2(322)
   real ccf(-11:54,4)
   logical first
   integer npr(126)
@@ -62,7 +61,7 @@ subroutine ccf65(ss,nhsym,nfast,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
 !        s(i)=ss(ip,i)+ss(ip,i+1)
         s(i)=min(ssmax,ss(ip,i)+ss(ip,i+1))
      enddo
-     call pctile(s,tmp1,nhsym-1,50,base)
+     call pctile(s,nhsym-1,50,base)
      s(1:nhsym-1)=s(1:nhsym-1)-base
      s(nhsym:NFFT)=0.
      call four2a(s,NFFT,1,-1,0)                !Real-to-complex FFT
@@ -115,7 +114,7 @@ subroutine ccf65(ss,nhsym,nfast,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
   do i=1,nhsym
      tmp1(i)=ss(ipol2,i)
   enddo
-  call pctile(tmp1,tmp2,nhsym,40,base)
+  call pctile(tmp1,nhsym,40,base)
   snr2=0.398107*ccfbest2/base                !### empirical
   syncshort=0.5*ccfbest2/rms - 4.0           !### better normalizer than rms?
   dt2=(2.5 + lagpk2*(2048.0/11025.0))/nfast

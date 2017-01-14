@@ -7,7 +7,7 @@ subroutine trimlist(sig,km,ftol,indx,nsiz,nz)
 !    1      2     3    4    5    6     7     8
 !  nfile  nutc  freq  snr  dt  ipol  flip  sync
 
-  call indexx(km,sig(1,3),indx)            !Sort list by frequency
+  call indexx(sig(1,3),km,indx)            !Sort list by frequency
 
   n=1
   i0=1

@@ -111,7 +111,6 @@ set (FSRCS
   noisegen.f90
   packjt.f90
   pctile.f90
-  pctile2.f90
   pfxdump.f90
   qra64b.f90
   qra64c.f90
@@ -124,7 +123,6 @@ set (FSRCS
   shell.f90
   sleep_msec.f90
   smo.f90
-  sort.f90
   spec64.f90
   sun.f90
   symspec.f90
@@ -139,7 +137,6 @@ set (FSRCS
   zplot.f90
 
   f77_wisdom.f
-  ssort.f
   )
 
 set (CSRCS

@@ -2,7 +2,6 @@ subroutine extract(s3,nadd,ncount,nhist,decoded,ltext)
 
   use packjt
   real s3(64,63)
-  real tmp(4032)
   character decoded*22
   integer era(51),dat4(12),indx(64)
   integer mrsym(63),mr2sym(63),mrprob(63),mr2prob(63)
@@ -23,7 +22,7 @@ subroutine extract(s3,nadd,ncount,nhist,decoded,ltext)
   save
 
   nfail=0
-  call pctile(s3,tmp,4032,50,base)     ! ### or, use ave from demod64a
+  call pctile(s3,4032,50,base)     ! ### or, use ave from demod64a
   s3=s3/base
   s3a=s3
 1 call demod64a(s3,nadd,mrsym,mrprob,mr2sym,mr2prob,ntest,nlow)
