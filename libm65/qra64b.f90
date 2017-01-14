@@ -12,7 +12,7 @@ subroutine qra64b(nutc,nqd,ikhz,mousedf,ntol,xpol,mycall_12,hiscall_12,   &
 
   open(17,file='red.dat',status='unknown')
   df=96000.0/NFFT1
-  k0=(ikhz-75.74)*1000.0/df
+  k0=(ikhz-75.170)*1000.0/df
   nh=nfft2/2
   fac=1.0/NFFT2
   cx(0:nh)=ca(k0:k0+nh)

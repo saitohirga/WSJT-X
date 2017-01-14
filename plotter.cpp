@@ -134,18 +134,20 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
     std::ifstream f;
     f.open("./red.dat");
     if(f) {
-      int x;
+      int x,y;
+      int y0=30;
       float freq,sync;
-//      float df = 0.001*m_fSample/32768.0;
-      QPen pen0(Qt::red, 3);
+      QPen pen0(Qt::red,1);
       painter2.setPen(pen0);
-      for(int i=0; i<50; i++) {
+      for(int i=0; i<99999; i++) {
         f >> freq >> sync;
-//        x = (freq - m_ZoomStartFreq)/df;
-        x=500;
-//        qDebug() << "a" << m_line << freq << sync << x;
-        painter2.drawLine(x,15,x,30);
+        if(f.eof()) break;
+        x=(freq - m_ZoomStartFreq)/df;
+        y=(sync-1.5)*2.0;
+        if(y>15.0) y=15.0;
+        if(x>=0 and x<=w) painter2.drawLine(x,y0-y,x,y0);
       }
+      f.close();
     }
   }
 
