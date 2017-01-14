@@ -12,7 +12,7 @@
 !   19  livecq.txt
 !   20  
 !   21  map65_rx.log
-!   22  kvasd.dat
+!   22  
 !   23  CALL3.TXT
 !   24  
 !   25  
@@ -34,14 +34,7 @@ subroutine ftninit(appd)
   open(13,file=appd//'/map65.log',status='unknown')
   open(19,file=appd//'/livecq.txt',status='unknown')
   open(21,file=appd//'/map65_rx.log',status='unknown',access='append',err=950)
-  open(22,file=appd//'/kvasd.dat',access='direct',recl=1024,status='unknown')
-  read(22,rec=2,err=12) junk
-  go to 18
-12 junk=0
-  write(22,rec=1) junk
-  write(22,rec=2) junk
-
-18  open(26,file=appd//'/tmp26.txt',status='unknown')
+  open(26,file=appd//'/tmp26.txt',status='unknown')
 
 ! Import FFTW wisdom, if available:
   open(28,file=appd//'/fftwf_wisdom.dat',status='old',err=30)

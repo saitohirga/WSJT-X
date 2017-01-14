@@ -82,9 +82,9 @@ subroutine decode1a(dd,newdat,f0,nflip,mode65,nfast,nfsample,xpol,          &
 ! Now we are back to using the 1378.125 Hz sample rate, enough to 
 ! accommodate the full JT65C bandwidth.
 
-  call timer('twkfreq ',0)
-  call twkfreq(cx,cy,n5,1378.125,a)
-  call timer('twkfreq ',1)
+  call timer('twkfreq_',0)
+  call twkfreq_xy(cx,cy,n5,a)
+  call timer('twkfreq_',1)
 
 ! Compute spectrum at best polarization for each half symbol.
 ! Adding or subtracting a small number (e.g., 5) to j may make it decode.\

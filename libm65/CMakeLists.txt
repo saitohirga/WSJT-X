@@ -133,6 +133,7 @@ set (FSRCS
   toxyz.f90
   trimlist.f90
   twkfreq.f90
+  twkfreq_xy.f90
 
   f77_wisdom.f
   )
