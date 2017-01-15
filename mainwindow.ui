@@ -2461,6 +2461,7 @@ QPushButton[state=&quot;ok&quot;] {
      <string>Tools</string>
     </property>
     <addaction name="actionMeasure_reference_spectrum"/>
+    <addaction name="actionMeasure_phase_response"/>
     <addaction name="actionErase_reference_spectrum"/>
     <addaction name="actionFrequency_calibration"/>
    </widget>
@@ -2961,6 +2962,11 @@ QPushButton[state=&quot;ok&quot;] {
   <action name="actionMeasure_reference_spectrum">
    <property name="text">
     <string>Measure reference spectrum</string>
+   </property>
+  </action>
+  <action name="actionMeasure_phase_response">
+   <property name="text">
+    <string>Measure phase response</string>
    </property>
   </action>
   <action name="actionErase_reference_spectrum">
