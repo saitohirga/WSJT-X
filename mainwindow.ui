@@ -59,7 +59,7 @@
          </size>
         </property>
         <property name="title">
-         <string>   Freq        DF      Pol         UTC           DT       dB                                                                    KV       DS          TxPol</string>
+         <string>   Freq        DF      Pol         UTC           DT       dB</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_9">
          <item>
@@ -1164,11 +1164,17 @@ p, li { white-space: pre-wrap; }
     <property name="title">
      <string>Mode</string>
     </property>
+    <addaction name="actionNoJT65"/>
     <addaction name="actionJT65A"/>
     <addaction name="actionJT65B"/>
     <addaction name="actionJT65C"/>
-    <addaction name="actionJT65B2"/>
-    <addaction name="actionJT65C2"/>
+    <addaction name="separator"/>
+    <addaction name="actionNoQRA64"/>
+    <addaction name="actionQRA64A"/>
+    <addaction name="actionQRA64B"/>
+    <addaction name="actionQRA64C"/>
+    <addaction name="actionQRA64D"/>
+    <addaction name="actionQRA64E"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSetup"/>
@@ -1512,22 +1518,6 @@ p, li { white-space: pre-wrap; }
     <string>FUNcube Dongle Settings</string>
    </property>
   </action>
-  <action name="actionJT65B2">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>JT65B2</string>
-   </property>
-  </action>
-  <action name="actionJT65C2">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>JT65C2</string>
-   </property>
-  </action>
   <action name="actionEdit_wsjt_log">
    <property name="text">
     <string>Edit wsjt.log</string>
@@ -1550,6 +1540,65 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Decode QRA64 near QSO frequency</string>
+   </property>
+  </action>
+  <action name="actionQRA64A">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>QRA64A</string>
+   </property>
+  </action>
+  <action name="actionQRA64B">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>QRA64B</string>
+   </property>
+  </action>
+  <action name="actionNoJT65">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>No JT65</string>
+   </property>
+  </action>
+  <action name="actionNoQRA64">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>No QRA64</string>
+   </property>
+  </action>
+  <action name="actionQRA64C">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>QRA64C</string>
+   </property>
+  </action>
+  <action name="actionQRA64D">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>QRA64D</string>
+   </property>
+  </action>
+  <action name="actionQRA64E">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>QRA64E</string>
    </property>
   </action>
  </widget>

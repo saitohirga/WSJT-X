@@ -1,5 +1,5 @@
 subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
-     hiscall_12,hisgrid_6)
+     hiscall_12,hisgrid_6,nwrite_qra64)
 
   use packjt
   parameter (NFFT2=336000)               !56*6000 (downsampled by 1/16)
@@ -13,7 +13,7 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
   character*12 mycall_12,hiscall_12
   character*6 mycall,hiscall,hisgrid_6
   character*4 hisgrid
-  character*1 cp
+  character*1 cp,cmode
   logical xpol,ltext
   complex cx(0:NFFT2-1),cy(0:NFFT2-1)
   complex c00(0:720000)                      !Complex spectrum of dd()
@@ -24,7 +24,7 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
   integer dat4(12)                           !Decoded message (as 12 integers)
   integer dat4x(12)
   integer nap(0:11)
-  data nap/0,2,3,2,3,4,2,3,6,4,6,6/
+  data nap/0,2,3,2,3,4,2,3,6,4,6,6/,cmode/'$'/
   data nc1z/-1/,nc2z/-1/,ng2z/-1/,maxaptypez/-1/
   save
 
@@ -37,6 +37,7 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
   emedelay=2.5
   
   irc=-1
+  nwrite_qra64=0
   decoded='                      '
   nft=99
   mycall=mycall_12(1:6)
@@ -160,22 +161,17 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
      if(nSubmode.eq.4) nsnr=nint(10.0*log10(sy)-24.0)   !E
   endif
 
-!  write(*,1011) nutc/100,nsnr,dtx,nfreq,decoded
-!1011 format(i4.4,i4,f5.1,i5,1x,2x,1x,a22)
-
   npol=0
   cp='H'
   ntxpol=0
   if(irc.ge.0) then
-     write(*,1010) ikHz,nfreq,npol,nutc/100,dtx,nsnr,decoded,irc,ntxpol,cp
-!1010 format('!',i3,i5,i4,i7.6,f5.1,i4,2x,a22,i2,i5,i5,1x,a1)
-!1010 format(i3,i5,i4,i5.4,f5.1,i5,2x,a22,i2,i5,1x,a1)
-1010 format('!',i3,i5,i4,i6.4,f5.1,i5,2x,a22,i2,i5,1x,a1)
+     write(*,1010) ikHz,nfreq,npol,nutc,dtx,nsnr,cmode,decoded,irc,ntxpol,cp
+1010 format('!',i3,i5,i4,i6.4,f5.1,i5,a1,1x,a22,i2,i5,1x,a1)
+     nwrite_qra64=nwrite_qra64+1
   else
-     write(*,1010) ikHz,nfreq,npol,nutc/100,dtx,nsnr
+     write(*,1010) ikHz,nfreq,npol,nutc,dtx,nsnr,cmode
+     nwrite_qra64=nwrite_qra64+1
   endif
-
-!  goto 1
 
 999 return
 end subroutine qra64c

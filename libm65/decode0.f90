@@ -10,7 +10,7 @@ subroutine decode0(dd,ss,savg,nstandalone)
   character mycall0*12,hiscall0*12,hisgrid0*6
   common/npar/fcenter,nutc,idphi,mousedf,mousefqso,nagain,                &
        ndepth,ndiskdat,neme,newdat,nfa,nfb,nfcal,nfshift,                 &
-       mcall3,nkeep,ntol,nxant,nrxlog,nfsample,nxpol,mode65,              &
+       mcall3,nkeep,ntol,nxant,nrxlog,nfsample,nxpol,nmode,               &
        nfast,nsave,mycall,mygrid,hiscall,hisgrid,datetime
   common/tracer/ limtrace,lu
   data neme0/-99/,mcall3b/1/
@@ -54,7 +54,7 @@ subroutine decode0(dd,ss,savg,nstandalone)
   call map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,           &
        mousedf,mousefqso,nagain,ndecdone,ndiskdat,nfshift,ndphi,           &
        nfcal,nkeep,mcall3b,nsum,nsave,nxant,rmsdd,mycall,mygrid,          &
-       neme,ndepth,hiscall,hisgrid,nhsym,nfsample,nxpol,mode65,nfast)
+       neme,ndepth,hiscall,hisgrid,nhsym,nfsample,nxpol,nmode,nfast)
 
   call timer('map65a  ',1)
   call timer('decode0 ',1)

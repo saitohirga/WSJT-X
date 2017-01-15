@@ -30,7 +30,7 @@ extern struct {                     //This is "common/datcom/..." in Fortran
   int map65RxLog;                   //Flags to control log files
   int nfsample;                     //Input sample rate
   int nxpol;                        //1 if using xpol antennas, 0 otherwise
-  int mode65;                       //JT65 sub-mode: A=1, B=2, C=4
+  int nmode;                        //nmode = 10*m_modeQRA64 + m_modeJT65
   int nfast;                        //1 for sub-modes ABC; 2 for B2, C2
   int nsave;                        //Number of s3(64,63) spectra saved
   char mycall[12];

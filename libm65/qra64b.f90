@@ -1,5 +1,5 @@
 subroutine qra64b(nutc,nqd,ikhz,mousedf,ntol,xpol,mycall_12,hiscall_12,   &
-     hisgrid_6)
+     hisgrid_6,nwrite_qra64)
 
   parameter (NFFT1=5376000)              !56*96000
   parameter (NFFT2=336000)               !56*6000 (downsampled by 1/16)
@@ -28,7 +28,7 @@ subroutine qra64b(nutc,nqd,ikhz,mousedf,ntol,xpol,mycall_12,hiscall_12,   &
 
 !  write(67) nutc,cx,cy
   call qra64c(cx,cy,nutc,nqd,ikhz,mousedf,ntol,xplo,mycall_12,    &
-       hiscall_12,hisgrid_6)
+       hiscall_12,hisgrid_6,nwrite_qra64)
   close(17)
   
   return

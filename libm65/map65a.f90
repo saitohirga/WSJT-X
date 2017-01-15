@@ -1,7 +1,7 @@
 subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
      mousedf,mousefqso,nagain,ndecdone,ndiskdat,nfshift,ndphi,              &
      nfcal,nkeep,mcall3b,nsum,nsave,nxant,rmsdd,mycall,mygrid,              &
-     neme,ndepth,hiscall,hisgrid,nhsym,nfsample,nxpol,mode65,nfast)
+     neme,ndepth,hiscall,hisgrid,nhsym,nfsample,nxpol,nmode,nfast)
 
 !  Processes timf2 data from Linrad to find and decode JT65 signals.
 
@@ -17,7 +17,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   real*8 fcenter
   character*22 msg(MAXMSG)
   character*3 shmsg0(4)
-  character mycall*12,hiscall*12,mygrid*6,hisgrid*6,grid*6,cp*1
+  character mycall*12,hiscall*12,mygrid*6,hisgrid*6,grid*6,cp*1,cm*1
   integer indx(MAXMSG),nsiz(MAXMSG)
   logical done(MAXMSG)
   logical xpol,bqra64
@@ -27,13 +27,16 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   common/c3com/ mcall3a
   common/testcom/ifreq
   
-  data blank/'                      '/
+  data blank/'                      '/,cm/'#'/
   data shmsg0/'ATT','RO ','RRR','73 '/
   data nfile/0/,nutc0/-999/,nid/0/,ip000/1/,ip001/1/,mousefqso0/-999/
   save
 
-  bqra64=nfast.ge.100  
-  nfast=mod(nfast,100)
+  mode65=mod(nmode,10)
+  if(mode65.eq.3) mode65=4
+  modeqra64=nmode/10
+
+  bqra64=modeqra64.gt.0
   mcall3a=mcall3b
   mousefqso0=mousefqso
   xpol=(nxpol.ne.0)
@@ -222,7 +225,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                  if(nqd.eq.2) then
                     call timer('qra64   ',0)
                     call qra64b(nutc,nqd,ikhz,mousedf,ntol,xpol,mycall,   &
-                         hiscall,hisgrid)
+                         hiscall,hisgrid,nwrite_qra64)
                     call timer('qra64   ',1)
                     cycle
                  endif
@@ -323,22 +326,22 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
 
               if(ndphi.eq.0) then
                  write(*,1010) nkHz,ndf,npol,nutc,dt,nsync2,    &
-                      decoded,nkv,nqual,ntxpol,cp
-1010             format('!',i3,i5,i4,i7.6,f5.1,i4,2x,a22,i2,i5,i5,1x,a1)
+                      cm,decoded,nkv,nqual,ntxpol,cp
+1010             format('!',i3,i5,i4,i6.4,1x,f5.1,i4,a1,1x,a22,i2,i5,i5,1x,a1)
               else
                  if(iloop.ge.1) qphi(iloop)=sig(k,10)
                  write(*,1010) nkHz,ndf,npol,nutc,dt,nsync2,    &
-                      decoded,nkv,nqual,30*iloop
+                      cm,decoded,nkv,nqual,30*iloop
                  write(27,1011) 30*iloop,nkHz,ndf,npol,nutc,  &
-                      dt,sync2,nkv,nqual,decoded
-1011             format(i3,i4,i5,i4,i7.6,f5.1,f7.1,i3,i5,2x,a22)
+                      dt,sync2,nkv,nqual,cm,decoded
+1011             format(i3,i4,i5,i4,i6.4,1x,f5.1,f7.1,i3,i5,a1,1x,a22)
               endif
            endif
         enddo
 
-        if(nwrite.eq.0) then
+        if(nwrite.eq.0 .and. nwrite_qra64.eq.0) then
            write(*,1012) mousefqso,nutc
-1012       format('!',i3,9x,i7.6,' ')
+1012       format('!',i3,9x,i6.4,'  ')
         endif
    
      endif
@@ -457,14 +460,14 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                 nsync2,nutc,decoded,cp,cmode
            write(21,1014) f0,ndf,ndf0,ndf1,ndf2,dt,npol,nsync1,       &
                 nsync2,nutc,decoded,cp,cmode
-1014       format(f8.3,i5,3i3,f5.1,i4,i3,i4,i7.6,2x,a22,2x,a1,3x,a2)
+1014       format(f8.3,i5,3i3,f5.1,i4,i3,i4,i5.4,4x,a22,2x,a1,3x,a2)
 
         endif
      endif
      j=j+nsiz(n)
   enddo
   write(26,1015) nutc
-1015 format(39x,i6.6)
+1015 format(38x,i6.4,' ')
   call flush(21)
   call flush(26)
   call display(nkeep,ftol)

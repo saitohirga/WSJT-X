@@ -124,11 +124,15 @@ private slots:
   void on_actionAFMHot_triggered();
   void on_actionBlue_triggered();
   void on_actionFUNcube_Dongle_triggered();
-  void on_actionJT65B2_triggered();
-  void on_actionJT65C2_triggered();
   void on_actionEdit_wsjt_log_triggered();
   void on_actionTx_Tune_triggered();
-  void on_actionDecode_QRA64_near_QSO_frequency_triggered(bool b);
+  void on_actionQRA64A_triggered();
+  void on_actionQRA64B_triggered();
+  void on_actionNoJT65_triggered();
+  void on_actionNoQRA64_triggered();
+  void on_actionQRA64C_triggered();
+  void on_actionQRA64D_triggered();
+  void on_actionQRA64E_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -166,6 +170,8 @@ private:
     qint32  m_nsum;
     qint32  m_nsave;
     qint32  m_TRperiod;
+    qint32  m_modeJT65;
+    qint32  m_modeQRA64;
 
     double  m_fAdd;
 //    double  m_IQamp;
@@ -197,7 +203,6 @@ private:
     bool    m_10db;
     bool    m_initIQplus;
     bool    m_bIQxt;
-    bool    m_bQRA64;
 
     float   m_gainx;
     float   m_gainy;

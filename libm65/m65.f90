@@ -16,7 +16,7 @@ program m65
   common/datcom/dd(4,5760000),ss(4,322,NFFT),savg(4,NFFT),fc0,nutc0,junk(36)
   common/npar/fcenter,nutc,idphi,mousedf,mousefqso,nagain,                &
        ndepth,ndiskdat,neme,newdat,nfa,nfb,nfcal,nfshift,                 &
-       mcall3,nkeep,ntol,nxant,nrxlog,nfsample,nxpol,mode65,              &
+       mcall3,nkeep,ntol,nxant,nrxlog,nfsample,nxpol,nmode,               &
        nfast,nsave,mycall,mygrid,hiscall,hisgrid,datetime
 
   nargs=iargc()
@@ -34,9 +34,11 @@ program m65
      call ftnquit
      go to 999
   endif
-  if(arg(1:1).eq.'A') mode65=1
-  if(arg(1:1).eq.'B') mode65=2
-  if(arg(1:1).eq.'C') mode65=4
+!### These need fixing:
+  if(arg(1:1).eq.'A') nmode=1
+  if(arg(1:1).eq.'B') nmode=2
+  if(arg(1:1).eq.'C') nmode=3
+!###
   nfast=1
   if(arg(2:2).eq.'2') nfast=2
   nfsample=96000

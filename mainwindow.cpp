@@ -61,11 +61,18 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->actionBlue->setActionGroup(paletteGroup);
 
   QActionGroup* modeGroup = new QActionGroup(this);
+  ui->actionNoJT65->setActionGroup(modeGroup);
   ui->actionJT65A->setActionGroup(modeGroup);
   ui->actionJT65B->setActionGroup(modeGroup);
   ui->actionJT65C->setActionGroup(modeGroup);
-  ui->actionJT65B2->setActionGroup(modeGroup);
-  ui->actionJT65C2->setActionGroup(modeGroup);
+
+  QActionGroup* modeGroup2 = new QActionGroup(this);
+  ui->actionNoQRA64->setActionGroup(modeGroup2);
+  ui->actionQRA64A->setActionGroup(modeGroup2);
+  ui->actionQRA64B->setActionGroup(modeGroup2);
+  ui->actionQRA64C->setActionGroup(modeGroup2);
+  ui->actionQRA64D->setActionGroup(modeGroup2);
+  ui->actionQRA64E->setActionGroup(modeGroup2);
 
   QActionGroup* saveGroup = new QActionGroup(this);
   ui->actionSave_all->setActionGroup(saveGroup);
@@ -152,7 +159,8 @@ MainWindow::MainWindow(QWidget *parent) :
   m_colors="000066ff0000ffff00969696646464";
   m_nfast=1;
   m_nsave=0;
-  m_bQRA64=false;
+  m_modeJT65=0;
+  m_modeQRA64=0;
   bTune=false;
   txPower=100;
   iqAmp=0;
@@ -219,9 +227,6 @@ MainWindow::MainWindow(QWidget *parent) :
   if(m_mode=="JT65A") on_actionJT65A_triggered();
   if(m_mode=="JT65B") on_actionJT65B_triggered();
   if(m_mode=="JT65C") on_actionJT65C_triggered();
-  if(m_mode=="JT65B2") on_actionJT65B2_triggered();
-  if(m_mode=="JT65C2") on_actionJT65C2_triggered();
-
   future1 = new QFuture<void>;
   watcher1 = new QFutureWatcher<void>;
   connect(watcher1, SIGNAL(finished()),this,SLOT(diskDat()));
@@ -367,12 +372,13 @@ void MainWindow::writeSettings()
   settings.setValue("PaletteAFMHot",ui->actionAFMHot->isChecked());
   settings.setValue("PaletteBlue",ui->actionBlue->isChecked());
   settings.setValue("Mode",m_mode);
+  settings.setValue("nModeJT65",m_modeJT65);
+  settings.setValue("nModeQRA64",m_modeQRA64);
   settings.setValue("SaveNone",ui->actionNone->isChecked());
   settings.setValue("SaveAll",ui->actionSave_all->isChecked());
   settings.setValue("NDepth",m_ndepth);
   settings.setValue("NEME",m_onlyEME);
   settings.setValue("KB8RQ",m_kb8rq);
-  settings.setValue("DecodeQRA64",m_bQRA64);
   settings.setValue("NB",m_NB);
   settings.setValue("NBslider",m_NBslider);
   settings.setValue("GainX",(double)m_gainx);
@@ -451,11 +457,16 @@ void MainWindow::readSettings()
                                   "PaletteCuteSDR",true).toBool());
   ui->actionLinrad->setChecked(settings.value(
                                  "PaletteLinrad",false).toBool());
-  ui->actionAFMHot->setChecked(settings.value(
-                                 "PaletteAFMHot",false).toBool());
-  ui->actionBlue->setChecked(settings.value(
-                                 "PaletteBlue",false).toBool());
   m_mode=settings.value("Mode","JT65B").toString();
+  m_modeJT65=settings.value("nModeJT65",2).toInt();
+  m_modeQRA64=settings.value("nModeQRA64",2).toInt();
+  if(m_modeQRA64==0) ui->actionNoQRA64->setChecked(true);
+  if(m_modeQRA64==1) ui->actionQRA64A->setChecked(true);
+  if(m_modeQRA64==2) ui->actionQRA64B->setChecked(true);
+  if(m_modeQRA64==3) ui->actionQRA64C->setChecked(true);
+  if(m_modeQRA64==4) ui->actionQRA64D->setChecked(true);
+  if(m_modeQRA64==5) ui->actionQRA64E->setChecked(true);
+
   ui->actionNone->setChecked(settings.value("SaveNone",true).toBool());
   ui->actionSave_all->setChecked(settings.value("SaveAll",false).toBool());
   m_saveAll=ui->actionSave_all->isChecked();
@@ -464,8 +475,6 @@ void MainWindow::readSettings()
   ui->actionOnly_EME_calls->setChecked(m_onlyEME);
   m_kb8rq=settings.value("KB8RQ",false).toBool();
   ui->actionF4_sets_Tx6->setChecked(m_kb8rq);
-  m_bQRA64=settings.value("DecodeQRA64",false).toBool();
-  ui->actionDecode_QRA64_near_QSO_frequency->setChecked(m_bQRA64);
   m_NB=settings.value("NB",false).toBool();
   ui->NBcheckBox->setChecked(m_NB);
   m_NBslider=settings.value("NBslider",40).toInt();
@@ -591,13 +600,6 @@ void MainWindow::dataSink(int k)
     if(m_saveAll and !m_diskData) {
       QString fname=m_saveDir + "/" + t.date().toString("yyMMdd") + "_" +
           t.time().toString("hhmm");
-      if(m_nfast==2) {
-        if(t.time().second() < 30) {
-          fname += "00";
-        } else {
-          fname += "30";
-        }
-      }
       if(m_xpol) fname += ".tf2";
       if(!m_xpol) fname += ".iq";
       *future2 = QtConcurrent::run(savetf2, fname, m_xpol, m_nfast);
@@ -1034,14 +1036,11 @@ void MainWindow::on_actionOpen_next_in_directory_triggered()   //Open Next
   QStringList list;
   if(m_xpol) {
       list= fi.dir().entryList().filter(".tf2");
-//      len=15;
   } else {
       list= fi.dir().entryList().filter(".iq");
-//      len=14;
   }
   for (i = 0; i < list.size()-1; ++i) {
     if(i==list.size()-2) m_loopall=false;
-//    qDebug() << len << i << list.at(i) << list.at(i).length();
     len=list.at(i).length();
     if(list.at(i)==m_path.right(len)) {
       int n=m_path.length();
@@ -1222,9 +1221,7 @@ void MainWindow::decode()                                       //decode()
     int imin=ms/60000;
     int ihr=imin/60;
     imin=imin % 60;
-    int isec=(ms/1000) % 60;
-    datcom_.nutc=100*(100*ihr + imin);
-    if((m_mode=="JT65B2" or m_mode=="JT65C2") and isec>30) datcom_.nutc += 30;
+    datcom_.nutc=100*ihr + imin;
   }
 
   datcom_.idphi=m_dPhi;
@@ -1260,9 +1257,8 @@ void MainWindow::decode()                                       //decode()
   if(!m_fs96000) datcom_.nfsample=95238;
   datcom_.nxpol=0;
   if(m_xpol) datcom_.nxpol=1;
-  datcom_.mode65=m_mode65;
+  datcom_.nmode=10*m_modeQRA64 + m_modeJT65;
   datcom_.nfast=m_nfast;
-  if(m_bQRA64) datcom_.nfast += 100;
   datcom_.nsave=m_nsave;
 
   QString mcall=(m_myCall+"            ").mid(0,12);
@@ -1330,7 +1326,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       QString t2;
       t2.sprintf("Avg: %d",m_nsum);
       lab6->setText(t2);
-      if(m_bQRA64) g_pWideGraph->setDecodeFinished();
+      if(m_modeQRA64>0) g_pWideGraph->setDecodeFinished();
     }
     if(t.indexOf("<DecodeFinished>") >= 0) {
       if(m_widebandDecode) {
@@ -1543,7 +1539,6 @@ void MainWindow::guiUpdate()
   }
 
   if(nsec != m_sec0) {                                     //Once per second
-//    qDebug() << txPower << iqAmp << iqPhase;
 //    qDebug() << "B" << bTune << bTxTime << btxok;
     soundInThread.setForceCenterFreqMHz(g_pWideGraph->m_dForceCenterFreq);
     soundInThread.setForceCenterFreqBool(g_pWideGraph->m_bForceCenterFreq);
@@ -2048,9 +2043,14 @@ void MainWindow::on_actionErase_map65_tx_log_triggered()     //Erase Tx log
   }
 }
 
+void MainWindow::on_actionNoJT65_triggered()
+{
+  m_modeJT65=0;
+}
 void MainWindow::on_actionJT65A_triggered()
 {
   m_mode="JT65A";
+  m_modeJT65=1;
   m_mode65=1;
   m_nfast=1;
   m_TRperiod=60;
@@ -2066,6 +2066,7 @@ void MainWindow::on_actionJT65A_triggered()
 void MainWindow::on_actionJT65B_triggered()
 {
   m_mode="JT65B";
+  m_modeJT65=2;
   m_mode65=2;
   m_nfast=1;
   m_TRperiod=60;
@@ -2081,6 +2082,7 @@ void MainWindow::on_actionJT65B_triggered()
 void MainWindow::on_actionJT65C_triggered()
 {
   m_mode="JT65C";
+  m_modeJT65=3;
   m_mode65=4;
   m_nfast=1;
   m_TRperiod=60;
@@ -2093,35 +2095,37 @@ void MainWindow::on_actionJT65C_triggered()
   ui->actionJT65C->setChecked(true);
 }
 
-void MainWindow::on_actionJT65B2_triggered()
+void MainWindow::on_actionNoQRA64_triggered()
 {
-  m_mode="JT65B2";
-  m_mode65=2;
-  m_nfast=2;
-  m_TRperiod=30;
-  soundInThread.setPeriod(m_TRperiod);
-  soundOutThread.setPeriod(m_TRperiod);
-  g_pWideGraph->setMode65(m_mode65);
-  g_pWideGraph->setPeriod(m_TRperiod);
-  lab5->setStyleSheet("QLabel{background-color: #7fff00}");
-  lab5->setText(m_mode);
-  ui->actionJT65B2->setChecked(true);
+  m_modeQRA64=0;
 }
 
-void MainWindow::on_actionJT65C2_triggered()
+void MainWindow::on_actionQRA64A_triggered()
 {
-  m_mode="JT65C2";
-  m_mode65=4;
-  m_nfast=2;
-  m_TRperiod=30;
-  soundInThread.setPeriod(m_TRperiod);
-  soundOutThread.setPeriod(m_TRperiod);
-  g_pWideGraph->setMode65(m_mode65);
-  g_pWideGraph->setPeriod(m_TRperiod);
-  lab5->setStyleSheet("QLabel{background-color: #97ffff}");
-  lab5->setText(m_mode);
-  ui->actionJT65C2->setChecked(true);
+  m_modeQRA64=1;
 }
+
+void MainWindow::on_actionQRA64B_triggered()
+{
+  m_modeQRA64=2;
+}
+
+
+void MainWindow::on_actionQRA64C_triggered()
+{
+  m_modeQRA64=3;
+}
+
+void MainWindow::on_actionQRA64D_triggered()
+{
+  m_modeQRA64=4;
+}
+
+void MainWindow::on_actionQRA64E_triggered()
+{
+  m_modeQRA64=5;
+}
+
 
 void MainWindow::on_NBcheckBox_toggled(bool checked)
 {
@@ -2164,9 +2168,4 @@ void MainWindow::on_actionTx_Tune_triggered()
   g_pTxTune->set_iqPhase(iqPhase);
   g_pTxTune->set_txPower(txPower);
   g_pTxTune->show();
-}
-
-void MainWindow::on_actionDecode_QRA64_near_QSO_frequency_triggered(bool b)
-{
-  m_bQRA64=b;
 }

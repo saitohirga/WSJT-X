@@ -48,13 +48,7 @@ void getfile(QString fname, bool xpol, int dbDgrd, int nfast)
     if(i0<0) i0=fname.indexOf(".iq");
     datcom_.nutc=0;
     if(i0>0) {
-      if(fname.mid(i0-5,1)=="_") {
-        datcom_.nutc=10000*fname.mid(i0-4,2).toInt() +
-            100*fname.mid(i0-2,2).toInt();
-      } else {
-        datcom_.nutc=10000*fname.mid(i0-6,2).toInt() +
-            100*fname.mid(i0-4,2).toInt() + fname.mid(i0-2,2).toInt();
-      }
+      datcom_.nutc=100*fname.mid(i0-4,2).toInt() + fname.mid(i0-2,2).toInt();
     }
   }
 }
