@@ -1,5 +1,5 @@
 subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
-     bshmsg,bcontest,brxequal,bswl,line)
+     bshmsg,bcontest,brxequal,btrain,bswl,line)
 
 ! Real-time decoder for MSK144.  
 ! Analysis block size = NZ = 7168 samples, t_block = 0.597333 s 
@@ -38,12 +38,13 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   real xmc(NPATTERNS)
   real pcoeffs(3)
 
-  logical*1 bshmsg,bcontest,brxequal,bswl
+  logical*1 bshmsg,bcontest,brxequal,btrain,bswl
   logical*1 first
   logical*1 trained 
   logical*1 bshdecode
   logical*1 seenb4
   logical*1 bflag
+  logical*1 bvar
  
   data first/.true./
   data iavpatterns/ &
@@ -96,7 +97,9 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   fac=1.0/rms
   d(1:NZ)=fac*d(1:NZ)
   d(NZ+1:NFFT1)=0.
-  call analytic(d,NZ,NFFT1,cdat,pcoeffs,brxequal,.false.)  ! never apply dynamic coeffs
+  bvar=brxequal
+  if( btrain ) bvar=.false.   ! if training, turn off rx eq
+  call analytic(d,NZ,NFFT1,cdat,pcoeffs,bvar,.false.)  ! never apply dynamic coeffs
 
 ! Calculate average power for each frame and for the entire block.
 ! If decode is successful, largest power will be taken as signal+noise.
@@ -186,7 +189,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
 
   if(.not. bshdecode) then
     call msk144signalquality(ct,snr0,fest,tdec,softbits,msgreceived,hiscall,   &
-                             brxequal,ncorrected,eyeopening,trained,pcoeffs)
+                             btrain,ncorrected,eyeopening,trained,pcoeffs)
   endif
 
   decsym=' & '

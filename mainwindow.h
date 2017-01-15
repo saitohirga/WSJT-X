@@ -250,6 +250,7 @@ private slots:
   void fast_decode_done();
   void on_actionMeasure_reference_spectrum_triggered();
   void on_actionErase_reference_spectrum_triggered();
+  void on_actionMeasure_phase_response_triggered();
   void on_sbTR_valueChanged(int index);
   void on_sbFtol_valueChanged(int index);
   void on_cbFast9_clicked(bool b);
@@ -426,6 +427,7 @@ private:
   bool    m_bDoubleClickAfterCQnnn;
   bool    m_bRefSpec;
   bool    m_bClearRefSpec;
+  bool    m_bTrain;
   bool    m_bUseRef;
   bool    m_bFastDone;
   bool    m_bAltV;
