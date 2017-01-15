@@ -1346,12 +1346,11 @@ void MainWindow::fastSink(qint64 frames)
   bool bshmsg=ui->cbShMsgs->isChecked();
   bool bcontest=m_config.contestMode();
   bool brxequalize=m_config.rxEqualize();
-  bool btrain=m_bTrain; 
   bool bswl=ui->cbSWL->isChecked();
   strncpy(dec_data.params.hiscall,(hisCall + "            ").toLatin1 ().constData (), 12);
   strncpy(dec_data.params.mygrid, (m_config.my_grid()+"      ").toLatin1(),6);
   hspec_(dec_data.d2,&k,&nutc0,&nTRpDepth,&RxFreq,&m_Ftol,&bmsk144,&bcontest,&brxequalize,
-   &btrain,&m_inGain,&dec_data.params.mycall[0],&dec_data.params.hiscall[0],&bshmsg,&bswl,
+   &m_bTrain,&m_inGain,&dec_data.params.mycall[0],&dec_data.params.hiscall[0],&bshmsg,&bswl,
          fast_green,fast_s,&fast_jh,&line[0],&dec_data.params.mygrid[0],12,12,80,6);
   float px = fast_green[fast_jh];
   QString t;
@@ -1954,11 +1953,6 @@ void MainWindow::on_stopButton_clicked()                       //stopButton
   if(m_bRefSpec) {
     MessageBox::information_message (this, tr ("Reference spectrum saved"));
     m_bRefSpec=false;
-    m_bTrain=false;
-  }
-  if(m_bTrain) {
-    MessageBox::information_message (this, tr ("Phase Training Disabled"));
-    m_bTrain=false;
   }
 }
 
@@ -6121,8 +6115,10 @@ void MainWindow::on_actionMeasure_phase_response_triggered()
 {
   if(m_bTrain) { 
     m_bTrain=false;
+    MessageBox::information_message (this, tr ("Phase Training Disabled"));
   } else {
     m_bTrain=true;
+    MessageBox::information_message (this, tr ("Phase Training Enabled"));
   }
 }
 

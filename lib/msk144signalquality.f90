@@ -215,6 +215,7 @@ write(*,*) 'training ',navg,sqrt(chisqr),rmsdiff
         training_dxcall(1:12)=' '
         currently_training=.false.
         trained=.true.
+        btrain=.false.
         call date_and_time(date,time,zone,values)
         write(pcoeff_filename,'(i2.2,i2.2,i2.2,"_",i2.2,i2.2,i2.2)')    &
           values(1)-2000,values(2),values(3),values(5),values(6),values(7)
