@@ -96,7 +96,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   fac=1.0/rms
   d(1:NZ)=fac*d(1:NZ)
   d(NZ+1:NFFT1)=0.
-  call analytic(d,NZ,NFFT1,cdat,pcoeffs,brxequal,.true.) 
+  call analytic(d,NZ,NFFT1,cdat,pcoeffs,brxequal,.false.)  ! never apply dynamic coeffs
 
 ! Calculate average power for each frame and for the entire block.
 ! If decode is successful, largest power will be taken as signal+noise.
@@ -190,9 +190,10 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   endif
 
   decsym=' & '
-  if( brxequal .and. (.not. trained) ) decsym=' ^ '
-  if( brxequal .and. trained ) decsym=' $ '
-  if( (.not. brxequal) .and. trained ) decsym=' @ '
+  if( brxequal ) decsym=' ^ '
+!  if( brxequal .and. (.not. trained) ) decsym=' ^ '
+!  if( brxequal .and. trained ) decsym=' $ '
+!  if( (.not. brxequal) .and. trained ) decsym=' @ '
   if( msgreceived(1:1).eq.'<') then
     ncorrected=0
     eyeopening=0.0
