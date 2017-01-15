@@ -1,5 +1,5 @@
-  subroutine msk144signalquality(cframe,snr,freq,t0,softbits,msg,dxcall,  &
-       nbiterrors,eyeopening,trained,pcoeffs)
+  subroutine msk144signalquality(cframe,snr,freq,t0,softbits,msg,dxcall,       &
+       brxequal,nbiterrors,eyeopening,trained,pcoeffs)
 
   character*22 msg,msgsent
   character*12 dxcall
@@ -23,6 +23,7 @@
   integer values(8)
 
   logical*1 bcontest
+  logical*1 brxequal
   logical*1 first
   logical*1 currently_training
   logical*1 trained
@@ -76,7 +77,8 @@ write(*,*) 'reset to untrained state '
   indx_dxcall=index(msg,trim(dxcall))
   msg_has_dxcall = indx_dxcall .ge. 4
 
-  if( msg_has_dxcall .and. (.not. trained) .and. .not. currently_training ) then
+  if( brxequal .and. msg_has_dxcall .and. (.not. trained) .and.               &
+      .not. currently_training ) then
     currently_training=.true.
     training_dxcall=trim(dxcall)
     trained_dxcall(1:12)=' '
@@ -139,9 +141,9 @@ write(*,*) 'start training on call ',training_dxcall
   enddo  
   eyeopening=eyetop-eyebot
 
-  is_training_frame =                                    &
-      (snr.gt.5.0 .and.(nbiterrors.lt.7))    .and.     &
-      (abs(t0-tlast) .gt. 0.072)             .and.     &
+  is_training_frame =                                                          &
+      (snr.gt.5.0 .and.(nbiterrors.lt.7))    .and.                             &
+      (abs(t0-tlast) .gt. 0.072)             .and.                             &
       msg_has_dxcall                              
   if( currently_training .and. is_training_frame ) then
       twopi=8.0*atan(1.0)

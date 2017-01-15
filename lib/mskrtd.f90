@@ -186,7 +186,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
 
   if(.not. bshdecode) then
     call msk144signalquality(ct,snr0,fest,tdec,softbits,msgreceived,hiscall,   &
-                             ncorrected,eyeopening,trained,pcoeffs)
+                             brxequal,ncorrected,eyeopening,trained,pcoeffs)
   endif
 
   decsym=' & '
