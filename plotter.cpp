@@ -260,19 +260,15 @@ void CPlotter::UTCstr()
 {
   int ihr,imin,isec;
   if(datcom_.ndiskdat != 0) {
-    ihr=datcom_.nutc/10000;
-    imin=(datcom_.nutc/100) % 100;
-    isec=datcom_.nutc % 100;
+    ihr=datcom_.nutc/100;
+    imin=(datcom_.nutc) % 100;
   } else {
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     imin=ms/60000;
     ihr=imin/60;
     imin=imin % 60;
-    isec=(ms/1000) % 60;
   }
-  if(isec<30) isec=0;
-  if(isec>=30) isec=30;
-  sprintf(m_sutc,"%2.2d:%2.2d:%2.2d",ihr,imin,isec);
+  sprintf(m_sutc,"%2.2d:%2.2d",ihr,imin);
 }
 
 void CPlotter::DrawOverlay()                                 //DrawOverlay()
