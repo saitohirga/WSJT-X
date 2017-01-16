@@ -33,7 +33,7 @@ TxTune*    g_pTxTune = NULL;
 QSharedMemory mem_m65("mem_m65");
 
 QString rev="$Rev$";                            //Must update by hand ????
-QString Program_Title_Version="  MAP65   v2.6, r" + rev.mid(6,4) +
+QString Program_Title_Version="  MAP65   v2.7, r" + rev.mid(6,4) +
                               "    by K1JT";
 
 extern const int RxDataFrequency = 96000;
