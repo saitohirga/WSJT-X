@@ -161,6 +161,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_nsave=0;
   m_modeJT65=0;
   m_modeQRA64=0;
+  m_modeTx="JT65";
   bTune=false;
   txPower=100;
   iqAmp=0;
@@ -224,9 +225,16 @@ MainWindow::MainWindow(QWidget *parent) :
   g_pMessages->setColors(m_colors);
   g_pBandMap->setColors(m_colors);
   g_pAstro->setFontSize(m_astroFont);
-  if(m_mode=="JT65A") on_actionJT65A_triggered();
-  if(m_mode=="JT65B") on_actionJT65B_triggered();
-  if(m_mode=="JT65C") on_actionJT65C_triggered();
+
+  if(m_modeQRA64==1) on_actionQRA64A_triggered();
+  if(m_modeQRA64==2) on_actionQRA64B_triggered();
+  if(m_modeQRA64==3) on_actionQRA64C_triggered();
+  if(m_modeQRA64==4) on_actionQRA64D_triggered();
+  if(m_modeQRA64==5) on_actionQRA64E_triggered();
+
+  if(m_modeJT65==1) on_actionJT65A_triggered();
+  if(m_modeJT65==2) on_actionJT65B_triggered();
+  if(m_modeJT65==3) on_actionJT65C_triggered();
   future1 = new QFuture<void>;
   watcher1 = new QFutureWatcher<void>;
   connect(watcher1, SIGNAL(finished()),this,SLOT(diskDat()));
@@ -876,11 +884,17 @@ void MainWindow::createStatusBar()                           //createStatusBar
   lab5->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab5);
 
-  lab6 = new QLabel("Avg: 0");
+  lab6 = new QLabel("");
   lab6->setAlignment(Qt::AlignHCenter);
   lab6->setMinimumSize(QSize(50,10));
   lab6->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget(lab6);
+
+  lab7 = new QLabel("Avg: 0");
+  lab7->setAlignment(Qt::AlignHCenter);
+  lab7->setMinimumSize(QSize(50,10));
+  lab7->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+  statusBar()->addWidget(lab7);
 }
 
 void MainWindow::on_tolSpinBox_valueChanged(int i)             //tolSpinBox
@@ -1325,7 +1339,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       m_nsave=t.mid(21,4).toInt();
       QString t2;
       t2.sprintf("Avg: %d",m_nsum);
-      lab6->setText(t2);
+      lab7->setText(t2);
       if(m_modeQRA64>0) g_pWideGraph->setDecodeFinished();
     }
     if(t.indexOf("<DecodeFinished>") >= 0) {
@@ -2046,6 +2060,9 @@ void MainWindow::on_actionErase_map65_tx_log_triggered()     //Erase Tx log
 void MainWindow::on_actionNoJT65_triggered()
 {
   m_modeJT65=0;
+  qDebug() << QPalette::Window;
+  lab5->setStyleSheet("");
+  lab5->setText("");
 }
 void MainWindow::on_actionJT65A_triggered()
 {
@@ -2058,8 +2075,8 @@ void MainWindow::on_actionJT65A_triggered()
   soundOutThread.setPeriod(m_TRperiod);
   g_pWideGraph->setMode65(m_mode65);
   g_pWideGraph->setPeriod(m_TRperiod);
-  lab5->setStyleSheet("QLabel{background-color: #ff6ec7}");
-  lab5->setText(m_mode);
+  lab5->setStyleSheet("QLabel{background-color: #ff6666}");
+  lab5->setText("JT65A");
   ui->actionJT65A->setChecked(true);
 }
 
@@ -2074,8 +2091,8 @@ void MainWindow::on_actionJT65B_triggered()
   soundOutThread.setPeriod(m_TRperiod);
   g_pWideGraph->setMode65(m_mode65);
   g_pWideGraph->setPeriod(m_TRperiod);
-  lab5->setStyleSheet("QLabel{background-color: #ffff00}");
-  lab5->setText(m_mode);
+  lab5->setStyleSheet("QLabel{background-color: #ffff66}");
+  lab5->setText("JT65B");
   ui->actionJT65B->setChecked(true);
 }
 
@@ -2090,40 +2107,52 @@ void MainWindow::on_actionJT65C_triggered()
   soundOutThread.setPeriod(m_TRperiod);
   g_pWideGraph->setMode65(m_mode65);
   g_pWideGraph->setPeriod(m_TRperiod);
-  lab5->setStyleSheet("QLabel{background-color: #ffa500}");
-  lab5->setText(m_mode);
+  lab5->setStyleSheet("QLabel{background-color: #66ffb2}");
+  lab5->setText("JT65C");
   ui->actionJT65C->setChecked(true);
 }
 
 void MainWindow::on_actionNoQRA64_triggered()
 {
   m_modeQRA64=0;
+  lab6->setStyleSheet("");
+  lab6->setText("");
 }
 
 void MainWindow::on_actionQRA64A_triggered()
 {
   m_modeQRA64=1;
+  lab6->setStyleSheet("QLabel{background-color: #ffb266}");
+  lab6->setText("QRA64A");
 }
 
 void MainWindow::on_actionQRA64B_triggered()
 {
   m_modeQRA64=2;
+  lab6->setStyleSheet("QLabel{background-color: #b2ff66}");
+  lab6->setText("QRA64B");
 }
 
 
 void MainWindow::on_actionQRA64C_triggered()
 {
   m_modeQRA64=3;
+  lab6->setStyleSheet("QLabel{background-color: #66ffff}");
+  lab6->setText("QRA64C");
 }
 
 void MainWindow::on_actionQRA64D_triggered()
 {
   m_modeQRA64=4;
+  lab6->setStyleSheet("QLabel{background-color: #b266ff}");
+  lab6->setText("QRA64D");
 }
 
 void MainWindow::on_actionQRA64E_triggered()
 {
   m_modeQRA64=5;
+  lab6->setStyleSheet("QLabel{background-color: #ff66ff}");
+  lab6->setText("QRA64E");
 }
 
 
@@ -2168,4 +2197,17 @@ void MainWindow::on_actionTx_Tune_triggered()
   g_pTxTune->set_iqPhase(iqPhase);
   g_pTxTune->set_txPower(txPower);
   g_pTxTune->show();
+}
+
+void MainWindow::on_pbTxMode_clicked()
+{
+  if(m_modeTx=="QRA64") {
+    m_modeTx="JT65";
+    ui->pbTxMode->setText("Tx JT65   #");
+  } else {
+    m_modeTx="QRA64";
+    ui->pbTxMode->setText("Tx QRA64  $");
+  }
+//  m_wideGraph->setModeTx(m_modeTx);
+//  statusChanged();
 }

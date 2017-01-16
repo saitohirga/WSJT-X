@@ -491,7 +491,7 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="maximumSize">
              <size>
-              <width>70</width>
+              <width>80</width>
               <height>16777215</height>
              </size>
             </property>
@@ -501,10 +501,29 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item>
+           <widget class="QPushButton" name="pbTxMode">
+            <property name="minimumSize">
+             <size>
+              <width>80</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Tx QRA64  $</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="setTxFreqButton">
+            <property name="minimumSize">
+             <size>
+              <width>80</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="maximumSize">
              <size>
-              <width>70</width>
+              <width>80</width>
               <height>16777215</height>
              </size>
             </property>
@@ -549,7 +568,7 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="maximumSize">
              <size>
-              <width>70</width>
+              <width>80</width>
               <height>16777215</height>
              </size>
             </property>
@@ -579,13 +598,13 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="minimumSize">
                <size>
-                <width>30</width>
+                <width>42</width>
                 <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>25</width>
+                <width>42</width>
                 <height>18</height>
                </size>
               </property>
@@ -593,7 +612,7 @@ p, li { white-space: pre-wrap; }
                <string>500</string>
               </property>
               <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               <set>Qt::AlignCenter</set>
               </property>
              </widget>
             </item>

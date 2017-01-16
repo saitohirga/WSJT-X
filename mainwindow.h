@@ -134,6 +134,8 @@ private slots:
   void on_actionQRA64D_triggered();
   void on_actionQRA64E_triggered();
 
+  void on_pbTxMode_clicked();
+
 private:
     Ui::MainWindow *ui;
     qint32  m_nDevIn;
@@ -221,6 +223,7 @@ private:
     QLabel* lab4;
     QLabel* lab5;
     QLabel* lab6;
+    QLabel* lab7;
 
     QMessageBox msgBox0;
 
@@ -253,6 +256,7 @@ private:
     QString m_mode;
     QString m_colors;
     QString m_editorCommand;
+    QString m_modeTx;
 
     QHash<QString,bool> m_worked;
 
