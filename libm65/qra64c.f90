@@ -166,7 +166,7 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
   ntxpol=0
   if(irc.ge.0) then
      write(*,1010) ikHz,nfreq,npol,nutc,dtx,nsnr,cmode,decoded,irc,ntxpol,cp
-1010 format('!',i3,i5,i4,i6.4,f5.1,i5,a1,1x,a22,i2,i5,1x,a1)
+1010 format('!',i3,i5,i4,i6.4,f5.1,i5,1x,a1,1x,a22,i2,i5,1x,a1)
      nwrite_qra64=nwrite_qra64+1
   else
      write(*,1010) ikHz,nfreq,npol,nutc,dtx,nsnr,cmode

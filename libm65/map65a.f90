@@ -327,7 +327,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
               if(ndphi.eq.0) then
                  write(*,1010) nkHz,ndf,npol,nutc,dt,nsync2,    &
                       cm,decoded,nkv,nqual,ntxpol,cp
-1010             format('!',i3,i5,i4,i6.4,1x,f5.1,i4,a1,1x,a22,i2,i5,i5,1x,a1)
+1010             format('!',i3,i5,i4,i6.4,f5.1,i5,1x,a1,1x,a22,i2,i5,i5,1x,a1)
               else
                  if(iloop.ge.1) qphi(iloop)=sig(k,10)
                  write(*,1010) nkHz,ndf,npol,nutc,dt,nsync2,    &
@@ -467,7 +467,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
      j=j+nsiz(n)
   enddo
   write(26,1015) nutc
-1015 format(38x,i6.4,' ')
+1015 format(37x,i6.4,' ')
   call flush(21)
   call flush(26)
   call display(nkeep,ftol)
