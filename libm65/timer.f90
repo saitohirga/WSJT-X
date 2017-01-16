@@ -64,7 +64,7 @@ subroutine timer(dname,k)
 
 40 write(lu,1040)
 1040 format(/'     name                 time  frac     dtime',       &
-             ' dfrac  calls level parent'/73('-'))
+             ' dfrac  calls level parent'/75('-'))
 
   if(k.gt.100) then
      ndiv=k-100
@@ -96,7 +96,7 @@ subroutine timer(dname,k)
   enddo
 
   write(lu,1070) sum,sumf
-1070 format(/36x,f10.2,f6.2)
+1070 format(75('-')/36x,f10.2,f6.2)
   nmax=0
   eps=0.000001
   ntrace=0

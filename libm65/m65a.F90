@@ -27,6 +27,7 @@ subroutine m65a
 
   inquire(file=trim(cwd)//'/.quit',exist=fileExists)
   if(fileExists) then
+     call timer('decode0 ',101)
      call ftnquit
      i=detach_m65()
      go to 999

@@ -58,7 +58,6 @@ subroutine decode0(dd,ss,savg,nstandalone)
 
   call timer('map65a  ',1)
   call timer('decode0 ',1)
-  if(nstandalone.eq.0) call timer('decode0 ',101)
 
   write(*,1010) nsum,nsave
 1010 format('<DecodeFinished>',2i4)
