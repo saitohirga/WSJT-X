@@ -4,3 +4,4 @@ fftwf-wisdom -w fftwf_wisdom.dat -o fftwf_wisdom.dat -t 1 cif77175 cib77175 cib5
 
 fftwf-wisdom -w fftwf_wisdom.dat -o fftwf_wisdom.dat -t 1 cif37632 cib37632 cib2621440 cif37044 cib37044 cib2560000
 
+fftwf-wisdom -w fftwf_wisdom.dat -o fftwf_wisdom.dat -t 1 cif24192 cif3456 cif336000
