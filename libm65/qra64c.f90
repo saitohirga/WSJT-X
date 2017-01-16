@@ -70,64 +70,68 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
   naptype=maxaptype
   npts2=NFFT2
 
+  do ip=0,1
 !###  
-  c00(0:NFFT2-1)=conjg(cy)
+     if(ip.eq.0) c00(0:NFFT2-1)=conjg(cx)
+     if(ip.eq.1) c00(0:NFFT2-1)=conjg(cy)
 !###
 
-  call sync64(c00,nf1,nf2,nfqso,ntol,mode64,emedelay,dtx,f0,jpk0,sync,  &
-       sync2,width)
+     call sync64(c00,nf1,nf2,nfqso,ntol,mode64,emedelay,dtx,f0,jpk0,sync,  &
+          sync2,width)
 
-  nfreq=nint(f0)
-  if(mode64.eq.1 .and. minsync.ge.0 .and. (sync-7.0).lt.minsync) go to 900
-  a=0.
-  a(1)=-f0
-  call twkfreq(c00,c0,npts2,6000.0,a)
+     nfreq=nint(f0)
+     if(mode64.eq.1 .and. minsync.ge.0 .and. (sync-7.0).lt.minsync) go to 900
+     a=0.
+     a(1)=-f0
+     call twkfreq(c00,c0,npts2,6000.0,a)
 
-  irc=-99
-  s3lim=20.
-  itz=11
-  if(mode64.eq.4) itz=9
-  if(mode64.eq.2) itz=7
-  if(mode64.eq.1) itz=5
+     irc=-99
+     s3lim=20.
+     itz=11
+     if(mode64.eq.4) itz=9
+     if(mode64.eq.2) itz=7
+     if(mode64.eq.1) itz=5
 
-  LL=64*(mode64+2)
-  NN=63
-  napmin=99
-  do itry0=1,5
-     idt=itry0/2
-     if(mod(itry0,2).eq.0) idt=-idt
-     jpk=jpk0 + 750*idt
-     call spec64(c0,npts2,mode64,jpk,s3a,LL,NN)
-     call pctile(s3a,LL*NN,40,base)
-     s3a=s3a/base
-     where(s3a(1:LL*NN)>s3lim) s3a(1:LL*NN)=s3lim
-     do iter=itz,0,-2
-        b90=1.728**iter
-        if(b90.gt.230.0) cycle
-        if(b90.lt.0.15*width) exit
-        s3(1:LL*NN)=s3a(1:LL*NN)
-        call timer('qra64_de',0)
-        call qra64_dec(s3,nc1,nc2,ng2,naptype,0,nSubmode,b90,      &
-             nFadingModel,dat4,snr2,irc)
-        call timer('qra64_de',1)
-        if(irc.eq.0) go to 10
-        if(irc.gt.0) call badmsg(irc,dat4,nc1,nc2,ng2)
-        iirc=max(0,min(irc,11))
-        if(irc.gt.0 .and. nap(iirc).lt.napmin) then
-           dat4x=dat4
-           b90x=b90
-           snr2x=snr2
-           napmin=nap(iirc)
-           irckeep=irc
-           dtxkeep=jpk/6000.0 - 1.0
-           itry0keep=itry0
-           iterkeep=iter
-        endif
+     LL=64*(mode64+2)
+     NN=63
+     napmin=99
+     do itry0=1,5
+        idt=itry0/2
+        if(mod(itry0,2).eq.0) idt=-idt
+        jpk=jpk0 + 750*idt
+        call spec64(c0,npts2,mode64,jpk,s3a,LL,NN)
+        call pctile(s3a,LL*NN,40,base)
+        s3a=s3a/base
+        where(s3a(1:LL*NN)>s3lim) s3a(1:LL*NN)=s3lim
+        do iter=itz,0,-2
+           b90=1.728**iter
+           if(b90.gt.230.0) cycle
+           if(b90.lt.0.15*width) exit
+           s3(1:LL*NN)=s3a(1:LL*NN)
+           call timer('qra64_de',0)
+           call qra64_dec(s3,nc1,nc2,ng2,naptype,0,nSubmode,b90,      &
+                nFadingModel,dat4,snr2,irc)
+           call timer('qra64_de',1)
+           if(irc.eq.0) go to 10
+           if(irc.gt.0) call badmsg(irc,dat4,nc1,nc2,ng2)
+           iirc=max(0,min(irc,11))
+           if(irc.gt.0 .and. nap(iirc).lt.napmin) then
+              dat4x=dat4
+              b90x=b90
+              snr2x=snr2
+              napmin=nap(iirc)
+              irckeep=irc
+              dtxkeep=jpk/6000.0 - 1.0
+              itry0keep=itry0
+              iterkeep=iter
+              npolkeep=ip*90
+           endif
+        enddo
+        if(irc.eq.0) goto 5
      enddo
-     if(irc.eq.0) exit
   enddo
 
-  if(napmin.ne.99) then
+5 if(napmin.ne.99) then
      dat4=dat4x
      b90=b90x
      snr2=snr2x
@@ -135,10 +139,12 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
      dtx=dtxkeep
      itry0=itry0keep
      iter=iterkeep
+     npol=npolkeep
   endif
 10 decoded='                      '
 
   if(irc.ge.0) then
+     if(irc.eq.0) npol=ip*90
      call unpackmsg(dat4,decoded)           !Unpack the user message
      call fmtmsg(decoded,iz)
      if(index(decoded,"000AAA ").ge.1) then
@@ -161,7 +167,6 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
      if(nSubmode.eq.4) nsnr=nint(10.0*log10(sy)-24.0)   !E
   endif
 
-  npol=0
   cp='H'
   ntxpol=0
   if(irc.ge.0) then

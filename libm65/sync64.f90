@@ -62,7 +62,8 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,emedelay,dtx,f0,jpk,sync,  &
   jpk=0
   ja=0
   jb=(5.0+emedelay)*6000
-  jstep=100
+!  jstep=100
+  jstep=200
   ipk=0
   kpk=0
   nadd=10*mode64
