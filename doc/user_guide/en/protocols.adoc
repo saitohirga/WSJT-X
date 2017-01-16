@@ -258,7 +258,7 @@ For details see Table 4, below.
 ==== MSK144
 
 Standard MSK144 messages are structured in the same way as those in
-the slow modes, with a 72 bits of user information.  Forward error
+the slow modes, with 72 bits of user information.  Forward error
 correction is implemented by first augmenting the 72 message bits with
 an 8-bit cyclic redundancy check (CRC) calculated from the message
 bits. The CRC is used to detect and eliminate most false decodes at
