@@ -114,6 +114,7 @@ set (FSRCS
   pfxdump.f90
   qra64b.f90
   qra64c.f90
+  qra64zap.f90
   recvpkt.f90
   rfile3a.f90
   s3avg.f90

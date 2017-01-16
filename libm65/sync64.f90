@@ -135,9 +135,9 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,emedelay,dtx,f0,jpk,sync,  &
   rms2=sqrt(sq/40.0)
   sync2=10.0*log10(a(2)/rms2)
 
-  slimit=2.0
+  slimit=3.0
   rewind 17
-  rewind 76
+!  rewind 76
   do i=2,iz-2*nskip-1,3
      x=i
      z=(x-a(3))/(0.5*a(4))
@@ -150,11 +150,11 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,emedelay,dtx,f0,jpk,sync,  &
      freq=j*df3-3000.0
      ss=(s0a(j-1)+s0a(j)+s0a(j+1))/3.0
      if(ss.gt.slimit) write(17,1110) freq,ss
-     write(76,1110) freq,ss,yfit
 1110 format(3f10.3)
+!     write(76,1110) freq,ss,yfit
   enddo
   flush(17)
-  flush(76)
+!  flush(76)
 
   return
 end subroutine sync64
