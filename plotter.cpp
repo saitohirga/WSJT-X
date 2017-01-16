@@ -104,6 +104,7 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
   int x0=16384 + (0.001*(m_ZoomStartFreq+m_fCal)+m_fQSO-m_nkhz+1.27046) * \
       1000.0/df + 0.5;
 
+  QPainter painter1(&m_WaterfallPixmap);
   QPainter painter2(&m_ZoomWaterfallPixmap);
   for(int i=0; i<w; i++) {                      //Paint the top row
     painter2.setPen(m_ColorTbl[m_zwf[x0+i]]);
@@ -148,8 +149,8 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
         if(y>15.0) y=15.0;
         if(x>=0 and x<=w) painter2.drawLine(x,0,x,y);
         x=XfromFreq(float(fQSO()+0.001*freq));
-        painter.setPen(pen0);
-        painter.drawLine(x,30,x,30+y);
+        painter1.setPen(pen0);
+        painter1.drawLine(x,0,x,y);
       }
       f.close();
     }
