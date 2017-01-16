@@ -147,6 +147,9 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
         y=(sync-1.5)*2.0;
         if(y>15.0) y=15.0;
         if(x>=0 and x<=w) painter2.drawLine(x,0,x,y);
+        x=XfromFreq(float(fQSO()+0.001*freq));
+        painter.setPen(pen0);
+        painter.drawLine(x,30,x,30+y);
       }
       f.close();
     }
