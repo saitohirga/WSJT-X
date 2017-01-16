@@ -2460,9 +2460,10 @@ QPushButton[state=&quot;ok&quot;] {
     <property name="title">
      <string>Tools</string>
     </property>
+    <addaction name="actionErase_reference_spectrum"/>
     <addaction name="actionMeasure_reference_spectrum"/>
     <addaction name="actionMeasure_phase_response"/>
-    <addaction name="actionErase_reference_spectrum"/>
+    <addaction name="separator"/>
     <addaction name="actionFrequency_calibration"/>
    </widget>
    <addaction name="menuFile"/>
