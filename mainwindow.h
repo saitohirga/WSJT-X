@@ -300,6 +300,10 @@ extern "C" {
               int* nsendingsh, char* msgsent, short iwave[], int* nwave,
               int len1, int len2);
 
+  void genqra64a_(char* msg, int* ichk, int* ntxFreq, int* mode64,
+              int* itype, char* msgsent, short iwave[], int* nwave,
+              int len1, int len2);
+
   int ptt_(int* nport, int* itx, int* iptt);
   }
 

@@ -89,6 +89,7 @@ set (FSRCS
   ftninit.f90
   ftnquit.f90
   gen65.f90
+  genqra64a.f90
   geocentric.f90
   getdphi.f90
   getpfx1.f90

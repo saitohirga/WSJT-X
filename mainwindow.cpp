@@ -1477,10 +1477,19 @@ void MainWindow::guiUpdate()
     ba2msg(ba,message);
     int len1=22;
     int mode65=m_mode65;
+    int ichk=0;
+    int ntxFreq=1000;
+    int itype=0;
     double samfac=1.0;
 
-    gen65_(message,&mode65,&m_nfast,&samfac,&nsendingsh,msgsent,iwave,
-           &nwave,len1,len1);
+    if(m_modeTx=="JT65") {
+      gen65_(message,&mode65,&m_nfast,&samfac,&nsendingsh,msgsent,iwave,
+             &nwave,len1,len1);
+    } else {
+      if(m_modeQRA64==5) ntxFreq=600;
+      genqra64a_(message,&ichk,&ntxFreq,&m_modeQRA64,&itype,msgsent,iwave,
+                 &nwave,len1,len1);
+    }
     msgsent[22]=0;
 
     if(m_restart) {
@@ -1723,7 +1732,7 @@ void MainWindow::doubleClickOnCall(QString hiscall, bool ctrl)
   }
   ui->txFirstCheckBox->setChecked(m_txFirst);
   QString rpt="";
-  if(ctrl) rpt=t2.mid(25,3);
+  if(ctrl or m_modeTx=="QRA64") rpt=t2.mid(25,3);
   lookup();
   genStdMsgs(rpt);
   if(t2.indexOf(m_myCall)>0) {
@@ -1767,7 +1776,7 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
   QString t=t0;
   if(t0.indexOf("/")<0) t=t0 + m_myGrid.mid(0,4);
   msgtype(t, ui->tx1);
-  if(rpt == "") {
+  if(rpt == "" and m_modeTx=="JT65") {
     t=t+" OOO";
     msgtype(t, ui->tx2);
     msgtype("RO", ui->tx3);
