@@ -73,7 +73,7 @@ program m65
      k=0
      fcenter=144.125d0
      mousedf=0
-     mousefqso=126
+     mousefqso=125
      newdat=1
      mycall='K1JT'
 

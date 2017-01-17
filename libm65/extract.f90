@@ -34,7 +34,7 @@ subroutine extract(s3,nadd,ncount,nhist,decoded,ltext)
 
   if(nhist.ge.20) then
      nfail=nfail+1
-     call pctile(s3,tmp,4032,50,base)     ! ### or, use ave from demod64a
+     call pctile(s3,4032,50,base)     ! ### or, use ave from demod64a
      s3(ipk,1:63)=base
      if(nfail.gt.30) then
         decoded='                      '

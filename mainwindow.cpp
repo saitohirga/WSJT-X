@@ -225,12 +225,14 @@ MainWindow::MainWindow(QWidget *parent) :
   g_pBandMap->setColors(m_colors);
   g_pAstro->setFontSize(m_astroFont);
 
+  if(m_modeQRA64==0) on_actionNoQRA64_triggered();
   if(m_modeQRA64==1) on_actionQRA64A_triggered();
   if(m_modeQRA64==2) on_actionQRA64B_triggered();
   if(m_modeQRA64==3) on_actionQRA64C_triggered();
   if(m_modeQRA64==4) on_actionQRA64D_triggered();
   if(m_modeQRA64==5) on_actionQRA64E_triggered();
 
+  if(m_modeJT65==0) on_actionNoJT65_triggered();
   if(m_modeJT65==1) on_actionJT65A_triggered();
   if(m_modeJT65==2) on_actionJT65B_triggered();
   if(m_modeJT65==3) on_actionJT65C_triggered();
@@ -467,6 +469,11 @@ void MainWindow::readSettings()
                                  "PaletteLinrad",false).toBool());
   m_mode=settings.value("Mode","JT65B").toString();
   m_modeJT65=settings.value("nModeJT65",2).toInt();
+  if(m_modeJT65==0) ui->actionNoJT65->setChecked(true);
+  if(m_modeJT65==1) ui->actionJT65A->setChecked(true);
+  if(m_modeJT65==2) ui->actionJT65B->setChecked(true);
+  if(m_modeJT65==3) ui->actionJT65C->setChecked(true);
+
   m_modeQRA64=settings.value("nModeQRA64",2).toInt();
   m_modeTx=settings.value("TxMode","JT65").toString();
   if(m_modeQRA64==0) ui->actionNoQRA64->setChecked(true);
