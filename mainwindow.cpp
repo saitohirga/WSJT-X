@@ -551,7 +551,7 @@ void MainWindow::dataSink(int k)
   fgreen=(float)g_pWideGraph->fGreen();
   nadj++;
   if(m_adjustIQ==0) nadj=0;
-  symspec_(&k, &m_nfast, &nxpol, &ndiskdat, &nb, &m_NBslider, &m_dPhi,
+  symspec_(&k, &nxpol, &ndiskdat, &nb, &m_NBslider, &m_dPhi,
            &nfsample, &fgreen, &m_adjustIQ, &m_applyIQcal,
            &m_gainx, &m_gainy, &m_phasex, &m_phasey, &rejectx, &rejecty,
            &px, &py, s, &nkhz, &ihsym, &nzap, &slimit, lstrong);
@@ -1484,7 +1484,7 @@ void MainWindow::guiUpdate()
     double samfac=1.0;
 
     if(m_modeTx=="JT65") {
-      gen65_(message,&mode65,&m_nfast,&samfac,&nsendingsh,msgsent,iwave,
+      gen65_(message,&mode65,&samfac,&nsendingsh,msgsent,iwave,
              &nwave,len1,len1);
     } else {
       if(m_modeQRA64==5) ntxFreq=600;
@@ -1937,7 +1937,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)                //msgtype()
   int i1=t.indexOf(" OOO");
   QByteArray s=t.toUpper().toLocal8Bit();
   ba2msg(s,message);
-  gen65_(message,&mode65,&m_nfast,&samfac,&nsendingsh,msgsent,iwave,
+  gen65_(message,&mode65,&samfac,&nsendingsh,msgsent,iwave,
          &mwave,len1,len1);
 
   QPalette p(tx->palette());

@@ -1,4 +1,4 @@
-subroutine symspec(k,nfast,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,    &
+subroutine symspec(k,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,    &
      fgreen,iqadjust,iqapply,gainx,gainy,phasex,phasey,rejectx,rejecty,  &
      pxdb,pydb,ssz5a,nkhz,ihsym,nzap,slimit,lstrong)
 
@@ -34,6 +34,7 @@ subroutine symspec(k,nfast,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,    &
   data rms/999.0/,k0/99999999/,nadjx/0/,nadjy/0/
   save
 
+  nfast=1
   if(k.gt.5751000) go to 999
   if(k.lt.NFFT) then
      ihsym=0

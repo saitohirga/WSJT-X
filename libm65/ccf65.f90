@@ -1,4 +1,4 @@
-subroutine ccf65(ss,nhsym,nfast,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
+subroutine ccf65(ss,nhsym,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
      syncshort,snr2,ipol2,dt2)
 
   parameter (NFFT=512,NH=NFFT/2)
@@ -15,7 +15,7 @@ subroutine ccf65(ss,nhsym,nfast,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
   real ccf(-11:54,4)
   logical first
   integer npr(126)
-  data first/.true./,nfast0/-99/
+  data first/.true./
   equivalence (s,cs),(pr,cpr),(s2,cs2),(pr2,cpr2)
   save
 
@@ -29,14 +29,13 @@ subroutine ccf65(ss,nhsym,nfast,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
       0,1,0,1,0,0,1,1,0,0,1,0,0,1,0,0,0,0,1,1,     &
       1,1,1,1,1,1/
 
-  if(first .or. nfast.ne.nfast0) then
+  if(first) then
 ! Initialize pr, pr2; compute cpr, cpr2.
      fac=1.0/NFFT
      do i=1,NFFT
         pr(i)=0.
         pr2(i)=0.
         k=2*mod((i-1)/8,2)-1
-        if(nfast.eq.2) k=2*mod((i-1)/16,2)-1
         if(i.le.NH) pr2(i)=fac*k
      enddo
      do i=1,126
@@ -48,7 +47,6 @@ subroutine ccf65(ss,nhsym,nfast,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
      call four2a(pr,NFFT,1,-1,0)
      call four2a(pr2,NFFT,1,-1,0)
      first=.false.
-     nfast0=nfast
   endif
 
 ! Look for JT65 sync pattern and shorthand square-wave pattern.
@@ -108,7 +106,7 @@ subroutine ccf65(ss,nhsym,nfast,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
   enddo
   rms=sqrt(sq/49.0)
   sync1=ccfbest/rms - 4.0
-  dt1=lagpk*(2048.0/11025.0)/nfast - 2.5
+  dt1=lagpk*(2048.0/11025.0) - 2.5
 
 ! Find base level for normalizing snr2.
   do i=1,nhsym
@@ -117,7 +115,7 @@ subroutine ccf65(ss,nhsym,nfast,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
   call pctile(tmp1,nhsym,40,base)
   snr2=0.398107*ccfbest2/base                !### empirical
   syncshort=0.5*ccfbest2/rms - 4.0           !### better normalizer than rms?
-  dt2=(2.5 + lagpk2*(2048.0/11025.0))/nfast
+  dt2=2.5 + lagpk2*(2048.0/11025.0)
 
   return
 end subroutine ccf65

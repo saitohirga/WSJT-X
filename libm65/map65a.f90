@@ -1,7 +1,7 @@
 subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
      mousedf,mousefqso,nagain,ndecdone,ndiskdat,nfshift,ndphi,              &
      nfcal,nkeep,mcall3b,nsum,nsave,nxant,rmsdd,mycall,mygrid,              &
-     neme,ndepth,hiscall,hisgrid,nhsym,nfsample,nxpol,nmode,nfast)
+     neme,ndepth,hiscall,hisgrid,nhsym,nfsample,nxpol,nmode)
 
 !  Processes timf2 data from Linrad to find and decode JT65 signals.
 
@@ -123,7 +123,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
 !  Look for JT65 sync patterns and shorthand square-wave patterns.
               call timer('ccf65   ',0)
               ssmax=smax
-              call ccf65(ss(1,1,i),nhsym,nfast,ssmax,sync1,ipol,jpz,dt,     &
+              call ccf65(ss(1,1,i),nhsym,ssmax,sync1,ipol,jpz,dt,     &
                    flipk,syncshort,snr2,ipol2,dt2)
               call timer('ccf65   ',1)
 
@@ -217,7 +217,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                  ifreq=i
                  ikHz=nint(freq+0.5*(nfa+nfb)-foffset)-nfshift
                  idf=nint(1000.0*(freq+0.5*(nfa+nfb)-foffset-(ikHz+nfshift)))
-                 call decode1a(dd,newdat,f00,nflip,mode65,nfast,nfsample, &
+                 call decode1a(dd,newdat,f00,nflip,mode65,nfsample, &
                       xpol,mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,   &
                       ndphi,iloop,nutc,ikHz,idf,ipol,ntol,bqra64,sync2,   &
                       a,dt,pol,nkv,nhist,nsum,nsave,qual,decoded)
@@ -288,11 +288,9 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
 
               s2db=10.0*log10(sync2) - 40             !### empirical ###
               nsync2=nint(s2db)
-              if(nfast.eq.2) nsync2=nint(s2db + 6.5)
               if(decoded(1:4).eq.'RO  ' .or. decoded(1:4).eq.'RRR  ' .or.  &
                    decoded(1:4).eq.'73  ') then
-                 if(nfast.eq.1) nsync2=nint(1.33*s2db + 2.0)
-                 if(nfast.eq.2) nsync2=nint(1.33*s2db + 2.7)
+                 nsync2=nint(1.33*s2db + 2.0)
               endif
 
               nwrite=nwrite+1
@@ -418,11 +416,9 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
 
            s2db=10.0*log10(sync2) - 40             !### empirical ###
            nsync2=nint(s2db)
-           if(nfast.eq.2) nsync2=nint(s2db + 6.5)
            if(decoded(1:4).eq.'RO  ' .or. decoded(1:4).eq.'RRR  ' .or.  &
                 decoded(1:4).eq.'73  ') then
-              if(nfast.eq.1) nsync2=nint(1.33*s2db + 2.0)
-              if(nfast.eq.2) nsync2=nint(1.33*s2db + 2.7)
+              nsync2=nint(1.33*s2db + 2.0)
            endif
 
            if(nxant.ne.0) then
@@ -455,7 +451,6 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
            cmode='A '
            if(mode65.eq.2) cmode='B '
            if(mode65.eq.4) cmode='C '
-           if(nfast.eq.2) cmode(2:2)='2'
            write(26,1014) f0,ndf,ndf0,ndf1,ndf2,dt,npol,nsync1,       &
                 nsync2,nutc,decoded,cp,cmode
            write(21,1014) f0,ndf,ndf0,ndf1,ndf2,dt,npol,nsync1,       &

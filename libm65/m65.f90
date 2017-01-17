@@ -39,8 +39,6 @@ program m65
   if(arg(1:1).eq.'B') nmode=2
   if(arg(1:1).eq.'C') nmode=3
 !###
-  nfast=1
-  if(arg(2:2).eq.'2') nfast=2
   nfsample=96000
   call getarg(2,arg)
   if(arg.eq.'95238') then
@@ -108,7 +106,7 @@ program m65
            gainy=1.0265
            phasex=0.01426
            phasey=-0.01195
-           call symspec(k,nfast,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,   &
+           call symspec(k,nxpol,ndiskdat,nb,nbslider,idphi,nfsample,   &
                 fgreen,iqadjust,iqapply,gainx,gainy,phasex,phasey,rejectx,   &
                 rejecty,pxdb,pydb,ssz5a,nkhz,ihsym,nzap,slimit,lstrong)
            call timer('symspec ',1)

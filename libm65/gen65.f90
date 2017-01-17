@@ -1,4 +1,4 @@
-subroutine gen65(message,mode65,nfast,samfac,nsendingsh,msgsent,iwave,nwave)
+subroutine gen65(message,mode65,samfac,nsendingsh,msgsent,iwave,nwave)
 
 ! Encodes a JT65 message into a wavefile.  
 ! Executes in 17 ms on opti-745.
@@ -43,9 +43,9 @@ subroutine gen65(message,mode65,nfast,samfac,nsendingsh,msgsent,iwave,nwave)
      call interleave63(sent,1)           !Apply interleaving
      call graycode(sent,63,1)            !Apply Gray code
      nsym=126                            !Symbols per transmission
-     nsps=4096/nfast
+     nsps=4096
   else
-     nsym=32/nfast
+     nsym=32
      nsps=16384
      nsendingsh=1                         !Flag for shorthand message
   endif

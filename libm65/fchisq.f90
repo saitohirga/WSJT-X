@@ -1,4 +1,4 @@
-real function fchisq(cx,cy,npts,nfast,fsample,nflip,a,ccfmax,dtmax)
+real function fchisq(cx,cy,npts,fsample,nflip,a,ccfmax,dtmax)
 
   parameter (NMAX=60*96000)          !Samples per 60 s
   complex cx(npts),cy(npts)
@@ -10,7 +10,7 @@ real function fchisq(cx,cy,npts,nfast,fsample,nflip,a,ccfmax,dtmax)
   save
 
   call timer('fchisq  ',0)
-  baud=nfast*11025.0/4096.0
+  baud=11025.0/4096.0
   nsps=nint(fsample/baud)                  !Samples per symbol
   nsph=nsps/2                              !Samples per half-symbol
   ndiv=16                                  !Output ss() steps per symbol

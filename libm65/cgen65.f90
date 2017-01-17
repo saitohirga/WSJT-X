@@ -1,4 +1,4 @@
-subroutine cgen65(message,mode65,nfast,samfac,nsendingsh,msgsent,cwave,nwave)
+subroutine cgen65(message,mode65,samfac,nsendingsh,msgsent,cwave,nwave)
 
 ! Encodes a JT65 message into a wavefile.  
 ! Executes in 17 ms on opti-745.
@@ -43,10 +43,10 @@ subroutine cgen65(message,mode65,nfast,samfac,nsendingsh,msgsent,cwave,nwave)
      call interleave63(sent,1)           !Apply interleaving
      call graycode(sent,63,1)            !Apply Gray code
      nsym=126                            !Symbols per transmission
-     tsymbol=4096.d0/(nfast*11025.d0)    !Time per symbol
+     tsymbol=4096.d0/11025.d0            !Time per symbol
   else
      nsendingsh=1                        !Flag for shorthand message
-     nsym=32/nfast
+     nsym=32
      tsymbol=16384.d0/11025.d0
   endif
 

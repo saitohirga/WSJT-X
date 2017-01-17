@@ -1,4 +1,4 @@
-subroutine decode1a(dd,newdat,f0,nflip,mode65,nfast,nfsample,xpol,          &
+subroutine decode1a(dd,newdat,f0,nflip,mode65,nfsample,xpol,          &
      mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,ndphi,iloop,               &
      nutc,nkhz,ndf,ipol,ntol,bqra64,sync2,a,dt,pol,nkv,nhist,nsum,nsave,    &
      qual,decoded)
@@ -24,7 +24,7 @@ subroutine decode1a(dd,newdat,f0,nflip,mode65,nfast,nfsample,xpol,          &
 ! Mix sync tone to baseband, low-pass filter, downsample to 1378.125 Hz
   dt00=dt
   call timer('filbig  ',0)
-  call filbig(dd,NMAX,nfast,f0,newdat,nfsample,xpol,cx,cy,n5)
+  call filbig(dd,NMAX,f0,newdat,nfsample,xpol,cx,cy,n5)
 ! NB: cx, cy have sample rate 96000*77125/5376000 = 1378.125 Hz
   call timer('filbig  ',1)
   if(nqd.eq.2) goto 900
@@ -68,7 +68,7 @@ subroutine decode1a(dd,newdat,f0,nflip,mode65,nfast,nfsample,xpol,          &
 ! factor of 1/8, say?  Should be a significant execution speed-up.
   call timer('afc65b  ',0)
 ! Best fit for DF, f1, f2, pol
-  call afc65b(c5x(i0),c5y(i0),nz,nfast,fsample,nflip,ipol,xpol,      &
+  call afc65b(c5x(i0),c5y(i0),nz,fsample,nflip,ipol,xpol,      &
        ndphi,iloop,a,ccfbest,dtbest)
   call timer('afc65b  ',1)
 
@@ -92,9 +92,8 @@ subroutine decode1a(dd,newdat,f0,nflip,mode65,nfast,nfsample,xpol,          &
 ! submodes B and C).
 
   nsym=126
-  nfft=512/nfast
+  nfft=512
   j=(dt00+dtbest+2.685)*1378.125
-  if(nfast.eq.2) j=j-1506
   if(j.lt.0) j=0
 
   call timer('sh_ffts ',0)
@@ -114,9 +113,8 @@ subroutine decode1a(dd,newdat,f0,nflip,mode65,nfast,nfsample,xpol,          &
            do i=1,66
 !                  s2(i,k)=real(c5a(i))**2 + aimag(c5a(i))**2
               jj=i
-              if(nfast.eq.1 .and. mode65.eq.2) jj=2*i-1
-              if(nfast.eq.2 .and. mode65.eq.4) jj=2*i-1
-              if(nfast.eq.1 .and. mode65.eq.4) jj=4*i-3
+              if(mode65.eq.2) jj=2*i-1
+              if(mode65.eq.4) jj=4*i-3
               s2(i,k)=real(c5a(jj))**2 + aimag(c5a(jj))**2
            enddo
         else
@@ -134,7 +132,6 @@ subroutine decode1a(dd,newdat,f0,nflip,mode65,nfast,nfsample,xpol,          &
   call decode65b(s2,flip,mycall,hiscall,hisgrid,mode65,neme,ndepth,    &
        nqd,nkv,nhist,qual,decoded,s3,sy)
   dt=dt00 + dtbest + 1.7
-  if(nfast.eq.2) dt=dt00 + dtbest + 0.6
   call timer('dec65b  ',1)
 
   if(nqd.eq.1 .and. decoded.eq.'                      ') then
