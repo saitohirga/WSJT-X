@@ -157,7 +157,6 @@ MainWindow::MainWindow(QWidget *parent) :
   m_adjustIQ=0;
   m_applyIQcal=0;
   m_colors="000066ff0000ffff00969696646464";
-  m_nfast=1;
   m_nsave=0;
   m_modeJT65=0;
   m_modeQRA64=0;
@@ -614,7 +613,7 @@ void MainWindow::dataSink(int k)
           t.time().toString("hhmm");
       if(m_xpol) fname += ".tf2";
       if(!m_xpol) fname += ".iq";
-      *future2 = QtConcurrent::run(savetf2, fname, m_xpol, m_nfast);
+      *future2 = QtConcurrent::run(savetf2, fname, m_xpol);
       watcher2->setFuture(*future2);
     }
   }
@@ -1042,7 +1041,7 @@ void MainWindow::on_actionOpen_triggered()                     //Open File
     m_diskData=true;
     int dbDgrd=0;
     if(m_myCall=="K1JT" and m_idInt<0) dbDgrd=m_idInt;
-    *future1 = QtConcurrent::run(getfile, fname, m_xpol, dbDgrd, m_nfast);
+    *future1 = QtConcurrent::run(getfile, fname, m_xpol, dbDgrd);
     watcher1->setFuture(*future1);
   }
 }
@@ -1074,7 +1073,7 @@ void MainWindow::on_actionOpen_next_in_directory_triggered()   //Open Next
       m_diskData=true;
       int dbDgrd=0;
       if(m_myCall=="K1JT" and m_idInt<0) dbDgrd=m_idInt;
-      *future1 = QtConcurrent::run(getfile, fname, m_xpol, dbDgrd, m_nfast);
+      *future1 = QtConcurrent::run(getfile, fname, m_xpol, dbDgrd);
       watcher1->setFuture(*future1);
       return;
     }
@@ -1096,7 +1095,7 @@ void MainWindow::diskDat()                                   //diskDat()
 
   if(m_fs96000) hsym=2048.0*96000.0/11025.0;   //Samples per JT65 half-symbol
   if(!m_fs96000) hsym=2048.0*95238.1/11025.0;
-  for(int i=0; i<284/m_nfast; i++) {           // Do the half-symbol FFTs
+  for(int i=0; i<284; i++) {           // Do the half-symbol FFTs
     int k = i*hsym + 2048.5;
     dataSink(k);
     if(i%10 == 0) qApp->processEvents();       //Keep the GUI responsive
@@ -1203,10 +1202,7 @@ void MainWindow::on_actionAvailable_suffixes_and_add_on_prefixes_triggered()
 void MainWindow::on_DecodeButton_clicked()                    //Decode request
 {
   int n=m_sec0%m_TRperiod;
-  if(m_nfast==1) {
-    if(m_monitoring and n>47 and (n<52 or m_decoderBusy)) return;
-  } else {
-    if(m_monitoring and n>21 and (n<26 or m_decoderBusy)) return;  }
+  if(m_monitoring and n>47 and (n<52 or m_decoderBusy)) return;
   if(!m_decoderBusy) {
     datcom_.newdat=0;
     datcom_.nagain=1;
@@ -1276,7 +1272,7 @@ void MainWindow::decode()                                       //decode()
   datcom_.nxpol=0;
   if(m_xpol) datcom_.nxpol=1;
   datcom_.nmode=10*m_modeQRA64 + m_modeJT65;
-  datcom_.nfast=m_nfast;
+  datcom_.nfast=1;                               //No longer used
   datcom_.nsave=m_nsave;
 
   QString mcall=(m_myCall+"            ").mid(0,12);
@@ -1421,7 +1417,7 @@ void MainWindow::guiUpdate()
   int khsym=0;
 
   double tx1=0.0;
-  double tx2=126.0*4096.0/(m_nfast*11025.0) + 1.8;
+  double tx2=126.0*4096.0/11025.0 + 1.8;
   if(m_modeTx=="QRA64") tx2=84.0*6912.0/12000.0 + 1.8;
 
   if(!m_txFirst) {
@@ -1431,7 +1427,7 @@ void MainWindow::guiUpdate()
   qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
   int nsec=ms/1000;
   double tsec=0.001*ms;
-  double t2p=fmod(tsec,120.0/m_nfast);
+  double t2p=fmod(tsec,120.0);
   bool bTxTime = (t2p >= tx1) and (t2p < tx2);
 
   if(bTune0 and !bTune) {
@@ -1725,12 +1721,8 @@ void MainWindow::doubleClickOnCall(QString hiscall, bool ctrl)
   QString t1 = t.mid(0,i2);              //contents up to text cursor
   int i1=t1.lastIndexOf("\n") + 1;
   QString t2 = t1.mid(i1,i2-i1);         //selected line
-  if(m_nfast==1) {
-    int n = 60*t2.mid(13,2).toInt() + t2.mid(15,2).toInt();
-    m_txFirst = ((n%2) == 1);
-  } else {
-    m_txFirst = (t2.mid(17,2).toInt()==30);
-  }
+  int n = 60*t2.mid(13,2).toInt() + t2.mid(15,2).toInt();
+  m_txFirst = ((n%2) == 1);
   ui->txFirstCheckBox->setChecked(m_txFirst);
   QString rpt="";
   if(ctrl or m_modeTx=="QRA64") rpt=t2.mid(25,3);
@@ -1751,12 +1743,8 @@ void MainWindow::doubleClickOnMessages(QString hiscall, QString t2)
     msgBox("Possible dupe: " + hiscall + " already in log.");
   }
   ui->dxCallEntry->setText(hiscall);
-  if(m_nfast==1) {
-    int n = 60*t2.mid(13,2).toInt() + t2.mid(15,2).toInt();
-    m_txFirst = ((n%2) == 1);
-  } else {
-    m_txFirst = (t2.mid(17,2).toInt()==30);
-  }
+  int n = 60*t2.mid(13,2).toInt() + t2.mid(15,2).toInt();
+  m_txFirst = ((n%2) == 1);
   ui->txFirstCheckBox->setChecked(m_txFirst);
   lookup();
   genStdMsgs("");
@@ -2083,7 +2071,6 @@ void MainWindow::on_actionJT65A_triggered()
   m_mode="JT65A";
   m_modeJT65=1;
   m_mode65=1;
-  m_nfast=1;
   m_TRperiod=60;
   soundInThread.setPeriod(m_TRperiod);
   soundOutThread.setPeriod(m_TRperiod);
@@ -2099,7 +2086,6 @@ void MainWindow::on_actionJT65B_triggered()
   m_mode="JT65B";
   m_modeJT65=2;
   m_mode65=2;
-  m_nfast=1;
   m_TRperiod=60;
   soundInThread.setPeriod(m_TRperiod);
   soundOutThread.setPeriod(m_TRperiod);
@@ -2115,7 +2101,6 @@ void MainWindow::on_actionJT65C_triggered()
   m_mode="JT65C";
   m_modeJT65=3;
   m_mode65=4;
-  m_nfast=1;
   m_TRperiod=60;
   soundInThread.setPeriod(m_TRperiod);
   soundOutThread.setPeriod(m_TRperiod);

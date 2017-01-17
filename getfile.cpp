@@ -6,9 +6,9 @@
 
 extern qint16 id[4*60*96000];
 
-void getfile(QString fname, bool xpol, int dbDgrd, int nfast)
+void getfile(QString fname, bool xpol, int dbDgrd)
 {
-  int npts=2*52*96000/nfast;
+  int npts=2*52*96000;
   if(xpol) npts=2*npts;
 
 // Degrade S/N by dbDgrd dB -- for tests only!!
@@ -53,9 +53,9 @@ void getfile(QString fname, bool xpol, int dbDgrd, int nfast)
   }
 }
 
-void savetf2(QString fname, bool xpol, int nfast)
+void savetf2(QString fname, bool xpol)
 {
-  int npts=2*52*96000/nfast;
+  int npts=2*52*96000;
   if(xpol) npts=2*npts;
 
   qint16* buf=(qint16*)malloc(2*npts);

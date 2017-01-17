@@ -168,7 +168,6 @@ private:
     qint32  m_applyIQcal;
     qint32  m_mult570;
     qint32  m_mult570Tx;
-    qint32  m_nfast;
     qint32  m_nsum;
     qint32  m_nsave;
     qint32  m_TRperiod;
