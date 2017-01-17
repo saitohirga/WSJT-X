@@ -118,7 +118,6 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
         enddo
 
         if(smax.gt.1.1 .or. ia.eq.ib) then
-
            if(nqd.lt.2) then
 !  Look for JT65 sync patterns and shorthand square-wave patterns.
               call timer('ccf65   ',0)
@@ -354,7 +353,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
 1013    format('<QuickDecodeDone>',2i4)
         flush(6)
      endif
-!     if(nqd.eq.2) exit                    !### TESTING: do only QRA64
+     if(nqd.eq.2 .and. mode65.eq.0) go to 999
      if(nagain.eq.1 .and. nqd.eq.1) go to 999
   enddo
 

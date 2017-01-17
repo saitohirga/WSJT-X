@@ -87,15 +87,21 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
 
      irc=-99
      s3lim=20.
+     itryz=5
      itz=11
      if(mode64.eq.4) itz=9
      if(mode64.eq.2) itz=7
      if(mode64.eq.1) itz=5
 
+     if(mode64.eq.1) then
+        itz=0
+        itryz=1
+     endif
+
      LL=64*(mode64+2)
      NN=63
      napmin=99
-     do itry0=1,5
+     do itry0=1,itryz
         idt=itry0/2
         if(mod(itry0,2).eq.0) idt=-idt
         jpk=jpk0 + 750*idt

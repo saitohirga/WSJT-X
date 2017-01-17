@@ -1530,7 +1530,6 @@ void MainWindow::guiUpdate()
     int itx=0;
     ptt_(&m_pttPort,&itx,&iptt);       // Lower PTT
     if(!m_txMute) {
-//      qDebug() << "C";
       soundOutThread.quitExecution=true;\
     }
     m_transmitting=false;
@@ -2062,7 +2061,6 @@ void MainWindow::on_actionErase_map65_tx_log_triggered()     //Erase Tx log
 void MainWindow::on_actionNoJT65_triggered()
 {
   m_modeJT65=0;
-  qDebug() << QPalette::Window;
   lab5->setStyleSheet("");
   lab5->setText("");
 }
