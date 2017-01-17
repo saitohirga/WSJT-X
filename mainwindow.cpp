@@ -1421,7 +1421,8 @@ void MainWindow::guiUpdate()
   int khsym=0;
 
   double tx1=0.0;
-  double tx2=126.0*4096.0/(m_nfast*11025.0) + 1.8;    //### depend on TxDelay?
+  double tx2=126.0*4096.0/(m_nfast*11025.0) + 1.8;
+  if(m_modeTx=="QRA64") tx2=84.0*6912.0/12000.0 + 1.8;
 
   if(!m_txFirst) {
     tx1 += m_TRperiod;
@@ -1566,7 +1567,7 @@ void MainWindow::guiUpdate()
   }
 
   if(nsec != m_sec0) {                                     //Once per second
-//    qDebug() << "B" << bTune << bTxTime << btxok;
+//    qDebug() << "A" << nsec%60;
     soundInThread.setForceCenterFreqMHz(g_pWideGraph->m_dForceCenterFreq);
     soundInThread.setForceCenterFreqBool(g_pWideGraph->m_bForceCenterFreq);
 
