@@ -179,6 +179,10 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
      write(*,1010) ikHz,nfreq,npol,nutc,dtx,nsnr,cmode,decoded,irc,ntxpol,cp
 1010 format('!',i3,i5,i4,i6.4,f5.1,i5,1x,a1,1x,a22,i2,i5,1x,a1)
      nwrite_qra64=nwrite_qra64+1
+     freq=144.0 + 0.001*ikhz
+     write(21,1014) freq,nfreq,0,0,0,dtx,npol,int(sync1),       &
+          int(sync2),nutc,decoded,cp,'$'
+1014 format(f8.3,i5,3i3,f5.1,i4,i3,i4,i5.4,4x,a22,2x,a1,3x,a1)
   else
      write(*,1010) ikHz,nfreq,npol,nutc,dtx,nsnr,cmode
      nwrite_qra64=nwrite_qra64+1
