@@ -70,11 +70,11 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
   naptype=maxaptype
   npts2=NFFT2
 
-  do ip=0,1
-!###  
+  do ip=0,3
      if(ip.eq.0) c00(0:NFFT2-1)=conjg(cx)
-     if(ip.eq.1) c00(0:NFFT2-1)=conjg(cy)
-!###
+     if(ip.eq.1) c00(0:NFFT2-1)=conjg(cx+cy)
+     if(ip.eq.2) c00(0:NFFT2-1)=conjg(cy)
+     if(ip.eq.3) c00(0:NFFT2-1)=conjg(cx-cy)
 
      call sync64(c00,nf1,nf2,nfqso,ntol,mode64,emedelay,dtx,f0,jpk0,sync,  &
           sync2,width)
@@ -124,7 +124,7 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
               dtxkeep=jpk/6000.0 - 1.0
               itry0keep=itry0
               iterkeep=iter
-              npolkeep=ip*90
+              npolkeep=ip*45
            endif
         enddo
         if(irc.eq.0) goto 5
@@ -144,7 +144,7 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
 10 decoded='                      '
 
   if(irc.ge.0) then
-     if(irc.eq.0) npol=ip*90
+     if(irc.eq.0) npol=ip*45
      call unpackmsg(dat4,decoded)           !Unpack the user message
      call fmtmsg(decoded,iz)
      if(index(decoded,"000AAA ").ge.1) then

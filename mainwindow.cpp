@@ -382,6 +382,7 @@ void MainWindow::writeSettings()
   settings.setValue("Mode",m_mode);
   settings.setValue("nModeJT65",m_modeJT65);
   settings.setValue("nModeQRA64",m_modeQRA64);
+  settings.setValue("TxMode",m_modeTx);
   settings.setValue("SaveNone",ui->actionNone->isChecked());
   settings.setValue("SaveAll",ui->actionSave_all->isChecked());
   settings.setValue("NDepth",m_ndepth);
@@ -468,12 +469,15 @@ void MainWindow::readSettings()
   m_mode=settings.value("Mode","JT65B").toString();
   m_modeJT65=settings.value("nModeJT65",2).toInt();
   m_modeQRA64=settings.value("nModeQRA64",2).toInt();
+  m_modeTx=settings.value("TxMode","JT65").toString();
   if(m_modeQRA64==0) ui->actionNoQRA64->setChecked(true);
   if(m_modeQRA64==1) ui->actionQRA64A->setChecked(true);
   if(m_modeQRA64==2) ui->actionQRA64B->setChecked(true);
   if(m_modeQRA64==3) ui->actionQRA64C->setChecked(true);
   if(m_modeQRA64==4) ui->actionQRA64D->setChecked(true);
   if(m_modeQRA64==5) ui->actionQRA64E->setChecked(true);
+  if(m_modeTx=="JT65")  ui->pbTxMode->setText("Tx JT65   #");
+  if(m_modeTx=="QRA64") ui->pbTxMode->setText("Tx QRA64  #");
 
   ui->actionNone->setChecked(settings.value("SaveNone",true).toBool());
   ui->actionSave_all->setChecked(settings.value("SaveAll",false).toBool());

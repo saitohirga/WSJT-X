@@ -508,6 +508,12 @@ p, li { white-space: pre-wrap; }
               <height>0</height>
              </size>
             </property>
+            <property name="maximumSize">
+             <size>
+              <width>80</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="text">
              <string>Tx QRA64  $</string>
             </property>
