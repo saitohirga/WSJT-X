@@ -138,6 +138,8 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,emedelay,dtx,f0,jpk,sync,  &
 
   slimit=6.0
   rewind 17
+  write(17,1110) 0.0,0.0
+  rewind 17
 !  rewind 76
   do i=2,iz-2*nskip-1,3
      x=i
