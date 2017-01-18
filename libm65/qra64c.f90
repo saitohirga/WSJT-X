@@ -5,15 +5,11 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
   parameter (NFFT2=336000)               !56*6000 (downsampled by 1/16)
   parameter (NMAX=60*12000,LN=1152*63)
 
-! Required input data:
-!   nutc,cx,cy,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,emedelay,
-!   mycall_12,hiscall_12,hisgrid_6
-
   character decoded*22
   character*12 mycall_12,hiscall_12
-  character*6 mycall,hiscall,hisgrid_6
+  character*6 mycall,hiscall,hisgrid_6,grid
   character*4 hisgrid
-  character*1 cp,cmode
+  character cp*1,cmode*2
   logical xpol,ltext
   complex cx(0:NFFT2-1),cy(0:NFFT2-1)
   complex c00(0:720000)                      !Complex spectrum of dd()
@@ -51,6 +47,7 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
   if(mode64.eq.4) nSubmode=2
   if(mode64.eq.8) nSubmode=3
   if(mode64.eq.16) nSubmode=4
+  cmode(2:2)=char(ichar('A')+nSubmode)
   b90=1.0
   nFadingModel=1
   maxaptype=4
@@ -72,9 +69,9 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
 
   do ip=0,3
      if(ip.eq.0) c00(0:NFFT2-1)=conjg(cx)
-     if(ip.eq.1) c00(0:NFFT2-1)=conjg(cx+cy)
+     if(ip.eq.1) c00(0:NFFT2-1)=0.707*conjg(cx+cy)
      if(ip.eq.2) c00(0:NFFT2-1)=conjg(cy)
-     if(ip.eq.3) c00(0:NFFT2-1)=conjg(cx-cy)
+     if(ip.eq.3) c00(0:NFFT2-1)=0.707*conjg(cx-cy)
 
      call sync64(c00,nf1,nf2,nfqso,ntol,mode64,emedelay,dtx,f0,jpk0,sync,  &
           sync2,width)
@@ -173,20 +170,58 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
      if(nSubmode.eq.4) nsnr=nint(10.0*log10(sy)-24.0)   !E
   endif
 
-  cp='H'
+!###
+!  If Tx station's grid is in decoded message, compute optimum TxPol
+  i1=index(decoded,' ')
+  i2=index(decoded(i1+1:),' ') + i1
+  grid='      '
+  if(i2.ge.8 .and. i2.le.18) grid=decoded(i2+1:i2+4)//'mm'
   ntxpol=0
+  cp=' '
+  if(xpol) then
+     if(grid(1:1).ge.'A' .and. grid(1:1).le.'R' .and.           &
+          grid(2:2).ge.'A' .and. grid(2:2).le.'R' .and.         &
+          grid(3:3).ge.'0' .and. grid(3:3).le.'9' .and.         &
+          grid(4:4).ge.'0' .and. grid(4:4).le.'9') then                 
+        ntxpol=mod(npol-nint(2.0*dpol(mygrid,grid))+720,180)
+        if(nxant.eq.0) then
+           cp='H'
+           if(ntxpol.gt.45 .and. ntxpol.le.135) cp='V'
+        else
+           cp='/'
+           if(ntxpol.ge.90 .and. ntxpol.lt.180) cp='\\'
+        endif
+     endif
+  endif
+!###
+
+!###
+!     write(62,3010) ikHz,nfreq,npol,nutc,dtx,nsnr,cmode(1:1),decoded,   &
+!          irc,sync,sync2
+!3010 format(i3,i5,i4,i6.4,f5.1,i5,1x,a1,1x,a22,i3,2f7.1)
+!###
+  
   if(irc.ge.0) then
-     write(*,1010) ikHz,nfreq,npol,nutc,dtx,nsnr,cmode,decoded,irc,ntxpol,cp
-1010 format('!',i3,i5,i4,i6.4,f5.1,i5,1x,a1,1x,a22,i2,i5,1x,a1)
+     write(*,1010) ikHz,nfreq,npol,nutc,dtx,nsnr,cmode(1:1),decoded,   &
+          irc,ntxpol,cp
+1010 format('!',i3,i5,i4,i6.4,f5.1,i5,1x,a1,1x,a22,i2,i5,6x,a1)
      nwrite_qra64=nwrite_qra64+1
      freq=144.0 + 0.001*ikhz
-     write(21,1014) freq,nfreq,0,0,0,dtx,npol,int(sync1),       &
-          int(sync2),nutc,decoded,cp,'$'
-1014 format(f8.3,i5,3i3,f5.1,i4,i3,i4,i5.4,4x,a22,2x,a1,3x,a1)
+     write(21,1014) freq,nfreq,dtx,npol,nsnr,nutc,decoded,cp,          &
+          cmode(1:1),cmode(2:2)
+1014 format(f8.3,i5,f5.1,2i4,i5.4,2x,a22,2x,a1,3x,a1,1x,a1)
+
+     if(index(decoded,' CQ ').gt.0 .or. index(decoded,' QRZ ').gt.0 .or.     &
+          index(decoded,' QRT ').gt.0 .or. index(decoded,' CQV ').gt.0 .or.  &
+          index(decoded,' CQH ').gt.0) then
+        write(19,1016) ikhz,nfreq,npol,nutc,dtx,nsnr,decoded,0,cmode
+1016    format(i3,i5,i4,i5.4,f7.1,i4,2x,a22,i3,1x,a2)
+        flush(19)
+     endif
   else
-     write(*,1010) ikHz,nfreq,npol,nutc,dtx,nsnr,cmode
+     write(*,1010) ikHz,nfreq,npol,nutc,dtx,nsnr
      nwrite_qra64=nwrite_qra64+1
   endif
 
-999 return
+  return
 end subroutine qra64c

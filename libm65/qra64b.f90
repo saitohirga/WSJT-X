@@ -23,13 +23,15 @@ subroutine qra64b(nutc,nqd,ikhz,mousedf,ntol,xpol,mycall_12,hiscall_12,   &
   cy(nh+1:NFFT2-1)=cb(k0-nh+1:k0-1)
   cy=fac*cy
 
+!  write(60) cx,cy,nutc,nqd,ikhz,mousedf,ntol,xplo,mycall_12,           &
+!       hiscall_12,hisgrid_6
+
   if(nzap.gt.0) call qra64zap(cx,cy,nzap)
 
 ! Transform back to time domain with sample rate 6000 Hz.
   call four2a(cx,NFFT2,1,-1,1)
   call four2a(cy,NFFT2,1,-1,1)
 
-!  write(67) nutc,cx,cy
   call qra64c(cx,cy,nutc,nqd,ikhz,mousedf,ntol,xplo,mycall_12,    &
        hiscall_12,hisgrid_6,nwrite_qra64)
   close(17)
