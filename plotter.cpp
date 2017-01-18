@@ -139,18 +139,21 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
     if(f) {
       int x,y;
       float freq,sync;
+      float slimit=6.0;
       QPen pen0(Qt::red,1);
       painter2.setPen(pen0);
       for(int i=0; i<99999; i++) {
         f >> freq >> sync;
         if(f.eof()) break;
         x=(freq - m_ZoomStartFreq)/df;
-        y=(sync-1.5)*2.0;
-        if(y>15.0) y=15.0;
-        if(x>=0 and x<=w) painter2.drawLine(x,0,x,y);
-        x=XfromFreq(float(fQSO()+0.001*freq));
-        painter1.setPen(pen0);
-        painter1.drawLine(x,0,x,y);
+        y=(sync-slimit)*3.0;
+        if(y>0) {
+          if(y>15.0) y=15.0;
+          if(x>=0 and x<=w) painter2.drawLine(x,0,x,y);
+          x=XfromFreq(float(fQSO()+0.001*freq));
+          painter1.setPen(pen0);
+          painter1.drawLine(x,0,x,y);
+        }
       }
       f.close();
     }

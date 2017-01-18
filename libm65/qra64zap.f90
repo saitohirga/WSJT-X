@@ -32,6 +32,8 @@ subroutine qra64zap(cx,cy,nzap)
      nw=3
      do n=1,3
         nw=2*nw
+        if(ipk-2*nw.lt.-1312) cycle
+        if(ipk+2*nw.gt. 1312) cycle
         s1=maxval(s(ipk-2*nw:ipk-nw))
         s2=maxval(s(ipk+nw:ipk+2*nw))
         if(smax.gt.slimit .and. s1.lt.sbottom .and. s2.lt.sbottom) then
@@ -42,7 +44,6 @@ subroutine qra64zap(cx,cy,nzap)
            ib=(i0+nw)*nadd
            cx(ia:ib)=0.
            cy(ia:ib)=0.
-!           print*,'!',nzap,ipk*df,nw
            exit
         endif
      enddo
