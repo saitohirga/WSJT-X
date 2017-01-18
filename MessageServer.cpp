@@ -283,7 +283,7 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                 QByteArray tx_power;
                 QByteArray comments;
                 QByteArray name;
-				QDateTime timeOn;
+                QDateTime timeOn; // Note: LOTW uses TIME_ON for their +/- 30-minute time window
                 in >> timeOff >> dx_call >> dx_grid >> dial_frequency >> mode >> report_sent >> report_received
                    >> tx_power >> comments >> name >> timeOn;
                 if (check_status (in) != Fail)

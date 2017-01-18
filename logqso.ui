@@ -2,20 +2,6 @@
 <ui version="4.0">
  <class>LogQSO</class>
  <widget class="QDialog" name="LogQSO">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>520</width>
-    <height>318</height>
-   </rect>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>16777215</width>
-    <height>16777215</height>
-   </size>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <spacer name="verticalSpacer_3">
@@ -806,6 +792,10 @@
   <tabstop>call</tabstop>
   <tabstop>dateOn</tabstop>
   <tabstop>timeOn</tabstop>
+  <tabstop>dateOff</tabstop>
+  <tabstop>timeOff</tabstop>
+  <tabstop>mode</tabstop>
+  <tabstop>band</tabstop>
   <tabstop>sent</tabstop>
   <tabstop>rcvd</tabstop>
   <tabstop>grid</tabstop>
@@ -814,7 +804,6 @@
   <tabstop>cbTxPower</tabstop>
   <tabstop>comments</tabstop>
   <tabstop>cbComments</tabstop>
-  <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
  <connections>

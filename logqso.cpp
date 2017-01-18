@@ -101,6 +101,8 @@ void LogQSO::accept()
   mode=ui->mode->text();
   rptSent=ui->sent->text();
   rptRcvd=ui->rcvd->text();
+  m_dateTimeOn = m_dateTimeOn.fromString(ui->dateOn->text()+" "+ui->timeOn->text(),"yyyy-MM-dd hhmm");
+  m_dateTimeOff = m_dateTimeOff.fromString(ui->dateOff->text()+" "+ui->timeOff->text(),"yyyy-MM-dd hhmm");
   dateOn=ui->dateOn->text();
   dateOn=dateOn.mid(0,4) + dateOn.mid(5,2) + dateOn.mid(8,2);
   timeOn=ui->timeOn->text();
