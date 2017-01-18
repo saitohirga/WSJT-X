@@ -12,7 +12,8 @@ using port_type = MessageServer::port_type;
 namespace
 {
   char const * const headings[] = {
-    QT_TRANSLATE_NOOP ("MessageAggregatorMainWindow", "Date/Time"),
+    QT_TRANSLATE_NOOP ("MessageAggregatorMainWindow", "Time On"),
+    QT_TRANSLATE_NOOP ("MessageAggregatorMainWindow", "Time Off"),
     QT_TRANSLATE_NOOP ("MessageAggregatorMainWindow", "Callsign"),
     QT_TRANSLATE_NOOP ("MessageAggregatorMainWindow", "Grid"),
     QT_TRANSLATE_NOOP ("MessageAggregatorMainWindow", "Name"),
@@ -26,7 +27,7 @@ namespace
 }
 
 MessageAggregatorMainWindow::MessageAggregatorMainWindow ()
-  : log_ {new QStandardItemModel {0, 10, this}}
+  : log_ {new QStandardItemModel {0, 11, this}}
   , decodes_model_ {new DecodesModel {this}}
   , beacons_model_ {new BeaconsModel {this}}
   , server_ {new MessageServer {this}}
@@ -109,13 +110,14 @@ MessageAggregatorMainWindow::MessageAggregatorMainWindow ()
   show ();
 }
 
-void MessageAggregatorMainWindow::log_qso (QString const& /*id*/, QDateTime time, QString const& dx_call, QString const& dx_grid
+void MessageAggregatorMainWindow::log_qso (QString const& /*id*/, QDateTime timeOff, QString const& dx_call, QString const& dx_grid
                                            , Frequency dial_frequency, QString const& mode, QString const& report_sent
                                            , QString const& report_received, QString const& tx_power, QString const& comments
-                                           , QString const& name)
+                                           , QString const& name, QDateTime timeOn)
 {
   QList<QStandardItem *> row;
-  row << new QStandardItem {time.toString ("dd-MMM-yyyy hh:mm")}
+  row << new QStandardItem {timeOn.toString ("dd-MMM-yyyy hh:mm")}
+  << new QStandardItem {timeOff.toString ("dd-MMM-yyyy hh:mm")}
   << new QStandardItem {dx_call}
   << new QStandardItem {dx_grid}
   << new QStandardItem {name}
