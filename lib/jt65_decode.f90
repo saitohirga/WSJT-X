@@ -138,7 +138,7 @@ contains
        !  endif
        nfa=nf1
        nfb=nf2
-       single_decode=iand(nexp_decode,32).ne.0
+       single_decode=iand(nexp_decode,32).ne.0 .or. nagain
        bVHF=iand(nexp_decode,64).ne.0
 
 !### Q: should either of the next two uses of "single_decode" be "bVHF" instead?       
