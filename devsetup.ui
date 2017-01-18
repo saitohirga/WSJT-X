@@ -340,7 +340,7 @@
             <item>
              <widget class="QSpinBox" name="timeoutSpinBox">
               <property name="maximum">
-               <number>20</number>
+               <number>40</number>
               </property>
              </widget>
             </item>

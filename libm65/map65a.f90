@@ -35,6 +35,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   mode65=mod(nmode,10)
   if(mode65.eq.3) mode65=4
   modeqra64=nmode/10
+  nwrite_qra64=0
 
   bqra64=modeqra64.gt.0
   mcall3a=mcall3b

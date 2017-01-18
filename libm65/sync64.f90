@@ -136,7 +136,7 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,emedelay,dtx,f0,jpk,sync,  &
   rms2=sqrt(sq/40.0)
   sync2=10.0*log10(a(2)/rms2)
 
-  slimit=3.0
+  slimit=6.0
   rewind 17
 !  rewind 76
   do i=2,iz-2*nskip-1,3

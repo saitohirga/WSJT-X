@@ -258,7 +258,7 @@ void CPlotter::draw(float s[], int i0, float splot[])                 //draw()
 
 void CPlotter::UTCstr()
 {
-  int ihr,imin,isec;
+  int ihr,imin;
   if(datcom_.ndiskdat != 0) {
     ihr=datcom_.nutc/100;
     imin=(datcom_.nutc) % 100;
