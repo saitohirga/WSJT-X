@@ -34,10 +34,9 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
 
   mode65=mod(nmode,10)
   if(mode65.eq.3) mode65=4
-  modeqra64=nmode/10
+  mode64=nmode/10
   nwrite_qra64=0
-
-  bqra64=modeqra64.gt.0
+  bqra64=mode64.gt.0
   mcall3a=mcall3b
   mousefqso0=mousefqso
   xpol=(nxpol.ne.0)
@@ -217,7 +216,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                  ifreq=i
                  ikHz=nint(freq+0.5*(nfa+nfb)-foffset)-nfshift
                  idf=nint(1000.0*(freq+0.5*(nfa+nfb)-foffset-(ikHz+nfshift)))
-                 call decode1a(dd,newdat,f00,nflip,mode65,nfsample, &
+                 call decode1a(dd,newdat,f00,nflip,mode65,nfsample,       &
                       xpol,mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,   &
                       ndphi,iloop,nutc,ikHz,idf,ipol,ntol,bqra64,sync2,   &
                       a,dt,pol,nkv,nhist,nsum,nsave,qual,decoded)
@@ -225,7 +224,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                  if(nqd.eq.2) then
                     call timer('qra64   ',0)
                     call qra64b(nutc,nqd,ikhz,mousedf,ntol,xpol,mycall,   &
-                         hiscall,hisgrid,nwrite_qra64)
+                         hiscall,hisgrid,mode64,nwrite_qra64)
                     call timer('qra64   ',1)
                     cycle
                  endif

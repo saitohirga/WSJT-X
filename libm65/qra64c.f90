@@ -1,5 +1,5 @@
 subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
-     hiscall_12,hisgrid_6,nwrite_qra64)
+     hiscall_12,hisgrid_6,mode64,nwrite_qra64)
 
   use packjt
   parameter (NFFT2=336000)               !56*6000 (downsampled by 1/16)
@@ -27,7 +27,7 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
 ! For now:
   nf1=-3000
   nf2=3000
-  mode64=1
+  !  mode64=1
   minsync=-1
   ndepth=3
   emedelay=2.5
