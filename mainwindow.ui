@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>635</width>
-    <height>477</height>
+    <height>497</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -59,7 +59,7 @@
          </size>
         </property>
         <property name="title">
-         <string>   Freq        DF      Pol         UTC           DT       dB</string>
+         <string>   Freq        DF      Pol         UTC           DT         dB                                                                     RC       DS       TxPol</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_9">
          <item>

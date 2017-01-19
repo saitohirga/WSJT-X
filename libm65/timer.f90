@@ -86,7 +86,7 @@ subroutine timer(dname,k)
      dutf=dut(i)/total
      sum=sum+dut(i)
      sumf=sumf+dutf
-     kk=nlevel(i)
+     kk=min(nlevel(i),8)
      sname=space(1:kk)//name(i)//space(1:8-kk)
      ename=space
      if(i.ge.2) ename=name(nparent(i))

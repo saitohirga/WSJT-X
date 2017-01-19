@@ -1727,7 +1727,7 @@ void MainWindow::doubleClickOnCall(QString hiscall, bool ctrl)
   QString t1 = t.mid(0,i2);              //contents up to text cursor
   int i1=t1.lastIndexOf("\n") + 1;
   QString t2 = t1.mid(i1,i2-i1);         //selected line
-  int n = 60*t2.mid(13,2).toInt() + t2.mid(15,2).toInt();
+  int n = 60*t2.mid(14,2).toInt() + t2.mid(16,2).toInt();
   m_txFirst = ((n%2) == 1);
   ui->txFirstCheckBox->setChecked(m_txFirst);
   QString rpt="";
