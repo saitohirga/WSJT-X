@@ -483,7 +483,7 @@ void MainWindow::readSettings()
   if(m_modeQRA64==4) ui->actionQRA64D->setChecked(true);
   if(m_modeQRA64==5) ui->actionQRA64E->setChecked(true);
   if(m_modeTx=="JT65")  ui->pbTxMode->setText("Tx JT65   #");
-  if(m_modeTx=="QRA64") ui->pbTxMode->setText("Tx QRA64  #");
+  if(m_modeTx=="QRA64") ui->pbTxMode->setText("Tx QRA64  $");
 
   ui->actionNone->setChecked(settings.value("SaveNone",true).toBool());
   ui->actionSave_all->setChecked(settings.value("SaveAll",false).toBool());
@@ -1730,6 +1730,8 @@ void MainWindow::doubleClickOnCall(QString hiscall, bool ctrl)
   int n = 60*t2.mid(14,2).toInt() + t2.mid(16,2).toInt();
   m_txFirst = ((n%2) == 1);
   ui->txFirstCheckBox->setChecked(m_txFirst);
+  if((t2.indexOf("#")>0) and m_modeTx!="JT65") on_pbTxMode_clicked();
+  if((t2.indexOf("$")>0) and m_modeTx!="QRA64") on_pbTxMode_clicked();
   QString rpt="";
   if(ctrl or m_modeTx=="QRA64") rpt=t2.mid(25,3);
   lookup();
