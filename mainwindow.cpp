@@ -1567,9 +1567,11 @@ void MainWindow::guiUpdate()
     m_startAnother=false;
     on_actionOpen_next_in_directory_triggered();
   }
+  if(m_modeQRA64==0 and m_modeTx=="QRA64") on_pbTxMode_clicked();
+  if(m_modeJT65==0  and m_modeTx=="JT65")  on_pbTxMode_clicked();
 
   if(nsec != m_sec0) {                                     //Once per second
-//    qDebug() << "A" << nsec%60;
+//    qDebug() << "A" << nsec%60 << m_mode65 << m_modeQRA64 << m_modeTx;
     soundInThread.setForceCenterFreqMHz(g_pWideGraph->m_dForceCenterFreq);
     soundInThread.setForceCenterFreqBool(g_pWideGraph->m_bForceCenterFreq);
 
@@ -1773,6 +1775,7 @@ void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
   QString t=t0;
   if(t0.indexOf("/")<0) t=t0 + m_myGrid.mid(0,4);
   msgtype(t, ui->tx1);
+  if(rpt == "" and m_modeTx=="QRA64") rpt="-24";
   if(rpt == "" and m_modeTx=="JT65") {
     t=t+" OOO";
     msgtype(t, ui->tx2);
@@ -2069,6 +2072,7 @@ void MainWindow::on_actionErase_map65_tx_log_triggered()     //Erase Tx log
 
 void MainWindow::on_actionNoJT65_triggered()
 {
+  m_mode65=0;
   m_modeJT65=0;
   lab5->setStyleSheet("");
   lab5->setText("");
@@ -2078,6 +2082,7 @@ void MainWindow::on_actionJT65A_triggered()
   m_mode="JT65A";
   m_modeJT65=1;
   m_mode65=1;
+  m_modeJT65=1;
   m_TRperiod=60;
   soundInThread.setPeriod(m_TRperiod);
   soundOutThread.setPeriod(m_TRperiod);
@@ -2093,6 +2098,7 @@ void MainWindow::on_actionJT65B_triggered()
   m_mode="JT65B";
   m_modeJT65=2;
   m_mode65=2;
+  m_modeJT65=2;
   m_TRperiod=60;
   soundInThread.setPeriod(m_TRperiod);
   soundOutThread.setPeriod(m_TRperiod);
