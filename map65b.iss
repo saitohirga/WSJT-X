@@ -1,8 +1,8 @@
 ; For Use With JTSDK v2.0.0
 #define MyAppName "MAP65"
-#define MyAppVersion "2.5"
+#define MyAppVersion "2.7"
 #define MyAppPublisher "Joe Taylor, K1JT"
-#define MyAppCopyright "Copyright (C) 2001-2015 by Joe Taylor, K1JT"
+#define MyAppCopyright "Copyright (C) 2001-2017 by Joe Taylor, K1JT"
 #define MyAppURL "http://physics.princeton.edu/pulsar/k1jt/map65.html"
 #define WsjtGroupURL "https://groups.yahoo.com/neo/groups/wsjtgroup/info"
 

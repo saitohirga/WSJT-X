@@ -276,16 +276,18 @@ MainWindow::MainWindow(QWidget *parent) :
 // Create "m_worked", a dictionary of all calls in wsjt.log
   QFile f("wsjt.log");
   f.open(QIODevice::ReadOnly);
-  QTextStream in(&f);
-  QString line,t,callsign;
-  for(int i=0; i<99999; i++) {
-    line=in.readLine();
-    if(line.length()<=0) break;
-    t=line.mid(18,12);
-    callsign=t.mid(0,t.indexOf(","));
-    m_worked[callsign]=true;
+  if(f.isOpen()) {
+    QTextStream in(&f);
+    QString line,t,callsign;
+    for(int i=0; i<99999; i++) {
+      line=in.readLine();
+      if(line.length()<=0) break;
+      t=line.mid(18,12);
+      callsign=t.mid(0,t.indexOf(","));
+      m_worked[callsign]=true;
+    }
+    f.close();
   }
-  f.close();
 
   if(ui->actionLinrad->isChecked()) on_actionLinrad_triggered();
   if(ui->actionCuteSDR->isChecked()) on_actionCuteSDR_triggered();
