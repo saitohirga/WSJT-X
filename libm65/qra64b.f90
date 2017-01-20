@@ -15,6 +15,8 @@ subroutine qra64b(nutc,nqd,ikhz,mousedf,ntol,xpol,mycall_12,hiscall_12,   &
   df=96000.0/NFFT1
   k0=(ikhz-75.170)*1000.0/df
   nh=nfft2/2
+  if(k0.lt.nh .or. k0.gt.NFFT1-nh) go to 900
+  
   fac=1.0/NFFT2
   cx(0:nh)=ca(k0:k0+nh)
   cx(nh+1:NFFT2-1)=ca(k0-nh+1:k0-1)
@@ -36,5 +38,5 @@ subroutine qra64b(nutc,nqd,ikhz,mousedf,ntol,xpol,mycall_12,hiscall_12,   &
        hiscall_12,hisgrid_6,mode64,nwrite_qra64)
   close(17)
   
-  return
+900 return
 end subroutine qra64b
