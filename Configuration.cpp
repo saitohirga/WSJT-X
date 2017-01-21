@@ -2327,6 +2327,7 @@ void Configuration::impl::handle_transceiver_update (TransceiverState const& sta
   // only follow rig on some information, ignore other stuff
   cached_rig_state_.online (state.online ());
   cached_rig_state_.frequency (state.frequency ());
+  cached_rig_state_.mode (state.mode ());
   cached_rig_state_.split (state.split ());
 
   if (state.online ())
