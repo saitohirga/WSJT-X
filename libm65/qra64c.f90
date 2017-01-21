@@ -67,7 +67,9 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
   naptype=maxaptype
   npts2=NFFT2
 
-  do ip=0,3
+  ipz=0
+  if(xpol) ipz=3
+  do ip=0,ipz
      if(ip.eq.0) c00(0:NFFT2-1)=conjg(cx)
      if(ip.eq.1) c00(0:NFFT2-1)=0.707*conjg(cx+cy)
      if(ip.eq.2) c00(0:NFFT2-1)=conjg(cy)
@@ -170,7 +172,6 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
      if(nSubmode.eq.4) nsnr=nint(10.0*log10(sy)-24.0)   !E
   endif
 
-!###
 !  If Tx station's grid is in decoded message, compute optimum TxPol
   i1=index(decoded,' ')
   i2=index(decoded(i1+1:),' ') + i1
@@ -193,13 +194,6 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
         endif
      endif
   endif
-!###
-
-!###
-!     write(62,3010) ikHz,nfreq,npol,nutc,dtx,nsnr,cmode(1:1),decoded,   &
-!          irc,sync,sync2
-!3010 format(i3,i5,i4,i6.4,f5.1,i5,1x,a1,1x,a22,i3,2f7.1)
-!###
   
   if(irc.ge.0) then
      write(*,1010) ikHz,nfreq,npol,nutc,dtx,nsnr,cmode(1:1),decoded,   &

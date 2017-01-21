@@ -115,6 +115,12 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,emedelay,dtx,f0,jpk,sync,  &
         dtx=jpk/6000.0 - 1.0
         ipk=ip
         f0=ip*df3 - 3000.0
+!        rewind 61
+!        do i=iaa,ibb
+!           write(61,3301) i*df3-3000.0,s0(i),s1(i),s2(i),s3(i)
+!3301       format(5f12.3)
+!        enddo
+!        flush(61)
      endif
      call timer('sync64_2',1)
   enddo

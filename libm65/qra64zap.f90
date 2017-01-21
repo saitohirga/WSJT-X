@@ -1,10 +1,11 @@
-subroutine qra64zap(cx,cy,nzap)
+subroutine qra64zap(cx,cy,xpol,nzap)
 
   parameter (NFFT1=5376000)              !56*96000
   parameter (NFFT2=336000)               !56*6000 (downsampled by 1/16)
   complex cx(0:NFFT2-1),cy(0:NFFT2-1)
   real s(-1312:1312)
   integer iloc(1)
+  logical xpol
 
   slimit=3.0
   sbottom=1.5
@@ -19,8 +20,8 @@ subroutine qra64zap(cx,cy,nzap)
      if(j.gt.nblks/2) j=j-nblks
      do n=1,nadd
         k=k+1
-        s(j)=s(j) + real(cx(k))**2 + aimag(cx(k))**2 +                 &
-             real(cy(k))**2 + aimag(cy(k))**2
+        s(j)=s(j) + real(cx(k))**2 + aimag(cx(k))**2
+        if(xpol) s(j)=s(j) + real(cy(k))**2 + aimag(cy(k))**2
      enddo
   enddo
   call pctile(s,nblks,45,base)

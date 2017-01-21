@@ -223,8 +223,9 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                  call timer('decode1a',1)
                  if(nqd.eq.2) then
                     call timer('qra64   ',0)
-                    call qra64b(nutc,nqd,ikhz,mousedf,ntol,xpol,mycall,   &
-                         hiscall,hisgrid,mode64,nwrite_qra64)
+                    call qra64b(nutc,nqd,fcenter,nfcal,ikhz,              &
+                         mousedf,ntol,xpol,mycall,hiscall,hisgrid,        &
+                         mode64,nwrite_qra64)
                     call timer('qra64   ',1)
                     cycle
                  endif
