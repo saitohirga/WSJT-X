@@ -209,6 +209,7 @@ void TransceiverBase::update_split (bool state)
 void TransceiverBase::update_mode (MODE m)
 {
   actual_.mode (m);
+  requested_.mode (m);    // track rig changes
 }
 
 void TransceiverBase::update_PTT (bool state)
