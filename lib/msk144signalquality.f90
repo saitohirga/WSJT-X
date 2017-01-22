@@ -1,15 +1,16 @@
   subroutine msk144signalquality(cframe,snr,freq,t0,softbits,msg,dxcall,       &
-       btrain,nbiterrors,eyeopening,trained,pcoeffs)
+   btrain,datadir,nbiterrors,eyeopening,pcoeffs)
 
   character*22 msg,msgsent
   character*12 dxcall
   character*12 training_dxcall
   character*12 trained_dxcall
   character*6 mygrid
-  character*40 pcoeff_filename
+  character*512 pcoeff_filename
   character*8 date
   character*10 time
   character*5 zone
+  character*512 datadir
 
   complex cframe(864)
   complex cross(864)
@@ -26,11 +27,9 @@
   logical*1 btrain
   logical*1 first
   logical*1 currently_training
-  logical*1 trained
   logical*1 msg_has_dxcall
   logical*1 is_training_frame
  
-  real abscross_avg(864)
   real softbits(144)
   real waveform(0:863)  
   real d(1024)
@@ -40,7 +39,7 @@
   real pcoeffs(3)
 
   data first/.true./
-  save cross_avg,abscross_avg,wt_avg,first,currently_training,   &
+  save cross_avg,wt_avg,first,currently_training,   &
        navg,tlast,training_dxcall,trained_dxcall
 
   if (first) then
@@ -51,14 +50,12 @@
     tlast=0.0
     trained_dxcall(1:12)=' '
     training_dxcall(1:12)=' '
-    trained=.false.
     currently_training=.false.
     pcoeffs(1:3)=0.0
     first=.false.
   endif
 
-  if( (trained .and. (dxcall .ne. trained_dxcall)) .or.    &
-      (currently_training .and. (dxcall .ne. training_dxcall)) .or. &
+  if( (currently_training .and. (dxcall .ne. training_dxcall)) .or. &
       (navg .gt. 10 )) then !reset and retrain
     navg=0
     cross=cmplx(0.0,0.0)
@@ -66,7 +63,6 @@
     wt_avg=0.0
     tlast=0.0
     trained_dxcall(1:12)=' '
-    trained=.false.
     currently_training=.false.
     training_dxcall(1:12)=' '
     trained_dxcall(1:12)=' '
@@ -77,8 +73,7 @@ write(*,*) 'reset to untrained state '
   indx_dxcall=index(msg,trim(dxcall))
   msg_has_dxcall = indx_dxcall .ge. 4
 
-  if( btrain .and. msg_has_dxcall .and. (.not. trained) .and.               &
-      .not. currently_training ) then
+  if( btrain .and. msg_has_dxcall .and. (.not. currently_training) ) then
     currently_training=.true.
     training_dxcall=trim(dxcall)
     trained_dxcall(1:12)=' '
@@ -87,7 +82,6 @@ write(*,*) 'start training on call ',training_dxcall
   endif
 
   if( msg_has_dxcall .and. currently_training ) then
-    trained=.false. ! just to be sure
     trained_dxcall(1:12)=' '
     training_dxcall=dxcall
     pcoeffs(1:3)=0.0
@@ -198,31 +192,28 @@ write(*,*) 'start training on call ',training_dxcall
       pp=a(1)+x*(a(2)+x*(a(3)+x*(a(4)+x*a(5)))) 
       rmsdiff=sum( (pp-phase((864/2-nm/2):(864/2+nm/2)))**2 )/145.0
 write(*,*) 'training ',navg,sqrt(chisqr),rmsdiff
-!      if( (sqrt(chisqr).lt.1.5) .and. (rmsdiff.lt.1.1) .and. (navg.ge.5) ) then 
       if( (sqrt(chisqr).lt.1.8) .and. (rmsdiff.lt.0.5) .and. (navg.ge.2) ) then 
-        open(18,file='phasefit.dat',status='unknown') 
-        do i=1, 145
-          write(18,*) x(i),pp(i),y(i),sigmay(i)
-        enddo
-        close(18)
-        open(19,file='cframe.dat',status='unknown')
-        do i=1,864
-          write(19,*) i,real(cframe(i)),imag(cframe(i)),real(cross_avg(i)),imag(cross_avg(i))
-        enddo
-        close(19)
-        pcoeffs=a(3:5)
+!        pcoeffs=a(3:5)
         trained_dxcall=dxcall
         training_dxcall(1:12)=' '
         currently_training=.false.
-        trained=.true.
         btrain=.false.
         call date_and_time(date,time,zone,values)
         write(pcoeff_filename,'(i2.2,i2.2,i2.2,"_",i2.2,i2.2,i2.2)')    &
           values(1)-2000,values(2),values(3),values(5),values(6),values(7)
-        pcoeff_filename=trim(trained_dxcall)//"_"//pcoeff_filename//".pcoeff"
-write(*,*) pcoeff_filename
+        pcoeff_filename=trim(trained_dxcall)//"_"//trim(pcoeff_filename)//".pcoeff"
+        l1=index(datadir,char(0))-1
+        datadir(l1+1:l1+1)="/"
+        pcoeff_filename=datadir(1:l1+1)//trim(pcoeff_filename)
+write(*,*) 'trained - writing coefficients to: ',pcoeff_filename
         open(17,file=pcoeff_filename,status='new')
         write(17,'(i4,2f10.2,5f10.4)') navg,sqrt(chisqr),rmsdiff,a(1),a(2),a(3),a(4),a(5)
+        do i=1, 145
+          write(17,*) x(i),pp(i),y(i),sigmay(i)
+        enddo
+        do i=1,864
+          write(17,*) i,real(cframe(i)),imag(cframe(i)),real(cross_avg(i)),imag(cross_avg(i))
+        enddo
         close(17)
       endif
   endif
