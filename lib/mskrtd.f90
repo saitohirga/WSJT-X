@@ -1,5 +1,5 @@
 subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
-     bshmsg,bcontest,brxequal,btrain,bswl,line)
+     bshmsg,bcontest,brxequal,btrain,bswl,datadir,line)
 
 ! Real-time decoder for MSK144.  
 ! Analysis block size = NZ = 7168 samples, t_block = 0.597333 s 
@@ -20,6 +20,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   character*6 mygrid
   character*12 recent_calls(NRECENT)
   character*22 recent_shmsgs(NSHMEM)
+  character*512 datadir
 
   complex cdat(NFFT1)                !Analytic signal
   complex c(NSPM)                    !Coherently averaged complex data
@@ -40,7 +41,6 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
 
   logical*1 bshmsg,bcontest,brxequal,btrain,bswl
   logical*1 first
-  logical*1 trained 
   logical*1 bshdecode
   logical*1 seenb4
   logical*1 bflag
@@ -53,7 +53,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
        1,1,1,1,1,0,0,0, &
        1,1,1,1,1,1,1,0/
   data xmc/2.0,4.5,2.5,3.5/     !Used to set time at center of averaging mask
-  save first,tsec0,nutc00,pnoise,cdat,pcoeffs,trained,msglast,msglastswl,     &
+  save first,tsec0,nutc00,pnoise,cdat,pcoeffs,msglast,msglastswl,     &
        nsnrlast,nsnrlastswl,recent_calls,nhasharray,recent_shmsgs
 
   if(first) then
@@ -67,7 +67,6 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
      do i=1,nshmem
        recent_shmsgs(i)(1:22)=' '
      enddo
-     trained=.false.
      msglast='                      '
      msglastswl='                      '
      nsnrlast=-99
@@ -189,14 +188,11 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
 
   if(.not. bshdecode) then
     call msk144signalquality(ct,snr0,fest,tdec,softbits,msgreceived,hiscall,   &
-                             btrain,ncorrected,eyeopening,trained,pcoeffs)
+                          btrain,datadir,ncorrected,eyeopening,pcoeffs)
   endif
 
   decsym=' & '
   if( brxequal ) decsym=' ^ '
-!  if( brxequal .and. (.not. trained) ) decsym=' ^ '
-!  if( brxequal .and. trained ) decsym=' $ '
-!  if( (.not. brxequal) .and. trained ) decsym=' @ '
   if( msgreceived(1:1).eq.'<') then
     ncorrected=0
     eyeopening=0.0

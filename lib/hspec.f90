@@ -1,5 +1,5 @@
 subroutine hspec(id2,k,nutc0,ntrpdepth,nrxfreq,ntol,bmsk144,bcontest,  &
-     brxequal,btrain,ingain,mycall,hiscall,bshmsg,bswl,green,s,jh,line1,mygrid)
+     brxequal,btrain,ingain,mycall,hiscall,bshmsg,bswl,datadir,green,s,jh,line1,mygrid)
 
 ! Input:
 !  k         pointer to the most recent new data
@@ -19,6 +19,7 @@ subroutine hspec(id2,k,nutc0,ntrpdepth,nrxfreq,ntol,bmsk144,bcontest,  &
 
   parameter (JZ=703)
   character*80 line1
+  character*512 datadir
   character*12 mycall,hiscall
   character*6 mygrid
   integer*2 id2(0:120*12000-1)
@@ -85,7 +86,7 @@ subroutine hspec(id2,k,nutc0,ntrpdepth,nrxfreq,ntol,bmsk144,bcontest,  &
         tt2=sum(float(abs(id2(k0:k0+3583))))
         if(tt1.ne.0.0 .and. tt2.ne.0) then
            call mskrtd(id2(k-7168+1:k),nutc0,tsec,ntol,nrxfreq,ndepth,   &
-                mycall,mygrid,hiscall,bshmsg,bcontest,brxequal,btrain,bswl,line1)
+                mycall,mygrid,hiscall,bshmsg,bcontest,brxequal,btrain,bswl,datadir,line1)
         endif
      endif
   endif
