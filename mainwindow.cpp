@@ -4115,6 +4115,7 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   if (m_dateTimeQSOOn==m_dateTimeDefault)
       m_dateTimeQSOOn=QDateTime::currentDateTimeUtc();
   m_dateTimeQSOOff = QDateTime::currentDateTimeUtc();
+  if(m_dateTimeQSOOff < m_dateTimeQSOOn) m_dateTimeQSOOff=m_dateTimeQSOOn;
   m_logDlg->initLogQSO (m_hisCall, m_hisGrid, m_modeTx, m_rptSent, m_rptRcvd,
                         m_dateTimeQSOOn, m_dateTimeQSOOff, m_freqNominal + ui->TxFreqSpinBox->value(),
                         m_config.my_callsign(), m_config.my_grid(), m_noSuffix,
