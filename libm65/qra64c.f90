@@ -204,10 +204,10 @@ subroutine qra64c(cx,cy,nutc,nqd,ikhz,nfqso,ntol,xpol,mycall_12,     &
      write(21,1014) freq,nfreq,dtx,npol,nsnr,nutc,decoded,cp,          &
           cmode(1:1),cmode(2:2)
 1014 format(f8.3,i5,f5.1,2i4,i5.4,2x,a22,2x,a1,3x,a1,1x,a1)
-
-     if(index(decoded,' CQ ').gt.0 .or. index(decoded,' QRZ ').gt.0 .or.     &
-          index(decoded,' QRT ').gt.0 .or. index(decoded,' CQV ').gt.0 .or.  &
-          index(decoded,' CQH ').gt.0) then
+     
+     if(index(decoded,'CQ ').gt.0 .or. index(decoded,'QRZ ').gt.0 .or.     &
+          index(decoded,'QRT ').gt.0 .or. index(decoded,'CQV ').gt.0 .or.  &
+          index(decoded,'CQH ').gt.0) then
         write(19,1016) ikhz,nfreq,npol,nutc,dtx,nsnr,decoded,0,cmode
 1016    format(i3,i5,i4,i5.4,f7.1,i4,2x,a22,i3,1x,a2)
         flush(19)
