@@ -66,7 +66,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   enddo
   if(bad0) then
      nz=min(NTMAX*12000,kbad+100)
-     id2(1:nz)=0
+!     id2(1:nz)=0                ! temporarily disabled as it can breaak the JT9 decoder, maybe others
   endif
 
   if (params%nagain) then
