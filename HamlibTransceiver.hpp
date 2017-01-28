@@ -63,6 +63,7 @@ class HamlibTransceiver final
 
   bool mutable reversed_;
 
+  bool freq_query_works_;
   bool mode_query_works_;
   bool split_query_works_;
   bool tickle_hamlib_;          // Hamlib requires a
