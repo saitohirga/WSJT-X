@@ -189,6 +189,7 @@ HamlibTransceiver::HamlibTransceiver (TransceiverFactory::PTTMethod ptt_type, QS
   , one_VFO_ {false}
   , is_dummy_ {true}
   , reversed_ {false}
+  , freq_query_works_ {true}
   , mode_query_works_ {true}
   , split_query_works_ {true}
   , tickle_hamlib_ {false}
@@ -240,6 +241,7 @@ HamlibTransceiver::HamlibTransceiver (int model_number, TransceiverFactory::Para
   , one_VFO_ {false}
   , is_dummy_ {RIG_MODEL_DUMMY == model_number}
   , reversed_ {false}
+  , freq_query_works_ {rig_ && rig_->caps->get_freq}
   , mode_query_works_ {rig_ && rig_->caps->get_mode}
   , split_query_works_ {rig_ && rig_->caps->get_split_vfo}
   , tickle_hamlib_ {false}
@@ -441,7 +443,8 @@ int HamlibTransceiver::do_start ()
       rmode_t mb;
       pbwidth_t w {RIG_PASSBAND_NORMAL};
       pbwidth_t wb;
-      if ((!get_vfo_works_ || !rig_->caps->get_vfo)
+      if (freq_query_works_
+          && (!get_vfo_works_ || !rig_->caps->get_vfo)
           && (rig_->caps->set_vfo || rig_has_vfo_op (rig_.data (), RIG_OP_TOGGLE)))
         {
           // Icom have deficient CAT protocol with no way of reading which
@@ -553,36 +556,43 @@ int HamlibTransceiver::do_start ()
     }
 
   int resolution {0};
-  freq_t current_frequency;
-  error_check (rig_get_freq (rig_.data (), RIG_VFO_CURR, &current_frequency), tr ("getting current VFO frequency"));
-  current_frequency = std::round (current_frequency);
-  Frequency f = current_frequency;
-  if (f && !(f % 10))
+  if (freq_query_works_)
     {
-      auto test_frequency = f - f % 100 + 55;
-      error_check (rig_set_freq (rig_.data (), RIG_VFO_CURR, test_frequency), tr ("setting frequency"));
-      freq_t new_frequency;
-      error_check (rig_get_freq (rig_.data (), RIG_VFO_CURR, &new_frequency), tr ("getting current VFO frequency"));
-      new_frequency = std::round (new_frequency);
-      switch (static_cast<Radio::FrequencyDelta> (new_frequency - test_frequency))
+      freq_t current_frequency;
+      error_check (rig_get_freq (rig_.data (), RIG_VFO_CURR, &current_frequency), tr ("getting current VFO frequency"));
+      current_frequency = std::round (current_frequency);
+      Frequency f = current_frequency;
+      if (f && !(f % 10))
         {
-        case -5: resolution = -1; break;  // 10Hz truncated
-        case 5: resolution = 1; break;    // 10Hz rounded
-        case -15: resolution = -2; break; // 20Hz truncated
-        case -55: resolution = -3; break; // 100Hz truncated
-        case 45: resolution = 3; break;   // 100Hz rounded
-        }
-      if (1 == resolution)      // may be 20Hz rounded
-        {
-          test_frequency = f - f % 100 + 51;
+          auto test_frequency = f - f % 100 + 55;
           error_check (rig_set_freq (rig_.data (), RIG_VFO_CURR, test_frequency), tr ("setting frequency"));
+          freq_t new_frequency;
           error_check (rig_get_freq (rig_.data (), RIG_VFO_CURR, &new_frequency), tr ("getting current VFO frequency"));
-          if (9 == static_cast<Radio::FrequencyDelta> (new_frequency - test_frequency))
+          new_frequency = std::round (new_frequency);
+          switch (static_cast<Radio::FrequencyDelta> (new_frequency - test_frequency))
             {
-              resolution = 2;   // 20Hz rounded
+            case -5: resolution = -1; break;  // 10Hz truncated
+            case 5: resolution = 1; break;    // 10Hz rounded
+            case -15: resolution = -2; break; // 20Hz truncated
+            case -55: resolution = -3; break; // 100Hz truncated
+            case 45: resolution = 3; break;   // 100Hz rounded
             }
+          if (1 == resolution)      // may be 20Hz rounded
+            {
+              test_frequency = f - f % 100 + 51;
+              error_check (rig_set_freq (rig_.data (), RIG_VFO_CURR, test_frequency), tr ("setting frequency"));
+              error_check (rig_get_freq (rig_.data (), RIG_VFO_CURR, &new_frequency), tr ("getting current VFO frequency"));
+              if (9 == static_cast<Radio::FrequencyDelta> (new_frequency - test_frequency))
+                {
+                  resolution = 2;   // 20Hz rounded
+                }
+            }
+          error_check (rig_set_freq (rig_.data (), RIG_VFO_CURR, current_frequency), tr ("setting frequency"));
         }
-      error_check (rig_set_freq (rig_.data (), RIG_VFO_CURR, current_frequency), tr ("setting frequency"));
+    }
+  else
+    {
+      resolution = -1;          // best guess
     }
 
   poll ();
@@ -874,34 +884,37 @@ void HamlibTransceiver::poll ()
       reversed_ = RIG_VFO_B == v;
     }
 
-  // only read when receiving or simplex
-  if (!state ().ptt () || !state ().split ())
+  if (freq_query_works_)
     {
-      error_check (rig_get_freq (rig_.data (), RIG_VFO_CURR, &f), tr ("getting current VFO frequency"));
-      f = std::round (f);
-      TRACE_CAT_POLL ("HamlibTransceiver", "rig_get_freq frequency =" << f);
-      update_rx_frequency (f);
-    }
+      // only read if possible and when receiving or simplex
+      if (!state ().ptt () || !state ().split ())
+        {
+          error_check (rig_get_freq (rig_.data (), RIG_VFO_CURR, &f), tr ("getting current VFO frequency"));
+          f = std::round (f);
+          TRACE_CAT_POLL ("HamlibTransceiver", "rig_get_freq frequency =" << f);
+          update_rx_frequency (f);
+        }
 
-  if ((WSJT_RIG_NONE_CAN_SPLIT || !is_dummy_)
-      && state ().split ()
-      && (rig_->caps->targetable_vfo & (RIG_TARGETABLE_FREQ | RIG_TARGETABLE_PURE))
-      && !one_VFO_)
-    {
-      // only read "other" VFO if in split, this allows rigs like
-      // FlexRadio to work in Kenwood TS-2000 mode despite them
-      // not having a FB; command
+      if ((WSJT_RIG_NONE_CAN_SPLIT || !is_dummy_)
+          && state ().split ()
+          && (rig_->caps->targetable_vfo & (RIG_TARGETABLE_FREQ | RIG_TARGETABLE_PURE))
+          && !one_VFO_)
+        {
+          // only read "other" VFO if in split, this allows rigs like
+          // FlexRadio to work in Kenwood TS-2000 mode despite them
+          // not having a FB; command
 
-      // we can only probe current VFO unless rig supports reading
-      // the other one directly because we can't glitch the Rx
-      error_check (rig_get_freq (rig_.data ()
-                                 , reversed_
-                                 ? (rig_->state.vfo_list & RIG_VFO_A ? RIG_VFO_A : RIG_VFO_MAIN)
-                                 : (rig_->state.vfo_list & RIG_VFO_B ? RIG_VFO_B : RIG_VFO_SUB)
-                                 , &f), tr ("getting other VFO frequency"));
-      f = std::round (f);
-      TRACE_CAT_POLL ("HamlibTransceiver", "rig_get_freq other VFO =" << f);
-      update_other_frequency (f);
+          // we can only probe current VFO unless rig supports reading
+          // the other one directly because we can't glitch the Rx
+          error_check (rig_get_freq (rig_.data ()
+                                     , reversed_
+                                     ? (rig_->state.vfo_list & RIG_VFO_A ? RIG_VFO_A : RIG_VFO_MAIN)
+                                     : (rig_->state.vfo_list & RIG_VFO_B ? RIG_VFO_B : RIG_VFO_SUB)
+                                     , &f), tr ("getting other VFO frequency"));
+          f = std::round (f);
+          TRACE_CAT_POLL ("HamlibTransceiver", "rig_get_freq other VFO =" << f);
+          update_other_frequency (f);
+        }
     }
 
   // only read when receiving or simplex if direct VFO addressing unavailable
