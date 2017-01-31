@@ -379,6 +379,7 @@ private:
       (WSJT_RIG_NONE_CAN_SPLIT || !rig_is_dummy_) &&
       (rig_params_.split_mode != TransceiverFactory::split_mode_none);
   }
+  void set_cached_mode ();
   bool open_rig (bool force = false);
   //bool set_mode ();
   void close_rig ();
@@ -2240,18 +2241,25 @@ bool Configuration::impl::open_rig (bool force)
   return result;
 }
 
-void Configuration::impl::transceiver_frequency (Frequency f)
+void Configuration::impl::set_cached_mode ()
 {
-  Transceiver::MODE mode {Transceiver::UNK};
+  MODE mode {Transceiver::UNK};
+  // override cache mode with what we want to enforce which includes
+  // UNK (unknown) where we want to leave the rig mode untouched
   switch (data_mode_)
     {
     case data_mode_USB: mode = Transceiver::USB; break;
     case data_mode_data: mode = Transceiver::DIG_U; break;
-    case data_mode_none: break;
+    default: break;
     }
 
-  cached_rig_state_.online (true); // we want the rig online
   cached_rig_state_.mode (mode);
+}
+
+void Configuration::impl::transceiver_frequency (Frequency f)
+{
+  cached_rig_state_.online (true); // we want the rig online
+  set_cached_mode ();
 
   // apply any offset & calibration
   // we store the offset here for use in feedback from the rig, we
@@ -2269,15 +2277,8 @@ void Configuration::impl::transceiver_tx_frequency (Frequency f)
   Q_ASSERT (!f || split_mode ());
   if (split_mode ())
     {
-      Transceiver::MODE mode {Transceiver::UNK};
-      switch (data_mode_)
-        {
-        case data_mode_USB: mode = Transceiver::USB; break;
-        case data_mode_data: mode = Transceiver::DIG_U; break;
-        case data_mode_none: break;
-        }
       cached_rig_state_.online (true); // we want the rig online
-      cached_rig_state_.mode (mode);
+      set_cached_mode ();
       cached_rig_state_.split (f);
       cached_rig_state_.tx_frequency (f);
 
@@ -2307,6 +2308,7 @@ void Configuration::impl::transceiver_mode (MODE m)
 void Configuration::impl::transceiver_ptt (bool on)
 {
   cached_rig_state_.online (true); // we want the rig online
+  set_cached_mode ();
   cached_rig_state_.ptt (on);
   Q_EMIT set_transceiver (cached_rig_state_, ++transceiver_command_number_);
 }
