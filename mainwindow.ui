@@ -992,6 +992,9 @@ QLabel[oob=&quot;true&quot;] {
                    <property name="enabled">
                     <bool>true</bool>
                    </property>
+                   <property name="toolTip">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to monitor Sh messages.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
                    <property name="maximumSize">
                     <size>
                      <width>16777215</width>
