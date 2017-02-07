@@ -68,13 +68,23 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      nz=min(NTMAX*12000,kbad+100)
 !     id2(1:nz)=0                ! temporarily disabled as it can breaak the JT9 decoder, maybe others
   endif
-
-  if (params%nagain) then
-     open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown',                          &
-          position='append')
+  
+  nfail=0
+10 if (params%nagain) then
+     open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown',            &
+          position='append',iostat=ios)
   else
-     open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown')
+     open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown',            &
+          iostat=ios)
   end if
+  if(ios.ne.0) then
+     nfail=nfail+1
+     if(nfail.le.3) then
+        call sleep_msec(100)
+        go to 10
+     endif
+  endif
+  
   if(params%nmode.eq.4 .or. params%nmode.eq.65) open(14,file=trim(temp_dir)// &
        '/avemsg.txt',status='unknown')
   if(params%nmode.eq.164) open(17,file=trim(temp_dir)//'/red.dat',          &
