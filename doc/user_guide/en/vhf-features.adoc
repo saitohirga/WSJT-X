@@ -167,7 +167,7 @@ decoder has achieved synchronization with a signal at approximately
 image::QRA64.png[align="center",alt="QRA64"]
 
 The QRA64 decoder makes no use of a callsign database.  Instead, it
-takes advantage of _a priori_ (AP) information such as the one's own
+takes advantage of _a priori_ (AP) information such as one's own
 callsign and the encoded form of message word `CQ`.  In normal usage,
 as a QSO progresses the available AP information increases to include
 the callsign of the station being worked and perhaps also his/her
