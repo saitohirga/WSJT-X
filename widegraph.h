@@ -48,6 +48,7 @@ public:
   void   setWSPRtransmitted();
   void   drawRed(int ia, int ib);
   void   setVHF(bool bVHF);
+  void   setRedFile(QString fRed);
 
 signals:
   void freezeDecode2(int n);

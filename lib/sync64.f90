@@ -117,8 +117,8 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,emedelay,dtx,f0,jpk,sync,  &
   enddo
 
   s0a=s0a+2.0
-  write(17) ia,ib,s0a(ia:ib)                !Save data for red curve
-  close(17)
+!  write(17) ia,ib,s0a(ia:ib)                !Save data for red curve
+!  close(17)
 
   nskip=50
   call lorentzian(s0a(ia+nskip:ib-nskip),iz-2*nskip,a)
@@ -137,18 +137,29 @@ subroutine sync64(c0,nf1,nf2,nfqso,ntol,mode64,emedelay,dtx,f0,jpk,sync,  &
   rms2=sqrt(sq/40.0)
   sync2=10.0*log10(a(2)/rms2)
 
-!  do i=1,iz-2*nskip
-!     x=i
-!     z=(x-a(3))/(0.5*a(4))
-!     yfit=a(1)
-!     if(abs(z).lt.3.0) then
-!        d=1.0 + z*z
-!        yfit=a(1) + a(2)*(1.0/d - 0.1)
-!     endif
-!     j=i+ia+49
-!     write(76,1110) j*df3,s0a(j),yfit
-!1110 format(3f10.3)
-!  enddo
+  slimit=6.0
+  rewind 17
+  write(17,1110) 0.0,0.0
+  rewind 17
+!  rewind 76
+  do i=2,iz-2*nskip-1,3
+     x=i
+     z=(x-a(3))/(0.5*a(4))
+     yfit=a(1)
+     if(abs(z).lt.3.0) then
+        d=1.0 + z*z
+        yfit=a(1) + a(2)*(1.0/d - 0.1)
+     endif
+     j=i+ia+49
+     freq=j*df3
+     ss=(s0a(j-1)+s0a(j)+s0a(j+1))/3.0
+     if(ss.gt.slimit) write(17,1110) freq,ss
+1110 format(3f10.3)
+!     write(76,1110) freq,ss,yfit
+  enddo
+  flush(17)
+  close(17)
+!  flush(76)
 
   return
 end subroutine sync64

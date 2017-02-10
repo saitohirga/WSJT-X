@@ -3,6 +3,8 @@
 #include <QDebug>
 #include "commons.h"
 #include "moc_plotter.cpp"
+#include <fstream>
+#include <iostream>
 
 #define MAX_SCREENSIZE 2048
 
@@ -131,39 +133,6 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
   m_fMax=FreqfromX(iz);
 
   m_line++;
-  if(m_mode=="QRA64" and bRed) {
-    double df_qra64=4000.0/(7*2304);
-    int j0,j1;
-    int k=0;
-    float smax,y3max=0;
-    float y3[MAX_SCREENSIZE];
-    for(int i=1; i<iz; i++) {
-      j0=FreqfromX(i-1)/df_qra64;
-      j1=FreqfromX(i)/df_qra64;
-      smax=0.0;
-      for(int jj=j0; jj<=j1; jj++) {
-        if(dec_data.sred[jj]>smax) smax=dec_data.sred[jj];
-      }
-      y3[i]=smax;
-      if(smax>y3max)y3max=smax;
-    }
-    float fac=0.8/qMax(y3max,10.0f);
-    for(int i=1; i<iz; i++) {
-      if(FreqfromX(i)>=m_ia*df_qra64 and FreqfromX(i)<m_ib*df_qra64) {
-        y2=fac*y3[i];
-        LineBuf2[k].setX(i);
-        LineBuf2[k].setY(int(m_h2*(0.9-y2)));
-        k++;
-      }
-    }
-    painter2D.drawPolyline(LineBuf,jtop);
-    painter2D.setPen(Qt::red);
-    painter2D.drawPolyline(LineBuf2,k);
-    ktop=k;
-    update();                                   //trigger a new paintEvent
-    return;
-  }
-
   if(bScroll) {
     flat4_(swide,&iz,&m_Flatten);
     flat4_(&dec_data.savg[j0],&jz,&m_Flatten);
@@ -262,6 +231,34 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
     x1=XfromFreq(m_rxFreq+750);
     painter2D.drawText(x1-4,y,"73");
   }
+
+    if(bRed) {
+      std::ifstream f;
+      f.open(m_redFile.toLatin1());
+      if(f) {
+        int x,y;
+        float freq,sync;
+        float slimit=6.0;
+        QPen pen0(Qt::red,1);
+        painter1.setPen(pen0);
+        for(int i=0; i<99999; i++) {
+          f >> freq >> sync;
+          if(f.eof()) break;
+          x=XfromFreq(freq);
+          y=(sync-slimit)*3.0;
+          if(y>0) {
+            if(y>15.0) y=15.0;
+            if(x>=0 and x<=m_w) {
+              painter1.setPen(pen0);
+              painter1.drawLine(x,0,x,y);
+            }
+          }
+        }
+        f.close();
+      }
+//      m_bDecodeFinished=false;
+    }
+
   update();                                    //trigger a new paintEvent
   m_bScaleOK=true;
 }
@@ -731,4 +728,9 @@ void CPlotter::SetPercent2DScreen(int percent)
 void CPlotter::setVHF(bool bVHF)
 {
   m_bVHF=bVHF;
+}
+
+void CPlotter::setRedFile(QString fRed)
+{
+  m_redFile=fRed;
 }

@@ -551,3 +551,8 @@ void WideGraph::on_sbPercent2dPlot_valueChanged(int n)
   m_Percent2DScreen=n;
   ui->widePlot->SetPercent2DScreen(n);
 }
+
+void WideGraph::setRedFile(QString fRed)
+{
+  ui->widePlot->setRedFile(fRed);
+}
