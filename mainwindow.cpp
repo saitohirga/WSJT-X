@@ -2554,6 +2554,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
     bool bAvgMsg=false;
     int navg=0;
     if(t.indexOf("<DecodeFinished>") >= 0) {
+      if(m_mode=="QRA64") m_wideGraph->drawRed(0,0);
+      /*
       if(m_mode=="QRA64") {
         char name[512];
         QString fname=m_config.temp_dir ().absoluteFilePath ("red.dat");
@@ -2570,6 +2572,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
         }
       }
+      */
       m_bDecoded = t.mid (20).trimmed ().toInt () > 0;
       if(!m_diskData) killFileTimer.start (3*1000*m_TRperiod/4); //Kill in 45 s
       decodeDone ();
@@ -4401,7 +4404,8 @@ void MainWindow::on_actionQRA64_triggered()
   ui->sbSubmode->setValue(m_nSubMode);
   ui->actionInclude_averaging->setEnabled(false);
   ui->actionInclude_correlation->setEnabled(false);
-
+  QString fname {QDir::toNativeSeparators(m_config.temp_dir ().absoluteFilePath ("red.dat"))};
+  m_wideGraph->setRedFile(fname);
   QFile f(m_appDir + "/old_qra_sync");
   if(f.exists() and !m_bQRAsyncWarned) {
     MessageBox::warning_message (this, tr ("***  WARNING  *** "),

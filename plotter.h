@@ -84,6 +84,7 @@ public:
   bool Reference() const {return m_bReference;}
   void drawRed(int ia, int ib, float swide[]);
   void setVHF(bool bVHF);
+  void setRedFile(QString fRed);
 
 signals:
   void freezeDecode1(int n);
@@ -133,6 +134,7 @@ private:
   QString m_mode;
   QString m_modeTx;
   QString m_rxBand;
+  QString m_redFile;
 
   bool    m_Running;
   bool    m_paintEventBusy;

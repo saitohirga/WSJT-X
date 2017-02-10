@@ -88,7 +88,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   if(params%nmode.eq.4 .or. params%nmode.eq.65) open(14,file=trim(temp_dir)// &
        '/avemsg.txt',status='unknown')
   if(params%nmode.eq.164) open(17,file=trim(temp_dir)//'/red.dat',          &
-       access='stream',status='unknown')
+       status='unknown')
 
   if(params%nmode.eq.4) then
      jz=52*nfsample
