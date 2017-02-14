@@ -45,7 +45,6 @@ namespace
       {3592600, Modes::WSPR},
       {5357000, Modes::JT65},
       {5000000, Modes::FreqCal},
-      {5287200, Modes::WSPR},
       {7038600, Modes::WSPR},
       {7076000, Modes::JT65},
       {7078000, Modes::JT9},
