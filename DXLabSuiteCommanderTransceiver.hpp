@@ -42,6 +42,7 @@ protected:
   void poll () override;
 
 private:
+  MODE get_mode (bool no_debug = false);
   void simple_command (QString const&, bool no_debug = false);
   QString command_with_reply (QString const&, bool no_debug = false);
   bool write_to_port (QString const&);
