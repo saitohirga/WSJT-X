@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 
 #if QT_VERSION >= 0x050200
       QCommandLineParser parser;
-      parser.setApplicationDescription ("\nJT65A & JT9 Weak Signal Communications Program.");
+      parser.setApplicationDescription ("\nJT65, JT9, JT4, MSK144, QRA64, ISCAT & WSPR Weak Signal Communications Program.");
       auto help_option = parser.addHelpOption ();
       auto version_option = parser.addVersionOption ();
 
@@ -119,6 +119,12 @@ int main(int argc, char *argv[])
                                      , a.translate ("main", "Where <rig-name> is for multi-instance support.")
                                      , a.translate ("main", "rig-name"));
       parser.addOption (rig_option);
+
+      // support for start up configuration
+      QCommandLineOption cfg_option (QStringList {} << "c" << "config"
+                                     , a.translate ("main", "Where <configuration> is an existing one.")
+                                     , a.translate ("main", "configuration"));
+      parser.addOption (cfg_option);
 
       QCommandLineOption test_option (QStringList {} << "test-mode"
                                       , a.translate ("main", "Writable files in test location.  Use with caution, for testing only."));
@@ -168,8 +174,9 @@ int main(int argc, char *argv[])
 
           multiple = true;
         }
+
       // now we have the application name we can open the settings
-      MultiSettings multi_settings;
+      MultiSettings multi_settings {parser.value (cfg_option)};
 
       // find the temporary files path
       QDir temp_dir {QStandardPaths::writableLocation (QStandardPaths::TempLocation)};
