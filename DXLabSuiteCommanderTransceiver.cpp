@@ -3,6 +3,7 @@
 #include <QTcpSocket>
 #include <QRegularExpression>
 #include <QLocale>
+#include <QThread>
 
 #include "NetworkServerLookup.hpp"
 
@@ -69,7 +70,13 @@ int DXLabSuiteCommanderTransceiver::do_start ()
       throw error {tr ("Failed to connect to DX Lab Suite Commander\n") + commander_->errorString ()};
     }
 
+  // sleeps here are to ensure Commander has actually queried the rig
+  // rather than returning cached data which maybe stale or simply
+  // read backs of not yet committed values, the 2s delays are
+  // arbitrary but hopefully enough as the actual time required is rig
+  // and Commander setting dependent
   int resolution {0};
+  QThread::msleep (2000);
   auto reply = command_with_reply ("<command:10>CmdGetFreq<parameters:0>");
   if (0 == reply.indexOf ("<CmdFreq:"))
     {
@@ -80,6 +87,7 @@ int DXLabSuiteCommanderTransceiver::do_start ()
           auto f_string = frequency_to_string (test_frequency);
           auto params =  ("<xcvrfreq:%1>" + f_string).arg (f_string.size ());
           simple_command (("<command:10>CmdSetFreq<parameters:%1>" + params).arg (params.size ()));
+          QThread::msleep (2000);
           reply = command_with_reply ("<command:10>CmdGetFreq<parameters:0>");
           if (0 == reply.indexOf ("<CmdFreq:"))
             {
@@ -98,6 +106,7 @@ int DXLabSuiteCommanderTransceiver::do_start ()
                   f_string = frequency_to_string (test_frequency);
                   params =  ("<xcvrfreq:%1>" + f_string).arg (f_string.size ());
                   simple_command (("<command:10>CmdSetFreq<parameters:%1>" + params).arg (params.size ()));
+                  QThread::msleep (2000);
                   reply = command_with_reply ("<command:10>CmdGetFreq<parameters:0>");
                   new_frequency = string_to_frequency (reply.mid (reply.indexOf ('>') + 1));
                   if (9 == static_cast<Radio::FrequencyDelta> (new_frequency - test_frequency))
