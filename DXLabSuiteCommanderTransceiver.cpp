@@ -163,7 +163,7 @@ void DXLabSuiteCommanderTransceiver::do_frequency (Frequency f, MODE m, bool /*n
 {
   TRACE_CAT ("DXLabSuiteCommanderTransceiver", f << state ());
   auto f_string = frequency_to_string (f);
-  if (UNK != m)
+  if (UNK != m && m != get_mode ())
     {
       auto m_string = map_mode (m);
       auto params =  ("<xcvrfreq:%1>" + f_string + "<xcvrmode:%2>" + m_string + "<preservesplitanddual:1>Y").arg (f_string.size ()).arg (m_string.size ());
@@ -281,11 +281,16 @@ void DXLabSuiteCommanderTransceiver::poll ()
       throw error {tr ("DX Lab Suite Commander didn't respond correctly polling split status")};
     }
 
-  reply = command_with_reply ("<command:11>CmdSendMode<parameters:0>", quiet);
+  get_mode (quiet);
+}
+
+auto DXLabSuiteCommanderTransceiver::get_mode (bool no_debug) -> MODE
+{
+  MODE m {UNK};
+  auto reply = command_with_reply ("<command:11>CmdSendMode<parameters:0>", no_debug);
   if (0 == reply.indexOf ("<CmdMode:"))
     {
       auto mode = reply.mid (reply.indexOf ('>') + 1);
-      MODE m {UNK};
       if ("AM" == mode)
         {
           m = AM;
@@ -338,6 +343,7 @@ void DXLabSuiteCommanderTransceiver::poll ()
       TRACE_CAT_POLL ("DXLabSuiteCommanderTransceiver", "unexpected response");
       throw error {tr ("DX Lab Suite Commander didn't respond correctly polling mode")};
     }
+  return m;
 }
 
 void DXLabSuiteCommanderTransceiver::simple_command (QString const& cmd, bool no_debug)
