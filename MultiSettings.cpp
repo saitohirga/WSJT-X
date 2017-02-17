@@ -45,7 +45,7 @@ namespace
   // calculate a useable and unique settings file path
   QString settings_path ()
   {
-    auto config_directory = QStandardPaths::writableLocation (QStandardPaths::ConfigLocation);
+    auto const& config_directory = QStandardPaths::writableLocation (QStandardPaths::ConfigLocation);
     QDir config_path {config_directory}; // will be "." if config_directory is empty
     if (!config_path.mkpath ("."))
       {
@@ -80,7 +80,7 @@ namespace
       button_box->button (QDialogButtonBox::Ok)->setEnabled (false);
       main_layout->addWidget (button_box);
 
-      auto * name_validator = new QRegularExpressionValidator {QRegularExpression {R"([^/\\]+)"}, this};
+      auto name_validator = new QRegularExpressionValidator {QRegularExpression {R"([^/\\]+)"}, this};
       name_line_edit_.setValidator (name_validator);
 
       connect (&name_line_edit_, &QLineEdit::textChanged, [current_names, button_box] (QString const& name) {
@@ -346,7 +346,7 @@ bool MultiSettings::impl::reposition ()
         Dictionary saved_settings {get_settings ()};
         SettingsGroup alternatives {&settings_, multi_settings_root_group};
         // get the current configuration name
-        auto previous_group_name = settings_.value (multi_settings_current_name_key, tr (default_string)).toString ();
+        auto const& previous_group_name = settings_.value (multi_settings_current_name_key, tr (default_string)).toString ();
         SettingsGroup save_group {&settings_, previous_group_name};
         load_from (saved_settings);
       }
@@ -406,14 +406,14 @@ void MultiSettings::impl::create_menu_actions (QMainWindow * main_window, QMenu 
   if (current_group.size ()) settings_.endGroup ();
   SettingsGroup alternatives {&settings_, multi_settings_root_group};
   // get the current configuration name
-  auto current_configuration_name = settings_.value (multi_settings_current_name_key, tr (default_string)).toString ();
+  auto const& current_configuration_name = settings_.value (multi_settings_current_name_key, tr (default_string)).toString ();
   // add the default configuration sub menu
   QMenu * default_menu = create_sub_menu (main_window, menu, current_configuration_name, configurations_group_);
   // and set as the current configuration
   default_menu->menuAction ()->setChecked (true);
 
   // get the existing alternatives
-  auto const& available_configurations {settings_.childGroups ()};
+  auto const& available_configurations = settings_.childGroups ();
 
   // add all the other configurations
   for (auto const& configuration_name: available_configurations)
