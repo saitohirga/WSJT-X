@@ -103,6 +103,13 @@ void LogQSO::accept()
   rptRcvd=ui->rcvd->text();
   m_dateTimeOn = m_dateTimeOn.fromString(ui->dateOn->text()+" "+ui->timeOn->text(),"yyyy-MM-dd hhmm");
   m_dateTimeOff = m_dateTimeOff.fromString(ui->dateOff->text()+" "+ui->timeOff->text(),"yyyy-MM-dd hhmm");
+
+  // set time off and on back to UTC as the above QDateTime::fromString()
+  // creates a local time value -- this would be al so much simpler if
+  // QDateTimeEdit widgets had been used 
+  m_dateTimeOff.setTimeSpec (Qt::UTC);
+  m_dateTimeOn.setTimeSpec (Qt::UTC);
+
   dateOn=ui->dateOn->text();
   dateOn=dateOn.mid(0,4) + dateOn.mid(5,2) + dateOn.mid(8,2);
   timeOn=ui->timeOn->text();
