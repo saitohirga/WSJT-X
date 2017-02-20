@@ -28,7 +28,6 @@ subroutine genmsk40(msg,msgsent,ichk,itone,itype)
 
 10 irpt=i                                   !Report index, 0-15
   if(ichk.lt.10000) then
-!     hashmsg=msg(2:i1-1)//' '//crpt
      hashmsg=msg(2:i1-1)
      call hash(hashmsg,22,ihash)          
      ihash=iand(ihash,4095)                 !12-bit hash 

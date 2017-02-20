@@ -83,7 +83,6 @@ subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret,navg,ct,   &
 
 ! Coarse carrier frequency sync - seek tones at 2000 Hz and 4000 Hz in 
 ! squared signal spectrum.
-! search range for coarse frequency error is +/- 100 Hz
 
     ctmp=ctmp**2
     ctmp(1:12)=ctmp(1:12)*rcw

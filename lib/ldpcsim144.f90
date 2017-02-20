@@ -4,19 +4,23 @@ use, intrinsic :: iso_c_binding
 use iso_c_binding, only: c_loc,c_size_t
 use hashing
 use packjt
+parameter(NRECENT=10)
+character*12 recent_calls(NRECENT)
 character*22 msg,msgsent,msgreceived
-character*80 prefix
 character*8 arg
 integer*1, allocatable ::  codeword(:), decoded(:), message(:)
 integer*1, target:: i1Msg8BitBytes(10)
 integer*1 i1hash(4)
 integer*1 msgbits(80)
-integer*1 bitseq(144)
 integer*4 i4Msg6BitWords(13)
 integer ihash
 real*8, allocatable ::  lratio(:), rxdata(:)
 real, allocatable :: yy(:), llr(:)
 equivalence(ihash,i1hash)
+
+do i=1,NRECENT
+  recent_calls(i)='            '
+enddo
 
 nargs=iargc()
 if(nargs.ne.4) then
@@ -33,9 +37,10 @@ read(arg,*) ntrials
 call getarg(4,arg)
 read(arg,*) s
 
-!rate=real(K)/real(N)
 ! don't count hash bits as data bits
-rate=72.0/real(N)
+N=128
+K=72
+rate=real(K)/real(N)
 
 write(*,*) "rate: ",rate
 
@@ -78,11 +83,10 @@ msg="K9AN K1JT EN50"
       msgbits(mbit)=iand(1,ishft(i1,ibit-8))
     enddo
   enddo
- 
   call encode_msk144(msgbits,codeword)
   call init_random_seed()
 
-write(*,*) "Eb/N0  SNR2500   ngood  nundetected nbadhash"
+write(*,*) "Eb/N0  SNR2500   ngood  nundetected nbadhash  sigma"
 do idb = -6, 14
   db=idb/2.0-1.0
   sigma=1/sqrt( 2*rate*(10**(db/10.0)) )
@@ -124,7 +128,7 @@ do idb = -6, 14
 
 ! If the decoder finds a valid codeword, niterations will be .ge. 0.
     if( niterations .ge. 0 ) then
-      call extractmessage144(decoded,msgreceived,nhashflag)
+      call extractmessage144(decoded,msgreceived,nhashflag,recent_calls,nrecent)
       if( nhashflag .ne. 1 ) then
         nbadhash=nbadhash+1
       endif
@@ -144,7 +148,7 @@ do idb = -6, 14
     endif
   enddo
   snr2500=db-4.0
-  write(*,"(f4.1,4x,f5.1,1x,i8,1x,i8,1x,i8,1x,f5.2)") db,snr2500,ngood,nue,nbadhash,ss
+  write(*,"(f4.1,4x,f5.1,1x,i8,1x,i8,1x,i8,8x,f5.2)") db,snr2500,ngood,nue,nbadhash,ss
 
 enddo
 
