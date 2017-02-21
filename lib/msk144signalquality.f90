@@ -160,7 +160,7 @@ write(*,*) 'start training on call ',training_dxcall
       nfft=1024
       d=0
       d(1:864)=waveform(0:863)
-      call analytic(d,npts,nfft,canalytic,pcoeffs,.false.,.false.) ! don't equalize the model
+      call analytic(d,npts,nfft,canalytic,pcoeffs,.false.) ! don't equalize the model
       call tweak1(canalytic,nfft,-freq,cmodel)
       call four2a(cframe(1:864),864,1,-1,1)
       call four2a(cmodel(1:864),864,1,-1,1)

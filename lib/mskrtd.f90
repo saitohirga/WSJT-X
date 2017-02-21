@@ -97,7 +97,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   d(NZ+1:NFFT1)=0.
   bvar=.true.
   if( btrain ) bvar=.false.   ! if training, turn off rx eq
-  call analytic(d,NZ,NFFT1,cdat,pcoeffs,bvar,.false.)  ! never apply dynamic coeffs
+  call analytic(d,NZ,NFFT1,cdat,pcoeffs,bvar)  
 
 ! Calculate average power for each frame and for the entire block.
 ! If decode is successful, largest power will be taken as signal+noise.
