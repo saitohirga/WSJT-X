@@ -188,7 +188,7 @@ write(*,*) 'start training on call ',training_dxcall
       pp=a(1)+x*(a(2)+x*(a(3)+x*(a(4)+x*a(5)))) 
       rmsdiff=sum( (pp-phase((864/2-nm/2):(864/2+nm/2)))**2 )/145.0
 write(*,*) 'training ',navg,sqrt(chisqr),rmsdiff
-      if( (sqrt(chisqr).lt.1.8) .and. (rmsdiff.lt.0.5) .and. (navg.ge.2) ) then 
+      if( (sqrt(chisqr).lt.1.8) .and. (rmsdiff.lt.0.5) .and. (navg.ge.5) ) then 
         trained_dxcall=dxcall
         training_dxcall(1:12)=' '
         currently_training=.false.
