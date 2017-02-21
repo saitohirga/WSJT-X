@@ -190,8 +190,8 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
                           btrain,datadir,ncorrected,eyeopening,pcoeffs)
   endif
 
-  decsym=' ^ '
-  if( btrain ) decsym=' & '
+  decsym=' & '
+  if( btrain ) decsym=' ^ '
   if( msgreceived(1:1).eq.'<') then
     ncorrected=0
     eyeopening=0.0
