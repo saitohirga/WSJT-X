@@ -18,6 +18,7 @@
 #include <QHostAddress>
 #include <QPointer>
 #include <QSet>
+#include <QVector>
 #include <QFuture>
 #include <QFutureWatcher>
 
@@ -78,6 +79,7 @@ class SoundInput;
 class Detector;
 class SampleDownloader;
 class MultiSettings;
+class PhaseEqualizationDialog;
 
 class MainWindow : public QMainWindow
 {
@@ -306,6 +308,7 @@ private:
   bool m_WSPR_tx_next;
   MessageBox m_rigErrorMessageBox;
   QScopedPointer<SampleDownloader> m_sampleDownloader;
+  QScopedPointer<PhaseEqualizationDialog> m_phaseEqualizationDialog;
 
   QScopedPointer<WideGraph> m_wideGraph;
   QScopedPointer<EchoGraph> m_echoGraph;
@@ -539,6 +542,8 @@ private:
   QHash<QString, QVariant> m_pwrBandTxMemory; // Remembers power level by band
   QHash<QString, QVariant> m_pwrBandTuneMemory; // Remembers power level by band for tuning
   QByteArray m_geometryNoControls;
+  QVector<float> m_phaseEqCoefficients;
+
   //---------------------------------------------------- private functions
   void readSettings();
   void setDecodedTextFont (QFont const&);

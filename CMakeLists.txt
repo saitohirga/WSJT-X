@@ -237,6 +237,7 @@ set (wsjt_qt_CXXSRCS
   MaidenheadLocatorValidator.cpp
   CallsignValidator.cpp
   SplashScreen.cpp
+  PhaseEqualizationDialog.cpp
   )
 
 set (wsjt_qtmm_CXXSRCS
@@ -581,12 +582,17 @@ set (message_aggregator_STYLESHEETS
   UDPExamples/qss/default.qss
   )
 
+set (qcp_CXXSRCS
+  qcustomplot-source/qcustomplot.cpp
+  )
+
 set (all_CXXSRCS
   ${wsjt_CXXSRCS}
   ${wsjt_qt_CXXSRCS}
   ${wsjt_qtmm_CXXSRCS}
   ${jt9_CXXSRCS}
   ${wsjtx_CXXSRCS}
+  ${qcp_CXXSRCS}
   )
 
 set (all_C_and_CXXSRCS
@@ -747,6 +753,7 @@ message (STATUS "hamlib_LIBRARY_DIRS: ${hamlib_LIBRARY_DIRS}")
 # Widgets finds its own dependencies.
 find_package (Qt5Widgets 5 REQUIRED)
 find_package (Qt5Multimedia 5 REQUIRED)
+find_package (Qt5PrintSupport 5 REQUIRED)
 
 if (WIN32)
   add_definitions (-DQT_NEEDS_QTMAIN)
@@ -1011,11 +1018,16 @@ if (${OPENMP_FOUND} OR APPLE)
   endif (APPLE)
 endif (${OPENMP_FOUND} OR APPLE)
 
+# build a library for the QCustomPlot widget
+add_library (qcp STATIC ${qcp_CXXSRCS})
+target_include_directories (qcp PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/qcustomplot-source>)
+target_link_libraries (qcp Qt5::Widgets Qt5::PrintSupport)
+
 # build a library of package Qt functionality
 add_library (wsjt_qt STATIC ${wsjt_qt_CXXSRCS} ${wsjt_qt_GENUISRCS} ${GENAXSRCS})
 # set wsjtx_udp exports to static variants
 target_compile_definitions (wsjt_qt PUBLIC UDP_STATIC_DEFINE)
-target_link_libraries (wsjt_qt Qt5::Widgets Qt5::Network)
+target_link_libraries (wsjt_qt qcp Qt5::Widgets Qt5::Network)
 target_include_directories (wsjt_qt BEFORE PRIVATE ${hamlib_INCLUDE_DIRS})
 if (WIN32)
   target_link_libraries (wsjt_qt Qt5::AxContainer Qt5::AxBase)

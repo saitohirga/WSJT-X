@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>configuration_dialog</class>
  <widget class="QDialog" name="configuration_dialog">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>545</width>
-    <height>591</height>
-   </rect>
-  </property>
   <property name="windowTitle">
    <string>Settings</string>
   </property>
@@ -2295,16 +2287,6 @@ Right click for insert and delete options.</string>
            </widget>
           </item>
           <item row="8" column="0">
-           <widget class="QCheckBox" name="cbRxEqualize">
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Correct for Rx filter group-delay variation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="text">
-             <string>MSK144 Rx Equalization</string>
-            </property>
-           </widget>
-          </item>
-          <item row="9" column="0">
            <widget class="QCheckBox" name="cbx2ToneSpacing">
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate Tx audio with twice the normal tone spacing.  Intended for special LF/MF transmitters that use a divide-by-2 before generating RF.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -2314,7 +2296,7 @@ Right click for insert and delete options.</string>
             </property>
            </widget>
           </item>
-          <item row="10" column="0">
+          <item row="9" column="0">
            <widget class="QCheckBox" name="cbRealTime">
             <property name="enabled">
              <bool>false</bool>
@@ -2521,7 +2503,6 @@ soundcard changes</string>
   <tabstop>sbBandwidth</tabstop>
   <tabstop>sbTxDelay</tabstop>
   <tabstop>cbContestMode</tabstop>
-  <tabstop>cbRxEqualize</tabstop>
   <tabstop>cbx2ToneSpacing</tabstop>
   <tabstop>cbRealTime</tabstop>
  </tabstops>
@@ -2593,12 +2574,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
+  <buttongroup name="TX_mode_button_group"/>
+  <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="PTT_method_button_group"/>
   <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="CAT_stop_bits_button_group"/>
   <buttongroup name="split_mode_button_group"/>
-  <buttongroup name="CAT_data_bits_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
-  <buttongroup name="PTT_method_button_group"/>
-  <buttongroup name="TX_mode_button_group"/>
  </buttongroups>
 </ui>

@@ -4,6 +4,8 @@
 #include <cinttypes>
 #include <limits>
 #include <functional>
+#include <fstream>
+#include <iterator>
 #include <fftw3.h>
 #include <QLineEdit>
 #include <QRegExpValidator>
@@ -55,6 +57,7 @@
 #include "MultiSettings.hpp"
 #include "MaidenheadLocatorValidator.hpp"
 #include "CallsignValidator.hpp"
+#include "PhaseEqualizationDialog.hpp"
 
 #include "ui_mainwindow.h"
 #include "moc_mainwindow.cpp"
@@ -66,7 +69,7 @@ extern "C" {
                 int* minw, float* px, float s[], float* df3, int* nhsym, int* npts8);
 
   void hspec_(short int d2[], int* k, int* nutc0, int* ntrperiod, int* nrxfreq, int* ntol,
-              bool* bmsk144, bool* bcontest, bool* brxequalize, bool* btrain, int* ingain, 
+              bool* bmsk144, bool* bcontest, bool* btrain, float const pcoeffs[], int* ingain, 
               char mycall[], char hiscall[], bool* bshmsg, bool* bswl, char ddir[], float green[], 
               float s[], int* jh, char line[], char mygrid[],
               int len1, int len2, int len3, int len4, int len5);
@@ -505,6 +508,18 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
           m_sampleDownloader.reset (new SampleDownloader {m_settings, &m_config, &m_network_manager, this});
         }
       m_sampleDownloader->show ();
+    });
+
+  connect (ui->view_phase_response_action, &QAction::triggered, [this] () {
+      if (!m_phaseEqualizationDialog)
+        {
+          m_phaseEqualizationDialog.reset (new PhaseEqualizationDialog {m_settings, m_dataDir, m_phaseEqCoefficients, this});
+          connect (m_phaseEqualizationDialog.data (), &PhaseEqualizationDialog::phase_equalization_changed,
+                   [this] (QVector<float> const& coeffs) {
+                     m_phaseEqCoefficients = coeffs;
+                   });
+        }
+      m_phaseEqualizationDialog->show ();
     });
 
   QButtonGroup* txMsgButtonGroup = new QButtonGroup {this};
@@ -967,8 +982,15 @@ void MainWindow::writeSettings()
   m_settings->setValue ("CQTxfreq", ui->sbCQTxFreq->value ());
   m_settings->setValue("pwrBandTxMemory",m_pwrBandTxMemory);
   m_settings->setValue("pwrBandTuneMemory",m_pwrBandTuneMemory);
+  {
+    QList<QVariant> coeffs;     // suitable for QSettings
+    for (auto const& coeff : m_phaseEqCoefficients)
+      {
+        coeffs << static_cast<double> (coeff);
+      }
+    m_settings->setValue ("PhaseEqualizationCoefficients", QVariant {coeffs});
+  }
   m_settings->endGroup();
-
 }
 
 //---------------------------------------------------------- readSettings()
@@ -1042,6 +1064,15 @@ void MainWindow::readSettings()
   m_TRindex=m_settings->value("TRindex",4).toInt();
   m_pwrBandTxMemory=m_settings->value("pwrBandTxMemory").toHash();
   m_pwrBandTuneMemory=m_settings->value("pwrBandTuneMemory").toHash();
+  {
+    auto const& coeffs = m_settings->value ("PhaseEqualizationCoefficients"
+                                            , QList<QVariant> {0., 0., 0., 0., 0.}).toList ();
+    m_phaseEqCoefficients.clear ();
+    for (auto const& coeff : coeffs)
+      {
+        m_phaseEqCoefficients.append (coeff.value<double> ());
+      }
+  }
   m_settings->endGroup();
 
   // use these initialisation settings to tune the audio o/p buffer
@@ -1345,7 +1376,6 @@ void MainWindow::fastSink(qint64 frames)
   QString hisCall {ui->dxCallEntry->text ()};
   bool bshmsg=ui->cbShMsgs->isChecked();
   bool bcontest=m_config.contestMode();
-  bool brxequalize=m_config.rxEqualize();
   bool bswl=ui->cbSWL->isChecked();
   strncpy(dec_data.params.hiscall,(hisCall + "            ").toLatin1 ().constData (), 12);
   strncpy(dec_data.params.mygrid, (m_config.my_grid()+"      ").toLatin1(),6);
@@ -1353,9 +1383,11 @@ void MainWindow::fastSink(qint64 frames)
   dataDir = m_dataDir.absolutePath ();
   char ddir[512];
   strncpy(ddir,dataDir.toLatin1(), sizeof (ddir) - 1);
-  hspec_(dec_data.d2,&k,&nutc0,&nTRpDepth,&RxFreq,&m_Ftol,&bmsk144,&bcontest,&brxequalize,
-   &m_bTrain,&m_inGain,&dec_data.params.mycall[0],&dec_data.params.hiscall[0],&bshmsg,&bswl,
-   &ddir[0],fast_green,fast_s,&fast_jh,&line[0],&dec_data.params.mygrid[0],12,12,512,80,6);
+  hspec_(dec_data.d2,&k,&nutc0,&nTRpDepth,&RxFreq,&m_Ftol,&bmsk144,&bcontest,
+         &m_bTrain,m_phaseEqCoefficients.constData(),&m_inGain,&dec_data.params.mycall[0],
+         &dec_data.params.hiscall[0],&bshmsg,&bswl,
+         &ddir[0],fast_green,fast_s,&fast_jh,&line[0],&dec_data.params.mygrid[0],
+         12,12,512,80,6);
   float px = fast_green[fast_jh];
   QString t;
   t.sprintf(" Rx noise: %5.1f ",px);

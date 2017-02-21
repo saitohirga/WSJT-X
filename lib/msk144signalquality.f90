@@ -1,4 +1,4 @@
-  subroutine msk144signalquality(cframe,snr,freq,t0,softbits,msg,dxcall,       &
+subroutine msk144signalquality(cframe,snr,freq,t0,softbits,msg,dxcall,       &
    btrain,datadir,nbiterrors,eyeopening,pcoeffs)
 
   character*22 msg,msgsent
@@ -36,7 +36,7 @@
   real phase(864)
   real twopi,freq,phi,dphi0,dphi1,dphi
   real*8 x(145),y(145),pp(145),sigmay(145),a(5),chisqr
-  real pcoeffs(3)
+  real pcoeffs(5)
 
   data first/.true./
   save cross_avg,wt_avg,first,currently_training,   &
@@ -51,7 +51,6 @@
     trained_dxcall(1:12)=' '
     training_dxcall(1:12)=' '
     currently_training=.false.
-    pcoeffs(1:3)=0.0
     first=.false.
   endif
 
@@ -66,7 +65,6 @@
     currently_training=.false.
     training_dxcall(1:12)=' '
     trained_dxcall(1:12)=' '
-    pcoeffs(1:3)=0.0
 write(*,*) 'reset to untrained state '
   endif
 
@@ -77,14 +75,12 @@ write(*,*) 'reset to untrained state '
     currently_training=.true.
     training_dxcall=trim(dxcall)
     trained_dxcall(1:12)=' '
-    pcoeffs(1:3)=0.0
 write(*,*) 'start training on call ',training_dxcall
   endif
 
   if( msg_has_dxcall .and. currently_training ) then
     trained_dxcall(1:12)=' '
     training_dxcall=dxcall
-    pcoeffs(1:3)=0.0
   endif
 
 ! use decoded message to figure out how many bit errors in the frame 
@@ -193,7 +189,6 @@ write(*,*) 'start training on call ',training_dxcall
       rmsdiff=sum( (pp-phase((864/2-nm/2):(864/2+nm/2)))**2 )/145.0
 write(*,*) 'training ',navg,sqrt(chisqr),rmsdiff
       if( (sqrt(chisqr).lt.1.8) .and. (rmsdiff.lt.0.5) .and. (navg.ge.2) ) then 
-!        pcoeffs=a(3:5)
         trained_dxcall=dxcall
         training_dxcall(1:12)=' '
         currently_training=.false.
