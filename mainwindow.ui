@@ -992,14 +992,14 @@ QLabel[oob=&quot;true&quot;] {
                    <property name="enabled">
                     <bool>true</bool>
                    </property>
-                   <property name="toolTip">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to monitor Sh messages.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                   </property>
                    <property name="maximumSize">
                     <size>
                      <width>16777215</width>
                      <height>16777215</height>
                     </size>
+                   </property>
+                   <property name="toolTip">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to monitor Sh messages.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="text">
                     <string>SWL</string>
@@ -2449,7 +2449,9 @@ QPushButton[state=&quot;ok&quot;] {
     </property>
     <addaction name="actionErase_reference_spectrum"/>
     <addaction name="actionMeasure_reference_spectrum"/>
+    <addaction name="separator"/>
     <addaction name="actionMeasure_phase_response"/>
+    <addaction name="view_phase_response_action"/>
     <addaction name="separator"/>
     <addaction name="actionFrequency_calibration"/>
    </widget>
@@ -2968,6 +2970,11 @@ QPushButton[state=&quot;ok&quot;] {
    </property>
    <property name="text">
     <string>Execute frequency calibration cycle</string>
+   </property>
+  </action>
+  <action name="view_phase_response_action">
+   <property name="text">
+    <string>View phase response ...</string>
    </property>
   </action>
  </widget>

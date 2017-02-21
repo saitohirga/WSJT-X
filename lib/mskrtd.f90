@@ -1,5 +1,5 @@
 subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
-     bshmsg,bcontest,brxequal,btrain,bswl,datadir,line)
+     bshmsg,bcontest,btrain,pcoeffs,bswl,datadir,line)
 
 ! Real-time decoder for MSK144.  
 ! Analysis block size = NZ = 7168 samples, t_block = 0.597333 s 
@@ -37,9 +37,9 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   real pow(8)
   real softbits(144)
   real xmc(NPATTERNS)
-  real pcoeffs(3)
+  real pcoeffs(5)
 
-  logical*1 bshmsg,bcontest,brxequal,btrain,bswl
+  logical*1 bshmsg,bcontest,btrain,bswl
   logical*1 first
   logical*1 bshdecode
   logical*1 seenb4
@@ -53,14 +53,13 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
        1,1,1,1,1,0,0,0, &
        1,1,1,1,1,1,1,0/
   data xmc/2.0,4.5,2.5,3.5/     !Used to set time at center of averaging mask
-  save first,tsec0,nutc00,pnoise,cdat,pcoeffs,msglast,msglastswl,     &
+  save first,tsec0,nutc00,pnoise,cdat,msglast,msglastswl,     &
        nsnrlast,nsnrlastswl,recent_calls,nhasharray,recent_shmsgs
 
   if(first) then
      tsec0=tsec
      nutc00=nutc0
      pnoise=-1.0
-     pcoeffs(1:3)=0.0
      do i=1,nrecent
        recent_calls(i)(1:12)=' '
      enddo
@@ -96,7 +95,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   fac=1.0/rms
   d(1:NZ)=fac*d(1:NZ)
   d(NZ+1:NFFT1)=0.
-  bvar=brxequal
+  bvar=.true.
   if( btrain ) bvar=.false.   ! if training, turn off rx eq
   call analytic(d,NZ,NFFT1,cdat,pcoeffs,bvar,.false.)  ! never apply dynamic coeffs
 
@@ -191,8 +190,8 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
                           btrain,datadir,ncorrected,eyeopening,pcoeffs)
   endif
 
-  decsym=' & '
-  if( brxequal ) decsym=' ^ '
+  decsym=' ^ '
+  if( btrain ) decsym=' & '
   if( msgreceived(1:1).eq.'<') then
     ncorrected=0
     eyeopening=0.0
