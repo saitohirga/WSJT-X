@@ -62,7 +62,7 @@ namespace
     poly_generator (QVector<T> const& coeffs, size_t intervals, S scaling = [] (T x) {return x;})
       : x_ {0}
       , intervals_ {intervals}
-      , scaling_ {scaling}
+      , scaling_ (scaling)
       , coeffs_ {coeffs}
     {
     }
