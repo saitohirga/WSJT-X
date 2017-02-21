@@ -1,4 +1,4 @@
-subroutine analytic(d,npts,nfft,c,dpc,bseq,bdeq)
+subroutine analytic(d,npts,nfft,c,pc,beq)
 
 ! Convert real data to analytic signal
 
@@ -6,24 +6,20 @@ subroutine analytic(d,npts,nfft,c,dpc,bseq,bdeq)
 
   real d(npts)              ! passband signal
   real h(NFFTMAX/2)         ! real BPF magnitude
-  real dpc(5)               ! dynamic phase coeffs
-  real sac(5),saclast(5)    ! amp coeffs
+  real pc(5),pclast(5)      ! static phase coeffs
+  real ac(5),aclast(5)      ! amp coeffs
   real fp     
 
-  complex corrs(NFFTMAX/2)  ! allpass static phase correction 
-  complex corrd(NFFTMAX/2)  ! allpass overall phase correction
+  complex corr(NFFTMAX/2)  ! complex frequency-dependent correction 
   complex c(NFFTMAX)        ! analytic signal
 
-  logical*1 bseq            ! boolean static equalizer flag
-  logical*1 bdeq            ! boolean dynamic equalizer flag
-  logical*1 bseqlast      
+  logical*1 beq            ! boolean static equalizer flag
 
   data nfft0/0/
-  data bseqlast/.false./
-  data saclast/1.0,0.0,0.0,0.0,0.0/
-  data sac/1.0,0.05532,0.11438,0.12918,0.09274/ ! amp coeffs for TS2000
+  data aclast/1.0,0.0,0.0,0.0,0.0/
+  data ac/1.0,0.05532,0.11438,0.12918,0.09274/ ! amp coeffs for TS2000
 
-  save corrs,corrd,nfft0,h,sac,saclast,pi,t,beta
+  save corr,nfft0,h,ac,aclast,pclast,pi,t,beta
 
   df=12000.0/nfft
   nh=nfft/2
@@ -44,15 +40,17 @@ subroutine analytic(d,npts,nfft,c,dpc,bseq,bdeq)
      nfft0=nfft
   endif
 
-  if( any(saclast .ne. sac) ) then
-     saclast=sac
+  if( any(aclast .ne. ac) .or. any(pclast .ne. pc) ) then
+     aclast=ac
+     pclast=pc
+write(*,*) 'phase coeffs ',pc
      do i=1,nh+1
         ff=(i-1)*df
         f=ff-1500.0
         fp=f/1000.0
-        corrs(i)=sac(1)+fp*(sac(2)+fp*(sac(3)+fp*(sac(4)+fp*sac(5))))
-        pd=fp*fp*(dpc(3)+fp*(dpc(4)+fp*dpc(5))) ! ignore 1st two terms
-        corrd(i)=cmplx(cos(pd),sin(pd))
+        corr(i)=ac(1)+fp*(ac(2)+fp*(ac(3)+fp*(ac(4)+fp*ac(5))))
+        pd=fp*fp*(pc(3)+fp*(pc(4)+fp*pc(5))) ! ignore 1st two terms
+        corr(i)=corr(i)*cmplx(cos(pd),sin(pd))
      enddo
   endif
 
@@ -61,14 +59,10 @@ subroutine analytic(d,npts,nfft,c,dpc,bseq,bdeq)
   c(npts+1:nfft)=0.
   call four2a(c,nfft,1,-1,1)               !Forward c2c FFT
 
-  if( (.not. bseq) .and. (.not. bdeq) ) then
+  if( beq ) then
+    c(1:nh+1)=h(1:nh+1)*corr(1:nh+1)*c(1:nh+1)
+  else
     c(1:nh+1)=h(1:nh+1)*c(1:nh+1)
-  else if( bseq .and. (.not. bdeq) ) then
-    c(1:nh+1)=h(1:nh+1)*corrs(1:nh+1)*c(1:nh+1)
-  else if( (.not. bseq) .and. bdeq ) then
-    c(1:nh+1)=h(1:nh+1)*corrd(1:nh+1)*c(1:nh+1)
-  else if( bseq .and. bdeq ) then
-    c(1:nh+1)=h(1:nh+1)*corrs(1:nh+1)*corrd(1:nh+1)*c(1:nh+1)
   endif
 
   c(1)=0.5*c(1)                            !Half of DC term
