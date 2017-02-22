@@ -7,7 +7,7 @@ subroutine refspectrum(id2,bclear,brefspec,buseref,fname)
   parameter (NFFT=6912,NH=NFFT/2)
   integer*2 id2(NFFT)
   logical*1 bclear,brefspec,buseref
-
+  
   real x0(0:NH-1)                         !Input samples
   real x1(0:NH-1)                         !Output samples (delayed by one block)
   real x0s(0:NH-1)                        !Saved upper half of input samples
@@ -16,6 +16,7 @@ subroutine refspectrum(id2,bclear,brefspec,buseref,fname)
   real*4 w(0:NFFT-1)                      !Window function
   real*4 s(0:NH)                          !Average spectrum
   real*4 fil(0:NH)
+  real*8 xfit(1500),yfit(1500),sigmay(1500),a(5),chisqr !Polyfit arrays
   logical first,firstuse
   complex cx(0:NH)                        !Complex frequency-domain work array
   character*(*) fname
@@ -92,12 +93,25 @@ subroutine refspectrum(id2,bclear,brefspec,buseref,fname)
            call smo121(fil,NH)
         enddo
 
-        do i=0,NH
+        do i=0,NH 
            filter(i)=-60.0
            if(s(i).gt.0.0) filter(i)=20.0*log10(fil(i))
         enddo
 
+        il=nint(400.0/df)
+        ih=nint(2600.0/df)
+        nfit=ih-il+1
+        mode=0
+        nterms=5
+        do i=1,nfit
+          xfit(i)=((i+il-1)*df-1500.0)/1000.0
+          yfit(i)=fil(i+il-1)
+          sigmay(i)=1.0
+        enddo
+        call polyfit(xfit,yfit,sigmay,nfit,nterms,mode,a,chisqr)
+
         open(16,file=fname,status='unknown')
+        write(16,'(5f10.4)') a
         do i=1,NH
            freq=i*df
            ref(i)=db(s(i)/avemid)
