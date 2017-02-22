@@ -3,6 +3,8 @@
 #include <iterator>
 #include <algorithm>
 #include <fstream>
+#include <limits>
+#include <cmath>
 
 #include <QDir>
 #include <QVector>
@@ -19,88 +21,211 @@
 
 namespace
 {
+  float constexpr PI = 3.1415927f;
   char const * const title = "Phase Equalization";
   size_t constexpr intervals = 144;
 
   // plot data loaders - wraps a plot providing value_type and
   // push_back so that a std::back_inserter output iterator can be
   // used to load plot data
-  template<typename T>
+  template<typename T, typename A>
   struct plot_data_loader
   {
   public:
     typedef T value_type;
 
-    plot_data_loader (QCustomPlot * plot, int graph_index)
+    // the adjust argument is a function that is passed the plot
+    // pointer, the graph index and a data point, it returns a
+    // possibly adjusted data point and can modify the graph including
+    // adding extra points or gaps (quiet_NaN)
+    plot_data_loader (QCustomPlot * plot, int graph_index, A adjust)
       : plot_ {plot}
-      , index_ {graph_index }
+      , index_ {graph_index}
+      , adjust_ (adjust)
     {
     }
 
     // load point into graph
     void push_back (value_type const& d)
     {
-      plot_->graph (index_)->data ()->add (d);
+      plot_->graph (index_)->data ()->add (adjust_ (plot_, index_, d));
     }
 
   private:
     QCustomPlot * plot_;
     int index_;
+    A adjust_;
+  };
+  // helper function template to make a plot_data_loader instance
+  template<typename A>
+  auto make_plot_data_loader (QCustomPlot * plot, int index, A adjust)
+    -> plot_data_loader<QCPGraphData, decltype (adjust)>
+  {
+    return plot_data_loader<QCPGraphData, decltype (adjust)> {plot, index, adjust};
+  }
+  // identity adjust function when none is needed in the above
+  // instantiation helper
+  QCPGraphData adjust_identity (QCustomPlot *, int, QCPGraphData const& v) {return v;}
+
+  // a plot_data_loader adjustment function that wraps Y values of
+  // (-1..+1) plotting discontinuities as gaps in the graph data
+  auto wrap_pi = [] (QCustomPlot * plot, int index, QCPGraphData d) 
+  {
+    double constexpr limit {1};
+    static unsigned wrap_count {0};
+    static double last_x {std::numeric_limits<double>::lowest ()};
+
+    d.value += 2 * limit * wrap_count;
+    if (d.value > limit)
+      {
+        // insert a gap in the graph
+        plot->graph (index)->data ()->add ({last_x + (d.key - last_x) / 2
+              , std::numeric_limits<double>::quiet_NaN ()});
+        while (d.value > limit)
+          {
+            --wrap_count;
+            d.value -= 2 * limit;
+          }
+      }
+    else if (d.value < -limit)
+      {
+        // insert a gap into the graph
+        plot->graph (index)->data ()->add ({last_x + (d.key - last_x) / 2
+              , std::numeric_limits<double>::quiet_NaN ()});
+        while (d.value < -limit)
+          {
+            ++wrap_count;
+            d.value += 2 * limit;
+          }
+      }
+    last_x = d.key;
+    return d;
   };
 
-  typedef plot_data_loader<QCPGraphData> graph_loader_type;
-
-  // generate points of type T for a 5 term polynomial for x in
-  // (-1..+1) with N intervals and function S to scale X
+  // generate points of type R from a function of type F for X in
+  // (-1..+1) with N intervals and function of type SX to scale X and
+  // of type SY to scale Y
   //
   // it is up to the user to call the generator sufficient times which
   // is interval+1 times to reach +1
-  template<typename R, typename T, typename S>
-  struct poly_generator
+  template<typename R, typename F, typename SX, typename SY>
+  struct graph_generator
   {
   public:
-    poly_generator (QVector<T> const& coeffs, size_t intervals, S scaling = [] (T x) {return x;})
+    graph_generator (F f, size_t intervals, SX x_scaling, SY y_scaling)
       : x_ {0}
+      , f_ (f)
       , intervals_ {intervals}
-      , scaling_ (scaling)
-      , coeffs_ {coeffs}
+      , x_scaling_ (x_scaling)
+      , y_scaling_ (y_scaling)
     {
     }
 
     R operator () ()
     {
-      T x {x_++ * 2.f / intervals_ - 1.f};
-      return {scaling_ (x), coeffs_[0] + x * (coeffs_[1] + x * (coeffs_[2] + x * (coeffs_[3] + x * coeffs_[4])))};
+      typename F::value_type x {x_++ * 2.f / intervals_ - 1.f};
+      return {x_scaling_ (x), y_scaling_ (f_ (x))};
     }
-
-    size_t intervals () const {return intervals_;}
 
   private:
     int x_;
+    F f_;
     size_t intervals_;
-    S scaling_;
-    QVector<T> coeffs_;
+    SX x_scaling_;
+    SY y_scaling_;
   };
-
-  // make our n=5 polynomial single precision FP generator of
+  // helper function template to make a graph_generator instance for
   // QCPGraphData type points with intervals intervals
-  template<typename S>
-  auto make_poly_generator (QVector<float> const& coeffs, S x_scaling)
-    -> poly_generator<QCPGraphData, float, decltype (x_scaling)>
+  template<typename F, typename SX, typename SY>
+  auto make_graph_generator (F function, SX x_scaling, SY y_scaling)
+    -> graph_generator<QCPGraphData, F, decltype (x_scaling), decltype (y_scaling)>
   {
-    return poly_generator<QCPGraphData, float, decltype (x_scaling)> {coeffs, intervals, x_scaling};
+    return graph_generator<QCPGraphData, F, decltype (x_scaling), decltype (y_scaling)>
+      {function, intervals, x_scaling, y_scaling};
   }
 
-  // a lambda that scales the X axis appropriately
-  auto x_scaling = [] (float x) -> float {return 1500. + 1000 * x;};
+  // template function object for a polynomial with coefficients
+  template<typename C>
+  class polynomial
+  {
+  public:
+    typedef typename C::value_type value_type;
+
+    explicit polynomial (C const& coefficients)
+      : c_ {coefficients}
+    {
+    }
+
+    value_type operator () (value_type const& x)
+    {
+      value_type y {};
+      for (typename C::size_type i = c_.size (); i > 0; --i)
+        {
+          y = c_[i - 1] + x * y;
+        }
+      return y;
+    }
+
+  private:
+    C c_;
+  };
+  // helper function template to instantiate a polynomial instance
+  template<typename C>
+  auto make_polynomial (C const& coefficients) -> polynomial<C>
+  {
+    return polynomial<C> (coefficients);
+  }
+
+  // template function object for a group delay with coefficients
+  template<typename C>
+  class group_delay
+  {
+  public:
+    typedef typename C::value_type value_type;
+
+    explicit group_delay (C const& coefficients)
+      : c_ {coefficients}
+    {
+    }
+
+    value_type operator () (value_type const& x)
+    {
+      value_type tau {};
+      for (typename C::size_type i = 2; i < c_.size (); ++i)
+        {
+          tau += i * c_[i] * std::pow (x, i - 1);
+        }
+      return -1 / (2 * PI) * tau;
+    }
+
+  private:
+    C c_;
+  };
+  // helper function template to instantiate a group_delay function
+  // object
+  template<typename C>
+  auto make_group_delay (C const& coefficients) -> group_delay<C>
+  {
+    return group_delay<C> (coefficients);
+  }
+
+  // handy identity function
+  template<typename T> T identity (T const& v) {return v;}
+
+  // a lambda that scales the X axis from normalized to (500..2500)Hz
+  auto freq_scaling = [] (float v) -> float {return 1500.f + 1000.f * v;};
+
+  // a lambda that scales the phase Y axis from radians to units of Pi
+  auto pi_scaling = [] (float v) -> float {return v / PI;};
 }
 
-// read a phase point line from a stream
-std::istream& operator >> (std::istream& is, graph_loader_type::value_type& v)
+// read a phase point line from a stream (pcoeff file)
+std::istream& operator >> (std::istream& is, QCPGraphData& v)
 {
   float pp, sigmay;          // discard these
   is >> v.key >> pp >> v.value >> sigmay;
   v.key = 1500. + 1000. * v.key;  // scale frequency to Hz
+  v.value /= PI;                  // scale to units of Pi
   return is;
 }
 
@@ -179,11 +304,18 @@ PhaseEqualizationDialog::impl::impl (PhaseEqualizationDialog * self
   layout_.addWidget (&plot_);
 
   plot_.xAxis->setLabel (tr ("Freq (Hz)"));
-  plot_.yAxis->setLabel (tr ("Phase (Radians)"));
-  plot_.legend->setVisible (true);
-  plot_.setInteractions (QCP::iRangeDrag | QCP::iRangeZoom);
+  plot_.xAxis->setRange (500, 2500);
+  plot_.yAxis->setLabel (tr ("Phase (Π)"));
+  plot_.yAxis->setRange (-1, +1);
+  plot_.yAxis2->setLabel (tr ("Delay (ms)"));
   plot_.axisRect ()->setRangeDrag (Qt::Vertical);
   plot_.axisRect ()->setRangeZoom (Qt::Vertical);
+  plot_.yAxis2->setVisible (true);
+  plot_.axisRect ()->setRangeDragAxes (0, plot_.yAxis2);
+  plot_.axisRect ()->setRangeZoomAxes (0, plot_.yAxis2);
+  plot_.axisRect ()->insetLayout ()->setInsetAlignment (0, Qt::AlignBottom|Qt::AlignRight);
+  plot_.legend->setVisible (true);
+  plot_.setInteractions (QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
 
   plot_.addGraph ();
   plot_.graph ()->setName (tr ("Measured"));
@@ -201,8 +333,8 @@ PhaseEqualizationDialog::impl::impl (PhaseEqualizationDialog * self
   plot_.graph ()->setName (tr ("Current"));
   plot_.graph ()->setPen (QPen {Qt::green});
 
-  plot_.addGraph ();
-  plot_.graph ()->setName (tr ("Current as Used"));
+  plot_.addGraph (plot_.xAxis, plot_.yAxis2);
+  plot_.graph ()->setName (tr ("Group Delay"));
   plot_.graph ()->setPen (QPen {Qt::darkGreen});
 
   auto load_button = button_box_.addButton (tr ("Load ..."), QDialogButtonBox::ActionRole);
@@ -242,9 +374,6 @@ PhaseEqualizationDialog::impl::impl (PhaseEqualizationDialog * self
           plot_.graph (1)->setVisible (false);
           plot_.graph (1)->removeFromLegend ();
 
-          plot_.graph (2)->rescaleAxes ();
-          plot_.graph (3)->rescaleValueAxis (true);
-
           plot_.replot ();
         }
     });
@@ -257,24 +386,18 @@ void PhaseEqualizationDialog::impl::plot_current ()
   plot_.graph (2)->data ()->clear ();
   plot_.graph (3)->data ()->clear ();
   {
-    graph_loader_type graph {&plot_, 2};
-    std::generate_n (std::back_inserter (graph), intervals + 1, make_poly_generator (current_coefficients_, x_scaling));
+    // plot the current polynomial
+    auto graph = make_plot_data_loader (&plot_, 2, wrap_pi);
+    std::generate_n (std::back_inserter (graph), intervals + 1
+                     , make_graph_generator (make_polynomial (current_coefficients_), freq_scaling, pi_scaling));
   }
   {
-    // plot the adjusted polynomial using only the three high order terms
-    graph_loader_type graph {&plot_, 3};
-    QVector<float> reduced {current_coefficients_};
-    reduced[0] = 0.f;
-    reduced[1] = 0.f;
-    std::generate_n (std::back_inserter (graph), intervals + 1, make_poly_generator (reduced, x_scaling));
+    // plot the group delay for the current polynomial
+    auto graph = make_plot_data_loader (&plot_, 3, adjust_identity);
+    std::generate_n (std::back_inserter (graph), intervals + 1
+                     , make_graph_generator (make_group_delay (current_coefficients_), freq_scaling, identity<float>));
+    plot_.graph (3)->rescaleValueAxis ();
   }
-  plot_.graph (2)->rescaleAxes ();
-  plot_.graph (3)->rescaleValueAxis (true);
-  if (plot_.graph (0)->dataCount ())
-    {
-      plot_.graph (0)->rescaleValueAxis (true);
-      plot_.graph (1)->rescaleValueAxis (true);
-    }
   plot_.replot ();
 }
 
@@ -302,28 +425,22 @@ void PhaseEqualizationDialog::impl::plot ()
       plot_.graph (1)->data ()->clear ();
       {
         // read the phase data to plot into graph 0
-        graph_loader_type graph {&plot_, 0};
-        std::istream_iterator<graph_loader_type::value_type> start {coeffs_source};
+        auto graph = make_plot_data_loader (&plot_, 0, adjust_identity);
+        std::istream_iterator<QCPGraphData> start {coeffs_source};
         std::copy_n (start, intervals + 1, std::back_inserter (graph));
       }
       {
         // generate the proposed polynomial plot in graph 1
-        graph_loader_type graph {&plot_, 1};
-        std::generate_n (std::back_inserter (graph), intervals + 1, make_poly_generator (new_coefficients_, x_scaling));
+        auto graph = make_plot_data_loader (&plot_, 1, wrap_pi);
+        std::generate_n (std::back_inserter (graph), intervals + 1
+                         , make_graph_generator (make_polynomial (new_coefficients_), freq_scaling, pi_scaling));
       }
       plot_.graph (0)->setVisible (true);
       plot_.graph (0)->addToLegend ();
-      plot_.graph (0)->rescaleAxes ();
 
       plot_.graph (1)->setVisible (true);
       plot_.graph (1)->addToLegend ();
-      plot_.graph (1)->rescaleValueAxis (true);
 
-      if (plot_.graph (2)->dataCount ())
-        {
-          plot_.graph (2)->rescaleValueAxis (true);
-          plot_.graph (3)->rescaleValueAxis (true);
-        }
       plot_.replot ();
     }
 }
