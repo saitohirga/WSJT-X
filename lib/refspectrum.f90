@@ -111,12 +111,13 @@ subroutine refspectrum(id2,bclear,brefspec,buseref,fname)
         call polyfit(xfit,yfit,sigmay,nfit,nterms,mode,a,chisqr)
 
         open(16,file=fname,status='unknown')
-        write(16,'(5f10.4)') a
+        write(16,1003) a
+1003    format(5f10.4)
         do i=1,NH
            freq=i*df
            ref(i)=db(s(i)/avemid)
-           write(16,1000) freq,s(i),ref(i),fil(i),filter(i)
-1000       format(f10.3,e12.3,f12.6,e12.3,f12.6)
+           write(16,1005) freq,s(i),ref(i),fil(i),filter(i)
+1005       format(f10.3,e12.3,f12.6,e12.3,f12.6)
         enddo
         close(16)
      endif
@@ -127,13 +128,15 @@ subroutine refspectrum(id2,bclear,brefspec,buseref,fname)
      if(firstuse) then
         fil=1.0
         open(16,file=fname,status='old',err=10)
+        read(16,1003,err=10,end=10) a
         do i=1,NH
-           read(16,1000,err=10,end=10) freq,s(i),ref(i),fil(i),filter(i)
+           read(16,1005,err=10,end=10) freq,s(i),ref(i),fil(i),filter(i)
         enddo
 10      close(16)
       firstuse=.false.
      endif
-     x0=id2(NH+1:NFFT)
+!     x0=id2(NH+1:NFFT)
+     x0=id2(1:NH)
      x(0:NH-1)=x0s                         !Previous 2nd half to new 1st half
      x(NH:NFFT-1)=x0                       !New 2nd half
      x0s=x0                                !Save the new 2nd half
