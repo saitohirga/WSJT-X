@@ -27,7 +27,7 @@ subroutine hspec(id2,k,nutc0,ntrpdepth,nrxfreq,ntol,bmsk144,bcontest,  &
   real green(0:JZ-1)
   real s(0:63,0:JZ-1)
   real x(512)
-  real pcoeffs(5)
+  real*8 pcoeffs(5)
   complex cx(0:256)
   data rms/999.0/,k0/99999999/
   equivalence (x,cx)

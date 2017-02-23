@@ -69,8 +69,8 @@ extern "C" {
                 int* minw, float* px, float s[], float* df3, int* nhsym, int* npts8);
 
   void hspec_(short int d2[], int* k, int* nutc0, int* ntrperiod, int* nrxfreq, int* ntol,
-              bool* bmsk144, bool* bcontest, bool* btrain, float const pcoeffs[], int* ingain, 
-              char mycall[], char hiscall[], bool* bshmsg, bool* bswl, char ddir[], float green[], 
+              bool* bmsk144, bool* bcontest, bool* btrain, double const pcoeffs[], int* ingain,
+              char mycall[], char hiscall[], bool* bshmsg, bool* bswl, char ddir[], float green[],
               float s[], int* jh, char line[], char mygrid[],
               int len1, int len2, int len3, int len4, int len5);
 
@@ -515,7 +515,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
         {
           m_phaseEqualizationDialog.reset (new PhaseEqualizationDialog {m_settings, m_dataDir, m_phaseEqCoefficients, this});
           connect (m_phaseEqualizationDialog.data (), &PhaseEqualizationDialog::phase_equalization_changed,
-                   [this] (QVector<float> const& coeffs) {
+                   [this] (QVector<double> const& coeffs) {
                      m_phaseEqCoefficients = coeffs;
                    });
         }
@@ -986,7 +986,7 @@ void MainWindow::writeSettings()
     QList<QVariant> coeffs;     // suitable for QSettings
     for (auto const& coeff : m_phaseEqCoefficients)
       {
-        coeffs << static_cast<double> (coeff);
+        coeffs << coeff;
       }
     m_settings->setValue ("PhaseEqualizationCoefficients", QVariant {coeffs});
   }

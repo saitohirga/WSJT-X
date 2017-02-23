@@ -36,8 +36,9 @@ subroutine msk144signalquality(cframe,snr,freq,t0,softbits,msg,dxcall,       &
   real phase(864)
   real twopi,freq,phi,dphi0,dphi1,dphi
   real*8 x(145),y(145),pp(145),sigmay(145),a(5),chisqr
-  real pcoeffs(5)
+  real*8 pcoeffs(5)
 
+  parameter (NFREQLOW=500,NFREQHIGH=2500)
   data first/.true./
   save cross_avg,wt_avg,first,currently_training,   &
        navg,tlast,training_dxcall,trained_dxcall
@@ -202,7 +203,7 @@ write(*,*) 'training ',navg,sqrt(chisqr),rmsdiff
         pcoeff_filename=datadir(1:l1+1)//trim(pcoeff_filename)
 write(*,*) 'trained - writing coefficients to: ',pcoeff_filename
         open(17,file=pcoeff_filename,status='new')
-        write(17,'(i4,2f10.2,5f10.4)') navg,sqrt(chisqr),rmsdiff,a(1),a(2),a(3),a(4),a(5)
+        write(17,'(i4,2f10.2,3i5,5e25.16)') navg,sqrt(chisqr),rmsdiff,NFREQLOW,NFREQHIGH,nterms,a
         do i=1, 145
           write(17,*) x(i),pp(i),y(i),sigmay(i)
         enddo

@@ -17,11 +17,11 @@ class PhaseEqualizationDialog
 public:
   explicit PhaseEqualizationDialog (QSettings *
                                     , QDir const& data_directory
-                                    , QVector<float> const& coefficients
+                                    , QVector<double> const& coefficients
                                     , QWidget * = nullptr);
   Q_SLOT void show ();
 
-  Q_SIGNAL void phase_equalization_changed (QVector<float> const&);
+  Q_SIGNAL void phase_equalization_changed (QVector<double> const&);
 
 private:
   class impl;

@@ -8,7 +8,7 @@
 
 #include <QDir>
 #include <QVector>
-#include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QPushButton>
@@ -63,8 +63,8 @@ namespace
   {
     return plot_data_loader<QCPGraphData, decltype (adjust)> {plot, index, adjust};
   }
-  // identity adjust function when none is needed in the above
-  // instantiation helper
+  // identity adjust function when no adjustment is needed with the
+  // above instantiation helper
   QCPGraphData adjust_identity (QCustomPlot *, int, QCPGraphData const& v) {return v;}
 
   // a plot_data_loader adjustment function that wraps Y values of
@@ -219,16 +219,6 @@ namespace
   auto pi_scaling = [] (float v) -> float {return v / PI;};
 }
 
-// read a phase point line from a stream (pcoeff file)
-std::istream& operator >> (std::istream& is, QCPGraphData& v)
-{
-  float pp, sigmay;          // discard these
-  is >> v.key >> pp >> v.value >> sigmay;
-  v.key = 1500. + 1000. * v.key;  // scale frequency to Hz
-  v.value /= PI;                  // scale to units of Pi
-  return is;
-}
-
 class PhaseEqualizationDialog::impl final
   : public QDialog
 {
@@ -236,7 +226,7 @@ class PhaseEqualizationDialog::impl final
 
 public:
   explicit impl (PhaseEqualizationDialog * self, QSettings * settings
-                 , QDir const& data_directory, QVector<float> const& coefficients
+                 , QDir const& data_directory, QVector<double> const& coefficients
                  , QWidget * parent);
   ~impl () {save_window_state ();}
 
@@ -255,14 +245,18 @@ private:
   }
 
   void plot_current ();
-  void plot ();
+  void plot_phase ();
+  void plot_amplitude ();
 
   PhaseEqualizationDialog * self_;
   QSettings * settings_;
   QDir data_directory_;
-  QVBoxLayout layout_;
-  QVector<float> current_coefficients_;
-  QVector<float> new_coefficients_;
+  QHBoxLayout layout_;
+  QVector<double> current_coefficients_;
+  QVector<double> new_coefficients_;
+  unsigned amp_poly_low_;
+  unsigned amp_poly_high_;
+  QVector<double> amp_coefficients_;
   QCustomPlot plot_;
   QDialogButtonBox button_box_;
 };
@@ -271,7 +265,7 @@ private:
 
 PhaseEqualizationDialog::PhaseEqualizationDialog (QSettings * settings
                                                   , QDir const& data_directory
-                                                  , QVector<float> const& coefficients
+                                                  , QVector<double> const& coefficients
                                                   , QWidget * parent)
   : m_ {this, settings, data_directory, coefficients, parent}
 {
@@ -285,15 +279,18 @@ void PhaseEqualizationDialog::show ()
 PhaseEqualizationDialog::impl::impl (PhaseEqualizationDialog * self
                                      , QSettings * settings
                                      , QDir const& data_directory
-                                     , QVector<float> const& coefficients
+                                     , QVector<double> const& coefficients
                                      , QWidget * parent)
   : QDialog {parent}
   , self_ {self}
   , settings_ {settings}
   , data_directory_ {data_directory}
   , current_coefficients_ {coefficients}
+  , amp_poly_low_ {0}
+  , amp_poly_high_ {6000}
   , button_box_ {QDialogButtonBox::Discard | QDialogButtonBox::Apply
-        | QDialogButtonBox::RestoreDefaults | QDialogButtonBox::Close}
+        | QDialogButtonBox::RestoreDefaults | QDialogButtonBox::Close
+        , Qt::Vertical}
 {
   setWindowTitle (windowTitle () + ' ' + tr (title));
   resize (500, 600);
@@ -301,7 +298,11 @@ PhaseEqualizationDialog::impl::impl (PhaseEqualizationDialog * self
     SettingsGroup g {settings_, title};
     restoreGeometry (settings_->value ("geometry", saveGeometry ()).toByteArray ());
   }
-  layout_.addWidget (&plot_);
+
+  auto legend_title = new QCPTextElement {&plot_, tr ("Phase"), QFont {"sans", 9, QFont::Bold}};
+  legend_title->setLayer (plot_.legend->layer ());
+  plot_.legend->addElement (0, 0, legend_title);
+  plot_.legend->setVisible (true);
 
   plot_.xAxis->setLabel (tr ("Freq (Hz)"));
   plot_.xAxis->setRange (500, 2500);
@@ -311,41 +312,68 @@ PhaseEqualizationDialog::impl::impl (PhaseEqualizationDialog * self
   plot_.axisRect ()->setRangeDrag (Qt::Vertical);
   plot_.axisRect ()->setRangeZoom (Qt::Vertical);
   plot_.yAxis2->setVisible (true);
-  plot_.axisRect ()->setRangeDragAxes (0, plot_.yAxis2);
-  plot_.axisRect ()->setRangeZoomAxes (0, plot_.yAxis2);
+  plot_.axisRect ()->setRangeDragAxes (nullptr, plot_.yAxis2);
+  plot_.axisRect ()->setRangeZoomAxes (nullptr, plot_.yAxis2);
   plot_.axisRect ()->insetLayout ()->setInsetAlignment (0, Qt::AlignBottom|Qt::AlignRight);
-  plot_.legend->setVisible (true);
   plot_.setInteractions (QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
 
-  plot_.addGraph ();
-  plot_.graph ()->setName (tr ("Measured"));
+  plot_.addGraph ()->setName (tr ("Measured"));
   plot_.graph ()->setPen (QPen {Qt::blue});
   plot_.graph ()->setVisible (false);
   plot_.graph ()->removeFromLegend ();
 
-  plot_.addGraph ();
-  plot_.graph ()->setName (tr ("Proposed"));
+  plot_.addGraph ()->setName (tr ("Proposed"));
   plot_.graph ()->setPen (QPen {Qt::red});
   plot_.graph ()->setVisible (false);
   plot_.graph ()->removeFromLegend ();
 
-  plot_.addGraph ();
-  plot_.graph ()->setName (tr ("Current"));
+  plot_.addGraph ()->setName (tr ("Current"));
   plot_.graph ()->setPen (QPen {Qt::green});
 
-  plot_.addGraph (plot_.xAxis, plot_.yAxis2);
-  plot_.graph ()->setName (tr ("Group Delay"));
+  plot_.addGraph (plot_.xAxis, plot_.yAxis2)->setName (tr ("Group Delay"));
   plot_.graph ()->setPen (QPen {Qt::darkGreen});
 
-  auto load_button = button_box_.addButton (tr ("Load ..."), QDialogButtonBox::ActionRole);
+  plot_.plotLayout ()->addElement (new QCPAxisRect {&plot_});
+  plot_.plotLayout ()->setRowStretchFactor (1, 0.5);
+
+  auto amp_legend = new QCPLegend;
+  plot_.axisRect (1)->insetLayout ()->addElement (amp_legend, Qt::AlignTop | Qt::AlignRight);
+  plot_.axisRect (1)->insetLayout ()->setMargins (QMargins {12, 12, 12, 12});
+  amp_legend->setVisible (true);
+  amp_legend->setLayer (QLatin1String {"legend"});
+  legend_title = new QCPTextElement {&plot_, tr ("Amplitude"), QFont {"sans", 9, QFont::Bold}};
+  legend_title->setLayer (amp_legend->layer ());
+  amp_legend->addElement (0, 0, legend_title);
+
+  plot_.axisRect (1)->axis (QCPAxis::atBottom)->setLabel (tr ("Freq (Hz)"));
+  plot_.axisRect (1)->axis (QCPAxis::atBottom)->setRange (0, 6000);
+  plot_.axisRect (1)->axis (QCPAxis::atLeft)->setLabel (tr ("Relative Power (dB)"));
+  plot_.axisRect (1)->axis (QCPAxis::atLeft)->setRangeLower (0);
+  plot_.axisRect (1)->setRangeDragAxes (nullptr, nullptr);
+  plot_.axisRect (1)->setRangeZoomAxes (nullptr, nullptr);
+
+  plot_.addGraph (plot_.axisRect (1)->axis (QCPAxis::atBottom)
+                  , plot_.axisRect (1)->axis (QCPAxis::atLeft))->setName (tr ("Reference"));
+  plot_.graph ()->setPen (QPen {Qt::blue});
+  plot_.graph ()->removeFromLegend ();
+  plot_.graph ()->addToLegend (amp_legend);
+
+  layout_.addWidget (&plot_);
+
+  auto load_phase_button = button_box_.addButton (tr ("Phase ..."), QDialogButtonBox::ActionRole);
+  auto refresh_button = button_box_.addButton (tr ("Refresh"), QDialogButtonBox::ActionRole);
   layout_.addWidget (&button_box_);
   setLayout (&layout_);
 
   connect (&button_box_, &QDialogButtonBox::rejected, this, &QDialog::reject);
-  connect (&button_box_, &QDialogButtonBox::clicked, [this, load_button] (QAbstractButton * button) {
-      if (button == load_button)
+  connect (&button_box_, &QDialogButtonBox::clicked, [=] (QAbstractButton * button) {
+      if (button == load_phase_button)
         {
-          plot ();
+          plot_phase ();
+        }
+      else if (button == refresh_button)
+        {
+          plot_current ();
         }
       else if (button == button_box_.button (QDialogButtonBox::Apply))
         {
@@ -358,13 +386,13 @@ PhaseEqualizationDialog::impl::impl (PhaseEqualizationDialog * self
         }
       else if (button == button_box_.button (QDialogButtonBox::RestoreDefaults))
         {
-          current_coefficients_ = QVector<float> {0., 0., 0., 0., 0.};
+          current_coefficients_ = QVector<double> {0., 0., 0., 0., 0.};
           Q_EMIT self_->phase_equalization_changed (current_coefficients_);
           plot_current ();
         }
       else if (button == button_box_.button (QDialogButtonBox::Discard))
         {
-          new_coefficients_ = QVector<float> {0., 0., 0., 0., 0.};
+          new_coefficients_ = QVector<double> {0., 0., 0., 0., 0.};
 
           plot_.graph (0)->data ()->clear ();
           plot_.graph (0)->setVisible (false);
@@ -381,67 +409,135 @@ PhaseEqualizationDialog::impl::impl (PhaseEqualizationDialog * self
   plot_current ();
 }
 
+struct PowerSpectrumPoint
+{
+  operator QCPGraphData () const
+  {
+    return QCPGraphData {freq_, power_};
+  }
+
+  float freq_;
+  float power_;
+};
+
+// read an amplitude point line from a stream (refspec.dat)
+std::istream& operator >> (std::istream& is, PowerSpectrumPoint& r)
+{
+  float y1, y3, y4;             // discard these
+  is >> r.freq_ >> y1 >> r.power_ >> y3 >> y4;
+  return is;
+}
+
 void PhaseEqualizationDialog::impl::plot_current ()
 {
+  auto phase_graph = make_plot_data_loader (&plot_, 2, wrap_pi);
   plot_.graph (2)->data ()->clear ();
+  std::generate_n (std::back_inserter (phase_graph), intervals + 1
+                   , make_graph_generator (make_polynomial (current_coefficients_), freq_scaling, pi_scaling));
+
+  auto group_delay_graph = make_plot_data_loader (&plot_, 3, adjust_identity);
   plot_.graph (3)->data ()->clear ();
-  {
-    // plot the current polynomial
-    auto graph = make_plot_data_loader (&plot_, 2, wrap_pi);
-    std::generate_n (std::back_inserter (graph), intervals + 1
-                     , make_graph_generator (make_polynomial (current_coefficients_), freq_scaling, pi_scaling));
-  }
-  {
-    // plot the group delay for the current polynomial
-    auto graph = make_plot_data_loader (&plot_, 3, adjust_identity);
-    std::generate_n (std::back_inserter (graph), intervals + 1
-                     , make_graph_generator (make_group_delay (current_coefficients_), freq_scaling, identity<float>));
-    plot_.graph (3)->rescaleValueAxis ();
-  }
+  std::generate_n (std::back_inserter (group_delay_graph), intervals + 1
+                   , make_graph_generator (make_group_delay (current_coefficients_), freq_scaling, identity<double>));
+  plot_.graph (3)->rescaleValueAxis ();
+
+  QFileInfo refspec_file_info {data_directory_.absoluteFilePath ("refspec.dat")};
+  std::ifstream refspec_file (refspec_file_info.absoluteFilePath ().toLatin1 ().constData (), std::ifstream::in);
+  unsigned n;
+  if (refspec_file >> amp_poly_low_ >> amp_poly_high_ >> n)
+    {
+      std::istream_iterator<double> isi {refspec_file};
+      amp_coefficients_.clear ();
+      std::copy_n (isi, n, std::back_inserter (amp_coefficients_));
+    }
+  else
+    {
+      // may be old format refspec.dat with no header so rewind
+      refspec_file.clear ();
+      refspec_file.seekg (0);
+    }
+
+  auto reference_spectrum_graph = make_plot_data_loader (&plot_, 4, adjust_identity);
+  plot_.graph (4)->data ()->clear ();
+  std::copy (std::istream_iterator<PowerSpectrumPoint> {refspec_file},
+             std::istream_iterator<PowerSpectrumPoint> {},
+             std::back_inserter (reference_spectrum_graph));
+  plot_.graph (4)->rescaleValueAxis (true);
+
   plot_.replot ();
 }
 
-void PhaseEqualizationDialog::impl::plot ()
+struct PhasePoint
 {
-  auto const& name = QFileDialog::getOpenFileName (this
-                                                   , "Select Phase Response Coefficients"
-                                                   , data_directory_.absolutePath ()
-                                                   , "Phase Coefficient Files (*.pcoeff)");
-  if (name.size ())
+  operator QCPGraphData () const
+  {
+    return QCPGraphData {freq_, phase_};
+  }
+
+  double freq_;
+  double phase_;
+};
+
+// read a phase point line from a stream (pcoeff file)
+std::istream& operator >> (std::istream& is, PhasePoint& c)
+{
+  double pp, sigmay;            // discard these
+  if (is >> c.freq_ >> pp >> c.phase_ >> sigmay)
     {
-      std::ifstream coeffs_source (name.toLatin1 ().constData (), std::ifstream::in);
-      int n;
-      float chi;
-      float rmsdiff;
-      // read header information
-      coeffs_source >> n >> chi >> rmsdiff;
-      {
-        std::istream_iterator<float> isi {coeffs_source};
-        new_coefficients_.clear ();
-        std::copy_n (isi, 5, std::back_inserter (new_coefficients_));
-      }
+      c.freq_ = 1500. + 1000. * c.freq_; // scale frequency to Hz
+      c.phase_ /= PI;                    // scale to units of Pi
+    }
+  return is;
+}
 
-      plot_.graph (0)->data ()->clear ();
-      plot_.graph (1)->data ()->clear ();
-      {
-        // read the phase data to plot into graph 0
-        auto graph = make_plot_data_loader (&plot_, 0, adjust_identity);
-        std::istream_iterator<QCPGraphData> start {coeffs_source};
-        std::copy_n (start, intervals + 1, std::back_inserter (graph));
-      }
-      {
-        // generate the proposed polynomial plot in graph 1
-        auto graph = make_plot_data_loader (&plot_, 1, wrap_pi);
-        std::generate_n (std::back_inserter (graph), intervals + 1
-                         , make_graph_generator (make_polynomial (new_coefficients_), freq_scaling, pi_scaling));
-      }
-      plot_.graph (0)->setVisible (true);
-      plot_.graph (0)->addToLegend ();
+void PhaseEqualizationDialog::impl::plot_phase ()
+{
+  auto const& phase_file_name = QFileDialog::getOpenFileName (this
+                                                              , "Select Phase Response Coefficients"
+                                                              , data_directory_.absolutePath ()
+                                                              , "Phase Coefficient Files (*.pcoeff)");
+  if (!phase_file_name.size ()) return;
 
-      plot_.graph (1)->setVisible (true);
-      plot_.graph (1)->addToLegend ();
+  std::ifstream phase_file (phase_file_name.toLatin1 ().constData (), std::ifstream::in);
+  int n;
+  float chi;
+  float rmsdiff;
+  unsigned freq_low;
+  unsigned freq_high;
+  unsigned terms;
+  // read header information
+  if (phase_file >> n >> chi >> rmsdiff >> freq_low >> freq_high >> terms)
+    {
+      std::istream_iterator<double> isi {phase_file};
+      new_coefficients_.clear ();
+      std::copy_n (isi, terms, std::back_inserter (new_coefficients_));
 
-      plot_.replot ();
+      if (phase_file)
+        {
+          plot_.graph (0)->data ()->clear ();
+          plot_.graph (1)->data ()->clear ();
+
+          // read the phase data and plot as graph 0
+          auto graph = make_plot_data_loader (&plot_, 0, adjust_identity);
+          std::copy_n (std::istream_iterator<PhasePoint> {phase_file},
+                       intervals + 1, std::back_inserter (graph));
+
+          if (phase_file)
+            {
+              plot_.graph (0)->setVisible (true);
+              plot_.graph (0)->addToLegend ();
+
+              // generate the proposed polynomial plot as graph 1
+              auto graph = make_plot_data_loader (&plot_, 1, wrap_pi);
+              std::generate_n (std::back_inserter (graph), intervals + 1
+                               , make_graph_generator (make_polynomial (new_coefficients_)
+                                                       , freq_scaling, pi_scaling));
+              plot_.graph (1)->setVisible (true);
+              plot_.graph (1)->addToLegend ();
+            }
+
+          plot_.replot ();
+        }
     }
 }
 
