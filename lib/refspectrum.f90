@@ -4,9 +4,9 @@ subroutine refspectrum(id2,bclear,brefspec,buseref,fname)
 !  id2       i*2        Raw 16-bit integer data, 12000 Hz sample rate
 !  brefspec  logical    True when accumulating a reference spectrum
 
-  parameter (NFFT=6912,NH=NFFT/2)
+  parameter (NFFT=6912,NH=NFFT/2,NPOLYLOW=400,NPOLYHIGH=2600)
   integer*2 id2(NFFT)
-  logical*1 bclear,brefspec,buseref
+  logical*1 bclear,brefspec,buseref,blastuse
   
   real x0(0:NH-1)                         !Input samples
   real x1(0:NH-1)                         !Output samples (delayed by one block)
@@ -17,12 +17,12 @@ subroutine refspectrum(id2,bclear,brefspec,buseref,fname)
   real*4 s(0:NH)                          !Average spectrum
   real*4 fil(0:NH)
   real*8 xfit(1500),yfit(1500),sigmay(1500),a(5),chisqr !Polyfit arrays
-  logical first,firstuse
+  logical first
   complex cx(0:NH)                        !Complex frequency-domain work array
   character*(*) fname
   common/spectra/syellow(6827),ref(0:NH),filter(0:NH)
   equivalence(x,cx)
-  data first/.true./,firstuse/.true./
+  data first/.true./,blastuse/.false./
   save
 
   if(first) then
@@ -98,8 +98,8 @@ subroutine refspectrum(id2,bclear,brefspec,buseref,fname)
            if(s(i).gt.0.0) filter(i)=20.0*log10(fil(i))
         enddo
 
-        il=nint(400.0/df)
-        ih=nint(2600.0/df)
+        il=nint(NPOLYLOW/df)
+        ih=nint(NPOLYHIGH/df)
         nfit=ih-il+1
         mode=0
         nterms=5
@@ -111,8 +111,8 @@ subroutine refspectrum(id2,bclear,brefspec,buseref,fname)
         call polyfit(xfit,yfit,sigmay,nfit,nterms,mode,a,chisqr)
 
         open(16,file=fname,status='unknown')
-        write(16,1003) a
-1003    format(5f10.4)
+        write(16,1003) NPOLYLOW,NPOLYHIGH,nterms,a
+1003    format(3i5,5e25.16)
         do i=1,NH
            freq=i*df
            ref(i)=db(s(i)/avemid)
@@ -125,17 +125,18 @@ subroutine refspectrum(id2,bclear,brefspec,buseref,fname)
   endif
 
   if(buseref) then
-     if(firstuse) then
+     if(blastuse.neqv.buseref) then !just enabled so read filter
         fil=1.0
-        open(16,file=fname,status='old',err=10)
-        read(16,1003,err=10,end=10) a
-        do i=1,NH
-           read(16,1005,err=10,end=10) freq,s(i),ref(i),fil(i),filter(i)
+        open(16,file=fname,status='old',err=110)
+        read(16,1003,err=20,end=100) ndummy,ndummy,nterms,a
+        goto 30
+20      rewind(16)              !allow for old style refspec.dat with no header
+30      do i=1,NH
+           read(16,1005,err=100,end=100) freq,s(i),ref(i),fil(i),filter(i)
         enddo
-10      close(16)
-      firstuse=.false.
+100     close(16)
+110     continue
      endif
-!     x0=id2(NH+1:NFFT)
      x0=id2(1:NH)
      x(0:NH-1)=x0s                         !Previous 2nd half to new 1st half
      x(NH:NFFT-1)=x0                       !New 2nd half
@@ -148,6 +149,6 @@ subroutine refspectrum(id2,bclear,brefspec,buseref,fname)
      id2(1:NH)=nint(x1)
      x1s=x(NH:NFFT-1)                      !Save the new 2nd half
   endif
-
+  blastuse=buseref
   return
 end subroutine refspectrum

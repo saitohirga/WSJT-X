@@ -37,7 +37,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   real pow(8)
   real softbits(144)
   real xmc(NPATTERNS)
-  real pcoeffs(5)
+  real*8 pcoeffs(5)
 
   logical*1 bshmsg,bcontest,btrain,bswl
   logical*1 first

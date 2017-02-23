@@ -6,9 +6,9 @@ subroutine analytic(d,npts,nfft,c,pc,beq)
 
   real d(npts)              ! passband signal
   real h(NFFTMAX/2)         ! real BPF magnitude
-  real pc(5),pclast(5)      ! static phase coeffs
-  real ac(5),aclast(5)      ! amp coeffs
-  real fp     
+  real*8 pc(5),pclast(5)    ! static phase coeffs
+  real*8 ac(5),aclast(5)    ! amp coeffs
+  real*8 fp
 
   complex corr(NFFTMAX/2)  ! complex frequency-dependent correction 
   complex c(NFFTMAX)        ! analytic signal

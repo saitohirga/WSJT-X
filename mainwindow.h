@@ -542,7 +542,7 @@ private:
   QHash<QString, QVariant> m_pwrBandTxMemory; // Remembers power level by band
   QHash<QString, QVariant> m_pwrBandTuneMemory; // Remembers power level by band for tuning
   QByteArray m_geometryNoControls;
-  QVector<float> m_phaseEqCoefficients;
+  QVector<double> m_phaseEqCoefficients;
 
   //---------------------------------------------------- private functions
   void readSettings();
