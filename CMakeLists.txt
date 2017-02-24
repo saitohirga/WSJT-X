@@ -299,6 +299,7 @@ if (WIN32)
 endif (WIN32)
 
 set (wsjt_FSRCS
+  lib/addit.f90
   lib/afc65b.f90
   lib/afc9.f90
   lib/ana64.f90
@@ -1047,6 +1048,9 @@ target_link_libraries (qra64sim wsjt_fort wsjt_cxx)
 
 add_executable (jt9sim lib/jt9sim.f90 wsjtx.rc)
 target_link_libraries (jt9sim wsjt_fort wsjt_cxx)
+
+add_executable (allsim lib/allsim.f90 wsjtx.rc)
+target_link_libraries (allsim wsjt_fort wsjt_cxx)
 
 add_executable (jt65code lib/jt65code.f90 wsjtx.rc)
 target_link_libraries (jt65code wsjt_fort wsjt_cxx)
