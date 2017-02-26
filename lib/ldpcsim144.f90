@@ -14,7 +14,7 @@ integer*1 i1hash(4)
 integer*1 msgbits(80)
 integer*4 i4Msg6BitWords(13)
 integer ihash
-real*8, allocatable ::  lratio(:), rxdata(:)
+real*8, allocatable ::  lratio(:), rxdata(:), rxavgd(:)
 real, allocatable :: yy(:), llr(:)
 equivalence(ihash,i1hash)
 
@@ -24,14 +24,14 @@ enddo
 
 nargs=iargc()
 if(nargs.ne.4) then
-   print*,'Usage: ldpcsim  niter ndither #trials  s '
+   print*,'Usage: ldpcsim  niter   navg  #trials  s '
    print*,'eg:    ldpcsim    10     1     1000    0.75'
    return
 endif
 call getarg(1,arg)
 read(arg,*) max_iterations 
 call getarg(2,arg)
-read(arg,*) max_dither 
+read(arg,*) navg 
 call getarg(3,arg)
 read(arg,*) ntrials 
 call getarg(4,arg)
@@ -44,10 +44,10 @@ rate=real(K)/real(N)
 
 write(*,*) "rate: ",rate
 
-write(*,*) "niter= ",max_iterations," ndither= ",max_dither," s= ",s
+write(*,*) "niter= ",max_iterations," navg= ",navg," s= ",s
 
 allocate ( codeword(N), decoded(K), message(K) )
-allocate ( lratio(N), rxdata(N), yy(N), llr(N) )
+allocate ( lratio(N), rxdata(N), rxavgd(N), yy(N), llr(N) )
 
 msg="K9AN K1JT EN50"
   call packmsg(msg,i4Msg6BitWords,itype)  !Pack into 12 6-bit bytes
@@ -95,11 +95,16 @@ do idb = -6, 14
   nbadhash=0
 
   do itrial=1, ntrials
-    call sgran()
+    rxavgd=0d0
+    do iav=1,navg
+      call sgran()
 ! Create a realization of a noisy received word
-    do i=1,N
-      rxdata(i) = 2.0*codeword(i)-1.0 + sigma*gran()
+      do i=1,N
+        rxdata(i) = 2.0*codeword(i)-1.0 + sigma*gran()
+      enddo
+      rxavgd=rxavgd+rxdata
     enddo
+    rxdata=rxavgd
 
 ! Correct signal normalization is important for this decoder.
     rxav=sum(rxdata)/N

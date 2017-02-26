@@ -7,39 +7,41 @@ use packjt
 character*22 msg,msgsent,msgreceived
 character*8 arg
 integer*1, allocatable ::  codeword(:), decoded(:), message(:)
-real*8, allocatable ::  lratio(:), rxdata(:)
+real*8, allocatable ::  rxdata(:), rxavgd(:)
 real, allocatable :: llr(:)
 integer ihash
 integer*1 hardbits(32)
 
 nargs=iargc()
 if(nargs.ne.4) then
-   print*,'Usage: ldpcsim  niter ndither #trials  s '
+   print*,'Usage: ldpcsim  niter navg   #trials  s '
    print*,'eg:    ldpcsim   10     1     1000    0.75'
    return
 endif
 call getarg(1,arg)
 read(arg,*) max_iterations 
 call getarg(2,arg)
-read(arg,*) max_dither 
+read(arg,*) navg 
 call getarg(3,arg)
 read(arg,*) ntrials 
 call getarg(4,arg)
 read(arg,*) s
 
-n=32
+K=16
+N=32
 !rate=real(K)/real(N)
 ! don't count hash bits as data bits
 rate=4.0/real(N)
 write(*,*) "rate: ",rate
-write(*,*) "niter= ",max_iterations," ndither= ",max_dither," s= ",s
+write(*,*) "niter= ",max_iterations,"navg= ",navg," s= ",s
 
 allocate ( codeword(N), decoded(K), message(K) )
-allocate ( lratio(N), rxdata(N), llr(N) )
+allocate ( rxdata(N), rxavgd(N), llr(N) )
 
 msg="K1JT K9AN"
-irpt=14
+call fmtmsg(msg,iz)
 call hash(msg,22,ihash)
+irpt=14
 ihash=iand(ihash,4095)                 !12-bit hash
 ig=16*ihash + irpt                     !4-bit report
 write(*,*) irpt,ihash,ig
@@ -62,11 +64,16 @@ do idb = 0, 30
 
   itsum=0
   do itrial=1, ntrials
-    call sgran()
+    rxavgd=0d0
+    do iav=1,navg
+      call sgran()
 ! Create a realization of a noisy received word
-    do i=1,N
-      rxdata(i) = 2.0*codeword(i)-1.0 + sigma*gran()
+      do i=1,N
+        rxdata(i) = 2.0*codeword(i)-1.0 + sigma*gran()
+      enddo
+      rxavgd=rxavgd+rxdata
     enddo
+    rxdata=rxavgd
 
 ! Correct signal normalization is important for this decoder.
     rxav=sum(rxdata)/N
@@ -80,7 +87,6 @@ do idb = 0, 30
     endif
 
     llr=2.0*rxdata/(ss*ss)
-    lratio=exp(llr)
 
     call bpdecode40(llr, max_iterations, decoded, niterations)
 ! If the decoder finds a valid codeword, niterations will be .ge. 0.
