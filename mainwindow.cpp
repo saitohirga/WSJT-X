@@ -1398,7 +1398,7 @@ void MainWindow::fastSink(qint64 frames)
     DecodedText decodedtext;
     QString message;
     message=QString::fromLatin1(line);
-    decodedtext=message.replace("\n","");
+    decodedtext=message.replace(QChar::LineFeed,"");
     ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
          m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
          m_config.color_NewCall());
@@ -1877,7 +1877,7 @@ void MainWindow::createStatusBar()                           //createStatusBar
 void MainWindow::setup_status_bar (bool vhf)
 {
   auto submode = current_submode ();
-  if (vhf && submode != '\0')
+  if (vhf && submode != QChar::Null)
     {
       mode_label.setText (m_mode + " " + submode);
     }
@@ -2509,7 +2509,7 @@ void::MainWindow::fast_decode_done()
 
 //Left (Band activity) window
     DecodedText decodedtext;
-    decodedtext=message.replace("\n","");
+    decodedtext=message.replace(QChar::LineFeed,"");
     if(!m_bFastDone) {
       ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
          m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
@@ -2528,7 +2528,7 @@ void::MainWindow::fast_decode_done()
     if(m_mode=="JT9" or m_mode=="MSK144") {
 // find and extract any report for myCall
       QString msg=message.mid(0,4) + message.mid(6,-1);
-      decodedtext=msg.replace("\n","");
+      decodedtext=msg.replace(QChar::LineFeed,"");
       bool stdMsg = decodedtext.report(m_baseCall,
               Radio::base_callsign(ui->dxCallEntry->text()), m_rptRcvd);
 
@@ -2658,7 +2658,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           }
 
       DecodedText decodedtext;
-      decodedtext = t.replace("\n",""); //t.replace("\n","").mid(0,t.length()-4);
+      decodedtext = t.replace(QChar::LineFeed,""); //t.replace(QChar::LineFeed,"").mid(0,t.length()-4);
 
         //Left (Band activity) window
       if(!bAvgMsg) {
@@ -3454,7 +3454,7 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
 void MainWindow::processMessage(QString const& messages, int position, bool ctrl)
 {
   QString t1 = messages.mid(0,position);        //contents up to \n on selected line
-  int i1=t1.lastIndexOf("\n") + 1;              //points to first char of line
+  int i1=t1.lastIndexOf(QChar::LineFeed) + 1; //points to first char of line
   DecodedText decodedtext;
   QString t2 = messages.mid(i1,position-i1);    //selected line
   QString t2a;
@@ -3983,30 +3983,30 @@ void MainWindow::on_addButton_clicked()                       //Add button
     s=in.readLine();
     hc1=hc2;
     if(s.mid(0,2)=="//") {
-      out << s + "\n";          //Copy all comment lines
+      out << s + QChar::LineFeed; //Copy all comment lines
     } else {
       int i1=s.indexOf(",");
       hc2=s.mid(0,i1);
       if(hc>hc1 && hc<hc2) {
-        out << newEntry + "\n";
-        out << s + "\n";
+        out << newEntry + QChar::LineFeed;
+        out << s + QChar::LineFeed;
         m_call3Modified=true;
       } else if(hc==hc2) {
         QString t {tr ("%1\nis already in CALL3.TXT"
                        ", do you wish to replace it?").arg (s)};
         int ret = MessageBox::query_message (this, tr ("Add to CALL3.TXT"), t);
         if(ret==MessageBox::Yes) {
-          out << newEntry + "\n";
+          out << newEntry + QChar::LineFeed;
           m_call3Modified=true;
         }
       } else {
-        if(s!="") out << s + "\n";
+        if(s!="") out << s + QChar::LineFeed;
       }
     }
   } while(!s.isNull());
 
   f1.close();
-  if(hc>hc1 && !m_call3Modified) out << newEntry + "\n";
+  if(hc>hc1 && !m_call3Modified) out << newEntry + QChar::LineFeed;
   if(m_call3Modified) {
     QFile f0 {m_dataDir.absoluteFilePath ("CALL3.OLD")};
     if(f0.exists()) f0.remove();
@@ -5579,7 +5579,7 @@ void MainWindow::on_sbSubmode_valueChanged(int n)
   m_nSubMode=n;
   m_wideGraph->setSubMode(m_nSubMode);
   auto submode = current_submode ();
-  if (submode != '\0')
+  if (submode != QChar::Null)
     {
       mode_label.setText (m_mode + " " + submode);
     }
@@ -5706,7 +5706,7 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
               raise ();
             }
           // find the linefeed at the end of the line
-          position = ui->decodedTextBrowser->toPlainText().indexOf("\n",position);
+          position = ui->decodedTextBrowser->toPlainText().indexOf(QChar::LineFeed,position);
           processMessage (messages, position, false);
           tx_watchdog (false);
           QApplication::alert (this);
@@ -5728,7 +5728,9 @@ void MainWindow::replayDecodes ()
   // is not checked
 
   // attempt to parse the decoded text
-  Q_FOREACH (auto const& message, ui->decodedTextBrowser->toPlainText ().split ('\n', QString::SkipEmptyParts))
+  Q_FOREACH (auto const& message
+             , ui->decodedTextBrowser->toPlainText ().split (QChar::LineFeed,
+                                                             QString::SkipEmptyParts))
     {
       if (message.size() >= 4 && message.left (4) != "----")
         {
@@ -6208,7 +6210,7 @@ void MainWindow::statusUpdate () const
                                   ui->RxFreqSpinBox->value (), ui->TxFreqSpinBox->value (),
                                   m_config.my_callsign (), m_config.my_grid (),
                                   m_hisGrid, m_tx_watchdog,
-                                  submode != '\0' ? QString {submode} : QString {}, m_bFastMode);
+                                  submode != QChar::Null ? QString {submode} : QString {}, m_bFastMode);
 }
 
 void MainWindow::childEvent (QChildEvent * e)
