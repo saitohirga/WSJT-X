@@ -1755,16 +1755,24 @@ void MainWindow::displayDialFrequency ()
       ui->bandComboBox->setCurrentText (band_name);
       m_wideGraph->setRxBand (band_name);
       m_lastBand = band_name;
-      // For 60M we'll move the JT9 offset to zero
+      // For 60M we'll move the JT9 offset to zero and remember so we can restore
       static int saveRxRange = -1;
-      if (saveRxRange < 0) saveRxRange = m_wideGraph->Fmin();
+      if (saveRxRange < 0) {
+          m_settings->beginGroup ("WideGraph");
+          saveRxRange = m_settings->value ("FminSave", m_wideGraph->Fmin()).toInt ();
+          m_settings->endGroup();
+      }
       if (band_name == "60m") {
           saveRxRange = m_wideGraph->Fmin();
-          m_wideGraph->setRxRange(0);
+          // We need to remember our save value in case we restart on 60M
+          m_settings->beginGroup ("WideGraph");
+          m_settings->setValue ("FminSave", saveRxRange);
+          m_settings->endGroup();
+          m_wideGraph->setRxRangeAndSplitSpinBox(0);
 
       }
       else {
-          m_wideGraph->setRxRange(saveRxRange);
+          m_wideGraph->setRxRangeAndSplitSpinBox(saveRxRange);
       }
     }
 

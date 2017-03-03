@@ -312,6 +312,14 @@ void WideGraph::setRxRange(int fMin)                                //setRxRange
   ui->widePlot->update();
 }
 
+void WideGraph::setRxRangeAndSplitSpinBox(int fMin)
+{
+    // Need to ensure split box is set too
+    // e.g. For 60M we force the offset to 0 so this routine makes the split box match
+    // Otherwise we can't decode JT9
+    ui->fSplitSpinBox->setValue(fMin);
+}
+
 int WideGraph::Fmin()                                              //Fmin
 {
   return m_fMin;
