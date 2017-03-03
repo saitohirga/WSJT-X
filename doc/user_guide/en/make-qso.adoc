@@ -22,8 +22,8 @@ efficient and reliable way.  In uncompressed form (as displayed
 on-screen) they may contain as many as 22 characters.
 
 *Signal reports* are specified as signal-to-noise ratio (S/N) in dB,
-using a standard reference noise bandwidth of 2500 Hz.  Thus, in
-example message at UTC 0003 above, K1ABC is telling G0XYZ that his
+using a standard reference noise bandwidth of 2500 Hz.  Thus, in the
+example message above, K1ABC is telling G0XYZ that his
 signal is 19 dB below the noise power in bandwidth 2500 Hz.  In the
 message at 0004, G0XYZ acknowledges receipt of that report and
 responds with a –22 dB signal report.  JT65 reports are constrained to
