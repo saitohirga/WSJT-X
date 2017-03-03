@@ -33,6 +33,7 @@ public:
   int    fSpan();
   void   saveSettings();
   void   setRxRange(int fMin);
+  void   setRxRangeAndSplitSpinBox(int fMin);
   void   setFsample(int n);
   void   setPeriod(int ntrperiod, int nsps);
   void   setTxFreq(int n);
