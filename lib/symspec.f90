@@ -1,5 +1,5 @@
 subroutine symspec(shared_data,k,ntrperiod,nsps,ingain,nminw,pxdb,s,   &
-     df3,ihsym,npts8, rmsnogain, pxdbmax)
+     df3,ihsym,npts8,pxdbmax)
 
 ! Input:
 !  k         pointer to the most recent new data
@@ -10,7 +10,7 @@ subroutine symspec(shared_data,k,ntrperiod,nsps,ingain,nminw,pxdb,s,   &
 !  nbslider  NB setting, 0-100
 
 ! Output:
-!  pxdb      power (0-60 dB)
+!  pxdb      raw power (0-90 dB)
 !  s()       current spectrum for waterfall display
 !  ihsym     index number of this half-symbol (1-184) for 60 s modes
 
@@ -27,12 +27,11 @@ subroutine symspec(shared_data,k,ntrperiod,nsps,ingain,nminw,pxdb,s,   &
   real*4 ssum(NSMAX)
   real*4 xc(0:MAXFFT3-1)
   real*4 tmp(NSMAX)
-  real*4 rmsnogain
   complex cx(0:MAXFFT3/2)
   integer nch(7)
 
   common/spectra/syellow(NSMAX),ref(0:3456),filter(0:3456)
-  data rms/999.0/,k0/99999999/,nfft3z/0/
+  data k0/99999999/,nfft3z/0/
   data nch/1,2,4,9,18,36,72/
   equivalence (xc,cx)
   save
@@ -71,14 +70,10 @@ subroutine symspec(shared_data,k,ntrperiod,nsps,ingain,nminw,pxdb,s,   &
      if (abs(x1).gt.pxmax) pxmax = abs(x1);
      sq=sq + x1*x1
   enddo
-  rmsnogain = 0.
-  if (sq.gt.0.0) rmsnogain=20*log10(sqrt(sq/(k-k0)))
-  sq=sq * gain
-  rms=sqrt(sq/(k-k0))
-  pxdb=0.
-  pxdbmax = 20*log10(pxmax)
-  if(rms.gt.0.0) pxdb=20.0*log10(rms)
-  if(pxdb.gt.90.0) pxdb=90.0
+  pxdb = 0.
+  if(sq.gt.0.0) pxdb=10*log10(sq/(k-k0))
+  pxdbmax=0.
+  if(pxmax.gt.0) pxdbmax = 20*log10(pxmax)
 
   k0=k
   ja=ja+jstep                         !Index of first sample

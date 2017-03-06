@@ -1,6 +1,6 @@
 subroutine hspec(id2,k,nutc0,ntrpdepth,nrxfreq,ntol,bmsk144,bcontest,  &
-     btrain,pcoeffs,ingain,mycall,hiscall,bshmsg,bswl,datadir,green,s,jh,pxmax,rmsNoGain,line1, &
-     mygrid)
+     btrain,pcoeffs,ingain,mycall,hiscall,bshmsg,bswl,datadir,green,s, &
+     jh,pxmax,dbNoGain,line1,mygrid)
 
 ! Input:
 !  k         pointer to the most recent new data
@@ -72,7 +72,7 @@ subroutine hspec(id2,k,nutc0,ntrpdepth,nrxfreq,ntol,bmsk144,bcontest,  &
      green(jh)=0.
      if(rms.gt.0.0) then
         green(jh)=20.0*log10(rms)
-        rmsNoGain=20.0*log10(rms2);
+        dbNoGain=20.0*log10(rms2);
      endif
      call four2a(x,nfft,1,-1,0)                   !Real-to-complex FFT
      df=12000.0/nfft

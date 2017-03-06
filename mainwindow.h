@@ -439,13 +439,11 @@ private:
   bool    m_bDoubleClicked;
   bool    m_bHideControls;
 
-  float   m_pctZap;
   int			m_ihsym;
   int			m_nzap;
   int			m_npts8;
   float		m_px;
-  float     m_pxmax;
-  float     m_rmsNoGain;
+  float   m_pxmax;
   float		m_df3;
   int			m_iptt0;
   bool		m_btxok0;

@@ -66,7 +66,8 @@
 extern "C" {
   //----------------------------------------------------- C and Fortran routines
   void symspec_(struct dec_data *, int* k, int* ntrperiod, int* nsps, int* ingain,
-                int* minw, float* px, float s[], float* df3, int* nhsym, int* npts8, float *rmsnogain, float *m_pxmax);
+                int* minw, float* px, float s[], float* df3, int* nhsym, int* npts8,
+                float *m_pxmax);
 
   void hspec_(short int d2[], int* k, int* nutc0, int* ntrperiod, int* nrxfreq, int* ntol,
               bool* bmsk144, bool* bcontest, bool* btrain, double const pcoeffs[], int* ingain,
@@ -266,7 +267,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_ihsym {0},
   m_nzap {0},
   m_px {0.0},
-  m_rmsNoGain {0.0},
   m_iptt0 {0},
   m_btxok0 {false},
   m_nsendingsh {0},
@@ -1162,13 +1162,10 @@ void MainWindow::dataSink(qint64 frames)
   int nsps=m_nsps;
   if(m_bFastMode) nsps=6912;
   int nsmo=m_wideGraph->smoothYellow()-1;
-  symspec_(&dec_data,&k,&trmin,&nsps,&m_inGain,&nsmo,&m_px,s,&m_df3,&m_ihsym,&m_npts8,&m_rmsNoGain,&m_pxmax);
+  symspec_(&dec_data,&k,&trmin,&nsps,&m_inGain,&nsmo,&m_px,s,&m_df3,&m_ihsym,&m_npts8,&m_pxmax);
   if(m_mode=="WSPR") wspr_downsample_(dec_data.d2,&k);
   if(m_ihsym <=0) return;
-  QString t;
-  m_pctZap=m_nzap*100.0/m_nsps; // TODO: this is currently redundant
-  t.sprintf(" Rx noise: %5.1f ",m_px);
-  if (ui) ui->signal_meter_widget->setValue(m_rmsNoGain,m_pxmax); // Update thermometer
+  if(ui) ui->signal_meter_widget->setValue(m_px,m_pxmax); // Update thermometer
   if(m_monitoring || m_diskData) {
     m_wideGraph->dataSink2(s,m_df3,m_ihsym,m_diskData);
   }
