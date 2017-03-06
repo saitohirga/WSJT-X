@@ -57,12 +57,12 @@ void MeterWidget::paintEvent (QPaintEvent * event)
   auto const& target = contentsRect ();
   QRect r {QPoint {target.left (), static_cast<int> (target.top () + target.height () - m_signal / (double)MAXDB * target.height ())}
     , QPoint {target.right (), target.bottom ()}};
-  p.setBrush (QColor {Qt::green});
+  p.setBrush (QColor(85,170,85));
   if (m_sigPeak > 85) {
       p.setBrush(Qt::red);
   }
   else if (m_noisePeak < 15) {
-      p.setBrush(Qt::yellow);
+      p.setBrush(QColor(232,81,0));
   }
   p.drawRect (r);
 
