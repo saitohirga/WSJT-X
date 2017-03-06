@@ -444,6 +444,8 @@ private:
   int			m_nzap;
   int			m_npts8;
   float		m_px;
+  float     m_pxmax;
+  float     m_rmsNoGain;
   float		m_df3;
   int			m_iptt0;
   bool		m_btxok0;

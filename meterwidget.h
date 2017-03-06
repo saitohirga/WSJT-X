@@ -19,13 +19,15 @@ public:
 
   // QWidget implementation
   QSize sizeHint () const override;
+  void set_sigPeak(int value);
 protected:
   void paintEvent( QPaintEvent * ) override;
 
 private:
   QQueue<int> signalQueue;
   int m_signal;
-  int m_sigPeak;
+  int m_noisePeak;
+  int m_sigPeak; // peak value for color coding
 };
 
 #endif // METERWIDGET_H

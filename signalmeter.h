@@ -16,7 +16,7 @@ public:
   explicit SignalMeter (QWidget * parent = nullptr);
 
 public slots:
-  void setValue (float value);
+  void setValue (float value, float valueMax);
 
 private:
   MeterWidget * m_meter;

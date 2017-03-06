@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>867</width>
+    <height>583</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>WSJT-X   by K1JT</string>
   </property>
@@ -1919,6 +1927,9 @@ list. The list can be maintained in Settings (F2).</string>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Noise level of 30dB recommended&lt;br/&gt;dB annotations:&lt;br/&gt;* = clipping occured&lt;br/&gt;- = signal too low&lt;br/&gt;+ = signal too high&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="frameShape">
            <enum>QFrame::Panel</enum>
           </property>
@@ -1930,7 +1941,7 @@ list. The list can be maintained in Settings (F2).</string>
         <item row="1" column="1" rowspan="2">
          <widget class="QSlider" name="inGain">
           <property name="toolTip">
-           <string>Digital gain for audio input</string>
+           <string>Digital gain for graph windows</string>
           </property>
           <property name="minimum">
            <number>-50</number>
@@ -2355,6 +2366,14 @@ QPushButton[state=&quot;ok&quot;] {
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>867</width>
+     <height>21</height>
+    </rect>
+   </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
