@@ -1,5 +1,5 @@
 subroutine symspec(shared_data,k,ntrperiod,nsps,ingain,nminw,pxdb,s,   &
-     df3,ihsym,npts8)
+     df3,ihsym,npts8, rmsnogain, pxdbmax)
 
 ! Input:
 !  k         pointer to the most recent new data
@@ -27,6 +27,7 @@ subroutine symspec(shared_data,k,ntrperiod,nsps,ingain,nminw,pxdb,s,   &
   real*4 ssum(NSMAX)
   real*4 xc(0:MAXFFT3-1)
   real*4 tmp(NSMAX)
+  real*4 rmsnogain
   complex cx(0:MAXFFT3/2)
   integer nch(7)
 
@@ -64,15 +65,20 @@ subroutine symspec(shared_data,k,ntrperiod,nsps,ingain,nminw,pxdb,s,   &
   endif
   gain=10.0**(0.1*ingain)
   sq=0.
+  pxmax=0.;
   do i=k0+1,k
      x1=shared_data%id2(i)
+     if (abs(x1).gt.pxmax) pxmax = abs(x1);
      sq=sq + x1*x1
   enddo
+  rmsnogain = 0.
+  if (sq.gt.0.0) rmsnogain=20*log10(sqrt(sq/(k-k0)))
   sq=sq * gain
   rms=sqrt(sq/(k-k0))
   pxdb=0.
+  pxdbmax = 20*log10(pxmax)
   if(rms.gt.0.0) pxdb=20.0*log10(rms)
-  if(pxdb.gt.60.0) pxdb=60.0
+  if(pxdb.gt.90.0) pxdb=90.0
 
   k0=k
   ja=ja+jstep                         !Index of first sample

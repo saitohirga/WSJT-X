@@ -15,6 +15,8 @@
 
 #include "moc_signalmeter.cpp"
 
+#define MAXDB 90
+
 class Scale final
   : public QWidget
 {
@@ -52,8 +54,10 @@ protected:
         p.translate (target.left ()
                      , target.top () + font_offset + i * (target.height () - font_metrics.ascent () - font_metrics.descent ()) / range);
         p.drawLine (0, 0, tick_length, 0);
-        auto text = i ? QString::number ((range - i) * scale) : QString {"%1%2"}.arg ((range - i) * scale).arg ('+');
-        p.drawText (tick_length + text_indent, font_offset, text);
+	if((i%2==1)) {
+	  auto text = QString::number ((range - i) * scale);
+	  p.drawText (tick_length + text_indent, font_offset, text);
+	}
         p.restore ();
       }
   }
@@ -62,7 +66,7 @@ private:
   static int constexpr tick_length {4};
   static int constexpr text_indent {2};
   static int constexpr line_spacing {0};
-  static int constexpr range {6};
+  static int constexpr range {MAXDB/10};
   static int constexpr scale {10};
 };
 
@@ -90,12 +94,13 @@ SignalMeter::SignalMeter (QWidget * parent)
   setLayout (outer_layout);
 }
 
-void SignalMeter::setValue(float value)
+void SignalMeter::setValue(float value, float valueMax)
 {
   if(value<0) value=0;
   QFontMetrics font_metrics {m_scale->font (), nullptr};
   m_meter->setContentsMargins (0, font_metrics.ascent () / 2, 0, font_metrics.ascent () / 2 + font_metrics.descent ());
   m_meter->setValue(int(value));
+  m_meter->set_sigPeak(valueMax);
   QString t;
   t.sprintf("%4.1f dB",value);
   m_reading->setText(t);

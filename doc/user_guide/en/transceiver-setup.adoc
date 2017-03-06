@@ -10,10 +10,7 @@ button to start normal receive operation.
 controls to set the background noise level (scale at lower left of
 main window) to around 30 dB when no signals are present.  It is
 usually best to turn AGC off or reduce the RF gain control to minimize
-AGC action.  If necessary you can also adjust the slider next to the
-dB scale, but note that the overall dynamic range will be best when
-the displayed level is near 30 dB with the slider close to its
-mid-point.
+AGC action.
 
 .Bandwidth and Frequency Setting
 

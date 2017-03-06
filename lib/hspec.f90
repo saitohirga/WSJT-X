@@ -1,5 +1,5 @@
 subroutine hspec(id2,k,nutc0,ntrpdepth,nrxfreq,ntol,bmsk144,bcontest,  &
-     btrain,pcoeffs,ingain,mycall,hiscall,bshmsg,bswl,datadir,green,s,jh,line1, &
+     btrain,pcoeffs,ingain,mycall,hiscall,bshmsg,bswl,datadir,green,s,jh,pxmax,rmsNoGain,line1, &
      mygrid)
 
 ! Input:
@@ -56,15 +56,24 @@ subroutine hspec(id2,k,nutc0,ntrpdepth,nrxfreq,ntol,bmsk144,bcontest,  &
      rms0=0.0
   endif
 
+  pxmax = 0;
   do iblk=1,nblks
      if(jh.lt.JZ-1) jh=jh+1
      ja=ja+nstep
      jb=ja+nfft-1
      x=id2(ja:jb)
      sq=dot_product(x,x)
+     xmax = maxval(x);
+     xmin = abs(minval(x));
+     if (xmin > xmax) xmax = xmin;
+     if (xmax.gt.0.0) pxmax=20.0*log10(xmax);
      rms=sqrt(gain*sq/nfft)
+     rms2=sqrt(sq/nfft);
      green(jh)=0.
-     if(rms.gt.0.0) green(jh)=20.0*log10(rms)
+     if(rms.gt.0.0) then
+        green(jh)=20.0*log10(rms)
+        rmsNoGain=20.0*log10(rms2);
+     endif
      call four2a(x,nfft,1,-1,0)                   !Real-to-complex FFT
      df=12000.0/nfft
      fac=(1.0/nfft)**2

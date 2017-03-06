@@ -66,13 +66,14 @@
 extern "C" {
   //----------------------------------------------------- C and Fortran routines
   void symspec_(struct dec_data *, int* k, int* ntrperiod, int* nsps, int* ingain,
-                int* minw, float* px, float s[], float* df3, int* nhsym, int* npts8);
+                int* minw, float* px, float s[], float* df3, int* nhsym, int* npts8, float *rmsnogain, float *m_pxmax);
 
   void hspec_(short int d2[], int* k, int* nutc0, int* ntrperiod, int* nrxfreq, int* ntol,
               bool* bmsk144, bool* bcontest, bool* btrain, double const pcoeffs[], int* ingain,
               char mycall[], char hiscall[], bool* bshmsg, bool* bswl, char ddir[], float green[],
-              float s[], int* jh, char line[], char mygrid[],
+              float s[], int* jh, float *pxmax, float *rmsNoGain, char line[], char mygrid[],
               int len1, int len2, int len3, int len4, int len5);
+//  float s[], int* jh, char line[], char mygrid[],
 
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, int len1, int len2);
@@ -139,6 +140,7 @@ float fast_green2[703];
 float fast_s[44992];                                    //44992=64*703
 float fast_s2[44992];
 int   fast_jh {0};
+int   fast_jhpeak {0};
 int   fast_jh2 {0};
 int narg[15];
 QVector<QColor> g_ColorTbl;
@@ -264,6 +266,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_ihsym {0},
   m_nzap {0},
   m_px {0.0},
+  m_rmsNoGain {0.0},
   m_iptt0 {0},
   m_btxok0 {false},
   m_nsendingsh {0},
@@ -837,7 +840,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->actionEnable_AP_DXcall->setChecked(m_ndepth&64);
 
   m_UTCdisk=-1;
-  m_ntx = 1;
   m_fCPUmskrtd=0.0;
   m_bFastDone=false;
   m_bAltV=false;
@@ -845,7 +847,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_bVHFwarned=false;
   m_bDoubleClicked=false;
   m_wait=0;
-  ui->txrb1->setChecked(true);
 
   if(m_mode.startsWith ("WSPR") and m_pctx>0)  {
     QPalette palette {ui->sbTxPercent->palette ()};
@@ -1161,13 +1162,13 @@ void MainWindow::dataSink(qint64 frames)
   int nsps=m_nsps;
   if(m_bFastMode) nsps=6912;
   int nsmo=m_wideGraph->smoothYellow()-1;
-  symspec_(&dec_data,&k,&trmin,&nsps,&m_inGain,&nsmo,&m_px,s,&m_df3,&m_ihsym,&m_npts8);
+  symspec_(&dec_data,&k,&trmin,&nsps,&m_inGain,&nsmo,&m_px,s,&m_df3,&m_ihsym,&m_npts8,&m_rmsNoGain,&m_pxmax);
   if(m_mode=="WSPR") wspr_downsample_(dec_data.d2,&k);
   if(m_ihsym <=0) return;
   QString t;
   m_pctZap=m_nzap*100.0/m_nsps; // TODO: this is currently redundant
   t.sprintf(" Rx noise: %5.1f ",m_px);
-  if (ui) ui->signal_meter_widget->setValue(m_px); // Update thermometer
+  if (ui) ui->signal_meter_widget->setValue(m_rmsNoGain,m_pxmax); // Update thermometer
   if(m_monitoring || m_diskData) {
     m_wideGraph->dataSink2(s,m_df3,m_ihsym,m_diskData);
   }
@@ -1383,15 +1384,17 @@ void MainWindow::fastSink(qint64 frames)
   dataDir = m_dataDir.absolutePath ();
   char ddir[512];
   strncpy(ddir,dataDir.toLatin1(), sizeof (ddir) - 1);
+  float pxmax = 0;
+  float rmsNoGain = 0;
   hspec_(dec_data.d2,&k,&nutc0,&nTRpDepth,&RxFreq,&m_Ftol,&bmsk144,&bcontest,
          &m_bTrain,m_phaseEqCoefficients.constData(),&m_inGain,&dec_data.params.mycall[0],
          &dec_data.params.hiscall[0],&bshmsg,&bswl,
-         &ddir[0],fast_green,fast_s,&fast_jh,&line[0],&dec_data.params.mygrid[0],
+         &ddir[0],fast_green,fast_s,&fast_jh,&pxmax,&rmsNoGain,&line[0],&dec_data.params.mygrid[0],
          12,12,512,80,6);
   float px = fast_green[fast_jh];
   QString t;
   t.sprintf(" Rx noise: %5.1f ",px);
-  ui->signal_meter_widget->setValue(px); // Update thermometer
+  ui->signal_meter_widget->setValue(rmsNoGain,pxmax); // Update thermometer
   m_fastGraph->plotSpec(m_diskData,m_UTCdisk);
 
   if(bmsk144 and (line[0]!=0)) {
@@ -3230,7 +3233,7 @@ void MainWindow::guiUpdate()
       t.time().toString() + " ";
     ui->labUTC->setText(utc);
     if(!m_monitoring and !m_diskData) {
-      ui->signal_meter_widget->setValue(0);
+      ui->signal_meter_widget->setValue(0,0);
     }
     m_sec0=nsec;
     displayDialFrequency ();
@@ -3252,7 +3255,7 @@ void MainWindow::startTx2()
     if(t.mid(0,1)=="#") snr=t.mid(1,5).toDouble();
     if(snr>0.0 or snr < -50.0) snr=99.0;
     transmit (snr);
-    ui->signal_meter_widget->setValue(0);
+    ui->signal_meter_widget->setValue(0,0);
     if(m_mode=="Echo" and !m_tune) m_bTransmittedEcho=true;
 
     if(m_mode.startsWith ("WSPR") and !m_tune) {
@@ -5482,7 +5485,7 @@ void MainWindow::transmitDisplay (bool transmitting)
 {
   if (transmitting == m_transmitting) {
     if (transmitting) {
-      ui->signal_meter_widget->setValue(0);
+      ui->signal_meter_widget->setValue(0,0);
       if (m_monitoring) monitor (false);
       m_btxok=true;
     }
