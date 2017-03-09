@@ -285,12 +285,12 @@ inserts the implied "`R`".
 
 MSK144 also supports short-form messages that can be used after QSO
 partners have exchanged both callsigns.  Short messages consist of 4
-bits encoding a signal report, R+report, RRR, or 73, together with a
-12-bit hash code based on the ordered pair of "`to`" and "`from`"
-callsigns.  Another specially designed LDPC (32,16) code provides
-error correction, and an 8-bit synchronizing vector is appended to
-make up a 40-bit frame.  Short-message duration is thus 20 ms, and
-short messages can be decoded from very short meteor pings.
+bits encoding R+report, RRR, or 73, together with a 12-bit hash code
+based on the ordered pair of "`to`" and "`from`" callsigns.  Another
+specially designed LDPC (32,16) code provides error correction, and an
+8-bit synchronizing vector is appended to make up a 40-bit frame.
+Short-message duration is thus 20 ms, and short messages can be
+decoded from very short meteor pings.
 
 The 72 ms or 20 ms frames of MSK144 messages are repeated without gaps
 for the full duration of a transmission cycle. For most purposes, a
