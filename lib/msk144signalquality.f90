@@ -191,9 +191,6 @@ write(*,*) 'start training on call ',training_dxcall
 write(*,*) 'training ',navg,sqrt(chisqr),rmsdiff
       if( (sqrt(chisqr).lt.1.8) .and. (rmsdiff.lt.0.5) .and. (navg.ge.5) ) then 
         trained_dxcall=dxcall
-        training_dxcall(1:12)=' '
-        currently_training=.false.
-        btrain=.false.
         call date_and_time(date,time,zone,values)
         write(pcoeff_filename,'(i2.2,i2.2,i2.2,"_",i2.2,i2.2,i2.2)')    &
           values(1)-2000,values(2),values(3),values(5),values(6),values(7)
@@ -211,6 +208,10 @@ write(*,*) 'trained - writing coefficients to: ',pcoeff_filename
           write(17,*) i,real(cframe(i)),imag(cframe(i)),real(cross_avg(i)),imag(cross_avg(i))
         enddo
         close(17)
+        training_dxcall(1:12)=' '
+        currently_training=.false.
+        btrain=.false.
+        navg=0
       endif
   endif
 
