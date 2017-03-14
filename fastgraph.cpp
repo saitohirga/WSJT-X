@@ -12,14 +12,14 @@ FastGraph::FastGraph(QSettings * settings, QWidget *parent) :
   QDialog {parent, Qt::Window | Qt::WindowTitleHint |
            Qt::WindowCloseButtonHint |
            Qt::WindowMinimizeButtonHint},
-  m_settings (settings),
-  ui(new Ui::FastGraph)
+  m_settings {settings},
+  m_ave {40},
+  ui {new Ui::FastGraph}
 {
   ui->setupUi(this);
   setWindowTitle (QApplication::applicationName () + " - " + tr ("Fast Graph"));
   installEventFilter(parent);                   //Installing the filter
   ui->fastPlot->setCursor(Qt::CrossCursor);
-  m_ave=40;
 
 //Restore user's settings
   m_settings->beginGroup("FastGraph");
@@ -30,6 +30,7 @@ FastGraph::FastGraph(QSettings * settings, QWidget *parent) :
   ui->gainSlider->setValue(ui->fastPlot->m_plotGain);
   ui->fastPlot->setGreenZero(m_settings->value("GreenZero", 0).toInt());
   ui->greenZeroSlider->setValue(ui->fastPlot->m_greenZero);
+  ui->controls_widget->setVisible (!m_settings->value("HideControls", false).toBool ());
   m_settings->endGroup();
 
   connect (ui->fastPlot, &FPlotter::fastPick, this, &FastGraph::fastPick);
@@ -55,6 +56,7 @@ void FastGraph::saveSettings()
   m_settings->setValue("PlotGain",ui->fastPlot->m_plotGain);
   m_settings->setValue("GreenZero",ui->fastPlot->m_greenZero);
   m_settings->setValue("GreenGain",ui->fastPlot->m_greenGain);
+  m_settings->setValue("HideControls",!ui->controls_widget->isVisible ());
   m_settings->endGroup();
 }
 
@@ -104,4 +106,18 @@ void FastGraph::on_pbAutoLevel_clicked()
 void FastGraph::setMode(QString mode)                              //setMode
 {
   ui->fastPlot->setMode(mode);
+}
+
+void FastGraph::keyPressEvent(QKeyEvent *e)
+{
+  switch(e->key())
+  {
+  case Qt::Key_M:
+    if(e->modifiers() & Qt::ControlModifier) {
+      ui->controls_widget->setVisible (!ui->controls_widget->isVisible ());
+    }
+    break;
+  default:
+    QDialog::keyPressEvent (e);
+  }
 }

@@ -16,6 +16,7 @@ class FastGraph : public QDialog
 
 protected:
   void closeEvent (QCloseEvent *) override;
+  void keyPressEvent( QKeyEvent *e ) override;
 
 public:
   explicit FastGraph(QSettings *, QWidget *parent = 0);
