@@ -83,9 +83,7 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   int m_fMin = m_settings->value ("Fmin", 2500).toInt ();
   ui->fSplitSpinBox->setValue (m_fMin);
   setRxRange (m_fMin);
-  m_bHideControls = m_settings->value("HideControls", false).toBool ();
-  m_bHideControls = !m_bHideControls; // we're not toggling here so we start in opposite state
-  on_hideControls();
+  ui->controls_widget->setVisible(!m_settings->value("HideControls", false).toBool ());
   m_settings->endGroup();
 
   saveSettings ();		// update config with defaults
@@ -116,57 +114,6 @@ void WideGraph::closeEvent (QCloseEvent * e)
   QDialog::closeEvent (e);
 }
 
-void WideGraph::on_hideControls()
-{
-    m_bHideControls = !m_bHideControls;
-    ui->verticalLayout->setEnabled(!m_bHideControls);
-    ui->gridLayout->setEnabled(!m_bHideControls);
-    ui->horizontalLayout->setEnabled(!m_bHideControls);
-    ui->horizontalLayout_2->setEnabled(!m_bHideControls);
-    ui->horizontalLayout_3->setEnabled(!m_bHideControls);
-    if (!m_bHideControls) {
-        ui->adjust_palette_push_button->show();
-        ui->labPalette->show();
-        ui->smoSpinBox->show();
-        ui->cbFlatten->show();
-        ui->cbRef->show();
-        ui->bppSpinBox->show();
-        ui->fSplitSpinBox->show();
-        ui->fStartSpinBox->show();
-        ui->gain2dSlider->show();
-        ui->gainSlider->show();
-        ui->line->show();
-        ui->line_2->show();
-        ui->paletteComboBox->show();
-        ui->sbPercent2dPlot->show();
-        ui->spec2dComboBox->show();
-        ui->waterfallAvgSpinBox->show();
-        ui->zero2dSlider->show();
-        ui->zeroSlider->show();
-    }
-    else {
-        ui->adjust_palette_push_button->hide();
-        ui->labPalette->hide();
-        ui->smoSpinBox->hide();
-        ui->cbFlatten->hide();
-        ui->cbRef->hide();
-        ui->bppSpinBox->hide();
-        ui->fSplitSpinBox->hide();
-        ui->fStartSpinBox->hide();
-        ui->gain2dSlider->hide();
-        ui->gainSlider->hide();
-        ui->line->hide();
-        ui->line_2->hide();
-        ui->paletteComboBox->hide();
-        ui->sbPercent2dPlot->hide();
-        ui->spec2dComboBox->hide();
-        ui->waterfallAvgSpinBox->hide();
-        ui->zero2dSlider->hide();
-        ui->zeroSlider->hide();
-        ui->widePlot->adjustSize();
-    }
-}
-
 void WideGraph::saveSettings()                                           //saveSettings
 {
   m_settings->beginGroup ("WideGraph");
@@ -191,7 +138,7 @@ void WideGraph::saveSettings()                                           //saveS
   m_settings->setValue ("Fmin", m_fMin);
   m_settings->setValue("Flatten",m_bFlatten);
   m_settings->setValue("UseRef",m_bRef);
-  m_settings->setValue("HideControls",m_bHideControls);
+  m_settings->setValue("HideControls",!ui->controls_widget->isVisible());
   m_settings->endGroup ();
 }
 
@@ -275,7 +222,7 @@ void WideGraph::keyPressEvent(QKeyEvent *e)                                 //F1
     break;
   case Qt::Key_M:
     if(e->modifiers() & Qt::ControlModifier) {
-      on_hideControls();
+      ui->controls_widget->setVisible(!ui->controls_widget->isVisible());
     }
     break;
   default:
