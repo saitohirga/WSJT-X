@@ -42,6 +42,11 @@ namespace
   char const * multi_settings_current_name_key = "CurrentName";
   char const * multi_settings_place_holder_key = "MultiSettingsPlaceHolder";
 
+  QString unescape_ampersands (QString s)
+  {
+    return s.replace ("&&", "&");
+  }
+
   // calculate a useable and unique settings file path
   QString settings_path ()
   {
@@ -425,7 +430,7 @@ void MultiSettings::impl::create_menu_actions (QMainWindow * main_window, QMenu 
 
   if (name_change_emit_pending_)
     {
-      Q_EMIT parent_->configurationNameChanged (current_.replace (QRegularExpression {R"(&([^&]))"}, R"(\1)").replace ("&&", "&"));
+      Q_EMIT parent_->configurationNameChanged (unescape_ampersands (current_));
       name_change_emit_pending_ = false;
     }
 }
@@ -567,7 +572,7 @@ void MultiSettings::impl::select_configuration (QMainWindow * main_window, QMenu
       }
       // and set up the restart
       current_ = target_name;
-      Q_EMIT parent_->configurationNameChanged (current_);
+      Q_EMIT parent_->configurationNameChanged (unescape_ampersands (current_));
       reposition_type_ = RepositionType::save_and_replace;
       exit_flag_ = false;
       main_window->close ();
@@ -640,8 +645,8 @@ void MultiSettings::impl::clone_into_configuration (QMainWindow * main_window, Q
       if (MessageBox::Yes == MessageBox::query_message (main_window,
                                                         tr ("Clone Into Configuration"),
                                                         tr ("Confirm overwrite of all values for configuration \"%1\" with values from \"%2\"?")
-                                                        .arg (target_name)
-                                                        .arg (source_name)))
+                                                        .arg (unescape_ampersands (target_name))
+                                                        .arg (unescape_ampersands (source_name))))
         {
           // grab the data to clone from
           if (source_name == current_group_name)
@@ -684,7 +689,7 @@ void MultiSettings::impl::reset_configuration (QMainWindow * main_window, QMenu 
   if (MessageBox::Yes != MessageBox::query_message (main_window,
                                                     tr ("Reset Configuration"),
                                                     tr ("Confirm reset to default values for configuration \"%1\"?")
-                                                    .arg (target_name)))
+                                                    .arg (unescape_ampersands (target_name))))
     {
       return;
     }
@@ -732,7 +737,7 @@ void MultiSettings::impl::rename_configuration (QMainWindow * main_window, QMenu
           settings_.setValue (multi_settings_current_name_key, dialog.new_name ());
           settings_.sync ();
           current_ = dialog.new_name ();
-          Q_EMIT parent_->configurationNameChanged (current_);
+          Q_EMIT parent_->configurationNameChanged (unescape_ampersands (current_));
         }
       else
         {
@@ -768,7 +773,7 @@ void MultiSettings::impl::delete_configuration (QMainWindow * main_window, QMenu
       if (MessageBox::Yes != MessageBox::query_message (main_window,
                                                         tr ("Delete Configuration"),
                                                         tr ("Confirm deletion of configuration \"%1\"?")
-                                                        .arg (target_name)))
+                                                        .arg (unescape_ampersands (target_name))))
         {
           return;
         }
