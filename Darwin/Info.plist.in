@@ -6,5 +6,9 @@
 	<string>@WSJTX_BUNDLE_NAME@</string>
 	<key>CFBundleDisplayName</key>
 	<string>@WSJTX_BUNDLE_NAME@</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>NSHighResolutionCapable</key>
+	<string>True</string>
 </dict>
 </plist>
