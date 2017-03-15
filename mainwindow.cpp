@@ -878,8 +878,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (&splashTimer, &QTimer::timeout, this, &MainWindow::splash_done);
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
-  m_bHideControls = !m_bHideControls; // we're not toggling here so we start in opposite state
-  on_actionHide_Controls_triggered();
 
   // this must be the last statement of constructor
   if (!m_valid) throw std::runtime_error {"Fatal initialization exception"};
@@ -944,7 +942,7 @@ void MainWindow::writeSettings()
   m_settings->setValue ("AstroDisplayed", m_astroWidget && m_astroWidget->isVisible());
   m_settings->setValue ("MsgAvgDisplayed", m_msgAvgWidget && m_msgAvgWidget->isVisible());
   m_settings->setValue ("FreeText", ui->freeTextMsg->currentText ());
-  m_settings->setValue ("HideControls", m_bHideControls);
+  m_settings->setValue ("HideControls", ui->actionHide_Controls->isChecked ());
   m_settings->endGroup();
 
   m_settings->beginGroup("Common");
@@ -998,9 +996,7 @@ void MainWindow::writeSettings()
 void MainWindow::readSettings()
 {
   m_settings->beginGroup("MainWindow");
-  m_bHideControls = m_settings->value("HideControls", false).toBool ();
-  m_bHideControls = !m_bHideControls; // we're not toggling here so we start in opposite state
-  on_actionHide_Controls_triggered();
+  ui->actionHide_Controls->setChecked (m_settings->value("HideControls", false).toBool ());
   restoreGeometry (m_settings->value ("geometry", saveGeometry ()).toByteArray ());
   m_geometryNoControls = m_settings->value ("geometryNoControls",saveGeometry()).toByteArray();
   restoreState (m_settings->value ("state", saveState ()).toByteArray ());
@@ -1649,9 +1645,9 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       }
       break;
     case Qt::Key_M:
-     if(e->modifiers() & Qt::ControlModifier) {
-        on_actionHide_Controls_triggered();
-        return;
+      if(e->modifiers() & Qt::ControlModifier) {
+        ui->actionHide_Controls->toggle ();
+       return;
       }
       break;
     case Qt::Key_F4:
@@ -2037,12 +2033,11 @@ void MainWindow::on_actionFast_Graph_triggered()
 
 // This allows the window to shrink by removing certain things
 // and reducing space used by controls
-void MainWindow::on_actionHide_Controls_triggered()
+void MainWindow::on_actionHide_Controls_toggled (bool checked)
 {
-  m_bHideControls = !m_bHideControls;
-  int spacing = m_bHideControls ? 1 : 6;
+  int spacing = checked ? 1 : 6;
 
-  if (m_bHideControls) {
+  if (checked) {
       statusBar ()->removeWidget (&auto_tx_label);
       minimumSize().setHeight(450);
       minimumSize().setWidth(700);
@@ -2056,15 +2051,15 @@ void MainWindow::on_actionHide_Controls_triggered()
       minimumSize().setHeight(520);
       minimumSize().setWidth(770);
   }
-  ui->menuBar->setVisible(!m_bHideControls);
+  ui->menuBar->setVisible(!checked);
   if(m_mode!="FreqCal") {
-    ui->label_6->setVisible(!m_bHideControls);
-    ui->label_7->setVisible(!m_bHideControls);
-    ui->decodedTextLabel2->setVisible(!m_bHideControls);
-    ui->line_2->setVisible(!m_bHideControls);
+    ui->label_6->setVisible(!checked);
+    ui->label_7->setVisible(!checked);
+    ui->decodedTextLabel2->setVisible(!checked);
+    ui->line_2->setVisible(!checked);
   }
-  ui->line->setVisible(!m_bHideControls);
-  ui->decodedTextLabel->setVisible(!m_bHideControls);
+  ui->line->setVisible(!checked);
+  ui->decodedTextLabel->setVisible(!checked);
   ui->gridLayout_5->layout()->setSpacing(spacing);
   ui->horizontalLayout->layout()->setSpacing(spacing);
   ui->horizontalLayout_2->layout()->setSpacing(spacing);

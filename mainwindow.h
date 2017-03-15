@@ -248,7 +248,7 @@ private slots:
   void on_actionEcho_triggered();
   void on_actionISCAT_triggered();
   void on_actionFast_Graph_triggered();
-  void on_actionHide_Controls_triggered();
+  void on_actionHide_Controls_toggled (bool chaecked);
   void fast_decode_done();
   void on_actionMeasure_reference_spectrum_triggered();
   void on_actionErase_reference_spectrum_triggered();
@@ -437,7 +437,6 @@ private:
   bool    m_bNoMoreFiles;
   bool    m_bQRAsyncWarned;
   bool    m_bDoubleClicked;
-  bool    m_bHideControls;
 
   int			m_ihsym;
   int			m_nzap;
