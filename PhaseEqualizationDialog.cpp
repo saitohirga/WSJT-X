@@ -524,6 +524,8 @@ void PhaseEqualizationDialog::impl::plot_phase ()
 
           if (phase_file)
             {
+              plot_.graph(0)->setLineStyle(QCPGraph::lsNone);
+              plot_.graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, 4));
               plot_.graph (0)->setVisible (true);
               plot_.graph (0)->addToLegend ();
 
