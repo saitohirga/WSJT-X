@@ -14,6 +14,7 @@ integer*1 i1hash(4)
 integer*1 msgbits(80)
 integer*4 i4Msg6BitWords(13)
 integer ihash
+integer nerrtot(128),nerrdec(128)
 real*8, allocatable ::  lratio(:), rxdata(:), rxavgd(:)
 real, allocatable :: yy(:), llr(:)
 equivalence(ihash,i1hash)
@@ -21,6 +22,8 @@ equivalence(ihash,i1hash)
 do i=1,NRECENT
   recent_calls(i)='            '
 enddo
+nerrtot=0
+nerrdec=0
 
 nargs=iargc()
 if(nargs.ne.4) then
@@ -105,6 +108,11 @@ do idb = -6, 14
       rxavgd=rxavgd+rxdata
     enddo
     rxdata=rxavgd
+    nerr=0
+    do i=1,N
+      if( rxdata(i)*(2*codeword(i)-1.0) .lt. 0 ) nerr=nerr+1
+    enddo
+    nerrtot(nerr)=nerrtot(nerr)+1
 
 ! Correct signal normalization is important for this decoder.
     rxav=sum(rxdata)/N
@@ -147,14 +155,21 @@ do idb = -6, 14
       enddo
       if( nhashflag .eq. 1 .and. nueflag .eq. 0 ) then
         ngood=ngood+1
+        nerrdec(nerr)=nerrdec(nerr)+1
       else if( nhashflag .eq. 1 .and. nueflag .eq. 1 ) then
         nue=nue+1;
       endif
     endif
   enddo
-  snr2500=db-4.0
+  snr2500=db-3.5
   write(*,"(f4.1,4x,f5.1,1x,i8,1x,i8,1x,i8,8x,f5.2)") db,snr2500,ngood,nue,nbadhash,ss
 
 enddo
+
+open(unit=23,file='nerrhisto.dat',status='unknown')
+do i=1,128
+  write(23,'(i4,2x,i10,i10,f10.2)') i,nerrdec(i),nerrtot(i),real(nerrdec(i))/real(nerrtot(i)+1e-10)
+enddo
+close(23)
 
 end program ldpcsim
