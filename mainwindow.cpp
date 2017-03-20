@@ -1140,15 +1140,15 @@ void MainWindow::dataSink(qint64 frames)
     dec_data.params.ndiskdat=0;
   }
 
-  if(m_mode=="ISCAT" or m_mode=="MSK144" or m_bFast9) {
-    fastSink(frames);
-    return;
-  }
-
   m_bUseRef=m_wideGraph->useRef();
   refspectrum_(&dec_data.d2[k-m_nsps/2],&m_bClearRefSpec,&m_bRefSpec,
       &m_bUseRef,c_fname,len);
   m_bClearRefSpec=false;
+
+  if(m_mode=="ISCAT" or m_mode=="MSK144" or m_bFast9) {
+    fastSink(frames);
+    return;
+  }
 
 // Get power, spectrum, and ihsym
   int trmin=m_TRperiod/60;
