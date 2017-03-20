@@ -43,7 +43,8 @@ subroutine analytic(d,npts,nfft,c,pc,beq)
   if( any(aclast .ne. ac) .or. any(pclast .ne. pc) ) then
      aclast=ac
      pclast=pc
-write(*,*) 'phase coeffs ',pc
+     write(*,3001) pc
+3001 format('Phase coeffs:',5f12.6)
      do i=1,nh+1
         ff=(i-1)*df
         f=ff-1500.0
