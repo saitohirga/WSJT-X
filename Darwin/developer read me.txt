@@ -36,9 +36,6 @@ hdiutil resize -sectors 110000 rw.dmg
 # now you can mount the R/W DMG
 hdiutil attach rw.dmg
 
-# change the hidden attribute on the background PNG
-chflags nohidden /Volumes/WSJT-X/background.png
-
 # make the .DS_Store file writeable
 chmod 644 /Volumes/WSJT-X/.DS_Store
 
@@ -48,11 +45,8 @@ chmod 644 /Volumes/WSJT-X/.DS_Store
 # to the DMG root folder, you need to have changed the install steps before doing this
 # procedure so the content changes are reflected in the installer DMG you start with.
 
-# when you are happy with the layout etc. close the Finder window to ensure all
-# changes are saved.
-
-# set the background PNG as a hidden file
-chflags hidden /Volumes/WSJT-X/background.png
+# when you are happy with the layout etc. move the Finder window by any amount, this
+# ensures that the .DS_Store file is updated from Finder's cache.
 
 # make the .DS_Store file read only
 chmod 444 /Volumes/WSJT-X/.DS_Store
