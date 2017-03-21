@@ -3,6 +3,7 @@
 #include <QAudioDeviceInfo>
 #include <QAudioFormat>
 #include <QAudioInput>
+#include <QSysInfo>
 #include <QDebug>
 
 #include "moc_soundin.cpp"
@@ -49,11 +50,13 @@ void SoundInput::start(QAudioDeviceInfo const& device, int framesPerBuffer, Audi
   m_sink = sink;
 
   QAudioFormat format (device.preferredFormat());
+  qDebug () << "Preferred audio input format:" << format;
   format.setChannelCount (AudioDevice::Mono == channel ? 1 : 2);
   format.setCodec ("audio/pcm");
   format.setSampleRate (12000 * downSampleFactor);
   format.setSampleType (QAudioFormat::SignedInt);
   format.setSampleSize (16);
+  format.setByteOrder (QAudioFormat::Endian (QSysInfo::ByteOrder));
 
   if (!format.isValid ())
     {
@@ -61,12 +64,12 @@ void SoundInput::start(QAudioDeviceInfo const& device, int framesPerBuffer, Audi
       return;
     }
 
-  // this function lies!
-  // if (!device.isFormatSupported (format))
-  //   {
-  //     Q_EMIT error (tr ("Requested input audio format is not supported on device."));
-  //     return;
-  //   }
+  if (!device.isFormatSupported (format))
+    {
+      qDebug () << "Nearest supported audio format:" << device.nearestFormat (format);
+      Q_EMIT error (tr ("Requested input audio format is not supported on device."));
+      return;
+    }
 
   m_stream.reset (new QAudioInput {device, format});
   if (audioError ())
