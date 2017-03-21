@@ -54,7 +54,7 @@ void SoundOutput::setFormat (QAudioDeviceInfo const& device, unsigned channels, 
   m_msBuffered = msBuffered;
 
   QAudioFormat format (device.preferredFormat ());
-
+  qDebug () << "Preferred audio output format:" << format;
   format.setChannelCount (channels);
   format.setCodec ("audio/pcm");
   format.setSampleRate (48000);
@@ -69,6 +69,7 @@ void SoundOutput::setFormat (QAudioDeviceInfo const& device, unsigned channels, 
     {
       Q_EMIT error (tr ("Requested output audio format is not supported on device."));
     }
+  qDebug () << "Selected audio output format:" << format;
 
   m_stream.reset (new QAudioOutput (device, format));
   audioError ();

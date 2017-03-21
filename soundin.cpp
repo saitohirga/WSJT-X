@@ -57,7 +57,6 @@ void SoundInput::start(QAudioDeviceInfo const& device, int framesPerBuffer, Audi
   format.setSampleType (QAudioFormat::SignedInt);
   format.setSampleSize (16);
   format.setByteOrder (QAudioFormat::Endian (QSysInfo::ByteOrder));
-
   if (!format.isValid ())
     {
       Q_EMIT error (tr ("Requested input audio format is not valid."));
@@ -70,6 +69,7 @@ void SoundInput::start(QAudioDeviceInfo const& device, int framesPerBuffer, Audi
       Q_EMIT error (tr ("Requested input audio format is not supported on device."));
       return;
     }
+  qDebug () << "Selected audio input format:" << format;
 
   m_stream.reset (new QAudioInput {device, format});
   if (audioError ())
