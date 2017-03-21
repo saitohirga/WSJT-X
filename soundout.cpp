@@ -3,6 +3,7 @@
 #include <QDateTime>
 #include <QAudioDeviceInfo>
 #include <QAudioOutput>
+#include <QSysInfo>
 #include <qmath.h>
 #include <QDebug>
 
@@ -59,6 +60,7 @@ void SoundOutput::setFormat (QAudioDeviceInfo const& device, unsigned channels, 
   format.setSampleRate (48000);
   format.setSampleType (QAudioFormat::SignedInt);
   format.setSampleSize (16);
+  format.setByteOrder (QAudioFormat::Endian (QSysInfo::ByteOrder));
   if (!format.isValid ())
     {
       Q_EMIT error (tr ("Requested output audio format is not valid."));
