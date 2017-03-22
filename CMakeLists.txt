@@ -721,6 +721,18 @@ find_program(CTAGS ctags)
 find_program(ETAGS etags)
 
 #
+# Boost
+#
+set (Boost_NO_SYSTEM_PATHS TRUE)
+if (Boost_NO_SYSTEM_PATHS)
+  set (BOOST_ROOT ${PROJECT_SOURCE_DIR}/boost)
+endif ()
+find_package (Boost 1.63 REQUIRED)
+if (Boost_FOUND)
+  include_directories (${Boost_INCLUDE_DIRS})
+endif ()
+
+#
 # OpenMP
 #
 find_package (OpenMP)
@@ -781,7 +793,7 @@ set (CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 #
 set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -std=c++11 -fexceptions -frtti")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -fexceptions -frtti")
 
 if (NOT APPLE)
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-pragmas")
@@ -798,14 +810,12 @@ endif (NOT APPLE)
 if (WIN32)
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
 endif (WIN32)
-if (APPLE)
-  if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-  endif (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-else (APPLE)
+if (APPLE AND ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++")
+else ()
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-endif (APPLE)
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=gnu++11 -pthread")
+endif ()
 
 
 #
