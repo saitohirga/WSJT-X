@@ -731,14 +731,48 @@ void Configuration::sync_transceiver (bool force_signal, bool enforce_mode_and_s
     }
 }
 
+namespace
+{
+#if defined (Q_OS_MAC)
+  char const * app_root = "/../../../";
+#else
+  char const * app_root = "/../";
+#endif
+  QString doc_path ()
+  {
+#if CMAKE_BUILD
+    if (QDir::isRelativePath (CMAKE_INSTALL_DOCDIR))
+      {
+	return QApplication::applicationDirPath () + app_root + CMAKE_INSTALL_DOCDIR;
+      }
+    return CMAKE_INSTALL_DOCDIR;
+#else
+    return QApplication::applicationDirPath ();
+#endif
+  }
+
+  QString data_path ()
+  {
+#if CMAKE_BUILD
+    if (QDir::isRelativePath (CMAKE_INSTALL_DATADIR))
+      {
+	return QApplication::applicationDirPath () + app_root + CMAKE_INSTALL_DATADIR + QChar {'/'} + CMAKE_PROJECT_NAME;
+      }
+    return CMAKE_INSTALL_DATADIR;
+#else
+    return QApplication::applicationDirPath ();
+#endif
+  }
+}
+
 Configuration::impl::impl (Configuration * self, QDir const& temp_directory,
                            QSettings * settings, QWidget * parent)
   : QDialog {parent}
   , self_ {self}
   , ui_ {new Ui::configuration_dialog}
   , settings_ {settings}
-  , doc_dir_ {QApplication::applicationDirPath ()}
-  , data_dir_ {QApplication::applicationDirPath ()}
+  , doc_dir_ {doc_path ()}
+  , data_dir_ {data_path ()}
   , temp_dir_ {temp_directory}
   , frequencies_ {&bands_}
   , next_frequencies_ {&bands_}
@@ -763,63 +797,20 @@ Configuration::impl::impl (Configuration * self, QDir const& temp_directory,
   ui_->setupUi (this);
 //  ui_->groupBox_6->setVisible(false);              //### Temporary ??? ###
 
-#if !defined (CMAKE_BUILD)
-#define WSJT_SHARE_DESTINATION "."
-#define WSJT_DOC_DESTINATION "."
-#define WSJT_DATA_DESTINATION "."
-#endif
-
-#if !defined (Q_OS_WIN) || QT_VERSION >= 0x050300
-  auto doc_path = QStandardPaths::locate (QStandardPaths::DataLocation, WSJT_DOC_DESTINATION, QStandardPaths::LocateDirectory);
-  if (doc_path.isEmpty ())
-    {
-      doc_dir_.cdUp ();
-#if defined (Q_OS_MAC)
-      doc_dir_.cdUp ();
-      doc_dir_.cdUp ();
-#endif
-      doc_dir_.cd (WSJT_SHARE_DESTINATION);
-      doc_dir_.cd (WSJT_DOC_DESTINATION);
-    }
-  else
-    {
-      doc_dir_.cd (doc_path);
-    }
-
-  auto data_path = QStandardPaths::locate (QStandardPaths::DataLocation, WSJT_DATA_DESTINATION, QStandardPaths::LocateDirectory);
-  if (data_path.isEmpty ())
-    {
-      data_dir_.cdUp ();
-#if defined (Q_OS_MAC)
-      data_dir_.cdUp ();
-      data_dir_.cdUp ();
-#endif
-      data_dir_.cd (WSJT_SHARE_DESTINATION);
-      data_dir_.cd (WSJT_DATA_DESTINATION);
-    }
-  else
-    {
-      data_dir_.cd (data_path);
-    }
-#else
-  doc_dir_.cd (WSJT_DOC_DESTINATION);
-  data_dir_.cd (WSJT_DATA_DESTINATION);
-#endif
-
   {
     // Find a suitable data file location
-    QDir data_dir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)};
-    if (!data_dir.mkpath ("."))
+    QDir writeable_data_dir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)};
+    if (!writeable_data_dir.mkpath ("."))
       {
         MessageBox::critical_message (this, tr ("Failed to create data directory"),
-                                      tr ("path: \"%1\"").arg (data_dir.absolutePath ()));
+                                      tr ("path: \"%1\"").arg (writeable_data_dir.absolutePath ()));
         throw std::runtime_error {"Failed to create data directory"};
       }
 
     // Make sure the default save directory exists
     QString save_dir {"save"};
-    default_save_directory_ = data_dir;
-    default_azel_directory_ = data_dir;
+    default_save_directory_ = writeable_data_dir;
+    default_azel_directory_ = writeable_data_dir;
     if (!default_save_directory_.mkpath (save_dir) || !default_save_directory_.cd (save_dir))
       {
         MessageBox::critical_message (this, tr ("Failed to create save directory"),
