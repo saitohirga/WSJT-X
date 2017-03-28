@@ -150,42 +150,26 @@ message (STATUS "******************************************************")
 #
 # install locations
 #
-set (BIN_DESTINATION bin)
-set (LIB_DESTINATION lib)
-set (INCLUDE_DESTINATION include)
-set (SHARE_DESTINATION share)
-set (DOC_DESTINATION doc/${CMAKE_PROJECT_NAME})
-set (DATA_DESTINATION ${CMAKE_PROJECT_NAME})
-set (MANPAGE_DESTINATION ${SHARE_DESTINATION})
-set (PLUGIN_DESTINATION lib/plugins)
-set (QT_CONF_DESTINATION bin)
-
-if (WIN32)
-  set (SHARE_DESTINATION bin)
-  set (DOC_DESTINATION doc)
-  set (DATA_DESTINATION data)
-  set (PLUGIN_DESTINATION plugins)
-endif (WIN32)
 
 if (APPLE)
-  set (BIN_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/MacOS)
-  set (SHARE_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/Resources)
-  set (MANPAGE_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/Resources)
-  set (DOC_DESTINATION doc)
-  set (DATA_DESTINATION data)
-  set (PLUGIN_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/PlugIns)
-  set (QT_CONF_DESTINATION ${CMAKE_PROJECT_NAME}.app/Contents/Resources)
-endif (APPLE)
+  set (CMAKE_INSTALL_BINDIR ${CMAKE_PROJECT_NAME}.app/Contents/MacOS)
+  set (CMAKE_INSTALL_DATAROOTDIR ${CMAKE_PROJECT_NAME}.app/Contents/Resources)
+endif ()
 
-set (WSJT_BIN_DESTINATION ${BIN_DESTINATION} CACHE PATH "Path for executables")
-set (WSJT_LIB_DESTINATION ${LIB_DESTINATION} CACHE PATH "Path for libraries")
-set (WSJT_INCLUDE_DESTINATION ${INCLUDE_DESTINATION} CACHE PATH "Path for library headers")
-set (WSJT_SHARE_DESTINATION ${SHARE_DESTINATION} CACHE PATH "Path for shared content")
-set (WSJT_DOC_DESTINATION ${DOC_DESTINATION} CACHE PATH "Path for documentation")
-set (WSJT_DATA_DESTINATION ${DATA_DESTINATION} CACHE PATH "Path for shared RO data")
-set (WSJT_MANPAGE_DESTINATION ${MANPAGE_DESTINATION} CACHE PATH "Path for manpages")
+include (GNUInstallDirs)
+
+set (PLUGIN_DESTINATION ${CMAKE_INSTALL_LIBDIR}/plugins)
+set (QT_CONF_DESTINATION ${CMAKE_INSTALL_BINDIR})
+if (WIN32)
+  set (PLUGIN_DESTINATION plugins)
+elseif (APPLE)
+  set (PLUGIN_DESTINATION ${CMAKE_INSTALL_BINDIR}/../PlugIns)
+  set (QT_CONF_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR})
+endif ()
+
 set (WSJT_PLUGIN_DESTINATION ${PLUGIN_DESTINATION} CACHE PATH "Path for plugins")
 set (WSJT_QT_CONF_DESTINATION ${QT_CONF_DESTINATION} CACHE PATH "Path for the qt.conf file")
+
 
 #
 # Project sources
@@ -759,6 +743,7 @@ message (STATUS "hamlib_INCLUDE_DIRS: ${hamlib_INCLUDE_DIRS}")
 message (STATUS "hamlib_LIBRARIES: ${hamlib_LIBRARIES}")
 message (STATUS "hamlib_LIBRARY_DIRS: ${hamlib_LIBRARY_DIRS}")
 
+
 #
 # Qt5 setup
 #
@@ -899,7 +884,7 @@ set (CMAKE_SKIP_BUILD_RPATH FALSE)
 # later on in the install phase
 set (CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
-# set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${WSJT_LIB_DESTINATION}")
+# set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
 
 # add the automaticaly determined parts of the RPATH which point to
 # directories outside of the build tree to the install RPATH
@@ -907,9 +892,9 @@ set (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # the RPATH to be used when installing, but only if it's not a system
 # directory
-# list (FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/${WSJT_LIB_DESTINATION}" isSystemDir)
+# list (FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}" isSystemDir)
 # if ("${isSystemDir}" STREQUAL "-1")
-#   set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${WSJT_LIB_DESTINATION}")
+#   set (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
 # endif ("${isSystemDir}" STREQUAL "-1")
 
 set (QT_NEED_RPATH FALSE)
@@ -1186,11 +1171,11 @@ qt5_use_modules (wsjtx SerialPort) # not sure why the interface link library syn
 add_library (wsjtx_udp-static STATIC ${UDP_library_CXXSRCS})
 #target_include_directories (wsjtx_udp
 #  INTERFACE
-#  $<INSTALL_INTERFACE:${WSJT_INCLUDE_DESTINATION}/wsjtx>
+#  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/wsjtx>
 #  )
 target_include_directories (wsjtx_udp-static
   INTERFACE
-  $<INSTALL_INTERFACE:${WSJT_INCLUDE_DESTINATION}/wsjtx>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/wsjtx>
   )
 #set_target_properties (wsjtx_udp PROPERTIES
 #  PUBLIC_HEADER "${UDP_library_HEADERS}"
@@ -1236,48 +1221,48 @@ endif (UNIX)
 # installation
 #
 install (TARGETS wsjtx
-  RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   BUNDLE DESTINATION . COMPONENT runtime
   )
 
 # install (TARGETS wsjtx_udp EXPORT udp
-#   RUNTIME DESTINATION ${WSJT_BIN_DESTINATION}
-#   LIBRARY DESTINATION ${WSJT_LIB_DESTINATION}
-#   ARCHIVE DESTINATION ${WSJT_LIB_DESTINATION}
-#   PUBLIC_HEADER DESTINATION ${WSJT_INCLUDE_DESTINATION}/wsjtx
+#   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+#   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#   PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/wsjtx
 #   )
 # install (TARGETS wsjtx_udp-static EXPORT udp-static
-#   DESTINATION ${WSJT_LIB_DESTINATION}
+#   DESTINATION ${CMAKE_INSTALL_LIBDIR}
 #   )
 
 # install (EXPORT udp NAMESPACE wsjtx::
-#   DESTINATION ${WSJT_LIB_DESTINATION}/cmake/wsjtx
+#   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wsjtx
 #   )
 # install (EXPORT udp-static NAMESPACE wsjtx::
-#   DESTINATION ${WSJT_LIB_DESTINATION}/cmake/wsjtx
+#   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wsjtx
 #   )
 
 install (TARGETS udp_daemon message_aggregator
-  RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
-  BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
+  BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   )
 
 install (TARGETS jt9 jt65code qra64code qra64sim jt9code jt4code
   msk144code wsprd fmtave fcal fmeasure
-  RUNTIME DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
-  BUNDLE DESTINATION ${WSJT_BIN_DESTINATION} COMPONENT runtime
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
+  BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   )
 
 install (PROGRAMS
   ${RIGCTL_EXE}
-  DESTINATION ${WSJT_BIN_DESTINATION}
+  DESTINATION ${CMAKE_INSTALL_BINDIR}
   #COMPONENT runtime
   RENAME rigctl-wsjtx${CMAKE_EXECUTABLE_SUFFIX}
   )
 
 install (PROGRAMS
   ${RIGCTLD_EXE}
-  DESTINATION ${WSJT_BIN_DESTINATION}
+  DESTINATION ${CMAKE_INSTALL_BINDIR}
   #COMPONENT runtime
   RENAME rigctld-wsjtx${CMAKE_EXECUTABLE_SUFFIX}
   )
@@ -1290,13 +1275,13 @@ install (FILES
   NEWS
   INSTALL
   BUGS
-  DESTINATION ${WSJT_SHARE_DESTINATION}/${WSJT_DOC_DESTINATION}
+  DESTINATION ${CMAKE_INSTALL_DOCDIR}
   #COMPONENT runtime
   )
 
 install (FILES
   contrib/Ephemeris/JPLEPH
-  DESTINATION ${WSJT_SHARE_DESTINATION}/${WSJT_DATA_DESTINATION}
+  DESTINATION ${CMAKE_INSTALL_DATADIR}/${CMAKE_PROJECT_NAME}
   #COMPONENT runtime
   )
 
@@ -1395,7 +1380,7 @@ if (NOT is_debug_build)
       )
 
     # if a system Qt is used (e.g. installed in /usr/lib/), it will not be included in the installation
-    set (fixup_exe "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_BIN_DESTINATION}/${CMAKE_PROJECT_NAME}${CMAKE_EXECUTABLE_SUFFIX}")
+    set (fixup_exe "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/${CMAKE_PROJECT_NAME}${CMAKE_EXECUTABLE_SUFFIX}")
 
     #get_filename_component (hamlib_lib_dir ${hamlib_LIBRARIES} PATH)
 
