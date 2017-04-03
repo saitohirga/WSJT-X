@@ -18,7 +18,7 @@ CFLAGS = -O2 -I.
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:	fsk4sim
+all:	wsprlf
 
 OBJS0 = testpsk.o four2a.o bpfilter.o nonlinear.o tweak1.o spectrum.o smo.o
 testpsk: $(OBJS0)
@@ -40,7 +40,11 @@ OBJS4 = fsk4sim.o four2a.o wavhdr.o gran.o tweak1.o
 fsk4sim: $(OBJS4)
 	$(FC) -o fsk4sim $(OBJS4) -lfftw3f
 
+OBJS5 = wsprlf.o four2a.o
+wsprlf:	$(OBJS5)
+	$(FC) -o wsprlf $(OBJS5) -lfftw3f
+
 .PHONY : clean
 
 clean:
-	$(RM) *.o testpsk testfsk fsk2sim fsk4sim
+	$(RM) *.o testpsk testfsk fsk2sim fsk4sim wsprlf
