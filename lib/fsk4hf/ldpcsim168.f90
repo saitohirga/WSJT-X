@@ -38,7 +38,8 @@ nmpcbad=0  ! Used to collect the number of errors in the message+crc part of the
 nargs=iargc()
 if(nargs.ne.3) then
    print*,'Usage: ldpcsim  niter  #trials  s '
-   print*,'eg:    ldpcsim    10   1000    0.75'
+   print*,'eg:    ldpcsim    10   1000    0.84'
+   print*,'If s is negative, then value is ignored and sigma is calculated from SNR.'
    return
 endif
 call getarg(1,arg)
