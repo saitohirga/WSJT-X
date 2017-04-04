@@ -299,6 +299,7 @@ set (wsjt_FSRCS
   lib/badmsg.f90
   lib/bpdecode40.f90
   lib/bpdecode144.f90
+  lib/fsk4hf/bpdecode120.f90
   lib/fsk4hf/bpdecode168.f90
   lib/baddata.f90
   lib/ccf2.f90
@@ -324,6 +325,7 @@ set (wsjt_FSRCS
   lib/encode4.f90
   lib/encode_msk40.f90
   lib/encode_msk144.f90
+  lib/fsk4hf/encode120.f90
   lib/fsk4hf/encode168.f90
   lib/entail.f90
   lib/ephem.f90
@@ -390,6 +392,7 @@ set (wsjt_FSRCS
   lib/jt9_decode.f90
   lib/jt9fano.f90
   lib/ldpcsim144.f90
+  lib/fsk4hf/ldpcsim120.f90
   lib/fsk4hf/ldpcsim168.f90
   lib/ldpcsim40.f90
   lib/libration.f90
@@ -1084,10 +1087,13 @@ target_link_libraries (jt65 wsjt_fort wsjt_cxx)
 add_executable (ldpcsim40 lib/ldpcsim40.f90 wsjtx.rc)
 target_link_libraries (ldpcsim40 wsjt_fort wsjt_cxx)
 
+add_executable (ldpcsim120 lib/fsk4hf/ldpcsim120.f90 lib/crc.cpp wsjtx.rc)
+target_link_libraries (ldpcsim120 wsjt_fort wsjt_cxx)
+
 add_executable (ldpcsim144 lib/ldpcsim144.f90 wsjtx.rc)
 target_link_libraries (ldpcsim144 wsjt_fort wsjt_cxx)
 
-add_executable (ldpcsim168 lib/fsk4hf/ldpcsim168.f90 wsjtx.rc)
+add_executable (ldpcsim168 lib/fsk4hf/ldpcsim168.f90 lib/crc.cpp wsjtx.rc)
 target_link_libraries (ldpcsim168 wsjt_fort wsjt_cxx)
 
 add_executable (msk144sim lib/msk144sim.f90 wsjtx.rc)
