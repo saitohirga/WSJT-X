@@ -266,10 +266,14 @@ set (wsjtx_CXXSRCS
   )
 
 set (wsjt_CXXSRCS
-  lib/crc.cpp
+  lib/crc10.cpp
+  lib/crc12.cpp
   )
 # deal with a GCC v6 UB error message
-set_source_files_properties (lib/crc.cpp PROPERTIES COMPILE_FLAGS -fpermissive)
+set_source_files_properties (
+  lib/crc10.cpp
+  lib/crc12.cpp
+  PROPERTIES COMPILE_FLAGS -fpermissive)
 
 if (WIN32)
   set (wsjt_CXXSRCS
@@ -1087,13 +1091,13 @@ target_link_libraries (jt65 wsjt_fort wsjt_cxx)
 add_executable (ldpcsim40 lib/ldpcsim40.f90 wsjtx.rc)
 target_link_libraries (ldpcsim40 wsjt_fort wsjt_cxx)
 
-add_executable (ldpcsim120 lib/fsk4hf/ldpcsim120.f90 lib/crc.cpp wsjtx.rc)
+add_executable (ldpcsim120 lib/fsk4hf/ldpcsim120.f90 wsjtx.rc)
 target_link_libraries (ldpcsim120 wsjt_fort wsjt_cxx)
 
 add_executable (ldpcsim144 lib/ldpcsim144.f90 wsjtx.rc)
 target_link_libraries (ldpcsim144 wsjt_fort wsjt_cxx)
 
-add_executable (ldpcsim168 lib/fsk4hf/ldpcsim168.f90 lib/crc.cpp wsjtx.rc)
+add_executable (ldpcsim168 lib/fsk4hf/ldpcsim168.f90 wsjtx.rc)
 target_link_libraries (ldpcsim168 wsjt_fort wsjt_cxx)
 
 add_executable (msk144sim lib/msk144sim.f90 wsjtx.rc)
