@@ -288,6 +288,25 @@ if (WIN32)
 endif (WIN32)
 
 set (wsjt_FSRCS
+  # put module sources first in the hope that they get rebuilt before use
+  lib/crc.f90
+  lib/fftw3mod.f90
+  lib/hashing.f90
+  lib/iso_c_utilities.f90
+  lib/jt4.f90
+  lib/jt4_decode.f90
+  lib/jt65_decode.f90
+  lib/jt65_mod.f90
+  lib/jt9_decode.f90
+  lib/options.f90
+  lib/packjt.f90
+  lib/readwav.f90
+  lib/timer_C_wrapper.f90
+  lib/timer_impl.f90
+  lib/timer_module.f90
+  lib/wavhdr.f90
+
+  # remaining non-module sources
   lib/addit.f90
   lib/afc65b.f90
   lib/afc9.f90
@@ -312,7 +331,6 @@ set (wsjt_FSRCS
   lib/chkmsg.f90
   lib/chkss2.f90
   lib/coord.f90
-  lib/crc.f90
   lib/db.f90
   lib/decode4.f90
   lib/decode65a.f90
@@ -343,7 +361,6 @@ set (wsjt_FSRCS
   lib/fchisq.f90
   lib/fchisq0.f90
   lib/fchisq65.f90
-  lib/fftw3mod.f90
   lib/fil3.f90
   lib/fil3c.f90
   lib/fil4.f90
@@ -377,7 +394,6 @@ set (wsjt_FSRCS
   lib/grayline.f90
   lib/grid2deg.f90
   lib/hash.f90
-  lib/hashing.f90
   lib/hint65.f90
   lib/hspec.f90
   lib/indexx.f90
@@ -387,13 +403,7 @@ set (wsjt_FSRCS
   lib/interleave9.f90
   lib/inter_wspr.f90
   lib/iscat.f90
-  lib/iso_c_utilities.f90
   lib/jplsubs.f
-  lib/jt4.f90
-  lib/jt4_decode.f90
-  lib/jt65_decode.f90
-  lib/jt65_mod.f90
-  lib/jt9_decode.f90
   lib/jt9fano.f90
   lib/ldpcsim144.f90
   lib/fsk4hf/ldpcsim120.f90
@@ -420,8 +430,6 @@ set (wsjt_FSRCS
   lib/msk144signalquality.f90
   lib/msk144sim.f90
   lib/mskrtd.f90
-  lib/options.f90
-  lib/packjt.f90
   lib/pctile.f90
   lib/peakdt9.f90
   lib/peakup.f90
@@ -429,7 +437,6 @@ set (wsjt_FSRCS
   lib/prog_args.f90
   lib/ps4.f90
   lib/qra64a.f90
-  lib/readwav.f90
   lib/refspectrum.f90
   lib/savec2.f90
   lib/sec_midn.f90
@@ -460,9 +467,6 @@ set (wsjt_FSRCS
   lib/sync9f.f90
   lib/sync9w.f90
   lib/synciscat.f90
-  lib/timer_C_wrapper.f90
-  lib/timer_impl.f90
-  lib/timer_module.f90
   lib/timf2.f90
   lib/tweak1.f90
   lib/twkfreq.f90
@@ -472,10 +476,8 @@ set (wsjt_FSRCS
   lib/update_hasharray.f90
   lib/wav11.f90
   lib/wav12.f90
-  lib/wavhdr.f90
   lib/xcor.f90
   lib/xcor4.f90
-  lib/wavhdr.f90
   lib/wqencode.f90
   lib/wspr_downsample.f90
   lib/zplot9.f90
