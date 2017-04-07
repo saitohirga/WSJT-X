@@ -332,6 +332,7 @@ set (wsjt_FSRCS
   lib/chkss2.f90
   lib/coord.f90
   lib/db.f90
+  lib/fsk4hf/dbpsksim.f90
   lib/decode4.f90
   lib/decode65a.f90
   lib/decode65b.f90
@@ -381,6 +382,7 @@ set (wsjt_FSRCS
   lib/gen4.f90
   lib/gen65.f90
   lib/gen9.f90
+  lib/fsk4hf/genbpsk.f90
   lib/geniscat.f90
   lib/genmsk144.f90
   lib/genmsk40.f90
@@ -474,6 +476,7 @@ set (wsjt_FSRCS
   lib/unpackmsg144.f90
   lib/update_recent_calls.f90
   lib/update_hasharray.f90
+  lib/fsk4hf/watterson.f90
   lib/wav11.f90
   lib/wav12.f90
   lib/xcor.f90
@@ -1095,6 +1098,9 @@ target_link_libraries (ldpcsim40 wsjt_fort wsjt_cxx)
 
 add_executable (ldpcsim120 lib/fsk4hf/ldpcsim120.f90 wsjtx.rc)
 target_link_libraries (ldpcsim120 wsjt_fort wsjt_cxx)
+
+add_executable (dbpsksim lib/fsk4hf/dbpsksim.f90 wsjtx.rc)
+target_link_libraries (dbpsksim wsjt_fort wsjt_cxx)
 
 add_executable (ldpcsim144 lib/ldpcsim144.f90 wsjtx.rc)
 target_link_libraries (ldpcsim144 wsjt_fort wsjt_cxx)

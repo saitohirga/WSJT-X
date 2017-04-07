@@ -18,7 +18,7 @@ CFLAGS = -O2 -I.
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:	fsk4sim.exe
+all:	dbpsksim.exe
 
 OBJS0 = testpsk.o four2a.o bpfilter.o nonlinear.o tweak1.o spectrum.o smo.o
 testpsk: $(OBJS0)
@@ -36,12 +36,29 @@ OBJS3 = fsk2sim.o four2a.o smo.o wavhdr.o gran.o
 fsk2sim: $(OBJS3)
 	$(FC) -o fsk2sim $(OBJS3) C:\JTSDK\fftw3f\libfftw3f-3.dll
 
-OBJS4 = fsk4sim.o four2a.o wavhdr.o gran.o tweak1.o genfsk4.o \
-      dopspread.o smo.o smo121.o
+OBJS4 = fsk4sim.o four2a.o gran.o genfsk4.o smo.o getsnr.o spec4.o \
+      watterson.o db.o snr2_wsprlf.o pctile.o shell.o snr_wsprlf.o
 fsk4sim.exe: $(OBJS4)
 	$(FC) -o fsk4sim.exe $(OBJS4) C:\JTSDK\fftw3f\libfftw3f-3.dll
 
+OBJS5 = wsprlf.o four2a.o downsample.o
+wsprlf.exe:	$(OBJS5)
+	$(FC) -o wsprlf.exe $(OBJS5) C:\JTSDK\fftw3f\libfftw3f-3.dll
+
+OBJS6 = wspr_gmsk.o four2a.o gaussfilt.o
+wspr_gmsk.exe: $(OBJS6)
+	$(FC) -o wspr_gmsk.exe $(OBJS6) C:\JTSDK\fftw3f\libfftw3f-3.dll
+
+OBJS7 = wspr_msk.o four2a.o bpfilter.o
+wspr_msk.exe: $(OBJS7)
+	$(FC) -o wspr_msk.exe $(OBJS7) C:\JTSDK\fftw3f\libfftw3f-3.dll
+
+OBJS8 = dbpsksim.o four2a.o gran.o genbpsk.o watterson.o db.o \
+      encode120.o bpdecode120.o platanh.o
+dbpsksim.exe: $(OBJS8)
+	$(FC) -o dbpsksim.exe $(OBJS8) C:\JTSDK\fftw3f\libfftw3f-3.dll
+	
 .PHONY : clean
 
 clean:
-	$(RM) *.o testpsk.exe testfsk.exe fsk2sim.exe fsk4sim.exe
+	$(RM) *.o testpsk.exe testfsk.exe fsk2sim.exe fsk4sim.exe wsprlf.exe

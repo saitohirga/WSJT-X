@@ -12,6 +12,7 @@ integer*1, target:: i1Msg8BitBytes(9)
 integer*1, target:: i1Dec8BitBytes(9)
 integer*1 msgbits(60)
 integer*1 apmask(120)
+integer*1 cw(120)
 integer*2 checksum
 integer colorder(120)
 integer nerrtot(120),nerrdec(120),nmpcbad(60)
@@ -156,7 +157,7 @@ do idb = -10, 24
     apmask=0
 
 ! max_iterations is max number of belief propagation iterations
-    call bpdecode120(llr, apmask, max_iterations, decoded, niterations)
+    call bpdecode120(llr, apmask, max_iterations, decoded, niterations, cw)
 
 
 ! If the decoder finds a valid codeword, niterations will be .ge. 0.
