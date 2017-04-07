@@ -1,7 +1,7 @@
-subroutine bpdecode120(llr,apmask,maxiterations,decoded,niterations)
-!
+subroutine bpdecode120(llr,apmask,maxiterations,decoded,niterations,cw)
+
 ! A log-domain belief propagation decoder for the (120,60) code.
-!
+
 integer, parameter:: N=120, K=60, M=N-K
 integer*1 codeword(N),cw(N),apmask(N)
 integer  colorder(N)
