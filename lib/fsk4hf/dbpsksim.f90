@@ -227,7 +227,9 @@ program dbpsksim
         apmask=0
         max_iterations=10
         call bpdecode120(llr,apmask,max_iterations,decoded,niterations,cw)
-        if(niterations.lt.0 .or. count(msgbits.ne.decoded).gt.0) nfe2=nfe2+1    
+        if(niterations.ge.0) call chkcrc10(decoded,nbadcrc)
+        if(niterations.lt.0 .or. count(msgbits.ne.decoded).gt.0 .or.        &
+             nbadcrc.ne.0) nfe2=nfe2+1
      enddo
      
      fsigma=sqrt(sqf/iters)
