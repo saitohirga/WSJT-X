@@ -327,6 +327,7 @@ set (wsjt_FSRCS
   lib/baddata.f90
   lib/ccf2.f90
   lib/ccf65.f90
+  lib/fsk4hf/chkcrc10.f90
   lib/chkhist.f90
   lib/chkmsg.f90
   lib/chkss2.f90
