@@ -181,7 +181,7 @@ do idb = -14, 20
           dllr(in)=damp*gran()  
         enddo
         llrd=llr+dllr      
-        call bpdecode120(llrd, apmask, max_iterations, decoded, niterations, cw)
+        call bpdecode300(llrd, apmask, max_iterations, decoded, niterations, cw)
         if( niterations .ge. 0 ) exit 
       enddo
     endif  
