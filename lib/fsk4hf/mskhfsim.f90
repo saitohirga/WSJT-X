@@ -28,19 +28,16 @@ program msksim
   complex csync(0:NZ-1)                 !Sync symbols only, from cbb
   complex cb13(0:N13-1)                 !Barker 13 waveform
   complex c(0:NZ-1)                     !Complex waveform
-  complex cs(0:NZ-1)                    !For computing spectrum
-  complex c2(0:NFFT1-1)                 !Short spectra
   complex zz(NS+ND)                     !Complex symbol values (intermediate)
-  complex z,z0
-  real s(-NH1+1:NH1)                    !Coarse spectrum
+  complex z
   real xnoise(0:NZ-1)                   !Generated random noise
   real ynoise(0:NZ-1)                   !Generated random noise
-  real x(NS),yi(NS),yq(NS)              !For complex polyfit
   real rxdata(ND),llr(ND)               !Soft symbols
   real pp(2*NSPS)                       !Shaped pulse for OQPSK
   real a(5)                             !For twkfreq1
   real aa(20),bb(20)                    !Fitted polyco's
   integer id(NS+ND)                     !NRZ values (+/-1) for Sync and Data
+  integer ierror(NS+ND)
   integer icw(NN)
   integer*1 msgbits(KK),decoded(KK),apmask(ND),cw(ND)
 !  integer*1 codeword(ND)
@@ -121,84 +118,12 @@ program msksim
            c=c + cmplx(xnoise,ynoise)            !Add AWGN noise
         endif
 
-!----------------------------------------------------------------- fc1
-! First attempt at finding carrier frequency, fc1: low-resolution power spectra
-        nspec=NZ/NFFT1
-        df1=fs/NFFT1
-        s=0.
-        do k=1,nspec
-           ia=(k-1)*N2
-           ib=ia+N2-1
-           c2(0:N2-1)=c(ia:ib)
-           c2(N2:)=0.
-           call four2a(c2,NFFT1,1,-1,1)
-           do i=0,NFFT1-1
-              j=i
-              if(j.gt.NH1) j=j-NFFT1
-              s(j)=s(j) + real(c2(i))**2 + aimag(c2(i))**2
-           enddo
-        enddo
-!        call smo121(s,NFFT1)
-        smax=0.
-        ipk=0
-        fc1=0.
-        ia=nint(40.0/df1)
-        do i=-ia,ia
-           f=i*df1
-           if(s(i).gt.smax) then
-              smax=s(i)
-              ipk=i
-              fc1=f
-           endif
-!            write(51,3001) f,s(i),db(s(i))
-! 3001       format(f10.3,e12.3,f10.3)
-        enddo
-
-! The following is for testing SNR calibration:
-!        sp3n=(s(ipk-1)+s(ipk)+s(ipk+1))               !Sig + 3*noise
-!        base=(sum(s)-sp3n)/(NFFT1-3.0)                !Noise per bin
-!        psig=sp3n-3*base                              !Sig only
-!        pnoise=(2500.0/df1)*base                      !Noise in 2500 Hz
-!        xsnrdb=db(psig/pnoise)
-
-        a(1)=-fc1
-        a(2:5)=0.
-        call twkfreq1(c,NZ,fs,a,cs)         !Mix down by fc1
-
-!----------------------------------------------------------------- fc2
-! Filter, square, then FFT to get refined carrier frequency fc2.
-        call four2a(cs,NZ,1,-1,1)          !To freq domain
-        df=fs/NZ
-        ia=nint(0.75*baud/df) 
-        cs(ia:NZ-1-ia)=0.                  !Save only freqs around fc1
-        call four2a(cs,NZ,1,1,1)           !Back to time domain
-        cs=cs/NZ
-        cs=cs*cs                           !Square the data
-        call four2a(cs,NZ,1,-1,1)          !Compute squared spectrum
-
-! Find two peaks separated by baud
-        pmax=0.
-        fc2=0.
-        ic=nint(baud/df)
-        ja=nint(0.5*baud/df)
-        do j=-ja,ja
-           f2=j*df
-           ia=nint((f2-0.5*baud)/df)
-           if(ia.lt.0) ia=ia+NZ
-           ib=nint((f2+0.5*baud)/df)
-           p=real(cs(ia))**2 + aimag(cs(ia))**2 +                        &
-                real(cs(ib))**2 + aimag(cs(ib))**2           
-           if(p.gt.pmax) then
-              pmax=p
-              fc2=0.5*f2
-           endif
-!           write(52,1200) f2,p,db(p)
-!1200       format(f10.3,2f15.3)
-        enddo
+        call getfc1(c,fc1)                       !First approx for freq
+        call getfc2(c,fc1,fc2)                   !Refined freq
         sqf=sqf + (fc1+fc2-f0)**2
         a(1)=-(fc1+fc2)
         a(2:5)=0.
-        call twkfreq1(c,NZ,fs,a,c)         !Mix c down by fc1+fc2
+        call twkfreq1(c,NZ,fs,a,c)          !Mix c down by fc1+fc2
 
 !        z=sum(c(1680:2095)*cb13)/208.0     !Get phase from Barker 13 vector
 !        z0=z/abs(z)
@@ -217,104 +142,13 @@ program msksim
 !1220       format(i6,3f10.4)
         enddo
         xdt=jpk/fs
+   
+        call cpolyfit(c,pp,id,maxn,aa,bb,zz)
+        nterms=maxn
 
-!------------------------------------------------------------------ cpolyfit
-        ib=NSPS-1
-        ib2=N2-1
-        n=0
-        do j=1,117                                !First-pass demodulation
-           ia=ib+1
-           ib=ia+N2-1
-           zz(j)=sum(pp*c(ia:ib))/NSPS
-           if(abs(id(j)).eq.2) then               !Save all sync symbols
-              n=n+1
-              x(n)=float(ia+ib)/NZ - 1.0
-              yi(n)=real(zz(j))*0.5*id(j)
-              yq(n)=aimag(zz(j))*0.5*id(j)
-!              write(54,1225) n,x(n),yi(n),yq(n)
-!1225          format(i5,3f12.4)
-           endif
-           if(j.le.116) then
-              zz(j+117)=sum(pp*c(ia+NSPS:ib+NSPS))/NSPS
-           endif
-        enddo
-
-        aa=0.
-        bb=0.
-        nterms=0
-        if(maxn.gt.0) then
-! Fit sync info with a complex polynomial
-           npts=n
-           mode=0
-           chisqa0=1.e30
-           chisqb0=1.e30
-           do nterms=1,maxn
-              call polyfit4(x,yi,yi,npts,nterms,mode,aa,chisqa)
-              call polyfit4(x,yq,yq,npts,nterms,mode,bb,chisqb)
-              if(chisqa/chisqa0.ge.0.98 .and. chisqb/chisqb0.ge.0.98) exit
-              chisqa0=chisqa
-              chisqb0=chisqb
-           enddo
-        endif
-
-!-------------------------------------------------------------- Soft Symbols
-        n=0
-        do j=1,117
-           xx=j*2.0/117.0 - 1.0
-           yii=1.
-           yqq=0.
-           if(nterms.gt.0) then
-              yii=aa(1)
-              yqq=bb(1)
-              do i=2,nterms
-                 yii=yii + aa(i)*xx**(i-1)
-                 yqq=yqq + bb(i)*xx**(i-1)
-              enddo
-           endif
-           z0=cmplx(yii,yqq)
-           z=zz(j)*conjg(z0)
-           if(abs(id(j)).eq.2) then
-              if(real(z)*id(j).lt.0) then
-                 nhardsync=nhardsync+1
-                 nhardsync0=nhardsync0+1
-              endif
-!              write(55,2002) j,id(j)/2,xx,z*id(j)/2    !Sync bit
-!2002          format(2i5,3f10.3)
-           else
-              p=real(z)                                !Data bit
-              n=n+1
-              rxdata(n)=p
-              ierr=0
-              if(id(j)*p.lt.0) ierr=1
-              nhard0=nhard0+ierr
-              nhard=nhard+ierr              
-!              write(56,2003) j,id(j),n,ierr,nhard,xx,p*id(j),z
-!2003          format(5i6,4f10.3)
-           endif
-        enddo
-
-        do j=118,233
-           xx=(j-116.5)*2.0/117.0 - 1.0
-           yii=1.
-           yqq=0.
-           if(nterms.gt.0) then
-              yii=aa(1)
-              yqq=bb(1)
-              do i=2,nterms
-                 yii=yii + aa(i)*xx**(i-1)
-                 yqq=yqq + bb(i)*xx**(i-1)
-              enddo
-           endif
-           z0=cmplx(yii,yqq)
-           z=zz(j)*conjg(z0)
-           p=aimag(z)
-           n=n+1
-           rxdata(n)=p
-           ierr=0
-           if(id(j)*p.lt.0) ierr=1
-           nhard=nhard+ierr
-        enddo
-
+        call msksoftsym(zz,aa,bb,id,nterms,ierror,rxdata)
+        
+!---------------------------------------------------------------- Decode
         rxav=sum(rxdata)/ND
         rx2av=sum(rxdata*rxdata)/ND
         rxsig=sqrt(rx2av-rxav*rxav)
@@ -330,11 +164,18 @@ program msksim
         if(niterations.lt.0 .or. count(msgbits.ne.decoded).gt.0 .or.        &
              nbadcrc.ne.0) ifer=1
         nfe=nfe+ifer
-        write(58,1045) snrdb,nhard0,nhardsync0,niterations,nbadcrc,ifer,    &
-             nterms,fc1+fc2-f0,xdt
-        if(ifer.eq.1) write(59,1045) snrdb,nhard0,nhardsync0,niterations,   &
-             nbadcrc,ifer,nterms,fc1+fc2-f0,xdt
-1045    format(f6.1,6i5,2f8.3)
+!        write(58,1045) snrdb,nhard0,nhardsync0,niterations,nbadcrc,ifer,    &
+!             nterms,fc1+fc2-f0,xdt
+!        if(ifer.eq.1) write(59,1045) snrdb,nhard0,nhardsync0,niterations,   &
+!             nbadcrc,ifer,nterms,fc1+fc2-f0,xdt
+!1045    format(f6.1,6i5,2f8.3)
+!        if(ifer.gt.0) then
+!           write(63,1046) iter,nhard0,nhardsync0
+!1046      format(/3i6)
+!           write(63,1047) ierror(1:117)
+!           write(63,1047) ierror(118:233)
+!1047       format(70i1)
+!        endif
      enddo
      fsigma=sqrt(sqf/iters)
      ber=float(nhard)/((NS+ND)*iters)
@@ -345,3 +186,8 @@ program msksim
   enddo
 
 999 end program msksim
+
+  include 'getfc1.f90'
+  include 'getfc2.f90'
+  include 'cpolyfit.f90'
+  include 'msksoftsym.f90'
