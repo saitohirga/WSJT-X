@@ -47,8 +47,8 @@ program msksim
 
   nargs=iargc()
   if(nargs.ne.6) then
-     print*,'Usage:   msksim f0(Hz) delay(ms) fspread(Hz) maxn iters snr(dB)'
-     print*,'Example: msksim 20 0 0 5 10 -20'
+     print*,'Usage:   mskhfsim f0(Hz) delay(ms) fspread(Hz) maxn iters snr(dB)'
+     print*,'Example: mskhfsim 0 0 0 5 10 -20'
      print*,'Set snr=0 to cycle through a range'
      go to 999
   endif
