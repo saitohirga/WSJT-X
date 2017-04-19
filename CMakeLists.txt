@@ -334,6 +334,7 @@ set (wsjt_FSRCS
   lib/chkmsg.f90
   lib/chkss2.f90
   lib/coord.f90
+  lib/fsk4hf/cpolyfit.f90
   lib/db.f90
   lib/decode4.f90
   lib/decode65a.f90
@@ -389,6 +390,8 @@ set (wsjt_FSRCS
   lib/genmsk144.f90
   lib/genmsk40.f90
   lib/fsk4hf/genmskhf.f90
+  lib/fsk4hf/getfc1.f90
+  lib/fsk4hf/getfc2.f90
   lib/genqra64.f90
   lib/genwspr.f90
   lib/geodist.f90
@@ -437,6 +440,7 @@ set (wsjt_FSRCS
   lib/msk144sim.f90
   lib/fsk4hf/mskhfsim.f90
   lib/mskrtd.f90
+  lib/fsk4hf/msksoftsym.f90
   lib/pctile.f90
   lib/peakdt9.f90
   lib/peakup.f90
