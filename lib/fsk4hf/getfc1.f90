@@ -54,6 +54,5 @@ subroutine getfc1(c,fc1)
 !        pnoise=(2500.0/df1)*base                      !Noise in 2500 Hz
 !        xsnrdb=db(psig/pnoise)
 
-
   return
 end subroutine getfc1
