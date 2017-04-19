@@ -329,12 +329,12 @@ set (wsjt_FSRCS
   lib/ccf2.f90
   lib/ccf65.f90
   lib/fsk4hf/chkcrc10.f90
+  lib/fsk4hf/chkcrc12.f90
   lib/chkhist.f90
   lib/chkmsg.f90
   lib/chkss2.f90
   lib/coord.f90
   lib/db.f90
-  lib/fsk4hf/dbpsksim.f90
   lib/decode4.f90
   lib/decode65a.f90
   lib/decode65b.f90
@@ -385,10 +385,10 @@ set (wsjt_FSRCS
   lib/gen4.f90
   lib/gen65.f90
   lib/gen9.f90
-  lib/fsk4hf/genbpsk.f90
   lib/geniscat.f90
   lib/genmsk144.f90
   lib/genmsk40.f90
+  lib/fsk4hf/genmskhf.f90
   lib/genqra64.f90
   lib/genwspr.f90
   lib/geodist.f90
@@ -435,11 +435,13 @@ set (wsjt_FSRCS
   lib/mskrtd.f90
   lib/msk144signalquality.f90
   lib/msk144sim.f90
+  lib/fsk4hf/mskhfsim.f90
   lib/mskrtd.f90
   lib/pctile.f90
   lib/peakdt9.f90
   lib/peakup.f90
   lib/polyfit.f90
+  lib/fsk4hf/polyfit4.f90
   lib/prog_args.f90
   lib/ps4.f90
   lib/qra64a.f90
@@ -476,6 +478,7 @@ set (wsjt_FSRCS
   lib/timf2.f90
   lib/tweak1.f90
   lib/twkfreq.f90
+  lib/fsk4hf/twkfreq1.f90
   lib/twkfreq65.f90
   lib/unpackmsg144.f90
   lib/update_recent_calls.f90
@@ -1114,6 +1117,9 @@ target_link_libraries (ldpcsim144 wsjt_fort wsjt_cxx)
 
 add_executable (ldpcsim168 lib/fsk4hf/ldpcsim168.f90 wsjtx.rc)
 target_link_libraries (ldpcsim168 wsjt_fort wsjt_cxx)
+
+add_executable (mskhfsim lib/fsk4hf/mskhfsim.f90 wsjtx.rc)
+target_link_libraries (mskhfsim wsjt_fort wsjt_cxx)
 
 add_executable (msk144sim lib/msk144sim.f90 wsjtx.rc)
 target_link_libraries (msk144sim wsjt_fort wsjt_cxx)

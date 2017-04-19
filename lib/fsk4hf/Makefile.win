@@ -58,6 +58,26 @@ OBJS8 = dbpsksim.o four2a.o gran.o genbpsk.o watterson.o db.o \
 dbpsksim.exe: $(OBJS8)
 	$(FC) -o dbpsksim.exe $(OBJS8) C:\JTSDK\fftw3f\libfftw3f-3.dll
 	
+OBJS9 = fsk4a.o four2a.o gran.o genfsk4a.o spec4.o \
+      watterson.o db.o
+fsk4a.exe: $(OBJS9)
+	$(FC) -o fsk4a.exe $(OBJS9) C:\JTSDK\fftw3f\libfftw3f-3.dll
+
+OBJS10 = gmsk8.o gaussfilt.o four2a.o
+gmsk8.exe: $(OBJS10)
+	   $(FC) -o gmsk8.exe $(OBJS10) C:\JTSDK\fftw3f\libfftw3f-3.dll
+	   
+OBJS11 = gmsksim.o four2a.o gran.o gengmsk.o genbpsk.o watterson.o db.o \
+      encode168.o bpdecode168.o platanh.o gaussfilt.o tweak1.o smo121.o
+gmsksim.exe: $(OBJS11)
+	$(FC) -o gmsksim.exe $(OBJS11) C:\JTSDK\fftw3f\libfftw3f-3.dll
+
+OBJS12 = mskhfsim.o four2a.o gran.o genmskhf.o watterson.o db.o \
+      encode168.o bpdecode168.o platanh.o twkfreq1.o smo121.o \
+      polyfit4.o 
+mskhfsim.exe: $(OBJS12)
+	$(FC) -o mskhfsim.exe $(OBJS12) C:\JTSDK\fftw3f\libfftw3f-3.dll
+
 .PHONY : clean
 
 clean:

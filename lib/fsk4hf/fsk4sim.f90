@@ -1,61 +1,45 @@
 program fsk4sim
 
-  use wavhdr
-  parameter (NR=4)                       !Ramp up, ramp down
-  parameter (NS=12)                      !Sync symbols (2 @ Costas 4x4)
-  parameter (ND=84)                      !Data symbols: LDPC (168,84), r=1/2
-  parameter (NN=NR+NS+ND)                !Total symbols (100)
-  parameter (NSPS=2688)                  !Samples per symbol at 12000 sps
-  parameter (NZ=NSPS*NN)                 !Samples in waveform (268800)
-  parameter (NSYNC=NS*NSPS)              !Samples in sync waveform (32256)
-  parameter (NFFT=512*1024)
-  parameter (NDOWN=84)                   !Downsample factor
-  parameter (NFFT2=NZ/NDOWN,NH2=NFFT2/2) !3200
-  parameter (NSPSD=NFFT2/NN)             !Samples per symbol after downsample
+  parameter (ND=60)                      !Data symbols: LDPC (120,60), r=1/2
+  parameter (NN=ND)                      !Total symbols (60)
+  parameter (NSPS=57600)                 !Samples per symbol at 12000 sps
+  parameter (NZ=NSPS*NN)                 !Samples in waveform (3456000)
 
-  type(hdr) header                      !Header for .wav file
   character*8 arg
-  complex c(0:NFFT-1)                   !Complex waveform
-  complex cf(0:NFFT-1)
-  complex cs(0:NSYNC-1)
-  complex ct(0:NSPS-1)
-  complex csync(0:NSYNC-1)
-  complex c2(0:NFFT2-1)
-  complex c2a(0:NSPSD-1)
-  complex cf2(0:NFFT2-1)
-  complex cx(0:3,NN)
-  complex z,zpk
-  logical snrtest
-  real*8 twopi,dt,fs,baud,f0,dphi,phi
+  complex c(0:NZ-1)                      !Complex waveform
+  complex cr(0:NZ-1)
+  complex cs(NSPS,NN)
+  complex cps(0:3)
+  complex ct(0:2*NN-1)
+  complex z,w,zsum
+  real r(0:NZ-1)
+  real s(NSPS,NN)
+  real savg(NSPS)
   real tmp(NN)                          !For generating random data
   real xnoise(0:NZ-1)                   !Generated random noise
-  real s(NSYNC/2)
   real ps(0:3)
-!  integer*2 iwave(NZ)                   !Generated waveform
-  integer id(NN)                        !Encoded 2-bit data (values 0-3)
-  integer id2(NN)                       !Decoded after downsampling
-  integer icos4(4)                      !4x4 Costas array
-  data icos4/0,1,3,2/,eps/1.e-8/
+  integer id(NN)                         !Encoded 2-bit data (values 0-3)
+  integer id2(NN)                        !Recovered data
+  equivalence (r,cr)
 
+  nnn=0
   nargs=iargc()
-  if(nargs.ne.4) then
-     print*,'Usage: fsk8sim f0 fspread iters snr'
+  if(nargs.ne.6) then
+     print*,'Usage: fsk8sim f0 delay(ms) fspread(Hz) nts iters snr(dB)'
      go to 999
   endif
   call getarg(1,arg)
   read(arg,*) f0                        !Low tone frequency
   call getarg(2,arg)
-  read(arg,*) fspread
+  read(arg,*) delay
   call getarg(3,arg)
-  read(arg,*) iters
+  read(arg,*) fspread
   call getarg(4,arg)
+  read(arg,*) nts
+  call getarg(5,arg)
+  read(arg,*) iters
+  call getarg(6,arg)
   read(arg,*) snrdb
-
-  snrtest=.false.
-  if(iters.lt.0) then
-     snrtest=.true.
-     iters=abs(iters)
-  endif
 
   twopi=8.d0*atan(1.d0)
   fs=12000.d0
@@ -63,38 +47,16 @@ program fsk4sim
   ts=NSPS*dt
   baud=1.d0/ts
   txt=NZ*dt
-  
-! Generate sync waveform
-  phi=0.d0
-  k=-1
-  do j=1,12
-     n=mod(j-1,4) + 1
-     dphi=twopi*(icos4(n)*baud)*dt
-     do i=1,NSPS
-        k=k+1
-        phi=phi+dphi
-        if(phi.gt.twopi) phi=phi-twopi
-        xphi=phi
-        csync(k)=cmplx(cos(xphi),-sin(xphi))
-     enddo
-  enddo
   bandwidth_ratio=2500.0/6000.0
-  header=default_header(12000,NZ)
+  write(*,1000) baud,5*baud,txt,delay,fspread,nts
+1000 format('Baud:',f6.3,'  BW:',f5.1,'  TxT:',f5.1,'  Delay:',f5.2,   &
+          '  fSpread:',f5.2,'  nts:',i3/)
 
-  write(*,1000) 2*ND,ND,NS,NN,NSPS,baud,txt,fspread
-1000 format('LDPC('i3,',',i2,')  SyncSym:',i2,'  ChanSym:',i3,'  NSPS:',i4, &
-          '  Baud:',f6.3,'  TxT:',f5.1,'  fDop:',f5.2/)
-  if(snrtest) then
-     write(*,1002)
-1002 format(5x,'SNR test'/'Requested Measured Difference')
-  else
-     write(*,1004)
-1004 format('  SNR    Sync  Sym1  Sym2  Bits  SyncErr   Sym1Err     BER'/   &
-            60('-'))
-  endif
+  write(*,1004)
+1004 format('  SNR    Sym  Bit   SER     BER    Sym  Bit   SER     BER'/59('-'))
 
-  isna=-15
-  isnb=-27
+  isna=-25
+  isnb=-40
   if(snrdb.ne.0.0) then
      isna=nint(snrdb)
      isnb=isna
@@ -103,204 +65,121 @@ program fsk4sim
      snrdb=isnr
      sig=sqrt(2*bandwidth_ratio) * 10.0**(0.05*snrdb)
      if(snrdb.gt.90.0) sig=1.0
-!     open(10,file='000000_0001.wav',access='stream',status='unknown')
-
-     nsyncerr=0
-     nharderr=0
-     nherr=0
-     nbiterr=0
+     nhard1=0
+     nhard2=0
+     nbit1=0
+     nbit2=0
+     nh2=0
+     nb2=0
      do iter=1,iters
+        nnn=nnn+1
         id=0
-        if(.not.snrtest) then
-           ! Generate random data        
-           call random_number(tmp)
-           where(tmp.ge.0.25 .and. tmp.lt.0.50) id=1
-           where(tmp.ge.0.50 .and. tmp.lt.0.75) id=2
-           where(tmp.ge.0.75) id=3
-           id(1:2)=icos4(3:4)                    !Ramp up
-           id(45:48)=icos4                       !Costas sync
-           id(49:52)=icos4                       !Costas sync
-           id(53:56)=icos4                       !Costas sync
-           id(NN-1:NN)=icos4(1:2)                !Ramp down
-        endif
+        call random_number(tmp)
+        where(tmp.ge.0.25 .and. tmp.lt.0.50) id=1
+        where(tmp.ge.0.50 .and. tmp.lt.0.75) id=2
+        where(tmp.ge.0.75) id=3
 
-        call genfsk4(id,f0,c)                    !Generate the 4-FSK waveform
+        call genfsk4(id,f0,nts,c)                !Generate the 4-FSK waveform
+        call watterson(c,delay,fspread)
         if(sig.ne.1.0) c=sig*c                   !Scale to requested SNR
-
         if(snrdb.lt.90) then
            do i=0,NZ-1                           !Generate gaussian noise
               xnoise(i)=gran()
            enddo
         endif
-        if(fspread.gt.0.0) call dopspread(c,fspread)
-        c(0:NZ-1)=real(c(0:NZ-1)) + xnoise       !Add noise to signal
-
-!        fac=32767.0
-!        rms=100.0
-!        if(snrdb.ge.90.0) iwave(1:NZ)=nint(fac*aimag(c(0:NZ-1)))
-!        if(snrdb.lt.90.0) iwave(1:NZ)=nint(rms*aimag(c(0:NZ-1)))
-!        call set_wsjtx_wav_params(14.0,'JT65    ',1,30,iwave)
-!        write(10) header,iwave                  !Save the .wav file
-
-        ppmax=0.
-        fpk=-99.
-        xdt=-99.
-        df1=12000.0/NSYNC
-        iaa=nint(250.0/df1)
-        ibb=nint(2750.0/df1)
-        if(.not.snrtest) then
-           do j4=-40,40
-              ia=(44+0.25*j4)*NSPS
-              ib=ia+NSYNC-1
-              cs=csync*c(ia:ib)
-              call four2a(cs,NSYNC,1,-1,1)     !Transform to frequency domain
-              s=0.
-              do i=iaa,ibb
-                 s(i)=1.e-6*(real(cs(i))**2 + aimag(cs(i))**2)
-              enddo
-              
-              if(j4.eq.0) then
-                 do i=iaa,ibb
-                    write(66,3301) i*df1,s(i)
-3301                format(f10.3,2f12.6)
-                 enddo
-              endif
-
-              call smo121(s,NSYNC/2)
-
-              if(j4.eq.0) then
-                 do i=iaa,ibb
-                    write(67,3301) i*df1,s(i)
-                 enddo
-              endif
-
-              do i=iaa,ibb                 
-                 if(s(i).gt.ppmax) then
-                    fpk=i*df1
-                    xdt=0.25*j4*ts
-                    ppmax=s(i)
-                 endif
-              enddo
-
-           enddo
-        endif
-        if(xdt.ne.0.0 .or. fpk.ne.1500.0) nsyncerr=nsyncerr+1
-
-! Compute spectrum again
-        cf=c
-        df2=12000.0/NZ
-        call four2a(cf,NZ,1,-1,1)           !Transform to frequency domain
-
-        if(snrtest) then
-           width=5.0*df2 + fspread
-           iz=nint(2500.0/df2) + 2
-           if(iter.eq.1) then
-              pnoise=0.
-              psig=0.
-              n=0
-           endif
-           do i=0,iz                        !Remove spectral sidelobes
-              f=i*df2
-              if(i.gt.NZ/2) f=(i-NZ)*df2
-              p=1.e-6*(real(cf(i))**2 + aimag(cf(i))**2)
-              if(abs(f-f0).lt.width) then
-                 psig=psig+p
-                 n=n+1
-              else
-                 pnoise=pnoise + p
-              endif
-           enddo
-           if(iter.eq.iters) then
-              db=10.0*log10(psig/pnoise)
-              write(*,1010) snrdb,db,db-snrdb
-1010          format(f7.1,2f9.1)
-           endif
-           go to 40
-        endif
-
-! Select a small frequency slice around fpk.
-        cf=cf/NZ
-        ib=nint(fpk/df2)+NH2
-        ia=ib-NFFT2+1
-        cf2=cshift(cf(ia:ib),NH2-1)
-        flo=-baud
-        fhi=4*baud
-        do i=0,NFFT2-1
-           f=i*df2
-           if(i.gt.NH2) f=(i-NFFT2)*df2
-           if(f.le.flo .or. f.ge.fhi) cf2(i)=0.
-           s2=real(cf2(i))**2 + aimag(cf2(i))**2
-           write(15,3001) f,s2,10*log10(s2+eps)
-3001       format(f10.3,2f15.6)
-        enddo
+        r(0:NZ-1)=real(c(0:NZ-1)) + xnoise       !Add noise to signal
         
-        c2=cf2
-        call four2a(c2,NFFT2,1,1,1)        !Back to time domain
+        call snr2_wsprlf(r,freq,snr2500,width,1)
+        write(*,3001) freq,snr2500,width
+3001    format(40x,3f10.3)
+        
+        df=12000.0/(2*NSPS)
+!        i0=nint(f0/df)
+!        i0=nint((1500.0+freq)/df)
+        i0=nint((f0+freq)/df)
+        call spec4(r,cs,s,savg)
 
-        fshift=NSPS*baud/NSPSD
-        dt2=dt*NDOWN
         do j=1,NN
-           ia=(j-1)*NSPSD
-           ib=ia+NSPSD-1
-           c2a=c2(ia:ib)
-           call four2a(c2a,NSPSD,1,-1,1)   !To freq domain
-           cx(0:3,j)=c2a(0:3)
-           ipk=-1
-           zpk=0.
-           pmax=0.0
-           do i=0,3
-              if(abs(cx(i,j)).gt.pmax) then
-                 ipk=i
-                 zpk=cx(i,j)
-                 pmax=abs(zpk)
-              endif
-           enddo
-           id2(j)=ipk
-           if(ipk.ne.id(j)) nherr=nherr+1
-           write(16,3003) j,id(j),ipk,ipk-id(j),abs(zpk),      &
-                atan2(aimag(zpk),real(zpk)),abs(cx(0:3,j))
-3003       format(3i3,i4,6f9.3)
-        enddo
-
-        ipk=0
-        do j=1,NN
-           ia=(j-1)*NSPS + 1
-           ib=ia+NSPS
-           pmax=0.
-           do i=0,3
-              f=fpk + i*baud
-              call tweak1(c(ia:ib),NSPS,-f,ct)
-              z=sum(ct)
-              ps(i)=1.e-3*(real(z)**2 + aimag(z)**2)
-              if(ps(i).gt.pmax) then
-                 ipk=i
-                 pmax=ps(i)
-              endif
-           enddo
-
            nlo=0
            nhi=0
+           ps=s(i0:i0+6*nts:2*nts,j)
+           cps=cs(i0:i0+6*nts:2*nts,j)
            if(max(ps(1),ps(3)).ge.max(ps(0),ps(2))) nlo=1
            if(max(ps(2),ps(3)).ge.max(ps(0),ps(1))) nhi=1
-           if(nlo.ne.iand(id(j),1)) nbiterr=nbiterr+1
-           if(nhi.ne.iand(id(j)/2,1)) nbiterr=nbiterr+1
-           if(ipk.ne.id(j)) nharderr=nharderr+1
-           write(17,1040) j,ps,ipk,id(j),id2(j),2*nhi+nlo,nhi,nlo,nbiterr
-1040       format(i3,4f12.1,7i4)
+           id2(j)=2*nhi+nlo
+           z=cps(id2(j))
+           ct(j-1)=z
         enddo
+        nh1=count(id.ne.id2)
+        nb1=count(iand(id,1).ne.iand(id2,1)) + count(iand(id,2).ne.iand(id2,2))
+
+        ct(NN:)=0.
+        call four2a(ct,2*NN,1,-1,1)
+        df2=baud/(2*NN)
+        ct=cshift(ct,NN)
+        ppmax=0.
+        dfpk=0.
+        do i=0,2*NN-1
+           f=(i-NN)*df2
+           pp=real(ct(i))**2 + aimag(ct(i))**2
+           if(pp.gt.ppmax) then
+              ppmax=pp
+              dfpk=f
+           endif
+        enddo
+
+        zsum=0.
+        do j=1,NN
+           phi=(j-1)*twopi*dfpk*ts
+           w=cmplx(cos(phi),sin(phi))
+           cps=cs(i0:i0+6*nts:2*nts,j)*conjg(w)
+           z=cps(id2(j))
+           ct(j)=z
+           zsum=zsum+z
+           write(12,1042) j,id(j),id2(j),20*ps,atan2(aimag(z),real(z)),  &
+                atan2(aimag(zsum),real(zsum)),zsum
+1042       format(3i2,6f8.3,2f8.1)
+        enddo
+
+        phi0=atan2(aimag(zsum),real(zsum))
+        zsum=0.
+        do j=1,NN
+           phi=(j-1)*twopi*dfpk*ts + phi0
+           w=cmplx(cos(phi),sin(phi))
+           nlo=0
+           nhi=0
+           cps=cs(i0:i0+6*nts:2*nts,j)*conjg(w)
+           ps=real(cps)
+           if(max(ps(1),ps(3)).ge.max(ps(0),ps(2))) nlo=1
+           if(max(ps(2),ps(3)).ge.max(ps(0),ps(1))) nhi=1
+           id2(j)=2*nhi+nlo
+           z=cps(id2(j))
+           ct(j)=z
+           zsum=zsum+z
+        enddo
+        
+        nh2=count(id.ne.id2)
+        nb2=count(iand(id,1).ne.iand(id2,1)) + count(iand(id,2).ne.iand(id2,2))
+        nhard1=nhard1+nh1
+        nhard2=nhard2+nh2
+        nbit1=nbit1+nb1
+        nbit2=nbit2+nb2
+
+        fdiff=1500.0+freq - f0
+        write(13,1040)  snrdb,snr2500,f0,fdiff,width,nh1,nb1,nh2,nb2
+1040    format(2f7.1,f9.2,f7.2,f6.1,2(i8,i6))
 40      continue
      enddo
 
-     if(.not.snrtest) then
-        fsyncerr=float(nsyncerr)/iters
-        ser=float(nharderr)/(NN*iters)
-        ber=float(nbiterr)/(2*NN*iters)
-        write(*,1050)  snrdb,nsyncerr,nharderr,nherr,nbiterr,fsyncerr,ser,ber
-        write(18,1050) snrdb,nsyncerr,nharderr,nherr,nbiterr,fsyncerr,ser,ber
-1050    format(f6.1,4i6,3f10.6)
-     endif
+     ser1=float(nhard1)/(NN*iters)
+     ser2=float(nhard2)/(NN*iters)
+     ber1=float(nbit1)/(2*NN*iters)
+     ber2=float(nbit2)/(2*NN*iters)
+     write(*,1050)  snrdb,nhard1,nbit1,ser1,ber1,nhard2,nbit2,ser2,ber2
+     write(14,1050) snrdb,nhard1,nbit1,ser1,ber1,nhard2,nbit2,ser2,ber2
+1050 format(f6.1,2(2i5,2f8.4))
   enddo
-  if(.not.snrtest) write(*,1060) iters,100*iters,100*iters,200*iters
-1060 format(60('-')/'Max:  ',4i6)
+  write(*,1060) NN*iters,2*NN*iters
+1060 format(59('-')/'Max:  ',2i5)
 
 999 end program fsk4sim
