@@ -125,11 +125,13 @@ program msksim
         a(2:5)=0.
         call twkfreq1(c,NZ,fs,a,c)          !Mix c down by fc1+fc2
 
+! The following may not be necessary?
 !        z=sum(c(1680:2095)*cb13)/208.0     !Get phase from Barker 13 vector
 !        z0=z/abs(z)
 !        c=c*conjg(z0)
 
 !---------------------------------------------------------------- DT
+! Not presently used:
         amax=0.
         jpk=0
         do j=-20*NSPS,20*NSPS              !Get jpk
@@ -138,8 +140,6 @@ program msksim
               amax=abs(z)
               jpk=j
            endif
-!           write(53,1220) j,j*dt,z
-!1220       format(i6,3f10.4)
         enddo
         xdt=jpk/fs
    
@@ -165,19 +165,8 @@ program msksim
         if(niterations.lt.0 .or. count(msgbits.ne.decoded).gt.0 .or.        &
              nbadcrc.ne.0) ifer=1
         nfe=nfe+ifer
-!        write(58,1045) snrdb,nhard0,nhardsync0,niterations,nbadcrc,ifer,    &
-!             nterms,fc1+fc2-f0,xdt
-!        if(ifer.eq.1) write(59,1045) snrdb,nhard0,nhardsync0,niterations,   &
-!             nbadcrc,ifer,nterms,fc1+fc2-f0,xdt
-!1045    format(f6.1,6i5,2f8.3)
-!        if(ifer.gt.0) then
-!           write(63,1046) iter,nhard0,nhardsync0
-!1046      format(/3i6)
-!           write(63,1047) ierror(1:117)
-!           write(63,1047) ierror(118:233)
-!1047       format(70i1)
-!        endif
      enddo
+
      fsigma=sqrt(sqf/iters)
      ber=float(nhard)/((NS+ND)*iters)
      fer=float(nfe)/iters
