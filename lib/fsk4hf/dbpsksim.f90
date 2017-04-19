@@ -5,14 +5,17 @@ program dbpsksim
   parameter (NSPS=28800)                !Samples per symbol at 12000 sps
   parameter (NZ=NSPS*NN)                !Samples in waveform (3484800)
   parameter (NFFT1=65536,NH1=NFFT1/2)
+  parameter (NFFT2=128,NH2=NFFT2/2)
 
   character*8 arg
   complex c(0:NZ-1)                     !Complex waveform
   complex c2(0:NFFT1-1)                 !Short spectra
   complex cr(0:NZ-1)
   complex ct(0:NZ-1)
+  complex cz(0:NFFT2-1)
   complex z0,z,zp
   real s(-NH1+1:NH1)
+  real s2(-NH2+1:NH2)
   real xnoise(0:NZ-1)                   !Generated random noise
   real ynoise(0:NZ-1)                   !Generated random noise
   real rxdata(120),llr(120)
@@ -26,8 +29,8 @@ program dbpsksim
 
   nnn=0
   nargs=iargc()
-  if(nargs.ne.5) then
-     print*,'Usage:   dbpsksim f0(Hz) delay(ms) fspread(Hz) iters snr(dB)'
+  if(nargs.ne.6) then
+     print*,'Usage:   dbpsksim f0(Hz) delay(ms) fspread(Hz) ndiff iters snr(dB)'
      print*,'Example: dbpsksim 1500 0 0 10 -35'
      print*,'Set snr=0 to cycle through a range'
      go to 999
@@ -39,8 +42,10 @@ program dbpsksim
   call getarg(3,arg)
   read(arg,*) fspread
   call getarg(4,arg)
-  read(arg,*) iters
+  read(arg,*) ndiff
   call getarg(5,arg)
+  read(arg,*) iters
+  call getarg(6,arg)
   read(arg,*) snrdb
   
   twopi=8.d0*atan(1.d0)
@@ -50,13 +55,12 @@ program dbpsksim
   baud=1.d0/ts
   txt=NZ*dt
   bandwidth_ratio=2500.0/6000.0
-  ndiff=1                                         !Encode/decode differentially
-  write(*,1000) baud,5*baud,txt,delay,fspread
+  write(*,1000) baud,5*baud,txt,delay,fspread,ndiff
 1000 format('Baud:',f6.3,'  BW:',f4.1,'  TxT:',f6.1,'  Delay:',f5.2,   &
-          '  fSpread:',f5.2/)
+          '  fSpread:',f5.2,'  ndiff:',i2/)
 
   write(*,1004)
-1004 format('  SNR    e1   e2   ber1    ber2    fer1   fer2  fsigma'/55('-'))
+1004 format('  SNR    err   ber    fer   fsigma'/35('-'))
 
   call encode120(msgbits,codeword)                !Encode the test message
   isna=-28
@@ -69,8 +73,8 @@ program dbpsksim
      snrdb=isnr
      sig=sqrt(bandwidth_ratio) * 10.0**(0.05*snrdb)
      if(snrdb.gt.90.0) sig=1.0
-     nhard1=0
-     nhard2=0
+     nhard=0
+     nhardc=0
      nfe1=0
      nfe2=0
      sqf=0.
@@ -89,7 +93,7 @@ program dbpsksim
            c=c + cmplx(xnoise,ynoise)            !Add noise to signal
         endif
 
-! First attempt at finding carrier frequency fc
+! First attempt at finding carrier frequency fc: 64k FFTs ==> avg power spectra
         nspec=NZ/NFFT1
         df1=12000.0/NFFT1
         s=0.
@@ -121,7 +125,7 @@ program dbpsksim
         a=(s(ipk+1)-s(ipk-1))/2.0
         b=(s(ipk+1)+s(ipk-1)-2.0*s(ipk))/2.0
         dx=-a/(2.0*b)
-        fc=fc + df1*dx
+        fc=fc + df1*dx                           !Estimated carrier frequency
         sqf=sqf + (fc-f0)**2
 
 ! The following is for testing SNR calibration:
@@ -132,29 +136,21 @@ program dbpsksim
 !        xsnrdb=db(psig/pnoise)
 
         call genbpsk(id,fc,ndiff,1,cr)           !Generate reference carrier
-        c=c*conjg(cr)                            !Mix to baseband
+        c=c*conjg(cr)                            !Mix signal to baseband
 
         z0=1.0
-        ie0=1
         do j=1,NN                                !Demodulate
            ia=(j-1)*NSPS
            ib=ia+NSPS-1
            z=sum(c(ia:ib))
+           cz(j-1)=z
            zp=z*conjg(z0)
            p=1.e-4*real(zp)
            id1(j)=-1
            if(p.ge.0.0) id1(j)=1
            if(j.ge.2) rxdata(j-1)=p
            z0=z
-           
-! For testing, treat every 3rd symbol as having a known value (i.e., as Sync):
-!           ie=id(j)*ie0
-!           if(mod(j,3).eq.0) write(12,1010) j,ie,1.e-3*ie*z,   &
-!                atan2(aimag(ie*z),real(ie*z))
-!1010       format(2i4,3f10.3)
-!           ie0=ie
         enddo
-        nhard1=nhard1 + count(id1.ne.id)           !Count hard errors
 
         rxav=sum(rxdata)/120
         rx2av=sum(rxdata*rxdata)/120
@@ -166,42 +162,30 @@ program dbpsksim
         max_iterations=10
         call bpdecode120(llr,apmask,max_iterations,decoded,niterations,cw)
 
-! Count the hard errors in id1() and icw()
-!        icw(1)=1
-!        icw(2:NN)=2*cw-1
-!        nid1=0
-!        ncw=0
-!        ie0=1
-!        do j=2,NN
-!           ib=(id(j)+1)/2
-!           ib1=(id1(j)+1)/2
-!           if(ib1.ne.ib) nid1=nid1+1
-!           if(cw(j-1).ne.ib) ncw=ncw+1
-!        enddo
-!        print*,niterations,nid1,ncw
-
 ! Count frame errors
         if(niterations.lt.0 .or. count(msgbits.ne.decoded).gt.0) nfe1=nfe1+1
-       
-! Generate a new reference carrier, using first-pass hard bits
-        call genbpsk(id1,0.0,ndiff,0,cr)
-        ct=c*conjg(cr)
-        call four2a(ct,NZ,1,-1,1)
-        df2=12000.0/NZ
-        pmax=0.
-        do i=0,NZ-1
-           f=i*df2
-           if(i.gt.NZ/2) f=(i-NZ)*df2
-           if(abs(f).lt.1.0) then
-              p=real(ct(i))**2 + aimag(ct(i))**2
-              if(p.gt.pmax) then
-                 pmax=p
-                 fc2=f
-                 ipk=i
-              endif
-           endif
-        enddo
 
+! Find carrier frequency from squared cz array.        
+        cz(121:)=0.
+        cz=cz*cz
+        call four2a(cz,NFFT2,1,-1,1)
+        s2max=0.
+        do i=0,NFFT2-1
+           j=i
+           if(i.gt.NH2) j=j-NFFT2
+           s2(j)=real(cz(i))**2 + aimag(cz(i))**2
+           if(s2(j).gt.s2max) then
+              s2max=s2(j)
+              jpk=j
+           endif
+!           write(16,1200) j*baud/NFFT2,1.e-12*s2(j)
+!1200       format(2f12.3)
+        enddo
+        a=(s2(jpk+1)-s2(jpk-1))/2.0
+        b=(s2(jpk+1)+s2(jpk-1)-2.0*s2(jpk))/2.0
+        dx=-a/(2.0*b)
+        fc2=0.5*(jpk+dx)*baud/NFFT2
+        
         call genbpsk(id,fc2,ndiff,1,cr)         !Generate new ref carrier at fc2
         c=c*conjg(cr)
         z0=1.0
@@ -209,14 +193,21 @@ program dbpsksim
            ia=(j-1)*NSPS
            ib=ia+NSPS-1
            z=sum(c(ia:ib))
+           if(j.eq.1) z0=z
            zp=z*conjg(z0)
            p=1.e-4*real(zp)
            id2(j)=-1
            if(p.ge.0.0) id2(j)=1
            if(j.ge.2) rxdata(j-1)=p
+           ierr=0
+           if(id2(j).ne.id(j)) ierr=1
+           id3=-1
+           if(real(z).ge.0.0) id3=1
+           if(j.ge.2 .and. id3.ne.id(j)) nhardc=nhardc+1
+           if(j.ge.2 .and. ndiff.eq.0) rxdata(j-1)=real(z)
            z0=z
         enddo
-        nhard2=nhard2 + count(id2.ne.id)           !Count hard errors
+        nhard=nhard + count(id2.ne.id)           !Count hard errors
 
         rxav=sum(rxdata)/120
         rx2av=sum(rxdata*rxdata)/120
@@ -226,20 +217,25 @@ program dbpsksim
         llr=2.0*rxdata/(ss*ss)               !Soft symbols
         apmask=0
         max_iterations=10
+        decoded=0
         call bpdecode120(llr,apmask,max_iterations,decoded,niterations,cw)
+!        if(niterations.lt.0) then
+!           llr=-llr
+!           call bpdecode120(llr,apmask,max_iterations,decoded,niterations,cw)
+!           if(niterations.ge.0) nhard=NN*iters-nhard
+!        endif
         if(niterations.ge.0) call chkcrc10(decoded,nbadcrc)
         if(niterations.lt.0 .or. count(msgbits.ne.decoded).gt.0 .or.        &
              nbadcrc.ne.0) nfe2=nfe2+1
      enddo
      
+     if(ndiff.eq.0) nhard=nhardc
      fsigma=sqrt(sqf/iters)
-     ber1=float(nhard1)/(NN*iters)
-     ber2=float(nhard2)/(NN*iters)
-     fer1=float(nfe1)/iters
-     fer2=float(nfe2)/iters
-     write(*,1050)  snrdb,nhard1,nhard2,ber1,ber2,fer1,fer2,fsigma
-     write(14,1050) snrdb,nhard1,nhard2,ber1,ber2,fer1,fer2,fsigma
-1050 format(f6.1,2i5,2f8.4,2f7.3,f8.2,3i5)
+     ber=float(nhard)/(NN*iters)
+     fer=float(nfe2)/iters
+     write(*,1050)  snrdb,nhard,ber,fer,fsigma
+     write(14,1050)  snrdb,nhard,ber,fer,fsigma
+1050 format(f6.1,i5,f8.4,f7.3,f8.2)
   enddo
 
 999 end program dbpsksim

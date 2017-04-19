@@ -16,10 +16,12 @@ subroutine genbpsk(id,f00,ndiff,nref,c)
   dt=1.0/fs
   baud=1.d0/(NSPS*dt)
 
-  ie(1)=1                                  !First bit is always 1
-  do i=2,NN                                !Differentially encode
-     ie(i)=id(i)*ie(i-1)
-  enddo
+  if(ndiff.ne.0) then
+     ie(1)=1                             !First bit is always 1
+     do i=2,NN                           !Differentially encode
+        ie(i)=id(i)*ie(i-1)
+     enddo
+  endif
 
 ! Generate the BPSK waveform
   phi=0.d0

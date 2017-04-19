@@ -1,24 +1,16 @@
-subroutine genfsk4(id,f0,c)
+subroutine genfsk4(id,f00,nts,c)
 
-  parameter (NR=4)                      !Ramp up, ramp down
-  parameter (NS=12)                     !Sync symbols (2 @ Costas 4x4)
-  parameter (ND=84)                     !Data symbols: LDPC (168,84), r=1/2
-  parameter (NN=NR+NS+ND)               !Total symbols (100)
-  parameter (NSPS=2688)                 !Samples per symbol at 12000 sps
-  parameter (NZ=NSPS*NN)                !Samples in waveform (268800)
-  parameter (NFFT=512*1024)
-  parameter (NSYNC=NS*NSPS)
-  parameter (NDOWN=168)
-  parameter (NFFT2=NZ/NDOWN,NH2=NFFT2/2) !3200
-  parameter (NSPSD=NFFT2/NN)
+  parameter (ND=60)                      !Data symbols: LDPC (120,60), r=1/2
+  parameter (NN=ND)                      !Total symbols (60)
+  parameter (NSPS=57600)                 !Samples per symbol at 12000 sps
+  parameter (NZ=NSPS*NN)                 !Samples in waveform (3456000)
+  parameter (NFFT=NZ)                    !Full length FFT
 
-  complex c(0:NFFT-1)                   !Complex waveform
-  complex cf(0:NFFT-1)
+  complex c(0:NFFT-1)                    !Complex waveform
   real*8 twopi,dt,fs,baud,f0,dphi,phi
-  integer id(NN)                        !Encoded 2-bit data (values 0-3)
-  integer icos4(4)                      !4x4 Costas array
-  data icos4/0,1,3,2/
+  integer id(NN)                         !Encoded 2-bit data (values 0-3)
 
+  f0=f00
   twopi=8.d0*atan(1.d0)
   fs=12000.d0
   dt=1.0/fs
@@ -30,7 +22,7 @@ subroutine genfsk4(id,f0,c)
   phi=0.d0
   k=-1
   do j=1,NN
-     dphi=twopi*(f0 + id(j)*baud)*dt
+     dphi=twopi*(f0 + nts*id(j)*baud)*dt
      do i=1,NSPS
         k=k+1
         phi=phi+dphi
@@ -40,24 +32,5 @@ subroutine genfsk4(id,f0,c)
      enddo
   enddo
 
-  nh=NFFT/2
-  df=12000.0/NFFT
-  cf=c
-  call four2a(cf,NFFT,1,-1,1)           !Transform to frequency domain
-
-  if(sum(id).ne.0) then
-     flo=f0-baud
-     fhi=f0+4*baud
-     do i=0,NFFT-1                         !Remove spectral sidelobes
-        f=i*df
-        if(i.gt.nh) f=(i-nfft)*df
-        if(f.le.flo .or. f.ge.fhi) cf(i)=0.
-     enddo
-  endif
-
-  c=cf
-  call four2a(c,NFFT,1,1,1)            !Transform back to time domain
-  c=c/nfft
-  
   return
 end subroutine genfsk4
