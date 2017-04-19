@@ -1,5 +1,5 @@
-program ldpcsim120
-! End to end test of the (120,60)/crc10 encoder and decoder.
+program ldpcsim300
+! End to end test of the (300,60)/crc10 encoder and decoder.
 use crc
 use packjt
 
@@ -11,23 +11,32 @@ integer*1, allocatable ::  codeword(:), decoded(:), message(:)
 integer*1, target:: i1Msg8BitBytes(9)
 integer*1, target:: i1Dec8BitBytes(9)
 integer*1 msgbits(60)
-integer*1 apmask(120)
-integer*1 cw(120)
+integer*1 apmask(300)
+integer*1 cw(300)
 integer*2 checksum
-integer colorder(120)
-integer nerrtot(120),nerrdec(120),nmpcbad(60)
+integer colorder(300)
+integer nerrtot(300),nerrdec(300),nmpcbad(60)
 logical checksumok,fsk,bpsk
 real*8, allocatable ::  rxdata(:)
 real, allocatable :: llr(:)
-real dllr(120),llrd(120)
+real dllr(300),llrd(300)
 
 data colorder/   &
-  0,1,2,21,3,4,5,6,7,8,20,10,9,11,12,23,13,28,14,31, &
-  15,16,22,26,17,30,18,29,25,32,41,34,19,33,27,36,38,43,42,24, &
-  37,39,45,40,35,44,47,46,50,51,53,48,52,56,54,57,55,49,58,61, &
-  60,59,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79, &
-  80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99, &
-  100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119/
+0,1,2,3,4,5,6,7,8,9,10,11,123,12,13,14,15,16,17,18, &
+19,20,21,22,23,24,25,138,26,145,27,28,29,30,31,32,33,34,35,36, &
+37,154,38,39,40,41,42,43,44,144,46,47,48,49,50,51,52,53,143,54, &
+125,56,57,58,124,59,120,140,157,160,55,60,61,62,156,162,141,64,65,153, &
+181,183,66,170,67,68,69,130,70,164,71,72,73,74,75,63,76,77,135,78, &
+79,80,176,169,82,83,84,167,180,85,136,158,129,166,175,142,134,146,121,165, &
+88,89,192,90,45,91,92,93,182,189,94,95,96,173,81,97,98,178,122,126, &
+132,99,100,152,186,193,101,102,151,103,104,172,159,168,150,190,147,148,201,107, &
+205,177,108,198,197,174,127,109,185,110,202,87,199,171,179,187,139,137,106,131, &
+206,194,112,149,155,113,128,184,196,86,114,203,212,195,208,105,188,161,163,191, &
+200,209,214,204,115,218,133,111,207,117,213,216,211,217,116,215,219,220,210,221, &
+118,222,223,225,224,228,226,229,231,227,233,119,234,235,232,230,237,239,236,238, &
+240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259, &
+260,261,262,263,264,265,266,267,268,269,270,271,272,273,274,275,276,277,278,279, &
+280,281,282,283,284,285,286,287,288,289,290,291,292,293,294,295,296,297,298,299/
 
 do i=1,NRECENT
   recent_calls(i)='            '
@@ -39,7 +48,7 @@ nmpcbad=0  ! Used to collect the number of errors in the message+crc part of the
 nargs=iargc()
 if(nargs.ne.3) then
    print*,'Usage: ldpcsim  niter  #trials  s '
-   print*,'eg:    ldpcsim    10   1000    0.84'
+   print*,'eg:    ldpcsim   100   1000    0.84'
    print*,'If s is negative, then value is ignored and sigma is calculated from SNR.'
    return
 endif
@@ -54,9 +63,9 @@ fsk=.false.
 bpsk=.true.
 
 ! don't count crc bits as data bits
-N=120
+N=300
 K=60
-! scale Eb/No for a (120,50) code
+! scale Eb/No for a (300,50) code
 rate=real(50)/real(N)
 
 write(*,*) "rate: ",rate
@@ -98,15 +107,15 @@ write(*,*) i1Msg8BitBytes(1:9)
   write(*,*) 'message'
   write(*,'(9(8i1,1x))') msgbits
 
-  call encode120(msgbits,codeword)
+  call encode300(msgbits,codeword)
   call init_random_seed()
   call sgran()
 
   write(*,*) 'codeword' 
-  write(*,'(15(8i1,1x))') codeword
+  write(*,'(38(8i1,1x))') codeword
 
 write(*,*) "Es/N0  SNR2500   ngood  nundetected nbadcrc   sigma"
-do idb = -10, 24 
+do idb = -14, 20 
   db=idb/2.0-1.0
 !  sigma=1/sqrt( 2*rate*(10**(db/10.0)) )  ! to make db represent Eb/No
   sigma=1/sqrt( 2*(10**(db/10.0)) )        ! db represents Es/No
@@ -158,7 +167,7 @@ do idb = -10, 24
     apmask=0
 
 ! max_iterations is max number of belief propagation iterations
-    call bpdecode120(llr, apmask, max_iterations, decoded, niterations, cw)
+    call bpdecode300(llr, apmask, max_iterations, decoded, niterations, cw)
     n2err=0
     do i=1,N
       if( cw(i)*(2*codeword(i)-1.0) .lt. 0 ) n2err=n2err+1
@@ -216,7 +225,7 @@ do idb = -10, 24
       endif
     endif
   enddo
-  snr2500=db+10*log10(0.4166/2500.0)
+  snr2500=db+10*log10(1.03/2500.0)
   pberr=real(nberr)/(real(ntrials*N))
   write(*,"(f4.1,4x,f5.1,1x,i8,1x,i8,1x,i8,8x,f5.2,8x,e10.3)") db,snr2500,ngood,nue,nbadcrc,ss,pberr
 
@@ -235,4 +244,4 @@ close(25)
 
 
 
-end program ldpcsim120
+end program ldpcsim300
