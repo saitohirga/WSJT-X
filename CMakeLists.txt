@@ -1109,9 +1109,6 @@ target_link_libraries (ldpcsim120 wsjt_fort wsjt_cxx)
 add_executable (ldpcsim300 lib/fsk4hf/ldpcsim300.f90 wsjtx.rc)
 target_link_libraries (ldpcsim300 wsjt_fort wsjt_cxx)
 
-add_executable (dbpsksim lib/fsk4hf/dbpsksim.f90 wsjtx.rc)
-target_link_libraries (dbpsksim wsjt_fort wsjt_cxx)
-
 add_executable (ldpcsim144 lib/ldpcsim144.f90 wsjtx.rc)
 target_link_libraries (ldpcsim144 wsjt_fort wsjt_cxx)
 
