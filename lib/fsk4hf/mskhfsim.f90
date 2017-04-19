@@ -146,7 +146,8 @@ program msksim
         call cpolyfit(c,pp,id,maxn,aa,bb,zz)
         nterms=maxn
 
-        call msksoftsym(zz,aa,bb,id,nterms,ierror,rxdata)
+        call msksoftsym(zz,aa,bb,id,nterms,ierror,rxdata,nhard0,nhard,   &
+             nhardsync0,nhardsync)
         
 !---------------------------------------------------------------- Decode
         rxav=sum(rxdata)/ND
@@ -186,8 +187,3 @@ program msksim
   enddo
 
 999 end program msksim
-
-  include 'getfc1.f90'
-  include 'getfc2.f90'
-  include 'cpolyfit.f90'
-  include 'msksoftsym.f90'

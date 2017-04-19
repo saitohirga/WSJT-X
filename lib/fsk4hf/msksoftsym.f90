@@ -1,4 +1,5 @@
-subroutine msksoftsym(zz,aa,bb,id,nterms,ierror,rxdata)
+subroutine msksoftsym(zz,aa,bb,id,nterms,ierror,rxdata,nhard0,nhard,   &
+     nhardsync0,nhardsync)
 
   parameter (KK=84)                     !Information bits (72 + CRC12)
   parameter (ND=168)                    !Data symbols: LDPC (168,84), r=1/2
