@@ -565,7 +565,17 @@ subroutine packbits(dbits,nsymd,m0,sym)
       if(iv2.eq.4) msg='CQ '//c2(:n2)//'/'//psfx(:n1)//' '//grid
       if(iv2.eq.5) msg='QRZ '//c2(:n2)//'/'//psfx(:n1)//' '//grid
       if(iv2.eq.6) msg='DE '//c2(:n2)//'/'//psfx(:n1)//' '//grid
-      if(iv2.eq.7) msg='DE '//c2(:n2)//' '//grid
+      if(iv2.eq.7) then
+         grid6=grid//'ma'
+         call grid2k(grid6,k)
+         if(k.ge.451 .and. k.le.900) then
+            call getpfx2(k,c2)
+            n2=len_trim(c2)
+            msg='DE '//c2(:n2)
+         else
+            msg='DE '//c2(:n2)//' '//grid
+         endif
+      endif
       if(iv2.eq.8) msg=' '
       go to 100
    else
