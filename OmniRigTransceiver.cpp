@@ -104,7 +104,6 @@ OmniRigTransceiver::OmniRigTransceiver (std::unique_ptr<TransceiverBase> wrapped
   , rig_number_ {n}
   , readable_params_ {0}
   , writable_params_ {0}
-  , rig_offline_ {true}
   , send_update_signal_ {false}
   , reversed_ {false}
 {
@@ -184,6 +183,11 @@ int OmniRigTransceiver::do_start ()
     .arg (writable_params_, 8, 16, QChar ('0'))
     .arg (rig_number_).toLocal8Bit ());
 
+  offline_timer_.reset (new QTimer);
+  offline_timer_->setSingleShot (true);
+  offline_timer_->setInterval (5 * 1000);
+  connect (&*offline_timer_, &QTimer::timeout, this, &OmniRigTransceiver::timeout_check);
+
   for (unsigned tries {0}; tries < 10; ++tries)
     {
       QThread::msleep (100);    // wait until OmniRig polls the rig
@@ -258,7 +262,6 @@ int OmniRigTransceiver::do_start ()
               rig_->SetFreqA (f);
             }
           update_rx_frequency (f);
-          rig_offline_ = false;
           return resolution;
         }
     }
@@ -268,6 +271,12 @@ int OmniRigTransceiver::do_start ()
 
 void OmniRigTransceiver::do_stop ()
 {
+  if (offline_timer_)
+    {
+      offline_timer_->stop ();
+      offline_timer_.reset ();
+    }
+
   QThread::msleep (200);        // leave some time for pending
                                 // commands at the server end
   if (port_)
@@ -335,16 +344,14 @@ void OmniRigTransceiver::handle_status_change (int rig_number)
       TRACE_CAT ("OmniRigTransceiver", QString {"OmniRig status change: new status for rig %1 = "}.arg (rig_number).toLocal8Bit () << status);
       if (OmniRig::ST_ONLINE != rig_->Status ())
         {
-          if (!rig_offline_)
+          if (!offline_timer_->isActive ())
             {
-              rig_offline_ = true;
-              // give OmniRig 5 seconds to recover
-              QTimer::singleShot (5 * 1000, this, SLOT (timeout_check ()));
+              offline_timer_->start (); // give OmniRig time to recover
             }
         }
       else
         {
-          rig_offline_ = false;
+          offline_timer_->stop ();
           update_rx_frequency (rig_->GetRxFrequency ());
           update_complete ();
           TRACE_CAT ("OmniRigTransceiver", "OmniRig frequency:" << state ().frequency ());
@@ -354,10 +361,7 @@ void OmniRigTransceiver::handle_status_change (int rig_number)
 
 void OmniRigTransceiver::timeout_check ()
 {
-  if (rig_offline_)
-    {
-      offline ("Rig went offline");
-    }
+  offline ("Rig went offline");
 }
 
 void OmniRigTransceiver::handle_params_change (int rig_number, int params)
