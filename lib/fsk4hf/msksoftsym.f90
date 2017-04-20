@@ -1,5 +1,4 @@
-subroutine msksoftsym(zz,aa,bb,id,nterms,ierror,rxdata,nhard0,nhard,   &
-     nhardsync0,nhardsync)
+subroutine msksoftsym(zz,aa,bb,id,nterms,ierror,rxdata,nhard0,nhardsync0)
 
   parameter (KK=84)                     !Information bits (72 + CRC12)
   parameter (ND=168)                    !Data symbols: LDPC (168,84), r=1/2
@@ -38,7 +37,6 @@ subroutine msksoftsym(zz,aa,bb,id,nterms,ierror,rxdata,nhard0,nhard,   &
      p=real(z)
      if(abs(id(j)).eq.2) then
         if(real(z)*id(j).lt.0) then              !Sync bit
-           nhardsync=nhardsync+1
            nhardsync0=nhardsync0+1
            ierror(j)=2
         endif
@@ -51,7 +49,6 @@ subroutine msksoftsym(zz,aa,bb,id,nterms,ierror,rxdata,nhard0,nhard,   &
            ierror(j)=1
         endif
         nhard0=nhard0+ierr
-        nhard=nhard+ierr              
      endif
   enddo
 
@@ -78,7 +75,6 @@ subroutine msksoftsym(zz,aa,bb,id,nterms,ierror,rxdata,nhard0,nhard,   &
         ierror(j)=1
      endif
      nhard0=nhard0+ierr
-     nhard=nhard+ierr
   enddo
 
   return

@@ -43,7 +43,7 @@ subroutine getfc1(c,fc1)
         ipk=i
         fc1=f
      endif
-     !            write(51,3001) f,s(i),db(s(i))
+!            write(51,3001) f,s(i),db(s(i))
 ! 3001       format(f10.3,e12.3,f10.3)
   enddo
 
