@@ -42,8 +42,8 @@ subroutine watterson(c,fs,delay,fspread)
      cs1=cs1/NZ
      cs2=cs2/NZ
   endif
-  
-  nshift=0.001*delay*12000.0
+
+  nshift=nint(0.001*delay*fs)
   c2=cshift(c,nshift)
   sq=0.
   do i=0,NZ-1
