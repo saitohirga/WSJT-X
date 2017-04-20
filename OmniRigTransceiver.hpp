@@ -62,7 +62,7 @@ private:
   QString rig_type_;
   int readable_params_;
   int writable_params_;
-  bool rig_offline_;
+  QScopedPointer<QTimer> offline_timer_;
   bool send_update_signal_;
   bool reversed_;   // some rigs can reverse VFOs
 };
