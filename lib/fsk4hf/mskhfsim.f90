@@ -28,6 +28,7 @@ program msksim
   complex csync(0:NZ-1)                 !Sync symbols only, from cbb
   complex cb13(0:N13-1)                 !Barker 13 waveform
   complex c(0:NZ-1)                     !Complex waveform
+  complex c0(0:NZ-1)                     !Complex waveform
   complex zz(NS+ND)                     !Complex symbol values (intermediate)
   complex z
   real xnoise(0:NZ-1)                   !Generated random noise
@@ -53,7 +54,7 @@ program msksim
      go to 999
   endif
   call getarg(1,arg)
-  read(arg,*) f0                           !Generated carrier frequency
+  read(arg,*) f0                         !Generated carrier frequency
   call getarg(2,arg)
   read(arg,*) delay                      !Delta_t (ms) for Watterson model
   call getarg(3,arg)
@@ -83,9 +84,8 @@ program msksim
      pp(i)=sin(0.5*(i-1)*twopi/(2*NSPS))
   enddo
   
-  call genmskhf(msgbits,id,icw,cbb,csync) !Generate baseband waveform and csync
+  call genmskhf(msgbits,id,icw,cbb,csync)!Generate baseband waveform and csync
   cb13=csync(1680:2095)                  !Copy the Barker 13 waveform
-
   a=0.
   a(1)=f0
   call twkfreq1(cbb,NZ,fs,a,cbb)         !Mix to specified frequency
@@ -105,25 +105,25 @@ program msksim
      nfe=0
      sqf=0.
      do iter=1,iters                     !Loop over requested iterations
-        nhard0=0
-        nhardsync0=0
         c=cbb
         if(delay.ne.0.0 .or. fspread.ne.0.0) call watterson(c,fs,delay,fspread)
-        c=sig*c                                  !Scale to requested SNR
+        c=sig*c                          !Scale to requested SNR
         if(snrdb.lt.90) then
-           do i=0,NZ-1                           !Generate gaussian noise
+           do i=0,NZ-1                   !Generate gaussian noise
               xnoise(i)=gran()
               ynoise(i)=gran()
            enddo
-           c=c + cmplx(xnoise,ynoise)            !Add AWGN noise
+           c=c + cmplx(xnoise,ynoise)    !Add AWGN noise
         endif
 
-        call getfc1(c,fc1)                       !First approx for freq
-        call getfc2(c,fc1,fc2)                   !Refined freq
+        call getfc1(c,fc1)               !First approx for freq
+        call getfc2(c,csync,fc1,fc2,fc3) !Refined freq
         sqf=sqf + (fc1+fc2-f0)**2
+        
+!NB: Measured performance is about equally good using fc2 or fc3 here:
         a(1)=-(fc1+fc2)
         a(2:5)=0.
-        call twkfreq1(c,NZ,fs,a,c)          !Mix c down by fc1+fc2
+        call twkfreq1(c,NZ,fs,a,c)       !Mix c down by fc1+fc2
 
 ! The following may not be necessary?
 !        z=sum(c(1680:2095)*cb13)/208.0     !Get phase from Barker 13 vector
@@ -134,7 +134,7 @@ program msksim
 ! Not presently used:
         amax=0.
         jpk=0
-        do j=-20*NSPS,20*NSPS              !Get jpk
+        do j=-20*NSPS,20*NSPS            !Get jpk
            z=sum(c(1680+j:2095+j)*cb13)/208.0
            if(abs(z).gt.amax) then
               amax=abs(z)
@@ -142,28 +142,42 @@ program msksim
            endif
         enddo
         xdt=jpk/fs
-   
-        call cpolyfit(c,pp,id,maxn,aa,bb,zz)
-        nterms=maxn
 
-        call msksoftsym(zz,aa,bb,id,nterms,ierror,rxdata,nhard0,nhard,   &
-             nhardsync0,nhardsync)
-        
-!---------------------------------------------------------------- Decode
-        rxav=sum(rxdata)/ND
-        rx2av=sum(rxdata*rxdata)/ND
-        rxsig=sqrt(rx2av-rxav*rxav)
-        rxdata=rxdata/rxsig
-        ss=0.84
-        llr=2.0*rxdata/(ss*ss)
-        apmask=0
-        max_iterations=40
-        call bpdecode168(llr,apmask,max_iterations,decoded,niterations,cw)
-        nbadcrc=0
-        ifer=0
-        if(niterations.ge.0) call chkcrc12(decoded,nbadcrc)
-        if(niterations.lt.0 .or. count(msgbits.ne.decoded).gt.0 .or.        &
-             nbadcrc.ne.0) ifer=1
+        nterms=maxn
+        c0=c
+        do itry=1,10
+           idf=itry/2
+           if(mod(itry,2).eq.0) idf=-idf
+           nhard0=0
+           nhardsync0=0
+           ifer=1
+           a(1)=idf*0.01
+           a(2:5)=0.
+           call twkfreq1(c0,NZ,fs,a,c)       !Mix c0 into c
+           call cpolyfit(c,pp,id,maxn,aa,bb,zz,nhs)
+           call msksoftsym(zz,aa,bb,id,nterms,ierror,rxdata,nhard0,nhardsync0)
+           if(nhardsync0.gt.12) cycle
+           rxav=sum(rxdata)/ND
+           rx2av=sum(rxdata*rxdata)/ND
+           rxsig=sqrt(rx2av-rxav*rxav)
+           rxdata=rxdata/rxsig
+           ss=0.84
+           llr=2.0*rxdata/(ss*ss)
+           apmask=0
+           max_iterations=40
+           ifer=0
+           call bpdecode168(llr,apmask,max_iterations,decoded,niterations,cw)
+           nbadcrc=0
+           if(niterations.ge.0) call chkcrc12(decoded,nbadcrc)
+           if(niterations.lt.0 .or. count(msgbits.ne.decoded).gt.0 .or.        &
+                nbadcrc.ne.0) ifer=1
+!           if(ifer.eq.0) write(67,1301) snrdb,itry,idf,niterations,    &
+!                nhardsync0,nhard0
+!1301       format(f6.1,5i6)
+           if(ifer.eq.0) exit
+        enddo                                !Freq dither loop
+        nhard=nhard+nhard0
+        nhardsync=nharsdync+nhardsync0
         nfe=nfe+ifer
      enddo
 
@@ -171,7 +185,7 @@ program msksim
      ber=float(nhard)/((NS+ND)*iters)
      fer=float(nfe)/iters
      write(*,1050)  snrdb,nhard,ber,fer,fsigma
-     write(60,1050)  snrdb,nhard,ber,fer,fsigma
+!     write(60,1050)  snrdb,nhard,ber,fer,fsigma
 1050 format(f6.1,i7,f8.4,f7.3,f8.2)
   enddo
 
