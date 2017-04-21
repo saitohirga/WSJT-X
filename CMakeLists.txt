@@ -383,10 +383,12 @@ set (wsjt_FSRCS
   lib/four2a.f90
   lib/fqso_first.f90
   lib/freqcal.f90
+  lib/fsk4hf/fsk4hf.f90
   lib/gen4.f90
   lib/gen65.f90
   lib/gen9.f90
   lib/geniscat.f90
+  lib/fsk4hf/genfsk4hf.f90
   lib/genmsk144.f90
   lib/genmsk40.f90
   lib/fsk4hf/genmskhf.f90
@@ -464,6 +466,7 @@ set (wsjt_FSRCS
   lib/softsym9f.f90
   lib/softsym9w.f90
   lib/shell.f90
+  lib/fsk4hf/spec4.f90
   lib/spec64.f90
   lib/spec9f.f90
   lib/stdmsg.f90
@@ -1118,6 +1121,9 @@ target_link_libraries (ldpcsim144 wsjt_fort wsjt_cxx)
 
 add_executable (ldpcsim168 lib/fsk4hf/ldpcsim168.f90 wsjtx.rc)
 target_link_libraries (ldpcsim168 wsjt_fort wsjt_cxx)
+
+add_executable (fsk4hf lib/fsk4hf/fsk4hf.f90 wsjtx.rc)
+target_link_libraries (fsk4hf wsjt_fort wsjt_cxx)
 
 add_executable (mskhfsim lib/fsk4hf/mskhfsim.f90 wsjtx.rc)
 target_link_libraries (mskhfsim wsjt_fort wsjt_cxx)

@@ -17,10 +17,10 @@ program msksim
   parameter (NS=65)                     !Sync symbols (2 x 26 + Barker 13)
   parameter (NR=3)                      !Ramp up/down
   parameter (NN=NR+NS+ND)               !Total symbols (236)
-  parameter (NSPS=16)                   !Samples per MSK symbol (16)
+  parameter (NSPS=1152/72)              !Samples per MSK symbol (16)
   parameter (N2=2*NSPS)                 !Samples per OQPSK symbol (32)
   parameter (N13=13*N2)                 !Samples in central sync vector (416)
-  parameter (NZ=NSPS*NN)                !Samples in baseband waveform (3760)
+  parameter (NZ=NSPS*NN)                !Samples in baseband waveform (3776)
   parameter (NFFT1=4*NSPS,NH1=NFFT1/2)
 
   character*8 arg
@@ -28,7 +28,7 @@ program msksim
   complex csync(0:NZ-1)                 !Sync symbols only, from cbb
   complex cb13(0:N13-1)                 !Barker 13 waveform
   complex c(0:NZ-1)                     !Complex waveform
-  complex c0(0:NZ-1)                     !Complex waveform
+  complex c0(0:NZ-1)                    !Complex waveform
   complex zz(NS+ND)                     !Complex symbol values (intermediate)
   complex z
   real xnoise(0:NZ-1)                   !Generated random noise
@@ -74,7 +74,7 @@ program msksim
   baud=1.0/tt                            !Keying rate for "itone" symbols (baud)
   txt=NZ*dt                              !Transmission length (s)
   bandwidth_ratio=2500.0/(fs/2.0)
-  write(*,1000) f0,delay,fspread,maxn,iters,baud,1.5*baud,txt
+  write(*,1000) f0,delay,fspread,maxn,iters,baud,3*baud,txt
 1000 format('f0:',f5.1,'  Delay:',f4.1,'  fSpread:',f5.2,'  maxn:',i3,   &
           '  Iters:',i6/'Baud:',f7.3,'  BW:',f5.1,'  TxT:',f5.1,f5.2/)
   write(*,1004)
@@ -106,7 +106,9 @@ program msksim
      sqf=0.
      do iter=1,iters                     !Loop over requested iterations
         c=cbb
-        if(delay.ne.0.0 .or. fspread.ne.0.0) call watterson(c,fs,delay,fspread)
+        if(delay.ne.0.0 .or. fspread.ne.0.0) then
+           call watterson(c,NZ,fs,delay,fspread)
+        endif
         c=sig*c                          !Scale to requested SNR
         if(snrdb.lt.90) then
            do i=0,NZ-1                   !Generate gaussian noise

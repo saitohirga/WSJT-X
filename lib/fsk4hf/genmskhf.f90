@@ -40,10 +40,7 @@ subroutine genmskhf(msgbits,id,icw,cbb,csync)
      enddo
      first=.false.
   endif
-    
-  call random_number(x)
-  codeword=0
-  where(x(1:ND).ge.0.5) codeword=1
+
   call encode168(msgbits,codeword)      !Encode the test message
   icw=2*codeword - 1
 
