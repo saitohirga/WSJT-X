@@ -416,7 +416,7 @@ subroutine packbits(dbits,nsymd,m0,sym)
    call fmtmsg(msg,iz)
 
    if(msg(1:6).eq.'CQ DX ') msg(3:3)='9'
-   if(msg(1:3).eq."CQ " .and.                                         &
+   if(msg(1:3).eq.'CQ ' .and.                                         &
         msg(4:4).ge.'A' .and. msg(4:4).le.'Z' .and.                   &
         msg(5:5).ge.'A' .and. msg(5:5).le.'Z' .and.                   &
         msg(6:6).eq.' ') msg='E9'//msg(4:)
@@ -478,13 +478,13 @@ subroutine packbits(dbits,nsymd,m0,sym)
 
    nc1=0
    if(nv2b.eq.4) then
-      if(c1(1:3).eq.'CQ ')  nc1=262178563 + k2
-      if(c1(1:4).eq.'QRZ ') nc1=264002072 + k2 
-      if(c1(1:3).eq.'DE ')  nc1=265825581 + k2
+      if(c1(1:3).eq.'CQ ' .and. (.not.text3))  nc1=262178563 + k2
+      if(c1(1:4).eq.'QRZ ' .and. (.not.text3)) nc1=264002072 + k2
+      if(c1(1:3).eq.'DE ' .and. (.not.text3))  nc1=265825581 + k2
    else if(nv2b.eq.5) then
-      if(c1(1:3).eq.'CQ ')  nc1=267649090 + k2
-      if(c1(1:4).eq.'QRZ ') nc1=267698375 + k2
-      if(c1(1:3).eq.'DE ')  nc1=267747660 + k2
+      if(c1(1:3).eq.'CQ ' .and. (.not.text3))  nc1=267649090 + k2
+      if(c1(1:4).eq.'QRZ ' .and. (.not.text3)) nc1=267698375 + k2
+      if(c1(1:3).eq.'DE ' .and. (.not.text3))  nc1=267747660 + k2
    endif
    if(nc1.ne.0) go to 20
 
@@ -638,7 +638,7 @@ subroutine packbits(dbits,nsymd,m0,sym)
  subroutine packtext(msg,nc1,nc2,nc3)
 
    parameter (MASK28=2**28 - 1)
-   character*13 msg
+   character*22 msg
    character*42 c
    data c/'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ +-./?'/
 

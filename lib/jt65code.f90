@@ -5,7 +5,7 @@ program JT65code
 ! protocol.
 
   use packjt
-  character*22 msg,msg0,msg1,decoded,cok*3,bad*1,msgtype*10
+  character*22 msg,msgchk,msg0,msg1,decoded,cok*3,bad*1,msgtype*10,expected
   integer dgen(12),sent(63),tmp(63),recd(12),era(51)
   include 'testmsg.f90'
 
@@ -17,22 +17,35 @@ program JT65code
   endif
 
   call getarg(1,msg)                     !Get message from command line
+  msgchk=msg
+  call fmtmsg(msgchk,iz)
   nmsg=1
   if(msg(1:2).eq."-t") then
+     if (NTEST+5 > MAXTEST) then
+        write(*,*) "NTEST exceed MAXTEST"
+     endif
      testmsg(NTEST+1)="KA1ABC WB9XYZ EN34 OOO"
      testmsg(NTEST+2)="KA1ABC WB9XYZ OOO"
      testmsg(NTEST+3)="RO"
      testmsg(NTEST+4)="RRR"
      testmsg(NTEST+5)="73"
+     testmsgchk(NTEST+1)="KA1ABC WB9XYZ EN34 OOO"
+     testmsgchk(NTEST+2)="KA1ABC WB9XYZ OOO"
+     testmsgchk(NTEST+3)="RO"
+     testmsgchk(NTEST+4)="RRR"
+     testmsgchk(NTEST+5)="73"
      nmsg=NTEST+5
   endif
 
   write(*,1010)
-1010 format("     Message                 Decoded                Err? Type"/   &
-            74("-"))
+1010 format("    Message                Decoded              Err? Type          Expected"/   &
+            76("-"))
 
   do imsg=1,nmsg
-     if(nmsg.gt.1) msg=testmsg(imsg)
+     if(nmsg.gt.1) then 
+        msg=testmsg(imsg)
+        msgchk=testmsgchk(imsg)
+     endif
 
      call fmtmsg(msg,iz)                    !To upper, collapse mult blanks
      msg0=msg                               !Input message
@@ -68,10 +81,13 @@ program JT65code
      if(cok.eq."OOO") decoded(20:22)=cok
      call fmtmsg(decoded,iz)
 
-10     bad=" "
-     if(decoded.ne.msg0) bad="*"
-     write(*,1020) imsg,msg0,decoded,bad,itype,msgtype
-1020 format(i2,'.',2x,a22,2x,a22,3x,a1,i3,": ",a13)
+10   bad=" "
+     if(decoded.ne.msgchk) bad="*"
+     expected = 'EXACT'
+     if (msg0.ne.msgchk) expected = 'TRUNCATED'
+     if (nmsg.eq.1) expected = 'UNKNOWN'
+     write(*,1020) imsg,msg0,decoded,bad,itype,msgtype,expected
+1020 format(i2,'.',1x,a22,1x,a22,1x,a1,i3,":",a10,2x,a22)
   enddo
 
   if(nmsg.eq.1 .and. nspecial.eq.0) then
