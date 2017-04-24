@@ -165,7 +165,7 @@ which the probability of decoding is 50% or higher.
 0.19| 49.0 | -27 |JT65A |Reed Solomon|(63,12) |64|65-FSK| 2.692| 177.6
 | 0.50| 46.8 | -25 |QRA64A|Q-ary Repeat Accumulate|(63,12) |64|64-FSK|
 1.736| 111.1 | 0.25| 48.4 | -26 | WSPR |K=32, r=1/2|(162,50)| 2|
-4-FSK| 1.465| 5.9 | 0.50|110.6 | -29
+4-FSK| 1.465| 5.9 | 0.50|110.6 | -28
 |===============================================================================
 
 Submodes of JT4, JT9, JT65, and QRA64 offer wider tone spacings for
