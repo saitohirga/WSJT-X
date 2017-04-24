@@ -1,6 +1,6 @@
 subroutine watterson(c,nz,fs,delay,fspread)
 
-  parameter (NZMAX=3776)
+  parameter (NZMAX=6592)
   complex c(0:nz-1)
   complex c2(0:NZMAX-1)
   complex cs1(0:NZMAX-1)
