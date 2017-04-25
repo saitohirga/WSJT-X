@@ -31,10 +31,12 @@ program wsprlfsim
   complex cb13(0:N13-1)                 !Barker 13 waveform
   complex c(0:NZ-1)                     !Complex waveform
   complex c0(0:NZ-1)                    !Complex waveform
+  complex c1(0:NZ-1)                    !Complex waveform
   complex zz(NS+ND)                     !Complex symbol values (intermediate)
   complex z
   real xnoise(0:NZ-1)                   !Generated random noise
   real ynoise(0:NZ-1)                   !Generated random noise
+  real s(0:NZ-1)
   real rxdata(ND),llr(ND)               !Soft symbols
   real pp(2*NSPS)                       !Shaped pulse for OQPSK
   real a(5)                             !For twkfreq1
@@ -42,6 +44,7 @@ program wsprlfsim
   integer id(NS+ND)                     !NRZ values (+/-1) for Sync and Data
   integer ierror(NS+ND)
   integer icw(NN)
+  integer itone(NN)
   integer*1 msgbits(KK),decoded(KK),apmask(ND),cw(ND)
 !  integer*1 codeword(ND)
   data msgbits/0,0,1,0,0,1,1,1,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,1,1,0,0,0,1, &
@@ -84,15 +87,12 @@ program wsprlfsim
      pp(i)=sin(0.5*(i-1)*twopi/(2*NSPS))
   enddo
 
-  call genwsprlf(msgbits,id,icw,cbb,csync)!Generate baseband waveform and csync
+  call genwsprlf(msgbits,id,icw,cbb,csync,itone)!Generate baseband waveform
   cb13=csync(3088:3503)                  !Copy the Barker 13 waveform
   a=0.
   a(1)=f0
-  call twkfreq1(cbb,NZ,fs,a,cbb)         !Mix to specified frequency
-
-!  write(*,3101) id
-!3101 format(20i3)
-
+  call twkfreq1(cbb,NZ,fs,a,c0)          !Mix baseband to specified frequency
+  
   isna=-20
   isnb=-40
   if(snrdb.ne.0.0) then
@@ -109,7 +109,7 @@ program wsprlfsim
      sqf=0.
      sqt=0.
      do iter=1,iters                     !Loop over requested iterations
-        c=cbb 
+        c=c0 
         if(delay.ne.0.0 .or. fspread.ne.0.0) then
            call watterson(c,NZ,fs,delay,fspread)
         endif
@@ -167,7 +167,7 @@ program wsprlfsim
 !-----------------------------------------------------------------        
 
         nterms=maxn
-        c0=c
+        c1=c
         do itry=1,20
            idf=itry/2
            if(mod(itry,2).eq.0) idf=-idf
@@ -176,7 +176,7 @@ program wsprlfsim
            ifer=1
            a(1)=idf*0.00085
            a(2:5)=0.
-           call twkfreq1(c0,NZ,fs,a,c)       !Mix c0 into c
+           call twkfreq1(c1,NZ,fs,a,c)       !Mix c1 into c
            call cpolyfitw(c,pp,id,maxn,aa,bb,zz,nhs)
            call msksoftsymw(zz,aa,bb,id,nterms,ierror,rxdata,nhard0,nhardsync0)
            if(nhardsync0.gt.35) cycle
