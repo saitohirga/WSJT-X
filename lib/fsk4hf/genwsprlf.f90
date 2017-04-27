@@ -2,16 +2,7 @@ subroutine genwsprlf(msgbits,id,icw,cbb,csync,itone)
 
 !Encode a WSPR-LF message, produce baseband waveform and sync vector.
 
-  parameter (KK=60)                     !Information bits (50 + CRC10)
-  parameter (ND=300)                    !Data symbols: LDPC (300,60), r=1/5
-  parameter (NS=109)                    !Sync symbols (2 x 48 + Barker 13)
-  parameter (NR=3)                      !Ramp up/down (2 x half-length symbols)
-  parameter (NN=NR+NS+ND)               !Total symbols (412)
-  parameter (NSPS=16)                   !Samples per MSK symbol (16)
-  parameter (N2=2*NSPS)                 !Samples per OQPSK symbol (32)
-  parameter (N13=13*N2)                 !Samples in central sync vector (416)
-  parameter (NZ=NSPS*NN)                !Samples in baseband waveform (6560)
-  parameter (NFFT1=4*NSPS,NH1=NFFT1/2)
+  include 'wsprlf_params.f90'
 
   complex cbb(0:NZ-1)
   complex csync(0:NZ-1)
@@ -129,19 +120,18 @@ subroutine genwsprlf(msgbits,id,icw,cbb,csync,itone)
 
 ! Map I and Q to tones.
   n=0
-  do i=1,204
-     n=n+1
-     jd(n)=id(i)/abs(id(i))
-     n=n+1
-     jd(n)=id(i+205)/abs(id(i+205))
+  jz=(NS+ND+1)/2
+  do j=1,jz-1
+     jd(2*j-1)=id(j)/abs(id(j))
+     jd(2*j)=id(j+jz)/abs(id(j+jz))
   enddo
-  jd(409)=id(205)/abs(id(205))
+  jd(NS+ND)=id(jz)/abs(id(jz))
   itone=0 
-  do i=1,204
-     itone(2*i-1)=(jd(2*i)*jd(2*i-1)+1)/2;
-     itone(2*i)=-(jd(2*i)*jd(2*i+1)-1)/2;
+  do j=1,jz-1
+     itone(2*j-1)=(jd(2*j)*jd(2*j-1)+1)/2;
+     itone(2*j)=-(jd(2*j)*jd(2*j+1)-1)/2;
   enddo
-  itone(409)=jd(409)                       !### Is this correct ??? ###
+  itone(NS+ND)=jd(NS+ND)                       !### Is this correct ??? ###
 
   return
 end subroutine genwsprlf

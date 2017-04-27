@@ -1,15 +1,6 @@
 subroutine msksoftsymw(zz,aa,bb,id,nterms,ierror,rxdata,nhard0,nhardsync0)
 
-  parameter (KK=60)                     !Information bits (50 + CRC10)
-  parameter (ND=300)                    !Data symbols: LDPC (300,60), r=1/5
-  parameter (NS=109)                    !Sync symbols (2 x 48 + Barker 13)
-  parameter (NR=3)                      !Ramp up/down
-  parameter (NN=NR+NS+ND)               !Total symbols (412)
-  parameter (NSPS=16)                   !Samples per MSK symbol (16)
-  parameter (N2=2*NSPS)                 !Samples per OQPSK symbol (32)
-  parameter (N13=13*N2)                 !Samples in central sync vector (416)
-  parameter (NZ=NSPS*NN)                !Samples in baseband waveform (6592)
-  parameter (NFFT1=4*NSPS,NH1=NFFT1/2)
+  include 'wsprlf_params.f90'
 
   complex zz(NS+ND)                     !Complex symbol values (intermediate)
   complex z,z0
@@ -21,8 +12,9 @@ subroutine msksoftsymw(zz,aa,bb,id,nterms,ierror,rxdata,nhard0,nhardsync0)
   n=0
   ierror=0
   ierr=0
-  do j=1,205
-     xx=j*2.0/205.0 - 1.0
+  jz=(NS+ND+1)/2
+  do j=1,jz
+     xx=j*2.0/jz - 1.0
      yii=1.
      yqq=0.
      if(nterms.gt.0) then
@@ -51,12 +43,12 @@ subroutine msksoftsymw(zz,aa,bb,id,nterms,ierror,rxdata,nhard0,nhardsync0)
         endif
         nhard0=nhard0+ierr
      endif
-!     write(41,3301) j,id(j),ierror(j),ierr,p*id(j)
-!3301 format(4i6,f10.3)
+!     write(41,3301) j,id(j),ierror(j),ierr,n,p,p*id(j)
+!3301 format(5i6,2f10.3)
   enddo
 
-  do j=206,409
-     xx=(j-204.5)*2.0/205.0 - 1.0
+  do j=jz+1,NS+ND
+     xx=(j-jz+0.5)*2.0/jz - 1.0
      yii=1.
      yqq=0.
      if(nterms.gt.0) then
@@ -78,7 +70,7 @@ subroutine msksoftsymw(zz,aa,bb,id,nterms,ierror,rxdata,nhard0,nhardsync0)
         ierror(j)=1
      endif
      nhard0=nhard0+ierr
-!     write(41,3301) j,id(j),ierror(j),ierr,p*id(j)
+!     write(41,3301) j,id(j),ierror(j),ierr,n,p,p*id(j)
   enddo
 
   return

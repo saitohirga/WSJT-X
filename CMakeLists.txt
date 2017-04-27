@@ -393,6 +393,7 @@ set (wsjt_FSRCS
   lib/genmsk144.f90
   lib/genmsk40.f90
   lib/fsk4hf/genmskhf.f90
+  lib/fsk4hf/genwspr5.f90
   lib/fsk4hf/genwsprlf.f90
   lib/fsk4hf/getfc1.f90
   lib/fsk4hf/getfc2.f90
@@ -500,7 +501,10 @@ set (wsjt_FSRCS
   lib/wav12.f90
   lib/xcor.f90
   lib/xcor4.f90
+  lib/wqdecode.f90
   lib/wqencode.f90
+  lib/fsk4hf/wspr5d.f90
+  lib/fsk4hf/wspr5sim.f90
   lib/fsk4hf/wsprlfsim.f90
   lib/wspr_downsample.f90
   lib/zplot9.f90
@@ -865,7 +869,7 @@ if (Fortran_COMPILER_NAME MATCHES "gfortran.*")
     set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -isysroot ${CMAKE_OSX_SYSROOT}")
   endif (CMAKE_OSX_SYSROOT)
 
-  set (CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -fbounds-check -funroll-all-loops -fno-f2c ${General_FFLAGS}")
+  set (CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -funroll-all-loops -fno-f2c ${General_FFLAGS}")
   set (CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG} -fbounds-check -fno-f2c ${General_FFLAGS}")
 elseif (Fortran_COMPILER_NAME MATCHES "ifort.*")
   # ifort (untested)
@@ -1130,6 +1134,12 @@ target_link_libraries (ldpcsim168 wsjt_fort wsjt_cxx)
 
 add_executable (fsk4hf lib/fsk4hf/fsk4hf.f90 wsjtx.rc)
 target_link_libraries (fsk4hf wsjt_fort wsjt_cxx)
+
+add_executable (wspr5d lib/fsk4hf/wspr5d.f90 wsjtx.rc)
+target_link_libraries (wspr5d wsjt_fort wsjt_cxx)
+
+add_executable (wspr5sim lib/fsk4hf/wspr5sim.f90 wsjtx.rc)
+target_link_libraries (wspr5sim wsjt_fort wsjt_cxx)
 
 add_executable (wsprlfsim lib/fsk4hf/wsprlfsim.f90 wsjtx.rc)
 target_link_libraries (wsprlfsim wsjt_fort wsjt_cxx)

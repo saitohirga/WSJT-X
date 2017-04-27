@@ -122,8 +122,9 @@ program wsprcode
 
   data0=0
   call wqencode(msg,ntype0,data0)             !Source encoding
-  write(*,1002) data0
-1002 format(/'Source-encoded message (50 bits, hex):',7z3.2)
+  write(*,1002) data0(1:7),data0(1:6),data0(7)/64
+1002 format(/'Source-encoded message, 50 bits:'/'Hex:    ',7z3.2/    &
+          'Binary: ',6b9.8,b3.2)
 
   call encode232(data0,nbytes,dat,MAXSYM)     !Convolutional encoding
   call inter_mept(dat,1)                      !Interleaving
