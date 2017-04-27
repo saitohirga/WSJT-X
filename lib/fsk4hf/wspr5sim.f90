@@ -5,7 +5,7 @@ program wspr5sim
   character*22 msg,msgsent
   complex c0(0:NZ-1)
   complex c(0:NZ-1)
-  integer itone(NN)
+  integer itone(NZ)
 
 ! Get command-line argument(s)
   nargs=iargc()
@@ -23,10 +23,15 @@ program wspr5sim
   read(arg,*) nfiles
   call getarg(5,arg)
   read(arg,*) snrdb
-  
+
   call genwspr5(msg,ichk,msgsent,itone,itype)
-  write(*,1000) f0,xdt,snr,nfiles,msgsent
-1000 format('f0:',f9.3,'   DT:',f6.2,'   SNR:',f6.1,'  nfiles:',i3,2x,a22)
+  write(*,1234) itone(1:20)
+1234 format(20i3)
+
+  txt=NN*NSPS0/12000.0
+  write(*,1000) f0,xdt,txt,snrdb,nfiles,msgsent
+1000 format('f0:',f9.3,'   DT:',f6.2,'   txt:',f6.1,'   SNR:',f6.1,    &
+          '  nfiles:',i3,2x,a22)
 
   twopi=8.0*atan(1.0)
   fs=NSPS*12000.0/NSPS0                  !Sample rate
@@ -44,7 +49,6 @@ program wspr5sim
   phi=0.d0
   c0=0.
   k=-1
-  k=k+N2
   do j=1,NN
      dphi=dphi0
      if(itone(j).eq.1) dphi=dphi1
@@ -54,8 +58,9 @@ program wspr5sim
         phi=phi+dphi
         if(phi.gt.twopi) phi=phi-twopi
         xphi=phi
-        if(k.ge.NZ) exit              !### FIX THIS ###
         c0(k)=cmplx(cos(xphi),sin(xphi))
+!        write(39,3039) k,-c0(k)
+!3039    format(i8,2f12.6)
      enddo
   enddo
   c0=sig*c0                           !Scale to requested sig level

@@ -23,8 +23,8 @@ subroutine cpolyfitw(c,pp,id,maxn,aa,bb,zz,nhardsync)
         x(n)=float(ia+ib)/NZ - 1.0
         yi(n)=real(zz(j))*0.5*id(j)
         yq(n)=aimag(zz(j))*0.5*id(j)
-        write(54,1225) n,x(n),yi(n),yq(n)
-1225    format(i5,3f12.4)
+!        write(54,1225) n,x(n),yi(n),yq(n)
+!1225    format(i5,3f12.4)
      endif
      if(j.lt.jz) then
         zz(j+jz)=sum(pp*c(ia+NSPS:ib+NSPS))/NSPS
