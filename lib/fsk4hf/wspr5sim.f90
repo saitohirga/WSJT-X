@@ -25,8 +25,6 @@ program wspr5sim
   read(arg,*) snrdb
 
   call genwspr5(msg,ichk,msgsent,itone,itype)
-  write(*,1234) itone(1:20)
-1234 format(20i3)
 
   txt=NN*NSPS0/12000.0
   write(*,1000) f0,xdt,txt,snrdb,nfiles,msgsent
@@ -59,8 +57,6 @@ program wspr5sim
         if(phi.gt.twopi) phi=phi-twopi
         xphi=phi
         c0(k)=cmplx(cos(xphi),sin(xphi))
-!        write(39,3039) k,-c0(k)
-!3039    format(i8,2f12.6)
      enddo
   enddo
   c0=sig*c0                           !Scale to requested sig level
