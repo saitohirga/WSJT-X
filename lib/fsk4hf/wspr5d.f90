@@ -38,7 +38,6 @@ program wspr5d
   nargs=iargc()
   if(nargs.ne.1) then
      print*,'Usage:   wspr5d maxn'
-!     print*,'Example: wsprlfsim 0 0 0 5 10 -20'
      go to 999
   endif
   call getarg(1,arg)
@@ -62,7 +61,7 @@ program wspr5d
      n8=n8/2
   enddo
 
-! Defind array id() for sync symbols
+! Define array id() for sync symbols
   id=0
   do j=1,48                             !First group of 48
      id(2*j-1)=2*isync(j)
@@ -74,11 +73,20 @@ program wspr5d
      id(2*j+109)=2*isync(j)
   enddo
 
+  csync=0.
+  do j=1,205
+     if(abs(id(j)).eq.2) then
+        ia=nint((j-0.5)*N2)
+        ib=ia+N2-1
+        csync(ia:ib)=pp*id(j)/abs(id(j))
+     endif
+  enddo
+
   do ifile=1,9999
      read(10,end=999) c
 !     do i=0,NZ-1
-!        write(40,4001) i,c(i)
-!4001    format(i8,2f10.6)
+!        write(40,4001) i,c(i),csync(i)
+!4001    format(i8,4f12.6)
 !     enddo
      call getfc1w(c,fs,fc1)               !First approx for freq
      call getfc2w(c,csync,fs,fc1,fc2,fc3) !Refined freq
@@ -112,8 +120,11 @@ program wspr5d
            amax=abs(z)
            jpk=j
         endif
+!        write(45,4501) j,j/fs,abs(z)
+!4501    format(i8,2f12.3)
      enddo
      xdt=jpk/fs
+!     print*,fc1,fc1+fc2,xdt,amax
 !-----------------------------------------------------------------        
 
      nterms=maxn
@@ -155,8 +166,8 @@ program wspr5d
         idat(7)=ishft(idat(7),6)
         call wqdecode(idat,message,itype)
      endif
-     write(*,1110) nsnr,xdt,fc1+fc2,message
-1110 format(i4,f7.2,f7.2,2x,a22)
+     write(*,1110) ifile,nsnr,xdt,fc1+fc2,message
+1110 format(2i5,f7.2,f7.2,2x,a22)
   enddo
 
 999 end program wspr5d

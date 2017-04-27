@@ -15,7 +15,7 @@ subroutine genwspr5(msg,ichk,msgsent,itone,itype)
   integer jd(NS+ND)
   integer isync(48)                          !Long sync vector
   integer ib13(13)                           !Barker 13 code
-  integer itone(NN)
+  integer itone(NZ)
   integer*8 n8
   data ib13/1,1,1,1,1,-1,-1,1,1,-1,1,-1,1/
   data first/.true./
@@ -96,12 +96,12 @@ subroutine genwspr5(msg,ichk,msgsent,itone,itype)
      jd(2*j)=id(j+jz)/abs(id(j+jz))
   enddo
   jd(NS+ND)=id(jz)/abs(id(jz))
-  itone=0 
+  itone=0
   do j=1,jz-1
-     itone(2*j-1)=(jd(2*j)*jd(2*j-1)+1)/2;
-     itone(2*j)=-(jd(2*j)*jd(2*j+1)-1)/2;
+     itone(2*j+1)=(jd(2*j)*jd(2*j-1)+1)/2;
+     itone(2*j+2)=-(jd(2*j)*jd(2*j+1)-1)/2;
   enddo
-  itone(NS+ND)=jd(NS+ND)                       !### Is this correct ??? ###
+  itone(NS+ND+2)=jd(NS+ND)                       !### Is this correct ??? ###
 
   return
 end subroutine genwspr5
