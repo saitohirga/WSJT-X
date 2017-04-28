@@ -3,6 +3,8 @@ program wspr5d
 ! Simulate characteristics of a potential "WSPR-LF" mode using LDPC (300,60)
 ! code, OQPSK modulation, and 5 minute T/R sequences.
 
+! Q: Would it be better for central Sync array to use both I and Q channels?
+
 ! Reception and Demodulation algorithm:
 !   1. Compute coarse spectrum; find fc1 = approx carrier freq
 !   2. Mix from fc1 to 0; LPF at +/- 0.75*R
@@ -13,15 +15,14 @@ program wspr5d
 !   7. Get soft bits from equalized data
 
   include 'wsprlf_params.f90'
-
-! Q: Would it be better for central Sync array to use both I and Q channels?
-  
-  character arg*8,message*22,cbits*50
+  parameter (NMAX=300*12000)
+  character arg*8,message*22,cbits*50,infile*80,fname*16
   complex csync(0:NZ-1)                 !Sync symbols only, from cbb
   complex c(0:NZ-1)                     !Complex waveform
   complex c1(0:NZ-1)                    !Complex waveform
   complex zz(NS+ND)                     !Complex symbol values (intermediate)
   complex z
+  real*8 fMHz
   real rxdata(ND),llr(ND)               !Soft symbols
   real pp(2*NSPS)                       !Shaped pulse for OQPSK
   real a(5)                             !For twkfreq1
@@ -31,13 +32,14 @@ program wspr5d
   integer isync(48)                     !Long sync vector
   integer ib13(13)                      !Barker 13 code
   integer*8 n8
+  integer*2 iwave(NMAX)                 !Generated full-length waveform  
   integer*1 idat(7)
   integer*1 decoded(KK),apmask(ND),cw(ND)
   data ib13/1,1,1,1,1,-1,-1,1,1,-1,1,-1,1/
   
   nargs=iargc()
-  if(nargs.ne.1) then
-     print*,'Usage:   wspr5d maxn'
+  if(nargs.lt.2) then
+     print*,'Usage:   wspr5d maxn file1 [file2 ...]'
      go to 999
   endif
   call getarg(1,arg)
@@ -82,8 +84,17 @@ program wspr5d
      endif
   enddo
 
-  do ifile=1,9999
-     read(10,end=999) c
+  do ifile=1,nargs-1
+     call getarg(ifile+1,infile)
+     open(10,file=infile,status='old',access='stream')
+     if(index(infile,'.c5').gt.0) then
+        read(10,end=999) fname,ntrmin,fMHz,c
+        close(10)
+        read(fname(8:11),*) nutc
+     else
+        print*,'Wrong file format?'
+        go to 999
+     endif
 !     do i=0,NZ-1
 !        write(40,4001) i,c(i),csync(i)
 !4001    format(i8,4f12.6)
@@ -102,7 +113,8 @@ program wspr5d
      jpk=0
      iaa=0
      ibb=NZ-1
-     do j=-20*NSPS,20*NSPS,NSPS/8
+     jmax=1260
+     do j=-jmax,jmax,NSPS/8
         ia=j
         ib=NZ-1+j
         if(ia.lt.0) then
@@ -171,8 +183,8 @@ program wspr5d
         call wqdecode(idat,message,itype)
      endif
      nsnr=nint(xsnr)
-     write(*,1110) ifile,nsnr,xdt,fc1+fc2,message
-1110 format(2i5,f7.2,f7.2,2x,a22)
-  enddo
+     write(*,1110) nutc,nsnr,xdt,fc1+fc2,message
+1110 format(i4.4,i5,f7.2,f7.2,2x,a22)
+  enddo                                   ! ifile loop
 
 999 end program wspr5d

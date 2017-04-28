@@ -505,6 +505,7 @@ set (wsjt_FSRCS
   lib/wqencode.f90
   lib/fsk4hf/wspr5d.f90
   lib/fsk4hf/wspr5sim.f90
+  lib/fsk4hf/wspr5_wav.f90
   lib/fsk4hf/wsprlfsim.f90
   lib/wspr_downsample.f90
   lib/zplot9.f90

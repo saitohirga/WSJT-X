@@ -489,6 +489,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->actionJT9_JT65->setActionGroup(modeGroup);
   ui->actionJT4->setActionGroup(modeGroup);
   ui->actionWSPR->setActionGroup(modeGroup);
+  ui->actionWSPR_LF->setActionGroup(modeGroup);
   ui->actionEcho->setActionGroup(modeGroup);
   ui->actionISCAT->setActionGroup(modeGroup);
   ui->actionMSK144->setActionGroup(modeGroup);
@@ -811,6 +812,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   if(m_mode=="JT65") on_actionJT65_triggered();
   if(m_mode=="JT9+JT65") on_actionJT9_JT65_triggered();
   if(m_mode=="WSPR") on_actionWSPR_triggered();
+  if(m_mode=="WSPR-LF") on_actionWSPR_LF_triggered();
   if(m_mode=="ISCAT") on_actionISCAT_triggered();
   if(m_mode=="MSK144") on_actionMSK144_triggered();
   if(m_mode=="QRA64") on_actionQRA64_triggered();
@@ -878,6 +880,9 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (&splashTimer, &QTimer::timeout, this, &MainWindow::splash_done);
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
+
+  if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
+     m_config.my_callsign()=="G4WJS") ui->actionWSPR_LF->setEnabled(true);
 
   // this must be the last statement of constructor
   if (!m_valid) throw std::runtime_error {"Fatal initialization exception"};
@@ -1101,8 +1106,8 @@ void MainWindow::fixStop()
   m_hsymStop=179;
   if(m_mode=="WSPR") {
     m_hsymStop=396;
-  } else if(m_mode=="WSPR-15") {
-    m_hsymStop=3090;
+  } else if(m_mode=="WSPR-LF") {
+    m_hsymStop=1030;
   } else if(m_mode=="Echo") {
     m_hsymStop=10;
   } else if (m_mode=="JT4"){
@@ -1536,6 +1541,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       if(m_config.contestMode() != bcontest0) genStdMsgs(m_rpt);
     }
     if(m_mode=="WSPR") on_actionWSPR_triggered();
+    if(m_mode=="WSPR-LF") on_actionWSPR_LF_triggered();
     if(m_mode=="Echo") on_actionEcho_triggered();
   }
 
@@ -2175,8 +2181,9 @@ void MainWindow::read_wav_file (QString const& fname)
           auto n = file.read (reinterpret_cast<char *> (dec_data.d2),
                             std::min (max_bytes, file.size ()));
           int frames_read = n / bytes_per_frame;
+//          qDebug() << "a" << max_bytes << n << frames_read << frames_read/12000.0 << m_TRperiod;
         // zero unfilled remaining sample space
-          std::memset (&dec_data.d2[0] + n, 0, max_bytes - n);
+          std::memset(&dec_data.d2[frames_read],0,max_bytes - n);
           if (11025 == file.format ().sampleRate ()) {
             short sample_size = file.format ().sampleSize ();
             wav12_ (dec_data.d2, dec_data.d2, &frames_read, &sample_size);
@@ -2793,7 +2800,8 @@ void MainWindow::guiUpdate()
   if(m_modeTx=="JT9")  txDuration=1.0 + 85.0*m_nsps/12000.0;  // JT9
   if(m_modeTx=="JT65") txDuration=1.0 + 126*4096/11025.0;     // JT65
   if(m_mode=="QRA64")  txDuration=1.0 + 84*6912/12000.0;      // QRA64
-  if(m_mode=="WSPR") txDuration=2.0 + 162*8192/12000.0;     // WSPR
+  if(m_mode=="WSPR") txDuration=2.0 + 162*8192/12000.0;       // WSPR
+  if(m_mode=="WSPR-LF") txDuration=2.0 + 412*8640/12000.0;    // WSPR-LF
   if(m_mode=="ISCAT" or m_mode=="MSK144" or m_bFast9) {
     txDuration=m_TRperiod-0.25; // ISCAT, JT9-fast, MSK144
   }
@@ -2977,7 +2985,7 @@ void MainWindow::guiUpdate()
                                     &m_currentMessageType, len1, len1);
         if(m_mode=="QRA64") genqra64_(message, &ichk, msgsent, const_cast<int *> (itone),
                                     &m_currentMessageType, len1, len1);
-        if(m_mode.startsWith ("WSPR")) genwspr_(message, msgsent, const_cast<int *> (itone),
+        if(m_mode=="WSPR") genwspr_(message, msgsent, const_cast<int *> (itone),
                                              len1, len1);
         if(m_modeTx=="MSK144") {
           bool bcontest=m_config.contestMode();
@@ -4556,6 +4564,23 @@ void MainWindow::on_actionWSPR_triggered()
   fast_config(false);
   ui->TxFreqSpinBox->setValue(ui->WSPRfreqSpinBox->value());
   statusChanged();
+}
+
+void MainWindow::on_actionWSPR_LF_triggered()
+{
+  on_actionWSPR_triggered();
+  m_mode="WSPR-LF";
+  switch_mode (Modes::WSPR);
+  m_modeTx="WSPR-LF";
+  m_TRperiod=300;
+  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
+  m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
+  m_hsymStop=1030;
+  m_toneSpacing=0.5*12000.0/8640.0;
+  setup_status_bar (false);
+  ui->actionWSPR_LF->setChecked(true);
+   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
+   statusChanged();
 }
 
 void MainWindow::on_actionEcho_triggered()

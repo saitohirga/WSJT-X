@@ -15,7 +15,7 @@ subroutine genwspr5(msg,ichk,msgsent,itone,itype)
   integer jd(NS+ND)
   integer isync(48)                          !Long sync vector
   integer ib13(13)                           !Barker 13 code
-  integer itone(NZ)
+  integer itone(NN)
   integer*8 n8
   data ib13/1,1,1,1,1,-1,-1,1,1,-1,1,-1,1/
   data first/.true./
