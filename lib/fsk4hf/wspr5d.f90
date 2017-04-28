@@ -88,8 +88,8 @@ program wspr5d
 !        write(40,4001) i,c(i),csync(i)
 !4001    format(i8,4f12.6)
 !     enddo
-     call getfc1w(c,fs,fc1)               !First approx for freq
-     call getfc2w(c,csync,fs,fc1,fc2,fc3) !Refined freq
+     call getfc1w(c,fs,fc1,xsnr)               !First approx for freq
+     call getfc2w(c,csync,fs,fc1,fc2,fc3)      !Refined freq
 
 !NB: Measured performance is about equally good using fc2 or fc3 here:
      a(1)=-(fc1+fc2)
@@ -124,11 +124,15 @@ program wspr5d
 !4501    format(i8,2f12.3)
      enddo
      xdt=jpk/fs
+     do i=0,NZ-1
+        j=i+jpk
+        if(j.ge.0 .and. j.lt.NZ) c1(i)=c(j)
+     enddo
 !     print*,fc1,fc1+fc2,xdt,amax
 !-----------------------------------------------------------------        
 
      nterms=maxn
-     c1=c
+!     c1=c
 !     do itry=1,1000
      do itry=1,20
         idf=itry/2
@@ -166,6 +170,7 @@ program wspr5d
         idat(7)=ishft(idat(7),6)
         call wqdecode(idat,message,itype)
      endif
+     nsnr=nint(xsnr)
      write(*,1110) ifile,nsnr,xdt,fc1+fc2,message
 1110 format(2i5,f7.2,f7.2,2x,a22)
   enddo

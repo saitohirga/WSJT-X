@@ -46,7 +46,7 @@ program wspr5sim
   dphi1=twopi*(f0+0.25d0*baud)*dt
   phi=0.d0
   c0=0.
-  k=-1
+  k=-1 + nint(xdt/dt)
   do j=1,NN
      dphi=dphi0
      if(itone(j).eq.1) dphi=dphi1
@@ -56,7 +56,7 @@ program wspr5sim
         phi=phi+dphi
         if(phi.gt.twopi) phi=phi-twopi
         xphi=phi
-        c0(k)=cmplx(cos(xphi),sin(xphi))
+        if(k.ge.0 .and. k.lt.NZ) c0(k)=cmplx(cos(xphi),sin(xphi))
      enddo
   enddo
   c0=sig*c0                           !Scale to requested sig level
