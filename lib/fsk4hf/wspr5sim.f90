@@ -94,6 +94,8 @@ program wspr5sim
         write(10) h,iwave                !Save the .wav file
         close(10)
      endif
+     write(*,1110) ifile,xdt,f0,snrdb,fname
+1110 format(i4,f7.2,f8.2,f7.1,2x,a16)
   enddo
        
 999 end program wspr5sim
