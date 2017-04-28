@@ -25,7 +25,7 @@ subroutine getfc1w(c,fs,fc1,xsnr)
   smax=0.
   ipk=0
   fc1=0.
-  ia=nint(100.0/df1)
+  ia=nint(190.0/df1)
   do i=-ia,ia
      f=i*df1
      if(s(i).gt.smax) then

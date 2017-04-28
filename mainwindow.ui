@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>867</width>
+    <height>583</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>WSJT-X   by K1JT</string>
   </property>
@@ -2358,6 +2366,14 @@ QPushButton[state=&quot;ok&quot;] {
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>867</width>
+     <height>21</height>
+    </rect>
+   </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
@@ -2436,6 +2452,7 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="actionMSK144"/>
     <addaction name="separator"/>
     <addaction name="actionWSPR"/>
+    <addaction name="actionWSPR_LF"/>
     <addaction name="separator"/>
     <addaction name="actionEcho"/>
     <addaction name="separator"/>
@@ -2978,6 +2995,20 @@ QPushButton[state=&quot;ok&quot;] {
   <action name="view_phase_response_action">
    <property name="text">
     <string>View phase response ...</string>
+   </property>
+  </action>
+  <action name="actionWSPR_LF">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>WSPR-LF</string>
+   </property>
+   <property name="toolTip">
+    <string>Experimental LF/MF mode</string>
    </property>
   </action>
  </widget>

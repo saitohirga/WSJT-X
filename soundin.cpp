@@ -50,7 +50,7 @@ void SoundInput::start(QAudioDeviceInfo const& device, int framesPerBuffer, Audi
   m_sink = sink;
 
   QAudioFormat format (device.preferredFormat());
-  qDebug () << "Preferred audio input format:" << format;
+//  qDebug () << "Preferred audio input format:" << format;
   format.setChannelCount (AudioDevice::Mono == channel ? 1 : 2);
   format.setCodec ("audio/pcm");
   format.setSampleRate (12000 * downSampleFactor);
@@ -65,11 +65,11 @@ void SoundInput::start(QAudioDeviceInfo const& device, int framesPerBuffer, Audi
 
   if (!device.isFormatSupported (format))
     {
-      qDebug () << "Nearest supported audio format:" << device.nearestFormat (format);
+//      qDebug () << "Nearest supported audio format:" << device.nearestFormat (format);
       Q_EMIT error (tr ("Requested input audio format is not supported on device."));
       return;
     }
-  qDebug () << "Selected audio input format:" << format;
+//  qDebug () << "Selected audio input format:" << format;
 
   m_stream.reset (new QAudioInput {device, format});
   if (audioError ())
