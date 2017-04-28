@@ -63,6 +63,7 @@ subroutine msksoftsymw(zz,aa,bb,id,nterms,ierror,rxdata,nhard0,nhardsync0)
      z=zz(j)*conjg(z0)
      p=aimag(z)
      n=n+1
+     if(n.gt.ND) exit
      rxdata(n)=p
      ierr=0
      if(id(j)*p.lt.0) then
