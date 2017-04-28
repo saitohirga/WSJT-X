@@ -1,4 +1,4 @@
-subroutine getfc1w(c,fs,fc1)
+subroutine getfc1w(c,fs,fc1,xsnr)
 
   include 'wsprlf_params.f90'
 
@@ -25,7 +25,7 @@ subroutine getfc1w(c,fs,fc1)
   smax=0.
   ipk=0
   fc1=0.
-  ia=nint(10.0/df1)
+  ia=nint(100.0/df1)
   do i=-ia,ia
      f=i*df1
      if(s(i).gt.smax) then
@@ -38,11 +38,11 @@ subroutine getfc1w(c,fs,fc1)
   enddo
 
 ! The following is for testing SNR calibration:
-!        sp3n=(s(ipk-1)+s(ipk)+s(ipk+1))               !Sig + 3*noise
-!        base=(sum(s)-sp3n)/(NFFT1-3.0)                !Noise per bin
-!        psig=sp3n-3*base                              !Sig only
-!        pnoise=(2500.0/df1)*base                      !Noise in 2500 Hz
-!        xsnrdb=db(psig/pnoise)
+  sp3n=(s(ipk-1)+s(ipk)+s(ipk+1))               !Sig + 3*noise
+  base=(sum(s)-sp3n)/(NFFT1-3.0)                !Noise per bin
+  psig=sp3n-3*base                              !Sig only
+  pnoise=(2500.0/df1)*base                      !Noise in 2500 Hz
+  xsnr=db(psig/pnoise)
 
   return
 end subroutine getfc1w
