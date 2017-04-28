@@ -31,6 +31,7 @@ program wspr5d
   integer ierror(NS+ND)
   integer isync(48)                     !Long sync vector
   integer ib13(13)                      !Barker 13 code
+  integer ihdr(11)
   integer*8 n8
   integer*2 iwave(NMAX)                 !Generated full-length waveform  
   integer*1 idat(7)
@@ -91,6 +92,9 @@ program wspr5d
         read(10,end=999) fname,ntrmin,fMHz,c
         close(10)
         read(fname(8:11),*) nutc
+     else if(index(infile,'.wav').gt.0) then
+        read(10,end=999) ihdr,iwave
+        call wspr5_downsample(iwave,c)
      else
         print*,'Wrong file format?'
         go to 999
@@ -188,3 +192,5 @@ program wspr5d
   enddo                                   ! ifile loop
 
 999 end program wspr5d
+
+  include 'wspr5_downsample.f90'

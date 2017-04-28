@@ -37,8 +37,6 @@ subroutine wspr5_wav(baud,xdt,f0,itone,snrdb,iwave)
         if(k.gt.0 .and. k.le.NMAX) dat(k)=dat(k) + sig*sin(xphi)
      enddo
   enddo
-  print*,NN,NSPS0,k
-
   fac=32767.0
   rms=100.0
   if(snrdb.ge.90.0) iwave=nint(fac*dat)
