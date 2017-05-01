@@ -1,6 +1,7 @@
 program wspr5sim
 
-! Generate simulated data for the 5-minute "WSPR-LF" mode.
+! Generate simulated data for a 5-minute "WSPR-LF" mode.  Output is saved 
+! to a *.c5 or *.wav file.
 
   use wavhdr
   include 'wsprlf_params.f90'            !Set various constants
@@ -12,7 +13,7 @@ program wspr5sim
   complex c(0:NZ-1)
   real*8 fMHz
   integer itone(NN)
-  integer*2 iwave(NMAX)                 !Generated full-length waveform  
+  integer*2 iwave(NMAX)                  !Generated full-length waveform  
 
 ! Get command-line argument(s)
   nargs=iargc()
@@ -45,7 +46,7 @@ program wspr5sim
   if(snrdb.gt.90.0) sig=1.0
   txt=NN*NSPS0/12000.0
 
-  call genwspr5(msg,ichk,msgsent,itone,itype)  !Encode the message, get itone()
+  call genwspr5(msg,ichk,msgsent,itone,itype)  !Encode the message, get itone
   write(*,1000) f0,xdt,txt,snrdb,nfiles,msgsent
 1000 format('f0:',f9.3,'   DT:',f6.2,'   txt:',f6.1,'   SNR:',f6.1,    &
           '  nfiles:',i3,2x,a22)
@@ -55,7 +56,7 @@ program wspr5sim
   phi=0.0
   c0=0.
   k=-1 + nint(xdt/dt)
-  do j=1,NN
+  do j=1,NN                              !Generate OQPSK waveform from itone
      dphi=dphi0
      if(itone(j).eq.1) dphi=dphi1
      if(k.eq.0) phi=-dphi
@@ -67,7 +68,7 @@ program wspr5sim
         if(k.ge.0 .and. k.lt.NZ) c0(k)=cmplx(cos(xphi),sin(xphi))
      enddo
   enddo
-  c0=sig*c0                           !Scale to requested sig level
+  c0=sig*c0                              !Scale to requested sig level
 
   do ifile=1,nfiles
      if(nwav.eq.0) then
@@ -83,7 +84,7 @@ program wspr5sim
         open(10,file=fname,status='unknown',access='stream')
         fMHz=10.1387d0
         nmin=5
-        write(10) fname,nmin,fMHz,c
+        write(10) fname,nmin,fMHz,c      !Save to *.c5 file
         close(10)
      else
         call wspr5_wav(baud,xdt,f0,itone,snrdb,iwave)
@@ -91,7 +92,7 @@ program wspr5sim
         write(fname,1102) ifile
 1102    format('000000_',i4.4,'.wav')
         open(10,file=fname,status='unknown',access='stream')
-        write(10) h,iwave                !Save the .wav file
+        write(10) h,iwave                !Save to *.wav file
         close(10)
      endif
      write(*,1110) ifile,xdt,f0,snrdb,fname

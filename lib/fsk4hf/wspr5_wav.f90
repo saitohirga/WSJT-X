@@ -1,5 +1,7 @@
 subroutine wspr5_wav(baud,xdt,f0,itone,snrdb,iwave)
 
+! Generate iwave() from itone().
+  
   include 'wsprlf_params.f90'
   parameter (NMAX=300*12000)
   integer itone(NN)

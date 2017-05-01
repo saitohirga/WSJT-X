@@ -1,5 +1,8 @@
 subroutine wspr5_downsample(iwave,c)
 
+! Input: i*2 data in iwave() at sample rate 12000 Hz
+! Output: Complex data in c(), sampled at 400 Hz
+
   include 'wsprlf_params.f90'
   parameter (NMAX=300*12000,NFFT2=NMAX/30)
   integer*2 iwave(NMAX)
