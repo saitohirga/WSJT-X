@@ -1,6 +1,6 @@
 subroutine genwspr5(msg,ichk,msgsent,itone,itype)
 
-!Encode a WSPR-LF message, produce itone() array.
+! Encode a WSPR-LF message, producing array itone().
   
   use crc
   include 'wsprlf_params.f90'

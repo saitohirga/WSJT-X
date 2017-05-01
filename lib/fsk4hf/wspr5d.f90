@@ -1,9 +1,9 @@
 program wspr5d
 
-! Simulate characteristics of a potential "WSPR-LF" mode using LDPC (300,60)
-! code, OQPSK modulation, and 5 minute T/R sequences.
+! Decode WSPR-LF data read from *.c5 or *.wav files.
 
-! Q: Would it be better for central Sync array to use both I and Q channels?
+! WSPR-LF is a potential WSPR-like mode intended for use at LF and MF.
+! It uses an LDPC (300,60) code, OQPSK modulation, and 5 minute T/R sequences.
 
 ! Reception and Demodulation algorithm:
 !   1. Compute coarse spectrum; find fc1 = approx carrier freq
@@ -13,6 +13,8 @@ program wspr5d
 !   5. Fit cb13 (central part of csync) to c -> lag, phase
 !   6. Fit complex ploynomial for channel equalization
 !   7. Get soft bits from equalized data
+
+! Still to do: find and decode more than one signal in the specified passband.
 
   include 'wsprlf_params.f90'
   parameter (NMAX=300*12000)
@@ -111,8 +113,7 @@ program wspr5d
      a(2:5)=0.
      call twkfreq1(c,NZ,fs,a,c)       !Mix c down by fc1+fc2
 
-!---------------------------------------------------------------- DT
-! Not presently used:
+! Find time offset xdt
      amax=0.
      jpk=0
      iaa=0
