@@ -12,11 +12,11 @@ integer*1 genmrb(60,300)
 integer*1 temp(60),m0(60),me(60)
 integer indices(300)
 integer, parameter:: N=300, K=60, M=N-K
-integer*1 codeword(N),cw(N),apmask(N),hdec(N)
+integer*1 codeword(N),cw(N),hdec(N)
 integer  colorder(N)
 integer*1 decoded(K)
-integer indx(N),indxmrb(K)
-real llr(N),rx(N),absrx(N),absmrb(K)
+integer indx(N)
+real llr(N),rx(N),absrx(N)
 logical first
 data first/.true./
 data g/            &
@@ -351,15 +351,6 @@ enddo
 ! zero'th order codeword estimate (assuming no errors in the MRB).
 m0=0
 where (rx(indices(241:300)).ge.0.0) m0=1
-absmrb=abs(rx(indices(241:300)))
-!do i=1,60
-!write(*,*) i,absmrb(i)
-!enddo
-call indexx(absmrb,K,indxmrb)
-!do i=1,60
-!write(*,*) i,absmrb(i),indxmrb(i),absmrb(indxmrb(i))
-!enddo
-xmed=absmrb(45)
 
 ! the MRB should have only a few errors. Try various error patterns,
 ! re-encode each errored version of the MRBs, re-order the resulting codeword
@@ -376,7 +367,9 @@ do i1=0,60
         if( i3 .ne. 0 ) me(i3)=1-me(i3)
         if( i4 .ne. 0 ) me(i4)=1-me(i4)
 
-! me is the "errored" message = MRB's + error pattern
+! me is the MRB message + error pattern 
+! use the modified generator matrix to encode this message, 
+! producing a codeword that will be tested against the received vector
         do i=1, 300
           nsum=sum(iand(me,genmrb(1:60,i)))
           codeword(i)=mod(nsum,2)
@@ -402,7 +395,7 @@ do i1=0,60
 enddo
 
 200 decoded=cw(241:300)
-!write(*,*) absmrb(i1min),absmrb(i2min),absmrb(i3min),absmrb(i4min),xmed,nhardmin
+!write(*,*) absmrb(i1min),absmrb(i2min),absmrb(i3min),absmrb(i4min),nhardmin
 niterations=-1
 if( nhardmin .le. 90 ) niterations=1
 return
