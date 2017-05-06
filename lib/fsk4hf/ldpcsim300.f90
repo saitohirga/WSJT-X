@@ -115,7 +115,8 @@ write(*,*) i1Msg8BitBytes(1:9)
   write(*,'(38(8i1,1x))') codeword
 
 write(*,*) "Es/N0  SNR2500   ngood  nundetected nbadcrc   sigma"
-do idb = -14, 20 
+do idb = 20,-14,-1
+!do idb = -10, -10 
   db=idb/2.0-1.0
 !  sigma=1/sqrt( 2*rate*(10**(db/10.0)) )  ! to make db represent Eb/No
   sigma=1/sqrt( 2*(10**(db/10.0)) )        ! db represents Es/No
@@ -168,6 +169,9 @@ do idb = -14, 20
 
 ! max_iterations is max number of belief propagation iterations
     call bpdecode300(llr, apmask, max_iterations, decoded, niterations, cw)
+    if( niterations .lt. 0 ) then
+      call osd300(llr, decoded, niterations, cw)
+    endif
     n2err=0
     do i=1,N
       if( cw(i)*(2*codeword(i)-1.0) .lt. 0 ) n2err=n2err+1
@@ -225,7 +229,7 @@ do idb = -14, 20
       endif
     endif
   enddo
-  snr2500=db+10*log10(1.03/2500.0)
+  snr2500=db+10*log10(1.389/2500.0)
   pberr=real(nberr)/(real(ntrials*N))
   write(*,"(f4.1,4x,f5.1,1x,i8,1x,i8,1x,i8,8x,f5.2,8x,e10.3)") db,snr2500,ngood,nue,nbadcrc,ss,pberr
 
