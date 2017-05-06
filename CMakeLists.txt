@@ -449,6 +449,7 @@ set (wsjt_FSRCS
   lib/mskrtd.f90
   lib/fsk4hf/msksoftsym.f90
   lib/fsk4hf/msksoftsymw.f90
+  lib/fsk4hf/osd300.f90
   lib/pctile.f90
   lib/peakdt9.f90
   lib/peakup.f90
