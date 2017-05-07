@@ -204,7 +204,7 @@ do idb = -10, 24
       endif
     endif
   enddo
-  snr2500=db+10*log10(8.333/2500.0)
+  snr2500=db+10*log10(10.417/2500.0)
   pberr=real(nberr)/(real(ntrials*N))
   write(*,"(f4.1,4x,f5.1,1x,i8,1x,i8,1x,i8,8x,f5.2,8x,e10.3)") db,snr2500,ngood,nue,nbadcrc,ss,pberr
 
