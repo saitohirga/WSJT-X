@@ -1,4 +1,5 @@
 #include "widegraph.h"
+#include <algorithm>
 #include <QApplication>
 #include <QSettings>
 #include "ui_widegraph.h"
@@ -21,6 +22,7 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   m_palettes_path {":/Palettes"},
   m_ntr0 {0},
   m_lockTxFreq {false},
+  m_bHaveTransmitted {false},
   m_n {0}
 {
   ui->setupUi(this);
@@ -40,59 +42,61 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   connect(ui->widePlot, SIGNAL(setFreq1(int,int)),this,
           SLOT(setFreq2(int,int)));
 
-  //Restore user's settings
-  m_settings->beginGroup("WideGraph");
-  restoreGeometry (m_settings->value ("geometry", saveGeometry ()).toByteArray ());
-  ui->widePlot->setPlotZero(m_settings->value("PlotZero", 0).toInt());
-  ui->widePlot->setPlotGain(m_settings->value("PlotGain", 0).toInt());
-  ui->widePlot->setPlot2dGain(m_settings->value("Plot2dGain", 0).toInt());
-  ui->widePlot->setPlot2dZero(m_settings->value("Plot2dZero", 0).toInt());
-  ui->zeroSlider->setValue(ui->widePlot->plotZero());
-  ui->gainSlider->setValue(ui->widePlot->plotGain());
-  ui->gain2dSlider->setValue(ui->widePlot->plot2dGain());
-  ui->zero2dSlider->setValue(ui->widePlot->plot2dZero());
-  int n = m_settings->value("BinsPerPixel",2).toInt();
-  m_bFlatten=m_settings->value("Flatten",true).toBool();
-  m_bRef=m_settings->value("UseRef",false).toBool();
-  ui->cbFlatten->setChecked(m_bFlatten);
-  ui->widePlot->setFlatten(m_bFlatten,m_bRef);
-  ui->cbRef->setChecked(m_bRef);
-  ui->widePlot->setBreadth(m_settings->value("PlotWidth",1000).toInt());
-  ui->bppSpinBox->setValue(n);
-  m_nsmo=m_settings->value("SmoothYellow",1).toInt();
-  ui->smoSpinBox->setValue(m_nsmo);
-  m_Percent2DScreen=m_settings->value("Percent2D",30).toInt();
-  ui->sbPercent2dPlot->setValue(m_Percent2DScreen);
-  m_waterfallAvg = m_settings->value("WaterfallAvg",5).toInt();
-  ui->waterfallAvgSpinBox->setValue(m_waterfallAvg);
-  ui->widePlot->setWaterfallAvg(m_waterfallAvg);
-  ui->widePlot->setCurrent(m_settings->value("Current",false).toBool());
-  ui->widePlot->setCumulative(m_settings->value("Cumulative",true).toBool());
-  ui->widePlot->setLinearAvg(m_settings->value("LinearAvg",false).toBool());
-  ui->widePlot->setReference(m_settings->value("Reference",false).toBool());
-  if(ui->widePlot->current()) ui->spec2dComboBox->setCurrentIndex(0);
-  if(ui->widePlot->cumulative()) ui->spec2dComboBox->setCurrentIndex(1);
-  if(ui->widePlot->linearAvg()) ui->spec2dComboBox->setCurrentIndex(2);
-  if(ui->widePlot->Reference()) ui->spec2dComboBox->setCurrentIndex(3);
-  int nbpp=m_settings->value("BinsPerPixel",2).toInt();
-  ui->widePlot->setBinsPerPixel(nbpp);
-  ui->widePlot->setStartFreq(m_settings->value("StartFreq",0).toInt());
-  ui->fStartSpinBox->setValue(ui->widePlot->startFreq());
-  m_waterfallPalette=m_settings->value("WaterfallPalette","Default").toString();
-  m_userPalette = WFPalette {m_settings->value("UserPalette").value<WFPalette::Colours> ()};
-  int m_fMin = m_settings->value ("Fmin", 2500).toInt ();
-  ui->fSplitSpinBox->setValue (m_fMin);
-  setRxRange (m_fMin);
-  ui->controls_widget->setVisible(!m_settings->value("HideControls", false).toBool ());
-  m_settings->endGroup();
+  {
+    //Restore user's settings
+    SettingsGroup g {m_settings, "WideGraph"};
+    restoreGeometry (m_settings->value ("geometry", saveGeometry ()).toByteArray ());
+    ui->widePlot->setPlotZero(m_settings->value("PlotZero", 0).toInt());
+    ui->widePlot->setPlotGain(m_settings->value("PlotGain", 0).toInt());
+    ui->widePlot->setPlot2dGain(m_settings->value("Plot2dGain", 0).toInt());
+    ui->widePlot->setPlot2dZero(m_settings->value("Plot2dZero", 0).toInt());
+    ui->zeroSlider->setValue(ui->widePlot->plotZero());
+    ui->gainSlider->setValue(ui->widePlot->plotGain());
+    ui->gain2dSlider->setValue(ui->widePlot->plot2dGain());
+    ui->zero2dSlider->setValue(ui->widePlot->plot2dZero());
+    int n = m_settings->value("BinsPerPixel",2).toInt();
+    m_bFlatten=m_settings->value("Flatten",true).toBool();
+    m_bRef=m_settings->value("UseRef",false).toBool();
+    ui->cbFlatten->setChecked(m_bFlatten);
+    ui->widePlot->setFlatten(m_bFlatten,m_bRef);
+    ui->cbRef->setChecked(m_bRef);
+    ui->widePlot->setBreadth(m_settings->value("PlotWidth",1000).toInt());
+    ui->bppSpinBox->setValue(n);
+    m_nsmo=m_settings->value("SmoothYellow",1).toInt();
+    ui->smoSpinBox->setValue(m_nsmo);
+    m_Percent2DScreen=m_settings->value("Percent2D",30).toInt();
+    ui->sbPercent2dPlot->setValue(m_Percent2DScreen);
+    m_waterfallAvg = m_settings->value("WaterfallAvg",5).toInt();
+    ui->waterfallAvgSpinBox->setValue(m_waterfallAvg);
+    ui->widePlot->setWaterfallAvg(m_waterfallAvg);
+    ui->widePlot->setCurrent(m_settings->value("Current",false).toBool());
+    ui->widePlot->setCumulative(m_settings->value("Cumulative",true).toBool());
+    ui->widePlot->setLinearAvg(m_settings->value("LinearAvg",false).toBool());
+    ui->widePlot->setReference(m_settings->value("Reference",false).toBool());
+    if(ui->widePlot->current()) ui->spec2dComboBox->setCurrentIndex(0);
+    if(ui->widePlot->cumulative()) ui->spec2dComboBox->setCurrentIndex(1);
+    if(ui->widePlot->linearAvg()) ui->spec2dComboBox->setCurrentIndex(2);
+    if(ui->widePlot->Reference()) ui->spec2dComboBox->setCurrentIndex(3);
+    int nbpp=m_settings->value("BinsPerPixel",2).toInt();
+    ui->widePlot->setBinsPerPixel(nbpp);
+    ui->widePlot->setStartFreq(m_settings->value("StartFreq",0).toInt());
+    ui->fStartSpinBox->setValue(ui->widePlot->startFreq());
+    m_waterfallPalette=m_settings->value("WaterfallPalette","Default").toString();
+    m_userPalette = WFPalette {m_settings->value("UserPalette").value<WFPalette::Colours> ()};
+    int m_fMin = m_settings->value ("Fmin", 2500).toInt ();
+    ui->fSplitSpinBox->setValue (m_fMin);
+    setRxRange ();
+    ui->controls_widget->setVisible(!m_settings->value("HideControls", false).toBool ());
+  }
 
   saveSettings ();		// update config with defaults
 
-  QStringList allFiles = m_palettes_path.entryList(QDir::NoDotAndDotDot |
-        QDir::System | QDir::Hidden | QDir::AllDirs | QDir::Files,
-        QDir::DirsFirst);
   int index=0;
-  foreach(QString file, allFiles) {
+  for (QString const& file:
+         m_palettes_path.entryList(QDir::NoDotAndDotDot |
+                                   QDir::System | QDir::Hidden |
+                                   QDir::AllDirs | QDir::Files,
+                                   QDir::DirsFirst)) {
     QString t=file.mid(0,file.length()-4);
     ui->paletteComboBox->addItem(t);
     if(t==m_waterfallPalette) ui->paletteComboBox->setCurrentIndex(index);
@@ -101,7 +105,6 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   ui->paletteComboBox->addItem (user_defined);
   if (user_defined == m_waterfallPalette) ui->paletteComboBox->setCurrentIndex(index);
   readPalette ();
-  m_bHaveTransmitted=false;
 }
 
 WideGraph::~WideGraph ()
@@ -116,7 +119,7 @@ void WideGraph::closeEvent (QCloseEvent * e)
 
 void WideGraph::saveSettings()                                           //saveSettings
 {
-  m_settings->beginGroup ("WideGraph");
+  SettingsGroup g {m_settings, "WideGraph"};
   m_settings->setValue ("geometry", saveGeometry ());
   m_settings->setValue ("PlotZero", ui->widePlot->plotZero());
   m_settings->setValue ("PlotGain", ui->widePlot->plotGain());
@@ -135,11 +138,9 @@ void WideGraph::saveSettings()                                           //saveS
   m_settings->setValue ("StartFreq", ui->widePlot->startFreq ());
   m_settings->setValue ("WaterfallPalette", m_waterfallPalette);
   m_settings->setValue ("UserPalette", QVariant::fromValue (m_userPalette.colours ()));
-  m_settings->setValue ("Fmin", m_fMin);
   m_settings->setValue("Flatten",m_bFlatten);
   m_settings->setValue("UseRef",m_bRef);
   m_settings->setValue("HideControls",!ui->controls_widget->isVisible());
-  m_settings->endGroup ();
 }
 
 void WideGraph::drawRed(int ia, int ib)
@@ -252,31 +253,21 @@ void WideGraph::wideFreezeDecode(int n)                              //wideFreez
   emit freezeDecode2(n);
 }
 
-void WideGraph::setRxRange(int fMin)                                //setRxRange
+void WideGraph::setRxRange ()
 {
-  ui->widePlot->setRxRange(fMin);
+  ui->widePlot->setRxRange (Fmin ());
   ui->widePlot->DrawOverlay();
   ui->widePlot->update();
 }
 
-void WideGraph::setRxRangeAndSplitSpinBox(int fMin)
-{
-    // Need to ensure split box is set too
-    // e.g. For 60M we force the offset to 0 so this routine makes the split box match
-    // Otherwise we can't decode JT9
-    ui->fSplitSpinBox->setValue(fMin);
-}
-
 int WideGraph::Fmin()                                              //Fmin
 {
-  return m_fMin;
+  return "60m" == m_rxBand ? 0 : m_fMin;
 }
 
 int WideGraph::Fmax()                                              //Fmax
 {
-  int n=ui->widePlot->Fmax();
-  if(n>5000) n=5000;
-  return n;
+  return std::max (5000, ui->widePlot->Fmax());
 }
 
 int WideGraph::fSpan()
@@ -343,8 +334,8 @@ void WideGraph::on_spec2dComboBox_currentIndexChanged(const QString &arg1)
 
 void WideGraph::on_fSplitSpinBox_valueChanged(int n)              //fSplit
 {
-  m_fMin=n;
-  setRxRange(m_fMin);
+  if (m_rxBand != "60m") m_fMin=n;
+  setRxRange ();
 }
 
 void WideGraph::setLockTxFreq(bool b)                             //LockTxFreq
@@ -363,9 +354,21 @@ void WideGraph::setDialFreq(double d)                             //setDialFreq
   ui->widePlot->setDialFreq(d);
 }
 
-void WideGraph::setRxBand(QString band)
+void WideGraph::setRxBand (QString const& band)
 {
+  m_rxBand = band;
+  if ("60m" == m_rxBand)
+    {
+      ui->fSplitSpinBox->setEnabled (false);
+      ui->fSplitSpinBox->setValue (0);
+    }
+  else
+    {
+      ui->fSplitSpinBox->setValue (m_fMin);
+      ui->fSplitSpinBox->setEnabled (true);
+    }
   ui->widePlot->setRxBand(band);
+  setRxRange ();
 }
 
 

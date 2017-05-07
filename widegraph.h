@@ -32,8 +32,6 @@ public:
   int    Fmax();
   int    fSpan();
   void   saveSettings();
-  void   setRxRange(int fMin);
-  void   setRxRangeAndSplitSpinBox(int fMin);
   void   setFsample(int n);
   void   setPeriod(int ntrperiod, int nsps);
   void   setTxFreq(int n);
@@ -45,7 +43,7 @@ public:
   bool   useRef();
   void   setTol(int n);
   int    smoothYellow();
-  void   setRxBand(QString band);
+  void   setRxBand (QString const& band);
   void   setWSPRtransmitted();
   void   drawRed(int ia, int ib);
   void   setVHF(bool bVHF);
@@ -84,7 +82,8 @@ private slots:
   void on_sbPercent2dPlot_valueChanged(int n);
 
 private:
-  void   readPalette();
+  void   readPalette ();
+  void   setRxRange ();
 
   QScopedPointer<Ui::WideGraph> ui;
 
@@ -98,6 +97,7 @@ private:
   qint32 m_ntr0;
   qint32 m_fMin;
   qint32 m_fMax;
+  QString m_rxBand;
   qint32 m_nSubMode;
   qint32 m_nsmo;
   qint32  m_Percent2DScreen;
