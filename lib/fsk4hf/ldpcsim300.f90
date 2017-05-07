@@ -1,11 +1,12 @@
 program ldpcsim300
-! End to end test of the (300,60)/crc10 encoder and decoder.
+
+! End-to-end test of the (300,60)/crc10 encoder and decoders.
+
 use crc
 use packjt
 
 parameter(NRECENT=10)
 character*12 recent_calls(NRECENT)
-character*22 msg,msgsent,msgreceived
 character*8 arg
 integer*1, allocatable ::  codeword(:), decoded(:), message(:)
 integer*1, target:: i1Msg8BitBytes(9)
@@ -115,8 +116,8 @@ write(*,*) i1Msg8BitBytes(1:9)
   write(*,'(38(8i1,1x))') codeword
 
 write(*,*) "Es/N0  SNR2500   ngood  nundetected nbadcrc   sigma"
-do idb = 20,-14,-1
-!do idb = -10, -10 
+do idb = 20,-16,-1
+!do idb = -14, -16, -1 
   db=idb/2.0-1.0
 !  sigma=1/sqrt( 2*rate*(10**(db/10.0)) )  ! to make db represent Eb/No
   sigma=1/sqrt( 2*(10**(db/10.0)) )        ! db represents Es/No
@@ -166,11 +167,11 @@ do idb = 20,-14,-1
 
     llr=2.0*rxdata/(ss*ss)
     apmask=0
-
 ! max_iterations is max number of belief propagation iterations
     call bpdecode300(llr, apmask, max_iterations, decoded, niterations, cw)
     if( niterations .lt. 0 ) then
-      call osd300(llr, decoded, niterations, cw)
+      norder=4
+      call osd300(llr, norder, decoded, niterations, cw)
     endif
     n2err=0
     do i=1,N

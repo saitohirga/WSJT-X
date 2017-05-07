@@ -424,6 +424,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/ldpcsim120.f90
   lib/fsk4hf/ldpcsim168.f90
   lib/fsk4hf/ldpcsim300.f90
+  lib/fsk4hf/ldpc_300_60_params.f90
   lib/ldpcsim40.f90
   lib/libration.f90
   lib/lorentzian.f90
