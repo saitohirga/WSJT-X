@@ -1,4 +1,4 @@
-subroutine genwspr5(msg,ichk,msgsent,itone,itype)
+subroutine genwspr5(msg,msgsent,itone)
 
 ! Encode a WSPR-LF message, producing array itone().
   

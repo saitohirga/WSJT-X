@@ -46,7 +46,7 @@ program wspr5sim
   if(snrdb.gt.90.0) sig=1.0
   txt=NN*NSPS0/12000.0
 
-  call genwspr5(msg,ichk,msgsent,itone,itype)  !Encode the message, get itone
+  call genwspr5(msg,msgsent,itone)       !Encode the message, get itone
   write(*,1000) f0,xdt,txt,snrdb,nfiles,msgsent
 1000 format('f0:',f9.3,'   DT:',f6.2,'   txt:',f6.1,'   SNR:',f6.1,    &
           '  nfiles:',i3,2x,a22)
