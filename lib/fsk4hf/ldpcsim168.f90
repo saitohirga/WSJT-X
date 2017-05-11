@@ -10,7 +10,7 @@ character*8 arg
 integer*1, allocatable ::  codeword(:), decoded(:), message(:)
 integer*1, target:: i1Msg8BitBytes(11)
 integer*1 msgbits(84)
-integer*1 apmask(168)
+integer*1 apmask(168), cw(168)
 integer*2 checksum
 integer*4 i4Msg6BitWords(13)
 integer colorder(168)
@@ -124,9 +124,8 @@ allocate ( rxdata(N), llr(N) )
   write(*,'(21(8i1,1x))') codeword
 
 write(*,*) "Es/N0  SNR2500   ngood  nundetected nbadcrc   sigma"
-do idb = -10, 24 
+do idb = 6,-6,-1 
   db=idb/2.0-1.0
-!  sigma=1/sqrt( 2*rate*(10**(db/10.0)) )
   sigma=1/sqrt( 2*(10**(db/10.0)) )
   ngood=0
   nue=0
@@ -180,14 +179,18 @@ do idb = -10, 24
 
 ! max_iterations is max number of belief propagation iterations
     call bpdecode168(llr, apmask, max_iterations, decoded, niterations)
+    if( niterations .eq. -1 ) then
+      norder=3
+      call osd168(llr, norder, decoded, niterations, cw)
+    endif
 ! If the decoder finds a valid codeword, niterations will be .ge. 0.
     if( niterations .ge. 0 ) then
       call extractmessage168(decoded,msgreceived,ncrcflag,recent_calls,nrecent)
       if( ncrcflag .ne. 1 ) then
         nbadcrc=nbadcrc+1
       endif
-      nueflag=0
 
+      nueflag=0
       nerrmpc=0
       do i=1,K   ! find number of errors in message+crc part of codeword
         if( msgbits(i) .ne. decoded(i) ) then
@@ -195,12 +198,16 @@ do idb = -10, 24
           nerrmpc=nerrmpc+1 
         endif
       enddo
+
+write(37,*) niterations, ncrcflag, nueflag
       nmpcbad(nerrmpc)=nmpcbad(nerrmpc)+1
-      if( ncrcflag .eq. 1 .and. nueflag .eq. 0 ) then
-        ngood=ngood+1
-        nerrdec(nerr)=nerrdec(nerr)+1
-      else if( ncrcflag .eq. 1 .and. nueflag .eq. 1 ) then
-        nue=nue+1;
+      if( ncrcflag .eq. 1 ) then
+        if( nueflag .eq. 0 ) then
+          ngood=ngood+1
+          nerrdec(nerr)=nerrdec(nerr)+1
+        else if( nueflag .eq. 1 ) then
+          nue=nue+1;
+        endif
       endif
     endif
   enddo

@@ -117,7 +117,7 @@ write(*,*) i1Msg8BitBytes(1:9)
 
 write(*,*) "Es/N0  SNR2500   ngood  nundetected nbadcrc   sigma"
 do idb = 20,-16,-1
-!do idb = -14, -16, -1 
+!do idb = -16, -16, -1 
   db=idb/2.0-1.0
 !  sigma=1/sqrt( 2*rate*(10**(db/10.0)) )  ! to make db represent Eb/No
   sigma=1/sqrt( 2*(10**(db/10.0)) )        ! db represents Es/No
