@@ -94,6 +94,8 @@ extern "C" {
 
   void genwspr_(char* msg, char* msgsent, int itone[], int len1, int len2);
 
+  void genwspr5_(char* msg, char* msgsent, int itone[], int len1, int len2);
+
   void geniscat_(char* msg, char* msgsent, int itone[], int len1, int len2);
 
   bool stdmsg_(const char* msg, int len);
@@ -1255,7 +1257,7 @@ void MainWindow::dataSink(qint64 frames)
       m_saveWAVWatcher.setFuture (QtConcurrent::run (std::bind (&MainWindow::save_wave_file,
             this, m_fnameWE, &dec_data.d2[0], m_TRperiod, m_config.my_callsign(),
             m_config.my_grid(), m_mode, m_nSubMode, m_freqNominal, m_hisCall, m_hisGrid)));
-      if (m_mode.startsWith ("WSPR")) {
+      if (m_mode=="WSPR") {
         QString c2name_string {m_fnameWE + ".c2"};
         int len1=c2name_string.length();
         char c2name[80];
@@ -2967,7 +2969,9 @@ void MainWindow::guiUpdate()
         if(m_mode=="QRA64") genqra64_(message, &ichk, msgsent, const_cast<int *> (itone),
                                     &m_currentMessageType, len1, len1);
         if(m_mode=="WSPR") genwspr_(message, msgsent, const_cast<int *> (itone),
-                                             len1, len1);
+                                    len1, len1);
+        if(m_mode=="WSPR-LF") genwspr5_(message, msgsent, const_cast<int *> (itone),
+                                    len1, len1);
         if(m_modeTx=="MSK144") {
           bool bcontest=m_config.contestMode();
           char MyGrid[6];
@@ -5371,13 +5375,19 @@ void MainWindow::transmit (double snr)
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),
            true, false, snr, m_TRperiod);
   }
-  if (m_mode=="WSPR") {         //### Similar code would be needed for WSPR-15 ###
-
+  if (m_mode=="WSPR") {
     int nToneSpacing=1;
     if(m_config.x2ToneSpacing()) nToneSpacing=2;
     Q_EMIT sendMessage (NUM_WSPR_SYMBOLS, 8192.0,
                         ui->TxFreqSpinBox->value() - 1.5 * 12000 / 8192,
                         m_toneSpacing*nToneSpacing, m_soundOutput,
+                        m_config.audio_output_channel(),true, false, snr,
+                        m_TRperiod);
+  }
+  if (m_mode=="WSPR-LF") {
+    Q_EMIT sendMessage (NUM_WSPR_LF_SYMBOLS, 8640.0,
+                        ui->TxFreqSpinBox->value(),
+                        m_toneSpacing, m_soundOutput,
                         m_config.audio_output_channel(),true, false, snr,
                         m_TRperiod);
   }
