@@ -570,7 +570,7 @@ QLabel[oob=&quot;true&quot;] {
         <item row="0" column="3" rowspan="3">
          <widget class="QStackedWidget" name="controls_stack_widget">
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="page">
            <layout class="QHBoxLayout" name="horizontalLayout_8">
@@ -1744,7 +1744,7 @@ list. The list can be maintained in Settings (F2).</string>
                          <number>1400</number>
                         </property>
                         <property name="maximum">
-                         <number>1600</number>
+                         <number>1700</number>
                         </property>
                         <property name="value">
                          <number>1500</number>
