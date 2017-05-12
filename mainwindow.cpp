@@ -211,6 +211,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_DTtol {3.0},
   m_waterfallAvg {1},
   m_ntx {1},
+  m_gen_message_is_cq {false},
   m_XIT {0},
   m_sec0 {-1},
   m_RxLog {1},			//Write Date and Time to RxLog
@@ -3085,6 +3086,7 @@ void MainWindow::guiUpdate()
       {
         ui->genMsg->setText(ui->tx6->text());
         m_ntx=7;
+        m_gen_message_is_cq = true;
         ui->rbGenMsg->setChecked(true);
       } else {
 //JHT 11/29/2015        m_ntx=6;
@@ -3620,6 +3622,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
             if(ui->tabWidget->currentIndex()==1) {
               ui->genMsg->setText(ui->tx5->currentText());
               m_ntx=7;
+              m_gen_message_is_cq = false;
               ui->rbGenMsg->setChecked(true);
             }
           } else if(r.mid(0,1)=="R") {
@@ -3628,6 +3631,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
             if(ui->tabWidget->currentIndex()==1) {
               ui->genMsg->setText(ui->tx4->text());
               m_ntx=7;
+              m_gen_message_is_cq = false;
               ui->rbGenMsg->setChecked(true);
             }
           } else if(r.toInt()>=-50 and r.toInt()<=49) {
@@ -3636,6 +3640,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
             if(ui->tabWidget->currentIndex()==1) {
               ui->genMsg->setText(ui->tx3->text());
               m_ntx=7;
+              m_gen_message_is_cq = false;
               ui->rbGenMsg->setChecked(true);
             }
           }
@@ -3647,6 +3652,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
         if(ui->tabWidget->currentIndex()==1) {
           ui->genMsg->setText(ui->tx5->currentText());
           m_ntx=7;
+          m_gen_message_is_cq = false;
           ui->rbGenMsg->setChecked(true);
         }
       } else {
@@ -3660,6 +3666,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
         if(ui->tabWidget->currentIndex()==1) {
           ui->genMsg->setText(ui->tx2->text());
           m_ntx=7;
+          m_gen_message_is_cq = false;
           ui->rbGenMsg->setChecked(true);
         }
 
@@ -3678,6 +3685,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
       if(ui->tabWidget->currentIndex()==1) {
         ui->genMsg->setText(ui->tx5->currentText());
         m_ntx=7;
+        m_gen_message_is_cq = false;
         ui->rbGenMsg->setChecked(true);
       }
     }
@@ -3688,6 +3696,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
       if(ui->tabWidget->currentIndex()==1) {
         ui->genMsg->setText(ui->tx1->text());
         m_ntx=7;
+        m_gen_message_is_cq = false;
         ui->rbGenMsg->setChecked(true);
       }
     }
@@ -3699,6 +3708,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
       if(ui->tabWidget->currentIndex()==1) {
         ui->genMsg->setText(ui->tx1->text());
         m_ntx=7;
+        m_gen_message_is_cq = false;
         ui->rbGenMsg->setChecked(true);
       }
     }
@@ -3714,9 +3724,8 @@ void MainWindow::genCQMsg ()
     {
       if (ui->cbCQTx->isEnabled () && ui->cbCQTx->isVisible () && ui->cbCQTx->isChecked ())
         {
-          msgtype (
-                   QString {"CQ %1 %2 %3"}
-                   .arg (m_freqNominal / 1000 - m_freqNominal / 1000000 * 1000, 3, 10, QChar {'0'})
+          msgtype (QString {"CQ %1 %2 %3"}
+                      .arg (m_freqNominal / 1000 - m_freqNominal / 1000000 * 1000, 3, 10, QChar {'0'})
                       .arg (m_config.my_callsign())
                       .arg (m_config.my_grid ().left (4)),
                    ui->tx6);
@@ -3746,6 +3755,7 @@ void MainWindow::genStdMsgs(QString rpt)
     ui->tx4->clear ();
     ui->tx5->lineEdit ()->clear ();
     ui->genMsg->clear ();
+    m_gen_message_is_cq = false;
     return;
   }
   QString hisBase = Radio::base_callsign (hisCall);
@@ -3882,6 +3892,7 @@ void MainWindow::clearDX ()
     {
       ui->genMsg->setText(ui->tx6->text());
       m_ntx=7;
+      m_gen_message_is_cq = true;
       ui->rbGenMsg->setChecked(true);
     }
   else
@@ -4910,6 +4921,7 @@ void MainWindow::on_pbCallCQ_clicked()
   genStdMsgs(m_rpt);
   ui->genMsg->setText(ui->tx6->text());
   m_ntx=7;
+  m_gen_message_is_cq = true;
   ui->rbGenMsg->setChecked(true);
   if(m_transmitting) m_restart=true;
   set_dateTimeQSO(-1);
@@ -4924,6 +4936,7 @@ void MainWindow::on_pbAnswerCaller_clicked()
   t=t.mid(0,i0+1)+t.mid(i0+2,3);
   ui->genMsg->setText(t);
   m_ntx=7;
+  m_gen_message_is_cq = false;
   ui->rbGenMsg->setChecked(true);
   if(m_transmitting) m_restart=true;
   set_dateTimeQSO(2);
@@ -4934,6 +4947,7 @@ void MainWindow::on_pbSendRRR_clicked()
   genStdMsgs(m_rpt);
   ui->genMsg->setText(ui->tx4->text());
   m_ntx=7;
+  m_gen_message_is_cq = false;
   ui->rbGenMsg->setChecked(true);
   if(m_transmitting) m_restart=true;
 }
@@ -4947,6 +4961,7 @@ void MainWindow::on_pbAnswerCQ_clicked()
   int i1=t.indexOf(" ");
   if(i0>0 and i0<i1) ui->genMsg->setText(t);
   m_ntx=7;
+  m_gen_message_is_cq = false;
   ui->rbGenMsg->setChecked(true);
   if(m_transmitting) m_restart=true;
 }
@@ -4956,6 +4971,7 @@ void MainWindow::on_pbSendReport_clicked()
   genStdMsgs(m_rpt);
   ui->genMsg->setText(ui->tx3->text());
   m_ntx=7;
+  m_gen_message_is_cq = false;
   ui->rbGenMsg->setChecked(true);
   if(m_transmitting) m_restart=true;
   set_dateTimeQSO(3);
@@ -4966,6 +4982,7 @@ void MainWindow::on_pbSend73_clicked()
   genStdMsgs(m_rpt);
   ui->genMsg->setText(ui->tx5->currentText());
   m_ntx=7;
+  m_gen_message_is_cq = false;
   ui->rbGenMsg->setChecked(true);
   if(m_transmitting) m_restart=true;
 }
@@ -5124,7 +5141,7 @@ void MainWindow::setXIT(int n, Frequency base)
   if(m_config.split_mode () && ui->cbCQTx->isEnabled () && ui->cbCQTx->isVisible () &&
      ui->cbCQTx->isChecked())
     {
-      if (6 == m_ntx)
+      if (6 == m_ntx || (7 == m_ntx && m_gen_message_is_cq))
         {
           // All conditions are met, use calling frequency
           base = m_freqNominal / 1000000 * 1000000 + 1000 * ui->sbCQTxFreq->value () + m_XIT;
