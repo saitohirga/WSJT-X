@@ -1314,7 +1314,7 @@ install (TARGETS udp_daemon message_aggregator
   )
 
 install (TARGETS jt9 jt65code qra64code qra64sim jt9code jt4code
-  msk144code wsprd fmtave fcal fmeasure
+  msk144code wsprd wspr5d fmtave fcal fmeasure
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   )

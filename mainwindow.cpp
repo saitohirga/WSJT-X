@@ -1278,7 +1278,6 @@ void MainWindow::dataSink(qint64 frames)
       if(m_diskData) {
         cmnd='"' + m_appDir + '"' + "/wsprd -a \"" +
             QDir::toNativeSeparators(m_dataDir.absolutePath()) + "\" \"" + m_path + "\"";
-//            QDir::toNativeSeparators(m_dataDir.absolutePath()) + "\" " + t2 + " " + m_path + "\"";
       } else {
         cmnd='"' + m_appDir + '"' + "/wsprd -a \"" +
             QDir::toNativeSeparators(m_dataDir.absolutePath()) + "\" " +
@@ -1287,6 +1286,7 @@ void MainWindow::dataSink(qint64 frames)
       QString t3=cmnd;
       int i1=cmnd.indexOf("/wsprd ");
       cmnd=t3.mid(0,i1+7) + t3.mid(i1+7);
+      if(m_mode=="WSPR-LF") cmnd=cmnd.replace("/wsprd ","/wspr5d ");
       if (ui) ui->DecodeButton->setChecked (true);
       m_cmndP1=QDir::toNativeSeparators(cmnd);
       p1Timer.start(1000);

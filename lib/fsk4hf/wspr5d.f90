@@ -18,7 +18,8 @@ program wspr5d
 
   include 'wsprlf_params.f90'
   parameter (NMAX=300*12000)
-  character arg*8,message*22,cbits*50,infile*80,fname*16
+  character arg*8,message*22,cbits*50,infile*80,fname*16,datetime*11
+  character*120 data_dir
   complex csync(0:NZ-1)                 !Sync symbols only, from cbb
   complex c(0:NZ-1)                     !Complex waveform
   complex c1(0:NZ-1)                    !Complex waveform
@@ -39,15 +40,29 @@ program wspr5d
   integer*1 idat(7)
   integer*1 decoded(KK),apmask(ND),cw(ND)
   data ib13/1,1,1,1,1,-1,-1,1,1,-1,1,-1,1/
-  
+
   nargs=iargc()
   if(nargs.lt.2) then
-     print*,'Usage:   wspr5d maxn file1 [file2 ...]'
+     print*,'Usage:   wspr5d [-a <data_dir>] [-f fMHz] file1 [file2 ...]'
      go to 999
   endif
-  call getarg(1,arg)
-  read(arg,*) maxn
-
+  iarg=1
+  data_dir="."
+  call getarg(iarg,arg)
+  if(arg(1:2).eq.'-a') then
+     call getarg(iarg+1,data_dir)
+     iarg=iarg+2
+  endif
+  call getarg(iarg,arg)
+  if(arg(1:2).eq.'-f') then
+     call getarg(iarg+1,arg)
+     read(arg,*) fMHz
+     iarg=iarg+2
+  endif
+  
+  open(13,file=trim(data_dir)//'/ALL_WSPR.TXT',status='unknown',   &
+       position='append')
+  maxn=6                                 !Default value
   twopi=8.0*atan(1.0)
   fs=NSPS*12000.0/NSPS0                  !Sample rate
   dt=1.0/fs                              !Sample interval (s)
@@ -87,24 +102,24 @@ program wspr5d
      endif
   enddo
 
-  do ifile=1,nargs-1
-     call getarg(ifile+1,infile)
+  do ifile=iarg,nargs
+     call getarg(ifile,infile)
      open(10,file=infile,status='old',access='stream')
-     if(index(infile,'.c5').gt.0) then
+     j1=index(infile,'.c5')
+     j2=index(infile,'.wav')
+     if(j1.gt.0) then
         read(10,end=999) fname,ntrmin,fMHz,c
-        close(10)
         read(fname(8:11),*) nutc
-     else if(index(infile,'.wav').gt.0) then
+     else if(j2.gt.0) then
         read(10,end=999) ihdr,iwave
+        read(infile(j2-4:j2-1),*) nutc
+        datetime=infile(j2-11:j2-1)
         call wspr5_downsample(iwave,c)
      else
         print*,'Wrong file format?'
         go to 999
      endif
-!     do i=0,NZ-1
-!        write(40,4001) i,c(i),csync(i)
-!4001    format(i8,4f12.6)
-!     enddo
+     close(10)
      call getfc1w(c,fs,fc1,xsnr)               !First approx for freq
      call getfc2w(c,csync,fs,fc1,fc2,fc3)      !Refined freq
 
@@ -137,8 +152,6 @@ program wspr5d
            amax=abs(z)
            jpk=j
         endif
-!        write(45,4501) j,j/fs,abs(z)
-!4501    format(i8,2f12.3)
      enddo
      xdt=jpk/fs
      do i=0,NZ-1
@@ -186,11 +199,17 @@ program wspr5d
 1102    format(6b8,b2)
         idat(7)=ishft(idat(7),6)
         call wqdecode(idat,message,itype)
+        nsnr=nint(xsnr)
+        freq=fMHz + 1.d-6*(fc1+fc2)
+        nfdot=0
+        write(13,1110) datetime,0,nsnr,xdt,freq,message,nfdot
+1110    format(a11,2i4,f6.2,f12.7,2x,a22,i3)
+        write(*,1112) datetime(8:11),nsnr,xdt,freq,nfdot,message
+1112    format(a4,i4,f5.1,f11.6,i3,2x,a22)
      endif
-     nsnr=nint(xsnr)
-     write(*,1110) nutc,nsnr,xdt,fc1+fc2,message
-1110 format(i4.4,i5,f7.2,f7.2,2x,a22)
   enddo                                   ! ifile loop
+  write(*,1120)
+1120 format("<DecodeFinished>")
 
 999 end program wspr5d
 
