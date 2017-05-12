@@ -885,7 +885,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   splashTimer.start (20 * 1000);
 
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
-     m_config.my_callsign()=="G4WJS") ui->actionWSPR_LF->setEnabled(true);
+     m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "G3PQA")
+    ui->actionWSPR_LF->setEnabled(true);
 
   // this must be the last statement of constructor
   if (!m_valid) throw std::runtime_error {"Fatal initialization exception"};
