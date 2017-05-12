@@ -1,18 +1,14 @@
 subroutine osd300(llr,norder,decoded,niterations,cw)
 !
-! An ordered-statistics decoder based on ideas from: 
-! "Soft-decision decoding of linear block codes based on ordered statistics,"
-! by Marc P. C. Fossorier and Shu Lin, 
-! IEEE Trans Inf Theory, Vol 41, No 5, Sep 1995
-! 
-
+! An ordered-statistics decoder for the (300,60) code.
+!
 include "ldpc_300_60_params.f90"
 
 integer*1 gen(K,N)
-integer*1 genmrb(K,N)
-integer*1 temp(K),m0(K),me(0:K)
-integer indices(N)
-integer*1 codeword(N),cw(N),hdec(N)
+integer*1 genmrb(K,N),g2(N,K)
+integer*1 temp(K),m0(K),me(K),mi(K)
+integer indices(N),nxor(N)
+integer*1 cw(N),ce(N),c0(N),hdec(N)
 integer*1 decoded(K)
 integer indx(N)
 real llr(N),rx(N),absrx(N)
@@ -83,58 +79,100 @@ do id=1,K ! diagonal element indices
   enddo
 enddo
 
+g2=transpose(genmrb)
+!do i=1,N
+!  g2(i,1:K)=genmrb(1:K,i)
+!enddo
+
 ! The hard decisions for the K MRB bits define the order 0 message, m0. 
 ! Encode m0 using the modified generator matrix to find the "order 0" codeword. 
 ! Flip various combinations of bits in m0 and re-encode to generate a list of
 ! codewords. Test all such codewords against the received word to decide which
 ! codeword is most likely to be correct.
-hdec=hdec(indices)
-m0=hdec(1:K)
 
-nhardmin=N
-j0=0
-j1=0
-j2=0
-j3=0
-if( norder.ge.4 ) j0=K
-if( norder.ge.3 ) j1=K
-if( norder.ge.2 ) j2=K
-if( norder.ge.1 ) j3=K
-! me(0) is a dummy position --- only me(1:K) are actually used. This is done
-! to avoid "if" statements within the inner loop.
-do i1=0,j0
-  do i2=i1,j1
-    do i3=i2,j2
-      do i4=i3,j3
-        me(1:K)=m0
-        me(i1)=1-me(i1)
-        me(i2)=1-me(i2)
-        me(i3)=1-me(i3)
-        me(i4)=1-me(i4)
+hdec=hdec(indices)   ! hard decisions from received symbols
+m0=hdec(1:K)         ! zero'th order message
+absrx=absrx(indices) 
+rx=rx(indices)       
 
-! me is the m0 + error pattern. encode this message using genmrb to
-! produce a codeword. test the codeword against the received vector
-! and save it if it's the best that we've seen so far. 
-        do i=1,N 
-          nsum=sum(iand(me(1:K),genmrb(1:K,i)))
-          codeword(i)=mod(nsum,2)
-        enddo
-        nhard=count(codeword .ne. hdec)
-        if( nhard .lt. nhardmin ) then
-          cw=codeword
-          nhardmin=nhard
-          i1min=i1
-          i2min=i2
-          i3min=i3
-          i4min=i4
-        endif
-      enddo
-    enddo
-  enddo 
+s1=sum(absrx(1:K))
+s2=sum(absrx(K+1:N))
+xlam=5.0
+rho=s1/(s1+xlam*s2)
+call mrbencode(m0,c0,g2,N,K)
+nxor=ieor(c0,hdec)
+nhardmin=sum(nxor)
+dmin=sum(nxor*absrx)
+thresh=rho*dmin
+
+cw=c0
+nt=0
+nrejected=0
+do iorder=1,norder
+  mi(1:K-iorder)=0
+  mi(K-iorder+1:K)=1
+  iflag=0
+  do while(iflag .ge. 0 ) 
+    dpat=sum(mi*absrx(1:K))
+    nt=nt+1
+    if( dpat .lt. thresh ) then  ! reject unlikely error patterns
+      me=ieor(m0,mi)
+      call mrbencode(me,ce,g2,N,K)
+      nxor=ieor(ce,hdec)
+      dd=sum(nxor*absrx)
+      if( dd .lt. dmin ) then
+        dmin=dd
+        cw=ce
+        nhardmin=sum(nxor)
+        thresh=rho*dmin
+      endif
+    else
+      nrejected=nrejected+1
+    endif
+! get the next test error pattern, iflag will go negative
+! when the last pattern with weight iorder has been generated
+    call nextpat(mi,k,iorder,iflag)
+  enddo
 enddo
+
+!write(*,*) 'nhardmin ',nhardmin
+!write(*,*) 'total patterns ',nt,' number rejected ',nrejected
+
 ! re-order the codeword to place message bits at the end
 cw(indices)=cw
 decoded=cw(M+1:N)
 niterations=1
 return
 end subroutine osd300
+
+subroutine mrbencode(me,codeword,g2,N,K)
+integer*1 me(K),codeword(N),g2(N,K)
+! fast encoding for low-weight test patterns
+  codeword=0
+  do i=1,K
+    if( me(i) .eq. 1 ) then
+      codeword=ieor(codeword,g2(1:N,i))
+    endif
+  enddo
+return
+end subroutine mrbencode
+
+subroutine nextpat(mi,k,iorder,iflag)
+integer*1 mi(k),ms(k)
+! generate the next test error pattern
+  ind=-1
+  do i=1,k-1
+    if( mi(i).eq.0 .and. mi(i+1).eq.1) ind=i 
+  enddo
+  ms=0
+  ms(1:ind-1)=mi(1:ind-1)
+  ms(ind)=1
+  ms(ind+1)=0
+  if( ind+1 .lt. k ) then
+    nz=iorder-sum(ms)
+    ms(k-nz+1:k)=1
+  endif
+  mi=ms
+  iflag=ind
+  return
+end subroutine nextpat
