@@ -179,10 +179,10 @@ do idb = 6,-6,-1
 
 ! max_iterations is max number of belief propagation iterations
     call bpdecode168(llr, apmask, max_iterations, decoded, niterations)
-    if( niterations .eq. -1 ) then
-      norder=3
-      call osd168(llr, norder, decoded, niterations, cw)
-    endif
+!    if( niterations .eq. -1 ) then
+!      norder=3
+!      call osd168(llr, norder, decoded, niterations, cw)
+!    endif
 ! If the decoder finds a valid codeword, niterations will be .ge. 0.
     if( niterations .ge. 0 ) then
       call extractmessage168(decoded,msgreceived,ncrcflag,recent_calls,nrecent)
