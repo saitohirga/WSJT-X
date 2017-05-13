@@ -62,7 +62,7 @@ program wspr5d
   
   open(13,file=trim(data_dir)//'/ALL_WSPR.TXT',status='unknown',   &
        position='append')
-  maxn=6                                 !Default value
+  maxn=8                                 !Default value
   twopi=8.0*atan(1.0)
   fs=NSPS*12000.0/NSPS0                  !Sample rate
   dt=1.0/fs                              !Sample interval (s)
@@ -120,7 +120,9 @@ program wspr5d
         go to 999
      endif
      close(10)
-     call getfc1w(c,fs,fc1,xsnr)               !First approx for freq
+     fa=100.0
+     fb=150.0
+     call getfc1w(c,fs,fa,fb,fc1,xsnr)         !First approx for freq
      call getfc2w(c,csync,fs,fc1,fc2,fc3)      !Refined freq
 
 !NB: Measured performance is about equally good using fc2 or fc3 here:
