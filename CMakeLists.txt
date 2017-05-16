@@ -395,6 +395,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/genmskhf.f90
   lib/fsk4hf/genwspr5.f90
   lib/fsk4hf/genwsprlf.f90
+  lib/fsk4hf/genwspr_fsk8.f90
   lib/fsk4hf/getfc1.f90
   lib/fsk4hf/getfc2.f90
   lib/fsk4hf/getfc1w.f90
@@ -475,6 +476,7 @@ set (wsjt_FSRCS
   lib/shell.f90
   lib/fsk4hf/spec4.f90
   lib/spec64.f90
+  lib/fsk4hf/spec8.f90
   lib/spec9f.f90
   lib/stdmsg.f90
   lib/subtract65.f90
@@ -506,7 +508,10 @@ set (wsjt_FSRCS
   lib/wqencode.f90
   lib/fsk4hf/wspr5d.f90
   lib/fsk4hf/wspr5sim.f90
+  lib/fsk4hf/wspr_fsk8d.f90
+  lib/fsk4hf/wspr_fsk8_sim.f90
   lib/fsk4hf/wspr5_downsample.f90
+  lib/fsk4hf/wspr_fsk8_downsample.f90
   lib/fsk4hf/wspr5_wav.f90
   lib/fsk4hf/wsprlfsim.f90
   lib/wspr_downsample.f90
@@ -1146,6 +1151,12 @@ target_link_libraries (wspr5sim wsjt_fort wsjt_cxx)
 
 add_executable (wsprlfsim lib/fsk4hf/wsprlfsim.f90 wsjtx.rc)
 target_link_libraries (wsprlfsim wsjt_fort wsjt_cxx)
+
+add_executable (wspr_fsk8d lib/fsk4hf/wspr_fsk8d.f90 wsjtx.rc)
+target_link_libraries (wspr_fsk8d wsjt_fort wsjt_cxx)
+
+add_executable (wspr_fsk8_sim lib/fsk4hf/wspr_fsk8_sim.f90 wsjtx.rc)
+target_link_libraries (wspr_fsk8_sim wsjt_fort wsjt_cxx)
 
 add_executable (mskhfsim lib/fsk4hf/mskhfsim.f90 wsjtx.rc)
 target_link_libraries (mskhfsim wsjt_fort wsjt_cxx)

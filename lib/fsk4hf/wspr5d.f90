@@ -120,7 +120,7 @@ program wspr5d
         go to 999
      endif
      close(10)
-     fa=100.0
+     fa=102.0
      fb=150.0
      call getfc1w(c,fs,fa,fb,fc1,xsnr)         !First approx for freq
      call getfc2w(c,csync,fs,fc1,fc2,fc3)      !Refined freq
@@ -215,5 +215,3 @@ program wspr5d
 1120 format("<DecodeFinished>")
 
 999 end program wspr5d
-
-  include 'wspr5_downsample.f90'
