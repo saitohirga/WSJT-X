@@ -158,21 +158,24 @@ return
 end subroutine mrbencode
 
 subroutine nextpat(mi,k,iorder,iflag)
-integer*1 mi(k),ms(k)
+  integer*1 mi(k),ms(k)
 ! generate the next test error pattern
   ind=-1
   do i=1,k-1
-    if( mi(i).eq.0 .and. mi(i+1).eq.1) ind=i 
+     if( mi(i).eq.0 .and. mi(i+1).eq.1) ind=i 
   enddo
-  ms=0
-  ms(1:ind-1)=mi(1:ind-1)
-  ms(ind)=1
-  ms(ind+1)=0
-  if( ind+1 .lt. k ) then
-    nz=iorder-sum(ms)
-    ms(k-nz+1:k)=1
-  endif
-  mi=ms
+  if(ind.ge.1 .and. ind.le.k) then     !### JHT temporary ### Correct ???
+     ms=0
+     ms(1:ind-1)=mi(1:ind-1)
+     ms(ind)=1
+     ms(ind+1)=0
+     if( ind+1 .lt. k ) then
+        nz=iorder-sum(ms)
+        ms(k-nz+1:k)=1
+     endif
+     mi=ms
+  endif                                !### JHT temporary ###
   iflag=ind
+  
   return
 end subroutine nextpat
