@@ -164,18 +164,19 @@ subroutine nextpat(mi,k,iorder,iflag)
   do i=1,k-1
      if( mi(i).eq.0 .and. mi(i+1).eq.1) ind=i 
   enddo
-  if(ind.ge.1 .and. ind.le.k) then     !### JHT temporary ### Correct ???
-     ms=0
-     ms(1:ind-1)=mi(1:ind-1)
-     ms(ind)=1
-     ms(ind+1)=0
-     if( ind+1 .lt. k ) then
-        nz=iorder-sum(ms)
-        ms(k-nz+1:k)=1
-     endif
-     mi=ms
-  endif                                !### JHT temporary ###
+  if( ind .lt. 0 ) then ! no more patterns of this order
+    iflag=ind
+    return
+  endif
+  ms=0
+  ms(1:ind-1)=mi(1:ind-1)
+  ms(ind)=1
+  ms(ind+1)=0
+  if( ind+1 .lt. k ) then
+     nz=iorder-sum(ms)
+     ms(k-nz+1:k)=1
+  endif
+  mi=ms
   iflag=ind
-  
   return
 end subroutine nextpat
