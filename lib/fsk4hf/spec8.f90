@@ -1,7 +1,7 @@
 subroutine spec8(c,s,savg)
 
   include 'wspr_fsk8_params.f90'
-  complex c(0:NZ-1)
+  complex c(0:NMAXD-1)
   complex c1(0:NSPS-1)
   real s(0:NH2,NN)
   real savg(0:NH2)

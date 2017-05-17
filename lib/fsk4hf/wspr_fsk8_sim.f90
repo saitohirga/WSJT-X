@@ -5,7 +5,6 @@ program wspr_fsk8_sim
 
   use wavhdr
   include 'wspr_fsk8_params.f90'         !Set various constants
-  parameter (NMAX=300*12000)
   type(hdr) h                            !Header for .wav file
   character arg*12,fname*16
   character msg*22,msgsent*22
@@ -59,6 +58,3 @@ program wspr_fsk8_sim
   enddo
        
 999 end program wspr_fsk8_sim
-
-  include 'wspr_fsk8_wav.f90'
-  
