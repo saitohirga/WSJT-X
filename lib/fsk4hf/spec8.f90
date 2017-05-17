@@ -22,10 +22,10 @@ subroutine spec8(c,s,savg)
   enddo
   s=s/NZ
   savg=savg/(NN*NZ)
-  do i=0,NH2
-     write(31,3101) i*df,savg(i)
-3101 format(f10.3,f12.3)
-  enddo
+!  do i=0,NH2
+!     write(31,3101) i*df,savg(i)
+!3101 format(f10.3,f12.3)
+!  enddo
 
   return
 end subroutine spec8
