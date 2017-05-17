@@ -27,6 +27,7 @@ program wspr_fsk8d
   real s(0:NH2,NN)
   real savg(0:NH2)
   real ss(0:N7)
+  real ss0(0:N7)
   real ps(0:7)
   integer ihdr(11)
   integer*2 iwave(NMAX)                 !Generated full-length waveform  
@@ -100,7 +101,6 @@ program wspr_fsk8d
         call four2a(c1,2*N7,1,-1,1)
         call four2a(c2,2*N7,1,-1,1)
         do i=0,N7
-           f=1500.0 + i*df1
            p=1.e-9*(real(c1(i))**2 + aimag(c1(i))**2 +                        &
                 real(c2(i))**2 + aimag(c2(i))**2)
            ss(i)=p
@@ -110,15 +110,16 @@ program wspr_fsk8d
               jpk=j0
            endif
         enddo
+        if(jpk.eq.j0) ss0=ss
      enddo
      f0=ipk*df1
      xdt=jpk*dt - 1.0
      
-     sp3n=(ss(ipk-1)+ss(ipk)+ss(ipk+1))      !Sig + 3*noise
-     call pctile(ss,N7,45,base)
-     psig=sp3n-3*base                        !Sig only
-     pnoise=(2500.0/df1)*base                !Noise in 2500 Hz
-     xsnr=db(psig/pnoise)                    !SNR from sync tones
+     sp3n=(ss0(ipk-1)+ss0(ipk)+ss0(ipk+1))      !Sig + 3*noise
+     call pctile(ss0,N7,45,base)
+     psig=sp3n-3*base                           !Sig only
+     pnoise=(2500.0/df1)*base                   !Noise in 2500 Hz
+     xsnr=db(psig/pnoise)                       !SNR from sync tones
 
      if(jpk.ge.0) c(0:NMAXD-1-jpk)=c(jpk:NMAX-1)
 
