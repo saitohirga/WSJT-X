@@ -97,7 +97,7 @@ void CPlotter::paintEvent(QPaintEvent *)                                // paint
 void CPlotter::draw(float swide[], bool bScroll, bool bRed)
 {
   int j,j0;
-  static int jtop=0,ktop=0;
+  static int ktop=0;
   float y,y2,ymin;
   double fac = sqrt(m_binsPerPixel*m_waterfallAvg/15.0);
   double gain = fac*pow(10.0,0.02*m_plotGain);
@@ -193,7 +193,6 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
         painter2D.drawPolyline(LineBuf2,ktop);
       }
     }
-    jtop=j;
     LineBuf[j].setX(i);
     LineBuf[j].setY(int(0.9*m_h2-y2*m_h2/70.0));
     if(y2<y2min) y2min=y2;
@@ -205,13 +204,13 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
   if(m_line == painter1.fontMetrics ().height ()) {
     painter1.setPen(Qt::white);
     QString t;
+    qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
+    int n=(ms/1000) % m_TRperiod;
+    QDateTime t1=QDateTime::currentDateTimeUtc().addSecs(-n);
     if(m_TRperiod < 60) {
-      qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
-      int n=(ms/1000) % m_TRperiod;
-      QDateTime t1=QDateTime::currentDateTimeUtc().addSecs(-n);
       t=t1.toString("hh:mm:ss") + "    " + m_rxBand;
     } else {
-      t=QDateTime::currentDateTimeUtc().toString("hh:mm") + "    " + m_rxBand;
+      t=t1.toString("hh:mm") + "    " + m_rxBand;
     }
     painter1.drawText (5, painter1.fontMetrics ().ascent (), t);
   }
