@@ -121,7 +121,7 @@ program wspr_fsk8d
      pnoise=(2500.0/df1)*base                   !Noise in 2500 Hz
      xsnr=db(psig/pnoise)                       !SNR from sync tones
 
-     if(jpk.ge.0) c(0:NMAXD-1-jpk)=c(jpk:NMAX-1)
+     if(jpk.ge.0) c(0:NMAXD-1-jpk)=c(jpk:NMAXD-1)
 
      a(1)=-f0
      a(2:5)=0.
