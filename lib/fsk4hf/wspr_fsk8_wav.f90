@@ -3,7 +3,6 @@ subroutine wspr_fsk8_wav(baud,xdt,f0,itone,snrdb,iwave)
 ! Generate iwave() from itone().
   
   include 'wspr_fsk8_params.f90'
-  parameter (NMAX=240*12000)
   integer itone(NN)
   integer*2 iwave(NMAX)
   real*8 twopi,dt,dphi,phi
@@ -15,7 +14,7 @@ subroutine wspr_fsk8_wav(baud,xdt,f0,itone,snrdb,iwave)
   dat=0.
   if(snrdb.lt.90) then
      do i=1,NMAX
-        dat(i)=gran()          !Generate gaussian noise
+        dat(i)=gran()          !Generate gaussian noise, rms = 1.0
      enddo
      bandwidth_ratio=2500.0/6000.0
      sig=sqrt(2*bandwidth_ratio)*10.0**(0.05*snrdb)
@@ -24,7 +23,7 @@ subroutine wspr_fsk8_wav(baud,xdt,f0,itone,snrdb,iwave)
   endif
 
   phi=0.d0
-  k=nint(xdt/dt)
+  k=nint((xdt+1.0)/dt)
   do j=1,NN
      dphi=twopi*(f0+ itone(j)*baud)*dt
      if(k.eq.0) phi=-dphi

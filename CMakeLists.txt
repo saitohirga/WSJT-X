@@ -510,6 +510,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/wspr5sim.f90
   lib/fsk4hf/wspr_fsk8d.f90
   lib/fsk4hf/wspr_fsk8_sim.f90
+  lib/fsk4hf/wspr_fsk8_wav.f90
   lib/fsk4hf/wspr5_downsample.f90
   lib/fsk4hf/wspr_fsk8_downsample.f90
   lib/fsk4hf/wspr5_wav.f90
@@ -1325,7 +1326,7 @@ install (TARGETS udp_daemon message_aggregator
   )
 
 install (TARGETS jt9 jt65code qra64code qra64sim jt9code jt4code
-  msk144code wsprd wspr5d fmtave fcal fmeasure
+  msk144code wsprd wspr5d wspr_fsk8d fmtave fcal fmeasure
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   )

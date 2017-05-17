@@ -15,13 +15,12 @@ program wspr_fsk8d
 ! Still to do: find and decode more than one signal in the specified passband.
 
   include 'wspr_fsk8_params.f90'
-  parameter (NMAX=240*12000)
   character arg*8,message*22,cbits*50,infile*80,datetime*11
   character*120 data_dir
   complex csync(0:N7-1)                 !Sync symbols for Costas 7x7 array
   complex c1(0:2*N7-1)
   complex c2(0:2*N7-1)
-  complex c(0:NMAX-1)                     !Complex waveform
+  complex c(0:NMAXD-1)                     !Complex waveform
   real*8 fMHz
   real rxdata(3*ND),llr(3*ND)           !Soft symbols
   real a(5)                             !For twkfreq1
@@ -86,45 +85,48 @@ program wspr_fsk8d
      read(infile(j2-4:j2-1),*) nutc
      datetime=infile(j2-11:j2-1)
      call wspr_fsk8_downsample(iwave,c)
-     c(NZ:)=0.
 
-     j0=0
-! Need to get jpk ==> xdt     
-     j0b=j0+107*NSPS
-     c1(0:N7-1)=c(j0:j0+N7-1)*conjg(csync)
-     c1(N7:)=0.
-     c2(0:N7-1)=c(j0b:j0b+N7-1)*conjg(csync)
-     c2(N7:)=0.
-     call four2a(c1,2*N7,1,-1,1)
-     call four2a(c2,2*N7,1,-1,1)
      pmax=0.
      df1=fs/(2*N7)
-     do i=0,N7
-        f=1500.0 + i*df1
-        p=1.e-9*(real(c1(i))**2 + aimag(c1(i))**2 +                        &
-             real(c2(i))**2 + aimag(c2(i))**2)
-        ss(i)=p
-        if(p.gt.pmax) then
-           pmax=p
-           ipk=i
-        endif
-        write(32,3201) f,ss(i)
-3201    format(f12.4,e12.4)
+     ipk=0
+     jpk=0
+! Get xdt and f0 from the sync arrays
+     do j0=0,1000,50
+        j0b=j0+107*NSPS
+        c1(0:N7-1)=c(j0:j0+N7-1)*conjg(csync)
+        c1(N7:)=0.
+        c2(0:N7-1)=c(j0b:j0b+N7-1)*conjg(csync)
+        c2(N7:)=0.
+        call four2a(c1,2*N7,1,-1,1)
+        call four2a(c2,2*N7,1,-1,1)
+        do i=0,N7
+           f=1500.0 + i*df1
+           p=1.e-9*(real(c1(i))**2 + aimag(c1(i))**2 +                        &
+                real(c2(i))**2 + aimag(c2(i))**2)
+           ss(i)=p
+           if(p.gt.pmax) then
+              pmax=p
+              ipk=i
+              jpk=j0
+           endif
+        enddo
      enddo
-
+     f0=ipk*df1
+     xdt=jpk*dt - 1.0
+     
      sp3n=(ss(ipk-1)+ss(ipk)+ss(ipk+1))      !Sig + 3*noise
      call pctile(ss,N7,45,base)
      psig=sp3n-3*base                        !Sig only
      pnoise=(2500.0/df1)*base                !Noise in 2500 Hz
      xsnr=db(psig/pnoise)                    !SNR from sync tones
 
-     f0=ipk*df1
+     if(jpk.ge.0) c(0:NMAXD-1-jpk)=c(jpk:NMAX-1)
+
      a(1)=-f0
      a(2:5)=0.
      call twkfreq1(c,NZ,fs,a,c)              !Mix from f0 down to 0
      call spec8(c,s,savg)                    !Get symbol spectra
 
-     j0=0
      do j=1,ND
         k=j+7
         ps=s(0:7,k)

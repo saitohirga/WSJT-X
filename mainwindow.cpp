@@ -94,7 +94,7 @@ extern "C" {
 
   void genwspr_(char* msg, char* msgsent, int itone[], int len1, int len2);
 
-  void genwspr5_(char* msg, char* msgsent, int itone[], int len1, int len2);
+  void genwspr_fsk8_(char* msg, char* msgsent, int itone[], int len1, int len2);
 
   void geniscat_(char* msg, char* msgsent, int itone[], int len1, int len2);
 
@@ -1111,7 +1111,7 @@ void MainWindow::fixStop()
   if(m_mode=="WSPR") {
     m_hsymStop=396;
   } else if(m_mode=="WSPR-LF") {
-    m_hsymStop=1030;
+    m_hsymStop=832;
   } else if(m_mode=="Echo") {
     m_hsymStop=10;
   } else if (m_mode=="JT4"){
@@ -1288,7 +1288,7 @@ void MainWindow::dataSink(qint64 frames)
       QString t3=cmnd;
       int i1=cmnd.indexOf("/wsprd ");
       cmnd=t3.mid(0,i1+7) + t3.mid(i1+7);
-      if(m_mode=="WSPR-LF") cmnd=cmnd.replace("/wsprd ","/wspr5d ");
+      if(m_mode=="WSPR-LF") cmnd=cmnd.replace("/wsprd ","/wspr_fsk8d ");
       if (ui) ui->DecodeButton->setChecked (true);
       m_cmndP1=QDir::toNativeSeparators(cmnd);
       p1Timer.start(1000);
@@ -2972,7 +2972,7 @@ void MainWindow::guiUpdate()
                                     &m_currentMessageType, len1, len1);
         if(m_mode=="WSPR") genwspr_(message, msgsent, const_cast<int *> (itone),
                                     len1, len1);
-        if(m_mode=="WSPR-LF") genwspr5_(message, msgsent, const_cast<int *> (itone),
+        if(m_mode=="WSPR-LF") genwspr_fsk8_(message, msgsent, const_cast<int *> (itone),
                                     len1, len1);
         if(m_modeTx=="MSK144") {
           bool bcontest=m_config.contestMode();
@@ -4569,11 +4569,11 @@ void MainWindow::on_actionWSPR_LF_triggered()
   m_mode="WSPR-LF";
   switch_mode (Modes::WSPR);
   m_modeTx="WSPR-LF";
-  m_TRperiod=300;
+  m_TRperiod=240;
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
-  m_hsymStop=1030;
-  m_toneSpacing=0.5*12000.0/8640.0;
+  m_hsymStop=832;
+  m_toneSpacing=12000.0/24576.0;
   setup_status_bar (false);
   ui->actionWSPR_LF->setChecked(true);
    m_wideGraph->setPeriod(m_TRperiod,m_nsps);

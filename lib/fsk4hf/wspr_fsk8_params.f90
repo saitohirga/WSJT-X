@@ -8,6 +8,7 @@ parameter (NSPS0=24576)               !Samples per symbol at 12000 S/s
 parameter (NSPS=NSPS0/NDOWN)          !Sam/sym, downsampled (1024)
 parameter (N7=7*NSPS)                 !Samples in Costas 7x7 array (7168)
 parameter (NZ=NSPS*NN)                !Samples in downsampled waveform (116,736)
-parameter (NZMAX=NSPS0*NN)            !Samples in *.wav (2,801,664)
+parameter (NMAX=240*12000)            !Samples in iwave()
+parameter (NMAXD=NMAX/24)             !Samples in c(), after downsampling
 parameter (NFFT1=4*NSPS,NH1=NFFT1/2)
 parameter (NH2=NSPS/2)
