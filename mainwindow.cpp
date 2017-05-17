@@ -2786,7 +2786,7 @@ void MainWindow::guiUpdate()
   if(m_modeTx=="JT65") txDuration=1.0 + 126*4096/11025.0;     // JT65
   if(m_mode=="QRA64")  txDuration=1.0 + 84*6912/12000.0;      // QRA64
   if(m_mode=="WSPR") txDuration=2.0 + 162*8192/12000.0;       // WSPR
-  if(m_mode=="WSPR-LF") txDuration=2.0 + 412*8640/12000.0;    // WSPR-LF
+  if(m_mode=="WSPR-LF") txDuration=2.0 + 114*24576/12000.0;   // WSPR-LF
   if(m_mode=="ISCAT" or m_mode=="MSK144" or m_bFast9) {
     txDuration=m_TRperiod-0.25; // ISCAT, JT9-fast, MSK144
   }
@@ -2820,21 +2820,21 @@ void MainWindow::guiUpdate()
   if(m_mode.startsWith ("WSPR")) {
     if(m_nseq==0 and m_ntr==0) {                   //Decide whether to Tx or Rx
       m_tuneup=false;                              //This is not an ATU tuneup
-      if(m_pctx==0) m_WSPR_tx_next = false; //Don't transmit if m_pctx=0
-      bool btx = m_auto && m_WSPR_tx_next; // To Tx, we need m_auto and
-                                // scheduled transmit
+      if(m_pctx==0) m_WSPR_tx_next = false;        //Don't transmit if m_pctx=0
+      bool btx = m_auto && m_WSPR_tx_next;         // To Tx, we need m_auto and
+                                                   // scheduled transmit
       if(m_auto and m_txNext) btx=true;            //TxNext button overrides
       if(m_auto and m_pctx==100) btx=true;         //Always transmit
 
       if(btx) {
-        m_ntr=-1;                          //This says we will have transmitted
+        m_ntr=-1;                                  //This says we will have transmitted
         m_txNext=false;
         ui->pbTxNext->setChecked(false);
-        m_bTxTime=true;                      //Start a WSPR Tx sequence
+        m_bTxTime=true;                            //Start a WSPR Tx sequence
       } else {
 // This will be a WSPR Rx sequence.
-        m_ntr=1;                           //This says we will have received
-        m_bTxTime=false;                     //Start a WSPR Rx sequence
+        m_ntr=1;                                   //This says we will have received
+        m_bTxTime=false;                           //Start a WSPR Rx sequence
       }
     }
 
