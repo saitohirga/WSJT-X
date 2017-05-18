@@ -1111,7 +1111,7 @@ void MainWindow::fixStop()
   if(m_mode=="WSPR") {
     m_hsymStop=396;
   } else if(m_mode=="WSPR-LF") {
-    m_hsymStop=832;
+    m_hsymStop=813;
   } else if(m_mode=="Echo") {
     m_hsymStop=10;
   } else if (m_mode=="JT4"){
@@ -1277,7 +1277,7 @@ void MainWindow::dataSink(qint64 frames)
       double f0m1500=m_dialFreqRxWSPR/1000000.0;   // + 0.000001*(m_BFO - 1500);
       t2.sprintf(" -f %.6f ",f0m1500);
 
-      if(m_diskData) {
+      if(m_diskData or m_mode=="WSPR-LF") {
         cmnd='"' + m_appDir + '"' + "/wsprd -a \"" +
             QDir::toNativeSeparators(m_dataDir.absolutePath()) + "\" \"" + m_path + "\"";
       } else {
@@ -4573,7 +4573,7 @@ void MainWindow::on_actionWSPR_LF_triggered()
   m_TRperiod=240;
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
-  m_hsymStop=832;
+  m_hsymStop=813;
   m_toneSpacing=12000.0/24576.0;
   setup_status_bar (false);
   ui->actionWSPR_LF->setChecked(true);
