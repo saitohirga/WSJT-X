@@ -214,7 +214,8 @@ public:
     , parent_widget_ {parent_widget}
     , last_was_tx_ {false}
     , carry_ {false}
-    , gen_ {rd_ ()}
+    , seed_ {{rand (), rand (), rand (), rand (), rand (), rand (), rand (), rand ()}}
+    , gen_ {seed_}
     , dist_ {1, 100}
   {
     auto num_bands = configuration_->bands ()->rowCount ();
@@ -242,7 +243,7 @@ public:
   QPointer<Dialog> dialog_;
   bool last_was_tx_;
   bool carry_;
-  std::random_device rd_;
+  std::seed_seq seed_;
   std::mt19937 gen_;
   std::uniform_int_distribution<int> dist_;
 };
