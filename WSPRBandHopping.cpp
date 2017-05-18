@@ -1,5 +1,7 @@
 #include "WSPRBandHopping.hpp"
 
+#include <random>
+
 #include <QPointer>
 #include <QSettings>
 #include <QBitArray>
@@ -210,6 +212,10 @@ public:
     , configuration_ {configuration}
     , tx_percent_ {0}
     , parent_widget_ {parent_widget}
+    , last_was_tx_ {false}
+    , carry_ {false}
+    , gen_ {rd_ ()}
+    , dist_ {1, 100}
   {
     auto num_bands = configuration_->bands ()->rowCount ();
     for (auto& flags : bands_)
@@ -217,6 +223,8 @@ public:
         flags.resize (num_bands);
       }
   }
+
+  bool simple_scheduler ();
 
   QSettings * settings_;
   Configuration const * configuration_;
@@ -232,7 +240,30 @@ public:
 
   int gray_line_duration_;
   QPointer<Dialog> dialog_;
+  bool last_was_tx_;
+  bool carry_;
+  std::random_device rd_;
+  std::mt19937 gen_;
+  std::uniform_int_distribution<int> dist_;
 };
+
+bool WSPRBandHopping::impl::simple_scheduler ()
+{
+  auto tx = carry_ || tx_percent_ > dist_ (gen_);
+  if (carry_)
+    {
+      carry_ = false;
+    }
+  else if (tx_percent_ < 40 && last_was_tx_ && tx)
+    {
+      // if percentage is less than 40 then avoid consecutive tx but
+      // always catch up on the next round
+      tx = false;
+      carry_ = true;
+    }
+  last_was_tx_ = tx;
+  return tx;
+}
 
 WSPRBandHopping::WSPRBandHopping (QSettings * settings, Configuration const * configuration, QWidget * parent_widget)
   : m_ {settings, configuration, parent_widget}
@@ -436,8 +467,12 @@ auto WSPRBandHopping::next_hop (bool tx_enabled) -> Hop
    };
 }
 
-bool WSPRBandHopping::next_is_tx ()
+bool WSPRBandHopping::next_is_tx (bool simple_schedule)
 {
+  if (simple_schedule)
+    {
+      return m_->simple_scheduler ();
+    }
   if (100 == m_->tx_percent_)
     {
       return true;
