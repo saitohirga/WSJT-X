@@ -5403,7 +5403,8 @@ void MainWindow::transmit (double snr)
                         m_TRperiod);
   }
   if (m_mode=="WSPR-LF") {
-    Q_EMIT sendMessage (NUM_WSPR_LF_SYMBOLS, 8640.0,
+    qDebug() << "a" << m_toneSpacing;
+    Q_EMIT sendMessage (NUM_WSPR_LF_SYMBOLS, 24576.0,
                         ui->TxFreqSpinBox->value(),
                         m_toneSpacing, m_soundOutput,
                         m_config.audio_output_channel(),true, false, snr,
