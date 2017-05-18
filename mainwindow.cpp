@@ -1288,7 +1288,9 @@ void MainWindow::dataSink(qint64 frames)
       QString t3=cmnd;
       int i1=cmnd.indexOf("/wsprd ");
       cmnd=t3.mid(0,i1+7) + t3.mid(i1+7);
-      if(m_mode=="WSPR-LF") cmnd=cmnd.replace("/wsprd ","/wspr_fsk8d ");
+      QString degrade;
+      degrade.sprintf("-d %4.1f ",m_config.degrade());
+      if(m_mode=="WSPR-LF") cmnd=cmnd.replace("/wsprd ","/wspr_fsk8d "+degrade+t2);
       if (ui) ui->DecodeButton->setChecked (true);
       m_cmndP1=QDir::toNativeSeparators(cmnd);
       p1Timer.start(1000);
@@ -2226,7 +2228,6 @@ void MainWindow::diskDat()                                   //diskDat()
     float db=m_config.degrade();
     float bw=m_config.RxBandwidth();
     if(db > 0.0) degrade_snr_(dec_data.d2,&dec_data.params.kin,&db,&bw);
-
     for(int n=1; n<=m_hsymStop; n++) {                      // Do the waterfall spectra
       k=(n+1)*kstep;
       if(k > dec_data.params.kin) break;
@@ -5403,7 +5404,6 @@ void MainWindow::transmit (double snr)
                         m_TRperiod);
   }
   if (m_mode=="WSPR-LF") {
-    qDebug() << "a" << m_toneSpacing;
     Q_EMIT sendMessage (NUM_WSPR_LF_SYMBOLS, 24576.0,
                         ui->TxFreqSpinBox->value(),
                         m_toneSpacing, m_soundOutput,

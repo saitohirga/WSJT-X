@@ -37,23 +37,24 @@ program wspr_fsk8d
   data icos7/2,5,6,0,4,1,3/             !Costas 7x7 tone pattern
 
   nargs=iargc()
-  if(nargs.lt.2) then
-     print*,'Usage:   wspr_fsk8d [-a <data_dir>] [-f fMHz] file1 [file2 ...]'
+  if(nargs.lt.7) then
+     print*,'Usage:   wspr_fsk8d -d db -a data_dir -f fMHz file1 [file2 ...]'
      go to 999
   endif
-  iarg=1
-  data_dir="."
-  call getarg(iarg,arg)
-  if(arg(1:2).eq.'-a') then
-     call getarg(iarg+1,data_dir)
-     iarg=iarg+2
-  endif
-  call getarg(iarg,arg)
-  if(arg(1:2).eq.'-f') then
-     call getarg(iarg+1,arg)
-     read(arg,*) fMHz
-     iarg=iarg+2
-  endif
+  call getarg(1,arg)
+  if(arg(1:3).ne.'-d ') go to 999
+  call getarg(2,arg)
+  read(arg,*) degrade
+  rxbw=3000.
+
+  call getarg(3,arg)
+  if(arg(1:3).ne.'-f ') go to 999
+  call getarg(4,arg)
+  read(arg,*) fMHz
+
+  call getarg(5,arg)
+  if(arg(1:3).ne.'-a ') go to 999
+  call getarg(6,data_dir)
   
   open(13,file=trim(data_dir)//'/ALL_WSPR.TXT',status='unknown',   &
        position='append')
@@ -77,7 +78,7 @@ program wspr_fsk8d
      enddo
   enddo
 
-  do ifile=iarg,nargs
+  do ifile=7,nargs
      call getarg(ifile,infile)
      open(10,file=infile,status='old',access='stream')
      read(10,end=999) ihdr,iwave
@@ -85,10 +86,13 @@ program wspr_fsk8d
      j2=index(infile,'.wav')
      read(infile(j2-4:j2-1),*) nutc
      datetime=infile(j2-11:j2-1)
+     if(degrade.gt.0.0) call degrade_snr(iwave,NMAX,degrade,rxbw)
      call wspr_fsk8_downsample(iwave,c)
 
      pmax=0.
      df1=fs/(2*N7)
+     ia=nint(100.0/df1)
+     ib=nint(150.0/df1)
      ipk=0
      jpk=0
 ! Get xdt and f0 from the sync arrays
@@ -104,6 +108,9 @@ program wspr_fsk8d
            p=1.e-9*(real(c1(i))**2 + aimag(c1(i))**2 +                        &
                 real(c2(i))**2 + aimag(c2(i))**2)
            ss(i)=p
+        enddo
+        do i=ia,ib
+           p=ss(i)
            if(p.gt.pmax) then
               pmax=p
               ipk=i
@@ -131,7 +138,8 @@ program wspr_fsk8d
      do j=1,ND
         k=j+7
         ps=s(0:7,k)
-!        ps=sqrt(ps)                                !### ??? ###
+        !        ps=sqrt(ps)                                !### ??? ###
+        ps=log(ps)
         r1=max(ps(1),ps(3),ps(5),ps(7))-max(ps(0),ps(2),ps(4),ps(6))
         r2=max(ps(2),ps(3),ps(6),ps(7))-max(ps(0),ps(1),ps(4),ps(5))
         r4=max(ps(4),ps(5),ps(6),ps(7))-max(ps(0),ps(1),ps(2),ps(3))
@@ -155,7 +163,8 @@ program wspr_fsk8d
      if(niterations.ge.0) call chkcrc10(decoded,nbadcrc)
      if(niterations.lt.0 .or. nbadcrc.ne.0) ifer=1
      nsnr=nint(xsnr)
-     freq=fMHz + 1.d-6*f0
+!     freq=fMHz + 1.d-6*f0
+     freq=1.d-6*(f0+1500)
      nfdot=0
      message='                      '
      if(ifer.eq.0) then
