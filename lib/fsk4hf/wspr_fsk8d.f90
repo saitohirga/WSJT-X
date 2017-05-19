@@ -38,7 +38,7 @@ program wspr_fsk8d
 
   nargs=iargc()
   if(nargs.lt.7) then
-     print*,'Usage:   wspr_fsk8d -d db -a data_dir -f fMHz file1 [file2 ...]'
+     print*,'Usage:   wspr_fsk8d -d db -f fMHz -a data_dir file1 [file2 ...]'
      go to 999
   endif
   call getarg(1,arg)
