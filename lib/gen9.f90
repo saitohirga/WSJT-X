@@ -43,7 +43,9 @@ subroutine gen9(msg0,ichk,msgsent,i4tone,itype)
      call entail(i4Msg6BitWords,i1Msg8BitBytes)  !Add tail, make 8-bit bytes
      nsym2=206
      call encode232(i1Msg8BitBytes,nsym2,i1EncodedBits)   !Encode K=32, r=1/2
+     i1EncodedBits(207)=0
      call interleave9(i1EncodedBits,1,i1ScrambledBits)    !Interleave bits
+     i1ScrambledBits(207)=0
      call packbits(i1ScrambledBits,69,3,i4DataSymbols)    !Pk 3-bits into words
      call graycode(i4DataSymbols,69,1,i4GrayCodedSymbols) !Apply Gray code
 
