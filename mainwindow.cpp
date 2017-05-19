@@ -1276,20 +1276,27 @@ void MainWindow::dataSink(qint64 frames)
       QString t2,cmnd;
       double f0m1500=m_dialFreqRxWSPR/1000000.0;   // + 0.000001*(m_BFO - 1500);
       t2.sprintf(" -f %.6f ",f0m1500);
+      QString degrade;
+      degrade.sprintf("-d %4.1f ",m_config.degrade());
 
-      if(m_diskData or m_mode=="WSPR-LF") {
+      if(m_diskData) {
         cmnd='"' + m_appDir + '"' + "/wsprd -a \"" +
             QDir::toNativeSeparators(m_dataDir.absolutePath()) + "\" \"" + m_path + "\"";
       } else {
-        cmnd='"' + m_appDir + '"' + "/wsprd -a \"" +
-            QDir::toNativeSeparators(m_dataDir.absolutePath()) + "\" " +
-            t2 + '"' + m_fnameWE + ".wav\"";
+        if(m_mode=="WSPR-LF") {
+          cmnd='"' + m_appDir + '"' + "/wspr_fsk8d " + degrade + t2 +" -a \"" +
+              QDir::toNativeSeparators(m_dataDir.absolutePath()) + "\" " +
+              '"' + m_fnameWE + ".wav\"";
+        } else {
+          cmnd='"' + m_appDir + '"' + "/wsprd -a \"" +
+              QDir::toNativeSeparators(m_dataDir.absolutePath()) + "\" " +
+              t2 + '"' + m_fnameWE + ".wav\"";
+        }
       }
       QString t3=cmnd;
       int i1=cmnd.indexOf("/wsprd ");
       cmnd=t3.mid(0,i1+7) + t3.mid(i1+7);
-      QString degrade;
-      degrade.sprintf("-d %4.1f ",m_config.degrade());
+
       if(m_mode=="WSPR-LF") cmnd=cmnd.replace("/wsprd ","/wspr_fsk8d "+degrade+t2);
       if (ui) ui->DecodeButton->setChecked (true);
       m_cmndP1=QDir::toNativeSeparators(cmnd);
