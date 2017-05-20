@@ -4283,6 +4283,8 @@ void MainWindow::on_actionJT4_triggered()
   ui->sbSubmode->setMaximum(6);
   ui->label_6->setText("Single-Period Decodes");
   ui->label_7->setText("Average Decodes");
+  ui->decodedTextLabel->setText("UTC   dB   DT Freq    Message");
+  ui->decodedTextLabel2->setText("UTC   dB   DT Freq    Message");
   if(bVHF) {
     ui->sbSubmode->setValue(m_nSubMode);
   } else {
@@ -4379,6 +4381,8 @@ void MainWindow::on_actionJT9_JT65_triggered()
   ui->sbSubmode->setValue(0);
   ui->label_6->setText("Band Activity");
   ui->label_7->setText("Rx Frequency");
+  ui->decodedTextLabel->setText("UTC   dB   DT Freq    Message");
+  ui->decodedTextLabel2->setText("UTC   dB   DT Freq    Message");
   statusChanged();
 }
 
