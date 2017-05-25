@@ -17,9 +17,9 @@ program wspr5sim
 
 ! Get command-line argument(s)
   nargs=iargc()
-  if(nargs.ne.6) then
-     print*,'Usage:   wspr5sim "message"       f0  DT nwav nfiles snr'
-     print*,'Example: wspr5sim "K1ABC FN42 30" 50 0.0  0     10   -33'
+  if(nargs.ne.8) then
+     print*,'Usage:   wspr5sim "message"       f0  DT fsp del  nwav nfiles snr'
+     print*,'Example: wspr5sim "K1ABC FN42 30" 50 0.0 0.1 1.0  1      10   -33'
      go to 999
   endif
   call getarg(1,msg)                     !Message to be transmitted
@@ -28,10 +28,14 @@ program wspr5sim
   call getarg(3,arg)
   read(arg,*) xdt                        !Time offset from nominal (s)
   call getarg(4,arg)
-  read(arg,*) nwav                       !1 for *.wav file, 0 for *.c5 file
+  read(arg,*) fspread                    !Watterson frequency spread (Hz)
   call getarg(5,arg)
-  read(arg,*) nfiles                     !Number of files
+  read(arg,*) delay                      !Watterson delay (ms)
   call getarg(6,arg)
+  read(arg,*) nwav                       !1 for *.wav file, 0 for *.c5 file
+  call getarg(7,arg)
+  read(arg,*) nfiles                     !Number of files
+  call getarg(8,arg)
   read(arg,*) snrdb                      !SNR_2500
 
   twopi=8.0*atan(1.0)
@@ -68,6 +72,11 @@ program wspr5sim
         if(k.ge.0 .and. k.lt.NZ) c0(k)=cmplx(cos(xphi),sin(xphi))
      enddo
   enddo
+
+  if( fspread .ne. 0.0 .or. delay .ne. 0.0 ) then
+    call watterson(c0,NZ,fs,delay,fspread)
+  endif
+
   c0=sig*c0                              !Scale to requested sig level
 
   do ifile=1,nfiles

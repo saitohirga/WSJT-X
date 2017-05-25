@@ -99,6 +99,7 @@ program wspr5d
     if(j1.gt.0) then
        read(10,end=999) fname,ntrmin,fMHz,c
        read(fname(8:11),*) nutc
+       write(datetime,'(i11)') nutc
     else if(j2.gt.0) then
        read(10,end=999) ihdr,iwave
        read(infile(j2-4:j2-1),*) nutc
@@ -118,7 +119,7 @@ program wspr5d
 !write(*,*) fc1+fc2
     call downsample(c,fc1+fc2,cd)
 
-  do ncoh=0,1
+  do ncoh=1,0,-1
     do is=0,9
       idt=is/2
       if( mod(is,2).eq. 1 ) idt=-is/2 
@@ -140,9 +141,6 @@ program wspr5d
         sbits(i+3)=r1
       enddo
 
-!      ebits=hbits(1:411)
-!      isum=sum(id(1:205)*(2*ebits(1:409:2)-1))/2
-!write(*,*) is,isum  
       j=1
       do i=1,205
         if( abs(id(i)) .ne. 2 ) then
@@ -248,7 +246,6 @@ do idf=0,idfmax
     cmbest=cm
   endif
 enddo
-!write(*,'(f10.3)') fbest 
 end subroutine mskseqdet
 
 subroutine downsample(ci,f0,co)
