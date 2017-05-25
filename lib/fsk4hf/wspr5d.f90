@@ -110,6 +110,7 @@ program wspr5d
      if(j1.gt.0) then
         read(10,end=999) fname,ntrmin,fMHz,c
         read(fname(8:11),*) nutc
+        write(datetime,'(i11)') nutc
      else if(j2.gt.0) then
         read(10,end=999) ihdr,iwave
         read(infile(j2-4:j2-1),*) nutc
