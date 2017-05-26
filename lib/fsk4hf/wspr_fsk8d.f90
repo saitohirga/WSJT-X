@@ -15,7 +15,7 @@ program wspr_fsk8d
 ! Still to do: find and decode more than one signal in the specified passband.
 
   include 'wspr_fsk8_params.f90'
-  character arg*8,message*22,cbits*50,infile*80,datetime*11
+  character arg*8,message*22,cbits*50,infile*80,fname*16,datetime*11
   character*120 data_dir
   complex csync(0:N7-1)                 !Sync symbols for Costas 7x7 array
   complex c1(0:2*N7-1)
@@ -81,14 +81,23 @@ program wspr_fsk8d
   do ifile=7,nargs
      call getarg(ifile,infile)
      open(10,file=infile,status='old',access='stream')
-     read(10,end=999) ihdr,iwave
-     close(10)
+     j1=index(infile,'.c4')
      j2=index(infile,'.wav')
-     read(infile(j2-4:j2-1),*) nutc
-     datetime=infile(j2-11:j2-1)
-     if(degrade.gt.0.0) call degrade_snr(iwave,NMAX,degrade,rxbw)
-     call wspr_fsk8_downsample(iwave,c)
-
+     if(j1.gt.0) then
+       read(10,end=999) fname,ntrmin,fMHz,c(0:NZ-1)
+       read(fname(8:11),*) nutc
+       write(datetime,'(i11)') nutc
+     else if(j2.gt.0) then
+       read(10,end=999) ihdr,iwave
+       read(infile(j2-4:j2-1),*) nutc
+       datetime=infile(j2-11:j2-1)
+       if(degrade.gt.0.0) call degrade_snr(iwave,NMAX,degrade,rxbw)
+       call wspr_fsk8_downsample(iwave,c)
+     else
+       print*,'Wrong file format?'
+       go to 999
+     endif
+     close(10)
      pmax=0.
      df1=fs/(2*N7)
      ia=nint(100.0/df1)
