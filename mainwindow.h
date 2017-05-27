@@ -255,8 +255,8 @@ private slots:
   void on_actionMeasure_reference_spectrum_triggered();
   void on_actionErase_reference_spectrum_triggered();
   void on_actionMeasure_phase_response_triggered();
-  void on_sbTR_valueChanged(int index);
-  void on_sbFtol_valueChanged(int index);
+  void on_sbTR_valueChanged (int);
+  void on_sbFtol_valueChanged (int);
   void on_cbFast9_clicked(bool b);
   void on_sbCQTxFreq_valueChanged(int n);
   void on_cbCQTx_toggled(bool b);
@@ -381,11 +381,7 @@ private:
   qint32  m_k0;
   qint32  m_kdone;
   qint32  m_nPick;
-  qint32  m_TRindex;
-  qint32  m_FtolIndex;
-  qint32  m_Ftol;
   FrequencyList::const_iterator m_frequency_list_fcal_iter;
-  qint32  m_TRperiodFast;
   qint32  m_nTx73;
   qint32  m_UTCdisk;
   qint32  m_wait;

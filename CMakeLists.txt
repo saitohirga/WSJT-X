@@ -205,6 +205,8 @@ set (wsjt_qt_CXXSRCS
   NetworkMessage.cpp
   MessageClient.cpp
   LettersSpinBox.cpp
+  HintedSpinBox.cpp
+  RestrictedSpinBox.cpp
   HelpTextWindow.cpp
   SampleDownloader.cpp
   SampleDownloader/DirectoryDelegate.cpp
