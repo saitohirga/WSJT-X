@@ -562,7 +562,7 @@ QLabel[oob=&quot;true&quot;] {
         <item row="0" column="3" rowspan="3">
          <widget class="QStackedWidget" name="controls_stack_widget">
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="page">
            <layout class="QHBoxLayout" name="horizontalLayout_8">
@@ -615,13 +615,7 @@ QLabel[oob=&quot;true&quot;] {
                   </widget>
                  </item>
                  <item row="5" column="0">
-                  <widget class="LettersSpinBox" name="sbFtol">
-                   <property name="maximumSize">
-                    <size>
-                     <width>120</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
+                  <widget class="HintedSpinBox" name="sbFtol">
                    <property name="toolTip">
                     <string>Frequency tolerance (Hz)</string>
                    </property>
@@ -632,15 +626,18 @@ QLabel[oob=&quot;true&quot;] {
                     <string>F Tol  </string>
                    </property>
                    <property name="minimum">
-                    <number>21</number>
+                    <number>10</number>
                    </property>
                    <property name="maximum">
-                    <number>27</number>
+                    <number>1000</number>
+                   </property>
+                   <property name="value">
+                    <number>10</number>
                    </property>
                   </widget>
                  </item>
                  <item row="9" column="0">
-                  <widget class="LettersSpinBox" name="sbTR">
+                  <widget class="RestrictedSpinBox" name="sbTR">
                    <property name="toolTip">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tx/Rx or Frequency calibration sequence length&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
@@ -654,13 +651,13 @@ QLabel[oob=&quot;true&quot;] {
                     <string>T/R  </string>
                    </property>
                    <property name="minimum">
-                    <number>11</number>
+                    <number>5</number>
                    </property>
                    <property name="maximum">
-                    <number>14</number>
+                    <number>30</number>
                    </property>
                    <property name="value">
-                    <number>14</number>
+                    <number>30</number>
                    </property>
                   </widget>
                  </item>
@@ -3010,6 +3007,16 @@ QPushButton[state=&quot;ok&quot;] {
    <extends>QFrame</extends>
    <header>signalmeter.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>HintedSpinBox</class>
+   <extends>QSpinBox</extends>
+   <header>HintedSpinBox.hpp</header>
+  </customwidget>
+  <customwidget>
+   <class>RestrictedSpinBox</class>
+   <extends>QSpinBox</extends>
+   <header>RestrictedSpinBox.hpp</header>
   </customwidget>
  </customwidgets>
  <tabstops>

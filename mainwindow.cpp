@@ -230,7 +230,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_k0 {9999999},
   m_nPick {0},
   m_frequency_list_fcal_iter {m_config.frequencies ()->begin ()},
-  m_TRperiodFast {-1},
   m_nTx73 {0},
   m_btxok {false},
   m_diskData {false},
@@ -365,6 +364,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   add_child_to_event_filter (this);
   ui->dxGridEntry->setValidator (new MaidenheadLocatorValidator {this});
   ui->dxCallEntry->setValidator (new CallsignValidator {this});
+  ui->sbTR->values ({5, 10, 15, 30});
 
   m_baseCall = Radio::base_callsign (m_config.my_callsign ());
 
@@ -803,8 +803,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   on_actionWide_Waterfall_triggered();
   m_wideGraph->setTol(500);
   m_wideGraph->setLockTxFreq(m_lockTxFreq);
-  ui->sbFtol->setValue(m_FtolIndex);
-  on_sbFtol_valueChanged(m_FtolIndex);
   ui->cbShMsgs->setChecked(m_bShMsgs);
   ui->cbSWL->setChecked(m_bSWL);
   ui->cbFast9->setChecked(m_bFast9);
@@ -824,7 +822,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   if(m_mode=="FreqCal") on_actionFreqCal_triggered();
 
   ui->sbSubmode->setValue (vhf ? m_nSubMode : 0);
-  ui->sbTR->setValue(m_TRindex);
   if(m_mode=="MSK144") {
     Q_EMIT transmitFrequency (1000.0);
   } else {
@@ -862,14 +859,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   VHF_features_enabled(m_config.enable_VHF_features());
   m_wideGraph->setVHF(m_config.enable_VHF_features());
 
-  progressBar.setMaximum(m_TRperiod);
-  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   connect( wsprNet, SIGNAL(uploadStatus(QString)), this, SLOT(uploadResponse(QString)));
-  if(m_bFastMode) {
-    int ntr[]={5,10,15,30};
-    m_TRperiod=ntr[m_TRindex-11];
-    m_fastGraph->setTRperiod(m_TRperiod);
-  }
+
   statusChanged();
 
   m_fastGraph->setMode(m_mode);
@@ -964,10 +955,9 @@ void MainWindow::writeSettings()
   m_settings->setValue("RxFreq",ui->RxFreqSpinBox->value());
   m_settings->setValue("TxFreq",ui->TxFreqSpinBox->value());
   m_settings->setValue("WSPRfreq",ui->WSPRfreqSpinBox->value());
-  m_settings->setValue("TRindex",ui->sbTR->value());
   m_settings->setValue("SubMode",ui->sbSubmode->value());
   m_settings->setValue("DTtol",m_DTtol);
-  m_settings->setValue("FtolIndex",m_FtolIndex);
+  m_settings->setValue("Ftol", ui->sbFtol->value ());
   m_settings->setValue("MinSync",m_minSync);
   m_settings->setValue ("AutoSeq", ui->cbAutoSeq->isChecked ());
   m_settings->setValue("ShMsgs",m_bShMsgs);
@@ -984,7 +974,7 @@ void MainWindow::writeSettings()
   m_settings->setValue ("WSPRPreferType1", ui->WSPR_prefer_type_1_check_box->isChecked ());
   m_settings->setValue("UploadSpots",m_uploadSpots);
   m_settings->setValue ("BandHopping", ui->band_hopping_group_box->isChecked ());
-  m_settings->setValue("TRindex",m_TRindex);
+  m_settings->setValue ("TRPeriod", ui->sbTR->value ());
   m_settings->setValue("FastMode",m_bFastMode);
   m_settings->setValue("Fast9",m_bFast9);
   m_settings->setValue ("CQTxfreq", ui->sbCQTxFreq->value ());
@@ -1033,8 +1023,7 @@ void MainWindow::readSettings()
   ui->RxFreqSpinBox->setValue(0); // ensure a change is signaled
   ui->RxFreqSpinBox->setValue(m_settings->value("RxFreq",1500).toInt());
   m_nSubMode=m_settings->value("SubMode",0).toInt();
-  m_FtolIndex=m_settings->value("FtolIndex",21).toInt();
-//  ui->FTol_combo_box->setCurrentText(m_settings->value("FTol","500").toString ());
+  ui->sbFtol->setValue (m_settings->value("Ftol", 20).toInt());
   m_minSync=m_settings->value("MinSync",0).toInt();
   ui->syncSpinBox->setValue(m_minSync);
   ui->cbAutoSeq->setChecked (m_settings->value ("AutoSeq", false).toBool());
@@ -1042,9 +1031,9 @@ void MainWindow::readSettings()
   m_bSWL=m_settings->value("SWL",false).toBool();
   m_bFast9=m_settings->value("Fast9",false).toBool();
   m_bFastMode=m_settings->value("FastMode",false).toBool();
-  m_TRindex=m_settings->value("TRindex",0).toInt();
+  ui->sbTR->setValue (m_settings->value ("TRPeriod", 30).toInt());
   m_lastMonitoredFrequency = m_settings->value ("DialFreq",
-     QVariant::fromValue<Frequency> (default_frequency)).value<Frequency> ();
+    QVariant::fromValue<Frequency> (default_frequency)).value<Frequency> ();
   ui->WSPRfreqSpinBox->setValue(0); // ensure a change is signaled
   ui->WSPRfreqSpinBox->setValue(m_settings->value("WSPRfreq",1500).toInt());
   ui->TxFreqSpinBox->setValue(0); // ensure a change is signaled
@@ -1067,7 +1056,6 @@ void MainWindow::readSettings()
   ui->tabWidget->setCurrentIndex(n);
   outBufSize=m_settings->value("OutBufSize",4096).toInt();
   m_lockTxFreq=m_settings->value("LockTxFreq",false).toBool();
-  m_TRindex=m_settings->value("TRindex",4).toInt();
   m_pwrBandTxMemory=m_settings->value("pwrBandTxMemory").toHash();
   m_pwrBandTuneMemory=m_settings->value("pwrBandTuneMemory").toHash();
   {
@@ -1182,7 +1170,8 @@ void MainWindow::dataSink(qint64 frames)
       && !(m_ihsym % 8) && m_ihsym > 8 && m_ihsym <= m_hsymStop) {
     int RxFreq=ui->RxFreqSpinBox->value ();
     int nkhz=(m_freqNominal+RxFreq)/1000;
-    freqcal_(&dec_data.d2[0],&k,&nkhz,&RxFreq,&m_Ftol,&line[0],80);
+    int ftol = ui->sbFtol->value ();
+    freqcal_(&dec_data.d2[0],&k,&nkhz,&RxFreq,&ftol,&line[0],80);
     QString t=QString::fromLatin1(line);
     DecodedText decodedtext;
     decodedtext=t;
@@ -1397,7 +1386,8 @@ void MainWindow::fastSink(qint64 frames)
   strncpy(ddir,dataDir.toLatin1(), sizeof (ddir) - 1);
   float pxmax = 0;
   float rmsNoGain = 0;
-  hspec_(dec_data.d2,&k,&nutc0,&nTRpDepth,&RxFreq,&m_Ftol,&bmsk144,&bcontest,
+  int ftol = ui->sbFtol->value ();
+  hspec_(dec_data.d2,&k,&nutc0,&nTRpDepth,&RxFreq,&ftol,&bmsk144,&bcontest,
          &m_bTrain,m_phaseEqCoefficients.constData(),&m_inGain,&dec_data.params.mycall[0],
          &dec_data.params.hiscall[0],&bshmsg,&bswl,
          &ddir[0],fast_green,fast_s,&fast_jh,&pxmax,&rmsNoGain,&line[0],&dec_data.params.mygrid[0],
@@ -2389,7 +2379,7 @@ void MainWindow::decode()                                       //decode()
   dec_data.params.nfa=m_wideGraph->nStartFreq();
   dec_data.params.nfSplit=m_wideGraph->Fmin();
   dec_data.params.nfb=m_wideGraph->Fmax();
-  dec_data.params.ntol=m_Ftol;
+  dec_data.params.ntol=ui->sbFtol->value ();
   if(m_mode=="JT9+JT65" or !m_config.enable_VHF_features()) {
     dec_data.params.ntol=20;
     dec_data.params.naggressive=0;
@@ -2472,7 +2462,7 @@ void MainWindow::decode()                                       //decode()
     if(m_mode=="JT9") narg[9]=102;            //Fast JT9
     if(m_mode=="MSK144") narg[9]=104;         //MSK144
     narg[10]=ui->RxFreqSpinBox->value();
-    narg[11]=m_Ftol;
+    narg[11]=ui->sbFtol->value ();
     narg[12]=0;
     narg[13]=-1;
     narg[14]=m_config.aggressive();
@@ -4328,7 +4318,7 @@ void MainWindow::on_actionJT9_triggered()
   ui->sbSubmode->setMaximum(7);
   fast_config(m_bFastMode);
   if(m_bFast9) {
-    m_TRperiod=ui->sbTR->cleanText().toInt();
+    m_TRperiod = ui->sbTR->value ();
     m_wideGraph->hide();
     m_fastGraph->show();
     ui->TxFreqSpinBox->setValue(700);
@@ -4472,7 +4462,7 @@ void MainWindow::on_actionISCAT_triggered()
   displayWidgets(nWidgets("100111000000000110000000"));
   m_modeTx="ISCAT";
   ui->actionISCAT->setChecked(true);
-  m_TRperiod=ui->sbTR->cleanText().toInt();
+  m_TRperiod = ui->sbTR->value ();
   m_modulator->setPeriod(m_TRperiod);
   m_detector->setPeriod(m_TRperiod);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
@@ -4520,9 +4510,7 @@ void MainWindow::on_actionMSK144_triggered()
   m_bFastMode=true;
   m_bFast9=false;
   fast_config(true);
-  if(m_TRperiodFast<=15) ui->sbTR->setValue(m_TRperiodFast/5+10);
-  if(m_TRperiodFast==30) ui->sbTR->setValue(14);
-  m_TRperiod=ui->sbTR->cleanText().toInt();
+  m_TRperiod = ui->sbTR->value ();
   m_wideGraph->hide();
   m_fastGraph->show();
   ui->TxFreqSpinBox->setValue(1500);
@@ -4542,8 +4530,7 @@ void MainWindow::on_actionMSK144_triggered()
   ui->rptSpinBox->setMaximum(24);
   ui->rptSpinBox->setValue(0);
   ui->rptSpinBox->setSingleStep(1);
-  ui->sbFtol->setMinimum(22);
-  ui->sbFtol->setMaximum(25);
+  ui->sbFtol->values ({20, 50, 100, 200});
   statusChanged();
 }
 
@@ -4634,8 +4621,7 @@ void MainWindow::on_actionFreqCal_triggered()
   switch_mode(Modes::FreqCal);
   m_wideGraph->setMode(m_mode);
   statusChanged();
-  ui->sbTR->setValue(14);
-  m_TRperiod=ui->sbTR->cleanText().toInt();
+  m_TRperiod = ui->sbTR->value ();
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
   m_nsps=6912;                        //For symspec only
@@ -4661,8 +4647,7 @@ void MainWindow::switch_mode (Mode mode)
   ui->rptSpinBox->setSingleStep(1);
   ui->rptSpinBox->setMinimum(-50);
   ui->rptSpinBox->setMaximum(49);
-  ui->sbFtol->setMinimum(21);
-  ui->sbFtol->setMaximum(27);
+  ui->sbFtol->values ({10, 20, 50, 100, 200, 500, 1000});
   if(m_mode=="MSK144") {
     ui->RxFreqSpinBox->setMinimum(1400);
     ui->RxFreqSpinBox->setMaximum(1600);
@@ -4718,7 +4703,6 @@ void MainWindow::fast_config(bool b)
   ui->TxFreqSpinBox->setEnabled(!b);
   ui->sbTR->setVisible(b);
   if(b and (m_bFast9 or m_mode=="MSK144" or m_mode=="ISCAT")) {
-    ui->sbTR->setValue(m_TRindex);
     m_wideGraph->hide();
     m_fastGraph->show();
   } else {
@@ -5564,12 +5548,9 @@ void MainWindow::transmitDisplay (bool transmitting)
   }
 }
 
-void MainWindow::on_sbFtol_valueChanged(int index)
+void MainWindow::on_sbFtol_valueChanged(int value)
 {
-  int tol[] = {10,20,50,100,200,500,1000};
-  m_FtolIndex=index;
-  m_Ftol=tol[index-21];
-  m_wideGraph->setTol(m_Ftol);
+  m_wideGraph->setTol (value);
 }
 
 void::MainWindow::VHF_features_enabled(bool b)
@@ -5588,16 +5569,16 @@ void::MainWindow::VHF_features_enabled(bool b)
   }
 }
 
-void MainWindow::on_sbTR_valueChanged(int index)
+void MainWindow::on_sbTR_valueChanged(int value)
 {
-  m_TRindex=index;
 //  if(!m_bFastMode and n>m_nSubMode) m_MinW=m_nSubMode;
   if(m_bFastMode or m_mode=="FreqCal") {
-    m_TRperiod=ui->sbTR->cleanText().toInt();
-    if(m_TRperiod<5 or m_TRperiod>30) m_TRperiod=15;
-    m_TRindex=ui->sbTR->value();
-    m_TRperiodFast=m_TRperiod;
-    progressBar.setMaximum(m_TRperiod);
+    m_TRperiod = value;
+    m_fastGraph->setTRperiod (value);
+    m_modulator->setPeriod (value); // TODO - not thread safe
+    m_detector->setPeriod (value);  // TODO - not thread safe
+    m_wideGraph->setPeriod (value, m_nsps);
+    progressBar.setMaximum (value);
   }
   if(m_monitoring) {
     on_stopButton_clicked();
@@ -5606,10 +5587,6 @@ void MainWindow::on_sbTR_valueChanged(int index)
   if(m_transmitting) {
     on_stopTxButton_clicked();
   }
-  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
-  m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
-  m_wideGraph->setPeriod(m_TRperiod,m_nsps);
-  m_fastGraph->setTRperiod(m_TRperiod);
 }
 
 QChar MainWindow::current_submode () const
@@ -5666,7 +5643,7 @@ void MainWindow::on_cbFast9_clicked(bool b)
   }
 
   if(b) {
-    if(m_TRperiodFast>0) m_TRperiod=m_TRperiodFast;
+    m_TRperiod = ui->sbTR->value ();
   } else {
     m_TRperiod=60;
   }
