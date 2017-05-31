@@ -1,11 +1,9 @@
 subroutine getfc1w(c,fs,fa,fb,fc1,xsnr)
 
   include 'wsprlf_params.f90'
-
   complex c(0:NZ-1)                     !Complex waveform
   complex c2(0:NFFT1-1)                 !Short spectra
   real s(-NH1+1:NH1)                    !Coarse spectrum
-
   nspec=NZ/NFFT1
   df1=fs/NFFT1
   s=0.
