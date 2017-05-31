@@ -170,7 +170,7 @@ do idb = 20,-16,-1
 ! max_iterations is max number of belief propagation iterations
     call bpdecode300(llr, apmask, max_iterations, decoded, niterations, cw)
     if( niterations .lt. 0 ) then
-      norder=4
+      norder=3
       call osd300(llr, norder, decoded, niterations, cw)
     endif
     n2err=0

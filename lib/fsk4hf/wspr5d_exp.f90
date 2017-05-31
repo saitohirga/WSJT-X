@@ -19,6 +19,7 @@ program wspr5d
   real rxdata(ND),llr(ND)               !Soft symbols
   real pp(32)                       !Shaped pulse for OQPSK
   real ps(0:7),sbits(412)
+  real fpks(20)
   integer id(NS+ND)                     !NRZ values (+/-1) for Sync and Data
   integer isync(48)                     !Long sync vector
   integer ib13(13)                      !Barker 13 code
@@ -114,12 +115,15 @@ program wspr5d
     fa=100.0
     fb=170.0
     call getfc1w(c,fs,fa,fb,fc1,xsnr)         !First approx for freq
-    call getfc2w(c,csync,fs,fc1,fc2,fc3)      !Refined freq
+!    call getfc2w(c,csync,fs,fc1,fc2,fc3)      !Refined freq
+    npeaks=5
+    call getfc2w(c,csync,npeaks,fs,fc1,fpks)      !Refined freq
 
 !write(*,*) fc1+fc2
-    call downsample(c,fc1+fc2,cd)
+do ipks=1,npeaks
+    call downsample(c,fc1+fpks(ipks),cd)
 
-  do ncoh=1,0,-1
+  do ncoh=1,1,-1
     do is=0,9
       idt=is/2
       if( mod(is,2).eq. 1 ) idt=-is/2 
@@ -178,12 +182,13 @@ program wspr5d
         nfdot=0
         write(13,1210) datetime,0,nsnr,xdt,freq,message,nfdot
 1210 format(a11,2i4,f6.2,f12.7,2x,a22,i3)
-        write(*,1212) datetime(8:11),nsnr,xdt,freq,nfdot,message,'*'
-1212 format(a4,i4,f5.1,f11.6,i3,2x,a22,a1)
+        write(*,1212) datetime(8:11),nsnr,xdt,freq,nfdot,message,'*',ipks
+1212 format(a4,i4,f5.1,f11.6,i3,2x,a22,a1,i4)
         goto 888
       endif
     enddo
 enddo
+enddo ! fpeaks loop
 888  enddo
 
   write(*,1120)

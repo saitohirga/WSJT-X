@@ -30,6 +30,7 @@ program wspr5d
   real pp(2*NSPS)                       !Shaped pulse for OQPSK
   real a(5)                             !For twkfreq1
   real aa(20),bb(20)                    !Fitted polyco's
+  real fpks(20)
   integer id(NS+ND)                     !NRZ values (+/-1) for Sync and Data
   integer ierror(NS+ND)
   integer isync(48)                     !Long sync vector
@@ -124,10 +125,10 @@ program wspr5d
      fa=102.0
      fb=150.0
      call getfc1w(c,fs,fa,fb,fc1,xsnr)         !First approx for freq
-     call getfc2w(c,csync,fs,fc1,fc2,fc3)      !Refined freq
+npeaks=20
+     call getfc2w(c,csync,npeaks,fs,fc1,fpks)      !Refined freq
 
-!NB: Measured performance is about equally good using fc2 or fc3 here:
-     a(1)=-(fc1+fc2)
+     a(1)=-fc1
      a(2:5)=0.
      call twkfreq1(c,NZ,fs,a,c)       !Mix c down by fc1+fc2
 
@@ -157,23 +158,19 @@ program wspr5d
         endif
      enddo
      xdt=jpk/fs
+xdt=1.0
+jpk=fs*xdt
      do i=0,NZ-1
         j=i+jpk
         if(j.ge.0 .and. j.lt.NZ) c1(i)=c(j)
      enddo
-!     print*,fc1,fc1+fc2,xdt,amax
-!-----------------------------------------------------------------        
 
      nterms=maxn
-!     c1=c
-!     do itry=1,1000
-     do itry=1,20
-        idf=itry/2
-        if(mod(itry,2).eq.0) idf=-idf
+     do itry=1,npeaks
         nhard0=0
         nhardsync0=0
         ifer=1
-        a(1)=idf*0.00085
+        a(1)=-fpks(itry)
         a(2:5)=0.
         call twkfreq1(c1,NZ,fs,a,c)       !Mix c1 into c
         call cpolyfitw(c,pp,id,maxn,aa,bb,zz,nhs)
@@ -204,12 +201,13 @@ program wspr5d
         idat(7)=ishft(idat(7),6)
         call wqdecode(idat,message,itype)
         nsnr=nint(xsnr)
-        freq=fMHz + 1.d-6*(fc1+fc2)
+!        freq=fMHz + 1.d-6*(fc1+fc2)
+        freq=fMHz + 1.d-6*(fc1+fpks(itry))
         nfdot=0
         write(13,1110) datetime,0,nsnr,xdt,freq,message,nfdot
 1110    format(a11,2i4,f6.2,f12.7,2x,a22,i3)
-        write(*,1112) datetime(8:11),nsnr,xdt,freq,nfdot,message
-1112    format(a4,i4,f5.1,f11.6,i3,2x,a22)
+        write(*,1112) datetime(8:11),nsnr,xdt,freq,nfdot,message,itry
+1112    format(a4,i4,f5.1,f11.6,i3,2x,a22,i4)
      endif
   enddo                                   ! ifile loop
   write(*,1120)
