@@ -127,7 +127,6 @@ program wspr5d
     endif
     close(10)
 
-
     fa=100.0
     fb=150.0
     fs400=400.0
@@ -135,14 +134,13 @@ program wspr5d
 !write(*,*) datetime,'initial guess ',fc1
     npeaks=5
     call getfc2(c400,npeaks,fs400,fc1,fpks)      !Refined freq
+
     do idf=1,npeaks ! consider the top npeak peaks 
       fc2=fpks(idf)
-!write(*,*) 'peak ',idf,fc1+fc2,fc2
       call downsample(c400,fc1+fc2,cd)
       s2=sum(cd*conjg(cd))/(16*412)
       cd=cd/sqrt(s2)
-     
-      do is=0,11  ! search over plus/minus 0.25 seconds for now
+      do is=0,8 ! dt search range is narrow, to save time. 
         idt=is/2
         if( mod(is,2).eq. 1 ) idt=-(is+1)/2 
         xdt=real(22+idt)/22.222 - 1.0
@@ -361,7 +359,7 @@ subroutine downsample(ci,f0,co)
   i0=nint(f0/df)
   co=0.0
   co(0)=ct(i0)
-  b=6.0
+  b=3.0
   do i=1,NO/2
      arg=(i*df/b)**2
      filt=exp(-arg)
@@ -460,9 +458,6 @@ subroutine getfc2(c,npeaks,fs,fc1,fpks)
 !  enddo 
   call four2a(cs,NZ,1,1,1)           !Back to time domain
   cs=cs/NZ
-!do i=0,NZ-1
-!write(51,*) i,real(cs(i)),imag(cs(i))
-!enddo
   cs=cs*cs                           !Square the data
   call four2a(cs,NZ,1,-1,1)          !Compute squared spectrum
 ! Find two peaks separated by baud
