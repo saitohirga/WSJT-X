@@ -122,10 +122,10 @@ program wspr5d
         go to 999
      endif
      close(10)
-     fa=102.0
+     fa=100.0
      fb=150.0
      call getfc1w(c,fs,fa,fb,fc1,xsnr)         !First approx for freq
-npeaks=20
+     npeaks=20
      call getfc2w(c,csync,npeaks,fs,fc1,fpks)      !Refined freq
 
      a(1)=-fc1
@@ -152,6 +152,7 @@ npeaks=20
            ibb=NZ-1-j
         endif
         z=sum(c(ia:ib)*conjg(csync(iaa:ibb)))
+write(51,*) j/fs,real(z),imag(z)
         if(abs(z).gt.amax) then
            amax=abs(z)
            jpk=j

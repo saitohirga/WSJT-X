@@ -80,9 +80,6 @@ do id=1,K ! diagonal element indices
 enddo
 
 g2=transpose(genmrb)
-!do i=1,N
-!  g2(i,1:K)=genmrb(1:K,i)
-!enddo
 
 ! The hard decisions for the K MRB bits define the order 0 message, m0. 
 ! Encode m0 using the modified generator matrix to find the "order 0" codeword. 
@@ -140,8 +137,13 @@ enddo
 
 ! re-order the codeword to place message bits at the end
 cw(indices)=cw
+hdec(indices)=hdec
 decoded=cw(M+1:N)
-niterations=1
+nerr=0
+do i=1,N
+  if( hdec(i) .ne. cw(i) ) nerr=nerr+1
+enddo
+niterations=nerr
 return
 end subroutine osd300
 

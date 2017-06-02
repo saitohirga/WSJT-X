@@ -70,19 +70,19 @@ program wspr_fsk8_sim
      enddo
   enddo
 
-  if( fspread .ne. 0.0 .or. delay .ne. 0.0 ) then
-    call watterson(c0,NZ,fs,delay,fspread)
-  endif
-
-  c0=sig*c0                              !Scale to requested sig level
-
+  call sgran()
   do ifile=1,nfiles
     if(nwav.eq.0) then
+      c=c0
+      if( fspread .ne. 0.0 .or. delay .ne. 0.0 ) then
+        call watterson(c,NZ,fs,delay,fspread)
+      endif
+      c=c*sig
       if( snrdb.lt.90) then
         do i=0,NZ-1
           xnoise=gran()
           ynoise=gran()
-          c(i)=c0(i)+cmplx(xnoise,ynoise)
+          c(i)=c(i)+cmplx(xnoise,ynoise)
         enddo
       endif
       write(fname,1100) ifile
