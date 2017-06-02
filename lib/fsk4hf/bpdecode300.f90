@@ -647,9 +647,14 @@ do iter=0,maxiterations
   enddo
 !write(*,*) 'number of unsatisfied parity checks ',ncheck
   if( ncheck .eq. 0 ) then ! we have a codeword - reorder the columns and return it
-    niterations=iter
+!    niterations=iter
     codeword=cw(colorder+1)
     decoded=codeword(M+1:N)
+    nerr=0
+    do i=1,N
+      if( (2*cw(i)-1)*llr(i) .lt. 0.0 ) nerr=nerr+1
+    enddo
+    niterations=nerr
     return
   endif
 

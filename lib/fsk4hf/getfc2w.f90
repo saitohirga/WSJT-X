@@ -20,16 +20,8 @@ subroutine getfc2w(c,csync,npeaks,fs,fc1,fpks)
 
   ia=nint(0.75*baud/df) 
   cs(ia:NZ-1-ia)=0.                  !Save only freqs around fc1
-!  do i=1,NZ/2
-!    filt=1/(1+((i*df)**2/(0.50*baud)**2)**8)
-!    cs(i)=cs(i)*filt
-!    cs(NZ+1-i)=cs(NZ+1-i)*filt
-!  enddo 
   call four2a(cs,NZ,1,1,1)           !Back to time domain
   cs=cs/NZ
-!do i=0,NZ-1
-!write(51,*) i,real(cs(i)),imag(cs(i))
-!enddo
   cs=cs*cs                           !Square the data
   call four2a(cs,NZ,1,-1,1)          !Compute squared spectrum
 
@@ -37,7 +29,6 @@ subroutine getfc2w(c,csync,npeaks,fs,fc1,fpks)
   pmax=0.
   fc2=0.
   ja=nint(0.3*baud/df)
-!  ja=nint(0.5*baud/df)
   k=1
   do j=-ja,ja
      f2=j*df
