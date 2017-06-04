@@ -1,8 +1,11 @@
 #include "fastgraph.h"
+
 #include "commons.h"
 #include <QSettings>
 #include <QApplication>
 #include "fastplot.h"
+#include "SettingsGroup.hpp"
+
 #include "ui_fastgraph.h"
 #include "moc_fastgraph.cpp"
 
@@ -21,8 +24,8 @@ FastGraph::FastGraph(QSettings * settings, QWidget *parent) :
   installEventFilter(parent);                   //Installing the filter
   ui->fastPlot->setCursor(Qt::CrossCursor);
 
-//Restore user's settings
-  m_settings->beginGroup("FastGraph");
+  //Restore user's settings
+  SettingsGroup g {m_settings, "FastGraph"};
   restoreGeometry (m_settings->value ("geometry", saveGeometry ()).toByteArray ());
   ui->fastPlot->setPlotZero(m_settings->value("PlotZero", 0).toInt());
   ui->fastPlot->setPlotGain(m_settings->value("PlotGain", 0).toInt());
@@ -31,14 +34,8 @@ FastGraph::FastGraph(QSettings * settings, QWidget *parent) :
   ui->fastPlot->setGreenZero(m_settings->value("GreenZero", 0).toInt());
   ui->greenZeroSlider->setValue(ui->fastPlot->m_greenZero);
   ui->controls_widget->setVisible (!m_settings->value("HideControls", false).toBool ());
-  m_settings->endGroup();
 
   connect (ui->fastPlot, &FPlotter::fastPick, this, &FastGraph::fastPick);
-}
-
-FastGraph::~FastGraph()
-{
-  saveSettings();
 }
 
 void FastGraph::closeEvent (QCloseEvent * e)
@@ -47,17 +44,20 @@ void FastGraph::closeEvent (QCloseEvent * e)
   QDialog::closeEvent (e);
 }
 
+FastGraph::~FastGraph ()
+{
+}
+
 void FastGraph::saveSettings()
 {
 //Save user's settings
-  m_settings->beginGroup("FastGraph");
+  SettingsGroup g {m_settings, "FastGraph"};
   m_settings->setValue ("geometry", saveGeometry ());
   m_settings->setValue("PlotZero",ui->fastPlot->m_plotZero);
   m_settings->setValue("PlotGain",ui->fastPlot->m_plotGain);
   m_settings->setValue("GreenZero",ui->fastPlot->m_greenZero);
   m_settings->setValue("GreenGain",ui->fastPlot->m_greenGain);
-  m_settings->setValue("HideControls",!ui->controls_widget->isVisible ());
-  m_settings->endGroup();
+  m_settings->setValue ("HideControls", ui->controls_widget->isHidden ());
 }
 
 void FastGraph::plotSpec(bool diskData, int UTCdisk)

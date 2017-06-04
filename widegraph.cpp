@@ -1,4 +1,5 @@
 #include "widegraph.h"
+
 #include <algorithm>
 #include <QApplication>
 #include <QSettings>
@@ -6,8 +7,8 @@
 #include "commons.h"
 #include "Configuration.hpp"
 #include "MessageBox.hpp"
-#include "moc_widegraph.cpp"
 #include "SettingsGroup.hpp"
+#include "moc_widegraph.cpp"
 
 namespace
 {
@@ -140,7 +141,7 @@ void WideGraph::saveSettings()                                           //saveS
   m_settings->setValue ("UserPalette", QVariant::fromValue (m_userPalette.colours ()));
   m_settings->setValue("Flatten",m_bFlatten);
   m_settings->setValue("UseRef",m_bRef);
-  m_settings->setValue("HideControls",!ui->controls_widget->isVisible());
+  m_settings->setValue ("HideControls", ui->controls_widget->isHidden ());
 }
 
 void WideGraph::drawRed(int ia, int ib)
