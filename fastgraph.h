@@ -14,13 +14,9 @@ class FastGraph : public QDialog
 {
   Q_OBJECT
 
-protected:
-  void closeEvent (QCloseEvent *) override;
-  void keyPressEvent( QKeyEvent *e ) override;
-
 public:
   explicit FastGraph(QSettings *, QWidget *parent = 0);
-  ~FastGraph();
+  ~FastGraph ();
 
   void   plotSpec(bool diskData, int UTCdisk);
   void   saveSettings();
@@ -35,6 +31,10 @@ private slots:
   void on_zeroSlider_valueChanged(int value);  
   void on_greenZeroSlider_valueChanged(int value);
   void on_pbAutoLevel_clicked();
+
+protected:
+  void closeEvent (QCloseEvent *) override;
+  void keyPressEvent( QKeyEvent *e ) override;
 
 private:
   QSettings * m_settings;
