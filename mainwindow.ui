@@ -696,12 +696,6 @@ QLabel[oob=&quot;true&quot;] {
                      <layout class="QHBoxLayout" name="horizontalLayout_5">
                       <item>
                        <widget class="QCheckBox" name="cbShMsgs">
-                        <property name="maximumSize">
-                         <size>
-                          <width>40</width>
-                          <height>16777215</height>
-                         </size>
-                        </property>
                         <property name="toolTip">
                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to use short-format messages.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                         </property>
@@ -712,12 +706,6 @@ QLabel[oob=&quot;true&quot;] {
                       </item>
                       <item>
                        <widget class="QCheckBox" name="cbFast9">
-                        <property name="maximumSize">
-                         <size>
-                          <width>40</width>
-                          <height>16777215</height>
-                         </size>
-                        </property>
                         <property name="toolTip">
                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to enable JT9 fast modes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                         </property>
@@ -728,12 +716,6 @@ QLabel[oob=&quot;true&quot;] {
                       </item>
                       <item>
                        <widget class="QCheckBox" name="cbAutoSeq">
-                        <property name="maximumSize">
-                         <size>
-                          <width>67</width>
-                          <height>16777215</height>
-                         </size>
-                        </property>
                         <property name="toolTip">
                          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to enable automatic sequencing of Tx messages based on received messages.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                         </property>
@@ -746,12 +728,6 @@ QLabel[oob=&quot;true&quot;] {
                        <widget class="QCheckBox" name="cbTx6">
                         <property name="enabled">
                          <bool>false</bool>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>40</width>
-                          <height>16777215</height>
-                         </size>
                         </property>
                         <property name="toolTip">
                          <string>Check to generate &quot;@1250  (SEND MSGS)&quot; in Tx6.</string>
@@ -768,12 +744,6 @@ QLabel[oob=&quot;true&quot;] {
                  </item>
                  <item row="4" column="0">
                   <widget class="QSpinBox" name="RxFreqSpinBox">
-                   <property name="maximumSize">
-                    <size>
-                     <width>120</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
                    <property name="toolTip">
                     <string>Audio Rx frequency</string>
                    </property>
@@ -988,12 +958,6 @@ QLabel[oob=&quot;true&quot;] {
                   <widget class="QCheckBox" name="cbSWL">
                    <property name="enabled">
                     <bool>true</bool>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>16777215</width>
-                     <height>16777215</height>
-                    </size>
                    </property>
                    <property name="toolTip">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to monitor Sh messages.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
