@@ -106,7 +106,7 @@ contains
 !       close(60)
 !###
        call qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
-            emedeley,mycall,hiscall,hisgrid,sync,nsnr,dtx,nfreq,decoded,nft)
+            emedelay,mycall,hiscall,hisgrid,sync,nsnr,dtx,nfreq,decoded,nft)
        if (associated(this%callback)) then
           ndrift=0
           nflip=1
