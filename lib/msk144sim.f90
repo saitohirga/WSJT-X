@@ -31,7 +31,7 @@ program msk144sim
   call getarg(5,arg)
   read(arg,*) snrdb
   call getarg(6,arg)
-+  read(arg,*) nfiles
+  read(arg,*) nfiles
 
 !sig is the peak amplitude of the ping. 
   sig=sqrt(2.0)*10.0**(0.05*snrdb)
