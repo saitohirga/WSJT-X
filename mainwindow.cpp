@@ -1,5 +1,4 @@
 //-------------------------------------------------------- MainWindow
-
 #include "mainwindow.h"
 #include <cinttypes>
 #include <limits>
@@ -805,8 +804,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_wideGraph->setLockTxFreq(m_lockTxFreq);
   ui->cbShMsgs->setChecked(m_bShMsgs);
   ui->cbSWL->setChecked(m_bSWL);
-  ui->cbFast9->setChecked(m_bFast9);
   if(m_bFast9) m_bFastMode=true;
+  ui->cbFast9->setChecked(m_bFast9 or m_bFastMode);
 
   if(m_mode=="JT4") on_actionJT4_triggered();
   if(m_mode=="JT9") on_actionJT9_triggered();
@@ -1144,7 +1143,7 @@ void MainWindow::dataSink(qint64 frames)
 
   if(m_mode=="ISCAT" or m_mode=="MSK144" or m_bFast9) {
     fastSink(frames);
-    return;
+    if(m_bFastMode) return;
   }
 
 // Get power, spectrum, and ihsym
@@ -1162,6 +1161,7 @@ void MainWindow::dataSink(qint64 frames)
   if(m_monitoring || m_diskData) {
     m_wideGraph->dataSink2(s,m_df3,m_ihsym,m_diskData);
   }
+  if(m_mode=="MSK144") return;
 
   fixStop();
   if (m_mode == "FreqCal"
@@ -3150,7 +3150,6 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
       if(!m_bVHFwarned) vhfWarning();
     } else {
@@ -4495,7 +4494,9 @@ void MainWindow::on_actionISCAT_triggered()
 
 void MainWindow::on_actionMSK144_triggered()
 {
-  displayWidgets(nWidgets("101111110100000000010001"));
+//  displayWidgets(nWidgets("101111110100000000010001"));
+    displayWidgets(nWidgets("101111111100000000010001"));
+//  displayWidgets(nWidgets("111111110101111100010001"));
   m_mode="MSK144";
   m_modeTx="MSK144";
   ui->actionMSK144->setChecked(true);
@@ -4507,12 +4508,12 @@ void MainWindow::on_actionMSK144_triggered()
   m_toneSpacing=0.0;
   WSPR_config(false);
   VHF_features_enabled(true);
-  m_bFastMode=true;
+//  m_bFastMode=true;
   m_bFast9=false;
-  fast_config(true);
+  fast_config(m_bFastMode);
   m_TRperiod = ui->sbTR->value ();
-  m_wideGraph->hide();
-  m_fastGraph->show();
+//  m_wideGraph->hide();
+//  m_fastGraph->show();
   ui->TxFreqSpinBox->setValue(1500);
   ui->RxFreqSpinBox->setValue(1500);
   ui->RxFreqSpinBox->setMinimum(1400);
@@ -4701,7 +4702,7 @@ void MainWindow::fast_config(bool b)
 {
   m_bFastMode=b;
   ui->TxFreqSpinBox->setEnabled(!b);
-  ui->sbTR->setVisible(b);
+//  ui->sbTR->setVisible(b);
   if(b and (m_bFast9 or m_mode=="MSK144" or m_mode=="ISCAT")) {
     m_wideGraph->hide();
     m_fastGraph->show();
@@ -5364,10 +5365,14 @@ void MainWindow::transmit (double snr)
 
   if (m_modeTx == "MSK144") {
     m_nsps=6;
+    double f0=1000.0;
+    if(!m_bFastMode) {
+      m_nsps=192;
+      m_toneSpacing=6000.0/m_nsps;
+      f0=ui->TxFreqSpinBox->value () - m_XIT - 0.5*m_toneSpacing;
+    }
     m_FFTSize = 7 * 512;
     Q_EMIT FFTSize (m_FFTSize);
-    m_toneSpacing=6000.0/m_nsps;
-    double f0=1000.0;
     int nsym;
     nsym=NUM_MSK144_SYMBOLS;
     if(itone[40] < 0) nsym=40;
