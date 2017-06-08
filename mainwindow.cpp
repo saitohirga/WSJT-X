@@ -2165,7 +2165,6 @@ void MainWindow::read_wav_file (QString const& fname)
           auto n = file.read (reinterpret_cast<char *> (dec_data.d2),
                             std::min (max_bytes, file.size ()));
           int frames_read = n / bytes_per_frame;
-//          qDebug() << "a" << max_bytes << n << frames_read << frames_read/12000.0 << m_TRperiod;
         // zero unfilled remaining sample space
           std::memset(&dec_data.d2[frames_read],0,max_bytes - n);
           if (11025 == file.format ().sampleRate ()) {
@@ -2719,7 +2718,6 @@ void MainWindow::pskPost(DecodedText decodedtext)
   Frequency frequency = m_freqNominal + audioFrequency;
   pskSetLocal ();
   if(grid_regexp.exactMatch (grid)) {
-    // qDebug() << "To PSKreporter:" << deCall << grid << frequency << msgmode << snr;
     psk_Reporter->addRemoteStation(deCall,grid,QString::number(frequency),msgmode,
            QString::number(snr),QString::number(QDateTime::currentDateTime().toTime_t()));
   }
@@ -3150,6 +3148,7 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
+//    qDebug() << "a" << m_toneSpacing << m_TRperiod << m_bFast9 << m_bFastMode;
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
       if(!m_bVHFwarned) vhfWarning();
     } else {
@@ -4307,7 +4306,8 @@ void MainWindow::on_actionJT9_triggered()
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
   VHF_features_enabled(bVHF);
-  if(m_nSubMode>=4 and bVHF) {
+//  if(m_nSubMode>=4 and bVHF) {
+  if(m_nSubMode>=2 and bVHF) {
     ui->cbFast9->setEnabled(true);
   } else {
     ui->cbFast9->setEnabled(false);
@@ -4327,6 +4327,7 @@ void MainWindow::on_actionJT9_triggered()
   } else {
     ui->cbAutoSeq->setChecked(false);
     m_TRperiod=60;
+    if(m_nSubMode==2) m_TRperiod = ui->sbTR->value();
     ui->decodedTextLabel->setText("UTC   dB   DT Freq    Message");
     ui->decodedTextLabel2->setText("UTC   dB   DT Freq    Message");
   }
@@ -4702,7 +4703,6 @@ void MainWindow::fast_config(bool b)
 {
   m_bFastMode=b;
   ui->TxFreqSpinBox->setEnabled(!b);
-//  ui->sbTR->setVisible(b);
   if(b and (m_bFast9 or m_mode=="MSK144" or m_mode=="ISCAT")) {
     m_wideGraph->hide();
     m_fastGraph->show();
@@ -5357,6 +5357,7 @@ void MainWindow::transmit (double snr)
       sps=nsps[m_nSubMode-4];
       m_toneSpacing=12000.0/sps;
     }
+    if(m_nSubMode==2) sps=m_nsps/4;
     Q_EMIT sendMessage (NUM_JT9_SYMBOLS, sps,
                         ui->TxFreqSpinBox->value() - m_XIT, m_toneSpacing,
                         m_soundOutput, m_config.audio_output_channel (),
@@ -5502,7 +5503,6 @@ void MainWindow::pskSetLocal ()
     antenna_description = stations->index (matches.first ().row ()
                                            , StationList::description_column).data ().toString ();
   }
-  // qDebug() << "To PSKreporter: local station details";
   psk_Reporter->setLocalStation(m_config.my_callsign (), m_config.my_grid (),
         antenna_description, QString {"WSJT-X v" + version() + " " +
         m_revision}.simplified ());
@@ -5633,6 +5633,13 @@ void MainWindow::on_sbSubmode_valueChanged(int n)
       ui->cbFast9->setEnabled(true);
     }
     ui->sbTR->setVisible(m_bFast9);
+    if(m_nSubMode==2) {
+      ui->cbFast9->setChecked(false);
+      on_cbFast9_clicked(false);
+      ui->cbFast9->setEnabled(false);
+      ui->sbTR->setVisible(true);
+      m_TRperiod=ui->sbTR->value();
+    }
     if(m_bFast9) ui->TxFreqSpinBox->setValue(700);
   }
   if(m_transmitting and m_bFast9 and m_nSubMode>=4) transmit(99.0);
@@ -5645,9 +5652,10 @@ void MainWindow::on_cbFast9_clicked(bool b)
     m_bFast9=b;
 //    ui->cbAutoSeq->setVisible(b);
     on_actionJT9_triggered();
+    if(ui->sbSubmode->value()==2) ui->sbTR->setVisible(true);
   }
 
-  if(b) {
+  if(b or (m_nSubMode==2)) {
     m_TRperiod = ui->sbTR->value ();
   } else {
     m_TRperiod=60;
