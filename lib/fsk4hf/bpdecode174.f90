@@ -309,7 +309,6 @@ ncw=3
 toc=0
 tov=0
 tanhtoc=0
-!write(*,*) llr
 ! initialize messages to checks
 do j=1,M
   do i=1,nrw(j)
@@ -337,9 +336,9 @@ do iter=0,maxiterations
   do i=1,M
     synd(i)=sum(cw(Nm(1:nrw(i),i)))
     if( mod(synd(i),2) .ne. 0 ) ncheck=ncheck+1
-!    if( mod(synd(i),2) .ne. 0 ) write(*,*) 'check ',i,' unsatisfied'
+!   if( mod(synd(i),2) .ne. 0 ) write(*,*) 'check ',i,' unsatisfied'
   enddo
-!write(*,*) 'number of unsatisfied parity checks ',ncheck
+! write(*,*) 'number of unsatisfied parity checks ',ncheck
   if( ncheck .eq. 0 ) then ! we have a codeword - reorder the columns and return it
 !    niterations=iter
     codeword=cw(colorder+1)
