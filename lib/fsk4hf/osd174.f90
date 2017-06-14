@@ -24,7 +24,7 @@ save first,gen
 if( first ) then ! fill the generator matrix
   gen=0
   do i=1,M
-    do j=1,21
+    do j=1,22
       read(g(i)(j:j),"(Z1)") istr
         do jj=1, 4 
           irow=(j-1)*4+jj
@@ -139,7 +139,7 @@ nt=nt+1
           i2min=i2
           i3min=i3
           i4min=i4
-          if( nhardmin .le. 5 ) goto 200 ! early exit - tune for each code 
+          if( nhardmin .le. 15 ) goto 200 ! early exit - tune for each code 
         endif
       enddo
     enddo
