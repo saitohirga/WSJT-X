@@ -8,8 +8,8 @@ program ft8sim
   type(hdr) h                            !Header for .wav file
   character arg*12,fname*16
   character msg*22,msgsent*22
-  complex c0(0:NZ-1)
-  complex c(0:NZ-1)
+  complex c0(0:NMAX-1)
+  complex c(0:NMAX-1)
   integer itone(NN)
   integer*2 iwave(NMAX)                  !Generated full-length waveform  
 
@@ -42,7 +42,7 @@ program ft8sim
   bw=8*baud                              !Occupied bandwidth (Hz)
   txt=NZ*dt                              !Transmission length (s)
   bandwidth_ratio=2500.0/(fs/2.0)
-  sig=sqrt(bandwidth_ratio) * 10.0**(0.05*snrdb)
+  sig=sqrt(2*bandwidth_ratio) * 10.0**(0.05*snrdb)
   if(snrdb.gt.90.0) sig=1.0
   txt=NN*NSPS/12000.0
 
@@ -53,7 +53,7 @@ program ft8sim
 
   phi=0.0
   c0=0.
-  k=-1 + nint(xdt/dt)
+  k=-1 + nint((xdt+0.5)/dt)              !Start audio at t=0.5 s
   do j=1,NN                              !Generate 8-FSK waveform from itone
      dphi=twopi*(f0+itone(j)*baud)*dt
      if(k.eq.0) phi=-dphi
@@ -62,11 +62,11 @@ program ft8sim
         phi=phi+dphi
         if(phi.gt.twopi) phi=phi-twopi
         xphi=phi
-        if(k.ge.0 .and. k.lt.NZ) c0(k)=cmplx(cos(xphi),sin(xphi))
+        if(k.ge.0 .and. k.lt.NMAX) c0(k)=cmplx(cos(xphi),sin(xphi))
      enddo
   enddo
 
-  call sgran()
+!  call sgran()
   do ifile=1,nfiles
      c=c0
      if( fspread .ne. 0.0 .or. delay .ne. 0.0 ) then
@@ -83,8 +83,8 @@ program ft8sim
 
      fac=32767.0
      rms=100.0
-     if(snrdb.ge.90.0) iwave(1:NZ)=nint(fac*real(c))
-     if(snrdb.lt.90.0) iwave(1:NZ)=nint(rms*real(c))
+     if(snrdb.ge.90.0) iwave(1:NMAX)=nint(fac*real(c))
+     if(snrdb.lt.90.0) iwave(1:NMAX)=nint(rms*real(c))
      iwave(NZ+1:)=0
 
      h=default_header(12000,NMAX)
@@ -95,10 +95,10 @@ program ft8sim
      close(10)
      write(*,1110) ifile,xdt,f0,snrdb,fname
 1110 format(i4,f7.2,f8.2,f7.1,2x,a16)
-     do i=0,NZ-1
-        write(13,3001) i,i/12000.0,c(i),iwave(i+1)
-3001    format(i8,f12.6,2f12.3,i8)
-     enddo
+!     do i=0,NZ-1
+!        write(13,3001) i,i/12000.0,c(i),iwave(i+1)
+!3001    format(i8,f12.6,2f12.3,i8)
+!     enddo
 enddo
        
 999 end program ft8sim

@@ -326,6 +326,7 @@ set (wsjt_FSRCS
   lib/bpdecode144.f90
   lib/fsk4hf/bpdecode120.f90
   lib/fsk4hf/bpdecode168.f90
+  lib/fsk4hf/bpdecode174.f90
   lib/fsk4hf/bpdecode300.f90
   lib/baddata.f90
   lib/ccf2.f90
@@ -356,6 +357,7 @@ set (wsjt_FSRCS
   lib/encode_msk144.f90
   lib/fsk4hf/encode120.f90
   lib/fsk4hf/encode168.f90
+  lib/fsk4hf/encode174.f90
   lib/fsk4hf/encode300.f90
   lib/entail.f90
   lib/ephem.f90
@@ -363,6 +365,7 @@ set (wsjt_FSRCS
   lib/extract4.f90
   lib/extractmessage144.f90
   lib/fsk4hf/extractmessage168.f90
+  lib/fsk4hf/extractmessage174.f90
   lib/fano232.f90
   lib/fast9.f90
   lib/fast_decode.f90
@@ -387,6 +390,7 @@ set (wsjt_FSRCS
   lib/fqso_first.f90
   lib/freqcal.f90
   lib/fsk4hf/fsk4hf.f90
+  lib/fsk4hf/ft8d.f90
   lib/fsk4hf/ft8sim.f90
   lib/gen4.f90
   lib/gen65.f90
@@ -428,6 +432,7 @@ set (wsjt_FSRCS
   lib/ldpcsim144.f90
   lib/fsk4hf/ldpcsim120.f90
   lib/fsk4hf/ldpcsim168.f90
+  lib/fsk4hf/ldpcsim174.f90
   lib/fsk4hf/ldpcsim300.f90
   lib/ldpcsim40.f90
   lib/libration.f90
@@ -455,6 +460,7 @@ set (wsjt_FSRCS
   lib/mskrtd.f90
   lib/fsk4hf/msksoftsym.f90
   lib/fsk4hf/msksoftsymw.f90
+  lib/fsk4hf/osd174.f90
   lib/fsk4hf/osd300.f90
   lib/pctile.f90
   lib/peakdt9.f90
@@ -492,6 +498,7 @@ set (wsjt_FSRCS
   lib/sync4.f90
   lib/sync64.f90
   lib/sync65.f90
+  lib/fsk4hf/sync8.f90
   lib/sync9.f90
   lib/sync9f.f90
   lib/sync9w.f90
@@ -1148,6 +1155,9 @@ target_link_libraries (ldpcsim168 wsjt_fort wsjt_cxx)
 
 add_executable (fsk4hf lib/fsk4hf/fsk4hf.f90 wsjtx.rc)
 target_link_libraries (fsk4hf wsjt_fort wsjt_cxx)
+
+add_executable (ft8d lib/fsk4hf/ft8d.f90 wsjtx.rc)
+target_link_libraries (ft8d wsjt_fort wsjt_cxx)
 
 add_executable (ft8sim lib/fsk4hf/ft8sim.f90 wsjtx.rc)
 target_link_libraries (ft8sim wsjt_fort wsjt_cxx)

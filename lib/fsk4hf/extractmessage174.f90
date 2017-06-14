@@ -26,7 +26,8 @@ subroutine extractmessage174(decoded,msgreceived,ncrcflag,recent_calls,nrecent)
   i1Dec8BitBytes(11)=decoded(80)*128+decoded(81)*64+decoded(82)*2*32+decoded(83)*16
   i1Dec8BitBytes(11)=i1Dec8BitBytes(11)+decoded(84)*8+decoded(85)*4+decoded(86)*2+decoded(87)
 
-  if( crc12_check(c_loc (i1Dec8BitBytes), 11) ) then
+!  if( crc12_check(c_loc (i1Dec8BitBytes), 11) ) then
+  if(.true.) then    !### TEST ###
 ! CRC12 checks out --- unpack 72-bit message
     do ibyte=1,12
       itmp=0
