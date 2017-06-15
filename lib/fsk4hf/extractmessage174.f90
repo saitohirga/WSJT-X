@@ -6,28 +6,24 @@ subroutine extractmessage174(decoded,msgreceived,ncrcflag,recent_calls,nrecent)
   character*22 msgreceived
   character*12 call1,call2
   character*12 recent_calls(nrecent)
+  character*87 cbits
   integer*1 decoded(87)
   integer*1, target::  i1Dec8BitBytes(11)
   integer*4 i4Dec6BitWords(12)
 
-! Collapse 87 decoded bits to 11 bytes. Bytes 1-9 are the message, byte 10 and first half of byte 11 is the crc
-  do ibyte=1,9
-      itmp=0
-    do ibit=1,8
-      itmp=ishft(itmp,1)+iand(1,decoded((ibyte-1)*8+ibit))
-    enddo
-    i1Dec8BitBytes(ibyte)=itmp
-  enddo
-! Need to pack the crc into bytes 10 and 11 for crc12_check
-!  i1Dec8BitBytes(10)=decoded(73)*8+decoded(74)*4+decoded(75)*2+decoded(76)
-!  i1Dec8BitBytes(11)=decoded(77)*128+decoded(78)*64+decoded(79)*2*32+decoded(80)*16
-!  i1Dec8BitBytes(11)=i1Dec8BitBytes(11)+decoded(81)*8+decoded(82)*4+decoded(83)*2+decoded(84)
-  i1Dec8BitBytes(10)=decoded(76)*8+decoded(77)*4+decoded(78)*2+decoded(79)
-  i1Dec8BitBytes(11)=decoded(80)*128+decoded(81)*64+decoded(82)*2*32+decoded(83)*16
-  i1Dec8BitBytes(11)=i1Dec8BitBytes(11)+decoded(84)*8+decoded(85)*4+decoded(86)*2+decoded(87)
+! Write decoded bits into cbits: 75-bit message plus 12-bit CRC
+  write(cbits,1000) decoded
+1000 format(87i1)
+  read(cbits,1001) i1Dec8BitBytes
+1001 format(11b8)
+  read(cbits,1002) ncrc12                         !Received CRC12
+1002 format(75x,b12)
 
-!  if( crc12_check(c_loc (i1Dec8BitBytes), 11) ) then
-  if(.true.) then    !### TEST ###
+  i1Dec8BitBytes(10)=iand(i1Dec8BitBytes(10),128+64+32)
+  i1Dec8BitBytes(11)=0
+  icrc12=crc12(c_loc(i1Dec8BitBytes),11)          !CRC12 computed from 75 msg bits
+
+  if(ncrc12.eq.icrc12) then
 ! CRC12 checks out --- unpack 72-bit message
     do ibyte=1,12
       itmp=0
