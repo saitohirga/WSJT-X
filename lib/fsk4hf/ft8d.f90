@@ -13,7 +13,7 @@ program ft8d
   include 'ft8_params.f90'
   parameter(NRECENT=10)
   character*12 recent_calls(NRECENT)
-  character message*22,cbits*75,infile*80,datetime*11
+  character message*22,infile*80,datetime*11
   real s(NH1,NHSYM)
   real s1(0:7,ND)
   real ps(0:7)
@@ -47,6 +47,7 @@ program ft8d
      datetime=infile(j2-11:j2-1)
      call sync8(iwave,xdt,f1,s)
 
+     xsnr=0.
      tstep=0.5*NSPS/12000.0
      df=12000.0/NFFT1
      i0=nint(f1/df)
@@ -83,15 +84,13 @@ program ft8d
      ss=0.84
      llr=2.0*rxdata/(ss*ss)
      apmask=0
-     max_iterations=20
+     max_iterations=40
      ifer=0
      call bpdecode174(llr,apmask,max_iterations,decoded,niterations)
-!     if(niterations.lt.0) call osd174(llr,4,decoded,niterations,cw)
+     if(niterations.lt.0) call osd174(llr,2,decoded,niterations,cw)
      nbadcrc=0
-     if(niterations.ge.0) call chkcrc10(decoded,nbadcrc)
-!     if(niterations.lt.0 .or. nbadcrc.ne.0) ifer=1
-     if(niterations.lt.0) ifer=1
-!     if(ifer.eq.0) exit
+     if(niterations.ge.0) call chkcrc12a(decoded,nbadcrc)
+     if(niterations.lt.0 .or. nbadcrc.ne.0) ifer=1
 
      message='                      '
      if(ifer.eq.0) then
