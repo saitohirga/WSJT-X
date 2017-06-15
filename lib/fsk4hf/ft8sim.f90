@@ -53,7 +53,7 @@ program ft8sim
 
   phi=0.0
   c0=0.
-  k=-1 + nint((xdt+0.5)/dt)              !Start audio at t=0.5 s
+  k=-1 + nint(xdt/dt)
   do j=1,NN                              !Generate 8-FSK waveform from itone
      dphi=twopi*(f0+itone(j)*baud)*dt
      if(k.eq.0) phi=-dphi
