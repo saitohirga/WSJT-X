@@ -51,7 +51,7 @@ program ft8d
      tstep=0.5*NSPS/12000.0
      df=12000.0/NFFT1
      i0=nint(f1/df)
-     j0=nint((xdt+0.5)/tstep)
+     j0=nint(xdt/tstep)
      fac=20.0/maxval(s)
      s=fac*s
 
@@ -59,17 +59,18 @@ program ft8d
      ia=i0
      ib=i0+14
      do k=1,NN
-        n=j0+2*(k-1)+1
         if(k.le.7) cycle
         if(k.ge.37 .and. k.le.43) cycle
         if(k.gt.72) cycle
+        n=j0+2*(k-1)+1
+        if(n.lt.1) cycle
         j=j+1
         s1(0:7,j)=s(ia:ib:2,n)
      enddo
 
      do j=1,ND
         ps=s1(0:7,j)
-!        ps=log(ps)
+        ps=log(ps)
         r1=max(ps(1),ps(3),ps(5),ps(7))-max(ps(0),ps(2),ps(4),ps(6))
         r2=max(ps(2),ps(3),ps(6),ps(7))-max(ps(0),ps(1),ps(4),ps(5))
         r4=max(ps(4),ps(5),ps(6),ps(7))-max(ps(0),ps(1),ps(2),ps(3))
@@ -95,15 +96,12 @@ program ft8d
      message='                      '
      if(ifer.eq.0) then
         call extractmessage174(decoded,message,ncrcflag,recent_calls,nrecent)
-        nsnr=nint(xsnr)
-        nfdot=0
-        write(13,1110) datetime,0,nsnr,xdt,freq,message,nfdot
-1110    format(a11,2i4,f6.2,f12.7,2x,a22,i3)
-        write(*,1112) datetime(8:11),nsnr,xdt,nint(f1),message
-1112    format(a4,i4,f5.1,i6,2x,a22)
      endif
+     nsnr=nint(xsnr)
+     write(13,1110) datetime,0,nsnr,xdt,freq,message,nfdot
+1110 format(a11,2i4,f6.2,f12.7,2x,a22,i3)
+     write(*,1112) datetime(8:11),nsnr,xdt,nint(f1),message
+1112 format(a4,i4,f5.1,i6,2x,a22)
   enddo                                   ! ifile loop
-!  write(*,1120)
-!1120 format("<DecodeFinished>")
 
 999 end program ft8d

@@ -36,8 +36,6 @@ subroutine genft8(msg,msgsent,itone)
 1003 format(12b6.6,b3.3,b12.12)
   read(cbits,1004) msgbits
 1004 format(87i1)
-  print*,cbits
-  print*,icrc12
   
   call encode174(msgbits,codeword)      !Encode the test message
 

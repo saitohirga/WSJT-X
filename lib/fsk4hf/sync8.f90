@@ -2,17 +2,14 @@ subroutine sync8(iwave,xdt,f1,s)
 
   include 'ft8_params.f90'
   parameter (IZ=10,JZ=20)
-  character*1 line(-JZ:JZ),mark(0:6)
   complex cx(0:NH1)
   real s(NH1,NHSYM)
   real savg(NH1)
   real x(NFFT1)
   real sync2d(-IZ:IZ,-JZ:JZ)
   integer*2 iwave(NMAX)
-  integer iloc(1)
   integer icos7(0:6)
   data icos7/2,5,6,0,4,1,3/                   !Costas 7x7 tone pattern
-  data mark/' ',' ','.','-','+','X','$'/
   equivalence (x,cx)
 
 ! Compute symbol spectra at half-symbol steps.  
@@ -50,7 +47,7 @@ subroutine sync8(iwave,xdt,f1,s)
   tmax=0.
   ipk=0
   jpk=0
-  j0=1 + nint(0.5/tstep)
+  j0=1
   do i=-IZ,IZ
      do j=-JZ,JZ
         t=0.
