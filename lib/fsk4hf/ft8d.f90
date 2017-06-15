@@ -13,7 +13,7 @@ program ft8d
   include 'ft8_params.f90'
   parameter(NRECENT=10)
   character*12 recent_calls(NRECENT)
-  character message*22,infile*80,datetime*11
+  character message*22,infile*80,datetime*13
   real s(NH1,NHSYM)
   real s1(0:7,ND)
   real ps(0:7)
@@ -43,8 +43,8 @@ program ft8d
      read(10,end=999) ihdr,iwave
      close(10)
      j2=index(infile,'.wav')
-     read(infile(j2-4:j2-1),*) nutc
-     datetime=infile(j2-11:j2-1)
+     read(infile(j2-6:j2-1),*) nutc
+     datetime=infile(j2-13:j2-1)
      call sync8(iwave,xdt,f1,s)
 
      xsnr=0.
@@ -88,7 +88,12 @@ program ft8d
      max_iterations=40
      ifer=0
      call bpdecode174(llr,apmask,max_iterations,decoded,niterations)
-     if(niterations.lt.0) call osd174(llr,2,decoded,niterations,cw)
+     if(niterations.lt.0) then
+        write(41,*) llr,apmask,max_iterations,decoded,niterations
+        call osd174(llr,2,decoded,niterations,cw)
+        write(42,*) llr,apmask,max_iterations,decoded,niterations
+!        if(niterations.lt.0) stop
+     endif
      nbadcrc=0
      if(niterations.ge.0) call chkcrc12a(decoded,nbadcrc)
      if(niterations.lt.0 .or. nbadcrc.ne.0) ifer=1
@@ -100,8 +105,8 @@ program ft8d
      nsnr=nint(xsnr)
      write(13,1110) datetime,0,nsnr,xdt,freq,message,nfdot
 1110 format(a11,2i4,f6.2,f12.7,2x,a22,i3)
-     write(*,1112) datetime(8:11),nsnr,xdt,nint(f1),message
-1112 format(a4,i4,f5.1,i6,2x,a22)
+     write(*,1112) datetime(8:13),nsnr,xdt,nint(f1),message
+1112 format(a6,i4,f5.1,i6,2x,a22)
   enddo                                   ! ifile loop
 
 999 end program ft8d

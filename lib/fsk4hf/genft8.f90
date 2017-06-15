@@ -27,10 +27,10 @@ subroutine genft8(msg,msgsent,itone)
   icrc12=crc12(c_loc(i1Msg8BitBytes),11)
 
 ! For reference, here's how to check the CRC
-  i1Msg8BitBytes(10)=icrc12/256
-  i1Msg8BitBytes(11)=iand (icrc12,255)
-  checksumok = crc12_check(c_loc (i1Msg8BitBytes), 11)
-  if( checksumok ) write(*,*) 'Good checksum'
+!  i1Msg8BitBytes(10)=icrc12/256
+!  i1Msg8BitBytes(11)=iand (icrc12,255)
+!  checksumok = crc12_check(c_loc (i1Msg8BitBytes), 11)
+!  if( checksumok ) write(*,*) 'Good checksum'
 
   write(cbits,1003) i4Msg6BitWords,i3bit,icrc12
 1003 format(12b6.6,b3.3,b12.12)

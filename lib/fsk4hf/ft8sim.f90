@@ -6,7 +6,7 @@ program ft8sim
   use wavhdr
   include 'ft8_params.f90'               !Set various constants
   type(hdr) h                            !Header for .wav file
-  character arg*12,fname*16
+  character arg*12,fname*17
   character msg*22,msgsent*22
   complex c0(0:NMAX-1)
   complex c(0:NMAX-1)
@@ -89,7 +89,7 @@ program ft8sim
 
      h=default_header(12000,NMAX)
      write(fname,1102) ifile
-1102 format('000000_',i4.4,'.wav')
+1102 format('000000_',i6.6,'.wav')
      open(10,file=fname,status='unknown',access='stream')
      write(10) h,iwave                !Save to *.wav file
      close(10)
