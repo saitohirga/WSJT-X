@@ -94,7 +94,7 @@ program ft8sim
      write(10) h,iwave                !Save to *.wav file
      close(10)
      write(*,1110) ifile,xdt,f0,snrdb,fname
-1110 format(i4,f7.2,f8.2,f7.1,2x,a16)
+1110 format(i4,f7.2,f8.2,f7.1,2x,a17)
 !     do i=0,NZ-1
 !        write(13,3001) i,i/12000.0,c(i),iwave(i+1)
 !3001    format(i8,f12.6,2f12.3,i8)
