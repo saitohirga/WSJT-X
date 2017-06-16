@@ -58,10 +58,9 @@ program ft8d
      datetime=infile(j2-13:j2-1)
      call system_clock(count0,clkfreq)
 
-!     call ft8filbig(iwave,NN*NSPS)
+     call ft8filbig(iwave,NN*NSPS,xdta,f1a,xsnr)
      call sync8(iwave,xdt,f1,s)
 
-     xsnr=0.
      tstep=0.5*NSPS/12000.0
      df=12000.0/NFFT1
      i0=nint(f1/df)
@@ -109,8 +108,8 @@ program ft8d
         call extractmessage174(decoded,message,ncrcflag,recent_calls,nrecent)
      endif
      nsnr=nint(xsnr)
-     write(13,1110) datetime,0,nsnr,xdt,f1,niterations,nharderrors,message
-1110 format(a13,2i4,f6.2,f7.1,2i4,2x,a22)
+     write(13,1110) datetime,0,nsnr,xdt,f1,xdta,f1a,niterations,nharderrors,message
+1110 format(a13,2i4,2(f6.2,f7.1),2i4,2x,a22)
      write(*,1112) datetime(8:13),nsnr,xdt,nint(f1),message
 1112 format(a6,i4,f5.1,i6,2x,a22)
      if(abs(xdt).le.0.1 .or. abs(f1-1500).le.2.93) nsync=nsync+1
@@ -121,7 +120,7 @@ program ft8d
      tsec=tsec+float(count1-count0)/float(clkfreq)
   enddo   ! ifile loop
 
-  write(*,1100) max_iterations,norder,float(nsync)/nfiles,float(ngood)/nfiles,  &
+  write(21,1100) max_iterations,norder,float(nsync)/nfiles,float(ngood)/nfiles,  &
        float(nbad)/nfiles,tsec/nfiles
 1100 format(2i5,3f8.4,f9.3)
 
