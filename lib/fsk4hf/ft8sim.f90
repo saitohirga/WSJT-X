@@ -50,7 +50,6 @@ program ft8sim
   write(*,1000) f0,xdt,txt,snrdb,bw,msgsent
 1000 format('f0:',f9.3,'   DT:',f6.2,'   TxT:',f6.1,'   SNR:',f6.1,    &
           '  BW:',f4.1,2x,a22)
-
   phi=0.0
   c0=0.
   k=-1 + nint(xdt/dt)

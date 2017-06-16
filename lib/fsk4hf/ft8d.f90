@@ -12,7 +12,7 @@ program ft8d
 
   include 'ft8_params.f90'
   parameter(NRECENT=10)
-  character*12 recent_calls(NRECENT)
+  character*12 recent_calls(NRECENT),arg
   character message*22,infile*80,datetime*13
   real s(NH1,NHSYM)
   real s1(0:7,ND)
@@ -21,13 +21,20 @@ program ft8d
   integer ihdr(11)
   integer*2 iwave(NMAX)                 !Generated full-length waveform  
 !  integer*1 idat(7)
-  integer*1 decoded(KK),apmask(ND),cw(ND)
-
+  integer*1 decoded(KK),apmask(3*ND),cw(3*ND)
+  integer*8 count0,count1,clkfreq
+  
   nargs=iargc()
-  if(nargs.lt.1) then
-     print*,'Usage:   ft8d file1 [file2 ...]'
+  if(nargs.lt.3) then
+     print*,'Usage:   ft8d MaxIt Norder file1 [file2 ...]'
+     print*,'Example  ft8d   40     2   *.wav'
      go to 999
   endif
+  call getarg(1,arg)
+  read(arg,*) max_iterations
+  call getarg(2,arg)
+  read(arg,*) norder
+  nfiles=nargs-2
 
   twopi=8.0*atan(1.0)
   fs=12000.0                             !Sample rate
@@ -36,15 +43,22 @@ program ft8d
   ts=2*NSPS*dt                           !Duration of OQPSK symbols (s)
   baud=1.0/tt                            !Keying rate (baud)
   txt=NZ*dt                              !Transmission length (s)
+  nsync=0
+  ngood=0
+  nbad=0
+  tsec=0.
 
-  do ifile=1,nargs
-     call getarg(ifile,infile)
+  do ifile=1,nfiles
+     call getarg(ifile+2,infile)
      open(10,file=infile,status='old',access='stream')
      read(10,end=999) ihdr,iwave
      close(10)
      j2=index(infile,'.wav')
      read(infile(j2-6:j2-1),*) nutc
      datetime=infile(j2-13:j2-1)
+     call system_clock(count0,clkfreq)
+
+!     call ft8filbig(iwave,NN*NSPS)
      call sync8(iwave,xdt,f1,s)
 
      xsnr=0.
@@ -85,28 +99,30 @@ program ft8d
      ss=0.84
      llr=2.0*rxdata/(ss*ss)
      apmask=0
-     max_iterations=40
-     ifer=0
      call bpdecode174(llr,apmask,max_iterations,decoded,niterations)
-     if(niterations.lt.0) then
-        write(41,*) llr,apmask,max_iterations,decoded,niterations
-        call osd174(llr,2,decoded,niterations,cw)
-        write(42,*) llr,apmask,max_iterations,decoded,niterations
-!        if(niterations.lt.0) stop
-     endif
+     if(niterations.lt.0) call osd174(llr,norder,decoded,nharderrors,cw)
      nbadcrc=0
-     if(niterations.ge.0) call chkcrc12a(decoded,nbadcrc)
-     if(niterations.lt.0 .or. nbadcrc.ne.0) ifer=1
+     call chkcrc12a(decoded,nbadcrc)
 
      message='                      '
-     if(ifer.eq.0) then
+     if(nbadcrc.eq.0) then
         call extractmessage174(decoded,message,ncrcflag,recent_calls,nrecent)
      endif
      nsnr=nint(xsnr)
-     write(13,1110) datetime,0,nsnr,xdt,freq,message,nfdot
-1110 format(a11,2i4,f6.2,f12.7,2x,a22,i3)
+     write(13,1110) datetime,0,nsnr,xdt,f1,niterations,nharderrors,message
+1110 format(a13,2i4,f6.2,f7.1,2i4,2x,a22)
      write(*,1112) datetime(8:13),nsnr,xdt,nint(f1),message
 1112 format(a6,i4,f5.1,i6,2x,a22)
-  enddo                                   ! ifile loop
+     if(abs(xdt).le.0.1 .or. abs(f1-1500).le.2.93) nsync=nsync+1
+     if(message.eq.'K1ABC W9XYZ EN37      ') ngood=ngood+1
+     if(message.ne.'K1ABC W9XYZ EN37      ' .and.                      &
+        message.ne.'                      ') nbad=nbad+1
+     call system_clock(count1,clkfreq)
+     tsec=tsec+float(count1-count0)/float(clkfreq)
+  enddo   ! ifile loop
+
+  write(*,1100) max_iterations,norder,float(nsync)/nfiles,float(ngood)/nfiles,  &
+       float(nbad)/nfiles,tsec/nfiles
+1100 format(2i5,3f8.4,f9.3)
 
 999 end program ft8d
