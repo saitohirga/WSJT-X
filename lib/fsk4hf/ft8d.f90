@@ -58,7 +58,7 @@ program ft8d
      datetime=infile(j2-13:j2-1)
      call system_clock(count0,clkfreq)
 
-     call ft8filbig(iwave,NN*NSPS,xdta,f1a,xsnr)
+!     call ft8filbig(iwave,NN*NSPS,xdta,f1a,xsnr)
      call sync8(iwave,xdt,f1,s)
 
      tstep=0.5*NSPS/12000.0
