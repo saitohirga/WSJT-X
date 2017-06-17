@@ -2413,6 +2413,7 @@ void MainWindow::decode()                                       //decode()
     dec_data.params.nmode=4;
     dec_data.params.ntxmode=4;
   }
+  if(m_mode=="FT8") dec_data.params.nmode=8;
   dec_data.params.ntrperiod=m_TRperiod;
   dec_data.params.nsubmode=m_nSubMode;
   if(m_mode=="QRA64") dec_data.params.nsubmode=100 + m_nSubMode;

@@ -6,6 +6,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   use jt4_decode
   use jt65_decode
   use jt9_decode
+  use ft8_decode
 
   include 'jt9com.f90'
   include 'timer_common.inc'
@@ -22,6 +23,10 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      integer :: decoded
   end type counting_jt9_decoder
 
+  type, extends(ft8_decoder) :: counting_ft8_decoder
+     integer :: decoded
+  end type counting_ft8_decoder
+
   real ss(184,NSMAX)
   logical baddata,newdat65,newdat9,single_decode,bVHF,bad0
   integer*2 id2(NTMAX*12000)
@@ -31,11 +36,13 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   type(counting_jt4_decoder) :: my_jt4
   type(counting_jt65_decoder) :: my_jt65
   type(counting_jt9_decoder) :: my_jt9
+  type(counting_ft8_decoder) :: my_ft8
 
   ! initialize decode counts
   my_jt4%decoded = 0
   my_jt65%decoded = 0
   my_jt9%decoded = 0
+  my_ft8%decoded = 0
 
   single_decode=iand(params%nexp_decode,32).ne.0
   bVHF=iand(params%nexp_decode,64).ne.0
@@ -43,6 +50,18 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   if(mod(params%nranera,2).eq.1) ntrials=3*10**(params%nranera/2)
   if(params%nranera.eq.0) ntrials=0
 
+  if(params%nmode.eq.8) then
+! We're in FT8 mode
+     call timer('decft8  ',0)
+     call my_ft8%decode(ft8_decoded,ss,id2,params%nfqso,                   &
+          newdat9,params%npts8,params%nfa,params%nfsplit,params%nfb,       &
+          params%ntol,params%nzhsym,logical(params%nagain),params%ndepth,  &
+          params%nmode,params%nsubmode,params%nexp_decode)
+     call timer('decft8  ',1)
+     go to 800
+  endif
+  
+  
   rms=sqrt(dot_product(float(id2(300000:310000)),            &
        float(id2(300000:310000)))/10000.0)
   if(rms.lt.2.0) go to 800
@@ -369,5 +388,30 @@ contains
        this%decoded = this%decoded + 1
     end select
   end subroutine jt9_decoded
+
+    subroutine ft8_decoded (this, sync, snr, dt, freq, drift, decoded)
+    use ft8_decode
+    implicit none
+
+    class(ft8_decoder), intent(inout) :: this
+    real, intent(in) :: sync
+    integer, intent(in) :: snr
+    real, intent(in) :: dt
+    real, intent(in) :: freq
+    integer, intent(in) :: drift
+    character(len=22), intent(in) :: decoded
+
+    !$omp critical(decode_results)
+    write(*,1000) params%nutc,snr,dt,nint(freq),decoded
+1000 format(i4.4,i4,f5.1,i5,1x,'@ ',1x,a22)
+    write(13,1002) params%nutc,nint(sync),snr,dt,freq,drift,decoded
+1002 format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,' FT8')
+    call flush(6)
+    !$omp end critical(decode_results)
+    select type(this)
+    type is (counting_ft8_decoder)
+       this%decoded = this%decoded + 1
+    end select
+  end subroutine ft8_decoded
 
 end subroutine multimode_decoder
