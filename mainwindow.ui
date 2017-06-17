@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>872</width>
+    <height>583</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>WSJT-X   by K1JT</string>
   </property>
@@ -2316,6 +2324,14 @@ QPushButton[state=&quot;ok&quot;] {
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>872</width>
+     <height>21</height>
+    </rect>
+   </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
@@ -2384,6 +2400,7 @@ QPushButton[state=&quot;ok&quot;] {
     <property name="title">
      <string>Mode</string>
     </property>
+    <addaction name="actionFT8"/>
     <addaction name="actionJT4"/>
     <addaction name="actionJT9"/>
     <addaction name="actionJT9_JT65"/>
@@ -2951,6 +2968,17 @@ QPushButton[state=&quot;ok&quot;] {
    </property>
    <property name="toolTip">
     <string>Experimental LF/MF mode</string>
+   </property>
+  </action>
+  <action name="actionFT8">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>FT8</string>
    </property>
   </action>
  </widget>
