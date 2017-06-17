@@ -486,6 +486,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   on_EraseButton_clicked ();
 
   QActionGroup* modeGroup = new QActionGroup(this);
+  ui->actionFT8->setActionGroup(modeGroup);
   ui->actionJT9->setActionGroup(modeGroup);
   ui->actionJT65->setActionGroup(modeGroup);
   ui->actionJT9_JT65->setActionGroup(modeGroup);
@@ -807,6 +808,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   if(m_bFast9) m_bFastMode=true;
   ui->cbFast9->setChecked(m_bFast9 or m_bFastMode);
 
+  if(m_mode=="FT8") on_actionFT8_triggered();
   if(m_mode=="JT4") on_actionJT4_triggered();
   if(m_mode=="JT9") on_actionJT9_triggered();
   if(m_mode=="JT65") on_actionJT65_triggered();
@@ -875,8 +877,10 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   splashTimer.start (20 * 1000);
 
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
-     m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "G3PQA")
-    ui->actionWSPR_LF->setEnabled(true);
+     m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "G3PQA") {
+      ui->actionFT8->setEnabled(true);
+      ui->actionWSPR_LF->setEnabled(true);
+  }
 
   // this must be the last statement of constructor
   if (!m_valid) throw std::runtime_error {"Fatal initialization exception"};
@@ -1115,6 +1119,8 @@ void MainWindow::fixStop()
     if(m_config.decode_at_52s()) m_hsymStop=186;
   } else if (m_mode=="FreqCal"){
     m_hsymStop=((int(m_TRperiod/0.288))/8)*8;
+  } else if (m_mode=="FT8") {
+    m_hsymStop=48;
   }
 }
 
@@ -1240,9 +1246,18 @@ void MainWindow::dataSink(qint64 frames)
     if(!m_mode.startsWith ("WSPR")) decode(); //Start decoder
 
     if(!m_diskData) {                        //Always save; may delete later
-      auto const& period_start = now.addSecs (-(now.time ().minute () % (m_TRperiod / 60)) * 60);
-      m_fnameWE = m_config.save_directory ().absoluteFilePath (period_start.toString ("yyMMdd_hhmm"));
+
+      if(m_mode=="FT8") {
+        int n=now.time().second() % m_TRperiod;
+        if(n<(m_TRperiod/2)) n=n+m_TRperiod;
+        auto const& period_start=now.addSecs(-n);
+        m_fnameWE=m_config.save_directory().absoluteFilePath (period_start.toString("yyMMdd_hhmmss"));
+      } else {
+        auto const& period_start = now.addSecs (-(now.time ().minute () % (m_TRperiod / 60)) * 60);
+        m_fnameWE=m_config.save_directory ().absoluteFilePath (period_start.toString ("yyMMdd_hhmm"));
+      }
       m_fileToSave.clear ();
+
       // the following is potential a threading hazard - not a good
       // idea to pass pointer to be processed in another thread
       m_saveWAVWatcher.setFuture (QtConcurrent::run (std::bind (&MainWindow::save_wave_file,
@@ -1529,6 +1544,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     bool b = vhf && (m_mode=="JT4" or m_mode=="JT65" or m_mode=="ISCAT" or
                      m_mode=="JT9" or m_mode=="MSK144");
     if(b) VHF_features_enabled(b);
+    if(m_mode=="FT8") on_actionFT8_triggered();
     if(m_mode=="JT4") on_actionJT4_triggered();
     if(m_mode=="JT9") on_actionJT9_triggered();
     if(m_mode=="JT9+JT65") on_actionJT9_JT65_triggered();
@@ -4237,6 +4253,45 @@ void MainWindow::displayWidgets(int n)
     }
     j=j>>1;
   }
+}
+
+void MainWindow::on_actionFT8_triggered()
+{
+  m_mode="FT8";
+  bool bVHF=m_config.enable_VHF_features();
+  if(bVHF) {
+    displayWidgets(nWidgets("111110101100111110010000"));
+  } else {
+    displayWidgets(nWidgets("111010000000111000010000"));
+  }
+  m_bFast9=false;
+  m_bFastMode=false;
+  WSPR_config(false);
+  switch_mode (Modes::FT8);
+  m_modeTx="FT8";
+  m_nsps=6912;
+  m_FFTSize = m_nsps / 2;
+  Q_EMIT FFTSize (m_FFTSize);
+  m_hsymStop=48;
+  setup_status_bar (bVHF);
+  m_toneSpacing=0.0;                   //???
+  ui->actionFT8->setChecked(true);     //???
+  m_wideGraph->setMode(m_mode);
+  m_wideGraph->setModeTx(m_modeTx);
+  VHF_features_enabled(bVHF);
+  ui->cbAutoSeq->setVisible(true);
+  ui->cbAutoSeq->setChecked(true);
+  m_TRperiod=15;
+  m_fastGraph->hide();
+  m_wideGraph->show();
+  ui->decodedTextLabel->setText("UTC   dB   DT Freq    Message");
+  ui->decodedTextLabel2->setText("UTC   dB   DT Freq    Message");
+  m_wideGraph->setPeriod(m_TRperiod,m_nsps);
+  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
+  m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
+  ui->label_6->setText("Band Activity");
+  ui->label_7->setText("Rx Frequency");
+  statusChanged();
 }
 
 void MainWindow::on_actionJT4_triggered()

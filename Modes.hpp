@@ -49,6 +49,7 @@ public:
     MSK144,
     QRA64,
     FreqCal,
+    FT8,
     MODES_END_SENTINAL_AND_COUNT // this must be last
   };
   Q_ENUM (Mode)

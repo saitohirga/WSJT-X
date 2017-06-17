@@ -22,7 +22,8 @@ namespace
     "ISCAT",
     "MSK144",
     "QRA64",
-    "FreqCal"
+    "FreqCal",
+    "FT8"
   };
   std::size_t constexpr mode_names_size = sizeof (mode_names) / sizeof (mode_names[0]);
 }
