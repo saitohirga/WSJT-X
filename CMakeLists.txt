@@ -299,6 +299,7 @@ set (wsjt_FSRCS
   lib/jt4_decode.f90
   lib/jt65_decode.f90
   lib/jt65_mod.f90
+  lib/ft8_decode.f90
   lib/jt9_decode.f90
   lib/options.f90
   lib/packjt.f90
