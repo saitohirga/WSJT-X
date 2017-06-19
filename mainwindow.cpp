@@ -75,6 +75,8 @@ extern "C" {
               int len1, int len2, int len3, int len4, int len5);
 //  float s[], int* jh, char line[], char mygrid[],
 
+  void genft8_(char* msg, char* msgsent, int itone[], int len1, int len2);
+
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, int len1, int len2);
 
@@ -2798,6 +2800,7 @@ void MainWindow::guiUpdate()
 
   if(m_TRperiod==0) m_TRperiod=60;
   txDuration=0.0;
+  if(m_modeTx=="FT8")  txDuration=1.0 + 79*2048/12000.0;      // FT8
   if(m_modeTx=="JT4")  txDuration=1.0 + 207.0*2520/11025.0;   // JT4
   if(m_modeTx=="JT9")  txDuration=1.0 + 85.0*m_nsps/12000.0;  // JT9
   if(m_modeTx=="JT65") txDuration=1.0 + 126*4096/11025.0;     // JT65
@@ -2991,6 +2994,7 @@ void MainWindow::guiUpdate()
                                     len1, len1);
         if(m_mode=="WSPR-LF") genwspr_fsk8_(message, msgsent, const_cast<int *> (itone),
                                     len1, len1);
+        if(m_mode=="FT8") genft8_(message, msgsent, const_cast<int *> (itone), len1, len1);
         if(m_modeTx=="MSK144") {
           bool bcontest=m_config.contestMode();
           char MyGrid[6];
@@ -5388,6 +5392,14 @@ void MainWindow::transmit (double snr)
     if(m_nSubMode==2) toneSpacing=4*11025.0/4096.0;
     Q_EMIT sendMessage (NUM_JT65_SYMBOLS,
            4096.0*12000.0/11025.0, ui->TxFreqSpinBox->value () - m_XIT,
+           toneSpacing, m_soundOutput, m_config.audio_output_channel (),
+           true, false, snr, m_TRperiod);
+  }
+
+  if (m_modeTx == "FT8") {
+    toneSpacing=12000.0/2048.0;
+    Q_EMIT sendMessage (NUM_FT8_SYMBOLS,
+           2048.0, ui->TxFreqSpinBox->value () - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),
            true, false, snr, m_TRperiod);
   }
