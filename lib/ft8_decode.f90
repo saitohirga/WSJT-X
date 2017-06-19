@@ -23,19 +23,31 @@ module ft8_decode
 
 contains
 
-  subroutine decode(this,callback,ss,id2,nfqso,newdat,npts8,nfa,    &
+  subroutine decode(this,callback,ss,iwave,nfqso,newdat,npts8,nfa,    &
        nfsplit,nfb,ntol,nzhsym,nagain,ndepth,nmode,nsubmode,nexp_decode)
     use timer_module, only: timer
 
-    include 'constants.f90'
+!    include 'constants.f90'
+    include 'fsk4hf/ft8_params.f90'
+
     class(ft8_decoder), intent(inout) :: this
     procedure(ft8_decode_callback) :: callback
-    real ss(184,NSMAX)
+    real ss(1,1)  !### dummy, to be removed ###
+    real s(NH1,NHSYM)
+    real candidate(3,100)
     logical, intent(in) :: newdat, nagain
-    integer*2 id2(NTMAX*12000)
+    integer*2 iwave(15*12000)
+    character*13 datetime
 
-    print*,'A',nfqso,npts8,nfa,nfsplit,nfb,ntol,nzhsym,ndepth
-    
+    datetime="000000_000000"         !### TEMPORARY ###
+
+    call sync8(iwave,s,candidate,ncand)
+    call ft8b(datetime,s,candidate,ncand)
+!     if (associated(this%callback)) then
+!        call this%callback(sync,nsnr,xdt,freq,ndrift,msg)
+!     end if
+     
     return
   end subroutine decode
+
 end module ft8_decode
