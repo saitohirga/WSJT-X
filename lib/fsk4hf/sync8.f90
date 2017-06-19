@@ -1,13 +1,18 @@
-subroutine sync8(iwave,xdt,f1,s)
+subroutine sync8(iwave,s,candidate,ncand)
 
   include 'ft8_params.f90'
-  parameter (IZ=10,JZ=20)
+  parameter (JZ=20)
   complex cx(0:NH1)
   real s(NH1,NHSYM)
   real savg(NH1)
   real x(NFFT1)
-  real sync2d(-IZ:IZ,-JZ:JZ)
+  real sync2d(NH1,-JZ:JZ)
+  real red(NH1)
+  real candidate(3,100)
   integer*2 iwave(NMAX)
+  integer jpeak(NH1)
+  integer indx(NH1)
+  integer ii(1)
   integer icos7(0:6)
   data icos7/2,5,6,0,4,1,3/                   !Costas 7x7 tone pattern
   equivalence (x,cx)
@@ -31,43 +36,56 @@ subroutine sync8(iwave,xdt,f1,s)
      savg=savg + s(1:NH1,j)
   enddo
 
-  ia=nint(30.0/df)
-  ib=nint(3000.0/df)
+  ia=nint(200.0/df)
+  ib=nint(4000.0/df)
   savg=savg/NHSYM
-  pmax=0.
-  i0=0
-  do i=ia,ib
-     p=sum(savg(i-8:i+8))/17.0
-     if(p.gt.pmax) then
-        pmax=p
-        i0=i-7
-     endif
-  enddo
 
-  tmax=0.
-  ipk=0
-  jpk=0
-  j0=1
-  do i=-IZ,IZ
+  do i=ia,ib
      do j=-JZ,JZ
         t=0.
         do n=0,6
-           k=j0+j+2*n
-           if(k.ge.1) t=t + s(i0+i+2*icos7(n),k)
-           t=t + s(i0+i+2*icos7(n),k+72)
-           if(k+144.le.NHSYM) t=t + s(i0+i+2*icos7(n),k+144)
+           k=j+2*n
+           if(k.ge.1) t=t + s(i+2*icos7(n),k)
+           t=t + s(i+2*icos7(n),k+72)
+           if(k+144.le.NHSYM) t=t + s(i+2*icos7(n),k+144)
         enddo
         sync2d(i,j)=t
-        if(t.gt.tmax) then
-           tmax=t
-           jpk=j
-           ipk=i
-        endif
      enddo
   enddo
-  f0=i0*df
-  f1=(i0+ipk)*df
-  xdt=jpk*tstep
+
+  red=0.
+  do i=ia,ib
+     ii=maxloc(sync2d(i,-JZ:JZ)) - 1 - JZ
+     j0=ii(1)
+     jpeak(i)=j0
+     red(i)=sync2d(i,j0)
+  enddo
+  iz=ib-ia+1
+  call indexx(red(ia:ib),iz,indx)
+  ibase=indx(nint(0.40*iz)) - 1 + ia
+  base=red(ibase)
+  red=red/base
+
+  candidate=0.
+  k=0
+  do i=1,100
+     n=ia + indx(iz+1-i) - 1
+     if(red(n).lt.2.0) exit
+     do j=1,k                        !Eliminate near-dupe freqs
+        f=n*df
+        if(abs(f-candidate(1,j)).lt.3.0) go to 10
+     enddo
+     k=k+1
+     candidate(1,k)=n*df
+     candidate(2,k)=(jpeak(n)-1)*tstep
+     candidate(3,k)=red(n)
+!     write(*,3024) k,candidate(1:3,k)
+!3024 format(i3,3f10.2)
+10   continue
+  enddo
+  ncand=k
+  fac=20.0/maxval(s)
+  s=fac*s
 
   return
 end subroutine sync8

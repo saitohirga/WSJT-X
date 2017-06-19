@@ -15,23 +15,21 @@ program ft8sim
 
 ! Get command-line argument(s)
   nargs=iargc()
-  if(nargs.ne.7) then
-     print*,'Usage:   ft8sim "message"           f0  DT fdop del nfiles snr'
-     print*,'Example: ft8sim "K1ABC W9XYZ EN37" 1500 0.0 0.1 1.0   10   -18'
+  if(nargs.ne.6) then
+     print*,'Usage:   ft8sim "message"          DT fdop del nfiles snr'
+     print*,'Example: ft8sim "K1ABC W9XYZ EN37" 0.0 0.1 1.0   10   -18'
      go to 999
   endif
   call getarg(1,msg)                     !Message to be transmitted
   call getarg(2,arg)
-  read(arg,*) f0                         !Freq of tone 0 (Hz)
-  call getarg(3,arg)
   read(arg,*) xdt                        !Time offset from nominal (s)
-  call getarg(4,arg)
+  call getarg(3,arg)
   read(arg,*) fspread                    !Watterson frequency spread (Hz)
-  call getarg(5,arg)
+  call getarg(4,arg)
   read(arg,*) delay                      !Watterson delay (ms)
-  call getarg(6,arg)
+  call getarg(5,arg)
   read(arg,*) nfiles                     !Number of files
-  call getarg(7,arg)
+  call getarg(6,arg)
   read(arg,*) snrdb                      !SNR_2500
 
   twopi=8.0*atan(1.0)
@@ -50,27 +48,30 @@ program ft8sim
   write(*,1000) f0,xdt,txt,snrdb,bw,msgsent
 1000 format('f0:',f9.3,'   DT:',f6.2,'   TxT:',f6.1,'   SNR:',f6.1,    &
           '  BW:',f4.1,2x,a22)
-  phi=0.0
-  c0=0.
-  k=-1 + nint(xdt/dt)
-  do j=1,NN                              !Generate 8-FSK waveform from itone
-     dphi=twopi*(f0+itone(j)*baud)*dt
-     if(k.eq.0) phi=-dphi
-     do i=1,NSPS
-        k=k+1
-        phi=phi+dphi
-        if(phi.gt.twopi) phi=phi-twopi
-        xphi=phi
-        if(k.ge.0 .and. k.lt.NMAX) c0(k)=cmplx(cos(xphi),sin(xphi))
-     enddo
-  enddo
-
+  
 !  call sgran()
+  c=0.
   do ifile=1,nfiles
-     c=c0
-     if( fspread .ne. 0.0 .or. delay .ne. 0.0 ) then
-        call watterson(c,NZ,fs,delay,fspread)
-     endif
+
+     c0=0.
+     do isig=1,25
+        f0=(isig+2)*100.0
+        phi=0.0
+        k=-1 + nint(xdt/dt)
+        do j=1,NN                              !Generate complex waveform
+           dphi=twopi*(f0+itone(j)*baud)*dt
+           if(k.eq.0) phi=-dphi
+           do i=1,NSPS
+              k=k+1
+              phi=phi+dphi
+              if(phi.gt.twopi) phi=phi-twopi
+              xphi=phi
+              if(k.ge.0 .and. k.lt.NMAX) c0(k)=cmplx(cos(xphi),sin(xphi))
+           enddo
+        enddo
+        if(fspread.ne.0.0 .or. delay.ne.0.0) call watterson(c,NZ,fs,delay,fspread)
+        c=c+c0
+     enddo
      c=c*sig
      if(snrdb.lt.90) then
         do i=0,NZ-1                   !Add gaussian noise at specified SNR

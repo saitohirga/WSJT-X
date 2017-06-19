@@ -11,18 +11,12 @@ program ft8d
 !   ... tbd ...
 
   include 'ft8_params.f90'
-  parameter(NRECENT=10)
-  character*12 recent_calls(NRECENT),arg
-  character message*22,infile*80,datetime*13
+  character*12 arg
+  character infile*80,datetime*13
   real s(NH1,NHSYM)
-  real s1(0:7,ND)
-  real ps(0:7)
-  real rxdata(3*ND),llr(3*ND)               !Soft symbols
+  real candidate(3,100)
   integer ihdr(11)
   integer*2 iwave(NMAX)                 !Generated full-length waveform  
-!  integer*1 idat(7)
-  integer*1 decoded(KK),apmask(3*ND),cw(3*ND)
-  integer*8 count0,count1,clkfreq
   
   nargs=iargc()
   if(nargs.lt.3) then
@@ -43,10 +37,6 @@ program ft8d
   ts=2*NSPS*dt                           !Duration of OQPSK symbols (s)
   baud=1.0/tt                            !Keying rate (baud)
   txt=NZ*dt                              !Transmission length (s)
-  nsync=0
-  ngood=0
-  nbad=0
-  tsec=0.
 
   do ifile=1,nfiles
      call getarg(ifile+2,infile)
@@ -56,72 +46,9 @@ program ft8d
      j2=index(infile,'.wav')
      read(infile(j2-6:j2-1),*) nutc
      datetime=infile(j2-13:j2-1)
-     call system_clock(count0,clkfreq)
-
-!     call ft8filbig(iwave,NN*NSPS,xdta,f1a,xsnr)
-     call sync8(iwave,xdt,f1,s)
-
-     tstep=0.5*NSPS/12000.0
-     df=12000.0/NFFT1
-     i0=nint(f1/df)
-     j0=nint(xdt/tstep)
-     fac=20.0/maxval(s)
-     s=fac*s
-
-     j=0
-     ia=i0
-     ib=i0+14
-     do k=1,NN
-        if(k.le.7) cycle
-        if(k.ge.37 .and. k.le.43) cycle
-        if(k.gt.72) cycle
-        n=j0+2*(k-1)+1
-        if(n.lt.1) cycle
-        j=j+1
-        s1(0:7,j)=s(ia:ib:2,n)
-     enddo
-
-     do j=1,ND
-        ps=s1(0:7,j)
-        ps=log(ps)
-        r1=max(ps(1),ps(3),ps(5),ps(7))-max(ps(0),ps(2),ps(4),ps(6))
-        r2=max(ps(2),ps(3),ps(6),ps(7))-max(ps(0),ps(1),ps(4),ps(5))
-        r4=max(ps(4),ps(5),ps(6),ps(7))-max(ps(0),ps(1),ps(2),ps(3))
-        rxdata(3*j-2)=r4
-        rxdata(3*j-1)=r2
-        rxdata(3*j)=r1
-     enddo
-     rxav=sum(rxdata)/ND
-     rx2av=sum(rxdata*rxdata)/ND
-     rxsig=sqrt(rx2av-rxav*rxav)
-     rxdata=rxdata/rxsig
-     ss=0.84
-     llr=2.0*rxdata/(ss*ss)
-     apmask=0
-     call bpdecode174(llr,apmask,max_iterations,decoded,niterations)
-     if(niterations.lt.0) call osd174(llr,norder,decoded,nharderrors,cw)
-     nbadcrc=0
-     call chkcrc12a(decoded,nbadcrc)
-
-     message='                      '
-     if(nbadcrc.eq.0) then
-        call extractmessage174(decoded,message,ncrcflag,recent_calls,nrecent)
-     endif
-     nsnr=nint(xsnr)
-     write(13,1110) datetime,0,nsnr,xdt,f1,xdta,f1a,niterations,nharderrors,message
-1110 format(a13,2i4,2(f6.2,f7.1),2i4,2x,a22)
-     write(*,1112) datetime(8:13),nsnr,xdt,nint(f1),message
-1112 format(a6,i4,f5.1,i6,2x,a22)
-     if(abs(xdt).le.0.1 .or. abs(f1-1500).le.2.93) nsync=nsync+1
-     if(message.eq.'K1ABC W9XYZ EN37      ') ngood=ngood+1
-     if(message.ne.'K1ABC W9XYZ EN37      ' .and.                      &
-        message.ne.'                      ') nbad=nbad+1
-     call system_clock(count1,clkfreq)
-     tsec=tsec+float(count1-count0)/float(clkfreq)
+     call sync8(iwave,s,candidate,ncand)
+     call ft8b(datetime,s,candidate,ncand)
   enddo   ! ifile loop
 
-  write(21,1100) max_iterations,norder,float(nsync)/nfiles,float(ngood)/nfiles,  &
-       float(nbad)/nfiles,tsec/nfiles
-1100 format(2i5,3f8.4,f9.3)
-
 999 end program ft8d
+  
