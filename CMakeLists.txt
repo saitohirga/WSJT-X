@@ -394,7 +394,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/fsk4hf.f90
   lib/fsk4hf/ft8b.f90
   lib/fsk4hf/ft8d.f90
-  lib/fsk4hf/ft8filbig.f90
+#  lib/fsk4hf/ft8filbig.f90
   lib/fsk4hf/ft8sim.f90
   lib/gen4.f90
   lib/gen65.f90
