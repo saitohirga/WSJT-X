@@ -4570,12 +4570,12 @@ void MainWindow::on_actionMSK144_triggered()
   m_toneSpacing=0.0;
   WSPR_config(false);
   VHF_features_enabled(true);
-//  m_bFastMode=true;
+  m_bFastMode=true;
   m_bFast9=false;
   fast_config(m_bFastMode);
   m_TRperiod = ui->sbTR->value ();
-//  m_wideGraph->hide();
-//  m_fastGraph->show();
+  m_wideGraph->hide();
+  m_fastGraph->show();
   ui->TxFreqSpinBox->setValue(1500);
   ui->RxFreqSpinBox->setValue(1500);
   ui->RxFreqSpinBox->setMinimum(1400);
@@ -5438,9 +5438,9 @@ void MainWindow::transmit (double snr)
     double f0=1000.0;
     if(!m_bFastMode) {
       m_nsps=192;
-      m_toneSpacing=6000.0/m_nsps;
       f0=ui->TxFreqSpinBox->value () - m_XIT - 0.5*m_toneSpacing;
     }
+    m_toneSpacing=6000.0/m_nsps;
     m_FFTSize = 7 * 512;
     Q_EMIT FFTSize (m_FFTSize);
     int nsym;
