@@ -1,10 +1,9 @@
 subroutine watterson(c,npts,fs,delay,fspread)
 
-  include 'wsprlf_params.f90'
   complex c(0:npts-1)
-  complex c2(0:NZMAX-1)
-  complex cs1(0:NZMAX-1)
-  complex cs2(0:NZMAX-1)
+  complex c2(0:npts-1)
+  complex cs1(0:npts-1)
+  complex cs2(0:npts-1)
 
   nonzero=0
   df=fs/npts
