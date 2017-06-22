@@ -42,8 +42,8 @@ program msk144sd
   
   data iavpatterns/ &
        1,1,1,1,0,0,0,0, &
+       0,1,1,1,1,0,0,0, &
        0,0,1,1,1,1,0,0, &
-       1,1,1,1,1,0,0,0, &
        1,1,1,1,1,1,0,0/
   data xmc/2.0,4.5,2.5,3.0/
 
@@ -118,7 +118,7 @@ program msk144sd
        iavmask=iavpatterns(1:8,iavg)
        navg=sum(iavmask)
        deltaf=4.0/real(navg)  ! search increment for frequency sync
-       npeaks=3
+       npeaks=4
        ntol=200
        fc=1500.0
        call msk144sync(cdat(1:6*NSPM),6,ntol,deltaf,iavmask,npeaks,fc,           &
@@ -187,6 +187,7 @@ subroutine msksddc(id2,npts,fc,cdat)
   cx(1:npts)=id2
   call four2a(cx,NFFT1,1,-1,1)
   cx=cshift(cx,ishift)
+  cx(1)=0.5*cx(1)
   cx(2*i46p875+1:)=cmplx(0.0,0.0)
   call four2a(cx,NFFT2,1,1,1)
   cdat(1:npts/32)=cx(0:npts/32-1)/NFFT1
