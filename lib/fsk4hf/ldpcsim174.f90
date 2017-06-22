@@ -61,7 +61,7 @@ bpsk=.true.
 N=174
 K=87
 ! scale Eb/No for a (174,87) code
-rate=real(87)/real(N)
+rate=real(K)/real(N)
 
 write(*,*) "rate: ",rate
 write(*,*) "niter= ",max_iterations," s= ",s
@@ -133,8 +133,8 @@ allocate ( rxdata(N), llr(N) )
   write(*,*) 'codeword' 
   write(*,'(22(8i1,1x))') codeword
 
-write(*,*) "Es/N0  SNR2500   ngood  nundetected nbadcrc   sigma"
-do idb = 14,-6,-1 
+write(*,*) "Es/N0   SNR2500   ngood  nundetected nbadcrc   sigma"
+do idb = 20,-10,-1 
   db=idb/2.0-1.0
   sigma=1/sqrt( 2*(10**(db/10.0)) )
   ngood=0
@@ -154,9 +154,9 @@ do idb = 14,-6,-1
           r2=(1.0 + sigma*gran())**2 + (sigma*gran())**2
           r1=(sigma*gran())**2 + (sigma*gran())**2
         endif 
-        rxdata(i)=0.35*(sqrt(r1)-sqrt(r2))
+!        rxdata(i)=0.35*(sqrt(r1)-sqrt(r2))
 !        rxdata(i)=0.35*(exp(r1)-exp(r2))
-!        rxdata(i)=0.12*(log(r1)-log(r2))
+        rxdata(i)=0.12*(log(r1)-log(r2))
       endif
     enddo
     nerr=0
@@ -167,10 +167,10 @@ do idb = 14,-6,-1
     nberr=nberr+nerr
 
 ! Correct signal normalization is important for this decoder.
-!    rxav=sum(rxdata)/N
-!    rx2av=sum(rxdata*rxdata)/N
-!    rxsig=sqrt(rx2av-rxav*rxav)
-!    rxdata=rxdata/rxsig
+    rxav=sum(rxdata)/N
+    rx2av=sum(rxdata*rxdata)/N
+    rxsig=sqrt(rx2av-rxav*rxav)
+    rxdata=rxdata/rxsig
 ! To match the metric to the channel, s should be set to the noise standard deviation. 
 ! For now, set s to the value that optimizes decode probability near threshold. 
 ! The s parameter can be tuned to trade a few tenth's dB of threshold for an order of
@@ -182,10 +182,10 @@ do idb = 14,-6,-1
     endif
 
     llr=2.0*rxdata/(ss*ss)
-!    nap=0 ! number of AP bits
-!    llr(colorder(174-87+1:174-87+nap)+1)=5*(2.0*msgbits(1:nap)-1.0)
+    nap=0 ! number of AP bits
+    llr(colorder(174-87+1:174-87+nap)+1)=5*(2.0*msgbits(1:nap)-1.0)
     apmask=0
-!    apmask(colorder(174-87+1:174-87+nap)+1)=1
+    apmask(colorder(174-87+1:174-87+nap)+1)=1
 
 ! max_iterations is max number of belief propagation iterations
     call bpdecode174(llr, apmask, max_iterations, decoded, niterations)
@@ -219,7 +219,8 @@ ni2=niterations
       endif
     endif
   enddo
-  snr2500=db+10*log10(6.08/2500.0)
+  baud=12000/2048
+  snr2500=db+10.0*log10((baud/2500.0))
   pberr=real(nberr)/(real(ntrials*N))
   write(*,"(f4.1,4x,f5.1,1x,i8,1x,i8,1x,i8,8x,f5.2,8x,e10.3)") db,snr2500,ngood,nue,nbadcrc,ss,pberr
 
