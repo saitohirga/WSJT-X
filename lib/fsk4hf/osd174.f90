@@ -1,18 +1,14 @@
-subroutine osd174(llr,norder,decoded,niterations,cw)
+subroutine osd174(llr,norder,decoded,cw,nhardmin,dmin)
 !
-! An ordered-statistics decoder based on ideas from: 
-! "Soft-decision decoding of linear block codes based on ordered statistics,"
-! by Marc P. C. Fossorier and Shu Lin, 
-! IEEE Trans Inf Theory, Vol 41, No 5, Sep 1995
+! An ordered-statistics decoder for the (174,87) code.
 ! 
-
 include "ldpc_174_87_params.f90"
 
 integer*1 gen(K,N)
-integer*1 genmrb(K,N)
-integer*1 temp(K),m0(K),me(K)
-integer indices(N)
-integer*1 codeword(N),cw(N),hdec(N)
+integer*1 genmrb(K,N),g2(N,K)
+integer*1 temp(K),m0(K),me(K),mi(K)
+integer indices(N),nxor(N)
+integer*1 cw(N),ce(N),c0(N),hdec(N)
 integer*1 decoded(K)
 integer indx(N)
 real llr(N),rx(N),absrx(N)
@@ -28,9 +24,7 @@ if( first ) then ! fill the generator matrix
       read(g(i)(j:j),"(Z1)") istr
         do jj=1, 4 
           irow=(j-1)*4+jj
-          if( irow .le. K ) then
-            if( btest(istr,4-jj) ) gen(irow,i)=1
-          endif
+          if( btest(istr,4-jj) ) gen(irow,i)=1
         enddo
     enddo
   enddo
@@ -50,36 +44,33 @@ where(rx .ge. 0) hdec=1
 ! use magnitude of received symbols as a measure of reliability.
 absrx=abs(rx) 
 call indexx(absrx,N,indx)  
-! re-order the columns of the generator matrix in order of increasing reliability.
+
+! re-order the columns of the generator matrix in order of decreasing reliability.
 do i=1,N
-  genmrb(1:K,N+1-i)=gen(1:K,indx(N+1-i))
+  genmrb(1:K,i)=gen(1:K,indx(N+1-i))
+  indices(i)=indx(N+1-i)
 enddo
 
 ! do gaussian elimination to create a generator matrix with the most reliable
-! received bits as the systematic bits. if it happens that the K most reliable
-! bits are not independent, then we dip into the bits just below the K best bits
-! to find K independent most reliable bits. the "indices" array tracks column 
-! permutations caused by reliability sorting and gaussian elimination.
-do i=1,N
-  indices(i)=indx(i)
-enddo
+! received bits in positions 1:K in order of decreasing reliability (more or less). 
+! reliability will not be strictly decreasing because column re-ordering is needed
+! to put the generator matrix in systematic form. the "indices" array tracks 
+! column permutations caused by reliability sorting and gaussian elimination.
 do id=1,K ! diagonal element indices 
-  do ic=id,K+20  ! The 20 is ad hoc - beware
-    icol=N-K+ic
-    if( icol .gt. N ) icol=M+1-(icol-N)
+  do icol=id,K+20  ! The 20 is ad hoc - beware
     iflag=0
     if( genmrb(id,icol) .eq. 1 ) then
       iflag=1
-      if( icol-M .ne. id ) then ! reorder column
-        temp(1:K)=genmrb(1:K,M+id)
-        genmrb(1:K,M+id)=genmrb(1:K,icol)
+      if( icol .ne. id ) then ! reorder column
+        temp(1:K)=genmrb(1:K,id)
+        genmrb(1:K,id)=genmrb(1:K,icol)
         genmrb(1:K,icol)=temp(1:K) 
-        itmp=indices(M+id)
-        indices(M+id)=indices(icol)
+        itmp=indices(id)
+        indices(id)=indices(icol)
         indices(icol)=itmp
       endif
       do ii=1,K
-        if( ii .ne. id .and. genmrb(ii,N-K+id) .eq. 1 ) then
+        if( ii .ne. id .and. genmrb(ii,id) .eq. 1 ) then
           genmrb(ii,1:N)=mod(genmrb(ii,1:N)+genmrb(id,1:N),2)
         endif
       enddo
@@ -88,64 +79,102 @@ do id=1,K ! diagonal element indices
   enddo
 enddo
 
-! use the hard decisions for the K MRB bits to define the order 0 
-! message, m0. Encode m0 using the modified generator matrix to 
-! find the order 0 codeword. Flip all combinations of N bits in m0
-! and re-encode to find the list of order N codewords. Test all such
-! codewords against the received word to decide which codeword is 
-! most likely to be correct.
-m0=0
-where (rx(indices(M+1:N)).ge.0.0) m0=1
+g2=transpose(genmrb)
 
-nhardmin=N
-corrmax=-1.0e32
-j0=0
-j1=0
-j2=0
-j3=0
-if( norder.ge.4 ) j0=K
-if( norder.ge.3 ) j1=K
-if( norder.ge.2 ) j2=K
-if( norder.ge.1 ) j3=K
+! The hard decisions for the K MRB bits define the order 0 message, m0. 
+! Encode m0 using the modified generator matrix to find the "order 0" codeword. 
+! Flip various combinations of bits in m0 and re-encode to generate a list of
+! codewords. Test all such codewords against the received word to decide which
+! codeword is most likely to be correct.
+
+hdec=hdec(indices)   ! hard decisions from received symbols
+m0=hdec(1:K)         ! zero'th order message
+absrx=absrx(indices) 
+rx=rx(indices)       
+
+s1=sum(absrx(1:K))
+s2=sum(absrx(K+1:N))
+xlam=7.0  ! larger values reject more error patterns 
+rho=s1/(s1+xlam*s2)
+call mrbencode(m0,c0,g2,N,K)
+nxor=ieor(c0,hdec)
+nhardmin=sum(nxor)
+dmin=sum(nxor*absrx)
+thresh=rho*dmin
+
+cw=c0
 nt=0
-do i1=0,j0
-  do i2=i1,j1
-    do i3=i2,j2
-      do i4=i3,j3
-nt=nt+1
-        me=m0
-        if( i1 .ne. 0 ) me(i1)=1-me(i1)
-        if( i2 .ne. 0 ) me(i2)=1-me(i2)
-        if( i3 .ne. 0 ) me(i3)=1-me(i3)
-        if( i4 .ne. 0 ) me(i4)=1-me(i4)
-
-! me is the m0 + error pattern. encode this message using genmrb to
-! produce a codeword. test the codeword against the received vector
-! and save it if it's the best that we've seen so far. 
-        do i=1,N 
-          nsum=sum(iand(me,genmrb(1:K,i)))
-          codeword(i)=mod(nsum,2)
-        enddo
-! undo the bit re-ordering to put the "real" message bits at the end
-        codeword(indices)=codeword
-        nhard=count(codeword .ne. hdec)
-!        corr=sum(codeword*rx)  ! to save time use nhard to pick best codeword
-        if( nhard .lt. nhardmin ) then
-!         if( corr .gt. corrmax ) then
-          cw=codeword
-          nhardmin=nhard
-!          corrmax=corr
-          i1min=i1
-          i2min=i2
-          i3min=i3
-          i4min=i4
-          if( nhardmin .le. 15 ) goto 200 ! early exit - tune for each code 
-        endif
-      enddo
-    enddo
-  enddo 
+nrejected=0
+do iorder=1,norder
+  mi(1:K-iorder)=0
+  mi(K-iorder+1:K)=1
+  iflag=0
+  do while(iflag .ge. 0 ) 
+    dpat=sum(mi*absrx(1:K))
+    nt=nt+1
+    if( dpat .lt. thresh ) then  ! reject unlikely error patterns
+      me=ieor(m0,mi)
+      call mrbencode(me,ce,g2,N,K)
+      nxor=ieor(ce,hdec)
+      dd=sum(nxor*absrx)
+      if( dd .lt. dmin ) then
+        dmin=dd
+        cw=ce
+        nhardmin=sum(nxor)
+        thresh=rho*dmin
+      endif
+    else
+      nrejected=nrejected+1
+    endif
+! get the next test error pattern, iflag will go negative
+! when the last pattern with weight iorder has been generated
+    call nextpat(mi,k,iorder,iflag)
+  enddo
 enddo
-200 decoded=cw(M+1:N)
-niterations=nhardmin
+
+!write(*,*) 'nhardmin ',nhardmin
+!write(*,*) 'total patterns ',nt,' number rejected ',nrejected
+
+! re-order the codeword to place message bits at the end
+cw(indices)=cw
+hdec(indices)=hdec
+decoded=cw(M+1:N)
+cw(colorder+1)=cw ! put the codeword back into received-word order
 return
 end subroutine osd174
+
+subroutine mrbencode(me,codeword,g2,N,K)
+integer*1 me(K),codeword(N),g2(N,K)
+! fast encoding for low-weight test patterns
+  codeword=0
+  do i=1,K
+    if( me(i) .eq. 1 ) then
+      codeword=ieor(codeword,g2(1:N,i))
+    endif
+  enddo
+return
+end subroutine mrbencode
+
+subroutine nextpat(mi,k,iorder,iflag)
+  integer*1 mi(k),ms(k)
+! generate the next test error pattern
+  ind=-1
+  do i=1,k-1
+     if( mi(i).eq.0 .and. mi(i+1).eq.1) ind=i 
+  enddo
+  if( ind .lt. 0 ) then ! no more patterns of this order
+    iflag=ind
+    return
+  endif
+  ms=0
+  ms(1:ind-1)=mi(1:ind-1)
+  ms(ind)=1
+  ms(ind+1)=0
+  if( ind+1 .lt. k ) then
+     nz=iorder-sum(ms)
+     ms(k-nz+1:k)=1
+  endif
+  mi=ms
+  iflag=ind
+  return
+end subroutine nextpat

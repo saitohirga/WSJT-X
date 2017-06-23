@@ -188,12 +188,10 @@ do idb = 20,-10,-1
     apmask(colorder(174-87+1:174-87+nap)+1)=1
 
 ! max_iterations is max number of belief propagation iterations
-    call bpdecode174(llr, apmask, max_iterations, decoded, niterations)
-ni1=niterations
-    if( norder .ge. 0 .and. niterations .lt. 0 ) call osd174(llr, norder, decoded, niterations, cw)
-ni2=niterations
-! If the decoder finds a valid codeword, niterations will be .ge. 0.
-    if( niterations .ge. 0 ) then
+    call bpdecode174(llr, apmask, max_iterations, decoded, cw, nharderrors)
+    if( norder .ge. 0 .and. nharderrors .lt. 0 ) call osd174(llr, norder, decoded, cw,  nharderrors)
+! If the decoder finds a valid codeword, nharderrors will be .ge. 0.
+    if( nharderrors .ge. 0 ) then
       call extractmessage174(decoded,msgreceived,ncrcflag,recent_calls,nrecent)
       if( ncrcflag .ne. 1 ) then
         nbadcrc=nbadcrc+1

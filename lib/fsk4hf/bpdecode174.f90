@@ -1,4 +1,4 @@
-subroutine bpdecode174(llr,apmask,maxiterations,decoded,niterations)
+subroutine bpdecode174(llr,apmask,maxiterations,decoded,cw,nharderror)
 !
 ! A log-domain belief propagation decoder for the (174,87) code.
 !
@@ -306,6 +306,7 @@ data nrw/   &
 
 ncw=3
 
+decoded=0
 toc=0
 tov=0
 tanhtoc=0
@@ -340,14 +341,13 @@ do iter=0,maxiterations
   enddo
 ! write(*,*) 'number of unsatisfied parity checks ',ncheck
   if( ncheck .eq. 0 ) then ! we have a codeword - reorder the columns and return it
-!    niterations=iter
     codeword=cw(colorder+1)
     decoded=codeword(M+1:N)
     nerr=0
     do i=1,N
       if( (2*cw(i)-1)*llr(i) .lt. 0.0 ) nerr=nerr+1
     enddo
-    niterations=nerr
+    nharderror=nerr
     return
   endif
 
@@ -361,7 +361,7 @@ do iter=0,maxiterations
     endif
 !    write(*,*) iter,ncheck,nd,ncnt
     if( ncnt .ge. 5 .and. iter .ge. 10 .and. ncheck .gt. 15) then
-      niterations=-1
+      nharderror=-1
       return
     endif
   endif
@@ -396,6 +396,6 @@ do iter=0,maxiterations
   enddo
 
 enddo
-niterations=-1
+nharderror=-1
 return
 end subroutine bpdecode174
