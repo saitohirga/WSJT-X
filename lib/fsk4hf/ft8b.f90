@@ -78,7 +78,7 @@ subroutine ft8b(datetime,s,candidate,ncand)
         call extractmessage174(decoded,message,ncrcflag,recent_calls,nrecent)
         nsnr=nint(10.0*log10(sync) - 25.5)    !### empirical ###
         write(*,1112) datetime(8:13),nsnr,xdt,nint(f1),message
-1112    format(a6,i4,f5.1,i6," ~ ",a22)
+1112    format(a6,i4,f5.1,i5," ~ ",a22)
      endif
      write(13,1110) datetime,0,nsnr,xdt,f1,xdta,f1a,    &
           nharderrors,dmin,message
