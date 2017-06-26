@@ -54,9 +54,9 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 ! We're in FT8 mode
      call timer('decft8  ',0)
      call my_ft8%decode(ft8_decoded,ss,id2,params%nfqso,                   &
-          newdat9,params%npts8,params%nfa,params%nfsplit,params%nfb,       &
-          params%ntol,params%nzhsym,logical(params%nagain),params%ndepth,  &
-          params%nmode,params%nsubmode,params%nexp_decode)
+          newdat9,params%npts8,params%nutc,params%nfa,params%nfsplit,      &
+          params%nfb,params%ntol,params%nzhsym,logical(params%nagain),     &
+          params%ndepth,params%nmode,params%nsubmode,params%nexp_decode)
      call timer('decft8  ',1)
      go to 800
   endif

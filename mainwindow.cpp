@@ -157,9 +157,12 @@ namespace
 
   bool message_is_73 (int type, QStringList const& msg_parts)
   {
-    return type >= 0
-      && (((type < 6 || 7 == type) && msg_parts.contains ("73"))
-      || (type == 6 && !msg_parts.filter ("73").isEmpty ()));
+    bool b;
+    b = type >= 0
+        && (((type < 6 || 7 == type)
+        && (msg_parts.contains ("73") or msg_parts.contains ("RR73")))
+            || (type == 6 && !msg_parts.filter ("73").isEmpty ()));
+    return b;
   }
 
   int ms_minute_error ()
@@ -2185,7 +2188,6 @@ void MainWindow::read_wav_file (QString const& fname)
           auto n = file.read (reinterpret_cast<char *> (dec_data.d2),
                             std::min (max_bytes, file.size ()));
           int frames_read = n / bytes_per_frame;
-//          qDebug() << "a" << max_bytes << n << frames_read << frames_read/12000.0 << m_TRperiod;
         // zero unfilled remaining sample space
           std::memset(&dec_data.d2[frames_read],0,max_bytes - n);
           if (11025 == file.format ().sampleRate ()) {
@@ -2354,7 +2356,7 @@ void MainWindow::decode()                                       //decode()
 {
   if(!m_dataAvailable or m_TRperiod==0) return;
   ui->DecodeButton->setChecked (true);
-  if(!dec_data.params.nagain && m_diskData && !m_bFastMode) {
+  if(!dec_data.params.nagain && m_diskData && !m_bFastMode && m_mode!="FT8") {
     dec_data.params.nutc=dec_data.params.nutc/100;
   }
   if(dec_data.params.nagain==0 && dec_data.params.newdat==1 && (!m_diskData)) {
@@ -2698,6 +2700,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         }
         m_QSOText=decodedtext;
       }
+      if(m_mode=="FT8") FT8_AutoSeq(decodedtext.string());
 
       postDecode (true, decodedtext.string ());
 
@@ -2721,6 +2724,17 @@ void MainWindow::readFromStdout()                             //readFromStdout
           }
         }
       }
+    }
+  }
+}
+
+void MainWindow::FT8_AutoSeq(QString message)
+{
+  int i1=message.indexOf(m_baseCall);
+  int i2=message.indexOf(m_hisCall);
+  if(i1>10 and i2>i1+3) {
+    if ((message.indexOf (" 73") < 0 || m_ntx != 6)) {
+      processMessage (message,43,false);
     }
   }
 }
@@ -3478,13 +3492,13 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   QString t2 = messages.mid(i1,position-i1);    //selected line
   QString t2a;
   int ntsec=3600*t2.mid(0,2).toInt() + 60*t2.mid(2,2).toInt();
-  if(m_bFastMode) {
+  if(m_bFastMode or m_mode=="FT8") {
     ntsec = ntsec + t2.mid(4,2).toInt();
     t2a=t2.mid(0,4) + t2.mid(6,-1);     //Change hhmmss to hhmm for the message parser
   } else {
     t2a=t2.left (44);       // strip and quality info trailing the decoded message
   }
-  if(m_bFastMode) {
+  if(m_bFastMode or m_mode=="FT8") {
     i1=t2a.indexOf(" CQ ");
     if(i1>10) {
       bool ok;
@@ -3542,7 +3556,6 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
       qDebug () << "Not processing message - hiscall:" << hiscall << "hisgrid:" << hisgrid;
       return;
     }
-
   // only allow automatic mode changes between JT9 and JT65, and when not transmitting
   if (!m_transmitting and m_mode == "JT9+JT65") {
     if (decodedtext.isJT9())
@@ -3561,8 +3574,9 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
     return;
   }
 
+
   QString firstcall = decodedtext.call();
-  if(!m_bFastMode and !m_config.enable_VHF_features()) {
+  if(!m_bFastMode and !m_config.enable_VHF_features() and m_mode!="FT8") {
   // Don't change Tx freq if in a fast mode, or VHF features enabled; also not if a
   // station is calling me, unless m_lockTxFreq is true or CTRL is held down.
     if ((firstcall!=m_config.my_callsign () and firstcall != m_baseCall) or
@@ -3621,6 +3635,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
     if(n>=15) n=16;
     rpt=QString::number(n);
   }
+
   ui->rptSpinBox->setValue(n);
   if(m_nTx73==0) genStdMsgs(rpt);   //Don't genStdMsgs if we're already sending 73.
 
@@ -4291,8 +4306,8 @@ void MainWindow::on_actionFT8_triggered()
   m_TRperiod=15;
   m_fastGraph->hide();
   m_wideGraph->show();
-  ui->decodedTextLabel->setText("UTC   dB   DT Freq    Message");
-  ui->decodedTextLabel2->setText("UTC   dB   DT Freq    Message");
+  ui->decodedTextLabel->setText( "  UTC   dB   DT  Freq   Message");
+  ui->decodedTextLabel2->setText("  UTC   dB   DT  Freq   Message");
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
@@ -4556,9 +4571,8 @@ void MainWindow::on_actionISCAT_triggered()
 
 void MainWindow::on_actionMSK144_triggered()
 {
-//  displayWidgets(nWidgets("101111110100000000010001"));
-    displayWidgets(nWidgets("101111111100000000010001"));
-//  displayWidgets(nWidgets("111111110101111100010001"));
+  displayWidgets(nWidgets("101111110100000000010001"));
+//    displayWidgets(nWidgets("101111111100000000010001"));
   m_mode="MSK144";
   m_modeTx="MSK144";
   ui->actionMSK144->setChecked(true);
