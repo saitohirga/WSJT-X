@@ -23,7 +23,7 @@ module ft8_decode
 
 contains
 
-  subroutine decode(this,callback,ss,iwave,nfqso,newdat,npts8,nfa,    &
+  subroutine decode(this,callback,ss,iwave,nfqso,newdat,npts8,nutc,nfa,    &
        nfsplit,nfb,ntol,nzhsym,nagain,ndepth,nmode,nsubmode,nexp_decode)
     use timer_module, only: timer
 
@@ -39,7 +39,8 @@ contains
     integer*2 iwave(15*12000)
     character*13 datetime
 
-    datetime="000000_000000"         !### TEMPORARY ###
+    write(datetime,1001) nutc        !### TEMPORARY ###
+1001 format("000000_",i6.6)
 
     call sync8(iwave,s,candidate,ncand)
     call ft8b(datetime,s,candidate,ncand)

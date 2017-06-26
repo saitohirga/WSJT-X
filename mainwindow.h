@@ -294,6 +294,7 @@ private:
 private:
   void astroUpdate ();
   void writeAllTxt(QString message);
+  void FT8_AutoSeq(QString message);
 
   NetworkAccessManager m_network_manager;
   bool m_valid;
