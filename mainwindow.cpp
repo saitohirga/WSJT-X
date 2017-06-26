@@ -4306,8 +4306,8 @@ void MainWindow::on_actionFT8_triggered()
   m_TRperiod=15;
   m_fastGraph->hide();
   m_wideGraph->show();
-  ui->decodedTextLabel->setText( "  UTC   dB   DT  Freq   Message");
-  ui->decodedTextLabel2->setText("  UTC   dB   DT  Freq   Message");
+  ui->decodedTextLabel->setText( "  UTC   dB   DT Freq   Message");
+  ui->decodedTextLabel2->setText("  UTC   dB   DT Freq   Message");
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
