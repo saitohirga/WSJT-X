@@ -2366,7 +2366,7 @@ void MainWindow::decode()                                       //decode()
     imin=imin % 60;
     if(m_TRperiod>=60) imin=imin - (imin % (m_TRperiod/60));
     dec_data.params.nutc=100*ihr + imin;
-    if(m_mode=="ISCAT" or m_mode=="MSK144" or m_bFast9) {
+    if(m_mode=="ISCAT" or m_mode=="MSK144" or m_bFast9 or m_mode=="FT8") {
       QDateTime t=QDateTime::currentDateTimeUtc().addSecs(2-m_TRperiod);
       ihr=t.toString("hh").toInt();
       imin=t.toString("mm").toInt();
