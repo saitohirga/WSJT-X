@@ -3576,7 +3576,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
 
 
   QString firstcall = decodedtext.call();
-  if(!m_bFastMode and !m_config.enable_VHF_features() and m_mode!="FT8") {
+  if(!m_bFastMode and (!m_config.enable_VHF_features() or m_mode=="FT8")) {
   // Don't change Tx freq if in a fast mode, or VHF features enabled; also not if a
   // station is calling me, unless m_lockTxFreq is true or CTRL is held down.
     if ((firstcall!=m_config.my_callsign () and firstcall != m_baseCall) or
@@ -4280,12 +4280,8 @@ void MainWindow::displayWidgets(int n)
 void MainWindow::on_actionFT8_triggered()
 {
   m_mode="FT8";
-  bool bVHF=m_config.enable_VHF_features();
-  if(bVHF) {
-    displayWidgets(nWidgets("111110101100111110010000"));
-  } else {
-    displayWidgets(nWidgets("111010000000111000010000"));
-  }
+  bool bVHF=false;
+  displayWidgets(nWidgets("111010000000111000010000"));
   m_bFast9=false;
   m_bFastMode=false;
   WSPR_config(false);
@@ -4941,10 +4937,10 @@ void MainWindow::band_changed (Frequency f)
         auto_tx_mode (false);       // disable auto Tx
       }
       else {
-        // adjust DF:s
+        // adjust DF's
         int shift = f - m_freqNominal;
         ui->RxFreqSpinBox->setValue (ui->RxFreqSpinBox->value () - shift);
-        if (!m_config.enable_VHF_features ()) // for VHF & up we fix the Tx DF
+        if (!m_config.enable_VHF_features ()) // for VHF & up, don't change the Tx DF
           {
             ui->TxFreqSpinBox->setValue (ui->TxFreqSpinBox->value () - shift);
           }

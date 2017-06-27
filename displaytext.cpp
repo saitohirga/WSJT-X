@@ -183,13 +183,14 @@ void DisplayText::displayTransmittedText(QString text, QString modeTx, qint32 tx
 {
     QString bg=color_TxMsg.name();
     QString t1=" @  ";
+    if(modeTx=="FT8") t1=" ~  ";
     if(modeTx=="JT4") t1=" $  ";
     if(modeTx=="JT65") t1=" #  ";
     if(modeTx=="MSK144") t1=" &  ";
     QString t2;
     t2.sprintf("%4d",txFreq);
     QString t;
-    if(bFastMode) {
+    if(bFastMode or modeTx=="FT8") {
       t = QDateTime::currentDateTimeUtc().toString("hhmmss") + \
         "  Tx      " + t2 + t1 + text;
     } else {
