@@ -192,8 +192,8 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 !$omp end parallel sections
 
 ! JT65 is not yet producing info for nsynced, ndecoded.
-  ndecoded = my_jt4%decoded + my_jt65%decoded + my_jt9%decoded
-800 write(*,1010) nsynced,ndecoded
+800 ndecoded = my_jt4%decoded + my_jt65%decoded + my_jt9%decoded + my_ft8%decoded
+  write(*,1010) nsynced,ndecoded
 1010 format('<DecodeFinished>',2i4)
   call flush(6)
   close(13) 

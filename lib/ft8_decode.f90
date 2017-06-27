@@ -38,7 +38,6 @@ contains
     character datetime*13,message*22
 
     this%callback => callback
-
     write(datetime,1001) nutc        !### TEMPORARY ###
 1001 format("000000_",i6.6)
 
@@ -46,7 +45,7 @@ contains
     call sync8(iwave,s,candidate,ncand)
     call timer('sync8   ',1)
 
-    rewind 51
+!    rewind 51
     do icand=1,ncand
        f1=candidate(1,icand)
        xdt=candidate(2,icand)
@@ -56,7 +55,7 @@ contains
        call ft8b(s,f1,xdt,nharderrors,dmin,nbadcrc,message)
        call timer('ft8b    ',1)
        if (associated(this%callback)) call this%callback(sync,nsnr,xdt,   &
-            freq,nbadcrc,message)
+            f1,nbadcrc,message)
 !       write(13,1110) datetime,0,nsnr,xdt,f1,nharderrors,dmin,message
 !1110   format(a13,2i4,f6.2,f7.1,i4,' ~ ',f6.2,2x,a22,'  FT8')
        write(51,3051) xdt,f1,sync,dmin,nsnr,nharderrors,nbadcrc,message

@@ -35,12 +35,12 @@ subroutine jt9a()
   mykey=trim(repeat(shm_key,1))
   i0 = len(mykey)
   i0=setkey_jt9(trim(mykey))
-
   i1=attach_jt9()
+  msdelay=10
 
 10 inquire(file=trim(temp_dir)//'/.lock',exist=fileExists)
   if(fileExists) then
-     call sleep_msec(100)
+     call sleep_msec(msdelay)
      go to 10
   endif
 
@@ -66,7 +66,7 @@ subroutine jt9a()
 
 100 inquire(file=trim(temp_dir)//'/.lock',exist=fileExists)
   if(fileExists) go to 10
-  call sleep_msec(100)
+  call sleep_msec(msdelay)
   go to 100
 
 999 call timer('decoder ',101)
