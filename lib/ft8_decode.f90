@@ -54,7 +54,7 @@ contains
        xdt=candidate(2,icand)
        nsnr=min(99,nint(10.0*log10(sync) - 25.5))    !### empirical ###
        call timer('ft8b    ',0)
-       call ft8b(s,f1,xdt,nharderrors,dmin,nbadcrc,message)
+       call ft8b(s,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message)
        call timer('ft8b    ',1)
        if (associated(this%callback)) call this%callback(sync,nsnr,xdt,   &
             f1,nbadcrc,message)
