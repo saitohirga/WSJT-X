@@ -268,7 +268,7 @@ int WideGraph::Fmin()                                              //Fmin
 
 int WideGraph::Fmax()                                              //Fmax
 {
-  return std::max (5000, ui->widePlot->Fmax());
+  return std::min(5000,ui->widePlot->Fmax());
 }
 
 int WideGraph::fSpan()

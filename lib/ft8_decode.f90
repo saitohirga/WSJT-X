@@ -42,14 +42,16 @@ contains
 1001 format("000000_",i6.6)
 
     call timer('sync8   ',0)
-    call sync8(iwave,s,candidate,ncand)
+    call sync8(iwave,nfa,nfb,nfqso,s,candidate,ncand)
     call timer('sync8   ',1)
 
+    syncmin=4.0
 !    rewind 51
     do icand=1,ncand
+       sync=candidate(3,icand)
+       if(sync.lt.syncmin) cycle
        f1=candidate(1,icand)
        xdt=candidate(2,icand)
-       sync=candidate(3,icand)
        nsnr=min(99,nint(10.0*log10(sync) - 25.5))    !### empirical ###
        call timer('ft8b    ',0)
        call ft8b(s,f1,xdt,nharderrors,dmin,nbadcrc,message)
