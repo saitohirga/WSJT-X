@@ -1,4 +1,4 @@
-subroutine ft8b(s,f1,xdt,nharderrors,dmin,nbadcrc,message)
+subroutine ft8b(s,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message)
 
   include 'ft8_params.f90'
   parameter(NRECENT=10)
@@ -12,6 +12,7 @@ subroutine ft8b(s,f1,xdt,nharderrors,dmin,nbadcrc,message)
 
   max_iterations=40
   norder=2
+  if(abs(nfqso-f1).lt.10.0) norder=3
   tstep=0.5*NSPS/12000.0
   df=12000.0/NFFT1
 
