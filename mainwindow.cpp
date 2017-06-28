@@ -4936,15 +4936,6 @@ void MainWindow::band_changed (Frequency f)
         ui->stopTxButton->click (); // halt any transmission
         auto_tx_mode (false);       // disable auto Tx
       }
-      else {
-        // adjust DF's
-        int shift = f - m_freqNominal;
-        ui->RxFreqSpinBox->setValue (ui->RxFreqSpinBox->value () - shift);
-        if (!m_config.enable_VHF_features ()) // for VHF & up, don't change the Tx DF
-          {
-            ui->TxFreqSpinBox->setValue (ui->TxFreqSpinBox->value () - shift);
-          }
-      }
     }
     m_lastBand.clear ();
     m_bandEdited = false;
