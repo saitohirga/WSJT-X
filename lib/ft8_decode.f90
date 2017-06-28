@@ -55,15 +55,16 @@ contains
        nsnr=min(99,nint(10.0*log10(sync) - 25.5))    !### empirical ###
        call timer('ft8b    ',0)
        call ft8b(s,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message)
+       xdt=xdt-0.6
        call timer('ft8b    ',1)
        if (associated(this%callback)) call this%callback(sync,nsnr,xdt,   &
             f1,nbadcrc,message)
 !       write(13,1110) datetime,0,nsnr,xdt,f1,nharderrors,dmin,message
 !1110   format(a13,2i4,f6.2,f7.1,i4,' ~ ',f6.2,2x,a22,'  FT8')
        write(51,3051) xdt,f1,sync,dmin,nsnr,nharderrors,nbadcrc,message
-3051 format(4f9.1,3i5,2x,a22)
+3051   format(4f9.1,3i5,2x,a22)
+       flush(51)
     enddo
-    flush(51)
 
     return
   end subroutine decode
