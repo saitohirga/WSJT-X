@@ -39,7 +39,7 @@ subroutine sync8(iwave,nfa,nfb,nfqso,s,candidate,ncand)
   enddo
   savg=savg/NHSYM
 
-  ia=nint(nfa/df)
+  ia=max(1,nint(nfa/df))
   ib=nint(nfb/df)
   do i=ia,ib
      do j=-JZ,JZ
