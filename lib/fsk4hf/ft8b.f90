@@ -3,12 +3,11 @@ subroutine ft8b(s,f1,xdt,nharderrors,dmin,nbadcrc,message)
   include 'ft8_params.f90'
   parameter(NRECENT=10)
   character*12 recent_calls(NRECENT)
-  character message*22,datetime*13
+  character message*22
   real s(NH1,NHSYM)
   real s1(0:7,ND)
   real ps(0:7)
   real rxdata(3*ND),llr(3*ND)               !Soft symbols
-  real candidate(3,100)
   integer*1 decoded(KK),apmask(3*ND),cw(3*ND)
 
   max_iterations=40
@@ -71,8 +70,6 @@ subroutine ft8b(s,f1,xdt,nharderrors,dmin,nbadcrc,message)
   if(nharderrors.ge.0) call chkcrc12a(decoded,nbadcrc)
   if(nbadcrc.eq.0) then
      call extractmessage174(decoded,message,ncrcflag,recent_calls,nrecent)
-!     write(*,1112) datetime(8:13),nsnr,xdt,nint(f1),message
-!1112 format(a6,i4,f5.1,i5," ~ ",a22)
   endif
 900 continue
 

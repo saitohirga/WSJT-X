@@ -1,4 +1,4 @@
-subroutine sync8(iwave,s,candidate,ncand)
+subroutine sync8(iwave,nfa,nfb,nfqso,s,candidate,ncand)
 
   include 'ft8_params.f90'
   parameter (JZ=20)
@@ -8,6 +8,7 @@ subroutine sync8(iwave,s,candidate,ncand)
   real x(NFFT1)
   real sync2d(NH1,-JZ:JZ)
   real red(NH1)
+  real candidate0(3,100)
   real candidate(3,100)
   integer*2 iwave(NMAX)
   integer jpeak(NH1)
@@ -19,10 +20,11 @@ subroutine sync8(iwave,s,candidate,ncand)
 
 ! Compute symbol spectra at half-symbol steps.  
   savg=0.
-  istep=NSPS/2
-  tstep=istep/12000.0
-  df=12000.0/NFFT1
+  istep=NSPS/2                                !1024
+  tstep=istep/12000.0                         !0.085333 s
+  df=12000.0/NFFT1                            !2.93 Hz
 
+! Compute symbol spectra at half-symbol steps
   fac=1.0/300.0
   do j=1,NHSYM
      ia=(j-1)*istep + 1
@@ -33,23 +35,31 @@ subroutine sync8(iwave,s,candidate,ncand)
      do i=1,NH1
         s(i,j)=real(cx(i))**2 + aimag(cx(i))**2
      enddo
-     savg=savg + s(1:NH1,j)
+     savg=savg + s(1:NH1,j)                   !Average spectrum
   enddo
-
-  ia=nint(200.0/df)
-  ib=nint(4000.0/df)
   savg=savg/NHSYM
 
+  ia=nint(nfa/df)
+  ib=nint(nfb/df)
   do i=ia,ib
      do j=-JZ,JZ
         t=0.
+        t0=0.
         do n=0,6
            k=j+2*n
-           if(k.ge.1) t=t + s(i+2*icos7(n),k)
+           if(k.ge.1) then
+              t=t + s(i+2*icos7(n),k)
+              t0=t0 + sum(s(i:i+12:2,k))
+           endif
            t=t + s(i+2*icos7(n),k+72)
-           if(k+144.le.NHSYM) t=t + s(i+2*icos7(n),k+144)
+           t0=t0 + sum(s(i:i+12:2,k+72))
+           if(k+144.le.NHSYM) then
+              t=t + s(i+2*icos7(n),k+144)
+              t0=t0 + sum(s(i:i+12:2,k+144))
+           endif
         enddo
-        sync2d(i,j)=t
+        t0=(t0-t)/6.0
+        sync2d(i,j)=t/t0
      enddo
   enddo
 
@@ -59,6 +69,8 @@ subroutine sync8(iwave,s,candidate,ncand)
      j0=ii(1)
      jpeak(i)=j0
      red(i)=sync2d(i,j0)
+!     write(52,3052) i*df,red(i),db(red(i))
+!3052 format(3f12.3)
   enddo
   iz=ib-ia+1
   call indexx(red(ia:ib),iz,indx)
@@ -66,26 +78,46 @@ subroutine sync8(iwave,s,candidate,ncand)
   base=red(ibase)
   red=red/base
 
-  candidate=0.
+  candidate0=0.
   k=0
+  syncmin=4.0
   do i=1,100
      n=ia + indx(iz+1-i) - 1
-     if(red(n).lt.2.0) exit
-     do j=1,k                        !Eliminate near-dupe freqs
-        f=n*df
-        if(abs(f-candidate(1,j)).lt.3.0) go to 10
-     enddo
+     if(red(n).lt.syncmin) exit
      k=k+1
-     candidate(1,k)=n*df
-     candidate(2,k)=(jpeak(n)-1)*tstep
-     candidate(3,k)=red(n)
-!     write(*,3024) k,candidate(1:3,k)
-!3024 format(i3,3f10.2)
-10   continue
+     candidate0(1,k)=n*df
+     candidate0(2,k)=(jpeak(n)-1)*tstep
+     candidate0(3,k)=red(n)
   enddo
   ncand=k
+
+! Put nfqso at top of list, and save only the best of near-dupe freqs.  
+  do i=1,ncand
+     if(abs(candidate0(1,i)-nfqso).lt.10.0) candidate0(1,i)=-candidate0(1,i)
+     if(i.ge.2) then
+        do j=1,i-1
+           fdiff=abs(candidate0(1,i))-abs(candidate0(1,j))
+           if(abs(fdiff).lt.4.0) then
+              if(candidate0(3,i).ge.candidate0(3,j)) candidate0(3,j)=0.
+              if(candidate0(3,i).lt.candidate0(3,j)) candidate0(3,i)=0.
+           endif
+        enddo
+!        write(*,3001) i,candidate0(1,i-1),candidate0(1,i),candidate0(3,i-1),  &
+!             candidate0(3,i)
+!3001    format(i2,4f8.1)
+     endif
+  enddo
+  
   fac=20.0/maxval(s)
   s=fac*s
 
+  call indexx(candidate0(1,1:ncand),ncand,indx)
+  do i=1,ncand
+     j=indx(i)
+     candidate(1,i)=abs(candidate0(1,j))
+     candidate(2,i)=candidate0(2,j)
+     candidate(3,i)=candidate0(3,j)
+  enddo
+  
   return
 end subroutine sync8
