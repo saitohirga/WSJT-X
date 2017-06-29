@@ -65,7 +65,7 @@ namespace
       {15000000, Modes::FreqCal},
       {18102000, Modes::JT65},
       {18104000, Modes::JT9},
-      {18104100, Modes::FT8},
+      {18105000, Modes::FT8},
       {18104600, Modes::WSPR},
       {20000000, Modes::FreqCal},
       {21076000, Modes::JT65},
