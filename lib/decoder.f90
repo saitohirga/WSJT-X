@@ -49,6 +49,22 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   if(mod(params%nranera,2).eq.0) ntrials=10**(params%nranera/2)
   if(mod(params%nranera,2).eq.1) ntrials=3*10**(params%nranera/2)
   if(params%nranera.eq.0) ntrials=0
+  
+  nfail=0
+10 if (params%nagain) then
+     open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown',            &
+          position='append',iostat=ios)
+  else
+     open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown',            &
+          iostat=ios)
+  end if
+  if(ios.ne.0) then
+     nfail=nfail+1
+     if(nfail.le.3) then
+        call sleep_msec(100)
+        go to 10
+     endif
+  endif
 
   if(params%nmode.eq.8) then
 ! We're in FT8 mode
@@ -60,8 +76,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      call timer('decft8  ',1)
      go to 800
   endif
-  
-  
+
   rms=sqrt(dot_product(float(id2(300000:310000)),            &
        float(id2(300000:310000)))/10000.0)
   if(rms.lt.2.0) go to 800
@@ -86,22 +101,6 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   if(bad0) then
      nz=min(NTMAX*12000,kbad+100)
 !     id2(1:nz)=0                ! temporarily disabled as it can breaak the JT9 decoder, maybe others
-  endif
-  
-  nfail=0
-10 if (params%nagain) then
-     open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown',            &
-          position='append',iostat=ios)
-  else
-     open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown',            &
-          iostat=ios)
-  end if
-  if(ios.ne.0) then
-     nfail=nfail+1
-     if(nfail.le.3) then
-        call sleep_msec(100)
-        go to 10
-     endif
   endif
   
   if(params%nmode.eq.4 .or. params%nmode.eq.65) open(14,file=trim(temp_dir)// &
