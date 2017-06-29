@@ -883,7 +883,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
      m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "G3PQA") {
-      ui->actionFT8->setEnabled(true);
       ui->actionWSPR_LF->setEnabled(true);
   }
 
