@@ -1432,7 +1432,7 @@ void MainWindow::fastSink(qint64 frames)
     if(i1>10 and i2>i1+3) {
       if (ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked ()
          && (message.indexOf (" 73") < 0 || m_ntx != 6)) {
-        processMessage (message,43,false);
+        if(!m_sentFirst73) processMessage (message,43,false);
       }
     }
     if (m_mode != "ISCAT") postDecode (true, decodedtext.string ());
@@ -1741,7 +1741,28 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         return;
       }
       break;
-    }
+    case Qt::Key_Plus:
+      if(e->modifiers() & Qt::ControlModifier) {
+        int f=ui->TxFreqSpinBox->value()/50;
+        ui->TxFreqSpinBox->setValue(50*(f+1));
+        return;
+      }
+      break;
+    case Qt::Key_Equal:
+      if(e->modifiers() & Qt::ControlModifier) {
+        int f=ui->TxFreqSpinBox->value()/50;
+        ui->TxFreqSpinBox->setValue(50*(f+1));
+        return;
+      }
+      break;
+    case Qt::Key_Minus:
+      if(e->modifiers() & Qt::ControlModifier) {
+        int f=ui->TxFreqSpinBox->value()/50;
+        ui->TxFreqSpinBox->setValue(50*(f-1));
+        return;
+      }
+    break;
+  }
 
   QMainWindow::keyPressEvent (e);
 }
@@ -2514,7 +2535,7 @@ void::MainWindow::fast_decode_done()
        && ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked ()
        && tmax >= 0.0 && i1 > 10 && i2 > i1 + 3) {
       if (msg0.indexOf (" 73") < 0 || m_ntx != 6) {
-        processMessage(msg0,43,false);
+        if(!m_sentFirst73) processMessage(msg0,43,false);
       }
     }
     if(m_msg[i][0]==0) break;
@@ -2734,7 +2755,7 @@ void MainWindow::FT8_AutoSeq(QString message)
   int i2=message.indexOf(m_hisCall);
   if(i1>10 and i2>i1+3) {
     if ((message.indexOf (" 73") < 0 || m_ntx != 6)) {
-      processMessage (message,43,false);
+      if(ui->cbAutoSeq->isChecked() and !m_sentFirst73) processMessage (message,43,false);
     }
   }
 }
