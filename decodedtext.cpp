@@ -133,6 +133,7 @@ QString DecodedText::call()
 void DecodedText::deCallAndGrid(/*out*/QString& call, QString& grid)
 {
   auto msg = _string;
+  if(msg.mid(4,1)!=" ") msg=msg.mid(0,4)+msg.mid(6,-1);  //Remove seconds from UTC
   msg = msg.replace (QRegularExpression {" CQ ([A-Z]{2,2}|[0-9]{3,3}) "}, " CQ_\\1 ").mid (column_qsoText);
   int i1 = msg.indexOf (" ");
   call = msg.mid (i1 + 1);

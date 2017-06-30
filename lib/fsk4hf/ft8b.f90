@@ -1,5 +1,6 @@
 subroutine ft8b(s,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message)
 
+  use timer_module, only: timer
   include 'ft8_params.f90'
   parameter(NRECENT=10)
   character*12 recent_calls(NRECENT)
@@ -12,11 +13,11 @@ subroutine ft8b(s,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message)
 
   max_iterations=40
   norder=2
-  if(abs(nfqso-f1).lt.10.0) norder=3
+!  if(abs(nfqso-f1).lt.10.0) norder=3
   tstep=0.5*NSPS/12000.0
   df=12000.0/NFFT1
 
-  i0=nint(f1/df)
+  i0=max(1,nint(f1/df))
   j0=nint(xdt/tstep)
 
   j=0
@@ -58,10 +59,14 @@ subroutine ft8b(s,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message)
 ! cw will be needed for subtraction.
 ! dmin is the correlation discrepancy of a returned codeword - it is 
 !      used to select the best codeword within osd174.
+  call timer('bpd174  ',0)
   call bpdecode174(llr,apmask,max_iterations,decoded,cw,nharderrors)
+  call timer('bpd174  ',1)
   dmin=0.0
   if(nharderrors.lt.0) then
+     call timer('osd174  ',0)
      call osd174(llr,norder,decoded,cw,nharderrors,dmin)
+     call timer('osd174  ',1)
 ! This threshold needs to be tuned. 99.0 should pass everything.
      if( dmin .gt. 99.0 ) nharderrors=-1
   endif
