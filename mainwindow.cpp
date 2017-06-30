@@ -2729,7 +2729,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           Radio::base_callsign(ui->dxCallEntry->text()), m_rptRcvd);
       // extract details and send to PSKreporter
       int nsec=QDateTime::currentMSecsSinceEpoch()/1000-m_secBandChanged;
-      bool okToPost=(nsec>50);
+      bool okToPost=(nsec>(4*m_TRperiod)/5);
       if(m_config.spot_to_psk_reporter () and stdMsg and !m_diskData and okToPost) {
         pskPost(decodedtext);
       }
@@ -2774,7 +2774,7 @@ void MainWindow::pskPost(DecodedText decodedtext)
   Frequency frequency = m_freqNominal + audioFrequency;
   pskSetLocal ();
   if(grid_regexp.exactMatch (grid)) {
-    // qDebug() << "To PSKreporter:" << deCall << grid << frequency << msgmode << snr;
+    qDebug() << "To PSKreporter:" << deCall << grid << frequency << msgmode << snr;
     psk_Reporter->addRemoteStation(deCall,grid,QString::number(frequency),msgmode,
            QString::number(snr),QString::number(QDateTime::currentDateTime().toTime_t()));
   }
