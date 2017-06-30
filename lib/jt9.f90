@@ -23,7 +23,7 @@ program jt9
   integer :: arglen,stat,offset,remain,mode=0,flow=200,fsplit=2700,          &
        fhigh=4000,nrxfreq=1500,ntrperiod=1,ndepth=1,nexp_decode=0
   logical :: read_files = .true., tx9 = .false., display_help = .false.
-  type (option) :: long_options(24) = [ &
+  type (option) :: long_options(25) = [ &
     option ('help', .false., 'h', 'Display this help message', ''),          &
     option ('shmem',.true.,'s','Use shared memory for sample data','KEY'),   &
     option ('tr-period', .true., 'p', 'Tx/Rx period, default MINUTES=1',     &
@@ -50,6 +50,7 @@ program jt9
         'THREADS'),                                                          &
     option ('jt65', .false., '6', 'JT65 mode', ''),                          &
     option ('jt9', .false., '9', 'JT9 mode', ''),                            &
+    option ('ft9', .false., '8', 'FT8 mode', ''),                            &
     option ('jt4', .false., '4', 'JT4 mode', ''),                            &
     option ('qra64', .false., 'q', 'QRA64 mode', ''),                        &
     option ('sub-mode', .true., 'b', 'Sub mode, default SUBMODE=A', 'A'),    &
@@ -74,8 +75,8 @@ program jt9
   nsubmode = 0
 
   do
-     call getopt('hs:e:a:b:r:m:p:d:f:w:t:964qTL:S:H:c:G:x:g:X:',long_options,c,   &
-          optarg,arglen,stat,offset,remain,.true.)
+     call getopt('hs:e:a:b:r:m:p:d:f:w:t:9864qTL:S:H:c:G:x:g:X:',      &
+          long_options,c,optarg,arglen,stat,offset,remain,.true.)
      if (stat .ne. 0) then
         exit
      end if
@@ -115,6 +116,8 @@ program jt9
            if (mode.lt.65) mode = mode + 65
         case ('9')
            if (mode.lt.9.or.mode.eq.65) mode = mode + 9
+        case ('8')
+           mode = 8
         case ('T')
            tx9 = .true.
         case ('w')
@@ -220,6 +223,7 @@ program jt9
 
      do iblk=1,npts/kstep
         k=iblk*kstep
+        if(mode.eq.8 .and. k.gt.179712) exit
         call timer('read_wav',0)
         read(unit=wav%lun,end=3) shared_data%id2(k-kstep+1:k)
         go to 4
