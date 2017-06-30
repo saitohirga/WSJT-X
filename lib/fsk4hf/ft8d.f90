@@ -2,22 +2,15 @@ program ft8d
 
 ! Decode FT8 data read from *.wav files.
 
-! FT8 is a potential mode intended for use at 6m (and maybe HF).  It uses an
-! LDPC (174,87) code, 8-FSK modulation, and 15 second T/R sequences.  Otherwise
-! should behave like JT65 and JT9 as used on HF bands, except that QSOs are
-! 4 x faster.
-
-! Reception and Demodulation algorithm:
-!   ... tbd ...
-
   include 'ft8_params.f90'
   character*12 arg
-  character infile*80,datetime*13
+  character infile*80,datetime*13,message*22
   real s(NH1,NHSYM)
   real candidate(3,100)
   integer ihdr(11)
   integer*2 iwave(NMAX)                 !Generated full-length waveform  
-  
+  real dd(NMAX)
+ 
   nargs=iargc()
   if(nargs.lt.3) then
      print*,'Usage:   ft8d MaxIt Norder file1 [file2 ...]'
@@ -37,6 +30,9 @@ program ft8d
   ts=2*NSPS*dt                           !Duration of OQPSK symbols (s)
   baud=1.0/tt                            !Keying rate (baud)
   txt=NZ*dt                              !Transmission length (s)
+  nfa=100.0
+  nfb=3000.0
+  nfqso=1500.0
 
   do ifile=1,nfiles
      call getarg(ifile+2,infile)
@@ -46,8 +42,19 @@ program ft8d
      j2=index(infile,'.wav')
      read(infile(j2-6:j2-1),*) nutc
      datetime=infile(j2-13:j2-1)
-     call sync8(iwave,s,candidate,ncand)
-     call ft8b(datetime,s,candidate,ncand)
+     call sync8(iwave,nfa,nfb,nfqso,s,candidate,ncand)
+     syncmin=4.0
+     do icand=1,ncand
+       sync=candidate(3,icand)
+       if( sync.lt.syncmin) cycle
+       f1=candidate(1,icand)
+       xdt=candidate(2,icand)
+       nsnr=min(99,nint(10.0*log10(sync)-25.5))
+       call ft8b(s,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message)
+       xdt=xdt-0.6
+       write(*,1110) datetime,0,nsnr,xdt,f1,message,nharderrors,dmin
+1110   format(a13,2i4,f6.2,f7.1,' ~ ',a22,i6,f7.1)
+     enddo
   enddo   ! ifile loop
 
 999 end program ft8d
