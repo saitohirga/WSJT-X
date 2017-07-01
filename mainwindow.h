@@ -234,6 +234,7 @@ private slots:
   void on_cbShMsgs_toggled(bool b);
   void on_cbSWL_toggled(bool b);
   void on_cbTx6_toggled(bool b);
+  void on_cbMenus_toggled(bool b);
   void networkError (QString const&);
   void on_ClrAvgButton_clicked();
   void on_actionWSPR_triggered();
