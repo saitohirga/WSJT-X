@@ -116,7 +116,7 @@ subroutine ft8b(dd0,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
   do k=1,NN
     i1=ibest+(k-1)*32
     csymb=cmplx(0.0,0.0)
-    if( i1.gt.1 .and. i1+31 .lt. NP2 ) csymb=cd0(i1:i1+31)
+    if( i1.ge.1 .and. i1+31 .le. NP2 ) csymb=cd0(i1:i1+31)
     call four2a(csymb,32,1,-1,1)
     s2(0:7,k)=abs(csymb(1:8))
   enddo  
