@@ -345,6 +345,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_bandEdited {false},
   m_splitMode {false},
   m_monitoring {false},
+  m_tx_when_ready {false},
   m_transmitting {false},
   m_tune {false},
   m_tx_watchdog {false},
@@ -2941,7 +2942,7 @@ void MainWindow::guiUpdate()
       setXIT (ui->TxFreqSpinBox->value ());
 
       Q_EMIT m_config.transceiver_ptt (true);            //Assert the PTT
-      ptt1Timer.start(int(1000.0*m_config.txDelay()));   //Start-of-transmission sequencer delay
+      m_tx_when_ready = true;
     }
     if(!m_bTxTime and !m_tune) m_btxok=false;       //Time to stop transmitting
   }
@@ -5289,6 +5290,15 @@ void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const&
   // qDebug () << "MainWindow::handle_transceiver_update:" << s;
   Transceiver::TransceiverState old_state {m_rigState};
   //transmitDisplay (s.ptt ());
+  if (s.ptt () && !m_rigState.ptt ()) // safe to start audio
+                                      // (caveat - DX Lab Suite Commander)
+    {
+      if (m_tx_when_ready && g_iptt) // waiting to Tx and still needed
+        {
+          ptt1Timer.start(1000 * m_config.txDelay ()); //Start-of-transmission sequencer delay
+        }
+      m_tx_when_ready = false;
+    }
   m_rigState = s;
   if (old_state.online () == false && s.online () == true)
     {

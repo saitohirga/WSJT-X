@@ -2308,10 +2308,10 @@ Right click for insert and delete options.</string>
              <number>1</number>
             </property>
             <property name="minimum">
-             <double>0.200000000000000</double>
+             <double>0.000000000000000</double>
             </property>
             <property name="maximum">
-             <double>0.500000000000000</double>
+             <double>2.000000000000000</double>
             </property>
             <property name="singleStep">
              <double>0.100000000000000</double>
@@ -2616,12 +2616,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
+  <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="CAT_data_bits_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="TX_audio_source_button_group"/>
-  <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="TX_mode_button_group"/>
   <buttongroup name="split_mode_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
-  <buttongroup name="CAT_stop_bits_button_group"/>
-  <buttongroup name="TX_mode_button_group"/>
  </buttongroups>
 </ui>
