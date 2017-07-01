@@ -43,14 +43,16 @@ program ft8d
      read(infile(j2-6:j2-1),*) nutc
      datetime=infile(j2-13:j2-1)
      call sync8(iwave,nfa,nfb,nfqso,s,candidate,ncand)
-     syncmin=4.0
+     syncmin=2.0
+     dd=iwave
      do icand=1,ncand
        sync=candidate(3,icand)
        if( sync.lt.syncmin) cycle
        f1=candidate(1,icand)
        xdt=candidate(2,icand)
        nsnr=min(99,nint(10.0*log10(sync)-25.5))
-       call ft8b(s,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message)
+       call ft8b(dd,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
+       nsnr=xsnr
        xdt=xdt-0.6
        write(*,1110) datetime,0,nsnr,xdt,f1,message,nharderrors,dmin
 1110   format(a13,2i4,f6.2,f7.1,' ~ ',a22,i6,f7.1)
