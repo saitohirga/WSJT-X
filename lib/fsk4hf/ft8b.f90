@@ -116,7 +116,8 @@ subroutine ft8b(dd0,s,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
   j=0
   do k=1,NN
     i1=ibest+(k-1)*32
-    csymb=cd0(i1:i1+31)
+    csymb=cmplx(0.0,0.0)
+    if( i1.gt.1 .and. i1+31 .lt. NP2 ) csymb=cd0(i1:i1+31)
     call four2a(csymb,32,1,-1,1)
     s2(0:7,k)=abs(csymb(1:8))
   enddo  
@@ -185,6 +186,7 @@ subroutine ft8b(dd0,s,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
      xsnr=xsig/xnoi-1.0
      if( xsnr .lt. 0.0 ) xsnr=0.005
      xsnr=10.0*log10(xsnr)-26.3
+     if( xsnr .lt. -24.0 ) xsnr=-24.0
   endif
 900 continue
   return
