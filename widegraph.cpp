@@ -423,6 +423,11 @@ void WideGraph::on_cbRef_toggled(bool b)
   ui->widePlot->setFlatten(m_bFlatten,m_bRef);
 }
 
+void WideGraph::on_cbControls_toggled(bool b)
+{
+  ui->controls_widget->setVisible(b);
+}
+
 void WideGraph::on_adjust_palette_push_button_clicked (bool)   //Adjust Palette
 {
   try

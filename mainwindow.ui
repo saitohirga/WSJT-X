@@ -529,6 +529,22 @@
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QCheckBox" name="cbMenus">
+          <property name="maximumSize">
+           <size>
+            <width>60</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Menus</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
       <item>

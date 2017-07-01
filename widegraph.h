@@ -73,6 +73,7 @@ private slots:
   void on_paletteComboBox_activated(const QString &palette);
   void on_cbFlatten_toggled(bool b);
   void on_cbRef_toggled(bool b);
+  void on_cbControls_toggled(bool b);
   void on_adjust_palette_push_button_clicked (bool);
   void on_gainSlider_valueChanged(int value);
   void on_zeroSlider_valueChanged(int value);
@@ -101,7 +102,6 @@ private:
   qint32 m_nSubMode;
   qint32 m_nsmo;
   qint32  m_Percent2DScreen;
-
   bool   m_lockTxFreq;
   bool   m_bFlatten;
   bool   m_bRef;

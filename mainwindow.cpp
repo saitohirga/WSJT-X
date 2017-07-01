@@ -2070,16 +2070,13 @@ void MainWindow::on_actionFast_Graph_triggered()
 void MainWindow::on_actionHide_Controls_toggled (bool checked)
 {
   int spacing = checked ? 1 : 6;
-
   if (checked) {
       statusBar ()->removeWidget (&auto_tx_label);
       minimumSize().setHeight(450);
       minimumSize().setWidth(700);
       restoreGeometry(m_geometryNoControls);
       updateGeometry();
-      //resize(450,700); // how to auto-shrink it?
-  }
-  else {
+  } else {
       m_geometryNoControls = saveGeometry();
       statusBar ()->addWidget(&auto_tx_label);
       minimumSize().setHeight(520);
@@ -6421,4 +6418,9 @@ void MainWindow::update_watchdog_label ()
       watchdog_label.setText (QString {});
       watchdog_label.setVisible (false);
     }
+}
+
+void MainWindow::on_cbMenus_toggled(bool b)
+{
+  on_actionHide_Controls_toggled (!b);
 }
