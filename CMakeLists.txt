@@ -1223,9 +1223,9 @@ if (${OPENMP_FOUND} OR APPLE)
       )
   endif (APPLE)
   if (WIN32)
-    set_target_properties (jt9 PROPERTIES
-      LINK_FLAGS -Wl,--stack,16777216
-      )
+    # set_target_properties (jt9 PROPERTIES
+    #   LINK_FLAGS -Wl,--stack,16777216
+    #   )
   endif ()
   target_link_libraries (jt9 wsjt_fort_omp wsjt_cxx Qt5::Core)
 else (${OPENMP_FOUND} OR APPLE)

@@ -22,22 +22,22 @@ module ft8_decode
 
 contains
 
-  subroutine decode(this,callback,ss,iwave,nfqso,newdat,npts8,nutc,nfa,    &
-       nfsplit,nfb,ntol,nzhsym,nagain,ndepth,nmode,nsubmode,nexp_decode)
+  subroutine decode(this,callback,iwave,nfqso,newdat,nutc,nfa,    &
+       nfb,nagain,ndepth,nsubmode)
 
     use timer_module, only: timer
     include 'fsk4hf/ft8_params.f90'
 
     class(ft8_decoder), intent(inout) :: this
     procedure(ft8_decode_callback) :: callback
-    real ss(1,1)  !### dummy, to be removed ###
     real s(NH1,NHSYM)
     real candidate(3,100)
     real dd(15*12000)
     logical, intent(in) :: newdat, nagain
     integer*2 iwave(15*12000)
     character datetime*13,message*22
-  
+    save s,dd
+
     this%callback => callback
     write(datetime,1001) nutc        !### TEMPORARY ###
 1001 format("000000_",i6.6)
