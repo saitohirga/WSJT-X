@@ -4,6 +4,7 @@
 #include <QRegularExpression>
 #include <QLocale>
 #include <QThread>
+#include <QDateTime>
 
 #include "NetworkServerLookup.hpp"
 
@@ -122,8 +123,8 @@ int DXLabSuiteCommanderTransceiver::do_start ()
     }
   else
     {
-      TRACE_CAT ("DXLabSuiteCommanderTransceiver", "get frequency unexpected response");
-      throw error {tr ("DX Lab Suite Commander didn't respond correctly reading frequency")};
+      TRACE_CAT ("DXLabSuiteCommanderTransceiver", "get frequency unexpected response" << reply);
+      throw error {tr ("DX Lab Suite Commander didn't respond correctly reading frequency: ") + reply};
     }
 
   poll ();
@@ -156,7 +157,44 @@ void DXLabSuiteCommanderTransceiver::do_ptt (bool on)
       new_state.ptt (on);
       wrapped_->set (new_state, 0);
     }
-  update_PTT (on);
+
+  bool tx {!on};
+  auto start = QDateTime::currentMSecsSinceEpoch ();
+  // we must now wait for Tx on the rig, we will wait a short while
+  // before bailing out
+  while (tx != on && QDateTime::currentMSecsSinceEpoch () - start < 1000)
+    {
+      auto reply = command_with_reply ("<command:9>CmdSendTx<parameters:0>");
+      if (0 == reply.indexOf ("<CmdTX:"))
+        {
+          auto state = reply.mid (reply.indexOf ('>') + 1);
+          if ("ON" == state)
+            {
+              tx = true;
+            }
+          else if ("OFF" == state)
+            {
+              tx = false;
+            }
+          else
+            {
+              TRACE_CAT ("DXLabSuiteCommanderTransceiver", "unexpected TX state" << state);
+              throw error {tr ("DX Lab Suite Commander sent an unrecognised TX state: ") + state};
+            }
+        }
+      else
+        {
+          TRACE_CAT ("DXLabSuiteCommanderTransceiver", "get TX unexpected response" << reply);
+          throw error {tr ("DX Lab Suite Commander didn't respond correctly polling TX status: ") + reply};
+        }
+      if (tx != on) QThread::msleep (10); // don't thrash Commander
+    }
+  update_PTT (tx);
+  if (tx != on)
+    {
+      TRACE_CAT ("DXLabSuiteCommanderTransceiver", "rig failed to respond to PTT: " << on);
+      throw error {tr ("DX Lab Suite Commander rig did not respond to PTT: ") + (on ? "ON" : "OFF")};
+    }
 }
 
 void DXLabSuiteCommanderTransceiver::do_frequency (Frequency f, MODE m, bool /*no_ignore*/)
@@ -231,8 +269,8 @@ void DXLabSuiteCommanderTransceiver::poll ()
     }
   else
     {
-      TRACE_CAT_POLL ("DXLabSuiteCommanderTransceiver", "get frequency unexpected response");
-      throw error {tr ("DX Lab Suite Commander didn't respond correctly polling frequency")};
+      TRACE_CAT_POLL ("DXLabSuiteCommanderTransceiver", "get frequency unexpected response" << reply);
+      throw error {tr ("DX Lab Suite Commander didn't respond correctly polling frequency: ") + reply};
     }
 
   if (state ().split ())
@@ -252,8 +290,8 @@ void DXLabSuiteCommanderTransceiver::poll ()
         }
       else
         {
-          TRACE_CAT_POLL ("DXLabSuiteCommanderTransceiver", "get tx frequency unexpected response");
-          throw error {tr ("DX Lab Suite Commander didn't respond correctly polling TX frequency")};
+          TRACE_CAT_POLL ("DXLabSuiteCommanderTransceiver", "get tx frequency unexpected response" << reply);
+          throw error {tr ("DX Lab Suite Commander didn't respond correctly polling TX frequency: ") + reply};
         }
     }
 
@@ -277,8 +315,8 @@ void DXLabSuiteCommanderTransceiver::poll ()
     }
   else
     {
-      TRACE_CAT_POLL ("DXLabSuiteCommanderTransceiver", "get split mode unexpected response");
-      throw error {tr ("DX Lab Suite Commander didn't respond correctly polling split status")};
+      TRACE_CAT_POLL ("DXLabSuiteCommanderTransceiver", "get split mode unexpected response" << reply);
+      throw error {tr ("DX Lab Suite Commander didn't respond correctly polling split status: ") + reply};
     }
 
   get_mode (quiet);
@@ -340,8 +378,8 @@ auto DXLabSuiteCommanderTransceiver::get_mode (bool no_debug) -> MODE
     }
   else
     {
-      TRACE_CAT_POLL ("DXLabSuiteCommanderTransceiver", "unexpected response");
-      throw error {tr ("DX Lab Suite Commander didn't respond correctly polling mode")};
+      TRACE_CAT_POLL ("DXLabSuiteCommanderTransceiver", "unexpected response" << reply);
+      throw error {tr ("DX Lab Suite Commander didn't respond correctly polling mode: ") + reply};
     }
   return m;
 }
