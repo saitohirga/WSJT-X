@@ -207,9 +207,9 @@ subroutine ft8_downsample(dd,f0,c1)
   baud=12000.0/(32.0*64.0)
   i0=nint(f0/df)
   ft=f0+8.0*baud
-  it=nint(ft/df)
+  it=min(nint(ft/df),NMAX/2-1)
   fb=f0-1.0*baud
-  ib=nint(fb/df)
+  ib=max(1,nint(fb/df))
   k=0
   c1=cmplx(0.0,0.0)
   do i=ib,it
