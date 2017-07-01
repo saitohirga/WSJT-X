@@ -1,4 +1,4 @@
-subroutine ft8b(dd0,s,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
+subroutine ft8b(dd0,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
 
   use timer_module, only: timer
   include 'ft8_params.f90'
@@ -6,7 +6,6 @@ subroutine ft8b(dd0,s,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
   character*12 recent_calls(NRECENT)
   character message*22,msgsent*22
   real a(5)
-  real s(NH1,NHSYM)
   real s1(0:7,ND),s2(0:7,NN)
   real ps(0:7)
   real rxdata(3*ND),llr(3*ND)               !Soft symbols
