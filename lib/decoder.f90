@@ -69,10 +69,10 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   if(params%nmode.eq.8) then
 ! We're in FT8 mode
      call timer('decft8  ',0)
-     call my_ft8%decode(ft8_decoded,ss,id2,params%nfqso,                   &
-          newdat9,params%npts8,params%nutc,params%nfa,params%nfsplit,      &
-          params%nfb,params%ntol,params%nzhsym,logical(params%nagain),     &
-          params%ndepth,params%nmode,params%nsubmode,params%nexp_decode)
+     call my_ft8%decode(ft8_decoded,id2,params%nfqso,                   &
+          newdat9,params%nutc,params%nfa,      &
+          params%nfb,logical(params%nagain),     &
+          params%ndepth,params%nsubmode)
      call timer('decft8  ',1)
      go to 800
   endif
@@ -388,7 +388,7 @@ contains
     end select
   end subroutine jt9_decoded
 
-    subroutine ft8_decoded (this,sync,snr,dt,freq,nbadcrc,decoded)
+  subroutine ft8_decoded (this,sync,snr,dt,freq,nbadcrc,decoded)
     use ft8_decode
     implicit none
 
@@ -400,7 +400,6 @@ contains
     integer, intent(in) :: nbadcrc
     character(len=22), intent(in) :: decoded
 
-!###    !$omp critical(decode_results)
     if(nbadcrc.eq.0) then
        write(*,1000) params%nutc,snr,dt,nint(freq),decoded
 1000   format(i6.6,i4,f5.1,i5,' ~ ',1x,a22)
@@ -409,7 +408,6 @@ contains
        call flush(6)
        call flush(13)
     endif
-!###    !$omp end critical(decode_results)
     
     select type(this)
     type is (counting_ft8_decoder)
