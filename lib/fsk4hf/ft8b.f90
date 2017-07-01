@@ -44,7 +44,9 @@ subroutine ft8b(dd0,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
 !  if(abs(nfqso-f1).lt.10.0) norder=3
   tstep=0.5*NSPS/12000.0
   df=12000.0/NFFT1
+  call timer('ft8_down',0)
   call ft8_downsample(dd0,f1,cd0)
+  call timer('ft8_down',1)
 
   i0=xdt*fs2
   smax=0.0
