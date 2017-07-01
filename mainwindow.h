@@ -526,6 +526,7 @@ private:
   bool m_bandEdited;
   bool m_splitMode;
   bool m_monitoring;
+  bool m_tx_when_ready;
   bool m_transmitting;
   bool m_tune;
   bool m_tx_watchdog;           // true when watchdog triggered
