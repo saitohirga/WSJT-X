@@ -80,7 +80,7 @@ subroutine sync8(iwave,nfa,nfb,nfqso,s,candidate,ncand)
 
   candidate0=0.
   k=0
-  syncmin=4.0
+  syncmin=1.5
   do i=1,100
      n=ia + indx(iz+1-i) - 1
      if(red(n).lt.syncmin) exit
