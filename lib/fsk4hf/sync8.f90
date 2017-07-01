@@ -89,7 +89,7 @@ subroutine sync8(iwave,nfa,nfb,nfqso,s,candidate,ncand)
      candidate0(2,k)=(jpeak(n)-1)*tstep
      candidate0(3,k)=red(n)
   enddo
-  ncand=k
+  ncand=min(100,k)
 
 ! Put nfqso at top of list, and save only the best of near-dupe freqs.  
   do i=1,ncand
