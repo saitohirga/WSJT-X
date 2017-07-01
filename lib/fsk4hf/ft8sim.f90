@@ -58,7 +58,7 @@ program ft8sim
         f0=(isig+2)*100.0
         phi=0.0
         k=-1 + nint(xdt/dt)
-        do j=1,NN                              !Generate complex waveform
+        do j=1,NN                             !Generate complex waveform
            dphi=twopi*(f0+itone(j)*baud)*dt
            if(k.eq.0) phi=-dphi
            do i=1,NSPS
@@ -69,12 +69,12 @@ program ft8sim
               if(k.ge.0 .and. k.lt.NMAX) c0(k)=cmplx(cos(xphi),sin(xphi))
            enddo
         enddo
-        if(fspread.ne.0.0 .or. delay.ne.0.0) call watterson(c,NZ,fs,delay,fspread)
+        if(fspread.ne.0.0 .or. delay.ne.0.0) call watterson(c,NMAX,fs,delay,fspread)
         c=c+c0
      enddo
      c=c*sig
      if(snrdb.lt.90) then
-        do i=0,NZ-1                   !Add gaussian noise at specified SNR
+        do i=0,NMAX-1                   !Add gaussian noise at specified SNR
            xnoise=gran()
            ynoise=gran()
            c(i)=c(i) + cmplx(xnoise,ynoise)
@@ -85,7 +85,6 @@ program ft8sim
      rms=100.0
      if(snrdb.ge.90.0) iwave(1:NMAX)=nint(fac*real(c))
      if(snrdb.lt.90.0) iwave(1:NMAX)=nint(rms*real(c))
-     iwave(NZ+1:)=0
 
      h=default_header(12000,NMAX)
      write(fname,1102) ifile
