@@ -1222,6 +1222,11 @@ if (${OPENMP_FOUND} OR APPLE)
       Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp
       )
   endif (APPLE)
+  if (WIN32)
+    set_target_properties (jt9 PROPERTIES
+      LINK_FLAGS -Wl,--stack,16777216
+      )
+  endif ()
   target_link_libraries (jt9 wsjt_fort_omp wsjt_cxx Qt5::Core)
 else (${OPENMP_FOUND} OR APPLE)
   target_link_libraries (jt9 wsjt_fort wsjt_cxx Qt5::Core)
