@@ -149,6 +149,44 @@ void DXLabSuiteCommanderTransceiver::do_ptt (bool on)
   if (use_for_ptt_)
     {
       simple_command (on  ? "<command:5>CmdTX<parameters:0>" : "<command:5>CmdRX<parameters:0>");
+
+      bool tx {!on};
+      auto start = QDateTime::currentMSecsSinceEpoch ();
+      // we must now wait for Tx on the rig, we will wait a short while
+      // before bailing out
+      while (tx != on && QDateTime::currentMSecsSinceEpoch () - start < 1000)
+        {
+          auto reply = command_with_reply ("<command:9>CmdSendTx<parameters:0>");
+          if (0 == reply.indexOf ("<CmdTX:"))
+            {
+              auto state = reply.mid (reply.indexOf ('>') + 1);
+              if ("ON" == state)
+                {
+                  tx = true;
+                }
+              else if ("OFF" == state)
+                {
+                  tx = false;
+                }
+              else
+                {
+                  TRACE_CAT ("DXLabSuiteCommanderTransceiver", "unexpected TX state" << state);
+                  throw error {tr ("DX Lab Suite Commander sent an unrecognised TX state: ") + state};
+                }
+            }
+          else
+            {
+              TRACE_CAT ("DXLabSuiteCommanderTransceiver", "get TX unexpected response" << reply);
+              throw error {tr ("DX Lab Suite Commander didn't respond correctly polling TX status: ") + reply};
+            }
+          if (tx != on) QThread::msleep (10); // don't thrash Commander
+        }
+      update_PTT (tx);
+      if (tx != on)
+        {
+          TRACE_CAT ("DXLabSuiteCommanderTransceiver", "rig failed to respond to PTT: " << on);
+          throw error {tr ("DX Lab Suite Commander rig did not respond to PTT: ") + (on ? "ON" : "OFF")};
+        }
     }
   else
     {
@@ -156,44 +194,7 @@ void DXLabSuiteCommanderTransceiver::do_ptt (bool on)
       TransceiverState new_state {wrapped_->state ()};
       new_state.ptt (on);
       wrapped_->set (new_state, 0);
-    }
-
-  bool tx {!on};
-  auto start = QDateTime::currentMSecsSinceEpoch ();
-  // we must now wait for Tx on the rig, we will wait a short while
-  // before bailing out
-  while (tx != on && QDateTime::currentMSecsSinceEpoch () - start < 1000)
-    {
-      auto reply = command_with_reply ("<command:9>CmdSendTx<parameters:0>");
-      if (0 == reply.indexOf ("<CmdTX:"))
-        {
-          auto state = reply.mid (reply.indexOf ('>') + 1);
-          if ("ON" == state)
-            {
-              tx = true;
-            }
-          else if ("OFF" == state)
-            {
-              tx = false;
-            }
-          else
-            {
-              TRACE_CAT ("DXLabSuiteCommanderTransceiver", "unexpected TX state" << state);
-              throw error {tr ("DX Lab Suite Commander sent an unrecognised TX state: ") + state};
-            }
-        }
-      else
-        {
-          TRACE_CAT ("DXLabSuiteCommanderTransceiver", "get TX unexpected response" << reply);
-          throw error {tr ("DX Lab Suite Commander didn't respond correctly polling TX status: ") + reply};
-        }
-      if (tx != on) QThread::msleep (10); // don't thrash Commander
-    }
-  update_PTT (tx);
-  if (tx != on)
-    {
-      TRACE_CAT ("DXLabSuiteCommanderTransceiver", "rig failed to respond to PTT: " << on);
-      throw error {tr ("DX Lab Suite Commander rig did not respond to PTT: ") + (on ? "ON" : "OFF")};
+      update_PTT (on);
     }
 }
 
