@@ -182,7 +182,7 @@ subroutine ft8b(dd0,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
      enddo
      xsnr=0.001
      if( xnoi.gt.0 .and. xnoi.lt.xsig ) xsnr=xsig/xnoi-1.0
-     xsnr=10.0*log10(xsnr)-26.3
+     xsnr=10.0*log10(xsnr)-27.0
      if( xsnr .lt. -24.0 ) xsnr=-24.0
   endif
 900 continue
