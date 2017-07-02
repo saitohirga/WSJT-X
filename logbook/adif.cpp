@@ -100,9 +100,13 @@ bool ADIF::match(const QString call, const QString band, const QString mode)
             {
                 if (
                      (
-                       ((mode.compare("JT65",Qt::CaseInsensitive)==0) || (mode.compare("JT9",Qt::CaseInsensitive)==0))
+                       ((mode.compare("JT65",Qt::CaseInsensitive)==0) ||
+                        (mode.compare("JT9",Qt::CaseInsensitive)==0)  ||
+                        (mode.compare("FT8",Qt::CaseInsensitive)==0))
                        &&
-                       ((q.mode.compare("JT65",Qt::CaseInsensitive)==0) || (q.mode.compare("JT9",Qt::CaseInsensitive)==0))
+                       ((q.mode.compare("JT65",Qt::CaseInsensitive)==0) ||
+                        (q.mode.compare("JT9",Qt::CaseInsensitive)==0)  ||
+                        (q.mode.compare("FT8",Qt::CaseInsensitive)==0))
                      )
                         || (mode.compare(q.mode,Qt::CaseInsensitive)==0)
                         || (mode=="")
