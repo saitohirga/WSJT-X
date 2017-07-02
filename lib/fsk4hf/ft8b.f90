@@ -2,8 +2,9 @@ subroutine ft8b(dd0,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
 
   use timer_module, only: timer
   include 'ft8_params.f90'
-  parameter(NP2=2812)
+  parameter(NRECENT=10,NP2=2812)
   character message*22,msgsent*22
+  character*12 recent_calls(NRECENT)
   real a(5)
   real s1(0:7,ND),s2(0:7,NN)
   real ps(0:7)
