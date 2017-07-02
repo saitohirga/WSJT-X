@@ -195,14 +195,14 @@ subroutine ft8_downsample(dd,f0,c1)
 
   parameter (NMAX=15*12000,NFFT2=2812)
   complex c1(0:NFFT2-1)
-  complex cx(0:NMAX/2-1)
+  complex cx(0:NMAX/2)
   real dd(NMAX),x(NMAX)
   equivalence (x,cx)
   save x
 
   df=12000.0/NMAX
   x=dd
-  call four2a(x,NMAX,1,-1,0)             !r2c FFT to freq domain
+  call four2a(cx,NMAX,1,-1,0)             !r2c FFT to freq domain
   baud=12000.0/(32.0*64.0)
   i0=nint(f0/df)
   ft=f0+8.0*baud
