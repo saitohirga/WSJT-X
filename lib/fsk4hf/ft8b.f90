@@ -198,6 +198,7 @@ subroutine ft8_downsample(dd,f0,c1)
   complex cx(0:NMAX/2-1)
   real dd(NMAX),x(NMAX)
   equivalence (x,cx)
+  save x
 
   df=12000.0/NMAX
   x=dd
