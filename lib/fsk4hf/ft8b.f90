@@ -2,8 +2,7 @@ subroutine ft8b(dd0,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
 
   use timer_module, only: timer
   include 'ft8_params.f90'
-  parameter(NRECENT=10,NP2=2812)
-  character*12 recent_calls(NRECENT)
+  parameter(NP2=2812)
   character message*22,msgsent*22
   real a(5)
   real s1(0:7,ND),s2(0:7,NN)
@@ -42,8 +41,6 @@ subroutine ft8b(dd0,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
   max_iterations=40
   norder=2
 !  if(abs(nfqso-f1).lt.10.0) norder=3
-  tstep=0.5*NSPS/12000.0
-  df=12000.0/NFFT1
   call timer('ft8_down',0)
   call ft8_downsample(dd0,f1,cd0)
   call timer('ft8_down',1)
@@ -70,8 +67,6 @@ subroutine ft8b(dd0,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
     if( sync .gt. smax ) then
       smax=sync
       ibest=idt
-      delfbest=delf
-      ifbest=if
     endif
   enddo
   xdt2=ibest*dt2
@@ -184,8 +179,8 @@ subroutine ft8b(dd0,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
         ios=mod(itone(i)+4,7)
         xnoi=xnoi+s2(ios,i)**2
      enddo
-     xsnr=xsig/xnoi-1.0
-     if( xsnr .lt. 0.0 ) xsnr=0.005
+     xsnr=0.001
+     if( xnoi.gt.0 .and. xnoi.lt.xsig ) xsnr=xsig/xnoi-1.0
      xsnr=10.0*log10(xsnr)-26.3
      if( xsnr .lt. -24.0 ) xsnr=-24.0
   endif
