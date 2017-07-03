@@ -25,6 +25,8 @@ subroutine refspectrum(id2,id2b,kk,bclear,brefspec,buseref,fname)
   data first/.true./,blastuse/.false./
   save
 
+  print*,fname
+
   if(first) then
      pi=4.0*atan(1.0)
      do i=0,NFFT-1
