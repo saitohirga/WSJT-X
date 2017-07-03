@@ -1,7 +1,7 @@
 subroutine sync8(iwave,nfa,nfb,nfqso,s,candidate,ncand)
 
   include 'ft8_params.f90'
-  parameter (JZ=20)
+  parameter (JZ=35)                            !DT up to +/- 3 s
   complex cx(0:NH1)
   real s(NH1,NHSYM)
   real savg(NH1)
