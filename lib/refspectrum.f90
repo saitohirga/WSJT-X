@@ -1,11 +1,11 @@
-subroutine refspectrum(id2,bclear,brefspec,buseref,fname)
+subroutine refspectrum(id2,id2b,kk,bclear,brefspec,buseref,fname)
 
 ! Input:
 !  id2       i*2        Raw 16-bit integer data, 12000 Hz sample rate
 !  brefspec  logical    True when accumulating a reference spectrum
 
   parameter (NFFT=6912,NH=NFFT/2,NPOLYLOW=400,NPOLYHIGH=2600)
-  integer*2 id2(NFFT)
+  integer*2 id2(NFFT),id2b(120*12000)
   logical*1 bclear,brefspec,buseref,blastuse
   
   real x0(0:NH-1)                         !Input samples
@@ -146,9 +146,11 @@ subroutine refspectrum(id2,bclear,brefspec,buseref,fname)
      cx=fil*cx
      call four2a(cx,NFFT,1,1,-1)           !c2r FFT (back to time domain)
      x1=x1s + x(0:NH-1)                    !Add previous segment's 2nd half
-     id2(1:NH)=nint(x1)
+!     id2(1:NH)=nint(x1)
+     if(kk.ge.6912) id2b(kk-6192+1:kk-6192+NH)=nint(x1)
      x1s=x(NH:NFFT-1)                      !Save the new 2nd half
   endif
   blastuse=buseref
+  
   return
 end subroutine refspectrum
