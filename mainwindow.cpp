@@ -124,8 +124,8 @@ extern "C" {
 
   void wav12_(short d2[], short d1[], int* nbytes, short* nbitsam2);
 
-  void refspectrum_(short int d2[], bool* bclearrefspec, bool* brefspec,
-                    bool* buseref, const char* c_fname, int len);
+  void refspectrum_(short int d2[], short int d2b[], int* k, bool* bclearrefspec,
+                    bool* brefspec, bool* buseref, const char* c_fname, int len);
 
   void freqcal_(short d2[], int* k, int* nkhz,int* noffset, int* ntol,
                 char line[], int len);
@@ -1148,7 +1148,7 @@ void MainWindow::dataSink(qint64 frames)
   }
 
   m_bUseRef=m_wideGraph->useRef();
-  refspectrum_(&dec_data.d2[k-m_nsps/2],&m_bClearRefSpec,&m_bRefSpec,
+  refspectrum_(&dec_data.d2[k-m_nsps/2],&dec_data.d2[0],&k,&m_bClearRefSpec,&m_bRefSpec,
       &m_bUseRef,c_fname,len);
   m_bClearRefSpec=false;
 
