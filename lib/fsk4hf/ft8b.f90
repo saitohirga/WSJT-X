@@ -1,4 +1,4 @@
-subroutine ft8b(dd0,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
+subroutine ft8b(dd0,newdat,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
 
   use timer_module, only: timer
   include 'ft8_params.f90'
@@ -17,7 +17,7 @@ subroutine ft8b(dd0,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
   complex csync(0:6,32)
   complex ctwk(32)
   complex csymb(32)
-  logical first
+  logical newdat,first
   data icos7/2,5,6,0,4,1,3/
   data first/.true./
   save first,twopi,fs2,dt2,taus,baud,csync
@@ -43,7 +43,7 @@ subroutine ft8b(dd0,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
   norder=2
 !  if(abs(nfqso-f1).lt.10.0) norder=3
   call timer('ft8_down',0)
-  call ft8_downsample(dd0,f1,cd0)
+  call ft8_downsample(dd0,newdat,f1,cd0)
   call timer('ft8_down',1)
 
   i0=xdt*fs2
@@ -189,22 +189,28 @@ subroutine ft8b(dd0,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
   return
 end subroutine ft8b
 
-subroutine ft8_downsample(dd,f0,c1)
+subroutine ft8_downsample(dd,newdat,f0,c1)
 
 ! Downconvert to complex data sampled at 187.5 Hz, 32 samples/symbol
 
   parameter (NMAX=15*12000)
   parameter (NFFT1=200000,NFFT2=3125)      !200000/64 = 3125
+  logical newdat
   complex c1(0:NFFT2-1)
   complex cx(0:NFFT1/2)
   real dd(NMAX),x(NFFT1)
   equivalence (x,cx)
-  save x
+  save cx
+
+  if(newdat) then
+! Data in dd have changed, recompute the long FFT     
+     x(1:NMAX)=dd
+     x(NMAX+1:NFFT1)=0.                       !Zero-pad the x array
+     call four2a(cx,NFFT1,1,-1,0)             !r2c FFT to freq domain
+     newdat=.false.
+  endif
 
   df=12000.0/NFFT1
-  x(1:NMAX)=dd
-  x(NMAX+1:NFFT1)=0.                       !Zero-pad the x array
-  call four2a(cx,NFFT1,1,-1,0)             !r2c FFT to freq domain
   baud=12000.0/2048.0
   i0=nint(f0/df)
   ft=f0+8.0*baud

@@ -28,7 +28,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   end type counting_ft8_decoder
 
   real ss(184,NSMAX)
-  logical baddata,newdat65,newdat9,single_decode,bVHF,bad0
+  logical baddata,newdat65,newdat9,single_decode,bVHF,bad0,newdat
   integer*2 id2(NTMAX*12000)
   type(params_block) :: params
   real*4 dd(NTMAX*12000)
@@ -69,8 +69,9 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   if(params%nmode.eq.8) then
 ! We're in FT8 mode
      call timer('decft8  ',0)
+     newdat=params%newdat
      call my_ft8%decode(ft8_decoded,id2,params%nfqso,                   &
-          newdat9,params%nutc,params%nfa,      &
+          newdat,params%nutc,params%nfa,      &
           params%nfb,logical(params%nagain),     &
           params%ndepth,params%nsubmode)
      call timer('decft8  ',1)
