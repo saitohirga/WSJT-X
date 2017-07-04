@@ -2375,7 +2375,6 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="actionEcho_Graph"/>
     <addaction name="actionFast_Graph"/>
     <addaction name="separator"/>
-    <addaction name="actionHide_Controls"/>
    </widget>
    <widget class="QMenu" name="menuDecode">
     <property name="title">
@@ -2923,17 +2922,6 @@ QPushButton[state=&quot;ok&quot;] {
    </property>
    <property name="shortcut">
     <string/>
-   </property>
-  </action>
-  <action name="actionHide_Controls">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Hide menus and labels</string>
-   </property>
-   <property name="toolTip">
-    <string>Reduces window size by removing controls and some spacing</string>
    </property>
   </action>
   <action name="actionFreqCal">

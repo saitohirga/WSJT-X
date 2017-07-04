@@ -886,6 +886,10 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
      m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "G3PQA") {
       ui->actionWSPR_LF->setEnabled(true);
   }
+  if(!ui->cbMenus->isChecked()) {
+    ui->cbMenus->setChecked(true);
+    ui->cbMenus->setChecked(false);
+  }
 
   // this must be the last statement of constructor
   if (!m_valid) throw std::runtime_error {"Fatal initialization exception"};
@@ -950,7 +954,7 @@ void MainWindow::writeSettings()
   m_settings->setValue ("AstroDisplayed", m_astroWidget && m_astroWidget->isVisible());
   m_settings->setValue ("MsgAvgDisplayed", m_msgAvgWidget && m_msgAvgWidget->isVisible());
   m_settings->setValue ("FreeText", ui->freeTextMsg->currentText ());
-  m_settings->setValue ("HideControls", ui->actionHide_Controls->isChecked ());
+  m_settings->setValue("ShowMenus",ui->cbMenus->isChecked());
   m_settings->endGroup();
 
   m_settings->beginGroup("Common");
@@ -1003,7 +1007,6 @@ void MainWindow::writeSettings()
 void MainWindow::readSettings()
 {
   m_settings->beginGroup("MainWindow");
-  ui->actionHide_Controls->setChecked (m_settings->value("HideControls", false).toBool ());
   restoreGeometry (m_settings->value ("geometry", saveGeometry ()).toByteArray ());
   m_geometryNoControls = m_settings->value ("geometryNoControls",saveGeometry()).toByteArray();
   restoreState (m_settings->value ("state", saveState ()).toByteArray ());
@@ -1015,6 +1018,7 @@ void MainWindow::readSettings()
   auto displayMsgAvg = m_settings->value ("MsgAvgDisplayed", false).toBool ();
   if (m_settings->contains ("FreeText")) ui->freeTextMsg->setCurrentText (
         m_settings->value ("FreeText").toString ());
+  ui->cbMenus->setChecked(m_settings->value("ShowMenus",true).toBool());
   m_settings->endGroup();
 
   // do this outside of settings group because it uses groups internally
@@ -1674,12 +1678,6 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         }
       }
       break;
-    case Qt::Key_M:
-      if(e->modifiers() & Qt::ControlModifier) {
-        ui->actionHide_Controls->toggle ();
-       return;
-      }
-      break;
     case Qt::Key_F4:
       clearDX ();
       ui->dxCallEntry->setFocus();
@@ -2067,7 +2065,7 @@ void MainWindow::on_actionFast_Graph_triggered()
 
 // This allows the window to shrink by removing certain things
 // and reducing space used by controls
-void MainWindow::on_actionHide_Controls_toggled (bool checked)
+void MainWindow::hideMenus(bool checked)
 {
   int spacing = checked ? 1 : 6;
   if (checked) {
@@ -6422,5 +6420,5 @@ void MainWindow::update_watchdog_label ()
 
 void MainWindow::on_cbMenus_toggled(bool b)
 {
-  on_actionHide_Controls_toggled (!b);
+  hideMenus(!b);
 }
