@@ -87,7 +87,8 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
     int m_fMin = m_settings->value ("Fmin", 2500).toInt ();
     ui->fSplitSpinBox->setValue (m_fMin);
     setRxRange ();
-    ui->controls_widget->setVisible(!m_settings->value("HideControls", false).toBool ());
+    ui->controls_widget->setVisible(!m_settings->value("HideControls",false).toBool());
+    ui->cbControls->setChecked(!m_settings->value("HideControls",false).toBool());
   }
 
   saveSettings ();		// update config with defaults

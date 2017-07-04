@@ -253,7 +253,6 @@ private slots:
   void on_actionEcho_triggered();
   void on_actionISCAT_triggered();
   void on_actionFast_Graph_triggered();
-  void on_actionHide_Controls_toggled (bool chaecked);
   void fast_decode_done();
   void on_actionMeasure_reference_spectrum_triggered();
   void on_actionErase_reference_spectrum_triggered();
@@ -296,6 +295,7 @@ private:
   void astroUpdate ();
   void writeAllTxt(QString message);
   void FT8_AutoSeq(QString message);
+  void hideMenus(bool b);
 
   NetworkAccessManager m_network_manager;
   bool m_valid;
