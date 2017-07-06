@@ -21,7 +21,6 @@ subroutine subtractft8(dd,itone,f0,dt)
 
   nstart=dt*12000+1
   call genft8refsig(itone,cref,f0)
-write(*,*) 'dt ',dt,'nstart ',nstart
   camp=0.
   do i=1,nframe
     id=nstart-1+i 
