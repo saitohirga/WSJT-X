@@ -2832,7 +2832,7 @@ void MainWindow::guiUpdate()
 
   if(m_TRperiod==0) m_TRperiod=60;
   txDuration=0.0;
-  if(m_modeTx=="FT8")  txDuration=1.0 + 79*2048/12000.0;      // FT8
+  if(m_modeTx=="FT8")  txDuration=1.0 + 79*1920/12000.0;      // FT8
   if(m_modeTx=="JT4")  txDuration=1.0 + 207.0*2520/11025.0;   // JT4
   if(m_modeTx=="JT9")  txDuration=1.0 + 85.0*m_nsps/12000.0;  // JT9
   if(m_modeTx=="JT65") txDuration=1.0 + 126*4096/11025.0;     // JT65
@@ -5432,9 +5432,9 @@ void MainWindow::transmit (double snr)
   }
 
   if (m_modeTx == "FT8") {
-    toneSpacing=12000.0/2048.0;
+    toneSpacing=12000.0/1920.0;
     Q_EMIT sendMessage (NUM_FT8_SYMBOLS,
-           2048.0, ui->TxFreqSpinBox->value () - m_XIT,
+           1920.0, ui->TxFreqSpinBox->value () - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),
            true, false, snr, m_TRperiod);
   }
