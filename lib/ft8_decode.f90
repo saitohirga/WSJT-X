@@ -64,7 +64,7 @@ contains
             f1,nbadcrc,message)
 !       write(*,'(f7.2,i5,f7.2,f9.1,i5,f7.2,2x,a22)') sync,nsnr,xdt,f1,nharderrors,dmin,message
 !       write(13,1110) datetime,0,nsnr,xdt,f1,nharderrors,dmin,message
-1110   format(a13,2i4,f6.2,f7.1,i4,' ~ ',f6.2,2x,a22,'  FT8')
+!1110   format(a13,2i4,f6.2,f7.1,i4,' ~ ',f6.2,2x,a22,'  FT8')
 !       write(51,3051) xdt,f1,sync,dmin,nsnr,nharderrors,nbadcrc,message
 !3051   format(4f9.1,3i5,2x,a22)
 !       flush(51)
