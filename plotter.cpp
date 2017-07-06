@@ -361,7 +361,7 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
 
   float bw=9.0*12000.0/m_nsps;               //JT9
 
-  if(m_mode=="FT8") bw=8*12000.0/2048.0;     //FT8
+  if(m_mode=="FT8") bw=8*12000.0/1920.0;     //FT8
 
   if(m_mode=="JT4") {                        //JT4
     bw=3*11025.0/2520.0;                     //Max tone spacing (3/4 of actual BW)
