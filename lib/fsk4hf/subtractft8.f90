@@ -10,8 +10,8 @@ subroutine subtractft8(dd,itone,f0,dt)
   use timer_module, only: timer
 
   parameter (NMAX=15*12000,NFRAME=1920*79)
-  parameter (NFFT=NMAX,NFILT=1000)
-  real*4  dd(NMAX),dds(NMAX), window(-NFILT/2:NFILT/2)
+  parameter (NFFT=NMAX,NFILT=400)
+  real*4  dd(NMAX), window(-NFILT/2:NFILT/2)
   complex cref,camp,cfilt,cw
   integer itone(79)
   logical first
@@ -50,16 +50,11 @@ subroutine subtractft8(dd,itone,f0,dt)
   cfilt(1:nfft)=cfilt(1:nfft)*cw(1:nfft)
   call four2a(cfilt,nfft,1,1,1)
 
-dds=dd
 ! Subtract the reconstructed signal
   do i=1,nframe
      j=nstart+i-1
      if(j.ge.1 .and. j.le.NMAX) dd(j)=dd(j)-2*REAL(cfilt(i)*cref(i))
   enddo
-
-!do i=1,NMAX
-!write(34,*) i,dds(i),dd(i)
-!enddo
 
   return
 end subroutine subtractft8
