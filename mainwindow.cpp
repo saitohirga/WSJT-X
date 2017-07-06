@@ -2649,7 +2649,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       }
       return;
     } else {
-      if(m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA64") {
+      if(m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA64" or m_mode=="FT8") {
         int n=t.indexOf("f");
         if(n<0) n=t.indexOf("d");
         if(n>0) {
@@ -2703,8 +2703,10 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
         //Right (Rx Frequency) window
       bool bDisplayRight=bAvgMsg;
+      int audioFreq=decodedtext.frequencyOffset();
+      if(m_mode=="FT8") audioFreq=decodedtext.string().mid(16,4).toInt();
       if(!m_config.enable_VHF_features() and
-              (abs(decodedtext.frequencyOffset() - m_wideGraph->rxFreq()) <= 10)) bDisplayRight=true;
+              (abs(audioFreq - m_wideGraph->rxFreq()) <= 10)) bDisplayRight=true;
       if (bDisplayRight) {
           // This msg is within 10 hertz of our tuned frequency, or a JT4 or JT65 avg
         ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_baseCall,false,
