@@ -56,10 +56,10 @@ contains
        if(sync.lt.syncmin) cycle
        f1=candidate(1,icand)
        xdt=candidate(2,icand)
-       nsnr=min(99,nint(10.0*log10(sync) - 25.5))    !### empirical ###
+       nsnr0=min(99,nint(10.0*log10(sync) - 25.5))    !### empirical ###
        call timer('ft8b    ',0)
        call ft8b(dd,newdat,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
-       nsnr=xsnr       
+       nsnr=xsnr  
        xdt=xdt-0.6
        call timer('ft8b    ',1)
        if (associated(this%callback)) call this%callback(sync,nsnr,xdt,   &

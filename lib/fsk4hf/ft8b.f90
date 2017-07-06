@@ -129,7 +129,7 @@ subroutine ft8b(dd0,newdat,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
   if(nbadcrc.eq.0) then
      call extractmessage174(decoded,message,ncrcflag,recent_calls,nrecent)
      call genft8(message,msgsent,itone)
-     call subtractft8(dd0,itone,f1,xdt2)
+!     call subtractft8(dd0,itone,f1,xdt2)
      xsig=0.0
      xnoi=0.0
      do i=1,79
