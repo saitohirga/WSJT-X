@@ -1,7 +1,7 @@
 subroutine sync8(iwave,nfa,nfb,nfqso,s,candidate,ncand)
 
   include 'ft8_params.f90'
-  parameter (JZ=35)                            !DT up to +/- 3 s
+  parameter (JZ=31)                            !DT up to +/- 2.5 s
   complex cx(0:NH1)
   real s(NH1,NHSYM)
   real savg(NH1)
@@ -20,9 +20,9 @@ subroutine sync8(iwave,nfa,nfb,nfqso,s,candidate,ncand)
 
 ! Compute symbol spectra at half-symbol steps.  
   savg=0.
-  istep=NSPS/2                                !1024
-  tstep=istep/12000.0                         !0.085333 s
-  df=12000.0/NFFT1                            !2.93 Hz
+  istep=NSPS/2                                !960
+  tstep=istep/12000.0                         !0.08 s
+  df=12000.0/NFFT1                            !3.125 Hz
 
 ! Compute symbol spectra at half-symbol steps
   fac=1.0/300.0
@@ -38,6 +38,10 @@ subroutine sync8(iwave,nfa,nfb,nfqso,s,candidate,ncand)
      savg=savg + s(1:NH1,j)                   !Average spectrum
   enddo
   savg=savg/NHSYM
+!  do i=1,NH1
+!     write(51,3051) i*df,savg(i),db(savg(i))
+!3051 format(f10.3,e12.3,f12.3)
+!  enddo
 
   ia=max(1,nint(nfa/df))
   ib=nint(nfb/df)

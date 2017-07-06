@@ -52,12 +52,11 @@ program ft8sim
 !  call sgran()
   c=0.
   do ifile=1,nfiles
-
      c0=0.
      do isig=1,25
         f0=(isig+2)*100.0
         phi=0.0
-        k=-1 + nint(xdt/dt)
+        k=-1 + nint(xdt+0.5/dt)
         do j=1,NN                             !Generate complex waveform
            dphi=twopi*(f0+itone(j)*baud)*dt
            if(k.eq.0) phi=-dphi

@@ -12,14 +12,14 @@ subroutine ft8b(dd0,newdat,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
   real dd0(15*12000)
   integer*1 decoded(KK),apmask(3*ND),cw(3*ND)
   integer itone(NN)
-  complex cd0(3125)
+  complex cd0(3200)
   complex ctwk(32)
   complex csymb(32)
   logical newdat
 
   max_iterations=40
   norder=2
-  fs2=12000.0/64.0
+  fs2=12000.0/60.0
   dt2=1.0/fs2
   twopi=8.0*atan(1.0)
   delfbest=0.
