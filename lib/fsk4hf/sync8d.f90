@@ -2,7 +2,7 @@ subroutine sync8d(cd0,i0,ctwk,itwk,sync)
 
 ! Compute sync power for a complex, downsampled FT8 signal.
 
-  parameter(NP2=2812)
+  parameter(NP2=2812,NDOWN=60)
   complex cd0(3125)
   complex csync(0:6,32)
   complex csync2(32)
@@ -19,10 +19,10 @@ subroutine sync8d(cd0,i0,ctwk,itwk,sync)
 ! Set some constants and compute the csync array.  
   if( first ) then
     twopi=8.0*atan(1.0)
-    fs2=12000.0/60.0                        !Sample rate after downsampling
+    fs2=12000.0/NDOWN                       !Sample rate after downsampling
     dt2=1/fs2                               !Corresponding sample interval
     taus=32*dt2                             !Symbol duration
-    baud=1.0/taus                             !Keying rate
+    baud=1.0/taus                           !Keying rate
     do i=0,6
       phi=0.0
       dphi=twopi*icos7(i)*baud*dt2  
