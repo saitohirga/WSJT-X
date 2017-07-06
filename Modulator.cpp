@@ -86,7 +86,7 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
   if (synchronize && !m_tuning && !m_bFastMode)	{
     m_silentFrames = m_ic + m_frameRate - (mstr * m_frameRate / 1000);
   }
-  if(m_ic==0 and (m_silentFrames/48000.0 > 0.6) and m_nsps==2048 and m_period==15) {
+  if(m_ic==0 and (m_silentFrames/48000.0 > 0.6) and m_nsps==1920 and m_period==15) {
     // FT8 mode: Start audio at t=0.5 s rather than t=1.0 s.
     m_silentFrames=m_silentFrames-24000;
   }
