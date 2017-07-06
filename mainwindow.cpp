@@ -1131,7 +1131,7 @@ void MainWindow::fixStop()
   } else if (m_mode=="FreqCal"){
     m_hsymStop=((int(m_TRperiod/0.288))/8)*8;
   } else if (m_mode=="FT8") {
-    m_hsymStop=48;
+    m_hsymStop=50;
   }
 }
 
@@ -4315,7 +4315,7 @@ void MainWindow::on_actionFT8_triggered()
   m_nsps=6912;
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
-  m_hsymStop=48;
+  m_hsymStop=50;
   setup_status_bar (bVHF);
   m_toneSpacing=0.0;                   //???
   ui->actionFT8->setChecked(true);     //???
