@@ -4297,6 +4297,13 @@ void MainWindow::displayWidgets(int n)
 
 void MainWindow::on_actionFT8_triggered()
 {
+  if(m_config.my_callsign()!="K1JT" and m_config.my_callsign()!="K9AN" and
+     m_config.my_callsign()!="G4WJS" and m_config.my_callsign()!="G3PQA") {
+    MessageBox::warning_message (this, tr ("FT8 warning"),
+       "FT8 mode temporarily disabled.");
+    on_actionJT9_JT65_triggered();
+    return;
+  }
   m_mode="FT8";
   bool bVHF=false;
   displayWidgets(nWidgets("111010000000111000010000"));
