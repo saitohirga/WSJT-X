@@ -223,11 +223,6 @@ void WideGraph::keyPressEvent(QKeyEvent *e)                                 //F1
     if(e->modifiers() & Qt::ControlModifier) n+=100;
     emit f11f12(n);
     break;
-  case Qt::Key_M:
-    if(e->modifiers() & Qt::ControlModifier) {
-      ui->controls_widget->setVisible(!ui->controls_widget->isVisible());
-    }
-    break;
   default:
     QDialog::keyPressEvent (e);
   }

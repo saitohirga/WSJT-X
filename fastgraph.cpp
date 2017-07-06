@@ -33,8 +33,8 @@ FastGraph::FastGraph(QSettings * settings, QWidget *parent) :
   ui->gainSlider->setValue(ui->fastPlot->m_plotGain);
   ui->fastPlot->setGreenZero(m_settings->value("GreenZero", 0).toInt());
   ui->greenZeroSlider->setValue(ui->fastPlot->m_greenZero);
-  ui->controls_widget->setVisible (!m_settings->value("HideControls", false).toBool ());
-
+//  ui->controls_widget->setVisible (!m_settings->value("HideControls", false).toBool ());
+  ui->controls_widget->setVisible(true);
   connect (ui->fastPlot, &FPlotter::fastPick, this, &FastGraph::fastPick);
 }
 
@@ -57,7 +57,7 @@ void FastGraph::saveSettings()
   m_settings->setValue("PlotGain",ui->fastPlot->m_plotGain);
   m_settings->setValue("GreenZero",ui->fastPlot->m_greenZero);
   m_settings->setValue("GreenGain",ui->fastPlot->m_greenGain);
-  m_settings->setValue ("HideControls", ui->controls_widget->isHidden ());
+//  m_settings->setValue ("HideControls", ui->controls_widget->isHidden ());
 }
 
 void FastGraph::plotSpec(bool diskData, int UTCdisk)
@@ -112,11 +112,13 @@ void FastGraph::keyPressEvent(QKeyEvent *e)
 {
   switch(e->key())
   {
+/*
   case Qt::Key_M:
     if(e->modifiers() & Qt::ControlModifier) {
       ui->controls_widget->setVisible (!ui->controls_widget->isVisible ());
     }
     break;
+*/
   default:
     QDialog::keyPressEvent (e);
   }
