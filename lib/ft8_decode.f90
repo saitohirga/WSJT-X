@@ -43,11 +43,12 @@ contains
     write(datetime,1001) nutc        !### TEMPORARY ###
 1001 format("000000_",i6.6)
 
+    dd=iwave
+
     call timer('sync8   ',0)
-    call sync8(iwave,nfa,nfb,nfqso,s,candidate,ncand)
+    call sync8(dd,nfa,nfb,nfqso,s,candidate,ncand)
     call timer('sync8   ',1)
 
-    dd=iwave
     syncmin=2.0
 !    rewind 51
     do icand=1,ncand

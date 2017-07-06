@@ -1,4 +1,4 @@
-subroutine sync8(iwave,nfa,nfb,nfqso,s,candidate,ncand)
+subroutine sync8(dd,nfa,nfb,nfqso,s,candidate,ncand)
 
   include 'ft8_params.f90'
   parameter (JZ=31)                            !DT up to +/- 2.5 s
@@ -10,7 +10,7 @@ subroutine sync8(iwave,nfa,nfb,nfqso,s,candidate,ncand)
   real red(NH1)
   real candidate0(3,100)
   real candidate(3,100)
-  integer*2 iwave(NMAX)
+  real dd(NMAX)
   integer jpeak(NH1)
   integer indx(NH1)
   integer ii(1)
@@ -29,7 +29,7 @@ subroutine sync8(iwave,nfa,nfb,nfqso,s,candidate,ncand)
   do j=1,NHSYM
      ia=(j-1)*istep + 1
      ib=ia+NSPS-1
-     x(1:NSPS)=fac*iwave(ia:ib)
+     x(1:NSPS)=fac*dd(ia:ib)
      x(NSPS+1:)=0.
      call four2a(x,NFFT1,1,-1,0)              !r2c FFT
      do i=1,NH1
