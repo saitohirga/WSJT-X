@@ -1758,7 +1758,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
     case Qt::Key_Minus:
       if(e->modifiers() & Qt::ControlModifier) {
         int f=ui->TxFreqSpinBox->value()/50;
-        ui->TxFreqSpinBox->setValue(50*(f-1));
+        ui->TxFreqSpinBox->setValue(50*f);
         return;
       }
     break;
