@@ -84,7 +84,7 @@ subroutine sync8(dd,nfa,nfb,nfqso,s,candidate,ncand)
 
   candidate0=0.
   k=0
-  syncmin=1.5
+  syncmin=2.0
   do i=1,100
      n=ia + indx(iz+1-i) - 1
      if(red(n).lt.syncmin) exit
