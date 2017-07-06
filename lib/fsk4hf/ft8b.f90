@@ -12,70 +12,39 @@ subroutine ft8b(dd0,newdat,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
   real dd0(15*12000)
   integer*1 decoded(KK),apmask(3*ND),cw(3*ND)
   integer itone(NN)
-  integer icos7(0:6)
   complex cd0(3125)
-  complex csync(0:6,32)
   complex ctwk(32)
   complex csymb(32)
-  logical newdat,first
-  data icos7/2,5,6,0,4,1,3/
-  data first/.true./
-  save first,twopi,fs2,dt2,taus,baud,csync
-
-  if( first ) then
-    twopi=8.0*atan(1.0)
-    fs2=12000.0/64.0
-    dt2=1/fs2
-    taus=32*dt2
-    baud=1/taus
-    do i=0,6
-      phi=0.0
-      dphi=twopi*icos7(i)*baud*dt2  
-      do j=1,32
-        csync(i,j)=cmplx(cos(phi),sin(phi))
-        phi=mod(phi+dphi,twopi)
-      enddo
-    enddo
-    first=.false.
-  endif  
+  logical newdat
 
   max_iterations=40
   norder=2
+  fs2=12000.0/64.0
+  dt2=1.0/fs2
+  twopi=8.0*atan(1.0)
+  delfbest=0.
+  ibest=0
+
 !  if(abs(nfqso-f1).lt.10.0) norder=3
   call timer('ft8_down',0)
-  call ft8_downsample(dd0,newdat,f1,cd0)
+  call ft8_downsample(dd0,newdat,f1,cd0)   !Mix f1 to baseband and downsample
   call timer('ft8_down',1)
 
-  i0=xdt*fs2
+  i0=nint(xdt*fs2)                         !Initial guess for start of signal
   smax=0.0
-  do idt=i0-16,i0+16 
-    sync=0
-    do i=0,6
-      i1=idt+i*32
-      i2=i1+36*32
-      i3=i1+72*32
-      term1=0.0  ! this needs to be fixed...
-      term2=0.0
-      term3=0.0
-      if( i1.ge.1 .and. i1+31.le.NP2 )  &
-        term1=abs(sum(cd0(i1:i1+31)*conjg(csync(i,1:32))))
-      if( i2.ge.1 .and. i2+31.le.NP2 )  & 
-        term2=abs(sum(cd0(i2:i2+31)*conjg(csync(i,1:32))))
-      if( i3.ge.1 .and. i3+31.le.NP2 )  &
-        term3=abs(sum(cd0(i3:i3+31)*conjg(csync(i,1:32))))
-      sync=sync+term1+term2+term3
-    enddo
-    if( sync .gt. smax ) then
-      smax=sync
-      ibest=idt
-    endif
+  do idt=i0-16,i0+16                       !Search over +/- half a symbol
+     call sync8d(cd0,idt,ctwk,0,sync)
+     if(sync.gt.smax) then
+        smax=sync
+        ibest=idt
+     endif
   enddo
-  xdt2=ibest*dt2
+  xdt2=ibest*dt2                           !Improved estimate for DT
 
-! peak up the frequency
-  i0=xdt2*fs2
+! Now peak up in frequency
+  i0=nint(xdt2*fs2)
   smax=0.0
-  do ifr=-5,5
+  do ifr=-5,5                              !Search over +/- 2.5 Hz
     delf=ifr*0.5
     dphi=twopi*delf*dt2
     phi=0.0
@@ -83,22 +52,7 @@ subroutine ft8b(dd0,newdat,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
       ctwk(i)=cmplx(cos(phi),sin(phi))
       phi=mod(phi+dphi,twopi)
     enddo
-    sync=0.0
-    do i=0,6
-      i1=i0+i*32
-      i2=i1+36*32
-      i3=i1+72*32
-      term1=0.0  ! this needs to be fixed...
-      term2=0.0
-      term3=0.0
-      if( i1.ge.1 .and. i1+31.le.NP2 )  &
-        term1=abs(sum(cd0(i1:i1+31)*conjg(ctwk*csync(i,1:32))))
-      if( i2.ge.1 .and. i2+31.le.NP2 )  & 
-        term2=abs(sum(cd0(i2:i2+31)*conjg(ctwk*csync(i,1:32))))
-      if( i3.ge.1 .and. i3+31.le.NP2 )  &
-        term3=abs(sum(cd0(i3:i3+31)*conjg(ctwk*csync(i,1:32))))
-      sync=sync+term1+term2+term3
-    enddo
+   call sync8d(cd0,i0,ctwk,1,sync)
     if( sync .gt. smax ) then
       smax=sync
       delfbest=delf
@@ -108,7 +62,9 @@ subroutine ft8b(dd0,newdat,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
   a(1)=-delfbest
   call twkfreq1(cd0,NP2,fs2,a,cd0)
   xdt=xdt2
-  f1=f1+delfbest
+  f1=f1+delfbest                           !Improved estimate of DF
+
+  call sync8d(cd0,i0,ctwk,2,sync)
 
   j=0
   do k=1,NN
@@ -185,48 +141,7 @@ subroutine ft8b(dd0,newdat,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
      xsnr=10.0*log10(xsnr)-27.0
      if( xsnr .lt. -24.0 ) xsnr=-24.0
   endif
+
 900 continue
   return
 end subroutine ft8b
-
-subroutine ft8_downsample(dd,newdat,f0,c1)
-
-! Downconvert to complex data sampled at 187.5 Hz, 32 samples/symbol
-
-  parameter (NMAX=15*12000)
-  parameter (NFFT1=200000,NFFT2=3125)      !200000/64 = 3125
-  logical newdat
-  complex c1(0:NFFT2-1)
-  complex cx(0:NFFT1/2)
-  real dd(NMAX),x(NFFT1)
-  equivalence (x,cx)
-  save cx
-
-  if(newdat) then
-! Data in dd have changed, recompute the long FFT     
-     x(1:NMAX)=dd
-     x(NMAX+1:NFFT1)=0.                       !Zero-pad the x array
-     call four2a(cx,NFFT1,1,-1,0)             !r2c FFT to freq domain
-     newdat=.false.
-  endif
-
-  df=12000.0/NFFT1
-  baud=12000.0/2048.0
-  i0=nint(f0/df)
-  ft=f0+8.0*baud
-  it=min(nint(ft/df),NFFT1/2)
-  fb=f0-1.0*baud
-  ib=max(1,nint(fb/df))
-  k=0
-  c1=0.
-  do i=ib,it
-   c1(k)=cx(i)
-   k=k+1
-  enddo
-  c1=cshift(c1,i0-ib)
-  call four2a(c1,NFFT2,1,1,1)            !c2c FFT back to time domain
-  fac=1.0/sqrt(float(NFFT1)*NFFT2)
-  c1=fac*c1
-
-  return
-end subroutine ft8_downsample

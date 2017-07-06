@@ -882,9 +882,11 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
 
+  ui->actionFT8->setEnabled(false);
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
      m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "G3PQA") {
       ui->actionWSPR_LF->setEnabled(true);
+      ui->actionFT8->setEnabled(true);
   }
   if(!ui->cbMenus->isChecked()) {
     ui->cbMenus->setChecked(true);
