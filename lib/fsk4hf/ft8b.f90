@@ -19,7 +19,7 @@ subroutine ft8b(dd0,newdat,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
 
   max_iterations=40
   norder=2
-  fs2=12000.0/60.0
+  fs2=12000.0/NDOWN
   dt2=1.0/fs2
   twopi=8.0*atan(1.0)
   delfbest=0.

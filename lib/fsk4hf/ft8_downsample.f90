@@ -2,7 +2,7 @@ subroutine ft8_downsample(dd,newdat,f0,c1)
 
 ! Downconvert to complex data sampled at 200 Hz ==> 32 samples/symbol
 
-  parameter (NMAX=15*12000)
+  parameter (NMAX=15*12000,NSPS=1920)
   parameter (NFFT1=192000,NFFT2=3200)      !192000/60 = 3200
   
   logical newdat
@@ -21,7 +21,7 @@ subroutine ft8_downsample(dd,newdat,f0,c1)
   endif
 
   df=12000.0/NFFT1
-  baud=12000.0/1920.0
+  baud=12000.0/NSPS
   i0=nint(f0/df)
   ft=f0+8.0*baud
   it=min(nint(ft/df),NFFT1/2)
