@@ -413,6 +413,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/getfc1w.f90
   lib/fsk4hf/getfc2w.f90
   lib/genqra64.f90
+  lib/fsk4hf/genft8refsig.f90
   lib/genwspr.f90
   lib/geodist.f90
   lib/getlags.f90
@@ -495,6 +496,7 @@ set (wsjt_FSRCS
   lib/spec9f.f90
   lib/stdmsg.f90
   lib/subtract65.f90
+  lib/fsk4hf/subtractft8.f90
   lib/sun.f90
   lib/symspec.f90
   lib/symspec2.f90
