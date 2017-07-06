@@ -24,9 +24,10 @@ contains
 
   subroutine decode(this,callback,iwave,nfqso,newdat,nutc,nfa,    &
        nfb,nagain,ndepth,nsubmode)
-
+!use wavhdr
     use timer_module, only: timer
     include 'fsk4hf/ft8_params.f90'
+!type(hdr) h
 
     class(ft8_decoder), intent(inout) :: this
     procedure(ft8_decode_callback) :: callback
@@ -69,7 +70,11 @@ contains
 !3051   format(4f9.1,3i5,2x,a22)
 !       flush(51)
     enddo
-
+!h=default_header(12000,NMAX)
+!open(10,file='subtract.wav',status='unknown',access='stream')
+!iwave=nint(dd)
+!write(10) h,iwave
+!close(10)
     return
   end subroutine decode
 
