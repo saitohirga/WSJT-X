@@ -1,4 +1,4 @@
-subroutine ft8b(dd0,newdat,nfqso,ndepth,icand,sync0,f1,xdt,nharderrors,   &
+subroutine ft8b(dd0,newdat,nfqso,ndepth,icand,sync0,f1,xdt,apsym,nharderrors,   &
      dmin,nbadcrc,message,xsnr)
 
   use timer_module, only: timer
@@ -9,14 +9,17 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,icand,sync0,f1,xdt,nharderrors,   &
   real a(5)
   real s1(0:7,ND),s2(0:7,NN)
   real ps(0:7)
-  real rxdata(3*ND),llr(3*ND)               !Soft symbols
+  real rxdata(3*ND),llr(3*ND),llrap(3*ND)           !Soft symbols
   real dd0(15*12000)
   integer*1 decoded(KK),apmask(3*ND),cw(3*ND)
+  integer*1 msgbits(KK)
+  integer apsym(KK),rr73(11)
   integer itone(NN)
   complex cd0(3200)
   complex ctwk(32)
   complex csymb(32)
   logical newdat
+  data rr73/-1,1,1,1,1,1,1,-1,1,1,-1/
 
   max_iterations=40
   norder=2
@@ -106,34 +109,69 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,icand,sync0,f1,xdt,nharderrors,   &
   rxdata=rxdata/rxsig
   ss=0.84
   llr=2.0*rxdata/(ss*ss)
-  apmask=0
-  cw=0
-  call timer('bpd174  ',0)
-  call bpdecode174(llr,apmask,max_iterations,decoded,cw,nharderrors)
-  call timer('bpd174  ',1)
-  dmin=0.0
-  if(nharderrors.lt.0) then
-     call timer('osd174  ',0)
-     call osd174(llr,norder,decoded,cw,nharderrors,dmin)
-     call timer('osd174  ',1)
-  endif
-  nbadcrc=1
-  message='                      '
-  xsnr=-99.0
-  if(count(cw.eq.0).eq.174) go to 900           !Reject the all-zero codeword
-  if( nharderrors.ge.0 .and. dmin.le.30.0 .and. nharderrors .lt. 30) then
-    call chkcrc12a(decoded,nbadcrc)
-  else
-    nharderrors=-1
-    go to 900
-  endif
-  if(nbadcrc.eq.0) then
-     call extractmessage174(decoded,message,ncrcflag,recent_calls,nrecent)
-     call genft8(message,msgsent,itone)
+
+  do iap=0,3
+    if(iap.eq.0) then
+      apmask=0
+      apmask(160:162)=1
+      llrap=llr
+      llrap(160:162)=5.0*apsym(73:75)/ss
+    elseif(iap.eq.1) then
+      apmask=0
+      apmask(88:115)=1   ! mycall
+      apmask(160:162)=1  ! 3 extra bits
+      llrap=0.0
+      llrap(88:115)=5.0*apsym(1:28)/ss
+      llrap(160:162)=5.0*apsym(73:75)/ss
+      where(apmask.eq.0) llrap=llr
+    elseif(iap.eq.2) then
+      apmask=0
+      apmask(88:115)=1   ! mycall
+      apmask(116:143)=1  ! hiscall
+      apmask(160:162)=1  ! 3 extra bits
+      llrap=0.0
+      llrap(88:143)=5.0*apsym(1:56)/ss
+      llrap(160:162)=5.0*apsym(73:75)/ss
+      where(apmask.eq.0) llrap=llr
+    elseif(iap.eq.3) then
+      apmask=0
+      apmask(88:115)=1   ! mycall
+      apmask(116:143)=1  ! hiscall
+      apmask(144:154)=1  ! RRR or 73 
+      apmask(160:162)=1  ! 3 extra bits
+      llrap=0.0
+      llrap(88:143)=5.0*apsym(1:56)/ss
+      llrap(144:154)=5.0*rr73/ss
+      llrap(160:162)=5.0*apsym(73:75)/ss
+      where(apmask.eq.0) llrap=llr
+    endif
+    cw=0
+    call timer('bpd174  ',0)
+    call bpdecode174(llrap,apmask,max_iterations,decoded,cw,nharderrors)
+    call timer('bpd174  ',1)
+    dmin=0.0
+    if(nharderrors.lt.0) then
+      call timer('osd174  ',0)
+      call osd174(llr,norder,decoded,cw,nharderrors,dmin)
+      call timer('osd174  ',1)
+    endif
+    nbadcrc=1
+    message='                      '
+    xsnr=-99.0
+    if(count(cw.eq.0).eq.174) cycle           !Reject the all-zero codeword
+    if( nharderrors.ge.0 .and. dmin.le.30.0 .and. nharderrors .lt. 30) then
+      call chkcrc12a(decoded,nbadcrc)
+    else
+      nharderrors=-1
+      cycle 
+    endif
+    if(nbadcrc.eq.0) then
+      call extractmessage174(decoded,message,ncrcflag,recent_calls,nrecent)
+      call genft8(message,msgsent,msgbits,itone)
 !     call subtractft8(dd0,itone,f1,xdt2)
-     xsig=0.0
-     xnoi=0.0
-     do i=1,79
+      xsig=0.0
+      xnoi=0.0
+      do i=1,79
         xsig=xsig+s2(itone(i),i)**2
         ios=mod(itone(i)+4,7)
         xnoi=xnoi+s2(ios,i)**2
@@ -142,10 +180,10 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,icand,sync0,f1,xdt,nharderrors,   &
      if( xnoi.gt.0 .and. xnoi.lt.xsig ) xsnr=xsig/xnoi-1.0
      xsnr=10.0*log10(xsnr)-27.0
      if( xsnr .lt. -24.0 ) xsnr=-24.0
-!     write(50,3050) icand,sync0,f1,xdt,nharderrors,dmin,message
-!3050 format(i3,3f10.3,i5,f10.3,2x,a22)
-  endif
-
-900 continue
+!     write(50,3050) icand,sync0,f1,xdt,nharderrors,dmin,message,iap
+!3050 format(i3,3f10.3,i5,f10.3,2x,a22,i3)
+     return
+    endif
+  enddo
   return
 end subroutine ft8b
