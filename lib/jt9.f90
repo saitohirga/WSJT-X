@@ -50,7 +50,7 @@ program jt9
         'THREADS'),                                                          &
     option ('jt65', .false., '6', 'JT65 mode', ''),                          &
     option ('jt9', .false., '9', 'JT9 mode', ''),                            &
-    option ('ft8', .false., '8', 'FT8 mode', ''),                            &
+    option ('ft9', .false., '8', 'FT8 mode', ''),                            &
     option ('jt4', .false., '4', 'JT4 mode', ''),                            &
     option ('qra64', .false., 'q', 'QRA64 mode', ''),                        &
     option ('sub-mode', .true., 'b', 'Sub mode, default SUBMODE=A', 'A'),    &
@@ -264,9 +264,9 @@ program jt9
 
      shared_data%params%minsync=0       !### TEST ONLY
 !     shared_data%params%nfqso=1500     !### TEST ONLY
-!     mycall="G3WDG       "              !### TEST ONLY
-!     hiscall="VK7MO       "             !### TEST ONLY
-!     hisgrid="QE37        "             !### TEST ONLY
+     mycall="G3WDG       "              !### TEST ONLY
+     hiscall="VK7MO       "             !### TEST ONLY
+     hisgrid="QE37        "             !### TEST ONLY
      if(mode.eq.164 .and. nsubmode.lt.100) nsubmode=nsubmode+100
 
      shared_data%params%naggressive=0
