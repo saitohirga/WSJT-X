@@ -1657,6 +1657,7 @@ void MainWindow::on_autoButton_clicked (bool checked)
     }
     ui->sbTxPercent->setPalette(palette);
   }
+  set_dateTimeQSO(-1);
 }
 
 void MainWindow::auto_tx_mode (bool state)
@@ -3433,67 +3434,95 @@ void MainWindow::on_txrb1_toggled(bool status)
     // if Tx 1 is clicked we won't use it so reset to default
     // We may hang on this message for quite a while trying
     // to get a response perhaps when another QSO is going on
-    if (status) set_dateTimeQSO(-1);
+  if (status) {
+    m_ntx=1;
+  }
 }
 
 void MainWindow::on_txrb2_toggled(bool status)
 {
   // Tx 2 means we already have CQ'd so good reference
-  if (status) set_dateTimeQSO(m_ntx);
+  if (status) {
+    m_ntx=2;
+    set_dateTimeQSO(m_ntx);
+  }
 }
 
 void MainWindow::on_txrb3_toggled(bool status)
 {
   // Tx 3 means we should havel already have done Tx 1 so good reference
-  if (status) set_dateTimeQSO(m_ntx);
+  if (status) {
+    m_ntx=3;
+    set_dateTimeQSO(m_ntx);
+  }
 }
 
-void MainWindow::on_txb1_clicked()                                //txb1
+void MainWindow::on_txrb4_toggled(bool status)
 {
-  m_ntx=1;
-  ui->txrb1->setChecked(true);
-  if (m_transmitting) m_restart=true;
+  if (status) {
+    m_ntx=4;
+  }
 }
 
-void MainWindow::on_txb2_clicked()                                //txb2
+void MainWindow::on_txrb5_toggled(bool status)
 {
-  m_ntx=2;
-  ui->txrb2->setChecked(true);
-  if (m_transmitting) m_restart=true;
+  if (status) {
+    m_ntx=5;
+  }
 }
 
-void MainWindow::on_txb3_clicked()                                //txb3
+void MainWindow::on_txrb6_toggled(bool status)
 {
-  m_ntx=3;
-  ui->txrb3->setChecked(true);
-  if (m_transmitting) m_restart=true;
+  if (status) {
+    m_ntx=6;
+    if (ui->txrb6->text().contains("CQ ")) set_dateTimeQSO(-1);
+  }
 }
 
-void MainWindow::on_txb4_clicked()                                //txb4
+void MainWindow::on_txb1_clicked()
 {
-  m_ntx=4;
-  ui->txrb4->setChecked(true);
-  if (m_transmitting) m_restart=true;
+    m_ntx=1;
+    ui->txrb1->setChecked(true);
+    if (m_transmitting) m_restart=true;
 }
 
-void MainWindow::on_txb5_clicked()                                //txb5
+void MainWindow::on_txb2_clicked()
 {
-  m_ntx=5;
-  ui->txrb5->setChecked(true);
-  if (m_transmitting) m_restart=true;
+    m_ntx=2;
+    ui->txrb2->setChecked(true);
+    if (m_transmitting) m_restart=true;
 }
 
-void MainWindow::on_txb6_clicked()                                //txb6
+void MainWindow::on_txb3_clicked()
 {
-  m_ntx=6;
-  ui->txrb6->setChecked(true);
-  if (m_transmitting) m_restart=true;
-  if (ui->txrb6->text().contains("CQ")) set_dateTimeQSO(-1);
+    m_ntx=3;
+    ui->txrb3->setChecked(true);
+    if (m_transmitting) m_restart=true;
+}
+
+void MainWindow::on_txb4_clicked()
+{
+    m_ntx=4;
+    ui->txrb4->setChecked(true);
+    if (m_transmitting) m_restart=true;
+}
+
+void MainWindow::on_txb5_clicked()
+{
+    m_ntx=5;
+    ui->txrb5->setChecked(true);
+    if (m_transmitting) m_restart=true;
+}
+
+void MainWindow::on_txb6_clicked()
+{
+    m_ntx=6;
+    ui->txrb6->setChecked(true);
+    if (m_transmitting) m_restart=true;
 }
 
 void MainWindow::doubleClickOnCall2(bool shift, bool ctrl)
 {
-  set_dateTimeQSO(-1); // reset our QSO start time
   m_decodedText2=true;
   doubleClickOnCall(shift,ctrl);
   m_decodedText2=false;
@@ -4256,7 +4285,7 @@ void MainWindow::acceptQSO2(QDateTime const& QSO_date_off, QString const& call, 
                             , QString const& tx_power, QString const& comments
                             , QString const& name, QDateTime const& QSO_date_on)
 {
-  QString date = m_dateTimeQSOOn.toString("yyyyMMdd");
+  QString date = QSO_date_on.toString("yyyyMMdd");
   m_logBook.addAsWorked (m_hisCall, m_config.bands ()->find (m_freqNominal), m_modeTx, date);
 
   m_messageClient->qso_logged (QSO_date_off, call, grid, dial_freq, mode, rpt_sent, rpt_received, tx_power, comments, name, QSO_date_on);
