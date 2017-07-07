@@ -7,6 +7,7 @@
 #include <QSortFilterProxyModel>
 
 #include "Radio.hpp"
+#include "IARURegions.hpp"
 #include "Modes.hpp"
 
 class Bands;
@@ -15,19 +16,20 @@ class Bands;
 // Class FrequencyList
 //
 //  Encapsulates a  collection of  frequencies with  associated modes.
-//  The implementation is a table containing the list of Frequency and
-//  mode tuples which  are editable. A third column is  modeled in the
-//  model  which   is  an  immutable  double   representation  of  the
-//  corresponding Frequency item scaled to mega-Hertz.
+//  The implementation is a table  containing the list of IARU region,
+//  Frequency and  mode tuples which  are editable. A third  column is
+//  modeled in the  model which is an  immutable double representation
+//  of the corresponding Frequency item scaled to mega-Hertz.
 //
-//  The list is ordered.  A filter on mode is available  and is set by
-//  the filter(Mode)  method. The  Mode value  Modes::NULL_MODE passes
-//  all rows in the filter.
+//  The  list  is ordered.   A  filter  on  IARU  region and  mode  is
+//  available  and is  set by  the filter(Region,  Mode) method.   The
+//  Region value IARURegions::ALL and the Mode value Modes::ALL may be
+//  optionally given which passes all rows in the filtered column.
 //
 // Responsibilities
 //
-//  Stores  internally  a  list   of  unique  frequency  mode  tuples.
-//  Provides methods to add and delete list elements. Provides range
+//  Stores internally a list of  unique region, frequency mode tuples.
+//  Provides methods to  add and delete list  elements. Provides range
 //  iterators for a filtered view of the underlying table.
 //
 // Collaborations
@@ -41,6 +43,7 @@ class FrequencyList final
   Q_OBJECT;
 
 public:
+  using Region = IARURegions::Region;
   using Frequency = Radio::Frequency;
   using Mode = Modes::Mode;
 
@@ -48,11 +51,12 @@ public:
   {
     Frequency frequency_;
     Mode mode_;
+    Region region_;
   };
   using FrequencyItems = QList<Item>;
   using BandSet = QSet<QString>;
 
-  enum Column {mode_column, frequency_column, frequency_mhz_column};
+  enum Column {region_column, mode_column, frequency_column, frequency_mhz_column, SENTINAL};
 
   // an iterator that meets the requirements of the C++ for range statement
   class const_iterator
@@ -81,6 +85,8 @@ public:
   // Load and store underlying items
   FrequencyItems frequency_list (FrequencyItems);
   FrequencyItems const& frequency_list () const;
+  FrequencyItems frequency_list (QModelIndexList const&) const;
+  void frequency_list_merge (FrequencyItems const&);
 
   // Iterators for the sorted and filtered items
   //
@@ -95,7 +101,7 @@ public:
   const_iterator find (Frequency) const;
 
   // Bands of the frequencies
-  BandSet all_bands (Mode = Modes::NULL_MODE) const;
+  BandSet all_bands (Region = IARURegions::ALL, Mode = Modes::ALL) const;
   BandSet filtered_bands () const;
 
   // Find the row of the nearest best working frequency given a
@@ -109,7 +115,7 @@ public:
   int best_working_frequency (QString const& band) const;
 
   // Set filter
-  Q_SLOT void filter (Mode);
+  Q_SLOT void filter (Region, Mode);
 
   // Reset
   Q_SLOT void reset_to_defaults ();
@@ -135,6 +141,7 @@ bool operator == (FrequencyList::Item const& lhs, FrequencyList::Item const& rhs
 {
   return
     lhs.frequency_ == rhs.frequency_
+    && lhs.region_ == rhs.region_
     && lhs.mode_ == rhs.mode_;
 }
 

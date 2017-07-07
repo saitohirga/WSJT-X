@@ -13,7 +13,7 @@ namespace
   // human readable strings for each Mode enumeration value
   char const * const mode_names[] =
   {
-    "",
+    "All",
     "JT65",
     "JT9",
     "JT4",
@@ -47,7 +47,7 @@ auto Modes::value (QString const& s) -> Mode
                          , [&s] (char const * const name) {
                            return name == s;
                          });
-  return p != end ? static_cast<Mode> (p - mode_names) : NULL_MODE;
+  return p != end ? static_cast<Mode> (p - mode_names) : ALL;
 }
 
 QVariant Modes::data (QModelIndex const& index, int role) const

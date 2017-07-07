@@ -270,10 +270,10 @@ WSPRBandHopping::WSPRBandHopping (QSettings * settings, Configuration const * co
   : m_ {settings, configuration, parent_widget}
 {
   // detect changes to the working frequencies model
-  m_->WSPR_bands_ = m_->configuration_->frequencies ()->all_bands (Modes::WSPR).toList ();
+  m_->WSPR_bands_ = m_->configuration_->frequencies ()->all_bands (m_->configuration_->region (), Modes::WSPR).toList ();
   connect (m_->configuration_->frequencies (), &QAbstractItemModel::layoutChanged
            , [this] () {
-             m_->WSPR_bands_ = m_->configuration_->frequencies ()->all_bands (Modes::WSPR).toList ();
+             m_->WSPR_bands_ = m_->configuration_->frequencies ()->all_bands (m_->configuration_->region (), Modes::WSPR).toList ();
            });
 
   // load settings

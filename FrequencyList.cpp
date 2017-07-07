@@ -14,7 +14,6 @@
 #include <QMimeData>
 #include <QDataStream>
 #include <QByteArray>
-#include <QDebug>
 #include <QDebugStateSaver>
 
 #include "Radio.hpp"
@@ -27,105 +26,149 @@ namespace
 {
   FrequencyList::FrequencyItems const default_frequency_list =
     {
-      {136000, Modes::WSPR},
-      {136130, Modes::JT65},
-      {474200, Modes::JT65},
-      {474200, Modes::JT9},
-      {474200, Modes::WSPR},
-      {660000, Modes::FreqCal},
-      {880000, Modes::FreqCal},
-      {1210000, Modes::FreqCal},
-      {1836600, Modes::WSPR},
-      {1838000, Modes::JT65},
-      {1840000, Modes::JT9},
-      {1841000, Modes::FT8},
-      {2500000, Modes::FreqCal},
-      {3330000, Modes::FreqCal},
-      {3576000, Modes::JT65},
-      {3578000, Modes::JT9},
-      {3579000, Modes::FT8},
-      {3592600, Modes::WSPR},
-      {5357000, Modes::JT65},
-      {5000000, Modes::FreqCal},
-      {7038600, Modes::WSPR},
-      {7076000, Modes::JT65},
-      {7078000, Modes::JT9},
-      {7079000, Modes::FT8},
-      {7850000, Modes::FreqCal},
-      {10000000, Modes::FreqCal},
-      {10138000, Modes::JT65},
-      {10138700, Modes::WSPR},
-      {10140000, Modes::JT9},
-      {10141000, Modes::FT8},
-      {14095600, Modes::WSPR},
-      {14076000, Modes::JT65},
-      {14078000, Modes::JT9},
-      {14079000, Modes::FT8},
-      {14670000, Modes::FreqCal},
-      {15000000, Modes::FreqCal},
-      {18102000, Modes::JT65},
-      {18104000, Modes::JT9},
-      {18105000, Modes::FT8},
-      {18104600, Modes::WSPR},
-      {20000000, Modes::FreqCal},
-      {21076000, Modes::JT65},
-      {21078000, Modes::JT9},
-      {21079000, Modes::FT8},
-      {21094600, Modes::WSPR},
-      {24917000, Modes::JT65},
-      {24919000, Modes::JT9},
-      {24920000, Modes::FT8},
-      {24924600, Modes::WSPR},
-      {28076000, Modes::JT65},
-      {28078000, Modes::JT9},
-      {28079000, Modes::FT8},
-      {28124600, Modes::WSPR},
-      {50000000, Modes::Echo},
-      {50276000, Modes::JT65},
-      {50280000, Modes::MSK144},
-      {50293000, Modes::WSPR},
-      {50310000, Modes::JT65},
-      {50313000, Modes::FT8},
-      {70091000, Modes::JT65},
-      {70091000, Modes::WSPR},
-      {70094000, Modes::FT8},
-      {144000000, Modes::Echo},
-      {144120000, Modes::JT65},
-      {144120000, Modes::Echo},
-      {144140000, Modes::MSK144},
-      {144489000, Modes::WSPR},
-      {222065000, Modes::JT65},
-      {222065000, Modes::Echo},
-      {432065000, Modes::Echo},
-      {432065000, Modes::JT65},
-      {432300000, Modes::WSPR},
-      {902065000, Modes::JT65},
-      {1296065000, Modes::Echo},
-      {1296065000, Modes::JT65},
-      {1296500000, Modes::WSPR},
-      {2301000000, Modes::Echo},
-      {2301065000, Modes::JT4},
-      {2301065000, Modes::JT65},
-      {2304065000, Modes::Echo},
-      {2304065000, Modes::JT4},
-      {2304065000, Modes::JT65},
-      {2320065000, Modes::Echo},
-      {2320065000, Modes::JT4},
-      {2320065000, Modes::JT65},
-      {3400065000, Modes::Echo},
-      {3400065000, Modes::JT4},
-      {3400065000, Modes::JT65},
-      {3456065000, Modes::JT4},
-      {3456065000, Modes::JT65},
-      {5760065000, Modes::Echo},
-      {5760065000, Modes::JT4},
-      {5760065000, Modes::JT65},
-      {10368100000, Modes::Echo},
-      {10368100000, Modes::JT4},
-      {10368100000, Modes::JT65},
-      {24048100000, Modes::Echo},
-      {24048100000, Modes::JT4},
-      {24048100000, Modes::JT65},
+      {198000, Modes::FreqCal, IARURegions::R1}, // BBC Radio 4 Droitwich
+      {4996000, Modes::FreqCal, IARURegions::R1},  // RWM time signal
+      {9996000, Modes::FreqCal, IARURegions::R1},  // RWM time signal
+      {14996000, Modes::FreqCal, IARURegions::R1}, // RWM time signal
+      
+      {660000, Modes::FreqCal, IARURegions::R2},
+      {880000, Modes::FreqCal, IARURegions::R2},
+      {1210000, Modes::FreqCal, IARURegions::R2},
+      
+      {2500000, Modes::FreqCal, IARURegions::ALL},
+      {3330000, Modes::FreqCal, IARURegions::ALL},
+      {5000000, Modes::FreqCal, IARURegions::ALL},
+      {7850000, Modes::FreqCal, IARURegions::ALL},
+      {10000000, Modes::FreqCal, IARURegions::ALL},
+      {14670000, Modes::FreqCal, IARURegions::ALL},
+      {15000000, Modes::FreqCal, IARURegions::ALL},
+      {20000000, Modes::FreqCal, IARURegions::ALL},
+      
+      {136000, Modes::WSPR, IARURegions::ALL},
+      {136130, Modes::JT65, IARURegions::ALL},
+      {136130, Modes::JT9, IARURegions::ALL},
+
+      {474200, Modes::JT65, IARURegions::ALL},
+      {474200, Modes::JT9, IARURegions::ALL},
+      {474200, Modes::WSPR, IARURegions::ALL},
+      
+      {1836600, Modes::WSPR, IARURegions::ALL},
+      {1838000, Modes::JT65, IARURegions::ALL}, // squeezed allocations
+      {1839000, Modes::JT9, IARURegions::ALL},
+      {1840000, Modes::FT8, IARURegions::ALL},
+      
+      {3570000, Modes::JT65, IARURegions::ALL}, // JA compatible
+      {3572000, Modes::JT9, IARURegions::ALL},
+      {3573000, Modes::FT8, IARURegions::ALL}, // above as below JT65
+                                               // is out of DM allocation
+      {3572600, Modes::WSPR, IARURegions::ALL}, // needs guard marker
+                                                // and lock out
+      
+      {7038600, Modes::WSPR, IARURegions::ALL},
+      {7074000, Modes::FT8, IARURegions::ALL},
+      {7076000, Modes::JT65, IARURegions::ALL},
+      {7078000, Modes::JT9, IARURegions::ALL},
+
+      {10136000, Modes::FT8, IARURegions::ALL},
+      {10138000, Modes::JT65, IARURegions::ALL},
+      {10138700, Modes::WSPR, IARURegions::ALL},
+      {10140000, Modes::JT9, IARURegions::ALL},
+      
+      {14095600, Modes::WSPR, IARURegions::ALL},
+      {14074000, Modes::FT8, IARURegions::ALL},
+      {14076000, Modes::JT65, IARURegions::ALL},
+      {14078000, Modes::JT9, IARURegions::ALL},
+
+      {18100000, Modes::FT8, IARURegions::ALL},
+      {18102000, Modes::JT65, IARURegions::ALL},
+      {18104000, Modes::JT9, IARURegions::ALL},
+      {18104600, Modes::WSPR, IARURegions::ALL},
+      
+      {21074000, Modes::FT8, IARURegions::ALL},
+      {21076000, Modes::JT65, IARURegions::ALL},
+      {21078000, Modes::JT9, IARURegions::ALL},
+      {21094600, Modes::WSPR, IARURegions::ALL},
+      
+      {24915000, Modes::FT8, IARURegions::ALL},
+      {24917000, Modes::JT65, IARURegions::ALL},
+      {24919000, Modes::JT9, IARURegions::ALL},
+      {24924600, Modes::WSPR, IARURegions::ALL},
+      
+      {28074000, Modes::FT8, IARURegions::ALL},
+      {28076000, Modes::JT65, IARURegions::ALL},
+      {28078000, Modes::JT9, IARURegions::ALL},
+      {28124600, Modes::WSPR, IARURegions::ALL},
+      
+      {50000000, Modes::Echo, IARURegions::ALL},
+      {50276000, Modes::JT65, IARURegions::R2},
+      {50276000, Modes::JT65, IARURegions::R3},
+      {50260000, Modes::MSK144, IARURegions::R2},
+      {50260000, Modes::MSK144, IARURegions::R3},
+      {50293000, Modes::WSPR, IARURegions::R2},
+      {50293000, Modes::WSPR, IARURegions::R3},
+      {50310000, Modes::JT65, IARURegions::ALL},
+      {50312000, Modes::JT9, IARURegions::ALL},
+      {50313000, Modes::FT8, IARURegions::ALL},
+      {50360000, Modes::MSK144, IARURegions::R1},
+      
+      {70100000, Modes::FT8, IARURegions::R1},
+      {70102000, Modes::JT65, IARURegions::R1},
+      {70104000, Modes::JT9, IARURegions::R1},
+      {70091000, Modes::WSPR, IARURegions::R1},
+      {70230000, Modes::MSK144, IARURegions::R1},
+      
+      {144000000, Modes::Echo, IARURegions::ALL},
+      {144120000, Modes::JT65, IARURegions::ALL},
+      {144120000, Modes::Echo, IARURegions::ALL},
+      {144360000, Modes::MSK144, IARURegions::R1},
+      {144150000, Modes::MSK144, IARURegions::R2},
+      {144489000, Modes::WSPR, IARURegions::ALL},
+      
+      {222065000, Modes::Echo, IARURegions::R2},
+      {222065000, Modes::JT65, IARURegions::R2},
+      
+      {432065000, Modes::Echo, IARURegions::ALL},
+      {432065000, Modes::JT65, IARURegions::ALL},
+      {432300000, Modes::WSPR, IARURegions::ALL},
+      {432360000, Modes::MSK144, IARURegions::ALL},
+      
+      {902065000, Modes::JT65, IARURegions::ALL},
+      
+      {1296065000, Modes::Echo, IARURegions::ALL},
+      {1296065000, Modes::JT65, IARURegions::ALL},
+      {1296500000, Modes::WSPR, IARURegions::ALL},
+      
+      {2301000000, Modes::Echo, IARURegions::ALL},
+      {2301065000, Modes::JT4, IARURegions::ALL},
+      {2301065000, Modes::JT65, IARURegions::ALL},
+
+      {2304065000, Modes::Echo, IARURegions::ALL},
+      {2304065000, Modes::JT4, IARURegions::ALL},
+      {2304065000, Modes::JT65, IARURegions::ALL},
+      
+      {2320065000, Modes::Echo, IARURegions::ALL},
+      {2320065000, Modes::JT4, IARURegions::ALL},
+      {2320065000, Modes::JT65, IARURegions::ALL},
+      
+      {3400065000, Modes::Echo, IARURegions::ALL},
+      {3400065000, Modes::JT4, IARURegions::ALL},
+      {3400065000, Modes::JT65, IARURegions::ALL},
+      
+      {3456065000, Modes::Echo, IARURegions::ALL},
+      {3456065000, Modes::JT4, IARURegions::ALL},
+      {3456065000, Modes::JT65, IARURegions::ALL},
+      
+      {5760065000, Modes::Echo, IARURegions::ALL},
+      {5760065000, Modes::JT4, IARURegions::ALL},
+      {5760065000, Modes::JT65, IARURegions::ALL},
+      
+      {10368100000, Modes::Echo, IARURegions::ALL},
+      {10368100000, Modes::JT4, IARURegions::ALL},
+      {10368100000, Modes::JT65, IARURegions::ALL},
+      
+      {24048100000, Modes::Echo, IARURegions::ALL},
+      {24048100000, Modes::JT4, IARURegions::ALL},
+      {24048100000, Modes::JT65, IARURegions::ALL},
     };
 }
 
@@ -135,6 +178,7 @@ QDebug operator << (QDebug debug, FrequencyList::Item const& item)
   QDebugStateSaver saver {debug};
   debug.nospace () << "FrequencyItem("
                    << item.frequency_ << ", "
+                   << item.region_ << ", "
                    << item.mode_ << ')';
   return debug;
 }
@@ -143,13 +187,15 @@ QDebug operator << (QDebug debug, FrequencyList::Item const& item)
 QDataStream& operator << (QDataStream& os, FrequencyList::Item const& item)
 {
   return os << item.frequency_
-            << item.mode_;
+            << item.mode_
+            << item.region_;
 }
 
 QDataStream& operator >> (QDataStream& is, FrequencyList::Item& item)
 {
   return is >> item.frequency_
-            >> item.mode_;
+            >> item.mode_
+            >> item.region_;
 }
 
 class FrequencyList::impl final
@@ -159,12 +205,14 @@ public:
   impl (Bands const * bands, QObject * parent)
     : QAbstractTableModel {parent}
     , bands_ {bands}
-    , mode_filter_ {Modes::NULL_MODE}
+    , region_filter_ {IARURegions::ALL}
+    , mode_filter_ {Modes::ALL}
   {
   }
 
   FrequencyItems frequency_list (FrequencyItems);
   QModelIndex add (Item);
+  void add (FrequencyItems);
 
   // Implement the QAbstractTableModel interface
   int rowCount (QModelIndex const& parent = QModelIndex {}) const override;
@@ -178,11 +226,12 @@ public:
   QStringList mimeTypes () const override;
   QMimeData * mimeData (QModelIndexList const&) const override;
 
-  static int constexpr num_cols {3};
+  static int constexpr num_cols {SENTINAL};
   static auto constexpr mime_type = "application/wsjt.Frequencies";
 
   Bands const * bands_;
   FrequencyItems frequency_list_;
+  Region region_filter_;
   Mode mode_filter_;
 };
 
@@ -206,6 +255,21 @@ auto FrequencyList::frequency_list (FrequencyItems frequency_list) -> FrequencyI
 auto FrequencyList::frequency_list () const -> FrequencyItems const&
 {
   return m_->frequency_list_;
+}
+
+auto FrequencyList::frequency_list (QModelIndexList const& model_index_list) const -> FrequencyItems
+{
+  FrequencyItems list;
+  Q_FOREACH (auto const& index, model_index_list)
+    {
+      list << m_->frequency_list_[mapToSource (index).row ()];
+    }
+  return list;
+}
+
+void FrequencyList::frequency_list_merge (FrequencyItems const& items)
+{
+  m_->add (items);
 }
 
 int FrequencyList::best_working_frequency (Frequency f) const
@@ -309,8 +373,9 @@ bool FrequencyList::removeDisjointRows (QModelIndexList rows)
   return result;
 }
 
-void FrequencyList::filter (Mode mode)
+void FrequencyList::filter (Region region, Mode mode)
 {
+  m_->region_filter_ = region;
   m_->mode_filter_ = mode;
   invalidateFilter ();
 }
@@ -318,11 +383,15 @@ void FrequencyList::filter (Mode mode)
 bool FrequencyList::filterAcceptsRow (int source_row, QModelIndex const& /* parent */) const
 {
   bool result {true};
-  if (m_->mode_filter_ != Modes::NULL_MODE)
+  auto const& item = m_->frequency_list_[source_row];
+  if (m_->region_filter_ != IARURegions::ALL)
     {
-      auto const& item = m_->frequency_list_[source_row];
-      // we pass NULL_MODE mode rows unless filtering for FreqCal mode
-      result = (Modes::NULL_MODE == item.mode_ && m_->mode_filter_ != Modes::FreqCal)
+      result = IARURegions::ALL == item.region_ || m_->region_filter_ == item.region_;
+    }
+  if (result && m_->mode_filter_ != Modes::ALL)
+    {
+      // we pass ALL mode rows unless filtering for FreqCal mode
+      result = (Modes::ALL == item.mode_ && m_->mode_filter_ != Modes::FreqCal)
         || m_->mode_filter_ == item.mode_;
     }
   return result;
@@ -351,6 +420,31 @@ QModelIndex FrequencyList::impl::add (Item f)
       return index (row, 0);
     }
   return QModelIndex {};
+}
+
+void FrequencyList::impl::add (FrequencyItems items)
+{
+  // Any Frequency that isn't in the list may be added
+  for (auto p = items.begin (); p != items.end ();)
+    {
+      if (frequency_list_.contains (*p))
+        {
+          p = items.erase (p);
+        }
+      else
+        {
+          ++p;
+        }
+    }
+
+  if (items.size ())
+    {
+      auto row = frequency_list_.size ();
+
+      beginInsertRows (QModelIndex {}, row, row + items.size () - 1);
+      frequency_list_.append (items);
+      endInsertRows ();
+    }
 }
 
 int FrequencyList::impl::rowCount (QModelIndex const& parent) const
@@ -394,6 +488,27 @@ QVariant FrequencyList::impl::data (QModelIndex const& index, int role) const
       auto const& frequency_item = frequency_list_.at (row);
       switch (column)
         {
+        case region_column:
+          switch (role)
+            {
+            case SortRole:
+            case Qt::DisplayRole:
+            case Qt::EditRole:
+            case Qt::AccessibleTextRole:
+              item = IARURegions::name (frequency_item.region_);
+              break;
+
+            case Qt::ToolTipRole:
+            case Qt::AccessibleDescriptionRole:
+              item = tr ("IARU Region");
+              break;
+
+            case Qt::TextAlignmentRole:
+              item = Qt::AlignHCenter + Qt::AlignVCenter;
+              break;
+            }
+          break;
+
         case mode_column:
           switch (role)
             {
@@ -489,6 +604,19 @@ bool FrequencyList::impl::setData (QModelIndex const& model_index, QVariant cons
       auto& item = frequency_list_[row];
       switch (model_index.column ())
         {
+        case region_column:
+          if (value.canConvert<Region> ())
+            {
+              auto region = IARURegions::value (value.toString ());
+              if (region != item.region_)
+                {
+                  item.region_ = region;
+                  Q_EMIT dataChanged (model_index, model_index, roles);
+                  changed = true;
+                }
+            }
+          break;
+
         case mode_column:
           if (value.canConvert<Mode> ())
             {
@@ -530,6 +658,7 @@ QVariant FrequencyList::impl::headerData (int section, Qt::Orientation orientati
     {
       switch (section)
         {
+        case region_column: header = tr ("IARU Region"); break;
         case mode_column: header = tr ("Mode"); break;
         case frequency_column: header = tr ("Frequency"); break;
         case frequency_mhz_column: header = tr ("Frequency (MHz)"); break;
@@ -564,7 +693,7 @@ bool FrequencyList::impl::insertRows (int row, int count, QModelIndex const& par
       beginInsertRows (parent, row, row + count - 1);
       for (auto r = 0; r < count; ++r)
         {
-          frequency_list_.insert (row, Item {0, Mode::NULL_MODE});
+          frequency_list_.insert (row, Item {0, Mode::ALL, IARURegions::ALL});
         }
       endInsertRows ();
       return true;
@@ -656,12 +785,13 @@ auto FrequencyList::filtered_bands () const -> BandSet
   return result;
 }
 
-auto FrequencyList::all_bands (Mode mode) const -> BandSet
+auto FrequencyList::all_bands (Region region, Mode mode) const -> BandSet
 {
   BandSet result;
   for (auto const& item : m_->frequency_list_)
     {
-      if (mode == Modes::NULL_MODE || item.mode_ == mode)
+      if (region == IARURegions::ALL || item.region_ == region
+          || mode == Modes::ALL || item.mode_ == mode)
         {
           result << m_->bands_->find (item.frequency_);
         }

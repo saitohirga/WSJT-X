@@ -5,6 +5,7 @@
 #include <QFont>
 
 #include "Radio.hpp"
+#include "IARURegions.hpp"
 #include "AudioDevice.hpp"
 #include "Transceiver.hpp"
 
@@ -78,6 +79,7 @@ public:
   QDir temp_dir () const;
   QDir doc_dir () const;
   QDir data_dir () const;
+  QDir writeable_data_dir () const;
 
   QAudioDeviceInfo const& audio_input_device () const;
   AudioDevice::Channel audio_input_channel () const;
@@ -137,6 +139,7 @@ public:
   bool udpWindowRestore () const;
   Bands * bands ();
   Bands const * bands () const;
+  IARURegions::Region region () const;
   FrequencyList * frequencies ();
   FrequencyList const * frequencies () const;
   StationList * stations ();
