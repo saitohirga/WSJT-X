@@ -215,7 +215,7 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
     painter1.drawText (5, painter1.fontMetrics ().ascent (), t);
   }
 
-  if(m_mode=="JT4") {
+  if(m_mode=="JT4" or m_mode=="QRA64") {
     QPen pen3(Qt::yellow);                     //Mark freqs of JT4 single-tone msgs
     painter2D.setPen(pen3);
     Font.setWeight(QFont::Bold);
