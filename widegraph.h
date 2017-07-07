@@ -5,6 +5,8 @@
 #include <QDialog>
 #include <QScopedPointer>
 #include <QDir>
+#include <QHash>
+#include <QVariant>
 #include "WFPalette.hpp"
 
 #define MAX_SCREENSIZE 2048
@@ -96,7 +98,7 @@ private:
   qint32 m_TRperiod;
   qint32 m_nsps;
   qint32 m_ntr0;
-  qint32 m_fMin;
+  QHash<QString, QVariant> m_fMinPerBand;
   qint32 m_fMax;
   QString m_rxBand;
   qint32 m_nSubMode;

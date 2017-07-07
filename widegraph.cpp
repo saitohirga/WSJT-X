@@ -84,14 +84,11 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
     ui->fStartSpinBox->setValue(ui->widePlot->startFreq());
     m_waterfallPalette=m_settings->value("WaterfallPalette","Default").toString();
     m_userPalette = WFPalette {m_settings->value("UserPalette").value<WFPalette::Colours> ()};
-    int m_fMin = m_settings->value ("Fmin", 2500).toInt ();
-    ui->fSplitSpinBox->setValue (m_fMin);
+    m_fMinPerBand = m_settings->value ("FminPerBand").toHash ();
     setRxRange ();
     ui->controls_widget->setVisible(!m_settings->value("HideControls",false).toBool());
     ui->cbControls->setChecked(!m_settings->value("HideControls",false).toBool());
   }
-
-  saveSettings ();		// update config with defaults
 
   int index=0;
   for (QString const& file:
@@ -143,6 +140,7 @@ void WideGraph::saveSettings()                                           //saveS
   m_settings->setValue("Flatten",m_bFlatten);
   m_settings->setValue("UseRef",m_bRef);
   m_settings->setValue ("HideControls", ui->controls_widget->isHidden ());
+  m_settings->setValue ("FminPerBand", m_fMinPerBand);
 }
 
 void WideGraph::drawRed(int ia, int ib)
@@ -259,7 +257,7 @@ void WideGraph::setRxRange ()
 
 int WideGraph::Fmin()                                              //Fmin
 {
-  return "60m" == m_rxBand ? 0 : m_fMin;
+  return "60m" == m_rxBand ? 0 : m_fMinPerBand.value (m_rxBand, 2500).toUInt ();
 }
 
 int WideGraph::Fmax()                                              //Fmax
@@ -331,7 +329,7 @@ void WideGraph::on_spec2dComboBox_currentIndexChanged(const QString &arg1)
 
 void WideGraph::on_fSplitSpinBox_valueChanged(int n)              //fSplit
 {
-  if (m_rxBand != "60m") m_fMin=n;
+  if (m_rxBand != "60m") m_fMinPerBand[m_rxBand] = n;
   setRxRange ();
 }
 
@@ -361,7 +359,7 @@ void WideGraph::setRxBand (QString const& band)
     }
   else
     {
-      ui->fSplitSpinBox->setValue (m_fMin);
+      ui->fSplitSpinBox->setValue (m_fMinPerBand.value (band, 2500).toUInt ());
       ui->fSplitSpinBox->setEnabled (true);
     }
   ui->widePlot->setRxBand(band);
