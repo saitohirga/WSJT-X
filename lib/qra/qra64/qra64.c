@@ -345,12 +345,15 @@ int qra64_decode(qra64codec *pcodec, float *ebno, int *x, const float *rxen)
   ebnoval = ebnoval*57.03f/(57.03f-ebnoval);
 
   // compute value in dB
-  if (ebnoval<=0)
-	  ebnoval = EBNO_MIN; // assume a minimum, positive value
-  else
-	  ebnoval = 10.0f*(float)log10(ebnoval);
-	  if (ebnoval<EBNO_MIN)
-		  ebnoval = EBNO_MIN;
+  if (ebnoval<=0) {
+    ebnoval = EBNO_MIN; // assume a minimum, positive value
+  }
+  else {
+    ebnoval = 10.0f*(float)log10(ebnoval);
+    if (ebnoval<EBNO_MIN) {
+      ebnoval = EBNO_MIN;
+    }
+  }
   
   *ebno = ebnoval;
 
@@ -534,12 +537,15 @@ int qra64_decode_fastfading(
 	ebnoval = 1.0f/(1.0f*QRA64_K/QRA64_N*QRA64_m)*esno; 
 
 	// compute value in dB
-	if (ebnoval<=0)
+	if (ebnoval<=0) {
 	  ebnoval = EBNO_MIN; // assume a minimum, positive value
-	else
+    }
+	else {
 	  ebnoval = 10.0f*(float)log10(ebnoval);
-	  if (ebnoval<EBNO_MIN)
+	  if (ebnoval<EBNO_MIN) {
 		  ebnoval = EBNO_MIN;
+      }
+    }
   
 	*ebno = ebnoval;
 
