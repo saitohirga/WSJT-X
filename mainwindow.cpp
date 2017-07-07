@@ -3790,7 +3790,7 @@ void MainWindow::genCQMsg ()
         {
           msgtype (QString {"CQ %1 %2"}.arg (m_config.my_callsign ()).arg (m_config.my_grid ().left (4)), ui->tx6);
         }
-      if (m_mode=="JT4") msgtype ("@1000  (TUNE)", ui->tx6);
+      if ((m_mode=="JT4" or m_mode=="QRA64") and  ui->cbShMsgs->isChecked())  msgtype ("@1000  (TUNE)", ui->tx6);
     }
   else
     {
@@ -3859,12 +3859,12 @@ void MainWindow::genStdMsgs(QString rpt)
       msgtype(t, ui->tx3);
     }
     t=t0 + "RRR";
-    if(m_mode=="JT4" and m_bShMsgs) t="@1500  (RRR)";
+    if((m_mode=="JT4" or m_mode=="QRA64") and m_bShMsgs) t="@1500  (RRR)";
     msgtype(t, ui->tx4);
     t=t0 + "73";
-    if(m_mode=="JT4" and m_bShMsgs) t="@1750  (73)";
+    if((m_mode=="JT4" or m_mode=="QRA64") and m_bShMsgs) t="@1750  (73)";
     msgtype(t, ui->tx5->lineEdit ());
-  }
+   }
 
   if(m_config.my_callsign () != m_baseCall) {
     if(shortList(m_config.my_callsign ())) {
@@ -4344,7 +4344,7 @@ void MainWindow::on_actionJT4_triggered()
   m_mode="JT4";
   bool bVHF=m_config.enable_VHF_features();
   if(bVHF) {
-    displayWidgets(nWidgets("111110010010110110110000"));
+    displayWidgets(nWidgets("111110010010111110110000"));
   } else {
     displayWidgets(nWidgets("111010000000111000111100"));
   }
@@ -4531,7 +4531,7 @@ void MainWindow::on_actionQRA64_triggered()
   on_actionJT65_triggered();
   m_nSubMode=n;
   m_mode="QRA64";
-  displayWidgets(nWidgets("111110000000111110000000"));
+  displayWidgets(nWidgets("111110010010111110000000"));
   m_modeTx="QRA64";
   ui->actionQRA64->setChecked(true);
   switch_mode (Modes::QRA64);
