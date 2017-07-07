@@ -39,7 +39,7 @@ public:
   //
   enum Mode
   {
-    NULL_MODE,                  // NULL Mode - matches with all modes
+    ALL,                        // matches with all modes
     JT65,
     JT9,
     JT4,

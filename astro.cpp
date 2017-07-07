@@ -7,7 +7,6 @@
 #include <QTextStream>
 #include <QSettings>
 #include <QDateTime>
-#include <QStandardPaths>
 #include <QDir>
 #include <QDebug>
 

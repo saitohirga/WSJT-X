@@ -183,7 +183,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_network_manager {this},
   m_valid {true},
   m_splash {splash},
-  m_dataDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)},
   m_revision {revision ()},
   m_multiple {multiple},
   m_multi_settings {multi_settings},
@@ -526,7 +525,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (ui->view_phase_response_action, &QAction::triggered, [this] () {
       if (!m_phaseEqualizationDialog)
         {
-          m_phaseEqualizationDialog.reset (new PhaseEqualizationDialog {m_settings, m_dataDir, m_phaseEqCoefficients, this});
+          m_phaseEqualizationDialog.reset (new PhaseEqualizationDialog {m_settings, m_config.writeable_data_dir (), m_phaseEqCoefficients, this});
           connect (m_phaseEqualizationDialog.data (), &PhaseEqualizationDialog::phase_equalization_changed,
                    [this] (QVector<double> const& coeffs) {
                      m_phaseEqCoefficients = coeffs;
@@ -768,7 +767,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
       , "-m", QString::number (qMin (qMax (QThread::idealThreadCount () - 1, 1), 3)) //FFTW threads
 
       , "-e", QDir::toNativeSeparators (m_appDir)
-      , "-a", QDir::toNativeSeparators (m_dataDir.absolutePath ())
+      , "-a", QDir::toNativeSeparators (m_config.writeable_data_dir ().absolutePath ())
       , "-t", QDir::toNativeSeparators (m_config.temp_dir ().absolutePath ())
       };
   QProcessEnvironment env {QProcessEnvironment::systemEnvironment ()};
@@ -777,7 +776,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   proc_jt9.start(QDir::toNativeSeparators (m_appDir) + QDir::separator () +
           "jt9", jt9_args, QIODevice::ReadWrite | QIODevice::Unbuffered);
 
-  QString fname {QDir::toNativeSeparators(m_dataDir.absoluteFilePath ("wsjtx_wisdom.dat"))};
+  QString fname {QDir::toNativeSeparators(m_config.writeable_data_dir ().absoluteFilePath ("wsjtx_wisdom.dat"))};
   QByteArray cfname=fname.toLocal8Bit();
   fftwf_import_wisdom_from_filename(cfname);
 
@@ -934,7 +933,7 @@ void MainWindow::on_the_minute ()
 MainWindow::~MainWindow()
 {
   m_astroWidget.reset ();
-  QString fname {QDir::toNativeSeparators(m_dataDir.absoluteFilePath ("wsjtx_wisdom.dat"))};
+  QString fname {QDir::toNativeSeparators(m_config.writeable_data_dir ().absoluteFilePath ("wsjtx_wisdom.dat"))};
   QByteArray cfname=fname.toLocal8Bit();
   fftwf_export_wisdom_to_filename(cfname);
   m_audioThread.quit ();
@@ -1142,7 +1141,7 @@ void MainWindow::dataSink(qint64 frames)
   char line[80];
 
   int k (frames);
-  QString fname {QDir::toNativeSeparators(m_dataDir.absoluteFilePath ("refspec.dat"))};
+  QString fname {QDir::toNativeSeparators(m_config.writeable_data_dir ().absoluteFilePath ("refspec.dat"))};
   QByteArray bafname = fname.toLatin1();
   const char *c_fname = bafname.data();
   int len=fname.length();
@@ -1196,7 +1195,7 @@ void MainWindow::dataSink(qint64 frames)
          m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
          m_config.color_NewCall());
 // Append results text to file "fmt.all".
-    QFile f {m_dataDir.absoluteFilePath ("fmt.all")};
+    QFile f {m_config.writeable_data_dir ().absoluteFilePath ("fmt.all")};
     if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
       QTextStream out(&f);
       out << t << endl;
@@ -1296,15 +1295,15 @@ void MainWindow::dataSink(qint64 frames)
 
       if(m_diskData) {
         cmnd='"' + m_appDir + '"' + "/wsprd -a \"" +
-            QDir::toNativeSeparators(m_dataDir.absolutePath()) + "\" \"" + m_path + "\"";
+          QDir::toNativeSeparators(m_config.writeable_data_dir ().absolutePath()) + "\" \"" + m_path + "\"";
       } else {
         if(m_mode=="WSPR-LF") {
           cmnd='"' + m_appDir + '"' + "/wspr_fsk8d " + degrade + t2 +" -a \"" +
-              QDir::toNativeSeparators(m_dataDir.absolutePath()) + "\" " +
+            QDir::toNativeSeparators(m_config.writeable_data_dir ().absolutePath()) + "\" " +
               '"' + m_fnameWE + ".wav\"";
         } else {
           cmnd='"' + m_appDir + '"' + "/wsprd -a \"" +
-              QDir::toNativeSeparators(m_dataDir.absolutePath()) + "\" " +
+            QDir::toNativeSeparators(m_config.writeable_data_dir ().absolutePath()) + "\" " +
               t2 + '"' + m_fnameWE + ".wav\"";
         }
       }
@@ -1407,7 +1406,7 @@ void MainWindow::fastSink(qint64 frames)
   strncpy(dec_data.params.hiscall,(hisCall + "            ").toLatin1 ().constData (), 12);
   strncpy(dec_data.params.mygrid, (m_config.my_grid()+"      ").toLatin1(),6);
   QString dataDir;
-  dataDir = m_dataDir.absolutePath ();
+  dataDir = m_config.writeable_data_dir ().absolutePath ();
   char ddir[512];
   strncpy(ddir,dataDir.toLatin1(), sizeof (ddir) - 1);
   float pxmax = 0;
@@ -2612,7 +2611,7 @@ void::MainWindow::fast_decode_done()
 void MainWindow::writeAllTxt(QString message)
 {
   // Write decoded text to file "ALL.TXT".
-      QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
+  QFile f {m_config.writeable_data_dir ().absoluteFilePath ("ALL.TXT")};
       if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
         QTextStream out(&f);
         if(m_RxLog==1) {
@@ -2693,7 +2692,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           if(navg>1 or t.indexOf("f*")>0) bAvgMsg=true;
         }
       }
-      QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
+      QFile f {m_config.writeable_data_dir ().absoluteFilePath ("ALL.TXT")};
       if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
         QTextStream out(&f);
         if(m_RxLog==1) {
@@ -3082,7 +3081,7 @@ void MainWindow::guiUpdate()
       m_currentMessageType = -1;
     }
     if(m_restart) {
-      QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
+      QFile f {m_config.writeable_data_dir ().absoluteFilePath ("ALL.TXT")};
       if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append))
         {
           QTextStream out(&f);
@@ -3192,7 +3191,7 @@ void MainWindow::guiUpdate()
       }
 
       if(!m_tune) {
-        QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
+        QFile f {m_config.writeable_data_dir ().absoluteFilePath ("ALL.TXT")};
         if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
           QTextStream out(&f);
           out << QDateTime::currentDateTimeUtc().toString("hhmm")
@@ -3339,7 +3338,7 @@ void MainWindow::startTx2()
         ui->decodedTextBrowser->appendText(t);
       }
 
-      QFile f {m_dataDir.absoluteFilePath ("ALL_WSPR.TXT")};
+      QFile f {m_config.writeable_data_dir ().absoluteFilePath ("ALL_WSPR.TXT")};
       if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
         QTextStream out(&f);
         out << QDateTime::currentDateTimeUtc().toString("yyMMdd hhmm")
@@ -4021,7 +4020,7 @@ void MainWindow::lookup()                                       //lookup()
 {
   QString hisCall {ui->dxCallEntry->text()};
   if (!hisCall.size ()) return;
-  QFile f {m_dataDir.absoluteFilePath ("CALL3.TXT")};
+  QFile f {m_config.writeable_data_dir ().absoluteFilePath ("CALL3.TXT")};
   if (f.open (QIODevice::ReadOnly | QIODevice::Text))
     {
       char c[132];
@@ -4075,7 +4074,7 @@ void MainWindow::on_addButton_clicked()                       //Add button
   newEntry += ",,,";
   //  }
   
-  QFile f1 {m_dataDir.absoluteFilePath ("CALL3.TXT")};
+  QFile f1 {m_config.writeable_data_dir ().absoluteFilePath ("CALL3.TXT")};
   if(!f1.open(QIODevice::ReadWrite | QIODevice::Text)) {
     MessageBox::warning_message (this, tr ("Add to CALL3.TXT")
                                  , tr ("Cannot open \"%1\" for read/write: %2")
@@ -4088,7 +4087,7 @@ void MainWindow::on_addButton_clicked()                       //Add button
     f1.close();
     f1.open(QIODevice::ReadOnly | QIODevice::Text);
   }
-  QFile f2 {m_dataDir.absoluteFilePath ("CALL3.TMP")};
+  QFile f2 {m_config.writeable_data_dir ().absoluteFilePath ("CALL3.TMP")};
   if(!f2.open(QIODevice::WriteOnly | QIODevice::Text)) {
     MessageBox::warning_message (this, tr ("Add to CALL3.TXT")
                                  , tr ("Cannot open \"%1\" for writing: %2")
@@ -4130,11 +4129,11 @@ void MainWindow::on_addButton_clicked()                       //Add button
   f1.close();
   if(hc>hc1 && !m_call3Modified) out << newEntry + QChar::LineFeed;
   if(m_call3Modified) {
-    QFile f0 {m_dataDir.absoluteFilePath ("CALL3.OLD")};
+    QFile f0 {m_config.writeable_data_dir ().absoluteFilePath ("CALL3.OLD")};
     if(f0.exists()) f0.remove();
-    QFile f1 {m_dataDir.absoluteFilePath ("CALL3.TXT")};
-    f1.rename(m_dataDir.absoluteFilePath ("CALL3.OLD"));
-    f2.rename(m_dataDir.absoluteFilePath ("CALL3.TXT"));
+    QFile f1 {m_config.writeable_data_dir ().absoluteFilePath ("CALL3.TXT")};
+    f1.rename(m_config.writeable_data_dir ().absoluteFilePath ("CALL3.OLD"));
+    f2.rename(m_config.writeable_data_dir ().absoluteFilePath ("CALL3.TXT"));
     f2.close();
   }
 }
@@ -4797,7 +4796,7 @@ void MainWindow::on_actionFreqCal_triggered()
 void MainWindow::switch_mode (Mode mode)
 {
   m_fastGraph->setMode(m_mode);
-  m_config.frequencies ()->filter (mode);
+  m_config.frequencies ()->filter (m_config.region (), mode);
   auto const& row = m_config.frequencies ()->best_working_frequency (m_freqNominal);
   if (row >= 0) {
     ui->bandComboBox->setCurrentIndex (row);
@@ -4938,7 +4937,7 @@ void MainWindow::on_actionErase_ALL_TXT_triggered()          //Erase ALL.TXT
   int ret = MessageBox::query_message (this, tr ("Confirm Erase"),
                                          tr ("Are you sure you want to erase file ALL.TXT?"));
   if(ret==MessageBox::Yes) {
-    QFile f {m_dataDir.absoluteFilePath ("ALL.TXT")};
+    QFile f {m_config.writeable_data_dir ().absoluteFilePath ("ALL.TXT")};
     f.remove();
     m_RxLog=1;
   }
@@ -4949,14 +4948,14 @@ void MainWindow::on_actionErase_wsjtx_log_adi_triggered()
   int ret = MessageBox::query_message (this, tr ("Confirm Erase"),
                                        tr ("Are you sure you want to erase file wsjtx_log.adi?"));
   if(ret==MessageBox::Yes) {
-    QFile f {m_dataDir.absoluteFilePath ("wsjtx_log.adi")};
+    QFile f {m_config.writeable_data_dir ().absoluteFilePath ("wsjtx_log.adi")};
     f.remove();
   }
 }
 
 void MainWindow::on_actionOpen_log_directory_triggered ()
 {
-  QDesktopServices::openUrl (QUrl::fromLocalFile (m_dataDir.absolutePath ()));
+  QDesktopServices::openUrl (QUrl::fromLocalFile (m_config.writeable_data_dir ().absolutePath ()));
 }
 
 void MainWindow::on_bandComboBox_currentIndexChanged (int index)
@@ -5394,7 +5393,7 @@ void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const&
             m_secBandChanged=QDateTime::currentMSecsSinceEpoch()/1000;
             if(s.frequency () < 30000000u && !m_mode.startsWith ("WSPR")) {
               // Write freq changes to ALL.TXT only below 30 MHz.
-              QFile f2 {m_dataDir.absoluteFilePath ("ALL.TXT")};
+              QFile f2 {m_config.writeable_data_dir ().absoluteFilePath ("ALL.TXT")};
               if (f2.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
                 QTextStream out(&f2);
                 out << QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm")
@@ -6024,7 +6023,7 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
         int msdelay=20000*x;
         uploadTimer.start(msdelay);                         //Upload delay
       } else {
-        QFile f(QDir::toNativeSeparators(m_dataDir.absolutePath()) + "/wspr_spots.txt");
+        QFile f(QDir::toNativeSeparators(m_config.writeable_data_dir ().absolutePath()) + "/wspr_spots.txt");
         if(f.exists()) f.remove();
       }
       m_RxLog=0;
@@ -6117,7 +6116,7 @@ void MainWindow::WSPR_history(Frequency dialFreq, int ndecodes)
     t4.sprintf("%4d",ndecodes);
     t1=t1 + " " + t2 + t3 + "  R" + t4;
   }
-  QFile f {m_dataDir.absoluteFilePath ("WSPR_history.txt")};
+  QFile f {m_config.writeable_data_dir ().absoluteFilePath ("WSPR_history.txt")};
   if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
     QTextStream out(&f);
     out << t1 << endl;
@@ -6145,7 +6144,7 @@ void MainWindow::uploadSpots()
   wsprNet->upload(m_config.my_callsign(), m_config.my_grid(), rfreq, tfreq,
                   m_mode, QString::number(ui->autoButton->isChecked() ? m_pctx : 0),
                   QString::number(m_dBm), version(),
-                  QDir::toNativeSeparators(m_dataDir.absolutePath()) + "/wspr_spots.txt");
+                  QDir::toNativeSeparators(m_config.writeable_data_dir ().absolutePath()) + "/wspr_spots.txt");
   m_uploading = true;
 }
 

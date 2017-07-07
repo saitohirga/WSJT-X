@@ -303,7 +303,6 @@ private:
   NetworkAccessManager m_network_manager;
   bool m_valid;
   QSplashScreen * m_splash;
-  QDir m_dataDir;
   QString m_revision;
   bool m_multiple;
   MultiSettings * m_multi_settings;

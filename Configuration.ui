@@ -27,94 +27,114 @@
          <property name="title">
           <string>Station Details</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_14">
-          <item row="0" column="3">
-           <widget class="QLabel" name="grid_label">
-            <property name="text">
-             <string>M&amp;y Grid:</string>
-            </property>
-            <property name="buddy">
-             <cstring>grid_line_edit</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="callsign_label">
-            <property name="text">
-             <string>My C&amp;all:</string>
-            </property>
-            <property name="buddy">
-             <cstring>callsign_line_edit</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="4">
-           <widget class="QLineEdit" name="grid_line_edit">
-            <property name="toolTip">
-             <string>Maidenhead locator (only the first four characters are required).</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="callsign_line_edit">
-            <property name="toolTip">
-             <string>Station callsign.</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <spacer name="horizontalSpacer_4">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="1" column="4">
-           <widget class="QComboBox" name="type_2_msg_gen_combo_box">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Type 2 compound callsigns are those with prefixes or suffixes not included in the allowed shortlist (See Help-&amp;gt;Add-on prefixes and suffixes).&lt;/p&gt;&lt;p&gt;This option determines which generated messages should contain your full type 2 compound call sign rather than your base callsign. It only applies if you have a type 2 compound callsign.&lt;/p&gt;&lt;p&gt;This option controls the way the messages that are used to answer CQ calls are generated. Generated messages 6 (CQ) and 5 (73) will always contain your full callsign. The JT65 and JT9 protocols allow for some standard messages with your full call at the expense of another piece of information such as the DX call or your locator.&lt;/p&gt;&lt;p&gt;Choosing message 1 omits the DX callsign which may be an issue when replying to CQ calls. Choosing message 3 also omits the DX callsign and many versions of this and other software will not extract the report. Choosing neither means that your full callsign only goes in your message 5 (73) so your QSO partner my log the wrong callsign.&lt;/p&gt;&lt;p&gt;None of these options are perfect, message 3 is best but be aware your QSO partner may not log the report you send them.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="currentIndex">
-             <number>1</number>
-            </property>
+         <layout class="QVBoxLayout" name="verticalLayout_12">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_14">
             <item>
-             <property name="text">
-              <string>Full call in Tx1</string>
-             </property>
+             <layout class="QFormLayout" name="formLayout_3">
+              <item row="0" column="0">
+               <widget class="QLabel" name="callsign_label">
+                <property name="text">
+                 <string>My C&amp;all:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>callsign_line_edit</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="callsign_line_edit">
+                <property name="toolTip">
+                 <string>Station callsign.</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item>
-             <property name="text">
-              <string>Full call in Tx3</string>
-             </property>
+             <layout class="QFormLayout" name="formLayout_12">
+              <item row="0" column="0">
+               <widget class="QLabel" name="grid_label">
+                <property name="text">
+                 <string>M&amp;y Grid:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>grid_line_edit</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="grid_line_edit">
+                <property name="toolTip">
+                 <string>Maidenhead locator (only the first four characters are required).</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item>
-             <property name="text">
-              <string>Full call in Tx5 only</string>
-             </property>
+             <layout class="QFormLayout" name="formLayout_2">
+              <item row="0" column="1">
+               <widget class="QComboBox" name="region_combo_box"/>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_12">
+                <property name="text">
+                 <string>IARU Region:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>region_combo_box</cstring>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
-           </widget>
+           </layout>
           </item>
-          <item row="1" column="0" colspan="4">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>Message generation for type 2 compound callsign holders:</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-            <property name="buddy">
-             <cstring>type_2_msg_gen_combo_box</cstring>
-            </property>
-           </widget>
+          <item>
+           <layout class="QFormLayout" name="formLayout_13">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>Message generation for type 2 compound callsign holders:</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="buddy">
+               <cstring>type_2_msg_gen_combo_box</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="type_2_msg_gen_combo_box">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Type 2 compound callsigns are those with prefixes or suffixes not included in the allowed shortlist (See Help-&amp;gt;Add-on prefixes and suffixes).&lt;/p&gt;&lt;p&gt;This option determines which generated messages should contain your full type 2 compound call sign rather than your base callsign. It only applies if you have a type 2 compound callsign.&lt;/p&gt;&lt;p&gt;This option controls the way the messages that are used to answer CQ calls are generated. Generated messages 6 (CQ) and 5 (73) will always contain your full callsign. The JT65 and JT9 protocols allow for some standard messages with your full call at the expense of another piece of information such as the DX call or your locator.&lt;/p&gt;&lt;p&gt;Choosing message 1 omits the DX callsign which may be an issue when replying to CQ calls. Choosing message 3 also omits the DX callsign and many versions of this and other software will not extract the report. Choosing neither means that your full callsign only goes in your message 5 (73) so your QSO partner my log the wrong callsign.&lt;/p&gt;&lt;p&gt;None of these options are perfect, message 3 is best but be aware your QSO partner may not log the report you send them.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="currentIndex">
+               <number>1</number>
+              </property>
+              <item>
+               <property name="text">
+                <string>Full call in Tx1</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Full call in Tx3</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Full call in Tx5 only</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -423,6 +443,19 @@ text message.</string>
           </item>
          </layout>
         </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_11">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>
@@ -1777,6 +1810,106 @@ for assessing propagation and system performance.</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_10">
        <item>
+        <widget class="QGroupBox" name="groupBox_3">
+         <property name="toolTip">
+          <string>See WSPR documentattion Appendix C for details of how to determine these factors for your radio.</string>
+         </property>
+         <property name="title">
+          <string>Frequency Calibration</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <layout class="QFormLayout" name="formLayout_7">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_8">
+              <property name="text">
+               <string>Slope:</string>
+              </property>
+              <property name="buddy">
+               <cstring>calibration_slope_ppm_spin_box</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QDoubleSpinBox" name="calibration_slope_ppm_spin_box">
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="suffix">
+               <string> ppm</string>
+              </property>
+              <property name="decimals">
+               <number>4</number>
+              </property>
+              <property name="minimum">
+               <double>-999.999900000000025</double>
+              </property>
+              <property name="maximum">
+               <double>999.999900000000025</double>
+              </property>
+              <property name="singleStep">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QFormLayout" name="formLayout_14">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_7">
+              <property name="text">
+               <string>Intercept:</string>
+              </property>
+              <property name="buddy">
+               <cstring>calibration_intercept_spin_box</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QDoubleSpinBox" name="calibration_intercept_spin_box">
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="suffix">
+               <string> Hz</string>
+              </property>
+              <property name="decimals">
+               <number>2</number>
+              </property>
+              <property name="minimum">
+               <double>-99999.990000000005239</double>
+              </property>
+              <property name="maximum">
+               <double>99999.990000000005239</double>
+              </property>
+              <property name="singleStep">
+               <double>0.100000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
           <string>Working Frequencies</string>
@@ -1794,7 +1927,7 @@ for assessing propagation and system performance.</string>
              <enum>Qt::ActionsContextMenu</enum>
             </property>
             <property name="toolTip">
-             <string>Right click to add or delete frequencies.</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Right click to maintain the working frequencies list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="dragDropMode">
              <enum>QAbstractItemView::DragOnly</enum>
@@ -1815,129 +1948,6 @@ for assessing propagation and system performance.</string>
              <bool>false</bool>
             </attribute>
            </widget>
-          </item>
-          <item>
-           <layout class="QVBoxLayout" name="verticalLayout_7">
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_6">
-              <item>
-               <widget class="QPushButton" name="reset_frequencies_push_button">
-                <property name="text">
-                 <string>Reset</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_6">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="groupBox_3">
-              <property name="toolTip">
-               <string>See WSPR documentattion Appendix C for details of how to determine these factors for your radio.</string>
-              </property>
-              <property name="title">
-               <string>Frequency Calibration</string>
-              </property>
-              <layout class="QFormLayout" name="formLayout_7">
-               <property name="fieldGrowthPolicy">
-                <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-               </property>
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_7">
-                 <property name="text">
-                  <string>Intercept:</string>
-                 </property>
-                 <property name="buddy">
-                  <cstring>calibration_intercept_spin_box</cstring>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QDoubleSpinBox" name="calibration_intercept_spin_box">
-                 <property name="alignment">
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="suffix">
-                  <string> Hz</string>
-                 </property>
-                 <property name="decimals">
-                  <number>2</number>
-                 </property>
-                 <property name="minimum">
-                  <double>-99999.990000000005239</double>
-                 </property>
-                 <property name="maximum">
-                  <double>99999.990000000005239</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.100000000000000</double>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_8">
-                 <property name="text">
-                  <string>Slope:</string>
-                 </property>
-                 <property name="buddy">
-                  <cstring>calibration_slope_ppm_spin_box</cstring>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QDoubleSpinBox" name="calibration_slope_ppm_spin_box">
-                 <property name="alignment">
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="suffix">
-                  <string> ppm</string>
-                 </property>
-                 <property name="decimals">
-                  <number>4</number>
-                 </property>
-                 <property name="minimum">
-                  <double>-999.999900000000025</double>
-                 </property>
-                 <property name="maximum">
-                  <double>999.999900000000025</double>
-                 </property>
-                 <property name="singleStep">
-                  <double>0.100000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>0.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_6">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
           </item>
          </layout>
         </widget>
@@ -2460,6 +2470,7 @@ soundcard changes</string>
   <tabstop>configuration_tabs</tabstop>
   <tabstop>callsign_line_edit</tabstop>
   <tabstop>grid_line_edit</tabstop>
+  <tabstop>region_combo_box</tabstop>
   <tabstop>type_2_msg_gen_combo_box</tabstop>
   <tabstop>insert_blank_check_box</tabstop>
   <tabstop>miles_check_box</tabstop>
@@ -2528,11 +2539,10 @@ soundcard changes</string>
   <tabstop>accept_udp_requests_check_box</tabstop>
   <tabstop>udpWindowToFront</tabstop>
   <tabstop>udpWindowRestore</tabstop>
+  <tabstop>calibration_slope_ppm_spin_box</tabstop>
+  <tabstop>calibration_intercept_spin_box</tabstop>
   <tabstop>frequencies_table_view</tabstop>
   <tabstop>stations_table_view</tabstop>
-  <tabstop>reset_frequencies_push_button</tabstop>
-  <tabstop>calibration_intercept_spin_box</tabstop>
-  <tabstop>calibration_slope_ppm_spin_box</tabstop>
   <tabstop>pbCQmsg</tabstop>
   <tabstop>pbMyCall</tabstop>
   <tabstop>pbTxMsg</tabstop>
@@ -2557,8 +2567,8 @@ soundcard changes</string>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>272</x>
-     <y>606</y>
+     <x>281</x>
+     <y>488</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -2573,8 +2583,8 @@ soundcard changes</string>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>340</x>
-     <y>606</y>
+     <x>349</x>
+     <y>488</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -2616,12 +2626,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="CAT_stop_bits_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="split_mode_button_group"/>
-  <buttongroup name="CAT_data_bits_button_group"/>
-  <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="TX_mode_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
+  <buttongroup name="CAT_handshake_button_group"/>
+  <buttongroup name="CAT_stop_bits_button_group"/>
  </buttongroups>
 </ui>

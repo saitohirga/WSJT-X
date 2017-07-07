@@ -183,6 +183,7 @@ set (wsjt_qt_CXXSRCS
   WFPalette.cpp
   Radio.cpp
   RadioMetaType.cpp
+  IARURegions.cpp
   Bands.cpp
   Modes.cpp
   FrequencyList.cpp
