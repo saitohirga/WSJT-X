@@ -25,7 +25,7 @@ namespace
                                    , quint32 delta_frequency, QString const& mode, QString const& message
                                    , bool is_fast)
   {
-    auto time_item = new QStandardItem {time.toString (is_fast ? "hh:mm:ss" : "hh:mm")};
+    auto time_item = new QStandardItem {time.toString (is_fast || "~" == mode ? "hh:mm:ss" : "hh:mm")};
     time_item->setData (time);
     time_item->setTextAlignment (Qt::AlignRight);
 
