@@ -75,7 +75,7 @@ extern "C" {
               int len1, int len2, int len3, int len4, int len5);
 //  float s[], int* jh, char line[], char mygrid[],
 
-  void genft8_(char* msg, char* msgsent, int itone[], int len1, int len2);
+  void genft8_(char* msg, char* msgsent, char ft8msgbits[], int itone[], int len1, int len2);
 
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, int len1, int len2);
@@ -132,6 +132,7 @@ extern "C" {
 }
 
 int volatile itone[NUM_ISCAT_SYMBOLS];	//Audio tones for all Tx symbols
+char volatile ft8msgbits[75]; 	        //packed 75 bit ft8 message
 int volatile icw[NUM_CW_SYMBOLS];	      //Dits for CW ID
 struct dec_data dec_data;               // for sharing with Fortran
 
@@ -3059,7 +3060,7 @@ void MainWindow::guiUpdate()
                                     len1, len1);
         if(m_mode=="WSPR-LF") genwspr_fsk8_(message, msgsent, const_cast<int *> (itone),
                                     len1, len1);
-        if(m_mode=="FT8") genft8_(message, msgsent, const_cast<int *> (itone), len1, len1);
+        if(m_mode=="FT8") genft8_(message, msgsent, const_cast<char *> (ft8msgbits), const_cast<int *> (itone), len1, len1);
         if(m_modeTx=="MSK144") {
           bool bcontest=m_config.contestMode();
           char MyGrid[6];
