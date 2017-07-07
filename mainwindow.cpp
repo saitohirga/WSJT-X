@@ -881,11 +881,11 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
 
-  ui->actionFT8->setEnabled(false);
+//  ui->actionFT8->setEnabled(false);
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
      m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "G3PQA") {
       ui->actionWSPR_LF->setEnabled(true);
-      ui->actionFT8->setEnabled(true);
+//      ui->actionFT8->setEnabled(true);
   }
   if(!ui->cbMenus->isChecked()) {
     ui->cbMenus->setChecked(true);
@@ -4357,6 +4357,7 @@ void MainWindow::displayWidgets(int n)
 
 void MainWindow::on_actionFT8_triggered()
 {
+  /*
   if(m_config.my_callsign()!="K1JT" and m_config.my_callsign()!="K9AN" and
      m_config.my_callsign()!="G4WJS" and m_config.my_callsign()!="G3PQA") {
     MessageBox::warning_message (this, tr ("FT8 warning"),
@@ -4364,6 +4365,7 @@ void MainWindow::on_actionFT8_triggered()
     on_actionJT9_JT65_triggered();
     return;
   }
+  */
   m_mode="FT8";
   bool bVHF=false;
   displayWidgets(nWidgets("111010000000111000010000"));
