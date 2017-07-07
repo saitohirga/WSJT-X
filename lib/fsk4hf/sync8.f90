@@ -8,8 +8,8 @@ subroutine sync8(dd,nfa,nfb,nfqso,s,candidate,ncand)
   real x(NFFT1)
   real sync2d(NH1,-JZ:JZ)
   real red(NH1)
-  real candidate0(3,100)
-  real candidate(3,100)
+  real candidate0(3,200)
+  real candidate(3,200)
   real dd(NMAX)
   integer jpeak(NH1)
   integer indx(NH1)
@@ -88,12 +88,12 @@ subroutine sync8(dd,nfa,nfb,nfqso,s,candidate,ncand)
   do i=1,100
      n=ia + indx(iz+1-i) - 1
      if(red(n).lt.syncmin) exit
-     k=k+1
+     if(k.lt.200) k=k+1
      candidate0(1,k)=n*df
      candidate0(2,k)=(jpeak(n)-1)*tstep
      candidate0(3,k)=red(n)
   enddo
-  ncand=min(100,k)
+  ncand=k
 
 ! Put nfqso at top of list, and save only the best of near-dupe freqs.  
   do i=1,ncand

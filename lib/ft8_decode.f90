@@ -32,7 +32,7 @@ contains
     class(ft8_decoder), intent(inout) :: this
     procedure(ft8_decode_callback) :: callback
     real s(NH1,NHSYM)
-    real candidate(3,100)
+    real candidate(3,200)
     real dd(15*12000)
     logical, intent(in) :: newdat, nagain
     character*12 mycall, hiscall
@@ -52,7 +52,6 @@ contains
     call timer('sync8   ',1)
 
     syncmin=2.0
-!    rewind 51
     do icand=1,ncand
        sync=candidate(3,icand)
        if(sync.lt.syncmin) cycle
@@ -60,7 +59,8 @@ contains
        xdt=candidate(2,icand)
        nsnr0=min(99,nint(10.0*log10(sync) - 25.5))    !### empirical ###
        call timer('ft8b    ',0)
-       call ft8b(dd,newdat,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
+       call ft8b(dd,newdat,nfqso,ndepth,icand,sync,f1,xdt,nharderrors,   &
+            dmin,nbadcrc,message,xsnr)
        nsnr=xsnr  
        xdt=xdt-0.6
        call timer('ft8b    ',1)

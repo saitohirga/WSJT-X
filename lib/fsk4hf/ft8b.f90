@@ -1,4 +1,5 @@
-subroutine ft8b(dd0,newdat,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
+subroutine ft8b(dd0,newdat,nfqso,ndepth,icand,sync0,f1,xdt,nharderrors,   &
+     dmin,nbadcrc,message,xsnr)
 
   use timer_module, only: timer
   include 'ft8_params.f90'
@@ -19,13 +20,13 @@ subroutine ft8b(dd0,newdat,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
 
   max_iterations=40
   norder=2
+  if(ndepth.eq.3 .and. abs(nfqso-f1).lt.10.0) norder=3
   fs2=12000.0/NDOWN
   dt2=1.0/fs2
   twopi=8.0*atan(1.0)
   delfbest=0.
   ibest=0
 
-!  if(abs(nfqso-f1).lt.10.0) norder=3
   call timer('ft8_down',0)
   call ft8_downsample(dd0,newdat,f1,cd0)   !Mix f1 to baseband and downsample
   call timer('ft8_down',1)
@@ -141,6 +142,8 @@ subroutine ft8b(dd0,newdat,nfqso,f1,xdt,nharderrors,dmin,nbadcrc,message,xsnr)
      if( xnoi.gt.0 .and. xnoi.lt.xsig ) xsnr=xsig/xnoi-1.0
      xsnr=10.0*log10(xsnr)-27.0
      if( xsnr .lt. -24.0 ) xsnr=-24.0
+!     write(50,3050) icand,sync0,f1,xdt,nharderrors,dmin,message
+!3050 format(i3,3f10.3,i5,f10.3,2x,a22)
   endif
 
 900 continue
