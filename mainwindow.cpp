@@ -1680,16 +1680,29 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         }
       }
       break;
+    case Qt::Key_F1:
+      on_actionOnline_User_Guide_triggered();
+      return;
+    case Qt::Key_F2:
+      on_actionSettings_triggered();
+      return;
+    case Qt::Key_F3:
+      on_actionKeyboard_shortcuts_triggered();
+      return;
     case Qt::Key_F4:
       clearDX ();
       ui->dxCallEntry->setFocus();
+      return;
+    case Qt::Key_F5:
+      on_actionSpecial_mouse_commands_triggered();
       return;
     case Qt::Key_F6:
       if(e->modifiers() & Qt::ShiftModifier) {
         on_actionDecode_remaining_files_in_directory_triggered();
         return;
       }
-      break;
+      on_actionOpen_next_in_directory_triggered();
+      return;
     case Qt::Key_F10:
       if(e->modifiers() & Qt::ControlModifier) freqCalStep();
       break;
@@ -1703,6 +1716,16 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       if(e->modifiers() & Qt::ControlModifier) n+=100;
       bumpFqso(n);
       return;
+    case Qt::Key_E:
+      if(e->modifiers() & Qt::ShiftModifier) {
+          ui->txFirstCheckBox->setChecked(false);
+          return;
+      }
+      else if (e->modifiers() & Qt::ControlModifier) {
+          ui->txFirstCheckBox->setChecked(true);
+          return;
+      }
+      break;
     case Qt::Key_F:
       if(e->modifiers() & Qt::ControlModifier) {
         if(ui->tabWidget->currentIndex()==0) {
@@ -1732,6 +1755,12 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         lookup();
         genStdMsgs(m_rpt);
         return;
+      }
+      break;
+    case Qt::Key_O:
+      if(e->modifiers() & Qt::ControlModifier) {
+          on_actionOpen_triggered();
+          return;
       }
       break;
     case Qt::Key_V:

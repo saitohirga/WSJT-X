@@ -17,6 +17,8 @@
   <tr><td><b>Ctl+1-6  </b></td><td>Set next transmission to this number on Tab 1</td></tr>
   <tr><td><b>Alt+D    </b></td><td>Decode again at QSO frequency</td></tr>
   <tr><td><b>Shift+D  </b></td><td>Full decode (both windows)</td></tr>
+  <tr><td><b>Ctrl+E   </b></td><td>Turn on TX even/1st</td></tr>
+  <tr><td><b>Shift+E  </b></td><td>Turn off TX even/1st</td></tr>
   <tr><td><b>Alt+E    </b></td><td>Erase</td></tr>
   <tr><td><b>Ctrl+F   </b></td><td>Edit the free text message box</td></tr>
   <tr><td><b>Alt+G    </b></td><td>Generate standard messages</td></tr>
