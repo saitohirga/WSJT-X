@@ -152,13 +152,16 @@ private slots:
   void decode();
   void decodeBusy(bool b);
   void on_EraseButton_clicked();
-  void on_txb1_clicked();
   void on_txFirstCheckBox_stateChanged(int arg1);
   void set_dateTimeQSO(int m_ntx);
   void set_ntx(int n);
   void on_txrb1_toggled(bool status);
   void on_txrb2_toggled(bool status);
   void on_txrb3_toggled(bool status);
+  void on_txrb4_toggled(bool status);
+  void on_txrb5_toggled(bool status);
+  void on_txrb6_toggled(bool status);
+  void on_txb1_clicked();
   void on_txb2_clicked();
   void on_txb3_clicked();
   void on_txb4_clicked();
