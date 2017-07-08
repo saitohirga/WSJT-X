@@ -23,7 +23,7 @@ module ft8_decode
 contains
 
   subroutine decode(this,callback,iwave,nfqso,newdat,nutc,nfa,    &
-       nfb,nagain,ndepth,nsubmode,mycall,hiscall,hisgrid)
+       nfb,nagain,ndepth,nsubmode,mycall12,hiscall12,hisgrid6)
 !use wavhdr
     use timer_module, only: timer
     include 'fsk4hf/ft8_params.f90'
@@ -35,9 +35,10 @@ contains
     real candidate(3,200)
     real dd(15*12000)
     logical, intent(in) :: newdat, nagain
-    character*12 mycall, hiscall
-    character*6 hisgrid
+    character*12 mycall12, hiscall12
+    character*6 hisgrid6
     integer*2 iwave(15*12000)
+    integer apsym(KK)
     character datetime*13,message*22
     save s,dd
 
@@ -45,8 +46,10 @@ contains
     write(datetime,1001) nutc        !### TEMPORARY ###
 1001 format("000000_",i6.6)
 
-    dd=iwave
+    if(index(hisgrid6," ").eq.0) hisgrid6="EN50"
+    call ft8apset(mycall12,hiscall12,hisgrid6,apsym)
 
+    dd=iwave
     call timer('sync8   ',0)
     call sync8(dd,nfa,nfb,nfqso,s,candidate,ncand)
     call timer('sync8   ',1)
@@ -59,7 +62,7 @@ contains
        xdt=candidate(2,icand)
        nsnr0=min(99,nint(10.0*log10(sync) - 25.5))    !### empirical ###
        call timer('ft8b    ',0)
-       call ft8b(dd,newdat,nfqso,ndepth,icand,sync,f1,xdt,nharderrors,   &
+       call ft8b(dd,newdat,nfqso,ndepth,icand,sync,f1,xdt,apsym,nharderrors,  &
             dmin,nbadcrc,message,xsnr)
        nsnr=xsnr  
        xdt=xdt-0.6
@@ -82,3 +85,23 @@ contains
   end subroutine decode
 
 end module ft8_decode
+
+subroutine ft8apset(mycall12,hiscall12,hisgrid6,apsym)
+  parameter(NAPM=4,KK=87)
+  character*12 mycall12,hiscall12
+  character*22 msg,msgsent
+  character*6 mycall,hiscall
+  character*6 hisgrid6
+  character*4 hisgrid
+  integer apsym(KK)
+  integer*1 msgbits(KK)
+  integer itone(KK)
+  
+  mycall=mycall12(1:6)
+  hiscall=hiscall12(1:6)
+  hisgrid=hisgrid6(1:4) 
+  msg=mycall//' '//hiscall//' '//hisgrid
+  call genft8(msg,msgsent,msgbits,itone)
+  apsym=2*msgbits-1 
+  return
+  end subroutine ft8apset 

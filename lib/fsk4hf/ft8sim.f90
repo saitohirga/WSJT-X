@@ -11,6 +11,7 @@ program ft8sim
   complex c0(0:NMAX-1)
   complex c(0:NMAX-1)
   integer itone(NN)
+  integer*1 msgbits(KK)
   integer*2 iwave(NMAX)                  !Generated full-length waveform  
 
 ! Get command-line argument(s)
@@ -44,11 +45,16 @@ program ft8sim
   if(snrdb.gt.90.0) sig=1.0
   txt=NN*NSPS/12000.0
 
-  call genft8(msg,msgsent,itone)         !Source-encode, then get itone()
+  call genft8(msg,msgsent,msgbits,itone)         !Source-encode, then get itone()
   write(*,1000) f0,xdt,txt,snrdb,bw,msgsent
 1000 format('f0:',f9.3,'   DT:',f6.2,'   TxT:',f6.1,'   SNR:',f6.1,    &
           '  BW:',f4.1,2x,a22)
-  
+
+write(*,'(28i1,1x,28i1)') msgbits(1:56)
+write(*,'(16i1)') msgbits(57:72)
+write(*,'(3i1)') msgbits(73:75)
+write(*,'(12i1)') msgbits(76:87)
+ 
 !  call sgran()
   c=0.
   do ifile=1,nfiles
