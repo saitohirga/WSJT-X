@@ -153,7 +153,7 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,icand,sync0,f1,xdt,apsym,nharderrors,   
     dmin=0.0
     if(nharderrors.lt.0 .and. ndepth.ge.2) then
       call timer('osd174  ',0)
-      call osd174(llr,norder,decoded,cw,nharderrors,dmin)
+      call osd174(llrap,norder,decoded,cw,nharderrors,dmin)
       call timer('osd174  ',1)
     endif
     nbadcrc=1
