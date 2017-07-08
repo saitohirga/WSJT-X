@@ -2872,10 +2872,10 @@ void MainWindow::guiUpdate()
   if(m_modeTx=="JT4")  txDuration=1.0 + 207.0*2520/11025.0;   // JT4
   if(m_modeTx=="JT9")  txDuration=1.0 + 85.0*m_nsps/12000.0;  // JT9
   if(m_modeTx=="JT65") txDuration=1.0 + 126*4096/11025.0;     // JT65
-  if(m_mode=="QRA64")  txDuration=1.0 + 84*6912/12000.0;      // QRA64
-  if(m_mode=="WSPR") txDuration=2.0 + 162*8192/12000.0;       // WSPR
-  if(m_mode=="WSPR-LF") txDuration=2.0 + 114*24576/12000.0;   // WSPR-LF
-  if(m_mode=="ISCAT" or m_mode=="MSK144" or m_bFast9) {
+  if(m_modeTx=="QRA64")  txDuration=1.0 + 84*6912/12000.0;      // QRA64
+  if(m_modeTx=="WSPR") txDuration=2.0 + 162*8192/12000.0;       // WSPR
+  if(m_modeTx=="WSPR-LF") txDuration=2.0 + 114*24576/12000.0;   // WSPR-LF
+  if(m_modeTx=="ISCAT" or m_mode=="MSK144" or m_bFast9) {
     txDuration=m_TRperiod-0.25; // ISCAT, JT9-fast, MSK144
   }
 
@@ -3056,13 +3056,13 @@ void MainWindow::guiUpdate()
                                   &m_currentMessageType, len1, len1);
         if(m_modeTx=="JT65") gen65_(message, &ichk, msgsent, const_cast<int *> (itone),
                                     &m_currentMessageType, len1, len1);
-        if(m_mode=="QRA64") genqra64_(message, &ichk, msgsent, const_cast<int *> (itone),
+        if(m_modeTx=="QRA64") genqra64_(message, &ichk, msgsent, const_cast<int *> (itone),
                                     &m_currentMessageType, len1, len1);
-        if(m_mode=="WSPR") genwspr_(message, msgsent, const_cast<int *> (itone),
+        if(m_modeTx=="WSPR") genwspr_(message, msgsent, const_cast<int *> (itone),
                                     len1, len1);
-        if(m_mode=="WSPR-LF") genwspr_fsk8_(message, msgsent, const_cast<int *> (itone),
+        if(m_modeTx=="WSPR-LF") genwspr_fsk8_(message, msgsent, const_cast<int *> (itone),
                                     len1, len1);
-        if(m_mode=="FT8") genft8_(message, msgsent, const_cast<char *> (ft8msgbits), const_cast<int *> (itone), len1, len1);
+        if(m_modeTx=="FT8") genft8_(message, msgsent, const_cast<char *> (ft8msgbits), const_cast<int *> (itone), len1, len1);
         if(m_modeTx=="MSK144") {
           bool bcontest=m_config.contestMode();
           char MyGrid[6];
@@ -3085,28 +3085,7 @@ void MainWindow::guiUpdate()
       m_currentMessageType = -1;
     }
     if(m_restart) {
-      QFile f {m_config.writeable_data_dir ().absoluteFilePath ("ALL.TXT")};
-      if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append))
-        {
-          QTextStream out(&f);
-          out << QDateTime::currentDateTimeUtc().toString("hhmm")
-              << "  Transmitting " << qSetRealNumberPrecision (12) << (m_freqNominal / 1.e6)
-              << " MHz  " << m_modeTx
-              << ":  " << m_currentMessage << endl;
-          f.close();
-        }
-      else
-        {
-          auto const& message = tr ("Cannot open \"%1\" for append: %2")
-            .arg (f.fileName ()).arg (f.errorString ());
-#if QT_VERSION >= 0x050400
-          QTimer::singleShot (0, [=] {                   // don't block guiUpdate
-              MessageBox::warning_message (this, tr ("Log File Error"), message);
-            });
-#else
-          MessageBox::warning_message (this, tr ("Log File Error"), message);
-#endif
-        }
+      write_transmit_entry ("All.TXT");
       if (m_config.TX_messages ())
         {
           ui->decodedTextBrowser2->displayTransmittedText(m_currentMessage,m_modeTx,
@@ -3195,25 +3174,7 @@ void MainWindow::guiUpdate()
       }
 
       if(!m_tune) {
-        QFile f {m_config.writeable_data_dir ().absoluteFilePath ("ALL.TXT")};
-        if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
-          QTextStream out(&f);
-          out << QDateTime::currentDateTimeUtc().toString("hhmm")
-              << "  Transmitting " << qSetRealNumberPrecision (12) << (m_freqNominal / 1.e6) << " MHz  "
-              << m_modeTx
-              << ":  " << m_currentMessage << endl;
-          f.close();
-        } else {
-          auto const& message = tr ("Cannot open \"%1\" for append: %2")
-            .arg (f.fileName ()).arg(f.errorString ());
-#if QT_VERSION >= 0x050400
-          QTimer::singleShot (0, [=] { // don't block guiUpdate
-              MessageBox::warning_message (this, tr ("Log File Error"), message);
-            });
-#else
-          MessageBox::warning_message (this, tr ("Log File Error"), message);
-#endif
-        }
+        write_transmit_entry ("All.TXT");
       }
 
       if (m_config.TX_messages () && !m_tune) {
@@ -3341,19 +3302,7 @@ void MainWindow::startTx2()
         t=WSPR_hhmm(0) + ' ' + t.rightJustified (66, '-');
         ui->decodedTextBrowser->appendText(t);
       }
-
-      QFile f {m_config.writeable_data_dir ().absoluteFilePath ("ALL_WSPR.TXT")};
-      if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
-        QTextStream out(&f);
-        out << QDateTime::currentDateTimeUtc().toString("yyMMdd hhmm")
-            << "  Transmitting " << qSetRealNumberPrecision (12) << (m_freqNominal / 1.e6) << " MHz:  "
-            << m_currentMessage << "  " + m_mode << endl;
-        f.close();
-      } else {
-        MessageBox::warning_message (this, tr ("Log File Error"),
-                                     tr ("Cannot open \"%1\" for append: %2")
-                                     .arg (f.fileName ()).arg (f.errorString ()));
-      }
+      write_transmit_entry ("ALL_WSPR.TXT");
     }
   }
 }
@@ -4704,7 +4653,7 @@ void MainWindow::on_actionWSPR_triggered()
   displayWidgets(nWidgets("000000000000000001010000"));
   WSPR_config(true);
   switch_mode (Modes::WSPR);
-  m_modeTx="WSPR";                                    //### not needed ?? ###
+  m_modeTx="WSPR";
   m_TRperiod=120;
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
@@ -6496,4 +6445,32 @@ void MainWindow::update_watchdog_label ()
 void MainWindow::on_cbMenus_toggled(bool b)
 {
   hideMenus(!b);
+}
+
+void MainWindow::write_transmit_entry (QString const& file_name)
+{
+  QFile f {m_config.writeable_data_dir ().absoluteFilePath (file_name)};
+  if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append))
+    {
+      QTextStream out(&f);
+      auto time = QDateTime::currentDateTimeUtc ();
+      time = time.addSecs (-(time.time ().second () % m_TRperiod));
+      out << time.toString("yyMMdd_hhmmss")
+          << "  Transmitting " << qSetRealNumberPrecision (12) << (m_freqNominal / 1.e6)
+          << " MHz  " << m_modeTx
+          << ":  " << m_currentMessage << endl;
+      f.close();
+    }
+  else
+    {
+      auto const& message = tr ("Cannot open \"%1\" for append: %2")
+        .arg (f.fileName ()).arg (f.errorString ());
+#if QT_VERSION >= 0x050400
+      QTimer::singleShot (0, [=] {                   // don't block guiUpdate
+          MessageBox::warning_message (this, tr ("Log File Error"), message);
+        });
+#else
+      MessageBox::warning_message (this, tr ("Log File Error"), message);
+#endif
+    }
 }

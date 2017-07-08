@@ -611,6 +611,7 @@ private:
   void vhfWarning();
   QChar current_submode () const; // returns QChar {0} if sub mode is
                                   // not appropriate
+  void write_transmit_entry (QString const& file_name);
 };
 
 extern int killbyname(const char* progName);
