@@ -3668,15 +3668,15 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
     }
   }
 
-  int i9=m_QSOText.indexOf(decodedtext.string());
-  if (i9<0 and !decodedtext.isTX())
-    {
+  QString s1=m_QSOText.string().trimmed();
+  QString s2=t2.trimmed();
+  if (s1!=s2 and !decodedtext.isTX()) {
     decodedtext=t2;
-      ui->decodedTextBrowser2->displayDecodedText(decodedtext, m_baseCall, false, m_logBook,
-              m_config.color_CQ(), m_config.color_MyCall(), m_config.color_DXCC(),
-              m_config.color_NewCall());
+    ui->decodedTextBrowser2->displayDecodedText(decodedtext, m_baseCall,
+          false, m_logBook,m_config.color_CQ(), m_config.color_MyCall(),
+          m_config.color_DXCC(),m_config.color_NewCall());
       m_QSOText=decodedtext;
-    }
+  }
 
   // prior DX call (possible QSO partner)
   auto qso_partner_base_call = Radio::base_callsign (ui->dxCallEntry-> text ());
