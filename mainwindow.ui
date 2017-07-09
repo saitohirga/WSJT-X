@@ -959,7 +959,7 @@ QLabel[oob=&quot;true&quot;] {
                       <number>999</number>
                      </property>
                      <property name="value">
-                      <number>280</number>
+                      <number>260</number>
                      </property>
                     </widget>
                    </item>
