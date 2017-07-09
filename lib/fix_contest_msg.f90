@@ -10,6 +10,7 @@ subroutine fix_contest_msg(mycall,mygrid,hiscall,msg)
   logical isgrid
 
   n=len(trim(msg))
+  if(n.lt.4) return
   g1=msg(n-3:n)//'  '
   if(isgrid(g1)) then
      call azdist(mygrid,g1,0.d0,nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter)
