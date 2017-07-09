@@ -519,8 +519,6 @@ private:
   QSet<QString> m_sfx;
 
   QDateTime m_dateTimeQSOOn;
-  QDateTime m_dateTimeQSOOff;
-  QDateTime m_dateTimeDefault;
 
   QSharedMemory *mem_jt9;
   LogBook m_logBook;

@@ -715,8 +715,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->decodedTextLabel2->setText(t);
   readSettings();		         //Restore user's setup params
   m_audioThread.start (m_audioThreadPriority);
-  m_dateTimeDefault=QDateTime(QDate(1900,1,1),QTime(0,0));
-  m_dateTimeQSOOn=m_dateTimeDefault;
 
 #ifdef WIN32
   if (!m_multiple)
@@ -1660,7 +1658,6 @@ void MainWindow::on_autoButton_clicked (bool checked)
     }
     ui->sbTxPercent->setPalette(palette);
   }
-  set_dateTimeQSO(-1);
 }
 
 void MainWindow::auto_tx_mode (bool state)
@@ -2445,7 +2442,7 @@ void MainWindow::decode()                                       //decode()
     dec_data.params.ntol=20;
     dec_data.params.naggressive=0;
   }
-  if(dec_data.params.nutc < m_nutc0) m_RxLog = 1;       //Date and Time to all.txt
+  if(dec_data.params.nutc < m_nutc0) m_RxLog = 1;       //Date and Time to ALL.TXT
   if(dec_data.params.newdat==1 and !m_diskData) m_nutc0=dec_data.params.nutc;
   dec_data.params.ntxmode=9;
   if(m_modeTx=="JT65") dec_data.params.ntxmode=65;
@@ -3376,13 +3373,14 @@ void MainWindow::set_dateTimeQSO(int m_ntx)
     // This should mean that Tx2 or Tx3 has been repeated so don't update the start time
     // We reset it in several places
     if (m_ntx == -1) { // we use a default date to detect change
-        m_dateTimeQSOOn=m_dateTimeDefault;
+      m_dateTimeQSOOn = QDateTime {};
     }
-    else if (m_dateTimeQSOOn != m_dateTimeDefault) {
+    else if (m_dateTimeQSOOn.isValid ()) {
         return;
     }
     else { // we also take of m_TRperiod/2 to allow for late clicks
-        m_dateTimeQSOOn=QDateTime::currentDateTimeUtc().addSecs((-(m_ntx-1)*m_TRperiod)-m_TRperiod/2);
+      auto now = QDateTime::currentDateTimeUtc();
+      m_dateTimeQSOOn = now.addSecs (-(m_ntx - 2) * m_TRperiod - (now.time ().second () % m_TRperiod));
     }
 }
 
@@ -3393,11 +3391,9 @@ void MainWindow::set_ntx(int n)                                   //set_ntx()
 
 void MainWindow::on_txrb1_toggled(bool status)
 {
-    // if Tx 1 is clicked we won't use it so reset to default
-    // We may hang on this message for quite a while trying
-    // to get a response perhaps when another QSO is going on
   if (status) {
     m_ntx=1;
+    set_dateTimeQSO(-1); // we reset here as tx2/tx3 is used for start times
   }
 }
 
@@ -3479,12 +3475,14 @@ void MainWindow::on_txb5_clicked()
 void MainWindow::on_txb6_clicked()
 {
     m_ntx=6;
+    set_dateTimeQSO(-1);
     ui->txrb6->setChecked(true);
     if (m_transmitting) m_restart=true;
 }
 
 void MainWindow::doubleClickOnCall2(bool shift, bool ctrl)
 {
+  set_dateTimeQSO(-1); // reset our QSO start time
   m_decodedText2=true;
   doubleClickOnCall(shift,ctrl);
   m_decodedText2=false;
@@ -3494,7 +3492,6 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
 {
   QTextCursor cursor;
   QString t;                         //Full contents
-  set_dateTimeQSO(-1); // reset our QSO start time
   if(m_mode=="ISCAT") {
     MessageBox::information_message (this,
         "Double-click not presently implemented for ISCAT mode");
@@ -3942,8 +3939,6 @@ void MainWindow::genStdMsgs(QString rpt)
       }
     }
   }
-  m_ntx=1;
-  ui->txrb1->setChecked(true);
   m_rpt=rpt;
 }
 
@@ -4227,15 +4222,15 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
 {
   if (!m_hisCall.size ()) return;
   // m_dateTimeQSOOn should really already be set but we'll ensure it gets set to something just in case
-  if (m_dateTimeQSOOn==m_dateTimeDefault)
-      m_dateTimeQSOOn=QDateTime::currentDateTimeUtc();
-  m_dateTimeQSOOff = QDateTime::currentDateTimeUtc();
-  if(m_dateTimeQSOOff < m_dateTimeQSOOn) m_dateTimeQSOOff=m_dateTimeQSOOn;
+  if (!m_dateTimeQSOOn.isValid ()) {
+    m_dateTimeQSOOn = QDateTime::currentDateTimeUtc();
+  }
+  auto dateTimeQSOOff = QDateTime::currentDateTimeUtc();
+  if (dateTimeQSOOff < m_dateTimeQSOOn) dateTimeQSOOff = m_dateTimeQSOOn;
   m_logDlg->initLogQSO (m_hisCall, m_hisGrid, m_modeTx, m_rptSent, m_rptRcvd,
-                        m_dateTimeQSOOn, m_dateTimeQSOOff, m_freqNominal + ui->TxFreqSpinBox->value(),
+                        m_dateTimeQSOOn, dateTimeQSOOff, m_freqNominal + ui->TxFreqSpinBox->value(),
                         m_config.my_callsign(), m_config.my_grid(), m_noSuffix,
                         m_config.log_as_RTTY(), m_config.report_in_comments());
-  m_dateTimeQSOOn = m_dateTimeDefault;
 }
 
 void MainWindow::acceptQSO2(QDateTime const& QSO_date_off, QString const& call, QString const& grid
@@ -4253,6 +4248,7 @@ void MainWindow::acceptQSO2(QDateTime const& QSO_date_off, QString const& call, 
     {
       clearDX ();
     }
+  m_dateTimeQSOOn = QDateTime {};
 }
 
 int MainWindow::nWidgets(QString t)
