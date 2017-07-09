@@ -2721,21 +2721,22 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
         //Right (Rx Frequency) window
       bool bDisplayRight=bAvgMsg;
-      int audioFreq=decodedtext.frequencyOffset();
-      if(!m_config.enable_VHF_features() and
-              (abs(audioFreq - m_wideGraph->rxFreq()) <= 10)) bDisplayRight=true;
+
       if(m_mode=="FT8") {
-        audioFreq=decodedtext.string().mid(16,4).toInt();
         int i1=decodedtext.string().indexOf(" "+m_baseCall+" ");
-        m_bCallingCQ=true;
+//        m_bCallingCQ=true;
         if(m_bCallingCQ and i1>0 and ui->cbFirst->isChecked()) {
 //          int snr=decodedtext.string().mid(6,4).toInt();
           m_bDoubleClicked=true;
           processMessage(decodedtext.string(),43,false);
           m_bCallingCQ=false;
+        } else {
+          int audioFreq=decodedtext.frequencyOffset();
+          audioFreq=decodedtext.string().mid(16,4).toInt();
+          if(!m_config.enable_VHF_features() and
+             (abs(audioFreq - m_wideGraph->rxFreq()) <= 10)) bDisplayRight=true;
         }
       }
-
       if (bDisplayRight) {
           // This msg is within 10 hertz of our tuned frequency, or a JT4 or JT65 avg
         ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_baseCall,false,
