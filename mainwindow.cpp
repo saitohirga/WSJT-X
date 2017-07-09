@@ -2880,6 +2880,7 @@ void MainWindow::guiUpdate()
 
   double tx1=0.0;
   double tx2=txDuration;
+  if(m_mode=="FT8") icw[0]=0;                                   //No CW ID in FT8 mode
   if((icw[0]>0) and (!m_bFast9)) tx2 += icw[0]*2560.0/48000.0;  //Full length including CW ID
   if(tx2>m_TRperiod) tx2=m_TRperiod;
 
