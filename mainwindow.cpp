@@ -3072,7 +3072,7 @@ void MainWindow::guiUpdate()
       m_currentMessageType = -1;
     }
     if(m_restart) {
-      write_transmit_entry ("All.TXT");
+      write_transmit_entry ("ALL.TXT");
       if (m_config.TX_messages ())
         {
           ui->decodedTextBrowser2->displayTransmittedText(m_currentMessage,m_modeTx,
@@ -3161,7 +3161,7 @@ void MainWindow::guiUpdate()
       }
 
       if(!m_tune) {
-        write_transmit_entry ("All.TXT");
+        write_transmit_entry ("ALL.TXT");
       }
 
       if (m_config.TX_messages () && !m_tune) {
