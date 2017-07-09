@@ -3099,6 +3099,11 @@ void MainWindow::guiUpdate()
     auto t2 = QDateTime::currentDateTimeUtc ().toString ("hhmm");
     icw[0] = 0;
     auto msg_parts = m_currentMessage.split (' ', QString::SkipEmptyParts);
+    if (msg_parts.size () > 2) {
+      // clean up short code forms
+      msg_parts[0].remove (QChar {'<'});
+      msg_parts[1].remove (QChar {'>'});
+    }
     auto is_73 = message_is_73 (m_currentMessageType, msg_parts);
     m_sentFirst73 = is_73
       && !message_is_73 (m_lastMessageType, m_lastMessageSent.split (' ', QString::SkipEmptyParts));
@@ -3125,7 +3130,8 @@ void MainWindow::guiUpdate()
       }
     }
 
-    if (m_currentMessageType < 6 && msg_parts.length() >= 3
+    if ((m_currentMessageType < 6 || 7 == m_currentMessageType)
+        && msg_parts.length() >= 3
         && (msg_parts[1] == m_config.my_callsign () ||
             msg_parts[1] == m_baseCall))
     {

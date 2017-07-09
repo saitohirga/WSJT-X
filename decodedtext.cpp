@@ -81,7 +81,7 @@ bool DecodedText::report(QString const& myBaseCall, QString const& dxBaseCall, /
 {
     QString msg=_string.mid(column_qsoText).trimmed();
     if(msg.length() < 1) return false;
-    msg = msg.remove (QRegularExpression {"[<>]"});
+    msg = msg.left (22).remove (QRegularExpression {"[<>]"});
     int i1=msg.indexOf('\r');
     if (i1>0)
       msg=msg.left (i1-1);
