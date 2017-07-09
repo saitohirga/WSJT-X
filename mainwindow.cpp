@@ -855,6 +855,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_bNoMoreFiles=false;
   m_bVHFwarned=false;
   m_bDoubleClicked=false;
+  m_bCallingCQ=false;
   m_wait=0;
 
   if(m_mode.startsWith ("WSPR") and m_pctx>0)  {
@@ -882,11 +883,9 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
 
-//  ui->actionFT8->setEnabled(false);
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
      m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "G3PQA") {
       ui->actionWSPR_LF->setEnabled(true);
-//      ui->actionFT8->setEnabled(true);
   }
   if(!ui->cbMenus->isChecked()) {
     ui->cbMenus->setChecked(true);
@@ -957,6 +956,8 @@ void MainWindow::writeSettings()
   m_settings->setValue ("MsgAvgDisplayed", m_msgAvgWidget && m_msgAvgWidget->isVisible());
   m_settings->setValue ("FreeText", ui->freeTextMsg->currentText ());
   m_settings->setValue("ShowMenus",ui->cbMenus->isChecked());
+  m_settings->setValue("CallFirst",ui->cbFirst->isChecked());
+  m_settings->setValue("CallWeak",ui->cbWeak->isChecked());
   m_settings->endGroup();
 
   m_settings->beginGroup("Common");
@@ -1021,6 +1022,8 @@ void MainWindow::readSettings()
   if (m_settings->contains ("FreeText")) ui->freeTextMsg->setCurrentText (
         m_settings->value ("FreeText").toString ());
   ui->cbMenus->setChecked(m_settings->value("ShowMenus",true).toBool());
+  ui->cbFirst->setChecked(m_settings->value("CallFirst",true).toBool());
+  ui->cbWeak->setChecked(m_settings->value("CallWeak",true).toBool());
   m_settings->endGroup();
 
   // do this outside of settings group because it uses groups internally
@@ -2722,9 +2725,20 @@ void MainWindow::readFromStdout()                             //readFromStdout
         //Right (Rx Frequency) window
       bool bDisplayRight=bAvgMsg;
       int audioFreq=decodedtext.frequencyOffset();
-      if(m_mode=="FT8") audioFreq=decodedtext.string().mid(16,4).toInt();
       if(!m_config.enable_VHF_features() and
               (abs(audioFreq - m_wideGraph->rxFreq()) <= 10)) bDisplayRight=true;
+      if(m_mode=="FT8") {
+        audioFreq=decodedtext.string().mid(16,4).toInt();
+        int i1=decodedtext.string().indexOf(" "+m_baseCall+" ");
+        m_bCallingCQ=true;
+        if(m_bCallingCQ and i1>0 and ui->cbFirst->isChecked()) {
+//          int snr=decodedtext.string().mid(6,4).toInt();
+          m_bDoubleClicked=true;
+          processMessage(decodedtext.string(),43,false);
+          m_bCallingCQ=false;
+        }
+      }
+
       if (bDisplayRight) {
           // This msg is within 10 hertz of our tuned frequency, or a JT4 or JT65 avg
         ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_baseCall,false,
@@ -3049,7 +3063,8 @@ void MainWindow::guiUpdate()
                                     len1, len1);
         if(m_modeTx=="WSPR-LF") genwspr_fsk8_(message, msgsent, const_cast<int *> (itone),
                                     len1, len1);
-        if(m_modeTx=="FT8") genft8_(message, msgsent, const_cast<char *> (ft8msgbits), const_cast<int *> (itone), len1, len1);
+        if(m_modeTx=="FT8") genft8_(message, msgsent, const_cast<char *> (ft8msgbits),
+                                    const_cast<int *> (itone), len1, len1);
         if(m_modeTx=="MSK144") {
           bool bcontest=m_config.contestMode();
           char MyGrid[6];
@@ -3067,6 +3082,7 @@ void MainWindow::guiUpdate()
     }
 
     m_currentMessage = QString::fromLatin1(msgsent);
+    if(m_mode=="FT8") m_bCallingCQ=m_currentMessage.mid(0,3)=="CQ ";
     if (m_tune) {
       m_currentMessage = "TUNE";
       m_currentMessageType = -1;
@@ -3494,10 +3510,7 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl)
   QString messages;
   if(!m_decodedText2) messages= ui->decodedTextBrowser2->toPlainText();
   if(m_decodedText2) messages= ui->decodedTextBrowser->toPlainText();
-  if(ui->cbCQTx->isEnabled () && ui->cbCQTx->isEnabled () && ui->cbCQTx->isChecked())
-    {
-      m_bDoubleClickAfterCQnnn=true;
-    }
+  if(ui->cbCQTx->isEnabled() && ui->cbCQTx->isChecked()) m_bDoubleClickAfterCQnnn=true;
   m_bDoubleClicked=true;
   processMessage(messages, position, ctrl);
 }
@@ -4292,6 +4305,14 @@ void MainWindow::displayWidgets(int n)
       ui->cbSWL->setVisible(b);
     }
     j=j>>1;
+  }
+  if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
+     m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "KI7MT") {
+      ui->actionWSPR_LF->setEnabled(true);
+      b=m_mode=="FT8";
+      ui->cbFirst->setVisible(b);
+      ui->cbWeak->setVisible(b);
+      ui->cbWeak->setEnabled(false);
   }
 }
 
@@ -6432,6 +6453,16 @@ void MainWindow::update_watchdog_label ()
 void MainWindow::on_cbMenus_toggled(bool b)
 {
   hideMenus(!b);
+}
+
+void MainWindow::on_cbFirst_toggled(bool b)
+{
+  if(b) ui->cbWeak->setChecked(!b);
+}
+
+void MainWindow::on_cbWeak_toggled(bool b)
+{
+  if(b) ui->cbFirst->setChecked(!b);
 }
 
 void MainWindow::write_transmit_entry (QString const& file_name)

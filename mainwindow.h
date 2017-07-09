@@ -238,6 +238,8 @@ private slots:
   void on_cbSWL_toggled(bool b);
   void on_cbTx6_toggled(bool b);
   void on_cbMenus_toggled(bool b);
+  void on_cbFirst_toggled(bool b);
+  void on_cbWeak_toggled(bool b);
   void networkError (QString const&);
   void on_ClrAvgButton_clicked();
   void on_actionWSPR_triggered();
@@ -442,6 +444,7 @@ private:
   bool    m_bNoMoreFiles;
   bool    m_bQRAsyncWarned;
   bool    m_bDoubleClicked;
+  bool    m_bCallingCQ;
 
   int			m_ihsym;
   int			m_nzap;
