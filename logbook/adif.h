@@ -16,20 +16,21 @@
 #include <QtGui>
 #endif
 
+class QDateTime;
 
 class ADIF
 {
 	public:
-        void init(QString filename);
+        void init(QString const& filename);
 		void load();
-        void add(const QString call, const QString band, const QString mode, const QString date);
-        bool match(const QString call, const QString band, const QString mode);
+        void add(QString const& call, QString const& band, QString const& mode, QString const& date);
+        bool match(QString const& call, QString const& band, QString const& mode);
         QList<QString> getCallList();
 		int getCount();
 		
         // open ADIF file and append the QSO details. Return true on success
-        bool addQSOToFile(const QString hisCall, const QString hisGrid, const QString mode, const QString rptSent, const QString rptRcvd, const QString dateOn, const QString timeOn, const QString dateOff, const QString timeOff, const QString band,
-                                const QString comments, const QString name, const QString strDialFreq, const QString m_myCall, const QString m_myGrid, const QString m_txPower);
+		bool addQSOToFile(QString const& hisCall, QString const& hisGrid, QString const& mode, QString const& rptSent, QString const& rptRcvd, QDateTime const& dateTimeOn, QDateTime const& dateTimeOff, QString const& band,
+                                QString const& comments, QString const& name, QString const& strDialFreq, QString const& m_myCall, QString const& m_myGrid, QString const& m_txPower);
 
         static QString bandFromFrequency(double dialFreq);
 
@@ -39,10 +40,10 @@ class ADIF
 		  QString call,band,mode,date;
 		};		  
 
-        QMultiHash<QString, QSO> _data;
+		QMultiHash<QString, QSO> _data;
 		QString _filename;
 		
-        QString _extractField(const QString line, const QString fieldName);
+		QString _extractField(QString const& line, QString const& fieldName);
 };
 
 

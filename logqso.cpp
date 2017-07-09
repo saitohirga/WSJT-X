@@ -48,9 +48,10 @@ void LogQSO::storeSettings () const
   m_settings->endGroup ();
 }
 
-void LogQSO::initLogQSO(QString hisCall, QString hisGrid, QString mode,
-                        QString rptSent, QString rptRcvd, QDateTime dateTimeOn, QDateTime dateTimeOff,
-                        Radio::Frequency dialFreq, QString myCall, QString myGrid,
+void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString mode,
+                        QString const& rptSent, QString const& rptRcvd,
+                        QDateTime const& dateTimeOn, QDateTime const& dateTimeOff,
+                        Radio::Frequency dialFreq, QString const& myCall, QString const& myGrid,
                         bool noSuffix, bool toRTTY, bool dBtoComments)
 {
   if(!isHidden()) return;
@@ -72,16 +73,8 @@ void LogQSO::initLogQSO(QString hisCall, QString hisGrid, QString mode,
   ui->mode->setText(mode);
   ui->sent->setText(rptSent);
   ui->rcvd->setText(rptRcvd);
-  m_dateTimeOn=dateTimeOn;
-  m_dateTimeOff=dateTimeOff;
-  QString dateOn=dateTimeOn.toString("yyyy-MM-dd");
-  ui->dateOn->setText(dateOn);
-  QString timeOn=dateTimeOn.toString("hhmm");
-  ui->timeOn->setText(timeOn);
-  QString dateOff=dateTimeOff.toString("yyyy-MM-dd");
-  ui->dateOff->setText(dateOff);
-  QString timeOff=dateTimeOff.toString("hhmm");
-  ui->timeOff->setText(timeOff);
+  ui->start_date_time->setDateTime (dateTimeOn);
+  ui->end_date_time->setDateTime (dateTimeOff);
   m_dialFreq=dialFreq;
   m_myCall=myCall;
   m_myGrid=myGrid;
@@ -101,21 +94,8 @@ void LogQSO::accept()
   mode=ui->mode->text();
   rptSent=ui->sent->text();
   rptRcvd=ui->rcvd->text();
-  m_dateTimeOn = m_dateTimeOn.fromString(ui->dateOn->text()+" "+ui->timeOn->text(),"yyyy-MM-dd hhmm");
-  m_dateTimeOff = m_dateTimeOff.fromString(ui->dateOff->text()+" "+ui->timeOff->text(),"yyyy-MM-dd hhmm");
-
-  // set time off and on back to UTC as the above QDateTime::fromString()
-  // creates a local time value -- this would be al so much simpler if
-  // QDateTimeEdit widgets had been used 
-  m_dateTimeOff.setTimeSpec (Qt::UTC);
-  m_dateTimeOn.setTimeSpec (Qt::UTC);
-
-  dateOn=ui->dateOn->text();
-  dateOn=dateOn.mid(0,4) + dateOn.mid(5,2) + dateOn.mid(8,2);
-  timeOn=ui->timeOn->text();
-  dateOff=ui->dateOff->text();
-  dateOff=dateOff.mid(0,4) + dateOff.mid(5,2) + dateOff.mid(8,2);
-  timeOff=ui->timeOff->text();
+  m_dateTimeOn = ui->start_date_time->dateTime ();
+  m_dateTimeOff = ui->end_date_time->dateTime ();
   band=ui->band->text();
   name=ui->name->text();
   m_txPower=ui->txPower->text();
@@ -128,7 +108,7 @@ void LogQSO::accept()
   ADIF adifile;
   auto adifilePath = QDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)}.absoluteFilePath ("wsjtx_log.adi");
   adifile.init(adifilePath);
-  if (!adifile.addQSOToFile(hisCall,hisGrid,mode,rptSent,rptRcvd,dateOn,timeOn,dateOff,timeOff,band,comments,name,strDialFreq,m_myCall,m_myGrid,m_txPower))
+  if (!adifile.addQSOToFile(hisCall,hisGrid,mode,rptSent,rptRcvd,m_dateTimeOn,m_dateTimeOff,band,comments,name,strDialFreq,m_myCall,m_myGrid,m_txPower))
   {
     MessageBox::warning_message (this, tr ("Log file error"),
                                  tr ("Cannot open \"%1\"").arg (adifilePath));
@@ -142,9 +122,9 @@ void LogQSO::accept()
                                  tr ("Error: %1").arg (f.errorString ()));
   } else {
     QString logEntry=m_dateTimeOn.date().toString("yyyy-MM-dd,") +
-      m_dateTimeOn.time().toString("hh:mm,") +
+      m_dateTimeOn.time().toString("hh:mm:ss,") +
       m_dateTimeOff.date().toString("yyyy-MM-dd,") +
-      m_dateTimeOff.time().toString("hh:mm,") + hisCall + "," +
+      m_dateTimeOff.time().toString("hh:mm:ss,") + hisCall + "," +
       hisGrid + "," + strDialFreq + "," + mode +
       "," + rptSent + "," + rptRcvd + "," + m_txPower +
       "," + comments + "," + name;

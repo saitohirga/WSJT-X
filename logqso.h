@@ -25,9 +25,10 @@ class LogQSO : public QDialog
 public:
   explicit LogQSO(QString const& programTitle, QSettings *, QWidget *parent = 0);
   ~LogQSO();
-  void initLogQSO(QString hisCall, QString hisGrid, QString mode,
-                  QString rptSent, QString rptRcvd, QDateTime dateTimeOn,QDateTime dateTimeOff,
-                  Radio::Frequency dialFreq, QString myCall, QString myGrid,
+  void initLogQSO(QString const& hisCall, QString const& hisGrid, QString mode,
+                  QString const& rptSent, QString const& rptRcvd, QDateTime const& dateTimeOn,
+                  QDateTime const& dateTimeOff,
+                  Radio::Frequency dialFreq, QString const& myCall, QString const& myGrid,
                   bool noSuffix, bool toRTTY, bool dBtoComments);
 
 public slots:

@@ -2,22 +2,23 @@
 
 #include <QFile>
 #include <QTextStream>
+#include <QDateTime>
 #include <QDebug>
 
 /*
-<CALL:4>W1XT<BAND:3>20m<FREQ:6>14.076<GRIDSQUARE:4>DM33<MODE:4>JT65<RST_RCVD:3>-21<RST_SENT:3>-14<QSO_DATE:8>20110422<TIME_ON:4>0417<TIME_OFF:4>0424<TX_PWR:1>4<COMMENT:34>1st JT65A QSO.   Him: mag loop 20W<STATION_CALLSIGN:6>VK3ACF<MY_GRIDSQUARE:6>qf22lb<eor>
-<CALL:6>IK1SOW<BAND:3>20m<FREQ:6>14.076<GRIDSQUARE:4>JN35<MODE:4>JT65<RST_RCVD:3>-19<RST_SENT:3>-11<QSO_DATE:8>20110422<TIME_ON:4>0525<TIME_OFF:4>0533<TX_PWR:1>3<STATION_CALLSIGN:6>VK3ACF<MY_GRIDSQUARE:6>qf22lb<eor>
+<CALL:4>W1XT<BAND:3>20m<FREQ:6>14.076<GRIDSQUARE:4>DM33<MODE:4>JT65<RST_RCVD:3>-21<RST_SENT:3>-14<QSO_DATE:8>20110422<TIME_ON:6>041712<TIME_OFF:6>042435<TX_PWR:1>4<COMMENT:34>1st JT65A QSO.   Him: mag loop 20W<STATION_CALLSIGN:6>VK3ACF<MY_GRIDSQUARE:6>qf22lb<eor>
+<CALL:6>IK1SOW<BAND:3>20m<FREQ:6>14.076<GRIDSQUARE:4>JN35<MODE:4>JT65<RST_RCVD:3>-19<RST_SENT:3>-11<QSO_DATE:8>20110422<TIME_ON:6>052501<TIME_OFF:6>053359<TX_PWR:1>3<STATION_CALLSIGN:6>VK3ACF<MY_GRIDSQUARE:6>qf22lb<eor>
 <CALL:6:S>W4ABC> ...
 */
 
-void ADIF::init(QString filename)
+void ADIF::init(QString const& filename)
 {
     _filename = filename;
     _data.clear(); 
 }
 
 
-QString ADIF::_extractField(const QString line, const QString fieldName)
+QString ADIF::_extractField(QString const& line, QString const& fieldName)
 {
     int fieldNameIndex = line.indexOf(fieldName,0,Qt::CaseInsensitive);
     if (fieldNameIndex >=0)
@@ -74,7 +75,7 @@ void ADIF::load()
 }
 
 
-void ADIF::add(const QString call, const QString band, const QString mode, const QString date)
+void ADIF::add(QString const& call, QString const& band, QString const& mode, QString const& date)
 {
     QSO q;
     q.call = call;
@@ -86,7 +87,7 @@ void ADIF::add(const QString call, const QString band, const QString mode, const
 }
 
 // return true if in the log same band and mode (where JT65 == JT9)
-bool ADIF::match(const QString call, const QString band, const QString mode)
+bool ADIF::match(QString const& call, QString const& band, QString const& mode)
 {
     QList<QSO> qsos = _data.values(call);
     if (qsos.size()>0)
@@ -138,8 +139,8 @@ int ADIF::getCount()
     
 
 // open ADIF file and append the QSO details. Return true on success
-bool ADIF::addQSOToFile(const QString hisCall, const QString hisGrid, const QString mode, const QString rptSent, const QString rptRcvd, const QString dateOn, const QString timeOn, QString dateOff, const QString timeOff, const QString band,
-                        const QString comments, const QString name, const QString strDialFreq, const QString m_myCall, const QString m_myGrid, const QString m_txPower)
+bool ADIF::addQSOToFile(QString const& hisCall, QString const& hisGrid, QString const& mode, QString const& rptSent, QString const& rptRcvd, QDateTime const& dateTimeOn, QDateTime const& dateTimeOff, QString const& band,
+                        QString const& comments, QString const& name, QString const& strDialFreq, QString const& m_myCall, QString const& m_myGrid, QString const& m_txPower)
 {
     QFile f2(_filename);
     if (!f2.open(QIODevice::Text | QIODevice::Append))
@@ -156,10 +157,10 @@ bool ADIF::addQSOToFile(const QString hisCall, const QString hisGrid, const QStr
         t+=" <mode:" + QString::number(mode.length()) + ">" + mode;
         t+=" <rst_sent:" + QString::number(rptSent.length()) + ">" + rptSent;
         t+=" <rst_rcvd:" + QString::number(rptRcvd.length()) + ">" + rptRcvd;
-        t+=" <qso_date:8>" + dateOn;
-        t+=" <time_on:4>" + timeOn;
-        t+=" <qso_date_off:8>" + dateOff;
-        t+=" <time_off:4>" + timeOff;
+        t+=" <qso_date:8>" + dateTimeOn.date ().toString ("yyyyMMdd");
+        t+=" <time_on:6>" + dateTimeOn.time ().toString ("hhmmss");
+        t+=" <qso_date_off:8>" + dateTimeOff.date ().toString ("yyyyMMdd");
+        t+=" <time_off:6>" + dateTimeOff.time ().toString ("hhmmss");
         t+=" <band:" + QString::number(band.length()) + ">" + band;
         t+=" <freq:" + QString::number(strDialFreq.length()) + ">" + strDialFreq;
         t+=" <station_callsign:" + QString::number(m_myCall.length()) + ">" +
