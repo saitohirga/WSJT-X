@@ -116,8 +116,8 @@ void MessageAggregatorMainWindow::log_qso (QString const& /*id*/, QDateTime time
                                            , QString const& name, QDateTime timeOn)
 {
   QList<QStandardItem *> row;
-  row << new QStandardItem {timeOn.toString ("dd-MMM-yyyy hh:mm")}
-  << new QStandardItem {timeOff.toString ("dd-MMM-yyyy hh:mm")}
+  row << new QStandardItem {timeOn.toString ("dd-MMM-yyyy hh:mm:ss")}
+  << new QStandardItem {timeOff.toString ("dd-MMM-yyyy hh:mm:ss")}
   << new QStandardItem {dx_call}
   << new QStandardItem {dx_grid}
   << new QStandardItem {name}
