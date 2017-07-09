@@ -1711,11 +1711,20 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       n=11;
       if(e->modifiers() & Qt::ControlModifier) n+=100;
       bumpFqso(n);
+      if(e->modifiers() & Qt::ShiftModifier) {
+        int f=ui->TxFreqSpinBox->value()/50;
+        if((ui->TxFreqSpinBox->value() % 50) == 0) f=f-1;
+        ui->TxFreqSpinBox->setValue(50*f);
+      }
       return;
     case Qt::Key_F12:
       n=12;
       if(e->modifiers() & Qt::ControlModifier) n+=100;
       bumpFqso(n);
+      if(e->modifiers() & Qt::ShiftModifier) {
+        int f=ui->TxFreqSpinBox->value()/50;
+        ui->TxFreqSpinBox->setValue(50*(f+1));
+      }
       return;
     case Qt::Key_E:
       if(e->modifiers() & Qt::ShiftModifier) {
@@ -1771,28 +1780,6 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         return;
       }
       break;
-    case Qt::Key_Plus:
-      if(e->modifiers() & Qt::ControlModifier) {
-        int f=ui->TxFreqSpinBox->value()/50;
-        ui->TxFreqSpinBox->setValue(50*(f+1));
-        return;
-      }
-      break;
-    case Qt::Key_Equal:
-      if(e->modifiers() & Qt::ControlModifier) {
-        int f=ui->TxFreqSpinBox->value()/50;
-        ui->TxFreqSpinBox->setValue(50*(f+1));
-        return;
-      }
-      break;
-    case Qt::Key_Minus:
-      if(e->modifiers() & Qt::ControlModifier) {
-        int f=ui->TxFreqSpinBox->value()/50;
-        if((ui->TxFreqSpinBox->value() % 50) == 0) f=f-1;
-        ui->TxFreqSpinBox->setValue(50*f);
-        return;
-      }
-    break;
   }
 
   QMainWindow::keyPressEvent (e);
