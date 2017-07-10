@@ -2724,7 +2724,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
       if(m_mode=="FT8") {
         int i1=decodedtext.string().indexOf(" "+m_baseCall+" ");
-//        m_bCallingCQ=true;
         if(m_bCallingCQ and i1>0 and ui->cbFirst->isChecked()) {
 //          int snr=decodedtext.string().mid(6,4).toInt();
           m_bDoubleClicked=true;
@@ -2733,12 +2732,12 @@ void MainWindow::readFromStdout()                             //readFromStdout
         } else {
           int audioFreq=decodedtext.frequencyOffset();
           audioFreq=decodedtext.string().mid(16,4).toInt();
-          if(!m_config.enable_VHF_features() and
-             (abs(audioFreq - m_wideGraph->rxFreq()) <= 10)) bDisplayRight=true;
+          if(i1>0 or (abs(audioFreq - m_wideGraph->rxFreq()) <= 10)) bDisplayRight=true;
         }
       }
       if (bDisplayRight) {
-          // This msg is within 10 hertz of our tuned frequency, or a JT4 or JT65 avg
+        // This msg is within 10 hertz of our tuned frequency, or a JT4 or JT65 avg,
+        // or contains MyCall
         ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_baseCall,false,
                m_logBook,m_config.color_CQ(),m_config.color_MyCall(),
                m_config.color_DXCC(),m_config.color_NewCall());
@@ -3108,7 +3107,6 @@ void MainWindow::guiUpdate()
       && !message_is_73 (m_lastMessageType, m_lastMessageSent.split (' ', QString::SkipEmptyParts));
     if (m_sentFirst73) {
       m_qsoStop=t2;
-//      if(m_config.id_after_73 () and (!m_bFastMode)) {
       if(m_config.id_after_73 ()) {
         icw[0] = m_ncw;
       }
@@ -3116,8 +3114,13 @@ void MainWindow::guiUpdate()
         logQSOTimer.start (0);
       }
     }
-    if (is_73 && m_config.disable_TX_on_73 ()) {
+    bool b=(m_mode=="FT8") and ui->cbAutoSeq->isChecked() and ui->cbFirst->isChecked();
+    if(is_73 and (m_config.disable_TX_on_73() or b)) {
       auto_tx_mode (false);
+      if(b) {
+        m_ntx=6;
+        ui->txrb6->setChecked(true);
+      }
     }
 
     if(m_config.id_interval () >0) {
@@ -4323,14 +4326,9 @@ void MainWindow::displayWidgets(int n)
     }
     j=j>>1;
   }
-  if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
-     m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "KI7MT") {
-      ui->actionWSPR_LF->setEnabled(true);
-      b=m_mode=="FT8";
-      ui->cbFirst->setVisible(b);
-      ui->cbWeak->setVisible(b);
-      ui->cbWeak->setEnabled(false);
-  }
+  b=m_mode=="FT8";
+  ui->cbFirst->setVisible(b);
+  ui->cbWeak->setVisible(false);
 }
 
 void MainWindow::on_actionFT8_triggered()

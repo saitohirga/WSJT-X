@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>872</width>
+    <width>876</width>
     <height>583</height>
    </rect>
   </property>
@@ -2367,7 +2367,7 @@ QPushButton[state=&quot;ok&quot;] {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>872</width>
+     <width>876</width>
      <height>21</height>
     </rect>
    </property>
@@ -2995,6 +2995,9 @@ QPushButton[state=&quot;ok&quot;] {
    </property>
    <property name="toolTip">
     <string>Experimental LF/MF mode</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
    </property>
   </action>
   <action name="actionFT8">
