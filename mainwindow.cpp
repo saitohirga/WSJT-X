@@ -6486,6 +6486,12 @@ void MainWindow::on_cbWeak_toggled(bool b)
   if(b) ui->cbFirst->setChecked(!b);
 }
 
+void MainWindow::on_cbAutoSeq_toggled(bool b)
+{
+  if(!b) ui->cbFirst->setChecked(false);
+  ui->cbFirst->setVisible(b);
+}
+
 void MainWindow::write_transmit_entry (QString const& file_name)
 {
   QFile f {m_config.writeable_data_dir ().absoluteFilePath (file_name)};
