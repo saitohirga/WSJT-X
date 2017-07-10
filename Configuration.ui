@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>configuration_dialog</class>
  <widget class="QDialog" name="configuration_dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>521</width>
+    <height>507</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>Settings</string>
   </property>
@@ -180,12 +188,6 @@
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
            </spacer>
           </item>
           <item row="1" column="0">
@@ -234,12 +236,6 @@
              <spacer name="verticalSpacer">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
               </property>
              </spacer>
             </item>
@@ -304,12 +300,6 @@
              <spacer name="horizontalSpacer">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
               </property>
              </spacer>
             </item>
@@ -400,12 +390,6 @@ quiet period when decoding is done.</string>
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
              </spacer>
             </item>
            </layout>
@@ -451,8 +435,8 @@ text message.</string>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>20</width>
-           <height>40</height>
+           <width>0</width>
+           <height>0</height>
           </size>
          </property>
         </spacer>
@@ -1047,8 +1031,8 @@ this setting allows you to select which audio input will be used
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>20</width>
-           <height>40</height>
+           <width>0</width>
+           <height>0</height>
           </size>
          </property>
         </spacer>
@@ -1067,8 +1051,8 @@ this setting allows you to select which audio input will be used
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>20</width>
-           <height>40</height>
+           <width>0</width>
+           <height>0</height>
           </size>
          </property>
         </spacer>
@@ -1234,8 +1218,8 @@ radio interface behave as expected.</string>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>20</width>
-           <height>40</height>
+           <width>0</width>
+           <height>0</height>
           </size>
          </property>
         </spacer>
@@ -1507,8 +1491,8 @@ both here.</string>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>20</width>
-           <height>40</height>
+           <width>0</width>
+           <height>0</height>
           </size>
          </property>
         </spacer>
@@ -1793,8 +1777,8 @@ for assessing propagation and system performance.</string>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>20</width>
-           <height>40</height>
+           <width>0</width>
+           <height>0</height>
           </size>
          </property>
         </spacer>
@@ -1897,12 +1881,6 @@ for assessing propagation and system performance.</string>
            <spacer name="horizontalSpacer_4">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
             </property>
            </spacer>
           </item>
@@ -2189,8 +2167,8 @@ Right click for insert and delete options.</string>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>20</width>
-           <height>40</height>
+           <width>0</width>
+           <height>0</height>
           </size>
          </property>
         </spacer>
@@ -2199,12 +2177,6 @@ Right click for insert and delete options.</string>
         <spacer name="horizontalSpacer_5">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
          </property>
         </spacer>
        </item>
@@ -2215,8 +2187,8 @@ Right click for insert and delete options.</string>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>20</width>
-           <height>40</height>
+           <width>0</width>
+           <height>0</height>
           </size>
          </property>
         </spacer>
@@ -2225,12 +2197,6 @@ Right click for insert and delete options.</string>
         <spacer name="horizontalSpacer_8">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
          </property>
         </spacer>
        </item>
@@ -2439,8 +2405,8 @@ Right click for insert and delete options.</string>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>20</width>
-           <height>40</height>
+           <width>0</width>
+           <height>0</height>
           </size>
          </property>
         </spacer>
@@ -2626,12 +2592,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="split_mode_button_group"/>
-  <buttongroup name="TX_mode_button_group"/>
-  <buttongroup name="PTT_method_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
+  <buttongroup name="split_mode_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
+  <buttongroup name="TX_mode_button_group"/>
   <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
  </buttongroups>
 </ui>
