@@ -6489,7 +6489,7 @@ void MainWindow::on_cbWeak_toggled(bool b)
 void MainWindow::on_cbAutoSeq_toggled(bool b)
 {
   if(!b) ui->cbFirst->setChecked(false);
-  ui->cbFirst->setVisible(b);
+  ui->cbFirst->setVisible((m_mode=="FT8") and b);
 }
 
 void MainWindow::write_transmit_entry (QString const& file_name)
