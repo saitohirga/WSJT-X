@@ -2721,6 +2721,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
         //Right (Rx Frequency) window
       bool bDisplayRight=bAvgMsg;
+      int audioFreq=decodedtext.frequencyOffset();
 
       if(m_mode=="FT8") {
         int i1=decodedtext.string().indexOf(" "+m_baseCall+" ");
@@ -2730,10 +2731,11 @@ void MainWindow::readFromStdout()                             //readFromStdout
           processMessage(decodedtext.string(),43,false);
           m_bCallingCQ=false;
         } else {
-          int audioFreq=decodedtext.frequencyOffset();
           audioFreq=decodedtext.string().mid(16,4).toInt();
           if(i1>0 or (abs(audioFreq - m_wideGraph->rxFreq()) <= 10)) bDisplayRight=true;
         }
+      } else {
+        if(abs(audioFreq - m_wideGraph->rxFreq()) <= 10) bDisplayRight=true;
       }
       if (bDisplayRight) {
         // This msg is within 10 hertz of our tuned frequency, or a JT4 or JT65 avg,
