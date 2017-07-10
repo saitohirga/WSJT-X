@@ -12,7 +12,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   parameter (NRECENT=10)             !Number of recent calls to remember
   parameter (NSHMEM=50)              !Number of recent SWL messages to remember
 
-  character*3 decsym                 !"&" for mskspd or "^" for long averages
+  character*4 decsym                 !"&" for mskspd or "^" for long averages
   character*22 msgreceived           !Decoded message
   character*22 msglast,msglastswl   !Used for dupechecking
   character*80 line                  !Formatted line with UTC dB T Freq Msg
@@ -190,8 +190,8 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
                           btrain,datadir,ncorrected,eyeopening,pcoeffs)
   endif
 
-  decsym=' & '
-  if( btrain ) decsym=' ^ '
+  decsym=' &  '
+  if( btrain ) decsym=' ^  '
   if( msgreceived(1:1).eq.'<') then
     ncorrected=0
     eyeopening=0.0
@@ -213,7 +213,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
      endif
      write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,           &
           navg,ncorrected,eyeopening,char(0)
-1020 format(i6.6,i4,f5.1,i5,a3,a22,i2,i3,f5.1,a1)
+1020 format(i6.6,i4,f5.1,i5,a4,a22,i2,i3,f5.1,a1)
   elseif(bswl .and. ndecodesuccess.ge.2) then 
     seenb4=.false.
     do i=1,nshmem

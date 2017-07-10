@@ -3526,6 +3526,19 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   int i1=t1.lastIndexOf(QChar::LineFeed) + 1; //points to first char of line
   DecodedText decodedtext;
   QString t2 = messages.mid(i1,position-i1);    //selected line
+
+  // basic mode sanity checks
+  auto const& parts = t2.split (' ', QString::SkipEmptyParts);
+  if (parts.size () < 5) return;
+  auto const& mode = parts[4];
+  if (("JT9+JT65" == m_mode && !("@" == mode || "#" == mode))
+      || ("JT65" == m_mode && mode != "#")
+      || ("JT9" == m_mode && mode != "@")
+      || ("MSK144" == m_mode && !("&" == mode || "^" == mode))
+      || ("QRA64" == m_mode && mode.left (1) != ":")) {
+    return;
+  }
+
   QString t2a;
   int ntsec=3600*t2.mid(0,2).toInt() + 60*t2.mid(2,2).toInt();
   if(m_bFastMode or m_mode=="FT8") {
@@ -4354,8 +4367,8 @@ void MainWindow::on_actionFT8_triggered()
   m_TRperiod=15;
   m_fastGraph->hide();
   m_wideGraph->show();
-  ui->decodedTextLabel->setText( "  UTC   dB   DT Freq   Message");
-  ui->decodedTextLabel2->setText("  UTC   dB   DT Freq   Message");
+  ui->decodedTextLabel->setText( "  UTC   dB   DT Freq    Message");
+  ui->decodedTextLabel2->setText("  UTC   dB   DT Freq    Message");
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
@@ -5837,18 +5850,21 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
     {
       // a message we are willing to accept
       QString format_string {"%1 %2 %3 %4 %5  %6"};
-      auto cqtext = format_string.arg (time.toString ("hhmm"))
-                                                    .arg (snr, 3)
-                                                    .arg (delta_time, 4, 'f', 1)
-                                                    .arg (delta_frequency, 4)
-                                                    .arg (mode)
-                                                    .arg (message_text);
+      auto const& time_string = time.toString ("~" == mode || "&" == mode ? "hhmmss" : "hhmm");
+      auto cqtext = format_string
+        .arg (time_string)
+        .arg (snr, 3)
+        .arg (delta_time, 4, 'f', 1)
+        .arg (delta_frequency, 4)
+        .arg (mode)
+        .arg (message_text);
       auto messages = ui->decodedTextBrowser->toPlainText ();
       auto position = messages.lastIndexOf (cqtext);
       if (position < 0)
         {
           // try again with with -0.0 delta time
-          position = messages.lastIndexOf (format_string.arg (time.toString ("hhmm"))
+          position = messages.lastIndexOf (format_string
+                                           .arg (time_string)
                                            .arg (snr, 3)
                                            .arg ('-' + QString::number (delta_time, 'f', 1), 4)
                                            .arg (delta_frequency, 4)
@@ -5870,6 +5886,7 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
             }
           // find the linefeed at the end of the line
           position = ui->decodedTextBrowser->toPlainText().indexOf(QChar::LineFeed,position);
+          m_bDoubleClicked = true;
           processMessage (messages, position, false);
           tx_watchdog (false);
           QApplication::alert (this);
@@ -5924,10 +5941,12 @@ void MainWindow::postDecode (bool is_new, QString const& message)
   auto const& parts = decode.left (22).split (' ', QString::SkipEmptyParts);
   if (parts.size () >= 5)
     {
+      auto has_seconds = parts[0].size () > 4;
       m_messageClient->decode (is_new
-                               , QTime::fromString (parts[0], parts[0].size () > 4 ? "hhmmss" : "hhmm")
+                               , QTime::fromString (parts[0], has_seconds ? "hhmmss" : "hhmm")
                                , parts[1].toInt ()
-                               , parts[2].toFloat (), parts[3].toUInt (), parts[4][0], decode.mid (22));
+                               , parts[2].toFloat (), parts[3].toUInt (), parts[4][0]
+                               , decode.mid (has_seconds ? 24 : 22));
     }
 }
 
