@@ -1,6 +1,6 @@
 // Status=review
 
-Debian, Ubuntu, and other Debian-based systems:
+Debian, Ubuntu, and other Debian-based systems including Raspbian:
 
 * 32-bit: {debian32}
 - To install:
@@ -19,6 +19,12 @@ sudo dpkg -P wsjtx
 [example]
 sudo dpkg -i wsjtx_{VERSION}_amd64.deb
 
+* 64-bit: {raspbian}
+- To install:
++
+[example]
+sudo dpkg -i wsjtx_{VERSION}_armhf.deb
+
 - Uninstall:
 +
 [example]
@@ -29,11 +35,6 @@ You may also need to execute the following commands in a terminal:
 [example]
 sudo apt-get install libqt5multimedia5-plugins libqt5serialport5 
 sudo apt-get install libfftw3-single3
-
-For Ubuntu 15.04 and similar systems, the above and also
-
-[example]
-sudo apt-get install libqt5opengl5 
 
 Fedora, Red Hat, and other rpm-based systems:
 
