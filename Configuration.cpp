@@ -237,7 +237,7 @@ public:
   {
     return {frequency_line_edit_.frequency ()
         , Modes::value (mode_combo_box_.currentText ())
-        , IARURegions::value (region_combo_box_.currentText ())};
+        , IARURegions::value (region_combo_box_.currentIndex ())};
   }
 
 private:
@@ -1143,7 +1143,7 @@ void Configuration::impl::initialize_models ()
       ui_->PTT_port_combo_box->setCurrentText (rig_params_.ptt_port);
     }
 
-  ui_->region_combo_box->setCurrentText (regions_.name (region_));
+  ui_->region_combo_box->setCurrentIndex (region_);
 
   next_macros_.setStringList (macros_.stringList ());
   next_frequencies_.frequency_list (frequencies_.frequency_list ());
@@ -1848,7 +1848,7 @@ void Configuration::impl::accept ()
       macros_.setStringList (next_macros_.stringList ());
     }
 
-  region_ = regions_.value (ui_->region_combo_box->currentText ());
+  region_ = IARURegions::value (ui_->region_combo_box->currentIndex ());
 
   if (frequencies_.frequency_list () != next_frequencies_.frequency_list ())
     {

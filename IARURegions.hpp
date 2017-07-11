@@ -43,7 +43,7 @@ public:
     R1,
     R2,
     R3,
-    REGIONS_END_SENTINAL_AND_COUNT // this must be last
+    SENTINAL                    // this must be last
   };
   Q_ENUM (Region)
 
@@ -51,12 +51,12 @@ public:
 
   // translate between enumeration and human readable strings
   static char const * name (Region);
-  static Region value (QString const&);
+  static Region value (int);
 
   // Implement the QAbstractListModel interface
   int rowCount (QModelIndex const& parent = QModelIndex {}) const override
   {
-    return parent.isValid () ? 0 : REGIONS_END_SENTINAL_AND_COUNT; // Number of regionss in Region enumeration class
+    return parent.isValid () ? 0 : SENTINAL; // Number of regionss in Region enumeration class
   }
   QVariant data (QModelIndex const&, int role = Qt::DisplayRole) const override;
   QVariant headerData (int section, Qt::Orientation, int = Qt::DisplayRole) const override;
