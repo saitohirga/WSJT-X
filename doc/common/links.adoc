@@ -51,6 +51,7 @@ d). Edit lines as needed. Keeping them in alphabetic order help see dupes.
 :cc_by_sa: http://creativecommons.org/licenses/by-sa/3.0/[Commons Attribution-ShareAlike 3.0 Unported License]
 :debian32: http://physics.princeton.edu/pulsar/K1JT/wsjtx_{VERSION}_i386.deb[wsjtx_{VERSION}_i386.deb]
 :debian64: http://physics.princeton.edu/pulsar/K1JT/wsjtx_{VERSION}_amd64.deb[wsjtx_{VERSION}_amd64.deb]
+:raspbian: http://physics.princeton.edu/pulsar/K1JT/wsjtx_{VERSION}_armhf.deb[wsjtx_{VERSION}_armhf.deb]
 :debian: http://www.debian.org/[Debian]
 :dev_guide: http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/wsjt-dev-guide.html[Dev-Guide]
 :devsvn1: http://sourceforge.net/p/wsjt/wsjt/HEAD/tree/[Devel-SVN]
