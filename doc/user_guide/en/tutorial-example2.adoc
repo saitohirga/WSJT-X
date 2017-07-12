@@ -114,6 +114,3 @@ waterfall and the several types of spectra.  Good starting values
 should be close to mid-scale.  You might want to uncheck *Flatten*
 when adjusting the sliders.  Re-open the wave file after each change,
 to see the new results.
-
-IMPORTANT: When finished with this Tutorial, don’t forget to re-enter
-your own callsign as *My Call* on the *Settings | General* tab.

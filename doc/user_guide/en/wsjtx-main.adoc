@@ -133,6 +133,10 @@ include::tutorial-example1.adoc[]
 === JT9+JT65
 include::tutorial-example2.adoc[]
 
+[[TUT_EX3]]
+=== FT8
+include::tutorial-example3.adoc[]
+
 [[MAKE_QSOS]]
 == Making QSOs
 include::make-qso.adoc[]
