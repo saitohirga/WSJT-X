@@ -805,7 +805,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   morse_(const_cast<char *> (m_config.my_callsign ().toLatin1().constData()),
          const_cast<int *> (icw), &m_ncw, m_config.my_callsign ().length());
   on_actionWide_Waterfall_triggered();
-  m_wideGraph->setTol(500);
   m_wideGraph->setLockTxFreq(m_lockTxFreq);
   ui->cbShMsgs->setChecked(m_bShMsgs);
   ui->cbSWL->setChecked(m_bSWL);
@@ -1554,7 +1553,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
 
     setup_status_bar (vhf);
     bool b = vhf && (m_mode=="JT4" or m_mode=="JT65" or m_mode=="ISCAT" or
-                     m_mode=="JT9" or m_mode=="MSK144");
+                     m_mode=="JT9" or m_mode=="MSK144" or m_mode=="QRA64");
     if(b) VHF_features_enabled(b);
     if(m_mode=="FT8") on_actionFT8_triggered();
     if(m_mode=="JT4") on_actionJT4_triggered();
@@ -1574,6 +1573,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     if(m_mode=="WSPR") on_actionWSPR_triggered();
     if(m_mode=="WSPR-LF") on_actionWSPR_LF_triggered();
     if(m_mode=="Echo") on_actionEcho_triggered();
+    if(b) VHF_features_enabled(b);
   }
 
   m_config.transceiver_online ();
