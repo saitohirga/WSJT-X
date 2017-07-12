@@ -1,5 +1,5 @@
-subroutine ft8b(dd0,newdat,nfqso,ndepth,icand,sync0,f1,xdt,apsym,nharderrors,   &
-     dmin,nbadcrc,message,xsnr)
+subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,icand,sync0,f1,xdt,apsym,nharderrors,   &
+     dmin,nbadcrc,iap,ipass,message,xsnr)
 
   use timer_module, only: timer
   include 'ft8_params.f90'
@@ -18,12 +18,12 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,icand,sync0,f1,xdt,apsym,nharderrors,   
   complex cd0(3200)
   complex ctwk(32)
   complex csymb(32)
-  logical newdat
+  logical newdat,lsubtract
   data rr73/-1,1,1,1,1,1,1,-1,1,1,-1/
 
-  max_iterations=40
+  max_iterations=30
   norder=2
-  if(ndepth.eq.3 .and. abs(nfqso-f1).lt.10.0) norder=3
+  nharderrors=-1
   fs2=12000.0/NDOWN
   dt2=1.0/fs2
   twopi=8.0*atan(1.0)
@@ -36,7 +36,7 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,icand,sync0,f1,xdt,apsym,nharderrors,   
 
   i0=nint(xdt*fs2)                         !Initial guess for start of signal
   smax=0.0
-  do idt=i0-16,i0+16                       !Search over +/- half a symbol
+  do idt=i0-8,i0+8                       !Search over +/- one quarter symbol
      call sync8d(cd0,idt,ctwk,0,sync)
      if(sync.gt.smax) then
         smax=sync
@@ -109,30 +109,34 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,icand,sync0,f1,xdt,apsym,nharderrors,   
   rxdata=rxdata/rxsig
   ss=0.84
   llr=2.0*rxdata/(ss*ss)
-
-!  do iap=0,3
+  apmag=4.0
+!  do iap=0,1
   do iap=0,0                            !### Temporary ###
     if(iap.eq.0) then
       apmask=0
       apmask(160:162)=1
       llrap=llr
-      llrap(160:162)=5.0*apsym(73:75)/ss
+      llrap(160:162)=apmag*apsym(73:75)/ss
     elseif(iap.eq.1) then
       apmask=0
       apmask(88:115)=1   ! mycall
+      apmask(144)=1      ! not free text
       apmask(160:162)=1  ! 3 extra bits
       llrap=0.0
-      llrap(88:115)=5.0*apsym(1:28)/ss
-      llrap(160:162)=5.0*apsym(73:75)/ss
+      llrap(88:115)=apmag*apsym(1:28)/ss
+      llrap(144)=-apmag/ss
+      llrap(160:162)=apmag*apsym(73:75)/ss
       where(apmask.eq.0) llrap=llr
     elseif(iap.eq.2) then
       apmask=0
       apmask(88:115)=1   ! mycall
       apmask(116:143)=1  ! hiscall
+      apmask(144)=1      ! not free text
       apmask(160:162)=1  ! 3 extra bits
       llrap=0.0
-      llrap(88:143)=5.0*apsym(1:56)/ss
-      llrap(160:162)=5.0*apsym(73:75)/ss
+      llrap(88:143)=apmag*apsym(1:56)/ss
+      llrap(144)=-apmag/ss
+      llrap(160:162)=apmag*apsym(73:75)/ss
       where(apmask.eq.0) llrap=llr
     elseif(iap.eq.3) then
       apmask=0
@@ -141,26 +145,28 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,icand,sync0,f1,xdt,apsym,nharderrors,   
       apmask(144:154)=1  ! RRR or 73 
       apmask(160:162)=1  ! 3 extra bits
       llrap=0.0
-      llrap(88:143)=5.0*apsym(1:56)/ss
-      llrap(144:154)=5.0*rr73/ss
-      llrap(160:162)=5.0*apsym(73:75)/ss
+      llrap(88:143)=apmag*apsym(1:56)/ss
+      llrap(144:154)=apmag*rr73/ss
+      llrap(160:162)=apmag*apsym(73:75)/ss
       where(apmask.eq.0) llrap=llr
     endif
     cw=0
     call timer('bpd174  ',0)
-    call bpdecode174(llrap,apmask,max_iterations,decoded,cw,nharderrors)
+    call bpdecode174(llrap,apmask,max_iterations,decoded,cw,nharderrors,niterations)
     call timer('bpd174  ',1)
     dmin=0.0
-    if(nharderrors.lt.0 .and. ndepth.ge.2) then
+    if(ndepth.eq.3 .and. abs(nfqso-f1).lt.10.0 .and. nharderrors.lt.0) then
       call timer('osd174  ',0)
-      call osd174(llrap,norder,decoded,cw,nharderrors,dmin)
+      call osd174(llrap,apmask,norder,decoded,cw,nharderrors,dmin)
       call timer('osd174  ',1)
     endif
     nbadcrc=1
     message='                      '
     xsnr=-99.0
     if(count(cw.eq.0).eq.174) cycle           !Reject the all-zero codeword
-    if( nharderrors.ge.0 .and. dmin.le.30.0 .and. nharderrors .lt. 30) then
+!    if( nharderrors.ge.0 .and. dmin.le.30.0 .and. nharderrors .lt. 30) then
+!***  These thresholds should probably be dependent on nap
+    if( nharderrors.ge.0 .and. dmin.le.50.0 .and. nharderrors .lt. 50) then
       call chkcrc12a(decoded,nbadcrc)
     else
       nharderrors=-1
@@ -169,7 +175,7 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,icand,sync0,f1,xdt,apsym,nharderrors,   
     if(nbadcrc.eq.0) then
       call extractmessage174(decoded,message,ncrcflag,recent_calls,nrecent)
       call genft8(message,msgsent,msgbits,itone)
-!     call subtractft8(dd0,itone,f1,xdt2)
+      if(lsubtract) call subtractft8(dd0,itone,f1,xdt2)
       xsig=0.0
       xnoi=0.0
       do i=1,79
@@ -181,8 +187,8 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,icand,sync0,f1,xdt,apsym,nharderrors,   
      if( xnoi.gt.0 .and. xnoi.lt.xsig ) xsnr=xsig/xnoi-1.0
      xsnr=10.0*log10(xsnr)-27.0
      if( xsnr .lt. -24.0 ) xsnr=-24.0
-!     write(50,3050) icand,sync0,f1,xdt,nharderrors,dmin,message,iap
-!3050 format(i3,3f10.3,i5,f10.3,2x,a22,i3)
+!     write(50,3050) icand,sync0,f1,xdt,xsnr,nharderrors,niterations,dmin,iap,ipass,message
+!3050 format(i3,4f10.3,i5,i5,f10.3,i4,i4,2x,a22)
      return
     endif
   enddo

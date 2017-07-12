@@ -1,7 +1,7 @@
-subroutine sync8(dd,nfa,nfb,nfqso,s,candidate,ncand)
+subroutine sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand)
 
   include 'ft8_params.f90'
-  parameter (JZ=31)                            !DT up to +/- 2.5 s
+  parameter (JZ=62)                            !DT up to +/- 1.25 s
   complex cx(0:NH1)
   real s(NH1,NHSYM)
   real savg(NH1)
@@ -18,16 +18,13 @@ subroutine sync8(dd,nfa,nfb,nfqso,s,candidate,ncand)
   data icos7/2,5,6,0,4,1,3/                   !Costas 7x7 tone pattern
   equivalence (x,cx)
 
-! Compute symbol spectra at half-symbol steps.  
+! Compute symbol spectra, stepping by NSTEP steps.  
   savg=0.
-  istep=NSPS/2                                !960
-  tstep=istep/12000.0                         !0.08 s
+  tstep=NSTEP/12000.0                         
   df=12000.0/NFFT1                            !3.125 Hz
-
-! Compute symbol spectra at half-symbol steps
   fac=1.0/300.0
   do j=1,NHSYM
-     ia=(j-1)*istep + 1
+     ia=(j-1)*NSTEP + 1
      ib=ia+NSPS-1
      x(1:NSPS)=fac*dd(ia:ib)
      x(NSPS+1:)=0.
@@ -45,21 +42,23 @@ subroutine sync8(dd,nfa,nfb,nfqso,s,candidate,ncand)
 
   ia=max(1,nint(nfa/df))
   ib=nint(nfb/df)
+  nssy=NSPS/NSTEP   ! # steps per symbol
+  nfos=NFFT1/NSPS   ! # frequency bin oversampling factor
   do i=ia,ib
      do j=-JZ,JZ
         t=0.
         t0=0.
         do n=0,6
-           k=j+2*n
-           if(k.ge.1) then
-              t=t + s(i+2*icos7(n),k)
-              t0=t0 + sum(s(i:i+12:2,k))
+           k=j+nssy*n
+           if(k.ge.1.and.k.le.NHSYM) then
+              t=t + s(i+nfos*icos7(n),k)
+              t0=t0 + sum(s(i:i+nfos*6:nfos,k))
            endif
-           t=t + s(i+2*icos7(n),k+72)
-           t0=t0 + sum(s(i:i+12:2,k+72))
+           t=t + s(i+nfos*icos7(n),k+nssy*36)
+           t0=t0 + sum(s(i:i+nfos*6:nfos,k+nssy*36))
            if(k+144.le.NHSYM) then
-              t=t + s(i+2*icos7(n),k+144)
-              t0=t0 + sum(s(i:i+12:2,k+144))
+              t=t + s(i+nfos*icos7(n),k+nssy*72)
+              t0=t0 + sum(s(i:i+nfos*6:nfos,k+nssy*72))
            endif
         enddo
         t0=(t0-t)/6.0
@@ -84,8 +83,7 @@ subroutine sync8(dd,nfa,nfb,nfqso,s,candidate,ncand)
 
   candidate0=0.
   k=0
-  syncmin=2.0
-  do i=1,100
+  do i=1,200
      n=ia + indx(iz+1-i) - 1
      if(red(n).lt.syncmin) exit
      if(k.lt.200) k=k+1
@@ -115,13 +113,21 @@ subroutine sync8(dd,nfa,nfb,nfqso,s,candidate,ncand)
   fac=20.0/maxval(s)
   s=fac*s
 
+! Sort by sync
+!  call indexx(candidate0(3,1:ncand),ncand,indx)
+! Sort by frequency 
   call indexx(candidate0(1,1:ncand),ncand,indx)
+  k=1
+!  do i=ncand,1,-1
   do i=1,ncand
      j=indx(i)
-     candidate(1,i)=abs(candidate0(1,j))
-     candidate(2,i)=candidate0(2,j)
-     candidate(3,i)=candidate0(3,j)
+     if( candidate0(3,j) .ge. syncmin ) then
+       candidate(1,k)=abs(candidate0(1,j))
+       candidate(2,k)=candidate0(2,j)
+       candidate(3,k)=candidate0(3,j)
+       k=k+1
+     endif
   enddo
-  
+  ncand=k-1
   return
 end subroutine sync8

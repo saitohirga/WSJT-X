@@ -1,4 +1,4 @@
-subroutine bpdecode174(llr,apmask,maxiterations,decoded,cw,nharderror)
+subroutine bpdecode174(llr,apmask,maxiterations,decoded,cw,nharderror,iter)
 !
 ! A log-domain belief propagation decoder for the (174,87) code.
 !

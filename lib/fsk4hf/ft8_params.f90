@@ -7,5 +7,6 @@ parameter (NSPS=1920)                 !Samples per symbol at 12000 S/s
 parameter (NZ=NSPS*NN)                !Samples in full 15 s waveform (151,680)
 parameter (NMAX=15*12000)             !Samples in iwave (180,000)
 parameter (NFFT1=2*NSPS, NH1=NFFT1/2) !Length of FFTs for symbol spectra
-parameter (NHSYM=2*NMAX/NH1-1)        !Number of symbol spectra (1/2-sym steps)
+parameter (NSTEP=NSPS/4)              !Rough time-sync step size
+parameter (NHSYM=NMAX/NSTEP-1)        !Number of symbol spectra (1/2-sym steps)
 parameter (NDOWN=60)                  !Downsample factor

@@ -262,7 +262,7 @@ program jt9
      shared_data%params%ndepth=ndepth
      shared_data%params%dttol=3.
 
-     shared_data%params%minsync=0       !### TEST ONLY
+!     shared_data%params%minsync=0       !### TEST ONLY
 !     shared_data%params%nfqso=1500     !### TEST ONLY
 !     mycall="G3WDG       "              !### TEST ONLY
 !     hiscall="VK7MO       "             !### TEST ONLY
