@@ -3,8 +3,8 @@
 image::settings-general.png[align="center",alt="Settings Window"]
 
 Select the *General* tab on the *Settings* window.  Under _Station
-Details_, enter your callsign and 4-digit or 6-digit grid locator.
-This information will be sufficient for initial tests.
+Details_, enter your callsign and 4-digit or preferably 6-digit grid
+locator.  This information will be sufficient for initial tests.
 
 Meanings of remaining options on the *General* tab should be
 self-explanatory after you have made some QSOs using _WSJT-X_.  You
