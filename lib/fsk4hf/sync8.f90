@@ -56,7 +56,7 @@ subroutine sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand)
            endif
            t=t + s(i+nfos*icos7(n),k+nssy*36)
            t0=t0 + sum(s(i:i+nfos*6:nfos,k+nssy*36))
-           if(k+144.le.NHSYM) then
+           if(k+nssy*72.le.NHSYM) then
               t=t + s(i+nfos*icos7(n),k+nssy*72)
               t0=t0 + sum(s(i:i+nfos*6:nfos,k+nssy*72))
            endif
