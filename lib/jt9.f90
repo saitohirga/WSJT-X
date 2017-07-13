@@ -239,7 +239,7 @@ program jt9
               call timer('symspec ',0)
               nminw=1
               call symspec(shared_data,k,ntrperiod,nsps,ingain,nminw,pxdb,s,df3,   &
-                   ihsym,npts8)
+                   ihsym,npts8,pxdbmax)
               call timer('symspec ',1)
            endif
            nhsym0=nhsym
