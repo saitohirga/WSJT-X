@@ -394,7 +394,6 @@ set (wsjt_FSRCS
   lib/freqcal.f90
   lib/fsk4hf/fsk4hf.f90
   lib/fsk4hf/ft8b.f90
-  lib/fsk4hf/ft8d.f90
   lib/fsk4hf/ft8_downsample.f90
   lib/fsk4hf/ft8sim.f90
   lib/gen4.f90
@@ -1158,9 +1157,6 @@ target_link_libraries (ldpcsim168 wsjt_fort wsjt_cxx)
 
 add_executable (fsk4hf lib/fsk4hf/fsk4hf.f90 wsjtx.rc)
 target_link_libraries (fsk4hf wsjt_fort wsjt_cxx)
-
-add_executable (ft8d lib/fsk4hf/ft8d.f90 wsjtx.rc)
-target_link_libraries (ft8d wsjt_fort wsjt_cxx)
 
 add_executable (ft8sim lib/fsk4hf/ft8sim.f90 wsjtx.rc)
 target_link_libraries (ft8sim wsjt_fort wsjt_cxx)
