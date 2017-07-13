@@ -12,6 +12,7 @@
 #include "Transceiver.hpp"
 #include "TransceiverFactory.hpp"
 #include "WFPalette.hpp"
+#include "IARURegions.hpp"
 
 #include "FrequencyLineEdit.hpp"
 
@@ -79,4 +80,10 @@ void register_types ()
 
   // Waterfall palette
   qRegisterMetaTypeStreamOperators<WFPalette::Colours> ("Colours");
+
+  // IARURegions
+#if QT_VERSION < 0x050500
+  qRegisterMetaType<IARURegions::Region> ("IARURegions::Region");
+#endif
+  qRegisterMetaTypeStreamOperators<IARURegions::Region> ("IARURegions::Region");
 }

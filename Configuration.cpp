@@ -1270,7 +1270,7 @@ void Configuration::impl::read_settings ()
 
   macros_.setStringList (settings_->value ("Macros", QStringList {"TNX 73 GL"}).toStringList ());
 
-  region_ = settings_->value ("Region", IARURegions::ALL).value<IARURegions::Region> ();
+  region_ = settings_->value ("Region", QVariant::fromValue (IARURegions::ALL)).value<IARURegions::Region> ();
 
   if (settings_->contains ("FrequenciesForRegionModes"))
     {
@@ -1434,7 +1434,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("CalibrationSlopePPM", frequency_calibration_slope_ppm_);
   settings_->setValue ("pwrBandTxMemory", pwrBandTxMemory_);
   settings_->setValue ("pwrBandTuneMemory", pwrBandTuneMemory_);
-  settings_->setValue ("Region", region_);
+  settings_->setValue ("Region", QVariant::fromValue (region_));
 }
 
 void Configuration::impl::set_rig_invariants ()

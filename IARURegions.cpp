@@ -5,6 +5,7 @@
 #include <QString>
 #include <QVariant>
 #include <QModelIndex>
+#include <QMetaType>
 
 #include "moc_IARURegions.cpp"
 
