@@ -6,7 +6,7 @@ program ft8sim
   use wavhdr
   include 'ft8_params.f90'               !Set various constants
   type(hdr) h                            !Header for .wav file
-  character arg*12,fname*17
+  character arg*12,fname*17,sorm*1
   character msg*22,msgsent*22
   complex c0(0:NMAX-1)
   complex c(0:NMAX-1)
@@ -16,21 +16,36 @@ program ft8sim
 
 ! Get command-line argument(s)
   nargs=iargc()
-  if(nargs.ne.6) then
-     print*,'Usage:   ft8sim "message"          DT fdop del nfiles snr'
-     print*,'Example: ft8sim "K1ABC W9XYZ EN37" 0.0 0.1 1.0   10   -18'
+  if(nargs.ne.8) then
+     print*,'Usage:   ft8sim "message"          sorm  f0    DT fdop del nfiles snr'
+     print*,'Example: ft8sim "K1ABC W9XYZ EN37"   m  1500.0 0.0 0.1 1.0   10   -18'
+     print*,'sorm: "s" for single signal at 1500 Hz, "m" for 25 signals'
+     print*,'f0 is ignored when sorm = m'
      go to 999
   endif
   call getarg(1,msg)                     !Message to be transmitted
-  call getarg(2,arg)
-  read(arg,*) xdt                        !Time offset from nominal (s)
+  call getarg(2,sorm)                    !s for single signal, m for multiple sigs 
+  if(sorm.eq."s") then
+    print*,"Generating single signal at 1500 Hz."
+    nsig=1
+  elseif( sorm.eq."m") then
+    print*,"Generating 25 signals per file."
+    nsig=25
+  else
+    print*,"sorm parameter must be s (single) or m (multiple)."
+    goto 999
+  endif
   call getarg(3,arg)
-  read(arg,*) fspread                    !Watterson frequency spread (Hz)
+  read(arg,*) f0                         !Frequency (only used for single-signal)
   call getarg(4,arg)
-  read(arg,*) delay                      !Watterson delay (ms)
+  read(arg,*) xdt                        !Time offset from nominal (s)
   call getarg(5,arg)
-  read(arg,*) nfiles                     !Number of files
+  read(arg,*) fspread                    !Watterson frequency spread (Hz)
   call getarg(6,arg)
+  read(arg,*) delay                      !Watterson delay (ms)
+  call getarg(7,arg)
+  read(arg,*) nfiles                     !Number of files
+  call getarg(8,arg)
   read(arg,*) snrdb                      !SNR_2500
 
   twopi=8.0*atan(1.0)
@@ -56,28 +71,27 @@ write(*,'(3i1)') msgbits(73:75)
 write(*,'(12i1)') msgbits(76:87)
  
 !  call sgran()
-  c=0.
   do ifile=1,nfiles
-     c0=0.
-     do isig=1,25
-        f0=(isig+2)*100.0
+     c=0.
+     do isig=1,nsig
+        c0=0.
+        if(nsig.eq.25) then
+          f0=(isig+2)*100.0
+        endif
+        k=-1 + nint((xdt+0.5+0.01*gran())/dt)
+!        k=-1 + nint((xdt+0.5)/dt)
         phi=0.0
-        k=-1 + nint(xdt+0.5/dt)
         do j=1,NN                             !Generate complex waveform
            dphi=twopi*(f0+itone(j)*baud)*dt
-           if(k.eq.0) phi=-dphi
            do i=1,NSPS
               k=k+1
-              phi=phi+dphi
-              if(phi.gt.twopi) phi=phi-twopi
-              xphi=phi
-              if(k.ge.0 .and. k.lt.NMAX) c0(k)=cmplx(cos(xphi),sin(xphi))
+              phi=mod(phi+dphi,twopi)
+              if(k.ge.0 .and. k.lt.NMAX) c0(k)=cmplx(cos(phi),sin(phi))
            enddo
         enddo
-        if(fspread.ne.0.0 .or. delay.ne.0.0) call watterson(c,NMAX,fs,delay,fspread)
-        c=c+c0
+        if(fspread.ne.0.0 .or. delay.ne.0.0) call watterson(c0,NMAX,fs,delay,fspread)
+        c=c+sig*c0
      enddo
-     c=c*sig
      if(snrdb.lt.90) then
         do i=0,NMAX-1                   !Add gaussian noise at specified SNR
            xnoise=gran()
