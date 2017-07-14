@@ -68,6 +68,7 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
   m_toneSpacing = toneSpacing;
   m_bFastMode=fastMode;
   m_TRperiod=TRperiod;
+  unsigned delay_ms = 1920 == m_nsps && 15 == m_period ? 500 : 1000;
 
   // noise generator parameters
   if (m_addNoise) {
@@ -77,18 +78,17 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
   }
 
   unsigned mstr = ms0 % (1000 * m_period); // ms in period
-  m_ic = (mstr / 1000) * m_frameRate; // we start exactly N seconds
-  // into period where N is the next whole second
+
+  // round up to an exact portion of a second that allows for startup
+  // delays
+  m_ic = (mstr / delay_ms) * m_frameRate * delay_ms / 1000;
+
   if(m_bFastMode) m_ic=0;
 
   m_silentFrames = 0;
   // calculate number of silent frames to send
   if (synchronize && !m_tuning && !m_bFastMode)	{
-    m_silentFrames = m_ic + m_frameRate - (mstr * m_frameRate / 1000);
-  }
-  if(m_ic==0 and (m_silentFrames/48000.0 > 0.6) and m_nsps==1920 and m_period==15) {
-    // FT8 mode: Start audio at t=0.5 s rather than t=1.0 s.
-    m_silentFrames=m_silentFrames-24000;
+    m_silentFrames = m_ic + m_frameRate / (1000 / delay_ms) - (mstr * (m_frameRate / 1000));
   }
 
   initialize (QIODevice::ReadOnly, channel);
@@ -251,7 +251,8 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
 
         for (unsigned i = 0; i < numFrames && m_ic <= i1; ++i) {
           isym=0;
-          if(!m_tuning and m_TRperiod!=3) isym=m_ic / (4.0 * m_nsps);         //Actual fsample=48000
+          if(!m_tuning and m_TRperiod!=3) isym=m_ic / (4.0 * m_nsps);         //Actual
+                                                                              //fsample=48000
           if(m_bFastMode) isym=isym%m_symbolsLength;
           if (isym != m_isym0 || m_frequency != m_frequency0) {
             if(itone[0]>=100) {
