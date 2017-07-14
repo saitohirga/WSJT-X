@@ -61,7 +61,7 @@ namespace
       {3572000, Modes::JT9, IARURegions::ALL},
       {3573000, Modes::FT8, IARURegions::ALL}, // above as below JT65
                                                // is out of DM allocation
-      {3572600, Modes::WSPR, IARURegions::ALL}, // needs guard marker
+      {3568600, Modes::WSPR, IARURegions::ALL}, // needs guard marker
                                                 // and lock out
       
       {7038600, Modes::WSPR, IARURegions::ALL},
