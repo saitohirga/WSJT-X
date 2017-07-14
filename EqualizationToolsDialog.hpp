@@ -1,5 +1,5 @@
-#ifndef PHASE_EQUALIZATION_DIALOG_HPP__
-#define PHASE_EQUALIZATION_DIALOG_HPP__
+#ifndef EQUALIZATION_TOOLS_DIALOG_HPP__
+#define EQUALIZATION_TOOLS_DIALOG_HPP__
 
 #include <QObject>
 
@@ -9,13 +9,13 @@ class QWidget;
 class QSettings;
 class QDir;
 
-class PhaseEqualizationDialog
+class EqualizationToolsDialog
   : public QObject
 {
   Q_OBJECT
 
 public:
-  explicit PhaseEqualizationDialog (QSettings *
+  explicit EqualizationToolsDialog (QSettings *
                                     , QDir const& data_directory
                                     , QVector<double> const& coefficients
                                     , QWidget * = nullptr);

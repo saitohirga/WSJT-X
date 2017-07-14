@@ -81,7 +81,7 @@ class SoundInput;
 class Detector;
 class SampleDownloader;
 class MultiSettings;
-class PhaseEqualizationDialog;
+class EqualizationToolsDialog;
 
 class MainWindow : public QMainWindow
 {
@@ -319,7 +319,7 @@ private:
   bool m_WSPR_tx_next;
   MessageBox m_rigErrorMessageBox;
   QScopedPointer<SampleDownloader> m_sampleDownloader;
-  QScopedPointer<PhaseEqualizationDialog> m_phaseEqualizationDialog;
+  QScopedPointer<EqualizationToolsDialog> m_equalizationToolsDialog;
 
   QScopedPointer<WideGraph> m_wideGraph;
   QScopedPointer<EchoGraph> m_echoGraph;

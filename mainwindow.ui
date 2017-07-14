@@ -2980,7 +2980,7 @@ QPushButton[state=&quot;ok&quot;] {
   </action>
   <action name="view_phase_response_action">
    <property name="text">
-    <string>View phase response ...</string>
+    <string>Equalization tools ...</string>
    </property>
   </action>
   <action name="actionWSPR_LF">
