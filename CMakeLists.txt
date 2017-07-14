@@ -259,7 +259,7 @@ set (wsjt_qt_CXXSRCS
   MaidenheadLocatorValidator.cpp
   CallsignValidator.cpp
   SplashScreen.cpp
-  PhaseEqualizationDialog.cpp
+  EqualizationToolsDialog.cpp
   )
 
 set (wsjt_qtmm_CXXSRCS
