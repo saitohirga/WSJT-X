@@ -113,9 +113,10 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   
   apmag=4.0
 !  nera=1
   nera=3
+  nap=0
+  if(ndepth.eq.3) nap=2  
 
-!  do iap=0,3
-  do iap=0,0                            !### Temporary ###
+  do iap=0,nap                            !### Temporary ###
      do iera=1,nera
         llr=llr0
         nblank=0

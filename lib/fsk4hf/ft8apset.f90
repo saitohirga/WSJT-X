@@ -14,6 +14,7 @@ subroutine ft8apset(mycall12,hiscall12,hisgrid6,apsym,iaptype)
   if(len_trim(hiscall).eq.0) then
     iaptype=1
     hiscall="K9AN  "  ! dummy call 
+    hisgrid="EN50"    ! and dummy's grid
   else
     iaptype=2
     hisgrid=hisgrid6(1:4)

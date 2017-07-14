@@ -47,7 +47,7 @@ contains
 1001 format("000000_",i6.6)
 
     if(index(hisgrid6," ").eq.0) hisgrid6="EN50"
-    call ft8apset(mycall12,hiscall12,hisgrid6,apsym)
+    call ft8apset(mycall12,hiscall12,hisgrid6,apsym,iaptype)
 
     dd=iwave
 
@@ -76,8 +76,8 @@ contains
         xdt=candidate(2,icand)
         nsnr0=min(99,nint(10.0*log10(sync) - 25.5))    !### empirical ###
         call timer('ft8b    ',0)
-        call ft8b(dd,newdat,nfqso,ndepth,lsubtract,icand,sync,f1,xdt,   &
-             apsym,nharderrors,dmin,nbadcrc,iap,ipass,iera,message,xsnr)
+        call ft8b(dd,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync,f1,   &
+             xdt,apsym,nharderrors,dmin,nbadcrc,iap,ipass,iera,message,xsnr)
         nsnr=xsnr  
         xdt=xdt-0.6
         call timer('ft8b    ',1)
