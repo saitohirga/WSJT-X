@@ -1,4 +1,4 @@
-#include "PhaseEqualizationDialog.hpp"
+#include "EqualizationToolsDialog.hpp"
 
 #include <iterator>
 #include <algorithm>
@@ -22,7 +22,7 @@
 namespace
 {
   float constexpr PI = 3.1415927f;
-  char const * const title = "Phase Equalization";
+  char const * const title = "Equalization Tools";
   size_t constexpr intervals = 144;
 
   // plot data loaders - wraps a plot providing value_type and
@@ -219,13 +219,13 @@ namespace
   auto pi_scaling = [] (float v) -> float {return v / PI;};
 }
 
-class PhaseEqualizationDialog::impl final
+class EqualizationToolsDialog::impl final
   : public QDialog
 {
   Q_OBJECT
 
 public:
-  explicit impl (PhaseEqualizationDialog * self, QSettings * settings
+  explicit impl (EqualizationToolsDialog * self, QSettings * settings
                  , QDir const& data_directory, QVector<double> const& coefficients
                  , QWidget * parent);
   ~impl () {save_window_state ();}
@@ -248,7 +248,7 @@ private:
   void plot_phase ();
   void plot_amplitude ();
 
-  PhaseEqualizationDialog * self_;
+  EqualizationToolsDialog * self_;
   QSettings * settings_;
   QDir data_directory_;
   QHBoxLayout layout_;
@@ -261,9 +261,9 @@ private:
   QDialogButtonBox button_box_;
 };
 
-#include "PhaseEqualizationDialog.moc"
+#include "EqualizationToolsDialog.moc"
 
-PhaseEqualizationDialog::PhaseEqualizationDialog (QSettings * settings
+EqualizationToolsDialog::EqualizationToolsDialog (QSettings * settings
                                                   , QDir const& data_directory
                                                   , QVector<double> const& coefficients
                                                   , QWidget * parent)
@@ -271,12 +271,12 @@ PhaseEqualizationDialog::PhaseEqualizationDialog (QSettings * settings
 {
 }
 
-void PhaseEqualizationDialog::show ()
+void EqualizationToolsDialog::show ()
 {
   m_->show ();
 }
 
-PhaseEqualizationDialog::impl::impl (PhaseEqualizationDialog * self
+EqualizationToolsDialog::impl::impl (EqualizationToolsDialog * self
                                      , QSettings * settings
                                      , QDir const& data_directory
                                      , QVector<double> const& coefficients
@@ -428,7 +428,7 @@ std::istream& operator >> (std::istream& is, PowerSpectrumPoint& r)
   return is;
 }
 
-void PhaseEqualizationDialog::impl::plot_current ()
+void EqualizationToolsDialog::impl::plot_current ()
 {
   auto phase_graph = make_plot_data_loader (&plot_, 2, wrap_pi);
   plot_.graph (2)->data ()->clear ();
@@ -490,7 +490,7 @@ std::istream& operator >> (std::istream& is, PhasePoint& c)
   return is;
 }
 
-void PhaseEqualizationDialog::impl::plot_phase ()
+void EqualizationToolsDialog::impl::plot_phase ()
 {
   auto const& phase_file_name = QFileDialog::getOpenFileName (this
                                                               , "Select Phase Response Coefficients"
@@ -543,4 +543,4 @@ void PhaseEqualizationDialog::impl::plot_phase ()
     }
 }
 
-#include "moc_PhaseEqualizationDialog.cpp"
+#include "moc_EqualizationToolsDialog.cpp"

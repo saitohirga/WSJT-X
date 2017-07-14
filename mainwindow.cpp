@@ -56,7 +56,7 @@
 #include "MultiSettings.hpp"
 #include "MaidenheadLocatorValidator.hpp"
 #include "CallsignValidator.hpp"
-#include "PhaseEqualizationDialog.hpp"
+#include "EqualizationToolsDialog.hpp"
 
 #include "ui_mainwindow.h"
 #include "moc_mainwindow.cpp"
@@ -524,15 +524,15 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
     });
 
   connect (ui->view_phase_response_action, &QAction::triggered, [this] () {
-      if (!m_phaseEqualizationDialog)
+      if (!m_equalizationToolsDialog)
         {
-          m_phaseEqualizationDialog.reset (new PhaseEqualizationDialog {m_settings, m_config.writeable_data_dir (), m_phaseEqCoefficients, this});
-          connect (m_phaseEqualizationDialog.data (), &PhaseEqualizationDialog::phase_equalization_changed,
+          m_equalizationToolsDialog.reset (new EqualizationToolsDialog {m_settings, m_config.writeable_data_dir (), m_phaseEqCoefficients, this});
+          connect (m_equalizationToolsDialog.data (), &EqualizationToolsDialog::phase_equalization_changed,
                    [this] (QVector<double> const& coeffs) {
                      m_phaseEqCoefficients = coeffs;
                    });
         }
-      m_phaseEqualizationDialog->show ();
+      m_equalizationToolsDialog->show ();
     });
 
   QButtonGroup* txMsgButtonGroup = new QButtonGroup {this};
