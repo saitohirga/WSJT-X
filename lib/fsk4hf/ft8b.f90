@@ -13,14 +13,14 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   
   real dd0(15*12000)
   integer*1 decoded(KK),apmask(3*ND),cw(3*ND)
   integer*1 msgbits(KK)
-  integer apsym(KK),rr73(11)
+  integer apsym(KK),rr73(11),cq(28)
   integer itone(NN)
   complex cd0(3200)
   complex ctwk(32)
   complex csymb(32)
   logical newdat,lsubtract
   data rr73/-1,1,1,1,1,1,1,-1,1,1,-1/
-
+  data cq/1,1,1,1,1,-1,1,-1,-1,-1,-1,-1,1,-1,-1,-1,-1,-1,1,1,-1,-1,-1,1,1,-1,-1,1/
   max_iterations=30
   norder=2
   nharderrors=-1
@@ -129,38 +129,55 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   
            apmask(160:162)=1
            llrap=llr
            llrap(160:162)=apmag*apsym(73:75)/ss
-        elseif(iap.eq.1) then
-           apmask=0
-           apmask(88:115)=1   ! mycall
-           apmask(144)=1      ! not free text
-           apmask(160:162)=1  ! 3 extra bits
-           llrap=0.0
-           llrap(88:115)=apmag*apsym(1:28)/ss
-           llrap(144)=-apmag/ss
-           llrap(160:162)=apmag*apsym(73:75)/ss
-           where(apmask.eq.0) llrap=llr
-        elseif(iap.eq.2) then
-           apmask=0
-           apmask(88:115)=1   ! mycall
-           apmask(116:143)=1  ! hiscall
-           apmask(144)=1      ! not free text
-           apmask(160:162)=1  ! 3 extra bits
-           llrap=0.0
-           llrap(88:143)=apmag*apsym(1:56)/ss
-           llrap(144)=-apmag/ss
-           llrap(160:162)=apmag*apsym(73:75)/ss
-           where(apmask.eq.0) llrap=llr
-        elseif(iap.eq.3) then
-           apmask=0
-           apmask(88:115)=1   ! mycall
-           apmask(116:143)=1  ! hiscall
-           apmask(144:154)=1  ! RRR or 73 
-           apmask(160:162)=1  ! 3 extra bits
-           llrap=0.0
-           llrap(88:143)=apmag*apsym(1:56)/ss
-           llrap(144:154)=apmag*rr73/ss
-           llrap(160:162)=apmag*apsym(73:75)/ss
-           where(apmask.eq.0) llrap=llr
+        endif
+        if(iap.eq.1) then
+           if(iaptype.eq.1) then   ! look for plain CQ
+              apmask=0
+              apmask(88:115)=1   ! plain CQ 
+              apmask(144)=1      ! not free text
+              apmask(160:162)=1  ! 3 extra bits
+              llrap=0.0
+              llrap(88:115)=apmag*cq/ss
+              llrap(144)=-apmag/ss
+              llrap(160:162)=apmag*apsym(73:75)/ss
+           endif
+           if(iaptype.eq.2) then   ! look for mycall
+              apmask=0
+              apmask(88:115)=1   ! mycall
+              apmask(144)=1      ! not free text
+              apmask(160:162)=1  ! 3 extra bits
+              llrap=0.0
+              llrap(88:115)=apmag*apsym(1:28)/ss
+              llrap(144)=-apmag/ss
+              llrap(160:162)=apmag*apsym(73:75)/ss
+              where(apmask.eq.0) llrap=llr
+           endif
+        endif
+        if(iap.eq.2) then
+           if(iaptype.eq.1) then   ! look for mycall, dxcall
+              apmask=0
+              apmask(88:115)=1   ! mycall
+              apmask(116:143)=1  ! hiscall
+              apmask(144)=1      ! not free text
+              apmask(160:162)=1  ! 3 extra bits
+              llrap=0.0
+              llrap(88:143)=apmag*apsym(1:56)/ss
+              llrap(144)=-apmag/ss
+              llrap(160:162)=apmag*apsym(73:75)/ss
+              where(apmask.eq.0) llrap=llr
+           endif
+           if(iaptype.eq.2) then   ! look mycall, dxcall, RRR/73
+              apmask=0
+              apmask(88:115)=1   ! mycall
+              apmask(116:143)=1  ! hiscall
+              apmask(144:154)=1  ! RRR or 73 
+              apmask(160:162)=1  ! 3 extra bits
+              llrap=0.0
+              llrap(88:143)=apmag*apsym(1:56)/ss
+              llrap(144:154)=apmag*rr73/ss
+              llrap(160:162)=apmag*apsym(73:75)/ss
+              where(apmask.eq.0) llrap=llr
+           endif
         endif
         cw=0
         call timer('bpd174  ',0)
