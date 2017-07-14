@@ -53,7 +53,7 @@ include::install-windows.adoc[]
 include::install-linux.adoc[]
 
 [[INSTALL_OSX]]
-=== Macintosh OS X
+=== OS X and macOS
 include::install-mac.adoc[]
 
 ////

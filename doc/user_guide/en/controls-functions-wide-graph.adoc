@@ -15,7 +15,7 @@ window size works well at 2 to 8 bins per pixel.
 - *JT65 nnnn JT9* sets the dividing point (blue marker) for wide-band
 decoding of JT65 and JT9 signals in *JT9+JT65* mode.  The decoder
 looks for JT65 signals everywhere, but JT9 signals only above this
-frequency.
+frequency. This setting is stored separately for each band.
 
 - *Start nnn Hz* sets the low-frequency starting point of the
 waterfall frequency scale.

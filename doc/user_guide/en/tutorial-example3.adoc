@@ -15,7 +15,7 @@ frequency limit is approximately 2500 Hz.
 - Select *File | Open* and navigate to +...\save\samples\FT8\170709_135615.wav+.
 The waterfall should look something like this:
 
-[[X14]]
+[[X15]]
 image::170709_135615.wav.png[align="left",alt="Wide Graph Decode 170709_135615"]
 
 - You should see decodes of the three FT8 signals in the *Band Activity*

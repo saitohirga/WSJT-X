@@ -30,11 +30,10 @@ sudo dpkg -i wsjtx_{VERSION}_armhf.deb
 [example]
 sudo dpkg -P wsjtx
 
-You may also need to execute the following commands in a terminal:
+You may also need to execute the following command in a terminal:
 
 [example]
-sudo apt-get install libqt5multimedia5-plugins libqt5serialport5 
-sudo apt-get install libfftw3-single3
+sudo apt install libqt5multimedia5-plugins libqt5serialport5 libfftw3-single3
 
 Fedora, Red Hat, and other rpm-based systems:
 
@@ -60,7 +59,7 @@ sudo rpm -i wsjtx-{VERSION}-x86_64.rpm
 [example]
 sudo rpm -e wsjtx
 
-You may also need to execute the following commands in a terminal:
+You may also need to execute the following command in a terminal:
 
 [example]
-sudo yum install fftw-libs-single qt5-qtmultimedia qt5-qtserialport 
+sudo dnf install fftw-libs-single qt5-qtmultimedia qt5-qtserialport 
