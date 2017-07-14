@@ -74,7 +74,7 @@ do id=1,K ! diagonal element indices
       endif
       do ii=1,K
         if( ii .ne. id .and. genmrb(ii,id) .eq. 1 ) then
-          genmrb(ii,1:N)=mod(genmrb(ii,1:N)+genmrb(id,1:N),2)
+          genmrb(ii,1:N)=ieor(genmrb(ii,1:N),genmrb(id,1:N))
         endif
       enddo
       exit

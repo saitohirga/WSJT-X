@@ -98,23 +98,3 @@ contains
   end subroutine decode
 
 end module ft8_decode
-
-subroutine ft8apset(mycall12,hiscall12,hisgrid6,apsym)
-  parameter(NAPM=4,KK=87)
-  character*12 mycall12,hiscall12
-  character*22 msg,msgsent
-  character*6 mycall,hiscall
-  character*6 hisgrid6
-  character*4 hisgrid
-  integer apsym(KK)
-  integer*1 msgbits(KK)
-  integer itone(KK)
-  
-  mycall=mycall12(1:6)
-  hiscall=hiscall12(1:6)
-  hisgrid=hisgrid6(1:4) 
-  msg=mycall//' '//hiscall//' '//hisgrid
-  call genft8(msg,msgsent,msgbits,itone)
-  apsym=2*msgbits-1 
-  return
-  end subroutine ft8apset 

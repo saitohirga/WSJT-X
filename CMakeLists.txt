@@ -433,6 +433,7 @@ set (wsjt_FSRCS
   lib/fqso_first.f90
   lib/freqcal.f90
   lib/fsk4hf/fsk4hf.f90
+  lib/fsk4hf/ft8apset.f90
   lib/fsk4hf/ft8b.f90
   lib/fsk4hf/ft8_downsample.f90
   lib/fsk4hf/ft8sim.f90
