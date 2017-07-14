@@ -54,31 +54,71 @@ set (PROJECT_MANUAL wsjtx-main)
 set (PROJECT_MANUAL_DIRECTORY_URL http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/)
 set (PROJECT_SAMPLES_URL http://downloads.sourceforge.net/project/wsjt/)
 set (PROJECT_SAMPLES_UPLOAD_DEST frs.sourceforge.net:/home/frs/project/wsjt/)
-set (PROJECT_SUMMARY_DESCRIPTION "${PROJECT_NAME} - JT9 and JT65 Modes for LF, MF and HF Amateur Radio.")
+set (PROJECT_SUMMARY_DESCRIPTION "${PROJECT_NAME} - Digital Modes for Weak Signal Communicaitons in Amateur Radio.")
 set (PROJECT_DESCRIPTION "${PROJECT_SUMMARY_DESCRIPTION}
- ${PROJECT_NAME} implements JT9, a new mode designed especially for the LF, MF,
- and HF bands, as well as the popular mode JT65. Both modes were
- designed for making reliable, confirmed QSOs under extreme
- weak-signal conditions. They use nearly identical message structure
- and source encoding. JT65 was designed for EME (“moonbounce”) on the
- VHF/UHF bands and has also proved very effective for worldwide QRP
- communication at HF; in contrast, JT9 is optimized for HF and lower
- frequencies. JT9 is about 2 dB more sensitive than JT65A while using
- less than 10% of the bandwidth. World-wide QSOs are possible with
- power levels of a few watts and compromise antennas. A 2 kHz slice
- of spectrum is essentially full when occupied by ten JT65 signals.
- As many as 100 JT9 signals can fit into the same space, without
- overlap.
+ ${PROJECT_NAME} is a computer program designed to facilitate basic amateur
+ radio communication using very weak signals. The first four letters in
+ the program name stand for `(W)eak (S)ignal communication by
+ K1(JT),` while the suffix `-X` indicates that ${PROJECT_NAME} started as
+ an extended and experimental branch of the program
+ WSJT.
  .
- ${PROJECT_NAME} offers a “bi-lingual“ operating mode in which you can transmit
- and receive JT65 and JT9 signals, switching between modes
- automatically as needed. Displayed bandwidth can be as large as 5
- kHz. If your receiver has as upper-sideband filter at least 4 kHz
- wide, you can have all the typical JT65 and JT9 activity on screen at
- once, available for making QSOs with a click of the mouse. Even with
- standard SSB-width IF filters, switching between JT65 and JT9 modes
- is quick and convenient. Be sure to read the online ${PROJECT_NAME} User's
- Guide.")
+ ${PROJECT_NAME} Version 1.8 offers nine different protocols or modes: FT8,
+ JT4, JT9, JT65, QRA64, ISCAT, MSK144, WSPR, and Echo.
+ The first five are designed for making reliable QSOs under extreme
+ weak-signal conditions. They use nearly identical message structure
+ and source encoding.  JT65 and QRA64 were designed for EME
+ (`moonbounce`) on the VHF/UHF bands and have also proven very
+ effective for worldwide QRP communication on the HF bands.  QRA64 has
+ a number of advantages over JT65, including better performance on the
+ very weakest signals.  We imagine that over time it may replace JT65
+ for EME use.  JT9 was originally designed for the LF, MF, and lower HF
+ bands.  Its submode JT9A is 2 dB more sensitive than JT65 while using
+ less than 10% of the bandwidth.  JT4 offers a wide variety of tone
+ spacings and has proven highly effective for EME on microwave bands up
+ to 24 GHz.  These four `slow` modes use one-minute timed sequences
+ of alternating transmission and reception, so a minimal QSO takes four
+ to six minutes — two or three transmissions by each station, one
+ sending in odd UTC minutes and the other even.  FT8 is operationally
+ similar but four times faster (15-second T/R sequences) and less
+ sensitive by a few dB.  On the HF bands, world-wide QSOs are possible
+ with any of these modes using power levels of a few watts (or even
+ milliwatts) and compromise antennas.  On VHF bands and higher, QSOs
+ are possible (by EME and other propagation types) at signal levels 10
+ to 15 dB below those required for CW.
+ .
+ ISCAT, MSK144, and optionally submodes JT9E-H are `fast`
+ protocols designed to take advantage of brief signal enhancements from
+ ionized meteor trails, aircraft scatter, and other types of scatter
+ propagation. These modes use timed sequences of 5, 10, 15, or 30 s
+ duration.  User messages are transmitted repeatedly at high rate (up
+ to 250 characters per second, for MSK144) to make good use of the
+ shortest meteor-trail reflections or `pings`.  ISCAT uses free-form
+ messages up to 28 characters long, while MSK144 uses the same
+ structured messages as the slow modes and optionally an abbreviated
+ format with hashed callsigns.
+ .
+ WSPR (pronounced `whisper`) stands for (W)eak (S)ignal
+ (P)ropagation (R)eporter.  The WSPR protocol was designed for probing
+ potential propagation paths using low-power transmissions. WSPR
+ messages normally carry the transmitting station’s callsign, grid
+ locator, and transmitter power in dBm, and they can be decoded at
+ signal-to-noise ratios as low as -28 dB in a 2500 Hz bandwidth.  WSPR
+ users with internet access can automatically upload reception
+ reports to a central database called wsprnet that provides a mapping
+ facility, archival storage, and many other features.
+ .
+ Echo mode allows you to detect and measure your own station's echoes
+ from the moon, even if they are far below the audible threshold.
+ .
+ ${PROJECT_NAME} provides spectral displays for receiver passbands as wide as
+ 5 kHz, flexible rig control for nearly all modern radios used by
+ amateurs, and a wide variety of special aids such as automatic Doppler
+ tracking for EME QSOs and Echo testing.  The program runs equally well
+ on Windows, Macintosh, and Linux systems, and installation packages
+ are available for all three platforms.
+ .
+ Be sure to read the online ${PROJECT_NAME} User's Guide.")
 
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake/Modules ${CMAKE_MODULE_PATH})
 
