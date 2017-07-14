@@ -2026,7 +2026,7 @@ void MainWindow::closeEvent(QCloseEvent * e)
   m_prefixes.reset ();
   m_shortcuts.reset ();
   m_mouseCmnds.reset ();
-  if(m_mode!="MSK144") killFile();
+  if(m_mode!="MSK144" and m_mode!="FT8") killFile();
   mem_jt9->detach();
   QFile quitFile {m_config.temp_dir ().absoluteFilePath (".quit")};
   quitFile.open(QIODevice::ReadWrite);
@@ -2659,8 +2659,9 @@ void MainWindow::readFromStdout()                             //readFromStdout
         }
       }
       */
-      m_bDecoded = t.mid (20).trimmed ().toInt () > 0;
-      if(!m_diskData) killFileTimer.start (3*1000*m_TRperiod/4); //Kill in 45 s
+      m_bDecoded = t.mid(20).trimmed().toInt() > 0;
+      int mswait=3*1000*m_TRperiod/4;
+      if(!m_diskData) killFileTimer.start(mswait); //Kill in 3/4 period
       decodeDone ();
       m_startAnother=m_loopall;
       if(m_bNoMoreFiles) {
