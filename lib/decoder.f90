@@ -390,7 +390,7 @@ contains
     end select
   end subroutine jt9_decoded
 
-  subroutine ft8_decoded (this,sync,snr,dt,freq,nbadcrc,decoded)
+  subroutine ft8_decoded (this,sync,snr,dt,freq,decoded)
     use ft8_decode
     implicit none
 
@@ -399,17 +399,14 @@ contains
     integer, intent(in) :: snr
     real, intent(in) :: dt
     real, intent(in) :: freq
-    integer, intent(in) :: nbadcrc
     character(len=22), intent(in) :: decoded
 
-    if(nbadcrc.eq.0) then
-       write(*,1000) params%nutc,snr,dt,nint(freq),decoded
-1000   format(i6.6,i4,f5.1,i5,' ~ ',1x,a22)
-       write(13,1002) params%nutc,nint(sync),snr,dt,freq,0,decoded
-1002   format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a22,' FT8')
-       call flush(6)
-       call flush(13)
-    endif
+    write(*,1000) params%nutc,snr,dt,nint(freq),decoded
+1000 format(i6.6,i4,f5.1,i5,' ~ ',1x,a22)
+    write(13,1002) params%nutc,nint(sync),snr,dt,freq,0,decoded
+1002 format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a22,' FT8')
+    call flush(6)
+    call flush(13)
     
     select type(this)
     type is (counting_ft8_decoder)

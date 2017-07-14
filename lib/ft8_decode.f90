@@ -7,7 +7,7 @@ module ft8_decode
   end type ft8_decoder
 
   abstract interface
-     subroutine ft8_decode_callback (this,sync,snr,dt,freq,nbadcrc,decoded)
+     subroutine ft8_decode_callback (this,sync,snr,dt,freq,decoded)
        import ft8_decoder
        implicit none
        class(ft8_decoder), intent(inout) :: this
@@ -15,7 +15,6 @@ module ft8_decode
        integer, intent(in) :: snr
        real, intent(in) :: dt
        real, intent(in) :: freq
-       integer, intent(in) :: nbadcrc
        character(len=22), intent(in) :: decoded
      end subroutine ft8_decode_callback
   end interface
@@ -77,13 +76,17 @@ contains
         xdt=candidate(2,icand)
         nsnr0=min(99,nint(10.0*log10(sync) - 25.5))    !### empirical ###
         call timer('ft8b    ',0)
-        call ft8b(dd,newdat,nfqso,ndepth,lsubtract,icand,sync,f1,xdt,apsym,nharderrors,  &
-            dmin,nbadcrc,iap,ipass,message,xsnr)
+        call ft8b(dd,newdat,nfqso,ndepth,lsubtract,icand,sync,f1,xdt,   &
+             apsym,nharderrors,dmin,nbadcrc,iap,ipass,iera,message,xsnr)
         nsnr=xsnr  
         xdt=xdt-0.6
         call timer('ft8b    ',1)
-        if (associated(this%callback)) call this%callback(sync,nsnr,xdt,   &
-            f1,nbadcrc,message)
+        if(nbadcrc.eq.0 .and. associated(this%callback)) then
+           call this%callback(sync,nsnr,xdt,f1,message)
+           write(81,3081) ncand,icand,iera,nharderrors,ipass,          &
+                sync,f1,xdt,dmin,xsnr,message
+3081       format(2i5,i2,i3,i2,2f7.1,3f7.2,1x,a22)
+        endif
       enddo
 !     h=default_header(12000,NMAX)
 !     open(10,file='subtract.wav',status='unknown',access='stream')
