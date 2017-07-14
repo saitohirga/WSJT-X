@@ -1,4 +1,4 @@
-subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,icand,sync0,f1,xdt,   &
+subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   &
      apsym,nharderrors,dmin,nbadcrc,iap,ipass,iera,message,xsnr)
 
   use timer_module, only: timer
