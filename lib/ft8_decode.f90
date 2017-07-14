@@ -46,7 +46,6 @@ contains
     write(datetime,1001) nutc        !### TEMPORARY ###
 1001 format("000000_",i6.6)
 
-    if(index(hisgrid6," ").eq.0) hisgrid6="EN50"
     call ft8apset(mycall12,hiscall12,hisgrid6,apsym,iaptype)
 
     dd=iwave
