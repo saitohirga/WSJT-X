@@ -46,23 +46,35 @@ subroutine sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand)
   nfos=NFFT1/NSPS   ! # frequency bin oversampling factor
   do i=ia,ib
      do j=-JZ,JZ
-        t=0.
-        t0=0.
+        ta=0.
+        tb=0.
+        tc=0.
+        t0a=0.
+        t0b=0.
+        t0c=0.
         do n=0,6
            k=j+nssy*n
            if(k.ge.1.and.k.le.NHSYM) then
-              t=t + s(i+nfos*icos7(n),k)
-              t0=t0 + sum(s(i:i+nfos*6:nfos,k))
+              ta=ta + s(i+nfos*icos7(n),k)
+              t0a=t0a + sum(s(i:i+nfos*6:nfos,k))
            endif
-           t=t + s(i+nfos*icos7(n),k+nssy*36)
-           t0=t0 + sum(s(i:i+nfos*6:nfos,k+nssy*36))
+           tb=tb + s(i+nfos*icos7(n),k+nssy*36)
+           t0b=t0b + sum(s(i:i+nfos*6:nfos,k+nssy*36))
            if(k+nssy*72.le.NHSYM) then
-              t=t + s(i+nfos*icos7(n),k+nssy*72)
-              t0=t0 + sum(s(i:i+nfos*6:nfos,k+nssy*72))
+              tc=tc + s(i+nfos*icos7(n),k+nssy*72)
+              t0c=t0c + sum(s(i:i+nfos*6:nfos,k+nssy*72))
            endif
         enddo
+        t=ta+tb+tc
+        t0=t0a+t0b+t0c
         t0=(t0-t)/6.0
-        sync2d(i,j)=t/t0
+        sync_abc=t/t0
+
+        t=tb+tc
+        t0=t0b+t0c
+        t0=(t0-t)/6.0
+        sync_bc=t/t0
+        sync2d(i,j)=max(sync_abc,sync_bc)
      enddo
   enddo
 

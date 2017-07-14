@@ -187,7 +187,7 @@ program jt9
      if(infile(i1-5:i1-5).eq.'_') then
         read(infile(i1-4:i1-1),*,err=1) nutc
      else
-        read(infile(i1-6:i1-3),*,err=1) nutc
+        read(infile(i1-6:i1-1),*,err=1) nutc
      endif
      go to 2
 1    nutc=0
@@ -238,8 +238,8 @@ program jt9
               ingain=0
               call timer('symspec ',0)
               nminw=1
-              call symspec(shared_data,k,ntrperiod,nsps,ingain,nminw,pxdb,s,df3,   &
-                   ihsym,npts8,pxdbmax)
+              call symspec(shared_data,k,ntrperiod,nsps,ingain,nminw,pxdb,  &
+                   s,df3,ihsym,npts8,pxdbmax)
               call timer('symspec ',1)
            endif
            nhsym0=nhsym
