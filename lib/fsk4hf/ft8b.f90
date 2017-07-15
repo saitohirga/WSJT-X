@@ -9,7 +9,8 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   
   real a(5)
   real s1(0:7,ND),s2(0:7,NN)
   real ps(0:7)
-  real rxdata(3*ND),llr(3*ND),llr0(3*ND),llrap(3*ND)           !Soft symbols
+  real rxdata(3*ND),rxdatap(3*ND)
+  real llr(3*ND),llra(3*ND),llr0(3*ND),llrap(3*ND)           !Soft symbols
   real dd0(15*12000)
   integer*1 decoded(KK),apmask(3*ND),cw(3*ND)
   integer*1 msgbits(KK)
@@ -93,9 +94,38 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   
      r1=max(ps(1),ps(3),ps(5),ps(7))-max(ps(0),ps(2),ps(4),ps(6))
      r2=max(ps(2),ps(3),ps(6),ps(7))-max(ps(0),ps(1),ps(4),ps(5))
      r4=max(ps(4),ps(5),ps(6),ps(7))-max(ps(0),ps(1),ps(2),ps(3))
-     rxdata(3*j-2)=r4
-     rxdata(3*j-1)=r2
-     rxdata(3*j)=r1
+     i4=3*j-2
+     i2=3*j-1
+     i1=3*j
+     rxdata(i4)=r4
+     rxdata(i2)=r2
+     rxdata(i1)=r1
+     rxdatap(i4)=r4
+     rxdatap(i2)=r2
+     rxdatap(i1)=r1
+! When bits 88:115 are set as ap bits, bit 115 lives in symbol 39 along
+! with no-ap bits 116 and 117. Take care of metrics for bits 116 and 117.
+     if(j.eq.39) then  ! take care of bits that live in symbol 39
+       if(apsym(28).lt.0) then
+         rxdatap(i2)=max(ps(2),ps(3))-max(ps(0),ps(1))
+         rxdatap(i1)=max(ps(1),ps(3))-max(ps(0),ps(2))
+       else 
+         rxdatap(i2)=max(ps(6),ps(7))-max(ps(4),ps(5))
+         rxdatap(i1)=max(ps(5),ps(7))-max(ps(4),ps(6))
+       endif
+     endif
+! bit 144 lives in symbol 48 and will be 1 if it is set as an ap bit.
+! take care of metrics for bits 142 and 143
+     if(j.eq.48) then  ! bit 144 is always 1
+       rxdatap(i4)=max(ps(5),ps(7))-max(ps(1),ps(3))
+       rxdatap(i2)=max(ps(3),ps(7))-max(ps(1),ps(5))
+     endif 
+! bit 154 lives in symbol 52 and will be 0 if it is set as an ap bit
+! take care of metrics for bits 155 and 156
+     if(j.eq.52) then  ! bit 154 will be 0 if it is set as an ap bit.
+        rxdatap(i2)=max(ps(2),ps(3))-max(ps(0),ps(1))
+        rxdatap(i1)=max(ps(1),ps(3))-max(ps(0),ps(2))
+     endif  
   enddo
 
   rxav=sum(rxdata)/(3.0*ND)
@@ -107,12 +137,13 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   
      rxsig=sqrt(rx2av)
   endif
   rxdata=rxdata/rxsig
+! Let's just assume that rxsig is OK for rxdatap too...
+  rxdatap=rxdatap/rxsig
+
   ss=0.84
-  llr=2.0*rxdata/(ss*ss)
-  llr0=llr
+  llr0=2.0*rxdata/(ss*ss)
+  llra=2.0*rxdatap/(ss*ss)  ! llr's for use with ap
   apmag=4.0
-!  nera=1
-!  nera=3
   nap=0
 !  if(ndepth.eq.3) nap=2  
 
@@ -140,6 +171,8 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   
               apmask(160:162)=1  ! 3 extra bits
               llrap=llr
               llrap(88:115)=apmag*cq/ss
+              llrap(116:117)=llra(116:117)  
+              llrap(142:143)=llra(142:143)
               llrap(144)=-apmag/ss
               llrap(160:162)=apmag*apsym(73:75)/ss
            endif
@@ -150,6 +183,8 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   
               apmask(160:162)=1  ! 3 extra bits
               llrap=llr
               llrap(88:115)=apmag*apsym(1:28)/ss
+              llrap(116:117)=llra(116:117)
+              llrap(142:143)=llra(142:143)
               llrap(144)=-apmag/ss
               llrap(160:162)=apmag*apsym(73:75)/ss
            endif
@@ -175,6 +210,7 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   
               llrap=llr
               llrap(88:143)=apmag*apsym(1:56)/ss
               llrap(144:154)=apmag*rr73/ss
+              llrap(155:156)=llra(155:156)  
               llrap(160:162)=apmag*apsym(73:75)/ss
            endif
         endif
