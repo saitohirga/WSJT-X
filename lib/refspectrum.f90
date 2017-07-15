@@ -8,10 +8,7 @@ subroutine refspectrum(id2,id2b,kk,bclear,brefspec,buseref,fname)
   integer*2 id2(NFFT),id2b(120*12000)
   logical*1 bclear,brefspec,buseref,blastuse
   
-  real x0(0:NH-1)                         !Input samples
-  real x1(0:NH-1)                         !Output samples (delayed by one block)
-  real x0s(0:NH-1)                        !Saved upper half of input samples
-  real x1s(0:NH-1)                        !Saved upper half of output samples
+  real xs(0:NH-1)                         !Saved upper half of input samples
   real x(0:NFFT-1)                        !Work array
   real*4 w(0:NFFT-1)                      !Window function
   real*4 s(0:NH)                          !Average spectrum
@@ -34,8 +31,7 @@ subroutine refspectrum(id2,id2b,kk,bclear,brefspec,buseref,fname)
      nsave=0
      s=0.0
      filter=1.0
-     x0s=0.
-     x1s=0.
+     xs=0.
      first=.false.
   endif
   if(bclear) s=0.
@@ -137,18 +133,16 @@ subroutine refspectrum(id2,id2b,kk,bclear,brefspec,buseref,fname)
 100     close(16)
 110     continue
      endif
-     x0=id2(1:NH)
-     x(0:NH-1)=x0s                         !Previous 2nd half to new 1st half
-     x(NH:NFFT-1)=x0                       !New 2nd half
-     x0s=x0                                !Save the new 2nd half
-     x=w*x                                 !Apply window
-     call four2a(x,NFFT,1,-1,0)            !r2c FFT (to frequency domain)
+! Use overlap and add method to apply reference filter
+     x(0:NH-1)=id2(1:NH)
+     x(NH:NFFT-1)=0.0
+     x=x/NFFT
+     call four2a(x,NFFT,1,-1,0)
      cx=fil*cx
-     call four2a(cx,NFFT,1,1,-1)           !c2r FFT (back to time domain)
-     x1=x1s + x(0:NH-1)                    !Add previous segment's 2nd half
-!     id2(1:NH)=nint(x1)
-     if(kk.ge.6912) id2b(kk-6192+1:kk-6192+NH)=nint(x1)
-     x1s=x(NH:NFFT-1)                      !Save the new 2nd half
+     call four2a(cx,NFFT,1,1,-1)
+     x(0:NH-1)=x(0:NH-1)+xs    
+     xs=x(NH:NFFT-1)
+     id2(1:NH)=nint(x(0:NH-1))
   endif
   blastuse=buseref
   
