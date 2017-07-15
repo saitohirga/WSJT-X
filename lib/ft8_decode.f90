@@ -82,9 +82,10 @@ contains
         call timer('ft8b    ',1)
         if(nbadcrc.eq.0 .and. associated(this%callback)) then
            call this%callback(sync,nsnr,xdt,f1,message)
-!           write(81,3081) ncand,icand,iera,nharderrors,ipass,          &
+!           write(81,3081) ncand,icand,iera,nharderrors,ipass,iap,iaptype,    &
 !                db(sync),f1,xdt,dmin,xsnr,message
-!3081       format(2i5,i2,i3,i2,f7.2,f7.1,3f7.2,1x,a22)
+!3081       format(2i5,i2,i3,i2,i2,i2,f7.2,f7.1,3f7.2,1x,a22)
+!           flush(81)
         endif
       enddo
 !     h=default_header(12000,NMAX)
