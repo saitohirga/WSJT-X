@@ -8,7 +8,7 @@ subroutine refspectrum(id2,id2b,kk,bclear,brefspec,buseref,fname)
   integer*2 id2(NFFT),id2b(120*12000)
   logical*1 bclear,brefspec,buseref,blastuse
   
-  real xs(0:NH-1)                         !Saved upper half of input samples
+  real xs(0:NH-1)                         !Saved upper half of input chunk convolved with h(t) 
   real x(0:NFFT-1)                        !Work array
   real*4 w(0:NFFT-1)                      !Window function
   real*4 s(0:NH)                          !Average spectrum
