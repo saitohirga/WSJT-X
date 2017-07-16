@@ -4812,13 +4812,13 @@ void MainWindow::switch_mode (Mode mode)
 void MainWindow::WSPR_config(bool b)
 {
   ui->decodedTextBrowser2->setVisible(!b);
-  ui->decodedTextLabel2->setVisible(!b);
+  ui->decodedTextLabel2->setVisible(!b and ui->cbMenus->isChecked());
   ui->controls_stack_widget->setCurrentIndex (b && m_mode != "Echo" ? 1 : 0);
   ui->QSO_controls_widget->setVisible (!b);
   ui->DX_controls_widget->setVisible (!b);
   ui->WSPR_controls_widget->setVisible (b);
-  ui->label_6->setVisible(!b);
-  ui->label_7->setVisible(!b);
+  ui->label_6->setVisible(!b and ui->cbMenus->isChecked());
+  ui->label_7->setVisible(!b and ui->cbMenus->isChecked());
   ui->logQSOButton->setVisible(!b);
   ui->DecodeButton->setEnabled(!b);
   if(b and (m_mode!="Echo")) {
