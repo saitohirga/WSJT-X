@@ -7,7 +7,7 @@ added to _WSJT-X_ since Version 1.7.0:
 
 - Improved decoding performance for JT65, QRA64, and MSK144
 
-- *SWL* option for third-partty decoding short-format MSK144 messages
+- *SWL* option for third-party decoding short-format MSK144 messages
 
 - Experimental amplitude and phase equalization for MSK144
     
