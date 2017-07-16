@@ -3537,7 +3537,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   // basic mode sanity checks
   auto const& parts = t2.split (' ', QString::SkipEmptyParts);
   if (parts.size () < 5) return;
-  auto const& mode = parts[4];
+  auto const& mode = parts[4].mid(0,1);
   if (("JT9+JT65" == m_mode && !("@" == mode || "#" == mode))
       || ("JT65" == m_mode && mode != "#")
       || ("JT9" == m_mode && mode != "@")
