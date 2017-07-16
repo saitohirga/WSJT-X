@@ -8,19 +8,26 @@ contains a list of frequencies conventionally used for modes JT4, JT9,
 JT65, MSK144, WSPR, and Echo.  Conventions may change with time or
 by user preference; you can modify the frequency table as desired.
 
-- To change an existing entry, click to select it, type a desired
-frequency in MHz, and hit *Enter* on the keyboard. The program will
-format your frequency value appropriately and add a band designator.
+- To change an existing entry, double-click to edit it, type a desired
+frequency in MHz or select from the drop down list of options, then
+hit *Enter* on the keyboard.  The program will format your changed
+entry appropriately.
 
 - To add a new entry, right-click anywhere on the frequency table and
-select *Insert*.  Enter a frequency in MHz in the popup box and select
-the desired mode (or leave the Mode selection blank).  Then click
-*OK*.  The table may include more than one frequency for a given band.
+select *Insert*.  Enter a frequency in MHz in the pop-up box and
+select the desired mode (or leave the Mode selection as *All*).  Then
+click *OK*.  The table may include more than one frequency for a given
+band.
 
-- To delete an entry, right-click it and select *Delete*.
+- To delete an entry, right-click it and select *Delete*, multiple
+entries can be deleted in a single operation by selecting them before
+right-clicking.
 
-- Click the *Reset* button to return the table to its default
-configuration.
+- Right-click any entry and click *Reset* button to return the table
+to its default configuration.
+
+Other  more  advanced  maintenance  operations are  available  on  the
+right-click context menu that should be self-explanatory.
 
 _Frequency Calibration_: If you have calibrated your radio using WWV
 or other reliable frequency references, or perhaps with the technique
