@@ -77,7 +77,7 @@ contains
         call timer('ft8b    ',0)
         call ft8b(dd,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync,f1,   &
              xdt,apsym,nharderrors,dmin,nbadcrc,iap,ipass,iera,message,xsnr)
-        nsnr=xsnr  
+        nsnr=nint(xsnr) 
         xdt=xdt-0.6
         call timer('ft8b    ',1)
         if(nbadcrc.eq.0 .and. associated(this%callback)) then
