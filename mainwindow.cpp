@@ -1574,24 +1574,24 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     if(m_mode=="WSPR-LF") on_actionWSPR_LF_triggered();
     if(m_mode=="Echo") on_actionEcho_triggered();
     if(b) VHF_features_enabled(b);
-  }
 
-  m_config.transceiver_online ();
-  if(!m_bFastMode) setXIT (ui->TxFreqSpinBox->value ());
-  if(m_config.single_decode() or m_mode=="JT4") {
-    ui->label_6->setText("Single-Period Decodes");
-    ui->label_7->setText("Average Decodes");
-  } else {
-    ui->label_6->setText("Band Activity");
-    ui->label_7->setText("Rx Frequency");
-  }
-  update_watchdog_label ();
-  if(!m_splitMode) ui->cbCQTx->setChecked(false);
-  if(!m_config.enable_VHF_features()) {
-    ui->actionInclude_averaging->setEnabled(false);
-    ui->actionInclude_correlation->setEnabled(false);
-    ui->actionInclude_averaging->setChecked(false);
-    ui->actionInclude_correlation->setChecked(false);
+    m_config.transceiver_online ();
+    if(!m_bFastMode) setXIT (ui->TxFreqSpinBox->value ());
+    if(m_config.single_decode() or m_mode=="JT4") {
+      ui->label_6->setText("Single-Period Decodes");
+      ui->label_7->setText("Average Decodes");
+    } else {
+      ui->label_6->setText("Band Activity");
+      ui->label_7->setText("Rx Frequency");
+    }
+    update_watchdog_label ();
+    if(!m_splitMode) ui->cbCQTx->setChecked(false);
+    if(!m_config.enable_VHF_features()) {
+      ui->actionInclude_averaging->setEnabled(false);
+      ui->actionInclude_correlation->setEnabled(false);
+      ui->actionInclude_averaging->setChecked(false);
+      ui->actionInclude_correlation->setChecked(false);
+    }
   }
 }
 
