@@ -2784,7 +2784,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 void MainWindow::FT8_AutoSeq(QString message)
 {
   int i1=message.indexOf(m_baseCall);
-  int i2=message.indexOf(m_hisCall);
+  int i2=message.indexOf(Radio::base_callsign(m_hisCall));
   if(i1>10 and i2>i1+3) {
     if ((message.indexOf (" 73") < 0 || m_ntx != 6)) {
       if(ui->cbAutoSeq->isChecked() and !m_sentFirst73) processMessage (message,43,false);
@@ -3899,7 +3899,10 @@ void MainWindow::genStdMsgs(QString rpt)
     msgtype(t, ui->tx4);
     t=t0 + "73";
     if((m_mode=="JT4" or m_mode=="QRA64") and m_bShMsgs) t="@1750  (73)";
-    msgtype(t, ui->tx5->lineEdit ());
+    if (hisBase != m_lastCallsign) { // only update tx5 when callsign changes
+      msgtype(t, ui->tx5->lineEdit ());
+      m_lastCallsign = hisBase;
+    }
    }
 
   if(m_config.my_callsign () != m_baseCall) {
