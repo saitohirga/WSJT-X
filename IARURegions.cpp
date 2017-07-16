@@ -25,7 +25,7 @@ namespace
 IARURegions::IARURegions (QObject * parent)
   : QAbstractListModel {parent}
 {
-  static_assert (region_names_size == REGIONS_END_SENTINAL_AND_COUNT,
+  static_assert (region_names_size == SENTINAL,
                  "region_names array must match Region enumeration");
 }
 
@@ -34,14 +34,10 @@ char const * IARURegions::name (Region r)
   return region_names[static_cast<int> (r)];
 }
 
-auto IARURegions::value (QString const& s) -> Region
+auto IARURegions::value (int r) -> Region
 {
-  auto end = region_names + region_names_size;
-  auto p = std::find_if (region_names, end
-                         , [&s] (char const * const name) {
-                           return name == s;
-                         });
-  return p != end ? static_cast<Region> (p - region_names) : ALL;
+  if (r < 0 || r + 1 >= SENTINAL) return ALL;
+  return static_cast<Region> (r);
 }
 
 QVariant IARURegions::data (QModelIndex const& index, int role) const
