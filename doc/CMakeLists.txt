@@ -49,6 +49,7 @@ set (UG_SRCS
   transceiver-setup.adoc
   tutorial-example1.adoc
   tutorial-example2.adoc
+  tutorial-example3.adoc
   tutorial-main-window.adoc
   tutorial-wide-graph-settings.adoc
   utilities.adoc
@@ -59,6 +60,7 @@ set (UG_SRCS
 
 set (UG_IMGS
   images/130610_2343-wav-80.png
+  images/170709_135615.wav.png
   images/AstroData_2.png
   images/Astronomical_data.png
   images/band-settings.png
@@ -69,6 +71,7 @@ set (UG_IMGS
   images/download_samples.png
   images/file-menu.png
   images/freemsg.png
+  images/ft8_decodes.png
   images/help-menu.png
   images/JT4F.png
   images/JT65B.png

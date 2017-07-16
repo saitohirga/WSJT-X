@@ -1,0 +1,27 @@
+// Status=review
+.Main Window:
+- Select *FT8* on the *Mode* menu.
+- Set Tx and Rx frequencies to 1200 Hz.
+- Double-click on *Erase* to clear both text windows.
+
+.Wide Graph Settings:
+
+- *Bins/Pixel* = 4
+- Adjust the width of the Wide Graph window so that the upper
+frequency limit is approximately 2500 Hz.
+
+.Open a Wave File:
+
+- Select *File | Open* and navigate to +...\save\samples\FT8\170709_135615.wav+.
+The waterfall should look something like this:
+
+[[X14]]
+image::170709_135615.wav.png[align="left",alt="Wide Graph Decode 170709_135615"]
+
+- You should see decodes of the three FT8 signals in the *Band Activity*
+text box, as shown below:
+
+image::ft8_decodes.png[align="left"]
+
+IMPORTANT: When finished with this Tutorial, don’t forget to re-enter
+your own callsign as *My Call* on the *Settings | General* tab.
