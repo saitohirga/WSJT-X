@@ -919,6 +919,35 @@ void HamlibTransceiver::poll ()
       reversed_ = RIG_VFO_B == v;
     }
 
+  if ((WSJT_RIG_NONE_CAN_SPLIT || !is_dummy_)
+      && rig_->caps->get_split_vfo && split_query_works_)
+    {
+      vfo_t v {RIG_VFO_NONE};		// so we can tell if it doesn't get updated :(
+      auto rc = rig_get_split_vfo (rig_.data (), RIG_VFO_CURR, &s, &v);
+      if (-RIG_OK == rc && RIG_SPLIT_ON == s)
+        {
+          TRACE_CAT_POLL ("HamlibTransceiver", "rig_get_split_vfo split = " << s << " VFO = " << rig_strvfo (v));
+          update_split (true);
+          // if (RIG_VFO_A == v)
+          // 	{
+          // 	  reversed_ = true;	// not sure if this helps us here
+          // 	}
+        }
+      else if (-RIG_OK == rc)	// not split
+        {
+          TRACE_CAT_POLL ("HamlibTransceiver", "rig_get_split_vfo split = " << s << " VFO = " << rig_strvfo (v));
+          update_split (false);
+        }
+      else
+        {
+          // Some rigs (Icom) don't have a way of reporting SPLIT
+          // mode
+          TRACE_CAT_POLL ("HamlibTransceiver", "rig_get_split_vfo can't do on this rig");
+          // just report how we see it based on prior commands
+          split_query_works_ = false;
+        }
+    }
+
   if (freq_query_works_)
     {
       // only read if possible and when receiving or simplex
@@ -971,35 +1000,6 @@ void HamlibTransceiver::poll ()
       else
         {
           TRACE_CAT_POLL ("HamlibTransceiver", "rig_get_mode mode failed with rc:" << rc << "ignoring");
-        }
-    }
-
-  if ((WSJT_RIG_NONE_CAN_SPLIT || !is_dummy_)
-      && rig_->caps->get_split_vfo && split_query_works_)
-    {
-      vfo_t v {RIG_VFO_NONE};		// so we can tell if it doesn't get updated :(
-      auto rc = rig_get_split_vfo (rig_.data (), RIG_VFO_CURR, &s, &v);
-      if (-RIG_OK == rc && RIG_SPLIT_ON == s)
-        {
-          TRACE_CAT_POLL ("HamlibTransceiver", "rig_get_split_vfo split = " << s << " VFO = " << rig_strvfo (v));
-          update_split (true);
-          // if (RIG_VFO_A == v)
-          // 	{
-          // 	  reversed_ = true;	// not sure if this helps us here
-          // 	}
-        }
-      else if (-RIG_OK == rc)	// not split
-        {
-          TRACE_CAT_POLL ("HamlibTransceiver", "rig_get_split_vfo split = " << s << " VFO = " << rig_strvfo (v));
-          update_split (false);
-        }
-      else
-        {
-          // Some rigs (Icom) don't have a way of reporting SPLIT
-          // mode
-          TRACE_CAT_POLL ("HamlibTransceiver", "rig_get_split_vfo can't do on this rig");
-          // just report how we see it based on prior commands
-          split_query_works_ = false;
         }
     }
 

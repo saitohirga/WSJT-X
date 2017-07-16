@@ -5344,6 +5344,8 @@ void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const&
       m_tx_when_ready = false;
     }
   m_rigState = s;
+  auto old_freqNominal = m_freqNominal;
+  m_freqNominal = s.frequency () - m_astroCorrection.rx;
   if (old_state.online () == false && s.online () == true)
     {
       // initializing
@@ -5354,9 +5356,7 @@ void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const&
       m_splitMode = s.split ();
       if (!s.ptt ()) //!m_transmitting)
         {
-          auto temp = m_freqNominal;
-          m_freqNominal = s.frequency () - m_astroCorrection.rx;
-          if (temp != m_freqNominal)
+            if (old_freqNominal != m_freqNominal)
             {
               m_freqTxNominal = m_freqNominal;
               genCQMsg ();
