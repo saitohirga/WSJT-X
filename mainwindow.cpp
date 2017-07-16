@@ -4638,9 +4638,9 @@ void MainWindow::on_actionISCAT_triggered()
 
 void MainWindow::on_actionMSK144_triggered()
 {
+  m_mode="MSK144";
   displayWidgets(nWidgets("101111110100000000010001"));
 //    displayWidgets(nWidgets("101111111100000000010001"));
-  m_mode="MSK144";
   m_modeTx="MSK144";
   ui->actionMSK144->setChecked(true);
   switch_mode (Modes::MSK144);
@@ -4759,8 +4759,8 @@ void MainWindow::on_actionEcho_triggered()
 void MainWindow::on_actionFreqCal_triggered()
 {
   on_actionJT9_triggered();
-  displayWidgets(nWidgets("001101000000000000000000"));
   m_mode="FreqCal";
+  displayWidgets(nWidgets("001101000000000000000000"));
   ui->actionFreqCal->setChecked(true);
   switch_mode(Modes::FreqCal);
   m_wideGraph->setMode(m_mode);
