@@ -15,13 +15,13 @@ AGC action.
 .Bandwidth and Frequency Setting
 
 - If your transceiver offers more than one bandwidth setting in USB
-mode, you should normally choose the widest one possible, up to about
-5 kHz.  This choice has the desirable effect of allowing the *Wide
-Graph* (waterfall and 2D spectrum) to display the conventional JT65
-and JT9 sub-bands simultaneously on most HF bands.  Further details
-are provided in the <<TUTORIAL,Basic Operating Tutorial>>.  A wider
-displayed bandwidth may also be helpful at VHF and above, where JT4,
-JT65, and QRA64 signals are found over much wider ranges of
+mode, it may be advantageous to choose the widest one possible, up to
+about 5 kHz.  This choice has the desirable effect of allowing the
+*Wide Graph* (waterfall and 2D spectrum) to display the conventional
+JT65 and JT9 sub-bands simultaneously on most HF bands.  Further
+details are provided in the <<TUTORIAL,Basic Operating Tutorial>>.  A
+wider displayed bandwidth may also be helpful at VHF and above, where
+JT4, JT65, and QRA64 signals are found over much wider ranges of
 frequencies.
 
 - If you have only a standard SSB filter you won’t be able to display
@@ -31,9 +31,10 @@ generally used for one mode (JT65 or JT9) and part of the sub-band for
 the other mode.
 
 - Of course, you might prefer to concentrate on one mode at a time,
-setting your dial frequency to (say) 14.076 for JT65 or 14.078 for
-JT9.  Present conventions have the nominal JT9 dial frequency 2 kHz
-higher than the JT65 dial frequency on most bands.
+setting your dial frequency to (say) 14.074 for FT8, 14.076 for JT65,
+or 14.078 for JT9.  Present conventions have the nominal JT9 dial
+frequency 2 kHz higher than the JT65 dial frequency on most bands, and
+the FT8 frequency 2 kHz lower.
 
 .Transmitter Audio Level
 
@@ -46,13 +47,9 @@ clicks or glitches.  Make sure that this is true even when you
 simultaneously use the computer to do other tasks such as email, web
 browsing, etc.
 
-* Open the computer's audio mixer controls for output ("`Playback`")
-devices and adjust the volume slider downward from its maximum until
-the RF output from your transmitter falls slightly.  This is generally
-a good level for audio drive.
-
-* Alternatively, you can make the Tx audio level adjustment using the
-digital slider labeled *Pwr* at the right edge of the main window.
+* Adjust the *Pwr" slider (at the right edge of the main window)
+downward from its maximum until the RF output from your transmitter
+falls slightly.  This is generally a good level for audio drive.
 
 * Toggle the *Tune* button once more or click *Halt Tx* to stop your
 test transmission.

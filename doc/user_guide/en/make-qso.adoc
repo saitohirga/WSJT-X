@@ -158,6 +158,6 @@ as the following checklist:
 
 - Radio filters centered and set to widest available passband (up to 5 kHz).
 
-TIP: Remember that in many circumstances JT4, JT9, JT65, and WSPR do
-not require high power. Under most HF propagation conditions, QRP is
-the norm.
+TIP: Remember that in many circumstances FT8, JT4, JT9, JT65, and WSPR
+do not require high power. Under most HF propagation conditions, QRP
+is usually the norm.
