@@ -236,9 +236,10 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   
         message='                      '
         xsnr=-99.0
         if(count(cw.eq.0).eq.174) cycle           !Reject the all-zero codeword
-!    if( nharderrors.ge.0 .and. dmin.le.30.0 .and. nharderrors .lt. 30) then
-!***  These thresholds should probably be dependent on nap
-        if( nharderrors.ge.0 .and. dmin.le.50.0 .and. nharderrors .lt. 50) then
+        if(nharderrors.ge.0 .and. nharderrors+dmin.lt.60.0 .and. &        
+           .not.(sync.lt.2.0 .and. nharderrors.gt.35)      .and. &
+           .not.( iap .gt. 0 .and. nharderrors.gt.39)            &   
+          ) then
            call chkcrc12a(decoded,nbadcrc)
         else
            nharderrors=-1

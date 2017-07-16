@@ -1,7 +1,8 @@
 subroutine sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand)
 
   include 'ft8_params.f90'
-  parameter (JZ=62)                            !DT up to +/- 1.25 s
+! Search over +/- 2.5s relative to start of interval. 
+  parameter (JZ=62)                        
   complex cx(0:NH1)
   real s(NH1,NHSYM)
   real savg(NH1)
@@ -133,7 +134,7 @@ subroutine sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand)
 !  do i=ncand,1,-1
   do i=1,ncand
      j=indx(i)
-     if( candidate0(3,j) .ge. syncmin ) then
+     if( candidate0(3,j) .ge. syncmin .and. candidate0(2,j).ge.-1.5 ) then
        candidate(1,k)=abs(candidate0(1,j))
        candidate(2,k)=candidate0(2,j)
        candidate(3,k)=candidate0(3,j)

@@ -61,10 +61,10 @@ contains
       if(ipass.eq.1) then
         lsubtract=.true.
         if(ndepth.eq.1) lsubtract=.false.
-        syncmin=1.3
+        syncmin=1.5
       else
         lsubtract=.false.
-        syncmin=1.3
+        syncmin=1.5
       endif 
       call timer('sync8   ',0)
       call sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand)
