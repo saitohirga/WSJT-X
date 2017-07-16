@@ -86,7 +86,9 @@ void TransceiverBase::set (TransceiverState const& s,
               requested_.frequency (actual_.frequency ());
               requested_.mode (actual_.mode ());
             }
-          if (!s.tx_frequency () || s.tx_frequency () > 10000) // ignore bogus startup values
+          if (!s.tx_frequency ()
+              || (s.tx_frequency () > 10000 // ignore bogus startup values
+                  && s.tx_frequency () < std::numeric_limits<Frequency>::max () - 10000))
             {
               if ((s.tx_frequency () != requested_.tx_frequency () // and QSY
                    || (s.mode () != UNK && s.mode () != requested_.mode ())) // or mode change
