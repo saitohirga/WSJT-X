@@ -607,7 +607,7 @@ bool FrequencyList::impl::setData (QModelIndex const& model_index, QVariant cons
         case region_column:
           if (value.canConvert<Region> ())
             {
-              auto region = IARURegions::value (value.toString ());
+              auto region = static_cast<Region> (value.toUInt ());
               if (region != item.region_)
                 {
                   item.region_ = region;
