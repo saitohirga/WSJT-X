@@ -1710,20 +1710,22 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
     case Qt::Key_F11:
       n=11;
       if(e->modifiers() & Qt::ControlModifier) n+=100;
-      bumpFqso(n);
       if(e->modifiers() & Qt::ShiftModifier) {
         int f=ui->TxFreqSpinBox->value()/50;
         if((ui->TxFreqSpinBox->value() % 50) == 0) f=f-1;
         ui->TxFreqSpinBox->setValue(50*f);
+      } else{
+        bumpFqso(n);
       }
       return;
     case Qt::Key_F12:
       n=12;
       if(e->modifiers() & Qt::ControlModifier) n+=100;
-      bumpFqso(n);
       if(e->modifiers() & Qt::ShiftModifier) {
         int f=ui->TxFreqSpinBox->value()/50;
         ui->TxFreqSpinBox->setValue(50*(f+1));
+      } else {
+        bumpFqso(n);
       }
       return;
     case Qt::Key_E:
