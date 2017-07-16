@@ -1,11 +1,11 @@
-subroutine refspectrum(id2,id2b,kk,bclear,brefspec,buseref,fname)
+subroutine refspectrum(id2,bclear,brefspec,buseref,fname)
 
 ! Input:
 !  id2       i*2        Raw 16-bit integer data, 12000 Hz sample rate
 !  brefspec  logical    True when accumulating a reference spectrum
 
   parameter (NFFT=6912,NH=NFFT/2,NPOLYLOW=400,NPOLYHIGH=2600)
-  integer*2 id2(NFFT),id2b(120*12000)
+  integer*2 id2(NFFT)
   logical*1 bclear,brefspec,buseref,blastuse
   
   real xs(0:NH-1)                         !Saved upper half of input chunk convolved with h(t) 
@@ -16,6 +16,7 @@ subroutine refspectrum(id2,id2b,kk,bclear,brefspec,buseref,fname)
   real*8 xfit(1500),yfit(1500),sigmay(1500),a(5),chisqr !Polyfit arrays
   logical first
   complex cx(0:NH)                        !Complex frequency-domain work array
+  complex cfil(0:NH)
   character*(*) fname
   common/spectra/syellow(6827),ref(0:NH),filter(0:NH)
   equivalence(x,cx)
@@ -130,15 +131,23 @@ subroutine refspectrum(id2,id2b,kk,bclear,brefspec,buseref,fname)
 30      do i=1,NH
            read(16,1005,err=100,end=100) freq,s(i),ref(i),fil(i),filter(i)
         enddo
+! Make the filter causal for overlap and add.
+        cx(0)=0.0
+        cx(1:NH)=fil(1:NH)/NFFT
+        call four2a(x,NFFT,1,1,-1)
+        x=cshift(x,-400)
+        x(800:NH)=0.0
+        call four2a(cx,NFFT,1,-1,0)
+        cfil=cx
 100     close(16)
 110     continue
      endif
-! Use overlap and add method to apply reference filter
+! Use overlap and add method to apply causal reference filter.
      x(0:NH-1)=id2(1:NH)
      x(NH:NFFT-1)=0.0
      x=x/NFFT
      call four2a(x,NFFT,1,-1,0)
-     cx=fil*cx
+     cx=cfil*cx
      call four2a(cx,NFFT,1,1,-1)
      x(0:NH-1)=x(0:NH-1)+xs    
      xs=x(NH:NFFT-1)
