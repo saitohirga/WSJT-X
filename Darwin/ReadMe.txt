@@ -1,6 +1,9 @@
                     Notes on WSJT-X Installation for Mac OS X
                     -----------------------------------------
 
+                               Updated 16 July 2017
+                               -------------------- 
+
 If you have already downloaded a previous version of WSJT-X then I suggest 
 you change the name in the Applications folder from WSJT-X to WSJT-X_previous 
 before proceeding.  
@@ -17,13 +20,20 @@ Along with this ReadMe file there is a file:   sysctl.conf.   Drag this file to 
 
 WSJT-X makes use of a block of memory which is shared between different parts of
 the code.  The normal allocation of shared memory on a Mac is insufficient and this 
-has to be increased.   You can check the current allocation on your Mac by typing:
+has to be increased.   You should use a Mac editor to examine sysctl.conf.
 
-  sysctl -a | grep sysv.shm
+There are two important parameters that you need to consider.  shmmax determines the
+amount of shared memory that must be allocated for WSJT-X to operate.  This is 14680064 (14MB)
+and this is defined in the sysctl.conf file and should not be changed.  
 
-If your shmmax is already at least 33554432 (32 MB) then you can close the Terminal
-window and skip the next steps and go to (NEXT).
-  
+It is possible to run more than one instance of WSJT-X simultaneously.  See 
+"Section 14. Platform Dependencies" in the User Guide.  The second important parameter 
+shmall=17920 determines how many instances are permitted.  This is calculated as: 
+  (shmall x 4096/14680064) = 5.
+The sysctl.conf file is configured to permit up to 5 instances of wsjtx to run simultaneously.
+If this limitation is acceptable then you can continue to install the sysctl.conf file without making any
+alterations.  Otherwise you must edit the file to increase shmall according to this calculation.
+
 Now move this file into place for the system to use by typing: (Note this assumes that
 you really did drag this file to your Desktop as required earlier.)
 
@@ -37,7 +47,7 @@ change has been made by typing:
 
   sysctl -a | grep sysv.shm
 
-If shmmax is not shown as 33554432 then contact me since WSJT-X will fail to load with
+If shmmax is not shown as 14680064 then contact me since WSJT-X will fail to load with
 an error message: "Unable to create shared memory segment".
 
 You are now finished with system changes.  You should make certain that NO error messages
