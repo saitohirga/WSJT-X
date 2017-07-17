@@ -3899,8 +3899,12 @@ void MainWindow::genStdMsgs(QString rpt)
     if((m_mode=="JT4" or m_mode=="QRA64") and m_bShMsgs) t="@1500  (RRR)";
     msgtype(t, ui->tx4);
     t=t0 + "73";
-    if((m_mode=="JT4" or m_mode=="QRA64") and m_bShMsgs) t="@1750  (73)";
-    if (hisBase != m_lastCallsign) { // only update tx5 when callsign changes
+    if(m_mode=="JT4" or m_mode=="QRA64") {
+        if (m_bShMsgs) t="@1750  (73)";
+        msgtype(t, ui->tx5->lineEdit ());
+    }
+    else if (hisBase != m_lastCallsign) { // only update tx5 when callsign changes
+
       msgtype(t, ui->tx5->lineEdit ());
       m_lastCallsign = hisBase;
     }
