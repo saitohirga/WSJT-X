@@ -1,8 +1,8 @@
 subroutine sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand)
 
   include 'ft8_params.f90'
-! Search over +/- 2.5s relative to start of interval. 
-  parameter (JZ=62)                        
+! Search over +/- 1.5s relative to 0.5s TX start time. 
+  parameter (JZ=38)                        
   complex cx(0:NH1)
   real s(NH1,NHSYM)
   real savg(NH1)
@@ -45,8 +45,10 @@ subroutine sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand)
   ib=nint(nfb/df)
   nssy=NSPS/NSTEP   ! # steps per symbol
   nfos=NFFT1/NSPS   ! # frequency bin oversampling factor
+  jstrt=0.5/tstep
+
   do i=ia,ib
-     do j=-JZ,JZ
+     do j=-JZ,+JZ
         ta=0.
         tb=0.
         tc=0.
@@ -54,7 +56,7 @@ subroutine sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand)
         t0b=0.
         t0c=0.
         do n=0,6
-           k=j+nssy*n
+           k=j+jstrt+nssy*n
            if(k.ge.1.and.k.le.NHSYM) then
               ta=ta + s(i+nfos*icos7(n),k)
               t0a=t0a + sum(s(i:i+nfos*6:nfos,k))

@@ -35,7 +35,7 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   
   call ft8_downsample(dd0,newdat,f1,cd0)   !Mix f1 to baseband and downsample
   call timer('ft8_down',1)
 
-  i0=nint(xdt*fs2)                         !Initial guess for start of signal
+  i0=nint((xdt+0.5)*fs2)                         !Initial guess for start of signal
   smax=0.0
   do idt=i0-8,i0+8                       !Search over +/- one quarter symbol
      call sync8d(cd0,idt,ctwk,0,sync)
@@ -154,7 +154,7 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   
   llra=2.0*rxdatap/(ss*ss)  ! llr's for use with ap
   apmag=4.0
   nap=0
-!  if(ndepth.eq.3) nap=2  
+  if(ndepth.eq.3) nap=2  
 
   do iap=0,nap                            !### Temporary ###
      nera=1
@@ -162,9 +162,9 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   
      do iera=1,nera
         llr=llr0
         nblank=0
-        if(nera.eq.3 .and. iera.eq.1) nblank=48
+        if(nera.eq.3 .and. iera.eq.1) nblank=0
         if(nera.eq.3 .and. iera.eq.2) nblank=24
-        if(nera.eq.3 .and. iera.eq.3) nblank=0
+        if(nera.eq.3 .and. iera.eq.3) nblank=48
         if(nblank.gt.0) llr(1:nblank)=0.
         if(iap.eq.0) then
            apmask=0
@@ -208,7 +208,7 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   
               llrap=llr
 !              llrap(88:143)=apmag*apsym(1:56)/ss
               llrap(115)=llra(115)
-              llrap(116:143)=apmag*apsym(1:28)/ss
+              llrap(116:143)=apmag*apsym(29:56)/ss
               llrap(144)=-apmag/ss
 !              llrap(160:162)=apmag*apsym(73:75)/ss
            endif
