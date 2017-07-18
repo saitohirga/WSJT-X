@@ -105,14 +105,23 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   
      rxdatap(i1)=r1
 ! When bits 88:115 are set as ap bits, bit 115 lives in symbol 39 along
 ! with no-ap bits 116 and 117. Take care of metrics for bits 116 and 117.
-     if(j.eq.39) then  ! take care of bits that live in symbol 39
-       if(apsym(28).lt.0) then
-         rxdatap(i2)=max(ps(2),ps(3))-max(ps(0),ps(1))
-         rxdatap(i1)=max(ps(1),ps(3))-max(ps(0),ps(2))
-       else 
-         rxdatap(i2)=max(ps(6),ps(7))-max(ps(4),ps(5))
-         rxdatap(i1)=max(ps(5),ps(7))-max(ps(4),ps(6))
-       endif
+!     if(j.eq.39) then  ! take care of bits that live in symbol 39
+!       if(apsym(28).lt.0) then
+!         rxdatap(i2)=max(ps(2),ps(3))-max(ps(0),ps(1))
+!         rxdatap(i1)=max(ps(1),ps(3))-max(ps(0),ps(2))
+!       else 
+!         rxdatap(i2)=max(ps(6),ps(7))-max(ps(4),ps(5))
+!         rxdatap(i1)=max(ps(5),ps(7))-max(ps(4),ps(6))
+!       endif
+!     endif
+! When bits 116:143 are set as ap bits, bit 115 lives in symbol 39 along
+! with ap bits 116 and 117. Take care of metric for bit 115.
+     if(j.eq.39) then  ! take care of bit 115
+       iii=2*(apsym(29)+1)/2 + (apsym(30)+1)/2  ! known values of bits 116 & 117
+       if(iii.eq.0) rxdatap(i4)=ps(4)-ps(0)
+       if(iii.eq.1) rxdatap(i4)=ps(5)-ps(1)
+       if(iii.eq.2) rxdatap(i4)=ps(6)-ps(2)
+       if(iii.eq.3) rxdatap(i4)=ps(7)-ps(3)
      endif
 ! bit 144 lives in symbol 48 and will be 1 if it is set as an ap bit.
 ! take care of metrics for bits 142 and 143
@@ -145,7 +154,7 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   
   llra=2.0*rxdatap/(ss*ss)  ! llr's for use with ap
   apmag=4.0
   nap=0
-  if(ndepth.eq.3) nap=2  
+!  if(ndepth.eq.3) nap=2  
 
   do iap=0,nap                            !### Temporary ###
      nera=1
@@ -159,59 +168,63 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   
         if(nblank.gt.0) llr(1:nblank)=0.
         if(iap.eq.0) then
            apmask=0
-           apmask(160:162)=1
+!           apmask(160:162)=1
            llrap=llr
-           llrap(160:162)=apmag*apsym(73:75)/ss
+!           llrap(160:162)=apmag*apsym(73:75)/ss
         endif
         if(iaptype.eq.1) then
            if(iap.eq.1) then   ! look for plain CQ
               apmask=0
               apmask(88:115)=1   ! plain CQ 
               apmask(144)=1      ! not free text
-              apmask(160:162)=1  ! 3 extra bits
+!              apmask(160:162)=1  ! 3 extra bits
               llrap=llr
               llrap(88:115)=apmag*cq/ss
               llrap(116:117)=llra(116:117)  
               llrap(142:143)=llra(142:143)
               llrap(144)=-apmag/ss
-              llrap(160:162)=apmag*apsym(73:75)/ss
+!              llrap(160:162)=apmag*apsym(73:75)/ss
            endif
            if(iap.eq.2) then   ! look for mycall
               apmask=0
               apmask(88:115)=1   ! mycall
               apmask(144)=1      ! not free text
-              apmask(160:162)=1  ! 3 extra bits
+!              apmask(160:162)=1  ! 3 extra bits
               llrap=llr
               llrap(88:115)=apmag*apsym(1:28)/ss
               llrap(116:117)=llra(116:117)
               llrap(142:143)=llra(142:143)
               llrap(144)=-apmag/ss
-              llrap(160:162)=apmag*apsym(73:75)/ss
+!              llrap(160:162)=apmag*apsym(73:75)/ss
            endif
         endif
         if(iaptype.eq.2) then
-           if(iap.eq.1) then   ! look for mycall, dxcall
+           if(iap.eq.1) then   ! look for dxcall
+              apmask=0
+!              apmask(88:115)=1   ! mycall
+              apmask(116:143)=1  ! hiscall
+              apmask(144)=1      ! not free text
+!              apmask(160:162)=1  ! 3 extra bits
+              llrap=llr
+!              llrap(88:143)=apmag*apsym(1:56)/ss
+              llrap(115)=llra(115)
+              llrap(116:143)=apmag*apsym(1:28)/ss
+              llrap(144)=-apmag/ss
+!              llrap(160:162)=apmag*apsym(73:75)/ss
+           endif
+           if(iap.eq.2) then   ! look mycall, dxcall
               apmask=0
               apmask(88:115)=1   ! mycall
               apmask(116:143)=1  ! hiscall
               apmask(144)=1      ! not free text
-              apmask(160:162)=1  ! 3 extra bits
+!              apmask(144:154)=1  ! RRR or 73 
+!              apmask(160:162)=1  ! 3 extra bits
               llrap=llr
               llrap(88:143)=apmag*apsym(1:56)/ss
               llrap(144)=-apmag/ss
-              llrap(160:162)=apmag*apsym(73:75)/ss
-           endif
-           if(iap.eq.2) then   ! look mycall, dxcall, RRR/73
-              apmask=0
-              apmask(88:115)=1   ! mycall
-              apmask(116:143)=1  ! hiscall
-              apmask(144:154)=1  ! RRR or 73 
-              apmask(160:162)=1  ! 3 extra bits
-              llrap=llr
-              llrap(88:143)=apmag*apsym(1:56)/ss
-              llrap(144:154)=apmag*rr73/ss
-              llrap(155:156)=llra(155:156)  
-              llrap(160:162)=apmag*apsym(73:75)/ss
+!              llrap(144:154)=apmag*rr73/ss
+!              llrap(155:156)=llra(155:156)  
+!              llrap(160:162)=apmag*apsym(73:75)/ss
            endif
         endif
 
@@ -236,6 +249,7 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   
         message='                      '
         xsnr=-99.0
         if(count(cw.eq.0).eq.174) cycle           !Reject the all-zero codeword
+        if(any(decoded(75:75).ne.0)) cycle        !Reject if any of the 3 extra bits are nonzero
         if(nharderrors.ge.0 .and. nharderrors+dmin.lt.60.0 .and. &        
            .not.(sync.lt.2.0 .and. nharderrors.gt.35)      .and. &
            .not.( iap .gt. 0 .and. nharderrors.gt.39)            &   
