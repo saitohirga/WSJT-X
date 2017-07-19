@@ -1935,28 +1935,6 @@ list. The list can be maintained in Settings (F2).</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1" rowspan="2">
-         <widget class="QSlider" name="inGain">
-          <property name="toolTip">
-           <string>Digital gain for graph windows</string>
-          </property>
-          <property name="minimum">
-           <number>-50</number>
-          </property>
-          <property name="maximum">
-           <number>50</number>
-          </property>
-          <property name="value">
-           <number>20</number>
-          </property>
-          <property name="tickPosition">
-           <enum>QSlider::TicksBelow</enum>
-          </property>
-          <property name="tickInterval">
-           <number>10</number>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="2">
          <widget class="QWidget" name="DX_controls_widget" native="true">
           <property name="sizePolicy">
@@ -3051,7 +3029,6 @@ QPushButton[state=&quot;ok&quot;] {
   <tabstop>autoButton</tabstop>
   <tabstop>stopTxButton</tabstop>
   <tabstop>tuneButton</tabstop>
-  <tabstop>inGain</tabstop>
   <tabstop>dxCallEntry</tabstop>
   <tabstop>dxGridEntry</tabstop>
   <tabstop>lookupButton</tabstop>

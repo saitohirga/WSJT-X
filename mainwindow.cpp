@@ -833,7 +833,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   }
   m_saveDecoded=ui->actionSave_decoded->isChecked();
   m_saveAll=ui->actionSave_all->isChecked();
-  ui->inGain->setValue(m_inGain);
   ui->sbTxPercent->setValue(m_pctx);
   ui->TxPowerComboBox->setCurrentIndex(int(0.3*(m_dBm + 30.0)+0.2));
   ui->cbUploadWSPR_Spots->setChecked(m_uploadSpots);
@@ -975,7 +974,6 @@ void MainWindow::writeSettings()
   m_settings->setValue("ShMsgs",m_bShMsgs);
   m_settings->setValue("SWL",ui->cbSWL->isChecked());
   m_settings->setValue ("DialFreq", QVariant::fromValue(m_lastMonitoredFrequency));
-  m_settings->setValue("InGain",m_inGain);
   m_settings->setValue("OutAttenuation", ui->outAttenuation->value ());
   m_settings->setValue("NoSuffix",m_noSuffix);
   m_settings->setValue("GUItab",ui->tabWidget->currentIndex());
@@ -1053,7 +1051,6 @@ void MainWindow::readSettings()
   ui->TxFreqSpinBox->setValue(0); // ensure a change is signaled
   ui->TxFreqSpinBox->setValue(m_settings->value("TxFreq",1500).toInt());
   m_ndepth=m_settings->value("NDepth",3).toInt();
-  m_inGain=m_settings->value("InGain",0).toInt();
   m_pctx=m_settings->value("PctTx",20).toInt();
   m_dBm=m_settings->value("dBm",37).toInt();
   ui->WSPR_prefer_type_1_check_box->setChecked (m_settings->value ("WSPRPreferType1", true).toBool ());
@@ -4915,11 +4912,6 @@ void MainWindow::on_actionInclude_correlation_toggled (bool checked)
 void MainWindow::on_actionEnable_AP_DXcall_toggled (bool checked)
 {
   m_ndepth ^= (-checked ^ m_ndepth) & 0x00000040;
-}
-
-void MainWindow::on_inGain_valueChanged(int n)
-{
-  m_inGain=n;
 }
 
 void MainWindow::on_actionErase_ALL_TXT_triggered()          //Erase ALL.TXT
