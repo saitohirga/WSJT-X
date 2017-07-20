@@ -87,10 +87,10 @@ contains
            call jtmsg(message,iflag)
            if(iand(iflag,16).ne.0) message(22:22)='?'
            if(iand(iflag,15).eq.0) then
-              write(81,1004) nutc,ncand,icand,ipass,iaptype,iap,iera,       &
-                   iflag,nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),    &
-                   xdt,nint(f1),message
-              flush(81)
+!              write(81,1004) nutc,ncand,icand,ipass,iaptype,iap,iera,       &
+!                   iflag,nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),    &
+!                   xdt,nint(f1),message
+!              flush(81)
               if(associated(this%callback)) then
                  call this%callback(sync,nsnr,xdt,f1,iap,iera,message)
               endif
