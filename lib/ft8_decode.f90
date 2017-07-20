@@ -36,12 +36,14 @@ contains
     real candidate(3,200)
     real dd(15*12000)
     logical, intent(in) :: nagain
-    logical newdat,lsubtract
+    logical newdat,lsubtract,ldupe
     character*12 mycall12, hiscall12
     character*6 hisgrid6
     integer*2 iwave(15*12000)
     integer apsym(KK)
     character datetime*13,message*22
+    character*22 allmessages(100)
+    integer allsnrs(100)
     save s,dd
 
     this%callback => callback
@@ -51,6 +53,10 @@ contains
     call ft8apset(mycall12,hiscall12,hisgrid6,apsym,iaptype)
 
     dd=iwave
+
+    ndecodes=0
+    allmessages='                      '
+    allsnrs=0
 
 ! For now:
 ! ndepth=1: no subtraction, 1 pass, belief propagation only
@@ -87,11 +93,20 @@ contains
            call jtmsg(message,iflag)
            if(iand(iflag,16).ne.0) message(22:22)='?'
            if(iand(iflag,15).eq.0) then
+              ldupe=.false.
+              do id=1,ndecodes
+                 if(message.eq.allmessages(id).and.nsnr.le.allsnrs(id)) ldupe=.true.
+              enddo
+              if(.not.ldupe) then
+                 ndecodes=ndecodes+1
+                 allmessages(ndecodes)=message
+                 allsnrs(ndecodes)=nsnr
+              endif
 !              write(81,1004) nutc,ncand,icand,ipass,iaptype,iap,iera,       &
 !                   iflag,nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),    &
 !                   xdt,nint(f1),message
 !              flush(81)
-              if(associated(this%callback)) then
+              if(.not.ldupe .and. associated(this%callback)) then
                  call this%callback(sync,nsnr,xdt,f1,iap,iera,message)
               endif
            else
