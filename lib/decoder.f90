@@ -61,7 +61,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   if(ios.ne.0) then
      nfail=nfail+1
      if(nfail.le.3) then
-        call sleep_msec(100)
+        call sleep_msec(10)
         go to 10
      endif
   endif

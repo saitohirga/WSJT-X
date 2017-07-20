@@ -252,7 +252,8 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   
         if(any(decoded(75:75).ne.0)) cycle        !Reject if any of the 3 extra bits are nonzero
         if(nharderrors.ge.0 .and. nharderrors+dmin.lt.60.0 .and. &        
            .not.(sync.lt.2.0 .and. nharderrors.gt.35)      .and. &
-           .not.( iap .gt. 0 .and. nharderrors.gt.39)            &   
+           .not.(iap.gt.0 .and. nharderrors.gt.39)         .and. &
+           .not.(iera.ge.2 .and. nharderrors.gt.30)              &
           ) then
            call chkcrc12a(decoded,nbadcrc)
         else

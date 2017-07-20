@@ -81,13 +81,26 @@ contains
              xdt,apsym,nharderrors,dmin,nbadcrc,iap,ipass,iera,message,xsnr)
         nsnr=nint(xsnr) 
         xdt=xdt-0.5
+        hd=nharderrors+dmin
         call timer('ft8b    ',1)
-        if(nbadcrc.eq.0 .and. associated(this%callback)) then
-           call this%callback(sync,nsnr,xdt,f1,iap,iera,message)
-           write(81,3081) ncand,icand,iera,nharderrors,ipass,iap,iaptype,    &
-                db(sync),f1,xdt,dmin,xsnr,message
-3081       format(2i5,i2,i3,i2,i2,i2,f7.2,f7.1,3f7.2,1x,a22)
-           flush(81)
+        if(nbadcrc.eq.0) then
+           call jtmsg(message,iflag)
+           if(iand(iflag,16).ne.0) message(22:22)='?'
+           if(iand(iflag,15).eq.0) then
+!              write(81,1004) nutc,ncand,icand,ipass,iaptype,iap,iera,       &
+!                   iflag,nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),    &
+!                   xdt,nint(f1),message
+!              flush(81)
+              if(associated(this%callback)) then
+                 call this%callback(sync,nsnr,xdt,f1,iap,iera,message)
+              endif
+           else
+              write(19,1004) nutc,ncand,icand,ipass,iaptype,iap,iera,       &
+                   iflag,nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),    &
+                   xdt,nint(f1),message
+1004          format(i6.6,2i4,4i2,2i3,3f6.1,i4,f6.2,i5,2x,a22)
+              flush(19)
+           endif
         endif
       enddo
 !     h=default_header(12000,NMAX)

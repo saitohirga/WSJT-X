@@ -1701,6 +1701,12 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       }
       on_actionOpen_next_in_directory_triggered();
       return;
+    case Qt::Key_F8:
+      if((e->modifiers() & Qt::AltModifier) and ui->cbFirst->isChecked()) {
+        m_bCallingCQ=true;
+        ui->cbFirst->setStyleSheet("QCheckBox{color:red}");
+        return;
+      }
     case Qt::Key_F10:
       if(e->modifiers() & Qt::ControlModifier) freqCalStep();
       break;
@@ -1708,9 +1714,12 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       n=11;
       if(e->modifiers() & Qt::ControlModifier) n+=100;
       if(e->modifiers() & Qt::ShiftModifier) {
+         /*
         int f=ui->TxFreqSpinBox->value()/50;
         if((ui->TxFreqSpinBox->value() % 50) == 0) f=f-1;
         ui->TxFreqSpinBox->setValue(50*f);
+           */
+         ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()-60);
       } else{
         bumpFqso(n);
       }
@@ -1719,8 +1728,12 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       n=12;
       if(e->modifiers() & Qt::ControlModifier) n+=100;
       if(e->modifiers() & Qt::ShiftModifier) {
+         /*
         int f=ui->TxFreqSpinBox->value()/50;
         ui->TxFreqSpinBox->setValue(50*(f+1));
+           */
+         ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()+60);
+
       } else {
         bumpFqso(n);
       }
@@ -2730,6 +2743,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           m_bDoubleClicked=true;
           processMessage(decodedtext.string(),43,false);
           m_bCallingCQ=false;
+          ui->cbFirst->setStyleSheet("");
         } else {
           audioFreq=decodedtext.string().mid(16,4).toInt();
           if(i1>0 or (abs(audioFreq - m_wideGraph->rxFreq()) <= 10)) bDisplayRight=true;
@@ -3082,7 +3096,15 @@ void MainWindow::guiUpdate()
     }
 
     m_currentMessage = QString::fromLatin1(msgsent);
-    if(m_mode=="FT8") m_bCallingCQ=m_currentMessage.mid(0,3)=="CQ ";
+    if(m_mode=="FT8") {
+      m_bCallingCQ=m_currentMessage.mid(0,3)=="CQ ";
+      if(m_bCallingCQ) {
+        ui->cbFirst->setStyleSheet("QCheckBox{color:red}");
+      } else {
+        ui->cbFirst->setStyleSheet("");
+      }
+    }
+
     if (m_tune) {
       m_currentMessage = "TUNE";
       m_currentMessageType = -1;

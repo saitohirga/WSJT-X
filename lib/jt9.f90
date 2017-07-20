@@ -161,6 +161,8 @@ program jt9
 ! Import FFTW wisdom, if available
   wisfile=trim(data_dir)//'/jt9_wisdom.dat'// C_NULL_CHAR
   iret=fftwf_import_wisdom_from_filename(wisfile)
+  open(19,file=trim(data_dir)//'/false_decodes.txt',status='unknown',     &
+       position='append')
 
   ntry65a=0
   ntry65b=0
