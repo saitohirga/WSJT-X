@@ -115,6 +115,8 @@ subroutine jtmsg(msg,iflag)
   if(index(msg,'CALL').gt.0) iflag=0
   if(index(msg,'QRZ').gt.0) iflag=0
   if(index(msg,'AUTO').gt.0) iflag=0
+  if(index(msg,'PHOTO').gt.0) iflag=0
+  if(index(msg,'HYBRID').gt.0) iflag=0
 
   if(c1ok .and. w1(1:6).eq.bc1) iflag=0
   if(c2ok .and. w2(1:6).eq.bc2) iflag=0
