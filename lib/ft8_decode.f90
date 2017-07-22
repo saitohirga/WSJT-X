@@ -7,7 +7,7 @@ module ft8_decode
   end type ft8_decoder
 
   abstract interface
-     subroutine ft8_decode_callback (this,sync,snr,dt,freq,iap,iera,decoded)
+     subroutine ft8_decode_callback (this,sync,snr,dt,freq,decoded,nap,qual)
        import ft8_decoder
        implicit none
        class(ft8_decoder), intent(inout) :: this
@@ -15,9 +15,9 @@ module ft8_decode
        integer, intent(in) :: snr
        real, intent(in) :: dt
        real, intent(in) :: freq
-       integer, intent(in) :: iap 
-       integer, intent(in) :: iera 
        character(len=22), intent(in) :: decoded
+       integer, intent(in) :: nap 
+       real, intent(in) :: qual 
      end subroutine ft8_decode_callback
   end interface
 
@@ -107,7 +107,14 @@ contains
 !                   xdt,nint(f1),message
 !              flush(81)
               if(.not.ldupe .and. associated(this%callback)) then
-                 call this%callback(sync,nsnr,xdt,f1,iap,iera,message)
+! nap: 0=no ap, 1=CQ; 2=MyCall; 3=DxCall; 4=MyCall,DxCall
+                 if(iap.eq.0) then
+                   nap=0
+                 else
+                   nap=(iaptype-1)*2+iap
+                 endif
+                 qual=1.0-(nharderrors+dmin)/60.0 ! scale qual to [0.0,1.0]
+                 call this%callback(sync,nsnr,xdt,f1,message,nap,qual)
               endif
            else
               write(19,1004) nutc,ncand,icand,ipass,iaptype,iap,iera,       &

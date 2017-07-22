@@ -390,7 +390,7 @@ contains
     end select
   end subroutine jt9_decoded
 
-  subroutine ft8_decoded (this,sync,snr,dt,freq,iap,iera,decoded)
+  subroutine ft8_decoded (this,sync,snr,dt,freq,decoded,nap,qual)
     use ft8_decode
     implicit none
 
@@ -399,12 +399,18 @@ contains
     integer, intent(in) :: snr
     real, intent(in) :: dt
     real, intent(in) :: freq
-    integer, intent(in) :: iap 
-    integer, intent(in) :: iera 
     character(len=22), intent(in) :: decoded
-
-    write(*,1000) params%nutc,snr,dt,nint(freq),decoded,iap,iera
-1000 format(i6.6,i4,f5.1,i5,' ~ ',1x,a22,2x,i2,i2)
+    integer, intent(in) :: nap 
+    real, intent(in) :: qual 
+    character*3 annot
+   
+    annot='   ' 
+    if(nap.ne.0) then
+      if(qual.ge.0.17) write(annot,'(a1,i1,a1)') 'a',nap,' '
+      if(qual.lt.0.17) write(annot,'(a1,i1,a1)') 'a',nap,'?'
+    endif
+    write(*,1000) params%nutc,snr,dt,nint(freq),decoded,annot
+1000 format(i6.6,i4,f5.1,i5,' ~ ',1x,a22,3x,a3)
     write(13,1002) params%nutc,nint(sync),snr,dt,freq,0,decoded
 1002 format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a22,' FT8')
     call flush(6)
