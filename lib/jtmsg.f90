@@ -14,9 +14,9 @@ subroutine jtmsg(msg,iflag)
 
   character*22 msg,t
   character*13 w1,w2,w3,w
-  character*6 bc1,bc2
+  character*6 bc1,bc2,bc3
   character*1 c
-  logical c1ok,c2ok,isdigit,isletter,isgrid4
+  logical c1ok,c2ok,c3ok,isdigit,isletter,isgrid4
 
 ! Statement functions  
   isdigit(c)=(ichar(c).ge.ichar('0')) .and. (ichar(c).le.ichar('9'))
@@ -71,6 +71,10 @@ subroutine jtmsg(msg,iflag)
           w3(1:1).ne.'+' .and. w3(1:1).ne.'-' .and.                      &
           w3(1:2).ne.'R+' .and. w3(1:2).ne.'R-' .and.                    &
           w3(1:3).ne.'73 ' .and. w3(1:4).ne.'RRR ') iflag=iflag+1
+  call chkcall(w3,bc3,c3ok)
+! Allow(?) non-standard messages of the form CQ AS OC K1JT
+  if(w1(1:3).eq.'CQ_'.and.isletter(w2(1:1)).and.isletter(w2(2:2)).and.   &
+     w2(3:3).eq.' '.and.c3ok) iflag=0
   if(iflag.eq.0 .or. nt.gt.13) return
 
 ! Check for plausible free text
