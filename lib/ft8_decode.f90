@@ -24,7 +24,7 @@ module ft8_decode
 contains
 
   subroutine decode(this,callback,iwave,nfqso,newdat,nutc,nfa,    &
-       nfb,nagain,ndepth,nsubmode,mycall12,hiscall12,hisgrid6)
+       nfb,nagain,ndepth,lapon,napwid,nsubmode,mycall12,hiscall12,hisgrid6)
 !    use wavhdr
     use timer_module, only: timer
     include 'fsk4hf/ft8_params.f90'
@@ -35,7 +35,7 @@ contains
     real s(NH1,NHSYM)
     real candidate(3,200)
     real dd(15*12000)
-    logical, intent(in) :: nagain
+    logical, intent(in) :: nagain,lapon
     logical newdat,lsubtract,ldupe
     character*12 mycall12, hiscall12
     character*6 hisgrid6
@@ -83,7 +83,7 @@ contains
         xdt=candidate(2,icand)
         nsnr0=min(99,nint(10.0*log10(sync) - 25.5))    !### empirical ###
         call timer('ft8b    ',0)
-        call ft8b(dd,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync,f1,   &
+        call ft8b(dd,newdat,nfqso,ndepth,lapon,napwid,lsubtract,iaptype,icand,sync,f1,   &
              xdt,apsym,nharderrors,dmin,nbadcrc,iap,ipass,iera,message,xsnr)
         nsnr=nint(xsnr) 
         xdt=xdt-0.5

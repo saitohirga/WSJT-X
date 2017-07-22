@@ -21,6 +21,8 @@
      integer(c_int) :: nsubmode
      logical(c_bool) :: nagain
      integer(c_int) :: ndepth
+     logical(c_bool) :: lapon 
+     integer(c_int) :: napwid
      integer(c_int) :: ntxmode
      integer(c_int) :: nmode
      integer(c_int) :: minw

@@ -262,6 +262,8 @@ program jt9
      shared_data%params%kin=64800
      shared_data%params%nzhsym=181
      shared_data%params%ndepth=ndepth
+     shared_data%params%lapon=.true.
+     shared_data%params%napwid=75
      shared_data%params%dttol=3.
 
 !     shared_data%params%minsync=0       !### TEST ONLY

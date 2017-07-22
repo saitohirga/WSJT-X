@@ -38,6 +38,8 @@ extern struct dec_data {
     int nsubmode;
     bool nagain;
     int ndepth;
+    bool lapon;
+    int napwid;
     int ntxmode;
     int nmode;
     int minw;

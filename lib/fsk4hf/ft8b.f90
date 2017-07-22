@@ -1,5 +1,5 @@
-subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   &
-     apsym,nharderrors,dmin,nbadcrc,iap,ipass,iera,message,xsnr)
+subroutine ft8b(dd0,newdat,nfqso,ndepth,lapon,napwid,lsubtract,iaptype,icand, &
+     sync0,f1,xdt,apsym,nharderrors,dmin,nbadcrc,iap,ipass,iera,message,xsnr)  
 
   use timer_module, only: timer
   include 'ft8_params.f90'
@@ -19,11 +19,11 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   
   complex cd0(3200)
   complex ctwk(32)
   complex csymb(32)
-  logical newdat,lsubtract
+  logical newdat,lsubtract,lapon
   data rr73/-1,1,1,1,1,1,1,-1,1,1,-1/
   data cq/1,1,1,1,1,-1,1,-1,-1,-1,-1,-1,1,-1,-1,-1,-1,-1,1,1,-1,-1,-1,1,1,-1,-1,1/
+
   max_iterations=30
-  norder=2
   nharderrors=-1
   fs2=12000.0/NDOWN
   dt2=1.0/fs2
@@ -153,8 +153,10 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   
   llr0=2.0*rxdata/(ss*ss)
   llra=2.0*rxdatap/(ss*ss)  ! llr's for use with ap
   apmag=4.0
+! If DxCall exists, only do "MyCall DxCall ???" for candidates within nfqso +/- napwid
   nap=0
-  if(ndepth.eq.3) nap=2  
+  if(lapon.and.(ndepth.eq.3).and.(iaptype.eq.1 .or. (iaptype.eq.2.and.abs(nfqso-f1).le.napwid))) nap=2  
+  if(lapon.and.(ndepth.eq.3).and.iaptype.eq.2.and.abs(nfqso-f1).gt.napwid) nap=1 
 
   do iap=0,nap                            !### Temporary ###
      nera=1
@@ -235,12 +237,8 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lsubtract,iaptype,icand,sync0,f1,xdt,   
         call timer('bpd174  ',1)
         dmin=0.0
         if(ndepth.eq.3 .and. nharderrors.lt.0) then
-           if(iaptype.eq.1) norder=2
-           if(iaptype.eq.2 .and. abs(nfqso-f1).lt.10.0) then
-             norder=3
-           else
-             norder=1
-           endif
+           norder=1
+           if(abs(nfqso-f1).le.napwid) norder=2   !Decode using norder=2 within napwid of nfqso. 
            call timer('osd174  ',0)
            call osd174(llrap,apmask,norder,decoded,cw,nharderrors,dmin)
            call timer('osd174  ',1)
