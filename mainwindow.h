@@ -160,12 +160,14 @@ private slots:
   void on_txrb3_toggled(bool status);
   void on_txrb4_toggled(bool status);
   void on_txrb5_toggled(bool status);
+  void on_txrb5_doubleClicked ();
   void on_txrb6_toggled(bool status);
   void on_txb1_clicked();
   void on_txb2_clicked();
   void on_txb3_clicked();
   void on_txb4_clicked();
   void on_txb5_clicked();
+  void on_txb5_doubleClicked ();
   void on_txb6_clicked();
   void on_lookupButton_clicked();
   void on_addButton_clicked();
@@ -299,7 +301,7 @@ private:
 private:
   void astroUpdate ();
   void writeAllTxt(QString message);
-  void FT8_AutoSeq(QString message);
+  void auto_sequence (QString const& message, unsigned tolerance);
   void hideMenus(bool b);
 
   NetworkAccessManager m_network_manager;
@@ -446,6 +448,17 @@ private:
   bool    m_bQRAsyncWarned;
   bool    m_bDoubleClicked;
   bool    m_bCallingCQ;
+  bool    m_bAutoReply;
+  enum
+    {
+      CALLING,
+      REPLYING,
+      REPORT,
+      ROGER_REPORT,
+      ROGERS,
+      SIGNOFF
+    }
+    m_QSOProgress;
 
   int			m_ihsym;
   int			m_nzap;
@@ -557,7 +570,7 @@ private:
   void writeSettings();
   void createStatusBar();
   void updateStatusBar();
-  void genStdMsgs(QString rpt);
+  void genStdMsgs(QString rpt, bool unconditional = false);
   void genCQMsg();
   void clearDX ();
   void lookup();
@@ -573,7 +586,7 @@ private:
   void pskPost(DecodedText decodedtext);
   void displayDialFrequency ();
   void transmitDisplay (bool);
-  void processMessage(QString const& messages, qint32 position, bool ctrl);
+  void processMessage(QString const& messages, qint32 position, bool ctrl = false, bool alt = false);
   void replyToCQ (QTime, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode, QString const& message_text);
   void replayDecodes ();
   void postDecode (bool is_new, QString const& message);

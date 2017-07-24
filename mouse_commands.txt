@@ -18,7 +18,10 @@
         locator to Dx Grid; change Rx and Tx frequencies to<br/>
         decoded signal's frequency; generate standard messages.<br/>
         If first callsign is your own, Tx frequency is not<br/>
-        changed unless Ctrl is held down when double-clicking.
+        changed unless Ctrl is held down when double-clicking.<br/>
+	<br/>
+	Hold down Alt to only move the Rx frequency when<br/>
+	when double-clicking to reply to a CQ or QRZ caller.
     </td>
   </tr>
   <tr>

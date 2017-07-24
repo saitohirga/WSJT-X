@@ -1292,9 +1292,9 @@ list. The list can be maintained in Settings (F2).</string>
                     </widget>
                    </item>
                    <item row="5" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-                    <widget class="QRadioButton" name="txrb5">
+                    <widget class="DoubleClickableRadioButton" name="txrb5">
                      <property name="toolTip">
-                      <string>Send this message in next Tx interval</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Send this message in next Tx interval&lt;/p&gt;&lt;p&gt;Double-click to reset to the standard 73 message&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="text">
                       <string/>
@@ -1308,7 +1308,7 @@ list. The list can be maintained in Settings (F2).</string>
                     </widget>
                    </item>
                    <item row="5" column="2">
-                    <widget class="QPushButton" name="txb5">
+                    <widget class="DoubleClickablePushButton" name="txb5">
                      <property name="maximumSize">
                       <size>
                        <width>30</width>
@@ -1316,7 +1316,7 @@ list. The list can be maintained in Settings (F2).</string>
                       </size>
                      </property>
                      <property name="toolTip">
-                      <string>Switch to this Tx message NOW</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch to this Tx message NOW&lt;/p&gt;&lt;p&gt;Double-click to reset to the standard 73 message&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="text">
                       <string>Tx &amp;5</string>
@@ -3017,6 +3017,16 @@ QPushButton[state=&quot;ok&quot;] {
    <class>RestrictedSpinBox</class>
    <extends>QSpinBox</extends>
    <header>RestrictedSpinBox.hpp</header>
+  </customwidget>
+  <customwidget>
+   <class>DoubleClickableRadioButton</class>
+   <extends>QRadioButton</extends>
+   <header>DoubleClickableRadioButton.hpp</header>
+  </customwidget>
+  <customwidget>
+   <class>DoubleClickablePushButton</class>
+   <extends>QPushButton</extends>
+   <header>DoubleClickablePushButton.hpp</header>
   </customwidget>
  </customwidgets>
  <tabstops>

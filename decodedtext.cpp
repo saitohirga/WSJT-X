@@ -3,6 +3,11 @@
 #include <QStringList>
 #include <QRegularExpression>
 
+
+extern "C" {
+  bool stdmsg_(const char* msg, int len);
+}
+
 QString DecodedText::CQersCall()
 {
     // extract the CQer's call   TODO: does this work with all call formats?
@@ -37,12 +42,12 @@ QString DecodedText::CQersCall()
 
 bool DecodedText::isJT65()
 {
-    return _string.indexOf("#") == column_mode;
+    return _string.indexOf("#") == column_mode + padding_;
 }
 
 bool DecodedText::isJT9()
 {
-    return _string.indexOf("@") == column_mode;
+    return _string.indexOf("@") == column_mode + padding_;
 }
 
 bool DecodedText::isTX()
@@ -53,7 +58,7 @@ bool DecodedText::isTX()
 
 int DecodedText::frequencyOffset()
 {
-    return _string.mid(column_freq,4).toInt();
+    return _string.mid(column_freq + padding_,4).toInt();
 }
 
 int DecodedText::snr()
@@ -64,7 +69,7 @@ int DecodedText::snr()
 
 float DecodedText::dt()
 {
-  return _string.mid(column_dt,5).toFloat();
+  return _string.mid(column_dt + padding_,5).toFloat();
 }
 
 /*
@@ -79,7 +84,7 @@ float DecodedText::dt()
 // find and extract any report. Returns true if this is a standard message
 bool DecodedText::report(QString const& myBaseCall, QString const& dxBaseCall, /*mod*/QString& report)
 {
-    QString msg=_string.mid(column_qsoText).trimmed();
+    QString msg=_string.mid(column_qsoText + padding_).trimmed();
     if(msg.length() < 1) return false;
     msg = msg.left (22).remove (QRegularExpression {"[<>]"});
     int i1=msg.indexOf('\r');
@@ -124,7 +129,7 @@ bool DecodedText::report(QString const& myBaseCall, QString const& dxBaseCall, /
 QString DecodedText::call()
 {
   auto call = _string;
-  call = call.replace (QRegularExpression {" CQ ([A-Z]{2,2}|[0-9]{3,3}) "}, " CQ_\\1 ").mid (column_qsoText);
+  call = call.replace (QRegularExpression {" CQ ([A-Z]{2,2}|[0-9]{3,3}) "}, " CQ_\\1 ").mid (column_qsoText + padding_);
   int i = call.indexOf(" ");
   return call.mid(0,i);
 }
@@ -134,7 +139,7 @@ void DecodedText::deCallAndGrid(/*out*/QString& call, QString& grid)
 {
   auto msg = _string;
   if(msg.mid(4,1)!=" ") msg=msg.mid(0,4)+msg.mid(6,-1);  //Remove seconds from UTC
-  msg = msg.replace (QRegularExpression {" CQ ([A-Z]{2,2}|[0-9]{3,3}) "}, " CQ_\\1 ").mid (column_qsoText);
+  msg = msg.replace (QRegularExpression {" CQ ([A-Z]{2,2}|[0-9]{3,3}) "}, " CQ_\\1 ").mid (column_qsoText + padding_);
   int i1 = msg.indexOf (" ");
   call = msg.mid (i1 + 1);
   int i2 = call.indexOf (" ");
