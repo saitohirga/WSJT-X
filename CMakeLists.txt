@@ -260,6 +260,8 @@ set (wsjt_qt_CXXSRCS
   CallsignValidator.cpp
   SplashScreen.cpp
   EqualizationToolsDialog.cpp
+  DoubleClickablePushButton.cpp
+  DoubleClickableRadioButton.cpp
   )
 
 set (wsjt_qtmm_CXXSRCS
