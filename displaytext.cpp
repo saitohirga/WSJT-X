@@ -175,8 +175,8 @@ void DisplayText::displayDecodedText(DecodedText decodedText, QString myCall,
     // preformated text line t1
     auto message = decodedText.string ();
     if (displayDXCCEntity && CQcall)
-      _appendDXCCWorkedB4 (message, decodedText.CQersCall (), &bg, logBook, color_CQ,
-                           color_DXCC, color_NewCall);
+      message = _appendDXCCWorkedB4 (message, decodedText.CQersCall (), &bg, logBook, color_CQ,
+                                     color_DXCC, color_NewCall);
     appendText (message, bg);
 }
 
