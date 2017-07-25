@@ -4033,7 +4033,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     else if ("MSK144" == m_mode && m_bShMsgs) {
       msgtype(t, ui->tx5->lineEdit ());
     }
-    else if (unconditional || hisBase != m_lastCallsign) {
+    else if (unconditional || hisBase != m_lastCallsign || !m_lastCallsign.size ()) {
       // only update tx5 when forced or  callsign changes
       msgtype(t, ui->tx5->lineEdit ());
       m_lastCallsign = hisBase;
