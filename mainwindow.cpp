@@ -3611,7 +3611,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
     ntsec = ntsec + t2.mid(4,2).toInt();
     t2a = t2.left (4) + t2.mid (6); //Change hhmmss to hhmm for the message parser
   }
-  t2a = t2.left (45);           // strip any quality info trailing the
+  t2a = t2.left (44);           // strip any quality info trailing the
                                 // decoded message
 
   if(m_bFastMode or m_mode=="FT8") {
