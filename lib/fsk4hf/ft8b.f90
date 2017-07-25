@@ -16,10 +16,12 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lapon,napwid,lsubtract,iaptype,icand, &
   integer*1 msgbits(KK)
   integer apsym(KK),rr73(11),cq(28)
   integer itone(NN)
+  integer icos7(0:6),ip(1)
   complex cd0(3200)
   complex ctwk(32)
   complex csymb(32)
   logical newdat,lsubtract,lapon
+  data icos7/2,5,6,0,4,1,3/
   data rr73/-1,1,1,1,1,1,1,-1,1,1,-1/
   data cq/1,1,1,1,1,-1,1,-1,-1,-1,-1,-1,1,-1,-1,-1,-1,-1,1,1,-1,-1,-1,1,1,-1,-1,1/
 
@@ -79,6 +81,24 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lapon,napwid,lsubtract,iaptype,icand, &
     call four2a(csymb,32,1,-1,1)
     s2(0:7,k)=abs(csymb(1:8))
   enddo  
+! sync quality check
+  is1=0
+  is2=0
+  is3=0
+  do k=1,7
+    ip=maxloc(s2(:,k))
+    if(icos7(k-1).eq.(ip(1)-1)) is1=is1+1
+    ip=maxloc(s2(:,k+36))
+    if(icos7(k-1).eq.(ip(1)-1)) is2=is2+1
+    ip=maxloc(s2(:,k+72))
+    if(icos7(k-1).eq.(ip(1)-1)) is3=is3+1
+  enddo
+! hard sync sum - max is 21
+  nsync=is1+is2+is3
+  if(nsync .le. 6) then ! bail out
+    nbadcrc=1
+    return
+  endif
   j=0
   do k=1,NN
     if(k.le.7) cycle
