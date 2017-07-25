@@ -1634,6 +1634,16 @@ void MainWindow::on_actionAbout_triggered()                  //Display "About"
 void MainWindow::on_autoButton_clicked (bool checked)
 {
   m_auto = checked;
+  if (checked
+      && ui->cbFirst->isVisible () && ui->cbFirst->isChecked()
+      && CALLING == m_QSOProgress) {
+    m_bAutoReply = false;         // ready for next
+    m_bCallingCQ = true;        // allows tail-enders to be picked up
+    ui->cbFirst->setStyleSheet ("QCheckBox{color:red}");
+  }
+  else {
+    ui->cbFirst->setStyleSheet("");
+  }
   if (!checked) m_bCallingCQ = false;
   statusUpdate ();
   m_bEchoTxOK=false;
@@ -1696,12 +1706,6 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       }
       on_actionOpen_next_in_directory_triggered();
       return;
-    case Qt::Key_F8:
-      if((e->modifiers() & Qt::AltModifier) and ui->cbFirst->isChecked()) {
-        m_bCallingCQ=true;
-        ui->cbFirst->setStyleSheet("QCheckBox{color:red}");
-        return;
-      }
     case Qt::Key_F10:
       if(e->modifiers() & Qt::ControlModifier) freqCalStep();
       break;
@@ -2735,7 +2739,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
             m_bDoubleClicked=true;
             m_bAutoReply = true;
             processMessage (decodedtext.string (), decodedtext.string ().size ());
-            // m_bCallingCQ=false;
             ui->cbFirst->setStyleSheet("");
           } else {
             if (for_us or (abs(audioFreq - m_wideGraph->rxFreq()) <= 10)) bDisplayRight=true;
@@ -3107,7 +3110,8 @@ void MainWindow::guiUpdate()
     }
 
     m_currentMessage = QString::fromLatin1(msgsent);
-    m_bCallingCQ = m_currentMessage.contains (QRegularExpression {"^(CQ|QRZ) "});
+    m_bCallingCQ = CALLING == m_QSOProgress
+      || m_currentMessage.contains (QRegularExpression {"^(CQ|QRZ) "});
     if(m_mode=="FT8") {
       if(m_bCallingCQ) {
         ui->cbFirst->setStyleSheet("QCheckBox{color:red}");
@@ -3772,7 +3776,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
         }
         m_QSOProgress = SIGNOFF;
       }
-      else if (CALLING == m_QSOProgress) {
+      else if (!(m_bAutoReply && m_QSOProgress > CALLING)) {
         if ((t4.size () >= 9 && t4.at (5).contains (m_baseCall) && t4.at (8) == "OOO")
             || (m_mode=="MSK144" && m_config.contestMode())) {
           // EME short code report or MSK144 contest mode reply, send back Tx3
