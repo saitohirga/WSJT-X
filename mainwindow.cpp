@@ -3454,6 +3454,11 @@ void MainWindow::on_txrb1_toggled(bool status)
   }
 }
 
+void MainWindow::on_txrb1_doubleClicked()
+{
+  ui->tx1->setEnabled (!ui->tx1->isEnabled ());
+}
+
 void MainWindow::on_txrb2_toggled(bool status)
 {
   // Tx 2 means we already have CQ'd so good reference
@@ -3501,10 +3506,20 @@ void MainWindow::on_txrb6_toggled(bool status)
 
 void MainWindow::on_txb1_clicked()
 {
+  if (ui->tx1->isEnabled ()) {
     m_ntx=1;
     m_QSOProgress = REPLYING;
     ui->txrb1->setChecked(true);
     if (m_transmitting) m_restart=true;
+  }
+  else {
+    on_txb2_clicked ();
+  }
+}
+
+void MainWindow::on_txb1_doubleClicked()
+{
+  ui->tx1->setEnabled (!ui->tx1->isEnabled ());
 }
 
 void MainWindow::on_txb2_clicked()
@@ -3825,9 +3840,16 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
     }
     else {
       // treat like a CQ/QRZ
-      m_ntx=1;
-      m_QSOProgress = REPLYING;
-      ui->txrb1->setChecked(true);
+      if (ui->tx1->isEnabled ()) {
+        m_ntx = 1;
+        m_QSOProgress = REPLYING;
+        ui->txrb1->setChecked (true);
+      }
+      else {
+        m_ntx = 2;
+        m_QSOProgress = REPORT;
+        ui->txrb2->setChecked (true);
+      }
       if(ui->tabWidget->currentIndex()==1) {
         gen_msg = 1;
         m_ntx=7;
@@ -3849,11 +3871,18 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   }
   else // just work them
     {
-      m_ntx=1;
-      m_QSOProgress = REPLYING;
-      ui->txrb1->setChecked(true);
-      if(ui->tabWidget->currentIndex()==1) {
-        gen_msg = 1;
+      if (ui->tx1->isEnabled ()) {
+        m_ntx = 1;
+        m_QSOProgress = REPLYING;
+        ui->txrb1->setChecked (true);
+      }
+      else {
+        m_ntx = 2;
+        m_QSOProgress = REPORT;
+        ui->txrb2->setChecked (true);
+      }
+      if (1 == ui->tabWidget->currentIndex ()) {
+        gen_msg = m_ntx;
         m_ntx=7;
         m_gen_message_is_cq = false;
       }

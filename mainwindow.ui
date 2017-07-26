@@ -1097,7 +1097,7 @@ QLabel[oob=&quot;true&quot;] {
                     </widget>
                    </item>
                    <item row="1" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-                    <widget class="QRadioButton" name="txrb1">
+                    <widget class="DoubleClickableRadioButton" name="txrb1">
                      <property name="toolTip">
                       <string>Send this message in next Tx interval</string>
                      </property>
@@ -1113,7 +1113,7 @@ QLabel[oob=&quot;true&quot;] {
                     </widget>
                    </item>
                    <item row="1" column="2">
-                    <widget class="QPushButton" name="txb1">
+                    <widget class="DoubleClickablePushButton" name="txb1">
                      <property name="maximumSize">
                       <size>
                        <width>30</width>
