@@ -23,8 +23,8 @@ module ft8_decode
 
 contains
 
-  subroutine decode(this,callback,iwave,nfqso,newdat,nutc,nfa,    &
-       nfb,nagain,ndepth,lapon,napwid,nsubmode,mycall12,hiscall12,hisgrid6)
+  subroutine decode(this,callback,iwave,nQSOProgress,nfqso,nftx,newdat,nutc,    &
+       nfa,nfb,nagain,ndepth,lapon,napwid,nsubmode,mycall12,hiscall12,hisgrid6)
 !    use wavhdr
     use timer_module, only: timer
     include 'fsk4hf/ft8_params.f90'

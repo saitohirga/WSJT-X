@@ -2435,7 +2435,9 @@ void MainWindow::decode()                                       //decode()
     dec_data.params.nutc=10000*ihr + 100*imin + isec;
   }
   if(m_nPick==2) dec_data.params.nutc=m_nutc0;
+  dec_data.params.nQSOProgress = m_QSOProgress;
   dec_data.params.nfqso=m_wideGraph->rxFreq();
+  dec_data.params.nftx = ui->TxFreqSpinBox->value ();
   qint32 depth {m_ndepth};
   if (!ui->actionInclude_averaging->isVisible ()) depth &= ~16;
   if (!ui->actionInclude_correlation->isVisible ()) depth &= ~32;
