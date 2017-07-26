@@ -2799,7 +2799,16 @@ void MainWindow::auto_sequence (QString const& message, unsigned tolerance)
     auto in_tolerance = ok
       && (qAbs (ui->RxFreqSpinBox->value () - df) <= int (tolerance)
           || qAbs (ui->TxFreqSpinBox->value () - df) <= int (tolerance));
-    if (m_auto                  // transmit allowed
+    if (m_auto
+        && (REPLYING == m_QSOProgress
+            || (!ui->tx1->isEnabled () && REPORT == m_QSOProgress))
+        && qAbs (ui->TxFreqSpinBox->value () - df) <= int (tolerance)
+        && !parts[5].contains (QRegularExpression {"(^(CQ|QRZ)$)|" + m_baseCall})
+        && parts[6].contains (Radio::base_callsign (ui->dxCallEntry->text ()))) {
+      // auto stop to avoid accidental QRM
+      auto_tx_mode (false);
+    }
+    else if (m_auto             // transmit allowed
         && ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked() // auto-sequencing allowed
         && ((!m_bCallingCQ      // not calling CQ/QRZ
              && !m_sentFirst73  // finished QSO
