@@ -57,6 +57,7 @@ public:
   bool isJT65();
   bool isJT9();
   bool isTX();
+  bool isLowConfidence ();
   int frequencyOffset();  // hertz offset from the tuned dial or rx frequency, aka audio frequency
   int snr();
   float dt();

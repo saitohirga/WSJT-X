@@ -244,7 +244,7 @@ void ClientWidget::update_status (QString const& id, Frequency f, QString const&
 
 void ClientWidget::decode_added (bool /*is_new*/, QString const& client_id, QTime /*time*/, qint32 /*snr*/
                                  , float /*delta_time*/, quint32 /*delta_frequency*/, QString const& /*mode*/
-                                 , QString const& /*message*/)
+                                 , QString const& /*message*/, bool /*low_confidence*/)
 {
   if (client_id == id_)
     {

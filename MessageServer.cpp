@@ -241,11 +241,14 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                 quint32 delta_frequency;
                 QByteArray mode;
                 QByteArray message;
-                in >> is_new >> time >> snr >> delta_time >> delta_frequency >> mode >> message;
+                bool low_confidence;
+                in >> is_new >> time >> snr >> delta_time >> delta_frequency >> mode
+                   >> message >> low_confidence;
                 if (check_status (in) != Fail)
                   {
                     Q_EMIT self_->decode (is_new, id, time, snr, delta_time, delta_frequency
-                                          , QString::fromUtf8 (mode), QString::fromUtf8 (message));
+                                          , QString::fromUtf8 (mode), QString::fromUtf8 (message)
+                                          , low_confidence);
                   }
               }
               break;
@@ -396,14 +399,15 @@ void MessageServer::start (port_type port, QHostAddress const& multicast_group_a
     }
 }
 
-void MessageServer::reply (QString const& id, QTime time, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode, QString const& message_text)
+void MessageServer::reply (QString const& id, QTime time, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode, QString const& message_text, bool low_confidence)
 {
   auto iter = m_->clients_.find (id);
   if (iter != std::end (m_->clients_))
     {
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::Reply, id, (*iter).negotiated_schema_number_};
-      out << time << snr << delta_time << delta_frequency << mode.toUtf8 () << message_text.toUtf8 ();
+      out << time << snr << delta_time << delta_frequency << mode.toUtf8 ()
+          << message_text.toUtf8 () << low_confidence;
       m_->send_message (out, message, iter.value ().sender_address_, (*iter).sender_port_);
     }
 }

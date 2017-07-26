@@ -46,7 +46,7 @@ public:
   // note that the client is not obliged to take any action and only
   // takes any action if the decode is present and is a CQ or QRZ message
   Q_SLOT void reply (QString const& id, QTime time, qint32 snr, float delta_time, quint32 delta_frequency
-                     , QString const& mode, QString const& message);
+                     , QString const& mode, QString const& message, bool low_confidence);
 
   // ask the client with identification 'id' to replay all decodes
   Q_SLOT void replay (QString const& id);
@@ -69,7 +69,8 @@ public:
                                , bool watchdog_timeout, QString const& sub_mode, bool fast_mode);
   Q_SIGNAL void client_closed (QString const& id);
   Q_SIGNAL void decode (bool is_new, QString const& id, QTime time, qint32 snr, float delta_time
-                        , quint32 delta_frequency, QString const& mode, QString const& message);
+                        , quint32 delta_frequency, QString const& mode, QString const& message
+                        , bool low_confidence);
   Q_SIGNAL void WSPR_decode (bool is_new, QString const& id, QTime time, qint32 snr, float delta_time, Frequency
                              , qint32 drift, QString const& callsign, QString const& grid, qint32 power);
   Q_SIGNAL void qso_logged (QString const& id, QDateTime timeOff, QString const& dx_call, QString const& dx_grid

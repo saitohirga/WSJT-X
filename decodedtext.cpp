@@ -56,6 +56,11 @@ bool DecodedText::isTX()
     return (i >= 0 && i < 15); // TODO guessing those numbers. Does Tx ever move?
 }
 
+bool DecodedText::isLowConfidence ()
+{
+  return QChar {'?'} == _string.mid (padding_ + column_qsoText + 21, 1);
+}
+
 int DecodedText::frequencyOffset()
 {
     return _string.mid(column_freq + padding_,4).toInt();

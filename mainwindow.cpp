@@ -1440,7 +1440,7 @@ void MainWindow::fastSink(qint64 frames)
     bool stdMsg = decodedtext.report(m_baseCall,
                   Radio::base_callsign(ui->dxCallEntry->text()),m_rptRcvd);
     decodedtext=message.mid(0,4) + message.mid(6,-1);
-    if(m_config.spot_to_psk_reporter() and stdMsg and !m_diskData) pskPost(decodedtext);
+    if (stdMsg) pskPost (decodedtext);
   }
 
   float fracTR=float(k)/(12000.0*m_TRperiod);
@@ -2593,9 +2593,7 @@ void::MainWindow::fast_decode_done()
               Radio::base_callsign(ui->dxCallEntry->text()), m_rptRcvd);
 
 // extract details and send to PSKreporter
-      if(m_config.spot_to_psk_reporter() and stdMsg and !m_diskData) {
-        pskPost(decodedtext);
-      }
+      if (stdMsg) pskPost(decodedtext);
     }
   }
   m_startAnother=m_loopall;
@@ -2774,9 +2772,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       // extract details and send to PSKreporter
       int nsec=QDateTime::currentMSecsSinceEpoch()/1000-m_secBandChanged;
       bool okToPost=(nsec>(4*m_TRperiod)/5);
-      if(m_config.spot_to_psk_reporter () and stdMsg and !m_diskData and okToPost) {
-        pskPost(decodedtext);
-      }
+      if (stdMsg && okToPost) pskPost(decodedtext);
 
       if((m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA64") and m_msgAvgWidget!=NULL) {
         if(m_msgAvgWidget->isVisible()) {
@@ -2830,8 +2826,10 @@ void MainWindow::auto_sequence (QString const& message, unsigned tolerance)
   }
 }
 
-void MainWindow::pskPost(DecodedText decodedtext)
+void MainWindow::pskPost (DecodedText decodedtext)
 {
+  if (m_diskData || !m_config.spot_to_psk_reporter() || decodedtext.isLowConfidence ()) return;
+
   QString msgmode=m_mode;
   if(m_mode=="JT9+JT65") {
     msgmode="JT9";
@@ -6157,14 +6155,15 @@ void MainWindow::postDecode (bool is_new, QString const& message)
 {
   auto const& decode = message.trimmed ();
   auto const& parts = decode.left (22).split (' ', QString::SkipEmptyParts);
-  if (parts.size () >= 5)
+  if (!m_diskData && parts.size () >= 5)
     {
       auto has_seconds = parts[0].size () > 4;
       m_messageClient->decode (is_new
                                , QTime::fromString (parts[0], has_seconds ? "hhmmss" : "hhmm")
                                , parts[1].toInt ()
                                , parts[2].toFloat (), parts[3].toUInt (), parts[4][0]
-                               , decode.mid (has_seconds ? 24 : 22));
+                               , decode.mid (has_seconds ? 24 : 22, 21)
+                               , QChar {'?'} == decode.mid (has_seconds ? 24 + 21 : 22 + 21, 1));
     }
 }
 
