@@ -5370,6 +5370,7 @@ void MainWindow::on_stopTxButton_clicked()                    //Stop Tx
   m_btxok=false;
   m_bCallingCQ = false;
   m_bAutoReply = false;         // ready for next
+  ui->cbFirst->setStyleSheet ("");
 }
 
 void MainWindow::rigOpen ()
