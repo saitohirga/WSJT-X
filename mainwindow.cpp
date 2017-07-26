@@ -3114,7 +3114,7 @@ void MainWindow::guiUpdate()
     m_bCallingCQ = CALLING == m_QSOProgress
       || m_currentMessage.contains (QRegularExpression {"^(CQ|QRZ) "});
     if(m_mode=="FT8") {
-      if(m_bCallingCQ) {
+      if(m_bCallingCQ && ui->cbFirst->isVisible () && ui->cbFirst->isChecked ()) {
         ui->cbFirst->setStyleSheet("QCheckBox{color:red}");
       } else {
         ui->cbFirst->setStyleSheet("");
@@ -6679,7 +6679,15 @@ void MainWindow::on_cbMenus_toggled(bool b)
 
 void MainWindow::on_cbFirst_toggled(bool b)
 {
-  if(b) ui->cbWeak->setChecked(!b);
+  if (b) {
+    ui->cbWeak->setChecked (!b);
+    if (m_auto && CALLING == m_QSOProgress) {
+      ui->cbFirst->setStyleSheet ("QCheckBox{color:red}");
+    }
+  }
+  else {
+      ui->cbFirst->setStyleSheet ("");
+  }
 }
 
 void MainWindow::on_cbWeak_toggled(bool b)
