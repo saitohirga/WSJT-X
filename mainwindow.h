@@ -160,6 +160,7 @@ private slots:
   void on_txrb2_toggled(bool status);
   void on_txrb3_toggled(bool status);
   void on_txrb4_toggled(bool status);
+  void on_txrb4_doubleClicked ();
   void on_txrb5_toggled(bool status);
   void on_txrb5_doubleClicked ();
   void on_txrb6_toggled(bool status);
@@ -168,6 +169,7 @@ private slots:
   void on_txb2_clicked();
   void on_txb3_clicked();
   void on_txb4_clicked();
+  void on_txb4_doubleClicked ();
   void on_txb5_clicked();
   void on_txb5_doubleClicked ();
   void on_txb6_clicked();
@@ -367,6 +369,7 @@ private:
   qint32  m_waterfallAvg;
   qint32  m_ntx;
   bool m_gen_message_is_cq;
+  bool m_send_RR73;
   qint32  m_timeout;
   qint32  m_XIT;
   qint32  m_setftx;

@@ -215,6 +215,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_waterfallAvg {1},
   m_ntx {1},
   m_gen_message_is_cq {false},
+  m_send_RR73 {false},
   m_XIT {0},
   m_sec0 {-1},
   m_RxLog {1},			//Write Date and Time to RxLog
@@ -3484,6 +3485,12 @@ void MainWindow::on_txrb4_toggled(bool status)
   }
 }
 
+void MainWindow::on_txrb4_doubleClicked()
+{
+  m_send_RR73 = !m_send_RR73;
+  genStdMsgs (m_rpt);
+}
+
 void MainWindow::on_txrb5_toggled(bool status)
 {
   if (status) {
@@ -3544,6 +3551,12 @@ void MainWindow::on_txb4_clicked()
     m_QSOProgress = ROGERS;
     ui->txrb4->setChecked(true);
     if (m_transmitting) m_restart=true;
+}
+
+void MainWindow::on_txb4_doubleClicked()
+{
+  m_send_RR73 = !m_send_RR73;
+  genStdMsgs (m_rpt);
 }
 
 void MainWindow::on_txb5_clicked()
@@ -4021,7 +4034,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     t=t+" OOO";
     msgtype(t, ui->tx2);
     msgtype("RO", ui->tx3);
-    msgtype("RRR", ui->tx4);
+    msgtype(m_send_RR73 ? "RR73" : "RRR", ui->tx4);
     msgtype("73", ui->tx5->lineEdit ());
   } else {
     int n=rpt.toInt();
@@ -4055,7 +4068,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       t=t0 + "R" + rpt;
       msgtype(t, ui->tx3);
     }
-    t=t0 + "RRR";
+    t=t0 + (m_send_RR73 ? "RR73" : "RRR");
     if ((m_mode=="JT4" || m_mode=="QRA64") && m_bShMsgs) t="@1500  (RRR)";
     msgtype(t, ui->tx4);
     t=t0 + "73";
@@ -5176,6 +5189,7 @@ void MainWindow::band_changed (Frequency f)
         // disable auto Tx if "blind" QSY outside of waterfall
         ui->stopTxButton->click (); // halt any transmission
         auto_tx_mode (false);       // disable auto Tx
+        m_send_RR73 = false;        // force user to reassess on new band
       }
     }
     m_lastBand.clear ();
