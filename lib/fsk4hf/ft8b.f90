@@ -81,6 +81,7 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lapon,napwid,lsubtract,iaptype,icand, &
     call four2a(csymb,32,1,-1,1)
     s2(0:7,k)=abs(csymb(1:8))
   enddo  
+
 ! sync quality check
   is1=0
   is2=0
@@ -99,6 +100,7 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lapon,napwid,lsubtract,iaptype,icand, &
     nbadcrc=1
     return
   endif
+
   j=0
   do k=1,NN
     if(k.le.7) cycle
@@ -175,10 +177,10 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lapon,napwid,lsubtract,iaptype,icand, &
   apmag=4.0
 ! If DxCall exists, only do "MyCall DxCall ???" for candidates within nfqso +/- napwid
   nap=0
-  if(lapon.and.(ndepth.eq.3).and.(iaptype.eq.1 .or. (iaptype.eq.2.and.abs(nfqso-f1).le.napwid))) nap=2  
-  if(lapon.and.(ndepth.eq.3).and.iaptype.eq.2.and.abs(nfqso-f1).gt.napwid) nap=1 
+  if(lapon.and.(iaptype.eq.1 .or. (iaptype.eq.2.and.abs(nfqso-f1).le.napwid))) nap=2  
+  if(lapon.and.iaptype.eq.2.and.abs(nfqso-f1).gt.napwid) nap=1 
 
-  do iap=0,nap                            !### Temporary ###
+  do iap=0,nap                 
      nera=1
      if(iap.eq.0) nera=3
      do iera=1,nera
@@ -258,7 +260,13 @@ subroutine ft8b(dd0,newdat,nfqso,ndepth,lapon,napwid,lsubtract,iaptype,icand, &
         dmin=0.0
         if(ndepth.eq.3 .and. nharderrors.lt.0) then
            norder=1
-           if(abs(nfqso-f1).le.napwid) norder=2   !Decode using norder=2 within napwid of nfqso. 
+           if(abs(nfqso-f1).le.napwid) then
+             if(iap.eq.0) then
+               norder=2    
+             else
+               norder=3    
+             endif
+           endif
            call timer('osd174  ',0)
            call osd174(llrap,apmask,norder,decoded,cw,nharderrors,dmin)
            call timer('osd174  ',1)
