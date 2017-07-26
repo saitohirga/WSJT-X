@@ -992,6 +992,7 @@ void MainWindow::writeSettings()
   m_settings->setValue ("CQTxfreq", ui->sbCQTxFreq->value ());
   m_settings->setValue("pwrBandTxMemory",m_pwrBandTxMemory);
   m_settings->setValue("pwrBandTuneMemory",m_pwrBandTuneMemory);
+  m_settings->setValue ("FT8AP", ui->actionEnable_AP->isChecked ());
   {
     QList<QVariant> coeffs;     // suitable for QSettings
     for (auto const& coeff : m_phaseEqCoefficients)
@@ -1071,6 +1072,7 @@ void MainWindow::readSettings()
   m_lockTxFreq=m_settings->value("LockTxFreq",false).toBool();
   m_pwrBandTxMemory=m_settings->value("pwrBandTxMemory").toHash();
   m_pwrBandTuneMemory=m_settings->value("pwrBandTuneMemory").toHash();
+  ui->actionEnable_AP->setChecked (m_settings->value ("FT8AP", false).toBool());
   {
     auto const& coeffs = m_settings->value ("PhaseEqualizationCoefficients"
                                             , QList<QVariant> {0., 0., 0., 0., 0.}).toList ();
@@ -1579,8 +1581,8 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     update_watchdog_label ();
     if(!m_splitMode) ui->cbCQTx->setChecked(false);
     if(!m_config.enable_VHF_features()) {
-      ui->actionInclude_averaging->setEnabled(false);
-      ui->actionInclude_correlation->setEnabled(false);
+      ui->actionInclude_averaging->setVisible(false);
+      ui->actionInclude_correlation->setVisible (false);
       ui->actionInclude_averaging->setChecked(false);
       ui->actionInclude_correlation->setChecked(false);
     }
@@ -2435,9 +2437,9 @@ void MainWindow::decode()                                       //decode()
   if(m_nPick==2) dec_data.params.nutc=m_nutc0;
   dec_data.params.nfqso=m_wideGraph->rxFreq();
   qint32 depth {m_ndepth};
-  if (!ui->actionInclude_averaging->isEnabled ()) depth &= ~16;
-  if (!ui->actionInclude_correlation->isEnabled ()) depth &= ~32;
-  if (!ui->actionEnable_AP_DXcall->isEnabled ()) depth &= ~64;
+  if (!ui->actionInclude_averaging->isVisible ()) depth &= ~16;
+  if (!ui->actionInclude_correlation->isVisible ()) depth &= ~32;
+  if (!ui->actionEnable_AP_DXcall->isVisible ()) depth &= ~64;
   dec_data.params.ndepth=depth;
   dec_data.params.n2pass=1;
   if(m_config.twoPass()) dec_data.params.n2pass=2;
@@ -2468,7 +2470,7 @@ void MainWindow::decode()                                       //decode()
     dec_data.params.ntxmode=4;
   }
   if(m_mode=="FT8") dec_data.params.nmode=8;
-  if(m_mode=="FT8") dec_data.params.lapon=true;
+  if(m_mode=="FT8") dec_data.params.lapon = ui->actionEnable_AP->isVisible () && ui->actionEnable_AP->isChecked ();
   if(m_mode=="FT8") dec_data.params.napwid=50;
   dec_data.params.ntrperiod=m_TRperiod;
   dec_data.params.nsubmode=m_nSubMode;
@@ -4525,8 +4527,8 @@ void MainWindow::displayWidgets(int n)
     if(i==19) ui->actionQuickDecode->setEnabled(b);
     if(i==19) ui->actionMediumDecode->setEnabled(b);
     if(i==19) ui->actionDeepestDecode->setEnabled(b);
-    if(i==20) ui->actionInclude_averaging->setEnabled(b);
-    if(i==21) ui->actionInclude_correlation->setEnabled(b);
+    if(i==20) ui->actionInclude_averaging->setVisible (b);
+    if(i==21) ui->actionInclude_correlation->setVisible (b);
     if(i==22) {
       if(b && !m_echoGraph->isVisible()) {
         m_echoGraph->show();
@@ -4539,8 +4541,8 @@ void MainWindow::displayWidgets(int n)
     }
     j=j>>1;
   }
-  b=m_mode=="FT8";
-  ui->cbFirst->setVisible(b);
+  ui->cbFirst->setVisible ("FT8" == m_mode);
+  ui->actionEnable_AP->setVisible ("FT8" == m_mode);
   ui->cbWeak->setVisible(false);
   m_lastCallsign.clear ();     // ensures Tx5 is updated for new modes
   genStdMsgs (m_rpt, true);
@@ -4791,8 +4793,8 @@ void MainWindow::on_actionQRA64_triggered()
   m_wideGraph->setModeTx(m_modeTx);
   ui->sbSubmode->setMaximum(4);
   ui->sbSubmode->setValue(m_nSubMode);
-  ui->actionInclude_averaging->setEnabled(false);
-  ui->actionInclude_correlation->setEnabled(false);
+  ui->actionInclude_averaging->setVisible (false);
+  ui->actionInclude_correlation->setVisible (false);
   QString fname {QDir::toNativeSeparators(m_config.temp_dir ().absoluteFilePath ("red.dat"))};
   m_wideGraph->setRedFile(fname);
   QFile f(m_appDir + "/old_qra_sync");
@@ -5931,10 +5933,10 @@ void::MainWindow::VHF_features_enabled(bool b)
              ui->actionInclude_correlation->isChecked())) {
     ui->actionDeepestDecode->setChecked (true);
   }
-  ui->actionInclude_averaging->setEnabled(b);
-  ui->actionInclude_correlation->setEnabled(b);
+  ui->actionInclude_averaging->setVisible (b);
+  ui->actionInclude_correlation->setVisible (b);
   ui->actionMessage_averaging->setEnabled(b);
-  ui->actionEnable_AP_DXcall->setEnabled(m_mode=="QRA64");
+  ui->actionEnable_AP_DXcall->setVisible (m_mode=="QRA64");
   if(!b && m_msgAvgWidget) {
     if(m_msgAvgWidget->isVisible()) m_msgAvgWidget->close();
   }

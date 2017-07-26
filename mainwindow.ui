@@ -2387,6 +2387,7 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="separator"/>
     <addaction name="actionInclude_averaging"/>
     <addaction name="actionInclude_correlation"/>
+    <addaction name="actionEnable_AP"/>
     <addaction name="actionEnable_AP_DXcall"/>
    </widget>
    <widget class="QMenu" name="menuSave">
@@ -2921,9 +2922,6 @@ QPushButton[state=&quot;ok&quot;] {
    <property name="text">
     <string>Enable AP for DX Call</string>
    </property>
-   <property name="shortcut">
-    <string/>
-   </property>
   </action>
   <action name="actionFreqCal">
    <property name="checkable">
@@ -2987,6 +2985,14 @@ QPushButton[state=&quot;ok&quot;] {
    </property>
    <property name="text">
     <string>FT8</string>
+   </property>
+  </action>
+  <action name="actionEnable_AP">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Enable AP</string>
    </property>
   </action>
  </widget>
