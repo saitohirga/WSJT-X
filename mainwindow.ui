@@ -1099,7 +1099,7 @@ QLabel[oob=&quot;true&quot;] {
                    <item row="1" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                     <widget class="DoubleClickableRadioButton" name="txrb1">
                      <property name="toolTip">
-                      <string>Send this message in next Tx interval</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Send this message in next Tx interval&lt;/p&gt;&lt;p&gt;Double click to toggle the use of the Tx1 message to start a QSO with a station&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="text">
                       <string/>
@@ -1121,7 +1121,7 @@ QLabel[oob=&quot;true&quot;] {
                       </size>
                      </property>
                      <property name="toolTip">
-                      <string>Switch to this Tx message NOW</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch to this Tx message NOW&lt;/p&gt;&lt;p&gt;Double click to toggle the use of the Tx1 message to start a QSO with a station&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="layoutDirection">
                       <enum>Qt::LeftToRight</enum>
@@ -1237,7 +1237,7 @@ QLabel[oob=&quot;true&quot;] {
                    <item row="4" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                     <widget class="DoubleClickableRadioButton" name="txrb4">
                      <property name="toolTip">
-                      <string>Send this message in next Tx interval</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Send this message in next Tx interval&lt;/p&gt;&lt;p&gt;Double-click to toggle between RRR and RR73 messages in Tx4&lt;/p&gt;&lt;p&gt;RR73 messages should only be used when you are reasonably confident that no message repititions will be required&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="text">
                       <string/>
@@ -1259,7 +1259,7 @@ QLabel[oob=&quot;true&quot;] {
                       </size>
                      </property>
                      <property name="toolTip">
-                      <string>Switch to this Tx message NOW</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch to this Tx message NOW&lt;/p&gt;&lt;p&gt;Double-click to toggle between RRR and RR73 messages in Tx4&lt;/p&gt;&lt;p&gt;RR73 messages should only be used when you are reasonably confident that no message repititions will be required&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="text">
                       <string>Tx &amp;4</string>

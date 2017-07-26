@@ -2805,7 +2805,7 @@ void MainWindow::auto_sequence (QString const& message, unsigned tolerance)
              && !m_sentFirst73  // finished QSO
              && ((parts[5].contains (m_baseCall)
                   // being called and not already in a QSO
-                  && parts[6].contains (Radio::base_callsign (ui->dxCallEntry-> text ())))
+                  && parts[6].contains (Radio::base_callsign (ui->dxCallEntry->text ())))
                  // type 2 compound replies
                  || (in_tolerance
                      && ((m_QSOProgress >= ROGER_REPORT && message_is_73 (0, parts))
@@ -3447,25 +3447,34 @@ void MainWindow::set_ntx(int n)                                   //set_ntx()
   m_ntx=n;
 }
 
-void MainWindow::on_txrb1_toggled(bool status)
+void MainWindow::on_txrb1_toggled (bool status)
 {
   if (status) {
-    m_ntx=1;
-    set_dateTimeQSO(-1); // we reset here as tx2/tx3 is used for start times
+    if (ui->tx1->isEnabled ()) {
+      m_ntx = 1;
+      set_dateTimeQSO (-1); // we reset here as tx2/tx3 is used for start times
+    }
+    else {
+      QTimer::singleShot (0, ui->txrb2, SLOT (click ()));
+    }
   }
 }
 
-void MainWindow::on_txrb1_doubleClicked()
+void MainWindow::on_txrb1_doubleClicked ()
 {
   ui->tx1->setEnabled (!ui->tx1->isEnabled ());
+  if (!ui->tx1->isEnabled ()) {
+    // leave time for clicks to complete before setting txrb2
+    QTimer::singleShot (500, ui->txrb2, SLOT (click ()));
+  }
 }
 
-void MainWindow::on_txrb2_toggled(bool status)
+void MainWindow::on_txrb2_toggled (bool status)
 {
   // Tx 2 means we already have CQ'd so good reference
   if (status) {
-    m_ntx=2;
-    set_dateTimeQSO(m_ntx);
+    m_ntx = 2;
+    set_dateTimeQSO (m_ntx);
   }
 }
 
@@ -3478,27 +3487,27 @@ void MainWindow::on_txrb3_toggled(bool status)
   }
 }
 
-void MainWindow::on_txrb4_toggled(bool status)
+void MainWindow::on_txrb4_toggled (bool status)
 {
   if (status) {
     m_ntx=4;
   }
 }
 
-void MainWindow::on_txrb4_doubleClicked()
+void MainWindow::on_txrb4_doubleClicked ()
 {
   m_send_RR73 = !m_send_RR73;
   genStdMsgs (m_rpt);
 }
 
-void MainWindow::on_txrb5_toggled(bool status)
+void MainWindow::on_txrb5_toggled (bool status)
 {
   if (status) {
-    m_ntx=5;
+    m_ntx = 5;
   }
 }
 
-void MainWindow::on_txrb5_doubleClicked()
+void MainWindow::on_txrb5_doubleClicked ()
 {
   genStdMsgs (m_rpt, true);
 }
