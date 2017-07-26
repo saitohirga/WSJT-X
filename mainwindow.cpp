@@ -5598,6 +5598,7 @@ void MainWindow::rigFailure (QString const& reason)
           switch (m_rigErrorMessageBox.standardButton (clicked_button))
             {
             case MessageBox::Ok:
+              m_config.select_tab (1);
               QTimer::singleShot (0, this, SLOT (on_actionSettings_triggered ()));
               break;
 
