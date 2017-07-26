@@ -1776,7 +1776,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       break;
     case Qt::Key_L:
       if(e->modifiers() & Qt::ControlModifier) {
-        lookup();
+        lookup (true);
         genStdMsgs(m_rpt);
         return;
       }
@@ -4203,7 +4203,7 @@ void MainWindow::clearDX ()
   m_QSOProgress = CALLING;
 }
 
-void MainWindow::lookup()                                       //lookup()
+void MainWindow::lookup (bool extend_grid)
 {
   QString hisCall {ui->dxCallEntry->text()};
   if (!hisCall.size ()) return;
@@ -4215,7 +4215,7 @@ void MainWindow::lookup()                                       //lookup()
       for(int i=0; i<999999; i++) {
         n=f.readLine(c,sizeof(c));
         if(n <= 0) {
-          ui->dxGridEntry->clear ();
+          if (!extend_grid) ui->dxGridEntry->clear ();
           break;
         }
         QString t=QString(c);
@@ -4228,7 +4228,10 @@ void MainWindow::lookup()                                       //lookup()
           } else {
             hisgrid=hisgrid.mid(0,4) + hisgrid.mid(4,2).toLower();
           }
-          ui->dxGridEntry->setText(hisgrid);
+          if (!ui->dxGridEntry->text ().size ()
+              || (extend_grid && 6 == hisgrid.size () && hisgrid.left (4) == ui->dxGridEntry->text ())) {
+            ui->dxGridEntry->setText(hisgrid);
+          }
           break;
         }
       }
@@ -4238,7 +4241,7 @@ void MainWindow::lookup()                                       //lookup()
 
 void MainWindow::on_lookupButton_clicked()                    //Lookup button
 {
-  lookup();
+  lookup (true);
 }
 
 void MainWindow::on_addButton_clicked()                       //Add button
