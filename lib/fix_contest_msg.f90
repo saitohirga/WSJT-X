@@ -1,16 +1,16 @@
-subroutine fix_contest_msg(mycall,mygrid,hiscall,msg)
+subroutine fix_contest_msg(mygrid,msg)
 
-! If msg is "mycall hiscall grid1" and distance from mygrid to grid1 is more
-! thsn 10000 km, change "grid1" to "R grid2" where grid2 is the antipodes
-! of grid1.
+! If distance from mygrid to grid1 is more thsn 10000 km, change "grid1"
+! to "R grid2" where grid2 is the antipodes of grid1.
 
-  character*6 mycall,mygrid,hiscall
+  character*6 mygrid
   character*22 msg
   character*6 g1,g2
   logical isgrid
 
   n=len(trim(msg))
   if(n.lt.4) return
+
   g1=msg(n-3:n)//'  '
   if(isgrid(g1)) then
      call azdist(mygrid,g1,0.d0,nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter)
