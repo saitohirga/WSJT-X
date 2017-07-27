@@ -41,6 +41,10 @@ subroutine genmsk144(msg0,mygrid,ichk,bcontest,msgsent,i4tone,itype)
   data first/.true./
   save
 
+  isgrid=g1(1:1).ge.'A' .and. g1(1:1).le.'R' .and. g1(2:2).ge.'A' .and.     &
+       g1(2:2).le.'R' .and. g1(3:3).ge.'0' .and. g1(3:3).le.'9' .and.       &
+       g1(4:4).ge.'0' .and. g1(4:4).le.'9' .and. g1(1:4).ne.'RR73'
+
   if( first ) then
     first=.false.
     nsym=128
@@ -174,14 +178,3 @@ subroutine genmsk144(msg0,mygrid,ichk,bcontest,msgsent,i4tone,itype)
 
 999 return
 end subroutine genmsk144
-
-logical function isgrid(g1)
-
-  character*4 g1
-
-  isgrid=g1(1:1).ge.'A' .and. g1(1:1).le.'R' .and. g1(2:2).ge.'A' .and.     &
-       g1(2:2).le.'R' .and. g1(3:3).ge.'0' .and. g1(3:3).le.'9' .and.       &
-       g1(4:4).ge.'0' .and. g1(4:4).le.'9'
-
-  return
-end function isgrid

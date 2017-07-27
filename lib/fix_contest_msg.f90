@@ -8,6 +8,10 @@ subroutine fix_contest_msg(mygrid,msg)
   character*6 g1,g2
   logical isgrid
 
+  isgrid(g1)=g1(1:1).ge.'A' .and. g1(1:1).le.'R' .and. g1(2:2).ge.'A' .and. &
+       g1(2:2).le.'R' .and. g1(3:3).ge.'0' .and. g1(3:3).le.'9' .and.       &
+       g1(4:4).ge.'0' .and. g1(4:4).le.'9' .and. g1(1:4).ne.'RR73'
+
   n=len(trim(msg))
   if(n.lt.4) return
 
