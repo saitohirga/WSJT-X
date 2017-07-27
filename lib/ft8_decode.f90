@@ -83,8 +83,9 @@ contains
         xdt=candidate(2,icand)
         nsnr0=min(99,nint(10.0*log10(sync) - 25.5))    !### empirical ###
         call timer('ft8b    ',0)
-        call ft8b(dd,newdat,nfqso,ndepth,lapon,napwid,lsubtract,iaptype,icand,sync,f1,   &
-             xdt,apsym,nharderrors,dmin,nbadcrc,iap,ipass,iera,message,xsnr)
+        call ft8b(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,    &
+             lsubtract,iaptype,icand,sync,f1,xdt,apsym,nharderrors,dmin,    &
+             nbadcrc,iappass,iera,message,xsnr)
         nsnr=nint(xsnr) 
         xdt=xdt-0.5
         hd=nharderrors+dmin
@@ -102,25 +103,19 @@ contains
                  allmessages(ndecodes)=message
                  allsnrs(ndecodes)=nsnr
               endif
-!              write(81,1004) nutc,ncand,icand,ipass,iaptype,iap,iera,       &
-!                   iflag,nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),    &
-!                   xdt,nint(f1),message
-!              flush(81)
-              if(.not.ldupe .and. associated(this%callback)) then
-! nap: 0=no ap, 1=CQ; 2=MyCall; 3=DxCall; 4=MyCall,DxCall
-                 if(iap.eq.0) then
-                   nap=0
-                 else
-                   nap=(iaptype-1)*2+iap
-                 endif
-                 qual=1.0-(nharderrors+dmin)/60.0 ! scale qual to [0.0,1.0]
-                 call this%callback(sync,nsnr,xdt,f1,message,nap,qual)
-              endif
-           else
-              write(19,1004) nutc,ncand,icand,ipass,iaptype,iap,iera,       &
+              write(81,1004) nutc,ncand,icand,ipass,iaptype,iappass,        &
                    iflag,nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),    &
                    xdt,nint(f1),message
-1004          format(i6.6,2i4,4i2,2i3,3f6.1,i4,f6.2,i5,2x,a22)
+              flush(81)
+              if(.not.ldupe .and. associated(this%callback)) then
+                 qual=1.0-(nharderrors+dmin)/60.0 ! scale qual to [0.0,1.0]
+                 call this%callback(sync,nsnr,xdt,f1,message,iaptype,qual)
+              endif
+           else
+              write(19,1004) nutc,ncand,icand,ipass,iaptype,iappass,        &
+                   iflag,nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),    &
+                   xdt,nint(f1),message
+1004          format(i6.6,2i4,3i2,2i3,3f6.1,i4,f6.2,i5,2x,a22)
               flush(19)
            endif
         endif
