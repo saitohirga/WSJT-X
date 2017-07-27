@@ -36,6 +36,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,    &
 
   if(first) then
      mcq=2*mcq-1
+     mde=2*mde-1
      mrrr=2*mrrr-1
      m73=2*m73-1
      mrr73=2*mrr73-1
@@ -78,9 +79,9 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,    &
   call ft8_downsample(dd0,newdat,f1,cd0)   !Mix f1 to baseband and downsample
   call timer('ft8_down',1)
 
-  i0=nint((xdt+0.5)*fs2)                         !Initial guess for start of signal
+  i0=nint((xdt+0.5)*fs2)                   !Initial guess for start of signal
   smax=0.0
-  do idt=i0-8,i0+8                       !Search over +/- one quarter symbol
+  do idt=i0-8,i0+8                         !Search over +/- one quarter symbol
      call sync8d(cd0,idt,ctwk,0,sync)
      if(sync.gt.smax) then
         smax=sync
@@ -222,10 +223,6 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,    &
   llr0=2.0*rxdata/(ss*ss)
   llra=2.0*rxdatap/(ss*ss)  ! llr's for use with ap
   apmag=4.0
-! If DxCall exists, only do "MyCall DxCall ???" for candidates within nfqso +/- napwid
-  nap=0
-  if(lapon.and.(iaptype.eq.1 .or. (iaptype.eq.2.and.abs(nfqso-f1).le.napwid))) nap=2  
-  if(lapon.and.iaptype.eq.2.and.abs(nfqso-f1).gt.napwid) nap=1 
 
 ! pass #
 !------------------------------
@@ -237,7 +234,12 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,    &
 !   6        ap pass 3
 !   7        ap pass 4, etc.
 
-  npasses=1+2+nappasses(nQSOProgress)
+  if(lapon) then 
+     npasses=3+nappasses(nQSOProgress)
+  else
+     npasses=3
+  endif
+
   do ipass=1,npasses 
                
      llr=llr0
@@ -254,6 +256,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,    &
         
      if(ipass .gt. 3) then
         iaptype=naptypes(nQSOProgress,ipass-3)
+        if(iaptype.ge.4 .and. (abs(f1-nfqso).gt.napwid .and. abs(f1-nftx).gt.napwid) ) cycle 
         if(iaptype.eq.1 .or. iaptype.eq.2 .or. iaptype.eq.3) then ! AP,???,??? 
            apmask=0
            apmask(88:115)=1    ! first 28 bits are AP
