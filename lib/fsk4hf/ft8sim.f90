@@ -8,19 +8,23 @@ program ft8sim
   type(hdr) h                            !Header for .wav file
   character arg*12,fname*17,sorm*1
   character msg*22,msgsent*22
+  character*6 mygrid6
+  logical bcontest
   complex c0(0:NMAX-1)
   complex c(0:NMAX-1)
   integer itone(NN)
   integer*1 msgbits(KK)
-  integer*2 iwave(NMAX)                  !Generated full-length waveform  
+  integer*2 iwave(NMAX)                  !Generated full-length waveform
+  data mygrid6/'EM48  '/
 
 ! Get command-line argument(s)
   nargs=iargc()
   if(nargs.ne.8) then
-     print*,'Usage:   ft8sim "message"          sorm  f0    DT fdop del nfiles snr'
+     print*,'Usage:   ft8sim "message"           s|m  f0    DT fdop del nfiles snr'
      print*,'Example: ft8sim "K1ABC W9XYZ EN37"   m  1500.0 0.0 0.1 1.0   10   -18'
-     print*,'sorm: "s" for single signal at 1500 Hz, "m" for 25 signals'
+     print*,'s|m: "s" for single signal at 1500 Hz, "m" for 25 signals'
      print*,'f0 is ignored when sorm = m'
+     print*,'Make nfiles negative to invoke 72-bit contest mode.'
      go to 999
   endif
   call getarg(1,msg)                     !Message to be transmitted
@@ -48,6 +52,8 @@ program ft8sim
   call getarg(8,arg)
   read(arg,*) snrdb                      !SNR_2500
 
+  bcontest=nfiles.lt.0
+  nfiles=abs(nfiles)
   twopi=8.0*atan(1.0)
   fs=12000.0                             !Sample rate (Hz)
   dt=1.0/fs                              !Sample interval (s)
@@ -60,7 +66,8 @@ program ft8sim
   if(snrdb.gt.90.0) sig=1.0
   txt=NN*NSPS/12000.0
 
-  call genft8(msg,msgsent,msgbits,itone)         !Source-encode, then get itone()
+! Source-encode, then get itone()
+  call genft8(msg,mygrid6,bcontest,msgsent,msgbits,itone)
   write(*,1000) f0,xdt,txt,snrdb,bw,msgsent
 1000 format('f0:',f9.3,'   DT:',f6.2,'   TxT:',f6.1,'   SNR:',f6.1,    &
           '  BW:',f4.1,2x,a22)

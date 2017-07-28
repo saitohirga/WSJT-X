@@ -23,8 +23,9 @@ module ft8_decode
 
 contains
 
-  subroutine decode(this,callback,iwave,nQSOProgress,nfqso,nftx,newdat,nutc,    &
-       nfa,nfb,nagain,ndepth,lapon,napwid,nsubmode,mycall12,hiscall12,hisgrid6)
+  subroutine decode(this,callback,iwave,nQSOProgress,nfqso,nftx,newdat,    &
+       nutc,nfa,nfb,nexp_decode,ndepth,lapon,napwid,mycall12,mygrid6,      &
+       hiscall12,hisgrid6)
 !    use wavhdr
     use timer_module, only: timer
     include 'fsk4hf/ft8_params.f90'
@@ -35,10 +36,10 @@ contains
     real s(NH1,NHSYM)
     real candidate(3,200)
     real dd(15*12000)
-    logical, intent(in) :: nagain,lapon
-    logical newdat,lsubtract,ldupe
+    logical, intent(in) :: lapon
+    logical newdat,lsubtract,ldupe,bcontest
     character*12 mycall12, hiscall12
-    character*6 hisgrid6
+    character*6 mygrid6,hisgrid6
     integer*2 iwave(15*12000)
     integer apsym(KK)
     character datetime*13,message*22
@@ -46,11 +47,12 @@ contains
     integer allsnrs(100)
     save s,dd
 
+    bcontest=iand(nexp_decode,128).ne.0
     this%callback => callback
     write(datetime,1001) nutc        !### TEMPORARY ###
 1001 format("000000_",i6.6)
 
-    call ft8apset(mycall12,hiscall12,hisgrid6,apsym,iaptype)
+    call ft8apset(mycall12,mygrid6,hiscall12,hisgrid6,bcontest,apsym,iaptype)
 
     dd=iwave
 
@@ -84,14 +86,15 @@ contains
         nsnr0=min(99,nint(10.0*log10(sync) - 25.5))    !### empirical ###
         call timer('ft8b    ',0)
         call ft8b(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,    &
-             lsubtract,iaptype,icand,sync,f1,xdt,apsym,nharderrors,dmin,    &
-             nbadcrc,iappass,iera,message,xsnr)
+             lsubtract,iaptype,mygrid6,bcontest,sync,f1,xdt,apsym,          &
+             nharderrors,dmin,nbadcrc,iappass,iera,message,xsnr)
         nsnr=nint(xsnr) 
         xdt=xdt-0.5
         hd=nharderrors+dmin
         call timer('ft8b    ',1)
         if(nbadcrc.eq.0) then
            call jtmsg(message,iflag)
+           if(bcontest) call fix_contest_msg(mygrid6,message)
            if(iand(iflag,16).ne.0) message(22:22)='?'
            if(iand(iflag,15).eq.0) then
               ldupe=.false.

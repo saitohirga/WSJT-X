@@ -1,10 +1,11 @@
-subroutine ft8apset(mycall12,hiscall12,hisgrid6,apsym,iaptype)
+subroutine ft8apset(mycall12,mygrid6,hiscall12,hisgrid6,bcontest,apsym,iaptype)
   parameter(NAPM=4,KK=87)
   character*12 mycall12,hiscall12
   character*22 msg,msgsent
   character*6 mycall,hiscall
-  character*6 hisgrid6
+  character*6 mygrid6,hisgrid6
   character*4 hisgrid
+  logical bcontest
   integer apsym(KK)
   integer*1 msgbits(KK)
   integer itone(KK)
@@ -22,7 +23,8 @@ subroutine ft8apset(mycall12,hiscall12,hisgrid6,apsym,iaptype)
 !  if(len_trim(hisgrid).eq.0) hisgrid="EN50"
   if(index(hisgrid," ").eq.0) hisgrid="EN50"
   msg=mycall//' '//hiscall//' '//hisgrid
-  call genft8(msg,msgsent,msgbits,itone)
-  apsym=2*msgbits-1 
+  call genft8(msg,mygrid6,bcontest,msgsent,msgbits,itone)
+  apsym=2*msgbits-1
+  
   return
-  end subroutine ft8apset 
+end subroutine ft8apset

@@ -1,12 +1,14 @@
-subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,    &
-           lsubtract,iaptype,icand,sync0,f1,xdt,apsym,nharderrors,dmin,    &
-           nbadcrc,ipass,iera,message,xsnr)  
+subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
+     lsubtract,iaptype,mygrid6,bcontest,sync0,f1,xdt,apsym,nharderrors,dmin,  &
+     nbadcrc,ipass,iera,message,xsnr)  
 
   use timer_module, only: timer
   include 'ft8_params.f90'
   parameter(NRECENT=10,NP2=2812)
   character message*22,msgsent*22
   character*12 recent_calls(NRECENT)
+  character*6 mygrid6
+  logical bcontest
   real a(5)
   real s1(0:7,ND),s2(0:7,NN)
   real ps(0:7)
@@ -336,7 +338,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,    &
      endif
      if(nbadcrc.eq.0) then
         call extractmessage174(decoded,message,ncrcflag,recent_calls,nrecent)
-        call genft8(message,msgsent,msgbits,itone)
+        call genft8(message,mygrid6,bcontest,msgsent,msgbits,itone)
         if(lsubtract) call subtractft8(dd0,itone,f1,xdt2)
         xsig=0.0
         xnoi=0.0

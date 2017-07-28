@@ -75,7 +75,8 @@ extern "C" {
               int len1, int len2, int len3, int len4, int len5);
 //  float s[], int* jh, char line[], char mygrid[],
 
-  void genft8_(char* msg, char* msgsent, char ft8msgbits[], int itone[], int len1, int len2);
+  void genft8_(char* msg, char* MyGrid, bool* bcontest, char* msgsent,
+               char ft8msgbits[], int itone[], int len1, int len2);
 
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, int len1, int len2);
@@ -2490,7 +2491,7 @@ void MainWindow::decode()                                       //decode()
   dec_data.params.nexp_decode=0;
   if(m_config.single_decode()) dec_data.params.nexp_decode += 32;
   if(m_config.enable_VHF_features()) dec_data.params.nexp_decode += 64;
-
+  if(m_config.contestMode()) dec_data.params.nexp_decode += 128;
 
   strncpy(dec_data.params.datetime, m_dateTime.toLatin1(), 20);
   strncpy(dec_data.params.mycall, (m_config.my_callsign()+"            ").toLatin1(),12);
@@ -3103,18 +3104,22 @@ void MainWindow::guiUpdate()
                                     len1, len1);
         if(m_modeTx=="WSPR-LF") genwspr_fsk8_(message, msgsent, const_cast<int *> (itone),
                                     len1, len1);
-        if(m_modeTx=="FT8") genft8_(message, msgsent, const_cast<char *> (ft8msgbits),
-                                    const_cast<int *> (itone), len1, len1);
-        if(m_modeTx=="MSK144") {
+        if(m_modeTx=="MSK144" or m_modeTx=="FT8") {
           bool bcontest=m_config.contestMode();
           char MyGrid[6];
           strncpy(MyGrid, (m_config.my_grid()+"      ").toLatin1(),6);
-          genmsk144_(message, MyGrid, &ichk, &bcontest, msgsent, const_cast<int *> (itone),
-              &m_currentMessageType, len1, 6, len1);
-          if(m_restart) {
-            int nsym=144;
-            if(itone[40]==-40) nsym=40;
-            m_modulator->set_nsym(nsym);
+          if(m_modeTx=="MSK144") {
+            genmsk144_(message, MyGrid, &ichk, &bcontest, msgsent, const_cast<int *> (itone),
+                       &m_currentMessageType, len1, 6, len1);
+            if(m_restart) {
+              int nsym=144;
+              if(itone[40]==-40) nsym=40;
+              m_modulator->set_nsym(nsym);
+            }
+          }
+          if(m_modeTx=="FT8") {
+            genft8_(message, MyGrid, &bcontest, msgsent, const_cast<char *> (ft8msgbits),
+                                      const_cast<int *> (itone), len1, len1);
           }
         }
         msgsent[22]=0;
