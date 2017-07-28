@@ -132,9 +132,9 @@ extern "C" {
                 char line[], int len);
 }
 
-int volatile itone[NUM_ISCAT_SYMBOLS];	//Audio tones for all Tx symbols
-char volatile ft8msgbits[75]; 	        //packed 75 bit ft8 message
-int volatile icw[NUM_CW_SYMBOLS];	      //Dits for CW ID
+int volatile itone[NUM_ISCAT_SYMBOLS];  //Audio tones for all Tx symbols
+char volatile ft8msgbits[75];           //packed 75 bit ft8 message
+int volatile icw[NUM_CW_SYMBOLS];       //Dits for CW ID
 struct dec_data dec_data;               // for sharing with Fortran
 
 int outBufSize;
@@ -219,7 +219,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_send_RR73 {false},
   m_XIT {0},
   m_sec0 {-1},
-  m_RxLog {1},			//Write Date and Time to RxLog
+  m_RxLog {1},      //Write Date and Time to RxLog
   m_nutc0 {999999},
   m_ntr {0},
   m_tx {0},
@@ -716,7 +716,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   auto t = "UTC   dB   DT Freq    Message";
   ui->decodedTextLabel->setText(t);
   ui->decodedTextLabel2->setText(t);
-  readSettings();		         //Restore user's setup params
+  readSettings();            //Restore user's setup params
   m_audioThread.start (m_audioThreadPriority);
 
 #ifdef WIN32
@@ -1435,7 +1435,7 @@ void MainWindow::fastSink(qint64 frames)
          m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
          m_config.color_NewCall());
     m_bDecoded=true;
-    auto_sequence (message, ui->sbFtol->value ());
+    auto_sequence (message, ui->sbFtol->value (), std::numeric_limits<unsigned>::max ());
     if (m_mode != "ISCAT") postDecode (true, decodedtext.string ());
     writeAllTxt(message);
     bool stdMsg = decodedtext.report(m_baseCall,
@@ -1622,7 +1622,7 @@ void MainWindow::monitor (bool state)
 {
   ui->monitorButton->setChecked (state);
   if (state) {
-    m_diskData = false;	// no longer reading WAV files
+    m_diskData = false; // no longer reading WAV files
     if (!m_monitoring) Q_EMIT resumeAudioInputStream ();
   } else {
     Q_EMIT suspendAudioInputStream ();
@@ -2371,7 +2371,7 @@ void MainWindow::on_actionSpecial_mouse_commands_triggered()
   m_mouseCmnds->raise ();
 }
 
-void MainWindow::on_DecodeButton_clicked (bool /* checked */)	//Decode request
+void MainWindow::on_DecodeButton_clicked (bool /* checked */) //Decode request
 {
   if(m_mode=="MSK144") {
     ui->DecodeButton->setChecked(false);
@@ -2563,7 +2563,7 @@ void::MainWindow::fast_decode_done()
   dec_data.params.ndiskdat=false;
 //  if(m_msg[0][0]==0) m_bDecoded=false;
   for(int i=0; i<100; i++) {
-    if (tmax >= 0.0) auto_sequence (msg0, ui->sbFtol->value ());
+    if (tmax >= 0.0) auto_sequence (msg0, ui->sbFtol->value (), ui->sbFtol->value ());
     if(m_msg[i][0]==0) break;
     QString message=QString::fromLatin1(m_msg[i]);
     m_msg[i][0]=0;
@@ -2765,7 +2765,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         }
         m_QSOText=decodedtext;
       }
-      if(m_mode=="FT8") auto_sequence (decodedtext.string(), 10);
+      if(m_mode=="FT8") auto_sequence (decodedtext.string(), 25, 50);
 
       postDecode (true, decodedtext.string ());
 
@@ -2791,19 +2791,27 @@ void MainWindow::readFromStdout()                             //readFromStdout
   }
 }
 
-void MainWindow::auto_sequence (QString const& message, unsigned tolerance)
+//
+// start_tolerance - only respond to "DE ..." and free text 73
+//                   messages within +/- this value
+//
+// stop_tolerance - kill Tx if running station is seen to reply to
+//                  another caller and we are going to transmit within
+//                  +/- this value of the reply to another caller
+//
+void MainWindow::auto_sequence (QString const& message, unsigned start_tolerance, unsigned stop_tolerance)
 {
   auto const& parts = message.split (' ', QString::SkipEmptyParts);
   if (parts.size () > 6) {
     bool ok;
     auto df = parts[3].toInt (&ok);
-    auto in_tolerance = ok
-      && (qAbs (ui->RxFreqSpinBox->value () - df) <= int (tolerance)
-          || qAbs (ui->TxFreqSpinBox->value () - df) <= int (tolerance));
+    auto within_tolerance = ok
+      && (qAbs (ui->RxFreqSpinBox->value () - df) <= int (start_tolerance)
+          || qAbs (ui->TxFreqSpinBox->value () - df) <= int (start_tolerance));
     if (m_auto
         && (REPLYING == m_QSOProgress
             || (!ui->tx1->isEnabled () && REPORT == m_QSOProgress))
-        && qAbs (ui->TxFreqSpinBox->value () - df) <= int (tolerance)
+        && qAbs (ui->TxFreqSpinBox->value () - df) <= int (stop_tolerance)
         && !parts[5].contains (QRegularExpression {"(^(CQ|QRZ)$)|" + m_baseCall})
         && parts[6].contains (Radio::base_callsign (ui->dxCallEntry->text ()))) {
       // auto stop to avoid accidental QRM
@@ -2817,11 +2825,11 @@ void MainWindow::auto_sequence (QString const& message, unsigned tolerance)
                   // being called and not already in a QSO
                   && parts[6].contains (Radio::base_callsign (ui->dxCallEntry->text ())))
                  // type 2 compound replies
-                 || (in_tolerance
+                 || (within_tolerance
                      && ((m_QSOProgress >= ROGER_REPORT && message_is_73 (0, parts))
                          || ("DE" == parts[5] && parts[6].contains (Radio::base_callsign (m_hisCall)))))))
             || (m_bCallingCQ && m_bAutoReply
-                && ((in_tolerance && "DE" == parts[5]) // look for type 2 compound call replies on our Tx and Rx offsets
+                && ((within_tolerance && "DE" == parts[5]) // look for type 2 compound call replies on our Tx and Rx offsets
                     || parts[5].contains (m_baseCall)))))
       {
         processMessage (message, message.size ());
@@ -4334,7 +4342,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
 {
   char message[29];
   char msgsent[29];
-  int itone0[NUM_ISCAT_SYMBOLS];	//Dummy array, data not used
+  int itone0[NUM_ISCAT_SYMBOLS];  //Dummy array, data not used
   int len1=22;
   QByteArray s=t.toUpper().toLocal8Bit();
   ba2msg(s,message);

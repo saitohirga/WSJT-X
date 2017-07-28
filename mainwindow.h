@@ -305,7 +305,7 @@ private:
 private:
   void astroUpdate ();
   void writeAllTxt(QString message);
-  void auto_sequence (QString const& message, unsigned tolerance);
+  void auto_sequence (QString const& message, unsigned start_tolerance, unsigned stop_tolerance);
   void hideMenus(bool b);
 
   NetworkAccessManager m_network_manager;
