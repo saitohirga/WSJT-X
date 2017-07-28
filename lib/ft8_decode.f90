@@ -103,10 +103,10 @@ contains
                  allmessages(ndecodes)=message
                  allsnrs(ndecodes)=nsnr
               endif
-              write(81,1004) nutc,ncand,icand,ipass,iaptype,iappass,        &
-                   iflag,nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),    &
-                   xdt,nint(f1),message
-              flush(81)
+!              write(81,1004) nutc,ncand,icand,ipass,iaptype,iappass,        &
+!                   iflag,nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),    &
+!                   xdt,nint(f1),message
+!              flush(81)
               if(.not.ldupe .and. associated(this%callback)) then
                  qual=1.0-(nharderrors+dmin)/60.0 ! scale qual to [0.0,1.0]
                  call this%callback(sync,nsnr,xdt,f1,message,iaptype,qual)
