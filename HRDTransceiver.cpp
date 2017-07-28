@@ -268,7 +268,11 @@ int HRDTransceiver::do_start ()
 
   // Can't do this with ^Data$ as the button name because some Kenwood
   // rigs have a "Data" button which is for turning the DSP on and off
-  //data_mode_toggle_button_ = find_button (QRegExp ("^(Data)$"));
+  // so we must filter by rig name as well
+  if (current_radio_name.startsWith ("IC")) // works with Icom transceivers
+    {
+      data_mode_toggle_button_ = find_button (QRegExp ("^(Data)$"));
+    }
 
   data_mode_on_button_ = find_button (QRegExp ("^(DATA-ON\\(mid\\))$"));
   data_mode_off_button_ = find_button (QRegExp ("^(DATA-OFF)$"));
