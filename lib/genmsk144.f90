@@ -41,7 +41,7 @@ subroutine genmsk144(msg0,mygrid,ichk,bcontest,msgsent,i4tone,itype)
   data first/.true./
   save
 
-  isgrid=g1(1:1).ge.'A' .and. g1(1:1).le.'R' .and. g1(2:2).ge.'A' .and.     &
+  isgrid(g1)=g1(1:1).ge.'A' .and. g1(1:1).le.'R' .and. g1(2:2).ge.'A' .and.     &
        g1(2:2).le.'R' .and. g1(3:3).ge.'0' .and. g1(3:3).le.'9' .and.       &
        g1(4:4).ge.'0' .and. g1(4:4).le.'9' .and. g1(1:4).ne.'RR73'
 
