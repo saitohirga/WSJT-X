@@ -76,7 +76,7 @@ extern "C" {
 //  float s[], int* jh, char line[], char mygrid[],
 
   void genft8_(char* msg, char* MyGrid, bool* bcontest, char* msgsent,
-               char ft8msgbits[], int itone[], int len1, int len2);
+               char ft8msgbits[], int itone[], int len1, int len2, int len3);
 
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, int len1, int len2);
@@ -3095,30 +3095,28 @@ void MainWindow::guiUpdate()
       itone[0]=0;
     } else {
       if(m_mode=="ISCAT") {
-        int len2=28;
-        geniscat_(message, msgsent, const_cast<int *> (itone),len2, len2);
+        geniscat_(message, msgsent, const_cast<int *> (itone), 28, 28);
         msgsent[28]=0;
       } else {
-        int len1=22;
         if(m_modeTx=="JT4") gen4_(message, &ichk , msgsent, const_cast<int *> (itone),
-                                  &m_currentMessageType, len1, len1);
+                                  &m_currentMessageType, 22, 22);
         if(m_modeTx=="JT9") gen9_(message, &ichk, msgsent, const_cast<int *> (itone),
-                                  &m_currentMessageType, len1, len1);
+                                  &m_currentMessageType, 22, 22);
         if(m_modeTx=="JT65") gen65_(message, &ichk, msgsent, const_cast<int *> (itone),
-                                    &m_currentMessageType, len1, len1);
+                                    &m_currentMessageType, 22, 22);
         if(m_modeTx=="QRA64") genqra64_(message, &ichk, msgsent, const_cast<int *> (itone),
-                                    &m_currentMessageType, len1, len1);
+                                    &m_currentMessageType, 22, 22);
         if(m_modeTx=="WSPR") genwspr_(message, msgsent, const_cast<int *> (itone),
-                                    len1, len1);
+                                    22, 22);
         if(m_modeTx=="WSPR-LF") genwspr_fsk8_(message, msgsent, const_cast<int *> (itone),
-                                    len1, len1);
+                                    22, 22);
         if(m_modeTx=="MSK144" or m_modeTx=="FT8") {
           bool bcontest=m_config.contestMode();
           char MyGrid[6];
           strncpy(MyGrid, (m_config.my_grid()+"      ").toLatin1(),6);
           if(m_modeTx=="MSK144") {
             genmsk144_(message, MyGrid, &ichk, &bcontest, msgsent, const_cast<int *> (itone),
-                       &m_currentMessageType, len1, 6, len1);
+                       &m_currentMessageType, 22, 6, 22);
             if(m_restart) {
               int nsym=144;
               if(itone[40]==-40) nsym=40;
@@ -3127,7 +3125,7 @@ void MainWindow::guiUpdate()
           }
           if(m_modeTx=="FT8") {
             genft8_(message, MyGrid, &bcontest, msgsent, const_cast<char *> (ft8msgbits),
-                                      const_cast<int *> (itone), len1, len1);
+                    const_cast<int *> (itone), 22, 6, 22);
           }
         }
         msgsent[22]=0;
