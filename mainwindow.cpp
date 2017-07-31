@@ -3933,7 +3933,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
     }
 
   // if we get here then we are reacting to the message
-
+  if (m_bAutoReply) m_bCallingCQ = CALLING == m_QSOProgress;
   QString s1=m_QSOText.string().trimmed();
   QString s2=t2.trimmed();
   if (s1!=s2 and !decodedtext.isTX()) {
