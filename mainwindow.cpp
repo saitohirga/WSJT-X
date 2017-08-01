@@ -4353,7 +4353,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
   if(itype==7 and m_config.enable_VHF_features() and
      m_mode=="JT65") shortMsg=true;
   if(m_mode=="MSK144" and t.mid(0,1)=="<") text=false;
-  if(m_mode=="MSK144" and m_config.contestMode()) {
+  if((m_mode=="MSK144" or m_mode=="FT8") and m_config.contestMode()) {
     int i0=t.trimmed().length()-7;
     if(t.mid(i0,3)==" R ") text=false;
   }
