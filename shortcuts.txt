@@ -3,7 +3,7 @@
   <tr><td><b>Ctrl+F1  </b></td><td>About WSJT-X</td></tr>
   <tr><td><b>F2       </b></td><td>Open settings window</td></tr>
   <tr><td><b>F3       </b></td><td>Display keyboard shortcuts</td></tr>
-  <tr><td><b>F4       </b></td><td>Clear DX Call, DX Grid, Tx messages 1-5</td></tr>
+  <tr><td><b>F4       </b></td><td>Clear DX Call, DX Grid, Tx messages 1-4</td></tr>
   <tr><td><b>Alt+F4   </b></td><td>Exit program</td></tr>
   <tr><td><b>F5       </b></td><td>Display special mouse commands</td></tr>
   <tr><td><b>F6       </b></td><td>Open next file in directory</td></tr>
