@@ -4071,29 +4071,29 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     int n=rpt.toInt();
     rpt.sprintf("%+2.2d",n);
 
-    if(m_mode=="MSK144") {
+    if(m_mode=="MSK144" or m_mode=="FT8") {
       if(m_config.contestMode()) {
         t=t0 + my_grid;
         msgtype(t, ui->tx2);
         t=t0 + "R " + my_grid;
         msgtype(t, ui->tx3);
       }
-      if(m_bShMsgs) {
-        int i=t0.length()-1;
-        t0="<" + t0.mid(0,i) + "> ";
-        if(!m_config.contestMode()) {
-          if(n<=-2) n=-3;
-          if(n>=-1 and n<=1) n=0;
-          if(n>=2 and n<=4) n=3;
-          if(n>=5 and n<=7) n=6;
-          if(n>=8 and n<=11) n=10;
-          if(n>=12 and n<=14) n=13;
-          if(n>=15) n=16;
-          rpt.sprintf("%+2.2d",n);
-        }
+    }
+    if(m_mode=="MSK144" and m_bShMsgs) {
+      int i=t0.length()-1;
+      t0="<" + t0.mid(0,i) + "> ";
+      if(!m_config.contestMode()) {
+        if(n<=-2) n=-3;
+        if(n>=-1 and n<=1) n=0;
+        if(n>=2 and n<=4) n=3;
+        if(n>=5 and n<=7) n=6;
+        if(n>=8 and n<=11) n=10;
+        if(n>=12 and n<=14) n=13;
+        if(n>=15) n=16;
+        rpt.sprintf("%+2.2d",n);
       }
     }
-    if(m_mode!="MSK144" or !m_config.contestMode()) {
+    if((m_mode!="MSK144" and m_mode!="FT8") or !m_config.contestMode()) {
       t=t00 + rpt;
       msgtype(t, ui->tx2);
       t=t0 + "R" + rpt;
