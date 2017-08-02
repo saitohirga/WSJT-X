@@ -61,9 +61,10 @@ $ cd ~/hamlib-prefix
 $ git clone git://git.code.sf.net/u/bsomervi/hamlib src
 $ cd src
 $ git checkout integration
+$ ./bootstrap
 $ mkdir ../build
 $ cd ../build
-$ ../src/autogen.sh --prefix=$HOME/hamlib-prefix \
+$ ../src/configure --prefix=$HOME/hamlib-prefix \
    --disable-shared --enable-static \
    --without-cxx-binding --disable-winradio \
    CFLAGS="-fdata-sections -ffunction-sections" \
@@ -145,9 +146,10 @@ $ cd ~/hamlib-prefix
 $ git clone git://git.code.sf.net/u/bsomervi/hamlib src
 $ cd src
 $ git checkout integration
+$ ./bootstrap
 $ mkdir ../build
 $ cd ../build
-   ../src/autogen.sh --prefix=$HOME/hamlib-prefix \
+   ../src/configure --prefix=$HOME/hamlib-prefix \
    --disable-shared --enable-static \
    --without-cxx-binding --disable-winradio \
    CC=<path-to-Qt-MinGW-tools>/gcc \
@@ -234,6 +236,7 @@ $ cd ~/hamlib-prefix
 $ git clone git://git.code.sf.net/u/bsomervi/hamlib src
 $ cd src
 $ git checkout integration
+$ ./bootstrap
 
 The integration  branch is my system  testing branch which has  all my
 latest published changes.
@@ -241,7 +244,7 @@ latest published changes.
 To build:
 
 $ cd ~/hamlib-prefix/build
-$ ../src/autogen.sh \
+$ ../src/configure \
    --enable-static \
    --disable-shared \
    --disable-winradio \
