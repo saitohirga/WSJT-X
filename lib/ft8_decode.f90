@@ -24,8 +24,8 @@ module ft8_decode
 contains
 
   subroutine decode(this,callback,iwave,nQSOProgress,nfqso,nftx,newdat,    &
-       nutc,nfa,nfb,nexp_decode,ndepth,lapon,napwid,mycall12,mygrid6,      &
-       hiscall12,hisgrid6)
+       nutc,nfa,nfb,nexp_decode,ndepth,nagain,lapon,napwid,mycall12,       &
+       mygrid6,hiscall12,hisgrid6)
 !    use wavhdr
     use timer_module, only: timer
     include 'fsk4hf/ft8_params.f90'
@@ -36,7 +36,7 @@ contains
     real s(NH1,NHSYM)
     real candidate(3,200)
     real dd(15*12000)
-    logical, intent(in) :: lapon
+    logical, intent(in) :: lapon,nagain
     logical newdat,lsubtract,ldupe,bcontest
     character*12 mycall12, hiscall12
     character*6 mygrid6,hisgrid6
@@ -53,12 +53,16 @@ contains
 1001 format("000000_",i6.6)
 
     call ft8apset(mycall12,mygrid6,hiscall12,hisgrid6,bcontest,apsym,iaptype)
-
     dd=iwave
-
     ndecodes=0
     allmessages='                      '
     allsnrs=0
+    ifa=nfa
+    ifb=nfb
+    if(nagain) then
+       ifa=nfqso-10
+       ifb=nfqso+10
+    endif
 
 ! For now:
 ! ndepth=1: no subtraction, 1 pass, belief propagation only
@@ -77,7 +81,7 @@ contains
         syncmin=1.5
       endif 
       call timer('sync8   ',0)
-      call sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand)
+      call sync8(dd,ifa,ifb,syncmin,nfqso,s,candidate,ncand)
       call timer('sync8   ',1)
       do icand=1,ncand
         sync=candidate(3,icand)
