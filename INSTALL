@@ -67,7 +67,7 @@ $ cd ../build
 $ ../src/configure --prefix=$HOME/hamlib-prefix \
    --disable-shared --enable-static \
    --without-cxx-binding --disable-winradio \
-   CFLAGS="-fdata-sections -ffunction-sections" \
+   CFLAGS="-g -O2 -fdata-sections -ffunction-sections" \
    LDFLAGS="-Wl,--gc-sections"
 $ make
 $ make install-strip
@@ -154,7 +154,7 @@ $ cd ../build
    --without-cxx-binding --disable-winradio \
    CC=<path-to-Qt-MinGW-tools>/gcc \
    CXX=<path-to-Qt-MinGW-tools>/g++ \
-   CFLAGS="-fdata-sections -ffunction-sections -I<path-to-libusb-1.0>/include" \
+   CFLAGS="-g -O2 -fdata-sections -ffunction-sections -I<path-to-libusb-1.0>/include" \
    LDFLAGS="-Wl,--gc-sections" \
    LIBUSB_LIBS="-L<path-to-libusb-1.0>/MinGW32/dll -lusb-1.0"
 $ make
@@ -249,7 +249,7 @@ $ ../src/configure \
    --disable-shared \
    --disable-winradio \
    --prefix=$HOME/hamlib-prefix \
-   CFLAGS="-mmacosx-version-min=10.7 -I/opt/local/include" \
+   CFLAGS="-g -O2 -mmacosx-version-min=10.7 -I/opt/local/include" \
    LIBUSB_LIBS="-L/opt/local/lib -lusb-1.0"
 $ make
 $ make install-strip
