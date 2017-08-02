@@ -89,7 +89,7 @@ void DisplayText::_appendDXCCWorkedB4(DecodedText& t1, QString& bg,
       call=call.mid(0,i0);
     }
     if(call.length()<3) return;
-    if(!call.contains(QRegExp("[0-9]")) or !call.contains(QRegExp("[A-Z]"))) return;
+    if(!call.contains(QRegExp("[0-9]|[A-Z]"))) return;
 
     logBook.match(/*in*/call,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
     int charsAvail = 48;
@@ -144,6 +144,17 @@ void DisplayText::_appendDXCCWorkedB4(DecodedText& t1, QString& bg,
         countryName.replace ("Asiatic", "AS");
         countryName.replace ("European", "EU");
         countryName.replace ("African", "AF");
+
+        // 
+        // deal with special rules that cty.dat does not cope with
+        //
+
+        // KG4 2x1 and 2x3 calls that map to Gitmo are mainland US not Gitmo
+        if (call.startsWith ("KG4") && call.size () != 5)
+          {
+            countryName.replace ("Guantanamo Bay", "U.S.A.");
+          }
+
         t1 += countryName;
     }
 }
