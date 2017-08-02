@@ -898,8 +898,10 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -fexceptions -frtti")
 if (NOT APPLE)
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-pragmas")
   if (${OPENMP_FOUND})
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_C_FLAGS}")
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    if (OpenMP_C_FLAGS)
+      set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_C_FLAGS}")
+      set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    endif ()
   endif ()
   set (CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -fdata-sections -ffunction-sections")
   set (CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -fdata-sections -ffunction-sections")
@@ -1107,9 +1109,14 @@ target_link_libraries (wsjt_fort  ${FFTW3_LIBRARIES})
 if (${OPENMP_FOUND} OR APPLE)
   add_library (wsjt_fort_omp STATIC ${wsjt_FSRCS})
   target_link_libraries (wsjt_fort_omp  ${FFTW3_LIBRARIES})
+  if (OpenMP_C_FLAGS)
+    set_target_properties (wsjt_fort_omp
+      PROPERTIES
+      COMPILE_FLAGS "${OpenMP_C_FLAGS}"
+      )
+  endif ()
   set_target_properties (wsjt_fort_omp
     PROPERTIES
-    COMPILE_FLAGS "${OpenMP_C_FLAGS}"
     Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp
     )
   file (MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp)
@@ -1249,10 +1256,15 @@ if (${OPENMP_FOUND} OR APPLE)
       $<$<COMPILE_LANGUAGE:Fortran>:-fopenmp>   # assumes GNU style Fortran compiler
       )
   else (APPLE)
+    if (OpenMP_C_FLAGS)
+      set_target_properties (jt9
+        PROPERTIES
+        COMPILE_FLAGS "${OpenMP_C_FLAGS}"
+        LINK_FLAGS "${OpenMP_C_FLAGS}"
+        )
+    endif ()
     set_target_properties (jt9
       PROPERTIES
-      COMPILE_FLAGS "${OpenMP_C_FLAGS}"
-      LINK_FLAGS "${OpenMP_C_FLAGS}"
       Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp
       )
   endif (APPLE)
@@ -1295,9 +1307,13 @@ if (APPLE)
   target_link_libraries (wsjtx wsjt_fort wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
 else ()
   target_link_libraries (wsjtx wsjt_fort_omp wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
+  if (OpenMP_C_FLAGS)
+    set_target_properties (wsjtx PROPERTIES
+      COMPILE_FLAGS "${OpenMP_C_FLAGS}"
+      LINK_FLAGS "${OpenMP_C_FLAGS}"
+      )
+  endif ()
   set_target_properties (wsjtx PROPERTIES
-    COMPILE_FLAGS "${OpenMP_C_FLAGS}"
-    LINK_FLAGS "${OpenMP_C_FLAGS}"
     Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp
     )
   if (WIN32)
