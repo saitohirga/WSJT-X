@@ -2765,8 +2765,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
         }
         m_QSOText=decodedtext;
       }
-      if(m_mode=="FT8") auto_sequence (decodedtext.string(), 25, 50);
-
+      if(m_mode=="FT8" or m_mode=="QRA64") auto_sequence (decodedtext.string(), 25, 50);
+      
       postDecode (true, decodedtext.string ());
 
       // find and extract any report for myCall
@@ -4814,7 +4814,7 @@ void MainWindow::on_actionQRA64_triggered()
        "Using old QRA64 sync pattern.");
     m_bQRAsyncWarned=true;
   }
-  displayWidgets(nWidgets("111110010010111110000000"));
+  displayWidgets(nWidgets("111110010110111110000000"));
   statusChanged();
 }
 
