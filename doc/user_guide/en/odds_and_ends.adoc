@@ -14,7 +14,7 @@ summarized in the following Table:
 [width="50%",cols="h,3*^",frame=topbot,options="header"]
 |===========================================
 |Mode    |Mode character|Sync character|End of line information
-|FT8     | ~            |      |
+|FT8     | ~            |      | aP
 |JT4     | $            | *, # | f, fN, dNC
 |JT9     | @            |      |
 |JT65    | #            |      |
@@ -28,13 +28,31 @@ Sync character::
  `#` - Alternate sync
 
 End of line information::
+ `a` - Decoded with aid of some a priori (AP) information
  `C` - Confidence indicator [ISCAT and Deep Search; (0-9,*)] +
  `d` - Deep Search algorithm +
  `f` - Franke-Taylor or Fano algorithm +
  `M` - Message length (characters) +
  `N` - Number of Rx intervals or frames averaged +
+ `P` - Number indicating type of AP information (see table below)
  `R` - Return code from QRA64 decoder +
  `T` - Length of analyzed region (s)
+
+[[AP_INFO_TABLE]]
+.AP information types
+[width="25%",cols="h10,<m20",frame=topbot,options="header"]
+|===========================================
+|P | Message components
+|1 | CQ   &#160; &#160;   ?   &#160; &#160;   ? 
+|2 | DE   &#160; &#160;   ?   &#160; &#160;   ? 
+|3 | MyCall &#160; &#160; ?   &#160; &#160;   ? 
+|4 | MyCall DxCall &#160; &#160;  ? 
+|5 | MyCall DxCall RRR
+|6 | MyCall DxCall 73
+|7 | MyCall DxCall RR73
+|8 |   ? &#160; &#160;   DxCall &#160; &#160; ?
+|===========================================
+
 
 === Reference Spectrum
 

@@ -1,9 +1,6 @@
 _WSJT-X_ v1.8 suppports a number of features designed for use
 on the VHF and higher bands.  These features now include:
 
-- *FT8*, a mode optimized for weak, fading signals such as those often
-encountered with multi-hop sporadic E propagation on 50 MHz.
-
 - *JT4*, a mode particularly useful for EME on the microwave bands
 
 - *JT9* fast modes, useful for scatter propagation on VHF bands
@@ -23,9 +20,6 @@ propagation
 
 - *Doppler tracking*, which becomes increasingly important for EME
 on bands above 1.2 GHz.
-
-- *Auto-sequencing* of transmitted messages for FT8 and the fast modes
-with forward error control
 
 [[VHF_SETUP]]
 === VHF Setup
