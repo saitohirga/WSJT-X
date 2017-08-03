@@ -53,7 +53,7 @@ public:
                              , QString const& dx_grid, bool watchdog_timeout, QString const& sub_mode
                              , bool fast_mode);
   Q_SLOT void decode (bool is_new, QTime time, qint32 snr, float delta_time, quint32 delta_frequency
-                      , QString const& mode, QString const& message);
+                      , QString const& mode, QString const& message, bool low_confidence);
   Q_SLOT void WSPR_decode (bool is_new, QTime time, qint32 snr, float delta_time, Frequency
                            , qint32 drift, QString const& callsign, QString const& grid, qint32 power);
   Q_SLOT void clear_decodes ();
@@ -70,7 +70,7 @@ public:
   // this signal is emitted if the server sends us a reply, the only
   // reply supported is reply to a prior CQ or QRZ message
   Q_SIGNAL void reply (QTime, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode
-                       , QString const& message_text);
+                       , QString const& message_text, bool low_confidence);
 
   // this signal is emitted if the server has requested a replay of
   // all decodes

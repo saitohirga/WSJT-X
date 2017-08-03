@@ -18,10 +18,9 @@ recognized ADIF format, for example 630m, 20m, or 70cm.  The band-name
 format works only if a working frequency has been set for that band
 and mode, in which case the first such match is selected.
 
-TIP: You can also enter a frequency increment in kHz above the
-currently displayed integer MHz. For example, if the displayed
-frequency is 10,368.100, enter `165k` (don't forget the `k`!) to QSY
-to 10,368.165.
+* You can also enter a frequency increment in kHz above the currently
+displayed integer MHz. For example, if the displayed frequency is
+10,368.100, enter `165k` (don't forget the `k`!) to QSY to 10,368.165.
 
 * A small colored circle appears in green if the CAT control is
 activated and functional.  The green circle contains the character S
@@ -33,10 +32,6 @@ TIP: Many Icom rigs cannot be queried for split status, current VFO or
 split transmit frequency. When using _WSJT-X_ with such radios you
 should not change the current VFO, split status or dial frequency
 using controls on the radio.
-
-* The slider adjacent to the level meter can be used to adjust the
-signal level sent to the Fast Graph.  If *Flatten* is not checked,
-the same is true for the Wide Graph.
 
 * If *DX Grid* contains a valid Maidenhead locator, the corresponding
 great-circle azimuth and distance from your location are displayed.

@@ -33,7 +33,7 @@ public:
                              , bool watchdog_timeout, QString const& sub_mode, bool fast_mode);
   Q_SLOT void decode_added (bool is_new, QString const& client_id, QTime, qint32 snr
                             , float delta_time, quint32 delta_frequency, QString const& mode
-                            , QString const& message);
+                            , QString const& message, bool low_confidence);
   Q_SLOT void beacon_spot_added (bool is_new, QString const& client_id, QTime, qint32 snr
                                  , float delta_time, Frequency delta_frequency, qint32 drift
                                  , QString const& callsign, QString const& grid, qint32 power);

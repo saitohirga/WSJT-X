@@ -1,4 +1,4 @@
-subroutine genft8(msg,msgsent,msgbits,itone)
+subroutine genft8(msg,mygrid,bcontest,msgsent,msgbits,itone)
 
 ! Encode an FT8 message, producing array itone().
   
@@ -6,8 +6,10 @@ subroutine genft8(msg,msgsent,msgbits,itone)
   use packjt
   include 'ft8_params.f90'
   character*22 msg,msgsent
+  character*6 mygrid,g1,g2,g3,g4
   character*87 cbits
-!  logical checksumok
+  logical*1 bcontest
+  logical isgrid
   integer*4 i4Msg6BitWords(12)                !72-bit message as 6-bit words
   integer*1 msgbits(KK),codeword(3*ND)
   integer*1, target:: i1Msg8BitBytes(11)
@@ -15,8 +17,42 @@ subroutine genft8(msg,msgsent,msgbits,itone)
   integer icos7(0:6)
   data icos7/2,5,6,0,4,1,3/                   !Costas 7x7 tone pattern
 
+  isgrid(g1)=g1(1:1).ge.'A' .and. g1(1:1).le.'R' .and. g1(2:2).ge.'A' .and. &
+       g1(2:2).le.'R' .and. g1(3:3).ge.'0' .and. g1(3:3).le.'9' .and.       &
+       g1(4:4).ge.'0' .and. g1(4:4).le.'9' .and. g1(1:4).ne.'RR73'
+
+  if(bcontest) then
+     i0=index(msg,' R ') + 3                  !Check for ' R ' in message
+     g1=msg(i0:i0+3)//'  '
+     if(isgrid(g1)) then                      !Check for ' R grid'
+        call grid2deg(g1,dlong,dlat)
+        dlong=dlong+180.0
+        if(dlong.gt.180.0) dlong=dlong-360.0
+        dlat=-dlat
+        call deg2grid(dlong,dlat,g2)          !g2=antipodes grid
+        msg=msg(1:i0-3)//g2(1:4)              !Send message with g2
+     endif
+  endif
+
   call packmsg(msg,i4Msg6BitWords,itype)      !Pack into 12 6-bit bytes
   call unpackmsg(i4Msg6BitWords,msgsent)      !Unpack to get msgsent
+
+  if(bcontest) then
+     i1=index(msgsent(8:22),' ') + 8
+     g3=msgsent(i1:i1+3)//'  '
+     if(isgrid(g3)) then
+        call azdist(mygrid,g3,0.d0,nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter)
+        if(ndkm.gt.10000) then
+           call grid2deg(g3,dlong,dlat)
+           dlong=dlong+180.0
+           if(dlong.gt.180.0) dlong=dlong-360.0
+           dlat=-dlat
+           call deg2grid(dlong,dlat,g4)
+           msgsent=msgsent(1:i1-1)//'R '//g4(1:4)
+        endif
+     endif
+  endif
+
   i3bit=0                                     !### temporary ###
   write(cbits,1000) i4Msg6BitWords,32*i3bit
 1000 format(12b6.6,b8.8)

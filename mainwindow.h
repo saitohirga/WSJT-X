@@ -156,16 +156,22 @@ private slots:
   void set_dateTimeQSO(int m_ntx);
   void set_ntx(int n);
   void on_txrb1_toggled(bool status);
+  void on_txrb1_doubleClicked ();
   void on_txrb2_toggled(bool status);
   void on_txrb3_toggled(bool status);
   void on_txrb4_toggled(bool status);
+  void on_txrb4_doubleClicked ();
   void on_txrb5_toggled(bool status);
+  void on_txrb5_doubleClicked ();
   void on_txrb6_toggled(bool status);
   void on_txb1_clicked();
+  void on_txb1_doubleClicked ();
   void on_txb2_clicked();
   void on_txb3_clicked();
   void on_txb4_clicked();
+  void on_txb4_doubleClicked ();
   void on_txb5_clicked();
+  void on_txb5_doubleClicked ();
   void on_txb6_clicked();
   void on_lookupButton_clicked();
   void on_addButton_clicked();
@@ -184,7 +190,6 @@ private slots:
   void on_actionQuickDecode_toggled (bool);
   void on_actionMediumDecode_toggled (bool);
   void on_actionDeepestDecode_toggled (bool);
-  void on_inGain_valueChanged(int n);
   void bumpFqso(int n);
   void on_actionErase_ALL_TXT_triggered();
   void on_actionErase_wsjtx_log_adi_triggered();
@@ -239,7 +244,6 @@ private slots:
   void on_cbTx6_toggled(bool b);
   void on_cbMenus_toggled(bool b);
   void on_cbFirst_toggled(bool b);
-  void on_cbWeak_toggled(bool b);
   void on_cbAutoSeq_toggled(bool b);
   void networkError (QString const&);
   void on_ClrAvgButton_clicked();
@@ -300,7 +304,7 @@ private:
 private:
   void astroUpdate ();
   void writeAllTxt(QString message);
-  void FT8_AutoSeq(QString message);
+  void auto_sequence (QString const& message, unsigned start_tolerance, unsigned stop_tolerance);
   void hideMenus(bool b);
 
   NetworkAccessManager m_network_manager;
@@ -364,6 +368,7 @@ private:
   qint32  m_waterfallAvg;
   qint32  m_ntx;
   bool m_gen_message_is_cq;
+  bool m_send_RR73;
   qint32  m_timeout;
   qint32  m_XIT;
   qint32  m_setftx;
@@ -447,6 +452,17 @@ private:
   bool    m_bQRAsyncWarned;
   bool    m_bDoubleClicked;
   bool    m_bCallingCQ;
+  bool    m_bAutoReply;
+  enum
+    {
+      CALLING,
+      REPLYING,
+      REPORT,
+      ROGER_REPORT,
+      ROGERS,
+      SIGNOFF
+    }
+    m_QSOProgress;
 
   int			m_ihsym;
   int			m_nzap;
@@ -558,7 +574,7 @@ private:
   void writeSettings();
   void createStatusBar();
   void updateStatusBar();
-  void genStdMsgs(QString rpt);
+  void genStdMsgs(QString rpt, bool unconditional = false);
   void genCQMsg();
   void clearDX ();
   void lookup();
@@ -574,7 +590,7 @@ private:
   void pskPost(DecodedText decodedtext);
   void displayDialFrequency ();
   void transmitDisplay (bool);
-  void processMessage(QString const& messages, qint32 position, bool ctrl);
+  void processMessage(QString const& messages, qint32 position, bool ctrl = false, bool alt = false);
   void replyToCQ (QTime, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode, QString const& message_text);
   void replayDecodes ();
   void postDecode (bool is_new, QString const& message);

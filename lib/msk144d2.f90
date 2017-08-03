@@ -9,6 +9,7 @@ program msk144d2
 
   character c
   character*80 line
+  character*512 datadir
   character*500 infile
   character*12 mycall,hiscall
   character*6 mygrid
@@ -17,13 +18,15 @@ program msk144d2
   logical :: display_help=.false.
   logical*1 bShMsgs
   logical*1 bcontest
-  logical*1 brxequal
+  logical*1 btrain
   logical*1 bswl
 
   type(wav_header) :: wav
 
   integer*2 id2(30*12000)
   integer*2 ichunk(7*1024)
+
+  real*8 pcoeffs(5)
 
   type (option) :: long_options(9) = [ &
        option ('ndepth',.true.,'c','ndepth',''), &  
@@ -45,8 +48,10 @@ program msk144d2
   hiscall=''
   bShMsgs=.false.
   bcontest=.false.
-  brxequal=.false.
+  btrain=.false.
   bswl=.false.
+  datadir='.'
+  pcoeffs=0.d0
  
   do
      call getopt('c:d:ef:hm:n:rs',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
@@ -69,7 +74,7 @@ program msk144d2
      case ('n')
         read (optarg(:narglen), *) ntol
      case ('r')
-        brxequal=.true. 
+        btrain=.true. 
      case ('s')
         bShMsgs=.true. 
      end select
@@ -111,7 +116,7 @@ program msk144d2
        tt=sum(float(abs(id2(i:i+7*512-1))))
        if( tt .ne. 0.0 ) then
          call mskrtd(ichunk,nutc,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,bShMsgs, &
-                     bcontest,brxequal,bswl,line)
+                     bcontest,btrain,pcoeffs,bswl,datadir,line)
          if( index(line,"&") .ne. 0 .or.   &
               index(line,"^") .ne. 0 .or.   &
               index(line,"!") .ne. 0 .or.   &

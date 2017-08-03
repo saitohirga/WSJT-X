@@ -156,13 +156,19 @@
  *                         Delta frequency (Hz)   quint32
  *                         Mode                   utf8
  *                         Message                utf8
+ *                         Low confidence         bool
  *
  *      The decode message is sent when  a new decode is completed, in
  *      this case the 'New' field is true. It is also used in response
  *      to  a "Replay"  message where  each  old decode  in the  "Band
  *      activity" window, that  has not been erased, is  sent in order
- *      as  a one  of  these  messages with  the  'New'  field set  to
- *      false. See the "Replay" message below for details of usage.
+ *      as a one of these messages  with the 'New' field set to false.
+ *      See  the "Replay"  message below  for details  of usage.   Low
+ *      confidence decodes are flagged  in protocols where the decoder
+ *      has knows that  a decode has a higher  than normal probability
+ *      of  being  false, they  should  not  be reported  on  publicly
+ *      accessible services  without some attached warning  or further
+ *      validation.
  *
  *
  * Clear         Out       3                      quint32
@@ -184,6 +190,7 @@
  *                         Delta frequency (Hz)   quint32
  *                         Mode                   utf8
  *                         Message                utf8
+ *                         Low confidence         bool
  *
  *      In order for a server  to provide a useful cooperative service
  *      to WSJT-X it  is possible for it to initiate  a QSO by sending

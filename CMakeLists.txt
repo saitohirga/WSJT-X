@@ -260,6 +260,8 @@ set (wsjt_qt_CXXSRCS
   CallsignValidator.cpp
   SplashScreen.cpp
   EqualizationToolsDialog.cpp
+  DoubleClickablePushButton.cpp
+  DoubleClickableRadioButton.cpp
   )
 
 set (wsjt_qtmm_CXXSRCS
@@ -376,6 +378,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/chkcrc10.f90
   lib/fsk4hf/chkcrc12.f90
   lib/fsk4hf/chkcrc12a.f90
+  lib/chkcall.f90
   lib/chkhist.f90
   lib/chkmsg.f90
   lib/chkss2.f90
@@ -433,6 +436,7 @@ set (wsjt_FSRCS
   lib/fqso_first.f90
   lib/freqcal.f90
   lib/fsk4hf/fsk4hf.f90
+  lib/fsk4hf/ft8apset.f90
   lib/fsk4hf/ft8b.f90
   lib/fsk4hf/ft8_downsample.f90
   lib/fsk4hf/ft8sim.f90
@@ -473,6 +477,7 @@ set (wsjt_FSRCS
   lib/iscat.f90
   lib/jplsubs.f
   lib/jt9fano.f90
+  lib/jtmsg.f90
   lib/ldpcsim144.f90
   lib/fsk4hf/ldpcsim120.f90
   lib/fsk4hf/ldpcsim168.f90

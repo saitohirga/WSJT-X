@@ -47,6 +47,26 @@ compound callsign.  It should be obvious that the JT4, JT9, and JT65
 protocols are not designed or well suited for extensive conversations
 or rag-chewing.
 
+=== Auto-Sequencing
+
+The slow modes JT4, JT9, JT65, and QRA64 allow nearly 10 seconds at
+the end of each one-minute receiving sequence in which you can inspect
+decoded messages and decide how to reply.  With its 15-second T/R
+cycles, FT8 allows only about two seconds for this task.  For this
+reason a basic auto-sequencing feature is offered. Check *Auto Seq*
+on the main window to enable this feature:
+
+image::auto-seq.png[align="center",alt="AutoSeq"]
+
+When calling CQ you may also choose to check the box *Call 1st*.
+_WSJT-X_ will then respond automatically to the first decoded
+responder to your CQ.
+
+TIP: When *Auto-Seq* is enabled the program will de-activate *Enable
+Tx* at the end of each QSO.  We do not want _WSJT-X_ to make fully
+automated QSOs.
+
+
 [[COMP-CALL]] 
 === Compound Callsigns
 

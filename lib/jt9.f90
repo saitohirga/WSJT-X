@@ -161,6 +161,8 @@ program jt9
 ! Import FFTW wisdom, if available
   wisfile=trim(data_dir)//'/jt9_wisdom.dat'// C_NULL_CHAR
   iret=fftwf_import_wisdom_from_filename(wisfile)
+  open(19,file=trim(data_dir)//'/false_decodes.txt',status='unknown',     &
+       position='append')
 
   ntry65a=0
   ntry65b=0
@@ -187,7 +189,7 @@ program jt9
      if(infile(i1-5:i1-5).eq.'_') then
         read(infile(i1-4:i1-1),*,err=1) nutc
      else
-        read(infile(i1-6:i1-3),*,err=1) nutc
+        read(infile(i1-6:i1-1),*,err=1) nutc
      endif
      go to 2
 1    nutc=0
@@ -238,8 +240,8 @@ program jt9
               ingain=0
               call timer('symspec ',0)
               nminw=1
-              call symspec(shared_data,k,ntrperiod,nsps,ingain,nminw,pxdb,s,df3,   &
-                   ihsym,npts8,pxdbmax)
+              call symspec(shared_data,k,ntrperiod,nsps,ingain,nminw,pxdb,  &
+                   s,df3,ihsym,npts8,pxdbmax)
               call timer('symspec ',1)
            endif
            nhsym0=nhsym
@@ -260,9 +262,11 @@ program jt9
      shared_data%params%kin=64800
      shared_data%params%nzhsym=181
      shared_data%params%ndepth=ndepth
+     shared_data%params%lapon=.true.
+     shared_data%params%napwid=75
      shared_data%params%dttol=3.
 
-     shared_data%params%minsync=0       !### TEST ONLY
+!     shared_data%params%minsync=0       !### TEST ONLY
 !     shared_data%params%nfqso=1500     !### TEST ONLY
 !     mycall="G3WDG       "              !### TEST ONLY
 !     hiscall="VK7MO       "             !### TEST ONLY

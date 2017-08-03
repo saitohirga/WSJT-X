@@ -151,11 +151,13 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
                 quint32 delta_frequency;
                 QByteArray mode;
                 QByteArray message;
-                in >> time >> snr >> delta_time >> delta_frequency >> mode >> message;
+                bool low_confidence {false};
+                in >> time >> snr >> delta_time >> delta_frequency >> mode >> message >> low_confidence;
                 if (check_status (in) != Fail)
                   {
                     Q_EMIT self_->reply (time, snr, delta_time, delta_frequency
-                                         , QString::fromUtf8 (mode), QString::fromUtf8 (message));
+                                         , QString::fromUtf8 (mode), QString::fromUtf8 (message)
+                                         , low_confidence);
                   }
               }
               break;
@@ -366,13 +368,14 @@ void MessageClient::status_update (Frequency f, QString const& mode, QString con
 }
 
 void MessageClient::decode (bool is_new, QTime time, qint32 snr, float delta_time, quint32 delta_frequency
-                            , QString const& mode, QString const& message_text)
+                            , QString const& mode, QString const& message_text, bool low_confidence)
 {
    if (m_->server_port_ && !m_->server_string_.isEmpty ())
     {
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::Decode, m_->id_, m_->schema_};
-      out << is_new << time << snr << delta_time << delta_frequency << mode.toUtf8 () << message_text.toUtf8 ();
+      out << is_new << time << snr << delta_time << delta_frequency << mode.toUtf8 ()
+          << message_text.toUtf8 () << low_confidence;
       m_->send_message (out, message);
     }
 }

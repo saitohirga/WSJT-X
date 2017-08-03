@@ -1,3 +1,55 @@
+=== AP Decoding
+
+With the QRA64 decoder Nico Palermo, IV3NWV, introduced a technique
+for decoding with the aid of information that naturally accumulates
+during a minimal QSO.  This _a priori_ (AP) information can be
+used to increase the sensitivity of the decoder.
+
+When an operator decides to answer a CQ, he already knows his own
+callsign and that of his potential QSO partner.  He therefore knows
+what to expect for at least 56 of the 72 message bits in a
+standard-format response to his call.  The _WSJT-X_ decoders for QRA64
+and FT8 can use these AP bits to decode messages containing them with
+higher sensitivity than otherwise possible.
+
+We have implemented AP decoding in slightly different ways in QRA64
+and FT8.  To provide some explicit examples for users, we provide here
+a brief description of the FT8 behavior.
+
+The FT8 decoder always tries first to decode a signal without using
+any AP information. If this attempt fails, and if *Enable AP* is
+checked on the *Decode* menu, a second attempt hypothesizes that the
+message contains callsigns MyCall and DxCall. If the QSO has
+progressed to the point where signal reports have been exchanged, a
+third attempt hypothesizes that the message contains the known
+callsigns followed by RRR, RR73, or 73.
+
+AP decoding attempts effectively set the AP bits to the hypothesized
+values, as if they had been received perfectly.  The decoder then
+proceeds to determine whether the remaining message and parity bits
+are consistent with the hypothesized AP bits.  If a codeword is found
+that the decoder judges to have high (but not overwhelmingly high)
+probability of being correct, a ? character is appended when the
+decoded message is displayed.
+
+Successful AP decodes are always labeled with an end-of-line indicator
+of the form aP, where P is one of the single-digit AP decoding types
+listed in Table 1.  For example, an a2 designator says that the
+successful decode used MyCall as hypothetically known information.
+
+[[AP_INFO_TABLE]]
+.AP information types
+[width="25%",cols="h10,<m20",frame=topbot,options="header"]
+|===============================================
+|P | Message components
+|1 | CQ   &#160; &#160;   ?   &#160; &#160;   ? 
+|2 | MyCall &#160; &#160; ?   &#160; &#160;   ? 
+|3 | MyCall DxCall &#160; &#160;  ? 
+|4 | MyCall DxCall RRR
+|5 | MyCall DxCall 73
+|6 | MyCall DxCall RR73
+|===============================================
+
 === Decoded Lines
 
 Displayed information accompanying decoded messages generally includes UTC,
@@ -14,7 +66,7 @@ summarized in the following Table:
 [width="50%",cols="h,3*^",frame=topbot,options="header"]
 |===========================================
 |Mode    |Mode character|Sync character|End of line information
-|FT8     | ~            |      |
+|FT8     | ~            |      | aP
 |JT4     | $            | *, # | f, fN, dNC
 |JT9     | @            |      |
 |JT65    | #            |      |
@@ -28,13 +80,17 @@ Sync character::
  `#` - Alternate sync
 
 End of line information::
+ `a` - Decoded with aid of some a priori (AP) information
  `C` - Confidence indicator [ISCAT and Deep Search; (0-9,*)] +
  `d` - Deep Search algorithm +
  `f` - Franke-Taylor or Fano algorithm +
  `M` - Message length (characters) +
  `N` - Number of Rx intervals or frames averaged +
+ `P` - Number indicating type of AP information (Table 1, above) +
  `R` - Return code from QRA64 decoder +
  `T` - Length of analyzed region (s)
+
+
 
 === Reference Spectrum
 

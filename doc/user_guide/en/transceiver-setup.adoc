@@ -21,14 +21,13 @@ about 5 kHz.  This choice has the desirable effect of allowing the
 JT65 and JT9 sub-bands simultaneously on most HF bands.  Further
 details are provided in the <<TUTORIAL,Basic Operating Tutorial>>.  A
 wider displayed bandwidth may also be helpful at VHF and above, where
-JT4, JT65, and QRA64 signals are found over much wider ranges of
-frequencies.
+FT8, JT4, JT65, and QRA64 signals may be found over much wider ranges
+of frequencies.
 
 - If you have only a standard SSB filter you won’t be able to display
 more than about 2.7 kHz bandwidth.  Depending on the exact dial
 frequency setting, on HF bands you can display the full sub-band
-generally used for one mode (JT65 or JT9) and part of the sub-band for
-the other mode.
+generally used for one mode.
 
 - Of course, you might prefer to concentrate on one mode at a time,
 setting your dial frequency to (say) 14.074 for FT8, 14.076 for JT65,
