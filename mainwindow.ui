@@ -762,16 +762,6 @@ QLabel[oob=&quot;true&quot;] {
                        </widget>
                       </item>
                       <item>
-                       <widget class="QCheckBox" name="cbWeak">
-                        <property name="toolTip">
-                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Call the weakest decoded responder to my CQ.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                        </property>
-                        <property name="text">
-                         <string>Weak</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
                        <widget class="QCheckBox" name="cbTx6">
                         <property name="enabled">
                          <bool>false</bool>
@@ -975,7 +965,7 @@ QLabel[oob=&quot;true&quot;] {
                  <item row="1" column="0">
                   <widget class="QCheckBox" name="txFirstCheckBox">
                    <property name="toolTip">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to Tx in even periods, uncheck for odd periods&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to Tx in even-numbered minutes or sequences, starting at 0; uncheck for odd sequences.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="text">
                     <string>Tx even/1st</string>

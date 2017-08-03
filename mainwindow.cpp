@@ -956,7 +956,6 @@ void MainWindow::writeSettings()
   m_settings->setValue ("FreeText", ui->freeTextMsg->currentText ());
   m_settings->setValue("ShowMenus",ui->cbMenus->isChecked());
   m_settings->setValue("CallFirst",ui->cbFirst->isChecked());
-  m_settings->setValue("CallWeak",ui->cbWeak->isChecked());
   m_settings->endGroup();
 
   m_settings->beginGroup("Common");
@@ -1022,7 +1021,6 @@ void MainWindow::readSettings()
         m_settings->value ("FreeText").toString ());
   ui->cbMenus->setChecked(m_settings->value("ShowMenus",true).toBool());
   ui->cbFirst->setChecked(m_settings->value("CallFirst",true).toBool());
-  ui->cbWeak->setChecked(m_settings->value("CallWeak",true).toBool());
   m_settings->endGroup();
 
   // do this outside of settings group because it uses groups internally
@@ -4554,7 +4552,6 @@ void MainWindow::displayWidgets(int n)
   }
   ui->cbFirst->setVisible ("FT8" == m_mode);
   ui->actionEnable_AP->setVisible ("FT8" == m_mode);
-  ui->cbWeak->setVisible(false);
   m_lastCallsign.clear ();     // ensures Tx5 is updated for new modes
   genStdMsgs (m_rpt, true);
 }
@@ -6718,19 +6715,12 @@ void MainWindow::on_cbMenus_toggled(bool b)
 void MainWindow::on_cbFirst_toggled(bool b)
 {
   if (b) {
-    ui->cbWeak->setChecked (!b);
     if (m_auto && CALLING == m_QSOProgress) {
       ui->cbFirst->setStyleSheet ("QCheckBox{color:red}");
     }
+  } else {
+    ui->cbFirst->setStyleSheet ("");
   }
-  else {
-      ui->cbFirst->setStyleSheet ("");
-  }
-}
-
-void MainWindow::on_cbWeak_toggled(bool b)
-{
-  if(b) ui->cbFirst->setChecked(!b);
 }
 
 void MainWindow::on_cbAutoSeq_toggled(bool b)

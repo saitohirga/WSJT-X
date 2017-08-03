@@ -244,7 +244,6 @@ private slots:
   void on_cbTx6_toggled(bool b);
   void on_cbMenus_toggled(bool b);
   void on_cbFirst_toggled(bool b);
-  void on_cbWeak_toggled(bool b);
   void on_cbAutoSeq_toggled(bool b);
   void networkError (QString const&);
   void on_ClrAvgButton_clicked();
