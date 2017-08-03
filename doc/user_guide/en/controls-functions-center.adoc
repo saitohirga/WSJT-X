@@ -25,7 +25,7 @@ and audio Tx frequency.
 * Check the box *Lock Tx=Rx* to make the frequencies always track one
 another.
 
-TIP: In general we do not recommend using *Lock Tx=Rx* since it
+IMPORTANT: In general we do not recommend using *Lock Tx=Rx* since it
 encourages poor radio etiquette when running a frequency.  With this
 box checked, your own Tx frequency will move around following your
 callers.

@@ -68,7 +68,7 @@ include::install-from-source.adoc[]
 Select *Settings* from the *File* menu or by typing *F2*.  (On
 Macintosh select *Preferences* from the _WSJT-X_ menu, or use the
 keyboard shortcut *Cmd+,*).  The following sections describe setup
-options available on each of seven tabs selectable near the top of the
+options available on each of eight tabs selectable near the top of the
 window.
 
 [[GENERAL]]
@@ -110,12 +110,12 @@ include::transceiver-setup.adoc[]
 [[TUTORIAL]]
 == Basic Operating Tutorial
 
-<<TUT_MAIN,Sections 6.1>> through <<TUT_EX2,6.4>> introduce basic user
-controls and program behavior of _WSJT-X_.  We suggest that new users
-should go through the full HF-oriented tutorial, preferably while at
-your radio.  Subsequent sections cover additional details on
-<<MAKE_QSOS,Making QSOs>>, <<WSPR,WSPR mode>> and <<VHF_AND_UP,VHF+
-Features>>.
+This section introduces the basic user controls and program behavior
+of _WSJT-X_, with particular emphasis on the JT9, JT65, and FT8 modes.
+We suggest that new users should go through the full HF-oriented
+tutorial, preferably while at your radio.  Subsequent sections cover
+additional details on <<MAKE_QSOS,Making QSOs>>, <<WSPR,WSPR mode>>
+and <<VHF_AND_UP,VHF+ Features>>.
 
 [[TUT_MAIN]]
 === Main Window Settings
@@ -184,9 +184,13 @@ include::controls-functions-wide-graph.adoc[]
 == Logging
 include::logging.adoc[]
 
-[[ODDS_AND_ENDS]]
-== Odds and Ends
-include::odds_and_ends.adoc[]
+[[DECODER_NOTES]]
+== Decoder Notes
+include::decoder_notes.adoc[]
+
+[[MEASUREMENT_TOOLS]]
+== Measurement Tools
+include::measurement_tools.adoc[]
 
 [[COOP_PGMS]]
 == Cooperating Programs
@@ -212,17 +216,6 @@ include::astro_data.adoc[]
 [[UTIL]]
 == Utility Programs
 include::utilities.adoc[]
-
-////
-[[TXRX]]
-== Implementation Details
-include::implementation.adoc[]
-
-[[TROUBLE_SHOOTING]]
-== Troubleshooting
-To be added (?) ...
-
-////
 
 [[SUPPORT]]
 == Support

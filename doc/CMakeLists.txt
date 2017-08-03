@@ -22,6 +22,7 @@ set (UG_SRCS
   controls-functions-status-bar.adoc
   controls-functions-wide-graph.adoc
   cooperating-programs.adoc
+  decoder_notes.adoc
   faq.adoc
   font-sizes.adoc
   install-from-source.adoc
@@ -29,11 +30,11 @@ set (UG_SRCS
   install-mac.adoc
   install-windows.adoc
   introduction.adoc
+  measurement_tools.adoc
   protocols.adoc
   logging.adoc
   make-qso.adoc
   new_features.adoc
-  odds_and_ends.adoc
   platform-dependencies.adoc
   protocols.adoc
   settings-advanced.adoc

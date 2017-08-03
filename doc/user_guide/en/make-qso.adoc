@@ -31,10 +31,10 @@ lie in the range –30 to –1 dB, and values are significantly compressed
 above about -10 dB.  JT9 supports the extended range –50 to +49 dB and
 assigns more reliable numbers to relatively strong signals.
 
-NOTE: Signals become visible on the waterfall around S/N = –26 dB
-and audible (to someone with very good hearing) around –15
-dB. Thresholds for decodability are around -23 dB for JT4, –24 dB for
-JT65, –26 dB for JT9.
+NOTE: Signals become visible on the waterfall around S/N = –26 dB and
+audible (to someone with very good hearing) around –15 dB. Thresholds
+for decodability are around -20 dB for FT8, -23 dB for JT4, –25 dB for
+JT65, –27 dB for JT9.
 
 === Free-Text Messages
 
@@ -50,11 +50,11 @@ or rag-chewing.
 === Auto-Sequencing
 
 The slow modes JT4, JT9, JT65, and QRA64 allow nearly 10 seconds at
-the end of each one-minute receiving sequence in which you can inspect
-decoded messages and decide how to reply.  With its 15-second T/R
-cycles, FT8 allows only about two seconds for this task.  For this
-reason a basic auto-sequencing feature is offered. Check *Auto Seq*
-on the main window to enable this feature:
+the end of each one-minute receiving sequence -- enough time for you
+to inspect decoded messages and decide how to reply.  The 15-second
+T/R cycles of FT8 allow only about two seconds for this task, which is
+often not enough.  For this reason a basic auto-sequencing feature is
+offered. Check *Auto Seq* on the main window to enable this feature:
 
 image::auto-seq.png[align="center",alt="AutoSeq"]
 
@@ -62,7 +62,7 @@ When calling CQ you may also choose to check the box *Call 1st*.
 _WSJT-X_ will then respond automatically to the first decoded
 responder to your CQ.
 
-TIP: When *Auto-Seq* is enabled the program will de-activate *Enable
+NOTE: When *Auto-Seq* is enabled the program de-activates *Enable
 Tx* at the end of each QSO.  We do not want _WSJT-X_ to make fully
 automated QSOs.
 
@@ -129,7 +129,7 @@ In each case, the compound callsign is treated as *Type 2* because the
 add-on prefix or suffix is _not_ one of those in the fixed list.  Note
 that a second callsign is never permissible in these messages.
 
-TIP: During a transmission your outgoing message is displayed in the
+NOTE: During a transmission your outgoing message is displayed in the
 first label on the *Status Bar* and shown exactly as another station
 will receive it.  You can check to see that you are actually
 transmitting the message you wish to send.

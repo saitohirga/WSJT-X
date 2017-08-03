@@ -46,5 +46,5 @@ This behavior is desirable so that you will not inadvertently change
 your Tx frequency to that of a tail-ender who called you somewhere
 else in the FT8 subband.
 
-IMPORTANT: When finished with this Tutorial, don’t forget to re-enter
+IMPORTANT: When finished with this Tutorial, don't forget to re-enter
 your own callsign as *My Call* on the *Settings | General* tab.

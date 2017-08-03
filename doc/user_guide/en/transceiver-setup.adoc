@@ -46,9 +46,9 @@ clicks or glitches.  Make sure that this is true even when you
 simultaneously use the computer to do other tasks such as email, web
 browsing, etc.
 
-* Adjust the *Pwr" slider (at the right edge of the main window)
-downward from its maximum until the RF output from your transmitter
-falls slightly.  This is generally a good level for audio drive.
+* Adjust the *Pwr* slider (at right edge of main window) downward from
+its maximum until the RF output from your transmitter falls slightly.
+This is generally a good level for audio drive.
 
 * Toggle the *Tune* button once more or click *Halt Tx* to stop your
 test transmission.
