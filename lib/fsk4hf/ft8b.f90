@@ -1,6 +1,6 @@
 subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
-     lsubtract,iaptype,mygrid6,bcontest,sync0,f1,xdt,apsym,nharderrors,dmin,  &
-     nbadcrc,ipass,iera,message,xsnr)  
+     lsubtract,nagain,iaptype,mygrid6,bcontest,sync0,f1,xdt,apsym,nharderrors,&
+     dmin,nbadcrc,ipass,iera,message,xsnr)  
 
   use timer_module, only: timer
   include 'ft8_params.f90'
@@ -26,7 +26,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
   complex cd0(3200)
   complex ctwk(32)
   complex csymb(32)
-  logical first,newdat,lsubtract,lapon
+  logical first,newdat,lsubtract,lapon,nagain
   data icos7/2,5,6,0,4,1,3/
   data mcq/1,1,1,1,1,0,1,0,0,0,0,0,1,0,0,0,0,0,1,1,0,0,0,1,1,0,0,1/
   data mrrr/0,1,1,1,1,1,1,0,1,1,0,0,1,1,1,1/
@@ -52,20 +52,19 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
 ! iaptype
 !------------------------
 !   1        CQ     ???    ???
-!   2        DE     ???    ???
-!   3        MyCall ???    ???
-!   4        MyCall DxCall ???
-!   5        MyCall DxCall RRR
-!   6        MyCall DxCall 73
-!   7        MyCall DxCall RR73
-!   8        ???    DxCall ??? 
+!   2        MyCall ???    ???
+!   3        MyCall DxCall ???
+!   4        MyCall DxCall RRR
+!   5        MyCall DxCall 73
+!   6        MyCall DxCall RR73
+!   7        ???    DxCall ???
 
-     naptypes(0,1:4)=(/1,3,0,0/)
-     naptypes(1,1:4)=(/3,4,0,0/)
-     naptypes(2,1:4)=(/3,4,0,0/)
-     naptypes(3,1:4)=(/4,5,6,7/)
-     naptypes(4,1:4)=(/4,5,6,7/)
-     naptypes(5,1:4)=(/4,1,3,0/)  !?
+     naptypes(0,1:4)=(/1,2,0,0/)
+     naptypes(1,1:4)=(/2,3,0,0/)
+     naptypes(2,1:4)=(/2,3,0,0/)
+     naptypes(3,1:4)=(/3,4,5,6/)
+     naptypes(4,1:4)=(/3,4,5,6/)
+     naptypes(5,1:4)=(/3,1,2,0/)  !?
      first=.false.
   endif
 
@@ -169,6 +168,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
      rxdatap(i4)=r4
      rxdatap(i2)=r2
      rxdatap(i1)=r1
+
      if(nQSOProgress .eq. 0 .or. nQSOProgress .eq. 5) then
 ! When bits 88:115 are set as ap bits, bit 115 lives in symbol 39 along
 ! with no-ap bits 116 and 117. Take care of metrics for bits 116 and 117.
@@ -183,7 +183,6 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
         endif
      endif
 
-! MyCall and DxCall are AP info
 ! When bits 116:143 are set as ap bits, bit 115 lives in symbol 39 along
 ! with ap bits 116 and 117. Take care of metric for bit 115.
 !        if(j.eq.39) then  ! take care of bit 115
@@ -207,6 +206,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
         rxdatap(i2)=max(ps(2),ps(3))-max(ps(0),ps(1))
         rxdatap(i1)=max(ps(1),ps(3))-max(ps(0),ps(2))
      endif  
+
   enddo
 
   rxav=sum(rxdata)/(3.0*ND)
@@ -258,20 +258,19 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
         
      if(ipass .gt. 3) then
         iaptype=naptypes(nQSOProgress,ipass-3)
-        if(iaptype.ge.4 .and. (abs(f1-nfqso).gt.napwid .and. abs(f1-nftx).gt.napwid) ) cycle 
-        if(iaptype.eq.1 .or. iaptype.eq.2 .or. iaptype.eq.3) then ! AP,???,??? 
+        if(iaptype.ge.3 .and. (abs(f1-nfqso).gt.napwid .and. abs(f1-nftx).gt.napwid) ) cycle 
+        if(iaptype.eq.1 .or. iaptype.eq.2 ) then ! AP,???,??? 
            apmask=0
            apmask(88:115)=1    ! first 28 bits are AP
            apmask(144)=1       ! not free text
            llrap=llr
            if(iaptype.eq.1) llrap(88:115)=apmag*mcq/ss
-           if(iaptype.eq.2) llrap(88:115)=apmag*mde/ss
-           if(iaptype.eq.3) llrap(88:115)=apmag*apsym(1:28)/ss
+           if(iaptype.eq.2) llrap(88:115)=apmag*apsym(1:28)/ss
            llrap(116:117)=llra(116:117)  
            llrap(142:143)=llra(142:143)
            llrap(144)=-apmag/ss
         endif
-        if(iaptype.eq.4) then   ! mycall, dxcall, ???
+        if(iaptype.eq.3) then   ! mycall, dxcall, ???
            apmask=0
            apmask(88:115)=1   ! mycall
            apmask(116:143)=1  ! hiscall
@@ -280,18 +279,18 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
            llrap(88:143)=apmag*apsym(1:56)/ss
            llrap(144)=-apmag/ss
         endif
-        if(iaptype.eq.5 .or. iaptype.eq.6 .or. iaptype.eq.7) then  
+        if(iaptype.eq.4 .or. iaptype.eq.5 .or. iaptype.eq.6) then  
            apmask=0
            apmask(88:115)=1   ! mycall
            apmask(116:143)=1  ! hiscall
            apmask(144:159)=1  ! RRR or 73 or RR73
            llrap=llr
            llrap(88:143)=apmag*apsym(1:56)/ss
-           if(iaptype.eq.5) llrap(144:159)=apmag*mrrr/ss 
-           if(iaptype.eq.6) llrap(144:159)=apmag*m73/ss 
-           if(iaptype.eq.7) llrap(144:159)=apmag*mrr73/ss 
+           if(iaptype.eq.4) llrap(144:159)=apmag*mrrr/ss 
+           if(iaptype.eq.5) llrap(144:159)=apmag*m73/ss 
+           if(iaptype.eq.6) llrap(144:159)=apmag*mrr73/ss 
         endif
-        if(iaptype.eq.8) then   ! ???, dxcall, ???
+        if(iaptype.eq.7) then   ! ???, dxcall, ???
            apmask=0
            apmask(116:143)=1  ! hiscall
            apmask(144)=1      ! not free text
@@ -311,9 +310,9 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
      if(ndepth.eq.3 .and. nharderrors.lt.0) then
         norder=1
         if(abs(nfqso-f1).le.napwid .or. abs(nftx-f1).le.napwid) then
-          if(ipass.le.3) then
+          if(ipass.le.3 .and. .not.nagain) then
             norder=2    
-          else  ! norder=3 for AP decodes because a smaller number of codewords needs to be looked at
+          else  ! norder=3 for nagain and AP decodes 
             norder=3    
           endif
         endif
@@ -329,7 +328,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
      if(nharderrors.ge.0 .and. nharderrors+dmin.lt.60.0 .and. &        
         .not.(sync.lt.2.0 .and. nharderrors.gt.35)      .and. &
         .not.(ipass.gt.1 .and. nharderrors.gt.39)       .and. &
-        .not.(ipass.eq.3 .and. nharderrors.gt.30)              &
+        .not.(ipass.eq.3 .and. nharderrors.gt.30)             &
        ) then
         call chkcrc12a(decoded,nbadcrc)
      else

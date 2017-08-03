@@ -90,7 +90,7 @@ contains
         nsnr0=min(99,nint(10.0*log10(sync) - 25.5))    !### empirical ###
         call timer('ft8b    ',0)
         call ft8b(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,    &
-             lsubtract,iaptype,mygrid6,bcontest,sync,f1,xdt,apsym,          &
+             lsubtract,nagain,iaptype,mygrid6,bcontest,sync,f1,xdt,apsym,   &
              nharderrors,dmin,nbadcrc,iappass,iera,message,xsnr)
         nsnr=nint(xsnr) 
         xdt=xdt-0.5
