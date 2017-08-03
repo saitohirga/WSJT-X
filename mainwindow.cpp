@@ -5578,7 +5578,12 @@ void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const&
     }
   m_rigState = s;
   auto old_freqNominal = m_freqNominal;
-  m_freqNominal = s.frequency () - m_astroCorrection.rx;
+  if (!old_freqNominal)
+    {
+      // always take initial rig frequency to avoid start up problems
+      // with bogus Tx frequencies
+      m_freqNominal = s.frequency ();
+    }
   if (old_state.online () == false && s.online () == true)
     {
       // initializing
@@ -5587,9 +5592,10 @@ void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const&
   if (s.frequency () != old_state.frequency () || s.split () != m_splitMode)
     {
       m_splitMode = s.split ();
-      if (!s.ptt ()) //!m_transmitting)
+      if (!s.ptt ())
         {
-            if (old_freqNominal != m_freqNominal)
+          m_freqNominal = s.frequency () - m_astroCorrection.rx;
+          if (old_freqNominal != m_freqNominal)
             {
               m_freqTxNominal = m_freqNominal;
               genCQMsg ();
@@ -6461,14 +6467,14 @@ void MainWindow::astroUpdate ()
 {
   if (m_astroWidget)
     {
+      // no Doppler correction while CTRL pressed allows manual tuning
+      if (Qt::ControlModifier & QApplication::queryKeyboardModifiers ()) return;
+
       auto correction = m_astroWidget->astroUpdate(QDateTime::currentDateTimeUtc (),
                                                    m_config.my_grid(), m_hisGrid,
                                                    m_freqNominal,
                                                    "Echo" == m_mode, m_transmitting,
                                                    !m_config.tx_QSY_allowed (), m_TRperiod);
-      // no Doppler correction while CTRL pressed allows manual tuning
-      if (Qt::ControlModifier & QApplication::queryKeyboardModifiers ()) return;
-
       // no Doppler correction in Tx if rig can't do it
       if (m_transmitting && !m_config.tx_QSY_allowed ()) return;
       if (!m_astroWidget->doppler_tracking ()) return;
