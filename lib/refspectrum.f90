@@ -1,17 +1,14 @@
-subroutine refspectrum(id2,id2b,kk,bclear,brefspec,buseref,fname)
+subroutine refspectrum(id2,bclear,brefspec,buseref,fname)
 
 ! Input:
 !  id2       i*2        Raw 16-bit integer data, 12000 Hz sample rate
 !  brefspec  logical    True when accumulating a reference spectrum
 
   parameter (NFFT=6912,NH=NFFT/2,NPOLYLOW=400,NPOLYHIGH=2600)
-  integer*2 id2(NFFT),id2b(120*12000)
+  integer*2 id2(NFFT)
   logical*1 bclear,brefspec,buseref,blastuse
   
-  real x0(0:NH-1)                         !Input samples
-  real x1(0:NH-1)                         !Output samples (delayed by one block)
-  real x0s(0:NH-1)                        !Saved upper half of input samples
-  real x1s(0:NH-1)                        !Saved upper half of output samples
+  real xs(0:NH-1)                         !Saved upper half of input chunk convolved with h(t) 
   real x(0:NFFT-1)                        !Work array
   real*4 w(0:NFFT-1)                      !Window function
   real*4 s(0:NH)                          !Average spectrum
@@ -19,6 +16,7 @@ subroutine refspectrum(id2,id2b,kk,bclear,brefspec,buseref,fname)
   real*8 xfit(1500),yfit(1500),sigmay(1500),a(5),chisqr !Polyfit arrays
   logical first
   complex cx(0:NH)                        !Complex frequency-domain work array
+  complex cfil(0:NH)
   character*(*) fname
   common/spectra/syellow(6827),ref(0:NH),filter(0:NH)
   equivalence(x,cx)
@@ -34,8 +32,7 @@ subroutine refspectrum(id2,id2b,kk,bclear,brefspec,buseref,fname)
      nsave=0
      s=0.0
      filter=1.0
-     x0s=0.
-     x1s=0.
+     xs=0.
      first=.false.
   endif
   if(bclear) s=0.
@@ -134,21 +131,27 @@ subroutine refspectrum(id2,id2b,kk,bclear,brefspec,buseref,fname)
 30      do i=1,NH
            read(16,1005,err=100,end=100) freq,s(i),ref(i),fil(i),filter(i)
         enddo
+! Make the filter causal for overlap and add.
+        cx(0)=0.0
+        cx(1:NH)=fil(1:NH)/NFFT
+        call four2a(x,NFFT,1,1,-1)
+        x=cshift(x,-400)
+        x(800:NH)=0.0
+        call four2a(cx,NFFT,1,-1,0)
+        cfil=cx
 100     close(16)
 110     continue
      endif
-     x0=id2(1:NH)
-     x(0:NH-1)=x0s                         !Previous 2nd half to new 1st half
-     x(NH:NFFT-1)=x0                       !New 2nd half
-     x0s=x0                                !Save the new 2nd half
-     x=w*x                                 !Apply window
-     call four2a(x,NFFT,1,-1,0)            !r2c FFT (to frequency domain)
-     cx=fil*cx
-     call four2a(cx,NFFT,1,1,-1)           !c2r FFT (back to time domain)
-     x1=x1s + x(0:NH-1)                    !Add previous segment's 2nd half
-!     id2(1:NH)=nint(x1)
-     if(kk.ge.6912) id2b(kk-6192+1:kk-6192+NH)=nint(x1)
-     x1s=x(NH:NFFT-1)                      !Save the new 2nd half
+! Use overlap and add method to apply causal reference filter.
+     x(0:NH-1)=id2(1:NH)
+     x(NH:NFFT-1)=0.0
+     x=x/NFFT
+     call four2a(x,NFFT,1,-1,0)
+     cx=cfil*cx
+     call four2a(cx,NFFT,1,1,-1)
+     x(0:NH-1)=x(0:NH-1)+xs    
+     xs=x(NH:NFFT-1)
+     id2(1:NH)=nint(x(0:NH-1))
   endif
   blastuse=buseref
   

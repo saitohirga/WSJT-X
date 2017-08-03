@@ -1,5 +1,9 @@
 module packjt
 
+! These variables are accessible from outside via "use packjt":
+  integer jt_itype,jt_nc1,jt_nc2,jt_ng,jt_k1,jt_k2
+  character*6 jt_c1,jt_c2,jt_c3
+  
   contains
 
 subroutine packbits(dbits,nsymd,m0,sym)
@@ -494,8 +498,17 @@ subroutine packbits(dbits,nsymd,m0,sym)
    ng=ng+32768
 
  ! Encode data into 6-bit words
- 20 continue
+20 continue
    if(itype.ne.6) itype=max(nv2a,nv2b)
+   jt_itype=itype
+   jt_c1=c1
+   jt_c2=c2
+   jt_c3=c3
+   jt_k1=k1
+   jt_k2=k2
+   jt_nc1=nc1
+   jt_nc2=nc2
+   jt_ng=ng
    dat(1)=iand(ishft(nc1,-22),63)                !6 bits
    dat(2)=iand(ishft(nc1,-16),63)                !6 bits
    dat(3)=iand(ishft(nc1,-10),63)                !6 bits

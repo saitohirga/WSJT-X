@@ -23,7 +23,7 @@ public:
     void displayQSY(QString text);
 
 signals:
-    void selectCallsign(bool shift, bool ctrl);
+    void selectCallsign(bool alt, bool ctrl);
 
 public slots:
   void appendText(QString const& text, QString const& bg = "white");
@@ -32,7 +32,7 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent *e);
 
 private:
-    void _appendDXCCWorkedB4(/*mod*/DecodedText& t1, QString &bg, LogBook logBook,
+  QString _appendDXCCWorkedB4(QString message, QString const& callsign, QString * bg, LogBook logBook,
                  QColor color_CQ, QColor color_DXCC, QColor color_NewCall);
 
   QTextCharFormat m_charFormat;

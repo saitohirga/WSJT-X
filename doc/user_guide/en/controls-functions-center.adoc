@@ -18,15 +18,22 @@ double-clicking on decoded text or a signal in the waterfall.  They
 can also be adjusted using the spinner controls.
 
 * You can force Tx frequency to the current Rx frequency by clicking
-the *Tx<-Rx* button, and vice-versa for *Rx<-Tx*.  Check the box *Lock
-Tx=Rx* to make the frequencies always track one another.  The
-on-the-air frequency of your lowest JT9 or JT65 tone is the sum of
-dial frequency and audio Tx frequency.
+the *Tx<-Rx* button, and vice-versa for *Rx<-Tx*.  The on-the-air
+frequency of your lowest JT9 or JT65 tone is the sum of dial frequency
+and audio Tx frequency.
+
+* Check the box *Lock Tx=Rx* to make the frequencies always track one
+another.
 
 TIP: In general we do not recommend using *Lock Tx=Rx* since it
-encourages poor radio etiquette when running a frequency.  With *Lock
-Tx=Rx* checked, your own Tx frequency will move around following your
+encourages poor radio etiquette when running a frequency.  With this
+box checked, your own Tx frequency will move around following your
 callers.
+
+* For modes lacking a multi-decode feature, or when *Enable
+VHF/UHF/Microwave features* has been checked on the *Settings ->
+General* tab, the *F Tol* control sets a frequency toilerance range
+over which decoding will be attempted, centered on the Rx frequency.
 
 * The *Report* control lets you change a signal report that has been
 inserted automatically. Typical reports for the various modes fall in
@@ -37,13 +44,36 @@ TIP: Consider reducing power if your QSO partner reports your
 signal above -5 dB in one of the _WSJT-X_ slow modes.  These are
 supposed to be weak signal modes!
 
-* With *Split operation* activated on the *Settings -> Radio* tab, you
-can activate the spinner control *Tx CQ nnn* by checking the box to
-its right.  The program will then generate something like `CQ nnn
-K1ABC FN42` for your CQ message, where `nnn` is the kHz portion of
-your current operating frequency.  Your CQ message *Tx6* will then be
-transmitted at the calling frequency selected in the *Tx CQ nnn* spinner
-control.  All other messages will be transmitted at your current
-operating frequency.  On reception, when you double-click on a message
-like `CQ nnn K1ABC FN42` your rig will QSY to the specified frequency
-so you can call the station at his specified response frequency.
+* In some circumstances, especially on VHF and higher bands, you can
+select a supported submode of the active mode by using the *Submode*
+control.  The *Sync* control sets a minimum threshold for establishing
+time and frequency synchronization with a received signal.
+
+* Spinner control *T/R xx s* sets sequence lengths for transmission
+and reception in ISCAT, MSK144, and the fast JT9 modes.
+
+* With *Split operation* activated on the *Settings -> Radio* tab, in
+MSK144 and the fast JT9 submodes you can activate the spinner control
+*Tx CQ nnn* by checking the box to its right.  The program will then
+generate something like `CQ nnn K1ABC FN42` for your CQ message, where
+`nnn` is the kHz portion of your current operating frequency.  Your CQ
+message *Tx6* will then be transmitted at the calling frequency
+selected in the *Tx CQ nnn* spinner control.  All other messages will
+be transmitted at your current operating frequency.  On reception,
+when you double-click on a message like `CQ nnn K1ABC FN42` your rig
+will QSY to the specified frequency so you can call the station at his
+specified response frequency.
+
+* Checkboxes at bottom center of the main window control special
+features for particular operating modes:
+
+** *Sh* enables shorthand messages in JT4, JT65, and MSK144 modes
+
+** *Fast* enables fast JT9 submodes
+
+** *Auto Seq* enables auto-sequencing of Tx messages
+
+** *Call 1st* enables automatic response to the first decoded
+responder to your CQ
+
+** *Tx6* toggles between two types of shorthand messages in JT4 mode

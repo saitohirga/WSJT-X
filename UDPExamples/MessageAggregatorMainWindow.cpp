@@ -91,9 +91,9 @@ MessageAggregatorMainWindow::MessageAggregatorMainWindow ()
   connect (server_, &MessageServer::decode, [this] (bool is_new, QString const& id, QTime time
                                                     , qint32 snr, float delta_time
                                                     , quint32 delta_frequency, QString const& mode
-                                                    , QString const& message) {
+                                                    , QString const& message, bool low_confidence) {
              decodes_model_->add_decode (is_new, id, time, snr, delta_time, delta_frequency, mode, message
-                                         , dock_widgets_[id]->fast_mode ());});
+                                         , low_confidence, dock_widgets_[id]->fast_mode ());});
   connect (server_, &MessageServer::WSPR_decode, beacons_model_, &BeaconsModel::add_beacon_spot);
   connect (server_, &MessageServer::clear_decodes, decodes_model_, &DecodesModel::clear_decodes);
   connect (server_, &MessageServer::clear_decodes, beacons_model_, &BeaconsModel::clear_decodes);

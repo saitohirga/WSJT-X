@@ -3,7 +3,9 @@
 For quick reference, here's a short list of features and capabilities
 added to _WSJT-X_ since Version 1.7.0:
 
-- New modes: *FT8* and *FreqCal*
+- New mode *FT8* designed for fast QSOs
+
+- New tool *FreqCal* for accurate frequency calibration of your radio
 
 - Improved decoding performance for JT65, QRA64, and MSK144
 
@@ -11,18 +13,19 @@ added to _WSJT-X_ since Version 1.7.0:
 
 - Experimental amplitude and phase equalization for MSK144
     
-- Options to minimize screen space used by the *Main* and *Wide Graph*
+- Options to minimize screen space used by *Main* and *Wide Graph*
 windows
     
 - New set of suggested default frequencies specific to the three IARU
 Regions.
 
-- Enhanced scheme for managing table of default operating frequencies
+- Enhanced scheme for managing table of suggested default operating
+frequencies
 
-- Improved CAT control for many rigs, including those controlled
+- Improved CAT control for many radios, including those controlled
 through Commander or OmniRig.
 
-- Bug fixes and tweaks to the user interface
+- Bug fixes and tweaks to user interface
 
 === Documentation Conventions
 

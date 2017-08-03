@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>521</width>
+    <width>536</width>
     <height>507</height>
    </rect>
   </property>
@@ -188,6 +188,12 @@
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
            </spacer>
           </item>
           <item row="1" column="0">
@@ -236,6 +242,12 @@
              <spacer name="verticalSpacer">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
               </property>
              </spacer>
             </item>
@@ -300,6 +312,12 @@
              <spacer name="horizontalSpacer">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
               </property>
              </spacer>
             </item>
@@ -389,6 +407,12 @@ quiet period when decoding is done.</string>
              <spacer name="horizontalSpacer_7">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
               </property>
              </spacer>
             </item>
@@ -1882,6 +1906,12 @@ for assessing propagation and system performance.</string>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
            </spacer>
           </item>
          </layout>
@@ -2178,6 +2208,12 @@ Right click for insert and delete options.</string>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
         </spacer>
        </item>
        <item row="2" column="1">
@@ -2197,6 +2233,12 @@ Right click for insert and delete options.</string>
         <spacer name="horizontalSpacer_8">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
          </property>
         </spacer>
        </item>
@@ -2300,7 +2342,7 @@ Right click for insert and delete options.</string>
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Exchange 4-character grid locators instead of reports. See User Guide for details.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>MSK144 Contest Mode</string>
+             <string>FT8 and MSK144 Contest Mode</string>
             </property>
            </widget>
           </item>
@@ -2595,9 +2637,9 @@ soundcard changes</string>
   <buttongroup name="CAT_data_bits_button_group"/>
   <buttongroup name="split_mode_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
-  <buttongroup name="TX_mode_button_group"/>
-  <buttongroup name="CAT_stop_bits_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="CAT_stop_bits_button_group"/>
   <buttongroup name="TX_audio_source_button_group"/>
+  <buttongroup name="TX_mode_button_group"/>
  </buttongroups>
 </ui>

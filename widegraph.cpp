@@ -360,7 +360,7 @@ void WideGraph::setRxBand (QString const& band)
   else
     {
       ui->fSplitSpinBox->setValue (m_fMinPerBand.value (band, 2500).toUInt ());
-      ui->fSplitSpinBox->setEnabled (true);
+      ui->fSplitSpinBox->setEnabled (m_mode=="JT9+JT65");
     }
   ui->widePlot->setRxBand(band);
   setRxRange ();

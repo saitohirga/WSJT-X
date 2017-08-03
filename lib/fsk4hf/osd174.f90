@@ -1,9 +1,10 @@
-subroutine osd174(llr,norder,decoded,cw,nhardmin,dmin)
+subroutine osd174(llr,apmask,norder,decoded,cw,nhardmin,dmin)
 !
 ! An ordered-statistics decoder for the (174,87) code.
 ! 
 include "ldpc_174_87_params.f90"
 
+integer*1 apmask(N),apmaskr(N)
 integer*1 gen(K,N)
 integer*1 genmrb(K,N),g2(N,K)
 integer*1 temp(K),m0(K),me(K),mi(K)
@@ -36,6 +37,8 @@ endif
 
 ! re-order received vector to place systematic msg bits at the end
 rx=llr(colorder+1) 
+apmaskr=apmask(colorder+1)
+
 
 ! hard decode the received word
 hdec=0            
@@ -71,7 +74,7 @@ do id=1,K ! diagonal element indices
       endif
       do ii=1,K
         if( ii .ne. id .and. genmrb(ii,id) .eq. 1 ) then
-          genmrb(ii,1:N)=mod(genmrb(ii,1:N)+genmrb(id,1:N),2)
+          genmrb(ii,1:N)=ieor(genmrb(ii,1:N),genmrb(id,1:N))
         endif
       enddo
       exit
@@ -91,6 +94,7 @@ hdec=hdec(indices)   ! hard decisions from received symbols
 m0=hdec(1:K)         ! zero'th order message
 absrx=absrx(indices) 
 rx=rx(indices)       
+apmaskr=apmaskr(indices)
 
 s1=sum(absrx(1:K))
 s2=sum(absrx(K+1:N))
@@ -110,22 +114,24 @@ do iorder=1,norder
   mi(K-iorder+1:K)=1
   iflag=0
   do while(iflag .ge. 0 ) 
-    dpat=sum(mi*absrx(1:K))
-    nt=nt+1
-    if( dpat .lt. thresh ) then  ! reject unlikely error patterns
-      me=ieor(m0,mi)
-      call mrbencode(me,ce,g2,N,K)
-      nxor=ieor(ce,hdec)
-      dd=sum(nxor*absrx)
-      if( dd .lt. dmin ) then
-        dmin=dd
-        cw=ce
-        nhardmin=sum(nxor)
-        thresh=rho*dmin
+    if(all(iand(apmaskr(1:K),mi).eq.0)) then ! reject patterns with ap bits
+      dpat=sum(mi*absrx(1:K))
+      nt=nt+1
+      if( dpat .lt. thresh ) then  ! reject unlikely error patterns
+        me=ieor(m0,mi)
+        call mrbencode(me,ce,g2,N,K)
+        nxor=ieor(ce,hdec)
+        dd=sum(nxor*absrx)
+        if( dd .lt. dmin ) then
+          dmin=dd
+          cw=ce
+          nhardmin=sum(nxor)
+          thresh=rho*dmin
+        endif
+      else
+        nrejected=nrejected+1
       endif
-    else
-      nrejected=nrejected+1
-    endif
+  endif
 ! get the next test error pattern, iflag will go negative
 ! when the last pattern with weight iorder has been generated
     call nextpat(mi,k,iorder,iflag)

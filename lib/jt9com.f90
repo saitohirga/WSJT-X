@@ -9,7 +9,9 @@
      integer(c_int) :: nutc
      logical(c_bool) :: ndiskdat
      integer(c_int) :: ntr
+     integer(c_int) :: nQSOProgress ! See MainWindow::m_QSOProgress for values
      integer(c_int) :: nfqso
+     integer(c_int) :: nftx
      logical(c_bool) :: newdat
      integer(c_int) :: npts8
      integer(c_int) :: nfa
@@ -21,6 +23,8 @@
      integer(c_int) :: nsubmode
      logical(c_bool) :: nagain
      integer(c_int) :: ndepth
+     logical(c_bool) :: lapon 
+     integer(c_int) :: napwid
      integer(c_int) :: ntxmode
      integer(c_int) :: nmode
      integer(c_int) :: minw

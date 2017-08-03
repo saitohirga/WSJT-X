@@ -11,9 +11,9 @@ purposes a good setting is 6 or 7.
 decodes using Deep Search.  Higher numbers will display results 
 with lower confidence levels.
 
-- Check *MSK144 Contest Mode* to cause generation and auto-sequencing
-of MSK144 messages with four-character grid locators in place of signal
-reports.
+- Check *FT8 and MSK144 Contest Mode* to enable generation and
+auto-sequencing of MSK144 messages with four-character grid locators
+in place of signal reports.
 
 - Check *Two-pass decoding* to enable a second decoding pass after
 signals producing first-pass decodes have been subtracted from the

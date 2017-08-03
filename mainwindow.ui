@@ -762,16 +762,6 @@ QLabel[oob=&quot;true&quot;] {
                        </widget>
                       </item>
                       <item>
-                       <widget class="QCheckBox" name="cbWeak">
-                        <property name="toolTip">
-                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Call the weakest decoded responder to my CQ.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                        </property>
-                        <property name="text">
-                         <string>Weak</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
                        <widget class="QCheckBox" name="cbTx6">
                         <property name="enabled">
                          <bool>false</bool>
@@ -838,7 +828,7 @@ QLabel[oob=&quot;true&quot;] {
                    <item>
                     <widget class="QCheckBox" name="cbTxLock">
                      <property name="toolTip">
-                      <string>Tx frequency tracks Rx frequency</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tx frequency tracks Rx frequency. &lt;/p&gt;&lt;p&gt;Not recommeded for general use!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="text">
                       <string>Lock Tx=Rx</string>
@@ -975,7 +965,7 @@ QLabel[oob=&quot;true&quot;] {
                  <item row="1" column="0">
                   <widget class="QCheckBox" name="txFirstCheckBox">
                    <property name="toolTip">
-                    <string>Check to Tx in even minutes, uncheck for odd minutes</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to Tx in even-numbered minutes or sequences, starting at 0; uncheck for odd sequences.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="text">
                     <string>Tx even/1st</string>
@@ -1097,9 +1087,9 @@ QLabel[oob=&quot;true&quot;] {
                     </widget>
                    </item>
                    <item row="1" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-                    <widget class="QRadioButton" name="txrb1">
+                    <widget class="DoubleClickableRadioButton" name="txrb1">
                      <property name="toolTip">
-                      <string>Send this message in next Tx interval</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Send this message in next Tx interval&lt;/p&gt;&lt;p&gt;Double click to toggle the use of the Tx1 message to start a QSO with a station&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="text">
                       <string/>
@@ -1113,7 +1103,7 @@ QLabel[oob=&quot;true&quot;] {
                     </widget>
                    </item>
                    <item row="1" column="2">
-                    <widget class="QPushButton" name="txb1">
+                    <widget class="DoubleClickablePushButton" name="txb1">
                      <property name="maximumSize">
                       <size>
                        <width>30</width>
@@ -1121,7 +1111,7 @@ QLabel[oob=&quot;true&quot;] {
                       </size>
                      </property>
                      <property name="toolTip">
-                      <string>Switch to this Tx message NOW</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch to this Tx message NOW&lt;/p&gt;&lt;p&gt;Double click to toggle the use of the Tx1 message to start a QSO with a station&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="layoutDirection">
                       <enum>Qt::LeftToRight</enum>
@@ -1235,9 +1225,9 @@ QLabel[oob=&quot;true&quot;] {
                     </widget>
                    </item>
                    <item row="4" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-                    <widget class="QRadioButton" name="txrb4">
+                    <widget class="DoubleClickableRadioButton" name="txrb4">
                      <property name="toolTip">
-                      <string>Send this message in next Tx interval</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Send this message in next Tx interval&lt;/p&gt;&lt;p&gt;Double-click to toggle between RRR and RR73 messages in Tx4&lt;/p&gt;&lt;p&gt;RR73 messages should only be used when you are reasonably confident that no message repititions will be required&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="text">
                       <string/>
@@ -1251,7 +1241,7 @@ QLabel[oob=&quot;true&quot;] {
                     </widget>
                    </item>
                    <item row="4" column="2">
-                    <widget class="QPushButton" name="txb4">
+                    <widget class="DoubleClickablePushButton" name="txb4">
                      <property name="maximumSize">
                       <size>
                        <width>30</width>
@@ -1259,7 +1249,7 @@ QLabel[oob=&quot;true&quot;] {
                       </size>
                      </property>
                      <property name="toolTip">
-                      <string>Switch to this Tx message NOW</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch to this Tx message NOW&lt;/p&gt;&lt;p&gt;Double-click to toggle between RRR and RR73 messages in Tx4&lt;/p&gt;&lt;p&gt;RR73 messages should only be used when you are reasonably confident that no message repititions will be required&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="text">
                       <string>Tx &amp;4</string>
@@ -1292,9 +1282,9 @@ list. The list can be maintained in Settings (F2).</string>
                     </widget>
                    </item>
                    <item row="5" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-                    <widget class="QRadioButton" name="txrb5">
+                    <widget class="DoubleClickableRadioButton" name="txrb5">
                      <property name="toolTip">
-                      <string>Send this message in next Tx interval</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Send this message in next Tx interval&lt;/p&gt;&lt;p&gt;Double-click to reset to the standard 73 message&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="text">
                       <string/>
@@ -1308,7 +1298,7 @@ list. The list can be maintained in Settings (F2).</string>
                     </widget>
                    </item>
                    <item row="5" column="2">
-                    <widget class="QPushButton" name="txb5">
+                    <widget class="DoubleClickablePushButton" name="txb5">
                      <property name="maximumSize">
                       <size>
                        <width>30</width>
@@ -1316,7 +1306,7 @@ list. The list can be maintained in Settings (F2).</string>
                       </size>
                      </property>
                      <property name="toolTip">
-                      <string>Switch to this Tx message NOW</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch to this Tx message NOW&lt;/p&gt;&lt;p&gt;Double-click to reset to the standard 73 message&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="text">
                       <string>Tx &amp;5</string>
@@ -1935,28 +1925,6 @@ list. The list can be maintained in Settings (F2).</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1" rowspan="2">
-         <widget class="QSlider" name="inGain">
-          <property name="toolTip">
-           <string>Digital gain for graph windows</string>
-          </property>
-          <property name="minimum">
-           <number>-50</number>
-          </property>
-          <property name="maximum">
-           <number>50</number>
-          </property>
-          <property name="value">
-           <number>20</number>
-          </property>
-          <property name="tickPosition">
-           <enum>QSlider::TicksBelow</enum>
-          </property>
-          <property name="tickInterval">
-           <number>10</number>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="2">
          <widget class="QWidget" name="DX_controls_widget" native="true">
           <property name="sizePolicy">
@@ -2409,6 +2377,7 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="separator"/>
     <addaction name="actionInclude_averaging"/>
     <addaction name="actionInclude_correlation"/>
+    <addaction name="actionEnable_AP"/>
     <addaction name="actionEnable_AP_DXcall"/>
    </widget>
    <widget class="QMenu" name="menuSave">
@@ -2943,9 +2912,6 @@ QPushButton[state=&quot;ok&quot;] {
    <property name="text">
     <string>Enable AP for DX Call</string>
    </property>
-   <property name="shortcut">
-    <string/>
-   </property>
   </action>
   <action name="actionFreqCal">
    <property name="checkable">
@@ -3011,6 +2977,14 @@ QPushButton[state=&quot;ok&quot;] {
     <string>FT8</string>
    </property>
   </action>
+  <action name="actionEnable_AP">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Enable AP</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -3040,6 +3014,16 @@ QPushButton[state=&quot;ok&quot;] {
    <extends>QSpinBox</extends>
    <header>RestrictedSpinBox.hpp</header>
   </customwidget>
+  <customwidget>
+   <class>DoubleClickableRadioButton</class>
+   <extends>QRadioButton</extends>
+   <header>DoubleClickableRadioButton.hpp</header>
+  </customwidget>
+  <customwidget>
+   <class>DoubleClickablePushButton</class>
+   <extends>QPushButton</extends>
+   <header>DoubleClickablePushButton.hpp</header>
+  </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>logQSOButton</tabstop>
@@ -3051,7 +3035,6 @@ QPushButton[state=&quot;ok&quot;] {
   <tabstop>autoButton</tabstop>
   <tabstop>stopTxButton</tabstop>
   <tabstop>tuneButton</tabstop>
-  <tabstop>inGain</tabstop>
   <tabstop>dxCallEntry</tabstop>
   <tabstop>dxGridEntry</tabstop>
   <tabstop>lookupButton</tabstop>

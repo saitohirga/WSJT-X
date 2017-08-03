@@ -40,8 +40,8 @@ void DisplayText::setContentFont(QFont const& font)
 void DisplayText::mouseDoubleClickEvent(QMouseEvent *e)
 {
   bool ctrl = (e->modifiers() & Qt::ControlModifier);
-  bool shift = (e->modifiers() & Qt::ShiftModifier);
-  emit(selectCallsign(shift,ctrl));
+  bool alt = (e->modifiers() & Qt::AltModifier);
+  emit(selectCallsign(alt,ctrl));
   QTextEdit::mouseDoubleClickEvent(e);
 }
 
@@ -72,24 +72,24 @@ void DisplayText::appendText(QString const& text, QString const& bg)
 }
 
 
-void DisplayText::_appendDXCCWorkedB4(DecodedText& t1, QString& bg,
+QString DisplayText::_appendDXCCWorkedB4(QString message, QString const& callsign, QString * bg,
                                       LogBook logBook, QColor color_CQ,
                                       QColor color_DXCC,
                                       QColor color_NewCall)
 {
-    QString call = t1.CQersCall ();
+    QString call = callsign;
     QString countryName;
     bool callWorkedBefore;
     bool countryWorkedBefore;
 
     if(call.length()==2) {
-      int i0=t1.indexOf("CQ "+call);
-      call=t1.mid(i0+6,-1);
+      int i0=message.indexOf("CQ "+call);
+      call=message.mid(i0+6,-1);
       i0=call.indexOf(" ");
       call=call.mid(0,i0);
     }
-    if(call.length()<3) return;
-    if(!call.contains(QRegExp("[0-9]|[A-Z]"))) return;
+    if(call.length()<3) return message;
+    if(!call.contains(QRegExp("[0-9]|[A-Z]"))) return message;
 
     logBook.match(/*in*/call,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
     int charsAvail = 48;
@@ -97,31 +97,31 @@ void DisplayText::_appendDXCCWorkedB4(DecodedText& t1, QString& bg,
     // the decoder (seems) to always generate 41 chars. For a normal CQ call, the last five are spaces
     // TODO this magic 37 characters is also referenced in MainWindow::doubleClickOnCall()
     int nmin=37;
-    int i=t1.indexOf(" CQ ");
-    int k=t1.string().mid(i+4,3).toInt();
+    int i=message.indexOf(" CQ ");
+    int k=message.mid(i+4,3).toInt();
     if(k>0 and k<999) nmin += 4;
-    int s3 = t1.indexOf(" ",nmin);
+    int s3 = message.indexOf(" ",nmin);
     if (s3 < nmin) s3 = nmin; // always want at least the characters to position 35
     s3 += 1; // convert the index into a character count
-    t1 = t1.left(s3);  // reduce trailing white space
+    message = message.left(s3);  // reduce trailing white space
     charsAvail -= s3;
     if (charsAvail > 4)
     {
         if (!countryWorkedBefore) // therefore not worked call either
         {
-            t1 += "!";
-            bg=color_DXCC.name();
+            message += "!";
+            *bg = color_DXCC.name();
         }
         else
             if (!callWorkedBefore) // but have worked the country
             {
-                t1 += "~";
-                bg=color_NewCall.name();
+                message += "~";
+                *bg = color_NewCall.name();
             }
             else
             {
-                t1 += " ";  // have worked this call before
-                bg=color_CQ.name();
+                message += " ";  // have worked this call before
+                *bg = color_CQ.name();
             }
         charsAvail -= 1;
 
@@ -155,8 +155,9 @@ void DisplayText::_appendDXCCWorkedB4(DecodedText& t1, QString& bg,
             countryName.replace ("Guantanamo Bay", "U.S.A.");
           }
 
-        t1 += countryName;
+        message += countryName;
     }
+    return message;
 }
 
 void DisplayText::displayDecodedText(DecodedText decodedText, QString myCall,
@@ -181,11 +182,13 @@ void DisplayText::displayDecodedText(DecodedText decodedText, QString myCall,
           or decodedText.indexOf (" " + myCall + ">") >= 0)) {
       bg=color_MyCall.name();
     }
-    // if enabled add the DXCC entity and B4 status to the end of the preformated text line t1
+    // if enabled add the DXCC entity and B4 status to the end of the
+    // preformated text line t1
+    auto message = decodedText.string ();
     if (displayDXCCEntity && CQcall)
-        _appendDXCCWorkedB4(/*mod*/decodedText,bg,logBook,color_CQ,
-                            color_DXCC,color_NewCall);
-    appendText(decodedText.string(),bg);
+      message = _appendDXCCWorkedB4 (message, decodedText.CQersCall (), &bg, logBook, color_CQ,
+                                     color_DXCC, color_NewCall);
+    appendText (message, bg);
 }
 
 

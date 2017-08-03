@@ -63,6 +63,7 @@ set (UG_IMGS
   images/170709_135615.wav.png
   images/AstroData_2.png
   images/Astronomical_data.png
+  images/auto-seq.png
   images/band-settings.png
   images/colors.png
   images/config-menu.png
@@ -104,6 +105,7 @@ set (UG_IMGS
   images/setup-menu.png
   images/special-mouse-commands.png
   images/status-bar-a.png
+  images/tools-menu.png
   images/traditional-msg-box.png
   images/tx-macros.png
   images/view-menu.png

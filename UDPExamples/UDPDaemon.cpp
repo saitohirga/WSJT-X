@@ -69,13 +69,13 @@ public:
 
   Q_SLOT void decode_added (bool is_new, QString const& client_id, QTime time, qint32 snr
       , float delta_time, quint32 delta_frequency, QString const& mode
-      , QString const& message)
+                            , QString const& message, bool low_confidence)
   {
     if (client_id == id_)
       {
         qDebug () << "new:" << is_new << "t:" << time << "snr:" << snr
                   << "Dt:" << delta_time << "Df:" << delta_frequency
-                  << "mode:" << mode;
+                  << "mode:" << mode << "Confidence:" << (low_confidence ? "low" : "high");
         std::cout << tr ("%1: Decoded %2").arg (id_).arg (message).toStdString () << std::endl;
       }
   }

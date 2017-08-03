@@ -61,7 +61,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   if(ios.ne.0) then
      nfail=nfail+1
      if(nfail.le.3) then
-        call sleep_msec(100)
+        call sleep_msec(10)
         go to 10
      endif
   endif
@@ -70,11 +70,11 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 ! We're in FT8 mode
      call timer('decft8  ',0)
      newdat=params%newdat
-     call my_ft8%decode(ft8_decoded,id2,params%nfqso,                   &
-          newdat,params%nutc,params%nfa,      &
-          params%nfb,logical(params%nagain),     &
-          params%ndepth,params%nsubmode,      &
-          params%mycall,params%hiscall,params%hisgrid)
+     call my_ft8%decode(ft8_decoded,id2,params%nQSOProgress,params%nfqso,    &
+          params%nftx,newdat,params%nutc,params%nfa,params%nfb,              &
+          params%nexp_decode,params%ndepth,logical(params%nagain),           &
+          logical(params%lapon),params%napwid,params%mycall,                 &
+          params%mygrid,params%hiscall,params%hisgrid)
      call timer('decft8  ',1)
      go to 800
   endif
@@ -390,7 +390,7 @@ contains
     end select
   end subroutine jt9_decoded
 
-  subroutine ft8_decoded (this,sync,snr,dt,freq,nbadcrc,decoded)
+  subroutine ft8_decoded (this,sync,snr,dt,freq,decoded,nap,qual)
     use ft8_decode
     implicit none
 
@@ -399,17 +399,24 @@ contains
     integer, intent(in) :: snr
     real, intent(in) :: dt
     real, intent(in) :: freq
-    integer, intent(in) :: nbadcrc
     character(len=22), intent(in) :: decoded
-
-    if(nbadcrc.eq.0) then
-       write(*,1000) params%nutc,snr,dt,nint(freq),decoded
-1000   format(i6.6,i4,f5.1,i5,' ~ ',1x,a22)
-       write(13,1002) params%nutc,nint(sync),snr,dt,freq,0,decoded
-1002   format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a22,' FT8')
-       call flush(6)
-       call flush(13)
+    integer, intent(in) :: nap 
+    real, intent(in) :: qual 
+    character*2 annot
+    character*22 decoded0
+  
+    decoded0=decoded 
+    annot='  ' 
+    if(nap.ne.0) then
+      write(annot,'(a1,i1)') 'a',nap
+      if(qual.lt.0.17) decoded0(22:22)='?'
     endif
+    write(*,1000) params%nutc,snr,dt,nint(freq),decoded0,annot
+1000 format(i6.6,i4,f5.1,i5,' ~ ',1x,a22,1x,a2)
+    write(13,1002) params%nutc,nint(sync),snr,dt,freq,0,decoded0
+1002 format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a22,' FT8')
+    call flush(6)
+    call flush(13)
     
     select type(this)
     type is (counting_ft8_decoder)

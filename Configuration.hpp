@@ -73,6 +73,7 @@ public:
                           QWidget * parent = nullptr);
   ~Configuration ();
 
+  void select_tab (int);
   int exec ();
   bool is_active () const;
 

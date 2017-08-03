@@ -22,6 +22,17 @@ and finally *Dgrd*, an estimate of the signal degradation in dB,
 relative to the best possible time with the moon at perigee in a cold
 part of the sky.
 
+On the higher microwave bands, where Faraday rotation is minimal and
+linear polarization is often used, spatial offset will reduce signal
+levels.  Some stations have implemented mechanical polarisation
+adjustment to overcome this loss, and the amount of rotation needed is
+predicted in real time by the value of *Dpol*.  Positive Dpol means
+that the antenna should be rotated in a clockwise direction looking
+from behind the antenna towards the moon.  For a dish antenna, the
+feed should similarly be rotated clockwise looking into the mouth of
+the feed. A negative value for Dpol means anticlockwise rotation.
+
+
 The state of the art for establishing three-dimensional locations of
 the sun, moon, and planets at a specified time is embodied in a
 numerical model of the solar system maintained at the Jet Propulsion
