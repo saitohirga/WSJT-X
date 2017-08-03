@@ -212,7 +212,7 @@ longer at distances close to the upper limit.  But with patience, 100
 Watts or more, and a single yagi it can usually be done.  The
 following screen shot shows two 15-second MSK144 transmissions from
 W5ADD during a 50 MHz QSO with K1JT, at a distance of about 1800 km
-(1100 mi).  The decoded segments have been encircled on the *Fast
+(1100 mi).  The decoded segments have been marked on the *Fast
 Graph* spectral display.
 
 image::MSK144.png[align="center",alt="MSK144"]
