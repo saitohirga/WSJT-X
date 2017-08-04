@@ -73,7 +73,6 @@ void DisplayText::appendText(QString const& text, QColor bg)
   cursor.insertText (text);
 
   // position so viewport scrolled to left
-  cursor.movePosition (QTextCursor::Up);
   cursor.movePosition (QTextCursor::StartOfLine);
   setTextCursor (cursor);
   ensureCursorVisible ();
