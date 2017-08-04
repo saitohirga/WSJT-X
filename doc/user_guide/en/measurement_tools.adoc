@@ -1,14 +1,74 @@
-=== Calibrating Your Radio
+=== Frequency Calibration
 
- [ ... TBD ... ]
+Many _WSJT-X_ capabilities depend on signal-detection bandwidths no
+more than a few Hz.  Frequency accuracy and stability are therefore
+unusually important.  We provide tools to enable accurate frequency
+calibration of your radio, as well as precise frequency measurement of
+on-the-air signals.  The calibration procedure works by automatically
+cycling your CAT-controlled radio through a series of preset
+frequencies of carrier-based signals at reliably known frequencies,
+measuring the error in dial frequency for each signal.
+
+You will probably find it convenient to define and use a special
+<<CONFIG-MENU,Configuration>> dedicated to frequency calibration.
+Then complete the following steps, as appropriate for your system.
+
+- Switch to FreqCal mode
+
+- In the _Working Frequencies_ box on the *Settings -> Frequencies*
+tab, delete any default frequencies for *FreqCal* mode that are not
+relevant for your location.  You may want to replace some of them with
+reliably known frequencies receivable at your location.
+
+TIP: We find major-city AM broadcast stations generally serve well as
+frequency calibrators at the low frequency end of the spectrum.  In
+North America we also use the standard time-and-frequency broadcasts
+of WWV at 2.500, 5.000, 10.000, 15.000, and 20.000 MHz, and CHU at
+3.330, 7.850, and 14.670 MHz.  Similar shortwave signals are available
+in other parts of the world.
+
+- During the calibration procedure, the radio's USB dial frequency is
+offset 1500 Hz below each *FreqCal* entry in the default frequencies
+list.  As shown in the ecreen shot below, detected signal carriers
+therefore appear at about 1500 Hz in the WSJT-X waterfall.
+
+image::FreqCal.png[align="left",alt="FreqCal"]
+
+With modern synthesized radios, small measured offsets from 1500 Hz
+will exhibit a straight-line dependence on frequency.  You can
+approximate the calibration of your radio by simply dividing the
+measured frequency offset (in Hz) at the highest reliable frequency by
+the nominal frequency itself (in MHz).  For example, the 20 MHz
+measurement for WWV shown above produced a measured tone offset of
+24.6 Hz, displayed in the _WSJT-X_ decoded text window.  The resulting
+calibration constant is 24.6/20=1.23 parts per million.  This number
+may be entered as *Slope* on the *settings -> Frequencies* tab.
+
+A more precise calibration can be effected by fitting the intercept
+and slope of a straight line to the whole sequence of calibration
+measurements, as shown for these measurements in the graph plotted
+below.  Software tools for completing this task are included with the
+_WSJT-X_ installation, and detailed instructions for their use are
+available at https://physics.princeton.edu/pulsar/k1jt/FMT_User.pdf.
+Using these tools and no specialized hardware beyond your
+CAT-interfaced radio, you can calibrate the radio to better than 1 Hz
+and compete very effectively in the ARRL's periodic Frequency
+Measuring Tests.
+
+image::FreqCal_Graph.png[align="left",alt="FreqCal_Graph"]
 
 === Reference Spectrum
 
 WSJT-X provides a tool that can be used to determine the detailed
 shape of your receiver's passband.  Disconnect your antenna or tune to
 a quiet frequency with no signals.  With WSJT-X running in one of the
-slow modes, select *Measure reference spectrum* from the *File* menu.
+slow modes, select *Measure reference spectrum* from the *Tools* menu.
 Wait for about a minute and then hit the *Stop* button.  A file named
-`refspec.dat` should appear in your log directory.  
+`refspec.dat` will appear in your log directory.  
 
- [ ... more to come ...]
+ [ ... TBD ... ]
+
+=== Equalization
+
+ [ ... TBD ... ]
+
