@@ -8,7 +8,7 @@
 class SplashScreen final
   : public QSplashScreen
 {
-  Q_OBJECT;
+  Q_OBJECT
 
 public:
   SplashScreen ();
