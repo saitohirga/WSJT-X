@@ -11,10 +11,6 @@ purposes a good setting is 6 or 7.
 decodes using Deep Search.  Higher numbers will display results 
 with lower confidence levels.
 
-- Check *FT8 and MSK144 Contest Mode* to enable generation and
-auto-sequencing of MSK144 messages with four-character grid locators
-in place of signal reports.
-
 - Check *Two-pass decoding* to enable a second decoding pass after
 signals producing first-pass decodes have been subtracted from the
 received data stream.
@@ -34,6 +30,10 @@ of Tx audio.
 IMPORTANT: For the health of your T/R relays and external
 preamplifier, we strongly recommend using a hardware sequencer and
 testing to make sure that sequencing is correct.
+
+- Check *FT8 and MSK144 Contest Mode* to enable generation and
+auto-sequencing of MSK144 messages with four-character grid locators
+in place of signal reports.
 
 - Check *x 2 Tone spacing* to generate Tx audio with twice the normal
 tone spacing.  This feature is intended for use with specialized LF/MF

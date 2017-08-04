@@ -2718,7 +2718,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           }
 
       DecodedText decodedtext;
-      decodedtext = t.replace(QChar::LineFeed,""); //t.replace(QChar::LineFeed,"").mid(0,t.length()-4);
+      decodedtext = QString::fromUtf8 (t.constData ()).remove (QRegularExpression {"\r|\n"});
 
         //Left (Band activity) window
       if(!bAvgMsg) {

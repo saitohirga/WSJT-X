@@ -37,5 +37,5 @@ window is displayed.
 - _Remember power settings by band_: Checking either of these will
 cause _WSJT-X_ to remember the *Pwr* slider setting for that operation
 on a band-by-band basis.  For example, when *Tune* is checked here and
-you click the *Tune* on the main window, the power slider will change
-to the most recent setting used for *Tune* on the band in use.
+you click the *Tune* button on the main window, the power slider will
+change to the most recent setting used for *Tune* on the band in use.

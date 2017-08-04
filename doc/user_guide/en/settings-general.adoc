@@ -17,6 +17,6 @@ NOTE: If you are using a callsign with an add-on prefix or
 suffix, or wish to work a station using such a call, be sure to read
 the section <<COMP-CALL,Compound Callsigns>>.
 
-IMPORTANT: Enabling VHF/UHF/Microwave features necessarily disables
-the wideband multi-decode capability of JT65.  In most circumstances
-you should turn this feature off when operating at HF.
+NOTE: Enabling VHF/UHF/Microwave features necessarily disables the
+wideband multi-decode capability of JT65.  In most circumstances you
+should turn this feature off when operating at HF.
