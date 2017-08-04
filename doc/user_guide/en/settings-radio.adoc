@@ -2,9 +2,9 @@
 
 image::RadioTab.png[align="center",alt="Radio Tab"]
 
-_WSJT-X_ offers CAT (Computer Aided Transceiver) control of the
-relevant features of most modern transceivers.  To configure the
-program for your radio, select the *Radio* tab.
+_WSJT-X_ offers CAT (Computer Aided Transceiver) control of relevant
+features of most modern transceivers.  To configure the program for
+your radio, select the *Radio* tab.
 
 - Select your radio type from the drop-down list labeled *Rig*, or
 *None* if you do not wish to use CAT control.

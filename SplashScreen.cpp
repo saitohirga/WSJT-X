@@ -8,6 +8,8 @@
 #include "revision_utils.hpp"
 #include "pimpl_impl.hpp"
 
+#include "moc_SplashScreen.cpp"
+
 class SplashScreen::impl
 {
 public:

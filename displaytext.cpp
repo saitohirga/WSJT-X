@@ -3,8 +3,8 @@
 #include <QMouseEvent>
 #include <QDateTime>
 #include <QTextCharFormat>
-#include <QFont>
 #include <QTextCursor>
+#include <QTextBlock>
 
 #include "qt_helpers.hpp"
 
@@ -13,25 +13,28 @@
 DisplayText::DisplayText(QWidget *parent) :
     QTextEdit(parent)
 {
-    setReadOnly (true);
-    viewport ()->setCursor (Qt::ArrowCursor);
-    setWordWrapMode (QTextOption::NoWrap);
-    setStyleSheet ("");
+  setReadOnly (true);
+  viewport ()->setCursor (Qt::ArrowCursor);
+  setWordWrapMode (QTextOption::NoWrap);
+  document ()->setMaximumBlockCount (5000); // max lines to limit heap usage
 }
 
 void DisplayText::setContentFont(QFont const& font)
 {
-  setFont (font);
-  m_charFormat.setFont (font);
+  char_font_ = font;
   selectAll ();
   auto cursor = textCursor ();
-  cursor.mergeCharFormat (m_charFormat);
+  cursor.beginEditBlock ();
+  auto char_format = cursor.charFormat ();
+  char_format.setFont (char_font_);
+  cursor.mergeCharFormat (char_format);
   cursor.clearSelection ();
   cursor.movePosition (QTextCursor::End);
 
   // position so viewport scrolled to left
   cursor.movePosition (QTextCursor::Up);
   cursor.movePosition (QTextCursor::StartOfLine);
+  cursor.endEditBlock ();
 
   setTextCursor (cursor);
   ensureCursorVisible ();
@@ -50,32 +53,38 @@ void DisplayText::insertLineSpacer(QString const& line)
   appendText (line, "#d3d3d3");
 }
 
-void DisplayText::appendText(QString const& text, QString const& bg)
+void DisplayText::appendText(QString const& text, QColor bg)
 {
-    QString escaped {text.trimmed().replace('<',"&lt;").replace('>',"&gt;").replace(' ', "&nbsp;")};
-    QString s = "<table border=0 cellspacing=0 width=100%><tr><td bgcolor=\"" +
-    bg + "\">" + escaped + "</td></tr></table>";
-    auto cursor = textCursor ();
-    cursor.movePosition (QTextCursor::End);
-    auto pos = cursor.position ();
-    cursor.insertHtml (s);
-    cursor.setPosition (pos, QTextCursor::MoveAnchor);
-    cursor.movePosition (QTextCursor::End, QTextCursor::KeepAnchor);
-    cursor.mergeCharFormat (m_charFormat);
-    cursor.clearSelection ();
+  auto cursor = textCursor ();
+  cursor.movePosition (QTextCursor::End);
+  auto block_format = cursor.blockFormat ();
+  block_format.setBackground (bg);
+  if (0 == cursor.position ())
+    {
+      cursor.setBlockFormat (block_format);
+      auto char_format = cursor.charFormat ();
+      char_format.setFont (char_font_);
+      cursor.setCharFormat (char_format);
+    }
+  else
+    {
+      cursor.insertBlock (block_format);
+    }
+  cursor.insertText (text);
 
-    // position so viewport scrolled to left
-    cursor.movePosition (QTextCursor::Up);
-    cursor.movePosition (QTextCursor::StartOfLine);
-    setTextCursor (cursor);
-    ensureCursorVisible ();
+  // position so viewport scrolled to left
+  cursor.movePosition (QTextCursor::Up);
+  cursor.movePosition (QTextCursor::StartOfLine);
+  setTextCursor (cursor);
+  ensureCursorVisible ();
+  document ()->setMaximumBlockCount (document ()->maximumBlockCount ());
 }
 
 
-QString DisplayText::_appendDXCCWorkedB4(QString message, QString const& callsign, QString * bg,
-                                      LogBook logBook, QColor color_CQ,
-                                      QColor color_DXCC,
-                                      QColor color_NewCall)
+QString DisplayText::appendDXCCWorkedB4(QString message, QString const& callsign, QColor * bg,
+					LogBook logBook, QColor color_CQ,
+					QColor color_DXCC,
+					QColor color_NewCall)
 {
     QString call = callsign;
     QString countryName;
@@ -110,18 +119,18 @@ QString DisplayText::_appendDXCCWorkedB4(QString message, QString const& callsig
         if (!countryWorkedBefore) // therefore not worked call either
         {
             message += "!";
-            *bg = color_DXCC.name();
+            *bg = color_DXCC;
         }
         else
             if (!callWorkedBefore) // but have worked the country
             {
                 message += "~";
-                *bg = color_NewCall.name();
+                *bg = color_NewCall;
             }
             else
             {
                 message += " ";  // have worked this call before
-                *bg = color_CQ.name();
+                *bg = color_CQ;
             }
         charsAvail -= 1;
 
@@ -165,14 +174,14 @@ void DisplayText::displayDecodedText(DecodedText decodedText, QString myCall,
                                      QColor color_CQ, QColor color_MyCall,
                                      QColor color_DXCC, QColor color_NewCall)
 {
-    QString bg="white";
+  QColor bg {Qt::white};
     bool CQcall = false;
     if (decodedText.string ().contains (" CQ ")
         || decodedText.string ().contains (" CQDX ")
         || decodedText.string ().contains (" QRZ "))
     {
         CQcall = true;
-        bg=color_CQ.name();
+        bg = color_CQ;
     }
     if (myCall != "" and (
           decodedText.indexOf (" " + myCall + " ") >= 0
@@ -180,14 +189,14 @@ void DisplayText::displayDecodedText(DecodedText decodedText, QString myCall,
           or decodedText.indexOf ("/" + myCall + " ") >= 0
           or decodedText.indexOf ("<" + myCall + " ") >= 0
           or decodedText.indexOf (" " + myCall + ">") >= 0)) {
-      bg=color_MyCall.name();
+      bg = color_MyCall;
     }
     // if enabled add the DXCC entity and B4 status to the end of the
     // preformated text line t1
     auto message = decodedText.string ();
     if (displayDXCCEntity && CQcall)
-      message = _appendDXCCWorkedB4 (message, decodedText.CQersCall (), &bg, logBook, color_CQ,
-                                     color_DXCC, color_NewCall);
+      message = appendDXCCWorkedB4 (message, decodedText.CQersCall (), &bg, logBook, color_CQ,
+				    color_DXCC, color_NewCall);
     appendText (message, bg);
 }
 
@@ -195,7 +204,6 @@ void DisplayText::displayDecodedText(DecodedText decodedText, QString myCall,
 void DisplayText::displayTransmittedText(QString text, QString modeTx, qint32 txFreq,
                                          QColor color_TxMsg, bool bFastMode)
 {
-    QString bg=color_TxMsg.name();
     QString t1=" @  ";
     if(modeTx=="FT8") t1=" ~  ";
     if(modeTx=="JT4") t1=" $  ";
@@ -211,12 +219,11 @@ void DisplayText::displayTransmittedText(QString text, QString modeTx, qint32 tx
       t = QDateTime::currentDateTimeUtc().toString("hhmm") + \
         "  Tx      " + t2 + t1 + text;
     }
-    appendText(t,bg);
+    appendText (t, color_TxMsg);
 }
 
 void DisplayText::displayQSY(QString text)
 {
   QString t = QDateTime::currentDateTimeUtc().toString("hhmmss") + "            " + text;
-  QString bg="hot pink";
-  appendText(t,bg);
+  appendText (t, "hotpink");
 }

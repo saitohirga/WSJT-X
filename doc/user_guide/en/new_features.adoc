@@ -17,15 +17,15 @@ added to _WSJT-X_ since Version 1.7.0:
 windows
     
 - New set of suggested default frequencies specific to the three IARU
-Regions.
+regions
 
 - Enhanced scheme for managing table of suggested default operating
 frequencies
 
 - Improved CAT control for many radios, including those controlled
-through Commander or OmniRig.
+through Commander or OmniRig
 
-- Bug fixes and tweaks to user interface
+- Bug fixes and minor tweaks to user interface
 
 === Documentation Conventions
 
