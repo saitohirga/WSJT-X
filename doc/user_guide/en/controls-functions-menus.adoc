@@ -26,6 +26,10 @@ menu for switching between modes.  Simply *Clone* the *Default* entry,
 configuration.  These settings will be restored whenever you select
 that configuration.
 
+As well as switching between configurations while running _WSJT-X_ you
+can also start the application in any configuration by using the
+`--config <configuration-name>` command line option (`-c` for short).
+
 [[VIEW_MENU]]
 ==== View Menu
 image::view-menu.png[align="left",alt="View Menu"]

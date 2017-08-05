@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 
 #if QT_VERSION >= 0x050200
       QCommandLineParser parser;
-      parser.setApplicationDescription ("\nJT65, JT9, JT4, MSK144, QRA64, ISCAT & WSPR Weak Signal Communications Program.");
+      parser.setApplicationDescription ("\n" PROJECT_SUMMARY_DESCRIPTION);
       auto help_option = parser.addHelpOption ();
       auto version_option = parser.addVersionOption ();
 

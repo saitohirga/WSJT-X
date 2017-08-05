@@ -30,7 +30,8 @@ proceeds to determine whether the remaining message and parity bits
 are consistent with the hypothesized AP bits.  If a codeword is found
 that the decoder judges to have high (but not overwhelmingly high)
 probability of being correct, a ? character is appended when the
-decoded message is displayed.
+decoded message is displayed. Decodes thus marked are not sent to
+{pskreporter} to avoid occasional misleading spots of false decodes.
 
 Successful AP decodes are always labeled with an end-of-line indicator
 of the form aP, where P is one of the single-digit AP decoding types
