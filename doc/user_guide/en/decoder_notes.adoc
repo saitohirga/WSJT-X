@@ -40,7 +40,7 @@ successful decode used MyCall as hypothetically known information.
 
 [[AP_INFO_TABLE]]
 .AP information types
-[width="25%",cols="h10,<m20",frame=topbot,options="header"]
+[width="35%",cols="h10,<m20",frame=topbot,options="header"]
 |===============================================
 |P | Message components
 |1 | CQ   &#160; &#160;   ?   &#160; &#160;   ? 
