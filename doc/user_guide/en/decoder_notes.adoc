@@ -67,7 +67,7 @@ summarized in the following Table:
 [width="50%",cols="h,3*^",frame=topbot,options="header"]
 |===========================================
 |Mode    |Mode character|Sync character|End of line information
-|FT8     | ~            |      | aP
+|FT8     | ~            |      | ? &#160; aP
 |JT4     | $            | *, # | f, fN, dNC
 |JT9     | @            |      |
 |JT65    | #            |      |
@@ -81,7 +81,8 @@ Sync character::
  `#` - Alternate sync
 
 End of line information::
- `a` - Decoded with aid of some a priori (AP) information
+ `?` - Decoded with lower confidence +
+ `a` - Decoded with aid of some a priori (AP) information +
  `C` - Confidence indicator [ISCAT and Deep Search; (0-9,*)] +
  `d` - Deep Search algorithm +
  `f` - Franke-Taylor or Fano algorithm +
