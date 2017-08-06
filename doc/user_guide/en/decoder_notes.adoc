@@ -40,7 +40,7 @@ successful decode used MyCall as hypothetically known information.
 
 [[AP_INFO_TABLE]]
 .AP information types
-[width="25%",cols="h10,<m20",frame=topbot,options="header"]
+[width="35%",cols="h10,<m20",frame=topbot,options="header"]
 |===============================================
 |P | Message components
 |1 | CQ   &#160; &#160;   ?   &#160; &#160;   ? 
@@ -67,24 +67,27 @@ summarized in the following Table:
 [width="50%",cols="h,3*^",frame=topbot,options="header"]
 |===========================================
 |Mode    |Mode character|Sync character|End of line information
-|FT8     | ~            |      | aP
+|FT8     | ~            |      | ? &#160; aP
 |JT4     | $            | *, # | f, fN, dNC
 |JT9     | @            |      |
 |JT65    | #            |      |
 |JT65 VHF| #            | *, # | f, fN, dNC
 |QRA64   | :            | *    | R
 |ISCAT   |              | *    | M  N  C  T
-|MSK144  | &            |      | N
+|MSK144  | &            |      | N  H  E
 |===========================================
 Sync character::
  `*` - Normal sync +
  `#` - Alternate sync
 
 End of line information::
- `a` - Decoded with aid of some a priori (AP) information
+ `?` - Decoded with lower confidence +
+ `a` - Decoded with aid of some a priori (AP) information +
  `C` - Confidence indicator [ISCAT and Deep Search; (0-9,*)] +
  `d` - Deep Search algorithm +
+ `E` - Size of MSK eye diagram opening - if negative, the eye is closed + 
  `f` - Franke-Taylor or Fano algorithm +
+ `H` - Number of bit errors corrected +
  `M` - Message length (characters) +
  `N` - Number of Rx intervals or frames averaged +
  `P` - Number indicating type of AP information (Table 1, above) +
