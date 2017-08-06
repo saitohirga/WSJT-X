@@ -972,7 +972,7 @@ endif (NOT APPLE)
 #
 
 include (FortranCInterface)
-FortranCInterface_VERIFY (CXX QUIET)
+FortranCInterface_VERIFY (CXX)
 FortranCInterface_HEADER (FC.h MACRO_NAMESPACE "FC_" SYMBOL_NAMESPACE "FC_"
   SYMBOLS
   grayline
