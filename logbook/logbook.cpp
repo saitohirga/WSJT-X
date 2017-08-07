@@ -75,6 +75,7 @@ void LogBook::match(/*in*/const QString call,
       QString currentBand = "";  // match any band
       callWorkedBefore = _log.match(call,currentBand,currentMode);
       countryName = _countries.find(call);
+
       if (countryName.length() > 0)  //  country was found
         countryWorkedBefore = _worked.getHasWorked(countryName);
       else

@@ -153,16 +153,6 @@ QString DisplayText::appendDXCCWorkedB4(QString message, QString const& callsign
         countryName.replace ("European", "EU");
         countryName.replace ("African", "AF");
 
-        // 
-        // deal with special rules that cty.dat does not cope with
-        //
-
-        // KG4 2x1 and 2x3 calls that map to Gitmo are mainland US not Gitmo
-        if (call.startsWith ("KG4") && call.size () != 5)
-          {
-            countryName.replace ("Guantanamo Bay", "U.S.A.");
-          }
-
         message += countryName;
     }
     return message;

@@ -117,19 +117,31 @@ void CountryDat::load()
 }
 
 // return country name else ""
-QString CountryDat::find(const QString prefix)
+QString CountryDat::find(QString prefix)
 {
-    QString pf = prefix.toUpper();
-    while(pf.length() >= 1)
+  prefix = prefix.toUpper ();
+  auto pf = prefix;
+  while (pf.size () >= 1)
   	{
-      if (_data.contains(pf))
-	  {
-        QString country = _data.value(pf);
-	    return country;
-	   }
-       pf = pf.left(pf.length()-1);
-	 }
-	 return "";
+      if (_data.contains (pf))
+        {
+          QString country {_data.value (pf)};
+
+          //
+          // deal with special rules that cty.dat does not cope with
+          //
+
+          // KG4 2x1 and 2x3 calls that map to Gitmo are mainland US not Gitmo
+          if (prefix.startsWith ("KG4") && prefix.size () != 5)
+            {
+              country.replace ("Guantanamo Bay", "United States");
+            }
+
+          return country;
+        }
+      pf = pf.left (pf.size () - 1);
+    }
+  return QString {};
 }	   
 
       
