@@ -19,7 +19,7 @@ class CountryDat
 public:
   void init(const QString filename);
   void load();
-  QString find(const QString prefix); // return country name or ""
+  QString find(QString prefix); // return country name or ""
   QStringList  getCountryNames() { return _countryNames; };
    
 private:
