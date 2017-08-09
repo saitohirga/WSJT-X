@@ -97,33 +97,26 @@ contains
         hd=nharderrors+dmin
         call timer('ft8b    ',1)
         if(nbadcrc.eq.0) then
-           call jtmsg(message,iflag)
+!           call jtmsg(message,iflag)
            if(bcontest) call fix_contest_msg(mygrid6,message)
-           if(iand(iflag,16).ne.0) message(22:22)='?'
-           if(iand(iflag,15).eq.0) then
-              ldupe=.false.
-              do id=1,ndecodes
-                 if(message.eq.allmessages(id).and.nsnr.le.allsnrs(id)) ldupe=.true.
-              enddo
-              if(.not.ldupe) then
-                 ndecodes=ndecodes+1
-                 allmessages(ndecodes)=message
-                 allsnrs(ndecodes)=nsnr
-              endif
-!              write(81,1004) nutc,ncand,icand,ipass,iaptype,iappass,        &
-!                   iflag,nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),    &
-!                   xdt,nint(f1),message
-!              flush(81)
-              if(.not.ldupe .and. associated(this%callback)) then
-                 qual=1.0-(nharderrors+dmin)/60.0 ! scale qual to [0.0,1.0]
-                 call this%callback(sync,nsnr,xdt,f1,message,iaptype,qual)
-              endif
-           else
-              write(19,1004) nutc,ncand,icand,ipass,iaptype,iappass,        &
-                   iflag,nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),    &
-                   xdt,nint(f1),message
-1004          format(i6.6,2i4,3i2,2i3,3f6.1,i4,f6.2,i5,2x,a22)
-              flush(19)
+!           if(iand(iflag,31).ne.0) message(22:22)='?'
+           ldupe=.false.
+           do id=1,ndecodes
+              if(message.eq.allmessages(id).and.nsnr.le.allsnrs(id)) ldupe=.true.
+           enddo
+           if(.not.ldupe) then
+              ndecodes=ndecodes+1
+              allmessages(ndecodes)=message
+              allsnrs(ndecodes)=nsnr
+           endif
+!           write(81,1004) nutc,ncand,icand,ipass,iaptype,iappass,        &
+!                nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),          &
+!                xdt,nint(f1),message
+!1004          format(i6.6,2i4,3i2,i3,3f6.1,i4,f6.2,i5,2x,a22)
+!           flush(81)
+           if(.not.ldupe .and. associated(this%callback)) then
+              qual=1.0-(nharderrors+dmin)/60.0 ! scale qual to [0.0,1.0]
+              call this%callback(sync,nsnr,xdt,f1,message,iaptype,qual)
            endif
         endif
       enddo
