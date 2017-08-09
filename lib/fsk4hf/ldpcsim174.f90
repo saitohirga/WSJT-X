@@ -189,7 +189,7 @@ do idb = 20,-10,-1
 
 ! max_iterations is max number of belief propagation iterations
     call bpdecode174(llr, apmask, max_iterations, decoded, cw, nharderrors)
-    if( norder .ge. 0 .and. nharderrors .lt. 0 ) call osd174(llr, norder, decoded, cw,  nharderrors)
+    if( norder .ge. 0 .and. nharderrors .lt. 0 ) call osd174(llr, apmask, norder, decoded, cw,  nharderrors, dmin)
 ! If the decoder finds a valid codeword, nharderrors will be .ge. 0.
     if( nharderrors .ge. 0 ) then
       call extractmessage174(decoded,msgreceived,ncrcflag,recent_calls,nrecent)
@@ -217,7 +217,7 @@ do idb = 20,-10,-1
       endif
     endif
   enddo
-  baud=12000/2048
+  baud=12000/1920
   snr2500=db+10.0*log10((baud/2500.0))
   pberr=real(nberr)/(real(ntrials*N))
   write(*,"(f4.1,4x,f5.1,1x,i8,1x,i8,1x,i8,8x,f5.2,8x,e10.3)") db,snr2500,ngood,nue,nbadcrc,ss,pberr
