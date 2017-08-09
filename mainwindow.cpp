@@ -6191,8 +6191,7 @@ void MainWindow::postWSPRDecode (bool is_new, QStringList parts)
     }
   m_messageClient->WSPR_decode (is_new, QTime::fromString (parts[0], "hhmm"), parts[1].toInt ()
                                 , parts[2].toFloat (), Radio::frequency (parts[3].toFloat (), 6)
-                                , parts[4].toInt (), parts[5].remove ("&lt;").remove ("&gt;")
-                                , parts[6], parts[7].toInt ());
+                                , parts[4].toInt (), parts[5], parts[6], parts[7].toInt ());
 }
 
 void MainWindow::networkError (QString const& e)
@@ -6265,7 +6264,7 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
                   .arg(rxFields.at(2), 5)
                   .arg(rxFields.at(3), 11)
                   .arg(rxFields.at(4), 4)
-                  .arg(rxFields.at(5).leftJustified (12).replace ('<', "&lt;").replace ('>', "&gt;"))
+                  .arg(rxFields.at(5).leftJustified (12))
                   .arg(rxFields.at(6), -6)
                   .arg(rxFields.at(7), 3);
           postWSPRDecode (true, rxFields);
@@ -6277,7 +6276,7 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
                   .arg(rxFields.at(2), 5)
                   .arg(rxFields.at(3), 11)
                   .arg(rxFields.at(4), 4)
-                  .arg(rxFields.at(5).leftJustified (12).replace ('<', "&lt;").replace ('>', "&gt;"))
+                  .arg(rxFields.at(5).leftJustified (12))
                   .arg("", -6)
                   .arg(rxFields.at(6), 3);
           postWSPRDecode (true, rxFields);
