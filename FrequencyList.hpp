@@ -13,7 +13,7 @@
 class Bands;
 
 //
-// Class FrequencyList
+// Class FrequencyList_v2
 //
 //  Encapsulates a  collection of  frequencies with  associated modes.
 //  The implementation is a table  containing the list of IARU region,
@@ -37,7 +37,7 @@ class Bands;
 //  Implements the QSortFilterProxyModel interface  for a list of spot
 //  frequencies.
 //
-class FrequencyList final
+class FrequencyList_v2 final
   : public QSortFilterProxyModel
 {
   Q_OBJECT;
@@ -62,7 +62,7 @@ public:
   class const_iterator
   {
   public:
-    const_iterator (FrequencyList const * parent, int row)
+    const_iterator (FrequencyList_v2 const * parent, int row)
       : parent_ {parent}
       , row_ {row}
     {
@@ -75,12 +75,12 @@ public:
     const_iterator& operator ++ ();
 
   private:
-    FrequencyList const * parent_;
+    FrequencyList_v2 const * parent_;
     int row_;
   };
 
-  explicit FrequencyList (Bands const *, QObject * parent = nullptr);
-  ~FrequencyList ();
+  explicit FrequencyList_v2 (Bands const *, QObject * parent = nullptr);
+  ~FrequencyList_v2 ();
 
   // Load and store underlying items
   FrequencyItems frequency_list (FrequencyItems);
@@ -137,7 +137,7 @@ private:
 };
 
 inline
-bool operator == (FrequencyList::Item const& lhs, FrequencyList::Item const& rhs)
+bool operator == (FrequencyList_v2::Item const& lhs, FrequencyList_v2::Item const& rhs)
 {
   return
     lhs.frequency_ == rhs.frequency_
@@ -145,12 +145,40 @@ bool operator == (FrequencyList::Item const& lhs, FrequencyList::Item const& rhs
     && lhs.mode_ == rhs.mode_;
 }
 
-QDataStream& operator << (QDataStream&, FrequencyList::Item const&);
-QDataStream& operator >> (QDataStream&, FrequencyList::Item&);
+QDataStream& operator << (QDataStream&, FrequencyList_v2::Item const&);
+QDataStream& operator >> (QDataStream&, FrequencyList_v2::Item&);
 
 #if !defined (QT_NO_DEBUG_STREAM)
-QDebug operator << (QDebug, FrequencyList::Item const&);
+QDebug operator << (QDebug, FrequencyList_v2::Item const&);
 #endif
+
+Q_DECLARE_METATYPE (FrequencyList_v2::Item);
+Q_DECLARE_METATYPE (FrequencyList_v2::FrequencyItems);
+
+
+//
+// Obsolete version of FrequencyList no longer used but needed to
+// allow loading and saving of old settings contents without damage
+//
+class FrequencyList final
+{
+public:
+  using Frequency = Radio::Frequency;
+  using Mode = Modes::Mode;
+
+  struct Item
+  {
+    Frequency frequency_;
+    Mode mode_;
+  };
+  using FrequencyItems = QList<Item>;
+
+private:
+  FrequencyItems frequency_list_;
+};
+
+QDataStream& operator << (QDataStream&, FrequencyList::Item const&);
+QDataStream& operator >> (QDataStream&, FrequencyList::Item&);
 
 Q_DECLARE_METATYPE (FrequencyList::Item);
 Q_DECLARE_METATYPE (FrequencyList::FrequencyItems);

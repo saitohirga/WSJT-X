@@ -208,7 +208,7 @@ class FrequencyDialog final
   : public QDialog
 {
 public:
-  using Item = FrequencyList::Item;
+  using Item = FrequencyList_v2::Item;
 
   explicit FrequencyDialog (IARURegions * regions_model, Modes * modes_model, QWidget * parent = nullptr)
     : QDialog {parent}
@@ -407,7 +407,7 @@ private:
   void save_frequencies ();
   void reset_frequencies ();
   void insert_frequency ();
-  FrequencyList::FrequencyItems read_frequencies_file (QString const&);
+  FrequencyList_v2::FrequencyItems read_frequencies_file (QString const&);
 
   void delete_stations ();
   void insert_station ();
@@ -491,8 +491,8 @@ private:
   IARURegions regions_;
   IARURegions::Region region_;
   Modes modes_;
-  FrequencyList frequencies_;
-  FrequencyList next_frequencies_;
+  FrequencyList_v2 frequencies_;
+  FrequencyList_v2 next_frequencies_;
   StationList stations_;
   StationList next_stations_;
   FrequencyDelta current_offset_;
@@ -666,8 +666,8 @@ Bands const * Configuration::bands () const {return &m_->bands_;}
 StationList * Configuration::stations () {return &m_->stations_;}
 StationList const * Configuration::stations () const {return &m_->stations_;}
 IARURegions::Region Configuration::region () const {return m_->region_;}
-FrequencyList * Configuration::frequencies () {return &m_->frequencies_;}
-FrequencyList const * Configuration::frequencies () const {return &m_->frequencies_;}
+FrequencyList_v2 * Configuration::frequencies () {return &m_->frequencies_;}
+FrequencyList_v2 const * Configuration::frequencies () const {return &m_->frequencies_;}
 QStringListModel * Configuration::macros () {return &m_->macros_;}
 QStringListModel const * Configuration::macros () const {return &m_->macros_;}
 QDir Configuration::save_directory () const {return m_->save_directory_;}
@@ -952,18 +952,18 @@ Configuration::impl::impl (Configuration * self, QDir const& temp_directory,
   //
   // setup working frequencies table model & view
   //
-  frequencies_.sort (FrequencyList::frequency_column);
+  frequencies_.sort (FrequencyList_v2::frequency_column);
 
   ui_->frequencies_table_view->setModel (&next_frequencies_);
-  ui_->frequencies_table_view->sortByColumn (FrequencyList::frequency_column, Qt::AscendingOrder);
-  ui_->frequencies_table_view->setColumnHidden (FrequencyList::frequency_mhz_column, true);
+  ui_->frequencies_table_view->sortByColumn (FrequencyList_v2::frequency_column, Qt::AscendingOrder);
+  ui_->frequencies_table_view->setColumnHidden (FrequencyList_v2::frequency_mhz_column, true);
 
   // delegates
   auto frequencies_item_delegate = new QStyledItemDelegate {this};
   frequencies_item_delegate->setItemEditorFactory (item_editor_factory ());
   ui_->frequencies_table_view->setItemDelegate (frequencies_item_delegate);
-  ui_->frequencies_table_view->setItemDelegateForColumn (FrequencyList::region_column, new ForeignKeyDelegate {&regions_, 0, this});
-  ui_->frequencies_table_view->setItemDelegateForColumn (FrequencyList::mode_column, new ForeignKeyDelegate {&modes_, 0, this});
+  ui_->frequencies_table_view->setItemDelegateForColumn (FrequencyList_v2::region_column, new ForeignKeyDelegate {&regions_, 0, this});
+  ui_->frequencies_table_view->setItemDelegateForColumn (FrequencyList_v2::mode_column, new ForeignKeyDelegate {&modes_, 0, this});
 
   // actions
   frequency_delete_action_ = new QAction {tr ("&Delete"), ui_->frequencies_table_view};
@@ -1278,7 +1278,7 @@ void Configuration::impl::read_settings ()
       auto const& v = settings_->value ("FrequenciesForRegionModes");
       if (v.isValid ())
         {
-          frequencies_.frequency_list (v.value<FrequencyList::FrequencyItems> ());
+          frequencies_.frequency_list (v.value<FrequencyList_v2::FrequencyItems> ());
         }
       else
         {
@@ -1854,7 +1854,7 @@ void Configuration::impl::accept ()
   if (frequencies_.frequency_list () != next_frequencies_.frequency_list ())
     {
       frequencies_.frequency_list (next_frequencies_.frequency_list ());
-      frequencies_.sort (FrequencyList::frequency_column);
+      frequencies_.sort (FrequencyList_v2::frequency_column);
     }
 
   if (stations_.station_list () != next_stations_.station_list ())
@@ -2121,7 +2121,7 @@ void Configuration::impl::delete_frequencies ()
   auto selection_model = ui_->frequencies_table_view->selectionModel ();
   selection_model->select (selection_model->selection (), QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
   next_frequencies_.removeDisjointRows (selection_model->selectedRows ());
-  ui_->frequencies_table_view->resizeColumnToContents (FrequencyList::mode_column);
+  ui_->frequencies_table_view->resizeColumnToContents (FrequencyList_v2::mode_column);
 }
 
 void Configuration::impl::load_frequencies ()
@@ -2152,12 +2152,12 @@ void Configuration::impl::merge_frequencies ()
     }
 }
 
-FrequencyList::FrequencyItems Configuration::impl::read_frequencies_file (QString const& file_name)
+FrequencyList_v2::FrequencyItems Configuration::impl::read_frequencies_file (QString const& file_name)
 {
   QFile frequencies_file {file_name};
   frequencies_file.open (QFile::ReadOnly);
   QDataStream ids {&frequencies_file};
-  FrequencyList::FrequencyItems list;
+  FrequencyList_v2::FrequencyItems list;
   quint32 magic;
   ids >> magic;
   if (qrg_magic != magic)
@@ -2231,7 +2231,7 @@ void Configuration::impl::insert_frequency ()
   if (QDialog::Accepted == frequency_dialog_->exec ())
     {
       ui_->frequencies_table_view->setCurrentIndex (next_frequencies_.add (frequency_dialog_->item ()));
-      ui_->frequencies_table_view->resizeColumnToContents (FrequencyList::mode_column);
+      ui_->frequencies_table_view->resizeColumnToContents (FrequencyList_v2::mode_column);
     }
 }
 
