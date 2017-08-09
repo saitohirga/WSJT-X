@@ -40,7 +40,7 @@ class QWidget;
 //  storage using the provided QSettings object instance.
 //
 //  A passed  in Configuration  object instance is  used to  query the
-//  FrequencyList  model to  determine  working  frequencies for  each
+//  FrequencyList_v2 model  to determine working frequencies  for each
 //  band. The  row index  of this  model is  returned by  this classes
 //  hopping scheduling method so it may be conveniently used to select
 //  a new working frequency by a client.
