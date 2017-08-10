@@ -1820,7 +1820,7 @@ for assessing propagation and system performance.</string>
        <item>
         <widget class="QGroupBox" name="groupBox_3">
          <property name="toolTip">
-          <string>See WSPR documentattion Appendix C for details of how to determine these factors for your radio.</string>
+          <string>See WSPR documentation Appendix C for details of how to determine these factors for your radio.</string>
          </property>
          <property name="title">
           <string>Frequency Calibration</string>
