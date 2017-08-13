@@ -61,15 +61,15 @@ _WSJT-X_ modes have continuous phase and constant envelope.
 [[FT8PRO]]
 ==== FT8
 
-Forward error correction (FEC) in FT8 uses a low-density
-parity check (LDPC) code with 75 information bits, a 12-bit cyclic
-redundancy check (CRC), and 174 channel symbols.  It is thus called an
-LDPC (174,87) code.  Synchronization uses 7×7 Costas arrays at the
-beginning, middle, and end of each transmission.  Modulation is 8-tone
-frequency-shift keying (8-FSK) at 12000/1920 = 6.25 baud.  Each
+Forward error correction (FEC) in FT8 uses a low-density parity check
+(LDPC) code with 75 information bits, a 12-bit cyclic redundancy check
+(CRC), and 87 parity bits making a 174-bit codeword.  It is thus
+called an LDPC (174,87) code.  Synchronization uses 7×7 Costas arrays
+at the beginning, middle, and end of each transmission.  Modulation is
+8-tone frequency-shift keying (8-FSK) at 12000/1920 = 6.25 baud.  Each
 transmitted symbol carries three bits, so the total number of channel
-symbols is 174/3 + 21 = 79.  The total occupied bandwidth is
-8 × 6.25 = 50 Hz.
+symbols is 174/3 + 21 = 79.  The total occupied bandwidth is 8 × 6.25
+= 50 Hz.
 
 [[JT4PRO]]
 ==== JT4
