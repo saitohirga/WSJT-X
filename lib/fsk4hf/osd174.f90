@@ -7,7 +7,7 @@ include "ldpc_174_87_params.f90"
 integer*1 apmask(N),apmaskr(N)
 integer*1 gen(K,N)
 integer*1 genmrb(K,N),g2(N,K)
-integer*1 temp(K),m0(K),me(K),mi(K)
+integer*1 temp(K),m0(K),me(K),mi(K),misub(K),e2sub(N-K),e2(N-K)
 integer indices(N),nxor(N)
 integer*1 cw(N),ce(N),c0(N),hdec(N)
 integer*1 decoded(K)
@@ -15,7 +15,6 @@ integer indx(N)
 real llr(N),rx(N),absrx(N)
 logical first
 data first/.true./
-
 save first,gen
 
 if( first ) then ! fill the generator matrix
@@ -35,30 +34,27 @@ if( first ) then ! fill the generator matrix
 first=.false.
 endif
 
-! re-order received vector to place systematic msg bits at the end
+! Re-order received vector to place systematic msg bits at the end.
 rx=llr(colorder+1) 
 apmaskr=apmask(colorder+1)
 
 
-! hard decode the received word
+! Hard decisions on the received word.
 hdec=0            
 where(rx .ge. 0) hdec=1
 
-! use magnitude of received symbols as a measure of reliability.
+! Use magnitude of received symbols as a measure of reliability.
 absrx=abs(rx) 
 call indexx(absrx,N,indx)  
 
-! re-order the columns of the generator matrix in order of decreasing reliability.
+! Re-order the columns of the generator matrix in order of decreasing reliability.
 do i=1,N
   genmrb(1:K,i)=gen(1:K,indx(N+1-i))
   indices(i)=indx(N+1-i)
 enddo
 
-! do gaussian elimination to create a generator matrix with the most reliable
+! Do gaussian elimination to create a generator matrix with the most reliable
 ! received bits in positions 1:K in order of decreasing reliability (more or less). 
-! reliability will not be strictly decreasing because column re-ordering is needed
-! to put the generator matrix in systematic form. the "indices" array tracks 
-! column permutations caused by reliability sorting and gaussian elimination.
 do id=1,K ! diagonal element indices 
   do icol=id,K+20  ! The 20 is ad hoc - beware
     iflag=0
@@ -87,8 +83,9 @@ g2=transpose(genmrb)
 ! The hard decisions for the K MRB bits define the order 0 message, m0. 
 ! Encode m0 using the modified generator matrix to find the "order 0" codeword. 
 ! Flip various combinations of bits in m0 and re-encode to generate a list of
-! codewords. Test all such codewords against the received word to decide which
-! codeword is most likely to be correct.
+! codewords. A pre-processing step selects a subset of these codewords. 
+! Return the member of the subset with the smallest Euclidean distance to the
+! the received word.
 
 hdec=hdec(indices)   ! hard decisions from received symbols
 m0=hdec(1:K)         ! zero'th order message
@@ -96,55 +93,99 @@ absrx=absrx(indices)
 rx=rx(indices)       
 apmaskr=apmaskr(indices)
 
-s1=sum(absrx(1:K))
-s2=sum(absrx(K+1:N))
-xlam=7.0  ! larger values reject more error patterns 
-rho=s1/(s1+xlam*s2)
 call mrbencode(m0,c0,g2,N,K)
 nxor=ieor(c0,hdec)
 nhardmin=sum(nxor)
 dmin=sum(nxor*absrx)
-thresh=rho*dmin
 
 cw=c0
-nt=0
+ntotal=0
 nrejected=0
-do iorder=1,norder
-  mi(1:K-iorder)=0
-  mi(K-iorder+1:K)=1
-  iflag=0
-  do while(iflag .ge. 0 ) 
-    if(all(iand(apmaskr(1:K),mi).eq.0)) then ! reject patterns with ap bits
-      dpat=sum(mi*absrx(1:K))
-      nt=nt+1
-      if( dpat .lt. thresh ) then  ! reject unlikely error patterns
-        me=ieor(m0,mi)
-        call mrbencode(me,ce,g2,N,K)
-        nxor=ieor(ce,hdec)
-        dd=sum(nxor*absrx)
-        if( dd .lt. dmin ) then
-          dmin=dd
-          cw=ce
-          nhardmin=sum(nxor)
-          thresh=rho*dmin
-        endif
+nt=40          ! Count the errors in the nt best bits in the redundancy part of the cw 
+ntheta=12      ! Reject the codeword without computing distance if # errors exceeds ntheta 
+
+! norder should be 1, 2, or 3.
+! if norder = 1, do one loop, no pre-processing
+! if norder = 2, do norder=1, then norder=2 using first W&H pre-processing rule
+! if norder = 3, do norder=2, then norder=3 using first W&H pre-processing rule
+
+if(norder.lt.1) goto 998  ! norder=0
+if(norder.gt.3) norder=3
+
+if( norder.eq. 1) then
+   nord=1
+   npre=0
+elseif(norder.eq.2) then
+   nord=1
+   npre=1
+elseif(norder.eq.3) then
+   nord=2
+   npre=1
+endif
+
+do iorder=1,nord
+   if( iorder.eq. 1 ) then
+      misub(1:K-1)=0
+      misub(K)=1
+      iflag=K
+   elseif( iorder.eq. 2 ) then
+      misub(1:K-2)=0
+      misub(K-1:K)=1 
+      iflag=K-1
+   endif
+   do while(iflag .ge.0)
+      if(iorder.eq.nord .and. npre.eq.0) then
+         iend=iflag
       else
-        nrejected=nrejected+1
+         iend=1
       endif
-  endif
-! get the next test error pattern, iflag will go negative
-! when the last pattern with weight iorder has been generated
-    call nextpat(mi,k,iorder,iflag)
-  enddo
+      do n1=iflag,iend,-1
+         mi=misub
+         mi(n1)=1
+         if(any(iand(apmaskr(1:K),mi).eq.1)) cycle
+         ntotal=ntotal+1
+         me=ieor(m0,mi)
+         if(n1.eq.iflag) then
+            call mrbencode(me,ce,g2,N,K)
+            e2sub=ieor(ce(K+1:N),hdec(K+1:N))
+            e2=e2sub
+            nd1Kpt=sum(e2sub(1:nt))+1
+            d1=sum(ieor(me(1:K),hdec(1:K))*absrx(1:K))
+         else
+            e2=ieor(e2sub,g2(K+1:N,n1))
+            nd1Kpt=sum(e2(1:nt))+2
+         endif
+         if(nd1Kpt .le. ntheta) then
+            call mrbencode(me,ce,g2,N,K)
+            nxor=ieor(ce,hdec)
+            if(n1.eq.iflag) then
+               dd=d1+sum(e2sub*absrx(K+1:N))
+            else
+               dd=d1+ieor(ce(n1),hdec(n1))*absrx(n1)+sum(e2*absrx(K+1:N))
+            endif
+            if( dd .lt. dmin ) then
+               dmin=dd
+               cw=ce
+               nhardmin=sum(nxor)
+               nd1Kptbest=nd1Kpt
+            endif
+         else 
+            nrejected=nrejected+1
+         endif
+      enddo
+! Get the next test error pattern, iflag will go negative
+! when the last pattern with weight iorder has been generated.
+      call nextpat(misub,k,iorder,iflag)
+   enddo
 enddo
 
-!write(*,*) 'nhardmin ',nhardmin
-!write(*,*) 'total patterns ',nt,' number rejected ',nrejected
+!write(*,*) 'rejected, total, nd1Kptbest: ',nrejected, ntotal, nd1Kptbest
 
-! re-order the codeword to place message bits at the end
+998 continue
+! Re-order the codeword to place message bits at the end.
 cw(indices)=cw
 hdec(indices)=hdec
-decoded=cw(M+1:N)
+decoded=cw(K+1:N) 
 cw(colorder+1)=cw ! put the codeword back into received-word order
 return
 end subroutine osd174
@@ -181,6 +222,11 @@ subroutine nextpat(mi,k,iorder,iflag)
      ms(k-nz+1:k)=1
   endif
   mi=ms
-  iflag=ind
+  do i=1,k  ! iflag will point to the lowest-index 1 in mi
+    if(mi(i).eq.1) then
+      iflag=i 
+      exit
+    endif
+  enddo
   return
 end subroutine nextpat

@@ -188,7 +188,7 @@ do idb = 20,-10,-1
     apmask(colorder(174-87+1:174-87+nap)+1)=1
 
 ! max_iterations is max number of belief propagation iterations
-    call bpdecode174(llr, apmask, max_iterations, decoded, cw, nharderrors)
+    call bpdecode174(llr, apmask, max_iterations, decoded, cw, nharderrors,niterations)
     if( norder .ge. 0 .and. nharderrors .lt. 0 ) call osd174(llr, apmask, norder, decoded, cw,  nharderrors, dmin)
 ! If the decoder finds a valid codeword, nharderrors will be .ge. 0.
     if( nharderrors .ge. 0 ) then

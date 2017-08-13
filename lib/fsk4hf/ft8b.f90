@@ -146,11 +146,11 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
 
   j=0
   do k=1,NN
-    if(k.le.7) cycle
-    if(k.ge.37 .and. k.le.43) cycle
-    if(k.gt.72) cycle
-    j=j+1
-    s1(0:7,j)=s2(0:7,k)
+     if(k.le.7) cycle
+     if(k.ge.37 .and. k.le.43) cycle
+     if(k.gt.72) cycle
+     j=j+1
+     s1(0:7,j)=s2(0:7,k)
   enddo  
 
   do j=1,ND
@@ -308,12 +308,12 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
      call timer('bpd174  ',1)
      dmin=0.0
      if(ndepth.eq.3 .and. nharderrors.lt.0) then
-        norder=1
+        norder=2
         if(abs(nfqso-f1).le.napwid .or. abs(nftx-f1).le.napwid) then
-          if(ipass.le.3 .and. .not.nagain) then
+          if((ipass.eq.2 .or. ipass.eq.3) .and. .not.nagain) then
             norder=2    
-          else  ! norder=3 for nagain and AP decodes 
-            norder=3    
+          else   
+            norder=3 ! for nagain, use norder=3 for all passes   
           endif
         endif
         call timer('osd174  ',0)
@@ -324,7 +324,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
      message='                      '
      xsnr=-99.0
      if(count(cw.eq.0).eq.174) cycle           !Reject the all-zero codeword
-     if(any(decoded(75:75).ne.0)) cycle        !Reject if any of the 3 extra bits are nonzero
+     if(any(decoded(73:75).ne.0)) cycle        !Reject if any of the 3 extra bits are nonzero
      if(nharderrors.ge.0 .and. nharderrors+dmin.lt.60.0 .and. &        
         .not.(sync.lt.2.0 .and. nharderrors.gt.35)      .and. &
         .not.(ipass.gt.1 .and. nharderrors.gt.39)       .and. &
