@@ -3,40 +3,14 @@
 #include <QStringList>
 #include <QRegularExpression>
 
-
 extern "C" {
   bool stdmsg_(const char* msg, int len);
 }
 
 QString DecodedText::CQersCall()
 {
-    // extract the CQer's call   TODO: does this work with all call formats?
-  int s1 {0};
-  int position;
-  QString t=_string;
-  if ((position = _string.indexOf (" CQ DX ")) >= 0)
-    {
-      s1 = 7 + position;
-    }
-  else if ((position = _string.indexOf (" CQDX ")) >= 0)
-    {
-      s1 = 6 + position;
-    }
-  else if ((position = _string.indexOf (" CQ ")) >= 0)
-    {
-      s1 = 4 + position;
-      if(_string.mid(s1,3).toInt() > 0 and _string.mid(s1,3).toInt() <= 999) s1 += 4;
-    }
-  else if ((position = _string.indexOf (" DE ")) >= 0)
-    {
-      s1 = 4 + position;
-    }
-  else if ((position = _string.indexOf (" QRZ ")) >= 0)
-    {
-      s1 = 5 + position;
-    }
-  auto s2 = _string.indexOf (" ", s1);
-  return _string.mid (s1, s2 - s1);
+  QRegularExpression callsign_re {R"(\s(CQ|DE|QRZ)(\s?DX|\s([A-Z]{2}|\d{3}))?\s(?<callsign>[A-Z0-9/]{2,})(\s[A-R]{2}[0-9]{2})?)"};
+  return callsign_re.match (_string).captured ("callsign");
 }
 
 
