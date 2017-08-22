@@ -67,19 +67,24 @@ contains
 ! For now:
 ! ndepth=1: no subtraction, 1 pass, belief propagation only
 ! ndepth=2: subtraction, 2 passes, belief propagation only
-! ndepth=3: subtraction, 2 passes, bp+osd2 at and near nfqso
+! ndepth=3: subtraction, 2 passes, bp+osd
     if(ndepth.eq.1) npass=1
-    if(ndepth.ge.2) npass=2
+    if(ndepth.ge.2) npass=3
     do ipass=1,npass
       newdat=.true.  ! Is this a problem? I hijacked newdat.
+      syncmin=1.5
       if(ipass.eq.1) then
         lsubtract=.true.
         if(ndepth.eq.1) lsubtract=.false.
-        syncmin=1.5
-      else
-        lsubtract=.false.
-        syncmin=1.5
+      elseif(ipass.eq.2) then
+        n2=ndecodes
+        if(ndecodes.eq.0) cycle
+        lsubtract=.true.
+      elseif(ipass.eq.3) then
+        if((ndecodes-n2).eq.0) cycle
+        lsubtract=.false. 
       endif 
+
       call timer('sync8   ',0)
       call sync8(dd,ifa,ifb,syncmin,nfqso,s,candidate,ncand)
       call timer('sync8   ',1)

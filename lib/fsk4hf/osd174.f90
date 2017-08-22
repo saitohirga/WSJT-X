@@ -1,4 +1,4 @@
-subroutine osd174(llr,apmask,norder,decoded,cw,nhardmin,dmin)
+subroutine osd174(llr,apmask,ndeep,decoded,cw,nhardmin,dmin)
 !
 ! An ordered-statistics decoder for the (174,87) code.
 ! 
@@ -7,13 +7,14 @@ include "ldpc_174_87_params.f90"
 integer*1 apmask(N),apmaskr(N)
 integer*1 gen(K,N)
 integer*1 genmrb(K,N),g2(N,K)
-integer*1 temp(K),m0(K),me(K),mi(K),misub(K),e2sub(N-K),e2(N-K)
+integer*1 temp(K),m0(K),me(K),mep(K),mi(K),misub(K),e2sub(N-K),e2(N-K),ui(N-K)
+integer*1 r2pat(N-K)
 integer indices(N),nxor(N)
-integer*1 cw(N),ce(N),c0(N),hdec(N)
+integer*1 cw(N),ce(N),c0(N),hdec(N),qi(N)
 integer*1 decoded(K)
 integer indx(N)
 real llr(N),rx(N),absrx(N)
-logical first
+logical first,reset
 data first/.true./
 save first,gen
 
@@ -37,7 +38,6 @@ endif
 ! Re-order received vector to place systematic msg bits at the end.
 rx=llr(colorder+1) 
 apmaskr=apmask(colorder+1)
-
 
 ! Hard decisions on the received word.
 hdec=0            
@@ -83,9 +83,8 @@ g2=transpose(genmrb)
 ! The hard decisions for the K MRB bits define the order 0 message, m0. 
 ! Encode m0 using the modified generator matrix to find the "order 0" codeword. 
 ! Flip various combinations of bits in m0 and re-encode to generate a list of
-! codewords. A pre-processing step selects a subset of these codewords. 
-! Return the member of the subset with the smallest Euclidean distance to the
-! the received word.
+! codewords. Return the member of the list that has the smallest Euclidean
+! distance to the received word. 
 
 hdec=hdec(indices)   ! hard decisions from received symbols
 m0=hdec(1:K)         ! zero'th order message
@@ -101,26 +100,42 @@ dmin=sum(nxor*absrx)
 cw=c0
 ntotal=0
 nrejected=0
-nt=40          ! Count the errors in the nt best bits in the redundancy part of the cw 
-ntheta=12      ! Reject the codeword without computing distance if # errors exceeds ntheta 
 
-! norder should be 1, 2, or 3.
-! if norder = 1, do one loop, no pre-processing
-! if norder = 2, do norder=1, then norder=2 using first W&H pre-processing rule
-! if norder = 3, do norder=2, then norder=3 using first W&H pre-processing rule
-
-if(norder.lt.1) goto 998  ! norder=0
-if(norder.gt.3) norder=3
-
-if( norder.eq. 1) then
+if(ndeep.eq.0) goto 998  ! norder=0
+if(ndeep.gt.5) ndeep=5
+if( ndeep.eq. 1) then
    nord=1
-   npre=0
-elseif(norder.eq.2) then
+   npre1=0
+   npre2=0
+   nt=40
+   ntheta=12
+elseif(ndeep.eq.2) then
    nord=1
-   npre=1
-elseif(norder.eq.3) then
+   npre1=1
+   npre2=0
+   nt=40
+   ntheta=12
+elseif(ndeep.eq.3) then
+   nord=1
+   npre1=1
+   npre2=1
+   nt=40
+   ntheta=12
+   ntau=14
+elseif(ndeep.eq.4) then
    nord=2
-   npre=1
+   npre1=1
+   npre2=0
+   nt=40
+   ntheta=12
+   ntau=19
+elseif(ndeep.eq.5) then
+   nord=2
+   npre1=1
+   npre2=1
+   nt=40
+   ntheta=12
+   ntau=19
 endif
 
 do iorder=1,nord
@@ -134,7 +149,7 @@ do iorder=1,nord
       iflag=K-1
    endif
    do while(iflag .ge.0)
-      if(iorder.eq.nord .and. npre.eq.0) then
+      if(iorder.eq.nord .and. npre1.eq.0) then
          iend=iflag
       else
          iend=1
@@ -179,7 +194,62 @@ do iorder=1,nord
    enddo
 enddo
 
-!write(*,*) 'rejected, total, nd1Kptbest: ',nrejected, ntotal, nd1Kptbest
+if(npre2.eq.1) then
+   reset=.true.
+   ntotal=0
+   do i1=K,1,-1
+      do i2=i1-1,1,-1
+         ntotal=ntotal+1
+         mi=ieor(g2(K+1:K+ntau,i1),g2(K+1:K+ntau,i2))
+         call boxit(reset,mi(1:ntau),ntau,ntotal,i1,i2)
+      enddo
+   enddo
+
+   ncount2=0
+   ntotal2=0
+   reset=.true.
+! Now run through again and do the second pre-processing rule
+   if(nord.eq.1) then
+      misub(1:K-1)=0
+      misub(K)=1 
+      iflag=K
+   elseif(nord.eq.2) then
+      misub(1:K-1)=0
+      misub(K-1:K)=1
+      iflag=K-1
+   endif
+   do while(iflag .ge.0)
+      me=ieor(m0,misub)
+      call mrbencode(me,ce,g2,N,K)
+      e2sub=ieor(ce(K+1:N),hdec(K+1:N))
+      do i2=0,ntau
+         ntotal2=ntotal2+1
+         ui=0 
+         if(i2.gt.0) ui(i2)=1 
+         r2pat=ieor(e2sub,ui)
+778      continue 
+            call fetchit(reset,r2pat(1:ntau),ntau,in1,in2)
+            if(in1.gt.0.and.in2.gt.0) then
+               ncount2=ncount2+1
+               mi=misub               
+               mi(in1)=1
+               mi(in2)=1
+               if(sum(mi).lt.nord+npre1+npre2.or.any(iand(apmaskr(1:K),mi).eq.1)) cycle
+               me=ieor(m0,mi)
+               call mrbencode(me,ce,g2,N,K)
+               nxor=ieor(ce,hdec)
+               dd=sum(nxor*absrx)
+               if( dd .lt. dmin ) then
+                  dmin=dd
+                  cw=ce
+                  nhardmin=sum(nxor)
+               endif
+               goto 778
+             endif
+      enddo
+      call nextpat(misub,K,nord,iflag)
+   enddo
+endif
 
 998 continue
 ! Re-order the codeword to place message bits at the end.
@@ -230,3 +300,78 @@ subroutine nextpat(mi,k,iorder,iflag)
   enddo
   return
 end subroutine nextpat
+
+subroutine boxit(reset,e2,ntau,npindex,i1,i2)
+  integer*1 e2(1:ntau)
+  integer   indexes(4000,2),fp(0:525000),np(4000)
+  logical reset
+  common/boxes/indexes,fp,np
+
+  if(reset) then
+    patterns=-1
+    fp=-1
+    np=-1
+    sc=-1
+    indexes=-1
+    reset=.false.
+  endif
+ 
+  indexes(npindex,1)=i1
+  indexes(npindex,2)=i2
+  ipat=0
+  do i=1,ntau
+    if(e2(i).eq.1) then
+      ipat=ipat+ishft(1,ntau-i)
+    endif
+  enddo
+
+  ip=fp(ipat)   ! see what's currently stored in fp(ipat)
+  if(ip.eq.-1) then
+    fp(ipat)=npindex
+  else
+     do while (np(ip).ne.-1)
+      ip=np(ip) 
+     enddo  
+     np(ip)=npindex
+  endif
+  return
+end subroutine boxit
+
+subroutine fetchit(reset,e2,ntau,i1,i2)
+  integer   indexes(4000,2),fp(0:525000),np(4000)
+  integer   lastpat
+  integer*1 e2(ntau)
+  logical reset
+  common/boxes/indexes,fp,np
+  save lastpat,inext,first
+
+  if(reset) then
+    lastpat=-1
+    reset=.false.
+  endif
+
+  ipat=0
+  do i=1,ntau
+    if(e2(i).eq.1) then
+      ipat=ipat+ishft(1,ntau-i)
+    endif
+  enddo
+  index=fp(ipat)
+
+  if(lastpat.ne.ipat .and. index.gt.0) then ! return first set of indices
+     i1=indexes(index,1)
+     i2=indexes(index,2)
+     inext=np(index)
+  elseif(lastpat.eq.ipat .and. inext.gt.0) then
+     i1=indexes(inext,1)
+     i2=indexes(inext,2)
+     inext=np(inext)
+  else
+     i1=-1
+     i2=-1
+     inext=-1
+  endif
+  lastpat=ipat
+  return
+end subroutine fetchit
+ 
