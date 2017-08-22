@@ -12,7 +12,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
   real a(5)
   real s1(0:7,ND),s2(0:7,NN)
   real ps(0:7)
-  real bmeta(3*ND),bmetb(3*ND),bmetap(3*ND)
+  real bmeta(3*ND),bmetap(3*ND)
   real llr(3*ND),llra(3*ND),llr0(3*ND),llrap(3*ND)           !Soft symbols
   real dd0(15*12000)
   integer*1 decoded(KK),apmask(3*ND),cw(3*ND)
