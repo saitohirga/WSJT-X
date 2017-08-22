@@ -7,10 +7,10 @@ include "ldpc_174_87_params.f90"
 integer*1 apmask(N),apmaskr(N)
 integer*1 gen(K,N)
 integer*1 genmrb(K,N),g2(N,K)
-integer*1 temp(K),m0(K),me(K),mep(K),mi(K),misub(K),e2sub(N-K),e2(N-K),ui(N-K)
+integer*1 temp(K),m0(K),me(K),mi(K),misub(K),e2sub(N-K),e2(N-K),ui(N-K)
 integer*1 r2pat(N-K)
 integer indices(N),nxor(N)
-integer*1 cw(N),ce(N),c0(N),hdec(N),qi(N)
+integer*1 cw(N),ce(N),c0(N),hdec(N)
 integer*1 decoded(K)
 integer indx(N)
 real llr(N),rx(N),absrx(N)
@@ -343,7 +343,7 @@ subroutine fetchit(reset,e2,ntau,i1,i2)
   integer*1 e2(ntau)
   logical reset
   common/boxes/indexes,fp,np
-  save lastpat,inext,first
+  save lastpat,inext
 
   if(reset) then
     lastpat=-1
