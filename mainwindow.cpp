@@ -856,6 +856,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_bDoubleClicked=false;
   m_bCallingCQ=false;
   m_wait=0;
+  m_CQtype="CQ";
 
   if(m_mode.startsWith ("WSPR") and m_pctx>0)  {
     QPalette palette {ui->sbTxPercent->palette ()};
@@ -4000,34 +4001,27 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
 
 void MainWindow::genCQMsg ()
 {
-  if(m_config.my_callsign().size () && m_config.my_grid().size ())
-    {
-      auto const& grid = m_config.my_callsign () != m_baseCall && shortList (m_config.my_callsign ()) ? QString {} : m_config.my_grid ();
-      if (ui->cbCQTx->isEnabled () && ui->cbCQTx->isVisible () && ui->cbCQTx->isChecked ())
-        {
-          msgtype (QString {"CQ %1 %2 %3"}
-                      .arg (m_freqNominal / 1000 - m_freqNominal / 1000000 * 1000, 3, 10, QChar {'0'})
-                      .arg (m_config.my_callsign())
-                      .arg (grid.left (4)),
-                   ui->tx6);
-      }
-      else
-        {
-          msgtype (QString {"CQ %1 %2"}.arg (m_config.my_callsign ()).arg (grid.left (4)), ui->tx6);
-        }
-      if ((m_mode=="JT4" or m_mode=="QRA64") and  ui->cbShMsgs->isChecked()) {
-        if (ui->cbTx6->isChecked ()) {
-          msgtype ("@1250  (SEND MSGS)", ui->tx6);
-        }
-        else {
-          msgtype ("@1000  (TUNE)", ui->tx6);
-        }
+  if(m_config.my_callsign().size () && m_config.my_grid().size ()) {
+    auto const& grid = m_config.my_callsign () != m_baseCall && shortList (m_config.my_callsign ()) ? QString {} : m_config.my_grid ();
+    if (ui->cbCQTx->isEnabled () && ui->cbCQTx->isVisible () && ui->cbCQTx->isChecked ()) {
+      msgtype (QString {"CQ %1 %2 %3"}
+               .arg (m_freqNominal / 1000 - m_freqNominal / 1000000 * 1000, 3, 10, QChar {'0'})
+               .arg (m_config.my_callsign())
+               .arg (grid.left (4)),
+               ui->tx6);
+    } else {
+      msgtype (QString {"%1 %2 %3"}.arg(m_CQtype).arg(m_config.my_callsign()).arg(grid.left(4)),ui->tx6);
+    }
+    if ((m_mode=="JT4" or m_mode=="QRA64") and  ui->cbShMsgs->isChecked()) {
+      if (ui->cbTx6->isChecked ()) {
+        msgtype ("@1250  (SEND MSGS)", ui->tx6);
+      } else {
+        msgtype ("@1000  (TUNE)", ui->tx6);
       }
     }
-  else
-    {
-      ui->tx6->clear ();
-    }
+  } else {
+    ui->tx6->clear ();
+  }
 }
 
 void MainWindow::genStdMsgs(QString rpt, bool unconditional)
@@ -4405,7 +4399,10 @@ void MainWindow::on_tx5_currentTextChanged (QString const& text) //tx5 edited
 
 void MainWindow::on_tx6_editingFinished()                       //tx6 edited
 {
-  QString t=ui->tx6->text();
+  QString t=ui->tx6->text().toUpper();
+  QString t1=t.split(" ").at(1);
+  m_CQtype="CQ";
+  if(t1.size()==2) m_CQtype="CQ " + t1;
   msgtype(t, ui->tx6);
 }
 
