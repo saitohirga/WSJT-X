@@ -34,6 +34,7 @@ contains
     class(ft8_decoder), intent(inout) :: this
     procedure(ft8_decode_callback) :: callback
     real s(NH1,NHSYM)
+    real sbase(NH1)
     real candidate(3,200)
     real dd(15*12000)
     logical, intent(in) :: lapon,nagain
@@ -86,17 +87,18 @@ contains
       endif 
 
       call timer('sync8   ',0)
-      call sync8(dd,ifa,ifb,syncmin,nfqso,s,candidate,ncand)
+      call sync8(dd,ifa,ifb,syncmin,nfqso,s,candidate,ncand,sbase)
       call timer('sync8   ',1)
       do icand=1,ncand
         sync=candidate(3,icand)
         f1=candidate(1,icand)
         xdt=candidate(2,icand)
+        xbase=10.0**(0.1*(sbase(nint(f1/3.125))-40.0))
         nsnr0=min(99,nint(10.0*log10(sync) - 25.5))    !### empirical ###
         call timer('ft8b    ',0)
         call ft8b(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,    &
-             lsubtract,nagain,iaptype,mygrid6,bcontest,sync,f1,xdt,apsym,   &
-             nharderrors,dmin,nbadcrc,iappass,iera,message,xsnr)
+             lsubtract,nagain,iaptype,mygrid6,bcontest,sync,f1,xdt,xbase,   &
+             apsym,nharderrors,dmin,nbadcrc,iappass,iera,message,xsnr)
         nsnr=nint(xsnr) 
         xdt=xdt-0.5
         hd=nharderrors+dmin
