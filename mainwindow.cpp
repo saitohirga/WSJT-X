@@ -3691,9 +3691,9 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
 
   if (decodedtext.indexOf(" CQ ") > 0) {
 // TODO this magic 37 characters is also referenced in DisplayText::_appendDXCCWorkedB4()
-    auto eom_pos = decodedtext.string ().indexOf (' ', 36);
-    if (eom_pos < 36) eom_pos = decodedtext.string ().size () - 1; // we always want at least the characters
-                            // to position 36
+    auto eom_pos = decodedtext.string ().indexOf (' ', 37);
+    if (eom_pos < 37) eom_pos = decodedtext.string ().size () - 1; // we always want at least the characters
+                            // to position 37
     decodedtext = decodedtext.string ().left (eom_pos + 1);  // remove DXCC entity and worked B4 status. TODO need a better way to do this
   }
 
