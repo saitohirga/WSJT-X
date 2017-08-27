@@ -12,7 +12,7 @@ subroutine baseline(s,nfa,nfb,sbase)
   data nseg/10/,npct/10/
 
   df=12000.0/3840.0                    !3.125 Hz
-  ia=nint(nfa/df)
+  ia=max(1,nint(nfa/df))
   ib=nint(nfb/df)
   do i=ia,ib
      s(i)=10.0*log10(s(i))            !Convert to dB scale
