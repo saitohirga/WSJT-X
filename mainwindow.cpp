@@ -3796,8 +3796,8 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
             }
             m_QSOProgress = SIGNOFF;
           } else if((m_QSOProgress >= REPORT
-                     || (m_QSOProgress >= REPLYING && "MSK144" == m_mode && m_config.contestMode ()))
-                    && r.mid(0,1)=="R") {
+                     || (m_QSOProgress >= REPLYING && (m_mode=="MSK144" or m_mode=="FT8")
+                         && m_config.contestMode ())) && r.mid(0,1)=="R") {
             m_ntx=4;
             m_QSOProgress = ROGERS;
             ui->txrb4->setChecked(true);
@@ -3836,8 +3836,8 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
       }
       else if (!(m_bAutoReply && m_QSOProgress > CALLING)) {
         if ((t4.size () >= 9 && t4.at (5).contains (m_baseCall) && t4.at (8) == "OOO")
-            || (m_mode=="MSK144" && m_config.contestMode())) {
-          // EME short code report or MSK144 contest mode reply, send back Tx3
+            || ((m_mode=="MSK144" or m_mode=="FT8") && m_config.contestMode())) {
+          // EME short code report or MSK144/FT8 contest mode reply, send back Tx3
           m_ntx = 3;
           m_QSOProgress = ROGER_REPORT;
           ui->txrb3->setChecked (true);
