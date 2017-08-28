@@ -200,7 +200,7 @@ if(npre2.eq.1) then
    do i1=K,1,-1
       do i2=i1-1,1,-1
          ntotal=ntotal+1
-         mi=ieor(g2(K+1:K+ntau,i1),g2(K+1:K+ntau,i2))
+         mi(1:ntau)=ieor(g2(K+1:K+ntau,i1),g2(K+1:K+ntau,i2))
          call boxit(reset,mi(1:ntau),ntau,ntotal,i1,i2)
       enddo
    enddo
