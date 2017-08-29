@@ -3720,13 +3720,14 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   QString hiscall;
   QString hisgrid;
   decodedtext.deCallAndGrid(/*out*/hiscall,hisgrid);
+  auto acceptable_73 = m_QSOProgress >= ROGER_REPORT && message_is_73 (0, t4);
   if (!Radio::is_callsign (hiscall)    // not interested if not from QSO partner
       && !(t4.size () == 7             // unless it is of the form
            && (t4.at (5) == m_baseCall // "<our-call> 73"
                || t4.at (5).startsWith (m_baseCall + '/')
                || t4.at (5).endsWith ('/' + m_baseCall))
            && t4.at (6) == "73")
-      && !(m_QSOProgress >= ROGER_REPORT && message_is_73 (0, t4)))
+      && !acceptable_73)
     {
       qDebug () << "Not processing message - hiscall:" << hiscall << "hisgrid:" << hisgrid;
       return;
@@ -3900,7 +3901,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
       }
     }
   }
-  else if (m_QSOProgress >= ROGERS && message_is_73 (0, t4)) {
+  else if (acceptable_73) {
     if(ui->tabWidget->currentIndex()==1) {
       gen_msg = 5;
       if (ui->rbGenMsg->isChecked ()) m_ntx=7;
@@ -3943,7 +3944,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
       m_QSOText=decodedtext;
   }
 
-  if (hiscall != "73"
+  if (hiscall != "73" && !acceptable_73
       && (base_call != qso_partner_base_call || base_call != hiscall))
     {
       if (qso_partner_base_call != base_call) {
