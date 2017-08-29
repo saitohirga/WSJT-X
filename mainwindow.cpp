@@ -4184,6 +4184,10 @@ void MainWindow::TxAgain()
 
 void MainWindow::clearDX ()
 {
+  if (m_QSOProgress != CALLING)
+    {
+      auto_tx_mode (false);
+    }
   ui->dxCallEntry->clear ();
   ui->dxGridEntry->clear ();
   m_lastCallsign.clear ();
