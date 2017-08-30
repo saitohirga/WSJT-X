@@ -3707,7 +3707,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   QString hiscall;
   QString hisgrid;
   decodedtext.deCallAndGrid(/*out*/hiscall,hisgrid);
-  bool is_73 = t4.filter (QRegularExpression {"73|RR73"}).size ();
+  bool is_73 = t4.filter (QRegularExpression {"^(73|RR73)$"}).size ();
   auto acceptable_73 =
     m_QSOProgress >= ROGER_REPORT
     && is_73
