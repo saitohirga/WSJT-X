@@ -26,7 +26,7 @@ void CountryDat::init(const QString filename)
     _data.clear();
 }
 
-QString CountryDat::_extractName(const QString line)
+QString CountryDat::_extractName(const QString line) const
 {
     int s1 = line.indexOf(':');
     if (s1>=0)
@@ -37,7 +37,7 @@ QString CountryDat::_extractName(const QString line)
     return "";
 }
 
-void CountryDat::_removeBrackets(QString &line, const QString a, const QString b)
+void CountryDat::_removeBrackets(QString &line, const QString a, const QString b) const
 {
     int s1 = line.indexOf(a);
     while (s1 >= 0)
@@ -48,7 +48,7 @@ void CountryDat::_removeBrackets(QString &line, const QString a, const QString b
     }
 }    
 
-QStringList CountryDat::_extractPrefix(QString &line, bool &more)
+QStringList CountryDat::_extractPrefix(QString &line, bool &more) const
 {
     line = line.remove(" \n");
     line = line.replace("=","");
@@ -117,7 +117,7 @@ void CountryDat::load()
 }
 
 // return country name else ""
-QString CountryDat::find(QString prefix)
+QString CountryDat::find(QString prefix) const
 {
   prefix = prefix.toUpper ();
   auto pf = prefix;
@@ -143,6 +143,3 @@ QString CountryDat::find(QString prefix)
     }
   return QString {};
 }	   
-
-      
-

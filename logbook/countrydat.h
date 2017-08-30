@@ -19,13 +19,13 @@ class CountryDat
 public:
   void init(const QString filename);
   void load();
-  QString find(QString prefix); // return country name or ""
-  QStringList  getCountryNames() { return _countryNames; };
+  QString find(QString prefix) const; // return country name or ""
+  QStringList  getCountryNames() const { return _countryNames; };
    
 private:
-  QString _extractName(const QString line);
-  void _removeBrackets(QString &line, const QString a, const QString b);
-  QStringList _extractPrefix(QString &line, bool &more);
+  QString _extractName(const QString line) const;
+  void _removeBrackets(QString &line, const QString a, const QString b) const;
+  QStringList _extractPrefix(QString &line, bool &more) const;
 
   QString _filename;
   QStringList _countryNames;

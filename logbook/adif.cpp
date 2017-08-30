@@ -18,7 +18,7 @@ void ADIF::init(QString const& filename)
 }
 
 
-QString ADIF::_extractField(QString const& line, QString const& fieldName)
+QString ADIF::_extractField(QString const& line, QString const& fieldName) const
 {
     int fieldNameIndex = line.indexOf(fieldName,0,Qt::CaseInsensitive);
     if (fieldNameIndex >=0)
@@ -87,7 +87,7 @@ void ADIF::add(QString const& call, QString const& band, QString const& mode, QS
 }
 
 // return true if in the log same band and mode (where JT65 == JT9)
-bool ADIF::match(QString const& call, QString const& band, QString const& mode)
+bool ADIF::match(QString const& call, QString const& band, QString const& mode) const
 {
     QList<QSO> qsos = _data.values(call);
     if (qsos.size()>0)
@@ -120,7 +120,7 @@ bool ADIF::match(QString const& call, QString const& band, QString const& mode)
     return false;
 }    
 
-QList<QString> ADIF::getCallList()
+QList<QString> ADIF::getCallList() const
 {
     QList<QString> p;
     QMultiHash<QString,QSO>::const_iterator i = _data.constBegin();
@@ -132,7 +132,7 @@ QList<QString> ADIF::getCallList()
     return p;
 }   
     
-int ADIF::getCount()
+int ADIF::getCount() const
 {
     return _data.size();
 }   
