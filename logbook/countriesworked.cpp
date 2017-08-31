@@ -13,7 +13,7 @@ void CountriesWorked::setAsWorked(const QString countryName)
       _data.insert(countryName,true);
 }     
       
-bool CountriesWorked::getHasWorked(const QString countryName)
+bool CountriesWorked::getHasWorked(const QString countryName) const
 {  
     if (_data.contains(countryName))
       return _data.value(countryName);  
@@ -21,7 +21,7 @@ bool CountriesWorked::getHasWorked(const QString countryName)
     return false;
 }
     
-int CountriesWorked::getWorkedCount()
+int CountriesWorked::getWorkedCount() const
 {
     int count = 0;
 	foreach (bool value,_data)
@@ -30,7 +30,7 @@ int CountriesWorked::getWorkedCount()
     return count;
 }
     
-int CountriesWorked::getSize()
+int CountriesWorked::getSize() const
 {
     return _data.count();
 }

@@ -40,11 +40,22 @@ additional information is sent in place of the grid locator or by
 encoding additional information into some of the 6 million available
 slots mentioned above.
 
-Finally, the message compression algorithm supports messages starting
-with `CQ AA` through `CQ ZZ`.  Such messages are encoded by
-sending `E9AA` through `E9ZZ` in place of the first callsign of a
-standard message.  Upon reception these calls are converted back to
-the form `CQ AA` through `CQ ZZ`.
+As a convenience for sending directed CQ messages, the compression
+algorithm supports messages starting with `CQ AA` through `CQ ZZ`.
+These message fragments are encoded internally as if they were the
+callsigns `E9AA` through `E9ZZ`.  Upon reception they are converted
+back to the form `CQ AA` through `CQ ZZ`, for display to the user.
+
+The FT8 and MSK144 modes support a special feature allowing convenient
+transmission and acknowledgment of four-character grid locators, the
+required exchanges in most North American VHF contests.  With this
+Contest Mode enabled, _WSJT-X_ supports messages of the form `W9XYZ
+K1ABC R FN42` by converting the grid locator to that of its
+diametrically opposite point on Earth.  The receiving program
+recognizes a locator implying a distance greater than 10,000 km, does
+the reverse transformation, and inserts the implied "`R`".  Obviously,
+this mode should not be used on the HF bands or under other
+circumstances where world-wide propagation is possible.
 
 To be useful on channels with low signal-to-noise ratio, this kind of
 lossless message compression requires use of a strong forward error
@@ -288,15 +299,6 @@ shaped with half-sine profiles, thereby ensuring a generated waveform
 with constant envelope, equivalent to a Minimum Shift Keying (MSK)
 waveform.  Frame duration is 72 ms, so the effective character
 transmission rate for standard messages is up to 250 cps.
-
-Contest Mode in MSK144 conveys an additional acknowledgment bit (the
-"`R`" in a message of the form `W9XYZ K1ABC R FN42`) by using the fact
-that meteor scatter and other propagation modes usable with MSK144 are
-generally effective only out to distances of order 2500 km.  To convey
-the message fragment `R FN42`, WSJT-X encodes the locator as that of
-its antipodes.  The receiving program recognizes a locator with
-distance greater than 10,000 km, does the reverse transformation, and
-inserts the implied "`R`".
 
 MSK144 also supports short-form messages that can be used after QSO
 partners have exchanged both callsigns.  Short messages consist of 4

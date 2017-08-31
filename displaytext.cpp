@@ -81,7 +81,7 @@ void DisplayText::appendText(QString const& text, QColor bg)
 
 
 QString DisplayText::appendDXCCWorkedB4(QString message, QString const& callsign, QColor * bg,
-					LogBook logBook, QColor color_CQ,
+					LogBook const& logBook, QColor color_CQ,
 					QColor color_DXCC,
 					QColor color_NewCall)
 {
@@ -158,8 +158,8 @@ QString DisplayText::appendDXCCWorkedB4(QString message, QString const& callsign
     return message;
 }
 
-void DisplayText::displayDecodedText(DecodedText decodedText, QString myCall,
-                                     bool displayDXCCEntity, LogBook logBook,
+void DisplayText::displayDecodedText(DecodedText const& decodedText, QString const& myCall,
+                                     bool displayDXCCEntity, LogBook const& logBook,
                                      QColor color_CQ, QColor color_MyCall,
                                      QColor color_DXCC, QColor color_NewCall)
 {

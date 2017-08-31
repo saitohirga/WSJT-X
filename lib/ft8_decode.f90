@@ -34,6 +34,7 @@ contains
     class(ft8_decoder), intent(inout) :: this
     procedure(ft8_decode_callback) :: callback
     real s(NH1,NHSYM)
+    real sbase(NH1)
     real candidate(3,200)
     real dd(15*12000)
     logical, intent(in) :: lapon,nagain
@@ -67,63 +68,62 @@ contains
 ! For now:
 ! ndepth=1: no subtraction, 1 pass, belief propagation only
 ! ndepth=2: subtraction, 2 passes, belief propagation only
-! ndepth=3: subtraction, 2 passes, bp+osd2 at and near nfqso
+! ndepth=3: subtraction, 2 passes, bp+osd
     if(ndepth.eq.1) npass=1
-    if(ndepth.ge.2) npass=2
+    if(ndepth.ge.2) npass=3
     do ipass=1,npass
       newdat=.true.  ! Is this a problem? I hijacked newdat.
+      syncmin=1.5
       if(ipass.eq.1) then
         lsubtract=.true.
         if(ndepth.eq.1) lsubtract=.false.
-        syncmin=1.5
-      else
-        lsubtract=.false.
-        syncmin=1.5
+      elseif(ipass.eq.2) then
+        n2=ndecodes
+        if(ndecodes.eq.0) cycle
+        lsubtract=.true.
+      elseif(ipass.eq.3) then
+        if((ndecodes-n2).eq.0) cycle
+        lsubtract=.false. 
       endif 
+
       call timer('sync8   ',0)
-      call sync8(dd,ifa,ifb,syncmin,nfqso,s,candidate,ncand)
+      call sync8(dd,ifa,ifb,syncmin,nfqso,s,candidate,ncand,sbase)
       call timer('sync8   ',1)
       do icand=1,ncand
         sync=candidate(3,icand)
         f1=candidate(1,icand)
         xdt=candidate(2,icand)
+        xbase=10.0**(0.1*(sbase(nint(f1/3.125))-40.0))
         nsnr0=min(99,nint(10.0*log10(sync) - 25.5))    !### empirical ###
         call timer('ft8b    ',0)
         call ft8b(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,    &
-             lsubtract,nagain,iaptype,mygrid6,bcontest,sync,f1,xdt,apsym,   &
-             nharderrors,dmin,nbadcrc,iappass,iera,message,xsnr)
+             lsubtract,nagain,iaptype,mygrid6,bcontest,sync,f1,xdt,xbase,   &
+             apsym,nharderrors,dmin,nbadcrc,iappass,iera,message,xsnr)
         nsnr=nint(xsnr) 
         xdt=xdt-0.5
         hd=nharderrors+dmin
         call timer('ft8b    ',1)
         if(nbadcrc.eq.0) then
-           call jtmsg(message,iflag)
+!           call jtmsg(message,iflag)
            if(bcontest) call fix_contest_msg(mygrid6,message)
-           if(iand(iflag,16).ne.0) message(22:22)='?'
-           if(iand(iflag,15).eq.0) then
-              ldupe=.false.
-              do id=1,ndecodes
-                 if(message.eq.allmessages(id).and.nsnr.le.allsnrs(id)) ldupe=.true.
-              enddo
-              if(.not.ldupe) then
-                 ndecodes=ndecodes+1
-                 allmessages(ndecodes)=message
-                 allsnrs(ndecodes)=nsnr
-              endif
-!              write(81,1004) nutc,ncand,icand,ipass,iaptype,iappass,        &
-!                   iflag,nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),    &
-!                   xdt,nint(f1),message
-!              flush(81)
-              if(.not.ldupe .and. associated(this%callback)) then
-                 qual=1.0-(nharderrors+dmin)/60.0 ! scale qual to [0.0,1.0]
-                 call this%callback(sync,nsnr,xdt,f1,message,iaptype,qual)
-              endif
-           else
-              write(19,1004) nutc,ncand,icand,ipass,iaptype,iappass,        &
-                   iflag,nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),    &
-                   xdt,nint(f1),message
-1004          format(i6.6,2i4,3i2,2i3,3f6.1,i4,f6.2,i5,2x,a22)
-              flush(19)
+!           if(iand(iflag,31).ne.0) message(22:22)='?'
+           ldupe=.false.
+           do id=1,ndecodes
+              if(message.eq.allmessages(id).and.nsnr.le.allsnrs(id)) ldupe=.true.
+           enddo
+           if(.not.ldupe) then
+              ndecodes=ndecodes+1
+              allmessages(ndecodes)=message
+              allsnrs(ndecodes)=nsnr
+           endif
+!           write(81,1004) nutc,ncand,icand,ipass,iaptype,iappass,        &
+!                nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),          &
+!                xdt,nint(f1),message
+!1004          format(i6.6,2i4,3i2,i3,3f6.1,i4,f6.2,i5,2x,a22)
+!           flush(81)
+           if(.not.ldupe .and. associated(this%callback)) then
+              qual=1.0-(nharderrors+dmin)/60.0 ! scale qual to [0.0,1.0]
+              call this%callback(sync,nsnr,xdt,f1,message,iaptype,qual)
            endif
         endif
       enddo

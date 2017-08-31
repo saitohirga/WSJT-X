@@ -27,54 +27,41 @@
 class DecodedText
 {
 public:
-  void operator=(const QString &rhs)
-  {
-    _string = rhs;
-    padding_ = _string.indexOf (" ") > 4 ? 2 : 0; // allow for seconds
-  };
-  void operator=(const QByteArray &rhs)
-  {
-    _string = rhs;
-    padding_ = _string.indexOf (" ") > 4 ? 2 : 0; // allow for seconds
-  };
+  explicit DecodedText (QString const&);
 
-  void operator+=(const QString &rhs)
-  {
-    _string += rhs;
-  };
+  QString string() const { return string_; };
+  void removeAddedInfo ();
+  int indexOf(QString s) const { return string_.indexOf(s); };
+  int indexOf(QString s, int i) const { return string_.indexOf(s,i); };
+  QString mid(int f, int t) const { return string_.mid(f,t); };
+  QString left(int i) const { return string_.left(i); };
 
-  QString string() { return _string; };
+  void clear() { string_.clear(); };
 
-  int indexOf(QString s) { return _string.indexOf(s); };
-  int indexOf(QString s, int i) { return _string.indexOf(s,i); };
-  QString mid(int f, int t) { return _string.mid(f,t); };
-  QString left(int i) { return _string.left(i); };
+  QString CQersCall() const;
 
-  void clear() { _string.clear(); };
-
-  QString CQersCall();
-
-  bool isJT65();
-  bool isJT9();
-  bool isTX();
-  bool isLowConfidence ();
-  int frequencyOffset();  // hertz offset from the tuned dial or rx frequency, aka audio frequency
-  int snr();
-  float dt();
+  bool isJT65() const;
+  bool isJT9() const;
+  bool isTX() const;
+  bool isStandardMessage () const {return is_standard_;}
+  bool isLowConfidence () const;
+  int frequencyOffset() const;  // hertz offset from the tuned dial or rx frequency, aka audio frequency
+  int snr() const;
+  float dt() const;
 
   // find and extract any report. Returns true if this is a standard message
-  bool report(QString const& myBaseCall, QString const& dxBaseCall, /*mod*/QString& report);
+  bool report(QString const& myBaseCall, QString const& dxBaseCall, /*mod*/QString& report) const;
 
   // get the first message text word, usually the call
-  QString call();
+  QString call() const;
 
   // get the second word, most likely the de call and the third word, most likely grid
-  void deCallAndGrid(/*out*/QString& call, QString& grid);
+  void deCallAndGrid(/*out*/QString& call, QString& grid) const;
 
-  int timeInSeconds();
+  int timeInSeconds() const;
 
   // returns a string of the SNR field with a leading + or - followed by two digits
-  QString report();
+  QString report() const;
 
 private:
   // These define the columns in the decoded text where fields are to be found.
@@ -86,8 +73,10 @@ private:
       column_mode    = 19,
       column_qsoText = 22 };
 
-  QString _string;
+  QString string_;
   int padding_;
+  QString message_;
+  bool is_standard_;
 };
 
 #endif // DECODEDTEXT_H

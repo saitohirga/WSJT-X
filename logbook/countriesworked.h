@@ -14,15 +14,15 @@
 
 class CountriesWorked
 {
-	public:
-        void init(const QStringList countryNames);
-        void setAsWorked(const QString countryName);
-        bool getHasWorked(const QString countryName);
-		int getWorkedCount();
-		int getSize();
+ public:
+	void init(const QStringList countryNames);
+	void setAsWorked(const QString countryName);
+	bool getHasWorked(const QString countryName) const;
+	int getWorkedCount() const;
+	int getSize() const;
 		
-	private:
-		QHash<QString, bool> _data;
+ private:
+	QHash<QString, bool> _data;
 };
 
 #endif

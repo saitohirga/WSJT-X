@@ -1,4 +1,4 @@
-subroutine sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand)
+subroutine sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand,sbase)
 
   include 'ft8_params.f90'
 ! Search over +/- 1.5s relative to 0.5s TX start time. 
@@ -6,6 +6,7 @@ subroutine sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand)
   complex cx(0:NH1)
   real s(NH1,NHSYM)
   real savg(NH1)
+  real sbase(NH1)
   real x(NFFT1)
   real sync2d(NH1,-JZ:JZ)
   real red(NH1)
@@ -35,7 +36,8 @@ subroutine sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand)
      enddo
      savg=savg + s(1:NH1,j)                   !Average spectrum
   enddo
-  savg=savg/NHSYM
+  call baseline(savg,nfa,nfb,sbase)
+!  savg=savg/NHSYM
 !  do i=1,NH1
 !     write(51,3051) i*df,savg(i),db(savg(i))
 !3051 format(f10.3,e12.3,f12.3)

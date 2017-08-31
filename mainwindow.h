@@ -33,7 +33,6 @@
 #include "DisplayManual.hpp"
 #include "psk_reporter.h"
 #include "logbook/logbook.h"
-#include "decodedtext.h"
 #include "commons.h"
 #include "astro.h"
 #include "MessageBox.hpp"
@@ -82,6 +81,7 @@ class Detector;
 class SampleDownloader;
 class MultiSettings;
 class EqualizationToolsDialog;
+class DecodedText;
 
 class MainWindow : public QMainWindow
 {
@@ -532,6 +532,7 @@ private:
   QString m_msgSent0;
   QString m_fileToSave;
   QString m_calls;
+  QString m_CQtype;
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;
@@ -540,7 +541,7 @@ private:
 
   QSharedMemory *mem_jt9;
   LogBook m_logBook;
-  DecodedText m_QSOText;
+  QString m_QSOText;
   unsigned m_msAudioOutputBuffered;
   unsigned m_framesAudioInputBuffered;
   unsigned m_downSampleFactor;
@@ -587,7 +588,7 @@ private:
   void transmit (double snr = 99.);
   void rigFailure (QString const& reason);
   void pskSetLocal ();
-  void pskPost(DecodedText decodedtext);
+  void pskPost(DecodedText const& decodedtext);
   void displayDialFrequency ();
   void transmitDisplay (bool);
   void processMessage(QString const& messages, qint32 position, bool ctrl = false, bool alt = false);
