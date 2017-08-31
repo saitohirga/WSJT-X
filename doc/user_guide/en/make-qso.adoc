@@ -62,10 +62,30 @@ When calling CQ you may also choose to check the box *Call 1st*.
 _WSJT-X_ will then respond automatically to the first decoded
 responder to your CQ.
 
-NOTE: When *Auto-Seq* is enabled the program de-activates *Enable
-Tx* at the end of each QSO.  We do not want _WSJT-X_ to make fully
-automated QSOs.
+NOTE: When *Auto-Seq* is enabled the program de-activates *Enable Tx*
+at the end of each QSO.  It is not intended that _WSJT-X_ should make
+fully automated QSOs.
 
+=== VHF Contest Mode
+
+A special *VHF Contest Mode* can be activated for FT8 and MSK144 modes
+by checking a box on the *Settings | Advanced* tab.  This mode is
+configured especially for VHF contests in which four-character grid
+locators are the required exchange.  When *Contest Mode* is active,
+the standard QSO sequence looks like this:
+
+ CQ K1ABC FN42
+                      K1ABC W9XYZ EN37
+ W9XYZ K1ABC R FN42
+                      K1ABC W9XYZ RRR
+ W9XYZ K1ABC 73
+
+In contest circumstances K1ABC might choose to call CQ again rather
+than sending 73 for his third transmission.
+
+IMPORTANT: Do not use VHF Contest Mode on an HF band or in conditions
+where worldwide propagation is available.  See
+<<PROTOCOL_OVERVIEW,Protocol Specifications>> for further details.
 
 [[COMP-CALL]] 
 === Compound Callsigns
@@ -174,10 +194,13 @@ as the following checklist:
 
 - Computer clock properly synchronized to UTC within ±1 s
 
+- Audio input and output devices configured for sample rate 48000 Hz,
+16 bits
+
 - Radio set to *USB* (upper sideband) mode
 
 - Radio filters centered and set to widest available passband (up to 5 kHz).
 
 TIP: Remember that in many circumstances FT8, JT4, JT9, JT65, and WSPR
 do not require high power. Under most HF propagation conditions, QRP
-is usually the norm.
+is the norm.

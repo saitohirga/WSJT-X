@@ -34,7 +34,8 @@ markers and both spinner controls will follow your selections.
 
 - Double-clicking at any frequency on the waterfall does all the
 things just described and also invokes the decoder in a small range
-around that frequency.
+around that frequency.  To decode a particular signal, double-click
+near the left edge of its waterfall trace.
 
 - Now double-click on any of the the lines of decoded text in the main
 window.  Unless you have *My Call* set to K1JT or KY7M on the
