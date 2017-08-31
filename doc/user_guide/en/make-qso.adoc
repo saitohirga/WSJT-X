@@ -36,6 +36,14 @@ audible (to someone with very good hearing) around –15 dB. Thresholds
 for decodability are around -20 dB for FT8, -23 dB for JT4, –25 dB for
 JT65, –27 dB for JT9.
 
+NOTE: Several options are available for circumstances where fast QSOs
+are desirable.  Double-click the *Tx1* control under _Now_ or _Next_
+to toggle use of the Tx2 message rather than Tx1 to start a QSO.
+Similarly, double-click the *Tx4* control to toggle between sending
+`RRR` and `RR73` in that message.  The `RR73` message should be used
+only if you are reasonably confident that no repititions will be
+required.
+
 === Free-Text Messages
 
 Users often add some friendly chit-chat at the end of a QSO.

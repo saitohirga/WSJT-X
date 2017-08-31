@@ -47,5 +47,12 @@ This behavior is desirable so that you will not inadvertently change
 your Tx frequency to that of a tail-ender who called you somewhere
 else in the FT8 subband.
 
+NOTE: The FT8 decoder can often copy several overlapping signals at
+nearly the same frequency.  However, in crowded band conditions you
+will often find it advantageous to move off the frequency of the
+station you are calling.  Keyboard shortcuts *Shift+F11* and
+*Shift+F12* provide an easy way to move your Tx frequency in 60 Hz
+steps.
+
 IMPORTANT: When finished with this Tutorial, don't forget to re-enter
 your own callsign as *My Call* on the *Settings | General* tab.
