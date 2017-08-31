@@ -67,7 +67,7 @@ void LogBook::_setAlreadyWorkedFromLog()
 void LogBook::match(/*in*/const QString call,
                     /*out*/ QString &countryName,
                     bool &callWorkedBefore,
-                    bool &countryWorkedBefore)
+                    bool &countryWorkedBefore) const
 {
   if (call.length() > 0)
     {

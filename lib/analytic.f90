@@ -16,8 +16,10 @@ subroutine analytic(d,npts,nfft,c,pc,beq)
   logical*1 beq            ! boolean static equalizer flag
 
   data nfft0/0/
-  data aclast/1.0,0.0,0.0,0.0,0.0/
-  data ac/1.0,0.05532,0.11438,0.12918,0.09274/ ! amp coeffs for TS2000
+  data aclast/0.0,0.0,0.0,0.0,0.0/
+  data pclast/0.0,0.0,0.0,0.0,0.0/
+!  data ac/1.0,0.05532,0.11438,0.12918,0.09274/ ! amp coeffs for TS2000
+  data ac/1.0,0.0,0.0,0.0,0.0/ 
 
   save corr,nfft0,h,ac,aclast,pclast,pi,t,beta
 
@@ -43,8 +45,8 @@ subroutine analytic(d,npts,nfft,c,pc,beq)
   if( any(aclast .ne. ac) .or. any(pclast .ne. pc) ) then
      aclast=ac
      pclast=pc
-     write(*,3001) pc
-3001 format('Phase coeffs:',5f12.6)
+!     write(*,3001) pc
+!3001 format('Phase coeffs:',5f12.6)
      do i=1,nh+1
         ff=(i-1)*df
         f=ff-1500.0

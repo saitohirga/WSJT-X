@@ -29,7 +29,7 @@ in other parts of the world.
 
 - During the calibration procedure, the radio's USB dial frequency is
 offset 1500 Hz below each *FreqCal* entry in the default frequencies
-list.  As shown in the ecreen shot below, detected signal carriers
+list.  As shown in the screen shot below, detected signal carriers
 therefore appear at about 1500 Hz in the WSJT-X waterfall.
 
 image::FreqCal.png[align="left",alt="FreqCal"]

@@ -279,11 +279,11 @@ messages at 50 or 70 MHz.  At these frequencies, most pings are long
 enough to support standard messages -- which have the advantage of
 being readable by anyone listening in.
 
-- A special *Contest Mode* for MSK144 can be activated by checking a
-box on the *Settings | Advanced* tab.  This mode is configured
-especially for VHF contests in which four-character grid locators are
-the required exchange.  When *Contest Mode* is active, the standard QSO
-sequence looks like this:
+- A special *VHF Contest Mode* for FT8 and MSK144 can be activated by
+checking a box on the *Settings | Advanced* tab.  This mode is
+configured especially for VHF contests in which four-character grid
+locators are the required exchange.  When *Contest Mode* is active,
+the standard QSO sequence looks like this:
 
  CQ K1ABC FN42
                       K1ABC W9XYZ EN37

@@ -1,6 +1,6 @@
 subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
-     lsubtract,nagain,iaptype,mygrid6,bcontest,sync0,f1,xdt,apsym,nharderrors,&
-     dmin,nbadcrc,ipass,iera,message,xsnr)  
+     lsubtract,nagain,iaptype,mygrid6,bcontest,sync0,f1,xdt,xbase,apsym,      &
+     nharderrors,dmin,nbadcrc,ipass,iera,message,xsnr)  
 
   use timer_module, only: timer
   include 'ft8_params.f90'
@@ -12,7 +12,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
   real a(5)
   real s1(0:7,ND),s2(0:7,NN)
   real ps(0:7)
-  real rxdata(3*ND),rxdatap(3*ND)
+  real bmeta(3*ND),bmetap(3*ND)
   real llr(3*ND),llra(3*ND),llr0(3*ND),llrap(3*ND)           !Soft symbols
   real dd0(15*12000)
   integer*1 decoded(KK),apmask(3*ND),cw(3*ND)
@@ -122,7 +122,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
     csymb=cmplx(0.0,0.0)
     if( i1.ge.1 .and. i1+31 .le. NP2 ) csymb=cd0(i1:i1+31)
     call four2a(csymb,32,1,-1,1)
-    s2(0:7,k)=abs(csymb(1:8))
+    s2(0:7,k)=abs(csymb(1:8))/1e3
   enddo  
 
 ! sync quality check
@@ -146,39 +146,38 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
 
   j=0
   do k=1,NN
-    if(k.le.7) cycle
-    if(k.ge.37 .and. k.le.43) cycle
-    if(k.gt.72) cycle
-    j=j+1
-    s1(0:7,j)=s2(0:7,k)
+     if(k.le.7) cycle
+     if(k.ge.37 .and. k.le.43) cycle
+     if(k.gt.72) cycle
+     j=j+1
+     s1(0:7,j)=s2(0:7,k)
   enddo  
 
   do j=1,ND
-     ps=s1(0:7,j)
-     where (ps.gt.0.0) ps=log(ps)
-     r1=max(ps(1),ps(3),ps(5),ps(7))-max(ps(0),ps(2),ps(4),ps(6))
-     r2=max(ps(2),ps(3),ps(6),ps(7))-max(ps(0),ps(1),ps(4),ps(5))
-     r4=max(ps(4),ps(5),ps(6),ps(7))-max(ps(0),ps(1),ps(2),ps(3))
      i4=3*j-2
      i2=3*j-1
      i1=3*j
-     rxdata(i4)=r4
-     rxdata(i2)=r2
-     rxdata(i1)=r1
-     rxdatap(i4)=r4
-     rxdatap(i2)=r2
-     rxdatap(i1)=r1
+     ps=s1(0:7,j)
+     r1=max(ps(1),ps(3),ps(5),ps(7))-max(ps(0),ps(2),ps(4),ps(6))
+     r2=max(ps(2),ps(3),ps(6),ps(7))-max(ps(0),ps(1),ps(4),ps(5))
+     r4=max(ps(4),ps(5),ps(6),ps(7))-max(ps(0),ps(1),ps(2),ps(3))
+     bmeta(i4)=r4
+     bmeta(i2)=r2
+     bmeta(i1)=r1
+     bmetap(i4)=r4
+     bmetap(i2)=r2
+     bmetap(i1)=r1
 
      if(nQSOProgress .eq. 0 .or. nQSOProgress .eq. 5) then
 ! When bits 88:115 are set as ap bits, bit 115 lives in symbol 39 along
 ! with no-ap bits 116 and 117. Take care of metrics for bits 116 and 117.
         if(j.eq.39) then  ! take care of bits that live in symbol 39
            if(apsym(28).lt.0) then
-              rxdatap(i2)=max(ps(2),ps(3))-max(ps(0),ps(1))
-              rxdatap(i1)=max(ps(1),ps(3))-max(ps(0),ps(2))
+              bmetap(i2)=max(ps(2),ps(3))-max(ps(0),ps(1))
+              bmetap(i1)=max(ps(1),ps(3))-max(ps(0),ps(2))
            else 
-              rxdatap(i2)=max(ps(6),ps(7))-max(ps(4),ps(5))
-              rxdatap(i1)=max(ps(5),ps(7))-max(ps(4),ps(6))
+              bmetap(i2)=max(ps(6),ps(7))-max(ps(4),ps(5))
+              bmetap(i1)=max(ps(5),ps(7))-max(ps(4),ps(6))
            endif
         endif
      endif
@@ -187,43 +186,34 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
 ! with ap bits 116 and 117. Take care of metric for bit 115.
 !        if(j.eq.39) then  ! take care of bit 115
 !           iii=2*(apsym(29)+1)/2 + (apsym(30)+1)/2  ! known values of bits 116 & 117
-!           if(iii.eq.0) rxdatap(i4)=ps(4)-ps(0)
-!           if(iii.eq.1) rxdatap(i4)=ps(5)-ps(1)
-!           if(iii.eq.2) rxdatap(i4)=ps(6)-ps(2)
-!           if(iii.eq.3) rxdatap(i4)=ps(7)-ps(3)
+!           if(iii.eq.0) bmetap(i4)=ps(4)-ps(0)
+!           if(iii.eq.1) bmetap(i4)=ps(5)-ps(1)
+!           if(iii.eq.2) bmetap(i4)=ps(6)-ps(2)
+!           if(iii.eq.3) bmetap(i4)=ps(7)-ps(3)
 !        endif
 
 ! bit 144 lives in symbol 48 and will be 1 if it is set as an ap bit.
 ! take care of metrics for bits 142 and 143
      if(j.eq.48) then  ! bit 144 is always 1
-       rxdatap(i4)=max(ps(5),ps(7))-max(ps(1),ps(3))
-       rxdatap(i2)=max(ps(3),ps(7))-max(ps(1),ps(5))
+       bmetap(i4)=max(ps(5),ps(7))-max(ps(1),ps(3))
+       bmetap(i2)=max(ps(3),ps(7))-max(ps(1),ps(5))
      endif 
 
 ! bit 154 lives in symbol 52 and will be 0 if it is set as an ap bit
 ! take care of metrics for bits 155 and 156
      if(j.eq.52) then  ! bit 154 will be 0 if it is set as an ap bit.
-        rxdatap(i2)=max(ps(2),ps(3))-max(ps(0),ps(1))
-        rxdatap(i1)=max(ps(1),ps(3))-max(ps(0),ps(2))
+        bmetap(i2)=max(ps(2),ps(3))-max(ps(0),ps(1))
+        bmetap(i1)=max(ps(1),ps(3))-max(ps(0),ps(2))
      endif  
 
   enddo
 
-  rxav=sum(rxdata)/(3.0*ND)
-  rx2av=sum(rxdata*rxdata)/(3.0*ND)
-  var=rx2av-rxav*rxav
-  if( var .gt. 0.0 ) then
-     rxsig=sqrt(var)
-  else
-     rxsig=sqrt(rx2av)
-  endif
-  rxdata=rxdata/rxsig
-! Let's just assume that rxsig is OK for rxdatap too...
-  rxdatap=rxdatap/rxsig
+  call normalizebmet(bmeta,3*ND)
+  call normalizebmet(bmetap,3*ND)
 
   ss=0.84
-  llr0=2.0*rxdata/(ss*ss)
-  llra=2.0*rxdatap/(ss*ss)  ! llr's for use with ap
+  llr0=2.0*bmeta/(ss*ss)
+  llra=2.0*bmetap/(ss*ss)  ! llr's for use with ap
   apmag=4.0
 
 ! pass #
@@ -245,11 +235,8 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
   do ipass=1,npasses 
                
      llr=llr0
-     if(ipass.ne.2 .and. ipass.ne.3) nblank=0
-     if(ipass.eq.2) nblank=24
-     if(ipass.eq.3) nblank=48
-     if(nblank.gt.0) llr(1:nblank)=0.
-
+     if(ipass.eq.2) llr(1:24)=0. 
+     if(ipass.eq.3) llr(1:48)=0. 
      if(ipass.le.3) then
         apmask=0
         llrap=llr
@@ -308,23 +295,24 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
      call timer('bpd174  ',1)
      dmin=0.0
      if(ndepth.eq.3 .and. nharderrors.lt.0) then
-        norder=1
+        ndeep=3
         if(abs(nfqso-f1).le.napwid .or. abs(nftx-f1).le.napwid) then
-          if(ipass.le.3 .and. .not.nagain) then
-            norder=2    
-          else  ! norder=3 for nagain and AP decodes 
-            norder=3    
+          if((ipass.eq.2 .or. ipass.eq.3) .and. .not.nagain) then
+            ndeep=3 
+          else   
+            ndeep=4  
           endif
         endif
+        if(nagain) ndeep=5
         call timer('osd174  ',0)
-        call osd174(llrap,apmask,norder,decoded,cw,nharderrors,dmin)
+        call osd174(llrap,apmask,ndeep,decoded,cw,nharderrors,dmin)
         call timer('osd174  ',1)
      endif
      nbadcrc=1
      message='                      '
      xsnr=-99.0
      if(count(cw.eq.0).eq.174) cycle           !Reject the all-zero codeword
-     if(any(decoded(75:75).ne.0)) cycle        !Reject if any of the 3 extra bits are nonzero
+     if(any(decoded(73:75).ne.0)) cycle        !Reject if any of the 3 extra bits are nonzero
      if(nharderrors.ge.0 .and. nharderrors+dmin.lt.60.0 .and. &        
         .not.(sync.lt.2.0 .and. nharderrors.gt.35)      .and. &
         .not.(ipass.gt.1 .and. nharderrors.gt.39)       .and. &
@@ -349,6 +337,12 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
         xsnr=0.001
         if(xnoi.gt.0 .and. xnoi.lt.xsig) xsnr=xsig/xnoi-1.0
         xsnr=10.0*log10(xsnr)-27.0
+!###
+        xsnr2=db(xsig/xbase - 1.0) - 32.0
+!        write(52,3052) f1,xdt,xsig,xnoi,xbase,xsnr,xsnr2
+!3052    format(7f10.2)
+        xsnr=xsnr2
+!###
         if(xsnr .lt. -24.0) xsnr=-24.0
         return
      endif
@@ -356,3 +350,18 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
  
   return
 end subroutine ft8b
+
+subroutine normalizebmet(bmet,n)
+  real bmet(n)
+
+  bmetav=sum(bmet)/real(n)
+  bmet2av=sum(bmet*bmet)/real(n)
+  var=bmet2av-bmetav*bmetav
+  if( var .gt. 0.0 ) then
+     bmetsig=sqrt(var)
+  else
+     bmetsig=sqrt(bmet2av)
+  endif
+  bmet=bmet/bmetsig
+  return
+end subroutine normalizebmet

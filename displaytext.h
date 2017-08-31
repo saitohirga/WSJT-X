@@ -17,8 +17,8 @@ public:
 
   void setContentFont (QFont const&);
   void insertLineSpacer(QString const&);
-  void displayDecodedText(DecodedText decodedText, QString myCall, bool displayDXCCEntity,
-			  LogBook logBook, QColor color_CQ, QColor color_MyCall,
+  void displayDecodedText(DecodedText const& decodedText, QString const& myCall, bool displayDXCCEntity,
+			  LogBook const& logBook, QColor color_CQ, QColor color_MyCall,
 			  QColor color_DXCC, QColor color_NewCall);
   void displayTransmittedText(QString text, QString modeTx, qint32 txFreq,
 			      QColor color_TxMsg, bool bFastMode);
@@ -32,7 +32,7 @@ protected:
   void mouseDoubleClickEvent(QMouseEvent *e);
 
 private:
-  QString appendDXCCWorkedB4(QString message, QString const& callsign, QColor * bg, LogBook logBook,
+  QString appendDXCCWorkedB4(QString message, QString const& callsign, QColor * bg, LogBook const& logBook,
 			     QColor color_CQ, QColor color_DXCC, QColor color_NewCall);
 
   QFont char_font_;

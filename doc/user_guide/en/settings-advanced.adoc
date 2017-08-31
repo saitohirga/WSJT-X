@@ -31,9 +31,10 @@ IMPORTANT: For the health of your T/R relays and external
 preamplifier, we strongly recommend using a hardware sequencer and
 testing to make sure that sequencing is correct.
 
-- Check *FT8 and MSK144 Contest Mode* to enable generation and
-auto-sequencing of MSK144 messages with four-character grid locators
-in place of signal reports.
+- Check *FT8 and MSK144: NA VHF Contest Mode* to enable generation and
+auto-sequencing of messages using four-character grid locators in
+place of signal reports, as required for most North American VHF
+contests.
 
 - Check *x 2 Tone spacing* to generate Tx audio with twice the normal
 tone spacing.  This feature is intended for use with specialized LF/MF

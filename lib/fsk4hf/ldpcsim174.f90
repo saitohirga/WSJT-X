@@ -39,16 +39,16 @@ nmpcbad=0  ! Used to collect the number of errors in the message+crc part of the
 
 nargs=iargc()
 if(nargs.ne.4) then
-   print*,'Usage: ldpcsim  niter  norder  #trials   s '
+   print*,'Usage: ldpcsim  niter  ndepth  #trials   s '
    print*,'eg:    ldpcsim    10     2      1000    0.84'
-   print*,'belief propagation iterations: niter, ordered-statistics order: norder'
+   print*,'belief propagation iterations: niter, ordered-statistics depth: ndepth'
    print*,'If s is negative, then value is ignored and sigma is calculated from SNR.'
    return
 endif
 call getarg(1,arg)
 read(arg,*) max_iterations 
 call getarg(2,arg)
-read(arg,*) norder 
+read(arg,*) ndepth 
 call getarg(3,arg)
 read(arg,*) ntrials 
 call getarg(4,arg)
@@ -128,13 +128,14 @@ allocate ( rxdata(N), llr(N) )
 
   call encode174(msgbits,codeword)
   call init_random_seed()
-  call sgran()
+!  call sgran()
 
   write(*,*) 'codeword' 
   write(*,'(22(8i1,1x))') codeword
 
 write(*,*) "Es/N0   SNR2500   ngood  nundetected nbadcrc   sigma"
 do idb = 20,-10,-1 
+!do idb = -3,-3,-1 
   db=idb/2.0-1.0
   sigma=1/sqrt( 2*(10**(db/10.0)) )
   ngood=0
@@ -188,8 +189,8 @@ do idb = 20,-10,-1
     apmask(colorder(174-87+1:174-87+nap)+1)=1
 
 ! max_iterations is max number of belief propagation iterations
-    call bpdecode174(llr, apmask, max_iterations, decoded, cw, nharderrors)
-    if( norder .ge. 0 .and. nharderrors .lt. 0 ) call osd174(llr, norder, decoded, cw,  nharderrors)
+    call bpdecode174(llr, apmask, max_iterations, decoded, cw, nharderrors,niterations)
+    if( ndepth .ge. 0 .and. nharderrors .lt. 0 ) call osd174(llr, apmask, ndepth, decoded, cw,  nharderrors, dmin)
 ! If the decoder finds a valid codeword, nharderrors will be .ge. 0.
     if( nharderrors .ge. 0 ) then
       call extractmessage174(decoded,msgreceived,ncrcflag,recent_calls,nrecent)
@@ -206,7 +207,6 @@ do idb = 20,-10,-1
         endif
       enddo
       nmpcbad(nerrmpc)=nmpcbad(nerrmpc)+1
-
       if( ncrcflag .eq. 1 ) then
         if( nueflag .eq. 0 ) then
           ngood=ngood+1
@@ -217,7 +217,7 @@ do idb = 20,-10,-1
       endif
     endif
   enddo
-  baud=12000/2048
+  baud=12000/1920
   snr2500=db+10.0*log10((baud/2500.0))
   pberr=real(nberr)/(real(ntrials*N))
   write(*,"(f4.1,4x,f5.1,1x,i8,1x,i8,1x,i8,8x,f5.2,8x,e10.3)") db,snr2500,ngood,nue,nbadcrc,ss,pberr
