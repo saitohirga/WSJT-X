@@ -51,4 +51,5 @@ source-code repository can be found at {devsvn}, and most
 communication among the developers takes place on the email reflector
 {devmail}.  Bug reports and suggestions for new features, improvements
 to the _WSJT-X_ User Guide, etc., may also be sent to the
-{wsjt_yahoo_group} email reflector.
+{wsjt_yahoo_group} email reflector.  You must join the relevant group
+before posting to either email list.

@@ -304,7 +304,7 @@ private:
 private:
   void astroUpdate ();
   void writeAllTxt(QString message);
-  void auto_sequence (QString const& message, unsigned start_tolerance, unsigned stop_tolerance);
+  void auto_sequence (DecodedText const& message, unsigned start_tolerance, unsigned stop_tolerance);
   void hideMenus(bool b);
 
   NetworkAccessManager m_network_manager;
@@ -591,7 +591,7 @@ private:
   void pskPost(DecodedText const& decodedtext);
   void displayDialFrequency ();
   void transmitDisplay (bool);
-  void processMessage(QString const& messages, qint32 position, bool ctrl = false, bool alt = false);
+  void processMessage(DecodedText const&, bool ctrl = false, bool alt = false);
   void replyToCQ (QTime, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode, QString const& message_text);
   void replayDecodes ();
   void postDecode (bool is_new, QString const& message);

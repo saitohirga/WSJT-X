@@ -6,7 +6,7 @@ logical*1 function stdmsg(msg0)
 
   call packmsg(msg0,dat,itype)
   call unpackmsg(dat,msg)
-  stdmsg=(msg.eq.msg0) .and. (itype.ge.0)
+  stdmsg=(msg.eq.msg0) .and. (itype.ge.0) .and. itype.ne.6
 
   return
 end function stdmsg

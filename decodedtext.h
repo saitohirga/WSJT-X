@@ -14,8 +14,10 @@
 
 
 /*
-0123456789012345678901234567890123456789
+012345678901234567890123456789012345678901
 ^    ^    ^   ^    ^  ^
+2343 -11  0.8 1259 #  CQ VP2X/GM4WJS GL33
+2343 -11  0.8 1259 #  CQ 999 VP2V/GM4WJS
 2343 -11  0.8 1259 #  YV6BFE F6GUU R-08
 2343 -19  0.3  718 #  VE6WQ SQ2NIJ -14
 2343  -7  0.3  815 #  KK4DSD W7VP -16
@@ -30,7 +32,7 @@ public:
   explicit DecodedText (QString const&);
 
   QString string() const { return string_; };
-  void removeAddedInfo ();
+  QStringList messageWords () const;
   int indexOf(QString s) const { return string_.indexOf(s); };
   int indexOf(QString s, int i) const { return string_.indexOf(s,i); };
   QString mid(int f, int t) const { return string_.mid(f,t); };
@@ -58,7 +60,7 @@ public:
   // get the second word, most likely the de call and the third word, most likely grid
   void deCallAndGrid(/*out*/QString& call, QString& grid) const;
 
-  int timeInSeconds() const;
+  unsigned timeInSeconds() const;
 
   // returns a string of the SNR field with a leading + or - followed by two digits
   QString report() const;

@@ -34,7 +34,8 @@ markers and both spinner controls will follow your selections.
 
 - Double-clicking at any frequency on the waterfall does all the
 things just described and also invokes the decoder in a small range
-around that frequency.
+around that frequency.  To decode a particular signal, double-click
+near the left edge of its waterfall trace.
 
 - Now double-click on any of the the lines of decoded text in the main
 window.  Unless you have *My Call* set to K1JT or KY7M on the
@@ -45,6 +46,13 @@ a message directed to K1JT will move only the Rx frequency setting.
 This behavior is desirable so that you will not inadvertently change
 your Tx frequency to that of a tail-ender who called you somewhere
 else in the FT8 subband.
+
+NOTE: The FT8 decoder can often copy several overlapping signals at
+nearly the same frequency.  However, in crowded band conditions you
+will often find it advantageous to move off the frequency of the
+station you are calling.  Keyboard shortcuts *Shift+F11* and
+*Shift+F12* provide an easy way to move your Tx frequency in 60 Hz
+steps.
 
 IMPORTANT: When finished with this Tutorial, don't forget to re-enter
 your own callsign as *My Call* on the *Settings | General* tab.

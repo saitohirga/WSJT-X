@@ -85,77 +85,82 @@ QString DisplayText::appendDXCCWorkedB4(QString message, QString const& callsign
 					QColor color_DXCC,
 					QColor color_NewCall)
 {
-    QString call = callsign;
-    QString countryName;
-    bool callWorkedBefore;
-    bool countryWorkedBefore;
+  // allow for seconds
+  unsigned padding {message.indexOf (" ") > 4 ? 2U : 0U};
+  QString call = callsign;
+  QString countryName;
+  bool callWorkedBefore;
+  bool countryWorkedBefore;
 
-    if(call.length()==2) {
-      int i0=message.indexOf("CQ "+call);
-      call=message.mid(i0+6,-1);
-      i0=call.indexOf(" ");
-      call=call.mid(0,i0);
-    }
-    if(call.length()<3) return message;
-    if(!call.contains(QRegExp("[0-9]|[A-Z]"))) return message;
+  if(call.length()==2) {
+    int i0=message.indexOf("CQ "+call);
+    call=message.mid(i0+6,-1);
+    i0=call.indexOf(" ");
+    call=call.mid(0,i0);
+  }
+  if(call.length()<3) return message;
+  if(!call.contains(QRegExp("[0-9]|[A-Z]"))) return message;
 
-    logBook.match(/*in*/call,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
-    int charsAvail = 48;
+  logBook.match(/*in*/call,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
+  int charsAvail = 52 + padding;
 
-    // the decoder (seems) to always generate 41 chars. For a normal CQ call, the last five are spaces
-    // TODO this magic 37 characters is also referenced in MainWindow::doubleClickOnCall()
-    int nmin=37;
-    int i=message.indexOf(" CQ ");
-    int k=message.mid(i+4,3).toInt();
-    if(k>0 and k<999) nmin += 4;
-    int s3 = message.indexOf(" ",nmin);
-    if (s3 < nmin) s3 = nmin; // always want at least the characters to position 35
-    s3 += 1; // convert the index into a character count
-    message = message.left(s3);  // reduce trailing white space
-    charsAvail -= s3;
-    if (charsAvail > 4)
+  // the decoder (seems) to always generate 41 chars. For a normal CQ
+  // call, the last five are spaces
+  //
+  // A maximum length call is "QRZ VP2X/GM4WJS IO91" "CQ AA ..." or CQ
+  // nnn ..." don't allow grid squares so are not longer. Here we align
+  // the added info at least after the longest CQ/QRZ message plus one
+  // space so that it can be stripped off algorithmically later.
+  //
+  int nmin = 46 + padding;
+  int s3 = message.indexOf (" ", nmin);
+  if (s3 < nmin) s3 = nmin; // always want at least the characters to position 45
+  s3 += 1; // convert the index into a character count
+  message = message.left(s3);  // reduce trailing white space
+  charsAvail -= s3;
+  if (charsAvail > 4)
     {
-        if (!countryWorkedBefore) // therefore not worked call either
+      if (!countryWorkedBefore) // therefore not worked call either
         {
-            message += "!";
-            *bg = color_DXCC;
+          message += "!";
+          *bg = color_DXCC;
         }
+      else
+        if (!callWorkedBefore) // but have worked the country
+          {
+            message += "~";
+            *bg = color_NewCall;
+          }
         else
-            if (!callWorkedBefore) // but have worked the country
-            {
-                message += "~";
-                *bg = color_NewCall;
-            }
-            else
-            {
-                message += " ";  // have worked this call before
-                *bg = color_CQ;
-            }
-        charsAvail -= 1;
+          {
+            message += " ";  // have worked this call before
+            *bg = color_CQ;
+          }
+      charsAvail -= 1;
 
-        // do some obvious abbreviations
-        countryName.replace ("Islands", "Is.");
-        countryName.replace ("Island", "Is.");
-        countryName.replace ("North ", "N. ");
-        countryName.replace ("Northern ", "N. ");
-        countryName.replace ("South ", "S. ");
-        countryName.replace ("East ", "E. ");
-        countryName.replace ("Eastern ", "E. ");
-        countryName.replace ("West ", "W. ");
-        countryName.replace ("Western ", "W. ");
-        countryName.replace ("Central ", "C. ");
-        countryName.replace (" and ", " & ");
-        countryName.replace ("Republic", "Rep.");
-        countryName.replace ("United States", "U.S.A.");
-        countryName.replace ("Fed. Rep. of ", "");
-        countryName.replace ("French ", "Fr.");
-        countryName.replace ("Asiatic", "AS");
-        countryName.replace ("European", "EU");
-        countryName.replace ("African", "AF");
+      // do some obvious abbreviations
+      countryName.replace ("Islands", "Is.");
+      countryName.replace ("Island", "Is.");
+      countryName.replace ("North ", "N. ");
+      countryName.replace ("Northern ", "N. ");
+      countryName.replace ("South ", "S. ");
+      countryName.replace ("East ", "E. ");
+      countryName.replace ("Eastern ", "E. ");
+      countryName.replace ("West ", "W. ");
+      countryName.replace ("Western ", "W. ");
+      countryName.replace ("Central ", "C. ");
+      countryName.replace (" and ", " & ");
+      countryName.replace ("Republic", "Rep.");
+      countryName.replace ("United States", "U.S.A.");
+      countryName.replace ("Fed. Rep. of ", "");
+      countryName.replace ("French ", "Fr.");
+      countryName.replace ("Asiatic", "AS");
+      countryName.replace ("European", "EU");
+      countryName.replace ("African", "AF");
 
-        message += countryName;
+      message += countryName;
     }
-    return message;
+  return message;
 }
 
 void DisplayText::displayDecodedText(DecodedText const& decodedText, QString const& myCall,

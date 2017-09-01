@@ -101,8 +101,6 @@ extern "C" {
 
   void geniscat_(char* msg, char* msgsent, int itone[], int len1, int len2);
 
-  bool stdmsg_(const char* msg, int len);
-
   void azdist_(char* MyGrid, char* HisGrid, double* utch, int* nAz, int* nEl,
                int* nDmiles, int* nDkm, int* nHotAz, int* nHotABetter,
                int len1, int len2);
@@ -1431,12 +1429,11 @@ void MainWindow::fastSink(qint64 frames)
          m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
          m_config.color_NewCall());
     m_bDecoded=true;
-    auto_sequence (message, ui->sbFtol->value (), std::numeric_limits<unsigned>::max ());
+    auto_sequence (decodedtext, ui->sbFtol->value (), std::numeric_limits<unsigned>::max ());
     if (m_mode != "ISCAT") postDecode (true, decodedtext.string ());
     writeAllTxt(message);
     bool stdMsg = decodedtext.report(m_baseCall,
                   Radio::base_callsign(ui->dxCallEntry->text()),m_rptRcvd);
-    decodedtext = DecodedText {message.left (4) + message.mid (6, -1)};
     if (stdMsg) pskPost (decodedtext);
   }
 
@@ -2554,16 +2551,13 @@ void MainWindow::decode()                                       //decode()
 void::MainWindow::fast_decode_done()
 {
   float t,tmax=-99.0;
-  QString msg0;
   dec_data.params.nagain=false;
   dec_data.params.ndiskdat=false;
 //  if(m_msg[0][0]==0) m_bDecoded=false;
-  for(int i=0; i<100; i++) {
-    if (tmax >= 0.0) auto_sequence (msg0, ui->sbFtol->value (), ui->sbFtol->value ());
-    if(m_msg[i][0]==0) break;
+  for(int i=0; m_msg[i][0] && i<100; i++) {
     QString message=QString::fromLatin1(m_msg[i]);
     m_msg[i][0]=0;
-    if(message.length()>80) message=message.mid(0,80);
+    if(message.length()>80) message=message.left (80);
     if(narg[13]/8==narg[12]) message=message.trimmed().replace("<...>",m_calls);
 
 //Left (Band activity) window
@@ -2576,7 +2570,6 @@ void::MainWindow::fast_decode_done()
 
     t=message.mid(10,5).toFloat();
     if(t>tmax) {
-      msg0=message;
       tmax=t;
       m_bDecoded=true;
     }
@@ -2585,14 +2578,13 @@ void::MainWindow::fast_decode_done()
 
     if(m_mode=="JT9" or m_mode=="MSK144") {
 // find and extract any report for myCall
-      QString msg=message.mid(0,4) + message.mid(6,-1);
-      decodedtext = DecodedText {msg.replace (QChar::LineFeed, "")};
       bool stdMsg = decodedtext.report(m_baseCall,
                                        Radio::base_callsign(ui->dxCallEntry->text()), m_rptRcvd);
 
 // extract details and send to PSKreporter
       if (stdMsg) pskPost (decodedtext);
     }
+    if (tmax >= 0.0) auto_sequence (decodedtext, ui->sbFtol->value (), ui->sbFtol->value ());
   }
   m_startAnother=m_loopall;
   m_nPick=0;
@@ -2736,7 +2728,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
             //          int snr=decodedtext.string().mid(6,4).toInt();
             m_bDoubleClicked=true;
             m_bAutoReply = true;
-            processMessage (decodedtext.string (), decodedtext.string ().size ());
+            processMessage (decodedtext);
             ui->cbFirst->setStyleSheet("");
           } else {
             if (for_us or (abs(audioFreq - m_wideGraph->rxFreq()) <= 10)) bDisplayRight=true;
@@ -2757,9 +2749,9 @@ void MainWindow::readFromStdout()                             //readFromStdout
           if(b65 and m_modeTx!="JT65") on_pbTxMode_clicked();
           if(!b65 and m_modeTx=="JT65") on_pbTxMode_clicked();
         }
-        m_QSOText = decodedtext.string ();
+        m_QSOText = decodedtext.string ().trimmed ();
       }
-      if(m_mode=="FT8" or m_mode=="QRA64") auto_sequence (decodedtext.string(), 25, 50);
+      if(m_mode=="FT8" or m_mode=="QRA64") auto_sequence (decodedtext, 25, 50);
       
       postDecode (true, decodedtext.string ());
 
@@ -2793,40 +2785,50 @@ void MainWindow::readFromStdout()                             //readFromStdout
 //                  another caller and we are going to transmit within
 //                  +/- this value of the reply to another caller
 //
-void MainWindow::auto_sequence (QString const& message, unsigned start_tolerance, unsigned stop_tolerance)
+void MainWindow::auto_sequence (DecodedText const& message, unsigned start_tolerance, unsigned stop_tolerance)
 {
-  auto const& parts = message.split (' ', QString::SkipEmptyParts);
-  if (parts.size () > 6) {
-    bool ok;
-    auto df = parts[3].toInt (&ok);
-    auto within_tolerance = ok
-      && (qAbs (ui->RxFreqSpinBox->value () - df) <= int (start_tolerance)
-          || qAbs (ui->TxFreqSpinBox->value () - df) <= int (start_tolerance));
+  auto const& message_words = message.messageWords ();
+  auto is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
+  if (message_words.size () > 2 && (message.isStandardMessage () || is_73)) {
+    auto df = message.frequencyOffset ();
+    auto within_tolerance =
+      (qAbs (ui->RxFreqSpinBox->value () - df) <= int (start_tolerance)
+       || qAbs (ui->TxFreqSpinBox->value () - df) <= int (start_tolerance));
+    bool acceptable_73 = is_73
+      && m_QSOProgress >= ROGER_REPORT
+      && ((message.isStandardMessage ()
+           && (message_words.contains (m_baseCall)
+               || message_words.contains (m_config.my_callsign ())
+               || message_words.contains (ui->dxCallEntry->text ())
+               || message_words.contains (Radio::base_callsign (ui->dxCallEntry->text ()))
+               || message_words.contains ("DE")))
+          || !message.isStandardMessage ()); // free text 73/RR73 
     if (m_auto
         && (REPLYING == m_QSOProgress
             || (!ui->tx1->isEnabled () && REPORT == m_QSOProgress))
         && qAbs (ui->TxFreqSpinBox->value () - df) <= int (stop_tolerance)
-        && !parts[5].contains (QRegularExpression {"(^(CQ|QRZ)$)|" + m_baseCall})
-        && parts[6].contains (Radio::base_callsign (ui->dxCallEntry->text ()))) {
+        && !message_words.at (1).contains (QRegularExpression {"(^(CQ|QRZ))|" + m_baseCall})
+        && message_words.at (2).contains (Radio::base_callsign (ui->dxCallEntry->text ()))) {
       // auto stop to avoid accidental QRM
       auto_tx_mode (false);
     }
     else if (m_auto             // transmit allowed
         && ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked() // auto-sequencing allowed
         && ((!m_bCallingCQ      // not calling CQ/QRZ
-             && !m_sentFirst73  // finished QSO
-             && ((parts[5].contains (m_baseCall)
+             && !m_sentFirst73  // not finished QSO
+             && ((message_words.at (1).contains (m_baseCall)
                   // being called and not already in a QSO
-                  && parts[6].contains (Radio::base_callsign (ui->dxCallEntry->text ())))
+                  && message_words.at (2).contains (Radio::base_callsign (ui->dxCallEntry->text ())))
                  // type 2 compound replies
                  || (within_tolerance
-                     && ((m_QSOProgress >= ROGER_REPORT && message_is_73 (0, parts))
-                         || ("DE" == parts[5] && parts[6].contains (Radio::base_callsign (m_hisCall)))))))
+                     && (acceptable_73
+                         || ("DE" == message_words.at (1) && message_words.at (2).contains (Radio::base_callsign (m_hisCall)))))))
             || (m_bCallingCQ && m_bAutoReply
-                && ((within_tolerance && "DE" == parts[5]) // look for type 2 compound call replies on our Tx and Rx offsets
-                    || parts[5].contains (m_baseCall)))))
+                // look for type 2 compound call replies on our Tx and Rx offsets
+                && ((within_tolerance && "DE" == message_words.at (1))
+                    || message_words.at (1).contains (m_baseCall)))))
       {
-        processMessage (message, message.size ());
+        processMessage (message);
       }
   }
 }
@@ -3478,7 +3480,10 @@ void MainWindow::on_txrb1_toggled (bool status)
 
 void MainWindow::on_txrb1_doubleClicked ()
 {
-  ui->tx1->setEnabled (!ui->tx1->isEnabled ());
+  // skip Tx1, only allowed if not a type 2 compound callsign
+  auto const& my_callsign = m_config.my_callsign ();
+  auto is_compound = my_callsign != m_baseCall;
+  ui->tx1->setEnabled ((is_compound && shortList (my_callsign)) || !ui->tx1->isEnabled ());
   if (!ui->tx1->isEnabled ()) {
     // leave time for clicks to complete before setting txrb2
     QTimer::singleShot (500, ui->txrb2, SLOT (click ()));
@@ -3512,7 +3517,10 @@ void MainWindow::on_txrb4_toggled (bool status)
 
 void MainWindow::on_txrb4_doubleClicked ()
 {
-  m_send_RR73 = !m_send_RR73;
+  // RR73 only allowed if not a type 2 compound callsign
+  auto const& my_callsign = m_config.my_callsign ();
+  auto is_compound = my_callsign != m_baseCall;
+  m_send_RR73 = !((is_compound && !shortList (my_callsign)) || m_send_RR73);
   genStdMsgs (m_rpt);
 }
 
@@ -3551,7 +3559,10 @@ void MainWindow::on_txb1_clicked()
 
 void MainWindow::on_txb1_doubleClicked()
 {
-  ui->tx1->setEnabled (!ui->tx1->isEnabled ());
+  // skip Tx1, only allowed if not a type 1 compound callsign
+  auto const& my_callsign = m_config.my_callsign ();
+  auto is_compound = my_callsign != m_baseCall;
+  ui->tx1->setEnabled ((is_compound && shortList (my_callsign)) || !ui->tx1->isEnabled ());
 }
 
 void MainWindow::on_txb2_clicked()
@@ -3580,7 +3591,10 @@ void MainWindow::on_txb4_clicked()
 
 void MainWindow::on_txb4_doubleClicked()
 {
-  m_send_RR73 = !m_send_RR73;
+  // RR73 only allowed if not a type 2 compound callsign
+  auto const& my_callsign = m_config.my_callsign ();
+  auto is_compound = my_callsign != m_baseCall;
+  m_send_RR73 = !((is_compound && !shortList (my_callsign)) || m_send_RR73);
   genStdMsgs (m_rpt);
 }
 
@@ -3627,28 +3641,18 @@ void MainWindow::doubleClickOnCall(bool alt, bool ctrl)
   } else {
     cursor=ui->decodedTextBrowser2->textCursor();
   }
-
-  cursor.select(QTextCursor::LineUnderCursor);
-  int position {cursor.position()};
-
-  QString messages;
-  if(!m_decodedText2) messages= ui->decodedTextBrowser2->toPlainText();
-  if(m_decodedText2) messages= ui->decodedTextBrowser->toPlainText();
-  if(ui->cbCQTx->isEnabled() && ui->cbCQTx->isChecked()) m_bDoubleClickAfterCQnnn=true;
-  m_bDoubleClicked=true;
-  processMessage(messages, position, ctrl, alt);
+  cursor.setPosition (cursor.selectionStart ());
+  DecodedText message {cursor.block ().text ()};
+  m_bDoubleClicked = true;
+  processMessage (message, ctrl, alt);
 }
 
-void MainWindow::processMessage(QString const& messages, int position, bool ctrl, bool alt)
+void MainWindow::processMessage(DecodedText const& message, bool ctrl, bool alt)
 {
-  QString t1 = messages.left(position);        //contents up to \n on selected line
-  int i1=t1.lastIndexOf(QChar::LineFeed) + 1; //points to first char of line
-  QString t2 = messages.mid(i1,position-i1);    //selected line
-
   // basic mode sanity checks
-  auto const& parts = t2.split (' ', QString::SkipEmptyParts);
+  auto const& parts = message.string ().split (' ', QString::SkipEmptyParts);
   if (parts.size () < 5) return;
-  auto const& mode = parts[4].mid(0,1);
+  auto const& mode = parts.at (4).left (1);
   if (("JT9+JT65" == m_mode && !("@" == mode || "#" == mode))
       || ("JT65" == m_mode && mode != "#")
       || ("JT9" == m_mode && mode != "@")
@@ -3657,22 +3661,21 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
     return;
   }
 
-  QString t2a;
-  int ntsec=3600*t2.mid(0,2).toInt() + 60*t2.mid(2,2).toInt();
-  if(m_bFastMode or m_mode=="FT8") {
-    ntsec = ntsec + t2.mid(4,2).toInt();
-    t2a = t2.left (4) + t2.mid (6); //Change hhmmss to hhmm for the message parser
-  }
-  t2a = t2.left (44);           // strip any quality info trailing the
+  // QString t2a;
+  // int ntsec=3600*t2.mid(0,2).toInt() + 60*t2.mid(2,2).toInt();
+  // if(m_bFastMode or m_mode=="FT8") {
+  //   ntsec = ntsec + t2.mid(4,2).toInt();
+  //   t2a = t2.left (4) + t2.mid (6); //Change hhmmss to hhmm for the message parser
+  // }
+  //t2a = t2.left (44);           // strip any quality info trailing the
                                 // decoded message
 
   if(m_bFastMode or m_mode=="FT8") {
-    i1=t2a.indexOf(" CQ ");
+    auto i1=message.string ().indexOf(" CQ ");
     if(i1>10) {
       bool ok;
-      Frequency kHz {t2a.mid (i1+4,3).toUInt (&ok)};
+      Frequency kHz {message.string ().mid (i1+4,3).toUInt (&ok)};
       if(ok && kHz <= 999) {
-        t2a = t2a.mid (0, i1+4) + t2a.mid (i1+8, -1);
         if (m_config.is_transceiver_online ()) {
           //QSY Freq for answering CQ nnn
           setRig (m_freqNominal / 1000000 * 1000000 + 1000 * kHz);
@@ -3681,74 +3684,58 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
       }
     }
   }
-  DecodedText decodedtext {t2a};
-  decodedtext.removeAddedInfo ();
 
-  auto t3 = decodedtext.string ();
-  auto t4 = t3.replace (QRegularExpression {" CQ ([A-Z]{2,2}|[0-9]{3,3}) "}, " CQ_\\1 ").split (" ", QString::SkipEmptyParts);
-  if(t4.size () < 6) return;             //Skip the rest if no decoded text
-
-  int frequency = decodedtext.frequencyOffset();
-  if (ui->RxFreqSpinBox->isEnabled () and m_mode != "MSK144") {
-    ui->RxFreqSpinBox->setValue (frequency);    //Set Rx freq
-  }
-
-  if (decodedtext.isTX()) {
+  //Skip the rest if no decoded text extracted
+  int frequency = message.frequencyOffset();
+  if (message.isTX()) {
     if (!m_config.enable_VHF_features() && ctrl && ui->TxFreqSpinBox->isEnabled()) {
       ui->TxFreqSpinBox->setValue(frequency); //Set Tx freq
     }
     return;
   }
 
-  int nmod=ntsec % (2*m_TRperiod);
+  int nmod = message.timeInSeconds () % (2*m_TRperiod);
   m_txFirst=(nmod!=0);
   ui->txFirstCheckBox->setChecked(m_txFirst);
 
+  auto const& message_words = message.messageWords ();
+  if (message_words.size () < 2) return;
+
   QString hiscall;
   QString hisgrid;
-  decodedtext.deCallAndGrid(/*out*/hiscall,hisgrid);
-  bool is_73 = t4.filter (QRegularExpression {"^(73|RR73)$"}).size ();
-  auto acceptable_73 =
-    m_QSOProgress >= ROGER_REPORT
-    && is_73
-    && ((decodedtext.isStandardMessage ()
-         && (t4.contains (m_baseCall)
-             || t4.contains (m_config.my_callsign ())
-             || t4.contains (ui->dxCallEntry->text ())
-             || t4.contains (Radio::base_callsign (ui->dxCallEntry->text ()))
-             || t4.contains ("DE")))
-        || !decodedtext.isStandardMessage ());
-  if ((is_73 && !acceptable_73)
-      || (!Radio::is_callsign (hiscall)    // not interested if not from QSO partner
-          && !(t4.size () == 7             // unless it is of the form
-               && (t4.at (5) == m_baseCall // "<our-call> 73"
-                   || t4.at (5).startsWith (m_baseCall + '/')
-                   || t4.at (5).endsWith ('/' + m_baseCall))
-               && t4.at (6) == "73")))
+  message.deCallAndGrid(/*out*/hiscall,hisgrid);
+  auto is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
+  if (!is_73 && !message.isStandardMessage ())
+      // && (!Radio::is_callsign (hiscall)    // not interested if not from QSO partner
+      //     && !(t4.size () == 7             // unless it is of the form
+      //          && (t4.at (5) == m_baseCall // "<our-call> 73"
+      //              || t4.at (5).startsWith (m_baseCall + '/')
+      //              || t4.at (5).endsWith ('/' + m_baseCall))
+      //          && t4.at (6) == "73")))
     {
       qDebug () << "Not processing message - hiscall:" << hiscall << "hisgrid:" << hisgrid;
       return;
     }
   // only allow automatic mode changes between JT9 and JT65, and when not transmitting
   if (!m_transmitting and m_mode == "JT9+JT65") {
-    if (decodedtext.isJT9())
+    if (message.isJT9())
       {
         m_modeTx="JT9";
         ui->pbTxMode->setText("Tx JT9  @");
         m_wideGraph->setModeTx(m_modeTx);
-      } else if (decodedtext.isJT65()) {
+      } else if (message.isJT65()) {
       m_modeTx="JT65";
       ui->pbTxMode->setText("Tx JT65  #");
       m_wideGraph->setModeTx(m_modeTx);
     }
-  } else if ((decodedtext.isJT9 () and m_modeTx != "JT9" and m_mode != "JT4") or
-             (decodedtext.isJT65 () and m_modeTx != "JT65" and m_mode != "JT4")) {
+  } else if ((message.isJT9 () and m_modeTx != "JT9" and m_mode != "JT4") or
+             (message.isJT65 () and m_modeTx != "JT65" and m_mode != "JT4")) {
     // if we are not allowing mode change then don't process decode
     return;
   }
 
 
-  QString firstcall = decodedtext.call();
+  QString firstcall = message.call();
   if(!m_bFastMode and (!m_config.enable_VHF_features() or m_mode=="FT8")) {
   // Don't change Tx freq if in a fast mode, or VHF features enabled; also not if a
   // station is calling me, unless m_lockTxFreq is true or CTRL is held down.
@@ -3768,7 +3755,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
   auto base_call = Radio::base_callsign (hiscall);
 
 // Determine appropriate response to received message
-  auto dtext = " " + decodedtext.string () + " ";
+  auto dtext = " " + message.string () + " ";
   int gen_msg {0};
   if(dtext.contains (" " + m_baseCall + " ")
      || dtext.contains ("<" + m_baseCall + " ")
@@ -3776,13 +3763,13 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
      || dtext.contains (" " + m_baseCall + "/")
      || (firstcall == "DE" /*&& ((t4.size () > 7 && t4.at(7) != "73") || t4.size () <= 7)*/))
     {
-      if (t4.size () > 7   // enough fields for a normal msg
-          && (t4.at (5).contains (m_baseCall) || "DE" == t4.at (5))
-          && t4.at (6).contains (qso_partner_base_call)
-          && !t4.at (7).contains (grid_regexp)) // but no grid on end of msg
+      if (message_words.size () > 3   // enough fields for a normal message
+          && (message_words.at (1).contains (m_baseCall) || "DE" == message_words.at (1))
+          && message_words.at (2).contains (qso_partner_base_call)
+          && !message_words.at (3).contains (grid_regexp)) // but no grid on end of msg
         {
-          QString r=t4.at (7);
-          if(m_QSOProgress >= ROGER_REPORT && (r.mid(0,3)=="RRR" || r.toInt()==73 || "RR73" == r)) {
+          QString r=message_words.at (3);
+          if(m_QSOProgress >= ROGER_REPORT && (r=="RRR" || r.toInt()==73 || "RR73" == r)) {
             if(ui->tabWidget->currentIndex()==1) {
               gen_msg = 5;
               if (ui->rbGenMsg->isChecked ()) m_ntx=7;
@@ -3819,7 +3806,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
           }
         }
       else if (m_QSOProgress >= ROGERS
-               && t4.size () >= 7 && t4.at (5).contains (m_baseCall) && t4.at (6) == "73") {
+               && message_words.size () > 2 && message_words.at (1).contains (m_baseCall) && message_words.at (2) == "73") {
         // 73 back to compound call holder
         if(ui->tabWidget->currentIndex()==1) {
           gen_msg = 5;
@@ -3833,7 +3820,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
         m_QSOProgress = SIGNOFF;
       }
       else if (!(m_bAutoReply && m_QSOProgress > CALLING)) {
-        if ((t4.size () >= 9 && t4.at (5).contains (m_baseCall) && t4.at (8) == "OOO")
+        if ((message_words.size () > 4 && message_words.at (1).contains (m_baseCall) && message_words.at (4) == "OOO")
             || ((m_mode=="MSK144" or m_mode=="FT8") && m_config.contestMode())) {
           // EME short code report or MSK144/FT8 contest mode reply, send back Tx3
           m_ntx = 3;
@@ -3865,7 +3852,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
         return;
       }
     }
-  else if (firstcall == "DE" && t4.size () >= 8 && t4.at (7) == "73") {
+  else if (firstcall == "DE" && message_words.size () > 3 && message_words.at (3) == "73") {
     if (m_QSOProgress >= ROGERS && base_call == qso_partner_base_call && m_currentMessageType) {
       // 73 back to compound call holder
       if(ui->tabWidget->currentIndex()==1) {
@@ -3898,7 +3885,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
       }
     }
   }
-  else if (acceptable_73) {
+  else if (is_73 && !message.isStandardMessage ()) {
     if(ui->tabWidget->currentIndex()==1) {
       gen_msg = 5;
       if (ui->rbGenMsg->isChecked ()) m_ntx=7;
@@ -3931,14 +3918,18 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
 
   // if we get here then we are reacting to the message
   if (m_bAutoReply) m_bCallingCQ = CALLING == m_QSOProgress;
+
+  if (ui->RxFreqSpinBox->isEnabled () and m_mode != "MSK144") {
+    ui->RxFreqSpinBox->setValue (frequency);    //Set Rx freq
+  }
+
   QString s1 = m_QSOText.trimmed ();
-  QString s2=t2.trimmed();
-  if (s1!=s2 and !decodedtext.isTX()) {
-    decodedtext = DecodedText {t2};
-    ui->decodedTextBrowser2->displayDecodedText(decodedtext, m_baseCall,
+  QString s2 = message.string ().trimmed();
+  if (s1!=s2 and !message.isTX()) {
+    ui->decodedTextBrowser2->displayDecodedText(message, m_baseCall,
           false, m_logBook,m_config.color_CQ(), m_config.color_MyCall(),
           m_config.color_DXCC(),m_config.color_NewCall());
-    m_QSOText = decodedtext.string ();
+    m_QSOText = s1;
   }
 
   if (hiscall != "73"
@@ -3960,7 +3951,7 @@ void MainWindow::processMessage(QString const& messages, int position, bool ctrl
     lookup();
   m_hisGrid = ui->dxGridEntry->text();
 
-  QString rpt = decodedtext.report();
+  QString rpt = message.report();
   int n=rpt.toInt();
   if(m_mode=="MSK144" and m_bShMsgs) {
     int n=rpt.toInt();
@@ -6118,7 +6109,9 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
           // find the linefeed at the end of the line
           position = ui->decodedTextBrowser->toPlainText().indexOf(QChar::LineFeed,position);
           m_bDoubleClicked = true;
-          processMessage (messages, position);
+          auto start = messages.left (position).lastIndexOf (QChar::LineFeed) + 1;
+          DecodedText message {messages.mid (start, position - start)};
+          processMessage (message);
           tx_watchdog (false);
           QApplication::alert (this);
         }
