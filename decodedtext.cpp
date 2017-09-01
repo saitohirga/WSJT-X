@@ -7,6 +7,11 @@ extern "C" {
   bool stdmsg_(const char* msg, int len);
 }
 
+namespace
+{
+  QRegularExpression words_re {R"(^(?:(?<word1>(?:CQ|DE|QRZ)(?:\s?DX|\s(?:[A-Z]{2}|\d{3}))|[A-Z0-9/]+)\s)(?:(?<word2>[A-Z0-9/]+)(?:\sR\s)?(?:\s(?<word3>[-+A-Z0-9]+)(?:\s(?<word4>OOO))?)?)?)"};
+}
+
 DecodedText::DecodedText (QString const& the_string)
   : string_ {the_string}
   , padding_ {the_string.indexOf (" ") > 4 ? 2 : 0} // allow for
@@ -14,28 +19,39 @@ DecodedText::DecodedText (QString const& the_string)
   , message_ {string_.mid (column_qsoText + padding_).trimmed ()}
   , is_standard_ {false}
 {
+  string_ = string_.left (column_qsoText + padding_ + 25);
   if (message_.length() >= 1)
     {
-      message_ = message_.left (22).remove (QRegularExpression {"[<>]"});
+      message_ = message_.left (21).remove (QRegularExpression {"[<>]"});
       int i1 = message_.indexOf ('\r');
       if (i1 > 0)
         {
           message_ = message_.left (i1 - 1);
+        }
+      if (message_.contains (QRegularExpression {"^(CQ|QRZ)\\s"}))
+        {
+          // TODO this magic position 16 is guaranteed to be after the
+          // last space in a decoded CQ or QRZ message but before any
+          // appended DXCC entity name or worked before information
+          auto eom_pos = message_.indexOf (' ', 16);
+          // we always want at least the characters to position 16
+          if (eom_pos < 16) eom_pos = message_.size () - 1;
+          // remove DXCC entity and worked B4 status. TODO need a better way to do this
+          message_ = message_.left (eom_pos + 1);
         }
       // stdmsg is a fortran routine that packs the text, unpacks it and compares the result
       is_standard_ = stdmsg_ ((message_ + "                      ").toLatin1 ().constData (),22);
     }
 };
 
-void DecodedText::removeAddedInfo ()
+QStringList DecodedText::messageWords () const
 {
-  if (string_.indexOf (" CQ ") > 0) {
-    // TODO this magic 37 characters is also referenced in DisplayText::_appendDXCCWorkedB4()
-    auto eom_pos = string_.indexOf (' ', 37);
-    if (eom_pos < 37) eom_pos = string_.size () - 1; // we always want at least the characters
-                            // to position 37
-    string_ = string_.left (eom_pos + 1);  // remove DXCC entity and worked B4 status. TODO need a better way to do this
-  }
+  if (is_standard_)
+    {
+      // extract up to the first four message words
+      return words_re.match (message_).capturedTexts ();
+    }
+  return message_.split (' ');  // simple word split for free text messages
 }
 
 QString DecodedText::CQersCall() const
@@ -132,35 +148,38 @@ bool DecodedText::report(QString const& myBaseCall, QString const& dxBaseCall, /
 // get the first text word, usually the call
 QString DecodedText::call() const
 {
-  auto call = string_;
-  call = call.replace (QRegularExpression {" CQ ([A-Z]{2,2}|[0-9]{3,3}) "}, " CQ_\\1 ").mid (column_qsoText + padding_);
-  int i = call.indexOf(" ");
-  return call.mid(0,i);
+  return words_re.match (message_).captured ("word1");
 }
 
 // get the second word, most likely the de call and the third word, most likely grid
 void DecodedText::deCallAndGrid(/*out*/QString& call, QString& grid) const
 {
-  auto msg = string_;
-  if(msg.mid(4,1)!=" ") msg=msg.mid(0,4)+msg.mid(6,-1);  //Remove seconds from UTC
-  msg = msg.replace (QRegularExpression {" CQ ([A-Z]{2,2}|[0-9]{3,3}) "}, " CQ_\\1 ").mid (column_qsoText + padding_);
-  int i1 = msg.indexOf (" ");
-  call = msg.mid (i1 + 1);
-  int i2 = call.indexOf (" ");
-  if (" R " == call.mid (i2, 3)) // MSK144 contest mode report
-    {
-      grid = call.mid (i2 + 3, 4);
-    }
-  else
-    {
-      grid = call.mid (i2 + 1, 4);
-    }
-  call = call.left (i2).replace (">", "");
+  auto const& match = words_re.match (message_);
+  call = match.captured ("word2");
+  grid = match.captured ("word3");
+  
+  // auto msg = string_;
+  // if(msg.mid(4,1)!=" ") msg=msg.mid(0,4)+msg.mid(6,-1);  //Remove seconds from UTC
+  // msg = msg.replace (QRegularExpression {" CQ ([A-Z]{2,2}|[0-9]{3,3}) "}, " CQ_\\1 ").mid (column_qsoText + padding_);
+  // int i1 = msg.indexOf (" ");
+  // call = msg.mid (i1 + 1);
+  // int i2 = call.indexOf (" ");
+  // if (" R " == call.mid (i2, 3)) // MSK144 contest mode report
+  //   {
+  //     grid = call.mid (i2 + 3, 4);
+  //   }
+  // else
+  //   {
+  //     grid = call.mid (i2 + 1, 4);
+  //   }
+  // call = call.left (i2).replace (">", "");
 }
 
-int DecodedText::timeInSeconds() const
+unsigned DecodedText::timeInSeconds() const
 {
-    return 60*string_.mid(column_time,2).toInt() + string_.mid(2,2).toInt();
+  return 3600 * string_.mid (column_time, 2).toUInt ()
+    + 60 * string_.mid (column_time + 2, 2).toUInt()
+    + (padding_ ? string_.mid (column_time + 2 + padding_, 2).toUInt () : 0U);
 }
 
 /*
