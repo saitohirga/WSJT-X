@@ -4088,10 +4088,10 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       t=hisBase + " " + my_callsign;
       msgtype(t, ui->tx1);
     } else {
+      t = "DE " + my_callsign + " ";
       switch (m_config.type_2_msg_gen ())
         {
         case Configuration::type_2_msg_1_full:
-          t="DE " + my_callsign + " ";
           msgtype(t + my_grid, ui->tx1);
           if (!eme_short_codes) {
             if ((m_mode=="MSK144" || m_mode=="FT8")
@@ -4108,25 +4108,34 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
           break;
 
         case Configuration::type_2_msg_3_full:
-          t = t00 + my_grid;
-          msgtype(t, ui->tx1);
-          t="DE " + my_callsign + " R" + rpt;
-          msgtype(t, ui->tx3);
+          if ((m_mode=="MSK144" || m_mode=="FT8")
+              && m_config.contestMode()) {
+            msgtype(t + "R " + my_grid, ui->tx3);
+            msgtype(t + "RRR", ui->tx4);
+          }
+          else {
+            msgtype(t00 + my_grid, ui->tx1);
+            msgtype(t + "R" + rpt, ui->tx3);
+          }
           if (!eme_short_codes && ((m_mode != "JT4" && m_mode != "QRA64") || !m_bShMsgs)) {
-            t="DE " + my_callsign + " 73";
-            msgtype(t, ui->tx5->lineEdit ());
+            msgtype(t + "73", ui->tx5->lineEdit ());
           }
           break;
 
         case Configuration::type_2_msg_5_only:
-          t = t00 + my_grid;
-          msgtype(t, ui->tx1);
+          msgtype(t00 + my_grid, ui->tx1);
           if (!eme_short_codes) {
-            t=t0 + "R" + rpt;
-            msgtype(t, ui->tx3);
+            if ((m_mode=="MSK144" || m_mode=="FT8")
+                && m_config.contestMode()) {
+              msgtype(t + "R " + my_grid, ui->tx3);
+              msgtype(t + "RRR", ui->tx4);
+            }
+            else {
+              t=t0 + "R" + rpt;
+              msgtype(t, ui->tx3);
+            }
           }
-          t="DE " + my_callsign + " 73";
-          msgtype(t, ui->tx5->lineEdit ());
+          msgtype(t + "73", ui->tx5->lineEdit ());
           break;
         }
     }
