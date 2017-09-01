@@ -556,6 +556,7 @@ set (wsjt_FSRCS
   lib/sync9w.f90
   lib/synciscat.f90
   lib/timf2.f90
+  lib/to_contest_msg.f90
   lib/tweak1.f90
   lib/twkfreq.f90
   lib/fsk4hf/twkfreq1.f90

@@ -34,7 +34,7 @@ program QRA64code
      msg0=msg                               !Input message
      call chkmsg(msg,cok,nspecial,flip)     !See if it includes "OOO" report
      msg1=msg                               !Message without "OOO"
-     call packmsg(msg1,dgen,itype)          !Pack message into 12 six-bit bytes
+     call packmsg(msg1,dgen,itype,.false.) !Pack message into 12 six-bit bytes
      msgtype=""
      if(itype.eq.1) msgtype="Std Msg"
      if(itype.eq.2) msgtype="Type 1 pfx"
@@ -45,7 +45,7 @@ program QRA64code
 
      call qra64_enc(dgen,sent)              !Encode using QRA64
 
-     call unpackmsg(dgen,decoded)           !Unpack the user message
+     call unpackmsg(dgen,decoded,.false.,'      ') !Unpack the user message
      call fmtmsg(decoded,iz)
      ii=imsg
      write(*,1020) ii,msg0,decoded,itype,msgtype

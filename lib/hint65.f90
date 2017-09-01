@@ -88,7 +88,7 @@ subroutine hint65(s3,mrs,mrs2,nadd,nflip,mycall,hiscall,hisgrid,qual,decoded)
               if(m.eq.2)  msg='CQ '//call2(i)//' '//grid2(i)
            endif
            call fmtmsg(msg,iz)
-           call packmsg(msg,dgen,itype)            !Pack message into 72 bits
+           call packmsg(msg,dgen,itype,.false.) !Pack message into 72 bits
            call rs_encode(dgen,sym_rev)            !RS encode
            sym(0:62)=sym_rev(62:0:-1)
            sym1(0:62,j)=sym
