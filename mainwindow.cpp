@@ -1189,7 +1189,7 @@ void MainWindow::dataSink(qint64 frames)
     int ftol = ui->sbFtol->value ();
     freqcal_(&dec_data.d2[0],&k,&nkhz,&RxFreq,&ftol,&line[0],80);
     QString t=QString::fromLatin1(line);
-    DecodedText decodedtext {t};
+    DecodedText decodedtext {t, false, m_config.my_grid ()};
     ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
          m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
          m_config.color_NewCall());
@@ -1424,7 +1424,7 @@ void MainWindow::fastSink(qint64 frames)
 
   if(bmsk144 and (line[0]!=0)) {
     QString message {QString::fromLatin1 (line)};
-    DecodedText decodedtext {message.replace (QChar::LineFeed, "")};
+    DecodedText decodedtext {message.replace (QChar::LineFeed, ""), bcontest, m_config.my_grid ()};
     ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
          m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
          m_config.color_NewCall());
@@ -2561,7 +2561,7 @@ void::MainWindow::fast_decode_done()
     if(narg[13]/8==narg[12]) message=message.trimmed().replace("<...>",m_calls);
 
 //Left (Band activity) window
-    DecodedText decodedtext {message.replace (QChar::LineFeed, "")};
+    DecodedText decodedtext {message.replace (QChar::LineFeed, ""), "FT8" == m_mode && m_config.contestMode (), m_config.my_grid ()};
     if(!m_bFastDone) {
       ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
          m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
@@ -2706,7 +2706,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           m_blankLine = false;
         }
 
-      DecodedText decodedtext {QString::fromUtf8 (t.constData ()).remove (QRegularExpression {"\r|\n"})};
+      DecodedText decodedtext {QString::fromUtf8 (t.constData ()).remove (QRegularExpression {"\r|\n"}), "FT8" == m_mode && m_config.contestMode (), m_config.my_grid ()};
 
       //Left (Band activity) window
       if(!bAvgMsg) {
@@ -2807,6 +2807,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
         && (REPLYING == m_QSOProgress
             || (!ui->tx1->isEnabled () && REPORT == m_QSOProgress))
         && qAbs (ui->TxFreqSpinBox->value () - df) <= int (stop_tolerance)
+        && message_words.at (1) != "DE"
         && !message_words.at (1).contains (QRegularExpression {"(^(CQ|QRZ))|" + m_baseCall})
         && message_words.at (2).contains (Radio::base_callsign (ui->dxCallEntry->text ()))) {
       // auto stop to avoid accidental QRM
@@ -3642,7 +3643,7 @@ void MainWindow::doubleClickOnCall(bool alt, bool ctrl)
     cursor=ui->decodedTextBrowser2->textCursor();
   }
   cursor.setPosition (cursor.selectionStart ());
-  DecodedText message {cursor.block ().text ()};
+  DecodedText message {cursor.block ().text (), ("MSK144" == m_mode || "FT8" == m_mode) && m_config.contestMode (), m_config.my_grid ()};
   m_bDoubleClicked = true;
   processMessage (message, ctrl, alt);
 }
@@ -3660,15 +3661,6 @@ void MainWindow::processMessage(DecodedText const& message, bool ctrl, bool alt)
       || ("QRA64" == m_mode && mode.left (1) != ":")) {
     return;
   }
-
-  // QString t2a;
-  // int ntsec=3600*t2.mid(0,2).toInt() + 60*t2.mid(2,2).toInt();
-  // if(m_bFastMode or m_mode=="FT8") {
-  //   ntsec = ntsec + t2.mid(4,2).toInt();
-  //   t2a = t2.left (4) + t2.mid (6); //Change hhmmss to hhmm for the message parser
-  // }
-  //t2a = t2.left (44);           // strip any quality info trailing the
-                                // decoded message
 
   if(m_bFastMode or m_mode=="FT8") {
     auto i1=message.string ().indexOf(" CQ ");
@@ -3706,12 +3698,6 @@ void MainWindow::processMessage(DecodedText const& message, bool ctrl, bool alt)
   message.deCallAndGrid(/*out*/hiscall,hisgrid);
   auto is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
   if (!is_73 && !message.isStandardMessage ())
-      // && (!Radio::is_callsign (hiscall)    // not interested if not from QSO partner
-      //     && !(t4.size () == 7             // unless it is of the form
-      //          && (t4.at (5) == m_baseCall // "<our-call> 73"
-      //              || t4.at (5).startsWith (m_baseCall + '/')
-      //              || t4.at (5).endsWith ('/' + m_baseCall))
-      //          && t4.at (6) == "73")))
     {
       qDebug () << "Not processing message - hiscall:" << hiscall << "hisgrid:" << hisgrid;
       return;
@@ -3929,7 +3915,7 @@ void MainWindow::processMessage(DecodedText const& message, bool ctrl, bool alt)
     ui->decodedTextBrowser2->displayDecodedText(message, m_baseCall,
           false, m_logBook,m_config.color_CQ(), m_config.color_MyCall(),
           m_config.color_DXCC(),m_config.color_NewCall());
-    m_QSOText = s1;
+    m_QSOText = s2;
   }
 
   if (hiscall != "73"
@@ -4103,41 +4089,54 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       t=hisBase + " " + my_callsign;
       msgtype(t, ui->tx1);
     } else {
+      t = "DE " + my_callsign + " ";
       switch (m_config.type_2_msg_gen ())
         {
         case Configuration::type_2_msg_1_full:
-          t="DE " + my_callsign + " " + my_grid;
-          msgtype(t, ui->tx1);
+          msgtype(t + my_grid, ui->tx1);
           if (!eme_short_codes) {
-            t=t0 + "R" + rpt;
-            msgtype(t, ui->tx3);
+            if ((m_mode=="MSK144" || m_mode=="FT8")
+                && m_config.contestMode()) {
+              msgtype(t + "R " + my_grid, ui->tx3);
+            }
+            else {
+              msgtype(t + "R" + rpt, ui->tx3);
+            }
             if ((m_mode != "JT4" && m_mode != "QRA64") || !m_bShMsgs) {
-              t="DE " + my_callsign + " 73";
-              msgtype(t, ui->tx5->lineEdit ());
+              msgtype(t + "73", ui->tx5->lineEdit ());
             }
           }
           break;
 
         case Configuration::type_2_msg_3_full:
-          t = t00 + my_grid;
-          msgtype(t, ui->tx1);
-          t="DE " + my_callsign + " R" + rpt;
-          msgtype(t, ui->tx3);
+          if ((m_mode=="MSK144" || m_mode=="FT8")
+              && m_config.contestMode()) {
+            msgtype(t + "R " + my_grid, ui->tx3);
+            msgtype(t + "RRR", ui->tx4);
+          }
+          else {
+            msgtype(t00 + my_grid, ui->tx1);
+            msgtype(t + "R" + rpt, ui->tx3);
+          }
           if (!eme_short_codes && ((m_mode != "JT4" && m_mode != "QRA64") || !m_bShMsgs)) {
-            t="DE " + my_callsign + " 73";
-            msgtype(t, ui->tx5->lineEdit ());
+            msgtype(t + "73", ui->tx5->lineEdit ());
           }
           break;
 
         case Configuration::type_2_msg_5_only:
-          t = t00 + my_grid;
-          msgtype(t, ui->tx1);
+          msgtype(t00 + my_grid, ui->tx1);
           if (!eme_short_codes) {
-            t=t0 + "R" + rpt;
-            msgtype(t, ui->tx3);
+            if ((m_mode=="MSK144" || m_mode=="FT8")
+                && m_config.contestMode()) {
+              msgtype(t + "R " + my_grid, ui->tx3);
+              msgtype(t + "RRR", ui->tx4);
+            }
+            else {
+              t=t0 + "R" + rpt;
+              msgtype(t, ui->tx3);
+            }
           }
-          t="DE " + my_callsign + " 73";
-          msgtype(t, ui->tx5->lineEdit ());
+          msgtype(t + "73", ui->tx5->lineEdit ());
           break;
         }
     }
@@ -6110,7 +6109,7 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
           position = ui->decodedTextBrowser->toPlainText().indexOf(QChar::LineFeed,position);
           m_bDoubleClicked = true;
           auto start = messages.left (position).lastIndexOf (QChar::LineFeed) + 1;
-          DecodedText message {messages.mid (start, position - start)};
+          DecodedText message {messages.mid (start, position - start), ("MSK144" == m_mode || "FT8" == m_mode) && m_config.contestMode (), m_config.my_grid ()};
           processMessage (message);
           tx_watchdog (false);
           QApplication::alert (this);

@@ -2,20 +2,22 @@
 
 #include <QStringList>
 #include <QRegularExpression>
+#include <QDebug>
 
 extern "C" {
-  bool stdmsg_(const char* msg, int len);
+  bool stdmsg_(char const * msg, bool contest_mode, char const * mygrid, int len_msg, int len_grid);
 }
 
 namespace
 {
-  QRegularExpression words_re {R"(^(?:(?<word1>(?:CQ|DE|QRZ)(?:\s?DX|\s(?:[A-Z]{2}|\d{3}))|[A-Z0-9/]+)\s)(?:(?<word2>[A-Z0-9/]+)(?:\sR\s)?(?:\s(?<word3>[-+A-Z0-9]+)(?:\s(?<word4>OOO))?)?)?)"};
+  QRegularExpression words_re {R"(^(?:(?<word1>(?:CQ|DE|QRZ)(?:\s?DX|\s(?:[A-Z]{2}|\d{3}))|[A-Z0-9/]+)\s)(?:(?<word2>[A-Z0-9/]+)(?:\s(?<word3>[-+A-Z0-9]+)(?:\s(?<word4>(?:OOO|(?!RR73)[A-R]{2}[0-9]{2})))?)?)?)"};
 }
 
-DecodedText::DecodedText (QString const& the_string)
+DecodedText::DecodedText (QString const& the_string, bool contest_mode, QString const& my_grid)
   : string_ {the_string}
   , padding_ {the_string.indexOf (" ") > 4 ? 2 : 0} // allow for
                                                     // seconds
+  , contest_mode_ {contest_mode}
   , message_ {string_.mid (column_qsoText + padding_).trimmed ()}
   , is_standard_ {false}
 {
@@ -39,8 +41,16 @@ DecodedText::DecodedText (QString const& the_string)
           // remove DXCC entity and worked B4 status. TODO need a better way to do this
           message_ = message_.left (eom_pos + 1);
         }
-      // stdmsg is a fortran routine that packs the text, unpacks it and compares the result
-      is_standard_ = stdmsg_ ((message_ + "                      ").toLatin1 ().constData (),22);
+      // stdmsg is a fortran routine that packs the text, unpacks it
+      // and compares the result
+      auto message_c_string = message_.toLocal8Bit ();
+      message_c_string += QByteArray {22 - message_c_string.size (), ' '};
+      auto grid_c_string = my_grid.toLocal8Bit ();
+      grid_c_string += QByteArray {6 - grid_c_string.size (), ' '};
+      is_standard_ = stdmsg_ (message_c_string.constData ()
+                              , contest_mode_
+                              , grid_c_string.constData ()
+                              , 22, 6);
     }
 };
 
@@ -51,7 +61,11 @@ QStringList DecodedText::messageWords () const
       // extract up to the first four message words
       return words_re.match (message_).capturedTexts ();
     }
-  return message_.split (' ');  // simple word split for free text messages
+  // simple word split for free text messages
+  auto words = message_.split (' ', QString::SkipEmptyParts);
+  // add whole message as item 0 to mimic RE capture list
+  words.prepend (message_);
+  return words;
 }
 
 QString DecodedText::CQersCall() const
@@ -157,22 +171,10 @@ void DecodedText::deCallAndGrid(/*out*/QString& call, QString& grid) const
   auto const& match = words_re.match (message_);
   call = match.captured ("word2");
   grid = match.captured ("word3");
-  
-  // auto msg = string_;
-  // if(msg.mid(4,1)!=" ") msg=msg.mid(0,4)+msg.mid(6,-1);  //Remove seconds from UTC
-  // msg = msg.replace (QRegularExpression {" CQ ([A-Z]{2,2}|[0-9]{3,3}) "}, " CQ_\\1 ").mid (column_qsoText + padding_);
-  // int i1 = msg.indexOf (" ");
-  // call = msg.mid (i1 + 1);
-  // int i2 = call.indexOf (" ");
-  // if (" R " == call.mid (i2, 3)) // MSK144 contest mode report
-  //   {
-  //     grid = call.mid (i2 + 3, 4);
-  //   }
-  // else
-  //   {
-  //     grid = call.mid (i2 + 1, 4);
-  //   }
-  // call = call.left (i2).replace (">", "");
+  if (contest_mode_ && "R" == grid)
+    {
+      grid = match.captured ("word4");
+    }
 }
 
 unsigned DecodedText::timeInSeconds() const

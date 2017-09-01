@@ -57,7 +57,7 @@ subroutine extract4(sym0,ncount,decoded)
      read(c72,1102) data4
 1102 format(12b6)
 
-     call unpackmsg(data4,decoded)
+     call unpackmsg(data4,decoded,.false.,'      ')
      if(decoded(1:6).eq.'000AAA') then
 !        decoded='***WRONG MODE?***'
         decoded='                      '

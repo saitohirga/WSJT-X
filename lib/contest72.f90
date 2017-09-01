@@ -36,10 +36,8 @@ program contest72
 1001    format(a22)
      endif
      msg=msg0
-     if(bcontest) call to_contest_msg(msg0,msg)
-     call packmsg(msg,dat,itype)
-     call unpackmsg(dat,msg1)
-     call fix_contest_msg(mygrid,msg1)
+     call packmsg(msg,dat,itype,bcontest)
+     call unpackmsg(dat,msg1,bcontest,mygrid)
      ok=msg1.eq.msg0
      if(msg0.eq.'                      ') then
         write(*,1002)
@@ -78,9 +76,9 @@ program contest72
         cycle
      endif
      
-     call packmsg(msg,dat,itype)
+     call packmsg(msg,dat,itype,.false.)
      write(ct1,1010) dat
-     call packtext(msg,nc1,nc2,ng)
+     call packtext(msg,nc1,nc2,ng,.false.,'')
 !     write(ct2,1012) nc1,nc2,ng+32768
 !1012 format(2b28.28,b16.16)
 !     write(*,1014) ct1
