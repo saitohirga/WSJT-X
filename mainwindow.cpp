@@ -2807,6 +2807,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
         && (REPLYING == m_QSOProgress
             || (!ui->tx1->isEnabled () && REPORT == m_QSOProgress))
         && qAbs (ui->TxFreqSpinBox->value () - df) <= int (stop_tolerance)
+        && message_words.at (1) != "DE"
         && !message_words.at (1).contains (QRegularExpression {"(^(CQ|QRZ))|" + m_baseCall})
         && message_words.at (2).contains (Radio::base_callsign (ui->dxCallEntry->text ()))) {
       // auto stop to avoid accidental QRM
