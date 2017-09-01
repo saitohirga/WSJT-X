@@ -4091,14 +4091,18 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       switch (m_config.type_2_msg_gen ())
         {
         case Configuration::type_2_msg_1_full:
-          t="DE " + my_callsign + " " + my_grid;
-          msgtype(t, ui->tx1);
+          t="DE " + my_callsign + " ";
+          msgtype(t + my_grid, ui->tx1);
           if (!eme_short_codes) {
-            t=t0 + "R" + rpt;
-            msgtype(t, ui->tx3);
+            if ((m_mode=="MSK144" || m_mode=="FT8")
+                && m_config.contestMode()) {
+              msgtype(t + "R " + my_grid, ui->tx3);
+            }
+            else {
+              msgtype(t + "R" + rpt, ui->tx3);
+            }
             if ((m_mode != "JT4" && m_mode != "QRA64") || !m_bShMsgs) {
-              t="DE " + my_callsign + " 73";
-              msgtype(t, ui->tx5->lineEdit ());
+              msgtype(t + "73", ui->tx5->lineEdit ());
             }
           }
           break;

@@ -2,6 +2,7 @@
 
 #include <QStringList>
 #include <QRegularExpression>
+#include <QDebug>
 
 extern "C" {
   bool stdmsg_(char const * msg, bool contest_mode, char const * mygrid, int len_msg, int len_grid);
@@ -60,7 +61,11 @@ QStringList DecodedText::messageWords () const
       // extract up to the first four message words
       return words_re.match (message_).capturedTexts ();
     }
-  return message_.split (' ');  // simple word split for free text messages
+  // simple word split for free text messages
+  auto words = message_.split (' ', QString::SkipEmptyParts);
+  // add whole message as item 0 to mimic RE capture list
+  words.prepend (message_);
+  return words;
 }
 
 QString DecodedText::CQersCall() const
