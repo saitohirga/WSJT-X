@@ -1,11 +1,15 @@
-logical*1 function stdmsg(msg0)
+function stdmsg(msg0,bcontest,mygrid)
 
+  use iso_c_binding, only: c_bool
   use packjt
   character*22 msg0,msg
+  character*6 mygrid
   integer dat(12)
+  logical(c_bool), value :: bcontest
+  logical(c_bool) :: stdmsg
 
-  call packmsg(msg0,dat,itype)
-  call unpackmsg(dat,msg)
+  call packmsg(msg0,dat,itype,logical(bcontest))
+  call unpackmsg(dat,msg,logical(bcontest),mygrid)
   stdmsg=(msg.eq.msg0) .and. (itype.ge.0) .and. itype.ne.6
 
   return

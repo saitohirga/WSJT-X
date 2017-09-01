@@ -37,8 +37,8 @@ subroutine genqra64(msg0,ichk,msgsent,itone,itype)
      enddo
 
      call chkmsg(message,cok,nspecial,flip)
-     call packmsg(message,dgen,itype)    !Pack message into 72 bits
-     call unpackmsg(dgen,msgsent)        !Unpack to get message sent
+     call packmsg(message,dgen,itype,.false.) !Pack message into 72 bits
+     call unpackmsg(dgen,msgsent,.false.,'      ') !Unpack to get message sent
      if(ichk.ne.0) go to 999             !Return if checking only
      call qra64_enc(dgen,sent)           !Encode using QRA64
 

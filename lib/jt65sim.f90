@@ -153,7 +153,7 @@ program jt65sim
         msg="K1ABC W9XYZ EN37"
 !###
 
-        call packmsg(msg,dgen,itype)        !Pack message into 12 six-bit bytes
+        call packmsg(msg,dgen,itype,.false.) !Pack message into 12 six-bit bytes
         call rs_encode(dgen,sent)           !Encode using RS(63,12)
         call interleave63(sent,1)           !Interleave channel symbols
         call graycode65(sent,63,1)          !Apply Gray code

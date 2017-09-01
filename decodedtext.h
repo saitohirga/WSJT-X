@@ -29,7 +29,7 @@
 class DecodedText
 {
 public:
-  explicit DecodedText (QString const&);
+  explicit DecodedText (QString const& message, bool, QString const& my_grid);
 
   QString string() const { return string_; };
   QStringList messageWords () const;
@@ -77,6 +77,7 @@ private:
 
   QString string_;
   int padding_;
+  bool contest_mode_;
   QString message_;
   bool is_standard_;
 };

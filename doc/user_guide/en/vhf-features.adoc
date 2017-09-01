@@ -158,15 +158,14 @@ image::JT65B.png[align="center",alt="JT65B"]
 
 === QRA64
 
-QRA64 is an experimental mode in Version 1.8 of _WSJT-X_.  The mode is
-designed especially for EME on VHF and higher bands; its operation is
-generally similar to JT4 and JT65.  The following screen shot shows an
-example of a QRA64C transmission from DL7YC recorded at G3WDG over the
-EME path at 24 GHz.  Doppler spread on the path was 78 Hz, so although
-the signal is reasonably strong its tones are broadened enough to make
-them hard to see on the waterfall.  The triangular red marker below
-the frequency scale shows that the decoder has achieved
-synchronization with a signal at approximately 967 Hz.
+QRA64 is designed for EME on VHF and higher bands; its
+operation is generally similar to JT4 and JT65.  The following screen
+shot shows an example of a QRA64C transmission from DL7YC recorded at
+G3WDG over the EME path at 24 GHz.  Doppler spread on the path was 78
+Hz, so although the signal is reasonably strong its tones are
+broadened enough to make them hard to see on the waterfall.  The
+triangular red marker below the frequency scale shows that the decoder
+has achieved synchronization with a signal at approximately 967 Hz.
 
 image::QRA64.png[align="center",alt="QRA64"]
 
@@ -192,11 +191,12 @@ initially, as the QRA64 tones are often not visible on the waterfall.
 The box labeled *Tx6* switches the Tx6 message from 1000Hz to 1250Hz
 to indicate to the other station that you are ready to receive messages.
 
-
 TIP: QRA64 is different from JT65 in that the decoder attempts to find
 and decode only a single signal in the receiver passband.  If many
 signals are present you may be able to decode them by double-clicking
-on the lowest tone of each one in the waterfall.  
+on the lowest tone of each one in the waterfall.
+
+TIP: G3WDG has prepared a more detailed tutorial on using {QRA64_EME}. 
 
 === ISCAT
 
