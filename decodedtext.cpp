@@ -43,9 +43,9 @@ DecodedText::DecodedText (QString const& the_string, bool contest_mode, QString 
       // stdmsg is a fortran routine that packs the text, unpacks it
       // and compares the result
       auto message_c_string = message_.toLocal8Bit ();
-      message_c_string.append (22 - message_c_string.size (), ' ');
+      message_c_string += QByteArray {22 - message_c_string.size (), ' '};
       auto grid_c_string = my_grid.toLocal8Bit ();
-      grid_c_string.append (6 - grid_c_string.size (), ' ');
+      grid_c_string += QByteArray {6 - grid_c_string.size (), ' '};
       is_standard_ = stdmsg_ (message_c_string.constData ()
                               , contest_mode_
                               , grid_c_string.constData ()
