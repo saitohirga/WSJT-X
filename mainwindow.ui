@@ -828,7 +828,7 @@ QLabel[oob=&quot;true&quot;] {
                    <item>
                     <widget class="QCheckBox" name="cbTxLock">
                      <property name="toolTip">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tx frequency tracks Rx frequency. &lt;/p&gt;&lt;p&gt;Not recommeded for general use!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tx frequency tracks Rx frequency. &lt;/p&gt;&lt;p&gt;Not recommended for general use!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="text">
                       <string>Lock Tx=Rx</string>
