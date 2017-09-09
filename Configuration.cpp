@@ -380,8 +380,6 @@ private:
   bool load_audio_devices (QAudio::Mode, QComboBox *, QAudioDeviceInfo *);
   void update_audio_channels (QComboBox const *, int, QComboBox *, bool);
 
-  void set_application_font (QFont const&);
-
   void initialize_models ();
   bool split_mode () const
   {
@@ -621,6 +619,7 @@ QColor Configuration::color_MyCall () const {return m_->color_MyCall_;}
 QColor Configuration::color_TxMsg () const {return m_->color_TxMsg_;}
 QColor Configuration::color_DXCC () const {return m_->color_DXCC_;}
 QColor Configuration::color_NewCall () const {return m_->color_NewCall_;}
+QFont Configuration::text_font () const {return m_->font_;}
 QFont Configuration::decoded_text_font () const {return m_->decoded_text_font_;}
 qint32 Configuration::id_interval () const {return m_->id_interval_;}
 qint32 Configuration::ntrials() const {return m_->ntrials_;}
@@ -1179,13 +1178,12 @@ void Configuration::impl::read_settings ()
       && next_font_ != font_)
     {
       font_ = next_font_;
+      Q_EMIT self_->text_font_changed (font_);
     }
   else
     {
       next_font_ = font_;
     }
-  set_application_font (font_);
-
   if (next_decoded_text_font_.fromString (settings_->value ("DecodedTextFont", "Courier, 10").toString ())
       && next_decoded_text_font_ != decoded_text_font_)
     {
@@ -1694,7 +1692,7 @@ void Configuration::impl::accept ()
   if (next_font_ != font_)
     {
       font_ = next_font_;
-      set_application_font (font_);
+      Q_EMIT self_->text_font_changed (font_);
     }
 
   if (next_decoded_text_font_ != decoded_text_font_)
@@ -2630,18 +2628,6 @@ void Configuration::impl::update_audio_channels (QComboBox const * source_combo_
         {
           combo_box->setItemData (AudioDevice::Mono, combo_box_item_enabled, Qt::UserRole - 1);
         }
-    }
-}
-
-void Configuration::impl::set_application_font (QFont const& font)
-{
-  qApp->setFont (font);
-  // set font in the application style sheet as well in case it has
-  // been modified in the style sheet which has priority
-  qApp->setStyleSheet (qApp->styleSheet () + "* {" + font_as_stylesheet (font) + '}');
-  for (auto& widget : qApp->topLevelWidgets ())
-    {
-      widget->updateGeometry ();
     }
 }
 

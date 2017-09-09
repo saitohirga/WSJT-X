@@ -96,6 +96,7 @@ public:
 
   QString my_callsign () const;
   QString my_grid () const;
+  QFont text_font () const;
   QFont decoded_text_font () const;
   qint32 id_interval () const;
   qint32 ntrials() const;
@@ -211,9 +212,10 @@ public:
 
 
   //
-  // This signal indicates that a font has been selected and accepted
-  // for the decoded text.
+  // These signals indicate a font has been selected and accepted for
+  // the application text and decoded text respectively.
   //
+  Q_SIGNAL void text_font_changed (QFont);
   Q_SIGNAL void decoded_text_font_changed (QFont);
 
   //
