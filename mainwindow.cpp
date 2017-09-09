@@ -4155,8 +4155,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
               msgtype(t + "RRR", ui->tx4);
             }
             else {
-              t=t0 + "R" + rpt;
-              msgtype(t, ui->tx3);
+              msgtype(t0 + "R" + rpt, ui->tx3);
             }
           }
           msgtype(t + "73", ui->tx5->lineEdit ());
