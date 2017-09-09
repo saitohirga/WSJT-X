@@ -337,12 +337,10 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
         xsnr=0.001
         if(xnoi.gt.0 .and. xnoi.lt.xsig) xsnr=xsig/xnoi-1.0
         xsnr=10.0*log10(xsnr)-27.0
-!###
         xsnr2=db(xsig/xbase - 1.0) - 32.0
 !        write(52,3052) f1,xdt,xsig,xnoi,xbase,xsnr,xsnr2
 !3052    format(7f10.2)
-        xsnr=xsnr2
-!###
+        if(.not.nagain) xsnr=xsnr2
         if(xsnr .lt. -24.0) xsnr=-24.0
         return
      endif

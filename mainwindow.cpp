@@ -2834,7 +2834,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
         && !message_words.at (1).contains (QRegularExpression {"(^(CQ|QRZ))|" + m_baseCall})
         && message_words.at (2).contains (Radio::base_callsign (ui->dxCallEntry->text ()))) {
       // auto stop to avoid accidental QRM
-      auto_tx_mode (false);
+      ui->stopTxButton->click (); // halt any transmission
     }
     else if (m_auto             // transmit allowed
         && ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked() // auto-sequencing allowed
