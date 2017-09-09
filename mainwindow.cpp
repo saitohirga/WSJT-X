@@ -4158,6 +4158,8 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
               msgtype(t0 + "R" + rpt, ui->tx3);
             }
           }
+          // don't use short codes here as in a sked with a type 2
+          // prefix we would never send out prefix/suffix
           msgtype(t + "73", ui->tx5->lineEdit ());
           break;
         }
