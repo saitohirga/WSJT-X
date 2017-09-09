@@ -123,6 +123,7 @@ protected:
   bool eventFilter(QObject *, QEvent *) override;
 
 private slots:
+  void initialize_fonts ();
   void on_tx1_editingFinished();
   void on_tx2_editingFinished();
   void on_tx3_editingFinished();
@@ -571,6 +572,7 @@ private:
 
   //---------------------------------------------------- private functions
   void readSettings();
+  void set_application_font (QFont const&);
   void setDecodedTextFont (QFont const&);
   void writeSettings();
   void createStatusBar();

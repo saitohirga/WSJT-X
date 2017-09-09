@@ -551,8 +551,13 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect(ui->decodedTextBrowser,SIGNAL(selectCallsign(bool,bool)),this,
           SLOT(doubleClickOnCall2(bool,bool)));
 
-  // initialise decoded text font and hook up change signal
-  setDecodedTextFont (m_config.decoded_text_font ());
+  // initialize decoded text font and hook up font change signals
+  // defer initialization until after construction otherwise menu
+  // fonts do not get set
+  QTimer::singleShot (0, this, SLOT (initialize_fonts ()));
+  connect (&m_config, &Configuration::text_font_changed, [this] (QFont const& font) {
+      set_application_font (font);
+    });
   connect (&m_config, &Configuration::decoded_text_font_changed, [this] (QFont const& font) {
       setDecodedTextFont (font);
     });
@@ -894,6 +899,12 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   if (!m_valid) throw std::runtime_error {"Fatal initialization exception"};
 }
 
+void MainWindow::initialize_fonts ()
+{
+  set_application_font (m_config.text_font ());
+  setDecodedTextFont (m_config.decoded_text_font ());
+}
+
 void MainWindow::splash_done ()
 {
   m_splash && m_splash->close ();
@@ -1091,6 +1102,18 @@ void MainWindow::readSettings()
   m_settings->endGroup ();
 
   if (displayMsgAvg) on_actionMessage_averaging_triggered();
+}
+
+void MainWindow::set_application_font (QFont const& font)
+{
+  qApp->setFont (font);
+  // set font in the application style sheet as well in case it has
+  // been modified in the style sheet which has priority
+  qApp->setStyleSheet (qApp->styleSheet () + "* {" + font_as_stylesheet (font) + '}');
+  for (auto& widget : qApp->topLevelWidgets ())
+    {
+      widget->updateGeometry ();
+    }
 }
 
 void MainWindow::setDecodedTextFont (QFont const& font)
