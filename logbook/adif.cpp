@@ -58,16 +58,27 @@ void ADIF::load()
     QFile inputFile(_filename);
     if (inputFile.open(QIODevice::ReadOnly))
     {
-        QTextStream in(&inputFile);
-        while ( !in.atEnd() )
+      QTextStream in(&inputFile);
+      QString record;
+
+      // skip header record
+      while (!in.atEnd () && !record.contains ("<EOH>", Qt::CaseInsensitive))
         {
-            QString line = in.readLine();
-            QSO q;
-            q.call = _extractField(line,"CALL:");
-            q.band = _extractField(line,"BAND:");
-            q.mode = _extractField(line,"MODE:");
-            q.date = _extractField(line,"QSO_DATE:");
-            if (q.call != "")
+          record += in.readLine ();
+        }
+      while ( !in.atEnd() )
+        {
+          record.clear ();
+          while (!in.atEnd () && !record.contains ("<EOR>", Qt::CaseInsensitive))
+            {
+              record += in.readLine ();
+            }
+          QSO q;
+          q.call = _extractField(record,"CALL:");
+          q.band = _extractField(record,"BAND:");
+          q.mode = _extractField(record,"MODE:");
+          q.date = _extractField(record,"QSO_DATE:");
+          if (q.call != "")
             _data.insert(q.call,q);
         }
         inputFile.close();
