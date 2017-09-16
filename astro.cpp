@@ -8,6 +8,7 @@
 #include <QSettings>
 #include <QDateTime>
 #include <QDir>
+#include <QCloseEvent>
 #include <QDebug>
 
 #include "commons.h"
@@ -56,7 +57,7 @@ Astro::~Astro ()
 void Astro::closeEvent (QCloseEvent * e)
 {
   write_settings ();
-  QWidget::closeEvent (e);
+  e->ignore ();                 // do not allow closure by the window system
 }
 
 void Astro::read_settings ()
