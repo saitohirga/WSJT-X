@@ -214,35 +214,3 @@ bool ADIF::addQSOToFile(QString const& hisCall, QString const& hisGrid, QString 
     }
     return true;
 }
-
-QString ADIF::bandFromFrequency(double dialFreq)
-{
-    QString band="";
-    if(dialFreq>0.135 and dialFreq<0.139) band="2200m";
-    else if(dialFreq>0.45 and dialFreq<0.55) band="630m";
-    else if(dialFreq>1.8 and dialFreq<2.0) band="160m";
-    else if(dialFreq>3.5 and dialFreq<4.0) band="80m";
-    else if(dialFreq>5.1 and dialFreq<5.45) band="60m";
-    else if(dialFreq>7.0 and dialFreq<7.3) band="40m";
-    else if(dialFreq>10.0 and dialFreq<10.15) band="30m";
-    else if(dialFreq>14.0 and dialFreq<14.35) band="20m";
-    else if(dialFreq>18.068 and dialFreq<18.168) band="17m";
-    else if(dialFreq>21.0 and dialFreq<21.45) band="15m";
-    else if(dialFreq>24.890 and dialFreq<24.990) band="12m";
-    else if(dialFreq>28.0 and dialFreq<29.7) band="10m";
-    else if(dialFreq>50.0 and dialFreq<54.0) band="6m";
-    else if(dialFreq>70.0 and dialFreq<71.0) band="4m";
-    else if(dialFreq>144.0 and dialFreq<148.0) band="2m";
-    else if(dialFreq>222.0 and dialFreq<225.0) band="1.25m";
-    else if(dialFreq>420.0 and dialFreq<450.0) band="70cm";
-    else if(dialFreq>902.0 and dialFreq<928.0) band="33cm";
-    else if(dialFreq>1240.0 and dialFreq<1300.0) band="23cm";
-    else if(dialFreq>2300.0 and dialFreq<2450.0) band="13cm";
-    else if(dialFreq>3300.0 and dialFreq<3500.0) band="9cm";
-    else if(dialFreq>5650.0 and dialFreq<5925.0) band="6cm";
-    else if(dialFreq>10000.0 and dialFreq<10500.0) band="3cm";
-    else if(dialFreq>24000.0 and dialFreq<24250.0) band="1.25cm";
-    else if(dialFreq>47000.0 and dialFreq<47200.0) band="6mm";
-    else if(dialFreq>75500.0 and dialFreq<81000.0) band="4mm";
-    return band;
-}
