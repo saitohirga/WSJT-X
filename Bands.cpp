@@ -8,7 +8,7 @@
 namespace
 {
   // Table of ADIF band definitions as defined in the ADIF
-  // specification.
+  // specification as at ADIF v3.0.6
   struct ADIFBand
   {
     char const * const name_;
@@ -20,7 +20,7 @@ namespace
     {"560m",  501000u,  		504000u},
     {"160m",  1800000u,   	2000000u},
     {"80m",   3500000u,   	4000000u},
-    {"60m",   5102000u,   	5406500u},
+    {"60m",   5060000u,   	5450000u},
     {"40m",   7000000u,   	7300000u},
     {"30m",   10000000u,  	10150000u},
     {"20m",   14000000u,  	14350000u},
