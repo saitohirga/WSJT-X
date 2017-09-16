@@ -244,7 +244,7 @@ void ClientWidget::update_status (QString const& id, Frequency f, QString const&
 
 void ClientWidget::decode_added (bool /*is_new*/, QString const& client_id, QTime /*time*/, qint32 /*snr*/
                                  , float /*delta_time*/, quint32 /*delta_frequency*/, QString const& /*mode*/
-                                 , QString const& /*message*/, bool /*low_confidence*/)
+                                 , QString const& /*message*/, bool /*low_confidence*/, bool /*off_air*/)
 {
   if (client_id == id_)
     {
@@ -256,7 +256,8 @@ void ClientWidget::decode_added (bool /*is_new*/, QString const& client_id, QTim
 
 void ClientWidget::beacon_spot_added (bool /*is_new*/, QString const& client_id, QTime /*time*/, qint32 /*snr*/
                                       , float /*delta_time*/, Frequency /*delta_frequency*/, qint32 /*drift*/
-                                      , QString const& /*callsign*/, QString const& /*grid*/, qint32 /*power*/)
+                                      , QString const& /*callsign*/, QString const& /*grid*/, qint32 /*power*/
+                                      , bool /*off_air*/)
 {
   if (client_id == id_)
     {

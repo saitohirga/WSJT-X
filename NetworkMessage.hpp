@@ -157,6 +157,7 @@
  *                         Mode                   utf8
  *                         Message                utf8
  *                         Low confidence         bool
+ *												 Off air								bool
  *
  *      The decode message is sent when  a new decode is completed, in
  *      this case the 'New' field is true. It is also used in response
@@ -168,7 +169,8 @@
  *      has knows that  a decode has a higher  than normal probability
  *      of  being  false, they  should  not  be reported  on  publicly
  *      accessible services  without some attached warning  or further
- *      validation.
+ *      validation. Off air decodes are those that result from playing
+ *      back a .WAV file.
  *
  *
  * Clear         Out       3                      quint32
@@ -299,13 +301,16 @@
  *                         Callsign               utf8
  *                         Grid                   utf8
  *                         Power (dBm)            qint32
+ *                         Off air                bool
  *
  *      The decode message is sent when  a new decode is completed, in
  *      this case the 'New' field is true. It is also used in response
  *      to  a "Replay"  message where  each  old decode  in the  "Band
  *      activity" window, that  has not been erased, is  sent in order
  *      as  a one  of  these  messages with  the  'New'  field set  to
- *      false. See the "Replay" message below for details of usage.
+ *      false.  See   the  "Replay"  message  below   for  details  of
+ *      usage. The off air field indicates that the decode was decoded
+ *      from a played back recording.
  *
  *
  */

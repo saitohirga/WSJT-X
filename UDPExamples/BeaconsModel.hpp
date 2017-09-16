@@ -31,7 +31,7 @@ public:
 
   Q_SLOT void add_beacon_spot (bool is_new, QString const& client_id, QTime time, qint32 snr, float delta_time
                                , Frequency frequency, qint32 drift, QString const& callsign, QString const& grid
-                               , qint32 power);
+                               , qint32 power, bool off_air);
   Q_SLOT void clear_decodes (QString const& client_id);
 };
 

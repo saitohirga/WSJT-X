@@ -33,10 +33,11 @@ public:
                              , bool watchdog_timeout, QString const& sub_mode, bool fast_mode);
   Q_SLOT void decode_added (bool is_new, QString const& client_id, QTime, qint32 snr
                             , float delta_time, quint32 delta_frequency, QString const& mode
-                            , QString const& message, bool low_confidence);
+                            , QString const& message, bool low_confidence, bool off_air);
   Q_SLOT void beacon_spot_added (bool is_new, QString const& client_id, QTime, qint32 snr
                                  , float delta_time, Frequency delta_frequency, qint32 drift
-                                 , QString const& callsign, QString const& grid, qint32 power);
+                                 , QString const& callsign, QString const& grid, qint32 power
+                                 , bool off_air);
 
   Q_SIGNAL void do_reply (QModelIndex const&);
   Q_SIGNAL void do_halt_tx (QString const& id, bool auto_only);

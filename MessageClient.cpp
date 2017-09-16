@@ -368,27 +368,29 @@ void MessageClient::status_update (Frequency f, QString const& mode, QString con
 }
 
 void MessageClient::decode (bool is_new, QTime time, qint32 snr, float delta_time, quint32 delta_frequency
-                            , QString const& mode, QString const& message_text, bool low_confidence)
+                            , QString const& mode, QString const& message_text, bool low_confidence
+                            , bool off_air)
 {
    if (m_->server_port_ && !m_->server_string_.isEmpty ())
     {
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::Decode, m_->id_, m_->schema_};
       out << is_new << time << snr << delta_time << delta_frequency << mode.toUtf8 ()
-          << message_text.toUtf8 () << low_confidence;
+          << message_text.toUtf8 () << low_confidence << off_air;
       m_->send_message (out, message);
     }
 }
 
 void MessageClient::WSPR_decode (bool is_new, QTime time, qint32 snr, float delta_time, Frequency frequency
-                                 , qint32 drift, QString const& callsign, QString const& grid, qint32 power)
+                                 , qint32 drift, QString const& callsign, QString const& grid, qint32 power
+                                 , bool off_air)
 {
    if (m_->server_port_ && !m_->server_string_.isEmpty ())
     {
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::WSPRDecode, m_->id_, m_->schema_};
       out << is_new << time << snr << delta_time << frequency << drift << callsign.toUtf8 ()
-          << grid.toUtf8 () << power;
+          << grid.toUtf8 () << power << off_air;
       m_->send_message (out, message);
     }
 }
@@ -403,17 +405,18 @@ void MessageClient::clear_decodes ()
     }
 }
 
-void MessageClient::qso_logged (QDateTime timeOff, QString const& dx_call, QString const& dx_grid
+void MessageClient::qso_logged (QDateTime time_off, QString const& dx_call, QString const& dx_grid
                                 , Frequency dial_frequency, QString const& mode, QString const& report_sent
                                 , QString const& report_received, QString const& tx_power
-                                , QString const& comments, QString const& name, QDateTime timeOn)
+                                , QString const& comments, QString const& name, QDateTime time_on)
 {
    if (m_->server_port_ && !m_->server_string_.isEmpty ())
     {
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::QSOLogged, m_->id_, m_->schema_};
-      out << timeOff << dx_call.toUtf8 () << dx_grid.toUtf8 () << dial_frequency << mode.toUtf8 ()
-          << report_sent.toUtf8 () << report_received.toUtf8 () << tx_power.toUtf8 () << comments.toUtf8 () << name.toUtf8 () << timeOn;
+      out << time_off << dx_call.toUtf8 () << dx_grid.toUtf8 () << dial_frequency << mode.toUtf8 ()
+          << report_sent.toUtf8 () << report_received.toUtf8 () << tx_power.toUtf8 () << comments.toUtf8 ()
+          << name.toUtf8 () << time_on;
       m_->send_message (out, message);
     }
 }

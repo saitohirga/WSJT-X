@@ -15,13 +15,19 @@ namespace
     QT_TRANSLATE_NOOP ("BeaconsModel", "Callsign"),
     QT_TRANSLATE_NOOP ("BeaconsModel", "Grid"),
     QT_TRANSLATE_NOOP ("BeaconsModel", "Power"),
+    QT_TRANSLATE_NOOP ("BeaconsModel", "Live"),
   };
+
+  QString live_string (bool off_air)
+  {
+    return off_air ? QT_TRANSLATE_NOOP ("BeaconsModel", "no") : QT_TRANSLATE_NOOP ("BeaconsModel", "yes");
+  }
 
   QFont text_font {"Courier", 10};
 
   QList<QStandardItem *> make_row (QString const& client_id, QTime time, qint32 snr, float delta_time
                                    , Frequency frequency, qint32 drift, QString const& callsign
-                                   , QString const& grid, qint32 power)
+                                   , QString const& grid, qint32 power, bool off_air)
   {
     auto time_item = new QStandardItem {time.toString ("hh:mm")};
     time_item->setData (time);
@@ -50,8 +56,11 @@ namespace
     pwr->setData (power);
     pwr->setTextAlignment (Qt::AlignRight);
 
+    auto live = new QStandardItem {live_string (off_air)};
+    live->setTextAlignment (Qt::AlignHCenter);
+
     QList<QStandardItem *> row {
-      new QStandardItem {client_id}, time_item, snr_item, dt, freq, dri, new QStandardItem {callsign}, gd, pwr};
+      new QStandardItem {client_id}, time_item, snr_item, dt, freq, dri, new QStandardItem {callsign}, gd, pwr, live};
     Q_FOREACH (auto& item, row)
       {
         item->setEditable (false);
@@ -63,7 +72,7 @@ namespace
 }
 
 BeaconsModel::BeaconsModel (QObject * parent)
-  : QStandardItemModel {0, 9, parent}
+  : QStandardItemModel {0, sizeof (headings) / sizeof (headings[0]), parent}
 {
   int column {0};
   for (auto const& heading : headings)
@@ -74,7 +83,7 @@ BeaconsModel::BeaconsModel (QObject * parent)
 
 void BeaconsModel::add_beacon_spot (bool is_new, QString const& client_id, QTime time, qint32 snr, float delta_time
                                     , Frequency frequency, qint32 drift, QString const& callsign
-                                    , QString const& grid, qint32 power)
+                                    , QString const& grid, qint32 power, bool off_air)
 {
   if (!is_new)
     {
@@ -91,7 +100,8 @@ void BeaconsModel::add_beacon_spot (bool is_new, QString const& client_id, QTime
                   && data (index (row, 5)).toInt () == drift
                   && data (index (row, 6)).toString () == callsign
                   && data (index (row, 7)).toString () == grid
-                  && data (index (row, 8)).toInt () == power)
+                  && data (index (row, 8)).toInt () == power
+                  && data (index (row, 9)).toString () == live_string (off_air))
                 {
                   return;
                 }
@@ -103,12 +113,12 @@ void BeaconsModel::add_beacon_spot (bool is_new, QString const& client_id, QTime
         }
       if (target_row >= 0)
         {
-          insertRow (target_row + 1, make_row (client_id, time, snr, delta_time, frequency, drift, callsign, grid, power));
+          insertRow (target_row + 1, make_row (client_id, time, snr, delta_time, frequency, drift, callsign, grid, power, off_air));
           return;
         }
     }
 
-  appendRow (make_row (client_id, time, snr, delta_time, frequency, drift, callsign, grid, power));
+  appendRow (make_row (client_id, time, snr, delta_time, frequency, drift, callsign, grid, power, off_air));
 }
 
 void BeaconsModel::clear_decodes (QString const& client_id)

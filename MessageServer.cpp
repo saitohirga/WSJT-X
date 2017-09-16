@@ -241,14 +241,15 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                 quint32 delta_frequency;
                 QByteArray mode;
                 QByteArray message;
-                bool low_confidence;
+                bool low_confidence {false};
+                bool off_air {false};
                 in >> is_new >> time >> snr >> delta_time >> delta_frequency >> mode
-                   >> message >> low_confidence;
+                   >> message >> low_confidence >> off_air;
                 if (check_status (in) != Fail)
                   {
                     Q_EMIT self_->decode (is_new, id, time, snr, delta_time, delta_frequency
                                           , QString::fromUtf8 (mode), QString::fromUtf8 (message)
-                                          , low_confidence);
+                                          , low_confidence, off_air);
                   }
               }
               break;
@@ -265,18 +266,21 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                 QByteArray callsign;
                 QByteArray grid;
                 qint32 power;
-                in >> is_new >> time >> snr >> delta_time >> frequency >> drift >> callsign >> grid >> power;
+                bool off_air {false};
+                in >> is_new >> time >> snr >> delta_time >> frequency >> drift >> callsign >> grid >> power
+                   >> off_air;
                 if (check_status (in) != Fail)
                   {
                     Q_EMIT self_->WSPR_decode (is_new, id, time, snr, delta_time, frequency, drift
-                                          , QString::fromUtf8 (callsign), QString::fromUtf8 (grid), power);
+                                               , QString::fromUtf8 (callsign), QString::fromUtf8 (grid)
+                                               , power, off_air);
                   }
               }
               break;
 
             case NetworkMessage::QSOLogged:
               {
-                QDateTime timeOff;
+                QDateTime time_off;
                 QByteArray dx_call;
                 QByteArray dx_grid;
                 Frequency dial_frequency;
@@ -286,15 +290,15 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                 QByteArray tx_power;
                 QByteArray comments;
                 QByteArray name;
-                QDateTime timeOn; // Note: LOTW uses TIME_ON for their +/- 30-minute time window
-                in >> timeOff >> dx_call >> dx_grid >> dial_frequency >> mode >> report_sent >> report_received
-                   >> tx_power >> comments >> name >> timeOn;
+                QDateTime time_on; // Note: LOTW uses TIME_ON for their +/- 30-minute time window
+                in >> time_off >> dx_call >> dx_grid >> dial_frequency >> mode >> report_sent >> report_received
+                   >> tx_power >> comments >> name >> time_on;
                 if (check_status (in) != Fail)
                   {
-                    Q_EMIT self_->qso_logged (id, timeOff, QString::fromUtf8 (dx_call), QString::fromUtf8 (dx_grid)
+                    Q_EMIT self_->qso_logged (id, time_off, QString::fromUtf8 (dx_call), QString::fromUtf8 (dx_grid)
                                               , dial_frequency, QString::fromUtf8 (mode), QString::fromUtf8 (report_sent)
                                               , QString::fromUtf8 (report_received), QString::fromUtf8 (tx_power)
-                                              , QString::fromUtf8 (comments), QString::fromUtf8 (name), timeOn);
+                                              , QString::fromUtf8 (comments), QString::fromUtf8 (name), time_on);
                   }
               }
               break;

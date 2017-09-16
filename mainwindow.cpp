@@ -6197,7 +6197,7 @@ void MainWindow::postDecode (bool is_new, QString const& message)
 {
   auto const& decode = message.trimmed ();
   auto const& parts = decode.left (22).split (' ', QString::SkipEmptyParts);
-  if (!m_diskData && parts.size () >= 5)
+  if (parts.size () >= 5)
     {
       auto has_seconds = parts[0].size () > 4;
       m_messageClient->decode (is_new
@@ -6205,7 +6205,8 @@ void MainWindow::postDecode (bool is_new, QString const& message)
                                , parts[1].toInt ()
                                , parts[2].toFloat (), parts[3].toUInt (), parts[4][0]
                                , decode.mid (has_seconds ? 24 : 22, 21)
-                               , QChar {'?'} == decode.mid (has_seconds ? 24 + 21 : 22 + 21, 1));
+                               , QChar {'?'} == decode.mid (has_seconds ? 24 + 21 : 22 + 21, 1)
+                               , m_diskData);
     }
 }
 
@@ -6217,7 +6218,8 @@ void MainWindow::postWSPRDecode (bool is_new, QStringList parts)
     }
   m_messageClient->WSPR_decode (is_new, QTime::fromString (parts[0], "hhmm"), parts[1].toInt ()
                                 , parts[2].toFloat (), Radio::frequency (parts[3].toFloat (), 6)
-                                , parts[4].toInt (), parts[5], parts[6], parts[7].toInt ());
+                                , parts[4].toInt (), parts[5], parts[6], parts[7].toInt ()
+                                , m_diskData);
 }
 
 void MainWindow::networkError (QString const& e)
