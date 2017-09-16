@@ -550,6 +550,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
           SLOT(doubleClickOnCall(bool,bool)));
   connect(ui->decodedTextBrowser,SIGNAL(selectCallsign(bool,bool)),this,
           SLOT(doubleClickOnCall2(bool,bool)));
+  connect (ui->decodedTextBrowser, &DisplayText::erased, this, &MainWindow::band_activity_cleared);
   connect (ui->decodedTextBrowser2, &DisplayText::erased, this, &MainWindow::rx_frequency_activity_cleared);
 
   // initialize decoded text font and hook up font change signals
@@ -2912,12 +2913,16 @@ void MainWindow::on_EraseButton_clicked ()
   m_msErase=ms;
 }
 
-void MainWindow::rx_frequency_activity_cleared ()
+void MainWindow::band_activity_cleared ()
 {
-  m_QSOText.clear();
   m_messageClient->clear_decodes ();
   QFile f(m_config.temp_dir ().absoluteFilePath ("decoded.txt"));
   if(f.exists()) f.remove();
+}
+
+void MainWindow::rx_frequency_activity_cleared ()
+{
+  m_QSOText.clear();
   set_dateTimeQSO(-1);          // G4WJS: why do we do this?
 }
 
