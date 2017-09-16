@@ -153,6 +153,7 @@ private slots:
   void decode();
   void decodeBusy(bool b);
   void on_EraseButton_clicked();
+  void rx_frequency_activity_cleared ();
   void on_txFirstCheckBox_stateChanged(int arg1);
   void set_dateTimeQSO(int m_ntx);
   void set_ntx(int n);

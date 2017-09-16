@@ -8,6 +8,8 @@
 #include "logbook/logbook.h"
 #include "decodedtext.h"
 
+class QAction;
+
 class DisplayText
   : public QTextEdit
 {
@@ -25,8 +27,10 @@ public:
   void displayQSY(QString text);
 
   Q_SIGNAL void selectCallsign (bool alt, bool ctrl);
+  Q_SIGNAL void erased ();
 
   Q_SLOT void appendText (QString const& text, QColor bg = Qt::white);
+  Q_SLOT void erase ();
 
 protected:
   void mouseDoubleClickEvent(QMouseEvent *e);
@@ -36,6 +40,7 @@ private:
 			     QColor color_CQ, QColor color_DXCC, QColor color_NewCall);
 
   QFont char_font_;
+  QAction * erase_action_;
 };
 
 #endif // DISPLAYTEXT_H

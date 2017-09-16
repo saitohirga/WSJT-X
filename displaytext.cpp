@@ -5,18 +5,39 @@
 #include <QTextCharFormat>
 #include <QTextCursor>
 #include <QTextBlock>
+#include <QMenu>
+#include <QAction>
 
 #include "qt_helpers.hpp"
 
 #include "moc_displaytext.cpp"
 
-DisplayText::DisplayText(QWidget *parent) :
-    QTextEdit(parent)
+DisplayText::DisplayText(QWidget *parent)
+  : QTextEdit(parent)
+  , erase_action_ {new QAction {tr ("&Erase"), this}}
 {
   setReadOnly (true);
   viewport ()->setCursor (Qt::ArrowCursor);
   setWordWrapMode (QTextOption::NoWrap);
-  document ()->setMaximumBlockCount (5000); // max lines to limit heap usage
+
+  // max lines to limit heap usage
+  document ()->setMaximumBlockCount (5000);
+
+  // context menu erase action
+  setContextMenuPolicy (Qt::CustomContextMenu);
+  connect (this, &DisplayText::customContextMenuRequested, [this] (QPoint const& position) {
+      auto * menu = createStandardContextMenu (position);
+      menu->addAction (erase_action_);
+      menu->exec (mapToGlobal (position));
+      delete menu;
+    });
+  connect (erase_action_, &QAction::triggered, this, &DisplayText::erase);
+}
+
+void DisplayText::erase ()
+{
+  clear ();
+  Q_EMIT erased ();
 }
 
 void DisplayText::setContentFont(QFont const& font)

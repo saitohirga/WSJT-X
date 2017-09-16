@@ -550,6 +550,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
           SLOT(doubleClickOnCall(bool,bool)));
   connect(ui->decodedTextBrowser,SIGNAL(selectCallsign(bool,bool)),this,
           SLOT(doubleClickOnCall2(bool,bool)));
+  connect (ui->decodedTextBrowser2, &DisplayText::erased, this, &MainWindow::rx_frequency_activity_cleared);
 
   // initialize decoded text font and hook up font change signals
   // defer initialization until after construction otherwise menu
@@ -2897,23 +2898,27 @@ void MainWindow::killFile ()
   }
 }
 
-void MainWindow::on_EraseButton_clicked()                          //Erase
+void MainWindow::on_EraseButton_clicked ()
 {
   qint64 ms=QDateTime::currentMSecsSinceEpoch();
-  ui->decodedTextBrowser2->clear();
+  ui->decodedTextBrowser2->erase ();
   if(m_mode.startsWith ("WSPR") or m_mode=="Echo" or m_mode=="ISCAT") {
-    ui->decodedTextBrowser->clear();
+    ui->decodedTextBrowser->erase ();
   } else {
-    m_QSOText.clear();
     if((ms-m_msErase)<500) {
-      ui->decodedTextBrowser->clear();
-      m_messageClient->clear_decodes ();
-      QFile f(m_config.temp_dir ().absoluteFilePath ("decoded.txt"));
-      if(f.exists()) f.remove();
+      ui->decodedTextBrowser->erase ();
     }
   }
   m_msErase=ms;
-  set_dateTimeQSO(-1);
+}
+
+void MainWindow::rx_frequency_activity_cleared ()
+{
+  m_QSOText.clear();
+  m_messageClient->clear_decodes ();
+  QFile f(m_config.temp_dir ().absoluteFilePath ("decoded.txt"));
+  if(f.exists()) f.remove();
+  set_dateTimeQSO(-1);          // G4WJS: why do we do this?
 }
 
 void MainWindow::decodeBusy(bool b)                             //decodeBusy()
