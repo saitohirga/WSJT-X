@@ -18,17 +18,17 @@ void ADIF::init(QString const& filename)
 }
 
 
-QString ADIF::_extractField(QString const& line, QString const& fieldName) const
+QString ADIF::extractField(QString const& record, QString const& fieldName) const
 {
-    int fieldNameIndex = line.indexOf(fieldName,0,Qt::CaseInsensitive);
+    int fieldNameIndex = record.indexOf (fieldName + ':', 0, Qt::CaseInsensitive);
     if (fieldNameIndex >=0)
     {
-        int closingBracketIndex = line.indexOf('>',fieldNameIndex);
-        int fieldLengthIndex = line.indexOf(':',fieldNameIndex);  // find the size delimiter
+        int closingBracketIndex = record.indexOf('>',fieldNameIndex);
+        int fieldLengthIndex = record.indexOf(':',fieldNameIndex);  // find the size delimiter
         int dataTypeIndex = -1;
         if (fieldLengthIndex >= 0)
         {
-          dataTypeIndex = line.indexOf(':',fieldLengthIndex+1);  // check for a second : indicating there is a data type
+          dataTypeIndex = record.indexOf(':',fieldLengthIndex+1);  // check for a second : indicating there is a data type
           if (dataTypeIndex > closingBracketIndex)
             dataTypeIndex = -1; // second : was found but it was beyond the closing >
         }
@@ -38,11 +38,11 @@ QString ADIF::_extractField(QString const& line, QString const& fieldName) const
             int fieldLengthCharCount = closingBracketIndex - fieldLengthIndex -1;
             if (dataTypeIndex >= 0)
               fieldLengthCharCount -= 2; // data type indicator is always a colon followed by a single character
-            QString fieldLengthString = line.mid(fieldLengthIndex+1,fieldLengthCharCount);
+            QString fieldLengthString = record.mid(fieldLengthIndex+1,fieldLengthCharCount);
             int fieldLength = fieldLengthString.toInt();
             if (fieldLength > 0)
             {
-              QString field = line.mid(closingBracketIndex+1,fieldLength);
+              QString field = record.mid(closingBracketIndex+1,fieldLength);
               return field;
             }
        }
@@ -59,29 +59,50 @@ void ADIF::load()
     if (inputFile.open(QIODevice::ReadOnly))
     {
       QTextStream in(&inputFile);
-      QString record;
+      QString buffer;
+      bool pre_read {false};
+      int end_position {-1};
 
-      // skip header record
-      while (!in.atEnd () && !record.contains ("<EOH>", Qt::CaseInsensitive))
+      // skip optional header record
+      do
         {
-          record += in.readLine ();
-        }
-      while ( !in.atEnd() )
-        {
-          record.clear ();
-          while (!in.atEnd () && !record.contains ("<EOR>", Qt::CaseInsensitive))
+          buffer += in.readLine () + '\n';
+          if (buffer.startsWith (QChar {'<'})) // denotes no header
             {
-              record += in.readLine ();
+              pre_read = true;
             }
-          QSO q;
-          q.call = _extractField(record,"CALL:");
-          q.band = _extractField(record,"BAND:");
-          q.mode = _extractField(record,"MODE:");
-          q.date = _extractField(record,"QSO_DATE:");
-          if (q.call != "")
-            _data.insert(q.call,q);
+          else
+            {
+              end_position = buffer.indexOf ("<EOH>", 0, Qt::CaseInsensitive);
+            }
         }
-        inputFile.close();
+      while (!in.atEnd () && !pre_read && end_position < 0);
+      if (!pre_read)            // found header
+        {
+          buffer.remove (0, end_position + 5);
+        }
+      while (buffer.size () || !in.atEnd ())
+        {
+          do
+            {
+              end_position = buffer.indexOf ("<EOR>", 0, Qt::CaseInsensitive);
+              if (!in.atEnd () && end_position < 0)
+                {
+                  buffer += in.readLine () + '\n';
+                }
+            }
+          while (!in.atEnd () && end_position < 0);
+          int record_length {end_position >= 0 ? end_position + 5 : -1};
+          auto record = buffer.left (record_length).trimmed ();
+          auto next_record = buffer.indexOf (QChar {'<'}, record_length);
+          buffer.remove (0, next_record >=0 ? next_record : buffer.size ());
+          record = record.mid (record.indexOf (QChar {'<'}));
+          add (extractField (record, "CALL")
+               , extractField (record, "BAND")
+               , extractField (record, "MODE")
+               , extractField (record, "QSO_DATE"));
+        }
+        inputFile.close ();
     }
 }
 
@@ -93,8 +114,11 @@ void ADIF::add(QString const& call, QString const& band, QString const& mode, QS
     q.band = band;
     q.mode = mode;
     q.date = date;
-    _data.insert(q.call,q);
-    //qDebug() << "Added as worked:" << call << band << mode << date;
+    if (q.call.size ())
+      {
+        _data.insert(q.call,q);
+        // qDebug() << "Added as worked:" << call << band << mode << date;
+      }
 }
 
 // return true if in the log same band and mode (where JT65 == JT9)

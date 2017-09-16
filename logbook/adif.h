@@ -43,7 +43,7 @@ class ADIF
 		QMultiHash<QString, QSO> _data;
 		QString _filename;
 		
-		QString _extractField(QString const& line, QString const& fieldName) const;
+		QString extractField(QString const& line, QString const& fieldName) const;
 };
 
 
