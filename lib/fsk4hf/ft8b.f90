@@ -11,7 +11,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
   logical bcontest
   real a(5)
   real s1(0:7,ND),s2(0:7,NN),s1sort(8*ND)
-  real ps(0:7)
+  real ps(0:7),psl(0:7)
   real bmeta(3*ND),bmetb(3*ND),bmetap(3*ND)
   real llr(3*ND),llra(3*ND),llr0(3*ND),llr1(3*ND),llrap(3*ND)           !Soft symbols
   real dd0(15*12000)
@@ -174,11 +174,15 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
      bmetap(i4)=r4
      bmetap(i2)=r2
      bmetap(i1)=r1
-! Max log
-     ps=log(ps)
-     r1=max(ps(1),ps(3),ps(5),ps(7))-max(ps(0),ps(2),ps(4),ps(6))
-     r2=max(ps(2),ps(3),ps(6),ps(7))-max(ps(0),ps(1),ps(4),ps(5))
-     r4=max(ps(4),ps(5),ps(6),ps(7))-max(ps(0),ps(1),ps(2),ps(3))
+! Max log metric
+     psl=log(ps)
+     r1=max(psl(1),psl(3),psl(5),psl(7))-max(psl(0),psl(2),psl(4),psl(6))
+     r2=max(psl(2),psl(3),psl(6),psl(7))-max(psl(0),psl(1),psl(4),psl(5))
+     r4=max(psl(4),psl(5),psl(6),psl(7))-max(psl(0),psl(1),psl(2),psl(3))
+     bmetb(i4)=r4
+     bmetb(i2)=r2
+     bmetb(i1)=r1
+
 ! Metric for Cauchy noise
 !     r1=log(ps(1)**3+ps(3)**3+ps(5)**3+ps(7)**3)- &
 !        log(ps(0)**3+ps(2)**3+ps(4)**3+ps(6)**3)
@@ -199,9 +203,6 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
 !     r1=log(b1+b3+b5+b7)-log(b0+b2+b4+b6)
 !     r2=log(b2+b3+b6+b7)-log(b0+b1+b4+b5)
 !     r4=log(b4+b5+b6+b7)-log(b0+b1+b2+b3)
-     bmetb(i4)=r4
-     bmetb(i2)=r2
-     bmetb(i1)=r1
 
      if(nQSOProgress .eq. 0 .or. nQSOProgress .eq. 5) then
 ! When bits 88:115 are set as ap bits, bit 115 lives in symbol 39 along
@@ -403,14 +404,14 @@ subroutine normalizebmet(bmet,n)
 end subroutine normalizebmet
 
 
-FUNCTION bessi0(x) 
+function bessi0(x) 
 ! From Numerical Recipes
-   REAL bessi0,x
-   DOUBLE PRECISION p1,p2,p3,p4,p5,p6,p7,q1,q2,q3,q4,q5,q6,q7,q8,q9,y
-   SAVE p1,p2,p3,p4,p5,p6,p7,q1,q2,q3,q4,q5,q6,q7,q8,q9
-   DATA p1,p2,p3,p4,p5,p6,p7/1.0d0,3.5156229d0,3.0899424d0,1.2067492d0, &
+   real bessi0,x
+   double precision p1,p2,p3,p4,p5,p6,p7,q1,q2,q3,q4,q5,q6,q7,q8,q9,y
+   save p1,p2,p3,p4,p5,p6,p7,q1,q2,q3,q4,q5,q6,q7,q8,q9
+   data p1,p2,p3,p4,p5,p6,p7/1.0d0,3.5156229d0,3.0899424d0,1.2067492d0, &
       0.2659732d0,0.360768d-1,0.45813d-2/
-   DATA q1,q2,q3,q4,q5,q6,q7,q8,q9/0.39894228d0,0.1328592d-1,           &
+   data q1,q2,q3,q4,q5,q6,q7,q8,q9/0.39894228d0,0.1328592d-1,           &
       0.225319d-2,-0.157565d-2,0.916281d-2,-0.2057706d-1,               &
       0.2635537d-1,-0.1647633d-1,0.392377d-2/
 
