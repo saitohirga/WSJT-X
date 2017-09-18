@@ -5734,6 +5734,7 @@ void MainWindow::transmit (double snr)
 
   if (m_modeTx == "FT8") {
     toneSpacing=12000.0/1920.0;
+    if(m_config.x2ToneSpacing()) toneSpacing=2*12000.0/1920.0;
     Q_EMIT sendMessage (NUM_FT8_SYMBOLS,
            1920.0, ui->TxFreqSpinBox->value () - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),
