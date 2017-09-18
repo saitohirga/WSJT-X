@@ -5758,6 +5758,7 @@ void MainWindow::transmit (double snr)
     int nsps[]={480,240,120,60};
     double sps=m_nsps;
     m_toneSpacing=nsub*12000.0/6912.0;
+    if(m_config.x2ToneSpacing()) m_toneSpacing=2.0*m_toneSpacing;
     bool fastmode=false;
     if(m_bFast9 and (m_nSubMode>=4)) {
       fastmode=true;
