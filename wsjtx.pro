@@ -66,7 +66,7 @@ SOURCES += \
   main.cpp decodedtext.cpp wsprnet.cpp messageaveraging.cpp \
   echoplot.cpp echograph.cpp fastgraph.cpp fastplot.cpp Modes.cpp \
   WSPRBandHopping.cpp MessageAggregator.cpp SampleDownloader.cpp qt_helpers.cpp\
-  MultiSettings.cpp PhaseEqualizationDialog.cpp IARURegions.cpp
+  MultiSettings.cpp PhaseEqualizationDialog.cpp IARURegions.cpp MessageBox.cpp
 
 HEADERS  += qt_helpers.hpp \
   pimpl_h.hpp pimpl_impl.hpp \
@@ -82,7 +82,7 @@ HEADERS  += qt_helpers.hpp \
   logbook/logbook.h logbook/countrydat.h logbook/countriesworked.h logbook/adif.h \
   messageaveraging.h echoplot.h echograph.h fastgraph.h fastplot.h Modes.hpp WSPRBandHopping.hpp \
   WsprTxScheduler.h SampleDownloader.hpp MultiSettings.hpp PhaseEqualizationDialog.hpp \
-  IARURegions.hpp
+  IARURegions.hpp MessageBox.hpp
 
 INCLUDEPATH += qmake_only
 

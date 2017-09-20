@@ -456,6 +456,7 @@ private:
   bool    m_bDoubleClicked;
   bool    m_bCallingCQ;
   bool    m_bAutoReply;
+  bool    m_bCheckedContest;
   enum
     {
       CALLING,

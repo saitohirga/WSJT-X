@@ -860,6 +860,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_bVHFwarned=false;
   m_bDoubleClicked=false;
   m_bCallingCQ=false;
+  m_bCheckedContest=false;
   m_wait=0;
   m_CQtype="CQ";
 
@@ -985,6 +986,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("Ftol", ui->sbFtol->value ());
   m_settings->setValue("MinSync",m_minSync);
   m_settings->setValue ("AutoSeq", ui->cbAutoSeq->isChecked ());
+  m_settings->setValue ("VHFcontest", ui->cbVHFcontest->isChecked ());
   m_settings->setValue("ShMsgs",m_bShMsgs);
   m_settings->setValue("SWL",ui->cbSWL->isChecked());
   m_settings->setValue ("DialFreq", QVariant::fromValue(m_lastMonitoredFrequency));
@@ -1053,6 +1055,7 @@ void MainWindow::readSettings()
   m_minSync=m_settings->value("MinSync",0).toInt();
   ui->syncSpinBox->setValue(m_minSync);
   ui->cbAutoSeq->setChecked (m_settings->value ("AutoSeq", false).toBool());
+  ui->cbVHFcontest->setChecked (m_settings->value ("VHFcontest", false).toBool());
   m_bShMsgs=m_settings->value("ShMsgs",false).toBool();
   m_bSWL=m_settings->value("SWL",false).toBool();
   m_bFast9=m_settings->value("Fast9",false).toBool();
@@ -1425,7 +1428,7 @@ void MainWindow::fastSink(qint64 frames)
   strncpy(dec_data.params.mycall, (m_baseCall+"            ").toLatin1(),12);
   QString hisCall {ui->dxCallEntry->text ()};
   bool bshmsg=ui->cbShMsgs->isChecked();
-  bool bcontest=m_config.contestMode();
+  bool bcontest=ui->cbVHFcontest->isChecked();
   bool bswl=ui->cbSWL->isChecked();
   strncpy(dec_data.params.hiscall,(Radio::base_callsign (hisCall) + "            ").toLatin1 ().constData (), 12);
   strncpy(dec_data.params.mygrid, (m_config.my_grid()+"      ").toLatin1(),6);
@@ -1533,8 +1536,6 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
 {
   // things that might change that we need know about
   auto callsign = m_config.my_callsign ();
-  //bool bvhf0=m_config.enable_VHF_features();
-  //bool bcontest0=m_config.contestMode();
   if (QDialog::Accepted == m_config.exec ()) {
     if (m_config.my_callsign () != callsign) {
       m_baseCall = Radio::base_callsign (m_config.my_callsign ());
@@ -1574,14 +1575,12 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     if(m_mode=="JT9+JT65") on_actionJT9_JT65_triggered();
     if(m_mode=="JT65") {
       on_actionJT65_triggered();
-      //if(m_config.enable_VHF_features() != bvhf0) genStdMsgs(m_rpt);
     }
     if(m_mode=="QRA64") on_actionQRA64_triggered();
     if(m_mode=="FreqCal") on_actionFreqCal_triggered();
     if(m_mode=="ISCAT") on_actionISCAT_triggered();
     if(m_mode=="MSK144") {
       on_actionMSK144_triggered();
-      //if(m_config.contestMode() != bcontest0) genStdMsgs(m_rpt);
     }
     if(m_mode=="WSPR") on_actionWSPR_triggered();
     if(m_mode=="WSPR-LF") on_actionWSPR_LF_triggered();
@@ -2510,7 +2509,7 @@ void MainWindow::decode()                                       //decode()
   dec_data.params.nexp_decode=0;
   if(m_config.single_decode()) dec_data.params.nexp_decode += 32;
   if(m_config.enable_VHF_features()) dec_data.params.nexp_decode += 64;
-  if(m_config.contestMode()) dec_data.params.nexp_decode += 128;
+  if(ui->cbVHFcontest->isChecked()) dec_data.params.nexp_decode += 128;
 
   strncpy(dec_data.params.datetime, m_dateTime.toLatin1(), 20);
   strncpy(dec_data.params.mycall, (m_config.my_callsign()+"            ").toLatin1(),12);
@@ -2587,7 +2586,8 @@ void::MainWindow::fast_decode_done()
     if(narg[13]/8==narg[12]) message=message.trimmed().replace("<...>",m_calls);
 
 //Left (Band activity) window
-    DecodedText decodedtext {message.replace (QChar::LineFeed, ""), "FT8" == m_mode && m_config.contestMode (), m_config.my_grid ()};
+    DecodedText decodedtext {message.replace (QChar::LineFeed, ""), "FT8" == m_mode &&
+          ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
     if(!m_bFastDone) {
       ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
          m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
@@ -2732,7 +2732,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
           m_blankLine = false;
         }
 
-      DecodedText decodedtext {QString::fromUtf8 (t.constData ()).remove (QRegularExpression {"\r|\n"}), "FT8" == m_mode && m_config.contestMode (), m_config.my_grid ()};
+      DecodedText decodedtext {QString::fromUtf8 (t.constData ()).remove (QRegularExpression {"\r|\n"}), "FT8" == m_mode &&
+            ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
 
       //Left (Band activity) window
       if(!bAvgMsg) {
@@ -3142,7 +3143,7 @@ void MainWindow::guiUpdate()
         if(m_modeTx=="WSPR-LF") genwspr_fsk8_(message, msgsent, const_cast<int *> (itone),
                                     22, 22);
         if(m_modeTx=="MSK144" or m_modeTx=="FT8") {
-          bool bcontest=m_config.contestMode();
+          bool bcontest=ui->cbVHFcontest->isChecked();
           char MyGrid[6];
           strncpy(MyGrid, (m_config.my_grid()+"      ").toLatin1(),6);
           if(m_modeTx=="MSK144") {
@@ -3677,7 +3678,8 @@ void MainWindow::doubleClickOnCall(bool alt, bool ctrl)
     cursor=ui->decodedTextBrowser2->textCursor();
   }
   cursor.setPosition (cursor.selectionStart ());
-  DecodedText message {cursor.block ().text (), ("MSK144" == m_mode || "FT8" == m_mode) && m_config.contestMode (), m_config.my_grid ()};
+  DecodedText message {cursor.block ().text (), ("MSK144" == m_mode || "FT8" == m_mode) &&
+        ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
   m_bDoubleClicked = true;
   processMessage (message, ctrl, alt);
 }
@@ -3730,6 +3732,36 @@ void MainWindow::processMessage(DecodedText const& message, bool ctrl, bool alt)
   QString hiscall;
   QString hisgrid;
   message.deCallAndGrid(/*out*/hiscall,hisgrid);
+//  qDebug() << "a" << m_mode << m_config.my_grid() << hisgrid <<
+//              m_rigState.frequency() << m_bCheckedContest;
+
+  if((m_mode=="FT8" or m_mode=="MSK144") and hisgrid.length()==4 and
+     m_rigState.frequency()>50000000 and !m_bCheckedContest) {
+    double utch=0.0;
+    int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter;
+    azdist_(const_cast <char *> (m_config.my_grid().toLatin1().constData()),
+            const_cast <char *> (hisgrid.toLatin1().constData()),&utch,
+            &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,6,6);
+//    qDebug() << "b" << nDkm;
+    if(nDkm>10000) {
+      auto const& message=tr("Locator in decoded message seems to imply"
+                             " a distance greater than 10,000 km. Should"
+                             " you be operating in NA VHF Contest mode?");
+      QMessageBox msgBox;
+      msgBox.setWindowTitle("Contest mode?");
+      msgBox.setText(message);
+      msgBox.setStandardButtons(QMessageBox::Yes);
+      msgBox.addButton(QMessageBox::No);
+      msgBox.setDefaultButton(QMessageBox::Yes);
+      if(msgBox.exec() == QMessageBox::Yes){
+        ui->cbVHFcontest->setChecked(true);
+      } else {
+        ui->cbVHFcontest->setChecked(false);
+      }
+      m_bCheckedContest=true;
+    }
+  }
+
   auto is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
   if (!is_73 && !message.isStandardMessage ())
     {
@@ -3802,7 +3834,7 @@ void MainWindow::processMessage(DecodedText const& message, bool ctrl, bool alt)
             m_QSOProgress = SIGNOFF;
           } else if((m_QSOProgress >= REPORT
                      || (m_QSOProgress >= REPLYING && (m_mode=="MSK144" or m_mode=="FT8")
-                         && m_config.contestMode ())) && r.mid(0,1)=="R") {
+                         && ui->cbVHFcontest->isChecked())) && r.mid(0,1)=="R") {
             m_ntx=4;
             m_QSOProgress = ROGERS;
             ui->txrb4->setChecked(true);
@@ -3841,7 +3873,7 @@ void MainWindow::processMessage(DecodedText const& message, bool ctrl, bool alt)
       }
       else if (!(m_bAutoReply && m_QSOProgress > CALLING)) {
         if ((message_words.size () > 4 && message_words.at (1).contains (m_baseCall) && message_words.at (4) == "OOO")
-            || ((m_mode=="MSK144" or m_mode=="FT8") && m_config.contestMode())) {
+            || ((m_mode=="MSK144" or m_mode=="FT8") && ui->cbVHFcontest->isChecked())) {
           // EME short code report or MSK144/FT8 contest mode reply, send back Tx3
           m_ntx = 3;
           m_QSOProgress = ROGER_REPORT;
@@ -4073,7 +4105,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     rpt.sprintf("%+2.2d",n);
 
     if(m_mode=="MSK144" or m_mode=="FT8") {
-      if(m_config.contestMode()) {
+      if(ui->cbVHFcontest->isChecked()) {
         t=t0 + my_grid;
         msgtype(t, ui->tx2);
         t=t0 + "R " + my_grid;
@@ -4083,7 +4115,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     if(m_mode=="MSK144" and m_bShMsgs) {
       int i=t0.length()-1;
       t0="<" + t0.mid(0,i) + "> ";
-      if(!m_config.contestMode()) {
+      if(!ui->cbVHFcontest->isChecked()) {
         if(n<=-2) n=-3;
         if(n>=-1 and n<=1) n=0;
         if(n>=2 and n<=4) n=3;
@@ -4094,7 +4126,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
         rpt.sprintf("%+2.2d",n);
       }
     }
-    if((m_mode!="MSK144" and m_mode!="FT8") or !m_config.contestMode()) {
+    if((m_mode!="MSK144" and m_mode!="FT8") or !ui->cbVHFcontest->isChecked()) {
       t=t00 + rpt;
       msgtype(t, ui->tx2);
       t=t0 + "R" + rpt;
@@ -4130,7 +4162,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
           msgtype(t + my_grid, ui->tx1);
           if (!eme_short_codes) {
             if ((m_mode=="MSK144" || m_mode=="FT8")
-                && m_config.contestMode()) {
+                && ui->cbVHFcontest->isChecked()) {
               msgtype(t + "R " + my_grid, ui->tx3);
             }
             else {
@@ -4144,7 +4176,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
 
         case Configuration::type_2_msg_3_full:
           if ((m_mode=="MSK144" || m_mode=="FT8")
-              && m_config.contestMode()) {
+              && ui->cbVHFcontest->isChecked()) {
             msgtype(t + "R " + my_grid, ui->tx3);
             msgtype(t + "RRR", ui->tx4);
           }
@@ -4161,7 +4193,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
           msgtype(t00 + my_grid, ui->tx1);
           if (!eme_short_codes) {
             if ((m_mode=="MSK144" || m_mode=="FT8")
-                && m_config.contestMode()) {
+                && ui->cbVHFcontest->isChecked()) {
               msgtype(t + "R " + my_grid, ui->tx3);
               msgtype(t + "RRR", ui->tx4);
             }
@@ -4372,7 +4404,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
   if(itype==7 and m_config.enable_VHF_features() and
      m_mode=="JT65") shortMsg=true;
   if(m_mode=="MSK144" and t.mid(0,1)=="<") text=false;
-  if((m_mode=="MSK144" or m_mode=="FT8") and m_config.contestMode()) {
+  if((m_mode=="MSK144" or m_mode=="FT8") and ui->cbVHFcontest->isChecked()) {
     int i0=t.trimmed().length()-7;
     if(t.mid(i0,3)==" R ") text=false;
   }
@@ -4576,6 +4608,7 @@ void MainWindow::displayWidgets(int n)
   }
   ui->cbFirst->setVisible ("FT8" == m_mode);
   ui->actionEnable_AP->setVisible ("FT8" == m_mode);
+  ui->cbVHFcontest->setVisible(m_mode=="FT8" or m_mode=="MSK144");
   m_lastCallsign.clear ();     // ensures Tx5 is updated for new modes
   genStdMsgs (m_rpt, true);
 }
@@ -6146,7 +6179,8 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
           position = ui->decodedTextBrowser->toPlainText().indexOf(QChar::LineFeed,position);
           m_bDoubleClicked = true;
           auto start = messages.left (position).lastIndexOf (QChar::LineFeed) + 1;
-          DecodedText message {messages.mid (start, position - start), ("MSK144" == m_mode || "FT8" == m_mode) && m_config.contestMode (), m_config.my_grid ()};
+          DecodedText message {messages.mid (start, position - start), ("MSK144" == m_mode || "FT8" == m_mode) &&
+                ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
           processMessage (message);
           tx_watchdog (false);
           QApplication::alert (this);
