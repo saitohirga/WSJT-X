@@ -54,5 +54,8 @@ station you are calling.  Keyboard shortcuts *Shift+F11* and
 *Shift+F12* provide an easy way to move your Tx frequency in 60 Hz
 steps.
 
+NOTE: Further helpful tips on FT8 operating procedures are available
+{ft8_tips}.  Thanks to ZL2IFB!
+
 IMPORTANT: When finished with this Tutorial, don't forget to re-enter
 your own callsign as *My Call* on the *Settings | General* tab.
