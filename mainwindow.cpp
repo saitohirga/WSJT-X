@@ -4938,6 +4938,7 @@ void MainWindow::on_actionMSK144_triggered()
   m_bFastMode=true;
   m_bFast9=false;
   m_TRperiod = ui->sbTR->value ();
+  m_fastGraph->setTRperiod (m_TRperiod);
   m_wideGraph->hide();
   m_fastGraph->show();
   ui->TxFreqSpinBox->setValue(1500);
