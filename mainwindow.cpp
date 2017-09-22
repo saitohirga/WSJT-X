@@ -129,6 +129,8 @@ extern "C" {
 
   void freqcal_(short d2[], int* k, int* nkhz,int* noffset, int* ntol,
                 char line[], int len);
+
+  void fix_contest_msg_(char* MyGrid, char* msg, int len1, int len2);
 }
 
 int volatile itone[NUM_ISCAT_SYMBOLS];  //Audio tones for all Tx symbols
@@ -2816,7 +2818,9 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
 {
   auto const& message_words = message.messageWords ();
   auto is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
-  if (message_words.size () > 2 && (message.isStandardMessage () || is_73)) {
+  bool is_OK=false;
+  if(m_mode=="MSK144" and message.string().indexOf(ui->dxCallEntry->text()+" R ")>0) is_OK=true;
+  if (message_words.size () > 2 && (message.isStandardMessage () || (is_73 or is_OK))) {
     auto df = message.frequencyOffset ();
     auto within_tolerance =
       (qAbs (ui->RxFreqSpinBox->value () - df) <= int (start_tolerance)
@@ -2854,10 +2858,9 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
             || (m_bCallingCQ && m_bAutoReply
                 // look for type 2 compound call replies on our Tx and Rx offsets
                 && ((within_tolerance && "DE" == message_words.at (1))
-                    || message_words.at (1).contains (m_baseCall)))))
-      {
-        processMessage (message);
-      }
+                    || message_words.at (1).contains (m_baseCall))))) {
+      processMessage (message);
+    }
   }
 }
 
@@ -3732,9 +3735,14 @@ void MainWindow::processMessage(DecodedText const& message, bool ctrl, bool alt)
   QString hiscall;
   QString hisgrid;
   message.deCallAndGrid(/*out*/hiscall,hisgrid);
-//  qDebug() << "a" << m_mode << m_config.my_grid() << hisgrid <<
-//              m_rigState.frequency() << m_bCheckedContest;
+  int nWarn=0;
+  QString warnMsg;
 
+  if(m_mode=="MSK144" and message.string().indexOf(hiscall+" R ")>0 and
+     !ui->cbVHFcontest->isChecked()) {
+    warnMsg=tr("Should you be operating in NA VHF Contest mode?");
+    nWarn=1;
+  }
   if((m_mode=="FT8" or m_mode=="MSK144") and hisgrid.length()==4 and
      m_rigState.frequency()>50000000 and !m_bCheckedContest) {
     double utch=0.0;
@@ -3742,32 +3750,37 @@ void MainWindow::processMessage(DecodedText const& message, bool ctrl, bool alt)
     azdist_(const_cast <char *> (m_config.my_grid().toLatin1().constData()),
             const_cast <char *> (hisgrid.toLatin1().constData()),&utch,
             &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,6,6);
-//    qDebug() << "b" << nDkm;
     if(nDkm>10000) {
-      auto const& message=tr("Locator in decoded message seems to imply"
-                             " a distance greater than 10,000 km. Should"
-                             " you be operating in NA VHF Contest mode?");
-      QMessageBox msgBox;
-      msgBox.setWindowTitle("Contest mode?");
-      msgBox.setText(message);
-      msgBox.setStandardButtons(QMessageBox::Yes);
-      msgBox.addButton(QMessageBox::No);
-      msgBox.setDefaultButton(QMessageBox::Yes);
-      if(msgBox.exec() == QMessageBox::Yes){
-        ui->cbVHFcontest->setChecked(true);
-      } else {
-        ui->cbVHFcontest->setChecked(false);
-      }
-      m_bCheckedContest=true;
+      warnMsg=tr("Locator in decoded message seems to imply\n"
+             "a distance greater than 10,000 km. Should\n"
+             "you be operating in NA VHF Contest mode?");
+      nWarn=2;
     }
   }
 
-  auto is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
-  if (!is_73 && !message.isStandardMessage ())
-    {
-      qDebug () << "Not processing message - hiscall:" << hiscall << "hisgrid:" << hisgrid;
-      return;
+  if(nWarn>0) {
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("Contest mode?");
+    msgBox.setText(warnMsg);
+    msgBox.setStandardButtons(QMessageBox::Yes);
+    msgBox.addButton(QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::Yes);
+    if(msgBox.exec() == QMessageBox::Yes){
+      ui->cbVHFcontest->setChecked(true);
+      if(nWarn==2) {
+        on_DecodeButton_clicked (true);
+      }
+    } else {
+      ui->cbVHFcontest->setChecked(false);
     }
+    m_bCheckedContest=true;
+  }
+
+  auto is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
+  if (!is_73 and !message.isStandardMessage() and (nWarn==0)) {
+    qDebug () << "Not processing message - hiscall:" << hiscall << "hisgrid:" << hisgrid;
+    return;
+  }
   // only allow automatic mode changes between JT9 and JT65, and when not transmitting
   if (!m_transmitting and m_mode == "JT9+JT65") {
     if (message.isJT9())
