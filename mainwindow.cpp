@@ -4220,10 +4220,11 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
           break;
         }
     }
-    if (hisCall != hisBase
-        && m_config.type_2_msg_gen () != Configuration::type_2_msg_5_only
+    if (hisCall.size () <= 10 && hisCall != hisBase
         && !eme_short_codes) {
-      // cfm we have his full call copied as we could not do this earlier
+      // cfm we have his full call copied as we could not do this
+      // earlier, as this is a free text message we must be careful
+      // about the length
       t = hisCall + " 73";
       msgtype(t, ui->tx5->lineEdit ());
     }
@@ -4235,6 +4236,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
         msgtype(t, ui->tx1);
       }
       else if (!eme_short_codes
+               && hisCall.size () <= 10 // avoid truncated free text message
                && ("MSK144" != m_mode || !m_bShMsgs)) {
         t=hisCall + " 73";
         msgtype(t, ui->tx5->lineEdit ());
