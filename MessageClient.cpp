@@ -152,12 +152,14 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
                 QByteArray mode;
                 QByteArray message;
                 bool low_confidence {false};
-                in >> time >> snr >> delta_time >> delta_frequency >> mode >> message >> low_confidence;
+                quint8 modifiers {0};
+                in >> time >> snr >> delta_time >> delta_frequency >> mode >> message
+                   >> low_confidence >> modifiers;
                 if (check_status (in) != Fail)
                   {
                     Q_EMIT self_->reply (time, snr, delta_time, delta_frequency
                                          , QString::fromUtf8 (mode), QString::fromUtf8 (message)
-                                         , low_confidence);
+                                         , low_confidence, modifiers);
                   }
               }
               break;

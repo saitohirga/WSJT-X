@@ -403,7 +403,9 @@ void MessageServer::start (port_type port, QHostAddress const& multicast_group_a
     }
 }
 
-void MessageServer::reply (QString const& id, QTime time, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode, QString const& message_text, bool low_confidence)
+void MessageServer::reply (QString const& id, QTime time, qint32 snr, float delta_time
+                           , quint32 delta_frequency, QString const& mode
+                           , QString const& message_text, bool low_confidence, quint8 modifiers)
 {
   auto iter = m_->clients_.find (id);
   if (iter != std::end (m_->clients_))
@@ -411,7 +413,7 @@ void MessageServer::reply (QString const& id, QTime time, qint32 snr, float delt
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::Reply, id, (*iter).negotiated_schema_number_};
       out << time << snr << delta_time << delta_frequency << mode.toUtf8 ()
-          << message_text.toUtf8 () << low_confidence;
+          << message_text.toUtf8 () << low_confidence << modifiers;
       m_->send_message (out, message, iter.value ().sender_address_, (*iter).sender_port_);
     }
 }

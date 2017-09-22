@@ -6130,7 +6130,9 @@ void MainWindow::on_cbTx6_toggled(bool)
 }
 
 // Takes a decoded CQ line and sets it up for reply
-void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode, QString const& message_text)
+void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 delta_frequency
+                            , QString const& mode, QString const& message_text
+                            , bool /*low_confidence*/, quint8 modifiers)
 {
   if (!m_config.accept_udp_requests ())
     {
@@ -6140,14 +6142,14 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
   if (message_text.contains (QRegularExpression {R"(^(CQ |CQDX |QRZ ))"}))
     {
       // a message we are willing to accept
-      QString format_string {"%1 %2 %3 %4 %5  %6"};
+      QString format_string {"%1 %2 %3 %4 %5 %6"};
       auto const& time_string = time.toString ("~" == mode || "&" == mode ? "hhmmss" : "hhmm");
       auto cqtext = format_string
         .arg (time_string)
         .arg (snr, 3)
         .arg (delta_time, 4, 'f', 1)
         .arg (delta_frequency, 4)
-        .arg (mode)
+        .arg (mode, 2)
         .arg (message_text);
       auto messages = ui->decodedTextBrowser->toPlainText ();
       auto position = messages.lastIndexOf (cqtext);
@@ -6159,7 +6161,7 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
                                            .arg (snr, 3)
                                            .arg ('-' + QString::number (delta_time, 'f', 1), 4)
                                            .arg (delta_frequency, 4)
-                                           .arg (mode)
+                                           .arg (mode, 2)
                                            .arg (message_text));
         }
       if (position >= 0)
@@ -6180,8 +6182,9 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
           m_bDoubleClicked = true;
           auto start = messages.left (position).lastIndexOf (QChar::LineFeed) + 1;
           DecodedText message {messages.mid (start, position - start), ("MSK144" == m_mode || "FT8" == m_mode) &&
-                ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
-          processMessage (message);
+              ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
+          Qt::KeyboardModifiers kbmod {modifiers << 24};
+          processMessage (message, kbmod & Qt::ControlModifier,kbmod & Qt::AltModifier);
           tx_watchdog (false);
           QApplication::alert (this);
         }
@@ -6239,7 +6242,7 @@ void MainWindow::postDecode (bool is_new, QString const& message)
       m_messageClient->decode (is_new
                                , QTime::fromString (parts[0], has_seconds ? "hhmmss" : "hhmm")
                                , parts[1].toInt ()
-                               , parts[2].toFloat (), parts[3].toUInt (), parts[4][0]
+                               , parts[2].toFloat (), parts[3].toUInt (), parts[4]
                                , decode.mid (has_seconds ? 24 : 22, 21)
                                , QChar {'?'} == decode.mid (has_seconds ? 24 + 21 : 22 + 21, 1)
                                , m_diskData);

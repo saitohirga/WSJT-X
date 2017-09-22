@@ -35,10 +35,10 @@ public:
                           , quint32 delta_frequency, QString const& mode, QString const& message
                           , bool low_confidence, bool off_air, bool is_fast);
   Q_SLOT void clear_decodes (QString const& client_id);
-  Q_SLOT void do_reply (QModelIndex const& source);
+  Q_SLOT void do_reply (QModelIndex const& source, quint8 modifiers);
 
   Q_SIGNAL void reply (QString const& id, QTime time, qint32 snr, float delta_time, quint32 delta_frequency
-                       , QString const& mode, QString const& message, bool low_confidence);
+                       , QString const& mode, QString const& message, bool low_confidence, quint8 modifiers);
 };
 
 #endif

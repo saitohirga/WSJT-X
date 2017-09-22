@@ -157,7 +157,7 @@
  *                         Mode                   utf8
  *                         Message                utf8
  *                         Low confidence         bool
- *												 Off air								bool
+ *                         Off air                bool
  *
  *      The decode message is sent when  a new decode is completed, in
  *      this case the 'New' field is true. It is also used in response
@@ -193,6 +193,7 @@
  *                         Mode                   utf8
  *                         Message                utf8
  *                         Low confidence         bool
+ *                         Modifiers              quint8
  *
  *      In order for a server  to provide a useful cooperative service
  *      to WSJT-X it  is possible for it to initiate  a QSO by sending
@@ -208,6 +209,19 @@
  *      user  interface for  WSJT-X,  it is  expected  that after  QSO
  *      initiation the rest  of the QSO is carried  out manually using
  *      the normal WSJT-X user interface.
+ *
+ *      The  Modifiers   field  allows  the  equivalent   of  keyboard
+ *      modifiers to be sent "as if" those modifier keys where pressed
+ *      while  double-clicking  the  specified  decoded  message.  The
+ *      modifier values (hexadecimal) are as follows:
+ *
+ *          no modifier     0x00
+ *          SHIFT           0x02
+ *          CTRL            0x04  CMD on Mac
+ *          ALT             0x08
+ *          META            0x10  Windows key on MS Windows
+ *          KEYPAD          0x20  Keypad or arrows
+ *          Group switch    0x40  X11 only
  *
  *
  * QSO Logged    Out       5                      quint32

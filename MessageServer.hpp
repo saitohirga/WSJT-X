@@ -46,7 +46,7 @@ public:
   // note that the client is not obliged to take any action and only
   // takes any action if the decode is present and is a CQ or QRZ message
   Q_SLOT void reply (QString const& id, QTime time, qint32 snr, float delta_time, quint32 delta_frequency
-                     , QString const& mode, QString const& message, bool low_confidence);
+                     , QString const& mode, QString const& message, bool low_confidence, quint8 modifiers);
 
   // ask the client with identification 'id' to replay all decodes
   Q_SLOT void replay (QString const& id);

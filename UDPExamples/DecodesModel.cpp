@@ -136,7 +136,7 @@ void DecodesModel::clear_decodes (QString const& client_id)
     }
 }
 
-void DecodesModel::do_reply (QModelIndex const& source)
+void DecodesModel::do_reply (QModelIndex const& source, quint8 modifiers)
 {
   auto row = source.row ();
   Q_EMIT reply (data (index (row, 0)).toString ()
@@ -146,7 +146,8 @@ void DecodesModel::do_reply (QModelIndex const& source)
                 , item (row, 4)->data ().toInt ()
                 , data (index (row, 5)).toString ()
                 , data (index (row, 6)).toString ()
-                , confidence_string (true) == data (index (row, 7)).toString ());
+                , confidence_string (true) == data (index (row, 7)).toString ()
+                , modifiers);
 }
 
 #include "moc_DecodesModel.cpp"

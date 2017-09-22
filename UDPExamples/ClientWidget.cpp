@@ -208,7 +208,7 @@ ClientWidget::ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemMod
 
   // connect up table view signals
   connect (decodes_table_view_, &QTableView::doubleClicked, this, [this] (QModelIndex const& index) {
-      Q_EMIT do_reply (decodes_proxy_model_.mapToSource (index));
+      Q_EMIT do_reply (decodes_proxy_model_.mapToSource (index), QApplication::keyboardModifiers () >> 24);
     });
 }
 

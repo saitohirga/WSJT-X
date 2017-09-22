@@ -72,7 +72,7 @@ public:
   // this signal is emitted if the server sends us a reply, the only
   // reply supported is reply to a prior CQ or QRZ message
   Q_SIGNAL void reply (QTime, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode
-                       , QString const& message_text, bool low_confidence);
+                       , QString const& message_text, bool low_confidence, quint8 modifiers);
 
   // this signal is emitted if the server has requested a replay of
   // all decodes

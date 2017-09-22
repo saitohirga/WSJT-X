@@ -39,7 +39,7 @@ public:
                                  , QString const& callsign, QString const& grid, qint32 power
                                  , bool off_air);
 
-  Q_SIGNAL void do_reply (QModelIndex const&);
+  Q_SIGNAL void do_reply (QModelIndex const&, quint8 modifier);
   Q_SIGNAL void do_halt_tx (QString const& id, bool auto_only);
   Q_SIGNAL void do_free_text (QString const& id, QString const& text, bool);
 

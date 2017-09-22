@@ -597,7 +597,7 @@ private:
   void displayDialFrequency ();
   void transmitDisplay (bool);
   void processMessage(DecodedText const&, bool ctrl = false, bool alt = false);
-  void replyToCQ (QTime, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode, QString const& message_text);
+  void replyToCQ (QTime, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode, QString const& message_text, bool low_confidence, quint8 modifiers);
   void replayDecodes ();
   void postDecode (bool is_new, QString const& message);
   void postWSPRDecode (bool is_new, QStringList message_parts);
