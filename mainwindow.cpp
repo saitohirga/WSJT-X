@@ -6163,7 +6163,7 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
         .arg (snr, 3)
         .arg (delta_time, 4, 'f', 1)
         .arg (delta_frequency, 4)
-        .arg (mode, 2)
+        .arg (mode, -2)
         .arg (message_text);
       auto messages = ui->decodedTextBrowser->toPlainText ();
       auto position = messages.lastIndexOf (cqtext);
@@ -6175,7 +6175,7 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
                                            .arg (snr, 3)
                                            .arg ('-' + QString::number (delta_time, 'f', 1), 4)
                                            .arg (delta_frequency, 4)
-                                           .arg (mode, 2)
+                                           .arg (mode, -2)
                                            .arg (message_text));
         }
       if (position >= 0)
