@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>799</width>
-    <height>395</height>
+    <height>337</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -34,6 +34,12 @@
      <property name="enabled">
       <bool>true</bool>
      </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="minimumSize">
       <size>
        <width>400</width>
@@ -50,20 +56,6 @@
       <number>1</number>
      </property>
      <widget class="QCheckBox" name="cbControls">
-      <property name="geometry">
-       <rect>
-        <x>9</x>
-        <y>10</y>
-        <width>60</width>
-        <height>17</height>
-       </rect>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>65</width>
-        <height>16777215</height>
-       </size>
-      </property>
       <property name="text">
        <string>Controls</string>
       </property>
@@ -76,7 +68,7 @@
    <item>
     <widget class="QWidget" name="controls_widget" native="true">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+      <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
