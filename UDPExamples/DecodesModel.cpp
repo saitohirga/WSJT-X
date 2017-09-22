@@ -16,9 +16,9 @@ namespace
     QT_TRANSLATE_NOOP ("DecodesModel", "DT"),
     QT_TRANSLATE_NOOP ("DecodesModel", "DF"),
     QT_TRANSLATE_NOOP ("DecodesModel", "Md"),
-    QT_TRANSLATE_NOOP ("DecodesModel", "Message"),
     QT_TRANSLATE_NOOP ("DecodesModel", "Confidence"),
     QT_TRANSLATE_NOOP ("DecodesModel", "Live"),
+    QT_TRANSLATE_NOOP ("DecodesModel", "Message"),
   };
 
   QString confidence_string (bool low_confidence)
@@ -63,7 +63,7 @@ namespace
     live->setTextAlignment (Qt::AlignHCenter);
 
     QList<QStandardItem *> row {
-      new QStandardItem {client_id}, time_item, snr_item, dt, df, md, new QStandardItem {message}, confidence, live};
+      new QStandardItem {client_id}, time_item, snr_item, dt, df, md, confidence, live, new QStandardItem {message}};
     Q_FOREACH (auto& item, row)
       {
         item->setEditable (false);
@@ -101,9 +101,9 @@ void DecodesModel::add_decode (bool is_new, QString const& client_id, QTime time
                   && item (row, 3)->data ().toFloat () == delta_time
                   && item (row, 4)->data ().toUInt () == delta_frequency
                   && data (index (row, 5)).toString () == mode
-                  && data (index (row, 6)).toString () == message
                   && data (index (row, 7)).toString () == confidence_string (low_confidence)
-                  && data (index (row, 8)).toString () == live_string (off_air))
+                  && data (index (row, 6)).toString () == live_string (off_air)
+                  && data (index (row, 8)).toString () == message)
                 {
                   return;
                 }
@@ -145,7 +145,7 @@ void DecodesModel::do_reply (QModelIndex const& source, quint8 modifiers)
                 , item (row, 3)->data ().toFloat ()
                 , item (row, 4)->data ().toInt ()
                 , data (index (row, 5)).toString ()
-                , data (index (row, 6)).toString ()
+                , data (index (row, 8)).toString ()
                 , confidence_string (true) == data (index (row, 7)).toString ()
                 , modifiers);
 }

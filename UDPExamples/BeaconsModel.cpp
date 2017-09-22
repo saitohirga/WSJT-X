@@ -12,10 +12,10 @@ namespace
     QT_TRANSLATE_NOOP ("BeaconsModel", "DT"),
     QT_TRANSLATE_NOOP ("BeaconsModel", "Frequency"),
     QT_TRANSLATE_NOOP ("BeaconsModel", "Drift"),
-    QT_TRANSLATE_NOOP ("BeaconsModel", "Callsign"),
     QT_TRANSLATE_NOOP ("BeaconsModel", "Grid"),
     QT_TRANSLATE_NOOP ("BeaconsModel", "Power"),
     QT_TRANSLATE_NOOP ("BeaconsModel", "Live"),
+    QT_TRANSLATE_NOOP ("BeaconsModel", "Callsign"),
   };
 
   QString live_string (bool off_air)
@@ -60,7 +60,7 @@ namespace
     live->setTextAlignment (Qt::AlignHCenter);
 
     QList<QStandardItem *> row {
-      new QStandardItem {client_id}, time_item, snr_item, dt, freq, dri, new QStandardItem {callsign}, gd, pwr, live};
+      new QStandardItem {client_id}, time_item, snr_item, dt, freq, dri, gd, pwr, live, new QStandardItem {callsign}};
     Q_FOREACH (auto& item, row)
       {
         item->setEditable (false);
@@ -98,10 +98,10 @@ void BeaconsModel::add_beacon_spot (bool is_new, QString const& client_id, QTime
                   && item (row, 3)->data ().toFloat () == delta_time
                   && item (row, 4)->data ().value<Frequency> () == frequency
                   && data (index (row, 5)).toInt () == drift
-                  && data (index (row, 6)).toString () == callsign
                   && data (index (row, 7)).toString () == grid
                   && data (index (row, 8)).toInt () == power
-                  && data (index (row, 9)).toString () == live_string (off_air))
+                  && data (index (row, 6)).toString () == live_string (off_air)
+                  && data (index (row, 9)).toString () == callsign)
                 {
                   return;
                 }

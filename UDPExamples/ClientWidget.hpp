@@ -38,6 +38,7 @@ public:
                                  , float delta_time, Frequency delta_frequency, qint32 drift
                                  , QString const& callsign, QString const& grid, qint32 power
                                  , bool off_air);
+  Q_SLOT void clear_decodes (QString const& client_id);
 
   Q_SIGNAL void do_reply (QModelIndex const&, quint8 modifier);
   Q_SIGNAL void do_halt_tx (QString const& id, bool auto_only);
@@ -78,6 +79,7 @@ private:
   QLabel * rx_df_label_;
   QLabel * tx_df_label_;
   QLabel * report_label_;
+  bool columns_resized_;
 };
 
 #endif

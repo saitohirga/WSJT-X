@@ -145,6 +145,7 @@ void MessageAggregatorMainWindow::add_client (QString const& id, QString const& 
   connect (server_, &MessageServer::status_update, dock, &ClientWidget::update_status);
   connect (server_, &MessageServer::decode, dock, &ClientWidget::decode_added);
   connect (server_, &MessageServer::WSPR_decode, dock, &ClientWidget::beacon_spot_added);
+  connect (server_, &MessageServer::clear_decodes, dock, &ClientWidget::clear_decodes);
   connect (dock, &ClientWidget::do_reply, decodes_model_, &DecodesModel::do_reply);
   connect (dock, &ClientWidget::do_halt_tx, server_, &MessageServer::halt_tx);
   connect (dock, &ClientWidget::do_free_text, server_, &MessageServer::free_text);
