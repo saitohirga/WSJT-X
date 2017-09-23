@@ -47,7 +47,8 @@ Table 2 lists the six possible QSO states that are tracked by the
 WSJT-X auto-sequencer, along with the type of AP decoding that would
 be attempted in each state.
 
-[[AP decoding types for each QSO state]]
+[[AP_DECODING_TYPES_TABLE]]
+.AP decoding types for each QSO state
 [width="35%",cols="h10,<m20",frame=topbot,options="header"]
 |===========================================
 |State        |AP type
