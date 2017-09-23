@@ -11,7 +11,7 @@ added to _WSJT-X_ since Version 1.7.0:
 
 - *SWL* option for third-party decoding short-format MSK144 messages
 
-- Experimental amplitude and phase equalization for MSK144
+- Experimental phase equalization for MSK144
     
 - Options to minimize screen space used by *Main* and *Wide Graph*
 windows
