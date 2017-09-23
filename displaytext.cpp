@@ -202,15 +202,11 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
                         or decodedText.indexOf (" " + myCall + ">") >= 0)) {
     bg = color_MyCall;
   }
-  // if enabled add the DXCC entity and B4 status to the end of the
-  // preformated text line t1
   auto message = decodedText.string ();
-  int nbsp_position = message.indexOf (QChar::Nbsp);
-  if (nbsp_position >= 0)
-    {
-      message = message.left (nbsp_position);
-    }
+  message = message.left (message.indexOf (QChar::Nbsp)); // strip appended info
   if (displayDXCCEntity && CQcall)
+    // if enabled add the DXCC entity and B4 status to the end of the
+    // preformated text line t1
     message = appendDXCCWorkedB4 (message, decodedText.CQersCall (), &bg, logBook, color_CQ,
                                   color_DXCC, color_NewCall);
   appendText (message.trimmed (), bg);
