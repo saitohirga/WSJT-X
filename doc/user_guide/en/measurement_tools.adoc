@@ -76,64 +76,71 @@ Wait for about a minute and then hit the *Stop* button.  A file named
 
 === Phase Response and Equalization
 
-*Measure phase response* under the *Tools* menu is for advanced
-MSK144 users. Phase equalization is used to compensate for group-delay
+*Measure phase response* under the *Tools* menu is for advanced MSK144
+users. Phase equalization is used to compensate for group-delay
 variation across the passband of receiver filters. Careful application
-of this facility can reduce intersymbol interference, resulting in 
-improved decoding sensitivity.
-If you use a software-defined receiver with linear-phase
-filters there is no need to apply phase equalization.
+of this facility can reduce intersymbol interference, resulting in
+improved decoding sensitivity.  If you use a software-defined receiver
+with linear-phase filters there is no need to apply phase
+equalization.
 
 After a received frame is decoded *Measure phase response* generates
-an undistorted waveform whose Fourier transform is used as a 
+an undistorted waveform whose Fourier transform is used as a
 frequency-dependent phase reference to compare with the phase of the
-received frame's Fourier coefficients.
-Phase differences between the reference
-and the received waveform include contributions from the
-originating station's transmit filter, the propagation channel, and filters
-in the receiver. If the received frame originates from a station known 
-to transmit signals having little phase distortion (say, a station known
-to use a properly adjusted software-defined-transceiver) and if the 
-received signal is relatively free from multipath distortion so that the
-channel phase is close to linear, the measured phase differences will be
-representative of the local receiver's phase response.
+received frame's Fourier coefficients.  Phase differences between the
+reference and the received waveform include contributions from the
+originating station's transmit filter, the propagation channel, and
+filters in the receiver. If the received frame originates from a
+station known to transmit signals having little phase distortion (say,
+a station known to use a properly adjusted
+software-defined-transceiver) and if the received signal is relatively
+free from multipath distortion so that the channel phase is close to
+linear, the measured phase differences will be representative of the
+local receiver's phase response.
 
 Complete the following steps to generate a phase equalization curve:
 
-- Record a number of wav files that contain decodable signals from your chosen
-reference station. Best results will be obtained when the SNR of the 
-reference signals is at least 9 dB.  
+- Record a number of wav files that contain decodable signals from
+your chosen reference station. Best results will be obtained when the
+SNR of the reference signals is at least 9 dB.
 
 - Enter the callsign of the reference station in the DX Call box.
 
 - Select *Measure phase response* from the *Tools* menu, and process
-the wav files. The mode character will change from `&` to `^` while _WSJT-X_ 
-is measuring the phase response and it will change back to `&` after the 
-measurement is completed. The program needs to average a number
-of high-SNR frames to accurately estimate the phase, so it may be necessary
-to process several wav files. The measurement can be aborted at any time
-by selecting *Measure phase response* again to toggle the phase measurement
-off.  
-When the measurement is complete _WSJT-X_ will save the measured phase response 
-in the *Log directory*, in a file with suffix ".pcoeff". The filename will
-contain the callsign of the reference station and a timestamp.
-For example: K0TPP_170923_112027.pcoeff
+the wav files. The mode character will change from `&` to `^` while
+_WSJT-X_ is measuring the phase response and it will change back to
+`&` after the measurement is completed. The program needs to average a
+number of high-SNR frames to accurately estimate the phase, so it may
+be necessary to process several wav files. The measurement can be
+aborted at any time by selecting *Measure phase response* again to
+toggle the phase measurement off.
+
++
+
+When the measurement is complete _WSJT-X_ will save the measured
+phase response in the *Log directory*, in a file with suffix
+".pcoeff". The filename will contain the callsign of the reference
+station and a timestamp.  For example: K0TPP_170923_112027.pcoeff
 
 - Select *Equalization tools ...* under the *Tools* menu and click the
 *Phase ...* button to view the contents of the *Log directory*. Select
-the desired pcoeff file. The measured phase values will be plotted as discrete 
-circles along with a fitted curve labeled "Proposed". This is the 
-proposed phase equalization curve. It's a good idea to repeat the 
-phase measurement several times, using different wav files for each 
-measurement, to ensure that your measurements are
-repeatable.  
+the desired pcoeff file. The measured phase values will be plotted as
+discrete circles along with a fitted curve labeled "Proposed". This is
+the proposed phase equalization curve. It's a good idea to repeat the
+phase measurement several times, using different wav files for each
+measurement, to ensure that your measurements are repeatable.
 
 - Once you are satisfied with a fitted curve, push the *Apply* button
-to save the proposed response. The red curve will be replaced with a 
-light green curve labeled "Current" to indicate that the phase equalization
-curve is now being applied to the received data. Another curve labeled
-"Group Delay" will appear. The "Group Delay" curve shows the group delay 
-variation across the passband, in ms. 
+to save the proposed response. The red curve will be replaced with a
+light green curve labeled "Current" to indicate that the phase
+equalization curve is now being applied to the received data. Another
+curve labeled "Group Delay" will appear. The "Group Delay" curve shows
+the group delay variation across the passband, in ms. Push the
+*Discard* button to remove the captured data, leaving only the applied
+phase equalization curve and corresponding group delay curve.
+
+- To revert to no phase equalization, push the *Restore Defaults*
+button followed by the *Apply* button.
 
 The three numbers that are printed at the end of each MSK144 decode line
 can be used to assess the improvement provided by equalization. These numbers
