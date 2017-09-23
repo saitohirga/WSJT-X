@@ -65,7 +65,7 @@ image::FreqCal_Graph.png[align="left",alt="FreqCal_Graph"]
 
 === Reference Spectrum
 
-WSJT-X provides a tool that can be used to determine the detailed
+_WSJT-X_ provides a tool that can be used to determine the detailed
 shape of your receiver's passband.  Disconnect your antenna or tune to
 a quiet frequency with no signals.  With WSJT-X running in one of the
 slow modes, select *Measure reference spectrum* from the *Tools* menu.
@@ -74,7 +74,109 @@ Wait for about a minute and then hit the *Stop* button.  A file named
 
  [ ... TBD ... ]
 
-=== Equalization
+=== Phase Response and Equalization
 
- [ ... TBD ... ]
+*Measure phase response* under the *Tools* menu is for advanced
+MSK144 users. Phase equalization is used to compensate for group-delay
+variation across the passband of receiver filters. Careful application
+of this facility can reduce intersymbol interference, resulting in 
+improved decoding sensitivity.
+If you use a software-defined receiver with linear-phase
+filters there is no need to apply phase equalization.
+
+After a received frame is decoded *Measure phase response* generates
+an undistorted waveform whose Fourier transform is used as a 
+frequency-dependent phase reference to compare with the phase of the
+received frame's Fourier coefficients.
+Phase differences between the reference
+and the received waveform include contributions from the
+originating station's transmit filter, the propagation channel, and filters
+in the receiver. If the received frame originates from a station known 
+to transmit signals having little phase distortion (say, a station known
+to use a properly adjusted software-defined-transceiver) and if the 
+received signal is relatively free from multipath distortion so that the
+channel phase is close to linear, the measured phase differences will be
+representative of the local receiver's phase response.
+
+Complete the following steps to generate a phase equalization curve:
+
+- Record a number of wav files that contain decodable signals from your chosen
+reference station. Best results will be obtained when the SNR of the 
+reference signals is at least 9 dB.  
+
+- Enter the callsign of the reference station in the DX Call box.
+
+- Select *Measure phase response* from the *Tools* menu, and process
+the wav files. The mode character will change from `&` to `^` while _WSJT-X_ 
+is measuring the phase response and it will change back to `&` after the 
+measurement is completed. The program needs to average a number
+of high-SNR frames to accurately estimate the phase, so it may be necessary
+to process several wav files. The measurement can be aborted at any time
+by selecting *Measure phase response* again to toggle the phase measurement
+off.  
+When the measurement is complete _WSJT-X_ will save the measured phase response 
+in the *Log directory*, in a file with suffix ".pcoeff". The filename will
+contain the callsign of the reference station and a timestamp.
+For example: K0TPP_170923_112027.pcoeff
+
+- Select *Equalization tools ...* under the *Tools* menu and click the
+*Phase ...* button to view the contents of the *Log directory*. Select
+the desired pcoeff file. The measured phase values will be plotted as discrete 
+circles along with a fitted curve labeled "Proposed". This is the 
+proposed phase equalization curve. It's a good idea to repeat the 
+phase measurement several times, using different wav files for each 
+measurement, to ensure that your measurements are
+repeatable.  
+
+- Once you are satisfied with a fitted curve, push the *Apply* button
+to save the proposed response. The red curve will be replaced with a 
+light green curve labeled "Current" to indicate that the phase equalization
+curve is now being applied to the received data. Another curve labeled
+"Group Delay" will appear. The "Group Delay" curve shows the group delay 
+variation across the passband, in ms. 
+
+The three numbers that are printed at the end of each MSK144 decode line
+can be used to assess the improvement provided by equalization. These numbers
+`N` `H` `E` are:
+ `N` - Number of frames averaged,
+ `H` - Number of bit errors corrected,
+ `E` - Size of MSK eye diagram opening. 
+
+Here is a decode of K0TPP obtained while *Measure phase response* was measuring
+the phase response:
+
+  103900  17  6.5 1493 ^  WA8CLT K0TPP +07       1  0  1.2
+
+The "^" symbol indicates that a phase measurement is being accumulated. The 
+three numbers at the end of the line indicate that one frame was
+used to obtain the decode, there were no bit errors, and the 
+eye-opening was 1.2. Here's how the same decode looks after phase equalization:
+
+  103900  17  6.5 1493 &  WA8CLT K0TPP +07       1  0  1.6
+
+In this case, equalization has increased the eye opening from 1.2 to 1.6.
+Larger eye openings are associated with reduced likelihood of bit errors and
+higher likelihood that a frame will be successfully decoded. 
+In this case, the larger eye-opening 
+tells us that phase equalization was successful, but it is important to note
+that this test does not tell us whether the applied phase equalization curve
+is going to improve decoding of signals other than those from the reference 
+station, K0TPP! 
+
+We strongly advise you to carry out before and after comparisons 
+using a large number of saved wav files with signals from many different 
+stations to decide whether or not the equalization curve improves decoding for most 
+signals. When doing before and after comparisons, keep in mind that 
+equalization may cause _WSJT-X_ to successfully decode a frame 
+that was not decoded before equalization was applied.  
+For this reason, be sure that the time "T" of
+the two decodes are the same before comparing their end-of-line quality numbers.
+
+When comparing before and after decodes having the same "T", keep in mind
+that a smaller first number means that decoding has improved, even if the 
+second and third numbers appear to be "worse". For example, suppose that the quality
+numbers before equalization are "2 0  0.2" and after equalization 
+"1 5 -0.5". These numbers show improved decoding because 
+the decode was obtained using only a single
+frame after equalization whereas a 2-frame average was needed before equalization.
 
