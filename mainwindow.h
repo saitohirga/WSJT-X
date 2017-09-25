@@ -458,6 +458,8 @@ private:
   bool    m_bCallingCQ;
   bool    m_bAutoReply;
   bool    m_bCheckedContest;
+  bool    m_bDXped;
+
   enum
     {
       CALLING,

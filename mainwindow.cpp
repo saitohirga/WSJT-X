@@ -891,9 +891,11 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
 
+  m_bDXped=false;
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
      m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "G3PQA") {
-      ui->actionWSPR_LF->setEnabled(true);
+    m_bDXped=true;
+    ui->actionWSPR_LF->setEnabled(true);
   }
   if(!ui->cbMenus->isChecked()) {
     ui->cbMenus->setChecked(true);
@@ -3125,8 +3127,7 @@ void MainWindow::guiUpdate()
     }
 
     m_i3bit=0;
-    bool bDXped=true;
-    if(m_mode=="FT8" and bDXped) {
+    if(m_mode=="FT8" and m_bDXped) {
       ba0=ba;
       QString t=QString::fromUtf8(ba0);
       if(t.startsWith("RR73 NOW ")) {
