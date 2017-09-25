@@ -4027,27 +4027,24 @@ void MainWindow::processMessage(DecodedText const& message, bool ctrl, bool alt)
     m_QSOText = s2;
   }
 
-  if (!is_73 && Radio::is_callsign (hiscall))
-    {
-      if (base_call != qso_partner_base_call || base_call != hiscall)
-        {
-          if (qso_partner_base_call != base_call) {
-            // clear the DX grid if the base call of his call is different
-            // from the current DX call
-            ui->dxGridEntry->clear ();
-          }
-          // his base call different or his call more qualified
-          // i.e. compound version of same base call
-          ui->dxCallEntry->setText (hiscall);
-        }
-      if (hisgrid.contains (grid_regexp)) {
-        if(ui->dxGridEntry->text().mid(0,4) != hisgrid) ui->dxGridEntry->setText(hisgrid);
-      }
-      if (!ui->dxGridEntry->text ().size ())
-        lookup();
-      m_hisGrid = ui->dxGridEntry->text();
+  if (Radio::is_callsign (hiscall)
+      && (base_call != qso_partner_base_call || base_call != hiscall)) {
+    if (qso_partner_base_call != base_call) {
+      // clear the DX grid if the base call of his call is different
+      // from the current DX call
+      ui->dxGridEntry->clear ();
     }
-  
+    // his base call different or his call more qualified
+    // i.e. compound version of same base call
+    ui->dxCallEntry->setText (hiscall);
+  }
+  if (hisgrid.contains (grid_regexp)) {
+    if(ui->dxGridEntry->text().mid(0,4) != hisgrid) ui->dxGridEntry->setText(hisgrid);
+   }
+  if (!ui->dxGridEntry->text ().size ())
+    lookup();
+  m_hisGrid = ui->dxGridEntry->text();
+
   QString rpt = message.report();
   int n=rpt.toInt();
   if(m_mode=="MSK144" and m_bShMsgs) {
