@@ -506,8 +506,8 @@ subroutine packbits(dbits,nsymd,m0,sym)
 20 continue
    if(itype.ne.6) itype=max(nv2a,nv2b)
    jt_itype=itype
-   jt_c1=c1
-   jt_c2=c2
+   jt_c1=c1(1:6)
+   jt_c2=c2(1:6)
    jt_c3=c3
    jt_k1=k1
    jt_k2=k2

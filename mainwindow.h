@@ -403,6 +403,7 @@ private:
   qint32  m_nTx73;
   qint32  m_UTCdisk;
   qint32  m_wait;
+  qint32  m_i3bit;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;

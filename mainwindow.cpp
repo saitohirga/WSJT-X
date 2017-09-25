@@ -76,7 +76,7 @@ extern "C" {
               int len1, int len2, int len3, int len4, int len5);
 //  float s[], int* jh, char line[], char mygrid[],
 
-  void genft8_(char* msg, char* MyGrid, bool* bcontest, char* msgsent,
+  void genft8_(char* msg, char* MyGrid, bool* bcontest, int* i3bit, char* msgsent,
                char ft8msgbits[], int itone[], int len1, int len2, int len3);
 
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
@@ -2705,6 +2705,12 @@ void MainWindow::readFromStdout()                             //readFromStdout
           if(navg>1 or t.indexOf("f*")>0) bAvgMsg=true;
         }
       }
+      if(m_mode=="FT8") {
+        int i3bit=t.mid(44,1).toInt();
+        t=t.mid(0,44) + " " + t.mid(45);
+        if(i3bit==1) t=t.mid(0,24) + "RR73 NOW " + t.mid(24);
+        if(i3bit==2) t=t.mid(0,24) + "NIL NOW " + t.mid(24);
+      }
       QFile f {m_config.writeable_data_dir ().absoluteFilePath ("ALL.TXT")};
       if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
         QTextStream out(&f);
@@ -3085,6 +3091,7 @@ void MainWindow::guiUpdate()
   if((g_iptt==1 && m_iptt0==0) || m_restart) {
 //----------------------------------------------------------------------
     QByteArray ba;
+    QByteArray ba0;
 
     if(m_mode.startsWith ("WSPR")) {
       QString sdBm,msg0,msg1,msg2;
@@ -3115,6 +3122,22 @@ void MainWindow::guiUpdate()
       if(m_ntx == 6) ba=ui->tx6->text().toLocal8Bit();
       if(m_ntx == 7) ba=ui->genMsg->text().toLocal8Bit();
       if(m_ntx == 8) ba=ui->freeTextMsg->currentText().toLocal8Bit();
+    }
+
+    m_i3bit=0;
+    bool bDXped=true;
+    if(m_mode=="FT8" and bDXped) {
+      ba0=ba;
+      QString t=QString::fromUtf8(ba0);
+      if(t.startsWith("RR73 NOW ")) {
+        t=t.mid(9);
+        m_i3bit=1;
+      }
+      if(t.startsWith("NIL NOW ")) {
+        t=t.mid(8);
+        m_i3bit=2;
+      }
+      ba=t.toLocal8Bit();
     }
 
     ba2msg(ba,message);
@@ -3159,7 +3182,7 @@ void MainWindow::guiUpdate()
             }
           }
           if(m_modeTx=="FT8") {
-            genft8_(message, MyGrid, &bcontest, msgsent, const_cast<char *> (ft8msgbits),
+            genft8_(message, MyGrid, &bcontest, &m_i3bit, msgsent, const_cast<char *> (ft8msgbits),
                     const_cast<int *> (itone), 22, 6, 22);
           }
         }
@@ -3364,7 +3387,10 @@ void MainWindow::guiUpdate()
         if(m_mode=="Echo") {
           tx_status_label.setText("Tx: ECHO");
         } else {
-          tx_status_label.setText(s);
+          QString t{QString::fromLatin1(s)};
+          if(m_mode=="FT8" and m_i3bit==1) t="Tx: RR73 NOW " + t.mid(4);
+          if(m_mode=="FT8" and m_i3bit==2) t="Tx: NIL NOW " + t.mid(4);
+          tx_status_label.setText(t);
         }
       }
     } else if(m_monitoring) {
@@ -4224,11 +4250,10 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
           break;
         }
     }
-    if (hisCall.size () <= 10 && hisCall != hisBase
+    if (hisCall != hisBase
+        && m_config.type_2_msg_gen () != Configuration::type_2_msg_5_only
         && !eme_short_codes) {
-      // cfm we have his full call copied as we could not do this
-      // earlier, as this is a free text message we must be careful
-      // about the length
+      // cfm we have his full call copied as we could not do this earlier
       t = hisCall + " 73";
       msgtype(t, ui->tx5->lineEdit ());
     }
@@ -4240,7 +4265,6 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
         msgtype(t, ui->tx1);
       }
       else if (!eme_short_codes
-               && hisCall.size () <= 10 // avoid truncated free text message
                && ("MSK144" != m_mode || !m_bShMsgs)) {
         t=hisCall + " 73";
         msgtype(t, ui->tx5->lineEdit ());
@@ -4944,7 +4968,6 @@ void MainWindow::on_actionMSK144_triggered()
   m_bFastMode=true;
   m_bFast9=false;
   m_TRperiod = ui->sbTR->value ();
-  m_fastGraph->setTRperiod (m_TRperiod);
   m_wideGraph->hide();
   m_fastGraph->show();
   ui->TxFreqSpinBox->setValue(1500);
@@ -6169,7 +6192,7 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
         .arg (snr, 3)
         .arg (delta_time, 4, 'f', 1)
         .arg (delta_frequency, 4)
-        .arg (mode, -2)
+        .arg (mode, 2)
         .arg (message_text);
       auto messages = ui->decodedTextBrowser->toPlainText ();
       auto position = messages.lastIndexOf (cqtext);
@@ -6181,7 +6204,7 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
                                            .arg (snr, 3)
                                            .arg ('-' + QString::number (delta_time, 'f', 1), 4)
                                            .arg (delta_frequency, 4)
-                                           .arg (mode, -2)
+                                           .arg (mode, 2)
                                            .arg (message_text));
         }
       if (position >= 0)

@@ -351,7 +351,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
      message='                      '
      xsnr=-99.0
      if(count(cw.eq.0).eq.174) cycle           !Reject the all-zero codeword
-     if(any(decoded(73:75).ne.0)) cycle        !Reject if any of the 3 extra bits are nonzero
+!###     if(any(decoded(73:75).ne.0)) cycle        !Reject if any of the 3 extra bits is nonzero
      if(nharderrors.ge.0 .and. nharderrors+dmin.lt.60.0 .and. &        
         .not.(sync.lt.2.0 .and. nharderrors.gt.35)      .and. &
         .not.(ipass.gt.2 .and. nharderrors.gt.39)       .and. &
@@ -362,9 +362,16 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
         nharderrors=-1
         cycle 
      endif
+!###
+     i3bit=4*decoded(73) + 2*decoded(74) + decoded(75)
+!     if(nbadcrc.eq.0) write(*,3001) nharderrors,nbadcrc,i3bit
+!3001 format('A',3i5)
+!###     
      if(nbadcrc.eq.0) then
         call extractmessage174(decoded,message,ncrcflag,recent_calls,nrecent)
-        call genft8(message,mygrid6,bcontest,msgsent,msgbits,itone)
+        call genft8(message,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
+        if(i3bit.eq.1) message(21:21)='1'
+        if(i3bit.eq.2) message(21:21)='2'
         if(lsubtract) call subtractft8(dd0,itone,f1,xdt2)
         xsig=0.0
         xnoi=0.0

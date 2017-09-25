@@ -27,7 +27,6 @@ program fmeasure
 
   parameter(NZ=1000)
   implicit real*8 (a-h,o-z)
-  real*8 fd(NZ),deltaf(NZ),r(NZ)
   character infile*50
   character line*80
 
