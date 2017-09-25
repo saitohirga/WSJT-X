@@ -3834,6 +3834,7 @@ void MainWindow::processMessage(DecodedText const& message, bool ctrl, bool alt)
     if ((Radio::is_callsign (firstcall)
          && firstcall != m_config.my_callsign () && firstcall != m_baseCall
          && firstcall != "DE")
+        || "CQ" == firstcall || "QRZ" == firstcall
         || m_lockTxFreq || ctrl) {
       if (ui->TxFreqSpinBox->isEnabled ()) {
         if(!m_bFastMode && !alt) ui->TxFreqSpinBox->setValue(frequency);
