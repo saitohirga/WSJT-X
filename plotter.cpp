@@ -638,13 +638,11 @@ void CPlotter::mousePressEvent(QMouseEvent *event)             //mousePressEvent
   int oldTxFreq = m_txFreq;
   int oldRxFreq = m_rxFreq;
 
-  if (ctrl or m_lockTxFreq) {
+  if (ctrl and !m_lockTxFreq) {
     emit setFreq1 (newFreq, newFreq);
-  }
-  else if (shift) {
-    emit setFreq1 (oldRxFreq, newFreq);
-  }
-  else {
+  } else if (shift) {
+    if(!m_lockTxFreq) emit setFreq1 (oldRxFreq, newFreq);
+  } else {
     emit setFreq1(newFreq,oldTxFreq);
   }
 

@@ -803,7 +803,7 @@ QLabel[oob=&quot;true&quot;] {
                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tx frequency tracks Rx frequency. &lt;/p&gt;&lt;p&gt;Not recommended for general use!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="text">
-                      <string>Lock Tx=Rx</string>
+                      <string>Lock Tx Freq</string>
                      </property>
                     </widget>
                    </item>
@@ -2398,6 +2398,7 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="view_phase_response_action"/>
     <addaction name="separator"/>
     <addaction name="actionFrequency_calibration"/>
+    <addaction name="actionSolve_FreqCal"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuConfig"/>
@@ -2941,6 +2942,11 @@ QPushButton[state=&quot;ok&quot;] {
    </property>
    <property name="text">
     <string>Enable AP</string>
+   </property>
+  </action>
+  <action name="actionSolve_FreqCal">
+   <property name="text">
+    <string>Solve for calibration parameters</string>
    </property>
   </action>
  </widget>

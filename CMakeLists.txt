@@ -374,6 +374,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/bpdecode174.f90
   lib/fsk4hf/bpdecode300.f90
   lib/baddata.f90
+  lib/calibrate.f90
   lib/ccf2.f90
   lib/ccf65.f90
   lib/fsk4hf/chkcrc10.f90

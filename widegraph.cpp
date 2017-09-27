@@ -230,7 +230,7 @@ void WideGraph::setRxFreq(int n)                                           //set
 {
   ui->widePlot->setRxFreq(n);
   ui->widePlot->draw(swide,false,false);
-  if(m_lockTxFreq) setTxFreq(n);
+//  if(m_lockTxFreq) setTxFreq(n);
 }
 
 int WideGraph::rxFreq()                                                   //rxFreq
