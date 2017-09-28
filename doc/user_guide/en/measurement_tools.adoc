@@ -102,7 +102,7 @@ Complete the following steps to generate a phase equalization curve:
 
 - Record a number of wav files that contain decodable signals from
 your chosen reference station. Best results will be obtained when the
-aignal-to-noise ratio of the reference signals is 10 dB or greater.
+signal-to-noise ratio of the reference signals is 10 dB or greater.
 
 - Enter the callsign of the reference station in the DX Call box.
 
