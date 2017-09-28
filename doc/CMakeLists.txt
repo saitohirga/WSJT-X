@@ -34,6 +34,7 @@ set (UG_SRCS
   protocols.adoc
   logging.adoc
   make-qso.adoc
+  measurement_tools.adoc
   new_features.adoc
   platform-dependencies.adoc
   protocols.adoc
@@ -72,6 +73,9 @@ set (UG_IMGS
   images/decodes.png
   images/download_samples.png
   images/file-menu.png
+  images/FreqCal.png
+  images/FreqCal_Graph.png
+  images/FreqCal_Results.png
   images/freemsg.png
   images/ft8_decodes.png
   images/help-menu.png

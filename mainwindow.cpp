@@ -2113,7 +2113,7 @@ void MainWindow::on_actionSolve_FreqCal_triggered()
   strncpy(data_dir,dpath.toLatin1(),len);
   calibrate_(data_dir,&iz,&a,&b,&rms,&sigmaa,&sigmab,&irc,len);
   QString t1;
-  t1.sprintf("Slope:     %10.3f ±%7.3f ppm\nIntercept:  %7.2f ±%5.2f    Hz\n\nNgroups:   %6d\nStdDev:  %8.2f  Hz",
+  t1.sprintf("Slope:     %10.3f ±%7.3f ppm\nIntercept:  %7.2f ±%5.2f    Hz\n\nN:   %18d\nStdDev:  %8.2f  Hz",
              b,sigmab,a,sigmaa,iz,rms);
   QString t2{"Solution looks good."};
   if(irc<0) t1="";
