@@ -56,6 +56,14 @@
       <number>1</number>
      </property>
      <widget class="QCheckBox" name="cbControls">
+      <property name="geometry">
+       <rect>
+        <x>5</x>
+        <y>0</y>
+        <width>63</width>
+        <height>17</height>
+       </rect>
+      </property>
       <property name="text">
        <string>Controls</string>
       </property>
