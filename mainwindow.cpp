@@ -2711,7 +2711,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           if(navg>1 or t.indexOf("f*")>0) bAvgMsg=true;
         }
       }
-      if(m_mode=="FT8") {
+      if(m_mode=="FT8" and m_bDXped) {
         int i3bit=t.mid(44,1).toInt();
         t=t.mid(0,44) + " " + t.mid(45);
         if(i3bit==1) t=t.mid(0,24) + "RR73 NOW " + t.mid(24);
