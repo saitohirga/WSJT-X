@@ -1617,30 +1617,23 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
 
 void MainWindow::on_monitorButton_clicked (bool checked)
 {
-  if (!m_transmitting)
-    {
-      auto prior = m_monitoring;
-      monitor (checked);
-
-      if (checked && !prior)
-        {
-          if (m_config.monitor_last_used ())
-            {
+  if (!m_transmitting) {
+    auto prior = m_monitoring;
+    monitor (checked);
+    if (checked && !prior) {
+      if (m_config.monitor_last_used ()) {
               // put rig back where it was when last in control
-              setRig (m_lastMonitoredFrequency);
-              setXIT (ui->TxFreqSpinBox->value ());
-            }
+        setRig (m_lastMonitoredFrequency);
+        setXIT (ui->TxFreqSpinBox->value ());
+      }
           // ensure FreqCal triggers
-          on_RxFreqSpinBox_valueChanged (ui->RxFreqSpinBox->value ());
-        }
-
+      on_RxFreqSpinBox_valueChanged (ui->RxFreqSpinBox->value ());
+    }
       //Get Configuration in/out of strict split and mode checking
-      Q_EMIT m_config.sync_transceiver (true, checked);
-    }
-  else
-    {
-      ui->monitorButton->setChecked (false); // disallow
-    }
+    Q_EMIT m_config.sync_transceiver (true, checked);
+  } else {
+    ui->monitorButton->setChecked (false); // disallow
+  }
 }
 
 void MainWindow::monitor (bool state)
@@ -1739,12 +1732,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       n=11;
       if(e->modifiers() & Qt::ControlModifier) n+=100;
       if(e->modifiers() & Qt::ShiftModifier) {
-         /*
-        int f=ui->TxFreqSpinBox->value()/50;
-        if((ui->TxFreqSpinBox->value() % 50) == 0) f=f-1;
-        ui->TxFreqSpinBox->setValue(50*f);
-           */
-         ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()-60);
+        if(ui->TxFreqSpinBox->isEnabled()) ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()-60);
       } else{
         bumpFqso(n);
       }
@@ -1753,12 +1741,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       n=12;
       if(e->modifiers() & Qt::ControlModifier) n+=100;
       if(e->modifiers() & Qt::ShiftModifier) {
-         /*
-        int f=ui->TxFreqSpinBox->value()/50;
-        ui->TxFreqSpinBox->setValue(50*(f+1));
-           */
-         ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()+60);
-
+        if(ui->TxFreqSpinBox->isEnabled()) ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()+60);
       } else {
         bumpFqso(n);
       }
@@ -2130,8 +2113,8 @@ void MainWindow::on_actionSolve_FreqCal_triggered()
   strncpy(data_dir,dpath.toLatin1(),len);
   calibrate_(data_dir,&iz,&a,&b,&rms,&sigmaa,&sigmab,&irc,len);
   QString t1;
-  t1.sprintf("Slope:     %8.4f ±%7.4f ppm\nIntercept:  %7.2f ±%5.2f    Hz\n\nStdDev:  %8.3f  Hz",
-             b,sigmab,a,sigmaa,rms);
+  t1.sprintf("Slope:     %10.3f ±%7.3f ppm\nIntercept:  %7.2f ±%5.2f    Hz\n\nNgroups:   %6d\nStdDev:  %8.2f  Hz",
+             b,sigmab,a,sigmaa,iz,rms);
   QString t2{"Solution looks good."};
   if(irc<0) t1="";
   if(irc==-1) t2="Cannot open " + dpath + "fmt.all";
@@ -4648,11 +4631,7 @@ void MainWindow::displayWidgets(int n)
     if(i==20) ui->actionInclude_averaging->setVisible (b);
     if(i==21) ui->actionInclude_correlation->setVisible (b);
     if(i==22) {
-      if(b && !m_echoGraph->isVisible()) {
-        m_echoGraph->show();
-      } else {
-        if(m_echoGraph->isVisible()) m_echoGraph->hide();
-      }
+      if(!b && m_echoGraph->isVisible())  m_echoGraph->hide();
     }
     if(i==23) {
       ui->cbSWL->setVisible(b);
@@ -5659,7 +5638,6 @@ void MainWindow::on_cbTxLock_clicked(bool checked)
   m_lockTxFreq=checked;
   m_wideGraph->setLockTxFreq(m_lockTxFreq);
   ui->TxFreqSpinBox->setEnabled(!m_lockTxFreq);
-//  if(m_lockTxFreq) on_pbR2T_clicked();
 }
 
 void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const& s)
@@ -6017,10 +5995,10 @@ void MainWindow::transmitDisplay (bool transmitting)
         // used fixed 1000Hz Tx DF for VHF & up QSO modes
 //        ui->TxFreqSpinBox->setValue(1000);
 //        ui->TxFreqSpinBox->setEnabled (false);
-        ui->TxFreqSpinBox->setEnabled (true);
+        ui->TxFreqSpinBox->setEnabled (!ui->cbTxLock->isChecked());
 //###
       } else {
-        ui->TxFreqSpinBox->setEnabled (QSY_allowed and !m_bFastMode);
+        ui->TxFreqSpinBox->setEnabled (QSY_allowed and !m_bFastMode and !ui->cbTxLock->isChecked());
         ui->pbR2T->setEnabled (QSY_allowed);
         ui->cbTxLock->setEnabled (QSY_allowed);
       }
