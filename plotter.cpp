@@ -355,7 +355,7 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
   //draw frequency values
   for( int i=0; i<=m_hdivs; i++) {
     x = (int)((m_xOffset+i)*pixperdiv - pixperdiv/2);
-    if(x > 40 and x < m_w) {
+    if(int(x+pixperdiv/2) > 70) {
       rect0.setRect(x,0, (int)pixperdiv, 20);
       painter0.drawText(rect0, Qt::AlignHCenter|Qt::AlignVCenter,m_HDivText[i]);
     }
