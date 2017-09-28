@@ -132,7 +132,8 @@ extern "C" {
 
   void fix_contest_msg_(char* MyGrid, char* msg, int len1, int len2);
 
-  void calibrate_(char exe_dir[],char data_dir[], int len1, int len2);
+  void calibrate_(char data_dir[], int* iz, double* a, double* b, double* rms,
+                  double* sigmaa, double* sigmab, int* irc, int len1);
 }
 
 int volatile itone[NUM_ISCAT_SYMBOLS];  //Audio tones for all Tx symbols
@@ -2121,16 +2122,23 @@ void MainWindow::on_actionFast_Graph_triggered()
 
 void MainWindow::on_actionSolve_FreqCal_triggered()
 {
-  QString apath{QDir::toNativeSeparators(m_appDir) + "\\"};
-  char app_dir[512];
-  int len1=apath.length();
-  strncpy(app_dir,apath.toLatin1(),len1);
-  QString dpath{QDir::toNativeSeparators(m_config.writeable_data_dir().absolutePath()) + "\\"};
+  QString dpath{QDir::toNativeSeparators(m_config.writeable_data_dir().absolutePath()+"/")};
   char data_dir[512];
-  int len2=dpath.length();
-  strncpy(data_dir,dpath.toLatin1(),len2);
-  qDebug() << "AA" << len1 << len2 << dpath;
-  calibrate_(app_dir,data_dir,len1,len2);
+  int len=dpath.length();
+  int iz,irc;
+  double a,b,rms,sigmaa,sigmab;
+  strncpy(data_dir,dpath.toLatin1(),len);
+  calibrate_(data_dir,&iz,&a,&b,&rms,&sigmaa,&sigmab,&irc,len);
+  QString t1;
+  t1.sprintf("Slope:     %8.4f ±%7.4f ppm\nIntercept:  %7.2f ±%5.2f    Hz\n\nStdDev:  %8.3f  Hz",
+             b,sigmab,a,sigmaa,rms);
+  QString t2{"Solution looks good."};
+  if(irc<0) t1="";
+  if(irc==-1) t2="Cannot open " + dpath + "fmt.all";
+  if(irc==-2) t2="Cannot open " + dpath + "fcal2.out";
+  if(irc==-3) t2="Insufficient data in fmt.all";
+  if(irc>0 or rms>1.0) t2="Check fmt.all for possible bad data.";
+  MessageBox::information_message(this,t1,t2,0);
 }
 
 // This allows the window to shrink by removing certain things
