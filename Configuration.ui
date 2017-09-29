@@ -269,12 +269,51 @@
           <string>Behavior</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_8">
-          <item row="0" column="1">
-           <widget class="QCheckBox" name="enable_VHF_features_check_box">
-            <property name="text">
-             <string>Enable VHF/UHF/Microwave features</string>
-            </property>
-           </widget>
+          <item row="4" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_12">
+            <item>
+             <spacer name="horizontalSpacer_7">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_10">
+              <property name="text">
+               <string>Tx watchdog:</string>
+              </property>
+              <property name="buddy">
+               <cstring>tx_watchdog_spin_box</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="tx_watchdog_spin_box">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of minutes before unattended transmissions are aborted&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="specialValueText">
+               <string>Disabled</string>
+              </property>
+              <property name="suffix">
+               <string> minutes</string>
+              </property>
+              <property name="prefix">
+               <string/>
+              </property>
+              <property name="value">
+               <number>6</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item row="0" column="0">
            <widget class="QCheckBox" name="monitor_off_check_box">
@@ -289,10 +328,34 @@
             </property>
            </widget>
           </item>
+          <item row="0" column="1">
+           <widget class="QCheckBox" name="enable_VHF_features_check_box">
+            <property name="text">
+             <string>Enable VHF/UHF/Microwave features</string>
+            </property>
+           </widget>
+          </item>
           <item row="3" column="1">
            <widget class="QCheckBox" name="decode_at_52s_check_box">
             <property name="text">
              <string>Decode after EME delay</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QCheckBox" name="single_decode_check_box">
+            <property name="text">
+             <string>Single decode</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QCheckBox" name="tx_QSY_check_box">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Some rigs are not able to process CAT commands while transmitting. This means that if you are operating in split mode you may have to uncheck this option.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Allow Tx frequency changes while transmitting</string>
             </property>
            </widget>
           </item>
@@ -355,69 +418,6 @@ quiet period when decoding is done.</string>
             </item>
            </layout>
           </item>
-          <item row="2" column="1">
-           <widget class="QCheckBox" name="single_decode_check_box">
-            <property name="text">
-             <string>Single decode</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QCheckBox" name="tx_QSY_check_box">
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Some rigs are not able to process CAT commands while transmitting. This means that if you are operating in split mode you may have to uncheck this option.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="text">
-             <string>Allow Tx frequency changes while transmitting</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <layout class="QHBoxLayout" name="horizontalLayout_12">
-            <item>
-             <widget class="QLabel" name="label_10">
-              <property name="text">
-               <string>Tx watchdog:</string>
-              </property>
-              <property name="buddy">
-               <cstring>tx_watchdog_spin_box</cstring>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSpinBox" name="tx_watchdog_spin_box">
-              <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of minutes before unattended transmissions are aborted&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="specialValueText">
-               <string>Disabled</string>
-              </property>
-              <property name="suffix">
-               <string> minutes</string>
-              </property>
-              <property name="prefix">
-               <string/>
-              </property>
-              <property name="value">
-               <number>6</number>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_7">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
           <item row="1" column="0">
            <widget class="QCheckBox" name="monitor_last_used_check_box">
             <property name="toolTip">
@@ -438,7 +438,7 @@ quiet period when decoding is done.</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
+          <item row="4" column="0">
            <widget class="QCheckBox" name="disable_TX_on_73_check_box">
             <property name="toolTip">
              <string>Turns off automatic transmissions after sending a 73 or any other free
@@ -446,6 +446,13 @@ text message.</string>
             </property>
             <property name="text">
              <string>Di&amp;sable Tx after sending 73</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="cbDefaultSimplex">
+            <property name="text">
+             <string>Double-click on call sets Tx and Rx freqs</string>
             </property>
            </widget>
           </item>
@@ -2479,7 +2486,6 @@ soundcard changes</string>
   <tabstop>monitor_off_check_box</tabstop>
   <tabstop>monitor_last_used_check_box</tabstop>
   <tabstop>quick_call_check_box</tabstop>
-  <tabstop>disable_TX_on_73_check_box</tabstop>
   <tabstop>tx_watchdog_spin_box</tabstop>
   <tabstop>CW_id_after_73_check_box</tabstop>
   <tabstop>enable_VHF_features_check_box</tabstop>
@@ -2623,12 +2629,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="CAT_stop_bits_button_group"/>
   <buttongroup name="TX_audio_source_button_group"/>
+  <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
   <buttongroup name="split_mode_button_group"/>
-  <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="TX_mode_button_group"/>
-  <buttongroup name="CAT_stop_bits_button_group"/>
  </buttongroups>
 </ui>

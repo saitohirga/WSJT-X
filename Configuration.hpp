@@ -117,6 +117,7 @@ public:
   bool clear_DX () const;
   bool miles () const;
   bool quick_call () const;
+  bool default_simplex() const;
   bool disable_TX_on_73 () const;
   int watchdog () const;
   bool TX_messages () const;

@@ -3732,6 +3732,7 @@ void MainWindow::processMessage(DecodedText const& message, bool shift, bool ctr
     return;
   }
 
+  if(m_config.default_simplex()) ctrl=true;
   if(m_bFastMode or m_mode=="FT8") {
     auto i1=message.string ().indexOf(" CQ ");
     if(i1>10) {

@@ -72,7 +72,11 @@ down.  Messages highlighted in red are usually in response to your own
 CQ or from a tail-ender, and you probably want your Tx frequency to
 stay where it was.
 
-- You can prevent your Tx frequency from being changed by checking the
+NOTE: Double-clicking on decoded messages can be defaulted to simplex
+operation by checking *Double click on call sets Tx and Rx freqs* on
+the *Settings -> General* tab.
+
+NOTE: You can prevent your Tx frequency from being changed by checking the
 box *Lock Tx Freq*.
 
 - Click somewhere on the waterfall to set Rx frequency (green marker
