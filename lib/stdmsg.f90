@@ -1,5 +1,7 @@
 function stdmsg(msg0,bcontest,mygrid)
 
+  ! Is msg0 a standard "JT-style" message?
+
   use iso_c_binding, only: c_bool
   use packjt
   character*22 msg0,msg1,msg
