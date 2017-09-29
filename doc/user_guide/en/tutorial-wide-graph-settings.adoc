@@ -9,5 +9,5 @@
 - *Gain* and *Zero* sliders for waterfall and spectrum set near midscale
 - *Spec* = 25%
 
-- Use the mouse to adjust the width of the *Wide Graph* so that its
-upper frequency limit is about 2400 Hz.
+- Use the mouse to grab the left or right edge of the *Wide Graph*, and
+adjust its width so that the upper frequency limit is about 2400 Hz.
