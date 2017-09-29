@@ -2,8 +2,9 @@
 
 The following controls appear at the bottom of the Wide Graph window.
 Decoding occurs only in the displayed frequency range; otherwise, with
-the exception of *JT65 nnnn JT9* when operating in JT9+JT65 mode, controls
-on the Wide Graph window have no effect on the decoding process.  
+the exceptions of *Start NNN Hz* and of *JT65 nnnn JT9* when operating
+in JT9+JT65 mode, controls on the Wide Graph window have no effect on
+the decoding process.
 
 image::wide-graph-controls.png[align="center",alt="Wide Graph Controls"]
 
