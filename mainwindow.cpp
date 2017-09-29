@@ -3809,6 +3809,7 @@ void MainWindow::processMessage(DecodedText const& message, bool shift, bool ctr
   }
 
   auto is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
+  qDebug() << "a" << is_73 << bool(message.isStandardMessage()) << !message.isStandardMessage() << nWarn;
   if (!is_73 and !message.isStandardMessage() and (nWarn==0)) {
     qDebug () << "Not processing message - hiscall:" << hiscall << "hisgrid:" << hisgrid;
     return;
