@@ -3720,7 +3720,6 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl, bool alt)
 
 void MainWindow::processMessage(DecodedText const& message, bool shift, bool ctrl, bool alt)
 {
-  qDebug() << "D 3726" << shift << ctrl << alt;
   // basic mode sanity checks
   auto const& parts = message.string ().split (' ', QString::SkipEmptyParts);
   if (parts.size () < 5) return;
