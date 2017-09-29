@@ -551,10 +551,10 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   txMsgButtonGroup->addButton(ui->txrb6,6);
   set_dateTimeQSO(-1);
   connect(txMsgButtonGroup,SIGNAL(buttonClicked(int)),SLOT(set_ntx(int)));
-  connect(ui->decodedTextBrowser2,SIGNAL(selectCallsign(bool,bool)),this,
-          SLOT(doubleClickOnCall(bool,bool)));
-  connect(ui->decodedTextBrowser,SIGNAL(selectCallsign(bool,bool)),this,
-          SLOT(doubleClickOnCall2(bool,bool)));
+  connect(ui->decodedTextBrowser2,SIGNAL(selectCallsign(bool,bool,bool)),this,
+          SLOT(doubleClickOnCall(bool,bool,bool)));
+  connect(ui->decodedTextBrowser,SIGNAL(selectCallsign(bool,bool,bool)),this,
+          SLOT(doubleClickOnCall2(bool,bool,bool)));
   connect (ui->decodedTextBrowser, &DisplayText::erased, this, &MainWindow::band_activity_cleared);
   connect (ui->decodedTextBrowser2, &DisplayText::erased, this, &MainWindow::rx_frequency_activity_cleared);
 
@@ -3690,15 +3690,15 @@ void MainWindow::on_txb6_clicked()
     if (m_transmitting) m_restart=true;
 }
 
-void MainWindow::doubleClickOnCall2(bool alt, bool ctrl)
+void MainWindow::doubleClickOnCall2(bool shift, bool ctrl, bool alt)
 {
   set_dateTimeQSO(-1); // reset our QSO start time
   m_decodedText2=true;
-  doubleClickOnCall(alt,ctrl);
+  doubleClickOnCall(shift,ctrl,alt);
   m_decodedText2=false;
 }
 
-void MainWindow::doubleClickOnCall(bool alt, bool ctrl)
+void MainWindow::doubleClickOnCall(bool shift, bool ctrl, bool alt)
 {
   QTextCursor cursor;
   if(m_mode=="ISCAT") {
@@ -3715,11 +3715,12 @@ void MainWindow::doubleClickOnCall(bool alt, bool ctrl)
   DecodedText message {cursor.block ().text (), ("MSK144" == m_mode || "FT8" == m_mode) &&
         ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
   m_bDoubleClicked = true;
-  processMessage (message, ctrl, alt);
+  processMessage (message, shift, ctrl, alt);
 }
 
-void MainWindow::processMessage(DecodedText const& message, bool ctrl, bool alt)
+void MainWindow::processMessage(DecodedText const& message, bool shift, bool ctrl, bool alt)
 {
+  qDebug() << "D 3726" << shift << ctrl << alt;
   // basic mode sanity checks
   auto const& parts = message.string ().split (' ', QString::SkipEmptyParts);
   if (parts.size () < 5) return;
@@ -3750,8 +3751,9 @@ void MainWindow::processMessage(DecodedText const& message, bool ctrl, bool alt)
   //Skip the rest if no decoded text extracted
   int frequency = message.frequencyOffset();
   if (message.isTX()) {
-    if (!m_config.enable_VHF_features() && ctrl && ui->TxFreqSpinBox->isEnabled()) {
-      ui->TxFreqSpinBox->setValue(frequency); //Set Tx freq
+    if (!m_config.enable_VHF_features() && ui->TxFreqSpinBox->isEnabled()) {
+      if(ctrl or (!shift)) ui->RxFreqSpinBox->setValue(frequency); //Set Rx freq
+      if(ctrl or shift)    ui->TxFreqSpinBox->setValue(frequency); //Set Tx freq
     }
     return;
   }
@@ -3833,7 +3835,7 @@ void MainWindow::processMessage(DecodedText const& message, bool ctrl, bool alt)
   QString firstcall = message.call();
   if(!m_bFastMode and (!m_config.enable_VHF_features() or m_mode=="FT8")) {
     if (ui->TxFreqSpinBox->isEnabled()) {
-      if(ctrl) ui->TxFreqSpinBox->setValue(frequency);
+      if(ctrl or shift) ui->TxFreqSpinBox->setValue(frequency);
     } else if(m_mode != "JT4" && m_mode != "JT65" && !m_mode.startsWith ("JT9") &&
               m_mode != "QRA64" && m_mode!="FT8") {
       return;
@@ -4008,7 +4010,7 @@ void MainWindow::processMessage(DecodedText const& message, bool ctrl, bool alt)
 
   // if we get here then we are reacting to the message
   if (m_bAutoReply) m_bCallingCQ = CALLING == m_QSOProgress;
-  if (ui->RxFreqSpinBox->isEnabled () and m_mode != "MSK144") {
+  if (ui->RxFreqSpinBox->isEnabled () and m_mode != "MSK144" and !shift) {
     ui->RxFreqSpinBox->setValue (frequency);    //Set Rx freq
   }
 

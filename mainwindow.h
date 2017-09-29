@@ -107,8 +107,8 @@ public slots:
   void diskDat();
   void freezeDecode(int n);
   void guiUpdate();
-  void doubleClickOnCall(bool shift, bool ctrl);
-  void doubleClickOnCall2(bool shift, bool ctrl);
+  void doubleClickOnCall(bool shift, bool ctrl, bool alt);
+  void doubleClickOnCall2(bool shift, bool ctrl, bool alt);
   void readFromStdout();
   void p1ReadFromStdout();
   void setXIT(int n, Frequency base = 0u);
@@ -600,7 +600,7 @@ private:
   void pskPost(DecodedText const& decodedtext);
   void displayDialFrequency ();
   void transmitDisplay (bool);
-  void processMessage(DecodedText const&, bool ctrl = false, bool alt = false);
+  void processMessage(DecodedText const&, bool shift=false, bool ctrl = false, bool alt = false);
   void replyToCQ (QTime, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode, QString const& message_text, bool low_confidence, quint8 modifiers);
   void replayDecodes ();
   void postDecode (bool is_new, QString const& message);
