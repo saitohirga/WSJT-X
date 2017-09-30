@@ -3732,7 +3732,6 @@ void MainWindow::processMessage(DecodedText const& message, bool shift, bool ctr
     return;
   }
 
-  if(m_config.default_simplex()) ctrl=true;
   if(m_bFastMode or m_mode=="FT8") {
     auto i1=message.string ().indexOf(" CQ ");
     if(i1>10) {
@@ -3752,7 +3751,7 @@ void MainWindow::processMessage(DecodedText const& message, bool shift, bool ctr
   int frequency = message.frequencyOffset();
   if (message.isTX()) {
     if (!m_config.enable_VHF_features() && ui->TxFreqSpinBox->isEnabled()) {
-      if(ctrl or (!shift)) ui->RxFreqSpinBox->setValue(frequency); //Set Rx freq
+      if(!shift) ui->RxFreqSpinBox->setValue(frequency); //Set Rx freq
       if(ctrl or shift)    ui->TxFreqSpinBox->setValue(frequency); //Set Tx freq
     }
     return;
@@ -3834,11 +3833,18 @@ void MainWindow::processMessage(DecodedText const& message, bool shift, bool ctr
 
   QString firstcall = message.call();
   if(!m_bFastMode and (!m_config.enable_VHF_features() or m_mode=="FT8")) {
-    if (ui->TxFreqSpinBox->isEnabled()) {
-      if(ctrl or shift) ui->TxFreqSpinBox->setValue(frequency);
-    } else if(m_mode != "JT4" && m_mode != "JT65" && !m_mode.startsWith ("JT9") &&
-              m_mode != "QRA64" && m_mode!="FT8") {
-      return;
+    // Don't change Tx freq if in a fast mode, or VHF features enabled; also not if a
+    // station is calling me, unless CTRL or SHIFT is held down.
+    if ((Radio::is_callsign (firstcall)
+         && firstcall != m_config.my_callsign () && firstcall != m_baseCall
+         && firstcall != "DE")
+        || "CQ" == firstcall || "QRZ" == firstcall || ctrl || shift) {
+      if (ui->TxFreqSpinBox->isEnabled()) {
+        if(ctrl or shift or m_config.default_simplex()) ui->TxFreqSpinBox->setValue(frequency);
+      } else if(m_mode != "JT4" && m_mode != "JT65" && !m_mode.startsWith ("JT9") &&
+                m_mode != "QRA64" && m_mode!="FT8") {
+        return;
+      }
     }
   }
 
