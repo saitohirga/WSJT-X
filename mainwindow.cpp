@@ -3830,6 +3830,7 @@ void MainWindow::processMessage(DecodedText const& message, bool shift, bool ctr
   }
 
   QString firstcall = message.call();
+  if(firstcall.length()==5 and firstcall.mid(0,3)=="CQ ") firstcall="CQ";
   if(!m_bFastMode and (!m_config.enable_VHF_features() or m_mode=="FT8")) {
     // Don't change Tx freq if in a fast mode, or VHF features enabled; also not if a
     // station is calling me, unless CTRL or SHIFT is held down.
