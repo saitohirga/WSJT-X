@@ -257,7 +257,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_sentFirst73 {false},
   m_currentMessageType {-1},
   m_lastMessageType {-1},
-  m_lockTxFreq {false},
+  m_holdTxFreq {false},
   m_bShMsgs {false},
   m_bSWL {false},
   m_uploading {false},
@@ -818,7 +818,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   morse_(const_cast<char *> (m_config.my_callsign ().toLatin1().constData()),
          const_cast<int *> (icw), &m_ncw, m_config.my_callsign ().length());
   on_actionWide_Waterfall_triggered();
-  m_wideGraph->setLockTxFreq(m_lockTxFreq);
   ui->cbShMsgs->setChecked(m_bShMsgs);
   ui->cbSWL->setChecked(m_bSWL);
   if(m_bFast9) m_bFastMode=true;
@@ -849,8 +848,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->sbTxPercent->setValue(m_pctx);
   ui->TxPowerComboBox->setCurrentIndex(int(0.3*(m_dBm + 30.0)+0.2));
   ui->cbUploadWSPR_Spots->setChecked(m_uploadSpots);
-  ui->cbTxLock->setChecked(m_lockTxFreq);
-  ui->TxFreqSpinBox->setEnabled(!m_lockTxFreq);
+  ui->cbHoldTxFreq->setChecked(m_holdTxFreq);
   if((m_ndepth&7)==1) ui->actionQuickDecode->setChecked(true);
   if((m_ndepth&7)==2) ui->actionMediumDecode->setChecked(true);
   if((m_ndepth&7)==3) ui->actionDeepestDecode->setChecked(true);
@@ -1002,7 +1000,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("NoSuffix",m_noSuffix);
   m_settings->setValue("GUItab",ui->tabWidget->currentIndex());
   m_settings->setValue("OutBufSize",outBufSize);
-  m_settings->setValue("LockTxFreq",m_lockTxFreq);
+  m_settings->setValue("HoldTxFreq",m_holdTxFreq);
   m_settings->setValue("PctTx",m_pctx);
   m_settings->setValue("dBm",m_dBm);
   m_settings->setValue ("WSPRPreferType1", ui->WSPR_prefer_type_1_check_box->isChecked ());
@@ -1091,7 +1089,7 @@ void MainWindow::readSettings()
   int n=m_settings->value("GUItab",0).toInt();
   ui->tabWidget->setCurrentIndex(n);
   outBufSize=m_settings->value("OutBufSize",4096).toInt();
-  m_lockTxFreq=m_settings->value("LockTxFreq",false).toBool();
+  m_holdTxFreq=m_settings->value("HoldTxFreq",false).toBool();
   m_pwrBandTxMemory=m_settings->value("pwrBandTxMemory").toHash();
   m_pwrBandTuneMemory=m_settings->value("pwrBandTuneMemory").toHash();
   ui->actionEnable_AP->setChecked (m_settings->value ("FT8AP", false).toBool());
@@ -1732,7 +1730,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       n=11;
       if(e->modifiers() & Qt::ControlModifier) n+=100;
       if(e->modifiers() & Qt::ShiftModifier) {
-        if(ui->TxFreqSpinBox->isEnabled()) ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()-60);
+        ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()-60);
       } else{
         bumpFqso(n);
       }
@@ -1741,7 +1739,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       n=12;
       if(e->modifiers() & Qt::ControlModifier) n+=100;
       if(e->modifiers() & Qt::ShiftModifier) {
-        if(ui->TxFreqSpinBox->isEnabled()) ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()+60);
+        ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()+60);
       } else {
         bumpFqso(n);
       }
@@ -1819,7 +1817,7 @@ void MainWindow::bumpFqso(int n)                                 //bumpFqso()
   if(ctrl and m_mode.startsWith ("WSPR")) {
     ui->WSPRfreqSpinBox->setValue(i);
   } else {
-    if(ctrl && ui->TxFreqSpinBox->isEnabled ()) {
+    if(ctrl) {
       ui->TxFreqSpinBox->setValue (i);
     }
   }
@@ -3750,9 +3748,9 @@ void MainWindow::processMessage(DecodedText const& message, bool shift, bool ctr
   //Skip the rest if no decoded text extracted
   int frequency = message.frequencyOffset();
   if (message.isTX()) {
-    if (!m_config.enable_VHF_features() && ui->TxFreqSpinBox->isEnabled()) {
+    if (!m_config.enable_VHF_features()) {
       if(!shift) ui->RxFreqSpinBox->setValue(frequency); //Set Rx freq
-      if(ctrl or shift)    ui->TxFreqSpinBox->setValue(frequency); //Set Tx freq
+      if((ctrl or shift) and !m_holdTxFreq) ui->TxFreqSpinBox->setValue(frequency); //Set Tx freq
     }
     return;
   }
@@ -3839,10 +3837,9 @@ void MainWindow::processMessage(DecodedText const& message, bool shift, bool ctr
          && firstcall != m_config.my_callsign () && firstcall != m_baseCall
          && firstcall != "DE")
         || "CQ" == firstcall || "QRZ" == firstcall || ctrl || shift) {
-      if (ui->TxFreqSpinBox->isEnabled()) {
-        if(ctrl or shift or m_config.default_simplex()) ui->TxFreqSpinBox->setValue(frequency);
-      } else if(m_mode != "JT4" && m_mode != "JT65" && !m_mode.startsWith ("JT9") &&
-                m_mode != "QRA64" && m_mode!="FT8") {
+      if (!m_holdTxFreq or shift or ctrl) ui->TxFreqSpinBox->setValue(frequency);
+      if(m_mode != "JT4" && m_mode != "JT65" && !m_mode.startsWith ("JT9") &&
+         m_mode != "QRA64" && m_mode!="FT8") {
         return;
       }
     }
@@ -4627,8 +4624,8 @@ void MainWindow::displayWidgets(int n)
     if(i==11) ui->pbTxMode->setVisible(b);
     if(i==12) ui->pbR2T->setVisible(b);
     if(i==13) ui->pbT2R->setVisible(b);
-    if(i==14) ui->cbTxLock->setVisible(b);
-    if(i==14 and (!b)) ui->cbTxLock->setChecked(false);
+    if(i==14) ui->cbHoldTxFreq->setVisible(b);
+    if(i==14 and (!b)) ui->cbHoldTxFreq->setChecked(false);
     if(i==15) ui->sbSubmode->setVisible(b);
     if(i==16) ui->syncSpinBox->setVisible(b);
     if(i==17) ui->WSPR_controls_widget->setVisible(b);
@@ -5171,7 +5168,7 @@ void MainWindow::fast_config(bool b)
 void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
 {
   m_wideGraph->setTxFreq(n);
-//  if(m_lockTxFreq) ui->RxFreqSpinBox->setValue(n);
+//  if(m_holdTxFreq) ui->RxFreqSpinBox->setValue(n);
   if(m_mode!="MSK144") {
     Q_EMIT transmitFrequency (n - m_XIT);
   }
@@ -5544,7 +5541,7 @@ void MainWindow::rigOpen ()
 
 void MainWindow::on_pbR2T_clicked()
 {
-  if (ui->TxFreqSpinBox->isEnabled ()) ui->TxFreqSpinBox->setValue(ui->RxFreqSpinBox->value ());
+  ui->TxFreqSpinBox->setValue(ui->RxFreqSpinBox->value ());
 }
 
 void MainWindow::on_pbT2R_clicked()
@@ -5641,11 +5638,9 @@ void MainWindow::setFreq4(int rxFreq, int txFreq)
   }
 }
 
-void MainWindow::on_cbTxLock_clicked(bool checked)
+void MainWindow::on_cbHoldTxFreq_clicked(bool checked)
 {
-  m_lockTxFreq=checked;
-  m_wideGraph->setLockTxFreq(m_lockTxFreq);
-  ui->TxFreqSpinBox->setEnabled(!m_lockTxFreq);
+  m_holdTxFreq=checked;
 }
 
 void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const& s)
@@ -5992,7 +5987,7 @@ void MainWindow::transmitDisplay (bool transmitting)
 
     auto QSY_allowed = !transmitting or m_config.tx_QSY_allowed () or
       !m_config.split_mode ();
-    if (ui->cbTxLock->isChecked ()) {
+    if (ui->cbHoldTxFreq->isChecked ()) {
       ui->RxFreqSpinBox->setEnabled (QSY_allowed);
       ui->pbT2R->setEnabled (QSY_allowed);
     }
@@ -6003,12 +5998,12 @@ void MainWindow::transmitDisplay (bool transmitting)
         // used fixed 1000Hz Tx DF for VHF & up QSO modes
 //        ui->TxFreqSpinBox->setValue(1000);
 //        ui->TxFreqSpinBox->setEnabled (false);
-        ui->TxFreqSpinBox->setEnabled (!ui->cbTxLock->isChecked());
+        ui->TxFreqSpinBox->setEnabled (true);
 //###
       } else {
-        ui->TxFreqSpinBox->setEnabled (QSY_allowed and !m_bFastMode and !ui->cbTxLock->isChecked());
+        ui->TxFreqSpinBox->setEnabled (QSY_allowed and !m_bFastMode and !ui->cbHoldTxFreq->isChecked());
         ui->pbR2T->setEnabled (QSY_allowed);
-        ui->cbTxLock->setEnabled (QSY_allowed);
+        ui->cbHoldTxFreq->setEnabled (QSY_allowed);
       }
     }
 

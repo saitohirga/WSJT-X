@@ -225,7 +225,7 @@ private slots:
   void on_readFreq_clicked();
   void on_pbTxMode_clicked();
   void on_RxFreqSpinBox_valueChanged(int n);
-  void on_cbTxLock_clicked(bool checked);
+  void on_cbHoldTxFreq_clicked(bool checked);
   void on_outAttenuation_valueChanged (int);
   void rigOpen ();
   void handle_transceiver_update (Transceiver::TransceiverState const&);
@@ -429,7 +429,7 @@ private:
   QString m_currentMessage;
   int     m_lastMessageType;
   QString m_lastMessageSent;
-  bool    m_lockTxFreq;
+  bool    m_holdTxFreq;
   bool    m_bShMsgs;
   bool    m_bSWL;
   bool    m_uploadSpots;

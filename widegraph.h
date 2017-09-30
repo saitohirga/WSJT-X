@@ -40,7 +40,6 @@ public:
   void   setMode(QString mode);
   void   setSubMode(int n);
   void   setModeTx(QString modeTx);
-  void   setLockTxFreq(bool b);
   bool   flatten();
   bool   useRef();
   void   setTol(int n);
@@ -104,7 +103,6 @@ private:
   qint32 m_nSubMode;
   qint32 m_nsmo;
   qint32  m_Percent2DScreen;
-  bool   m_lockTxFreq;
   bool   m_bFlatten;
   bool   m_bRef;
   bool   m_bHaveTransmitted;    //Set true at end of a WSPR transmission

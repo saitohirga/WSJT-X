@@ -798,12 +798,12 @@ QLabel[oob=&quot;true&quot;] {
                     <number>5</number>
                    </property>
                    <item>
-                    <widget class="QCheckBox" name="cbTxLock">
+                    <widget class="QCheckBox" name="cbHoldTxFreq">
                      <property name="toolTip">
                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tx frequency tracks Rx frequency. &lt;/p&gt;&lt;p&gt;Not recommended for general use!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="text">
-                      <string>Lock Tx Freq</string>
+                      <string>Hold Tx Freq</string>
                      </property>
                     </widget>
                    </item>
@@ -3018,7 +3018,7 @@ QPushButton[state=&quot;ok&quot;] {
   <tabstop>pbTxMode</tabstop>
   <tabstop>pbR2T</tabstop>
   <tabstop>pbT2R</tabstop>
-  <tabstop>cbTxLock</tabstop>
+  <tabstop>cbHoldTxFreq</tabstop>
   <tabstop>sbSubmode</tabstop>
   <tabstop>syncSpinBox</tabstop>
   <tabstop>tabWidget</tabstop>

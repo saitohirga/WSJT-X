@@ -438,7 +438,7 @@ quiet period when decoding is done.</string>
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
+          <item row="3" column="0">
            <widget class="QCheckBox" name="disable_TX_on_73_check_box">
             <property name="toolTip">
              <string>Turns off automatic transmissions after sending a 73 or any other free
@@ -446,13 +446,6 @@ text message.</string>
             </property>
             <property name="text">
              <string>Di&amp;sable Tx after sending 73</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QCheckBox" name="cbDefaultSimplex">
-            <property name="text">
-             <string>Double-click on call sets Tx and Rx freqs</string>
             </property>
            </widget>
           </item>
@@ -2629,12 +2622,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="CAT_stop_bits_button_group"/>
   <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
-  <buttongroup name="PTT_method_button_group"/>
-  <buttongroup name="split_mode_button_group"/>
   <buttongroup name="TX_mode_button_group"/>
+  <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="split_mode_button_group"/>
  </buttongroups>
 </ui>

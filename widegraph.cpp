@@ -22,7 +22,6 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   m_settings (settings),
   m_palettes_path {":/Palettes"},
   m_ntr0 {0},
-  m_lockTxFreq {false},
   m_bHaveTransmitted {false},
   m_n {0}
 {
@@ -230,7 +229,6 @@ void WideGraph::setRxFreq(int n)                                           //set
 {
   ui->widePlot->setRxFreq(n);
   ui->widePlot->draw(swide,false,false);
-//  if(m_lockTxFreq) setTxFreq(n);
 }
 
 int WideGraph::rxFreq()                                                   //rxFreq
@@ -331,12 +329,6 @@ void WideGraph::on_fSplitSpinBox_valueChanged(int n)              //fSplit
 {
   if (m_rxBand != "60m") m_fMinPerBand[m_rxBand] = n;
   setRxRange ();
-}
-
-void WideGraph::setLockTxFreq(bool b)                             //LockTxFreq
-{
-  m_lockTxFreq=b;
-  ui->widePlot->setLockTxFreq(b);
 }
 
 void WideGraph::setFreq2(int rxFreq, int txFreq)                  //setFreq2
