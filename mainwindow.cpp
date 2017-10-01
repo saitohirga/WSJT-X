@@ -6676,7 +6676,8 @@ void MainWindow::on_actionErase_reference_spectrum_triggered()
 
 void MainWindow::freqCalStep()
 {
-  if (++m_frequency_list_fcal_iter == m_config.frequencies ()->end ()) {
+  if (m_frequency_list_fcal_iter == m_config.frequencies ()->end ()
+      || ++m_frequency_list_fcal_iter == m_config.frequencies ()->end ()) {
     m_frequency_list_fcal_iter = m_config.frequencies ()->begin ();
   }
 
