@@ -2736,10 +2736,9 @@ void MainWindow::readFromStdout()                             //readFromStdout
       if (m_config.insert_blank () && m_blankLine)
         {
           QString band;
-          if (QDateTime::currentMSecsSinceEpoch() / 1000 - m_secBandChanged > 50)
-            {
+          if((QDateTime::currentMSecsSinceEpoch() / 1000 - m_secBandChanged) > 4*m_TRperiod/4) {
               band = ' ' + m_config.bands ()->find (m_freqNominal);
-            }
+          }
           ui->decodedTextBrowser->insertLineSpacer (band.rightJustified  (40, '-'));
           m_blankLine = false;
         }
