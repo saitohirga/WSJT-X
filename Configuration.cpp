@@ -673,6 +673,12 @@ QString Configuration::rig_name () const {return m_->rig_params_.rig_name;}
 bool Configuration::pwrBandTxMemory () const {return m_->pwrBandTxMemory_;}
 bool Configuration::pwrBandTuneMemory () const {return m_->pwrBandTuneMemory_;}
 
+void Configuration::adjust_calibration_parameters (double intercept, double slope_ppm)
+{
+  m_->frequency_calibration_intercept_ += intercept;
+  m_->frequency_calibration_slope_ppm_ += slope_ppm;
+}
+
 bool Configuration::is_transceiver_online () const
 {
   return m_->rig_active_;

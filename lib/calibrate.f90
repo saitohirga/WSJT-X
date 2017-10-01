@@ -24,7 +24,7 @@ subroutine calibrate(data_dir,iz,a,b,rms,sigmaa,sigmab,irc)
   n=0
   j=0
   do i=1,99999
-     read(10,*,end=10) cutc,nkHz,ncal,noffset,faudio,df,dblevel,snr
+     read(10,*,end=10,err=995) cutc,nkHz,ncal,noffset,faudio,df,dblevel,snr
      if((nkHz.ne.nkHz0) .and. i.ne.1) then
         ave=sum/n
         rms=0.d0
@@ -84,6 +84,7 @@ subroutine calibrate(data_dir,iz,a,b,rms,sigmaa,sigmab,irc)
   enddo
   go to 999
 
+995 irc=-4; iz=i; go to 999
 996 irc=-1; go to 999
 997 irc=-2; go to 999
 998 irc=-3

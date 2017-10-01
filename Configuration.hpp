@@ -159,6 +159,11 @@ public:
   QColor color_NewCall () const;
   bool pwrBandTxMemory () const;
   bool pwrBandTuneMemory () const;
+
+  // Adjust the current calibration parameters, both arguments are in
+  // Hertz. They will be added to the current values.
+  void adjust_calibration_parameters (double intercept, double slope_ppm);
+
   // This method queries if a CAT and PTT connection is operational.
   bool is_transceiver_online () const;
 

@@ -2110,16 +2110,34 @@ void MainWindow::on_actionSolve_FreqCal_triggered()
   double a,b,rms,sigmaa,sigmab;
   strncpy(data_dir,dpath.toLatin1(),len);
   calibrate_(data_dir,&iz,&a,&b,&rms,&sigmaa,&sigmab,&irc,len);
-  QString t1;
-  t1.sprintf("Slope:     %10.3f ±%7.3f ppm\nIntercept:  %7.2f ±%5.2f    Hz\n\nN:   %18d\nStdDev:  %8.2f  Hz",
-             b,sigmab,a,sigmaa,iz,rms);
-  QString t2{"Solution looks good."};
-  if(irc<0) t1="";
+  QString t2;
   if(irc==-1) t2="Cannot open " + dpath + "fmt.all";
   if(irc==-2) t2="Cannot open " + dpath + "fcal2.out";
   if(irc==-3) t2="Insufficient data in fmt.all";
+  if(irc==-4) t2 = tr ("Invalid data in fmt.all at line %1").arg (iz);
   if(irc>0 or rms>1.0) t2="Check fmt.all for possible bad data.";
-  MessageBox::information_message(this,t1,t2,0);
+  if (irc < 0 || irc > 0 || rms > 1.) {
+    MessageBox::warning_message (this, "Calibration Error", t2);
+  }
+  else if (MessageBox::Apply == MessageBox::query_message (this
+                                                           , tr ("Good Calibration Solution")
+                                                           , tr ("<pre>"
+                                                                 "%1%L2 ±%L3 ppm\n"
+                                                                 "%4%L5 ±%L6 Hz\n\n"
+                                                                 "%7%L8\n"
+                                                                 "%9%L10 Hz"
+                                                                 "</pre>")
+                                                           .arg ("Slope: ", 12).arg (b, 0, 'f', 3).arg (sigmab, 0, 'f', 3)
+                                                           .arg ("Intercept: ", 12).arg (a, 0, 'f', 2).arg (sigmaa, 0, 'f', 2)
+                                                           .arg ("N: ", 12).arg (iz)
+                                                           .arg ("StdDev: ", 12).arg (rms, 0, 'f', 2)
+                                                           , QString {}
+                                                           , MessageBox::Cancel | MessageBox::Apply)) {
+    m_config.adjust_calibration_parameters (a, b);
+    // discard fmt.all as we have consumed the resulting calibration solution
+    QFile f {m_config.writeable_data_dir ().absoluteFilePath ("fmt.all")};
+    f.remove ();
+  }
 }
 
 // This allows the window to shrink by removing certain things
