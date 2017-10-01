@@ -616,7 +616,7 @@ QLabel[oob=&quot;true&quot;] {
                  <item row="7" column="0">
                   <widget class="QSpinBox" name="rptSpinBox">
                    <property name="toolTip">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Signal report (dB)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Signal report: Signal-to-noise ratio in 2500 Hz reference noise bandwidth (dB).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
@@ -748,7 +748,7 @@ QLabel[oob=&quot;true&quot;] {
                       <item>
                        <widget class="QCheckBox" name="cbFirst">
                         <property name="toolTip">
-                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Call the first decoded responder to my CQ.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Chect to call the first decoded responder to my CQ.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                         </property>
                         <property name="text">
                          <string>Call 1st</string>
@@ -800,7 +800,7 @@ QLabel[oob=&quot;true&quot;] {
                    <item>
                     <widget class="QCheckBox" name="cbHoldTxFreq">
                      <property name="toolTip">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tx frequency tracks Rx frequency. &lt;/p&gt;&lt;p&gt;Not recommended for general use!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to keep Tx frequency fixed when double-clicking on decoded text.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="text">
                       <string>Hold Tx Freq</string>
@@ -966,6 +966,9 @@ QLabel[oob=&quot;true&quot;] {
                    </item>
                    <item>
                     <widget class="QCheckBox" name="cbVHFcontest">
+                     <property name="toolTip">
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to exchange grid locators instead of signal reports. DO NOT USE when propagation supports making world-wide contacts!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     </property>
                      <property name="text">
                       <string>NA VHF Contest</string>
                      </property>
