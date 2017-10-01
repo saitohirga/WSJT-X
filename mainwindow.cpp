@@ -5616,11 +5616,7 @@ void MainWindow::setXIT(int n, Frequency base)
 
 void MainWindow::setFreq4(int rxFreq, int txFreq)
 {
-  if (ui->RxFreqSpinBox->isEnabled ())
-    {
-      ui->RxFreqSpinBox->setValue(rxFreq);
-    }
-
+  if (ui->RxFreqSpinBox->isEnabled ()) ui->RxFreqSpinBox->setValue(rxFreq);
   if(m_mode.startsWith ("WSPR")) {
     ui->WSPRfreqSpinBox->setValue(txFreq);
   } else {
@@ -6002,7 +5998,7 @@ void MainWindow::transmitDisplay (bool transmitting)
         ui->TxFreqSpinBox->setEnabled (true);
 //###
       } else {
-        ui->TxFreqSpinBox->setEnabled (QSY_allowed and !m_bFastMode and !ui->cbHoldTxFreq->isChecked());
+        ui->TxFreqSpinBox->setEnabled (QSY_allowed and !m_bFastMode);
         ui->pbR2T->setEnabled (QSY_allowed);
         ui->cbHoldTxFreq->setEnabled (QSY_allowed);
       }
