@@ -15,9 +15,9 @@ along with this documentation. If not, see {gnu_gpl}.
 Except where otherwise noted, all algorithms, protocol designs, source
 code, and supporting files contained in the _{prog}_ package are the
 intellectual property of the program's authors.  The authors assert
-*Copyright ownership* of this material, whether or not notice of such
-copyright appears in each individual file.  Others who make fair use
-of our work under terms of the GNU General Public License must display
+*Copyright ownership* of this material, whether or not such copyright
+notice appears in each individual file.  Others who make fair use of
+our work under terms of the GNU General Public License must display
 the following copyright notice prominently:
 
 *The algorithms, source code, look-and-feel of _{prog}_ and related
