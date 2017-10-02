@@ -81,6 +81,7 @@ set (UG_IMGS
   images/help-menu.png
   images/JT4F.png
   images/JT65B.png
+  images/keyboard-shortcuts.png
   images/MSK144.png
   images/QRA64.png
   images/WSPR_WideGraphControls.png
