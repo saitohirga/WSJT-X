@@ -2140,6 +2140,21 @@ void MainWindow::on_actionSolve_FreqCal_triggered()
   }
 }
 
+void MainWindow::on_actionCopyright_Notice_triggered()
+{
+  auto const& message = tr("If you make fair use of any part of WSJT-X under terms of the GNU "
+                           "General Public License, you must display the following copyright "
+                           "notice prominently in your derivative work:\n\n"
+                           "The algorithms, source code, look-and-feel of WSJT-X and related "
+                           "programs, and protocol specifications for the modes FSK441, FT8, JT4, "
+                           "JT6M, JT9, JT65, JTMS, QRA64, ISCAT, MSK144 are Copyright (C) "
+                           "2001-2017 by one or more of the following authors: Joseph Taylor, "
+                           "K1JT; Bill Somerville, G4WJS; Steven Franke, K9AN; Nico Palermo, "
+                           "IV3NWV; Greg Beam, KI7MT; Micael Black, W9MDB; Edson Pereira, PY2SDR; "
+                           "and other members of the WSJT Development Group.");
+  MessageBox::warning_message(this, message);
+}
+
 // This allows the window to shrink by removing certain things
 // and reducing space used by controls
 void MainWindow::hideMenus(bool checked)

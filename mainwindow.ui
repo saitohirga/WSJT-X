@@ -2363,6 +2363,8 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="actionShort_list_of_add_on_prefixes_and_suffixes"/>
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
+    <addaction name="separator"/>
+    <addaction name="actionCopyright_Notice"/>
    </widget>
    <widget class="QMenu" name="menuMode">
     <property name="title">
@@ -2950,6 +2952,14 @@ QPushButton[state=&quot;ok&quot;] {
   <action name="actionSolve_FreqCal">
    <property name="text">
     <string>Solve for calibration parameters</string>
+   </property>
+  </action>
+  <action name="actionCopyright_Notice">
+   <property name="text">
+    <string>Copyright notice</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+F1</string>
    </property>
   </action>
  </widget>
