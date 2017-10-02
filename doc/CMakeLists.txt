@@ -113,6 +113,7 @@ set (UG_IMGS
   images/tools-menu.png
   images/traditional-msg-box.png
   images/tx-macros.png
+  images/VHF_controls.png
   images/view-menu.png
   images/wide-graph-controls.png
 

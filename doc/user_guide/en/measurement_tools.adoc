@@ -70,13 +70,15 @@ Measuring Tests.
 image::FreqCal_Graph.png[align="left",alt="FreqCal_Graph"]
 
 After running *Execute frequency calibration cycle* at least once with
-good results, the line-fitting procedure can be carried out
-automatically by clicking *Solve for calibration parameters* on the
-*Tools* menu.  The results will be displayed as in the following
-screen shot.  Estimated uncertainties are included for slope and
-intercept; `N` is the number of averaged frequency measurements included
-in the fit, and `StdDev` is the root mean square deviation of
-averaged measurements from the fitted straight line.  
+good results, check and edit the file `fmt.all` in the log directory
+and delete any spurious or outlier measurements.  The line-fitting
+procedure can then be carried out automatically by clicking *Solve for
+calibration parameters* on the *Tools* menu.  The results will be
+displayed as in the following screen shot.  Estimated uncertainties
+are included for slope and intercept; `N` is the number of averaged
+frequency measurements included in the fit, and `StdDev` is the root
+mean square deviation of averaged measurements from the fitted
+straight line.
 
 image::FreqCal_Results.png[align="center",alt="FreqCal_Results"]
 
