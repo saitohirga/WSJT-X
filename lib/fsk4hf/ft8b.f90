@@ -364,14 +364,15 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
      endif
 !###
      i3bit=4*decoded(73) + 2*decoded(74) + decoded(75)
+     iFreeText=decoded(57)
 !     if(nbadcrc.eq.0) write(*,3001) nharderrors,nbadcrc,i3bit
 !3001 format('A',3i5)
 !###     
      if(nbadcrc.eq.0) then
         call extractmessage174(decoded,message,ncrcflag,recent_calls,nrecent)
         call genft8(message,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
-        if(i3bit.eq.1) message(21:21)='1'
-        if(i3bit.eq.2) message(21:21)='2'
+        if(i3bit.eq.1 .and. iFreeText.eq.0) message(21:21)='1'
+        if(i3bit.eq.2 .and. iFreeText.eq.0) message(21:21)='2'
         if(lsubtract) call subtractft8(dd0,itone,f1,xdt2)
         xsig=0.0
         xnoi=0.0
