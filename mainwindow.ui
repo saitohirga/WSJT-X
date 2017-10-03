@@ -2362,9 +2362,9 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="actionSpecial_mouse_commands"/>
     <addaction name="actionShort_list_of_add_on_prefixes_and_suffixes"/>
     <addaction name="separator"/>
-    <addaction name="actionAbout"/>
-    <addaction name="separator"/>
     <addaction name="actionCopyright_Notice"/>
+    <addaction name="separator"/>
+    <addaction name="actionAbout"/>
    </widget>
    <widget class="QMenu" name="menuMode">
     <property name="title">
