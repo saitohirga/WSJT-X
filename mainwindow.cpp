@@ -2151,7 +2151,7 @@ void MainWindow::on_actionCopyright_Notice_triggered()
                            "2001-2017 by one or more of the following authors: Joseph Taylor, "
                            "K1JT; Bill Somerville, G4WJS; Steven Franke, K9AN; Nico Palermo, "
                            "IV3NWV; Greg Beam, KI7MT; Michael Black, W9MDB; Edson Pereira, PY2SDR; "
-                           "and other members of the WSJT Development Group.\"");
+                           "Philip Karn, KA9Q; and other members of the WSJT Development Group.\"");
   MessageBox::warning_message(this, message);
 }
 
