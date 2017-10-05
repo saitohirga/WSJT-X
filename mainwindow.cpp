@@ -2795,6 +2795,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         if (parts.size () > 6) {
           auto for_us = parts[5].contains (m_baseCall)
             || ("DE" == parts[5] && qAbs (ui->RxFreqSpinBox->value () - audioFreq) <= 10);
+          if(m_baseCall==m_config.my_callsign() and m_baseCall!=parts[5]) for_us=false;
           if(m_bCallingCQ && !m_bAutoReply && for_us && ui->cbFirst->isChecked()) {
             //          int snr=decodedtext.string().mid(6,4).toInt();
             m_bDoubleClicked=true;
