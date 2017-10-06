@@ -2134,9 +2134,11 @@ void MainWindow::on_actionSolve_FreqCal_triggered()
                                                            , QString {}
                                                            , MessageBox::Cancel | MessageBox::Apply)) {
     m_config.adjust_calibration_parameters (a, b);
-    // discard fmt.all as we have consumed the resulting calibration solution
-    QFile f {m_config.writeable_data_dir ().absoluteFilePath ("fmt.all")};
-    f.remove ();
+    // rename fmt.all as we have consumed the resulting calibration
+    // solution
+    auto const& backup_file_name = m_config.writeable_data_dir ().absoluteFilePath ("fmt.bak");
+    QFile::remove (backup_file_name);
+    QFile::rename (m_config.writeable_data_dir ().absoluteFilePath ("fmt.all"), backup_file_name);
   }
 }
 
