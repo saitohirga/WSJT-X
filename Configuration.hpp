@@ -159,6 +159,12 @@ public:
   QColor color_NewCall () const;
   bool pwrBandTxMemory () const;
   bool pwrBandTuneMemory () const;
+  struct CalibrationParams
+  {
+    double intercept;
+    double slope_ppm;
+  };
+  CalibrationParams calibration_params () const;
 
   // Adjust the current calibration parameters, both arguments are in
   // Hertz. They will be added to the current values.

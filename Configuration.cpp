@@ -672,6 +672,10 @@ QDir Configuration::azel_directory () const {return m_->azel_directory_;}
 QString Configuration::rig_name () const {return m_->rig_params_.rig_name;}
 bool Configuration::pwrBandTxMemory () const {return m_->pwrBandTxMemory_;}
 bool Configuration::pwrBandTuneMemory () const {return m_->pwrBandTuneMemory_;}
+auto Configuration::calibration_params () const -> CalibrationParams
+{
+  return {m_->frequency_calibration_intercept_, m_->frequency_calibration_slope_ppm_};
+}
 
 void Configuration::adjust_calibration_parameters (double intercept, double slope_ppm)
 {
