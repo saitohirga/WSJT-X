@@ -237,7 +237,7 @@ public:
   {
     return {frequency_line_edit_.frequency ()
         , Modes::value (mode_combo_box_.currentText ())
-        , IARURegions::value (region_combo_box_.currentIndex ())};
+        , IARURegions::value (region_combo_box_.currentText ())};
   }
 
 private:
@@ -1851,7 +1851,7 @@ void Configuration::impl::accept ()
       macros_.setStringList (next_macros_.stringList ());
     }
 
-  region_ = IARURegions::value (ui_->region_combo_box->currentIndex ());
+  region_ = IARURegions::value (ui_->region_combo_box->currentText ());
 
   if (frequencies_.frequency_list () != next_frequencies_.frequency_list ())
     {
