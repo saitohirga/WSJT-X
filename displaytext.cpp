@@ -63,10 +63,7 @@ void DisplayText::setContentFont(QFont const& font)
 
 void DisplayText::mouseDoubleClickEvent(QMouseEvent *e)
 {
-  bool shift = (e->modifiers() & Qt::ShiftModifier);
-  bool ctrl = (e->modifiers() & Qt::ControlModifier);
-  bool alt = (e->modifiers() & Qt::AltModifier);
-  emit(selectCallsign(shift,ctrl,alt));
+  Q_EMIT selectCallsign(e->modifiers ());
   QTextEdit::mouseDoubleClickEvent(e);
 }
 

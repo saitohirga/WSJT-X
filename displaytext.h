@@ -26,7 +26,7 @@ public:
 			      QColor color_TxMsg, bool bFastMode);
   void displayQSY(QString text);
 
-  Q_SIGNAL void selectCallsign (bool shift, bool ctrl, bool alt);
+  Q_SIGNAL void selectCallsign (Qt::KeyboardModifiers);
   Q_SIGNAL void erased ();
 
   Q_SLOT void appendText (QString const& text, QColor bg = Qt::white);

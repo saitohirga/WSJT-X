@@ -551,10 +551,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   txMsgButtonGroup->addButton(ui->txrb6,6);
   set_dateTimeQSO(-1);
   connect(txMsgButtonGroup,SIGNAL(buttonClicked(int)),SLOT(set_ntx(int)));
-  connect(ui->decodedTextBrowser2,SIGNAL(selectCallsign(bool,bool,bool)),this,
-          SLOT(doubleClickOnCall(bool,bool,bool)));
-  connect(ui->decodedTextBrowser,SIGNAL(selectCallsign(bool,bool,bool)),this,
-          SLOT(doubleClickOnCall2(bool,bool,bool)));
+  connect (ui->decodedTextBrowser2, &DisplayText::selectCallsign, this, &MainWindow::doubleClickOnCall);
+  connect (ui->decodedTextBrowser, &DisplayText::selectCallsign, this, &MainWindow::doubleClickOnCall2);
   connect (ui->decodedTextBrowser, &DisplayText::erased, this, &MainWindow::band_activity_cleared);
   connect (ui->decodedTextBrowser2, &DisplayText::erased, this, &MainWindow::rx_frequency_activity_cleared);
 
@@ -3729,15 +3727,15 @@ void MainWindow::on_txb6_clicked()
     if (m_transmitting) m_restart=true;
 }
 
-void MainWindow::doubleClickOnCall2(bool shift, bool ctrl, bool alt)
+void MainWindow::doubleClickOnCall2(Qt::KeyboardModifiers modifiers)
 {
   set_dateTimeQSO(-1); // reset our QSO start time
   m_decodedText2=true;
-  doubleClickOnCall(shift,ctrl,alt);
+  doubleClickOnCall(modifiers);
   m_decodedText2=false;
 }
 
-void MainWindow::doubleClickOnCall(bool shift, bool ctrl, bool alt)
+void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
 {
   QTextCursor cursor;
   if(m_mode=="ISCAT") {
@@ -3754,11 +3752,16 @@ void MainWindow::doubleClickOnCall(bool shift, bool ctrl, bool alt)
   DecodedText message {cursor.block ().text (), ("MSK144" == m_mode || "FT8" == m_mode) &&
         ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
   m_bDoubleClicked = true;
-  processMessage (message, shift, ctrl, alt);
+  processMessage (message, modifiers);
 }
 
-void MainWindow::processMessage(DecodedText const& message, bool shift, bool ctrl, bool alt)
+void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifiers modifiers)
 {
+  // decode keyboard modifiers we are interested in
+  auto shift = modifiers.testFlag (Qt::ShiftModifier);
+  auto ctrl = modifiers.testFlag (Qt::ControlModifier);
+  // auto alt = modifiers.testFlag (Qt::AltModifier);
+
   // basic mode sanity checks
   auto const& parts = message.string ().split (' ', QString::SkipEmptyParts);
   if (parts.size () < 5) return;
@@ -6246,7 +6249,7 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
           DecodedText message {messages.mid (start, position - start), ("MSK144" == m_mode || "FT8" == m_mode) &&
               ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
           Qt::KeyboardModifiers kbmod {modifiers << 24};
-          processMessage (message, kbmod & Qt::ControlModifier,kbmod & Qt::AltModifier);
+          processMessage (message, kbmod);
           tx_watchdog (false);
           QApplication::alert (this);
         }
