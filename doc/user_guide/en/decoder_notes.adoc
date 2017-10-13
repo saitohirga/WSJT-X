@@ -44,7 +44,7 @@ successful decode used MyCall as hypothetically known information.
 |===============================================
 
 Table 2 lists the six possible QSO states that are tracked by the
-WSJT-X auto-sequencer, along with the type of AP decoding that would
+_WSJT-X_ auto-sequencer, along with the type of AP decoding that would
 be attempted in each state.
 
 [[AP_DECODING_TYPES_TABLE]]

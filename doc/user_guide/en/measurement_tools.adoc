@@ -30,18 +30,24 @@ in other parts of the world.
 - In most cases you will want to start by deleting any existing file
 `fmt.all` in the directory where your log files are kept.
 
-- Enter `0.0` for both *Slope* and *Intercept* under _Frequency
-Calibration_ on the *Settings -> Frequencies* tab.
-
 - To cycle automatically through your chosen list of calibration
 frequencies, check *Execute frequency calibration cycle* on the
-*Tools* menu.  _WSJT-X_ will spend 30 seconds at each frequency,
-writing its measurements to file `fmt.all` in the log directory.
+*Tools* menu.  _WSJT-X_ will spend 30 seconds at each
+frequency. Initially no measurement data is saved to the `fmt.all`
+file although it is displayed on screen, this allows you to check you
+current calibration parameters.
 
 - During the calibration procedure, the radio's USB dial frequency is
 offset 1500 Hz below each *FreqCal* entry in the default frequencies
 list.  As shown in the screen shot below, detected signal carriers
 therefore appear at about 1500 Hz in the _WSJT-X_ waterfall.
+
+- To start a measurement session check the *Measure* option and let
+the calibration cycle run for at least one complete sequence. Note
+that, while measuring, any existing calibration parameters are
+automatically disabled so you may have to increase the *FTol* range if
+your rig is off freqeuncy by more than a few Hertz in order to capture
+valid measurements.
 
 image::FreqCal.png[align="left",alt="FreqCal"]
 
@@ -78,18 +84,25 @@ displayed as in the following screen shot.  Estimated uncertainties
 are included for slope and intercept; `N` is the number of averaged
 frequency measurements included in the fit, and `StdDev` is the root
 mean square deviation of averaged measurements from the fitted
-straight line.
+straight line. If the solution seems valid you will be offered an
+*Apply* button to push that will automatically set the calibration
+parameters in *Settings -> Frequencies -> Frequency Calibration*.
 
 image::FreqCal_Results.png[align="center",alt="FreqCal_Results"]
+
+For a quick visual check of the resulting calibration, stay in
+*FreqCal* mode with the *Measure* option cleared. _WSJT-X_ will show
+the adjusted results directly on the waterfall and the displayed
+records.
 
 === Reference Spectrum
 
 _WSJT-X_ provides a tool that can be used to determine the detailed
 shape of your receiver's passband.  Disconnect your antenna or tune to
-a quiet frequency with no signals.  With WSJT-X running in one of the
-slow modes, select *Measure reference spectrum* from the *Tools* menu.
-Wait for about a minute and then hit the *Stop* button.  A file named
-`refspec.dat` will appear in your log directory.  
+a quiet frequency with no signals.  With _WSJT-X_ running in one of
+the slow modes, select *Measure reference spectrum* from the *Tools*
+menu.  Wait for about a minute and then hit the *Stop* button.  A file
+named `refspec.dat` will appear in your log directory.
 
  [ ... more to come ... ]
 
