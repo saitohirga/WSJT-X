@@ -517,8 +517,8 @@ private:
   bool rig_changed_;
   TransceiverState cached_rig_state_;
   int rig_resolution_;          // see Transceiver::resolution signal
-  double frequency_calibration_intercept_;
-  double frequency_calibration_slope_ppm_;
+  CalibrationParams calibration_;
+  bool frequency_calibration_disabled_; // not persistent
   unsigned transceiver_command_number_;
 
   // configuration fields that we publish
@@ -672,15 +672,17 @@ QDir Configuration::azel_directory () const {return m_->azel_directory_;}
 QString Configuration::rig_name () const {return m_->rig_params_.rig_name;}
 bool Configuration::pwrBandTxMemory () const {return m_->pwrBandTxMemory_;}
 bool Configuration::pwrBandTuneMemory () const {return m_->pwrBandTuneMemory_;}
-auto Configuration::calibration_params () const -> CalibrationParams
+
+void Configuration::set_calibration (CalibrationParams params)
 {
-  return {m_->frequency_calibration_intercept_, m_->frequency_calibration_slope_ppm_};
+  m_->calibration_ = params;
 }
 
-void Configuration::adjust_calibration_parameters (double intercept, double slope_ppm)
+void Configuration::enable_calibration (bool on)
 {
-  m_->frequency_calibration_intercept_ += intercept;
-  m_->frequency_calibration_slope_ppm_ += slope_ppm;
+  auto target_frequency = m_->remove_calibration (m_->cached_rig_state_.frequency ()) - m_->current_offset_;
+  m_->frequency_calibration_disabled_ = !on;
+  transceiver_frequency (target_frequency);
 }
 
 bool Configuration::is_transceiver_online () const
@@ -802,12 +804,15 @@ Configuration::impl::impl (Configuration * self, QDir const& temp_directory,
                            QSettings * settings, QWidget * parent)
   : QDialog {parent}
   , self_ {self}
+  , transceiver_thread_ {nullptr}
   , ui_ {new Ui::configuration_dialog}
   , settings_ {settings}
   , doc_dir_ {doc_path ()}
   , data_dir_ {data_path ()}
   , temp_dir_ {temp_directory}
   , writeable_data_dir_ {QStandardPaths::writableLocation (QStandardPaths::DataLocation)}
+  , restart_sound_input_device_ {false}
+  , restart_sound_output_device_ {false}
   , frequencies_ {&bands_}
   , next_frequencies_ {&bands_}
   , stations_ {&bands_}
@@ -822,6 +827,7 @@ Configuration::impl::impl (Configuration * self, QDir const& temp_directory,
   , have_rig_ {false}
   , rig_changed_ {false}
   , rig_resolution_ {0}
+  , frequency_calibration_disabled_ {false}
   , transceiver_command_number_ {0}
   , degrade_ {0.}               // initialize to zero each run, not
                                 // saved in settings
@@ -1033,9 +1039,6 @@ Configuration::impl::impl (Configuration * self, QDir const& temp_directory,
   ui_->sound_input_channel_combo_box->setCurrentIndex (audio_input_channel_);
   ui_->sound_output_channel_combo_box->setCurrentIndex (audio_output_channel_);
 
-  restart_sound_input_device_ = false;
-  restart_sound_output_device_ = false;
-
   enumerate_rigs ();
   initialize_models ();
 
@@ -1135,8 +1138,8 @@ void Configuration::impl::initialize_models ()
   ui_->accept_udp_requests_check_box->setChecked (accept_udp_requests_);
   ui_->udpWindowToFront->setChecked(udpWindowToFront_);
   ui_->udpWindowRestore->setChecked(udpWindowRestore_);
-  ui_->calibration_intercept_spin_box->setValue (frequency_calibration_intercept_);
-  ui_->calibration_slope_ppm_spin_box->setValue (frequency_calibration_slope_ppm_);
+  ui_->calibration_intercept_spin_box->setValue (calibration_.intercept);
+  ui_->calibration_slope_ppm_spin_box->setValue (calibration_.slope_ppm);
 
   if (rig_params_.ptt_port.isEmpty ())
     {
@@ -1338,8 +1341,8 @@ void Configuration::impl::read_settings ()
   accept_udp_requests_ = settings_->value ("AcceptUDPRequests", false).toBool ();
   udpWindowToFront_ = settings_->value ("udpWindowToFront",false).toBool ();
   udpWindowRestore_ = settings_->value ("udpWindowRestore",false).toBool ();
-  frequency_calibration_intercept_ = settings_->value ("CalibrationIntercept", 0.).toDouble ();
-  frequency_calibration_slope_ppm_ = settings_->value ("CalibrationSlopePPM", 0.).toDouble ();
+  calibration_.intercept = settings_->value ("CalibrationIntercept", 0.).toDouble ();
+  calibration_.slope_ppm = settings_->value ("CalibrationSlopePPM", 0.).toDouble ();
   pwrBandTxMemory_ = settings_->value("pwrBandTxMemory",false).toBool ();
   pwrBandTuneMemory_ = settings_->value("pwrBandTuneMemory",false).toBool ();
 }
@@ -1434,8 +1437,8 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("AcceptUDPRequests", accept_udp_requests_);
   settings_->setValue ("udpWindowToFront", udpWindowToFront_);
   settings_->setValue ("udpWindowRestore", udpWindowRestore_);
-  settings_->setValue ("CalibrationIntercept", frequency_calibration_intercept_);
-  settings_->setValue ("CalibrationSlopePPM", frequency_calibration_slope_ppm_);
+  settings_->setValue ("CalibrationIntercept", calibration_.intercept);
+  settings_->setValue ("CalibrationSlopePPM", calibration_.slope_ppm);
   settings_->setValue ("pwrBandTxMemory", pwrBandTxMemory_);
   settings_->setValue ("pwrBandTuneMemory", pwrBandTuneMemory_);
   settings_->setValue ("Region", QVariant::fromValue (region_));
@@ -1824,8 +1827,8 @@ void Configuration::impl::accept ()
   twoPass_ = ui_->cbTwoPass->isChecked ();
   x2ToneSpacing_ = ui_->cbx2ToneSpacing->isChecked ();
   realTimeDecode_ = ui_->cbRealTime->isChecked ();
-  frequency_calibration_intercept_ = ui_->calibration_intercept_spin_box->value ();
-  frequency_calibration_slope_ppm_ = ui_->calibration_slope_ppm_spin_box->value ();
+  calibration_.intercept = ui_->calibration_intercept_spin_box->value ();
+  calibration_.slope_ppm = ui_->calibration_slope_ppm_spin_box->value ();
   pwrBandTxMemory_ = ui_->checkBoxPwrBandTxMemory->isChecked ();
   pwrBandTuneMemory_ = ui_->checkBoxPwrBandTuneMemory->isChecked ();
   auto new_server = ui_->udp_server_line_edit->text ();
@@ -2677,14 +2680,16 @@ void Configuration::impl::fill_port_combo_box (QComboBox * cb)
 
 auto Configuration::impl::apply_calibration (Frequency f) const -> Frequency
 {
-  return std::llround (frequency_calibration_intercept_
-                       + (1. + frequency_calibration_slope_ppm_ / 1.e6) * f);
+  if (frequency_calibration_disabled_) return f;
+  return std::llround (calibration_.intercept
+                       + (1. + calibration_.slope_ppm / 1.e6) * f);
 }
 
 auto Configuration::impl::remove_calibration (Frequency f) const -> Frequency
 {
-  return std::llround ((f - frequency_calibration_intercept_)
-                       / (1. + frequency_calibration_slope_ppm_ / 1.e6));
+  if (frequency_calibration_disabled_) return f;
+  return std::llround ((f - calibration_.intercept)
+                       / (1. + calibration_.slope_ppm / 1.e6));
 }
 
 #if !defined (QT_NO_DEBUG_STREAM)

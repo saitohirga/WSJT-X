@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>815</width>
-    <height>548</height>
+    <height>555</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,7 +21,7 @@
     <item>
      <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0,0">
       <item>
-       <layout class="QGridLayout" name="gridLayout" columnstretch="0,0">
+       <layout class="QGridLayout" name="gridLayout" columnstretch="2,1">
         <property name="horizontalSpacing">
          <number>3</number>
         </property>
@@ -971,6 +971,16 @@ QLabel[oob=&quot;true&quot;] {
                      </property>
                      <property name="text">
                       <string>NA VHF Contest</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QCheckBox" name="measure_check_box">
+                     <property name="toolTip">
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this to start recording calibration data.&lt;br/&gt;While measuring calibration correction is disabled.&lt;br/&gt;When not checked you can view the calibration results.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     </property>
+                     <property name="text">
+                      <string>Measure</string>
                      </property>
                     </widget>
                    </item>

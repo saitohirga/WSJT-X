@@ -281,6 +281,7 @@ private slots:
   void on_actionQRA64_triggered();
   void on_actionFreqCal_triggered();
   void splash_done ();
+  void on_measure_check_box_stateChanged (int);
 
 private:
   Q_SIGNAL void initializeAudioOutputStream (QAudioDeviceInfo,

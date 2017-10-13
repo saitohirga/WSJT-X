@@ -1225,18 +1225,20 @@ void MainWindow::dataSink(qint64 frames)
     QString t=QString::fromLatin1(line);
     DecodedText decodedtext {t, false, m_config.my_grid ()};
     ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
-         m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
-         m_config.color_NewCall());
-// Append results text to file "fmt.all".
-    QFile f {m_config.writeable_data_dir ().absoluteFilePath ("fmt.all")};
-    if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
-      QTextStream out(&f);
-      out << t << endl;
-      f.close();
-    } else {
-      MessageBox::warning_message (this, tr ("File Open Error")
-                                   , tr ("Cannot open \"%1\" for append: %2")
-                                   .arg (f.fileName ()).arg (f.errorString ()));
+                                                m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
+                                                m_config.color_NewCall());
+    if (ui->measure_check_box->isChecked ()) {
+      // Append results text to file "fmt.all".
+      QFile f {m_config.writeable_data_dir ().absoluteFilePath ("fmt.all")};
+      if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
+        QTextStream out(&f);
+        out << t << endl;
+        f.close();
+      } else {
+        MessageBox::warning_message (this, tr ("File Open Error")
+                                     , tr ("Cannot open \"%1\" for append: %2")
+                                     .arg (f.fileName ()).arg (f.errorString ()));
+      }
     }
     if(m_ihsym==m_hsymStop && ui->actionFrequency_calibration->isChecked()) {
       freqCalStep();
@@ -2133,12 +2135,16 @@ void MainWindow::on_actionSolve_FreqCal_triggered()
                                                            .arg ("StdDev: ", 12).arg (rms, 0, 'f', 2)
                                                            , QString {}
                                                            , MessageBox::Cancel | MessageBox::Apply)) {
-    m_config.adjust_calibration_parameters (a, b);
-    // rename fmt.all as we have consumed the resulting calibration
-    // solution
-    auto const& backup_file_name = m_config.writeable_data_dir ().absoluteFilePath ("fmt.bak");
-    QFile::remove (backup_file_name);
-    QFile::rename (m_config.writeable_data_dir ().absoluteFilePath ("fmt.all"), backup_file_name);
+    m_config.set_calibration (Configuration::CalibrationParams {a, b});
+    if (MessageBox::Yes == MessageBox::query_message (this
+                                                      , tr ("Delete Calibration Measurements")
+                                                      , tr ("The \"fmt.all\" file will be renamed as \"fmt.bak\""))) {
+      // rename fmt.all as we have consumed the resulting calibration
+      // solution
+      auto const& backup_file_name = m_config.writeable_data_dir ().absoluteFilePath ("fmt.bak");
+      QFile::remove (backup_file_name);
+      QFile::rename (m_config.writeable_data_dir ().absoluteFilePath ("fmt.all"), backup_file_name);
+    }
   }
 }
 
@@ -4682,6 +4688,7 @@ void MainWindow::displayWidgets(int n)
   ui->cbFirst->setVisible ("FT8" == m_mode);
   ui->actionEnable_AP->setVisible ("FT8" == m_mode);
   ui->cbVHFcontest->setVisible(m_mode=="FT8" or m_mode=="MSK144");
+  ui->measure_check_box->setVisible ("FreqCal" == m_mode);
   m_lastCallsign.clear ();     // ensures Tx5 is updated for new modes
   genStdMsgs (m_rpt, true);
 }
@@ -5121,6 +5128,7 @@ void MainWindow::on_actionFreqCal_triggered()
   setup_status_bar (true);
 //                               18:15:47      0  1  1500  1550.349     0.100    3.5   10.2
   ui->decodedTextLabel->setText("  UTC      Freq CAL Offset  fMeas       DF     Level   S/N");
+  ui->measure_check_box->setChecked (false);
   displayWidgets(nWidgets("001101000000000000000000"));
   statusChanged();
 }
@@ -5214,9 +5222,8 @@ void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
 void MainWindow::on_RxFreqSpinBox_valueChanged(int n)
 {
   m_wideGraph->setRxFreq(n);
-  if (m_mode == "FreqCal"
-      && m_frequency_list_fcal_iter != m_config.frequencies ()->end ()) {
-    setRig (m_frequency_list_fcal_iter->frequency_ - n);
+  if (m_mode == "FreqCal") {
+    setRig ();
   }
   statusUpdate ();
 }
@@ -5349,15 +5356,11 @@ void MainWindow::band_changed (Frequency f)
     if ("FreqCal" == m_mode)
       {
         m_frequency_list_fcal_iter = m_config.frequencies ()->find (f);
-        setRig (f - ui->RxFreqSpinBox->value ());
       }
-    else
-      {
-        float r=m_freqNominal/(f+0.0001);
-        if(r<0.9 or r>1.1) m_bVHFwarned=false;
-        setRig (f);
-        setXIT (ui->TxFreqSpinBox->value ());
-      }
+    float r=m_freqNominal/(f+0.0001);
+    if(r<0.9 or r>1.1) m_bVHFwarned=false;
+    setRig (f);
+    setXIT (ui->TxFreqSpinBox->value ());
     if(monitor_off) monitor(false);
   }
 }
@@ -6656,6 +6659,10 @@ void MainWindow::setRig (Frequency f)
       m_freqTxNominal = m_freqNominal;
       if (m_astroWidget) m_astroWidget->nominal_frequency (m_freqNominal, m_freqTxNominal);
     }
+  if (m_mode == "FreqCal"
+      && m_frequency_list_fcal_iter != m_config.frequencies ()->end ()) {
+    m_freqNominal = m_frequency_list_fcal_iter->frequency_ - ui->RxFreqSpinBox->value ();
+  }
   if(m_transmitting && !m_config.tx_QSY_allowed ()) return;
   if ((m_monitoring || m_transmitting) && m_config.transceiver_online ())
     {
@@ -6853,6 +6860,13 @@ void MainWindow::on_cbAutoSeq_toggled(bool b)
 {
   if(!b) ui->cbFirst->setChecked(false);
   ui->cbFirst->setVisible((m_mode=="FT8") and b);
+}
+
+void MainWindow::on_measure_check_box_stateChanged (int state)
+{
+  if ("FreqCal" == m_mode) {
+    m_config.enable_calibration (Qt::Checked != state);
+  }
 }
 
 void MainWindow::write_transmit_entry (QString const& file_name)
