@@ -4691,6 +4691,7 @@ void MainWindow::displayWidgets(int n)
   ui->cbFirst->setVisible ("FT8" == m_mode);
   ui->actionEnable_AP->setVisible ("FT8" == m_mode);
   ui->cbVHFcontest->setVisible(m_mode=="FT8" or m_mode=="MSK144");
+  ui->measure_check_box->setChecked (false);
   ui->measure_check_box->setVisible ("FreqCal" == m_mode);
   m_lastCallsign.clear ();     // ensures Tx5 is updated for new modes
   genStdMsgs (m_rpt, true);
@@ -6867,9 +6868,7 @@ void MainWindow::on_cbAutoSeq_toggled(bool b)
 
 void MainWindow::on_measure_check_box_stateChanged (int state)
 {
-  if ("FreqCal" == m_mode) {
-    m_config.enable_calibration (Qt::Checked != state);
-  }
+  m_config.enable_calibration (Qt::Checked != state);
 }
 
 void MainWindow::write_transmit_entry (QString const& file_name)
