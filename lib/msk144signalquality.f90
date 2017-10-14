@@ -66,7 +66,7 @@ subroutine msk144signalquality(cframe,snr,freq,t0,softbits,msg,dxcall,       &
     currently_training=.false.
     training_dxcall(1:12)=' '
     trained_dxcall(1:12)=' '
-write(*,*) 'reset to untrained state '
+!write(*,*) 'reset to untrained state '
   endif
 
   indx_dxcall=index(msg,trim(dxcall))
@@ -76,7 +76,7 @@ write(*,*) 'reset to untrained state '
     currently_training=.true.
     training_dxcall=trim(dxcall)
     trained_dxcall(1:12)=' '
-write(*,*) 'start training on call ',training_dxcall
+!write(*,*) 'start training on call ',training_dxcall
   endif
 
   if( msg_has_dxcall .and. currently_training ) then
@@ -188,7 +188,7 @@ write(*,*) 'start training on call ',training_dxcall
       call polyfit(x,y,sigmay,npts,nterms,mode,a,chisqr)
       pp=a(1)+x*(a(2)+x*(a(3)+x*(a(4)+x*a(5)))) 
       rmsdiff=sum( (pp-phase((864/2-nm/2):(864/2+nm/2)))**2 )/145.0
-write(*,*) 'training ',navg,sqrt(chisqr),rmsdiff
+!write(*,*) 'training ',navg,sqrt(chisqr),rmsdiff
       if( (sqrt(chisqr).lt.1.8) .and. (rmsdiff.lt.0.5) .and. (navg.ge.5) ) then 
         trained_dxcall=dxcall
         call date_and_time(date,time,zone,values)
@@ -198,7 +198,7 @@ write(*,*) 'training ',navg,sqrt(chisqr),rmsdiff
         l1=index(datadir,char(0))-1
         datadir(l1+1:l1+1)="/"
         pcoeff_filename=datadir(1:l1+1)//trim(pcoeff_filename)
-write(*,*) 'trained - writing coefficients to: ',pcoeff_filename
+!write(*,*) 'trained - writing coefficients to: ',pcoeff_filename
         open(17,file=pcoeff_filename,status='new')
         write(17,'(i4,2f10.2,3i5,5e25.16)') navg,sqrt(chisqr),rmsdiff,NFREQLOW,NFREQHIGH,nterms,a
         do i=1, 145

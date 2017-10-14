@@ -5,18 +5,39 @@
 #include <QTextCharFormat>
 #include <QTextCursor>
 #include <QTextBlock>
+#include <QMenu>
+#include <QAction>
 
 #include "qt_helpers.hpp"
 
 #include "moc_displaytext.cpp"
 
-DisplayText::DisplayText(QWidget *parent) :
-    QTextEdit(parent)
+DisplayText::DisplayText(QWidget *parent)
+  : QTextEdit(parent)
+  , erase_action_ {new QAction {tr ("&Erase"), this}}
 {
   setReadOnly (true);
   viewport ()->setCursor (Qt::ArrowCursor);
   setWordWrapMode (QTextOption::NoWrap);
-  document ()->setMaximumBlockCount (5000); // max lines to limit heap usage
+
+  // max lines to limit heap usage
+  document ()->setMaximumBlockCount (5000);
+
+  // context menu erase action
+  setContextMenuPolicy (Qt::CustomContextMenu);
+  connect (this, &DisplayText::customContextMenuRequested, [this] (QPoint const& position) {
+      auto * menu = createStandardContextMenu (position);
+      menu->addAction (erase_action_);
+      menu->exec (mapToGlobal (position));
+      delete menu;
+    });
+  connect (erase_action_, &QAction::triggered, this, &DisplayText::erase);
+}
+
+void DisplayText::erase ()
+{
+  clear ();
+  Q_EMIT erased ();
 }
 
 void DisplayText::setContentFont(QFont const& font)
@@ -42,9 +63,7 @@ void DisplayText::setContentFont(QFont const& font)
 
 void DisplayText::mouseDoubleClickEvent(QMouseEvent *e)
 {
-  bool ctrl = (e->modifiers() & Qt::ControlModifier);
-  bool alt = (e->modifiers() & Qt::AltModifier);
-  emit(selectCallsign(alt,ctrl));
+  Q_EMIT selectCallsign(e->modifiers ());
   QTextEdit::mouseDoubleClickEvent(e);
 }
 
@@ -81,12 +100,12 @@ void DisplayText::appendText(QString const& text, QColor bg)
 
 
 QString DisplayText::appendDXCCWorkedB4(QString message, QString const& callsign, QColor * bg,
-					LogBook const& logBook, QColor color_CQ,
-					QColor color_DXCC,
-					QColor color_NewCall)
+          LogBook const& logBook, QColor color_CQ,
+          QColor color_DXCC,
+          QColor color_NewCall)
 {
   // allow for seconds
-  unsigned padding {message.indexOf (" ") > 4 ? 2U : 0U};
+  int padding {message.indexOf (" ") > 4 ? 2 : 0};
   QString call = callsign;
   QString countryName;
   bool callWorkedBefore;
@@ -102,64 +121,60 @@ QString DisplayText::appendDXCCWorkedB4(QString message, QString const& callsign
   if(!call.contains(QRegExp("[0-9]|[A-Z]"))) return message;
 
   logBook.match(/*in*/call,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
-  int charsAvail = 52 + padding;
 
-  // the decoder (seems) to always generate 41 chars. For a normal CQ
-  // call, the last five are spaces
-  //
-  // A maximum length call is "QRZ VP2X/GM4WJS IO91" "CQ AA ..." or CQ
-  // nnn ..." don't allow grid squares so are not longer. Here we align
-  // the added info at least after the longest CQ/QRZ message plus one
-  // space so that it can be stripped off algorithmically later.
-  //
-  int nmin = 46 + padding;
-  int s3 = message.indexOf (" ", nmin);
-  if (s3 < nmin) s3 = nmin; // always want at least the characters to position 45
-  s3 += 1; // convert the index into a character count
-  message = message.left(s3);  // reduce trailing white space
-  charsAvail -= s3;
-  if (charsAvail > 4)
+  message = message.trimmed ();
+  QString appendage;
+  if (!countryWorkedBefore) // therefore not worked call either
     {
-      if (!countryWorkedBefore) // therefore not worked call either
+      appendage += "!";
+      *bg = color_DXCC;
+    }
+  else
+    {
+      if (!callWorkedBefore) // but have worked the country
         {
-          message += "!";
-          *bg = color_DXCC;
+          appendage += "~";
+          *bg = color_NewCall;
         }
       else
-        if (!callWorkedBefore) // but have worked the country
-          {
-            message += "~";
-            *bg = color_NewCall;
-          }
-        else
-          {
-            message += " ";  // have worked this call before
-            *bg = color_CQ;
-          }
-      charsAvail -= 1;
-
-      // do some obvious abbreviations
-      countryName.replace ("Islands", "Is.");
-      countryName.replace ("Island", "Is.");
-      countryName.replace ("North ", "N. ");
-      countryName.replace ("Northern ", "N. ");
-      countryName.replace ("South ", "S. ");
-      countryName.replace ("East ", "E. ");
-      countryName.replace ("Eastern ", "E. ");
-      countryName.replace ("West ", "W. ");
-      countryName.replace ("Western ", "W. ");
-      countryName.replace ("Central ", "C. ");
-      countryName.replace (" and ", " & ");
-      countryName.replace ("Republic", "Rep.");
-      countryName.replace ("United States", "U.S.A.");
-      countryName.replace ("Fed. Rep. of ", "");
-      countryName.replace ("French ", "Fr.");
-      countryName.replace ("Asiatic", "AS");
-      countryName.replace ("European", "EU");
-      countryName.replace ("African", "AF");
-
-      message += countryName;
+        {
+          appendage += " ";  // have worked this call before
+          *bg = color_CQ;
+        }
     }
+
+  // do some obvious abbreviations
+  countryName.replace ("Islands", "Is.");
+  countryName.replace ("Island", "Is.");
+  countryName.replace ("North ", "N. ");
+  countryName.replace ("Northern ", "N. ");
+  countryName.replace ("South ", "S. ");
+  countryName.replace ("East ", "E. ");
+  countryName.replace ("Eastern ", "E. ");
+  countryName.replace ("West ", "W. ");
+  countryName.replace ("Western ", "W. ");
+  countryName.replace ("Central ", "C. ");
+  countryName.replace (" and ", " & ");
+  countryName.replace ("Republic", "Rep.");
+  countryName.replace ("United States", "U.S.A.");
+  countryName.replace ("Fed. Rep. of ", "");
+  countryName.replace ("French ", "Fr.");
+  countryName.replace ("Asiatic", "AS");
+  countryName.replace ("European", "EU");
+  countryName.replace ("African", "AF");
+
+  appendage += countryName;
+
+  // use a nbsp to save the start of appended text so we can find
+  // it again later, align appended data at a fixed column if
+  // there is space otherwise let it float to the right
+  int space_count {40 + padding - message.size ()};
+  if (space_count > 0)
+    {
+      message += QString {space_count, QChar {' '}};
+    }
+  message += QChar::Nbsp + appendage;
+
   return message;
 }
 
@@ -169,29 +184,30 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
                                      QColor color_DXCC, QColor color_NewCall)
 {
   QColor bg {Qt::white};
-    bool CQcall = false;
-    if (decodedText.string ().contains (" CQ ")
-        || decodedText.string ().contains (" CQDX ")
-        || decodedText.string ().contains (" QRZ "))
+  bool CQcall = false;
+  if (decodedText.string ().contains (" CQ ")
+      || decodedText.string ().contains (" CQDX ")
+      || decodedText.string ().contains (" QRZ "))
     {
-        CQcall = true;
-        bg = color_CQ;
+      CQcall = true;
+      bg = color_CQ;
     }
-    if (myCall != "" and (
-          decodedText.indexOf (" " + myCall + " ") >= 0
-          or decodedText.indexOf (" " + myCall + "/") >= 0
-          or decodedText.indexOf ("/" + myCall + " ") >= 0
-          or decodedText.indexOf ("<" + myCall + " ") >= 0
-          or decodedText.indexOf (" " + myCall + ">") >= 0)) {
-      bg = color_MyCall;
-    }
+  if (myCall != "" and (
+                        decodedText.indexOf (" " + myCall + " ") >= 0
+                        or decodedText.indexOf (" " + myCall + "/") >= 0
+                        or decodedText.indexOf ("/" + myCall + " ") >= 0
+                        or decodedText.indexOf ("<" + myCall + " ") >= 0
+                        or decodedText.indexOf (" " + myCall + ">") >= 0)) {
+    bg = color_MyCall;
+  }
+  auto message = decodedText.string ();
+  message = message.left (message.indexOf (QChar::Nbsp)); // strip appended info
+  if (displayDXCCEntity && CQcall)
     // if enabled add the DXCC entity and B4 status to the end of the
     // preformated text line t1
-    auto message = decodedText.string ();
-    if (displayDXCCEntity && CQcall)
-      message = appendDXCCWorkedB4 (message, decodedText.CQersCall (), &bg, logBook, color_CQ,
-				    color_DXCC, color_NewCall);
-    appendText (message, bg);
+    message = appendDXCCWorkedB4 (message, decodedText.CQersCall (), &bg, logBook, color_CQ,
+                                  color_DXCC, color_NewCall);
+  appendText (message.trimmed (), bg);
 }
 
 

@@ -91,9 +91,10 @@ MessageAggregatorMainWindow::MessageAggregatorMainWindow ()
   connect (server_, &MessageServer::decode, [this] (bool is_new, QString const& id, QTime time
                                                     , qint32 snr, float delta_time
                                                     , quint32 delta_frequency, QString const& mode
-                                                    , QString const& message, bool low_confidence) {
+                                                    , QString const& message, bool low_confidence
+                                                    , bool off_air) {
              decodes_model_->add_decode (is_new, id, time, snr, delta_time, delta_frequency, mode, message
-                                         , low_confidence, dock_widgets_[id]->fast_mode ());});
+                                         , low_confidence, off_air, dock_widgets_[id]->fast_mode ());});
   connect (server_, &MessageServer::WSPR_decode, beacons_model_, &BeaconsModel::add_beacon_spot);
   connect (server_, &MessageServer::clear_decodes, decodes_model_, &DecodesModel::clear_decodes);
   connect (server_, &MessageServer::clear_decodes, beacons_model_, &BeaconsModel::clear_decodes);
@@ -110,14 +111,14 @@ MessageAggregatorMainWindow::MessageAggregatorMainWindow ()
   show ();
 }
 
-void MessageAggregatorMainWindow::log_qso (QString const& /*id*/, QDateTime timeOff, QString const& dx_call, QString const& dx_grid
+void MessageAggregatorMainWindow::log_qso (QString const& /*id*/, QDateTime time_off, QString const& dx_call, QString const& dx_grid
                                            , Frequency dial_frequency, QString const& mode, QString const& report_sent
                                            , QString const& report_received, QString const& tx_power, QString const& comments
-                                           , QString const& name, QDateTime timeOn)
+                                           , QString const& name, QDateTime time_on)
 {
   QList<QStandardItem *> row;
-  row << new QStandardItem {timeOn.toString ("dd-MMM-yyyy hh:mm:ss")}
-  << new QStandardItem {timeOff.toString ("dd-MMM-yyyy hh:mm:ss")}
+  row << new QStandardItem {time_on.toString ("dd-MMM-yyyy hh:mm:ss")}
+  << new QStandardItem {time_off.toString ("dd-MMM-yyyy hh:mm:ss")}
   << new QStandardItem {dx_call}
   << new QStandardItem {dx_grid}
   << new QStandardItem {name}
@@ -144,6 +145,7 @@ void MessageAggregatorMainWindow::add_client (QString const& id, QString const& 
   connect (server_, &MessageServer::status_update, dock, &ClientWidget::update_status);
   connect (server_, &MessageServer::decode, dock, &ClientWidget::decode_added);
   connect (server_, &MessageServer::WSPR_decode, dock, &ClientWidget::beacon_spot_added);
+  connect (server_, &MessageServer::clear_decodes, dock, &ClientWidget::clear_decodes);
   connect (dock, &ClientWidget::do_reply, decodes_model_, &DecodesModel::do_reply);
   connect (dock, &ClientWidget::do_halt_tx, server_, &MessageServer::halt_tx);
   connect (dock, &ClientWidget::do_free_text, server_, &MessageServer::free_text);

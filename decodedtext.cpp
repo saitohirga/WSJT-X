@@ -14,14 +14,13 @@ namespace
 }
 
 DecodedText::DecodedText (QString const& the_string, bool contest_mode, QString const& my_grid)
-  : string_ {the_string}
-  , padding_ {the_string.indexOf (" ") > 4 ? 2 : 0} // allow for
+  : string_ {the_string.left (the_string.indexOf (QChar::Nbsp))} // discard appended info
+  , padding_ {string_.indexOf (" ") > 4 ? 2 : 0} // allow for
                                                     // seconds
   , contest_mode_ {contest_mode}
   , message_ {string_.mid (column_qsoText + padding_).trimmed ()}
   , is_standard_ {false}
 {
-  string_ = string_.left (column_qsoText + padding_ + 25);
   if (message_.length() >= 1)
     {
       message_ = message_.left (21).remove (QRegularExpression {"[<>]"});

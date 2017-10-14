@@ -51,7 +51,7 @@ public:
 
   // translate between enumeration and human readable strings
   static char const * name (Region);
-  static Region value (int);
+  static Region value (QString const&);
 
   // Implement the QAbstractListModel interface
   int rowCount (QModelIndex const& parent = QModelIndex {}) const override

@@ -1,6 +1,6 @@
 // Status=review
 
-image::settings-audio.png[align="center",alt="WSJT-X Audio Configuration Screen"]
+image::settings-audio.png[align="center",alt="_WSJT-X_ Audio Configuration Screen"]
 
 Select the *Audio* tab to configure your sound system.
 

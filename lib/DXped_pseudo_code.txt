@@ -1,7 +1,7 @@
 Auto-Sequencing algorithm for DXpedition station:
 
 Start:
-    CQMsg = "CQ VK9MA"   (or "CQ UP VK9MA", "CQ 116 VK9MA", etc.)
+    CQMsg = "CQ KH1DX"   (or "CQ UP KH1DX", "CQ 116 KH1DX", etc.)
     TxMsg = CQMsg
     Ntry = 0
     QCALL = ""                                        # Callsign of current QSO partner
@@ -16,7 +16,7 @@ Receive:
     N = number of decodes                             # RxMsg[i], i=1,N
     if(N == 0)
         go to Transmit
-    J = index of a reply from current QCALL           # RxMsg[J] = "VK9MA QCALL R<rpt>"
+    J = index of a reply from current QCALL           # RxMsg[J] = "KH1DX QCALL R<rpt>"
 
     if(QCALL == "")                                   # No QSO in progress
         Select new QCALL                              # Op chooses a caller
@@ -48,7 +48,7 @@ Receive:
 Auto-Sequencing algorithm for those calling the DXpedition:
 
 Start:
-    TxMsg = "VK9MA MyCall"
+    TxMsg = "KH1DX MyCall"
     InQSO = false
 
 Transmit:
@@ -59,13 +59,13 @@ Receive:
     RX                                                # (... takes ~14 s)
     if(RxMsg[i] contains "MyCall <rpt>")
         InQSO = true
-        TxMsg = "VK9MA MyCall R<rpt>"
+        TxMsg = "KH1DX MyCall R<rpt>"
 	go to Transmit
 
     if(RxMsg[i] contains "<rpt>")
         TxEnable = false
 	go to Receive
 
-    if(RxMsg[i] contains "CQ VK9MA")
+    if(RxMsg[i] contains "CQ KH1DX")
         TxEnable = true
 	go to Transmit

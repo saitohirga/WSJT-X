@@ -16,10 +16,10 @@ image::main-ui.png[align="center",alt="Main UI and Wide Graph"]
 
 Decoding takes place at the end of a receive sequence and proceeds in
 two steps.  The first decode is done at the selected Rx frequency,
-indicated by the U-shaped green marker on the waterfall scale.
-Results appear in both the left (*Band Activity*) and right (*Rx
-Frequency*) text windows on the main screen. The program then finds
-and decodes all signals in the selected mode over the displayed
+indicated by the U-shaped green marker on the waterfall frequency
+scale.  Results appear in both the left (*Band Activity*) and right
+(*Rx Frequency*) text windows on the main screen. The program then
+finds and decodes all signals in the selected mode over the displayed
 frequency range. The red marker on the waterfall scale indicates your
 Tx frequency.
 
@@ -51,8 +51,8 @@ Call* and *DX Grid* entry fields.
 ** The *Tx even* box is checked or cleared appropriately, so that you
 will transmit in the proper (odd or even) minutes.
 
-** The Rx and Tx frequency markers are moved to the frequency of the
-CQing station.
+** The Rx frequency marker is moved to the frequency of the CQing
+station.
 
 ** The *Gen Msg* ("`generated message`") radio button at bottom right 
 of the main window is selected.
@@ -61,23 +61,23 @@ of the main window is selected.
 *Setup* menu, *Enable Tx* would be activated and a transmission would
 start automatically at the proper time.
 
-- Double-click on the decoded message `K1JT N5KDV EM41`,
-highlighted in red.  Results will be similar to those in the
-previous step, except the Tx frequency (red marker) is not
-moved.  Such messages are usually in response to your own CQ, or from
-a tail-ender, and you probably want your Tx frequency to stay where it
-was.
+** You can modify the double-click behavior by holding down the
+*Shift* key to move only the Tx frequency or the *Ctrl* key to move
+both Rx and Tx frequencies.
 
-- By holding down the *Ctrl* key when double-clicking on a decoded
-line you can cause both Tx and Rx frequencies to be moved.  This
-behavior can also be forced by checking *Lock Tx=Rx*.
+- Double-click on the decoded message `K1JT N5KDV EM41`, highlighted
+in red.  Results will be similar to those in the previous step. The Tx
+frequency (red marker) is not moved unless *Shift* or *Ctrl* is held
+down.  Messages highlighted in red are usually in response to your own
+CQ or from a tail-ender, and you probably want your Tx frequency to
+stay where it was.
 
-- Double-click on the message from KF4RWA in either window. He is
-sending `73` to K1JT, signifying that the QSO is over.  Most likely
-you want to send 73 to him, so the message `KF4RWA K1JT 73` is
-automatically generated and selected for your next transmission.
-(Alternatively, you might choose to send a free-text message or to
-call CQ again.)
+NOTE: Double-clicking on decoded messages can be defaulted to simplex
+operation by checking *Double click on call sets Tx and Rx freqs* on
+the *Settings -> General* tab.
+
+NOTE: You can prevent your Tx frequency from being changed by checking the
+box *Lock Tx Freq*.
 
 - Click somewhere on the waterfall to set Rx frequency (green marker
 on waterfall scale).

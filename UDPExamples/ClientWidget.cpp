@@ -30,7 +30,7 @@ QVariant ClientWidget::IdFilterModel::data (QModelIndex const& proxy_index, int 
     {
       switch (proxy_index.column ())
         {
-        case 6:                 // message
+        case 8:                 // message
           {
             auto message = QSortFilterProxyModel::data (proxy_index).toString ();
             if (base_call_re_.pattern ().size ()
@@ -130,6 +130,7 @@ ClientWidget::ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemMod
   , rx_df_label_ {new QLabel}
   , tx_df_label_ {new QLabel}
   , report_label_ {new QLabel}
+  , columns_resized_ {false}
 {
   // set up widgets
   decodes_proxy_model_.setSourceModel (decodes_model);
@@ -208,7 +209,7 @@ ClientWidget::ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemMod
 
   // connect up table view signals
   connect (decodes_table_view_, &QTableView::doubleClicked, this, [this] (QModelIndex const& index) {
-      Q_EMIT do_reply (decodes_proxy_model_.mapToSource (index));
+      Q_EMIT do_reply (decodes_proxy_model_.mapToSource (index), QApplication::keyboardModifiers () >> 24);
     });
 }
 
@@ -244,25 +245,36 @@ void ClientWidget::update_status (QString const& id, Frequency f, QString const&
 
 void ClientWidget::decode_added (bool /*is_new*/, QString const& client_id, QTime /*time*/, qint32 /*snr*/
                                  , float /*delta_time*/, quint32 /*delta_frequency*/, QString const& /*mode*/
-                                 , QString const& /*message*/, bool /*low_confidence*/)
+                                 , QString const& /*message*/, bool /*low_confidence*/, bool /*off_air*/)
 {
-  if (client_id == id_)
+  if (client_id == id_ && !columns_resized_)
     {
       decodes_stack_->setCurrentIndex (0);
       decodes_table_view_->resizeColumnsToContents ();
-      decodes_table_view_->scrollToBottom ();
+      columns_resized_ = true;
     }
+  decodes_table_view_->scrollToBottom ();
 }
 
 void ClientWidget::beacon_spot_added (bool /*is_new*/, QString const& client_id, QTime /*time*/, qint32 /*snr*/
                                       , float /*delta_time*/, Frequency /*delta_frequency*/, qint32 /*drift*/
-                                      , QString const& /*callsign*/, QString const& /*grid*/, qint32 /*power*/)
+                                      , QString const& /*callsign*/, QString const& /*grid*/, qint32 /*power*/
+                                      , bool /*off_air*/)
 {
-  if (client_id == id_)
+  if (client_id == id_ && !columns_resized_)
     {
       decodes_stack_->setCurrentIndex (1);
       beacons_table_view_->resizeColumnsToContents ();
-      beacons_table_view_->scrollToBottom ();
+      columns_resized_ = true;
+    }
+  beacons_table_view_->scrollToBottom ();
+}
+
+void ClientWidget::clear_decodes (QString const& client_id)
+{
+  if (client_id == id_)
+    {
+      columns_resized_ = false;
     }
 }
 

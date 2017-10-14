@@ -107,8 +107,8 @@ public slots:
   void diskDat();
   void freezeDecode(int n);
   void guiUpdate();
-  void doubleClickOnCall(bool shift, bool ctrl);
-  void doubleClickOnCall2(bool shift, bool ctrl);
+  void doubleClickOnCall (Qt::KeyboardModifiers);
+  void doubleClickOnCall2(Qt::KeyboardModifiers);
   void readFromStdout();
   void p1ReadFromStdout();
   void setXIT(int n, Frequency base = 0u);
@@ -149,10 +149,14 @@ private slots:
   void on_actionSave_all_triggered();
   void on_actionKeyboard_shortcuts_triggered();
   void on_actionSpecial_mouse_commands_triggered();
+  void on_actionSolve_FreqCal_triggered();
+  void on_actionCopyright_Notice_triggered();
   void on_DecodeButton_clicked (bool);
   void decode();
   void decodeBusy(bool b);
   void on_EraseButton_clicked();
+  void band_activity_cleared ();
+  void rx_frequency_activity_cleared ();
   void on_txFirstCheckBox_stateChanged(int arg1);
   void set_dateTimeQSO(int m_ntx);
   void set_ntx(int n);
@@ -222,7 +226,7 @@ private slots:
   void on_readFreq_clicked();
   void on_pbTxMode_clicked();
   void on_RxFreqSpinBox_valueChanged(int n);
-  void on_cbTxLock_clicked(bool checked);
+  void on_cbHoldTxFreq_clicked(bool checked);
   void on_outAttenuation_valueChanged (int);
   void rigOpen ();
   void handle_transceiver_update (Transceiver::TransceiverState const&);
@@ -277,6 +281,7 @@ private slots:
   void on_actionQRA64_triggered();
   void on_actionFreqCal_triggered();
   void splash_done ();
+  void on_measure_check_box_stateChanged (int);
 
 private:
   Q_SIGNAL void initializeAudioOutputStream (QAudioDeviceInfo,
@@ -401,6 +406,7 @@ private:
   qint32  m_nTx73;
   qint32  m_UTCdisk;
   qint32  m_wait;
+  qint32  m_i3bit;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
@@ -425,7 +431,7 @@ private:
   QString m_currentMessage;
   int     m_lastMessageType;
   QString m_lastMessageSent;
-  bool    m_lockTxFreq;
+  bool    m_holdTxFreq;
   bool    m_bShMsgs;
   bool    m_bSWL;
   bool    m_uploadSpots;
@@ -454,6 +460,9 @@ private:
   bool    m_bDoubleClicked;
   bool    m_bCallingCQ;
   bool    m_bAutoReply;
+  bool    m_bCheckedContest;
+  bool    m_bDXped;
+
   enum
     {
       CALLING,
@@ -593,8 +602,8 @@ private:
   void pskPost(DecodedText const& decodedtext);
   void displayDialFrequency ();
   void transmitDisplay (bool);
-  void processMessage(DecodedText const&, bool ctrl = false, bool alt = false);
-  void replyToCQ (QTime, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode, QString const& message_text);
+  void processMessage(DecodedText const&, Qt::KeyboardModifiers = 0);
+  void replyToCQ (QTime, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode, QString const& message_text, bool low_confidence, quint8 modifiers);
   void replayDecodes ();
   void postDecode (bool is_new, QString const& message);
   void postWSPRDecode (bool is_new, QStringList message_parts);

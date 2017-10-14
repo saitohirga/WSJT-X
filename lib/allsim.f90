@@ -60,7 +60,8 @@ program allsim
   call gen4(message,0,msgsent,itone,itype)
   call addit(itone,11025,206,2520,1200,sig,dat)  !JT4
 
-  call genft8(message,mygrid,bcontest,msgsent,msgbits,itone)
+  i3bit=0                                        ! ### TEMPORARY ??? ###
+  call genft8(message,mygrid,bcontest,i3bit,msgsent,msgbits,itone)
   call addit(itone,12000,79,1920,1400,sig,dat)   !FT8
 
   call genqra64(message,0,msgsent,itone,itype)

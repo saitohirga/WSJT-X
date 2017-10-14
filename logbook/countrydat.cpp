@@ -51,7 +51,6 @@ void CountryDat::_removeBrackets(QString &line, const QString a, const QString b
 QStringList CountryDat::_extractPrefix(QString &line, bool &more) const
 {
     line = line.remove(" \n");
-    line = line.replace("=","");
     line = line.replace(" ","");
 
     _removeBrackets(line,"(",")");
@@ -117,29 +116,38 @@ void CountryDat::load()
 }
 
 // return country name else ""
-QString CountryDat::find(QString prefix) const
+QString CountryDat::find(QString call) const
 {
-  prefix = prefix.toUpper ();
-  auto pf = prefix;
-  while (pf.size () >= 1)
-  	{
-      if (_data.contains (pf))
+  call = call.toUpper ();
+
+  // check for exact match first
+  if (_data.contains ("=" + call))
+    {
+      return fixup (_data.value ("=" + call), call);
+    }
+
+  auto prefix = call;
+  while (prefix.size () >= 1)
+    {
+      if (_data.contains (prefix))
         {
-          QString country {_data.value (pf)};
-
-          //
-          // deal with special rules that cty.dat does not cope with
-          //
-
-          // KG4 2x1 and 2x3 calls that map to Gitmo are mainland US not Gitmo
-          if (prefix.startsWith ("KG4") && prefix.size () != 5)
-            {
-              country.replace ("Guantanamo Bay", "United States");
-            }
-
-          return country;
+          return fixup (_data.value (prefix), call);
         }
-      pf = pf.left (pf.size () - 1);
+      prefix = prefix.left (prefix.size () - 1);
     }
   return QString {};
-}	   
+}
+
+QString CountryDat::fixup (QString country, QString const& call) const
+{
+  //
+  // deal with special rules that cty.dat does not cope with
+  //
+
+  // KG4 2x1 and 2x3 calls that map to Gitmo are mainland US not Gitmo
+  if (call.startsWith ("KG4") && call.size () != 5)
+    {
+      country.replace ("Guantanamo Bay", "United States");
+    }
+  return country;
+}

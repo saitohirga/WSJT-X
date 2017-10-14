@@ -8,14 +8,18 @@
 
 #include "logbook/adif.h"
 #include "MessageBox.hpp"
+#include "Configuration.hpp"
+#include "Bands.hpp"
 
 #include "ui_logqso.h"
 #include "moc_logqso.cpp"
 
-LogQSO::LogQSO(QString const& programTitle, QSettings * settings, QWidget *parent)
+LogQSO::LogQSO(QString const& programTitle, QSettings * settings
+               , Configuration const * config, QWidget *parent)
   : QDialog(parent)
   , ui(new Ui::LogQSO)
   , m_settings (settings)
+  , m_config {config}
 {
   ui->setupUi(this);
   setWindowTitle(programTitle + " - Log QSO");
@@ -78,8 +82,7 @@ void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString 
   m_dialFreq=dialFreq;
   m_myCall=myCall;
   m_myGrid=myGrid;
-  QString band= ADIF::bandFromFrequency(dialFreq / 1.e6);
-  ui->band->setText(band);
+  ui->band->setText (m_config->bands ()->find (dialFreq));
 
   show ();
 }

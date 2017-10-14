@@ -18,17 +18,17 @@ void ADIF::init(QString const& filename)
 }
 
 
-QString ADIF::_extractField(QString const& line, QString const& fieldName) const
+QString ADIF::extractField(QString const& record, QString const& fieldName) const
 {
-    int fieldNameIndex = line.indexOf(fieldName,0,Qt::CaseInsensitive);
+    int fieldNameIndex = record.indexOf (fieldName + ':', 0, Qt::CaseInsensitive);
     if (fieldNameIndex >=0)
     {
-        int closingBracketIndex = line.indexOf('>',fieldNameIndex);
-        int fieldLengthIndex = line.indexOf(':',fieldNameIndex);  // find the size delimiter
+        int closingBracketIndex = record.indexOf('>',fieldNameIndex);
+        int fieldLengthIndex = record.indexOf(':',fieldNameIndex);  // find the size delimiter
         int dataTypeIndex = -1;
         if (fieldLengthIndex >= 0)
         {
-          dataTypeIndex = line.indexOf(':',fieldLengthIndex+1);  // check for a second : indicating there is a data type
+          dataTypeIndex = record.indexOf(':',fieldLengthIndex+1);  // check for a second : indicating there is a data type
           if (dataTypeIndex > closingBracketIndex)
             dataTypeIndex = -1; // second : was found but it was beyond the closing >
         }
@@ -38,11 +38,11 @@ QString ADIF::_extractField(QString const& line, QString const& fieldName) const
             int fieldLengthCharCount = closingBracketIndex - fieldLengthIndex -1;
             if (dataTypeIndex >= 0)
               fieldLengthCharCount -= 2; // data type indicator is always a colon followed by a single character
-            QString fieldLengthString = line.mid(fieldLengthIndex+1,fieldLengthCharCount);
+            QString fieldLengthString = record.mid(fieldLengthIndex+1,fieldLengthCharCount);
             int fieldLength = fieldLengthString.toInt();
             if (fieldLength > 0)
             {
-              QString field = line.mid(closingBracketIndex+1,fieldLength);
+              QString field = record.mid(closingBracketIndex+1,fieldLength);
               return field;
             }
        }
@@ -59,29 +59,50 @@ void ADIF::load()
     if (inputFile.open(QIODevice::ReadOnly))
     {
       QTextStream in(&inputFile);
-      QString record;
+      QString buffer;
+      bool pre_read {false};
+      int end_position {-1};
 
-      // skip header record
-      while (!in.atEnd () && !record.contains ("<EOH>", Qt::CaseInsensitive))
+      // skip optional header record
+      do
         {
-          record += in.readLine ();
-        }
-      while ( !in.atEnd() )
-        {
-          record.clear ();
-          while (!in.atEnd () && !record.contains ("<EOR>", Qt::CaseInsensitive))
+          buffer += in.readLine () + '\n';
+          if (buffer.startsWith (QChar {'<'})) // denotes no header
             {
-              record += in.readLine ();
+              pre_read = true;
             }
-          QSO q;
-          q.call = _extractField(record,"CALL:");
-          q.band = _extractField(record,"BAND:");
-          q.mode = _extractField(record,"MODE:");
-          q.date = _extractField(record,"QSO_DATE:");
-          if (q.call != "")
-            _data.insert(q.call,q);
+          else
+            {
+              end_position = buffer.indexOf ("<EOH>", 0, Qt::CaseInsensitive);
+            }
         }
-        inputFile.close();
+      while (!in.atEnd () && !pre_read && end_position < 0);
+      if (!pre_read)            // found header
+        {
+          buffer.remove (0, end_position + 5);
+        }
+      while (buffer.size () || !in.atEnd ())
+        {
+          do
+            {
+              end_position = buffer.indexOf ("<EOR>", 0, Qt::CaseInsensitive);
+              if (!in.atEnd () && end_position < 0)
+                {
+                  buffer += in.readLine () + '\n';
+                }
+            }
+          while (!in.atEnd () && end_position < 0);
+          int record_length {end_position >= 0 ? end_position + 5 : -1};
+          auto record = buffer.left (record_length).trimmed ();
+          auto next_record = buffer.indexOf (QChar {'<'}, record_length);
+          buffer.remove (0, next_record >=0 ? next_record : buffer.size ());
+          record = record.mid (record.indexOf (QChar {'<'}));
+          add (extractField (record, "CALL")
+               , extractField (record, "BAND")
+               , extractField (record, "MODE")
+               , extractField (record, "QSO_DATE"));
+        }
+        inputFile.close ();
     }
 }
 
@@ -93,8 +114,11 @@ void ADIF::add(QString const& call, QString const& band, QString const& mode, QS
     q.band = band;
     q.mode = mode;
     q.date = date;
-    _data.insert(q.call,q);
-    //qDebug() << "Added as worked:" << call << band << mode << date;
+    if (q.call.size ())
+      {
+        _data.insert(q.call,q);
+        // qDebug() << "Added as worked:" << call << band << mode << date;
+      }
 }
 
 // return true if in the log same band and mode (where JT65 == JT9)
@@ -189,36 +213,4 @@ bool ADIF::addQSOToFile(QString const& hisCall, QString const& hisGrid, QString 
         f2.close();
     }
     return true;
-}
-
-QString ADIF::bandFromFrequency(double dialFreq)
-{
-    QString band="";
-    if(dialFreq>0.135 and dialFreq<0.139) band="2200m";
-    else if(dialFreq>0.45 and dialFreq<0.55) band="630m";
-    else if(dialFreq>1.8 and dialFreq<2.0) band="160m";
-    else if(dialFreq>3.5 and dialFreq<4.0) band="80m";
-    else if(dialFreq>5.1 and dialFreq<5.45) band="60m";
-    else if(dialFreq>7.0 and dialFreq<7.3) band="40m";
-    else if(dialFreq>10.0 and dialFreq<10.15) band="30m";
-    else if(dialFreq>14.0 and dialFreq<14.35) band="20m";
-    else if(dialFreq>18.068 and dialFreq<18.168) band="17m";
-    else if(dialFreq>21.0 and dialFreq<21.45) band="15m";
-    else if(dialFreq>24.890 and dialFreq<24.990) band="12m";
-    else if(dialFreq>28.0 and dialFreq<29.7) band="10m";
-    else if(dialFreq>50.0 and dialFreq<54.0) band="6m";
-    else if(dialFreq>70.0 and dialFreq<71.0) band="4m";
-    else if(dialFreq>144.0 and dialFreq<148.0) band="2m";
-    else if(dialFreq>222.0 and dialFreq<225.0) band="1.25m";
-    else if(dialFreq>420.0 and dialFreq<450.0) band="70cm";
-    else if(dialFreq>902.0 and dialFreq<928.0) band="33cm";
-    else if(dialFreq>1240.0 and dialFreq<1300.0) band="23cm";
-    else if(dialFreq>2300.0 and dialFreq<2450.0) band="13cm";
-    else if(dialFreq>3300.0 and dialFreq<3500.0) band="9cm";
-    else if(dialFreq>5650.0 and dialFreq<5925.0) band="6cm";
-    else if(dialFreq>10000.0 and dialFreq<10500.0) band="3cm";
-    else if(dialFreq>24000.0 and dialFreq<24250.0) band="1.25cm";
-    else if(dialFreq>47000.0 and dialFreq<47200.0) band="6mm";
-    else if(dialFreq>75500.0 and dialFreq<81000.0) band="4mm";
-    return band;
 }

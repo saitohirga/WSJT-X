@@ -1,4 +1,4 @@
-subroutine genft8(msg,mygrid,bcontest,msgsent,msgbits,itone)
+subroutine genft8(msg,mygrid,bcontest,i3bit,msgsent,msgbits,itone)
 
 ! Encode an FT8 message, producing array itone().
   
@@ -19,7 +19,6 @@ subroutine genft8(msg,mygrid,bcontest,msgsent,msgbits,itone)
   call packmsg(msg,i4Msg6BitWords,itype,bcontest) !Pack into 12 6-bit bytes
   call unpackmsg(i4Msg6BitWords,msgsent,bcontest,mygrid) !Unpack to get msgsent
 
-  i3bit=0                                     !### temporary ###
   write(cbits,1000) i4Msg6BitWords,32*i3bit
 1000 format(12b6.6,b8.8)
   read(cbits,1001) i1Msg8BitBytes(1:10)

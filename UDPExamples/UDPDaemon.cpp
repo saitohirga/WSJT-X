@@ -68,28 +68,30 @@ public:
   }
 
   Q_SLOT void decode_added (bool is_new, QString const& client_id, QTime time, qint32 snr
-      , float delta_time, quint32 delta_frequency, QString const& mode
-                            , QString const& message, bool low_confidence)
+                            , float delta_time, quint32 delta_frequency, QString const& mode
+                            , QString const& message, bool low_confidence, bool off_air)
   {
     if (client_id == id_)
       {
         qDebug () << "new:" << is_new << "t:" << time << "snr:" << snr
                   << "Dt:" << delta_time << "Df:" << delta_frequency
-                  << "mode:" << mode << "Confidence:" << (low_confidence ? "low" : "high");
+                  << "mode:" << mode << "Confidence:" << (low_confidence ? "low" : "high")
+                  << "On air:" << !off_air;
         std::cout << tr ("%1: Decoded %2").arg (id_).arg (message).toStdString () << std::endl;
       }
   }
 
   Q_SLOT void beacon_spot_added (bool is_new, QString const& client_id, QTime time, qint32 snr
       , float delta_time, Frequency delta_frequency, qint32 drift, QString const& callsign
-      , QString const& grid, qint32 power)
+                                 , QString const& grid, qint32 power, bool off_air)
   {
     if (client_id == id_)
       {
         qDebug () << "new:" << is_new << "t:" << time << "snr:" << snr
                   << "Dt:" << delta_time << "Df:" << delta_frequency
                   << "drift:" << drift;
-        std::cout << tr ("%1: WSPR decode %2 grid %3 power: %4").arg (id_).arg (callsign).arg (grid).arg (power).toStdString () << std::endl;
+        std::cout << tr ("%1: WSPR decode %2 grid %3 power: %4").arg (id_).arg (callsign).arg (grid).arg (power).toStdString ()
+                  << "On air:" << !off_air << std::endl;
       }
   }
 

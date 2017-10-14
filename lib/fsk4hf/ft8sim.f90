@@ -65,9 +65,10 @@ program ft8sim
   sig=sqrt(2*bandwidth_ratio) * 10.0**(0.05*snrdb)
   if(snrdb.gt.90.0) sig=1.0
   txt=NN*NSPS/12000.0
+  i3bit=0                                ! ### TEMPORARY ??? ###
 
 ! Source-encode, then get itone()
-  call genft8(msg,mygrid6,bcontest,msgsent,msgbits,itone)
+  call genft8(msg,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
   write(*,1000) f0,xdt,txt,snrdb,bw,msgsent
 1000 format('f0:',f9.3,'   DT:',f6.2,'   TxT:',f6.1,'   SNR:',f6.1,    &
           '  BW:',f4.1,2x,a22)
