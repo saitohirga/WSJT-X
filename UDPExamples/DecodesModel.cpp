@@ -16,8 +16,9 @@ namespace
     QT_TRANSLATE_NOOP ("DecodesModel", "DT"),
     QT_TRANSLATE_NOOP ("DecodesModel", "DF"),
     QT_TRANSLATE_NOOP ("DecodesModel", "Md"),
-    QT_TRANSLATE_NOOP ("DecodesModel", "Message"),
     QT_TRANSLATE_NOOP ("DecodesModel", "Confidence"),
+    QT_TRANSLATE_NOOP ("DecodesModel", "Live"),
+    QT_TRANSLATE_NOOP ("DecodesModel", "Message"),
   };
 
   QString confidence_string (bool low_confidence)
@@ -25,11 +26,16 @@ namespace
     return low_confidence ? QT_TRANSLATE_NOOP ("DecodesModel", "low") : QT_TRANSLATE_NOOP ("DecodesModel", "high");
   }
 
+  QString live_string (bool off_air)
+  {
+    return off_air ? QT_TRANSLATE_NOOP ("DecodesModel", "no") : QT_TRANSLATE_NOOP ("DecodesModel", "yes");
+  }
+
   QFont text_font {"Courier", 10};
 
   QList<QStandardItem *> make_row (QString const& client_id, QTime time, qint32 snr, float delta_time
                                    , quint32 delta_frequency, QString const& mode, QString const& message
-                                   , bool low_confidence, bool is_fast)
+                                   , bool low_confidence, bool off_air, bool is_fast)
   {
     auto time_item = new QStandardItem {time.toString (is_fast || "~" == mode ? "hh:mm:ss" : "hh:mm")};
     time_item->setData (time);
@@ -53,8 +59,11 @@ namespace
     auto confidence = new QStandardItem {confidence_string (low_confidence)};
     confidence->setTextAlignment (Qt::AlignHCenter);
 
+    auto live = new QStandardItem {live_string (off_air)};
+    live->setTextAlignment (Qt::AlignHCenter);
+
     QList<QStandardItem *> row {
-      new QStandardItem {client_id}, time_item, snr_item, dt, df, md, new QStandardItem {message}, confidence};
+      new QStandardItem {client_id}, time_item, snr_item, dt, df, md, confidence, live, new QStandardItem {message}};
     Q_FOREACH (auto& item, row)
       {
         item->setEditable (false);
@@ -77,7 +86,7 @@ DecodesModel::DecodesModel (QObject * parent)
 
 void DecodesModel::add_decode (bool is_new, QString const& client_id, QTime time, qint32 snr, float delta_time
                                , quint32 delta_frequency, QString const& mode, QString const& message
-                               , bool low_confidence, bool is_fast)
+                               , bool low_confidence, bool off_air, bool is_fast)
 {
   if (!is_new)
     {
@@ -92,8 +101,9 @@ void DecodesModel::add_decode (bool is_new, QString const& client_id, QTime time
                   && item (row, 3)->data ().toFloat () == delta_time
                   && item (row, 4)->data ().toUInt () == delta_frequency
                   && data (index (row, 5)).toString () == mode
-                  && data (index (row, 6)).toString () == message
-                  && data (index (row, 7)).toString () == confidence_string (low_confidence))
+                  && data (index (row, 7)).toString () == confidence_string (low_confidence)
+                  && data (index (row, 6)).toString () == live_string (off_air)
+                  && data (index (row, 8)).toString () == message)
                 {
                   return;
                 }
@@ -106,12 +116,13 @@ void DecodesModel::add_decode (bool is_new, QString const& client_id, QTime time
       if (target_row >= 0)
         {
           insertRow (target_row + 1, make_row (client_id, time, snr, delta_time, delta_frequency, mode
-                                               , message, low_confidence, is_fast));
+                                               , message, low_confidence, off_air, is_fast));
           return;
         }
     }
 
-  appendRow (make_row (client_id, time, snr, delta_time, delta_frequency, mode, message, low_confidence, is_fast));
+  appendRow (make_row (client_id, time, snr, delta_time, delta_frequency, mode, message, low_confidence
+                       , off_air, is_fast));
 }
 
 void DecodesModel::clear_decodes (QString const& client_id)
@@ -125,7 +136,7 @@ void DecodesModel::clear_decodes (QString const& client_id)
     }
 }
 
-void DecodesModel::do_reply (QModelIndex const& source)
+void DecodesModel::do_reply (QModelIndex const& source, quint8 modifiers)
 {
   auto row = source.row ();
   Q_EMIT reply (data (index (row, 0)).toString ()
@@ -134,8 +145,9 @@ void DecodesModel::do_reply (QModelIndex const& source)
                 , item (row, 3)->data ().toFloat ()
                 , item (row, 4)->data ().toInt ()
                 , data (index (row, 5)).toString ()
-                , data (index (row, 6)).toString ()
-                , confidence_string (true) == data (index (row, 7)).toString ());
+                , data (index (row, 8)).toString ()
+                , confidence_string (true) == data (index (row, 7)).toString ()
+                , modifiers);
 }
 
 #include "moc_DecodesModel.cpp"

@@ -159,6 +159,31 @@ public:
   QColor color_NewCall () const;
   bool pwrBandTxMemory () const;
   bool pwrBandTuneMemory () const;
+
+  struct CalibrationParams
+  {
+    CalibrationParams ()
+      : intercept {0.}
+      , slope_ppm {0.}
+    {
+    }
+
+    CalibrationParams (double the_intercept, double the_slope_ppm)
+      : intercept {the_intercept}
+      , slope_ppm {the_slope_ppm}
+    {
+    }
+
+    double intercept;           // Hertz
+    double slope_ppm;           // Hertz
+  };
+
+  // Temporarily enable or disable calibration adjustments.
+  void enable_calibration (bool = true);
+
+  // Set the calibration parameters and enable calibration corrections.
+  void set_calibration (CalibrationParams);
+
   // This method queries if a CAT and PTT connection is operational.
   bool is_transceiver_online () const;
 

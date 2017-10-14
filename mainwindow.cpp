@@ -76,7 +76,7 @@ extern "C" {
               int len1, int len2, int len3, int len4, int len5);
 //  float s[], int* jh, char line[], char mygrid[],
 
-  void genft8_(char* msg, char* MyGrid, bool* bcontest, char* msgsent,
+  void genft8_(char* msg, char* MyGrid, bool* bcontest, int* i3bit, char* msgsent,
                char ft8msgbits[], int itone[], int len1, int len2, int len3);
 
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
@@ -129,6 +129,11 @@ extern "C" {
 
   void freqcal_(short d2[], int* k, int* nkhz,int* noffset, int* ntol,
                 char line[], int len);
+
+  void fix_contest_msg_(char* MyGrid, char* msg, int len1, int len2);
+
+  void calibrate_(char data_dir[], int* iz, double* a, double* b, double* rms,
+                  double* sigmaa, double* sigmab, int* irc, int len1);
 }
 
 int volatile itone[NUM_ISCAT_SYMBOLS];  //Audio tones for all Tx symbols
@@ -197,7 +202,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_wideGraph (new WideGraph(m_settings)),
   m_echoGraph (new EchoGraph(m_settings)),
   m_fastGraph (new FastGraph(m_settings)),
-  m_logDlg (new LogQSO (program_title (), m_settings, this)),
+  m_logDlg (new LogQSO (program_title (), m_settings, &m_config, this)),
   m_lastDialFreq {0},
   m_dialFreqRxWSPR {0},
   m_detector {new Detector {RX_SAMPLE_RATE, NTMAX, downSampleFactor}},
@@ -252,7 +257,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_sentFirst73 {false},
   m_currentMessageType {-1},
   m_lastMessageType {-1},
-  m_lockTxFreq {false},
+  m_holdTxFreq {false},
   m_bShMsgs {false},
   m_bSWL {false},
   m_uploading {false},
@@ -546,10 +551,10 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   txMsgButtonGroup->addButton(ui->txrb6,6);
   set_dateTimeQSO(-1);
   connect(txMsgButtonGroup,SIGNAL(buttonClicked(int)),SLOT(set_ntx(int)));
-  connect(ui->decodedTextBrowser2,SIGNAL(selectCallsign(bool,bool)),this,
-          SLOT(doubleClickOnCall(bool,bool)));
-  connect(ui->decodedTextBrowser,SIGNAL(selectCallsign(bool,bool)),this,
-          SLOT(doubleClickOnCall2(bool,bool)));
+  connect (ui->decodedTextBrowser2, &DisplayText::selectCallsign, this, &MainWindow::doubleClickOnCall);
+  connect (ui->decodedTextBrowser, &DisplayText::selectCallsign, this, &MainWindow::doubleClickOnCall2);
+  connect (ui->decodedTextBrowser, &DisplayText::erased, this, &MainWindow::band_activity_cleared);
+  connect (ui->decodedTextBrowser2, &DisplayText::erased, this, &MainWindow::rx_frequency_activity_cleared);
 
   // initialize decoded text font and hook up font change signals
   // defer initialization until after construction otherwise menu
@@ -811,7 +816,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   morse_(const_cast<char *> (m_config.my_callsign ().toLatin1().constData()),
          const_cast<int *> (icw), &m_ncw, m_config.my_callsign ().length());
   on_actionWide_Waterfall_triggered();
-  m_wideGraph->setLockTxFreq(m_lockTxFreq);
   ui->cbShMsgs->setChecked(m_bShMsgs);
   ui->cbSWL->setChecked(m_bSWL);
   if(m_bFast9) m_bFastMode=true;
@@ -842,7 +846,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->sbTxPercent->setValue(m_pctx);
   ui->TxPowerComboBox->setCurrentIndex(int(0.3*(m_dBm + 30.0)+0.2));
   ui->cbUploadWSPR_Spots->setChecked(m_uploadSpots);
-  ui->cbTxLock->setChecked(m_lockTxFreq);
+  ui->cbHoldTxFreq->setChecked(m_holdTxFreq);
   if((m_ndepth&7)==1) ui->actionQuickDecode->setChecked(true);
   if((m_ndepth&7)==2) ui->actionMediumDecode->setChecked(true);
   if((m_ndepth&7)==3) ui->actionDeepestDecode->setChecked(true);
@@ -858,6 +862,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_bVHFwarned=false;
   m_bDoubleClicked=false;
   m_bCallingCQ=false;
+  m_bCheckedContest=false;
   m_wait=0;
   m_CQtype="CQ";
 
@@ -886,9 +891,11 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
 
+  m_bDXped=false;
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
      m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "G3PQA") {
-      ui->actionWSPR_LF->setEnabled(true);
+    m_bDXped=true;
+    ui->actionWSPR_LF->setEnabled(true);
   }
   if(!ui->cbMenus->isChecked()) {
     ui->cbMenus->setChecked(true);
@@ -983,6 +990,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("Ftol", ui->sbFtol->value ());
   m_settings->setValue("MinSync",m_minSync);
   m_settings->setValue ("AutoSeq", ui->cbAutoSeq->isChecked ());
+  m_settings->setValue ("VHFcontest", ui->cbVHFcontest->isChecked ());
   m_settings->setValue("ShMsgs",m_bShMsgs);
   m_settings->setValue("SWL",ui->cbSWL->isChecked());
   m_settings->setValue ("DialFreq", QVariant::fromValue(m_lastMonitoredFrequency));
@@ -990,7 +998,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("NoSuffix",m_noSuffix);
   m_settings->setValue("GUItab",ui->tabWidget->currentIndex());
   m_settings->setValue("OutBufSize",outBufSize);
-  m_settings->setValue("LockTxFreq",m_lockTxFreq);
+  m_settings->setValue("HoldTxFreq",m_holdTxFreq);
   m_settings->setValue("PctTx",m_pctx);
   m_settings->setValue("dBm",m_dBm);
   m_settings->setValue ("WSPRPreferType1", ui->WSPR_prefer_type_1_check_box->isChecked ());
@@ -1051,6 +1059,7 @@ void MainWindow::readSettings()
   m_minSync=m_settings->value("MinSync",0).toInt();
   ui->syncSpinBox->setValue(m_minSync);
   ui->cbAutoSeq->setChecked (m_settings->value ("AutoSeq", false).toBool());
+  ui->cbVHFcontest->setChecked (m_settings->value ("VHFcontest", false).toBool());
   m_bShMsgs=m_settings->value("ShMsgs",false).toBool();
   m_bSWL=m_settings->value("SWL",false).toBool();
   m_bFast9=m_settings->value("Fast9",false).toBool();
@@ -1078,7 +1087,7 @@ void MainWindow::readSettings()
   int n=m_settings->value("GUItab",0).toInt();
   ui->tabWidget->setCurrentIndex(n);
   outBufSize=m_settings->value("OutBufSize",4096).toInt();
-  m_lockTxFreq=m_settings->value("LockTxFreq",false).toBool();
+  m_holdTxFreq=m_settings->value("HoldTxFreq",false).toBool();
   m_pwrBandTxMemory=m_settings->value("pwrBandTxMemory").toHash();
   m_pwrBandTuneMemory=m_settings->value("pwrBandTuneMemory").toHash();
   ui->actionEnable_AP->setChecked (m_settings->value ("FT8AP", false).toBool());
@@ -1214,18 +1223,20 @@ void MainWindow::dataSink(qint64 frames)
     QString t=QString::fromLatin1(line);
     DecodedText decodedtext {t, false, m_config.my_grid ()};
     ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
-         m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
-         m_config.color_NewCall());
-// Append results text to file "fmt.all".
-    QFile f {m_config.writeable_data_dir ().absoluteFilePath ("fmt.all")};
-    if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
-      QTextStream out(&f);
-      out << t << endl;
-      f.close();
-    } else {
-      MessageBox::warning_message (this, tr ("File Open Error")
-                                   , tr ("Cannot open \"%1\" for append: %2")
-                                   .arg (f.fileName ()).arg (f.errorString ()));
+                                                m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
+                                                m_config.color_NewCall());
+    if (ui->measure_check_box->isChecked ()) {
+      // Append results text to file "fmt.all".
+      QFile f {m_config.writeable_data_dir ().absoluteFilePath ("fmt.all")};
+      if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
+        QTextStream out(&f);
+        out << t << endl;
+        f.close();
+      } else {
+        MessageBox::warning_message (this, tr ("File Open Error")
+                                     , tr ("Cannot open \"%1\" for append: %2")
+                                     .arg (f.fileName ()).arg (f.errorString ()));
+      }
     }
     if(m_ihsym==m_hsymStop && ui->actionFrequency_calibration->isChecked()) {
       freqCalStep();
@@ -1423,7 +1434,7 @@ void MainWindow::fastSink(qint64 frames)
   strncpy(dec_data.params.mycall, (m_baseCall+"            ").toLatin1(),12);
   QString hisCall {ui->dxCallEntry->text ()};
   bool bshmsg=ui->cbShMsgs->isChecked();
-  bool bcontest=m_config.contestMode();
+  bool bcontest=ui->cbVHFcontest->isChecked();
   bool bswl=ui->cbSWL->isChecked();
   strncpy(dec_data.params.hiscall,(Radio::base_callsign (hisCall) + "            ").toLatin1 ().constData (), 12);
   strncpy(dec_data.params.mygrid, (m_config.my_grid()+"      ").toLatin1(),6);
@@ -1531,8 +1542,6 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
 {
   // things that might change that we need know about
   auto callsign = m_config.my_callsign ();
-  //bool bvhf0=m_config.enable_VHF_features();
-  //bool bcontest0=m_config.contestMode();
   if (QDialog::Accepted == m_config.exec ()) {
     if (m_config.my_callsign () != callsign) {
       m_baseCall = Radio::base_callsign (m_config.my_callsign ());
@@ -1572,14 +1581,12 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     if(m_mode=="JT9+JT65") on_actionJT9_JT65_triggered();
     if(m_mode=="JT65") {
       on_actionJT65_triggered();
-      //if(m_config.enable_VHF_features() != bvhf0) genStdMsgs(m_rpt);
     }
     if(m_mode=="QRA64") on_actionQRA64_triggered();
     if(m_mode=="FreqCal") on_actionFreqCal_triggered();
     if(m_mode=="ISCAT") on_actionISCAT_triggered();
     if(m_mode=="MSK144") {
       on_actionMSK144_triggered();
-      //if(m_config.contestMode() != bcontest0) genStdMsgs(m_rpt);
     }
     if(m_mode=="WSPR") on_actionWSPR_triggered();
     if(m_mode=="WSPR-LF") on_actionWSPR_LF_triggered();
@@ -1608,30 +1615,23 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
 
 void MainWindow::on_monitorButton_clicked (bool checked)
 {
-  if (!m_transmitting)
-    {
-      auto prior = m_monitoring;
-      monitor (checked);
-
-      if (checked && !prior)
-        {
-          if (m_config.monitor_last_used ())
-            {
+  if (!m_transmitting) {
+    auto prior = m_monitoring;
+    monitor (checked);
+    if (checked && !prior) {
+      if (m_config.monitor_last_used ()) {
               // put rig back where it was when last in control
-              setRig (m_lastMonitoredFrequency);
-              setXIT (ui->TxFreqSpinBox->value ());
-            }
+        setRig (m_lastMonitoredFrequency);
+        setXIT (ui->TxFreqSpinBox->value ());
+      }
           // ensure FreqCal triggers
-          on_RxFreqSpinBox_valueChanged (ui->RxFreqSpinBox->value ());
-        }
-
+      on_RxFreqSpinBox_valueChanged (ui->RxFreqSpinBox->value ());
+    }
       //Get Configuration in/out of strict split and mode checking
-      Q_EMIT m_config.sync_transceiver (true, checked);
-    }
-  else
-    {
-      ui->monitorButton->setChecked (false); // disallow
-    }
+    Q_EMIT m_config.sync_transceiver (true, checked);
+  } else {
+    ui->monitorButton->setChecked (false); // disallow
+  }
 }
 
 void MainWindow::monitor (bool state)
@@ -1726,19 +1726,11 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       }
       on_actionOpen_next_in_directory_triggered();
       return;
-    case Qt::Key_F10:
-      if(e->modifiers() & Qt::ControlModifier) freqCalStep();
-      break;
     case Qt::Key_F11:
       n=11;
       if(e->modifiers() & Qt::ControlModifier) n+=100;
       if(e->modifiers() & Qt::ShiftModifier) {
-         /*
-        int f=ui->TxFreqSpinBox->value()/50;
-        if((ui->TxFreqSpinBox->value() % 50) == 0) f=f-1;
-        ui->TxFreqSpinBox->setValue(50*f);
-           */
-         ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()-60);
+        ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()-60);
       } else{
         bumpFqso(n);
       }
@@ -1747,12 +1739,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       n=12;
       if(e->modifiers() & Qt::ControlModifier) n+=100;
       if(e->modifiers() & Qt::ShiftModifier) {
-         /*
-        int f=ui->TxFreqSpinBox->value()/50;
-        ui->TxFreqSpinBox->setValue(50*(f+1));
-           */
-         ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()+60);
-
+        ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()+60);
       } else {
         bumpFqso(n);
       }
@@ -1824,14 +1811,13 @@ void MainWindow::bumpFqso(int n)                                 //bumpFqso()
   i=ui->RxFreqSpinBox->value ();
   if(n==11) i--;
   if(n==12) i++;
-  if (ui->RxFreqSpinBox->isEnabled ())
-    {
-      ui->RxFreqSpinBox->setValue (i);
-    }
+  if (ui->RxFreqSpinBox->isEnabled ()) {
+    ui->RxFreqSpinBox->setValue (i);
+  }
   if(ctrl and m_mode.startsWith ("WSPR")) {
     ui->WSPRfreqSpinBox->setValue(i);
   } else {
-    if(ctrl && ui->TxFreqSpinBox->isEnabled ()) {
+    if(ctrl) {
       ui->TxFreqSpinBox->setValue (i);
     }
   }
@@ -2051,6 +2037,7 @@ void MainWindow::closeEvent(QCloseEvent * e)
   m_valid = false;              // suppresses subprocess errors
   m_config.transceiver_offline ();
   writeSettings ();
+  m_astroWidget.reset ();
   m_guiTimer.stop ();
   m_prefixes.reset ();
   m_shortcuts.reset ();
@@ -2112,6 +2099,66 @@ void MainWindow::on_actionEcho_Graph_triggered()
 void MainWindow::on_actionFast_Graph_triggered()
 {
   m_fastGraph->show();
+}
+
+void MainWindow::on_actionSolve_FreqCal_triggered()
+{
+  QString dpath{QDir::toNativeSeparators(m_config.writeable_data_dir().absolutePath()+"/")};
+  char data_dir[512];
+  int len=dpath.length();
+  int iz,irc;
+  double a,b,rms,sigmaa,sigmab;
+  strncpy(data_dir,dpath.toLatin1(),len);
+  calibrate_(data_dir,&iz,&a,&b,&rms,&sigmaa,&sigmab,&irc,len);
+  QString t2;
+  if(irc==-1) t2="Cannot open " + dpath + "fmt.all";
+  if(irc==-2) t2="Cannot open " + dpath + "fcal2.out";
+  if(irc==-3) t2="Insufficient data in fmt.all";
+  if(irc==-4) t2 = tr ("Invalid data in fmt.all at line %1").arg (iz);
+  if(irc>0 or rms>1.0) t2="Check fmt.all for possible bad data.";
+  if (irc < 0 || irc > 0 || rms > 1.) {
+    MessageBox::warning_message (this, "Calibration Error", t2);
+  }
+  else if (MessageBox::Apply == MessageBox::query_message (this
+                                                           , tr ("Good Calibration Solution")
+                                                           , tr ("<pre>"
+                                                                 "%1%L2 ±%L3 ppm\n"
+                                                                 "%4%L5 ±%L6 Hz\n\n"
+                                                                 "%7%L8\n"
+                                                                 "%9%L10 Hz"
+                                                                 "</pre>")
+                                                           .arg ("Slope: ", 12).arg (b, 0, 'f', 3).arg (sigmab, 0, 'f', 3)
+                                                           .arg ("Intercept: ", 12).arg (a, 0, 'f', 2).arg (sigmaa, 0, 'f', 2)
+                                                           .arg ("N: ", 12).arg (iz)
+                                                           .arg ("StdDev: ", 12).arg (rms, 0, 'f', 2)
+                                                           , QString {}
+                                                           , MessageBox::Cancel | MessageBox::Apply)) {
+    m_config.set_calibration (Configuration::CalibrationParams {a, b});
+    if (MessageBox::Yes == MessageBox::query_message (this
+                                                      , tr ("Delete Calibration Measurements")
+                                                      , tr ("The \"fmt.all\" file will be renamed as \"fmt.bak\""))) {
+      // rename fmt.all as we have consumed the resulting calibration
+      // solution
+      auto const& backup_file_name = m_config.writeable_data_dir ().absoluteFilePath ("fmt.bak");
+      QFile::remove (backup_file_name);
+      QFile::rename (m_config.writeable_data_dir ().absoluteFilePath ("fmt.all"), backup_file_name);
+    }
+  }
+}
+
+void MainWindow::on_actionCopyright_Notice_triggered()
+{
+  auto const& message = tr("If you make fair use of any part of WSJT-X under terms of the GNU "
+                           "General Public License, you must display the following copyright "
+                           "notice prominently in your derivative work:\n\n"
+                           "\"The algorithms, source code, look-and-feel of WSJT-X and related "
+                           "programs, and protocol specifications for the modes FSK441, FT8, JT4, "
+                           "JT6M, JT9, JT65, JTMS, QRA64, ISCAT, MSK144 are Copyright (C) "
+                           "2001-2017 by one or more of the following authors: Joseph Taylor, "
+                           "K1JT; Bill Somerville, G4WJS; Steven Franke, K9AN; Nico Palermo, "
+                           "IV3NWV; Greg Beam, KI7MT; Michael Black, W9MDB; Edson Pereira, PY2SDR; "
+                           "Philip Karn, KA9Q; and other members of the WSJT Development Group.\"");
+  MessageBox::warning_message(this, message);
 }
 
 // This allows the window to shrink by removing certain things
@@ -2507,7 +2554,7 @@ void MainWindow::decode()                                       //decode()
   dec_data.params.nexp_decode=0;
   if(m_config.single_decode()) dec_data.params.nexp_decode += 32;
   if(m_config.enable_VHF_features()) dec_data.params.nexp_decode += 64;
-  if(m_config.contestMode()) dec_data.params.nexp_decode += 128;
+  if(ui->cbVHFcontest->isChecked()) dec_data.params.nexp_decode += 128;
 
   strncpy(dec_data.params.datetime, m_dateTime.toLatin1(), 20);
   strncpy(dec_data.params.mycall, (m_config.my_callsign()+"            ").toLatin1(),12);
@@ -2584,7 +2631,8 @@ void::MainWindow::fast_decode_done()
     if(narg[13]/8==narg[12]) message=message.trimmed().replace("<...>",m_calls);
 
 //Left (Band activity) window
-    DecodedText decodedtext {message.replace (QChar::LineFeed, ""), "FT8" == m_mode && m_config.contestMode (), m_config.my_grid ()};
+    DecodedText decodedtext {message.replace (QChar::LineFeed, ""), "FT8" == m_mode &&
+          ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
     if(!m_bFastDone) {
       ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
          m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
@@ -2700,6 +2748,12 @@ void MainWindow::readFromStdout()                             //readFromStdout
           if(navg>1 or t.indexOf("f*")>0) bAvgMsg=true;
         }
       }
+      if(m_mode=="FT8" and m_bDXped) {
+        int i3bit=t.mid(44,1).toInt();
+        t=t.mid(0,44) + " " + t.mid(45);
+        if(i3bit==1) t=t.mid(0,24) + "RR73 NOW " + t.mid(24);
+        if(i3bit==2) t=t.mid(0,24) + "NIL NOW " + t.mid(24);
+      }
       QFile f {m_config.writeable_data_dir ().absoluteFilePath ("ALL.TXT")};
       if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
         QTextStream out(&f);
@@ -2721,15 +2775,15 @@ void MainWindow::readFromStdout()                             //readFromStdout
       if (m_config.insert_blank () && m_blankLine)
         {
           QString band;
-          if (QDateTime::currentMSecsSinceEpoch() / 1000 - m_secBandChanged > 50)
-            {
+          if((QDateTime::currentMSecsSinceEpoch() / 1000 - m_secBandChanged) > 4*m_TRperiod/4) {
               band = ' ' + m_config.bands ()->find (m_freqNominal);
-            }
+          }
           ui->decodedTextBrowser->insertLineSpacer (band.rightJustified  (40, '-'));
           m_blankLine = false;
         }
 
-      DecodedText decodedtext {QString::fromUtf8 (t.constData ()).remove (QRegularExpression {"\r|\n"}), "FT8" == m_mode && m_config.contestMode (), m_config.my_grid ()};
+      DecodedText decodedtext {QString::fromUtf8 (t.constData ()).remove (QRegularExpression {"\r|\n"}), "FT8" == m_mode &&
+            ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
 
       //Left (Band activity) window
       if(!bAvgMsg) {
@@ -2747,6 +2801,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         if (parts.size () > 6) {
           auto for_us = parts[5].contains (m_baseCall)
             || ("DE" == parts[5] && qAbs (ui->RxFreqSpinBox->value () - audioFreq) <= 10);
+          if(m_baseCall==m_config.my_callsign() and m_baseCall!=parts[5]) for_us=false;
           if(m_bCallingCQ && !m_bAutoReply && for_us && ui->cbFirst->isChecked()) {
             //          int snr=decodedtext.string().mid(6,4).toInt();
             m_bDoubleClicked=true;
@@ -2812,7 +2867,9 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
 {
   auto const& message_words = message.messageWords ();
   auto is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
-  if (message_words.size () > 2 && (message.isStandardMessage () || is_73)) {
+  bool is_OK=false;
+  if(m_mode=="MSK144" and message.string().indexOf(ui->dxCallEntry->text()+" R ")>0) is_OK=true;
+  if (message_words.size () > 2 && (message.isStandardMessage () || (is_73 or is_OK))) {
     auto df = message.frequencyOffset ();
     auto within_tolerance =
       (qAbs (ui->RxFreqSpinBox->value () - df) <= int (start_tolerance)
@@ -2850,10 +2907,9 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
             || (m_bCallingCQ && m_bAutoReply
                 // look for type 2 compound call replies on our Tx and Rx offsets
                 && ((within_tolerance && "DE" == message_words.at (1))
-                    || message_words.at (1).contains (m_baseCall)))))
-      {
-        processMessage (message);
-      }
+                    || message_words.at (1).contains (m_baseCall))))) {
+      processMessage (message);
+    }
   }
 }
 
@@ -2896,23 +2952,31 @@ void MainWindow::killFile ()
   }
 }
 
-void MainWindow::on_EraseButton_clicked()                          //Erase
+void MainWindow::on_EraseButton_clicked ()
 {
   qint64 ms=QDateTime::currentMSecsSinceEpoch();
-  ui->decodedTextBrowser2->clear();
+  ui->decodedTextBrowser2->erase ();
   if(m_mode.startsWith ("WSPR") or m_mode=="Echo" or m_mode=="ISCAT") {
-    ui->decodedTextBrowser->clear();
+    ui->decodedTextBrowser->erase ();
   } else {
-    m_QSOText.clear();
     if((ms-m_msErase)<500) {
-      ui->decodedTextBrowser->clear();
-      m_messageClient->clear_decodes ();
-      QFile f(m_config.temp_dir ().absoluteFilePath ("decoded.txt"));
-      if(f.exists()) f.remove();
+      ui->decodedTextBrowser->erase ();
     }
   }
   m_msErase=ms;
-  set_dateTimeQSO(-1);
+}
+
+void MainWindow::band_activity_cleared ()
+{
+  m_messageClient->clear_decodes ();
+  QFile f(m_config.temp_dir ().absoluteFilePath ("decoded.txt"));
+  if(f.exists()) f.remove();
+}
+
+void MainWindow::rx_frequency_activity_cleared ()
+{
+  m_QSOText.clear();
+  set_dateTimeQSO(-1);          // G4WJS: why do we do this?
 }
 
 void MainWindow::decodeBusy(bool b)                             //decodeBusy()
@@ -3070,6 +3134,7 @@ void MainWindow::guiUpdate()
   if((g_iptt==1 && m_iptt0==0) || m_restart) {
 //----------------------------------------------------------------------
     QByteArray ba;
+    QByteArray ba0;
 
     if(m_mode.startsWith ("WSPR")) {
       QString sdBm,msg0,msg1,msg2;
@@ -3102,6 +3167,21 @@ void MainWindow::guiUpdate()
       if(m_ntx == 8) ba=ui->freeTextMsg->currentText().toLocal8Bit();
     }
 
+    m_i3bit=0;
+    if(m_mode=="FT8" and m_bDXped) {
+      ba0=ba;
+      QString t=QString::fromUtf8(ba0);
+      if(t.startsWith("RR73 NOW ")) {
+        t=t.mid(9);
+        m_i3bit=1;
+      }
+      if(t.startsWith("NIL NOW ")) {
+        t=t.mid(8);
+        m_i3bit=2;
+      }
+      ba=t.toLocal8Bit();
+    }
+
     ba2msg(ba,message);
     int ichk=0;
     if (m_lastMessageSent != m_currentMessage
@@ -3131,7 +3211,7 @@ void MainWindow::guiUpdate()
         if(m_modeTx=="WSPR-LF") genwspr_fsk8_(message, msgsent, const_cast<int *> (itone),
                                     22, 22);
         if(m_modeTx=="MSK144" or m_modeTx=="FT8") {
-          bool bcontest=m_config.contestMode();
+          bool bcontest=ui->cbVHFcontest->isChecked();
           char MyGrid[6];
           strncpy(MyGrid, (m_config.my_grid()+"      ").toLatin1(),6);
           if(m_modeTx=="MSK144") {
@@ -3144,7 +3224,7 @@ void MainWindow::guiUpdate()
             }
           }
           if(m_modeTx=="FT8") {
-            genft8_(message, MyGrid, &bcontest, msgsent, const_cast<char *> (ft8msgbits),
+            genft8_(message, MyGrid, &bcontest, &m_i3bit, msgsent, const_cast<char *> (ft8msgbits),
                     const_cast<int *> (itone), 22, 6, 22);
           }
         }
@@ -3349,7 +3429,10 @@ void MainWindow::guiUpdate()
         if(m_mode=="Echo") {
           tx_status_label.setText("Tx: ECHO");
         } else {
-          tx_status_label.setText(s);
+          QString t{QString::fromLatin1(s)};
+          if(m_mode=="FT8" and m_i3bit==1) t="Tx: RR73 NOW " + t.mid(4);
+          if(m_mode=="FT8" and m_i3bit==2) t="Tx: NIL NOW " + t.mid(4);
+          tx_status_label.setText(t);
         }
       }
     } else if(m_monitoring) {
@@ -3644,15 +3727,15 @@ void MainWindow::on_txb6_clicked()
     if (m_transmitting) m_restart=true;
 }
 
-void MainWindow::doubleClickOnCall2(bool alt, bool ctrl)
+void MainWindow::doubleClickOnCall2(Qt::KeyboardModifiers modifiers)
 {
   set_dateTimeQSO(-1); // reset our QSO start time
   m_decodedText2=true;
-  doubleClickOnCall(alt,ctrl);
+  doubleClickOnCall(modifiers);
   m_decodedText2=false;
 }
 
-void MainWindow::doubleClickOnCall(bool alt, bool ctrl)
+void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
 {
   QTextCursor cursor;
   if(m_mode=="ISCAT") {
@@ -3666,13 +3749,19 @@ void MainWindow::doubleClickOnCall(bool alt, bool ctrl)
     cursor=ui->decodedTextBrowser2->textCursor();
   }
   cursor.setPosition (cursor.selectionStart ());
-  DecodedText message {cursor.block ().text (), ("MSK144" == m_mode || "FT8" == m_mode) && m_config.contestMode (), m_config.my_grid ()};
+  DecodedText message {cursor.block ().text (), ("MSK144" == m_mode || "FT8" == m_mode) &&
+        ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
   m_bDoubleClicked = true;
-  processMessage (message, ctrl, alt);
+  processMessage (message, modifiers);
 }
 
-void MainWindow::processMessage(DecodedText const& message, bool ctrl, bool alt)
+void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifiers modifiers)
 {
+  // decode keyboard modifiers we are interested in
+  auto shift = modifiers.testFlag (Qt::ShiftModifier);
+  auto ctrl = modifiers.testFlag (Qt::ControlModifier);
+  // auto alt = modifiers.testFlag (Qt::AltModifier);
+
   // basic mode sanity checks
   auto const& parts = message.string ().split (' ', QString::SkipEmptyParts);
   if (parts.size () < 5) return;
@@ -3703,8 +3792,9 @@ void MainWindow::processMessage(DecodedText const& message, bool ctrl, bool alt)
   //Skip the rest if no decoded text extracted
   int frequency = message.frequencyOffset();
   if (message.isTX()) {
-    if (!m_config.enable_VHF_features() && ctrl && ui->TxFreqSpinBox->isEnabled()) {
-      ui->TxFreqSpinBox->setValue(frequency); //Set Tx freq
+    if (!m_config.enable_VHF_features()) {
+      if(!shift) ui->RxFreqSpinBox->setValue(frequency); //Set Rx freq
+      if((ctrl or shift) and !m_holdTxFreq) ui->TxFreqSpinBox->setValue(frequency); //Set Tx freq
     }
     return;
   }
@@ -3719,12 +3809,52 @@ void MainWindow::processMessage(DecodedText const& message, bool ctrl, bool alt)
   QString hiscall;
   QString hisgrid;
   message.deCallAndGrid(/*out*/hiscall,hisgrid);
-  auto is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
-  if (!is_73 && !message.isStandardMessage ())
-    {
-      qDebug () << "Not processing message - hiscall:" << hiscall << "hisgrid:" << hisgrid;
-      return;
+  int nWarn=0;
+  QString warnMsg;
+
+  if(m_mode=="MSK144" and message.string().indexOf(hiscall+" R ")>0 and
+     !ui->cbVHFcontest->isChecked()) {
+    warnMsg=tr("Should you be operating in NA VHF Contest mode?");
+    nWarn=1;
+  }
+  if((m_mode=="FT8" or m_mode=="MSK144") and hisgrid.length()==4 and
+     m_rigState.frequency()>50000000 and !m_bCheckedContest) {
+    double utch=0.0;
+    int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter;
+    azdist_(const_cast <char *> (m_config.my_grid().toLatin1().constData()),
+            const_cast <char *> (hisgrid.toLatin1().constData()),&utch,
+            &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,6,6);
+    if(nDkm>10000) {
+      warnMsg=tr("Locator in decoded message seems to imply\n"
+             "a distance greater than 10,000 km. Should\n"
+             "you be operating in NA VHF Contest mode?");
+      nWarn=2;
     }
+  }
+
+  if(nWarn>0) {
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("Contest mode?");
+    msgBox.setText(warnMsg);
+    msgBox.setStandardButtons(QMessageBox::Yes);
+    msgBox.addButton(QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::Yes);
+    if(msgBox.exec() == QMessageBox::Yes){
+      ui->cbVHFcontest->setChecked(true);
+      if(nWarn==2) {
+        on_DecodeButton_clicked (true);
+      }
+    } else {
+      ui->cbVHFcontest->setChecked(false);
+    }
+    m_bCheckedContest=true;
+  }
+
+  auto is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
+  if (!is_73 and !message.isStandardMessage() and (nWarn==0)) {
+    qDebug () << "Not processing message - hiscall:" << hiscall << "hisgrid:" << hisgrid;
+    return;
+  }
   // only allow automatic mode changes between JT9 and JT65, and when not transmitting
   if (!m_transmitting and m_mode == "JT9+JT65") {
     if (message.isJT9())
@@ -3743,17 +3873,18 @@ void MainWindow::processMessage(DecodedText const& message, bool ctrl, bool alt)
     return;
   }
 
-
   QString firstcall = message.call();
+  if(firstcall.length()==5 and firstcall.mid(0,3)=="CQ ") firstcall="CQ";
   if(!m_bFastMode and (!m_config.enable_VHF_features() or m_mode=="FT8")) {
-  // Don't change Tx freq if in a fast mode, or VHF features enabled; also not if a
-  // station is calling me, unless m_lockTxFreq is true or CTRL is held down.
-    if ((firstcall != m_config.my_callsign () && firstcall != m_baseCall && firstcall != "DE")
-        || m_lockTxFreq || ctrl) {
-      if (ui->TxFreqSpinBox->isEnabled ()) {
-        if(!m_bFastMode && !alt) ui->TxFreqSpinBox->setValue(frequency);
-      } else if(m_mode != "JT4" && m_mode != "JT65" && !m_mode.startsWith ("JT9") &&
-                m_mode != "QRA64") {
+    // Don't change Tx freq if in a fast mode, or VHF features enabled; also not if a
+    // station is calling me, unless CTRL or SHIFT is held down.
+    if ((Radio::is_callsign (firstcall)
+         && firstcall != m_config.my_callsign () && firstcall != m_baseCall
+         && firstcall != "DE")
+        || "CQ" == firstcall || "QRZ" == firstcall || ctrl || shift) {
+      if (!m_holdTxFreq or shift or ctrl) ui->TxFreqSpinBox->setValue(frequency);
+      if(m_mode != "JT4" && m_mode != "JT65" && !m_mode.startsWith ("JT9") &&
+         m_mode != "QRA64" && m_mode!="FT8") {
         return;
       }
     }
@@ -3791,7 +3922,7 @@ void MainWindow::processMessage(DecodedText const& message, bool ctrl, bool alt)
             m_QSOProgress = SIGNOFF;
           } else if((m_QSOProgress >= REPORT
                      || (m_QSOProgress >= REPLYING && (m_mode=="MSK144" or m_mode=="FT8")
-                         && m_config.contestMode ())) && r.mid(0,1)=="R") {
+                         && ui->cbVHFcontest->isChecked())) && r.mid(0,1)=="R") {
             m_ntx=4;
             m_QSOProgress = ROGERS;
             ui->txrb4->setChecked(true);
@@ -3830,7 +3961,7 @@ void MainWindow::processMessage(DecodedText const& message, bool ctrl, bool alt)
       }
       else if (!(m_bAutoReply && m_QSOProgress > CALLING)) {
         if ((message_words.size () > 4 && message_words.at (1).contains (m_baseCall) && message_words.at (4) == "OOO")
-            || ((m_mode=="MSK144" or m_mode=="FT8") && m_config.contestMode())) {
+            || ((m_mode=="MSK144" or m_mode=="FT8") && ui->cbVHFcontest->isChecked())) {
           // EME short code report or MSK144/FT8 contest mode reply, send back Tx3
           m_ntx = 3;
           m_QSOProgress = ROGER_REPORT;
@@ -3927,8 +4058,7 @@ void MainWindow::processMessage(DecodedText const& message, bool ctrl, bool alt)
 
   // if we get here then we are reacting to the message
   if (m_bAutoReply) m_bCallingCQ = CALLING == m_QSOProgress;
-
-  if (ui->RxFreqSpinBox->isEnabled () and m_mode != "MSK144") {
+  if (ui->RxFreqSpinBox->isEnabled () and m_mode != "MSK144" and !shift) {
     ui->RxFreqSpinBox->setValue (frequency);    //Set Rx freq
   }
 
@@ -3941,21 +4071,20 @@ void MainWindow::processMessage(DecodedText const& message, bool ctrl, bool alt)
     m_QSOText = s2;
   }
 
-  if (hiscall != "73"
-      && (base_call != qso_partner_base_call || base_call != hiscall))
-    {
-      if (qso_partner_base_call != base_call) {
-        // clear the DX grid if the base call of his call is different
-        // from the current DX call
-        ui->dxGridEntry->clear ();
-      }
-      // his base call different or his call more qualified
-      // i.e. compound version of same base call
-      ui->dxCallEntry->setText (hiscall);
+  if (Radio::is_callsign (hiscall)
+      && (base_call != qso_partner_base_call || base_call != hiscall)) {
+    if (qso_partner_base_call != base_call) {
+      // clear the DX grid if the base call of his call is different
+      // from the current DX call
+      ui->dxGridEntry->clear ();
     }
+    // his base call different or his call more qualified
+    // i.e. compound version of same base call
+    ui->dxCallEntry->setText (hiscall);
+  }
   if (hisgrid.contains (grid_regexp)) {
     if(ui->dxGridEntry->text().mid(0,4) != hisgrid) ui->dxGridEntry->setText(hisgrid);
-  }
+   }
   if (!ui->dxGridEntry->text ().size ())
     lookup();
   m_hisGrid = ui->dxGridEntry->text();
@@ -4062,7 +4191,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     rpt.sprintf("%+2.2d",n);
 
     if(m_mode=="MSK144" or m_mode=="FT8") {
-      if(m_config.contestMode()) {
+      if(ui->cbVHFcontest->isChecked()) {
         t=t0 + my_grid;
         msgtype(t, ui->tx2);
         t=t0 + "R " + my_grid;
@@ -4072,7 +4201,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     if(m_mode=="MSK144" and m_bShMsgs) {
       int i=t0.length()-1;
       t0="<" + t0.mid(0,i) + "> ";
-      if(!m_config.contestMode()) {
+      if(!ui->cbVHFcontest->isChecked()) {
         if(n<=-2) n=-3;
         if(n>=-1 and n<=1) n=0;
         if(n>=2 and n<=4) n=3;
@@ -4083,7 +4212,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
         rpt.sprintf("%+2.2d",n);
       }
     }
-    if((m_mode!="MSK144" and m_mode!="FT8") or !m_config.contestMode()) {
+    if((m_mode!="MSK144" and m_mode!="FT8") or !ui->cbVHFcontest->isChecked()) {
       t=t00 + rpt;
       msgtype(t, ui->tx2);
       t=t0 + "R" + rpt;
@@ -4119,7 +4248,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
           msgtype(t + my_grid, ui->tx1);
           if (!eme_short_codes) {
             if ((m_mode=="MSK144" || m_mode=="FT8")
-                && m_config.contestMode()) {
+                && ui->cbVHFcontest->isChecked()) {
               msgtype(t + "R " + my_grid, ui->tx3);
             }
             else {
@@ -4133,7 +4262,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
 
         case Configuration::type_2_msg_3_full:
           if ((m_mode=="MSK144" || m_mode=="FT8")
-              && m_config.contestMode()) {
+              && ui->cbVHFcontest->isChecked()) {
             msgtype(t + "R " + my_grid, ui->tx3);
             msgtype(t + "RRR", ui->tx4);
           }
@@ -4150,7 +4279,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
           msgtype(t00 + my_grid, ui->tx1);
           if (!eme_short_codes) {
             if ((m_mode=="MSK144" || m_mode=="FT8")
-                && m_config.contestMode()) {
+                && ui->cbVHFcontest->isChecked()) {
               msgtype(t + "R " + my_grid, ui->tx3);
               msgtype(t + "RRR", ui->tx4);
             }
@@ -4361,7 +4490,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
   if(itype==7 and m_config.enable_VHF_features() and
      m_mode=="JT65") shortMsg=true;
   if(m_mode=="MSK144" and t.mid(0,1)=="<") text=false;
-  if((m_mode=="MSK144" or m_mode=="FT8") and m_config.contestMode()) {
+  if((m_mode=="MSK144" or m_mode=="FT8") and ui->cbVHFcontest->isChecked()) {
     int i0=t.trimmed().length()-7;
     if(t.mid(i0,3)==" R ") text=false;
   }
@@ -4540,8 +4669,8 @@ void MainWindow::displayWidgets(int n)
     if(i==11) ui->pbTxMode->setVisible(b);
     if(i==12) ui->pbR2T->setVisible(b);
     if(i==13) ui->pbT2R->setVisible(b);
-    if(i==14) ui->cbTxLock->setVisible(b);
-    if(i==14 and (!b)) ui->cbTxLock->setChecked(false);
+    if(i==14) ui->cbHoldTxFreq->setVisible(b);
+    if(i==14 and (!b)) ui->cbHoldTxFreq->setChecked(false);
     if(i==15) ui->sbSubmode->setVisible(b);
     if(i==16) ui->syncSpinBox->setVisible(b);
     if(i==17) ui->WSPR_controls_widget->setVisible(b);
@@ -4552,11 +4681,7 @@ void MainWindow::displayWidgets(int n)
     if(i==20) ui->actionInclude_averaging->setVisible (b);
     if(i==21) ui->actionInclude_correlation->setVisible (b);
     if(i==22) {
-      if(b && !m_echoGraph->isVisible()) {
-        m_echoGraph->show();
-      } else {
-        if(m_echoGraph->isVisible()) m_echoGraph->hide();
-      }
+      if(!b && m_echoGraph->isVisible())  m_echoGraph->hide();
     }
     if(i==23) {
       ui->cbSWL->setVisible(b);
@@ -4565,6 +4690,8 @@ void MainWindow::displayWidgets(int n)
   }
   ui->cbFirst->setVisible ("FT8" == m_mode);
   ui->actionEnable_AP->setVisible ("FT8" == m_mode);
+  ui->cbVHFcontest->setVisible(m_mode=="FT8" or m_mode=="MSK144");
+  ui->measure_check_box->setVisible ("FreqCal" == m_mode);
   m_lastCallsign.clear ();     // ensures Tx5 is updated for new modes
   genStdMsgs (m_rpt, true);
 }
@@ -5004,6 +5131,7 @@ void MainWindow::on_actionFreqCal_triggered()
   setup_status_bar (true);
 //                               18:15:47      0  1  1500  1550.349     0.100    3.5   10.2
   ui->decodedTextLabel->setText("  UTC      Freq CAL Offset  fMeas       DF     Level   S/N");
+  ui->measure_check_box->setChecked (false);
   displayWidgets(nWidgets("001101000000000000000000"));
   statusChanged();
 }
@@ -5087,7 +5215,7 @@ void MainWindow::fast_config(bool b)
 void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
 {
   m_wideGraph->setTxFreq(n);
-  if(m_lockTxFreq) ui->RxFreqSpinBox->setValue(n);
+//  if(m_holdTxFreq) ui->RxFreqSpinBox->setValue(n);
   if(m_mode!="MSK144") {
     Q_EMIT transmitFrequency (n - m_XIT);
   }
@@ -5097,19 +5225,10 @@ void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
 void MainWindow::on_RxFreqSpinBox_valueChanged(int n)
 {
   m_wideGraph->setRxFreq(n);
-  if (m_mode == "FreqCal"
-      && m_frequency_list_fcal_iter != m_config.frequencies ()->end ())
-    {
-      setRig (m_frequency_list_fcal_iter->frequency_ - n);
-    }
-  if (m_lockTxFreq && ui->TxFreqSpinBox->isEnabled ())
-    {
-      ui->TxFreqSpinBox->setValue (n);
-    }
-  else
-    {
-      statusUpdate ();
-    }
+  if (m_mode == "FreqCal") {
+    setRig ();
+  }
+  statusUpdate ();
 }
 
 void MainWindow::on_actionQuickDecode_toggled (bool checked)
@@ -5240,15 +5359,11 @@ void MainWindow::band_changed (Frequency f)
     if ("FreqCal" == m_mode)
       {
         m_frequency_list_fcal_iter = m_config.frequencies ()->find (f);
-        setRig (f - ui->RxFreqSpinBox->value ());
       }
-    else
-      {
-        float r=m_freqNominal/(f+0.0001);
-        if(r<0.9 or r>1.1) m_bVHFwarned=false;
-        setRig (f);
-        setXIT (ui->TxFreqSpinBox->value ());
-      }
+    float r=m_freqNominal/(f+0.0001);
+    if(r<0.9 or r>1.1) m_bVHFwarned=false;
+    setRig (f);
+    setXIT (ui->TxFreqSpinBox->value ());
     if(monitor_off) monitor(false);
   }
 }
@@ -5468,7 +5583,7 @@ void MainWindow::rigOpen ()
 
 void MainWindow::on_pbR2T_clicked()
 {
-  if (ui->TxFreqSpinBox->isEnabled ()) ui->TxFreqSpinBox->setValue(ui->RxFreqSpinBox->value ());
+  ui->TxFreqSpinBox->setValue(ui->RxFreqSpinBox->value ());
 }
 
 void MainWindow::on_pbT2R_clicked()
@@ -5542,11 +5657,7 @@ void MainWindow::setXIT(int n, Frequency base)
 
 void MainWindow::setFreq4(int rxFreq, int txFreq)
 {
-  if (ui->RxFreqSpinBox->isEnabled ())
-    {
-      ui->RxFreqSpinBox->setValue(rxFreq);
-    }
-
+  if (ui->RxFreqSpinBox->isEnabled ()) ui->RxFreqSpinBox->setValue(rxFreq);
   if(m_mode.startsWith ("WSPR")) {
     ui->WSPRfreqSpinBox->setValue(txFreq);
   } else {
@@ -5565,11 +5676,9 @@ void MainWindow::setFreq4(int rxFreq, int txFreq)
   }
 }
 
-void MainWindow::on_cbTxLock_clicked(bool checked)
+void MainWindow::on_cbHoldTxFreq_clicked(bool checked)
 {
-  m_lockTxFreq=checked;
-  m_wideGraph->setLockTxFreq(m_lockTxFreq);
-  if(m_lockTxFreq) on_pbR2T_clicked();
+  m_holdTxFreq=checked;
 }
 
 void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const& s)
@@ -5723,6 +5832,7 @@ void MainWindow::transmit (double snr)
 
   if (m_modeTx == "FT8") {
     toneSpacing=12000.0/1920.0;
+    if(m_config.x2ToneSpacing()) toneSpacing=2*12000.0/1920.0;
     Q_EMIT sendMessage (NUM_FT8_SYMBOLS,
            1920.0, ui->TxFreqSpinBox->value () - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),
@@ -5746,6 +5856,7 @@ void MainWindow::transmit (double snr)
     int nsps[]={480,240,120,60};
     double sps=m_nsps;
     m_toneSpacing=nsub*12000.0/6912.0;
+    if(m_config.x2ToneSpacing()) m_toneSpacing=2.0*m_toneSpacing;
     bool fastmode=false;
     if(m_bFast9 and (m_nSubMode>=4)) {
       fastmode=true;
@@ -5914,7 +6025,7 @@ void MainWindow::transmitDisplay (bool transmitting)
 
     auto QSY_allowed = !transmitting or m_config.tx_QSY_allowed () or
       !m_config.split_mode ();
-    if (ui->cbTxLock->isChecked ()) {
+    if (ui->cbHoldTxFreq->isChecked ()) {
       ui->RxFreqSpinBox->setEnabled (QSY_allowed);
       ui->pbT2R->setEnabled (QSY_allowed);
     }
@@ -5930,7 +6041,7 @@ void MainWindow::transmitDisplay (bool transmitting)
       } else {
         ui->TxFreqSpinBox->setEnabled (QSY_allowed and !m_bFastMode);
         ui->pbR2T->setEnabled (QSY_allowed);
-        ui->cbTxLock->setEnabled (QSY_allowed);
+        ui->cbHoldTxFreq->setEnabled (QSY_allowed);
       }
     }
 
@@ -6084,7 +6195,9 @@ void MainWindow::on_cbTx6_toggled(bool)
 }
 
 // Takes a decoded CQ line and sets it up for reply
-void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode, QString const& message_text)
+void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 delta_frequency
+                            , QString const& mode, QString const& message_text
+                            , bool /*low_confidence*/, quint8 modifiers)
 {
   if (!m_config.accept_udp_requests ())
     {
@@ -6094,14 +6207,14 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
   if (message_text.contains (QRegularExpression {R"(^(CQ |CQDX |QRZ ))"}))
     {
       // a message we are willing to accept
-      QString format_string {"%1 %2 %3 %4 %5  %6"};
+      QString format_string {"%1 %2 %3 %4 %5 %6"};
       auto const& time_string = time.toString ("~" == mode || "&" == mode ? "hhmmss" : "hhmm");
       auto cqtext = format_string
         .arg (time_string)
         .arg (snr, 3)
         .arg (delta_time, 4, 'f', 1)
         .arg (delta_frequency, 4)
-        .arg (mode)
+        .arg (mode, -2)
         .arg (message_text);
       auto messages = ui->decodedTextBrowser->toPlainText ();
       auto position = messages.lastIndexOf (cqtext);
@@ -6113,7 +6226,7 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
                                            .arg (snr, 3)
                                            .arg ('-' + QString::number (delta_time, 'f', 1), 4)
                                            .arg (delta_frequency, 4)
-                                           .arg (mode)
+                                           .arg (mode, -2)
                                            .arg (message_text));
         }
       if (position >= 0)
@@ -6133,8 +6246,10 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
           position = ui->decodedTextBrowser->toPlainText().indexOf(QChar::LineFeed,position);
           m_bDoubleClicked = true;
           auto start = messages.left (position).lastIndexOf (QChar::LineFeed) + 1;
-          DecodedText message {messages.mid (start, position - start), ("MSK144" == m_mode || "FT8" == m_mode) && m_config.contestMode (), m_config.my_grid ()};
-          processMessage (message);
+          DecodedText message {messages.mid (start, position - start), ("MSK144" == m_mode || "FT8" == m_mode) &&
+              ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
+          Qt::KeyboardModifiers kbmod {modifiers << 24};
+          processMessage (message, kbmod);
           tx_watchdog (false);
           QApplication::alert (this);
         }
@@ -6186,15 +6301,16 @@ void MainWindow::postDecode (bool is_new, QString const& message)
 {
   auto const& decode = message.trimmed ();
   auto const& parts = decode.left (22).split (' ', QString::SkipEmptyParts);
-  if (!m_diskData && parts.size () >= 5)
+  if (parts.size () >= 5)
     {
       auto has_seconds = parts[0].size () > 4;
       m_messageClient->decode (is_new
                                , QTime::fromString (parts[0], has_seconds ? "hhmmss" : "hhmm")
                                , parts[1].toInt ()
-                               , parts[2].toFloat (), parts[3].toUInt (), parts[4][0]
+                               , parts[2].toFloat (), parts[3].toUInt (), parts[4]
                                , decode.mid (has_seconds ? 24 : 22, 21)
-                               , QChar {'?'} == decode.mid (has_seconds ? 24 + 21 : 22 + 21, 1));
+                               , QChar {'?'} == decode.mid (has_seconds ? 24 + 21 : 22 + 21, 1)
+                               , m_diskData);
     }
 }
 
@@ -6206,7 +6322,8 @@ void MainWindow::postWSPRDecode (bool is_new, QStringList parts)
     }
   m_messageClient->WSPR_decode (is_new, QTime::fromString (parts[0], "hhmm"), parts[1].toInt ()
                                 , parts[2].toFloat (), Radio::frequency (parts[3].toFloat (), 6)
-                                , parts[4].toInt (), parts[5], parts[6], parts[7].toInt ());
+                                , parts[4].toInt (), parts[5], parts[6], parts[7].toInt ()
+                                , m_diskData);
 }
 
 void MainWindow::networkError (QString const& e)
@@ -6545,6 +6662,10 @@ void MainWindow::setRig (Frequency f)
       m_freqTxNominal = m_freqNominal;
       if (m_astroWidget) m_astroWidget->nominal_frequency (m_freqNominal, m_freqTxNominal);
     }
+  if (m_mode == "FreqCal"
+      && m_frequency_list_fcal_iter != m_config.frequencies ()->end ()) {
+    m_freqNominal = m_frequency_list_fcal_iter->frequency_ - ui->RxFreqSpinBox->value ();
+  }
   if(m_transmitting && !m_config.tx_QSY_allowed ()) return;
   if ((m_monitoring || m_transmitting) && m_config.transceiver_online ())
     {
@@ -6601,7 +6722,8 @@ void MainWindow::on_actionErase_reference_spectrum_triggered()
 
 void MainWindow::freqCalStep()
 {
-  if (++m_frequency_list_fcal_iter == m_config.frequencies ()->end ()) {
+  if (m_frequency_list_fcal_iter == m_config.frequencies ()->end ()
+      || ++m_frequency_list_fcal_iter == m_config.frequencies ()->end ()) {
     m_frequency_list_fcal_iter = m_config.frequencies ()->begin ();
   }
 
@@ -6741,6 +6863,13 @@ void MainWindow::on_cbAutoSeq_toggled(bool b)
 {
   if(!b) ui->cbFirst->setChecked(false);
   ui->cbFirst->setVisible((m_mode=="FT8") and b);
+}
+
+void MainWindow::on_measure_check_box_stateChanged (int state)
+{
+  if ("FreqCal" == m_mode) {
+    m_config.enable_calibration (Qt::Checked != state);
+  }
 }
 
 void MainWindow::write_transmit_entry (QString const& file_name)

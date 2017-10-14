@@ -5,7 +5,7 @@ and operation.  Most of the items are self-explanatory; a few
 additional details are provided below.  Keyboard shortcuts for some
 frequently used menu items are listed at the right edge of the menu.
 
-==== WSJT-X menu
+==== _WSJT-X_ menu
 image::MacAppMenu.png[align="left",alt="Mac App Menu"]
 
 This menu appears on the Macintosh only. *Settings* appears here,

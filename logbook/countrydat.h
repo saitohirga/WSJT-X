@@ -26,6 +26,7 @@ private:
   QString _extractName(const QString line) const;
   void _removeBrackets(QString &line, const QString a, const QString b) const;
   QStringList _extractPrefix(QString &line, bool &more) const;
+  QString fixup (QString country, QString const& call) const;
 
   QString _filename;
   QStringList _countryNames;

@@ -610,29 +610,27 @@ bool FrequencyList_v2::impl::setData (QModelIndex const& model_index, QVariant c
       switch (model_index.column ())
         {
         case region_column:
-          if (value.canConvert<Region> ())
-            {
-              auto region = static_cast<Region> (value.toUInt ());
-              if (region != item.region_)
-                {
-                  item.region_ = region;
-                  Q_EMIT dataChanged (model_index, model_index, roles);
-                  changed = true;
-                }
+          {
+            auto region = IARURegions::value (value.toString ());
+            if (region != item.region_)
+              {
+                item.region_ = region;
+                Q_EMIT dataChanged (model_index, model_index, roles);
+                changed = true;
+              }
             }
           break;
 
         case mode_column:
-          if (value.canConvert<Mode> ())
-            {
-              auto mode = Modes::value (value.toString ());
-              if (mode != item.mode_)
-                {
-                  item.mode_ = mode;
-                  Q_EMIT dataChanged (model_index, model_index, roles);
-                  changed = true;
-                }
-            }
+          {
+            auto mode = Modes::value (value.toString ());
+            if (mode != item.mode_)
+              {
+                item.mode_ = mode;
+                Q_EMIT dataChanged (model_index, model_index, roles);
+                changed = true;
+              }
+          }
           break;
 
         case frequency_column:

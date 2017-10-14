@@ -34,10 +34,14 @@ char const * IARURegions::name (Region r)
   return region_names[static_cast<int> (r)];
 }
 
-auto IARURegions::value (int r) -> Region
+auto IARURegions::value (QString const& s) -> Region
 {
-  if (r < 0 || r + 1 >= SENTINAL) return ALL;
-  return static_cast<Region> (r);
+  auto end = region_names + region_names_size;
+  auto p = std::find_if (region_names, end
+                         , [&s] (char const * const name) {
+                           return name == s;
+                         });
+  return p != end ? static_cast<Region> (p - region_names) : ALL;
 }
 
 QVariant IARURegions::data (QModelIndex const& index, int role) const

@@ -53,14 +53,16 @@ public:
                              , QString const& dx_grid, bool watchdog_timeout, QString const& sub_mode
                              , bool fast_mode);
   Q_SLOT void decode (bool is_new, QTime time, qint32 snr, float delta_time, quint32 delta_frequency
-                      , QString const& mode, QString const& message, bool low_confidence);
+                      , QString const& mode, QString const& message, bool low_confidence
+                      , bool off_air);
   Q_SLOT void WSPR_decode (bool is_new, QTime time, qint32 snr, float delta_time, Frequency
-                           , qint32 drift, QString const& callsign, QString const& grid, qint32 power);
+                           , qint32 drift, QString const& callsign, QString const& grid, qint32 power
+                           , bool off_air);
   Q_SLOT void clear_decodes ();
-  Q_SLOT void qso_logged (QDateTime timeOff, QString const& dx_call, QString const& dx_grid
+  Q_SLOT void qso_logged (QDateTime time_off, QString const& dx_call, QString const& dx_grid
                           , Frequency dial_frequency, QString const& mode, QString const& report_sent
                           , QString const& report_received, QString const& tx_power, QString const& comments
-                          , QString const& name, QDateTime timeOn);
+                          , QString const& name, QDateTime time_on);
 
   // this slot may be used to send arbitrary UDP datagrams to and
   // destination allowing the underlying socket to be used for general
@@ -70,7 +72,7 @@ public:
   // this signal is emitted if the server sends us a reply, the only
   // reply supported is reply to a prior CQ or QRZ message
   Q_SIGNAL void reply (QTime, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode
-                       , QString const& message_text, bool low_confidence);
+                       , QString const& message_text, bool low_confidence, quint8 modifiers);
 
   // this signal is emitted if the server has requested a replay of
   // all decodes

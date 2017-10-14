@@ -355,8 +355,10 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
   //draw frequency values
   for( int i=0; i<=m_hdivs; i++) {
     x = (int)((m_xOffset+i)*pixperdiv - pixperdiv/2);
-    rect0.setRect(x,0, (int)pixperdiv, 20);
-    painter0.drawText(rect0, Qt::AlignHCenter|Qt::AlignVCenter,m_HDivText[i]);
+    if(int(x+pixperdiv/2) > 70) {
+      rect0.setRect(x,0, (int)pixperdiv, 20);
+      painter0.drawText(rect0, Qt::AlignHCenter|Qt::AlignVCenter,m_HDivText[i]);
+    }
   }
 
   float bw=9.0*12000.0/m_nsps;               //JT9
@@ -637,14 +639,11 @@ void CPlotter::mousePressEvent(QMouseEvent *event)             //mousePressEvent
   int newFreq = int(FreqfromX(x)+0.5);
   int oldTxFreq = m_txFreq;
   int oldRxFreq = m_rxFreq;
-
-  if (ctrl or m_lockTxFreq) {
+  if (ctrl) {
     emit setFreq1 (newFreq, newFreq);
-  }
-  else if (shift) {
+  } else if (shift) {
     emit setFreq1 (oldRxFreq, newFreq);
-  }
-  else {
+  } else {
     emit setFreq1(newFreq,oldTxFreq);
   }
 
