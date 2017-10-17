@@ -87,7 +87,8 @@ subroutine timer(dname,k)
      sum=sum+dut(i)
      sumf=sumf+dutf
      kk=min(nlevel(i),8)
-     sname=space(1:kk)//name(i)//space(1:8-kk)
+     if(kk.lt.1) sname=name(i)//space
+     if(kk.ge.1) sname=space(1:kk)//name(i)//space(1:8-kk)
      ename=space
      if(i.ge.2) ename=name(nparent(i))
      write(lu,1060) float(i),sname,ut(i),utf,dut(i),dutf,           &
