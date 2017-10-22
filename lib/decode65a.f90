@@ -97,8 +97,8 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
   minsmo=0
   maxsmo=0
   if(mode65.ge.2 .and. mode65.ne.101) then
-     minsmo=nint(width/df)
-     maxsmo=2*minsmo
+     minsmo=nint(width/df)-1
+     maxsmo=2*nint(width/df)
   endif
   nn=0
   do ismo=minsmo,maxsmo

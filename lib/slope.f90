@@ -12,7 +12,7 @@ subroutine slope(y,npts,xpk)
   sumxy=0.
   sumy2=0.
   do i=1,npts
-     if(abs(i-xpk).gt.2.0) then
+     if(abs(i-xpk).gt.4.0) then
         sumw=sumw + 1.0
         x=i
         sumx=sumx + x

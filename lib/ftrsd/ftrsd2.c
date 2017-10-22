@@ -38,7 +38,7 @@ void ftrsd2_(int mrsym[], int mrprob[], int mr2sym[], int mr2prob[],
   int nera_best=0;
   float pp,pp1,pp2;
   static unsigned int nseed;
-
+  
 // Power-percentage symbol metrics - composite gnnf/hf 
   int perr[8][8] = {
     { 4,      9,     11,     13,     14,     14,     15,     15},

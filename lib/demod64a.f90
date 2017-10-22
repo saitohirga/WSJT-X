@@ -11,7 +11,6 @@ subroutine demod64a(s3,nadd,afac1,mrsym,mrprob,mr2sym,mr2prob,ntest,nlow)
 
   implicit real*8 (a-h,o-z)
   real*4 s3(64,63),afac1
-  real*8 fs(64)
   integer mrsym(63),mrprob(63),mr2sym(63),mr2prob(63)
 
   if(nadd.eq.-999) return
@@ -29,7 +28,6 @@ subroutine demod64a(s3,nadd,afac1,mrsym,mrprob,mr2sym,mr2prob,ntest,nlow)
      psum=0. 
      do i=1,64
         x=min(afac*s3(i,j)/ave,50.d0)
-        fs(i)=exp(x)
         psum=psum+s3(i,j)
         if(s3(i,j).gt.s1) then
            s1=s3(i,j)

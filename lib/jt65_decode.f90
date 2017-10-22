@@ -57,7 +57,7 @@ contains
     character(len=6), intent(in) :: hisgrid
 
     real dd(NZMAX)
-    real ss(322,NSZ)
+    real ss(552,NSZ)
     real savg(NSZ)
     real a(5)
     character*22 decoded,decoded0,avemsg,deepave
@@ -81,6 +81,7 @@ contains
     real r0(0:11)
     common/decstats/ntry65a,ntry65b,n65a,n65b,num9,numfano
     common/steve/thresh0
+    common/sync/ss
 
 !            0  1  2  3  4  5  6  7  8  9 10 11
     data h0/41,42,43,43,44,45,46,47,48,48,49,49/
@@ -119,23 +120,38 @@ contains
        go to 900
     endif
 
-    do ipass=1,n2pass                             !Two-pass decoding loop
+!    do ipass=1,n2pass                             !Two-pass decoding loop
+    npass=1
+    if(n2pass .gt. 1) npass=ndepth+1  !**** TEMPORARY ****
+    do ipass=1,npass 
        first_time=.true.
        if(ipass.eq.1) then                        !First-pass parameters
           thresh0=2.5
           nsubtract=1
+          nrob=0
        elseif( ipass.eq.2 ) then                  !Second-pass parameters
-          thresh0=2.5
+          thresh0=2.0
+          nsubtract=1
+          nrob=0
+       elseif( ipass.eq.3 ) then 
+          thresh0=2.0
+          nsubtract=1
+          nrob=0
+       elseif( ipass.eq.4 ) then 
+          thresh0=2.0
           nsubtract=0
+          nrob=1
        endif
-       if(n2pass.lt.2) nsubtract=0
+       if(npass.eq.1) then
+         nsubtract=0
+         thresh0=2.0
+       endif
 
-       !  if(newdat) then
        call timer('symsp65 ',0)
        ss=0.
-       call symspec65(dd,npts,ss,nhsym,savg)    !Get normalized symbol spectra
+!       call symspec65(dd,npts,ss,nqsym,savg)    !Get normalized symbol spectra
+       call symspec65(dd,npts,nqsym,savg)    !Get normalized symbol spectra
        call timer('symsp65 ',1)
-       !  endif
        nfa=nf1
        nfb=nf2
        single_decode=iand(nexp_decode,32).ne.0 .or. nagain
@@ -161,7 +177,8 @@ contains
 
        ncand=0
        call timer('sync65  ',0)
-       call sync65(ss,nfa,nfb,naggressive,ntol,nhsym,ca,ncand,0,bVHF)
+!       call sync65(ss,nfa,nfb,naggressive,ntol,nqsym,ca,ncand,0,bVHF)
+       call sync65(nfa,nfb,naggressive,ntol,nqsym,ca,ncand,nrob,bVHF)
        call timer('sync65  ',1)
 
 ! If a candidate was found within +/- ntol of nfqso, move it into ca(1).
@@ -171,9 +188,6 @@ contains
           if(abs(ca(1)%freq - f0).gt.width) width=2*df    !### ??? ###
        endif
        nvec=ntrials
-       if(ncand.gt.75) then
-          nvec=100
-       endif
 
        mode65=2**nsubmode
        nflip=1
@@ -195,11 +209,11 @@ contains
           ca(ncand)%dt=2.5
           ca(ncand)%freq=nfqso
        endif
-
        do icand=1,ncand
           sync1=ca(icand)%sync
           dtx=ca(icand)%dt
           freq=ca(icand)%freq
+!write(*,*) icand,sync1,dtx,freq,ndepth,bVHF,mode65
           if(bVHF) then
              flip=ca(icand)%flip
              nflip=flip
@@ -314,9 +328,8 @@ contains
              if(decoded0.eq.'                      ') decoded0='*'
           endif
        enddo                                 !Candidate loop
-       if(ndecoded.lt.1) exit
+       if(ipass.eq.2 .and. ndecoded.lt.1) exit
     enddo                                    !Two-pass loop
-
 900 return
   end subroutine decode
 
