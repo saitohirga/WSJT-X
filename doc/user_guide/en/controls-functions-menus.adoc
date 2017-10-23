@@ -27,8 +27,13 @@ configuration.  These settings will be restored whenever you select
 that configuration.
 
 As well as switching between configurations while running _WSJT-X_ you
-can also start the application in any configuration by using the
-`--config <configuration-name>` command line option (`-c` for short).
+can also start the application from the command line in any desired
+configuration.  Use the command-line option
+`--config <configuration-name>`, or `-c` for short, as in these
+examples for configurations `FT8` and `Echo`:
+
+ wsjtx --config FT8
+ wsjtx -c Echo
 
 [[VIEW_MENU]]
 ==== View Menu
