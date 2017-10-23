@@ -21,6 +21,7 @@ public:
 
 private:
     Ui::Astro *ui;
+    QString m_AzElDir0;
 };
 
 extern "C" {

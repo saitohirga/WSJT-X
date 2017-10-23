@@ -14,6 +14,7 @@ Astro::Astro(QWidget *parent) :
   ui->astroTextBrowser->setStyleSheet(
         "QTextBrowser { background-color : cyan; color : black; }");
   ui->astroTextBrowser->clear();
+  m_AzElDir0="";
 }
 
 Astro::~Astro()
@@ -72,8 +73,10 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid,
   QString fname=azelDir+"/azel.dat";
   QFile f(fname);
   if(!f.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    if(azelDir==m_AzElDir0) return;
+    m_AzElDir0=azelDir;
     QMessageBox mb;
-    mb.setText("Cannot open " + fname);
+    mb.setText("Cannot open " + fname + "\nCorrect the setting of AzEl Directory in Setup?");
     mb.exec();
     return;
   }

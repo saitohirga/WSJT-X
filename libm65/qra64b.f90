@@ -14,8 +14,8 @@ subroutine qra64b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
 
   open(17,file='red.dat',status='unknown')
 
-  nfft1=MAXNFFT1
-  nfft2=MAXNFFT2
+  nfft1=MAXFFT1
+  nfft2=MAXFFT2
   df=96000.0/NFFT1
   if(nfsample.eq.95238) then
      nfft1=5120000
@@ -26,7 +26,7 @@ subroutine qra64b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   ikhz0=nint(1000.0*(fcenter-int(fcenter)))
   k0=((ikhz-ikhz0+48.0+1.27)*1000.0+nfcal)/df
   if(k0.lt.nh .or. k0.gt.nfft1-nh) go to 900
-  
+
   fac=1.0/nfft2
   cx(0:nh)=ca(k0:k0+nh)
   cx(nh+1:nfft2-1)=ca(k0-nh+1:k0-1)
