@@ -1,20 +1,18 @@
 === AP Decoding
 
-With the QRA64 decoder Nico Palermo, IV3NWV, introduced a technique
-for decoding with the aid of information that naturally accumulates
-during a minimal QSO.  This _a priori_ (AP) information can be
-used to increase the sensitivity of the decoder.
+Our decoders for QRA64 and FT8 include optional procedures to use
+information that naturally accumulates during a minimal QSO.  This _a
+priori_ (AP) information can increase the sensitivity of the decoder.
 
-When an operator decides to answer a CQ, he already knows his own
-callsign and that of his potential QSO partner.  He therefore knows
-what to expect for at least 56 of the 72 message bits in a
-standard-format response to his call.  The _WSJT-X_ decoders for QRA64
-and FT8 can use these and similar AP bits to decode messages
-containing them with higher sensitivity than otherwise possible.
-
-We have implemented AP decoding in slightly different ways in QRA64
-and FT8.  To provide some explicit examples for users, we provide here
-a brief description of the FT8 behavior.
+For example, when an operator decides to answer a CQ, he already knows
+his own callsign and that of his potential QSO partner.  He therefore
+knows what to expect for at least 57 of the 72 message bits in a
+standard-format response to his call.  The task of the decoder can
+therefore be reduced to determining the remaining 15 bits of the
+message and ensuring that the resulting decode is reliable.  We have
+implemented AP decoding in slightly different ways in QRA64 and FT8.
+To provide some explicit examples for users, we provide here a brief
+description of the FT8 behavior.
 
 AP decoding attempts effectively set the AP bits to the hypothesized
 values, as if they had been received correctly.  The decoder then
