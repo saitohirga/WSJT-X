@@ -1,32 +1,26 @@
 === AP Decoding
 
-Our decoders for QRA64 and FT8 include optional procedures to use
-information that naturally accumulates during a minimal QSO.  This _a
-priori_ (AP) information can increase the sensitivity of the decoder.
+The _WSJT-X_ decoders for QRA64 and FT8 include optional procedures
+that use naturally accumulating information during a minimal QSO.
+This _a priori_ (AP) information increases sensitivity of the decoder
+by up to 4 dB, at the cost of a slightly higher rate of false decodes.
 
-For example, when an operator decides to answer a CQ, he already knows
-his own callsign and that of his potential QSO partner.  He therefore
-knows what to expect for at least 57 of the 72 message bits in a
-standard-format response to his call.  The task of the decoder can
-therefore be reduced to determining the remaining 15 bits of the
-message and ensuring that the resulting decode is reliable.  We have
-implemented AP decoding in slightly different ways in QRA64 and FT8.
-To provide some explicit examples for users, we provide here a brief
-description of the FT8 behavior.
+For example: when you decide to answer a CQ, you already know your own
+callsign and that of your potential QSO partner.  The software
+therefore "`knows`" what to expect for 57 of the 72 message bits (28
+bits for each of two callsigns, 1 bit for message type) in the next
+received message.  The decoder's task can thus be reduced to
+determining the remaining 15 bits of the message and ensuring that the
+resulting solution is reliable.
 
-AP decoding attempts effectively set the AP bits to the hypothesized
-values, as if they had been received correctly.  The decoder then
-proceeds to determine whether the remaining message and parity bits
-are consistent with the hypothesized AP bits.  If a codeword is found
-that the decoder judges to have high (but not overwhelmingly high)
-probability of being correct, a ? character is appended when the
-decoded message is displayed.  To avoid misleading spots of occasional 
-false decodes, messages so marked are not forwarded to {pskreporter}.
-
-Successful AP decodes are always labeled with an end-of-line indicator
-of the form aP, where P is one of the single-digit AP decoding types
-listed in Table 1.  For example, an `a2` designator says that the
-successful decode used MyCall as hypothetically known information.
+AP decoding starts by setting AP bits to the hypothesized values, as
+if they had been received correctly.  We then determine whether the
+remaining message and parity bits are consistent with the hypothesized
+AP bits, with a specified level of confidence.  Successful AP decodes
+are labeled with an end-of-line indicator of the form `aP`, where `P`
+is one of the single-digit AP decoding types listed in Table 1.  For
+example, `a2` indicates that the successful decode used MyCall as
+hypothetically known information.
 
 [[AP_INFO_TABLE]]
 .AP information types
@@ -40,6 +34,12 @@ successful decode used MyCall as hypothetically known information.
 |5 | MyCall DxCall 73
 |6 | MyCall DxCall RR73
 |===============================================
+
+If a codeword is found that is judged to have high (but not
+overwhelmingly high) probability of being correct, a `?` character is
+appended when the decoded message is displayed.  To avoid misleading
+spots of occasional false decodes, messages so marked are not
+forwarded to {pskreporter}.
 
 Table 2 lists the six possible QSO states that are tracked by the
 _WSJT-X_ auto-sequencer, along with the type of AP decoding that would

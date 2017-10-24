@@ -16,7 +16,7 @@ Tx sequence) by clicking on the circle under *Next*.
 * To change to a specified Tx message immediately during a
 transmission, click on a rectangular button under the *Now* label.
 Changing a Tx message in mid-stream will slightly reduce the chance of
-a correct decode, but it is usually OK if done in the first 10-15 s of
+a correct decode, but it is usually OK if done in the first 10-20% of
 a transmission.
 
 * All six Tx message fields are editable.  You can modify an
