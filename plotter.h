@@ -23,9 +23,11 @@
 
 extern bool g_single_decode;
 
+class QAction;
+
 class CPlotter : public QFrame
 {
-  Q_OBJECT;
+  Q_OBJECT
 
 public:
   explicit CPlotter(QWidget *parent = 0);
@@ -33,7 +35,6 @@ public:
 
   QSize minimumSizeHint() const;
   QSize sizeHint() const;
-  bool    m_bScaleOK;
 
   void draw(float swide[], bool bScroll, bool bRed);		//Update the waterfall
   void SetRunningState(bool running);
@@ -84,15 +85,17 @@ public:
   void drawRed(int ia, int ib, float swide[]);
   void setVHF(bool bVHF);
   void setRedFile(QString fRed);
-
+  bool scaleOK () const {return m_bScaleOK;}
 signals:
   void freezeDecode1(int n);
   void setFreq1(int rxFreq, int txFreq);
 
 protected:
   //re-implemented widget event handlers
-  void paintEvent(QPaintEvent *event);
-  void resizeEvent(QResizeEvent* event);
+  void paintEvent(QPaintEvent *event) override;
+  void resizeEvent(QResizeEvent* event) override;
+  void mouseReleaseEvent (QMouseEvent * event) override;
+  void mouseDoubleClickEvent (QMouseEvent * event) override;
 
 private:
 
@@ -100,6 +103,9 @@ private:
   int XfromFreq(float f);
   float FreqfromX(int x);
 
+  QAction * m_set_freq_action;
+
+  bool    m_bScaleOK;
   bool    m_bCurrent;
   bool    m_bCumulative;
   bool    m_bLinearAvg;
@@ -166,10 +172,6 @@ private:
   qint32  m_tol;
 
   char    m_sutc[6];
-
-private slots:
-  void mousePressEvent(QMouseEvent *event);
-  void mouseDoubleClickEvent(QMouseEvent *event);
 };
 
 extern QVector<QColor> g_ColorTbl;
