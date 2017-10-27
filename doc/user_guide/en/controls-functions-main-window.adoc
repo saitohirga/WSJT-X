@@ -33,6 +33,10 @@ the original frequency.
 * *Erase* clears the right-hand decoded text window. 
 Double-clicking *Erase* clears both text windows.
 
+TIP: Right-clicking on either text window brings up a context menu
+with several options (including *Erase*) which operate on that window
+alone.
+
 * *Clear Avg* is present only in modes that support message averaging.
 It provides a way to erase the accumulating information, thus
 preparing to start a new average.

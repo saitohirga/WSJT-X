@@ -322,7 +322,7 @@ void WideGraph::on_spec2dComboBox_currentIndexChanged(const QString &arg1)
   if(arg1=="Reference") {
     ui->widePlot->setReference(true);
   }
-  if(ui->widePlot->m_bScaleOK) ui->widePlot->draw(swide,false,false);
+  if(ui->widePlot->scaleOK ()) ui->widePlot->draw(swide,false,false);
 }
 
 void WideGraph::on_fSplitSpinBox_valueChanged(int n)              //fSplit
@@ -454,7 +454,7 @@ void WideGraph::on_zeroSlider_valueChanged(int value)                 //Zero
 void WideGraph::on_gain2dSlider_valueChanged(int value)               //Gain2
 {
   ui->widePlot->setPlot2dGain(value);
-  if(ui->widePlot->m_bScaleOK) {
+  if(ui->widePlot->scaleOK ()) {
     ui->widePlot->draw(swide,false,false);
     if(m_mode=="QRA64") ui->widePlot->draw(swide,false,true);
   }
@@ -463,7 +463,7 @@ void WideGraph::on_gain2dSlider_valueChanged(int value)               //Gain2
 void WideGraph::on_zero2dSlider_valueChanged(int value)               //Zero2
 {
   ui->widePlot->setPlot2dZero(value);
-  if(ui->widePlot->m_bScaleOK) {
+  if(ui->widePlot->scaleOK ()) {
     ui->widePlot->draw(swide,false,false);
     if(m_mode=="QRA64") ui->widePlot->draw(swide,false,true);
   }
