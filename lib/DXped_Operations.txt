@@ -1,5 +1,6 @@
-                  White Paper: FT8 for DXpeditions
-		  --------------------------------
+                    White Paper: FT8 for DXpeditions
+		  -----------------------------------
+		  Joe Taylor, K1JT - October 27, 2017
 
 Assumptions:
 
@@ -103,7 +104,7 @@ WB2REM      EL97  -13  3060
 
 Fox can choose to have the list sorted on any column.
 
-Fox select a Hound to call next by clicking on a line.  Or he can hit
+Fox selects a Hound to call next by clicking on a line.  Or he can hit
 "F1" to have the program select a caller according to one of these
 criteria (maybe others as well?):
 
