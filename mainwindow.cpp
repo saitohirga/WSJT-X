@@ -896,7 +896,16 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
      m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "G3PQA") {
     m_bDXped=true;
     ui->actionWSPR_LF->setEnabled(true);
+  } else {
+    QString errorMsg;
+    MessageBox::critical_message (this,
+       "Code in the WSJT-X development is not currently\n"
+       "available for on-the-air use.\n\n"
+       "Please use WSJT-X v1.8.0\n", errorMsg);
+    Q_EMIT finished ();
   }
+
+
   if(!ui->cbMenus->isChecked()) {
     ui->cbMenus->setChecked(true);
     ui->cbMenus->setChecked(false);
