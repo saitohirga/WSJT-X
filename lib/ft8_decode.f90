@@ -37,7 +37,7 @@ contains
        mygrid6,hiscall12,hisgrid6)
 !    use wavhdr
     use timer_module, only: timer
-    include 'fsk4hf/ft8_params.f90'
+    include 'ft8/ft8_params.f90'
 !    type(hdr) h
 
     class(ft8_decoder), intent(inout) :: this

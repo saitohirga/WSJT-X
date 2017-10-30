@@ -73,6 +73,7 @@ subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,nflip,     &
   call interleave63(mr2prob,-1)
   ntry=0
 
+!call gf64_osd(mrsym,mrprob,mr2sym,mr2prob,correct)
   call timer('ftrsd   ',0)
   param=0
   call ftrsd2(mrsym,mrprob,mr2sym,mr2prob,ntrials,correct,param,ntry)

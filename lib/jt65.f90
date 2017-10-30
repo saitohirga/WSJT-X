@@ -33,16 +33,16 @@ program jt65
                ,'experience decoding options (1..n), default FLAGS=0','FLAGS'),         &
        option ('single-signal-mode',.false.,'s','decode at signal frequency only','') ]
 
-  naggressive=0
+  naggressive=10
   nfqso=1500
-  ntrials=10000
+  ntrials=100000
   nexp_decode=0
-  ntol=1000
+  ntol=20
   nsubmode=0
   nlow=200
   nhigh=4000
-  n2pass=2
-  ndepth=3
+  n2pass=1
+  ndepth=1
 
   do
      call getopt('a:d:f:hm:n:rc:x:g:X:s',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
@@ -126,7 +126,7 @@ program jt65
      call test(dd,nutc,nfa,nfb,nfqso,ntol,nsubmode, &
           n2pass,nrobust,ntrials,naggressive,ndepth, &
           mycall,hiscall,hisgrid,nexp_decode)
-     if(nft.gt.0) exit
+!     if(nft.gt.0) exit
   enddo
 
   call timer('jt65    ',1)
