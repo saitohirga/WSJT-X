@@ -2719,8 +2719,7 @@ void MainWindow::decodeDone ()
   m_RxLog=0;
   m_blankLine=true;
   if(m_config.bFox()) {
-    QFile f(m_config.temp_dir ().absoluteFilePath ("decoded.txt"));
-
+    QFile f(m_config.temp_dir().absoluteFilePath("foxcalls.txt"));
     if(f.open(QIODevice::ReadOnly | QIODevice::Text)) {
       QTextStream s(&f);
       QString t=s.readAll();
@@ -3401,8 +3400,6 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-//    qDebug() << "a" << m_foxCalls->font();
-//    qDebug() << "b" << ui->decodedTextBrowser->font();
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
       if(!m_bVHFwarned) vhfWarning();
     } else {
@@ -4754,9 +4751,6 @@ void MainWindow::on_actionFT8_triggered()
   displayWidgets(nWidgets("111010000100111000010000"));
   if(m_config.bFox()) {
     if(!m_foxCalls->isVisible()) {
-//      QStringList headers{"Call","Loc","dB","Freq","UTC"};
-//      m_foxTable->setHorizontalHeaderLabels(headers);
-//      m_foxTable->setGeometry(QRect(100,100,550,400));
       m_foxCalls->show();
     }
   } else {

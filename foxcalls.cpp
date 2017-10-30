@@ -14,10 +14,9 @@ FoxCalls::FoxCalls(QSettings * settings, QWidget *parent) :
   setWindowTitle (QApplication::applicationName () + " - " + tr ("Fox Callers"));
   installEventFilter(parent);                   //Installing the filter
 
-
 //Restore user's settings
   m_settings->beginGroup("FoxCalls");
-  restoreGeometry (m_settings->value ("geometry", saveGeometry ()).toByteArray ());
+  restoreGeometry (m_settings->value("geometry").toByteArray());
 }
 
 FoxCalls::~FoxCalls()
@@ -35,17 +34,22 @@ void FoxCalls::saveSettings()
 {
 //Save user's settings
   m_settings->beginGroup("FoxCalls");
-  m_settings->setValue ("geometry", saveGeometry ());
+  m_settings->setValue("geometry", saveGeometry());
   m_settings->endGroup();
 }
 
 void FoxCalls::insertText(QString t)
 {
-  QTextDocument *doc = ui->foxPlainTextEdit->document();
-  QFont font = doc->defaultFont();
-  font.setFamily("Courier New");
-  doc->setDefaultFont(font);
-  qDebug() << font;
+  if(m_bFirst) {
+    QTextDocument *doc = ui->foxPlainTextEdit->document();
+    QFont font = doc->defaultFont();
+    font.setFamily("Courier New");
+    font.setPointSize(12);
+    doc->setDefaultFont(font);
+    ui->label_2->setFont(font);
+    ui->label_2->setText("Call         Grid   dB  Freq  Age");
+    m_bFirst=false;
+  }
   ui->foxPlainTextEdit->setPlainText(t);
   ui->foxPlainTextEdit->setReadOnly (true);
 }

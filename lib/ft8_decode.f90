@@ -1,5 +1,14 @@
 module ft8_decode
 
+  parameter (MAXFOX=1000)
+  character*12 c2fox(MAXFOX)
+  character*4  g2fox(MAXFOX)
+  integer nsnrfox(MAXFOX)
+  integer nfreqfox(MAXFOX)
+  integer n15fox(MAXFOX)
+  integer n15z
+  integer nfox
+  
   type :: ft8_decoder
      procedure(ft8_decode_callback), pointer :: callback
    contains

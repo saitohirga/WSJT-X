@@ -54,10 +54,13 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 10 if (params%nagain) then
      open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown',            &
           position='append',iostat=ios)
+     if(params%nmode.eq.8) open(19,file=trim(temp_dir)//'/foxcalls.txt',      &
+          status='unknown',position='append',iostat=ios)
   else
-     open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown',            &
-          iostat=ios)
-  end if
+     open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown',iostat=ios)
+     if(params%nmode.eq.8) open(19,file=trim(temp_dir)//'/foxcalls.txt',      &
+          status='unknown',iostat=ios)
+  endif
   if(ios.ne.0) then
      nfail=nfail+1
      if(nfail.le.3) then
@@ -76,6 +79,15 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
           logical(params%lapon),params%napwid,params%mycall,                 &
           params%mygrid,params%hiscall,params%hisgrid)
      call timer('decft8  ',1)
+     n15min=minval(n15fox)
+     n15max=maxval(n15fox)
+     print*,nfox,n15min,n15max
+     do i=1,nfox
+        n=n15max-n15fox(i)
+        write(19,1004) c2fox(i),g2fox(i),nsnrfox(i),nfreqfox(i),n
+1004    format(a12,1x,a4,i5,i6,i5)
+     enddo
+     flush(19)
      go to 800
   endif
 
@@ -400,11 +412,32 @@ contains
     real, intent(in) :: dt
     real, intent(in) :: freq
     character(len=22), intent(in) :: decoded
+    character c2*6,g2*4,w*4
+    integer i1,i2,i3,n15
     integer, intent(in) :: nap 
     real, intent(in) :: qual 
     character*2 annot
     character*22 decoded0
-  
+    logical isgrid4,first
+    data first/.true./
+    save
+
+    isgrid4(w)=(len_trim(w).eq.4 .and.                                        &
+         ichar(w(1:1)).ge.ichar('A') .and. ichar(w(1:1)).le.ichar('R') .and.  &
+         ichar(w(2:2)).ge.ichar('A') .and. ichar(w(2:2)).le.ichar('R') .and.  &
+         ichar(w(3:3)).ge.ichar('0') .and. ichar(w(3:3)).le.ichar('9') .and.  &
+         ichar(w(4:4)).ge.ichar('0') .and. ichar(w(4:4)).le.ichar('9'))
+
+    if(first) then
+       c2fox='            '
+       g2fox='    '
+       nsnrfox=-99
+       nfreqfox=-99
+       n15z=-99
+       nfox=0
+       first=.false.
+    endif
+    
     decoded0=decoded 
     annot='  ' 
     if(nap.ne.0) then
@@ -415,6 +448,24 @@ contains
 1000 format(i6.6,i4,f5.1,i5,' ~ ',1x,a22,1x,a2)
     write(13,1002) params%nutc,nint(sync),snr,dt,freq,0,decoded0
 1002 format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a22,' FT8')
+
+    i1=index(decoded0,' ')
+    i2=i1 + index(decoded0(i1+1:),' ')
+    i3=i2 + index(decoded0(i2+1:),' ')
+    c2=decoded0(i1+1:i2-1)
+    g2=decoded0(i2+1:i3-1)
+    if(i3-i2.eq.5 .and. isgrid4(g2)) then
+       n=params%nutc
+       n15=(3600*(n/10000) + 60*mod((n/100),100) + mod(n,100))/15
+       nfox=nfox+1
+       c2fox(nfox)=c2
+       g2fox(nfox)=g2
+       nsnrfox(nfox)=snr
+       nfreqfox(nfox)=nint(freq)
+       n15fox(nfox)=n15
+       n15z=n15
+    endif
+    
     call flush(6)
     call flush(13)
     
