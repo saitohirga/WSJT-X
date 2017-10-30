@@ -2343,6 +2343,7 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="actionMessage_averaging"/>
     <addaction name="actionEcho_Graph"/>
     <addaction name="actionFast_Graph"/>
+    <addaction name="actionFox_Callers"/>
     <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuDecode">
@@ -2977,6 +2978,11 @@ QPushButton[state=&quot;ok&quot;] {
    </property>
    <property name="shortcut">
     <string>Shift+F1</string>
+   </property>
+  </action>
+  <action name="actionFox_Callers">
+   <property name="text">
+    <string>Fox Callers</string>
    </property>
   </action>
  </widget>

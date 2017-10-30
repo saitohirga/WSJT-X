@@ -3,12 +3,14 @@
 
 #include <QWidget>
 #include <QScopedPointer>
+#include <QFont>
 
 namespace Ui {
 class FoxCalls;
 }
 
 class QSettings;
+class QFont;
 
 class FoxCalls : public QWidget
 {
@@ -21,7 +23,8 @@ public:
   explicit FoxCalls(QSettings *, QWidget *parent = 0);
   ~FoxCalls();
 
-  void   saveSettings();
+  void saveSettings();
+  void insertText(QString t);
 
 private slots:
 //  void on_binsPerPixelSpinBox_valueChanged(int n);

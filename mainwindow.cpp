@@ -204,8 +204,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_echoGraph (new EchoGraph(m_settings)),
   m_fastGraph (new FastGraph(m_settings)),
   m_logDlg (new LogQSO (program_title (), m_settings, &m_config, this)),
-//  m_foxTable (new QTableWidget(100,5)),
-  m_foxTable (new FoxCalls(m_settings)),
+  m_foxCalls (new FoxCalls(m_settings)),
   m_lastDialFreq {0},
   m_dialFreqRxWSPR {0},
   m_detector {new Detector {RX_SAMPLE_RATE, NTMAX, downSampleFactor}},
@@ -1148,6 +1147,11 @@ void MainWindow::setDecodedTextFont (QFont const& font)
   if (m_msgAvgWidget) {
     m_msgAvgWidget->changeFont (font);
   }
+  /*
+  if (m_foxCalls->isVisible()) {
+    m_foxCalls->changeFont (font);
+  }
+  */
   updateGeometry ();
 }
 
@@ -2051,7 +2055,7 @@ void MainWindow::closeEvent(QCloseEvent * e)
   m_config.transceiver_offline ();
   writeSettings ();
   m_astroWidget.reset ();
-  m_foxTable.reset();
+  m_foxCalls.reset();
   m_guiTimer.stop ();
   m_prefixes.reset ();
   m_shortcuts.reset ();
@@ -2115,6 +2119,10 @@ void MainWindow::on_actionFast_Graph_triggered()
   m_fastGraph->show();
 }
 
+void MainWindow::on_actionFox_Callers_triggered()
+{
+  m_foxCalls->show();
+}
 void MainWindow::on_actionSolve_FreqCal_triggered()
 {
   QString dpath{QDir::toNativeSeparators(m_config.writeable_data_dir().absolutePath()+"/")};
@@ -2712,58 +2720,11 @@ void MainWindow::decodeDone ()
   m_blankLine=true;
   if(m_config.bFox()) {
     QFile f(m_config.temp_dir ().absoluteFilePath ("decoded.txt"));
-    if(f.open (QIODevice::ReadOnly | QIODevice::Text)) {
+
+    if(f.open(QIODevice::ReadOnly | QIODevice::Text)) {
       QTextStream s(&f);
-//      int nutc,nsnr,nfreq,
-      int i=0;
-//      double dt;
-      QString c1,c2,g2;
-      QStringList line;
-      while(!s.atEnd()) {
-        line=s.readLine().split(" ", QString::SkipEmptyParts);
-//        nutc=line.at(0).toInt();
-//        nsnr=line.at(2).toInt();
-//        dt=line.at(3).toDouble();
-//        nfreq=line.at(4).toInt();
-        c1=line.at(6);
-        c2=line.at(7);
-        g2=line.at(8);
-        /*
-        if(g2.contains (grid_regexp)) {
-          QTableWidgetItem *pCell0 = m_foxTable->item(i,0);
-          if(!pCell0) {
-            pCell0= new QTableWidgetItem;
-            m_foxTable->setItem(i,0,pCell0);
-            pCell0->setText(c2);
-          }
-          QTableWidgetItem *pCell1 = m_foxTable->item(i,1);
-          if(!pCell1) {
-            pCell1= new QTableWidgetItem;
-            m_foxTable->setItem(i,1,pCell1);
-            pCell1->setText(g2);
-          }
-          QTableWidgetItem *pCell2 = m_foxTable->item(i,2);
-          if(!pCell2) {
-            pCell2= new QTableWidgetItem;
-            m_foxTable->setItem(i,2,pCell2);
-            pCell2->setText(line.at(2));
-          }
-          QTableWidgetItem *pCell3 = m_foxTable->item(i,3);
-          if(!pCell3) {
-            pCell3= new QTableWidgetItem;
-            m_foxTable->setItem(i,3,pCell3);
-            pCell3->setText(line.at(4));
-          }
-          QTableWidgetItem *pCell4 = m_foxTable->item(i,4);
-          if(!pCell4) {
-            pCell4= new QTableWidgetItem;
-            m_foxTable->setItem(i,4,pCell4);
-            pCell4->setText(line.at(0));
-          }          i++;
-        }
-        */
-      }
-      f.close();
+      QString t=s.readAll();
+      m_foxCalls->insertText(t);
     }
   }
 }
@@ -3440,6 +3401,8 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
+//    qDebug() << "a" << m_foxCalls->font();
+//    qDebug() << "b" << ui->decodedTextBrowser->font();
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
       if(!m_bVHFwarned) vhfWarning();
     } else {
@@ -4790,14 +4753,14 @@ void MainWindow::on_actionFT8_triggered()
   ui->label_7->setText("Rx Frequency");
   displayWidgets(nWidgets("111010000100111000010000"));
   if(m_config.bFox()) {
-    if(!m_foxTable->isVisible()) {
+    if(!m_foxCalls->isVisible()) {
 //      QStringList headers{"Call","Loc","dB","Freq","UTC"};
 //      m_foxTable->setHorizontalHeaderLabels(headers);
 //      m_foxTable->setGeometry(QRect(100,100,550,400));
-      m_foxTable->show();
+      m_foxCalls->show();
     }
   } else {
-    if(m_foxTable) m_foxTable->hide();
+    if(m_foxCalls) m_foxCalls->hide();
   }
   if(m_config.bFox() or m_config.bHound()) {
     if(m_config.bFox()) ui->labDXped->setText("DXpeditiion Fox");

@@ -1,4 +1,5 @@
 #include "foxcalls.h"
+#include "qt_helpers.hpp"
 #include <QSettings>
 #include <QApplication>
 #include "ui_foxcalls.h"
@@ -12,6 +13,7 @@ FoxCalls::FoxCalls(QSettings * settings, QWidget *parent) :
   ui->setupUi(this);
   setWindowTitle (QApplication::applicationName () + " - " + tr ("Fox Callers"));
   installEventFilter(parent);                   //Installing the filter
+
 
 //Restore user's settings
   m_settings->beginGroup("FoxCalls");
@@ -35,4 +37,15 @@ void FoxCalls::saveSettings()
   m_settings->beginGroup("FoxCalls");
   m_settings->setValue ("geometry", saveGeometry ());
   m_settings->endGroup();
+}
+
+void FoxCalls::insertText(QString t)
+{
+  QTextDocument *doc = ui->foxPlainTextEdit->document();
+  QFont font = doc->defaultFont();
+  font.setFamily("Courier New");
+  doc->setDefaultFont(font);
+  qDebug() << font;
+  ui->foxPlainTextEdit->setPlainText(t);
+  ui->foxPlainTextEdit->setReadOnly (true);
 }

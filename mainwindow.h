@@ -269,6 +269,7 @@ private slots:
   void on_actionEcho_triggered();
   void on_actionISCAT_triggered();
   void on_actionFast_Graph_triggered();
+  void on_actionFox_Callers_triggered();
   void fast_decode_done();
   void on_actionMeasure_reference_spectrum_triggered();
   void on_actionErase_reference_spectrum_triggered();
@@ -341,7 +342,7 @@ private:
   QScopedPointer<HelpTextWindow> m_prefixes;
   QScopedPointer<HelpTextWindow> m_mouseCmnds;
   QScopedPointer<MessageAveraging> m_msgAvgWidget;
-  QScopedPointer<FoxCalls> m_foxTable;
+  QScopedPointer<FoxCalls> m_foxCalls;
 
   Transceiver::TransceiverState m_rigState;
   Frequency  m_lastDialFreq;
