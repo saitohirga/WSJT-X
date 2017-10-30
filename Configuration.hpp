@@ -125,6 +125,8 @@ public:
   bool decode_at_52s () const;
   bool single_decode () const;
   bool twoPass() const;
+  bool bFox() const;
+  bool bHound() const;
   bool x2ToneSpacing() const;
   bool contestMode() const;
   bool realTimeDecode() const;

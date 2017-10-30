@@ -297,6 +297,7 @@ set (wsjtx_CXXSRCS
   widegraph.cpp
   echograph.cpp
   echoplot.cpp
+  foxcalls.cpp
   fastgraph.cpp
   fastplot.cpp
   about.cpp
@@ -650,6 +651,7 @@ set (wsjtx_UISRCS
   astro.ui
   echograph.ui
   fastgraph.ui
+  foxcalls.ui
   messageaveraging.ui
   widegraph.ui
   logqso.ui

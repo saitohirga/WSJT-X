@@ -560,6 +560,8 @@ private:
   bool decode_at_52s_;
   bool single_decode_;
   bool twoPass_;
+  bool bFox_;
+  bool bHound_;
   bool x2ToneSpacing_;
   bool realTimeDecode_;
   QString udp_server_name_;
@@ -650,6 +652,8 @@ bool Configuration::enable_VHF_features () const {return m_->enable_VHF_features
 bool Configuration::decode_at_52s () const {return m_->decode_at_52s_;}
 bool Configuration::single_decode () const {return m_->single_decode_;}
 bool Configuration::twoPass() const {return m_->twoPass_;}
+bool Configuration::bFox() const {return m_->bFox_;}
+bool Configuration::bHound() const {return m_->bHound_;}
 bool Configuration::x2ToneSpacing() const {return m_->x2ToneSpacing_;}
 bool Configuration::realTimeDecode() const {return m_->realTimeDecode_;}
 bool Configuration::split_mode () const {return m_->split_mode ();}
@@ -1102,6 +1106,8 @@ void Configuration::impl::initialize_models ()
   ui_->decode_at_52s_check_box->setChecked(decode_at_52s_);
   ui_->single_decode_check_box->setChecked(single_decode_);
   ui_->cbTwoPass->setChecked(twoPass_);
+  ui_->cbFox->setChecked(bFox_);
+  ui_->cbHound->setChecked(bHound_);
   ui_->cbx2ToneSpacing->setChecked(x2ToneSpacing_);
   ui_->cbRealTime->setChecked(realTimeDecode_);
   ui_->cbRealTime->setVisible(false);                    //Tempoary -- probably will remove this control
@@ -1332,6 +1338,8 @@ void Configuration::impl::read_settings ()
   decode_at_52s_ = settings_->value("Decode52",false).toBool ();
   single_decode_ = settings_->value("SingleDecode",false).toBool ();
   twoPass_ = settings_->value("TwoPass",true).toBool ();
+  bFox_ = settings_->value("Fox",false).toBool ();
+  bHound_ = settings_->value("Hound",false).toBool ();
   x2ToneSpacing_ = settings_->value("x2ToneSpacing",false).toBool ();
   realTimeDecode_ = settings_->value("RealTimeDecode",false).toBool ();
   rig_params_.poll_interval = settings_->value ("Polling", 0).toInt ();
@@ -1430,6 +1438,8 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("Decode52", decode_at_52s_);
   settings_->setValue ("SingleDecode", single_decode_);
   settings_->setValue ("TwoPass", twoPass_);
+  settings_->setValue ("Fox", bFox_);
+  settings_->setValue ("Hound", bHound_);
   settings_->setValue ("x2ToneSpacing", x2ToneSpacing_);
   settings_->setValue ("RealTimeDecode", realTimeDecode_);
   settings_->setValue ("UDPServer", udp_server_name_);
@@ -1825,6 +1835,8 @@ void Configuration::impl::accept ()
   decode_at_52s_ = ui_->decode_at_52s_check_box->isChecked ();
   single_decode_ = ui_->single_decode_check_box->isChecked ();
   twoPass_ = ui_->cbTwoPass->isChecked ();
+  bFox_ = ui_->cbFox->isChecked ();
+  bHound_ = ui_->cbHound->isChecked ();
   x2ToneSpacing_ = ui_->cbx2ToneSpacing->isChecked ();
   realTimeDecode_ = ui_->cbRealTime->isChecked ();
   calibration_.intercept = ui_->calibration_intercept_spin_box->value ();

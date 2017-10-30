@@ -955,6 +955,13 @@ QLabel[oob=&quot;true&quot;] {
                  <item row="15" column="0" colspan="2">
                   <layout class="QHBoxLayout" name="horizontalLayout_15">
                    <item>
+                    <widget class="QLabel" name="labDXped">
+                     <property name="text">
+                      <string>Fox</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
                     <widget class="QCheckBox" name="cbSWL">
                      <property name="toolTip">
                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to monitor Sh messages.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>521</width>
+    <width>534</width>
     <height>507</height>
    </rect>
   </property>
@@ -2430,7 +2430,7 @@ Right click for insert and delete options.</string>
          </layout>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
+       <item row="2" column="0" colspan="2">
         <spacer name="verticalSpacer_8">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -2442,6 +2442,45 @@ Right click for insert and delete options.</string>
           </size>
          </property>
         </spacer>
+       </item>
+       <item row="1" column="0">
+        <widget class="QGroupBox" name="groupBox_7">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>50</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>FT8 DXpedition mode</string>
+         </property>
+         <widget class="QWidget" name="horizontalLayoutWidget">
+          <property name="geometry">
+           <rect>
+            <x>9</x>
+            <y>10</y>
+            <width>231</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_16">
+           <item>
+            <widget class="QCheckBox" name="cbFox">
+             <property name="text">
+              <string> Fox</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="cbHound">
+             <property name="text">
+              <string>Hound</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -2595,12 +2634,12 @@ soundcard changes</string>
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>404</x>
-     <y>62</y>
+     <x>72</x>
+     <y>42</y>
     </hint>
     <hint type="destinationlabel">
-     <x>199</x>
-     <y>60</y>
+     <x>43</x>
+     <y>42</y>
     </hint>
    </hints>
   </connection>
@@ -2611,12 +2650,12 @@ soundcard changes</string>
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>199</x>
-     <y>60</y>
+     <x>43</x>
+     <y>42</y>
     </hint>
     <hint type="destinationlabel">
-     <x>404</x>
-     <y>62</y>
+     <x>72</x>
+     <y>42</y>
     </hint>
    </hints>
   </connection>
@@ -2627,7 +2666,7 @@ soundcard changes</string>
   <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="split_mode_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
-  <buttongroup name="TX_mode_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="TX_mode_button_group"/>
  </buttongroups>
 </ui>

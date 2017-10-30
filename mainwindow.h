@@ -65,6 +65,7 @@ class QFont;
 class QHostInfo;
 class EchoGraph;
 class FastGraph;
+class FoxCalls;
 class WideGraph;
 class LogQSO;
 class Transceiver;
@@ -340,6 +341,7 @@ private:
   QScopedPointer<HelpTextWindow> m_prefixes;
   QScopedPointer<HelpTextWindow> m_mouseCmnds;
   QScopedPointer<MessageAveraging> m_msgAvgWidget;
+  QScopedPointer<FoxCalls> m_foxTable;
 
   Transceiver::TransceiverState m_rigState;
   Frequency  m_lastDialFreq;
