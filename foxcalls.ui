@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>540</width>
-    <height>300</height>
+    <width>546</width>
+    <height>562</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -19,7 +19,10 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_3">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout"/>
+   </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
@@ -112,32 +115,149 @@
     </widget>
    </item>
    <item>
-    <widget class="QPlainTextEdit" name="foxPlainTextEdit">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>375</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>375</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <family>Courier New</family>
-       <pointsize>12</pointsize>
-      </font>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QPlainTextEdit" name="foxPlainTextEdit">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>375</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>375</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Courier New</family>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="labCallers">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>   Unique callers:  0</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>To be called:</string>
+         </property>
+         <widget class="QPlainTextEdit" name="pteToBeCalled">
+          <property name="geometry">
+           <rect>
+            <x>8</x>
+            <y>17</y>
+            <width>100</width>
+            <height>90</height>
+           </rect>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>100</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+         <widget class="QGroupBox" name="groupBox_2">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>130</y>
+            <width>128</width>
+            <height>126</height>
+           </rect>
+          </property>
+          <property name="title">
+           <string>Called:</string>
+          </property>
+          <widget class="QPlainTextEdit" name="pteCalled">
+           <property name="geometry">
+            <rect>
+             <x>9</x>
+             <y>16</y>
+             <width>100</width>
+             <height>90</height>
+            </rect>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>16777215</height>
+            </size>
+           </property>
+          </widget>
+         </widget>
+         <widget class="QSpinBox" name="sbMaxDB">
+          <property name="geometry">
+           <rect>
+            <x>13</x>
+            <y>270</y>
+            <width>90</width>
+            <height>22</height>
+           </rect>
+          </property>
+          <property name="prefix">
+           <string>Max dB:  </string>
+          </property>
+          <property name="minimum">
+           <number>-50</number>
+          </property>
+          <property name="maximum">
+           <number>50</number>
+          </property>
+          <property name="value">
+           <number>30</number>
+          </property>
+         </widget>
+         <widget class="QSpinBox" name="sbMinDB">
+          <property name="geometry">
+           <rect>
+            <x>13</x>
+            <y>300</y>
+            <width>90</width>
+            <height>22</height>
+           </rect>
+          </property>
+          <property name="prefix">
+           <string>Min dB: </string>
+          </property>
+          <property name="minimum">
+           <number>-50</number>
+          </property>
+          <property name="maximum">
+           <number>50</number>
+          </property>
+          <property name="value">
+           <number>-30</number>
+          </property>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

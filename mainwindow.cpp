@@ -1147,11 +1147,6 @@ void MainWindow::setDecodedTextFont (QFont const& font)
   if (m_msgAvgWidget) {
     m_msgAvgWidget->changeFont (font);
   }
-  /*
-  if (m_foxCalls->isVisible()) {
-    m_foxCalls->changeFont (font);
-  }
-  */
   updateGeometry ();
 }
 

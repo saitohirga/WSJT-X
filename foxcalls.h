@@ -33,6 +33,8 @@ private slots:
   void on_rbSNR_toggled(bool b);
   void on_rbAge_toggled(bool b);
   void on_cbReverse_toggled(bool b);
+  void on_sbMaxDB_valueChanged(int n);
+  void on_sbMinDB_valueChanged(int n);
 
 private:
   bool m_bFirst=true;

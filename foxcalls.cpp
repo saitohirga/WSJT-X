@@ -19,6 +19,8 @@ FoxCalls::FoxCalls(QSettings * settings, QWidget *parent) :
   m_settings->beginGroup("FoxCalls");
   restoreGeometry (m_settings->value("geometry").toByteArray());
   ui->cbReverse->setVisible(false);
+  ui->foxPlainTextEdit->setReadOnly (true);
+//  connect (ui->foxPlainTextEdit,SIGNAL(selectCallsign(bool)),this,SLOT(selectCall2(bool)));
 }
 
 FoxCalls::~FoxCalls()
@@ -73,25 +75,29 @@ void FoxCalls::insertText(QString t)
   j=0;
   t="";
   for(auto a: map.keys()) {
-    if(ui->rbCall->isChecked()) t += map[a] + "\n";
-    if(ui->rbSNR->isChecked() or ui->rbAge->isChecked()) {
-      i=2;
-      if(ui->rbAge->isChecked()) i=4;
-      t1=map[a].split(" ",QString::SkipEmptyParts).at(i);
-      n=1000*(t1.toInt()+100) + j;
-    }
+    t1=map[a].split(" ",QString::SkipEmptyParts).at(2);
+    int nsnr=t1.toInt();
+    if(nsnr>=ui->sbMinDB->value() and nsnr<=ui->sbMaxDB->value()) {
+      if(ui->rbCall->isChecked()) t += map[a] + "\n";
+      if(ui->rbSNR->isChecked() or ui->rbAge->isChecked()) {
+        i=2;
+        if(ui->rbAge->isChecked()) i=4;
+        t1=map[a].split(" ",QString::SkipEmptyParts).at(i);
+        n=1000*(t1.toInt()+100) + j;
+      }
 
-    if(ui->rbGrid->isChecked()) {
-      t1=map[a].split(" ",QString::SkipEmptyParts).at(1);
-      int i1=ABC.indexOf(t1.mid(0,1));
-      int i2=ABC.indexOf(t1.mid(1,1));
-      n=100*(26*i1+i2)+t1.mid(2,2).toInt();
-      n=1000*n + j;
-    }
+      if(ui->rbGrid->isChecked()) {
+        t1=map[a].split(" ",QString::SkipEmptyParts).at(1);
+        int i1=ABC.indexOf(t1.mid(0,1));
+        int i2=ABC.indexOf(t1.mid(1,1));
+        n=100*(26*i1+i2)+t1.mid(2,2).toInt();
+        n=1000*n + j;
+      }
 
-    list.insert(j,n);
-    lines2.insert(j,map[a]);
-    j++;
+      list.insert(j,n);
+      lines2.insert(j,map[a]);
+      j++;
+    }
   }
 
   if(ui->rbSNR->isChecked() or ui->rbAge->isChecked() or ui->rbGrid->isChecked()) {
@@ -111,7 +117,9 @@ void FoxCalls::insertText(QString t)
   }
 
   ui->foxPlainTextEdit->setPlainText(t);
-  ui->foxPlainTextEdit->setReadOnly (true);
+  QString uniqueCalls;
+  uniqueCalls.sprintf("   Unique callers: %d",j);
+  ui->labCallers->setText(uniqueCalls);
 }
 
 void FoxCalls::on_rbCall_toggled(bool b)
@@ -139,5 +147,15 @@ void FoxCalls::on_rbAge_toggled(bool b)
 void FoxCalls::on_cbReverse_toggled(bool b)
 {
   m_bReverse=b;
+  insertText(m_t0);
+}
+
+void FoxCalls::on_sbMaxDB_valueChanged(int n)
+{
+  insertText(m_t0);
+}
+
+void FoxCalls::on_sbMinDB_valueChanged(int n)
+{
   insertText(m_t0);
 }
