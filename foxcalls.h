@@ -35,11 +35,14 @@ private slots:
   void on_cbReverse_toggled(bool b);
   void on_sbMaxDB_valueChanged(int n);
   void on_sbMinDB_valueChanged(int n);
+  bool eventFilter(QObject *obj, QEvent *event);
 
 private:
   bool m_bFirst=true;
   bool m_bReverse;
+  qint32 m_nToBeCalled;
   QString m_t0;
+  QStringList m_lines2;
   QSettings * m_settings;
   QScopedPointer<Ui::FoxCalls> ui;
 };

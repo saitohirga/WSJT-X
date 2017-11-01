@@ -20,7 +20,8 @@ FoxCalls::FoxCalls(QSettings * settings, QWidget *parent) :
   restoreGeometry (m_settings->value("geometry").toByteArray());
   ui->cbReverse->setVisible(false);
   ui->foxPlainTextEdit->setReadOnly (true);
-//  connect (ui->foxPlainTextEdit,SIGNAL(selectCallsign(bool)),this,SLOT(selectCall2(bool)));
+  ui->foxPlainTextEdit->viewport()->installEventFilter(this);
+  m_nToBeCalled=0;
 }
 
 FoxCalls::~FoxCalls()
@@ -45,7 +46,7 @@ void FoxCalls::saveSettings()
 void FoxCalls::insertText(QString t)
 {
   QMap<QString,QString> map;
-  QStringList lines,lines2;
+  QStringList lines;
   QString msg,c2,t1;
   QString ABC{"ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
   QList<int> list;
@@ -59,6 +60,8 @@ void FoxCalls::insertText(QString t)
     doc->setDefaultFont(font);
     ui->label_2->setFont(font);
     ui->label_2->setText("Call         Grid   dB  Freq   Age");
+    ui->pteToBeCalled->setFont(font);
+    ui->pteCalled->setFont(font);
     m_bFirst=false;
   }
 
@@ -95,7 +98,7 @@ void FoxCalls::insertText(QString t)
       }
 
       list.insert(j,n);
-      lines2.insert(j,map[a]);
+      m_lines2.insert(j,map[a]);
       j++;
     }
   }
@@ -112,7 +115,7 @@ void FoxCalls::insertText(QString t)
     for(i=0; i<j; i++) {
       k=list[i]%1000;
       n=list[i]/1000 - 100;
-      t += lines2.at(k) + "\n";
+      t += m_lines2.at(k) + "\n";
     }
   }
 
@@ -158,4 +161,21 @@ void FoxCalls::on_sbMaxDB_valueChanged(int n)
 void FoxCalls::on_sbMinDB_valueChanged(int n)
 {
   insertText(m_t0);
+}
+
+bool FoxCalls::eventFilter(QObject *obj, QEvent *e)
+{
+  if(m_nToBeCalled<4) {
+    if ((obj == ui->foxPlainTextEdit || obj==ui->foxPlainTextEdit->viewport()) &&
+        e->type() == QEvent::MouseButtonPress) {
+      QMouseEvent *me= static_cast<QMouseEvent*>(e);
+      int i=int(0.05592*me->y()+0.5) - 1;
+      QString t3=m_lines2.at(i);
+      t3=t3.split(" ").at(0) + "\n";
+      ui->pteToBeCalled->insertPlainText(t3);
+      m_nToBeCalled++;
+      qDebug() << "a" << m_nToBeCalled;
+    }
+  }
+  return QWidget::eventFilter(obj, e);
 }
