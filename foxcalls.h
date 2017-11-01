@@ -28,10 +28,16 @@ public:
   void insertText(QString t);
 
 private slots:
-//  void on_binsPerPixelSpinBox_valueChanged(int n);
+  void on_rbCall_toggled(bool b);
+  void on_rbGrid_toggled(bool b);
+  void on_rbSNR_toggled(bool b);
+  void on_rbAge_toggled(bool b);
+  void on_cbReverse_toggled(bool b);
 
 private:
   bool m_bFirst=true;
+  bool m_bReverse;
+  QString m_t0;
   QSettings * m_settings;
   QScopedPointer<Ui::FoxCalls> ui;
 };

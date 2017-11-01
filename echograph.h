@@ -29,7 +29,6 @@ private slots:
   void on_gainSlider_valueChanged(int value);
   void on_zeroSlider_valueChanged(int value);  
   void on_binsPerPixelSpinBox_valueChanged(int n);
-
   void on_pbColors_clicked();
 
 private:

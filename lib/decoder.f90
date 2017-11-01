@@ -79,14 +79,26 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
           logical(params%lapon),params%napwid,params%mycall,                 &
           params%mygrid,params%hiscall,params%hisgrid)
      call timer('decft8  ',1)
-     n15min=minval(n15fox)
-     n15max=maxval(n15fox)
-     print*,nfox,n15min,n15max
+     n15min=minval(n15fox(1:nfox))
+     n15max=maxval(n15fox(1:nfox))
+     j=0
+     rewind 19
      do i=1,nfox
-        n=n15max-n15fox(i)
-        write(19,1004) c2fox(i),g2fox(i),nsnrfox(i),nfreqfox(i),n
-1004    format(a12,1x,a4,i5,i6,i5)
+        n=n15fox(i)
+! Do this only when c1 = MyCall        
+        if(n15max-n15fox(i).le.4) then           
+           j=j+1
+           c2fox(j)=c2fox(i)
+           g2fox(j)=g2fox(i)
+           nsnrfox(j)=nsnrfox(i)
+           nfreqfox(j)=nfreqfox(i)
+           n15fox(j)=n
+           m=n15max-n
+           write(19,1004) c2fox(j),g2fox(j),nsnrfox(j),nfreqfox(j),m
+1004       format(a12,1x,a4,i5,i6,i5)
+        endif
      enddo
+     nfox=j
      flush(19)
      go to 800
   endif
