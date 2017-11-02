@@ -1,13 +1,18 @@
-subroutine gf64_osd(mrsym,mrprob,mr2sym,mr2prob,cw)
+subroutine gf64_osd(s3,cw)
    use jt65_generator_matrix
-   integer mrsym(63),mrprob(63),mr2sym(63),mr2prob(63),cw(63)
+
+   real s3(64,63),xtmp(64),sympow_sorted(64,63),sympow(64,63)
+   integer ideinterleave_indices(63),indxs(64),isymval_sorted(64,63),isymval(64,63)
+   integer cw(63)
    integer indx(63)
    integer gmrb(12,63)
    integer correct(63)
    integer correctr(63)
+   integer correct_sorted(63)
    integer candidate(63)
    integer candidater(63)
-   logical mask(63)
+   integer itmp(63)
+   logical mask(63),first
    data correct/   &  ! K1ABC W9XYZ EN37
       41,  0, 54, 46, 55, 29, 57, 35, 35, 48, 48, 61,  &
       21, 58, 25, 10, 50, 43, 28, 37, 10,  2, 61, 55,  &
@@ -15,40 +20,69 @@ subroutine gf64_osd(mrsym,mrprob,mr2sym,mr2prob,cw)
       44, 55, 34, 38, 50, 62, 52, 58, 17, 62, 35, 34,  &
       28, 21, 15, 47, 33, 20, 15, 28, 58,  4, 58, 61,  &
       59, 42,  2/
+   data first/.true./
+   save first,correctr
 
-   correctr=correct(63:1:-1)
-   call indexx(mrprob,63,indx)
-!   do i=1,63
-!     write(*,*) i,correctr(indx(i)),mrsym(indx(i)),mr2sym(indx(i))
-!   enddo
+   if(first) then
+      correctr=correct(63:1:-1)
+!  find indices of deinterleaved symbols
+      do i=1,63
+         ideinterleave_indices(i)=i
+      enddo
+      call interleave63(ideinterleave_indices,-1)
+      first=.false.
+   endif
+!  Sort the spectral powers in decreasing order, remove gray code
+   do i=1,63
+     xtmp=s3(:,i)
+     call indexx(xtmp,64,indxs)
+     sympow_sorted(:,i)=xtmp(indxs(64:1:-1))
+     indxs=indxs-1
+     call graycode65(indxs,64,-1)
+     isymval_sorted(:,i)=indxs(64:1:-1)
+   enddo
+!  Deinterleave symbols symbol powers.
+   do i=1,63
+     isymval(:,i)=isymval_sorted(:,ideinterleave_indices(i))
+     sympow(:,i)=sympow_sorted(:,ideinterleave_indices(i))
+   enddo
 
-   nhard=count(mrsym.ne.correctr)
-   nerrtop12=count(mrsym(indx(52:63)).ne.correctr(indx(52:63)))
-   nerrnext12=count(mrsym(indx(40:51)).ne.correctr(indx(40:51)))
-   write(*,*) 'nerr, nerrtop12, nerrnext12 ',nerr,nerrtop12,nerrnext12
+!  Now sort along the symbol index, using the largest spectral power at each index
+   xtmp(1:63)=sympow(1,1:63)
+   call indexx(xtmp(1:63),63,indx)
+
+!  Calculate some statistics
+   nhard=count(isymval(1,:).ne.correctr)
+   nerrtop4=count(isymval(1,indx(60:63)).ne.correctr(indx(60:63)))
+   nerrmid4=count(isymval(1,indx(56:59)).ne.correctr(indx(56:59)))
+   nerrbot4=count(isymval(1,indx(52:55)).ne.correctr(indx(52:55)))
+   do i=1,12
+      if(isymval(1,indx(64-i)).ne.correctr(indx(64-i))) then
+         write(*,'(i2,1x,64l1)') i,isymval(:,indx(64-i)).eq.correctr(indx(64-i))
+      endif
+   enddo
+   write(*,*) 'nerr, nerrtop4, nerrmid4, nerrbot4',nhard,nerrtop4,nerrmid4,nerrbot4
 
 ! The best 12 symbols will be used as the Most Reliable Basis
 ! Reorder the columns of the generator matrix in order of decreasing quality.
-   do i=1,63
-      gmrb(:,i)=g(:,indx(63+1-i))
-   enddo
+!   do i=1,63
+!      indx=isymval(64,63+1-i)+1
+!      gmrb(:,i)=g(:,indx(63+1-i))
+!   enddo
 ! Put the generator matrix in standard form so that top 12 symbols are
 ! encoded systematically.
-   call gf64_standardize_genmat(gmrb)
+!   call gf64_standardize_genmat(gmrb)
 
 ! Add various error patterns to the 12 basis symbols and reencode each one
 ! to get a list of codewords. For now, just find the zero'th order codeword.
-   call gf64_encode(gmrb,mrsym(indx(63:52:-1)),candidate)
+!   call gf64_encode(gmrb,isymval(64,indx(63:52:-1)),candidate)
 ! Undo the sorting to put the codeword symbols back into the "right" order.
-   candidater=candidate(63:1:-1)
-   candidate(indx)=candidater
+!   candidater=candidate(63:1:-1)
+!   candidate(indx)=candidater
 
-!write(*,'(63i3)') candidate
-!write(*,'(63i3)') correctr
-!write(*,'(63i3)') mrsym
-   nerr=count(correctr.ne.candidate)
-write(*,*) 'Number of differences between candidate and correct codeword: ',nerr
-   if( nerr .eq. 0 ) write(*,*) 'Successful decode'
+!   nerr=count(correctr.ne.candidate)
+!write(*,*) 'Number of differences between candidate and correct codeword: ',nerr
+!   if( nerr .eq. 0 ) write(*,*) 'Successful decode'
    return
 end subroutine gf64_osd
 
