@@ -64,6 +64,9 @@ subroutine packbits(dbits,nsymd,m0,sym)
  ! Work-around for Swaziland prefix:
    if(callsign(1:4).eq.'3DA0') callsign='3D0'//callsign(5:6)
 
+ ! Work-around for Guinea prefixes:
+   if(callsign(1:2).eq.'3X') callsign='Q'//callsign(3:6)
+   
    if(callsign(1:3).eq.'CQ ') then
       ncall=NBASE + 1
       if(callsign(4:4).ge.'0' .and. callsign(4:4).le.'9' .and.        &
@@ -265,7 +268,8 @@ subroutine packbits(dbits,nsymd,m0,sym)
       psfx = '    '
    endif
 
- 999 if(word(1:3).eq.'3D0') word='3DA0'//word(4:)
+999 if(word(1:3).eq.'3D0') word='3DA0'//word(4:)
+   if(word(1:1).eq.'Q') word='3X'//word(2:)
 
    return
  end subroutine unpackcall
