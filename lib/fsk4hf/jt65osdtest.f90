@@ -17,7 +17,7 @@ program jt65osdtest
    integer gmrb(12,63)
    data m/61,51,10,42,51,55, 3,29,53,55,58,42/ !"K9AN K1JT -25"
 
-   message="K9AN K1JT RRR"
+   message="K1ABC W9XYZ EN37"
    call packmsg(message,m,itype,.false.)
    write(*,*) 'Message text: ',message
    write(*,*) 'Message symbols:'
