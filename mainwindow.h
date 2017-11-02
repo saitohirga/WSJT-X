@@ -65,7 +65,6 @@ class QFont;
 class QHostInfo;
 class EchoGraph;
 class FastGraph;
-class FoxCalls;
 class WideGraph;
 class LogQSO;
 class Transceiver;
@@ -97,6 +96,7 @@ public:
                       QSharedMemory *shdmem, unsigned downSampleFactor,
                       QSplashScreen *,
                       QWidget *parent = nullptr);
+  qint32 m_isort;
   ~MainWindow();
 
 public slots:
@@ -269,7 +269,6 @@ private slots:
   void on_actionEcho_triggered();
   void on_actionISCAT_triggered();
   void on_actionFast_Graph_triggered();
-  void on_actionFox_Callers_triggered();
   void fast_decode_done();
   void on_actionMeasure_reference_spectrum_triggered();
   void on_actionErase_reference_spectrum_triggered();
@@ -342,7 +341,6 @@ private:
   QScopedPointer<HelpTextWindow> m_prefixes;
   QScopedPointer<HelpTextWindow> m_mouseCmnds;
   QScopedPointer<MessageAveraging> m_msgAvgWidget;
-  QScopedPointer<FoxCalls> m_foxCalls;
 
   Transceiver::TransceiverState m_rigState;
   Frequency  m_lastDialFreq;
@@ -569,6 +567,7 @@ private:
   bool m_block_pwr_tooltip;
   bool m_PwrBandSetOK;
   bool m_bVHFwarned;
+  bool m_bDisplayedOnce;
   Frequency m_lastMonitoredFrequency;
   double m_toneSpacing;
   int m_firstDecode;
@@ -629,6 +628,7 @@ private:
                           , Frequency frequency
                           , QString const& his_call
                           , QString const& his_grid) const;
+  QString sortFoxCalls(QString t, int m_isort, int max_N, int min_dB, int max_dB);
   void read_wav_file (QString const& fname);
   void decodeDone ();
   void subProcessFailed (QProcess *, int exit_code, QProcess::ExitStatus);

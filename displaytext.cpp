@@ -1,5 +1,5 @@
 #include "displaytext.h"
-
+#include "mainwindow.h"
 #include <QMouseEvent>
 #include <QDateTime>
 #include <QTextCharFormat>

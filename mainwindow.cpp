@@ -37,7 +37,6 @@
 #include "echograph.h"
 #include "fastplot.h"
 #include "fastgraph.h"
-#include "foxcalls.h"
 #include "about.h"
 #include "messageaveraging.h"
 #include "widegraph.h"
@@ -204,7 +203,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_echoGraph (new EchoGraph(m_settings)),
   m_fastGraph (new FastGraph(m_settings)),
   m_logDlg (new LogQSO (program_title (), m_settings, &m_config, this)),
-  m_foxCalls (new FoxCalls(m_settings)),
   m_lastDialFreq {0},
   m_dialFreqRxWSPR {0},
   m_detector {new Detector {RX_SAMPLE_RATE, NTMAX, downSampleFactor}},
@@ -866,6 +864,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_bDoubleClicked=false;
   m_bCallingCQ=false;
   m_bCheckedContest=false;
+  m_bDisplayedOnce=false;
   m_wait=0;
   m_CQtype="CQ";
 
@@ -2050,7 +2049,6 @@ void MainWindow::closeEvent(QCloseEvent * e)
   m_config.transceiver_offline ();
   writeSettings ();
   m_astroWidget.reset ();
-  m_foxCalls.reset();
   m_guiTimer.stop ();
   m_prefixes.reset ();
   m_shortcuts.reset ();
@@ -2114,10 +2112,6 @@ void MainWindow::on_actionFast_Graph_triggered()
   m_fastGraph->show();
 }
 
-void MainWindow::on_actionFox_Callers_triggered()
-{
-  m_foxCalls->show();
-}
 void MainWindow::on_actionSolve_FreqCal_triggered()
 {
   QString dpath{QDir::toNativeSeparators(m_config.writeable_data_dir().absolutePath()+"/")};
@@ -2718,7 +2712,8 @@ void MainWindow::decodeDone ()
     if(f.open(QIODevice::ReadOnly | QIODevice::Text)) {
       QTextStream s(&f);
       QString t=s.readAll();
-      m_foxCalls->insertText(t);
+      QString t1=sortFoxCalls(t,1,10,-30,30);
+      ui->decodedTextBrowser->setText(t1);
     }
   }
 }
@@ -2755,12 +2750,14 @@ void MainWindow::readFromStdout()                             //readFromStdout
           if(navg>1 or t.indexOf("f*")>0) bAvgMsg=true;
         }
       }
+      /*
       if(m_mode=="FT8" and m_bDXped) {
         int i3bit=t.mid(44,1).toInt();
         t=t.mid(0,44) + " " + t.mid(45);
         if(i3bit==1) t=t.mid(0,24) + "RR73 NOW " + t.mid(24);
         if(i3bit==2) t=t.mid(0,24) + "NIL NOW " + t.mid(24);
       }
+      */
       QFile f {m_config.writeable_data_dir ().absoluteFilePath ("ALL.TXT")};
       if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
         QTextStream out(&f);
@@ -2779,24 +2776,34 @@ void MainWindow::readFromStdout()                             //readFromStdout
                                      .arg (f.fileName ()).arg (f.errorString ()));
       }
 
-      if (m_config.insert_blank () && m_blankLine)
-        {
-          QString band;
-          if((QDateTime::currentMSecsSinceEpoch() / 1000 - m_secBandChanged) > 4*m_TRperiod/4) {
-              band = ' ' + m_config.bands ()->find (m_freqNominal);
-          }
-          ui->decodedTextBrowser->insertLineSpacer (band.rightJustified  (40, '-'));
-          m_blankLine = false;
+      if (m_config.insert_blank () && m_blankLine && !m_config.bFox()) {
+        QString band;
+        if((QDateTime::currentMSecsSinceEpoch() / 1000 - m_secBandChanged) > 4*m_TRperiod/4) {
+          band = ' ' + m_config.bands ()->find (m_freqNominal);
         }
+        ui->decodedTextBrowser->insertLineSpacer (band.rightJustified  (40, '-'));
+        m_blankLine = false;
+      }
 
       DecodedText decodedtext {QString::fromUtf8 (t.constData ()).remove (QRegularExpression {"\r|\n"}), "FT8" == m_mode &&
             ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
 
       //Left (Band activity) window
       if(!bAvgMsg) {
-        ui->decodedTextBrowser->displayDecodedText(decodedtext,m_baseCall,m_config.DXCC(),
+        if(m_config.bFox()) {
+          if(!m_bDisplayedOnce) {
+            // This hack sets the font.  Surely there's a better way!
+            DecodedText dt{".",false," "};
+            ui->decodedTextBrowser->displayDecodedText(dt,m_baseCall,m_config.DXCC(),
+                m_logBook,m_config.color_CQ(),m_config.color_MyCall(),
+                m_config.color_DXCC(), m_config.color_NewCall());
+            m_bDisplayedOnce=true;
+          }
+        } else {
+          ui->decodedTextBrowser->displayDecodedText(decodedtext,m_baseCall,m_config.DXCC(),
                m_logBook,m_config.color_CQ(),m_config.color_MyCall(),
                m_config.color_DXCC(), m_config.color_NewCall());
+        }
       }
 
         //Right (Rx Frequency) window
@@ -4744,19 +4751,14 @@ void MainWindow::on_actionFT8_triggered()
   ui->label_6->setText("Band Activity");
   ui->label_7->setText("Rx Frequency");
   displayWidgets(nWidgets("111010000100111000010000"));
-  if(m_config.bFox()) {
-    if(!m_foxCalls->isVisible()) {
-      m_foxCalls->show();
-    }
-  } else {
-    if(m_foxCalls) m_foxCalls->hide();
-  }
   if(m_config.bFox() or m_config.bHound()) {
-    if(m_config.bFox()) ui->labDXped->setText("DXpeditiion Fox");
-    if(m_config.bHound()) ui->labDXped->setText("DXpeditiion Hound");
+    if(m_config.bFox()) ui->labDXped->setText("DXpedition: Fox");
+    if(m_config.bHound()) ui->labDXped->setText("DXpedition: Hound");
     ui->labDXped->setVisible(true);
+    ui->cbVHFcontest->setVisible(false);
   } else {
     ui->labDXped->setVisible(false);
+    ui->cbVHFcontest->setVisible(true);
   }
   statusChanged();
 }
@@ -6918,4 +6920,75 @@ void MainWindow::write_transmit_entry (QString const& file_name)
       MessageBox::warning_message (this, tr ("Log File Error"), message);
 #endif
     }
+}
+
+QString MainWindow::sortFoxCalls(QString t, int isort, int max_N, int min_dB, int max_dB)
+{
+  QMap<QString,QString> map;
+  QStringList lines,lines2;
+  QString msg,c2,t1;
+  QString ABC{"ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
+  QList<int> list;
+  int i,j,k,n,nlines;
+  bool bReverse;
+
+  bReverse=(isort<0);
+  isort=qAbs(isort);
+// Save only the most recent transmission from each caller.
+  lines = t.split("\n");
+  nlines=lines.length()-1;
+  for(i=0; i<nlines; i++) {
+    msg=lines.at(i);
+    c2=msg.split(" ").at(0);
+    map[c2]=msg;
+  }
+
+  j=0;
+  t="";
+  for(auto a: map.keys()) {
+    t1=map[a].split(" ",QString::SkipEmptyParts).at(2);
+    int nsnr=t1.toInt();
+    if(nsnr >= min_dB and nsnr <= max_dB) {
+      if(isort==1) t += map[a] + "\n";
+      if(isort==3 or isort==4) {
+        i=2;
+        if(isort==4) i=4;
+        t1=map[a].split(" ",QString::SkipEmptyParts).at(i);
+        n=1000*(t1.toInt()+100) + j;
+      }
+
+      if(isort==2) {
+        t1=map[a].split(" ",QString::SkipEmptyParts).at(1);
+        int i1=ABC.indexOf(t1.mid(0,1));
+        int i2=ABC.indexOf(t1.mid(1,1));
+        n=100*(26*i1+i2)+t1.mid(2,2).toInt();
+        n=1000*n + j;
+      }
+
+      list.insert(j,n);
+      lines2.insert(j,map[a]);
+      j++;
+    }
+  }
+
+  if(isort>1) {
+    if(bReverse) {
+      qSort(list.begin(),list.end(),qGreater<int>());
+    } else {
+      qSort(list.begin(),list.end());
+    }
+  }
+
+  if(isort>1) {
+    for(i=0; i<j; i++) {
+      k=list[i]%1000;
+      n=list[i]/1000 - 100;
+      t += lines2.at(k) + "\n";
+    }
+  }
+
+//  QString uniqueCalls;
+//  uniqueCalls.sprintf("   Unique callers: %d",j);
+//  ui->labCallers->setText(uniqueCalls);
+  return t;
 }
