@@ -96,7 +96,6 @@ public:
                       QSharedMemory *shdmem, unsigned downSampleFactor,
                       QSplashScreen *,
                       QWidget *parent = nullptr);
-  qint32 m_isort;
   ~MainWindow();
 
 public slots:
@@ -408,6 +407,10 @@ private:
   qint32  m_UTCdisk;
   qint32  m_wait;
   qint32  m_i3bit;
+  qint32  m_isort;
+  qint32  m_max_N;
+  qint32  m_max_dB;
+  qint32  m_min_dB;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
@@ -628,7 +631,7 @@ private:
                           , Frequency frequency
                           , QString const& his_call
                           , QString const& his_grid) const;
-  QString sortFoxCalls(QString t, int m_isort, int max_N, int min_dB, int max_dB);
+  QString sortFoxCalls(QString t, int isort, int max_N, int min_dB, int max_dB);
   void read_wav_file (QString const& fname);
   void decodeDone ();
   void subProcessFailed (QProcess *, int exit_code, QProcess::ExitStatus);

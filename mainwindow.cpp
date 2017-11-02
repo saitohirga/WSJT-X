@@ -866,6 +866,10 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_bCheckedContest=false;
   m_bDisplayedOnce=false;
   m_wait=0;
+  m_isort=-3;
+  m_max_N=10;
+  m_min_dB=-30;
+  m_max_dB=30;
   m_CQtype="CQ";
 
   if(m_mode.startsWith ("WSPR") and m_pctx>0)  {
@@ -1701,6 +1705,18 @@ void MainWindow::auto_tx_mode (bool state)
 
 void MainWindow::keyPressEvent (QKeyEvent * e)
 {
+  if(m_config.bFox()) {
+    switch (e->key()) {
+      case Qt::Key_7:
+        if(m_isort>-4) m_isort--;
+        return;
+      case Qt::Key_8:
+        if(m_isort<4) m_isort++;
+        return;
+    }
+    QMainWindow::keyPressEvent (e);
+
+  }
   int n;
   switch(e->key())
     {
@@ -2712,7 +2728,7 @@ void MainWindow::decodeDone ()
     if(f.open(QIODevice::ReadOnly | QIODevice::Text)) {
       QTextStream s(&f);
       QString t=s.readAll();
-      QString t1=sortFoxCalls(t,1,10,-30,30);
+      QString t1=sortFoxCalls(t,m_isort,m_max_N,m_min_dB,m_max_dB);
       ui->decodedTextBrowser->setText(t1);
     }
   }
@@ -3399,6 +3415,12 @@ void MainWindow::guiUpdate()
       on_actionOpen_next_in_directory_triggered();
     }
   }
+  if(m_config.bFox()) {
+    QString t;
+    t.sprintf("DXpedition: Fox  %d %d %d %d",m_isort,m_max_N,
+              m_min_dB,m_max_dB);
+    ui->labDXped->setText(t);
+  }
 
 //Once per second:
   if(nsec != m_sec0) {
@@ -3762,8 +3784,18 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
   } else {
     cursor=ui->decodedTextBrowser2->textCursor();
   }
-  cursor.setPosition (cursor.selectionStart ());
-  DecodedText message {cursor.block ().text (), ("MSK144" == m_mode || "FT8" == m_mode) &&
+  cursor.setPosition (cursor.selectionStart());
+  if(m_config.bFox() and m_decodedText2) {
+    QString t=cursor.block().text();
+    QString c2=t.split(" ",QString::SkipEmptyParts).at(0);
+    QString g2=t.split(" ",QString::SkipEmptyParts).at(1);
+    QString rpt=t.split(" ",QString::SkipEmptyParts).at(2);
+    ui->dxCallEntry->setText(c2);
+    ui->dxGridEntry->setText(g2);
+    genStdMsgs(rpt);
+    return;
+  }
+  DecodedText message {cursor.block().text(), ("MSK144" == m_mode || "FT8" == m_mode) &&
         ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
   m_bDoubleClicked = true;
   processMessage (message, modifiers);
