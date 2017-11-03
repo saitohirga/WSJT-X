@@ -1714,6 +1714,12 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       case Qt::Key_8:
         if(m_isort<4) m_isort++;
         return;
+      case Qt::Key_9:
+        if(m_max_dB > -15) m_max_dB--;
+        return;
+      case Qt::Key_0:
+        if(m_max_dB < 30)  m_max_dB++;
+        return;
       case Qt::Key_Return:
         doubleClickOnCall2(Qt::KeyboardModifier(Qt::ShiftModifier + Qt::ControlModifier + Qt::AltModifier));
         return;
@@ -2735,7 +2741,7 @@ void MainWindow::decodeDone ()
     if(f.open(QIODevice::ReadOnly | QIODevice::Text)) {
       QTextStream s(&f);
       QString t=s.readAll();
-      QString t1=sortFoxCalls(t,m_isort,m_max_N,m_min_dB,m_max_dB);
+      QString t1=sortFoxCalls(t,m_isort,m_min_dB,m_max_dB);
       ui->decodedTextBrowser->setText(t1);
       if(m_toBeCalled!="") ui->decodedTextBrowser->displayFoxToBeCalled(m_toBeCalled,"#ff99ff");
     }
@@ -6984,7 +6990,7 @@ void MainWindow::write_transmit_entry (QString const& file_name)
     }
 }
 
-QString MainWindow::sortFoxCalls(QString t, int isort, int max_N, int min_dB, int max_dB)
+QString MainWindow::sortFoxCalls(QString t, int isort, int min_dB, int max_dB)
 {
   QMap<QString,QString> map;
   QStringList lines,lines2;

@@ -635,7 +635,7 @@ private:
                           , Frequency frequency
                           , QString const& his_call
                           , QString const& his_grid) const;
-  QString sortFoxCalls(QString t, int isort, int max_N, int min_dB, int max_dB);
+  QString sortFoxCalls(QString t, int isort, int min_dB, int max_dB);
   void read_wav_file (QString const& fname);
   void decodeDone ();
   void subProcessFailed (QProcess *, int exit_code, QProcess::ExitStatus);
