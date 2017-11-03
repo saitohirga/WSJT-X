@@ -411,6 +411,8 @@ private:
   qint32  m_max_N;
   qint32  m_max_dB;
   qint32  m_min_dB;
+  qint32  m_nFoxCallers=0;
+  qint32  m_nToBeCalled=0;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
@@ -547,6 +549,8 @@ private:
   QString m_fileToSave;
   QString m_calls;
   QString m_CQtype;
+  QString m_FoxCallers;
+  QString m_toBeCalled;
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;

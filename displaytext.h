@@ -25,6 +25,7 @@ public:
   void displayTransmittedText(QString text, QString modeTx, qint32 txFreq,
 			      QColor color_TxMsg, bool bFastMode);
   void displayQSY(QString text);
+  void displayFoxToBeCalled(QString t, QColor bg);
 
   Q_SIGNAL void selectCallsign (Qt::KeyboardModifiers);
   Q_SIGNAL void erased ();

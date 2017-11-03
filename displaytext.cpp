@@ -237,3 +237,8 @@ void DisplayText::displayQSY(QString text)
   QString t = QDateTime::currentDateTimeUtc().toString("hhmmss") + "            " + text;
   appendText (t, "hotpink");
 }
+
+void DisplayText::displayFoxToBeCalled(QString t, QColor bg)
+{
+  appendText(t,bg);
+}

@@ -871,6 +871,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_min_dB=-30;
   m_max_dB=30;
   m_CQtype="CQ";
+  m_toBeCalled="";
 
   if(m_mode.startsWith ("WSPR") and m_pctx>0)  {
     QPalette palette {ui->sbTxPercent->palette ()};
@@ -1712,6 +1713,12 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         return;
       case Qt::Key_8:
         if(m_isort<4) m_isort++;
+        return;
+      case Qt::Key_Return:
+        doubleClickOnCall2(Qt::KeyboardModifier(Qt::ShiftModifier + Qt::ControlModifier + Qt::AltModifier));
+        return;
+      case Qt::Key_Enter:
+        doubleClickOnCall2(Qt::KeyboardModifier(Qt::ShiftModifier + Qt::ControlModifier + Qt::AltModifier));
         return;
     }
     QMainWindow::keyPressEvent (e);
@@ -2730,6 +2737,7 @@ void MainWindow::decodeDone ()
       QString t=s.readAll();
       QString t1=sortFoxCalls(t,m_isort,m_max_N,m_min_dB,m_max_dB);
       ui->decodedTextBrowser->setText(t1);
+      if(m_toBeCalled!="") ui->decodedTextBrowser->displayFoxToBeCalled(m_toBeCalled,"#ff99ff");
     }
   }
 }
@@ -3784,8 +3792,15 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
   } else {
     cursor=ui->decodedTextBrowser2->textCursor();
   }
-  cursor.setPosition (cursor.selectionStart());
+
+  if(modifiers==(Qt::ShiftModifier + Qt::ControlModifier + Qt::AltModifier)) {
+    cursor.setPosition(0);
+  } else {
+    cursor.setPosition(cursor.selectionStart());
+  }
+
   if(m_config.bFox() and m_decodedText2) {
+    if(m_nToBeCalled >= 4) return;
     QString t=cursor.block().text();
     QString c2=t.split(" ",QString::SkipEmptyParts).at(0);
     QString g2=t.split(" ",QString::SkipEmptyParts).at(1);
@@ -3793,6 +3808,14 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
     ui->dxCallEntry->setText(c2);
     ui->dxGridEntry->setText(g2);
     genStdMsgs(rpt);
+    on_txb2_clicked();
+    m_FoxCallers=m_FoxCallers.remove(t+"\n");
+    if(m_toBeCalled.length()>0) m_toBeCalled += "\n";
+    m_toBeCalled += t;
+    m_nToBeCalled+=1;
+    ui->decodedTextBrowser->clear();
+    ui->decodedTextBrowser->append(m_FoxCallers);
+    ui->decodedTextBrowser->displayFoxToBeCalled(m_toBeCalled,"#ff99ff");
     return;
   }
   DecodedText message {cursor.block().text(), ("MSK144" == m_mode || "FT8" == m_mode) &&
@@ -4775,13 +4798,18 @@ void MainWindow::on_actionFT8_triggered()
   m_TRperiod=15;
   m_fastGraph->hide();
   m_wideGraph->show();
-  ui->decodedTextLabel->setText( "  UTC   dB   DT Freq    Message");
   ui->decodedTextLabel2->setText("  UTC   dB   DT Freq    Message");
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
-  ui->label_6->setText("Band Activity");
   ui->label_7->setText("Rx Frequency");
+  if(m_config.bFox()) {
+    ui->label_6->setText("Stations calling DXpedition " + m_config.my_callsign());
+    ui->decodedTextLabel->setText( "Call         Grid   dB  Freq   Age");
+  } else {
+    ui->label_6->setText("Band Activity");
+    ui->decodedTextLabel->setText( "  UTC   dB   DT Freq    Message");
+  }
   displayWidgets(nWidgets("111010000100111000010000"));
   if(m_config.bFox() or m_config.bHound()) {
     if(m_config.bFox()) ui->labDXped->setText("DXpedition: Fox");
@@ -4792,6 +4820,8 @@ void MainWindow::on_actionFT8_triggered()
     ui->labDXped->setVisible(false);
     ui->cbVHFcontest->setVisible(true);
   }
+
+
   statusChanged();
 }
 
@@ -7022,5 +7052,9 @@ QString MainWindow::sortFoxCalls(QString t, int isort, int max_N, int min_dB, in
 //  QString uniqueCalls;
 //  uniqueCalls.sprintf("   Unique callers: %d",j);
 //  ui->labCallers->setText(uniqueCalls);
-  return t;
+
+  int i0=t.indexOf("\n") + 1;
+  m_nFoxCallers=qMin(t.length(),m_max_N*i0)/i0;
+  m_FoxCallers=t.mid(0,m_max_N*i0);
+  return m_FoxCallers;
 }
