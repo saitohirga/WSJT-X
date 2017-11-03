@@ -21,7 +21,7 @@ program jt65sim
   character msg*22,fname*11,csubmode*1,c,optarg*500,numbuf*32
 !  character call1*5,call2*5
   logical :: display_help=.false.,seed_prngs=.true.
-  type (option) :: long_options(8) = [ &
+  type (option) :: long_options(9) = [ &
     option ('help',.false.,'h','Display this help message',''),                                &
     option ('sub-mode',.true.,'m','sub mode, default MODE=A','MODE'),                          &
     option ('num-sigs',.true.,'n','number of signals per file, default SIGNALS=10','SIGNALS'), &
@@ -29,7 +29,9 @@ program jt65sim
     option ('time-offset',.true.,'t','Time delta, default SECONDS=0.0','SECONDS'),             &
     option ('num-files',.true.,'f','Number of files to generate, default FILES=1','FILES'),    &
     option ('no-prng-seed',.false.,'p','Do not seed PRNGs (use for reproducible tests)',''),   &
-    option ('strength',.true.,'s','S/N in dB (2500Hz reference b/w), default SNR=0','SNR') ]
+    option ('strength',.true.,'s','S/N in dB (2500Hz reference b/w), default SNR=0','SNR'),    &
+    option ('message',.true.,'M','Message text','Message') ]
+
   integer nprc(126)                                      !Sync pattern
   data nprc/1,0,0,1,1,0,0,0,1,1,1,1,1,1,0,1,0,1,0,0,  &
             0,1,0,1,1,0,0,1,0,0,0,1,1,1,0,0,1,1,1,1,  &
@@ -47,9 +49,10 @@ program jt65sim
   xdt=0.
   snrdb=0.
   nfiles=1
+  msg="K1ABC W9XYZ EN37"
 
   do
-     call getopt('hm:n:d:t:f:ps:',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
+     call getopt('hm:n:d:t:f:ps:M:',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
      if( nstat .ne. 0 ) then
         exit
      end if
@@ -83,6 +86,9 @@ program jt65sim
         else
            read (numbuf, *,err=10) snrdb
         end if
+     case ('M')
+        read (optarg(:narglen), '(A)',err=10) msg
+        write(*,*) msg 
      end select
      cycle
 10   display_help=.true.
@@ -150,9 +156,7 @@ program jt65sim
 !        call2="W9"//char(ic1)//char(ic2)//char(ic3)
 !        write(msg,1010) call1,call2,nint(xsnr)
 !1010    format(a5,1x,a5,1x,i3.2)
-        msg="K1ABC W9XYZ EN37"
 !###
-
         call packmsg(msg,dgen,itype,.false.) !Pack message into 12 six-bit bytes
         call rs_encode(dgen,sent)           !Encode using RS(63,12)
         call interleave63(sent,1)           !Interleave channel symbols
