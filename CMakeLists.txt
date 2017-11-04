@@ -411,7 +411,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/encode300.f90
   lib/entail.f90
   lib/ephem.f90
-  lib/extract.f90
+  lib/fsk4hf/extract_ap.f90
   lib/extract4.f90
   lib/extractmessage144.f90
   lib/fsk4hf/extractmessage168.f90
@@ -605,7 +605,7 @@ set (qra_CSRCS
 
 set (wsjt_CSRCS
   ${ka9q_CSRCS}
-  lib/ftrsd/ftrsd2.c
+  lib/fsk4hf/ftrsdap.c
   lib/sgran.c
   lib/golay24_table.c
   lib/gran.c

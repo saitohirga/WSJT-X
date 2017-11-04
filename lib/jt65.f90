@@ -43,6 +43,7 @@ program jt65
   nhigh=4000
   n2pass=1
   ndepth=1
+  nQSOProgress=6
 
   do
      call getopt('a:d:f:hm:n:rc:x:g:X:s',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
@@ -125,7 +126,7 @@ program jt65
      dd(npts+1:)=0.
      call test(dd,nutc,nfa,nfb,nfqso,ntol,nsubmode, &
           n2pass,nrobust,ntrials,naggressive,ndepth, &
-          mycall,hiscall,hisgrid,nexp_decode)
+          mycall,hiscall,hisgrid,nexp_decode,nQSOProgress)
 !     if(nft.gt.0) exit
   enddo
 

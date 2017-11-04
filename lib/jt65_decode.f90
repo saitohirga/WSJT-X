@@ -37,7 +37,7 @@ contains
 
   subroutine decode(this,callback,dd0,npts,newdat,nutc,nf1,nf2,nfqso,     &
        ntol,nsubmode,minsync,nagain,n2pass,nrobust,ntrials,naggressive,   &
-       ndepth,emedelay,clearave,mycall,hiscall,hisgrid,nexp_decode)
+       ndepth,emedelay,clearave,mycall,hiscall,hisgrid,nexp_decode,nQSOProgress)
 
 !  Process dd0() data to find and decode JT65 signals.
 
@@ -225,7 +225,7 @@ contains
           nft=0
           nspecial=0
           call decode65a(dd,npts,first_time,nqd,freq,nflip,mode65,nvec,     &
-               naggressive,ndepth,ntol,mycall,hiscall,hisgrid,              &
+               naggressive,ndepth,ntol,mycall,hiscall,hisgrid,nQSOProgress, &
                nexp_decode,bVHF,sync2,a,dtx,nft,nspecial,qual,     &
                nhist,nsmo,decoded)
           if(nspecial.eq.2) decoded='RO'

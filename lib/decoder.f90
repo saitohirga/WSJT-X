@@ -177,7 +177,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
           logical(params%nagain),params%n2pass,logical(params%nrobust),    &
           ntrials,params%naggressive,params%ndepth,params%emedelay,        &
           logical(params%nclearave),params%mycall,params%hiscall,          &
-          params%hisgrid,params%nexp_decode)
+          params%hisgrid,params%nexp_decode,params%nQSOProgress)
      call timer('jt65a   ',1)
 
   else if(params%nmode.eq.9 .or. (params%nmode.eq.(65+9) .and. params%ntxmode.eq.9)) then
@@ -202,7 +202,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
              logical(params%nagain),params%n2pass,logical(params%nrobust), &
              ntrials,params%naggressive,params%ndepth,params%emedelay,     &
              logical(params%nclearave),params%mycall,params%hiscall,       &
-             params%hisgrid,params%nexp_decode)
+             params%hisgrid,params%nexp_decode,params%nQSOProgress)
         call timer('jt65a   ',1)
      else
         call timer('decjt9  ',0)
