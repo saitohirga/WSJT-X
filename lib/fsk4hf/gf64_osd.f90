@@ -41,7 +41,7 @@ subroutine gf64_osd(s3,cw)
      call graycode65(indxs,64,-1)
      isymval_sorted(:,i)=indxs(64:1:-1)
    enddo
-!  Deinterleave symbols symbol powers.
+!  Deinterleave symbol powers.
    do i=1,63
      isymval(:,i)=isymval_sorted(:,ideinterleave_indices(i))
      sympow(:,i)=sympow_sorted(:,ideinterleave_indices(i))
