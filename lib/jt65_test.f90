@@ -11,7 +11,8 @@ module jt65_test
 contains
 
   subroutine test (dd,nutc,nflow,nfhigh,nfqso,ntol,nsubmode,n2pass,nrobust     &
-       ,ntrials,naggressive,ndepth,mycall,hiscall,hisgrid,nexp_decode,nQSOProgress)
+       ,ntrials,naggressive,ndepth,mycall,hiscall,hisgrid,nexp_decode,         &
+        nQSOProgress,ljt65apon)
     use timer_module, only: timer
     use jt65_decode
     implicit none
@@ -20,7 +21,7 @@ contains
     real, intent(in) :: dd(NZMAX)
     integer, intent(in) :: nutc, nflow, nfhigh, nfqso, ntol, nsubmode, n2pass  &
          , ntrials, naggressive, ndepth, nexp_decode, nQSOProgress
-    logical, intent(in) :: nrobust
+    logical, intent(in) :: nrobust,ljt65apon
     character(len=12), intent(in) :: mycall, hiscall
     character(len=6), intent(in) :: hisgrid
     type(jt65_decoder) :: my_decoder
@@ -34,7 +35,7 @@ contains
          nrobust=nrobust,ntrials=ntrials,naggressive=naggressive,          &
          ndepth=ndepth,emedelay=0.0,clearave=nclearave,mycall=mycall,      &
          hiscall=hiscall,hisgrid=hisgrid,nexp_decode=nexp_decode,          &
-         nQSOProgress=nQSOProgress)
+         nQSOProgress=nQSOProgress,ljt65apon=ljt65apon)
     call timer('jt65a   ',1)
   end subroutine test
 

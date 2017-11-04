@@ -37,7 +37,8 @@ contains
 
   subroutine decode(this,callback,dd0,npts,newdat,nutc,nf1,nf2,nfqso,     &
        ntol,nsubmode,minsync,nagain,n2pass,nrobust,ntrials,naggressive,   &
-       ndepth,emedelay,clearave,mycall,hiscall,hisgrid,nexp_decode,nQSOProgress)
+       ndepth,emedelay,clearave,mycall,hiscall,hisgrid,nexp_decode,       &
+       nQSOProgress,ljt65apon)
 
 !  Process dd0() data to find and decode JT65 signals.
 
@@ -51,8 +52,8 @@ contains
     real, intent(in) :: dd0(NZMAX),emedelay
     integer, intent(in) :: npts, nutc, nf1, nf2, nfqso, ntol     &
          , nsubmode, minsync, n2pass, ntrials, naggressive, ndepth      &
-         , nexp_decode
-    logical, intent(in) :: newdat, nagain, nrobust, clearave
+         , nexp_decode, nQSOProgress
+    logical, intent(in) :: newdat, nagain, nrobust, clearave, ljt65apon
     character(len=12), intent(in) :: mycall, hiscall
     character(len=6), intent(in) :: hisgrid
 
@@ -226,7 +227,7 @@ contains
           nspecial=0
           call decode65a(dd,npts,first_time,nqd,freq,nflip,mode65,nvec,     &
                naggressive,ndepth,ntol,mycall,hiscall,hisgrid,nQSOProgress, &
-               nexp_decode,bVHF,sync2,a,dtx,nft,nspecial,qual,     &
+               ljt65apon,nexp_decode,bVHF,sync2,a,dtx,nft,nspecial,qual,     &
                nhist,nsmo,decoded)
           if(nspecial.eq.2) decoded='RO'
           if(nspecial.eq.3) decoded='RRR'

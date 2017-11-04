@@ -9,7 +9,7 @@ program jt65
   use readwav
 
   character c,mode
-  logical :: display_help=.false.,nrobust=.false.,single_decode=.false.
+  logical :: display_help=.false.,nrobust=.false.,single_decode=.false., ljt65apon=.false.
   type(wav_header) :: wav
   integer*2 id2(NZMAX)
   real*4 dd(NZMAX)
@@ -126,7 +126,7 @@ program jt65
      dd(npts+1:)=0.
      call test(dd,nutc,nfa,nfb,nfqso,ntol,nsubmode, &
           n2pass,nrobust,ntrials,naggressive,ndepth, &
-          mycall,hiscall,hisgrid,nexp_decode,nQSOProgress)
+          mycall,hiscall,hisgrid,nexp_decode,nQSOProgress,ljt65apon)
 !     if(nft.gt.0) exit
   enddo
 

@@ -1,5 +1,6 @@
 subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,nflip,     &
-     mycall_12,hiscall_12,hisgrid,nQSOProgress,nexp_decode,ncount,      &
+     mycall_12,hiscall_12,hisgrid,nQSOProgress,ljt65apon,               &
+     nexp_decode,ncount,      &
      nhist,decoded,ltext,nft,qual)
 
 ! Input:
@@ -27,23 +28,30 @@ subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,nflip,     &
   integer dat4(12)
   integer mrsym(63),mr2sym(63),mrprob(63),mr2prob(63)
   integer correct(63),tmp(63)
-  logical ltext
+  logical ltext,ljt65apon
   common/chansyms65/correct
   save
   if(mode65.eq.-99) stop                   !Silence compiler warning
   mycall=mycall_12(1:6)
   hiscall=hiscall_12(1:6)
-  apmessage=mycall//" "//hiscall//" RRR"
-  call packmsg(apmessage,apsymbols,itype,.false.)
-write(*,*) nQSOProgress
-write(*,*) apmessage,itype
-write(*,'(12i3)') apsymbols
-  if(itype.eq.1) then
-     apsymbols(10:12)=-1
-  else
-     apsymbols=-1
-  endif
 
+  apsymbols=-1
+  if(ljt65apon) then
+     apmessage=mycall//" "//hiscall//" RRR"
+     call packmsg(apmessage,apsymbols,itype,.false.)
+     if(itype.ne.1) then
+        write(*,*) "Error - problem with apsymbols"
+        apsymbols=-1
+     endif
+     if(nQSOProgress.eq.0) then ! Look for MyCall ??? ??? using APS4
+        apsymbols(5:12)=-1
+     elseif(nQSOProgress.ge.1.and.nQSOProgress.le.2) then ! Look for MyCall DxCall ???
+        apsymbols(10:12)=-1
+     elseif(nQSOProgress.ge.3) then
+        continue
+     endif 
+  endif
+   
   qual=0.
   nbirdie=20
   npct=50
