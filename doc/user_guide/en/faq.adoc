@@ -47,13 +47,16 @@ location for each instance of _WSJT-X_.
  wsjtx --rig-name=TS2000
  wsjtx --rig-name=FT847
 
-When setting up rig control through _OmniRig_, something goes wrong when I click *Test CAT*.  What can I do about it?::
+When setting up rig control through _Omni-Rig_, something goes wrong
+when I click *Test CAT*.  What can I do about it?::
 
-_OmniRig_ apparently has a bug that appears when you click *Test CAT*.
-Forget using *Test CAT* and just click *OK*.  _OmniRig_ then behaves
-normally.
+_Omni-Rig_ apparently has a bug that appears when you click *Test
+CAT*.  Forget using *Test CAT* and just click *OK*.  _Omni-Rig_ then
+behaves normally.
 
-I am using _WSJT-X_ with _Ham Radio Deluxe_.  All seems well until I start HRD Logbook or DM780 running in parallel; then CAT control becomes unreliable.::
+I am using _WSJT-X_ with _Ham Radio Deluxe_.  All seems well until I
+start HRD Logbook or DM780 running in parallel; then CAT control
+becomes unreliable.::
 
 You may see delays up to 20 seconds or so in frequency changes or
 other radio commands, due to a bug in HRD.  HRD folks are aware of the

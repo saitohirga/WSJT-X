@@ -11,7 +11,7 @@ your radio, select the *Radio* tab.
 
 - Alternatively, if you have configured your station for control by
 *DX Lab Suite Commander*, *Ham Radio Deluxe*, *Hamlib NET rigctl*, or
-*OmniRig*, you may select one of those program names from the *Rig*
+*Omni-Rig*, you may select one of those program names from the *Rig*
 list.  In these cases the entry field immediately under _CAT Control_
 will be relabeled as *Network Server*.  Leave this field blank to
 access the default instance of your control program, running on the
@@ -19,9 +19,9 @@ same computer. If the control program runs on a different computer
 and/or port, specify it here.  Hover the mouse pointer over the entry
 field to see the required formatting details.
 
-- Select *OmniRig Rig 1* or *OmniRig Rig 2* to connect to an _OmniRig_
-server running on the same computer.  Note that _OmniRig_ is available
-only under Windows.
+- Select *Omni-Rig Rig 1* or *Omni-Rig Rig 2* to connect to an
+_Omni-Rig_ server running on the same computer.  Note that _Omni-Rig_
+is available only under Windows.
 
 - Set *Poll Interval* to the desired interval for _WSJT-X_ to query
 your radio.  For most radios a small number (say, 1 – 3 s) is
