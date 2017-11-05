@@ -24,7 +24,7 @@ subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,nflip,     &
   character decoded*22, apmessage*22
   character*12 mycall_12,hiscall_12
   character*6 mycall,hiscall,hisgrid
-  integer apsymbols(12)
+  integer apsymbols(12),ap(12)
   integer dat4(12)
   integer mrsym(63),mr2sym(63),mrprob(63),mr2prob(63)
   integer correct(63),tmp(63)
@@ -90,14 +90,16 @@ subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,nflip,     &
   call graycode65(mr2sym,63,-1)      !Remove gray code and interleaving
   call interleave63(mr2sym,-1)       !from second-most-reliable symbols
   call interleave63(mr2prob,-1)
+
+do ipass=1,2
+  ap=-1
+  if(ipass.eq.2 .and. count(apsymbols.ge.0).gt.0) then
+    ap=apsymbols
+  endif
   ntry=0
-
-!  call gf64_osd(s3,correct)
-
   call timer('ftrsd   ',0)
   param=0
-!  call ftrsd2(mrsym,mrprob,mr2sym,mr2prob,ntrials,correct,param,ntry)
-  call ftrsdap(mrsym,mrprob,mr2sym,mr2prob,apsymbols,ntrials,correct,param,ntry)
+  call ftrsdap(mrsym,mrprob,mr2sym,mr2prob,ap,ntrials,correct,param,ntry)
   call timer('ftrsd   ',1)
   ncandidates=param(0)
   nhard=param(1)
@@ -112,7 +114,15 @@ subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,nflip,     &
      nd0=83
      r0=0.90
   endif
-  if(ntotal.le.nd0 .and. rtt.le.r0) nft=1
+
+  if(ntotal.le.nd0 .and. rtt.le.r0) then
+    nft=1
+    nap=count(ap.ge.0)
+    nft=1+ishft(nap,2)
+  endif 
+  
+  if(nft.gt.0) exit
+enddo
 
   if(nft.eq.0 .and. iand(ndepth,32).eq.32) then
      qmin=2.0 - 0.1*naggressive

@@ -255,6 +255,7 @@ contains
           if(nsnr.gt.-1) nsnr=-1
           nftt=0
 
+!********* DOES THIS STILL WORK WHEN NFT INCLUDES # OF AP SYMBOLS USED??
           if(nft.ne.1 .and. iand(ndepth,16).eq.16 .and. (.not.prtavg)) then
 ! Single-sequence FT decode failed, so try for an average FT decode.
              if(nutc.ne.nutc0 .or. abs(nfreq-nfreq0).gt.ntol) then

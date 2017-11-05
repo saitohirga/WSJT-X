@@ -316,7 +316,7 @@ contains
     integer, intent(in) :: nsum
     integer, intent(in) :: minsync
 
-    integer i,nft
+    integer i,nap,nft
     logical is_deep,is_average
     character decoded*22,csync*2,cflags*3
 
@@ -357,6 +357,10 @@ contains
           if(is_average) then
              write(cflags(2:2),'(i1)') min(nsum,9)
              if(nsum.ge.10) cflags(2:2)='*'
+          endif
+          nap=ishft(ft,-2)
+          if(nap.ne.0) then
+            write(cflags(1:3),'(a1,i2.2)') 'a',nap 
           endif
        endif
        csync='# '
