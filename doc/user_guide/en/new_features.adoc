@@ -23,7 +23,7 @@ regions
 frequencies
 
 - Improved CAT control for many radios, including those controlled
-through Commander or OmniRig
+through Commander or Omni-Rig
 
 - Bug fixes and minor tweaks to user interface
 
