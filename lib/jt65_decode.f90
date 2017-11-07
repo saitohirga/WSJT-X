@@ -266,7 +266,8 @@ contains
                 nsave=mod(nsave-1,64)+1
                 call avg65(nutc,nsave,sync1,dtx,nflip,nfreq,mode65,ntol,     &
                      ndepth,nagain,ntrials,naggressive,clearave,neme,mycall, &
-                     hiscall,hisgrid,nftt,avemsg,qave,deepave,nsum,ndeepave)
+                     hiscall,hisgrid,nftt,avemsg,qave,deepave,nsum,ndeepave, &
+                     nQSOProgress,ljt65apon)
                 nsmo=param(9)
                 nqave=qave
 
@@ -337,7 +338,7 @@ contains
 
   subroutine avg65(nutc,nsave,snrsync,dtxx,nflip,nfreq,mode65,ntol,ndepth,    &
        nagain, ntrials,naggressive,clearave,neme,mycall,hiscall,hisgrid,nftt, &
-       avemsg,qave,deepave,nsum,ndeepave)
+       avemsg,qave,deepave,nsum,ndeepave,nQSOProgress,ljt65apon)
 
 ! Decodes averaged JT65 data
 
@@ -360,7 +361,7 @@ contains
     real s3c(64,63)
     real dtsave(MAXAVE)
     real syncsave(MAXAVE)
-    logical first,clearave
+    logical first,clearave,ljt65apon
     data first/.true./
     save
 
@@ -477,7 +478,8 @@ contains
 
        nadd=nsum*ismo
        call extract(s3c,nadd,mode65,ntrials,naggressive,ndepth,nflip,mycall, &
-            hiscall,hisgrid,nexp_decode,ncount,nhist,avemsg,ltext,nftt,qual)
+            hiscall,hisgrid,nQSOProgress,ljt65apon,nexp_decode,ncount,nhist, &
+            avemsg,ltext,nftt,qual)
        if(nftt.eq.1) then
           nsmo=ismo
           param(9)=nsmo
