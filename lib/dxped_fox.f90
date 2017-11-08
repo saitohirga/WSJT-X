@@ -1,9 +1,9 @@
 module dxped_fox
   
-  parameter (MAXSIG=5,NSEQ=10)
+  parameter (MAXSIG=5,NSEQ=10,NCALLS=268)
   
-  character*6 cx(MAXSIG)
-  character*4 gx(MAXSIG)
+  character*6 cx(MAXSIG),xcall(NCALLS)
+  character*4 gx(MAXSIG),xgrid(NCALLS)
   character*6 called(MAXSIG)
   character*6 acknowledged(MAXSIG)
   character*6 MyCall
@@ -11,8 +11,11 @@ module dxped_fox
   integer nsig
   integer isent(MAXSIG)
   integer istate(2,MAXSIG)
+  integer isnr(NCALLS)
+  integer irpt(MAXSIG)
   integer nlogged
   integer nrx
+  integer nc
 
   ! istate
   !  0 = Start QSO: call X (from FIFO) or CQ if FIFO is empty
@@ -39,11 +42,16 @@ contains
           if(iseq.eq.0) then
              txmsg(j)='CQ KH1DX AJ10'
           else
-             read(10,1002,end=1,err=999) cx(j),gx(j)         !Grab next call from FIFO
-1002         format(a6,7x,a4)
-             call random_number(x)
-             irpt=-20+int(40*x)
-             write(txmsg(j),1004) cx(j),mycall,irpt
+!             read(10,1002,end=1,err=999) cx(j),gx(j)         !Grab next call from FIFO
+!1002         format(a6,7x,a4)
+             nc=nc+1
+             if(nc.gt.NCALLS) go to 1
+             cx(j)=xcall(nc)
+             gx(j)=xgrid(NC)
+!             call random_number(x)
+!             irpt=-20+int(40*x)
+             irpt(j)=isnr(nc)
+             write(txmsg(j),1004) cx(j),mycall,irpt(j)
 1004         format(a6,1x,a6,i4.2)
              if(txmsg(j)(15:15).eq.' ') txmsg(j)(15:15)='+'
              istate(1,j)=1
@@ -54,11 +62,17 @@ contains
        endif
 
        if(js.eq.2) then
-          read(10,1002,end=3,err=999) cy,gy              !Grab next call from FIFO
-          call random_number(x)
-          irpt=-20+int(40*x)
-          isent(j)=irpt
-          write(txmsg(j),1006) cx(j),cy,irpt
+!          read(10,1002,end=3,err=999) cy,gy              !Grab next call from FIFO
+          nc=nc+1
+          if(nc.gt.NCALLS) go to 3
+          cy=xcall(nc)
+          gy=xgrid(nc)
+!          call random_number(x)
+!          irpt=-20+int(40*x)
+          irpt(j)=isnr(nc)
+          
+          isent(j)=irpt(j)
+          write(txmsg(j),1006) cx(j),cy,irpt(j)
 1006      format(a6,' RR73; ',a6,1x,'<KH1DX>',i4.2)
           if(txmsg(j)(29:29).eq.' ') txmsg(j)(29:29)='+'
           write(log,1008) cx(j),gx(j),isent(j)
@@ -67,7 +81,7 @@ contains
           cx(j)=cy
           gx(j)=gy
           called(j)=cy
-          isent(j)=irpt
+          isent(j)=irpt(j)
           istate(2,j)=1
           go to 4
 3         write(txmsg(j),1006) cx(j),'DE    '
@@ -84,14 +98,14 @@ contains
           write(*,1010) iseq,j,istate(1:2,j),txmsg(j),log,nlogged,nrate
 1010      format(i4.4,i3,2i2,1x,a32,20x,a16,2i4)
        else
-          irpt=-20+int(40*x)
-          if(iseq.ge.2) write(txmsg(j),1004) cx(j),mycall,irpt
+!          irpt=-20+int(40*x)
+          if(iseq.ge.2) write(txmsg(j),1004) cx(j),mycall,irpt(j)
           write(*,1010) iseq,j,istate(1:2,j),txmsg(j)
        endif
     enddo
     
     return
-999 stop '*** ERROR ***'
+!999 stop '*** ERROR ***'
   end subroutine fox_tx
 
   subroutine fox_rx(iseq,rxmsg)
