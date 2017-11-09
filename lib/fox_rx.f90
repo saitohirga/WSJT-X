@@ -34,7 +34,9 @@ subroutine fox_rx(fail,called,fm,hm)
      i1=index(fm,';')+2
      i2=index(fm,'<')-2
      cx=fm(i1:i2)
-     write(hm,1004) MyCall,cx,isnrx
+     call random_number(r)
+     ireport=nint(-20+40*r)
+     write(hm,1004) MyCall,cx,ireport
 1004 format(a6,1x,a6,' R',i3.2)
      if(hm(16:16).eq.' ') hm(16:16)='+'
   endif
