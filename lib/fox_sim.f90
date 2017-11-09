@@ -60,7 +60,10 @@ program fox_sim
 
   minutes=nseq/4
   write(13,1002) nseq,minutes,maxtimes
-1002 format(/'Nseq:',i4,'   Minutes:',i3,'   Maxtimes:',i2)
+1002 format(/'Nseq:',i4,'   Minutes:',i3,'   Maxtimes:',i2//                   &
+    18x,'Logged QSOs',22x,'Rate (QSOs/hour)'/                                  &
+    'fail Nsig: 1     2     3     4     5          1     2     3     4     5'/ &
+    71('-'))
 
   ntot=0
   irate=0
@@ -116,11 +119,12 @@ program fox_sim
         ntot(ii)=nlogged
         irate(ii)=0
         if(iseq.gt.0) irate(ii)=nint(nlogged*3600.0/(15*iseq))
-        write(*,3001) nsig,fail,nlogged
-3001    format('Nsig:',i3,'   Fail:',f4.1,'   Logged QSOs:',i4)
+        write(*,1030) nsig,fail,nlogged,nc
+1030    format('Nsig:',i3,'   Fail:',f4.1,'   Logged QSOs:',i4,      &
+             '   Final nc:',i4)
      enddo
      write(13,1100) fail,ntot,irate
-1100 format(f5.1,5i6,5x,5i6)
+1100 format(f4.1,2x,5i6,5x,5i6)
   enddo
 
 999 end program fox_sim
