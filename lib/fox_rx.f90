@@ -26,6 +26,7 @@ subroutine fox_rx(fail,called,fm,hm)
 1000 format(a6,1x,a6,1x,a4)
   endif
 
+! Check for a "RR73" message
   ia=index(fm,trim(cx))
   ib=index(fm,';')
   ic=index(fm,trim(called))
@@ -33,18 +34,21 @@ subroutine fox_rx(fail,called,fm,hm)
   if((ia.eq.1 .or. ic.eq.ib+2) .and. id.ge.4) then
      i1=index(fm,';')+2
      i2=index(fm,'<')-2
-     cx=fm(i1:i2)
+     cx=fm(i1:i2)                      !Callsign for next QSO
      call random_number(r)
      ireport=nint(-20+40*r)
+! Send report to next caller
      write(hm,1004) MyCall,cx,ireport
 1004 format(a6,1x,a6,' R',i3.2)
      if(hm(16:16).eq.' ') hm(16:16)='+'
   endif
 
+! Check for a message with a report to Hound
   i1=index(fm,trim(called))
   i2=index(fm,MyCall)
   if(i1.eq.1 .and. i2.ge.5 .and.   &
        (index(fm,'+').ge.8 .or. index(fm,'-').ge.8)) then
+! Send "R+rpt" to Fox
      write(hm,1004) MyCall,called,isnrx
      if(hm(16:16).eq.' ') hm(16:16)='+'
   endif

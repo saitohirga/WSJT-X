@@ -17,7 +17,8 @@ subroutine fox_tx(maxtimes,fail,called,gcalled,hm,fm,ntimes,log,logit)
 
   logit=.false.
   call random_number(r)
-  if(r.lt.fail) hm=""
+  if(r.lt.fail) hm=""                       !Fox failed to copy
+
   i2=len(trim(hm))
   if(i2.gt.10) then
      i1=index(hm,' ')

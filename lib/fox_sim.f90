@@ -131,6 +131,8 @@ program fox_sim
 1030    format(/'Nsig:',i3,'   Fail:',f4.1,'   Logged QSOs:',i4,      &
              '   Final nc:',i4)
      enddo
+     
+! Write the summary file
      write(13,1100) fail,ntot,irate
 1100 format(f4.1,2x,5i6,5x,5i6)
   enddo
