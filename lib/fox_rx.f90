@@ -30,12 +30,10 @@ subroutine fox_rx(fail,called,fm,hm)
   ib=index(fm,';')
   ic=index(fm,trim(called))
   id=index(fm,'RR73;')
-!  print*,'rx a0 ',fm,' ',called,' ',cx,ia,ib,ic,id
   if((ia.eq.1 .or. ic.eq.ib+2) .and. id.ge.4) then
      i1=index(fm,';')+2
      i2=index(fm,'<')-2
      cx=fm(i1:i2)
-!     print*,'rx a2 ',fm,' ',called,' ',cx
      write(hm,1004) MyCall,cx,isnrx
 1004 format(a6,1x,a6,' R',i3.2)
      if(hm(16:16).eq.' ') hm(16:16)='+'
