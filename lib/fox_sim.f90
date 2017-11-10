@@ -54,10 +54,11 @@ program fox_sim
 
 ! Read a file with calls and grids; insert random S/N values.
 ! This is used in place of an operator-selected FIFO
-!  open(10,file='xcall.txt',status='old')
+  open(10,file='xcall.txt',status='old')
   do i=1,NCALLS
-!     read(10,1000) xcall(i),xgrid(i)
-!1000 format(a6,7x,a4)
+     read(10,1000) xcall(i),xgrid(i)
+1000 format(a6,7x,a4)
+     if(i.ne.-99) cycle
      j=mod(i-1,26)
      c1=char(ichar('A')+j)
      k=mod((i-1)/26,26)
@@ -88,6 +89,9 @@ program fox_sim
     18x,'Logged QSOs',22x,'Rate (QSOs/hour)'/                                  &
     'fail Nsig: 1     2     3     4     5          1     2     3     4     5'/ &
     71('-'))
+
+  write(*,1003)
+1003 format('Seq  s n Fox messages                      Hound messages    Logged info        i Rate'/87('-'))
 
   ntot=0
   irate=0
@@ -142,6 +146,8 @@ program fox_sim
 1020             format(i4.4,i2,37x,a22)
               enddo
            endif
+           write(*,1021)
+1021       format(87('-'))
         enddo
         ntot(ii)=nlogged
         irate(ii)=0
