@@ -14,6 +14,7 @@ program fox_sim
   character*6 MyCall
   character*4 MyGrid
   character*8 arg
+  character*1 c1,c2,c3,c4
   integer ntot(MAXSIG),irate(MAXSIG),ntimes(MAXSIG)
   logical logit
   common/dxpfifo/nc,isnr,xcall,xgrid
@@ -53,14 +54,32 @@ program fox_sim
 
 ! Read a file with calls and grids; insert random S/N values.
 ! This is used in place of an operator-selected FIFO
-  open(10,file='xcall.txt',status='old')
+!  open(10,file='xcall.txt',status='old')
   do i=1,NCALLS
-     read(10,1000) xcall(i),xgrid(i)
-1000 format(a6,7x,a4)
+!     read(10,1000) xcall(i),xgrid(i)
+!1000 format(a6,7x,a4)
+     j=mod(i-1,26)
+     c1=char(ichar('A')+j)
+     k=mod((i-1)/26,26)
+     c2=char(ichar('A')+k)     
+     n=mod((i-1)/260,10)
+     c3=char(ichar('0')+n)     
+     xcall(i)='K'//c2//c3//c1//c1//c1
+
+     j=mod(i-1,18)
+     c1=char(ichar('A')+j)
+     k=mod((i-1)/18,18)
+     c2=char(ichar('A')+k)     
+     n=mod((i-1)/10,10)
+     c4=char(ichar('0')+n)     
+     n=mod((i-1)/100,10)
+     c3=char(ichar('0')+n)     
+     xgrid(i)=c1//c2//c3//c4
+     
      call random_number(x)
      isnr(i)=-20+int(40*x)
   enddo
-  close(10)
+!  close(10)
 
 ! Write headings for the summary file
   minutes=nseq/4

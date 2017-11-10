@@ -16,8 +16,11 @@ subroutine fox_tx(maxtimes,fail,called,gcalled,hm,fm,ntimes,log,logit)
        g4(4:4).ge.'0' .and. g4(4:4).le.'9' .and. g4(1:4).ne.'RR73'
 
   logit=.false.
+  n=len(trim(hm))
+  g4=""
+  if(n.gt.8) g4=hm(n-3:n)
   call random_number(r)
-  if(r.lt.fail) hm=""                       !Fox failed to copy
+  if(r.lt.fail .and. .not.isgrid(g4)) hm=""        !Fox failed to copy
 
   i2=len(trim(hm))
   if(i2.gt.10) then
@@ -59,13 +62,19 @@ subroutine fox_tx(maxtimes,fail,called,gcalled,hm,fm,ntimes,log,logit)
 
   if(hm.eq.'') then
      if(fm(1:3).ne.'CQ ') then
-        if(ntimes.lt.maxtimes) then
+!        if(ntimes.lt.maxtimes) then
            ntimes=ntimes+1
-        else
+!        else
+!           ntimes=1
+! If FIFO is empty we should call CQ in this slot
+!           call dxped_fifo(cy,gy,isnry)
+!           call random_number(r)
+!           isnr=nint(-20+40*r)
+!           write(fm,1010) cy,gy,isnr
            write(fm,1010) called,MyCall,isent
 1010       format(a6,1x,a6,i4.2)
            if(fm(15:15).eq.' ') fm(15:15)='+'
-        endif
+!        endif
      endif
   endif
 
