@@ -20,9 +20,9 @@ program ft8sim
 ! Get command-line argument(s)
   nargs=iargc()
   if(nargs.ne.8) then
-     print*,'Usage:   ft8sim "message"           s|m  f0    DT fdop del nfiles snr'
+     print*,'Usage:   ft8sim "message"         s|m|d  f0    DT fdop del nfiles snr'
      print*,'Example: ft8sim "K1ABC W9XYZ EN37"   m  1500.0 0.0 0.1 1.0   10   -18'
-     print*,'s|m: "s" for single signal at 1500 Hz, "m" for 25 signals'
+     print*,'s|m|d: s for single signal, m for 25 signals, d for 5.'
      print*,'f0 is ignored when sorm = m'
      print*,'Make nfiles negative to invoke 72-bit contest mode.'
      go to 999
@@ -35,8 +35,11 @@ program ft8sim
   elseif( sorm.eq."m") then
     print*,"Generating 25 signals per file."
     nsig=25
+  elseif( sorm.eq."d") then
+    print*,"Generating 5 signals per file."
+    nsig=5
   else
-    print*,"sorm parameter must be s (single) or m (multiple)."
+    print*,"sorm parameter must be s, m, or d."
     goto 999
   endif
   call getarg(3,arg)
@@ -84,7 +87,13 @@ write(*,'(12i1)') msgbits(76:87)
      do isig=1,nsig
         c0=0.
         if(nsig.eq.25) then
-          f0=(isig+2)*100.0
+           f0=(isig+2)*100.0
+        else if(nsig.eq.5) then
+           f0=1500.0 + (isig-1)*60.0
+           msg(3:3)=char(ichar('A')+isig-1)
+           msg(4:4)=char(ichar('A')+isig-1)
+           msg(5:5)=char(ichar('A')+isig-1)
+           call genft8(msg,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
         endif
         k=-1 + nint((xdt+0.5+0.01*gran())/dt)
 !        k=-1 + nint((xdt+0.5)/dt)
@@ -100,6 +109,9 @@ write(*,'(12i1)') msgbits(76:87)
         if(fspread.ne.0.0 .or. delay.ne.0.0) call watterson(c0,NMAX,fs,delay,fspread)
         c=c+sig*c0
      enddo
+
+     if(nsig.eq.5) call compress(c)
+     
      if(snrdb.lt.90) then
         do i=0,NMAX-1                   !Add gaussian noise at specified SNR
            xnoise=gran()
