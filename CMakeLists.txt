@@ -386,6 +386,7 @@ set (wsjt_FSRCS
   lib/chkhist.f90
   lib/chkmsg.f90
   lib/chkss2.f90
+  lib/ft8/compress.f90
   lib/coord.f90
   lib/fsk4hf/cpolyfit.f90
   lib/fsk4hf/cpolyfitw.f90
