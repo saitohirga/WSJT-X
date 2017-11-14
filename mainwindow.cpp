@@ -1147,6 +1147,7 @@ void MainWindow::setDecodedTextFont (QFont const& font)
 {
   ui->decodedTextBrowser->setContentFont (font);
   ui->decodedTextBrowser2->setContentFont (font);
+  ui->textBrowser3->setContentFont (font);
   auto style_sheet = "QLabel {" + font_as_stylesheet (font) + '}';
   ui->decodedTextLabel->setStyleSheet (ui->decodedTextLabel->styleSheet () + style_sheet);
   ui->decodedTextLabel2->setStyleSheet (ui->decodedTextLabel2->styleSheet () + style_sheet);
@@ -1597,15 +1598,11 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     if(m_mode=="JT4") on_actionJT4_triggered();
     if(m_mode=="JT9") on_actionJT9_triggered();
     if(m_mode=="JT9+JT65") on_actionJT9_JT65_triggered();
-    if(m_mode=="JT65") {
-      on_actionJT65_triggered();
-    }
+    if(m_mode=="JT65") on_actionJT65_triggered();
     if(m_mode=="QRA64") on_actionQRA64_triggered();
     if(m_mode=="FreqCal") on_actionFreqCal_triggered();
     if(m_mode=="ISCAT") on_actionISCAT_triggered();
-    if(m_mode=="MSK144") {
-      on_actionMSK144_triggered();
-    }
+    if(m_mode=="MSK144") on_actionMSK144_triggered();
     if(m_mode=="WSPR") on_actionWSPR_triggered();
     if(m_mode=="WSPR-LF") on_actionWSPR_LF_triggered();
     if(m_mode=="Echo") on_actionEcho_triggered();
@@ -1617,8 +1614,8 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       ui->label_6->setText("Single-Period Decodes");
       ui->label_7->setText("Average Decodes");
     } else {
-      ui->label_6->setText("Band Activity");
-      ui->label_7->setText("Rx Frequency");
+//      ui->label_6->setText("Band Activity");
+//      ui->label_7->setText("Rx Frequency");
     }
     update_watchdog_label ();
     if(!m_splitMode) ui->cbCQTx->setChecked(false);
@@ -1727,6 +1724,9 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         return;
       case Qt::Key_Enter:
         doubleClickOnCall2(Qt::KeyboardModifier(Qt::ShiftModifier + Qt::ControlModifier + Qt::AltModifier));
+        return;
+      case Qt::Key_Backspace:
+        qDebug() << "a" << m_toBeCalled;
         return;
     }
     QMainWindow::keyPressEvent (e);
@@ -2744,9 +2744,11 @@ void MainWindow::decodeDone ()
     if(f.open(QIODevice::ReadOnly | QIODevice::Text)) {
       QTextStream s(&f);
       QString t=s.readAll();
-      QString t1=sortFoxCalls(t,m_isort,m_min_dB,m_max_dB);
-      ui->decodedTextBrowser->setText(t1);
-      if(m_toBeCalled!="") ui->decodedTextBrowser->displayFoxToBeCalled(m_toBeCalled,"#ff99ff");
+      if(t.length()>30) {
+        QString t1=sortFoxCalls(t,m_isort,m_min_dB,m_max_dB);
+        ui->decodedTextBrowser->setText(t1);
+        if(m_toBeCalled!="") ui->decodedTextBrowser->displayFoxToBeCalled(m_toBeCalled,"#ff99ff");
+      }
     }
   }
 }
@@ -3795,7 +3797,6 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
     MessageBox::information_message (this,
         "Double-click not presently implemented for ISCAT mode");
   }
-
   if(m_decodedText2) {
     cursor=ui->decodedTextBrowser->textCursor();
   } else {
@@ -3809,7 +3810,7 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
   }
 
   if(m_config.bFox() and m_decodedText2) {
-    if(m_nToBeCalled >= 4) return;
+    if(m_nToBeCalled >= 5 or m_nFoxCallers==0) return;
     QString t=cursor.block().text();
     QString c2=t.split(" ",QString::SkipEmptyParts).at(0);
     QString g2=t.split(" ",QString::SkipEmptyParts).at(1);
@@ -3824,7 +3825,14 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
     m_nToBeCalled+=1;
     ui->decodedTextBrowser->clear();
     ui->decodedTextBrowser->append(m_FoxCallers);
-    ui->decodedTextBrowser->displayFoxToBeCalled(m_toBeCalled,"#ff99ff");
+//    ui->decodedTextBrowser->displayFoxToBeCalled(m_toBeCalled,"#ff99ff");
+    QString t1=c2 + "    ";
+    QString t2=rpt;
+    if(rpt.mid(0,1) != "-") t2="+" + rpt;
+    t1=t1.mid(0,7) + t2;
+    t2.sprintf("%1d. ",m_nToBeCalled);
+    t1=t2 + t1;
+    ui->textBrowser3->displayFoxToBeCalled(t1,"#ff99ff");
     return;
   }
   DecodedText message {cursor.block().text(), ("MSK144" == m_mode || "FT8" == m_mode) &&
@@ -4815,7 +4823,7 @@ void MainWindow::on_actionFT8_triggered()
   ui->label_7->setText("Rx Frequency");
   if(m_config.bFox()) {
     ui->label_6->setText("Stations calling DXpedition " + m_config.my_callsign());
-    ui->decodedTextLabel->setText( "Call         Grid   dB  Freq   Age");
+    ui->decodedTextLabel->setText( "Call         Grid   dB  Freq   Dist   Age");
   } else {
     ui->label_6->setText("Band Activity");
     ui->decodedTextLabel->setText( "  UTC   dB   DT Freq    Message");
@@ -7064,7 +7072,8 @@ QString MainWindow::sortFoxCalls(QString t, int isort, int min_dB, int max_dB)
 //  ui->labCallers->setText(uniqueCalls);
 
   int i0=t.indexOf("\n") + 1;
-  m_nFoxCallers=qMin(t.length(),m_max_N*i0)/i0;
+  m_nFoxCallers=0;
+  if(i0 > 0) m_nFoxCallers=qMin(t.length(),m_max_N*i0)/i0;
   m_FoxCallers=t.mid(0,m_max_N*i0);
   return m_FoxCallers;
 }

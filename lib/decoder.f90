@@ -83,23 +83,29 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      n15max=maxval(n15fox(1:nfox))
      j=0
      rewind 19
-     do i=1,nfox
-        n=n15fox(i)
-! Do this only when c1 = MyCall        
-        if(n15max-n15fox(i).le.4) then           
-           j=j+1
-           c2fox(j)=c2fox(i)
-           g2fox(j)=g2fox(i)
-           nsnrfox(j)=nsnrfox(i)
-           nfreqfox(j)=nfreqfox(i)
-           n15fox(j)=n
-           m=n15max-n
-           write(19,1004) c2fox(j),g2fox(j),nsnrfox(j),nfreqfox(j),m
-1004       format(a12,1x,a4,i5,i6,i5)
-        endif
-     enddo
-     nfox=j
-     flush(19)
+     if(nfox.eq.0) then
+        endfile 19
+        rewind 19
+     else
+        do i=1,nfox
+           n=n15fox(i)
+           if(n15max-n15fox(i).le.4) then
+              j=j+1
+              c2fox(j)=c2fox(i)
+              g2fox(j)=g2fox(i)
+              nsnrfox(j)=nsnrfox(i)
+              nfreqfox(j)=nfreqfox(i)
+              n15fox(j)=n
+              m=n15max-n
+              call azdist(params%mygrid,g2fox(j),utch,nAz,nEl,nDmiles,nDkm,  &
+                   nHotAz,nHotABetter)
+              write(19,1004) c2fox(j),g2fox(j),nsnrfox(j),nfreqfox(j),nDkm,m
+1004          format(a12,1x,a4,i5,i6,i7,i5)
+           endif
+        enddo
+        nfox=j
+        flush(19)
+     endif
      go to 800
   endif
 
@@ -430,7 +436,7 @@ contains
     real, intent(in) :: dt
     real, intent(in) :: freq
     character(len=22), intent(in) :: decoded
-    character c2*6,g2*4,w*4
+    character c1*12,c2*6,g2*4,w*4
     integer i1,i2,i3,n15
     integer, intent(in) :: nap 
     real, intent(in) :: qual 
@@ -470,18 +476,23 @@ contains
     i1=index(decoded0,' ')
     i2=i1 + index(decoded0(i1+1:),' ')
     i3=i2 + index(decoded0(i2+1:),' ')
-    c2=decoded0(i1+1:i2-1)
-    g2=decoded0(i2+1:i3-1)
-    if(i3-i2.eq.5 .and. isgrid4(g2)) then
-       n=params%nutc
-       n15=(3600*(n/10000) + 60*mod((n/100),100) + mod(n,100))/15
-       nfox=nfox+1
-       c2fox(nfox)=c2
-       g2fox(nfox)=g2
-       nsnrfox(nfox)=snr
-       nfreqfox(nfox)=nint(freq)
-       n15fox(nfox)=n15
-       n15z=n15
+    if(i1.ge.3 .and. i2.ge.7 .and. i3.ge.10) then
+       c1=decoded0(1:i1-1)//'            '
+       c2=decoded0(i1+1:i2-1)
+       g2=decoded0(i2+1:i3-1)
+!### CQ and .true. here are temporary !  ###       
+       if((c1.eq.params%mycall .or. c1.eq.'CQ' .or. .true.) .and. i3-i2.eq.5       &
+            .and. isgrid4(g2)) then
+          n=params%nutc
+          n15=(3600*(n/10000) + 60*mod((n/100),100) + mod(n,100))/15
+          nfox=nfox+1
+          c2fox(nfox)=c2
+          g2fox(nfox)=g2
+          nsnrfox(nfox)=snr
+          nfreqfox(nfox)=nint(freq)
+          n15fox(nfox)=n15
+          n15z=n15
+       endif
     endif
     
     call flush(6)
