@@ -282,6 +282,12 @@ private slots:
   void on_actionFreqCal_triggered();
   void splash_done ();
   void on_measure_check_box_stateChanged (int);
+  void on_rbCall_toggled(bool b);
+  void on_rbGrid_toggled(bool b);
+  void on_rbSNR_toggled(bool b);
+  void on_rbDist_toggled(bool b);
+  void on_rbRandom_toggled(bool b);
+  void on_sbNsig_valueChanged(int n);
 
 private:
   Q_SIGNAL void initializeAudioOutputStream (QAudioDeviceInfo,
@@ -357,6 +363,7 @@ private:
   qint64  m_msErase;
   qint64  m_secBandChanged;
   qint64  m_freqMoon;
+  qint64  m_msec0;
   Frequency m_freqNominal;
   Frequency m_freqTxNominal;
   Astro::Correction m_astroCorrection;
@@ -413,6 +420,7 @@ private:
   qint32  m_min_dB;
   qint32  m_nFoxCallers=0;
   qint32  m_nToBeCalled=0;
+  qint32  m_Nsig=5;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;

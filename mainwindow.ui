@@ -1036,6 +1036,12 @@ QLabel[oob=&quot;true&quot;] {
                </item>
                <item>
                 <widget class="QTabWidget" name="tabWidget">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>250</height>
+                  </size>
+                 </property>
                  <property name="tabPosition">
                   <enum>QTabWidget::West</enum>
                  </property>
@@ -1621,9 +1627,101 @@ list. The list can be maintained in Settings (F2).</string>
                     <rect>
                      <x>10</x>
                      <y>3</y>
-                     <width>130</width>
-                     <height>110</height>
+                     <width>171</width>
+                     <height>91</height>
                     </rect>
+                   </property>
+                  </widget>
+                  <widget class="QGroupBox" name="groupBox">
+                   <property name="geometry">
+                    <rect>
+                     <x>10</x>
+                     <y>100</y>
+                     <width>131</width>
+                     <height>91</height>
+                    </rect>
+                   </property>
+                   <property name="title">
+                    <string>Selection Order</string>
+                   </property>
+                   <widget class="QWidget" name="">
+                    <property name="geometry">
+                     <rect>
+                      <x>10</x>
+                      <y>20</y>
+                      <width>113</width>
+                      <height>65</height>
+                     </rect>
+                    </property>
+                    <layout class="QGridLayout" name="gridLayout_10">
+                     <item row="0" column="0">
+                      <widget class="QRadioButton" name="rbCall">
+                       <property name="text">
+                        <string>Call</string>
+                       </property>
+                       <property name="checked">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="1">
+                      <widget class="QRadioButton" name="rbDist">
+                       <property name="text">
+                        <string>Dist</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="0">
+                      <widget class="QRadioButton" name="rbGrid">
+                       <property name="text">
+                        <string>Grid</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="1">
+                      <widget class="QRadioButton" name="rbRandom">
+                       <property name="text">
+                        <string>Random</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="0">
+                      <widget class="QRadioButton" name="rbSNR">
+                       <property name="text">
+                        <string>S/N</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="1">
+                      <widget class="QCheckBox" name="cbReverse">
+                       <property name="text">
+                        <string>Reverse</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </widget>
+                  </widget>
+                  <widget class="QSpinBox" name="sbNsig">
+                   <property name="geometry">
+                    <rect>
+                     <x>150</x>
+                     <y>140</y>
+                     <width>61</width>
+                     <height>22</height>
+                    </rect>
+                   </property>
+                   <property name="prefix">
+                    <string>Nsig:  </string>
+                   </property>
+                   <property name="minimum">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <number>5</number>
+                   </property>
+                   <property name="value">
+                    <number>5</number>
                    </property>
                   </widget>
                  </widget>

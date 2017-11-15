@@ -989,6 +989,14 @@ void MainWindow::writeSettings()
   m_settings->setValue ("FreeText", ui->freeTextMsg->currentText ());
   m_settings->setValue("ShowMenus",ui->cbMenus->isChecked());
   m_settings->setValue("CallFirst",ui->cbFirst->isChecked());
+  m_settings->setValue("FoxSortCall",ui->rbCall->isChecked());
+  m_settings->setValue("FoxSortGrid",ui->rbGrid->isChecked());
+  m_settings->setValue("FoxSortSNR",ui->rbSNR->isChecked());
+  m_settings->setValue("FoxSortDist",ui->rbDist->isChecked());
+  m_settings->setValue("FoxSortRandom",ui->rbRandom->isChecked());
+  m_settings->setValue("FoxSortReverse",ui->cbReverse->isChecked());
+  m_settings->setValue("FoxNsig",ui->sbNsig->value());
+
   m_settings->endGroup();
 
   m_settings->beginGroup("Common");
@@ -1056,6 +1064,13 @@ void MainWindow::readSettings()
         m_settings->value ("FreeText").toString ());
   ui->cbMenus->setChecked(m_settings->value("ShowMenus",true).toBool());
   ui->cbFirst->setChecked(m_settings->value("CallFirst",true).toBool());
+  ui->rbCall->setChecked(m_settings->value("FoxSortCall",false).toBool());
+  ui->rbGrid->setChecked(m_settings->value("FoxSortGrid",false).toBool());
+  ui->rbSNR->setChecked(m_settings->value("FoxSortSNR",true).toBool());
+  ui->rbDist->setChecked(m_settings->value("FoxSortDist",false).toBool());
+  ui->rbRandom->setChecked(m_settings->value("FoxSortRandom",false).toBool());
+  ui->cbReverse->setChecked(m_settings->value("FoxSortReverse",true).toBool());
+  ui->sbNsig->setValue(m_settings->value("FoxNsig",5).toInt());
   m_settings->endGroup();
 
   // do this outside of settings group because it uses groups internally
@@ -2510,6 +2525,7 @@ void MainWindow::msgAvgDecode2()
 
 void MainWindow::decode()                                       //decode()
 {
+  m_msec0=QDateTime::currentMSecsSinceEpoch();
   if(!m_dataAvailable or m_TRperiod==0) return;
   ui->DecodeButton->setChecked (true);
   if(!dec_data.params.nagain && m_diskData && !m_bFastMode && m_mode!="FT8") {
@@ -2747,7 +2763,7 @@ void MainWindow::decodeDone ()
       if(t.length()>30) {
         QString t1=sortFoxCalls(t,m_isort,m_min_dB,m_max_dB);
         ui->decodedTextBrowser->setText(t1);
-        if(m_toBeCalled!="") ui->decodedTextBrowser->displayFoxToBeCalled(m_toBeCalled,"#ff99ff");
+//        if(m_toBeCalled!="") ui->decodedTextBrowser->displayFoxToBeCalled(m_toBeCalled,"#ff99ff");
       }
     }
   }
@@ -2757,6 +2773,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
 {
   while(proc_jt9.canReadLine()) {
     QByteArray t=proc_jt9.readLine();
+//    qint64 ms=QDateTime::currentMSecsSinceEpoch() - m_msec0;
+//    qDebug() << "A" << ms << t;
     bool bAvgMsg=false;
     int navg=0;
     if(t.indexOf("<DecodeFinished>") >= 0) {
@@ -3810,9 +3828,10 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
   }
 
   if(m_config.bFox() and m_decodedText2) {
-    if(m_nToBeCalled >= 5 or m_nFoxCallers==0) return;
+    if(m_nToBeCalled >= m_Nsig or m_nFoxCallers==0) return;
     QString t=cursor.block().text();
     QString c2=t.split(" ",QString::SkipEmptyParts).at(0);
+    if(ui->textBrowser3->toPlainText().indexOf(c2) >= 0) return;
     QString g2=t.split(" ",QString::SkipEmptyParts).at(1);
     QString rpt=t.split(" ",QString::SkipEmptyParts).at(2);
     ui->dxCallEntry->setText(c2);
@@ -3825,7 +3844,6 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
     m_nToBeCalled+=1;
     ui->decodedTextBrowser->clear();
     ui->decodedTextBrowser->append(m_FoxCallers);
-//    ui->decodedTextBrowser->displayFoxToBeCalled(m_toBeCalled,"#ff99ff");
     QString t1=c2 + "    ";
     QString t2=rpt;
     if(rpt.mid(0,1) != "-") t2="+" + rpt;
@@ -4823,7 +4841,7 @@ void MainWindow::on_actionFT8_triggered()
   ui->label_7->setText("Rx Frequency");
   if(m_config.bFox()) {
     ui->label_6->setText("Stations calling DXpedition " + m_config.my_callsign());
-    ui->decodedTextLabel->setText( "Call         Grid   dB  Freq   Dist   Age");
+    ui->decodedTextLabel->setText( "Call         Grid   dB  Freq   Dist");
   } else {
     ui->label_6->setText("Band Activity");
     ui->decodedTextLabel->setText( "  UTC   dB   DT Freq    Message");
@@ -7009,10 +7027,9 @@ QString MainWindow::sortFoxCalls(QString t, int isort, int min_dB, int max_dB)
   QString msg,c2,t1;
   QString ABC{"ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
   QList<int> list;
-  int i,j,k,n,nlines;
-  bool bReverse;
+  int i,j,k,m,n,nlines;
+  bool bReverse=ui->cbReverse->isChecked();
 
-  bReverse=(isort<0);
   isort=qAbs(isort);
 // Save only the most recent transmission from each caller.
   lines = t.split("\n");
@@ -7067,6 +7084,21 @@ QString MainWindow::sortFoxCalls(QString t, int isort, int min_dB, int max_dB)
     }
   }
 
+  int nn=lines2.length();
+  if(isort==0) {
+    int a[nn];
+    for(i=0; i<nn; i++) {
+      a[i]=i;
+    }
+    for(i=nn-1; i>-1; i--) {
+      j=(i+1)*double(qrand())/RAND_MAX;
+      m=a[j];
+      a[j]=a[i];
+      a[i]=m;
+      t += lines2.at(m) + "\n";
+    }
+  }
+
 //  QString uniqueCalls;
 //  uniqueCalls.sprintf("   Unique callers: %d",j);
 //  ui->labCallers->setText(uniqueCalls);
@@ -7077,3 +7109,38 @@ QString MainWindow::sortFoxCalls(QString t, int isort, int min_dB, int max_dB)
   m_FoxCallers=t.mid(0,m_max_N*i0);
   return m_FoxCallers;
 }
+
+void MainWindow::on_rbCall_toggled(bool b)
+{
+  if(b) {
+    m_isort=1;
+    ui->cbReverse->setChecked(false);
+  }
+}
+
+void MainWindow::on_rbGrid_toggled(bool b)
+{
+  if(b) m_isort=2;
+}
+
+void MainWindow::on_rbSNR_toggled(bool b)
+{
+  if(b) m_isort=3;
+}
+
+void MainWindow::on_rbDist_toggled(bool b)
+{
+  if(b) m_isort=4;
+}
+
+void MainWindow::on_rbRandom_toggled(bool b)
+{
+  if(b) m_isort=0;
+}
+
+void MainWindow::on_sbNsig_valueChanged(int n)
+{
+  m_Nsig=n;
+}
+
+
