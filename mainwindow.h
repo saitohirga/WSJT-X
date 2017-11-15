@@ -288,6 +288,8 @@ private slots:
   void on_rbDist_toggled(bool b);
   void on_rbRandom_toggled(bool b);
   void on_sbNsig_valueChanged(int n);
+  void on_sbNslots_valueChanged(int n);
+  void on_sbMax_dB_valueChanged(int n);
 
 private:
   Q_SIGNAL void initializeAudioOutputStream (QAudioDeviceInfo,
@@ -415,12 +417,12 @@ private:
   qint32  m_wait;
   qint32  m_i3bit;
   qint32  m_isort;
-  qint32  m_max_N;
   qint32  m_max_dB;
   qint32  m_min_dB;
   qint32  m_nFoxCallers=0;
   qint32  m_nToBeCalled=0;
-  qint32  m_Nsig=5;
+  qint32  m_Nsig=12;
+  qint32  m_Nslots=5;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;

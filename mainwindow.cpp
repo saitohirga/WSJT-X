@@ -867,7 +867,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_bDisplayedOnce=false;
   m_wait=0;
   m_isort=-3;
-  m_max_N=10;
   m_min_dB=-30;
   m_max_dB=30;
   m_CQtype="CQ";
@@ -996,7 +995,8 @@ void MainWindow::writeSettings()
   m_settings->setValue("FoxSortRandom",ui->rbRandom->isChecked());
   m_settings->setValue("FoxSortReverse",ui->cbReverse->isChecked());
   m_settings->setValue("FoxNsig",ui->sbNsig->value());
-
+  m_settings->setValue("FoxNslots",ui->sbNslots->value());
+  m_settings->setValue("FoxMaxDB",ui->sbMax_dB->value());
   m_settings->endGroup();
 
   m_settings->beginGroup("Common");
@@ -1070,7 +1070,9 @@ void MainWindow::readSettings()
   ui->rbDist->setChecked(m_settings->value("FoxSortDist",false).toBool());
   ui->rbRandom->setChecked(m_settings->value("FoxSortRandom",false).toBool());
   ui->cbReverse->setChecked(m_settings->value("FoxSortReverse",true).toBool());
-  ui->sbNsig->setValue(m_settings->value("FoxNsig",5).toInt());
+  ui->sbNsig->setValue(m_settings->value("FoxNsig",12).toInt());
+  ui->sbNslots->setValue(m_settings->value("FoxNslots",5).toInt());
+  ui->sbMax_dB->setValue(m_settings->value("FoxMaxDB",30).toInt());
   m_settings->endGroup();
 
   // do this outside of settings group because it uses groups internally
@@ -3454,7 +3456,7 @@ void MainWindow::guiUpdate()
   }
   if(m_config.bFox()) {
     QString t;
-    t.sprintf("DXpedition: Fox  %d %d %d %d",m_isort,m_max_N,
+    t.sprintf("DXpedition: Fox  %d %d %d %d",m_isort,m_Nsig,
               m_min_dB,m_max_dB);
     ui->labDXped->setText(t);
   }
@@ -3828,7 +3830,7 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
   }
 
   if(m_config.bFox() and m_decodedText2) {
-    if(m_nToBeCalled >= m_Nsig or m_nFoxCallers==0) return;
+    if(m_nToBeCalled >= m_Nslots or m_nFoxCallers==0) return;
     QString t=cursor.block().text();
     QString c2=t.split(" ",QString::SkipEmptyParts).at(0);
     if(ui->textBrowser3->toPlainText().indexOf(c2) >= 0) return;
@@ -3847,6 +3849,7 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
     QString t1=c2 + "    ";
     QString t2=rpt;
     if(rpt.mid(0,1) != "-") t2="+" + rpt;
+    if(t2.length()==2) t2=t2.mid(0,1) + "0" + t2.mid(1,1);
     t1=t1.mid(0,7) + t2;
     t2.sprintf("%1d. ",m_nToBeCalled);
     t1=t2 + t1;
@@ -7105,8 +7108,8 @@ QString MainWindow::sortFoxCalls(QString t, int isort, int min_dB, int max_dB)
 
   int i0=t.indexOf("\n") + 1;
   m_nFoxCallers=0;
-  if(i0 > 0) m_nFoxCallers=qMin(t.length(),m_max_N*i0)/i0;
-  m_FoxCallers=t.mid(0,m_max_N*i0);
+  if(i0 > 0) m_nFoxCallers=qMin(t.length(),m_Nsig*i0)/i0;
+  m_FoxCallers=t.mid(0,m_Nsig*i0);
   return m_FoxCallers;
 }
 
@@ -7143,4 +7146,12 @@ void MainWindow::on_sbNsig_valueChanged(int n)
   m_Nsig=n;
 }
 
+void MainWindow::on_sbNslots_valueChanged(int n)
+{
+  m_Nslots=n;
+}
 
+void MainWindow::on_sbMax_dB_valueChanged(int n)
+{
+  m_max_dB=n;
+}
