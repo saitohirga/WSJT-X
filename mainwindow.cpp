@@ -997,6 +997,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("FoxNsig",ui->sbNsig->value());
   m_settings->setValue("FoxNslots",ui->sbNslots->value());
   m_settings->setValue("FoxMaxDB",ui->sbMax_dB->value());
+  m_settings->setValue("FoxMaxRepeats",ui->sbMaxRepeats->value());
   m_settings->endGroup();
 
   m_settings->beginGroup("Common");
@@ -1073,6 +1074,7 @@ void MainWindow::readSettings()
   ui->sbNsig->setValue(m_settings->value("FoxNsig",12).toInt());
   ui->sbNslots->setValue(m_settings->value("FoxNslots",5).toInt());
   ui->sbMax_dB->setValue(m_settings->value("FoxMaxDB",30).toInt());
+  ui->sbMaxRepeats->setValue(m_settings->value("FoxMaxRepeats",3).toInt());
   m_settings->endGroup();
 
   // do this outside of settings group because it uses groups internally
@@ -3837,7 +3839,7 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
     if(m_nToBeCalled >= m_Nslots or m_nFoxCallers==0) return;
     QString t=cursor.block().text();
     QString c2=t.split(" ",QString::SkipEmptyParts).at(0);
-    if(ui->textBrowser3->toPlainText().indexOf(c2) >= 0) return;
+    if(ui->textBrowser3->toPlainText().indexOf(c2) >= 0) return;  //Don't allow same call twice
     QString g2=t.split(" ",QString::SkipEmptyParts).at(1);
     QString rpt=t.split(" ",QString::SkipEmptyParts).at(2);
     ui->dxCallEntry->setText(c2);
@@ -3857,7 +3859,11 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
     t1=t1.mid(0,7) + t2;
     t2.sprintf("%1d. ",m_nToBeCalled);
     t1=t2 + t1;
-    ui->textBrowser3->displayFoxToBeCalled(t1,"#ff99ff");
+    // Possible sequence of colors:
+    // Queued: #99ffff
+    // Called: #66ff66
+    // Received R+rpt: #ff99ff (?)
+    ui->textBrowser3->displayFoxToBeCalled(t1,"#99ffff");
     return;
   }
   DecodedText message {cursor.block().text(), ("MSK144" == m_mode || "FT8" == m_mode) &&
