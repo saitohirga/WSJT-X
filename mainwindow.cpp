@@ -2763,9 +2763,13 @@ void MainWindow::decodeDone ()
       QTextStream s(&f);
       QString t=s.readAll();
       if(t.length()>30) {
+        m_isort=0;
+        if(ui->rbCall->isChecked()) m_isort=1;
+        if(ui->rbGrid->isChecked()) m_isort=2;
+        if(ui->rbSNR->isChecked()) m_isort=3;
+        if(ui->rbDist->isChecked()) m_isort=4;
         QString t1=sortFoxCalls(t,m_isort,m_min_dB,m_max_dB);
         ui->decodedTextBrowser->setText(t1);
-//        if(m_toBeCalled!="") ui->decodedTextBrowser->displayFoxToBeCalled(m_toBeCalled,"#ff99ff");
       }
     }
   }
