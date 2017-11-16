@@ -134,6 +134,8 @@ extern "C" {
 
   void calibrate_(char data_dir[], int* iz, double* a, double* b, double* rms,
                   double* sigmaa, double* sigmab, int* irc, int len1);
+
+  void foxgen_(char* tb3, int len);
 }
 
 int volatile itone[NUM_ISCAT_SYMBOLS];  //Audio tones for all Tx symbols
@@ -3323,8 +3325,15 @@ void MainWindow::guiUpdate()
             }
           }
           if(m_modeTx=="FT8") {
-            genft8_(message, MyGrid, &bcontest, &m_i3bit, msgsent, const_cast<char *> (ft8msgbits),
-                    const_cast<int *> (itone), 22, 6, 22);
+            if(m_config.bFox()) {
+              QString t=ui->textBrowser3->toPlainText();
+              qDebug() << "aa" << m_Nslots << t;
+              int len=t.length();
+              foxgen_(const_cast <char *> (t.toLatin1().constData()),len);
+            } else {
+              genft8_(message, MyGrid, &bcontest, &m_i3bit, msgsent, const_cast<char *> (ft8msgbits),
+                      const_cast<int *> (itone), 22, 6, 22);
+            }
           }
         }
         msgsent[22]=0;
@@ -3881,11 +3890,6 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
     if(rpt.mid(0,1) != "-") t2="+" + rpt;
     if(t2.length()==2) t2=t2.mid(0,1) + "0" + t2.mid(1,1);
     t1=t1.mid(0,7) + t2;
-    t2.sprintf("%1d. ",m_nToBeCalled);
-    t1=t2 + t1;
-    // Possible sequence of colors:
-    // Queued:          #99ffff
-    // QSO in progress: #66ff66
     if(m_nToBeCalled<= m_Nslots) {
       ui->textBrowser3->displayFoxToBeCalled(t1,"#ffffff");
     } else {
