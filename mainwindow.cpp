@@ -2847,6 +2847,29 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
       DecodedText decodedtext {QString::fromUtf8 (t.constData ()).remove (QRegularExpression {"\r|\n"}), "FT8" == m_mode &&
             ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
+      QString c2,g2;
+      decodedtext.deCallAndGrid(/*out*/c2,g2);
+      if(g2.mid(0,2)=="R+" or g2.mid(0,2)=="R-") {
+        QString a=ui->textBrowser3->toPlainText();
+        int i0=a.indexOf(c2);
+        if(i0 >= 0) {
+          QString b=a.mid(i0);
+          QStringList c=a.split("\n");
+          ui->textBrowser3->setText("");
+          for (int i=0; i<c.length(); i++) {
+            QString d=c.at(i);
+            if(d.indexOf(c2)<0 and d.indexOf("RR73")<0) {
+              ui->textBrowser3->displayFoxToBeCalled(d,"#ffffff");
+            } else {
+              if(d.indexOf("RR73")<0) {
+                int i1=qMax(d.indexOf("+"),d.indexOf("-"));
+                d=d.mid(0,i1-1) + "RR73";
+              }
+              ui->textBrowser3->displayFoxToBeCalled(d,"#ff99ff");
+            }
+          }
+        }
+      }
 
       //Left (Band activity) window
       if(!bAvgMsg) {
@@ -3864,9 +3887,8 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
     // Queued:          #99ffff
     // QSO in progress: #66ff66
     if(m_nToBeCalled<= m_Nslots) {
-      ui->textBrowser3->displayFoxToBeCalled(t1,"#99ffff");
+      ui->textBrowser3->displayFoxToBeCalled(t1,"#ffffff");
     } else {
-//      ui->textBrowser4->append(t1);
       ui->textBrowser4->displayFoxToBeCalled(t1,"#ffffff");
     }
     m_nFoxCallers--;
