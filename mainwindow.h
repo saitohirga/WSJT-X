@@ -282,11 +282,6 @@ private slots:
   void on_actionFreqCal_triggered();
   void splash_done ();
   void on_measure_check_box_stateChanged (int);
-  void on_rbCall_toggled(bool b);
-  void on_rbGrid_toggled(bool b);
-  void on_rbSNR_toggled(bool b);
-  void on_rbDist_toggled(bool b);
-  void on_rbRandom_toggled(bool b);
   void on_sbNsig_valueChanged(int n);
   void on_sbNslots_valueChanged(int n);
   void on_sbMax_dB_valueChanged(int n);

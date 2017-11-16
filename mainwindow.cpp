@@ -988,12 +988,7 @@ void MainWindow::writeSettings()
   m_settings->setValue ("FreeText", ui->freeTextMsg->currentText ());
   m_settings->setValue("ShowMenus",ui->cbMenus->isChecked());
   m_settings->setValue("CallFirst",ui->cbFirst->isChecked());
-  m_settings->setValue("FoxSortCall",ui->rbCall->isChecked());
-  m_settings->setValue("FoxSortGrid",ui->rbGrid->isChecked());
-  m_settings->setValue("FoxSortSNR",ui->rbSNR->isChecked());
-  m_settings->setValue("FoxSortDist",ui->rbDist->isChecked());
-  m_settings->setValue("FoxSortRandom",ui->rbRandom->isChecked());
-  m_settings->setValue("FoxSortReverse",ui->cbReverse->isChecked());
+  m_settings->setValue("FoxSort",ui->comboBoxFoxSort->currentIndex());
   m_settings->setValue("FoxNsig",ui->sbNsig->value());
   m_settings->setValue("FoxNslots",ui->sbNslots->value());
   m_settings->setValue("FoxMaxDB",ui->sbMax_dB->value());
@@ -1065,12 +1060,7 @@ void MainWindow::readSettings()
         m_settings->value ("FreeText").toString ());
   ui->cbMenus->setChecked(m_settings->value("ShowMenus",true).toBool());
   ui->cbFirst->setChecked(m_settings->value("CallFirst",true).toBool());
-  ui->rbCall->setChecked(m_settings->value("FoxSortCall",false).toBool());
-  ui->rbGrid->setChecked(m_settings->value("FoxSortGrid",false).toBool());
-  ui->rbSNR->setChecked(m_settings->value("FoxSortSNR",true).toBool());
-  ui->rbDist->setChecked(m_settings->value("FoxSortDist",false).toBool());
-  ui->rbRandom->setChecked(m_settings->value("FoxSortRandom",false).toBool());
-  ui->cbReverse->setChecked(m_settings->value("FoxSortReverse",true).toBool());
+  ui->comboBoxFoxSort->setCurrentIndex(m_settings->value("FoxSort",3).toInt());
   ui->sbNsig->setValue(m_settings->value("FoxNsig",12).toInt());
   ui->sbNslots->setValue(m_settings->value("FoxNslots",5).toInt());
   ui->sbMax_dB->setValue(m_settings->value("FoxMaxDB",30).toInt());
@@ -1166,7 +1156,8 @@ void MainWindow::setDecodedTextFont (QFont const& font)
 {
   ui->decodedTextBrowser->setContentFont (font);
   ui->decodedTextBrowser2->setContentFont (font);
-  ui->textBrowser3->setContentFont (font);
+  ui->textBrowser3->setContentFont(font);
+  ui->textBrowser4->setContentFont(font);
   auto style_sheet = "QLabel {" + font_as_stylesheet (font) + '}';
   ui->decodedTextLabel->setStyleSheet (ui->decodedTextLabel->styleSheet () + style_sheet);
   ui->decodedTextLabel2->setStyleSheet (ui->decodedTextLabel2->styleSheet () + style_sheet);
@@ -2763,13 +2754,21 @@ void MainWindow::decodeDone ()
     QFile f(m_config.temp_dir().absoluteFilePath("foxcalls.txt"));
     if(f.open(QIODevice::ReadOnly | QIODevice::Text)) {
       QTextStream s(&f);
-      QString t=s.readAll();
+//      QString t=s.readAll();
+      QString t="";
+      QString t0;
+      QString c2;
+      bool b;
+      while(!s.atEnd()) {
+        t0=s.readLine();
+        c2=t0.mid(0,6);
+        b=false;
+        if(ui->textBrowser3->toPlainText().indexOf(c2) >= 0) b=true;
+        if(ui->textBrowser4->toPlainText().indexOf(c2) >= 0) b=true;
+        if(!b) t += (t0 + "\n");  //Don't include calls already in the queue
+      }
       if(t.length()>30) {
-        m_isort=0;
-        if(ui->rbCall->isChecked()) m_isort=1;
-        if(ui->rbGrid->isChecked()) m_isort=2;
-        if(ui->rbSNR->isChecked()) m_isort=3;
-        if(ui->rbDist->isChecked()) m_isort=4;
+        m_isort=ui->comboBoxFoxSort->currentIndex();
         QString t1=sortFoxCalls(t,m_isort,m_min_dB,m_max_dB);
         ui->decodedTextBrowser->setText(t1);
       }
@@ -2884,7 +2883,9 @@ void MainWindow::readFromStdout()                             //readFromStdout
             processMessage (decodedtext);
             ui->cbFirst->setStyleSheet("");
           } else {
-            if (for_us or (abs(audioFreq - m_wideGraph->rxFreq()) <= 10)) bDisplayRight=true;
+//###            if(m_config.bFox() and for_us and (audioFreq<1000)) bDisplayRight=true;
+            if(m_config.bFox() and (audioFreq<1000)) bDisplayRight=true;
+            if(!m_config.bFox() and (for_us or (abs(audioFreq - m_wideGraph->rxFreq()) <= 10))) bDisplayRight=true;
           }
         }
       } else {
@@ -3462,8 +3463,7 @@ void MainWindow::guiUpdate()
   }
   if(m_config.bFox()) {
     QString t;
-    t.sprintf("DXpedition: Fox  %d %d %d %d",m_isort,m_Nsig,
-              m_min_dB,m_max_dB);
+    t.sprintf("DXpedition:  Fox");
     ui->labDXped->setText(t);
   }
 
@@ -3836,10 +3836,11 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
   }
 
   if(m_config.bFox() and m_decodedText2) {
-    if(m_nToBeCalled >= m_Nslots or m_nFoxCallers==0) return;
+    if(m_nToBeCalled >= 2*m_Nslots or m_nFoxCallers==0) return;
     QString t=cursor.block().text();
     QString c2=t.split(" ",QString::SkipEmptyParts).at(0);
     if(ui->textBrowser3->toPlainText().indexOf(c2) >= 0) return;  //Don't allow same call twice
+    if(ui->textBrowser4->toPlainText().indexOf(c2) >= 0) return;  //Don't allow same call twice
     QString g2=t.split(" ",QString::SkipEmptyParts).at(1);
     QString rpt=t.split(" ",QString::SkipEmptyParts).at(2);
     ui->dxCallEntry->setText(c2);
@@ -3849,7 +3850,7 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
     m_FoxCallers=m_FoxCallers.remove(t+"\n");
     if(m_toBeCalled.length()>0) m_toBeCalled += "\n";
     m_toBeCalled += t;
-    m_nToBeCalled+=1;
+    m_nToBeCalled++;
     ui->decodedTextBrowser->clear();
     ui->decodedTextBrowser->append(m_FoxCallers);
     QString t1=c2 + "    ";
@@ -3860,10 +3861,15 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
     t2.sprintf("%1d. ",m_nToBeCalled);
     t1=t2 + t1;
     // Possible sequence of colors:
-    // Queued: #99ffff
-    // Called: #66ff66
-    // Received R+rpt: #ff99ff (?)
-    ui->textBrowser3->displayFoxToBeCalled(t1,"#99ffff");
+    // Queued:          #99ffff
+    // QSO in progress: #66ff66
+    if(m_nToBeCalled<= m_Nslots) {
+      ui->textBrowser3->displayFoxToBeCalled(t1,"#99ffff");
+    } else {
+//      ui->textBrowser4->append(t1);
+      ui->textBrowser4->displayFoxToBeCalled(t1,"#ffffff");
+    }
+    m_nFoxCallers--;
     return;
   }
   DecodedText message {cursor.block().text(), ("MSK144" == m_mode || "FT8" == m_mode) &&
@@ -7041,7 +7047,7 @@ QString MainWindow::sortFoxCalls(QString t, int isort, int min_dB, int max_dB)
   QString ABC{"ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
   QList<int> list;
   int i,j,k,m,n,nlines;
-  bool bReverse=ui->cbReverse->isChecked();
+  bool bReverse=(isort >= 3);
 
   isort=qAbs(isort);
 // Save only the most recent transmission from each caller.
@@ -7121,34 +7127,6 @@ QString MainWindow::sortFoxCalls(QString t, int isort, int min_dB, int max_dB)
   if(i0 > 0) m_nFoxCallers=qMin(t.length(),m_Nsig*i0)/i0;
   m_FoxCallers=t.mid(0,m_Nsig*i0);
   return m_FoxCallers;
-}
-
-void MainWindow::on_rbCall_toggled(bool b)
-{
-  if(b) {
-    m_isort=1;
-    ui->cbReverse->setChecked(false);
-  }
-}
-
-void MainWindow::on_rbGrid_toggled(bool b)
-{
-  if(b) m_isort=2;
-}
-
-void MainWindow::on_rbSNR_toggled(bool b)
-{
-  if(b) m_isort=3;
-}
-
-void MainWindow::on_rbDist_toggled(bool b)
-{
-  if(b) m_isort=4;
-}
-
-void MainWindow::on_rbRandom_toggled(bool b)
-{
-  if(b) m_isort=0;
 }
 
 void MainWindow::on_sbNsig_valueChanged(int n)
