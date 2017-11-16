@@ -92,7 +92,7 @@ subroutine foxgen(t)
 !1022 format(f10.3,2e12.3,2f10.3)
      if(freq.gt.3000.0) exit
   enddo
-  flush(29)
+!  flush(29)
 
   call system_clock(count1,clkfreq)
   time=float(count1-count0)/float(clkfreq)    !Cumulative execution time
