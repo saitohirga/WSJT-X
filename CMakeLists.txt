@@ -340,7 +340,6 @@ set (wsjt_FSRCS
   lib/iso_c_utilities.f90
   lib/jt4.f90
   lib/jt4_decode.f90
-  lib/fsk4hf/jt65_generator_matrix.f90
   lib/jt65_decode.f90
   lib/jt65_mod.f90
   lib/ft8_decode.f90
