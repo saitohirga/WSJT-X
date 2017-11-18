@@ -1033,7 +1033,6 @@ void MainWindow::writeSettings()
   m_settings->setValue("pwrBandTxMemory",m_pwrBandTxMemory);
   m_settings->setValue("pwrBandTuneMemory",m_pwrBandTuneMemory);
   m_settings->setValue ("FT8AP", ui->actionEnable_AP_FT8->isChecked ());
-  m_settings->setValue ("JT65AP", ui->actionEnable_AP_JT65->isChecked ());
   {
     QList<QVariant> coeffs;     // suitable for QSettings
     for (auto const& coeff : m_phaseEqCoefficients)
@@ -1119,7 +1118,6 @@ void MainWindow::readSettings()
   m_pwrBandTxMemory=m_settings->value("pwrBandTxMemory").toHash();
   m_pwrBandTuneMemory=m_settings->value("pwrBandTuneMemory").toHash();
   ui->actionEnable_AP_FT8->setChecked (m_settings->value ("FT8AP", false).toBool());
-  ui->actionEnable_AP_JT65->setChecked (m_settings->value ("JT65AP", false).toBool());
   {
     auto const& coeffs = m_settings->value ("PhaseEqualizationCoefficients"
                                             , QList<QVariant> {0., 0., 0., 0., 0.}).toList ();
@@ -2583,7 +2581,7 @@ void MainWindow::decode()                                       //decode()
   if(m_modeTx=="JT65") dec_data.params.ntxmode=65;
   dec_data.params.nmode=9;
   if(m_mode=="JT65") dec_data.params.nmode=65;
-  if(m_mode=="JT65") dec_data.params.ljt65apon = ui->actionEnable_AP_JT65->isVisible () && ui->actionEnable_AP_JT65->isChecked ();
+  if(m_mode=="JT65") dec_data.params.ljt65apon = false;
   if(m_mode=="QRA64") dec_data.params.nmode=164;
   if(m_mode=="QRA64") dec_data.params.ntxmode=164;
   if(m_mode=="JT9+JT65") dec_data.params.nmode=9+65;  // = 74
@@ -4839,7 +4837,7 @@ void MainWindow::displayWidgets(int n)
   }
   ui->cbFirst->setVisible ("FT8" == m_mode);
   ui->actionEnable_AP_FT8->setVisible ("FT8" == m_mode);
-  ui->actionEnable_AP_JT65->setVisible ("JT65" == m_mode);
+//  ui->actionEnable_AP_JT65->setVisible ("JT65" == m_mode);
   ui->cbVHFcontest->setVisible(m_mode=="FT8" or m_mode=="MSK144");
   ui->measure_check_box->setChecked (false);
   ui->measure_check_box->setVisible ("FreqCal" == m_mode);

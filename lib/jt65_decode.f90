@@ -477,9 +477,8 @@ contains
        enddo
 
        nadd=nsum*ismo
-       call extract(s3c,nadd,mode65,ntrials,naggressive,ndepth,nflip,mycall, &
-            hiscall,hisgrid,nQSOProgress,ljt65apon,nexp_decode,ncount,nhist, &
-            avemsg,ltext,nftt,qual)
+       call extract(s3,nadd,mode65,ntrials,naggressive,ndepth,nflip,mycall,   &
+            hiscall,hisgrid,nexp_decode,ncount,nhist,decoded,ltext,nft,qual) 
        if(nftt.eq.1) then
           nsmo=ismo
           param(9)=nsmo

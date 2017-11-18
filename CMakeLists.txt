@@ -336,7 +336,6 @@ set (wsjt_FSRCS
   # put module sources first in the hope that they get rebuilt before use
   lib/crc.f90
   lib/fftw3mod.f90
-  lib/fsk4hf/gf64math.f90
   lib/hashing.f90
   lib/iso_c_utilities.f90
   lib/jt4.f90
@@ -412,7 +411,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/encode300.f90
   lib/entail.f90
   lib/ephem.f90
-  lib/fsk4hf/extract_ap.f90
+  lib/extract.f90
   lib/extract4.f90
   lib/extractmessage144.f90
   lib/fsk4hf/extractmessage168.f90
@@ -516,7 +515,6 @@ set (wsjt_FSRCS
   lib/mskrtd.f90
   lib/fsk4hf/msksoftsym.f90
   lib/fsk4hf/msksoftsymw.f90
-  lib/fsk4hf/gf64_osd.f90
   lib/ft8/osd174.f90
   lib/fsk4hf/osd300.f90
   lib/pctile.f90
@@ -607,7 +605,7 @@ set (qra_CSRCS
 
 set (wsjt_CSRCS
   ${ka9q_CSRCS}
-  lib/fsk4hf/ftrsdap.c
+  lib/ftrsd/ftrsd2.c
   lib/sgran.c
   lib/golay24_table.c
   lib/gran.c
@@ -1160,9 +1158,6 @@ target_link_libraries (wsjt_qtmm Qt5::Multimedia)
 
 add_executable (jt4sim lib/jt4sim.f90 wsjtx.rc)
 target_link_libraries (jt4sim wsjt_fort wsjt_cxx)
-
-add_executable (jt65osdtest lib/fsk4hf/jt65osdtest.f90 wsjtx.rc)
-target_link_libraries (jt65osdtest wsjt_fort wsjt_cxx)
 
 add_executable (jt65sim lib/jt65sim.f90 wsjtx.rc)
 target_link_libraries (jt65sim wsjt_fort wsjt_cxx)
