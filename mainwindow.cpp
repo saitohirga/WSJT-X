@@ -2863,7 +2863,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
             } else {
               if(d.indexOf("RR73")<0) {
                 int i1=qMax(d.indexOf("+"),d.indexOf("-"));
-                d=d.mid(0,i1-1) + "RR73";
+                d=d.mid(0,i1-1) + " RR73";
               }
               ui->textBrowser3->displayFoxToBeCalled(d,"#ff99ff");
             }
@@ -3325,9 +3325,12 @@ void MainWindow::guiUpdate()
           if(m_modeTx=="FT8") {
             if(m_config.bFox()) {
               QString t=ui->textBrowser3->toPlainText();
-              qDebug() << "aa" << m_Nslots << t;
               int len=t.length();
+              qint64 ms0=QDateTime::currentMSecsSinceEpoch();
               foxgen_(const_cast <char *> (t.toLatin1().constData()),len);
+              qint64 ms=QDateTime::currentMSecsSinceEpoch();
+              qDebug() << "aa" << m_Nslots << ms-ms0 << t;
+
             } else {
               genft8_(message, MyGrid, &bcontest, &m_i3bit, msgsent, const_cast<char *> (ft8msgbits),
                       const_cast<int *> (itone), 22, 6, 22);
