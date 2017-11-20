@@ -2873,7 +2873,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
       //Left (Band activity) window
       if(!bAvgMsg) {
-        if(m_config.bFox()) {
+        if(m_mode=="FT8" and m_config.bFox()) {
           if(!m_bDisplayedOnce) {
             // This hack sets the font.  Surely there's a better way!
             DecodedText dt{".",false," "};
