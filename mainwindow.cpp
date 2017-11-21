@@ -4694,9 +4694,11 @@ void MainWindow::on_tx5_currentTextChanged (QString const& text) //tx5 edited
 void MainWindow::on_tx6_editingFinished()                       //tx6 edited
 {
   QString t=ui->tx6->text().toUpper();
-  QString t1=t.split(" ").at(1);
-  m_CQtype="CQ";
-  if(t1.size()==2) m_CQtype="CQ " + t1;
+  if(t.indexOf(" ")>0) {
+    QString t1=t.split(" ").at(1);
+    m_CQtype="CQ";
+    if(t1.size()==2) m_CQtype="CQ " + t1;
+  }
   msgtype(t, ui->tx6);
 }
 
