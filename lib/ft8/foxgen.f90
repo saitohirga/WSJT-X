@@ -67,9 +67,9 @@ subroutine foxgen(t)
      enddo
      
      call system_clock(count1,clkfreq)
-     time=float(count1-count0)/float(clkfreq)    !Cumulative execution time
-     write(*,3001) n,k,i,time,msgsent
-3001 format(i1,i8,i4,f10.6,2x,a22)
+!     time=float(count1-count0)/float(clkfreq)    !Cumulative execution time
+!     write(*,3001) n,k,i,time,msgsent
+!3001 format(i1,i8,i4,f10.6,2x,a22)
      if(i.ge.m) exit
   enddo
 
@@ -113,7 +113,7 @@ subroutine foxgen(t)
   flush(29)
 
 100 call system_clock(count1,clkfreq)
-  time=float(count1-count0)/float(clkfreq)    !Cumulative execution time
+!  time=float(count1-count0)/float(clkfreq)    !Cumulative execution time
 !  write(*,3010) time
 !3010 format('Time:',f10.6)
   
