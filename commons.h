@@ -79,6 +79,10 @@ extern struct {
   float red[4096];
 } echocom_;
 
+extern struct {
+  float wave[606720];
+} foxcom_;
+
 #ifdef __cplusplus
 }
 #endif

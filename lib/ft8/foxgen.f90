@@ -14,6 +14,7 @@ subroutine foxgen(t)
   real x(NFFT),y(NFFT)
   real*8 dt,twopi,f0,fstep,dfreq,phi,dphi
   complex cx(0:NH),cy(0:NH)
+  common/foxcom/wave
   equivalence (x,cx),(y,cy)
 
   call system_clock(count0,clkfreq)
@@ -67,9 +68,13 @@ subroutine foxgen(t)
      
      call system_clock(count1,clkfreq)
      time=float(count1-count0)/float(clkfreq)    !Cumulative execution time
-!     write(*,3001) n,k,time,msgsent
-!3001 format(i1,i8,f10.6,2x,a22)
+     write(*,3001) n,k,i,time,msgsent
+3001 format(i1,i8,i4,f10.6,2x,a22)
+     if(i.ge.m) exit
   enddo
+
+  fac=1.0/maxval(abs(wave))
+  wave=fac*wave
 
   x(1:k)=wave
   x(k+1:)=0.
@@ -88,11 +93,11 @@ subroutine foxgen(t)
 !        sy=sy + real(cy(k))**2 + aimag(cy(k))**2
      enddo
      freq=df*(k-nadd/2+0.5)
-!     write(29,1022) freq,sx,sy,db(sx)-90.0,db(sy)-90.0
-!1022 format(f10.3,2e12.3,2f10.3)
+     write(29,1022) freq,sx,sy,db(sx)-90.0,db(sy)-90.0
+1022 format(f10.3,2e12.3,2f10.3)
      if(freq.gt.3000.0) exit
   enddo
-!  flush(29)
+  flush(29)
 
   call system_clock(count1,clkfreq)
   time=float(count1-count0)/float(clkfreq)    !Cumulative execution time

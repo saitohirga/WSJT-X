@@ -5,6 +5,7 @@
 #include <QDebug>
 #include "mainwindow.h"
 #include "soundout.h"
+#include "commons.h"
 
 #include "moc_Modulator.cpp"
 
@@ -86,7 +87,8 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
   if(m_bFastMode) m_ic=0;
 
   m_silentFrames = 0;
-  // calculate number of silent frames to send
+  // calculate number of silent frames to send, so that audio will start at
+  // the nominal time "delay_ms" into the Tx sequence.
   if (synchronize && !m_tuning && !m_bFastMode)	{
     m_silentFrames = m_ic + m_frameRate / (1000 / delay_ms) - (mstr * (m_frameRate / 1000));
   }
@@ -168,6 +170,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
     case Active:
       {
         unsigned int isym=0;
+//        qDebug() << "Mod A" << m_toneSpacing << m_ic;
         if(!m_tuning) isym=m_ic/(4.0*m_nsps);            // Actual fsample=48000
         bool slowCwId=((isym >= m_symbolsLength) && (icw[0] > 0)) && (!m_bFastMode);
         if(m_TRperiod==3) slowCwId=false;
@@ -248,7 +251,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
           i0=i1-816;
         }
 
-
+        qint16 sample;
         for (unsigned i = 0; i < numFrames && m_ic <= i1; ++i) {
           isym=0;
           if(!m_tuning and m_TRperiod!=3) isym=m_ic / (4.0 * m_nsps);         //Actual
@@ -264,7 +267,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
                 m_toneFrequency0=m_frequency + itone[isym]*m_toneSpacing;
               }
             }
-//            qDebug() << "B" << m_bFastMode << m_ic << numFrames << isym << itone[isym]
+//            qDebug() << "Mod B" << m_bFastMode << m_ic << numFrames << isym << itone[isym]
 //                     << m_toneFrequency0 << m_nsps;
             m_dphi = m_twoPi * m_toneFrequency0 / m_frameRate;
             m_isym0 = isym;
@@ -285,7 +288,12 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
           if (m_ic > i0) m_amp = 0.98 * m_amp;
           if (m_ic > i1) m_amp = 0.0;
 
-          samples = load (postProcessSample (m_amp * qSin (m_phi)), samples);
+          sample=qRound(m_amp*qSin(m_phi));
+          if(m_toneSpacing < 0) sample=qRound(m_amp*foxcom_.wave[m_ic]);
+
+//          if(m_ic < 100) qDebug() << "Mod C" << m_ic << m_amp << foxcom_.wave[m_ic] << sample;
+
+          samples = load(postProcessSample(sample), samples);
           ++framesGenerated;
           ++m_ic;
         }

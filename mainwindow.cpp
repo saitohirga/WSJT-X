@@ -3326,11 +3326,10 @@ void MainWindow::guiUpdate()
             if(m_config.bFox()) {
               QString t=ui->textBrowser3->toPlainText();
               int len=t.length();
-              qint64 ms0=QDateTime::currentMSecsSinceEpoch();
+//              qint64 ms0=QDateTime::currentMSecsSinceEpoch();
               foxgen_(const_cast <char *> (t.toLatin1().constData()),len);
-              qint64 ms=QDateTime::currentMSecsSinceEpoch();
-              qDebug() << "aa" << m_Nslots << ms-ms0 << t;
-
+//              qint64 ms=QDateTime::currentMSecsSinceEpoch();
+//              qDebug() << "aa" << m_Nslots << ms-ms0 << t;
             } else {
               genft8_(message, MyGrid, &bcontest, &m_i3bit, msgsent, const_cast<char *> (ft8msgbits),
                       const_cast<int *> (itone), 22, 6, 22);
@@ -6001,6 +6000,7 @@ void MainWindow::transmit (double snr)
   if (m_modeTx == "FT8") {
     toneSpacing=12000.0/1920.0;
     if(m_config.x2ToneSpacing()) toneSpacing=2*12000.0/1920.0;
+    if(m_config.bFox()) toneSpacing=-1;
     Q_EMIT sendMessage (NUM_FT8_SYMBOLS,
            1920.0, ui->TxFreqSpinBox->value () - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),
