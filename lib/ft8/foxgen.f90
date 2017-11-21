@@ -73,8 +73,21 @@ subroutine foxgen(t)
      if(i.ge.m) exit
   enddo
 
-  fac=1.0/maxval(abs(wave))
+  sqx=0.
+  do i=1,NWAVE
+     sqx=sqx + wave(i)*wave(i)
+  enddo
+  sigmax=sqrt(sqx/NWAVE)
+  wave=wave/sigmax                    !Force rms=1.0
+
+  do i=1,NWAVE
+     wave(i)=h1(wave(i))              !Compress the waveform
+  enddo
+  
+  fac=1.0/maxval(abs(wave))           !Set maxval = 1.0
   wave=fac*wave
+
+  if(NWAVE.ne.-99) go to 100             !### Omit filtering, for now ###
 
   x(1:k)=wave
   x(k+1:)=0.
@@ -99,10 +112,28 @@ subroutine foxgen(t)
   enddo
   flush(29)
 
-  call system_clock(count1,clkfreq)
+100 call system_clock(count1,clkfreq)
   time=float(count1-count0)/float(clkfreq)    !Cumulative execution time
 !  write(*,3010) time
 !3010 format('Time:',f10.6)
   
   return
 end subroutine foxgen
+
+real function h1(x)
+
+!  sigma=1.0/sqrt(2.0)
+  sigma=1.0
+  xlim=sigma/sqrt(6.0)
+  ax=abs(x)
+  sgnx=1.0
+  if(x.lt.0) sgnx=-1.0
+  if(ax.le.xlim) then
+     h1=x
+  else
+     z=exp(1.0/6.0 - (ax/sigma)**2)
+     h1=sgnx*sqrt(6.0)*sigma*(2.0/3.0 - 0.5*z)
+  endif
+
+  return
+end function h1
