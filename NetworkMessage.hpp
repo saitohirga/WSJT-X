@@ -229,7 +229,7 @@
  *                         Date & Time Off        QDateTime
  *                         DX call                utf8
  *                         DX grid                utf8
- *                         Dial frequency (Hz)    quint64
+ *                         Tx frequency (Hz)      quint64
  *                         Mode                   utf8
  *                         Report send            utf8
  *                         Report received        utf8
