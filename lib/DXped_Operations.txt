@@ -38,15 +38,15 @@ his locator AJ10:
 2.                                   KH1DX K1ABC FN42, KH1DX W9XYZ EN37, ...
 3.  K1ABC KH1DX -13
 4.                                   KH1DX K1ABC R-11
-5.  K1ABC R 73; W9XYZ <KH1DX> -17
+5.  K1ABC RR73; W9XYZ <KH1DX> -17
 6.                                   ... no copy from W9XYZ ...
 7.  W9XYZ KH1DX -17
 8.                                   ... no copy from W9XYZ ...
 9.  G4AAA KH1DX -11
 10.                                  KH1DX G4AAA R-03
-11. G4AAA R 73; DL3BBB <KH1DX> -12
+11. G4AAA RR73; DL3BBB <KH1DX> -12
 12.                                  KH1DX DL3BBB R-09			 
-13. DL3BBB R 73; DE <KH1DX>
+13. DL3BBB RR73; DE <KH1DX>
 14. ...
 ------------------------------------------------------------------------
 
@@ -144,7 +144,7 @@ hoping to find a clear slot, by using Shift+F11 and Shift+F12.
    sent automatically.
 
  - After you send the "R+rpt" message, AutoSeq will watch for a
-   message that starts with "MyCall R 73; ...".  When that is
+   message that starts with "MyCall RR73; ...".  When that is
    received, you're in his log, and you'll be prompted to log the QSO.
 
 Random thoughts
