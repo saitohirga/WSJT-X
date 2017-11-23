@@ -2365,10 +2365,10 @@ Right click for insert and delete options.</string>
        <item row="0" column="0">
         <widget class="QGroupBox" name="groupBox_6">
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;User-selectable parameters for JT65 decoding.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;User-selectable parameters for JT65 VHF/UHF/Microwave decoding.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="title">
-          <string>JT65 decoding parameters</string>
+          <string>JT65 VHF/UHF/Microwave decoding parameters</string>
          </property>
          <layout class="QFormLayout" name="formLayout_11">
           <item row="2" column="0">
