@@ -130,12 +130,20 @@ contains
       if(n2pass.gt.1) npass=2
     else
       nvec=1000
-      if(ndepth.eq.1) npass=1
-      if(ndepth.eq.2) npass=2
-      if(ndepth.eq.3) npass=4
+      if(ndepth.eq.1) then
+         npass=2
+         nvec=100
+      elseif(ndepth.eq.2) then
+         npass=2
+         nvec=1000
+      else 
+         npass=4
+         nvec=2000
+      endif
     endif
 !write(*,*) bVHF,single_decode,ndepth,n2pass,npass,nvec,ntrials
     do ipass=1,npass 
+!write(*,*) 'pass ',ipass
        first_time=.true.
        if(ipass.eq.1) then                        !First-pass parameters
           thresh0=2.5
@@ -293,7 +301,9 @@ contains
           endif
           n=naggressive
           rtt=0.001*nrtt1000
+!write(*,*) 'nft ',nft,minsync,nspecial
           if(nft.lt.2 .and. minsync.ge.0 .and. nspecial.eq.0) then
+!write(*,*) 'naggressive ',n,nhard_min,ntotal_min,rtt
              if(nhard_min.gt.50) cycle
              if(nhard_min.gt.h0(n)) cycle
              if(ntotal_min.gt.d0(n)) cycle
@@ -317,6 +327,7 @@ contains
                    exit
                 endif
              enddo
+!write(*,*) 'ndupe ',ndupe,sync1,minsync
              if(ndupe.ne.1 .and. sync1.ge.float(minsync)) then 
                 if(ipass.eq.1) n65a=n65a + 1
                 if(ipass.eq.2) n65b=n65b + 1
@@ -338,7 +349,7 @@ contains
           endif
        enddo                                 !Candidate loop
        if(ipass.eq.2 .and. ndecoded.lt.1) exit
-    enddo                                    !Two-pass loop
+    enddo                                    !Multiple-pass loop
 900 return
   end subroutine decode
 
