@@ -141,9 +141,7 @@ contains
          nvec=2000
       endif
     endif
-!write(*,*) bVHF,single_decode,ndepth,n2pass,npass,nvec,ntrials
     do ipass=1,npass 
-!write(*,*) 'pass ',ipass
        first_time=.true.
        if(ipass.eq.1) then                        !First-pass parameters
           thresh0=2.5
