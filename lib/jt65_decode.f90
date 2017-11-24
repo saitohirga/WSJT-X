@@ -121,9 +121,20 @@ contains
        go to 900
     endif
 
-!    do ipass=1,n2pass                             !Two-pass decoding loop
-    npass=1
-    if(n2pass .gt. 1) npass=ndepth+1  !**** TEMPORARY ****
+    single_decode=iand(nexp_decode,32).ne.0 .or. nagain
+    bVHF=iand(nexp_decode,64).ne.0
+
+    if( bVHF ) then
+      nvec=ntrials
+      npass=1
+      if(n2pass.gt.1) npass=2
+    else
+      nvec=1000
+      if(ndepth.eq.1) npass=1
+      if(ndepth.eq.2) npass=2
+      if(ndepth.eq.3) npass=4
+    endif
+!write(*,*) bVHF,single_decode,ndepth,n2pass,npass,nvec,ntrials
     do ipass=1,npass 
        first_time=.true.
        if(ipass.eq.1) then                        !First-pass parameters
@@ -150,13 +161,10 @@ contains
 
        call timer('symsp65 ',0)
        ss=0.
-!       call symspec65(dd,npts,ss,nqsym,savg)    !Get normalized symbol spectra
        call symspec65(dd,npts,nqsym,savg)    !Get normalized symbol spectra
        call timer('symsp65 ',1)
        nfa=nf1
        nfb=nf2
-       single_decode=iand(nexp_decode,32).ne.0 .or. nagain
-       bVHF=iand(nexp_decode,64).ne.0
 
 !### Q: should either of the next two uses of "single_decode" be "bVHF" instead?       
        if(single_decode .or. (bVHF .and. ntol.lt.1000)) then
@@ -178,7 +186,6 @@ contains
 
        ncand=0
        call timer('sync65  ',0)
-!       call sync65(ss,nfa,nfb,naggressive,ntol,nqsym,ca,ncand,0,bVHF)
        call sync65(nfa,nfb,naggressive,ntol,nqsym,ca,ncand,nrob,bVHF)
        call timer('sync65  ',1)
 
@@ -188,7 +195,6 @@ contains
           if(ncand.eq.0) ncand=1
           if(abs(ca(1)%freq - f0).gt.width) width=2*df    !### ??? ###
        endif
-       nvec=ntrials
 
        mode65=2**nsubmode
        nflip=1
