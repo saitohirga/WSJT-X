@@ -3971,7 +3971,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             m_ntx = 7;
             m_gen_message_is_cq = false;
           }
-        } else {
+        } else if (!is_73) {    // don't respond to sign off messages
           m_ntx=2;
           m_QSOProgress = REPORT;
           ui->txrb2->setChecked(true);
@@ -3986,6 +3986,9 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             TxAgainTimer.start(1500);
           }
           m_bDoubleClickAfterCQnnn=false;
+        }
+        else {
+          return;               // nothing we need to respond to
         }
       }
       else {                  // nothing for us
