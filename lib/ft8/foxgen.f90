@@ -1,11 +1,11 @@
-subroutine foxgen(nslots,t)
+subroutine foxgen(mycall,mygrid6,nslots,t)
 
   parameter (NN=79,KK=87,NSPS=4*1920)
   parameter (NWAVE=NN*NSPS,NFFT=614400,NH=NFFT/2)
   character*(*) t
   character*22 msg,msgsent
   character*12 t1
-  character*6 MyCall,MyGrid,call1,call2
+  character*6 mycall,mygrid6,mygrid,call1,call2
   logical bcontest
   integer itone(NN)
   integer*1 msgbits(KK)
@@ -17,10 +17,9 @@ subroutine foxgen(nslots,t)
   common/foxcom/wave
   equivalence (x,cx),(y,cy)
 
-!  print*,'cc',nslots,len(t),t
+  mygrid=mygrid6(1:4)//'  '
+  print*,mycall,' ',mygrid6,' ',nslots,len(t),t
   call system_clock(count0,clkfreq)
-  MyCall='KH1DX'
-  MyGrid='AJ10  '
   bcontest=.false.
   i3bit=0
   fstep=60.d0

@@ -135,7 +135,7 @@ extern "C" {
   void calibrate_(char data_dir[], int* iz, double* a, double* b, double* rms,
                   double* sigmaa, double* sigmab, int* irc, int len1);
 
-  void foxgen_(int* nslots, char* tb3, int len);
+  void foxgen_(char* mycall, char* mygrid, int* nslots, char* tb3, int len1, int len2, int len3);
 }
 
 int volatile itone[NUM_ISCAT_SYMBOLS];  //Audio tones for all Tx symbols
@@ -3311,7 +3311,9 @@ void MainWindow::guiUpdate()
                                     22, 22);
         if(m_modeTx=="MSK144" or m_modeTx=="FT8") {
           bool bcontest=ui->cbVHFcontest->isChecked();
+          char MyCall[6];
           char MyGrid[6];
+          strncpy(MyCall, (m_config.my_callsign()+"      ").toLatin1(),6);
           strncpy(MyGrid, (m_config.my_grid()+"      ").toLatin1(),6);
           if(m_modeTx=="MSK144") {
             genmsk144_(message, MyGrid, &ichk, &bcontest, msgsent, const_cast<int *> (itone),
@@ -3336,8 +3338,8 @@ void MainWindow::guiUpdate()
                 if(t0.length()==10) t0 += " ";
                 t1 += t0;
               }
-              int len1=t1.length();
-              foxgen_(&nslots, const_cast <char *> (t1.toLatin1().constData()),len1);
+              int len3=t1.length();
+              foxgen_(MyCall, MyGrid, &nslots, const_cast <char *> (t1.toLatin1().constData()),6,6,len3);
             } else {
               genft8_(message, MyGrid, &bcontest, &m_i3bit, msgsent, const_cast<char *> (ft8msgbits),
                       const_cast<int *> (itone), 22, 6, 22);
