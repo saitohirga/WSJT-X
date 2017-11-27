@@ -1649,7 +1649,7 @@ list. The list can be maintained in Settings (F2).</string>
                         <number>5</number>
                        </property>
                        <property name="maximum">
-                        <number>20</number>
+                        <number>100</number>
                        </property>
                        <property name="value">
                         <number>12</number>

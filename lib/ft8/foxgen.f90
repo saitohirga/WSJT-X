@@ -1,11 +1,11 @@
-subroutine foxgen(t)
+subroutine foxgen(nslots,t)
 
   parameter (NN=79,KK=87,NSPS=4*1920)
   parameter (NWAVE=NN*NSPS,NFFT=614400,NH=NFFT/2)
   character*(*) t
   character*22 msg,msgsent
   character*12 t1
-  character*6 MyCall,MyGrid
+  character*6 MyCall,MyGrid,call1,call2
   logical bcontest
   integer itone(NN)
   integer*1 msgbits(KK)
@@ -17,6 +17,7 @@ subroutine foxgen(t)
   common/foxcom/wave
   equivalence (x,cx),(y,cy)
 
+!  print*,'cc',nslots,len(t),t
   call system_clock(count0,clkfreq)
   MyCall='KH1DX'
   MyGrid='AJ10  '
@@ -28,28 +29,18 @@ subroutine foxgen(t)
   twopi=8.d0*atan(1.d0)
   wave=0.
 
-  m=len(t)
-  i=0
-  i0=1
-  do n=1,5
-     do j=1,12
-        i=i+1
-        if(i.eq.m .or. ichar(t(i:i)).eq.10) then
-           if(i.ne.m) t1=t(i0:i-1)
-           if(i.eq.m) t1=t(i0:i)
-           i1=index(t1,' ')
-           msg=t1(1:i1)//MyCall//t1(i1:)
-           iz=len(trim(msg))
-           do iter=1,5                     !Collapse multiple blanks into one
-              ib2=index(msg(1:iz),'  ')
-              if(ib2.lt.1) exit
-              msg=msg(1:ib2)//msg(ib2+2:)
-              iz=iz-1
-           enddo
-           exit
-        endif
-     enddo
-     i0=i+1
+  do n=1,nslots
+     ia=22*(n-1)+1
+     call1=t(ia:ia+5)
+     if(t(ia+7:ia+10).eq.'RR73') then
+        irpt1=99
+     else
+        read(t(ia+7:ia+10),*) irpt1
+     endif
+     call2=t(ia+11:ia+16)
+     read(t(ia+18:ia+21),*) irpt2
+     print*,n,call1,irpt1,call2,irpt2
+     
      call genft8(msg,mygrid,bcontest,i3bit,msgsent,msgbits,itone)
      
      f0=1500.d0 + fstep*(n-1)
@@ -70,7 +61,7 @@ subroutine foxgen(t)
 !     time=float(count1-count0)/float(clkfreq)    !Cumulative execution time
 !     write(*,3001) n,k,i,time,msgsent
 !3001 format(i1,i8,i4,f10.6,2x,a22)
-     if(i.ge.m) exit
+!     if(i.ge.m) exit
   enddo
 
   sqx=0.

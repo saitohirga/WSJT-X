@@ -135,7 +135,7 @@ extern "C" {
   void calibrate_(char data_dir[], int* iz, double* a, double* b, double* rms,
                   double* sigmaa, double* sigmab, int* irc, int len1);
 
-  void foxgen_(char* tb3, int len);
+  void foxgen_(int* nslots, char* tb3, int len);
 }
 
 int volatile itone[NUM_ISCAT_SYMBOLS];  //Audio tones for all Tx symbols
@@ -3324,12 +3324,20 @@ void MainWindow::guiUpdate()
           }
           if(m_modeTx=="FT8") {
             if(m_config.bFox()) {
-              QString t=ui->textBrowser3->toPlainText();
-              int len=t.length();
-//              qint64 ms0=QDateTime::currentMSecsSinceEpoch();
-              foxgen_(const_cast <char *> (t.toLatin1().constData()),len);
-//              qint64 ms=QDateTime::currentMSecsSinceEpoch();
-//              qDebug() << "aa" << m_Nslots << ms-ms0 << t;
+              QString t1="";
+              QString t3=ui->textBrowser3->toPlainText() + "\n";
+              QString t4=ui->textBrowser4->toPlainText() + "\n";
+              int nslots=ui->sbNslots->value();
+              for(int i=0; i<nslots; i++) {
+                QString t0=t3.split("\n").at(i);
+                if(t0.length()==10) t0 += " ";
+                t1 += t0;
+                t0=t4.split("\n").at(i);
+                if(t0.length()==10) t0 += " ";
+                t1 += t0;
+              }
+              int len1=t1.length();
+              foxgen_(&nslots, const_cast <char *> (t1.toLatin1().constData()),len1);
             } else {
               genft8_(message, MyGrid, &bcontest, &m_i3bit, msgsent, const_cast<char *> (ft8msgbits),
                       const_cast<int *> (itone), 22, 6, 22);
@@ -6005,7 +6013,7 @@ void MainWindow::transmit (double snr)
   if (m_modeTx == "FT8") {
     toneSpacing=12000.0/1920.0;
     if(m_config.x2ToneSpacing()) toneSpacing=2*12000.0/1920.0;
-    if(m_config.bFox()) toneSpacing=-1;
+    if(m_config.bFox() and !m_tune) toneSpacing=-1;
     Q_EMIT sendMessage (NUM_FT8_SYMBOLS,
            1920.0, ui->TxFreqSpinBox->value () - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),

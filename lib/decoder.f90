@@ -96,11 +96,11 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
               nsnrfox(j)=nsnrfox(i)
               nfreqfox(j)=nfreqfox(i)
               n15fox(j)=n
-!              m=n15max-n
-              call azdist(params%mygrid,g2fox(j),utch,nAz,nEl,nDmiles,nDkm,  &
+              m=n15max-n
+              call azdist(params%mygrid,g2fox(j),0.d0,nAz,nEl,nDmiles,nDkm,  &
                    nHotAz,nHotABetter)
-              write(19,1004) c2fox(j),g2fox(j),nsnrfox(j),nfreqfox(j),nDkm
-1004          format(a12,1x,a4,i5,i6,i7)
+              write(19,1004) c2fox(j),g2fox(j),nsnrfox(j),nfreqfox(j),nDkm,m
+1004          format(a12,1x,a4,i5,i6,i7,i3)
            endif
         enddo
         nfox=j
@@ -437,7 +437,7 @@ contains
     real, intent(in) :: freq
     character(len=22), intent(in) :: decoded
     character c1*12,c2*6,g2*4,w*4
-    integer i1,i2,i3,n15
+    integer i1,i2,i3,n15,nwrap
     integer, intent(in) :: nap 
     real, intent(in) :: qual 
     character*2 annot
@@ -457,7 +457,8 @@ contains
        g2fox='    '
        nsnrfox=-99
        nfreqfox=-99
-       n15z=-99
+       n15z=0
+       nwrap=0
        nfox=0
        first=.false.
     endif
@@ -485,13 +486,15 @@ contains
             .and. isgrid4(g2)) then
           n=params%nutc
           n15=(3600*(n/10000) + 60*mod((n/100),100) + mod(n,100))/15
+          if(n15.lt.n15z) nwrap=nwrap+5760    !New UTC day
+          n15z=n15
+          n15=n15+nwrap
           nfox=nfox+1
           c2fox(nfox)=c2
           g2fox(nfox)=g2
           nsnrfox(nfox)=snr
           nfreqfox(nfox)=nint(freq)
           n15fox(nfox)=n15
-          n15z=n15
        endif
     endif
     
