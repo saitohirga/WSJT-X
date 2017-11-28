@@ -43,9 +43,7 @@ subroutine symspec65(dd,npts,nqsym,savg)
      first=.false.
   endif
 
-!  do j=1,nhsym
   do j=1,nqsym
-!     i0=(j-1)*hstep
      i0=(j-1)*qstep
      x=fac1*w*dd(i0+1:i0+NFFT)
      call four2a(c,NFFT,1,-1,0)                !r2c forward FFT

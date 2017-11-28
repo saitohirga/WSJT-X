@@ -136,11 +136,6 @@ contains
            endif
         endif
       enddo
-!     h=default_header(12000,NMAX)
-!     open(10,file='subtract.wav',status='unknown',access='stream')
-!     iwave=nint(dd)
-!     write(10) h,iwave
-!     close(10)
   enddo
   return
   end subroutine decode

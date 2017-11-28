@@ -1,10 +1,7 @@
-!subroutine sync65(ss,nfa,nfb,naggressive,ntol,nqsym,ca,ncand,nrobust,   &
-!     bVHF)
 subroutine sync65(nfa,nfb,naggressive,ntol,nqsym,ca,ncand,nrobust,   &
      bVHF)
 
   parameter (NSZ=3413,NFFT=8192,MAXCAND=300)
-!  real ss(322,NSZ)
   real ss(552,NSZ)
   real ccfblue(-32:82)             !CCF with pseudorandom sequence
   real ccfred(NSZ)                  !Peak of ccfblue, as function of freq
@@ -41,7 +38,6 @@ subroutine sync65(nfa,nfb,naggressive,ntol,nqsym,ca,ncand,nrobust,   &
   ccfmax=0.
   ipk=0
   do i=ia,ib
-!     call xcor(ss,i,nqsym,nsym,lag1,lag2,ccfblue,ccf0,lagpk0,flip,fdot,nrobust)
      call xcor(i,nqsym,nsym,lag1,lag2,ccfblue,ccf0,lagpk0,flip,fdot,nrobust)
 ! Remove best-fit slope from ccfblue and normalize so baseline rms=1.0
      if(.not.bVHF) call slope(ccfblue(lag1),lag2-lag1+1,      &
@@ -73,8 +69,6 @@ subroutine sync65(nfa,nfb,naggressive,ntol,nqsym,ca,ncand,nrobust,   &
         endif
      endif
      if(itry.ne.0) then
-!        call xcor(ss,i,nqsym,nsym,lag1,lag2,ccfblue,ccf0,lagpk,flip,fdot,  &
-!             nrobust)
         call xcor(i,nqsym,nsym,lag1,lag2,ccfblue,ccf0,lagpk,flip,fdot,nrobust)
         if(.not.bVHF) call slope(ccfblue(lag1),lag2-lag1+1,       &
              lagpk-lag1+1.0)
@@ -83,7 +77,6 @@ subroutine sync65(nfa,nfb,naggressive,ntol,nqsym,ca,ncand,nrobust,   &
            call peakup(ccfblue(lagpk-1),ccfmax,ccfblue(lagpk+1),dx2)
            xlag=lagpk+dx2
         endif
-!        dtx=xlag*2048.0/11025.0
         dtx=xlag*1024.0/11025.0
         ccfblue(lag1)=0.
         ccfblue(lag2)=0.

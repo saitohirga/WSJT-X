@@ -1,7 +1,7 @@
 subroutine slope(y,npts,xpk)
 
 ! Remove best-fit slope from data in y(i).  When fitting the straight line,
-! ignore the peak around xpk +/- 2 bins
+! ignore the peak around xpk +/- 4 bins
 
   real y(npts)
 
@@ -30,9 +30,9 @@ subroutine slope(y,npts,xpk)
   sq=0.
   do i=1,npts
      y(i)=y(i)-(a + b*i)
-     if(abs(i-xpk).gt.2.0) sq=sq + y(i)**2
+     if(abs(i-xpk).gt.4.0) sq=sq + y(i)**2
   enddo
-  rms=sqrt(sq/(sumw-2.0))
+  rms=sqrt(sq/(sumw-4.0))
   y=y/rms
 
   return

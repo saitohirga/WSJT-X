@@ -1,6 +1,7 @@
 subroutine ccf2(ss,nz,nflip,ccfbest,xlagpk)
 
-  parameter (LAGMIN=-86,LAGMAX=258)
+!  parameter (LAGMIN=-86,LAGMAX=258)
+  parameter (LAGMIN=-112,LAGMAX=258)  ! Look for DT from -3.6s to +5.0s
   real ss(nz)
   real ccf(-LAGMAX:LAGMAX)
   integer npr(126)

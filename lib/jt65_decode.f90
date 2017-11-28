@@ -138,7 +138,7 @@ contains
          nvec=1000
       else 
          npass=4
-         nvec=2000
+         nvec=1000
       endif
     endif
     do ipass=1,npass 
@@ -226,7 +226,6 @@ contains
           sync1=ca(icand)%sync
           dtx=ca(icand)%dt
           freq=ca(icand)%freq
-!write(*,*) icand,sync1,dtx,freq,ndepth,bVHF,mode65
           if(bVHF) then
              flip=ca(icand)%flip
              nflip=flip
@@ -299,9 +298,8 @@ contains
           endif
           n=naggressive
           rtt=0.001*nrtt1000
-!write(*,*) 'nft ',nft,minsync,nspecial
           if(nft.lt.2 .and. minsync.ge.0 .and. nspecial.eq.0) then
-!write(*,*) 'naggressive ',n,nhard_min,ntotal_min,rtt
+!write(*,*) dtx,freq,nft,minsync,nhard_min,ntotal_min,rtt
              if(nhard_min.gt.50) cycle
              if(nhard_min.gt.h0(n)) cycle
              if(ntotal_min.gt.d0(n)) cycle
