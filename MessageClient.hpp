@@ -62,7 +62,7 @@ public:
   Q_SLOT void qso_logged (QDateTime time_off, QString const& dx_call, QString const& dx_grid
                           , Frequency dial_frequency, QString const& mode, QString const& report_sent
                           , QString const& report_received, QString const& tx_power, QString const& comments
-                          , QString const& name, QDateTime time_on);
+                          , QString const& name, QDateTime time_on, QString const& operator_call);
 
   // this slot may be used to send arbitrary UDP datagrams to and
   // destination allowing the underlying socket to be used for general

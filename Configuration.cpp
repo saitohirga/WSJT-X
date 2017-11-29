@@ -564,6 +564,7 @@ private:
   bool bHound_;
   bool x2ToneSpacing_;
   bool realTimeDecode_;
+  QString opCall_;
   QString udp_server_name_;
   port_type udp_server_port_;
   bool accept_udp_requests_;
@@ -657,6 +658,7 @@ bool Configuration::bHound() const {return m_->bHound_;}
 bool Configuration::x2ToneSpacing() const {return m_->x2ToneSpacing_;}
 bool Configuration::realTimeDecode() const {return m_->realTimeDecode_;}
 bool Configuration::split_mode () const {return m_->split_mode ();}
+QString Configuration::opCall() const {return m_->opCall_;}
 QString Configuration::udp_server_name () const {return m_->udp_server_name_;}
 auto Configuration::udp_server_port () const -> port_type {return m_->udp_server_port_;}
 bool Configuration::accept_udp_requests () const {return m_->accept_udp_requests_;}
@@ -1139,6 +1141,7 @@ void Configuration::impl::initialize_models ()
     }
   ui_->TX_audio_source_button_group->button (rig_params_.audio_source)->setChecked (true);
   ui_->CAT_poll_interval_spin_box->setValue (rig_params_.poll_interval);
+  ui_->opCallEntry->setText (opCall_);
   ui_->udp_server_line_edit->setText (udp_server_name_);
   ui_->udp_server_port_spin_box->setValue (udp_server_port_);
   ui_->accept_udp_requests_check_box->setChecked (accept_udp_requests_);
@@ -1344,6 +1347,7 @@ void Configuration::impl::read_settings ()
   realTimeDecode_ = settings_->value("RealTimeDecode",false).toBool ();
   rig_params_.poll_interval = settings_->value ("Polling", 0).toInt ();
   rig_params_.split_mode = settings_->value ("SplitMode", QVariant::fromValue (TransceiverFactory::split_mode_none)).value<TransceiverFactory::SplitMode> ();
+  opCall_ = settings_->value ("OpCall", "").toString ();
   udp_server_name_ = settings_->value ("UDPServer", "127.0.0.1").toString ();
   udp_server_port_ = settings_->value ("UDPServerPort", 2237).toUInt ();
   accept_udp_requests_ = settings_->value ("AcceptUDPRequests", false).toBool ();
@@ -1442,6 +1446,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("Hound", bHound_);
   settings_->setValue ("x2ToneSpacing", x2ToneSpacing_);
   settings_->setValue ("RealTimeDecode", realTimeDecode_);
+  settings_->setValue ("OpCall", opCall_);
   settings_->setValue ("UDPServer", udp_server_name_);
   settings_->setValue ("UDPServerPort", udp_server_port_);
   settings_->setValue ("AcceptUDPRequests", accept_udp_requests_);
@@ -1843,6 +1848,7 @@ void Configuration::impl::accept ()
   calibration_.slope_ppm = ui_->calibration_slope_ppm_spin_box->value ();
   pwrBandTxMemory_ = ui_->checkBoxPwrBandTxMemory->isChecked ();
   pwrBandTuneMemory_ = ui_->checkBoxPwrBandTuneMemory->isChecked ();
+  opCall_=ui_->opCallEntry->text();
   auto new_server = ui_->udp_server_line_edit->text ();
   if (new_server != udp_server_name_)
     {

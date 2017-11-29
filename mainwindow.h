@@ -220,7 +220,7 @@ private slots:
                   , Frequency dial_freq, QString const& mode
                   , QString const& rpt_sent, QString const& rpt_received
                   , QString const& tx_power, QString const& comments
-                  , QString const& name, QDateTime const&);
+                  , QString const& name, QDateTime const& QSO_date_on, QString const& operator_call);
   void on_bandComboBox_currentIndexChanged (int index);
   void on_bandComboBox_activated (int index);
   void on_readFreq_clicked();
@@ -554,6 +554,7 @@ private:
   QString m_fileToSave;
   QString m_calls;
   QString m_CQtype;
+  QString m_opCall;
   QString m_FoxCallers;
   QString m_toBeCalled;
 

@@ -136,6 +136,7 @@ public:
   bool NN() const;
   bool EMEonly() const;
   bool post_decodes () const;
+  QString opCall() const;
   QString udp_server_name () const;
   port_type udp_server_port () const;
   bool accept_udp_requests () const;

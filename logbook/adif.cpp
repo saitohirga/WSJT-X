@@ -175,7 +175,7 @@ int ADIF::getCount() const
 
 // open ADIF file and append the QSO details. Return true on success
 bool ADIF::addQSOToFile(QString const& hisCall, QString const& hisGrid, QString const& mode, QString const& rptSent, QString const& rptRcvd, QDateTime const& dateTimeOn, QDateTime const& dateTimeOff, QString const& band,
-                        QString const& comments, QString const& name, QString const& strDialFreq, QString const& m_myCall, QString const& m_myGrid, QString const& m_txPower)
+                        QString const& comments, QString const& name, QString const& strDialFreq, QString const& m_myCall, QString const& m_myGrid, QString const& m_txPower, QString const& operator_call)
 {
     QFile f2(_filename);
     if (!f2.open(QIODevice::Text | QIODevice::Append))
@@ -208,6 +208,8 @@ bool ADIF::addQSOToFile(QString const& hisCall, QString const& hisGrid, QString 
                 ">" + comments;
         if(name!="") t+=" <name:" + QString::number(name.length()) +
                 ">" + name;
+        if(operator_call!="") t+=" <operator:" + QString::number(operator_call.length()) +
+                        ">" + operator_call;
         t+=" <eor>";
         out << t << endl;
         f2.close();

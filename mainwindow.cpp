@@ -381,6 +381,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->sbTR->values ({5, 10, 15, 30});
 
   m_baseCall = Radio::base_callsign (m_config.my_callsign ());
+  m_opCall = m_config.opCall();
 
   m_optimizingProgress.setWindowModality (Qt::WindowModal);
   m_optimizingProgress.setAutoReset (false);
@@ -1635,6 +1636,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       ui->actionInclude_averaging->setChecked(false);
       ui->actionInclude_correlation->setChecked(false);
     }
+    m_opCall=m_config.opCall();
   }
 }
 
@@ -4778,19 +4780,19 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   m_logDlg->initLogQSO (m_hisCall, m_hisGrid, m_modeTx, m_rptSent, m_rptRcvd,
                         m_dateTimeQSOOn, dateTimeQSOOff, m_freqNominal + ui->TxFreqSpinBox->value(),
                         m_config.my_callsign(), m_config.my_grid(), m_noSuffix,
-                        m_config.log_as_RTTY(), m_config.report_in_comments());
+                        m_config.log_as_RTTY(), m_config.report_in_comments(), m_opCall);
 }
 
 void MainWindow::acceptQSO2(QDateTime const& QSO_date_off, QString const& call, QString const& grid
                             , Frequency dial_freq, QString const& mode
                             , QString const& rpt_sent, QString const& rpt_received
                             , QString const& tx_power, QString const& comments
-                            , QString const& name, QDateTime const& QSO_date_on)
+                            , QString const& name, QDateTime const& QSO_date_on, QString const& operator_call)
 {
   QString date = QSO_date_on.toString("yyyyMMdd");
   m_logBook.addAsWorked (m_hisCall, m_config.bands ()->find (m_freqNominal), m_modeTx, date);
 
-  m_messageClient->qso_logged (QSO_date_off, call, grid, dial_freq, mode, rpt_sent, rpt_received, tx_power, comments, name, QSO_date_on);
+  m_messageClient->qso_logged (QSO_date_off, call, grid, dial_freq, mode, rpt_sent, rpt_received, tx_power, comments, name, QSO_date_on, operator_call);
 
   if (m_config.clear_DX ())
     {

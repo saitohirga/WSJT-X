@@ -30,7 +30,7 @@ public:
                   QString const& rptSent, QString const& rptRcvd, QDateTime const& dateTimeOn,
                   QDateTime const& dateTimeOff,
                   Radio::Frequency dialFreq, QString const& myCall, QString const& myGrid,
-                  bool noSuffix, bool toRTTY, bool dBtoComments);
+                  bool noSuffix, bool toRTTY, bool dBtoComments, QString const& opCall);
 
 public slots:
   void accept();
@@ -40,7 +40,7 @@ signals:
                   , Radio::Frequency dial_freq, QString const& mode
                   , QString const& rpt_sent, QString const& rpt_received
                   , QString const& tx_power, QString const& comments
-                  , QString const& name, QDateTime const& QSO_date_on);
+                  , QString const& name, QDateTime const& QSO_date_on,  QString const& operator_call);
 
 protected:
   void hideEvent (QHideEvent *);

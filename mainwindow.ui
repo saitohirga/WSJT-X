@@ -542,7 +542,7 @@
        </layout>
       </item>
       <item>
-       <layout class="QGridLayout" name="gridLayout_5" columnstretch="0,0,1,10,0">
+       <layout class="QGridLayout" name="gridLayout_5" columnstretch="0,0,0,0,0">
         <item row="0" column="2">
          <widget class="QLabel" name="labDialFreq">
           <property name="sizePolicy">
@@ -1058,27 +1058,8 @@ QLabel[oob=&quot;true&quot;] {
                   <layout class="QGridLayout" name="gridLayout_7">
                    <item row="0" column="0">
                     <layout class="QGridLayout" name="gridLayout_6">
-                     <item row="2" column="2">
-                      <widget class="QPushButton" name="txb2">
-                       <property name="toolTip">
-                        <string>Switch to this Tx message NOW</string>
-                       </property>
-                       <property name="styleSheet">
-                        <string notr="true">padding-left: 15%; padding-right: 15%; padding-top: 3%; padding-bottom: 3%</string>
-                       </property>
-                       <property name="text">
-                        <string>Tx &amp;2</string>
-                       </property>
-                       <property name="shortcut">
-                        <string>Alt+2</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="3" column="0">
-                      <widget class="QLineEdit" name="tx3"/>
-                     </item>
-                     <item row="3" column="1">
-                      <widget class="QRadioButton" name="txrb3">
+                     <item row="2" column="1">
+                      <widget class="QRadioButton" name="txrb2">
                        <property name="toolTip">
                         <string>Send this message in next Tx interval</string>
                        </property>
@@ -1089,149 +1070,11 @@ QLabel[oob=&quot;true&quot;] {
                         <string/>
                        </property>
                        <property name="shortcut">
-                        <string>Ctrl+3</string>
+                        <string>Ctrl+2</string>
                        </property>
                        <attribute name="buttonGroup">
                         <string notr="true">buttonGroup</string>
                        </attribute>
-                      </widget>
-                     </item>
-                     <item row="4" column="1">
-                      <widget class="DoubleClickableRadioButton" name="txrb4">
-                       <property name="toolTip">
-                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Send this message in next Tx interval&lt;/p&gt;&lt;p&gt;Double-click to toggle between RRR and RR73 messages in Tx4 (not allowed for type 2 compound call holders)&lt;/p&gt;&lt;p&gt;RR73 messages should only be used when you are reasonably confident that no message repetitions will be required&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                       </property>
-                       <property name="styleSheet">
-                        <string notr="true">margin-left: 10%; margin-right: 0%</string>
-                       </property>
-                       <property name="text">
-                        <string/>
-                       </property>
-                       <property name="shortcut">
-                        <string>Ctrl+4</string>
-                       </property>
-                       <attribute name="buttonGroup">
-                        <string notr="true">buttonGroup</string>
-                       </attribute>
-                      </widget>
-                     </item>
-                     <item row="5" column="1">
-                      <widget class="DoubleClickableRadioButton" name="txrb5">
-                       <property name="toolTip">
-                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Send this message in next Tx interval&lt;/p&gt;&lt;p&gt;Double-click to reset to the standard 73 message&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                       </property>
-                       <property name="styleSheet">
-                        <string notr="true">margin-left: 10%; margin-right: 0%</string>
-                       </property>
-                       <property name="text">
-                        <string/>
-                       </property>
-                       <property name="shortcut">
-                        <string>Ctrl+5</string>
-                       </property>
-                       <attribute name="buttonGroup">
-                        <string notr="true">buttonGroup</string>
-                       </attribute>
-                      </widget>
-                     </item>
-                     <item row="5" column="2">
-                      <widget class="DoubleClickablePushButton" name="txb5">
-                       <property name="toolTip">
-                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch to this Tx message NOW&lt;/p&gt;&lt;p&gt;Double-click to reset to the standard 73 message&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                       </property>
-                       <property name="styleSheet">
-                        <string notr="true">padding-left: 15%; padding-right: 15%; padding-top: 3%; padding-bottom: 3%</string>
-                       </property>
-                       <property name="text">
-                        <string>Tx &amp;5</string>
-                       </property>
-                       <property name="shortcut">
-                        <string>Alt+5</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="4" column="2">
-                      <widget class="DoubleClickablePushButton" name="txb4">
-                       <property name="toolTip">
-                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch to this Tx message NOW&lt;/p&gt;&lt;p&gt;Double-click to toggle between RRR and RR73 messages in Tx4 (not allowed for type2 compound call holders)&lt;/p&gt;&lt;p&gt;RR73 messages should only be used when you are reasonably confident that no message repetitions will be required&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                       </property>
-                       <property name="styleSheet">
-                        <string notr="true">padding-left: 15%; padding-right: 15%; padding-top: 3%; padding-bottom: 3%</string>
-                       </property>
-                       <property name="text">
-                        <string>Tx &amp;4</string>
-                       </property>
-                       <property name="shortcut">
-                        <string>Alt+4</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="5" column="0">
-                      <widget class="QComboBox" name="tx5">
-                       <property name="toolTip">
-                        <string>Enter a free text message (maximum 13 characters)
-or select a predefined macro from the dropdown list.
-Press ENTER to add the current text to the predefined
-list. The list can be maintained in Settings (F2).</string>
-                       </property>
-                       <property name="editable">
-                        <bool>true</bool>
-                       </property>
-                       <property name="insertPolicy">
-                        <enum>QComboBox::InsertAtBottom</enum>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="1" column="0">
-                      <widget class="QLineEdit" name="tx1">
-                       <property name="text">
-                        <string/>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="0" column="2">
-                      <widget class="QLabel" name="label_2">
-                       <property name="toolTip">
-                        <string>Switch to this Tx message NOW</string>
-                       </property>
-                       <property name="text">
-                        <string>Now</string>
-                       </property>
-                       <property name="alignment">
-                        <set>Qt::AlignCenter</set>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="1" column="2">
-                      <widget class="DoubleClickablePushButton" name="txb1">
-                       <property name="toolTip">
-                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch to this Tx message NOW&lt;/p&gt;&lt;p&gt;Double click to toggle the use of the Tx1 message to start a QSO with a station (not allowed for type 1 compund call holders)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                       </property>
-                       <property name="layoutDirection">
-                        <enum>Qt::LeftToRight</enum>
-                       </property>
-                       <property name="styleSheet">
-                        <string notr="true">padding-left: 15%; padding-right: 15%; padding-top: 3%; padding-bottom: 3%</string>
-                       </property>
-                       <property name="text">
-                        <string>Tx &amp;1</string>
-                       </property>
-                       <property name="shortcut">
-                        <string>Alt+1</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="0" column="1">
-                      <widget class="QLabel" name="label_5">
-                       <property name="toolTip">
-                        <string>Queue up the next Tx message</string>
-                       </property>
-                       <property name="text">
-                        <string>Next</string>
-                       </property>
-                       <property name="alignment">
-                        <set>Qt::AlignCenter</set>
-                       </property>
                       </widget>
                      </item>
                      <item row="1" column="1">
@@ -1253,43 +1096,8 @@ list. The list can be maintained in Settings (F2).</string>
                        </attribute>
                       </widget>
                      </item>
-                     <item row="2" column="0">
-                      <widget class="QLineEdit" name="tx2"/>
-                     </item>
-                     <item row="2" column="1">
-                      <widget class="QRadioButton" name="txrb2">
-                       <property name="toolTip">
-                        <string>Send this message in next Tx interval</string>
-                       </property>
-                       <property name="styleSheet">
-                        <string notr="true">margin-left: 10%; margin-right: 0%</string>
-                       </property>
-                       <property name="text">
-                        <string/>
-                       </property>
-                       <property name="shortcut">
-                        <string>Ctrl+2</string>
-                       </property>
-                       <attribute name="buttonGroup">
-                        <string notr="true">buttonGroup</string>
-                       </attribute>
-                      </widget>
-                     </item>
-                     <item row="0" column="0">
-                      <widget class="QPushButton" name="genStdMsgsPushButton">
-                       <property name="toolTip">
-                        <string>Generate standard messages for minimal QSO</string>
-                       </property>
-                       <property name="text">
-                        <string>Generate Std Msgs</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="4" column="0">
-                      <widget class="QLineEdit" name="tx4"/>
-                     </item>
-                     <item row="3" column="2">
-                      <widget class="QPushButton" name="txb3">
+                     <item row="2" column="2">
+                      <widget class="QPushButton" name="txb2">
                        <property name="toolTip">
                         <string>Switch to this Tx message NOW</string>
                        </property>
@@ -1297,17 +1105,32 @@ list. The list can be maintained in Settings (F2).</string>
                         <string notr="true">padding-left: 15%; padding-right: 15%; padding-top: 3%; padding-bottom: 3%</string>
                        </property>
                        <property name="text">
-                        <string>Tx &amp;3</string>
+                        <string>Tx &amp;2</string>
                        </property>
                        <property name="shortcut">
-                        <string>Alt+3</string>
+                        <string>Alt+2</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="6" column="0">
-                      <widget class="QLineEdit" name="tx6">
+                     <item row="2" column="0">
+                      <widget class="QLineEdit" name="tx2"/>
+                     </item>
+                     <item row="1" column="2">
+                      <widget class="DoubleClickablePushButton" name="txb1">
+                       <property name="toolTip">
+                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch to this Tx message NOW&lt;/p&gt;&lt;p&gt;Double click to toggle the use of the Tx1 message to start a QSO with a station (not allowed for type 1 compund call holders)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       </property>
+                       <property name="layoutDirection">
+                        <enum>Qt::LeftToRight</enum>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">padding-left: 15%; padding-right: 15%; padding-top: 3%; padding-bottom: 3%</string>
+                       </property>
                        <property name="text">
-                        <string/>
+                        <string>Tx &amp;1</string>
+                       </property>
+                       <property name="shortcut">
+                        <string>Alt+1</string>
                        </property>
                       </widget>
                      </item>
@@ -1333,6 +1156,140 @@ list. The list can be maintained in Settings (F2).</string>
                        </attribute>
                       </widget>
                      </item>
+                     <item row="3" column="0">
+                      <widget class="QLineEdit" name="tx3"/>
+                     </item>
+                     <item row="5" column="1">
+                      <widget class="DoubleClickableRadioButton" name="txrb5">
+                       <property name="toolTip">
+                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Send this message in next Tx interval&lt;/p&gt;&lt;p&gt;Double-click to reset to the standard 73 message&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">margin-left: 10%; margin-right: 0%</string>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="shortcut">
+                        <string>Ctrl+5</string>
+                       </property>
+                       <attribute name="buttonGroup">
+                        <string notr="true">buttonGroup</string>
+                       </attribute>
+                      </widget>
+                     </item>
+                     <item row="3" column="1">
+                      <widget class="QRadioButton" name="txrb3">
+                       <property name="toolTip">
+                        <string>Send this message in next Tx interval</string>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">margin-left: 10%; margin-right: 0%</string>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="shortcut">
+                        <string>Ctrl+3</string>
+                       </property>
+                       <attribute name="buttonGroup">
+                        <string notr="true">buttonGroup</string>
+                       </attribute>
+                      </widget>
+                     </item>
+                     <item row="3" column="2">
+                      <widget class="QPushButton" name="txb3">
+                       <property name="toolTip">
+                        <string>Switch to this Tx message NOW</string>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">padding-left: 15%; padding-right: 15%; padding-top: 3%; padding-bottom: 3%</string>
+                       </property>
+                       <property name="text">
+                        <string>Tx &amp;3</string>
+                       </property>
+                       <property name="shortcut">
+                        <string>Alt+3</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="4" column="1">
+                      <widget class="DoubleClickableRadioButton" name="txrb4">
+                       <property name="toolTip">
+                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Send this message in next Tx interval&lt;/p&gt;&lt;p&gt;Double-click to toggle between RRR and RR73 messages in Tx4 (not allowed for type 2 compound call holders)&lt;/p&gt;&lt;p&gt;RR73 messages should only be used when you are reasonably confident that no message repetitions will be required&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">margin-left: 10%; margin-right: 0%</string>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="shortcut">
+                        <string>Ctrl+4</string>
+                       </property>
+                       <attribute name="buttonGroup">
+                        <string notr="true">buttonGroup</string>
+                       </attribute>
+                      </widget>
+                     </item>
+                     <item row="4" column="2">
+                      <widget class="DoubleClickablePushButton" name="txb4">
+                       <property name="toolTip">
+                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch to this Tx message NOW&lt;/p&gt;&lt;p&gt;Double-click to toggle between RRR and RR73 messages in Tx4 (not allowed for type2 compound call holders)&lt;/p&gt;&lt;p&gt;RR73 messages should only be used when you are reasonably confident that no message repetitions will be required&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">padding-left: 15%; padding-right: 15%; padding-top: 3%; padding-bottom: 3%</string>
+                       </property>
+                       <property name="text">
+                        <string>Tx &amp;4</string>
+                       </property>
+                       <property name="shortcut">
+                        <string>Alt+4</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="5" column="2">
+                      <widget class="DoubleClickablePushButton" name="txb5">
+                       <property name="toolTip">
+                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch to this Tx message NOW&lt;/p&gt;&lt;p&gt;Double-click to reset to the standard 73 message&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">padding-left: 15%; padding-right: 15%; padding-top: 3%; padding-bottom: 3%</string>
+                       </property>
+                       <property name="text">
+                        <string>Tx &amp;5</string>
+                       </property>
+                       <property name="shortcut">
+                        <string>Alt+5</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="4" column="0">
+                      <widget class="QLineEdit" name="tx4"/>
+                     </item>
+                     <item row="0" column="2">
+                      <widget class="QLabel" name="label_2">
+                       <property name="toolTip">
+                        <string>Switch to this Tx message NOW</string>
+                       </property>
+                       <property name="text">
+                        <string>Now</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="0">
+                      <widget class="QPushButton" name="genStdMsgsPushButton">
+                       <property name="toolTip">
+                        <string>Generate standard messages for minimal QSO</string>
+                       </property>
+                       <property name="text">
+                        <string>Generate Std Msgs</string>
+                       </property>
+                      </widget>
+                     </item>
                      <item row="6" column="2">
                       <widget class="QPushButton" name="txb6">
                        <property name="toolTip">
@@ -1346,6 +1303,49 @@ list. The list can be maintained in Settings (F2).</string>
                        </property>
                        <property name="shortcut">
                         <string>Alt+6</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="5" column="0">
+                      <widget class="QComboBox" name="tx5">
+                       <property name="toolTip">
+                        <string>Enter a free text message (maximum 13 characters)
+or select a predefined macro from the dropdown list.
+Press ENTER to add the current text to the predefined
+list. The list can be maintained in Settings (F2).</string>
+                       </property>
+                       <property name="editable">
+                        <bool>true</bool>
+                       </property>
+                       <property name="insertPolicy">
+                        <enum>QComboBox::InsertAtBottom</enum>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="6" column="0">
+                      <widget class="QLineEdit" name="tx6">
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="0">
+                      <widget class="QLineEdit" name="tx1">
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="1">
+                      <widget class="QLabel" name="label_5">
+                       <property name="toolTip">
+                        <string>Queue up the next Tx message</string>
+                       </property>
+                       <property name="text">
+                        <string>Next</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -2371,34 +2371,6 @@ list. The list can be maintained in Settings (F2).</string>
           </layout>
          </widget>
         </item>
-        <item row="1" column="4" rowspan="2">
-         <widget class="QSlider" name="outAttenuation">
-          <property name="toolTip">
-           <string>Adjust Tx audio level</string>
-          </property>
-          <property name="maximum">
-           <number>450</number>
-          </property>
-          <property name="value">
-           <number>0</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="invertedAppearance">
-           <bool>true</bool>
-          </property>
-          <property name="invertedControls">
-           <bool>true</bool>
-          </property>
-          <property name="tickPosition">
-           <enum>QSlider::TicksBelow</enum>
-          </property>
-          <property name="tickInterval">
-           <number>50</number>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="4">
          <widget class="QLabel" name="label">
           <property name="text">
@@ -2445,6 +2417,50 @@ QPushButton[state=&quot;ok&quot;] {
           </property>
          </widget>
         </item>
+        <item row="1" column="4" rowspan="2">
+         <widget class="QSlider" name="outAttenuation">
+          <property name="toolTip">
+           <string>Adjust Tx audio level</string>
+          </property>
+          <property name="maximum">
+           <number>450</number>
+          </property>
+          <property name="value">
+           <number>0</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="invertedAppearance">
+           <bool>true</bool>
+          </property>
+          <property name="invertedControls">
+           <bool>true</bool>
+          </property>
+          <property name="tickPosition">
+           <enum>QSlider::TicksBelow</enum>
+          </property>
+          <property name="tickInterval">
+           <number>50</number>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QComboBox" name="bandComboBox">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select operating band or enter frequency in MHz or enter kHz increment followed by k.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="editable">
+           <bool>true</bool>
+          </property>
+          <property name="insertPolicy">
+           <enum>QComboBox::NoInsert</enum>
+          </property>
+          <property name="sizeAdjustPolicy">
+           <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+          </property>
+         </widget>
+        </item>
         <item row="2" column="2">
          <widget class="QLabel" name="labUTC">
           <property name="sizePolicy">
@@ -2481,22 +2497,6 @@ QPushButton[state=&quot;ok&quot;] {
           </property>
           <property name="margin">
            <number>5</number>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QComboBox" name="bandComboBox">
-          <property name="toolTip">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select operating band or enter frequency in MHz or enter kHz increment followed by k.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-          <property name="editable">
-           <bool>true</bool>
-          </property>
-          <property name="insertPolicy">
-           <enum>QComboBox::NoInsert</enum>
-          </property>
-          <property name="sizeAdjustPolicy">
-           <enum>QComboBox::AdjustToMinimumContentsLength</enum>
           </property>
          </widget>
         </item>

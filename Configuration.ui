@@ -1618,50 +1618,77 @@ QListView::item:hover {
          <property name="title">
           <string>Logging</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_8">
+         <layout class="QVBoxLayout" name="verticalLayout_7">
           <item>
-           <widget class="QCheckBox" name="prompt_to_log_check_box">
-            <property name="toolTip">
-             <string>The program will pop up a partially completed Log QSO dialog when you send a 73 or free text message.</string>
-            </property>
-            <property name="text">
-             <string>Promp&amp;t me to log QSO</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="log_as_RTTY_check_box">
-            <property name="toolTip">
-             <string>Some logging programs will not accept JT-65 or JT9 as a recognized mode.</string>
-            </property>
-            <property name="text">
-             <string>Con&amp;vert mode to RTTY</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="report_in_comments_check_box">
-            <property name="toolTip">
-             <string>Some logging programs will not accept the type of reports
+           <layout class="QGridLayout" name="gridLayout_14">
+            <item row="0" column="0">
+             <widget class="QCheckBox" name="prompt_to_log_check_box">
+              <property name="toolTip">
+               <string>The program will pop up a partially completed Log QSO dialog when you send a 73 or free text message.</string>
+              </property>
+              <property name="text">
+               <string>Promp&amp;t me to log QSO</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <spacer name="horizontalSpacer_6">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="0" column="2">
+             <widget class="QLabel" name="label_13">
+              <property name="text">
+               <string>Op Call:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3">
+             <widget class="QLineEdit" name="opCallEntry"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QCheckBox" name="log_as_RTTY_check_box">
+              <property name="toolTip">
+               <string>Some logging programs will not accept JT-65 or JT9 as a recognized mode.</string>
+              </property>
+              <property name="text">
+               <string>Con&amp;vert mode to RTTY</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QCheckBox" name="report_in_comments_check_box">
+              <property name="toolTip">
+               <string>Some logging programs will not accept the type of reports
 saved by this program.
 Check this option to save the sent and received reports in the
 comments field.</string>
-            </property>
-            <property name="text">
-             <string>d&amp;B reports to comments</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="clear_DX_check_box">
-            <property name="toolTip">
-             <string>Check this option to force the clearing of the DX Call
+              </property>
+              <property name="text">
+               <string>d&amp;B reports to comments</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0" colspan="2">
+             <widget class="QCheckBox" name="clear_DX_check_box">
+              <property name="toolTip">
+               <string>Check this option to force the clearing of the DX Call
 and DX Grid fields when a 73 or free text message is sent.</string>
-            </property>
-            <property name="text">
-             <string>Clear &amp;DX call and grid after logging</string>
-            </property>
-           </widget>
+              </property>
+              <property name="text">
+               <string>Clear &amp;DX call and grid after logging</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -2662,11 +2689,11 @@ soundcard changes</string>
  </connections>
  <buttongroups>
   <buttongroup name="CAT_handshake_button_group"/>
-  <buttongroup name="CAT_stop_bits_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
-  <buttongroup name="split_mode_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="TX_mode_button_group"/>
+  <buttongroup name="split_mode_button_group"/>
  </buttongroups>
 </ui>
