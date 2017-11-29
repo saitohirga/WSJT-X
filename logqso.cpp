@@ -5,6 +5,7 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <QDebug>
+#include <QUdpSocket>
 
 #include "logbook/adif.h"
 #include "MessageBox.hpp"
@@ -85,6 +86,7 @@ void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString 
   ui->band->setText (m_config->bands ()->find (dialFreq));
   ui->loggedOperator->setText(opCall);
   show ();
+  QTimer::singleShot(700, this, SLOT(accept()));
 }
 
 void LogQSO::accept()
@@ -116,6 +118,20 @@ void LogQSO::accept()
   {
     MessageBox::warning_message (this, tr ("Log file error"),
                                  tr ("Cannot open \"%1\"").arg (adifilePath));
+  }
+
+  // Log to N1MM Logger
+  if (m_config->broadcast_to_n1mm() && m_config->valid_n1mm_info())  {
+    QString adif = adifile.QSOToADIF(hisCall,hisGrid,mode,rptSent,rptRcvd,m_dateTimeOn,m_dateTimeOff,band,comments,name,strDialFreq,m_myCall,m_myGrid,m_txPower);
+    const QHostAddress n1mmhost = QHostAddress(m_config->n1mm_server_name());
+    QByteArray qba_adif = adif.toLatin1();
+    QUdpSocket _sock;
+
+    auto rzult = _sock.writeDatagram ( qba_adif, n1mmhost, quint16(m_config->n1mm_server_port()));
+    if (rzult == -1) {
+      MessageBox::warning_message (this, tr ("Error sending log to N1MM"),
+                                   tr ("Write returned \"%1\"").arg (errno));
+    }
   }
 
 //Log this QSO to file "wsjtx.log"

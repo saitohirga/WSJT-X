@@ -567,6 +567,13 @@ private:
   QString opCall_;
   QString udp_server_name_;
   port_type udp_server_port_;
+//  QString n1mm_server_name () const;
+  QString n1mm_server_name_;
+  port_type n1mm_server_port_;
+  bool broadcast_to_n1mm_;
+//  port_type n1mm_server_port () const;
+//  bool valid_n1mm_info () const;
+//  bool broadcast_to_n1mm() const;
   bool accept_udp_requests_;
   bool udpWindowToFront_;
   bool udpWindowRestore_;
@@ -662,6 +669,9 @@ QString Configuration::opCall() const {return m_->opCall_;}
 QString Configuration::udp_server_name () const {return m_->udp_server_name_;}
 auto Configuration::udp_server_port () const -> port_type {return m_->udp_server_port_;}
 bool Configuration::accept_udp_requests () const {return m_->accept_udp_requests_;}
+QString Configuration::n1mm_server_name () const {return m_->n1mm_server_name_;}
+auto Configuration::n1mm_server_port () const -> port_type {return m_->n1mm_server_port_;}
+bool Configuration::broadcast_to_n1mm () const {return m_->broadcast_to_n1mm_;}
 bool Configuration::udpWindowToFront () const {return m_->udpWindowToFront_;}
 bool Configuration::udpWindowRestore () const {return m_->udpWindowRestore_;}
 Bands * Configuration::bands () {return &m_->bands_;}
@@ -770,6 +780,15 @@ void Configuration::sync_transceiver (bool force_signal, bool enforce_mode_and_s
     {
       m_->transceiver_tx_frequency (0);
     }
+}
+
+bool Configuration::valid_n1mm_info () const
+{
+  // do very rudimentary checking on the n1mm server name and port number.
+  //
+  auto server_name = m_->n1mm_server_name_;
+  auto port_number = m_->n1mm_server_port_;
+  return(!(server_name.trimmed().isEmpty() || port_number == 0));
 }
 
 namespace
@@ -906,6 +925,9 @@ Configuration::impl::impl (Configuration * self, QDir const& temp_directory,
 
   ui_->udp_server_port_spin_box->setMinimum (1);
   ui_->udp_server_port_spin_box->setMaximum (std::numeric_limits<port_type>::max ());
+
+  ui_->n1mm_server_port_spin_box->setMinimum (1);
+  ui_->n1mm_server_port_spin_box->setMaximum (std::numeric_limits<port_type>::max ());
 
   //
   // assign ids to radio buttons
@@ -1145,6 +1167,9 @@ void Configuration::impl::initialize_models ()
   ui_->udp_server_line_edit->setText (udp_server_name_);
   ui_->udp_server_port_spin_box->setValue (udp_server_port_);
   ui_->accept_udp_requests_check_box->setChecked (accept_udp_requests_);
+  ui_->n1mm_server_name_line_edit->setText (n1mm_server_name_);
+  ui_->n1mm_server_port_spin_box->setValue (n1mm_server_port_);
+  ui_->enable_n1mm_broadcast_check_box->setChecked (broadcast_to_n1mm_);
   ui_->udpWindowToFront->setChecked(udpWindowToFront_);
   ui_->udpWindowRestore->setChecked(udpWindowRestore_);
   ui_->calibration_intercept_spin_box->setValue (calibration_.intercept);
@@ -1350,6 +1375,9 @@ void Configuration::impl::read_settings ()
   opCall_ = settings_->value ("OpCall", "").toString ();
   udp_server_name_ = settings_->value ("UDPServer", "127.0.0.1").toString ();
   udp_server_port_ = settings_->value ("UDPServerPort", 2237).toUInt ();
+  n1mm_server_name_ = settings_->value ("N1MMServer", "127.0.0.1").toString ();
+  n1mm_server_port_ = settings_->value ("N1MMServerPort", 2333).toUInt ();
+  broadcast_to_n1mm_ = settings_->value ("BroadcastToN1MM", false).toBool ();
   accept_udp_requests_ = settings_->value ("AcceptUDPRequests", false).toBool ();
   udpWindowToFront_ = settings_->value ("udpWindowToFront",false).toBool ();
   udpWindowRestore_ = settings_->value ("udpWindowRestore",false).toBool ();
@@ -1449,6 +1477,9 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("OpCall", opCall_);
   settings_->setValue ("UDPServer", udp_server_name_);
   settings_->setValue ("UDPServerPort", udp_server_port_);
+  settings_->setValue ("N1MMServer", n1mm_server_name_);
+  settings_->setValue ("N1MMServerPort", n1mm_server_port_);
+  settings_->setValue ("BroadcastToN1MM", broadcast_to_n1mm_);
   settings_->setValue ("AcceptUDPRequests", accept_udp_requests_);
   settings_->setValue ("udpWindowToFront", udpWindowToFront_);
   settings_->setValue ("udpWindowRestore", udpWindowRestore_);
@@ -1864,6 +1895,12 @@ void Configuration::impl::accept ()
     }
   
   accept_udp_requests_ = ui_->accept_udp_requests_check_box->isChecked ();
+  auto new_n1mm_server = ui_->n1mm_server_name_line_edit->text ();
+  n1mm_server_name_ = new_n1mm_server;
+  auto new_n1mm_port = ui_->n1mm_server_port_spin_box->value ();
+  n1mm_server_port_ = new_n1mm_port;
+  broadcast_to_n1mm_ = ui_->enable_n1mm_broadcast_check_box->isChecked ();
+
   udpWindowToFront_ = ui_->udpWindowToFront->isChecked ();
   udpWindowRestore_ = ui_->udpWindowRestore->isChecked ();
 

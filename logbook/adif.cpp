@@ -14,7 +14,7 @@
 void ADIF::init(QString const& filename)
 {
     _filename = filename;
-    _data.clear(); 
+    _data.clear();
 }
 
 
@@ -165,13 +165,47 @@ QList<QString> ADIF::getCallList() const
          ++i;
      }
     return p;
-}   
+}
+
+
     
 int ADIF::getCount() const
 {
     return _data.size();
 }   
     
+QString ADIF::QSOToADIF(QString const& hisCall, QString const& hisGrid, QString const& mode, QString const& rptSent, QString const& rptRcvd, QDateTime const& dateTimeOn, QDateTime const& dateTimeOff, QString const& band,
+                        QString const& comments, QString const& name, QString const& strDialFreq, QString const& m_myCall, QString const& m_myGrid, QString const& m_txPower)
+{
+  QString t;
+  t = "<call:" + QString::number(hisCall.length()) + ">" + hisCall;
+  t += " <gridsquare:" + QString::number(hisGrid.length()) + ">" + hisGrid;
+  t += " <mode:" + QString::number(mode.length()) + ">" + mode;
+  t += " <rst_sent:" + QString::number(rptSent.length()) + ">" + rptSent;
+  t += " <rst_rcvd:" + QString::number(rptRcvd.length()) + ">" + rptRcvd;
+  t += " <qso_date:8>" + dateTimeOn.date().toString("yyyyMMdd");
+  t += " <time_on:6>" + dateTimeOn.time().toString("hhmmss");
+  t += " <qso_date_off:8>" + dateTimeOff.date().toString("yyyyMMdd");
+  t += " <time_off:6>" + dateTimeOff.time().toString("hhmmss");
+  t += " <band:" + QString::number(band.length()) + ">" + band;
+  t += " <freq:" + QString::number(strDialFreq.length()) + ">" + strDialFreq;
+  t += " <station_callsign:" + QString::number(m_myCall.length()) + ">" +
+      m_myCall;
+  t += " <my_gridsquare:" + QString::number(m_myGrid.length()) + ">" +
+      m_myGrid;
+  if (m_txPower != "")
+    t += " <tx_pwr:" + QString::number(m_txPower.length()) +
+        ">" + m_txPower;
+  if (comments != "")
+    t += " <comment:" + QString::number(comments.length()) +
+        ">" + comments;
+  if (name != "")
+    t += " <name:" + QString::number(name.length()) +
+        ">" + name;
+  t += " <eor>";
+  return t;
+}
+
 
 // open ADIF file and append the QSO details. Return true on success
 bool ADIF::addQSOToFile(QString const& hisCall, QString const& hisGrid, QString const& mode, QString const& rptSent, QString const& rptRcvd, QDateTime const& dateTimeOn, QDateTime const& dateTimeOff, QString const& band,
@@ -187,30 +221,8 @@ bool ADIF::addQSOToFile(QString const& hisCall, QString const& hisGrid, QString 
             out << "WSJT-X ADIF Export<eoh>" << endl;  // new file
 
         QString t;
-        t="<call:" + QString::number(hisCall.length()) + ">" + hisCall;
-        t+=" <gridsquare:" + QString::number(hisGrid.length()) + ">" + hisGrid;
-        t+=" <mode:" + QString::number(mode.length()) + ">" + mode;
-        t+=" <rst_sent:" + QString::number(rptSent.length()) + ">" + rptSent;
-        t+=" <rst_rcvd:" + QString::number(rptRcvd.length()) + ">" + rptRcvd;
-        t+=" <qso_date:8>" + dateTimeOn.date ().toString ("yyyyMMdd");
-        t+=" <time_on:6>" + dateTimeOn.time ().toString ("hhmmss");
-        t+=" <qso_date_off:8>" + dateTimeOff.date ().toString ("yyyyMMdd");
-        t+=" <time_off:6>" + dateTimeOff.time ().toString ("hhmmss");
-        t+=" <band:" + QString::number(band.length()) + ">" + band;
-        t+=" <freq:" + QString::number(strDialFreq.length()) + ">" + strDialFreq;
-        t+=" <station_callsign:" + QString::number(m_myCall.length()) + ">" +
-                m_myCall;
-        t+=" <my_gridsquare:" + QString::number(m_myGrid.length()) + ">" +
-                m_myGrid;
-        if(m_txPower!="") t+= " <tx_pwr:" + QString::number(m_txPower.length()) +
-                ">" + m_txPower;
-        if(comments!="") t+=" <comment:" + QString::number(comments.length()) +
-                ">" + comments;
-        if(name!="") t+=" <name:" + QString::number(name.length()) +
-                ">" + name;
-        if(operator_call!="") t+=" <operator:" + QString::number(operator_call.length()) +
-                        ">" + operator_call;
-        t+=" <eor>";
+        t = QSOToADIF(hisCall,hisGrid,mode,rptSent,rptRcvd,dateTimeOn,dateTimeOff,
+                      band,comments,name,strDialFreq,m_myCall,m_myGrid,m_txPower);
         out << t << endl;
         f2.close();
     }

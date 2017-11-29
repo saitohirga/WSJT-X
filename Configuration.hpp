@@ -139,6 +139,10 @@ public:
   QString opCall() const;
   QString udp_server_name () const;
   port_type udp_server_port () const;
+  QString n1mm_server_name () const;
+  port_type n1mm_server_port () const;
+  bool valid_n1mm_info () const;
+  bool broadcast_to_n1mm() const;
   bool accept_udp_requests () const;
   bool udpWindowToFront () const;
   bool udpWindowRestore () const;
