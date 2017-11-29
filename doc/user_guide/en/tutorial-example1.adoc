@@ -65,19 +65,15 @@ start automatically at the proper time.
 *Shift* key to move only the Tx frequency or the *Ctrl* key to move
 both Rx and Tx frequencies.
 
+NOTE: You can prevent your Tx frequency from being changed by checking the
+box *Hold Tx Freq*.
+
 - Double-click on the decoded message `K1JT N5KDV EM41`, highlighted
 in red.  Results will be similar to those in the previous step. The Tx
 frequency (red marker) is not moved unless *Shift* or *Ctrl* is held
 down.  Messages highlighted in red are usually in response to your own
 CQ or from a tail-ender, and you probably want your Tx frequency to
 stay where it was.
-
-NOTE: Double-clicking on decoded messages can be defaulted to simplex
-operation by checking *Double click on call sets Tx and Rx freqs* on
-the *Settings -> General* tab.
-
-NOTE: You can prevent your Tx frequency from being changed by checking the
-box *Lock Tx Freq*.
 
 - Click somewhere on the waterfall to set Rx frequency (green marker
 on waterfall scale).
