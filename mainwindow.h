@@ -558,6 +558,10 @@ private:
   QString m_opCall;
   QString m_FoxCallers;
   QString m_toBeCalled;
+  QString m_houndCall[5];
+  QString m_houndGrid[5];
+  QString m_houndRptSent[5];
+  QString m_houndRptRcvd[5];
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;

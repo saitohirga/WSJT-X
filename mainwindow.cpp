@@ -3302,20 +3302,25 @@ void MainWindow::guiUpdate()
           if(m_modeTx=="FT8") {
             if(m_config.bFox()) {
               QString msg[5];
-              QString t1=" ";
+              QString t1;
               QString t3=ui->textBrowser3->toPlainText() + "\n";
               QString t4=ui->textBrowser4->toPlainText() + "\n";
               int islots=t3.split("\n").size() - 1;
               for(int i=0; i<m_Nslots; i++) {
                 msg[i]="";
                 if(i<islots and t3.length() >= 11) {
-                  msg[i]=t3.split("\n").at(i).mid(0,7) + m_config.my_callsign() + t3.split("\n").at(i).mid(6,5);
+                  m_houndCall[i]=t3.split("\n").at(i).mid(0,7);
+                  t1=t3.split("\n").at(i).mid(6,5);
+                  if(t1.indexOf("-")>=0 or t1.indexOf("+")>6) m_houndRptSent[i]=t1;
+                  msg[i]= m_houndCall[i] + m_config.my_callsign() + t1;
                 }
-                if(msg[i]=="") msg[i]=ui->comboBoxCQ->currentText() + " " + m_config.my_callsign() +
+                if(msg[i]=="") msg[i]=ui->comboBoxCQ->currentText() + " " + m_config.my_callsign() + m_houndRptSent[i];
                     " " + m_config.my_grid().mid(0,4);
                 msg[i] += "                                ";
                 msg[i]=msg[i].mid(0,32);
-                if(msg[i].indexOf(" RR73 ") > 6) qDebug() << "Logit:" << msg[i];
+                if(msg[i].indexOf(" RR73 ") > 6) {
+                  qDebug() << "Logit:" << m_houndCall[i] << m_houndRptSent[i];
+                }
                 ui->decodedTextBrowser2->displayTransmittedText(msg[i], m_modeTx,
                       300+60*i,m_config.color_TxMsg(),m_bFastMode);
                 strncpy(&foxcom_.cmsg[i][0], msg[i].toLatin1(),32);
