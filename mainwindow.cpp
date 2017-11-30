@@ -3316,6 +3316,8 @@ void MainWindow::guiUpdate()
                 msg[i] += "                                ";
                 msg[i]=msg[i].mid(0,32);
                 if(msg[i].indexOf(" RR73 ") > 6) qDebug() << "Logit:" << msg[i];
+                ui->decodedTextBrowser2->displayTransmittedText(msg[i], m_modeTx,
+                      300+60*i,m_config.color_TxMsg(),m_bFastMode);
                 strncpy(&foxcom_.cmsg[i][0], msg[i].toLatin1(),32);
               }
               foxcom_.nslots=m_Nslots;
@@ -3451,7 +3453,7 @@ void MainWindow::guiUpdate()
         write_transmit_entry ("ALL.TXT");
       }
 
-      if (m_config.TX_messages () && !m_tune) {
+      if (m_config.TX_messages () && !m_tune && !m_config.bFox()) {
         ui->decodedTextBrowser2->displayTransmittedText(current_message, m_modeTx,
               ui->TxFreqSpinBox->value(),m_config.color_TxMsg(),m_bFastMode);
       }
