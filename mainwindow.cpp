@@ -135,7 +135,7 @@ extern "C" {
   void calibrate_(char data_dir[], int* iz, double* a, double* b, double* rms,
                   double* sigmaa, double* sigmab, int* irc, int len1);
 
-  void foxgen_(char* mycall, char* mygrid, char* tb3, int len1, int len2, int len3);
+  void foxgen_();
 }
 
 int volatile itone[NUM_ISCAT_SYMBOLS];  //Audio tones for all Tx symbols
@@ -3301,28 +3301,25 @@ void MainWindow::guiUpdate()
           }
           if(m_modeTx=="FT8") {
             if(m_config.bFox()) {
-              int islots=0;
               QString msg[5];
-              QString t1="";
+              QString t1=" ";
               QString t3=ui->textBrowser3->toPlainText() + "\n";
               QString t4=ui->textBrowser4->toPlainText() + "\n";
+              int islots=t3.split("\n").size() - 1;
               for(int i=0; i<m_Nslots; i++) {
-                QString t0=t3.split("\n").at(i);
-                if(t0=="") break;
-                if(t0.length()==10) t0 += " ";
-                t1 += t0;
-                QString t2=t4.split("\n").at(i);
-                if(t2=="") break;
-                if(t2.length()==10) t2 += " ";
-                t1 += t2;
-                islots=i;
+                msg[i]="";
+                if(i<islots and t3.length() >= 11) {
+                  msg[i]=t3.split("\n").at(i).mid(0,7) + m_config.my_callsign() + t3.split("\n").at(i).mid(6,5);
+                }
+                if(msg[i]=="") msg[i]=ui->comboBoxCQ->currentText() + " " + m_config.my_callsign() +
+                    " " + m_config.my_grid().mid(0,4);
+                msg[i] += "                                ";
+                msg[i]=msg[i].mid(0,32);
+                if(msg[i].indexOf(" RR73 ") > 6) qDebug() << "Logit:" << msg[i];
+                strncpy(&foxcom_.cmsg[i][0], msg[i].toLatin1(),32);
               }
-              int len3=t1.length();
-//              qDebug() << "aa" << len3 << t1;
-              foxcom_.nslots=islots;
-              if(len3>10) {
-                foxgen_(MyCall, MyGrid, const_cast <char *> (t1.toLatin1().constData()),6,6,len3);
-              }
+              foxcom_.nslots=m_Nslots;
+              foxgen_();
             } else {
               genft8_(message, MyGrid, &bcontest, &m_i3bit, msgsent, const_cast<char *> (ft8msgbits),
                       const_cast<int *> (itone), 22, 6, 22);
@@ -3861,7 +3858,7 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
   }
 
   if(m_config.bFox() and m_decodedText2) {
-    if(m_nToBeCalled >= 2*m_Nslots or m_nFoxCallers==0) return;
+    if(m_nToBeCalled >= (m_Nslots + 10) or m_nFoxCallers==0) return;
     QString t=cursor.block().text();
     QString c2=t.split(" ",QString::SkipEmptyParts).at(0);
     if(ui->textBrowser3->toPlainText().indexOf(c2) >= 0) return;  //Don't allow same call twice
@@ -7171,9 +7168,6 @@ void MainWindow::on_sbMax_dB_valueChanged(int n)
 
 void MainWindow::on_pbFoxReset_clicked()
 {
-  QString t="";
-  for(int i=0; i<m_Nslots; i++) {
-    t += ui->comboBoxCQ->currentText() + "\n";
-  }
-  ui->textBrowser3->setText(t);
+  ui->textBrowser3->setText("");
+  ui->textBrowser4->setText("");
 }

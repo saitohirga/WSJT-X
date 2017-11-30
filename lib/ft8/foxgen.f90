@@ -1,12 +1,9 @@
-subroutine foxgen(mycall,mygrid6,t)
+subroutine foxgen()
 
   parameter (NN=79,KK=87,NSPS=4*1920)
   parameter (NWAVE=NN*NSPS,NFFT=614400,NH=NFFT/2)
-  character*(*) t
   character*32 cmsg
   character*22 msg,msgsent
-  character*12 t1
-  character*6 mycall,mygrid6,mygrid,call1,call2
   logical bcontest
   integer itone(NN)
   integer*1 msgbits(KK)
@@ -17,8 +14,6 @@ subroutine foxgen(mycall,mygrid6,t)
   common/foxcom/wave(NWAVE),nslots,cmsg(5)
   equivalence (x,cx),(y,cy)
 
-  mygrid=mygrid6(1:4)//'  '
-!  print*,mycall,' ',mygrid6,' ',nslots,len(t),t
   call system_clock(count0,clkfreq)
   bcontest=.false.
   i3bit=0
@@ -29,18 +24,10 @@ subroutine foxgen(mycall,mygrid6,t)
   wave=0.
 
   do n=1,nslots
-     ia=22*(n-1)+1
-     call1=t(ia:ia+5)
-     if(t(ia+7:ia+10).eq.'RR73') then
-        irpt1=99
-     else
-        read(t(ia+7:ia+10),*) irpt1
-     endif
-     call2=t(ia+11:ia+16)
-     read(t(ia+18:ia+21),*) irpt2
-!     print*,n,call1,irpt1,call2,irpt2
-     
-     call genft8(msg,mygrid,bcontest,i3bit,msgsent,msgbits,itone)
+     i3bit=0
+     print*,n,i3bit,cmsg(n)
+     msg=cmsg(n)(1:22)
+     call genft8(msg,"      ",bcontest,i3bit,msgsent,msgbits,itone)
      
      f0=1500.d0 + fstep*(n-1)
      phi=0.d0
@@ -57,10 +44,6 @@ subroutine foxgen(mycall,mygrid6,t)
      enddo
      
      call system_clock(count1,clkfreq)
-!     time=float(count1-count0)/float(clkfreq)    !Cumulative execution time
-!     write(*,3001) n,k,i,time,msgsent
-!3001 format(i1,i8,i4,f10.6,2x,a22)
-!     if(i.ge.m) exit
   enddo
 
   sqx=0.
