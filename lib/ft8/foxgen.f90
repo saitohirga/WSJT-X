@@ -1,8 +1,9 @@
-subroutine foxgen(mycall,mygrid6,nslots,t)
+subroutine foxgen(mycall,mygrid6,t)
 
   parameter (NN=79,KK=87,NSPS=4*1920)
   parameter (NWAVE=NN*NSPS,NFFT=614400,NH=NFFT/2)
   character*(*) t
+  character*32 cmsg
   character*22 msg,msgsent
   character*12 t1
   character*6 mycall,mygrid6,mygrid,call1,call2
@@ -10,15 +11,14 @@ subroutine foxgen(mycall,mygrid6,nslots,t)
   integer itone(NN)
   integer*1 msgbits(KK)
   integer*8 count0,count1,clkfreq
-  real wave(NWAVE)
   real x(NFFT),y(NFFT)
   real*8 dt,twopi,f0,fstep,dfreq,phi,dphi
   complex cx(0:NH),cy(0:NH)
-  common/foxcom/wave
+  common/foxcom/wave(NWAVE),nslots,cmsg(5)
   equivalence (x,cx),(y,cy)
 
   mygrid=mygrid6(1:4)//'  '
-  print*,mycall,' ',mygrid6,' ',nslots,len(t),t
+!  print*,mycall,' ',mygrid6,' ',nslots,len(t),t
   call system_clock(count0,clkfreq)
   bcontest=.false.
   i3bit=0
@@ -38,7 +38,7 @@ subroutine foxgen(mycall,mygrid6,nslots,t)
      endif
      call2=t(ia+11:ia+16)
      read(t(ia+18:ia+21),*) irpt2
-     print*,n,call1,irpt1,call2,irpt2
+!     print*,n,call1,irpt1,call2,irpt2
      
      call genft8(msg,mygrid,bcontest,i3bit,msgsent,msgbits,itone)
      

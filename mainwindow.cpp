@@ -135,7 +135,7 @@ extern "C" {
   void calibrate_(char data_dir[], int* iz, double* a, double* b, double* rms,
                   double* sigmaa, double* sigmab, int* irc, int len1);
 
-  void foxgen_(char* mycall, char* mygrid, int* nslots, char* tb3, int len1, int len2, int len3);
+  void foxgen_(char* mycall, char* mygrid, char* tb3, int len1, int len2, int len3);
 }
 
 int volatile itone[NUM_ISCAT_SYMBOLS];  //Audio tones for all Tx symbols
@@ -1159,6 +1159,10 @@ void MainWindow::setDecodedTextFont (QFont const& font)
   ui->decodedTextBrowser2->setContentFont (font);
   ui->textBrowser3->setContentFont(font);
   ui->textBrowser4->setContentFont(font);
+  ui->textBrowser3->displayFoxToBeCalled(" ","#ffffff");
+  ui->textBrowser4->displayFoxToBeCalled(" ","#ffffff");
+  ui->textBrowser3->setText("");
+  ui->textBrowser4->setText("");
   auto style_sheet = "QLabel {" + font_as_stylesheet (font) + '}';
   ui->decodedTextLabel->setStyleSheet (ui->decodedTextLabel->styleSheet () + style_sheet);
   ui->decodedTextLabel2->setStyleSheet (ui->decodedTextLabel2->styleSheet () + style_sheet);
@@ -1719,18 +1723,6 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
 {
   if(m_config.bFox()) {
     switch (e->key()) {
-      case Qt::Key_7:
-        if(m_isort>-4) m_isort--;
-        return;
-      case Qt::Key_8:
-        if(m_isort<4) m_isort++;
-        return;
-      case Qt::Key_9:
-        if(m_max_dB > -15) m_max_dB--;
-        return;
-      case Qt::Key_0:
-        if(m_max_dB < 30)  m_max_dB++;
-        return;
       case Qt::Key_Return:
         doubleClickOnCall2(Qt::KeyboardModifier(Qt::ShiftModifier + Qt::ControlModifier + Qt::AltModifier));
         return;
@@ -1738,7 +1730,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         doubleClickOnCall2(Qt::KeyboardModifier(Qt::ShiftModifier + Qt::ControlModifier + Qt::AltModifier));
         return;
       case Qt::Key_Backspace:
-        qDebug() << "a" << m_toBeCalled;
+        qDebug() << "Key Backspace" << m_toBeCalled;
         return;
     }
     QMainWindow::keyPressEvent (e);
@@ -2756,7 +2748,6 @@ void MainWindow::decodeDone ()
     QFile f(m_config.temp_dir().absoluteFilePath("foxcalls.txt"));
     if(f.open(QIODevice::ReadOnly | QIODevice::Text)) {
       QTextStream s(&f);
-//      QString t=s.readAll();
       QString t="";
       QString t0;
       QString c2;
@@ -2767,7 +2758,7 @@ void MainWindow::decodeDone ()
         b=false;
         if(ui->textBrowser3->toPlainText().indexOf(c2) >= 0) b=true;
         if(ui->textBrowser4->toPlainText().indexOf(c2) >= 0) b=true;
-        if(!b) t += (t0 + "\n");  //Don't include calls already in the queue
+        if(!b) t += (t0 + "\n");  //Don't list calls already in QSO or in the stack
       }
       if(t.length()>30) {
         m_isort=ui->comboBoxFoxSort->currentIndex();
@@ -2812,14 +2803,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           if(navg>1 or t.indexOf("f*")>0) bAvgMsg=true;
         }
       }
-      /*
-      if(m_mode=="FT8" and m_bDXped) {
-        int i3bit=t.mid(44,1).toInt();
-        t=t.mid(0,44) + " " + t.mid(45);
-        if(i3bit==1) t=t.mid(0,24) + "RR73 NOW " + t.mid(24);
-        if(i3bit==2) t=t.mid(0,24) + "NIL NOW " + t.mid(24);
-      }
-      */
+
       QFile f {m_config.writeable_data_dir ().absoluteFilePath ("ALL.TXT")};
       if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
         QTextStream out(&f);
@@ -2849,25 +2833,28 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
       DecodedText decodedtext {QString::fromUtf8 (t.constData ()).remove (QRegularExpression {"\r|\n"}), "FT8" == m_mode &&
             ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
-      QString c2,g2;
-      decodedtext.deCallAndGrid(/*out*/c2,g2);
-      if(g2.mid(0,2)=="R+" or g2.mid(0,2)=="R-") {
-        QString a=ui->textBrowser3->toPlainText();
-        int i0=a.indexOf(c2);
-        if(i0 >= 0) {
-          QString b=a.mid(i0);
-          QStringList c=a.split("\n");
-          ui->textBrowser3->setText("");
-          for (int i=0; i<c.length(); i++) {
-            QString d=c.at(i);
-            if(d.indexOf(c2)<0 and d.indexOf("RR73")<0) {
-              ui->textBrowser3->displayFoxToBeCalled(d,"#ffffff");
-            } else {
-              if(d.indexOf("RR73")<0) {
-                int i1=qMax(d.indexOf("+"),d.indexOf("-"));
-                d=d.mid(0,i1-1) + " RR73";
+
+      if(m_mode=="FT8" and m_config.bFox()) {
+        QString c2,g2;
+        decodedtext.deCallAndGrid(/*out*/c2,g2);
+        if(g2.mid(0,2)=="R+" or g2.mid(0,2)=="R-") {
+          QString a=ui->textBrowser3->toPlainText();
+          int i0=a.indexOf(c2);
+          if(i0 >= 0) {
+            QString b=a.mid(i0);
+            QStringList c=a.split("\n");
+            ui->textBrowser3->setText("");
+            for (int i=0; i<c.length(); i++) {
+              QString d=c.at(i);
+              if(d.indexOf(c2)<0 and d.indexOf("RR73")<0) {
+                ui->textBrowser3->displayFoxToBeCalled(d,"#ffffff");
+              } else {
+                if(d.indexOf("RR73")<0) {
+                  int i1=qMax(d.indexOf("+"),d.indexOf("-"));
+                  d=d.mid(0,i1-1) + " RR73";
+                }
+                ui->textBrowser3->displayFoxToBeCalled(d,"#ff99ff");
               }
-              ui->textBrowser3->displayFoxToBeCalled(d,"#ff99ff");
             }
           }
         }
@@ -3231,6 +3218,7 @@ void MainWindow::guiUpdate()
     }
   }
 
+
   // Calculate Tx tones when needed
   if((g_iptt==1 && m_iptt0==0) || m_restart) {
 //----------------------------------------------------------------------
@@ -3266,21 +3254,6 @@ void MainWindow::guiUpdate()
       if(m_ntx == 6) ba=ui->tx6->text().toLocal8Bit();
       if(m_ntx == 7) ba=ui->genMsg->text().toLocal8Bit();
       if(m_ntx == 8) ba=ui->freeTextMsg->currentText().toLocal8Bit();
-    }
-
-    m_i3bit=0;
-    if(m_mode=="FT8" and m_bDXped) {
-      ba0=ba;
-      QString t=QString::fromUtf8(ba0);
-      if(t.startsWith("RR73 NOW ")) {
-        t=t.mid(9);
-        m_i3bit=1;
-      }
-      if(t.startsWith("NIL NOW ")) {
-        t=t.mid(8);
-        m_i3bit=2;
-      }
-      ba=t.toLocal8Bit();
     }
 
     ba2msg(ba,message);
@@ -3328,20 +3301,28 @@ void MainWindow::guiUpdate()
           }
           if(m_modeTx=="FT8") {
             if(m_config.bFox()) {
+              int islots=0;
+              QString msg[5];
               QString t1="";
               QString t3=ui->textBrowser3->toPlainText() + "\n";
               QString t4=ui->textBrowser4->toPlainText() + "\n";
-              int nslots=ui->sbNslots->value();
-              for(int i=0; i<nslots; i++) {
+              for(int i=0; i<m_Nslots; i++) {
                 QString t0=t3.split("\n").at(i);
+                if(t0=="") break;
                 if(t0.length()==10) t0 += " ";
                 t1 += t0;
-                t0=t4.split("\n").at(i);
-                if(t0.length()==10) t0 += " ";
-                t1 += t0;
+                QString t2=t4.split("\n").at(i);
+                if(t2=="") break;
+                if(t2.length()==10) t2 += " ";
+                t1 += t2;
+                islots=i;
               }
               int len3=t1.length();
-              foxgen_(MyCall, MyGrid, &nslots, const_cast <char *> (t1.toLatin1().constData()),6,6,len3);
+//              qDebug() << "aa" << len3 << t1;
+              foxcom_.nslots=islots;
+              if(len3>10) {
+                foxgen_(MyCall, MyGrid, const_cast <char *> (t1.toLatin1().constData()),6,6,len3);
+              }
             } else {
               genft8_(message, MyGrid, &bcontest, &m_i3bit, msgsent, const_cast<char *> (ft8msgbits),
                       const_cast<int *> (itone), 22, 6, 22);
@@ -7186,4 +7167,13 @@ void MainWindow::on_sbNslots_valueChanged(int n)
 void MainWindow::on_sbMax_dB_valueChanged(int n)
 {
   m_max_dB=n;
+}
+
+void MainWindow::on_pbFoxReset_clicked()
+{
+  QString t="";
+  for(int i=0; i<m_Nslots; i++) {
+    t += ui->comboBoxCQ->currentText() + "\n";
+  }
+  ui->textBrowser3->setText(t);
 }
