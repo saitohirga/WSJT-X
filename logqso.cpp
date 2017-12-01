@@ -130,7 +130,7 @@ void LogQSO::accept()
     auto rzult = _sock.writeDatagram ( qba_adif, n1mmhost, quint16(m_config->n1mm_server_port()));
     if (rzult == -1) {
       MessageBox::warning_message (this, tr ("Error sending log to N1MM"),
-                                   tr ("Write returned \"%1\"").arg (errno));
+                                   tr ("Write returned \"%1\"").arg (rzult));
     }
   }
 
