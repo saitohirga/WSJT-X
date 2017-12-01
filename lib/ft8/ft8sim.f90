@@ -7,7 +7,7 @@ program ft8sim
   include 'ft8_params.f90'               !Set various constants
   type(hdr) h                            !Header for .wav file
   character arg*12,fname*17,sorm*1
-  character msg*22,msgsent*22
+  character msg*22,msgsent*22,msg0*22
   character*6 mygrid6
   logical bcontest
   complex c0(0:NMAX-1)
@@ -22,7 +22,7 @@ program ft8sim
   if(nargs.ne.8) then
      print*,'Usage:   ft8sim "message"         s|m|d  f0    DT fdop del nfiles snr'
      print*,'Example: ft8sim "K1ABC W9XYZ EN37"   m  1500.0 0.0 0.1 1.0   10   -18'
-     print*,'s|m|d: s for single signal, m for 25 signals, d for 5.'
+     print*,'s|m|d: s for single signal, m for 25 signals, d for 10.'
      print*,'f0 is ignored when sorm = m'
      print*,'Make nfiles negative to invoke 72-bit contest mode.'
      go to 999
@@ -36,8 +36,8 @@ program ft8sim
     print*,"Generating 25 signals per file."
     nsig=25
   elseif( sorm.eq."d") then
-    print*,"Generating 5 signals per file."
-    nsig=5
+    print*,"Generating 10 signals per file."
+    nsig=10
   else
     print*,"sorm parameter must be s, m, or d."
     goto 999
@@ -76,23 +76,34 @@ program ft8sim
 1000 format('f0:',f9.3,'   DT:',f6.2,'   TxT:',f6.1,'   SNR:',f6.1,    &
           '  BW:',f4.1,2x,a22)
 
-write(*,'(28i1,1x,28i1)') msgbits(1:56)
-write(*,'(16i1)') msgbits(57:72)
-write(*,'(3i1)') msgbits(73:75)
-write(*,'(12i1)') msgbits(76:87)
- 
-!  call sgran()
+  write(*,'(28i1,1x,28i1)') msgbits(1:56)
+  write(*,'(16i1)') msgbits(57:72)
+  write(*,'(3i1)') msgbits(73:75)
+  write(*,'(12i1)') msgbits(76:87)
+
+  msg0=msg
   do ifile=1,nfiles
      c=0.
      do isig=1,nsig
         c0=0.
         if(nsig.eq.25) then
            f0=(isig+2)*100.0
-        else if(nsig.eq.5) then
+        else if(nsig.eq.10) then
+           msg=msg0
            f0=1500.0 + (isig-1)*60.0
-           msg(3:3)=char(ichar('A')+isig-1)
-           msg(4:4)=char(ichar('A')+isig-1)
-           msg(5:5)=char(ichar('A')+isig-1)
+           i1=index(msg,' ')
+           i2=index(msg(i1+1:),' ') + i1
+           msg(i1+2:i1+2)=char(ichar('0')+isig-1)
+           msg(i1+3:i1+3)=char(ichar('A')+isig-1)
+           msg(i1+4:i1+4)=char(ichar('A')+isig-1)
+           msg(i1+5:i1+5)=char(ichar('A')+isig-1)
+           msg(i2+3:i2+3)=char(ichar('0')+isig-1)
+           if(ifile.ge.2 .and. isig.eq.ifile-1) then
+              write(msg(i2+1:i2+4),1002) -isig
+1002          format('R',i3.2)
+              f0=600.0 + mod(isig-1,5)*60.0
+           endif
+
            call genft8(msg,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
         endif
         k=-1 + nint((xdt+0.5+0.01*gran())/dt)
