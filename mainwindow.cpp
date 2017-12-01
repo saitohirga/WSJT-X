@@ -991,7 +991,7 @@ void MainWindow::writeSettings()
   m_settings->setValue ("FreeText", ui->freeTextMsg->currentText ());
   m_settings->setValue("ShowMenus",ui->cbMenus->isChecked());
   m_settings->setValue("CallFirst",ui->cbFirst->isChecked());
-  m_settings->setValue("FoxSort",ui->comboBoxFoxSort->currentIndex());
+  m_settings->setValue("HoundSort",ui->comboBoxHoundSort->currentIndex());
   m_settings->setValue("FoxNsig",ui->sbNsig->value());
   m_settings->setValue("FoxNslots",ui->sbNslots->value());
   m_settings->setValue("FoxMaxDB",ui->sbMax_dB->value());
@@ -1062,7 +1062,7 @@ void MainWindow::readSettings()
         m_settings->value ("FreeText").toString ());
   ui->cbMenus->setChecked(m_settings->value("ShowMenus",true).toBool());
   ui->cbFirst->setChecked(m_settings->value("CallFirst",true).toBool());
-  ui->comboBoxFoxSort->setCurrentIndex(m_settings->value("FoxSort",3).toInt());
+  ui->comboBoxHoundSort->setCurrentIndex(m_settings->value("HoundSort",3).toInt());
   ui->sbNsig->setValue(m_settings->value("FoxNsig",12).toInt());
   ui->sbNslots->setValue(m_settings->value("FoxNslots",5).toInt());
   ui->sbMax_dB->setValue(m_settings->value("FoxMaxDB",30).toInt());
@@ -2758,11 +2758,13 @@ void MainWindow::decodeDone ()
         b=false;
         if(ui->textBrowser3->toPlainText().indexOf(c2) >= 0) b=true;
         if(ui->textBrowser4->toPlainText().indexOf(c2) >= 0) b=true;
-        if(!b) t += (t0 + "\n");  //Don't list calls already in QSO or in the stack
+        if(!b) {
+          t += (t0 + "\n");  //Don't list calls already in QSO or in the stack
+        }
       }
       if(t.length()>30) {
-        m_isort=ui->comboBoxFoxSort->currentIndex();
-        QString t1=sortFoxCalls(t,m_isort,m_min_dB,m_max_dB);
+        m_isort=ui->comboBoxHoundSort->currentIndex();
+        QString t1=sortHoundCalls(t,m_isort,m_min_dB,m_max_dB);
         ui->decodedTextBrowser->setText(t1);
       }
     }
@@ -7068,7 +7070,7 @@ void MainWindow::write_transmit_entry (QString const& file_name)
     }
 }
 
-QString MainWindow::sortFoxCalls(QString t, int isort, int min_dB, int max_dB)
+QString MainWindow::sortHoundCalls(QString t, int isort, int min_dB, int max_dB)
 {
   QMap<QString,QString> map;
   QStringList lines,lines2;
@@ -7155,6 +7157,11 @@ QString MainWindow::sortFoxCalls(QString t, int isort, int min_dB, int max_dB)
   m_nFoxCallers=0;
   if(i0 > 0) m_nFoxCallers=qMin(t.length(),m_Nsig*i0)/i0;
   m_FoxCallers=t.mid(0,m_Nsig*i0);
+  if(m_nFoxCallers>0) {
+    for(int i=0; i<m_nFoxCallers; i++) {
+      m_HoundsCalling[i]=m_FoxCallers.split("\n").at(i);
+    }
+  }
   return m_FoxCallers;
 }
 

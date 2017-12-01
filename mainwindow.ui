@@ -1723,7 +1723,7 @@ list. The list can be maintained in Settings (F2).</string>
                       </widget>
                      </item>
                      <item row="0" column="0">
-                      <widget class="QComboBox" name="comboBoxFoxSort">
+                      <widget class="QComboBox" name="comboBoxHoundSort">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                          <horstretch>0</horstretch>

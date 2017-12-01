@@ -419,6 +419,7 @@ private:
   qint32  m_nToBeCalled=0;
   qint32  m_Nsig=12;
   qint32  m_Nslots=5;
+  qint32  m_nHoundsCalling=0;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
@@ -562,6 +563,7 @@ private:
   QString m_houndGrid[5];
   QString m_houndRptSent[5];
   QString m_houndRptRcvd[5];
+  QString m_HoundsCalling[100];
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;
@@ -646,7 +648,7 @@ private:
                           , Frequency frequency
                           , QString const& his_call
                           , QString const& his_grid) const;
-  QString sortFoxCalls(QString t, int isort, int min_dB, int max_dB);
+  QString sortHoundCalls(QString t, int isort, int min_dB, int max_dB);
   void read_wav_file (QString const& fname);
   void decodeDone ();
   void subProcessFailed (QProcess *, int exit_code, QProcess::ExitStatus);
