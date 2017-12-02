@@ -1034,6 +1034,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("pwrBandTxMemory",m_pwrBandTxMemory);
   m_settings->setValue("pwrBandTuneMemory",m_pwrBandTuneMemory);
   m_settings->setValue ("FT8AP", ui->actionEnable_AP_FT8->isChecked ());
+  m_settings->setValue ("JT65AP", ui->actionEnable_AP_JT65->isChecked ());
   {
     QList<QVariant> coeffs;     // suitable for QSettings
     for (auto const& coeff : m_phaseEqCoefficients)
@@ -1119,6 +1120,7 @@ void MainWindow::readSettings()
   m_pwrBandTxMemory=m_settings->value("pwrBandTxMemory").toHash();
   m_pwrBandTuneMemory=m_settings->value("pwrBandTuneMemory").toHash();
   ui->actionEnable_AP_FT8->setChecked (m_settings->value ("FT8AP", false).toBool());
+  ui->actionEnable_AP_JT65->setChecked (m_settings->value ("JT65AP", false).toBool());
   {
     auto const& coeffs = m_settings->value ("PhaseEqualizationCoefficients"
                                             , QList<QVariant> {0., 0., 0., 0., 0.}).toList ();
@@ -1639,6 +1641,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       ui->actionInclude_correlation->setVisible (false);
       ui->actionInclude_averaging->setChecked(false);
       ui->actionInclude_correlation->setChecked(false);
+      ui->actionEnable_AP_JT65->setVisible(false);
     }
     m_opCall=m_config.opCall();
   }
@@ -2575,7 +2578,7 @@ void MainWindow::decode()                                       //decode()
   if(m_modeTx=="JT65") dec_data.params.ntxmode=65;
   dec_data.params.nmode=9;
   if(m_mode=="JT65") dec_data.params.nmode=65;
-  if(m_mode=="JT65") dec_data.params.ljt65apon = false;
+  if(m_mode=="JT65") dec_data.params.ljt65apon = ui->actionEnable_AP_JT65->isVisible () && ui->actionEnable_AP_JT65->isChecked (); 
   if(m_mode=="QRA64") dec_data.params.nmode=164;
   if(m_mode=="QRA64") dec_data.params.ntxmode=164;
   if(m_mode=="JT9+JT65") dec_data.params.nmode=9+65;  // = 74
@@ -4839,11 +4842,12 @@ void MainWindow::displayWidgets(int n)
     if(i==23) {
       ui->cbSWL->setVisible(b);
     }
+    if(i==24) ui->actionEnable_AP_FT8->setVisible (b);
+    if(i==25) ui->actionEnable_AP_JT65->setVisible (b);
+    if(i==26) ui->actionEnable_AP_DXcall->setVisible (b);
     j=j>>1;
   }
   ui->cbFirst->setVisible ("FT8" == m_mode);
-  ui->actionEnable_AP_FT8->setVisible ("FT8" == m_mode);
-//  ui->actionEnable_AP_JT65->setVisible ("JT65" == m_mode);
   ui->cbVHFcontest->setVisible(m_mode=="FT8" or m_mode=="MSK144");
   ui->measure_check_box->setChecked (false);
   ui->measure_check_box->setVisible ("FreqCal" == m_mode);
@@ -4895,7 +4899,7 @@ void MainWindow::on_actionFT8_triggered()
     ui->label_6->setText("Band Activity");
     ui->decodedTextLabel->setText( "  UTC   dB   DT Freq    Message");
   }
-  displayWidgets(nWidgets("111010000100111000010000"));
+  displayWidgets(nWidgets("111010000100111000010000100"));
   if(m_config.bFox() or m_config.bHound()) {
     if(m_config.bFox()) ui->labDXped->setText("DXpedition: Fox");
     if(m_config.bHound()) ui->labDXped->setText("DXpedition: Hound");
@@ -4905,8 +4909,6 @@ void MainWindow::on_actionFT8_triggered()
     ui->labDXped->setVisible(false);
     ui->cbVHFcontest->setVisible(true);
   }
-
-
   statusChanged();
 }
 
@@ -4945,9 +4947,9 @@ void MainWindow::on_actionJT4_triggered()
     ui->sbSubmode->setValue(0);
   }
   if(bVHF) {
-    displayWidgets(nWidgets("111110010010111110110000"));
+    displayWidgets(nWidgets("111110010010111110111100000"));
   } else {
-    displayWidgets(nWidgets("111010000000111000111100"));
+    displayWidgets(nWidgets("111010000000111000110000000"));
   }
   fast_config(false);
   statusChanged();
@@ -5000,9 +5002,9 @@ void MainWindow::on_actionJT9_triggered()
   ui->label_6->setText("Band Activity");
   ui->label_7->setText("Rx Frequency");
   if(bVHF) {
-    displayWidgets(nWidgets("111110101000111110010000"));
+    displayWidgets(nWidgets("111110101000111110010000000"));
   } else {
-    displayWidgets(nWidgets("111010000000111000010000"));
+    displayWidgets(nWidgets("111010000000111000010000000"));
   }
   fast_config(m_bFastMode);
   ui->cbAutoSeq->setVisible(m_bFast9);
@@ -5041,7 +5043,7 @@ void MainWindow::on_actionJT9_JT65_triggered()
   ui->label_7->setText("Rx Frequency");
   ui->decodedTextLabel->setText("UTC   dB   DT Freq    Message");
   ui->decodedTextLabel2->setText("UTC   dB   DT Freq    Message");
-  displayWidgets(nWidgets("111010000001111000010000"));
+  displayWidgets(nWidgets("111010000001111000010000000"));
   fast_config(false);
   statusChanged();
 }
@@ -5070,7 +5072,7 @@ void MainWindow::on_actionJT65_triggered()
   if(m_config.decode_at_52s()) m_hsymStop=183;
   m_toneSpacing=0.0;
   ui->actionJT65->setChecked(true);
-  VHF_features_enabled(true);
+  VHF_features_enabled(bVHF);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
@@ -5088,9 +5090,9 @@ void MainWindow::on_actionJT65_triggered()
     ui->label_7->setText("Rx Frequency");
   }
   if(bVHF) {
-    displayWidgets(nWidgets("111110010000111110110000"));
+    displayWidgets(nWidgets("111110010000111110111100010"));
   } else {
-    displayWidgets(nWidgets("111010000000111000011100"));
+    displayWidgets(nWidgets("111010000000111000010000000"));
   }
   fast_config(false);
   statusChanged();
@@ -5122,7 +5124,7 @@ void MainWindow::on_actionQRA64_triggered()
        "Using old QRA64 sync pattern.");
     m_bQRAsyncWarned=true;
   }
-  displayWidgets(nWidgets("111110010110111110000000"));
+  displayWidgets(nWidgets("111110010110111110000000001"));
   statusChanged();
 }
 
@@ -5158,7 +5160,7 @@ void MainWindow::on_actionISCAT_triggered()
   ui->sbSubmode->setMaximum(1);
   if(m_nSubMode==0) ui->TxFreqSpinBox->setValue(1012);
   if(m_nSubMode==1) ui->TxFreqSpinBox->setValue(560);
-  displayWidgets(nWidgets("100111000000000110000000"));
+  displayWidgets(nWidgets("100111000000000110000000000"));
   fast_config(true);
   statusChanged ();
 }
@@ -5199,8 +5201,7 @@ void MainWindow::on_actionMSK144_triggered()
   ui->rptSpinBox->setValue(0);
   ui->rptSpinBox->setSingleStep(1);
   ui->sbFtol->values ({20, 50, 100, 200});
-  displayWidgets(nWidgets("101111110100000000010001"));
-//    displayWidgets(nWidgets("101111111100000000010001"));
+  displayWidgets(nWidgets("101111110100000000010001000"));
   fast_config(m_bFastMode);
   statusChanged();
 }
@@ -5228,7 +5229,7 @@ void MainWindow::on_actionWSPR_triggered()
   m_bFastMode=false;
   m_bFast9=false;
   ui->TxFreqSpinBox->setValue(ui->WSPRfreqSpinBox->value());
-  displayWidgets(nWidgets("000000000000000001010000"));
+  displayWidgets(nWidgets("000000000000000001010000000"));
   fast_config(false);
   statusChanged();
 }
@@ -5278,7 +5279,7 @@ void MainWindow::on_actionEcho_triggered()
   m_bFast9=false;
   WSPR_config(true);
   ui->decodedTextLabel->setText("   UTC      N   Level    Sig      DF    Width   Q");
-  displayWidgets(nWidgets("000000000000000000000010"));
+  displayWidgets(nWidgets("000000000000000000000010000"));
   fast_config(false);
   statusChanged();
 }
@@ -5303,7 +5304,7 @@ void MainWindow::on_actionFreqCal_triggered()
 //                               18:15:47      0  1  1500  1550.349     0.100    3.5   10.2
   ui->decodedTextLabel->setText("  UTC      Freq CAL Offset  fMeas       DF     Level   S/N");
   ui->measure_check_box->setChecked (false);
-  displayWidgets(nWidgets("001101000000000000000000"));
+  displayWidgets(nWidgets("001101000000000000000000000"));
   statusChanged();
 }
 
@@ -6247,6 +6248,7 @@ void::MainWindow::VHF_features_enabled(bool b)
   ui->actionInclude_correlation->setVisible (b);
   ui->actionMessage_averaging->setEnabled(b);
   ui->actionEnable_AP_DXcall->setVisible (m_mode=="QRA64");
+  ui->actionEnable_AP_JT65->setVisible (m_mode=="JT65");
   if(!b && m_msgAvgWidget) {
     if(m_msgAvgWidget->isVisible()) m_msgAvgWidget->close();
   }

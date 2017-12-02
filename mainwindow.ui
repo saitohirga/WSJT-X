@@ -2656,6 +2656,7 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="actionInclude_averaging"/>
     <addaction name="actionInclude_correlation"/>
     <addaction name="actionEnable_AP_FT8"/>
+    <addaction name="actionEnable_AP_JT65"/>
     <addaction name="actionEnable_AP_DXcall"/>
    </widget>
    <widget class="QMenu" name="menuSave">
@@ -3259,6 +3260,14 @@ QPushButton[state=&quot;ok&quot;] {
    </property>
   </action>
   <action name="actionEnable_AP_FT8">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Enable AP</string>
+   </property>
+  </action>
+  <action name="actionEnable_AP_JT65">
    <property name="checkable">
     <bool>true</bool>
    </property>
