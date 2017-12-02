@@ -1,6 +1,7 @@
 subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,nflip,     &
-     mycall_12,hiscall_12,hisgrid,nexp_decode,ncount,nhist,decoded,     &
-     ltext,nft,qual)
+     mycall_12,hiscall_12,hisgrid,nQSOProgress,ljt65apon,               &
+     nexp_decode,ncount,      &
+     nhist,decoded,ltext,nft,qual)
 
 ! Input:
 !   s3       64-point spectra for each of 63 data symbols
@@ -20,19 +21,73 @@ subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,nflip,     &
   use timer_module, only: timer
 
   real s3(64,63)
-  character decoded*22
+  character decoded*22, apmessage*22
   character*12 mycall_12,hiscall_12
   character*6 mycall,hiscall,hisgrid
+  character*6 mycall0,hiscall0,hisgrid0
+  integer apsymbols(5,12),ap(12)
+  integer nappasses(0:5)  ! the number of decoding passes to use for each QSO state
+  integer naptypes(0:5,4) ! (nQSOProgress, decoding pass)  maximum of 4 passes for now 
   integer dat4(12)
   integer mrsym(63),mr2sym(63),mrprob(63),mr2prob(63)
   integer correct(63),tmp(63)
-  logical ltext
+  logical first,ltext,ljt65apon
   common/chansyms65/correct
+  data first/.true./
   save
-
+  
   if(mode65.eq.-99) stop                   !Silence compiler warning
+  if(first) then
+
+! aptype
+!------------------------
+!   1        CQ     ???    ???
+!   2        MyCall ???    ???
+!   3        MyCall DxCall ???
+!   4        MyCall DxCall RRR
+!   5        MyCall DxCall 73
+
+     apsymbols=-1
+     nappasses=(/2,2,2,3,3,3/)
+     naptypes(0,1:4)=(/1,2,0,0/)
+     naptypes(1,1:4)=(/2,3,0,0/)
+     naptypes(2,1:4)=(/2,3,0,0/)
+     naptypes(3,1:4)=(/3,4,5,0/)
+     naptypes(4,1:4)=(/3,4,5,0/)
+     naptypes(5,1:4)=(/3,1,2,0/)  
+     first=.false.
+  endif
+
   mycall=mycall_12(1:6)
   hiscall=hiscall_12(1:6)
+! Fill apsymbols array
+  if(ljt65apon .and. (mycall.ne.mycall0 .or. hiscall.ne.hiscall0)) then 
+!write(*,*) 'initializing apsymbols '
+     apsymbols=-1
+     mycall0=mycall
+     hiscall0=hiscall
+     ap=-1
+     apsymbols(1,1:4)=(/62,32,32,49/) ! CQ
+     if(len_trim(mycall).gt.0) then
+        apmessage=mycall//" "//mycall//" RRR" 
+        call packmsg(apmessage,ap,itype,.false.)
+        if(itype.ne.1) ap=-1
+        apsymbols(2,1:4)=ap(1:4)
+!write(*,*) 'mycall symbols ',ap(1:4)
+        if(len_trim(hiscall).gt.0) then
+           apmessage=mycall//" "//hiscall//" RRR" 
+           call packmsg(apmessage,ap,itype,.false.)
+           if(itype.ne.1) ap=-1
+           apsymbols(3,1:9)=ap(1:9)
+           apsymbols(4,:)=ap
+           apmessage=mycall//" "//hiscall//" 73" 
+           call packmsg(apmessage,ap,itype,.false.)
+           if(itype.ne.1) ap=-1
+           apsymbols(5,:)=ap
+        endif
+     endif
+  endif
+   
   qual=0.
   nbirdie=20
   npct=50
@@ -71,28 +126,48 @@ subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,nflip,     &
   call graycode65(mr2sym,63,-1)      !Remove gray code and interleaving
   call interleave63(mr2sym,-1)       !from second-most-reliable symbols
   call interleave63(mr2prob,-1)
-  ntry=0
 
-!call gf64_osd(mrsym,mrprob,mr2sym,mr2prob,correct)
-  call timer('ftrsd   ',0)
-  param=0
-  call ftrsd2(mrsym,mrprob,mr2sym,mr2prob,ntrials,correct,param,ntry)
-  call timer('ftrsd   ',1)
-  ncandidates=param(0)
-  nhard=param(1)
-  nsoft=param(2)
-  nerased=param(3)
-  rtt=0.001*param(4)
-  ntotal=param(5)
-  qual=0.001*param(7)
-  nd0=81
-  r0=0.87
-  if(naggressive.eq.10) then
-     nd0=83
-     r0=0.90
+  npass=1  ! if ap decoding is disabled  
+  if(ljt65apon .and. len_trim(mycall).gt.0) then 
+     npass=1+nappasses(nQSOProgress)
+!write(*,*) 'ap is on: ',npass-1,'ap passes of types ',naptypes(nQSOProgress,:)
   endif
-  if(ntotal.le.nd0 .and. rtt.le.r0) nft=1
+  do ipass=1,npass
+     ap=-1
+     ntype=0
+     if(ipass.gt.1) then
+       ntype=naptypes(nQSOProgress,ipass-1)
+!write(*,*) 'ap pass, type ',ntype
+       ap=apsymbols(ntype,:)
+       if(count(ap.ge.0).eq.0) cycle  ! don't bother if all ap symbols are -1
+!write(*,'(12i3)') ap
+     endif
+     ntry=0
+     call timer('ftrsd   ',0)
+     param=0
+     call ftrsdap(mrsym,mrprob,mr2sym,mr2prob,ap,ntrials,correct,param,ntry)
+     call timer('ftrsd   ',1)
+     ncandidates=param(0)
+     nhard=param(1)
+     nsoft=param(2)
+     nerased=param(3)
+     rtt=0.001*param(4)
+     ntotal=param(5)
+     qual=0.001*param(7)
+     nd0=81
+     r0=0.87
+     if(naggressive.eq.10) then
+        nd0=83
+        r0=0.90
+     endif
 
+     if(ntotal.le.nd0 .and. rtt.le.r0) then
+        nft=1+ishft(ntype,2)
+     endif 
+  
+     if(nft.gt.0) exit
+  enddo
+!write(*,*) nft
   if(nft.eq.0 .and. iand(ndepth,32).eq.32) then
      qmin=2.0 - 0.1*naggressive
      call timer('hint65  ',0)

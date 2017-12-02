@@ -366,7 +366,7 @@ contains
           endif
           nap=ishft(ft,-2)
           if(nap.ne.0) then
-            write(cflags(1:3),'(a1,i2.2)') 'a',nap 
+            write(cflags(1:3),'(a1,i1)') 'a',nap 
           endif
        endif
        csync='# '

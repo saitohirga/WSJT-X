@@ -604,7 +604,7 @@ set (qra_CSRCS
 
 set (wsjt_CSRCS
   ${ka9q_CSRCS}
-  lib/ftrsd/ftrsd2.c
+  lib/ftrsd/ftrsdap.c
   lib/sgran.c
   lib/golay24_table.c
   lib/gran.c
