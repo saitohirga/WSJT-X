@@ -3340,6 +3340,7 @@ void MainWindow::guiUpdate()
               foxcom_.nslots=m_Nslots;
               foxgen_();
             } else {
+              m_i3bit=0;
               genft8_(message, MyGrid, &bcontest, &m_i3bit, msgsent, const_cast<char *> (ft8msgbits),
                       const_cast<int *> (itone), 22, 6, 22);
             }
