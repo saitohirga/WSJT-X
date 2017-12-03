@@ -2517,6 +2517,11 @@ void MainWindow::msgAvgDecode2()
 
 void MainWindow::decode()                                       //decode()
 {
+  if( m_dateTimeLastTX.isValid () ) {
+    QDateTime now = QDateTime::currentDateTime();
+    qint64 isecs_since_tx = m_dateTimeLastTX.secsTo(now);
+    qDebug("The last TX was %d seconds ago",isecs_since_tx);
+  }
   m_msec0=QDateTime::currentMSecsSinceEpoch();
   if(!m_dataAvailable or m_TRperiod==0) return;
   ui->DecodeButton->setChecked (true);
@@ -3161,6 +3166,8 @@ void MainWindow::guiUpdate()
   if(m_tune) m_bTxTime=true;                 //"Tune" takes precedence
 
   if(m_transmitting or m_auto or m_tune) {
+    m_dateTimeLastTX = QDateTime::currentDateTime ();
+
 // Check for "txboth" (testing purposes only)
     QFile f(m_appDir + "/txboth");
     if(f.exists() and

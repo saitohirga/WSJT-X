@@ -569,6 +569,7 @@ private:
   QSet<QString> m_sfx;
 
   QDateTime m_dateTimeQSOOn;
+  QDateTime m_dateTimeLastTX;
 
   QSharedMemory *mem_jt9;
   LogBook m_logBook;
