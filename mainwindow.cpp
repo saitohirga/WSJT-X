@@ -2520,7 +2520,7 @@ void MainWindow::decode()                                       //decode()
   if( m_dateTimeLastTX.isValid () ) {
     QDateTime now = QDateTime::currentDateTime();
     qint64 isecs_since_tx = m_dateTimeLastTX.secsTo(now);
-    qDebug("The last TX was %d seconds ago",isecs_since_tx);
+//    QTextStream(stdout) << "The last TX was " << isecs_since_tx << "seconds ago" << endl;
   }
   m_msec0=QDateTime::currentMSecsSinceEpoch();
   if(!m_dataAvailable or m_TRperiod==0) return;
