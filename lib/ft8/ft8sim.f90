@@ -37,7 +37,7 @@ program ft8sim
     nsig=25
   elseif( sorm.eq."d") then
     print*,"Generating 10 signals per file."
-    nsig=10
+    nsig=50
   else
     print*,"sorm parameter must be s, m, or d."
     goto 999
@@ -88,22 +88,21 @@ program ft8sim
         c0=0.
         if(nsig.eq.25) then
            f0=(isig+2)*100.0
-        else if(nsig.eq.10) then
+        else if(nsig.eq.50) then
            msg=msg0
-           f0=1500.0 + (isig-1)*60.0
+           f0=1000.0 + (isig-1)*60.0
            i1=index(msg,' ')
            i2=index(msg(i1+1:),' ') + i1
-           msg(i1+2:i1+2)=char(ichar('0')+isig-1)
-           msg(i1+3:i1+3)=char(ichar('A')+isig-1)
-           msg(i1+4:i1+4)=char(ichar('A')+isig-1)
-           msg(i1+5:i1+5)=char(ichar('A')+isig-1)
-           msg(i2+3:i2+3)=char(ichar('0')+isig-1)
+           msg(i1+2:i1+2)=char(ichar('0')+mod(isig-1,10))
+           msg(i1+3:i1+3)=char(ichar('A')+mod(isig-1,26))
+           msg(i1+4:i1+4)=char(ichar('A')+mod(isig-1,26))
+           msg(i1+5:i1+5)=char(ichar('A')+mod(isig-1,26))
+           write(msg(i2+3:i2+4),'(i2.2)') isig-1
            if(ifile.ge.2 .and. isig.eq.ifile-1) then
               write(msg(i2+1:i2+4),1002) -isig
 1002          format('R',i3.2)
               f0=600.0 + mod(isig-1,5)*60.0
            endif
-
            call genft8(msg,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
         endif
         k=-1 + nint((xdt+0.5+0.01*gran())/dt)
