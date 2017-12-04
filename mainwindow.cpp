@@ -7106,7 +7106,7 @@ QString MainWindow::sortHoundCalls(QString t, int isort, int min_dB, int max_dB)
   nlines=lines.length()-1;
   for(i=0; i<nlines; i++) {
     msg=lines.at(i);
-    c2=msg.split(" ").at(0);
+    c2=msg.split(" ").at(0);       //key = callsign; value = "call grid snr freq dist age"
     map[c2]=msg;
   }
 
@@ -7114,26 +7114,26 @@ QString MainWindow::sortHoundCalls(QString t, int isort, int min_dB, int max_dB)
   t="";
   for(auto a: map.keys()) {
     t1=map[a].split(" ",QString::SkipEmptyParts).at(2);
-    int nsnr=t1.toInt();
-    if(nsnr >= min_dB and nsnr <= max_dB) {
+    int nsnr=t1.toInt();                                   // get snr
+    if(nsnr >= min_dB and nsnr <= max_dB) {                // keep only if snr is in specified range
       if(isort==1) t += map[a] + "\n";
       if(isort==3 or isort==4) {
-        i=2;
-        if(isort==4) i=4;
+        i=2;                                               // sort Hound calls by snr
+        if(isort==4) i=4;                                  // sort Hound calls by distance
         t1=map[a].split(" ",QString::SkipEmptyParts).at(i);
-        n=1000*(t1.toInt()+100) + j;
+        n=1000*(t1.toInt()+100) + j;                       // pack (snr or dist) and index j into n
       }
 
-      if(isort==2) {
+      if(isort==2) {                                       // sort Hound calls by grid
         t1=map[a].split(" ",QString::SkipEmptyParts).at(1);
         int i1=ABC.indexOf(t1.mid(0,1));
         int i2=ABC.indexOf(t1.mid(1,1));
         n=100*(26*i1+i2)+t1.mid(2,2).toInt();
-        n=1000*n + j;
+        n=1000*n + j;                                     // pack ngrid and index j into n
       }
 
-      list.insert(j,n);
-      lines2.insert(j,map[a]);
+      list.insert(j,n);                                   // add n to list at [j]
+      lines2.insert(j,map[a]);                            // add map[a] to lines2 at [j]
       j++;
     }
   }
@@ -7155,7 +7155,7 @@ QString MainWindow::sortHoundCalls(QString t, int isort, int min_dB, int max_dB)
   }
 
   int nn=lines2.length();
-  if(isort==0) {
+  if(isort==0) {                                           // shuffle Hound calls to random order
     int a[nn];
     for(i=0; i<nn; i++) {
       a[i]=i;
