@@ -147,7 +147,7 @@ QString DisplayText::appendDXCCWorkedB4(QString message, QString const& callsign
     int i2=countryName.lastIndexOf(";");
     if(i1>0) countryName=countryName.mid(i1+2,i2-i1-2);
   } else {
-    if(i1>0) countryName=countryName.mid(0,i1-1);
+    if(i1>0) countryName=countryName.mid(0,i1);
   // do some obvious abbreviations
     countryName.replace ("Islands", "Is.");
     countryName.replace ("Island", "Is.");
