@@ -18,7 +18,7 @@
 #include "countrydat.h"
 #include <QFile>
 #include <QTextStream>
-
+#include <QDebug>
 
 void CountryDat::init(const QString filename)
 {
@@ -91,6 +91,11 @@ void CountryDat::load()
             QString name = _extractName(line1);
             if (name.length()>0)
             {
+              QString continent=line1.mid(36,2);
+              QString principalPrefix=line1.mid(69,4);
+              int i1=principalPrefix.indexOf(":");
+              if(i1>0) principalPrefix=principalPrefix.mid(0,i1);
+              name += "; " + principalPrefix + "; " + continent;
                 _countryNames << name;
                 bool more = true;
                 QStringList prefixs;

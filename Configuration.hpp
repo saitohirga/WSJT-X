@@ -114,6 +114,7 @@ public:
   bool prompt_to_log () const;
   bool insert_blank () const;
   bool DXCC () const;
+  bool ppfx() const;
   bool clear_DX () const;
   bool miles () const;
   bool quick_call () const;

@@ -1260,7 +1260,7 @@ void MainWindow::dataSink(qint64 frames)
     DecodedText decodedtext {t, false, m_config.my_grid ()};
     ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
                                                 m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
-                                                m_config.color_NewCall());
+                                                m_config.color_NewCall(),m_config.ppfx());
     if (ui->measure_check_box->isChecked ()) {
       // Append results text to file "fmt.all".
       QFile f {m_config.writeable_data_dir ().absoluteFilePath ("fmt.all")};
@@ -1497,7 +1497,7 @@ void MainWindow::fastSink(qint64 frames)
     DecodedText decodedtext {message.replace (QChar::LineFeed, ""), bcontest, m_config.my_grid ()};
     ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
          m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
-         m_config.color_NewCall());
+         m_config.color_NewCall(),m_config.ppfx());
     m_bDecoded=true;
     auto_sequence (decodedtext, ui->sbFtol->value (), std::numeric_limits<unsigned>::max ());
     if (m_mode != "ISCAT") postDecode (true, decodedtext.string ());
@@ -2702,7 +2702,7 @@ void::MainWindow::fast_decode_done()
     if(!m_bFastDone) {
       ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
          m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
-         m_config.color_NewCall());
+         m_config.color_NewCall(),m_config.ppfx());
     }
 
     t=message.mid(10,5).toFloat();
@@ -2777,6 +2777,10 @@ void MainWindow::decodeDone ()
         if(ui->textBrowser3->toPlainText().indexOf(c2) >= 0) b=true;
         if(ui->textBrowser4->toPlainText().indexOf(c2) >= 0) b=true;
         if(!b) {
+          QString countryName;
+          bool callWorkedBefore,countryWorkedBefore;
+          m_logBook.match(/*in*/c2,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
+          qDebug() << "D" << t0 << countryName;
           t += (t0 + "\n");  //Don't list calls already in QSO or in the stack
         }
       }
@@ -2888,13 +2892,13 @@ void MainWindow::readFromStdout()                             //readFromStdout
             DecodedText dt{".",false," "};
             ui->decodedTextBrowser->displayDecodedText(dt,m_baseCall,m_config.DXCC(),
                 m_logBook,m_config.color_CQ(),m_config.color_MyCall(),
-                m_config.color_DXCC(), m_config.color_NewCall());
+                m_config.color_DXCC(), m_config.color_NewCall(),m_config.ppfx());
             m_bDisplayedOnce=true;
           }
         } else {
           ui->decodedTextBrowser->displayDecodedText(decodedtext,m_baseCall,m_config.DXCC(),
                m_logBook,m_config.color_CQ(),m_config.color_MyCall(),
-               m_config.color_DXCC(), m_config.color_NewCall());
+               m_config.color_DXCC(), m_config.color_NewCall(),m_config.ppfx());
         }
       }
 
@@ -2928,7 +2932,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         // or contains MyCall
         ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_baseCall,false,
                m_logBook,m_config.color_CQ(),m_config.color_MyCall(),
-               m_config.color_DXCC(),m_config.color_NewCall());
+               m_config.color_DXCC(),m_config.color_NewCall(),m_config.ppfx());
 
         if(m_mode!="JT4") {
           bool b65=decodedtext.isJT65();
@@ -4239,7 +4243,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   if (s1!=s2 and !message.isTX()) {
     ui->decodedTextBrowser2->displayDecodedText(message, m_baseCall,
           false, m_logBook,m_config.color_CQ(), m_config.color_MyCall(),
-          m_config.color_DXCC(),m_config.color_NewCall());
+          m_config.color_DXCC(),m_config.color_NewCall(),m_config.ppfx());
     m_QSOText = s2;
   }
 
