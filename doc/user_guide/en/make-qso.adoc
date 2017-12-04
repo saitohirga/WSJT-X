@@ -41,7 +41,7 @@ are desirable.  Double-click the *Tx1* control under _Now_ or _Next_
 to toggle use of the Tx2 message rather than Tx1 to start a QSO.
 Similarly, double-click the *Tx4* control to toggle between sending
 `RRR` and `RR73` in that message.  The `RR73` message should be used
-only if you are reasonably confident that no repititions will be
+only if you are reasonably confident that no repetitions will be
 required.
 
 === Free-Text Messages
