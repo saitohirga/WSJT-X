@@ -82,8 +82,9 @@ extern struct {
 
 extern struct {
   float wave[606720];
-  int nslots;
-  char cmsg[5][32];
+  int   nslots;
+  int   i3bit[5];
+  char  cmsg[5][32];
 } foxcom_;
 
 #ifdef __cplusplus

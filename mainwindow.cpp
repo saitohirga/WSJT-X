@@ -2782,8 +2782,8 @@ void MainWindow::decodeDone ()
           m_logBook.match(/*in*/houndCall,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
           int i1=countryName.lastIndexOf(";");
           continent=countryName.mid(i1+2,-1);
-          qDebug() << "D" << t0 << continent;
-          t += (t0 + "\n");  //Don't list calls already in QSO or in the stack
+//          qDebug() << "D" << t0 << continent;
+          t = t + t0 + "  " + continent + "\n";  //Don't list calls already in QSO or in the stack
         }
       }
       if(t.length()>30) {
@@ -3342,7 +3342,7 @@ void MainWindow::guiUpdate()
                   if(t1.indexOf("-")>=0 or t1.indexOf("+")>6) m_houndRptSent[i]=t1;
                   msg[i]= m_houndCall[i] + m_config.my_callsign() + t1;
                 }
-                if(msg[i]=="") msg[i]=ui->comboBoxCQ->currentText() + " " + m_config.my_callsign() + m_houndRptSent[i];
+                if(msg[i]=="") msg[i]=ui->comboBoxCQ->currentText() + " " + m_config.my_callsign() +
                     " " + m_config.my_grid().mid(0,4);
                 msg[i] += "                                ";
                 msg[i]=msg[i].mid(0,32);
@@ -3351,6 +3351,9 @@ void MainWindow::guiUpdate()
                 }
                 ui->decodedTextBrowser2->displayTransmittedText(msg[i], m_modeTx,
                       300+60*i,m_config.color_TxMsg(),m_bFastMode);
+                foxcom_.i3bit[i]=0;
+                if(msg[i].indexOf("<")>0) foxcom_.i3bit[i]=1;
+                qDebug() << i << foxcom_.i3bit[i] << msg[i].trimmed();
                 strncpy(&foxcom_.cmsg[i][0], msg[i].toLatin1(),32);
               }
               foxcom_.nslots=m_Nslots;

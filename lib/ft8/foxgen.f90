@@ -11,7 +11,7 @@ subroutine foxgen()
   real x(NFFT),y(NFFT)
   real*8 dt,twopi,f0,fstep,dfreq,phi,dphi
   complex cx(0:NH),cy(0:NH)
-  common/foxcom/wave(NWAVE),nslots,cmsg(5)
+  common/foxcom/wave(NWAVE),nslots,i3bit(5),cmsg(5)
   equivalence (x,cx),(y,cy)
 
   call system_clock(count0,clkfreq)
@@ -25,7 +25,6 @@ subroutine foxgen()
 
   do n=1,nslots
      i3bit=0
-     print*,n,i3bit,cmsg(n)
      msg=cmsg(n)(1:22)
      call genft8(msg,"      ",bcontest,i3bit,msgsent,msgbits,itone)
      
