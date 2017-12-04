@@ -42,6 +42,7 @@ extern struct dec_data {
     bool nagain;
     int ndepth;
     bool lft8apon;
+    bool lapcqonly;
     bool ljt65apon;
     int napwid;
     int ntxmode;

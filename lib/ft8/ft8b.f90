@@ -1,6 +1,6 @@
-subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
-     lsubtract,nagain,iaptype,mygrid6,bcontest,sync0,f1,xdt,xbase,apsym,      &
-     nharderrors,dmin,nbadcrc,ipass,iera,message,xsnr)  
+subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,    &
+     napwid,lsubtract,nagain,iaptype,mygrid6,bcontest,sync0,f1,xdt,xbase,     &
+     apsym,nharderrors,dmin,nbadcrc,ipass,iera,message,xsnr)  
 
   use timer_module, only: timer
   include 'ft8_params.f90'
@@ -27,7 +27,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
   complex cd0(3200)
   complex ctwk(32)
   complex csymb(32)
-  logical first,newdat,lsubtract,lapon,nagain
+  logical first,newdat,lsubtract,lapon,lapcqonly,nagain
   equivalence (s1,s1sort)
   data icos7/2,5,6,0,4,1,3/
   data mcq/1,1,1,1,1,0,1,0,0,0,0,0,1,0,0,0,0,0,1,1,0,0,0,1,1,0,0,1/
@@ -66,7 +66,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
      naptypes(2,1:4)=(/2,3,0,0/)
      naptypes(3,1:4)=(/3,4,5,6/)
      naptypes(4,1:4)=(/3,4,5,6/)
-     naptypes(5,1:4)=(/3,1,2,0/)  !?
+     naptypes(5,1:4)=(/3,1,2,0/)  
      first=.false.
   endif
 
@@ -265,7 +265,11 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
 !   7        ap pass 4, etc.
 
   if(lapon) then 
-     npasses=4+nappasses(nQSOProgress)
+     if(.not.lapcqonly) then
+        npasses=4+nappasses(nQSOProgress)
+     else
+        npasses=5 
+     endif
   else
      npasses=4
   endif
@@ -283,7 +287,11 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,napwid,       &
      endif
         
      if(ipass .gt. 4) then
-        iaptype=naptypes(nQSOProgress,ipass-4)
+        if(.not.lapcqonly) then
+           iaptype=naptypes(nQSOProgress,ipass-4)
+        else
+           iaptype=1
+        endif
         if(iaptype.ge.3 .and. (abs(f1-nfqso).gt.napwid .and. abs(f1-nftx).gt.napwid) ) cycle 
         if(iaptype.eq.1 .or. iaptype.eq.2 ) then ! AP,???,??? 
            apmask=0

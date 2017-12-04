@@ -2517,11 +2517,21 @@ void MainWindow::msgAvgDecode2()
 
 void MainWindow::decode()                                       //decode()
 {
+
+  QDateTime now = QDateTime::currentDateTime();
   if( m_dateTimeLastTX.isValid () ) {
-    QDateTime now = QDateTime::currentDateTime();
     qint64 isecs_since_tx = m_dateTimeLastTX.secsTo(now);
-//    QTextStream(stdout) << "The last TX was " << isecs_since_tx << "seconds ago" << endl;
+    dec_data.params.lapcqonly= (isecs_since_tx > 600); 
+//    QTextStream(stdout) << "last tx " << isecs_since_tx << endl;
+  } else { 
+    m_dateTimeLastTX = now.addSecs(-900);
+    dec_data.params.lapcqonly=true;
   }
+  if( m_diskData ) {
+    dec_data.params.lapcqonly=false;
+  }
+//  QTextStream(stdout) << " lapcqonly is " << dec_data.params.lapcqonly << endl;
+
   m_msec0=QDateTime::currentMSecsSinceEpoch();
   if(!m_dataAvailable or m_TRperiod==0) return;
   ui->DecodeButton->setChecked (true);
