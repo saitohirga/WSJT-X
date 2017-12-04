@@ -286,6 +286,7 @@ private slots:
   void on_sbNslots_valueChanged(int n);
   void on_sbMax_dB_valueChanged(int n);
   void on_pbFoxReset_clicked();
+  void on_comboBoxHoundSort_activated (int index);
 
 private:
   Q_SIGNAL void initializeAudioOutputStream (QAudioDeviceInfo,

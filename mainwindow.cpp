@@ -2768,19 +2768,21 @@ void MainWindow::decodeDone ()
       QTextStream s(&f);
       QString t="";
       QString t0;
-      QString c2;
+      QString houndCall;
       bool b;
       while(!s.atEnd()) {
         t0=s.readLine();
-        c2=t0.mid(0,6);
+        houndCall=t0.mid(0,6);
         b=false;
-        if(ui->textBrowser3->toPlainText().indexOf(c2) >= 0) b=true;
-        if(ui->textBrowser4->toPlainText().indexOf(c2) >= 0) b=true;
+        if(ui->textBrowser3->toPlainText().indexOf(houndCall) >= 0) b=true;
+        if(ui->textBrowser4->toPlainText().indexOf(houndCall) >= 0) b=true;
         if(!b) {
-          QString countryName;
+          QString countryName,continent;
           bool callWorkedBefore,countryWorkedBefore;
-          m_logBook.match(/*in*/c2,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
-          qDebug() << "D" << t0 << countryName;
+          m_logBook.match(/*in*/houndCall,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
+          int i1=countryName.lastIndexOf(";");
+          continent=countryName.mid(i1+2,-1);
+          qDebug() << "D" << t0 << continent;
           t += (t0 + "\n");  //Don't list calls already in QSO or in the stack
         }
       }
@@ -2859,18 +2861,18 @@ void MainWindow::readFromStdout()                             //readFromStdout
             ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
 
       if(m_mode=="FT8" and m_config.bFox()) {
-        QString c2,g2;
-        decodedtext.deCallAndGrid(/*out*/c2,g2);
-        if(g2.mid(0,2)=="R+" or g2.mid(0,2)=="R-") {
+        QString houndCall,houndGrid;
+        decodedtext.deCallAndGrid(/*out*/houndCall,houndGrid);
+        if(houndGrid.mid(0,2)=="R+" or houndGrid.mid(0,2)=="R-") {
           QString a=ui->textBrowser3->toPlainText();
-          int i0=a.indexOf(c2);
+          int i0=a.indexOf(houndCall);
           if(i0 >= 0) {
             QString b=a.mid(i0);
             QStringList c=a.split("\n");
             ui->textBrowser3->setText("");
             for (int i=0; i<c.length(); i++) {
               QString d=c.at(i);
-              if(d.indexOf(c2)<0 and d.indexOf("RR73")<0) {
+              if(d.indexOf(houndCall)<0 and d.indexOf("RR73")<0) {
                 ui->textBrowser3->displayFoxToBeCalled(d,"#ffffff");
               } else {
                 if(d.indexOf("RR73")<0) {
@@ -3894,13 +3896,13 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
   if(m_config.bFox() and m_decodedText2) {
     if(m_nToBeCalled >= (m_Nslots + 10) or m_nFoxCallers==0) return;
     QString t=cursor.block().text();
-    QString c2=t.split(" ",QString::SkipEmptyParts).at(0);
-    if(ui->textBrowser3->toPlainText().indexOf(c2) >= 0) return;  //Don't allow same call twice
-    if(ui->textBrowser4->toPlainText().indexOf(c2) >= 0) return;  //Don't allow same call twice
-    QString g2=t.split(" ",QString::SkipEmptyParts).at(1);
+    QString houndCall=t.split(" ",QString::SkipEmptyParts).at(0);
+    if(ui->textBrowser3->toPlainText().indexOf(houndCall) >= 0) return;  //Don't allow same call twice
+    if(ui->textBrowser4->toPlainText().indexOf(houndCall) >= 0) return;  //Don't allow same call twice
+    QString houndGrid=t.split(" ",QString::SkipEmptyParts).at(1);
     QString rpt=t.split(" ",QString::SkipEmptyParts).at(2);
-    ui->dxCallEntry->setText(c2);
-    ui->dxGridEntry->setText(g2);
+    ui->dxCallEntry->setText(houndCall);
+    ui->dxGridEntry->setText(houndGrid);
     genStdMsgs(rpt);
     on_txb2_clicked();
     m_FoxCallers=m_FoxCallers.remove(t+"\n");
@@ -3909,7 +3911,7 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
     m_nToBeCalled++;
     ui->decodedTextBrowser->clear();
     ui->decodedTextBrowser->append(m_FoxCallers);
-    QString t1=c2 + "    ";
+    QString t1=houndCall + "    ";
     QString t2=rpt;
     if(rpt.mid(0,1) != "-") t2="+" + rpt;
     if(t2.length()==2) t2=t2.mid(0,1) + "0" + t2.mid(1,1);
@@ -7098,7 +7100,7 @@ QString MainWindow::sortHoundCalls(QString t, int isort, int min_dB, int max_dB)
 {
   QMap<QString,QString> map;
   QStringList lines,lines2;
-  QString msg,c2,t1;
+  QString msg,houndCall,t1;
   QString ABC{"ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
   QList<int> list;
   int i,j,k,m,n,nlines;
@@ -7110,8 +7112,8 @@ QString MainWindow::sortHoundCalls(QString t, int isort, int min_dB, int max_dB)
   nlines=lines.length()-1;
   for(i=0; i<nlines; i++) {
     msg=lines.at(i);
-    c2=msg.split(" ").at(0);       //key = callsign; value = "call grid snr freq dist age"
-    map[c2]=msg;
+    houndCall=msg.split(" ").at(0);       //key = callsign; value = "call grid snr freq dist age"
+    map[houndCall]=msg;
   }
 
   j=0;
@@ -7208,4 +7210,9 @@ void MainWindow::on_pbFoxReset_clicked()
 {
   ui->textBrowser3->setText("");
   ui->textBrowser4->setText("");
+}
+
+void MainWindow::on_comboBoxHoundSort_activated(int index)
+{
+  decodeDone();
 }
