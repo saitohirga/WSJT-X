@@ -2193,7 +2193,7 @@ list. The list can be maintained in Settings (F2).</string>
           </property>
           <property name="maximumSize">
            <size>
-            <width>50</width>
+            <width>100</width>
             <height>16777215</height>
            </size>
           </property>
