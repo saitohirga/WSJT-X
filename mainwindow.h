@@ -475,7 +475,6 @@ private:
   bool    m_bAutoReply;
   bool    m_bCheckedContest;
   bool    m_bDXped;
-  bool    m_bSendRR73[5];
 
   enum
     {
@@ -563,6 +562,8 @@ private:
   QString m_houndGrid[5];
   QString m_houndRptSent[5];
   QString m_houndRptRcvd[5];
+  QString m_foxMsgToBeSent[5];
+  QString m_foxMsgSent[5];
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;
