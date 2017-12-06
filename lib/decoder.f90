@@ -54,11 +54,11 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 10 if (params%nagain) then
      open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown',            &
           position='append',iostat=ios)
-     if(params%nmode.eq.8) open(19,file=trim(temp_dir)//'/foxcalls.txt',      &
+     if(params%nmode.eq.8) open(19,file=trim(temp_dir)//'/houndcallers.txt',  &
           status='unknown',position='append',iostat=ios)
   else
      open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown',iostat=ios)
-     if(params%nmode.eq.8) open(19,file=trim(temp_dir)//'/foxcalls.txt',      &
+     if(params%nmode.eq.8) open(19,file=trim(temp_dir)//'/houndcallers.txt',  &
           status='unknown',iostat=ios)
   endif
   if(ios.ne.0) then
@@ -481,12 +481,11 @@ contains
        c1=decoded0(1:i1-1)//'            '
        c2=decoded0(i1+1:i2-1)
        g2=decoded0(i2+1:i3-1)
-!### CQ and .true. here are temporary !  ###       
-       if((c1.eq.params%mycall .or. c1.eq.'CQ' .or. .true.) .and. i3-i2.eq.5       &
-            .and. isgrid4(g2)) then
+       if(c1.eq.params%mycall .and. i3-i2.eq.5 .and. isgrid4(g2) .and.     &
+            nint(freq).ge.1000) then
           n=params%nutc
           n15=(3600*(n/10000) + 60*mod((n/100),100) + mod(n,100))/15
-          if(n15.lt.n15z) nwrap=nwrap+5760    !New UTC day
+          if(n15.lt.n15z) nwrap=nwrap+5760    !New UTC day, handle the wrap
           n15z=n15
           n15=n15+nwrap
           nfox=nfox+1

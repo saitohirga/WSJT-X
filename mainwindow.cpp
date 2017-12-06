@@ -870,10 +870,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_bDisplayedOnce=false;
   m_wait=0;
   m_isort=-3;
-  m_min_dB=-30;
   m_max_dB=30;
   m_CQtype="CQ";
-  m_toBeCalled="";
 
   if(m_mode.startsWith ("WSPR") and m_pctx>0)  {
     QPalette palette {ui->sbTxPercent->palette ()};
@@ -1733,7 +1731,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         doubleClickOnCall2(Qt::KeyboardModifier(Qt::ShiftModifier + Qt::ControlModifier + Qt::AltModifier));
         return;
       case Qt::Key_Backspace:
-        qDebug() << "Key Backspace" << m_toBeCalled;
+        qDebug() << "Key Backspace";
         return;
     }
     QMainWindow::keyPressEvent (e);
@@ -2363,6 +2361,11 @@ void MainWindow::read_wav_file (QString const& fname)
           dec_data.params.kin = 0;
           dec_data.params.newdat = 0;
         }
+
+        if(basename.mid(0,10)=="000000_000") {
+          dec_data.params.nutc=15*basename.mid(10,3).toInt();
+        }
+
       }));
 }
 
@@ -2517,7 +2520,6 @@ void MainWindow::msgAvgDecode2()
 
 void MainWindow::decode()                                       //decode()
 {
-
   QDateTime now = QDateTime::currentDateTime();
   if( m_dateTimeLastTX.isValid () ) {
     qint64 isecs_since_tx = m_dateTimeLastTX.secsTo(now);
@@ -2673,6 +2675,7 @@ void MainWindow::decode()                                       //decode()
     narg[12]=0;
     narg[13]=-1;
     narg[14]=m_config.aggressive();
+    qDebug() << "a2" << dec_data.params.nutc;
     memcpy(d2b,dec_data.d2,2*360000);
     watcher3.setFuture (QtConcurrent::run (std::bind (fast_decode_,&d2b[0],
         &narg[0],&m_TRperiod,&m_msg[0][0],
@@ -2762,37 +2765,7 @@ void MainWindow::decodeDone ()
   decodeBusy(false);
   m_RxLog=0;
   m_blankLine=true;
-  if(m_config.bFox()) {
-    QFile f(m_config.temp_dir().absoluteFilePath("foxcalls.txt"));
-    if(f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-      QTextStream s(&f);
-      QString t="";
-      QString t0;
-      QString houndCall;
-      bool b;
-      while(!s.atEnd()) {
-        t0=s.readLine();
-        houndCall=t0.mid(0,6);
-        b=false;
-        if(ui->textBrowser3->toPlainText().indexOf(houndCall) >= 0) b=true;
-        if(ui->textBrowser4->toPlainText().indexOf(houndCall) >= 0) b=true;
-        if(!b) {
-          QString countryName,continent;
-          bool callWorkedBefore,countryWorkedBefore;
-          m_logBook.match(/*in*/houndCall,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
-          int i1=countryName.lastIndexOf(";");
-          continent=countryName.mid(i1+2,-1);
-//          qDebug() << "D" << t0 << continent;
-          t = t + t0 + "  " + continent + "\n";  //Don't list calls already in QSO or in the stack
-        }
-      }
-      if(t.length()>30) {
-        m_isort=ui->comboBoxHoundSort->currentIndex();
-        QString t1=sortHoundCalls(t,m_isort,m_min_dB,m_max_dB);
-        ui->decodedTextBrowser->setText(t1);
-      }
-    }
-  }
+  if(m_config.bFox()) houndCallers();
 }
 
 void MainWindow::readFromStdout()                             //readFromStdout
@@ -2860,32 +2833,13 @@ void MainWindow::readFromStdout()                             //readFromStdout
       DecodedText decodedtext {QString::fromUtf8 (t.constData ()).remove (QRegularExpression {"\r|\n"}), "FT8" == m_mode &&
             ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
 
-      if(m_mode=="FT8" and m_config.bFox()) {
+      if(m_mode=="FT8" and m_config.bFox() and
+         decodedtext.string().contains(" " + m_config.my_callsign() + " ") and
+         (decodedtext.string().contains("R+") or decodedtext.string().contains("R-"))) {
         QString houndCall,houndGrid;
         decodedtext.deCallAndGrid(/*out*/houndCall,houndGrid);
-        if(houndGrid.mid(0,2)=="R+" or houndGrid.mid(0,2)=="R-") {
-          QString a=ui->textBrowser3->toPlainText();
-          int i0=a.indexOf(houndCall);
-          if(i0 >= 0) {
-            QString b=a.mid(i0);
-            QStringList c=a.split("\n");
-            ui->textBrowser3->setText("");
-            for (int i=0; i<c.length(); i++) {
-              QString d=c.at(i);
-              if(d.indexOf(houndCall)<0 and d.indexOf("RR73")<0) {
-                ui->textBrowser3->displayFoxToBeCalled(d,"#ffffff");
-              } else {
-                if(d.indexOf("RR73")<0) {
-                  int i1=qMax(d.indexOf("+"),d.indexOf("-"));
-                  d=d.mid(0,i1-1) + " RR73";
-                }
-                ui->textBrowser3->displayFoxToBeCalled(d,"#ff99ff");
-              }
-            }
-          }
-        }
+        foxRxSequencer(houndCall,houndGrid);
       }
-
       //Left (Band activity) window
       if(!bAvgMsg) {
         if(m_mode=="FT8" and m_config.bFox()) {
@@ -3022,7 +2976,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
                 // look for type 2 compound call replies on our Tx and Rx offsets
                 && ((within_tolerance && "DE" == message_words.at (1))
                     || message_words.at (1).contains (m_baseCall))))) {
-      processMessage (message);
+      if(!m_config.bFox()) processMessage (message);
     }
   }
 }
@@ -3329,35 +3283,7 @@ void MainWindow::guiUpdate()
           }
           if(m_modeTx=="FT8") {
             if(m_config.bFox()) {
-              QString msg[5];
-              QString t1;
-              QString t3=ui->textBrowser3->toPlainText() + "\n";
-              QString t4=ui->textBrowser4->toPlainText() + "\n";
-              int islots=t3.split("\n").size() - 1;
-              for(int i=0; i<m_Nslots; i++) {
-                msg[i]="";
-                if(i<islots and t3.length() >= 11) {
-                  m_houndCall[i]=t3.split("\n").at(i).mid(0,7);
-                  t1=t3.split("\n").at(i).mid(6,5);
-                  if(t1.indexOf("-")>=0 or t1.indexOf("+")>6) m_houndRptSent[i]=t1;
-                  msg[i]= m_houndCall[i] + m_config.my_callsign() + t1;
-                }
-                if(msg[i]=="") msg[i]=ui->comboBoxCQ->currentText() + " " + m_config.my_callsign() +
-                    " " + m_config.my_grid().mid(0,4);
-                msg[i] += "                                ";
-                msg[i]=msg[i].mid(0,32);
-                if(msg[i].indexOf(" RR73 ") > 6) {
-                  qDebug() << "Logit:" << m_houndCall[i] << m_houndRptSent[i];
-                }
-                ui->decodedTextBrowser2->displayTransmittedText(msg[i], m_modeTx,
-                      300+60*i,m_config.color_TxMsg(),m_bFastMode);
-                foxcom_.i3bit[i]=0;
-                if(msg[i].indexOf("<")>0) foxcom_.i3bit[i]=1;
-                qDebug() << i << foxcom_.i3bit[i] << msg[i].trimmed();
-                strncpy(&foxcom_.cmsg[i][0], msg[i].toLatin1(),32);
-              }
-              foxcom_.nslots=m_Nslots;
-              foxgen_();
+              foxTxSequencer();
             } else {
               m_i3bit=0;
               genft8_(message, MyGrid, &bcontest, &m_i3bit, msgsent, const_cast<char *> (ft8msgbits),
@@ -3897,34 +3823,10 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
   }
 
   if(m_config.bFox() and m_decodedText2) {
-    if(m_nToBeCalled >= (m_Nslots + 10) or m_nFoxCallers==0) return;
-    QString t=cursor.block().text();
-    QString houndCall=t.split(" ",QString::SkipEmptyParts).at(0);
-    if(ui->textBrowser3->toPlainText().indexOf(houndCall) >= 0) return;  //Don't allow same call twice
-    if(ui->textBrowser4->toPlainText().indexOf(houndCall) >= 0) return;  //Don't allow same call twice
-    QString houndGrid=t.split(" ",QString::SkipEmptyParts).at(1);
-    QString rpt=t.split(" ",QString::SkipEmptyParts).at(2);
-    ui->dxCallEntry->setText(houndCall);
-    ui->dxGridEntry->setText(houndGrid);
-    genStdMsgs(rpt);
-    on_txb2_clicked();
-    m_FoxCallers=m_FoxCallers.remove(t+"\n");
-    if(m_toBeCalled.length()>0) m_toBeCalled += "\n";
-    m_toBeCalled += t;
-    m_nToBeCalled++;
-    ui->decodedTextBrowser->clear();
-    ui->decodedTextBrowser->append(m_FoxCallers);
-    QString t1=houndCall + "    ";
-    QString t2=rpt;
-    if(rpt.mid(0,1) != "-") t2="+" + rpt;
-    if(t2.length()==2) t2=t2.mid(0,1) + "0" + t2.mid(1,1);
-    t1=t1.mid(0,7) + t2;
-    if(m_nToBeCalled<= m_Nslots) {
-      ui->textBrowser3->displayFoxToBeCalled(t1,"#ffffff");
-    } else {
-      ui->textBrowser4->displayFoxToBeCalled(t1,"#ffffff");
+    if(m_houndQueue.count()<10 and m_nSortedHounds>0) {
+      QString t=cursor.block().text();
+      selectHound(t);
     }
-    m_nFoxCallers--;
     return;
   }
   DecodedText message {cursor.block().text(), ("MSK144" == m_mode || "FT8" == m_mode) &&
@@ -4246,6 +4148,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   QString s1 = m_QSOText.trimmed ();
   QString s2 = message.string ().trimmed();
   if (s1!=s2 and !message.isTX()) {
+    qDebug() << "bb" << s1 << s2;
     ui->decodedTextBrowser2->displayDecodedText(message, m_baseCall,
           false, m_logBook,m_config.color_CQ(), m_config.color_MyCall(),
           m_config.color_DXCC(),m_config.color_NewCall(),m_config.ppfx());
@@ -7099,100 +7002,7 @@ void MainWindow::write_transmit_entry (QString const& file_name)
     }
 }
 
-QString MainWindow::sortHoundCalls(QString t, int isort, int min_dB, int max_dB)
-{
-  QMap<QString,QString> map;
-  QStringList lines,lines2;
-  QString msg,houndCall,t1;
-  QString ABC{"ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
-  QList<int> list;
-  int i,j,k,m,n,nlines;
-  bool bReverse=(isort >= 3);
-
-  isort=qAbs(isort);
-// Save only the most recent transmission from each caller.
-  lines = t.split("\n");
-  nlines=lines.length()-1;
-  for(i=0; i<nlines; i++) {
-    msg=lines.at(i);
-    houndCall=msg.split(" ").at(0);       //key = callsign; value = "call grid snr freq dist age"
-    map[houndCall]=msg;
-  }
-
-  j=0;
-  t="";
-  for(auto a: map.keys()) {
-    t1=map[a].split(" ",QString::SkipEmptyParts).at(2);
-    int nsnr=t1.toInt();                                   // get snr
-    if(nsnr >= min_dB and nsnr <= max_dB) {                // keep only if snr is in specified range
-      if(isort==1) t += map[a] + "\n";
-      if(isort==3 or isort==4) {
-        i=2;                                               // sort Hound calls by snr
-        if(isort==4) i=4;                                  // sort Hound calls by distance
-        t1=map[a].split(" ",QString::SkipEmptyParts).at(i);
-        n=1000*(t1.toInt()+100) + j;                       // pack (snr or dist) and index j into n
-      }
-
-      if(isort==2) {                                       // sort Hound calls by grid
-        t1=map[a].split(" ",QString::SkipEmptyParts).at(1);
-        int i1=ABC.indexOf(t1.mid(0,1));
-        int i2=ABC.indexOf(t1.mid(1,1));
-        n=100*(26*i1+i2)+t1.mid(2,2).toInt();
-        n=1000*n + j;                                     // pack ngrid and index j into n
-      }
-
-      list.insert(j,n);                                   // add n to list at [j]
-      lines2.insert(j,map[a]);                            // add map[a] to lines2 at [j]
-      j++;
-    }
-  }
-
-  if(isort>1) {
-    if(bReverse) {
-      qSort(list.begin(),list.end(),qGreater<int>());
-    } else {
-      qSort(list.begin(),list.end());
-    }
-  }
-
-  if(isort>1) {
-    for(i=0; i<j; i++) {
-      k=list[i]%1000;
-      n=list[i]/1000 - 100;
-      t += lines2.at(k) + "\n";
-    }
-  }
-
-  int nn=lines2.length();
-  if(isort==0) {                                           // shuffle Hound calls to random order
-    int a[nn];
-    for(i=0; i<nn; i++) {
-      a[i]=i;
-    }
-    for(i=nn-1; i>-1; i--) {
-      j=(i+1)*double(qrand())/RAND_MAX;
-      m=a[j];
-      a[j]=a[i];
-      a[i]=m;
-      t += lines2.at(m) + "\n";
-    }
-  }
-
-//  QString uniqueCalls;
-//  uniqueCalls.sprintf("   Unique callers: %d",j);
-//  ui->labCallers->setText(uniqueCalls);
-
-  int i0=t.indexOf("\n") + 1;
-  m_nFoxCallers=0;
-  if(i0 > 0) m_nFoxCallers=qMin(t.length(),m_Nsig*i0)/i0;
-  m_FoxCallers=t.mid(0,m_Nsig*i0);
-  if(m_nFoxCallers>0) {
-    for(int i=0; i<m_nFoxCallers; i++) {
-      m_HoundsCalling[i]=m_FoxCallers.split("\n").at(i);
-    }
-  }
-  return m_FoxCallers;
-}
+// -------------------------- Code for  DXpedition Fox Mode ---------------------------
 
 void MainWindow::on_sbNsig_valueChanged(int n)
 {
@@ -7217,5 +7027,267 @@ void MainWindow::on_pbFoxReset_clicked()
 
 void MainWindow::on_comboBoxHoundSort_activated(int index)
 {
-  decodeDone();
+  if(index!=-99) houndCallers();            //Silence compiler warning
+}
+
+//------------------------------------------------------------------------------
+QString MainWindow::sortHoundCalls(QString t, int isort, int max_dB)
+{
+/* Called from "houndCallers()" to sort the list of calling stations by
+ * specified criteria.
+ * QString "t" contains a list of Hound callers read from file "houndcallers.txt".
+ *    isort=0: random (shuffled) order
+ *          1: call
+ *          2: grid
+ *          3: SNR (top down)
+ *          4: distance (top down)
+*/
+  QMap<QString,QString> map;
+  QStringList lines,lines2;
+  QString msg,houndCall,t1;
+  QString ABC{"ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
+  QList<int> list;
+  int i,j,k,m,n,nlines;
+  bool bReverse=(isort >= 3);
+
+  isort=qAbs(isort);
+// Save only the most recent transmission from each caller.
+  lines = t.split("\n");
+  nlines=lines.length()-1;
+  for(i=0; i<nlines; i++) {
+    msg=lines.at(i);
+    houndCall=msg.split(" ").at(0);       //key = callsign; value = "call grid snr freq dist age"
+    map[houndCall]=msg;
+  }
+
+  j=0;
+  t="";
+  for(auto a: map.keys()) {
+    t1=map[a].split(" ",QString::SkipEmptyParts).at(2);
+    int nsnr=t1.toInt();                         // get snr
+    if(nsnr <= max_dB) {                         // keep only if snr in specified range
+      if(isort==1) t += map[a] + "\n";
+      if(isort==3 or isort==4) {
+        i=2;                                           // sort Hound calls by snr
+        if(isort==4) i=4;                              // sort Hound calls by distance
+        t1=map[a].split(" ",QString::SkipEmptyParts).at(i);
+        n=1000*(t1.toInt()+100) + j;                   // pack (snr or dist) and index j into n
+      }
+
+      if(isort==2) {                                   // sort Hound calls by grid
+        t1=map[a].split(" ",QString::SkipEmptyParts).at(1);
+        int i1=ABC.indexOf(t1.mid(0,1));
+        int i2=ABC.indexOf(t1.mid(1,1));
+        n=100*(26*i1+i2)+t1.mid(2,2).toInt();
+        n=1000*n + j;                                 // pack ngrid and index j into n
+      }
+
+      list.insert(j,n);                               // add n to list at [j]
+      lines2.insert(j,map[a]);                        // add map[a] to lines2 at [j]
+      j++;
+    }
+  }
+
+  if(isort>1) {
+    if(bReverse) {
+      qSort(list.begin(),list.end(),qGreater<int>());
+    } else {
+      qSort(list.begin(),list.end());
+    }
+  }
+
+  if(isort>1) {
+    for(i=0; i<j; i++) {
+      k=list[i]%1000;
+      n=list[i]/1000 - 100;
+      t += lines2.at(k) + "\n";
+    }
+  }
+
+  int nn=lines2.length();
+  if(isort==0) {                                      // shuffle Hound calls to random order
+    int a[nn];
+    for(i=0; i<nn; i++) {
+      a[i]=i;
+    }
+    for(i=nn-1; i>-1; i--) {
+      j=(i+1)*double(qrand())/RAND_MAX;
+      m=a[j];
+      a[j]=a[i];
+      a[i]=m;
+      t += lines2.at(m) + "\n";
+    }
+  }
+
+  int i0=t.indexOf("\n") + 1;
+  m_nSortedHounds=0;
+  if(i0 > 0) {
+    m_nSortedHounds=qMin(t.length(),m_Nsig*i0)/i0; // Number of sorted & displayed Hounds
+  }
+  m_houndCallers=t.mid(0,m_Nsig*i0);
+
+  return m_houndCallers;
+}
+
+//------------------------------------------------------------------------------
+void MainWindow::selectHound(QString line)
+{
+/* Called from doubleClickOnCall() in DXpedition Fox mode.
+ * QString "line" is a user-selected selected line from left text window.
+ * The line may be selected by double-clicking; alternatively, hitting
+ * <Enter> is equivalent to double-clicking on the top-most line.
+*/
+
+  QString houndCall=line.split(" ",QString::SkipEmptyParts).at(0);
+
+// Don't add a call already enqueued or in QSO
+  if(ui->textBrowser3->toPlainText().indexOf(houndCall) >= 0) return;
+  if(ui->textBrowser4->toPlainText().indexOf(houndCall) >= 0) return;
+
+  QString houndGrid=line.split(" ",QString::SkipEmptyParts).at(1);  // Hound caller's grid
+  QString rpt=line.split(" ",QString::SkipEmptyParts).at(2);        // Hound SNR
+
+  ui->dxCallEntry->setText(houndCall);                           // Not necessary?
+  ui->dxGridEntry->setText(houndGrid);
+  genStdMsgs(rpt);
+  on_txb2_clicked();
+
+  m_houndCallers=m_houndCallers.remove(line+"\n");      // Remove t from sorted Hound list
+  m_nSortedHounds--;
+  ui->decodedTextBrowser->setText(m_houndCallers);   // Populate left window with Hound callers
+  QString t1=houndCall + "    ";
+  QString t2=rpt;
+  if(rpt.mid(0,1) != "-") t2="+" + rpt;
+  if(t2.length()==2) t2=t2.mid(0,1) + "0" + t2.mid(1,1);
+  t1=t1.mid(0,7) + t2;
+  m_houndQueue.enqueue(t1);                              // Put this hound into the queue
+  ui->textBrowser4->displayFoxToBeCalled(t1,"#ffffff");  // Add hound call and rpt to queue
+}
+
+//------------------------------------------------------------------------------
+void MainWindow::houndCallers()
+{
+/* Called from decodeDone(), in DXpedition Fox mode.  Reads decodes from file
+ * "houndcallers.txt", ignoring any that are not addressed to MyCall, are already
+ * in the stack, or with whom a QSO has been started.  Others are considered to
+ * be Hounds eager for a QSO.  We add caller information (Call, Grid, SNR, Freq,
+ * Distance, Age, and Continent) to a list, sort the list by specified criteria,
+ * and display the top N_Hounds entries in the left text window.
+*/
+  QFile f(m_config.temp_dir().absoluteFilePath("houndcallers.txt"));
+  if(f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    QTextStream s(&f);
+    QString t="";
+    QString line,houndCall,paddedHoundCall;
+    m_nHoundsCalling=0;
+
+// Read and process the file of Hound callers.
+    while(!s.atEnd()) {
+      line=s.readLine();
+      houndCall=line.mid(0,6);
+      paddedHoundCall=houndCall + " ";
+      if(!ui->textBrowser3->toPlainText().contains(paddedHoundCall) and
+         !ui->textBrowser4->toPlainText().contains(paddedHoundCall)) {
+        QString countryName,continent;
+        bool callWorkedBefore,countryWorkedBefore;
+        m_logBook.match(/*in*/houndCall,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
+        int i1=countryName.lastIndexOf(";");
+        continent=countryName.mid(i1+2,-1);
+        t = t + line + "  " + continent + "\n";
+        m_nHoundsCalling++;                // Total number of decoded Hounds calling Fox
+      }
+    }
+// Sort and display accumulated list of Hound callers
+    if(t.length()>30) {
+      m_isort=ui->comboBoxHoundSort->currentIndex();
+      QString t1=sortHoundCalls(t,m_isort,m_max_dB);
+      ui->decodedTextBrowser->setText(t1);
+    }
+    f.close();
+  }
+}
+
+void MainWindow::foxRxSequencer(QString houndCall, QString houndGrid)
+{
+// Called from "readFromStdOut()" for decoded messages of the form "MyCall HoundCall R+rpt"
+
+  QString inQSOmessages=ui->textBrowser3->toPlainText();
+  if(inQSOmessages.contains(" " + houndCall + " ")) {
+    qDebug() << "Received:" << houndCall << houndGrid;
+    QStringList inQSOmessagesList=inQSOmessages.split("\n");
+    ui->textBrowser3->setText("");
+    for (int i=0; i<inQSOmessagesList.length(); i++) {
+      QString t=inQSOmessagesList.at(i);
+      if(t.contains(" " + houndCall + " ")) {
+        m_houndRptRcvd[i]=houndGrid.mid(1);
+        int i1=qMax(t.indexOf("+"), t.indexOf("-"));
+        qDebug() << "yy" << i << i1 << m_houndRptRcvd[i] << t.trimmed();
+        m_bSendRR73[i]=true;
+        t=t.mid(0,i1-1) + " RR73";
+        ui->textBrowser3->displayFoxToBeCalled(t,"#ff99ff");
+      } else {
+        ui->textBrowser3->displayFoxToBeCalled(t,"#ffffff");
+      }
+    }
+  }
+}
+
+void MainWindow::foxTxSequencer()
+{
+  QString msg[5];
+  QString inQSO="";
+  QString nextTxMessages=ui->textBrowser3->toPlainText();
+//  int islots=nextTxMessages.split("\n").size() - 1;
+  for(int i=0; i<m_Nslots; i++) {
+    msg[i]="";
+    int iz=nextTxMessages.split("\n").size();
+    qDebug() << "A" << i << iz << nextTxMessages.length();
+    if(i<iz and nextTxMessages.length() > 10) {
+      QString txMsg=nextTxMessages.split("\n").at(i);
+      m_houndCall[i]=txMsg.mid(0,7);
+      qDebug() << "A1" << txMsg;
+      int i1=qMax(txMsg.indexOf('+'),txMsg.indexOf('-'));
+      msg[i]= m_houndCall[i] + " " + m_config.my_callsign() + txMsg.mid(i1-1,4);
+    }
+    qDebug() << "B" << i << msg[i];
+    if(msg[i]=="") {
+      if(!m_houndQueue.isEmpty()) {
+        QString t=m_houndQueue.dequeue();
+        m_houndCall[i]=t.mid(0,6);
+        QString rpt=t.mid(7,3);
+        msg[i]= m_houndCall[i] + " " + m_config.my_callsign() + " " + rpt;
+        m_bSendRR73[i]=false;
+        QString tb4=ui->textBrowser4->toPlainText();
+        tb4=tb4.remove(t+"\n");
+        ui->textBrowser4->setText(tb4);
+      } else {
+      msg[i]=ui->comboBoxCQ->currentText() + " " + m_config.my_callsign() +
+        " " + m_config.my_grid().mid(0,4);
+      }
+    }
+    qDebug() << "C" << i << msg[i];
+    msg[i] += "                                ";
+    msg[i]=msg[i].mid(0,32);
+    ui->decodedTextBrowser2->displayTransmittedText(msg[i], m_modeTx,
+          300+60*i,m_config.color_TxMsg(),m_bFastMode);
+    foxcom_.i3bit[i]=0;
+    if(msg[i].indexOf("<")>0) foxcom_.i3bit[i]=1;
+    qDebug() << "Transmitted:" << i << foxcom_.i3bit[i] << msg[i].trimmed();
+    strncpy(&foxcom_.cmsg[i][0], msg[i].toLatin1(),32);
+    int i1=qMax(msg[i].indexOf("+"),msg[i].indexOf("-"));
+    if(i1>6) {
+      m_houndRptSent[i]=msg[i].mid(i1,3);
+      qDebug() << "zz" << i << m_houndCall[i] << m_houndRptSent[i] << m_houndRptRcvd[i];
+    }
+    if(m_bSendRR73[i]) {
+      qDebug() << "Logged:" << m_houndCall[i] << m_houndRptSent[i] << m_houndRptRcvd[i];
+      msg[i]="CQ";
+      m_bSendRR73[i]=false;
+    }
+    inQSO += (msg[i] + "\n");
+  }
+//  qDebug() << "TxSeq:" << inQSO;
+  ui->textBrowser3->setText(inQSO);
+  foxcom_.nslots=m_Nslots;
+  foxgen_();
 }

@@ -358,6 +358,7 @@ private:
   Modulator * m_modulator;
   SoundOutput * m_soundOutput;
   QThread m_audioThread;
+  QQueue<QString> m_houndQueue;
 
   qint64  m_msErase;
   qint64  m_secBandChanged;
@@ -415,12 +416,10 @@ private:
   qint32  m_i3bit;
   qint32  m_isort;
   qint32  m_max_dB;
-  qint32  m_min_dB;
-  qint32  m_nFoxCallers=0;
-  qint32  m_nToBeCalled=0;
+  qint32  m_nSortedHounds=0;
+  qint32  m_nHoundsCalling=0;
   qint32  m_Nsig=12;
   qint32  m_Nslots=5;
-  qint32  m_nHoundsCalling=0;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
@@ -476,6 +475,7 @@ private:
   bool    m_bAutoReply;
   bool    m_bCheckedContest;
   bool    m_bDXped;
+  bool    m_bSendRR73[5];
 
   enum
     {
@@ -558,13 +558,11 @@ private:
   QString m_calls;
   QString m_CQtype;
   QString m_opCall;
-  QString m_FoxCallers;
-  QString m_toBeCalled;
+  QString m_houndCallers;        //Sorted list of Hound callers
   QString m_houndCall[5];
   QString m_houndGrid[5];
   QString m_houndRptSent[5];
   QString m_houndRptRcvd[5];
-  QString m_HoundsCalling[100];
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;
@@ -650,7 +648,7 @@ private:
                           , Frequency frequency
                           , QString const& his_call
                           , QString const& his_grid) const;
-  QString sortHoundCalls(QString t, int isort, int min_dB, int max_dB);
+  QString sortHoundCalls(QString t, int isort, int max_dB);
   void read_wav_file (QString const& fname);
   void decodeDone ();
   void subProcessFailed (QProcess *, int exit_code, QProcess::ExitStatus);
@@ -668,6 +666,10 @@ private:
   QChar current_submode () const; // returns QChar {0} if sub mode is
                                   // not appropriate
   void write_transmit_entry (QString const& file_name);
+  void selectHound(QString t);
+  void houndCallers();
+  void foxRxSequencer(QString houndCall, QString houndGrid);
+  void foxTxSequencer();
 };
 
 extern int killbyname(const char* progName);
