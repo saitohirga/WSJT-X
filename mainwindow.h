@@ -282,7 +282,7 @@ private slots:
   void on_actionFreqCal_triggered();
   void splash_done ();
   void on_measure_check_box_stateChanged (int);
-  void on_sbNsig_valueChanged(int n);
+  void on_sbNlist_valueChanged(int n);
   void on_sbNslots_valueChanged(int n);
   void on_sbMax_dB_valueChanged(int n);
   void on_pbFoxReset_clicked();
@@ -418,7 +418,7 @@ private:
   qint32  m_max_dB;
   qint32  m_nSortedHounds=0;
   qint32  m_nHoundsCalling=0;
-  qint32  m_Nsig=12;
+  qint32  m_Nlist=12;
   qint32  m_Nslots=5;
   qint32  m_nFoxMsgTimes[5]={0,0,0,0,0};
 

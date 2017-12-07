@@ -57,7 +57,7 @@ void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString 
                         QString const& rptSent, QString const& rptRcvd,
                         QDateTime const& dateTimeOn, QDateTime const& dateTimeOff,
                         Radio::Frequency dialFreq, QString const& myCall, QString const& myGrid,
-                        bool noSuffix, bool toRTTY, bool dBtoComments, QString const& opCall)
+                        bool noSuffix, bool toRTTY, bool dBtoComments, bool bFox, QString const& opCall)
 {
   if(!isHidden()) return;
   ui->call->setText(hisCall);

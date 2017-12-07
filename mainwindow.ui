@@ -1823,7 +1823,7 @@ list. The list can be maintained in Settings (F2).</string>
                       </widget>
                      </item>
                      <item row="1" column="0">
-                      <widget class="QSpinBox" name="sbNsig">
+                      <widget class="QSpinBox" name="sbNlist">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                          <horstretch>0</horstretch>
@@ -1837,7 +1837,7 @@ list. The list can be maintained in Settings (F2).</string>
                         </size>
                        </property>
                        <property name="prefix">
-                        <string>N Sigs     </string>
+                        <string>N List     </string>
                        </property>
                        <property name="minimum">
                         <number>5</number>
