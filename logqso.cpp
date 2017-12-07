@@ -85,8 +85,11 @@ void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString 
   m_myGrid=myGrid;
   ui->band->setText (m_config->bands ()->find (dialFreq));
   ui->loggedOperator->setText(opCall);
-  show ();
-  QTimer::singleShot(700, this, SLOT(accept()));
+  if(bFox) {
+    accept();
+  } else {
+    show ();
+  }
 }
 
 void LogQSO::accept()
