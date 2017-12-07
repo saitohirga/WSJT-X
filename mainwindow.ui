@@ -1049,7 +1049,7 @@ QLabel[oob=&quot;true&quot;] {
                   <enum>QTabWidget::Triangular</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>2</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="tab">
                   <attribute name="title">
@@ -1623,9 +1623,6 @@ list. The list can be maintained in Settings (F2).</string>
                    <string>3</string>
                   </attribute>
                   <layout class="QGridLayout" name="gridLayout_11">
-                   <item row="0" column="0">
-                    <widget class="DisplayText" name="textBrowser3"/>
-                   </item>
                    <item row="0" column="1" rowspan="2">
                     <layout class="QGridLayout" name="gridLayout_10">
                      <item row="5" column="0">

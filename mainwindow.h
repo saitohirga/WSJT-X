@@ -420,6 +420,7 @@ private:
   qint32  m_nHoundsCalling=0;
   qint32  m_Nsig=12;
   qint32  m_Nslots=5;
+  qint32  m_nFoxMsgTimes[5]={0,0,0,0,0};
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
@@ -559,6 +560,7 @@ private:
   QString m_opCall;
   QString m_houndCallers;        //Sorted list of Hound callers
   QString m_houndCall[5];
+  QString m_houndCall0[5];
   QString m_houndGrid[5];
   QString m_houndRptSent[5];
   QString m_houndRptRcvd[5];
