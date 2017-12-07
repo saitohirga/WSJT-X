@@ -1,32 +1,97 @@
 subroutine foxgen()
 
-  parameter (NN=79,KK=87,NSPS=4*1920)
+  use crc
+  parameter (NN=79,ND=58,KK=87,NSPS=4*1920)
   parameter (NWAVE=NN*NSPS,NFFT=614400,NH=NFFT/2)
   character*32 cmsg
   character*22 msg,msgsent
-  logical bcontest
+  character*6 mygrid
+  character*87 cbits
+  character*88 cb88
+  logical bcontest,checksumok
   integer itone(NN)
-  integer*1 msgbits(KK)
-  integer*8 count0,count1,clkfreq
+  integer icos7(0:6)
+  integer*1 msgbits(KK),codeword(3*ND)
+  integer*1, target:: i1Msg8BitBytes(11)
+  integer*1, target:: mycall
   real x(NFFT),y(NFFT)
   real*8 dt,twopi,f0,fstep,dfreq,phi,dphi
   complex cx(0:NH),cy(0:NH)
-  common/foxcom/wave(NWAVE),nslots,i3bit(5),cmsg(5)
+  common/foxcom/wave(NWAVE),nslots,i3bit(5),cmsg(5),mycall(6)
   equivalence (x,cx),(y,cy)
+  data icos7/2,5,6,0,4,1,3/                   !Costas 7x7 tone pattern
 
-  call system_clock(count0,clkfreq)
   bcontest=.false.
-  i3bit=0
   fstep=60.d0
   dfreq=6.25d0
   dt=1.d0/48000.d0
   twopi=8.d0*atan(1.d0)
   wave=0.
+  mygrid='      '
+  nrpt=0
 
   do n=1,nslots
-     i3bit=0
-     msg=cmsg(n)(1:22)
-     call genft8(msg,"      ",bcontest,i3bit,msgsent,msgbits,itone)
+!###
+!     if(n.eq.1) then
+!        cmsg(n)='W0AAA W3DDD'
+!        i3bit(n)=0
+!     endif
+!     if(n.eq.2) then
+!        cmsg(n)='W0AAA RR73; W3DDD <K1JT> -12'
+!        i3bit(n)=1
+!     endif
+!###     
+     i3b=i3bit(n)
+     if(i3b.eq.0) then
+        msg=cmsg(n)(1:22)
+     else
+        i1=index(cmsg(n),' ')
+        i2=index(cmsg(n),';')
+        i3=index(cmsg(n),'<')
+        i4=index(cmsg(n),'>')
+        msg=cmsg(n)(1:i1)//cmsg(n)(i2+1:i3-2)//'                   '
+        read(cmsg(n)(i4+2:i4+4),*) nrpt
+     endif
+     call genft8(msg,mygrid,bcontest,0,msgsent,msgbits,itone)
+
+     if(i3b.eq.1) then
+        icrc10=crc10(c_loc(mycall),6)        
+        ng16=64*icrc10 + nrpt+30
+        write(cbits,1001) msgbits(1:56),ng16,i3b,0
+1001    format(56b1.1,b16.16,b3.3,b12.12)
+        read(cbits,1002) msgbits
+1002    format(87i1)
+
+        cb88=cbits//'0'
+        read(cb88,1003) i1Msg8BitBytes(1:11)
+1003    format(11b8)
+        icrc12=crc12(c_loc(i1Msg8BitBytes),11)
+
+        write(cbits,1001) msgbits(1:56),ng16,i3b,icrc12
+        read(cbits,1002) msgbits
+
+        call encode174(msgbits,codeword)      !Encode the test message
+        
+! Message structure: S7 D29 S7 D29 S7
+        itone(1:7)=icos7
+        itone(36+1:36+7)=icos7
+        itone(NN-6:NN)=icos7
+        k=7
+        do j=1,ND
+           i=3*j -2
+           k=k+1
+           if(j.eq.30) k=k+7
+           itone(k)=codeword(i)*4 + codeword(i+1)*2 + codeword(i+2)
+        enddo
+     endif
+
+!###
+!     call chkcrc12a(msgbits,nbadcrc)
+!     i3bb=4*msgbits(73) + 2*msgbits(74) + msgbits(75)
+!     iFreeText=msgbits(57)
+!     write(*,3001) i3b,i3bb,icrc10,icrc12,nbadcrc,msgsent
+!3001 format(5i6,2x,a22)
+!###
      
      f0=1500.d0 + fstep*(n-1)
      phi=0.d0
@@ -41,8 +106,6 @@ subroutine foxgen()
            wave(k)=wave(k)+sin(xphi)
         enddo
      enddo
-     
-     call system_clock(count1,clkfreq)
   enddo
 
   sqx=0.
@@ -84,11 +147,8 @@ subroutine foxgen()
   enddo
   flush(29)
 
-100 call system_clock(count1,clkfreq)
-!  time=float(count1-count0)/float(clkfreq)    !Cumulative execution time
-!  write(*,3010) time
-!3010 format('Time:',f10.6)
-  
+100 continue
+
   return
 end subroutine foxgen
 

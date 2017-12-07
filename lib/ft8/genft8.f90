@@ -8,7 +8,7 @@ subroutine genft8(msg,mygrid,bcontest,i3bit,msgsent,msgbits,itone)
   character*22 msg,msgsent
   character*6 mygrid
   character*87 cbits
-  logical bcontest
+  logical bcontest,checksumok
   integer*4 i4Msg6BitWords(12)                !72-bit message as 6-bit words
   integer*1 msgbits(KK),codeword(3*ND)
   integer*1, target:: i1Msg8BitBytes(11)

@@ -7323,5 +7323,7 @@ void MainWindow::foxTxSequencer()
     }
   }
   foxcom_.nslots=m_Nslots;
+  QString mycall6=m_config.my_callsign() + "   ";
+  strncpy(&foxcom_.mycall[0], mycall6.toLatin1(),6);   //Copy mycall into foxcom_
   foxgen_();
 }
