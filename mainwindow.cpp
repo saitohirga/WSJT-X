@@ -2834,7 +2834,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
          (decodedtext.string().contains("R+") or decodedtext.string().contains("R-"))) {
         QString houndCall,houndGrid;
         decodedtext.deCallAndGrid(/*out*/houndCall,houndGrid);
-        foxRxSequencer(houndCall,houndGrid);
+        foxRxSequencer(decodedtext,houndCall,houndGrid);
       }
 
       //Left (Band activity) window
@@ -7239,7 +7239,7 @@ void MainWindow::houndCallers()
   }
 }
 
-void MainWindow::foxRxSequencer(QString houndCall, QString houndGrid)
+void MainWindow::foxRxSequencer(DecodedText decodedtext, QString houndCall, QString houndGrid)
 {
 /* Called from "readFromStdOut()" to process decoded messages of the form
  * "myCall houndCall R+rpt".
@@ -7254,6 +7254,14 @@ void MainWindow::foxRxSequencer(QString houndCall, QString houndGrid)
       m_houndRptRcvd[i]=houndGrid.mid(1);
       int i1=qMax(m_foxMsgSent[i].indexOf("+"), m_foxMsgSent[i].indexOf("-"));
       m_foxMsgToBeSent[i]=m_foxMsgSent[i].mid(0,i1-1) + " RR73";
+
+//###
+      qDebug() << "CC" << houndCall << m_baseCall;
+      ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_baseCall,false,
+             m_logBook,m_config.color_CQ(),m_config.color_MyCall(),
+             m_config.color_DXCC(),m_config.color_NewCall(),m_config.ppfx());
+//###
+
     } else {
       m_foxMsgToBeSent[i]=m_foxMsgSent[i];
     }
