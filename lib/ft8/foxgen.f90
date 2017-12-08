@@ -1,5 +1,19 @@
 subroutine foxgen()
 
+  ! Called from MainWindow::foxTxSequencer() to generate the Tx waveform in
+  ! FT8 Fox mode.  The Tx message can contain up to 5 "slots", each carrying
+  ! its own FT8 signal.
+  
+  ! Encoded messages can be of the form "HoundCall FoxCall rpt" (a standard FT8
+  ! message with i3bit=0) or "HoundCall_1 RR73; HoundCall_2 <FoxCall> rpt", 
+  ! a new message type with i3bit=1.  The waveform is generated with
+  ! fsample=48000 Hz; it is compressed to reduce the PEP-to-average power ratio,
+  ! with (currently disabled) filtering afterware to reduce spectral growth.
+
+  ! Input message information is provided in character array cmsg(5), in
+  ! common/foxcom/.  The generated wave(NWAVE) is passed back in the same
+  ! common block.
+  
   use crc
   parameter (NN=79,ND=58,KK=87,NSPS=4*1920)
   parameter (NWAVE=NN*NSPS,NFFT=614400,NH=NFFT/2)
@@ -11,13 +25,14 @@ subroutine foxgen()
   logical bcontest,checksumok
   integer itone(NN)
   integer icos7(0:6)
-  integer*1 msgbits(KK),codeword(3*ND)
+  integer*1 msgbits(KK),codeword(3*ND),msgbits2
   integer*1, target:: i1Msg8BitBytes(11)
   integer*1, target:: mycall
   real x(NFFT),y(NFFT)
   real*8 dt,twopi,f0,fstep,dfreq,phi,dphi
   complex cx(0:NH),cy(0:NH)
   common/foxcom/wave(NWAVE),nslots,i3bit(5),cmsg(5),mycall(6)
+  common/foxcom2/itone2(NN),msgbits2(KK)
   equivalence (x,cx),(y,cy)
   data icos7/2,5,6,0,4,1,3/                   !Costas 7x7 tone pattern
 
@@ -28,37 +43,27 @@ subroutine foxgen()
   twopi=8.d0*atan(1.d0)
   wave=0.
   mygrid='      '
-  nrpt=0
+  irpt=0
 
   do n=1,nslots
-!###
-!     if(n.eq.1) then
-!        cmsg(n)='W0AAA W3DDD'
-!        i3bit(n)=0
-!     endif
-!     if(n.eq.2) then
-!        cmsg(n)='W0AAA RR73; W3DDD <K1JT> -12'
-!        i3bit(n)=1
-!     endif
-!###     
      i3b=i3bit(n)
      if(i3b.eq.0) then
-        msg=cmsg(n)(1:22)
+        msg=cmsg(n)(1:22)                     !Stansard FT8 message
      else
-        i1=index(cmsg(n),' ')
+        i1=index(cmsg(n),' ')                 !Special Fox message
         i2=index(cmsg(n),';')
         i3=index(cmsg(n),'<')
         i4=index(cmsg(n),'>')
         msg=cmsg(n)(1:i1)//cmsg(n)(i2+1:i3-2)//'                   '
-        read(cmsg(n)(i4+2:i4+4),*) nrpt
+        read(cmsg(n)(i4+2:i4+4),*) irpt
      endif
      call genft8(msg,mygrid,bcontest,0,msgsent,msgbits,itone)
 
      if(i3b.eq.1) then
-        icrc10=crc10(c_loc(mycall),6)        
-        ng16=64*icrc10 + nrpt+30
-        write(cbits,1001) msgbits(1:56),ng16,i3b,0
-1001    format(56b1.1,b16.16,b3.3,b12.12)
+        icrc10=crc10(c_loc(mycall),6)
+        nrpt=irpt+30
+        write(cbits,1001) msgbits(1:56),icrc10,nrpt,i3b,0
+1001    format(56b1.1,b10.10,b6.6,b3.3,b12.12)
         read(cbits,1002) msgbits
 1002    format(87i1)
 
@@ -67,7 +72,8 @@ subroutine foxgen()
 1003    format(11b8)
         icrc12=crc12(c_loc(i1Msg8BitBytes),11)
 
-        write(cbits,1001) msgbits(1:56),ng16,i3b,icrc12
+        print*,'BB',icrc10,nrpt,i3b,icrc12
+        write(cbits,1001) msgbits(1:56),icrc10,nrpt,i3b,icrc12
         read(cbits,1002) msgbits
 
         call encode174(msgbits,codeword)      !Encode the test message
@@ -84,15 +90,11 @@ subroutine foxgen()
            itone(k)=codeword(i)*4 + codeword(i+1)*2 + codeword(i+2)
         enddo
      endif
-
-!###
-!     call chkcrc12a(msgbits,nbadcrc)
-!     i3bb=4*msgbits(73) + 2*msgbits(74) + msgbits(75)
-!     iFreeText=msgbits(57)
-!     write(*,3001) i3b,i3bb,icrc10,icrc12,nbadcrc,msgsent
-!3001 format(5i6,2x,a22)
-!###
      
+! Make copies of itone() and msgbits() for ft8sim
+     itone2=itone
+     msgbits2=msgbits
+
      f0=1500.d0 + fstep*(n-1)
      phi=0.d0
      k=0

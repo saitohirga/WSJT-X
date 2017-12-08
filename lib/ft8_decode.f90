@@ -24,7 +24,7 @@ module ft8_decode
        integer, intent(in) :: snr
        real, intent(in) :: dt
        real, intent(in) :: freq
-       character(len=22), intent(in) :: decoded
+       character(len=32), intent(in) :: decoded
        integer, intent(in) :: nap 
        real, intent(in) :: qual 
      end subroutine ft8_decode_callback
@@ -52,7 +52,7 @@ contains
     character*6 mygrid6,hisgrid6
     integer*2 iwave(15*12000)
     integer apsym(KK)
-    character datetime*13,message*22
+    character datetime*13,message*22,msg32*32
     character*22 allmessages(100)
     integer allsnrs(100)
     save s,dd
@@ -105,9 +105,10 @@ contains
         xbase=10.0**(0.1*(sbase(nint(f1/3.125))-40.0))
         nsnr0=min(99,nint(10.0*log10(sync) - 25.5))    !### empirical ###
         call timer('ft8b    ',0)
-        call ft8b(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lft8apon,lapcqonly, &
-             napwid,lsubtract,nagain,iaptype,mygrid6,bcontest,sync,f1,xdt,     &
-             xbase,apsym,nharderrors,dmin,nbadcrc,iappass,iera,message,xsnr)
+        call ft8b(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lft8apon,lapcqonly,       &
+             napwid,lsubtract,nagain,iaptype,mycall12,mygrid6,bcontest,sync,f1,xdt,  &
+             xbase,apsym,nharderrors,dmin,nbadcrc,iappass,iera,msg32,xsnr)
+        message=msg32(1:22)   !###
         nsnr=nint(xsnr) 
         xdt=xdt-0.5
         hd=nharderrors+dmin
@@ -132,7 +133,7 @@ contains
 !           flush(81)
            if(.not.ldupe .and. associated(this%callback)) then
               qual=1.0-(nharderrors+dmin)/60.0 ! scale qual to [0.0,1.0]
-              call this%callback(sync,nsnr,xdt,f1,message,iaptype,qual)
+              call this%callback(sync,nsnr,xdt,f1,msg32,iaptype,qual)
            endif
         endif
       enddo

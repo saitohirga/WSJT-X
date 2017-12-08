@@ -7,7 +7,7 @@ program ft8sim
   include 'ft8_params.f90'               !Set various constants
   type(hdr) h                            !Header for .wav file
   character arg*12,fname*17,sorm*1
-  character msg*22,msgsent*22,msg0*22
+  character msg32*32,msg*22,msgsent*22,msg0*22
   character*6 mygrid6
   logical bcontest
   complex c0(0:NMAX-1)
@@ -27,7 +27,7 @@ program ft8sim
      print*,'Make nfiles negative to invoke 72-bit contest mode.'
      go to 999
   endif
-  call getarg(1,msg)                     !Message to be transmitted
+  call getarg(1,msg32)                   !Message to be transmitted
   call getarg(2,sorm)                    !s for single signal, m for multiple sigs 
   if(sorm.eq."s") then
     print*,"Generating single signal at 1500 Hz."
@@ -68,13 +68,21 @@ program ft8sim
   sig=sqrt(2*bandwidth_ratio) * 10.0**(0.05*snrdb)
   if(snrdb.gt.90.0) sig=1.0
   txt=NN*NSPS/12000.0
-  i3bit=0                                ! ### TEMPORARY ??? ###
 
 ! Source-encode, then get itone()
-  call genft8(msg,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
-  write(*,1000) f0,xdt,txt,snrdb,bw,msgsent
+  if(index(msg32,';').lt.0) then
+     i3bit=0
+     msg=msg32(1:22)
+     call genft8(msg,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
+     write(*,1000) f0,xdt,txt,snrdb,bw,msgsent
 1000 format('f0:',f9.3,'   DT:',f6.2,'   TxT:',f6.1,'   SNR:',f6.1,    &
           '  BW:',f4.1,2x,a22)
+  else
+     call foxgen_wrap(msg32,msgbits,itone)
+     write(*,1001) f0,xdt,txt,snrdb,bw,msg32
+1001 format('f0:',f9.3,'   DT:',f6.2,'   TxT:',f6.1,'   SNR:',f6.1,    &
+          '  BW:',f4.1,2x,a32)
+  endif
 
   write(*,'(28i1,1x,28i1)') msgbits(1:56)
   write(*,'(16i1)') msgbits(57:72)
@@ -146,3 +154,5 @@ program ft8sim
   enddo
        
 999 end program ft8sim
+
+  
