@@ -7270,6 +7270,12 @@ void MainWindow::foxTxSequencer()
 */
 
   for(int i=0; i<m_Nslots; i++) {
+    if(m_foxMsgSent[i].contains("RR73") and
+       m_foxMsgSent[i]==m_foxMsgToBeSent[i].trimmed()) {
+      m_foxMsgToBeSent[i]="";
+      m_nFoxMsgTimes[i]=0;
+    }
+//    qDebug() << "AA" << m_foxMsgSent[i] << m_foxMsgToBeSent[i];
     int i1=m_foxMsgToBeSent[i].indexOf(";");
     if(i1>0) m_foxMsgToBeSent[i]=m_foxMsgToBeSent[i].mid(i1+2);
 
@@ -7297,7 +7303,7 @@ void MainWindow::foxTxSequencer()
       m_hisGrid="";
       m_rptSent=m_houndRptSent[i];
       m_rptRcvd=m_houndRptRcvd[i];
-      qDebug() << "Logged:" << i << m_hisCall << m_rptSent << m_rptRcvd;
+      qDebug() << "Logged by Fox:" << i << m_hisCall << m_rptSent << m_rptRcvd;
       on_logQSOButton_clicked();
 
 //Find someone to call next
@@ -7314,6 +7320,7 @@ void MainWindow::foxTxSequencer()
         //Default to a standard (i3bit=0) message if queue is empty
         fm=m_houndCall[i] + " " + m_config.my_callsign() + " RR73";
       }
+//      qDebug() << "BB" << fm;
     }
     if(!fm.contains(";")) {
       fm.remove("<");
