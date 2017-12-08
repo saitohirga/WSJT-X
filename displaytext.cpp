@@ -203,7 +203,6 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
                         decodedText.indexOf (" " + myCall + " ") >= 0
                         or decodedText.indexOf (" " + myCall + "/") >= 0
                         or decodedText.indexOf ("/" + myCall + " ") >= 0
-                        or decodedText.indexOf ("<" + myCall + ">") >= 0
                         or decodedText.indexOf ("<" + myCall + " ") >= 0
                         or decodedText.indexOf (" " + myCall + ">") >= 0)) {
     bg = color_MyCall;

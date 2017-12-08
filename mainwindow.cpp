@@ -2671,6 +2671,7 @@ void MainWindow::decode()                                       //decode()
     narg[12]=0;
     narg[13]=-1;
     narg[14]=m_config.aggressive();
+    qDebug() << "a2" << dec_data.params.nutc;
     memcpy(d2b,dec_data.d2,2*360000);
     watcher3.setFuture (QtConcurrent::run (std::bind (fast_decode_,&d2b[0],
         &narg[0],&m_TRperiod,&m_msg[0][0],
@@ -2881,7 +2882,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
       if (bDisplayRight) {
         // This msg is within 10 hertz of our tuned frequency, or a JT4 or JT65 avg,
         // or contains MyCall
-        qDebug() << "bb";
         ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_baseCall,false,
                m_logBook,m_config.color_CQ(),m_config.color_MyCall(),
                m_config.color_DXCC(),m_config.color_NewCall(),m_config.ppfx());
@@ -4143,6 +4143,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   QString s1 = m_QSOText.trimmed ();
   QString s2 = message.string ().trimmed();
   if (s1!=s2 and !message.isTX()) {
+    qDebug() << "bb" << s1 << s2;
     ui->decodedTextBrowser2->displayDecodedText(message, m_baseCall,
           false, m_logBook,m_config.color_CQ(), m_config.color_MyCall(),
           m_config.color_DXCC(),m_config.color_NewCall(),m_config.ppfx());
