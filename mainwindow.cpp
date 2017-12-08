@@ -2901,8 +2901,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
         QString foxCall=w.at(3);
         foxCall=foxCall.remove("<").remove(">");
         if(w.at(0)==m_config.my_callsign()) {
-          //### Check for ui->dxCallEntry->text()==foxCall and insert report received
-          //### and report sent before logging! ###
+          //### Check for ui->dxCallEntry->text()==foxCall before logging! ###
+          auto_tx_mode(false);
           on_logQSOButton_clicked();
         }
         if(w.at(2)==m_config.my_callsign()) {

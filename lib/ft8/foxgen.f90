@@ -95,7 +95,7 @@ subroutine foxgen()
      itone2=itone
      msgbits2=msgbits
 
-     f0=1500.d0 + fstep*(n-1)
+     f0=1800.d0 + fstep*(n-1)
      phi=0.d0
      k=0
      do j=1,NN
