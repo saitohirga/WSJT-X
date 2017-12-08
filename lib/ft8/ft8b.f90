@@ -409,7 +409,8 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,      
            i2=index(message(i1+1:),' ') + i1
            c1=message(1:i1)//'   '
            c2=message(i1+1:i2)//'   '
-           msg32=c1//' RR73; '//c2//' <'//trim(mycall6)//'>    '
+           if(ncrc10.eq.icrc10) msg32=c1//' RR73; '//c2//' <'//trim(mycall6)//'>    '
+           if(ncrc10.ne.icrc10) msg32=c1//' RR73; '//c2//' <...>    '
            write(msg32(30:32),1010) irpt
 1010       format(i3.2)
            if(msg32(30:30).ne.'-') msg32(30:30)='+'

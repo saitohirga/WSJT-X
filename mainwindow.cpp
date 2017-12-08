@@ -900,7 +900,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
   m_bDXped=false;
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
-     m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "G3PQA") {
+     m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "W9XYZ") {
     m_bDXped=true;
     ui->actionWSPR_LF->setEnabled(true);
   } else {
@@ -2836,6 +2836,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         decodedtext.deCallAndGrid(/*out*/houndCall,houndGrid);
         foxRxSequencer(houndCall,houndGrid);
       }
+
       //Left (Band activity) window
       if(!bAvgMsg) {
         if(m_mode=="FT8" and m_config.bFox()) {
@@ -2879,6 +2880,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       } else {
         if(abs(audioFreq - m_wideGraph->rxFreq()) <= 10) bDisplayRight=true;
       }
+
       if (bDisplayRight) {
         // This msg is within 10 hertz of our tuned frequency, or a JT4 or JT65 avg,
         // or contains MyCall
@@ -2892,6 +2894,27 @@ void MainWindow::readFromStdout()                             //readFromStdout
           if(!b65 and m_modeTx=="JT65") on_pbTxMode_clicked();
         }
         m_QSOText = decodedtext.string ().trimmed ();
+      }
+
+      if(m_mode=="FT8" and m_config.bHound() and decodedtext.string().contains(";")) {
+        QStringList w=decodedtext.string().mid(24).split(" ");
+        QString foxCall=w.at(3);
+        foxCall=foxCall.remove("<").remove(">");
+        if(w.at(0)==m_config.my_callsign()) {
+          //### Check for ui->dxCallEntry->text()==foxCall and insert report received
+          //### and report sent before logging! ###
+          on_logQSOButton_clicked();
+        }
+        if(w.at(2)==m_config.my_callsign()) {
+          int fRx=decodedtext.string().mid(15,5).toInt();
+          m_rptRcvd=w.at(4);
+          m_rptSent=decodedtext.string().mid(7,3);
+          //### Select TX3, and set TxFreq = fRx + 350 Hz, and Force Auto ON. ###
+          ui->txrb3->setChecked(true);
+          ui->TxFreqSpinBox->setValue(fRx+350);
+          if(!m_auto) auto_tx_mode(true);
+        }
+        return;
       }
       if(m_mode=="FT8" or m_mode=="QRA64") auto_sequence (decodedtext, 25, 50);
       
@@ -2933,6 +2956,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
   auto is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
   bool is_OK=false;
   if(m_mode=="MSK144" and message.string().indexOf(ui->dxCallEntry->text()+" R ")>0) is_OK=true;
+
   if (message_words.size () > 2 && (message.isStandardMessage () || (is_73 or is_OK))) {
     auto df = message.frequencyOffset ();
     auto within_tolerance =
@@ -2946,7 +2970,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
                || message_words.contains (ui->dxCallEntry->text ())
                || message_words.contains (Radio::base_callsign (ui->dxCallEntry->text ()))
                || message_words.contains ("DE")))
-          || !message.isStandardMessage ()); // free text 73/RR73 
+          || !message.isStandardMessage ()); // free text 73/RR73
     if (m_auto
         && (REPLYING == m_QSOProgress
             || (!ui->tx1->isEnabled () && REPORT == m_QSOProgress))
@@ -2971,7 +2995,8 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
             || (m_bCallingCQ && m_bAutoReply
                 // look for type 2 compound call replies on our Tx and Rx offsets
                 && ((within_tolerance && "DE" == message_words.at (1))
-                    || message_words.at (1).contains (m_baseCall))))) {
+                    || message_words.at (1).contains (m_baseCall)))))
+    {
       if(!m_config.bFox()) processMessage (message);
     }
   }
