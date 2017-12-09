@@ -4168,7 +4168,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   QString s1 = m_QSOText.trimmed ();
   QString s2 = message.string ().trimmed();
   if (s1!=s2 and !message.isTX()) {
-    qDebug() << "bb" << s1 << s2;
     ui->decodedTextBrowser2->displayDecodedText(message, m_baseCall,
           false, m_logBook,m_config.color_CQ(), m_config.color_MyCall(),
           m_config.color_DXCC(),m_config.color_NewCall(),m_config.ppfx());
