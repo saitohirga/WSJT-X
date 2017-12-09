@@ -9,8 +9,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,      
   character*32 msg32
   character message*22,msgsent*22
   character*12 mycall12,recent_calls(NRECENT)
-  character*6, target:: mycall6
-  character*6 mygrid6,c1,c2
+  character*6 mycall6,mygrid6,c1,c2
   character*87 cbits
   logical bcontest
   real a(5)
@@ -28,6 +27,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,      
   integer icos7(0:6),ip(1)
   integer nappasses(0:5)  ! the number of decoding passes to use for each QSO state
   integer naptypes(0:5,4) ! (nQSOProgress, decoding pass)  maximum of 4 passes for now
+  integer*1, target:: i1mycall(6)
   complex cd0(3200)
   complex ctwk(32)
   complex csymb(32)
@@ -399,7 +399,10 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,      
         
         if(i3bit.eq.1) then
            mycall6=mycall12(1:6)
-           icrc10=crc10(c_loc(mycall6),6)
+           do i=1,6
+              i1mycall(i)=ichar(mycall6(i:i))
+           enddo
+           icrc10=crc10(c_loc(i1mycall),6)
            write(cbits,1001) decoded
 1001       format(87i1)
            read(cbits,1002) ncrc10,nrpt
