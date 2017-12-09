@@ -444,6 +444,8 @@ private:
   Q_SLOT void on_pbTxMsg_clicked();
   Q_SLOT void on_pbNewDXCC_clicked();
   Q_SLOT void on_pbNewCall_clicked();
+  Q_SLOT void on_cbFox_clicked (bool);
+  Q_SLOT void on_cbHound_clicked (bool);
 
   // typenames used as arguments must match registered type names :(
   Q_SIGNAL void start_transceiver (unsigned seqeunce_number) const;
@@ -2354,6 +2356,22 @@ void Configuration::impl::on_calibration_intercept_spin_box_valueChanged (double
 void Configuration::impl::on_calibration_slope_ppm_spin_box_valueChanged (double)
 {
   rig_active_ = false;          // force reset
+}
+
+void Configuration::impl::on_cbFox_clicked (bool checked)
+{
+  if (checked)
+    {
+      ui_->cbHound->setChecked (false);
+    }
+}
+
+void Configuration::impl::on_cbHound_clicked (bool checked)
+{
+  if (checked)
+    {
+      ui_->cbFox->setChecked (false);
+    }
 }
 
 bool Configuration::impl::have_rig ()
