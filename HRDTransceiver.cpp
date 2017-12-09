@@ -666,14 +666,16 @@ void HRDTransceiver::do_tx_frequency (Frequency tx, MODE mode, bool /*no_ignore*
                   set_data_mode (mode);
                   set_dropdown (receiver_dropdown_, (reversed_ ? rx_B_selection_ : rx_A_selection_).front ());
                 }
-              else if (vfo_count_ > 1)
+              else if (vfo_count_ > 1 && ((vfo_A_button_ >=0 && vfo_B_button_ >=0) || vfo_toggle_button_ >= 0))
                 {
                   set_button (vfo_A_button_ >= 0 ? (reversed_ ? vfo_A_button_ : vfo_B_button_) : vfo_toggle_button_);
                   set_dropdown (mode_A_dropdown_, lookup_mode (mode, mode_A_map_));
                   set_data_mode (mode);
                   set_button (vfo_A_button_ >= 0 ? (reversed_ ? vfo_B_button_ : vfo_A_button_) : vfo_toggle_button_);
                 }
-              // else Tx VFO mode gets set with frequency below
+              // else Tx VFO mode gets set with frequency below or we
+              // don't have a way of setting it so we assume it is
+              // always the same as the Rx VFO mode
             }
         }
 
@@ -809,7 +811,7 @@ void HRDTransceiver::do_mode (MODE mode)
                   set_dropdown (mode_A_dropdown_, lookup_mode (mode, mode_A_map_));
                   set_dropdown (receiver_dropdown_, rx_B_selection_.front ());
                 }
-              else if (vfo_count_ > 1)
+              else if (vfo_count_ > 1 && ((vfo_A_button_ >=0 && vfo_B_button_ >=0) || vfo_toggle_button_ >= 0))
                 {
                   set_button (vfo_A_button_ >= 0 ? vfo_A_button_ : vfo_toggle_button_);
                   set_dropdown (mode_A_dropdown_, lookup_mode (mode, mode_A_map_));
@@ -847,7 +849,7 @@ void HRDTransceiver::do_mode (MODE mode)
                   set_dropdown (mode_A_dropdown_, lookup_mode (mode, mode_A_map_));
                   set_dropdown (receiver_dropdown_, rx_A_selection_.front ());
                 }
-              else if (vfo_count_ > 1)
+              else if (vfo_count_ > 1 && ((vfo_A_button_ >=0 && vfo_B_button_ >=0) || vfo_toggle_button_ >= 0))
                 {
                   set_button (vfo_B_button_ >= 0 ? vfo_B_button_ : vfo_toggle_button_);
                   set_dropdown (mode_A_dropdown_, lookup_mode (mode, mode_A_map_));
