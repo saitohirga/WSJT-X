@@ -671,7 +671,7 @@ private:
   void write_transmit_entry (QString const& file_name);
   void selectHound(QString t);
   void houndCallers();
-  void foxRxSequencer(QString houndCall, QString houndGrid);
+  void foxRxSequencer(DecodedText decodedtext, QString houndCall, QString houndGrid);
   void foxTxSequencer();
 };
 
