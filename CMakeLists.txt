@@ -471,6 +471,7 @@ set (wsjt_FSRCS
   lib/graycode65.f90
   lib/grayline.f90
   lib/grid2deg.f90
+  lib/ft8/h1.f90
   lib/hash.f90
   lib/hint65.f90
   lib/hspec.f90
