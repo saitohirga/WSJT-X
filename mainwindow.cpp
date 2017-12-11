@@ -2671,7 +2671,6 @@ void MainWindow::decode()                                       //decode()
     narg[12]=0;
     narg[13]=-1;
     narg[14]=m_config.aggressive();
-    qDebug() << "a2" << dec_data.params.nutc;
     memcpy(d2b,dec_data.d2,2*360000);
     watcher3.setFuture (QtConcurrent::run (std::bind (fast_decode_,&d2b[0],
         &narg[0],&m_TRperiod,&m_msg[0][0],
@@ -3917,7 +3916,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     warnMsg=tr("Should you be operating in NA VHF Contest mode?");
     nWarn=1;
   }
-  if((m_mode=="FT8" or m_mode=="MSK144") and hisgrid.length()==4 and
+  if((m_mode=="FT8" or m_mode=="MSK144") and hisgrid.contains(grid_regexp) and
      m_rigState.frequency()>50000000 and !m_bCheckedContest) {
     double utch=0.0;
     int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter;
