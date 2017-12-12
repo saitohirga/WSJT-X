@@ -28,9 +28,9 @@ subroutine foxgen()
   integer*1 msgbits(KK),codeword(3*ND),msgbits2
   integer*1, target:: i1Msg8BitBytes(11)
   integer*1, target:: mycall
-  real x(NFFT),y(NFFT)
+  real x(NFFT)
   real*8 dt,twopi,f0,fstep,dfreq,phi,dphi
-  complex cx(0:NH),cy(0:NH)
+  complex cx(0:NH)
   common/foxcom/wave(NWAVE),nslots,i3bit(5),cmsg(5),mycall(6)
   common/foxcom2/itone2(NN),msgbits2(KK)
   equivalence (x,cx),(y,cy)
@@ -41,9 +41,10 @@ subroutine foxgen()
   dfreq=6.25d0
   dt=1.d0/48000.d0
   twopi=8.d0*atan(1.d0)
-  wave=0.
   mygrid='      '
   irpt=0
+  nplot=0
+  wave=0.
 
   do n=1,nslots
      i3b=i3bit(n)
@@ -72,7 +73,6 @@ subroutine foxgen()
 1003    format(11b8)
         icrc12=crc12(c_loc(i1Msg8BitBytes),11)
 
-        print*,'BB',icrc10,nrpt,i3b,icrc12
         write(cbits,1001) msgbits(1:56),icrc10,nrpt,i3b,icrc12
         read(cbits,1002) msgbits
 
@@ -109,47 +109,30 @@ subroutine foxgen()
         enddo
      enddo
   enddo
-
-  sqx=0.
-  do i=1,NWAVE
-     sqx=sqx + wave(i)*wave(i)
-  enddo
-  sigmax=sqrt(sqx/NWAVE)
-  wave=wave/sigmax                    !Force rms=1.0
-
-  do i=1,NWAVE
-     wave(i)=h1(wave(i))              !Compress the waveform
-  enddo
+  kz=k
   
-  fac=1.0/maxval(abs(wave))           !Set maxval = 1.0
-  wave=fac*wave
+  peak1=maxval(abs(wave))
+  wave=wave/peak1
+!  call plotspec(1,wave)          !Plot the spectrum
 
-  if(NWAVE.ne.-99) go to 100             !### Omit filtering, for now ###
+! Apply compression
+!  rms=sqrt(dot_product(wave,wave)/kz)
+!  wave=wave/rms
+!  do i=1,NWAVE
+!     wave(i)=h1(wave(i))
+!  enddo
+!  peak2=maxval(abs(wave))
+!  wave=wave/peak2
+  
+!  call plotspec(2,wave)          !Plot the spectrum
+  
+  call foxfilt(nslots,wave)
+  peak3=maxval(abs(wave))
+  wave=wave/peak3
 
-  x(1:k)=wave
-  x(k+1:)=0.
-  call four2a(x,nfft,1,-1,0)
-
-  nadd=64
-  k=0
-  df=48000.0/NFFT
-  rewind(29)
-  do i=1,NH/nadd - 1
-     sx=0.
-!     sy=0.
-     do j=1,nadd
-        k=k+1
-        sx=sx + real(cx(k))**2 + aimag(cx(k))**2
-!        sy=sy + real(cy(k))**2 + aimag(cy(k))**2
-     enddo
-     freq=df*(k-nadd/2+0.5)
-     write(29,1022) freq,sx,sy,db(sx)-90.0,db(sy)-90.0
-1022 format(f10.3,2e12.3,2f10.3)
-     if(freq.gt.3000.0) exit
-  enddo
-  flush(29)
-
-100 continue
-
+!  call plotspec(3,wave)          !Plot the spectrum
+  
   return
 end subroutine foxgen
+
+!include 'plotspec.f90'

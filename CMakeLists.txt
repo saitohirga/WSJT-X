@@ -437,6 +437,7 @@ set (wsjt_FSRCS
   lib/fmtmsg.f90
   lib/foldspec9f.f90
   lib/four2a.f90
+  lib/ft8/foxfilt.f90
   lib/ft8/foxgen.f90
   lib/ft8/foxgen_wrap.f90
   lib/fqso_first.f90
