@@ -70,7 +70,7 @@ program ft8sim
   txt=NN*NSPS/12000.0
 
 ! Source-encode, then get itone()
-  if(index(msg32,';').lt.0) then
+  if(index(msg32,';').le.0) then
      i3bit=0
      msg=msg32(1:22)
      call genft8(msg,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)

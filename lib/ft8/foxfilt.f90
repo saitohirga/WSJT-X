@@ -1,4 +1,4 @@
-subroutine foxfilt(nslots,wave)
+subroutine foxfilt(nslots,width,wave)
 
   parameter (NN=79,ND=58,KK=87,NSPS=4*1920)
   parameter (NWAVE=NN*NSPS,NFFT=614400,NH=NFFT/2)
@@ -13,7 +13,6 @@ subroutine foxfilt(nslots,wave)
   df=48000.0/NFFT
   fa=1800.0 - 0.5*6.25
   fb=1800.0 + 7.5*6.25 + (nslots-1)*60.0
-  width=25.0
   ia2=nint(fa/df)
   ib1=nint(fb/df)
   ia1=nint(ia2-width/df)
