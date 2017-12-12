@@ -131,15 +131,14 @@ subroutine foxgen()
   peak3=maxval(abs(wave))
   wave=wave/peak3
 
-  nadd=1000
-  print*,nwave,nadd,nwave/nadd,peak3
-  j=0
-  do i=1,NWAVE,nadd
-     sx=dot_product(wave(i:i+nadd-1),wave(i:i+nadd-1))
-     j=j+1
-     write(30,3001) j,sx/nadd
-3001 format(i8,f12.6)
-  enddo
+!  nadd=1000
+!  j=0
+!  do i=1,NWAVE,nadd
+!     sx=dot_product(wave(i:i+nadd-1),wave(i:i+nadd-1))
+!     j=j+1
+!     write(30,3001) j,sx/nadd
+!3001 format(i8,f12.6)
+!  enddo
 
   call plotspec(3,wave)          !Plot the spectrum
   
