@@ -554,8 +554,9 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   txMsgButtonGroup->addButton(ui->txrb6,6);
   set_dateTimeQSO(-1);
   connect(txMsgButtonGroup,SIGNAL(buttonClicked(int)),SLOT(set_ntx(int)));
-  connect (ui->decodedTextBrowser2, &DisplayText::selectCallsign, this, &MainWindow::doubleClickOnCall);
   connect (ui->decodedTextBrowser, &DisplayText::selectCallsign, this, &MainWindow::doubleClickOnCall2);
+  connect (ui->decodedTextBrowser2, &DisplayText::selectCallsign, this, &MainWindow::doubleClickOnCall);
+  connect (ui->textBrowser4, &DisplayText::selectCallsign, this, &MainWindow::doubleClickOnFoxQueue);
   connect (ui->decodedTextBrowser, &DisplayText::erased, this, &MainWindow::band_activity_cleared);
   connect (ui->decodedTextBrowser2, &DisplayText::erased, this, &MainWindow::rx_frequency_activity_cleared);
 
@@ -7189,9 +7190,9 @@ void MainWindow::selectHound(QString line)
   if(t2.length()==2) t2=t2.mid(0,1) + "0" + t2.mid(1,1);
   t1=t1.mid(0,7) + t2;
   m_houndQueue.enqueue(t1);                              // Put this hound into the queue
-  ui->textBrowser4->displayFoxToBeCalled(t1,"#ffffff");  // Add hound call and rpt to queue
+  ui->textBrowser4->displayFoxToBeCalled(t1,"#ffffff");  // Add hound call and rpt to tb4
   QTextCursor cursor = ui->textBrowser4->textCursor();
-  cursor.setPosition(0);
+  cursor.setPosition(0);                                 // Scroll to top of list
   ui->textBrowser4->setTextCursor(cursor);
 }
 
@@ -7215,9 +7216,16 @@ void MainWindow::houndCallers()
 // Read and process the file of Hound callers.
     while(!s.atEnd()) {
       line=s.readLine();
-      houndCall=line.mid(0,6);
+      houndCall=line.mid(0,6).trimmed();
       paddedHoundCall=houndCall + " ";
+      //Don't list a hound already in the queue
       if(!ui->textBrowser4->toPlainText().contains(paddedHoundCall)) {
+        if(m_loggedByFox[houndCall].contains(m_lastBand)) continue;  //already logged on this band
+        bool bmatch=false;
+        for(int i=0; i<m_Nslots; i++) {
+          if(m_houndCall[i]==houndCall) bmatch=true;
+        }
+        if(bmatch) continue;               //Don't list a hound already being called
         QString countryName,continent;
         bool callWorkedBefore,countryWorkedBefore;
         m_logBook.match(/*in*/houndCall,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
@@ -7252,13 +7260,9 @@ void MainWindow::foxRxSequencer(DecodedText decodedtext, QString houndCall, QStr
       m_houndRptRcvd[i]=houndGrid.mid(1);
       int i1=qMax(m_foxMsgSent[i].indexOf("+"), m_foxMsgSent[i].indexOf("-"));
       m_foxMsgToBeSent[i]=m_foxMsgSent[i].mid(0,i1-1) + " RR73";
-
-//###
-      qDebug() << "CC" << houndCall << m_baseCall;
       ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_baseCall,false,
              m_logBook,m_config.color_CQ(),m_config.color_MyCall(),
              m_config.color_DXCC(),m_config.color_NewCall(),m_config.ppfx());
-//###
 
     } else {
       m_foxMsgToBeSent[i]=m_foxMsgSent[i];
@@ -7281,22 +7285,19 @@ void MainWindow::foxTxSequencer()
       m_foxMsgToBeSent[i]="";
       m_nFoxMsgTimes[i]=0;
     }
-//    qDebug() << "AA" << m_foxMsgSent[i] << m_foxMsgToBeSent[i];
     int i1=m_foxMsgToBeSent[i].indexOf(";");
     if(i1>0) m_foxMsgToBeSent[i]=m_foxMsgToBeSent[i].mid(i1+2);
 
-    QString fm;                             //Fox message to be transmitted in this slot
-    fm=m_foxMsgToBeSent[i];                 //Default, if available
+    QString fm;                              //Fox message to be transmitted in this slot
+    fm=m_foxMsgToBeSent[i];                  //Default, if available
     if(fm=="" or fm.mid(0,3)=="CQ ") {
-      if(!m_houndQueue.isEmpty()) {         //Fetch new hound call from queue
-        QString t=m_houndQueue.dequeue();
-        m_houndCall[i]=t.mid(0,6).trimmed();
-        QString rpt=t.mid(7,3);
-        fm= m_houndCall[i] + " " + m_config.my_callsign() + " " + rpt;
-        QString tb4=ui->textBrowser4->toPlainText();
-        tb4=tb4.remove(t+"\n");
-        ui->textBrowser4->setText(tb4);
-      } else {                              //If all else fails, call CQ
+      if(!m_houndQueue.isEmpty()) {
+        QString t=m_houndQueue.dequeue();    //Fetch new hound call from queue
+        m_houndCall[i]=t.mid(0,6).trimmed(); //Save hound call for potential logging
+        rm_tb4(m_houndCall[i]);             //Remove him from tb4
+        QString rpt=t.mid(7,3);              //Report to send him
+        fm= m_houndCall[i] + " " + m_config.my_callsign() + " " + rpt;  //Tx message
+      } else {                               //If no hound in queue, we call CQ
       fm=ui->comboBoxCQ->currentText() + " " + m_config.my_callsign() +
         " " + m_config.my_grid().mid(0,4);
       }
@@ -7309,24 +7310,22 @@ void MainWindow::foxTxSequencer()
       m_hisGrid="";
       m_rptSent=m_houndRptSent[i];
       m_rptRcvd=m_houndRptRcvd[i];
-      qDebug() << "Logged by Fox:" << i << m_hisCall << m_rptSent << m_rptRcvd;
+      qDebug() << "Logged by Fox:" << i << m_hisCall << m_rptSent << m_rptRcvd << m_lastBand;
       on_logQSOButton_clicked();
+      m_loggedByFox[m_hisCall] += (m_lastBand + " ");
 
 //Find someone to call next
       if(!m_houndQueue.isEmpty()) {
         QString t=m_houndQueue.dequeue();         //Fetch next hound call
         m_houndCall[i]=t.mid(0,6).trimmed();
-        QString rpt=t.mid(7,3);
+        rm_tb4(m_houndCall[i]);                  //Remove the call from tb4
+        QString rpt=t.mid(7,3);                   //Report to send him
         fm=fm.mid(0,6) + " RR73; " + m_houndCall[i] + " <" + m_config.my_callsign() +
             "> " + rpt;
-        QString tb4=ui->textBrowser4->toPlainText();  //Remove popped call from tb4
-        tb4=tb4.remove(t+"\n");
-        ui->textBrowser4->setText(tb4);
       } else {
         //Default to a standard (i3bit=0) message if queue is empty
         fm=m_houndCall[i] + " " + m_config.my_callsign() + " RR73";
       }
-//      qDebug() << "BB" << fm;
     }
     if(!fm.contains(";")) {
       fm.remove("<");
@@ -7364,4 +7363,38 @@ void MainWindow::foxTxSequencer()
   QString mycall6=m_config.my_callsign() + "   ";
   strncpy(&foxcom_.mycall[0], mycall6.toLatin1(),6);   //Copy mycall into foxcom_
   foxgen_();
+}
+
+void MainWindow::rm_tb4(QString houndCall)
+{
+  if(houndCall=="") return;
+  QString t="";
+  QString tb4=ui->textBrowser4->toPlainText();
+  QStringList list=tb4.split("\n");
+  int n=list.size();
+  int j=0;
+  for (int i=0; i<n; i++) {
+    if(j>0) t += "\n";
+    QString line=list.at(i);
+    if(!line.contains(houndCall + " ")) {
+      j++;
+      t += line;
+    }
+  }
+  ui->textBrowser4->setText(t);
+}
+
+void MainWindow::doubleClickOnFoxQueue(Qt::KeyboardModifiers modifiers)
+{
+  QTextCursor cursor=ui->textBrowser4->textCursor();
+  cursor.setPosition(cursor.selectionStart());
+  QString houndCall=cursor.block().text().mid(0,6).trimmed();
+  rm_tb4(houndCall);
+  QQueue<QString> tmpQueue;
+  while(!m_houndQueue.isEmpty()) {
+    QString t=m_houndQueue.dequeue();
+    QString hc=t.mid(0,6).trimmed();
+    if(hc != houndCall) tmpQueue.enqueue(t);
+  }
+  m_houndQueue.swap(tmpQueue);
 }

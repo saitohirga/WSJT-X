@@ -109,6 +109,7 @@ public slots:
   void guiUpdate();
   void doubleClickOnCall (Qt::KeyboardModifiers);
   void doubleClickOnCall2(Qt::KeyboardModifiers);
+  void doubleClickOnFoxQueue(Qt::KeyboardModifiers);
   void readFromStdout();
   void p1ReadFromStdout();
   void setXIT(int n, Frequency base = 0u);
@@ -570,6 +571,8 @@ private:
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;
 
+  QMap<QString,QString> m_loggedByFox;
+
   QDateTime m_dateTimeQSOOn;
   QDateTime m_dateTimeLastTX;
 
@@ -652,6 +655,7 @@ private:
                           , QString const& his_call
                           , QString const& his_grid) const;
   QString sortHoundCalls(QString t, int isort, int max_dB);
+  void rm_tb4(QString houndCall);
   void read_wav_file (QString const& fname);
   void decodeDone ();
   void subProcessFailed (QProcess *, int exit_code, QProcess::ExitStatus);
