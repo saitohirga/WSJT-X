@@ -5,13 +5,15 @@ program ft8sim
 
   use wavhdr
   include 'ft8_params.f90'               !Set various constants
+  parameter (NWAVE=NN*NSPS)
   type(hdr) h                            !Header for .wav file
-  character arg*12,fname*17,sorm*1
+  character arg*12,fname*17
   character msg32*32,msg*22,msgsent*22,msg0*22
   character*6 mygrid6
   logical bcontest
   complex c0(0:NMAX-1)
   complex c(0:NMAX-1)
+  real wave(NMAX)
   integer itone(NN)
   integer*1 msgbits(KK)
   integer*2 iwave(NMAX)                  !Generated full-length waveform
@@ -20,40 +22,30 @@ program ft8sim
 ! Get command-line argument(s)
   nargs=iargc()
   if(nargs.ne.8) then
-     print*,'Usage:   ft8sim "message"         s|m|d  f0    DT fdop del nfiles snr'
-     print*,'Example: ft8sim "K1ABC W9XYZ EN37"   m  1500.0 0.0 0.1 1.0   10   -18'
-     print*,'s|m|d: s for single signal, m for 25 signals, d for 10.'
-     print*,'f0 is ignored when sorm = m'
+     print*,'Usage:    ft8sim "message"         nsig|f0  DT fdop del width nfiles snr'
+     print*,'Examples: ft8sim "K1ABC W9XYZ EN37" 1500.0 0.0  0.1 1.0   0     10   -18'
+     print*,'          ft8sim "K1ABC W9XYZ EN37"   10   0.0  0.1 1.0  25     10   -18'
+     print*,'          ft8sim "K1ABC W9XYZ EN37"   25   0.0  0.1 1.0  25     10   -18'
      print*,'Make nfiles negative to invoke 72-bit contest mode.'
      go to 999
   endif
   call getarg(1,msg32)                   !Message to be transmitted
-  call getarg(2,sorm)                    !s for single signal, m for multiple sigs 
-  if(sorm.eq."s") then
-    print*,"Generating single signal at 1500 Hz."
-    nsig=1
-  elseif( sorm.eq."m") then
-    print*,"Generating 25 signals per file."
-    nsig=25
-  elseif( sorm.eq."d") then
-    print*,"Generating 10 signals per file."
-    nsig=50
-  else
-    print*,"sorm parameter must be s, m, or d."
-    goto 999
-  endif
-  call getarg(3,arg)
+  call getarg(2,arg)
   read(arg,*) f0                         !Frequency (only used for single-signal)
-  call getarg(4,arg)
+  call getarg(3,arg)
   read(arg,*) xdt                        !Time offset from nominal (s)
-  call getarg(5,arg)
+  call getarg(4,arg)
   read(arg,*) fspread                    !Watterson frequency spread (Hz)
-  call getarg(6,arg)
+  call getarg(5,arg)
   read(arg,*) delay                      !Watterson delay (ms)
+  call getarg(6,arg)
+  read(arg,*) width                      !Filter transition width (Hz)
   call getarg(7,arg)
   read(arg,*) nfiles                     !Number of files
   call getarg(8,arg)
   read(arg,*) snrdb                      !SNR_2500
+  nsig=1
+  if(f0.lt.100.0) nsig=f0
 
   bcontest=nfiles.lt.0
   nfiles=abs(nfiles)
@@ -115,6 +107,7 @@ program ft8sim
         endif
         k=-1 + nint((xdt+0.5+0.01*gran())/dt)
 !        k=-1 + nint((xdt+0.5)/dt)
+        ia=k+1
         phi=0.0
         do j=1,NN                             !Generate complex waveform
            dphi=twopi*(f0+itone(j)*baud)*dt
@@ -127,21 +120,27 @@ program ft8sim
         if(fspread.ne.0.0 .or. delay.ne.0.0) call watterson(c0,NMAX,fs,delay,fspread)
         c=c+sig*c0
      enddo
-
-     if(nsig.eq.5) call compress(c)
+     ib=k
+     wave=real(c)
+     peak=maxval(abs(wave(ia:ib)))
+     rms=sqrt(dot_product(wave(ia:ib),wave(ia:ib))/NWAVE)
+     nslots=1
+     if(width.gt.0.0) call filt8(f0,nslots,width,wave)
      
      if(snrdb.lt.90) then
-        do i=0,NMAX-1                   !Add gaussian noise at specified SNR
+        do i=1,NMAX                   !Add gaussian noise at specified SNR
            xnoise=gran()
-           ynoise=gran()
-           c(i)=c(i) + cmplx(xnoise,ynoise)
+!           wave(i)=wave(i) + xnoise
+!           if(i.ge.ia .and. i.le.ib) write(30,3001) i,wave(i)/peak
+!3001       format(i8,f12.6)
+           wave(i)=wave(i) + xnoise
         enddo
      endif
 
      fac=32767.0
      rms=100.0
-     if(snrdb.ge.90.0) iwave(1:NMAX)=nint(fac*real(c))
-     if(snrdb.lt.90.0) iwave(1:NMAX)=nint(rms*real(c))
+     if(snrdb.ge.90.0) iwave(1:NMAX)=nint(fac*wave)
+     if(snrdb.lt.90.0) iwave(1:NMAX)=nint(rms*wave)
 
      h=default_header(12000,NMAX)
      write(fname,1102) ifile
@@ -155,4 +154,5 @@ program ft8sim
        
 999 end program ft8sim
 
+  include 'filt8.f90'
   
