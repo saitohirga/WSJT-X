@@ -145,4 +145,4 @@ subroutine foxgen()
   return
 end subroutine foxgen
 
-include 'plotspec.f90'
+! include 'plotspec.f90'
