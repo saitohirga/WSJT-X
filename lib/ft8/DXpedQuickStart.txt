@@ -20,8 +20,8 @@ as in the following examples:
 ----------------------------------------------------------------------------
 
 Everybody sets dial frequency to an agreed number and uses CAT control
-with Split Operation (either *Rig* or *Fake It*).  Fox transmits *N
-Slots* signals simultaneously, at audio frequencies 300, 360, ... 540
+with Split Operation (either *Rig* or *Fake It*).  Fox transmits up to
+5 signals simultaneously, at audio frequencies 300, 360, ... 540
 Hz.  Hounds make initial calls (e.g., line 2 above) anywhere in the
 range 1000 - 4000 Hz.  They send "R+rpt" 350 Hz above the frequency
 where Fox called them.
@@ -67,18 +67,35 @@ and Fox's own transmissions.
 is available in the QSO queue, that station will be called.  If the
 QSO queue is empty, Fox calls CQ.
 
+9. If you're using Nslots = 2 or higher, your signal no longer has
+a constant envelope.  To avoid producing intermod sidebands you need
+to ensure linearity in your Tx system.  One way to get things about right
+is to use the WSJT-X *Tune* button to generate a pure tone.  Reduce the
+Tx audio level until your power output decreases by 10% or so.  Use this
+level for your Fox transmissions.
+
+NOTE: If you are generating Nslots signals, the average power in each one
+will be 1/Nslots^2 of its normal value for single-signal transmissions.
+
+Nslots  Relative dB
+-------------------
+  1        0
+  2       -6
+  3      -9.5
+  4      -12
+  5      -14
+
+
 The following features are not yet implemented for Fox:
 
 1. Enforce all required settings
 2. Tx message timeout
-3. Manual removal of selected call from QSO queue
-4. Manual abort of selected QSO
-5. All Tx and Rx messages to all.txt
-6. Additional sort criteria for Hound calls
-7. Selectable timeout for keeping Hounds in the sorted list
-8. Display number of active callers
-9. Display QSO rate
-10. QMap of logged QSOs (by band), to avoid dupes
+3. Manual abort of selected QSO
+4. All Tx and Rx messages to all.txt
+5. Additional sort criteria for Hound calls
+6. Selectable timeout for keeping Hounds in the sorted list
+7. Display number of active callers
+8. Display QSO rate
 
 
 INSTRUCTIONS FOR HOUND
