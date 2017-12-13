@@ -154,5 +154,4 @@ program ft8sim
        
 999 end program ft8sim
 
-  include 'filt8.f90'
   
