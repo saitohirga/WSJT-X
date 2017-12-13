@@ -3817,7 +3817,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     warnMsg=tr("Should you be operating in NA VHF Contest mode?");
     nWarn=1;
   }
-  if((m_mode=="FT8" or m_mode=="MSK144") and hisgrid.length()==4 and
+  if((m_mode=="FT8" or m_mode=="MSK144") and hisgrid.contains(grid_regexp) and
      m_rigState.frequency()>50000000 and !m_bCheckedContest) {
     double utch=0.0;
     int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter;
