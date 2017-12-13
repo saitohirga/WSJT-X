@@ -2896,26 +2896,46 @@ void MainWindow::readFromStdout()                             //readFromStdout
         m_QSOText = decodedtext.string ().trimmed ();
       }
 
-      if(m_mode=="FT8" and m_config.bHound() and decodedtext.string().contains(";")) {
-        QStringList w=decodedtext.string().mid(24).split(" ");
-        QString foxCall=w.at(3);
-        foxCall=foxCall.remove("<").remove(">");
-        if(w.at(0)==m_config.my_callsign()) {
-          //### Check for ui->dxCallEntry->text()==foxCall before logging! ###
-          auto_tx_mode(false);
-          on_logQSOButton_clicked();
-        }
-        if(w.at(2)==m_config.my_callsign()) {
-          int fRx=decodedtext.string().mid(15,5).toInt();
-          m_rptRcvd=w.at(4);
-          m_rptSent=decodedtext.string().mid(7,3);
-          //### Select TX3, and set TxFreq = fRx + 350 Hz, and Force Auto ON. ###
-          ui->txrb3->setChecked(true);
-          ui->TxFreqSpinBox->setValue(fRx+350);
-          if(!m_auto) auto_tx_mode(true);
+      if(m_mode=="FT8" and m_config.bHound()) {
+        if(decodedtext.string().contains(";")) {
+          QStringList w=decodedtext.string().mid(24).split(" ",QString::SkipEmptyParts);
+          QString foxCall=w.at(3);
+          foxCall=foxCall.remove("<").remove(">");
+          if(w.at(0)==m_config.my_callsign()) {
+            //### Check for ui->dxCallEntry->text()==foxCall before logging! ###
+            auto_tx_mode(false);
+            on_logQSOButton_clicked();
+          }
+          if(w.at(2)==m_config.my_callsign()) {
+            int fRx=decodedtext.string().mid(15,5).toInt();
+            m_rptRcvd=w.at(4);
+            m_rptSent=decodedtext.string().mid(7,3);
+            //### Select TX3, and set TxFreq = fRx + 350 Hz, and Force Auto ON. ###
+            ui->txrb3->setChecked(true);
+            ui->TxFreqSpinBox->setValue(fRx+350);
+            if(!m_auto) auto_tx_mode(true);
+          }
+        } else {
+          QStringList w=decodedtext.string().mid(24).split(" ",QString::SkipEmptyParts);
+          QString foxCall=w.at(1);
+          if(w.at(0)==m_config.my_callsign()) {
+            if(w.at(2)=="RR73") {
+              auto_tx_mode(false);
+              on_logQSOButton_clicked();
+            } else {
+              int fRx=decodedtext.string().mid(15,5).toInt();
+              m_rptRcvd=w.at(2);
+              m_rptSent=decodedtext.string().mid(7,3);
+              //### Select TX3, and set TxFreq = fRx + 350 Hz, and Force Auto ON. ###
+              ui->txrb3->setChecked(true);
+              ui->TxFreqSpinBox->setValue(fRx+350);
+              if(!m_auto) auto_tx_mode(true);
+            }
+          }
         }
         return;
       }
+
       if(m_mode=="FT8" or m_mode=="QRA64") auto_sequence (decodedtext, 25, 50);
       
       postDecode (true, decodedtext.string ());
