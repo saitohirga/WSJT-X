@@ -12,10 +12,10 @@ subroutine azdist(grid1,grid2,utch,nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter)
   data mygrid0/"      "/,hisgrid0/"      "/,utch0/-999.d0/
   save
 
-  MyGrid=grid1
-  HisGrid=grid2
-  if(ichar(grid1(5:5)).eq.0) MyGrid(5:6)='  '
-  if(ichar(grid2(5:5)).eq.0) HisGrid(5:6)='  '
+  MyGrid=grid1//'  '
+  HisGrid=grid2//'  '
+  if(ichar(MyGrid(5:5)).eq.0)  MyGrid(5:6)='  '
+  if(ichar(HisGrid(5:5)).eq.0) HisGrid(5:6)='  '
 
   if(MyGrid.eq.HisGrid) then
      naz=0
