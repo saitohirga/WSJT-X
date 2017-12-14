@@ -988,6 +988,7 @@ void MainWindow::writeSettings()
   m_settings->setValue ("MsgAvgDisplayed", m_msgAvgWidget && m_msgAvgWidget->isVisible());
   m_settings->setValue ("FreeText", ui->freeTextMsg->currentText ());
   m_settings->setValue("ShowMenus",ui->cbMenus->isChecked());
+  m_settings->setValue("NoDupes",ui->cbNoDupes->isChecked());
   m_settings->setValue("CallFirst",ui->cbFirst->isChecked());
   m_settings->setValue("HoundSort",ui->comboBoxHoundSort->currentIndex());
   m_settings->setValue("FoxNlist",ui->sbNlist->value());
@@ -1060,6 +1061,7 @@ void MainWindow::readSettings()
   if (m_settings->contains ("FreeText")) ui->freeTextMsg->setCurrentText (
         m_settings->value ("FreeText").toString ());
   ui->cbMenus->setChecked(m_settings->value("ShowMenus",true).toBool());
+  ui->cbNoDupes->setChecked(m_settings->value("NoDupes",true).toBool());
   ui->cbFirst->setChecked(m_settings->value("CallFirst",true).toBool());
   ui->comboBoxHoundSort->setCurrentIndex(m_settings->value("HoundSort",3).toInt());
   ui->sbNlist->setValue(m_settings->value("FoxNlist",12).toInt());
@@ -2873,7 +2875,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
             ui->cbFirst->setStyleSheet("");
           } else {
 //###            if(m_config.bFox() and for_us and (audioFreq<1000)) bDisplayRight=true;
-            if(m_config.bFox() and (audioFreq<1000)) bDisplayRight=true;
+            if(m_config.bFox() and for_us and (audioFreq<1000)) bDisplayRight=true;
             if(!m_config.bFox() and (for_us or (abs(audioFreq - m_wideGraph->rxFreq()) <= 10))) bDisplayRight=true;
           }
         }
@@ -7209,8 +7211,9 @@ void MainWindow::selectHound(QString line)
   if(rpt.mid(0,1) != "-") t2="+" + rpt;
   if(t2.length()==2) t2=t2.mid(0,1) + "0" + t2.mid(1,1);
   t1=t1.mid(0,7) + t2;
-  m_houndQueue.enqueue(t1);                              // Put this hound into the queue
   ui->textBrowser4->displayFoxToBeCalled(t1,"#ffffff");  // Add hound call and rpt to tb4
+  t1=t1 + " " + houndGrid;                               // Append the grid
+  m_houndQueue.enqueue(t1);                              // Put this hound into the queue
   QTextCursor cursor = ui->textBrowser4->textCursor();
   cursor.setPosition(0);                                 // Scroll to top of list
   ui->textBrowser4->setTextCursor(cursor);
@@ -7240,7 +7243,8 @@ void MainWindow::houndCallers()
       paddedHoundCall=houndCall + " ";
       //Don't list a hound already in the queue
       if(!ui->textBrowser4->toPlainText().contains(paddedHoundCall)) {
-        if(m_loggedByFox[houndCall].contains(m_lastBand)) continue;  //already logged on this band
+        if(m_loggedByFox[houndCall].contains(m_lastBand) and
+           ui->cbNoDupes->isChecked()) continue;  //already logged on this band
         bool bmatch=false;
         for(int i=0; i<m_Nslots; i++) {
           if(m_houndCall[i]==houndCall) bmatch=true;
@@ -7280,10 +7284,6 @@ void MainWindow::foxRxSequencer(DecodedText decodedtext, QString houndCall, QStr
       m_houndRptRcvd[i]=houndGrid.mid(1);
       int i1=qMax(m_foxMsgSent[i].indexOf("+"), m_foxMsgSent[i].indexOf("-"));
       m_foxMsgToBeSent[i]=m_foxMsgSent[i].mid(0,i1-1) + " RR73";
-      ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_baseCall,false,
-             m_logBook,m_config.color_CQ(),m_config.color_MyCall(),
-             m_config.color_DXCC(),m_config.color_NewCall(),m_config.ppfx());
-
     } else {
       m_foxMsgToBeSent[i]=m_foxMsgSent[i];
     }
@@ -7308,13 +7308,15 @@ void MainWindow::foxTxSequencer()
     int i1=m_foxMsgToBeSent[i].indexOf(";");
     if(i1>0) m_foxMsgToBeSent[i]=m_foxMsgToBeSent[i].mid(i1+2);
 
+TxTimeout:
     QString fm;                              //Fox message to be transmitted in this slot
     fm=m_foxMsgToBeSent[i];                  //Default, if available
     if(fm=="" or fm.mid(0,3)=="CQ ") {
       if(!m_houndQueue.isEmpty()) {
         QString t=m_houndQueue.dequeue();    //Fetch new hound call from queue
         m_houndCall[i]=t.mid(0,6).trimmed(); //Save hound call for potential logging
-        rm_tb4(m_houndCall[i]);             //Remove him from tb4
+        m_houndGrid[i]=t.mid(11,4);          //Also hound grid
+        rm_tb4(m_houndCall[i]);              //Remove him from tb4
         QString rpt=t.mid(7,3);              //Report to send him
         fm= m_houndCall[i] + " " + m_config.my_callsign() + " " + rpt;  //Tx message
       } else {                               //If no hound in queue, we call CQ
@@ -7327,18 +7329,21 @@ void MainWindow::foxTxSequencer()
 
 // Log this QSO!
       m_hisCall=m_houndCall[i];
-      m_hisGrid="";
+      m_hisGrid=m_houndGrid[i];
       m_rptSent=m_houndRptSent[i];
       m_rptRcvd=m_houndRptRcvd[i];
-      qDebug() << "Logged by Fox:" << i << m_hisCall << m_rptSent << m_rptRcvd << m_lastBand;
+      qDebug() << "Logged by Fox:" << i << m_hisCall << m_hisGrid << m_rptSent << m_rptRcvd << m_lastBand;
       on_logQSOButton_clicked();
+      m_houndCall[i]="";
+      m_houndGrid[i]="";
       m_loggedByFox[m_hisCall] += (m_lastBand + " ");
 
 //Find someone to call next
       if(!m_houndQueue.isEmpty()) {
-        QString t=m_houndQueue.dequeue();         //Fetch next hound call
-        m_houndCall[i]=t.mid(0,6).trimmed();
-        rm_tb4(m_houndCall[i]);                  //Remove the call from tb4
+        QString t=m_houndQueue.dequeue();         //Fetch next hound
+        m_houndCall[i]=t.mid(0,6).trimmed();      //Save hound call
+        m_houndGrid[i]=t.mid(11,4);               //Also hound grid
+        rm_tb4(m_houndCall[i]);                   //Remove the call from tb4
         QString rpt=t.mid(7,3);                   //Report to send him
         fm=fm.mid(0,6) + " RR73; " + m_houndCall[i] + " <" + m_config.my_callsign() +
             "> " + rpt;
@@ -7355,6 +7360,16 @@ void MainWindow::foxTxSequencer()
     if(m_houndCall[i]!=m_houndCall0[i]) m_nFoxMsgTimes[i]=0;  //Reset the repeat counter
     m_houndCall0[i]=m_houndCall[i];
     m_nFoxMsgTimes[i]++;
+
+// Check for Tx message timeout
+    if(ui->sbMaxRepeats->value() > 0 and m_nFoxMsgTimes[i] > ui->sbMaxRepeats->value()
+       and !fm.contains("CQ ")) {
+      m_houndCall[i]="";
+      m_houndGrid[i]="";
+      m_nFoxMsgTimes[i]=0;
+      m_foxMsgToBeSent[i]="";
+      goto TxTimeout;
+    }
 
 //Send Tx message to right window
     fm += "                                ";
