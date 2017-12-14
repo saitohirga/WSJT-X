@@ -417,6 +417,7 @@ private:
   qint32  m_i3bit;
   qint32  m_isort;
   qint32  m_max_dB;
+  qint32  m_nDXped=0;
   qint32  m_nSortedHounds=0;
   qint32  m_nHoundsCalling=0;
   qint32  m_Nlist=12;
@@ -476,7 +477,6 @@ private:
   bool    m_bCallingCQ;
   bool    m_bAutoReply;
   bool    m_bCheckedContest;
-  bool    m_bDXped;
 
   enum
     {

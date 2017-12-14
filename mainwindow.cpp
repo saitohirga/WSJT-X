@@ -899,10 +899,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
 
-  m_bDXped=false;
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
      m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "W9XYZ") {
-    m_bDXped=true;
     ui->actionWSPR_LF->setEnabled(true);
   } else {
     QString errorMsg;
@@ -3502,6 +3500,40 @@ void MainWindow::guiUpdate()
     QString t;
     t.sprintf("DXpedition:  Fox");
     ui->labDXped->setText(t);
+  }
+
+  int nDXped=0;
+  if(m_config.bFox()) nDXped=1;
+  if(m_config.bHound()) nDXped=2;
+  if(nDXped != m_nDXped) {
+//DXped mode has changed, force GUI controls approprtately
+    if(nDXped==0) {
+      ui->txFirstCheckBox->setEnabled(true);
+      ui->cbAutoSeq->setEnabled(true);
+      ui->cbFirst->setVisible(true);
+    }
+    if(nDXped==1) {
+//Fox
+      ui->txFirstCheckBox->setChecked(true);
+      ui->txFirstCheckBox->setEnabled(false);
+      ui->cbAutoSeq->setChecked(true);
+      ui->cbAutoSeq->setEnabled(false);
+      ui->tabWidget->setCurrentIndex(2);
+      ui->cbHoldTxFreq->setChecked(true);
+      ui->cbFirst->setChecked(false);
+      ui->cbFirst->setVisible(false);
+    }
+    if(nDXped==2) {
+//Hound
+      ui->txFirstCheckBox->setChecked(true);
+      ui->txFirstCheckBox->setEnabled(false);
+      ui->cbAutoSeq->setChecked(true);
+      ui->cbAutoSeq->setEnabled(false);
+      ui->tabWidget->setCurrentIndex(0);
+      ui->cbFirst->setChecked(false);
+      ui->cbFirst->setVisible(false);
+    }
+    m_nDXped=nDXped;
   }
 
 //Once per second:
