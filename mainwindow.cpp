@@ -3219,6 +3219,14 @@ void MainWindow::guiUpdate()
       icw[0]=m_ncw;
       g_iptt = 1;
       setRig ();
+      if(m_mode=="FT8" and m_config.bFox() and ui->TxFreqSpinBox->value() > 999) {
+        ui->TxFreqSpinBox->setValue(300);
+      }
+      if(m_mode=="FT8" and m_config.bHound() and (ui->TxFreqSpinBox->value() < 999) and
+         m_ntx != 3) {
+        int nf = (qrand() % 3000) + 1000;
+        ui->TxFreqSpinBox->setValue(nf);
+      }
       setXIT (ui->TxFreqSpinBox->value ());
 
       Q_EMIT m_config.transceiver_ptt (true);            //Assert the PTT
