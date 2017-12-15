@@ -989,6 +989,13 @@ QLabel[oob=&quot;true&quot;] {
                      </property>
                     </widget>
                    </item>
+                   <item>
+                    <widget class="QCheckBox" name="cbRxAll">
+                     <property name="text">
+                      <string>Rx All Freqs</string>
+                     </property>
+                    </widget>
+                   </item>
                   </layout>
                  </item>
                  <item row="15" column="0" colspan="2">
@@ -1049,7 +1056,7 @@ QLabel[oob=&quot;true&quot;] {
                   <enum>QTabWidget::Triangular</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>2</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="tab">
                   <attribute name="title">

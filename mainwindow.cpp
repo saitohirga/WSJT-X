@@ -1732,8 +1732,20 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         return;
     }
     QMainWindow::keyPressEvent (e);
-
   }
+
+  if(m_config.bHound()) {
+    switch (e->key()) {
+      case Qt::Key_Return:
+        auto_tx_mode(true);
+        return;
+      case Qt::Key_Enter:
+        auto_tx_mode(true);
+        return;
+    }
+    QMainWindow::keyPressEvent (e);
+  }
+
   int n;
   switch(e->key())
     {
@@ -2581,6 +2593,7 @@ void MainWindow::decode()                                       //decode()
   dec_data.params.nfa=m_wideGraph->nStartFreq();
   dec_data.params.nfSplit=m_wideGraph->Fmin();
   dec_data.params.nfb=m_wideGraph->Fmax();
+  if(m_mode=="FT8" and m_config.bHound() and !ui->cbRxAll->isChecked()) dec_data.params.nfb=1000;
   dec_data.params.ntol=ui->sbFtol->value ();
   if(m_mode=="JT9+JT65" or !m_config.enable_VHF_features()) {
     dec_data.params.ntol=20;
@@ -3496,44 +3509,69 @@ void MainWindow::guiUpdate()
       on_actionOpen_next_in_directory_triggered();
     }
   }
-  if(m_config.bFox()) {
-    QString t;
-    t.sprintf("DXpedition:  Fox");
-    ui->labDXped->setText(t);
-  }
 
-  int nDXped=0;
-  if(m_config.bFox()) nDXped=1;
-  if(m_config.bHound()) nDXped=2;
-  if(nDXped != m_nDXped) {
+  if(m_mode=="FT8") {
+    if(!m_config.split_mode() and !m_bWarnSplit) {
+      QString errorMsg;
+      MessageBox::critical_message (this,
+         "Operation in FT8 DXpedition requires use of\n"
+         "Split mode. Use either ""Rig"" or ""Fake It""\n"
+         "On the *Settings | Radio* tab.", errorMsg);
+      m_bWarnSplit=true;
+    }
+
+    if(m_config.bFox()) {
+      QString t;
+      t.sprintf("DXpedition:  Fox");
+      ui->labDXped->setText(t);
+    }
+
+    int nDXped=0;
+    if(m_config.bFox()) nDXped=1;
+    if(m_config.bHound()) nDXped=2;
+    if(nDXped != m_nDXped) {
+      ui->txrb2->setEnabled(true);
+      ui->txrb4->setEnabled(true);
+      ui->txrb5->setEnabled(true);
+      ui->txrb6->setEnabled(true);
 //DXped mode has changed, force GUI controls approprtately
-    if(nDXped==0) {
-      ui->txFirstCheckBox->setEnabled(true);
-      ui->cbAutoSeq->setEnabled(true);
-      ui->cbFirst->setVisible(true);
-    }
-    if(nDXped==1) {
+      if(nDXped==0) {
+        ui->txFirstCheckBox->setEnabled(true);
+        ui->cbAutoSeq->setEnabled(true);
+        ui->cbFirst->setVisible(true);
+        ui->cbRxAll->setVisible(false);
+      }
+      if(nDXped==1) {
 //Fox
-      ui->txFirstCheckBox->setChecked(true);
-      ui->txFirstCheckBox->setEnabled(false);
-      ui->cbAutoSeq->setChecked(true);
-      ui->cbAutoSeq->setEnabled(false);
-      ui->tabWidget->setCurrentIndex(2);
-      ui->cbHoldTxFreq->setChecked(true);
-      ui->cbFirst->setChecked(false);
-      ui->cbFirst->setVisible(false);
-    }
-    if(nDXped==2) {
+        ui->txFirstCheckBox->setChecked(true);
+        ui->txFirstCheckBox->setEnabled(false);
+        ui->cbAutoSeq->setChecked(true);
+        ui->cbAutoSeq->setEnabled(false);
+        ui->tabWidget->setCurrentIndex(2);
+        ui->cbHoldTxFreq->setChecked(true);
+        ui->cbFirst->setChecked(false);
+        ui->cbFirst->setVisible(false);
+        ui->cbRxAll->setVisible(false);
+        ui->TxFreqSpinBox->setValue(300);
+      }
+      if(nDXped==2) {
 //Hound
-      ui->txFirstCheckBox->setChecked(true);
-      ui->txFirstCheckBox->setEnabled(false);
-      ui->cbAutoSeq->setChecked(true);
-      ui->cbAutoSeq->setEnabled(false);
-      ui->tabWidget->setCurrentIndex(0);
-      ui->cbFirst->setChecked(false);
-      ui->cbFirst->setVisible(false);
+        ui->txFirstCheckBox->setChecked(false);
+        ui->txFirstCheckBox->setEnabled(false);
+        ui->cbAutoSeq->setChecked(true);
+        ui->cbAutoSeq->setEnabled(false);
+        ui->tabWidget->setCurrentIndex(0);
+        ui->cbFirst->setChecked(false);
+        ui->cbFirst->setVisible(false);
+        ui->cbRxAll->setVisible(true);
+        ui->txrb1->setChecked(true);
+        ui->txrb2->setEnabled(false);
+        ui->txrb4->setEnabled(false);
+        ui->txrb5->setEnabled(false);
+        ui->txrb6->setEnabled(false);
+      }
+      m_nDXped=nDXped;
     }
-    m_nDXped=nDXped;
   }
 
 //Once per second:
@@ -3676,6 +3714,7 @@ void MainWindow::stopTx2()
     m_ntr=0;
   }
   last_tx_label.setText("Last Tx: " + m_currentMessage.trimmed());
+  if(m_mode=="FT8" and m_config.bHound()) auto_tx_mode(false);
 }
 
 void MainWindow::ba2msg(QByteArray ba, char message[])             //ba2msg()
@@ -4906,7 +4945,7 @@ void MainWindow::on_actionFT8_triggered()
   ui->label_7->setText("Rx Frequency");
   if(m_config.bFox()) {
     ui->label_6->setText("Stations calling DXpedition " + m_config.my_callsign());
-    ui->decodedTextLabel->setText( "Call         Grid   dB  Freq   Dist");
+    ui->decodedTextLabel->setText( "Call         Grid   dB  Freq   Dist Age Continent");
   } else {
     ui->label_6->setText("Band Activity");
     ui->decodedTextLabel->setText( "  UTC   dB   DT Freq    Message");
