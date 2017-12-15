@@ -4541,18 +4541,20 @@ void MainWindow::clearDX ()
   m_qsoStart.clear ();
   m_qsoStop.clear ();
   genStdMsgs (QString {});
-  if (1 == ui->tabWidget->currentIndex())
-    {
-      ui->genMsg->setText(ui->tx6->text());
-      m_ntx=7;
-      m_gen_message_is_cq = true;
-      ui->rbGenMsg->setChecked(true);
-    }
-  else
-    {
+  if (ui->tabWidget->currentIndex() == 1) {
+    ui->genMsg->setText(ui->tx6->text());
+    m_ntx=7;
+    m_gen_message_is_cq = true;
+    ui->rbGenMsg->setChecked(true);
+  } else {
+    if(m_mode=="FT8" and m_config.bHound()) {
+      m_ntx=1;
+      ui->txrb1->setChecked(true);
+    } else {
       m_ntx=6;
       ui->txrb6->setChecked(true);
     }
+  }
   m_QSOProgress = CALLING;
 }
 
