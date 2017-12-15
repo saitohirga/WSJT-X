@@ -899,6 +899,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
 
+/*
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
      m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "W9XYZ") {
     ui->actionWSPR_LF->setEnabled(true);
@@ -910,7 +911,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
        "Please use WSJT-X v1.8.0\n", errorMsg);
     Q_EMIT finished ();
   }
-
+*/
   if(!ui->cbMenus->isChecked()) {
     ui->cbMenus->setChecked(true);
     ui->cbMenus->setChecked(false);
@@ -7399,8 +7400,8 @@ TxTimeout:
         QString rpt=t.mid(7,3);              //Report to send him
         fm= m_houndCall[i] + " " + m_config.my_callsign() + " " + rpt;  //Tx message
       } else {                               //If no hound in queue, we call CQ
-      fm=ui->comboBoxCQ->currentText() + " " + m_config.my_callsign() +
-        " " + m_config.my_grid().mid(0,4);
+      fm=ui->comboBoxCQ->currentText() + " " + m_config.my_callsign();
+      if(!fm.contains("/")) fm += " " + m_config.my_grid().mid(0,4);
       }
     }
 
