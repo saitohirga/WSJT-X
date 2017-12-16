@@ -899,6 +899,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
 
+  /*
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
      m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "W9XYZ") {
     ui->actionWSPR_LF->setEnabled(true);
@@ -910,6 +911,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
        "Please use WSJT-X v1.8.0\n", errorMsg);
     Q_EMIT finished ();
   }
+  */
 
   if(!ui->cbMenus->isChecked()) {
     ui->cbMenus->setChecked(true);
@@ -3715,7 +3717,7 @@ void MainWindow::stopTx2()
     m_ntr=0;
   }
   last_tx_label.setText("Last Tx: " + m_currentMessage.trimmed());
-  if(m_mode=="FT8" and m_config.bHound()) auto_tx_mode(false);
+//###  if(m_mode=="FT8" and m_config.bHound()) auto_tx_mode(false); ###
 }
 
 void MainWindow::ba2msg(QByteArray ba, char message[])             //ba2msg()
@@ -7371,7 +7373,7 @@ void MainWindow::foxRxSequencer(DecodedText decodedtext, QString houndCall, QStr
     if(m_foxMsgSent[i].contains(houndCall + " ")) {
       m_houndRptRcvd[i]=houndGrid.mid(1);
       int i1=qMax(m_foxMsgSent[i].indexOf("+"), m_foxMsgSent[i].indexOf("-"));
-      m_foxMsgToBeSent[i]=m_foxMsgSent[i].mid(0,i1-1) + " RR73";
+      if(i1>7) m_foxMsgToBeSent[i]=m_foxMsgSent[i].mid(0,i1-1) + " RR73";
     } else {
       m_foxMsgToBeSent[i]=m_foxMsgSent[i];
     }
@@ -7413,6 +7415,7 @@ TxTimeout:
       }
     }
 
+
     if(fm.contains(" RR73")) {
 
 // Log this QSO!
@@ -7422,8 +7425,6 @@ TxTimeout:
       m_rptRcvd=m_houndRptRcvd[i];
       qDebug() << "Logged by Fox:" << i << m_hisCall << m_hisGrid << m_rptSent << m_rptRcvd << m_lastBand;
       on_logQSOButton_clicked();
-      m_houndCall[i]="";
-      m_houndGrid[i]="";
       m_loggedByFox[m_hisCall] += (m_lastBand + " ");
 
 //Find someone to call next
@@ -7438,6 +7439,8 @@ TxTimeout:
       } else {
         //Default to a standard (i3bit=0) message if queue is empty
         fm=m_houndCall[i] + " " + m_config.my_callsign() + " RR73";
+        m_houndCall[i]="";
+        m_houndGrid[i]="";
       }
     }
     if(!fm.contains(";")) {

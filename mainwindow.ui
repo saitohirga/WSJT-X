@@ -1920,6 +1920,9 @@ list. The list can be maintained in Settings (F2).</string>
                        <property name="text">
                         <string>No Dupes</string>
                        </property>
+                       <property name="checked">
+                        <bool>true</bool>
+                       </property>
                       </widget>
                      </item>
                     </layout>

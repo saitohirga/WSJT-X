@@ -79,8 +79,10 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
           logical(params%lft8apon),logical(params%lapcqonly),params%napwid,  &
           params%mycall,params%mygrid,params%hiscall,params%hisgrid)
      call timer('decft8  ',1)
-     n15min=minval(n15fox(1:nfox))
-     n15max=maxval(n15fox(1:nfox))
+     if(nfox.gt.0) then
+        n15min=minval(n15fox(1:nfox))
+        n15max=maxval(n15fox(1:nfox))
+     endif
      j=0
      rewind 19
      if(nfox.eq.0) then
@@ -229,7 +231,8 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   write(*,1010) nsynced,ndecoded
 1010 format('<DecodeFinished>',2i4)
   call flush(6)
-  close(13) 
+  close(13)
+  close(19)
   if(params%nmode.eq.4 .or. params%nmode.eq.65) close(14)
 
   return
