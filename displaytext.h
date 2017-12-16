@@ -21,7 +21,7 @@ public:
   void insertLineSpacer(QString const&);
   void displayDecodedText(DecodedText const& decodedText, QString const& myCall, bool displayDXCCEntity,
         LogBook const& logBook, QColor color_CQ, QColor color_MyCall,
-        QColor color_DXCC, QColor color_NewCall, bool ppfx);
+        QColor color_DXCC, QColor color_NewCall, bool ppfx, bool bCQonly=false);
   void displayTransmittedText(QString text, QString modeTx, qint32 txFreq,
 			      QColor color_TxMsg, bool bFastMode);
   void displayQSY(QString text);

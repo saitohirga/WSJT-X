@@ -334,7 +334,14 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="2,2,2,2,2,2,2,2,2,1">
+       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,2,2,2,2,2,2,2,2,2,1">
+        <item>
+         <widget class="QCheckBox" name="cbCQonly">
+          <property name="text">
+           <string>CQ only</string>
+          </property>
+         </widget>
+        </item>
         <item>
          <widget class="QPushButton" name="logQSOButton">
           <property name="minimumSize">

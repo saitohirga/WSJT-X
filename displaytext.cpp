@@ -187,7 +187,8 @@ QString DisplayText::appendDXCCWorkedB4(QString message, QString const& callsign
 void DisplayText::displayDecodedText(DecodedText const& decodedText, QString const& myCall,
                                      bool displayDXCCEntity, LogBook const& logBook,
                                      QColor color_CQ, QColor color_MyCall,
-                                     QColor color_DXCC, QColor color_NewCall,bool ppfx)
+                                     QColor color_DXCC, QColor color_NewCall, bool ppfx,
+                                     bool bCQonly)
 {
   m_bPrincipalPrefix=ppfx;
   QColor bg {Qt::white};
@@ -199,6 +200,7 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
       CQcall = true;
       bg = color_CQ;
     }
+  if(bCQonly and !CQcall) return;
   if (myCall != "" and (
                         decodedText.indexOf (" " + myCall + " ") >= 0
                         or decodedText.indexOf (" " + myCall + "/") >= 0
