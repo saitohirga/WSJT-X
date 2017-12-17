@@ -1,6 +1,8 @@
 #include "MessageClient.hpp"
 
 #include <stdexcept>
+#include <vector>
+#include <algorithm>
 
 #include <QUdpSocket>
 #include <QHostInfo>
@@ -76,6 +78,7 @@ public:
   QHostAddress server_;
   quint32 schema_;
   QTimer * heartbeat_timer_;
+  std::vector<QHostAddress> blocked_addresses_;
 
   // hold messages sent before host lookup completes asynchronously
   QQueue<QByteArray> pending_messages_;
@@ -93,15 +96,24 @@ void MessageClient::impl::host_info_results (QHostInfo host_info)
     }
   else if (host_info.addresses ().size ())
     {
-      server_ = host_info.addresses ()[0];
-
-      // send initial heartbeat which allows schema negotiation
-      heartbeat ();
-
-      // clear any backlog
-      while (pending_messages_.size ())
+      auto server = host_info.addresses ()[0];
+      if (blocked_addresses_.end () == std::find (blocked_addresses_.begin (), blocked_addresses_.end (), server))
         {
-          send_message (pending_messages_.dequeue ());
+          server_ = server;
+
+          // send initial heartbeat which allows schema negotiation
+          heartbeat ();
+
+          // clear any backlog
+          while (pending_messages_.size ())
+            {
+              send_message (pending_messages_.dequeue ());
+            }
+        }
+      else
+        {
+          Q_EMIT self_->error ("UDP server blocked, please try another");
+          pending_messages_.clear (); // discard
         }
     }
 }
@@ -346,6 +358,17 @@ void MessageClient::send_raw_datagram (QByteArray const& message, QHostAddress c
   if (dest_port && !dest_address.isNull ())
     {
       m_->writeDatagram (message, dest_address, dest_port);
+    }
+}
+
+void MessageClient::add_blocked_destination (QHostAddress const& a)
+{
+  m_->blocked_addresses_.push_back (a);
+  if (a == m_->server_)
+    {
+      m_->server_.clear ();
+      Q_EMIT error ("UDP server blocked, please try another");
+      m_->pending_messages_.clear (); // discard
     }
 }
 

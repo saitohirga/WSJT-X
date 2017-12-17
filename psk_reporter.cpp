@@ -119,8 +119,11 @@ void PSK_Reporter::dnsLookupResult(QHostInfo info)
 {
     if (!info.addresses().isEmpty()) {
         m_pskReporterAddress = info.addresses().at(0);
-//        qDebug() << "PSK Reporter IP: " << m_pskReporterAddress;
+        //        qDebug() << "PSK Reporter IP: " << m_pskReporterAddress;
+
+        // deal with miss-configured settings that attempt to set a
+        // Pskreporter Internet address for the WSJT-X UDP protocol
+        // server address
+        m_messageClient->add_blocked_destination (m_pskReporterAddress);
     }
 }
-
-
