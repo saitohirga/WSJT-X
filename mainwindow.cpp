@@ -3519,9 +3519,9 @@ void MainWindow::guiUpdate()
     if(!m_config.split_mode() and !m_bWarnSplit) {
       QString errorMsg;
       MessageBox::critical_message (this,
-         "Operation in FT8 DXpedition requires use of\n"
-         "Split mode. Use either ""Rig"" or ""Fake It""\n"
-         "On the *Settings | Radio* tab.", errorMsg);
+         "Operation in FT8 DXpedition strongly recommends use\n"
+         "of Split mode. Use either ""Rig"" or ""Fake It""\n"
+         "on the *Settings | Radio* tab.", errorMsg);
       m_bWarnSplit=true;
     }
 
@@ -4902,9 +4902,7 @@ void MainWindow::displayWidgets(int n)
     if(i==22) {
       if(!b && m_echoGraph->isVisible())  m_echoGraph->hide();
     }
-    if(i==23) {
-      ui->cbSWL->setVisible(b);
-    }
+    if(i==23) ui->cbSWL->setVisible(b);
     if(i==24) ui->actionEnable_AP_FT8->setVisible (b);
     if(i==25) ui->actionEnable_AP_JT65->setVisible (b);
     if(i==26) ui->actionEnable_AP_DXcall->setVisible (b);
