@@ -2933,19 +2933,21 @@ void MainWindow::readFromStdout()                             //readFromStdout
           }
         } else {
           QStringList w=decodedtext.string().mid(24).split(" ",QString::SkipEmptyParts);
-          QString foxCall=w.at(1);
-          if(w.at(0)==m_config.my_callsign()) {
-            if(w.at(2)=="RR73") {
-              auto_tx_mode(false);
-              on_logQSOButton_clicked();
-            } else {
-              int fRx=decodedtext.string().mid(15,5).toInt();
-              m_rptRcvd=w.at(2);
-              m_rptSent=decodedtext.string().mid(7,3);
-              //### Select TX3, and set TxFreq = fRx + 350 Hz, and Force Auto ON. ###
-              ui->txrb3->setChecked(true);
-              ui->TxFreqSpinBox->setValue(fRx+350);
-              if(!m_auto) auto_tx_mode(true);
+          if(w.size()==3) {
+            QString foxCall=w.at(1);
+            if(w.at(0)==m_config.my_callsign()) {
+              if(w.at(2)=="RR73") {
+                auto_tx_mode(false);
+                on_logQSOButton_clicked();
+              } else {
+                int fRx=decodedtext.string().mid(15,5).toInt();
+                m_rptRcvd=w.at(2);
+                m_rptSent=decodedtext.string().mid(7,3);
+                //### Select TX3, and set TxFreq = fRx + 350 Hz, and Force Auto ON. ###
+                ui->txrb3->setChecked(true);
+                ui->TxFreqSpinBox->setValue(fRx+350);
+                if(!m_auto) auto_tx_mode(true);
+              }
             }
           }
         }
@@ -3858,6 +3860,7 @@ void MainWindow::on_txb1_clicked()
 
 void MainWindow::on_txb1_doubleClicked()
 {
+  if(m_mode=="FT8" and m_config.bHound()) return;
   // skip Tx1, only allowed if not a type 1 compound callsign
   auto const& my_callsign = m_config.my_callsign ();
   auto is_compound = my_callsign != m_baseCall;
@@ -3998,7 +4001,9 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   if (message.isTX()) {
     if (!m_config.enable_VHF_features()) {
       if(!shift) ui->RxFreqSpinBox->setValue(frequency); //Set Rx freq
-      if((ctrl or shift) and !m_holdTxFreq) ui->TxFreqSpinBox->setValue(frequency); //Set Tx freq
+      if((ctrl or shift) and !m_holdTxFreq) {
+        ui->TxFreqSpinBox->setValue(frequency); //Set Tx freq
+      }
     }
     return;
   }
@@ -4086,7 +4091,9 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
          && firstcall != m_config.my_callsign () && firstcall != m_baseCall
          && firstcall != "DE")
         || "CQ" == firstcall || "QRZ" == firstcall || ctrl || shift) {
-      if (!m_holdTxFreq or shift or ctrl) ui->TxFreqSpinBox->setValue(frequency);
+      if (!m_holdTxFreq and (shift or ctrl)) {
+        ui->TxFreqSpinBox->setValue(frequency);
+      }
       if(m_mode != "JT4" && m_mode != "JT65" && !m_mode.startsWith ("JT9") &&
          m_mode != "QRA64" && m_mode!="FT8") {
         return;

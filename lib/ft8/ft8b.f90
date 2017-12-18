@@ -1,6 +1,6 @@
-subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,           &
-     napwid,lsubtract,nagain,iaptype,mycall12,mygrid6,bcontest,sync0,f1,xdt,xbase,   &
-     apsym,nharderrors,dmin,nbadcrc,ipass,iera,msg32,xsnr)  
+subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
+     napwid,lsubtract,nagain,iaptype,mycall12,mygrid6,hiscall12,bcontest,    &
+     sync0,f1,xdt,xbase,apsym,nharderrors,dmin,nbadcrc,ipass,iera,msg32,xsnr)  
 
   use crc
   use timer_module, only: timer
@@ -8,8 +8,8 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,      
   parameter(NRECENT=10,NP2=2812)
   character*32 msg32
   character message*22,msgsent*22
-  character*12 mycall12,recent_calls(NRECENT)
-  character*6 mycall6,mygrid6,c1,c2
+  character*12 mycall12,hiscall12,recent_calls(NRECENT)
+  character*6 mycall6,mygrid6,hiscall6,c1,c2
   character*87 cbits
   logical bcontest
   real a(5)
@@ -25,9 +25,9 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,      
   integer itone(NN)
   integer indxs1(8*ND)
   integer icos7(0:6),ip(1)
-  integer nappasses(0:5)  ! the number of decoding passes to use for each QSO state
+  integer nappasses(0:5)  !Number of decoding passes to use for each QSO state
   integer naptypes(0:5,4) ! (nQSOProgress, decoding pass)  maximum of 4 passes for now
-  integer*1, target:: i1mycall(6)
+  integer*1, target:: i1hiscall(6)
   complex cd0(3200)
   complex ctwk(32)
   complex csymb(32)
@@ -398,11 +398,11 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,      
         if(xsnr .lt. -24.0) xsnr=-24.0
         
         if(i3bit.eq.1) then
-           mycall6=mycall12(1:6)
+           hiscall6=hiscall12(1:6)
            do i=1,6
-              i1mycall(i)=ichar(mycall6(i:i))
+              i1hiscall(i)=ichar(hiscall6(i:i))
            enddo
-           icrc10=crc10(c_loc(i1mycall),6)
+           icrc10=crc10(c_loc(i1hiscall),6)
            write(cbits,1001) decoded
 1001       format(87i1)
            read(cbits,1002) ncrc10,nrpt
@@ -412,7 +412,8 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,      
            i2=index(message(i1+1:),' ') + i1
            c1=message(1:i1)//'   '
            c2=message(i1+1:i2)//'   '
-           if(ncrc10.eq.icrc10) msg32=c1//' RR73; '//c2//' <'//trim(mycall6)//'>    '
+           if(ncrc10.eq.icrc10) msg32=c1//' RR73; '//c2//' <'//         &
+                trim(hiscall6)//'>    '
            if(ncrc10.ne.icrc10) msg32=c1//' RR73; '//c2//' <...>    '
            write(msg32(30:32),1010) irpt
 1010       format(i3.2)

@@ -105,9 +105,10 @@ contains
         xbase=10.0**(0.1*(sbase(nint(f1/3.125))-40.0))
         nsnr0=min(99,nint(10.0*log10(sync) - 25.5))    !### empirical ###
         call timer('ft8b    ',0)
-        call ft8b(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lft8apon,lapcqonly,       &
-             napwid,lsubtract,nagain,iaptype,mycall12,mygrid6,bcontest,sync,f1,xdt,  &
-             xbase,apsym,nharderrors,dmin,nbadcrc,iappass,iera,msg32,xsnr)
+        call ft8b(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lft8apon,       &
+             lapcqonly,napwid,lsubtract,nagain,iaptype,mycall12,mygrid6,   &
+             hiscall12,bcontest,sync,f1,xdt,xbase,apsym,nharderrors,dmin,  &
+             nbadcrc,iappass,iera,msg32,xsnr)
         message=msg32(1:22)   !###
         nsnr=nint(xsnr) 
         xdt=xdt-0.5
