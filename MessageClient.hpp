@@ -69,6 +69,10 @@ public:
   // UDP messaging if desired
   Q_SLOT void send_raw_datagram (QByteArray const&, QHostAddress const& dest_address, port_type dest_port);
 
+  // disallowed message destination (does not block datagrams sent
+  // with send_raw_datagram() above)
+  Q_SLOT void add_blocked_destination (QHostAddress const&);
+
   // this signal is emitted if the server sends us a reply, the only
   // reply supported is reply to a prior CQ or QRZ message
   Q_SIGNAL void reply (QTime, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode
