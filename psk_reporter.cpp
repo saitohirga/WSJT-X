@@ -94,7 +94,7 @@ void PSK_Reporter::sendReport()
     // Sender information
     QString txInfoData_h = "50E3llll";
     while (!m_spotQueue.isEmpty()
-           && header_h.size () + m_rxInfoDescriptor_h.size () + m_txInfoDescriptor_h.size () + rxInfoData_h.size () + txInfoData_h.size () < MAX_PAYLOAD_LENGTH) {
+           && (header_h.size () + m_rxInfoDescriptor_h.size () + m_txInfoDescriptor_h.size () + rxInfoData_h.size () + txInfoData_h.size ()) / 2 < MAX_PAYLOAD_LENGTH) {
       QHash<QString,QString> spot = m_spotQueue.dequeue();
       txInfoData_h += QString("%1").arg(spot["call"].length(),2,16,QChar('0')) + spot["call"].toUtf8().toHex();
       txInfoData_h += QString("%1").arg(spot["freq"].toLongLong(),8,16,QChar('0'));
