@@ -49,7 +49,7 @@
 #define NUM_FT8_SYMBOLS 79
 #define NUM_CW_SYMBOLS 250
 #define TX_SAMPLE_RATE 48000
-#define N_WIDGETS 27
+#define N_WIDGETS 32
 
 extern int volatile itone[NUM_ISCAT_SYMBOLS];   //Audio tones for all Tx symbols
 extern int volatile icw[NUM_CW_SYMBOLS];	    //Dits for CW ID
@@ -669,8 +669,8 @@ private:
   void remove_child_from_event_filter (QObject *);
   void setup_status_bar (bool vhf);
   void tx_watchdog (bool triggered);
-  int  nWidgets(QString t);
-  void displayWidgets(int n);
+  qint64  nWidgets(QString t);
+  void displayWidgets(qint64 n);
   void vhfWarning();
   QChar current_submode () const; // returns QChar {0} if sub mode is
                                   // not appropriate

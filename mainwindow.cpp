@@ -899,7 +899,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
 
-  /*
+
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
      m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "W9XYZ") {
     ui->actionWSPR_LF->setEnabled(true);
@@ -911,7 +911,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
        "Please use WSJT-X v1.8.0\n", errorMsg);
     Q_EMIT finished ();
   }
-  */
+
 
   if(!ui->cbMenus->isChecked()) {
     ui->cbMenus->setChecked(true);
@@ -4790,22 +4790,24 @@ void MainWindow::acceptQSO2(QDateTime const& QSO_date_off, QString const& call, 
   m_dateTimeQSOOn = QDateTime {};
 }
 
-int MainWindow::nWidgets(QString t)
+qint64 MainWindow::nWidgets(QString t)
 {
+//  qDebug() << t << N_WIDGETS << t.length();
   Q_ASSERT(t.length()==N_WIDGETS);
-  int n=0;
+  qint64 n=0;
   for(int i=0; i<N_WIDGETS; i++) {
     n=n + n + t.mid(i,1).toInt();
   }
   return n;
 }
 
-void MainWindow::displayWidgets(int n)
+void MainWindow::displayWidgets(qint64 n)
 {
-  int j=1<<(N_WIDGETS-1);
+  qint64 j=qint64(1)<<(N_WIDGETS-1);
   bool b;
   for(int i=0; i<N_WIDGETS; i++) {
-    b=(n&j) != 0;
+    b=(n&j) != 0;    
+//    qDebug() << i << j << (n&j) << b;
     if(i==0) ui->txFirstCheckBox->setVisible(b);
     if(i==1) ui->TxFreqSpinBox->setVisible(b);
     if(i==2) ui->RxFreqSpinBox->setVisible(b);
