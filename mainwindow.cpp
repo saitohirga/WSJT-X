@@ -3515,70 +3515,6 @@ void MainWindow::guiUpdate()
     }
   }
 
-  if(m_mode=="FT8") {
-    if(!m_config.split_mode() and !m_bWarnSplit) {
-      QString errorMsg;
-      MessageBox::critical_message (this,
-         "Operation in FT8 DXpedition strongly recommends use\n"
-         "of Split mode. Use either ""Rig"" or ""Fake It""\n"
-         "on the *Settings | Radio* tab.", errorMsg);
-      m_bWarnSplit=true;
-    }
-
-    if(m_config.bFox()) {
-      QString t;
-      t.sprintf("DXpedition:  Fox");
-      ui->labDXped->setText(t);
-    }
-
-    int nDXped=0;
-    if(m_config.bFox()) nDXped=1;
-    if(m_config.bHound()) nDXped=2;
-    if(nDXped != m_nDXped) {
-      ui->txrb2->setEnabled(true);
-      ui->txrb4->setEnabled(true);
-      ui->txrb5->setEnabled(true);
-      ui->txrb6->setEnabled(true);
-//DXped mode has changed, force GUI controls approprtately
-      if(nDXped==0) {
-        ui->txFirstCheckBox->setEnabled(true);
-        ui->cbAutoSeq->setEnabled(true);
-        ui->cbFirst->setVisible(true);
-        ui->cbRxAll->setVisible(false);
-      }
-      if(nDXped==1) {
-//Fox
-        ui->txFirstCheckBox->setChecked(true);
-        ui->txFirstCheckBox->setEnabled(false);
-        ui->cbAutoSeq->setChecked(true);
-        ui->cbAutoSeq->setEnabled(false);
-        ui->tabWidget->setCurrentIndex(2);
-        ui->cbHoldTxFreq->setChecked(true);
-        ui->cbFirst->setChecked(false);
-        ui->cbFirst->setVisible(false);
-        ui->cbRxAll->setVisible(false);
-        ui->TxFreqSpinBox->setValue(300);
-      }
-      if(nDXped==2) {
-//Hound
-        ui->txFirstCheckBox->setChecked(false);
-        ui->txFirstCheckBox->setEnabled(false);
-        ui->cbAutoSeq->setChecked(true);
-        ui->cbAutoSeq->setEnabled(false);
-        ui->tabWidget->setCurrentIndex(0);
-        ui->cbFirst->setChecked(false);
-        ui->cbFirst->setVisible(false);
-        ui->cbRxAll->setVisible(true);
-        ui->txrb1->setChecked(true);
-        ui->txrb2->setEnabled(false);
-        ui->txrb4->setEnabled(false);
-        ui->txrb5->setEnabled(false);
-        ui->txrb6->setEnabled(false);
-      }
-      m_nDXped=nDXped;
-    }
-  }
-
 //Once per second:
   if(nsec != m_sec0) {
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
@@ -4960,15 +4896,48 @@ void MainWindow::on_actionFT8_triggered()
     ui->label_6->setText("Band Activity");
     ui->decodedTextLabel->setText( "  UTC   dB   DT Freq    Message");
   }
-  displayWidgets(nWidgets("111010000100111000010000100"));
-  if(m_config.bFox() or m_config.bHound()) {
-    if(m_config.bFox()) ui->labDXped->setText("DXpedition: Fox");
-    if(m_config.bHound()) ui->labDXped->setText("DXpedition: Hound");
-    ui->labDXped->setVisible(true);
-    ui->cbVHFcontest->setVisible(false);
-  } else {
-    ui->labDXped->setVisible(false);
-    ui->cbVHFcontest->setVisible(true);
+  displayWidgets(nWidgets("11101000010011100001000010010000"));
+  if(bVHF) displayWidgets(nWidgets("11101000010011100001000010011000"));
+  ui->txrb2->setEnabled(true);
+  ui->txrb4->setEnabled(true);
+  ui->txrb5->setEnabled(true);
+  ui->txrb6->setEnabled(true);
+  ui->txb2->setEnabled(true);
+  ui->txb4->setEnabled(true);
+  ui->txb5->setEnabled(true);
+  ui->txb6->setEnabled(true);
+  if(m_config.bFox()) {
+    ui->txFirstCheckBox->setChecked(true);
+    ui->txFirstCheckBox->setChecked(true);
+    ui->tabWidget->setCurrentIndex(2);
+    ui->TxFreqSpinBox->setValue(300);
+    displayWidgets(nWidgets("11101000010011100001000010000010"));
+    ui->labDXped->setText("DXpedition: Fox");
+  }
+  if(m_config.bHound()) {
+    ui->txFirstCheckBox->setChecked(false);
+    ui->txFirstCheckBox->setChecked(true);
+    ui->tabWidget->setCurrentIndex(0);
+    ui->cbHoldTxFreq->setChecked(true);
+    displayWidgets(nWidgets("11101000010011100001000010000011"));
+    ui->labDXped->setText("DXpedition: Hound");
+    ui->txrb2->setEnabled(false);
+    ui->txrb4->setEnabled(false);
+    ui->txrb5->setEnabled(false);
+    ui->txrb6->setEnabled(false);
+    ui->txb2->setEnabled(false);
+    ui->txb4->setEnabled(false);
+    ui->txb5->setEnabled(false);
+    ui->txb6->setEnabled(false);
+  }
+
+  if((m_config.bFox() or m_config.bHound()) and !m_config.split_mode() and !m_bWarnSplit) {
+    QString errorMsg;
+    MessageBox::critical_message (this,
+       "Operation in FT8 DXpedition strongly recommends use\n"
+       "of Split mode. Use either ""Rig"" or ""Fake It""\n"
+       "on the *Settings | Radio* tab.", errorMsg);
+    m_bWarnSplit=true;
   }
   statusChanged();
 }
