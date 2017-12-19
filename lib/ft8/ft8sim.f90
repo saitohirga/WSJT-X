@@ -46,7 +46,10 @@ program ft8sim
   call getarg(8,arg)
   read(arg,*) snrdb                      !SNR_2500
   nsig=1
-  if(f0.lt.100.0) nsig=f0
+  if(f0.lt.100.0) then
+     nsig=f0
+     f0=1500
+  endif
 
   bcontest=nfiles.lt.0
   nfiles=abs(nfiles)
@@ -87,6 +90,14 @@ program ft8sim
      c=0.
      do isig=1,nsig
         c0=0.
+        if(nsig.eq.2) then
+           if(index(msg,'R-').gt.0) f0=500
+           msg(9:9)=char(ichar('W')+isig)
+           if(isig.eq.2) then
+              f0=f0+100
+           endif
+           call genft8(msg,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
+        endif
         if(nsig.eq.25) then
            f0=(isig+2)*100.0
         else if(nsig.eq.50) then
