@@ -3353,7 +3353,7 @@ void MainWindow::guiUpdate()
             }
           }
           if(m_modeTx=="FT8") {
-            if(m_config.bFox()) {
+            if(m_config.bFox() and ui->tabWidget->currentIndex()==2) {
               foxTxSequencer();
             } else {
               m_i3bit=0;
@@ -3546,7 +3546,11 @@ void MainWindow::guiUpdate()
 
     if(m_transmitting) {
       char s[37];
-      sprintf(s,"Tx: %s",msgsent);
+      if(m_config.bFox() and ui->tabWidget->currentIndex()==2) {
+        sprintf(s,"TX: %d Slots",m_Nslots);
+      } else {
+        sprintf(s,"Tx: %s",msgsent);
+      }
       m_nsendingsh=0;
       if(s[4]==64) m_nsendingsh=1;
       if(m_nsendingsh==1 or m_currentMessageType==7) {
