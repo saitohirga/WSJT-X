@@ -901,7 +901,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
 
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
-     m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "W9XYZ") {
+     m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "W9XYZ" or
+     m_config.my_callsign()=="K1ABC") {
     ui->actionWSPR_LF->setEnabled(true);
   } else {
     QString errorMsg;
@@ -1012,6 +1013,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("Ftol", ui->sbFtol->value ());
   m_settings->setValue("MinSync",m_minSync);
   m_settings->setValue ("AutoSeq", ui->cbAutoSeq->isChecked ());
+  m_settings->setValue ("RxAll", ui->cbRxAll->isChecked ());
   m_settings->setValue ("VHFcontest", ui->cbVHFcontest->isChecked ());
   m_settings->setValue("ShMsgs",m_bShMsgs);
   m_settings->setValue("SWL",ui->cbSWL->isChecked());
@@ -1088,6 +1090,7 @@ void MainWindow::readSettings()
   m_minSync=m_settings->value("MinSync",0).toInt();
   ui->syncSpinBox->setValue(m_minSync);
   ui->cbAutoSeq->setChecked (m_settings->value ("AutoSeq", false).toBool());
+  ui->cbRxAll->setChecked (m_settings->value ("RxAll", false).toBool());
   ui->cbVHFcontest->setChecked (m_settings->value ("VHFcontest", false).toBool());
   m_bShMsgs=m_settings->value("ShMsgs",false).toBool();
   m_bSWL=m_settings->value("SWL",false).toBool();
@@ -2602,6 +2605,7 @@ void MainWindow::decode()                                       //decode()
   dec_data.params.nfSplit=m_wideGraph->Fmin();
   dec_data.params.nfb=m_wideGraph->Fmax();
   if(m_mode=="FT8" and m_config.bHound() and !ui->cbRxAll->isChecked()) dec_data.params.nfb=1000;
+  if(m_mode=="FT8" and (m_config.bHound() or m_config.bFox())) dec_data.params.nfqso=200;
   dec_data.params.ntol=ui->sbFtol->value ();
   if(m_mode=="JT9+JT65" or !m_config.enable_VHF_features()) {
     dec_data.params.ntol=20;
