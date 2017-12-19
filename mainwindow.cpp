@@ -2295,7 +2295,7 @@ void MainWindow::on_actionAstronomical_data_toggled (bool checked)
     }
 }
 
-void MainWindow::on_actionFox_Callers_triggered()
+void MainWindow::on_actionFox_Log_triggered()
 {
   on_actionMessage_averaging_triggered();
   m_msgAvgWidget->foxLogSetup();
@@ -2854,7 +2854,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
          (decodedtext.string().contains("R+") or decodedtext.string().contains("R-"))) {
         QString houndCall,houndGrid;
         decodedtext.deCallAndGrid(/*out*/houndCall,houndGrid);
-        foxRxSequencer(decodedtext,houndCall,houndGrid);
+        foxRxSequencer(houndCall,houndGrid);
       }
 
       //Left (Band activity) window
@@ -3721,6 +3721,7 @@ void MainWindow::on_txrb1_toggled (bool status)
 
 void MainWindow::on_txrb1_doubleClicked ()
 {
+  if(m_mode=="FT8" and m_config.bHound()) return;
   // skip Tx1, only allowed if not a type 2 compound callsign
   auto const& my_callsign = m_config.my_callsign ();
   auto is_compound = my_callsign != m_baseCall;
@@ -7063,8 +7064,8 @@ void MainWindow::on_cbMenus_toggled(bool b)
 
 void MainWindow::on_cbCQonly_toggled(bool b)
 {
-  QFile {m_config.temp_dir ().absoluteFilePath (".lock")}.remove (); // Allow jt9 to start
-  decodeBusy(true);
+  QFile {m_config.temp_dir().absoluteFilePath(".lock")}.remove(); // Allow jt9 to start
+  decodeBusy(true or b);                            //"or b" to silence compiler warning
 }
 
 void MainWindow::on_cbFirst_toggled(bool b)
@@ -7343,7 +7344,7 @@ void MainWindow::houndCallers()
   }
 }
 
-void MainWindow::foxRxSequencer(DecodedText decodedtext, QString houndCall, QString houndGrid)
+void MainWindow::foxRxSequencer(QString houndCall, QString houndGrid)
 {
 /* Called from "readFromStdOut()" to process decoded messages of the form
  * "myCall houndCall R+rpt".
@@ -7501,6 +7502,7 @@ void MainWindow::rm_tb4(QString houndCall)
 
 void MainWindow::doubleClickOnFoxQueue(Qt::KeyboardModifiers modifiers)
 {
+  if(modifiers==9999) return;                               //Silence compiler warning
   QTextCursor cursor=ui->textBrowser4->textCursor();
   cursor.setPosition(cursor.selectionStart());
   QString houndCall=cursor.block().text().mid(0,6).trimmed();

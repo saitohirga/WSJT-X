@@ -240,7 +240,7 @@ private slots:
   void stopTuneATU();
   void auto_tx_mode(bool);
   void on_actionMessage_averaging_triggered();
-  void on_actionFox_Callers_triggered();
+  void on_actionFox_Log_triggered();
   void on_actionInclude_averaging_toggled (bool);
   void on_actionInclude_correlation_toggled (bool);
   void on_actionEnable_AP_DXcall_toggled (bool);
@@ -678,7 +678,7 @@ private:
   void write_transmit_entry (QString const& file_name);
   void selectHound(QString t);
   void houndCallers();
-  void foxRxSequencer(DecodedText decodedtext, QString houndCall, QString houndGrid);
+  void foxRxSequencer(QString houndCall, QString houndGrid);
   void foxTxSequencer();
 };
 
