@@ -4862,10 +4862,6 @@ void MainWindow::displayWidgets(qint64 n)
     if(i==31) ui->cbRxAll->setVisible(b);
     j=j>>1;
   }
-//  ui->cbFirst->setVisible ("FT8" == m_mode);
-//  ui->cbVHFcontest->setVisible(m_mode=="FT8" or m_mode=="MSK144");
-//  ui->measure_check_box->setChecked (false);
-//  ui->measure_check_box->setVisible ("FreqCal" == m_mode);
   m_lastCallsign.clear ();     // ensures Tx5 is updated for new modes
   genStdMsgs (m_rpt, true);
 }
@@ -4926,7 +4922,8 @@ void MainWindow::on_actionFT8_triggered()
   ui->txb6->setEnabled(true);
   if(m_config.bFox()) {
     ui->txFirstCheckBox->setChecked(true);
-    ui->txFirstCheckBox->setChecked(true);
+    ui->txFirstCheckBox->setEnabled(false);
+    ui->cbAutoSeq->setEnabled(false);
     ui->tabWidget->setCurrentIndex(2);
     ui->TxFreqSpinBox->setValue(300);
     displayWidgets(nWidgets("11101000010011100001000010000010"));
@@ -4934,7 +4931,8 @@ void MainWindow::on_actionFT8_triggered()
   }
   if(m_config.bHound()) {
     ui->txFirstCheckBox->setChecked(false);
-    ui->txFirstCheckBox->setChecked(true);
+    ui->txFirstCheckBox->setEnabled(false);
+    ui->cbAutoSeq->setEnabled(false);
     ui->tabWidget->setCurrentIndex(0);
     ui->cbHoldTxFreq->setChecked(true);
     displayWidgets(nWidgets("11101000010011100001000010000011"));
@@ -7362,6 +7360,7 @@ void MainWindow::foxRxSequencer(QString houndCall, QString houndGrid)
  * message appears for slot i, we queue its message to be repeated.
 */
 
+  qDebug() << "AA" << houndCall << houndGrid;
   for(int i=0; i<m_Nslots; i++) {
     if(m_foxMsgSent[i].contains(houndCall + " ")) {
       m_houndRptRcvd[i]=houndGrid.mid(1);
@@ -7421,7 +7420,9 @@ TxTimeout:
       QDateTime now {QDateTime::currentDateTimeUtc ()};
       QString logLine=now.toString("yyyy-MM-dd hh:mm") + " " + m_hisCall +
           " " + m_hisGrid + "  " + m_rptSent + "  " + m_rptRcvd + " " + m_lastBand;
-      if(m_msgAvgWidget->isVisible()) m_msgAvgWidget->displayAvg(logLine);
+      if(m_msgAvgWidget != NULL and m_msgAvgWidget->isVisible()) {
+        m_msgAvgWidget->displayAvg(logLine);
+      }
       on_logQSOButton_clicked();
       m_loggedByFox[m_hisCall] += (m_lastBand + " ");
 
