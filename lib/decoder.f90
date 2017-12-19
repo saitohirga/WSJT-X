@@ -80,8 +80,8 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
           params%mycall,params%mygrid,params%hiscall,params%hisgrid)
      call timer('decft8  ',1)
      if(nfox.gt.0) then
-        n15min=minval(n15fox(1:nfox))
-        n15max=maxval(n15fox(1:nfox))
+        n30min=minval(n30fox(1:nfox))
+        n30max=maxval(n30fox(1:nfox))
      endif
      j=0
      rewind 19
@@ -90,15 +90,15 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
         rewind 19
      else
         do i=1,nfox
-           n=n15fox(i)
-           if(n15max-n15fox(i).le.4) then
+           n=n30fox(i)
+           if(n30max-n30fox(i).le.4) then
               j=j+1
               c2fox(j)=c2fox(i)
               g2fox(j)=g2fox(i)
               nsnrfox(j)=nsnrfox(i)
               nfreqfox(j)=nfreqfox(i)
-              n15fox(j)=n
-              m=n15max-n
+              n30fox(j)=n
+              m=n30max-n
               call azdist(params%mygrid,g2fox(j),0.d0,nAz,nEl,nDmiles,nDkm,  &
                    nHotAz,nHotABetter)
               write(19,1004) c2fox(j),g2fox(j),nsnrfox(j),nfreqfox(j),nDkm,m
@@ -440,7 +440,7 @@ contains
     real, intent(in) :: freq
     character(len=32), intent(in) :: decoded
     character c1*12,c2*6,g2*4,w*4
-    integer i0,i1,i2,i3,i4,i5,n15,nwrap
+    integer i0,i1,i2,i3,i4,i5,n30,nwrap
     integer, intent(in) :: nap 
     real, intent(in) :: qual 
     character*2 annot
@@ -460,7 +460,7 @@ contains
        g2fox='    '
        nsnrfox=-99
        nfreqfox=-99
-       n15z=0
+       n30z=0
        nwrap=0
        nfox=0
        first=.false.
@@ -499,16 +499,16 @@ contains
        b2=i3-i2.eq.1
        if(b0 .and. (b1.or.b2) .and. nint(freq).ge.1000) then
           n=params%nutc
-          n15=(3600*(n/10000) + 60*mod((n/100),100) + mod(n,100))/15
-          if(n15.lt.n15z) nwrap=nwrap+5760    !New UTC day, handle the wrap
-          n15z=n15
-          n15=n15+nwrap
+          n30=(3600*(n/10000) + 60*mod((n/100),100) + mod(n,100))/30
+          if(n30.lt.n30z) nwrap=nwrap+5760    !New UTC day, handle the wrap
+          n30z=n30
+          n30=n30+nwrap
           nfox=nfox+1
           c2fox(nfox)=c2
           g2fox(nfox)=g2
           nsnrfox(nfox)=snr
           nfreqfox(nfox)=nint(freq)
-          n15fox(nfox)=n15
+          n30fox(nfox)=n30
        endif
     endif
     

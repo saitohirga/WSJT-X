@@ -5,8 +5,8 @@ module ft8_decode
   character*4  g2fox(MAXFOX)
   integer nsnrfox(MAXFOX)
   integer nfreqfox(MAXFOX)
-  integer n15fox(MAXFOX)
-  integer n15z
+  integer n30fox(MAXFOX)
+  integer n30z
   integer nfox
   
   type :: ft8_decoder

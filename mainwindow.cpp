@@ -2295,6 +2295,12 @@ void MainWindow::on_actionAstronomical_data_toggled (bool checked)
     }
 }
 
+void MainWindow::on_actionFox_Callers_triggered()
+{
+  on_actionMessage_averaging_triggered();
+  m_msgAvgWidget->foxLogSetup();
+}
+
 void MainWindow::on_actionMessage_averaging_triggered()
 {
   if (!m_msgAvgWidget)
@@ -4916,7 +4922,6 @@ void MainWindow::on_actionFT8_triggered()
     ui->TxFreqSpinBox->setValue(300);
     displayWidgets(nWidgets("11101000010011100001000010000010"));
     ui->labDXped->setText("DXpedition: Fox");
-    on_actionMessage_averaging_triggered();            //###
   }
   if(m_config.bHound()) {
     ui->txFirstCheckBox->setChecked(false);
@@ -7406,7 +7411,7 @@ TxTimeout:
                << m_rptRcvd << m_lastBand;
       QDateTime now {QDateTime::currentDateTimeUtc ()};
       QString logLine=now.toString("yyyy-MM-dd hh:mm") + " " + m_hisCall +
-          " " + m_hisGrid + " " + m_rptSent + " " + m_rptRcvd + " " + m_lastBand;
+          " " + m_hisGrid + "  " + m_rptSent + "  " + m_rptRcvd + " " + m_lastBand;
       if(m_msgAvgWidget->isVisible()) m_msgAvgWidget->displayAvg(logLine);
       on_logQSOButton_clicked();
       m_loggedByFox[m_hisCall] += (m_lastBand + " ");

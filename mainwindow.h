@@ -240,6 +240,7 @@ private slots:
   void stopTuneATU();
   void auto_tx_mode(bool);
   void on_actionMessage_averaging_triggered();
+  void on_actionFox_Callers_triggered();
   void on_actionInclude_averaging_toggled (bool);
   void on_actionInclude_correlation_toggled (bool);
   void on_actionEnable_AP_DXcall_toggled (bool);
