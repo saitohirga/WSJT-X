@@ -2831,7 +2831,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
                                      , tr ("Cannot open \"%1\" for append: %2")
                                      .arg (f.fileName ()).arg (f.errorString ()));
       }
-
       if (m_config.insert_blank () && m_blankLine && !m_config.bFox()) {
         QString band;
         if((QDateTime::currentMSecsSinceEpoch() / 1000 - m_secBandChanged) > 4*m_TRperiod/4) {
@@ -2888,7 +2887,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
             if(!m_config.bFox()) processMessage (decodedtext);
             ui->cbFirst->setStyleSheet("");
           } else {
-//###            if(m_config.bFox() and for_us and (audioFreq<1000)) bDisplayRight=true;
             if(m_config.bFox() and for_us and (audioFreq<1000)) bDisplayRight=true;
             if(!m_config.bFox() and (for_us or (abs(audioFreq - m_wideGraph->rxFreq()) <= 10))) bDisplayRight=true;
           }
@@ -4792,7 +4790,6 @@ void MainWindow::acceptQSO2(QDateTime const& QSO_date_off, QString const& call, 
 
 qint64 MainWindow::nWidgets(QString t)
 {
-//  qDebug() << t << N_WIDGETS << t.length();
   Q_ASSERT(t.length()==N_WIDGETS);
   qint64 n=0;
   for(int i=0; i<N_WIDGETS; i++) {
@@ -4807,7 +4804,6 @@ void MainWindow::displayWidgets(qint64 n)
   bool b;
   for(int i=0; i<N_WIDGETS; i++) {
     b=(n&j) != 0;    
-//    qDebug() << i << j << (n&j) << b;
     if(i==0) ui->txFirstCheckBox->setVisible(b);
     if(i==1) ui->TxFreqSpinBox->setVisible(b);
     if(i==2) ui->RxFreqSpinBox->setVisible(b);
@@ -4844,12 +4840,17 @@ void MainWindow::displayWidgets(qint64 n)
     if(i==24) ui->actionEnable_AP_FT8->setVisible (b);
     if(i==25) ui->actionEnable_AP_JT65->setVisible (b);
     if(i==26) ui->actionEnable_AP_DXcall->setVisible (b);
+    if(i==27) ui->cbFirst->setVisible(b);
+    if(i==28) ui->cbVHFcontest->setVisible(b);
+    if(i==29) ui->measure_check_box->setVisible(b);
+    if(i==30) ui->labDXped->setVisible(b);
+    if(i==31) ui->cbRxAll->setVisible(b);
     j=j>>1;
   }
-  ui->cbFirst->setVisible ("FT8" == m_mode);
-  ui->cbVHFcontest->setVisible(m_mode=="FT8" or m_mode=="MSK144");
-  ui->measure_check_box->setChecked (false);
-  ui->measure_check_box->setVisible ("FreqCal" == m_mode);
+//  ui->cbFirst->setVisible ("FT8" == m_mode);
+//  ui->cbVHFcontest->setVisible(m_mode=="FT8" or m_mode=="MSK144");
+//  ui->measure_check_box->setChecked (false);
+//  ui->measure_check_box->setVisible ("FreqCal" == m_mode);
   m_lastCallsign.clear ();     // ensures Tx5 is updated for new modes
   genStdMsgs (m_rpt, true);
 }
@@ -4898,7 +4899,7 @@ void MainWindow::on_actionFT8_triggered()
     ui->label_6->setText("Band Activity");
     ui->decodedTextLabel->setText( "  UTC   dB   DT Freq    Message");
   }
-  displayWidgets(nWidgets("11101000010011100001000010010000"));
+  displayWidgets(         nWidgets("11101000010011100001000010010000"));
   if(bVHF) displayWidgets(nWidgets("11101000010011100001000010011000"));
   ui->txrb2->setEnabled(true);
   ui->txrb4->setEnabled(true);
@@ -7158,7 +7159,7 @@ QString MainWindow::sortHoundCalls(QString t, int isort, int max_dB)
   QMap<QString,QString> map;
   QStringList lines,lines2;
   QString msg,houndCall,t1;
-  QString ABC{"ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
+  QString ABC{"ABCDEFGHIJKLMNOPQRSTUVWXYZ _"};
   QList<int> list;
   int i,j,k,m,n,nlines;
   bool bReverse=(isort >= 3);
@@ -7169,6 +7170,7 @@ QString MainWindow::sortHoundCalls(QString t, int isort, int max_dB)
   nlines=lines.length()-1;
   for(i=0; i<nlines; i++) {
     msg=lines.at(i);                        //key = callsign
+    if(msg.mid(13,1)==" ") msg=msg.mid(0,16) + "_" + msg.mid(17);
     houndCall=msg.split(" ").at(0);         //value = "call grid snr freq dist age"
     map[houndCall]=msg;
   }

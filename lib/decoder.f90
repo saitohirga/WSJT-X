@@ -440,12 +440,12 @@ contains
     real, intent(in) :: freq
     character(len=32), intent(in) :: decoded
     character c1*12,c2*6,g2*4,w*4
-    integer i0,i1,i2,i3,n15,nwrap
+    integer i0,i1,i2,i3,i4,i5,n15,nwrap
     integer, intent(in) :: nap 
     real, intent(in) :: qual 
     character*2 annot
     character*32 decoded0
-    logical isgrid4,first
+    logical isgrid4,first,b0,b1,b2
     data first/.true./
     save
 
@@ -489,8 +489,15 @@ contains
        c1=decoded0(1:i1-1)//'            '
        c2=decoded0(i1+1:i2-1)
        g2=decoded0(i2+1:i3-1)
-       if(c1.eq.params%mycall .and. i3-i2.eq.5 .and. isgrid4(g2) .and.     &
-            nint(freq).ge.1000) then
+       b0=c1.eq.params%mycall
+       if(len(trim(c1)).ne.len(trim(params%mycall))) then
+          i4=index(trim(c1),trim(params%mycall))
+          i5=index(trim(params%mycall),trim(c1))
+          if(i4.ge.1 .or. i5.ge.1) b0=.true.
+       endif
+       b1=i3-i2.eq.5 .and. isgrid4(g2)
+       b2=i3-i2.eq.1
+       if(b0 .and. (b1.or.b2) .and. nint(freq).ge.1000) then
           n=params%nutc
           n15=(3600*(n/10000) + 60*mod((n/100),100) + mod(n,100))/15
           if(n15.lt.n15z) nwrap=nwrap+5760    !New UTC day, handle the wrap
