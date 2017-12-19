@@ -26,6 +26,7 @@ program ft8sim
      print*,'Examples: ft8sim "K1ABC W9XYZ EN37" 1500.0 0.0  0.1 1.0   0     10   -18'
      print*,'          ft8sim "K1ABC W9XYZ EN37"   10   0.0  0.1 1.0  25     10   -18'
      print*,'          ft8sim "K1ABC W9XYZ EN37"   25   0.0  0.1 1.0  25     10   -18'
+     print*,'          ft8sim "K1ABC RR73; W9XYZ <KH1/KH7Z> -11" 300 0 0 0 25 1 -10'
      print*,'Make nfiles negative to invoke 72-bit contest mode.'
      go to 999
   endif

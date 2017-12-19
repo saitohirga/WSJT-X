@@ -24,7 +24,7 @@ module ft8_decode
        integer, intent(in) :: snr
        real, intent(in) :: dt
        real, intent(in) :: freq
-       character(len=32), intent(in) :: decoded
+       character(len=37), intent(in) :: decoded
        integer, intent(in) :: nap 
        real, intent(in) :: qual 
      end subroutine ft8_decode_callback
@@ -52,7 +52,7 @@ contains
     character*6 mygrid6,hisgrid6
     integer*2 iwave(15*12000)
     integer apsym(KK)
-    character datetime*13,message*22,msg32*32
+    character datetime*13,message*22,msg37*37
     character*22 allmessages(100)
     integer allsnrs(100)
     save s,dd
@@ -108,8 +108,8 @@ contains
         call ft8b(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lft8apon,       &
              lapcqonly,napwid,lsubtract,nagain,iaptype,mycall12,mygrid6,   &
              hiscall12,bcontest,sync,f1,xdt,xbase,apsym,nharderrors,dmin,  &
-             nbadcrc,iappass,iera,msg32,xsnr)
-        message=msg32(1:22)   !###
+             nbadcrc,iappass,iera,msg37,xsnr)
+        message=msg37(1:22)   !###
         nsnr=nint(xsnr) 
         xdt=xdt-0.5
         hd=nharderrors+dmin
@@ -134,7 +134,7 @@ contains
 !           flush(81)
            if(.not.ldupe .and. associated(this%callback)) then
               qual=1.0-(nharderrors+dmin)/60.0 ! scale qual to [0.0,1.0]
-              call this%callback(sync,nsnr,xdt,f1,msg32,iaptype,qual)
+              call this%callback(sync,nsnr,xdt,f1,msg37,iaptype,qual)
            endif
         endif
       enddo

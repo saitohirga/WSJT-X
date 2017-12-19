@@ -1,12 +1,12 @@
 subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      napwid,lsubtract,nagain,iaptype,mycall12,mygrid6,hiscall12,bcontest,    &
-     sync0,f1,xdt,xbase,apsym,nharderrors,dmin,nbadcrc,ipass,iera,msg32,xsnr)  
+     sync0,f1,xdt,xbase,apsym,nharderrors,dmin,nbadcrc,ipass,iera,msg37,xsnr)  
 
   use crc
   use timer_module, only: timer
   include 'ft8_params.f90'
   parameter(NRECENT=10,NP2=2812)
-  character*32 msg32
+  character*37 msg37
   character message*22,msgsent*22
   character*12 mycall12,hiscall12,recent_calls(NRECENT)
   character*6 mycall6,mygrid6,hiscall6,c1,c2
@@ -412,22 +412,24 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
            i2=index(message(i1+1:),' ') + i1
            c1=message(1:i1)//'   '
            c2=message(i1+1:i2)//'   '
-           if(ncrc10.eq.icrc10) msg32=c1//' RR73; '//c2//' <'//         &
-                trim(hiscall6)//'>    '
-           if(ncrc10.ne.icrc10) msg32=c1//' RR73; '//c2//' <...>    '
-           write(msg32(30:32),1010) irpt
+           if(ncrc10.eq.icrc10) msg37=c1//' RR73; '//c2//' <'//         &
+                trim(hiscall12)//'>    '
+           if(ncrc10.ne.icrc10) msg37=c1//' RR73; '//c2//' <...>    '
+           write(51,*) 'a ',msg37,'|'
+           write(msg37(35:37),1010) irpt
 1010       format(i3.2)
-           if(msg32(30:30).ne.'-') msg32(30:30)='+'
+           if(msg37(30:30).ne.'-') msg37(35:35)='+'
+           write(51,*) 'b ',msg37,'|'
            
-           iz=len(trim(msg32))
-           do iter=1,5                           !Collapse multiple blanks into one
-              ib2=index(msg32(1:iz),'  ')
+           iz=len(trim(msg37))
+           do iter=1,10                           !Collapse multiple blanks into one
+              ib2=index(msg37(1:iz),'  ')
               if(ib2.lt.1) exit
-              msg32=msg32(1:ib2)//msg32(ib2+2:)
+              msg37=msg37(1:ib2)//msg37(ib2+2:)
               iz=iz-1
            enddo
         else
-           msg32=message//'          '
+           msg37=message//'               '
         endif
         
         return
