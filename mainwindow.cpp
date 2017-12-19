@@ -4916,6 +4916,7 @@ void MainWindow::on_actionFT8_triggered()
     ui->TxFreqSpinBox->setValue(300);
     displayWidgets(nWidgets("11101000010011100001000010000010"));
     ui->labDXped->setText("DXpedition: Fox");
+    on_actionMessage_averaging_triggered();            //###
   }
   if(m_config.bHound()) {
     ui->txFirstCheckBox->setChecked(false);
@@ -6282,7 +6283,7 @@ void::MainWindow::VHF_features_enabled(bool b)
   ui->actionMessage_averaging->setEnabled(b);
   ui->actionEnable_AP_DXcall->setVisible (m_mode=="QRA64");
   ui->actionEnable_AP_JT65->setVisible (m_mode=="JT65");
-  if(!b && m_msgAvgWidget) {
+  if(!b && m_msgAvgWidget and !m_config.bFox()) {
     if(m_msgAvgWidget->isVisible()) m_msgAvgWidget->close();
   }
 }
@@ -7401,7 +7402,12 @@ TxTimeout:
       m_hisGrid=m_houndGrid[i];
       m_rptSent=m_houndRptSent[i];
       m_rptRcvd=m_houndRptRcvd[i];
-      qDebug() << "Logged by Fox:" << i << m_hisCall << m_hisGrid << m_rptSent << m_rptRcvd << m_lastBand;
+      qDebug() << "Logged by Fox:" << i << m_hisCall << m_hisGrid << m_rptSent
+               << m_rptRcvd << m_lastBand;
+      QDateTime now {QDateTime::currentDateTimeUtc ()};
+      QString logLine=now.toString("yyyy-MM-dd hh:mm") + " " + m_hisCall +
+          " " + m_hisGrid + " " + m_rptSent + " " + m_rptRcvd + " " + m_lastBand;
+      if(m_msgAvgWidget->isVisible()) m_msgAvgWidget->displayAvg(logLine);
       on_logQSOButton_clicked();
       m_loggedByFox[m_hisCall] += (m_lastBand + " ");
 
