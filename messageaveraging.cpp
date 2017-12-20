@@ -22,6 +22,9 @@ MessageAveraging::MessageAveraging(QSettings * settings, QFont const& font, QWid
     ui->header_label->setText("   Date     Time   Call Grid Sent Rcvd Band");
   } else {
     ui->header_label->setText("   UTC  Sync    DT  Freq   ");
+    ui->lab1->setVisible(false);
+    ui->lab2->setVisible(false);
+    ui->lab3->setVisible(false);
   }
   setWindowTitle(m_title_);
 }
@@ -87,5 +90,31 @@ void MessageAveraging::foxLogSetup()
 {
   m_title_=QApplication::applicationName () + " - Fox Log";
   setWindowTitle(m_title_);
-  ui->header_label->setText("   Date    Time   Call    Grid Sent Rcvd Band");
+  ui->header_label->setText("   Date    Time  Call    Grid Sent Rcvd Band");
+}
+
+void MessageAveraging::foxLabCallers(int n)
+{
+  QString t;
+  t.sprintf("Callers: %3d",n);
+  ui->lab1->setText(t);
+}
+
+void MessageAveraging::foxLabQueued(int n)
+{
+  QString t;
+  t.sprintf("Queued: %3d",n);
+  ui->lab2->setText(t);
+}
+
+void MessageAveraging::foxLabRate(int n)
+{
+  QString t;
+  t.sprintf("Rate: %3d",n);
+  ui->lab3->setText(t);
+}
+
+void MessageAveraging::foxAddLog(QString logLine)
+{
+  ui->msgAvgPlainTextEdit->insertPlainText(logLine + "\n");
 }

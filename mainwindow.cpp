@@ -7298,6 +7298,10 @@ void MainWindow::selectHound(QString line)
   QTextCursor cursor = ui->textBrowser4->textCursor();
   cursor.setPosition(0);                                 // Scroll to top of list
   ui->textBrowser4->setTextCursor(cursor);
+  if(m_msgAvgWidget != NULL and m_msgAvgWidget->isVisible()) {
+    m_msgAvgWidget->foxLabQueued(m_houndQueue.size());
+  }
+
 }
 
 //------------------------------------------------------------------------------
@@ -7316,10 +7320,12 @@ void MainWindow::houndCallers()
     QString t="";
     QString line,houndCall,paddedHoundCall;
     m_nHoundsCalling=0;
+    int nTotal=0;  //Total number of decoded Hounds calling Fox in 4 most recent Rx sequences
 
 // Read and process the file of Hound callers.
     while(!s.atEnd()) {
       line=s.readLine();
+      nTotal++;
       houndCall=line.mid(0,6).trimmed();
       paddedHoundCall=houndCall + " ";
       //Don't list a hound already in the queue
@@ -7337,9 +7343,13 @@ void MainWindow::houndCallers()
         int i1=countryName.lastIndexOf(";");
         continent=countryName.mid(i1+2,-1);
         t = t + line + "  " + continent + "\n";
-        m_nHoundsCalling++;                // Total number of decoded Hounds calling Fox
+        m_nHoundsCalling++;                // Number of accepted Hounds to be sorted
       }
     }
+    if(m_msgAvgWidget != NULL and m_msgAvgWidget->isVisible()) {
+      m_msgAvgWidget->foxLabCallers(nTotal);
+    }
+
 // Sort and display accumulated list of Hound callers
     if(t.length()>30) {
       m_isort=ui->comboBoxHoundSort->currentIndex();
@@ -7360,7 +7370,6 @@ void MainWindow::foxRxSequencer(QString houndCall, QString houndGrid)
  * message appears for slot i, we queue its message to be repeated.
 */
 
-  qDebug() << "AA" << houndCall << houndGrid;
   for(int i=0; i<m_Nslots; i++) {
     if(m_foxMsgSent[i].contains(houndCall + " ")) {
       m_houndRptRcvd[i]=houndGrid.mid(1);
@@ -7407,9 +7416,7 @@ TxTimeout:
       }
     }
 
-
     if(fm.contains(" RR73")) {
-
 // Log this QSO!
       m_hisCall=m_houndCall[i];
       m_hisGrid=m_houndGrid[i];
@@ -7417,12 +7424,14 @@ TxTimeout:
       m_rptRcvd=m_houndRptRcvd[i];
       qDebug() << "Logged by Fox:" << i << m_hisCall << m_hisGrid << m_rptSent
                << m_rptRcvd << m_lastBand;
+
       QDateTime now {QDateTime::currentDateTimeUtc ()};
       QString logLine=now.toString("yyyy-MM-dd hh:mm") + " " + m_hisCall +
           " " + m_hisGrid + "  " + m_rptSent + "  " + m_rptRcvd + " " + m_lastBand;
       if(m_msgAvgWidget != NULL and m_msgAvgWidget->isVisible()) {
-        m_msgAvgWidget->displayAvg(logLine);
+        m_msgAvgWidget->foxAddLog(logLine);
       }
+
       on_logQSOButton_clicked();
       m_loggedByFox[m_hisCall] += (m_lastBand + " ");
 
@@ -7442,6 +7451,7 @@ TxTimeout:
         m_houndGrid[i]="";
       }
     }
+
     if(!fm.contains(";")) {
       fm.remove("<");
       fm.remove(">");
