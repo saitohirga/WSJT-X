@@ -84,7 +84,7 @@ extern struct {
   float wave[606720];
   int   nslots;
   int   i3bit[5];
-  char  cmsg[5][32];
+  char  cmsg[5][40];
   char  mycall[6];
 } foxcom_;
 

@@ -17,7 +17,7 @@ subroutine foxgen()
   use crc
   parameter (NN=79,ND=58,KK=87,NSPS=4*1920)
   parameter (NWAVE=NN*NSPS,NFFT=614400,NH=NFFT/2)
-  character*32 cmsg
+  character*40 cmsg
   character*22 msg,msgsent
   character*6 mygrid
   character*87 cbits
@@ -58,6 +58,7 @@ subroutine foxgen()
         msg=cmsg(n)(1:i1)//cmsg(n)(i2+1:i3-2)//'                   '
         read(cmsg(n)(i4+2:i4+4),*) irpt
      endif
+!     print*,'Foxgen:',n,cmsg(n)
      call genft8(msg,mygrid,bcontest,0,msgsent,msgbits,itone)
 
      if(i3b.eq.1) then

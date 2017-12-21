@@ -2740,7 +2740,7 @@ void::MainWindow::fast_decode_done()
     if(m_mode=="JT9" or m_mode=="MSK144") {
 // find and extract any report for myCall
       bool stdMsg = decodedtext.report(m_baseCall,
-                                       Radio::base_callsign(ui->dxCallEntry->text()), m_rptRcvd);
+                    Radio::base_callsign(ui->dxCallEntry->text()), m_rptRcvd);
 
 // extract details and send to PSKreporter
       if (stdMsg) pskPost (decodedtext);
@@ -2793,6 +2793,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 {
   while(proc_jt9.canReadLine()) {
     QByteArray t=proc_jt9.readLine();
+    if(m_mode=="FT8" and !m_config.bHound() and t.contains(";")) continue;
 //    qint64 ms=QDateTime::currentMSecsSinceEpoch() - m_msec0;
 //    qDebug() << "A" << ms << t;
     bool bAvgMsg=false;
@@ -7331,7 +7332,8 @@ void MainWindow::houndCallers()
       //Don't list a hound already in the queue
       if(!ui->textBrowser4->toPlainText().contains(paddedHoundCall)) {
         if(m_loggedByFox[houndCall].contains(m_lastBand) and
-           ui->cbNoDupes->isChecked()) continue;  //already logged on this band
+           ui->cbNoDupes->isChecked())   continue;   //already logged on this band
+        if(m_foxQSO.contains(houndCall)) continue;   //still in the QSO map
         bool bmatch=false;
         for(int i=0; i<m_Nslots; i++) {
           if(m_houndCall[i]==houndCall) bmatch=true;
@@ -7360,7 +7362,7 @@ void MainWindow::houndCallers()
   }
 }
 
-void MainWindow::foxRxSequencer(QString houndCall, QString houndGrid)
+void MainWindow::foxRxSequencer(QString houndCall, QString rptRcvd)
 {
 /* Called from "readFromStdOut()" to process decoded messages of the form
  * "myCall houndCall R+rpt".
@@ -7370,15 +7372,8 @@ void MainWindow::foxRxSequencer(QString houndCall, QString houndGrid)
  * message appears for slot i, we queue its message to be repeated.
 */
 
-  for(int i=0; i<m_Nslots; i++) {
-    if(m_foxMsgSent[i].contains(houndCall + " ")) {
-      m_houndRptRcvd[i]=houndGrid.mid(1);
-      int i1=qMax(m_foxMsgSent[i].indexOf("+"), m_foxMsgSent[i].indexOf("-"));
-      if(i1>7) m_foxMsgToBeSent[i]=m_foxMsgSent[i].mid(0,i1-1) + " RR73";
-    } else {
-      m_foxMsgToBeSent[i]=m_foxMsgSent[i];
-    }
-  }
+  m_foxQSO[houndCall].rcvd=rptRcvd.mid(1);    //Save Fox's report for the log
+  m_foxRR73Queue.enqueue(houndCall);          //Request RR73 to be sent to houndCall
 }
 
 void MainWindow::foxTxSequencer()
@@ -7390,114 +7385,102 @@ void MainWindow::foxTxSequencer()
  * foxgen() to generate and accumulate the corresponding waveform.
 */
 
-  for(int i=0; i<m_Nslots; i++) {
-    if(m_foxMsgSent[i].contains("RR73") and
-       m_foxMsgSent[i]==m_foxMsgToBeSent[i].trimmed()) {
-      m_foxMsgToBeSent[i]="";
-      m_nFoxMsgTimes[i]=0;
+  qint64 now=QDateTime::currentMSecsSinceEpoch()/1000;
+  QString fm;                               //Fox message to be transmitted
+  QString hc1,hc2;                          //Hound calls
+  QString t,rpt;
+
+  int islot=0;
+  while(!m_foxRR73Queue.isEmpty()) {
+    hc1=m_foxRR73Queue.dequeue();           //First priority is to send RR73 messages
+    if(m_houndQueue.isEmpty()) {
+      fm = hc1 + " " + m_config.my_callsign() + " RR73";  //Send a standard FT8 message
+    } else {
+      t=m_houndQueue.dequeue();             //Fetch new hound from queue
+      hc2=t.mid(0,6).trimmed();             //hound call
+      m_foxQSOqueue.enqueue(hc2);           //Put him in the QSO queue
+      m_foxQSO[hc2].grid=t.mid(11,4);       //hound grid
+      rpt=t.mid(7,3);
+      m_foxQSO[hc2].sent=rpt;               //Report to send him
+      m_foxQSO[hc2].t0=now;                 //QSO start time
+      rm_tb4(hc2);                          //Remove this hound from tb4
+      fm = hc1 + " RR73; " + hc2 + " <" + m_config.my_callsign() + "> " + rpt;  //Tx msg
     }
-    int i1=m_foxMsgToBeSent[i].indexOf(";");
-    if(i1>0) m_foxMsgToBeSent[i]=m_foxMsgToBeSent[i].mid(i1+2);
-
-TxTimeout:
-    QString fm;                              //Fox message to be transmitted in this slot
-    fm=m_foxMsgToBeSent[i];                  //Default, if available
-    if(fm=="" or fm.mid(0,3)=="CQ ") {
-      if(!m_houndQueue.isEmpty()) {
-        QString t=m_houndQueue.dequeue();    //Fetch new hound call from queue
-        m_houndCall[i]=t.mid(0,6).trimmed(); //Save hound call for potential logging
-        m_houndGrid[i]=t.mid(11,4);          //Also hound grid
-        rm_tb4(m_houndCall[i]);              //Remove him from tb4
-        QString rpt=t.mid(7,3);              //Report to send him
-        fm= m_houndCall[i] + " " + m_config.my_callsign() + " " + rpt;  //Tx message
-      } else {                               //If no hound in queue, we call CQ
-      fm=ui->comboBoxCQ->currentText() + " " + m_config.my_callsign();
-      if(!fm.contains("/")) fm += " " + m_config.my_grid().mid(0,4);
-      }
+    // Log this QSO!
+    m_hisCall=hc1;
+    m_hisGrid=m_foxQSO[hc1].grid;
+    m_rptSent=m_foxQSO[hc1].sent;
+    m_rptRcvd=m_foxQSO[hc1].rcvd;
+    qDebug() << "Logged by Fox:" << islot << m_hisCall << m_hisGrid << m_rptSent
+             << m_rptRcvd << m_lastBand;
+    QDateTime logTime {QDateTime::currentDateTimeUtc ()};
+    QString logLine=logTime.toString("yyyy-MM-dd hh:mm") + " " + m_hisCall +
+        " " + m_hisGrid + "  " + m_rptSent + "  " + m_rptRcvd + " " + m_lastBand;
+    if(m_msgAvgWidget != NULL and m_msgAvgWidget->isVisible()) {
+      m_msgAvgWidget->foxAddLog(logLine);
     }
+    on_logQSOButton_clicked();
+    m_loggedByFox[hc1] += (m_lastBand + " ");
+    if(m_foxQSOqueue.contains(hc1)) m_foxQSOqueue.removeOne(hc1);
 
-    if(fm.contains(" RR73")) {
-// Log this QSO!
-      m_hisCall=m_houndCall[i];
-      m_hisGrid=m_houndGrid[i];
-      m_rptSent=m_houndRptSent[i];
-      m_rptRcvd=m_houndRptRcvd[i];
-      qDebug() << "Logged by Fox:" << i << m_hisCall << m_hisGrid << m_rptSent
-               << m_rptRcvd << m_lastBand;
+    islot++;
+    //Generate tx waveform
+    foxGenWaveform(islot-1,fm);
+    if(islot >= m_Nslots) goto Transmit;
+  }
 
-      QDateTime now {QDateTime::currentDateTimeUtc ()};
-      QString logLine=now.toString("yyyy-MM-dd hh:mm") + " " + m_hisCall +
-          " " + m_hisGrid + "  " + m_rptSent + "  " + m_rptRcvd + " " + m_lastBand;
-      if(m_msgAvgWidget != NULL and m_msgAvgWidget->isVisible()) {
-        m_msgAvgWidget->foxAddLog(logLine);
-      }
+//One or more Tx slots are still available
+  while (!m_foxQSOqueue.isEmpty()) {
+    //should limit repeat transmissions here
+    hc1=m_foxQSOqueue.dequeue();             //Recover hound callsign from QSO queue
+    m_foxQSOqueue.enqueue(hc1);              //Put him back in, at the end
+    fm = hc1 + " " + m_config.my_callsign() + " " + m_foxQSO[hc1].sent;  //Tx msg
+    islot++;
+    //Generate tx waveform
+    foxGenWaveform(islot-1,fm);
+    if(islot >= m_Nslots) goto Transmit;
+  }
 
-      on_logQSOButton_clicked();
-      m_loggedByFox[m_hisCall] += (m_lastBand + " ");
+//One or more Tx slots are still available
+  while (!m_houndQueue.isEmpty()) {
+    t=m_houndQueue.dequeue();             //Fetch new hound from queue
+    hc1=t.mid(0,6).trimmed();             //hound call
+    m_foxQSOqueue.enqueue(hc1);           //Put him in the QSO queue
+    m_foxQSO[hc1].grid=t.mid(11,4);       //hound grid
+    rpt=t.mid(7,3);
+    m_foxQSO[hc1].sent=rpt;               //Report to send him
+    m_foxQSO[hc1].t0=now;                 //QSO start time
+    rm_tb4(hc1);                          //Remove this hound from tb4
+    fm = hc1 + " " + m_config.my_callsign() + " " + rpt;  //Tx msg
+    islot++;
+    //Generate tx waveform
+    foxGenWaveform(islot-1,fm);
+    if(islot >= m_Nslots) goto Transmit;
+  }
 
-//Find someone to call next
-      if(!m_houndQueue.isEmpty()) {
-        QString t=m_houndQueue.dequeue();         //Fetch next hound
-        m_houndCall[i]=t.mid(0,6).trimmed();      //Save hound call
-        m_houndGrid[i]=t.mid(11,4);               //Also hound grid
-        rm_tb4(m_houndCall[i]);                   //Remove the call from tb4
-        QString rpt=t.mid(7,3);                   //Report to send him
-        fm=fm.mid(0,6) + " RR73; " + m_houndCall[i] + " <" + m_config.my_callsign() +
-            "> " + rpt;
-      } else {
-        //Default to a standard (i3bit=0) message if queue is empty
-        fm=m_houndCall[i] + " " + m_config.my_callsign() + " RR73";
-        m_houndCall[i]="";
-        m_houndGrid[i]="";
-      }
-    }
+  if(islot==0) {
+    //No tx message generated yet, so we'll call CQ
+    fm=ui->comboBoxCQ->currentText() + " " + m_config.my_callsign();
+    if(!fm.contains("/")) fm += " " + m_config.my_grid().mid(0,4);
+    islot++;
+    foxGenWaveform(islot-1,fm);
+  }
 
-    if(!fm.contains(";")) {
-      fm.remove("<");
-      fm.remove(">");
-    }
+Transmit:
+  foxcom_.nslots=islot;
+  QString foxCall=m_config.my_callsign() + "   ";
+  strncpy(&foxcom_.mycall[0], foxCall.toLatin1(),6);   //Copy Fox callsign into foxcom_
+  foxgen_();
 
-    if(m_houndCall[i]!=m_houndCall0[i]) m_nFoxMsgTimes[i]=0;  //Reset the repeat counter
-    m_houndCall0[i]=m_houndCall[i];
-    m_nFoxMsgTimes[i]++;
-
-// Check for Tx message timeout
-    if(ui->sbMaxRepeats->value() > 0 and m_nFoxMsgTimes[i] > ui->sbMaxRepeats->value()
-       and !fm.contains("CQ ")) {
-      m_houndCall[i]="";
-      m_houndGrid[i]="";
-      m_nFoxMsgTimes[i]=0;
-      m_foxMsgToBeSent[i]="";
-      goto TxTimeout;
-    }
-
-//Send Tx message to right window
-    fm += "                                ";
-    fm=fm.mid(0,32);
-    QString txModeArg;
-    txModeArg.sprintf("FT8fox %d %2d",i+1,m_nFoxMsgTimes[i]);
-    ui->decodedTextBrowser2->displayTransmittedText(fm.trimmed(), txModeArg,
-          300+60*i,m_config.color_TxMsg(),m_bFastMode);
-
-//Generate and accumulate the Tx waveform
-    foxcom_.i3bit[i]=0;
-    if(fm.indexOf("<")>0) foxcom_.i3bit[i]=1;
-    strncpy(&foxcom_.cmsg[i][0], fm.toLatin1(),32);   //Copy this message into cmsg[i]
-    m_foxMsgSent[i]=fm.trimmed();                     //What was actually sent
-
-    i1=fm.indexOf(";");
-    if(i1>0) fm=fm.mid(i1+2);                         //Remove the "houndCall RR73;"
-    m_foxMsgToBeSent[i]=fm;
-
-    i1=qMax(fm.indexOf("+"),fm.indexOf("-"));
-    if(i1>6) {
-      m_houndRptSent[i]=fm.mid(i1,3);             //Report sent to Hound in slot i
+  for(auto a: m_foxQSO.keys()) {
+    int ageSec=now-m_foxQSO[a].t0;
+    if(ageSec > 60) {                    //60 ==> max 4 calls (0 30 60 90) to a new Fox
+      m_foxQSO.remove(a);
+      m_foxQSOqueue.removeOne(a);
+    } else {
+//      qDebug() << "Age:" << a << ageSec;
     }
   }
-  foxcom_.nslots=m_Nslots;
-  QString mycall6=m_config.my_callsign() + "   ";
-  strncpy(&foxcom_.mycall[0], mycall6.toLatin1(),6);   //Copy mycall into foxcom_
-  foxgen_();
 }
 
 void MainWindow::rm_tb4(QString houndCall)
@@ -7533,4 +7516,14 @@ void MainWindow::doubleClickOnFoxQueue(Qt::KeyboardModifiers modifiers)
     if(hc != houndCall) tmpQueue.enqueue(t);
   }
   m_houndQueue.swap(tmpQueue);
+}
+
+void MainWindow::foxGenWaveform(int i,QString fm)
+{
+//Generate and accumulate the Tx waveform
+  fm += "                                        ";
+  fm=fm.mid(0,40);
+  foxcom_.i3bit[i]=0;
+  if(fm.indexOf("<")>0) foxcom_.i3bit[i]=1;
+  strncpy(&foxcom_.cmsg[i][0], fm.toLatin1(),40);   //Copy this message into cmsg[i]
 }

@@ -361,7 +361,6 @@ private:
   Modulator * m_modulator;
   SoundOutput * m_soundOutput;
   QThread m_audioThread;
-  QQueue<QString> m_houndQueue;
 
   qint64  m_msErase;
   qint64  m_secBandChanged;
@@ -574,7 +573,20 @@ private:
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;
 
+  struct FoxQSO
+  {
+    QString grid;
+    QString sent;
+    QString rcvd;
+    qint64  t0;
+  };
+
+  QMap<QString,FoxQSO> m_foxQSO;
   QMap<QString,QString> m_loggedByFox;
+
+  QQueue<QString> m_houndQueue;
+  QQueue<QString> m_foxQSOqueue;
+  QQueue<QString> m_foxRR73Queue;
 
   QDateTime m_dateTimeQSOOn;
   QDateTime m_dateTimeLastTX;
@@ -678,8 +690,9 @@ private:
   void write_transmit_entry (QString const& file_name);
   void selectHound(QString t);
   void houndCallers();
-  void foxRxSequencer(QString houndCall, QString houndGrid);
+  void foxRxSequencer(QString houndCall, QString rptRcvd);
   void foxTxSequencer();
+  void foxGenWaveform(int i,QString fm);
 };
 
 extern int killbyname(const char* progName);
