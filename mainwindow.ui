@@ -1063,7 +1063,7 @@ QLabel[oob=&quot;true&quot;] {
                   <enum>QTabWidget::Triangular</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>2</number>
                  </property>
                  <widget class="QWidget" name="tab">
                   <attribute name="title">
@@ -1888,7 +1888,7 @@ list. The list can be maintained in Settings (F2).</string>
                       </widget>
                      </item>
                      <item row="4" column="0">
-                      <widget class="QSpinBox" name="sbMaxRepeats">
+                      <widget class="QSpinBox" name="sbMaxTime">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                          <horstretch>0</horstretch>
@@ -1902,10 +1902,10 @@ list. The list can be maintained in Settings (F2).</string>
                         </size>
                        </property>
                        <property name="prefix">
-                        <string>Repeats  </string>
+                        <string>Max Time  </string>
                        </property>
                        <property name="minimum">
-                        <number>0</number>
+                        <number>1</number>
                        </property>
                        <property name="maximum">
                         <number>10</number>
@@ -2653,6 +2653,7 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="separator"/>
     <addaction name="actionDelete_all_wav_files_in_SaveDir"/>
     <addaction name="actionErase_ALL_TXT"/>
+    <addaction name="actionErase_FoxQSO_txt"/>
     <addaction name="actionErase_wsjtx_log_adi"/>
     <addaction name="actionOpen_log_directory"/>
     <addaction name="separator"/>
@@ -3324,6 +3325,11 @@ QPushButton[state=&quot;ok&quot;] {
    </property>
    <property name="toolTip">
     <string>Fox Log</string>
+   </property>
+  </action>
+  <action name="actionErase_FoxQSO_txt">
+   <property name="text">
+    <string>Erase FoxQSO.txt</string>
    </property>
   </action>
  </widget>

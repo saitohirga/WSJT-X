@@ -995,7 +995,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("FoxNlist",ui->sbNlist->value());
   m_settings->setValue("FoxNslots",ui->sbNslots->value());
   m_settings->setValue("FoxMaxDB",ui->sbMax_dB->value());
-  m_settings->setValue("FoxMaxRepeats",ui->sbMaxRepeats->value());
+  m_settings->setValue("FoxMaxTime",ui->sbMaxTime->value());
   m_settings->endGroup();
 
   m_settings->beginGroup("Common");
@@ -1069,7 +1069,7 @@ void MainWindow::readSettings()
   ui->sbNlist->setValue(m_settings->value("FoxNlist",12).toInt());
   ui->sbNslots->setValue(m_settings->value("FoxNslots",5).toInt());
   ui->sbMax_dB->setValue(m_settings->value("FoxMaxDB",30).toInt());
-  ui->sbMaxRepeats->setValue(m_settings->value("FoxMaxRepeats",3).toInt());
+  ui->sbMaxTime->setValue(m_settings->value("FoxMaxTime",3).toInt());
   m_settings->endGroup();
 
   // do this outside of settings group because it uses groups internally
@@ -2765,8 +2765,6 @@ void MainWindow::writeAllTxt(QString message)
               << m_mode << endl;
           m_RxLog=0;
         }
-//        int n=message.length();
-//        out << message.mid(0,n-2) << endl;
         out << message << endl;
         f.close();
       } else {
@@ -2859,7 +2857,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
          (decodedtext.string().contains("R+") or decodedtext.string().contains("R-"))) {
         QString houndCall,houndGrid;
         decodedtext.deCallAndGrid(/*out*/houndCall,houndGrid);
-        foxRxSequencer(houndCall,houndGrid);
+        foxRxSequencer(decodedtext.string(),houndCall,houndGrid);
       }
 
       //Left (Band activity) window
@@ -2932,12 +2930,12 @@ void MainWindow::readFromStdout()                             //readFromStdout
             on_logQSOButton_clicked();
           }
           if(w.at(2)==m_config.my_callsign()) {
-            int fRx=decodedtext.string().mid(15,5).toInt();
             m_rptRcvd=w.at(4);
             m_rptSent=decodedtext.string().mid(7,3);
-            //### Select TX3, and set TxFreq = fRx + 350 Hz, and Force Auto ON. ###
+            //### Select TX3, set random TxFreq in [300-900], and Force Auto ON. ###
             ui->txrb3->setChecked(true);
-            ui->TxFreqSpinBox->setValue(fRx+350);
+            int fTx = 300.0 + 600.0*double(qrand())/RAND_MAX;
+            ui->TxFreqSpinBox->setValue(fTx);
             if(!m_auto) auto_tx_mode(true);
           }
         } else {
@@ -2949,12 +2947,12 @@ void MainWindow::readFromStdout()                             //readFromStdout
                 auto_tx_mode(false);
                 on_logQSOButton_clicked();
               } else {
-                int fRx=decodedtext.string().mid(15,5).toInt();
                 m_rptRcvd=w.at(2);
                 m_rptSent=decodedtext.string().mid(7,3);
-                //### Select TX3, and set TxFreq = fRx + 350 Hz, and Force Auto ON. ###
+                //### Select TX3, set random TxFreq in [300-900], and Force Auto ON. ###
                 ui->txrb3->setChecked(true);
-                ui->TxFreqSpinBox->setValue(fRx+350);
+                int fTx = 300.0 + 600.0*double(qrand())/RAND_MAX;
+                ui->TxFreqSpinBox->setValue(fTx);
                 if(!m_auto) auto_tx_mode(true);
               }
             }
@@ -5491,6 +5489,16 @@ void MainWindow::on_actionErase_ALL_TXT_triggered()          //Erase ALL.TXT
   }
 }
 
+void MainWindow::on_actionErase_FoxQSO_txt_triggered()
+{
+  int ret = MessageBox::query_message(this, tr("Confirm Erase"),
+                  tr("Are you sure you want to erase file ALL.TXT?"));
+  if(ret==MessageBox::Yes) {
+    QFile f{m_config.writeable_data_dir().absoluteFilePath("FoxQSO.txt")};
+    f.remove();
+  }
+}
+
 void MainWindow::on_actionErase_wsjtx_log_adi_triggered()
 {
   int ret = MessageBox::query_message (this, tr ("Confirm Erase"),
@@ -7145,10 +7153,6 @@ void MainWindow::on_sbMax_dB_valueChanged(int n)
 void MainWindow::on_pbFoxReset_clicked()
 {
   ui->textBrowser4->setText("");
-  for(int i=0; i<m_Nslots; i++) {
-    m_foxMsgSent[i]="";
-    m_foxMsgToBeSent[i]="";
-  }
 }
 
 void MainWindow::on_comboBoxHoundSort_activated(int index)
@@ -7271,9 +7275,6 @@ void MainWindow::selectHound(QString line)
 
 // Don't add a call already enqueued or in QSO
   if(ui->textBrowser4->toPlainText().indexOf(houndCall) >= 0) return;
-  for(int i=0; i<m_Nslots; i++) {
-    if(houndCall==m_houndCall[i]) return;
-  }
 
   QString houndGrid=line.split(" ",QString::SkipEmptyParts).at(1);  // Hound caller's grid
   QString rpt=line.split(" ",QString::SkipEmptyParts).at(2);        // Hound SNR
@@ -7334,11 +7335,6 @@ void MainWindow::houndCallers()
         if(m_loggedByFox[houndCall].contains(m_lastBand) and
            ui->cbNoDupes->isChecked())   continue;   //already logged on this band
         if(m_foxQSO.contains(houndCall)) continue;   //still in the QSO map
-        bool bmatch=false;
-        for(int i=0; i<m_Nslots; i++) {
-          if(m_houndCall[i]==houndCall) bmatch=true;
-        }
-        if(bmatch) continue;               //Don't list a hound already being called
         QString countryName,continent;
         bool callWorkedBefore,countryWorkedBefore;
         m_logBook.match(/*in*/houndCall,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
@@ -7362,7 +7358,7 @@ void MainWindow::houndCallers()
   }
 }
 
-void MainWindow::foxRxSequencer(QString houndCall, QString rptRcvd)
+void MainWindow::foxRxSequencer(QString msg, QString houndCall, QString rptRcvd)
 {
 /* Called from "readFromStdOut()" to process decoded messages of the form
  * "myCall houndCall R+rpt".
@@ -7374,6 +7370,7 @@ void MainWindow::foxRxSequencer(QString houndCall, QString rptRcvd)
 
   m_foxQSO[houndCall].rcvd=rptRcvd.mid(1);    //Save Fox's report for the log
   m_foxRR73Queue.enqueue(houndCall);          //Request RR73 to be sent to houndCall
+  writeFoxQSO("        " + msg.trimmed());
 }
 
 void MainWindow::foxTxSequencer()
@@ -7472,9 +7469,10 @@ Transmit:
   strncpy(&foxcom_.mycall[0], foxCall.toLatin1(),6);   //Copy Fox callsign into foxcom_
   foxgen_();
 
+  int maxAge=30*ui->sbMaxTime->value();   //60 ==> max 4 calls (0 30 60 90) to a new Fox
   for(auto a: m_foxQSO.keys()) {
     int ageSec=now-m_foxQSO[a].t0;
-    if(ageSec > 60) {                    //60 ==> max 4 calls (0 30 60 90) to a new Fox
+    if(ageSec > maxAge) {
       m_foxQSO.remove(a);
       m_foxQSOqueue.removeOne(a);
     } else {
@@ -7526,5 +7524,20 @@ void MainWindow::foxGenWaveform(int i,QString fm)
   foxcom_.i3bit[i]=0;
   if(fm.indexOf("<")>0) foxcom_.i3bit[i]=1;
   strncpy(&foxcom_.cmsg[i][0],fm.toLatin1(),40);   //Copy this message into cmsg[i]
-  qDebug() << "Fox Transmitting:" << i << fm.trimmed();
+//  qDebug() << "Fox Transmitting:" << i << fm.trimmed();
+  writeFoxQSO(" Tx: " + fm.trimmed());
+}
+
+void MainWindow::writeFoxQSO(QString msg)
+{
+  QFile f {m_config.writeable_data_dir ().absoluteFilePath ("FoxQSO.txt")};
+  if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
+    QTextStream out(&f);
+    out << QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm:ss")
+        << "  " << qSetRealNumberPrecision (12) << (m_freqNominal/1.e6) << msg << endl;
+    f.close();
+  } else {
+    MessageBox::warning_message (this, tr("File Open Error"),
+      tr("Cannot open \"%1\" for append: %2").arg(f.fileName()).arg(f.errorString()));
+  }
 }

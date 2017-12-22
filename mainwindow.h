@@ -198,6 +198,7 @@ private slots:
   void on_actionDeepestDecode_toggled (bool);
   void bumpFqso(int n);
   void on_actionErase_ALL_TXT_triggered();
+  void on_actionErase_FoxQSO_txt_triggered();
   void on_actionErase_wsjtx_log_adi_triggered();
   void startTx2();
   void startP1();
@@ -562,13 +563,6 @@ private:
   QString m_CQtype;
   QString m_opCall;
   QString m_houndCallers;        //Sorted list of Hound callers
-  QString m_houndCall[5];
-  QString m_houndCall0[5];
-  QString m_houndGrid[5];
-  QString m_houndRptSent[5];
-  QString m_houndRptRcvd[5];
-  QString m_foxMsgToBeSent[5];
-  QString m_foxMsgSent[5];
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;
@@ -690,9 +684,10 @@ private:
   void write_transmit_entry (QString const& file_name);
   void selectHound(QString t);
   void houndCallers();
-  void foxRxSequencer(QString houndCall, QString rptRcvd);
+  void foxRxSequencer(QString msg, QString houndCall, QString rptRcvd);
   void foxTxSequencer();
   void foxGenWaveform(int i,QString fm);
+  void writeFoxQSO(QString msg);
 };
 
 extern int killbyname(const char* progName);
