@@ -4927,6 +4927,7 @@ void MainWindow::on_actionFT8_triggered()
     ui->TxFreqSpinBox->setValue(300);
     displayWidgets(nWidgets("11101000010011100001000010000010"));
     ui->labDXped->setText("DXpedition: Fox");
+    on_actionFox_Log_triggered();
   }
   if(m_config.bHound()) {
     ui->txFirstCheckBox->setChecked(false);
