@@ -4992,9 +4992,9 @@ void MainWindow::on_actionJT4_triggered()
     ui->sbSubmode->setValue(0);
   }
   if(bVHF) {
-    displayWidgets(nWidgets("111110010010111110111100000"));
+    displayWidgets(nWidgets("11111001001011111011110000000000"));
   } else {
-    displayWidgets(nWidgets("111010000000111000110000000"));
+    displayWidgets(nWidgets("11101000000011100011000000000000"));
   }
   fast_config(false);
   statusChanged();
@@ -5047,9 +5047,9 @@ void MainWindow::on_actionJT9_triggered()
   ui->label_6->setText("Band Activity");
   ui->label_7->setText("Rx Frequency");
   if(bVHF) {
-    displayWidgets(nWidgets("111110101000111110010000000"));
+    displayWidgets(nWidgets("11111010100011111001000000000000"));
   } else {
-    displayWidgets(nWidgets("111010000000111000010000000"));
+    displayWidgets(nWidgets("11101000000011100001000000000000"));
   }
   fast_config(m_bFastMode);
   ui->cbAutoSeq->setVisible(m_bFast9);
@@ -5088,7 +5088,7 @@ void MainWindow::on_actionJT9_JT65_triggered()
   ui->label_7->setText("Rx Frequency");
   ui->decodedTextLabel->setText("UTC   dB   DT Freq    Message");
   ui->decodedTextLabel2->setText("UTC   dB   DT Freq    Message");
-  displayWidgets(nWidgets("111010000001111000010000000"));
+  displayWidgets(nWidgets("11101000000111100001000000000000"));
   fast_config(false);
   statusChanged();
 }
@@ -5135,9 +5135,9 @@ void MainWindow::on_actionJT65_triggered()
     ui->label_7->setText("Rx Frequency");
   }
   if(bVHF) {
-    displayWidgets(nWidgets("111110010000111110111100010"));
+    displayWidgets(nWidgets("11111001000011111011110001000000"));
   } else {
-    displayWidgets(nWidgets("111010000000111000010000000"));
+    displayWidgets(nWidgets("11101000000011100001000000000000"));
   }
   fast_config(false);
   statusChanged();
@@ -5169,7 +5169,7 @@ void MainWindow::on_actionQRA64_triggered()
        "Using old QRA64 sync pattern.");
     m_bQRAsyncWarned=true;
   }
-  displayWidgets(nWidgets("111110010110111110000000001"));
+  displayWidgets(nWidgets("11111001011011111000000000100000"));
   statusChanged();
 }
 
@@ -5205,7 +5205,7 @@ void MainWindow::on_actionISCAT_triggered()
   ui->sbSubmode->setMaximum(1);
   if(m_nSubMode==0) ui->TxFreqSpinBox->setValue(1012);
   if(m_nSubMode==1) ui->TxFreqSpinBox->setValue(560);
-  displayWidgets(nWidgets("100111000000000110000000000"));
+  displayWidgets(nWidgets("10011100000000011000000000000000"));
   fast_config(true);
   statusChanged ();
 }
@@ -5246,7 +5246,7 @@ void MainWindow::on_actionMSK144_triggered()
   ui->rptSpinBox->setValue(0);
   ui->rptSpinBox->setSingleStep(1);
   ui->sbFtol->values ({20, 50, 100, 200});
-  displayWidgets(nWidgets("101111110100000000010001000"));
+  displayWidgets(nWidgets("10111111010000000001000100001000"));
   fast_config(m_bFastMode);
   statusChanged();
 }
@@ -5274,7 +5274,7 @@ void MainWindow::on_actionWSPR_triggered()
   m_bFastMode=false;
   m_bFast9=false;
   ui->TxFreqSpinBox->setValue(ui->WSPRfreqSpinBox->value());
-  displayWidgets(nWidgets("000000000000000001010000000"));
+  displayWidgets(nWidgets("00000000000000000101000000000000"));
   fast_config(false);
   statusChanged();
 }
@@ -5324,7 +5324,7 @@ void MainWindow::on_actionEcho_triggered()
   m_bFast9=false;
   WSPR_config(true);
   ui->decodedTextLabel->setText("   UTC      N   Level    Sig      DF    Width   Q");
-  displayWidgets(nWidgets("000000000000000000000010000"));
+  displayWidgets(nWidgets("00000000000000000000001000000000"));
   fast_config(false);
   statusChanged();
 }
@@ -5349,7 +5349,7 @@ void MainWindow::on_actionFreqCal_triggered()
 //                               18:15:47      0  1  1500  1550.349     0.100    3.5   10.2
   ui->decodedTextLabel->setText("  UTC      Freq CAL Offset  fMeas       DF     Level   S/N");
   ui->measure_check_box->setChecked (false);
-  displayWidgets(nWidgets("001101000000000000000000000"));
+  displayWidgets(nWidgets("00110100000000000000000000000100"));
   statusChanged();
 }
 
