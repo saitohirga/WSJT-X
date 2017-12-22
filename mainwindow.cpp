@@ -5492,7 +5492,7 @@ void MainWindow::on_actionErase_ALL_TXT_triggered()          //Erase ALL.TXT
 void MainWindow::on_actionErase_FoxQSO_txt_triggered()
 {
   int ret = MessageBox::query_message(this, tr("Confirm Erase"),
-                  tr("Are you sure you want to erase file ALL.TXT?"));
+                  tr("Are you sure you want to erase file FoxQSO.txt?"));
   if(ret==MessageBox::Yes) {
     QFile f{m_config.writeable_data_dir().absoluteFilePath("FoxQSO.txt")};
     f.remove();
