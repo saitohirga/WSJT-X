@@ -7285,12 +7285,7 @@ void MainWindow::selectHound(QString line)
   QString houndGrid=line.split(" ",QString::SkipEmptyParts).at(1);  // Hound caller's grid
   QString rpt=line.split(" ",QString::SkipEmptyParts).at(2);        // Hound SNR
 
-  /*
-  ui->dxCallEntry->setText(houndCall);                           // Not necessary?
-  ui->dxGridEntry->setText(houndGrid);
-  genStdMsgs(rpt);
-  on_txb2_clicked();
-  */
+//### Note: Compound callsigns for Hounds are not presently supported. ###
 
   m_houndCallers=m_houndCallers.remove(line+"\n");      // Remove t from sorted Hound list
   m_nSortedHounds--;
