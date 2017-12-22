@@ -31,7 +31,7 @@ subroutine foxgen()
   real x(NFFT)
   real*8 dt,twopi,f0,fstep,dfreq,phi,dphi
   complex cx(0:NH)
-  common/foxcom/wave(NWAVE),nslots,i3bit(5),cmsg(5),mycall(6)
+  common/foxcom/wave(NWAVE),nslots,i3bit(5),cmsg(5),mycall(12)
   common/foxcom2/itone2(NN),msgbits2(KK)
   equivalence (x,cx),(y,cy)
   data icos7/2,5,6,0,4,1,3/                   !Costas 7x7 tone pattern
@@ -58,11 +58,11 @@ subroutine foxgen()
         msg=cmsg(n)(1:i1)//cmsg(n)(i2+1:i3-2)//'                   '
         read(cmsg(n)(i4+2:i4+4),*) irpt
      endif
-!     print*,'Foxgen:',n,cmsg(n)
      call genft8(msg,mygrid,bcontest,0,msgsent,msgbits,itone)
+     print*,'Foxgen:',n,cmsg(n),msgsent
 
      if(i3b.eq.1) then
-        icrc10=crc10(c_loc(mycall),6)
+        icrc10=crc10(c_loc(mycall),12)
         nrpt=irpt+30
         write(cbits,1001) msgbits(1:56),icrc10,nrpt,i3b,0
 1001    format(56b1.1,b10.10,b6.6,b3.3,b12.12)

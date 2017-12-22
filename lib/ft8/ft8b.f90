@@ -27,7 +27,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   integer icos7(0:6),ip(1)
   integer nappasses(0:5)  !Number of decoding passes to use for each QSO state
   integer naptypes(0:5,4) ! (nQSOProgress, decoding pass)  maximum of 4 passes for now
-  integer*1, target:: i1hiscall(6)
+  integer*1, target:: i1hiscall(12)
   complex cd0(3200)
   complex ctwk(32)
   complex csymb(32)
@@ -398,11 +398,10 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
         if(xsnr .lt. -24.0) xsnr=-24.0
         
         if(i3bit.eq.1) then
-           hiscall6=hiscall12(1:6)
-           do i=1,6
-              i1hiscall(i)=ichar(hiscall6(i:i))
+           do i=1,12
+              i1hiscall(i)=ichar(hiscall12(i:i))
            enddo
-           icrc10=crc10(c_loc(i1hiscall),6)
+           icrc10=crc10(c_loc(i1hiscall),12)
            write(cbits,1001) decoded
 1001       format(87i1)
            read(cbits,1002) ncrc10,nrpt

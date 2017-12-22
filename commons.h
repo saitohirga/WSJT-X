@@ -85,7 +85,7 @@ extern struct {
   int   nslots;
   int   i3bit[5];
   char  cmsg[5][40];
-  char  mycall[6];
+  char  mycall[12];
 } foxcom_;
 
 #ifdef __cplusplus

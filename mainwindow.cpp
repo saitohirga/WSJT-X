@@ -7433,12 +7433,12 @@ void MainWindow::foxTxSequencer()
     if(islot >= m_Nslots) goto Transmit;
   }
 
-//One or more Tx slots are still available
+//One or more Tx slots are still available, repeat call to a Hound in the QSOqueue
   while (!m_foxQSOqueue.isEmpty()) {
     //should limit repeat transmissions here
     hc1=m_foxQSOqueue.dequeue();             //Recover hound callsign from QSO queue
     m_foxQSOqueue.enqueue(hc1);              //Put him back in, at the end
-    fm = hc1 + " " + m_config.my_callsign() + " " + m_foxQSO[hc1].sent;  //Tx msg
+    fm = hc1 + " " + m_baseCall + " " + m_foxQSO[hc1].sent;  //Tx msg
     islot++;
     //Generate tx waveform
     foxGenWaveform(islot-1,fm);
@@ -7455,7 +7455,7 @@ void MainWindow::foxTxSequencer()
     m_foxQSO[hc1].sent=rpt;               //Report to send him
     m_foxQSO[hc1].t0=now;                 //QSO start time
     rm_tb4(hc1);                          //Remove this hound from tb4
-    fm = hc1 + " " + m_config.my_callsign() + " " + rpt;  //Tx msg
+    fm = hc1 + " " + m_baseCall + " " + rpt;  //Tx msg
     islot++;
     //Generate tx waveform
     foxGenWaveform(islot-1,fm);
@@ -7472,8 +7472,8 @@ void MainWindow::foxTxSequencer()
 
 Transmit:
   foxcom_.nslots=islot;
-  QString foxCall=m_config.my_callsign() + "   ";
-  strncpy(&foxcom_.mycall[0], foxCall.toLatin1(),6);   //Copy Fox callsign into foxcom_
+  QString foxCall=m_config.my_callsign() + "         ";
+  strncpy(&foxcom_.mycall[0], foxCall.toLatin1(),12);   //Copy Fox callsign into foxcom_
   foxgen_();
 
   int maxAge=30*ui->sbMaxTime->value();   //60 ==> max 4 calls (0 30 60 90) to a new Fox

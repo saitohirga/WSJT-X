@@ -4,16 +4,16 @@ subroutine foxgen_wrap(msg40,msgbits,itone)
   parameter (NWAVE=NN*NSPS)
 
   character*40 msg40,cmsg
-  character*6 mycall6
+  character*12 mycall12
   integer*1 msgbits(KK),msgbits2
   integer itone(NN)
-  common/foxcom/wave(NWAVE),nslots,i3bit(5),cmsg(5),mycall6
+  common/foxcom/wave(NWAVE),nslots,i3bit(5),cmsg(5),mycall12
   common/foxcom2/itone2(NN),msgbits2(KK)
 
   nslots=1
   i1=index(msg40,'<')
   i2=index(msg40,'>')
-  mycall6=msg40(i1+1:i2-1)//'    '
+  mycall12=msg40(i1+1:i2-1)//'    '
   cmsg(1)=msg40
   i3bit(1)=1
   call foxgen()
