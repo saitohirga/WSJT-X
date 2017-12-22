@@ -27,6 +27,7 @@ MessageAveraging::MessageAveraging(QSettings * settings, QFont const& font, QWid
     ui->lab3->setVisible(false);
   }
   setWindowTitle(m_title_);
+  m_nLogged_=0;
 }
 
 MessageAveraging::~MessageAveraging()
@@ -111,10 +112,14 @@ void MessageAveraging::foxLabRate(int n)
 {
   QString t;
   t.sprintf("Rate: %3d",n);
-  ui->lab3->setText(t);
+  ui->lab4->setText(t);
 }
 
 void MessageAveraging::foxAddLog(QString logLine)
 {
   ui->msgAvgPlainTextEdit->insertPlainText(logLine + "\n");
+  m_nLogged_++;
+  QString t;
+  t.sprintf("Logged: %d",m_nLogged_);
+  ui->lab3->setText(t);
 }

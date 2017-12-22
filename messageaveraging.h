@@ -32,6 +32,7 @@ private:
   void setContentFont (QFont const&);
   QSettings * settings_;
   QString m_title_;
+  qint32  m_nLogged_;
 
   QScopedPointer<Ui::MessageAveraging> ui;
 };

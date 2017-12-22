@@ -7417,6 +7417,7 @@ void MainWindow::foxTxSequencer()
       m_msgAvgWidget->foxAddLog(logLine);
     }
     on_logQSOButton_clicked();
+    m_foxRateQueue.enqueue(now);             //Add present time in seconds to Rate queue.
     m_loggedByFox[hc1] += (m_lastBand + " ");
     if(m_foxQSOqueue.contains(hc1)) m_foxQSOqueue.removeOne(hc1);
 
@@ -7475,10 +7476,14 @@ Transmit:
     if(ageSec > maxAge) {
       m_foxQSO.remove(a);
       m_foxQSOqueue.removeOne(a);
-    } else {
-//      qDebug() << "Age:" << a << ageSec;
     }
   }
+  while(!m_foxRateQueue.isEmpty()) {
+    qint64 age = now - m_foxRateQueue.head();
+    if(age < 3600) break;
+    m_foxRateQueue.dequeue();
+  }
+  m_msgAvgWidget->foxLabRate(m_foxRateQueue.size());
 }
 
 void MainWindow::rm_tb4(QString houndCall)

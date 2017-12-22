@@ -581,6 +581,7 @@ private:
   QQueue<QString> m_houndQueue;
   QQueue<QString> m_foxQSOqueue;
   QQueue<QString> m_foxRR73Queue;
+  QQueue<qint64>  m_foxRateQueue;
 
   QDateTime m_dateTimeQSOOn;
   QDateTime m_dateTimeLastTX;
