@@ -367,6 +367,8 @@ private:
   qint64  m_secBandChanged;
   qint64  m_freqMoon;
   qint64  m_msec0;
+  qint64  m_fullFoxCallTime;
+
   Frequency m_freqNominal;
   Frequency m_freqTxNominal;
   Astro::Correction m_astroCorrection;

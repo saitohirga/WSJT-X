@@ -7439,6 +7439,10 @@ void MainWindow::foxTxSequencer()
     hc1=m_foxQSOqueue.dequeue();             //Recover hound callsign from QSO queue
     m_foxQSOqueue.enqueue(hc1);              //Put him back in, at the end
     fm = hc1 + " " + m_baseCall + " " + m_foxQSO[hc1].sent;  //Tx msg
+    if(now-m_fullFoxCallTime > 300) {
+      fm = hc1 + " " + m_config.my_callsign();               //Tx msg
+      m_fullFoxCallTime=now;
+    }
     islot++;
     //Generate tx waveform
     foxGenWaveform(islot-1,fm);
@@ -7455,7 +7459,11 @@ void MainWindow::foxTxSequencer()
     m_foxQSO[hc1].sent=rpt;               //Report to send him
     m_foxQSO[hc1].t0=now;                 //QSO start time
     rm_tb4(hc1);                          //Remove this hound from tb4
-    fm = hc1 + " " + m_baseCall + " " + rpt;  //Tx msg
+    fm = hc1 + " " + m_baseCall + " " + rpt;    //Tx msg
+    if(now-m_fullFoxCallTime > 300) {
+      fm = hc1 + " " + m_config.my_callsign();  //Tx msg
+      m_fullFoxCallTime=now;
+    }
     islot++;
     //Generate tx waveform
     foxGenWaveform(islot-1,fm);
@@ -7465,7 +7473,10 @@ void MainWindow::foxTxSequencer()
   if(islot==0) {
     //No tx message generated yet, so we'll call CQ
     fm=ui->comboBoxCQ->currentText() + " " + m_config.my_callsign();
-    if(!fm.contains("/")) fm += " " + m_config.my_grid().mid(0,4);
+    if(!fm.contains("/")) {
+      fm += " " + m_config.my_grid().mid(0,4);
+      m_fullFoxCallTime=now;
+    }
     islot++;
     foxGenWaveform(islot-1,fm);
   }
