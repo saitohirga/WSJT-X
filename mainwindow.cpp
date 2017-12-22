@@ -7543,6 +7543,12 @@ void MainWindow::foxGenWaveform(int i,QString fm)
 //Generate and accumulate the Tx waveform
   fm += "                                        ";
   fm=fm.mid(0,40);
+
+  QString txModeArg;
+  txModeArg.sprintf("FT8fox %d",i+1);
+  ui->decodedTextBrowser2->displayTransmittedText(fm.trimmed(), txModeArg,
+        300+60*i,m_config.color_TxMsg(),m_bFastMode);
+
   foxcom_.i3bit[i]=0;
   if(fm.indexOf("<")>0) foxcom_.i3bit[i]=1;
   strncpy(&foxcom_.cmsg[i][0],fm.toLatin1(),40);   //Copy this message into cmsg[i]
