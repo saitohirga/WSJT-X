@@ -59,7 +59,7 @@ subroutine foxgen()
         read(cmsg(n)(i4+2:i4+4),*) irpt
      endif
      call genft8(msg,mygrid,bcontest,0,msgsent,msgbits,itone)
-     print*,'Foxgen:',n,cmsg(n),msgsent
+!     print*,'Foxgen:',n,cmsg(n),msgsent
 
      if(i3b.eq.1) then
         icrc10=crc10(c_loc(mycall),12)
