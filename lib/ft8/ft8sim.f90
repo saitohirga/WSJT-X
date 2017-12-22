@@ -92,7 +92,8 @@ program ft8sim
         c0=0.
         if(nsig.eq.2) then
            if(index(msg,'R-').gt.0) f0=500
-           msg(9:9)=char(ichar('W')+isig)
+           i1=index(msg,' ')
+           msg(i1+4:i1+4)=char(ichar('A')+isig-1)
            if(isig.eq.2) then
               f0=f0+100
            endif

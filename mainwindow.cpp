@@ -902,7 +902,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
      m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "W9XYZ" or
-     m_config.my_callsign()=="K1ABC") {
+     m_config.my_callsign()=="K1ABC" or m_config.my_callsign()=="K1ABC/2" or
+     m_config.my_callsign()=="KH1/KH7Z") {
     ui->actionWSPR_LF->setEnabled(true);
   } else {
     QString errorMsg;
@@ -2853,11 +2854,15 @@ void MainWindow::readFromStdout()                             //readFromStdout
             ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
 
       if(m_mode=="FT8" and m_config.bFox() and
-         decodedtext.string().contains(" " + m_config.my_callsign() + " ") and
          (decodedtext.string().contains("R+") or decodedtext.string().contains("R-"))) {
-        QString houndCall,houndGrid;
-        decodedtext.deCallAndGrid(/*out*/houndCall,houndGrid);
-        foxRxSequencer(decodedtext.string(),houndCall,houndGrid);
+        auto for_us  = decodedtext.string().contains(" " + m_config.my_callsign() + " ") or
+            decodedtext.string().contains(" "+m_baseCall) or
+            decodedtext.string().contains(m_baseCall+" ");
+        if(for_us) {
+          QString houndCall,houndGrid;
+          decodedtext.deCallAndGrid(/*out*/houndCall,houndGrid);
+          foxRxSequencer(decodedtext.string(),houndCall,houndGrid);
+        }
       }
 
       //Left (Band activity) window
@@ -7189,7 +7194,7 @@ QString MainWindow::sortHoundCalls(QString t, int isort, int max_dB)
   nlines=lines.length()-1;
   for(i=0; i<nlines; i++) {
     msg=lines.at(i);                        //key = callsign
-    if(msg.mid(13,1)==" ") msg=msg.mid(0,16) + "_" + msg.mid(17);
+    if(msg.mid(13,1)==" ") msg=msg.mid(0,13) + "...." + msg.mid(17);
     houndCall=msg.split(" ").at(0);         //value = "call grid snr freq dist age"
     map[houndCall]=msg;
   }
@@ -7413,7 +7418,7 @@ void MainWindow::foxTxSequencer()
              << m_rptRcvd << m_lastBand;
     QDateTime logTime {QDateTime::currentDateTimeUtc ()};
     QString logLine=logTime.toString("yyyy-MM-dd hh:mm") + " " + m_hisCall +
-        " " + m_hisGrid + "  " + m_rptSent + "  " + m_rptRcvd + " " + m_lastBand;
+        "  " + m_hisGrid + "  " + m_rptSent + "  " + m_rptRcvd + " " + m_lastBand;
     if(m_msgAvgWidget != NULL and m_msgAvgWidget->isVisible()) {
       m_msgAvgWidget->foxAddLog(logLine);
     }
