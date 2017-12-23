@@ -1183,7 +1183,7 @@ void MainWindow::fixStop()
   } else if(m_mode=="WSPR-LF") {
     m_hsymStop=813;
   } else if(m_mode=="Echo") {
-    m_hsymStop=10;
+    m_hsymStop=9;
   } else if (m_mode=="JT4"){
     m_hsymStop=176;
     if(m_config.decode_at_52s()) m_hsymStop=179;
@@ -3171,7 +3171,7 @@ void MainWindow::guiUpdate()
   m_tRemaining=m_TRperiod - fmod(tsec,double(m_TRperiod));
 
   if(m_mode=="Echo") {
-    txDuration=2.5;
+    txDuration=2.4;
     tx1=0.0;
     tx2=txDuration;
     if(m_auto and m_s6>4.0) m_bEchoTxOK=true;
@@ -5313,7 +5313,7 @@ void MainWindow::on_actionEcho_triggered()
   m_nsps=6912;                        //For symspec only
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
-  m_hsymStop=10;
+  m_hsymStop=9;
   m_toneSpacing=1.0;
   switch_mode(Modes::Echo);
   m_modeTx="Echo";
