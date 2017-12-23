@@ -899,7 +899,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
 
-
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
      m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "W9XYZ" or
      m_config.my_callsign()=="K1ABC" or m_config.my_callsign()=="K1ABC/2" or
@@ -913,7 +912,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
        "Please use WSJT-X v1.8.0\n", errorMsg);
     Q_EMIT finished ();
   }
-
 
   if(!ui->cbMenus->isChecked()) {
     ui->cbMenus->setChecked(true);
@@ -2794,7 +2792,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
     QByteArray t=proc_jt9.readLine();
     if(m_mode=="FT8" and !m_config.bHound() and t.contains(";")) continue;
 //    qint64 ms=QDateTime::currentMSecsSinceEpoch() - m_msec0;
-//    qDebug() << "A" << ms << t;
     bool bAvgMsg=false;
     int navg=0;
     if(t.indexOf("<DecodeFinished>") >= 0) {
@@ -2864,7 +2861,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
           foxRxSequencer(decodedtext.string(),houndCall,houndGrid);
         }
       }
-
       //Left (Band activity) window
       if(!bAvgMsg) {
         if(m_mode=="FT8" and m_config.bFox()) {
@@ -2894,8 +2890,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
           auto for_us = parts[5].contains (m_baseCall)
             || ("DE" == parts[5] && qAbs (ui->RxFreqSpinBox->value () - audioFreq) <= 10);
           if(m_baseCall==m_config.my_callsign() and m_baseCall!=parts[5]) for_us=false;
-          if(m_bCallingCQ && !m_bAutoReply && for_us && ui->cbFirst->isChecked()) {
-            //          int snr=decodedtext.string().mid(6,4).toInt();
+          if(m_bCallingCQ && !m_bAutoReply && for_us && ui->cbFirst->isChecked() and
+             !m_config.bFox() and !m_config.bHound()) {
             m_bDoubleClicked=true;
             m_bAutoReply = true;
             if(!m_config.bFox()) processMessage (decodedtext);
@@ -4872,15 +4868,6 @@ void MainWindow::displayWidgets(qint64 n)
 
 void MainWindow::on_actionFT8_triggered()
 {
-  /*
-  if(m_config.my_callsign()!="K1JT" and m_config.my_callsign()!="K9AN" and
-     m_config.my_callsign()!="G4WJS" and m_config.my_callsign()!="G3PQA") {
-    MessageBox::warning_message (this, tr ("FT8 warning"),
-       "FT8 mode temporarily disabled.");
-    on_actionJT9_JT65_triggered();
-    return;
-  }
-  */
   m_mode="FT8";
   bool bVHF=false;
   m_bFast9=false;
@@ -4924,6 +4911,8 @@ void MainWindow::on_actionFT8_triggered()
   ui->txb4->setEnabled(true);
   ui->txb5->setEnabled(true);
   ui->txb6->setEnabled(true);
+  ui->txFirstCheckBox->setEnabled(true);
+  ui->cbAutoSeq->setEnabled(true);
   if(m_config.bFox()) {
     ui->txFirstCheckBox->setChecked(true);
     ui->txFirstCheckBox->setEnabled(false);
