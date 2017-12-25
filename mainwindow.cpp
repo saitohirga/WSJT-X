@@ -898,7 +898,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (&splashTimer, &QTimer::timeout, this, &MainWindow::splash_done);
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
-
+/*
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
      m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "W9XYZ" or
      m_config.my_callsign()=="K1ABC" or m_config.my_callsign()=="K1ABC/2" or
@@ -912,7 +912,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
        "Please use WSJT-X v1.8.0\n", errorMsg);
     Q_EMIT finished ();
   }
-
+*/
   if(!ui->cbMenus->isChecked()) {
     ui->cbMenus->setChecked(true);
     ui->cbMenus->setChecked(false);
@@ -7381,7 +7381,7 @@ void MainWindow::foxTxSequencer()
   while(!m_foxRR73Queue.isEmpty()) {
     hc1=m_foxRR73Queue.dequeue();           //First priority is to send RR73 messages
     if(m_houndQueue.isEmpty()) {
-      fm = hc1 + " " + m_config.my_callsign() + " RR73";  //Send a standard FT8 message
+      fm = hc1 + " " + m_baseCall + " RR73";  //Send a standard FT8 message
     } else {
       t=m_houndQueue.dequeue();             //Fetch new hound from queue
       hc2=t.mid(0,6).trimmed();             //hound call
