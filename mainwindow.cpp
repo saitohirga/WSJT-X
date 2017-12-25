@@ -2243,9 +2243,9 @@ void MainWindow::hideMenus(bool checked)
     ui->label_6->setVisible(!checked);
     ui->label_7->setVisible(!checked);
     ui->decodedTextLabel2->setVisible(!checked);
-    ui->line_2->setVisible(!checked);
+//    ui->line_2->setVisible(!checked);
   }
-  ui->line->setVisible(!checked);
+//  ui->line->setVisible(!checked);
   ui->decodedTextLabel->setVisible(!checked);
   ui->gridLayout_5->layout()->setSpacing(spacing);
   ui->horizontalLayout->layout()->setSpacing(spacing);
@@ -5601,11 +5601,11 @@ void MainWindow::enable_DXCC_entity (bool on)
 {
   if (on and !m_mode.startsWith ("WSPR") and m_mode!="Echo") {
     m_logBook.init();                        // re-read the log and cty.dat files
-    ui->gridLayout->setColumnStretch(0,55);  // adjust proportions of text displays
-    ui->gridLayout->setColumnStretch(1,45);
+//    ui->gridLayout->setColumnStretch(0,55);  // adjust proportions of text displays
+//    ui->gridLayout->setColumnStretch(1,45);
   } else {
-    ui->gridLayout->setColumnStretch(0,0);
-    ui->gridLayout->setColumnStretch(1,0);
+//    ui->gridLayout->setColumnStretch(0,0);
+//    ui->gridLayout->setColumnStretch(1,0);
   }
   updateGeometry ();
 }
