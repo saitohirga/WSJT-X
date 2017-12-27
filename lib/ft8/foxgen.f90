@@ -31,7 +31,7 @@ subroutine foxgen()
   real x(NFFT)
   real*8 dt,twopi,f0,fstep,dfreq,phi,dphi
   complex cx(0:NH)
-  common/foxcom/wave(NWAVE),nslots,i3bit(5),cmsg(5),mycall(12)
+  common/foxcom/wave(NWAVE),nslots,nfreq,i3bit(5),cmsg(5),mycall(12)
   common/foxcom2/itone2(NN),msgbits2(KK)
   equivalence (x,cx),(y,cy)
   data icos7/2,5,6,0,4,1,3/                   !Costas 7x7 tone pattern
@@ -95,8 +95,7 @@ subroutine foxgen()
 ! Make copies of itone() and msgbits() for ft8sim
      itone2=itone
      msgbits2=msgbits
-
-     f0=1800.d0 + fstep*(n-1)
+     f0=nfreq + fstep*(n-1)
      phi=0.d0
      k=0
      do j=1,NN
@@ -128,7 +127,7 @@ subroutine foxgen()
 !  call plotspec(2,wave)          !Plot the spectrum
 
   width=50.0
-  call foxfilt(nslots,width,wave)
+  call foxfilt(nslots,nfreq,width,wave)
   peak3=maxval(abs(wave))
   wave=wave/peak3
 

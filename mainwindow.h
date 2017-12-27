@@ -565,6 +565,7 @@ private:
   QString m_CQtype;
   QString m_opCall;
   QString m_houndCallers;        //Sorted list of Hound callers
+  QString m_fm0;
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;

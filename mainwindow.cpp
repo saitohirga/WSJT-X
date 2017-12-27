@@ -2941,6 +2941,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           }
         } else {
           QStringList w=decodedtext.string().mid(24).split(" ",QString::SkipEmptyParts);
+          if(decodedtext.string().contains("/")) w.append(" +00");  //Add a dummy report
           if(w.size()==3) {
             QString foxCall=w.at(1);
             if(w.at(0)==m_config.my_callsign()) {
@@ -3243,12 +3244,12 @@ void MainWindow::guiUpdate()
       icw[0]=m_ncw;
       g_iptt = 1;
       setRig ();
-      if(m_mode=="FT8" and m_config.bFox() and ui->TxFreqSpinBox->value() > 999) {
+      if(m_mode=="FT8" and m_config.bFox() and ui->TxFreqSpinBox->value() > 900) {
         ui->TxFreqSpinBox->setValue(300);
       }
       if(m_mode=="FT8" and m_config.bHound() and (ui->TxFreqSpinBox->value() < 999) and
          m_ntx != 3) {
-        int nf = (qrand() % 3000) + 1000;
+        int nf = (qrand() % 2000) + 1000;      // Hound randomized range: 1000-3000 Hz
         ui->TxFreqSpinBox->setValue(nf);
       }
       setXIT (ui->TxFreqSpinBox->value ());
@@ -3303,6 +3304,10 @@ void MainWindow::guiUpdate()
       }
       ba=msg2.toLatin1();
     } else {
+      if(m_config.bHound() and m_ntx!=3) {   //Hound transmits only Tx1 or Tx3
+        m_ntx=1;
+        ui->txrb1->setChecked(true);
+      }
       if(m_ntx == 1) ba=ui->tx1->text().toLocal8Bit();
       if(m_ntx == 2) ba=ui->tx2->text().toLocal8Bit();
       if(m_ntx == 3) ba=ui->tx3->text().toLocal8Bit();
@@ -7427,9 +7432,11 @@ void MainWindow::foxTxSequencer()
       fm = hc1 + " " + m_config.my_callsign();               //Tx msg
       m_fullFoxCallTime=now;
     }
+    if(islot>0 and fm==m_fm0) break;         //Suppress duplicate Fox signals
     islot++;
     //Generate tx waveform
     foxGenWaveform(islot-1,fm);
+    m_fm0=fm;
     if(islot >= m_Nslots) goto Transmit;
   }
 
@@ -7467,6 +7474,8 @@ void MainWindow::foxTxSequencer()
 
 Transmit:
   foxcom_.nslots=islot;
+  foxcom_.nfreq=ui->TxFreqSpinBox->value();
+  if(m_config.split_mode()) foxcom_.nfreq = foxcom_.nfreq + 1500;  //Fox Tx freq
   QString foxCall=m_config.my_callsign() + "         ";
   strncpy(&foxcom_.mycall[0], foxCall.toLatin1(),12);   //Copy Fox callsign into foxcom_
   foxgen_();
@@ -7531,12 +7540,10 @@ void MainWindow::foxGenWaveform(int i,QString fm)
   QString txModeArg;
   txModeArg.sprintf("FT8fox %d",i+1);
   ui->decodedTextBrowser2->displayTransmittedText(fm.trimmed(), txModeArg,
-        300+60*i,m_config.color_TxMsg(),m_bFastMode);
-
+        ui->TxFreqSpinBox->value()+60*i,m_config.color_TxMsg(),m_bFastMode);
   foxcom_.i3bit[i]=0;
   if(fm.indexOf("<")>0) foxcom_.i3bit[i]=1;
   strncpy(&foxcom_.cmsg[i][0],fm.toLatin1(),40);   //Copy this message into cmsg[i]
-//  qDebug() << "Fox Transmitting:" << i << fm.trimmed();
   writeFoxQSO(" Tx: " + fm.trimmed());
 }
 

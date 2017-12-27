@@ -1,4 +1,4 @@
-subroutine foxfilt(nslots,width,wave)
+subroutine foxfilt(nslots,nfreq,width,wave)
 
   parameter (NN=79,ND=58,KK=87,NSPS=4*1920)
   parameter (NWAVE=NN*NSPS,NFFT=614400,NH=NFFT/2)
@@ -11,8 +11,8 @@ subroutine foxfilt(nslots,width,wave)
   x(NWAVE+1:)=0.
   call four2a(x,NFFT,1,-1,0)              !r2c
   df=48000.0/NFFT
-  fa=1800.0 - 0.5*6.25
-  fb=1800.0 + 7.5*6.25 + (nslots-1)*60.0
+  fa=nfreq - 0.5*6.25
+  fb=nfreq + 7.5*6.25 + (nslots-1)*60.0
   ia2=nint(fa/df)
   ib1=nint(fb/df)
   ia1=nint(ia2-width/df)
