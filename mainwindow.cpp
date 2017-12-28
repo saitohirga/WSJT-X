@@ -898,7 +898,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (&splashTimer, &QTimer::timeout, this, &MainWindow::splash_done);
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
-
+/*
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
      m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "W9XYZ" or
      m_config.my_callsign()=="K1ABC" or m_config.my_callsign()=="K1ABC/2" or
@@ -912,7 +912,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
        "Please use WSJT-X v1.8.0\n", errorMsg);
     Q_EMIT finished ();
   }
-
+*/
   if(!ui->cbMenus->isChecked()) {
     ui->cbMenus->setChecked(true);
     ui->cbMenus->setChecked(false);
@@ -7428,10 +7428,12 @@ void MainWindow::foxTxSequencer()
     hc1=m_foxQSOqueue.dequeue();             //Recover hound callsign from QSO queue
     m_foxQSOqueue.enqueue(hc1);              //Put him back in, at the end
     fm = hc1 + " " + m_baseCall + " " + m_foxQSO[hc1].sent;  //Tx msg
+/*
     if(now-m_fullFoxCallTime > 300) {
       fm = hc1 + " " + m_config.my_callsign();               //Tx msg
       m_fullFoxCallTime=now;
     }
+*/
     if(islot>0 and fm==m_fm0) break;         //Suppress duplicate Fox signals
     islot++;
     //Generate tx waveform
@@ -7451,10 +7453,12 @@ void MainWindow::foxTxSequencer()
     m_foxQSO[hc1].t0=now;                 //QSO start time
     rm_tb4(hc1);                          //Remove this hound from tb4
     fm = hc1 + " " + m_baseCall + " " + rpt;    //Tx msg
+/*
     if(now-m_fullFoxCallTime > 300) {
       fm = hc1 + " " + m_config.my_callsign();  //Tx msg
       m_fullFoxCallTime=now;
     }
+*/
     islot++;
     //Generate tx waveform
     foxGenWaveform(islot-1,fm);
