@@ -2604,7 +2604,7 @@ void MainWindow::decode()                                       //decode()
   dec_data.params.nfSplit=m_wideGraph->Fmin();
   dec_data.params.nfb=m_wideGraph->Fmax();
   if(m_mode=="FT8" and m_config.bHound() and !ui->cbRxAll->isChecked()) dec_data.params.nfb=1000;
-  if(m_mode=="FT8" and (m_config.bHound() or m_config.bFox())) dec_data.params.nfqso=200;
+  if(m_mode=="FT8" and m_config.bFox()) dec_data.params.nfqso=200;
   dec_data.params.ntol=ui->sbFtol->value ();
   if(m_mode=="JT9+JT65" or !m_config.enable_VHF_features()) {
     dec_data.params.ntol=20;
