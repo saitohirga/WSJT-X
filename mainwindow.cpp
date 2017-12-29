@@ -7548,7 +7548,9 @@ void MainWindow::foxGenWaveform(int i,QString fm)
   foxcom_.i3bit[i]=0;
   if(fm.indexOf("<")>0) foxcom_.i3bit[i]=1;
   strncpy(&foxcom_.cmsg[i][0],fm.toLatin1(),40);   //Copy this message into cmsg[i]
-  writeFoxQSO(" Tx: " + fm.trimmed());
+  QString t;
+  t.sprintf(" Tx %d: ",i+1);
+  writeFoxQSO(t + fm.trimmed());
 }
 
 void MainWindow::writeFoxQSO(QString msg)
@@ -7557,7 +7559,7 @@ void MainWindow::writeFoxQSO(QString msg)
   if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
     QTextStream out(&f);
     out << QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm:ss")
-        << "  " << qSetRealNumberPrecision (12) << (m_freqNominal/1.e6) << msg << endl;
+        << "  " << fixed << qSetRealNumberPrecision (4) << (m_freqNominal/1.e6) << msg << endl;
     f.close();
   } else {
     MessageBox::warning_message (this, tr("File Open Error"),
