@@ -2942,7 +2942,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         } else {
           QStringList w=decodedtext.string().mid(24).split(" ",QString::SkipEmptyParts);
           if(decodedtext.string().contains("/")) w.append(" +00");  //Add a dummy report
-          if(w.size()==3) {
+          if(w.size()>=3) {
             QString foxCall=w.at(1);
             if(w.at(0)==m_config.my_callsign()) {
               if(w.at(2)=="RR73") {
@@ -7364,7 +7364,7 @@ void MainWindow::foxRxSequencer(QString msg, QString houndCall, QString rptRcvd)
 */
 
   m_foxQSO[houndCall].rcvd=rptRcvd.mid(1);    //Save Fox's report for the log
-  m_foxRR73Queue.enqueue(houndCall);          //Request RR73 to be sent to houndCall
+  m_foxRR73Queue.enqueue(houndCall);          //Request RR73 to be sent to Hound
   writeFoxQSO("        " + msg.trimmed());
 }
 
