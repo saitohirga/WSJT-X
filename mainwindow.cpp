@@ -4874,7 +4874,7 @@ void MainWindow::displayWidgets(qint64 n)
 void MainWindow::on_actionFT8_triggered()
 {
   m_mode="FT8";
-  bool bVHF=false;
+  bool bVHF=m_config.enable_VHF_features();
   m_bFast9=false;
   m_bFastMode=false;
   WSPR_config(false);
@@ -4906,8 +4906,13 @@ void MainWindow::on_actionFT8_triggered()
     ui->label_6->setText("Band Activity");
     ui->decodedTextLabel->setText( "  UTC   dB   DT Freq    Message");
   }
-  displayWidgets(         nWidgets("11101000010011100001000010010000"));
-  if(bVHF) displayWidgets(nWidgets("11101000010011100001000010011000"));
+  if(!bVHF) {
+    displayWidgets(nWidgets("11101000010011100001000010010000"));
+// Make sure that VHF contest mode is unchecked if VHF features is not enabled. 
+    ui->cbVHFcontest->setChecked(false);
+  } else {
+    displayWidgets(nWidgets("11101000010011100001000010011000"));
+  }
   ui->txrb2->setEnabled(true);
   ui->txrb4->setEnabled(true);
   ui->txrb5->setEnabled(true);
