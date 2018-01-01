@@ -2381,7 +2381,7 @@ void MainWindow::read_wav_file (QString const& fname)
           dec_data.params.newdat = 0;
         }
 
-        if(basename.mid(0,10)=="000000_000") {
+        if(basename.mid(0,10)=="000000_000" && m_mode == "FT8") {
           dec_data.params.nutc=15*basename.mid(10,3).toInt();
         }
 

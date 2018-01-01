@@ -208,12 +208,14 @@ program wspr5d
             idat(7)=ishft(idat(7),6)
             call wqdecode(idat,message,itype)
             nsnr=nint(xsnr)
-            freq=fMHz + 1.d-6*(fc1+fc2)
+!            freq=fMHz + 1.d-6*(fc1+fc2)
+            freq=fc1+fc2
             nfdot=0
             write(13,1210) datetime,0,nsnr,xdt,freq,message,nfdot
 1210        format(a11,2i4,f6.2,f12.7,2x,a22,i3)
             write(*,1212) datetime(8:11),nsnr,xdt,freq,nfdot,message,'*',idf,nseq,is,niterations
-1212        format(a4,i4,f5.1,f11.6,i3,2x,a22,a1,i3,i3,i3,i4)
+!1212        format(a4,i4,f5.1,f11.6,i3,2x,a22,a1,i3,i3,i3,i4)
+1212        format(a4,i4,f8.3,f8.3,i3,2x,a22,a1,i3,i3,i3,i4)
             goto 888
           endif
         enddo !iseq

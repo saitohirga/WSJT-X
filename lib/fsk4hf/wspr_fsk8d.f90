@@ -147,8 +147,8 @@ program wspr_fsk8d
      do j=1,ND
         k=j+7
         ps=s(0:7,k)
-        !        ps=sqrt(ps)                                !### ??? ###
-        ps=log(ps)
+        ps=sqrt(ps)                                !### ??? ###
+!        ps=log(ps)
         r1=max(ps(1),ps(3),ps(5),ps(7))-max(ps(0),ps(2),ps(4),ps(6))
         r2=max(ps(2),ps(3),ps(6),ps(7))-max(ps(0),ps(1),ps(4),ps(5))
         r4=max(ps(4),ps(5),ps(6),ps(7))-max(ps(0),ps(1),ps(2),ps(3))
@@ -161,7 +161,7 @@ program wspr_fsk8d
      rx2av=sum(rxdata*rxdata)/ND
      rxsig=sqrt(rx2av-rxav*rxav)
      rxdata=rxdata/rxsig
-     s0=0.84
+     s0=1.1
      llr=2.0*rxdata/(s0*s0)
      apmask=0
      max_iterations=40

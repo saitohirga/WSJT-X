@@ -124,7 +124,7 @@ program wsprlfsim
      call system_clock(count2,clkfreq)
      do iter=1,iters                     !Loop over requested iterations
         c=c0
-  
+write(*,*) 'iter ',iter  
         call system_clock(count0,clkfreq)
         if(delay.ne.0.0 .or. fspread.ne.0.0) then
            call watterson(c,NZ,fs,delay,fspread)
@@ -151,9 +151,10 @@ program wsprlfsim
         call system_clock(count1,clkfreq)
         t(5)=t(5)+float(count1-count0)/float(clkfreq)
         nc(5)=nc(5)+1
-
+write(*,*) 'fc1 ',fc1
         call system_clock(count0,clkfreq)
         call getfc2w(c,csync,fs,fc1,fc2,fc3) !Refined freq
+write(*,*) 'fc1,fc2,fc3 ',fc1,fc2,fc3
         call system_clock(count1,clkfreq)
         t(6)=t(6)+float(count1-count0)/float(clkfreq)
         nc(6)=nc(6)+1

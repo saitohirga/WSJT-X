@@ -63,7 +63,8 @@ program wspr5d
   
   open(13,file=trim(data_dir)//'/ALL_WSPR.TXT',status='unknown',   &
        position='append')
-  maxn=8                                 !Default value
+!  maxn=8                                 !Default value
+  maxn=20
   twopi=8.0*atan(1.0)
   fs=NSPS*12000.0/NSPS0                  !Sample rate
   dt=1.0/fs                              !Sample interval (s)
@@ -203,12 +204,14 @@ jpk=fs*xdt
         call wqdecode(idat,message,itype)
         nsnr=nint(xsnr)
 !        freq=fMHz + 1.d-6*(fc1+fc2)
-        freq=fMHz + 1.d-6*(fc1+fpks(itry))
+!        freq=fMHz + 1.d-6*(fc1+fpks(itry))
+        freq=fc1+fpks(itry)
         nfdot=0
         write(13,1110) datetime,0,nsnr,xdt,freq,message,nfdot
 1110    format(a11,2i4,f6.2,f12.7,2x,a22,i3)
         write(*,1112) datetime(8:11),nsnr,xdt,freq,nfdot,message,itry
-1112    format(a4,i4,f5.1,f11.6,i3,2x,a22,i4)
+!1112    format(a4,i4,f5.1,f11.6,i3,2x,a22,i4)
+1112    format(a4,i4,f8.3,f8.3,i3,2x,a22,i4)
      endif
   enddo                                   ! ifile loop
   write(*,1120)
