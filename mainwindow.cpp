@@ -5867,7 +5867,7 @@ void MainWindow::setXIT(int n, Frequency base)
   m_XIT = 0;
   if (!m_bSimplex) {
     // m_bSimplex is false, so we can use split mode if requested
-    if (m_config.split_mode () && (!m_config.enable_VHF_features () || m_mode="FT8")) {
+    if (m_config.split_mode () && (!m_config.enable_VHF_features () || m_mode == "FT8")) {
       // Don't use XIT for VHF & up
       m_XIT=(n/500)*500 - 1500;
     }
