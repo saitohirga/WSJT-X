@@ -459,8 +459,6 @@ set (wsjt_FSRCS
   lib/fsk4hf/genmskhf.f90
   lib/fsk4hf/genwsprlf.f90
   lib/fsk4hf/genwspr_fsk8.f90
-  lib/fsk4hf/genwsprmsk.f90
-  lib/fsk4hf/genwspr5.f90
   lib/fsk4hf/getfc1.f90
   lib/fsk4hf/getfc2.f90
   lib/fsk4hf/getfc1w.f90
@@ -586,14 +584,6 @@ set (wsjt_FSRCS
   lib/fsk4hf/wspr_fsk8_wav.f90
   lib/fsk4hf/wspr_fsk8_downsample.f90
   lib/fsk4hf/wsprlfsim.f90
-  lib/fsk4hf/wsprmskd.f90
-  lib/fsk4hf/wspr5_wav.f90
-  lib/fsk4hf/wspr5_downsample.f90
-  lib/fsk4hf/wspr5sim.f90
-  lib/fsk4hf/wspr5d.f90
-  lib/fsk4hf/wspr5d_exp.f90
-  lib/fsk4hf/wsprmsksim.f90
-  lib/fsk4hf/wsprmsk_wav.f90
   lib/wspr_downsample.f90
   lib/zplot9.f90
   )
@@ -650,7 +640,7 @@ set (wsprsim_CSRCS
   )
 
 set (wsprd_CSRCS
-  lib/wsprd/wsprd_exp.c
+  lib/wsprd/wsprd.c
   lib/wsprd/wsprsim_utils.c
   lib/wsprd/wsprd_utils.c
   lib/wsprd/fano.c
@@ -1197,9 +1187,9 @@ add_executable (wsprcode lib/wsprcode/wsprcode.f90 lib/wsprcode/nhash.c
 	       wsjtx.rc)
 target_link_libraries (wsprcode wsjt_fort wsjt_cxx)
 
-add_executable (wsprd_exp ${wsprd_CSRCS})
-target_include_directories (wsprd_exp PRIVATE ${FFTW3_INCLUDE_DIRS})
-target_link_libraries (wsprd_exp ${FFTW3_LIBRARIES})
+add_executable (wsprd ${wsprd_CSRCS})
+target_include_directories (wsprd PRIVATE ${FFTW3_INCLUDE_DIRS})
+target_link_libraries (wsprd ${FFTW3_LIBRARIES})
 
 add_executable (wsprsim ${wsprsim_CSRCS})
 
@@ -1233,23 +1223,8 @@ target_link_libraries (fsk4hf wsjt_fort wsjt_cxx)
 add_executable (ft8sim lib/ft8/ft8sim.f90 wsjtx.rc)
 target_link_libraries (ft8sim wsjt_fort wsjt_cxx)
 
-add_executable (wspr5sim lib/fsk4hf/wspr5sim.f90 wsjtx.rc)
-target_link_libraries (wspr5sim wsjt_fort wsjt_cxx)
-
-add_executable (wspr5d lib/fsk4hf/wspr5d.f90 wsjtx.rc)
-target_link_libraries (wspr5d wsjt_fort wsjt_cxx)
-
-add_executable (wspr5d_exp lib/fsk4hf/wspr5d_exp.f90 wsjtx.rc)
-target_link_libraries (wspr5d_exp wsjt_fort wsjt_cxx)
-
 add_executable (wsprlfsim lib/fsk4hf/wsprlfsim.f90 wsjtx.rc)
 target_link_libraries (wsprlfsim wsjt_fort wsjt_cxx)
-
-add_executable (wsprmsksim lib/fsk4hf/wsprmsksim.f90 wsjtx.rc)
-target_link_libraries (wsprmsksim wsjt_fort wsjt_cxx)
-
-add_executable (wsprmskd lib/fsk4hf/wsprmskd.f90 wsjtx.rc)
-target_link_libraries (wsprmskd wsjt_fort wsjt_cxx)
 
 add_executable (wspr_fsk8d lib/fsk4hf/wspr_fsk8d.f90 wsjtx.rc)
 target_link_libraries (wspr_fsk8d wsjt_fort wsjt_cxx)
@@ -1441,7 +1416,7 @@ install (TARGETS udp_daemon message_aggregator
   )
 
 install (TARGETS jt9 jt65code qra64code qra64sim jt9code jt4code
-  msk144code wsprd_exp wspr_fsk8d fmtave fcal fmeasure
+  msk144code wsprd wspr_fsk8d fmtave fcal fmeasure
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   )
