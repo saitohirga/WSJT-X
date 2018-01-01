@@ -48,13 +48,13 @@ subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,nflip,     &
 !   5        MyCall DxCall 73
 
      apsymbols=-1
-     nappasses=(/2,2,2,3,3,3/)
+     nappasses=(/2,2,2,3,3,4/)
      naptypes(0,1:4)=(/1,2,0,0/)
      naptypes(1,1:4)=(/2,3,0,0/)
      naptypes(2,1:4)=(/2,3,0,0/)
      naptypes(3,1:4)=(/3,4,5,0/)
      naptypes(4,1:4)=(/3,4,5,0/)
-     naptypes(5,1:4)=(/3,1,2,0/)  
+     naptypes(5,1:4)=(/3,4,5,2/)  
      first=.false.
   endif
 

@@ -256,7 +256,9 @@ contains
           nfreq=nint(freq+a(1))
           ndrift=nint(2.0*a(2))
           if(bVHF) then
-             s2db=sync1 - 30.0 + db(width/3.3)       !### VHF/UHF/microwave
+            xtmp=10**((sync1+16.0)/10.0) ! sync comes to us in dB
+            s2db=1.1*db(xtmp)+1.4*(dB(width)-4.3)-52.0 
+!             s2db=sync1 - 30.0 + db(width/3.3)       !### VHF/UHF/microwave
              if(nspecial.gt.0) s2db=sync2
           else
              s2db=10.0*log10(sync2) - 35             !### Empirical (HF) 
@@ -299,7 +301,6 @@ contains
           n=naggressive
           rtt=0.001*nrtt1000
           if(nft.lt.2 .and. minsync.ge.0 .and. nspecial.eq.0) then
-!write(*,*) dtx,freq,nft,minsync,nhard_min,ntotal_min,rtt
              if(nhard_min.gt.50) cycle
              if(nhard_min.gt.h0(n)) cycle
              if(ntotal_min.gt.d0(n)) cycle
@@ -323,7 +324,6 @@ contains
                    exit
                 endif
              enddo
-!write(*,*) 'ndupe ',ndupe,sync1,minsync
              if(ndupe.ne.1 .and. sync1.ge.float(minsync)) then 
                 if(ipass.eq.1) n65a=n65a + 1
                 if(ipass.eq.2) n65b=n65b + 1

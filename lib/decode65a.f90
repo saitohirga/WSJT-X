@@ -123,7 +123,6 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
         endif
         s2(i,1:126)=s1(jj,1:126)
      enddo
-
      nadd=ismo  !### ??? ###
      call decode65b(s2,nflip,nadd,mode65,ntrials,naggressive,ndepth,        &
           mycall,hiscall,hisgrid,nQSOProgress,ljt65apon,nexp_decode,        &
