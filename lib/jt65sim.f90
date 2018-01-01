@@ -190,7 +190,7 @@ program jt65sim
            endif
         enddo
 
-        bandwidth_ratio=2500.0/6000.0
+        bandwidth_ratio=2500.0/(fsample/2.0)
         sig=sqrt(2*bandwidth_ratio)*10.0**(0.05*xsnr)
         if(xsnr.gt.90.0) sig=1.0
         write(*,1020) ifile,isig,f0,csubmode,xsnr,xdt,fspread,msg
@@ -285,7 +285,11 @@ program jt65sim
      dat=aimag(cdat) + xnoise                 !Add the generated noise
      fac=32767.0/nsigs
      if(snrdb.ge.90.0) iwave(1:npts)=nint(fac*dat(1:npts))
-     if(snrdb.lt.90.0) iwave(1:npts)=nint(rms*dat(1:npts))
+
+     if(snrdb.lt.90.0) then
+       if(any(dat.gt.32767.0/rms)) print*,"Warning - data will be clipped."
+       iwave(1:npts)=nint(rms*dat(1:npts))
+     endif
      write(10) h,iwave(1:npts)                !Save the .wav file
      close(10)
   enddo
