@@ -688,6 +688,7 @@ void usage(void)
     printf("\n");
     printf("Options:\n");
     printf("       -a <path> path to writeable data files, default=\".\"\n");
+    printf("       -b x (sequence estimator block size; 1,2,3,6, or 9)\n");
     printf("       -c write .c2 file at the end of the first pass\n");
     printf("       -C maximum number of decoder cycles per bit, default 10000\n");
     printf("       -d deeper search. Slower, a few more decodes\n");
@@ -782,10 +783,13 @@ int main(int argc, char *argv[])
     idat=malloc(sizeof(float)*maxpts);
     qdat=malloc(sizeof(float)*maxpts);
     
-    while ( (c = getopt(argc, argv, "a:cC:de:f:HJmqstwvz:")) !=-1 ) {
+    while ( (c = getopt(argc, argv, "a:b:cC:de:f:HJmqstwvz:")) !=-1 ) {
         switch (c) {
             case 'a':
                 data_dir = optarg;
+                break;
+            case 'b':
+                nblocksize=(int) atoi(optarg);
                 break;
             case 'c':
                 writec2=1;
