@@ -151,7 +151,8 @@ int main(int argc, char *argv[])
                 writec2=1;
                 break;
             case 's':
-                snr = (float)atoi(optarg);
+//                snr = (float)atoi(optarg);
+                snr = atof(optarg);
                 break;
         }
     }
