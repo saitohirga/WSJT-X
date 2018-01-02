@@ -283,13 +283,15 @@ program jt65sim
      endif
 
      dat=aimag(cdat) + xnoise                 !Add the generated noise
-     fac=32767.0/nsigs
-     if(snrdb.ge.90.0) iwave(1:npts)=nint(fac*dat(1:npts))
-
      if(snrdb.lt.90.0) then
-       if(any(dat.gt.32767.0/rms)) print*,"Warning - data will be clipped."
-       iwave(1:npts)=nint(rms*dat(1:npts))
+       dat=rms*dat(1:npts)
+     else
+       datpk=maxval(abs(dat))
+       fac=32766.9/datpk
+       dat=fac*dat(1:npts)
      endif
+     if(any(dat.gt.32767.0)) print*,"Warning - data will be clipped."
+     iwave(1:npts)=real(dat(1:npts))
      write(10) h,iwave(1:npts)                !Save the .wav file
      close(10)
   enddo
