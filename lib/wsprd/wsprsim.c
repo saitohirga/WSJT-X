@@ -20,6 +20,7 @@ void usage() {
     printf("Options:\n");
     printf("       -c   (print channel symbols)\n");
     printf("       -d   (print packed data with zero tail - 11 bytes)\n");
+    printf("       -f x (-100 Hz < f < 100 Hz)\n");
     printf("       -o filename (write a c2 file with this name)\n");
     printf("       -s x (x is snr of signal that is written to .c2 file)\n");
     printf("\n");
@@ -126,6 +127,7 @@ int main(int argc, char *argv[])
     extern int optind;
     int i, c, printchannel=0, writec2=0;
     float snr=50.0;
+    float f0=0.0, t0=1.0;
     char *message, *c2filename, *hashtab;
     c2filename=malloc(sizeof(char)*15);
     hashtab=malloc(sizeof(char)*32768*13);
@@ -138,7 +140,7 @@ int main(int argc, char *argv[])
 
     srand(getpid());
 
-    while ( (c = getopt(argc, argv, "cdo:s:")) !=-1 ) {
+    while ( (c = getopt(argc, argv, "cdf:o:s:")) !=-1 ) {
         switch (c) {
             case 'c':
                 printchannel=1;
@@ -146,6 +148,8 @@ int main(int argc, char *argv[])
             case 'd':
                 printdata=1;
                 break;
+            case 'f':
+                f0 = atof(optarg);
             case 'o':
                 c2filename = optarg;
                 writec2=1;
@@ -193,9 +197,6 @@ int main(int argc, char *argv[])
         snr=1.0;
     }
     
-    float f0, t0;
-    f0=0.0;
-    t0=1.0;
     add_signal_vector(f0, t0, snr, channel_symbols, isig, qsig);
     if( writec2) {
         // write a .c2 file
