@@ -354,9 +354,9 @@ void noncoherent_sequence_detection(float *id, float *qd, long np,
     
     int i, j, k, lag, k0, isign, itone, ib, b, nblock, nseq, imask;
     float xi[512],xq[512];
-    float is[4][162],qs[4][162];
+    float is[4][162],qs[4][162],cf[4][162],sf[4][162],cm,sm,cmp,smp;
     float p[512],totp,fac,xm1,xm0;
-    float c0[256],s0[256],c1[256],s1[256],c2[256],s2[256],c3[256],s3[256];
+    float c0[257],s0[257],c1[257],s1[257],c2[257],s2[257],c3[257],s3[257];
     float dphi0, cdphi0, sdphi0, dphi1, cdphi1, sdphi1, dphi2, cdphi2, sdphi2,
     dphi3, cdphi3, sdphi3;
     float f0, fp, ss, fsum=0.0, f2sum=0.0, fsymb[162];
@@ -366,7 +366,7 @@ void noncoherent_sequence_detection(float *id, float *qd, long np,
     lag=*shift1;
     nblock=*nblocksize;
     nseq=1<<nblock;
-    
+
     for (i=0; i<162; i++) {
         fp = f0 + (*drift1/2.0)*((float)i-81.0)/81.0;
         if( i==0 || (fp != fplast) ) {  // only calculate sin/cos if necessary
@@ -391,7 +391,7 @@ void noncoherent_sequence_detection(float *id, float *qd, long np,
             c2[0]=1; s2[0]=0;
             c3[0]=1; s3[0]=0;
                     
-            for (j=1; j<256; j++) {
+            for (j=1; j<257; j++) {
                 c0[j]=c0[j-1]*cdphi0 - s0[j-1]*sdphi0;
                 s0[j]=c0[j-1]*sdphi0 + s0[j-1]*cdphi0;
                 c1[j]=c1[j-1]*cdphi1 - s1[j-1]*sdphi1;
@@ -401,9 +401,15 @@ void noncoherent_sequence_detection(float *id, float *qd, long np,
                 c3[j]=c3[j-1]*cdphi3 - s3[j-1]*sdphi3;
                 s3[j]=c3[j-1]*sdphi3 + s3[j-1]*cdphi3;
             }
+
             fplast = fp;
         }
-                
+
+        cf[0][i]=c0[256]; sf[0][i]=s0[256];
+        cf[1][i]=c1[256]; sf[1][i]=s1[256];
+        cf[2][i]=c2[256]; sf[2][i]=s2[256];
+        cf[3][i]=c3[256]; sf[3][i]=s3[256];
+
         is[0][i]=0.0; qs[0][i]=0.0;
         is[1][i]=0.0; qs[1][i]=0.0;
         is[2][i]=0.0; qs[2][i]=0.0;
@@ -427,13 +433,16 @@ void noncoherent_sequence_detection(float *id, float *qd, long np,
     for (i=0; i<162; i=i+nblock) {
         for (j=0;j<nseq;j++) {
             xi[j]=0.0; xq[j]=0.0;
+            cm=1; sm=0;
             isign=1;
             for (ib=0; ib<nblock; ib++) {
                 b=(j&(1<<(nblock-1-ib)))>>(nblock-1-ib);
                 itone=pr3[i+ib]+2*b;
-                xi[j]=xi[j]+isign*is[itone][i+ib];
-                xq[j]=xq[j]+isign*qs[itone][i+ib];
-                isign=-isign;
+                xi[j]=xi[j]+is[itone][i+ib]*cm + qs[itone][i+ib]*sm;
+                xq[j]=xq[j]+qs[itone][i+ib]*cm - is[itone][i+ib]*sm;
+                cmp=cf[itone][i+ib]*cm - sf[itone][i+ib]*sm;
+                smp=sf[itone][i+ib]*cm + cf[itone][i+ib]*sm;
+                cm=cmp; sm=smp;
             }
             p[j]=xi[j]*xi[j]+xq[j]*xq[j];
             p[j]=sqrt(p[j]);
@@ -769,7 +778,8 @@ int main(int argc, char *argv[])
     float minsync2=0.10;                     //Second sync limit
     int iifac=8;                             //Step size in final DT peakup
     int symfac=50;                           //Soft-symbol normalizing factor
-    int maxdrift=4;                          //Maximum (+/-) drift
+//    int maxdrift=4;                          //Maximum (+/-) drift
+    int maxdrift=0;                          //Maximum (+/-) drift
     float minrms=52.0 * (symfac/64.0);      //Final test for plausible decoding
     delta=60;                                //Fano threshold step
     float bias=0.45;                        //Fano metric bias (used for both Fano and stack algorithms)
@@ -1188,6 +1198,7 @@ int main(int argc, char *argv[])
             sync_and_demodulate(idat, qdat, npoints, symbols, &f1, ifmin, ifmax, fstep, &shift1,
                                 lagmin, lagmax, lagstep, &drift1, symfac, &sync1, 1);
 
+if(0) {
             // refine drift estimate
             fstep=0.0; ifmin=0; ifmax=0;
             float driftp,driftm,syncp,syncm;
@@ -1206,7 +1217,7 @@ int main(int argc, char *argv[])
                 drift1=driftm;
                 sync1=syncm;
             }
-
+}
             tsync1 += (float)(clock()-t0)/CLOCKS_PER_SEC;
 
             // fine-grid lag and freq search
