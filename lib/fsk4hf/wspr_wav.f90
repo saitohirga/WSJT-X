@@ -33,10 +33,17 @@ subroutine wspr_wav(baud,xdt,h,f0,itone,snrdb,iwave)
         if(k.gt.0 .and. k.le.NMAX) dat(k)=dat(k) + sig*sin(phi)
      enddo
   enddo
-  fac=32767.0
+
   rms=100.0
-  if(snrdb.ge.90.0) iwave=nint(fac*dat)
-  if(snrdb.lt.90.0) iwave=nint(rms*dat)
+  if(snrdb.lt.90.0) then
+    dat=rms*dat;
+    if(maxval(abs(dat)).gt.32767.0) print*,"Warning - data will be clipped."
+  else
+    datpk=maxval(abs(dat))
+    fac=32767.9/datpk
+    dat=fac*dat
+  endif
+  iwave=nint(dat)
 
   return
 end subroutine wspr_wav

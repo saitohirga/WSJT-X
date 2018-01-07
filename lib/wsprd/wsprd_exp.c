@@ -327,9 +327,6 @@ void sync_and_demodulate(float *id, float *qd, long np,
             if( fsymb[i] < -128 ) fsymb[i]=-128.0;
             symbols[i]=fsymb[i] + 128;
         }
-        printf("a: %f %f %f\n",fsymb[0],fsymb[1],fsymb[2]);
-        printf("a: %f %f %f\n",fsymb[3],fsymb[4],fsymb[5]);
-        printf("a: %f %f %f\n",fsymb[6],fsymb[7],fsymb[8]);
         return;
     }
     return;
@@ -1182,7 +1179,6 @@ int main(int argc, char *argv[])
             shift1=shift0[j];
             sync1=sync0[j];
 
-            
             // coarse-grid lag and freq search, then if sync>minsync1 continue
             fstep=0.0; ifmin=0; ifmax=0;
             lagmin=shift1-128;

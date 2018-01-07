@@ -286,12 +286,12 @@ program jt65sim
      if(snrdb.lt.90.0) then
        dat=rms*dat(1:npts)
      else
-       datpk=maxval(abs(dat))
+       datpk=maxval(abs(dat(1:npts)))
        fac=32766.9/datpk
-       dat=fac*dat(1:npts)
+       dat(1:npts)=fac*dat(1:npts)
      endif
-     if(any(dat.gt.32767.0)) print*,"Warning - data will be clipped."
-     iwave(1:npts)=real(dat(1:npts))
+     if(any(abs(dat(1:npts)).gt.32767.0)) print*,"Warning - data will be clipped."
+     iwave(1:npts)=nint(dat(1:npts))
      write(10) h,iwave(1:npts)                !Save the .wav file
      close(10)
   enddo

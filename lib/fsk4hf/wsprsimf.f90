@@ -20,8 +20,8 @@ program wsprsim
 ! Get command-line argument(s)
   nargs=iargc()
   if(nargs.ne.8) then
-     print*,'Usage:   wsprmsksim "message"       f0  DT fsp del  nwav nfiles snr'
-     print*,'Example: wsprmsksim "K1ABC FN42 30" 50 0.0 0.1 1.0  1      10   -33'
+     print*,'Usage:   wsprsim "message"       f0  DT fsp del  nwav nfiles snr'
+     print*,'Example: wsprsim "K1ABC FN42 30" 50 0.0 0.1 1.0  1      10   -33'
      go to 999
   endif
   call getarg(1,msg)                     !Message to be transmitted
@@ -57,8 +57,8 @@ program wsprsim
   write(*,1000) f0,xdt,txt,snrdb,fspread,delay,nfiles,msgsent
 1000 format('f0:',f9.3,'   DT:',f6.2,'   txt:',f6.1,'   SNR:',f6.1,    &
           '   fspread:',f6.1,'   delay:',f6.1,'  nfiles:',i3,2x,a22)
-  write(*,*) "Channel symbols: "
-  write(*,'(162i2)') itone
+!  write(*,*) "Channel symbols: "
+!  write(*,'(162i2)') itone
 
   h=1.0
   phi=0.0

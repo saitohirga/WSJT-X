@@ -302,7 +302,7 @@ int get_wspr_channel_symbols(char* rawmessage, char* hashtab, unsigned char* sym
     encode(channelbits,data,nbytes);
     
     interleave(channelbits);
-    
+
     for (i=0; i<162; i++) {
         symbols[i]=2*channelbits[i]+pr3[i];
     }
