@@ -748,7 +748,7 @@ int main(int argc, char *argv[])
     
     struct result { char date[7]; char time[5]; float sync; float snr;
                     float dt; double freq; char message[23]; float drift;
-                    unsigned int cycles; int jitter; };
+                    unsigned int cycles; int jitter; int blocksize};
     struct result decodes[50];
     
     char *hashtab;
@@ -1237,16 +1237,18 @@ if(0) {
                 worth_a_try = 0;
             }
             
-            int idt=0, ii=0, jiggered_shift;
+            int idt, ii, jiggered_shift;
             float y,sq,rms;
             not_decoded=1;
-            
+            int ib=1, blocksize;            
+while( ib <= nblocksize && not_decoded ) {
+ blocksize=ib;
+ idt=0; ii=0;
             while ( worth_a_try && not_decoded && idt<=(128/iifac)) {
                 ii=(idt+1)/2;
                 if( idt%2 == 1 ) ii=-ii;
                 ii=iifac*ii;
                 jiggered_shift=shift1+ii;
-                
                 // Use mode 2 to get soft-decision symbols
                 t0 = clock();
 //                sync_and_demodulate(idat, qdat, npoints, symbols, &f1, ifmin, ifmax, fstep,
@@ -1256,7 +1258,7 @@ if(0) {
 
                 noncoherent_sequence_detection(idat, qdat, npoints, symbols, &f1,
                                     &jiggered_shift, &drift1, symfac,
-                                    &sync1, &nblocksize);
+                                    &sync1, &blocksize);
                 
                 sq=0.0;
                 for(i=0; i<162; i++) {
@@ -1283,7 +1285,8 @@ if(0) {
                 idt++;
                 if( quickmode ) break;
             }
-            
+ib++;
+}            
             if( worth_a_try && !not_decoded ) {
                 ndecodes_pass++;
                 
@@ -1344,6 +1347,7 @@ if(0) {
                     decodes[uniques-1].drift=drift1;
                     decodes[uniques-1].cycles=cycles;
                     decodes[uniques-1].jitter=ii;
+                    decodes[uniques-1].blocksize=blocksize;
                 }
             }
         }
@@ -1375,17 +1379,17 @@ if(0) {
                decodes[i].time, decodes[i].snr,decodes[i].dt, decodes[i].freq,
                (int)decodes[i].drift, decodes[i].message);
         fprintf(fall_wspr,
-                "%6s %4s %3d %3.0f %5.2f %11.7f  %-22s %2d %5u %4d\n",
+                "%6s %4s %3d %3.0f %5.2f %11.7f  %-22s %2d %5u %4d %4d\n",
                 decodes[i].date, decodes[i].time, (int)(10*decodes[i].sync),
                 decodes[i].snr, decodes[i].dt, decodes[i].freq,
                 decodes[i].message, (int)decodes[i].drift, decodes[i].cycles/81,
-                decodes[i].jitter);
+                decodes[i].jitter,decodes[i].blocksize);
         fprintf(fwsprd,
-                "%6s %4s %3d %3.0f %4.1f %10.6f  %-22s %2d %5u %4d\n",
+                "%6s %4s %3d %3.0f %4.1f %10.6f  %-22s %2d %5u %4d %4d\n",
                 decodes[i].date, decodes[i].time, (int)(10*decodes[i].sync),
                 decodes[i].snr, decodes[i].dt, decodes[i].freq,
                 decodes[i].message, (int)decodes[i].drift, decodes[i].cycles/81,
-                decodes[i].jitter);
+                decodes[i].jitter,decodes[i].blocksize);
         
     }
     printf("<DecodeFinished>\n");
