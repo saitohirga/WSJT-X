@@ -694,7 +694,7 @@ void usage(void)
     printf("\n");
     printf("Options:\n");
     printf("       -a <path> path to writeable data files, default=\".\"\n");
-    printf("       -b x (sequence estimator block size; 1,2,3,6, or 9)\n");
+    printf("       -b x (sequence estimator block size; 1,2,3)\n");
     printf("       -c write .c2 file at the end of the first pass\n");
     printf("       -C maximum number of decoder cycles per bit, default 10000\n");
     printf("       -d deeper search. Slower, a few more decodes\n");
@@ -797,6 +797,10 @@ int main(int argc, char *argv[])
                 break;
             case 'b':
                 nblocksize=(int) atoi(optarg);
+                if( nblocksize < 1 || nblocksize > 3 ) { 
+                   usage();
+                   return 1;
+                }
                 break;
             case 'c':
                 writec2=1;
