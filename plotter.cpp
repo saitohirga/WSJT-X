@@ -116,12 +116,13 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
   double fac = sqrt(m_binsPerPixel*m_waterfallAvg/15.0);
   double gain = fac*pow(10.0,0.02*m_plotGain);
   double gain2d = pow(10.0,0.02*(m_plot2dGain));
+  bool bReplot=swide[MAX_SCREENSIZE-1] == -99.0;
 
   if(m_bReference != m_bReference0) resizeEvent(NULL);
   m_bReference0=m_bReference;
 
 //move current data down one line (must do this before attaching a QPainter object)
-  if(bScroll) m_WaterfallPixmap.scroll(0,1,0,0,m_w,m_h1);
+  if(bScroll and !bReplot) m_WaterfallPixmap.scroll(0,1,0,0,m_w,m_h1);
   QPainter painter1(&m_WaterfallPixmap);
   m_2DPixmap = m_OverlayPixmap.copy(0,0,m_w,m_h2);
   QPainter painter2D(&m_2DPixmap);
@@ -146,15 +147,15 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
   int jz=iz*m_binsPerPixel;
   m_fMax=FreqfromX(iz);
 
-  m_line++;
-  if(bScroll) {
+  if(bScroll and swide[0]<1.e29) {
     flat4_(swide,&iz,&m_Flatten);
-    flat4_(&dec_data.savg[j0],&jz,&m_Flatten);
+    if(!bReplot) flat4_(&dec_data.savg[j0],&jz,&m_Flatten);
   }
 
   ymin=1.e30;
   if(swide[0]>1.e29 and swide[0]< 1.5e30) painter1.setPen(Qt::green);
   if(swide[0]>1.4e30) painter1.setPen(Qt::yellow);
+  if(!bReplot) m_j=0;
   for(int i=0; i<iz; i++) {
     y=swide[i];
     if(y<ymin) ymin=y;
@@ -162,9 +163,11 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
     if (y1<0) y1=0;
     if (y1>254) y1=254;
     if (swide[i]<1.e29) painter1.setPen(g_ColorTbl[y1]);
-    painter1.drawPoint(i,0);
+    painter1.drawPoint(i,m_j);
   }
+  if(bReplot) return;
 
+  m_line++;
   float y2min=1.e30;
   float y2max=-1.e30;
   for(int i=0; i<iz; i++) {
@@ -281,6 +284,13 @@ void CPlotter::drawRed(int ia, int ib, float swide[])
   m_ia=ia;
   m_ib=ib;
   draw(swide,false,true);
+}
+
+void CPlotter::replot(float swide[], bool bScroll, bool bRed, int irow)
+{
+  m_j=irow;
+  draw(swide,bScroll,bRed);
+  update();                                    //trigger a new paintEvent
 }
 
 void CPlotter::DrawOverlay()                   //DrawOverlay()

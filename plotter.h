@@ -37,6 +37,7 @@ public:
   QSize sizeHint() const;
 
   void draw(float swide[], bool bScroll, bool bRed);		//Update the waterfall
+  void replot(float swide[], bool bScroll, bool bRed, int irow);
   void SetRunningState(bool running);
   void setPlotZero(int plotZero);
   int  plotZero();
@@ -170,6 +171,7 @@ private:
   qint32  m_fMax;
   qint32  m_startFreq;
   qint32  m_tol;
+  qint32  m_j;
 
   char    m_sutc[6];
 };

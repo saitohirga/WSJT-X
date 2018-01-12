@@ -169,12 +169,16 @@ void WideGraph::dataSink2(float s[], float df3, int ihsym, int ndiskdata)  //dat
     int i=int(ui->widePlot->startFreq()/df3 + 0.5);
     int jz=5000.0/(nbpp*df3);
 		if(jz>MAX_SCREENSIZE) jz=MAX_SCREENSIZE;
+    m_jz=jz;
     for (int j=0; j<jz; j++) {
-      float ss=0;
+      float ss=0.0;
+      float smax=0;
       for (int k=0; k<nbpp; k++) {
-        if(splot[i]>ss) ss=splot[i];
-        i++;
+        float sp=splot[i++];
+        ss += sp;
+        smax=qMax(smax,sp);
       }
+//      swide[j]=nbpp*smax;
       swide[j]=nbpp*ss;
     }
 
@@ -184,25 +188,33 @@ void WideGraph::dataSink2(float s[], float df3, int ihsym, int ndiskdata)  //dat
     if((ndiskdata && ihsym <= m_waterfallAvg) || (!ndiskdata && ntr<m_ntr0)) {
       float flagValue=1.0e30;
       if(m_bHaveTransmitted) flagValue=2.0e30;
-      for (int i=0; i<2048; i++) {
+      for(int i=0; i<MAX_SCREENSIZE; i++) {
         swide[i] = flagValue;
+      }
+      for(int i=0; i<NSMAX; i++) {
+        splot[i] = flagValue;
       }
       m_bHaveTransmitted=false;
     }
     m_ntr0=ntr;
     ui->widePlot->draw(swide,true,false);
+    int irow=-1;
+    int ka=0;
+    plotsave_(splot,&ka,&nbpp,&irow,&jz,swide);
   }
 }
 
 void WideGraph::on_bppSpinBox_valueChanged(int n)                            //bpp
 {
   ui->widePlot->setBinsPerPixel(n);
+  replot();
 }
 
 void WideGraph::on_waterfallAvgSpinBox_valueChanged(int n)                  //Navg
 {
   m_waterfallAvg = n;
   ui->widePlot->setWaterfallAvg(n);
+  replot();
 }
 
 void WideGraph::keyPressEvent(QKeyEvent *e)                                 //F11, F12
@@ -362,6 +374,7 @@ void WideGraph::setRxBand (QString const& band)
 void WideGraph::on_fStartSpinBox_valueChanged(int n)             //fStart
 {
   ui->widePlot->setStartFreq(n);
+  replot();
 }
 
 void WideGraph::readPalette ()                                   //readPalette
@@ -387,6 +400,7 @@ void WideGraph::on_paletteComboBox_activated (QString const& palette)    //palet
 {
   m_waterfallPalette = palette;
   readPalette();
+  replot();
 }
 
 void WideGraph::on_cbFlatten_toggled(bool b)                          //Flatten On/Off
@@ -397,6 +411,7 @@ void WideGraph::on_cbFlatten_toggled(bool b)                          //Flatten 
     ui->cbRef->setChecked(false);
   }
   ui->widePlot->setFlatten(m_bFlatten,m_bRef);
+  replot();
 }
 
 void WideGraph::on_cbRef_toggled(bool b)
@@ -407,6 +422,7 @@ void WideGraph::on_cbRef_toggled(bool b)
     ui->cbFlatten->setChecked(false);
   }
   ui->widePlot->setFlatten(m_bFlatten,m_bRef);
+  replot();
 }
 
 void WideGraph::on_cbControls_toggled(bool b)
@@ -444,11 +460,26 @@ bool WideGraph::useRef()                                              //Flatten
 void WideGraph::on_gainSlider_valueChanged(int value)                 //Gain
 {
   ui->widePlot->setPlotGain(value);
+  replot();
+}
+
+void WideGraph::replot()
+{
+  if(!ui->widePlot->scaleOK()) return;
+  int nbpp = ui->widePlot->binsPerPixel();
+  float splot=0.0;
+  int ka=int(ui->widePlot->startFreq()/0.732422 + 0.5) - 1;
+  for(int irow=0; irow<64; irow++) {
+    plotsave_(&splot,&ka,&nbpp,&irow,&m_jz,swide);
+    swide[MAX_SCREENSIZE-1]=-99.0;
+    ui->widePlot->replot(swide,true,false,irow);
+  }
 }
 
 void WideGraph::on_zeroSlider_valueChanged(int value)                 //Zero
 {
   ui->widePlot->setPlotZero(value);
+  replot();
 }
 
 void WideGraph::on_gain2dSlider_valueChanged(int value)               //Gain2

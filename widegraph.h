@@ -84,32 +84,41 @@ private slots:
   void on_sbPercent2dPlot_valueChanged(int n);
 
 private:
-  void   readPalette ();
-  void   setRxRange ();
+  void readPalette ();
+  void setRxRange ();
+  void replot();
 
   QScopedPointer<Ui::WideGraph> ui;
 
   QSettings * m_settings;
   QDir m_palettes_path;
   WFPalette m_userPalette;
+  QHash<QString, QVariant> m_fMinPerBand;
 
   qint32 m_waterfallAvg;
   qint32 m_TRperiod;
   qint32 m_nsps;
   qint32 m_ntr0;
-  QHash<QString, QVariant> m_fMinPerBand;
   qint32 m_fMax;
-  QString m_rxBand;
   qint32 m_nSubMode;
   qint32 m_nsmo;
-  qint32  m_Percent2DScreen;
+  qint32 m_Percent2DScreen;
+  qint32 m_jz=MAX_SCREENSIZE;
+  qint32 m_n;
+
   bool   m_bFlatten;
   bool   m_bRef;
   bool   m_bHaveTransmitted;    //Set true at end of a WSPR transmission
+
+  QString m_rxBand;
   QString m_mode;
   QString m_modeTx;
-  QString m_waterfallPalette;
-  int			m_n;
+  QString m_waterfallPalette;  
 };
+
+extern "C" {
+  void plotsave_(float splot[], int* ka, int* nbpp, int* irow, int* jz, float swide[]);
+}
+
 
 #endif // WIDEGRAPH_H

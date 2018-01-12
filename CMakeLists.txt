@@ -523,6 +523,7 @@ set (wsjt_FSRCS
   lib/pctile.f90
   lib/peakdt9.f90
   lib/peakup.f90
+  lib/plotsave.f90
   lib/polyfit.f90
   lib/fsk4hf/polyfit4.f90
   lib/prog_args.f90
