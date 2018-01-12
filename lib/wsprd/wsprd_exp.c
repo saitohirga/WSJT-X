@@ -426,7 +426,7 @@ void noncoherent_sequence_detection(float *id, float *qd, long np,
             }
         }
     }
-    
+
     for (i=0; i<162; i=i+nblock) {
         for (j=0;j<nseq;j++) {
             xi[j]=0.0; xq[j]=0.0;
@@ -748,7 +748,7 @@ int main(int argc, char *argv[])
     
     struct result { char date[7]; char time[5]; float sync; float snr;
                     float dt; double freq; char message[23]; float drift;
-                    unsigned int cycles; int jitter; int blocksize};
+                    unsigned int cycles; int jitter; int blocksize; unsigned int metric};
     struct result decodes[50];
     
     char *hashtab;
@@ -771,12 +771,10 @@ int main(int argc, char *argv[])
     // Parameters used for performance-tuning:
     unsigned int maxcycles=10000;            //Decoder timeout limit
     float minsync1=0.10;                     //First sync limit
-//    float minsync2=0.12;                     //Second sync limit
-    float minsync2=0.10;                     //Second sync limit
+    float minsync2=0.12;                     //Second sync limit
     int iifac=8;                             //Step size in final DT peakup
     int symfac=50;                           //Soft-symbol normalizing factor
-//    int maxdrift=4;                          //Maximum (+/-) drift
-    int maxdrift=0;                          //Maximum (+/-) drift
+    int maxdrift=4;                          //Maximum (+/-) drift
     float minrms=52.0 * (symfac/64.0);      //Final test for plausible decoding
     delta=60;                                //Fano threshold step
     float bias=0.45;                        //Fano metric bias (used for both Fano and stack algorithms)
@@ -795,7 +793,7 @@ int main(int argc, char *argv[])
             case 'a':
                 data_dir = optarg;
                 break;
-            case 'b':
+            case 'b':   // not used at the moment - this is hardwired to 3 for 2nd pass
                 nblocksize=(int) atoi(optarg);
                 if( nblocksize < 1 || nblocksize > 3 ) { 
                    usage();
@@ -960,9 +958,17 @@ int main(int argc, char *argv[])
 
     //*************** main loop starts here *****************
     for (ipass=0; ipass<npasses; ipass++) {
-
-        if( ipass > 0 && ndecodes_pass == 0 ) break;
-        ndecodes_pass=0;
+        if(ipass == 0) {
+            nblocksize=1;
+            maxdrift=4;
+            minsync2=0.12;
+        }
+        if(ipass == 1 ) {
+            nblocksize=3;  // try all blocksizes up to 3
+            maxdrift=0;    // no drift for smaller frequency estimator variance
+            minsync2=0.10;
+        }
+        ndecodes_pass=0;   // still needed?
         
         memset(ps,0.0, sizeof(float)*512*nffts);
         for (i=0; i<nffts; i++) {
@@ -1198,26 +1204,26 @@ int main(int argc, char *argv[])
             sync_and_demodulate(idat, qdat, npoints, symbols, &f1, ifmin, ifmax, fstep, &shift1,
                                 lagmin, lagmax, lagstep, &drift1, symfac, &sync1, 1);
 
-if(0) {
-            // refine drift estimate
-            fstep=0.0; ifmin=0; ifmax=0;
-            float driftp,driftm,syncp,syncm;
-            driftp=drift1+0.5;
-            sync_and_demodulate(idat, qdat, npoints, symbols, &f1, ifmin, ifmax, fstep, &shift1,
+            if(ipass == 0) {
+                // refine drift estimate
+                fstep=0.0; ifmin=0; ifmax=0;
+                float driftp,driftm,syncp,syncm;
+                driftp=drift1+0.5;
+                sync_and_demodulate(idat, qdat, npoints, symbols, &f1, ifmin, ifmax, fstep, &shift1,
                                 lagmin, lagmax, lagstep, &driftp, symfac, &syncp, 1);
             
-            driftm=drift1-0.5;
-            sync_and_demodulate(idat, qdat, npoints, symbols, &f1, ifmin, ifmax, fstep, &shift1,
+                driftm=drift1-0.5;
+                sync_and_demodulate(idat, qdat, npoints, symbols, &f1, ifmin, ifmax, fstep, &shift1,
                                 lagmin, lagmax, lagstep, &driftm, symfac, &syncm, 1);
             
-            if(syncp>sync1) {
-                drift1=driftp;
-                sync1=syncp;
-            } else if (syncm>sync1) {
-                drift1=driftm;
-                sync1=syncm;
+                if(syncp>sync1) {
+                    drift1=driftp;
+                    sync1=syncp;
+                } else if (syncm>sync1) {
+                    drift1=driftm;
+                    sync1=syncm;
+                }
             }
-}
             tsync1 += (float)(clock()-t0)/CLOCKS_PER_SEC;
 
             // fine-grid lag and freq search
@@ -1244,53 +1250,51 @@ if(0) {
             int idt, ii, jiggered_shift;
             float y,sq,rms;
             not_decoded=1;
-            int ib=1, blocksize;            
-while( ib <= nblocksize && not_decoded ) {
- blocksize=ib;
- idt=0; ii=0;
-            while ( worth_a_try && not_decoded && idt<=(128/iifac)) {
-                ii=(idt+1)/2;
-                if( idt%2 == 1 ) ii=-ii;
-                ii=iifac*ii;
-                jiggered_shift=shift1+ii;
-                // Use mode 2 to get soft-decision symbols
-                t0 = clock();
-//                sync_and_demodulate(idat, qdat, npoints, symbols, &f1, ifmin, ifmax, fstep,
-//                                    &jiggered_shift, lagmin, lagmax, lagstep, &drift1, symfac,
-//                                    &sync1, 2);
-                tsync2 += (float)(clock()-t0)/CLOCKS_PER_SEC;
+            int ib=1, blocksize;  
+            while( ib <= nblocksize && not_decoded ) {
+                blocksize=ib;
+                idt=0; ii=0;
+                while ( worth_a_try && not_decoded && idt<=(128/iifac)) {
+                    ii=(idt+1)/2;
+                    if( idt%2 == 1 ) ii=-ii;
+                    ii=iifac*ii;
+                    jiggered_shift=shift1+ii;
 
-                noncoherent_sequence_detection(idat, qdat, npoints, symbols, &f1,
+                // Use mode 2 to get soft-decision symbols
+                    t0 = clock();
+                    noncoherent_sequence_detection(idat, qdat, npoints, symbols, &f1,
                                     &jiggered_shift, &drift1, symfac,
                                     &sync1, &blocksize);
+                    tsync2 += (float)(clock()-t0)/CLOCKS_PER_SEC;
                 
-                sq=0.0;
-                for(i=0; i<162; i++) {
-                    y=(float)symbols[i] - 128.0;
-                    sq += y*y;
-                }
-                rms=sqrt(sq/162.0);
-
-                if((sync1 > minsync2) && (rms > minrms)) {
-                    deinterleave(symbols);
-                    t0 = clock();
-                    
-                    if ( stackdecoder ) {
-                        not_decoded = jelinek(&metric, &cycles, decdata, symbols, nbits,
-                                              stacksize, stack, mettab,maxcycles);
-                    } else {
-                        not_decoded = fano(&metric,&cycles,&maxnp,decdata,symbols,nbits,
-                                           mettab,delta,maxcycles);
+                    sq=0.0;
+                    for(i=0; i<162; i++) {
+                        y=(float)symbols[i] - 128.0;
+                        sq += y*y;
                     }
+                    rms=sqrt(sq/162.0);
 
-                    tfano += (float)(clock()-t0)/CLOCKS_PER_SEC;
+                    if((sync1 > minsync2) && (rms > minrms)) {
+                        deinterleave(symbols);
+                        t0 = clock();
                     
+                        if ( stackdecoder ) {
+                            not_decoded = jelinek(&metric, &cycles, decdata, symbols, nbits,
+                                              stacksize, stack, mettab,maxcycles);
+                        } else {
+                            not_decoded = fano(&metric,&cycles,&maxnp,decdata,symbols,nbits,
+                                           mettab,delta,maxcycles);
+                        }
+
+                        tfano += (float)(clock()-t0)/CLOCKS_PER_SEC;
+                    
+                    }
+                    idt++;
+                    if( quickmode ) break;
                 }
-                idt++;
-                if( quickmode ) break;
-            }
-ib++;
-}            
+                ib++;
+            } 
+           
             if( worth_a_try && !not_decoded ) {
                 ndecodes_pass++;
                 
@@ -1352,6 +1356,7 @@ ib++;
                     decodes[uniques-1].cycles=cycles;
                     decodes[uniques-1].jitter=ii;
                     decodes[uniques-1].blocksize=blocksize;
+                    decodes[uniques-1].metric=metric;
                 }
             }
         }
@@ -1383,11 +1388,11 @@ ib++;
                decodes[i].time, decodes[i].snr,decodes[i].dt, decodes[i].freq,
                (int)decodes[i].drift, decodes[i].message);
         fprintf(fall_wspr,
-                "%6s %4s %3d %3.0f %5.2f %11.7f  %-22s %2d %5u %4d %4d\n",
+                "%6s %4s %3d %3.0f %5.2f %11.7f  %-22s %2d %5u %4d %4d %4d\n",
                 decodes[i].date, decodes[i].time, (int)(10*decodes[i].sync),
                 decodes[i].snr, decodes[i].dt, decodes[i].freq,
                 decodes[i].message, (int)decodes[i].drift, decodes[i].cycles/81,
-                decodes[i].jitter,decodes[i].blocksize);
+                decodes[i].jitter,decodes[i].blocksize,decodes[i].metric);
         fprintf(fwsprd,
                 "%6s %4s %3d %3.0f %4.1f %10.6f  %-22s %2d %5u %4d\n",
                 decodes[i].date, decodes[i].time, (int)(10*decodes[i].sync),
