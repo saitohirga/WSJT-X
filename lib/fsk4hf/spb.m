@@ -54,16 +54,21 @@ function retval = spb_integrand(x)
  retval=exp(t1+t2+t3+t4+t5);
 endfunction
 #-------------------------------------------------------------------------------
+
 #-------------------------------------------------------------------------------
 function retval = qfunc(x)
   retval = 0.5 * erfc(x/sqrt(2));
 endfunction
 #-------------------------------------------------------------------------------
 
-
 #-------------------------------------------------------------------------------
 # Calculate sphere packing lower bound on the probability of word error
 # given block length (N), code rate (R), and Eb/No.
+# 
+# Ref: 
+# "Log-Domain Calculation of the 1959 Sphere-Packing Bound with Application to 
+# M-ary PSK Block Coded Modulation," Igal Sason and Gil Weichman, 
+# doi: 10.1109/EEEI.2006.321097
 #-------------------------------------------------------------------------------
 N=174
 K=75
