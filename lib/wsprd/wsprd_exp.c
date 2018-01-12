@@ -1389,11 +1389,11 @@ ib++;
                 decodes[i].message, (int)decodes[i].drift, decodes[i].cycles/81,
                 decodes[i].jitter,decodes[i].blocksize);
         fprintf(fwsprd,
-                "%6s %4s %3d %3.0f %4.1f %10.6f  %-22s %2d %5u %4d %4d\n",
+                "%6s %4s %3d %3.0f %4.1f %10.6f  %-22s %2d %5u %4d\n",
                 decodes[i].date, decodes[i].time, (int)(10*decodes[i].sync),
                 decodes[i].snr, decodes[i].dt, decodes[i].freq,
                 decodes[i].message, (int)decodes[i].drift, decodes[i].cycles/81,
-                decodes[i].jitter,decodes[i].blocksize);
+                decodes[i].jitter);
         
     }
     printf("<DecodeFinished>\n");
