@@ -641,7 +641,7 @@ set (wsprsim_CSRCS
   )
 
 set (wsprd_CSRCS
-  lib/wsprd/wsprd.c
+  lib/wsprd/wsprd_exp.c
   lib/wsprd/wsprsim_utils.c
   lib/wsprd/wsprd_utils.c
   lib/wsprd/fano.c

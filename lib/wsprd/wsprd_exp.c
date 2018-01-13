@@ -694,7 +694,7 @@ void usage(void)
     printf("\n");
     printf("Options:\n");
     printf("       -a <path> path to writeable data files, default=\".\"\n");
-    printf("       -b x (sequence estimator block size; 1,2,3)\n");
+    printf("       -B disable block demodulation - use single-symbol noncoherent demod\n");
     printf("       -c write .c2 file at the end of the first pass\n");
     printf("       -C maximum number of decoder cycles per bit, default 10000\n");
     printf("       -d deeper search. Slower, a few more decodes\n");
@@ -728,7 +728,7 @@ int main(int argc, char *argv[])
     char uttime[5],date[7];
     int c,delta,maxpts=65536,verbose=0,quickmode=0,more_candidates=0, stackdecoder=0;
     int writenoise=0,usehashtable=1,wspr_type=2, ipass, nblocksize=1;
-    int writec2=0, npasses=2, subtraction=1;
+    int writec2=0, npasses=2, subtraction=1, block_demod=1;
     int shift1, lagmin, lagmax, lagstep, ifmin, ifmax, worth_a_try, not_decoded;
     unsigned int nbits=81, stacksize=200000;
     unsigned int npoints, metric, cycles, maxnp;
@@ -788,17 +788,13 @@ int main(int argc, char *argv[])
     idat=malloc(sizeof(float)*maxpts);
     qdat=malloc(sizeof(float)*maxpts);
     
-    while ( (c = getopt(argc, argv, "a:b:cC:de:f:HJmqstwvz:")) !=-1 ) {
+    while ( (c = getopt(argc, argv, "a:BcC:de:f:HJmqstwvz:")) !=-1 ) {
         switch (c) {
             case 'a':
                 data_dir = optarg;
                 break;
-            case 'b':   // not used at the moment - this is hardwired to 3 for 2nd pass
-                nblocksize=(int) atoi(optarg);
-                if( nblocksize < 1 || nblocksize > 3 ) { 
-                   usage();
-                   return 1;
-                }
+            case 'B':  
+                block_demod=0;
                 break;
             case 'c':
                 writec2=1;
@@ -828,7 +824,7 @@ int main(int argc, char *argv[])
             case 'q':  //no shift jittering
                 quickmode = 1;
                 break;
-            case 's':  //single pass mode (same as original wsprd)
+            case 's':  //single pass mode 
                 subtraction = 0;
                 npasses = 1;
                 break;
@@ -964,7 +960,7 @@ int main(int argc, char *argv[])
             minsync2=0.12;
         }
         if(ipass == 1 ) {
-            nblocksize=3;  // try all blocksizes up to 3
+            if(block_demod == 1) nblocksize=3;  // try all blocksizes up to 3
             maxdrift=0;    // no drift for smaller frequency estimator variance
             minsync2=0.10;
         }
@@ -1247,7 +1243,7 @@ int main(int argc, char *argv[])
                 worth_a_try = 0;
             }
             
-            int idt, ii, jiggered_shift;
+            int idt, ii, jittered_shift;
             float y,sq,rms;
             not_decoded=1;
             int ib=1, blocksize;  
@@ -1258,12 +1254,12 @@ int main(int argc, char *argv[])
                     ii=(idt+1)/2;
                     if( idt%2 == 1 ) ii=-ii;
                     ii=iifac*ii;
-                    jiggered_shift=shift1+ii;
+                    jittered_shift=shift1+ii;
 
                 // Use mode 2 to get soft-decision symbols
                     t0 = clock();
                     noncoherent_sequence_detection(idat, qdat, npoints, symbols, &f1,
-                                    &jiggered_shift, &drift1, symfac,
+                                    &jittered_shift, &drift1, symfac,
                                     &sync1, &blocksize);
                     tsync2 += (float)(clock()-t0)/CLOCKS_PER_SEC;
                 
