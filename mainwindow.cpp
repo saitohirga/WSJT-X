@@ -1356,14 +1356,17 @@ void MainWindow::dataSink(qint64 frames)
     }
 
     if(m_mode.startsWith ("WSPR")) {
-      QString t2,cmnd;
+      QString t2,cmnd,depth_string;
       double f0m1500=m_dialFreqRxWSPR/1000000.0;   // + 0.000001*(m_BFO - 1500);
       t2.sprintf(" -f %.6f ",f0m1500);
+      if((m_ndepth&7)==1) depth_string=" -qB "; //2 pass w subtract, no Block detection, no shift jittering
+      if((m_ndepth&7)==2) depth_string=" -B ";  //2 pass w subtract
+      if((m_ndepth&7)==3) depth_string=" -d ";  //2 pass w subtract, Block detection, more candidates
       QString degrade;
       degrade.sprintf("-d %4.1f ",m_config.degrade());
 
       if(m_diskData) {
-        cmnd='"' + m_appDir + '"' + "/wsprd -a \"" +
+        cmnd='"' + m_appDir + '"' + "/wsprd " + depth_string + " -a \"" +
           QDir::toNativeSeparators(m_config.writeable_data_dir ().absolutePath()) + "\" \"" + m_path + "\"";
       } else {
         if(m_mode=="WSPR-LF") {
@@ -1371,7 +1374,7 @@ void MainWindow::dataSink(qint64 frames)
             QDir::toNativeSeparators(m_config.writeable_data_dir ().absolutePath()) + "\" " +
               '"' + m_fnameWE + ".wav\"";
         } else {
-          cmnd='"' + m_appDir + '"' + "/wsprd -a \"" +
+          cmnd='"' + m_appDir + '"' + "/wsprd " + depth_string + " -a \"" +
             QDir::toNativeSeparators(m_config.writeable_data_dir ().absolutePath()) + "\" " +
               t2 + '"' + m_fnameWE + ".wav\"";
         }
