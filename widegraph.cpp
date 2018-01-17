@@ -204,14 +204,12 @@ void WideGraph::dataSink2(float s[], float df3, int ihsym, int ndiskdata)  //dat
 void WideGraph::on_bppSpinBox_valueChanged(int n)                            //bpp
 {
   ui->widePlot->setBinsPerPixel(n);
-  replot();
 }
 
 void WideGraph::on_waterfallAvgSpinBox_valueChanged(int n)                  //Navg
 {
   m_waterfallAvg = n;
   ui->widePlot->setWaterfallAvg(n);
-  replot();
 }
 
 void WideGraph::keyPressEvent(QKeyEvent *e)                                 //F11, F12
@@ -371,7 +369,6 @@ void WideGraph::setRxBand (QString const& band)
 void WideGraph::on_fStartSpinBox_valueChanged(int n)             //fStart
 {
   ui->widePlot->setStartFreq(n);
-  replot();
 }
 
 void WideGraph::readPalette ()                                   //readPalette
@@ -408,7 +405,6 @@ void WideGraph::on_cbFlatten_toggled(bool b)                          //Flatten 
     ui->cbRef->setChecked(false);
   }
   ui->widePlot->setFlatten(m_bFlatten,m_bRef);
-  replot();
 }
 
 void WideGraph::on_cbRef_toggled(bool b)
@@ -419,7 +415,6 @@ void WideGraph::on_cbRef_toggled(bool b)
     ui->cbFlatten->setChecked(false);
   }
   ui->widePlot->setFlatten(m_bFlatten,m_bRef);
-  replot();
 }
 
 void WideGraph::on_cbControls_toggled(bool b)
