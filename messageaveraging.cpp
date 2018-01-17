@@ -25,6 +25,7 @@ MessageAveraging::MessageAveraging(QSettings * settings, QFont const& font, QWid
     ui->lab1->setVisible(false);
     ui->lab2->setVisible(false);
     ui->lab3->setVisible(false);
+    ui->lab4->setVisible(false);
   }
   setWindowTitle(m_title_);
   m_nLogged_=0;

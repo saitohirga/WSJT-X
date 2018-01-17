@@ -86,7 +86,7 @@ subroutine symspec(shared_data,k,ntrperiod,nsps,ingain,nminw,pxdb,s,   &
   enddo
   ihsym=ihsym+1
 
-  xc(0:nfft3-1)=w3(1:nfft3)*xc(0:nfft3-1)    !Apply window w3
+!  xc(0:nfft3-1)=w3(1:nfft3)*xc(0:nfft3-1)    !Apply window w3
   call four2a(xc,nfft3,1,-1,0)               !Real-to-complex FFT
 
   df3=12000.0/nfft3                   !JT9-1: 0.732 Hz = 0.42 * tone spacing

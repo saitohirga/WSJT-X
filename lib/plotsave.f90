@@ -8,11 +8,17 @@ subroutine plotsave(splot,ka,nbpp,irow,jz,swide)
   data ncall/0/
   save ncall,spsave
 
+  df=12000.0/16384
   if(irow.lt.0) then
 ! Save a new row of data
      ncall=ncall+1
      k=mod(ncall-1,NYMAX) + 1
      spsave(1:NSMAX,k)=splot
+     rewind 61
+     do i=1,NSMAX
+        write(61,3061) i,splot(i),ncall
+3061    format(i8,f12.3,i8)
+     enddo
   else
 ! Process and return the saved "irow" as swide(), for a waterfall replot.
      k=mod(NYMAX+ncall-1-irow,NYMAX) + 1
