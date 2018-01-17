@@ -11,7 +11,8 @@ subroutine plotsave(swide,nw,nh,irow)
   endif
 
   if(nw.ne.nw0 .or. nh.ne.nh0) then
-     if(nw0.ne.-1) deallocate(sw)
+     if(allocated(sw)) deallocate(sw)
+!     if(nw0.ne.-1) deallocate(sw)
      allocate(sw(0:nw-1,0:nh-1))
      sw=0.
      nw0=nw
