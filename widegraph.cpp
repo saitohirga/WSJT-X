@@ -198,9 +198,6 @@ void WideGraph::dataSink2(float s[], float df3, int ihsym, int ndiskdata)  //dat
     }
     m_ntr0=ntr;
     ui->widePlot->draw(swide,true,false);
-    int irow=-1;
-    int ka=0;
-    plotsave_(splot,&ka,&nbpp,&irow,&jz,swide);
   }
 }
 
@@ -465,15 +462,7 @@ void WideGraph::on_gainSlider_valueChanged(int value)                 //Gain
 
 void WideGraph::replot()
 {
-  if(!ui->widePlot->scaleOK()) return;
-  int nbpp = ui->widePlot->binsPerPixel();
-  float splot=0.0;
-  int ka=int(ui->widePlot->startFreq()/0.732422 + 0.5) - 1;
-  for(int irow=0; irow<64; irow++) {
-    plotsave_(&splot,&ka,&nbpp,&irow,&m_jz,swide);
-    swide[MAX_SCREENSIZE-1]=-99.0;
-    ui->widePlot->replot(swide,true,false,irow);
-  }
+  if(ui->widePlot->scaleOK()) ui->widePlot->replot();
 }
 
 void WideGraph::on_zeroSlider_valueChanged(int value)                 //Zero

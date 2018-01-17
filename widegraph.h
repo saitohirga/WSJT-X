@@ -116,9 +116,4 @@ private:
   QString m_waterfallPalette;  
 };
 
-extern "C" {
-  void plotsave_(float splot[], int* ka, int* nbpp, int* irow, int* jz, float swide[]);
-}
-
-
 #endif // WIDEGRAPH_H

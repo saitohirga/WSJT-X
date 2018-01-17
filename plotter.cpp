@@ -43,6 +43,7 @@ CPlotter::CPlotter(QWidget *parent) :                  //CPlotter Constructor
   setAutoFillBackground(false);
   setAttribute(Qt::WA_OpaquePaintEvent, false);
   setAttribute(Qt::WA_NoSystemBackground, true);
+  m_bReplot=false;
 
   // contextual pop up menu
   setContextMenuPolicy (Qt::CustomContextMenu);
@@ -83,6 +84,7 @@ void CPlotter::resizeEvent(QResizeEvent* )                    //resizeEvent()
     if(m_bReference) m_h2=m_h-30;
     if(m_h2<1) m_h2=1;
     m_h1=m_h-m_h2;
+//    m_line=0;
     m_2DPixmap = QPixmap(m_Size.width(), m_h2);
     m_2DPixmap.fill(Qt::black);
     m_WaterfallPixmap = QPixmap(m_Size.width(), m_h1);
@@ -116,13 +118,12 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
   double fac = sqrt(m_binsPerPixel*m_waterfallAvg/15.0);
   double gain = fac*pow(10.0,0.02*m_plotGain);
   double gain2d = pow(10.0,0.02*(m_plot2dGain));
-  bool bReplot=swide[MAX_SCREENSIZE-1] == -99.0;
 
   if(m_bReference != m_bReference0) resizeEvent(NULL);
   m_bReference0=m_bReference;
 
 //move current data down one line (must do this before attaching a QPainter object)
-  if(bScroll and !bReplot) m_WaterfallPixmap.scroll(0,1,0,0,m_w,m_h1);
+  if(bScroll and !m_bReplot) m_WaterfallPixmap.scroll(0,1,0,0,m_w,m_h1);
   QPainter painter1(&m_WaterfallPixmap);
   m_2DPixmap = m_OverlayPixmap.copy(0,0,m_w,m_h2);
   QPainter painter2D(&m_2DPixmap);
@@ -149,13 +150,17 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
 
   if(bScroll and swide[0]<1.e29) {
     flat4_(swide,&iz,&m_Flatten);
-    if(!bReplot) flat4_(&dec_data.savg[j0],&jz,&m_Flatten);
+    if(!m_bReplot) flat4_(&dec_data.savg[j0],&jz,&m_Flatten);
   }
 
   ymin=1.e30;
   if(swide[0]>1.e29 and swide[0]< 1.5e30) painter1.setPen(Qt::green);
   if(swide[0]>1.4e30) painter1.setPen(Qt::yellow);
-  if(!bReplot) m_j=0;
+  if(!m_bReplot) {
+    m_j=0;
+    int irow=-1;
+    plotsave_(swide,&m_w,&m_h1,&irow);
+  }
   for(int i=0; i<iz; i++) {
     y=swide[i];
     if(y<ymin) ymin=y;
@@ -165,9 +170,10 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
     if (swide[i]<1.e29) painter1.setPen(g_ColorTbl[y1]);
     painter1.drawPoint(i,m_j);
   }
-  if(bReplot) return;
+  if(m_bReplot) return;
 
   m_line++;
+
   float y2min=1.e30;
   float y2max=-1.e30;
   for(int i=0; i<iz; i++) {
@@ -286,11 +292,17 @@ void CPlotter::drawRed(int ia, int ib, float swide[])
   draw(swide,false,true);
 }
 
-void CPlotter::replot(float swide[], bool bScroll, bool bRed, int irow)
+void CPlotter::replot()
 {
-  m_j=irow;
-  draw(swide,bScroll,bRed);
-  update();                                    //trigger a new paintEvent
+  float swide[m_w];
+  for(int irow=0; irow<m_h1; irow++) {
+    m_j=irow;
+    plotsave_(swide,&m_w,&m_h1,&irow);
+    m_bReplot=true;
+    draw(swide,false,false);
+    m_bReplot=false;
+    update();                                    //trigger a new paintEvent
+  }
 }
 
 void CPlotter::DrawOverlay()                   //DrawOverlay()
