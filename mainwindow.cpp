@@ -136,6 +136,8 @@ extern "C" {
                   double* sigmaa, double* sigmab, int* irc, int len1);
 
   void foxgen_();
+
+  void plotsave_(float swide[], int* m_w , int* m_h1, int* irow);
 }
 
 int volatile itone[NUM_ISCAT_SYMBOLS];  //Audio tones for all Tx symbols
@@ -2107,6 +2109,11 @@ void MainWindow::closeEvent(QCloseEvent * e)
   m_shortcuts.reset ();
   m_mouseCmnds.reset ();
   if(m_mode!="MSK144" and m_mode!="FT8") killFile();
+  float sw=0.0;
+  int nw=400;
+  int nh=100;
+  int irow=-99;
+  plotsave_(&sw,&nw,&nh,&irow);
   mem_jt9->detach();
   QFile quitFile {m_config.temp_dir ().absoluteFilePath (".quit")};
   quitFile.open(QIODevice::ReadWrite);

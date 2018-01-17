@@ -1,10 +1,14 @@
 subroutine plotsave(swide,nw,nh,irow)
 
-  parameter (NSMAX=6827,NYMAX=64)
   real, dimension(:,:), allocatable :: sw
   real swide(0:nw-1)
   data nw0/-1/,nh0/-1/
   save nw0,nh0,sw
+
+  if(irow.eq.-99) then
+     if(allocated(sw)) deallocate(sw)
+     return
+  endif
 
   if(nw.ne.nw0 .or. nh.ne.nh0) then
      if(nw0.ne.-1) deallocate(sw)
