@@ -116,7 +116,7 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
   static int ktop=0;
   float y,y2,ymin;
   double fac = sqrt(m_binsPerPixel*m_waterfallAvg/15.0);
-  double gain = fac*pow(10.0,0.02*m_plotGain);
+  double gain = fac*pow(10.0,0.015*m_plotGain);
   double gain2d = pow(10.0,0.02*(m_plot2dGain));
 
   if(m_bReference != m_bReference0) resizeEvent(NULL);
@@ -164,7 +164,7 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
   for(int i=0; i<iz; i++) {
     y=swide[i];
     if(y<ymin) ymin=y;
-    int y1 = 10.0*gain*y + 10*m_plotZero +40;
+    int y1 = 10.0*gain*y + m_plotZero;
     if (y1<0) y1=0;
     if (y1>254) y1=254;
     if (swide[i]<1.e29) painter1.setPen(g_ColorTbl[y1]);
@@ -651,7 +651,7 @@ int CPlotter::binsPerPixel()                                   //binsPerPixel
   return m_binsPerPixel;
 }
 
-void CPlotter::setWaterfallAvg(int n)                         //setBinsPerPixel
+void CPlotter::setWaterfallAvg(int n)                         //setNavg
 {
   m_waterfallAvg = n;
 }
