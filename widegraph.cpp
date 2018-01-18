@@ -22,8 +22,8 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   m_settings (settings),
   m_palettes_path {":/Palettes"},
   m_ntr0 {0},
-  m_bHaveTransmitted {false},
-  m_n {0}
+  m_n {0},
+  m_bHaveTransmitted {false}
 {
   ui->setupUi(this);
 
@@ -329,7 +329,7 @@ void WideGraph::on_spec2dComboBox_currentIndexChanged(const QString &arg1)
   if(arg1=="Reference") {
     ui->widePlot->setReference(true);
   }
-  if(ui->widePlot->scaleOK ()) ui->widePlot->draw(swide,false,false);
+//  if(ui->widePlot->scaleOK ()) ui->widePlot->draw(swide,false,false);
 }
 
 void WideGraph::on_fSplitSpinBox_valueChanged(int n)              //fSplit
@@ -449,15 +449,15 @@ bool WideGraph::useRef()                                              //Flatten
   return m_bRef;
 }
 
+void WideGraph::replot()
+{
+  if(ui->widePlot->scaleOK()) ui->widePlot->replot();
+}
+
 void WideGraph::on_gainSlider_valueChanged(int value)                 //Gain
 {
   ui->widePlot->setPlotGain(value);
   replot();
-}
-
-void WideGraph::replot()
-{
-  if(ui->widePlot->scaleOK()) ui->widePlot->replot();
 }
 
 void WideGraph::on_zeroSlider_valueChanged(int value)                 //Zero

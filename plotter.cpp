@@ -170,7 +170,7 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
     if (swide[i]<1.e29) painter1.setPen(g_ColorTbl[y1]);
     painter1.drawPoint(i,m_j);
   }
-  if(m_bReplot) return;
+//  if(m_bReplot) return;
 
   m_line++;
 
@@ -222,6 +222,7 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
     if(y2>y2max) y2max=y2;
     j++;
   }
+  if(m_bReplot) return;
 
   if(swide[0]>1.0e29) m_line=0;
   if(m_line == painter1.fontMetrics ().height ()) {
@@ -295,14 +296,14 @@ void CPlotter::drawRed(int ia, int ib, float swide[])
 void CPlotter::replot()
 {
   float swide[m_w];
+  m_bReplot=true;
   for(int irow=0; irow<m_h1; irow++) {
     m_j=irow;
     plotsave_(swide,&m_w,&m_h1,&irow);
-    m_bReplot=true;
     draw(swide,false,false);
-    m_bReplot=false;
-    update();                                    //trigger a new paintEvent
   }
+  update();                                    //trigger a new paintEvent
+  m_bReplot=false;
 }
 
 void CPlotter::DrawOverlay()                   //DrawOverlay()
