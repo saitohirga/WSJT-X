@@ -170,7 +170,6 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
     if (swide[i]<1.e29) painter1.setPen(g_ColorTbl[y1]);
     painter1.drawPoint(i,m_j);
   }
-//  if(m_bReplot) return;
 
   m_line++;
 

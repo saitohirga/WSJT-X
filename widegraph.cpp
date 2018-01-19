@@ -329,7 +329,7 @@ void WideGraph::on_spec2dComboBox_currentIndexChanged(const QString &arg1)
   if(arg1=="Reference") {
     ui->widePlot->setReference(true);
   }
-//  if(ui->widePlot->scaleOK ()) ui->widePlot->draw(swide,false,false);
+  replot();
 }
 
 void WideGraph::on_fSplitSpinBox_valueChanged(int n)              //fSplit
