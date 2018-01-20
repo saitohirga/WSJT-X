@@ -1,30 +1,31 @@
-subroutine osd300(llr,norder,decoded,niterations,cw)
+subroutine osd300(llr,apmask,ndeep,decoded,cw,nhardmin,dmin)
 !
 ! An ordered-statistics decoder for the (300,60) code.
-!
+! 
 include "ldpc_300_60_params.f90"
 
+integer*1 apmask(N),apmaskr(N)
 integer*1 gen(K,N)
 integer*1 genmrb(K,N),g2(N,K)
-integer*1 temp(K),m0(K),me(K),mi(K)
+integer*1 temp(K),m0(K),me(K),mi(K),misub(K),e2sub(N-K),e2(N-K),ui(N-K)
+integer*1 r2pat(N-K)
 integer indices(N),nxor(N)
 integer*1 cw(N),ce(N),c0(N),hdec(N)
 integer*1 decoded(K)
 integer indx(N)
 real llr(N),rx(N),absrx(N)
-logical first
+logical first,reset
 data first/.true./
-
 save first,gen
 
 if( first ) then ! fill the generator matrix
   gen=0
   do i=1,M
-    do j=1,15
+    do j=1, 15
       read(g(i)(j:j),"(Z1)") istr
         do jj=1, 4 
           irow=(j-1)*4+jj
-          if( btest(istr,4-jj) ) gen(irow,i)=1
+          if( btest(istr,4-jj) ) gen(irow,i)=1 
         enddo
     enddo
   enddo
@@ -34,28 +35,26 @@ if( first ) then ! fill the generator matrix
 first=.false.
 endif
 
-! re-order received vector to place systematic msg bits at the end
+! Re-order received vector to place systematic msg bits at the end.
 rx=llr(colorder+1) 
+apmaskr=apmask(colorder+1)
 
-! hard decode the received word
+! Hard decisions on the received word.
 hdec=0            
 where(rx .ge. 0) hdec=1
 
-! use magnitude of received symbols as a measure of reliability.
+! Use magnitude of received symbols as a measure of reliability.
 absrx=abs(rx) 
 call indexx(absrx,N,indx)  
 
-! re-order the columns of the generator matrix in order of decreasing reliability.
+! Re-order the columns of the generator matrix in order of decreasing reliability.
 do i=1,N
   genmrb(1:K,i)=gen(1:K,indx(N+1-i))
   indices(i)=indx(N+1-i)
 enddo
 
-! do gaussian elimination to create a generator matrix with the most reliable
+! Do gaussian elimination to create a generator matrix with the most reliable
 ! received bits in positions 1:K in order of decreasing reliability (more or less). 
-! reliability will not be strictly decreasing because column re-ordering is needed
-! to put the generator matrix in systematic form. the "indices" array tracks 
-! column permutations caused by reliability sorting and gaussian elimination.
 do id=1,K ! diagonal element indices 
   do icol=id,K+20  ! The 20 is ad hoc - beware
     iflag=0
@@ -71,7 +70,7 @@ do id=1,K ! diagonal element indices
       endif
       do ii=1,K
         if( ii .ne. id .and. genmrb(ii,id) .eq. 1 ) then
-          genmrb(ii,1:N)=mod(genmrb(ii,1:N)+genmrb(id,1:N),2)
+          genmrb(ii,1:N)=ieor(genmrb(ii,1:N),genmrb(id,1:N))
         endif
       enddo
       exit
@@ -84,66 +83,168 @@ g2=transpose(genmrb)
 ! The hard decisions for the K MRB bits define the order 0 message, m0. 
 ! Encode m0 using the modified generator matrix to find the "order 0" codeword. 
 ! Flip various combinations of bits in m0 and re-encode to generate a list of
-! codewords. Test all such codewords against the received word to decide which
-! codeword is most likely to be correct.
+! codewords. Return the member of the list that has the smallest Euclidean
+! distance to the received word. 
 
 hdec=hdec(indices)   ! hard decisions from received symbols
 m0=hdec(1:K)         ! zero'th order message
 absrx=absrx(indices) 
 rx=rx(indices)       
+apmaskr=apmaskr(indices)
 
-s1=sum(absrx(1:K))
-s2=sum(absrx(K+1:N))
-xlam=5.0
-rho=s1/(s1+xlam*s2)
 call mrbencode(m0,c0,g2,N,K)
 nxor=ieor(c0,hdec)
 nhardmin=sum(nxor)
 dmin=sum(nxor*absrx)
-thresh=rho*dmin
 
 cw=c0
-nt=0
+ntotal=0
 nrejected=0
-do iorder=1,norder
-  mi(1:K-iorder)=0
-  mi(K-iorder+1:K)=1
-  iflag=0
-  do while(iflag .ge. 0 ) 
-    dpat=sum(mi*absrx(1:K))
-    nt=nt+1
-    if( dpat .lt. thresh ) then  ! reject unlikely error patterns
-      me=ieor(m0,mi)
-      call mrbencode(me,ce,g2,N,K)
-      nxor=ieor(ce,hdec)
-      dd=sum(nxor*absrx)
-      if( dd .lt. dmin ) then
-        dmin=dd
-        cw=ce
-        nhardmin=sum(nxor)
-        thresh=rho*dmin
+
+if(ndeep.eq.0) goto 998  ! norder=0
+if(ndeep.gt.5) ndeep=5
+if( ndeep.eq. 1) then
+   nord=1
+   npre1=0
+   npre2=0
+   nt=120
+   ntheta=12
+elseif(ndeep.eq.2) then
+   nord=1
+   npre1=1
+   npre2=0
+   nt=120
+   ntheta=12
+elseif(ndeep.eq.3) then
+   nord=1
+   npre1=1
+   npre2=1
+   nt=120
+   ntheta=12
+   ntau=15
+elseif(ndeep.eq.4) then
+   nord=2
+   npre1=1
+   npre2=0
+   nt=120
+   ntheta=12
+   ntau=15
+elseif(ndeep.eq.5) then
+   nord=4
+   npre1=1
+   npre2=1
+   nt=120
+   ntheta=20
+   ntau=15
+endif
+
+do iorder=1,nord
+   misub(1:K-iorder)=0
+   misub(K-iorder+1:K)=1
+   iflag=K-iorder+1
+   do while(iflag .ge.0)
+      if(iorder.eq.nord .and. npre1.eq.0) then
+         iend=iflag
+      else
+         iend=1
       endif
-    else
-      nrejected=nrejected+1
-    endif
-! get the next test error pattern, iflag will go negative
-! when the last pattern with weight iorder has been generated
-    call nextpat(mi,k,iorder,iflag)
-  enddo
+      do n1=iflag,iend,-1
+         mi=misub
+         mi(n1)=1
+         if(any(iand(apmaskr(1:K),mi).eq.1)) cycle
+         ntotal=ntotal+1
+         me=ieor(m0,mi)
+         if(n1.eq.iflag) then
+            call mrbencode(me,ce,g2,N,K)
+            e2sub=ieor(ce(K+1:N),hdec(K+1:N))
+            e2=e2sub
+            nd1Kpt=sum(e2sub(1:nt))+1
+            d1=sum(ieor(me(1:K),hdec(1:K))*absrx(1:K))
+         else
+            e2=ieor(e2sub,g2(K+1:N,n1))
+            nd1Kpt=sum(e2(1:nt))+2
+         endif
+         if(nd1Kpt .le. ntheta) then
+            call mrbencode(me,ce,g2,N,K)
+            nxor=ieor(ce,hdec)
+            if(n1.eq.iflag) then
+               dd=d1+sum(e2sub*absrx(K+1:N))
+            else
+               dd=d1+ieor(ce(n1),hdec(n1))*absrx(n1)+sum(e2*absrx(K+1:N))
+            endif
+            if( dd .lt. dmin ) then
+               dmin=dd
+               cw=ce
+               nhardmin=sum(nxor)
+               nd1Kptbest=nd1Kpt
+            endif
+         else 
+            nrejected=nrejected+1
+         endif
+      enddo
+! Get the next test error pattern, iflag will go negative
+! when the last pattern with weight iorder has been generated.
+      call nextpat(misub,k,iorder,iflag)
+   enddo
 enddo
 
-!write(*,*) 'nhardmin ',nhardmin
-!write(*,*) 'total patterns ',nt,' number rejected ',nrejected
+if(npre2.eq.1) then
+   reset=.true.
+   ntotal=0
+   do i1=K,1,-1
+      do i2=i1-1,1,-1
+         ntotal=ntotal+1
+         mi(1:ntau)=ieor(g2(K+1:K+ntau,i1),g2(K+1:K+ntau,i2))
+         call boxit(reset,mi(1:ntau),ntau,ntotal,i1,i2)
+      enddo
+   enddo
 
-! re-order the codeword to place message bits at the end
+   ncount2=0
+   ntotal2=0
+   reset=.true.
+! Now run through again and do the second pre-processing rule
+   misub(1:K-nord)=0
+   misub(K-nord+1:K)=1
+   iflag=K-nord+1
+   do while(iflag .ge.0)
+      me=ieor(m0,misub)
+      call mrbencode(me,ce,g2,N,K)
+      e2sub=ieor(ce(K+1:N),hdec(K+1:N))
+      do i2=0,ntau
+         ntotal2=ntotal2+1
+         ui=0 
+         if(i2.gt.0) ui(i2)=1 
+         r2pat=ieor(e2sub,ui)
+778      continue 
+            call fetchit(reset,r2pat(1:ntau),ntau,in1,in2)
+            if(in1.gt.0.and.in2.gt.0) then
+               ncount2=ncount2+1
+               mi=misub               
+               mi(in1)=1
+               mi(in2)=1
+               if(sum(mi).lt.nord+npre1+npre2.or.any(iand(apmaskr(1:K),mi).eq.1)) cycle
+               me=ieor(m0,mi)
+               call mrbencode(me,ce,g2,N,K)
+               nxor=ieor(ce,hdec)
+               dd=sum(nxor*absrx)
+               if( dd .lt. dmin ) then
+                  dmin=dd
+                  cw=ce
+                  nhardmin=sum(nxor)
+               endif
+               goto 778
+             endif
+      enddo
+      call nextpat(misub,K,nord,iflag)
+   enddo
+endif
+
+998 continue
+! Re-order the codeword to place message bits at the end.
 cw(indices)=cw
 hdec(indices)=hdec
-decoded=cw(M+1:N)
-nerr=0
-do i=1,N
-  if( hdec(i) .ne. cw(i) ) nerr=nerr+1
-enddo
-niterations=nerr
+decoded=cw(M+1:N) 
+cw(colorder+1)=cw ! put the codeword back into received-word order
 return
 end subroutine osd300
 
@@ -179,6 +280,86 @@ subroutine nextpat(mi,k,iorder,iflag)
      ms(k-nz+1:k)=1
   endif
   mi=ms
-  iflag=ind
+  do i=1,k  ! iflag will point to the lowest-index 1 in mi
+    if(mi(i).eq.1) then
+      iflag=i 
+      exit
+    endif
+  enddo
   return
 end subroutine nextpat
+
+subroutine boxit(reset,e2,ntau,npindex,i1,i2)
+  integer*1 e2(1:ntau)
+  integer   indexes(4000,2),fp(0:525000),np(4000)
+  logical reset
+  common/boxes/indexes,fp,np
+
+  if(reset) then
+    patterns=-1
+    fp=-1
+    np=-1
+    sc=-1
+    indexes=-1
+    reset=.false.
+  endif
+ 
+  indexes(npindex,1)=i1
+  indexes(npindex,2)=i2
+  ipat=0
+  do i=1,ntau
+    if(e2(i).eq.1) then
+      ipat=ipat+ishft(1,ntau-i)
+    endif
+  enddo
+
+  ip=fp(ipat)   ! see what's currently stored in fp(ipat)
+  if(ip.eq.-1) then
+    fp(ipat)=npindex
+  else
+     do while (np(ip).ne.-1)
+      ip=np(ip) 
+     enddo  
+     np(ip)=npindex
+  endif
+  return
+end subroutine boxit
+
+subroutine fetchit(reset,e2,ntau,i1,i2)
+  integer   indexes(4000,2),fp(0:525000),np(4000)
+  integer   lastpat
+  integer*1 e2(ntau)
+  logical reset
+  common/boxes/indexes,fp,np
+  save lastpat,inext
+
+  if(reset) then
+    lastpat=-1
+    reset=.false.
+  endif
+
+  ipat=0
+  do i=1,ntau
+    if(e2(i).eq.1) then
+      ipat=ipat+ishft(1,ntau-i)
+    endif
+  enddo
+  index=fp(ipat)
+
+  if(lastpat.ne.ipat .and. index.gt.0) then ! return first set of indices
+     i1=indexes(index,1)
+     i2=indexes(index,2)
+     inext=np(index)
+  elseif(lastpat.eq.ipat .and. inext.gt.0) then
+     i1=indexes(inext,1)
+     i2=indexes(inext,2)
+     inext=np(inext)
+  else
+     i1=-1
+     i2=-1
+     inext=-1
+  endif
+  lastpat=ipat
+  return
+end subroutine fetchit
+ 

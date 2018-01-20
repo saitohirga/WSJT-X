@@ -25,7 +25,7 @@ if( first ) then ! fill the generator matrix
       read(g(i)(j:j),"(Z1)") istr
         do jj=1, 4 
           irow=(j-1)*4+jj
-          if( btest(istr,4-jj) ) gen(irow,i)=1
+          if( btest(istr,4-jj) ) gen(irow,i)=1 
         enddo
     enddo
   enddo
@@ -255,7 +255,7 @@ endif
 ! Re-order the codeword to place message bits at the end.
 cw(indices)=cw
 hdec(indices)=hdec
-decoded=cw(K+1:N) 
+decoded=cw(M+1:N) 
 cw(colorder+1)=cw ! put the codeword back into received-word order
 return
 end subroutine osd174

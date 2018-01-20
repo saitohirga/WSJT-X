@@ -47,17 +47,19 @@ nerrdec=0
 nmpcbad=0  ! Used to collect the number of errors in the message+crc part of the codeword
 
 nargs=iargc()
-if(nargs.ne.3) then
-   print*,'Usage: ldpcsim  niter  #trials  s '
-   print*,'eg:    ldpcsim   100   1000    0.84'
+if(nargs.ne.4) then
+   print*,'Usage: ldpcsim  niter ndeep  #trials  s '
+   print*,'eg:    ldpcsim   100    4     1000    0.84'
    print*,'If s is negative, then value is ignored and sigma is calculated from SNR.'
    return
 endif
 call getarg(1,arg)
 read(arg,*) max_iterations 
 call getarg(2,arg)
-read(arg,*) ntrials 
+read(arg,*) ndeep
 call getarg(3,arg)
+read(arg,*) ntrials 
+call getarg(4,arg)
 read(arg,*) s
 
 fsk=.false.
@@ -147,14 +149,14 @@ do idb = 20,-16,-1
     do i=1,N
       if( rxdata(i)*(2*codeword(i)-1.0) .lt. 0 ) nerr=nerr+1
     enddo
-    nerrtot(nerr)=nerrtot(nerr)+1
+    if(nerr.ge.1) nerrtot(nerr)=nerrtot(nerr)+1
     nberr=nberr+nerr
 
 ! Correct signal normalization is important for this decoder.
-!    rxav=sum(rxdata)/N
-!    rx2av=sum(rxdata*rxdata)/N
-!    rxsig=sqrt(rx2av-rxav*rxav)
-!    rxdata=rxdata/rxsig
+    rxav=sum(rxdata)/N
+    rx2av=sum(rxdata*rxdata)/N
+    rxsig=sqrt(rx2av-rxav*rxav)
+    rxdata=rxdata/rxsig
 ! To match the metric to the channel, s should be set to the noise standard deviation. 
 ! For now, set s to the value that optimizes decode probability near threshold. 
 ! The s parameter can be tuned to trade a few tenth's dB of threshold for an order of
@@ -169,9 +171,9 @@ do idb = 20,-16,-1
     apmask=0
 ! max_iterations is max number of belief propagation iterations
     call bpdecode300(llr, apmask, max_iterations, decoded, niterations, cw)
-    if( niterations .lt. 0 ) then
-      norder=3
-      call osd300(llr, norder, decoded, niterations, cw)
+    if( (niterations .lt. 0) .and. (ndeep .ge. 0) ) then
+       call osd300(llr, apmask, ndeep, decoded, cw, nhardmin, dmin)
+       niterations=nhardmin
     endif
     n2err=0
     do i=1,N
@@ -221,10 +223,10 @@ do idb = 20,-16,-1
           nerrmpc=nerrmpc+1 
         endif
       enddo
-      nmpcbad(nerrmpc)=nmpcbad(nerrmpc)+1  ! This histogram should inform our selection of CRC poly
+      if(nerrmpc.ge.1) nmpcbad(nerrmpc)=nmpcbad(nerrmpc)+1  ! This histogram should inform our selection of CRC poly
       if( ncrcflag .eq. 1 .and. nueflag .eq. 0 ) then
         ngood=ngood+1
-        nerrdec(nerr)=nerrdec(nerr)+1
+        if(nerr.ge.1) nerrdec(nerr)=nerrdec(nerr)+1
       else if( ncrcflag .eq. 1 .and. nueflag .eq. 1 ) then
         nue=nue+1;
       endif
