@@ -116,7 +116,10 @@ contains
         call timer('ft8b    ',1)
         if(nbadcrc.eq.0) then
 !           call jtmsg(message,iflag)
-           if(bcontest) call fix_contest_msg(mygrid6,message)
+           if(bcontest) then
+              call fix_contest_msg(mygrid6,message)
+              msg37(1:22)=message
+           endif
 !           if(iand(iflag,31).ne.0) message(22:22)='?'
            ldupe=.false.
            do id=1,ndecodes
