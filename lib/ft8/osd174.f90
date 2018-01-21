@@ -139,15 +139,9 @@ elseif(ndeep.eq.5) then
 endif
 
 do iorder=1,nord
-   if( iorder.eq. 1 ) then
-      misub(1:K-1)=0
-      misub(K)=1
-      iflag=K
-   elseif( iorder.eq. 2 ) then
-      misub(1:K-2)=0
-      misub(K-1:K)=1 
-      iflag=K-1
-   endif
+   misub(1:K-iorder)=0
+   misub(K-iorder+1:K)=1
+   iflag=K-iorder+1
    do while(iflag .ge.0)
       if(iorder.eq.nord .and. npre1.eq.0) then
          iend=iflag
@@ -209,15 +203,9 @@ if(npre2.eq.1) then
    ntotal2=0
    reset=.true.
 ! Now run through again and do the second pre-processing rule
-   if(nord.eq.1) then
-      misub(1:K-1)=0
-      misub(K)=1 
-      iflag=K
-   elseif(nord.eq.2) then
-      misub(1:K-1)=0
-      misub(K-1:K)=1
-      iflag=K-1
-   endif
+   misub(1:K-nord)=0
+   misub(K-nord+1:K)=1
+   iflag=K-nord+1
    do while(iflag .ge.0)
       me=ieor(m0,misub)
       call mrbencode(me,ce,g2,N,K)
