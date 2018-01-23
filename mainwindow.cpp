@@ -4682,7 +4682,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
     if(shortMsg) {
       p.setColor(QPalette::Base,"#66ffff");
     } else {
-      p.setColor(QPalette::Base,Qt::white);
+      p.setColor(QPalette::Base,Qt::transparent);
       if(m_mode=="MSK144" and t.mid(0,1)=="<") {
         p.setColor(QPalette::Base,"#00ffff");
       }

@@ -191,7 +191,7 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
                                      bool bCQonly)
 {
   m_bPrincipalPrefix=ppfx;
-  QColor bg {Qt::white};
+  QColor bg {Qt::transparent};
   bool CQcall = false;
   if (decodedText.string ().contains (" CQ ")
       || decodedText.string ().contains (" CQDX ")
