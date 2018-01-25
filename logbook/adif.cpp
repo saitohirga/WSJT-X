@@ -175,7 +175,7 @@ int ADIF::getCount() const
 }   
     
 QString ADIF::QSOToADIF(QString const& hisCall, QString const& hisGrid, QString const& mode, QString const& rptSent, QString const& rptRcvd, QDateTime const& dateTimeOn, QDateTime const& dateTimeOff, QString const& band,
-                        QString const& comments, QString const& name, QString const& strDialFreq, QString const& m_myCall, QString const& m_myGrid, QString const& m_txPower)
+                        QString const& comments, QString const& name, QString const& strDialFreq, QString const& m_myCall, QString const& m_myGrid, QString const& m_txPower, QString const& operator_call)
 {
   QString t;
   t = "<call:" + QString::number(hisCall.length()) + ">" + hisCall;
@@ -202,6 +202,9 @@ QString ADIF::QSOToADIF(QString const& hisCall, QString const& hisGrid, QString 
   if (name != "")
     t += " <name:" + QString::number(name.length()) +
         ">" + name;
+  if (operator_call!="")
+      t+=" <operator:" + QString::number(operator_call.length()) +
+              ">" + operator_call;
   t += " <eor>";
   return t;
 }
@@ -222,7 +225,7 @@ bool ADIF::addQSOToFile(QString const& hisCall, QString const& hisGrid, QString 
 
         QString t;
         t = QSOToADIF(hisCall,hisGrid,mode,rptSent,rptRcvd,dateTimeOn,dateTimeOff,
-                      band,comments,name,strDialFreq,m_myCall,m_myGrid,m_txPower);
+                      band,comments,name,strDialFreq,m_myCall,m_myGrid,m_txPower,operator_call);
         out << t << endl;
         f2.close();
     }

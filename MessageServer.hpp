@@ -77,7 +77,7 @@ public:
   Q_SIGNAL void qso_logged (QString const& id, QDateTime time_off, QString const& dx_call, QString const& dx_grid
                             , Frequency dial_frequency, QString const& mode, QString const& report_sent
                             , QString const& report_received, QString const& tx_power, QString const& comments
-                            , QString const& name, QDateTime time_on);
+                            , QString const& name, QDateTime time_on, QString const& operator_call);
   Q_SIGNAL void clear_decodes (QString const& id);
 
   // this signal is emitted when a network error occurs

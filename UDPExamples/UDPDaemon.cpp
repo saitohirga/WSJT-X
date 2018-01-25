@@ -95,6 +95,24 @@ public:
       }
   }
 
+  Q_SLOT void qso_logged (QString const&client_id, QDateTime time_off, QString const& dx_call, QString const& dx_grid
+          , Frequency dial_frequency, QString const& mode, QString const& report_sent
+          , QString const& report_received, QString const& tx_power
+          , QString const& comments, QString const& name, QDateTime time_on, QString const& operator_call)
+  {
+      if (client_id == id_)
+      {
+        qDebug () << "time_on:" << time_on << "time_off:" << time_off << "dx_call:" << dx_call << "grid:" << dx_grid
+                  << "freq:" << dial_frequency << "mode:" << mode << "rpt_sent:" << report_sent
+                  << "rpt_rcvd:" << report_received << "Tx_pwr:" << tx_power << "comments:" << comments
+                  << "name:" << name << "operator_call:" << operator_call;
+        std::cout << tr ("%1: Logged %2 grid: %3 power: %4 sent: %5 recd: %6 freq: %7 op: %8").arg (id_)
+                  .arg (dx_call).arg (dx_grid).arg (tx_power).arg (report_sent).arg (report_received).arg (dial_frequency).arg (operator_call).toStdString ()
+                  << tr (" @ %1").arg (time_off.toString("yyyy-MM-dd hh:mm:ss.z")).toStdString()
+                  << std::endl;
+      }
+  }
+
 private:
   QString id_;
   Frequency dial_frequency_;
@@ -127,6 +145,7 @@ private:
     connect (server_, &MessageServer::status_update, client, &Client::update_status);
     connect (server_, &MessageServer::decode, client, &Client::decode_added);
     connect (server_, &MessageServer::WSPR_decode, client, &Client::beacon_spot_added);
+    connect (server_, &MessageServer::qso_logged, client, &Client::qso_logged);
     clients_[id] = client;
     server_->replay (id);
     std::cout << "Discovered WSJT-X instance: " << id.toStdString ();

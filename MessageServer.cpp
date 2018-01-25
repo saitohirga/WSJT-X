@@ -291,14 +291,15 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                 QByteArray comments;
                 QByteArray name;
                 QDateTime time_on; // Note: LOTW uses TIME_ON for their +/- 30-minute time window
+                QByteArray operator_call;
                 in >> time_off >> dx_call >> dx_grid >> dial_frequency >> mode >> report_sent >> report_received
-                   >> tx_power >> comments >> name >> time_on;
+                   >> tx_power >> comments >> name >> time_on >> operator_call;
                 if (check_status (in) != Fail)
                   {
                     Q_EMIT self_->qso_logged (id, time_off, QString::fromUtf8 (dx_call), QString::fromUtf8 (dx_grid)
                                               , dial_frequency, QString::fromUtf8 (mode), QString::fromUtf8 (report_sent)
                                               , QString::fromUtf8 (report_received), QString::fromUtf8 (tx_power)
-                                              , QString::fromUtf8 (comments), QString::fromUtf8 (name), time_on);
+                                              , QString::fromUtf8 (comments), QString::fromUtf8 (name), time_on, QString::fromUtf8 (operator_call));
                   }
               }
               break;

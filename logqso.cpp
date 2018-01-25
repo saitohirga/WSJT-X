@@ -116,7 +116,7 @@ void LogQSO::accept()
   ADIF adifile;
   auto adifilePath = QDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)}.absoluteFilePath ("wsjtx_log.adi");
   adifile.init(adifilePath);
-  // TODO add the operator to this
+
   if (!adifile.addQSOToFile(hisCall,hisGrid,mode,rptSent,rptRcvd,m_dateTimeOn,m_dateTimeOff,band,comments,name,strDialFreq,m_myCall,m_myGrid,m_txPower, operator_call))
   {
     MessageBox::warning_message (this, tr ("Log file error"),
@@ -125,7 +125,7 @@ void LogQSO::accept()
 
   // Log to N1MM Logger
   if (m_config->broadcast_to_n1mm() && m_config->valid_n1mm_info())  {
-    QString adif = adifile.QSOToADIF(hisCall,hisGrid,mode,rptSent,rptRcvd,m_dateTimeOn,m_dateTimeOff,band,comments,name,strDialFreq,m_myCall,m_myGrid,m_txPower);
+    QString adif = adifile.QSOToADIF(hisCall,hisGrid,mode,rptSent,rptRcvd,m_dateTimeOn,m_dateTimeOff,band,comments,name,strDialFreq,m_myCall,m_myGrid,m_txPower, operator_call);
     const QHostAddress n1mmhost = QHostAddress(m_config->n1mm_server_name());
     QByteArray qba_adif = adif.toLatin1();
     QUdpSocket _sock;
