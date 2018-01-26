@@ -155,7 +155,7 @@
            </size>
           </property>
           <property name="frameShape">
-           <enum>QFrame::Panel</enum>
+           <enum>QFrame::StyledPanel</enum>
           </property>
           <property name="verticalScrollBarPolicy">
            <enum>Qt::ScrollBarAlwaysOn</enum>
@@ -1046,7 +1046,7 @@ QLabel[oob=&quot;true&quot;] {
                 <enum>QTabWidget::Triangular</enum>
                </property>
                <property name="currentIndex">
-                <number>2</number>
+                <number>0</number>
                </property>
                <widget class="QWidget" name="tab">
                 <attribute name="title">
