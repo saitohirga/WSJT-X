@@ -77,7 +77,7 @@ msg="K9AN K1JT EN50"
  
   ihash=nhash(c_loc(i1Msg8BitBytes),int(9,c_size_t),146)
   ihash=2*iand(ihash,32767)                   !Generate the 8-bit hash
-  i1Msg8BitBytes(10)=i1hash(1)                !CRC to byte 10
+  i1Msg8BitBytes(10)=i1hash(1)                !Hash code to byte 10
   mbit=0
   do i=1, 10
     i1=i1Msg8BitBytes(i)

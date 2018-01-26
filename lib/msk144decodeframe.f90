@@ -98,7 +98,7 @@ subroutine msk144decodeframe(c,softbits,msgreceived,nsuccess,recent_calls,nrecen
 !  call timer('bpdec144 ',1)
   if( niterations .ge. 0.0 ) then
     call extractmessage144(decoded,msgreceived,nhashflag,recent_calls,nrecent)
-    if( nhashflag .gt. 0 ) then  ! CRCs match, so print it 
+    if( nhashflag .gt. 0 ) then         !Hash codes match, so print it 
       nsuccess=1
     endif
   endif
