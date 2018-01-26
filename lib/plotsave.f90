@@ -7,10 +7,10 @@ subroutine plotsave(swide,nw,nh,irow)
 
   if(irow.eq.-99) then
      if(allocated(sw)) deallocate(sw)
-     return
+     go to 900
   endif
 
-  if(nw.ne.nw0 .or. nh.ne.nh0) then
+  if(nw.ne.nw0 .or. nh.ne.nh0 .or. (.not.allocated(sw))) then
      if(allocated(sw)) deallocate(sw)
 !     if(nw0.ne.-1) deallocate(sw)
      allocate(sw(0:nw-1,0:nh-1))
@@ -18,7 +18,6 @@ subroutine plotsave(swide,nw,nh,irow)
      nw0=nw
      nh0=nh
   endif
-
   df=12000.0/16384
   if(irow.lt.0) then
 ! Push a new row of data into sw
@@ -31,5 +30,5 @@ subroutine plotsave(swide,nw,nh,irow)
      swide=sw(0:nw-1,irow)
   endif
 
-  return
+900 return
 end subroutine plotsave
