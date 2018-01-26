@@ -5153,7 +5153,7 @@ void MainWindow::on_actionJT65_triggered()
     ui->label_7->setText("Rx Frequency");
   }
   if(bVHF) {
-    displayWidgets(nWidgets("11111001000011111011110001000000"));
+    displayWidgets(nWidgets("11111001000011111010110001000000"));
   } else {
     displayWidgets(nWidgets("11101000000011100001000000000000"));
   }
