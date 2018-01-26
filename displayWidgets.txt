@@ -33,7 +33,7 @@ Mapping of column numbers to widgets
  3. sbFtol
  4. rptSpinBox
  5. sbTR
- 6. sbCQTxFreq
+ 6. sbCQTxFreq, cbCQTx
  7. cbShMsgs
  8. cbFast9
  9. cbAutoSeq
