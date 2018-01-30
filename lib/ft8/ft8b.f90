@@ -401,6 +401,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
            do i=1,12
               i1hiscall(i)=ichar(hiscall12(i:i))
            enddo
+           icrc10=crc10(c_loc(i1hiscall),12)
            write(cbits,1001) decoded
 1001       format(87i1)
            read(cbits,1002) ncrc10,nrpt
@@ -410,7 +411,12 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
            i2=index(message(i1+1:),' ') + i1
            c1=message(1:i1)//'   '
            c2=message(i1+1:i2)//'   '
-           msg37=c1//' RR73; '//c2//' <...>    '
+
+           if(ncrc10.eq.icrc10) msg37=c1//' RR73; '//c2//' <'//      &
+                trim(hiscall12)//'>    '
+           if(ncrc10.ne.icrc10) msg37=c1//' RR73; '//c2//' <...>    '
+           
+!           msg37=c1//' RR73; '//c2//' <...>    '
            write(msg37(35:37),1010) irpt
 1010       format(i3.2)
            if(msg37(35:35).ne.'-') msg37(35:35)='+'

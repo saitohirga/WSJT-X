@@ -80,10 +80,12 @@ program ft8sim
           '  BW:',f4.1,2x,a40)
   endif
 
-  write(*,'(28i1,1x,28i1)') msgbits(1:56)
-  write(*,'(16i1)') msgbits(57:72)
-  write(*,'(3i1)') msgbits(73:75)
-  write(*,'(12i1)') msgbits(76:87)
+  write(*,1030) msgbits(1:56)
+1030 format(/'Call1: ',28i1,'    Call2: ',28i1)
+  write(*,1032) msgbits(57:72),msgbits(73:75),msgbits(76:87)
+1032 format('Grid:  ',16i1,'   3Bit: ',3i1,'    CRC12: ',12i1)
+  write(*,1034) itone
+1034 format(/'Channel symbols:'/79i1/)
 
   msg0=msg
   do ifile=1,nfiles
