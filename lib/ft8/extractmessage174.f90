@@ -1,11 +1,9 @@
-subroutine extractmessage174(decoded,msgreceived,ncrcflag,recent_calls,nrecent)
+subroutine extractmessage174(decoded,msgreceived,ncrcflag)
   use iso_c_binding, only: c_loc,c_size_t
   use crc
   use packjt
 
   character*22 msgreceived
-  character*12 call1,call2
-  character*12 recent_calls(nrecent)
   character*87 cbits
   integer*1 decoded(87)
   integer*1, target::  i1Dec8BitBytes(11)
@@ -32,14 +30,8 @@ subroutine extractmessage174(decoded,msgreceived,ncrcflag,recent_calls,nrecent)
       enddo
       i4Dec6BitWords(ibyte)=itmp
     enddo
-    call unpackmsg144(i4Dec6BitWords,msgreceived,call1,call2)
+    call unpackmsg(i4Dec6BitWords,msgreceived,.false.,'      ')
     ncrcflag=1
-    if( call1(1:2) .ne. 'CQ' .and. call1(1:2) .ne. '  ' ) then
-      call update_recent_calls(call1,recent_calls,nrecent)
-    endif
-    if( call2(1:2) .ne. '  ' ) then
-      call update_recent_calls(call2,recent_calls,nrecent)
-    endif
   else
     msgreceived=' '
     ncrcflag=-1

@@ -446,6 +446,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/fsk4hf.f90
   lib/ft8/ft8apset.f90
   lib/ft8/ft8b.f90
+  lib/ft8/ft8code.f90
   lib/ft8/ft8_downsample.f90
   lib/ft8/ft8sim.f90
   lib/gen4.f90
@@ -1221,6 +1222,9 @@ target_link_libraries (ldpcsim168 wsjt_fort wsjt_cxx)
 add_executable (fsk4hf lib/fsk4hf/fsk4hf.f90 wsjtx.rc)
 target_link_libraries (fsk4hf wsjt_fort wsjt_cxx)
 
+add_executable (ft8code lib/ft8/ft8code.f90 wsjtx.rc)
+target_link_libraries (ft8code wsjt_fort wsjt_cxx)
+
 add_executable (ft8sim lib/ft8/ft8sim.f90 wsjtx.rc)
 target_link_libraries (ft8sim wsjt_fort wsjt_cxx)
 
@@ -1416,7 +1420,7 @@ install (TARGETS udp_daemon message_aggregator
   BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   )
 
-install (TARGETS jt9 jt65code qra64code qra64sim jt9code jt4code
+install (TARGETS jt9 ft8code jt65code qra64code qra64sim jt9code jt4code
   msk144code wsprd wspr_fsk8d fmtave fcal fmeasure
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime

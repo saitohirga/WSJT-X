@@ -3,8 +3,6 @@ program ldpcsim174
 use crc
 use packjt
 
-parameter(NRECENT=10)
-character*12 recent_calls(NRECENT)
 character*22 msg,msgsent,msgreceived
 character*8 arg
 character*6 grid
@@ -31,9 +29,6 @@ data colorder/            &
  140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,&
  160,161,162,163,164,165,166,167,168,169,170,171,172,173/
 
-do i=1,NRECENT
-  recent_calls(i)='            '
-enddo
 nerrtot=0
 nerrdec=0
 nmpcbad=0  ! Used to collect the number of errors in the message+crc part of the codeword
@@ -194,7 +189,7 @@ do idb = 20,-10,-1
     if( ndepth .ge. 0 .and. nharderrors .lt. 0 ) call osd174(llr, apmask, ndepth, decoded, cw,  nharderrors, dmin)
 ! If the decoder finds a valid codeword, nharderrors will be .ge. 0.
     if( nharderrors .ge. 0 ) then
-      call extractmessage174(decoded,msgreceived,ncrcflag,recent_calls,nrecent)
+      call extractmessage174(decoded,msgreceived,ncrcflag)
       if( ncrcflag .ne. 1 ) then
         nbadcrc=nbadcrc+1
       endif

@@ -5,10 +5,10 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   use crc
   use timer_module, only: timer
   include 'ft8_params.f90'
-  parameter(NRECENT=10,NP2=2812)
+  parameter(NP2=2812)
   character*37 msg37
   character message*22,msgsent*22
-  character*12 mycall12,hiscall12,recent_calls(NRECENT)
+  character*12 mycall12,hiscall12
   character*6 mycall6,mygrid6,hiscall6,c1,c2
   character*87 cbits
   logical bcontest
@@ -378,7 +378,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      if(nbadcrc.eq.0) then
         decoded0=decoded
         if(i3bit.eq.1) decoded(57:)=0
-        call extractmessage174(decoded,message,ncrcflag,recent_calls,nrecent)
+        call extractmessage174(decoded,message,ncrcflag)
         decoded=decoded0
 ! This needs fixing for messages with i3bit=1:        
         call genft8(message,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
@@ -401,7 +401,6 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
            do i=1,12
               i1hiscall(i)=ichar(hiscall12(i:i))
            enddo
-           icrc10=crc10(c_loc(i1hiscall),12)
            write(cbits,1001) decoded
 1001       format(87i1)
            read(cbits,1002) ncrc10,nrpt
@@ -411,17 +410,13 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
            i2=index(message(i1+1:),' ') + i1
            c1=message(1:i1)//'   '
            c2=message(i1+1:i2)//'   '
-           if(ncrc10.eq.icrc10) msg37=c1//' RR73; '//c2//' <'//         &
-                trim(hiscall12)//'>    '
-           if(ncrc10.ne.icrc10) msg37=c1//' RR73; '//c2//' <...>    '
-           write(51,*) 'a ',msg37,'|'
+           msg37=c1//' RR73; '//c2//' <...>    '
            write(msg37(35:37),1010) irpt
 1010       format(i3.2)
-           if(msg37(30:30).ne.'-') msg37(35:35)='+'
-           write(51,*) 'b ',msg37,'|'
+           if(msg37(35:35).ne.'-') msg37(35:35)='+'
            
            iz=len(trim(msg37))
-           do iter=1,10                           !Collapse multiple blanks into one
+           do iter=1,10                           !Collapse multiple blanks
               ib2=index(msg37(1:iz),'  ')
               if(ib2.lt.1) exit
               msg37=msg37(1:ib2)//msg37(ib2+2:)
