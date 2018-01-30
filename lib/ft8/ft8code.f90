@@ -2,9 +2,6 @@ program ft8code
 
 ! Provides examples of message packing, LDPC(144,87) encoding, bit and
 ! symbol ordering, and other details of the FT8 protocol.
-  
-! Generate simulated data for a 15-second HF/6m mode using 8-FSK.
-! Output is saved to a *.wav file.
 
   use packjt
   use crc
@@ -12,7 +9,6 @@ program ft8code
   include 'ft8_testmsg.f90'
   parameter (NWAVE=NN*NSPS)
   
-!  character*40 msg40,msgchk40
   character*40 msg,msgchk
   character*37 msg37
   character*6 c1,c2
@@ -58,8 +54,7 @@ program ft8code
   endif
 
   write(*,1010)
-1010 format("    Message                Decoded              Err? Type          Expected"/   &
-            76("-"))
+1010 format("    Message                Decoded              Err? Type"/76("-"))
 
   do imsg=1,nmsg
      if(nmsg.gt.1) msg=testmsg(imsg)
@@ -68,7 +63,7 @@ program ft8code
      
 ! Generate msgsent, msgbits, and itone
      if(index(msg,';').le.0) then
-        call packmsg(msg(1:22),dgen,itype,.false.)
+        call packmsg(msg(1:22),dgen,itype,bcontest)
         msgtype=""
         if(itype.eq.1) msgtype="Std Msg"
         if(itype.eq.2) msgtype="Type 1 pfx"
@@ -132,6 +127,8 @@ program ft8code
 1030 format(/'Call1: ',28i1,'    Call2: ',28i1)
      write(*,1032) msgbits(57:72),msgbits(73:75),msgbits(76:87)
 1032 format('Grid:  ',16i1,'   3Bit: ',3i1,'    CRC12: ',12i1)
+     write(*,1034) itone
+1034 format(/'Channel symbols:'/79i1)
   endif
 
 999 end program ft8code
