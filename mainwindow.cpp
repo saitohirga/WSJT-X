@@ -4956,7 +4956,7 @@ void MainWindow::on_actionFT8_triggered()
     ui->cbAutoSeq->setEnabled(false);
     ui->tabWidget->setCurrentIndex(0);
     ui->cbHoldTxFreq->setChecked(true);
-    displayWidgets(nWidgets("11101000010011100001000010000011"));
+    displayWidgets(nWidgets("11101000010011000001000010000011"));
     ui->labDXped->setText("DXpedition: Hound");
     ui->txrb2->setEnabled(false);
     ui->txrb4->setEnabled(false);
