@@ -2800,7 +2800,11 @@ void MainWindow::readFromStdout()                             //readFromStdout
 {
   while(proc_jt9.canReadLine()) {
     QByteArray t=proc_jt9.readLine();
-    if(m_mode=="FT8" and !m_config.bHound() and t.contains(";")) continue;
+    if(m_mode=="FT8" and !m_config.bHound() and t.contains(";")) {
+      QString errorMsg;
+      MessageBox::critical_message (this,
+         tr("Should you be in FT8 DXpedition mode?"), errorMsg);
+  }
 //    qint64 ms=QDateTime::currentMSecsSinceEpoch() - m_msec0;
     bool bAvgMsg=false;
     int navg=0;
@@ -4967,9 +4971,9 @@ void MainWindow::on_actionFT8_triggered()
   if((m_config.bFox() or m_config.bHound()) and !m_config.split_mode() and !m_bWarnSplit) {
     QString errorMsg;
     MessageBox::critical_message (this,
-       "We strongly recommend use of *Split* when using\n"
-       "FT8 DXpedition mode. Use either *Rig* or *Fake It*\n"
-       "on the *Settings | Radio* tab.", errorMsg);
+       "Operation in FT8 DXpedition mode requires using *Split*\n"
+       "rig control with either *Rig* or *Fake It* on the \n"
+       "*Settings | Radio* tab.", errorMsg);
     m_bWarnSplit=true;
   }
   statusChanged();
