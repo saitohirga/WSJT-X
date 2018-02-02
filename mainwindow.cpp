@@ -900,7 +900,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (&splashTimer, &QTimer::timeout, this, &MainWindow::splash_done);
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
-
+/*
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
      m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "W9XYZ" or
      m_config.my_callsign()=="K1ABC" or m_config.my_callsign()=="K1ABC/2" or
@@ -914,7 +914,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
        "Please use WSJT-X v1.8.0\n", errorMsg);
     Q_EMIT finished ();
   }
-
+*/
   if(!ui->cbMenus->isChecked()) {
     ui->cbMenus->setChecked(true);
     ui->cbMenus->setChecked(false);
@@ -3258,6 +3258,13 @@ void MainWindow::guiUpdate()
       setRig ();
       if(m_mode=="FT8" and m_config.bFox() and ui->TxFreqSpinBox->value() > 900) {
         ui->TxFreqSpinBox->setValue(300);
+      }
+
+// If HoldTxFreq is not checked, randomize Fox's Tx Freq
+// NB: Maybe this should be done no more than once every 5 minutes or so ?
+      if(m_mode=="FT8" and m_config.bFox() and !ui->cbHoldTxFreq->isChecked()) {
+        int fTx = 300.0 + 300.0*double(qrand())/RAND_MAX;
+        ui->TxFreqSpinBox->setValue(fTx);
       }
       if(m_mode=="FT8" and m_config.bHound() and (ui->TxFreqSpinBox->value() < 999) and
          m_ntx != 3) {
