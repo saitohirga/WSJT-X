@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>534</width>
-    <height>507</height>
+    <height>530</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -2439,15 +2439,15 @@ Right click for insert and delete options.</string>
            </widget>
           </item>
           <item row="8" column="0">
-           <widget class="QCheckBox" name="cbRealTime">
+           <widget class="QCheckBox" name="cbx4ToneSpacing">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Decode on-the-fly rather than at end of Rx sequence.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>MSK144 Realtime decode</string>
+             <string>x 4 Tone Spacing</string>
             </property>
            </widget>
           </item>
@@ -2683,7 +2683,7 @@ soundcard changes</string>
   <tabstop>sbBandwidth</tabstop>
   <tabstop>sbTxDelay</tabstop>
   <tabstop>cbx2ToneSpacing</tabstop>
-  <tabstop>cbRealTime</tabstop>
+  <tabstop>cbx4ToneSpacing</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -2753,12 +2753,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="split_mode_button_group"/>
+  <buttongroup name="CAT_data_bits_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
   <buttongroup name="TX_audio_source_button_group"/>
-  <buttongroup name="CAT_handshake_button_group"/>
-  <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="split_mode_button_group"/>
   <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="TX_mode_button_group"/>
  </buttongroups>
 </ui>

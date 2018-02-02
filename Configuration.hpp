@@ -129,8 +129,8 @@ public:
   bool bFox() const;
   bool bHound() const;
   bool x2ToneSpacing() const;
+  bool x4ToneSpacing() const;
   bool contestMode() const;
-  bool realTimeDecode() const;
   bool MyDx() const;
   bool CQMyN() const;
   bool NDxG() const;

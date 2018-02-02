@@ -1522,7 +1522,6 @@ void MainWindow::fastSink(qint64 frames)
   m_k0=k;
   if(m_diskData and m_k0 >= dec_data.params.kin - 7 * 512) decodeNow=true;
   if(!m_diskData and m_tRemaining<0.35 and !m_bFastDecodeCalled) decodeNow=true;
-//  if(m_mode=="MSK144" and m_config.realTimeDecode()) decodeNow=false;
   if(m_mode=="MSK144") decodeNow=false;
 
   if(decodeNow) {
@@ -2682,7 +2681,6 @@ void MainWindow::decode()                                       //decode()
     if(m_nPick > 0) {
       t0=m_t0Pick;
       t1=m_t1Pick;
-//      if(t1 > m_kdone/12000.0 and !m_config.realTimeDecode()) t1=m_kdone/12000.0;
     }
     static short int d2b[360000];
     narg[0]=dec_data.params.nutc;
@@ -2803,8 +2801,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
     if(m_mode=="FT8" and !m_config.bHound() and t.contains(";")) {
       QString errorMsg;
       MessageBox::critical_message (this,
-         tr("Should you be in FT8 DXpedition mode?"), errorMsg);
-  }
+         tr("Should you be in \"FT8 DXpedition Hound\" mode?"), errorMsg);
+    }
 //    qint64 ms=QDateTime::currentMSecsSinceEpoch() - m_msec0;
     bool bAvgMsg=false;
     int navg=0;
@@ -3601,7 +3599,6 @@ void MainWindow::guiUpdate()
         tx_status_label.setStyleSheet("QLabel{background-color: #00ff00}");
         QString t;
         t="Receiving";
-//        if(m_mode=="MSK144" and m_config.realTimeDecode()) {
         if(m_mode=="MSK144") {
           int npct=int(100.0*m_fCPUmskrtd/0.298667);
           if(npct>90) tx_status_label.setStyleSheet("QLabel{background-color: #ff0000}");
@@ -6082,6 +6079,7 @@ void MainWindow::transmit (double snr)
   if (m_modeTx == "FT8") {
     toneSpacing=12000.0/1920.0;
     if(m_config.x2ToneSpacing()) toneSpacing=2*12000.0/1920.0;
+    if(m_config.x4ToneSpacing()) toneSpacing=4*12000.0/1920.0;
     if(m_config.bFox() and !m_tune) toneSpacing=-1;
     Q_EMIT sendMessage (NUM_FT8_SYMBOLS,
            1920.0, ui->TxFreqSpinBox->value () - m_XIT,
@@ -6107,6 +6105,7 @@ void MainWindow::transmit (double snr)
     double sps=m_nsps;
     m_toneSpacing=nsub*12000.0/6912.0;
     if(m_config.x2ToneSpacing()) m_toneSpacing=2.0*m_toneSpacing;
+    if(m_config.x4ToneSpacing()) m_toneSpacing=4.0*m_toneSpacing;
     bool fastmode=false;
     if(m_bFast9 and (m_nSubMode>=4)) {
       fastmode=true;
@@ -6153,6 +6152,7 @@ void MainWindow::transmit (double snr)
   if (m_mode=="WSPR") {
     int nToneSpacing=1;
     if(m_config.x2ToneSpacing()) nToneSpacing=2;
+    if(m_config.x4ToneSpacing()) nToneSpacing=4;
     Q_EMIT sendMessage (NUM_WSPR_SYMBOLS, 8192.0,
                         ui->TxFreqSpinBox->value() - 1.5 * 12000 / 8192,
                         m_toneSpacing*nToneSpacing, m_soundOutput,
@@ -7425,8 +7425,8 @@ void MainWindow::foxTxSequencer()
     m_hisGrid=m_foxQSO[hc1].grid;
     m_rptSent=m_foxQSO[hc1].sent;
     m_rptRcvd=m_foxQSO[hc1].rcvd;
-    qDebug() << "Fox Logged      :" << islot << m_hisCall << m_hisGrid << m_rptSent
-             << m_rptRcvd << m_lastBand;
+//    qDebug() << "Fox Logged      :" << islot << m_hisCall << m_hisGrid << m_rptSent
+//             << m_rptRcvd << m_lastBand;
     QDateTime logTime {QDateTime::currentDateTimeUtc ()};
     QString logLine=logTime.toString("yyyy-MM-dd hh:mm") + " " + m_hisCall +
         "  " + m_hisGrid + "  " + m_rptSent + "  " + m_rptRcvd + " " + m_lastBand;
@@ -7439,27 +7439,19 @@ void MainWindow::foxTxSequencer()
     if(m_foxQSOqueue.contains(hc1)) m_foxQSOqueue.removeOne(hc1);
 
     islot++;
-    //Generate tx waveform
-    foxGenWaveform(islot-1,fm);
+    foxGenWaveform(islot-1,fm);             //Generate tx waveform
     if(islot >= m_Nslots) goto Transmit;
   }
 
 //One or more Tx slots are still available, repeat call to a Hound in the QSOqueue
   while (!m_foxQSOqueue.isEmpty()) {
-    //should limit repeat transmissions here
+    //should limit repeat transmissions here ?
     hc1=m_foxQSOqueue.dequeue();             //Recover hound callsign from QSO queue
     m_foxQSOqueue.enqueue(hc1);              //Put him back in, at the end
     fm = hc1 + " " + m_baseCall + " " + m_foxQSO[hc1].sent;  //Tx msg
-/*
-    if(now-m_fullFoxCallTime > 300) {
-      fm = hc1 + " " + m_config.my_callsign();               //Tx msg
-      m_fullFoxCallTime=now;
-    }
-*/
     if(islot>0 and fm==m_fm0) break;         //Suppress duplicate Fox signals
     islot++;
-    //Generate tx waveform
-    foxGenWaveform(islot-1,fm);
+    foxGenWaveform(islot-1,fm);              //Generate tx waveform
     m_fm0=fm;
     if(islot >= m_Nslots) goto Transmit;
   }
@@ -7475,15 +7467,8 @@ void MainWindow::foxTxSequencer()
     m_foxQSO[hc1].t0=now;                 //QSO start time
     rm_tb4(hc1);                          //Remove this hound from tb4
     fm = hc1 + " " + m_baseCall + " " + rpt;    //Tx msg
-/*
-    if(now-m_fullFoxCallTime > 300) {
-      fm = hc1 + " " + m_config.my_callsign();  //Tx msg
-      m_fullFoxCallTime=now;
-    }
-*/
     islot++;
-    //Generate tx waveform
-    foxGenWaveform(islot-1,fm);
+    foxGenWaveform(islot-1,fm);           //Generate tx waveform
     if(islot >= m_Nslots) goto Transmit;
   }
 

@@ -446,6 +446,8 @@ private:
   Q_SLOT void on_pbNewCall_clicked();
   Q_SLOT void on_cbFox_clicked (bool);
   Q_SLOT void on_cbHound_clicked (bool);
+  Q_SLOT void on_cbx2ToneSpacing_clicked(bool);
+  Q_SLOT void on_cbx4ToneSpacing_clicked(bool);
 
   // typenames used as arguments must match registered type names :(
   Q_SIGNAL void start_transceiver (unsigned seqeunce_number) const;
@@ -566,7 +568,7 @@ private:
   bool bFox_;
   bool bHound_;
   bool x2ToneSpacing_;
-  bool realTimeDecode_;
+  bool x4ToneSpacing_;
   QString opCall_;
   QString udp_server_name_;
   port_type udp_server_port_;
@@ -667,7 +669,7 @@ bool Configuration::twoPass() const {return m_->twoPass_;}
 bool Configuration::bFox() const {return m_->bFox_;}
 bool Configuration::bHound() const {return m_->bHound_;}
 bool Configuration::x2ToneSpacing() const {return m_->x2ToneSpacing_;}
-bool Configuration::realTimeDecode() const {return m_->realTimeDecode_;}
+bool Configuration::x4ToneSpacing() const {return m_->x4ToneSpacing_;}
 bool Configuration::split_mode () const {return m_->split_mode ();}
 QString Configuration::opCall() const {return m_->opCall_;}
 QString Configuration::udp_server_name () const {return m_->udp_server_name_;}
@@ -1138,8 +1140,7 @@ void Configuration::impl::initialize_models ()
   ui_->cbFox->setChecked(bFox_);
   ui_->cbHound->setChecked(bHound_);
   ui_->cbx2ToneSpacing->setChecked(x2ToneSpacing_);
-  ui_->cbRealTime->setChecked(realTimeDecode_);
-  ui_->cbRealTime->setVisible(false);                    //Tempoary -- probably will remove this control
+  ui_->cbx4ToneSpacing->setChecked(x4ToneSpacing_);
   ui_->type_2_msg_gen_combo_box->setCurrentIndex (type_2_msg_gen_);
   ui_->rig_combo_box->setCurrentText (rig_params_.rig_name);
   ui_->TX_mode_button_group->button (data_mode_)->setChecked (true);
@@ -1375,7 +1376,7 @@ void Configuration::impl::read_settings ()
   bFox_ = settings_->value("Fox",false).toBool ();
   bHound_ = settings_->value("Hound",false).toBool ();
   x2ToneSpacing_ = settings_->value("x2ToneSpacing",false).toBool ();
-  realTimeDecode_ = settings_->value("RealTimeDecode",false).toBool ();
+  x4ToneSpacing_ = settings_->value("x4ToneSpacing",false).toBool ();
   rig_params_.poll_interval = settings_->value ("Polling", 0).toInt ();
   rig_params_.split_mode = settings_->value ("SplitMode", QVariant::fromValue (TransceiverFactory::split_mode_none)).value<TransceiverFactory::SplitMode> ();
   opCall_ = settings_->value ("OpCall", "").toString ();
@@ -1480,7 +1481,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("Fox", bFox_);
   settings_->setValue ("Hound", bHound_);
   settings_->setValue ("x2ToneSpacing", x2ToneSpacing_);
-  settings_->setValue ("RealTimeDecode", realTimeDecode_);
+  settings_->setValue ("x4ToneSpacing", x4ToneSpacing_);
   settings_->setValue ("OpCall", opCall_);
   settings_->setValue ("UDPServer", udp_server_name_);
   settings_->setValue ("UDPServerPort", udp_server_port_);
@@ -1882,7 +1883,7 @@ void Configuration::impl::accept ()
   bFox_ = ui_->cbFox->isChecked ();
   bHound_ = ui_->cbHound->isChecked ();
   x2ToneSpacing_ = ui_->cbx2ToneSpacing->isChecked ();
-  realTimeDecode_ = ui_->cbRealTime->isChecked ();
+  x4ToneSpacing_ = ui_->cbx4ToneSpacing->isChecked ();
   calibration_.intercept = ui_->calibration_intercept_spin_box->value ();
   calibration_.slope_ppm = ui_->calibration_slope_ppm_spin_box->value ();
   pwrBandTxMemory_ = ui_->checkBoxPwrBandTxMemory->isChecked ();
@@ -2360,18 +2361,22 @@ void Configuration::impl::on_calibration_slope_ppm_spin_box_valueChanged (double
 
 void Configuration::impl::on_cbFox_clicked (bool checked)
 {
-  if (checked)
-    {
-      ui_->cbHound->setChecked (false);
-    }
+  if (checked) ui_->cbHound->setChecked (false);
 }
 
 void Configuration::impl::on_cbHound_clicked (bool checked)
 {
-  if (checked)
-    {
-      ui_->cbFox->setChecked (false);
-    }
+  if (checked) ui_->cbFox->setChecked (false);
+}
+
+void Configuration::impl::on_cbx2ToneSpacing_clicked(bool b)
+{
+  if(b) ui_->cbx4ToneSpacing->setChecked(false);
+}
+
+void Configuration::impl::on_cbx4ToneSpacing_clicked(bool b)
+{
+  if(b) ui_->cbx2ToneSpacing->setChecked(false);
 }
 
 bool Configuration::impl::have_rig ()
