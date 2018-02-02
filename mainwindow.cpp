@@ -2560,7 +2560,6 @@ void MainWindow::decode()                                       //decode()
   if( m_diskData ) {
     dec_data.params.lapcqonly=false;
   }
-//  QTextStream(stdout) << " lapcqonly is " << dec_data.params.lapcqonly << endl;
 
   m_msec0=QDateTime::currentMSecsSinceEpoch();
   if(!m_dataAvailable or m_TRperiod==0) return;
@@ -4951,7 +4950,7 @@ void MainWindow::on_actionFT8_triggered()
     ui->cbAutoSeq->setEnabled(false);
     ui->tabWidget->setCurrentIndex(2);
     ui->TxFreqSpinBox->setValue(300);
-    displayWidgets(nWidgets("11101000010011100001000010000010"));
+    displayWidgets(nWidgets("11101000010011100001000000000010"));
     ui->labDXped->setText("DXpedition: Fox");
     on_actionFox_Log_triggered();
   }
@@ -4961,7 +4960,7 @@ void MainWindow::on_actionFT8_triggered()
     ui->cbAutoSeq->setEnabled(false);
     ui->tabWidget->setCurrentIndex(0);
     ui->cbHoldTxFreq->setChecked(true);
-    displayWidgets(nWidgets("11101000010011000001000010000011"));
+    displayWidgets(nWidgets("11101000010011000001000000000011"));
     ui->labDXped->setText("DXpedition: Hound");
     ui->txrb2->setEnabled(false);
     ui->txrb4->setEnabled(false);
