@@ -62,3 +62,13 @@ tracking for EME QSOs and Echo testing.  The program runs equally well
 on Windows, Macintosh, and Linux systems, and installation packages
 are available for all three platforms.
 
+*Version Numbers:* _WSJT-X_ release numbers have major, minor, and
+patch numbers separated by periods: for example, _WSJT-X_ Version
+1.8.0.  Temporary "`beta`" release caldidates are sometimes made in
+advance of a new general-availability release, in order to obtain user
+feedback.  For example, versions 1.8.0-rc1, 1.8.0-rc2, and 1.8.0-rc3
+were made available leading up to the final release of v1.8.0.
+Release candidates should be used _only_ during a short testing
+period, and they carry an implied obligation to provide feedback to the
+program development group.  Candidate releases should not be used on
+the air after a full release with the same number has been made.
