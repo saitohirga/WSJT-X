@@ -2908,10 +2908,9 @@ void MainWindow::readFromStdout()                             //readFromStdout
             m_bAutoReply = true;
             if(!m_config.bFox()) processMessage (decodedtext);
             ui->cbFirst->setStyleSheet("");
-          } else {
-            if(m_config.bFox() and for_us and (audioFreq<1000)) bDisplayRight=true;
-            if(!m_config.bFox() and (for_us or (abs(audioFreq - m_wideGraph->rxFreq()) <= 10))) bDisplayRight=true;
           }
+          if(m_config.bFox() and for_us and (audioFreq<1000)) bDisplayRight=true;
+          if(!m_config.bFox() and (for_us or (abs(audioFreq - m_wideGraph->rxFreq()) <= 10))) bDisplayRight=true;
         }
       } else {
         if(abs(audioFreq - m_wideGraph->rxFreq()) <= 10) bDisplayRight=true;
@@ -4252,9 +4251,11 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   QString s1 = m_QSOText.trimmed ();
   QString s2 = message.string ().trimmed();
   if (s1!=s2 and !message.isTX()) {
-    ui->decodedTextBrowser2->displayDecodedText(message, m_baseCall,
+    if (!s2.contains(m_baseCall)) {              // Taken care of elsewhere if for_us
+      ui->decodedTextBrowser2->displayDecodedText(message, m_baseCall,
           false, m_logBook,m_config.color_CQ(), m_config.color_MyCall(),
           m_config.color_DXCC(),m_config.color_NewCall(),m_config.ppfx());
+    }
     m_QSOText = s2;
   }
 
