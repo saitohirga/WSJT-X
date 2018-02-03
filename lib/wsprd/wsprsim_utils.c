@@ -238,7 +238,7 @@ int get_wspr_channel_symbols(char* rawmessage, char* hashtab, unsigned char* sym
     } else if ( i2 < mlen ) {  // just looks for a right slash
         // Type 2: PJ4/K1ABC 37
         callsign=strtok(message," ");
-        if( strlen(callsign) < i2 ) return 0; //guards against pathological case
+        if( i2==0 || i2>strlen(callsign) ) return 0; //guards against pathological case
         powstr=strtok(NULL," ");
         int power = atoi(powstr);
         if( power < 0 ) power=0;

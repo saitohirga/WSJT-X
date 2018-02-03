@@ -713,7 +713,7 @@ void usage(void)
 //***************************************************************************
 int main(int argc, char *argv[])
 {
-    char cr[] = "(C) 2016, Steven Franke - K9AN";
+    char cr[] = "(C) 2018, Steven Franke - K9AN";
     (void)cr;
     extern char *optarg;
     extern int optind;
@@ -1316,7 +1316,6 @@ int main(int argc, char *argv[])
                     } else {
                         break;
                     }
-                    
                 }
 
                 // Remove dupes (same callsign and freq within 3 Hz)
