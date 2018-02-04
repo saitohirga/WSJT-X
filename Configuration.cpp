@@ -524,6 +524,7 @@ private:
   CalibrationParams calibration_;
   bool frequency_calibration_disabled_; // not persistent
   unsigned transceiver_command_number_;
+  QString dynamic_grid_;
 
   // configuration fields that we publish
   QString my_callsign_;
@@ -569,6 +570,7 @@ private:
   bool bHound_;
   bool x2ToneSpacing_;
   bool x4ToneSpacing_;
+  bool use_dynamic_grid_;
   QString opCall_;
   QString udp_server_name_;
   port_type udp_server_port_;
@@ -627,7 +629,6 @@ bool Configuration::restart_audio_input () const {return m_->restart_sound_input
 bool Configuration::restart_audio_output () const {return m_->restart_sound_output_device_;}
 auto Configuration::type_2_msg_gen () const -> Type2MsgGen {return m_->type_2_msg_gen_;}
 QString Configuration::my_callsign () const {return m_->my_callsign_;}
-QString Configuration::my_grid () const {return m_->my_grid_;}
 QColor Configuration::color_CQ () const {return m_->color_CQ_;}
 QColor Configuration::color_MyCall () const {return m_->color_MyCall_;}
 QColor Configuration::color_TxMsg () const {return m_->color_TxMsg_;}
@@ -795,6 +796,22 @@ bool Configuration::valid_n1mm_info () const
   auto server_name = m_->n1mm_server_name_;
   auto port_number = m_->n1mm_server_port_;
   return(!(server_name.trimmed().isEmpty() || port_number == 0));
+}
+
+QString Configuration::my_grid() const
+{
+  auto the_grid = m_->my_grid_;
+  if (m_->use_dynamic_grid_ && m_->dynamic_grid_.size () >= 4) {
+    the_grid = m_->dynamic_grid_;
+  }
+  return the_grid;
+}
+
+void Configuration::set_location (QString const& grid_descriptor)
+{
+  // change the dynamic grid
+  qDebug () << "Configuration::set_location - location:" << grid_descriptor;
+  m_->dynamic_grid_ = grid_descriptor.trimmed ();
 }
 
 namespace
@@ -1102,6 +1119,7 @@ void Configuration::impl::initialize_models ()
   ui_->grid_line_edit->setPalette (pal);
   ui_->callsign_line_edit->setText (my_callsign_);
   ui_->grid_line_edit->setText (my_grid_);
+  ui_->use_dynamic_grid->setChecked(use_dynamic_grid_);
   ui_->labCQ->setStyleSheet(QString("background: %1").arg(color_CQ_.name()));
   ui_->labMyCall->setStyleSheet(QString("background: %1").arg(color_MyCall_.name()));
   ui_->labTx->setStyleSheet(QString("background: %1").arg(color_TxMsg_.name()));
@@ -1316,6 +1334,7 @@ void Configuration::impl::read_settings ()
   spot_to_psk_reporter_ = settings_->value ("PSKReporter", false).toBool ();
   id_after_73_ = settings_->value ("After73", false).toBool ();
   tx_QSY_allowed_ = settings_->value ("TxQSYAllowed", false).toBool ();
+  use_dynamic_grid_ = settings_->value ("AutoGrid", false).toBool ();
 
   macros_.setStringList (settings_->value ("Macros", QStringList {"TNX 73 GL"}).toStringList ());
 
@@ -1496,6 +1515,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("pwrBandTxMemory", pwrBandTxMemory_);
   settings_->setValue ("pwrBandTuneMemory", pwrBandTuneMemory_);
   settings_->setValue ("Region", QVariant::fromValue (region_));
+  settings_->setValue ("AutoGrid", use_dynamic_grid_);
 }
 
 void Configuration::impl::set_rig_invariants ()
@@ -1931,7 +1951,14 @@ void Configuration::impl::accept ()
       stations_.station_list(next_stations_.station_list ());
       stations_.sort (StationList::band_column);
     }
- 
+
+  if (ui_->use_dynamic_grid->isChecked() && !use_dynamic_grid_ )
+  {
+    // turning on so clear it so only the next location update gets used
+    dynamic_grid_.clear ();
+  }
+  use_dynamic_grid_ = ui_->use_dynamic_grid->isChecked();
+
   write_settings ();		// make visible to all
 }
 

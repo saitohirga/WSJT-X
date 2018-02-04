@@ -43,6 +43,7 @@ public:
   Q_SIGNAL void do_reply (QModelIndex const&, quint8 modifier);
   Q_SIGNAL void do_halt_tx (QString const& id, bool auto_only);
   Q_SIGNAL void do_free_text (QString const& id, QString const& text, bool);
+  Q_SIGNAL void location (QString const &id, QString const &text);
 
 private:
   QString id_;
@@ -69,9 +70,11 @@ private:
   QTableView * decodes_table_view_;
   QTableView * beacons_table_view_;
   QLineEdit * message_line_edit_;
+  QLineEdit * grid_line_edit_;
   QStackedLayout * decodes_stack_;
   QAbstractButton * auto_off_button_;
   QAbstractButton * halt_tx_button_;
+  QLabel * de_label_;
   QLabel * mode_label_;
   bool fast_mode_;
   QLabel * frequency_label_;

@@ -8,7 +8,9 @@
 #include <QtGui>
 #endif
 
+#include <QString>
 #include <QScopedPointer>
+#include <QDateTime>
 
 #include "Radio.hpp"
 
@@ -18,6 +20,7 @@ namespace Ui {
 
 class QSettings;
 class Configuration;
+class QByteArray;
 
 class LogQSO : public QDialog
 {
@@ -40,7 +43,8 @@ signals:
                   , Radio::Frequency dial_freq, QString const& mode
                   , QString const& rpt_sent, QString const& rpt_received
                   , QString const& tx_power, QString const& comments
-                  , QString const& name, QDateTime const& QSO_date_on,  QString const& operator_call);
+                  , QString const& name, QDateTime const& QSO_date_on,  QString const& operator_call
+                  , QString const& my_call, QString const& my_grid, QByteArray const& ADIF);
 
 protected:
   void hideEvent (QHideEvent *);

@@ -192,6 +192,9 @@ public:
   // Set the calibration parameters and enable calibration corrections.
   void set_calibration (CalibrationParams);
 
+  // Set the dynamic grid which is only used if configuration setting is enabled.
+  void set_location (QString const&);
+
   // This method queries if a CAT and PTT connection is operational.
   bool is_transceiver_online () const;
 

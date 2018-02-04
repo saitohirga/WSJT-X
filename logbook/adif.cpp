@@ -174,8 +174,11 @@ int ADIF::getCount() const
     return _data.size();
 }   
     
-QString ADIF::QSOToADIF(QString const& hisCall, QString const& hisGrid, QString const& mode, QString const& rptSent, QString const& rptRcvd, QDateTime const& dateTimeOn, QDateTime const& dateTimeOff, QString const& band,
-                        QString const& comments, QString const& name, QString const& strDialFreq, QString const& m_myCall, QString const& m_myGrid, QString const& m_txPower, QString const& operator_call)
+QByteArray ADIF::QSOToADIF(QString const& hisCall, QString const& hisGrid, QString const& mode
+                           , QString const& rptSent, QString const& rptRcvd, QDateTime const& dateTimeOn
+                           , QDateTime const& dateTimeOff, QString const& band, QString const& comments
+                           , QString const& name, QString const& strDialFreq, QString const& m_myCall
+                           , QString const& m_myGrid, QString const& m_txPower, QString const& operator_call)
 {
   QString t;
   t = "<call:" + QString::number(hisCall.length()) + ">" + hisCall;
@@ -205,14 +208,12 @@ QString ADIF::QSOToADIF(QString const& hisCall, QString const& hisGrid, QString 
   if (operator_call!="")
       t+=" <operator:" + QString::number(operator_call.length()) +
               ">" + operator_call;
-  t += " <eor>";
-  return t;
+  return t.toLatin1 ();
 }
 
 
 // open ADIF file and append the QSO details. Return true on success
-bool ADIF::addQSOToFile(QString const& hisCall, QString const& hisGrid, QString const& mode, QString const& rptSent, QString const& rptRcvd, QDateTime const& dateTimeOn, QDateTime const& dateTimeOff, QString const& band,
-                        QString const& comments, QString const& name, QString const& strDialFreq, QString const& m_myCall, QString const& m_myGrid, QString const& m_txPower, QString const& operator_call)
+bool ADIF::addQSOToFile(QByteArray const& ADIF_record)
 {
     QFile f2(_filename);
     if (!f2.open(QIODevice::Text | QIODevice::Append))
@@ -223,10 +224,7 @@ bool ADIF::addQSOToFile(QString const& hisCall, QString const& hisGrid, QString 
         if (f2.size()==0)
             out << "WSJT-X ADIF Export<eoh>" << endl;  // new file
 
-        QString t;
-        t = QSOToADIF(hisCall,hisGrid,mode,rptSent,rptRcvd,dateTimeOn,dateTimeOff,
-                      band,comments,name,strDialFreq,m_myCall,m_myGrid,m_txPower,operator_call);
-        out << t << endl;
+        out << ADIF_record << " <eor>" << endl;
         f2.close();
     }
     return true;

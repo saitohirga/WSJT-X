@@ -446,12 +446,13 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (this, &MainWindow::finished, m_fastGraph.data (), &FastGraph::close);
 
   // setup the log QSO dialog
-  connect (m_logDlg.data (), &LogQSO::acceptQSO, this, &MainWindow::acceptQSO2);
+  connect (m_logDlg.data (), &LogQSO::acceptQSO, this, &MainWindow::acceptQSO);
   connect (this, &MainWindow::finished, m_logDlg.data (), &LogQSO::close);
 
   // Network message handlers
   connect (m_messageClient, &MessageClient::reply, this, &MainWindow::replyToCQ);
   connect (m_messageClient, &MessageClient::replay, this, &MainWindow::replayDecodes);
+  connect (m_messageClient, &MessageClient::location, this, &MainWindow::locationChange);
   connect (m_messageClient, &MessageClient::halt_tx, [this] (bool auto_only) {
       if (m_config.accept_udp_requests ()) {
         if (auto_only) {
@@ -1581,13 +1582,16 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
 {
   // things that might change that we need know about
   auto callsign = m_config.my_callsign ();
+  auto my_grid = m_config.my_grid ();
   if (QDialog::Accepted == m_config.exec ()) {
     if (m_config.my_callsign () != callsign) {
       m_baseCall = Radio::base_callsign (m_config.my_callsign ());
       morse_(const_cast<char *> (m_config.my_callsign ().toLatin1().constData()),
              const_cast<int *> (icw), &m_ncw, m_config.my_callsign ().length());
     }
-
+    if (m_config.my_callsign () != callsign || m_config.my_grid () != my_grid) {
+      statusUpdate ();
+    }
     on_dxGridEntry_textChanged (m_hisGrid); // recalculate distances in case of units change
     enable_DXCC_entity (m_config.DXCC ());  // sets text window proportions and (re)inits the logbook
 
@@ -4811,16 +4815,18 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
                         m_config.bFox(), m_opCall);
 }
 
-void MainWindow::acceptQSO2(QDateTime const& QSO_date_off, QString const& call, QString const& grid
+void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, QString const& grid
                             , Frequency dial_freq, QString const& mode
                             , QString const& rpt_sent, QString const& rpt_received
                             , QString const& tx_power, QString const& comments
-                            , QString const& name, QDateTime const& QSO_date_on, QString const& operator_call)
+                            , QString const& name, QDateTime const& QSO_date_on, QString const& operator_call
+                            , QString const& my_call, QString const& my_grid, QByteArray const& ADIF)
 {
   QString date = QSO_date_on.toString("yyyyMMdd");
   m_logBook.addAsWorked (m_hisCall, m_config.bands ()->find (m_freqNominal), m_modeTx, date);
 
-  m_messageClient->qso_logged (QSO_date_off, call, grid, dial_freq, mode, rpt_sent, rpt_received, tx_power, comments, name, QSO_date_on, operator_call);
+  m_messageClient->qso_logged (QSO_date_off, call, grid, dial_freq, mode, rpt_sent, rpt_received, tx_power, comments, name, QSO_date_on, operator_call, my_call, my_grid);
+  m_messageClient->logged_ADIF (ADIF);
 
   if (m_config.clear_DX ())
     {
@@ -6520,6 +6526,33 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
     {
       qDebug () << "rejecting UDP request to reply as decode is not a CQ or QRZ";
     }
+}
+
+void MainWindow::locationChange (QString const& location)
+{
+  QString grid {location.trimmed ()};
+  int len;
+
+  // string 6 chars or fewer, interpret as a grid, or use with a 'GRID:' prefix
+  if (grid.size () > 6) {
+    if (grid.toUpper ().startsWith ("GRID:")) {
+      grid = grid.mid (5).trimmed ();
+    }
+    else {
+      // TODO - support any other formats, e.g. latlong? Or have that conversion done external to wsjtx
+      return;
+    }
+  }
+  if (MaidenheadLocatorValidator::Acceptable == MaidenheadLocatorValidator ().validate (grid, len)) {
+    qDebug() << "locationChange: Grid supplied is " << grid;
+    if (m_config.my_grid () != grid) {
+      m_config.set_location (grid);
+      genStdMsgs (m_rpt, false);
+      statusUpdate ();
+    }
+  } else {
+    qDebug() << "locationChange: Invalid grid " << grid;
+  }
 }
 
 void MainWindow::replayDecodes ()

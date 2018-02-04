@@ -237,6 +237,9 @@
  *                         Comments               utf8
  *                         Name                   utf8
  *                         Date & Time On         QDateTime
+ *                         Operator call          utf8
+ *                         My call                utf8
+ *                         My grid                utf8
  *
  *      The  QSO logged  message is  sent  to the  server(s) when  the
  *      WSJT-X user accepts the "Log  QSO" dialog by clicking the "OK"
@@ -304,6 +307,7 @@
  *      command to  determine the  contents of  the current  free text
  *      message.
  *
+ *
  * WSPRDecode    Out       10                     quint32
  *                         Id (unique key)        utf8
  *                         New                    bool
@@ -326,6 +330,43 @@
  *      usage. The off air field indicates that the decode was decoded
  *      from a played back recording.
  *
+ *
+ * Location       In       11
+ *                         Id (unique key)        utf8
+ *                         Location               utf8
+ *
+ *      This  message allows  the server  to set  the current  current
+ *      geographical location  of operation. The supplied  location is
+ *      not persistent but  is used as a  session lifetime replacement
+ *      loction that overrides the Maidenhead  grid locater set in the
+ *      application  settings.  The  intent  is to  allow an  external
+ *      application  to  update  the  operating  location  dynamically
+ *      during a mobile period of operation.
+ *
+ *      Currently  only Maidenhead  grid  squares  or sub-squares  are
+ *      accepted, i.e.  4- or 6-digit  locators. Other formats  may be
+ *      accepted in future.
+ *
+ *
+ * Logged ADIF    Out      12                     quint32
+ *                         Id (unique key)        utf8
+ *                         ADIF text              ASCII (serialized like utf8)
+ *
+ *      The  logged ADIF  message is  sent to  the server(s)  when the
+ *      WSJT-X user accepts the "Log  QSO" dialog by clicking the "OK"
+ *      button. The  "ADIF text" field  consists of a valid  ADIF file
+ *      such that  the WSJT-X  UDP header information  is encapsulated
+ *      into a valid ADIF header. E.g.:
+ *
+ *          <magic-number><schema-number><type><id><32-bit-count>  # binary encoded fields
+ *          # the remainder is the contents of the ADIF text field
+ *          <adif_ver:5>3.0.7
+ *          <programid:6>WSJT-X
+ *          <EOH>
+ *          ADIF log data fields ...<EOR>
+ *
+ *      Note that  receiving applications can treat  the whole message
+ *      as a valid ADIF file with one record without special parsing.
  *
  */
 
@@ -353,6 +394,8 @@ namespace NetworkMessage
       HaltTx,
       FreeText,
       WSPRDecode,
+      Location,
+      LoggedADIF,
       maximum_message_type_     // ONLY add new message types
                                 // immediately before here
     };

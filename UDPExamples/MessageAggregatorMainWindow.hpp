@@ -29,7 +29,8 @@ public:
   Q_SLOT void log_qso (QString const& /*id*/, QDateTime time_off, QString const& dx_call, QString const& dx_grid
                        , Frequency dial_frequency, QString const& mode, QString const& report_sent
                        , QString const& report_received, QString const& tx_power, QString const& comments
-                       , QString const& name, QDateTime time_on);
+                       , QString const& name, QDateTime time_on, QString const& operator_call
+                       , QString const& my_call, QString const& my_grid);
 
 private:
   void add_client (QString const& id, QString const& version, QString const& revision);

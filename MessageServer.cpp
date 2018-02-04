@@ -292,14 +292,18 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                 QByteArray name;
                 QDateTime time_on; // Note: LOTW uses TIME_ON for their +/- 30-minute time window
                 QByteArray operator_call;
+                QByteArray my_call;
+                QByteArray my_grid;
                 in >> time_off >> dx_call >> dx_grid >> dial_frequency >> mode >> report_sent >> report_received
-                   >> tx_power >> comments >> name >> time_on >> operator_call;
+                   >> tx_power >> comments >> name >> time_on >> operator_call >> my_call >> my_grid;
                 if (check_status (in) != Fail)
                   {
                     Q_EMIT self_->qso_logged (id, time_off, QString::fromUtf8 (dx_call), QString::fromUtf8 (dx_grid)
                                               , dial_frequency, QString::fromUtf8 (mode), QString::fromUtf8 (report_sent)
                                               , QString::fromUtf8 (report_received), QString::fromUtf8 (tx_power)
-                                              , QString::fromUtf8 (comments), QString::fromUtf8 (name), time_on, QString::fromUtf8 (operator_call));
+                                              , QString::fromUtf8 (comments), QString::fromUtf8 (name), time_on
+                                              , QString::fromUtf8 (operator_call), QString::fromUtf8 (my_call)
+                                              , QString::fromUtf8 (my_grid));
                   }
               }
               break;
@@ -307,6 +311,17 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
             case NetworkMessage::Close:
               Q_EMIT self_->client_closed (id);
               clients_.remove (id);
+              break;
+
+            case NetworkMessage::LoggedADIF:
+              {
+                QByteArray ADIF;
+                in >> ADIF;
+                if (check_status (in) != Fail)
+                  {
+                    Q_EMIT self_->logged_ADIF (id, ADIF);
+                  }
+              }
               break;
 
             default:
@@ -452,4 +467,16 @@ void MessageServer::free_text (QString const& id, QString const& text, bool send
       out << text.toUtf8 () << send;
       m_->send_message (out, message, iter.value ().sender_address_, (*iter).sender_port_);
     }
+}
+
+void MessageServer::location (QString const& id, QString const& loc)
+{
+  auto iter = m_->clients_.find (id);
+  if (iter != std::end (m_->clients_))
+  {
+    QByteArray message;
+    NetworkMessage::Builder out {&message, NetworkMessage::Location, id, (*iter).negotiated_schema_number_};
+    out << loc.toUtf8 ();
+    m_->send_message (out, message, iter.value ().sender_address_, (*iter).sender_port_);
+  }
 }

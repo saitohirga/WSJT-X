@@ -218,11 +218,12 @@ private slots:
   void on_tuneButton_clicked (bool);
   void on_pbR2T_clicked();
   void on_pbT2R_clicked();
-  void acceptQSO2(QDateTime const&, QString const& call, QString const& grid
+  void acceptQSO (QDateTime const&, QString const& call, QString const& grid
                   , Frequency dial_freq, QString const& mode
                   , QString const& rpt_sent, QString const& rpt_received
                   , QString const& tx_power, QString const& comments
-                  , QString const& name, QDateTime const& QSO_date_on, QString const& operator_call);
+                  , QString const& name, QDateTime const& QSO_date_on, QString const& operator_call
+                  , QString const& my_call, QString const& my_grid, QByteArray const& ADIF);
   void on_bandComboBox_currentIndexChanged (int index);
   void on_bandComboBox_activated (int index);
   void on_readFreq_clicked();
@@ -645,6 +646,7 @@ private:
   void transmitDisplay (bool);
   void processMessage(DecodedText const&, Qt::KeyboardModifiers = 0);
   void replyToCQ (QTime, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode, QString const& message_text, bool low_confidence, quint8 modifiers);
+  void locationChange(QString const& location);
   void replayDecodes ();
   void postDecode (bool is_new, QString const& message);
   void postWSPRDecode (bool is_new, QStringList message_parts);

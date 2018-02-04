@@ -207,6 +207,17 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
               }
               break;
 
+            case NetworkMessage::Location:
+              {
+                QByteArray location;
+                in >> location;
+                if (check_status (in) != Fail)
+                {
+                    Q_EMIT self_->location (QString::fromUtf8 (location));
+                }
+              }
+              break;
+
             default:
               // Ignore
               //
@@ -433,7 +444,9 @@ void MessageClient::clear_decodes ()
 void MessageClient::qso_logged (QDateTime time_off, QString const& dx_call, QString const& dx_grid
                                 , Frequency dial_frequency, QString const& mode, QString const& report_sent
                                 , QString const& report_received, QString const& tx_power
-                                , QString const& comments, QString const& name, QDateTime time_on, QString const& operator_call)
+                                , QString const& comments, QString const& name, QDateTime time_on
+                                , QString const& operator_call, QString const& my_call
+                                , QString const& my_grid)
 {
    if (m_->server_port_ && !m_->server_string_.isEmpty ())
     {
@@ -441,7 +454,19 @@ void MessageClient::qso_logged (QDateTime time_off, QString const& dx_call, QStr
       NetworkMessage::Builder out {&message, NetworkMessage::QSOLogged, m_->id_, m_->schema_};
       out << time_off << dx_call.toUtf8 () << dx_grid.toUtf8 () << dial_frequency << mode.toUtf8 ()
           << report_sent.toUtf8 () << report_received.toUtf8 () << tx_power.toUtf8 () << comments.toUtf8 ()
-          << name.toUtf8 () << time_on << operator_call.toUtf8 ();
+          << name.toUtf8 () << time_on << operator_call.toUtf8 () << my_call.toUtf8 () << my_grid.toUtf8 ();
+      m_->send_message (out, message);
+    }
+}
+
+void MessageClient::logged_ADIF (QByteArray const& ADIF_record)
+{
+   if (m_->server_port_ && !m_->server_string_.isEmpty ())
+    {
+      QByteArray message;
+      NetworkMessage::Builder out {&message, NetworkMessage::LoggedADIF, m_->id_, m_->schema_};
+      QByteArray ADIF {"\n<adif_ver:5>3.0.7\n<programid:6>WSJT-X\n<EOH>\n" + ADIF_record + " <EOR>"};
+      out << ADIF;
       m_->send_message (out, message);
     }
 }

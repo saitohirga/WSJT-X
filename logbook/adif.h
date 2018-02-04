@@ -29,11 +29,13 @@ class ADIF
 	int getCount() const;
 		
         // open ADIF file and append the QSO details. Return true on success
-	bool addQSOToFile(QString const& hisCall, QString const& hisGrid, QString const& mode, QString const& rptSent, QString const& rptRcvd, QDateTime const& dateTimeOn, QDateTime const& dateTimeOff, QString const& band,
-										QString const& comments, QString const& name, QString const& strDialFreq, QString const& m_myCall, QString const& m_myGrid, QString const& m_txPower, QString const& operator_call);
+	bool addQSOToFile(QByteArray const& ADIF_record);
 
-  QString QSOToADIF(QString const& hisCall, QString const& hisGrid, QString const& mode, QString const& rptSent, QString const& rptRcvd, QDateTime const& dateTimeOn, QDateTime const& dateTimeOff, QString const& band,
-                    QString const& comments, QString const& name, QString const& strDialFreq, QString const& m_myCall, QString const& m_myGrid, QString const& m_txPower, QString const& operator_call);
+  QByteArray QSOToADIF(QString const& hisCall, QString const& hisGrid, QString const& mode, QString const& rptSent
+											 , QString const& rptRcvd, QDateTime const& dateTimeOn, QDateTime const& dateTimeOff
+											 , QString const& band, QString const& comments, QString const& name
+											 , QString const& strDialFreq, QString const& m_myCall, QString const& m_myGrid
+											 , QString const& m_txPower, QString const& operator_call);
 
 
 private:

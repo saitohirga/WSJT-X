@@ -22,12 +22,15 @@ namespace
     QT_TRANSLATE_NOOP ("MessageAggregatorMainWindow", "Sent"),
     QT_TRANSLATE_NOOP ("MessageAggregatorMainWindow", "Rec'd"),
     QT_TRANSLATE_NOOP ("MessageAggregatorMainWindow", "Power"),
+    QT_TRANSLATE_NOOP ("MessageAggregatorMainWindow", "Operator"),
+    QT_TRANSLATE_NOOP ("MessageAggregatorMainWindow", "My Call"),
+    QT_TRANSLATE_NOOP ("MessageAggregatorMainWindow", "My Grid"),
     QT_TRANSLATE_NOOP ("MessageAggregatorMainWindow", "Comments"),
   };
 }
 
 MessageAggregatorMainWindow::MessageAggregatorMainWindow ()
-  : log_ {new QStandardItemModel {0, 11, this}}
+  : log_ {new QStandardItemModel {0, 14, this}}
   , decodes_model_ {new DecodesModel {this}}
   , beacons_model_ {new BeaconsModel {this}}
   , server_ {new MessageServer {this}}
@@ -111,10 +114,12 @@ MessageAggregatorMainWindow::MessageAggregatorMainWindow ()
   show ();
 }
 
-void MessageAggregatorMainWindow::log_qso (QString const& /*id*/, QDateTime time_off, QString const& dx_call, QString const& dx_grid
-                                           , Frequency dial_frequency, QString const& mode, QString const& report_sent
-                                           , QString const& report_received, QString const& tx_power, QString const& comments
-                                           , QString const& name, QDateTime time_on)
+void MessageAggregatorMainWindow::log_qso (QString const& /*id*/, QDateTime time_off, QString const& dx_call
+                                           , QString const& dx_grid, Frequency dial_frequency, QString const& mode
+                                           , QString const& report_sent, QString const& report_received
+                                           , QString const& tx_power, QString const& comments
+                                           , QString const& name, QDateTime time_on, QString const& operator_call
+                                           , QString const& my_call, QString const& my_grid)
 {
   QList<QStandardItem *> row;
   row << new QStandardItem {time_on.toString ("dd-MMM-yyyy hh:mm:ss")}
@@ -127,6 +132,9 @@ void MessageAggregatorMainWindow::log_qso (QString const& /*id*/, QDateTime time
   << new QStandardItem {report_sent}
   << new QStandardItem {report_received}
   << new QStandardItem {tx_power}
+  << new QStandardItem {operator_call}
+  << new QStandardItem {my_call}
+  << new QStandardItem {my_grid}
   << new QStandardItem {comments};
   log_->appendRow (row);
   log_table_view_->resizeColumnsToContents ();
@@ -149,6 +157,7 @@ void MessageAggregatorMainWindow::add_client (QString const& id, QString const& 
   connect (dock, &ClientWidget::do_reply, decodes_model_, &DecodesModel::do_reply);
   connect (dock, &ClientWidget::do_halt_tx, server_, &MessageServer::halt_tx);
   connect (dock, &ClientWidget::do_free_text, server_, &MessageServer::free_text);
+  connect (dock, &ClientWidget::location, server_, &MessageServer::location);
   connect (view_action, &QAction::toggled, dock, &ClientWidget::setVisible);
   dock_widgets_[id] = dock;
   server_->replay (id);

@@ -117,7 +117,9 @@ void LogQSO::accept()
   auto adifilePath = QDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)}.absoluteFilePath ("wsjtx_log.adi");
   adifile.init(adifilePath);
 
-  if (!adifile.addQSOToFile(hisCall,hisGrid,mode,rptSent,rptRcvd,m_dateTimeOn,m_dateTimeOff,band,comments,name,strDialFreq,m_myCall,m_myGrid,m_txPower, operator_call))
+  QByteArray ADIF {adifile.QSOToADIF (hisCall, hisGrid, mode, rptSent, rptRcvd, m_dateTimeOn, m_dateTimeOff, band
+                                      , comments, name, strDialFreq, m_myCall, m_myGrid, m_txPower, operator_call)};
+  if (!adifile.addQSOToFile (ADIF))
   {
     MessageBox::warning_message (this, tr ("Log file error"),
                                  tr ("Cannot open \"%1\"").arg (adifilePath));
@@ -125,12 +127,9 @@ void LogQSO::accept()
 
   // Log to N1MM Logger
   if (m_config->broadcast_to_n1mm() && m_config->valid_n1mm_info())  {
-    QString adif = adifile.QSOToADIF(hisCall,hisGrid,mode,rptSent,rptRcvd,m_dateTimeOn,m_dateTimeOff,band,comments,name,strDialFreq,m_myCall,m_myGrid,m_txPower, operator_call);
     const QHostAddress n1mmhost = QHostAddress(m_config->n1mm_server_name());
-    QByteArray qba_adif = adif.toLatin1();
     QUdpSocket _sock;
-
-    auto rzult = _sock.writeDatagram ( qba_adif, n1mmhost, quint16(m_config->n1mm_server_port()));
+    auto rzult = _sock.writeDatagram (ADIF + " <eor>", n1mmhost, quint16(m_config->n1mm_server_port()));
     if (rzult == -1) {
       MessageBox::warning_message (this, tr ("Error sending log to N1MM"),
                                    tr ("Write returned \"%1\"").arg (rzult));
@@ -157,7 +156,7 @@ void LogQSO::accept()
   }
 
 //Clean up and finish logging
-  Q_EMIT acceptQSO (m_dateTimeOff, hisCall, hisGrid, m_dialFreq, mode, rptSent, rptRcvd, m_txPower, comments, name,m_dateTimeOn, operator_call);
+  Q_EMIT acceptQSO (m_dateTimeOff, hisCall, hisGrid, m_dialFreq, mode, rptSent, rptRcvd, m_txPower, comments, name,m_dateTimeOn, operator_call, m_myCall, m_myGrid, ADIF);
   QDialog::accept();
 }
 

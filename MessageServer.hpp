@@ -59,6 +59,9 @@ public:
   // message and optionally send it ASAP
   Q_SLOT void free_text (QString const& id, QString const& text, bool send);
 
+  // ask the client with identification 'id' to set the location provided
+  Q_SLOT void location (QString const& id, QString const& location);
+
   // the following signals are emitted when a client broadcasts the
   // matching message
   Q_SIGNAL void client_opened (QString const& id, QString const& version, QString const& revision);
@@ -77,8 +80,10 @@ public:
   Q_SIGNAL void qso_logged (QString const& id, QDateTime time_off, QString const& dx_call, QString const& dx_grid
                             , Frequency dial_frequency, QString const& mode, QString const& report_sent
                             , QString const& report_received, QString const& tx_power, QString const& comments
-                            , QString const& name, QDateTime time_on, QString const& operator_call);
+                            , QString const& name, QDateTime time_on, QString const& operator_call
+                            , QString const& my_call, QString const& my_grid);
   Q_SIGNAL void clear_decodes (QString const& id);
+  Q_SIGNAL void logged_ADIF (QString const& id, QByteArray const& ADIF);
 
   // this signal is emitted when a network error occurs
   Q_SIGNAL void error (QString const&) const;

@@ -3,6 +3,8 @@
 #include <QRegExp>
 #include <QColor>
 
+#include "MaidenheadLocatorValidator.hpp"
+
 namespace
 {
   //QRegExp message_alphabet {"[- A-Za-z0-9+./?]*"};
@@ -120,9 +122,11 @@ ClientWidget::ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemMod
   , decodes_table_view_ {new QTableView}
   , beacons_table_view_ {new QTableView}
   , message_line_edit_ {new QLineEdit}
+  , grid_line_edit_ {new QLineEdit}
   , decodes_stack_ {new QStackedLayout}
   , auto_off_button_ {new QPushButton {tr ("&Auto Off")}}
   , halt_tx_button_ {new QPushButton {tr ("&Halt Tx")}}
+  , de_label_ {new QLabel}
   , mode_label_ {new QLabel}
   , fast_mode_ {false}
   , frequency_label_ {new QLabel}
@@ -141,13 +145,18 @@ ClientWidget::ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemMod
 
   auto form_layout = new QFormLayout;
   form_layout->addRow (tr ("Free text:"), message_line_edit_);
+  form_layout->addRow (tr ("Temporary grid:"), grid_line_edit_);
   message_line_edit_->setValidator (new QRegExpValidator {message_alphabet, this});
+  grid_line_edit_->setValidator (new MaidenheadLocatorValidator {this});
   connect (message_line_edit_, &QLineEdit::textEdited, [this] (QString const& text) {
       Q_EMIT do_free_text (id_, text, false);
     });
   connect (message_line_edit_, &QLineEdit::editingFinished, [this] () {
       Q_EMIT do_free_text (id_, message_line_edit_->text (), true);
     });
+  connect (grid_line_edit_, &QLineEdit::editingFinished, [this] () {
+      Q_EMIT location (id_, grid_line_edit_->text ());
+  });
 
   auto decodes_page = new QWidget;
   auto decodes_layout = new QVBoxLayout {decodes_page};
@@ -189,6 +198,7 @@ ClientWidget::ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemMod
 
   // set up status area
   auto status_bar = new QStatusBar;
+  status_bar->addPermanentWidget (de_label_);
   status_bar->addPermanentWidget (mode_label_);
   status_bar->addPermanentWidget (frequency_label_);
   status_bar->addPermanentWidget (dx_label_);
@@ -216,7 +226,7 @@ ClientWidget::ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemMod
 void ClientWidget::update_status (QString const& id, Frequency f, QString const& mode, QString const& dx_call
                                   , QString const& report, QString const& tx_mode, bool tx_enabled
                                   , bool transmitting, bool decoding, qint32 rx_df, qint32 tx_df
-                                  , QString const& de_call, QString const& /*de_grid*/, QString const& dx_grid
+                                  , QString const& de_call, QString const& de_grid, QString const& dx_grid
                                   , bool watchdog_timeout, QString const& sub_mode, bool fast_mode)
 {
   if (id == id_)
@@ -224,6 +234,8 @@ void ClientWidget::update_status (QString const& id, Frequency f, QString const&
       fast_mode_ = fast_mode;
       decodes_proxy_model_.de_call (de_call);
       decodes_proxy_model_.rx_df (rx_df);
+      de_label_->setText (de_call.size () >= 0 ? QString {"DE: %1%2"}.arg (de_call)
+                          .arg (de_grid.size () ? '(' + de_grid + ')' : QString {}) : QString {});
       mode_label_->setText (QString {"Mode: %1%2%3%4"}
            .arg (mode)
            .arg (sub_mode)

@@ -683,6 +683,7 @@ set (message_aggregator_CXXSRCS
   UDPExamples/DecodesModel.cpp
   UDPExamples/BeaconsModel.cpp
   UDPExamples/ClientWidget.cpp
+  MaidenheadLocatorValidator.cpp
   )
 
 set (message_aggregator_STYLESHEETS
