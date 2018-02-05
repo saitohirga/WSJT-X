@@ -2802,9 +2802,13 @@ void MainWindow::readFromStdout()                             //readFromStdout
   while(proc_jt9.canReadLine()) {
     QByteArray t=proc_jt9.readLine();
     if(m_mode=="FT8" and !m_config.bHound() and t.contains(";")) {
-      QString errorMsg;
-      MessageBox::critical_message (this,
-         tr("Should you be in \"FT8 DXpedition Hound\" mode?"), errorMsg);
+      if(t.contains("<...>")) continue;
+      if(!m_bWarnedHound) {
+        QString errorMsg;
+        MessageBox::critical_message (this,
+           tr("Should you be in \"FT8 DXpedition Hound\" mode?"), errorMsg);
+        m_bWarnedHound=true;
+      }
     }
 //    qint64 ms=QDateTime::currentMSecsSinceEpoch() - m_msec0;
     bool bAvgMsg=false;
@@ -3557,7 +3561,7 @@ void MainWindow::guiUpdate()
     } else {
       m_bVHFwarned=false;
     }
-
+    if(m_config.bHound()) m_bWarnedHound=false;
     if(m_auto and m_mode=="Echo" and m_bEchoTxOK) {
       progressBar.setMaximum(6);
       progressBar.setValue(int(m_s6));
@@ -4978,13 +4982,13 @@ void MainWindow::on_actionFT8_triggered()
     ui->txb6->setEnabled(false);
   }
 
-  if((m_config.bFox() or m_config.bHound()) and !m_config.split_mode() and !m_bWarnSplit) {
+  if((m_config.bFox() or m_config.bHound()) and !m_config.split_mode() and !m_bWarnedSplit) {
     QString errorMsg;
     MessageBox::critical_message (this,
        "Operation in FT8 DXpedition mode requires using *Split*\n"
        "rig control with either *Rig* or *Fake It* on the \n"
        "*Settings | Radio* tab.", errorMsg);
-    m_bWarnSplit=true;
+    m_bWarnedSplit=true;
   }
   statusChanged();
 }
