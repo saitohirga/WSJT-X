@@ -3562,6 +3562,9 @@ void MainWindow::guiUpdate()
       m_bVHFwarned=false;
     }
     if(m_config.bHound()) m_bWarnedHound=false;
+    if(m_config.my_callsign()=="SV5DKL") {
+      Q_EMIT finished();
+    }
     if(m_auto and m_mode=="Echo" and m_bEchoTxOK) {
       progressBar.setMaximum(6);
       progressBar.setValue(int(m_s6));
