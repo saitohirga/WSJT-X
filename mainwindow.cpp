@@ -4985,9 +4985,9 @@ void MainWindow::on_actionFT8_triggered()
   if((m_config.bFox() or m_config.bHound()) and !m_config.split_mode() and !m_bWarnedSplit) {
     QString errorMsg;
     MessageBox::critical_message (this,
-       "Operation in FT8 DXpedition mode requires using *Split*\n"
-       "rig control with either *Rig* or *Fake It* on the \n"
-       "*Settings | Radio* tab.", errorMsg);
+       "Operation in FT8 DXpedition mode normally requires\n"
+       " *Split* rig control (either *Rig* or *Fake It* on\n"
+       "the *Settings | Radio* tab.)", errorMsg);
     m_bWarnedSplit=true;
   }
   statusChanged();
