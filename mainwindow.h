@@ -428,6 +428,7 @@ private:
   qint32  m_Nlist=12;
   qint32  m_Nslots=5;
   qint32  m_nFoxMsgTimes[5]={0,0,0,0,0};
+  qint32  m_tAutoOn;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;

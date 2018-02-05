@@ -3257,8 +3257,9 @@ void MainWindow::guiUpdate()
     }
 
     float fTR=float((nsec%m_TRperiod))/m_TRperiod;
-//    if(g_iptt==0 and ((m_bTxTime and fTR<0.4) or m_tune )) {
-    if(g_iptt==0 and ((m_bTxTime and fTR<99) or m_tune )) {   //### Allow late starts
+    float fTRmax=0.6;
+    if(m_config.bHound()) fTRmax=0.07;
+    if(g_iptt==0 and ((m_bTxTime and fTR<fTRmax) or m_tune )) {   //### Allow late starts
       icw[0]=m_ncw;
       g_iptt = 1;
       setRig ();
@@ -3567,7 +3568,7 @@ void MainWindow::guiUpdate()
     if(m_config.bHound()) {
       m_bWarnedHound=false;
       qint32 tHound=QDateTime::currentMSecsSinceEpoch()/1000 - m_tAutoOn;
-      //To keep calling, Hound must reactivate Enable Tx at least once every 2 minutes:
+      //To keep calling Fox, Hound must reactivate Enable Tx at least once every 2 minutes
       if(tHound >= 120) auto_tx_mode(false);
     }
     if(m_auto and m_mode=="Echo" and m_bEchoTxOK) {
