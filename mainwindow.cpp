@@ -1701,8 +1701,7 @@ void MainWindow::on_autoButton_clicked (bool checked)
     m_bAutoReply = false;         // ready for next
     m_bCallingCQ = true;        // allows tail-enders to be picked up
     ui->cbFirst->setStyleSheet ("QCheckBox{color:red}");
-  }
-  else {
+  } else {
     ui->cbFirst->setStyleSheet("");
   }
   if (!checked) m_bCallingCQ = false;
@@ -1721,6 +1720,7 @@ void MainWindow::on_autoButton_clicked (bool checked)
     }
     ui->sbTxPercent->setPalette(palette);
   }
+  m_tAutoOn=QDateTime::currentMSecsSinceEpoch()/1000;
 }
 
 void MainWindow::auto_tx_mode (bool state)
@@ -3561,9 +3561,14 @@ void MainWindow::guiUpdate()
     } else {
       m_bVHFwarned=false;
     }
-    if(m_config.bHound()) m_bWarnedHound=false;
     if(m_config.my_callsign()=="SV5DKL") {
       Q_EMIT finished();
+    }
+    if(m_config.bHound()) {
+      m_bWarnedHound=false;
+      qint32 tHound=QDateTime::currentMSecsSinceEpoch()/1000 - m_tAutoOn;
+      //To keep calling, Hound must reactivate Enable Tx at least once every 2 minutes:
+      if(tHound >= 120) auto_tx_mode(false);
     }
     if(m_auto and m_mode=="Echo" and m_bEchoTxOK) {
       progressBar.setMaximum(6);
