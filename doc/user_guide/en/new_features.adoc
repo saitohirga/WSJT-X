@@ -1,29 +1,23 @@
-=== New in Version 1.8
+=== New in Version 1.9
 
 For quick reference, here's a short list of features and capabilities
-added to _WSJT-X_ since Version 1.7.0:
+added to _WSJT-X_ since Version 1.8.0:
 
-- New mode *FT8* designed for fast QSOs
+- New *FT8 DXpedition Mode* to facilitate high-rate pileup QSOs
 
-- New tool *FreqCal* for accurate frequency calibration of your radio
+- "A priori" (AP) decoding and other decoding improvements for JT65 mode
 
-- Improved decoding performance for JT65, QRA64, and MSK144
+- Improved decoding performance for WSPR, especially effective at LF and MF
 
-- *SWL* option for third-party decoding short-format MSK144 messages
+- Minor adjustments to auto-sequencing behavior
 
-- Experimental phase equalization for MSK144
-    
-- Options to minimize screen space used by *Main* and *Wide Graph*
-windows
-    
-- New set of suggested default frequencies specific to the three IARU
-regions
+- Improved Doppler control features for EME
 
-- Enhanced scheme for managing table of suggested default operating
-frequencies
+- Improved waterfall sensitivity for very weak signals
 
-- Improved CAT control for many radios, including those controlled
-through Commander or Omni-Rig
+- Automatic real-time forwarding of log information to N1MM Logger+
+
+- Expanded and improved UDP messages for companion programs
 
 - Bug fixes and minor tweaks to user interface
 
