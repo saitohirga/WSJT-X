@@ -3,7 +3,7 @@
 For quick reference, here's a short list of features and capabilities
 added to _WSJT-X_ since Version 1.8.0:
 
-- New *FT8 DXpedition Mode* to facilitate high-rate pileup QSOs
+- New *FT8 DXpedition Mode* to facilitate high-rate QSOs in a pileup
 
 - "A priori" (AP) decoding and other decoding improvements for JT65 mode
 
@@ -15,7 +15,7 @@ added to _WSJT-X_ since Version 1.8.0:
 
 - Improved waterfall sensitivity for very weak signals
 
-- Automatic real-time forwarding of log information to N1MM Logger+
+- Automatic real-time forwarding of logged information to N1MM Logger+
 
 - Expanded and improved UDP messages for companion programs
 
