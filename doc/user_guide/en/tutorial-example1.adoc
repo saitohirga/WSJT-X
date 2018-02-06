@@ -40,8 +40,8 @@ try clicking with the mouse on the decoded text lines and on the
 waterfall spectral display. You should be able to confirm the
 following behavior:
 
-- Double-click on either of the decoded lines highlighted in
-green. This action produces the following results:
+- Click or double-click on either of the decoded lines highlighted in
+green. These actions produce the following results:
 
 ** Callsign and locator of a station calling CQ are copied to the *DX
 Call* and *DX Grid* entry fields.
@@ -57,9 +57,8 @@ station.
 ** The *Gen Msg* ("`generated message`") radio button at bottom right 
 of the main window is selected.
 
-** If you had checked *Double-click on call sets Tx Enable* on the
-*Setup* menu, *Enable Tx* would be activated and a transmission would
-start automatically at the proper time.
+** *Double-click* does all of the above and also activates *Enable Tx*
+so that a transmission will start automatically at the proper time.
 
 ** You can modify the double-click behavior by holding down the
 *Shift* key to move only the Tx frequency or the *Ctrl* key to move

@@ -7,6 +7,7 @@
 #include <QTextBlock>
 #include <QMenu>
 #include <QAction>
+#include <QTimer>
 
 #include "qt_helpers.hpp"
 
@@ -32,6 +33,8 @@ DisplayText::DisplayText(QWidget *parent)
       delete menu;
     });
   connect (erase_action_, &QAction::triggered, this, &DisplayText::erase);
+  qTimerMouseClick=new QTimer();
+  connect(qTimerMouseClick,SIGNAL(timeout()),this,SLOT(mouseTimeout()));
 }
 
 void DisplayText::erase ()
@@ -61,9 +64,40 @@ void DisplayText::setContentFont(QFont const& font)
   ensureCursorVisible ();
 }
 
+void DisplayText::mouseTimeout()
+{
+  qTimerMouseClick->stop();
+  Q_EMIT selectCallsignSingleClick(mouseKeyboardModifiers);
+}
+
+void DisplayText::mousePressEvent(QMouseEvent *e)
+{
+  qTimerMouseClick->stop();
+  mouseStartPos = QCursor::pos();
+  mouseKeyboardModifiers = e->modifiers();
+  selectedLength = textCursor().selectedText().length();
+  QTextEdit::mousePressEvent(e);
+}
+
+void DisplayText::mouseReleaseEvent(QMouseEvent *e)
+{
+  // If our mouse doesn't move then it's the single click event we want
+  QPoint mouseChanged = mouseStartPos-QCursor::pos();
+  if (e->button() == Qt::LeftButton
+          && mouseKeyboardModifiers == Qt::NoModifier
+          && selectedLength == 0
+          && mouseChanged.x() == 0
+          && mouseChanged.y() == 0)
+  {
+    qTimerMouseClick->start(500);
+  }
+  QTextEdit::mouseReleaseEvent(e);
+}
+
 void DisplayText::mouseDoubleClickEvent(QMouseEvent *e)
 {
-  Q_EMIT selectCallsign(e->modifiers ());
+  qTimerMouseClick->stop();
+  Q_EMIT selectCallsignDoubleClick(e->modifiers ());
   QTextEdit::mouseDoubleClickEvent(e);
 }
 

@@ -450,16 +450,6 @@ quiet period when decoding is done.</string>
            </widget>
           </item>
           <item row="2" column="0">
-           <widget class="QCheckBox" name="quick_call_check_box">
-            <property name="toolTip">
-             <string>Automatic transmission mode.</string>
-            </property>
-            <property name="text">
-             <string>Doubl&amp;e-click on call sets Tx enable</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
            <widget class="QCheckBox" name="disable_TX_on_73_check_box">
             <property name="toolTip">
              <string>Turns off automatic transmissions after sending a 73 or any other free
@@ -2624,7 +2614,6 @@ soundcard changes</string>
   <tabstop>decoded_text_font_push_button</tabstop>
   <tabstop>monitor_off_check_box</tabstop>
   <tabstop>monitor_last_used_check_box</tabstop>
-  <tabstop>quick_call_check_box</tabstop>
   <tabstop>tx_watchdog_spin_box</tabstop>
   <tabstop>CW_id_after_73_check_box</tabstop>
   <tabstop>enable_VHF_features_check_box</tabstop>
