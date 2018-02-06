@@ -3567,6 +3567,16 @@ void MainWindow::guiUpdate()
     if(m_config.my_callsign()=="SV5DKL") {
       Q_EMIT finished();
     }
+/*
+    qDebug() << "aa" << QDate::currentDate().toJulianDay() << QDate::currentDate().toJulianDay() - 2458150;
+    if((QDate::currentDate().toJulianDay() - 2458156) > 30) {
+      QString errorMsg;
+      MessageBox::critical_message (this,
+        "This release candidate has expired. Please upgrade\n"
+        "to latest release on the WSJT Home Page.\n", errorMsg);
+    Q_EMIT finished ();
+    }
+*/
     if(m_config.bHound()) {
       m_bWarnedHound=false;
       qint32 tHound=QDateTime::currentMSecsSinceEpoch()/1000 - m_tAutoOn;
