@@ -558,6 +558,7 @@ private:
   bool ppfx_;
   bool clear_DX_;
   bool miles_;
+  bool quick_call_;
   bool disable_TX_on_73_;
   int watchdog_;
   bool TX_messages_;
@@ -658,6 +659,7 @@ bool Configuration::DXCC () const {return m_->DXCC_;}
 bool Configuration::ppfx() const {return m_->ppfx_;}
 bool Configuration::clear_DX () const {return m_->clear_DX_;}
 bool Configuration::miles () const {return m_->miles_;}
+bool Configuration::quick_call () const {return m_->quick_call_;}
 bool Configuration::disable_TX_on_73 () const {return m_->disable_TX_on_73_;}
 int Configuration::watchdog () const {return m_->watchdog_;}
 bool Configuration::TX_messages () const {return m_->TX_messages_;}
@@ -1145,6 +1147,7 @@ void Configuration::impl::initialize_models ()
   ui_->ppfx_check_box->setChecked (ppfx_);
   ui_->clear_DX_check_box->setChecked (clear_DX_);
   ui_->miles_check_box->setChecked (miles_);
+  ui_->quick_call_check_box->setChecked (quick_call_);
   ui_->disable_TX_on_73_check_box->setChecked (disable_TX_on_73_);
   ui_->tx_watchdog_spin_box->setValue (watchdog_);
   ui_->TX_messages_check_box->setChecked (TX_messages_);
@@ -1381,6 +1384,7 @@ void Configuration::impl::read_settings ()
   ppfx_ = settings_->value ("PrincipalPrefix", false).toBool ();
   clear_DX_ = settings_->value ("ClearCallGrid", false).toBool ();
   miles_ = settings_->value ("Miles", false).toBool ();
+  quick_call_ = settings_->value ("QuickCall", false).toBool ();
   disable_TX_on_73_ = settings_->value ("73TxDisable", false).toBool ();
   watchdog_ = settings_->value ("TxWatchdog", 6).toInt ();
   TX_messages_ = settings_->value ("Tx2QSO", true).toBool ();
@@ -1478,6 +1482,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("PrincipalPrefix", ppfx_);
   settings_->setValue ("ClearCallGrid", clear_DX_);
   settings_->setValue ("Miles", miles_);
+  settings_->setValue ("QuickCall", quick_call_);
   settings_->setValue ("73TxDisable", disable_TX_on_73_);
   settings_->setValue ("TxWatchdog", watchdog_);
   settings_->setValue ("Tx2QSO", TX_messages_);
@@ -1884,6 +1889,7 @@ void Configuration::impl::accept ()
   ppfx_ = ui_->ppfx_check_box->isChecked ();
   clear_DX_ = ui_->clear_DX_check_box->isChecked ();
   miles_ = ui_->miles_check_box->isChecked ();
+  quick_call_ = ui_->quick_call_check_box->isChecked ();
   disable_TX_on_73_ = ui_->disable_TX_on_73_check_box->isChecked ();
   watchdog_ = ui_->tx_watchdog_spin_box->value ();
   TX_messages_ = ui_->TX_messages_check_box->isChecked ();

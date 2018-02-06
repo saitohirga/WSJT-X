@@ -557,13 +557,11 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   txMsgButtonGroup->addButton(ui->txrb6,6);
   set_dateTimeQSO(-1);
   connect(txMsgButtonGroup,SIGNAL(buttonClicked(int)),SLOT(set_ntx(int)));
-  connect (ui->decodedTextBrowser2, &DisplayText::selectCallsignDoubleClick, this, &MainWindow::doubleClickOnCall2);
-  connect (ui->decodedTextBrowser2, &DisplayText::selectCallsignSingleClick, this, &MainWindow::singleClickOnCall2);
-  connect (ui->decodedTextBrowser,  &DisplayText::selectCallsignDoubleClick, this, &MainWindow::doubleClickOnCall);
-  connect (ui->decodedTextBrowser,  &DisplayText::selectCallsignSingleClick, this, &MainWindow::singleClickOnCall);
-  connect (ui->decodedTextBrowser,  &DisplayText::erased, this, &MainWindow::band_activity_cleared);
+  connect (ui->decodedTextBrowser, &DisplayText::selectCallsign, this, &MainWindow::doubleClickOnCall2);
+  connect (ui->decodedTextBrowser2, &DisplayText::selectCallsign, this, &MainWindow::doubleClickOnCall);
+  connect (ui->textBrowser4, &DisplayText::selectCallsign, this, &MainWindow::doubleClickOnFoxQueue);
+  connect (ui->decodedTextBrowser, &DisplayText::erased, this, &MainWindow::band_activity_cleared);
   connect (ui->decodedTextBrowser2, &DisplayText::erased, this, &MainWindow::rx_frequency_activity_cleared);
-  connect (ui->textBrowser4, &DisplayText::selectCallsignDoubleClick, this, &MainWindow::doubleClickOnFoxQueue);
 
   // initialize decoded text font and hook up font change signals
   // defer initialization until after construction otherwise menu
@@ -3922,37 +3920,15 @@ void MainWindow::on_txb6_clicked()
     if (m_transmitting) m_restart=true;
 }
 
-void MainWindow::singleClickOnCall(Qt::KeyboardModifiers modifiers)
-{
-    m_bSingleClicked = true;
-    m_bDoubleClicked = false;
-    clickOnCall(modifiers);
-}
-
-void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
-{
-    m_bSingleClicked = false;
-    m_bDoubleClicked = true;
-    clickOnCall(modifiers);
-}
-
-void MainWindow::singleClickOnCall2(Qt::KeyboardModifiers modifiers)
-{
-  m_decodedText2=true;
-  clickOnCall(modifiers);
-  m_decodedText2=false;
-}
-
 void MainWindow::doubleClickOnCall2(Qt::KeyboardModifiers modifiers)
 {
   set_dateTimeQSO(-1); // reset our QSO start time
-  m_bDoubleClicked=true;
   m_decodedText2=true;
-  clickOnCall(modifiers);
+  doubleClickOnCall(modifiers);
   m_decodedText2=false;
 }
 
-void MainWindow::clickOnCall(Qt::KeyboardModifiers modifiers)
+void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
 {
   QTextCursor cursor;
   if(m_mode=="ISCAT") {
@@ -3960,9 +3936,9 @@ void MainWindow::clickOnCall(Qt::KeyboardModifiers modifiers)
         "Double-click not presently implemented for ISCAT mode");
   }
   if(m_decodedText2) {
-    cursor=ui->decodedTextBrowser2->textCursor();
-  } else {
     cursor=ui->decodedTextBrowser->textCursor();
+  } else {
+    cursor=ui->decodedTextBrowser2->textCursor();
   }
 
   if(modifiers==(Qt::ShiftModifier + Qt::ControlModifier + Qt::AltModifier)) {
@@ -3980,6 +3956,7 @@ void MainWindow::clickOnCall(Qt::KeyboardModifiers modifiers)
   }
   DecodedText message {cursor.block().text(), ("MSK144" == m_mode || "FT8" == m_mode) &&
         ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
+  m_bDoubleClicked = true;
   processMessage (message, modifiers);
 }
 
@@ -4112,7 +4089,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
          && firstcall != m_config.my_callsign () && firstcall != m_baseCall
          && firstcall != "DE")
         || "CQ" == firstcall || "QRZ" == firstcall || ctrl || shift) {
-      if (!m_holdTxFreq or (m_holdTxFreq and (shift or ctrl))) {
+      if (!m_holdTxFreq and (shift or ctrl)) {
         ui->TxFreqSpinBox->setValue(frequency);
       }
       if(m_mode != "JT4" && m_mode != "JT65" && !m_mode.startsWith ("JT9") &&
@@ -4358,10 +4335,9 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   }
 
   if(m_transmitting) m_restart=true;
-  if (ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked () && !m_bDoubleClicked && !m_bSingleClicked) return;
-  if(m_bDoubleClicked) auto_tx_mode(true);
+  if (ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked () && !m_bDoubleClicked) return;
+  if(m_config.quick_call()) auto_tx_mode(true);
   m_bDoubleClicked=false;
-  m_bSingleClicked=false;
 }
 
 void MainWindow::genCQMsg ()

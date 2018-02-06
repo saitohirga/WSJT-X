@@ -107,11 +107,8 @@ public slots:
   void diskDat();
   void freezeDecode(int n);
   void guiUpdate();
-  void clickOnCall (Qt::KeyboardModifiers);
   void doubleClickOnCall (Qt::KeyboardModifiers);
   void doubleClickOnCall2(Qt::KeyboardModifiers);
-  void singleClickOnCall(Qt::KeyboardModifiers);
-  void singleClickOnCall2(Qt::KeyboardModifiers);
   void doubleClickOnFoxQueue(Qt::KeyboardModifiers);
   void readFromStdout();
   void p1ReadFromStdout();
@@ -483,7 +480,6 @@ private:
   bool    m_bNoMoreFiles;
   bool    m_bQRAsyncWarned;
   bool    m_bDoubleClicked;
-  bool    m_bSingleClicked;
   bool    m_bCallingCQ;
   bool    m_bAutoReply;
   bool    m_bCheckedContest;

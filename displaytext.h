@@ -27,16 +27,13 @@ public:
   void displayQSY(QString text);
   void displayFoxToBeCalled(QString t, QColor bg);
 
-  Q_SIGNAL void selectCallsignDoubleClick (Qt::KeyboardModifiers);
-  Q_SIGNAL void selectCallsignSingleClick (Qt::KeyboardModifiers);
+  Q_SIGNAL void selectCallsign (Qt::KeyboardModifiers);
   Q_SIGNAL void erased ();
 
   Q_SLOT void appendText (QString const& text, QColor bg = Qt::white);
   Q_SLOT void erase ();
 
 protected:
-  void mousePressEvent(QMouseEvent *e);
-  void mouseReleaseEvent(QMouseEvent *e);
   void mouseDoubleClickEvent(QMouseEvent *e);
 
 private:
@@ -46,13 +43,6 @@ private:
 
   QFont char_font_;
   QAction * erase_action_;
-  QTimer *qTimerMouseClick;
-  QPoint mouseStartPos;
-  int selectedLength;
-  Qt::KeyboardModifiers mouseKeyboardModifiers;
-private slots:
-  void mouseTimeout ();
-
 };
 
 #endif // DISPLAYTEXT_H
