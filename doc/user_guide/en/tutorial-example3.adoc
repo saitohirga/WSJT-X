@@ -45,16 +45,22 @@ when double-clicking.
 
 NOTE: To avoid QRM from competing callers, it is frequently desirable
 to answer a CQ on a different frequency from that of the CQing
-station.  Choose a Tx frequency that appears to be not in use.  The
-same is true when you tail-end another QSO.
+station.  The same is true when you tail-end another QSO.  Choose a Tx
+frequency that appears to be not in use.
 
-NOTE: The FT8 decoder can often copy several overlapping signals at
-nearly the same frequency.  Keyboard shortcuts *Shift+F11* and
-*Shift+F12* provide an easy way to move your Tx frequency down or up
-in 60 Hz steps.
+NOTE: Keyboard shortcuts *Shift+F11* and *Shift+F12* provide an easy
+way to move your Tx frequency down or up in 60 Hz steps.
 
 NOTE: Further helpful tips on FT8 operating procedures are available
 {ft8_tips}.  Thanks to ZL2IFB!
+
+.FT8 DXpedition Mode:
+
+- This special operating mode enables DXpeditions to make FT8 QSOs at
+very high rates.  Both stations must use _WSJT-X_ Version 1.9 or
+later.  Detailed operating instructions can be found {ft8_DXped}.
+Do not try to use DXpedition mode without reading these instructions
+carefully!
 
 IMPORTANT: When finished with this Tutorial, don't forget to re-enter
 your own callsign as *My Call* on the *Settings | General* tab.

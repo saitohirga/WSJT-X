@@ -68,6 +68,7 @@ d). Edit lines as needed. Keeping them in alphabetic order help see dupes.
 :fmt_k5cm: http://www.k5cm.com/[FMT Event Info]
 :fmt_wspr: http://www.physics.princeton.edu/pulsar/K1JT/FMT_User.pdf[Accurate Frequency Measurements with your WSPR Setup]
 :ft8_tips: http://www.physics.princeton.edu/pulsar/K1JT/FT8_Operating_Tips.pdf[here]
+:ft8_DXped: http://physics.princeton.edu/pulsar/k1jt/FT8_DXpedition_Mode.pdf[here]
 :gnu_gpl: http://www.gnu.org/licenses/gpl-3.0.txt[GNU General Public License]
 :homepage: http://physics.princeton.edu/pulsar/K1JT/[WSJT Home Page]
 :hrd: http://www.hrdsoftwarellc.com/[Ham Radio Deluxe]
