@@ -3121,17 +3121,6 @@ QPushButton[state=&quot;ok&quot;] {
     <string>WSPR</string>
    </property>
   </action>
-  <action name="actionWSPR_15">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>WSPR-15</string>
-   </property>
-  </action>
   <action name="actionEcho_Graph">
    <property name="text">
     <string>Echo Graph</string>

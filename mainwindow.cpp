@@ -901,7 +901,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (&splashTimer, &QTimer::timeout, this, &MainWindow::splash_done);
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
-/*
+
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
      m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "W9XYZ" or
      m_config.my_callsign()=="K1ABC" or m_config.my_callsign()=="K1ABC/2" or
@@ -910,12 +910,12 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   } else {
     QString errorMsg;
     MessageBox::critical_message (this,
-       "Code in the WSJT-X development branch is not\n"
-       "currently available for on-the-air use.\n\n"
+       "Code in the WSJT-X development branch is\n"
+       "not currently available for on-the-air use.\n\n"
        "Please use WSJT-X v1.8.0\n", errorMsg);
     Q_EMIT finished ();
   }
-*/
+
   if(!ui->cbMenus->isChecked()) {
     ui->cbMenus->setChecked(true);
     ui->cbMenus->setChecked(false);
@@ -3561,9 +3561,6 @@ void MainWindow::guiUpdate()
       if(!m_bVHFwarned) vhfWarning();
     } else {
       m_bVHFwarned=false;
-    }
-    if(m_config.my_callsign()=="SV5DKL") {
-      Q_EMIT finished();
     }
 /*
     qDebug() << "aa" << QDate::currentDate().toJulianDay() << QDate::currentDate().toJulianDay() - 2458150;
