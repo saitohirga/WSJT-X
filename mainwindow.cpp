@@ -915,7 +915,17 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
        "Please use WSJT-X v1.8.0\n", errorMsg);
     Q_EMIT finished ();
   }
-
+/*
+  if(QCoreApplication::applicationVersion().contains("-devel") or
+     QCoreApplication::applicationVersion().contains("-rc")) {
+    QString errorMsg;
+    MessageBox::critical_message (this,
+       "This version of WSJT-X was built from code in the\n"
+       "development branch, or is a Release Candidate.\n"
+       "On-the-air use carries an obligation to report\n"
+       "problems to the WSJT Development group.\n\n", errorMsg);
+  }
+*/
   if(!ui->cbMenus->isChecked()) {
     ui->cbMenus->setChecked(true);
     ui->cbMenus->setChecked(false);
