@@ -3610,7 +3610,11 @@ void MainWindow::guiUpdate()
     if(m_transmitting) {
       char s[37];
       if(m_config.bFox() and ui->tabWidget->currentIndex()==2) {
-        sprintf(s,"TX: %d Slots",m_Nslots);
+        if(m_Nslots==1) {
+          sprintf(s,"Tx: 1 slot");
+        } else {
+          sprintf(s,"Tx: %d Slots",m_Nslots);
+        }
       } else {
         sprintf(s,"Tx: %s",msgsent);
       }
