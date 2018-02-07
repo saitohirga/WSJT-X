@@ -3588,7 +3588,7 @@ void MainWindow::guiUpdate()
       m_bWarnedHound=false;
       qint32 tHound=QDateTime::currentMSecsSinceEpoch()/1000 - m_tAutoOn;
       //To keep calling Fox, Hound must reactivate Enable Tx at least once every 2 minutes
-      if(tHound >= 120) auto_tx_mode(false);
+      if(tHound >= 120 and m_ntx==1) auto_tx_mode(false);
     }
     if(m_auto and m_mode=="Echo" and m_bEchoTxOK) {
       progressBar.setMaximum(6);
