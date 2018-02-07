@@ -48,12 +48,12 @@
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="rbRxOnly">
+          <widget class="QRadioButton" name="rbOwnEcho">
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Both stations do full correction to their QSO partner's grid square during receive, no correction is applied on transmit.&lt;/p&gt;&lt;p&gt;This mode facilitates accurate Doppler shift correction when one or both stations have a rig that does not accept CAT QSY commands while transmitting.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Transmit takes place on sked frequency and receive frequency is  corrected for own echoes. &lt;/p&gt;&lt;p&gt;This mode can be used for calling CQ, or when using Echo mode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="text">
-            <string>Receive only</string>
+            <string>Own Echo</string>
            </property>
           </widget>
          </item>
@@ -70,6 +70,32 @@
            </property>
           </widget>
          </item>
+		 <item>
+          <widget class="QRadioButton" name="rbOnDxEcho">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;DX station announces their TX Freq, which is entered as the Sked Freq. Correction applied to RX and TX so you appear on the DX's station's own echo Freq.&lt;/p&gt;&lt;p&gt;If the rig does not accept CAT QSY commands while transmitting a single correction is applied for the whole transmit period.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string>On DX Echo</string>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+          <item>
+          <widget class="QRadioButton" name="rbCallDx">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Tune radio manually and select this mode to put your echo on the same frequency.&lt;/p&gt;&lt;p&gt;If the rig does not accept CAT QSY commands while transmitting a single correction is applied for the whole transmit period.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="text">
+            <string>Call DX</string>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>		 
          <item>
           <widget class="QRadioButton" name="rbNoDoppler">
            <property name="toolTip">
@@ -83,7 +109,7 @@
            </property>
           </widget>
          </item>
-        </layout>
+       </layout>
        </widget>
       </item>
       <item>
