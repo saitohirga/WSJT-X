@@ -472,7 +472,7 @@
 }</string>
         </property>
         <property name="text">
-         <string>E&amp;nable Tx</string>
+         <string>Enable Tx</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
