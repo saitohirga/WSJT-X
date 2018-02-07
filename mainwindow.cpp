@@ -3566,9 +3566,11 @@ void MainWindow::guiUpdate()
          m_config.my_callsign()=="G4WJS" or m_config.my_callsign()=="KH1/KH7Z" or
          m_config.my_callsign().contains("AA7A") or m_config.my_callsign().contains("N1DG")) {
         ui->sbNslots->setMaximum(5);
+        m_Nslots=ui->sbNslots->value();
         ui->sbNslots->setEnabled(true);
       } else {
         ui->sbNslots->setMaximum(1);
+        m_Nslots=1;
         ui->sbNslots->setEnabled(false);
       }
     }
