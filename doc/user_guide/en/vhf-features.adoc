@@ -1,4 +1,4 @@
-_WSJT-X_ v1.8 suppports a number of features designed for use
+_WSJT-X_ v1.9 suppports a number of features designed for use
 on the VHF and higher bands.  These features include:
 
 - *FT8*, a mode designed for making fast QSOs with weak, fading

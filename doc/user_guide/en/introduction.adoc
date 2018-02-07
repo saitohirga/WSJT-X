@@ -7,7 +7,7 @@ K1**JT**,`" while the suffix "`-X`" indicates that _WSJT-X_ started as
 an extended and experimental branch of the program
 _WSJT_.
 
-_WSJT-X_ Version 1.8 offers nine different protocols or modes: *FT8*,
+_WSJT-X_ Version 1.9 offers nine different protocols or modes: *FT8*,
 *JT4*, *JT9*, *JT65*, *QRA64*, *ISCAT*, *MSK144*, *WSPR*, and *Echo*.
 The first five are designed for making reliable QSOs under extreme
 weak-signal conditions. They use nearly identical message structure
@@ -64,11 +64,11 @@ are available for all three platforms.
 
 *Version Numbers:* _WSJT-X_ release numbers have major, minor, and
 patch numbers separated by periods: for example, _WSJT-X_ Version
-1.8.0.  Temporary "`beta`" release caldidates are sometimes made in
+1.9.0.  Temporary "`beta`" release caldidates are sometimes made in
 advance of a new general-availability release, in order to obtain user
-feedback.  For example, versions 1.8.0-rc1, 1.8.0-rc2, and 1.8.0-rc3
-were made available leading up to the final release of v1.8.0.
+feedback.  For example, version 1.9.0-rc1, 1.9.0-rc2, etc., would
+be beta releases leading up to the final release of v1.9.0.
 Release candidates should be used _only_ during a short testing
-period, and they carry an implied obligation to provide feedback to the
+period. They carry an implied obligation to provide feedback to the
 program development group.  Candidate releases should not be used on
 the air after a full release with the same number has been made.
