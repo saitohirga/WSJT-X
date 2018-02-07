@@ -920,7 +920,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
     ui->cbMenus->setChecked(true);
     ui->cbMenus->setChecked(false);
   }
-
   // this must be the last statement of constructor
   if (!m_valid) throw std::runtime_error {"Fatal initialization exception"};
 }
@@ -3561,6 +3560,17 @@ void MainWindow::guiUpdate()
       if(!m_bVHFwarned) vhfWarning();
     } else {
       m_bVHFwarned=false;
+    }
+    if(m_config.bFox()) {
+      if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
+         m_config.my_callsign()=="G4WJS" or m_config.my_callsign()=="KH1/KH7Z" or
+         m_config.my_callsign().contains("AA7A") or m_config.my_callsign().contains("N1DG")) {
+        ui->sbNslots->setMaximum(5);
+        ui->sbNslots->setEnabled(true);
+      } else {
+        ui->sbNslots->setMaximum(1);
+        ui->sbNslots->setEnabled(false);
+      }
     }
 /*
     qDebug() << "aa" << QDate::currentDate().toJulianDay() << QDate::currentDate().toJulianDay() - 2458150;
