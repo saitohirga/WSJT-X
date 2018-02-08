@@ -77,19 +77,32 @@ becomes visible when you check *Doppler tracking*.
 
 image::Astronomical_data.png[align="center",alt="Astronomical data"]
 
-Three different types of Doppler tracking are provided:
+Five different types of Doppler tracking are provided:
 
 - Select *Full Doppler to DX Grid* if you know your QSO partner's locator
 and he/she will not be using any Doppler control.
 
-- Select *Receive only* to enable EME Doppler tracking of your receive
-frequency to a specific locator. Your Tx frequency will remain fixed.
-
+- Select *Own Echo* to enable EME Doppler tracking of your receive
+frequency to your own echo frequency. Your Tx frequency will remain fixed.
+and is set to the Sked frequency.  This mode can be used when announcing 
+your CQ call on a specific frequency and listening on your own echo
+frequency.  It can also be used for echo testing with Echo mode.
+ 
 - Select *Constant frequency on Moon* to correct for your own one-way
 Doppler shift to or from the Moon.  If your QSO partner does the same
 thing, both stations will have the required Doppler compensation.
 Moreover, anyone else using this option will hear both of you
 without the need for manual frequency changes.
+
+- Select *On DX Echo* ...
+
+- Select *Call DX* after tuning the radio manually to find a station,
+with the Doppler mode initally set to *None*. You may be tuning the band
+looking for random stations, or to a frequency where a station has been
+seen on an SDR display.  It is usually necessary to hold down the Ctrl key
+while tuning the radio. From the moment *Call DX* is pressed, your 
+transmit frequency is set so that your echo will fall on the same 
+frequency you (and the DX station) are listening. 
 
 - See <<ASTRODATA,Astronomical Data>> for details on the quantities
 displayed in this window.

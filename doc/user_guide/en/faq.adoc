@@ -1,6 +1,6 @@
 ////
 Questions:
- Should be short one liners ending with ?::
+ Should be short one liners (in the .adoc file) ending with ?::
  If your question is too long for one line, consider multiple questions or rephrase
 
 Answers:
@@ -47,8 +47,7 @@ location for each instance of _WSJT-X_.
  wsjtx --rig-name=TS2000
  wsjtx --rig-name=FT847
 
-When setting up rig control through _Omni-Rig_, something goes wrong
-when I click *Test CAT*.  What can I do about it?::
+Rig control through _OmniRig_ seems to fail when I click *Test CAT*.  What can I do about it?::
 
 _Omni-Rig_ apparently has a bug that appears when you click *Test
 CAT*.  Forget using *Test CAT* and just click *OK*.  _Omni-Rig_ then
