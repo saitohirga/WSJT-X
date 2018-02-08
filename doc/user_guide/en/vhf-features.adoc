@@ -83,18 +83,27 @@ Five different types of Doppler tracking are provided:
 and he/she will not be using any Doppler control.
 
 - Select *Own Echo* to enable EME Doppler tracking of your receive
-frequency to your own echo frequency. Your Tx frequency will remain fixed.
+frequency to your own echo frequency. Your Tx frequency will remain fixed
 and is set to the Sked frequency.  This mode can be used when announcing 
 your CQ call on a specific frequency and listening on your own echo
 frequency.  It can also be used for echo testing with Echo mode.
- 
+
 - Select *Constant frequency on Moon* to correct for your own one-way
 Doppler shift to or from the Moon.  If your QSO partner does the same
 thing, both stations will have the required Doppler compensation.
 Moreover, anyone else using this option will hear both of you
 without the need for manual frequency changes.
 
-- Select *On DX Echo* ...
+- Select *On Dx Echo* when your QSO partner is not using automated 
+Doppler tracking, and announces his/her transmit frequency and listening
+on their own echo frequency. When clicked, this Doppler method will 
+set your rig frequency on receive to correct for the mutual Doppler 
+shift.  On transmit, your rig frequency will be set so that your
+QSO partner will receive you on the same frequency as their own echo
+at the start of the QSO. As the QSO proceeds, your QSO partner will 
+receive you on this starting frequency so that they do not have to 
+retune their receiver as the Doppler changes.  Sked frequency in this 
+case is set to that announced by your QSO partner.
 
 - Select *Call DX* after tuning the radio manually to find a station,
 with the Doppler mode initally set to *None*. You may be tuning the band
