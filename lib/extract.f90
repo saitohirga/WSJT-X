@@ -25,7 +25,7 @@ subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,nflip,     &
   character*12 mycall_12,hiscall_12
   character*6 mycall,hiscall,hisgrid
   character*6 mycall0,hiscall0,hisgrid0
-  integer apsymbols(6,12),ap(12)
+  integer apsymbols(7,12),ap(12)
   integer nappasses(0:5)  ! the number of decoding passes to use for each QSO state
   integer naptypes(0:5,4) ! (nQSOProgress, decoding pass)  maximum of 4 passes for now 
   integer dat4(12)
@@ -47,11 +47,12 @@ subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,nflip,     &
 !   4        MyCall DxCall RRR
 !   5        MyCall DxCall 73
 !   6        MyCall DxCall DxGrid
+!   7        CQ     DxCall DxGrid
 
      apsymbols=-1
      nappasses=(/3,3,2,3,3,4/)
      naptypes(0,1:4)=(/1,2,6,0/)
-     naptypes(1,1:4)=(/2,3,6,0/)
+     naptypes(1,1:4)=(/2,3,7,0/)
      naptypes(2,1:4)=(/2,3,0,0/)
      naptypes(3,1:4)=(/3,4,5,0/)
      naptypes(4,1:4)=(/3,4,5,0/)
@@ -91,6 +92,10 @@ subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,nflip,     &
               call packmsg(apmessage,ap,itype,.false.)
               if(itype.ne.1) ap=-1
               apsymbols(6,:)=ap
+              apmessage='CQ'//' '//hiscall//' '//hisgrid(1:4)
+              call packmsg(apmessage,ap,itype,.false.)
+              if(itype.ne.1) ap=-1
+              apsymbols(7,:)=ap
            endif
         endif
      endif
