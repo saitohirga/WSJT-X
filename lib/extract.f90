@@ -50,13 +50,13 @@ subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,nflip,     &
 !   7        CQ     DxCall DxGrid
 
      apsymbols=-1
-     nappasses=(/3,3,2,3,3,4/)
-     naptypes(0,1:4)=(/1,2,6,0/)
-     naptypes(1,1:4)=(/2,3,7,0/)
-     naptypes(2,1:4)=(/2,3,0,0/)
-     naptypes(3,1:4)=(/3,4,5,0/)
-     naptypes(4,1:4)=(/3,4,5,0/)
-     naptypes(5,1:4)=(/3,4,5,2/)  
+     nappasses=(/3,4,2,3,3,4/)
+     naptypes(0,1:4)=(/1,2,6,0/)  ! Tx6
+     naptypes(1,1:4)=(/2,3,6,7/)  ! Tx1
+     naptypes(2,1:4)=(/2,3,0,0/)  ! Tx2
+     naptypes(3,1:4)=(/3,4,5,0/)  ! Tx3
+     naptypes(4,1:4)=(/3,4,5,0/)  ! Tx4
+     naptypes(5,1:4)=(/2,3,4,5/)  ! Tx5
      first=.false.
   endif
 
