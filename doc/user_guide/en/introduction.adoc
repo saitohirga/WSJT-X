@@ -64,7 +64,7 @@ are available for all three platforms.
 
 *Version Numbers:* _WSJT-X_ release numbers have major, minor, and
 patch numbers separated by periods: for example, _WSJT-X_ Version
-1.9.0.  Temporary "`beta`" release caldidates are sometimes made in
+1.9.0.  Temporary "`beta`" release candidates are sometimes made in
 advance of a new general-availability release, in order to obtain user
 feedback.  For example, version 1.9.0-rc1, 1.9.0-rc2, etc., would
 be beta releases leading up to the final release of v1.9.0.
