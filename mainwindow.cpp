@@ -7442,6 +7442,20 @@ void MainWindow::houndCallers()
         m_logBook.match(/*in*/houndCall,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
         int i1=countryName.lastIndexOf(";");
         continent=countryName.mid(i1+2,-1);
+
+//If we are using a directed CQ, ignore Hound calls that do not comply.
+        QString CQtext=ui->comboBoxCQ->currentText();
+        if(CQtext.length()==5 and (continent!=CQtext.mid(3,2))) continue;
+        int nCallArea=-1;
+        if(CQtext.length()==4) {
+          for(int i=houndCall.length()-1; i>0; i--) {
+            if(houndCall.mid(i,1).toInt() > 0) nCallArea=houndCall.mid(i,1).toInt();
+            if(houndCall.mid(i,1)=="0") nCallArea=0;
+            if(nCallArea>=0) break;
+          }
+          if(nCallArea!=CQtext.mid(3,1).toInt()) continue;
+        }
+//This houndCall passes all tests, add it to the list.
         t = t + line + "  " + continent + "\n";
         m_nHoundsCalling++;                // Number of accepted Hounds to be sorted
       }
