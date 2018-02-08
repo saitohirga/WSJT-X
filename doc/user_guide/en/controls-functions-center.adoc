@@ -56,7 +56,8 @@ and reception in ISCAT, MSK144, and the fast JT9 modes.
 MSK144 and the fast JT9 submodes you can activate the spinner control
 *Tx CQ nnn* by checking the box to its right.  The program will then
 generate something like `CQ nnn K1ABC FN42` for your CQ message, where
-`nnn` is the kHz portion of your current operating frequency.  Your CQ
+`nnn` is the kHz portion of your current operating frequency,
+in the range 010 to 999.  Your CQ
 message *Tx6* will then be transmitted at the calling frequency
 selected in the *Tx CQ nnn* spinner control.  All other messages will
 be transmitted at your current operating frequency.  On reception,

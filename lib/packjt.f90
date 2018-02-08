@@ -429,6 +429,8 @@ subroutine packbits(dbits,nsymd,m0,sym)
    end if
 
    call fmtmsg(msg,iz)
+   if(msg(1:3).eq.'CQ ' .and. msg(4:4).ge.'0' .and. msg(4:4).le.'9'   &
+        .and. msg(5:5).eq.' ') msg='CQ 00'//msg(4:)
 
    if(msg(1:6).eq.'CQ DX ') msg(3:3)='9'
    if(msg(1:3).eq.'CQ ' .and.                                         &
@@ -657,6 +659,9 @@ subroutine packbits(dbits,nsymd,m0,sym)
         msg(5:5).eq.' ') msg='CQ '//msg(3:)
 
    if(bcontest) call fix_contest_msg(mygrid,msg)
+
+   if(msg(1:5).eq.'CQ 00' .and. msg(6:6).ge.'0' .and.                 &
+        msg(6:6).le.'9') msg='CQ '//msg(6:)
 
    return
  end subroutine unpackmsg
