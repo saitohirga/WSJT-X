@@ -3265,10 +3265,8 @@ void MainWindow::guiUpdate()
       tx_watchdog (true);       // disable transmit
     }
 
-    float fTR=float((nsec%m_TRperiod))/m_TRperiod;
-    float fTRmax=0.6;
-    if(m_config.bHound()) fTRmax=0.07;
-    if(g_iptt==0 and ((m_bTxTime and fTR<fTRmax) or m_tune )) {   //### Allow late starts
+    float fTR=float((ms%(1000*m_TRperiod)))/(1000*m_TRperiod);
+    if(g_iptt==0 and ((m_bTxTime and fTR<0.75) or m_tune )) {   //### Allow late starts
       icw[0]=m_ncw;
       g_iptt = 1;
       setRig ();
