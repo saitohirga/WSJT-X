@@ -901,7 +901,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (&splashTimer, &QTimer::timeout, this, &MainWindow::splash_done);
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
-
+/*
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
      m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "W9XYZ" or
      m_config.my_callsign()=="K1ABC" or m_config.my_callsign()=="K1ABC/2" or
@@ -915,17 +915,19 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
        "Please use WSJT-X v1.8.0\n", errorMsg);
     Q_EMIT finished ();
   }
-/*
+*/
+
   if(QCoreApplication::applicationVersion().contains("-devel") or
      QCoreApplication::applicationVersion().contains("-rc")) {
     QString errorMsg;
     MessageBox::critical_message (this,
        "This version of WSJT-X was built from code in the\n"
-       "development branch, or is a Release Candidate.\n"
-       "On-the-air use carries an obligation to report\n"
-       "problems to the WSJT Development group.\n\n", errorMsg);
+       "development branch, or is a beta-level Release Candidate.\n\n"
+       "On-the-air use carries an obligation to report problems\n"
+       "to the WSJT Development group and to upgrade to a GA\n"
+       "(General Availability) release when that is released.\n\n", errorMsg);
   }
-*/
+
   if(!ui->cbMenus->isChecked()) {
     ui->cbMenus->setChecked(true);
     ui->cbMenus->setChecked(false);
@@ -3581,16 +3583,7 @@ void MainWindow::guiUpdate()
         ui->sbNslots->setEnabled(false);
       }
     }
-/*
-    qDebug() << "aa" << QDate::currentDate().toJulianDay() << QDate::currentDate().toJulianDay() - 2458150;
-    if((QDate::currentDate().toJulianDay() - 2458156) > 30) {
-      QString errorMsg;
-      MessageBox::critical_message (this,
-        "This release candidate has expired. Please upgrade\n"
-        "to latest release on the WSJT Home Page.\n", errorMsg);
-    Q_EMIT finished ();
-    }
-*/
+
     if(m_config.bHound()) {
       m_bWarnedHound=false;
       qint32 tHound=QDateTime::currentMSecsSinceEpoch()/1000 - m_tAutoOn;
