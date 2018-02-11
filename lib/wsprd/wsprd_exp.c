@@ -73,8 +73,7 @@ unsigned long readc2file(char *ptr_to_infile, float *idat, float *qdat,
     char *c2file[15];
     FILE* fp;
     
-    buffer=malloc(sizeof(float)*2*65536);
-    for (i=0; i<2*65536; i++) buffer[i]=0.0;
+    buffer=calloc(2*65536,sizeof(float));
     
     fp = fopen(ptr_to_infile,"rb");
     if (fp == NULL) {
@@ -133,7 +132,7 @@ unsigned long readwavfile(char *ptr_to_infile, int ntrmin, float *idat, float *q
     
     FILE *fp;
     short int *buf2;
-    buf2 = malloc(npoints*sizeof(short int));
+    buf2 = calloc(npoints,sizeof(short int));
     
     fp = fopen(ptr_to_infile,"rb");
     if (fp == NULL) {
@@ -541,22 +540,13 @@ void subtract_signal2(float *id, float *qd, long np,
     
     float *refi, *refq, *ci, *cq, *cfi, *cfq;
 
-    refi=malloc(sizeof(float)*nc2);
-    refq=malloc(sizeof(float)*nc2);
-    ci=malloc(sizeof(float)*nc2);
-    cq=malloc(sizeof(float)*nc2);
-    cfi=malloc(sizeof(float)*nc2);
-    cfq=malloc(sizeof(float)*nc2);
+    refi=calloc(nc2,sizeof(float)*nc2);
+    refq=calloc(nc2,sizeof(float)*nc2);
+    ci=calloc(nc2,sizeof(float)*nc2);
+    cq=calloc(nc2,sizeof(float)*nc2);
+    cfi=calloc(nc2,sizeof(float)*nc2);
+    cfq=calloc(nc2,sizeof(float)*nc2);
    
-    for (i=0; i<nc2; i++) {
-       refi[i]=0.0; 
-       refq[i]=0.0; 
-       ci[i]=0.0; 
-       cq[i]=0.0; 
-       cfi[i]=0.0; 
-       cfq[i]=0.0; 
-    }
-    
     twopidt=2.0*pi*dt;
     
     /******************************************************************************
@@ -658,8 +648,7 @@ unsigned long writec2file(char *c2filename, int trmin, double freq
 {
     int i;
     float *buffer;
-    buffer=malloc(sizeof(float)*2*45000);
-    for (i=0; i<2*45000; i++) buffer[i]=0.0;
+    buffer=calloc(2*45000,sizeof(float));
     
     FILE *fp;
     
@@ -753,17 +742,13 @@ int main(int argc, char *argv[])
     struct result decodes[50];
     
     char *hashtab;
-    hashtab=malloc(sizeof(char)*32768*13);
-    memset(hashtab,0,sizeof(char)*32768*13);
+    hashtab=calloc(32768*13,sizeof(char));
     int nh;
-    symbols=malloc(sizeof(char)*nbits*2);
-    decdata = malloc(sizeof(char)*11);
-    memset(decdata,0,sizeof(char)*11);
-    channel_symbols = malloc(sizeof(char)*nbits*2);
-    memset(channel_symbols,0,sizeof(char)*nbits*2);
-
-    callsign=malloc(sizeof(char)*13);
-    call_loc_pow=malloc(sizeof(char)*23);
+    symbols=calloc(nbits*2,sizeof(char));
+    decdata=calloc(11,sizeof(char));
+    channel_symbols=calloc(nbits*2,sizeof(char));
+    callsign=calloc(13,sizeof(char));
+    call_loc_pow=calloc(23,sizeof(char));
     float allfreqs[100];
     char allcalls[100][13];
     for (i=0; i<100; i++) allfreqs[i]=0.0;
@@ -788,12 +773,8 @@ int main(int argc, char *argv[])
     
     int mettab[2][256];
     
-    idat=malloc(sizeof(float)*maxpts);
-    qdat=malloc(sizeof(float)*maxpts);
-    for (i=0; i<maxpts; i++) {
-      idat[i]=0.0;
-      qdat[i]=0.0;
-    }
+    idat=calloc(maxpts,sizeof(float));
+    qdat=calloc(maxpts,sizeof(float));
     
     while ( (c = getopt(argc, argv, "a:BcC:de:f:HJmqstwvz:")) !=-1 ) {
         switch (c) {
@@ -852,7 +833,7 @@ int main(int argc, char *argv[])
     }
     
     if( stackdecoder ) {
-        stack=malloc(stacksize*sizeof(struct snode));
+        stack=calloc(sizeof(struct snode),stacksize);
     }
     
     if( optind+1 > argc) {
