@@ -43,8 +43,8 @@ long unsigned int pack_grid4_power(char *grid4, int power) {
 long unsigned int pack_call(char *callsign) {
     unsigned int i;
     long unsigned int n;
-    char call6[6];
-    memset(call6,32,sizeof(char)*6);
+    char call6[7];
+    memset(call6,32,sizeof(char)*7);
     // callsign is 6 characters in length. Exactly.
     size_t call_len = strlen(callsign);
     if( call_len > 6 ) {
@@ -83,8 +83,8 @@ long unsigned int pack_call(char *callsign) {
 void pack_prefix(char *callsign, int32_t *n, int32_t *m, int32_t *nadd ) {
     size_t i;
     char *call6;
-    call6=malloc(sizeof(char)*6);
-    memset(call6,32,sizeof(char)*6);
+    call6=malloc(sizeof(char)*7);
+    memset(call6,32,sizeof(char)*7);
     size_t i1=strcspn(callsign,"/");
     
     if( callsign[i1+2] == 0 ) { 
@@ -142,6 +142,7 @@ void pack_prefix(char *callsign, int32_t *n, int32_t *m, int32_t *nadd ) {
             *nadd=1;
         }
     }
+    free(call6);
 }
 
 void interleave(unsigned char *sym)
@@ -165,7 +166,8 @@ void interleave(unsigned char *sym)
 }
 
 int get_wspr_channel_symbols(char* rawmessage, char* hashtab, unsigned char* symbols) {
-    int m=0, n=0, ntype=0;
+    int m=0, ntype=0;
+    long unsigned int n=0;
     int i, j, ihash;
     unsigned char pr3[162]=
     {1,1,0,0,0,0,0,0,1,0,0,0,1,1,1,0,0,0,1,0,
@@ -227,14 +229,14 @@ int get_wspr_channel_symbols(char* rawmessage, char* hashtab, unsigned char* sym
         ihash=nhash(callsign,strlen(callsign),(uint32_t)146);
         m=128*ihash + ntype + 64;
         
-        char grid6[6];
-        memset(grid6,32,sizeof(char)*6);
+        char grid6[7];
+        memset(grid6,0,sizeof(char)*7);
         j=strlen(grid);
         for(i=0; i<j-1; i++) {
             grid6[i]=grid[i+1];
         }
         grid6[5]=grid[0];
-        n=pack_call(grid6);
+        n = pack_call(grid6);
     } else if ( i2 < mlen ) {  // just looks for a right slash
         // Type 2: PJ4/K1ABC 37
         callsign=strtok(message," ");
@@ -297,7 +299,7 @@ int get_wspr_channel_symbols(char* rawmessage, char* hashtab, unsigned char* sym
     
     unsigned int nbytes=11; // The message with tail is packed into almost 11 bytes.
     unsigned char channelbits[nbytes*8*2]; /* 162 rounded up */
-    memset(channelbits,0,sizeof channelbits);
+    memset(channelbits,0,sizeof(char)*nbytes*8*2);
     
     encode(channelbits,data,nbytes);
     
@@ -306,6 +308,7 @@ int get_wspr_channel_symbols(char* rawmessage, char* hashtab, unsigned char* sym
     for (i=0; i<162; i++) {
         symbols[i]=2*channelbits[i]+pr3[i];
     }
-    
+    free(check_call_loc_pow);
+    free(check_callsign); 
     return 1;
 }

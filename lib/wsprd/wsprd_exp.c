@@ -74,7 +74,7 @@ unsigned long readc2file(char *ptr_to_infile, float *idat, float *qdat,
     FILE* fp;
     
     buffer=malloc(sizeof(float)*2*65536);
-    memset(buffer,0,sizeof(float)*2*65536);
+    for (i=0; i<2*65536; i++) buffer[i]=0.0;
     
     fp = fopen(ptr_to_infile,"rb");
     if (fp == NULL) {
@@ -547,13 +547,15 @@ void subtract_signal2(float *id, float *qd, long np,
     cq=malloc(sizeof(float)*nc2);
     cfi=malloc(sizeof(float)*nc2);
     cfq=malloc(sizeof(float)*nc2);
-    
-    memset(refi,0,sizeof(float)*nc2);
-    memset(refq,0,sizeof(float)*nc2);
-    memset(ci,0,sizeof(float)*nc2);
-    memset(cq,0,sizeof(float)*nc2);
-    memset(cfi,0,sizeof(float)*nc2);
-    memset(cfq,0,sizeof(float)*nc2);
+   
+    for (i=0; i<nc2; i++) {
+       refi[i]=0.0; 
+       refq[i]=0.0; 
+       ci[i]=0.0; 
+       cq[i]=0.0; 
+       cfi[i]=0.0; 
+       cfq[i]=0.0; 
+    }
     
     twopidt=2.0*pi*dt;
     
@@ -600,7 +602,7 @@ void subtract_signal2(float *id, float *qd, long np,
     
     //lowpass filter and remove startup transient
     float w[nfilt], norm=0, partialsum[nfilt];
-    memset(partialsum,0,sizeof(float)*nfilt);
+    for (i=0; i<nfilt; i++) partialsum[i]=0.0;
     for (i=0; i<nfilt; i++) {
         w[i]=sin(pi*(float)i/(float)(nfilt-1));
         norm=norm+w[i];
@@ -657,7 +659,7 @@ unsigned long writec2file(char *c2filename, int trmin, double freq
     int i;
     float *buffer;
     buffer=malloc(sizeof(float)*2*45000);
-    memset(buffer,0,sizeof(float)*2*45000);
+    for (i=0; i<2*45000; i++) buffer[i]=0.0;
     
     FILE *fp;
     
@@ -755,14 +757,16 @@ int main(int argc, char *argv[])
     memset(hashtab,0,sizeof(char)*32768*13);
     int nh;
     symbols=malloc(sizeof(char)*nbits*2);
-    decdata=malloc(sizeof(char)*11);
-    channel_symbols=malloc(sizeof(char)*nbits*2);
+    decdata = malloc(sizeof(char)*11);
+    memset(decdata,0,sizeof(char)*11);
+    channel_symbols = malloc(sizeof(char)*nbits*2);
+    memset(channel_symbols,0,sizeof(char)*nbits*2);
 
     callsign=malloc(sizeof(char)*13);
     call_loc_pow=malloc(sizeof(char)*23);
     float allfreqs[100];
     char allcalls[100][13];
-    memset(allfreqs,0,sizeof(float)*100);
+    for (i=0; i<100; i++) allfreqs[i]=0.0;
     memset(allcalls,0,sizeof(char)*100*13);
     
     int uniques=0, noprint=0, ndecodes_pass=0;
@@ -786,6 +790,10 @@ int main(int argc, char *argv[])
     
     idat=malloc(sizeof(float)*maxpts);
     qdat=malloc(sizeof(float)*maxpts);
+    for (i=0; i<maxpts; i++) {
+      idat[i]=0.0;
+      qdat[i]=0.0;
+    }
     
     while ( (c = getopt(argc, argv, "a:BcC:de:f:HJmqstwvz:")) !=-1 ) {
         switch (c) {
@@ -965,7 +973,6 @@ int main(int argc, char *argv[])
         }
         ndecodes_pass=0;   // still needed?
         
-        memset(ps,0.0, sizeof(float)*512*nffts);
         for (i=0; i<nffts; i++) {
             for(j=0; j<512; j++ ) {
                 k=i*128+j;
@@ -982,7 +989,7 @@ int main(int argc, char *argv[])
         }
         
         // Compute average spectrum
-        memset(psavg,0.0, sizeof(float)*512);
+        for (i=0; i<512; i++) psavg[i]=0.0;
         for (i=0; i<nffts; i++) {
             for (j=0; j<512; j++) {
                 psavg[j]=psavg[j]+ps[j][i];
@@ -1438,7 +1445,15 @@ int main(int argc, char *argv[])
         }
         fclose(fhash);
     }
-    
+   
+    free(hashtab);
+    free(symbols);
+    free(decdata);
+    free(channel_symbols);
+    free(callsign);
+    free(call_loc_pow);
+    free(idat);
+    free(qdat); 
     if( stackdecoder ) {
         free(stack);
     }
