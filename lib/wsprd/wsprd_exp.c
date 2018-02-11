@@ -334,7 +334,7 @@ void sync_and_demodulate(float *id, float *qd, long np,
 
 void noncoherent_sequence_detection(float *id, float *qd, long np,
                          unsigned char *symbols, float *f1,  int *shift1,
-                         float *drift1, int symfac, float *sync, int *nblocksize)
+                         float *drift1, int symfac, int *nblocksize)
 {
     /************************************************************************
      *  Noncoherent sequence detection for wspr.                            *
@@ -349,14 +349,14 @@ void noncoherent_sequence_detection(float *id, float *qd, long np,
     static float pi=3.14159265358979323846;
     float twopidt, df15=df*1.5, df05=df*0.5;
     
-    int i, j, k, lag, k0, isign, itone, ib, b, nblock, nseq, imask;
+    int i, j, k, lag, itone, ib, b, nblock, nseq, imask;
     float xi[512],xq[512];
     float is[4][162],qs[4][162],cf[4][162],sf[4][162],cm,sm,cmp,smp;
-    float p[512],totp,fac,xm1,xm0;
+    float p[512],fac,xm1,xm0;
     float c0[257],s0[257],c1[257],s1[257],c2[257],s2[257],c3[257],s3[257];
     float dphi0, cdphi0, sdphi0, dphi1, cdphi1, sdphi1, dphi2, cdphi2, sdphi2,
     dphi3, cdphi3, sdphi3;
-    float f0, fp, ss, fsum=0.0, f2sum=0.0, fsymb[162];
+    float f0, fp, fsum=0.0, f2sum=0.0, fsymb[162];
     
     twopidt=2*pi*dt;
     f0=*f1;
@@ -431,7 +431,6 @@ void noncoherent_sequence_detection(float *id, float *qd, long np,
         for (j=0;j<nseq;j++) {
             xi[j]=0.0; xq[j]=0.0;
             cm=1; sm=0;
-            isign=1;
             for (ib=0; ib<nblock; ib++) {
                 b=(j&(1<<(nblock-1-ib)))>>(nblock-1-ib);
                 itone=pr3[i+ib]+2*b;
@@ -748,7 +747,7 @@ int main(int argc, char *argv[])
     
     struct result { char date[7]; char time[5]; float sync; float snr;
                     float dt; double freq; char message[23]; float drift;
-                    unsigned int cycles; int jitter; int blocksize; unsigned int metric};
+                    unsigned int cycles; int jitter; int blocksize; unsigned int metric; };
     struct result decodes[50];
     
     char *hashtab;
@@ -1259,8 +1258,7 @@ int main(int argc, char *argv[])
                 // Use mode 2 to get soft-decision symbols
                     t0 = clock();
                     noncoherent_sequence_detection(idat, qdat, npoints, symbols, &f1,
-                                    &jittered_shift, &drift1, symfac,
-                                    &sync1, &blocksize);
+                                    &jittered_shift, &drift1, symfac, &blocksize);
                     tsync2 += (float)(clock()-t0)/CLOCKS_PER_SEC;
                 
                     sq=0.0;
