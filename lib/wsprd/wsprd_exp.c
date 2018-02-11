@@ -717,8 +717,8 @@ int main(int argc, char *argv[])
     char timer_fname[200],hash_fname[200];
     char uttime[5],date[7];
     int c,delta,maxpts=65536,verbose=0,quickmode=0,more_candidates=0, stackdecoder=0;
-    int writenoise=0,usehashtable=1,wspr_type=2, ipass, nblocksize=1;
-    int writec2=0, npasses=2, subtraction=1, block_demod=1;
+    int writenoise=0,usehashtable=1,wspr_type=2, ipass, nblocksize;
+    int writec2=0,maxdrift;
     int shift1, lagmin, lagmax, lagstep, ifmin, ifmax, worth_a_try, not_decoded;
     unsigned int nbits=81, stacksize=200000;
     unsigned int npoints, metric, cycles, maxnp;
@@ -762,7 +762,10 @@ int main(int argc, char *argv[])
     float minsync2=0.12;                     //Second sync limit
     int iifac=8;                             //Step size in final DT peakup
     int symfac=50;                           //Soft-symbol normalizing factor
-    int maxdrift=4;                          //Maximum (+/-) drift
+    int block_demod=1;                       //Default is to use block demod on pass 2
+    int subtraction=1;
+    int npasses=2;
+
     float minrms=52.0 * (symfac/64.0);      //Final test for plausible decoding
     delta=60;                                //Fano threshold step
     float bias=0.45;                        //Fano metric bias (used for both Fano and stack algorithms)
@@ -948,9 +951,15 @@ int main(int argc, char *argv[])
             minsync2=0.12;
         }
         if(ipass == 1 ) {
-            if(block_demod == 1) nblocksize=3;  // try all blocksizes up to 3
-            maxdrift=0;    // no drift for smaller frequency estimator variance
-            minsync2=0.10;
+            if(block_demod == 1) {
+                nblocksize=3;  // try all blocksizes up to 3
+                maxdrift=0;    // no drift for smaller frequency estimator variance
+                minsync2=0.10;
+            } else {           // if called with -B, revert to "classic" wspr params 
+                nblocksize=1;
+                maxdrift=4;
+                minsync2=0.12;
+            }
         }
         ndecodes_pass=0;   // still needed?
         
