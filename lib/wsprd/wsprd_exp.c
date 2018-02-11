@@ -540,12 +540,12 @@ void subtract_signal2(float *id, float *qd, long np,
     
     float *refi, *refq, *ci, *cq, *cfi, *cfq;
 
-    refi=calloc(nc2,sizeof(float)*nc2);
-    refq=calloc(nc2,sizeof(float)*nc2);
-    ci=calloc(nc2,sizeof(float)*nc2);
-    cq=calloc(nc2,sizeof(float)*nc2);
-    cfi=calloc(nc2,sizeof(float)*nc2);
-    cfq=calloc(nc2,sizeof(float)*nc2);
+    refi=calloc(nc2,sizeof(float));
+    refq=calloc(nc2,sizeof(float));
+    ci=calloc(nc2,sizeof(float));
+    cq=calloc(nc2,sizeof(float));
+    cfi=calloc(nc2,sizeof(float));
+    cfq=calloc(nc2,sizeof(float));
    
     twopidt=2.0*pi*dt;
     
@@ -833,7 +833,7 @@ int main(int argc, char *argv[])
     }
     
     if( stackdecoder ) {
-        stack=calloc(sizeof(struct snode),stacksize);
+        stack=calloc(stacksize,sizeof(struct snode));
     }
     
     if( optind+1 > argc) {
