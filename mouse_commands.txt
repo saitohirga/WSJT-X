@@ -13,12 +13,13 @@
   </tr>
   <tr>
     <td align="right">Decoded text:</td>
-    <td><b>Double-click</b> to copy second callsign to DX Call,<br/>
-        locator to DX Grid, change Rx frequency to decoded<br/>
-        signal's frequency, and generate standard<br/>
+    <td><b>Double-click</b> to copy second callsign to Dx Call,<br/>
+        locator to Dx Grid, change Rx and Tx frequency to<br/>
+        decoded signal's frequency, and generate standard<br/>
 	messages.<br/>
-	If <b>Ctrl</b> is held down and <b>Hold Tx Freq</b> is not<br/>
-	checked, also move Tx frequency.<br/>
+	If <b>Hold Tx Freq</b> is checked or first callsign in message<br/>
+	is your own call, Tx frequency is not changed unless <br/>
+	<b>Ctrl</b> is held down.<br/>
     </td>
   </tr>
   <tr>

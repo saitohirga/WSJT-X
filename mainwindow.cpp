@@ -261,7 +261,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_sentFirst73 {false},
   m_currentMessageType {-1},
   m_lastMessageType {-1},
-  m_holdTxFreq {false},
   m_bShMsgs {false},
   m_bSWL {false},
   m_uploading {false},
@@ -854,7 +853,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->sbTxPercent->setValue(m_pctx);
   ui->TxPowerComboBox->setCurrentIndex(int(0.3*(m_dBm + 30.0)+0.2));
   ui->cbUploadWSPR_Spots->setChecked(m_uploadSpots);
-  ui->cbHoldTxFreq->setChecked(m_holdTxFreq);
   if((m_ndepth&7)==1) ui->actionQuickDecode->setChecked(true);
   if((m_ndepth&7)==2) ui->actionMediumDecode->setChecked(true);
   if((m_ndepth&7)==3) ui->actionDeepestDecode->setChecked(true);
@@ -1035,7 +1033,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("NoSuffix",m_noSuffix);
   m_settings->setValue("GUItab",ui->tabWidget->currentIndex());
   m_settings->setValue("OutBufSize",outBufSize);
-  m_settings->setValue("HoldTxFreq",m_holdTxFreq);
+  m_settings->setValue ("HoldTxFreq", ui->cbHoldTxFreq->isChecked ());
   m_settings->setValue("PctTx",m_pctx);
   m_settings->setValue("dBm",m_dBm);
   m_settings->setValue ("WSPRPreferType1", ui->WSPR_prefer_type_1_check_box->isChecked ());
@@ -1132,7 +1130,7 @@ void MainWindow::readSettings()
   int n=m_settings->value("GUItab",0).toInt();
   ui->tabWidget->setCurrentIndex(n);
   outBufSize=m_settings->value("OutBufSize",4096).toInt();
-  m_holdTxFreq=m_settings->value("HoldTxFreq",false).toBool();
+  ui->cbHoldTxFreq->setChecked (m_settings->value ("HoldTxFreq", false).toBool ());
   m_pwrBandTxMemory=m_settings->value("pwrBandTxMemory").toHash();
   m_pwrBandTuneMemory=m_settings->value("pwrBandTuneMemory").toHash();
   ui->actionEnable_AP_FT8->setChecked (m_settings->value ("FT8AP", false).toBool());
@@ -4012,7 +4010,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   if (message.isTX()) {
     if (!m_config.enable_VHF_features()) {
       if(!shift) ui->RxFreqSpinBox->setValue(frequency); //Set Rx freq
-      if((ctrl or shift) and !m_holdTxFreq) {
+      if((ctrl or shift) and !ui->cbHoldTxFreq->isChecked ()) {
         ui->TxFreqSpinBox->setValue(frequency); //Set Tx freq
       }
     }
@@ -4102,7 +4100,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
          && firstcall != m_config.my_callsign () && firstcall != m_baseCall
          && firstcall != "DE")
         || "CQ" == firstcall || "QRZ" == firstcall || ctrl || shift) {
-      if (!m_holdTxFreq and (shift or ctrl)) {
+      if ((!m_config.bHound () || m_mode != "FT8")
+          && (!ui->cbHoldTxFreq->isChecked () || shift || ctrl)) {
         ui->TxFreqSpinBox->setValue(frequency);
       }
       if(m_mode != "JT4" && m_mode != "JT65" && !m_mode.startsWith ("JT9") &&
@@ -5500,7 +5499,7 @@ void MainWindow::fast_config(bool b)
 void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
 {
   m_wideGraph->setTxFreq(n);
-//  if(m_holdTxFreq) ui->RxFreqSpinBox->setValue(n);
+//  if (ui->cbHoldTxFreq->isChecked ()) ui->RxFreqSpinBox->setValue(n);
   if(m_mode!="MSK144") {
     Q_EMIT transmitFrequency (n - m_XIT);
   }
@@ -5969,11 +5968,6 @@ void MainWindow::setFreq4(int rxFreq, int txFreq)
       setXIT (ui->TxFreqSpinBox->value ());
     }
   }
-}
-
-void MainWindow::on_cbHoldTxFreq_clicked(bool checked)
-{
-  m_holdTxFreq=checked;
 }
 
 void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const& s)
