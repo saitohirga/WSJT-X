@@ -85,7 +85,7 @@ void FastGraph::on_greenZeroSlider_valueChanged(int value)
   ui->fastPlot->draw();
 }
 
-void FastGraph::setTRperiod(int n)
+void FastGraph::setTRPeriod(int n)
 {
   m_TRperiod=n;
   ui->fastPlot->setTRperiod(m_TRperiod);

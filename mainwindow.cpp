@@ -4962,8 +4962,8 @@ void MainWindow::on_actionFT8_triggered()
   m_wideGraph->show();
   ui->decodedTextLabel2->setText("  UTC   dB   DT Freq    Message");
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
-  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
-  m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
+  m_modulator->setTRPeriod(m_TRperiod); // TODO - not thread safe
+  m_detector->setTRPeriod(m_TRperiod);  // TODO - not thread safe
   ui->label_7->setText("Rx Frequency");
   if(m_config.bFox()) {
     ui->label_6->setText("Stations calling DXpedition " + m_config.my_callsign());
@@ -5036,8 +5036,8 @@ void MainWindow::on_actionJT4_triggered()
   switch_mode (Modes::JT4);
   m_modeTx="JT4";
   m_TRperiod=60;
-  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
-  m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
+  m_modulator->setTRPeriod(m_TRperiod); // TODO - not thread safe
+  m_detector->setTRPeriod(m_TRperiod);  // TODO - not thread safe
   m_nsps=6912;                   //For symspec only
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
@@ -5113,8 +5113,8 @@ void MainWindow::on_actionJT9_triggered()
     ui->decodedTextLabel2->setText("UTC   dB   DT Freq    Message");
   }
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
-  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
-  m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
+  m_modulator->setTRPeriod(m_TRperiod); // TODO - not thread safe
+  m_detector->setTRPeriod(m_TRperiod);  // TODO - not thread safe
   ui->label_6->setText("Band Activity");
   ui->label_7->setText("Rx Frequency");
   if(bVHF) {
@@ -5138,8 +5138,8 @@ void MainWindow::on_actionJT9_JT65_triggered()
   }
   m_nSubMode=0;                    //Dual-mode always means JT9 and JT65A
   m_TRperiod=60;
-  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
-  m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
+  m_modulator->setTRPeriod(m_TRperiod); // TODO - not thread safe
+  m_detector->setTRPeriod(m_TRperiod);  // TODO - not thread safe
   m_nsps=6912;
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
@@ -5179,8 +5179,8 @@ void MainWindow::on_actionJT65_triggered()
   switch_mode (Modes::JT65);
   if(m_modeTx!="JT65") on_pbTxMode_clicked();
   m_TRperiod=60;
-  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
-  m_detector->setPeriod(m_TRperiod);   // TODO - not thread safe
+  m_modulator->setTRPeriod(m_TRperiod); // TODO - not thread safe
+  m_detector->setTRPeriod(m_TRperiod);   // TODO - not thread safe
   m_nsps=6912;                   //For symspec only
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
@@ -5250,8 +5250,8 @@ void MainWindow::on_actionISCAT_triggered()
   m_modeTx="ISCAT";
   ui->actionISCAT->setChecked(true);
   m_TRperiod = ui->sbTR->value ();
-  m_modulator->setPeriod(m_TRperiod);
-  m_detector->setPeriod(m_TRperiod);
+  m_modulator->setTRPeriod(m_TRperiod);
+  m_detector->setTRPeriod(m_TRperiod);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_nsps=6912;                   //For symspec only
   m_FFTSize = m_nsps / 2;
@@ -5306,9 +5306,9 @@ void MainWindow::on_actionMSK144_triggered()
   ui->RxFreqSpinBox->setSingleStep(10);
   ui->decodedTextLabel->setText("UTC     dB    T Freq    Message");
   ui->decodedTextLabel2->setText("UTC     dB    T Freq    Message");
-  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
-  m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
-  m_wideGraph->setPeriod(m_TRperiod,m_nsps);
+  m_modulator->setTRPeriod(m_TRperiod); // TODO - not thread safe
+  m_detector->setTRPeriod(m_TRperiod);  // TODO - not thread safe
+  m_fastGraph->setTRPeriod(m_TRperiod);
   ui->label_6->setText("Band Activity");
   ui->label_7->setText("Tx Messages");
   ui->actionMSK144->setChecked(true);
@@ -5329,8 +5329,8 @@ void MainWindow::on_actionWSPR_triggered()
   switch_mode (Modes::WSPR);
   m_modeTx="WSPR";
   m_TRperiod=120;
-  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
-  m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
+  m_modulator->setTRPeriod(m_TRperiod); // TODO - not thread safe
+  m_detector->setTRPeriod(m_TRperiod);  // TODO - not thread safe
   m_nsps=6912;                   //For symspec only
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
@@ -5357,8 +5357,8 @@ void MainWindow::on_actionWSPR_LF_triggered()
   switch_mode (Modes::WSPR);
   m_modeTx="WSPR-LF";
   m_TRperiod=240;
-  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
-  m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
+  m_modulator->setTRPeriod(m_TRperiod); // TODO - not thread safe
+  m_detector->setTRPeriod(m_TRperiod);  // TODO - not thread safe
   m_hsymStop=813;
   m_toneSpacing=12000.0/24576.0;
   setup_status_bar (false);
@@ -5373,8 +5373,8 @@ void MainWindow::on_actionEcho_triggered()
   m_mode="Echo";
   ui->actionEcho->setChecked(true);
   m_TRperiod=3;
-  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
-  m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
+  m_modulator->setTRPeriod(m_TRperiod); // TODO - not thread safe
+  m_detector->setTRPeriod(m_TRperiod);  // TODO - not thread safe
   m_nsps=6912;                        //For symspec only
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
@@ -5408,8 +5408,8 @@ void MainWindow::on_actionFreqCal_triggered()
   switch_mode(Modes::FreqCal);
   m_wideGraph->setMode(m_mode);
   m_TRperiod = ui->sbTR->value ();
-  m_modulator->setPeriod(m_TRperiod); // TODO - not thread safe
-  m_detector->setPeriod(m_TRperiod);  // TODO - not thread safe
+  m_modulator->setTRPeriod(m_TRperiod); // TODO - not thread safe
+  m_detector->setTRPeriod(m_TRperiod);  // TODO - not thread safe
   m_nsps=6912;                        //For symspec only
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
@@ -6383,9 +6383,9 @@ void MainWindow::on_sbTR_valueChanged(int value)
 //  if(!m_bFastMode and n>m_nSubMode) m_MinW=m_nSubMode;
   if(m_bFastMode or m_mode=="FreqCal") {
     m_TRperiod = value;
-    m_fastGraph->setTRperiod (value);
-    m_modulator->setPeriod (value); // TODO - not thread safe
-    m_detector->setPeriod (value);  // TODO - not thread safe
+    m_fastGraph->setTRPeriod (value);
+    m_modulator->setTRPeriod (value); // TODO - not thread safe
+    m_detector->setTRPeriod (value);  // TODO - not thread safe
     m_wideGraph->setPeriod (value, m_nsps);
     progressBar.setMaximum (value);
   }

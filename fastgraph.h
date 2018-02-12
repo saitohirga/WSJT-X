@@ -20,7 +20,7 @@ public:
 
   void   plotSpec(bool diskData, int UTCdisk);
   void   saveSettings();
-  void   setTRperiod(int n);
+  void   setTRPeriod(int n);
   void   setMode(QString mode);
 
 signals:
