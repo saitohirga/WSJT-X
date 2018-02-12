@@ -138,6 +138,7 @@ private slots:
   void on_stopTxButton_clicked();
   void on_stopButton_clicked();
   void on_actionRelease_Notes_triggered ();
+  void on_actionFT8_DXpedition_Mode_User_Guide_triggered();
   void on_actionOnline_User_Guide_triggered();
   void on_actionLocal_User_Guide_triggered();
   void on_actionWide_Waterfall_triggered();

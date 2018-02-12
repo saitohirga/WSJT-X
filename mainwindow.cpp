@@ -2153,6 +2153,10 @@ void MainWindow::on_actionRelease_Notes_triggered ()
   QDesktopServices::openUrl (QUrl {"http://physics.princeton.edu/pulsar/k1jt/Release_Notes.txt"});
 }
 
+void MainWindow::on_actionFT8_DXpedition_Mode_User_Guide_triggered()
+{
+  QDesktopServices::openUrl (QUrl {"http://physics.princeton.edu/pulsar/k1jt/FT8_DXpedition_Mode.pdf"});
+}
 void MainWindow::on_actionOnline_User_Guide_triggered()      //Display manual
 {
 #if defined (CMAKE_BUILD)
