@@ -144,7 +144,7 @@ unsigned long readwavfile(char *ptr_to_infile, int ntrmin, float *idat, float *q
     fclose(fp);
     
     realin=(float*) fftwf_malloc(sizeof(float)*nfft1);
-    fftout=(fftwf_complex*) fftwf_malloc(sizeof(fftwf_complex)*nfft1);
+    fftout=(fftwf_complex*) fftwf_malloc(sizeof(fftwf_complex)*(nfft1/2+1));
     PLAN1 = fftwf_plan_dft_r2c_1d(nfft1, realin, fftout, PATIENCE);
     
     for (i=0; i<npoints; i++) {
