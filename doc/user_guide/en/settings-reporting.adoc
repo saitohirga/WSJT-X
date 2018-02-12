@@ -2,7 +2,9 @@
 [[FIG_CONFIG_RPT]]
 image::reporting.png[align="center",alt="Reporting Screen"]
 
-- _Logging_: Choose any desired options from this group.
+- _Logging_: Choose any desired options from this group.  Operators in
+a multi-operator station may wish to enter their home callsign as *Op
+Call*.
 
 - _Network Services_: Check *Enable PSK Reporter Spotting* to send
 reception reports to the {pskreporter} mapping facility.
@@ -13,3 +15,7 @@ updates from _WSJT-X_.  Cooperating applications like _JTAlert_ use
 this feature to obtain information about a running _WSJT-X_ instance.
 If you are using _JTAlert_, be sure to check the three boxes at lower
 right.
+
+- _N1MM Logger+ Broadcasts_: To send information on logged QSOs
+directly to _N1MM Logger+_, check the box and enter the IP address and
+port number for _N1MM_.

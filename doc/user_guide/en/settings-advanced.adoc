@@ -31,12 +31,14 @@ IMPORTANT: For the health of your T/R relays and external
 preamplifier, we strongly recommend using a hardware sequencer and
 testing to make sure that sequencing is correct.
 
-- Check *FT8 and MSK144: NA VHF Contest Mode* to enable generation and
-auto-sequencing of messages using four-character grid locators in
-place of signal reports, as required for most North American VHF
-contests.
+- Check *x 2 Tone spacing* or *x 4 Tone spacing* to generate Tx audio
+with twice or four times the normal tone spacing.  This feature is
+intended for use with specialized LF/MF transmitters that divide
+generated frequencies by 2 or 4 as part of the transmission process.
 
-- Check *x 2 Tone spacing* to generate Tx audio with twice the normal
-tone spacing.  This feature is intended for use with specialized LF/MF
-transmitters that divide the audio waveform by 2 before further
-processing.
+_FT8 DXpedition Mode_
+
+- Check *Fox* if you are a DXpedition station operating in FT8
+DXpedition Mode.  Check *Hound* if you wish to make QSOs with such a
+Fox.  Be sure to read the operating instructions for  {ft8_DXped}.
+
