@@ -3999,7 +3999,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     if(i1>10) {
       bool ok;
       Frequency kHz {message.string ().mid (i1+4,3).toUInt (&ok)};
-      if(ok && kHz <= 999) {
+      if(ok && kHz >= 10 && kHz <= 999) {
         if (m_config.is_transceiver_online ()) {
           //QSY Freq for answering CQ nnn
           setRig (m_freqNominal / 1000000 * 1000000 + 1000 * kHz);
