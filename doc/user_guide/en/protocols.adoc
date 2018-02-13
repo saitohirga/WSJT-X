@@ -9,9 +9,11 @@ additional bit flags a message containing arbitrary alphanumeric text,
 up to 13 characters.  Special cases allow other information such as
 add-on callsign prefixes (e.g., ZA/K1ABC) or suffixes (e.g., K1ABC/P)
 to be encoded. The basic aim is to compress the most common messages
-used for minimally valid QSOs into a fixed 72-bit length.  Information
-payloads in FT8 include 3 additional bits (75 bits total), with
-definitions yet to be defined.
+used for minimally valid QSOs into a fixed 72-bit length.  The
+information payload in FT8 includes 3 additional bits (75 bits total).
+One of the added bits is used to flag special messages used by the
+DXpedition station in FT8 DXpedition Mode.  Uses for the remaining two
+bits are yet to be defined.
 
 A standard amateur callsign consists of a one- or two-character
 prefix, at least one of which must be a letter, followed by a digit
