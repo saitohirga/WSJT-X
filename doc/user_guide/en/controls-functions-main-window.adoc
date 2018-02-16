@@ -1,9 +1,12 @@
 // Status=review
-The following buttons appear just under the decoded text windows on
+The following controls appear just under the decoded text windows on
 the main screen:
 
 //.Main UI 
-image::main-ui-controls.png[align="left",width=650,alt="Main UI Controls"]
+image::main-ui-controls.png[align="center",width=650,alt="Main UI Controls"]
+
+* When *CQ only* is checked, only messages from stations calling CQ will
+be displayed in the left text panel.
 
 * *Log QSO* raises a dialog window pre-filled with known information
 about a QSO you have nearly completed.  You can edit or add to this
@@ -62,3 +65,5 @@ Toggle the button a second time or click *Halt Tx* to terminate the
 *Tune* process.  Note that activating *Tune* interrupts a receive
 sequence and will prevent decoding during that sequence.
 
+* Uncheck the box *Menus* to make the top-of-window menus disappear,
+leaving more vertical space for decoded messages.
