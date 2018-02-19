@@ -2727,6 +2727,7 @@ void MainWindow::decode()                                       //decode()
   } else {
     memcpy(to, from, qMin(mem_jt9->size(), size));
     QFile {m_config.temp_dir ().absoluteFilePath (".lock")}.remove (); // Allow jt9 to start
+    qDebug() << "aa" << dec_data.params.nutc;
     decodeBusy(true);
   }
 }
@@ -2799,6 +2800,7 @@ void MainWindow::writeAllTxt(QString message)
 
 void MainWindow::decodeDone ()
 {
+  qDebug() << "yy";
   dec_data.params.nagain=0;
   dec_data.params.ndiskdat=0;
   m_nclearave=0;
@@ -2808,12 +2810,14 @@ void MainWindow::decodeDone ()
   m_RxLog=0;
   m_blankLine=true;
   if(m_config.bFox()) houndCallers();
+  qDebug() << "zz";
 }
 
 void MainWindow::readFromStdout()                             //readFromStdout
 {
   while(proc_jt9.canReadLine()) {
     QByteArray t=proc_jt9.readLine();
+    qDebug() << "bb" << t;
     if(m_mode=="FT8" and !m_config.bHound() and t.contains(";")) {
       if(t.contains("<...>")) continue;
       if(!m_bWarnedHound) {
@@ -7484,7 +7488,7 @@ void MainWindow::foxTxSequencer()
  * is to be started.
  *
  * Determine what the Tx message(s) will be for each active slot, call
- * foxgen() to generate and accumulate the corresponding waveform.
+ * foxgenWaveform() to generate and accumulate the corresponding waveform.
 */
 
   qint64 now=QDateTime::currentMSecsSinceEpoch()/1000;
@@ -7508,13 +7512,12 @@ void MainWindow::foxTxSequencer()
       rm_tb4(hc2);                          //Remove this hound from tb4
       fm = hc1 + " RR73; " + hc2 + " <" + m_config.my_callsign() + "> " + rpt;  //Tx msg
     }
-    // Log this QSO!
+
+// Log this QSO!
     m_hisCall=hc1;
     m_hisGrid=m_foxQSO[hc1].grid;
     m_rptSent=m_foxQSO[hc1].sent;
     m_rptRcvd=m_foxQSO[hc1].rcvd;
-//    qDebug() << "Fox Logged      :" << islot << m_hisCall << m_hisGrid << m_rptSent
-//             << m_rptRcvd << m_lastBand;
     QDateTime logTime {QDateTime::currentDateTimeUtc ()};
     QString logLine=logTime.toString("yyyy-MM-dd hh:mm") + " " + m_hisCall +
         "  " + m_hisGrid + "  " + m_rptSent + "  " + m_rptRcvd + " " + m_lastBand;
@@ -7522,9 +7525,10 @@ void MainWindow::foxTxSequencer()
       m_msgAvgWidget->foxAddLog(logLine);
     }
     on_logQSOButton_clicked();
-    m_foxRateQueue.enqueue(now);             //Add present time in seconds to Rate queue.
-    m_loggedByFox[hc1] += (m_lastBand + " ");
-    if(m_foxQSOqueue.contains(hc1)) m_foxQSOqueue.removeOne(hc1);
+
+    m_foxRateQueue.enqueue(now);             //Add present time in seconds to the Rate queue.
+    m_loggedByFox[hc1] += (m_lastBand + " ");  //Note this Hound logged on current band
+    if(m_foxQSOqueue.contains(hc1)) m_foxQSOqueue.removeOne(hc1);  //Remove hc1 from QSOqueue
 
     islot++;
     foxGenWaveform(islot-1,fm);             //Generate tx waveform
