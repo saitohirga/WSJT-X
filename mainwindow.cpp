@@ -3617,10 +3617,10 @@ void MainWindow::guiUpdate()
     if(m_transmitting) {
       char s[37];
       if(m_config.bFox() and ui->tabWidget->currentIndex()==2) {
-        if(m_Nslots==1) {
-          sprintf(s,"Tx: 1 slot");
+        if(foxcom_.nslots==1) {
+          sprintf(s,"Tx:  %s",foxcom_.cmsg[0]);
         } else {
-          sprintf(s,"Tx: %d Slots",m_Nslots);
+          sprintf(s,"Tx:  %d Slots",foxcom_.nslots);
         }
       } else {
         sprintf(s,"Tx: %s",msgsent);
