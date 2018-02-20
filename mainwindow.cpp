@@ -3615,7 +3615,7 @@ void MainWindow::guiUpdate()
     astroUpdate ();
 
     if(m_transmitting) {
-      char s[37];
+      char s[41];
       if(m_config.bFox() and ui->tabWidget->currentIndex()==2) {
         if(foxcom_.nslots==1) {
           sprintf(s,"Tx:  %s",foxcom_.cmsg[0]);
@@ -3640,9 +3640,10 @@ void MainWindow::guiUpdate()
         if(m_mode=="Echo") {
           tx_status_label.setText("Tx: ECHO");
         } else {
+          s[40]=0;
           QString t{QString::fromLatin1(s)};
-          if(m_mode=="FT8" and m_i3bit==1) t="Tx: RR73 NOW " + t.mid(4);
-          if(m_mode=="FT8" and m_i3bit==2) t="Tx: NIL NOW " + t.mid(4);
+//          if(m_mode=="FT8" and m_i3bit==1) t="Tx: RR73 NOW " + t.mid(4);
+//          if(m_mode=="FT8" and m_i3bit==2) t="Tx: NIL NOW " + t.mid(4);
           tx_status_label.setText(t);
         }
       }
