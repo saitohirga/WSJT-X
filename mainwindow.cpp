@@ -7254,6 +7254,7 @@ void MainWindow::on_sbMax_dB_valueChanged(int n)
 void MainWindow::on_pbFoxReset_clicked()
 {
   ui->textBrowser4->setText("");
+  m_houndQueue.clear();
 }
 
 void MainWindow::on_comboBoxHoundSort_activated(int index)
