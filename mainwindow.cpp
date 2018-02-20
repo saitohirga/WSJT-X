@@ -2966,7 +2966,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
             auto_tx_mode(false);
             on_logQSOButton_clicked();
           }
-          if(w.at(2)==m_config.my_callsign()) {
+          if(w.at(2)==m_config.my_callsign() and ui->tx3->text().length()>0) {
             m_rptRcvd=w.at(4);
             m_rptSent=decodedtext.string().mid(7,3);
             //### Select TX3, set random TxFreq in [300-900], and Force Auto ON. ###
@@ -4871,11 +4871,7 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
 
   m_messageClient->qso_logged (QSO_date_off, call, grid, dial_freq, mode, rpt_sent, rpt_received, tx_power, comments, name, QSO_date_on, operator_call, my_call, my_grid);
   m_messageClient->logged_ADIF (ADIF);
-
-  if (m_config.clear_DX ())
-    {
-      clearDX ();
-    }
+  if (m_config.clear_DX () and !m_config.bHound()) clearDX ();
   m_dateTimeQSOOn = QDateTime {};
 }
 
