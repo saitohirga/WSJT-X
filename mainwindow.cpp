@@ -3462,6 +3462,7 @@ void MainWindow::guiUpdate()
         logQSOTimer.start (0);
       }
     }
+
     bool b=(m_mode=="FT8") and ui->cbAutoSeq->isChecked() and ui->cbFirst->isChecked();
     if(is_73 and (m_config.disable_TX_on_73() or b)) {
       auto_tx_mode (false);
@@ -3644,7 +3645,7 @@ void MainWindow::guiUpdate()
           QString t{QString::fromLatin1(s)};
 //          if(m_mode=="FT8" and m_i3bit==1) t="Tx: RR73 NOW " + t.mid(4);
 //          if(m_mode=="FT8" and m_i3bit==2) t="Tx: NIL NOW " + t.mid(4);
-          tx_status_label.setText(t);
+          tx_status_label.setText(t.trimmed());
         }
       }
     } else if(m_monitoring) {
