@@ -322,6 +322,7 @@ private:
   void writeAllTxt(QString message);
   void auto_sequence (DecodedText const& message, unsigned start_tolerance, unsigned stop_tolerance);
   void hideMenus(bool b);
+  void foxTest();
 
   NetworkAccessManager m_network_manager;
   bool m_valid;
@@ -577,7 +578,7 @@ private:
     QString grid;
     QString sent;
     QString rcvd;
-    qint64  t0;
+    qint32  ncall;
   };
 
   QMap<QString,FoxQSO> m_foxQSO;

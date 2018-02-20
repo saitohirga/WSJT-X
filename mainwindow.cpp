@@ -1006,7 +1006,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("FoxNlist",ui->sbNlist->value());
   m_settings->setValue("FoxNslots",ui->sbNslots->value());
   m_settings->setValue("FoxMaxDB",ui->sbMax_dB->value());
-  m_settings->setValue("FoxMaxTime",ui->sbMaxTime->value());
+  m_settings->setValue("FoxMaxCalls",ui->sbMaxCalls->value());
   m_settings->endGroup();
 
   m_settings->beginGroup("Common");
@@ -1080,7 +1080,7 @@ void MainWindow::readSettings()
   ui->sbNlist->setValue(m_settings->value("FoxNlist",12).toInt());
   ui->sbNslots->setValue(m_settings->value("FoxNslots",5).toInt());
   ui->sbMax_dB->setValue(m_settings->value("FoxMaxDB",30).toInt());
-  ui->sbMaxTime->setValue(m_settings->value("FoxMaxTime",3).toInt());
+  ui->sbMaxCalls->setValue(m_settings->value("FoxMaxCalls",4).toInt());
   m_settings->endGroup();
 
   // do this outside of settings group because it uses groups internally
@@ -1821,6 +1821,11 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         bumpFqso(n);
       }
       return;
+    case Qt::Key_X:
+      if(e->modifiers() & Qt::AltModifier) {
+        foxTest();
+        return;
+      }
     case Qt::Key_E:
       if(e->modifiers() & Qt::ShiftModifier) {
           ui->txFirstCheckBox->setChecked(false);
@@ -7229,7 +7234,7 @@ void MainWindow::write_transmit_entry (QString const& file_name)
     }
 }
 
-// -------------------------- Code for  DXpedition Fox Mode ---------------------------
+// -------------------------- Code for FT8 DXpedition Mode ---------------------------
 
 void MainWindow::on_sbNlist_valueChanged(int n)
 {
@@ -7362,7 +7367,7 @@ QString MainWindow::sortHoundCalls(QString t, int isort, int max_dB)
 void MainWindow::selectHound(QString line)
 {
 /* Called from doubleClickOnCall() in DXpedition Fox mode.
- * QString "line" is a user-selected selected line from left text window.
+ * QString "line" is a user-selected line from left text window.
  * The line may be selected by double-clicking; alternatively, hitting
  * <Enter> is equivalent to double-clicking on the top-most line.
 */
@@ -7469,13 +7474,13 @@ void MainWindow::foxRxSequencer(QString msg, QString houndCall, QString rptRcvd)
  * "myCall houndCall R+rpt".
  *
  * If houndCall matches a callsign in one of our active QSO slots, we
- * prepare to send "houndCall RR73" to that caller.  If no suitable
- * message appears for slot i, we queue its message to be repeated.
+ * prepare to send "houndCall RR73" to that caller.
 */
-
-  m_foxQSO[houndCall].rcvd=rptRcvd.mid(1);    //Save Fox's report for the log
-  m_foxRR73Queue.enqueue(houndCall);          //Request RR73 to be sent to Hound
-  writeFoxQSO("        " + msg.trimmed());
+  if(m_foxQSO.contains(houndCall)) {
+    m_foxQSO[houndCall].rcvd=rptRcvd.mid(1);    //Save Fox's report for the log
+    m_foxRR73Queue.enqueue(houndCall);          //Request RR73 to be sent to Hound
+    writeFoxQSO("        " + msg.trimmed());
+  }
 }
 
 void MainWindow::foxTxSequencer()
@@ -7491,30 +7496,33 @@ void MainWindow::foxTxSequencer()
   QString fm;                               //Fox message to be transmitted
   QString hc1,hc2;                          //Hound calls
   QString t,rpt;
+  QStringList sentTo;
 
   int islot=0;
   while(!m_foxRR73Queue.isEmpty()) {
     hc1=m_foxRR73Queue.dequeue();           //First priority is to send RR73 messages
+    sentTo << hc1;
+    m_foxQSO[hc1].ncall++;                //Number of times called
     if(m_houndQueue.isEmpty()) {
       fm = hc1 + " " + m_baseCall + " RR73";  //Send a standard FT8 message
     } else {
       t=m_houndQueue.dequeue();             //Fetch new hound from queue
       hc2=t.mid(0,6).trimmed();             //hound call
+      sentTo << hc2;
       m_foxQSOqueue.enqueue(hc2);           //Put him in the QSO queue
       m_foxQSO[hc2].grid=t.mid(11,4);       //hound grid
       rpt=t.mid(7,3);
       m_foxQSO[hc2].sent=rpt;               //Report to send him
-      m_foxQSO[hc2].t0=now;                 //QSO start time
+      m_foxQSO[hc2].ncall=1;                //number of calls
       rm_tb4(hc2);                          //Remove this hound from tb4
       fm = hc1 + " RR73; " + hc2 + " <" + m_config.my_callsign() + "> " + rpt;  //Tx msg
     }
-    // Log this QSO!
+
+// Log this QSO!
     m_hisCall=hc1;
     m_hisGrid=m_foxQSO[hc1].grid;
     m_rptSent=m_foxQSO[hc1].sent;
     m_rptRcvd=m_foxQSO[hc1].rcvd;
-//    qDebug() << "Fox Logged      :" << islot << m_hisCall << m_hisGrid << m_rptSent
-//             << m_rptRcvd << m_lastBand;
     QDateTime logTime {QDateTime::currentDateTimeUtc ()};
     QString logLine=logTime.toString("yyyy-MM-dd hh:mm") + " " + m_hisCall +
         "  " + m_hisGrid + "  " + m_rptSent + "  " + m_rptRcvd + " " + m_lastBand;
@@ -7522,6 +7530,7 @@ void MainWindow::foxTxSequencer()
       m_msgAvgWidget->foxAddLog(logLine);
     }
     on_logQSOButton_clicked();
+
     m_foxRateQueue.enqueue(now);             //Add present time in seconds to Rate queue.
     m_loggedByFox[hc1] += (m_lastBand + " ");
     if(m_foxQSOqueue.contains(hc1)) m_foxQSOqueue.removeOne(hc1);
@@ -7536,6 +7545,11 @@ void MainWindow::foxTxSequencer()
     //should limit repeat transmissions here ?
     hc1=m_foxQSOqueue.dequeue();             //Recover hound callsign from QSO queue
     m_foxQSOqueue.enqueue(hc1);              //Put him back in, at the end
+    if(islot>0 and sentTo.contains(hc1)) {
+      break;
+    }
+    sentTo << hc1;
+    m_foxQSO[hc1].ncall++;                   //Number of times called
     fm = hc1 + " " + m_baseCall + " " + m_foxQSO[hc1].sent;  //Tx msg
     if(islot>0 and fm==m_fm0) break;         //Suppress duplicate Fox signals
     islot++;
@@ -7552,7 +7566,7 @@ void MainWindow::foxTxSequencer()
     m_foxQSO[hc1].grid=t.mid(11,4);       //hound grid
     rpt=t.mid(7,3);
     m_foxQSO[hc1].sent=rpt;               //Report to send him
-    m_foxQSO[hc1].t0=now;                 //QSO start time
+    m_foxQSO[hc1].ncall++;                //Number of times called
     rm_tb4(hc1);                          //Remove this hound from tb4
     fm = hc1 + " " + m_baseCall + " " + rpt;    //Tx msg
     islot++;
@@ -7579,10 +7593,9 @@ Transmit:
   strncpy(&foxcom_.mycall[0], foxCall.toLatin1(),12);   //Copy Fox callsign into foxcom_
   foxgen_();
 
-  int maxAge=30*ui->sbMaxTime->value();   //60 ==> max 4 calls (0 30 60 90) to a new Fox
   for(auto a: m_foxQSO.keys()) {
-    int ageSec=now-m_foxQSO[a].t0;
-    if(ageSec > maxAge) {
+    int ncalls=m_foxQSO[a].ncall;
+    if(ncalls > ui->sbMaxCalls->value()) {
       m_foxQSO.remove(a);
       m_foxQSOqueue.removeOne(a);
     }
@@ -7659,5 +7672,33 @@ void MainWindow::writeFoxQSO(QString msg)
   } else {
     MessageBox::warning_message (this, tr("File Open Error"),
       tr("Cannot open \"%1\" for append: %2").arg(f.fileName()).arg(f.errorString()));
+  }
+}
+
+void MainWindow::foxTest()
+{
+  QFile f("steps.txt");
+  if(!f.open(QIODevice::ReadOnly | QIODevice::Text)) return;
+
+  QTextStream s(&f);
+  QString line;
+  while(!s.atEnd()) {
+    line=s.readLine();
+    selectHound(line);
+    if(line.contains("N7QT ")) break;
+  }
+  while(!s.atEnd()) {
+    line=s.readLine();
+    if(line.length()==0) {
+      foxTxSequencer();
+      continue;
+    }
+    QString msg=line.mid(24);
+    QString hc1=line.mid(29);
+    int i0=hc1.indexOf(" ");
+    hc1=hc1.mid(0,i0);
+    i0=qMax(line.indexOf("R+"),line.indexOf("R-"));
+    QString rptRcvd=line.mid(i0,4);
+    foxRxSequencer(msg,hc1,rptRcvd);
   }
 }

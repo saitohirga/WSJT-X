@@ -1874,7 +1874,7 @@ list. The list can be maintained in Settings (F2).</string>
                     </widget>
                    </item>
                    <item row="4" column="0">
-                    <widget class="QSpinBox" name="sbMaxTime">
+                    <widget class="QSpinBox" name="sbMaxCalls">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -1888,7 +1888,7 @@ list. The list can be maintained in Settings (F2).</string>
                       </size>
                      </property>
                      <property name="prefix">
-                      <string>Max Time  </string>
+                      <string>Max Calls   </string>
                      </property>
                      <property name="minimum">
                       <number>1</number>
@@ -1897,12 +1897,15 @@ list. The list can be maintained in Settings (F2).</string>
                       <number>10</number>
                      </property>
                      <property name="value">
-                      <number>3</number>
+                      <number>4</number>
                      </property>
                     </widget>
                    </item>
                    <item row="7" column="0">
                     <widget class="QCheckBox" name="cbNoDupes">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="text">
                       <string>No Dupes</string>
                      </property>
