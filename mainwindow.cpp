@@ -2980,7 +2980,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           if(decodedtext.string().contains("/")) w.append(" +00");  //Add a dummy report
           if(w.size()>=3) {
             QString foxCall=w.at(1);
-            if(w.at(0)==m_config.my_callsign()) {
+            if(w.at(0)==m_config.my_callsign() and ui->tx3->text().length()>0) {
               if(w.at(2)=="RR73") {
                 auto_tx_mode(false);
                 on_logQSOButton_clicked();
@@ -3680,7 +3680,6 @@ void MainWindow::guiUpdate()
 
 void MainWindow::startTx2()
 {
-  if(m_currentMessage.trimmed().length()==0) return;  //Don't transmit blank messages.
   if (!m_modulator->isActive ()) { // TODO - not thread safe
     double fSpread=0.0;
     double snr=99.0;
