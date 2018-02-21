@@ -7250,6 +7250,7 @@ void MainWindow::on_pbFoxReset_clicked()
 {
   ui->textBrowser4->setText("");
   m_houndQueue.clear();
+  m_foxQSOqueue.clear();
 }
 
 void MainWindow::on_comboBoxHoundSort_activated(int index)
