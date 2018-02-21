@@ -3294,8 +3294,8 @@ void MainWindow::guiUpdate()
         int nf = (qrand() % 2000) + 1000;      // Hound randomized range: 1000-3000 Hz
         ui->TxFreqSpinBox->setValue(nf);
       }
-      setXIT (ui->TxFreqSpinBox->value ());
 
+      setXIT (ui->TxFreqSpinBox->value ());
       Q_EMIT m_config.transceiver_ptt (true);            //Assert the PTT
       m_tx_when_ready = true;
     }
@@ -3680,6 +3680,7 @@ void MainWindow::guiUpdate()
 
 void MainWindow::startTx2()
 {
+  if(m_currentMessage.trimmed().length()==0) return;  //Don't transmit blank messages.
   if (!m_modulator->isActive ()) { // TODO - not thread safe
     double fSpread=0.0;
     double snr=99.0;
@@ -6439,7 +6440,7 @@ void MainWindow::on_sbSubmode_valueChanged(int n)
     ui->sbTR->setVisible(m_bFast9);
     if(m_bFast9) ui->TxFreqSpinBox->setValue(700);
   }
-  if(m_transmitting and m_bFast9 and m_nSubMode>=4) transmit(99.0);
+  if(m_transmitting and m_bFast9 and m_nSubMode>=4) transmit (99.0);
   statusUpdate ();
 }
 
