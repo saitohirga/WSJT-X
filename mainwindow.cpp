@@ -3618,11 +3618,7 @@ void MainWindow::guiUpdate()
     if(m_transmitting) {
       char s[41];
       if(m_config.bFox() and ui->tabWidget->currentIndex()==2) {
-        if(foxcom_.nslots==1) {
-          sprintf(s,"Tx:  %s",foxcom_.cmsg[0]);
-        } else {
-          sprintf(s,"Tx:  %d Slots",foxcom_.nslots);
-        }
+        sprintf(s,"Tx:  %d Slots",foxcom_.nslots);
       } else {
         sprintf(s,"Tx: %s",msgsent);
       }
@@ -3643,8 +3639,9 @@ void MainWindow::guiUpdate()
         } else {
           s[40]=0;
           QString t{QString::fromLatin1(s)};
-//          if(m_mode=="FT8" and m_i3bit==1) t="Tx: RR73 NOW " + t.mid(4);
-//          if(m_mode=="FT8" and m_i3bit==2) t="Tx: NIL NOW " + t.mid(4);
+          if(m_config.bFox() and ui->tabWidget->currentIndex()==2 and foxcom_.nslots==1) {
+              t=m_fm1.trimmed();
+          }
           tx_status_label.setText(t.trimmed());
         }
       }
@@ -7655,6 +7652,7 @@ void MainWindow::foxGenWaveform(int i,QString fm)
   foxcom_.i3bit[i]=0;
   if(fm.indexOf("<")>0) foxcom_.i3bit[i]=1;
   strncpy(&foxcom_.cmsg[i][0],fm.toLatin1(),40);   //Copy this message into cmsg[i]
+  if(i==0) m_fm1=fm;
   QString t;
   t.sprintf(" Tx %d: ",i+1);
   writeFoxQSO(t + fm.trimmed());
