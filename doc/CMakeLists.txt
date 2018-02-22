@@ -72,6 +72,7 @@ set (UG_IMGS
   images/decode-menu.png
   images/decodes.png
   images/download_samples.png
+  images/echo_144.png
   images/file-menu.png
   images/FreqCal.png
   images/FreqCal_Graph.png

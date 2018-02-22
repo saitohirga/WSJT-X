@@ -32,8 +32,8 @@ To activate the VHF-and-up features:
 - On the *Settings | General* tab check *Enable VHF/UHF/Microwave
 features* and *Single decode*.
 
-- For EME, check *Decode at t = 52 s* to allow for extra path delay on
-received signals.
+- For EME, check *Decode after EME delay* to allow for extra path
+delay on received signals.
 
 - If you will use automatic Doppler tracking and your radio accepts
 frequency-setting commands while transmitting, check *Allow Tx
