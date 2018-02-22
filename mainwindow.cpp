@@ -4992,6 +4992,7 @@ void MainWindow::on_actionFT8_triggered()
   if(m_config.bFox()) {
     ui->txFirstCheckBox->setChecked(true);
     ui->txFirstCheckBox->setEnabled(false);
+    ui->cbHoldTxFreq->setChecked(true);
     ui->cbAutoSeq->setEnabled(false);
     ui->tabWidget->setCurrentIndex(2);
     ui->TxFreqSpinBox->setValue(300);
@@ -5007,6 +5008,7 @@ void MainWindow::on_actionFT8_triggered()
     ui->cbHoldTxFreq->setChecked(true);
     displayWidgets(nWidgets("11101000010011000001000000000011"));
     ui->labDXped->setText("DXpedition: Hound");
+    ui->txrb1->setChecked(true);
     ui->txrb2->setEnabled(false);
     ui->txrb4->setEnabled(false);
     ui->txrb5->setEnabled(false);
