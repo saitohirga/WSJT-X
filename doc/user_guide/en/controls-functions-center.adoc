@@ -68,7 +68,7 @@ specified response frequency.
 * Checkboxes at bottom center of the main window control special
 features for particular operating modes:
 
-** *Sh* enables shorthand messages in JT4, JT65, and MSK144 modes
+** *Sh* enables shorthand messages in JT4, JT65, QRA64 and MSK144 modes
 
 ** *Fast* enables fast JT9 submodes
 
