@@ -7369,6 +7369,7 @@ void MainWindow::selectHound(QString line)
  * <Enter> is equivalent to double-clicking on the top-most line.
 */
 
+  if(line.length()==0) return;
   QString houndCall=line.split(" ",QString::SkipEmptyParts).at(0);
 
 // Don't add a call already enqueued or in QSO
