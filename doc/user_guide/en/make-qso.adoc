@@ -57,12 +57,14 @@ or rag-chewing.
 
 === Auto-Sequencing
 
-The slow modes JT4, JT9, JT65, and QRA64 allow nearly 10 seconds at
-the end of each one-minute receiving sequence -- enough time for you
-to inspect decoded messages and decide how to reply.  The 15-second
-T/R cycles of FT8 allow only about two seconds for this task, which is
-often not enough.  For this reason a basic auto-sequencing feature is
-offered. Check *Auto Seq* on the main window to enable this feature:
+The 15-second T/R cycles of FT8 allow only about two seconds to inspect 
+decoded messages and decide how to reply, which is often not enough.
+The slow modes JT4, JT9, JT65, and QRA64 allow nearly 10 seconds
+for this task, but operators may find that this is still insufficient
+when workload is high, especially on EME. For these  reasons a basic
+auto-sequencing feature is offered.
+
+Check *Auto Seq* on the main window to enable this feature:
 
 image::auto-seq.png[align="center",alt="AutoSeq"]
 
