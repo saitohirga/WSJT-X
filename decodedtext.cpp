@@ -5,7 +5,7 @@
 #include <QDebug>
 
 extern "C" {
-  bool stdmsg_(char const * msg, bool contest_mode, char const * mygrid, int len_msg, int len_grid);
+  bool stdmsg_(char const * msg, bool contest_mode, char const * mygrid, fortran_charlen_t, fortran_charlen_t);
 }
 
 namespace

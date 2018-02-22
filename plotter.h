@@ -179,9 +179,4 @@ private:
 
 extern QVector<QColor> g_ColorTbl;
 
-extern "C" {
-  void flat4_(float swide[], int* iz, int* nflatten);
-  void plotsave_(float swide[], int* m_w , int* m_h1, int* irow);
-}
-
 #endif // PLOTTER_H

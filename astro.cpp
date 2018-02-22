@@ -29,7 +29,7 @@ extern "C" {
                  double* ramoon, double* decmoon, double* dgrd, double* poloffset,
                  double* xnr, double* techo, double* width1, double* width2,
                  bool* bTx, const char* AzElFileName, const char* jpleph,
-				 int len1, int len2, int len3, int len4);
+                 fortran_charlen_t, fortran_charlen_t, fortran_charlen_t, fortran_charlen_t);
 }
 
 Astro::Astro(QSettings * settings, Configuration const * configuration, QWidget * parent)

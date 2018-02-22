@@ -8,6 +8,11 @@
 
 #define MAX_SCREENSIZE 2048
 
+extern "C" {
+  void flat4_(float swide[], int* iz, int* nflatten);
+  void plotsave_(float swide[], int* m_w , int* m_h1, int* irow);
+}
+
 CPlotter::CPlotter(QWidget *parent) :                  //CPlotter Constructor
   QFrame {parent},
   m_set_freq_action {new QAction {tr ("&Set Rx && Tx Offset"), this}},

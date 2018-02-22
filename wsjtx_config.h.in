@@ -1,6 +1,10 @@
 #ifndef WSJTX_CONFIG_H__
 #define WSJTX_CONFIG_H__
 
+#ifdef __cplusplus
+extern "C"  {
+#endif
+
 #define WSJTX_VERSION_MAJOR @WSJTX_VERSION_MAJOR@
 #define WSJTX_VERSION_MINOR @WSJTX_VERSION_MINOR@
 #define WSJTX_VERSION_PATCH @WSJTX_VERSION_PATCH@
@@ -36,6 +40,17 @@
 #	ifndef _UNICODE
 #		define _UNICODE
 #	endif
+#endif
+
+  /* typedef for consistent gfortran ABI for charlen type hidden arguments */
+#if __GNUC__ > 7
+  typedef size_t fortran_charlen_t;
+#else
+  typedef int fortran_charlen_t;
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

@@ -73,45 +73,47 @@ extern "C" {
               bool* bmsk144, bool* bcontest, bool* btrain, double const pcoeffs[], int* ingain,
               char mycall[], char hiscall[], bool* bshmsg, bool* bswl, char ddir[], float green[],
               float s[], int* jh, float *pxmax, float *rmsNoGain, char line[], char mygrid[],
-              int len1, int len2, int len3, int len4, int len5);
+              fortran_charlen_t, fortran_charlen_t, fortran_charlen_t, fortran_charlen_t,
+              fortran_charlen_t);
 //  float s[], int* jh, char line[], char mygrid[],
 
   void genft8_(char* msg, char* MyGrid, bool* bcontest, int* i3bit, char* msgsent,
-               char ft8msgbits[], int itone[], int len1, int len2, int len3);
+               char ft8msgbits[], int itone[], fortran_charlen_t, fortran_charlen_t,
+               fortran_charlen_t);
 
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
-               int* itext, int len1, int len2);
+               int* itext, fortran_charlen_t, fortran_charlen_t);
 
   void gen9_(char* msg, int* ichk, char* msgsent, int itone[],
-               int* itext, int len1, int len2);
+               int* itext, fortran_charlen_t, fortran_charlen_t);
 
   void genmsk144_(char* msg, char* MyGrid, int* ichk, bool* bcontest,
-                  char* msgsent, int itone[], int* itext, int len1,
-                  int len2, int len3);
+                  char* msgsent, int itone[], int* itext, fortran_charlen_t,
+                  fortran_charlen_t, fortran_charlen_t);
 
   void gen65_(char* msg, int* ichk, char* msgsent, int itone[],
-              int* itext, int len1, int len2);
+              int* itext, fortran_charlen_t, fortran_charlen_t);
 
   void genqra64_(char* msg, int* ichk, char* msgsent, int itone[],
-              int* itext, int len1, int len2);
+              int* itext, fortran_charlen_t, fortran_charlen_t);
 
-  void genwspr_(char* msg, char* msgsent, int itone[], int len1, int len2);
+  void genwspr_(char* msg, char* msgsent, int itone[], fortran_charlen_t, fortran_charlen_t);
 
-  void genwspr_fsk8_(char* msg, char* msgsent, int itone[], int len1, int len2);
+  void genwspr_fsk8_(char* msg, char* msgsent, int itone[], fortran_charlen_t, fortran_charlen_t);
 
-  void geniscat_(char* msg, char* msgsent, int itone[], int len1, int len2);
+  void geniscat_(char* msg, char* msgsent, int itone[], fortran_charlen_t, fortran_charlen_t);
 
   void azdist_(char* MyGrid, char* HisGrid, double* utch, int* nAz, int* nEl,
                int* nDmiles, int* nDkm, int* nHotAz, int* nHotABetter,
-               int len1, int len2);
+               fortran_charlen_t, fortran_charlen_t);
 
-  void morse_(char* msg, int* icw, int* ncw, int len);
+  void morse_(char* msg, int* icw, int* ncw, fortran_charlen_t);
 
   int ptt_(int nport, int ntx, int* iptt, int* nopen);
 
   void wspr_downsample_(short int d2[], int* k);
 
-  int savec2_(char* fname, int* TR_seconds, double* dial_freq, int len1);
+  int savec2_(char* fname, int* TR_seconds, double* dial_freq, fortran_charlen_t);
 
   void avecho_( short id2[], int* dop, int* nfrit, int* nqual, float* f1,
                 float* level, float* sigdb, float* snr, float* dfreq,
@@ -119,21 +121,21 @@ extern "C" {
 
   void fast_decode_(short id2[], int narg[], int* ntrperiod,
                     char msg[], char mycall[], char hiscall[],
-                    int len1, int len2, int len3);
+                    fortran_charlen_t, fortran_charlen_t, fortran_charlen_t);
   void degrade_snr_(short d2[], int* n, float* db, float* bandwidth);
 
   void wav12_(short d2[], short d1[], int* nbytes, short* nbitsam2);
 
   void refspectrum_(short int d2[], bool* bclearrefspec,
-                    bool* brefspec, bool* buseref, const char* c_fname, int len);
+                    bool* brefspec, bool* buseref, const char* c_fname, fortran_charlen_t);
 
   void freqcal_(short d2[], int* k, int* nkhz,int* noffset, int* ntol,
-                char line[], int len);
+                char line[], fortran_charlen_t);
 
-  void fix_contest_msg_(char* MyGrid, char* msg, int len1, int len2);
+  void fix_contest_msg_(char* MyGrid, char* msg, fortran_charlen_t, fortran_charlen_t);
 
   void calibrate_(char data_dir[], int* iz, double* a, double* b, double* rms,
-                  double* sigmaa, double* sigmab, int* irc, int len1);
+                  double* sigmaa, double* sigmab, int* irc, fortran_charlen_t);
 
   void foxgen_();
 
