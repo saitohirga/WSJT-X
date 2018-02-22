@@ -8,6 +8,8 @@ signals
 
 - *JT9* fast modes, useful for scatter propagation on VHF bands
 
+- *JT65*, widely used for EME on VHF and higher bands
+
 - *QRA64*, a mode for EME using a "`Q-ary Repeat Accumulate`" code,
 a low-density parity-check (LDPC) code using a 64-character symbol
 alphabet
@@ -23,6 +25,8 @@ propagation
 
 - *Doppler tracking*, which becomes increasingly important for EME
 on bands above 1.2 GHz.
+
+- Optional *Auto-Sequencing* in JT4, JT9, and JT65 as well as FT8 and QRA64.
 
 [[VHF_SETUP]]
 === VHF Setup
@@ -164,8 +168,9 @@ shorthand messages for RO, RRR, and 73.  These messages are always
 enabled for reception; they will be automatically generated for
 transmission if you check the shorthand message box *Sh*.
 
-Be sure to check *Deep* on the *Decode* menu; you may optionally
-include *Enable averaging* and *Deep search*.
+*Deep* on the *Decode* menu will be automatically selected.  You may
+optionally include *Enable averaging*, *Enable Deep search*, and
+*Enable AP*.
 
 The following screen shot shows three transmissions from a 144 MHz EME
 QSO using submode JT65B and shorthand messages.  Take note of the

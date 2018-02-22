@@ -1,9 +1,10 @@
 === AP Decoding
 
-The _WSJT-X_ decoders for QRA64 and FT8 include optional procedures
-that use naturally accumulating information during a minimal QSO.
-This _a priori_ (AP) information increases sensitivity of the decoder
-by up to 4 dB, at the cost of a slightly higher rate of false decodes.
+The _WSJT-X_ decoders for JT65, QRA64, and FT8 include optional
+procedures that use naturally accumulating information during a
+minimal QSO.  This _a priori_ (AP) information increases sensitivity
+of the decoder by up to 4 dB, at the cost of a slightly higher rate of
+false decodes.
 
 For example: when you decide to answer a CQ, you already know your own
 callsign and that of your potential QSO partner.  The software
