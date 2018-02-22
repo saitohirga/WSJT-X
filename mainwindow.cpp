@@ -2999,7 +2999,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         return;
       }
 
-      if(m_mode=="FT8" or m_mode=="QRA64") auto_sequence (decodedtext, 25, 50);
+      if(m_mode=="FT8" or m_mode=="QRA64" or m_mode=="JT4" or m_mode=="JT65" or m_mode=="JT9") auto_sequence (decodedtext, 25, 50);
       
       postDecode (true, decodedtext.string ());
 
@@ -5065,7 +5065,7 @@ void MainWindow::on_actionJT4_triggered()
     ui->sbSubmode->setValue(0);
   }
   if(bVHF) {
-    displayWidgets(nWidgets("11111001001011111011110000000000"));
+    displayWidgets(nWidgets("11111001011011111011110000000000"));
   } else {
     displayWidgets(nWidgets("11101000000011100011000000000000"));
   }
@@ -5120,7 +5120,7 @@ void MainWindow::on_actionJT9_triggered()
   ui->label_6->setText("Band Activity");
   ui->label_7->setText("Rx Frequency");
   if(bVHF) {
-    displayWidgets(nWidgets("11111010100011111001000000000000"));
+    displayWidgets(nWidgets("11111010110011111001000000000000"));
   } else {
     displayWidgets(nWidgets("11101000000011100001000000000000"));
   }
@@ -5208,7 +5208,7 @@ void MainWindow::on_actionJT65_triggered()
     ui->label_7->setText("Rx Frequency");
   }
   if(bVHF) {
-    displayWidgets(nWidgets("11111001000011111010110001000000"));
+    displayWidgets(nWidgets("11111001010011111010110001000000"));
   } else {
     displayWidgets(nWidgets("11101000000011100001000000000000"));
   }
