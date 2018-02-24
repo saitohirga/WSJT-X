@@ -1,7 +1,7 @@
 subroutine encode174(message,codeword)
-! Encode an 101-bit message and return a 174-bit codeword. 
-! The generator matrix has dimensions (73,101). 
-! The code is a (174,101) regular ldpc code with column weight 3.
+! Encode an 87-bit message and return a 174-bit codeword. 
+! The generator matrix has dimensions (87,87). 
+! The code is a (174,87) regular ldpc code with column weight 3.
 ! The code was generated using the PEG algorithm.
 ! After creating the codeword, the columns are re-ordered according to 
 ! "colorder" to make the codeword compatible with the parity-check matrix 
