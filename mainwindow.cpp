@@ -6380,7 +6380,7 @@ void::MainWindow::VHF_features_enabled(bool b)
   ui->actionInclude_correlation->setVisible (b);
   ui->actionMessage_averaging->setEnabled(b);
   ui->actionEnable_AP_DXcall->setVisible (m_mode=="QRA64");
-  ui->actionEnable_AP_JT65->setVisible (m_mode=="JT65");
+  ui->actionEnable_AP_JT65->setVisible (b && m_mode=="JT65");
   if(!b && m_msgAvgWidget and !m_config.bFox()) {
     if(m_msgAvgWidget->isVisible()) m_msgAvgWidget->close();
   }
