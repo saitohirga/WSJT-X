@@ -919,13 +919,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
   if(QCoreApplication::applicationVersion().contains("-devel") or
      QCoreApplication::applicationVersion().contains("-rc")) {
-    QString errorMsg;
-    MessageBox::critical_message (this,
-       "This version of WSJT-X was built from code in the\n"
-       "development branch, or is a beta-level Release Candidate.\n\n"
-       "On-the-air use carries an obligation to report problems\n"
-       "to the WSJT Development group and to upgrade to a GA\n"
-       "(General Availability) release when that is released.\n\n", errorMsg);
+    QTimer::singleShot (0, this, SLOT (not_GA_warning_message ()));
   }
 
   if(!ui->cbMenus->isChecked()) {
@@ -934,6 +928,16 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   }
   // this must be the last statement of constructor
   if (!m_valid) throw std::runtime_error {"Fatal initialization exception"};
+}
+
+void MainWindow::not_GA_warning_message ()
+{
+  MessageBox::critical_message (this,
+                                "This version of WSJT-X was built from code in the\n"
+                                "development branch, or is a beta-level Release Candidate.\n\n"
+                                "On-the-air use carries an obligation to report problems\n"
+                                "to the WSJT Development group and to upgrade to a GA\n"
+                                "(General Availability) release when that is released.\n\n");
 }
 
 void MainWindow::initialize_fonts ()
