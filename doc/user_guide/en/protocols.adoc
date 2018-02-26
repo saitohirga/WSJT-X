@@ -168,6 +168,51 @@ QRA64 presently offers no message averaging capability, though that
 feature may be added.  In early tests, many EME QSOs were made using
 submodes QRA64A-E on bands from 144 MHz to 24 GHz.  
 
+[[WSPR_PROTOCOL]]
+==== WSPR
+
+WSPR is designed for probing potential radio propagation paths using
+low power beacon-like transmissions. WSPR signals convey a callsign,
+Maidenhead grid locator, and power level using a compressed data
+format with strong forward error correction and narrow-band 4-FSK
+modulation. The protocol is effective at signal-to-noise ratios as low
+as –31 dB in a 2500 Hz bandwidth.
+
+WSPR messages can have one of three possible formats illustrated by
+the following examples:
+
+ - Type 1: K1ABC FN42 37
+ - Type 2: PJ4/K1ABC 37
+ - Type 3: <PJ4/K1ABC> FK52UD 37
+ 
+Type 1 messages contain a standard callsign, a 4-character Maidenhead
+grid locator, and power level in dBm. Type 2 messages omit the grid
+locator but include a compound callsign, while type 3 messages replace
+the callsign with a 15-bit hash code and include a 6-character locator
+as well as the power level. Lossless compression techniques squeeze
+all three message types into exactly 50 bits of user
+information. Standard callsigns require 28 bits and 4-character grid
+locators 15 bits.  In Type 1 messages, the remaining 7 bits convey the
+power level. In message types 2 and 3 these 7 bits convey power level
+along with an extension or re-definition of fields normally used for
+callsign and locator. Together, these compression techniques amount to
+“source encoding” the user message into the smallest possible number
+of bits.
+
+WSPR uses a convolutional code with constraint length K=32 and rate
+r=1/2. Convolution extends the 50 user bits into a total of (50 + K –
+1) × 2 = 162 one-bit symbols. Interleaving is applied to scramble the
+order of these symbols, thereby minimizing the effect of short bursts
+of errors in reception that might be caused by fading or interference.
+The data symbols are combined with an equal number of synchronizing
+symbols, a pseudo-random pattern of 0’s and 1’s.  The 2-bit
+combination for each symbol is the quantity that determines which of
+four possible tones to transmit in any particular symbol
+interval. Data information is taken as the most significant bit, sync
+information the least significant. Thus, on a 0 – 3 scale, the tone
+for a given symbol is twice the value (0 or 1) of the data bit, plus
+the sync bit.
+
 [[SLOW_SUMMARY]]
 ==== Summary
 
