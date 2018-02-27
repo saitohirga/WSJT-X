@@ -2475,7 +2475,7 @@ list. The list can be maintained in Settings (F2).</string>
             <bool>true</bool>
            </property>
            <property name="text">
-            <string/>
+            <string>Az: 251     16553 km</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
