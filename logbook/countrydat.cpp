@@ -152,7 +152,7 @@ QString CountryDat::fixup (QString country, QString const& call) const
   // KG4 2x1 and 2x3 calls that map to Gitmo are mainland US not Gitmo
   if (call.startsWith ("KG4") && call.size () != 5)
     {
-      country.replace ("Guantanamo Bay", "United States");
+      country.replace ("Guantanamo Bay; KG4; NA", "United States; K; NA");
     }
   return country;
 }
