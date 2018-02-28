@@ -49,7 +49,7 @@
 #define NUM_FT8_SYMBOLS 79
 #define NUM_CW_SYMBOLS 250
 #define TX_SAMPLE_RATE 48000
-#define N_WIDGETS 32
+#define N_WIDGETS 33
 
 extern int volatile itone[NUM_ISCAT_SYMBOLS];   //Audio tones for all Tx symbols
 extern int volatile icw[NUM_CW_SYMBOLS];	    //Dits for CW ID
