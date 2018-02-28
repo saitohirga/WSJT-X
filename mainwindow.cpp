@@ -2918,7 +2918,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           ui->decodedTextBrowser->displayDecodedText(decodedtext,m_baseCall,m_config.DXCC(),
                m_logBook,m_config.color_CQ(),m_config.color_MyCall(),
                m_config.color_DXCC(), m_config.color_NewCall(),
-               m_config.ppfx(),ui->cbCQonly->isChecked());
+               m_config.ppfx(),(ui->cbCQonly->isVisible() and ui->cbCQonly->isChecked()));
         }
       }
 
