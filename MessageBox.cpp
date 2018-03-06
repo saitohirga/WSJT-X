@@ -2,6 +2,7 @@
 
 #include <QDialogButtonBox>
 #include <QPushButton>
+#include <QCoreApplication>
 
 #include "revision_utils.hpp"
 
@@ -13,7 +14,7 @@ MessageBox::MessageBox (QWidget * parent)
 
 MessageBox::MessageBox (Icon icon, QString const& text, StandardButtons buttons
                         , QWidget * parent, Qt::WindowFlags flags)
-  : QMessageBox {icon, program_title (), text, buttons, parent, flags}
+  : QMessageBox {icon, QCoreApplication::applicationName (), text, buttons, parent, flags}
 {
 }
 
