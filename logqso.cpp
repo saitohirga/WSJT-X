@@ -17,7 +17,7 @@
 
 LogQSO::LogQSO(QString const& programTitle, QSettings * settings
                , Configuration const * config, QWidget *parent)
-  : QDialog(parent)
+  : QDialog {parent, Qt::WindowStaysOnTopHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint}
   , ui(new Ui::LogQSO)
   , m_settings (settings)
   , m_config {config}
