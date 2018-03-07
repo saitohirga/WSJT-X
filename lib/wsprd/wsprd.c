@@ -4,12 +4,12 @@
  
  File name: wsprd.c
  
- Copyright 2001-2015, Joe Taylor, K1JT
+ Copyright 2001-2018, Joe Taylor, K1JT
  
  Much of the present code is based on work by Steven Franke, K9AN,
  which in turn was based on earlier work by K1JT.
  
- Copyright 2014-2015, Steven Franke, K9AN
+ Copyright 2014-2018, Steven Franke, K9AN
  
  License: GNU GPL v3
  
