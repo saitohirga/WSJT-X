@@ -1064,7 +1064,7 @@ QLabel[oob=&quot;true&quot;] {
                    <item row="1" column="2">
                     <widget class="DoubleClickablePushButton" name="txb1">
                      <property name="toolTip">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch to this Tx message NOW&lt;/p&gt;&lt;p&gt;Double click to toggle the use of the Tx1 message to start a QSO with a station (not allowed for type 1 compund call holders)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch to this Tx message NOW&lt;/p&gt;&lt;p&gt;Double click to toggle the use of the Tx1 message to start a QSO with a station (not allowed for type 1 compound call holders)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="layoutDirection">
                       <enum>Qt::LeftToRight</enum>
