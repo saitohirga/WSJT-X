@@ -588,7 +588,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
           });
 
   connect(&p1, &QProcess::readyReadStandardOutput, this, &MainWindow::p1ReadFromStdout);
-  connect(&proc_jt9, static_cast<void (QProcess::*) (QProcess::ProcessError)> (&QProcess::error),
+  connect(&p1, static_cast<void (QProcess::*) (QProcess::ProcessError)> (&QProcess::error),
           [this] (QProcess::ProcessError error) {
             subProcessError (&p1, error);
           });
