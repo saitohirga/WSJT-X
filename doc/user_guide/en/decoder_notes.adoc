@@ -27,13 +27,13 @@ hypothetically known information.
 .AP information types
 [width="35%",cols="h10,<m20",frame=topbot,options="header"]
 |===============================================
-|P | Message components
-|1 | CQ   &#160; &#160;   ?   &#160; &#160;   ? 
-|2 | MyCall &#160; &#160; ?   &#160; &#160;   ? 
-|3 | MyCall DxCall &#160; &#160;  ? 
-|4 | MyCall DxCall RRR
-|5 | MyCall DxCall 73
-|6 | MyCall DxCall RR73
+|aP | Message components
+|a1 | CQ   &#160; &#160;   ?   &#160; &#160;   ? 
+|a2 | MyCall &#160; &#160; ?   &#160; &#160;   ? 
+|a3 | MyCall DxCall &#160; &#160;  ? 
+|a4 | MyCall DxCall RRR
+|a5 | MyCall DxCall 73
+|a6 | MyCall DxCall RR73
 |===============================================
 
 If a codeword is found that is judged to have high (but not
