@@ -1958,9 +1958,11 @@ void MainWindow::statusChanged()
   QFile f {m_config.temp_dir ().absoluteFilePath ("wsjtx_status.txt")};
   if(f.open(QFile::WriteOnly | QIODevice::Text)) {
     QTextStream out(&f);
+    QString tmpGrid = m_hisGrid;
+    if (!tmpGrid.size ()) tmpGrid="n/a"; // Not Available
     out << qSetRealNumberPrecision (12) << (m_freqNominal / 1.e6)
         << ";" << m_mode << ";" << m_hisCall << ";"
-        << ui->rptSpinBox->value() << ";" << m_modeTx << endl;
+        << ui->rptSpinBox->value() << ";" << m_modeTx << ";" << tmpGrid << endl;
     f.close();
   } else {
     if (m_splash && m_splash->isVisible ()) m_splash->hide ();
