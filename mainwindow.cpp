@@ -2992,13 +2992,16 @@ void MainWindow::readFromStdout()                             //readFromStdout
                 auto_tx_mode(false);
                 on_logQSOButton_clicked();
               } else {
-                m_rptRcvd=w.at(2);
-                m_rptSent=decodedtext.string().mid(7,3);
-                //### Select TX3, set random TxFreq in [300-900], and Force Auto ON. ###
-                ui->txrb3->setChecked(true);
-                int fTx = 300.0 + 600.0*double(qrand())/RAND_MAX;
-                ui->TxFreqSpinBox->setValue(fTx);
-                if(!m_auto) auto_tx_mode(true);
+                if(w.at(1)==Radio::base_callsign(ui->dxCallEntry->text()) and
+                   (w.at(2).mid(0,1)=="+" or w.at(2).mid(0,1)=="-")) {
+                  m_rptRcvd=w.at(2);
+                  m_rptSent=decodedtext.string().mid(7,3);
+                  //### Select TX3, set random TxFreq in [300-900], and Force Auto ON. ###
+                  ui->txrb3->setChecked(true);
+                  int fTx = 300.0 + 600.0*double(qrand())/RAND_MAX;
+                  ui->TxFreqSpinBox->setValue(fTx);
+                  if(!m_auto) auto_tx_mode(true);
+                }
               }
             }
           }
