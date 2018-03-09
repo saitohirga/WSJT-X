@@ -7489,10 +7489,14 @@ void MainWindow::foxRxSequencer(QString msg, QString houndCall, QString rptRcvd)
  * If houndCall matches a callsign in one of our active QSO slots, we
  * prepare to send "houndCall RR73" to that caller.
 */
+//  qDebug() << "foxRxSeq1" << houndCall << rptRcvd << m_foxQSO.contains(houndCall);
   if(m_foxQSO.contains(houndCall)) {
-    m_foxQSO[houndCall].rcvd=rptRcvd.mid(1);    //Save Fox's report for the log
-    m_foxRR73Queue.enqueue(houndCall);          //Request RR73 to be sent to Hound
-    writeFoxQSO("        " + msg.trimmed());
+    if(m_foxQSO[houndCall].ncall <= ui->sbMaxCalls->value()) {  //### Not sure about "<=" ###
+      m_foxQSO[houndCall].rcvd=rptRcvd.mid(1);    //Save Fox's report for the log
+//      qDebug() << "foxRxSeq2" << houndCall << rptRcvd << m_foxQSO[houndCall].ncall;
+      m_foxRR73Queue.enqueue(houndCall);          //Request RR73 to be sent to Hound
+      writeFoxQSO("        " + msg.trimmed());
+    }
   }
 }
 
@@ -7519,6 +7523,7 @@ void MainWindow::foxTxSequencer()
     if(m_houndQueue.isEmpty()) {
       fm = hc1 + " " + m_baseCall + " RR73";  //Send a standard FT8 message
     } else {
+      if(m_foxQSOqueue.count() >= m_Nslots+4) break;  //### Limit QSOs in progress to <= Nslots ???
       t=m_houndQueue.dequeue();             //Fetch new hound from queue
       hc2=t.mid(0,6).trimmed();             //hound call
       sentTo << hc2;
@@ -7572,7 +7577,7 @@ void MainWindow::foxTxSequencer()
   }
 
 //One or more Tx slots are still available
-  while (!m_houndQueue.isEmpty()) {
+  while (!m_houndQueue.isEmpty() and m_foxQSOqueue.count() < m_Nslots+4) {  //### ??? ###
     t=m_houndQueue.dequeue();             //Fetch new hound from queue
     hc1=t.mid(0,6).trimmed();             //hound call
     m_foxQSOqueue.enqueue(hc1);           //Put him in the QSO queue
@@ -7608,9 +7613,11 @@ Transmit:
 
   for(auto a: m_foxQSO.keys()) {
     int ncalls=m_foxQSO[a].ncall;
-    if(ncalls > ui->sbMaxCalls->value()) {
+//    qDebug() << "ncalls: " << a << ncalls << ui->sbMaxCalls->value();
+    if(ncalls >= ui->sbMaxCalls->value()) {            //### Not sure about ">=" ###
       m_foxQSO.remove(a);
       m_foxQSOqueue.removeOne(a);
+      if(m_foxRR73Queue.contains(a)) m_foxRR73Queue.removeOne(a);
     }
   }
   while(!m_foxRateQueue.isEmpty()) {
@@ -7619,6 +7626,8 @@ Transmit:
     m_foxRateQueue.dequeue();
   }
   m_msgAvgWidget->foxLabRate(m_foxRateQueue.size());
+
+  qDebug() << "QSOs in progress:" << m_foxQSOqueue.count();
 }
 
 void MainWindow::rm_tb4(QString houndCall)
@@ -7699,7 +7708,7 @@ void MainWindow::foxTest()
   while(!s.atEnd()) {
     line=s.readLine();
     selectHound(line);
-    if(line.contains("N7QT ")) break;
+    if(line.length()==0) break;
   }
   while(!s.atEnd()) {
     line=s.readLine();
@@ -7712,7 +7721,9 @@ void MainWindow::foxTest()
     int i0=hc1.indexOf(" ");
     hc1=hc1.mid(0,i0);
     i0=qMax(line.indexOf("R+"),line.indexOf("R-"));
-    QString rptRcvd=line.mid(i0,4);
-    foxRxSequencer(msg,hc1,rptRcvd);
+    if(i0>20) {
+      QString rptRcvd=line.mid(i0,4);
+      foxRxSequencer(msg,hc1,rptRcvd);
+    }
   }
 }
