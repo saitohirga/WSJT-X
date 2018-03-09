@@ -56,7 +56,7 @@ program contest72
         write(ct1,1010) dat
 1010    format(12b6.6)
 !        write(*,1014) ct1
-1014    format(a72)
+!1014    format(a72)
         cycle
      endif
 

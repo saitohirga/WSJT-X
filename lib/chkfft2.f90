@@ -69,7 +69,7 @@ program chkfft
   endif
 
   idum=-1                               !Set random seed
-  ndim=1				!One-dimensional transforms
+  ndim=1                                !One-dimensional transforms
   do i=1,NMAX                           !Set random data
      x=gran()
      y=gran()
