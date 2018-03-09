@@ -3003,28 +3003,29 @@ void MainWindow::readFromStdout()                             //readFromStdout
             }
           }
         }
-        return;
       }
 
-      if(m_mode=="FT8" or m_mode=="QRA64" or m_mode=="JT4" or m_mode=="JT65" or m_mode=="JT9") auto_sequence (decodedtext, 25, 50);
-      
-      postDecode (true, decodedtext.string ());
+      if(m_mode!="FT8" or !m_config.bHound()) {
+        if(m_mode=="FT8" or m_mode=="QRA64" or m_mode=="JT4" or m_mode=="JT65" or
+           m_mode=="JT9") auto_sequence (decodedtext, 25, 50);
+        postDecode (true, decodedtext.string ());
 
-      // find and extract any report for myCall
-      bool stdMsg = decodedtext.report(m_baseCall,
-          Radio::base_callsign(ui->dxCallEntry->text()), m_rptRcvd);
-      // extract details and send to PSKreporter
-      int nsec=QDateTime::currentMSecsSinceEpoch()/1000-m_secBandChanged;
-      bool okToPost=(nsec>(4*m_TRperiod)/5);
-      if (stdMsg && okToPost) pskPost(decodedtext);
+        // find and extract any report for myCall
+        bool stdMsg = decodedtext.report(m_baseCall,
+            Radio::base_callsign(ui->dxCallEntry->text()), m_rptRcvd);
+        // extract details and send to PSKreporter
+        int nsec=QDateTime::currentMSecsSinceEpoch()/1000-m_secBandChanged;
+        bool okToPost=(nsec>(4*m_TRperiod)/5);
+        if (stdMsg && okToPost) pskPost(decodedtext);
 
-      if((m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA64") and m_msgAvgWidget!=NULL) {
-        if(m_msgAvgWidget->isVisible()) {
-          QFile f(m_config.temp_dir ().absoluteFilePath ("avemsg.txt"));
-          if(f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QTextStream s(&f);
-            QString t=s.readAll();
-            m_msgAvgWidget->displayAvg(t);
+        if((m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA64") and m_msgAvgWidget!=NULL) {
+          if(m_msgAvgWidget->isVisible()) {
+            QFile f(m_config.temp_dir ().absoluteFilePath ("avemsg.txt"));
+            if(f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+              QTextStream s(&f);
+              QString t=s.readAll();
+              m_msgAvgWidget->displayAvg(t);
+            }
           }
         }
       }
