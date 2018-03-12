@@ -3283,7 +3283,21 @@ void MainWindow::guiUpdate()
     }
 
     float fTR=float((ms%(1000*m_TRperiod)))/(1000*m_TRperiod);
-    if(g_iptt==0 and ((m_bTxTime and fTR<0.75) or m_tune )) {   //### Allow late starts
+
+    QString txMsg;
+    if(m_ntx == 1) txMsg=ui->tx1->text();
+    if(m_ntx == 2) txMsg=ui->tx2->text();
+    if(m_ntx == 3) txMsg=ui->tx3->text();
+    if(m_ntx == 4) txMsg=ui->tx4->text();
+    if(m_ntx == 5) txMsg=ui->tx5->currentText();
+    if(m_ntx == 6) txMsg=ui->tx6->text();
+    if(m_ntx == 7) txMsg=ui->genMsg->text();
+    if(m_ntx == 8) txMsg=ui->freeTextMsg->currentText();
+    int msgLength=txMsg.trimmed().length();
+    if(msgLength==0) on_stopTxButton_clicked();
+
+    if(g_iptt==0 and ((m_bTxTime and fTR<0.75) or m_tune ) and
+       (msgLength>0)) {                          //### Allow late starts
       icw[0]=m_ncw;
       g_iptt = 1;
       setRig ();
