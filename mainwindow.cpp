@@ -1006,13 +1006,11 @@ void MainWindow::writeSettings()
   m_settings->setValue ("MsgAvgDisplayed", m_msgAvgWidget && m_msgAvgWidget->isVisible());
   m_settings->setValue ("FreeText", ui->freeTextMsg->currentText ());
   m_settings->setValue("ShowMenus",ui->cbMenus->isChecked());
-  m_settings->setValue("NoDupes",ui->cbNoDupes->isChecked());
   m_settings->setValue("CallFirst",ui->cbFirst->isChecked());
   m_settings->setValue("HoundSort",ui->comboBoxHoundSort->currentIndex());
   m_settings->setValue("FoxNlist",ui->sbNlist->value());
   m_settings->setValue("FoxNslots",ui->sbNslots->value());
   m_settings->setValue("FoxMaxDB",ui->sbMax_dB->value());
-  m_settings->setValue("FoxMaxCalls",ui->sbMaxCalls->value());
   m_settings->endGroup();
 
   m_settings->beginGroup("Common");
@@ -1080,13 +1078,11 @@ void MainWindow::readSettings()
   if (m_settings->contains ("FreeText")) ui->freeTextMsg->setCurrentText (
         m_settings->value ("FreeText").toString ());
   ui->cbMenus->setChecked(m_settings->value("ShowMenus",true).toBool());
-  ui->cbNoDupes->setChecked(m_settings->value("NoDupes",true).toBool());
   ui->cbFirst->setChecked(m_settings->value("CallFirst",true).toBool());
   ui->comboBoxHoundSort->setCurrentIndex(m_settings->value("HoundSort",3).toInt());
   ui->sbNlist->setValue(m_settings->value("FoxNlist",12).toInt());
   ui->sbNslots->setValue(m_settings->value("FoxNslots",5).toInt());
   ui->sbMax_dB->setValue(m_settings->value("FoxMaxDB",30).toInt());
-  ui->sbMaxCalls->setValue(m_settings->value("FoxMaxCalls",4).toInt());
   m_settings->endGroup();
 
   // do this outside of settings group because it uses groups internally
@@ -7407,6 +7403,7 @@ void MainWindow::selectHound(QString line)
   ui->textBrowser4->displayFoxToBeCalled(t1,"#ffffff");  // Add hound call and rpt to tb4
   t1=t1 + " " + houndGrid;                               // Append the grid
   m_houndQueue.enqueue(t1);                              // Put this hound into the queue
+  writeFoxQSO(" Sel:  " + t1);
   QTextCursor cursor = ui->textBrowser4->textCursor();
   cursor.setPosition(0);                                 // Scroll to top of list
   ui->textBrowser4->setTextCursor(cursor);
@@ -7442,8 +7439,7 @@ void MainWindow::houndCallers()
       paddedHoundCall=houndCall + " ";
       //Don't list a hound already in the queue
       if(!ui->textBrowser4->toPlainText().contains(paddedHoundCall)) {
-        if(m_loggedByFox[houndCall].contains(m_lastBand) and
-           ui->cbNoDupes->isChecked())   continue;   //already logged on this band
+        if(m_loggedByFox[houndCall].contains(m_lastBand))   continue;   //already logged on this band
         if(m_foxQSO.contains(houndCall)) continue;   //still in the QSO map
         QString countryName,continent;
         bool callWorkedBefore,countryWorkedBefore;
@@ -7492,11 +7488,11 @@ void MainWindow::foxRxSequencer(QString msg, QString houndCall, QString rptRcvd)
 */
 //  qDebug() << "foxRxSeq1" << houndCall << rptRcvd << m_foxQSO.contains(houndCall);
   if(m_foxQSO.contains(houndCall)) {
-    if(m_foxQSO[houndCall].ncall <= ui->sbMaxCalls->value()) {  //### Not sure about "<=" ###
+    if(m_foxQSO[houndCall].ncall <= qMax(4,m_Nslots+1)) {  //### Not sure about "<=" ###
       m_foxQSO[houndCall].rcvd=rptRcvd.mid(1);    //Save Fox's report for the log
 //      qDebug() << "foxRxSeq2" << houndCall << rptRcvd << m_foxQSO[houndCall].ncall;
       m_foxRR73Queue.enqueue(houndCall);          //Request RR73 to be sent to Hound
-      writeFoxQSO("        " + msg.trimmed());
+      writeFoxQSO(" Rx:   " + msg.trimmed());
     }
   }
 }
@@ -7549,6 +7545,7 @@ void MainWindow::foxTxSequencer()
       m_msgAvgWidget->foxAddLog(logLine);
     }
     on_logQSOButton_clicked();
+    writeFoxQSO(" Log:  " + logLine.mid(17));
 
     m_foxRateQueue.enqueue(now);             //Add present time in seconds to Rate queue.
     m_loggedByFox[hc1] += (m_lastBand + " ");
@@ -7614,8 +7611,7 @@ Transmit:
 
   for(auto a: m_foxQSO.keys()) {
     int ncalls=m_foxQSO[a].ncall;
-//    qDebug() << "ncalls: " << a << ncalls << ui->sbMaxCalls->value();
-    if(ncalls >= ui->sbMaxCalls->value()) {            //### Not sure about ">=" ###
+    if(ncalls >= qMax(4,m_Nslots+1)) {            //### Not sure about ">=" ###
       m_foxQSO.remove(a);
       m_foxQSOqueue.removeOne(a);
       if(m_foxRR73Queue.contains(a)) m_foxRR73Queue.removeOne(a);
@@ -7627,8 +7623,6 @@ Transmit:
     m_foxRateQueue.dequeue();
   }
   m_msgAvgWidget->foxLabRate(m_foxRateQueue.size());
-
-  qDebug() << "QSOs in progress:" << m_foxQSOqueue.count();
 }
 
 void MainWindow::rm_tb4(QString houndCall)
@@ -7687,11 +7681,14 @@ void MainWindow::foxGenWaveform(int i,QString fm)
 
 void MainWindow::writeFoxQSO(QString msg)
 {
+  QString t;
+  t.sprintf("%3d%3d%3d",m_houndQueue.count(),m_foxQSOqueue.count(),m_foxRR73Queue.count());
   QFile f {m_config.writeable_data_dir ().absoluteFilePath ("FoxQSO.txt")};
   if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
     QTextStream out(&f);
     out << QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm:ss")
-        << "  " << fixed << qSetRealNumberPrecision (4) << (m_freqNominal/1.e6) << msg << endl;
+        << "  " << fixed << qSetRealNumberPrecision (3) << (m_freqNominal/1.e6)
+        << t << msg << endl;
     f.close();
   } else {
     MessageBox::warning_message (this, tr("File Open Error"),
