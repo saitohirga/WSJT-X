@@ -118,7 +118,7 @@ void MessageAveraging::foxLabRate(int n)
 
 void MessageAveraging::foxAddLog(QString logLine)
 {
-  ui->msgAvgPlainTextEdit->insertPlainText(logLine + "\n");
+  ui->msgAvgPlainTextEdit->appendPlainText(logLine);
   m_nLogged_++;
   QString t;
   t.sprintf("Logged: %d",m_nLogged_);
