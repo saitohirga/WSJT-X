@@ -285,7 +285,7 @@ int HRDTransceiver::do_start ()
   // appears to be an HRD defect and we cannot work around it
   if ((data_mode_dropdown_ = find_dropdown (QRegExp ("^(Data)$"))) >= 0)
     {
-      data_mode_dropdown_selection_on_ = find_dropdown_selection (data_mode_dropdown_, QRegExp ("^(On|D1|D1-FIL1)$"));
+      data_mode_dropdown_selection_on_ = find_dropdown_selection (data_mode_dropdown_, QRegExp ("^(On|Data1|D1|D1-FIL1)$"));
       data_mode_dropdown_selection_off_ = find_dropdown_selection (data_mode_dropdown_, QRegExp ("^(Off)$"));
     }
 
