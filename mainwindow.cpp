@@ -7570,6 +7570,19 @@ void MainWindow::foxTxSequencer()
     if(islot >= m_Nslots) goto Transmit;
   }
 
+
+//One or more Tx slots are still available.  See if it's time to call CQ.
+  if(m_nFoxTxSinceCQ >= 4) {
+    fm=ui->comboBoxCQ->currentText() + " " + m_config.my_callsign();
+    if(!fm.contains("/")) {
+      fm += " " + m_config.my_grid().mid(0,4);
+      m_fullFoxCallTime=now;
+    }
+    islot++;
+    foxGenWaveform(islot-1,fm);
+    if(islot >= m_Nslots) goto Transmit;
+  }
+
 //One or more Tx slots are still available, repeat call to a Hound in the QSOqueue
   while (!m_foxQSOqueue.isEmpty()) {
     //should limit repeat transmissions here ?
@@ -7622,6 +7635,7 @@ Transmit:
   QString foxCall=m_config.my_callsign() + "         ";
   strncpy(&foxcom_.mycall[0], foxCall.toLatin1(),12);   //Copy Fox callsign into foxcom_
   foxgen_();
+  m_nFoxTxSinceCQ++;
 
   for(auto a: m_foxQSO.keys()) {
     int ncalls=m_foxQSO[a].ncall;
@@ -7679,6 +7693,7 @@ void MainWindow::foxGenWaveform(int i,QString fm)
 //Generate and accumulate the Tx waveform
   fm += "                                        ";
   fm=fm.mid(0,40);
+  if(fm.mid(0,3)=="CQ ") m_nFoxTxSinceCQ=-1;
 
   QString txModeArg;
   txModeArg.sprintf("FT8fox %d",i+1);
