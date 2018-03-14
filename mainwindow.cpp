@@ -7553,7 +7553,7 @@ void MainWindow::foxTxSequencer()
     m_rptSent=m_foxQSO[hc1].sent;
     m_rptRcvd=m_foxQSO[hc1].rcvd;
     QDateTime logTime {QDateTime::currentDateTimeUtc ()};
-    QString logLine=logTime.toString("yyyy-MM-dd hh:mm") + " " + m_hisCall +
+    QString logLine=logTime.toString("yyyy-MM-dd hh:mm") + " " + (m_hisCall + "   ").mid(0,6) +
         "  " + m_hisGrid + "  " + m_rptSent + "  " + m_rptRcvd + " " + m_lastBand;
     if(m_msgAvgWidget != NULL and m_msgAvgWidget->isVisible()) {
       m_msgAvgWidget->foxAddLog(logLine);
@@ -7704,7 +7704,7 @@ void MainWindow::foxGenWaveform(int i,QString fm)
   strncpy(&foxcom_.cmsg[i][0],fm.toLatin1(),40);   //Copy this message into cmsg[i]
   if(i==0) m_fm1=fm;
   QString t;
-  t.sprintf(" Tx %d: ",i+1);
+  t.sprintf(" Tx%d:  ",i+1);
   writeFoxQSO(t + fm.trimmed());
 }
 
