@@ -7265,11 +7265,17 @@ void MainWindow::on_sbNlist_valueChanged(int n)
 void MainWindow::on_sbNslots_valueChanged(int n)
 {
   m_Nslots=n;
+  QString t;
+  t.sprintf(" NSlots %d",m_Nslots);
+  writeFoxQSO(t);
 }
 
 void MainWindow::on_sbMax_dB_valueChanged(int n)
 {
   m_max_dB=n;
+  QString t;
+  t.sprintf(" Max_dB %d",m_max_dB);
+  writeFoxQSO(t);
 }
 
 void MainWindow::on_pbFoxReset_clicked()
@@ -7277,6 +7283,7 @@ void MainWindow::on_pbFoxReset_clicked()
   ui->textBrowser4->setText("");
   m_houndQueue.clear();
   m_foxQSOqueue.clear();
+  writeFoxQSO(" Reset");
 }
 
 void MainWindow::on_comboBoxHoundSort_activated(int index)
@@ -7679,6 +7686,7 @@ void MainWindow::doubleClickOnFoxQueue(Qt::KeyboardModifiers modifiers)
   cursor.setPosition(cursor.selectionStart());
   QString houndCall=cursor.block().text().mid(0,6).trimmed();
   rm_tb4(houndCall);
+  writeFoxQSO(" Del:  " + houndCall);
   QQueue<QString> tmpQueue;
   while(!m_houndQueue.isEmpty()) {
     QString t=m_houndQueue.dequeue();
