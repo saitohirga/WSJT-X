@@ -7428,10 +7428,6 @@ void MainWindow::selectHound(QString line)
   QTextCursor cursor = ui->textBrowser4->textCursor();
   cursor.setPosition(0);                                 // Scroll to top of list
   ui->textBrowser4->setTextCursor(cursor);
-  if(m_msgAvgWidget != NULL and m_msgAvgWidget->isVisible()) {
-    m_msgAvgWidget->foxLabQueued(m_houndQueue.size());
-  }
-
 }
 
 //------------------------------------------------------------------------------
@@ -7657,7 +7653,10 @@ Transmit:
     if(age < 3600) break;
     m_foxRateQueue.dequeue();
   }
-  m_msgAvgWidget->foxLabRate(m_foxRateQueue.size());
+  if(m_msgAvgWidget != NULL and m_msgAvgWidget->isVisible()) {
+    m_msgAvgWidget->foxLabRate(m_foxRateQueue.size());
+    m_msgAvgWidget->foxLabQueued(m_foxQSOqueue.count());
+  }
 }
 
 void MainWindow::rm_tb4(QString houndCall)

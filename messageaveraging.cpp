@@ -105,7 +105,7 @@ void MessageAveraging::foxLabCallers(int n)
 void MessageAveraging::foxLabQueued(int n)
 {
   QString t;
-  t.sprintf("Queued: %3d",n);
+  t.sprintf("In progress: %3d",n);
   ui->lab2->setText(t);
 }
 
