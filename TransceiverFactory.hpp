@@ -64,11 +64,11 @@ public:
   //
   // various Transceiver parameters
   //
-  enum DataBits {seven_data_bits = 7, eight_data_bits};
+  enum DataBits {seven_data_bits = 7, eight_data_bits, default_data_bits};
   Q_ENUM (DataBits)
-  enum StopBits {one_stop_bit = 1, two_stop_bits};
+  enum StopBits {one_stop_bit = 1, two_stop_bits, default_stop_bits};
   Q_ENUM (StopBits)
-  enum Handshake {handshake_none, handshake_XonXoff, handshake_hardware};
+  enum Handshake {handshake_default, handshake_none, handshake_XonXoff, handshake_hardware};
   Q_ENUM (Handshake)
   enum PTTMethod {PTT_method_VOX, PTT_method_CAT, PTT_method_DTR, PTT_method_RTS};
   Q_ENUM (PTTMethod)

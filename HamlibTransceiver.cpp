@@ -316,14 +316,21 @@ HamlibTransceiver::HamlibTransceiver (int model_number, TransceiverFactory::Para
               set_conf ("rig_pathname", params.serial_port.toLatin1 ().data ());
             }
           set_conf ("serial_speed", QByteArray::number (params.baud).data ());
-          set_conf ("data_bits", TransceiverFactory::seven_data_bits == params.data_bits ? "7" : "8");
-          set_conf ("stop_bits", TransceiverFactory::one_stop_bit == params.stop_bits ? "1" : "2");
+          if (params.data_bits != TransceiverFactory::default_data_bits)
+            {
+              set_conf ("data_bits", TransceiverFactory::seven_data_bits == params.data_bits ? "7" : "8");
+            }
+          if (params.stop_bits != TransceiverFactory::default_stop_bits)
+            {
+              set_conf ("stop_bits", TransceiverFactory::one_stop_bit == params.stop_bits ? "1" : "2");
+            }
 
           switch (params.handshake)
             {
             case TransceiverFactory::handshake_none: set_conf ("serial_handshake", "None"); break;
             case TransceiverFactory::handshake_XonXoff: set_conf ("serial_handshake", "XONXOFF"); break;
             case TransceiverFactory::handshake_hardware: set_conf ("serial_handshake", "Hardware"); break;
+            default: break;
             }
 
           if (params.force_dtr)
