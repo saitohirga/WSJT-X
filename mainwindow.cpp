@@ -4557,7 +4557,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       msgtype(t, ui->tx5->lineEdit ());
     }
   } else {
-    if (hisCall != hisBase) {
+    if (hisCall != hisBase and !m_config.bHound()) {
       if (shortList(hisCall)) {
         // cfm we know his full call with a type 1 tx1 message
         t = hisCall + " " + my_callsign;
