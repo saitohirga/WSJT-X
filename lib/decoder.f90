@@ -99,8 +99,12 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
               nfreqfox(j)=nfreqfox(i)
               n30fox(j)=n
               m=n30max-n
-              call azdist(params%mygrid,g2fox(j),0.d0,nAz,nEl,nDmiles,nDkm,  &
-                   nHotAz,nHotABetter)
+              if(len(trim(g2fox(j))).eq.4) then
+                 call azdist(params%mygrid,g2fox(j),0.d0,nAz,nEl,nDmiles,nDkm, &
+                      nHotAz,nHotABetter)
+              else
+                 nDkm=9999
+              endif
               write(19,1004) c2fox(j),g2fox(j),nsnrfox(j),nfreqfox(j),nDkm,m
 1004          format(a12,1x,a4,i5,i6,i7,i3)
            endif
@@ -439,8 +443,8 @@ contains
     real, intent(in) :: dt
     real, intent(in) :: freq
     character(len=37), intent(in) :: decoded
-    character c1*12,c2*6,g2*4,w*4
-    integer i0,i1,i2,i3,i4,i5,n30,nwrap
+    character c1*12,c2*6,g2*4,w*4,ctmp*12
+    integer i0,i1,i2,i3,i4,i5,i6,n30,nwrap
     integer, intent(in) :: nap 
     real, intent(in) :: qual 
     character*2 annot
@@ -490,6 +494,13 @@ contains
        c2=decoded0(i1+1:i2-1)
        g2=decoded0(i2+1:i3-1)
        b0=c1.eq.params%mycall
+       ctmp=decoded0(i1+1:i2-1)
+       i6=index(ctmp,'/')
+       if(c1(1:3).eq.'DE ' .or. i6.gt.0) then
+          b0=.true.
+          if(i6.ge.2 .and. i6.lt.len(trim(ctmp))/2) c2=ctmp(i6+1:)
+          if(i6.ge.len(trim(ctmp))/2) c2=ctmp(:i6-1)
+       endif
        if(len(trim(c1)).ne.len(trim(params%mycall))) then
           i4=index(trim(c1),trim(params%mycall))
           i5=index(trim(params%mycall),trim(c1))
