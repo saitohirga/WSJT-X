@@ -4039,7 +4039,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       && m_config.is_transceiver_online ()) {
     bool ok;
     auto kHz = parts[6].toUInt (&ok);
-    if (ok && kHz >= 10 && kHz <= 999) {
+    if (ok && kHz >= 10 && 3 == parts[6].size ()) {
       // QSY Freq for answering CQ nnn
       setRig (m_freqNominal / 1000000 * 1000000 + 1000 * kHz);
       ui->decodedTextBrowser2->displayQSY (QString {"QSY %1"}.arg (m_freqNominal / 1e6, 7, 'f', 3));
