@@ -14,7 +14,7 @@ Copyright 2001 - 2018 by Joe Taylor, K1JT.
 
 
 		Release: WSJT-X Version 1.9.0-rc2
-		        February 26, 2018
+		         March 18, 2018
 		---------------------------------
 
 Changes from WSJT-X Version 1.9.0-rc2 include the following:
