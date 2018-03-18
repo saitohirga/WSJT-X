@@ -792,7 +792,7 @@ QLabel[oob=&quot;true&quot;] {
                     <bool>false</bool>
                    </property>
                    <property name="toolTip">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this to call CQ on the &amp;quot;Tx CQ&amp;quot; frequency. Rx will be on the current frequency and the CQ message wiill include the current Rx frequency so callers know which frequency to reply on.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this to call CQ on the &amp;quot;Tx CQ&amp;quot; frequency. Rx will be on the current frequency and the CQ message wiill include the current Rx frequency so callers know which frequency to reply on.&lt;/p&gt;&lt;p&gt;Not available to type 2 compound callsign holders.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="text">
                     <string/>

@@ -4920,9 +4920,10 @@ void MainWindow::displayWidgets(qint64 n)
     if(i==4) ui->rptSpinBox->setVisible(b);
     if(i==5) ui->sbTR->setVisible(b);
     if(i==6) {
-      ui->sbCQTxFreq->setVisible(b);
-      ui->cbCQTx->setVisible(b);
-      ui->cbCQTx->setEnabled(b);
+      ui->sbCQTxFreq->setVisible (b);
+      ui->cbCQTx->setVisible (b);
+      auto is_compound = m_config.my_callsign () != m_baseCall;
+      ui->cbCQTx->setEnabled (b && (!is_compound || shortList (m_config.my_callsign ())));
     }
     if(i==7) ui->cbShMsgs->setVisible(b);
     if(i==8) ui->cbFast9->setVisible(b);
