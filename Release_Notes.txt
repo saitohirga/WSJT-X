@@ -17,6 +17,33 @@ Copyright 2001 - 2018 by Joe Taylor, K1JT.
 		        February 26, 2018
 		---------------------------------
 
+Changes from WSJT-X Version 1.9.0-rc2 include the following:
+
+- Corrected a number of flaws in Fox behavior, FT8 DXpedition Mode
+
+- Allow Hounds to use compound callsigns
+
+- Write debugging information to FoxQSO.txt.
+
+- Fix the "Blue Decode Button" bug
+
+- Send DX grid locator to wsjt_status.txt, for use by applications like
+  PstRotatorAZ
+
+- Correct the display of DXCC status of KG4 calls
+
+- Updated copy of cty.dat
+
+- Updates to documentation
+
+- Other minor bug fixes
+
+
+
+		Release: WSJT-X Version 1.9.0-rc2
+		        February 26, 2018
+		---------------------------------
+
 Changes from WSJT-X Version 1.8.0 include the following:
 
 - New FT8 DXpedition Mode to facilitate high QSO rates in pileup
