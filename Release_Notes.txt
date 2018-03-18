@@ -13,7 +13,7 @@
 Copyright 2001 - 2018 by Joe Taylor, K1JT.
 
 
-		Release: WSJT-X Version 1.9.0-rc2
+		Release: WSJT-X Version 1.9.0-rc3
 		         March 18, 2018
 		---------------------------------
 
@@ -27,6 +27,11 @@ Changes from WSJT-X Version 1.9.0-rc2 include the following:
 
 - Fix the "Blue Decode Button" bug
 
+- Allow partial processing of incoming UDP Reply messages so that
+  non-CQ/QRZ decodes can be processed. The processing is the same as
+  double-clicking the same decoded message within WSJT-X except that
+  "Enable Tx" will not be enabled.
+
 - Send DX grid locator to wsjt_status.txt, for use by applications like
   PstRotatorAZ
 
@@ -37,6 +42,10 @@ Changes from WSJT-X Version 1.9.0-rc2 include the following:
 - Updates to documentation
 
 - Other minor bug fixes
+
+- This release contains updated Hamlib functionality including changes
+  to the Yaesu FT-817 back end that allows the uBITx kit transceiver
+  to be CAT controlled by WSJT-X.
 
 
 
