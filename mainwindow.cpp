@@ -4020,21 +4020,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     return;
   }
 
-  if(m_bFastMode or m_mode=="FT8") {
-    auto i1=message.string ().indexOf(" CQ ");
-    if(i1>10) {
-      bool ok;
-      Frequency kHz {message.string ().mid (i1+4,3).toUInt (&ok)};
-      if(ok && kHz >= 10 && kHz <= 999) {
-        if (m_config.is_transceiver_online ()) {
-          //QSY Freq for answering CQ nnn
-          setRig (m_freqNominal / 1000000 * 1000000 + 1000 * kHz);
-          ui->decodedTextBrowser2->displayQSY (QString {"QSY %1"}.arg (m_freqNominal / 1e6, 7, 'f', 3));
-        }
-      }
-    }
-  }
-
   //Skip the rest if no decoded text extracted
   int frequency = message.frequencyOffset();
   if (message.isTX()) {
@@ -4045,6 +4030,20 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       }
     }
     return;
+  }
+
+  // check for CQ with listening frequency
+  if (parts.size () >= 7
+      && (m_bFastMode || m_mode=="FT8")
+      && "CQ" == parts[5]
+      && m_config.is_transceiver_online ()) {
+    bool ok;
+    auto kHz = parts[6].toUInt (&ok);
+    if (ok && kHz >= 10 && kHz <= 999) {
+      // QSY Freq for answering CQ nnn
+      setRig (m_freqNominal / 1000000 * 1000000 + 1000 * kHz);
+      ui->decodedTextBrowser2->displayQSY (QString {"QSY %1"}.arg (m_freqNominal / 1e6, 7, 'f', 3));
+    }
   }
 
   int nmod = message.timeInSeconds () % (2*m_TRperiod);
