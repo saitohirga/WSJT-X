@@ -6529,63 +6529,58 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
       return;
     }
 
-  if (message_text.contains (QRegularExpression {R"(^(CQ |CQDX |QRZ ))"}))
+  QString format_string {"%1 %2 %3 %4 %5 %6"};
+  auto const& time_string = time.toString ("~" == mode || "&" == mode ? "hhmmss" : "hhmm");
+  auto cqtext = format_string
+    .arg (time_string)
+    .arg (snr, 3)
+    .arg (delta_time, 4, 'f', 1)
+    .arg (delta_frequency, 4)
+    .arg (mode, -2)
+    .arg (message_text);
+  auto messages = ui->decodedTextBrowser->toPlainText ();
+  auto position = messages.lastIndexOf (cqtext);
+  if (position < 0)
     {
-      // a message we are willing to accept
-      QString format_string {"%1 %2 %3 %4 %5 %6"};
-      auto const& time_string = time.toString ("~" == mode || "&" == mode ? "hhmmss" : "hhmm");
-      auto cqtext = format_string
-        .arg (time_string)
-        .arg (snr, 3)
-        .arg (delta_time, 4, 'f', 1)
-        .arg (delta_frequency, 4)
-        .arg (mode, -2)
-        .arg (message_text);
-      auto messages = ui->decodedTextBrowser->toPlainText ();
-      auto position = messages.lastIndexOf (cqtext);
-      if (position < 0)
+      // try again with with -0.0 delta time
+      position = messages.lastIndexOf (format_string
+                                       .arg (time_string)
+                                       .arg (snr, 3)
+                                       .arg ('-' + QString::number (delta_time, 'f', 1), 4)
+                                       .arg (delta_frequency, 4)
+                                       .arg (mode, -2)
+                                       .arg (message_text));
+    }
+  if (position >= 0)
+    {
+      if (m_config.udpWindowToFront ())
         {
-          // try again with with -0.0 delta time
-          position = messages.lastIndexOf (format_string
-                                           .arg (time_string)
-                                           .arg (snr, 3)
-                                           .arg ('-' + QString::number (delta_time, 'f', 1), 4)
-                                           .arg (delta_frequency, 4)
-                                           .arg (mode, -2)
-                                           .arg (message_text));
+          show ();
+          raise ();
+          activateWindow ();
         }
-      if (position >= 0)
+      if (m_config.udpWindowRestore () && isMinimized ())
         {
-          if (m_config.udpWindowToFront ())
-            {
-              show ();
-              raise ();
-              activateWindow ();
-            }
-          if (m_config.udpWindowRestore () && isMinimized ())
-            {
-              showNormal ();
-              raise ();
-            }
-          // find the linefeed at the end of the line
-          position = ui->decodedTextBrowser->toPlainText().indexOf(QChar::LineFeed,position);
-          m_bDoubleClicked = true;
-          auto start = messages.left (position).lastIndexOf (QChar::LineFeed) + 1;
-          DecodedText message {messages.mid (start, position - start), ("MSK144" == m_mode || "FT8" == m_mode) &&
-              ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
-          Qt::KeyboardModifiers kbmod {modifiers << 24};
-          processMessage (message, kbmod);
-          tx_watchdog (false);
-          QApplication::alert (this);
+          showNormal ();
+          raise ();
         }
-      else
-        {
-          qDebug () << "reply to CQ request ignored, decode not found:" << cqtext;
-        }
+      // find the linefeed at the end of the line
+      position = ui->decodedTextBrowser->toPlainText().indexOf(QChar::LineFeed,position);
+      if (message_text.contains (QRegularExpression {R"(^(CQ |CQDX |QRZ ))"})) {
+        // a message we are willing to accept and auto reply to
+        m_bDoubleClicked = true;
+      }
+      auto start = messages.left (position).lastIndexOf (QChar::LineFeed) + 1;
+      DecodedText message {messages.mid (start, position - start), ("MSK144" == m_mode || "FT8" == m_mode) &&
+          ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
+      Qt::KeyboardModifiers kbmod {modifiers << 24};
+      processMessage (message, kbmod);
+      tx_watchdog (false);
+      QApplication::alert (this);
     }
   else
     {
-      qDebug () << "rejecting UDP request to reply as decode is not a CQ or QRZ";
+      qDebug () << "process reply message ignored, decode not found:" << cqtext;
     }
 }
 
