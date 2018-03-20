@@ -2275,13 +2275,11 @@ void MainWindow::hideMenus(bool checked)
       minimumSize().setWidth(770);
   }
   ui->menuBar->setVisible(!checked);
-  if(m_mode!="FreqCal") {
+  if(m_mode!="FreqCal" and m_mode!="WSPR") {
     ui->label_6->setVisible(!checked);
     ui->label_7->setVisible(!checked);
     ui->decodedTextLabel2->setVisible(!checked);
-//    ui->line_2->setVisible(!checked);
   }
-//  ui->line->setVisible(!checked);
   ui->decodedTextLabel->setVisible(!checked);
   ui->gridLayout_5->layout()->setSpacing(spacing);
   ui->horizontalLayout->layout()->setSpacing(spacing);
