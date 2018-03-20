@@ -23,8 +23,8 @@ is one of the single-digit AP decoding types listed in Table 1.  For
 example, `a2` indicates that the successful decode used MyCall as
 hypothetically known information.
 
-[[AP_INFO_TABLE]]
-.AP information types
+[[FT8_AP_INFO_TABLE]]
+.FT8 AP information types
 [width="35%",cols="h10,<m20",frame=topbot,options="header"]
 |===============================================
 |aP | Message components
@@ -46,17 +46,17 @@ Table 2 lists the six possible QSO states that are tracked by the
 _WSJT-X_ auto-sequencer, along with the type of AP decoding that would
 be attempted in each state.
 
-[[AP_DECODING_TYPES_TABLE]]
-.AP decoding types for each QSO state
+[[FT8_AP_DECODING_TYPES_TABLE]]
+.FT8 AP decoding types for each QSO state
 [width="35%",cols="h10,<m20",frame=topbot,options="header"]
 |===========================================
 |State        |AP type
-|CALLING      |   1, 2
-|REPLYING     |   2, 3
+|CALLING STN  |   2, 3
 |REPORT       |   2, 3
 |ROGER_REPORT |   3, 4, 5, 6
 |ROGERS       |   3, 4, 5, 6
 |SIGNOFF      |   3, 1, 2
+|CALLING CQ   |   1, 2
 |===========================================
 
 
