@@ -59,6 +59,36 @@ be attempted in each state.
 |CALLING CQ   |   1, 2
 |===========================================
 
+Decoding with _a priori_ information behaves slightly differently
+in JT65.  Some details are provided in Tables 3 and 4.
+
+[[JT65_AP_INFO_TABLE]]
+.JT65 AP information types
+[width="35%",cols="h10,<m20",frame=topbot,options="header"]
+|===============================================
+|aP | Message components
+|a1 | CQ   &#160; &#160;   ?   &#160; &#160;   ? 
+|a2 | MyCall &#160; &#160; ?   &#160; &#160;   ? 
+|a3 | MyCall DxCall &#160; &#160;  ? 
+|a4 | MyCall DxCall RRR
+|a5 | MyCall DxCall 73
+|a6 | MyCall DxCall DxGrid
+|a7 | CQ     DxCall DxGrid
+|===============================================
+
+[[JT65_AP_DECODING_TYPES_TABLE]]
+.JT65 AP decoding types for each QSO state
+[width="35%",cols="h10,<m20",frame=topbot,options="header"]
+|===========================================
+|State        |AP type
+|CALLING STN  |   2, 3, 6, 7
+|REPORT       |   2, 3
+|ROGER_REPORT |   3, 4, 5
+|ROGERS       |   3, 4, 5
+|SIGNOFF      |   2, 3, 4, 5
+|CALLING CQ   |   1, 2, 6
+|===========================================
+
 
 === Decoded Lines
 
@@ -103,3 +133,23 @@ End of line information::
  `R` - Return code from QRA64 decoder +
  `T` - Length of analyzed region (s)
 
+Table 6 below shows the meaning of the return codes R in QRA64 mode.
+
+[[QRA64_AP_INFO_TABLE]]
+.QRA64 AP return codes
+[width="35%",cols="h10,<m20",frame=topbot,options="header"]
+|===============================================
+|rc | Message components
+|0  | ?    &#160; &#160;   ?   &#160; &#160;   ?
+|1  | CQ   &#160; &#160;   ?   &#160; &#160;   ? 
+|2  | CQ   &#160; &#160;   ?   
+|3  | MyCall   &#160; &#160;   ?   &#160; &#160;   ? 
+|4  | MyCall   &#160; &#160;   ?  
+|5  | MyCall DxCall &#160; &#160;   ?
+|6  | ?    &#160; &#160;   DxCall   &#160; &#160;   ?
+|7  | ?    &#160; &#160;   DxCall   
+|8  | MyCall     DxCall DxGrid
+|9  | CQ     DxCall &#160; &#160;   ?
+|10 | CQ     DxCall 
+|11 | CQ     DxCall DxGrid
+|===============================================
