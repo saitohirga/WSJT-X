@@ -1065,6 +1065,9 @@ void MainWindow::writeSettings()
 //---------------------------------------------------------- readSettings()
 void MainWindow::readSettings()
 {
+  ui->cbVHFcontest->setVisible(false);
+  ui->cbAutoSeq->setVisible(false);
+  ui->cbFirst->setVisible(false);
   m_settings->beginGroup("MainWindow");
   restoreGeometry (m_settings->value ("geometry", saveGeometry ()).toByteArray ());
   m_geometryNoControls = m_settings->value ("geometryNoControls",saveGeometry()).toByteArray();
