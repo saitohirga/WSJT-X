@@ -130,12 +130,12 @@ elseif(ndeep.eq.4) then
    ntheta=12
    ntau=15
 elseif(ndeep.eq.5) then
-   nord=4
+   nord=3
    npre1=1
    npre2=1
-   nt=120
-   ntheta=20
-   ntau=15
+   nt=80
+   ntheta=40
+   ntau=16
 endif
 
 do iorder=1,nord
