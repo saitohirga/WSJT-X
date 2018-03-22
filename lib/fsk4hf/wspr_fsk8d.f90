@@ -167,7 +167,8 @@ program wspr_fsk8d
      max_iterations=40
      ifer=0
      call bpdecode300(llr,apmask,max_iterations,decoded,niterations,cw)
-     if(niterations.lt.0) call osd300(llr,4,decoded,niterations,cw)
+     if(niterations.lt.0) call osd300(llr,apmask,5,decoded,cw,nhardmin,dmin)
+     if(nhardmin.ge.0) niterations=nhardmin
      nbadcrc=0
      if(niterations.ge.0) call chkcrc10(decoded,nbadcrc)
      if(niterations.lt.0 .or. nbadcrc.ne.0) ifer=1
