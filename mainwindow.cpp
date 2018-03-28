@@ -5661,7 +5661,7 @@ void MainWindow::on_bandComboBox_activated (int index)
 
 void MainWindow::band_changed (Frequency f)
 {
-  bool monitor_off=!m_monitoring;
+//  bool monitor_off=!m_monitoring;
   // Set the attenuation value if options are checked
   QString curBand = ui->bandComboBox->currentText();
   if (m_config.pwrBandTxMemory() && !m_tune) {
@@ -5697,7 +5697,7 @@ void MainWindow::band_changed (Frequency f)
     if(r<0.9 or r>1.1) m_bVHFwarned=false;
     setRig (f);
     setXIT (ui->TxFreqSpinBox->value ());
-    if(monitor_off) monitor(false);
+//    if(monitor_off) monitor(false);
   }
 }
 
