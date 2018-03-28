@@ -3295,10 +3295,10 @@ void MainWindow::guiUpdate()
     if(m_ntx == 7) txMsg=ui->genMsg->text();
     if(m_ntx == 8) txMsg=ui->freeTextMsg->currentText();
     int msgLength=txMsg.trimmed().length();
-    if(msgLength==0) on_stopTxButton_clicked();
+    if(msgLength==0 and !m_tune) on_stopTxButton_clicked();
 
-    if(g_iptt==0 and ((m_bTxTime and fTR<0.75) or m_tune ) and
-       (msgLength>0)) {                          //### Allow late starts
+    if(g_iptt==0 and ((m_bTxTime and fTR<0.75 and msgLength>0) or m_tune)) {
+      //### Allow late starts
       icw[0]=m_ncw;
       g_iptt = 1;
       setRig ();
