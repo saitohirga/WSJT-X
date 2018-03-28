@@ -115,9 +115,10 @@ namespace
 
 ClientWidget::ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemModel * beacons_model
                             , QString const& id, QString const& version, QString const& revision
-                            , QWidget * parent)
+                            , QListWidget const * calls_of_interest, QWidget * parent)
   : QDockWidget {make_title (id, version, revision), parent}
   , id_ {id}
+  , calls_of_interest_ {calls_of_interest}
   , decodes_proxy_model_ {id_}
   , decodes_table_view_ {new QTableView}
   , beacons_table_view_ {new QTableView}
@@ -216,11 +217,27 @@ ClientWidget::ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemMod
   // setMinimumSize (QSize {550, 0});
   setFeatures (DockWidgetMovable | DockWidgetFloatable);
   setAllowedAreas (Qt::BottomDockWidgetArea);
+  setFloating (true);
 
   // connect up table view signals
   connect (decodes_table_view_, &QTableView::doubleClicked, this, [this] (QModelIndex const& index) {
       Q_EMIT do_reply (decodes_proxy_model_.mapToSource (index), QApplication::keyboardModifiers () >> 24);
     });
+
+  // tell new client about calls of interest
+  for (int row = 0; row < calls_of_interest_->count (); ++row)
+    {
+      Q_EMIT highlight_callsign (id_, calls_of_interest_->item (row)->text (), QColor {Qt::blue}, QColor {Qt::yellow});
+    }
+}
+
+ClientWidget::~ClientWidget ()
+{
+  for (int row = 0; row < calls_of_interest_->count (); ++row)
+    {
+      // tell client to forget calls of interest
+      Q_EMIT highlight_callsign (id_, calls_of_interest_->item (row)->text ());
+    }
 }
 
 void ClientWidget::update_status (QString const& id, Frequency f, QString const& mode, QString const& dx_call

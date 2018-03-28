@@ -36,6 +36,11 @@ MessageAggregatorMainWindow::MessageAggregatorMainWindow ()
   , server_ {new MessageServer {this}}
   , multicast_group_line_edit_ {new QLineEdit}
   , log_table_view_ {new QTableView}
+  , add_call_of_interest_action_ {new QAction {tr ("&Add callsign"), this}}
+  , delete_call_of_interest_action_ {new QAction {tr ("&Delete callsign"), this}}
+  , last_call_of_interest_action_ {new QAction {tr ("&Highlight last only"), this}}
+  , call_of_interest_bg_colour_action_ {new QAction {tr ("&Background colour"), this}}
+  , call_of_interest_fg_colour_action_ {new QAction {tr ("&Foreground colour"), this}}
 {
   // logbook
   int column {0};
@@ -82,6 +87,91 @@ MessageAggregatorMainWindow::MessageAggregatorMainWindow ()
   setCentralWidget (central_widget);
   setDockOptions (AnimatedDocks | AllowNestedDocks | AllowTabbedDocks);
   setTabPosition (Qt::BottomDockWidgetArea, QTabWidget::North);
+
+  QDockWidget * calls_dock {new QDockWidget {tr ("Calls of Interest"), this}};
+  calls_dock->setAllowedAreas (Qt::RightDockWidgetArea);
+  calls_of_interest_ = new QListWidget {calls_dock};
+  calls_of_interest_->setContextMenuPolicy (Qt::ActionsContextMenu);
+  calls_of_interest_->insertAction (nullptr, add_call_of_interest_action_);
+  connect (add_call_of_interest_action_, &QAction::triggered, [this] () {
+      auto item = new QListWidgetItem {};
+      item->setFlags (item->flags () | Qt::ItemIsEditable);
+      item->setData (Qt::UserRole, QString {});
+      calls_of_interest_->addItem (item);
+      calls_of_interest_->editItem (item);
+    });
+  calls_of_interest_->insertAction (nullptr, delete_call_of_interest_action_);
+  connect (delete_call_of_interest_action_, &QAction::triggered, [this] () {
+      for (auto item : calls_of_interest_->selectedItems ())
+        {
+          auto old_call = item->data (Qt::UserRole);
+          if (old_call.isValid ()) change_highlighting (old_call.toString ());
+          delete item;
+        }
+    });
+  calls_of_interest_->insertAction (nullptr, last_call_of_interest_action_);
+  connect (last_call_of_interest_action_, &QAction::triggered, [this] () {
+      for (auto item : calls_of_interest_->selectedItems ())
+        {
+          auto old_call = item->data (Qt::UserRole);
+          change_highlighting (old_call.toString ());
+          change_highlighting (old_call.toString ()
+                               , item->background ().color (), item->foreground ().color (), true);
+          delete item;
+        }
+    });
+  calls_of_interest_->insertAction (nullptr, call_of_interest_bg_colour_action_);
+  connect (call_of_interest_bg_colour_action_, &QAction::triggered, [this] () {
+      for (auto item : calls_of_interest_->selectedItems ())
+        {
+          auto old_call = item->data (Qt::UserRole);
+          auto new_colour = QColorDialog::getColor (item->background ().color ()
+                                                    , this, tr ("Select background color"));
+          if (new_colour.isValid ())
+            {
+              change_highlighting (old_call.toString (), new_colour, item->foreground ().color ());
+              item->setBackground (new_colour);
+            }
+        }
+    });
+  calls_of_interest_->insertAction (nullptr, call_of_interest_fg_colour_action_);
+  connect (call_of_interest_fg_colour_action_, &QAction::triggered, [this] () {
+      for (auto item : calls_of_interest_->selectedItems ())
+        {
+          auto old_call = item->data (Qt::UserRole);
+          auto new_colour = QColorDialog::getColor (item->foreground ().color ()
+                                                    , this, tr ("Select foreground color"));
+          if (new_colour.isValid ())
+            {
+              change_highlighting (old_call.toString (), item->background ().color (), new_colour);
+              item->setForeground (new_colour);
+            }
+        }
+    });
+  connect (calls_of_interest_, &QListWidget::itemChanged, [this] (QListWidgetItem * item) {
+      auto old_call = item->data (Qt::UserRole);
+      auto new_call = item->text ().toUpper ();
+      if (new_call != old_call)
+        {
+          // tell all clients
+          if (old_call.isValid ())
+            {
+              change_highlighting (old_call.toString ());
+            }
+          item->setData (Qt::UserRole, new_call);
+          item->setText (new_call);
+          auto bg = item->listWidget ()->palette ().text ().color ();
+          auto fg = item->listWidget ()->palette ().base ().color ();
+          item->setBackground (bg);
+          item->setForeground (fg);
+          change_highlighting (new_call, bg, fg);
+        }
+    });
+
+  calls_dock->setWidget (calls_of_interest_);
+  addDockWidget (Qt::RightDockWidgetArea, calls_dock);
+  view_menu_->addAction (calls_dock->toggleViewAction ());
+  view_menu_->addSeparator ();
 
   // connect up server
   connect (server_, &MessageServer::error, [this] (QString const& message) {
@@ -144,7 +234,7 @@ void MessageAggregatorMainWindow::log_qso (QString const& /*id*/, QDateTime time
 
 void MessageAggregatorMainWindow::add_client (QString const& id, QString const& version, QString const& revision)
 {
-  auto dock = new ClientWidget {decodes_model_, beacons_model_, id, version, revision, this};
+  auto dock = new ClientWidget {decodes_model_, beacons_model_, id, version, revision, calls_of_interest_, this};
   dock->setAttribute (Qt::WA_DeleteOnClose);
   auto view_action = dock->toggleViewAction ();
   view_action->setEnabled (true);
@@ -159,8 +249,9 @@ void MessageAggregatorMainWindow::add_client (QString const& id, QString const& 
   connect (dock, &ClientWidget::do_free_text, server_, &MessageServer::free_text);
   connect (dock, &ClientWidget::location, server_, &MessageServer::location);
   connect (view_action, &QAction::toggled, dock, &ClientWidget::setVisible);
+  connect (dock, &ClientWidget::highlight_callsign, server_, &MessageServer::highlight_callsign);
   dock_widgets_[id] = dock;
-  server_->replay (id);
+  server_->replay (id);         // request decodes and status
 }
 
 void MessageAggregatorMainWindow::remove_client (QString const& id)
@@ -170,6 +261,23 @@ void MessageAggregatorMainWindow::remove_client (QString const& id)
     {
       (*iter)->close ();
       dock_widgets_.erase (iter);
+    }
+}
+
+MessageAggregatorMainWindow::~MessageAggregatorMainWindow ()
+{
+  for (auto client : dock_widgets_)
+    {
+      delete client;
+    }
+}
+
+void MessageAggregatorMainWindow::change_highlighting (QString const& call, QColor const& bg, QColor const& fg
+                                                       , bool last_only)
+{
+  for (auto id : dock_widgets_.keys ())
+    {
+      server_->highlight_callsign (id, call, bg, fg, last_only);
     }
 }
 

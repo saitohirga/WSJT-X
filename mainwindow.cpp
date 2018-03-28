@@ -497,6 +497,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
       }
     });
 
+  connect (m_messageClient, &MessageClient::highlight_callsign, ui->decodedTextBrowser, &DisplayText::highlight_callsign);
+
   // Hook up WSPR band hopping
   connect (ui->band_hopping_schedule_push_button, &QPushButton::clicked
            , &m_WSPR_band_hopping, &WSPRBandHopping::show_dialog);

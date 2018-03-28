@@ -5,6 +5,7 @@
 #include <QTime>
 #include <QDateTime>
 #include <QHostAddress>
+#include <QColor>
 
 #include "udp_export.h"
 #include "Radio.hpp"
@@ -61,6 +62,12 @@ public:
 
   // ask the client with identification 'id' to set the location provided
   Q_SLOT void location (QString const& id, QString const& location);
+
+  // ask the client with identification 'id' to highlight the callsign
+  // specified with the given colors
+  Q_SLOT void highlight_callsign (QString const& id, QString const& callsign
+                                  , QColor const& bg = QColor {}, QColor const& fg = QColor {}
+                                  , bool last_only = false);
 
   // the following signals are emitted when a client broadcasts the
   // matching message

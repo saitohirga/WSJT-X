@@ -350,7 +350,7 @@
  *
  * Logged ADIF    Out      12                     quint32
  *                         Id (unique key)        utf8
- *                         ADIF text              ASCII (serialized like utf8)
+ *                         ADIF text              utf8
  *
  *      The  logged ADIF  message is  sent to  the server(s)  when the
  *      WSJT-X user accepts the "Log  QSO" dialog by clicking the "OK"
@@ -368,6 +368,27 @@
  *      Note that  receiving applications can treat  the whole message
  *      as a valid ADIF file with one record without special parsing.
  *
+ *
+ * Highlight Callsign In   13                     quint32
+ *                         Id (unique key)        utf8
+ *                         Callsign               utf8
+ *                         Background Color       QColor
+ *                         Foreground Color       QColor
+ *                         Highlight last         bool
+ *
+ *      The server  may send  this message at  any time.   The message
+ *      specifies  the background  and foreground  color that  will be
+ *      used  to  highlight  the  specified callsign  in  the  decoded
+ *      messages  printed  in  the  Band Activity  panel.  The  WSJT-X
+ *      clients maintain a list of such instructions and apply them to
+ *      all decoded  messages in the  band activity window.   To clear
+ *      highlighting send an  invalid QColor value for  either or both
+ *      of the background and foreground fields.
+ *
+ *      The "Highlight last"  field allows the sender  to request that
+ *      the  last  instance  only  instead of  all  instances  of  the
+ *      specified  call  be  highlighted  or  have  it's  highlighting
+ *      cleared.
  */
 
 #include <QDataStream>
@@ -396,6 +417,7 @@ namespace NetworkMessage
       WSPRDecode,
       Location,
       LoggedADIF,
+      HighlightCallsign,
       maximum_message_type_     // ONLY add new message types
                                 // immediately before here
     };

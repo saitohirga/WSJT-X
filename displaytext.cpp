@@ -72,7 +72,7 @@ void DisplayText::insertLineSpacer(QString const& line)
   appendText (line, "#d3d3d3");
 }
 
-void DisplayText::appendText(QString const& text, QColor bg)
+void DisplayText::appendText(QString const& text, QColor bg, QString const& call1, QString const& call2)
 {
   auto cursor = textCursor ();
   cursor.movePosition (QTextCursor::End);
@@ -89,7 +89,59 @@ void DisplayText::appendText(QString const& text, QColor bg)
     {
       cursor.insertBlock (block_format);
     }
-  cursor.insertText (text);
+
+  QTextCharFormat format = cursor.charFormat();
+  format.clearBackground();
+  int text_index {0};
+  if (call1.size ())
+    {
+      auto call_index = text.indexOf (call1);
+      if (call_index != -1) // sanity check
+        {
+          auto pos = highlighted_calls_.find (call1);
+          if (pos != highlighted_calls_.end ())
+            {
+              cursor.insertText(text.left (call_index), format);
+              if (pos.value ().first.isValid ())
+                {
+                  format.setBackground (pos.value ().first);
+                }
+              if (pos.value ().second.isValid ())
+                {
+                  format.setForeground (pos.value ().second);
+                }
+              cursor.insertText(text.mid (call_index, call1.size ()), format);
+              text_index = call_index + call1.size ();
+            }
+        }
+    }
+  if (call2.size ())
+    {
+      auto call_index = text.indexOf (call2, text_index);
+      if (call_index != -1) // sanity check
+        {
+          auto pos = highlighted_calls_.find (call2);
+          if (pos != highlighted_calls_.end ())
+            {
+              format.setBackground (bg);
+              format.clearForeground ();
+              cursor.insertText(text.mid (text_index, call_index - text_index), format);
+              if (pos.value ().second.isValid ())
+                {
+                  format.setBackground (pos.value ().first);
+                }
+              if (pos.value ().second.isValid ())
+                {
+                  format.setForeground (pos.value ().second);
+                }
+              cursor.insertText(text.mid (call_index, call2.size ()), format);
+              text_index = call_index + call2.size ();
+            }
+        }
+    }
+  format.setBackground (bg);
+  format.clearForeground ();
+  cursor.insertText(text.mid (text_index), format);
 
   // position so viewport scrolled to left
   cursor.movePosition (QTextCursor::StartOfLine);
@@ -210,13 +262,16 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
     bg = color_MyCall;
   }
   auto message = decodedText.string ();
+  QString dxCall;
+  QString dxGrid;
+  decodedText.deCallAndGrid (dxCall, dxGrid);
   message = message.left (message.indexOf (QChar::Nbsp)); // strip appended info
   if (displayDXCCEntity && CQcall)
     // if enabled add the DXCC entity and B4 status to the end of the
     // preformated text line t1
     message = appendDXCCWorkedB4 (message, decodedText.CQersCall (), &bg, logBook, color_CQ,
                                   color_DXCC, color_NewCall);
-  appendText (message.trimmed (), bg);
+  appendText (message.trimmed (), bg, decodedText.call (), dxCall);
 }
 
 
@@ -253,4 +308,97 @@ void DisplayText::displayQSY(QString text)
 void DisplayText::displayFoxToBeCalled(QString t, QColor bg)
 {
   appendText(t,bg);
+}
+
+namespace
+{
+  void update_selection (QTextCursor& cursor, QColor const& bg, QColor const& fg)
+  {
+    if (!cursor.isNull ())
+      {
+        QTextCharFormat format {cursor.charFormat ()};
+        if (bg.isValid ())
+          {
+            format.setBackground (bg);
+          }
+        else
+          {
+            format.clearBackground ();
+          }
+        if (fg.isValid ())
+          {
+            format.setForeground (fg);
+          }
+        else
+          {
+            format.clearForeground ();
+          }
+        cursor.mergeCharFormat (format);
+      }
+  }
+
+  void reset_selection (QTextCursor& cursor)
+  {
+    if (!cursor.isNull ())
+      {
+        // restore previous text format, we rely on the text
+        // char format at he start of the selection being the
+        // old one which should be the case
+        auto c2 = cursor;
+        c2.setPosition (c2.selectionStart ());
+        cursor.setCharFormat (c2.charFormat ());
+      }
+  }
+}
+
+void DisplayText::highlight_callsign (QString const& callsign, QColor const& bg, QColor const& fg, bool last_only)
+{
+  QTextCharFormat old_format {currentCharFormat ()};
+  QTextCursor cursor {document ()};
+  if (last_only)
+    {
+      cursor.movePosition (QTextCursor::End);
+      cursor = document ()->find (callsign, cursor
+                                  , QTextDocument::FindBackward | QTextDocument::FindWholeWords);
+      if (bg.isValid () || fg.isValid ())
+        {
+          update_selection (cursor, bg, fg);
+        }
+      else
+        {
+          reset_selection (cursor);
+        }
+    }
+  else
+    {
+      auto pos = highlighted_calls_.find (callsign);
+      if (bg.isValid () || fg.isValid ())
+        {
+          auto colours = qMakePair (bg, fg);
+          if (pos == highlighted_calls_.end ())
+            {
+              pos = highlighted_calls_.insert (callsign.toUpper (), colours);
+            }
+          else
+            {
+              pos.value () = colours; // update colours
+            }
+          while (!cursor.isNull ())
+            {
+              cursor = document ()->find (callsign, cursor, QTextDocument::FindWholeWords);
+              update_selection (cursor, bg, fg);
+            }
+        }
+      else if (pos != highlighted_calls_.end ())
+        {
+          highlighted_calls_.erase (pos);
+          QTextCursor cursor {document ()};
+          while (!cursor.isNull ())
+            {
+              cursor = document ()->find (callsign, cursor, QTextDocument::FindWholeWords);
+              reset_selection (cursor);
+            }
+        }
+    }
+  setCurrentCharFormat (old_format);
 }

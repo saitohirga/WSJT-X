@@ -15,6 +15,7 @@ class BeaconsModel;
 class QLineEdit;
 class QTableView;
 class ClientWidget;
+class QListWidget;
 
 using Frequency = MessageServer::Frequency;
 
@@ -25,6 +26,7 @@ class MessageAggregatorMainWindow
 
 public:
   MessageAggregatorMainWindow ();
+  ~MessageAggregatorMainWindow ();
 
   Q_SLOT void log_qso (QString const& /*id*/, QDateTime time_off, QString const& dx_call, QString const& dx_grid
                        , Frequency dial_frequency, QString const& mode, QString const& report_sent
@@ -35,6 +37,12 @@ public:
 private:
   void add_client (QString const& id, QString const& version, QString const& revision);
   void remove_client (QString const& id);
+  void change_highlighting (QString const& call, QColor const& bg = QColor {}, QColor const& fg = QColor {},
+                            bool last_only = false);
+
+  // maps client id to widgets
+  using ClientsDictionary = QHash<QString, ClientWidget *>;
+  ClientsDictionary dock_widgets_;
 
   QStandardItemModel * log_;
   QMenu * view_menu_;
@@ -43,10 +51,12 @@ private:
   MessageServer * server_;
   QLineEdit * multicast_group_line_edit_;
   QTableView * log_table_view_;
-
-  // maps client id to widgets
-  using ClientsDictionary = QHash<QString, ClientWidget *>;
-  ClientsDictionary dock_widgets_;
+  QListWidget * calls_of_interest_;
+  QAction * add_call_of_interest_action_;
+  QAction * delete_call_of_interest_action_;
+  QAction * last_call_of_interest_action_;
+  QAction * call_of_interest_bg_colour_action_;
+  QAction * call_of_interest_fg_colour_action_;
 };
 
 #endif

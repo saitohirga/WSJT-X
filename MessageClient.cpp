@@ -10,6 +10,7 @@
 #include <QQueue>
 #include <QByteArray>
 #include <QHostAddress>
+#include <QColor>
 
 #include "NetworkMessage.hpp"
 
@@ -215,6 +216,20 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
                 {
                     Q_EMIT self_->location (QString::fromUtf8 (location));
                 }
+              }
+              break;
+
+            case NetworkMessage::HighlightCallsign:
+              {
+                QByteArray call;
+                QColor bg;      // default invalid color
+                QColor fg;      // default invalid color
+                bool last_only {false};
+                in >> call >> bg >> fg >> last_only;
+                if (check_status (in) != Fail && call.size ())
+                  {
+                    Q_EMIT self_->highlight_callsign (QString::fromUtf8 (call), bg, fg, last_only);
+                  }
               }
               break;
 

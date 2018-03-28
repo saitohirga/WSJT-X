@@ -4,6 +4,9 @@
 
 #include <QTextEdit>
 #include <QFont>
+#include <QHash>
+#include <QPair>
+#include <QString>
 
 #include "logbook/logbook.h"
 #include "decodedtext.h"
@@ -30,8 +33,10 @@ public:
   Q_SIGNAL void selectCallsign (Qt::KeyboardModifiers);
   Q_SIGNAL void erased ();
 
-  Q_SLOT void appendText (QString const& text, QColor bg = Qt::white);
+  Q_SLOT void appendText (QString const& text, QColor bg = Qt::white
+                          , QString const& call1 = QString {}, QString const& call2 = QString {});
   Q_SLOT void erase ();
+  Q_SLOT void highlight_callsign (QString const& callsign, QColor const& bg, QColor const& fg, bool last_only);
 
 protected:
   void mouseDoubleClickEvent(QMouseEvent *e);
@@ -43,6 +48,7 @@ private:
 
   QFont char_font_;
   QAction * erase_action_;
+  QHash<QString, QPair<QColor, QColor>> highlighted_calls_;
 };
 
 #endif // DISPLAYTEXT_H

@@ -11,6 +11,7 @@
 
 class QAbstractItemModel;
 class QModelIndex;
+class QColor;
 
 using Frequency = MessageServer::Frequency;
 
@@ -22,7 +23,8 @@ class ClientWidget
 public:
   explicit ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemModel * beacons_model
                          , QString const& id, QString const& version, QString const& revision
-                         , QWidget * parent = nullptr);
+                         , QListWidget const * calls_of_interest, QWidget * parent = nullptr);
+  ~ClientWidget ();
 
   bool fast_mode () const {return fast_mode_;}
 
@@ -43,10 +45,14 @@ public:
   Q_SIGNAL void do_reply (QModelIndex const&, quint8 modifier);
   Q_SIGNAL void do_halt_tx (QString const& id, bool auto_only);
   Q_SIGNAL void do_free_text (QString const& id, QString const& text, bool);
-  Q_SIGNAL void location (QString const &id, QString const &text);
+  Q_SIGNAL void location (QString const& id, QString const& text);
+  Q_SIGNAL void highlight_callsign (QString const& id, QString const& call
+                                    , QColor const& bg = QColor {}, QColor const& fg = QColor {}
+                                    , bool last_only = false);
 
 private:
   QString id_;
+  QListWidget const * calls_of_interest_;
   class IdFilterModel final
     : public QSortFilterProxyModel
   {

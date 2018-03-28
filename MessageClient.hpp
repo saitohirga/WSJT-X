@@ -11,6 +11,7 @@
 
 class QByteArray;
 class QHostAddress;
+class QColor;
 
 //
 // MessageClient - Manage messages sent and replies received from a
@@ -94,6 +95,10 @@ public:
   // this signal is emitted if the server has requested a new free
   // message text
   Q_SIGNAL void free_text (QString const&, bool send);
+
+  // this signal is emitted if the server has sent a highlight
+  // callsign request for the specified call
+  Q_SIGNAL void highlight_callsign (QString const& callsign, QColor const& bg, QColor const& fg, bool last_only);
 
   // this signal is emitted when network errors occur or if a host
   // lookup fails

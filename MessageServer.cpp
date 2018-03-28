@@ -480,3 +480,16 @@ void MessageServer::location (QString const& id, QString const& loc)
     m_->send_message (out, message, iter.value ().sender_address_, (*iter).sender_port_);
   }
 }
+
+void MessageServer::highlight_callsign (QString const& id, QString const& callsign
+                                        , QColor const& bg, QColor const& fg, bool last_only)
+{
+  auto iter = m_->clients_.find (id);
+  if (iter != std::end (m_->clients_))
+  {
+    QByteArray message;
+    NetworkMessage::Builder out {&message, NetworkMessage::HighlightCallsign, id, (*iter).negotiated_schema_number_};
+    out << callsign.toUtf8 () << bg << fg << last_only;
+    m_->send_message (out, message, iter.value ().sender_address_, (*iter).sender_port_);
+  }
+}

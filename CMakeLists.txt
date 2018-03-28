@@ -1362,7 +1362,7 @@ set_target_properties (wsjtx_udp-static PROPERTIES
   )
 target_compile_definitions (wsjtx_udp-static PUBLIC UDP_STATIC_DEFINE)
 #qt5_use_modules (wsjtx_udp Network)
-qt5_use_modules (wsjtx_udp-static Network)
+qt5_use_modules (wsjtx_udp-static Network Gui)
 generate_export_header (wsjtx_udp-static BASE_NAME udp)
 
 add_executable (udp_daemon UDPExamples/UDPDaemon.cpp UDPExamples/udp_daemon.rc ${WSJTX_ICON_FILE})
