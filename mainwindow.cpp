@@ -3011,10 +3011,15 @@ void MainWindow::readFromStdout()                             //readFromStdout
            m_mode=="JT9") auto_sequence (decodedtext, 25, 50);
         postDecode (true, decodedtext.string ());
 
-        // find and extract any report for myCall
+// find and extract any report for myCall, but save in m_rptRcvd only if it's from DXcall
+        QString rpt;
         bool stdMsg = decodedtext.report(m_baseCall,
-            Radio::base_callsign(ui->dxCallEntry->text()), m_rptRcvd);
-        // extract details and send to PSKreporter
+            Radio::base_callsign(ui->dxCallEntry->text()), rpt);
+        QString deCall;
+        QString grid;
+        decodedtext.deCallAndGrid(/*out*/deCall,grid);
+        if(Radio::base_callsign(ui->dxCallEntry->text())==deCall) m_rptRcvd=rpt;
+// extract details and send to PSKreporter
         int nsec=QDateTime::currentMSecsSinceEpoch()/1000-m_secBandChanged;
         bool okToPost=(nsec>(4*m_TRperiod)/5);
         if (stdMsg && okToPost) pskPost(decodedtext);
