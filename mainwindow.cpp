@@ -3020,8 +3020,10 @@ void MainWindow::readFromStdout()                             //readFromStdout
         QString deCall;
         QString grid;
         decodedtext.deCallAndGrid(/*out*/deCall,grid);
-        if(Radio::base_callsign(ui->dxCallEntry->text())==deCall and
-           rpt!="") m_rptRcvd=rpt;
+        {
+          QString t=Radio::base_callsign(ui->dxCallEntry->text());
+          if((t==deCall or t=="") and rpt!="") m_rptRcvd=rpt;
+        }
 // extract details and send to PSKreporter
         int nsec=QDateTime::currentMSecsSinceEpoch()/1000-m_secBandChanged;
         bool okToPost=(nsec>(4*m_TRperiod)/5);
