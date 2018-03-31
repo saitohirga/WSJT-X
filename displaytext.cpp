@@ -17,6 +17,7 @@ DisplayText::DisplayText(QWidget *parent)
   , erase_action_ {new QAction {tr ("&Erase"), this}}
 {
   setReadOnly (true);
+  setUndoRedoEnabled (false);
   viewport ()->setCursor (Qt::ArrowCursor);
   setWordWrapMode (QTextOption::NoWrap);
 
