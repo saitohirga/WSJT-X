@@ -4,6 +4,7 @@
 
 #include <QString>
 #include <QByteArray>
+#include <QDebug>
 
 #include "pimpl_impl.hpp"
 
@@ -88,9 +89,13 @@ namespace NetworkMessage
       *parent >> type >> id_;
       if (type >= maximum_message_type_)
         {
-          throw std::runtime_error {"Unrecognized message type"};
+          qDebug () << "Unrecognized message type:" << type << "from id:" << id_;
+          type_ = maximum_message_type_;
         }
-      type_ = static_cast<Type> (type);
+      else
+        {
+          type_ = static_cast<Type> (type);
+        }
     }
 
     quint32 schema_;
