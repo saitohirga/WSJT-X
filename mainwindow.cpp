@@ -7206,10 +7206,10 @@ void MainWindow::on_cbMenus_toggled(bool b)
   hideMenus(!b);
 }
 
-void MainWindow::on_cbCQonly_toggled(bool b)
+void MainWindow::on_cbCQonly_toggled(bool)
 {
   QFile {m_config.temp_dir().absoluteFilePath(".lock")}.remove(); // Allow jt9 to start
-  decodeBusy(true or b);                            //"or b" to silence compiler warning
+  decodeBusy(true);
 }
 
 void MainWindow::on_cbFirst_toggled(bool b)
