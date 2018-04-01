@@ -20,7 +20,7 @@ void ADIF::init(QString const& filename)
 
 QString ADIF::extractField(QString const& record, QString const& fieldName) const
 {
-    int fieldNameIndex = record.indexOf (fieldName + ':', 0, Qt::CaseInsensitive);
+    int fieldNameIndex = record.indexOf ('<' + fieldName + ':', 0, Qt::CaseInsensitive);
     if (fieldNameIndex >=0)
     {
         int closingBracketIndex = record.indexOf('>',fieldNameIndex);
