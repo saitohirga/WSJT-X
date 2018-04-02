@@ -49,9 +49,9 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
   fsample=1378.125/4.
 
   call timer('afc65b  ',0)
-! Best fit for DF, drift, banana-coefficient, and dt. fsample = 344.53125 S/s
+! Best fit for DF, drift, and dt. fsample = 344.53125 S/s
   dtbest=dt
-  call afc65b(c5x,n6,fsample,nflip,a,ccfbest,dtbest)
+  call afc65b(c5x,n6,fsample,nflip,mode65,a,ccfbest,dtbest)
   call timer('afc65b  ',1)
   dtbest=dtbest+0.003628 !Remove decimation filter and coh. integrator delay
   dt=dtbest              !Return new, improved estimate of dt

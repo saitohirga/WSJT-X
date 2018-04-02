@@ -1,4 +1,4 @@
-subroutine afc65b(cx,npts,fsample,nflip,a,ccfbest,dtbest)
+subroutine afc65b(cx,npts,fsample,nflip,mode65,a,ccfbest,dtbest)
 
 ! Find delta f, f1, f2 ==> a(1:3)
 
@@ -9,15 +9,15 @@ subroutine afc65b(cx,npts,fsample,nflip,a,ccfbest,dtbest)
   a(2)=0.
   a(3)=0.
   a(4)=0.
-  deltaa(1)=2.0
-  deltaa(2)=2.0
+  deltaa(1)=2.0*mode65
+  deltaa(2)=2.0*mode65
   deltaa(3)=1.0
   nterms=2                                  !Maybe 2 is enough?
 
 !  Start the iteration
   chisqr=0.
   chisqr0=1.e6
-  do iter=1,3                               !One iteration is enough?
+  do iter=1,100                              !How many iters is enough?
      do j=1,nterms
         chisq1=fchisq65(cx,npts,fsample,nflip,a,ccfmax,dtmax)
         fn=0.
@@ -45,13 +45,16 @@ subroutine afc65b(cx,npts,fsample,nflip,a,ccfbest,dtbest)
         delta=delta*(1./(1.+(chisq1-chisq2)/(chisq3-chisq2))+0.5)
         a(j)=a(j)-delta
         deltaa(j)=deltaa(j)*fn/3.
+!        write(*,4000) iter,j,a(1:2),-chisq2
+!4000    format(2i2,4f9.4)
      enddo
      chisqr=fchisq65(cx,npts,fsample,nflip,a,ccfmax,dtmax)
-     if(chisqr/chisqr0.gt.0.9999) go to 30
+     fdiff=chisqr/chisqr0-1.0
+!     write(*,4000) 0,0,a(1:2),-chisqr,fdiff
+     if(abs(fdiff).lt.0.0001) exit
      chisqr0=chisqr
   enddo
-
-30 ccfbest=ccfmax * (1378.125/fsample)**2
+  ccfbest=ccfmax * (1378.125/fsample)**2
   dtbest=dtmax
 
   return
