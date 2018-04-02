@@ -6,23 +6,34 @@ subroutine afc65b(cx,npts,fsample,nflip,mode65,a,ccfbest,dtbest)
   real a(5),deltaa(5)
 
   a=0.
+  i2=8*mode65
+  i1=-i2
+  j2=8*mode65
+  j1=-j2
   ccfmax=0.
-  istep=mode65
-  do i=-30,30,istep
-     a(1)=i
-     do j=-30,30,istep
-        a(2)=j
-        chisq=fchisq65(cx,npts,fsample,nflip,a,ccf,dtmax)
-        if(ccf.gt.ccfmax) then
-           a1=a(1)
-           a2=a(2)
-           ccfmax=ccf
-        endif
-!        write(81,3081) i,j,ccf,dtmax
-!3081    format(2i5,2f10.3)
+  istep=2*mode65
+  do iter=1,2
+     do i=i1,i2,istep
+        a(1)=i
+        do j=j1,j2,istep
+           a(2)=j
+           chisq=fchisq65(cx,npts,fsample,nflip,a,ccf,dtmax)
+           if(ccf.gt.ccfmax) then
+              a1=a(1)
+              a2=a(2)
+              ccfmax=ccf
+           endif
+!           write(81,3081) istep,i1,i2,j1,j2,i,j,ccf,ccfmax,dtmax,a1,a2
+!3081       format(7i4,5f8.2)
+        enddo
      enddo
+     i1=a1-istep
+     i2=a1+istep
+     j1=a2-istep
+     j2=a2+istep
+     istep=1
   enddo
-
+  
 !  a(1)=0.
 !  a(2)=0.
   a(1)=a1
