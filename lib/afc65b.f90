@@ -5,8 +5,28 @@ subroutine afc65b(cx,npts,fsample,nflip,mode65,a,ccfbest,dtbest)
   complex cx(npts)
   real a(5),deltaa(5)
 
-  a(1)=0.
-  a(2)=0.
+  a=0.
+  ccfmax=0.
+  istep=mode65
+  do i=-30,30,istep
+     a(1)=i
+     do j=-30,30,istep
+        a(2)=j
+        chisq=fchisq65(cx,npts,fsample,nflip,a,ccf,dtmax)
+        if(ccf.gt.ccfmax) then
+           a1=a(1)
+           a2=a(2)
+           ccfmax=ccf
+        endif
+!        write(81,3081) i,j,ccf,dtmax
+!3081    format(2i5,2f10.3)
+     enddo
+  enddo
+
+!  a(1)=0.
+!  a(2)=0.
+  a(1)=a1
+  a(2)=a2
   a(3)=0.
   a(4)=0.
   deltaa(1)=2.0*mode65
