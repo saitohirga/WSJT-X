@@ -6291,9 +6291,9 @@ void MainWindow::on_outAttenuation_valueChanged (int a)
   QString tt_str;
   qreal dBAttn {a / 10.};       // slider interpreted as dB / 100
   if (m_tune && m_config.pwrBandTuneMemory()) {
-    tt_str = tr ("Tune digital gain");
+    tt_str = tr ("Tune digital gain ");
   } else {
-    tt_str = tr ("Transmit digital gain");
+    tt_str = tr ("Transmit digital gain ");
   }
   tt_str += (a ? QString::number (-dBAttn, 'f', 1) : "0") + "dB";
   if (!m_block_pwr_tooltip) {
