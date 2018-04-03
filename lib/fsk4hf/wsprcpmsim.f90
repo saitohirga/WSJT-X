@@ -42,7 +42,6 @@ program wsprcpmsim
   fs=12000.0/NDOWN                       !
   dt=1.0/fs                              !Sample interval (s)
   tt=NSPS*dt                             !Duration of "itone" symbols (s)
-  ts=2*NSPS*dt                           !Duration of OQPSK symbols (s)
   baud=1.0/tt                            !Keying rate for "itone" symbols (baud)
   txt=NZ*dt                              !Transmission length (s)
   bandwidth_ratio=2500.0/(fs/2.0)
@@ -55,25 +54,11 @@ program wsprcpmsim
 1000 format('f0:',f9.3,'   DT:',f6.2,'   txt:',f6.1,'   SNR:',f6.1,    &
           '   fspread:',f6.1,'   delay:',f6.1,'  nfiles:',i3,2x,a22)
 
-  h1=0.80
-  h2=0.80
-  dphi11=twopi*(f0+(h1/2.0)*baud)*dt
-  dphi01=twopi*(f0-(h1/2.0)*baud)*dt
-  dphi12=twopi*(f0+(h2/2.0)*baud)*dt
-  dphi02=twopi*(f0-(h2/2.0)*baud)*dt
-  phi=0.0
+  h=1.00
   c0=0.
   k=-1 + nint(xdt/dt)
   do j=1,NN  
-     if( mod(j,2) .eq. 0 ) then
-       dphi1=dphi11
-       dphi0=dphi01
-     else
-       dphi1=dphi12
-       dphi0=dphi02
-     endif
-     dp=dphi1
-     if(itone(j).eq.-1) dp=dphi0
+     dp=twopi*(f0+itone(j)*(h/2.0)*baud)*dt
      do i=1,NSPS
         k=k+1
         phi=mod(phi+dp,twopi)
@@ -109,7 +94,7 @@ program wsprcpmsim
 !write(57,*) i,real(c(i)),imag(c(i))
 !enddo
      else
-        call wsprcpm_wav(baud,xdt,h1,h2,f0,itone,snrdb,iwave)
+        call wsprcpm_wav(baud,xdt,h,f0,itone,snrdb,iwave)
         hwav=default_header(12000,NMAX)
         write(fname,1102) ifile
 1102    format('000000_',i4.4,'.wav')

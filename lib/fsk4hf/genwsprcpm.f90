@@ -15,20 +15,23 @@ subroutine genwsprcpm(msg,msgsent,itone)
   integer icw(ND)
   integer id(NS+ND)
   integer jd(NS+ND)
-  integer ipreamble(32)                      !Long sync vector
-  integer isync(32)                          !Long sync vector
+  integer ipreamble(16)                      !Freq estimation preamble
+  integer isync(200)                          !Long sync vector
   integer itone(NN)
-  integer*8 n8
-  data ipreamble/1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1/
+  data ipreamble/1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1/
   data first/.true./
   data iuniqueword0/z'30C9E8AD'/
   save first,isync,ipreamble
 
   if(first) then
     write(sbits,'(b32.32)') iuniqueword0
-    read(sbits,'(32i1)') isync
-    ipreamble=2*ipreamble-1
-    isync=2*isync-1
+    read(sbits,'(32i1)') isync(1:32)
+    read(sbits,'(32i1)') isync(33:64)
+    read(sbits,'(32i1)') isync(65:96)
+    read(sbits,'(32i1)') isync(97:128)
+    read(sbits,'(32i1)') isync(129:160)
+    read(sbits,'(32i1)') isync(161:192)
+    read(sbits,'(8i1)') isync(193:200)
     first=.false.
   endif
 
@@ -52,17 +55,16 @@ write(*,'(a6,b16.16)') 'icrc: ',icrc
 write(*,'(50i1,1x,14i1,1x,4i1)') msgbits
 
   call encode204(msgbits,codeword)      !Encode the test message
-  icw=2*codeword - 1                    !NRZ codeword
 
 ! Message structure:
-! s32 d200 p32  
-  itone(1:32)=isync
-  itone(33:232)=icw
-  itone(233:264)=ipreamble
-
-!  do i=1,264
-!    write(*,*) i,itone(i)
-!  enddo
+! d100 p16 d100 
+  itone(1:100)=isync(1:100)+2*codeword(1:100)
+  itone(101:116)=ipreamble+1
+  itone(117:216)=isync(101:200)+2*codeword(101:200)
+  itone=2*itone-3
+  do i=1,216
+    write(*,*) i,itone(i)
+  enddo
 
   return
 end subroutine genwsprcpm

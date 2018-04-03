@@ -4,136 +4,89 @@ program wsprcpmd
 
 ! WSPRCPM is a WSPR-like mode based on full-response CPM. 
 !
-! Modulation Capabilities include:
-!   support for multi-h cpm with two modulation indexes: [h1,h2]. 
-!   h1,h2 (modulation index) are variable; h1=h2=0.5 is MSK, h1=h2=1.0 is standard
-!     fsk intended for noncoherent demodulation. 
-!   demodulator uses noncoherent sequence detection with variable window size.
-!     symbol demodulation is done symbol-by-symbol - each symbol is 
-!     estimated using a data frame comprising N symbol intervals, where N can 
-!     be 1, 3, 5, 7, 9, 11. The central symbol is estimated and then the window
-!     is stepped forward by one symbol. 
-!   soft symbols are decoded by log-domain belief propagation followed by ordered-
-!     statistics decoding. 
-!
 ! Currently configured to use (204,68) r=1/3 LDPC code, regular column weight 3.
 !   50 data bits + 14 bit CRC + 4 "0" bits. The 4 "0" bits are unused bits that 
 !   are not transmitted. At the decoder, these bits are treated as "AP" bits. 
 !   This shortens the code to (200,64) r=0.32, slightly decreasing the code rate.
 ! 
 ! Frame format is:
-! s32 d200 p32 (264)  channel symbols
+! d100 p32 d100 (232)  channel symbols
 !
   use crc
   include 'wsprcpm_params.f90'
   parameter(NMAX=120*12000)
   character arg*8,message*22,cbits*50,infile*80,fname*16,datetime*11
+  character*22 decodes(100)
   character*120 data_dir
   character*32 uwbits
   character*68 dmsg
-  complex csync(0:32*100-1)                 !Sync symbols only, from cbb
-  complex cpreamble(0:32*100-1)             !Sync symbols only, from cbb
-  complex cp2(0:32*100-1)
-  complex ctwks(0:32*100-1)
-  complex ctwkp(0:32*100-1)
-  complex c2(0:120*12000/53-1)              !Complex waveform
-  complex ctmp(0:4*32*100-1)
-  complex cframe(0:264*100-1)               !Complex waveform
-  complex cd(0:264*100-1)                   !Complex waveform
-  complex c1(0:9,1:2),c0(0:9,1:2)
-  complex ccor(0:1,264)
-  complex csum,cp(0:1,1:2),cterm
-  complex ccohs(0:31)
-  complex ccohp(0:31)
+  complex c2(0:120*12000/32-1)              !Complex waveform
+  complex cframe(0:216*200-1)               !Complex waveform
+  complex cd(0:216*10-1)                   !Complex waveform
+  complex c1(0:9,0:1),c0(0:9,0:1)
+  complex ccor(0:1,216)
+  complex csum,cterm  
   real*8 fMHz
   real rxdata(ND),llr(204)               !Soft symbols
-  real sbits(264),sbits1(264),sbits3(264)
+  real sbits(216),sbits1(216),sbits3(216)
   real ps(0:8191),psbest(0:8191)
+  real candidates(100,2)
   integer iuniqueword0
-  integer isync(32)                     !Unique word
-  integer ipreamble(32)                 !Preamble vector
+  integer isync(200)                     !Unique word
+  integer isync2(216)
+  integer ipreamble(16)                 !Preamble vector
   integer ihdr(11)
   integer*2 iwave(NMAX)                 !Generated full-length waveform  
   integer*1,target ::  idat(9)
   integer*1 decoded(68),apmask(204),cw(204)
-  integer*1 hbits(264),hbits1(264),hbits3(264)
-  data ipreamble/1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1/
+  integer*1 hbits(216),hbits1(216),hbits3(216)
+  data ipreamble/1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1/
   data iuniqueword0/z'30C9E8AD'/
 
   write(uwbits,'(b32.32)') iuniqueword0
-  read(uwbits,'(32i1)') isync
-  ipreamble=2*ipreamble-1
-  isync=2*isync-1
-
+  read(uwbits,'(32i1)') isync(1:32)
+  read(uwbits,'(32i1)') isync(33:64)
+  read(uwbits,'(32i1)') isync(65:96)
+  read(uwbits,'(32i1)') isync(97:128)
+  read(uwbits,'(32i1)') isync(129:160)
+  read(uwbits,'(32i1)') isync(161:192)
+  read(uwbits,'(8i1)') isync(193:200)
+  
   fs=12000.0/NDOWN                       !Sample rate
   dt=1.0/fs                              !Sample interval (s)
   tt=NSPS*dt                             !Duration of "itone" symbols (s)
   baud=1.0/tt                            !Keying rate for "itone" symbols (baud)
   txt=NZ*dt                              !Transmission length (s)
-  h1=0.80                                !h=0.8 seems to be optimum for AWGN sensitivity (not for fading)
-  h2=0.80
+  h=1.00                                !h=0.8 seems to be optimum for AWGN sensitivity (not for fading)
   twopi=8.0*atan(1.0)
-  dphi11=twopi*baud*(h1/2.0)*dt
-  dphi01=-twopi*baud*(h1/2.0)*dt
-  dphi12=twopi*baud*(h2/2.0)*dt
-  dphi02=-twopi*baud*(h2/2.0)*dt
-  k=0
-  phi=0.0
-  do i=1,32
-    if( mod(i,2) .eq. 0 ) then
-      dphi1=dphi11
-      dphi0=dphi01
-    else
-      dphi1=dphi12
-      dphi0=dphi02
-    endif
-    dphi=dphi0
-    if( isync(i) .eq. 1 ) dphi=dphi1
-    do j=1,100 
-      phi=mod(phi+dphi,twopi)
-      csync(k)=cmplx(cos(phi),sin(phi))
-      k=k+1
-    enddo
-  enddo
 
-  k=0
-  phi=0.0
-  do i=1,32
-    if( mod(i,2) .eq. 0 ) then
-      dphi1=dphi11
-      dphi0=dphi01
-    else
-      dphi1=dphi12
-      dphi0=dphi02
-    endif
-    dphi=dphi0
-    if( ipreamble(i) .eq. 1 ) dphi=dphi1
-    do j=1,100 
-      phi=mod(phi+dphi,twopi)
-      cpreamble(k)=cmplx(cos(phi),sin(phi))
-      k=k+1
-    enddo
-  enddo
+  isync2(1:100)=isync(1:100)
+  isync2(101:104)=0  ! This is *not* backwards.
+  isync2(105:112)=1
+  isync2(113:116)=0
+  isync2(117:216)=isync(101:200)
 
-  dphi1=twopi*baud*(h1/2.0)*dt*10  ! dt*10 is samp interval after downsample
-  dphi2=twopi*baud*(h2/2.0)*dt*10  ! dt*10 is samp interval after downsample
-  cp(1,1)=cmplx(cos(dphi1*10),sin(dphi1*10))
-  cp(0,1)=conjg(cp(1,1))
-  cp(1,2)=cmplx(cos(dphi2*10),sin(dphi2*10))
-  cp(0,2)=conjg(cp(1,2))
-  do j=1,2
-    if( j.eq.1 ) then
-      dphi=dphi1
+! data sync tone
+!   0    0   0
+!   0    1   1
+!   1    0   2
+!   1    1   3
+  dphi=twopi*baud*(h/2.0)*dt*20  ! dt*10 is samp interval after downsample
+  do j=0,1
+    if(j.eq.0) then
+       dphi0=-3*dphi
+       dphi1=+1*dphi
     else
-      dphi=dphi2
+       dphi0=-1*dphi
+       dphi1=+3*dphi
     endif
     phi0=0.0
     phi1=0.0
     do i=0,9
       c1(i,j)=cmplx(cos(phi1),sin(phi1))
       c0(i,j)=cmplx(cos(phi0),sin(phi0))
-      phi1=mod(phi1+dphi,twopi)
-      phi0=mod(phi0-dphi,twopi)
+      phi1=mod(phi1+dphi1,twopi)
+      phi0=mod(phi0+dphi0,twopi)
     enddo
   enddo
 
@@ -156,14 +109,14 @@ program wsprcpmd
      iarg=iarg+2
   endif
   ncoh=1
-  npdi=32
+  npdi=16
   if(arg(1:2).eq.'-c') then
      call getarg(iarg+1,arg)
      read(arg,*) ncoh
      iarg=iarg+2
-     npdi=32/ncoh
+     npdi=16/ncoh
   endif
-  write(*,*) 'ncoh: ',ncoh,' npdi: ',npdi
+!  write(*,*) 'ncoh: ',ncoh,' npdi: ',npdi
   
   open(13,file=trim(data_dir)//'/ALL_WSPR.TXT',status='unknown',   &
        position='append')
@@ -197,123 +150,43 @@ program wsprcpmd
 
     fa=-100.0
     fb=100.0
-    fs=12000.0/53.0
-    npts=120*12000/53
-    nsync=32
-
-    call getcandidate2(c2,npts,fs,fa,fb,fc1,xsnr)         !First approx for freq
-
-    fcest=fc1
-do iii=1,2
-    izero=226
-    dphi=twopi*fcest*dt
-    ctwks=cmplx(0.0,0.0)
-    ctwkp=cmplx(0.0,0.0)
-    phi=0
-    do i=0,nsync*NSPS-1
-      phi=mod(phi+dphi,twopi)
-      ctwks(i)=csync(i)*cmplx(cos(phi),sin(phi))
-      ctwkp(i)=cpreamble(i)*cmplx(cos(phi),sin(phi))
-    enddo
-    imax=100
-    xcmax=-1e32
-    do it = -imax,imax
-      its=izero+it
-      ccohs=0.0
-      do k=0,npdi-1  
-        is=k*ncoh*nsps
-        ccohs(k)=sum(c2(its+is:its+is+ncoh*nsps-1)*conjg(ctwks(is:is+ncoh*nsps-1)))
-        ccohs(k)=ccohs(k)/(ncoh*nsps)
-      enddo
-!      term1=sum(abs(ccohs(0:npdi-1))**2)
-
-      itp=izero+it+232*100
-      ccohp=0.0
-      do k=0,npdi-1  
-        is=k*ncoh*nsps
-        ccohp(k)=sum(c2(itp+is:itp+is+ncoh*nsps-1)*conjg(ctwkp(is:is+ncoh*nsps-1)))
-        ccohp(k)=ccohp(k)/(ncoh*nsps)
-      enddo
-
-      csum=0.0
-      terms=0.0
-      do n=1,npdi-1
-         do k=n,npdi-1
-            csum=csum+ccohs(k)*conjg(ccohs(k-n)) 
-         enddo
-         terms=terms+abs(csum)
-      enddo
-      csum=0.0
-      termp=0.0
-      do n=1,npdi-1
-         do k=n,npdi-1
-            csum=csum+ccohp(k)*conjg(ccohp(k-n)) 
-         enddo
-         termp=termp+abs(csum)
-      enddo
-!write(23,*) it,terms,termp
-      xmetric=sqrt(terms*termp)
-
-      if( xmetric .gt. xcmax ) then
-        xcmax=xmetric
-        ibestt=it
+    fs=12000.0/32.0
+    npts=120*12000.0/32.0
+    nsync=16
+    call getcandidate2(c2,npts,fs,fa,fb,ncand,candidates)         !First approx for freq
+ndecodes=0
+do icand=1,ncand
+    fc0=candidates(icand,1)
+    xsnr=candidates(icand,2)
+    xmax=-1e32
+    do i=-5,5
+      ft=fc0+i*0.2
+      call noncoherent_frame_sync(c2,ft,isync2,is,xf1)
+      if(xf1.gt.xmax) then
+        xmax=xf1
+        fc1=ft
+        is0=is
       endif
     enddo
+    call coherent_preamble_fsync(c2,ipreamble,nsync,NSPS,is0,fc1,fcest,xp1)
+    call noncoherent_frame_sync(c2,fcest,isync2,istart,xf2)
+    write(*,'(i5,i5,i5,4(f11.5,2x))') ifile,iii,istart,fc0,fc1,fcest
 
-    istart=izero+ibestt
-if(iii .eq. 2) goto 887
-
-    ctmp=0.0
-    ctmp(0:32*100-1)=c2(istart+232*100:istart+264*100-1)*conjg(ctwkp)
-    call four2a(ctmp,4*32*100,1,-1,1)             !c2c FFT to freq domain
-    xmax=0.0
-    ctmp=cshift(ctmp,-200)
-    do i=150,250
-      xa=abs(ctmp(i))
-      if(xa.gt.xmax) then
-        ishift=i
-        xmax=xa
-      endif
-    enddo
-    dfp=1/(4*5300.0/12000.0*32)
-    delta=(ishift-200)*dfp
-! need to add bounds protection
-    xm1=abs(ctmp(ishift-1))
-    x0=abs(ctmp(ishift))
-    xp1=abs(ctmp(ishift+1))
-    xint=(log(xm1)-log(xp1))/(log(xm1)+log(xp1)-2*log(x0))
-    delta2=delta+xint*dfp/2.0
-    fcest=fcest+delta2
-enddo
-
-887    write(*,'(i4,i5,5(2x,f9.5))') ifile,istart,xcmax,fc1,fcest
-    xdt=(istart-226)/100.0
-    if(abs(xdt).le.0.1) ngood=ngood+1
-    xs1=xs1+xdt
-    xs2=xs2+xdt**2
-    fr1=fr1+fc1
-    fr2=fr2+fc1**2
-    nav=nav+1
-!**************
-!    fcest=0.0
-!    istart=226
-
-do ijitter=0,2
-    io=ijitter
-    if(ijitter.eq.2) io=-1
-    cframe=c2(istart+io:istart+io+264*100-1) 
+do ijitter=0,4
+    io=-10*(ijitter/2+1)
+    if(mod(ijitter,2).eq.0) io=10*(ijitter/2)
+    ib=max(0,istart+io)
+    cframe=c2(ib:ib+216*200-1) 
     call downsample2(cframe,fcest,cd)
 
-    dts=10*dt
-    s2=sum(cd*conjg(cd))/(10*264)
+    s2=sum(cd*conjg(cd))/(10*216)
     cd=cd/sqrt(s2)
 
     do nseq=1,7
       if( nseq.eq.1 ) then  ! noncoherent single-symbol detection
         sbits1=0.0
-        do ibit=1,264
-          if( mod(ibit,2).eq.0 ) j=1
-          if( mod(ibit,2).eq.1 ) j=2
+        do ibit=1,216
+          j=isync2(ibit)
           ib=(ibit-1)*10
           ccor(1,ibit)=sum(cd(ib:ib+9)*conjg(c1(0:9,j)))        
           ccor(0,ibit)=sum(cd(ib:ib+9)*conjg(c0(0:9,j)))   
@@ -334,19 +207,17 @@ do ijitter=0,2
         if( nseq.eq. 6 ) nbit=11
         if( nseq.eq. 7 ) nbit=13
         numseq=2**(nbit)
-        do ibit=nbit/2+1,264-nbit/2
+        do ibit=nbit/2+1,216-nbit/2
           ps=0.0
           pmax=0.0
           do iseq=0,numseq-1
             csum=0.0
-            cterm=cmplx(1.0,0.0)
+            cterm=1.0
             k=1
             do i=nbit-1,0,-1
               ibb=iand(iseq/(2**i),1) 
               csum=csum+ccor(ibb,ibit-(nbit/2+1)+k)*cterm
-              if( mod(ibit-(nbit/2+1)+k,2) .eq. 0 ) j=1
-              if( mod(ibit-(nbit/2+1)+k,2) .eq. 1 ) j=2
-              cterm=cterm*conjg(cp(ibb,j))
+              cterm=-cterm
               k=k+1
             enddo
             ps(iseq)=abs(csum) 
@@ -366,7 +237,8 @@ do ijitter=0,2
         sbits=sbits3
         hbits=hbits3
       endif
-      rxdata(1:200)=sbits(33:232)
+      rxdata(1:100)=sbits(1:100)
+      rxdata(101:200)=sbits(117:216);
       rxav=sum(rxdata(1:200))/200.0
       rx2av=sum(rxdata(1:200)*rxdata(1:200))/200.0
       rxsig=sqrt(rx2av-rxav*rxav)
@@ -401,6 +273,13 @@ do ijitter=0,2
 1202    format(8b8,b4)
         idat(7)=ishft(idat(7),6)
         call wqdecode(idat,message,itype)
+        idupe=0
+        do i=1,ndecodes
+          if(decodes(i).eq.message) idupe=1 
+        enddo
+        if(idupe.eq.1) goto 888
+        ndecodes=ndecodes+1 
+        decodes(ndecodes)=message
         nsnr=nint(xsnr)
         freq=fMHz + 1.d-6*(fc1+fbest)
         nfdot=0
@@ -413,22 +292,137 @@ do ijitter=0,2
     enddo ! nseq
 enddo !jitter
 888 continue
+enddo !candidate list
   enddo !files
-
-  avshift=xs1/nav
-  varshift=xs2/nav
-  stdshift=sqrt(varshift-avshift**2)
-  avfr=fr1/nav
-  varfr=fr2/nav
-  stdfr=sqrt(varfr-avfr**2)
-  write(*,*) 'ngood: ',ngood
-  write(*,'(a7,f7.3,f7.3)') 'shift: ',avshift,stdshift
-  write(*,*) 'freq:  ',avfr,stdfr
 
   write(*,1120)
 1120 format("<DecodeFinished>")
 
 999 end program wsprcpmd
+
+
+subroutine coherent_preamble_fsync(c2,ipreamble,nsync,nsps,istart,fc0,fc1,xmax)
+    complex c2(0:120*12000/32-1)
+    complex cpreamble(0:16*200-1)     
+    complex ctmp1(0:4*16*200-1)
+    complex ctwkp(0:16*200-1) 
+    complex ccohp(0:15)    
+    integer ipreamble(nsync)
+    logical first/.true./
+    save dt,first,h,twopi,cpreamble
+ 
+    if(first) then
+       baud=12000.0/6400.0
+       dt=32.0/12000.0
+       h=1.00    
+       twopi=8.0*atan(1.0)
+       k=0
+       phi=0.0
+       dphi=twopi*baud*0.5*h*dt
+       do i=1,16
+          dp=dphi
+          if(ipreamble(i).eq.0) dp=-dphi      
+          do j=1,200 
+             cpreamble(k)=cmplx(cos(phi),sin(phi))
+             phi=mod(phi+dp,twopi)
+             k=k+1
+          enddo
+       enddo
+       first=.false.
+    endif 
+    
+    dphi=twopi*fc0*dt
+    ctwkp=cmplx(0.0,0.0)
+    phi=0
+    do i=0,nsync*nsps-1
+      ctwkp(i)=cpreamble(i)*cmplx(cos(phi),sin(phi))
+      phi=mod(phi+dphi,twopi)
+    enddo
+    ipstart=istart+100*200
+    ctmp1=0.0
+    ctmp1(0:16*200-1)=c2(ipstart:ipstart+16*200-1)*conjg(ctwkp)
+    call four2a(ctmp1,4*16*200,1,-1,1)             !c2c FFT to freq domain
+    xmax=0.0
+    ctmp1=cshift(ctmp1,-200)
+    dfp=1/(4*6400.0/12000.0*16)
+    do i=150,250
+      xa=abs(ctmp1(i))
+      if(xa.gt.xmax) then
+        ishift=i
+        xmax=xa
+      endif
+    enddo
+    delta=(ishift-200)*dfp
+    xm1=abs(ctmp1(ishift-1))
+    x0=abs(ctmp1(ishift))
+    xp1=abs(ctmp1(ishift+1))
+    xint=(log(xm1)-log(xp1))/(log(xm1)+log(xp1)-2*log(x0))
+    delta2=delta+xint*dfp/2.0
+    fc1=fc0+delta2
+    return
+end subroutine coherent_preamble_fsync
+
+
+subroutine noncoherent_frame_sync(c2,fc,isync2,istart,ssmax)
+   complex c2(0:120*12000/32-1)
+   complex ct0(0:199),ct1(0:199),ct2(0:199),ct3(0:199)
+   integer isync2(216)
+ 
+   twopi=8.0*atan(1.0)
+   h=1.0
+   dt=32.0/12000.0
+   baud=12000.0/6400.0
+   imax=370  ! defines dt search range (375 samples/s)
+   ssmax=-1e32
+   izero=375
+   do it = -imax,imax,10
+! noncoherent wspr-type dt estimation
+      dp0=twopi*(fc-1.5*h*baud)*dt
+      dp1=twopi*(fc-0.5*h*baud)*dt
+      dp2=twopi*(fc+0.5*h*baud)*dt
+      dp3=twopi*(fc+1.5*h*baud)*dt
+      th0=0.0
+      th1=0.0
+      th2=0.0
+      th3=0.0 
+      do i=0,199
+        ct0(i)=cmplx(cos(th0),sin(th0))
+        ct1(i)=cmplx(cos(th1),sin(th1))
+        ct2(i)=cmplx(cos(th2),sin(th2))
+        ct3(i)=cmplx(cos(th3),sin(th3))
+        th0=mod(th0+dp0,twopi)
+        th1=mod(th1+dp1,twopi)
+        th2=mod(th2+dp2,twopi)
+        th3=mod(th3+dp3,twopi)
+      enddo
+      ss=0.0
+      totp=0.0
+      do is=1,216
+        i0=izero+it+(is-1)*200
+        p0=abs(sum(c2(i0:i0+199)*conjg(ct0))) 
+        p1=abs(sum(c2(i0:i0+199)*conjg(ct1))) 
+        p2=abs(sum(c2(i0:i0+199)*conjg(ct2))) 
+        p3=abs(sum(c2(i0:i0+199)*conjg(ct3))) 
+        p0=sqrt(p0)
+        p1=sqrt(p1)
+        p2=sqrt(p2)
+        p3=sqrt(p3)
+
+        totp=totp+p0+p1+p2+p3
+!        cmet=(p1+p3)-(p0+p2)
+        cmet=max(p1,p3)-max(p0,p2)  ! This works better near threshold SNR
+        if(isync2(is).eq.0) ss=ss-cmet 
+        if(isync2(is).eq.1) ss=ss+cmet 
+      enddo
+      ss=ss/totp
+      if(ss.gt.ssmax) then
+        ioffset=it
+        ssmax=ss
+      endif
+   enddo
+   istart=izero+ioffset
+   return
+end subroutine noncoherent_frame_sync
 
 subroutine getmetric2(ib,ps,ns,xmet)
   real ps(0:ns-1)
@@ -443,10 +437,10 @@ subroutine getmetric2(ib,ps,ns,xmet)
 end subroutine getmetric2
 
 subroutine downsample2(ci,f0,co)
-  parameter(NI=264*100,NH=NI/2,NO=NI/10)  ! downsample from 100 samples per symbol to 10
+  parameter(NI=216*200,NH=NI/2,NO=NI/20)  ! downsample from 200 samples per symbol to 10
   complex ci(0:NI-1),ct(0:NI-1) 
   complex co(0:NO-1)
-  fs=12000.0/53.0
+  fs=12000.0/32.0
   df=fs/NI
   ct=ci
   call four2a(ct,NI,1,-1,1)             !c2c FFT to freq domain
@@ -454,14 +448,10 @@ subroutine downsample2(ci,f0,co)
   ct=cshift(ct,i0)
   co=0.0
   co(0)=ct(0)
-!  b=3.4*0.875/0.715
-!  b=2.6*0.5625/0.715
-  b=12.0
+  b=8.0
   do i=1,NO/2
      arg=(i*df/b)**2
      filt=exp(-arg)
-!     filt=0.0
-!     if( i*df .le. b ) filt=1.0
      co(i)=ct(i)*filt
      co(NO-i)=ct(NI-i)*filt
   enddo
@@ -470,72 +460,62 @@ subroutine downsample2(ci,f0,co)
   return
 end subroutine downsample2
 
-subroutine getcandidate2(c,npts,fs,fa,fb,fc1,xsnr)
-  parameter(NDAT=100,NFFT1=8*NDAT,NH1=NFFT1/2)
+subroutine getcandidate2(c,npts,fs,fa,fb,ncand,candidates)
+  parameter(NDAT=200,NFFT1=120*12000/32,NH1=NFFT1/2,NFFT2=120*12000/320,NH2=NFFT2/2)
   complex c(0:npts-1)                   !Complex waveform
+  complex cc(0:NFFT1-1)
+  complex csfil(0:NFFT2-1)
+  complex cwork(0:NFFT2-1)
+  real bigspec(0:NFFT2-1)
   complex c2(0:NFFT1-1)                 !Short spectra
   real s(-NH1+1:NH1)                    !Coarse spectrum
   real ss(-NH1+1:NH1)                   !Smoothed coarse spectrum
-  real w(0:NFFT1-1)
-  real pi
+  real candidates(100,2)
+  integer indx(NFFT2-1)
   logical first
   data first/.true./
-  save first,w
+  save first,w,df,csfil
 
   if(first) then
-    pi=4.0*atan(1.0)
-    do i=0,NFFT1-1
-      w(i)=sin(pi*i/(NDAT-1))**2
+    df=10*fs/NFFT1
+    csfil=cmplx(0.0,0.0)
+    do i=0,NFFT2-1
+       csfil(i)=exp(-((i-NH2)/20.0)**2)
     enddo
+    csfil=cshift(csfil,NH2)
+    call four2a(csfil,NFFT2,1,-1,1)
     first=.false.
   endif
 
-  nspec=int((npts-NFFT1)/NDAT)+1
-  df1=fs/NFFT1
-  s=0.
-  do k=1,nspec
-     ia=(k-1)*NDAT
-     ib=ia+NFFT1-1
-     c2(0:NFFT1-1)=c(ia:ib)*w
-     call four2a(c2,NFFT1,1,-1,1)
-     do i=0,NFFT1-1
-        j=i
-        if(j.gt.NH1) j=j-NFFT1
-        s(j)=s(j) + real(c2(i))**2 + aimag(c2(i))**2
-     enddo
-  enddo
-  do i=-NH1+1+4,NH1-4
-    ss(i)=sum(s(i-4:i+4))/9.0
-  enddo
-!  do i=-NH1+1+8,NH1-8
-!    ss(i)=sum(ss(i-4:i+4))/9.0
-!  enddo
-do i=-20,20
-write(52,*) i*df1,ss(i)
-enddo
-    
-  smax=0.
-  ipk=0
-  fc1=0.
-  ia=nint(fa/df1)
-  ib=nint(fb/df1)
-  do i=ia,ib
-     f=i*df1
-     if(ss(i).gt.smax) then
-        smax=ss(i)
-        ipk=i
-        fc1=f
-     endif
-  enddo
+  cc=cmplx(0.0,0.0)
+  cc(0:npts-1)=c;
+  call four2a(cc,NFFT1,1,-1,1)
+  cc=abs(cc)**2
+  call four2a(cc,NFFT1,1,-1,1)
+  cwork(0:NH2)=cc(0:NH2)*conjg(csfil(0:NH2))
+  cwork(NH2+1:NFFT2-1)=cc(NFFT1-NH2+1:NFFT1-1)*conjg(csfil(NH2+1:NFFT2-1))
 
-  xint=(log(ss(ipk-1))-log(ss(ipk+1)))/(log(ss(ipk-1))+log(ss(ipk+1))-2*log(ss(ipk)))
-  fc1=fc1+xint*df1/2.0
-! The following is for testing SNR calibration:
-  sp3n=sum(s(ipk-5:ipk+5))          
-  base=(sum(s)-sp3n)/(NFFT1-11.0)
-  psig=sp3n-11*base              
-  pnoise=(2500.0/df1)*base
-  xsnr=db(psig/pnoise)
+  call four2a(cwork,NFFT2,1,+1,1)
+  bigspec=cshift(real(cwork),-NH2)
+  il=NH2+fa/df
+  ih=NH2+fb/df 
+  nnl=ih-il+1
+  call indexx(bigspec(il:il+nnl-1),nnl,indx)
+  xn=bigspec(il-1+indx(nint(0.3*nnl)))
+  bigspec=bigspec/xn
+  ncand=0
+  do i=il,ih
+    if((bigspec(i).gt.bigspec(i-1)).and. &
+       (bigspec(i).gt.bigspec(i+1)).and. &
+       (bigspec(i).gt.1.15).and.ncand.lt.100) then 
+         ncand=ncand+1
+         candidates(ncand,1)=df*(i-NH2)
+         candidates(ncand,2)=10*log10(bigspec(i))-30.0
+    endif
+  enddo
+!  do i=1,ncand
+!    write(*,*) i,candidates(i,1),candidates(i,2)
+!  enddo 
   return
 end subroutine getcandidate2
 
@@ -545,9 +525,9 @@ subroutine wsprcpm_downsample(iwave,c)
 ! Output: Complex data in c(), sampled at 400 Hz
 
   include 'wsprcpm_params.f90'
-  parameter (NMAX=120*12000,NFFT2=NMAX/53)
+  parameter (NMAX=120*12000,NFFT2=NMAX/32)
   integer*2 iwave(NMAX)
-  complex c(0:NZ-1)
+  complex c(0:NMAX/32-1)
   complex c1(0:NFFT2-1)
   complex cx(0:NMAX/2)
   real x(NMAX)
@@ -564,8 +544,7 @@ subroutine wsprcpm_downsample(iwave,c)
   enddo
   c1=c1/NFFT2
   call four2a(c1,NFFT2,1,1,1)            !c2c FFT back to time domain
-  c=c1(0:NZ-1)
-  
+  c=c1(0:NMAX/32-1)
   return
 end subroutine wsprcpm_downsample
 

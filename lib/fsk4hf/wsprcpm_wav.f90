@@ -1,4 +1,4 @@
-subroutine wsprcpm_wav(baud,xdt,h1,h2,f0,itone,snrdb,iwave)
+subroutine wsprcpm_wav(baud,xdt,h,f0,itone,snrdb,iwave)
 
 ! Generate iwave() from itone().
   
@@ -23,23 +23,10 @@ subroutine wsprcpm_wav(baud,xdt,h1,h2,f0,itone,snrdb,iwave)
      sig=1.0
   endif
 
-  dphi01=twopi*(f0-(h1/2.0d0)*baud)*dt
-  dphi11=twopi*(f0+(h1/2.0d0)*baud)*dt
-  dphi02=twopi*(f0-(h2/2.0d0)*baud)*dt
-  dphi12=twopi*(f0+(h2/2.0d0)*baud)*dt
   phi=0.d0
   k=nint(xdt/dt)
   do j=1,NN
-     if( mod(j,2).eq.0 ) then
-       dphi0=dphi01
-       dphi1=dphi11
-     else
-       dphi0=dphi02
-       dphi1=dphi12
-     endif
-     dphi=dphi0
-     if(itone(j).eq.1) dphi=dphi1
-     if(k.eq.0) phi=-dphi
+     dphi=twopi*(f0+itone(j)*(h/2.0d0)*baud)*dt
      do i=1,NSPS0
         k=k+1
         phi=phi+dphi
