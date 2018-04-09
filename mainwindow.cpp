@@ -7425,7 +7425,7 @@ void MainWindow::selectHound(QString line)
   ui->decodedTextBrowser->setText(m_houndCallers);   // Populate left window with Hound callers
   QString t1=houndCall + "    ";
   QString t2=rpt;
-  if(rpt.mid(0,1) != "-") t2="+" + rpt;
+  if(rpt.mid(0,1) != "-" and rpt.mid(0,1) != "+") t2="+" + rpt;
   if(t2.length()==2) t2=t2.mid(0,1) + "0" + t2.mid(1,1);
   t1=t1.mid(0,7) + t2;
   ui->textBrowser4->displayFoxToBeCalled(t1,"#ffffff");  // Add hound call and rpt to tb4
@@ -7739,6 +7739,7 @@ void MainWindow::writeFoxQSO(QString msg)
   }
 }
 
+/*################################################################################### */
 void MainWindow::foxTest()
 {
   QFile f("steps.txt");
@@ -7746,25 +7747,56 @@ void MainWindow::foxTest()
 
   QTextStream s(&f);
   QString line;
+  QString t;
+  QString msg;
+  QString hc1;
+  QString rptRcvd;
+  qint32 n=0;
+  qint32 nlogged=0;
+
   while(!s.atEnd()) {
     line=s.readLine();
-    selectHound(line);
-    if(line.length()==0) break;
-  }
-  while(!s.atEnd()) {
-    line=s.readLine();
-    if(line.length()==0) {
-      foxTxSequencer();
-      continue;
+    if(line.contains("NSlots")) {
+      n=line.mid(44,1).toInt();
+      ui->sbNslots->setValue(n);
     }
-    QString msg=line.mid(24);
-    QString hc1=line.mid(29);
-    int i0=hc1.indexOf(" ");
-    hc1=hc1.mid(0,i0);
-    i0=qMax(line.indexOf("R+"),line.indexOf("R-"));
-    if(i0>20) {
-      QString rptRcvd=line.mid(i0,4);
+    if(line.contains("Sel:")) {
+      t=line.mid(43,6) + "       " + line.mid(54,4) + "   " + line.mid(50,3);
+      selectHound(t);
+    }
+
+    if(line.contains("Del:")) {
+      int i0=line.indexOf("Del:");
+      hc1=line.mid(i0+6);
+      int i1=hc1.indexOf(" ");
+      hc1=hc1.mid(0,i1);
+      rm_tb4(hc1);
+      writeFoxQSO(" Del:  " + hc1);
+      QQueue<QString> tmpQueue;
+      while(!m_houndQueue.isEmpty()) {
+        t=m_houndQueue.dequeue();
+        QString hc=t.mid(0,6).trimmed();
+        if(hc != hc1) tmpQueue.enqueue(t);
+      }
+      m_houndQueue.swap(tmpQueue);
+    }
+
+    if(line.contains("Tx1:")) foxTxSequencer();
+    if(line.contains("Rx:"))  {
+      msg=line.mid(43);
+      t=msg.mid(24);
+      int i0=t.indexOf(" ");
+      hc1=t.mid(i0+1);
+      int i1=hc1.indexOf(" ");
+      hc1=hc1.mid(0,i1);
+      int i2=qMax(msg.indexOf("R+"),msg.indexOf("R-"));
+      if(i2>20) rptRcvd=msg.mid(i2+1,4);
       foxRxSequencer(msg,hc1,rptRcvd);
     }
+    if(line.contains("Log:"))  {
+      nlogged++;
+    }
+//    qDebug() << nlogged << line.mid(27);
+//    if(nlogged>=3) return;
   }
 }
