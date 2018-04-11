@@ -588,9 +588,9 @@ private:
   QMap<QString,FoxQSO> m_foxQSO;
   QMap<QString,QString> m_loggedByFox;
 
-  QQueue<QString> m_houndQueue;
-  QQueue<QString> m_foxQSOqueue;
-  QQueue<QString> m_foxRR73Queue;
+  QQueue<QString> m_houndQueue;     //Selected Hounds available for starting a QSO
+  QQueue<QString> m_foxQSOinProgress;    //QSOs in progress: Fox has sent a report
+  QQueue<QString> m_foxRR73Queue;   //Hounds from whom Fox has received R+rpt
   QQueue<qint64>  m_foxRateQueue;
 
   QDateTime m_dateTimeQSOOn;

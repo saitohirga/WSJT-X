@@ -7289,7 +7289,7 @@ void MainWindow::on_pbFoxReset_clicked()
 {
   ui->textBrowser4->setText("");
   m_houndQueue.clear();
-  m_foxQSOqueue.clear();                     //It this a bad idea ???
+  m_foxQSOinProgress.clear();                     //It this a bad idea ???
   writeFoxQSO(" Reset");
 }
 
@@ -7510,11 +7510,9 @@ void MainWindow::foxRxSequencer(QString msg, QString houndCall, QString rptRcvd)
  * If houndCall matches a callsign in one of our active QSO slots, we
  * prepare to send "houndCall RR73" to that caller.
 */
-//  qDebug() << "foxRxSeq1" << houndCall << rptRcvd << m_foxQSO.contains(houndCall);
   if(m_foxQSO.contains(houndCall)) {
-    if(m_foxQSO[houndCall].ncall < qMax(4,m_Nslots+1)) {  //### Not sure about "<=" ###
-      m_foxQSO[houndCall].rcvd=rptRcvd.mid(1);    //Save Fox's report for the log
-//      qDebug() << "foxRxSeq2" << houndCall << rptRcvd << m_foxQSO[houndCall].ncall;
+    if(m_foxQSO[houndCall].ncall < qMax(4,m_Nslots+1)) {  //### ??? ###
+      m_foxQSO[houndCall].rcvd=rptRcvd.mid(1);    //Save rptRcvd for the log
       m_foxRR73Queue.enqueue(houndCall);          //Request RR73 to be sent to Hound
       writeFoxQSO(" Rx:   " + msg.trimmed());
     }
@@ -7541,19 +7539,19 @@ void MainWindow::foxTxSequencer()
   while(!m_foxRR73Queue.isEmpty()) {
     hc1=m_foxRR73Queue.dequeue();           //First priority is to send RR73 messages
     sentTo << hc1;
-    m_foxQSO[hc1].ncall++;                  //Number of times called
+    m_foxQSO[hc1].ncall++;                  //Number of times this Hound has been called
     if(m_houndQueue.isEmpty()) {
       fm = hc1 + " " + m_baseCall + " RR73";  //Send a standard FT8 message
     } else {
-      if(m_foxQSOqueue.count() >= m_maxQSOs) break;  //### Limit QSOs in progress
+      if(m_foxQSOinProgress.count() >= m_maxQSOs) break;  //### Limit QSOs in progress
       t=m_houndQueue.dequeue();             //Fetch new hound from queue
       hc2=t.mid(0,6).trimmed();             //hound call
       sentTo << hc2;
-      m_foxQSOqueue.enqueue(hc2);           //Put him in the QSO queue
+      m_foxQSOinProgress.enqueue(hc2);           //Put him in the QSO queue
       m_foxQSO[hc2].grid=t.mid(11,4);       //hound grid
       rpt=t.mid(7,3);
       m_foxQSO[hc2].sent=rpt;               //Report to send him
-      m_foxQSO[hc2].ncall=1;                //number of calls
+      m_foxQSO[hc2].ncall=1;                //Start a new Hound
       rm_tb4(hc2);                          //Remove this hound from tb4
       fm = hc1 + " RR73; " + hc2 + " <" + m_config.my_callsign() + "> " + rpt;  //Tx msg
     }
@@ -7574,7 +7572,7 @@ void MainWindow::foxTxSequencer()
 
     m_foxRateQueue.enqueue(now);             //Add present time in seconds to Rate queue.
     m_loggedByFox[hc1] += (m_lastBand + " ");
-    if(m_foxQSOqueue.contains(hc1)) m_foxQSOqueue.removeOne(hc1);
+    if(m_foxQSOinProgress.contains(hc1)) m_foxQSOinProgress.removeOne(hc1);
 
     islot++;
     foxGenWaveform(islot-1,fm);             //Generate tx waveform
@@ -7595,15 +7593,15 @@ void MainWindow::foxTxSequencer()
   }
 
 //One or more Tx slots are still available, repeat call to a Hound in the QSOqueue
-  while (!m_foxQSOqueue.isEmpty()) {
+  while (!m_foxQSOinProgress.isEmpty()) {
     //should limit repeat transmissions here ?
-    hc1=m_foxQSOqueue.dequeue();             //Recover hound callsign from QSO queue
-    m_foxQSOqueue.enqueue(hc1);              //Put him back in, at the end
+    hc1=m_foxQSOinProgress.dequeue();             //Recover hound callsign from QSO queue
+    m_foxQSOinProgress.enqueue(hc1);              //Put him back in, at the end
     if(islot>0 and sentTo.contains(hc1)) {
       break;
     }
     sentTo << hc1;
-    m_foxQSO[hc1].ncall++;                   //Number of times called
+    m_foxQSO[hc1].ncall++;                   //Number of times this Hound called
     fm = hc1 + " " + m_baseCall + " " + m_foxQSO[hc1].sent;  //Tx msg
     if(islot>0 and fm==m_fm0) break;         //Suppress duplicate Fox signals
     islot++;
@@ -7613,10 +7611,10 @@ void MainWindow::foxTxSequencer()
   }
 
 //One or more Tx slots are still available
-  while (!m_houndQueue.isEmpty() and m_foxQSOqueue.count() < m_Nslots) {
+  while (!m_houndQueue.isEmpty() and m_foxQSOinProgress.count() < m_Nslots) {
     t=m_houndQueue.dequeue();             //Fetch new hound from queue
     hc1=t.mid(0,6).trimmed();             //hound call
-    m_foxQSOqueue.enqueue(hc1);           //Put him in the QSO queue
+    m_foxQSOinProgress.enqueue(hc1);           //Put him in the QSO queue
     m_foxQSO[hc1].grid=t.mid(11,4);       //hound grid
     rpt=t.mid(7,3);
     m_foxQSO[hc1].sent=rpt;               //Report to send him
@@ -7648,11 +7646,11 @@ Transmit:
   foxgen_();
   m_nFoxTxSinceCQ++;
 
-  for(auto a: m_foxQSO.keys()) {
+  for(auto a: m_foxQSO.keys()) {                  //Weed out Hounds called too many times
     int ncalls=m_foxQSO[a].ncall;
     if(ncalls >= qMax(4,m_Nslots+1)) {            //### Not sure about ">=" ###
       m_foxQSO.remove(a);
-      m_foxQSOqueue.removeOne(a);
+      m_foxQSOinProgress.removeOne(a);
       if(m_foxRR73Queue.contains(a)) m_foxRR73Queue.removeOne(a);
     }
   }
@@ -7663,7 +7661,7 @@ Transmit:
   }
   if(m_msgAvgWidget != NULL and m_msgAvgWidget->isVisible()) {
     m_msgAvgWidget->foxLabRate(m_foxRateQueue.size());
-    m_msgAvgWidget->foxLabQueued(m_foxQSOqueue.count());
+    m_msgAvgWidget->foxLabQueued(m_foxQSOinProgress.count());
   }
 }
 
@@ -7726,7 +7724,7 @@ void MainWindow::foxGenWaveform(int i,QString fm)
 void MainWindow::writeFoxQSO(QString msg)
 {
   QString t;
-  t.sprintf("%3d%3d%3d",m_houndQueue.count(),m_foxQSOqueue.count(),m_foxRR73Queue.count());
+  t.sprintf("%3d%3d%3d",m_houndQueue.count(),m_foxQSOinProgress.count(),m_foxRR73Queue.count());
   QFile f {m_config.writeable_data_dir ().absoluteFilePath ("FoxQSO.txt")};
   if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
     QTextStream out(&f);
@@ -7793,7 +7791,7 @@ void MainWindow::foxTest()
       foxRxSequencer(msg,hc1,rptRcvd);
     }
     if(line.contains("Tx1:")) foxTxSequencer();
-    qDebug() << "aa" << m_maxQSOs << m_houndQueue.count() <<m_foxQSOqueue.count()
+    qDebug() << "aa" << m_maxQSOs << m_houndQueue.count() <<m_foxQSOinProgress.count()
              << m_foxRR73Queue.count() << line.mid(37).trimmed();
   }
 }
