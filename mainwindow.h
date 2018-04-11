@@ -433,6 +433,7 @@ private:
   qint32  m_tAutoOn;
   qint32  m_nFoxTxSinceCQ=0;
   qint32  m_maxQSOs;
+  qint32  m_nFoxTx=0;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
@@ -577,20 +578,22 @@ private:
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;
 
-  struct FoxQSO
+  struct FoxQSO       //Everything we need to know about QSOs in progress (or recently logged).
   {
-    QString grid;
-    QString sent;
-    QString rcvd;
-    qint32  ncall;
+    QString grid;     //Hound's declared locator
+    QString sent;     //Report sent to Hound
+    QString rcvd;     //Report received from Hound
+    qint32  ncall;    //Number of times a report was sent to Hound
+    qint32  nRR73;    //Number of times
+    qint32  nT0;      //m_nFoxTx (Fox Tx cycle counter) when R+rpt was received from Hound
   };
 
-  QMap<QString,FoxQSO> m_foxQSO;
-  QMap<QString,QString> m_loggedByFox;
+  QMap<QString,FoxQSO> m_foxQSO;       //Key = HoundCall, value = parameters for QSO in progress
+  QMap<QString,QString> m_loggedByFox; //Key = HoundCall, value = logged band
 
-  QQueue<QString> m_houndQueue;     //Selected Hounds available for starting a QSO
-  QQueue<QString> m_foxQSOinProgress;    //QSOs in progress: Fox has sent a report
-  QQueue<QString> m_foxRR73Queue;   //Hounds from whom Fox has received R+rpt
+  QQueue<QString> m_houndQueue;        //Selected Hounds available for starting a QSO
+  QQueue<QString> m_foxQSOinProgress;  //QSOs in progress: Fox has sent a report
+  QQueue<QString> m_foxRR73Queue;      //Hounds from whom Fox has received R+rpt
   QQueue<qint64>  m_foxRateQueue;
 
   QDateTime m_dateTimeQSOOn;
