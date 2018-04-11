@@ -7744,7 +7744,11 @@ void MainWindow::foxTest()
   QFile f("steps.txt");
   if(!f.open(QIODevice::ReadOnly | QIODevice::Text)) return;
 
+  QFile fdiag("diag.txt");
+  if(!fdiag.open(QIODevice::WriteOnly | QIODevice::Text)) return;
+
   QTextStream s(&f);
+  QTextStream sdiag(&fdiag);
   QString line;
   QString t;
   QString msg;
@@ -7791,7 +7795,12 @@ void MainWindow::foxTest()
       foxRxSequencer(msg,hc1,rptRcvd);
     }
     if(line.contains("Tx1:")) foxTxSequencer();
+
     qDebug() << "aa" << m_maxQSOs << m_houndQueue.count() <<m_foxQSOinProgress.count()
              << m_foxRR73Queue.count() << line.mid(37).trimmed();
+    t.sprintf("%3d %3d %3d %3d %3d %3d    ",m_maxQSOs,m_houndQueue.count(),
+              m_foxQSOinProgress.count(),m_foxRR73Queue.count(),m_foxQSO.count(),
+              m_loggedByFox.count());
+    sdiag << t << line.mid(37).trimmed() << "\n";
   }
 }
