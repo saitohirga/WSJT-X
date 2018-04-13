@@ -431,9 +431,13 @@ private:
   qint32  m_Nslots=5;
   qint32  m_nFoxMsgTimes[5]={0,0,0,0,0};
   qint32  m_tAutoOn;
-  qint32  m_nFoxTxSinceCQ=0;
-  qint32  m_maxQSOs;
-  qint32  m_nFoxTx=0;
+//  qint32  m_maxQSOs;
+  qint32  m_tFoxTx=0;
+  qint32  m_maxStrikes=3;      //Max # of repeats: 3 strikes and you're out
+  qint32  m_maxFoxWait=3;      //Max wait time for expected Hound replies
+  qint32  m_foxCQtime=10;      //CQs at least every 5 minutes
+  qint32  m_tFoxTxSinceCQ=999; //Fox Tx cycles since most recent CQ
+
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
@@ -580,12 +584,13 @@ private:
 
   struct FoxQSO       //Everything we need to know about QSOs in progress (or recently logged).
   {
-    QString grid;     //Hound's declared locator
-    QString sent;     //Report sent to Hound
-    QString rcvd;     //Report received from Hound
-    qint32  ncall;    //Number of times a report was sent to Hound
-    qint32  nRR73;    //Number of times
-    qint32  nT0;      //m_nFoxTx (Fox Tx cycle counter) when R+rpt was received from Hound
+    QString grid;       //Hound's declared locator
+    QString sent;       //Report sent to Hound
+    QString rcvd;       //Report received from Hound
+    qint32  ncall;      //Number of times report sent to Hound
+    qint32  nRR73;      //Number of times RR73 sent to Hound
+    qint32  tFoxRrpt;   //m_tFoxTx (Fox Tx cycle counter) when R+rpt was received from Hound
+    qint32  tFoxTxRR73; //m_tFoxTx when RR73 was sent to Hound
   };
 
   QMap<QString,FoxQSO> m_foxQSO;       //Key = HoundCall, value = parameters for QSO in progress
@@ -593,7 +598,6 @@ private:
 
   QQueue<QString> m_houndQueue;        //Selected Hounds available for starting a QSO
   QQueue<QString> m_foxQSOinProgress;  //QSOs in progress: Fox has sent a report
-  QQueue<QString> m_foxRR73Queue;      //Hounds from whom Fox has received R+rpt
   QQueue<qint64>  m_foxRateQueue;
 
   QDateTime m_dateTimeQSOOn;

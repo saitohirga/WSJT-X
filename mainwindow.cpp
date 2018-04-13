@@ -903,11 +903,10 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (&splashTimer, &QTimer::timeout, this, &MainWindow::splash_done);
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
-/*
+
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
-     m_config.my_callsign()=="G4WJS" || m_config.my_callsign () == "W9XYZ" or
-     m_config.my_callsign()=="K1ABC" or m_config.my_callsign()=="K1ABC/2" or
-     m_config.my_callsign()=="KH1/KH7Z") {
+     m_config.my_callsign()=="G4WJS" or
+     m_config.my_callsign().contains("KH7Z")) {
     ui->actionWSPR_LF->setEnabled(true);
   } else {
     QString errorMsg;
@@ -917,7 +916,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
        "Please use WSJT-X v1.8.0\n", errorMsg);
     Q_EMIT finished ();
   }
-*/
 
   if(QCoreApplication::applicationVersion().contains("-devel") or
      QCoreApplication::applicationVersion().contains("-rc")) {
@@ -7511,13 +7509,9 @@ void MainWindow::foxRxSequencer(QString msg, QString houndCall, QString rptRcvd)
  * prepare to send "houndCall RR73" to that caller.
 */
   if(m_foxQSO.contains(houndCall)) {
-    if(m_foxQSO[houndCall].ncall < qMax(4,m_Nslots+1)) {  //### ??? ###
-      m_foxQSO[houndCall].rcvd=rptRcvd.mid(1);      //Save rptRcvd for the log
-      if(!m_foxRR73Queue.contains(houndCall)) {     //Already in RR73Queue?
-        m_foxRR73Queue.enqueue(houndCall);          //Request RR73 to be sent to Hound
-      }
-      writeFoxQSO(" Rx:   " + msg.trimmed());
-    }
+    m_foxQSO[houndCall].rcvd=rptRcvd.mid(1);  //Save report Rcvd, for the log
+    m_foxQSO[houndCall].tFoxRrpt=m_tFoxTx;    //Save time R+rpt was received
+    writeFoxQSO(" Rx:   " + msg.trimmed());
   }
 }
 
@@ -7531,107 +7525,148 @@ void MainWindow::foxTxSequencer()
 */
 
   qint64 now=QDateTime::currentMSecsSinceEpoch()/1000;
+  QStringList list1;                        //Up to NSlots Hound calls to be sent RR73
+  QStringList list2;                        //Up to NSlots Hound calls to be sent a report
   QString fm;                               //Fox message to be transmitted
-  QString hc1,hc2;                          //Hound calls
+  QString hc,hc1,hc2;                       //Hound calls
   QString t,rpt;
-  QStringList sentTo;
+  qint32  islot=0;
+  qint32  nWaiting=0;
+  qint32  n2max;
+  qint32  n1,n2,n3;
 
-  m_nFoxTx++;
-  m_maxQSOs=m_Nslots + m_foxRR73Queue.count();
+  m_tFoxTx++;                               //Increment Fox Tx cycle counter
 
-  int islot=0;
-  while(!m_foxRR73Queue.isEmpty()) {
-    hc1=m_foxRR73Queue.dequeue();           //First priority is to send RR73 messages
-    sentTo << hc1;
-    m_foxQSO[hc1].ncall++;                  //Number of times this Hound has been called
-    if(m_houndQueue.isEmpty()) {
-      fm = hc1 + " " + m_baseCall + " RR73";  //Send a standard FT8 message
-    } else {
-      if(m_foxQSOinProgress.count() >= m_maxQSOs) break;  //### Limit QSOs in progress
-      t=m_houndQueue.dequeue();             //Fetch new hound from queue
-      hc2=t.mid(0,6).trimmed();             //hound call
-      sentTo << hc2;
-      m_foxQSOinProgress.enqueue(hc2);           //Put him in the QSO queue
-      m_foxQSO[hc2].grid=t.mid(11,4);       //hound grid
-      rpt=t.mid(7,3);
-      m_foxQSO[hc2].sent=rpt;               //Report to send him
-      m_foxQSO[hc2].ncall=1;                //Start a new Hound
-      rm_tb4(hc2);                          //Remove this hound from tb4
-      fm = hc1 + " RR73; " + hc2 + " <" + m_config.my_callsign() + "> " + rpt;  //Tx msg
-    }
-
-// Log this QSO!
-    m_hisCall=hc1;
-    m_hisGrid=m_foxQSO[hc1].grid;
-    m_rptSent=m_foxQSO[hc1].sent;
-    m_rptRcvd=m_foxQSO[hc1].rcvd;
-    QDateTime logTime {QDateTime::currentDateTimeUtc ()};
-    QString logLine=logTime.toString("yyyy-MM-dd hh:mm") + " " + (m_hisCall + "   ").mid(0,6) +
-        "  " + m_hisGrid + "  " + m_rptSent + "  " + m_rptRcvd + " " + m_lastBand;
-    if(m_msgAvgWidget != NULL and m_msgAvgWidget->isVisible()) {
-      m_msgAvgWidget->foxAddLog(logLine);
-    }
-    on_logQSOButton_clicked();
-    writeFoxQSO(" Log:  " + logLine.mid(17));
-
-    m_foxRateQueue.enqueue(now);             //Add present time in seconds to Rate queue.
-    m_loggedByFox[hc1] += (m_lastBand + " ");
-    if(m_foxQSOinProgress.contains(hc1)) m_foxQSOinProgress.removeOne(hc1);
-
-    islot++;
-    foxGenWaveform(islot-1,fm);             //Generate tx waveform
-    if(islot >= m_Nslots) goto Transmit;
-  }
-
-
-//One or more Tx slots are still available.  See if it's time to call CQ.
-  if(m_nFoxTxSinceCQ >= 4) {
+  //Is it time for a stand-alone CQ?
+  if(m_tFoxTxSinceCQ >= m_foxCQtime) {
     fm=ui->comboBoxCQ->currentText() + " " + m_config.my_callsign();
     if(!fm.contains("/")) {
+      //If Fox is not a compound callsign, add grid to the CQ message.
       fm += " " + m_config.my_grid().mid(0,4);
       m_fullFoxCallTime=now;
     }
     islot++;
     foxGenWaveform(islot-1,fm);
-    if(islot >= m_Nslots) goto Transmit;
+    goto Transmit;
   }
 
-//One or more Tx slots are still available, repeat call to a Hound in the QSOqueue
-  while (!m_foxQSOinProgress.isEmpty()) {
-    //should limit repeat transmissions here ?
-    hc1=m_foxQSOinProgress.dequeue();             //Recover hound callsign from QSO queue
-    m_foxQSOinProgress.enqueue(hc1);              //Put him back in, at the end
-    if(islot>0 and sentTo.contains(hc1)) {
-      break;
+//Compile list1:
+  for(QString hc: m_foxQSO.keys()) {           //Check all Hound calls: First priority
+    if(m_foxQSO[hc].tFoxRrpt<0) continue;
+    if(m_foxQSO[hc].tFoxRrpt - m_foxQSO[hc].tFoxTxRR73 > 3) {
+      //Has been a long time since we sent RR73
+      list1 << hc;                          //Add to list1
+      m_foxQSO[hc].tFoxTxRR73 = m_tFoxTx;   //Time RR73 is sent
+      m_foxQSO[hc].nRR73++;                 //Increment RR73 counter
+      if(list1.size()==m_Nslots) goto list1Done;
     }
-    sentTo << hc1;
-    m_foxQSO[hc1].ncall++;                   //Number of times this Hound called
-    fm = hc1 + " " + m_baseCall + " " + m_foxQSO[hc1].sent;  //Tx msg
-    if(islot>0 and fm==m_fm0) break;         //Suppress duplicate Fox signals
-    islot++;
-    foxGenWaveform(islot-1,fm);              //Generate tx waveform
-    m_fm0=fm;
-    if(islot >= m_Nslots) goto Transmit;
   }
 
-//One or more Tx slots are still available
-  while (!m_houndQueue.isEmpty() and m_foxQSOinProgress.count() < m_Nslots) {
+  for(QString hc: m_foxQSO.keys()) {           //Check all Hound calls: Second priority
+    if(m_foxQSO[hc].tFoxRrpt<0) continue;
+    if(m_foxQSO[hc].tFoxTxRR73 < 0) {
+      //Have not yet sent RR73
+      list1 << hc;                          //Add to list1
+      m_foxQSO[hc].tFoxTxRR73 = m_tFoxTx;   //Time RR73 is sent
+      m_foxQSO[hc].nRR73++;                 //Increment RR73 counter
+      if(list1.size()==m_Nslots) goto list1Done;
+    }
+  }
+
+  for(QString hc: m_foxQSO.keys()) {           //Check all Hound calls: Third priority
+    if(m_foxQSO[hc].tFoxRrpt<0) continue;
+    if(m_foxQSO[hc].tFoxTxRR73 <= m_foxQSO[hc].tFoxRrpt) {
+      //We received R+rpt more recently than we sent RR73
+      list1 << hc;                          //Add to list1
+      m_foxQSO[hc].tFoxTxRR73 = m_tFoxTx;   //Time RR73 is sent
+      m_foxQSO[hc].nRR73++;                 //Increment RR73 counter
+      if(list1.size()==m_Nslots) goto list1Done;
+    }
+  }
+
+list1Done:
+  for(QString hc: m_foxQSO.keys()) {           //Check all Hound calls
+    if((m_foxQSO[hc].nRR73 == 0) or (m_foxQSO[hc].tFoxRrpt > m_foxQSO[hc].tFoxTxRR73)) {
+      //Never sent RR73, or received R+rpt more recently
+      nWaiting++;
+    }
+  }
+
+//Compile list2:
+  n2max=m_Nslots-nWaiting;                  //Max number of new QSOs to start
+  for(int i=0; i<m_foxQSOinProgress.count(); i++) {
+    hc=m_foxQSOinProgress.at(i);
+    if((m_foxQSO[hc].tFoxRrpt < 0) and (m_foxQSO[hc].ncall < m_maxStrikes)) {
+      //Sent him a report and have not received R+rpt: call him again
+      list2 << hc;                          //Add to list2
+      if(list2.size()==n2max) goto list2Done;
+    }
+  }
+
+  while(!m_houndQueue.isEmpty()) {
+    //Start QSO with a new Hound
     t=m_houndQueue.dequeue();             //Fetch new hound from queue
-    hc1=t.mid(0,6).trimmed();             //hound call
-    m_foxQSOinProgress.enqueue(hc1);      //Put him in the QSO queue
-    m_foxQSO[hc1].grid=t.mid(11,4);       //hound grid
+    hc=t.mid(0,6).trimmed();              //hound call
+    list2 << hc;                          //Add new Hound to list2
+    m_foxQSOinProgress.enqueue(hc);       //Put him in the QSO queue
+    m_foxQSO[hc].grid=t.mid(11,4);        //hound grid
     rpt=t.mid(7,3);
-    m_foxQSO[hc1].sent=rpt;               //Report to send him
-    m_foxQSO[hc1].ncall=1;                //Number of times called
-    rm_tb4(hc1);                          //Remove this hound from tb4
-    fm = hc1 + " " + m_baseCall + " " + rpt;    //Tx msg
-    islot++;
-    foxGenWaveform(islot-1,fm);           //Generate tx waveform
-    if(islot >= m_Nslots) goto Transmit;
+    m_foxQSO[hc].sent=rpt;                //Report to send him
+    m_foxQSO[hc].ncall=1;                 //Start a new Hound
+    m_foxQSO[hc].nRR73 = 0;               //Have not sent RR73
+    m_foxQSO[hc].tFoxRrpt = -1;           //Have not received R+rpt
+    m_foxQSO[hc].tFoxTxRR73 = -1;         //Have not sent RR73
+    rm_tb4(hc);                           //Remove this Hound from tb4
+    if(list2.size()==n2max) goto list2Done;
   }
 
-  if(islot==0) {
-    //No tx message generated yet, so we'll call CQ
+list2Done:
+
+  n1=list1.size();
+  n2=list2.size();
+  n3=qMax(n1,n2);
+//  qDebug() << "dd" << n1 << n2 << n3;
+  for(int i=0; i<n3; i++) {
+    hc1="";
+    fm="";
+    if(i<n1 and i<n2) {
+      hc1=list1.at(i);
+      hc2=list2.at(i);
+      fm = hc1 + " RR73; " + hc2 + " <" + m_config.my_callsign() + "> " + m_foxQSO[hc2].sent;
+    }
+    if(i<n1 and i>=n2) {
+      hc1=list1.at(i);
+      fm = hc1 + " " + m_baseCall + " RR73";                 //Standard FT8 message
+    }
+
+    if(hc1!="") {
+      // Log this QSO!
+          m_hisCall=hc1;
+          m_hisGrid=m_foxQSO[hc1].grid;
+          m_rptSent=m_foxQSO[hc1].sent;
+          m_rptRcvd=m_foxQSO[hc1].rcvd;
+          QDateTime logTime {QDateTime::currentDateTimeUtc ()};
+          QString logLine=logTime.toString("yyyy-MM-dd hh:mm") + " " + (m_hisCall + "   ").mid(0,6) +
+              "  " + m_hisGrid + "  " + m_rptSent + "  " + m_rptRcvd + " " + m_lastBand;
+          if(m_msgAvgWidget != NULL and m_msgAvgWidget->isVisible()) {
+            m_msgAvgWidget->foxAddLog(logLine);
+          }
+          on_logQSOButton_clicked();
+          writeFoxQSO(" Log:  " + logLine.mid(17));
+          m_foxRateQueue.enqueue(now);             //Add present time in seconds to Rate queue.
+          m_loggedByFox[hc1] += (m_lastBand + " ");
+    }
+
+    if(i<n2 and fm=="") {
+      hc2=list2.at(i);
+      fm = hc2 + " " + m_baseCall + " " + m_foxQSO[hc2].sent; //Standard FT8 message
+    }
+    islot++;
+    foxGenWaveform(islot-1,fm);                             //Generate tx waveform
+  }
+
+  if(n3 < m_Nslots) {
+    //At least one slot is still open, so we'll add one CQ message
     fm=ui->comboBoxCQ->currentText() + " " + m_config.my_callsign();
     if(!fm.contains("/")) {
       fm += " " + m_config.my_grid().mid(0,4);
@@ -7648,17 +7683,24 @@ Transmit:
   QString foxCall=m_config.my_callsign() + "         ";
   strncpy(&foxcom_.mycall[0], foxCall.toLatin1(),12);   //Copy Fox callsign into foxcom_
   foxgen_();
-  m_nFoxTxSinceCQ++;
+  m_tFoxTxSinceCQ++;
 
-  for(auto a: m_foxQSO.keys()) {                  //Weed out Hounds called too many times
-    int ncalls=m_foxQSO[a].ncall;
-    if(ncalls >= qMax(4,m_Nslots+1)) {            //### Not sure about ">=" ###
-      qDebug() << "Removed" << a;
-      m_foxQSO.remove(a);
-      m_foxQSOinProgress.removeOne(a);
-      if(m_foxRR73Queue.contains(a)) m_foxRR73Queue.removeOne(a);
+  for(QString hc: m_foxQSO.keys()) {               //Check for strikeout or timeout
+    bool b1=((m_tFoxTx - m_foxQSO[hc].tFoxRrpt) > 2*m_maxFoxWait) and
+        (m_foxQSO[hc].tFoxRrpt > 0);
+    bool b2=((m_tFoxTx - m_foxQSO[hc].tFoxTxRR73) > m_maxFoxWait) and
+        (m_foxQSO[hc].tFoxTxRR73>0);
+    bool b3=(m_foxQSO[hc].ncall > m_maxStrikes);
+    bool b4=(m_foxQSO[hc].nRR73 > m_maxStrikes);
+    if(b1 or b2 or b3 or b4) {
+      qDebug() << "Removed" << hc << m_tFoxTx << m_foxQSO[hc].tFoxRrpt
+               << m_foxQSO[hc].tFoxTxRR73 << m_foxQSO[hc].ncall << m_foxQSO[hc].nRR73
+               << m_maxFoxWait;
+      m_foxQSO.remove(hc);
+      m_foxQSOinProgress.removeOne(hc);
     }
   }
+
   while(!m_foxRateQueue.isEmpty()) {
     qint64 age = now - m_foxRateQueue.head();
     if(age < 3600) break;
@@ -7708,10 +7750,12 @@ void MainWindow::doubleClickOnFoxQueue(Qt::KeyboardModifiers modifiers)
 
 void MainWindow::foxGenWaveform(int i,QString fm)
 {
+  if(i==0) qDebug() << "";
+  qDebug() << "Tx" << i << fm;
 //Generate and accumulate the Tx waveform
   fm += "                                        ";
   fm=fm.mid(0,40);
-  if(fm.mid(0,3)=="CQ ") m_nFoxTxSinceCQ=-1;
+  if(fm.mid(0,3)=="CQ ") m_tFoxTxSinceCQ=-1;
 
   QString txModeArg;
   txModeArg.sprintf("FT8fox %d",i+1);
@@ -7729,7 +7773,7 @@ void MainWindow::foxGenWaveform(int i,QString fm)
 void MainWindow::writeFoxQSO(QString msg)
 {
   QString t;
-  t.sprintf("%3d%3d%3d",m_houndQueue.count(),m_foxQSOinProgress.count(),m_foxRR73Queue.count());
+  t.sprintf("%3d%3d%3d",m_houndQueue.count(),m_foxQSOinProgress.count(),m_foxQSO.count());
   QFile f {m_config.writeable_data_dir ().absoluteFilePath ("FoxQSO.txt")};
   if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
     QTextStream out(&f);
@@ -7763,6 +7807,7 @@ void MainWindow::foxTest()
 
   while(!s.atEnd()) {
     line=s.readLine();
+    if(line.length()==0) continue;
     if(line.mid(0,4).toInt()==0) line="                                     " + line;
     if(line.contains("NSlots")) {
       n=line.mid(44,1).toInt();
@@ -7796,16 +7841,17 @@ void MainWindow::foxTest()
       int i1=hc1.indexOf(" ");
       hc1=hc1.mid(0,i1);
       int i2=qMax(msg.indexOf("R+"),msg.indexOf("R-"));
-      if(i2>20) rptRcvd=msg.mid(i2,4);
-      foxRxSequencer(msg,hc1,rptRcvd);
+      if(i2>20) {
+        rptRcvd=msg.mid(i2,4);
+        foxRxSequencer(msg,hc1,rptRcvd);
+      }
     }
     if(line.contains("Tx1:")) foxTxSequencer();
 
-//    qDebug() << "aa" << m_maxQSOs << m_houndQueue.count() <<m_foxQSOinProgress.count()
-//             << m_foxRR73Queue.count() << line.mid(37).trimmed();
-    t.sprintf("%3d %3d %3d %3d %3d %3d %5d   ",m_maxQSOs,m_houndQueue.count(),
-              m_foxQSOinProgress.count(),m_foxRR73Queue.count(),m_foxQSO.count(),
-              m_loggedByFox.count(),m_nFoxTx);
+    t.sprintf("%3d %3d %3d %3d %5d   ",m_houndQueue.count(),
+              m_foxQSOinProgress.count(),m_foxQSO.count(),
+              m_loggedByFox.count(),m_tFoxTx);
     sdiag << t << line.mid(37).trimmed() << "\n";
+//    qDebug() << "aa " << t << line.mid(37).trimmed();
   }
 }
