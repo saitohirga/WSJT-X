@@ -7508,6 +7508,7 @@ void MainWindow::foxRxSequencer(QString msg, QString houndCall, QString rptRcvd)
  * If houndCall matches a callsign in one of our active QSO slots, we
  * prepare to send "houndCall RR73" to that caller.
 */
+  qDebug() << m_tFoxTx << "Rx: " << msg.mid(24).trimmed();
   if(m_foxQSO.contains(houndCall)) {
     m_foxQSO[houndCall].rcvd=rptRcvd.mid(1);  //Save report Rcvd, for the log
     m_foxQSO[houndCall].tFoxRrpt=m_tFoxTx;    //Save time R+rpt was received
@@ -7625,7 +7626,6 @@ list2Done:
   n1=list1.size();
   n2=list2.size();
   n3=qMax(n1,n2);
-//  qDebug() << "dd" << n1 << n2 << n3;
   for(int i=0; i<n3; i++) {
     hc1="";
     fm="";
@@ -7693,7 +7693,7 @@ Transmit:
     bool b3=(m_foxQSO[hc].ncall > m_maxStrikes);
     bool b4=(m_foxQSO[hc].nRR73 > m_maxStrikes);
     if(b1 or b2 or b3 or b4) {
-      qDebug() << "Removed" << hc << m_tFoxTx << m_foxQSO[hc].tFoxRrpt
+      qDebug() << m_tFoxTx << "Rem:" << hc << m_foxQSO[hc].tFoxRrpt
                << m_foxQSO[hc].tFoxTxRR73 << m_foxQSO[hc].ncall << m_foxQSO[hc].nRR73
                << m_maxFoxWait;
       m_foxQSO.remove(hc);
@@ -7751,7 +7751,7 @@ void MainWindow::doubleClickOnFoxQueue(Qt::KeyboardModifiers modifiers)
 void MainWindow::foxGenWaveform(int i,QString fm)
 {
   if(i==0) qDebug() << "";
-  qDebug() << "Tx" << i << fm;
+  qDebug() << m_tFoxTx << "Tx" << i << fm;
 //Generate and accumulate the Tx waveform
   fm += "                                        ";
   fm=fm.mid(0,40);
@@ -7846,12 +7846,14 @@ void MainWindow::foxTest()
         foxRxSequencer(msg,hc1,rptRcvd);
       }
     }
-    if(line.contains("Tx1:")) foxTxSequencer();
-
-    t.sprintf("%3d %3d %3d %3d %5d   ",m_houndQueue.count(),
-              m_foxQSOinProgress.count(),m_foxQSO.count(),
-              m_loggedByFox.count(),m_tFoxTx);
-    sdiag << t << line.mid(37).trimmed() << "\n";
-//    qDebug() << "aa " << t << line.mid(37).trimmed();
+    if(line.contains("Tx1:")) {
+      foxTxSequencer();
+    } else {
+      t.sprintf("%3d %3d %3d %3d %5d   ",m_houndQueue.count(),
+                m_foxQSOinProgress.count(),m_foxQSO.count(),
+                m_loggedByFox.count(),m_tFoxTx);
+      sdiag << t << line.mid(37).trimmed() << "\n";
+      //    qDebug() << "aa " << t << line.mid(37).trimmed();
+    }
   }
 }
