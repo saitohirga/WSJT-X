@@ -89,9 +89,9 @@ program wsprdpsksim
      call four2a(c0,NMAX/NDOWN,1,1,1)
      c0=c0*conjg(c)
      ic=f0/df
-     c0=cshift(c0,-ic)
+     c0=cshift(c0,ic)
      call four2a(c0,NMAX/NDOWN,1,-1,1)
-     xx=sum(abs(c0(istart:istart+(NN-1)*200)**2))/((NN-1)*200)
+     xx=sum(abs(c0(istart:istart+NN*200-1)**2))/(NN*200)
      c0=c0/sqrt(xx)
 
      call sgran()
@@ -108,6 +108,8 @@ program wsprdpsksim
              c(i)=c(i) + cmplx(xnoise,ynoise)
           enddo
        endif
+snrtest=sum(abs(c(istart:istart+NN*200-1)**2))/(NN*200)/2.0-1.0
+write(*,*) 'sample SNR: ',10*log10(snrtest)+10*log10(0.4/2.5)
        write(fname,1100) ifile
 1100   format('000000_',i4.4,'.c2')
        open(10,file=fname,status='unknown',access='stream')
@@ -121,7 +123,7 @@ program wsprdpsksim
      df=fs/NMAX  
      dt=1/fs
      bandwidth_ratio=2500.0/(fs/2.0)
-     sig=sqrt(bandwidth_ratio) * 10.0**(0.05*snrdb)
+     sig=sqrt(2*bandwidth_ratio) * 10.0**(0.05*snrdb)
      if(snrdb.gt.90.0) sig=1.0
      cwav=0
      bw=(1+beta)*baud/2.0
@@ -146,7 +148,7 @@ program wsprdpsksim
      ic=f0/df
      c0wav=cshift(c0wav,-ic)
      call four2a(c0wav,NMAX,1,-1,1)
-     xx=sum(abs(c0wav(istart:istart+(NN-1)*200*NDOWN))**2)/((NN-1)*200*NDOWN)
+     xx=sum(abs(c0wav(istart:istart+NN*200*NDOWN-1))**2)/(NN*200*NDOWN)
      c0wav=c0wav/sqrt(xx)
      call sgran()
      do ifile=1,nfiles
@@ -161,6 +163,8 @@ program wsprdpsksim
              iwave(i)=100*(real(cwav(i-1)) + xnoise)
           enddo
        endif
+snrtest=sum(real(iwave(istart:istart+NN*200*NDOWN-1)**2)/(NN*200*NDOWN))/100.0**2-1
+write(*,*) 'sample SNR: ',10*log10(snrtest)+10*log10(6.0/2.5)
        hwav=default_header(12000,NMAX)
        write(fname,1102) ifile
 1102   format('000000_',i4.4,'.wav')
