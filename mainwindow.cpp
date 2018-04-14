@@ -7600,7 +7600,6 @@ list1Done:
     if((m_foxQSO[hc].tFoxRrpt < 0) and (m_foxQSO[hc].ncall < m_maxStrikes)) {
       //Sent him a report and have not received R+rpt: call him again
       list2 << hc;                          //Add to list2
-      m_foxQSO[hc].ncall++;
       if(list2.size()==n2max) goto list2Done;
     }
   }
