@@ -7550,7 +7550,6 @@ void MainWindow::foxTxSequencer()
     foxGenWaveform(islot-1,fm);
     goto Transmit;
   }
-
 //Compile list1:
   for(QString hc: m_foxQSO.keys()) {           //Check all Hound calls: First priority
     if(m_foxQSO[hc].tFoxRrpt<0) continue;
@@ -7626,6 +7625,7 @@ list2Done:
   n1=list1.size();
   n2=list2.size();
   n3=qMax(n1,n2);
+  if(n3>m_Nslots) n3=m_Nslots;
   for(int i=0; i<n3; i++) {
     hc1="";
     fm="";
@@ -7642,20 +7642,20 @@ list2Done:
 
     if(hc1!="") {
       // Log this QSO!
-          m_hisCall=hc1;
-          m_hisGrid=m_foxQSO[hc1].grid;
-          m_rptSent=m_foxQSO[hc1].sent;
-          m_rptRcvd=m_foxQSO[hc1].rcvd;
-          QDateTime logTime {QDateTime::currentDateTimeUtc ()};
-          QString logLine=logTime.toString("yyyy-MM-dd hh:mm") + " " + (m_hisCall + "   ").mid(0,6) +
-              "  " + m_hisGrid + "  " + m_rptSent + "  " + m_rptRcvd + " " + m_lastBand;
-          if(m_msgAvgWidget != NULL and m_msgAvgWidget->isVisible()) {
-            m_msgAvgWidget->foxAddLog(logLine);
-          }
-          on_logQSOButton_clicked();
-          writeFoxQSO(" Log:  " + logLine.mid(17));
-          m_foxRateQueue.enqueue(now);             //Add present time in seconds to Rate queue.
-          m_loggedByFox[hc1] += (m_lastBand + " ");
+      m_hisCall=hc1;
+      m_hisGrid=m_foxQSO[hc1].grid;
+      m_rptSent=m_foxQSO[hc1].sent;
+      m_rptRcvd=m_foxQSO[hc1].rcvd;
+      QDateTime logTime {QDateTime::currentDateTimeUtc ()};
+      QString logLine=logTime.toString("yyyy-MM-dd hh:mm") + " " + (m_hisCall + "   ").mid(0,6) +
+          "  " + m_hisGrid + "  " + m_rptSent + "  " + m_rptRcvd + " " + m_lastBand;
+      if(m_msgAvgWidget != NULL and m_msgAvgWidget->isVisible()) {
+        m_msgAvgWidget->foxAddLog(logLine);
+      }
+      on_logQSOButton_clicked();
+      writeFoxQSO(" Log:  " + logLine.mid(17));
+      m_foxRateQueue.enqueue(now);             //Add present time in seconds to Rate queue.
+      m_loggedByFox[hc1] += (m_lastBand + " ");
     }
 
     if(i<n2 and fm=="") {
@@ -7667,7 +7667,7 @@ list2Done:
     foxGenWaveform(islot-1,fm);                             //Generate tx waveform
   }
 
-  if(n3 < m_Nslots) {
+  if(islot < m_Nslots) {
     //At least one slot is still open, so we'll add one CQ message
     fm=ui->comboBoxCQ->currentText() + " " + m_config.my_callsign();
     if(!fm.contains("/")) {
