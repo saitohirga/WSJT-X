@@ -7614,7 +7614,7 @@ list1Done:
     m_foxQSO[hc].grid=t.mid(11,4);        //hound grid
     rpt=t.mid(7,3);
     m_foxQSO[hc].sent=rpt;                //Report to send him
-    m_foxQSO[hc].ncall=1;                 //Start a new Hound
+    m_foxQSO[hc].ncall=0;                 //Start a new Hound
     m_foxQSO[hc].nRR73 = 0;               //Have not sent RR73
     m_foxQSO[hc].tFoxRrpt = -1;           //Have not received R+rpt
     m_foxQSO[hc].tFoxTxRR73 = -1;         //Have not sent RR73
@@ -7633,6 +7633,7 @@ list2Done:
     if(i<n1 and i<n2) {
       hc1=list1.at(i);
       hc2=list2.at(i);
+      m_foxQSO[hc2].ncall++;
       fm = hc1 + " RR73; " + hc2 + " <" + m_config.my_callsign() + "> " + m_foxQSO[hc2].sent;
     }
     if(i<n1 and i>=n2) {
@@ -7660,6 +7661,7 @@ list2Done:
 
     if(i<n2 and fm=="") {
       hc2=list2.at(i);
+      m_foxQSO[hc2].ncall++;
       fm = hc2 + " " + m_baseCall + " " + m_foxQSO[hc2].sent; //Standard FT8 message
     }
     islot++;
@@ -7687,16 +7689,17 @@ Transmit:
   m_tFoxTxSinceCQ++;
 
   for(QString hc: m_foxQSO.keys()) {               //Check for strikeout or timeout
+    if(m_foxQSO[hc].ncall>=m_maxStrikes) m_foxQSO[hc].ncall++;
     bool b1=((m_tFoxTx - m_foxQSO[hc].tFoxRrpt) > 2*m_maxFoxWait) and
         (m_foxQSO[hc].tFoxRrpt > 0);
     bool b2=((m_tFoxTx - m_foxQSO[hc].tFoxTxRR73) > m_maxFoxWait) and
         (m_foxQSO[hc].tFoxTxRR73>0);
-    bool b3=(m_foxQSO[hc].ncall > m_maxStrikes);
+    bool b3=(m_foxQSO[hc].ncall >= m_maxStrikes+m_maxFoxWait);
     bool b4=(m_foxQSO[hc].nRR73 > m_maxStrikes);
     if(b1 or b2 or b3 or b4) {
       qDebug() << m_tFoxTx << "Rem:" << hc << m_foxQSO[hc].tFoxRrpt
                << m_foxQSO[hc].tFoxTxRR73 << m_foxQSO[hc].ncall << m_foxQSO[hc].nRR73
-               << m_maxFoxWait;
+               << m_maxFoxWait << b1 << b2 << b3 << b4;
       m_foxQSO.remove(hc);
       m_foxQSOinProgress.removeOne(hc);
     }
