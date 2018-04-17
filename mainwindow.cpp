@@ -7285,10 +7285,15 @@ void MainWindow::on_sbMax_dB_valueChanged(int n)
 
 void MainWindow::on_pbFoxReset_clicked()
 {
-  ui->textBrowser4->setText("");
-  m_houndQueue.clear();
-//  m_foxQSOinProgress.clear();                     //It this a bad idea ???
-  writeFoxQSO(" Reset");
+  auto button = MessageBox::query_message (this, tr ("Confirm Reset"),
+      tr ("Are you sure you want to clear the QSO queues?"));
+  if(button == MessageBox::Yes) {
+    ui->textBrowser4->setText("");
+    m_houndQueue.clear();
+    m_foxQSO.clear();
+    m_foxQSOinProgress.clear();                     //It this a bad idea ???
+    writeFoxQSO(" Reset");
+  }
 }
 
 void MainWindow::on_comboBoxHoundSort_activated(int index)
