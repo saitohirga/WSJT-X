@@ -7301,6 +7301,7 @@ void MainWindow::on_pbFoxReset_clicked()
   auto button = MessageBox::query_message (this, tr ("Confirm Reset"),
       tr ("Are you sure you want to clear the QSO queues?"));
   if(button == MessageBox::Yes) {
+    ui->decodedTextBrowser->setText("");
     ui->textBrowser4->setText("");
     m_houndQueue.clear();
     m_foxQSO.clear();
