@@ -1051,6 +1051,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("pwrBandTuneMemory",m_pwrBandTuneMemory);
   m_settings->setValue ("FT8AP", ui->actionEnable_AP_FT8->isChecked ());
   m_settings->setValue ("JT65AP", ui->actionEnable_AP_JT65->isChecked ());
+  m_settings->setValue("SplitterState",ui->splitter->saveState());
   {
     QList<QVariant> coeffs;     // suitable for QSettings
     for (auto const& coeff : m_phaseEqCoefficients)
@@ -1140,6 +1141,7 @@ void MainWindow::readSettings()
   m_pwrBandTuneMemory=m_settings->value("pwrBandTuneMemory").toHash();
   ui->actionEnable_AP_FT8->setChecked (m_settings->value ("FT8AP", false).toBool());
   ui->actionEnable_AP_JT65->setChecked (m_settings->value ("JT65AP", false).toBool());
+  ui->splitter->restoreState(m_settings->value("SplitterState").toByteArray());
   {
     auto const& coeffs = m_settings->value ("PhaseEqualizationCoefficients"
                                             , QList<QVariant> {0., 0., 0., 0., 0.}).toList ();
@@ -2976,8 +2978,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
             m_rptSent=decodedtext.string().mid(7,3);
             //### Select TX3, set random TxFreq in [300-900], and Force Auto ON. ###
             ui->txrb3->setChecked(true);
-            int fTx = 300.0 + 600.0*double(qrand())/RAND_MAX;
-            ui->TxFreqSpinBox->setValue(fTx);
+            m_nFoxFreq=decodedtext.string().mid(16,4).toInt();
+            m_nSentFoxRrpt=1;
             if(!m_auto) auto_tx_mode(true);
           }
         } else {
@@ -2996,8 +2998,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
                   m_rptSent=decodedtext.string().mid(7,3);
                   //### Select TX3, set random TxFreq in [300-900], and Force Auto ON. ###
                   ui->txrb3->setChecked(true);
-                  int fTx = 300.0 + 600.0*double(qrand())/RAND_MAX;
-                  ui->TxFreqSpinBox->setValue(fTx);
+                  m_nFoxFreq=decodedtext.string().mid(16,4).toInt();
+                  m_nSentFoxRrpt=1;
                   if(!m_auto) auto_tx_mode(true);
                 }
               }
@@ -6164,6 +6166,17 @@ void MainWindow::transmit (double snr)
     if(m_config.x2ToneSpacing()) toneSpacing=2*12000.0/1920.0;
     if(m_config.x4ToneSpacing()) toneSpacing=4*12000.0/1920.0;
     if(m_config.bFox() and !m_tune) toneSpacing=-1;
+    if(m_config.bHound()) {
+      if(m_ntx==1) m_nSentFoxRrpt=1;
+      if(m_ntx==3) {
+        if(m_nSentFoxRrpt==1) {
+          ui->TxFreqSpinBox->setValue(m_nFoxFreq);
+        } else {
+          ui->TxFreqSpinBox->setValue(m_nFoxFreq+300);
+        }
+        m_nSentFoxRrpt++;
+      }
+    }
     Q_EMIT sendMessage (NUM_FT8_SYMBOLS,
            1920.0, ui->TxFreqSpinBox->value () - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),

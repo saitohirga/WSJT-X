@@ -437,7 +437,8 @@ private:
   qint32  m_maxFoxWait=3;      //Max wait time for expected Hound replies
   qint32  m_foxCQtime=10;      //CQs at least every 5 minutes
   qint32  m_tFoxTxSinceCQ=999; //Fox Tx cycles since most recent CQ
-
+  qint32  m_nFoxFreq;          //Audio freq at which Hound received a call from Fox
+  qint32  m_nSentFoxRrpt=0;    //Serial number for next R+rpt Hound will send to Fox
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
