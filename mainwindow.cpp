@@ -903,7 +903,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (&splashTimer, &QTimer::timeout, this, &MainWindow::splash_done);
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
-
+/*
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
      m_config.my_callsign()=="G4WJS" or
      m_config.my_callsign().contains("KH7Z")) {
@@ -916,7 +916,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
        "Please use WSJT-X v1.8.0\n", errorMsg);
     Q_EMIT finished ();
   }
-
+*/
   if(QCoreApplication::applicationVersion().contains("-devel") or
      QCoreApplication::applicationVersion().contains("-rc")) {
     QTimer::singleShot (0, this, SLOT (not_GA_warning_message ()));
