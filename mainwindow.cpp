@@ -3322,8 +3322,8 @@ void MainWindow::guiUpdate()
         int fTx = 300.0 + 300.0*double(qrand())/RAND_MAX;
         ui->TxFreqSpinBox->setValue(fTx);
       }
-      if(m_mode=="FT8" and m_config.bHound() and (ui->TxFreqSpinBox->value() < 999) and
-         m_ntx != 3) {
+      if(m_mode=="FT8" and m_config.bHound() and !m_tune and
+         (ui->TxFreqSpinBox->value() < 999) and m_ntx != 3) {
         int nf = (qrand() % 2000) + 1000;      // Hound randomized range: 1000-3000 Hz
         ui->TxFreqSpinBox->setValue(nf);
       }
@@ -6166,7 +6166,7 @@ void MainWindow::transmit (double snr)
     if(m_config.x2ToneSpacing()) toneSpacing=2*12000.0/1920.0;
     if(m_config.x4ToneSpacing()) toneSpacing=4*12000.0/1920.0;
     if(m_config.bFox() and !m_tune) toneSpacing=-1;
-    if(m_config.bHound()) {
+    if(m_config.bHound() and !m_tune) {
       if(m_ntx==1) m_nSentFoxRrpt=1;
       if(m_ntx==3) {
         if(m_nSentFoxRrpt==1) {
@@ -7301,11 +7301,13 @@ void MainWindow::on_pbFoxReset_clicked()
   auto button = MessageBox::query_message (this, tr ("Confirm Reset"),
       tr ("Are you sure you want to clear the QSO queues?"));
   if(button == MessageBox::Yes) {
+    QFile f(m_config.temp_dir().absoluteFilePath("houndcallers.txt"));
+    f.remove();
     ui->decodedTextBrowser->setText("");
     ui->textBrowser4->setText("");
     m_houndQueue.clear();
     m_foxQSO.clear();
-    m_foxQSOinProgress.clear();                     //It this a bad idea ???
+    m_foxQSOinProgress.clear();
     writeFoxQSO(" Reset");
   }
 }
@@ -7527,7 +7529,7 @@ void MainWindow::foxRxSequencer(QString msg, QString houndCall, QString rptRcvd)
  * If houndCall matches a callsign in one of our active QSO slots, we
  * prepare to send "houndCall RR73" to that caller.
 */
-  qDebug() << m_tFoxTx << "Rx: " << msg.mid(24).trimmed();
+//  qDebug() << m_tFoxTx << "Rx: " << msg.mid(24).trimmed();
   if(m_foxQSO.contains(houndCall)) {
     m_foxQSO[houndCall].rcvd=rptRcvd.mid(1);  //Save report Rcvd, for the log
     m_foxQSO[houndCall].tFoxRrpt=m_tFoxTx;    //Save time R+rpt was received
@@ -7713,11 +7715,11 @@ Transmit:
     bool b2=((m_tFoxTx - m_foxQSO[hc].tFoxTxRR73) > m_maxFoxWait) and
         (m_foxQSO[hc].tFoxTxRR73>0);
     bool b3=(m_foxQSO[hc].ncall >= m_maxStrikes+m_maxFoxWait);
-    bool b4=(m_foxQSO[hc].nRR73 > m_maxStrikes);
+    bool b4=(m_foxQSO[hc].nRR73 >= m_maxStrikes);
     if(b1 or b2 or b3 or b4) {
-      qDebug() << m_tFoxTx << "Rem:" << hc << m_foxQSO[hc].tFoxRrpt
-               << m_foxQSO[hc].tFoxTxRR73 << m_foxQSO[hc].ncall << m_foxQSO[hc].nRR73
-               << m_maxFoxWait << b1 << b2 << b3 << b4;
+//      qDebug() << m_tFoxTx << "Rem:" << hc << m_foxQSO[hc].tFoxRrpt
+//               << m_foxQSO[hc].tFoxTxRR73 << m_foxQSO[hc].ncall << m_foxQSO[hc].nRR73
+//               << m_maxFoxWait << b1 << b2 << b3 << b4;
       m_foxQSO.remove(hc);
       m_foxQSOinProgress.removeOne(hc);
     }
@@ -7772,8 +7774,8 @@ void MainWindow::doubleClickOnFoxQueue(Qt::KeyboardModifiers modifiers)
 
 void MainWindow::foxGenWaveform(int i,QString fm)
 {
-  if(i==0) qDebug() << "";
-  qDebug() << m_tFoxTx << "Tx" << i << fm;
+//  if(i==0) qDebug() << "";
+//  qDebug() << m_tFoxTx << "Tx" << i << fm;
 //Generate and accumulate the Tx waveform
   fm += "                                        ";
   fm=fm.mid(0,40);
