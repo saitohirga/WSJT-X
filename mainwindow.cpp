@@ -3315,20 +3315,32 @@ void MainWindow::guiUpdate()
       icw[0]=m_ncw;
       g_iptt = 1;
       setRig ();
-      if(m_mode=="FT8" and m_config.bFox() and ui->TxFreqSpinBox->value() > 900) {
-        ui->TxFreqSpinBox->setValue(300);
+      if(m_mode=="FT8") {
+        if (m_config.bFox() and ui->TxFreqSpinBox->value() > 900) {
+          ui->TxFreqSpinBox->setValue(300);
+        }
+        if (m_config.bHound ()) {
+          if(m_auto && !m_tune) {
+            if (ui->TxFreqSpinBox->value() < 999 && m_ntx != 3) {
+              int nf = (qrand() % 2000) + 1000;      // Hound randomized range: 1000-3000 Hz
+              ui->TxFreqSpinBox->setValue(nf);
+            }
+          }
+          if (m_nSentFoxRrpt == 2) {
+            ui->TxFreqSpinBox->setValue(m_nFoxFreq+300);
+          }
+          if (m_nSentFoxRrpt == 1) {
+            ++m_nSentFoxRrpt;
+          }
+        }
       }
+      
 
 // If HoldTxFreq is not checked, randomize Fox's Tx Freq
 // NB: Maybe this should be done no more than once every 5 minutes or so ?
       if(m_mode=="FT8" and m_config.bFox() and !ui->cbHoldTxFreq->isChecked()) {
         int fTx = 300.0 + 300.0*double(qrand())/RAND_MAX;
         ui->TxFreqSpinBox->setValue(fTx);
-      }
-      if(m_mode=="FT8" and m_config.bHound() and !m_tune and
-         (ui->TxFreqSpinBox->value() < 999) and m_ntx != 3) {
-        int nf = (qrand() % 2000) + 1000;      // Hound randomized range: 1000-3000 Hz
-        ui->TxFreqSpinBox->setValue(nf);
       }
 
       setXIT (ui->TxFreqSpinBox->value ());
@@ -7269,15 +7281,9 @@ void MainWindow::write_transmit_entry (QString const& file_name)
 
 void MainWindow::hound_QSY ()
 {
-  if(m_config.bHound() and !m_tune) {
-    if(m_ntx==1) m_nSentFoxRrpt=1;
-    if(m_ntx==3) {
-      if(m_nSentFoxRrpt==1) {
-        ui->TxFreqSpinBox->setValue(m_nFoxFreq);
-      } else {
-        ui->TxFreqSpinBox->setValue(m_nFoxFreq+300);
-      }
-      m_nSentFoxRrpt++;
+  if(m_auto && !m_tune) {
+    if (m_ntx==3 && m_nSentFoxRrpt==1) {
+      ui->TxFreqSpinBox->setValue(m_nFoxFreq);
     }
   }
 }
