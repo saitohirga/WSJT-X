@@ -11,6 +11,7 @@
 #include "MessageBox.hpp"
 #include "Configuration.hpp"
 #include "Bands.hpp"
+#include "MaidenheadLocatorValidator.hpp"
 
 #include "ui_logqso.h"
 #include "moc_logqso.cpp"
@@ -25,6 +26,7 @@ LogQSO::LogQSO(QString const& programTitle, QSettings * settings
   ui->setupUi(this);
   setWindowTitle(programTitle + " - Log QSO");
   loadSettings ();
+  ui->grid->setValidator (new MaidenheadLocatorValidator {this});
 }
 
 LogQSO::~LogQSO ()
