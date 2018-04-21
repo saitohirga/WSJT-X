@@ -1448,13 +1448,14 @@ QString MainWindow::save_wave_file (QString const& name, short const * data, int
       {{{'I','C','R','D'}}, QDateTime::currentDateTime ()
                           .toString ("yyyy-MM-ddTHH:mm:ss.zzzZ").toLocal8Bit ()},
       {{{'I','C','M','T'}}, comment.toLocal8Bit ()},
-  };
-  BWFFile wav {format, name + ".wav", list_info};
+        };
+  auto file_name = name + ".wav";
+  BWFFile wav {format, file_name, list_info};
   if (!wav.open (BWFFile::WriteOnly)
       || 0 > wav.write (reinterpret_cast<char const *> (data)
                         , sizeof (short) * seconds * format.sampleRate ()))
     {
-      return wav.errorString ();
+      return file_name + ": " + wav.errorString ();
     }
   return QString {};
 }
