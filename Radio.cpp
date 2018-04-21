@@ -17,6 +17,10 @@ namespace Radio
     // very loose validation - callsign must contain a letter next to
     // a number
     QRegularExpression valid_callsign_regexp {R"(\d[[:alpha:]]|[[:alpha:]]\d)"};
+
+    // suffixes that are often used and should not be interpreted as a
+    // DXCC Entity prefix used as a suffix
+    QRegularExpression non_prefix_suffix {R"(\A([0-9AMPQR]|QRP|F[DF]|[AM]M|L[HT]|LGT)\z)"};
   }
 
 
@@ -125,6 +129,34 @@ namespace Radio
             callsign = callsign.left (slash_pos);
           }
       }
-    return callsign;
+    return callsign.toUpper ();
+  }
+
+  // analyze the callsign and determine the effective prefix, returns
+  // the full call if no valid prefix (or prefix as a suffix) is specified
+  QString effective_prefix (QString callsign)
+  {
+    auto prefix = callsign.toUpper ();
+    auto slash_pos = callsign.indexOf ('/');
+    if (slash_pos >= 0)
+      {
+        auto right_size = callsign.size () - slash_pos - 1;
+        if (right_size >= slash_pos) // naive call is longer than
+                                     // prefix/suffix algorithm
+          {
+            prefix = callsign.left (slash_pos);
+          }
+        else
+          {
+            prefix = callsign.mid (slash_pos + 1);
+            if (prefix.contains (non_prefix_suffix))
+              {
+                prefix = callsign.left (slash_pos); // ignore
+                                                    // non-prefix
+                                                    // suffixes
+              }
+          }
+      }
+    return prefix;
   }
 }

@@ -19,6 +19,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QDebug>
+#include "Radio.hpp"
 
 void CountryDat::init(const QString filename)
 {
@@ -131,14 +132,15 @@ QString CountryDat::find(QString call) const
       return fixup (_data.value ("=" + call), call);
     }
 
-  auto prefix = call;
-  while (prefix.size () >= 1)
+  auto prefix = Radio::effective_prefix (call);
+  auto match_candidate = prefix;
+  while (match_candidate.size () >= 1)
     {
-      if (_data.contains (prefix))
+      if (_data.contains (match_candidate))
         {
-          return fixup (_data.value (prefix), call);
+          return fixup (_data.value (match_candidate), prefix);
         }
-      prefix = prefix.left (prefix.size () - 1);
+      match_candidate = match_candidate.left (match_candidate.size () - 1);
     }
   return QString {};
 }
@@ -150,7 +152,7 @@ QString CountryDat::fixup (QString country, QString const& call) const
   //
 
   // KG4 2x1 and 2x3 calls that map to Gitmo are mainland US not Gitmo
-  if (call.startsWith ("KG4") && call.size () != 5)
+  if (call.startsWith ("KG4") && call.size () != 5 && call.size () != 3)
     {
       country.replace ("Guantanamo Bay; KG4; NA", "United States; K; NA");
     }

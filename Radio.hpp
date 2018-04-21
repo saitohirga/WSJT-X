@@ -54,6 +54,7 @@ namespace Radio
   bool UDP_EXPORT is_callsign (QString const&);
   bool UDP_EXPORT is_compound_callsign (QString const&);
   QString UDP_EXPORT base_callsign (QString);
+  QString UDP_EXPORT effective_prefix (QString);
 }
 
 Q_DECLARE_METATYPE (Radio::Frequency);
