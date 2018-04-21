@@ -683,6 +683,7 @@ private:
                           , Frequency frequency
                           , QString const& his_call
                           , QString const& his_grid) const;
+  void hound_QSY ();
   QString sortHoundCalls(QString t, int isort, int max_dB);
   void rm_tb4(QString houndCall);
   void read_wav_file (QString const& fname);

@@ -2981,6 +2981,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
             ui->txrb3->setChecked(true);
             m_nFoxFreq=decodedtext.string().mid(16,4).toInt();
             m_nSentFoxRrpt=1;
+            hound_QSY ();
             if(!m_auto) auto_tx_mode(true);
           }
         } else {
@@ -3001,6 +3002,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
                   ui->txrb3->setChecked(true);
                   m_nFoxFreq=decodedtext.string().mid(16,4).toInt();
                   m_nSentFoxRrpt=1;
+                  hound_QSY ();
                   if(!m_auto) auto_tx_mode(true);
                 }
               }
@@ -6167,17 +6169,6 @@ void MainWindow::transmit (double snr)
     if(m_config.x2ToneSpacing()) toneSpacing=2*12000.0/1920.0;
     if(m_config.x4ToneSpacing()) toneSpacing=4*12000.0/1920.0;
     if(m_config.bFox() and !m_tune) toneSpacing=-1;
-    if(m_config.bHound() and !m_tune) {
-      if(m_ntx==1) m_nSentFoxRrpt=1;
-      if(m_ntx==3) {
-        if(m_nSentFoxRrpt==1) {
-          ui->TxFreqSpinBox->setValue(m_nFoxFreq);
-        } else {
-          ui->TxFreqSpinBox->setValue(m_nFoxFreq+300);
-        }
-        m_nSentFoxRrpt++;
-      }
-    }
     Q_EMIT sendMessage (NUM_FT8_SYMBOLS,
            1920.0, ui->TxFreqSpinBox->value () - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),
@@ -7275,6 +7266,21 @@ void MainWindow::write_transmit_entry (QString const& file_name)
 }
 
 // -------------------------- Code for FT8 DXpedition Mode ---------------------------
+
+void MainWindow::hound_QSY ()
+{
+  if(m_config.bHound() and !m_tune) {
+    if(m_ntx==1) m_nSentFoxRrpt=1;
+    if(m_ntx==3) {
+      if(m_nSentFoxRrpt==1) {
+        ui->TxFreqSpinBox->setValue(m_nFoxFreq);
+      } else {
+        ui->TxFreqSpinBox->setValue(m_nFoxFreq+300);
+      }
+      m_nSentFoxRrpt++;
+    }
+  }
+}
 
 void MainWindow::on_sbNlist_valueChanged(int n)
 {
