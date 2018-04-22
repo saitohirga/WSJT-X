@@ -2977,12 +2977,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
           if(w.at(2)==m_config.my_callsign() and ui->tx3->text().length()>0) {
             m_rptRcvd=w.at(4);
             m_rptSent=decodedtext.string().mid(7,3);
-            //### Select TX3, set random TxFreq in [300-900], and Force Auto ON. ###
-            ui->txrb3->setChecked(true);
             m_nFoxFreq=decodedtext.string().mid(16,4).toInt();
-            m_nSentFoxRrpt=1;
-            hound_QSY ();
-            if(!m_auto) auto_tx_mode(true);
+            hound_reply ();
           }
         } else {
           QStringList w=decodedtext.string().mid(24).split(" ",QString::SkipEmptyParts);
@@ -2998,12 +2994,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
                    (w.at(2).mid(0,1)=="+" or w.at(2).mid(0,1)=="-")) {
                   m_rptRcvd=w.at(2);
                   m_rptSent=decodedtext.string().mid(7,3);
-                  //### Select TX3, set random TxFreq in [300-900], and Force Auto ON. ###
-                  ui->txrb3->setChecked(true);
                   m_nFoxFreq=decodedtext.string().mid(16,4).toInt();
-                  m_nSentFoxRrpt=1;
-                  hound_QSY ();
-                  if(!m_auto) auto_tx_mode(true);
+                  hound_reply ();
                 }
               }
             }
@@ -3316,10 +3308,12 @@ void MainWindow::guiUpdate()
       g_iptt = 1;
       setRig ();
       if(m_mode=="FT8") {
-        if (m_config.bFox() and ui->TxFreqSpinBox->value() > 900) {
-          ui->TxFreqSpinBox->setValue(300);
+        if (m_config.bFox()) {
+          if (ui->TxFreqSpinBox->value() > 900) {
+            ui->TxFreqSpinBox->setValue(300);
+          }
         }
-        if (m_config.bHound ()) {
+        else if (m_config.bHound ()) {
           if(m_auto && !m_tune) {
             if (ui->TxFreqSpinBox->value() < 999 && m_ntx != 3) {
               int nf = (qrand() % 2000) + 1000;      // Hound randomized range: 1000-3000 Hz
@@ -3327,7 +3321,8 @@ void MainWindow::guiUpdate()
             }
           }
           if (m_nSentFoxRrpt == 2) {
-            ui->TxFreqSpinBox->setValue(m_nFoxFreq+300);
+            // move off the original Fox frequency on subsequent tries
+            ui->TxFreqSpinBox->setValue (m_nFoxFreq + 300);
           }
           if (m_nSentFoxRrpt == 1) {
             ++m_nSentFoxRrpt;
@@ -7279,12 +7274,14 @@ void MainWindow::write_transmit_entry (QString const& file_name)
 
 // -------------------------- Code for FT8 DXpedition Mode ---------------------------
 
-void MainWindow::hound_QSY ()
+void MainWindow::hound_reply ()
 {
-  if(m_auto && !m_tune) {
-    if (m_ntx==3 && m_nSentFoxRrpt==1) {
-      ui->TxFreqSpinBox->setValue(m_nFoxFreq);
-    }
+  if (!m_tune) {
+    //### Select TX3, set random TxFreq in [300-900], and Force Auto ON. ###
+    ui->txrb3->setChecked (true);
+    m_nSentFoxRrpt = 1;
+    if (!m_auto) auto_tx_mode(true);
+    ui->TxFreqSpinBox->setValue (m_nFoxFreq);
   }
 }
 
