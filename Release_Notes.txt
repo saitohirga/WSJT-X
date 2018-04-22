@@ -13,6 +13,29 @@
 Copyright 2001 - 2018 by Joe Taylor, K1JT.
 
 
+		Release: WSJT-X Version 1.9.0-rc4
+		         April 23, 2018
+		---------------------------------
+
+Changes from WSJT-X Version 1.9.0-rc3 include the following:
+
+- Corrected a number of flaws in Fox and Hound behavior, FT8 DXpedition Mode
+
+- Updated copy of cty.dat
+
+- Decoded CQ calls where a prefix has been used as a suffix should
+  have the DXCC entity name assigned correctly in almost all cases
+
+- Improved AFC capability for teh wider JT65 sub-modes to help with drifting signals
+
+- Better support for masOS using hi-DPI Retina displays
+
+- New UDP message that allows external applications to highlight decoded callsigns
+
+- Other minor bug fixes
+
+
+
 		Release: WSJT-X Version 1.9.0-rc3
 		         March 18, 2018
 		---------------------------------
