@@ -14,7 +14,7 @@ subroutine genwsprdpsk(msg,msgsent,imessage)
   logical first
   integer ipreamble(16)                      !Freq estimation preamble
   integer isync(32)                          !Long sync vector
-  integer imessage(NN)
+  integer imessage(NN)                     
   data ipreamble/1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1/
   data first/.true./
   data iuniqueword0/z'30C9E8AD'/
@@ -47,11 +47,13 @@ write(*,'(50i1,1x,14i1,1x,4i1)') msgbits
 
   call encode204(msgbits,codeword)      !Encode the test message
 
-! Message structure:
-! d100 p16 d100 
-  imessage(1:100)=codeword(1:100)
-  imessage(101:132)=isync
+  imessage(1)=1                         !reference bit
+  imessage(2:101)=codeword(1:100)
+  imessage(102:132)=isync(1:31)         !only use 31 of the sync bits 
   imessage(133:232)=codeword(101:200)
+  do i=2,232
+    imessage(i)=mod(imessage(i-1)+imessage(i),2)
+  enddo
 
   return
 end subroutine genwsprdpsk

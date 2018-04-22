@@ -15,7 +15,6 @@ program wsprdpsksim
   complex cwav(0:NMAX-1)
   real*8 fMHz
   integer imessage(NN)
-  integer idemess(NN)                    !Differentially encoded message
   integer*2 iwave(NMAX)                  !Generated full-length waveform  
 
 ! Get command-line argument(s)
@@ -54,17 +53,12 @@ program wsprdpsksim
   txt=NN*NSPS0/12000.0
 
   call genwsprdpsk(msg,msgsent,imessage)       !Encode the message, get itone
+  imessage=2*imessage-1
   write(*,1000) f0,xdt,txt,snrdb,fspread,delay,nfiles,msgsent
 1000 format('f0:',f9.3,'   DT:',f6.2,'   txt:',f6.1,'   SNR:',f6.1,    &
           '   fspread:',f6.1,'   delay:',f6.1,'  nfiles:',i3,2x,a22)
 
-! Assume 0'th message bit is 0
-  imessage=2*imessage-1
-  idemess(1)=-1*imessage(1)
-  do i=2,NN
-    idemess(i)=imessage(i-1)*imessage(i)
-  enddo
-
+ 
   beta=1.0   ! excess bandwidth
   if(nwav.eq.0) then
      df=fs/(NMAX/NDOWN)                      !
@@ -84,7 +78,7 @@ program wsprdpsksim
      istart=xdt/dt
      c0=0.0
      do i=1,NN
-       c0(istart+(i-1)*200)=idemess(i)
+       c0(istart+(i-1)*200)=imessage(i)
      enddo
      call four2a(c0,NMAX/NDOWN,1,1,1)
      c0=c0*conjg(c)
@@ -141,7 +135,7 @@ write(*,*) 'sample SNR: ',10*log10(snrtest)+10*log10(0.4/2.5)
      istart=xdt/dt
      c0wav=0.0
      do i=1,NN
-       c0wav(istart+(i-1)*200*NDOWN)=idemess(i)
+       c0wav(istart+(i-1)*200*NDOWN)=imessage(i)
      enddo
      call four2a(c0wav,NMAX,1,1,1)
      c0wav=c0wav*conjg(cwav)
