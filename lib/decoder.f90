@@ -28,7 +28,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   end type counting_ft8_decoder
 
   real ss(184,NSMAX)
-  logical baddata,newdat65,newdat9,single_decode,bVHF,bad0,newdat
+  logical baddata,newdat65,newdat9,single_decode,bVHF,bad0,newdat,ex
   integer*2 id2(NTMAX*12000)
   type(params_block) :: params
   real*4 dd(NTMAX*12000)
@@ -54,12 +54,21 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 10 if (params%nagain) then
      open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown',            &
           position='append',iostat=ios)
-     if(params%nmode.eq.8) open(19,file=trim(temp_dir)//'/houndcallers.txt',  &
-          status='unknown',position='append',iostat=ios)
   else
      open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown',iostat=ios)
-     if(params%nmode.eq.8) open(19,file=trim(temp_dir)//'/houndcallers.txt',  &
-          status='unknown',iostat=ios)
+     if(params%nmode.eq.8) then
+        inquire(file=trim(temp_dir)//'/houndcallers.txt',exist=ex)
+        if(.not.ex) then
+           c2fox='            '
+           g2fox='    '
+           nsnrfox=-99
+           nfreqfox=-99
+           n30z=0
+           nwrap=0
+           nfox=0
+        endif
+        open(19,file=trim(temp_dir)//'/houndcallers.txt',status='unknown')
+     endif
   endif
   if(ios.ne.0) then
      nfail=nfail+1
