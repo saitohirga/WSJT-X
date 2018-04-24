@@ -3320,9 +3320,11 @@ void MainWindow::guiUpdate()
               ui->TxFreqSpinBox->setValue(nf);
             }
           }
-          if (m_nSentFoxRrpt == 2) {
-            // move off the original Fox frequency on subsequent tries
-            ui->TxFreqSpinBox->setValue (m_nFoxFreq + 300);
+          if (m_nSentFoxRrpt==2 and m_ntx==3) {
+            // move off the original Fox frequency on subsequent tries of Tx3
+            int nfreq=m_nFoxFreq + 300;
+            if(m_nFoxFreq>600) nfreq=m_nFoxFreq - 300;  //keep nfreq below 900 Hz
+            ui->TxFreqSpinBox->setValue(nfreq);
           }
           if (m_nSentFoxRrpt == 1) {
             ++m_nSentFoxRrpt;
