@@ -1,4 +1,4 @@
-subroutine genwsprdpsk(msg,msgsent,imessage)
+subroutine genwsprdpsk(msg,msgsent,imsgde)
 
 ! Encode a WSPRDPSK message, producing array txwave().
 !  
@@ -14,7 +14,7 @@ subroutine genwsprdpsk(msg,msgsent,imessage)
   logical first
   integer ipreamble(16)                      !Freq estimation preamble
   integer isync(32)                          !Long sync vector
-  integer imessage(NN)                     
+  integer imsg(NN),imsgde(NN)                   
   data ipreamble/1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1/
   data first/.true./
   data iuniqueword0/z'30C9E8AD'/
@@ -47,13 +47,16 @@ write(*,'(50i1,1x,14i1,1x,4i1)') msgbits
 
   call encode204(msgbits,codeword)      !Encode the test message
 
-  imessage(1)=1                         !reference bit
-  imessage(2:101)=codeword(1:100)
-  imessage(102:132)=isync(1:31)         !only use 31 of the sync bits 
-  imessage(133:232)=codeword(101:200)
+  imsg(1)=1                         !reference bit
+  imsg(2:101)=codeword(1:100)
+  imsg(102:132)=isync(1:31)         !only use 31 of the sync bits 
+  imsg(133:232)=codeword(101:200)
+write(*,'(232i1)') imsg(1:232)
+  imsgde(1)=1
   do i=2,232
-    imessage(i)=mod(imessage(i-1)+imessage(i),2)
+    imsgde(i)=mod(imsgde(i-1)+imsg(i),2)
   enddo
-
+write(*,*) '-------------'
+write(*,'(232i1)') imsgde(1:232)
   return
 end subroutine genwsprdpsk
