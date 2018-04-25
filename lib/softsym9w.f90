@@ -1,4 +1,4 @@
-subroutine softsym9w(id2,npts,xdt0,f0,width,nsubmode,xdt1,i1softsymbols)
+subroutine softsym9w(id2,npts,xdt0,f0,width,nsubmode,xdt1,snrdb,i1softsymbols)
 
   parameter (NFFT=6912,NH=NFFT/2,NQ=NH/2)
   real s(NQ)
@@ -88,17 +88,16 @@ subroutine softsym9w(id2,npts,xdt0,f0,width,nsubmode,xdt1,i1softsymbols)
   call pctile(s2,9*85,35,xmed)
   s3=s3/ave
   sig=sig/69.                             !Signal
-  t=max(1.0,sig - 1.0)
-  snrdb=db(t)
+  snrdb=db(sig/xmed) - 28.0
      
   m0=3
   k=0
   do j=1,69
-        smax=0.
-        do i=0,7
-           if(s3(i,j).gt.smax) smax=s3(i,j)
-        enddo
-
+     smax=0.
+     do i=0,7
+        if(s3(i,j).gt.smax) smax=s3(i,j)
+     enddo
+ 
      do m=m0-1,0,-1                   !Get bit-wise soft symbols
         if(m.eq.2) then
            r1=max(s3(4,j),s3(5,j),s3(6,j),s3(7,j))

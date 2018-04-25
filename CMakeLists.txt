@@ -1174,8 +1174,8 @@ target_link_libraries (jt65sim wsjt_fort wsjt_cxx)
 add_executable (qra64sim lib/qra/qra64/qra64sim.f90 wsjtx.rc)
 target_link_libraries (qra64sim wsjt_fort wsjt_cxx)
 
-add_executable (jt9sim lib/jt9sim.f90 wsjtx.rc)
-target_link_libraries (jt9sim wsjt_fort wsjt_cxx)
+add_executable (jt49sim lib/jt49sim.f90 wsjtx.rc)
+target_link_libraries (jt49sim wsjt_fort wsjt_cxx)
 
 add_executable (allsim lib/allsim.f90 wsjtx.rc)
 target_link_libraries (allsim wsjt_fort wsjt_cxx)

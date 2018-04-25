@@ -29,21 +29,39 @@ subroutine decode9w(nfqso,ntol,nsubmode,ss,id2,sync,nsnr,xdt1,f0,decoded)
      nadd=3
      if(iter.eq.2) nadd=2*nint(0.375*a(4)) + 1
      call sync9w(ss,nhsym,lag1,lag2,ia,ib,ccfred,ccfblue,ipk,lagpk,nadd)
-     sum1=sum(ccfblue) - ccfblue(lagpk-1)-ccfblue(lagpk) -ccfblue(lagpk+1)
-     sq=dot_product(ccfblue,ccfblue) - ccfblue(lagpk-1)**2 - &
-          ccfblue(lagpk)**2 - ccfblue(lagpk+1)**2
-     base=sum1/25.0
-     rms=sqrt(sq/24.0)
+     s=0.
+     sq=0.
+     ns=0
+     do i=-9,18
+        if(abs(i-lagpk).gt.3) then
+           s=s+ccfblue(i)
+           sq=sq+ccfblue(i)**2
+           ns=ns+1
+        endif
+     enddo
+     base=s/ns
+     rms=sqrt(sq/ns - base**2)
      sync=(ccfblue(lagpk)-base)/rms
-     nsnr=nint(db(sync)-29.7)
      xdt0=lagpk*tstep
      call lorentzian(ccfred(ia),ib-ia+1,a)
      f0=(ia+a(3))*df
-     ccfblue=(ccfblue-base)/rms
   enddo
+  ccfblue=(ccfblue-base)/rms
 
-  call softsym9w(id2,npts,xdt0,f0,a(4)*df,nsubmode,xdt1-1.05,i1softsymbols)
+  call softsym9w(id2,npts,xdt0,f0,a(4)*df,nsubmode,xdt1-1.05,snrdb,i1softsymbols)
+  nsnr=nint(snrdb)
   call jt9fano(i1softsymbols,limit,nlim,decoded)
+
+!###
+!  do i=-9,18
+!     write(81,3081) i,ccfblue(i)
+!3081 format(i3,f10.3)
+!  enddo
+!  do i=1,NSMAX
+!     write(82,3082) i*df,ccfred(i)
+!3082 format(f10.1,e12.3)
+!  enddo
+!###
 
   return
 end subroutine decode9w
