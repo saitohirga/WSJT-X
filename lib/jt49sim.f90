@@ -53,7 +53,6 @@ program jt49sim
   dfsig=2000.0/nsigs                 !Freq spacing between sigs in file (Hz)
   ichk=0
 
-  imode=9
   if(imode.eq.4) then
      nsym=206                           !Number of channel symbols (JT4)
      dnsps=12000.d0/4.375d0
