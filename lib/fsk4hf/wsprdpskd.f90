@@ -38,6 +38,7 @@ program wsprdpskd
   integer*1,target ::  idat(9)
   integer*1 decoded(68),apmask(204),cw(204)
   integer*1 hbits(232),hbits1(232),hbits3(232)
+  integer*1 b(14),bbest(14)
   data ipreamble/1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1/
   data iuniqueword0/z'30C9E8AD'/
 
@@ -64,12 +65,7 @@ program wsprdpskd
   isync2(113:116)=0
   isync2(117:216)=isync(101:200)
 
-! data sync tone
-!   0    0   0
-!   0    1   1
-!   1    0   2
-!   1    1   3
-  dphi=twopi*baud*(h/2.0)*dt*20  ! dt*10 is samp interval after downsample
+  dphi=twopi*baud*(h/2.0)*dt*20  ! dt*20 is samp interval after downsample
   do j=0,1
     if(j.eq.0) then
        dphi0=-3*dphi
@@ -150,24 +146,76 @@ program wsprdpskd
     fb=10.0
     fs=12000.0/30.0
     npts=120*12000.0/30.0
-    nsync=16
-    call getcandidate2(c2,npts,fs,fa,fb,ncand,candidates)         !First approx for freq
+!    call getcandidate2(c2,npts,fs,fa,fb,ncand,candidates)         !First approx for freq
+    ncand=1
+    candidates(1,1)=0.0
+    candidates(1,2)=-28
     ndecodes=0
     do icand=1,ncand
       fc0=candidates(icand,1)
       xsnr=candidates(icand,2)
-      fc0=0.0
       call dsdpsk(c2,fc0,cd)
       i0=40
       do i=0,231
-        cs(i)=cd(i0+10*i)
-      enddo
+        cs(i)=cd(i0+10*i)/5e4 
+      enddo 
+! 2-bit differential detection
       do i=1,231
-        sbits(i)=-real(cs(i)*conjg(cs(i-1)))/5e4
+        sbits(i)=-real(cs(i)*conjg(cs(i-1)))
       enddo
 
-      rxdata(1:100)=sbits(1:100)
-      rxdata(101:200)=sbits(132:231);
+! detect a differentially encoded block of symbols using the 
+! Divsalar and Simon approach, except that we estimate only
+! the central symbol of the block and then step the block forward
+! by one symbol.
+!
+      sbits3=sbits
+goto 100
+      nbit=13  ! number of decoded bits to be derived from nbit+1 symbols
+      numseq=2**nbit
+      il=(nbit+1)/2
+      ih=231-nbit/2
+      do isym=il,ih
+        rmax=-1e32
+        b=0
+        do iseq=0,numseq-1
+          do i=1,nbit
+            b(i)=merge(1,0,iand(iseq,2**(nbit-i))>0)
+          enddo
+          b(1:nbit)=2*b(1:nbit)-1
+          i1=isym-(nbit+1)/2
+          csum=cs(i1)
+          do i=1,nbit
+            bb=1
+            do m=1,i
+              bb=bb*b(m)
+            enddo
+            csum=csum+bb*cs(i1+i)
+          enddo
+          ps(iseq)=abs(csum)**2
+          if(ps(iseq).gt.rmax) then
+            bbest=b
+            rmax=ps(iseq)
+          endif
+        enddo 
+        if(isym.eq.il) then
+          do i=1,isym-1
+            call getmetric(2**(nbit-i),ps,numseq,xmet)
+            sbits3(i)=-xmet
+          enddo
+        endif
+        call getmetric(2**((nbit-1)/2),ps,numseq,xmet)
+        sbits3(isym)=-xmet
+        if(isym.eq.ih) then
+          do i=ih+1,231
+            call getmetric(2**(231-i),ps,numseq,xmet)
+            sbits3(i)=-xmet
+          enddo
+        endif
+      enddo
+100 continue
+      rxdata(1:100)=sbits3(1:100)
+      rxdata(101:200)=sbits3(132:231);
       rxav=sum(rxdata(1:200))/200.0
       rx2av=sum(rxdata(1:200)*rxdata(1:200))/200.0
       rxsig=sqrt(rx2av-rxav*rxav)
@@ -226,6 +274,22 @@ program wsprdpskd
 1120 format("<DecodeFinished>")
 
 999 end program wsprdpskd
+
+subroutine getmetric(ib,ps,ns,xmet)
+  real ps(0:ns-1)
+  xm1=-1e32
+  xm0=-1e32
+  do i=0,ns-1
+    if( iand(i/ib,1) .eq. 1 .and. ps(i) .gt. xm1 ) then
+      xm1=ps(i) 
+    endif
+    if( iand(i/ib,1) .eq. 0 .and. ps(i) .gt. xm0 ) then
+      xm0=ps(i) 
+    endif
+  enddo
+  xmet=xm1-xm0
+  return
+end subroutine getmetric
 
 subroutine dsdpsk(ci,f0,co)
   parameter(NI=240*200,NH=NI/2,NO=NI/20)  ! downsample from 200 samples per symbol to 10
