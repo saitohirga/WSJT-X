@@ -24,6 +24,8 @@ program jt49sim
      print *, 'Usage:   jt49sim        "msg"     nA-nE Nsigs fDop DT Nfiles SNR'
      print *, 'Example  jt49sim "K1ABC W9XYZ EN37" 4G   10   0.2 0.0   1     0'
      print *, 'Example  jt49sim "K1ABC W9XYZ EN37" 9A    1   0.0 0.0   1    -20'
+     print *, 'Use msg=@nnnn to generate a tone at nnnn Hz:'
+     print *, 'Example  jt49sim "@1500"            9A    1  10.0 0.0   1    -20'
      go to 999
   endif
   call getarg(1,message)
