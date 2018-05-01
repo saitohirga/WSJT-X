@@ -3266,7 +3266,6 @@ void MainWindow::guiUpdate()
     if ((onAirFreq > 10139900 and onAirFreq < 10140320) and
         !m_mode.startsWith ("WSPR")) {
       m_bTxTime=false;
-//      if (m_tune) stop_tuning ();
       if (m_auto) auto_tx_mode (false);
       if(onAirFreq!=m_onAirFreq0) {
         m_onAirFreq0=onAirFreq;
@@ -3280,6 +3279,29 @@ void MainWindow::guiUpdate()
 #else
         MessageBox::warning_message (this, tr ("WSPR Guard Band"), message);
 #endif
+      }
+    }
+
+    if(m_mode=="FT8" and m_config.bFox()) {
+// Don't allow Fox mode in any of the default FT8 sub-bands.
+      qint32 ft8Freq[]={1840,3573,7074,10136,14074,18100,21074,24915,28074,50313,70100};
+      for(int i=0; i<11; i++) {
+        int kHzdiff=m_freqNominal/1000 - ft8Freq[i];
+        if(qAbs(kHzdiff) < 4) {
+          m_bTxTime=false;
+          if (m_auto) auto_tx_mode (false);
+          auto const& message = tr ("Please choose another dial frequency."
+                                    " WSJT-X will not operate in Fox mode"
+                                    " in the standard FT8 sub-bands.");
+#if QT_VERSION >= 0x050400
+          QTimer::singleShot (0, [=] {               // don't block guiUpdate
+            MessageBox::warning_message (this, tr ("Fox Mode warning"), message);
+          });
+#else
+          MessageBox::warning_message (this, tr ("Fox Mode warning"), message);
+#endif
+          break;
+        }
       }
     }
 
