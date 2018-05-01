@@ -56,20 +56,21 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
           position='append',iostat=ios)
   else
      open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown',iostat=ios)
-     if(params%nmode.eq.8) then
-        inquire(file=trim(temp_dir)//'/houndcallers.txt',exist=ex)
-        if(.not.ex) then
-           c2fox='            '
-           g2fox='    '
-           nsnrfox=-99
-           nfreqfox=-99
-           n30z=0
-           nwrap=0
-           nfox=0
-        endif
-        open(19,file=trim(temp_dir)//'/houndcallers.txt',status='unknown')
-     endif
   endif
+  if(params%nmode.eq.8) then
+     inquire(file=trim(temp_dir)//'/houndcallers.txt',exist=ex)
+     if(.not.ex) then
+        c2fox='            '
+        g2fox='    '
+        nsnrfox=-99
+        nfreqfox=-99
+        n30z=0
+        nwrap=0
+        nfox=0
+     endif
+     open(19,file=trim(temp_dir)//'/houndcallers.txt',status='unknown')
+  endif
+
   if(ios.ne.0) then
      nfail=nfail+1
      if(nfail.le.3) then
