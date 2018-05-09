@@ -453,7 +453,7 @@ contains
     real, intent(in) :: dt
     real, intent(in) :: freq
     character(len=37), intent(in) :: decoded
-    character c1*12,c2*6,g2*4,w*4,ctmp*12
+    character c1*12,c2*12,g2*4,w*4,ctmp*12
     integer i0,i1,i2,i3,i4,i5,i6,n30,nwrap
     integer, intent(in) :: nap 
     real, intent(in) :: qual 
@@ -504,13 +504,7 @@ contains
        c2=decoded0(i1+1:i2-1)
        g2=decoded0(i2+1:i3-1)
        b0=c1.eq.params%mycall
-       ctmp=decoded0(i1+1:i2-1)
-       i6=index(ctmp,'/')
-       if(c1(1:3).eq.'DE ' .or. i6.gt.0) then
-          b0=.true.
-          if(i6.ge.2 .and. i6.lt.len(trim(ctmp))/2) c2=ctmp(i6+1:)
-          if(i6.ge.len(trim(ctmp))/2) c2=ctmp(:i6-1)
-       endif
+       if(c1(1:3).eq.'DE ' .and. index(c2,'/').ge.2) b0=.true.
        if(len(trim(c1)).ne.len(trim(params%mycall))) then
           i4=index(trim(c1),trim(params%mycall))
           i5=index(trim(params%mycall),trim(c1))

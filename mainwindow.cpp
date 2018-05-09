@@ -7477,11 +7477,11 @@ void MainWindow::selectHound(QString line)
   m_houndCallers=m_houndCallers.remove(line+"\n");      // Remove t from sorted Hound list
   m_nSortedHounds--;
   ui->decodedTextBrowser->setText(m_houndCallers);   // Populate left window with Hound callers
-  QString t1=houndCall + "    ";
+  QString t1=houndCall + "          ";
   QString t2=rpt;
   if(rpt.mid(0,1) != "-" and rpt.mid(0,1) != "+") t2="+" + rpt;
   if(t2.length()==2) t2=t2.mid(0,1) + "0" + t2.mid(1,1);
-  t1=t1.mid(0,7) + t2;
+  t1=t1.mid(0,12) + t2;
   ui->textBrowser4->displayFoxToBeCalled(t1,"#ffffff");  // Add hound call and rpt to tb4
   t1=t1 + " " + houndGrid;                               // Append the grid
   m_houndQueue.enqueue(t1);                              // Put this hound into the queue
@@ -7513,7 +7513,8 @@ void MainWindow::houndCallers()
     while(!s.atEnd()) {
       line=s.readLine();
       nTotal++;
-      houndCall=line.mid(0,6).trimmed();
+      int i0=line.indexOf(" ");
+      houndCall=line.mid(0,i0);
       paddedHoundCall=houndCall + " ";
       //Don't list a hound already in the queue
       if(!ui->textBrowser4->toPlainText().contains(paddedHoundCall)) {
@@ -7662,7 +7663,8 @@ list1Done:
   while(!m_houndQueue.isEmpty()) {
     //Start QSO with a new Hound
     t=m_houndQueue.dequeue();             //Fetch new hound from queue
-    hc=t.mid(0,6).trimmed();              //hound call
+    int i0=t.indexOf(" ");
+    hc=t.mid(0,i0);                       //hound call
     list2 << hc;                          //Add new Hound to list2
     m_foxQSOinProgress.enqueue(hc);       //Put him in the QSO queue
     m_foxQSO[hc].grid=t.mid(11,4);        //hound grid
@@ -7687,12 +7689,15 @@ list2Done:
     fm="";
     if(i<n1 and i<n2) {
       hc1=list1.at(i);
+      if(hc1.indexOf("/")>0) hc1=Radio::base_callsign(hc1);
       hc2=list2.at(i);
+      if(hc2.indexOf("/")>0) hc2=Radio::base_callsign(hc2);
       m_foxQSO[hc2].ncall++;
       fm = hc1 + " RR73; " + hc2 + " <" + m_config.my_callsign() + "> " + m_foxQSO[hc2].sent;
     }
     if(i<n1 and i>=n2) {
       hc1=list1.at(i);
+      if(hc1.indexOf("/")>0) hc1=Radio::base_callsign(hc1);
       fm = hc1 + " " + m_baseCall + " RR73";                 //Standard FT8 message
     }
 
@@ -7716,6 +7721,7 @@ list2Done:
 
     if(i<n2 and fm=="") {
       hc2=list2.at(i);
+      if(hc2.indexOf("/")>0) hc2=Radio::base_callsign(hc2);
       m_foxQSO[hc2].ncall++;
       fm = hc2 + " " + m_baseCall + " " + m_foxQSO[hc2].sent; //Standard FT8 message
     }
@@ -7752,9 +7758,6 @@ Transmit:
     bool b3=(m_foxQSO[hc].ncall >= m_maxStrikes+m_maxFoxWait);
     bool b4=(m_foxQSO[hc].nRR73 >= m_maxStrikes);
     if(b1 or b2 or b3 or b4) {
-//      qDebug() << m_tFoxTx << "Rem:" << hc << m_foxQSO[hc].tFoxRrpt
-//               << m_foxQSO[hc].tFoxTxRR73 << m_foxQSO[hc].ncall << m_foxQSO[hc].nRR73
-//               << m_maxFoxWait << b1 << b2 << b3 << b4;
       m_foxQSO.remove(hc);
       m_foxQSOinProgress.removeOne(hc);
     }
@@ -7912,7 +7915,6 @@ void MainWindow::foxTest()
                 m_foxQSOinProgress.count(),m_foxQSO.count(),
                 m_loggedByFox.count(),m_tFoxTx);
       sdiag << t << line.mid(37).trimmed() << "\n";
-      //    qDebug() << "aa " << t << line.mid(37).trimmed();
     }
   }
 }
