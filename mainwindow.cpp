@@ -7589,8 +7589,6 @@ void MainWindow::foxTxSequencer()
   QString hc,hc1,hc2;                       //Hound calls
   QString t,rpt;
   qint32  islot=0;
-  qint32  nWaiting=0;
-  qint32  n2max;
   qint32  n1,n2,n3;
 
   m_tFoxTx++;                               //Increment Fox Tx cycle counter
@@ -7607,7 +7605,7 @@ void MainWindow::foxTxSequencer()
     foxGenWaveform(islot-1,fm);
     goto Transmit;
   }
-//Compile list1:
+//Compile list1: up to NSLots Hound calls to be sent RR73
   for(QString hc: m_foxQSO.keys()) {           //Check all Hound calls: First priority
     if(m_foxQSO[hc].tFoxRrpt<0) continue;
     if(m_foxQSO[hc].tFoxRrpt - m_foxQSO[hc].tFoxTxRR73 > 3) {
@@ -7642,21 +7640,14 @@ void MainWindow::foxTxSequencer()
   }
 
 list1Done:
-  for(QString hc: m_foxQSO.keys()) {           //Check all Hound calls
-    if((m_foxQSO[hc].nRR73 == 0) or (m_foxQSO[hc].tFoxRrpt > m_foxQSO[hc].tFoxTxRR73)) {
-      //Never sent RR73, or received R+rpt more recently
-      nWaiting++;
-    }
-  }
-
-//Compile list2:
-  n2max=m_Nslots-nWaiting;                  //Max number of new QSOs to start
+//Compile list2: Up to Nslots Hound calls to be sent a report.
   for(int i=0; i<m_foxQSOinProgress.count(); i++) {
+    //First do those for QSOs in progress
     hc=m_foxQSOinProgress.at(i);
     if((m_foxQSO[hc].tFoxRrpt < 0) and (m_foxQSO[hc].ncall < m_maxStrikes)) {
       //Sent him a report and have not received R+rpt: call him again
       list2 << hc;                          //Add to list2
-      if(list2.size()==n2max) goto list2Done;
+      if(list2.size()==m_Nslots) goto list2Done;
     }
   }
 
@@ -7667,38 +7658,38 @@ list1Done:
     hc=t.mid(0,i0);                       //hound call
     list2 << hc;                          //Add new Hound to list2
     m_foxQSOinProgress.enqueue(hc);       //Put him in the QSO queue
-    m_foxQSO[hc].grid=t.mid(11,4);        //hound grid
-    rpt=t.mid(7,3);
+    m_foxQSO[hc].grid=t.mid(11,4);        //Hound grid
+    rpt=t.mid(12,3);                      //report to send Hound
     m_foxQSO[hc].sent=rpt;                //Report to send him
     m_foxQSO[hc].ncall=0;                 //Start a new Hound
     m_foxQSO[hc].nRR73 = 0;               //Have not sent RR73
+    m_foxQSO[hc].rcvd = -99;              //Have not received R+rpt
     m_foxQSO[hc].tFoxRrpt = -1;           //Have not received R+rpt
     m_foxQSO[hc].tFoxTxRR73 = -1;         //Have not sent RR73
     rm_tb4(hc);                           //Remove this Hound from tb4
-    if(list2.size()==n2max) goto list2Done;
+    if(list2.size()==m_Nslots) goto list2Done;
+    if(m_foxQSO.count()>=2*m_Nslots) goto list2Done;
   }
 
 list2Done:
-
   n1=list1.size();
   n2=list2.size();
   n3=qMax(n1,n2);
   if(n3>m_Nslots) n3=m_Nslots;
+//  qDebug() << "aa" << n1 << n2 << n3 << m_foxQSO.count();
   for(int i=0; i<n3; i++) {
     hc1="";
     fm="";
     if(i<n1 and i<n2) {
       hc1=list1.at(i);
-      if(hc1.indexOf("/")>0) hc1=Radio::base_callsign(hc1);
       hc2=list2.at(i);
-      if(hc2.indexOf("/")>0) hc2=Radio::base_callsign(hc2);
       m_foxQSO[hc2].ncall++;
-      fm = hc1 + " RR73; " + hc2 + " <" + m_config.my_callsign() + "> " + m_foxQSO[hc2].sent;
+      fm = Radio::base_callsign(hc1) + " RR73; " + Radio::base_callsign(hc2) +
+          " <" + m_config.my_callsign() + "> " + m_foxQSO[hc2].sent;
     }
     if(i<n1 and i>=n2) {
       hc1=list1.at(i);
-      if(hc1.indexOf("/")>0) hc1=Radio::base_callsign(hc1);
-      fm = hc1 + " " + m_baseCall + " RR73";                 //Standard FT8 message
+      fm = Radio::base_callsign(hc1) + " " + m_baseCall + " RR73";                 //Standard FT8 message
     }
 
     if(hc1!="") {
@@ -7721,23 +7712,25 @@ list2Done:
 
     if(i<n2 and fm=="") {
       hc2=list2.at(i);
-      if(hc2.indexOf("/")>0) hc2=Radio::base_callsign(hc2);
       m_foxQSO[hc2].ncall++;
-      fm = hc2 + " " + m_baseCall + " " + m_foxQSO[hc2].sent; //Standard FT8 message
+      fm = Radio::base_callsign(hc2) + " " + m_baseCall + " " + m_foxQSO[hc2].sent; //Standard FT8 message
     }
     islot++;
     foxGenWaveform(islot-1,fm);                             //Generate tx waveform
   }
 
   if(islot < m_Nslots) {
-    //At least one slot is still open, so we'll add one CQ message
-    fm=ui->comboBoxCQ->currentText() + " " + m_config.my_callsign();
-    if(!fm.contains("/")) {
-      fm += " " + m_config.my_grid().mid(0,4);
-      m_fullFoxCallTime=now;
+    //At least one slot is still open
+    if(m_tFoxTx%4==0 or islot==0) {
+      //Every 4th Tx sequence, we'll put a CQ message in an otherwise empty slot
+      fm=ui->comboBoxCQ->currentText() + " " + m_config.my_callsign();
+      if(!fm.contains("/")) {
+        fm += " " + m_config.my_grid().mid(0,4);
+        m_fullFoxCallTime=now;
+      }
+      islot++;
+      foxGenWaveform(islot-1,fm);
     }
-    islot++;
-    foxGenWaveform(islot-1,fm);
   }
 
 Transmit:
@@ -7746,6 +7739,7 @@ Transmit:
   if(m_config.split_mode()) foxcom_.nfreq = foxcom_.nfreq - m_XIT;  //Fox Tx freq
   QString foxCall=m_config.my_callsign() + "         ";
   strncpy(&foxcom_.mycall[0], foxCall.toLatin1(),12);   //Copy Fox callsign into foxcom_
+//  qDebug() << "bb" << islot << foxcom_.nslots << foxcom_.nfreq << foxCall;
   foxgen_();
   m_tFoxTxSinceCQ++;
 

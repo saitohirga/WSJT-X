@@ -49,7 +49,7 @@ subroutine foxgen()
   do n=1,nslots
      i3b=i3bit(n)
      if(i3b.eq.0) then
-        msg=cmsg(n)(1:22)                     !Stansard FT8 message
+        msg=cmsg(n)(1:22)                     !Standard FT8 message
      else
         i1=index(cmsg(n),' ')                 !Special Fox message
         i2=index(cmsg(n),';')
