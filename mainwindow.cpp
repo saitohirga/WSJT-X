@@ -7400,6 +7400,7 @@ QString MainWindow::sortHoundCalls(QString t, int isort, int max_dB)
 
       if(isort==2) {                                   // sort Hound calls by grid
         t1=map[a].split(" ",QString::SkipEmptyParts).at(1);
+        if(t1=="....") t1="ZZ99";
         int i1=ABC.indexOf(t1.mid(0,1));
         int i2=ABC.indexOf(t1.mid(1,1));
         n=100*(26*i1+i2)+t1.mid(2,2).toInt();
