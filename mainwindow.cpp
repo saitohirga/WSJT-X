@@ -7784,6 +7784,7 @@ void MainWindow::rm_tb4(QString houndCall)
       t += line;
     }
   }
+  t.replace("\n\n","\n");
   ui->textBrowser4->setText(t);
 }
 
@@ -7792,13 +7793,13 @@ void MainWindow::doubleClickOnFoxQueue(Qt::KeyboardModifiers modifiers)
   if(modifiers==9999) return;                               //Silence compiler warning
   QTextCursor cursor=ui->textBrowser4->textCursor();
   cursor.setPosition(cursor.selectionStart());
-  QString houndCall=cursor.block().text().mid(0,6).trimmed();
+  QString houndCall=cursor.block().text().mid(0,12).trimmed();
   rm_tb4(houndCall);
   writeFoxQSO(" Del:  " + houndCall);
   QQueue<QString> tmpQueue;
   while(!m_houndQueue.isEmpty()) {
     QString t=m_houndQueue.dequeue();
-    QString hc=t.mid(0,6).trimmed();
+    QString hc=t.mid(0,12).trimmed();
     if(hc != houndCall) tmpQueue.enqueue(t);
   }
   m_houndQueue.swap(tmpQueue);
