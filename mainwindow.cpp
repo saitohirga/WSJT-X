@@ -2976,7 +2976,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
             auto_tx_mode(false);
             on_logQSOButton_clicked();
           }
-          if(w.at(2)==m_config.my_callsign() and ui->tx3->text().length()>0) {
+          if((w.at(2)==m_config.my_callsign() or w.at(2)==Radio::base_callsign(m_config.my_callsign()))
+             and ui->tx3->text().length()>0) {
             m_rptRcvd=w.at(4);
             m_rptSent=decodedtext.string().mid(7,3);
             m_nFoxFreq=decodedtext.string().mid(16,4).toInt();
