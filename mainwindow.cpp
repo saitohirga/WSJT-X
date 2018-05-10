@@ -2900,6 +2900,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         auto for_us  = decodedtext.string().contains(" " + m_config.my_callsign() + " ") or
             decodedtext.string().contains(" "+m_baseCall) or
             decodedtext.string().contains(m_baseCall+" ");
+        if(decodedtext.string().contains(" DE ")) for_us=true;   //Hound with compound callsign
         if(for_us) {
           QString houndCall,houndGrid;
           decodedtext.deCallAndGrid(/*out*/houndCall,houndGrid);
@@ -2942,6 +2943,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
             if(!m_config.bFox()) processMessage (decodedtext);
             ui->cbFirst->setStyleSheet("");
           }
+          if(m_config.bFox() and decodedtext.string().contains(" DE ")) for_us=true; //Hound with compound callsign
           if(m_config.bFox() and for_us and (audioFreq<1000)) bDisplayRight=true;
           if(!m_config.bFox() and (for_us or (abs(audioFreq - m_wideGraph->rxFreq()) <= 10))) bDisplayRight=true;
         }
@@ -2969,7 +2971,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           QStringList w=decodedtext.string().mid(24).split(" ",QString::SkipEmptyParts);
           QString foxCall=w.at(3);
           foxCall=foxCall.remove("<").remove(">");
-          if(w.at(0)==m_config.my_callsign()) {
+          if(w.at(0)==m_config.my_callsign() or w.at(0)==Radio::base_callsign(m_config.my_callsign())) {
             //### Check for ui->dxCallEntry->text()==foxCall before logging! ###
             auto_tx_mode(false);
             on_logQSOButton_clicked();
@@ -2985,7 +2987,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
           if(decodedtext.string().contains("/")) w.append(" +00");  //Add a dummy report
           if(w.size()>=3) {
             QString foxCall=w.at(1);
-            if(w.at(0)==m_config.my_callsign() and ui->tx3->text().length()>0) {
+            if((w.at(0)==m_config.my_callsign() or w.at(0)==Radio::base_callsign(m_config.my_callsign())) and
+               ui->tx3->text().length()>0) {
               if(w.at(2)=="RR73") {
                 auto_tx_mode(false);
                 on_logQSOButton_clicked();
@@ -7301,9 +7304,10 @@ void MainWindow::write_transmit_entry (QString const& file_name)
 void MainWindow::hound_reply ()
 {
   if (!m_tune) {
-    //### Select TX3, set random TxFreq in [300-900], and Force Auto ON. ###
+    //Select TX3, set TxFreq to FoxFreq, and Force Auto ON.
     ui->txrb3->setChecked (true);
     m_nSentFoxRrpt = 1;
+    ui->rptSpinBox->setValue(m_rptSent.toInt());
     if (!m_auto) auto_tx_mode(true);
     ui->TxFreqSpinBox->setValue (m_nFoxFreq);
   }
@@ -7565,11 +7569,18 @@ void MainWindow::foxRxSequencer(QString msg, QString houndCall, QString rptRcvd)
  * If houndCall matches a callsign in one of our active QSO slots, we
  * prepare to send "houndCall RR73" to that caller.
 */
-//  qDebug() << m_tFoxTx << "Rx: " << msg.mid(24).trimmed();
   if(m_foxQSO.contains(houndCall)) {
     m_foxQSO[houndCall].rcvd=rptRcvd.mid(1);  //Save report Rcvd, for the log
     m_foxQSO[houndCall].tFoxRrpt=m_tFoxTx;    //Save time R+rpt was received
     writeFoxQSO(" Rx:   " + msg.trimmed());
+  } else {
+    for(QString hc: m_foxQSO.keys()) {        //Check for a matching compound call
+      if(hc.contains("/"+houndCall) or hc.contains(houndCall+"/")) {
+        m_foxQSO[hc].rcvd=rptRcvd.mid(1);  //Save report Rcvd, for the log
+        m_foxQSO[hc].tFoxRrpt=m_tFoxTx;    //Save time R+rpt was received
+        writeFoxQSO(" Rx:   " + msg.trimmed());
+      }
+    }
   }
 }
 
@@ -7676,7 +7687,6 @@ list2Done:
   n2=list2.size();
   n3=qMax(n1,n2);
   if(n3>m_Nslots) n3=m_Nslots;
-//  qDebug() << "aa" << n1 << n2 << n3 << m_foxQSO.count();
   for(int i=0; i<n3; i++) {
     hc1="";
     fm="";
@@ -7699,8 +7709,10 @@ list2Done:
       m_rptSent=m_foxQSO[hc1].sent;
       m_rptRcvd=m_foxQSO[hc1].rcvd;
       QDateTime logTime {QDateTime::currentDateTimeUtc ()};
-      QString logLine=logTime.toString("yyyy-MM-dd hh:mm") + " " + (m_hisCall + "   ").mid(0,6) +
-          "  " + m_hisGrid + "  " + m_rptSent + "  " + m_rptRcvd + " " + m_lastBand;
+      QString thc1=(m_hisCall + "   ").mid(0,6);
+      if(m_hisCall.contains("/")) thc1=m_hisCall;
+      QString logLine=logTime.toString("yyyy-MM-dd hh:mm") + " " + thc1 + "  " +
+          m_hisGrid + "  " + m_rptSent + "  " + m_rptRcvd + " " + m_lastBand;
       if(m_msgAvgWidget != NULL and m_msgAvgWidget->isVisible()) {
         m_msgAvgWidget->foxAddLog(logLine);
       }
