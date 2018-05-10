@@ -2768,7 +2768,10 @@ void Configuration::impl::enumerate_rigs ()
         }
       else
         {
-          ui_->rig_combo_box->addItem (r.key (), r.value ().model_number_);
+          int i;
+          for(i=1;i<ui_->rig_combo_box->count() && (r.key().toLower() > ui_->rig_combo_box->itemText(i).toLower());++i);
+          if (i < ui_->rig_combo_box->count())  ui_->rig_combo_box->insertItem (i, r.key (), r.value ().model_number_);
+          else ui_->rig_combo_box->addItem (r.key (), r.value ().model_number_);
         }
     }
 
