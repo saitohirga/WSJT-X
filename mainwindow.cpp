@@ -3482,6 +3482,16 @@ void MainWindow::guiUpdate()
               char ft8msgbits[75 + 12]; //packed 75 bit ft8 message plus 12-bit CRC
               genft8_(message, MyGrid, &bcontest, &m_i3bit, msgsent, const_cast<char *> (ft8msgbits),
                       const_cast<int *> (itone), 22, 6, 22);
+              if(m_config.bFox()) {
+                QString fm = QString::fromStdString(message).trimmed();
+                foxGenWaveform(0,fm);
+                foxcom_.nslots=1;
+                foxcom_.nfreq=ui->TxFreqSpinBox->value();
+                if(m_config.split_mode()) foxcom_.nfreq = foxcom_.nfreq - m_XIT;  //Fox Tx freq
+                QString foxCall=m_config.my_callsign() + "         ";
+                strncpy(&foxcom_.mycall[0], foxCall.toLatin1(),12);   //Copy Fox callsign into foxcom_
+                foxgen_();
+              }
             }
           }
         }
@@ -7752,7 +7762,6 @@ Transmit:
   if(m_config.split_mode()) foxcom_.nfreq = foxcom_.nfreq - m_XIT;  //Fox Tx freq
   QString foxCall=m_config.my_callsign() + "         ";
   strncpy(&foxcom_.mycall[0], foxCall.toLatin1(),12);   //Copy Fox callsign into foxcom_
-//  qDebug() << "bb" << islot << foxcom_.nslots << foxcom_.nfreq << foxCall;
   foxgen_();
   m_tFoxTxSinceCQ++;
 
@@ -7820,8 +7829,6 @@ void MainWindow::doubleClickOnFoxQueue(Qt::KeyboardModifiers modifiers)
 
 void MainWindow::foxGenWaveform(int i,QString fm)
 {
-//  if(i==0) qDebug() << "";
-//  qDebug() << m_tFoxTx << "Tx" << i << fm;
 //Generate and accumulate the Tx waveform
   fm += "                                        ";
   fm=fm.mid(0,40);
