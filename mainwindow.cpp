@@ -4922,7 +4922,9 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   }
   auto dateTimeQSOOff = QDateTime::currentDateTimeUtc();
   if (dateTimeQSOOff < m_dateTimeQSOOn) dateTimeQSOOff = m_dateTimeQSOOn;
-  m_logDlg->initLogQSO (m_hisCall, m_hisGrid, m_modeTx, m_rptSent, m_rptRcvd,
+  QString grid=m_hisGrid;
+  if(grid=="....") grid="";
+  m_logDlg->initLogQSO (m_hisCall, grid, m_modeTx, m_rptSent, m_rptRcvd,
                         m_dateTimeQSOOn, dateTimeQSOOff, m_freqNominal + ui->TxFreqSpinBox->value(),
                         m_config.my_callsign(), m_config.my_grid(), m_noSuffix,
                         m_config.log_as_RTTY(), m_config.report_in_comments(),
@@ -7477,8 +7479,6 @@ void MainWindow::selectHound(QString line)
   QString houndGrid=line.split(" ",QString::SkipEmptyParts).at(1);  // Hound caller's grid
   QString rpt=line.split(" ",QString::SkipEmptyParts).at(2);        // Hound SNR
 
-//### Note: Compound callsigns for Hounds are not presently supported. ###
-
   m_houndCallers=m_houndCallers.remove(line+"\n");      // Remove t from sorted Hound list
   m_nSortedHounds--;
   ui->decodedTextBrowser->setText(m_houndCallers);   // Populate left window with Hound callers
@@ -7670,7 +7670,7 @@ list1Done:
     hc=t.mid(0,i0);                       //hound call
     list2 << hc;                          //Add new Hound to list2
     m_foxQSOinProgress.enqueue(hc);       //Put him in the QSO queue
-    m_foxQSO[hc].grid=t.mid(11,4);        //Hound grid
+    m_foxQSO[hc].grid=t.mid(16,4);        //Hound grid
     rpt=t.mid(12,3);                      //report to send Hound
     m_foxQSO[hc].sent=rpt;                //Report to send him
     m_foxQSO[hc].ncall=0;                 //Start a new Hound
