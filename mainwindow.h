@@ -433,6 +433,7 @@ private:
   qint32  m_tAutoOn;
 //  qint32  m_maxQSOs;
   qint32  m_tFoxTx=0;
+  qint32  m_tFoxTx0=0;
   qint32  m_maxStrikes=3;      //Max # of repeats: 3 strikes and you're out
   qint32  m_maxFoxWait=3;      //Max wait time for expected Hound replies
   qint32  m_foxCQtime=10;      //CQs at least every 5 minutes

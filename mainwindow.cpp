@@ -7616,13 +7616,14 @@ void MainWindow::foxTxSequencer()
   m_tFoxTx++;                               //Increment Fox Tx cycle counter
 
   //Is it time for a stand-alone CQ?
-  if(m_tFoxTxSinceCQ >= m_foxCQtime) {
+  if(m_tFoxTxSinceCQ >= m_foxCQtime and ui->cbMoreCQs->isChecked()) {
     fm=ui->comboBoxCQ->currentText() + " " + m_config.my_callsign();
     if(!fm.contains("/")) {
       //If Fox is not a compound callsign, add grid to the CQ message.
       fm += " " + m_config.my_grid().mid(0,4);
       m_fullFoxCallTime=now;
     }
+    m_tFoxTx0=m_tFoxTx;                     //Remember when we sent a CQ
     islot++;
     foxGenWaveform(islot-1,fm);
     goto Transmit;
@@ -7744,11 +7745,12 @@ list2Done:
 
   if(islot < m_Nslots) {
     //At least one slot is still open
-    if(m_tFoxTx%4==0 or islot==0) {
-      //Every 4th Tx sequence, we'll put a CQ message in an otherwise empty slot
+    if(islot==0 or ((m_tFoxTx-m_tFoxTx0>=4) and ui->cbMoreCQs->isChecked())) {
+      //Roughly every 4th Tx sequence, put a CQ message in an otherwise empty slot
       fm=ui->comboBoxCQ->currentText() + " " + m_config.my_callsign();
       if(!fm.contains("/")) {
         fm += " " + m_config.my_grid().mid(0,4);
+        m_tFoxTx0=m_tFoxTx;                                //Remember when we send a CQ
         m_fullFoxCallTime=now;
       }
       islot++;
