@@ -2973,7 +2973,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           foxCall=foxCall.remove("<").remove(">");
           if(w.at(0)==m_config.my_callsign() or w.at(0)==Radio::base_callsign(m_config.my_callsign())) {
             //### Check for ui->dxCallEntry->text()==foxCall before logging! ###
-            auto_tx_mode(false);
+            ui->stopTxButton->click ();
             on_logQSOButton_clicked();
           }
           if((w.at(2)==m_config.my_callsign() or w.at(2)==Radio::base_callsign(m_config.my_callsign()))
@@ -2991,7 +2991,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
             if((w.at(0)==m_config.my_callsign() or w.at(0)==Radio::base_callsign(m_config.my_callsign())) and
                ui->tx3->text().length()>0) {
               if(w.at(2)=="RR73") {
-                auto_tx_mode(false);
+                ui->stopTxButton->click ();
                 on_logQSOButton_clicked();
               } else {
                 if(w.at(1)==Radio::base_callsign(ui->dxCallEntry->text()) and
