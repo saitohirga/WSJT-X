@@ -13,7 +13,33 @@
 Copyright 2001 - 2018 by Joe Taylor, K1JT.
 
 
-		Release: WSJT-X Version 1.9.0-rc4
+		   Release: WSJT-X Version 1.9.0
+		           May ??, 2018
+		   -----------------------------
+
+Changes from WSJT-X Version 1.9.0-rc4 include the following:
+
+- Display in the right text window of MSK144 messages addressed to
+  "MyCall" has been restored.
+
+- Fox is not allowed to transmit in any of the default FT8 sub-bands.
+
+- Fox can now work Hounds using compound callsigns.
+
+- Fox can now transmit free-text messages (and any standard FT8 message)
+  by using Tab 1 or Tab 2.
+
+- Added a checkbox to enable more frequent programmed CQs by Fox.
+  Default is OFF.
+
+- Alt+N keyboard shortcut has been restored.
+
+- MacOS program crash on unexpected decode request has been fixed.
+
+- Several minor bug fixes and added convenience features.
+
+
+	     	Release: WSJT-X Version 1.9.0-rc4
 		         April 30, 2018
 		---------------------------------
 
