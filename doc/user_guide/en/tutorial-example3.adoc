@@ -56,17 +56,21 @@ NOTE: Further helpful tips on FT8 operating procedures are available
 
 .FT8 DXpedition Mode:
 
-- This special operating mode enables DXpeditions to make FT8 QSOs at
+This special operating mode enables DXpeditions to make FT8 QSOs at
 very high rates.  Both stations must use _WSJT-X_ Version 1.9 or
 later.  Detailed operating instructions for {ft8_DXped} are available
 online.  Do not try to use DXpedition mode without reading these
 instructions carefully!
 
-IMPORTANT: FT8 DXpedition mode is suitable for use only by legitimate
-DXpeditions and those attempting to work them. Do not try to use
-DXpedition mode for normal FT8 operation.  Do not use it in the
-conventional FT8 subbands.  And especially, do not use the
-multi-signal capability unless you are a DXpedition.
+IMPORTANT: FT8 DXpedition mode is intended for use by rare-entity
+DXpeditions and other unusual circumstances in which sustained QSO
+rates well above 100/hour are expected.  Do not use the multi-signal
+capability unless you satisfy this requirement, and do not use
+DXpedition Mode in the conventional FT8 sub-bands.  If you are
+contemplating operation as Fox using DXpedition Mode, find a suitable
+dial frequency consistent with regional band plans and publicize it
+for the operators you hope to work.  Remember that on-the-air signal
+frequencies will be higher than the dial frequency by up to 4 kHz.
 
 IMPORTANT: When finished with this Tutorial, don't forget to re-enter
 your own callsign as *My Call* on the *Settings | General* tab.
