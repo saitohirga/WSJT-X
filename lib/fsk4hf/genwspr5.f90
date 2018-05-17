@@ -54,7 +54,7 @@ subroutine genwspr5(msg,msgsent,itone)
 
 ! Message structure:
 ! I channel:  R1 48*(S1+D1) S13 48*(D1+S1) R1
-! Q channel:  R1 D109 R1
+! Q channel:  R1 D204 R1
 ! Generate QPSK with no offset, then shift the y array to get OQPSK.
 
 ! I channel:
