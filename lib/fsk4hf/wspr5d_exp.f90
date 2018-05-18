@@ -29,7 +29,7 @@ program wspr5d
   complex c(0:NZ-1)                     !Complex waveform
   complex cd(0:NZ-1)                    !Complex waveform
   complex ca(0:NZ-1)                    !Complex waveform
-  complex zz
+  complex zz,zzsum
   real*8 fMHz
   real rxdata(ND),llr(ND)               !Soft symbols
   real pp(32)                       !Shaped pulse for OQPSK
@@ -44,6 +44,7 @@ program wspr5d
   integer*1 idat(7)
   integer*1 decoded(KK),apmask(ND),cw(ND)
   integer*1 hbits(412),bits(13)
+  logical reset
   data ib13/1,1,1,1,1,-1,-1,1,1,-1,1,-1,1/
 
   nargs=iargc()
@@ -131,41 +132,57 @@ program wspr5d
     fb=150.0
     fs400=400.0
     call getfc1(c400,fs400,fa,fb,fc1,xsnr)         !First approx for freq
-!write(*,*) datetime,'initial guess ',fc1
     npeaks=5
     call getfc2(c400,npeaks,fs400,fc1,fpks)      !Refined freq
 
-    do idf=1,npeaks ! consider the top npeak peaks 
-      fc2=fpks(idf)
+!    do idf=1,npeaks ! consider the top npeak peaks 
+    do idf=1,1  ! for genie-aided sync 
+      fc1=125.0 ! genie provided
+      fc2=0.0   ! from the genie
+!      fc2=fpks(idf) 
       call downsample(c400,fc1+fc2,cd)
       s2=sum(cd*conjg(cd))/(16*412)
       cd=cd/sqrt(s2)
-      do is=0,8 ! dt search range is narrow, to save time. 
+      do is=0,0 ! dt search range is zeroed for genie-aided sync 
         idt=is/2
         if( mod(is,2).eq. 1 ) idt=-(is+1)/2 
         xdt=real(22+idt)/22.222 - 1.0
         ca=cshift(cd,22+idt)
-        do iseq=1,3  ! try sequence estimation lengths of 3, 6, and 9 bits.
-          k=1-2*iseq
-          nseq=iseq*3
-          do i=1,408,iseq*4
-            k=k+iseq*2
+        zzsum=0.0
+        do iseq=3,4 
+          if(iseq.eq.4) then
+            k=1-2*3
+            nseq=9
+            istep=3*4
+          else 
+            k=1-2*iseq 
+            nseq=iseq*3
+            istep=iseq*4
+          endif
+          do i=1,408,istep
             j=(i+1)*16
-            call mskseqdet(nseq,ca(j),pp,id(k),softbits,1,phase)
-            hbits(i:i+iseq*4)=bits
-            sbits(i:i+iseq*4)=bits
-
+            if(iseq.eq.4) then
+! phase=-1.18596900
+! For now, average complex corr. coeffs over the entire frame to 
+! estimate phase
+               phase=atan2(imag(zzsum),real(zzsum))
+               k=k+3*2
+               call mskcohdet(nseq,ca(j),pp,id(k),softbits,phase)
+            else
+               k=k+iseq*2
+               call mskseqdet(nseq,ca(j),pp,id(k),softbits,1,zz)
+               zzsum=zzsum+zz
+            endif 
             sbits(i+1)=softbits(1)
             sbits(i+2)=softbits(2)
             if( id(k+1) .ne. 0 ) sbits(i+2)=id(k+1)*25
               sbits(i+3)=softbits(3)
-
             if( iseq .ge. 2 ) then
               sbits(i+5)=softbits(4)
               sbits(i+6)=softbits(5)
             if( id(k+3) .ne. 0 ) sbits(i+6)=id(k+3)*25
               sbits(i+7)=softbits(6)
-              if( iseq .eq. 3 ) then
+              if( iseq .ge. 3 ) then
                 sbits(i+9)=softbits(7)
                 sbits(i+10)=softbits(8)
                 if( id(k+5) .ne. 0 ) sbits(i+10)=id(k+5)*25
@@ -188,18 +205,21 @@ program wspr5d
           rx2av=sum(rxdata*rxdata)/ND
           rxsig=sqrt(rx2av-rxav*rxav)
           rxdata=rxdata/rxsig
-!          sigma=0.84
           sigma=1.20
           llr=2*rxdata/(sigma*sigma)
           apmask=0
           max_iterations=40
+
           ifer=0
-          nbadcrc=0
           call bpdecode300(llr,apmask,max_iterations,decoded,niterations,cw)
 ! niterations will be equal to the Hamming distance between hard received word and the codeword
-          if(niterations.lt.0) call osd300(llr,3,decoded,niterations,cw)
-          if(niterations.ge.0) call chkcrc10(decoded,nbadcrc)
-          if(niterations.lt.0 .or. nbadcrc.ne.0) ifer=1
+          nhardmin=0
+          if(niterations.lt.0) call osd300(llr,apmask,5,decoded,cw,nhardmin,dmin)
+          if(nhardmin.gt.0) niterations=nhardmin 
+          nbadcrc=0
+          call chkcrc10(decoded,nbadcrc)
+          if(nbadcrc.ne.0) ifer=1
+
           if( ifer.eq.0 ) then
             write(cbits,1200) decoded(1:50)
 1200        format(50i1)
@@ -213,9 +233,9 @@ program wspr5d
             nfdot=0
             write(13,1210) datetime,0,nsnr,xdt,freq,message,nfdot
 1210        format(a11,2i4,f6.2,f12.7,2x,a22,i3)
-            write(*,1212) datetime(8:11),nsnr,xdt,freq,nfdot,message,'*',idf,nseq,is,niterations
+            write(*,1212) datetime(8:11),nsnr,xdt,freq,nfdot,message,'*',idf,nseq,is,iseq,niterations
 !1212        format(a4,i4,f5.1,f11.6,i3,2x,a22,a1,i3,i3,i3,i4)
-1212        format(a4,i4,f8.3,f8.3,i3,2x,a22,a1,i3,i3,i3,i4)
+1212        format(a4,i4,f8.3,f8.3,i3,2x,a22,a1,i3,i3,i3,i3,i4)
             goto 888
           endif
         enddo !iseq
@@ -241,7 +261,7 @@ subroutine getmetric(ib,ps,xmet)
   return
 end subroutine getmetric
 
-subroutine mskseqdet(ns,cdat,pp,bsync,softbits,ncoh,phase)
+subroutine mskseqdet(ns,cdat,pp,bsync,softbits,ncoh,zz)
 !
 ! Detect sequences of 3, 6, or 9 bits (ns).
 ! Sync bits are assumed to be known. 
@@ -261,7 +281,7 @@ np=2**ns-1
 idfmax=40
 if( ncoh .eq. 1 ) idfmax=0
 do idf=0,idfmax
-  if( mod(idf,2).eq.1 ) deltaf=idf/2*0.02
+  if( mod(idf,2).eq.0 ) deltaf=idf/2*0.02
   if( mod(idf,2).eq.1 ) deltaf=-(idf+1)/2*0.02
   dphi=twopi*deltaf*dt
   cfac=cmplx(cos(dphi),sin(dphi)) 
@@ -327,7 +347,6 @@ do idf=0,idfmax
       cbest=cideal
       fbest=deltaf
       zz=sum(cdat*conjg(cbest))/1.e3
-      phase=atan2(imag(zz),real(zz))
     endif
   enddo
   if( ibflag .eq. 1 ) then ! new best found
@@ -350,6 +369,29 @@ if( ns .ge. 6 ) then
 endif
 end subroutine mskseqdet
 
+subroutine mskcohdet(ns,cdat,pp,bsync,softbits,phase)
+!
+! Coherent demodulate blocks of 9 bits (ns).
+!
+  complex cdat(16*12),crot(16*12)
+  real pp(32),softbits(9)
+
+  np=2**ns-1
+
+  softbits=0.0
+  crot=cdat*cmplx(cos(phase),-sin(phase))
+  softbits(1)=sum(imag(crot(1:32)*pp))
+  softbits(2)=sum(real(crot(17:48)*pp))
+  softbits(3)=sum(imag(crot(33:64)*pp))
+  softbits(4)=sum(imag(crot(65:96)*pp))
+  softbits(5)=sum(real(crot(81:112)*pp))
+  softbits(6)=sum(imag(crot(97:128)*pp))
+  softbits(7)=sum(imag(crot(129:160)*pp))
+  softbits(8)=sum(real(crot(145:176)*pp))
+  softbits(9)=sum(imag(crot(161:192)*pp))
+  softbits=softbits/64.
+end subroutine mskcohdet
+
 subroutine downsample(ci,f0,co)
   parameter(NI=412*288,NO=NI/18)
   complex ci(0:NI-1),ct(0:NI-1) 
@@ -361,7 +403,8 @@ subroutine downsample(ci,f0,co)
   i0=nint(f0/df)
   co=0.0
   co(0)=ct(i0)
-  b=3.0
+!  b=3.0 !optimized for sequence detection
+  b=6.0
   do i=1,NO/2
      arg=(i*df/b)**2
      filt=exp(-arg)

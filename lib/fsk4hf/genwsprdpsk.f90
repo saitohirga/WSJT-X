@@ -56,6 +56,7 @@ write(*,'(232i1)') imsg(1:232)
   do i=2,232
     imsgde(i)=mod(imsgde(i-1)+imsg(i),2)
   enddo
+
 write(*,*) '-------------'
 write(*,'(232i1)') imsgde(1:232)
   return

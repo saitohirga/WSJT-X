@@ -161,8 +161,14 @@ program wsprdpskd
       enddo 
 ! 2-bit differential detection
       do i=1,231
-        sbits(i)=-real(cs(i)*conjg(cs(i-1)))
+!      do i=1,232
+        sbits(i)=-real(cs(i)*conjg(cs(i-1))) !2 symbol dpsk
+!        sbits(i)=real(cs(i-1)) !for coherent dpsk
+!        sbits(i)=real(cs(i))   !for coherent bpsk
       enddo
+!      do i=1,231
+!        sbits3(i)=-sbits(i+1)*sbits(i)  ! for coherent dpsk
+!      enddo
 
 ! detect a differentially encoded block of symbols using the 
 ! Divsalar and Simon approach, except that we estimate only
@@ -170,7 +176,7 @@ program wsprdpskd
 ! by one symbol.
 !
       sbits3=sbits
-goto 100
+!goto 100
       nbit=13  ! number of decoded bits to be derived from nbit+1 symbols
       numseq=2**nbit
       il=(nbit+1)/2
@@ -192,7 +198,8 @@ goto 100
             enddo
             csum=csum+bb*cs(i1+i)
           enddo
-          ps(iseq)=abs(csum)**2
+!          ps(iseq)=abs(csum)**2
+          ps(iseq)=abs(csum)
           if(ps(iseq).gt.rmax) then
             bbest=b
             rmax=ps(iseq)
@@ -290,6 +297,22 @@ subroutine getmetric(ib,ps,ns,xmet)
   xmet=xm1-xm0
   return
 end subroutine getmetric
+
+subroutine getmetric3(ib,ps,ns,xmet)
+  real ps(0:ns-1)
+  xm1=0
+  xm0=0
+  do i=0,ns-1
+    if( iand(i/ib,1) .eq. 1 ) then
+      xm1=xm1+ps(i) 
+    endif
+    if( iand(i/ib,1) .eq. 0 ) then
+      xm0=xm0+ps(i) 
+    endif
+  enddo
+  xmet=xm1-xm0
+  return
+end subroutine getmetric3
 
 subroutine dsdpsk(ci,f0,co)
   parameter(NI=240*200,NH=NI/2,NO=NI/20)  ! downsample from 200 samples per symbol to 10

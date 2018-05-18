@@ -63,8 +63,8 @@ program wspr5d
   
   open(13,file=trim(data_dir)//'/ALL_WSPR.TXT',status='unknown',   &
        position='append')
-!  maxn=8                                 !Default value
-  maxn=20
+!  maxn=4                                 !Default value
+  maxn=2
   twopi=8.0*atan(1.0)
   fs=NSPS*12000.0/NSPS0                  !Sample rate
   dt=1.0/fs                              !Sample interval (s)
@@ -104,6 +104,7 @@ program wspr5d
      endif
   enddo
 
+write(*,*) 'iarg, nargs ',iarg,nargs
   do ifile=iarg,nargs
      call getarg(ifile,infile)
      open(10,file=infile,status='old',access='stream')
@@ -132,7 +133,6 @@ program wspr5d
      a(1)=-fc1
      a(2:5)=0.
      call twkfreq1(c,NZ,fs,a,c)       !Mix c down by fc1+fc2
-
 ! Find time offset xdt
      amax=0.
      jpk=0
@@ -153,7 +153,6 @@ program wspr5d
            ibb=NZ-1-j
         endif
         z=sum(c(ia:ib)*conjg(csync(iaa:ibb)))
-write(51,*) j/fs,real(z),imag(z)
         if(abs(z).gt.amax) then
            amax=abs(z)
            jpk=j
@@ -188,10 +187,11 @@ jpk=fs*xdt
         max_iterations=40
         ifer=0
         call bpdecode300(llr,apmask,max_iterations,decoded,niterations,cw)
-        if(niterations.lt.0) call osd300(llr,4,decoded,niterations,cw)
+        nhardmin=0
+        if(niterations.lt.0) call osd300(llr,apmask,5,decoded,cw,nhardmin,dmin)
         nbadcrc=0
-        if(niterations.ge.0) call chkcrc10(decoded,nbadcrc)
-        if(niterations.lt.0 .or. nbadcrc.ne.0) ifer=1
+        call chkcrc10(decoded,nbadcrc)
+        if(nbadcrc.ne.0) ifer=1
         if(ifer.eq.0) exit
      enddo                                !Freq dither loop
      message='                      '
@@ -209,9 +209,9 @@ jpk=fs*xdt
         nfdot=0
         write(13,1110) datetime,0,nsnr,xdt,freq,message,nfdot
 1110    format(a11,2i4,f6.2,f12.7,2x,a22,i3)
-        write(*,1112) datetime(8:11),nsnr,xdt,freq,nfdot,message,itry
+        write(*,1112) datetime(8:11),nsnr,xdt,freq,nfdot,message,itry,nhardmin
 !1112    format(a4,i4,f5.1,f11.6,i3,2x,a22,i4)
-1112    format(a4,i4,f8.3,f8.3,i3,2x,a22,i4)
+1112    format(a4,i4,f8.3,f8.3,i3,2x,a22,i4,i4)
      endif
   enddo                                   ! ifile loop
   write(*,1120)

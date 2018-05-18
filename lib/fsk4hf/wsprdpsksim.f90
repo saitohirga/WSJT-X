@@ -144,6 +144,8 @@ write(*,*) 'sample SNR: ',10*log10(snrtest)+10*log10(0.4/2.5)
      call four2a(c0wav,NMAX,1,-1,1)
      xx=sum(abs(c0wav(istart:istart+NN*200*NDOWN-1))**2)/(NN*200*NDOWN)
      c0wav=c0wav/sqrt(xx)
+write(*,*) 'Peak power: ',maxval(abs(c0wav)**2)
+write(*,*) 'Average power: ',sum(abs(c0wav(istart:istart+NN*200*NDOWN-1))**2)/(NN*200*NDOWN)
      call sgran()
      do ifile=1,nfiles
        cwav=c0wav
