@@ -1898,7 +1898,8 @@ void MainWindow::bumpFqso(int n)                                 //bumpFqso()
   int i;
   bool ctrl = (n>=100);
   n=n%100;
-  i=ui->RxFreqSpinBox->value ();
+  i=ui->RxFreqSpinBox->value();
+  bool bTrackTx=ui->TxFreqSpinBox->value() == i;
   if(n==11) i--;
   if(n==12) i++;
   if (ui->RxFreqSpinBox->isEnabled ()) {
@@ -1907,7 +1908,7 @@ void MainWindow::bumpFqso(int n)                                 //bumpFqso()
   if(ctrl and m_mode.startsWith ("WSPR")) {
     ui->WSPRfreqSpinBox->setValue(i);
   } else {
-    if(ctrl) {
+    if(ctrl and bTrackTx) {
       ui->TxFreqSpinBox->setValue (i);
     }
   }
