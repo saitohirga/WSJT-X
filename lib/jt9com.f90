@@ -41,11 +41,11 @@
      integer(c_int) :: naggressive
      logical(c_bool) :: nrobust
      integer(c_int) :: nexp_decode
-     character(kind=c_char, len=20) :: datetime
-     character(kind=c_char, len=12) :: mycall
-     character(kind=c_char, len=6) :: mygrid
-     character(kind=c_char, len=12) :: hiscall
-     character(kind=c_char, len=6) :: hisgrid
+     character(kind=c_char) :: datetime(20)
+     character(kind=c_char) :: mycall(12)
+     character(kind=c_char) :: mygrid(6)
+     character(kind=c_char) :: hiscall(12)
+     character(kind=c_char) :: hisgrid(6)
   end type params_block
 
   type, bind(C) :: dec_data

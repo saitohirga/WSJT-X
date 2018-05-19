@@ -32,11 +32,21 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   integer*2 id2(NTMAX*12000)
   type(params_block) :: params
   real*4 dd(NTMAX*12000)
+  character(len=20) :: datetime
+  character(len=12) :: mycall, hiscall
+  character(len=6) :: mygrid, hisgrid
   save
   type(counting_jt4_decoder) :: my_jt4
   type(counting_jt65_decoder) :: my_jt65
   type(counting_jt9_decoder) :: my_jt9
   type(counting_ft8_decoder) :: my_ft8
+
+  !cast C character arrays to Fortran character strings
+  datetime=transfer(params%datetime, datetime)
+  mycall=transfer(params%mycall,mycall)
+  hiscall=transfer(params%hiscall,hiscall)
+  mygrid=transfer(params%mygrid,mygrid)
+  hisgrid=transfer(params%hisgrid,hisgrid)
 
   ! initialize decode counts
   my_jt4%decoded = 0
@@ -87,7 +97,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
           params%nftx,newdat,params%nutc,params%nfa,params%nfb,              &
           params%nexp_decode,params%ndepth,logical(params%nagain),           &
           logical(params%lft8apon),logical(params%lapcqonly),params%napwid,  &
-          params%mycall,params%mygrid,params%hiscall,params%hisgrid)
+          mycall,mygrid,hiscall,hisgrid)
      call timer('decft8  ',1)
      if(nfox.gt.0) then
         n30min=minval(n30fox(1:nfox))
@@ -110,7 +120,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
               n30fox(j)=n
               m=n30max-n
               if(len(trim(g2fox(j))).eq.4) then
-                 call azdist(params%mygrid,g2fox(j),0.d0,nAz,nEl,nDmiles,nDkm, &
+                 call azdist(mygrid,g2fox(j),0.d0,nAz,nEl,nDmiles,nDkm, &
                       nHotAz,nHotABetter)
               else
                  nDkm=9999
@@ -165,8 +175,8 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      call my_jt4%decode(jt4_decoded,dd,jz,params%nutc,params%nfqso,         &
           params%ntol,params%emedelay,params%dttol,logical(params%nagain),  &
           params%ndepth,logical(params%nclearave),params%minsync,           &
-          params%minw,params%nsubmode,params%mycall,params%hiscall,         &
-          params%hisgrid,params%nlist,params%listutc,jt4_average)
+          params%minw,params%nsubmode,mycall,hiscall,         &
+          hisgrid,params%nlist,params%listutc,jt4_average)
      go to 800
   endif
 
@@ -198,8 +208,8 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
           nf1,nf2,params%nfqso,ntol65,params%nsubmode,params%minsync,      &
           logical(params%nagain),params%n2pass,logical(params%nrobust),    &
           ntrials,params%naggressive,params%ndepth,params%emedelay,        &
-          logical(params%nclearave),params%mycall,params%hiscall,          &
-          params%hisgrid,params%nexp_decode,params%nQSOProgress,           &
+          logical(params%nclearave),mycall,hiscall,          &
+          hisgrid,params%nexp_decode,params%nQSOProgress,           &
           logical(params%ljt65apon))
      call timer('jt65a   ',1)
 
@@ -224,8 +234,8 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
              nf1,nf2,params%nfqso,ntol65,params%nsubmode,params%minsync,   &
              logical(params%nagain),params%n2pass,logical(params%nrobust), &
              ntrials,params%naggressive,params%ndepth,params%emedelay,     &
-             logical(params%nclearave),params%mycall,params%hiscall,       &
-             params%hisgrid,params%nexp_decode,params%nQSOProgress,        &
+             logical(params%nclearave),mycall,hiscall,       &
+             hisgrid,params%nexp_decode,params%nQSOProgress,        &
              logical(params%ljt65apon))
         call timer('jt65a   ',1)
      else
@@ -503,11 +513,11 @@ contains
        c1=decoded0(1:i1-1)//'            '
        c2=decoded0(i1+1:i2-1)
        g2=decoded0(i2+1:i3-1)
-       b0=c1.eq.params%mycall
+       b0=c1.eq.mycall
        if(c1(1:3).eq.'DE ' .and. index(c2,'/').ge.2) b0=.true.
-       if(len(trim(c1)).ne.len(trim(params%mycall))) then
-          i4=index(trim(c1),trim(params%mycall))
-          i5=index(trim(params%mycall),trim(c1))
+       if(len(trim(c1)).ne.len(trim(mycall))) then
+          i4=index(trim(c1),trim(mycall))
+          i5=index(trim(mycall),trim(c1))
           if(i4.ge.1 .or. i5.ge.1) b0=.true.
        endif
        b1=i3-i2.eq.5 .and. isgrid4(g2)

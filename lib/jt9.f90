@@ -66,8 +66,9 @@ program jt9
         'FLAGS') ]
 
   type(dec_data), allocatable :: shared_data
-  character(len=12) :: mycall, hiscall
-  character(len=6) :: mygrid, hisgrid
+  character(len=20) :: datetime=''
+  character(len=12) :: mycall='K1ABC', hiscall='W9XYZ'
+  character(len=6) :: mygrid='', hisgrid='EN37'
   common/patience/npatience,nthreads
   common/decstats/ntry65a,ntry65b,n65a,n65b,num9,numfano
   data npatience/1/,nthreads/1/
@@ -278,13 +279,10 @@ program jt9
      shared_data%params%nranera=6                      !### ntrials=3000
      shared_data%params%nrobust=.false.
      shared_data%params%nexp_decode=nexp_decode
-     shared_data%params%mycall=mycall
-     shared_data%params%mygrid=mygrid
-     shared_data%params%hiscall=hiscall
-     shared_data%params%hisgrid=hisgrid
-     if (shared_data%params%mycall == '') shared_data%params%mycall='K1ABC'
-     if (shared_data%params%hiscall == '') shared_data%params%hiscall='W9XYZ'
-     if (shared_data%params%hisgrid == '') shared_data%params%hiscall='EN37'
+     shared_data%params%mycall=transfer(mycall,shared_data%params%mycall)
+     shared_data%params%mygrid=transfer(mygrid,shared_data%params%mygrid)
+     shared_data%params%hiscall=transfer(hiscall,shared_data%params%hiscall)
+     shared_data%params%hisgrid=transfer(hisgrid,shared_data%params%hisgrid)
      if (tx9) then
         shared_data%params%ntxmode=9
      else
@@ -296,7 +294,8 @@ program jt9
         shared_data%params%nmode=mode
      end if
      shared_data%params%nsubmode=nsubmode
-     shared_data%params%datetime="2013-Apr-16 15:13" !### Temp
+     datetime="2013-Apr-16 15:13" !### Temp
+     shared_data%params%datetime=transfer(datetime,shared_data%params%datetime)
      if(mode.eq.9 .and. fsplit.ne.2700) shared_data%params%nfa=fsplit
      call multimode_decoder(shared_data%ss,shared_data%id2,shared_data%params,nfsample)
   enddo
