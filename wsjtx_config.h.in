@@ -44,6 +44,11 @@ extern "C"  {
 
   /* typedef for consistent gfortran ABI for charlen type hidden arguments */
 #if __GNUC__ > 7
+#ifdef __cplusplus
+#include <cstddef>
+#else
+#include <stddef.h>
+#endif
   typedef size_t fortran_charlen_t;
 #else
   typedef int fortran_charlen_t;
