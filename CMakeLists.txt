@@ -313,11 +313,13 @@ set (wsjtx_CXXSRCS
 set (wsjt_CXXSRCS
   lib/crc10.cpp
   lib/crc12.cpp
+  lib/crc14.cpp
   )
 # deal with a GCC v6 UB error message
 set_source_files_properties (
   lib/crc10.cpp
   lib/crc12.cpp
+  lib/crc14.cpp
   PROPERTIES COMPILE_FLAGS -fpermissive)
 
 if (WIN32)
@@ -373,6 +375,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/bpdecode168.f90
   lib/ft8/bpdecode174.f90
   lib/fsk4hf/bpdecode300.f90
+  lib/fsk4hf/bpdecode204.f90
   lib/baddata.f90
   lib/calibrate.f90
   lib/ccf2.f90
@@ -408,6 +411,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/encode168.f90
   lib/ft8/encode174.f90
   lib/fsk4hf/encode300.f90
+  lib/fsk4hf/encode204.f90
   lib/entail.f90
   lib/ephem.f90
   lib/extract.f90
@@ -460,6 +464,8 @@ set (wsjt_FSRCS
   lib/fsk4hf/genmskhf.f90
   lib/fsk4hf/genwsprlf.f90
   lib/fsk4hf/genwspr_fsk8.f90
+  lib/fsk4hf/genwsprcpm.f90
+  lib/fsk4hf/genwspr5.f90
   lib/fsk4hf/getfc1.f90
   lib/fsk4hf/getfc2.f90
   lib/fsk4hf/getfc1w.f90
@@ -493,6 +499,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/ldpcsim168.f90
   lib/ft8/ldpcsim174.f90
   lib/fsk4hf/ldpcsim300.f90
+  lib/fsk4hf/ldpcsim204.f90
   lib/ldpcsim40.f90
   lib/libration.f90
   lib/lorentzian.f90
@@ -521,6 +528,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/msksoftsymw.f90
   lib/ft8/osd174.f90
   lib/fsk4hf/osd300.f90
+  lib/fsk4hf/osd204.f90
   lib/pctile.f90
   lib/peakdt9.f90
   lib/peakup.f90
@@ -585,7 +593,11 @@ set (wsjt_FSRCS
   lib/fsk4hf/wspr_fsk8_sim.f90
   lib/fsk4hf/wspr_fsk8_wav.f90
   lib/fsk4hf/wspr_fsk8_downsample.f90
+  lib/fsk4hf/wspr_wav.f90
   lib/fsk4hf/wsprlfsim.f90
+  lib/fsk4hf/wsprcpm_wav.f90
+  lib/fsk4hf/wspr5_wav.f90
+  lib/fsk4hf/wspr5_downsample.f90
   lib/wspr_downsample.f90
   lib/zplot9.f90
   )
@@ -1193,6 +1205,10 @@ add_executable (wsprcode lib/wsprcode/wsprcode.f90 lib/wsprcode/nhash.c
 	       wsjtx.rc)
 target_link_libraries (wsprcode wsjt_fort wsjt_cxx)
 
+add_executable (wsprsimf lib/fsk4hf/wsprsimf.f90 lib/wsprcode/nhash.c
+	       wsjtx.rc)
+target_link_libraries (wsprsimf wsjt_fort wsjt_cxx)
+
 add_executable (wsprd ${wsprd_CSRCS})
 target_include_directories (wsprd PRIVATE ${FFTW3_INCLUDE_DIRS})
 target_link_libraries (wsprd ${FFTW3_LIBRARIES})
@@ -1223,6 +1239,12 @@ target_link_libraries (ldpcsim144 wsjt_fort wsjt_cxx)
 add_executable (ldpcsim168 lib/fsk4hf/ldpcsim168.f90 wsjtx.rc)
 target_link_libraries (ldpcsim168 wsjt_fort wsjt_cxx)
 
+add_executable (ldpcsim300 lib/fsk4hf/ldpcsim300.f90 wsjtx.rc)
+target_link_libraries (ldpcsim300 wsjt_fort wsjt_cxx)
+
+add_executable (ldpcsim204 lib/fsk4hf/ldpcsim204.f90 wsjtx.rc)
+target_link_libraries (ldpcsim204 wsjt_fort wsjt_cxx)
+
 add_executable (fsk4hf lib/fsk4hf/fsk4hf.f90 wsjtx.rc)
 target_link_libraries (fsk4hf wsjt_fort wsjt_cxx)
 
@@ -1240,6 +1262,21 @@ target_link_libraries (wspr_fsk8d wsjt_fort wsjt_cxx)
 
 add_executable (wspr_fsk8_sim lib/fsk4hf/wspr_fsk8_sim.f90 wsjtx.rc)
 target_link_libraries (wspr_fsk8_sim wsjt_fort wsjt_cxx)
+
+add_executable (wsprcpmsim lib/fsk4hf/wsprcpmsim.f90 wsjtx.rc)
+target_link_libraries (wsprcpmsim wsjt_fort wsjt_cxx)
+
+add_executable (wsprcpmd lib/fsk4hf/wsprcpmd.f90 wsjtx.rc)
+target_link_libraries (wsprcpmd wsjt_fort wsjt_cxx)
+
+add_executable (wspr5d lib/fsk4hf/wspr5d.f90 wsjtx.rc)
+target_link_libraries (wspr5d wsjt_fort wsjt_cxx)
+
+add_executable (wspr5d_exp lib/fsk4hf/wspr5d_exp.f90 wsjtx.rc)
+target_link_libraries (wspr5d_exp wsjt_fort wsjt_cxx)
+
+add_executable (wspr5sim lib/fsk4hf/wspr5sim.f90 wsjtx.rc)
+target_link_libraries (wspr5sim wsjt_fort wsjt_cxx)
 
 add_executable (mskhfsim lib/fsk4hf/mskhfsim.f90 wsjtx.rc)
 target_link_libraries (mskhfsim wsjt_fort wsjt_cxx)
