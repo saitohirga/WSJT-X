@@ -13,12 +13,13 @@
 Copyright 2001 - 2018 by Joe Taylor, K1JT.
 
 
+
+
 		   Release: WSJT-X Version 1.9.0
-		           May ??, 2018
+		           May 28, 2018
 		   -----------------------------
 
 Changes from WSJT-X Version 1.9.0-rc4 include the following:
-
 - Display in the right text window of MSK144 messages addressed to
   "MyCall" has been restored.
 
@@ -36,7 +37,12 @@ Changes from WSJT-X Version 1.9.0-rc4 include the following:
 
 - MacOS program crash on unexpected decode request has been fixed.
 
+
 - Several minor bug fixes and added convenience features.
+
+- Hamlib, support for TRXManger added.
+
+- Hamlib, improved support for flrig.
 
 
 	     	Release: WSJT-X Version 1.9.0-rc4
