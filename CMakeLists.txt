@@ -1488,9 +1488,13 @@ add_custom_target (uninstall
   "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
 
 
-# creates svnversion.h using cmake script
+# creates or updates ${PROJECT_BINARY_DIR}/scs_version.h using cmake script
 add_custom_target (revisiontag
-  COMMAND ${CMAKE_COMMAND} -D SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -D OUTPUT_DIR=${PROJECT_BINARY_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/CMake/getsvn.cmake
+  COMMAND ${CMAKE_COMMAND}
+  -D SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
+  -D BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}
+  -D OUTPUT_DIR=${PROJECT_BINARY_DIR}
+  -P ${CMAKE_CURRENT_SOURCE_DIR}/CMake/getsvn.cmake
   COMMENT "Generating Subversion revision information"
   VERBATIM
   )

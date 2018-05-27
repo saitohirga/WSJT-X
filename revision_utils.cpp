@@ -5,7 +5,7 @@
 #include <QCoreApplication>
 #include <QRegularExpression>
 
-#include "svnversion.h"
+#include "scs_version.h"
 
 namespace
 {
@@ -13,51 +13,51 @@ namespace
   {
     QString revision;
 
-    // try and match a number
-    QRegularExpression re {R"(^[$:]\w+: (\d+[^$]*)\$$)"};
+    // try and match a number (hexadecimal allowed)
+    QRegularExpression re {R"(^[$:]\w+: (r?[\da-f]+[^$]*)\$$)"};
     auto match = re.match (s);
     if (match.hasMatch ())
       {
-        revision = 'r' + match.captured (1);
+        revision = match.captured (1);
       }
     return revision;
   }
 }
 
-QString revision (QString const& svn_rev_string)
+QString revision (QString const& scs_rev_string)
 {
   QString result;
-  auto revision_from_svn = revision_extract_number (svn_rev_string);
+  auto revision_from_scs = revision_extract_number (scs_rev_string);
 
 #if defined (CMAKE_BUILD)
-  QString svn_info {":Rev: " WSJTX_STRINGIZE (SVNVERSION) " $"};
+  QString scs_info {":Rev: " WSJTX_STRINGIZE (SCS_VERSION) " $"};
 
-  auto revision_from_svn_info = revision_extract_number (svn_info);
-  if (!revision_from_svn_info.isEmpty ())
+  auto revision_from_scs_info = revision_extract_number (scs_info);
+  if (!revision_from_scs_info.isEmpty ())
     {
       // we managed to get the revision number from svn info etc.
-      result = revision_from_svn_info;
+      result = revision_from_scs_info;
     }
-  else if (!revision_from_svn.isEmpty ())
+  else if (!revision_from_scs.isEmpty ())
     {
       // fall back to revision passed in if any
-      result = revision_from_svn;
+      result = revision_from_scs;
     }
   else
     {
       // match anything
       QRegularExpression re {R"(^[$:]\w+: ([^$]*)\$$)"};
-      auto match = re.match (svn_info);
+      auto match = re.match (scs_info);
       if (match.hasMatch ())
         {
           result = match.captured (1);
         }
     }
 #else
-  if (!revision_from_svn.isEmpty ())
+  if (!revision_from_scs.isEmpty ())
     {
       // not CMake build so all we have is revision passed
-      result = revision_from_svn;
+      result = revision_from_scs;
     }
 #endif
   return result.trimmed ();
