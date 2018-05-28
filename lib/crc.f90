@@ -10,7 +10,7 @@ module crc
       integer (c_int), value :: length
     end function crc14
  
-    function crc14_check (data, length) bind (C, name="crc16_check")
+    function crc14_check (data, length) bind (C, name="crc14_check")
       use, intrinsic :: iso_c_binding, only: c_bool, c_ptr, c_int
       implicit none
       logical (c_bool) :: crc14_check
