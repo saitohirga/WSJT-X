@@ -1,5 +1,5 @@
 program ldpcsim174_91
-! End to end test of the (174,77)/crc14 encoder and decoder.
+! End to end test of the (174,91)/crc14 encoder and decoder.
 use crc
 use packjt
 
@@ -7,14 +7,14 @@ character*22 msg,msgsent,msgreceived
 character*8 arg
 character*6 grid
 integer*1, allocatable ::  codeword(:), decoded(:), message(:)
-integer*1, target:: i1Msg8BitBytes(11)
+integer*1, target:: i1Msg8BitBytes(12)
 integer*1 msgbits(91)
 integer*1 apmask(174), cw(174)
 integer*2 checksum
 integer*4 i4Msg6BitWords(13)
 integer colorder(174)
 integer nerrtot(174),nerrdec(174),nmpcbad(91)
-logical checksumok,fsk,bpsk
+logical checksumok
 real*8, allocatable ::  rxdata(:)
 real, allocatable :: llr(:)
 
@@ -49,9 +49,6 @@ call getarg(3,arg)
 read(arg,*) ntrials 
 call getarg(4,arg)
 read(arg,*) s
-
-fsk=.false.
-bpsk=.true.
 
 ! don't count crc bits as data bits
 N=174
@@ -89,18 +86,18 @@ allocate ( rxdata(N), llr(N) )
     enddo
   enddo
 
-  i1Msg8BitBytes(10:11)=0
-  checksum = crc14 (c_loc (i1Msg8BitBytes), 11)
+  i1Msg8BitBytes(10:12)=0
+  checksum = crc14 (c_loc (i1Msg8BitBytes), 12)
 ! For reference, the next 3 lines show how to check the CRC
-  i1Msg8BitBytes(10)=checksum/256
-  i1Msg8BitBytes(11)=iand (checksum,255)
-  checksumok = crc14_check(c_loc (i1Msg8BitBytes), 11)
+  i1Msg8BitBytes(11)=checksum/256
+  i1Msg8BitBytes(12)=iand (checksum,255)
+  checksumok = crc14_check(c_loc (i1Msg8BitBytes), 12)
   if( checksumok ) write(*,*) 'Good checksum'
 
-! K=87, For now: 
+! K=91, For now: 
 ! msgbits(1:72) JT message bits
-! msgbits(73:75) 3 free message bits (set to 0) 
-! msgbits(76:87) CRC12
+! msgbits(73:77) 5 free message bits (set to 0) 
+! msgbits(78:91) CRC14
   mbit=0
   do i=1, 9 
     i1=i1Msg8BitBytes(i)
@@ -109,20 +106,20 @@ allocate ( rxdata(N), llr(N) )
       msgbits(mbit)=iand(1,ishft(i1,ibit-8))
     enddo
   enddo
-  msgbits(73:75)=0  ! the three extra message bits go here
-  i1=i1Msg8BitBytes(10) ! First 4 bits of crc12 are LSB of this byte
-  do ibit=1,4
-    msgbits(75+ibit)=iand(1,ishft(i1,ibit-4))
+  msgbits(73:77)=0  ! the five extra message bits go here
+  i1=i1Msg8BitBytes(11) ! First 6 bits of crc12 are LSB of this byte
+  do ibit=1,6
+    msgbits(77+ibit)=iand(1,ishft(i1,ibit-6))
   enddo
-  i1=i1Msg8BitBytes(11) ! Now shift in last 8 bits of the CRC
+  i1=i1Msg8BitBytes(12) ! Now shift in last 8 bits of the CRC
   do ibit=1,8
-    msgbits(79+ibit)=iand(1,ishft(i1,ibit-8))
+    msgbits(83+ibit)=iand(1,ishft(i1,ibit-8))
   enddo
 
   write(*,*) 'message'
-  write(*,'(11(8i1,1x))') msgbits
+  write(*,'(12(8i1,1x))') msgbits
 
-  call encode174(msgbits,codeword)
+  call encode174_91(msgbits,codeword)
   call init_random_seed()
 !  call sgran()
 
@@ -131,7 +128,7 @@ allocate ( rxdata(N), llr(N) )
 
 write(*,*) "Es/N0   SNR2500   ngood  nundetected nbadcrc   sigma"
 do idb = 20,-10,-1 
-!do idb = -3,-3,-1 
+!do idb = 0,0,-1 
   db=idb/2.0-1.0
   sigma=1/sqrt( 2*(10**(db/10.0)) )
   ngood=0
@@ -141,20 +138,7 @@ do idb = 20,-10,-1
   do itrial=1, ntrials
 ! Create a realization of a noisy received word
     do i=1,N
-      if( bpsk ) then
-        rxdata(i) = 2.0*codeword(i)-1.0 + sigma*gran()
-      elseif( fsk ) then
-        if( codeword(i) .eq. 1 ) then
-          r1=(1.0 + sigma*gran())**2 + (sigma*gran())**2
-          r2=(sigma*gran())**2 + (sigma*gran())**2
-        elseif( codeword(i) .eq. 0 ) then
-          r2=(1.0 + sigma*gran())**2 + (sigma*gran())**2
-          r1=(sigma*gran())**2 + (sigma*gran())**2
-        endif 
-!        rxdata(i)=0.35*(sqrt(r1)-sqrt(r2))
-!        rxdata(i)=0.35*(exp(r1)-exp(r2))
-        rxdata(i)=0.12*(log(r1)-log(r2))
-      endif
+      rxdata(i) = 2.0*codeword(i)-1.0 + sigma*gran()
     enddo
     nerr=0
     do i=1,N
@@ -163,15 +147,10 @@ do idb = 20,-10,-1
     if(nerr.ge.1) nerrtot(nerr)=nerrtot(nerr)+1
     nberr=nberr+nerr
 
-! Correct signal normalization is important for this decoder.
     rxav=sum(rxdata)/N
     rx2av=sum(rxdata*rxdata)/N
     rxsig=sqrt(rx2av-rxav*rxav)
     rxdata=rxdata/rxsig
-! To match the metric to the channel, s should be set to the noise standard deviation. 
-! For now, set s to the value that optimizes decode probability near threshold. 
-! The s parameter can be tuned to trade a few tenth's dB of threshold for an order of
-! magnitude in UER 
     if( s .lt. 0 ) then
       ss=sigma
     else 
@@ -180,16 +159,16 @@ do idb = 20,-10,-1
 
     llr=2.0*rxdata/(ss*ss)
     nap=0 ! number of AP bits
-    llr(colorder(174-87+1:174-87+nap)+1)=5*(2.0*msgbits(1:nap)-1.0)
+    llr(colorder(174-91+1:174-91+nap)+1)=5*(2.0*msgbits(1:nap)-1.0)
     apmask=0
-    apmask(colorder(174-87+1:174-87+nap)+1)=1
+    apmask(colorder(174-91+1:174-91+nap)+1)=1
 
 ! max_iterations is max number of belief propagation iterations
-    call bpdecode174(llr, apmask, max_iterations, decoded, cw, nharderrors,niterations)
-    if( ndepth .ge. 0 .and. nharderrors .lt. 0 ) call osd174(llr, apmask, ndepth, decoded, cw,  nharderrors, dmin)
+    call bpdecode174_91(llr, apmask, max_iterations, decoded, cw, nharderrors,niterations)
+    if( ndepth .ge. 0 .and. nharderrors .lt. 0 ) call osd174_91(llr, apmask, ndepth, decoded, cw,  nharderrors, dmin)
 ! If the decoder finds a valid codeword, nharderrors will be .ge. 0.
     if( nharderrors .ge. 0 ) then
-      call extractmessage174(decoded,msgreceived,ncrcflag)
+      call extractmessage174_91(decoded,msgreceived,ncrcflag)
       if( ncrcflag .ne. 1 ) then
         nbadcrc=nbadcrc+1
       endif

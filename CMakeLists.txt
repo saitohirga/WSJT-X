@@ -421,6 +421,7 @@ set (wsjt_FSRCS
   lib/extractmessage144.f90
   lib/fsk4hf/extractmessage168.f90
   lib/ft8/extractmessage174.f90
+  lib/fsk4hf/extractmessage174_91.f90
   lib/fano232.f90
   lib/fast9.f90
   lib/fast_decode.f90
@@ -530,6 +531,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/msksoftsym.f90
   lib/fsk4hf/msksoftsymw.f90
   lib/ft8/osd174.f90
+  lib/fsk4hf/osd174_91.f90
   lib/fsk4hf/osd300.f90
   lib/fsk4hf/osd204.f90
   lib/pctile.f90

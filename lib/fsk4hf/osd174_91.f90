@@ -21,12 +21,14 @@ save first,gen
 if( first ) then ! fill the generator matrix
   gen=0
   do i=1,M
-    do j=1,22
+    do j=1,23
       read(g(i)(j:j),"(Z1)") istr
-        do jj=1, 4 
-          irow=(j-1)*4+jj
-          if( btest(istr,4-jj) ) gen(irow,i)=1 
-        enddo
+      ibmax=4
+      if(j.eq.23) ibmax=3
+      do jj=1, ibmax 
+        irow=(j-1)*4+jj
+        if( btest(istr,4-jj) ) gen(irow,i)=1 
+      enddo
     enddo
   enddo
   do irow=1,K
@@ -246,7 +248,7 @@ hdec(indices)=hdec
 decoded=cw(M+1:N) 
 cw(colorder+1)=cw ! put the codeword back into received-word order
 return
-end subroutine osd174
+end subroutine osd174_91
 
 subroutine mrbencode(me,codeword,g2,N,K)
 integer*1 me(K),codeword(N),g2(N,K)
@@ -291,7 +293,7 @@ end subroutine nextpat
 
 subroutine boxit(reset,e2,ntau,npindex,i1,i2)
   integer*1 e2(1:ntau)
-  integer   indexes(4000,2),fp(0:525000),np(4000)
+  integer   indexes(5000,2),fp(0:525000),np(5000)
   logical reset
   common/boxes/indexes,fp,np
 
@@ -326,7 +328,7 @@ subroutine boxit(reset,e2,ntau,npindex,i1,i2)
 end subroutine boxit
 
 subroutine fetchit(reset,e2,ntau,i1,i2)
-  integer   indexes(4000,2),fp(0:525000),np(4000)
+  integer   indexes(5000,2),fp(0:525000),np(5000)
   integer   lastpat
   integer*1 e2(ntau)
   logical reset

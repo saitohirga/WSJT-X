@@ -1,5 +1,5 @@
 integer, parameter:: N=174, K=91, M=N-K
-character*22 g(83)
+character*23 g(83)
 integer colorder(N)
 
 data g/                   &

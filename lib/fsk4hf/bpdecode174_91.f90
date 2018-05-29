@@ -374,7 +374,7 @@ do iter=0,maxiterations
 
 ! send messages from check nodes to variable nodes
   do i=1,M
-    tanhtoc(1:6,i)=tanh(-toc(1:6,i)/2)
+    tanhtoc(1:7,i)=tanh(-toc(1:7,i)/2)
   enddo
 
   do j=1,N
