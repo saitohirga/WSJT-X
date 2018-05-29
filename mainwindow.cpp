@@ -3661,18 +3661,18 @@ void MainWindow::guiUpdate()
     } else {
       m_bVHFwarned=false;
     }
-    if(m_config.bFox()) {
-      if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
-         m_config.my_callsign()=="G4WJS" or m_config.my_callsign().contains("KH7Z")) {
-        ui->sbNslots->setMaximum(5);
-        m_Nslots=ui->sbNslots->value();
-        ui->sbNslots->setEnabled(true);
-      } else {
-        ui->sbNslots->setMaximum(1);
-        m_Nslots=1;
-        ui->sbNslots->setEnabled(false);
-      }
-    }
+    // if(m_config.bFox()) {
+    //   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
+    //      m_config.my_callsign()=="G4WJS" or m_config.my_callsign().contains("KH7Z")) {
+    //     ui->sbNslots->setMaximum(5);
+    //     m_Nslots=ui->sbNslots->value();
+    //     ui->sbNslots->setEnabled(true);
+    //   } else {
+    //     ui->sbNslots->setMaximum(1);
+    //     m_Nslots=1;
+    //     ui->sbNslots->setEnabled(false);
+    //   }
+    // }
 
     if(m_config.bHound()) {
       m_bWarnedHound=false;
