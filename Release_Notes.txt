@@ -16,15 +16,6 @@ Copyright 2001 - 2018 by Joe Taylor, K1JT.
 
 
 		   Release: WSJT-X Version 1.9.0
-		           June 1, 2018
-		   -----------------------------
-
-This critical bug fix release repairs an unintended restriction in the FT8
-DXpedition mode. It supersedes v1.9.0 and must be used for DXpedition Fox
-operators.
-
-
-		   Release: WSJT-X Version 1.9.0
 		           May 28, 2018
 		   -----------------------------
 
