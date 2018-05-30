@@ -2,18 +2,22 @@ subroutine osd174_91(llr,apmask,ndeep,decoded,cw,nhardmin,dmin)
 !
 ! An ordered-statistics decoder for the (174,91) code.
 ! 
-include "ldpc_174_91_a_params.f90"
-
+integer, parameter:: N=174, K=91, M=N-K
 integer*1 apmask(N),apmaskr(N)
 integer*1 gen(K,N)
 integer*1 genmrb(K,N),g2(N,K)
 integer*1 temp(K),m0(K),me(K),mi(K),misub(K),e2sub(N-K),e2(N-K),ui(N-K)
 integer*1 r2pat(N-K)
+integer colorder(N)
 integer indices(N),nxor(N)
 integer*1 cw(N),ce(N),c0(N),hdec(N)
 integer*1 decoded(K)
 integer indx(N)
 real llr(N),rx(N),absrx(N)
+
+include "ldpc_174_91_a_generator.f90"
+include "ldpc_174_91_a_colorder.f90"
+
 logical first,reset
 data first/.true./
 save first,gen

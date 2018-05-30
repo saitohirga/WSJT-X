@@ -4,16 +4,18 @@ subroutine encode174_91(message,codeword)
 ! The code is a (174,91) regular ldpc code with column weight 3.
 !
 
-include "ldpc_174_91_a_params.f90"
+integer, parameter:: N=174, K=91, M=N-K
 
 integer*1 codeword(N)
 integer*1 gen(M,K)
 integer*1 itmp(N)
 integer*1 message(K)
 integer*1 pchecks(M)
+integer colorder(N)
+include "ldpc_174_91_a_generator.f90"
+include "ldpc_174_91_a_colorder.f90"
 logical first
 data first/.true./
-
 save first,gen
 
 if( first ) then ! fill the generator matrix

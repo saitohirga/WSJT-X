@@ -3,31 +3,23 @@ program ldpcsim174_91
 use crc
 use packjt
 
+integer, parameter:: N=174, K=91, M=N-K
 character*22 msg,msgsent,msgreceived
 character*8 arg
 character*6 grid
 integer*1, allocatable ::  codeword(:), decoded(:), message(:)
 integer*1, target:: i1Msg8BitBytes(12)
-integer*1 msgbits(91)
-integer*1 apmask(174), cw(174)
+integer*1 msgbits(K)
+integer*1 apmask(N), cw(N)
 integer*2 checksum
 integer*4 i4Msg6BitWords(13)
-integer colorder(174)
-integer nerrtot(174),nerrdec(174),nmpcbad(91)
+integer colorder(N)
+integer nerrtot(N),nerrdec(N),nmpcbad(K)
 logical checksumok
 real*8, allocatable ::  rxdata(:)
 real, allocatable :: llr(:)
 
-data colorder/            &
-   0,  1,  2,  3, 28,  4,  5,  6,  7,  8,  9, 10, 11, 34, 12, 32, 13, 14, 15, 16,&
-  17, 18, 36, 29, 40, 19, 20, 38, 21, 41, 30, 42, 22, 44, 37, 47, 48, 23, 33, 43,&
-  49, 45, 56, 39, 25, 26, 46, 50, 51, 52, 24, 57, 58, 61, 31, 54, 64, 35, 27, 62,&
-  59, 53, 60, 63, 55, 70, 66, 67, 68, 65, 71, 74, 72, 73, 77, 75, 69, 76, 79, 82,&
-  83, 78, 81, 80, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99,&
- 100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,&
- 120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,&
- 140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,&
- 160,161,162,163,164,165,166,167,168,169,170,171,172,173/
+include "ldpc_174_91_a_colorder.f90"
 
 nerrtot=0
 nerrdec=0
@@ -50,9 +42,6 @@ read(arg,*) ntrials
 call getarg(4,arg)
 read(arg,*) s
 
-! don't count crc bits as data bits
-N=174
-K=91
 ! scale Eb/No for a (174,91) code
 rate=real(K)/real(N)
 
@@ -126,11 +115,11 @@ allocate ( rxdata(N), llr(N) )
   write(*,*) 'codeword' 
   write(*,'(22(8i1,1x))') codeword
 
-write(*,*) "Es/N0   SNR2500   ngood  nundetected nbadcrc   sigma"
+write(*,*) "Eb/N0   SNR2500   ngood  nundetected nbadcrc   sigma"
 do idb = 20,-10,-1 
 !do idb = 0,0,-1 
   db=idb/2.0-1.0
-  sigma=1/sqrt( 2*(10**(db/10.0)) )
+  sigma=1/sqrt( 2*rate*(10**(db/10.0)) )
   ngood=0
   nue=0
   nbadcrc=0
@@ -195,7 +184,7 @@ do idb = 20,-10,-1
   baud=12000/1920
   snr2500=db+10.0*log10((baud/2500.0))
   pberr=real(nberr)/(real(ntrials*N))
-  write(*,"(f4.1,4x,f5.1,1x,i8,1x,i8,1x,i8,8x,f5.2,8x,e10.3)") db,snr2500,ngood,nue,nbadcrc,ss,pberr
+  write(*,"(f4.1,4x,f5.1,1x,i8,1x,i8,1x,i8,8x,f5.2,8x,e10.3)") db,SNR2500,ngood,nue,nbadcrc,ss,pberr
 
 enddo
 
