@@ -64,10 +64,10 @@ elseif (EXISTS "${SOURCE_DIR}/.git")
     endif ()
     message (STATUS "refspec: ${GIT_REFSPEC} - SHA1: ${GIT_SHA1}")
     file (WRITE "${BINARY_DIR}/scs_version.h.txt" "#define SCS_VERSION ${GIT_SHA1}\n")
-  else()
-    message (STATUS "No SCS found")
-    file (WRITE "${BINARY_DIR}/scs_version.h.txt" "#define SCS_VERSION\n")
   endif ()
+else()
+  message (STATUS "No SCS found")
+  file (WRITE "${BINARY_DIR}/scs_version.h.txt" "#define SCS_VERSION\n")
 endif ()
 
 # copy the file to the final header only if the version changes
