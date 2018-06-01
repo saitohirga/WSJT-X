@@ -15,8 +15,8 @@ integer*1 decoded(K)
 integer indx(N)
 real llr(N),rx(N),absrx(N)
 
-include "ldpc_174_91_a_generator.f90"
-include "ldpc_174_91_a_colorder.f90"
+include "ldpc_174_91_c_generator.f90"
+include "ldpc_174_91_c_colorder.f90"
 
 logical first,reset
 data first/.true./

@@ -12,8 +12,8 @@ integer*1 itmp(N)
 integer*1 message(K)
 integer*1 pchecks(M)
 integer colorder(N)
-include "ldpc_174_91_a_generator.f90"
-include "ldpc_174_91_a_colorder.f90"
+include "ldpc_174_91_c_generator.f90"
+include "ldpc_174_91_c_colorder.f90"
 logical first
 data first/.true./
 save first,gen

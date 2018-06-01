@@ -19,7 +19,7 @@ logical checksumok
 real*8, allocatable ::  rxdata(:)
 real, allocatable :: llr(:)
 
-include "ldpc_174_91_a_colorder.f90"
+include "ldpc_174_91_c_colorder.f90"
 
 nerrtot=0
 nerrdec=0

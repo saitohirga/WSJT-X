@@ -17,8 +17,8 @@ real llr(N)
 real Tmn
 integer nrw(M),ncw
 
-include "ldpc_174_91_a_colorder.f90"
-include "ldpc_174_91_a_parity.f90"
+include "ldpc_174_91_c_colorder.f90"
+include "ldpc_174_91_c_parity.f90"
 
 decoded=0
 toc=0
