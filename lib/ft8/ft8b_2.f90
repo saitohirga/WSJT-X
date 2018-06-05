@@ -1,4 +1,4 @@
-subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
+subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      napwid,lsubtract,nagain,iaptype,mycall12,mygrid6,hiscall12,bcontest,    &
      sync0,f1,xdt,xbase,apsym,nharderrors,dmin,nbadcrc,ipass,iera,msg37,xsnr)  
 
@@ -18,9 +18,9 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   real bmeta(3*ND),bmetb(3*ND),bmetap(3*ND)
   real llr(3*ND),llra(3*ND),llr0(3*ND),llr1(3*ND),llrap(3*ND)           !Soft symbols
   real dd0(15*12000)
-  integer*1 decoded(KK),decoded0(KK),apmask(3*ND),cw(3*ND)
-  integer*1 msgbits(KK)
-  integer apsym(KK)
+  integer*1 decoded(91),decoded0(91),apmask(3*ND),cw(3*ND)
+  integer*1 msgbits(91)
+  integer apsym(91)
   integer mcq(28),mde(28),mrrr(16),m73(16),mrr73(16)
   integer itone(NN)
   integer indxs1(8*ND)
@@ -33,7 +33,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   complex csymb(32)
   logical first,newdat,lsubtract,lapon,lapcqonly,nagain
   equivalence (s1,s1sort)
-  data icos7/2,5,6,0,4,1,3/
+  data icos7/3,1,4,0,6,5,2/  ! Flipped w.r.t. original FT8 sync array
   data mcq/1,1,1,1,1,0,1,0,0,0,0,0,1,0,0,0,0,0,1,1,0,0,0,1,1,0,0,1/
   data mrrr/0,1,1,1,1,1,1,0,1,1,0,0,1,1,1,1/
   data m73/0,1,1,1,1,1,1,0,1,1,0,1,0,0,0,0/
@@ -89,7 +89,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   i0=nint((xdt+0.5)*fs2)                   !Initial guess for start of signal
   smax=0.0
   do idt=i0-8,i0+8                         !Search over +/- one quarter symbol
-     call sync8d(cd0,idt,ctwk,0,sync)
+     call sync8d(cd0,idt,ctwk,0,2,sync)
      if(sync.gt.smax) then
         smax=sync
         ibest=idt
@@ -108,7 +108,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
       ctwk(i)=cmplx(cos(phi),sin(phi))
       phi=mod(phi+dphi,twopi)
     enddo
-   call sync8d(cd0,i0,ctwk,1,sync)
+   call sync8d(cd0,i0,ctwk,1,2,sync)
     if( sync .gt. smax ) then
       smax=sync
       delfbest=delf
@@ -120,7 +120,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   xdt=xdt2
   f1=f1+delfbest                           !Improved estimate of DF
 
-  call sync8d(cd0,i0,ctwk,2,sync)
+  call sync8d(cd0,i0,ctwk,2,2,sync)
 
   j=0
   do k=1,NN
@@ -340,10 +340,10 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      endif
 
      cw=0
-     call timer('bpd174  ',0)
-     call bpdecode174(llrap,apmask,max_iterations,decoded,cw,nharderrors,  &
+     call timer('bpd174_91 ',0)
+     call bpdecode174_91(llrap,apmask,max_iterations,decoded,cw,nharderrors,  &
           niterations)
-     call timer('bpd174  ',1)
+     call timer('bpd174_91 ',1)
      dmin=0.0
      if(ndepth.eq.3 .and. nharderrors.lt.0) then
         ndeep=3
@@ -355,9 +355,9 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
           endif
         endif
         if(nagain) ndeep=5
-        call timer('osd174  ',0)
-        call osd174(llrap,apmask,ndeep,decoded,cw,nharderrors,dmin)
-        call timer('osd174  ',1)
+        call timer('osd174_91 ',0)
+        call osd174_91(llrap,apmask,ndeep,decoded,cw,nharderrors,dmin)
+        call timer('osd174_91 ',1)
      endif
      nbadcrc=1
      message='                      '
@@ -368,7 +368,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
         .not.(ipass.gt.2 .and. nharderrors.gt.39)       .and. &
         .not.(ipass.eq.4 .and. nharderrors.gt.30)             &
        ) then
-        call chkcrc12a(decoded,nbadcrc)
+        call chkcrc14a(decoded,nbadcrc)
      else
         nharderrors=-1
         cycle 
@@ -378,7 +378,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      if(nbadcrc.eq.0) then
         decoded0=decoded
         if(i3bit.eq.1) decoded(57:)=0
-        call extractmessage174(decoded,message,ncrcflag)
+        call extractmessage174_91(decoded,message,ncrcflag)
         decoded=decoded0
 ! This needs fixing for messages with i3bit=1:        
         call genft8(message,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
@@ -437,44 +437,21 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   enddo
 
   return
-end subroutine ft8b
+end subroutine ft8b_2
 
-subroutine normalizebmet(bmet,n)
-  real bmet(n)
+!subroutine normalizebmet(bmet,n)
+!  real bmet(n)
+!
+!  bmetav=sum(bmet)/real(n)
+!  bmet2av=sum(bmet*bmet)/real(n)
+!  var=bmet2av-bmetav*bmetav
+!  if( var .gt. 0.0 ) then
+!     bmetsig=sqrt(var)
+!  else
+!     bmetsig=sqrt(bmet2av)
+!  endif
+!  bmet=bmet/bmetsig
+!  return
+!end subroutine normalizebmet
 
-  bmetav=sum(bmet)/real(n)
-  bmet2av=sum(bmet*bmet)/real(n)
-  var=bmet2av-bmetav*bmetav
-  if( var .gt. 0.0 ) then
-     bmetsig=sqrt(var)
-  else
-     bmetsig=sqrt(bmet2av)
-  endif
-  bmet=bmet/bmetsig
-  return
-end subroutine normalizebmet
-
-
-function bessi0(x) 
-! From Numerical Recipes
-   real bessi0,x
-   double precision p1,p2,p3,p4,p5,p6,p7,q1,q2,q3,q4,q5,q6,q7,q8,q9,y
-   save p1,p2,p3,p4,p5,p6,p7,q1,q2,q3,q4,q5,q6,q7,q8,q9
-   data p1,p2,p3,p4,p5,p6,p7/1.0d0,3.5156229d0,3.0899424d0,1.2067492d0, &
-      0.2659732d0,0.360768d-1,0.45813d-2/
-   data q1,q2,q3,q4,q5,q6,q7,q8,q9/0.39894228d0,0.1328592d-1,           &
-      0.225319d-2,-0.157565d-2,0.916281d-2,-0.2057706d-1,               &
-      0.2635537d-1,-0.1647633d-1,0.392377d-2/
-
-   if (abs(x).lt.3.75) then 
-      y=(x/3.75)**2
-      bessi0=p1+y*(p2+y*(p3+y*(p4+y*(p5+y*(p6+y*p7))))) 
-   else
-      ax=abs(x)
-      y=3.75/ax 
-      bessi0=(exp(ax)/sqrt(ax))*(q1+y*(q2+y*(q3+y*(q4         &
-           +y*(q5+y*(q6+y*(q7+y*(q8+y*q9))))))))
-   endif
-   return
-end function bessi0
 

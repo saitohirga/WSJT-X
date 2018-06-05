@@ -44,7 +44,7 @@ contains
     procedure(ft8_decode_callback) :: callback
     real s(NH1,NHSYM)
     real sbase(NH1)
-    real candidate(3,200)
+    real candidate(4,200)
     real dd(15*12000)
     logical, intent(in) :: lft8apon,lapcqonly,nagain
     logical newdat,lsubtract,ldupe,bcontest
@@ -102,13 +102,21 @@ contains
         sync=candidate(3,icand)
         f1=candidate(1,icand)
         xdt=candidate(2,icand)
+        iftype=candidate(4,icand)
         xbase=10.0**(0.1*(sbase(nint(f1/3.125))-40.0))
         nsnr0=min(99,nint(10.0*log10(sync) - 25.5))    !### empirical ###
         call timer('ft8b    ',0)
-        call ft8b(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lft8apon,       &
-             lapcqonly,napwid,lsubtract,nagain,iaptype,mycall12,mygrid6,   &
-             hiscall12,bcontest,sync,f1,xdt,xbase,apsym,nharderrors,dmin,  &
-             nbadcrc,iappass,iera,msg37,xsnr)
+        if(iftype.eq.1) then
+           call ft8b_1(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lft8apon,     &
+                lapcqonly,napwid,lsubtract,nagain,iaptype,mycall12,mygrid6,   &
+                hiscall12,bcontest,sync,f1,xdt,xbase,apsym,nharderrors,dmin,  &
+                nbadcrc,iappass,iera,msg37,xsnr)
+        else
+           call ft8b_2(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lft8apon,     &
+                lapcqonly,napwid,lsubtract,nagain,iaptype,mycall12,mygrid6,   &
+                hiscall12,bcontest,sync,f1,xdt,xbase,apsym,nharderrors,dmin,  &
+                nbadcrc,iappass,iera,msg37,xsnr)
+        endif
         message=msg37(1:22)   !###
         nsnr=nint(xsnr) 
         xdt=xdt-0.5

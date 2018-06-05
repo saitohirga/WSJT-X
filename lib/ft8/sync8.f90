@@ -10,14 +10,15 @@ subroutine sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand,sbase)
   real x(NFFT1)
   real sync2d(NH1,-JZ:JZ)
   real red(NH1)
-  real candidate0(3,200)
-  real candidate(3,200)
+  real candidate0(4,200)
+  real candidate(4,200)
   real dd(NMAX)
   integer jpeak(NH1)
   integer indx(NH1)
   integer ii(1)
-  integer icos7(0:6)
-  data icos7/2,5,6,0,4,1,3/                   !Costas 7x7 tone pattern
+  integer icos7_1(0:6),icos7_2(0:6),icos7(0:6)
+  data icos7_1/2,5,6,0,4,1,3/                   !Costas 7x7 tone pattern
+  data icos7_2/3,1,4,0,6,5,2/                   !Costas 7x7 tone pattern
   equivalence (x,cx)
 
 ! Compute symbol spectra, stepping by NSTEP steps.  
@@ -49,6 +50,11 @@ subroutine sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand,sbase)
   nfos=NFFT1/NSPS   ! # frequency bin oversampling factor
   jstrt=0.5/tstep
 
+  candidate0=0.
+  k=0
+do itype=1,2
+  if(itype.eq.1) icos7=icos7_1
+  if(itype.eq.2) icos7=icos7_2
   do i=ia,ib
      do j=-JZ,+JZ
         ta=0.
@@ -58,16 +64,16 @@ subroutine sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand,sbase)
         t0b=0.
         t0c=0.
         do n=0,6
-           k=j+jstrt+nssy*n
-           if(k.ge.1.and.k.le.NHSYM) then
-              ta=ta + s(i+nfos*icos7(n),k)
-              t0a=t0a + sum(s(i:i+nfos*6:nfos,k))
+           m=j+jstrt+nssy*n
+           if(m.ge.1.and.m.le.NHSYM) then
+              ta=ta + s(i+nfos*icos7(n),m)
+              t0a=t0a + sum(s(i:i+nfos*6:nfos,m))
            endif
-           tb=tb + s(i+nfos*icos7(n),k+nssy*36)
-           t0b=t0b + sum(s(i:i+nfos*6:nfos,k+nssy*36))
-           if(k+nssy*72.le.NHSYM) then
-              tc=tc + s(i+nfos*icos7(n),k+nssy*72)
-              t0c=t0c + sum(s(i:i+nfos*6:nfos,k+nssy*72))
+           tb=tb + s(i+nfos*icos7(n),m+nssy*36)
+           t0b=t0b + sum(s(i:i+nfos*6:nfos,m+nssy*36))
+           if(m+nssy*72.le.NHSYM) then
+              tc=tc + s(i+nfos*icos7(n),m+nssy*72)
+              t0c=t0c + sum(s(i:i+nfos*6:nfos,m+nssy*72))
            endif
         enddo
         t=ta+tb+tc
@@ -98,8 +104,6 @@ subroutine sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand,sbase)
   base=red(ibase)
   red=red/base
 
-  candidate0=0.
-  k=0
   do i=1,200
      n=ia + indx(iz+1-i) - 1
      if(red(n).lt.syncmin) exit
@@ -107,7 +111,9 @@ subroutine sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand,sbase)
      candidate0(1,k)=n*df
      candidate0(2,k)=(jpeak(n)-1)*tstep
      candidate0(3,k)=red(n)
+     candidate0(4,k)=itype
   enddo
+enddo
   ncand=k
 
 ! Put nfqso at top of list, and save only the best of near-dupe freqs.  
@@ -121,9 +127,6 @@ subroutine sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand,sbase)
               if(candidate0(3,i).lt.candidate0(3,j)) candidate0(3,i)=0.
            endif
         enddo
-!        write(*,3001) i,candidate0(1,i-1),candidate0(1,i),candidate0(3,i-1),  &
-!             candidate0(3,i)
-!3001    format(i2,4f8.1)
      endif
   enddo
   
@@ -143,6 +146,8 @@ subroutine sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand,sbase)
        candidate(1,k)=abs(candidate0(1,j))
        candidate(2,k)=candidate0(2,j)
        candidate(3,k)=candidate0(3,j)
+       candidate(4,k)=candidate0(4,j)
+!write(*,*) i,candidate(1:4,k)
        k=k+1
      endif
   enddo

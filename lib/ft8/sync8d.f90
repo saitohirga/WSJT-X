@@ -1,4 +1,4 @@
-subroutine sync8d(cd0,i0,ctwk,itwk,sync)
+subroutine sync8d(cd0,i0,ctwk,itwk,itype,sync)
 
 ! Compute sync power for a complex, downsampled FT8 signal.
 
@@ -9,8 +9,9 @@ subroutine sync8d(cd0,i0,ctwk,itwk,sync)
   complex ctwk(32)
   complex z1,z2,z3
   logical first
-  integer icos7(0:6)
-  data icos7/2,5,6,0,4,1,3/
+  integer icos7_1(0:6),icos7_2(0:6),icos7(0:6)
+  data icos7_1/2,5,6,0,4,1,3/
+  data icos7_2/3,1,4,0,6,5,2/
   data first/.true./
   save first,twopi,fs2,dt2,taus,baud,csync
 
@@ -32,6 +33,12 @@ subroutine sync8d(cd0,i0,ctwk,itwk,sync)
       enddo
     enddo
     first=.false.
+  endif
+
+  if(itype.eq.1) then
+    icos7=icos7_1
+  else
+    icos7=icos7_2
   endif
 
   sync=0

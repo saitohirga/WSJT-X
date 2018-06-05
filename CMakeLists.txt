@@ -374,7 +374,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/bpdecode120.f90
   lib/fsk4hf/bpdecode168.f90
   lib/ft8/bpdecode174.f90
-  lib/fsk4hf/bpdecode174_91.f90
+  lib/ft8/bpdecode174_91.f90
   lib/fsk4hf/bpdecode300.f90
   lib/fsk4hf/bpdecode204.f90
   lib/baddata.f90
@@ -384,6 +384,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/chkcrc10.f90
   lib/fsk4hf/chkcrc12.f90
   lib/ft8/chkcrc12a.f90
+  lib/ft8/chkcrc14a.f90
   lib/chkcall.f90
   lib/chkhist.f90
   lib/chkmsg.f90
@@ -411,7 +412,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/encode120.f90
   lib/fsk4hf/encode168.f90
   lib/ft8/encode174.f90
-  lib/fsk4hf/encode174_91.f90
+  lib/ft8/encode174_91.f90
   lib/fsk4hf/encode300.f90
   lib/fsk4hf/encode204.f90
   lib/entail.f90
@@ -421,7 +422,7 @@ set (wsjt_FSRCS
   lib/extractmessage144.f90
   lib/fsk4hf/extractmessage168.f90
   lib/ft8/extractmessage174.f90
-  lib/fsk4hf/extractmessage174_91.f90
+  lib/ft8/extractmessage174_91.f90
   lib/fano232.f90
   lib/fast9.f90
   lib/fast_decode.f90
@@ -452,7 +453,8 @@ set (wsjt_FSRCS
   lib/freqcal.f90
   lib/fsk4hf/fsk4hf.f90
   lib/ft8/ft8apset.f90
-  lib/ft8/ft8b.f90
+  lib/ft8/ft8b_1.f90
+  lib/ft8/ft8b_2.f90
   lib/ft8/ft8code.f90
   lib/ft8/ft8_downsample.f90
   lib/ft8/ft8sim.f90
@@ -502,7 +504,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/ldpcsim120.f90
   lib/fsk4hf/ldpcsim168.f90
   lib/ft8/ldpcsim174.f90
-  lib/fsk4hf/ldpcsim174_91.f90
+  lib/ft8/ldpcsim174_91.f90
   lib/fsk4hf/ldpcsim300.f90
   lib/fsk4hf/ldpcsim204.f90
   lib/ldpcsim40.f90
@@ -532,7 +534,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/msksoftsym.f90
   lib/fsk4hf/msksoftsymw.f90
   lib/ft8/osd174.f90
-  lib/fsk4hf/osd174_91.f90
+  lib/ft8/osd174_91.f90
   lib/fsk4hf/osd300.f90
   lib/fsk4hf/osd204.f90
   lib/pctile.f90
@@ -1239,7 +1241,7 @@ target_link_libraries (ldpcsim120 wsjt_fort wsjt_cxx)
 add_executable (ldpcsim174 lib/ft8/ldpcsim174.f90 wsjtx.rc)
 target_link_libraries (ldpcsim174 wsjt_fort wsjt_cxx)
 
-add_executable (ldpcsim174_91 lib/fsk4hf/ldpcsim174_91.f90 wsjtx.rc)
+add_executable (ldpcsim174_91 lib/ft8/ldpcsim174_91.f90 wsjtx.rc)
 target_link_libraries (ldpcsim174_91 wsjt_fort wsjt_cxx)
 
 add_executable (ldpcsim144 lib/ldpcsim144.f90 wsjtx.rc)
