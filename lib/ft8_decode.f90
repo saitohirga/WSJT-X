@@ -51,7 +51,7 @@ contains
     character*12 mycall12, hiscall12
     character*6 mygrid6,hisgrid6
     integer*2 iwave(15*12000)
-    integer apsym(KK)
+    integer apsym1(KK),apsym2(91)
     character datetime*13,message*22,msg37*37
     character*22 allmessages(100)
     integer allsnrs(100)
@@ -62,7 +62,8 @@ contains
     write(datetime,1001) nutc        !### TEMPORARY ###
 1001 format("000000_",i6.6)
 
-    call ft8apset(mycall12,mygrid6,hiscall12,hisgrid6,bcontest,apsym,iaptype)
+    call ft8apset(mycall12,mygrid6,hiscall12,hisgrid6,bcontest,apsym1,iaptype)
+    apsym2=0 ! For now?
     dd=iwave
     ndecodes=0
     allmessages='                      '
@@ -109,12 +110,12 @@ contains
         if(iftype.eq.1) then
            call ft8b_1(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lft8apon,     &
                 lapcqonly,napwid,lsubtract,nagain,iaptype,mycall12,mygrid6,   &
-                hiscall12,bcontest,sync,f1,xdt,xbase,apsym,nharderrors,dmin,  &
+                hiscall12,bcontest,sync,f1,xdt,xbase,apsym1,nharderrors,dmin,  &
                 nbadcrc,iappass,iera,msg37,xsnr)
         else
            call ft8b_2(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lft8apon,     &
                 lapcqonly,napwid,lsubtract,nagain,iaptype,mycall12,mygrid6,   &
-                hiscall12,bcontest,sync,f1,xdt,xbase,apsym,nharderrors,dmin,  &
+                hiscall12,bcontest,sync,f1,xdt,xbase,apsym2,nharderrors,dmin,  &
                 nbadcrc,iappass,iera,msg37,xsnr)
         endif
         message=msg37(1:22)   !###
