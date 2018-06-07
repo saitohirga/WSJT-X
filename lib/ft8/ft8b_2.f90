@@ -42,6 +42,9 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   data first/.true./
   save nappasses,naptypes
 
+! All of the AP-related code in this routine needs to be re-written! AP decoding 
+! passes are disabled for now.
+!
   if(first) then
      mcq=2*mcq-1
      mde=2*mde-1
@@ -278,8 +281,8 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      npasses=4
   endif
 
-  do ipass=1,npasses 
-               
+!  do ipass=1,npasses 
+  do ipass=1,2 
      llr=llr0
      if(ipass.eq.2) llr=llr1
      if(ipass.eq.3) llr(1:24)=0. 
@@ -373,15 +376,15 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
         nharderrors=-1
         cycle 
      endif
-     i3bit=4*decoded(73) + 2*decoded(74) + decoded(75)
+     i5bit=16*decoded(73) + 8*decoded(74) + 4*decoded(75) + 2*decoded(76) + decoded(77)
      iFreeText=decoded(57)
      if(nbadcrc.eq.0) then
         decoded0=decoded
-        if(i3bit.eq.1) decoded(57:)=0
+        if(i5bit.eq.1) decoded(57:)=0
         call extractmessage174_91(decoded,message,ncrcflag)
         decoded=decoded0
-! This needs fixing for messages with i3bit=1:        
-        call genft8(message,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
+! This needs fixing for messages with i5bit=1:        
+        call genft8_174_91(message,mygrid6,bcontest,i5bit,msgsent,msgbits,itone)
         if(lsubtract) call subtractft8(dd0,itone,f1,xdt2)
         xsig=0.0
         xnoi=0.0
@@ -397,7 +400,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
         if(.not.nagain) xsnr=xsnr2
         if(xsnr .lt. -24.0) xsnr=-24.0
         
-        if(i3bit.eq.1) then
+        if(i5bit.eq.1) then
            do i=1,12
               i1hiscall(i)=ichar(hiscall12(i:i))
            enddo
@@ -431,11 +434,9 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
         else
            msg37=message//'               '
         endif
-        
         return
      endif
   enddo
-
   return
 end subroutine ft8b_2
 

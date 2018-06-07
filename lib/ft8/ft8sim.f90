@@ -99,6 +99,8 @@ program ft8sim
   write(*,1034) itone
 1034 format(/'Channel symbols:'/79i1/)
 
+  call sgran()
+
   msg0=msg
   do ifile=1,nfiles
      c=0.
@@ -165,9 +167,6 @@ program ft8sim
      if(snrdb.lt.90) then
         do i=1,NMAX                   !Add gaussian noise at specified SNR
            xnoise=gran()
-!           wave(i)=wave(i) + xnoise
-!           if(i.ge.ia .and. i.le.ib) write(30,3001) i,wave(i)/peak
-!3001       format(i8,f12.6)
            wave(i)=wave(i) + xnoise
         enddo
      endif

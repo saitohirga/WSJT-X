@@ -95,7 +95,6 @@ contains
         if((ndecodes-n2).eq.0) cycle
         lsubtract=.false. 
       endif 
-
       call timer('sync8   ',0)
       call sync8(dd,ifa,ifb,syncmin,nfqso,s,candidate,ncand,sbase)
       call timer('sync8   ',1)
@@ -139,11 +138,11 @@ contains
               allmessages(ndecodes)=message
               allsnrs(ndecodes)=nsnr
            endif
-!           write(81,1004) nutc,ncand,icand,ipass,iaptype,iappass,        &
-!                nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),          &
-!                xdt,nint(f1),message
-!1004          format(i6.6,2i4,3i2,i3,3f6.1,i4,f6.2,i5,2x,a22)
-!           flush(81)
+           write(81,1004) nutc,ncand,icand,ipass,iaptype,iappass,        &
+                nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),          &
+                xdt,nint(f1),message,iftype,nbadcrc
+1004          format(i6.6,2i4,3i2,i3,3f6.1,i4,f6.2,i5,2x,a22,i4,i4)
+           flush(81)
            if(.not.ldupe .and. associated(this%callback)) then
               qual=1.0-(nharderrors+dmin)/60.0 ! scale qual to [0.0,1.0]
               call this%callback(sync,nsnr,xdt,f1,msg37,iaptype,qual)
