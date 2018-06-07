@@ -179,7 +179,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      bmetap(i2)=r2
      bmetap(i1)=r1
 ! Max log metric
-     psl=log(ps)
+     psl=log(ps+1e-32)
      r1=max(psl(1),psl(3),psl(5),psl(7))-max(psl(0),psl(2),psl(4),psl(6))
      r2=max(psl(2),psl(3),psl(6),psl(7))-max(psl(0),psl(1),psl(4),psl(5))
      r4=max(psl(4),psl(5),psl(6),psl(7))-max(psl(0),psl(1),psl(2),psl(3))
