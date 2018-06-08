@@ -288,7 +288,7 @@ EqualizationToolsDialog::impl::impl (EqualizationToolsDialog * self
   , current_coefficients_ {coefficients}
   , amp_poly_low_ {0}
   , amp_poly_high_ {6000}
-  , button_box_ {QDialogButtonBox::Discard | QDialogButtonBox::Apply
+  , button_box_ {QDialogButtonBox::Apply
         | QDialogButtonBox::RestoreDefaults | QDialogButtonBox::Close
         , Qt::Vertical}
 {
@@ -362,6 +362,7 @@ EqualizationToolsDialog::impl::impl (EqualizationToolsDialog * self
 
   auto load_phase_button = button_box_.addButton (tr ("Phase ..."), QDialogButtonBox::ActionRole);
   auto refresh_button = button_box_.addButton (tr ("Refresh"), QDialogButtonBox::ActionRole);
+  auto discard_measured_button = button_box_.addButton (tr ("Discard Measured"), QDialogButtonBox::ActionRole);
   layout_.addWidget (&button_box_);
   setLayout (&layout_);
 
@@ -390,7 +391,7 @@ EqualizationToolsDialog::impl::impl (EqualizationToolsDialog * self
           Q_EMIT self_->phase_equalization_changed (current_coefficients_);
           plot_current ();
         }
-      else if (button == button_box_.button (QDialogButtonBox::Discard))
+      else if (button == discard_measured_button)
         {
           new_coefficients_ = QVector<double> {0., 0., 0., 0., 0.};
 

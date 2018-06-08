@@ -169,8 +169,9 @@ light green curve labeled "Current" to indicate that the phase
 equalization curve is now being applied to the received data. Another
 curve labeled "Group Delay" will appear. The "Group Delay" curve shows
 the group delay variation across the passband, in ms. Click the
-*Discard*  button to remove the captured data, leaving only the applied
-phase equalization curve and corresponding group delay curve.
+*Discard Measured*  button to remove the captured data from the plot, 
+leaving only the applied phase equalization curve and corresponding 
+group delay curve.
 
 - To revert to no phase equalization, push the *Restore Defaults*
 button followed by the *Apply* button.
