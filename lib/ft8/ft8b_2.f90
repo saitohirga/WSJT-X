@@ -172,8 +172,9 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      i1=3*j
 ! Max amplitude
      ps=s1(0:7,j)
-     r1=max(ps(1),ps(3),ps(5),ps(7))-max(ps(0),ps(2),ps(4),ps(6))
-     r2=max(ps(2),ps(3),ps(6),ps(7))-max(ps(0),ps(1),ps(4),ps(5))
+! For Gray bit-to-symbol mapping
+     r1=max(ps(1),ps(2),ps(5),ps(6))-max(ps(0),ps(3),ps(4),ps(7))
+     r2=max(ps(2),ps(3),ps(4),ps(5))-max(ps(0),ps(1),ps(6),ps(7))
      r4=max(ps(4),ps(5),ps(6),ps(7))-max(ps(0),ps(1),ps(2),ps(3))
      bmeta(i4)=r4
      bmeta(i2)=r2
@@ -183,18 +184,19 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      bmetap(i1)=r1
 ! Max log metric
      psl=log(ps+1e-32)
-     r1=max(psl(1),psl(3),psl(5),psl(7))-max(psl(0),psl(2),psl(4),psl(6))
-     r2=max(psl(2),psl(3),psl(6),psl(7))-max(psl(0),psl(1),psl(4),psl(5))
-     r4=max(psl(4),psl(5),psl(6),psl(7))-max(psl(0),psl(1),psl(2),psl(3))
+! Gray bit-to-symbol mapping
+     r1=max(psl(1),psl(2),psl(5),psl(6))-max(psl(0),psl(3),psl(4),ps(7))
+     r2=max(psl(2),psl(3),psl(4),psl(5))-max(psl(0),psl(1),psl(6),ps(7))
+     r4=max(psl(4),psl(5),psl(6),psl(7))-max(psl(0),psl(1),psl(2),ps(3))
      bmetb(i4)=r4
      bmetb(i2)=r2
      bmetb(i1)=r1
 
 ! Metric for Cauchy noise
-!     r1=log(ps(1)**3+ps(3)**3+ps(5)**3+ps(7)**3)- &
-!        log(ps(0)**3+ps(2)**3+ps(4)**3+ps(6)**3)
-!     r2=log(ps(2)**3+ps(3)**3+ps(6)**3+ps(7)**3)- &
-!        log(ps(0)**3+ps(1)**3+ps(4)**3+ps(5)**3)
+!     r1=log(ps(1)**3+ps(2)**3+ps(5)**3+ps(6)**3)- &
+!        log(ps(0)**3+ps(3)**3+ps(4)**3+ps(7)**3)
+!     r2=log(ps(2)**3+ps(3)**3+ps(4)**3+ps(5)**3)- &
+!        log(ps(0)**3+ps(1)**3+ps(6)**3+ps(7)**3)
 !     r4=log(ps(4)**3+ps(5)**3+ps(6)**3+ps(7)**3)- &
 !        log(ps(0)**3+ps(1)**3+ps(2)**3+ps(3)**3)
 ! Metric for AWGN, no fading
@@ -207,8 +209,8 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
 !     b5=bessi0(bscale*ps(5))
 !     b6=bessi0(bscale*ps(6))
 !     b7=bessi0(bscale*ps(7))
-!     r1=log(b1+b3+b5+b7)-log(b0+b2+b4+b6)
-!     r2=log(b2+b3+b6+b7)-log(b0+b1+b4+b5)
+!     r1=log(b1+b2+b5+b6)-log(b0+b3+b4+b7)
+!     r2=log(b2+b3+b4+b5)-log(b0+b1+b6+b7)
 !     r4=log(b4+b5+b6+b7)-log(b0+b1+b2+b3)
 
      if(nQSOProgress .eq. 0 .or. nQSOProgress .eq. 5) then

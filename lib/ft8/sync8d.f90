@@ -5,7 +5,7 @@ subroutine sync8d(cd0,i0,ctwk,itwk,itype,sync)
 
   parameter(NP2=2812,NDOWN=60)
   complex cd0(3125)
-  complex csync(0:6,32),csync_1(0:6,32),csync_2(0:6,32)
+  complex csync_1(0:6,32),csync_2(0:6,32)
   complex csync2(32)
   complex ctwk(32)
   complex z1,z2,z3

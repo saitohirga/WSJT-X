@@ -14,8 +14,10 @@ subroutine genft8_174_91(msg,mygrid,bcontest,i5bit,msgsent,msgbits,itone)
   integer*1, target:: i1Msg8BitBytes(12)
   integer itone(79)
   integer icos7(0:6)
+  integer graymap(0:7)
 #  data icos7/2,5,6,0,4,1,3/                   !Costas 7x7 tone pattern
   data icos7/3,1,4,0,6,5,2/                   !Costas 7x7 tone pattern
+  data graymap/0,1,3,2,7,6,4,5/
 
   call packmsg(msg,i4Msg6BitWords,itype,bcontest) !Pack into 12 6-bit bytes
   call unpackmsg(i4Msg6BitWords,msgsent,bcontest,mygrid) !Unpack to get msgsent
@@ -46,7 +48,9 @@ subroutine genft8_174_91(msg,mygrid,bcontest,i5bit,msgsent,msgbits,itone)
      i=3*j -2
      k=k+1
      if(j.eq.30) k=k+7
-     itone(k)=codeword(i)*4 + codeword(i+1)*2 + codeword(i+2)
+     indx=codeword(i)*4 + codeword(i+1)*2 + codeword(i+2)
+!     itone(k)=graymap(indx)
+     itone(k)=indx
   enddo
 
   return
