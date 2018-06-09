@@ -19,3 +19,14 @@ git push origin
 
 The resulting master branch is now ready to be git-subtree merged into
 any projects that need these libraries.
+
+This is imported here using git-subtree
+---------------------------------------
+
+To update this tree when the upstream Boost libraries are updated use
+git-subtree-pull to import the changes like this:
+
+```bash
+git remote add  -f boost git@bitbucket.org:g4wjs/boost.git # for convienence
+git subtree pull --prefix boost boost master --squash
+```
