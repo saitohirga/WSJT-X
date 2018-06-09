@@ -8,12 +8,9 @@ integer, parameter:: N=174, K=91, M=N-K
 
 integer*1 codeword(N)
 integer*1 gen(M,K)
-integer*1 itmp(N)
 integer*1 message(K)
 integer*1 pchecks(M)
-integer colorder(N)
 include "ldpc_174_91_c_generator.f90"
-include "ldpc_174_91_c_colorder.f90"
 logical first
 data first/.true./
 save first,gen
@@ -41,9 +38,9 @@ do i=1,M
   enddo
   pchecks(i)=mod(nsum,2)
 enddo
-itmp(1:M)=pchecks
-itmp(M+1:N)=message(1:K)
-codeword(colorder+1)=itmp(1:N)
+
+codeword(1:K)=message
+codeword(K+1:N)=pchecks
 
 return
 end subroutine encode174_91

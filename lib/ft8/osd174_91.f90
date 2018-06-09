@@ -8,7 +8,6 @@ integer*1 gen(K,N)
 integer*1 genmrb(K,N),g2(N,K)
 integer*1 temp(K),m0(K),me(K),mi(K),misub(K),e2sub(N-K),e2(N-K),ui(N-K)
 integer*1 r2pat(N-K)
-integer colorder(N)
 integer indices(N),nxor(N)
 integer*1 cw(N),ce(N),c0(N),hdec(N)
 integer*1 decoded(K)
@@ -16,7 +15,6 @@ integer indx(N)
 real llr(N),rx(N),absrx(N)
 
 include "ldpc_174_91_c_generator.f90"
-include "ldpc_174_91_c_colorder.f90"
 
 logical first,reset
 data first/.true./
@@ -31,19 +29,18 @@ if( first ) then ! fill the generator matrix
       if(j.eq.23) ibmax=3
       do jj=1, ibmax 
         irow=(j-1)*4+jj
-        if( btest(istr,4-jj) ) gen(irow,i)=1 
+        if( btest(istr,4-jj) ) gen(irow,K+i)=1 
       enddo
     enddo
   enddo
   do irow=1,K
-    gen(irow,M+irow)=1
+    gen(irow,irow)=1
   enddo
 first=.false.
 endif
 
-! Re-order received vector to place systematic msg bits at the end.
-rx=llr(colorder+1) 
-apmaskr=apmask(colorder+1)
+rx=llr
+apmaskr=apmask
 
 ! Hard decisions on the received word.
 hdec=0            
@@ -246,11 +243,10 @@ if(npre2.eq.1) then
 endif
 
 998 continue
-! Re-order the codeword to place message bits at the end.
+! Re-order the codeword to [message bits][parity bits] format. 
 cw(indices)=cw
 hdec(indices)=hdec
-decoded=cw(M+1:N) 
-cw(colorder+1)=cw ! put the codeword back into received-word order
+decoded=cw(1:K) 
 return
 end subroutine osd174_91
 

@@ -15,7 +15,6 @@ subroutine genft8_174_91(msg,mygrid,bcontest,i5bit,msgsent,msgbits,itone)
   integer itone(79)
   integer icos7(0:6)
   integer graymap(0:7)
-#  data icos7/2,5,6,0,4,1,3/                   !Costas 7x7 tone pattern
   data icos7/3,1,4,0,6,5,2/                   !Costas 7x7 tone pattern
   data graymap/0,1,3,2,7,6,4,5/
 
@@ -49,8 +48,7 @@ subroutine genft8_174_91(msg,mygrid,bcontest,i5bit,msgsent,msgbits,itone)
      k=k+1
      if(j.eq.30) k=k+7
      indx=codeword(i)*4 + codeword(i+1)*2 + codeword(i+2)
-!     itone(k)=graymap(indx)
-     itone(k)=indx
+     itone(k)=graymap(indx)
   enddo
 
   return

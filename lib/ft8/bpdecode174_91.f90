@@ -4,7 +4,6 @@ subroutine bpdecode174_91(llr,apmask,maxiterations,decoded,cw,nharderror,iter)
 !
 integer, parameter:: N=174, K=91, M=N-K
 integer*1 codeword(N),cw(N),apmask(N)
-integer  colorder(N)
 integer*1 decoded(K)
 integer Nm(7,M)   
 integer Mn(3,N)  ! 3 checks per bit
@@ -17,8 +16,7 @@ real llr(N)
 real Tmn
 integer nrw(M),ncw
 
-include "ldpc_174_91_c_colorder.f90"
-include "ldpc_174_91_c_parity.f90"
+include "ldpc_174_91_c_reordered_parity.f90"
 
 decoded=0
 toc=0
@@ -55,8 +53,8 @@ do iter=0,maxiterations
   enddo
 ! write(*,*) 'number of unsatisfied parity checks ',ncheck
   if( ncheck .eq. 0 ) then ! we have a codeword - reorder the columns and return it
-    codeword=cw(colorder+1)
-    decoded=codeword(M+1:N)
+    codeword=cw
+    decoded=codeword(1:K)
     nerr=0
     do i=1,N
       if( (2*cw(i)-1)*llr(i) .lt. 0.0 ) nerr=nerr+1

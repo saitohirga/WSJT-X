@@ -13,13 +13,10 @@ integer*1 msgbits(K)
 integer*1 apmask(N), cw(N)
 integer*2 checksum
 integer*4 i4Msg6BitWords(13)
-integer colorder(N)
 integer nerrtot(N),nerrdec(N),nmpcbad(K)
 logical checksumok
 real*8, allocatable ::  rxdata(:)
 real, allocatable :: llr(:)
-
-include "ldpc_174_91_c_colorder.f90"
 
 nerrtot=0
 nerrdec=0
@@ -51,8 +48,8 @@ write(*,*) "niter= ",max_iterations," s= ",s
 allocate ( codeword(N), decoded(K), message(K) )
 allocate ( rxdata(N), llr(N) )
 
-  msg="K1JT K9AN EN50"
-!  msg="G4WJS K9AN EN50"
+!  msg="K1JT K9AN EN50"
+  msg="G4WJS K9AN EN50"
   call packmsg(msg,i4Msg6BitWords,itype,.false.) !Pack into 12 6-bit bytes
   call unpackmsg(i4Msg6BitWords,msgsent,.false.,grid) !Unpack to get msgsent
   write(*,*) "message sent ",msgsent
@@ -148,9 +145,9 @@ do idb = 20,-10,-1
 
     llr=2.0*rxdata/(ss*ss)
     nap=0 ! number of AP bits
-    llr(colorder(174-91+1:174-91+nap)+1)=5*(2.0*msgbits(1:nap)-1.0)
+    llr(1:nap)=5*(2.0*msgbits(1:nap)-1.0)
     apmask=0
-    apmask(colorder(174-91+1:174-91+nap)+1)=1
+    apmask(1:nap)=1
 
 ! max_iterations is max number of belief propagation iterations
     call bpdecode174_91(llr, apmask, max_iterations, decoded, cw, nharderrors,niterations)
