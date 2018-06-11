@@ -16,7 +16,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   real s1(0:7,ND),s2(0:7,NN),s1sort(8*ND)
   real ps(0:7),psl(0:7)
   real bmeta(3*ND),bmetb(3*ND),bmetap(3*ND)
-  real llr(3*ND),llra(3*ND),llr0(3*ND),llr1(3*ND),llrap(3*ND)           !Soft symbols
+  real llr(3*ND),llra(3*ND),llrb(3*ND),llrd(3*ND)           !Soft symbols
   real dd0(15*12000)
   integer*1 decoded(91),decoded0(91),apmask(3*ND),cw(3*ND)
   integer*1 msgbits(91)
@@ -179,9 +179,6 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      bmeta(i4)=r4
      bmeta(i2)=r2
      bmeta(i1)=r1
-     bmetap(i4)=r4
-     bmetap(i2)=r2
-     bmetap(i1)=r1
 ! Max log metric
      psl=log(ps+1e-32)
 ! Gray bit-to-symbol mapping
@@ -191,76 +188,15 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      bmetb(i4)=r4
      bmetb(i2)=r2
      bmetb(i1)=r1
-
-! Metric for Cauchy noise
-!     r1=log(ps(1)**3+ps(2)**3+ps(5)**3+ps(6)**3)- &
-!        log(ps(0)**3+ps(3)**3+ps(4)**3+ps(7)**3)
-!     r2=log(ps(2)**3+ps(3)**3+ps(4)**3+ps(5)**3)- &
-!        log(ps(0)**3+ps(1)**3+ps(6)**3+ps(7)**3)
-!     r4=log(ps(4)**3+ps(5)**3+ps(6)**3+ps(7)**3)- &
-!        log(ps(0)**3+ps(1)**3+ps(2)**3+ps(3)**3)
-! Metric for AWGN, no fading
-!     bscale=2.5
-!     b0=bessi0(bscale*ps(0))
-!     b1=bessi0(bscale*ps(1))
-!     b2=bessi0(bscale*ps(2))
-!     b3=bessi0(bscale*ps(3))
-!     b4=bessi0(bscale*ps(4))
-!     b5=bessi0(bscale*ps(5))
-!     b6=bessi0(bscale*ps(6))
-!     b7=bessi0(bscale*ps(7))
-!     r1=log(b1+b2+b5+b6)-log(b0+b3+b4+b7)
-!     r2=log(b2+b3+b4+b5)-log(b0+b1+b6+b7)
-!     r4=log(b4+b5+b6+b7)-log(b0+b1+b2+b3)
-
-     if(nQSOProgress .eq. 0 .or. nQSOProgress .eq. 5) then
-! When bits 88:115 are set as ap bits, bit 115 lives in symbol 39 along
-! with no-ap bits 116 and 117. Take care of metrics for bits 116 and 117.
-        if(j.eq.39) then  ! take care of bits that live in symbol 39
-           if(apsym(28).lt.0) then
-              bmetap(i2)=max(ps(2),ps(3))-max(ps(0),ps(1))
-              bmetap(i1)=max(ps(1),ps(3))-max(ps(0),ps(2))
-           else 
-              bmetap(i2)=max(ps(6),ps(7))-max(ps(4),ps(5))
-              bmetap(i1)=max(ps(5),ps(7))-max(ps(4),ps(6))
-           endif
-        endif
-     endif
-
-! When bits 116:143 are set as ap bits, bit 115 lives in symbol 39 along
-! with ap bits 116 and 117. Take care of metric for bit 115.
-!        if(j.eq.39) then  ! take care of bit 115
-!           iii=2*(apsym(29)+1)/2 + (apsym(30)+1)/2  ! known values of bits 116 & 117
-!           if(iii.eq.0) bmetap(i4)=ps(4)-ps(0)
-!           if(iii.eq.1) bmetap(i4)=ps(5)-ps(1)
-!           if(iii.eq.2) bmetap(i4)=ps(6)-ps(2)
-!           if(iii.eq.3) bmetap(i4)=ps(7)-ps(3)
-!        endif
-
-! bit 144 lives in symbol 48 and will be 1 if it is set as an ap bit.
-! take care of metrics for bits 142 and 143
-     if(j.eq.48) then  ! bit 144 is always 1
-       bmetap(i4)=max(ps(5),ps(7))-max(ps(1),ps(3))
-       bmetap(i2)=max(ps(3),ps(7))-max(ps(1),ps(5))
-     endif 
-
-! bit 154 lives in symbol 52 and will be 0 if it is set as an ap bit
-! take care of metrics for bits 155 and 156
-     if(j.eq.52) then  ! bit 154 will be 0 if it is set as an ap bit.
-        bmetap(i2)=max(ps(2),ps(3))-max(ps(0),ps(1))
-        bmetap(i1)=max(ps(1),ps(3))-max(ps(0),ps(2))
-     endif  
-
   enddo
 
   call normalizebmet(bmeta,3*ND)
   call normalizebmet(bmetb,3*ND)
-  call normalizebmet(bmetap,3*ND)
+  bmetap=bmeta
 
   scalefac=2.83
-  llr0=scalefac*bmeta
-  llr1=scalefac*bmetb
-  llra=scalefac*bmetap  ! llr's for use with ap
+  llra=scalefac*bmeta
+  llrb=scalefac*bmetb
   apmag=scalefac*(maxval(abs(bmetap))*1.01)
 
 ! pass #
@@ -283,15 +219,14 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      npasses=4
   endif
 
-!  do ipass=1,npasses 
-  do ipass=1,2 
-     llr=llr0
-     if(ipass.eq.2) llr=llr1
-     if(ipass.eq.3) llr(1:24)=0. 
-     if(ipass.eq.4) llr(1:48)=0. 
+  do ipass=1,npasses 
+!  do ipass=1,2 
+     llrd=llra
+     if(ipass.eq.2) llrd=llrb
+     if(ipass.eq.3) llrd(1:24)=0. 
+     if(ipass.eq.4) llrd(1:48)=0. 
      if(ipass.le.4) then
         apmask=0
-        llrap=llr
         iaptype=0
      endif
         
@@ -304,49 +239,33 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
         if(iaptype.ge.3 .and. (abs(f1-nfqso).gt.napwid .and. abs(f1-nftx).gt.napwid) ) cycle 
         if(iaptype.eq.1 .or. iaptype.eq.2 ) then ! AP,???,??? 
            apmask=0
-           apmask(88:115)=1    ! first 28 bits are AP
-           apmask(144)=1       ! not free text
-           llrap=llr
-           if(iaptype.eq.1) llrap(88:115)=apmag*mcq
-           if(iaptype.eq.2) llrap(88:115)=apmag*apsym(1:28)
-           llrap(116:117)=llra(116:117)  
-           llrap(142:143)=llra(142:143)
-           llrap(144)=-apmag
+           apmask(1:27)=1    ! first 27 bits (9 tones) are AP
+           if(iaptype.eq.1) llrd(1:27)=apmag*mcq(1:27)
+           if(iaptype.eq.2) llrd(1:27)=apmag*apsym(1:27)
         endif
         if(iaptype.eq.3) then   ! mycall, dxcall, ???
            apmask=0
-           apmask(88:115)=1   ! mycall
-           apmask(116:143)=1  ! hiscall
-           apmask(144)=1      ! not free text
-           llrap=llr
-           llrap(88:143)=apmag*apsym(1:56)
-           llrap(144)=-apmag
+           apmask(1:54)=1   
+           llrd(1:54)=apmag*apsym(1:54)
         endif
         if(iaptype.eq.4 .or. iaptype.eq.5 .or. iaptype.eq.6) then  
            apmask=0
-           apmask(88:115)=1   ! mycall
-           apmask(116:143)=1  ! hiscall
-           apmask(144:159)=1  ! RRR or 73 or RR73
-           llrap=llr
-           llrap(88:143)=apmag*apsym(1:56)
-           if(iaptype.eq.4) llrap(144:159)=apmag*mrrr 
-           if(iaptype.eq.5) llrap(144:159)=apmag*m73 
-           if(iaptype.eq.6) llrap(144:159)=apmag*mrr73 
+           apmask(1:72)=1   ! mycall, hiscall, RRR|73|RR73
+           llrd(1:56)=apmag*apsym(1:56)
+           if(iaptype.eq.4) llrd(57:72)=apmag*mrrr 
+           if(iaptype.eq.5) llrd(57:72)=apmag*m73 
+           if(iaptype.eq.6) llrd(57:72)=apmag*mrr73 
         endif
         if(iaptype.eq.7) then   ! ???, dxcall, ???
            apmask=0
-           apmask(116:143)=1  ! hiscall
-           apmask(144)=1      ! not free text
-           llrap=llr
-           llrap(115)=llra(115)
-           llrap(116:143)=apmag*apsym(29:56)
-           llrap(144)=-apmag
+           apmask(31:54)=1  ! hiscall
+           llrd(31:54)=apmag*apsym(31:54)
         endif
      endif
 
      cw=0
      call timer('bpd174_91 ',0)
-     call bpdecode174_91(llrap,apmask,max_iterations,decoded,cw,nharderrors,  &
+     call bpdecode174_91(llrd,apmask,max_iterations,decoded,cw,nharderrors,  &
           niterations)
      call timer('bpd174_91 ',1)
      dmin=0.0
@@ -361,7 +280,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
         endif
         if(nagain) ndeep=5
         call timer('osd174_91 ',0)
-        call osd174_91(llrap,apmask,ndeep,decoded,cw,nharderrors,dmin)
+        call osd174_91(llrd,apmask,ndeep,decoded,cw,nharderrors,dmin)
         call timer('osd174_91 ',1)
      endif
      nbadcrc=1
@@ -442,6 +361,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   return
 end subroutine ft8b_2
 
+! This currently resides in ft8b_1.f90
 !subroutine normalizebmet(bmet,n)
 !  real bmet(n)
 !

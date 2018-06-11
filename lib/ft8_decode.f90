@@ -62,8 +62,8 @@ contains
     write(datetime,1001) nutc        !### TEMPORARY ###
 1001 format("000000_",i6.6)
 
-    call ft8apset(mycall12,mygrid6,hiscall12,hisgrid6,bcontest,apsym1,iaptype)
-    apsym2=0 ! For now?
+    call ft8apset(mycall12,mygrid6,hiscall12,hisgrid6,bcontest,apsym1)
+    call ft8apset_174_91(mycall12,mygrid6,hiscall12,hisgrid6,bcontest,apsym2)
     dd=iwave
     ndecodes=0
     allmessages='                      '

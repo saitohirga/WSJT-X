@@ -453,6 +453,7 @@ set (wsjt_FSRCS
   lib/freqcal.f90
   lib/fsk4hf/fsk4hf.f90
   lib/ft8/ft8apset.f90
+  lib/ft8/ft8apset_174_91.f90
   lib/ft8/ft8b_1.f90
   lib/ft8/ft8b_2.f90
   lib/ft8/ft8code.f90
