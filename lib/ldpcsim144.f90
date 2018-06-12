@@ -14,7 +14,7 @@ integer*1 i1hash(4)
 integer*1 msgbits(80)
 integer*4 i4Msg6BitWords(13)
 integer ihash
-integer nerrtot(128),nerrdec(128)
+integer nerrtot(0:128),nerrdec(0:128)
 real*8, allocatable ::  lratio(:), rxdata(:), rxavgd(:)
 real, allocatable :: yy(:), llr(:)
 equivalence(ihash,i1hash)
@@ -42,7 +42,7 @@ read(arg,*) s
 
 ! don't count hash bits as data bits
 N=128
-K=72
+K=80
 rate=real(K)/real(N)
 
 write(*,*) "rate: ",rate
@@ -167,7 +167,7 @@ do idb = -6, 14
 enddo
 
 open(unit=23,file='nerrhisto.dat',status='unknown')
-do i=1,128
+do i=0,128
   write(23,'(i4,2x,i10,i10,f10.2)') i,nerrdec(i),nerrtot(i),real(nerrdec(i))/real(nerrtot(i)+1e-10)
 enddo
 close(23)
