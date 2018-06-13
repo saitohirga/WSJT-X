@@ -11,11 +11,14 @@ character*96 tmpchar
 character*8 arg
 integer*1, allocatable ::  codeword(:), decoded(:), message(:)
 integer*1, target:: i1Msg8BitBytes(12)
+integer*1 apmask(N),cw(N)
 integer*1 i1hash(4)
-integer*1 msgbits(80)
+integer*1 msgbits(90)
+integer*2 checksum
 integer*4 i4Msg6BitWords(13)
 integer ihash
-integer nerrtot(N),nerrdec(N),nmpcbad(K)
+integer nerrtot(0:N),nerrdec(0:N),nmpcbad(0:K)
+logical checksumok
 real*8, allocatable ::  lratio(:), rxdata(:), rxavgd(:)
 real, allocatable :: yy(:), llr(:)
 equivalence(ihash,i1hash)
@@ -41,7 +44,6 @@ read(arg,*) ntrials
 call getarg(4,arg)
 read(arg,*) s
 
-! don't count hash bits as data bits
 rate=real(K)/real(N)
 
 write(*,*) "rate: ",rate
@@ -51,30 +53,30 @@ write(*,*) "niter= ",max_iterations," navg= ",navg," s= ",s
 allocate ( codeword(N), decoded(K), message(K) )
 allocate ( lratio(N), rxdata(N), rxavgd(N), yy(N), llr(N) )
 
-msg="K9AN K1JT EN50"
+!msg="K9AN K1JT EN50"
+msg="G4WJS K1JT FN20"
   call packmsg(msg,i4Msg6BitWords,itype,.false.) !Pack into 12 6-bit bytes
   call unpackmsg(i4Msg6BitWords,msgsent,.false.,'      ') !Unpack to get msgsent
   write(*,*) "message sent ",msgsent
 
   tmpchar=' '
-  write(tmpchar,'(12b6.6)') i4Msg6BitWords
+  write(tmpchar,'(12b6)') i4Msg6BitWords(1:12)
   tmpchar(73:77)="00000"   !i5bit
-  write(*,*) tmpchar
 
   read(tmpchar,'(10b8)') i1Msg8BitBytes(1:10)
   write(*,*) i1Msg8BitBytes
 
   i1Msg8BitBytes(10:12)=0 
-  checksum = crc13 (c_loc (i1Msg8ZBitZBytes), 12)
-  i1Msg8BitBytes(11)=checksum/256
-  i1Msg8BitBytes(12)=iand (checksum,255)
-  checksumok = crc13_check(c_loc (i1Msg8ZBitBytes), 12)
-  if( checksumok ) write(*,*) 'Good checksum'
+  checksum = crc13 (c_loc (i1Msg8BitBytes), 12)
+  write(*,'(i6,3x,b13)') checksum,checksum
 
-  write(tmpchar,'(12b8.8)') i1Msg8BitBytes(1:9)
-  read(tmpchar,'(77b)') msgbits(1:77)
-  read(tmpchar(84:96),'(6b)') msgbits(78:90)
-  call encode_128_90(msgbits,codeword)
+  write(tmpchar(78:90),'(b13)') checksum
+  read(tmpchar,'(90i1)') msgbits(1:90)
+
+  write(*,*) 'msgbits'
+  write(*,'(28i1,1x,28i1,1x,16i1,1x,5i1,1x,13i1)') msgbits
+
+  call encode128_90(msgbits,codeword)
 
   call init_random_seed()
 
@@ -103,13 +105,10 @@ do idb = -6, 14
     enddo
     nerrtot(nerr)=nerrtot(nerr)+1
 
-! Correct signal normalization is important for this decoder.
     rxav=sum(rxdata)/N
     rx2av=sum(rxdata*rxdata)/N
     rxsig=sqrt(rx2av-rxav*rxav)
     rxdata=rxdata/rxsig
-! To match the metric to the channel, s should be set to the noise standard deviation. 
-! For now, set s to the value that optimizes decode probability near threshold. 
 ! The s parameter can be tuned to trade a few tenth's dB of threshold for an order of
 ! magnitude in UER 
     if( s .lt. 0 ) then
@@ -122,13 +121,15 @@ do idb = -6, 14
     lratio=exp(llr)
     yy=rxdata
 
+    apmask=0
 ! max_iterations is max number of belief propagation iterations
     call bpdecode128_90(llr, apmask, max_iterations, decoded, cw, nharderrors, niterations)
 
 ! If the decoder finds a valid codeword, nharderrors will be .ge. 0.
     if( nharderrors .ge. 0 ) then
-      call extractmessage1128_90(decoded,msgreceived,ncrcflag)
-      if( nncrcflag .ne. 1 ) then
+      call extractmessage128_90(decoded,msgreceived,ncrcflag)
+write(*,*) 'crc check flag ',ncrcflag
+      if( ncrcflag .ne. 1 ) then
         nbadcrc=nbadcrc+1
       endif
 
@@ -140,17 +141,17 @@ do idb = -6, 14
           nerrmpc=nerrmpc+1
         endif
       enddo
-      if(nerrmpc.ge.1) nmpcbad(nerrmpc)=nmpcbad(nerrmpc)+1
+      nmpcbad(nerrmpc)=nmpcbad(nerrmpc)+1
       if( ncrcflag .eq. 1) then
         ngood=ngood+1
-        if(nerr.ge.1) nerrdec(nerr)=nerrdec(nerr)+1
+        nerrdec(nerr)=nerrdec(nerr)+1
       else if(nueflag .eq. 1 ) then
         nue=nue+1;
       endif
     endif
   enddo
   snr2500=db-3.5
-  pberr=real(nberr)/real(ntrials*N)
+  pberr=real(nerr)/real(ntrials*N)
   write(*,"(f4.1,4x,f5.1,1x,i8,1x,i8,1x,i8,8x,f5.2,8x,e10.3)") db,snr2500,ngood,nue,nbadcrc,ss,pberr
   
 enddo

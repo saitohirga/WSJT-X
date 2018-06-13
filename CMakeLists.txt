@@ -313,12 +313,14 @@ set (wsjtx_CXXSRCS
 set (wsjt_CXXSRCS
   lib/crc10.cpp
   lib/crc12.cpp
+  lib/crc13.cpp
   lib/crc14.cpp
   )
 # deal with a GCC v6 UB error message
 set_source_files_properties (
   lib/crc10.cpp
   lib/crc12.cpp
+  lib/crc13.cpp
   lib/crc14.cpp
   PROPERTIES COMPILE_FLAGS -fpermissive)
 
@@ -371,6 +373,7 @@ set (wsjt_FSRCS
   lib/ft8/baseline.f90
   lib/bpdecode40.f90
   lib/bpdecode144.f90
+  lib/bpdecode128_90.f90
   lib/fsk4hf/bpdecode120.f90
   lib/fsk4hf/bpdecode168.f90
   lib/ft8/bpdecode174.f90
@@ -409,6 +412,7 @@ set (wsjt_FSRCS
   lib/encode4.f90
   lib/encode_msk40.f90
   lib/encode_msk144.f90
+  lib/encode128_90.f90
   lib/fsk4hf/encode120.f90
   lib/fsk4hf/encode168.f90
   lib/ft8/encode174.f90
@@ -420,6 +424,7 @@ set (wsjt_FSRCS
   lib/extract.f90
   lib/extract4.f90
   lib/extractmessage144.f90
+  lib/extractmessage128_90.f90
   lib/fsk4hf/extractmessage168.f90
   lib/ft8/extractmessage174.f90
   lib/ft8/extractmessage174_91.f90
@@ -502,6 +507,7 @@ set (wsjt_FSRCS
   lib/jt9fano.f90
   lib/jtmsg.f90
   lib/ldpcsim144.f90
+  lib/ldpcsim128_90.f90
   lib/fsk4hf/ldpcsim120.f90
   lib/fsk4hf/ldpcsim168.f90
   lib/ft8/ldpcsim174.f90
@@ -1247,6 +1253,9 @@ target_link_libraries (ldpcsim174_91 wsjt_fort wsjt_cxx)
 
 add_executable (ldpcsim144 lib/ldpcsim144.f90 wsjtx.rc)
 target_link_libraries (ldpcsim144 wsjt_fort wsjt_cxx)
+
+add_executable (ldpcsim128_90 lib/ldpcsim128_90.f90 wsjtx.rc)
+target_link_libraries (ldpcsim128_90 wsjt_fort wsjt_cxx)
 
 add_executable (ldpcsim168 lib/fsk4hf/ldpcsim168.f90 wsjtx.rc)
 target_link_libraries (ldpcsim168 wsjt_fort wsjt_cxx)
