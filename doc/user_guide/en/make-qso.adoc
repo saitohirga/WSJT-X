@@ -78,11 +78,13 @@ fully automated QSOs.
 
 === VHF Contest Mode
 
-A special *NA VHF Contest* mode can be activated for FT8 and MSK144
-modes by checking a box on the main window.  This mode is configured
-especially for contests in which four-character grid locators are the
-required exchange.  When *NA VHF Contest* mode is active, the standard
-QSO sequence looks like this:
+A special *NA VHF Contest* mode can be activated for FT8 and MSK144.
+To use it you must activate *File | Settings | General | Enable
+VHF/UHF/Microwave features* and then check the box *NA VHF Contest* on
+the main window.  This mode is configured especially for contests in
+which four-character grid locators are the required exchange.  When
+*NA VHF Contest* mode is active, the standard QSO sequence looks like
+this:
 
  CQ K1ABC FN42
                       K1ABC W9XYZ EN37
