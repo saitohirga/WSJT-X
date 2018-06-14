@@ -130,15 +130,15 @@ do idb = 14,-6,-1
              nerrdec(nerr)=nerrdec(nerr)+1 
           else              ! this is an undetected error
              nue=nue+1
-             nbadwt(nhw)=nbadwt(nhw)+1  ! store the weight of the error vector
           endif
        else
           nbadcrc=nbadcrc+1
+          nbadwt(nhw)=nbadwt(nhw)+1  ! store the weight of the error vector
        endif
     endif
   enddo
 
-  snr2500=db-3.5
+  snr2500=db-2.5
   pberr=real(nerr)/real(ntrials*N)
   write(*,"(f4.1,4x,f5.1,1x,i8,1x,i8,1x,i8,8x,f5.2,8x,e10.3)") db,snr2500,ngood,nue,nbadcrc,ss,pberr
   
@@ -149,7 +149,7 @@ do i=0,N
   write(23,'(i4,2x,i10,i10,f10.2)') i,nerrdec(i),nerrtot(i),real(nerrdec(i))/real(nerrtot(i)+1e-10)
 enddo
 close(23)
-open(unit=25,file='undetected_error_hamming_weight.dat',status='unknown')
+open(unit=25,file='badcrc_hamming_weight.dat',status='unknown')
 do i=0,N
   write(25,'(i4,2x,i10)') i,nbadwt(i)
 enddo

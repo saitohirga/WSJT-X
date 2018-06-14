@@ -14,7 +14,7 @@ integer*1 i1hash(4)
 integer*1 msgbits(80)
 integer*4 i4Msg6BitWords(13)
 integer ihash
-integer nerrtot(128),nerrdec(128)
+integer nerrtot(0:128),nerrdec(0:128)
 real*8, allocatable ::  lratio(:), rxdata(:), rxavgd(:)
 real, allocatable :: yy(:), llr(:)
 equivalence(ihash,i1hash)
@@ -41,8 +41,8 @@ call getarg(4,arg)
 read(arg,*) s
 
 ! don't count hash bits as data bits
+K=80
 N=128
-K=72
 rate=real(K)/real(N)
 
 write(*,*) "rate: ",rate
@@ -90,7 +90,7 @@ msg="K9AN K1JT EN50"
   call init_random_seed()
 
 write(*,*) "Eb/N0  SNR2500   ngood  nundetected nbadhash  sigma"
-do idb = -6, 14
+do idb = 14,-6,-1 
   db=idb/2.0-1.0
   sigma=1/sqrt( 2*rate*(10**(db/10.0)) )
   ngood=0
@@ -161,7 +161,7 @@ do idb = -6, 14
       endif
     endif
   enddo
-  snr2500=db-3.5
+  snr2500=db-3.0
   write(*,"(f4.1,4x,f5.1,1x,i8,1x,i8,1x,i8,8x,f5.2)") db,snr2500,ngood,nue,nbadhash,ss
 
 enddo
