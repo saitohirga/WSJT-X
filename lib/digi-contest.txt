@@ -113,9 +113,10 @@ z6  CQ zone
 
 How best to accommodate all these possibilities within the 72+3-bit
 FT8 message payload?  Let i3 (aka "i3bit") denote message type, with
-available range 0-7.  Types 0 and 1 are already used for standard
-JT-style structured messages and free text.  Examples of suggested new
-message types 2 through 6 are summarized in the Table 4.
+available range 0-7.  Type 0 is already used for standard JT-style
+structured messages and free text, and type 1 for DXpedition mode.
+Examples of suggested new message types 2 through 6 are summarized in
+the Table 4.
 
 Table 4. Proposed FT8 message types
 ------------------------------------------------------------------------------
