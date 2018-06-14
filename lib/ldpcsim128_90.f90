@@ -12,22 +12,21 @@ character*8 arg
 integer*1, allocatable ::  codeword(:), decoded(:), message(:)
 integer*1, target:: i1Msg8BitBytes(12)
 integer*1 apmask(N),cw(N)
-integer*1 i1hash(4)
 integer*1 msgbits(90)
 integer*2 checksum
 integer*4 i4Msg6BitWords(13)
-integer ihash
-integer nerrtot(0:N),nerrdec(0:N),nmpcbad(0:K)
+integer nerrtot(0:N),nerrdec(0:N),nmpcbad(0:K),nbadwt(0:N)
 logical checksumok
 real*8, allocatable ::  lratio(:), rxdata(:), rxavgd(:)
 real, allocatable :: yy(:), llr(:)
-equivalence(ihash,i1hash)
 
 do i=1,NRECENT
   recent_calls(i)='            '
 enddo
 nerrtot=0
 nerrdec=0
+nmpcbad=0
+nbadwt=0
 
 nargs=iargc()
 if(nargs.ne.4) then
@@ -60,15 +59,11 @@ msg="G4WJS K1JT FN20"
   write(*,*) "message sent ",msgsent
 
   tmpchar=' '
-  write(tmpchar,'(12b6)') i4Msg6BitWords(1:12)
+  write(tmpchar,'(12b6.6)') i4Msg6BitWords(1:12)
   tmpchar(73:77)="00000"   !i5bit
-
   read(tmpchar,'(10b8)') i1Msg8BitBytes(1:10)
-  write(*,*) i1Msg8BitBytes
-
   i1Msg8BitBytes(10:12)=0 
   checksum = crc13 (c_loc (i1Msg8BitBytes), 12)
-  write(*,'(i6,3x,b13)') checksum,checksum
 
   write(tmpchar(78:90),'(b13)') checksum
   read(tmpchar,'(90i1)') msgbits(1:90)
@@ -80,13 +75,13 @@ msg="G4WJS K1JT FN20"
 
   call init_random_seed()
 
-write(*,*) "Eb/N0  SNR2500   ngood  nundetected nbadhash  sigma"
-do idb = -6, 14
+write(*,*) "Eb/N0  SNR2500   ngood  nundetected nbadcrc    sigma"
+do idb = 14,-6,-1 
   db=idb/2.0-1.0
   sigma=1/sqrt( 2*rate*(10**(db/10.0)) )
   ngood=0
   nue=0
-  nbadhash=0
+  nbadcrc=0
 
   do itrial=1, ntrials
     rxavgd=0d0
@@ -127,29 +122,22 @@ do idb = -6, 14
 
 ! If the decoder finds a valid codeword, nharderrors will be .ge. 0.
     if( nharderrors .ge. 0 ) then
-      call extractmessage128_90(decoded,msgreceived,ncrcflag)
-write(*,*) 'crc check flag ',ncrcflag
-      if( ncrcflag .ne. 1 ) then
-        nbadcrc=nbadcrc+1
-      endif
-
-      nueflag=0
-      nerrmpc=0
-      do i=1,K
-        if( msgbits(i) .ne. decoded(i) ) then
-          nueflag=1
-          nerrmpc=nerrmpc+1
-        endif
-      enddo
-      nmpcbad(nerrmpc)=nmpcbad(nerrmpc)+1
-      if( ncrcflag .eq. 1) then
-        ngood=ngood+1
-        nerrdec(nerr)=nerrdec(nerr)+1
-      else if(nueflag .eq. 1 ) then
-        nue=nue+1;
-      endif
+       call extractmessage128_90(decoded,msgreceived,ncrcflag)
+       nhw=count(cw.ne.codeword)
+       if(ncrcflag.eq.1) then
+          if(nhw.eq.0) then ! this is a good decode
+             ngood=ngood+1
+             nerrdec(nerr)=nerrdec(nerr)+1 
+          else              ! this is an undetected error
+             nue=nue+1
+             nbadwt(nhw)=nbadwt(nhw)+1  ! store the weight of the error vector
+          endif
+       else
+          nbadcrc=nbadcrc+1
+       endif
     endif
   enddo
+
   snr2500=db-3.5
   pberr=real(nerr)/real(ntrials*N)
   write(*,"(f4.1,4x,f5.1,1x,i8,1x,i8,1x,i8,8x,f5.2,8x,e10.3)") db,snr2500,ngood,nue,nbadcrc,ss,pberr
@@ -157,13 +145,13 @@ write(*,*) 'crc check flag ',ncrcflag
 enddo
 
 open(unit=23,file='nerrhisto.dat',status='unknown')
-do i=1,N
+do i=0,N
   write(23,'(i4,2x,i10,i10,f10.2)') i,nerrdec(i),nerrtot(i),real(nerrdec(i))/real(nerrtot(i)+1e-10)
 enddo
 close(23)
-open(unit=25,file='nmpcbad.dat',status='unknown')
-do i=1,K
-  write(25,'(i4,2x,i10)') i,nmpcbad(i)
+open(unit=25,file='undetected_error_hamming_weight.dat',status='unknown')
+do i=0,N
+  write(25,'(i4,2x,i10)') i,nbadwt(i)
 enddo
 close(25)
 
