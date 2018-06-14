@@ -10,7 +10,7 @@ integer*1 codeword(N)
 integer*1 gen(M,K)
 integer*1 message(K)
 integer*1 pchecks(M)
-include "ldpc_128_90_generator.f90"
+include "ldpc_128_90_b_generator.f90"
 logical first
 data first/.true./
 save first,gen

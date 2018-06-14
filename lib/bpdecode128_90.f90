@@ -5,18 +5,18 @@ subroutine bpdecode128_90(llr,apmask,maxiterations,decoded,cw,nharderror,iter)
 integer, parameter:: N=128, K=90, M=N-K
 integer*1 codeword(N),cw(N),apmask(N)
 integer*1 decoded(K)
-integer Nm(11,M)   
-integer Mn(3,N)  ! 3 checks per bit
+integer Nm(12,M)   
+integer Mn(4,N) 
 integer synd(M)
-real tov(3,N)
-real toc(11,M)
-real tanhtoc(11,M)
+real tov(4,N)
+real toc(12,M)
+real tanhtoc(12,M)
 real zn(N)
 real llr(N)
 real Tmn
-integer nrw(M),ncw
+integer nrw(M),ncw(N)
 
-include "ldpc_128_90_reordered_parity.f90"
+include "ldpc_128_90_b_reordered_parity.f90"
 
 decoded=0
 toc=0
@@ -36,7 +36,7 @@ do iter=0,maxiterations
 ! Update bit log likelihood ratios (tov=0 in iteration 0).
   do i=1,N
     if( apmask(i) .ne. 1 ) then
-      zn(i)=llr(i)+sum(tov(1:ncw,i))
+      zn(i)=llr(i)+sum(tov(1:ncw(i),i))
     else
       zn(i)=llr(i)
     endif
@@ -84,7 +84,7 @@ do iter=0,maxiterations
     do i=1,nrw(j)
       ibj=Nm(i,j)
       toc(i,j)=zn(ibj)  
-      do kk=1,ncw ! subtract off what the bit had received from the check
+      do kk=1,4 ! subtract off what the bit had received from the check
         if( Mn(kk,ibj) .eq. j ) then  
           toc(i,j)=toc(i,j)-tov(kk,ibj)
         endif
@@ -94,11 +94,11 @@ do iter=0,maxiterations
 
 ! send messages from check nodes to variable nodes
   do i=1,M
-    tanhtoc(1:11,i)=tanh(-toc(1:11,i)/2)
+    tanhtoc(1:12,i)=tanh(-toc(1:12,i)/2)
   enddo
 
   do j=1,N
-    do i=1,ncw
+    do i=1,ncw(j)
       ichk=Mn(i,j)  ! Mn(:,j) are the checks that include bit j
       Tmn=product(tanhtoc(1:nrw(ichk),ichk),mask=Nm(1:nrw(ichk),ichk).ne.j)
       call platanh(-Tmn,y)
