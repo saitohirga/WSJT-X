@@ -50,7 +50,10 @@ about right, depending on the input signal level, the chosen palette,
 and your own preferences. Hover the mouse over a control to display a
 tip reminding you of its function.
 
-- *Smoothing* is active only when *Linear Average* has been selected.
+- The *Spec nn%* control may be used to set the fractional height of
+the spectrum plotted below the waterfall.
+
+- *Smooth* is active only when *Linear Average* has been selected.
 Smoothing the displayed spectrum over more than one bin can enhance
 your ability to detect weak EME signals with Doppler spread more than
 a few Hz.
