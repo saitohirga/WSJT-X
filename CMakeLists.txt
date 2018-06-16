@@ -387,6 +387,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/chkcrc10.f90
   lib/fsk4hf/chkcrc12.f90
   lib/ft8/chkcrc12a.f90
+  lib/ft8/chkcrc13a.f90
   lib/ft8/chkcrc14a.f90
   lib/chkcall.f90
   lib/chkhist.f90
