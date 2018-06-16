@@ -425,7 +425,7 @@ set (wsjt_FSRCS
   lib/extract.f90
   lib/extract4.f90
   lib/extractmessage144.f90
-  lib/extractmessage128_90.f90
+  lib/extractmessage77.f90
   lib/fsk4hf/extractmessage168.f90
   lib/ft8/extractmessage174.f90
   lib/ft8/extractmessage174_91.f90

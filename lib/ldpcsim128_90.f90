@@ -1,23 +1,19 @@
 program ldpcsim
 
-use, intrinsic :: iso_c_binding
-use iso_c_binding, only: c_loc,c_size_t
-use crc
 use packjt
 integer, parameter:: NRECENT=10, N=128, K=90, M=N-K
 character*12 recent_calls(NRECENT)
 character*22 msg,msgsent,msgreceived
 character*96 tmpchar
 character*8 arg
-integer*1, allocatable ::  codeword(:), decoded(:), message(:)
-integer*1, target:: i1Msg8BitBytes(12)
+integer*1 codeword(N), message77(77)
 integer*1 apmask(N),cw(N)
-integer*1 msgbits(90)
+integer*1 msgbits(77)
 integer*2 ncrc13 
 integer*4 i4Msg6BitWords(13)
 integer nerrtot(0:N),nerrdec(0:N),nmpcbad(0:K),nbadwt(0:N)
-real*8, allocatable ::  lratio(:), rxdata(:), rxavgd(:)
-real, allocatable :: yy(:), llr(:)
+real*8 rxdata(N), rxavgd(N)
+real llr(N)
 
 do i=1,NRECENT
   recent_calls(i)='            '
@@ -45,11 +41,7 @@ read(arg,*) s
 rate=real(K)/real(N)
 
 write(*,*) "rate: ",rate
-
 write(*,*) "niter= ",max_iterations," navg= ",navg," s= ",s
-
-allocate ( codeword(N), decoded(K), message(K) )
-allocate ( lratio(N), rxdata(N), rxavgd(N), yy(N), llr(N) )
 
 !msg="K9AN K1JT EN50"
 msg="G4WJS K1JT FN20"
@@ -60,21 +52,17 @@ msg="G4WJS K1JT FN20"
   tmpchar=' '
   write(tmpchar,'(12b6.6)') i4Msg6BitWords(1:12)
   tmpchar(73:77)="00000"   !i5bit
-  read(tmpchar,'(10b8)') i1Msg8BitBytes(1:10)
-  i1Msg8BitBytes(10:12)=0 
-  ncrc13 = crc13 (c_loc (i1Msg8BitBytes), 12)
-
-  write(tmpchar(78:90),'(b13)') ncrc13
-  read(tmpchar,'(90i1)') msgbits(1:90)
+  read(tmpchar,'(77i1)') msgbits(1:77)
 
   write(*,*) 'msgbits'
   write(*,'(28i1,1x,28i1,1x,16i1,1x,5i1,1x,13i1)') msgbits
 
+! msgbits is the 77-bit message, codeword is 128 bits
   call encode128_90(msgbits,codeword)
 
   call init_random_seed()
 
-write(*,*) "Eb/N0  SNR2500   ngood  nundetected nbadcrc   sigma    psymerr"
+write(*,*) "Eb/N0  SNR2500   ngood  nundetected  sigma    psymerr"
 do idb = 14,-6,-1 
   db=idb/2.0-1.0
   sigma=1/sqrt( 2*rate*(10**(db/10.0)) )
@@ -113,27 +101,20 @@ do idb = 14,-6,-1
     endif
 
     llr=2.0*rxdata/(ss*ss)
-    lratio=exp(llr)
-    yy=rxdata
 
     apmask=0
 ! max_iterations is max number of belief propagation iterations
-    call bpdecode128_90(llr, apmask, max_iterations, decoded, cw, nharderrors, niterations)
+    call bpdecode128_90(llr, apmask, max_iterations, message77, cw, nharderrors, niterations)
 
 ! If the decoder finds a valid codeword, nharderrors will be .ge. 0.
     if( nharderrors .ge. 0 ) then
-       call extractmessage128_90(decoded,msgreceived,ncrcflag)
-       nhw=count(cw.ne.codeword)
-       if(ncrcflag.eq.1) then
-          if(nhw.eq.0) then ! this is a good decode
-             ngood=ngood+1
-             nerrdec(nerr)=nerrdec(nerr)+1 
-          else              ! this is an undetected error
-             nue=nue+1
-          endif
-       else
-          nbadcrc=nbadcrc+1
-          nbadwt(nhw)=nbadwt(nhw)+1  ! store the weight of the error vector
+       call extractmessage77(message77,msgreceived)
+       nhw=count(message77.ne.codeword(1:77))
+       if(nhw.eq.0) then ! this is a good decode
+          ngood=ngood+1
+          nerrdec(nerr)=nerrdec(nerr)+1 
+       else              ! this is an undetected error
+          nue=nue+1
        endif
     endif
     nsumerr=nsumerr+nerr
@@ -141,7 +122,7 @@ do idb = 14,-6,-1
 
   snr2500=db-2.5
   pberr=real(nsumerr)/real(ntrials*N)
-  write(*,"(f4.1,4x,f5.1,1x,i8,1x,i8,1x,i8,7x,f5.2,3x,e10.3)") db,snr2500,ngood,nue,nbadcrc,ss,pberr
+  write(*,"(f4.1,4x,f5.1,1x,i8,1x,i8,7x,f5.2,3x,e10.3)") db,snr2500,ngood,nue,ss,pberr
   
 enddo
 
@@ -150,6 +131,7 @@ do i=0,N
   write(23,'(i4,2x,i10,i10,f10.2)') i,nerrdec(i),nerrtot(i),real(nerrdec(i))/real(nerrtot(i)+1e-10)
 enddo
 close(23)
+
 open(unit=25,file='badcrc_hamming_weight.dat',status='unknown')
 do i=0,N
   write(25,'(i4,2x,i10)') i,nbadwt(i)
