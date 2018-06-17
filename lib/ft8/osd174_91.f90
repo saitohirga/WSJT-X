@@ -1,4 +1,4 @@
-subroutine osd174_91(llr,apmask,ndeep,decoded,cw,nhardmin,dmin)
+subroutine osd174_91(llr,apmask,ndeep,message77,cw,nhardmin,dmin)
 !
 ! An ordered-statistics decoder for the (174,91) code.
 ! 
@@ -11,6 +11,7 @@ integer*1 r2pat(N-K)
 integer indices(N),nxor(N)
 integer*1 cw(N),ce(N),c0(N),hdec(N)
 integer*1 decoded(K)
+integer*1 message77(77)
 integer indx(N)
 real llr(N),rx(N),absrx(N)
 
@@ -247,6 +248,10 @@ endif
 cw(indices)=cw
 hdec(indices)=hdec
 decoded=cw(1:K) 
+call chkcrc14a(decoded,nbadcrc)
+message77=decoded(1:77)
+if(nbadcrc.eq.1) nhardmin=-nhardmin
+
 return
 end subroutine osd174_91
 

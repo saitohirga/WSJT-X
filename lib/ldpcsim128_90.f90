@@ -9,9 +9,8 @@ character*8 arg
 integer*1 codeword(N), message77(77)
 integer*1 apmask(N),cw(N)
 integer*1 msgbits(77)
-integer*2 ncrc13 
 integer*4 i4Msg6BitWords(13)
-integer nerrtot(0:N),nerrdec(0:N),nmpcbad(0:K),nbadwt(0:N)
+integer nerrtot(0:N),nerrdec(0:N)
 real*8 rxdata(N), rxavgd(N)
 real llr(N)
 
@@ -20,8 +19,6 @@ do i=1,NRECENT
 enddo
 nerrtot=0
 nerrdec=0
-nmpcbad=0
-nbadwt=0
 
 nargs=iargc()
 if(nargs.ne.4) then
@@ -55,7 +52,7 @@ msg="G4WJS K1JT FN20"
   read(tmpchar,'(77i1)') msgbits(1:77)
 
   write(*,*) 'msgbits'
-  write(*,'(28i1,1x,28i1,1x,16i1,1x,5i1,1x,13i1)') msgbits
+  write(*,'(28i1,1x,28i1,1x,16i1,1x,5i1)') msgbits
 
 ! msgbits is the 77-bit message, codeword is 128 bits
   call encode128_90(msgbits,codeword)
@@ -109,7 +106,7 @@ do idb = 14,-6,-1
 ! If the decoder finds a valid codeword, nharderrors will be .ge. 0.
     if( nharderrors .ge. 0 ) then
        call extractmessage77(message77,msgreceived)
-       nhw=count(message77.ne.codeword(1:77))
+       nhw=count(cw.ne.codeword)
        if(nhw.eq.0) then ! this is a good decode
           ngood=ngood+1
           nerrdec(nerr)=nerrdec(nerr)+1 
@@ -131,11 +128,5 @@ do i=0,N
   write(23,'(i4,2x,i10,i10,f10.2)') i,nerrdec(i),nerrtot(i),real(nerrdec(i))/real(nerrtot(i)+1e-10)
 enddo
 close(23)
-
-open(unit=25,file='badcrc_hamming_weight.dat',status='unknown')
-do i=0,N
-  write(25,'(i4,2x,i10)') i,nbadwt(i)
-enddo
-close(25)
 
 end program ldpcsim

@@ -1,7 +1,6 @@
 subroutine encode128_90(message77,codeword)
-! Encode an 90-bit message and return a 128-bit codeword. 
-! The generator matrix has dimensions (38,90). 
-! The code is a (128,90) regular ldpc code with column weight 3.
+!
+! Add a 13-bit CRC to a 77-bit message and return a 128-bit codeword
 !
 use, intrinsic :: iso_c_binding
 use iso_c_binding, only: c_loc,c_size_t

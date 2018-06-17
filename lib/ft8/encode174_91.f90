@@ -1,15 +1,18 @@
-subroutine encode174_91(message,codeword)
-! Encode an 91-bit message and return a 174-bit codeword. 
-! The generator matrix has dimensions (83,91). 
-! The code is a (174,91) regular ldpc code with column weight 3.
+subroutine encode174_91(message77,codeword)
 !
+! Add a 14-bit CRC to a 77-bit message and return a 174-bit codeword
+!
+use, intrinsic :: iso_c_binding
+use iso_c_binding, only: c_loc,c_size_t
+use crc
 
 integer, parameter:: N=174, K=91, M=N-K
-
+character*91 tmpchar
 integer*1 codeword(N)
 integer*1 gen(M,K)
-integer*1 message(K)
+integer*1 message77(77),message(K)
 integer*1 pchecks(M)
+integer*1, target :: i1MsgBytes(12)
 include "ldpc_174_91_c_generator.f90"
 logical first
 data first/.true./
@@ -30,6 +33,15 @@ if( first ) then ! fill the generator matrix
   enddo
 first=.false.
 endif
+
+! Add 14-bit CRC to form 91-bit message+CRC14
+write(tmpchar,'(77i1)') message77
+tmpchar(78:80)='000'
+i1MsgBytes=0
+read(tmpchar,'(10b8)') i1MsgBytes(1:10)
+ncrc14 = crc14 (c_loc (i1MsgBytes), 12)
+write(tmpchar(78:91),'(b14)') ncrc14
+read(tmpchar,'(91i1)') message
 
 do i=1,M
   nsum=0

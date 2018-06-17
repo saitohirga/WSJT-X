@@ -7,20 +7,18 @@ integer, parameter:: N=174, K=91, M=N-K
 character*22 msg,msgsent,msgreceived
 character*8 arg
 character*6 grid
+character*96 tmpchar
 integer*1, allocatable ::  codeword(:), decoded(:), message(:)
-integer*1, target:: i1Msg8BitBytes(12)
-integer*1 msgbits(K)
+integer*1 msgbits(77)
+integer*1 message77(77)
 integer*1 apmask(N), cw(N)
-integer*2 checksum
 integer*4 i4Msg6BitWords(13)
-integer nerrtot(N),nerrdec(N),nmpcbad(K)
-logical checksumok
+integer nerrtot(0:N),nerrdec(0:N)
 real*8, allocatable ::  rxdata(:)
 real, allocatable :: llr(:)
 
 nerrtot=0
 nerrdec=0
-nmpcbad=0  ! Used to collect the number of errors in the message+crc part of the codeword
 
 nargs=iargc()
 if(nargs.ne.4) then
@@ -54,73 +52,31 @@ allocate ( rxdata(N), llr(N) )
   call unpackmsg(i4Msg6BitWords,msgsent,.false.,grid) !Unpack to get msgsent
   write(*,*) "message sent ",msgsent
 
-  i4=0
-  ik=0
-  im=0
-  do i=1,12
-    nn=i4Msg6BitWords(i)
-    do j=1, 6
-      ik=ik+1
-      i4=i4+i4+iand(1,ishft(nn,j-6))
-      i4=iand(i4,255)
-      if(ik.eq.8) then
-        im=im+1
-!           if(i4.gt.127) i4=i4-256
-        i1Msg8BitBytes(im)=i4
-        ik=0
-      endif
-    enddo
-  enddo
-
-  i1Msg8BitBytes(10:12)=0
-  checksum = crc14 (c_loc (i1Msg8BitBytes), 12)
-! For reference, the next 3 lines show how to check the CRC
-  i1Msg8BitBytes(11)=checksum/256
-  i1Msg8BitBytes(12)=iand (checksum,255)
-  checksumok = crc14_check(c_loc (i1Msg8BitBytes), 12)
-  if( checksumok ) write(*,*) 'Good checksum'
-
-! K=91, For now: 
-! msgbits(1:72) JT message bits
-! msgbits(73:77) 5 free message bits (set to 0) 
-! msgbits(78:91) CRC14
-  mbit=0
-  do i=1, 9 
-    i1=i1Msg8BitBytes(i)
-    do ibit=1,8
-      mbit=mbit+1
-      msgbits(mbit)=iand(1,ishft(i1,ibit-8))
-    enddo
-  enddo
-  msgbits(73:77)=0  ! the five extra message bits go here
-  i1=i1Msg8BitBytes(11) ! First 6 bits of crc12 are LSB of this byte
-  do ibit=1,6
-    msgbits(77+ibit)=iand(1,ishft(i1,ibit-6))
-  enddo
-  i1=i1Msg8BitBytes(12) ! Now shift in last 8 bits of the CRC
-  do ibit=1,8
-    msgbits(83+ibit)=iand(1,ishft(i1,ibit-8))
-  enddo
+  tmpchar=' '
+  write(tmpchar,'(12b6.6)') i4Msg6BitWords(1:12)
+  tmpchar(73:77)='00000'   !i5bit
+  read(tmpchar,'(77i1)') msgbits(1:77)
 
   write(*,*) 'message'
-  write(*,'(12(8i1,1x))') msgbits
+  write(*,'(28i1,1x,28i1,1x,16i1,1x,5i1)') msgbits
 
+! msgbits is the 77-bit message, codeword is 174 bits
   call encode174_91(msgbits,codeword)
+
   call init_random_seed()
-!  call sgran()
 
   write(*,*) 'codeword' 
   write(*,'(22(8i1,1x))') codeword
 
-write(*,*) "Eb/N0   SNR2500   ngood  nundetected nbadcrc   sigma"
+write(*,*) "Eb/N0   SNR2500   ngood  nundetected  sigma  psymerr"
 do idb = 20,-10,-1 
 !do idb = 0,0,-1 
   db=idb/2.0-1.0
   sigma=1/sqrt( 2*rate*(10**(db/10.0)) )
   ngood=0
   nue=0
-  nbadcrc=0
-  nberr=0
+  nsumerr=0
+
   do itrial=1, ntrials
 ! Create a realization of a noisy received word
     do i=1,N
@@ -131,7 +87,6 @@ do idb = 20,-10,-1
       if( rxdata(i)*(2*codeword(i)-1.0) .lt. 0 ) nerr=nerr+1
     enddo
     if(nerr.ge.1) nerrtot(nerr)=nerrtot(nerr)+1
-    nberr=nberr+nerr
 
     rxav=sum(rxdata)/N
     rx2av=sum(rxdata*rxdata)/N
@@ -150,38 +105,26 @@ do idb = 20,-10,-1
     apmask(1:nap)=1
 
 ! max_iterations is max number of belief propagation iterations
-    call bpdecode174_91(llr, apmask, max_iterations, decoded, cw, nharderrors,niterations)
-    if( ndepth .ge. 0 .and. nharderrors .lt. 0 ) call osd174_91(llr, apmask, ndepth, decoded, cw,  nharderrors, dmin)
+    call bpdecode174_91(llr, apmask, max_iterations, message77, cw, nharderrors,niterations)
+    if( ndepth .ge. 0 .and. nharderrors .lt. 0 ) call osd174_91(llr, apmask, ndepth, message77, cw,  nharderrors, dmin)
 ! If the decoder finds a valid codeword, nharderrors will be .ge. 0.
     if( nharderrors .ge. 0 ) then
-      call extractmessage174_91(decoded,msgreceived,ncrcflag)
-      if( ncrcflag .ne. 1 ) then
-        nbadcrc=nbadcrc+1
-      endif
-
-      nueflag=0
-      nerrmpc=0
-      do i=1,K   ! find number of errors in message+crc part of codeword
-        if( msgbits(i) .ne. decoded(i) ) then
-          nueflag=1
-          nerrmpc=nerrmpc+1 
-        endif
-      enddo
-      if(nerrmpc.ge.1) nmpcbad(nerrmpc)=nmpcbad(nerrmpc)+1
-      if( ncrcflag .eq. 1 ) then
-        if( nueflag .eq. 0 ) then
-          ngood=ngood+1
-          if(nerr.ge.1) nerrdec(nerr)=nerrdec(nerr)+1
-        else if( nueflag .eq. 1 ) then
-          nue=nue+1;
-        endif
+      call extractmessage77(message77,msgreceived)
+      nhw=count(cw.ne.codeword)
+      if(nhw.eq.0) then ! this is a good decode
+         ngood=ngood+1
+         nerrdec(nerr)=nerrdec(nerr)+1
+      else
+         nue=nue+1
       endif
     endif
+    nsumerr=nsumerr+nerr
   enddo
+
   baud=12000/1920
   snr2500=db+10.0*log10((baud/2500.0))
-  pberr=real(nberr)/(real(ntrials*N))
-  write(*,"(f4.1,4x,f5.1,1x,i8,1x,i8,1x,i8,8x,f5.2,8x,e10.3)") db,SNR2500,ngood,nue,nbadcrc,ss,pberr
+  pberr=real(nsumerr)/(real(ntrials*N))
+  write(*,"(f4.1,4x,f5.1,1x,i8,1x,i8,8x,f5.2,8x,e10.3)") db,SNR2500,ngood,nue,ss,pberr
 
 enddo
 
@@ -190,10 +133,5 @@ do i=1,174
   write(23,'(i4,2x,i10,i10,f10.2)') i,nerrdec(i),nerrtot(i),real(nerrdec(i))/real(nerrtot(i)+1e-10)
 enddo
 close(23)
-open(unit=25,file='nmpcbad.dat',status='unknown')
-do i=1,87
-  write(25,'(i4,2x,i10)') i,nmpcbad(i)
-enddo
-close(25)
 
 end program ldpcsim174_91

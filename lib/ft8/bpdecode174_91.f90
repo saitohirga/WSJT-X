@@ -1,10 +1,14 @@
-subroutine bpdecode174_91(llr,apmask,maxiterations,decoded,cw,nharderror,iter)
+subroutine bpdecode174_91(llr,apmask,maxiterations,message77,cw,nharderror,iter)
 !
 ! A log-domain belief propagation decoder for the (174,91) code.
 !
+use iso_c_binding, only: c_loc,c_size_t
+use crc
 integer, parameter:: N=174, K=91, M=N-K
-integer*1 codeword(N),cw(N),apmask(N)
+integer*1 cw(N),apmask(N)
 integer*1 decoded(K)
+integer*1 message77(77)
+integer nrw(M),ncw
 integer Nm(7,M)   
 integer Mn(3,N)  ! 3 checks per bit
 integer synd(M)
@@ -14,7 +18,6 @@ real tanhtoc(7,M)
 real zn(N)
 real llr(N)
 real Tmn
-integer nrw(M),ncw
 
 include "ldpc_174_91_c_reordered_parity.f90"
 
@@ -52,15 +55,14 @@ do iter=0,maxiterations
 !   if( mod(synd(i),2) .ne. 0 ) write(*,*) 'check ',i,' unsatisfied'
   enddo
 ! write(*,*) 'number of unsatisfied parity checks ',ncheck
-  if( ncheck .eq. 0 ) then ! we have a codeword - reorder the columns and return it
-    codeword=cw
-    decoded=codeword(1:K)
-    nerr=0
-    do i=1,N
-      if( (2*cw(i)-1)*llr(i) .lt. 0.0 ) nerr=nerr+1
-    enddo
-    nharderror=nerr
-    return
+  if( ncheck .eq. 0 ) then ! we have a codeword - if crc is good, return it
+    decoded=cw(1:K)
+    call chkcrc14a(decoded,nbadcrc)
+    nharderror=count( (2*cw-1)*llr .lt. 0.0 )
+    if(nbadcrc.eq.0) then
+      message77=decoded(1:77)
+      return
+    endif
   endif
 
   if( iter.gt.0 ) then  ! this code block implements an early stopping criterion
