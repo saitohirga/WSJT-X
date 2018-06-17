@@ -16,11 +16,11 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   real s1(0:7,ND),s2(0:7,NN),s1sort(8*ND)
   real ps(0:7),psl(0:7)
   real bmeta(3*ND),bmetb(3*ND),bmetap(3*ND)
-  real llr(3*ND),llra(3*ND),llrb(3*ND),llrd(3*ND)           !Soft symbols
+  real llra(3*ND),llrb(3*ND),llrd(3*ND)           !Soft symbols
   real dd0(15*12000)
-  integer*1 decoded(91),decoded0(91),apmask(3*ND),cw(3*ND)
-  integer*1 msgbits(91)
-  integer apsym(91)
+  integer*1 message77(77),apmask(3*ND),cw(3*ND)
+  integer*1 msgbits(77)
+  integer apsym(77)
   integer mcq(28),mde(28),mrrr(16),m73(16),mrr73(16)
   integer itone(NN)
   integer indxs1(8*ND)
@@ -42,9 +42,6 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   data first/.true./
   save nappasses,naptypes
 
-! All of the AP-related code in this routine needs to be re-written! AP decoding 
-! passes are disabled for now.
-!
   if(first) then
      mcq=2*mcq-1
      mde=2*mde-1
@@ -79,6 +76,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
 
   max_iterations=30
   nharderrors=-1
+  nbadcrc=1  ! this is used upstream to flag good decodes. 
   fs2=12000.0/NDOWN
   dt2=1.0/fs2
   twopi=8.0*atan(1.0)
@@ -265,7 +263,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
 
      cw=0
      call timer('bpd174_91 ',0)
-     call bpdecode174_91(llrd,apmask,max_iterations,decoded,cw,nharderrors,  &
+     call bpdecode174_91(llrd,apmask,max_iterations,message77,cw,nharderrors,  &
           niterations)
      call timer('bpd174_91 ',1)
      dmin=0.0
@@ -280,83 +278,70 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
         endif
         if(nagain) ndeep=5
         call timer('osd174_91 ',0)
-        call osd174_91(llrd,apmask,ndeep,decoded,cw,nharderrors,dmin)
+        call osd174_91(llrd,apmask,ndeep,message77,cw,nharderrors,dmin)
         call timer('osd174_91 ',1)
      endif
-     nbadcrc=1
      message='                      '
      xsnr=-99.0
+     if(nharderrors.lt.0) cycle
      if(count(cw.eq.0).eq.174) cycle           !Reject the all-zero codeword
-     if(nharderrors.ge.0 .and. nharderrors+dmin.lt.60.0 .and. &        
-        .not.(sync.lt.2.0 .and. nharderrors.gt.35)      .and. &
-        .not.(ipass.gt.2 .and. nharderrors.gt.39)       .and. &
-        .not.(ipass.eq.4 .and. nharderrors.gt.30)             &
-       ) then
-        call chkcrc14a(decoded,nbadcrc)
-     else
-        nharderrors=-1
-        cycle 
-     endif
-     i5bit=16*decoded(73) + 8*decoded(74) + 4*decoded(75) + 2*decoded(76) + decoded(77)
-     iFreeText=decoded(57)
-     if(nbadcrc.eq.0) then
-        decoded0=decoded
-        if(i5bit.eq.1) decoded(57:)=0
-        call extractmessage174_91(decoded,message,ncrcflag)
-        decoded=decoded0
-! This needs fixing for messages with i5bit=1:        
-        call genft8_174_91(message,mygrid6,bcontest,i5bit,msgsent,msgbits,itone)
-        if(lsubtract) call subtractft8(dd0,itone,f1,xdt2)
-        xsig=0.0
-        xnoi=0.0
-        do i=1,79
-           xsig=xsig+s2(itone(i),i)**2
-           ios=mod(itone(i)+4,7)
-           xnoi=xnoi+s2(ios,i)**2
+     nbadcrc=0  ! If we get this far, must be a valid codeword.
+     i5bit=16*message77(73) + 8*message77(74) + 4*message77(75) + 2*message77(76) + message77(77)
+     iFreeText=message77(57)
+     if(i5bit.eq.1) message77(57:)=0
+     call extractmessage77(message77,message)
+! This needs fixing for messages with i5bit=1        
+     call genft8_174_91(message,mygrid6,bcontest,i5bit,msgsent,msgbits,itone)
+     if(lsubtract) call subtractft8(dd0,itone,f1,xdt2)
+     xsig=0.0
+     xnoi=0.0
+     do i=1,79
+        xsig=xsig+s2(itone(i),i)**2
+        ios=mod(itone(i)+4,7)
+        xnoi=xnoi+s2(ios,i)**2
+     enddo
+     xsnr=0.001
+     if(xnoi.gt.0 .and. xnoi.lt.xsig) xsnr=xsig/xnoi-1.0
+     xsnr=10.0*log10(xsnr)-27.0
+     xsnr2=db(xsig/xbase - 1.0) - 32.0
+     if(.not.nagain) xsnr=xsnr2
+     if(xsnr .lt. -24.0) xsnr=-24.0
+     
+     if(i5bit.eq.1) then
+        do i=1,12
+           i1hiscall(i)=ichar(hiscall12(i:i))
         enddo
-        xsnr=0.001
-        if(xnoi.gt.0 .and. xnoi.lt.xsig) xsnr=xsig/xnoi-1.0
-        xsnr=10.0*log10(xsnr)-27.0
-        xsnr2=db(xsig/xbase - 1.0) - 32.0
-        if(.not.nagain) xsnr=xsnr2
-        if(xsnr .lt. -24.0) xsnr=-24.0
-        
-        if(i5bit.eq.1) then
-           do i=1,12
-              i1hiscall(i)=ichar(hiscall12(i:i))
-           enddo
-           icrc10=crc10(c_loc(i1hiscall),12)
-           write(cbits,1001) decoded
-1001       format(87i1)
-           read(cbits,1002) ncrc10,nrpt
-1002       format(56x,b10,b6)
-           irpt=nrpt-30
-           i1=index(message,' ')
-           i2=index(message(i1+1:),' ') + i1
-           c1=message(1:i1)//'   '
-           c2=message(i1+1:i2)//'   '
+        icrc10=crc10(c_loc(i1hiscall),12)
+        write(cbits,1001) decoded
+1001    format(87i1)
+        read(cbits,1002) ncrc10,nrpt
+1002    format(56x,b10,b6)
+        irpt=nrpt-30
+        i1=index(message,' ')
+        i2=index(message(i1+1:),' ') + i1
+        c1=message(1:i1)//'   '
+        c2=message(i1+1:i2)//'   '
 
-           if(ncrc10.eq.icrc10) msg37=c1//' RR73; '//c2//' <'//      &
-                trim(hiscall12)//'>    '
-           if(ncrc10.ne.icrc10) msg37=c1//' RR73; '//c2//' <...>    '
+        if(ncrc10.eq.icrc10) msg37=c1//' RR73; '//c2//' <'//      &
+             trim(hiscall12)//'>    '
+        if(ncrc10.ne.icrc10) msg37=c1//' RR73; '//c2//' <...>    '
            
-!           msg37=c1//' RR73; '//c2//' <...>    '
-           write(msg37(35:37),1010) irpt
-1010       format(i3.2)
-           if(msg37(35:35).ne.'-') msg37(35:35)='+'
+        msg37=c1//' RR73; '//c2//' <...>    '
+        write(msg37(35:37),1010) irpt
+1010    format(i3.2)
+        if(msg37(35:35).ne.'-') msg37(35:35)='+'
            
-           iz=len(trim(msg37))
-           do iter=1,10                           !Collapse multiple blanks
-              ib2=index(msg37(1:iz),'  ')
-              if(ib2.lt.1) exit
-              msg37=msg37(1:ib2)//msg37(ib2+2:)
-              iz=iz-1
-           enddo
-        else
-           msg37=message//'               '
-        endif
-        return
+        iz=len(trim(msg37))
+        do iter=1,10                           !Collapse multiple blanks
+           ib2=index(msg37(1:iz),'  ')
+           if(ib2.lt.1) exit
+           msg37=msg37(1:ib2)//msg37(ib2+2:)
+           iz=iz-1
+        enddo
+     else
+        msg37=message//'               '
      endif
+     return
   enddo
   return
 end subroutine ft8b_2

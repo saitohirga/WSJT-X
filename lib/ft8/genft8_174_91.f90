@@ -2,16 +2,14 @@ subroutine genft8_174_91(msg,mygrid,bcontest,i5bit,msgsent,msgbits,itone)
 
 ! Encode an FT8 message, producing array itone().
   
-  use crc
   use packjt
   include 'ft8_params.f90'
   character*22 msg,msgsent
   character*6 mygrid
   character*91 cbits
-  logical bcontest,checksumok
+  logical bcontest
   integer*4 i4Msg6BitWords(12)                !72-bit message as 6-bit words
-  integer*1 msgbits(91),codeword(174)
-  integer*1, target:: i1Msg8BitBytes(12)
+  integer*1 msgbits(77),codeword(174)
   integer itone(79)
   integer icos7(0:6)
   integer graymap(0:7)
@@ -21,21 +19,8 @@ subroutine genft8_174_91(msg,mygrid,bcontest,i5bit,msgsent,msgbits,itone)
   call packmsg(msg,i4Msg6BitWords,itype,bcontest) !Pack into 12 6-bit bytes
   call unpackmsg(i4Msg6BitWords,msgsent,bcontest,mygrid) !Unpack to get msgsent
 
-  write(cbits,1000) i4Msg6BitWords,8*i5bit
-1000 format(12b6.6,b8.8)
-  read(cbits,1001) i1Msg8BitBytes(1:10)
-1001 format(10b8)
-  i1Msg8BitBytes(10)=iand(i1Msg8BitBytes(10),128+64+32+16+8)
-  i1Msg8BitBytes(11:12)=0
-  icrc14=crc14(c_loc(i1Msg8BitBytes),12)
-  i1Msg8BitBytes(11)=icrc14/256
-  i1Msg8BitBytes(12)=iand (icrc14,255)
-
-  write(cbits,1003) i4Msg6BitWords,i5bit,icrc14
-1003 format(12b6.6,b5.5,b14.14)
-  read(cbits,1004) msgbits
-1004 format(91i1)
-
+  write(cbits,'(12b6.6,b8.8)') i4Msg6BitWords,8*i5bit
+  read(cbits,'(77i1)') msgbits 
   call encode174_91(msgbits,codeword)      !Encode the test message
 
 ! Message structure: S7 D29 S7 D29 S7

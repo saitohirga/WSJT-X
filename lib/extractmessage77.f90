@@ -4,7 +4,6 @@ subroutine extractmessage77(decoded77,msgreceived)
   character*22 msgreceived
   character*77 cbits
   integer*1 decoded77(77)
-  integer*1, target::  i1Dec8BitBytes(12)
   integer*4 i4Dec6BitWords(12)
 
   write(cbits,'(77i1)') decoded77
