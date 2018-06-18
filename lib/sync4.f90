@@ -23,8 +23,7 @@ subroutine sync4(dat,jz,ntol,NFreeze,MouseDF,mode,mode4,minwidth,    &
   data nch/1,2,4,9,18,36,72/
   save
 
-!  write(*,3001) 'A',ntol,nfreeze,mousedf,mode,mode4,minwidth
-!3001 format(a1,6i6)
+
 
 ! Do FFTs of twice symbol length, stepped by half symbols.  Note that 
 ! we have already downsampled the data by factor of 2.
@@ -96,7 +95,7 @@ subroutine sync4(dat,jz,ntol,NFreeze,MouseDF,mode,mode4,minwidth,    &
         sync=abs(ccfblue(lagpk0))
 
 ! Find best sync value
-        if(sync.gt.syncbest) then
+        if(sync.gt.syncbest*1.03) then
            ipk=i
            lagpk=lagpk0
            ichpk=ich
@@ -106,8 +105,8 @@ subroutine sync4(dat,jz,ntol,NFreeze,MouseDF,mode,mode4,minwidth,    &
      enddo
      if(savered) red=ccfred
   enddo
-
   ccfred=red
+  
 !  width=df*nch(ichpk)
   dfx=(ipk-i0 + 3*mode4)*df
 
@@ -171,7 +170,19 @@ subroutine sync4(dat,jz,ntol,NFreeze,MouseDF,mode,mode4,minwidth,    &
   do i=ipk1a,jmax
      if(ccfred1(i).le.ccf10) exit
   enddo
-  width=(i-i1)*df
+  nw=i-il
+  width=nw*df
+
+  sq=0.
+  ns=0
+  do j=jmin,jmax
+     if(abs(j-ipk1a).lt.nw) then
+        sq=sq + ccfred1(j)*ccfred1(j)
+        ns=ns+1
+     endif
+  enddo
+  rms=sqrt(sq/ns)
+  snrx=10.0*log10(ccfred1(ipk1a)) - 26.0
 
   return
 end subroutine sync4
