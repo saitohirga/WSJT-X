@@ -165,7 +165,6 @@ contains
     nfreqz=dfx + 1270.46 - 1.5*4.375*mode4
     call timer('sync4   ',1)
 
-    snrx=db(sync) - 26.
     nsnr=nint(snrx)
     if(sync.lt.syncmin) then
        if (associated (this%decode_callback)) then
