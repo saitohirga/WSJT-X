@@ -1,0 +1,40 @@
+Proposed new message types have 77-bit payload: 74 information bits
+and 3 bits for "message type".  Note that Type 0 (as defined by i3)
+uses only 71 information bits, so it allows another 3 bits (here
+called n3) to be used for 8 sub-types.
+
+----------------------------------------------------------------------------------
+i3 Example message                    Bits            n3  Total Purpose
+----------------------------------------------------------------------------------
+0  FREE TEXT MSG                      71               0   71
+0  K1ABC RR73; W9XYZ <KH1/KH7Z> -11   28 28 10 5       1   71   DXpedition Mode
+0  PA3XYZ/P R 590003 IO91NP           28 1 1 3 12 25   2   70   EU VHF contest
+0  WA9XYZ KA1ABC R 16A EMA            28 28 1 4 3 7    3   71   ARRL Field Day
+0  WA9XYZ KA1ABC R 32A EMA            28 28 1 4 3 7    4   71   ARRL Field Day
+
+1  WA9XYZ/R KA1ABC/R R FN42           28 1 28 1 1 15       74   Standard msg
+2  TU; W9XYZ K1ABC R 579 MA           1 28 28 1 3 13       74   ARRL RTTY contest
+3  PA3XYZ/P GM4ABC/P R JO22           28 1 28 1 1 15       74   EU VHF contest
+4  <WA9XYZ> PJ4/KA1ABC R-11           13 53 1 1 6          74   Nonstandard calls
+5  ...
+6
+7
+----------------------------------------------------------------------------------
+Notes:
+
+0. Free text message.
+
+1. 74-bit standard message: two 28-bit callsigns, each with an extra
+bit to indicate "/R" Rover status; one bit for "R" preceding the grid
+or report; 15 bits for grid or report.  
+
+2. Type 2 is for the annual ARRL RTTY Roundup.  Optional "TU;" uses
+1 bit; then two 28-bit callsigns, optional "R" (1 bit), a 3-bit
+report, and finally 13 bits for US state, Canadian province, or DX
+serial number.
+
+3. For European VHF+ contests. Like Type 1, but /P instead of /R.
+
+4. For European VHF+ contests. Transfers serial QSO number (12 bits)
+and 6-digit grid locator (25 bits).
+
