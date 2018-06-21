@@ -714,13 +714,15 @@ subroutine packbits(dbits,nsymd,m0,sym)
    return
  end subroutine packtext
 
- subroutine unpacktext(nc1,nc2,nc3,msg)
+ subroutine unpacktext(nc1a,nc2a,nc3a,msg)
 
    character*22 msg
    character*44 c
    data c/'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ +-./?'/
 
-   nc3=iand(nc3,32767)                      !Remove the "plain text" bit
+   nc1=nc1a
+   nc2=nc2a
+   nc3=iand(nc3a,32767)                      !Remove the "plain text" bit
    if(iand(nc1,1).ne.0) nc3=nc3+32768
    nc1=nc1/2
    if(iand(nc2,1).ne.0) nc3=nc3+65536

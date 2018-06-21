@@ -1,16 +1,19 @@
 subroutine parse77(msg,i3,n3)
 
+  use packjt
   parameter (NSEC=83)      !Number of ARRL Sections
   parameter (NUSCAN=65)    !Number of US states and Canadian provinces/territories
-  character msg*37
+  character*37 msg
+  character*22 msg22
   character*13 w(19),c13
   character*13 call_1,call_2
   character*6 bcall_1,bcall_2,grid6
   character*4 grid4
   character crpt*3,crrpt*4
+  character*77 c77bit
   character*1 c,c0
   character*3 csec(NSEC),cmult(NUSCAN),section,mult
-  logical ok1,ok2
+  logical ok1,ok2,text1,text2
   logical is_grid4,is_grid6
 
   data csec/                                                         &
@@ -33,18 +36,18 @@ subroutine parse77(msg,i3,n3)
        "NB ","NS ","QC ","ON ","MB ","SK ","AB ","BC ","NWT","NF ",  &
        "LB ","NU ","VT ","PEI","DC "/
 
-  is_grid4(grid4)=len(trim(grid4)).eq.4 .and.                                        &
-       grid4(1:1).ge.'A' .and. grid4(1:1).le.'R' .and.                               &
-       grid4(2:2).ge.'A' .and. grid4(2:2).le.'R' .and.                               &
-       grid4(3:3).ge.'0' .and. grid4(3:3).le.'9' .and.                               &
+  is_grid4(grid4)=len(trim(grid4)).eq.4 .and.                        &
+       grid4(1:1).ge.'A' .and. grid4(1:1).le.'R' .and.               &
+       grid4(2:2).ge.'A' .and. grid4(2:2).le.'R' .and.               &
+       grid4(3:3).ge.'0' .and. grid4(3:3).le.'9' .and.               &
        grid4(4:4).ge.'0' .and. grid4(4:4).le.'9'
   
-  is_grid6(grid6)=len(trim(grid6)).eq.6 .and.                                        &
-       grid6(1:1).ge.'A' .and. grid6(1:1).le.'R' .and.                               &
-       grid6(2:2).ge.'A' .and. grid6(2:2).le.'R' .and.                               &
-       grid6(3:3).ge.'0' .and. grid6(3:3).le.'9' .and.                               &
-       grid6(4:4).ge.'0' .and. grid6(4:4).le.'9' .and.                               &
-       grid6(5:5).ge.'A' .and. grid6(5:5).le.'X' .and.                               &
+  is_grid6(grid6)=len(trim(grid6)).eq.6 .and.                        &
+       grid6(1:1).ge.'A' .and. grid6(1:1).le.'R' .and.               &
+       grid6(2:2).ge.'A' .and. grid6(2:2).le.'R' .and.               &
+       grid6(3:3).ge.'0' .and. grid6(3:3).le.'9' .and.               &
+       grid6(4:4).ge.'0' .and. grid6(4:4).le.'9' .and.               &
+       grid6(5:5).ge.'A' .and. grid6(5:5).le.'X' .and.               &
        grid6(6:6).ge.'A' .and. grid6(6:6).le.'X'
 
   iz=len(trim(msg))
@@ -78,6 +81,7 @@ subroutine parse77(msg,i3,n3)
   i0=index(msg," RR73; ")
   call chkcall(w(1)(1:12),bcall_1,ok1)
   call chkcall(w(3)(1:12),bcall_2,ok2)
+
   if(i0.ge.4 .and. i0.le.7 .and. nw.eq.5 .and. ok1 .and. ok2) then
      i0=0
      n3=1                             !Type 0.1: DXpedition mode
@@ -171,8 +175,23 @@ subroutine parse77(msg,i3,n3)
   i3=0
   n3=0
   msg(iz+1:)='                                     '
+  call packtext(msg(1:22),nc1,nc2,ng)
+  write(c77bit,1100) nc1,nc2,ng,i3,n3           !c77bit is the 77-bit message
+1100 format(2b28.28,b15.15,b3.3,b3.3)
+  print*,c77bit
+  read(c77bit,1102) nc1,nc2,ng,i3,n3
+1102 format(2b28,b15,2b3)
+  call unpacktext(nc1,nc2,ng,msg22)
+  write(*,3002) nc1,nc2,ng,i3,n3,msg22(1:13)
+3002 format(2i12,i8,2i3,2x,a13)
   
 900 continue
 
+  call packcall(bcall_1,nc1,text1)
+  call packcall(bcall_2,nc2,text2)
+  if(.not.text1) write(*,3001) bcall_1,nc1
+  if(.not.text2) write(*,3001) bcall_2,nc2
+3001 format(50x,a6,i12)
+  
   return
 end subroutine parse77
