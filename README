@@ -11,7 +11,7 @@
                                                          
                                                          
                                                          
-Copyright (C) 2001 - 2017 by Joe Taylor, K1JT.
+Copyright (C) 2001 - 2018 by Joe Taylor, K1JT.
 
 WSJT-X  is a  computer program  designed to  facilitate basic  amateur
 radio communication using very weak signals. The first four letters in
@@ -57,7 +57,7 @@ QSOs  and Echo  testing.  The  program runs  equally well  on Windows,
 Macintosh, and Linux systems,  and installation packages are available
 for all three platforms.
 
-WSJT-X is an  open-source project released under the  GPL license (See
+WSJT-X is an open-source project released under the GPLv3 license (See
 COPYING). If  you have  programming or  documentation skills  or would
 like to  contribute to  the project  in other  ways, please  make your
 interests known  to the  development team.  The  project’s source-code
