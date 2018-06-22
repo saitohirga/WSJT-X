@@ -28,7 +28,7 @@ For MS  Windows see the section  "Building from Source on  MS Windows"
 below. For  Apple Mac see the  section "Building from Source  on Apple
 Mac".
 
-Qt v5, preferably v5.1 or later is required to build WSJT-X.
+Qt v5, preferably v5.5 or later is required to build WSJT-X.
 
 Qt v5 multimedia  support and serial port is necessary  as well as the
 core  Qt   v5  components,  normally  installing   the  Qt  multimedia
@@ -86,7 +86,7 @@ instead the main code line is in a branch at ^/branches/wsjtx
 
 $ mkdir -p ~/wsjtx-prefix/build
 $ cd ~/wsjtx-prefix
-$ svn checkout svn://svn.code.sf.net/p/wsjt/wsjt/branches/wsjtx src
+$ git clone git://git.code.sf.net/p/wsjt/wsjtx src
 
 To build WSJT-X you will need CMake and asciidoc installed.
 
@@ -336,7 +336,7 @@ First fetch the source from the repository:
 
 $ mkdir -p ~/wsjtx-prefix/build
 $ cd ~/wsjtx-prefix
-$ svn checkout svn://svn.code.sf.net/p/wsjt/wsjt/branches/wsjtx src
+$ git clone git://git.code.sf.net/p/wsjt/wsjtx src
 
 this links to the Subversion repository in a read-only fashion, if you
 intend to  contribute to the project  then you probably want  to get a
@@ -405,7 +405,7 @@ Updating and Rebuilding WSJT-X
 To update to the latest sources type:
 
 $ cd ~/wsjtx-prefix/src
-$ svn update
+$ git pull
 $ cd ~/wsjtx-prefix/build
 $ cmake --build .
 $ cmake --build . --target install
