@@ -13,26 +13,29 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   character*87 cbits
   logical bcontest
   real a(5)
-  real s1(0:7,ND),s2(0:7,NN),s1sort(8*ND)
-  real ps(0:7),psl(0:7)
-  real bmeta(3*ND),bmetb(3*ND),bmetap(3*ND)
-  real llra(3*ND),llrb(3*ND),llrd(3*ND)           !Soft symbols
+  real s8d(0:7,ND),s8(0:7,NN),s8dsort(8*ND)
+  real s64(0:7,0:7)
+  real ps(0:63),psl(0:63)
+  real bmeta(3*ND),bmetb(3*ND),bmetc(3*ND),bmetap(3*ND)
+  real llra(3*ND),llrb(3*ND),llrc(3*ND),llrd(3*ND)           !Soft symbols
   real dd0(15*12000)
   integer*1 message77(77),apmask(3*ND),cw(3*ND)
   integer*1 msgbits(77)
   integer apsym(77)
   integer mcq(28),mde(28),mrrr(16),m73(16),mrr73(16)
   integer itone(NN)
-  integer indxs1(8*ND)
+  integer indxs8d(8*ND)
   integer icos7(0:6),ip(1)
   integer nappasses(0:5)  !Number of decoding passes to use for each QSO state
   integer naptypes(0:5,4) ! (nQSOProgress, decoding pass)  maximum of 4 passes for now
   integer*1, target:: i1hiscall(12)
+  integer invgraymap(0:7)
   complex cd0(3200)
   complex ctwk(32)
   complex csymb(32)
+  complex cs(0:7,NN)
   logical first,newdat,lsubtract,lapon,lapcqonly,nagain
-  equivalence (s1,s1sort)
+  equivalence (s8d,s8dsort)
   data icos7/3,1,4,0,6,5,2/  ! Flipped w.r.t. original FT8 sync array
   data mcq/1,1,1,1,1,0,1,0,0,0,0,0,1,0,0,0,0,0,1,1,0,0,0,1,1,0,0,1/
   data mrrr/0,1,1,1,1,1,1,0,1,1,0,0,1,1,1,1/
@@ -40,6 +43,8 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   data mde/1,1,1,1,1,1,1,1,0,1,1,0,0,1,0,0,0,0,0,1,1,1,0,1,0,0,0,1/
   data mrr73/0,0,0,0,0,0,1,0,0,0,0,1,0,1,0,1/
   data first/.true./
+  data invgraymap/0,1,3,2,6,7,5,4/
+
   save nappasses,naptypes
 
   if(first) then
@@ -123,31 +128,33 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
 
   call sync8d(cd0,i0,ctwk,2,2,sync)
 
-  j=0
   do k=1,NN
     i1=ibest+(k-1)*32
     csymb=cmplx(0.0,0.0)
     if( i1.ge.1 .and. i1+31 .le. NP2 ) csymb=cd0(i1:i1+31)
     call four2a(csymb,32,1,-1,1)
-    s2(0:7,k)=abs(csymb(1:8))/1e3
+    cs(0:7,k)=csymb(1:8)
+    s8(0:7,k)=abs(csymb(1:8))/1e3
   enddo  
+  
 
 ! sync quality check
   is1=0
   is2=0
   is3=0
   do k=1,7
-    ip=maxloc(s2(:,k))
+    ip=maxloc(s8(:,k))
     if(icos7(k-1).eq.(ip(1)-1)) is1=is1+1
-    ip=maxloc(s2(:,k+36))
+    ip=maxloc(s8(:,k+36))
     if(icos7(k-1).eq.(ip(1)-1)) is2=is2+1
-    ip=maxloc(s2(:,k+72))
+    ip=maxloc(s8(:,k+72))
     if(icos7(k-1).eq.(ip(1)-1)) is3=is3+1
   enddo
 ! hard sync sum - max is 21
   nsync=is1+is2+is3
   if(nsync .le. 6) then ! bail out
     nbadcrc=1
+!write(*,*) 'failed sync sanity test'
     return
   endif
 
@@ -157,19 +164,19 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      if(k.ge.37 .and. k.le.43) cycle
      if(k.gt.72) cycle
      j=j+1
-     s1(0:7,j)=s2(0:7,k)
+     s8d(0:7,j)=s8(0:7,k)
   enddo  
 
-  call indexx(s1sort,8*ND,indxs1)
-  xmeds1=s1sort(indxs1(nint(0.5*8*ND)))
-  s1=s1/xmeds1
+  call indexx(s8dsort,8*ND,indxs8d)
+  xmeds8d=s8dsort(indxs8d(nint(0.5*8*ND)))
+  s8d=s8d/xmeds8d
 
   do j=1,ND
      i4=3*j-2
      i2=3*j-1
      i1=3*j
 ! Max amplitude
-     ps=s1(0:7,j)
+     ps(0:7)=s8d(0:7,j)
 ! For Gray bit-to-symbol mapping
      r1=max(ps(1),ps(2),ps(5),ps(6))-max(ps(0),ps(3),ps(4),ps(7))
      r2=max(ps(2),ps(3),ps(4),ps(5))-max(ps(0),ps(1),ps(6),ps(7))
@@ -188,13 +195,76 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      bmetb(i1)=r1
   enddo
 
+! Do 2-symbol detection
+  do ihalf=1,2
+    do k=1,29,2
+      if(ihalf.eq.1) ks=k+7
+      if(ihalf.eq.2) ks=k+43
+      amax=-1.0
+      do i=0,63
+        il=i/8
+        ir=iand(i,7)
+        s64(il,ir)=abs(cs(il,ks)+cs(ir,ks+1))
+        if(s64(il,ir).gt.amax) then
+          ilb=il
+          irb=ir
+          amax=s64(il,ir)
+        endif
+      enddo
+!write(*,*) k,ilb,irb,amax
+      maxa0=maxval(s64(0:7,0))
+      maxa1=maxval(s64(0:7,1))
+      maxa2=maxval(s64(0:7,2))
+      maxa3=maxval(s64(0:7,3))
+      maxa4=maxval(s64(0:7,4))
+      maxa5=maxval(s64(0:7,5))
+      maxa6=maxval(s64(0:7,6))
+      maxa7=maxval(s64(0:7,7))
+      max0a=maxval(s64(0,0:7))
+      max1a=maxval(s64(1,0:7))
+      max2a=maxval(s64(2,0:7))
+      max3a=maxval(s64(3,0:7))
+      max4a=maxval(s64(4,0:7))
+      max5a=maxval(s64(5,0:7))
+      max6a=maxval(s64(6,0:7))
+      max7a=maxval(s64(7,0:7))
+      r1=max(maxa1,maxa2,maxa5,maxa6) - &
+         max(maxa0,maxa3,maxa4,maxa7) 
+      r2=max(maxa2,maxa3,maxa4,maxa5) - &
+         max(maxa0,maxa1,maxa6,maxa7) 
+      r4=max(maxa4,maxa5,maxa6,maxa7) - &
+         max(maxa0,maxa1,maxa2,maxa3) 
+      r8=max(max1a,max2a,max5a,max6a) - &
+         max(max0a,max3a,max4a,max7a) 
+      r16=max(max2a,max3a,max4a,max5a) - &
+         max(max0a,max1a,max6a,max7a) 
+      r32=max(max4a,max5a,max6a,max7a) - &
+         max(max0a,max1a,max2a,max3a) 
+      i32=1+(k-1)*3+(ihalf-1)*87
+      bmetc(i32)=r32
+      bmetc(i32+1)=r16
+      bmetc(i32+2)=r8
+      if(k.lt.29) then
+         bmetc(i32+3)=r4
+         bmetc(i32+4)=r2
+         bmetc(i32+5)=r1
+      endif
+    enddo
+  enddo
+
   call normalizebmet(bmeta,3*ND)
   call normalizebmet(bmetb,3*ND)
+  call normalizebmet(bmetc,3*ND)
   bmetap=bmeta
+
+!do i=1,174
+!write(*,*) i,bmeta(i),bmetc(i)
+!enddo
 
   scalefac=2.83
   llra=scalefac*bmeta
   llrb=scalefac*bmetb
+  llrc=scalefac*bmetc
   apmag=scalefac*(maxval(abs(bmetap))*1.01)
 
 ! pass #
@@ -221,7 +291,8 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
 !  do ipass=1,2 
      llrd=llra
      if(ipass.eq.2) llrd=llrb
-     if(ipass.eq.3) llrd(1:24)=0. 
+!     if(ipass.eq.3) llrd(1:24)=0. 
+     if(ipass.eq.3) llrd=llrc
      if(ipass.eq.4) llrd(1:48)=0. 
      if(ipass.le.4) then
         apmask=0
@@ -296,9 +367,9 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      xsig=0.0
      xnoi=0.0
      do i=1,79
-        xsig=xsig+s2(itone(i),i)**2
+        xsig=xsig+s8(itone(i),i)**2
         ios=mod(itone(i)+4,7)
-        xnoi=xnoi+s2(ios,i)**2
+        xnoi=xnoi+s8(ios,i)**2
      enddo
      xsnr=0.001
      if(xnoi.gt.0 .and. xnoi.lt.xsig) xsnr=xsig/xnoi-1.0
