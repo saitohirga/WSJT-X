@@ -1,6 +1,9 @@
-Proposed new message types have a 77-bit payload: 74 information bits
-and 3 bits for "message type" i3.  Type 0 uses only 71 information
-bits, releasing another 3 bits (call them n3) to define 8 sub-types.
+Proposed new message types have a 77-bit payload.  For most purposes
+these are interpreted as 3 bits (i3) for "message type" and 74
+information bits.  Any message type that uses fewer than 74
+information bits can assign the remaining bits to define message
+subtypes. For example, Type i3=0 uses 71 information bits and the
+remaining 3 bits, here called n3, define 8 subtypes.
 
 ----------------------------------------------------------------------------------
 i3.n3 Example message                    Bits           Total  Purpose
@@ -11,7 +14,8 @@ i3.n3 Example message                    Bits           Total  Purpose
 0.3   WA9XYZ KA1ABC R 16A EMA            28 28 1 4 3 7    71   ARRL Field Day
 0.4   WA9XYZ KA1ABC R 32A EMA            28 28 1 4 3 7    71   ARRL Field Day
 0.5   0123456789abcdef01                 71               71   Telemetry (18 hex)
-0.6   
+0.6
+0.7
 
 1     WA9XYZ/R KA1ABC/R R FN42           28 1 28 1 1 15   74   Standard msg
 2     TU; W9XYZ K1ABC R 579 MA           1 28 28 1 3 13   74   ARRL RTTY contest
@@ -28,6 +32,13 @@ In case we need them, later:
 ----------------------------------------------------------------------------------
 NB: three 74-bit message types and two 71-bit message subtypes are still TBD.
 ----------------------------------------------------------------------------------
+
+Facts about the 28-bit integers used to encode standard callsigns:
+  2^28              = 268,435,456  Available values
+  37*36*10*27*27*27 = 262,177,560  Needed for standard callsign structure
+  11*10*10*27*27*27 =  21,651,300  nnnaaa, _nnaaa (n=digit, a=letter or blank)
+  2^24              =  16,777,216  available for 24-bit hash code
+                        4,874,084  available for special CQs, etc.
 
 The 28-bit callsign field includes about 19 million impossible "calls"
 that start with three digits.  That's more than 2^24 = 17,777,216, so
@@ -60,6 +71,7 @@ Further details:
 4.  One nonstandard call with up to 11 characters, one hashed call,
     followed by <blank>, RRR, RR73, or 73.
 
+---------------------------------------------------------------------------
 The following are tentative, not to be included in first release:
 
 5.  CQ WW RTTY  - US/Can: RST CQZ state/prov  R 579 5 NJ       R1 r3 z6 u7
