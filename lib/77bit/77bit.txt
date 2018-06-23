@@ -3,7 +3,7 @@ these are interpreted as 3 bits (i3) for "message type" and 74
 information bits.  Any message type that uses fewer than 74
 information bits can assign the remaining bits to define message
 subtypes. For example, Type i3=0 uses 71 information bits and the
-remaining 3 bits, here called n3, define 8 subtypes.
+remaining 3 bits, here called n3, define 8 subtypes. 
 
 ----------------------------------------------------------------------------------
 i3.n3 Example message                    Bits           Total  Purpose
