@@ -15,13 +15,12 @@ subroutine pack77(msg,i3,n3,c77)
 ! Check 0.1 (DXpedition mode)
   call pack77_01(nwords,w,i3,n3,c77)
   if(i3.ge.0) go to 900
-
 ! Check 0.2 (EU VHF contest exchange)
-  call chk77_02(nwords,w,i3,n3)
+  call pack77_02(nwords,w,i3,n3,c77)
   if(i3.ge.0) go to 900
 
 ! Check 0.3 and 0.4 (ARRL Field Day exchange)
-  call chk77_03(nwords,w,i3,n3)
+  call pack77_03(nwords,w,i3,n3,c77)
   if(i3.ge.0) go to 900
   
 
@@ -45,7 +44,6 @@ subroutine pack77(msg,i3,n3,c77)
   write(c77(72:77),'(2b3.3)') n3,i3
   
 900 continue
-!  print*,'B: ',c77
 
   return
 end subroutine pack77

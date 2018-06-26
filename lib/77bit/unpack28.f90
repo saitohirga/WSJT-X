@@ -13,30 +13,34 @@ subroutine unpack28(n28,c13)
   data c4/' ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
   data nc/37,36,19,27,27,27/
 
-  n=n28 - NTOKENS - N24
-  j=mod(n,nc(6))
-  c13(6:6)=c4(j+1:j+1)
-  n=n/nc(6)
+  if(n28.lt.NTOKENS) then
+     !code for tokens CQ, DE, QRZ, etc.
+  endif
+  n28=n28-NTOKENS
+  if(n28.lt.N24) then
+     !code for 24-bit hash
+  endif
+  
+! Standard callsign
+  n=n28 - N24
+  
+  i1=n/(36*10*27*27*27)
+  n=n-36*10*27*27*27*i1
 
-  j=mod(n,nc(5))
-  c13(5:5)=c4(j+1:j+1)
-  n=n/nc(5)
+  i2=n/(10*27*27*27)
+  n=n-10*27*27*27*i2
 
-  j=mod(n,nc(4))
-  c13(4:4)=c4(j+1:j+1)
-  n=n/nc(4)
+  i3=n/(27*27*27)
+  n=n-27*27*27*i3
 
-  j=mod(n,nc(3))
-  c13(3:3)=c3(j+1:j+1)
-  n=n/nc(3)
+  i4=n/(27*27)
+  n=n-27*27*i4
 
-  j=mod(n,nc(2))
-  c13(2:2)=c2(j+1:j+1)
-  n=n/nc(2)
-
-  j=n
-  c13(1:1)=c1(j+1:j+1)
-  c13(7:)='       '
+  i5=n/27
+  i6=n-27*i5
+  c13=c1(i1+1:i1+1)//c2(i2+1:i2+1)//c3(i3+1:i3+1)//c4(i4+1:i4+1)//     &
+       c4(i5+1:i5+1)//c4(i6+1:i6+1)//'       '
+  c13=adjustl(c13)
 
   return
 end subroutine unpack28

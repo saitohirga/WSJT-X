@@ -47,14 +47,22 @@ subroutine pack28(c13,n28)
 ! We have a standard callsign
   n=len(trim(callsign))
   callsign=adjustr(callsign)
-  n28=index(c1,callsign(1:1))-1
-  n28=n28*nc(2) + index(c2,callsign(2:2)) - 1
-  n28=n28*nc(3) + index(c3,callsign(3:3)) - 1
-  n28=n28*nc(4) + index(c4,callsign(4:4)) - 1
-  n28=n28*nc(5) + index(c4,callsign(5:5)) - 1
-  n28=n28*nc(6) + index(c4,callsign(6:6)) - 1
-  n28=n28 + NTOKENS + N24
 
-     
+  i1=36*10*27*27*27*(index(c1,callsign(1:1))-1)
+  i2=10*27*27*27*(index(c2,callsign(2:2))-1)
+  i3=27*27*27*(index(c3,callsign(3:3))-1)
+  i4=27*27*(index(c4,callsign(4:4))-1)
+  i5=27*(index(c4,callsign(5:5))-1)
+  i6=index(c4,callsign(6:6))-1
+  n28=i1+i2+i3+i4+i5+i6
+  
+!  n28=index(c1,callsign(1:1))-1
+!  n28=n28*nc(2) + index(c2,callsign(2:2)) - 1
+!  n28=n28*nc(3) + index(c3,callsign(3:3)) - 1
+!  n28=n28*nc(4) + index(c4,callsign(4:4)) - 1
+!  n28=n28*nc(5) + index(c4,callsign(5:5)) - 1
+!  n28=n28*nc(6) + index(c4,callsign(6:6)) - 1
+  n28=n28 + NTOKENS + N24
+  
   return
 end subroutine pack28
