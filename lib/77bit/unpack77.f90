@@ -7,6 +7,7 @@ subroutine unpack77(c77,msg)
   character*13 call_1,call_2,call_3
   character*3 crpt,cntx
   character*6 cexch,grid6
+  character*4 grid4
   character*3 csec(NSEC)
   data csec/                                                         &
        "AB ","AK ","AL ","AR ","AZ ","BC ","CO ","CT ","DE ","EB ",  &       
@@ -97,11 +98,30 @@ subroutine unpack77(c77,msg)
 1007 format(3z6.6)
 
   else if(i3.eq.1 .or. i3.eq.3) then
+     !### Here and elsewhere, must enable rpt/RRR/RR73/73 in igrid4
      read(c77,1000) n28a,ipa,n28b,ipb,ir,igrid4,i3
 1000 format(2(b28,b1),b1,b15,b3)
      call unpack28(n28a,call_1)
      call unpack28(n28b,call_2)
-     print*,call_1,call_2,ipa,ipb,ir,igrid4,i3
+     i=index(call_1,' ')
+     if(i.ge.4 .and. ipa.eq.1 .and. i3.eq.1) call_1(i:i+1)='/R'
+     if(i.ge.4 .and. ipa.eq.1 .and. i3.eq.3) call_1(i:i+1)='/P'
+     if(i.ge.4 .and. ipb.eq.1 .and. i3.eq.1) call_2(i:i+1)='/R'
+     if(i.ge.4 .and. ipb.eq.1 .and. i3.eq.3) call_2(i:i+1)='/P'
+
+     n=igrid4
+     j1=n/(18*10*10)
+     n=n-j1*18*10*10
+     j2=n/(10*10)
+     n=n-j2*10*10
+     j3=n/10
+     j4=n-j3*10
+     grid4(1:1)=char(j1+ichar('A'))
+     grid4(2:2)=char(j2+ichar('A'))
+     grid4(3:3)=char(j3+ichar('0'))
+     grid4(4:4)=char(j4+ichar('0'))
+     if(ir.eq.0) msg=trim(call_1)//' '//trim(call_2)//' '//grid4
+     if(ir.eq.1) msg=trim(call_1)//' '//trim(call_2)//' R '//grid4
   endif
 
   return
