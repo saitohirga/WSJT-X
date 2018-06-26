@@ -49,7 +49,7 @@ subroutine pack77_03(nwords,w,i3,n3,c77)
   intx=ntx-1
   if(intx.ge.16) then
      n3=4                              !Type 0.4 ARRL Field Day
-     intx=ntx-16
+     intx=ntx-17
   endif
   call pack28(w(1),n28a)
   call pack28(w(2),n28b)

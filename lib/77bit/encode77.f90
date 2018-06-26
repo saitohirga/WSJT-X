@@ -13,7 +13,9 @@ program encode77
   do iline=1,999
      read(10,1002,end=999) i3a,n3a,msg0
 1002 format(i1,i4,1x,a37)
-     if(i3a.gt.0 .or. n3a.gt.3) cycle
+     i3=i3a
+     n3=n3a
+     if(i3a.gt.1 .or. n3a.gt.5) cycle
      call pack77(msg0,i3,n3,c77)
      call unpack77(c77,msg)
      cerr=' '
@@ -33,7 +35,7 @@ include 'split77.f90'
 include 'pack77_01.f90'
 include 'pack77_02.f90'
 include 'pack77_03.f90'
-include 'chk77_1.f90'
+include 'pack77_1.f90'
 include 'chk77_2.f90'
 include 'chk77_3.f90'
 include 'packtext77.f90'

@@ -1,6 +1,7 @@
 subroutine unpack77(c77,msg)
 
   parameter (NSEC=84)      !Number of ARRL Sections
+  integer ntel(3)
   character*77 c77
   character*37 msg
   character*13 call_1,call_2,call_3
@@ -69,7 +70,7 @@ subroutine unpack77(c77,msg)
 
   else if(i3.eq.0 .and. (n3.eq.3 .or. n3.eq.4)) then
 ! 0.3   WA9XYZ KA1ABC R 16A EMA            28 28 1 4 3 7    71   ARRL Field Day
-! 0.4   WA9XYZ KA1ABC R 32A EMA            28 28 1 4 3 7    71   ARRL Field Day
+     ! 0.4   WA9XYZ KA1ABC R 32A EMA            28 28 1 4 3 7    71   ARRL Field Day
      read(c77,1030) n28a,n28b,ir,intx,nclass,isec
 1030 format(2b28,b1,b4,b3,b7)
      call unpack28(n28a,call_1)
@@ -87,6 +88,20 @@ subroutine unpack77(c77,msg)
           ' '//cntx//' '//csec(isec)
      if(ir.eq.1 .and. ntx.ge.10) msg=trim(call_1)//' '//trim(call_2)//     &
           ' R '//cntx//' '//csec(isec)
+
+  else if(i3.eq.0 .and. n3.eq.5) then
+! 0.5   0123456789abcdef01                 71               71   Telemetry (18 hex)
+     read(c77,1006) ntel
+1006 format(b23,2b24)
+     write(msg,1007) ntel
+1007 format(3z6.6)
+
+  else if(i3.eq.1 .or. i3.eq.3) then
+     read(c77,1000) n28a,ipa,n28b,ipb,ir,igrid4,i3
+1000 format(2(b28,b1),b1,b15,b3)
+     call unpack28(n28a,call_1)
+     call unpack28(n28b,call_2)
+     print*,call_1,call_2,ipa,ipb,ir,igrid4,i3
   endif
 
   return
