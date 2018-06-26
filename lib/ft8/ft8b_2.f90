@@ -13,18 +13,18 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   character*87 cbits
   logical bcontest
   real a(5)
-  real s8d(0:7,ND),s8(0:7,NN),s8dsort(8*ND)
-  real s512(0:511)
-  real ps(0:512),psl(0:512)
+  real s8(0:7,NN)
+  real s2(0:511),s2l(0:511)
   real bmeta(3*ND),bmetb(3*ND),bmetc(3*ND),bmetap(3*ND)
+  real bmetal(3*ND),bmetbl(3*ND),bmetcl(3*ND)
   real llra(3*ND),llrb(3*ND),llrc(3*ND),llrd(3*ND)           !Soft symbols
+  real llral(3*ND),llrbl(3*ND),llrcl(3*ND)                   !Soft symbols
   real dd0(15*12000)
   integer*1 message77(77),apmask(3*ND),cw(3*ND)
   integer*1 msgbits(77)
   integer apsym(77)
   integer mcq(28),mde(28),mrrr(16),m73(16),mrr73(16)
   integer itone(NN)
-  integer indxs8d(8*ND)
   integer icos7(0:6),ip(1)
   integer nappasses(0:5)  !Number of decoding passes to use for each QSO state
   integer naptypes(0:5,4) ! (nQSOProgress, decoding pass)  maximum of 4 passes for now
@@ -36,7 +36,6 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   complex csymb(32)
   complex cs(0:7,NN)
   logical first,newdat,lsubtract,lapon,lapcqonly,nagain
-  equivalence (s8d,s8dsort)
   data icos7/3,1,4,0,6,5,2/  ! Flipped w.r.t. original FT8 sync array
   data mcq/1,1,1,1,1,0,1,0,0,0,0,0,1,0,0,0,0,0,1,1,0,0,0,1,1,0,0,1/
   data mrrr/0,1,1,1,1,1,1,0,1,1,0,0,1,1,1,1/
@@ -82,7 +81,6 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
        do j=0,8
          if(iand(i,2**(8-j)).ne.0) bitisone(i,j)=.true.
        enddo
-write(*,*) i,bitisone(i,0:8)
      enddo
      first=.false.
   endif
@@ -141,10 +139,9 @@ write(*,*) i,bitisone(i,0:8)
     csymb=cmplx(0.0,0.0)
     if( i1.ge.1 .and. i1+31 .le. NP2 ) csymb=cd0(i1:i1+31)
     call four2a(csymb,32,1,-1,1)
-    cs(0:7,k)=csymb(1:8)
-    s8(0:7,k)=abs(csymb(1:8))/1e3
+    cs(0:7,k)=csymb(1:8)/1e3
+    s8(0:7,k)=abs(csymb(1:8))
   enddo  
-  
 
 ! sync quality check
   is1=0
@@ -166,85 +163,80 @@ write(*,*) i,bitisone(i,0:8)
     return
   endif
 
-  j=0
-  do k=1,NN
-     if(k.le.7) cycle
-     if(k.ge.37 .and. k.le.43) cycle
-     if(k.gt.72) cycle
-     j=j+1
-     s8d(0:7,j)=s8(0:7,k)
-  enddo  
-
-  call indexx(s8dsort,8*ND,indxs8d)
-  xmeds8d=s8dsort(indxs8d(nint(0.5*8*ND)))
-  s8d=s8d/xmeds8d
-
-  do j=1,ND
-     i4=3*j-2
-     i2=3*j-1
-     i1=3*j
-! Max amplitude
-     ps(0:7)=s8d(0:7,j)
-! For Gray bit-to-symbol mapping
-     r1=max(ps(1),ps(2),ps(5),ps(6))-max(ps(0),ps(3),ps(4),ps(7))
-     r2=max(ps(2),ps(3),ps(4),ps(5))-max(ps(0),ps(1),ps(6),ps(7))
-     r4=max(ps(4),ps(5),ps(6),ps(7))-max(ps(0),ps(1),ps(2),ps(3))
-     bmeta(i4)=r4
-     bmeta(i2)=r2
-     bmeta(i1)=r1
-! Max log metric
-     psl=log(ps+1e-32)
-! Gray bit-to-symbol mapping
-     r1=max(psl(1),psl(2),psl(5),psl(6))-max(psl(0),psl(3),psl(4),ps(7))
-     r2=max(psl(2),psl(3),psl(4),psl(5))-max(psl(0),psl(1),psl(6),ps(7))
-     r4=max(psl(4),psl(5),psl(6),psl(7))-max(psl(0),psl(1),psl(2),ps(3))
-     bmetb(i4)=r4
-     bmetb(i2)=r2
-     bmetb(i1)=r1
-  enddo
-
-! Do 2-symbol detection
-nsym=3
-nt=2**(3*nsym)
-  do ihalf=1,2
-    do k=1,29,nsym
-      if(ihalf.eq.1) ks=k+7
-      if(ihalf.eq.2) ks=k+43
-      amax=-1.0
-      do i=0,nt-1
-        i1=i/64
-        i2=iand(i,63)/8
-        i3=iand(i,7)
-        s512(i)=abs(cs(graymap(i1),ks)+cs(graymap(i2),ks+1)+cs(graymap(i3),ks+2))
+  do nsym=1,3
+    nt=2**(3*nsym)
+    do ihalf=1,2
+      do k=1,29,nsym
+        if(ihalf.eq.1) ks=k+7
+        if(ihalf.eq.2) ks=k+43
+        amax=-1.0
+        do i=0,nt-1
+          i1=i/64
+          i2=iand(i,63)/8
+          i3=iand(i,7)
+          if(nsym.eq.1) then
+            s2(i)=abs(cs(graymap(i3),ks))
+          elseif(nsym.eq.2) then
+            s2(i)=abs(cs(graymap(i2),ks)+cs(graymap(i3),ks+1))
+          elseif(nsym.eq.3) then
+            s2(i)=abs(cs(graymap(i1),ks)+cs(graymap(i2),ks+1)+cs(graymap(i3),ks+2))
+          else
+            print*,"Error - nsym must be 1, 2, or 3."
+          endif
+        enddo
+        i32=1+(k-1)*3+(ihalf-1)*87
+        if(nsym.eq.1) then
+          do ib=0,2
+            bmeta(i32+ib)=maxval(s2(0:nt-1),bitisone(0:nt-1,6+ib)) - &
+                          maxval(s2(0:nt-1),.not.bitisone(0:nt-1,6+ib))
+            s2l(0:nt-1)=log(s2(0:nt-1)+1e-32)
+            bmetal(i32+ib)=maxval(s2l(0:nt-1),bitisone(0:nt-1,6+ib)) - &
+                          maxval(s2l(0:nt-1),.not.bitisone(0:nt-1,6+ib))
+          enddo
+        elseif(nsym.eq.2) then
+          ibmax=5
+          if(k.eq.29) ibmax=2
+          do ib=0,ibmax
+            bmetb(i32+ib)=maxval(s2(0:nt-1),bitisone(0:nt-1,3+ib)) - &
+                          maxval(s2(0:nt-1),.not.bitisone(0:nt-1,3+ib))
+            s2l(0:nt-1)=log(s2(0:nt-1)+1e-32)
+            bmetbl(i32+ib)=maxval(s2l(0:nt-1),bitisone(0:nt-1,3+ib)) - &
+                          maxval(s2l(0:nt-1),.not.bitisone(0:nt-1,3+ib))
+          enddo
+        elseif(nsym.eq.3) then
+          ibmax=8
+          if(k.eq.28) ibmax=5
+          do ib=0,ibmax
+            bmetc(i32+ib)=maxval(s2(0:nt-1),bitisone(0:nt-1,ib)) - &
+                          maxval(s2(0:nt-1),.not.bitisone(0:nt-1,ib))
+            s2l(0:nt-1)=log(s2(0:nt-1)+1e-32)
+            bmetcl(i32+ib)=maxval(s2l(0:nt-1),bitisone(0:nt-1,ib)) - &
+                          maxval(s2l(0:nt-1),.not.bitisone(0:nt-1,ib))
+          enddo
+        endif
       enddo
-      i32=1+(k-1)*3+(ihalf-1)*87
-      bmetc(i32)=maxval(s512,bitisone(0:nt-1,0))-maxval(s512,.not.bitisone(0:nt-1,0))
-      bmetc(i32+1)=maxval(s512,bitisone(0:nt-1,1))-maxval(s512,.not.bitisone(0:nt-1,1))
-      bmetc(i32+2)=maxval(s512,bitisone(0:nt-1,2))-maxval(s512,.not.bitisone(0:nt-1,2))
-      bmetc(i32+3)=maxval(s512,bitisone(0:nt-1,3))-maxval(s512,.not.bitisone(0:nt-1,3))
-      bmetc(i32+4)=maxval(s512,bitisone(0:nt-1,4))-maxval(s512,.not.bitisone(0:nt-1,4))
-      bmetc(i32+5)=maxval(s512,bitisone(0:nt-1,5))-maxval(s512,.not.bitisone(0:nt-1,5))
-      if(k.lt.28) then
-         bmetc(i32+6)=maxval(s512,bitisone(0:nt-1,6))-maxval(s512,.not.bitisone(0:nt-1,6))
-         bmetc(i32+7)=maxval(s512,bitisone(0:nt-1,7))-maxval(s512,.not.bitisone(0:nt-1,7))
-         bmetc(i32+8)=maxval(s512,bitisone(0:nt-1,8))-maxval(s512,.not.bitisone(0:nt-1,8))
-      endif
     enddo
   enddo
-
   call normalizebmet(bmeta,3*ND)
+  call normalizebmet(bmetal,3*ND)
   call normalizebmet(bmetb,3*ND)
+  call normalizebmet(bmetbl,3*ND)
   call normalizebmet(bmetc,3*ND)
+  call normalizebmet(bmetcl,3*ND)
   bmetap=bmeta
 
-do i=1,174
-write(*,*) i,bmeta(i),bmetc(i)
-enddo
+!do i=1,174
+!write(*,*) i,bmeta(i),bmetc(i)
+!enddo
 
   scalefac=2.83
   llra=scalefac*bmeta
+  llral=scalefac*bmetal
   llrb=scalefac*bmetb
+  llrbl=scalefac*bmetbl
   llrc=scalefac*bmetc
+  llrcl=scalefac*bmetcl
+
   apmag=scalefac*(maxval(abs(bmetap))*1.01)
 
 ! pass #
@@ -267,19 +259,20 @@ enddo
      npasses=4
   endif
 
-  do ipass=1,npasses 
-!  do ipass=1,2 
+!  do ipass=1,npasses 
+  do ipass=1,3 
      llrd=llra
      if(ipass.eq.2) llrd=llrb
-!     if(ipass.eq.3) llrd(1:24)=0. 
      if(ipass.eq.3) llrd=llrc
-     if(ipass.eq.4) llrd(1:48)=0. 
+!     if(ipass.eq.3) llrd(1:24)=0. 
+     if(ipass.eq.4) llrd(1:24)=0. 
      if(ipass.le.4) then
         apmask=0
         iaptype=0
      endif
         
      if(ipass .gt. 4) then
+        llrd=llrb    ! Needs to be checked
         if(.not.lapcqonly) then
            iaptype=naptypes(nQSOProgress,ipass-4)
         else
