@@ -3,26 +3,22 @@ program encode77
   character msg*37,msg0*37,cerr*1
   character*77 c77
 
-  open(10,file='msgtypes.txt',status='old')
-
-! Skip over first two lines
-  read(10,1001) cerr
-  read(10,1001) cerr
-1001 format(a1)
-  
+  nargs=iargc()
   do iline=1,999
-     read(10,1002,end=999) i3a,n3a,msg0
-1002 format(i1,i4,1x,a37)
+     if(nargs.eq.1) then
+        call getarg(1,msg0)
+     else
+        read(*,1002,end=999) msg0
+1002    format(a37)
+     endif
      if(msg0.eq.'                                     ') exit
-     i3=i3a
-     n3=n3a
-!     if(i3a.gt.1 .or. n3a.gt.5) cycle
      call pack77(msg0,i3,n3,c77)
      call unpack77(c77,msg)
      cerr=' '
-     if(i3a.ne.i3 .or. n3a.ne.n3 .or. msg.ne.msg0) cerr='*'
+     if(msg.ne.msg0) cerr='*'
      write(*,1004) i3,n3,cerr,msg0,msg
 1004 format(i1,'.',i1,1x,a1,1x,a37,1x,a37)
+     if(nargs.eq.1) exit
   enddo
 
 999 end program encode77

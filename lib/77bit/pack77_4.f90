@@ -41,7 +41,7 @@ subroutine pack77_4(nwords,w,i3,n3,c77)
      nrpt=0
      if(trim(w(3)).eq.'RRR') nrpt=1
      if(trim(w(3)).eq.'RR73') nrpt=2
-     if(trim(w(3)).eq.'73') nrpr=3
+     if(trim(w(3)).eq.'73') nrpt=3
      write(c77,1010) n13,n58,iflip,nrpt,i3
 1010 format(b13.13,b58.58,b1,b2.2,b3.3)
   endif

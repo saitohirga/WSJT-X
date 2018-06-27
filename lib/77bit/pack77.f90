@@ -14,6 +14,7 @@ subroutine pack77(msg,i3,n3,c77)
   call split77(msg,nwords,nw,w)
   i3=-1
   n3=-1
+  if(msg(1:3).eq.'CQ ' .or. msg(1:3).eq.'DE ' .or. msg(1:4).eq.'QRZ ') go to 100
 
 ! Check 0.1 (DXpedition mode)
   call pack77_01(nwords,w,i3,n3,c77)
@@ -43,7 +44,7 @@ subroutine pack77(msg,i3,n3,c77)
   endif
 
 ! Check Types 1 and 2 (Standard 77-bit message (type 1) or with "/P" (type 2))
-  call pack77_1(nwords,w,i3,n3,c77)
+100 call pack77_1(nwords,w,i3,n3,c77)
   if(i3.ge.0) go to 900
 
 ! Check Type 3 (ARRL RTTY contest exchange)

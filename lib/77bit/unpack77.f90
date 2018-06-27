@@ -2,6 +2,7 @@ subroutine unpack77(c77,msg)
 
   parameter (NSEC=84)      !Number of ARRL Sections
   parameter (NUSCAN=65)    !Number of US states and Canadian provinces
+  parameter (MAXGRID4=32400)
   integer*8 n58
   integer ntel(3)
   character*77 c77
@@ -124,25 +125,40 @@ subroutine unpack77(c77,msg)
 1000 format(2(b28,b1),b1,b15,b3)
      call unpack28(n28a,call_1)
      call unpack28(n28b,call_2)
+     if(call_1(1:3).eq.'CQ_') call_1(3:3)=' '
      i=index(call_1,' ')
      if(i.ge.4 .and. ipa.eq.1 .and. i3.eq.1) call_1(i:i+1)='/R'
      if(i.ge.4 .and. ipa.eq.1 .and. i3.eq.2) call_1(i:i+1)='/P'
      if(i.ge.4 .and. ipb.eq.1 .and. i3.eq.1) call_2(i:i+1)='/R'
      if(i.ge.4 .and. ipb.eq.1 .and. i3.eq.2) call_2(i:i+1)='/P'
 
-     n=igrid4
-     j1=n/(18*10*10)
-     n=n-j1*18*10*10
-     j2=n/(10*10)
-     n=n-j2*10*10
-     j3=n/10
-     j4=n-j3*10
-     grid4(1:1)=char(j1+ichar('A'))
-     grid4(2:2)=char(j2+ichar('A'))
-     grid4(3:3)=char(j3+ichar('0'))
-     grid4(4:4)=char(j4+ichar('0'))
-     if(ir.eq.0) msg=trim(call_1)//' '//trim(call_2)//' '//grid4
-     if(ir.eq.1) msg=trim(call_1)//' '//trim(call_2)//' R '//grid4
+     if(igrid4.le.MAXGRID4) then
+        n=igrid4
+        j1=n/(18*10*10)
+        n=n-j1*18*10*10
+        j2=n/(10*10)
+        n=n-j2*10*10
+        j3=n/10
+        j4=n-j3*10
+        grid4(1:1)=char(j1+ichar('A'))
+        grid4(2:2)=char(j2+ichar('A'))
+        grid4(3:3)=char(j3+ichar('0'))
+        grid4(4:4)=char(j4+ichar('0'))
+        if(ir.eq.0) msg=trim(call_1)//' '//trim(call_2)//' '//grid4
+        if(ir.eq.1) msg=trim(call_1)//' '//trim(call_2)//' R '//grid4
+     else
+        irpt=igrid4-MAXGRID4
+        if(irpt.eq.1) msg=trim(call_1)//' '//trim(call_2)
+        if(irpt.eq.2) msg=trim(call_1)//' '//trim(call_2)//' RRR'
+        if(irpt.eq.2) msg=trim(call_1)//' '//trim(call_2)//' RR73'
+        if(irpt.eq.4) msg=trim(call_1)//' '//trim(call_2)//' 73'
+        if(irpt.ge.5) then
+           write(crpt,'(i3.2)') irpt-35
+           if(crpt(1:1).eq.' ') crpt(1:1)='+'
+           if(ir.eq.0) msg=trim(call_1)//' '//trim(call_2)//' '//crpt
+           if(ir.eq.1) msg=trim(call_1)//' '//trim(call_2)//' R'//crpt
+        endif
+     endif
 
   else if(i3.eq.3) then
 ! Type 3: ARRL RTTY Contest
@@ -184,7 +200,6 @@ subroutine unpack77(c77,msg)
              ' R '//crpt//' '//cserial
      endif
   else if(i3.eq.4) then
-!     print*,c77
      read(c77,1050) n13,n58,iflip,nrpt
 1050 format(b13,b58,b1,b2)
      do i=11,1,-1

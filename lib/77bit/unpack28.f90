@@ -27,6 +27,7 @@ subroutine unpack28(n28_0,c13)
      endif
      if(n28.le.532443) then
         n=n28-1003
+        n0=n
         i1=n/(27*27*27)
         n=n-27*27*27*i1
         i2=n/(27*27)
