@@ -18,8 +18,8 @@ i3.n3 Example message                    Bits           Total  Purpose
 0.7
 
 1     WA9XYZ/R KA1ABC/R R FN42           28 1 28 1 1 15   74   Standard msg
-2     TU; W9XYZ K1ABC R 579 MA           1 28 28 1 3 13   74   ARRL RTTY contest
-3     PA3XYZ/P GM4ABC/P R JO22           28 1 28 1 1 15   74   EU VHF contest
+2     PA3XYZ/P GM4ABC/P R JO22           28 1 28 1 1 15   74   EU VHF contest
+3     TU; W9XYZ K1ABC R 579 MA           1 28 28 1 3 13   74   ARRL RTTY contest
 4     <WA9XYZ> PJ4/KA1ABC RR73           13 58 1 2        74   Nonstandard calls
 5     ...
 6

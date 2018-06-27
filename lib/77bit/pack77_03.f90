@@ -22,16 +22,6 @@ subroutine pack77_03(nwords,w,i3,n3,c77)
   call chkcall(w(1),bcall_1,ok1)
   call chkcall(w(2),bcall_2,ok2)
   if(.not.ok1 .or. .not.ok2) return
-  
-  ntx=-1
-  j=len(trim(w(nwords-1)))-1
-  if(j.ge.2) read(w(nwords-1)(1:j),*,err=1) ntx     !Number of transmitters
-1 if(ntx.lt.1 .or. ntx.gt.32) return
-  nclass=ichar(w(nwords-1)(j+1:j+1))-ichar('A')
-  
-  m=len(trim(w(nwords)))                            !Length of section abbreviation
-  if(m.lt.2 .or. m.gt.3) return
-
   isec=-1
   do i=1,NSEC
      if(csec(i).eq.w(nwords)) then
@@ -40,7 +30,17 @@ subroutine pack77_03(nwords,w,i3,n3,c77)
      endif
   enddo
   if(isec.eq.-1) return
+  if(nwords.eq.5 .and. trim(w(3)).ne.'R') return
   
+  ntx=-1
+  j=len(trim(w(nwords-1)))-1
+  read(w(nwords-1)(1:j),*,err=1) ntx                !Number of transmitters
+1 if(ntx.lt.1 .or. ntx.gt.32) return
+  nclass=ichar(w(nwords-1)(j+1:j+1))-ichar('A')
+  
+  m=len(trim(w(nwords)))                            !Length of section abbreviation
+  if(m.lt.2 .or. m.gt.3) return
+
 ! 0.3   WA9XYZ KA1ABC R 16A EMA            28 28 1 4 3 7    71   ARRL Field Day
 ! 0.4   WA9XYZ KA1ABC R 32A EMA            28 28 1 4 3 7    71   ARRL Field Day
   

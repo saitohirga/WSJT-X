@@ -2,7 +2,7 @@ subroutine pack77(msg,i3,n3,c77)
 
   use packjt
   character*37 msg
-!  character*22 msg22
+  character*18 c18
   character*13 w(19)
   character*77 c77
   integer nw(19)
@@ -27,33 +27,35 @@ subroutine pack77(msg,i3,n3,c77)
   if(i3.ge.0) go to 900
 
 ! Check 0.5 (telemetry)
-5 if(index(msg,' ').gt.18) then
-     ntel=-99
-     read(msg(1:18),1005,err=6) ntel
+5 i0=index(msg,' ')
+  c18=msg(1:i0-1)//'                  '
+  c18=adjustr(c18)
+  ntel=-99
+  read(c18,1005,err=6) ntel
 1005 format(3z6)
-6    if(ntel(1).ge.0 .and. ntel(2).ge.0 .and. ntel(3).ge.0) then
-        i3=0
-        n3=5
-        write(c77,1006) ntel,n3
-1006    format(b23.23,2b24.24,b3.3)
-        go to 900
-     endif
+  if(ntel(1).ge.2**23) go to 800
+6 if(ntel(1).ge.0 .and. ntel(2).ge.0 .and. ntel(3).ge.0) then
+     i3=0
+     n3=5
+     write(c77,1006) ntel,n3
+1006 format(b23.23,2b24.24,b3.3)
+     go to 900
   endif
 
-! Check Types 1 and 4 (Standard 77-bit message (type 1) or with "/P" (type 4))
+! Check Types 1 and 2 (Standard 77-bit message (type 1) or with "/P" (type 2))
   call pack77_1(nwords,w,i3,n3,c77)
   if(i3.ge.0) go to 900
 
-! Check Type 2 (ARRL RTTY contest exchange)
+! Check Type 3 (ARRL RTTY contest exchange)
   call chk77_2(nwords,w,i3,n3)
   if(i3.ge.0) go to 900
 
-! Check Type 3 (One nonstandard call and one hashed call)
+! Check Type 4 (One nonstandard call and one hashed call)
   call chk77_3(nwords,w,i3,n3)
   if(i3.ge.0) go to 900
 
 ! By default, it's free text
-  i3=0
+800 i3=0
   n3=0
   msg(14:)='                        '
   call packtext77(msg(1:13),c77(1:71))

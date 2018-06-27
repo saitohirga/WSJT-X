@@ -96,6 +96,11 @@ subroutine unpack77(c77,msg)
 1006 format(b23,2b24)
      write(msg,1007) ntel
 1007 format(3z6.6)
+     do i=1,18
+        if(msg(i:i).ne.'0') exit
+        msg(i:i)=' '
+     enddo
+     msg=adjustl(msg)
 
   else if(i3.eq.1 .or. i3.eq.3) then
      !### Here and elsewhere, must enable rpt/RRR/RR73/73 in igrid4
