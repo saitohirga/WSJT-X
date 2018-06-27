@@ -79,7 +79,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      one=.false.
      do i=0,511
        do j=0,8
-         if(iand(i,2**(8-j)).ne.0) one(i,j)=.true.
+         if(iand(i,2**j).ne.0) one(i,j)=.true.
        enddo
      enddo
      first=.false.
@@ -159,7 +159,6 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   nsync=is1+is2+is3
   if(nsync .le. 6) then ! bail out
     nbadcrc=1
-!write(*,*) 'failed sync sanity test'
     return
   endif
 
@@ -184,36 +183,28 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
             print*,"Error - nsym must be 1, 2, or 3."
           endif
         enddo
+        s2l(0:nt-1)=log(s2(0:nt-1)+1e-32)
         i32=1+(k-1)*3+(ihalf-1)*87
-        if(nsym.eq.1) then
-          do ib=0,2
-            bmeta(i32+ib)=maxval(s2(0:nt-1),one(0:nt-1,6+ib)) - &
-                          maxval(s2(0:nt-1),.not.one(0:nt-1,6+ib))
-            s2l(0:nt-1)=log(s2(0:nt-1)+1e-32)
-            bmetal(i32+ib)=maxval(s2l(0:nt-1),one(0:nt-1,6+ib)) - &
-                          maxval(s2l(0:nt-1),.not.one(0:nt-1,6+ib))
-          enddo
-        elseif(nsym.eq.2) then
-          ibmax=5
-          if(k.eq.29) ibmax=2
-          do ib=0,ibmax
-            bmetb(i32+ib)=maxval(s2(0:nt-1),one(0:nt-1,3+ib)) - &
-                          maxval(s2(0:nt-1),.not.one(0:nt-1,3+ib))
-            s2l(0:nt-1)=log(s2(0:nt-1)+1e-32)
-            bmetbl(i32+ib)=maxval(s2l(0:nt-1),one(0:nt-1,3+ib)) - &
-                          maxval(s2l(0:nt-1),.not.one(0:nt-1,3+ib))
-          enddo
-        elseif(nsym.eq.3) then
-          ibmax=8
-          if(k.eq.28) ibmax=5
-          do ib=0,ibmax
-            bmetc(i32+ib)=maxval(s2(0:nt-1),one(0:nt-1,ib)) - &
-                          maxval(s2(0:nt-1),.not.one(0:nt-1,ib))
-            s2l(0:nt-1)=log(s2(0:nt-1)+1e-32)
-            bmetcl(i32+ib)=maxval(s2l(0:nt-1),one(0:nt-1,ib)) - &
-                          maxval(s2l(0:nt-1),.not.one(0:nt-1,ib))
-          enddo
-        endif
+        if(nsym.eq.1) ibmax=2 
+        if(nsym.eq.2) ibmax=5 
+        if(nsym.eq.3) ibmax=8 
+        do ib=0,ibmax
+          bm=maxval(s2(0:nt-1),one(0:nt-1,ibmax-ib)) - &
+             maxval(s2(0:nt-1),.not.one(0:nt-1,ibmax-ib))
+          bml=maxval(s2l(0:nt-1),one(0:nt-1,ibmax-ib)) - &
+              maxval(s2l(0:nt-1),.not.one(0:nt-1,ibmax-ib))
+          if(i32+ib .gt.174) cycle
+          if(nsym.eq.1) then
+            bmeta(i32+ib)=bm
+            bmetal(i32+ib)=bml
+          elseif(nsym.eq.2) then
+            bmetb(i32+ib)=bm
+            bmetbl(i32+ib)=bml
+          elseif(nsym.eq.3) then
+            bmetc(i32+ib)=bm
+            bmetcl(i32+ib)=bml
+          endif
+        enddo
       enddo
     enddo
   enddo
@@ -224,10 +215,6 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   call normalizebmet(bmetc,3*ND)
   call normalizebmet(bmetcl,3*ND)
   bmetap=bmeta
-
-!do i=1,174
-!write(*,*) i,bmeta(i),bmetc(i)
-!enddo
 
   scalefac=2.83
   llra=scalefac*bmeta
