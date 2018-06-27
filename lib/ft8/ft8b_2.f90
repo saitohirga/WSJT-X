@@ -29,7 +29,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   integer nappasses(0:5)  !Number of decoding passes to use for each QSO state
   integer naptypes(0:5,4) ! (nQSOProgress, decoding pass)  maximum of 4 passes for now
   integer*1, target:: i1hiscall(12)
-  logical bitisone(0:511,0:8)
+  logical one(0:511,0:8)
   integer graymap(0:7)
   complex cd0(3200)
   complex ctwk(32)
@@ -44,7 +44,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   data mrr73/0,0,0,0,0,0,1,0,0,0,0,1,0,1,0,1/
   data first/.true./
   data graymap/0,1,3,2,7,6,4,5/
-  save nappasses,naptypes,bitisone
+  save nappasses,naptypes,one
 
   if(first) then
      mcq=2*mcq-1
@@ -76,10 +76,10 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      naptypes(4,1:4)=(/3,4,5,6/)
      naptypes(5,1:4)=(/3,1,2,0/)  
 
-     bitisone=.false.
+     one=.false.
      do i=0,511
        do j=0,8
-         if(iand(i,2**(8-j)).ne.0) bitisone(i,j)=.true.
+         if(iand(i,2**(8-j)).ne.0) one(i,j)=.true.
        enddo
      enddo
      first=.false.
@@ -187,31 +187,31 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
         i32=1+(k-1)*3+(ihalf-1)*87
         if(nsym.eq.1) then
           do ib=0,2
-            bmeta(i32+ib)=maxval(s2(0:nt-1),bitisone(0:nt-1,6+ib)) - &
-                          maxval(s2(0:nt-1),.not.bitisone(0:nt-1,6+ib))
+            bmeta(i32+ib)=maxval(s2(0:nt-1),one(0:nt-1,6+ib)) - &
+                          maxval(s2(0:nt-1),.not.one(0:nt-1,6+ib))
             s2l(0:nt-1)=log(s2(0:nt-1)+1e-32)
-            bmetal(i32+ib)=maxval(s2l(0:nt-1),bitisone(0:nt-1,6+ib)) - &
-                          maxval(s2l(0:nt-1),.not.bitisone(0:nt-1,6+ib))
+            bmetal(i32+ib)=maxval(s2l(0:nt-1),one(0:nt-1,6+ib)) - &
+                          maxval(s2l(0:nt-1),.not.one(0:nt-1,6+ib))
           enddo
         elseif(nsym.eq.2) then
           ibmax=5
           if(k.eq.29) ibmax=2
           do ib=0,ibmax
-            bmetb(i32+ib)=maxval(s2(0:nt-1),bitisone(0:nt-1,3+ib)) - &
-                          maxval(s2(0:nt-1),.not.bitisone(0:nt-1,3+ib))
+            bmetb(i32+ib)=maxval(s2(0:nt-1),one(0:nt-1,3+ib)) - &
+                          maxval(s2(0:nt-1),.not.one(0:nt-1,3+ib))
             s2l(0:nt-1)=log(s2(0:nt-1)+1e-32)
-            bmetbl(i32+ib)=maxval(s2l(0:nt-1),bitisone(0:nt-1,3+ib)) - &
-                          maxval(s2l(0:nt-1),.not.bitisone(0:nt-1,3+ib))
+            bmetbl(i32+ib)=maxval(s2l(0:nt-1),one(0:nt-1,3+ib)) - &
+                          maxval(s2l(0:nt-1),.not.one(0:nt-1,3+ib))
           enddo
         elseif(nsym.eq.3) then
           ibmax=8
           if(k.eq.28) ibmax=5
           do ib=0,ibmax
-            bmetc(i32+ib)=maxval(s2(0:nt-1),bitisone(0:nt-1,ib)) - &
-                          maxval(s2(0:nt-1),.not.bitisone(0:nt-1,ib))
+            bmetc(i32+ib)=maxval(s2(0:nt-1),one(0:nt-1,ib)) - &
+                          maxval(s2(0:nt-1),.not.one(0:nt-1,ib))
             s2l(0:nt-1)=log(s2(0:nt-1)+1e-32)
-            bmetcl(i32+ib)=maxval(s2l(0:nt-1),bitisone(0:nt-1,ib)) - &
-                          maxval(s2l(0:nt-1),.not.bitisone(0:nt-1,ib))
+            bmetcl(i32+ib)=maxval(s2l(0:nt-1),one(0:nt-1,ib)) - &
+                          maxval(s2l(0:nt-1),.not.one(0:nt-1,ib))
           enddo
         endif
       enddo
