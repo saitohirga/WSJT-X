@@ -1,1 +1,2 @@
-gfortran -o test28 test28.f90 pack28.f90 unpack28.f90 ihashcall.f90 hash24.f90
+gfortran -o test28 -fbounds-check -Wall -Wno-conversion test28.f90 pack28.f90 \
+	 unpack28.f90 ihashcall.f90 hash24.f90

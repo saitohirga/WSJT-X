@@ -47,21 +47,19 @@ subroutine pack77(msg,i3,n3,c77)
   if(i3.ge.0) go to 900
 
 ! Check Type 3 (ARRL RTTY contest exchange)
-  call chk77_2(nwords,w,i3,n3)
+  call pack77_3(nwords,w,i3,n3,c77)
   if(i3.ge.0) go to 900
 
 ! Check Type 4 (One nonstandard call and one hashed call)
-  call chk77_3(nwords,w,i3,n3)
+  call pack77_4(nwords,w,i3,n3,c77)
   if(i3.ge.0) go to 900
 
-! By default, it's free text
+! It defaults to free text
 800 i3=0
   n3=0
   msg(14:)='                        '
   call packtext77(msg(1:13),c77(1:71))
   write(c77(72:77),'(2b3.3)') n3,i3
-  
-900 continue
 
-  return
+900  return
 end subroutine pack77

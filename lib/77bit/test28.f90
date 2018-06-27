@@ -1,4 +1,4 @@
-program t8
+program test28
 
   character*13 call_0,call_1,base_call_1
   character*1 cerr
@@ -14,8 +14,8 @@ program t8
         base_call_1=call_1(2:i-1)//'  '
      endif
      if(call_0.eq.base_call_1) cerr=' '
-     write(*,1010) call_0,n28,len(trim(call_0)),len(trim(call_1)),cerr,call_1
-1010 format(a13,i12,2i5,2x,a1,2x,a13a13)
+     write(*,1010) call_0,n28,cerr,call_1
+1010 format(a13,i12,2x,a1,2x,a13a13)
   enddo
   
-999 end program t8
+999 end program test28

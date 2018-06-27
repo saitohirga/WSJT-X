@@ -1,0 +1,50 @@
+subroutine pack77_4(nwords,w,i3,n3,c77)
+! Check Type 3 (One nonstandard call and one hashed call)
+
+  integer*8 n58
+  logical ok1,ok2
+  character*13 w(19)
+  character*77 c77
+  character*13 call_1,call_2
+  character*11 c11
+  character*6 bcall_1,bcall_2
+  character*38 c
+  data c/' 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ/'/
+
+  if(nwords.eq.2 .or. nwords.eq.3) then
+     call_1=w(1)
+     if(call_1(1:1).eq.'<') call_1=w(1)(2:len(trim(w(1)))-1)
+     call_2=w(2)
+     if(call_2(1:1).eq.'<') call_2=w(2)(2:len(trim(w(2)))-1)
+     call chkcall(call_1,bcall_1,ok1)
+     call chkcall(call_2,bcall_2,ok2)
+     if(ok1 .and. ok2) then
+        i3=4
+        n3=0
+     endif
+
+     if(w(1)(1:1).eq.'<') then
+        iflip=0
+        n13=ihashcall(w(1),13)
+        call hash13(n13,w(1),0)               !Save this hash and its callsign
+        c11=adjustr(call_2(1:11))
+     else if(w(2)(1:1).eq.'<') then
+        iflip=1
+        n13=ihashcall(w(2),13)
+        call hash13(n13,w(2),0)               !Save this hash and its callsign
+        c11=adjustr(call_1(1:11))
+     endif
+     n58=0
+     do i=1,11
+        n58=n58*38 + index(c,c11(i:i)) - 1
+     enddo
+     nrpt=0
+     if(trim(w(3)).eq.'RRR') nrpt=1
+     if(trim(w(3)).eq.'RR73') nrpt=2
+     if(trim(w(3)).eq.'73') nrpr=3
+     write(c77,1010) n13,n58,iflip,nrpt,i3
+1010 format(b13.13,b58.58,b1,b2.2,b3.3)
+  endif
+
+  return
+end subroutine pack77_4

@@ -35,7 +35,7 @@ subroutine unpack28(n28_0,c13)
         i4=n-27*i3
         c13=c4(i1+1:i1+1)//c4(i2+1:i2+1)//c4(i3+1:i3+1)//c4(i4+1:i4+1)
         c13=adjustl(c13)
-        c13='CQ_'//c13
+        c13='CQ_'//c13(1:10)
         go to 900
      endif
   endif
