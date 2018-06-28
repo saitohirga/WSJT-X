@@ -5,6 +5,10 @@ program encode77
 
   nargs=iargc()
   open(10,file='messages.txt',status='old')
+
+  write(*,1000)
+1000 format('i3.n3 Err Message to be encoded                 Decoded message'/ &
+          80('-'))
   
   do iline=1,999
      if(nargs.eq.1) then
@@ -19,9 +23,9 @@ program encode77
      cerr=' '
      if(msg.ne.msg0) cerr='*'
      if(i3.eq.0) write(*,1004) i3,n3,cerr,msg0,msg
-1004 format(i1,'.',i1,1x,a1,1x,a37,1x,a37)
+1004 format(i2,'.',i1,2x,a1,3x,a37,1x,a37)
      if(i3.ge.1) write(*,1005) i3,cerr,msg0,msg
-1005 format(i1,3x,a1,1x,a37,1x,a37)
+1005 format(i2,'.',3x,a1,3x,a37,1x,a37)
      if(nargs.eq.1) exit
   enddo
 

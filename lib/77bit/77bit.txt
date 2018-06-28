@@ -38,7 +38,7 @@ Facts about the 28-bit integers used to encode standard callsigns:
   37*36*10*27*27*27 = 262,177,560  Used for standard callsigns
                       -----------
                         6,257,896  Difference
-  2^22              =   4,194,304  Used for 22-bit hash code
+  2^22              =   4,194,304  Used for 22-bit hash codes
                       -----------
                         2,063,592  available for CQ, CQ xx, CQ nnn, QRZ, etc.
 
