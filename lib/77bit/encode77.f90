@@ -1,19 +1,20 @@
 program encode77
 
-  character msg*37,msg0*37,msg1*37,cerr*1
+  character msg*37,msg0*37,cerr*1
   character*77 c77
 
   nargs=iargc()
+  open(10,file='messages.txt',status='old')
+  
   do iline=1,999
      if(nargs.eq.1) then
         call getarg(1,msg0)
      else
-        read(*,1002,end=999) msg0
+        read(10,1002,end=999) msg0
 1002    format(a37)
      endif
      if(msg0.eq.'                                     ') exit
-     msg1=msg0
-     call pack77(msg1,i3,n3,c77)
+     call pack77(msg0,i3,n3,c77)
      call unpack77(c77,msg)
      cerr=' '
      if(msg.ne.msg0) cerr='*'

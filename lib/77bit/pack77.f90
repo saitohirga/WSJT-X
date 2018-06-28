@@ -1,13 +1,14 @@
-subroutine pack77(msg,i3,n3,c77)
+subroutine pack77(msg0,i3,n3,c77)
 
   use packjt
-  character*37 msg
+  character*37 msg,msg0
   character*18 c18
   character*13 w(19)
   character*77 c77
   integer nw(19)
   integer ntel(3)
 
+  msg=msg0
   if(i3.eq.0 .and. n3.eq.5) go to 5
 
 ! Convert msg to upper case; collapse multiple blanks; parse into words.
