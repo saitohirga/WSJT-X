@@ -44,7 +44,7 @@ subroutine pack77(msg0,i3,n3,c77)
      go to 900
   endif
 
-! Check Types 1 and 2 (Standard 77-bit message (type 1) or with "/P" (type 2))
+! Check Type 1 (Standard 77-bit message) or Type 2, with optional "/P"
 100 call pack77_1(nwords,w,i3,n3,c77)
   if(i3.ge.0) go to 900
 

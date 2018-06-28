@@ -1,4 +1,4 @@
-subroutine hash13(n13,c13,isave)
+subroutine hash12(n12,c13,isave)
 
   parameter (NMAX=20)
   character*13 c13,callsign(NMAX)
@@ -15,15 +15,15 @@ subroutine hash13(n13,c13,isave)
 
   if(isave.ge.0) then
      do i=1,NMAX
-        if(ihash(i).eq.n13) go to 900             !This one is already in the list
+        if(ihash(i).eq.n12) go to 900             !This one is already in the list
      enddo
      ihash(NMAX:2:-1)=ihash(NMAX-1:1:-1)
      callsign(NMAX:2:-1)=callsign(NMAX-1:1:-1)
-     ihash(1)=n13
+     ihash(1)=n12
      callsign(1)=c13
   else
      do i=1,NMAX
-        if(ihash(i).eq.n13) then
+        if(ihash(i).eq.n12) then
            c13=callsign(i)
            go to 900
         endif
@@ -31,4 +31,4 @@ subroutine hash13(n13,c13,isave)
   endif
 
 900 return
-end subroutine hash13
+end subroutine hash12

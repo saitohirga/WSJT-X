@@ -18,20 +18,27 @@ subroutine pack77_4(nwords,w,i3,n3,c77)
      if(call_2(1:1).eq.'<') call_2=w(2)(2:len(trim(w(2)))-1)
      call chkcall(call_1,bcall_1,ok1)
      call chkcall(call_2,bcall_2,ok2)
-     if(ok1 .and. ok2) then
+     if(trim(w(1)).eq.'CQ' .or. (ok1.and.ok2)) then
+        if(trim(w(1)).eq.'CQ' .and. len(trim(w(2))).le.4) go to 900
         i3=4
         n3=0
+        icq=0
+        if(trim(w(1)).eq.'CQ') icq=1
      endif
 
-     if(w(1)(1:1).eq.'<') then
+     if(icq.eq.1) then
         iflip=0
-        n13=ihashcall(w(1),13)
-        call hash13(n13,w(1),0)               !Save this hash and its callsign
+        n12=0
+        c11=adjustr(call_2(1:11))
+     else if(w(1)(1:1).eq.'<') then
+        iflip=0
+        n12=ihashcall(w(1),12)
+        call hash12(n12,w(1),0)               !Save this hash and its callsign
         c11=adjustr(call_2(1:11))
      else if(w(2)(1:1).eq.'<') then
         iflip=1
-        n13=ihashcall(w(2),13)
-        call hash13(n13,w(2),0)               !Save this hash and its callsign
+        n12=ihashcall(w(2),12)
+        call hash12(n12,w(2),0)               !Save this hash and its callsign
         c11=adjustr(call_1(1:11))
      endif
      n58=0
@@ -42,9 +49,13 @@ subroutine pack77_4(nwords,w,i3,n3,c77)
      if(trim(w(3)).eq.'RRR') nrpt=1
      if(trim(w(3)).eq.'RR73') nrpt=2
      if(trim(w(3)).eq.'73') nrpt=3
-     write(c77,1010) n13,n58,iflip,nrpt,i3
-1010 format(b13.13,b58.58,b1,b2.2,b3.3)
+     if(icq.eq.1) then
+        iflip=0
+        nrpt=0
+     endif
+     write(c77,1010) n12,n58,iflip,nrpt,icq,i3
+1010 format(b12.12,b58.58,b1,b2.2,b1,b3.3)
   endif
 
-  return
+900 return
 end subroutine pack77_4

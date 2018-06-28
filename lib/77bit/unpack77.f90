@@ -201,14 +201,14 @@ subroutine unpack77(c77,msg)
              ' R '//crpt//' '//cserial
      endif
   else if(i3.eq.4) then
-     read(c77,1050) n13,n58,iflip,nrpt
-1050 format(b13,b58,b1,b2)
+     read(c77,1050) n12,n58,iflip,nrpt,icq
+1050 format(b12,b58,b1,b2,b1)
      do i=11,1,-1
         j=mod(n58,38)+1
         c11(i:i)=c(j:j)
         n58=n58/38
      enddo
-     call hash13(n13,call_3,-1)
+     call hash12(n12,call_3,-1)
      if(iflip.eq.0) then
         call_1=call_3
         call_2=adjustl(c11)//'  '
@@ -216,10 +216,14 @@ subroutine unpack77(c77,msg)
         call_1=adjustl(c11)//'  '
         call_2=call_3
      endif
-     if(nrpt.eq.0) msg=trim(call_1)//' '//trim(call_2)
-     if(nrpt.eq.1) msg=trim(call_1)//' '//trim(call_2)//' RRR'
-     if(nrpt.eq.2) msg=trim(call_1)//' '//trim(call_2)//' RR73'
-     if(nrpt.eq.3) msg=trim(call_1)//' '//trim(call_2)//' 73'
+     if(icq.eq.0) then
+        if(nrpt.eq.0) msg=trim(call_1)//' '//trim(call_2)
+        if(nrpt.eq.1) msg=trim(call_1)//' '//trim(call_2)//' RRR'
+        if(nrpt.eq.2) msg=trim(call_1)//' '//trim(call_2)//' RR73'
+        if(nrpt.eq.3) msg=trim(call_1)//' '//trim(call_2)//' 73'
+     else
+        msg='CQ '//trim(call_2)
+     endif
   endif
 
   return

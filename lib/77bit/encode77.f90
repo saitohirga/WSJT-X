@@ -5,15 +5,14 @@ program encode77
 
   nargs=iargc()
   open(10,file='messages.txt',status='old')
-
-  write(*,1000)
-1000 format('i3.n3 Err Message to be encoded                 Decoded message'/ &
-          80('-'))
   
   do iline=1,999
      if(nargs.eq.1) then
         call getarg(1,msg0)
      else
+        if(iline.eq.1) write(*,1000)
+1000    format('i3.n3 Err Message to be encoded                 Decoded message'/ &
+             80('-'))
         read(10,1002,end=999) msg0
 1002    format(a37)
      endif
