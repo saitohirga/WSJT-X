@@ -35,10 +35,12 @@ NB: three 74-bit message types and two 71-bit message subtypes are still TBD.
 
 Facts about the 28-bit integers used to encode standard callsigns:
   2^28              = 268,435,456  Available values
-  37*36*10*27*27*27 = 262,177,560  Needed for standard callsign structure
-  11*10*10*27*27*27 =  21,651,300  nnnaaa, _nnaaa (n=digit, a=letter or blank)
-  2^24              =  16,777,216  available for 24-bit hash code
-                        4,874,084  available for CQ, CQ xx, CQ nnn, QRZ, etc.
+  37*36*10*27*27*27 = 262,177,560  Used for standard callsigns
+                      -----------
+                        6,257,896  Difference
+  2^22              =   4,194,304  Used for 22-bit hash code
+                      -----------
+                        2,063,592  available for CQ, CQ xx, CQ nnn, QRZ, etc.
 
 
 Further details:

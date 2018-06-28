@@ -1,6 +1,6 @@
 subroutine unpack28(n28_0,c13)
 
-  parameter (NTOKENS=4874084,MAX24=16777216)
+  parameter (NTOKENS=2063592,MAX22=4194304)
   integer nc(6)
   character*13 c13
   character*37 c1
@@ -41,15 +41,15 @@ subroutine unpack28(n28_0,c13)
      endif
   endif
   n28=n28-NTOKENS
-  if(n28.lt.MAX24) then
-! This is a 24-bit hash of a callsign
-     n24=n28
-     call hash24(n24,c13,-1)     !Retrieve callsign from hash table
+  if(n28.lt.MAX22) then
+! This is a 22-bit hash of a callsign
+     n22=n28
+     call hash22(n22,c13,-1)     !Retrieve callsign from hash table
      go to 900
   endif
   
 ! Standard callsign
-  n=n28 - MAX24
+  n=n28 - MAX22
   i1=n/(36*10*27*27*27)
   n=n-36*10*27*27*27*i1
   i2=n/(10*27*27*27)

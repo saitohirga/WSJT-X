@@ -1,9 +1,9 @@
 subroutine pack28(c13,n28)
 
-! Pack a special token, a 24-bit hash code, or a valid base call into a 28-bit
+! Pack a special token, a 22-bit hash code, or a valid base call into a 28-bit
 ! integer.
 
-  parameter (NTOKENS=4874084,MAX24=16777216)
+  parameter (NTOKENS=2063592,MAX22=4194304)
   integer nc(6)
   logical is_digit,is_letter
   character*13 c13
@@ -79,9 +79,9 @@ subroutine pack28(c13,n28)
 
 ! Check for <...> callsign
   if(c13(1:1).eq.'<')then
-     n24=ihashcall(c13,24)
-     call hash24(n24,c13,1)     !Save (key,value) in hash table
-     n28=NTOKENS + n24
+     n22=ihashcall(c13,22)
+     call hash22(n22,c13,1)     !Save (key,value) in hash table
+     n28=NTOKENS + n22
      go to 900
   endif
 
@@ -91,9 +91,9 @@ subroutine pack28(c13,n28)
   do i=n,2,-1
      if(is_digit(c13(i:i))) exit
   enddo
-  iarea=i
-  npdig=0
-  nplet=0
+  iarea=i                                   !Call-area digit
+  npdig=0                                   !Digits before call area
+  nplet=0                                   !Letters before call area
   do i=1,iarea-1
      if(is_digit(c13(i:i))) npdig=npdig+1
      if(is_letter(c13(i:i))) nplet=nplet+1
@@ -104,10 +104,11 @@ subroutine pack28(c13,n28)
   enddo
   if(iarea.lt.2 .or. iarea.gt.3 .or. nplet.eq.0 .or.       &
        npdig.ge.iarea-1 .or. nslet.gt.3) then
-! Treat this as a nonstandard callsign: compute its 24-bit hash
-     n24=ihashcall(c13,24)
-     call hash24(n24,c13,1)     !Save (key,value) in hash table
-     n28=NTOKENS + n24
+!     print*,'a',npdig,nplet,iarea
+! Treat this as a nonstandard callsign: compute its 22-bit hash
+     n22=ihashcall(c13,22)
+     call hash22(n22,c13,1)     !Save (key,value) in hash table
+     n28=NTOKENS + n22
      go to 900
   endif
   
@@ -123,7 +124,8 @@ subroutine pack28(c13,n28)
   i6=index(a4,callsign(6:6))-1
   n28=36*10*27*27*27*i1 + 10*27*27*27*i2 + 27*27*27*i3 + 27*27*i4 + &
        27*i5 + i6
-  n28=n28 + NTOKENS + MAX24
+  n28=n28 + NTOKENS + MAX22
 
-900 return
+900 n28=iand(n28,2**28-1)
+  return
 end subroutine pack28
