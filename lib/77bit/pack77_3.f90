@@ -55,6 +55,8 @@ subroutine pack77_3(nwords,w,i3,n3,c77)
         if(w(3+itu)(1:2).eq.'R ') ir=1
         read(w(3+itu+ir),*) irpt
         irpt=(irpt-509)/10 - 2
+        if(irpt.lt.0) irpt=0
+        if(irpt.gt.7) irpt=7
 ! 3     TU; W9XYZ K1ABC R 579 MA             1 28 28 1 3 13       74   ARRL RTTY contest
 ! 3     TU; W9XYZ G8ABC R 559 0013           1 28 28 1 3 13       74   ARRL RTTY (DX)
         write(c77,1010) itu,n28a,n28b,ir,irpt,nexch,i3

@@ -15,11 +15,11 @@ subroutine pack77_1(nwords,w,i3,n3,c77)
        grid4(3:3).ge.'0' .and. grid4(3:3).le.'9' .and.               &
        grid4(4:4).ge.'0' .and. grid4(4:4).le.'9'
 
-!  print*,'b',nwords,w(1:nwords)
   if(nwords.lt.3 .or. nwords.gt.4) return
   call chkcall(w(1),bcall_1,ok1)
   call chkcall(w(2),bcall_2,ok2)
-  if(w(1)(1:3).eq.'DE ' .or. w(1)(1:3).eq.'CQ_' .or. w(1)(1:4).eq.'QRZ ') ok1=.true.
+  if(w(1)(1:3).eq.'DE ' .or. w(1)(1:3).eq.'CQ_' .or.  w(1)(1:3).eq.'CQ ' .or. &
+       w(1)(1:4).eq.'QRZ ') ok1=.true.
   if(.not.ok1 .or. .not.ok2) return
   c1=w(nwords)(1:1)
   c2=w(nwords)(1:2)

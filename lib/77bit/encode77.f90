@@ -1,6 +1,6 @@
 program encode77
 
-  character msg*37,msg0*37,cerr*1
+  character msg*37,msg0*37,msg1*37,cerr*1
   character*77 c77
 
   nargs=iargc()
@@ -12,12 +12,15 @@ program encode77
 1002    format(a37)
      endif
      if(msg0.eq.'                                     ') exit
-     call pack77(msg0,i3,n3,c77)
+     msg1=msg0
+     call pack77(msg1,i3,n3,c77)
      call unpack77(c77,msg)
      cerr=' '
      if(msg.ne.msg0) cerr='*'
-     write(*,1004) i3,n3,cerr,msg0,msg
+     if(i3.eq.0) write(*,1004) i3,n3,cerr,msg0,msg
 1004 format(i1,'.',i1,1x,a1,1x,a37,1x,a37)
+     if(i3.ge.1) write(*,1005) i3,cerr,msg0,msg
+1005 format(i1,3x,a1,1x,a37,1x,a37)
      if(nargs.eq.1) exit
   enddo
 
