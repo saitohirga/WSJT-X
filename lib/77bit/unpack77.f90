@@ -120,8 +120,7 @@ subroutine unpack77(c77,msg)
      msg=adjustl(msg)
 
   else if(i3.eq.1 .or. i3.eq.2) then
-! Standard message (Type 1) or "/P" form of standard message for EU VHF contest (Type 2)
-     !### Here and elsewhere, must enable rpt/RRR/RR73/73 in igrid4
+! Type 1 (standard message) or Type 2 ("/P" form for EU VHF contest)
      read(c77,1000) n28a,ipa,n28b,ipb,ir,igrid4,i3
 1000 format(2(b28,b1),b1,b15,b3)
      call unpack28(n28a,call_1)
@@ -130,6 +129,7 @@ subroutine unpack77(c77,msg)
      i=index(call_1,' ')
      if(i.ge.4 .and. ipa.eq.1 .and. i3.eq.1) call_1(i:i+1)='/R'
      if(i.ge.4 .and. ipa.eq.1 .and. i3.eq.2) call_1(i:i+1)='/P'
+     i=index(call_2,' ')
      if(i.ge.4 .and. ipb.eq.1 .and. i3.eq.1) call_2(i:i+1)='/R'
      if(i.ge.4 .and. ipb.eq.1 .and. i3.eq.2) call_2(i:i+1)='/P'
 
@@ -151,7 +151,7 @@ subroutine unpack77(c77,msg)
         irpt=igrid4-MAXGRID4
         if(irpt.eq.1) msg=trim(call_1)//' '//trim(call_2)
         if(irpt.eq.2) msg=trim(call_1)//' '//trim(call_2)//' RRR'
-        if(irpt.eq.2) msg=trim(call_1)//' '//trim(call_2)//' RR73'
+        if(irpt.eq.3) msg=trim(call_1)//' '//trim(call_2)//' RR73'
         if(irpt.eq.4) msg=trim(call_1)//' '//trim(call_2)//' 73'
         if(irpt.ge.5) then
            write(crpt,'(i3.2)') irpt-35
