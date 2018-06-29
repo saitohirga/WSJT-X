@@ -346,7 +346,7 @@
          <string>Start </string>
         </property>
         <property name="maximum">
-         <number>5000</number>
+         <number>4900</number>
         </property>
         <property name="singleStep">
          <number>100</number>
