@@ -42,7 +42,10 @@ W9XYZ K1ABC/R R FN42
 CQ TEST K1ABC FN42
                                    K1ABC W9XYZ 579 WI
 W9XYZ K1ABC R 589 MA
-                                   K1ABC W9XYZ RR73
+                                   K1ABC KA0DEF 559 MO
+TU; KA0DEF K1ABC R 569 MA
+                                   KA1ABC G3AAA 529 0013
+TU; G3AAA K1ABC R 559 MA
 
 7. EU VHF Contest
 -----------------------------------------------------------
