@@ -4,7 +4,7 @@ subroutine sync8d(cd0,i0,ctwk,itwk,itype,sync)
 ! itype specifies which Costas array to use
 
   parameter(NP2=2812,NDOWN=60)
-  complex cd0(3125)
+  complex cd0(0:3199)
   complex csync_1(0:6,32),csync_2(0:6,32)
   complex csync2(32)
   complex ctwk(32)
@@ -54,9 +54,9 @@ subroutine sync8d(cd0,i0,ctwk,itwk,itype,sync)
      z1=0.
      z2=0.
      z3=0.
-     if(i1.ge.1 .and. i1+31.le.NP2) z1=sum(cd0(i1:i1+31)*conjg(csync2))
-     if(i2.ge.1 .and. i2+31.le.NP2) z2=sum(cd0(i2:i2+31)*conjg(csync2))
-     if(i3.ge.1 .and. i3+31.le.NP2) z3=sum(cd0(i3:i3+31)*conjg(csync2))
+     if(i1.ge.0 .and. i1+31.le.NP2-1) z1=sum(cd0(i1:i1+31)*conjg(csync2))
+     if(i2.ge.0 .and. i2+31.le.NP2-1) z2=sum(cd0(i2:i2+31)*conjg(csync2))
+     if(i3.ge.0 .and. i3+31.le.NP2-1) z3=sum(cd0(i3:i3+31)*conjg(csync2))
      sync = sync + p(z1) + p(z2) + p(z3)
   enddo
 

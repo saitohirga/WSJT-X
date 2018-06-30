@@ -28,7 +28,7 @@ subroutine ft8b_1(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   integer nappasses(0:5)  !Number of decoding passes to use for each QSO state
   integer naptypes(0:5,4) ! (nQSOProgress, decoding pass)  maximum of 4 passes for now
   integer*1, target:: i1hiscall(12)
-  complex cd0(3200)
+  complex cd0(0:3199)
   complex ctwk(32)
   complex csymb(32)
   logical first,newdat,lsubtract,lapon,lapcqonly,nagain
@@ -126,7 +126,7 @@ subroutine ft8b_1(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   do k=1,NN
     i1=ibest+(k-1)*32
     csymb=cmplx(0.0,0.0)
-    if( i1.ge.1 .and. i1+31 .le. NP2 ) csymb=cd0(i1:i1+31)
+    if( i1.ge.0 .and. i1+31 .le. NP2-1 ) csymb=cd0(i1:i1+31)
     call four2a(csymb,32,1,-1,1)
     s2(0:7,k)=abs(csymb(1:8))/1e3
   enddo  

@@ -142,16 +142,16 @@ program ft8sim
               call genft8_174_91(msg,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
            endif
         endif
-        k=-1 + nint((xdt+0.5+0.01*gran())/dt)
-!        k=-1 + nint((xdt+0.5)/dt)
+!        k=-1 + nint((xdt+0.5+0.01*gran())/dt)
+        k=-1 + nint((xdt+0.5)/dt)
         ia=k+1
         phi=0.0
         do j=1,NN                             !Generate complex waveform
-           dphi=twopi*(f0+itone(j)*baud)*dt
+           dphi=twopi*(f0*dt+itone(j)/real(NSPS))
            do i=1,NSPS
               k=k+1
-              phi=mod(phi+dphi,twopi)
               if(k.ge.0 .and. k.lt.NMAX) c0(k)=cmplx(cos(phi),sin(phi))
+              phi=mod(phi+dphi,twopi)
            enddo
         enddo
         if(fspread.ne.0.0 .or. delay.ne.0.0) call watterson(c0,NMAX,fs,delay,fspread)

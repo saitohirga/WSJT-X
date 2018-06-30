@@ -31,7 +31,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   integer*1, target:: i1hiscall(12)
   logical one(0:511,0:8)
   integer graymap(0:7)
-  complex cd0(3200)
+  complex cd0(0:3199)
   complex ctwk(32)
   complex csymb(32)
   complex cs(0:7,NN)
@@ -132,12 +132,12 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   xdt=xdt2
   f1=f1+delfbest                           !Improved estimate of DF
 
-  call sync8d(cd0,i0,ctwk,2,2,sync)
+  call sync8d(cd0,i0,ctwk,0,2,sync)
 
   do k=1,NN
     i1=ibest+(k-1)*32
     csymb=cmplx(0.0,0.0)
-    if( i1.ge.1 .and. i1+31 .le. NP2 ) csymb=cd0(i1:i1+31)
+    if( i1.ge.0 .and. i1+31 .le. NP2-1 ) csymb=cd0(i1:i1+31)
     call four2a(csymb,32,1,-1,1)
     cs(0:7,k)=csymb(1:8)/1e3
     s8(0:7,k)=abs(csymb(1:8))
@@ -323,7 +323,14 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      call extractmessage77(message77,message)
 ! This needs fixing for messages with i5bit=1        
      call genft8_174_91(message,mygrid6,bcontest,i5bit,msgsent,msgbits,itone)
-     if(lsubtract) call subtractft8(dd0,itone,f1,xdt2)
+     if(lsubtract) then
+       call sync8d(cd0,i0-1,ctwk,0,2,sm1)
+       call sync8d(cd0,i0,ctwk,0,2,sp0)
+       call sync8d(cd0,i0+1,ctwk,0,2,sp1)
+       pk=0.5*(sm1-sp1)/(sp1-2*sp0+sm1)
+       xdti=(i0+pk)*dt2
+       call subtractft8(dd0,itone,f1,xdti)
+     endif
      xsig=0.0
      xnoi=0.0
      do i=1,79
@@ -331,6 +338,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
         ios=mod(itone(i)+4,7)
         xnoi=xnoi+s8(ios,i)**2
      enddo
+
      xsnr=0.001
      if(xnoi.gt.0 .and. xnoi.lt.xsig) xsnr=xsig/xnoi-1.0
      xsnr=10.0*log10(xsnr)-27.0
@@ -338,40 +346,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      if(.not.nagain) xsnr=xsnr2
      if(xsnr .lt. -24.0) xsnr=-24.0
      
-     if(i5bit.eq.1) then
-        do i=1,12
-           i1hiscall(i)=ichar(hiscall12(i:i))
-        enddo
-        icrc10=crc10(c_loc(i1hiscall),12)
-        write(cbits,1001) decoded
-1001    format(87i1)
-        read(cbits,1002) ncrc10,nrpt
-1002    format(56x,b10,b6)
-        irpt=nrpt-30
-        i1=index(message,' ')
-        i2=index(message(i1+1:),' ') + i1
-        c1=message(1:i1)//'   '
-        c2=message(i1+1:i2)//'   '
-
-        if(ncrc10.eq.icrc10) msg37=c1//' RR73; '//c2//' <'//      &
-             trim(hiscall12)//'>    '
-        if(ncrc10.ne.icrc10) msg37=c1//' RR73; '//c2//' <...>    '
-           
-        msg37=c1//' RR73; '//c2//' <...>    '
-        write(msg37(35:37),1010) irpt
-1010    format(i3.2)
-        if(msg37(35:35).ne.'-') msg37(35:35)='+'
-           
-        iz=len(trim(msg37))
-        do iter=1,10                           !Collapse multiple blanks
-           ib2=index(msg37(1:iz),'  ')
-           if(ib2.lt.1) exit
-           msg37=msg37(1:ib2)//msg37(ib2+2:)
-           iz=iz-1
-        enddo
-     else
-        msg37=message//'               '
-     endif
+     msg37=message//'               '
      return
   enddo
   return

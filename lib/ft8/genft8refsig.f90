@@ -1,7 +1,8 @@
 subroutine genft8refsig(itone,cref,f0)
   complex cref(79*1920)
   integer itone(79)
-  real*8 twopi,phi,dphi,dt,xnsps
+!  real*8 twopi,phi,dphi,dt,xnsps
+  real twopi,phi,dphi,dt,xnsps
   data twopi/0.d0/
   save twopi
   if( twopi .lt. 0.1 ) twopi=8.d0*atan(1.d0)
