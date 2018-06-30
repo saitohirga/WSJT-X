@@ -47,7 +47,9 @@ subroutine unpack28(n28_0,c13)
      call hash22(n22,c13,-1)     !Retrieve callsign from hash table
      if(c13(1:1).ne.'<') then
         n=len(trim(c13))
+        print*,'a ',n,c13
         c13='<'//c13(1:n)//'>'//'         '
+        print*,'b ',c13
      endif
      go to 900
   endif

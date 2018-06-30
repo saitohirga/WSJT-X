@@ -76,7 +76,6 @@ subroutine pack28(c13,n28)
         endif
      endif
   endif
-
 ! Check for <...> callsign
   if(c13(1:1).eq.'<')then
      n22=ihashcall(c13,22)

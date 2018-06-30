@@ -20,6 +20,8 @@ subroutine pack77_1(nwords,w,i3,n3,c77)
   call chkcall(w(2),bcall_2,ok2)
   if(w(1)(1:3).eq.'DE ' .or. w(1)(1:3).eq.'CQ_' .or.  w(1)(1:3).eq.'CQ ' .or. &
        w(1)(1:4).eq.'QRZ ') ok1=.true.
+  if(w(1)(1:1).eq.'<' .and. index(w(1),'>').ge.5) ok1=.true.
+  if(w(2)(1:1).eq.'<' .and. index(w(2),'>').ge.5) ok2=.true.
   if(.not.ok1 .or. .not.ok2) return
   if(nwords.eq.2 .and. (.not.ok2 .or. index(w(2),'/').ge.2)) return
   if(nwords.eq.2) go to 10
@@ -58,9 +60,10 @@ subroutine pack77_1(nwords,w,i3,n3,c77)
      if(index(w(1),'/P').ge.4 .or. index(w(2),'/P').ge.4) i3=2  !Type 2, with "/P"
   endif
   c13=bcall_1//'       '
-  if(c13(1:3).eq.'CQ_') c13=w(1)
+  if(c13(1:3).eq.'CQ_' .or. w(1)(1:1).eq.'<') c13=w(1)
   call pack28(c13,n28a)
   c13=bcall_2//'       '
+  if(w(2)(1:1).eq.'<') c13=w(2)
   call pack28(c13,n28b)
   ipa=0
   ipb=0
