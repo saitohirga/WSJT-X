@@ -1,0 +1,65 @@
+1. Standard QSO
+-----------------------------------------------------------
+CQ K1ABC FN42
+                                   K1ABC W9XYZ EN37
+W9XYZ K1ABC -11
+                                   K1ABC W9XYZ R-09
+W9XYZ K1ABC RRR
+                                   K1ABC W9XYZ 73
+
+2. Short-cycle QSO
+-----------------------------------------------------------
+CQ K1ABC FN42
+                                   K1ABC W9XYZ -09
+W9XYZ K1ABC R-11
+                                   K1ABC W9XYZ RR73
+W9XYZ K1ABC 73
+
+3. FT8 DXpedition Mode
+-----------------------------------------------------------
+CQ KH1/KH7Z
+                                   KH7Z K1ABC FN42
+K1ABC KH7Z -12
+                                   KH7Z K1ABC R-14
+K1ABC RR73; W9XYZ <KH1/KH7Z> -08
+
+4. ARRL Field Day
+-----------------------------------------------------------
+CQ FD K1ABC FN42
+                                   K1ABC W9XYZ 6A WI
+W9XYZ K1ABC R 2B EMA
+                                   K1ABC W9XYZ RR73
+
+5. ARRL VHF Contests
+-----------------------------------------------------------
+CQ TEST K1ABC/R FN42
+                                   K1ABC/R W9XYZ EN37
+W9XYZ K1ABC/R R FN42
+                                   K1ABC/R W9XYZ RR73
+
+6. ARRL RTTY Contest
+-----------------------------------------------------------
+CQ TEST K1ABC FN42
+                                   K1ABC W9XYZ 579 WI
+W9XYZ K1ABC R 589 MA
+                                   K1ABC KA0DEF 559 MO
+TU; KA0DEF K1ABC R 569 MA
+                                   KA1ABC G3AAA 529 0013
+TU; G3AAA K1ABC R 559 MA
+
+7. EU VHF Contest
+-----------------------------------------------------------
+CQ G4ABC/P IO91
+                                   G4ABC/P PA9XYZ JO22
+PA9XYZ 590003 IO91NP
+                                   G4ABC/P R 570007 JO22DB
+PA9XYZ G4ABC/P RR73
+
+8. Compound or goofy calls
+-----------------------------------------------------------
+CQ PJ4/K1ABC
+                                   <PJ4/K1ABC> W9XYZ
+W9XYZ K1ABC -11
+                                   K1ABC W9XYZ R-09
+W9XYZ <PJ4/K1ABC> RRR
+                                   <PJ4/K1ABC> W9XYZ 73

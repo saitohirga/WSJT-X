@@ -913,15 +913,15 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
     MessageBox::critical_message (this,
        "Code in the WSJT-X development branch is\n"
        "not currently available for on-the-air use.\n\n"
-       "Please use WSJT-X v1.8.0\n", errorMsg);
+       "Please use WSJT-X v1.9.1\n", errorMsg);
     Q_EMIT finished ();
   }
-*/
+
   if(QCoreApplication::applicationVersion().contains("-devel") or
      QCoreApplication::applicationVersion().contains("-rc")) {
     QTimer::singleShot (0, this, SLOT (not_GA_warning_message ()));
   }
-
+*/
   if(!ui->cbMenus->isChecked()) {
     ui->cbMenus->setChecked(true);
     ui->cbMenus->setChecked(false);

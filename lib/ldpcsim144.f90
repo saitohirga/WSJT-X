@@ -167,7 +167,7 @@ do idb = 14,-6,-1
 enddo
 
 open(unit=23,file='nerrhisto.dat',status='unknown')
-do i=1,128
+do i=0,128
   write(23,'(i4,2x,i10,i10,f10.2)') i,nerrdec(i),nerrtot(i),real(nerrdec(i))/real(nerrtot(i)+1e-10)
 enddo
 close(23)
