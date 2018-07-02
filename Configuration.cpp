@@ -568,6 +568,8 @@ private:
   bool twoPass_;
   bool bFox_;
   bool bHound_;
+  bool bGenerate77_;
+  bool bDecode77_;
   bool x2ToneSpacing_;
   bool x4ToneSpacing_;
   bool use_dynamic_grid_;
@@ -669,6 +671,8 @@ bool Configuration::single_decode () const {return m_->single_decode_;}
 bool Configuration::twoPass() const {return m_->twoPass_;}
 bool Configuration::bFox() const {return m_->bFox_;}
 bool Configuration::bHound() const {return m_->bHound_;}
+bool Configuration::bGenerate77() const {return m_->bGenerate77_;}
+bool Configuration::bDecode77() const {return m_->bDecode77_;}
 bool Configuration::x2ToneSpacing() const {return m_->x2ToneSpacing_;}
 bool Configuration::x4ToneSpacing() const {return m_->x4ToneSpacing_;}
 bool Configuration::split_mode () const {return m_->split_mode ();}
@@ -1160,6 +1164,8 @@ void Configuration::impl::initialize_models ()
   ui_->cbTwoPass->setChecked(twoPass_);
   ui_->cbFox->setChecked(bFox_);
   ui_->cbHound->setChecked(bHound_);
+  ui_->cbGenerate77->setChecked(bGenerate77_);
+  ui_->cbDecode77->setChecked(bDecode77_);
   ui_->cbx2ToneSpacing->setChecked(x2ToneSpacing_);
   ui_->cbx4ToneSpacing->setChecked(x4ToneSpacing_);
   ui_->type_2_msg_gen_combo_box->setCurrentIndex (type_2_msg_gen_);
@@ -1397,6 +1403,8 @@ void Configuration::impl::read_settings ()
   twoPass_ = settings_->value("TwoPass",true).toBool ();
   bFox_ = settings_->value("Fox",false).toBool ();
   bHound_ = settings_->value("Hound",false).toBool ();
+  bGenerate77_ = settings_->value("Generate77",false).toBool ();
+  bDecode77_ = settings_->value("Decode77",false).toBool ();
   x2ToneSpacing_ = settings_->value("x2ToneSpacing",false).toBool ();
   x4ToneSpacing_ = settings_->value("x4ToneSpacing",false).toBool ();
   rig_params_.poll_interval = settings_->value ("Polling", 0).toInt ();
@@ -1502,6 +1510,8 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("TwoPass", twoPass_);
   settings_->setValue ("Fox", bFox_);
   settings_->setValue ("Hound", bHound_);
+  settings_->setValue ("Generate77", bGenerate77_);
+  settings_->setValue ("Decode77", bDecode77_);
   settings_->setValue ("x2ToneSpacing", x2ToneSpacing_);
   settings_->setValue ("x4ToneSpacing", x4ToneSpacing_);
   settings_->setValue ("OpCall", opCall_);
@@ -1905,6 +1915,8 @@ void Configuration::impl::accept ()
   twoPass_ = ui_->cbTwoPass->isChecked ();
   bFox_ = ui_->cbFox->isChecked ();
   bHound_ = ui_->cbHound->isChecked ();
+  bGenerate77_ = ui_->cbGenerate77->isChecked();
+  bDecode77_ = ui_->cbDecode77->isChecked();
   x2ToneSpacing_ = ui_->cbx2ToneSpacing->isChecked ();
   x4ToneSpacing_ = ui_->cbx4ToneSpacing->isChecked ();
   calibration_.intercept = ui_->calibration_intercept_spin_box->value ();

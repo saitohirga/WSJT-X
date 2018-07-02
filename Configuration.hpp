@@ -128,6 +128,8 @@ public:
   bool twoPass() const;
   bool bFox() const;
   bool bHound() const;
+  bool bGenerate77() const;
+  bool bDecode77() const;
   bool x2ToneSpacing() const;
   bool x4ToneSpacing() const;
   bool contestMode() const;
