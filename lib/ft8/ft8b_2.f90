@@ -131,7 +131,6 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   call twkfreq1(cd0,NP2,fs2,a,cd0)
   xdt=xdt2
   f1=f1+delfbest                           !Improved estimate of DF
-
   call sync8d(cd0,i0,ctwk,0,2,sync)
 
   do k=1,NN
@@ -323,14 +322,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      call extractmessage77(message77,message)
 ! This needs fixing for messages with i5bit=1        
      call genft8_174_91(message,mygrid6,bcontest,i5bit,msgsent,msgbits,itone)
-     if(lsubtract) then
-       call sync8d(cd0,i0-1,ctwk,0,2,sm1)
-       call sync8d(cd0,i0,ctwk,0,2,sp0)
-       call sync8d(cd0,i0+1,ctwk,0,2,sp1)
-       pk=0.5*(sm1-sp1)/(sp1-2*sp0+sm1)
-       xdti=(i0+pk)*dt2
-       call subtractft8(dd0,itone,f1,xdti)
-     endif
+     if(lsubtract) call subtractft8(dd0,itone,f1,xdt) 
      xsig=0.0
      xnoi=0.0
      do i=1,79

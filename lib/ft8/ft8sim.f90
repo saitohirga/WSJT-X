@@ -142,15 +142,15 @@ program ft8sim
               call genft8_174_91(msg,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
            endif
         endif
-!        k=-1 + nint((xdt+0.5+0.01*gran())/dt)
-        k=-1 + nint((xdt+0.5)/dt)
-        ia=k+1
+!        k=nint((xdt+0.5+0.01*gran())/dt)
+        k=nint((xdt+0.5)/dt)
+        ia=k
         phi=0.0
         do j=1,NN                             !Generate complex waveform
            dphi=twopi*(f0*dt+itone(j)/real(NSPS))
            do i=1,NSPS
-              k=k+1
               if(k.ge.0 .and. k.lt.NMAX) c0(k)=cmplx(cos(phi),sin(phi))
+              k=k+1
               phi=mod(phi+dphi,twopi)
            enddo
         enddo
