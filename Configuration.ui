@@ -2465,6 +2465,96 @@ Right click for insert and delete options.</string>
          </layout>
         </widget>
        </item>
+       <item row="1" column="0">
+        <widget class="QGroupBox" name="groupBox_7">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>50</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>FT8 DXpedition mode</string>
+         </property>
+         <widget class="QWidget" name="horizontalLayoutWidget">
+          <property name="geometry">
+           <rect>
+            <x>9</x>
+            <y>10</y>
+            <width>231</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_16">
+           <item>
+            <widget class="QCheckBox" name="cbFox">
+             <property name="toolTip">
+              <string>Fox is the DXpedition station</string>
+             </property>
+             <property name="text">
+              <string> Fox</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="cbHound">
+             <property name="toolTip">
+              <string>Everybody else is a Hound</string>
+             </property>
+             <property name="text">
+              <string>Hound</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox_8">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>50</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>FT8 and MSK144 message types</string>
+         </property>
+         <widget class="QWidget" name="horizontalLayoutWidget_2">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>10</y>
+            <width>356</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_15">
+           <item>
+            <widget class="QCheckBox" name="cbGenerate77">
+             <property name="text">
+              <string>Always generate 77-bit messages</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="cbDecode77">
+             <property name="text">
+              <string>Decode only 77-bit messages</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
        <item row="0" column="1">
         <widget class="QGroupBox" name="groupBox_5">
          <property name="title">
@@ -2584,7 +2674,7 @@ Right click for insert and delete options.</string>
          </layout>
         </widget>
        </item>
-       <item row="3" column="0" colspan="2">
+       <item row="4" column="0" colspan="2">
         <spacer name="verticalSpacer_8">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -2597,89 +2687,62 @@ Right click for insert and delete options.</string>
          </property>
         </spacer>
        </item>
-       <item row="1" column="0">
-        <widget class="QGroupBox" name="groupBox_7">
+       <item row="3" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox_9">
          <property name="minimumSize">
           <size>
            <width>0</width>
-           <height>50</height>
+           <height>100</height>
           </size>
          </property>
          <property name="title">
-          <string>FT8 DXpedition mode</string>
+          <string>Special operating activity</string>
          </property>
-         <widget class="QWidget" name="horizontalLayoutWidget">
-          <property name="geometry">
-           <rect>
-            <x>9</x>
-            <y>10</y>
-            <width>231</width>
-            <height>31</height>
-           </rect>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_16">
-           <item>
-            <widget class="QCheckBox" name="cbFox">
-             <property name="toolTip">
-              <string>Fox is the DXpedition station</string>
-             </property>
-             <property name="text">
-              <string> Fox</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="cbHound">
-             <property name="toolTip">
-              <string>Everybody else is a Hound</string>
-             </property>
-             <property name="text">
-              <string>Hound</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </widget>
-       </item>
-       <item row="2" column="0" colspan="2">
-        <widget class="QGroupBox" name="groupBox_8">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>50</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="title">
-          <string>FT8 and MSK144 message types</string>
-         </property>
-         <widget class="QWidget" name="horizontalLayoutWidget_2">
+         <widget class="QWidget" name="gridLayoutWidget">
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>10</y>
-            <width>356</width>
-            <height>31</height>
+            <y>20</y>
+            <width>341</width>
+            <height>71</height>
            </rect>
           </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_15">
-           <item>
-            <widget class="QCheckBox" name="cbGenerate77">
+          <layout class="QGridLayout" name="gridLayout_15">
+           <item row="0" column="0">
+            <widget class="QRadioButton" name="rbNone">
              <property name="text">
-              <string>Always generate 77-bit messages</string>
+              <string>None</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="QCheckBox" name="cbDecode77">
+           <item row="1" column="0">
+            <widget class="QRadioButton" name="rbFieldDay">
              <property name="text">
-              <string>Decode only 77-bit messages</string>
+              <string>ARRL Field Day</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QRadioButton" name="rbRTTYroundup">
+             <property name="text">
+              <string>ARRL RTTY Roundup</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QRadioButton" name="rbNA_VHF_Contest">
+             <property name="text">
+              <string>NA VHF Contest</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QRadioButton" name="rbEU_VHF_Contest">
+             <property name="text">
+              <string>EU VHF Contest</string>
              </property>
             </widget>
            </item>

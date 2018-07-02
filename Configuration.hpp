@@ -130,6 +130,10 @@ public:
   bool bHound() const;
   bool bGenerate77() const;
   bool bDecode77() const;
+  bool bFieldDay() const;
+  bool bRTTYroundup() const;
+  bool bNA_VHF_Contest() const;
+  bool bEU_VHF_Contest() const;
   bool x2ToneSpacing() const;
   bool x4ToneSpacing() const;
   bool contestMode() const;

@@ -570,6 +570,10 @@ private:
   bool bHound_;
   bool bGenerate77_;
   bool bDecode77_;
+  bool bFieldDay_;
+  bool bRTTYroundup_;
+  bool bNA_VHF_Contest_;
+  bool bEU_VHF_Contest_;
   bool x2ToneSpacing_;
   bool x4ToneSpacing_;
   bool use_dynamic_grid_;
@@ -673,6 +677,10 @@ bool Configuration::bFox() const {return m_->bFox_;}
 bool Configuration::bHound() const {return m_->bHound_;}
 bool Configuration::bGenerate77() const {return m_->bGenerate77_;}
 bool Configuration::bDecode77() const {return m_->bDecode77_;}
+bool Configuration::bFieldDay() const {return m_->bFieldDay_;}
+bool Configuration::bRTTYroundup() const {return m_->bRTTYroundup_;}
+bool Configuration::bNA_VHF_Contest() const {return m_->bNA_VHF_Contest_;}
+bool Configuration::bEU_VHF_Contest() const {return m_->bEU_VHF_Contest_;}
 bool Configuration::x2ToneSpacing() const {return m_->x2ToneSpacing_;}
 bool Configuration::x4ToneSpacing() const {return m_->x4ToneSpacing_;}
 bool Configuration::split_mode () const {return m_->split_mode ();}
@@ -1166,6 +1174,10 @@ void Configuration::impl::initialize_models ()
   ui_->cbHound->setChecked(bHound_);
   ui_->cbGenerate77->setChecked(bGenerate77_);
   ui_->cbDecode77->setChecked(bDecode77_);
+  ui_->rbFieldDay->setChecked(bFieldDay_);
+  ui_->rbRTTYroundup->setChecked(bRTTYroundup_);
+  ui_->rbNA_VHF_Contest->setChecked(bNA_VHF_Contest_);
+  ui_->rbEU_VHF_Contest->setChecked(bEU_VHF_Contest_);
   ui_->cbx2ToneSpacing->setChecked(x2ToneSpacing_);
   ui_->cbx4ToneSpacing->setChecked(x4ToneSpacing_);
   ui_->type_2_msg_gen_combo_box->setCurrentIndex (type_2_msg_gen_);
@@ -1405,6 +1417,10 @@ void Configuration::impl::read_settings ()
   bHound_ = settings_->value("Hound",false).toBool ();
   bGenerate77_ = settings_->value("Generate77",false).toBool ();
   bDecode77_ = settings_->value("Decode77",false).toBool ();
+  bFieldDay_ = settings_->value("FieldDay",false).toBool ();
+  bRTTYroundup_ = settings_->value("RTTYroundup",false).toBool ();
+  bNA_VHF_Contest_ = settings_->value("NA_VHF_Contest",false).toBool ();
+  bEU_VHF_Contest_ = settings_->value("EU_VHF_Contest",false).toBool ();
   x2ToneSpacing_ = settings_->value("x2ToneSpacing",false).toBool ();
   x4ToneSpacing_ = settings_->value("x4ToneSpacing",false).toBool ();
   rig_params_.poll_interval = settings_->value ("Polling", 0).toInt ();
@@ -1512,6 +1528,10 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("Hound", bHound_);
   settings_->setValue ("Generate77", bGenerate77_);
   settings_->setValue ("Decode77", bDecode77_);
+  settings_->setValue ("FieldDay", bFieldDay_);
+  settings_->setValue ("RTTYroundup", bRTTYroundup_);
+  settings_->setValue ("NA_VHF_Contest", bNA_VHF_Contest_);
+  settings_->setValue ("EU_VHF_Contest", bEU_VHF_Contest_);
   settings_->setValue ("x2ToneSpacing", x2ToneSpacing_);
   settings_->setValue ("x4ToneSpacing", x4ToneSpacing_);
   settings_->setValue ("OpCall", opCall_);
@@ -1917,6 +1937,10 @@ void Configuration::impl::accept ()
   bHound_ = ui_->cbHound->isChecked ();
   bGenerate77_ = ui_->cbGenerate77->isChecked();
   bDecode77_ = ui_->cbDecode77->isChecked();
+  bFieldDay_ = ui_->rbFieldDay->isChecked ();
+  bRTTYroundup_ = ui_->rbRTTYroundup->isChecked ();
+  bNA_VHF_Contest_ = ui_->rbNA_VHF_Contest->isChecked ();
+  bEU_VHF_Contest_ = ui_->rbEU_VHF_Contest->isChecked ();
   x2ToneSpacing_ = ui_->cbx2ToneSpacing->isChecked ();
   x4ToneSpacing_ = ui_->cbx4ToneSpacing->isChecked ();
   calibration_.intercept = ui_->calibration_intercept_spin_box->value ();
