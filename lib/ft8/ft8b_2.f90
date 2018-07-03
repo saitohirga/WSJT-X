@@ -316,12 +316,13 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      if(nharderrors.lt.0) cycle
      if(count(cw.eq.0).eq.174) cycle           !Reject the all-zero codeword
      nbadcrc=0  ! If we get this far, must be a valid codeword.
-     i5bit=16*message77(73) + 8*message77(74) + 4*message77(75) + 2*message77(76) + message77(77)
+     i3=4*message77(72) + 2*message77(73) + message77(74)
+     n3=4*message77(75) + 2*message77(76) + message77(77)
      iFreeText=message77(57)
      if(i5bit.eq.1) message77(57:)=0
      call extractmessage77(message77,message)
 ! This needs fixing for messages with i5bit=1        
-     call genft8_174_91(message,mygrid6,bcontest,i5bit,msgsent,msgbits,itone)
+     call genft8_174_91(message,mygrid6,bcontest,i3,n3,msgsent,msgbits,itone)
      if(lsubtract) call subtractft8(dd0,itone,f1,xdt) 
      xsig=0.0
      xnoi=0.0

@@ -1,4 +1,4 @@
-subroutine genft8(msg,mygrid,bcontest,i3bit,msgsent,msgbits,itone)
+subroutine genft8(msg,mygrid,bcontest,i3,n3,msgsent,msgbits,itone)
 
 ! Encode an FT8 message, producing array itone().
   
@@ -16,10 +16,16 @@ subroutine genft8(msg,mygrid,bcontest,i3bit,msgsent,msgbits,itone)
   integer icos7(0:6)
   data icos7/2,5,6,0,4,1,3/                   !Costas 7x7 tone pattern
 
+
+  itype=1
+  if( ( i3.eq.0 .and. n3.ge.2) .or. i3.ge.2 ) itype=2
+write(*,*) 'generating type ',itype,' message'
+  if(itype.eq.2 ) goto 900
+
   call packmsg(msg,i4Msg6BitWords,itype,bcontest) !Pack into 12 6-bit bytes
   call unpackmsg(i4Msg6BitWords,msgsent,bcontest,mygrid) !Unpack to get msgsent
 
-  write(cbits,1000) i4Msg6BitWords,32*i3bit
+  write(cbits,1000) i4Msg6BitWords,32*i3
 1000 format(12b6.6,b8.8)
   read(cbits,1001) i1Msg8BitBytes(1:10)
 1001 format(10b8)
@@ -27,13 +33,7 @@ subroutine genft8(msg,mygrid,bcontest,i3bit,msgsent,msgbits,itone)
   i1Msg8BitBytes(11)=0
   icrc12=crc12(c_loc(i1Msg8BitBytes),11)
 
-! For reference, here's how to check the CRC
-!  i1Msg8BitBytes(10)=icrc12/256
-!  i1Msg8BitBytes(11)=iand (icrc12,255)
-!  checksumok = crc12_check(c_loc (i1Msg8BitBytes), 11)
-!  if( checksumok ) write(*,*) 'Good checksum'
-
-  write(cbits,1003) i4Msg6BitWords,i3bit,icrc12
+  write(cbits,1003) i4Msg6BitWords,i3,icrc12
 1003 format(12b6.6,b3.3,b12.12)
   read(cbits,1004) msgbits
 1004 format(87i1)
@@ -51,6 +51,11 @@ subroutine genft8(msg,mygrid,bcontest,i3bit,msgsent,msgbits,itone)
      if(j.eq.30) k=k+7
      itone(k)=codeword(i)*4 + codeword(i+1)*2 + codeword(i+2)
   enddo
+  return
+
+900 continue
+
+  call genft8_174_91(msg,mygrid,bcontest,i3,n3,msgsent,msgbits,itone)
 
   return
 end subroutine genft8
