@@ -20,8 +20,8 @@ subroutine genft8(msg,mygrid,bcontest,i3,n3,msgsent,msgbits,itone)
   itype=1
   if( ( i3.eq.0 .and. n3.ge.1) .or. i3.ge.1 ) itype=2
 
-write(*,*) 'generating type ',itype,' message'
-write(*,*) 'msg ',msg,i3,n3
+!write(*,*) 'generating type ',itype,' message'
+!write(*,*) 'msg ',msg,i3,n3
 
   if(itype.eq.2 ) goto 900
   i3=i3*i3
