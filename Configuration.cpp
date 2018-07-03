@@ -570,6 +570,7 @@ private:
   bool bHound_;
   bool bGenerate77_;
   bool bDecode77_;
+  bool bNoSpecial_;
   bool bFieldDay_;
   bool bRTTYroundup_;
   bool bNA_VHF_Contest_;
@@ -677,6 +678,7 @@ bool Configuration::bFox() const {return m_->bFox_;}
 bool Configuration::bHound() const {return m_->bHound_;}
 bool Configuration::bGenerate77() const {return m_->bGenerate77_;}
 bool Configuration::bDecode77() const {return m_->bDecode77_;}
+bool Configuration::bNoSpecial() const {return m_->bNoSpecial_;}
 bool Configuration::bFieldDay() const {return m_->bFieldDay_;}
 bool Configuration::bRTTYroundup() const {return m_->bRTTYroundup_;}
 bool Configuration::bNA_VHF_Contest() const {return m_->bNA_VHF_Contest_;}
@@ -1174,6 +1176,7 @@ void Configuration::impl::initialize_models ()
   ui_->cbHound->setChecked(bHound_);
   ui_->cbGenerate77->setChecked(bGenerate77_);
   ui_->cbDecode77->setChecked(bDecode77_);
+  ui_->rbNone->setChecked(bNoSpecial_);
   ui_->rbFieldDay->setChecked(bFieldDay_);
   ui_->rbRTTYroundup->setChecked(bRTTYroundup_);
   ui_->rbNA_VHF_Contest->setChecked(bNA_VHF_Contest_);
@@ -1417,6 +1420,7 @@ void Configuration::impl::read_settings ()
   bHound_ = settings_->value("Hound",false).toBool ();
   bGenerate77_ = settings_->value("Generate77",false).toBool ();
   bDecode77_ = settings_->value("Decode77",false).toBool ();
+  bNoSpecial_ = settings_->value("NoSpecial",false).toBool ();
   bFieldDay_ = settings_->value("FieldDay",false).toBool ();
   bRTTYroundup_ = settings_->value("RTTYroundup",false).toBool ();
   bNA_VHF_Contest_ = settings_->value("NA_VHF_Contest",false).toBool ();
@@ -1528,6 +1532,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("Hound", bHound_);
   settings_->setValue ("Generate77", bGenerate77_);
   settings_->setValue ("Decode77", bDecode77_);
+  settings_->setValue ("NoSpecial", bNoSpecial_);
   settings_->setValue ("FieldDay", bFieldDay_);
   settings_->setValue ("RTTYroundup", bRTTYroundup_);
   settings_->setValue ("NA_VHF_Contest", bNA_VHF_Contest_);
@@ -1937,6 +1942,7 @@ void Configuration::impl::accept ()
   bHound_ = ui_->cbHound->isChecked ();
   bGenerate77_ = ui_->cbGenerate77->isChecked();
   bDecode77_ = ui_->cbDecode77->isChecked();
+  bNoSpecial_ = ui_->rbNone->isChecked ();
   bFieldDay_ = ui_->rbFieldDay->isChecked ();
   bRTTYroundup_ = ui_->rbRTTYroundup->isChecked ();
   bNA_VHF_Contest_ = ui_->rbNA_VHF_Contest->isChecked ();

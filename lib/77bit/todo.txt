@@ -2,7 +2,7 @@
 			  ---------------
 			  
 The following list is for informtion and general guidance.  Everything
-is subject to revision!
+is subject to change, and not all ideas are necessarily good ones!
 
 1. Nomenclature and parameters for message types
    - Old-style = classic 72-bit JT-style source-encoding
@@ -37,3 +37,15 @@ ARRL Field Day, ARRL RTTY Roundup, use of goofy calls.
 type of operating.
 
 8. (??) What's needed for MSK144 with LDPC(128,90) ?
+
+==========================================================================
+The following are just ideas:
+
+- Special Fox message to mean "shift no normal FT8 mode"
+- Options to sort/filter decoded signals
+- New Fox message type using constant-envelope waveform and higher
+  symbol rate to accommodate multiple simultaneous QSOs.  RR73 sent to
+  0-5 calls, report sent to 0-5 calls.  Decoding uses AP for missing
+  calls, thereby effectively making lower-rate codes when not all
+  slots are used.
+- 
