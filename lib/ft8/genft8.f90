@@ -11,16 +11,21 @@ subroutine genft8(msg,mygrid,bcontest,i3,n3,msgsent,msgbits,itone)
   logical bcontest,checksumok
   integer*4 i4Msg6BitWords(12)                !72-bit message as 6-bit words
   integer*1 msgbits(KK),codeword(3*ND)
+  integer*1 msgbits77(77)
   integer*1, target:: i1Msg8BitBytes(11)
   integer itone(NN)
   integer icos7(0:6)
   data icos7/2,5,6,0,4,1,3/                   !Costas 7x7 tone pattern
 
-
   itype=1
-  if( ( i3.eq.0 .and. n3.ge.2) .or. i3.ge.2 ) itype=2
-write(*,*) 'generating type ',itype,' message'
+  if( ( i3.eq.0 .and. n3.ge.1) .or. i3.ge.1 ) itype=2
+
+!write(*,*) 'generating type ',itype,' message'
+!write(*,*) 'msg ',msg,i3,n3
+
   if(itype.eq.2 ) goto 900
+  i3=i3*i3
+  n3=n3*n3
 
   call packmsg(msg,i4Msg6BitWords,itype,bcontest) !Pack into 12 6-bit bytes
   call unpackmsg(i4Msg6BitWords,msgsent,bcontest,mygrid) !Unpack to get msgsent
@@ -55,7 +60,7 @@ write(*,*) 'generating type ',itype,' message'
 
 900 continue
 
-  call genft8_174_91(msg,mygrid,bcontest,i3,n3,msgsent,msgbits,itone)
+  call genft8_174_91(msg,mygrid,bcontest,i3,n3,msgsent,msgbits77,itone)
 
   return
 end subroutine genft8

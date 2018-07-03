@@ -3479,7 +3479,7 @@ void MainWindow::guiUpdate()
             if(m_config.bFox() and ui->tabWidget->currentIndex()==2) {
               foxTxSequencer();
             } else {
-              m_i3=1;  // Temporary!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+              m_i3=-1;  // Temporary!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
               m_n3=0;
               char ft8msgbits[75 + 12]; //packed 75 bit ft8 message plus 12-bit CRC
               genft8_(message, MyGrid, &bcontest, &m_i3, &m_n3, msgsent, const_cast<char *> (ft8msgbits),
