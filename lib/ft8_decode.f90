@@ -63,7 +63,10 @@ contains
 1001 format("000000_",i6.6)
 
     call ft8apset(mycall12,mygrid6,hiscall12,hisgrid6,bcontest,apsym1)
-    call ft8apset_174_91(mycall12,mygrid6,hiscall12,hisgrid6,bcontest,apsym2)
+! For now, turn off apset until we get basic functionality going... AP will 
+! need to be re-thinked for itype=2 messages.
+!    call ft8apset_174_91(mycall12,mygrid6,hiscall12,hisgrid6,bcontest,apsym2)
+    apsym2=0
     dd=iwave
     ndecodes=0
     allmessages='                      '
