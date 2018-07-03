@@ -77,7 +77,7 @@ extern "C" {
               fortran_charlen_t);
 //  float s[], int* jh, char line[], char mygrid[],
 
-  void genft8_(char* msg, char* MyGrid, bool* bcontest, int* i3, int* n3, char* msgsent,
+  void genft8_(char* msg, char* MyGrid, bool* bcontest, int* i3, int* n3, int* isync, char* msgsent,
                char ft8msgbits[], int itone[], fortran_charlen_t, fortran_charlen_t,
                fortran_charlen_t);
 
@@ -3479,11 +3479,13 @@ void MainWindow::guiUpdate()
             if(m_config.bFox() and ui->tabWidget->currentIndex()==2) {
               foxTxSequencer();
             } else {
-              m_i3=-1;  // Temporary!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+              m_i3=0;  // Temporary!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
               m_n3=0;
+              m_isync=1;
+//              if(m_config.bGenerate77()) m_isync=2;
               char ft8msgbits[75 + 12]; //packed 75 bit ft8 message plus 12-bit CRC
-              genft8_(message, MyGrid, &bcontest, &m_i3, &m_n3, msgsent, const_cast<char *> (ft8msgbits),
-                      const_cast<int *> (itone), 22, 6, 22);
+              genft8_(message, MyGrid, &bcontest, &m_i3, &m_n3, &m_isync, msgsent, 
+                      const_cast<char *> (ft8msgbits), const_cast<int *> (itone), 22, 6, 22);
               if(m_config.bFox()) {
                 QString fm = QString::fromStdString(message).trimmed();
                 foxGenWaveform(0,fm);

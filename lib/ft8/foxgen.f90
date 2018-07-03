@@ -58,7 +58,7 @@ subroutine foxgen()
         msg=cmsg(n)(1:i1)//cmsg(n)(i2+1:i3-2)//'                   '
         read(cmsg(n)(i4+2:i4+4),*) irpt
      endif
-     call genft8(msg,mygrid,bcontest,0,1,msgsent,msgbits,itone)
+     call genft8(msg,mygrid,bcontest,0,1,1,msgsent,msgbits,itone)
 !     print*,'Foxgen:',n,cmsg(n),msgsent
 
      if(i3b.eq.1) then

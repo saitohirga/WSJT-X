@@ -1,4 +1,4 @@
-subroutine genft8(msg,mygrid,bcontest,i3,n3,msgsent,msgbits,itone)
+subroutine genft8(msg,mygrid,bcontest,i3,n3,isync,msgsent,msgbits,itone)
 
 ! Encode an FT8 message, producing array itone().
   
@@ -17,17 +17,9 @@ subroutine genft8(msg,mygrid,bcontest,i3,n3,msgsent,msgbits,itone)
   integer icos7(0:6)
   data icos7/2,5,6,0,4,1,3/                   !Costas 7x7 tone pattern
 
-  itype=1
-  if( ( i3.eq.0 .and. n3.ge.1) .or. i3.ge.1 ) itype=2
+  if(isync.eq.2 ) goto 900
 
-!write(*,*) 'generating type ',itype,' message'
-!write(*,*) 'msg ',msg,i3,n3
-
-  if(itype.eq.2 ) goto 900
-  i3=i3*i3
-  n3=n3*n3
-
-  call packmsg(msg,i4Msg6BitWords,itype,bcontest) !Pack into 12 6-bit bytes
+  call packmsg(msg,i4Msg6BitWords,istdtype,bcontest) !Pack into 12 6-bit bytes
   call unpackmsg(i4Msg6BitWords,msgsent,bcontest,mygrid) !Unpack to get msgsent
 
   write(cbits,1000) i4Msg6BitWords,32*i3
