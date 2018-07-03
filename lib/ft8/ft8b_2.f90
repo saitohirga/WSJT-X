@@ -6,8 +6,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   use timer_module, only: timer
   include 'ft8_params.f90'
   parameter(NP2=2812)
-  character*37 msg37
-  character message*22,msgsent*22
+  character*37 msg37,msgsent37
   character*12 mycall12,hiscall12
   character*6 mycall6,mygrid6,hiscall6,c1,c2
   character*87 cbits
@@ -320,9 +319,9 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      n3=4*message77(75) + 2*message77(76) + message77(77)
      iFreeText=message77(57)
      if(i5bit.eq.1) message77(57:)=0
-     call extractmessage77(message77,message)
+     call extract77(message77,msg37)
 ! This needs fixing for messages with i5bit=1        
-     call genft8_174_91(message,mygrid6,bcontest,i3,n3,msgsent,msgbits,itone)
+     call genft8_174_91(msg37,mygrid6,bcontest,i3,n3,msgsent37,msgbits,itone)
      if(lsubtract) call subtractft8(dd0,itone,f1,xdt) 
      xsig=0.0
      xnoi=0.0
@@ -339,7 +338,6 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      if(.not.nagain) xsnr=xsnr2
      if(xsnr .lt. -24.0) xsnr=-24.0
      
-     msg37=message//'               '
      return
   enddo
   return
