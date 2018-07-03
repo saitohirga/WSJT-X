@@ -48,4 +48,4 @@ The following are just ideas:
   0-5 calls, report sent to 0-5 calls.  Decoding uses AP for missing
   calls, thereby effectively making lower-rate codes when not all
   slots are used.
-- 
+- Hound should send spots of Fox to PSK Reporter.
