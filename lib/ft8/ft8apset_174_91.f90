@@ -6,8 +6,8 @@ subroutine ft8apset_174_91(mycall12,mygrid6,hiscall12,hisgrid6,bcontest,apsym)
   character*6 mygrid6,hisgrid6
   character*4 hisgrid
   logical bcontest
-  integer apsym(KK)
-  integer*1 msgbits(KK)
+  integer apsym(77)
+  integer*1 msgbits(77)
   integer itone(KK)
   
   mycall=mycall12(1:6)

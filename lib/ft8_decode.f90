@@ -51,7 +51,7 @@ contains
     character*12 mycall12, hiscall12
     character*6 mygrid6,hisgrid6
     integer*2 iwave(15*12000)
-    integer apsym1(KK),apsym2(91)
+    integer apsym1(KK),apsym2(77)
     character datetime*13,message*22,msg37*37
     character*22 allmessages(100)
     integer allsnrs(100)
