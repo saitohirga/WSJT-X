@@ -4,11 +4,10 @@ subroutine genft8_174_91(msg,mygrid,bcontest,i3,n3,msgsent,msgbits,itone)
   
   use packjt
   include 'ft8_params.f90'
-  character*22 msg,msgsent
+  character msg*37,msgsent*37
   character*6 mygrid
-  character*91 cbits
+  character*77 c77
   logical bcontest
-  integer*4 i4Msg6BitWords(12)                !72-bit message as 6-bit words
   integer*1 msgbits(77),codeword(174)
   integer itone(79)
   integer icos7(0:6)
@@ -16,11 +15,10 @@ subroutine genft8_174_91(msg,mygrid,bcontest,i3,n3,msgsent,msgbits,itone)
   data icos7/3,1,4,0,6,5,2/                   !Costas 7x7 tone pattern
   data graymap/0,1,3,2,7,6,4,5/
 
-  call packmsg(msg,i4Msg6BitWords,itype,bcontest) !Pack into 12 6-bit bytes
-  call unpackmsg(i4Msg6BitWords,msgsent,bcontest,mygrid) !Unpack to get msgsent
+  call pack77(msg,i3,n3,c77)
+  call unpack77(c77,msgsent) 
 
-  write(cbits,'(11b6.6,b5.5,b3.3,b3.3)') i4Msg6BitWords,i3,n3
-  read(cbits,'(77i1)') msgbits 
+  read(c77,'(77i1)') msgbits 
   call encode174_91(msgbits,codeword)      !Encode the test message
 
 ! Message structure: S7 D29 S7 D29 S7
