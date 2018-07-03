@@ -16,8 +16,9 @@ subroutine ft8apset_174_91(mycall12,mygrid6,hiscall12,hisgrid6,bcontest,apsym)
   hisgrid=hisgrid6(1:4)
   if(index(hisgrid," ").eq.0) hisgrid="AA00"
   msg=mycall//' '//hiscall//' '//hisgrid
-  i5bit=0                                       ! ### TEMPORARY ??? ###
-  call genft8_174_91(msg,mygrid6,bcontest,i5bit,msgsent,msgbits,itone)
+  i3=1                                       ! ### TEMPORARY ??? ###
+  n3=0
+  call genft8_174_91(msg,mygrid6,bcontest,i3,n3,msgsent,msgbits,itone)
   apsym=2*msgbits-1
   return
 end subroutine ft8apset_174_91

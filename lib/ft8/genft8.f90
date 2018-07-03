@@ -20,6 +20,7 @@ subroutine genft8(msg,mygrid,bcontest,i3,n3,msgsent,msgbits,itone)
   itype=1
   if( ( i3.eq.0 .and. n3.ge.2) .or. i3.ge.2 ) itype=2
 write(*,*) 'generating type ',itype,' message'
+write(*,*) 'msg ',msg
   if(itype.eq.2 ) goto 900
 
   call packmsg(msg,i4Msg6BitWords,itype,bcontest) !Pack into 12 6-bit bytes
