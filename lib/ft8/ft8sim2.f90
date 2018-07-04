@@ -23,12 +23,10 @@ program ft8sim2
 ! Get command-line argument(s)
   nargs=iargc()
   if(nargs.ne.8) then
-     print*,'Usage:    ft8sim "message"         nsig|f0  DT fdop del width nfiles snr'
-     print*,'Examples: ft8sim "K1ABC W9XYZ EN37" 1500.0 0.0  0.1 1.0   0     10   -18'
-     print*,'          ft8sim "K1ABC W9XYZ EN37"   10   0.0  0.1 1.0  25     10   -18'
-     print*,'          ft8sim "K1ABC W9XYZ EN37"   25   0.0  0.1 1.0  25     10   -18'
-     print*,'          ft8sim "K1ABC RR73; W9XYZ <KH1/KH7Z> -11" 300 0 0 0 25 1 -10'
-     print*,'Make nfiles negative to invoke 72-bit contest mode.'
+     print*,'Usage:    ft8sim2 "message"                 f0     DT fdop del width nfiles snr'
+     print*,'Examples: ft8sim2 "K1ABC W9XYZ EN37"       1500.0 0.0  0.1 1.0   0     10   -18'
+     print*,'Examples: ft8sim2 "WA9XYZ/R KA1ABC/R FN42" 1500.0 0.0  0.1 1.0   0     10   -18'
+     print*,'          ft8sim2 "K1ABC RR73; W9XYZ <KH1/KH7Z> -11" 300 0 0 0 25 1 -10'
      go to 999
   endif
   call getarg(1,msg37)                   !Message to be transmitted
@@ -69,7 +67,6 @@ program ft8sim2
 
 ! Source-encode, then get itone()
   call pack77(msg37,i3,n3,c77)
-  call unpack77(c77,msgsent37)
   call genft8_174_91(msg37,mygrid6,bcontest,i3,n3,msgsent37,msgbits,itone)
 
   write(*,*)  
@@ -83,6 +80,7 @@ program ft8sim2
   write(*,*)  
   write(*,'(a17)') 'Channel symbols: '
   write(*,'(79i1)') itone
+  write(*,*)  
 
   call sgran()
 
