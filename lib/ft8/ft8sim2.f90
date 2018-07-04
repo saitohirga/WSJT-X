@@ -69,17 +69,18 @@ program ft8sim2
 
 ! Source-encode, then get itone()
   call pack77(msg37,i3,n3,c77)
-write(*,*) c77
-write(*,*) i3,n3
   call unpack77(c77,msgsent37)
   call genft8_174_91(msg37,mygrid6,bcontest,i3,n3,msgsent37,msgbits,itone)
-  write(*,1000) f0,xdt,txt,snrdb,bw,msgsent37
+
+  write(*,*)  
+  write(*,'(a23,a37,3x,a7,i1,a1,i1)') 'New Style FT8 Message: ',msgsent37,'i3.n3: ',i3,'.',n3
+  write(*,1000) f0,xdt,txt,snrdb,bw
 1000 format('f0:',f9.3,'   DT:',f6.2,'   TxT:',f6.1,'   SNR:',f6.1,    &
-       '  BW:',f4.1,2x,a37)
-  
-  write(*,'(a23,a37,i1,a1,i1)') 'New Style FT8 Message: ',msgsent37,i3,'.',n3
+       '  BW:',f4.1)
+  write(*,*)  
   write(*,'(a14)') 'Message bits: '
   write(*,'(77i1)') msgbits
+  write(*,*)  
   write(*,'(a17)') 'Channel symbols: '
   write(*,'(79i1)') itone
 
@@ -89,7 +90,8 @@ write(*,*) i3,n3
   do ifile=1,nfiles
      k=nint((xdt+0.5)/dt)
      ia=k
-     phi=0.0
+     phi=0.0 
+     c0=0.0
      do j=1,NN                             !Generate complex waveform
         dphi=twopi*(f0*dt+itone(j)/real(NSPS))
         do i=1,NSPS
@@ -99,34 +101,34 @@ write(*,*) i3,n3
         enddo
      enddo
      if(fspread.ne.0.0 .or. delay.ne.0.0) call watterson(c0,NMAX,fs,delay,fspread)
-     c=c+sig*c0
-  enddo
-  ib=k
-  wave=real(c)
-  peak=maxval(abs(wave(ia:ib)))
-  rms=sqrt(dot_product(wave(ia:ib),wave(ia:ib))/NWAVE)
-  nslots=1
-  if(width.gt.0.0) call filt8(f0,nslots,width,wave)
+     c=sig*c0
+  
+     ib=k
+     wave=real(c)
+     peak=maxval(abs(wave(ia:ib)))
+     rms=sqrt(dot_product(wave(ia:ib),wave(ia:ib))/NWAVE)
+     nslots=1
+     if(width.gt.0.0) call filt8(f0,nslots,width,wave)
    
-  if(snrdb.lt.90) then
-     do i=1,NMAX                   !Add gaussian noise at specified SNR
-        xnoise=gran()
-        wave(i)=wave(i) + xnoise
-     enddo
-  endif
+     if(snrdb.lt.90) then
+        do i=1,NMAX                   !Add gaussian noise at specified SNR
+           xnoise=gran()
+           wave(i)=wave(i) + xnoise
+        enddo
+     endif
 
-  fac=32767.0
-  rms=100.0
-  if(snrdb.ge.90.0) iwave(1:NMAX)=nint(fac*wave)
-  if(snrdb.lt.90.0) iwave(1:NMAX)=nint(rms*wave)
+     fac=32767.0
+     rms=100.0
+     if(snrdb.ge.90.0) iwave(1:NMAX)=nint(fac*wave)
+     if(snrdb.lt.90.0) iwave(1:NMAX)=nint(rms*wave)
 
-  h=default_header(12000,NMAX)
-  write(fname,1102) ifile
+     h=default_header(12000,NMAX)
+     write(fname,1102) ifile
 1102 format('000000_',i6.6,'.wav')
-  open(10,file=fname,status='unknown',access='stream')
-  write(10) h,iwave                !Save to *.wav file
-  close(10)
-  write(*,1110) ifile,xdt,f0,snrdb,fname
+     open(10,file=fname,status='unknown',access='stream')
+     write(10) h,iwave                !Save to *.wav file
+     close(10)
+     write(*,1110) ifile,xdt,f0,snrdb,fname
 1110 format(i4,f7.2,f8.2,f7.1,2x,a17)
-       
+  enddo    
 999 end program ft8sim2
