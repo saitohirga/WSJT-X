@@ -53,7 +53,7 @@ contains
     integer*2 iwave(15*12000)
     integer apsym1(KK),apsym2(77)
     character datetime*13,message*22,msg37*37
-    character*22 allmessages(100)
+    character*37 allmessages(100)
     integer allsnrs(100)
     save s,dd
 
@@ -69,7 +69,7 @@ contains
     apsym2=0
     dd=iwave
     ndecodes=0
-    allmessages='                      '
+    allmessages='                                     '
     allsnrs=0
     ifa=nfa
     ifb=nfb
@@ -105,11 +105,11 @@ contains
         sync=candidate(3,icand)
         f1=candidate(1,icand)
         xdt=candidate(2,icand)
-        iftype=candidate(4,icand)
+        isync=candidate(4,icand)
         xbase=10.0**(0.1*(sbase(nint(f1/3.125))-40.0))
         nsnr0=min(99,nint(10.0*log10(sync) - 25.5))    !### empirical ###
         call timer('ft8b    ',0)
-        if(iftype.eq.1) then
+        if(isync.eq.1) then
            call ft8b_1(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lft8apon,     &
                 lapcqonly,napwid,lsubtract,nagain,iaptype,mycall12,mygrid6,   &
                 hiscall12,bcontest,sync,f1,xdt,xbase,apsym1,nharderrors,dmin,  &
@@ -120,31 +120,32 @@ contains
                 hiscall12,bcontest,sync,f1,xdt,xbase,apsym2,nharderrors,dmin,  &
                 nbadcrc,iappass,iera,msg37,xsnr)
         endif
-        message=msg37(1:22)   !###
+!        message=msg37(1:22)   !###
         nsnr=nint(xsnr) 
         xdt=xdt-0.5
         hd=nharderrors+dmin
         call timer('ft8b    ',1)
         if(nbadcrc.eq.0) then
 !           call jtmsg(message,iflag)
-           if(bcontest) then
-              call fix_contest_msg(mygrid6,message)
-              msg37(1:22)=message
-           endif
+! This probably needs to be re-visited for the new message type
+!           if(bcontest) then
+!              call fix_contest_msg(mygrid6,message)
+!              msg37(1:22)=message
+!           endif
 !           if(iand(iflag,31).ne.0) message(22:22)='?'
            ldupe=.false.
            do id=1,ndecodes
-              if(message.eq.allmessages(id).and.nsnr.le.allsnrs(id)) ldupe=.true.
+              if(msg37.eq.allmessages(id).and.nsnr.le.allsnrs(id)) ldupe=.true.
            enddo
            if(.not.ldupe) then
               ndecodes=ndecodes+1
-              allmessages(ndecodes)=message
+              allmessages(ndecodes)=msg37
               allsnrs(ndecodes)=nsnr
            endif
            write(81,1004) nutc,ncand,icand,ipass,iaptype,iappass,        &
                 nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),          &
-                xdt,nint(f1),message,iftype,nbadcrc
-1004          format(i6.6,2i4,3i2,i3,3f6.1,i4,f6.2,i5,2x,a22,i4,i4)
+                xdt,nint(f1),msg37,isync,nbadcrc
+1004          format(i6.6,2i4,3i2,i3,3f6.1,i4,f6.2,i5,2x,a37,i4,i4)
            flush(81)
            if(.not.ldupe .and. associated(this%callback)) then
               qual=1.0-(nharderrors+dmin)/60.0 ! scale qual to [0.0,1.0]

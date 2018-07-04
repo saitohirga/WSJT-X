@@ -256,40 +256,41 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
         apmask=0
         iaptype=0
      endif
-        
-     if(ipass .gt. 4) then
-        llrd=llrb    ! Needs to be checked
-        if(.not.lapcqonly) then
-           iaptype=naptypes(nQSOProgress,ipass-4)
-        else
-           iaptype=1
-        endif
-        if(iaptype.ge.3 .and. (abs(f1-nfqso).gt.napwid .and. abs(f1-nftx).gt.napwid) ) cycle 
-        if(iaptype.eq.1 .or. iaptype.eq.2 ) then ! AP,???,??? 
-           apmask=0
-           apmask(1:27)=1    ! first 27 bits (9 tones) are AP
-           if(iaptype.eq.1) llrd(1:27)=apmag*mcq(1:27)
-           if(iaptype.eq.2) llrd(1:27)=apmag*apsym(1:27)
-        endif
-        if(iaptype.eq.3) then   ! mycall, dxcall, ???
-           apmask=0
-           apmask(1:54)=1   
-           llrd(1:54)=apmag*apsym(1:54)
-        endif
-        if(iaptype.eq.4 .or. iaptype.eq.5 .or. iaptype.eq.6) then  
-           apmask=0
-           apmask(1:72)=1   ! mycall, hiscall, RRR|73|RR73
-           llrd(1:56)=apmag*apsym(1:56)
-           if(iaptype.eq.4) llrd(57:72)=apmag*mrrr 
-           if(iaptype.eq.5) llrd(57:72)=apmag*m73 
-           if(iaptype.eq.6) llrd(57:72)=apmag*mrr73 
-        endif
-        if(iaptype.eq.7) then   ! ???, dxcall, ???
-           apmask=0
-           apmask(31:54)=1  ! hiscall
-           llrd(31:54)=apmag*apsym(31:54)
-        endif
-     endif
+
+! The AP stuff needs to be re-done to accommodate the new message types.        
+!     if(ipass .gt. 4) then
+!        llrd=llrb    ! Needs to be checked
+!        if(.not.lapcqonly) then
+!           iaptype=naptypes(nQSOProgress,ipass-4)
+!        else
+!           iaptype=1
+!        endif
+!        if(iaptype.ge.3 .and. (abs(f1-nfqso).gt.napwid .and. abs(f1-nftx).gt.napwid) ) cycle 
+!        if(iaptype.eq.1 .or. iaptype.eq.2 ) then ! AP,???,??? 
+!           apmask=0
+!           apmask(1:27)=1    ! first 27 bits (9 tones) are AP
+!           if(iaptype.eq.1) llrd(1:27)=apmag*mcq(1:27)
+!           if(iaptype.eq.2) llrd(1:27)=apmag*apsym(1:27)
+!        endif
+!        if(iaptype.eq.3) then   ! mycall, dxcall, ???
+!           apmask=0
+!           apmask(1:54)=1   
+!           llrd(1:54)=apmag*apsym(1:54)
+!        endif
+!        if(iaptype.eq.4 .or. iaptype.eq.5 .or. iaptype.eq.6) then  
+!           apmask=0
+!           apmask(1:72)=1   ! mycall, hiscall, RRR|73|RR73
+!           llrd(1:56)=apmag*apsym(1:56)
+!           if(iaptype.eq.4) llrd(57:72)=apmag*mrrr 
+!           if(iaptype.eq.5) llrd(57:72)=apmag*m73 
+!           if(iaptype.eq.6) llrd(57:72)=apmag*mrr73 
+!        endif
+!        if(iaptype.eq.7) then   ! ???, dxcall, ???
+!           apmask=0
+!           apmask(31:54)=1  ! hiscall
+!           llrd(31:54)=apmag*apsym(31:54)
+!        endif
+!     endif
 
      cw=0
      call timer('bpd174_91 ',0)
@@ -311,13 +312,12 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
         call osd174_91(llrd,apmask,ndeep,message77,cw,nharderrors,dmin)
         call timer('osd174_91 ',1)
      endif
+
      msg37='                                     '
      xsnr=-99.0
      if(nharderrors.lt.0) cycle
      if(count(cw.eq.0).eq.174) cycle           !Reject the all-zero codeword
      nbadcrc=0  ! If we get this far, must be a valid codeword.
-     i3=4*message77(72) + 2*message77(73) + message77(74)
-     n3=4*message77(75) + 2*message77(76) + message77(77)
      write(c77,'(77i1)') message77
      read(c77(72:74),'(b3)') n3
      read(c77(75:77),'(b3)') i3
@@ -340,6 +340,8 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      xsnr=0.001
      if(xnoi.gt.0 .and. xnoi.lt.xsig) xsnr=xsig/xnoi-1.0
      xsnr=10.0*log10(xsnr)-27.0
+! need to reconcile signal normalization between this routine and the old ft8b_1 so 
+! that SNRs come out the same.
      xsnr2=db(xsig/xbase - 1.0) - 32.0
      if(.not.nagain) xsnr=xsnr2
      if(xsnr .lt. -24.0) xsnr=-24.0
