@@ -498,7 +498,11 @@ contains
        if(qual.lt.0.17) decoded0(22:22)='?'
     endif
 
-    i0=index(decoded0,';')
+!    i0=index(decoded0,';')
+! Always print 37 characters? Or, send i3,n3 up to here from ft8b_2 and use them
+! to decide how many chars to print?
+!TEMP
+    i0=1
     if(i0.le.0) write(*,1000) params%nutc,snr,dt,nint(freq),decoded0(1:22),annot
 1000 format(i6.6,i4,f5.1,i5,' ~ ',1x,a22,1x,a2)
     if(i0.gt.0) write(*,1001) params%nutc,snr,dt,nint(freq),decoded0

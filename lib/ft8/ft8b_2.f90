@@ -8,6 +8,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   parameter(NP2=2812)
   character*37 msg37,msgsent37
   character*12 mycall12,hiscall12
+  character*77 c77
   character*6 mycall6,mygrid6,hiscall6,c1,c2
   character*87 cbits
   logical bcontest
@@ -317,8 +318,15 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      nbadcrc=0  ! If we get this far, must be a valid codeword.
      i3=4*message77(72) + 2*message77(73) + message77(74)
      n3=4*message77(75) + 2*message77(76) + message77(77)
-     call unpack77(message77,msg37)
-! This needs fixing for messages with i5bit=1        
+     write(c77,'(77i1)') message77
+     read(c77(72:74),'(b3)') n3
+     read(c77(75:77),'(b3)') i3
+!write(*,'(77i1)') message77
+     call unpack77(c77,msg37)
+!TEST ONLY
+     call pack77(msg37,i3p,n3p,c77)
+! Should we test for consistency between i3,n3 from codeword and i3,n3 from unpack77?
+!write(*,*) i3,n3,i3p,n3p,msg37
      call genft8_174_91(msg37,mygrid6,bcontest,i3,n3,msgsent37,msgbits,itone)
      if(lsubtract) call subtractft8(dd0,itone,f1,xdt) 
      xsig=0.0

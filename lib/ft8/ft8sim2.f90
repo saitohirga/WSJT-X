@@ -69,6 +69,8 @@ program ft8sim2
 
 ! Source-encode, then get itone()
   call pack77(msg37,i3,n3,c77)
+write(*,*) c77
+write(*,*) i3,n3
   call unpack77(c77,msgsent37)
   call genft8_174_91(msg37,mygrid6,bcontest,i3,n3,msgsent37,msgbits,itone)
   write(*,1000) f0,xdt,txt,snrdb,bw,msgsent37
