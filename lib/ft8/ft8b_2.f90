@@ -343,7 +343,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
 ! need to reconcile signal normalization between this routine and the old ft8b_1 so 
 ! that SNRs come out the same.
      xsnr2=db(xsig/xbase - 1.0) - 32.0
-     if(.not.nagain) xsnr=xsnr2
+!     if(.not.nagain) xsnr=xsnr2
      if(xsnr .lt. -24.0) xsnr=-24.0
      
      return
