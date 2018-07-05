@@ -1,7 +1,7 @@
 subroutine ft8apset(mycall12,mygrid6,hiscall12,hisgrid6,bcontest,apsym)
   parameter(NAPM=4,KK=87)
   character*12 mycall12,hiscall12
-  character*22 msg,msgsent
+  character*37 msg,msgsent
   character*6 mycall,hiscall
   character*6 mygrid6,hisgrid6
   character*4 hisgrid

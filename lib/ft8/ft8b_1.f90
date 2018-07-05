@@ -6,7 +6,7 @@ subroutine ft8b_1(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   use timer_module, only: timer
   include 'ft8_params.f90'
   parameter(NP2=2812)
-  character*37 msg37
+  character*37 msg37,msgsent37
   character message*22,msgsent*22
   character*12 mycall12,hiscall12
   character*6 mycall6,mygrid6,hiscall6,c1,c2
@@ -384,7 +384,9 @@ subroutine ft8b_1(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
         i3=0  !TEMPORARY  
         n3=0 
         isync=1   
-        call genft8(message,mygrid6,bcontest,i3,n3,isync,msgsent,msgbits,itone)
+        msg37='                                     '
+        msg37(1:22)=message
+        call genft8(msg37,mygrid6,bcontest,i3,n3,isync,msgsent37,msgbits,itone)
         if(lsubtract) call subtractft8(dd0,itone,f1,xdt2)
         xsig=0.0
         xnoi=0.0
