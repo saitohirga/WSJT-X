@@ -30,19 +30,14 @@ subroutine pack77_4(nwords,w,i3,n3,c77)
         iflip=0
         n12=0
         c11=adjustr(call_2(1:11))
-        n10=ihashcall(w(2),10)
-        call hash10(n10,w(2),0)             !Save this hash10 and its callsign
-        n12=ihashcall(w(2),12)
-        call hash12(n12,w(2),0)             !Save this hash12 and its callsign
+        call save_hash_call(w(2),n10,n12,n22)
      else if(w(1)(1:1).eq.'<') then
         iflip=0
-        n12=ihashcall(w(1),12)
-        call hash12(n12,w(1),0)               !Save this hash and its callsign
+        call save_hash_call(w(1),n10,n12,n22)
         c11=adjustr(call_2(1:11))
      else if(w(2)(1:1).eq.'<') then
         iflip=1
-        n12=ihashcall(w(2),12)
-        call hash12(n12,w(2),0)               !Save this hash and its callsign
+        call save_hash_call(w(2),n10,n12,n22)
         c11=adjustr(call_1(1:11))
      endif
      n58=0

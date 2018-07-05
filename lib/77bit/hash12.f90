@@ -1,34 +1,19 @@
-subroutine hash12(n12,c13,isave)
+subroutine hash12(n12,c13)
 
-  parameter (NMAX=20)
-  character*13 c13,callsign(NMAX)
-  integer ihash(NMAX)
-  logical first
-  data first/.true./
-  save first,ihash,callsign
+  parameter (MAXHASH=20)
+  character*13 c13,callsign(MAXHASH)
+  integer ihash10(MAXHASH),ihash12(MAXHASH),ihash22(MAXHASH)
+  common/hashcom/ihash10,ihash12,ihash22,callsign
+  save /hashcom/
+  
+  c13='<...>'
+  do i=1,MAXHASH
+     if(ihash12(i).eq.n12) then
+        c13=callsign(i)
+        go to 900
+     endif
+  enddo
 
-  if(first) then
-     ihash=-1
-     callsign='             '
-     first=.false.
-  endif
-
-  if(isave.ge.0) then
-     do i=1,NMAX
-        if(ihash(i).eq.n12) go to 900             !This one is already in the list
-     enddo
-     ihash(NMAX:2:-1)=ihash(NMAX-1:1:-1)
-     callsign(NMAX:2:-1)=callsign(NMAX-1:1:-1)
-     ihash(1)=n12
-     callsign(1)=c13
-  else
-     do i=1,NMAX
-        if(ihash(i).eq.n12) then
-           c13=callsign(i)
-           go to 900
-        endif
-     enddo
-  endif
 
 900 return
 end subroutine hash12

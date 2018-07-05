@@ -78,8 +78,7 @@ subroutine pack28(c13,n28)
   endif
 ! Check for <...> callsign
   if(c13(1:1).eq.'<')then
-     n22=ihashcall(c13,22)
-     call hash22(n22,c13,1)     !Save (key,value) in hash table
+     call save_hash_call(c13,n10,n12,n22)   !Save callsign in hash table
      n28=NTOKENS + n22
      go to 900
   endif
@@ -104,8 +103,7 @@ subroutine pack28(c13,n28)
   if(iarea.lt.2 .or. iarea.gt.3 .or. nplet.eq.0 .or.       &
        npdig.ge.iarea-1 .or. nslet.gt.3) then
 ! Treat this as a nonstandard callsign: compute its 22-bit hash
-     n22=ihashcall(c13,22)
-     call hash22(n22,c13,1)     !Save (key,value) in hash table
+     call save_hash_call(c13,n10,n12,n22)   !Save callsign in hash table
      n28=NTOKENS + n22
      go to 900
   endif

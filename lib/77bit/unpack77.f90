@@ -54,7 +54,7 @@ subroutine unpack77(c77,msg)
      if(irpt.ge.0) crpt(1:1)='+'
      call unpack28(n28a,call_1)
      call unpack28(n28b,call_2)
-     call hash10(n10,call_3,-1)
+     call hash10(n10,call_3)
      if(call_3(1:1).eq.'<') then
         msg=trim(call_1)//' RR73; '//trim(call_2)//' '//trim(call_3)//  &
              ' '//crpt
@@ -213,7 +213,7 @@ subroutine unpack77(c77,msg)
         c11(i:i)=c(j:j)
         n58=n58/38
      enddo
-     call hash12(n12,call_3,-1)
+     call hash12(n12,call_3)
      if(iflip.eq.0) then
         call_1=call_3
         call_2=adjustl(c11)//'  '
