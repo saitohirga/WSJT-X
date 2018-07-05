@@ -2683,6 +2683,7 @@ void MainWindow::decode()                                       //decode()
   if(m_config.single_decode()) dec_data.params.nexp_decode += 32;
   if(m_config.enable_VHF_features()) dec_data.params.nexp_decode += 64;
   if(ui->cbVHFcontest->isChecked()) dec_data.params.nexp_decode += 128;
+  dec_data.params.ldecode77 = m_config.bDecode77();
 
   strncpy(dec_data.params.datetime, m_dateTime.toLatin1(), 20);
   strncpy(dec_data.params.mycall, (m_config.my_callsign()+"            ").toLatin1(),12);

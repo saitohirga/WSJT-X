@@ -1,9 +1,10 @@
-subroutine sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand,sbase)
+subroutine sync8(dd,nfa,nfb,syncmin,nfqso,ldecode77,s,candidate,ncand,sbase)
 
   include 'ft8_params.f90'
 ! Search over +/- 2.5s relative to 0.5s TX start time. 
   parameter (JZ=62)                        
   complex cx(0:NH1)
+  logical ldecode77
   real s(NH1,NHSYM)
   real savg(NH1)
   real sbase(NH1)
@@ -52,11 +53,14 @@ subroutine sync8(dd,nfa,nfb,syncmin,nfqso,s,candidate,ncand,sbase)
 
   candidate0=0.
   k=0
-do itype=1,2
-  if(itype.eq.1) icos7=icos7_1
-  if(itype.eq.2) icos7=icos7_2
-  do i=ia,ib
-     do j=-JZ,+JZ
+
+  is1=1
+  if(ldecode77) is1=2
+  do isync=is1,2
+    if(isync.eq.1) icos7=icos7_1
+    if(isync.eq.2) icos7=icos7_2
+    do i=ia,ib
+      do j=-JZ,+JZ
         ta=0.
         tb=0.
         tc=0.
@@ -86,34 +90,34 @@ do itype=1,2
         t0=(t0-t)/6.0
         sync_bc=t/t0
         sync2d(i,j)=max(sync_abc,sync_bc)
-     enddo
-  enddo
+      enddo
+    enddo
 
-  red=0.
-  do i=ia,ib
-     ii=maxloc(sync2d(i,-JZ:JZ)) - 1 - JZ
-     j0=ii(1)
-     jpeak(i)=j0
-     red(i)=sync2d(i,j0)
+    red=0.
+    do i=ia,ib
+      ii=maxloc(sync2d(i,-JZ:JZ)) - 1 - JZ
+      j0=ii(1)
+      jpeak(i)=j0
+      red(i)=sync2d(i,j0)
 !     write(52,3052) i*df,red(i),db(red(i))
 !3052 format(3f12.3)
-  enddo
-  iz=ib-ia+1
-  call indexx(red(ia:ib),iz,indx)
-  ibase=indx(nint(0.40*iz)) - 1 + ia
-  base=red(ibase)
-  red=red/base
+    enddo
+    iz=ib-ia+1
+    call indexx(red(ia:ib),iz,indx)
+    ibase=indx(nint(0.40*iz)) - 1 + ia
+    base=red(ibase)
+    red=red/base
 
-  do i=1,200
-     n=ia + indx(iz+1-i) - 1
-     if(red(n).lt.syncmin) exit
-     if(k.lt.200) k=k+1
-     candidate0(1,k)=n*df
-     candidate0(2,k)=(jpeak(n)-1)*tstep
-     candidate0(3,k)=red(n)
-     candidate0(4,k)=itype
-  enddo
-enddo
+    do i=1,200
+      n=ia + indx(iz+1-i) - 1
+      if(red(n).lt.syncmin) exit
+      if(k.lt.200) k=k+1
+      candidate0(1,k)=n*df
+      candidate0(2,k)=(jpeak(n)-1)*tstep
+      candidate0(3,k)=red(n)
+      candidate0(4,k)=isync
+    enddo
+  enddo  ! isync loop
   ncand=k
 
 ! Put nfqso at top of list, and save only the best of near-dupe freqs.  

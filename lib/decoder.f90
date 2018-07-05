@@ -96,7 +96,8 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      call my_ft8%decode(ft8_decoded,id2,params%nQSOProgress,params%nfqso,    &
           params%nftx,newdat,params%nutc,params%nfa,params%nfb,              &
           params%nexp_decode,params%ndepth,logical(params%nagain),           &
-          logical(params%lft8apon),logical(params%lapcqonly),params%napwid,  &
+          logical(params%lft8apon),logical(params%lapcqonly),                &
+          logical(params%ldecode77),params%napwid,  &
           mycall,mygrid,hiscall,hisgrid)
      call timer('decft8  ',1)
      if(nfox.gt.0) then

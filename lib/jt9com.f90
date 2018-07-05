@@ -26,6 +26,7 @@
      logical(c_bool) :: lft8apon 
      logical(c_bool) :: lapcqonly
      logical(c_bool) :: ljt65apon 
+     logical(c_bool) :: ldecode77 
      integer(c_int) :: napwid
      integer(c_int) :: ntxmode
      integer(c_int) :: nmode
