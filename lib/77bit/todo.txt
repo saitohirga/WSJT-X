@@ -6,10 +6,10 @@ is subject to change, and not all ideas are necessarily good ones!
 
 1. Nomenclature and parameters for message types
    - Old-style = classic 72-bit JT-style source-encoding
-        FT8:    (174,87) code: 72-bit info, i3bit, CRC12, itype=1 sync
+        FT8:    (174,87) code: 72-bit info, i3bit, CRC12, isync=1
     MSK144: (128,80) code: 72-bit info, CRC8
    - New-style
-        FT8:    (174,91) code: 74+3+14, sync uses itype=2
+        FT8:    (174,91) code: 74+3+14, sync uses isync=2
         MSK144: (128,90) code: 74+3+13
 
 2. (K1JT) For backward compatibility (good for, say, 6 months only?),
@@ -31,7 +31,7 @@ needed.
 
 6. (K1JT) Code to generate the user-readable messages for each
 specialized type of operating, e.g., NA VHF contest, EU VHF contest,
-ARRL Field Day, ARRL RTTY Roundup, use of goofy calls.
+ARRL Field Day, ARRL RTTY Roundup, use of nonstandard calls.
 
 7. (??) Code to do the necessary auto-sequencing for each specialized
 type of operating.
@@ -41,11 +41,12 @@ type of operating.
 ==========================================================================
 The following are just ideas:
 
-- Special Fox message to mean "shift no normal FT8 mode"
 - Options to sort/filter decoded signals
+
 - New Fox message type using constant-envelope waveform and higher
   symbol rate to accommodate multiple simultaneous QSOs.  RR73 sent to
   0-5 calls, report sent to 0-5 calls.  Decoding uses AP for missing
   calls, thereby effectively making lower-rate codes when not all
   slots are used.
+
 - Hound should send spots of Fox to PSK Reporter.

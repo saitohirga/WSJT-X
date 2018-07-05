@@ -3009,6 +3009,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         }
       }
 
+//### I think this is where we are preventing Hounds from spotting Fox ###
       if(m_mode!="FT8" or !m_config.bHound()) {
         if(m_mode=="FT8" or m_mode=="QRA64" or m_mode=="JT4" or m_mode=="JT65" or
            m_mode=="JT9") auto_sequence (decodedtext, 25, 50);
