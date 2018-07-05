@@ -3487,8 +3487,8 @@ void MainWindow::guiUpdate()
 //              if(m_config.bGenerate77()) m_isync=2;
               char ft8msgbits[75 + 12]; //packed 75 bit ft8 message plus 12-bit CRC
 // TEMPORARY - for now, just copy 22-bit message to 37-bit messageft8
-              char messageft8[44]; //padded with 7 characters, like messsage.
-              char msgsentft8[44];
+              char messageft8[38]; 
+              char msgsentft8[38]; // Only need to send the first 37 chars to Fortran, right?
               strncpy(&messageft8[0],&message[0],22);
               genft8_(messageft8, MyGrid, &bcontest, &m_i3, &m_n3, &m_isync, msgsentft8, 
                       const_cast<char *> (ft8msgbits), const_cast<int *> (itone), 37, 6, 37);
