@@ -917,8 +917,8 @@ QLabel[oob=&quot;true&quot;] {
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>30</width>
-                     <height>16777215</height>
+                     <width>20</width>
+                     <height>20</height>
                     </size>
                    </property>
                    <property name="toolTip">
@@ -961,8 +961,8 @@ QLabel[oob=&quot;true&quot;] {
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>30</width>
-                     <height>16777215</height>
+                     <width>20</width>
+                     <height>20</height>
                     </size>
                    </property>
                    <property name="toolTip">
