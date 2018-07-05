@@ -103,7 +103,6 @@ subroutine pack28(c13,n28)
   enddo
   if(iarea.lt.2 .or. iarea.gt.3 .or. nplet.eq.0 .or.       &
        npdig.ge.iarea-1 .or. nslet.gt.3) then
-!     print*,'a',npdig,nplet,iarea
 ! Treat this as a nonstandard callsign: compute its 22-bit hash
      n22=ihashcall(c13,22)
      call hash22(n22,c13,1)     !Save (key,value) in hash table

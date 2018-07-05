@@ -19,7 +19,7 @@ subroutine pack77(msg0,i3,n3,c77)
 
 ! Check 0.1 (DXpedition mode)
   call pack77_01(nwords,w,i3,n3,c77)
-  if(i3.ge.0) go to 900
+  if(i3.ge.0 .or. n3.ge.1) go to 900
 ! Check 0.2 (EU VHF contest exchange)
   call pack77_02(nwords,w,i3,n3,c77)
   if(i3.ge.0) go to 900

@@ -55,8 +55,13 @@ subroutine unpack77(c77,msg)
      call unpack28(n28a,call_1)
      call unpack28(n28b,call_2)
      call hash10(n10,call_3,-1)
-     msg=trim(call_1)//' RR73; '//trim(call_2)//' '//trim(call_3)//' '//crpt
-     
+     if(call_3(1:1).eq.'<') then
+        msg=trim(call_1)//' RR73; '//trim(call_2)//' '//trim(call_3)//  &
+             ' '//crpt
+     else
+        msg=trim(call_1)//' RR73; '//trim(call_2)//' <'//trim(call_3)//  &
+             '> '//crpt
+     endif
   else if(i3.eq.0 .and. n3.eq.2) then
 ! 0.2  PA3XYZ/P R 590003 IO91NP           28 1 1 3 12 25   70   EU VHF contest
      read(c77,1020) n28a,ip,ir,irpt,iserial,igrid6

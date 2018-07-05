@@ -40,7 +40,6 @@ subroutine split77(msg,nwords,nw,w)
      w(2:12)=w(3:13)
      nwords=nwords-1
   endif
-!  print*,'a',nwords,w(1:nwords)
   
   return
 end subroutine split77
