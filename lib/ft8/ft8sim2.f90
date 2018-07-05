@@ -4,6 +4,7 @@ program ft8sim2
 ! Output is saved to a *.wav file.
 
   use wavhdr
+  use packjt77
   include 'ft8_params.f90'               !Set various constants
   parameter (NWAVE=NN*NSPS)
   type(hdr) h                            !Header for .wav file

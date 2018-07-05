@@ -1,5 +1,7 @@
 program encode77
 
+  use packjt77
+  
   character*80 msg0
   character msg*37,cerr*1
   character*77 c77
@@ -36,16 +38,3 @@ program encode77
 999 end program encode77
 
 include '../chkcall.f90'
-include 'pack77.f90'
-include 'unpack77.f90'
-include 'pack28.f90'
-include 'unpack28.f90'
-include 'split77.f90'
-include 'pack77_01.f90'
-include 'pack77_02.f90'
-include 'pack77_03.f90'
-include 'pack77_1.f90'
-include 'pack77_3.f90'
-include 'pack77_4.f90'
-include 'packtext77.f90'
-include 'unpacktext77.f90'

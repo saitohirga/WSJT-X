@@ -4,6 +4,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
 
   use crc
   use timer_module, only: timer
+  use packjt77
   include 'ft8_params.f90'
   parameter(NP2=2812)
   character*37 msg37,msgsent37
