@@ -1,4 +1,4 @@
-subroutine genft8(msg,mygrid,bcontest,i3,n3,isync,msgsent,msgbits,itone)
+subroutine genft8(msg37,mygrid,bcontest,i3,n3,isync,msgsent37,msgbits,itone)
 
 ! Encode an FT8 message, producing array itone().
   
@@ -6,6 +6,7 @@ subroutine genft8(msg,mygrid,bcontest,i3,n3,isync,msgsent,msgbits,itone)
   use packjt
   include 'ft8_params.f90'
   character*22 msg,msgsent
+  character*37 msg37,msgsent37
   character*6 mygrid
   character*87 cbits
   logical bcontest,checksumok
@@ -18,9 +19,12 @@ subroutine genft8(msg,mygrid,bcontest,i3,n3,isync,msgsent,msgbits,itone)
   data icos7/2,5,6,0,4,1,3/                   !Costas 7x7 tone pattern
 
   if(isync.eq.2 ) goto 900
-
+  
+  msg=msg37(1:22)
   call packmsg(msg,i4Msg6BitWords,istdtype,bcontest) !Pack into 12 6-bit bytes
   call unpackmsg(i4Msg6BitWords,msgsent,bcontest,mygrid) !Unpack to get msgsent
+  msgsent37(1:22)=msgsent
+  msgsent37(23:37)='               '
 
   write(cbits,1000) i4Msg6BitWords,32*i3
 1000 format(12b6.6,b8.8)
@@ -52,7 +56,7 @@ subroutine genft8(msg,mygrid,bcontest,i3,n3,isync,msgsent,msgbits,itone)
 
 900 continue
 
-  call genft8_174_91(msg,mygrid,bcontest,i3,n3,msgsent,msgbits77,itone)
+  call genft8_174_91(msg37,mygrid,bcontest,i3,n3,msgsent37,msgbits77,itone)
 
   return
 end subroutine genft8

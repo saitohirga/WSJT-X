@@ -3486,8 +3486,13 @@ void MainWindow::guiUpdate()
               m_isync=1;
 //              if(m_config.bGenerate77()) m_isync=2;
               char ft8msgbits[75 + 12]; //packed 75 bit ft8 message plus 12-bit CRC
-              genft8_(message, MyGrid, &bcontest, &m_i3, &m_n3, &m_isync, msgsent, 
-                      const_cast<char *> (ft8msgbits), const_cast<int *> (itone), 22, 6, 22);
+// TEMPORARY - for now, just copy 22-bit message to 37-bit messageft8
+              char messageft8[44]; //padded with 7 characters, like messsage.
+              char msgsentft8[44];
+              strncpy(&messageft8[0],&message[0],22);
+              genft8_(messageft8, MyGrid, &bcontest, &m_i3, &m_n3, &m_isync, msgsentft8, 
+                      const_cast<char *> (ft8msgbits), const_cast<int *> (itone), 37, 6, 37);
+              strncpy(&msgsent[0],&msgsentft8[0],22);
               if(m_config.bFox()) {
                 QString fm = QString::fromStdString(message).trimmed();
                 foxGenWaveform(0,fm);
