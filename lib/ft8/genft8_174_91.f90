@@ -2,7 +2,6 @@ subroutine genft8_174_91(msg,mygrid,bcontest,i3,n3,msgsent,msgbits,itone)
 
 ! Encode an FT8 message, producing array itone().
   
-  use packjt
   use packjt77
   include 'ft8_params.f90'
   character msg*37,msgsent*37
