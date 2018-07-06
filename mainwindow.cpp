@@ -2830,6 +2830,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 {
   while(proc_jt9.canReadLine()) {
     QByteArray t=proc_jt9.readLine();
+   /*
     if(m_mode=="FT8" and !m_config.bHound() and t.contains(";")) {
       if(t.contains("<...>")) continue;
       if(!m_bWarnedHound) {
@@ -2839,6 +2840,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         m_bWarnedHound=true;
       }
     }
+    */
 //    qint64 ms=QDateTime::currentMSecsSinceEpoch() - m_msec0;
     bool bAvgMsg=false;
     int navg=0;
@@ -3498,7 +3500,7 @@ void MainWindow::guiUpdate()
               m_isync=1;
               if(!m_config.bGenerate77() and itype == 6 and (m_i3>0 or m_n3>0)) m_isync=2;
               if(m_config.bGenerate77()) m_isync=2;
-              qDebug() << "itype=" << itype << "i3, n3:"<< m_i3 << m_n3 << "isync="<< m_isync << ui->tx6->text();
+//              qDebug() << "itype=" << itype << "i3, n3:"<< m_i3 << m_n3 << "isync="<< m_isync << ui->tx6->text();
               char ft8msgbits[75 + 12]; //packed 75 bit ft8 message plus 12-bit CRC
               genft8_(message, MyGrid, &bcontest, &m_i3, &m_n3, &m_isync, msgsent,
                       const_cast<char *> (ft8msgbits), const_cast<int *> (itone), 37, 6, 37);
