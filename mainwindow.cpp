@@ -4484,6 +4484,11 @@ void MainWindow::genCQMsg ()
         msgtype ("@1000  (TUNE)", ui->tx6);
       }
     }
+    if(m_config.bFieldDay()) {
+      QString t=ui->tx6->text();
+      t="CQ FD" + t.mid(2,-1);
+      ui->tx6->setText(t);
+    }
   } else {
     ui->tx6->clear ();
   }
@@ -4529,10 +4534,16 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     rpt.sprintf("%+2.2d",n);
 
     if(m_mode=="MSK144" or m_mode=="FT8") {
-      if(ui->cbVHFcontest->isChecked()) {
+      if(ui->cbVHFcontest->isChecked() or m_config.bNA_VHF_Contest()) {
         t=t0 + my_grid;
         msgtype(t, ui->tx2);
         t=t0 + "R " + my_grid;
+        msgtype(t, ui->tx3);
+      }
+      if(m_config.bFieldDay()) {
+        t=t0 + m_config.FieldDayExchange();
+        msgtype(t, ui->tx2);
+        t=t0 + "R " + m_config.FieldDayExchange();
         msgtype(t, ui->tx3);
       }
     }
@@ -4550,12 +4561,16 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
         rpt.sprintf("%+2.2d",n);
       }
     }
-    if((m_mode!="MSK144" and m_mode!="FT8") or !ui->cbVHFcontest->isChecked()) {
-      t=t00 + rpt;
-      msgtype(t, ui->tx2);
-      t=t0 + "R" + rpt;
-      msgtype(t, ui->tx3);
+
+    if(!m_config.bFieldDay() and !m_config.bRTTYroundup() and !m_config.bEU_VHF_Contest()) {
+      if((m_mode!="MSK144" and m_mode!="FT8") or !ui->cbVHFcontest->isChecked()) {
+        t=t00 + rpt;
+        msgtype(t, ui->tx2);
+        t=t0 + "R" + rpt;
+        msgtype(t, ui->tx3);
+      }
     }
+
     t=t0 + (m_send_RR73 ? "RR73" : "RRR");
     if ((m_mode=="JT4" || m_mode=="QRA64") && m_bShMsgs) t="@1500  (RRR)";
     msgtype(t, ui->tx4);
@@ -4563,11 +4578,9 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     if (m_mode=="JT4" || m_mode=="QRA64") {
       if (m_bShMsgs) t="@1750  (73)";
       msgtype(t, ui->tx5->lineEdit ());
-    }
-    else if ("MSK144" == m_mode && m_bShMsgs) {
+    } else if ("MSK144" == m_mode && m_bShMsgs) {
       msgtype(t, ui->tx5->lineEdit ());
-    }
-    else if (unconditional || hisBase != m_lastCallsign || !m_lastCallsign.size ()) {
+    } else if (unconditional || hisBase != m_lastCallsign || !m_lastCallsign.size ()) {
       // only update tx5 when forced or  callsign changes
       msgtype(t, ui->tx5->lineEdit ());
       m_lastCallsign = hisBase;
