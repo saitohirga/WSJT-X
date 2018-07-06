@@ -77,7 +77,7 @@ extern "C" {
               fortran_charlen_t);
 
   void genft8_(char* msg, char* MyGrid, bool* bcontest, int* i3, int* n3, int* isync, char* msgsent,
-               char ft8msgbits[], int itone[], fortran_charlen_t, fortran_charlen_t,
+               int ft8msgbits[], int itone[], fortran_charlen_t, fortran_charlen_t,
                fortran_charlen_t);
 
   void parse77_(char* msg, int* i3, int* n3, fortran_charlen_t);
@@ -3501,9 +3501,9 @@ void MainWindow::guiUpdate()
               if(!m_config.bGenerate77() and itype == 6 and (m_i3>0 or m_n3>0)) m_isync=2;
               if(m_config.bGenerate77()) m_isync=2;
 //              qDebug() << "itype=" << itype << "i3, n3:"<< m_i3 << m_n3 << "isync="<< m_isync << ui->tx6->text();
-              char ft8msgbits[77]; 
+              int ft8msgbits[77]; 
               genft8_(message, MyGrid, &bcontest, &m_i3, &m_n3, &m_isync, msgsent,
-                      const_cast<char *> (ft8msgbits), const_cast<int *> (itone), 37, 6, 37);
+                      const_cast<int *> (ft8msgbits), const_cast<int *> (itone), 37, 6, 37);
 
               if(m_config.bFox()) {
                 //Fox must generate the full Tx waveform, not just an itone[] array.
