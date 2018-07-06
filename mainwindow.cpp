@@ -4540,11 +4540,38 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
         t=t0 + "R " + my_grid;
         msgtype(t, ui->tx3);
       }
+
       if(m_config.bFieldDay()) {
         t=t0 + m_config.FieldDayExchange();
         msgtype(t, ui->tx2);
         t=t0 + "R " + m_config.FieldDayExchange();
         msgtype(t, ui->tx3);
+        m_send_RR73=true;
+      }
+
+      QString rst;
+      int nn=n/6+6;
+      if(nn<2) nn=2;
+      if(nn>9) nn=9;
+      rst.sprintf("5%1d9 ",nn);
+       if(m_config.bRTTYroundup()) {
+        t=t0 + rst + m_config.RTTYExchange();             //Use a real report
+        msgtype(t, ui->tx2);
+        t=t0 + "R " + rst + m_config.RTTYExchange();
+        msgtype(t, ui->tx3);
+        m_send_RR73=true;
+      }
+
+      QString rs=rst.mid(0,2);
+      if(m_config.bEU_VHF_Contest()) {
+        QString a;
+        a.sprintf(" %d ",ui->sbSerialNumber->value());
+        t=t0 + rs + a + m_config.my_grid();
+        msgtype(t, ui->tx2);
+        a.sprintf(" %d ",ui->sbSerialNumber->value());
+        t=t0 + "R " + rs + a + m_config.my_grid();
+        msgtype(t, ui->tx3);
+        m_send_RR73=true;
       }
     }
     if(m_mode=="MSK144" and m_bShMsgs) {
@@ -4848,6 +4875,9 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
     int i0=t.trimmed().length()-7;
     if(t.mid(i0,3)==" R ") text=false;
   }
+  if(m_config.bFieldDay() or m_config.bRTTYroundup() or m_config.bNA_VHF_Contest() or
+     m_config.bEU_VHF_Contest()) text=false;
+
   QPalette p(tx->palette());
   if(text) {
     p.setColor(QPalette::Base,"#ffccff");
