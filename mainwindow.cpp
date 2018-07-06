@@ -3677,7 +3677,8 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-//    qDebug() << "OneSec:" << m_config.bGenerate77() << m_config.bDecode77();
+//    qDebug() << "OneSec:" << m_config.bGenerate77() << m_config.bDecode77()
+//             << m_config.FieldDayExchange() << m_config.RTTYExchange();
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
       if(!m_bVHFwarned) vhfWarning();
     } else {
@@ -5042,6 +5043,8 @@ void MainWindow::displayWidgets(qint64 n)
     if(i==32) ui->cbCQonly->setVisible(b);
     j=j>>1;
   }
+  b=m_config.bEU_VHF_Contest() or (m_config.bRTTYroundup() and m_config.RTTYExchange()=="DX");
+  ui->sbSerialNumber->setVisible(b);
   m_lastCallsign.clear ();     // ensures Tx5 is updated for new modes
   genStdMsgs (m_rpt, true);
 }

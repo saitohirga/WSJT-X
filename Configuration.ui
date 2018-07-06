@@ -2703,11 +2703,25 @@ Right click for insert and delete options.</string>
            <rect>
             <x>10</x>
             <y>20</y>
-            <width>341</width>
-            <height>71</height>
+            <width>451</width>
+            <height>78</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_15">
+           <item row="0" column="2">
+            <widget class="QRadioButton" name="rbNA_VHF_Contest">
+             <property name="text">
+              <string>NA VHF Contest</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QRadioButton" name="rbEU_VHF_Contest">
+             <property name="text">
+              <string>EU VHF Contest</string>
+             </property>
+            </widget>
+           </item>
            <item row="0" column="0">
             <widget class="QRadioButton" name="rbNone">
              <property name="text">
@@ -2719,32 +2733,111 @@ Right click for insert and delete options.</string>
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QRadioButton" name="rbFieldDay">
-             <property name="text">
-              <string>ARRL Field Day</string>
-             </property>
-            </widget>
+            <layout class="QHBoxLayout" name="horizontalLayout_17">
+             <item>
+              <widget class="QRadioButton" name="rbFieldDay">
+               <property name="text">
+                <string>ARRL Field Day</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_9">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_14">
+               <property name="text">
+                <string>Exch:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="FieldDay_Exchange">
+               <property name="maximumSize">
+                <size>
+                 <width>60</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>6A SNJ</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item row="2" column="0">
-            <widget class="QRadioButton" name="rbRTTYroundup">
-             <property name="text">
-              <string>ARRL RTTY Roundup</string>
-             </property>
-            </widget>
+            <layout class="QHBoxLayout" name="horizontalLayout_18">
+             <item>
+              <widget class="QRadioButton" name="rbRTTYroundup">
+               <property name="text">
+                <string>ARRL RTTY Roundup</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_10">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>10</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_15">
+               <property name="text">
+                <string>Exch:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="RTTY_Exchange">
+               <property name="maximumSize">
+                <size>
+                 <width>60</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>NJ</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item row="0" column="1">
-            <widget class="QRadioButton" name="rbNA_VHF_Contest">
-             <property name="text">
-              <string>NA VHF Contest</string>
+            <spacer name="horizontalSpacer_11">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
              </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QRadioButton" name="rbEU_VHF_Contest">
-             <property name="text">
-              <string>EU VHF Contest</string>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
              </property>
-            </widget>
+            </spacer>
            </item>
           </layout>
          </widget>

@@ -529,6 +529,8 @@ private:
   // configuration fields that we publish
   QString my_callsign_;
   QString my_grid_;
+  QString FD_exchange_;
+  QString RTTY_exchange_;
   QColor color_CQ_;
   QColor next_color_CQ_;
   QColor color_MyCall_;
@@ -819,6 +821,16 @@ QString Configuration::my_grid() const
     the_grid = m_->dynamic_grid_;
   }
   return the_grid;
+}
+
+QString Configuration::FieldDayExchange() const
+{
+  return m_->FD_exchange_;
+}
+
+QString Configuration::RTTYExchange() const
+{
+  return m_->RTTY_exchange_;
 }
 
 void Configuration::set_location (QString const& grid_descriptor)
@@ -1260,6 +1272,10 @@ void Configuration::impl::read_settings ()
 
   my_callsign_ = settings_->value ("MyCall", QString {}).toString ();
   my_grid_ = settings_->value ("MyGrid", QString {}).toString ();
+  FD_exchange_ = settings_->value ("FieldDayExchange",QString {}).toString ();
+  RTTY_exchange_ = settings_->value ("RTTYExchange",QString {}).toString ();
+  ui_->FieldDay_Exchange->setText(FD_exchange_);
+  ui_->RTTY_Exchange->setText(RTTY_exchange_);
   next_color_CQ_ = color_CQ_ = settings_->value("colorCQ","#66ff66").toString();
   next_color_MyCall_ = color_MyCall_ = settings_->value("colorMyCall","#ff6666").toString();
   next_color_TxMsg_ = color_TxMsg_ = settings_->value("colorTxMsg","#ffff00").toString();
@@ -1450,6 +1466,8 @@ void Configuration::impl::write_settings ()
 
   settings_->setValue ("MyCall", my_callsign_);
   settings_->setValue ("MyGrid", my_grid_);
+  settings_->setValue ("FieldDayExchange", FD_exchange_);
+  settings_->setValue ("RTTYExchange", RTTY_exchange_);
   settings_->setValue("colorCQ",color_CQ_);
   settings_->setValue("colorMyCall",color_MyCall_);
   settings_->setValue("colorTxMsg",color_TxMsg_);
@@ -1907,6 +1925,8 @@ void Configuration::impl::accept ()
 
   my_callsign_ = ui_->callsign_line_edit->text ();
   my_grid_ = ui_->grid_line_edit->text ();
+  FD_exchange_= ui_->FieldDay_Exchange->text ();
+  RTTY_exchange_= ui_->RTTY_Exchange->text ();
   spot_to_psk_reporter_ = ui_->psk_reporter_check_box->isChecked ();
   id_interval_ = ui_->CW_id_interval_spin_box->value ();
   ntrials_ = ui_->sbNtrials->value ();

@@ -96,6 +96,8 @@ public:
 
   QString my_callsign () const;
   QString my_grid () const;
+  QString FieldDayExchange() const;
+  QString RTTYExchange() const;
   QFont text_font () const;
   QFont decoded_text_font () const;
   qint32 id_interval () const;

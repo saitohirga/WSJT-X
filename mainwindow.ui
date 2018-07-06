@@ -1013,6 +1013,22 @@ QLabel[oob=&quot;true&quot;] {
                  </property>
                 </spacer>
                </item>
+               <item row="3" column="1">
+                <widget class="QSpinBox" name="sbSerialNumber">
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                 <property name="suffix">
+                  <string> </string>
+                 </property>
+                 <property name="minimum">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <number>4095</number>
+                 </property>
+                </widget>
+               </item>
               </layout>
              </item>
              <item>
