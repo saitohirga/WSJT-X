@@ -63,3 +63,8 @@ W9XYZ K1ABC -11
                                    K1ABC W9XYZ R-09
 W9XYZ <PJ4/K1ABC> RRR
                                    <PJ4/K1ABC> W9XYZ 73
+9. Other stuff
+-----------------------------------------------------------
+TNX BOB 73 GL
+free text msg
+123456789ABCD

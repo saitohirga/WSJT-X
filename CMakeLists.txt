@@ -547,6 +547,7 @@ set (wsjt_FSRCS
   lib/ft8/osd174_91.f90
   lib/fsk4hf/osd300.f90
   lib/fsk4hf/osd204.f90
+  lib/77bit/parse77.f90
   lib/pctile.f90
   lib/peakdt9.f90
   lib/peakup.f90

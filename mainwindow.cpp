@@ -75,11 +75,12 @@ extern "C" {
               float s[], int* jh, float *pxmax, float *rmsNoGain, char line[], char mygrid[],
               fortran_charlen_t, fortran_charlen_t, fortran_charlen_t, fortran_charlen_t,
               fortran_charlen_t);
-//  float s[], int* jh, char line[], char mygrid[],
 
   void genft8_(char* msg, char* MyGrid, bool* bcontest, int* i3, int* n3, int* isync, char* msgsent,
                char ft8msgbits[], int itone[], fortran_charlen_t, fortran_charlen_t,
                fortran_charlen_t);
+
+  void parse77_(char* msg, int* i3, int* n3, fortran_charlen_t);
 
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, fortran_charlen_t, fortran_charlen_t);
@@ -163,7 +164,7 @@ QVector<QColor> g_ColorTbl;
 namespace
 {
   Radio::Frequency constexpr default_frequency {14076000};
-  QRegExp message_alphabet {"[- @A-Za-z0-9+./?#<>]*"};
+  QRegExp message_alphabet {"[- @A-Za-z0-9+./?#<>;]*"};
   // grid exact match excluding RR73
   QRegularExpression grid_regexp {"\\A(?![Rr]{2}73)[A-Ra-r]{2}[0-9]{2}([A-Xa-x]{2}){0,1}\\z"};
 
@@ -3187,8 +3188,8 @@ void MainWindow::decodeBusy(bool b)                             //decodeBusy()
 //------------------------------------------------------------- //guiUpdate()
 void MainWindow::guiUpdate()
 {
-  static char message[29];
-  static char msgsent[29];
+  static char message[38];
+  static char msgsent[38];
   double txDuration;
   QString rt;
 
@@ -3481,19 +3482,29 @@ void MainWindow::guiUpdate()
             if(m_config.bFox() and ui->tabWidget->currentIndex()==2) {
               foxTxSequencer();
             } else {
-              m_i3=0;  // Temporary!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-              m_n3=0;
+              parse77_(message, &m_i3, &m_n3, 37);
+              int ichk=1,itype=-1;
+              gen65_(message,&ichk,msgsent,const_cast<int *>(itone),&itype,22,22);
+              /*
+               * itype:
+               *  1 Std msg
+               *  2 Type 1 prefix
+               *  3 Type 1 suffix
+               *  4 Type 2 prefix
+               *  5 Type 2 suffix
+               *  6 Free Text
+               *  7 Hashed calls (MSK144 short format)
+              */
               m_isync=1;
-//              if(m_config.bGenerate77()) m_isync=2;
+              if(!m_config.bGenerate77() and itype == 6 and (m_i3>0 or m_n3>0)) m_isync=2;
+              if(m_config.bGenerate77()) m_isync=2;
+              qDebug() << "itype=" << itype << "i3, n3:"<< m_i3 << m_n3 << "isync="<< m_isync << ui->tx6->text();
               char ft8msgbits[75 + 12]; //packed 75 bit ft8 message plus 12-bit CRC
-// TEMPORARY - for now, just copy 22-bit message to 37-bit messageft8
-              char messageft8[38]; 
-              char msgsentft8[38]; // Only need to send the first 37 chars to Fortran, right?
-              strncpy(&messageft8[0],&message[0],22);
-              genft8_(messageft8, MyGrid, &bcontest, &m_i3, &m_n3, &m_isync, msgsentft8, 
+              genft8_(message, MyGrid, &bcontest, &m_i3, &m_n3, &m_isync, msgsent,
                       const_cast<char *> (ft8msgbits), const_cast<int *> (itone), 37, 6, 37);
-              strncpy(&msgsent[0],&msgsentft8[0],22);
+
               if(m_config.bFox()) {
+                //Fox must generate the full Tx waveform, not just an itone[] array.
                 QString fm = QString::fromStdString(message).trimmed();
                 foxGenWaveform(0,fm);
                 foxcom_.nslots=1;
@@ -3506,7 +3517,8 @@ void MainWindow::guiUpdate()
             }
           }
         }
-        msgsent[22]=0;
+        if(m_isync==1) msgsent[22]=0;
+        if(m_isync==2) msgsent[37]=0;
       }
     }
 
@@ -3611,9 +3623,6 @@ void MainWindow::guiUpdate()
         m_QSOProgress = CALLING;
         m_gen_message_is_cq = true;
         ui->rbGenMsg->setChecked(true);
-      } else {
-//JHT 11/29/2015        m_ntx=6;
-//        ui->txrb6->setChecked(true);
       }
     }
   }
@@ -3834,14 +3843,14 @@ void MainWindow::stopTx2()
 void MainWindow::ba2msg(QByteArray ba, char message[])             //ba2msg()
 {
   int iz=ba.length();
-  for(int i=0;i<28; i++) {
+  for(int i=0; i<37; i++) {
     if(i<iz) {
       message[i]=ba[i];
     } else {
       message[i]=32;
     }
   }
-  message[28]=0;
+  message[37]=0;
 }
 
 void MainWindow::on_txFirstCheckBox_stateChanged(int nstate)        //TxFirst
@@ -4804,14 +4813,14 @@ void MainWindow::on_addButton_clicked()                       //Add button
 
 void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
 {
-  char message[29];
-  char msgsent[29];
+// Set background colors of the Tx message boxes, depending on message type
+  char message[38];
+  char msgsent[38];
   int itone0[NUM_ISCAT_SYMBOLS];  //Dummy array, data not used
-  int len1=22;
   QByteArray s=t.toUpper().toLocal8Bit();
   ba2msg(s,message);
   int ichk=1,itype=0;
-  gen65_(message,&ichk,msgsent,itone0,&itype,len1,len1);
+  gen65_(message,&ichk,msgsent,itone0,&itype,22,22);
   msgsent[22]=0;
   bool text=false;
   bool shortMsg=false;

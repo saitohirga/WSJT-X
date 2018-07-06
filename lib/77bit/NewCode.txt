@@ -20,8 +20,8 @@ i3 n3 isync  Operating activity, Message Type
 A. Required GUI Additions (after July 3):
 
    1. Entry widgets for fixed parts of contest exchanges: comboBoxes
-      for ARRL section, US State/Canadian Province, Field Day
-      #transmitters and Class.
+      for ARRL section, US State/Canadian Province, number of 
+      transmitters and entry Class for Field Day.
       
    2. Spinner control for serial numbers: used for EU_VHF_Contest,
       and for DX stations in RTTYroundup.
@@ -41,7 +41,7 @@ C. Code just before calling genft8_():
    3. if msg is not an old-style standard msg, see if it's valid
       as a 77-bit msg
    4. if NO: transmit as Free Text
-      if YES: set i3 and n3 accordingly
+      if YES: set i3, n3, and isync=2
       
 D. Auto-sequencer code
 

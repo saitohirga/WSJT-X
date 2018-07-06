@@ -959,6 +959,7 @@ subroutine pack77_3(nwords,w,i3,n3,c77)
      if(trim(w(1)).eq.'TU;') i1=2
      call chkcall(w(i1),bcall_1,ok1)
      call chkcall(w(i1+1),bcall_2,ok2)
+     if(.not.ok1 .or. .not.ok2) go to 900
      crpt=w(nwords-1)(1:3)
      if(crpt(1:1).eq.'5' .and. crpt(2:2).ge.'2' .and. crpt(2:2).le.'9' .and.    &
           crpt(3:3).eq.'9') then
@@ -999,7 +1000,7 @@ subroutine pack77_3(nwords,w,i3,n3,c77)
      endif
   endif
 
-  return
+900 return
 end subroutine pack77_3
 
 
