@@ -21,10 +21,10 @@ messages:
   - "Always generate new-style (77-bit) messages."
   - "Decode only 77-bit messages
 
-4. (K9AN) New-style messages can be as long as 37 characters.  We'll
+4. (K9AN -- MOSTLY DONE) New-style messages can be as long as 37 characters.  We'll
 need to allow for that in a number of places.
 
-5. (K9AN) Subroutine genft8() will need to parse the message to be
+5. (K9AN -- DONE) Subroutine genft8() will need to parse the message to be
 transmitted, determine the effective message type i3 and possibly
 subtype, n3.  It will then generate itone, calling genft8_174_91(() if
 needed.
@@ -36,7 +36,12 @@ ARRL Field Day, ARRL RTTY Roundup, use of nonstandard calls.
 7. (??) Code to do the necessary auto-sequencing for each specialized
 type of operating.
 
-8. (??) What's needed for MSK144 with LDPC(128,90) ?
+8. (K9AN) What's needed for MSK144 with LDPC(128,90) ?
+
+9. (K9AN) Work on the implementation of AP decoding. For which message types
+should AP be implemented? For each message type/QSO state that will use 
+AP decoding, need to create an AP decoding table that defines the number and 
+type of AP decoding passes. 
 
 ==========================================================================
 The following are just ideas:
