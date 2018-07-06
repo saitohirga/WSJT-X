@@ -3500,7 +3500,7 @@ void MainWindow::guiUpdate()
               m_isync=1;
               if(!m_config.bGenerate77() and itype == 6 and (m_i3>0 or m_n3>0)) m_isync=2;
               if(m_config.bGenerate77()) m_isync=2;
-//              qDebug() << "itype=" << itype << "i3, n3:"<< m_i3 << m_n3 << "isync="<< m_isync << ui->tx6->text();
+              qDebug() << "itype=" << itype << "i3, n3:"<< m_i3 << m_n3 << "isync="<< m_isync << ui->tx6->text();
               char ft8msgbits[75 + 12]; //packed 75 bit ft8 message plus 12-bit CRC
               genft8_(message, MyGrid, &bcontest, &m_i3, &m_n3, &m_isync, msgsent,
                       const_cast<char *> (ft8msgbits), const_cast<int *> (itone), 37, 6, 37);
@@ -3677,8 +3677,8 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-//    qDebug() << "OneSec:" << m_config.bGenerate77() << m_config.bDecode77()
-//             << m_config.FieldDayExchange() << m_config.RTTYExchange();
+    qDebug() << "OneSec:" << m_config.bGenerate77() << m_config.bDecode77()
+             << m_config.FieldDayExchange() << m_config.RTTYExchange();
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
       if(!m_bVHFwarned) vhfWarning();
     } else {
