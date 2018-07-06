@@ -496,7 +496,6 @@ private:
   bool    m_bAutoReply;
   bool    m_bCheckedContest;
   bool    m_bWarnedSplit=false;
-  bool    m_bWarnedHound=false;
 
   enum
     {
