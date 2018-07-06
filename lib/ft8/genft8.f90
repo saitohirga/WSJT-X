@@ -1,4 +1,4 @@
-subroutine genft8(msg37,mygrid,bcontest,i3,n3,isync,msgsent37,msgbits,itone)
+subroutine genft8(msg37,mygrid,bcontest,i3,n3,isync,msgsent37,msgbits77,itone)
 
 ! Encode an FT8 message, producing array itone().
   
