@@ -41,7 +41,7 @@ call getarg(4,arg)
 read(arg,*) s
 
 ! don't count hash bits as data bits
-K=80
+K=72
 N=128
 rate=real(K)/real(N)
 
@@ -161,7 +161,7 @@ do idb = 14,-6,-1
       endif
     endif
   enddo
-  snr2500=db-3.0
+  snr2500=db-3.5
   write(*,"(f4.1,4x,f5.1,1x,i8,1x,i8,1x,i8,8x,f5.2)") db,snr2500,ngood,nue,nbadhash,ss
 
 enddo
