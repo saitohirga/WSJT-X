@@ -3678,8 +3678,8 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-    qDebug() << "OneSec:" << m_config.bGenerate77() << m_config.bDecode77()
-             << m_config.FieldDayExchange() << m_config.RTTYExchange();
+//    qDebug() << "OneSec:" << m_config.bGenerate77() << m_config.bDecode77()
+//             << m_config.FieldDayExchange() << m_config.RTTYExchange();
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
       if(!m_bVHFwarned) vhfWarning();
     } else {
