@@ -1,10 +1,11 @@
 program ldpcsim174_91
 ! End to end test of the (174,91)/crc14 encoder and decoder.
 use crc
-use packjt
+use packjt77
 
 integer, parameter:: N=174, K=91, M=N-K
-character*22 msg,msgsent,msgreceived
+character*37 msg,msgsent,msgreceived
+character*77 c77
 character*8 arg
 character*6 grid
 character*96 tmpchar
@@ -12,7 +13,6 @@ integer*1, allocatable ::  codeword(:), decoded(:), message(:)
 integer*1 msgbits(77)
 integer*1 message77(77)
 integer*1 apmask(N), cw(N)
-integer*4 i4Msg6BitWords(13)
 integer nerrtot(0:N),nerrdec(0:N)
 real*8, allocatable ::  rxdata(:)
 real, allocatable :: llr(:)
@@ -48,19 +48,17 @@ allocate ( rxdata(N), llr(N) )
 
 !  msg="K1JT K9AN EN50"
   msg="G4WJS K9AN EN50"
-  call packmsg(msg,i4Msg6BitWords,itype,.false.) !Pack into 12 6-bit bytes
-  call unpackmsg(i4Msg6BitWords,msgsent,.false.,grid) !Unpack to get msgsent
+  i3=0
+  n3=1
+  call pack77(msg,i3,n3,c77) !Pack into 12 6-bit bytes
+  call unpack77(c77,msgsent) !Unpack to get msgsent
   write(*,*) "message sent ",msgsent
 
-  tmpchar=' '
-  write(tmpchar,'(12b6.6)') i4Msg6BitWords(1:12)
-  tmpchar(73:77)='00000'   !i5bit
-  read(tmpchar,'(77i1)') msgbits(1:77)
+  read(c77,'(77i1)') msgbits(1:77)
 
   write(*,*) 'message'
-  write(*,'(28i1,1x,28i1,1x,16i1,1x,5i1)') msgbits
+  write(*,'(77i1)') c77 
 
-! msgbits is the 77-bit message, codeword is 174 bits
   call encode174_91(msgbits,codeword)
 
   call init_random_seed()

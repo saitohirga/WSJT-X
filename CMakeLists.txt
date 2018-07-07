@@ -414,7 +414,7 @@ set (wsjt_FSRCS
   lib/encode4.f90
   lib/encode_msk40.f90
   lib/encode_msk144.f90
-  lib/encode128_90.f90
+  lib/encode_128_90.f90
   lib/fsk4hf/encode120.f90
   lib/fsk4hf/encode168.f90
   lib/ft8/encode174.f90
@@ -474,7 +474,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/genfsk4hf.f90
   lib/ft8/genft8.f90
   lib/ft8/genft8_174_91.f90
-  lib/genmsk144.f90
+  lib/genmsk_128_90.f90
   lib/genmsk40.f90
   lib/fsk4hf/genmskhf.f90
   lib/fsk4hf/genwsprlf.f90

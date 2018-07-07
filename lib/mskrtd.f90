@@ -13,8 +13,8 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   parameter (NSHMEM=50)              !Number of recent SWL messages to remember
 
   character*4 decsym                 !"&" for mskspd or "^" for long averages
-  character*22 msgreceived           !Decoded message
-  character*22 msglast,msglastswl   !Used for dupechecking
+  character*37 msgreceived           !Decoded message
+  character*37 msglast,msglastswl   !Used for dupechecking
   character*80 line                  !Formatted line with UTC dB T Freq Msg
   character*12 mycall,hiscall
   character*6 mygrid

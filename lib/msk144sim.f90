@@ -5,7 +5,8 @@ program msk144sim
   real pings(0:NMAX-1)
   real waveform(0:NMAX-1)
   character*6 mygrid
-  character arg*8,msg*22,msgsent*22,fname*40
+  character arg*8,msg*37,msgsent*37,fname*40
+  character*77 c77
   real wave(0:NMAX-1)              !Simulated received waveform
   real*8 twopi,freq,phi,dphi0,dphi1,dphi
   type(hdr) h                          !Header for .wav file
@@ -40,7 +41,7 @@ program msk144sim
   bcontest=.false.
   if(msg(i1:i1+1).eq.'R ') bcontest=.true.
   ichk=0
-  call genmsk144(msg,mygrid,ichk,bcontest,msgsent,itone,itype) 
+  call genmsk_128_90(msg,mygrid,ichk,bcontest,msgsent,itone,itype) 
   twopi=8.d0*atan(1.d0)
 
   nsym=144

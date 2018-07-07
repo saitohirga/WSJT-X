@@ -77,7 +77,7 @@ subroutine genmsk_128_90(msg0,mygrid,ichk,bcontest,msgsent,i4tone,itype)
      call pack77(message,i3,n3,c77) 
      call unpack77(c77,msgsent) !Unpack to get msgsent
      if(ichk.eq.1) go to 999
-     read(c77,"77i1") msgbits
+     read(c77,"(77i1)") msgbits
      call encode_128_90(msgbits,codeword)
 
 !Create 144-bit channel vector:
