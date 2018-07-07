@@ -77,7 +77,7 @@ extern "C" {
               fortran_charlen_t);
 
   void genft8_(char* msg, char* MyGrid, bool* bcontest, int* i3, int* n3, int* isync, char* msgsent,
-               int ft8msgbits[], int itone[], fortran_charlen_t, fortran_charlen_t,
+               char ft8msgbits[], int itone[], fortran_charlen_t, fortran_charlen_t,
                fortran_charlen_t);
 
   void parse77_(char* msg, int* i3, int* n3, fortran_charlen_t);
@@ -3472,6 +3472,8 @@ void MainWindow::guiUpdate()
           strncpy(MyCall, (m_config.my_callsign()+"      ").toLatin1(),6);
           strncpy(MyGrid, (m_config.my_grid()+"      ").toLatin1(),6);
           if(m_modeTx=="MSK144") {
+            qDebug() << "ichk m_currentMessageType message :" << ichk << m_currentMessageType 
+                       << QString::fromStdString(message).trimmed();
             genmsk_128_90_(message, MyGrid, &ichk, &bcontest, msgsent, const_cast<int *> (itone),
                        &m_currentMessageType, 37, 6, 37);
             if(m_restart) {
@@ -3503,9 +3505,9 @@ void MainWindow::guiUpdate()
               qDebug() << "itype i3 n3 isync :" << itype << m_i3 << m_n3 << m_isync
                        << QString::fromStdString(message).trimmed();
 
-              int ft8msgbits[77]; 
+              char ft8msgbits[77]; 
               genft8_(message, MyGrid, &bcontest, &m_i3, &m_n3, &m_isync, msgsent,
-                      const_cast<int *> (ft8msgbits), const_cast<int *> (itone), 37, 6, 37);
+                      const_cast<char *> (ft8msgbits), const_cast<int *> (itone), 37, 6, 37);
 
               if(m_config.bFox()) {
                 //Fox must generate the full Tx waveform, not just an itone[] array.
