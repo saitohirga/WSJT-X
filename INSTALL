@@ -80,9 +80,7 @@ installation.
 
 To get the  sources either download and extract a  source tarball from
 the project web site or preferably fetch the sources directly from the
-project's  subversion repository.  The  project svn  repository has  a
-non-standard layout  in that the WSJT-X  project is not on  the trunk,
-instead the main code line is in a branch at ^/branches/wsjtx
+project's  subversion repository.
 
 $ mkdir -p ~/wsjtx-prefix/build
 $ cd ~/wsjtx-prefix
