@@ -668,9 +668,10 @@ subroutine split77(msg,nwords,nw,w)
   enddo
   iz=j                                          !Message length
   nwords=k                                      !Number of words in msg
+  if(nwords.le.0) go to 900
   nw(k)=len(trim(w(k)))
   msg(iz+1:)='                                     '
-  
+  if(nwords.lt.3) go to 900
   call chkcall(w(3),bcall_1,ok1)
   if(ok1 .and. w(1)(1:3).eq.'CQ ') then
      w(1)='CQ_'//w(2)(1:10)
@@ -678,7 +679,7 @@ subroutine split77(msg,nwords,nw,w)
      nwords=nwords-1
   endif
   
-  return
+900 return
 end subroutine split77
 
 
