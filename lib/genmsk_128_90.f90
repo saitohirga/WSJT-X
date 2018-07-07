@@ -55,14 +55,14 @@ subroutine genmsk_128_90(msg0,mygrid,ichk,bcontest,msgsent,i4tone,itype)
 2    i4tone(1)=nfreq
   else
      message=msg0
-     do i=1,22
+     do i=1, 37
         if(ichar(message(i:i)).eq.0) then
            message(i:)='                      '
            exit
         endif
      enddo
 
-     do i=1,22                               !Strip leading blanks
+     do i=1,37                               !Strip leading blanks
         if(message(1:1).ne.' ') exit
         message=message(i+1:)
      enddo
@@ -109,6 +109,5 @@ subroutine genmsk_128_90(msg0,mygrid,ichk,bcontest,msgsent,i4tone,itype)
 
 ! Flip polarity
   i4tone=-i4tone+1
-
 999 return
 end subroutine genmsk_128_90
