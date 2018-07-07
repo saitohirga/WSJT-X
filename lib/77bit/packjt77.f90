@@ -293,6 +293,7 @@ subroutine unpack77(c77,msg)
      ! 0.4   WA9XYZ KA1ABC R 32A EMA            28 28 1 4 3 7    71   ARRL Field Day
      read(c77,1030) n28a,n28b,ir,intx,nclass,isec
 1030 format(2b28,b1,b4,b3,b7)
+     if(isec.gt.NSEC) isec=NSEC          !### Check range for other params? ###
      call unpack28(n28a,call_1)
      call unpack28(n28b,call_2)
      ntx=intx+1
@@ -428,7 +429,7 @@ subroutine unpack77(c77,msg)
      endif
   endif
 
-  return
+900 return
 end subroutine unpack77
 
 
