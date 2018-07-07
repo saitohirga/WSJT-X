@@ -3500,7 +3500,8 @@ void MainWindow::guiUpdate()
               m_isync=1;
               if(!m_config.bGenerate77() and itype == 6 and (m_i3>0 or m_n3>0)) m_isync=2;
               if(m_config.bGenerate77()) m_isync=2;
-              qDebug() << "itype=" << itype << "i3, n3:"<< m_i3 << m_n3 << "isync="<< m_isync << ui->tx6->text();
+              qDebug() << "itype i3 n3 isync :" << itype << m_i3 << m_n3 << m_isync
+                       << QString::fromStdString(message).trimmed();
 
               int ft8msgbits[77]; 
               genft8_(message, MyGrid, &bcontest, &m_i3, &m_n3, &m_isync, msgsent,
