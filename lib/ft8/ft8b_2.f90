@@ -44,7 +44,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   data mde/1,1,1,1,1,1,1,1,0,1,1,0,0,1,0,0,0,0,0,1,1,1,0,1,0,0,0,1/
   data mrr73/0,0,0,0,0,0,1,0,0,0,0,1,0,1,0,1/
   data first/.true./
-  data graymap/0,1,3,2,7,6,4,5/
+  data graymap/0,1,3,2,5,6,4,7/
   save nappasses,naptypes,one
 
   if(first) then

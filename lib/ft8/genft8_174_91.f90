@@ -13,7 +13,7 @@ subroutine genft8_174_91(msg,mygrid,bcontest,i3,n3,msgsent,msgbits,itone)
   integer icos7(0:6)
   integer graymap(0:7)
   data icos7/3,1,4,0,6,5,2/                   !Costas 7x7 tone pattern
-  data graymap/0,1,3,2,7,6,4,5/
+  data graymap/0,1,3,2,5,6,4,7/
 
   call pack77(msg,i3,n3,c77)
   call unpack77(c77,msgsent) 
