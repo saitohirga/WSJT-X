@@ -4568,12 +4568,13 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
 
       QString rs=rst.mid(0,2);
       if(m_config.bEU_VHF_Contest()) {
-        QString a;
-        a.sprintf(" %d ",ui->sbSerialNumber->value());
-        t=t0 + rs + a + m_config.my_grid();
+        QString t1,a;
+        t1=t0.split(" ").at(0);
+        a.sprintf("%4.4d ",ui->sbSerialNumber->value());
+        t=t1 + " " + rs + a + m_config.my_grid();
         msgtype(t, ui->tx2);
-        a.sprintf(" %d ",ui->sbSerialNumber->value());
-        t=t0 + "R " + rs + a + m_config.my_grid();
+        a.sprintf("%4.4d ",ui->sbSerialNumber->value());
+        t=t1 + " R " + rs + a + m_config.my_grid();
         msgtype(t, ui->tx3);
         m_send_RR73=true;
       }
@@ -5176,6 +5177,19 @@ void MainWindow::on_actionFT8_triggered()
     ui->txb4->setEnabled(false);
     ui->txb5->setEnabled(false);
     ui->txb6->setEnabled(false);
+  }
+
+  QString t0="";
+  if(m_config.bEU_VHF_Contest()) t0="EU VHF";
+  if(m_config.bNA_VHF_Contest()) t0="NA VHF";
+  if(m_config.bFieldDay()) t0="FD";
+  if(m_config.bRTTYroundup()) t0=="RTTY";
+  if(m_config.bGenerate77()) t0+=" 2";
+  if(t0=="") {
+    ui->labDXped->setVisible(false);
+  } else {
+    ui->labDXped->setVisible(true);
+    ui->labDXped->setText("*** " + t0 + " ***");
   }
 
   if((m_config.bFox() or m_config.bHound()) and !m_config.split_mode() and !m_bWarnedSplit) {
