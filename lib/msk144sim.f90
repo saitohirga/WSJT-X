@@ -41,6 +41,7 @@ program msk144sim
   bcontest=.false.
   if(msg(i1:i1+1).eq.'R ') bcontest=.true.
   ichk=0
+  itype=1
   call genmsk_128_90(msg,mygrid,ichk,bcontest,msgsent,itone,itype) 
   twopi=8.d0*atan(1.d0)
 
