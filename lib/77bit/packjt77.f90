@@ -674,8 +674,8 @@ subroutine split77(msg,nwords,nw,w)
   if(nwords.lt.3) go to 900
   call chkcall(w(3),bcall_1,ok1)
   if(ok1 .and. w(1)(1:3).eq.'CQ ') then
-     w(1)='CQ_'//w(2)(1:10)
-     w(2:12)=w(3:13)
+     w(1)='CQ_'//w(2)(1:10)             !Make "CQ " into "CQ_"
+     w(2:12)=w(3:13)                    !Move all remeining words down by one
      nwords=nwords-1
   endif
   
