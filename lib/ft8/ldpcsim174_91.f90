@@ -57,7 +57,7 @@ allocate ( rxdata(N), llr(N) )
   read(c77,'(77i1)') msgbits(1:77)
 
   write(*,*) 'message'
-  write(*,'(77i1)') c77 
+  write(*,'(a71,1x,a3,1x,a3)') c77(1:71),c77(72:74),c77(75:77)
 
   call encode174_91(msgbits,codeword)
 
