@@ -316,7 +316,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
 
      msg37='                                     '
      xsnr=-99.0
-     if(nharderrors.lt.0) cycle
+     if(nharderrors.lt.0 .or. nharderrors.gt.36) cycle
      if(count(cw.eq.0).eq.174) cycle           !Reject the all-zero codeword
      nbadcrc=0  ! If we get this far, must be a valid codeword.
      write(c77,'(77i1)') message77
