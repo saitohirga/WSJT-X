@@ -3472,8 +3472,8 @@ void MainWindow::guiUpdate()
           strncpy(MyCall, (m_config.my_callsign()+"      ").toLatin1(),6);
           strncpy(MyGrid, (m_config.my_grid()+"      ").toLatin1(),6);
           if(m_modeTx=="MSK144") {
-            qDebug() << "ichk m_currentMessageType message :" << ichk << m_currentMessageType 
-                       << QString::fromStdString(message).trimmed();
+//            qDebug() << "ichk m_currentMessageType message :" << ichk << m_currentMessageType
+//                       << QString::fromStdString(message).trimmed();
             genmsk_128_90_(message, MyGrid, &ichk, &bcontest, msgsent, const_cast<int *> (itone),
                        &m_currentMessageType, 37, 6, 37);
             if(m_restart) {
@@ -3502,8 +3502,8 @@ void MainWindow::guiUpdate()
               m_isync=1;
               if(!m_config.bGenerate77() and itype == 6 and (m_i3>0 or m_n3>0)) m_isync=2;
               if(m_config.bGenerate77()) m_isync=2;
-              qDebug() << "itype i3 n3 isync :" << itype << m_i3 << m_n3 << m_isync
-                       << QString::fromStdString(message).trimmed();
+//              qDebug() << "itype i3 n3 isync :" << itype << m_i3 << m_n3 << m_isync
+//                       << QString::fromStdString(message).trimmed();
 
               char ft8msgbits[77]; 
               genft8_(message, MyGrid, &bcontest, &m_i3, &m_n3, &m_isync, msgsent,
