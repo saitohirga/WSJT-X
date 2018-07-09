@@ -1960,6 +1960,7 @@ void Configuration::impl::accept ()
   twoPass_ = ui_->cbTwoPass->isChecked ();
   bFox_ = ui_->cbFox->isChecked ();
   bHound_ = ui_->cbHound->isChecked ();
+  if(bFox_ or bHound_) ui_->rbNone->setChecked(true);     //###
   bGenerate77_ = ui_->cbGenerate77->isChecked();
   bDecode77_ = ui_->cbDecode77->isChecked();
   bNoSpecial_ = ui_->rbNone->isChecked ();
@@ -2453,12 +2454,18 @@ void Configuration::impl::on_calibration_slope_ppm_spin_box_valueChanged (double
 
 void Configuration::impl::on_cbFox_clicked (bool checked)
 {
-  if (checked) ui_->cbHound->setChecked (false);
+  if(checked) {
+    ui_->cbHound->setChecked (false);
+    ui_->rbNone->setChecked(true);
+  }
 }
 
 void Configuration::impl::on_cbHound_clicked (bool checked)
 {
-  if (checked) ui_->cbFox->setChecked (false);
+  if(checked) {
+    ui_->cbFox->setChecked (false);
+    ui_->rbNone->setChecked(true);
+  }
 }
 
 void Configuration::impl::on_cbx2ToneSpacing_clicked(bool b)

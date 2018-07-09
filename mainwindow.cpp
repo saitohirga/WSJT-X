@@ -718,6 +718,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_msg[0][0]=0;
   m_bQRAsyncWarned=false;
   ui->labDXped->setVisible(false);
+  ui->labDXped->setStyleSheet("QLabel {background-color: red; color: white;}");
 
   for(int i=0; i<28; i++)  {                      //Initialize dBm values
     float dbm=(10.0*i)/3.0 - 30.0;
@@ -5181,17 +5182,19 @@ void MainWindow::on_actionFT8_triggered()
     ui->txb6->setEnabled(false);
   }
 
-  QString t0="";
-  if(m_config.bEU_VHF_Contest()) t0="EU VHF";
-  if(m_config.bNA_VHF_Contest()) t0="NA VHF";
-  if(m_config.bFieldDay()) t0="FD";
-  if(m_config.bRTTYroundup()) t0=="RTTY";
-  if(m_config.bGenerate77()) t0+=" 2";
-  if(t0=="") {
-    ui->labDXped->setVisible(false);
-  } else {
-    ui->labDXped->setVisible(true);
-    ui->labDXped->setText("*** " + t0 + " ***");
+  if(!m_config.bFox() and !m_config.bHound()) {
+    QString t0="";
+    if(m_config.bEU_VHF_Contest()) t0="EU VHF";
+    if(m_config.bNA_VHF_Contest()) t0="NA VHF";
+    if(m_config.bFieldDay()) t0="FD";
+    if(m_config.bRTTYroundup()) t0=="RTTY";
+    if(m_config.bGenerate77()) t0+=" 2";
+    if(t0=="") {
+      ui->labDXped->setVisible(false);
+    } else {
+      ui->labDXped->setVisible(true);
+      ui->labDXped->setText(t0);
+    }
   }
 
   if((m_config.bFox() or m_config.bHound()) and !m_config.split_mode() and !m_bWarnedSplit) {
