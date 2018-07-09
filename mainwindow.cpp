@@ -4522,7 +4522,8 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
   auto is_type_one = is_compound && shortList (my_callsign);
   auto const& my_grid = m_config.my_grid ().left (4);
   auto const& hisBase = Radio::base_callsign (hisCall);
-  auto eme_short_codes = m_config.enable_VHF_features () && ui->cbShMsgs->isChecked () && m_mode == "JT65";
+  auto eme_short_codes = m_config.enable_VHF_features () && ui->cbShMsgs->isChecked ()
+      && m_mode == "JT65";
   QString t0=hisBase + " " + m_baseCall + " ";
   QString t00=t0;
   QString t {t0 + my_grid};
@@ -4582,7 +4583,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     if(m_mode=="MSK144" and m_bShMsgs) {
       int i=t0.length()-1;
       t0="<" + t0.mid(0,i) + "> ";
-      if(!ui->cbVHFcontest->isChecked()) {
+      if(!ui->cbVHFcontest->isChecked() and !m_config.bNA_VHF_Contest()) {
         if(n<=-2) n=-3;
         if(n>=-1 and n<=1) n=0;
         if(n>=2 and n<=4) n=3;
@@ -4595,7 +4596,8 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     }
 
     if(!m_config.bFieldDay() and !m_config.bRTTYroundup() and !m_config.bEU_VHF_Contest()) {
-      if((m_mode!="MSK144" and m_mode!="FT8") or !ui->cbVHFcontest->isChecked()) {
+      if((m_mode!="MSK144" and m_mode!="FT8") or
+         (!ui->cbVHFcontest->isChecked() and !m_config.bNA_VHF_Contest())) {
         t=t00 + rpt;
         msgtype(t, ui->tx2);
         t=t0 + "R" + rpt;
@@ -4631,7 +4633,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
           msgtype(t + my_grid, ui->tx1);
           if (!eme_short_codes) {
             if ((m_mode=="MSK144" || m_mode=="FT8")
-                && ui->cbVHFcontest->isChecked()) {
+                && (ui->cbVHFcontest->isChecked() or m_config.bNA_VHF_Contest())) {
               msgtype(t + "R " + my_grid, ui->tx3);
             }
             else {
@@ -4645,7 +4647,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
 
         case Configuration::type_2_msg_3_full:
           if ((m_mode=="MSK144" || m_mode=="FT8")
-              && ui->cbVHFcontest->isChecked()) {
+              && (ui->cbVHFcontest->isChecked() or m_config.bNA_VHF_Contest())) {
             msgtype(t + "R " + my_grid, ui->tx3);
             msgtype(t + "RRR", ui->tx4);
           }
@@ -4662,7 +4664,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
           msgtype(t00 + my_grid, ui->tx1);
           if (!eme_short_codes) {
             if ((m_mode=="MSK144" || m_mode=="FT8")
-                && ui->cbVHFcontest->isChecked()) {
+                && (ui->cbVHFcontest->isChecked() or m_config.bNA_VHF_Contest())) {
               msgtype(t + "R " + my_grid, ui->tx3);
               msgtype(t + "RRR", ui->tx4);
             }
