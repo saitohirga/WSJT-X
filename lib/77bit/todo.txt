@@ -36,7 +36,9 @@ ARRL Field Day, ARRL RTTY Roundup, use of nonstandard calls.
 7. (??) Code to do the necessary auto-sequencing for each specialized
 type of operating.
 
-8. (K9AN) What's needed for MSK144 with LDPC(128,90) ?
+8. (K9AN -- MOSTLY DONE) What's needed for MSK144 with LDPC(128,90) ?
+Still need to work  on Sh messages. How will genmsk_128_90 know when to
+generate a Sh message? 
 
 9. (K9AN) Work on the implementation of AP decoding. For which message types
 should AP be implemented? For each message type/QSO state that will use 
