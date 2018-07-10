@@ -143,9 +143,10 @@ extern "C" {
   void plotsave_(float swide[], int* m_w , int* m_h1, int* irow);
 }
 
-int volatile itone[NUM_ISCAT_SYMBOLS];  //Audio tones for all Tx symbols
-int volatile icw[NUM_CW_SYMBOLS];       //Dits for CW ID
-struct dec_data dec_data;               // for sharing with Fortran
+int volatile itone[NUM_ISCAT_SYMBOLS];   //Audio tones for all Tx symbols
+int volatile itone0[NUM_ISCAT_SYMBOLS];  //Dummy array, data not actually used
+int volatile icw[NUM_CW_SYMBOLS];        //Dits for CW ID
+struct dec_data dec_data;                // for sharing with Fortran
 
 int outBufSize;
 int rc;
@@ -3473,8 +3474,6 @@ void MainWindow::guiUpdate()
           strncpy(MyCall, (m_config.my_callsign()+"      ").toLatin1(),6);
           strncpy(MyGrid, (m_config.my_grid()+"      ").toLatin1(),6);
           if(m_modeTx=="MSK144") {
-//            qDebug() << "ichk m_currentMessageType message :" << ichk << m_currentMessageType
-//                       << QString::fromStdString(message).trimmed();
             genmsk_128_90_(message, MyGrid, &ichk, &bcontest, msgsent, const_cast<int *> (itone),
                        &m_currentMessageType, 37, 6, 37);
             if(m_restart) {
@@ -3489,7 +3488,7 @@ void MainWindow::guiUpdate()
             } else {
               parse77_(message, &m_i3, &m_n3, 37);
               int ichk=1,itype=-1;
-              gen65_(message,&ichk,msgsent,const_cast<int *>(itone),&itype,22,22);
+              gen65_(message,&ichk,msgsent,const_cast<int *>(itone0),&itype,22,22);
               /*
                * itype:
                *  1 Std msg
@@ -3503,9 +3502,6 @@ void MainWindow::guiUpdate()
               m_isync=1;
               if(!m_config.bGenerate77() and itype == 6 and (m_i3>0 or m_n3>0)) m_isync=2;
               if(m_config.bGenerate77()) m_isync=2;
-//              qDebug() << "itype i3 n3 isync :" << itype << m_i3 << m_n3 << m_isync
-//                       << QString::fromStdString(message).trimmed();
-
               char ft8msgbits[77]; 
               genft8_(message, MyGrid, &bcontest, &m_i3, &m_n3, &m_isync, msgsent,
                       const_cast<char *> (ft8msgbits), const_cast<int *> (itone), 37, 6, 37);
@@ -4867,7 +4863,6 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
 // Set background colors of the Tx message boxes, depending on message type
   char message[38];
   char msgsent[38];
-  int itone0[NUM_ISCAT_SYMBOLS];  //Dummy array, data not used
   QByteArray s=t.toUpper().toLocal8Bit();
   ba2msg(s,message);
   int ichk=1,itype=0;
@@ -6649,11 +6644,11 @@ void MainWindow::on_cbShMsgs_toggled(bool b)
   m_bShMsgs=b;
   if(b) ui->cbSWL->setChecked(false);
   if(m_bShMsgs and (m_mode=="MSK144")) ui->rptSpinBox->setValue(1);
-  int itone0=itone[0];
+  int it0=itone[0];
   int ntx=m_ntx;
   m_lastCallsign.clear ();      // ensure Tx5 gets updated
   genStdMsgs(m_rpt);
-  itone[0]=itone0;
+  itone[0]=it0;
   if(ntx==1) ui->txrb1->setChecked(true);
   if(ntx==2) ui->txrb2->setChecked(true);
   if(ntx==3) ui->txrb3->setChecked(true);
