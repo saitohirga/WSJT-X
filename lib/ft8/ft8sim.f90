@@ -10,7 +10,6 @@ program ft8sim
   character arg*12,fname*17
   character msg40*40,msg*22,msgsent*22,msg0*22
   character*6 mygrid6
-  logical bcontest
   complex c0(0:NMAX-1)
   complex c(0:NMAX-1)
   real wave(NMAX)
@@ -54,7 +53,6 @@ program ft8sim
      f0=1500
   endif
 
-  bcontest=nfiles.lt.0
   nfiles=abs(nfiles)
   twopi=8.0*atan(1.0)
   fs=12000.0                             !Sample rate (Hz)
@@ -73,9 +71,9 @@ program ft8sim
      i3bit=0
      msg=msg40(1:22)
      if(itype.eq.1) then
-        call genft8(msg,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
+        call genft8(msg,mygrid6,i3bit,msgsent,msgbits,itone)
      elseif(itype.eq.2) then
-        call genft8_174_91(msg,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
+        call genft8_174_91(msg,mygrid6,i3bit,msgsent,msgbits,itone)
      endif
      write(*,1000) f0,xdt,txt,snrdb,bw,msgsent
 1000 format('f0:',f9.3,'   DT:',f6.2,'   TxT:',f6.1,'   SNR:',f6.1,    &
@@ -114,9 +112,9 @@ program ft8sim
               f0=f0+100
            endif
            if(itype.eq.1) then
-              call genft8(msg,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
+              call genft8(msg,mygrid6,i3bit,msgsent,msgbits,itone)
            elseif(itype.eq.2) then
-              call genft8_174_91(msg,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
+              call genft8_174_91(msg,mygrid6,i3bit,msgsent,msgbits,itone)
            endif
         endif
         if(nsig.eq.25) then
@@ -137,9 +135,9 @@ program ft8sim
               f0=600.0 + mod(isig-1,5)*60.0
            endif
            if(itype.eq.1) then
-              call genft8(msg,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
+              call genft8(msg,mygrid6,i3bit,msgsent,msgbits,itone)
            elseif(itype.eq.2) then
-              call genft8_174_91(msg,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
+              call genft8_174_91(msg,mygrid6,i3bit,msgsent,msgbits,itone)
            endif
         endif
 !        k=nint((xdt+0.5+0.01*gran())/dt)

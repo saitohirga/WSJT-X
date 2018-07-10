@@ -1,11 +1,10 @@
-subroutine ft8apset(mycall12,mygrid6,hiscall12,hisgrid6,bcontest,apsym)
+subroutine ft8apset(mycall12,mygrid6,hiscall12,hisgrid6,apsym)
   parameter(NAPM=4,KK=87)
   character*12 mycall12,hiscall12
   character*37 msg,msgsent
   character*6 mycall,hiscall
   character*6 mygrid6,hisgrid6
   character*4 hisgrid
-  logical bcontest
   integer apsym(KK)
   integer*1 msgbits(KK)
   integer itone(KK)
@@ -19,7 +18,7 @@ subroutine ft8apset(mycall12,mygrid6,hiscall12,hisgrid6,bcontest,apsym)
   i3=0                                       ! ### TEMPORARY ??? ###
   n3=0 !TEMPORARY
   isync=1
-  call genft8(msg,mygrid6,bcontest,i3,n3,isync,msgsent,msgbits,itone)
+  call genft8(msg,mygrid6,i3,n3,isync,msgsent,msgbits,itone)
   apsym=2*msgbits-1
   return
 end subroutine ft8apset

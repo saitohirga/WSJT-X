@@ -47,7 +47,7 @@ contains
     real candidate(4,200)
     real dd(15*12000)
     logical, intent(in) :: lft8apon,lapcqonly,ldecode77,nagain
-    logical newdat,lsubtract,ldupe,bcontest
+    logical newdat,lsubtract,ldupe
     character*12 mycall12, hiscall12
     character*6 mygrid6,hisgrid6
     integer*2 iwave(15*12000)
@@ -57,15 +57,14 @@ contains
     integer allsnrs(100)
     save s,dd
 
-    bcontest=iand(nexp_decode,128).ne.0
     this%callback => callback
     write(datetime,1001) nutc        !### TEMPORARY ###
 1001 format("000000_",i6.6)
 
-    call ft8apset(mycall12,mygrid6,hiscall12,hisgrid6,bcontest,apsym1)
+    call ft8apset(mycall12,mygrid6,hiscall12,hisgrid6,apsym1)
 ! For now, turn off apset until we get basic functionality going... AP will 
 ! need to be re-thinked for itype=2 messages.
-!    call ft8apset_174_91(mycall12,mygrid6,hiscall12,hisgrid6,bcontest,apsym2)
+!    call ft8apset_174_91(mycall12,mygrid6,hiscall12,hisgrid6,apsym2)
     apsym2=0
     dd=iwave
     ndecodes=0
@@ -112,12 +111,12 @@ contains
         if(isync.eq.1) then
            call ft8b_1(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lft8apon,     &
                 lapcqonly,napwid,lsubtract,nagain,iaptype,mycall12,mygrid6,   &
-                hiscall12,bcontest,sync,f1,xdt,xbase,apsym1,nharderrors,dmin,  &
+                hiscall12,sync,f1,xdt,xbase,apsym1,nharderrors,dmin,  &
                 nbadcrc,iappass,iera,msg37,xsnr)
         else
            call ft8b_2(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lft8apon,     &
                 lapcqonly,napwid,lsubtract,nagain,iaptype,mycall12,mygrid6,   &
-                hiscall12,bcontest,sync,f1,xdt,xbase,apsym2,nharderrors,dmin,  &
+                hiscall12,sync,f1,xdt,xbase,apsym2,nharderrors,dmin,  &
                 nbadcrc,iappass,iera,msg37,xsnr)
         endif
 !        message=msg37(1:22)   !###
@@ -128,10 +127,6 @@ contains
         if(nbadcrc.eq.0) then
 !           call jtmsg(message,iflag)
 ! This probably needs to be re-visited for the new message type
-!           if(bcontest) then
-!              call fix_contest_msg(mygrid6,message)
-!              msg37(1:22)=message
-!           endif
 !           if(iand(iflag,31).ne.0) message(22:22)='?'
            ldupe=.false.
            do id=1,ndecodes

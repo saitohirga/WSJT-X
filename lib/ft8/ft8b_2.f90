@@ -1,5 +1,5 @@
-subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
-     napwid,lsubtract,nagain,iaptype,mycall12,mygrid6,hiscall12,bcontest,    &
+subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
+     napwid,lsubtract,nagain,iaptype,mycall12,mygrid6,hiscall12,              &
      sync0,f1,xdt,xbase,apsym,nharderrors,dmin,nbadcrc,ipass,iera,msg37,xsnr)  
 
   use crc
@@ -12,7 +12,6 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   character*77 c77
   character*6 mycall6,mygrid6,hiscall6,c1,c2
   character*87 cbits
-  logical bcontest
   real a(5)
   real s8(0:7,NN)
   real s2(0:511),s2l(0:511)
@@ -328,7 +327,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
      call pack77(msg37,i3p,n3p,c77)
 ! Should we test for consistency between i3,n3 from codeword and i3,n3 from unpack77?
 !write(*,*) i3,n3,i3p,n3p,msg37
-     call genft8_174_91(msg37,mygrid6,bcontest,i3,n3,msgsent37,msgbits,itone)
+     call genft8_174_91(msg37,mygrid6,i3,n3,msgsent37,msgbits,itone)
      if(lsubtract) call subtractft8(dd0,itone,f1,xdt) 
      xsig=0.0
      xnoi=0.0
