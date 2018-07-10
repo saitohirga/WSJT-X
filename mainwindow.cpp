@@ -4866,7 +4866,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
   QByteArray s=t.toUpper().toLocal8Bit();
   ba2msg(s,message);
   int ichk=1,itype=0;
-  gen65_(message,&ichk,msgsent,itone0,&itype,22,22);
+  gen65_(message,&ichk,msgsent,const_cast<int*>(itone0),&itype,22,22);
   msgsent[22]=0;
   bool text=false;
   bool shortMsg=false;
