@@ -1,4 +1,4 @@
-subroutine genft8(msg37,mygrid,bcontest,i3,n3,isync,msgsent37,msgbits77,itone)
+subroutine genft8(msg37,mygrid,i3,n3,isync,msgsent37,msgbits77,itone)
 
 ! Encode an FT8 message, producing array itone().
   
@@ -9,7 +9,7 @@ subroutine genft8(msg37,mygrid,bcontest,i3,n3,isync,msgsent37,msgbits77,itone)
   character*37 msg37,msgsent37
   character*6 mygrid
   character*87 cbits
-  logical bcontest,checksumok
+  logical checksumok
   integer*4 i4Msg6BitWords(12)                !72-bit message as 6-bit words
   integer*1 msgbits(KK),codeword(3*ND)
   integer*1 msgbits77(77)
@@ -21,8 +21,8 @@ subroutine genft8(msg37,mygrid,bcontest,i3,n3,isync,msgsent37,msgbits77,itone)
   if(isync.eq.2 ) goto 900
   
   msg=msg37(1:22)
-  call packmsg(msg,i4Msg6BitWords,istdtype,bcontest) !Pack into 12 6-bit bytes
-  call unpackmsg(i4Msg6BitWords,msgsent,bcontest,mygrid) !Unpack to get msgsent
+  call packmsg(msg,i4Msg6BitWords,istdtype) !Pack into 12 6-bit bytes
+  call unpackmsg(i4Msg6BitWords,msgsent,mygrid) !Unpack to get msgsent
   msgsent37(1:22)=msgsent
   msgsent37(23:37)='               '
 
@@ -56,7 +56,7 @@ subroutine genft8(msg37,mygrid,bcontest,i3,n3,isync,msgsent37,msgbits77,itone)
 
 900 continue
 
-  call genft8_174_91(msg37,mygrid,bcontest,i3,n3,msgsent37,msgbits77,itone)
+  call genft8_174_91(msg37,mygrid,i3,n3,msgsent37,msgbits77,itone)
 
   return
 end subroutine genft8

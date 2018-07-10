@@ -70,13 +70,13 @@ extern "C" {
                 float *m_pxmax);
 
   void hspec_(short int d2[], int* k, int* nutc0, int* ntrperiod, int* nrxfreq, int* ntol,
-              bool* bmsk144, bool* bcontest, bool* btrain, double const pcoeffs[], int* ingain,
+              bool* bmsk144, bool* btrain, double const pcoeffs[], int* ingain,
               char mycall[], char hiscall[], bool* bshmsg, bool* bswl, char ddir[], float green[],
               float s[], int* jh, float *pxmax, float *rmsNoGain, char line[], char mygrid[],
               fortran_charlen_t, fortran_charlen_t, fortran_charlen_t, fortran_charlen_t,
               fortran_charlen_t);
 
-  void genft8_(char* msg, char* MyGrid, bool* bcontest, int* i3, int* n3, int* isync, char* msgsent,
+  void genft8_(char* msg, char* MyGrid, int* i3, int* n3, int* isync, char* msgsent,
                char ft8msgbits[], int itone[], fortran_charlen_t, fortran_charlen_t,
                fortran_charlen_t);
 
@@ -88,7 +88,7 @@ extern "C" {
   void gen9_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, fortran_charlen_t, fortran_charlen_t);
 
-  void genmsk_128_90_(char* msg, char* MyGrid, int* ichk, bool* bcontest,
+  void genmsk_128_90_(char* msg, char* MyGrid, int* ichk,
                   char* msgsent, int itone[], int* itext, fortran_charlen_t,
                   fortran_charlen_t, fortran_charlen_t);
 
@@ -1506,7 +1506,7 @@ void MainWindow::fastSink(qint64 frames)
   float pxmax = 0;
   float rmsNoGain = 0;
   int ftol = ui->sbFtol->value ();
-  hspec_(dec_data.d2,&k,&nutc0,&nTRpDepth,&RxFreq,&ftol,&bmsk144,&bcontest,
+  hspec_(dec_data.d2,&k,&nutc0,&nTRpDepth,&RxFreq,&ftol,&bmsk144,
          &m_bTrain,m_phaseEqCoefficients.constData(),&m_inGain,&dec_data.params.mycall[0],
          &dec_data.params.hiscall[0],&bshmsg,&bswl,
          &ddir[0],fast_green,fast_s,&fast_jh,&pxmax,&rmsNoGain,&line[0],&dec_data.params.mygrid[0],
@@ -3468,13 +3468,12 @@ void MainWindow::guiUpdate()
         if(m_modeTx=="WSPR-LF") genwspr_fsk8_(message, msgsent, const_cast<int *> (itone),
                                     22, 22);
         if(m_modeTx=="MSK144" or m_modeTx=="FT8") {
-          bool bcontest=ui->cbVHFcontest->isChecked();
           char MyCall[6];
           char MyGrid[6];
           strncpy(MyCall, (m_config.my_callsign()+"      ").toLatin1(),6);
           strncpy(MyGrid, (m_config.my_grid()+"      ").toLatin1(),6);
           if(m_modeTx=="MSK144") {
-            genmsk_128_90_(message, MyGrid, &ichk, &bcontest, msgsent, const_cast<int *> (itone),
+            genmsk_128_90_(message, MyGrid, &ichk, msgsent, const_cast<int *> (itone),
                        &m_currentMessageType, 37, 6, 37);
             if(m_restart) {
               int nsym=144;
@@ -3503,7 +3502,7 @@ void MainWindow::guiUpdate()
               if(!m_config.bGenerate77() and itype == 6 and (m_i3>0 or m_n3>0)) m_isync=2;
               if(m_config.bGenerate77()) m_isync=2;
               char ft8msgbits[77]; 
-              genft8_(message, MyGrid, &bcontest, &m_i3, &m_n3, &m_isync, msgsent,
+              genft8_(message, MyGrid, &m_i3, &m_n3, &m_isync, msgsent,
                       const_cast<char *> (ft8msgbits), const_cast<int *> (itone), 37, 6, 37);
 
               if(m_config.bFox()) {

@@ -443,7 +443,6 @@ set (wsjt_FSRCS
   lib/filbig.f90
   lib/ft8/filt8.f90
   lib/fitcal.f90
-  lib/fix_contest_msg.f90
   lib/flat1.f90
   lib/flat1a.f90
   lib/flat1b.f90
@@ -593,7 +592,6 @@ set (wsjt_FSRCS
   lib/sync9w.f90
   lib/synciscat.f90
   lib/timf2.f90
-  lib/to_contest_msg.f90
   lib/tweak1.f90
   lib/twkfreq.f90
   lib/ft8/twkfreq1.f90

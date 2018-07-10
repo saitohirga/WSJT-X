@@ -21,8 +21,8 @@ messages:
   - "Always generate new-style (77-bit) messages."
   - "Decode only 77-bit messages
 
-4. (K9AN -- MOSTLY DONE) New-style messages can be as long as 37 characters.  We'll
-need to allow for that in a number of places.
+4. (K9AN -- MOSTLY DONE) New-style messages can be as long as 37
+characters.  We'll need to allow for that in a number of places.
 
 5. (K9AN -- DONE) Subroutine genft8() will need to parse the message to be
 transmitted, determine the effective message type i3 and possibly

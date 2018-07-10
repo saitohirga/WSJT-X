@@ -398,7 +398,7 @@ subroutine packbits(dbits,nsymd,m0,sym)
  900 return
  end subroutine unpackgrid
 
- subroutine packmsg(msg0,dat,itype,bcontest)
+ subroutine packmsg(msg0,dat,itype)
 
  ! Packs a JT4/JT9/JT65 message into twelve 6-bit symbols
 
@@ -419,14 +419,10 @@ subroutine packbits(dbits,nsymd,m0,sym)
    character*12 c1,c2
    character*4 c3
    character*6 grid6
-   logical text1,text2,text3,bcontest
+   logical text1,text2,text3
 
    itype=1
-   if(bcontest) then
-      call to_contest_msg(msg0,msg)
-   else
-      msg=msg0
-   end if
+   msg=msg0
 
    call fmtmsg(msg,iz)
    if(msg(1:3).eq.'CQ ' .and. msg(4:4).ge.'0' .and. msg(4:4).le.'9'   &
@@ -538,13 +534,13 @@ subroutine packbits(dbits,nsymd,m0,sym)
    return
  end subroutine packmsg
 
- subroutine unpackmsg(dat,msg,bcontest,mygrid)
+ subroutine unpackmsg(dat,msg,mygrid)
 
    parameter (NBASE=37*36*10*27*27*27)
    parameter (NGBASE=180*180)
    integer dat(:)
    character c1*12,c2*12,grid*4,msg*22,grid6*6,psfx*4,junk2*4,mygrid*6
-   logical cqnnn,bcontest
+   logical cqnnn
 
    cqnnn=.false.
    nc1=ishft(dat(1),22) + ishft(dat(2),16) + ishft(dat(3),10)+         &
@@ -657,8 +653,6 @@ subroutine packbits(dbits,nsymd,m0,sym)
         msg(3:3).ge.'A' .and. msg(3:3).le.'Z' .and.                   &
         msg(4:4).ge.'A' .and. msg(4:4).le.'Z' .and.                   &
         msg(5:5).eq.' ') msg='CQ '//msg(3:)
-
-   if(bcontest) call fix_contest_msg(mygrid,msg)
 
    if(msg(1:5).eq.'CQ 00' .and. msg(6:6).ge.'0' .and.                 &
         msg(6:6).le.'9') msg='CQ '//msg(6:)

@@ -66,8 +66,8 @@ allocate ( rxdata(N), llr(N) )
 
 !  msg="K1JT K9AN EN50"
   msg="G4WJS K9AN EN50"
-  call packmsg(msg,i4Msg6BitWords,itype,.false.) !Pack into 12 6-bit bytes
-  call unpackmsg(i4Msg6BitWords,msgsent,.false.,'') !Unpack to get msgsent
+  call packmsg(msg,i4Msg6BitWords,itype) !Pack into 12 6-bit bytes
+  call unpackmsg(i4Msg6BitWords,msgsent,'') !Unpack to get msgsent
   write(*,*) "message sent ",msgsent
 
   i4=0

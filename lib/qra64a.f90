@@ -128,7 +128,7 @@ subroutine qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
 10 decoded='                      '
 
   if(irc.ge.0) then
-     call unpackmsg(dat4,decoded,.false.,'      ') !Unpack the user message
+     call unpackmsg(dat4,decoded,'      ') !Unpack the user message
      call fmtmsg(decoded,iz)
      if(index(decoded,"000AAA ").ge.1) then
         ! Suppress a certain type of garbage decode.

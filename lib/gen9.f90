@@ -37,8 +37,8 @@ subroutine gen9(msg0,ichk,msgsent,i4tone,itype)
         message=message(i+1:)
      enddo
 
-     call packmsg(message,i4Msg6BitWords,itype,.false.) !Pack into 12 6-bit bytes
-     call unpackmsg(i4Msg6BitWords,msgsent,.false.,'      ') !Unpack to get msgsent
+     call packmsg(message,i4Msg6BitWords,itype) !Pack into 12 6-bit bytes
+     call unpackmsg(i4Msg6BitWords,msgsent,'      ') !Unpack to get msgsent
      if(ichk.ne.0) go to 999
      call entail(i4Msg6BitWords,i1Msg8BitBytes)  !Add tail, make 8-bit bytes
      nsym2=206

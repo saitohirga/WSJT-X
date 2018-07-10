@@ -1,4 +1,4 @@
-subroutine genft8_174_91(msg,mygrid,bcontest,i3,n3,msgsent,msgbits,itone)
+subroutine genft8_174_91(msg,mygrid,i3,n3,msgsent,msgbits,itone)
 
 ! Encode an FT8 message, producing array itone().
   
@@ -7,7 +7,6 @@ subroutine genft8_174_91(msg,mygrid,bcontest,i3,n3,msgsent,msgbits,itone)
   character msg*37,msgsent*37
   character*6 mygrid
   character*77 c77
-  logical bcontest
   integer*1 msgbits(77),codeword(174)
   integer itone(79)
   integer icos7(0:6)

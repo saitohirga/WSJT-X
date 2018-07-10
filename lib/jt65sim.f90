@@ -175,7 +175,7 @@ program jt65sim
 !        write(msg,1010) call1,call2,nint(xsnr)
 !1010    format(a5,1x,a5,1x,i3.2)
 !###
-        call packmsg(msg,dgen,itype,.false.) !Pack message into 12 six-bit bytes
+        call packmsg(msg,dgen,itype)        !Pack message into 12 six-bit bytes
         call rs_encode(dgen,sent)           !Encode using RS(63,12)
         call interleave63(sent,1)           !Interleave channel symbols
         call graycode65(sent,63,1)          !Apply Gray code

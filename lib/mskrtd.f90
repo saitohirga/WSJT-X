@@ -1,5 +1,5 @@
 subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
-     bshmsg,bcontest,btrain,pcoeffs,bswl,datadir,line)
+     bshmsg,btrain,pcoeffs,bswl,datadir,line)
 
 ! Real-time decoder for MSK144.  
 ! Analysis block size = NZ = 7168 samples, t_block = 0.597333 s 
@@ -39,7 +39,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   real xmc(NPATTERNS)
   real*8 pcoeffs(5)
 
-  logical*1 bshmsg,bcontest,btrain,bswl
+  logical*1 bshmsg,btrain,bswl
   logical*1 first
   logical*1 bshdecode
   logical*1 seenb4
@@ -208,7 +208,6 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
      nsnrlast=nsnr
      if(.not. bshdecode) then
         call update_hasharray(recent_calls,nrecent,nhasharray)
-        if(bcontest) call fix_contest_msg(mygrid,msgreceived)
      endif
      write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,           &
           navg,ncorrected,eyeopening,char(0)

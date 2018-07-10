@@ -1,4 +1,4 @@
-subroutine genmsk_128_90(msg0,mygrid,ichk,bcontest,msgsent,i4tone,itype)
+subroutine genmsk_128_90(msg0,mygrid,ichk,msgsent,i4tone,itype)
 ! s8 + 48bits + s8 + 80 bits = 144 bits (72ms message duration)
 !
 ! Encode an MSK144 message
@@ -29,7 +29,6 @@ subroutine genmsk_128_90(msg0,mygrid,ichk,bcontest,msgsent,i4tone,itype)
   integer*1 msgbits(77) 
   integer*1 bitseq(144)                   !Tone #s, data and sync (values 0-1)
   integer*1 s8(8)
-  logical bcontest
   real*8 pp(12)
   real*8 xi(864),xq(864),pi,twopi
   data s8/0,1,1,1,0,0,1,0/

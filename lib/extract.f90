@@ -73,27 +73,27 @@ subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,nflip,     &
      apsymbols(1,1:4)=(/62,32,32,49/) ! CQ
      if(len_trim(mycall).gt.0) then
         apmessage=mycall//" "//mycall//" RRR" 
-        call packmsg(apmessage,ap,itype,.false.)
+        call packmsg(apmessage,ap,itype)
         if(itype.ne.1) ap=-1
         apsymbols(2,1:4)=ap(1:4)
 !write(*,*) 'mycall symbols ',ap(1:4)
         if(len_trim(hiscall).gt.0) then
            apmessage=mycall//" "//hiscall//" RRR" 
-           call packmsg(apmessage,ap,itype,.false.)
+           call packmsg(apmessage,ap,itype)
            if(itype.ne.1) ap=-1
            apsymbols(3,1:9)=ap(1:9)
            apsymbols(4,:)=ap
            apmessage=mycall//" "//hiscall//" 73" 
-           call packmsg(apmessage,ap,itype,.false.)
+           call packmsg(apmessage,ap,itype)
            if(itype.ne.1) ap=-1
            apsymbols(5,:)=ap
            if(len_trim(hisgrid(1:4)).gt.0) then
               apmessage=mycall//' '//hiscall//' '//hisgrid(1:4)
-              call packmsg(apmessage,ap,itype,.false.)
+              call packmsg(apmessage,ap,itype)
               if(itype.ne.1) ap=-1
               apsymbols(6,:)=ap
               apmessage='CQ'//' '//hiscall//' '//hisgrid(1:4)
-              call packmsg(apmessage,ap,itype,.false.)
+              call packmsg(apmessage,ap,itype)
               if(itype.ne.1) ap=-1
               apsymbols(7,:)=ap
            endif
@@ -211,7 +211,7 @@ subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,nflip,     &
      correct(1:63)=tmp(1:63)
      call interleave63(correct,63,1)
      call graycode65(correct,63,1)
-     call unpackmsg(dat4,decoded,.false.,'      ')     !Unpack the user message
+     call unpackmsg(dat4,decoded,'      ')     !Unpack the user message
      ncount=0
      if(iand(dat4(10),8).ne.0) ltext=.true.
   endif
