@@ -3726,7 +3726,7 @@ void MainWindow::guiUpdate()
     astroUpdate ();
 
     if(m_transmitting) {
-      char s[41];
+      char s[42];
       if(m_config.bFox() and ui->tabWidget->currentIndex()==2) {
         sprintf(s,"Tx:  %d Slots",foxcom_.nslots);
       } else {
