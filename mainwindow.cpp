@@ -141,6 +141,8 @@ extern "C" {
   void foxgen_();
 
   void plotsave_(float swide[], int* m_w , int* m_h1, int* irow);
+
+  bool stdmsg_(char const * msg, char const * mygrid, fortran_charlen_t, fortran_charlen_t);
 }
 
 int volatile itone[NUM_ISCAT_SYMBOLS];   //Audio tones for all Tx symbols
@@ -3067,6 +3069,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
   if(m_mode=="MSK144" and message.string().indexOf(ui->dxCallEntry->text()+" R ")>0) is_OK=true;
 
   if (message_words.size () > 2 && (message.isStandardMessage () || (is_73 or is_OK))) {
+    qDebug() << "AA" << m_QSOProgress;
     auto df = message.frequencyOffset ();
     auto within_tolerance =
       (qAbs (ui->RxFreqSpinBox->value () - df) <= int (start_tolerance)
@@ -3498,6 +3501,11 @@ void MainWindow::guiUpdate()
                *  6 Free Text
                *  7 Hashed calls (MSK144 short format)
               */
+
+              char grid_rpt[7];
+              bool bstd=stdmsg_(message,grid_rpt,22,6);
+              qDebug() << "cc" << bstd;
+
               m_isync=1;
               if(!m_config.bGenerate77() and itype == 6 and (m_i3>0 or m_n3>0)) m_isync=2;
               if(m_config.bGenerate77()) m_isync=2;
@@ -4079,7 +4087,7 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
     return;
   }
   DecodedText message {cursor.block().text(), ("MSK144" == m_mode || "FT8" == m_mode) &&
-        ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
+      true /* ui->cbVHFcontest->isChecked() */, m_config.my_grid ()};
   m_bDoubleClicked = true;
   processMessage (message, modifiers);
 }
@@ -4103,6 +4111,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     return;
   }
 
+  qDebug() << "bb" << m_QSOProgress;
   //Skip the rest if no decoded text extracted
   int frequency = message.frequencyOffset();
   if (message.isTX()) {
@@ -4139,6 +4148,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   QString hiscall;
   QString hisgrid;
   message.deCallAndGrid(/*out*/hiscall,hisgrid);
+/*
   int nWarn=0;
   QString warnMsg;
 
@@ -4179,9 +4189,9 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     }
     m_bCheckedContest=true;
   }
-
+*/
   auto is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
-  if (!is_73 and !message.isStandardMessage() and (nWarn==0)) {
+  if (!is_73 and !message.isStandardMessage() /* and (nWarn==0)*/) {
     qDebug () << "Not processing message - hiscall:" << hiscall << "hisgrid:" << hisgrid;
     return;
   }
@@ -4255,7 +4265,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             m_QSOProgress = SIGNOFF;
           } else if((m_QSOProgress >= REPORT
                      || (m_QSOProgress >= REPLYING && (m_mode=="MSK144" or m_mode=="FT8")
-                         && ui->cbVHFcontest->isChecked())) && r.mid(0,1)=="R") {
+                         /*&& ui->cbVHFcontest->isChecked()*/ )) && r.mid(0,1)=="R") {
             m_ntx=4;
             m_QSOProgress = ROGERS;
             ui->txrb4->setChecked(true);
@@ -4294,7 +4304,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       }
       else if (!(m_bAutoReply && m_QSOProgress > CALLING)) {
         if ((message_words.size () > 4 && message_words.at (1).contains (m_baseCall) && message_words.at (4) == "OOO")
-            || ((m_mode=="MSK144" or m_mode=="FT8") && ui->cbVHFcontest->isChecked())) {
+            || ((m_mode=="MSK144" or m_mode=="FT8") /* && ui->cbVHFcontest->isChecked() */)) {
           // EME short code report or MSK144/FT8 contest mode reply, send back Tx3
           m_ntx = 3;
           m_QSOProgress = ROGER_REPORT;

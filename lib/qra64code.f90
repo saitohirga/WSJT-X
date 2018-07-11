@@ -45,7 +45,7 @@ program QRA64code
 
      call qra64_enc(dgen,sent)              !Encode using QRA64
 
-     call unpackmsg(dgen,decoded,'      ')  !Unpack the user message
+     call unpackmsg(dgen,decoded)           !Unpack the user message
      call fmtmsg(decoded,iz)
      ii=imsg
      write(*,1020) ii,msg0,decoded,itype,msgtype

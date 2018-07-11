@@ -30,7 +30,7 @@ subroutine extractmessage174(decoded,msgreceived,ncrcflag)
       enddo
       i4Dec6BitWords(ibyte)=itmp
     enddo
-    call unpackmsg(i4Dec6BitWords,msgreceived,'      ')
+    call unpackmsg(i4Dec6BitWords,msgreceived)
     ncrcflag=1
   else
     msgreceived=' '

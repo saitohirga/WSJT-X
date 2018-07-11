@@ -77,7 +77,7 @@ program JT65code
      call graycode(sent,63,-1,tmp)           !Remove Gray code
      call interleave63(tmp,-1)               !Remove interleaving
      call rs_decode(tmp,era,0,recd,nerr)     !Decode the message
-     call unpackmsg(recd,decoded,'      ')   !Unpack the user message
+     call unpackmsg(recd,decoded)            !Unpack the user message
      if(cok.eq."OOO") decoded(20:22)=cok
      call fmtmsg(decoded,iz)
 

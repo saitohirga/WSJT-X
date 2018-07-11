@@ -44,8 +44,8 @@ subroutine gen65(msg0,ichk,msgsent,itone,itype)
      ntest=0
      if(flip.lt.0.0) ntest=1
      if(nspecial.eq.0) then
-        call packmsg(message,dgen,itype) !Pack message into 72 bits
-        call unpackmsg(dgen,msgsent,'      ') !Unpack to get message sent
+        call packmsg(message,dgen,itype)    !Pack message into 72 bits
+        call unpackmsg(dgen,msgsent)        !Unpack to get message sent
         msgsent(20:22)=cok
         call fmtmsg(msgsent,iz)
         if(ichk.ne.0) go to 999             !Return if checking only

@@ -11,7 +11,7 @@ subroutine extractmessage77(decoded77,msgreceived)
   read(cbits,'(12b6)') i4Dec6BitWords 
   read(cbits,'(72x,i5.5)') i5bit
   if( i5bit .eq. 0 ) then
-    call unpackmsg(i4Dec6BitWords,msgreceived,'      ')
+    call unpackmsg(i4Dec6BitWords,msgreceived)
   endif
   return
 end subroutine extractmessage77

@@ -84,7 +84,7 @@ subroutine jt9fano(i1SoftSymbols,limit,nlim,msg)
      enddo
      call unpackbits(i4DecodedBytes,nbytes,8,i1DecodedBits)
      call packbits(i1DecodedBits,12,6,i4Decoded6BitWords)
-     call unpackmsg(i4Decoded6BitWords,msg,'      ') !Unpack decoded msg
+     call unpackmsg(i4Decoded6BitWords,msg)             !Unpack decoded msg
      if(index(msg,'000AAA ').gt.0) msg='                      '
   endif
 

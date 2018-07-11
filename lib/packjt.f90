@@ -534,12 +534,12 @@ subroutine packbits(dbits,nsymd,m0,sym)
    return
  end subroutine packmsg
 
- subroutine unpackmsg(dat,msg,mygrid)
+ subroutine unpackmsg(dat,msg)
 
    parameter (NBASE=37*36*10*27*27*27)
    parameter (NGBASE=180*180)
    integer dat(:)
-   character c1*12,c2*12,grid*4,msg*22,grid6*6,psfx*4,junk2*4,mygrid*6
+   character c1*12,c2*12,grid*4,msg*22,grid6*6,psfx*4,junk2*4
    logical cqnnn
 
    cqnnn=.false.

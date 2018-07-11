@@ -5,7 +5,7 @@
 #include <QDebug>
 
 extern "C" {
-  bool stdmsg_(char const * msg, bool contest_mode, char const * mygrid, fortran_charlen_t, fortran_charlen_t);
+  bool stdmsg_(char const * msg, fortran_charlen_t);
 }
 
 namespace
@@ -40,16 +40,11 @@ DecodedText::DecodedText (QString const& the_string, bool contest_mode, QString 
           // remove DXCC entity and worked B4 status. TODO need a better way to do this
           message_ = message_.left (eom_pos + 1);
         }
-      // stdmsg is a fortran routine that packs the text, unpacks it
+      // stdmsg is a Fortran routine that packs the text, unpacks it
       // and compares the result
       auto message_c_string = message_.toLocal8Bit ();
-      message_c_string += QByteArray {22 - message_c_string.size (), ' '};
-      auto grid_c_string = my_grid.toLocal8Bit ();
-      grid_c_string += QByteArray {6 - grid_c_string.size (), ' '};
-      is_standard_ = stdmsg_ (message_c_string.constData ()
-                              , contest_mode_
-                              , grid_c_string.constData ()
-                              , 22, 6);
+      message_c_string += QByteArray {37 - message_c_string.size (), ' '};
+      is_standard_ = stdmsg_(message_c_string.constData(),37);
     }
 };
 

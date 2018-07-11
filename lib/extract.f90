@@ -211,7 +211,7 @@ subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,nflip,     &
      correct(1:63)=tmp(1:63)
      call interleave63(correct,63,1)
      call graycode65(correct,63,1)
-     call unpackmsg(dat4,decoded,'      ')     !Unpack the user message
+     call unpackmsg(dat4,decoded)     !Unpack the user message
      ncount=0
      if(iand(dat4(10),8).ne.0) ltext=.true.
   endif

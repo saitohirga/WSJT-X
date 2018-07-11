@@ -22,7 +22,7 @@ subroutine genft8(msg37,mygrid,i3,n3,isync,msgsent37,msgbits77,itone)
   
   msg=msg37(1:22)
   call packmsg(msg,i4Msg6BitWords,istdtype) !Pack into 12 6-bit bytes
-  call unpackmsg(i4Msg6BitWords,msgsent,mygrid) !Unpack to get msgsent
+  call unpackmsg(i4Msg6BitWords,msgsent)    !Unpack to get msgsent
   msgsent37(1:22)=msgsent
   msgsent37(23:37)='               '
 

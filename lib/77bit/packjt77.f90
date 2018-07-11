@@ -194,7 +194,6 @@ subroutine pack77(msg0,i3,n3,c77)
 900  return
 end subroutine pack77
 
-
 subroutine unpack77(c77,msg)
 
   parameter (NSEC=84)      !Number of ARRL Sections
@@ -429,7 +428,7 @@ subroutine unpack77(c77,msg)
      endif
   endif
 
-900 return
+  return
 end subroutine unpack77
 
 
@@ -635,7 +634,6 @@ subroutine unpack28(n28_0,c13)
 900  return
 end subroutine unpack28
 
-
 subroutine split77(msg,nwords,nw,w)
 
 ! Convert msg to upper case; collapse multiple blanks; parse into words.
@@ -654,6 +652,7 @@ subroutine split77(msg,nwords,nw,w)
   c0=' '
   w='             '
   do i=1,iz
+     if(ichar(msg(i:i)).eq.0) msg(i:i)=' '
      c=msg(i:i)                                 !Single character
      if(c.eq.' ' .and. c0.eq.' ') cycle         !Skip leading/repeated blanks
      if(c.ne.' ' .and. c0.eq.' ') then
