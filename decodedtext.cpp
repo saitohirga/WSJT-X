@@ -13,11 +13,10 @@ namespace
   QRegularExpression words_re {R"(^(?:(?<word1>(?:CQ|DE|QRZ)(?:\s?DX|\s(?:[A-Z]{2}|\d{3}))|[A-Z0-9/]+)\s)(?:(?<word2>[A-Z0-9/]+)(?:\s(?<word3>[-+A-Z0-9]+)(?:\s(?<word4>(?:OOO|(?!RR73)[A-R]{2}[0-9]{2})))?)?)?)"};
 }
 
-DecodedText::DecodedText (QString const& the_string, bool contest_mode, QString const& my_grid)
+DecodedText::DecodedText (QString const& the_string)
   : string_ {the_string.left (the_string.indexOf (QChar::Nbsp))} // discard appended info
   , padding_ {string_.indexOf (" ") > 4 ? 2 : 0} // allow for
                                                     // seconds
-  , contest_mode_ {contest_mode}
   , message_ {string_.mid (column_qsoText + padding_).trimmed ()}
   , is_standard_ {false}
 {
@@ -165,10 +164,7 @@ void DecodedText::deCallAndGrid(/*out*/QString& call, QString& grid) const
   auto const& match = words_re.match (message_);
   call = match.captured ("word2");
   grid = match.captured ("word3");
-  if (contest_mode_ && "R" == grid)
-    {
-      grid = match.captured ("word4");
-    }
+  if ("R" == grid) grid = match.captured ("word4");
 }
 
 unsigned DecodedText::timeInSeconds() const

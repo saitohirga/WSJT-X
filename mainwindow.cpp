@@ -1280,7 +1280,7 @@ void MainWindow::dataSink(qint64 frames)
     int ftol = ui->sbFtol->value ();
     freqcal_(&dec_data.d2[0],&k,&nkhz,&RxFreq,&ftol,&line[0],80);
     QString t=QString::fromLatin1(line);
-    DecodedText decodedtext {t, false, m_config.my_grid ()};
+    DecodedText decodedtext {t};
     ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
                                                 m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
                                                 m_config.color_NewCall(),m_config.ppfx());
@@ -1497,7 +1497,6 @@ void MainWindow::fastSink(qint64 frames)
   strncpy(dec_data.params.mycall, (m_baseCall+"            ").toLatin1(),12);
   QString hisCall {ui->dxCallEntry->text ()};
   bool bshmsg=ui->cbShMsgs->isChecked();
-  bool bcontest=ui->cbVHFcontest->isChecked();
   bool bswl=ui->cbSWL->isChecked();
   strncpy(dec_data.params.hiscall,(Radio::base_callsign (hisCall) + "            ").toLatin1 ().constData (), 12);
   strncpy(dec_data.params.mygrid, (m_config.my_grid()+"      ").toLatin1(),6);
@@ -1521,7 +1520,7 @@ void MainWindow::fastSink(qint64 frames)
 
   if(bmsk144 and (line[0]!=0)) {
     QString message {QString::fromLatin1 (line)};
-    DecodedText decodedtext {message.replace (QChar::LineFeed, ""), bcontest, m_config.my_grid ()};
+    DecodedText decodedtext {message.replace (QChar::LineFeed, "")};
     ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
          m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
          m_config.color_NewCall(),m_config.ppfx());
@@ -2764,8 +2763,7 @@ void::MainWindow::fast_decode_done()
     if(narg[13]/8==narg[12]) message=message.trimmed().replace("<...>",m_calls);
 
 //Left (Band activity) window
-    DecodedText decodedtext {message.replace (QChar::LineFeed, ""), "FT8" == m_mode &&
-          ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
+    DecodedText decodedtext {message.replace (QChar::LineFeed, "")};
     if(!m_bFastDone) {
       ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
          m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
@@ -2901,8 +2899,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         m_blankLine = false;
       }
 
-      DecodedText decodedtext {QString::fromUtf8 (t.constData ()).remove (QRegularExpression {"\r|\n"}), "FT8" == m_mode &&
-            ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
+      DecodedText decodedtext {QString::fromUtf8 (t.constData ()).remove (QRegularExpression {"\r|\n"})};
 
       if(m_mode=="FT8" and m_config.bFox() and
          (decodedtext.string().contains("R+") or decodedtext.string().contains("R-"))) {
@@ -2921,7 +2918,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         if(m_mode=="FT8" and m_config.bFox()) {
           if(!m_bDisplayedOnce) {
             // This hack sets the font.  Surely there's a better way!
-            DecodedText dt{".",false," "};
+            DecodedText dt{"."};
             ui->decodedTextBrowser->displayDecodedText(dt,m_baseCall,m_config.DXCC(),
                 m_logBook,m_config.color_CQ(),m_config.color_MyCall(),
                 m_config.color_DXCC(), m_config.color_NewCall(),m_config.ppfx());
@@ -3069,10 +3066,8 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
   if(m_mode=="MSK144" and message.string().indexOf(ui->dxCallEntry->text()+" R ")>0) is_OK=true;
 
   if (message_words.size () > 2 && (message.isStandardMessage () || (is_73 or is_OK))) {
-    qDebug() << "AA" << m_QSOProgress;
     auto df = message.frequencyOffset ();
-    auto within_tolerance =
-      (qAbs (ui->RxFreqSpinBox->value () - df) <= int (start_tolerance)
+    auto within_tolerance = (qAbs (ui->RxFreqSpinBox->value () - df) <= int (start_tolerance)
        || qAbs (ui->TxFreqSpinBox->value () - df) <= int (start_tolerance));
     bool acceptable_73 = is_73
       && m_QSOProgress >= ROGER_REPORT
@@ -3107,8 +3102,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
             || (m_bCallingCQ && m_bAutoReply
                 // look for type 2 compound call replies on our Tx and Rx offsets
                 && ((within_tolerance && "DE" == message_words.at (1))
-                    || message_words.at (1).contains (m_baseCall)))))
-    {
+                    || message_words.at (1).contains (m_baseCall))))) {
       if(!m_config.bFox()) processMessage (message);
     }
   }
@@ -3502,10 +3496,6 @@ void MainWindow::guiUpdate()
                *  7 Hashed calls (MSK144 short format)
               */
 
-              char grid_rpt[7];
-              bool bstd=stdmsg_(message,grid_rpt,22,6);
-              qDebug() << "cc" << bstd;
-
               m_isync=1;
               if(!m_config.bGenerate77() and itype == 6 and (m_i3>0 or m_n3>0)) m_isync=2;
               if(m_config.bGenerate77()) m_isync=2;
@@ -3577,7 +3567,8 @@ void MainWindow::guiUpdate()
       }
     }
 
-    bool b=(m_mode=="FT8") and ui->cbAutoSeq->isChecked() and ui->cbFirst->isChecked();
+//    bool b=(m_mode=="FT8") and ui->cbAutoSeq->isChecked() and ui->cbFirst->isChecked();
+    bool b=(m_mode=="FT8") and ui->cbAutoSeq->isChecked();
     if(is_73 and (m_config.disable_TX_on_73() or b)) {
       auto_tx_mode (false);
       if(b) {
@@ -4086,8 +4077,7 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
     }
     return;
   }
-  DecodedText message {cursor.block().text(), ("MSK144" == m_mode || "FT8" == m_mode) &&
-      true /* ui->cbVHFcontest->isChecked() */, m_config.my_grid ()};
+  DecodedText message {cursor.block().text()};
   m_bDoubleClicked = true;
   processMessage (message, modifiers);
 }
@@ -4111,7 +4101,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     return;
   }
 
-  qDebug() << "bb" << m_QSOProgress;
   //Skip the rest if no decoded text extracted
   int frequency = message.frequencyOffset();
   if (message.isTX()) {
@@ -6728,8 +6717,7 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
         m_bDoubleClicked = true;
       }
       auto start = messages.left (position).lastIndexOf (QChar::LineFeed) + 1;
-      DecodedText message {messages.mid (start, position - start), ("MSK144" == m_mode || "FT8" == m_mode) &&
-          ui->cbVHFcontest->isChecked(), m_config.my_grid ()};
+      DecodedText message {messages.mid (start, position - start)};
       Qt::KeyboardModifiers kbmod {modifiers << 24};
       processMessage (message, kbmod);
       tx_watchdog (false);
