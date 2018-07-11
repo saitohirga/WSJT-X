@@ -3671,7 +3671,7 @@ void MainWindow::guiUpdate()
 //Once per second:
   if(nsec != m_sec0) {
 //    qDebug() << "OneSec:" << m_config.bGenerate77() << m_config.bDecode77()
-//             << m_config.FieldDayExchange() << m_config.RTTYExchange();
+//             << m_config.FieldDayExchange() << m_config.RTTYExchange() << m_config.bRTTYroundup();
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
       if(!m_bVHFwarned) vhfWarning();
     } else {
@@ -5121,7 +5121,7 @@ void MainWindow::on_actionFT8_triggered()
     if(m_config.bEU_VHF_Contest()) t0="EU VHF";
     if(m_config.bNA_VHF_Contest()) t0="NA VHF";
     if(m_config.bFieldDay()) t0="FD";
-    if(m_config.bRTTYroundup()) t0=="RTTY";
+    if(m_config.bRTTYroundup()) t0="RTTY";
     if(m_config.bGenerate77()) t0+=" 2";
     if(t0=="") {
       ui->labDXped->setVisible(false);
