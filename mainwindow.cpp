@@ -3562,8 +3562,7 @@ void MainWindow::guiUpdate()
       }
     }
 
-//    bool b=(m_mode=="FT8") and ui->cbAutoSeq->isChecked() and ui->cbFirst->isChecked();
-    bool b=(m_mode=="FT8") and ui->cbAutoSeq->isChecked();
+    bool b=(m_mode=="FT8" or m_mode=="MSK144") and ui->cbAutoSeq->isChecked();
     if(is_73 and (m_config.disable_TX_on_73() or b)) {
       auto_tx_mode (false);
       if(b) {
