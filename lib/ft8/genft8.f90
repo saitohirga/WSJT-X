@@ -1,4 +1,4 @@
-subroutine genft8(msg37,mygrid,i3,n3,isync,msgsent37,msgbits77,itone)
+subroutine genft8(msg37,i3,n3,isync,msgsent37,msgbits77,itone)
 
 ! Encode an FT8 message, producing array itone().
   
@@ -7,7 +7,6 @@ subroutine genft8(msg37,mygrid,i3,n3,isync,msgsent37,msgbits77,itone)
   include 'ft8_params.f90'
   character*22 msg,msgsent
   character*37 msg37,msgsent37
-  character*6 mygrid
   character*87 cbits
   logical checksumok
   integer*4 i4Msg6BitWords(12)                !72-bit message as 6-bit words
@@ -56,7 +55,7 @@ subroutine genft8(msg37,mygrid,i3,n3,isync,msgsent37,msgbits77,itone)
 
 900 continue
 
-  call genft8_174_91(msg37,mygrid,i3,n3,msgsent37,msgbits77,itone)
+  call genft8_174_91(msg37,i3,n3,msgsent37,msgbits77,itone)
 
   return
 end subroutine genft8

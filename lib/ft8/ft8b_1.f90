@@ -1,5 +1,5 @@
 subroutine ft8b_1(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
-     napwid,lsubtract,nagain,iaptype,mycall12,mygrid6,hiscall12,               &
+     napwid,lsubtract,nagain,iaptype,mycall12,hiscall12,                       &
      sync0,f1,xdt,xbase,apsym,nharderrors,dmin,nbadcrc,ipass,iera,msg37,xsnr)  
 
   use crc
@@ -9,7 +9,7 @@ subroutine ft8b_1(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   character*37 msg37,msgsent37
   character message*22,msgsent*22
   character*12 mycall12,hiscall12
-  character*6 mycall6,mygrid6,hiscall6,c1,c2
+  character*6 mycall6,hiscall6,c1,c2
   character*87 cbits
   real a(5)
   real s1(0:7,ND),s2(0:7,NN),s1sort(8*ND)
@@ -385,7 +385,7 @@ subroutine ft8b_1(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
         isync=1   
         msg37='                                     '
         msg37(1:22)=message
-        call genft8(msg37,mygrid6,i3,n3,isync,msgsent37,msgbits,itone)
+        call genft8(msg37,i3,n3,isync,msgsent37,msgbits,itone)
         if(lsubtract) call subtractft8(dd0,itone,f1,xdt2)
         xsig=0.0
         xnoi=0.0

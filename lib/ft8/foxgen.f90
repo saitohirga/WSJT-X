@@ -19,7 +19,6 @@ subroutine foxgen()
   parameter (NWAVE=NN*NSPS,NFFT=614400,NH=NFFT/2)
   character*40 cmsg
   character*22 msg,msgsent
-  character*6 mygrid
   character*87 cbits
   character*88 cb88
   integer itone(NN)
@@ -39,7 +38,6 @@ subroutine foxgen()
   dfreq=6.25d0
   dt=1.d0/48000.d0
   twopi=8.d0*atan(1.d0)
-  mygrid='      '
   irpt=0
   nplot=0
   wave=0.
@@ -56,7 +54,7 @@ subroutine foxgen()
         msg=cmsg(n)(1:i1)//cmsg(n)(i2+1:i3-2)//'                   '
         read(cmsg(n)(i4+2:i4+4),*) irpt
      endif
-     call genft8(msg,mygrid,0,1,1,msgsent,msgbits,itone)
+     call genft8(msg,0,1,1,msgsent,msgbits,itone)
 !     print*,'Foxgen:',n,cmsg(n),msgsent
 
      if(i3b.eq.1) then

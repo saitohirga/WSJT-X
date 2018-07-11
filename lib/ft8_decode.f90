@@ -61,10 +61,10 @@ contains
     write(datetime,1001) nutc        !### TEMPORARY ###
 1001 format("000000_",i6.6)
 
-    call ft8apset(mycall12,mygrid6,hiscall12,hisgrid6,apsym1)
+    call ft8apset(mycall12,hiscall12,hisgrid6,apsym1)
 ! For now, turn off apset until we get basic functionality going... AP will 
 ! need to be re-thinked for itype=2 messages.
-!    call ft8apset_174_91(mycall12,mygrid6,hiscall12,hisgrid6,apsym2)
+!    call ft8apset_174_91(mycall12,hiscall12,hisgrid6,apsym2)
     apsym2=0
     dd=iwave
     ndecodes=0
@@ -110,12 +110,12 @@ contains
         call timer('ft8b    ',0)
         if(isync.eq.1) then
            call ft8b_1(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lft8apon,     &
-                lapcqonly,napwid,lsubtract,nagain,iaptype,mycall12,mygrid6,   &
+                lapcqonly,napwid,lsubtract,nagain,iaptype,mycall12,   &
                 hiscall12,sync,f1,xdt,xbase,apsym1,nharderrors,dmin,  &
                 nbadcrc,iappass,iera,msg37,xsnr)
         else
            call ft8b_2(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lft8apon,     &
-                lapcqonly,napwid,lsubtract,nagain,iaptype,mycall12,mygrid6,   &
+                lapcqonly,napwid,lsubtract,nagain,iaptype,mycall12,   &
                 hiscall12,sync,f1,xdt,xbase,apsym2,nharderrors,dmin,  &
                 nbadcrc,iappass,iera,msg37,xsnr)
         endif

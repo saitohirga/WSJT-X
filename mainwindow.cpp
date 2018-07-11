@@ -76,9 +76,8 @@ extern "C" {
               fortran_charlen_t, fortran_charlen_t, fortran_charlen_t, fortran_charlen_t,
               fortran_charlen_t);
 
-  void genft8_(char* msg, char* MyGrid, int* i3, int* n3, int* isync, char* msgsent,
-               char ft8msgbits[], int itone[], fortran_charlen_t, fortran_charlen_t,
-               fortran_charlen_t);
+  void genft8_(char* msg, int* i3, int* n3, int* isync, char* msgsent,
+               char ft8msgbits[], int itone[], fortran_charlen_t, fortran_charlen_t);
 
   void parse77_(char* msg, int* i3, int* n3, fortran_charlen_t);
 
@@ -3495,9 +3494,8 @@ void MainWindow::guiUpdate()
               if(!m_config.bGenerate77() and itype == 6 and (m_i3>0 or m_n3>0)) m_isync=2;
               if(m_config.bGenerate77()) m_isync=2;
               char ft8msgbits[77]; 
-              genft8_(message, MyGrid, &m_i3, &m_n3, &m_isync, msgsent,
-                      const_cast<char *> (ft8msgbits), const_cast<int *> (itone), 37, 6, 37);
-
+              genft8_(message, &m_i3, &m_n3, &m_isync, msgsent,
+                      const_cast<char *> (ft8msgbits), const_cast<int *> (itone), 37, 37);
               if(m_config.bFox()) {
                 //Fox must generate the full Tx waveform, not just an itone[] array.
                 QString fm = QString::fromStdString(message).trimmed();
@@ -4194,6 +4192,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
           && !message_words.at (3).contains (grid_regexp)) // but no grid on end of msg
         {
           QString r=message_words.at (3);
+          qDebug() << "aaa" << m_QSOProgress << r << message.string();
           if(m_QSOProgress >= ROGER_REPORT && (r=="RRR" || r.toInt()==73 || "RR73" == r)) {
             if(ui->tabWidget->currentIndex()==1) {
               gen_msg = 5;
@@ -4216,7 +4215,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
               m_ntx=7;
               m_gen_message_is_cq = false;
             }
-          } else if(m_QSOProgress >= CALLING && r.toInt()>=-50 && r.toInt()<=49) {
+          } else if(m_QSOProgress >= CALLING && ((r.toInt()>=-50 && r.toInt()<=49) or
+                                                 (r.toInt()>=529 && r.toInt()<=599))) {
             m_ntx=3;
             m_QSOProgress = ROGER_REPORT;
             ui->txrb3->setChecked(true);
@@ -4225,8 +4225,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
               m_ntx=7;
               m_gen_message_is_cq = false;
             }
-          }
-          else {                // nothing for us
+          } else {                // nothing for us
             return;
           }
         }

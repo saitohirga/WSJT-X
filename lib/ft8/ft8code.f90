@@ -14,13 +14,11 @@ program ft8code
   character*6 c1,c2
   character*9 comment
   character*22 msgsent,message
-  character*6 mygrid6
   character bad*1,msgtype*10
   character*87 cbits
   integer itone(NN)
   integer dgen(12)
   integer*1 msgbits(KK),decoded(KK),decoded0(KK)
-  data mygrid6/'EM48  '/
 
 ! Get command-line argument(s)
   nargs=iargc()
@@ -64,7 +62,7 @@ program ft8code
         if(itype.eq.5) msgtype="Type 2 sfx"
         if(itype.eq.6) msgtype="Free text"
         i3bit=0
-        call genft8(msg(1:22),mygrid6,i3bit,msgsent,msgbits,itone)
+        call genft8(msg(1:22),i3bit,msgsent,msgbits,itone)
      else
         call foxgen_wrap(msg,msgbits,itone)
         i3bit=1

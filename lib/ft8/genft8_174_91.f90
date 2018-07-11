@@ -1,11 +1,10 @@
-subroutine genft8_174_91(msg,mygrid,i3,n3,msgsent,msgbits,itone)
+subroutine genft8_174_91(msg,i3,n3,msgsent,msgbits,itone)
 
 ! Encode an FT8 message, producing array itone().
   
   use packjt77
   include 'ft8_params.f90'
   character msg*37,msgsent*37
-  character*6 mygrid
   character*77 c77
   integer*1 msgbits(77),codeword(174)
   integer itone(79)
