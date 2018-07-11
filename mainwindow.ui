@@ -903,16 +903,6 @@ QLabel[oob=&quot;true&quot;] {
                   </widget>
                  </item>
                  <item>
-                  <widget class="QCheckBox" name="cbVHFcontest">
-                   <property name="toolTip">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to exchange grid locators instead of signal reports. DO NOT USE when propagation supports making world-wide contacts!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                   </property>
-                   <property name="text">
-                    <string>NA VHF Contest</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
                   <widget class="QCheckBox" name="measure_check_box">
                    <property name="toolTip">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this to start recording calibration data.&lt;br/&gt;While measuring calibration correction is disabled.&lt;br/&gt;When not checked you can view the calibration results.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>

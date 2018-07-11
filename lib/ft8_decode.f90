@@ -137,12 +137,13 @@ contains
               allmessages(ndecodes)=msg37
               allsnrs(ndecodes)=nsnr
            endif
-           write(81,1004) nutc,ncand,icand,ipass,iaptype,iappass,        &
-                nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),          &
-                xdt,nint(f1),msg37,isync,nbadcrc
-1004          format(i6.6,2i4,3i2,i3,3f6.1,i4,f6.2,i5,2x,a37,i4,i4)
-           flush(81)
+!           write(81,1004) nutc,ncand,icand,ipass,iaptype,iappass,        &
+!                nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),          &
+!                xdt,nint(f1),msg37,isync,nbadcrc
+!1004          format(i6.6,2i4,3i2,i3,3f6.1,i4,f6.2,i5,2x,a37,i4,i4)
+!           flush(81)
            if(.not.ldupe .and. associated(this%callback)) then
+!              print*,'nharderrors:',nharderrors
               qual=1.0-(nharderrors+dmin)/60.0 ! scale qual to [0.0,1.0]
               call this%callback(sync,nsnr,xdt,f1,msg37,iaptype,qual)
            endif
