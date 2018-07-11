@@ -88,9 +88,8 @@ extern "C" {
   void gen9_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, fortran_charlen_t, fortran_charlen_t);
 
-  void genmsk_128_90_(char* msg, char* MyGrid, int* ichk,
-                  char* msgsent, int itone[], int* itext, fortran_charlen_t,
-                  fortran_charlen_t, fortran_charlen_t);
+  void genmsk_128_90_(char* msg, int* ichk, char* msgsent, int itone[], int* itext,
+                      fortran_charlen_t, fortran_charlen_t);
 
   void gen65_(char* msg, int* ichk, char* msgsent, int itone[],
               int* itext, fortran_charlen_t, fortran_charlen_t);
@@ -3466,8 +3465,8 @@ void MainWindow::guiUpdate()
           strncpy(MyCall, (m_config.my_callsign()+"      ").toLatin1(),6);
           strncpy(MyGrid, (m_config.my_grid()+"      ").toLatin1(),6);
           if(m_modeTx=="MSK144") {
-            genmsk_128_90_(message, MyGrid, &ichk, msgsent, const_cast<int *> (itone),
-                       &m_currentMessageType, 37, 6, 37);
+            genmsk_128_90_(message, &ichk, msgsent, const_cast<int *> (itone),
+                       &m_currentMessageType, 37, 37);
             if(m_restart) {
               int nsym=144;
               if(itone[40]==-40) nsym=40;

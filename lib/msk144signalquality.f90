@@ -5,7 +5,6 @@ subroutine msk144signalquality(cframe,snr,freq,t0,softbits,msg,dxcall,       &
   character*12 dxcall
   character*12 training_dxcall
   character*12 trained_dxcall
-  character*6 mygrid
   character*512 pcoeff_filename
   character*8 date
   character*10 time
@@ -91,10 +90,9 @@ subroutine msk144signalquality(cframe,snr,freq,t0,softbits,msg,dxcall,       &
   enddo
 
 ! generate tones from decoded message
-  mygrid="EN50"
   ichk=0
   bcontest=.false.
-  call genmsk_128_90(msg,mygrid,ichk,bcontest,msgsent,i4tone,itype)
+  call genmsk_128_90(msg,ichk,msgsent,i4tone,itype)
 
 ! reconstruct message bits from tones
   msgbits(1)=0

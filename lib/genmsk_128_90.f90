@@ -1,4 +1,4 @@
-subroutine genmsk_128_90(msg0,mygrid,ichk,msgsent,i4tone,itype)
+subroutine genmsk_128_90(msg0,ichk,msgsent,i4tone,itype)
 ! s8 + 48bits + s8 + 80 bits = 144 bits (72ms message duration)
 !
 ! Encode an MSK144 message
@@ -23,7 +23,6 @@ subroutine genmsk_128_90(msg0,mygrid,ichk,msgsent,i4tone,itype)
   character*37 message                    !Message to be generated
   character*37 msgsent                    !Message as it will be received
   character*77 c77
-  character*6 mygrid
   integer*4 i4tone(144)
   integer*1 codeword(128)
   integer*1 msgbits(77) 

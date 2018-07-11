@@ -4,11 +4,10 @@ program msk144code
 ! LDPC encoding, and other necessary details of the MSK144 protocol.
 
   use packjt
-  character msg*37,msgsent*37,decoded,bad*1,msgtype*13,mygrid*6
+  character msg*37,msgsent*37,decoded,bad*1,msgtype*13
   integer*4 i4tone(144)
   logical*1 bcontest
   include 'testmsg.f90'
-  data mygrid/'FN20qi'/
 
   nargs=iargc()
   if(nargs.ne.1) then
@@ -43,7 +42,7 @@ program msk144code
      bcontest=.false.
      if(msg(i1:i1+1).eq.'R ') bcontest=.true.
      ichk=0
-     call genmsk_128_90(msg,mygrid,ichk,bcontest,msgsent,i4tone,itype)
+     call genmsk_128_90(msg,ichk,bcontest,msgsent,i4tone,itype)
 
      msgtype=""
      if(itype.eq.1) msgtype="Std Msg"
