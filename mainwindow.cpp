@@ -3493,7 +3493,8 @@ void MainWindow::guiUpdate()
               m_isync=1;
               if(!m_config.bGenerate77() and itype == 6 and (m_i3>0 or m_n3>0)) m_isync=2;
               if(m_config.bGenerate77()) m_isync=2;
-              char ft8msgbits[77]; 
+              if(m_isync==1) m_i3=0;
+              char ft8msgbits[77];
               genft8_(message, &m_i3, &m_n3, &m_isync, msgsent,
                       const_cast<char *> (ft8msgbits), const_cast<int *> (itone), 37, 37);
               if(m_config.bFox()) {
