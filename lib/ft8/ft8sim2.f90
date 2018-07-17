@@ -11,15 +11,12 @@ program ft8sim2
   character arg*12,fname*17
   character msg37*37,msgsent37*37,msg40*40
   character c77*77
-  character*6 mygrid6
-  logical bcontest
   complex c0(0:NMAX-1)
   complex c(0:NMAX-1)
   real wave(NMAX)
   integer itone(NN)
   integer*1 msgbits(77)
   integer*2 iwave(NMAX)                  !Generated full-length waveform
-  data mygrid6/'EM48  '/
 
 ! Get command-line argument(s)
   nargs=iargc()
@@ -52,7 +49,6 @@ program ft8sim2
      f0=1500
   endif
 
-  bcontest=nfiles.lt.0
   nfiles=abs(nfiles)
   twopi=8.0*atan(1.0)
   fs=12000.0                             !Sample rate (Hz)
@@ -68,7 +64,7 @@ program ft8sim2
 
 ! Source-encode, then get itone()
   call pack77(msg37,i3,n3,c77)
-  call genft8_174_91(msg37,mygrid6,bcontest,i3,n3,msgsent37,msgbits,itone)
+  call genft8_174_91(msg37,i3,n3,msgsent37,msgbits,itone)
 
   write(*,*)  
   write(*,'(a23,a37,3x,a7,i1,a1,i1)') 'New Style FT8 Message: ',msgsent37,'i3.n3: ',i3,'.',n3
