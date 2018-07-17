@@ -22,7 +22,7 @@ DecodedText::DecodedText (QString const& the_string)
 {
   if (message_.length() >= 1)
     {
-      message_ = message_.left (21).remove (QRegularExpression {"[<>]"});
+      message_ = message_.left (36).remove (QRegularExpression {"[<>]"});
       int i1 = message_.indexOf ('\r');
       if (i1 > 0)
         {
