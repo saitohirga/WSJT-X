@@ -37,7 +37,7 @@ function stdmsg(msg0)
   call packmsg(msg0,dat,itype)
   call unpackmsg(dat,msg)
   msg(23:37)='               '
-  stdmsg=(msg.eq.msg1) .and. (itype.ge.0) .and. itype.ne.6
+  stdmsg=(msg(1:22).eq.msg1(1:22)) .and. (itype.ge.0) .and. (itype.ne.6)
   if(.not.stdmsg) then
      call parse77(msg1,i3,n3)
      if(i3.gt.0 .or. n3.gt.0) stdmsg=.true.

@@ -2826,17 +2826,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
 {
   while(proc_jt9.canReadLine()) {
     QByteArray t=proc_jt9.readLine();
-   /*
-    if(m_mode=="FT8" and !m_config.bHound() and t.contains(";")) {
-      if(t.contains("<...>")) continue;
-      if(!m_bWarnedHound) {
-        QString errorMsg;
-        MessageBox::critical_message (this,
-           tr("Should you be in \"FT8 DXpedition Hound\" mode?"), errorMsg);
-        m_bWarnedHound=true;
-      }
-    }
-    */
 //    qint64 ms=QDateTime::currentMSecsSinceEpoch() - m_msec0;
     bool bAvgMsg=false;
     int navg=0;
