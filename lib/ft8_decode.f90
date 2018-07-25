@@ -33,8 +33,8 @@ module ft8_decode
 contains
 
   subroutine decode(this,callback,iwave,nQSOProgress,nfqso,nftx,newdat,  &
-       nutc,nfa,nfb,nexp_decode,ndepth,nagain,lft8apon,lapcqonly,ldecode77,napwid, &
-       mycall12,mygrid6,hiscall12,hisgrid6)
+       nutc,nfa,nfb,ndepth,nagain,lft8apon,lapcqonly,ldecode77,napwid,   &
+       mycall12,hiscall12,hisgrid6)
 !    use wavhdr
     use timer_module, only: timer
     include 'ft8/ft8_params.f90'
@@ -49,10 +49,11 @@ contains
     logical, intent(in) :: lft8apon,lapcqonly,ldecode77,nagain
     logical newdat,lsubtract,ldupe
     character*12 mycall12, hiscall12
-    character*6 mygrid6,hisgrid6
+    character*6 hisgrid6
     integer*2 iwave(15*12000)
     integer apsym1(KK),apsym2(77)
-    character datetime*13,message*22,msg37*37
+    character datetime*13,msg37*37
+!   character message*22
     character*37 allmessages(100)
     integer allsnrs(100)
     save s,dd
