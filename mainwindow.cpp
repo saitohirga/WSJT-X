@@ -1162,6 +1162,16 @@ void MainWindow::readSettings()
   m_settings->endGroup ();
 
   if (displayMsgAvg) on_actionMessage_averaging_triggered();
+  setContestType();
+}
+
+void MainWindow::setContestType()
+{
+  m_nContest=NONE;
+  if(m_config.bNA_VHF_Contest()) m_nContest=NA_VHF;
+  if(m_config.bEU_VHF_Contest()) m_nContest=EU_VHF;
+  if(m_config.bFieldDay()) m_nContest=FIELD_DAY;
+  if(m_config.bRTTYroundup()) m_nContest=RTTY;
 }
 
 void MainWindow::set_application_font (QFont const& font)
@@ -1667,6 +1677,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       ui->actionEnable_AP_JT65->setVisible(false);
     }
     m_opCall=m_config.opCall();
+    setContestType();
   }
 }
 
@@ -2678,7 +2689,7 @@ void MainWindow::decode()                                       //decode()
   dec_data.params.emedelay=0.0;
   if(m_config.decode_at_52s()) dec_data.params.emedelay=2.5;
   dec_data.params.minSync=ui->syncSpinBox->isVisible () ? m_minSync : 0;
-  dec_data.params.nexp_decode=0;
+  dec_data.params.nexp_decode=m_nContest;
   if(m_config.single_decode()) dec_data.params.nexp_decode += 32;
   if(m_config.enable_VHF_features()) dec_data.params.nexp_decode += 64;
   dec_data.params.ldecode77 = m_config.bDecode77();
@@ -3658,8 +3669,7 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-//    qDebug() << "OneSec:" << m_config.bGenerate77() << m_config.bDecode77()
-//             << m_config.FieldDayExchange() << m_config.RTTYExchange() << m_config.bRTTYroundup();
+//    qDebug() << "OneSec:" << m_nContest;
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
       if(!m_bVHFwarned) vhfWarning();
     } else {

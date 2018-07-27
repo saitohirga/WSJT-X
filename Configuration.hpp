@@ -139,7 +139,6 @@ public:
   bool bEU_VHF_Contest() const;
   bool x2ToneSpacing() const;
   bool x4ToneSpacing() const;
-  bool contestMode() const;
   bool MyDx() const;
   bool CQMyN() const;
   bool NDxG() const;

@@ -293,6 +293,7 @@ private slots:
   void on_pbFoxReset_clicked();
   void on_comboBoxHoundSort_activated (int index);
   void not_GA_warning_message ();
+  void setContestType();
 
 private:
   Q_SIGNAL void initializeAudioOutputStream (QAudioDeviceInfo,
@@ -506,7 +507,15 @@ private:
       ROGERS,
       SIGNOFF
     }
-    m_QSOProgress;
+    m_QSOProgress;        //State machine counter
+
+  enum {
+    NONE,
+    NA_VHF,
+    EU_VHF,
+    FIELD_DAY,
+    RTTY
+  } m_nContest;           //Contest type
 
   int			m_ihsym;
   int			m_nzap;
