@@ -3058,7 +3058,6 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
   auto is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
   bool is_OK=false;
   if(m_mode=="MSK144" and message.string().indexOf(ui->dxCallEntry->text()+" R ")>0) is_OK=true;
-
   if (message_words.size () > 2 && (message.isStandardMessage () || (is_73 or is_OK))) {
     auto df = message.frequencyOffset ();
     auto within_tolerance = (qAbs (ui->RxFreqSpinBox->value () - df) <= int (start_tolerance)
@@ -3073,11 +3072,14 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
                || message_words.contains ("DE")))
           || !message.isStandardMessage ()); // free text 73/RR73
     QString w2=message_words.at(2);
-    QString w34=message_words.at(3);
-    int nrpt=w2.toInt();
-    if(w2=="R") {
-      nrpt=w34.toInt();
-      w34=message_words.at(4);
+    int nrpt=0;
+    if(message_words.size()>3) {
+      QString w34=message_words.at(3);
+      nrpt=w2.toInt();
+      if(w2=="R") {
+        nrpt=w34.toInt();
+        w34=message_words.at(4);
+      }
     }
     bool bEUvhf=(nrpt>=520001 and nrpt<=594000);
     if (m_auto
