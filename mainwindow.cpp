@@ -70,7 +70,7 @@ extern "C" {
                 float *m_pxmax);
 
   void hspec_(short int d2[], int* k, int* nutc0, int* ntrperiod, int* nrxfreq, int* ntol,
-              bool* bmsk144, bool* btrain, double const pcoeffs[], int* ingain,
+              int* nContest, bool* bmsk144, bool* btrain, double const pcoeffs[], int* ingain,
               char mycall[], char hiscall[], bool* bshmsg, bool* bswl, char ddir[], float green[],
               float s[], int* jh, float *pxmax, float *rmsNoGain, char line[], char mygrid[],
               fortran_charlen_t, fortran_charlen_t, fortran_charlen_t, fortran_charlen_t,
@@ -1512,7 +1512,8 @@ void MainWindow::fastSink(qint64 frames)
   float pxmax = 0;
   float rmsNoGain = 0;
   int ftol = ui->sbFtol->value ();
-  hspec_(dec_data.d2,&k,&nutc0,&nTRpDepth,&RxFreq,&ftol,&bmsk144,
+  int nContest=m_nContest;
+  hspec_(dec_data.d2,&k,&nutc0,&nTRpDepth,&RxFreq,&ftol,&nContest,&bmsk144,
          &m_bTrain,m_phaseEqCoefficients.constData(),&m_inGain,&dec_data.params.mycall[0],
          &dec_data.params.hiscall[0],&bshmsg,&bswl,
          &ddir[0],fast_green,fast_s,&fast_jh,&pxmax,&rmsNoGain,&line[0],&dec_data.params.mygrid[0],
