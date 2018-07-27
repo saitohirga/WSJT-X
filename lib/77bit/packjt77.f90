@@ -631,7 +631,9 @@ subroutine unpack28(n28_0,c13)
        c4(i5+1:i5+1)//c4(i6+1:i6+1)//'       '
   c13=adjustl(c13)
 
-900  return
+900 i0=index(c13,' ')
+  if(i0.lt.len(trim(c13))) c13='QU1RK'
+  return
 end subroutine unpack28
 
 subroutine split77(msg,nwords,nw,w)
