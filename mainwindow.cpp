@@ -3073,27 +3073,34 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
                || message_words.contains (Radio::base_callsign (ui->dxCallEntry->text ()))
                || message_words.contains ("DE")))
           || !message.isStandardMessage ()); // free text 73/RR73
+    QString w2=message_words.at(2);
+    QString w34=message_words.at(3);
+    int nrpt=w2.toInt();
+    if(w2=="R") {
+      nrpt=w34.toInt();
+      w34=message_words.at(4);
+    }
+    bool bEUvhf=(nrpt>=520001 and nrpt<=594000);
     if (m_auto
-        && (REPLYING == m_QSOProgress
-            || (!ui->tx1->isEnabled () && REPORT == m_QSOProgress))
+        && (m_QSOProgress==REPLYING  or (!ui->tx1->isEnabled () and m_QSOProgress==REPORT))
         && qAbs (ui->TxFreqSpinBox->value () - df) <= int (stop_tolerance)
         && message_words.at (1) != "DE"
         && !message_words.at (1).contains (QRegularExpression {"(^(CQ|QRZ))|" + m_baseCall})
         && message_words.at (2).contains (Radio::base_callsign (ui->dxCallEntry->text ()))) {
       // auto stop to avoid accidental QRM
       ui->stopTxButton->click (); // halt any transmission
-    }
-    else if (m_auto             // transmit allowed
+    } else if (m_auto             // transmit allowed
         && ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked() // auto-sequencing allowed
         && ((!m_bCallingCQ      // not calling CQ/QRZ
-             && !m_sentFirst73  // not finished QSO
-             && ((message_words.at (1).contains (m_baseCall)
+        && !m_sentFirst73       // not finished QSO
+        && ((message_words.at (1).contains (m_baseCall)
                   // being called and not already in a QSO
-                  && message_words.at (2).contains (Radio::base_callsign (ui->dxCallEntry->text ())))
+        && (message_words.at(2).contains(Radio::base_callsign(ui->dxCallEntry->text())) or bEUvhf))
                  // type 2 compound replies
-                 || (within_tolerance
-                     && (acceptable_73
-                         || ("DE" == message_words.at (1) && message_words.at (2).contains (Radio::base_callsign (m_hisCall)))))))
+        || (within_tolerance &&
+            (acceptable_73 ||
+            ("DE" == message_words.at (1) &&
+             w2.contains(Radio::base_callsign (m_hisCall)))))))
             || (m_bCallingCQ && m_bAutoReply
                 // look for type 2 compound call replies on our Tx and Rx offsets
                 && ((within_tolerance && "DE" == message_words.at (1))
@@ -4186,19 +4193,32 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
      || dtext.contains ("<" + m_baseCall + " ")
      || dtext.contains ("/" + m_baseCall + " ")
      || dtext.contains (" " + m_baseCall + "/")
-     || (firstcall == "DE" /*&& ((t4.size () > 7 && t4.at(7) != "73") || t4.size () <= 7)*/))
-    {
-      if (message_words.size () > 3   // enough fields for a normal message
-          && (message_words.at (1).contains (m_baseCall) || "DE" == message_words.at (1))
-          && message_words.at (2).contains (qso_partner_base_call)) {
+     || (firstcall == "DE" /*&& ((t4.size () > 7 && t4.at(7) != "73") || t4.size () <= 7)*/)) {
+    QString w2=message_words.at(2);
+    QString w34=message_words.at(3);
+    int nrpt=w2.toInt();
+    if(message_words.at(2)=="R") {
+      nrpt=w34.toInt();
+      w34=message_words.at(4);
+    }
+    if (message_words.size () > 3   // enough fields for a normal message
+        && (message_words.at(1).contains(m_baseCall) || "DE" == message_words.at(1))
+        && (message_words.at(2).contains(qso_partner_base_call) or (nrpt>=520001 and nrpt <= 594000))) {
         if(message_words.at (3).contains (grid_regexp) and m_nContest==1) {
-          m_ntx=3;
-          m_QSOProgress = ROGER_REPORT;
-          ui->txrb3->setChecked(true);
-          if(ui->tabWidget->currentIndex()==1) {
-            gen_msg = 3;
-            m_ntx=7;
-            m_gen_message_is_cq = false;
+          gen_msg=setTxMsg(3);
+          m_QSOProgress=ROGER_REPORT;
+        } else if(w34.contains (grid_regexp) and m_nContest==2) {
+          if(nrpt==0) {
+            gen_msg=setTxMsg(2);
+            m_QSOProgress=REPORT;
+          } else {
+            if(w2=="R") {
+              gen_msg=setTxMsg(4);
+              m_QSOProgress=ROGERS;
+            } else {
+              gen_msg=setTxMsg(3);
+              m_QSOProgress=ROGER_REPORT;
+            }
           }
         } else {
           // no grid on end of msg
@@ -4226,19 +4246,14 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             }
           } else if(m_QSOProgress >= CALLING && ((r.toInt()>=-50 && r.toInt()<=49) or
                                                  (r.toInt()>=529 && r.toInt()<=599))) {
-            m_ntx=3;
-            m_QSOProgress = ROGER_REPORT;
-            ui->txrb3->setChecked(true);
-            if(ui->tabWidget->currentIndex()==1) {
-              gen_msg = 3;
-              m_ntx=7;
-              m_gen_message_is_cq = false;
-            }
+            gen_msg=setTxMsg(3);
+            m_QSOProgress=ROGER_REPORT;
           } else {                // nothing for us
             return;
           }
         }
       }
+
       else if (m_QSOProgress >= ROGERS
                && message_words.size () > 2 && message_words.at (1).contains (m_baseCall) && message_words.at (2) == "73") {
         // 73 back to compound call holder
@@ -4422,6 +4437,21 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   if (ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked () && !m_bDoubleClicked) return;
   if(m_config.quick_call()) auto_tx_mode(true);
   m_bDoubleClicked=false;
+}
+
+int MainWindow::setTxMsg(int n)
+{
+  m_ntx=n;
+  if(n==1) ui->txrb1->setChecked(true);
+  if(n==2) ui->txrb2->setChecked(true);
+  if(n==3) ui->txrb3->setChecked(true);
+  if(n==4) ui->txrb4->setChecked(true);
+  if(n==5) ui->txrb5->setChecked(true);
+  if(ui->tabWidget->currentIndex()==1) {
+    m_ntx=7;                      //### FIX THIS ###
+    m_gen_message_is_cq = false;
+  }
+  return n;
 }
 
 void MainWindow::genCQMsg ()
