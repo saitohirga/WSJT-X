@@ -717,7 +717,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
                   "1 W","2 W","5 W","10 W","20 W","50 W","100 W","200 W","500 W","1 kW"};
 
   m_msg[0][0]=0;
-  m_bQRAsyncWarned=false;
   ui->labDXped->setVisible(false);
   ui->labDXped->setStyleSheet("QLabel {background-color: red; color: white;}");
 
@@ -3923,7 +3922,7 @@ void MainWindow::on_txrb2_toggled (bool status)
 
 void MainWindow::on_txrb3_toggled(bool status)
 {
-  // Tx 3 means we should havel already have done Tx 1 so good reference
+  // Tx 3 means we should have already have done Tx 1 so good reference
   if (status) {
     m_ntx=3;
     set_dateTimeQSO(m_ntx);
@@ -4187,7 +4186,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
 
 // Determine appropriate response to received message
   auto dtext = " " + message.string () + " ";
-//  qDebug() << "aa" << m_nContest << m_QSOProgress << message.string();
   int gen_msg {0};
   if(dtext.contains (" " + m_baseCall + " ")
      || dtext.contains ("<" + m_baseCall + " ")
@@ -4201,13 +4199,19 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       nrpt=w34.toInt();
       w34=message_words.at(4);
     }
+    bool bEUvhf=(nrpt>=520001 and nrpt<=594000);
+    if(bEUvhf and m_nContest!=EU_VHF) {
+      //### Should be in EU VHF Contest mode ??? ###
+      MessageBox::information_message (this, tr ("Should you switch to EU VHF Contest mode?"));
+    }
+//    qDebug() << "aa1" << m_nContest << m_QSOProgress << bEUvhf << message.string();
     if (message_words.size () > 3   // enough fields for a normal message
         && (message_words.at(1).contains(m_baseCall) || "DE" == message_words.at(1))
-        && (message_words.at(2).contains(qso_partner_base_call) or (nrpt>=520001 and nrpt <= 594000))) {
-        if(message_words.at (3).contains (grid_regexp) and m_nContest==1) {
+        && (message_words.at(2).contains(qso_partner_base_call) or bEUvhf)) {
+        if(message_words.at (3).contains (grid_regexp) and m_nContest==NA_VHF) {
           gen_msg=setTxMsg(3);
           m_QSOProgress=ROGER_REPORT;
-        } else if(w34.contains (grid_regexp) and m_nContest==2) {
+        } else if(w34.contains (grid_regexp) and m_nContest==EU_VHF) {
           if(nrpt==0) {
             gen_msg=setTxMsg(2);
             m_QSOProgress=REPORT;
@@ -5389,12 +5393,6 @@ void MainWindow::on_actionQRA64_triggered()
   ui->actionInclude_correlation->setVisible (false);
   QString fname {QDir::toNativeSeparators(m_config.temp_dir ().absoluteFilePath ("red.dat"))};
   m_wideGraph->setRedFile(fname);
-  QFile f(m_appDir + "/old_qra_sync");
-  if(f.exists() and !m_bQRAsyncWarned) {
-    MessageBox::warning_message (this, tr ("***  WARNING  *** "),
-       "Using old QRA64 sync pattern.");
-    m_bQRAsyncWarned=true;
-  }
   displayWidgets(nWidgets("111110010110111110000000001000000"));
   statusChanged();
 }

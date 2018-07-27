@@ -492,7 +492,6 @@ private:
   bool    m_bFastDone;
   bool    m_bAltV;
   bool    m_bNoMoreFiles;
-  bool    m_bQRAsyncWarned;
   bool    m_bDoubleClicked;
   bool    m_bCallingCQ;
   bool    m_bAutoReply;
