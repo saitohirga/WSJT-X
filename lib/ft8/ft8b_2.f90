@@ -322,6 +322,10 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
      read(c77(72:74),'(b3)') n3
      read(c77(75:77),'(b3)') i3
      call unpack77(c77,msg37)
+     if(index(msg37,'QU1RK').gt.0) then
+        nbadcrc=1
+        cycle
+     endif
      call genft8_174_91(msg37,i3,n3,msgsent37,msgbits,itone)
      if(lsubtract) call subtractft8(dd0,itone,f1,xdt) 
      xsig=0.0
