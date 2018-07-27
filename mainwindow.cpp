@@ -4180,6 +4180,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
 
 // Determine appropriate response to received message
   auto dtext = " " + message.string () + " ";
+//  qDebug() << "aa" << m_nContest << m_QSOProgress << message.string();
   int gen_msg {0};
   if(dtext.contains (" " + m_baseCall + " ")
      || dtext.contains ("<" + m_baseCall + " ")
@@ -4189,18 +4190,25 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     {
       if (message_words.size () > 3   // enough fields for a normal message
           && (message_words.at (1).contains (m_baseCall) || "DE" == message_words.at (1))
-          && message_words.at (2).contains (qso_partner_base_call)
-          && !message_words.at (3).contains (grid_regexp)) // but no grid on end of msg
-        {
+          && message_words.at (2).contains (qso_partner_base_call)) {
+        if(message_words.at (3).contains (grid_regexp) and m_nContest==1) {
+          m_ntx=3;
+          m_QSOProgress = ROGER_REPORT;
+          ui->txrb3->setChecked(true);
+          if(ui->tabWidget->currentIndex()==1) {
+            gen_msg = 3;
+            m_ntx=7;
+            m_gen_message_is_cq = false;
+          }
+        } else {
+          // no grid on end of msg
           QString r=message_words.at (3);
-          qDebug() << "aaa" << m_QSOProgress << r << message.string();
           if(m_QSOProgress >= ROGER_REPORT && (r=="RRR" || r.toInt()==73 || "RR73" == r)) {
             if(ui->tabWidget->currentIndex()==1) {
               gen_msg = 5;
               if (ui->rbGenMsg->isChecked ()) m_ntx=7;
               m_gen_message_is_cq = false;
-            }
-            else {
+            } else {
               m_ntx=5;
               ui->txrb5->setChecked(true);
             }
@@ -4230,6 +4238,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             return;
           }
         }
+      }
       else if (m_QSOProgress >= ROGERS
                && message_words.size () > 2 && message_words.at (1).contains (m_baseCall) && message_words.at (2) == "73") {
         // 73 back to compound call holder
