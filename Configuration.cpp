@@ -448,6 +448,7 @@ private:
   Q_SLOT void on_cbHound_clicked (bool);
   Q_SLOT void on_cbx2ToneSpacing_clicked(bool);
   Q_SLOT void on_cbx4ToneSpacing_clicked(bool);
+  Q_SLOT void on_rbNone_toggled(bool);
 
   // typenames used as arguments must match registered type names :(
   Q_SIGNAL void start_transceiver (unsigned seqeunce_number) const;
@@ -2466,6 +2467,12 @@ void Configuration::impl::on_cbHound_clicked (bool checked)
     ui_->cbFox->setChecked (false);
     ui_->rbNone->setChecked(true);
   }
+}
+
+void Configuration::impl::on_rbNone_toggled(bool b)
+{
+//  if(!b) ui_->cbGenerate77->setChecked(true);
+  ui_->cbGenerate77->setChecked(!b);
 }
 
 void Configuration::impl::on_cbx2ToneSpacing_clicked(bool b)

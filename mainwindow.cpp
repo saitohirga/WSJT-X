@@ -3081,7 +3081,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
         w34=message_words.at(4);
       }
     }
-    bool bEUvhf=(nrpt>=520001 and nrpt<=594000);
+    bool bEU_VHF_w2=(nrpt>=520001 and nrpt<=594000);
     if (m_auto
         && (m_QSOProgress==REPLYING  or (!ui->tx1->isEnabled () and m_QSOProgress==REPORT))
         && qAbs (ui->TxFreqSpinBox->value () - df) <= int (stop_tolerance)
@@ -3096,7 +3096,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
         && !m_sentFirst73       // not finished QSO
         && ((message_words.at (1).contains (m_baseCall)
                   // being called and not already in a QSO
-        && (message_words.at(2).contains(Radio::base_callsign(ui->dxCallEntry->text())) or bEUvhf))
+        && (message_words.at(2).contains(Radio::base_callsign(ui->dxCallEntry->text())) or bEU_VHF_w2))
                  // type 2 compound replies
         || (within_tolerance &&
             (acceptable_73 ||
@@ -4201,120 +4201,76 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       nrpt=w34.toInt();
       w34=message_words.at(4);
     }
-    bool bEUvhf=(nrpt>=520001 and nrpt<=594000);
-    if(bEUvhf and m_nContest!=EU_VHF) {
+    bool bEU_VHF_w2=(nrpt>=520001 and nrpt<=594000);
+    if(bEU_VHF_w2 and m_nContest!=EU_VHF) {
       //### Should be in EU VHF Contest mode ??? ###
       MessageBox::information_message (this, tr ("Should you switch to EU VHF Contest mode?"));
     }
-//    qDebug() << "aa1" << m_nContest << m_QSOProgress << bEUvhf << message.string();
-    if (message_words.size () > 3   // enough fields for a normal message
-        && (message_words.at(1).contains(m_baseCall) || "DE" == message_words.at(1))
-        && (message_words.at(2).contains(qso_partner_base_call) or bEUvhf)) {
-        if(message_words.at (3).contains (grid_regexp) and m_nContest==NA_VHF) {
+
+    if(message_words.size () > 3   // enough fields for a normal message
+       && (message_words.at(1).contains(m_baseCall) || "DE" == message_words.at(1))
+       && (message_words.at(2).contains(qso_partner_base_call) or bEU_VHF_w2)) {
+
+      if(message_words.at(3).contains(grid_regexp)) {
+        if(m_nContest==NA_VHF){
           gen_msg=setTxMsg(3);
           m_QSOProgress=ROGER_REPORT;
-        } else if(w34.contains (grid_regexp) and m_nContest==EU_VHF) {
-          if(nrpt==0) {
-            gen_msg=setTxMsg(2);
-            m_QSOProgress=REPORT;
-          } else {
-            if(w2=="R") {
-              gen_msg=setTxMsg(4);
-              m_QSOProgress=ROGERS;
-            } else {
-              gen_msg=setTxMsg(3);
-              m_QSOProgress=ROGER_REPORT;
-            }
-          }
         } else {
-          // no grid on end of msg
-          QString r=message_words.at (3);
-          if(m_QSOProgress >= ROGER_REPORT && (r=="RRR" || r.toInt()==73 || "RR73" == r)) {
-            if(ui->tabWidget->currentIndex()==1) {
-              gen_msg = 5;
-              if (ui->rbGenMsg->isChecked ()) m_ntx=7;
-              m_gen_message_is_cq = false;
-            } else {
-              m_ntx=5;
-              ui->txrb5->setChecked(true);
-            }
-            m_QSOProgress = SIGNOFF;
-          } else if((m_QSOProgress >= REPORT
-                     || (m_QSOProgress >= REPLYING && (m_mode=="MSK144" or m_mode=="FT8")
-                         /*&& ui->cbVHFcontest->isChecked()*/ )) && r.mid(0,1)=="R") {        //### Check this !!! ###
-            m_ntx=4;
-            m_QSOProgress = ROGERS;
-            ui->txrb4->setChecked(true);
-            if(ui->tabWidget->currentIndex()==1) {
-              gen_msg = 4;
-              m_ntx=7;
-              m_gen_message_is_cq = false;
-            }
-          } else if(m_QSOProgress >= CALLING && ((r.toInt()>=-50 && r.toInt()<=49) or
-                                                 (r.toInt()>=529 && r.toInt()<=599))) {
+          gen_msg=setTxMsg(2);
+          m_QSOProgress=REPORT;
+        }
+      } else if(w34.contains(grid_regexp) and m_nContest==EU_VHF) {
+        if(nrpt==0) {
+          gen_msg=setTxMsg(2);
+          m_QSOProgress=REPORT;
+        } else {
+          if(w2=="R") {
+            gen_msg=setTxMsg(4);
+            m_QSOProgress=ROGERS;
+          } else {
             gen_msg=setTxMsg(3);
             m_QSOProgress=ROGER_REPORT;
-          } else {                // nothing for us
-            return;
           }
         }
-      }
-
-      else if (m_QSOProgress >= ROGERS
-               && message_words.size () > 2 && message_words.at (1).contains (m_baseCall) && message_words.at (2) == "73") {
-        // 73 back to compound call holder
-        if(ui->tabWidget->currentIndex()==1) {
-          gen_msg = 5;
-          if (ui->rbGenMsg->isChecked ()) m_ntx=7;
-          m_gen_message_is_cq = false;
-        }
-        else {
-          m_ntx=5;
-          ui->txrb5->setChecked(true);
-        }
-        m_QSOProgress = SIGNOFF;
-      }
-      else if (!(m_bAutoReply && m_QSOProgress > CALLING)) {
-        if ((message_words.size () > 4 && message_words.at (1).contains (m_baseCall) && message_words.at (4) == "OOO")) {
-          // EME short code report or MSK144/FT8 contest mode reply, send back Tx3
-          m_ntx=3;
-          m_QSOProgress = ROGER_REPORT;
-          ui->txrb3->setChecked (true);
-          if (ui->tabWidget->currentIndex () == 1) {
-            gen_msg = 3;
-            m_ntx = 7;
-            m_gen_message_is_cq = false;
-          }
-        } else if (!is_73) {    // don't respond to sign off messages
-          m_ntx=2;
-          m_QSOProgress = REPORT;
-          ui->txrb2->setChecked(true);
+      } else {  // no grid on end of msg
+        QString r=message_words.at (3);
+        if(m_QSOProgress >= ROGER_REPORT && (r=="RRR" || r.toInt()==73 || "RR73" == r)) {
           if(ui->tabWidget->currentIndex()==1) {
-            gen_msg = 2;
+            gen_msg = 5;
+            if (ui->rbGenMsg->isChecked ()) m_ntx=7;
+            m_gen_message_is_cq = false;
+          } else {
+            m_ntx=5;
+            ui->txrb5->setChecked(true);
+          }
+          m_QSOProgress = SIGNOFF;
+        } else if((m_QSOProgress >= REPORT
+                   || (m_QSOProgress >= REPLYING && (m_mode=="MSK144" or m_mode=="FT8")
+                       /*&& ui->cbVHFcontest->isChecked()*/ )) && r.mid(0,1)=="R") {        //### Check this !!! ###
+          m_ntx=4;
+          m_QSOProgress = ROGERS;
+          ui->txrb4->setChecked(true);
+          if(ui->tabWidget->currentIndex()==1) {
+            gen_msg = 4;
             m_ntx=7;
             m_gen_message_is_cq = false;
           }
-
-          if (m_bDoubleClickAfterCQnnn and m_transmitting) {
-            on_stopTxButton_clicked();
-            TxAgainTimer.start(1500);
-          }
-          m_bDoubleClickAfterCQnnn=false;
+        } else if(m_QSOProgress >= CALLING && ((r.toInt()>=-50 && r.toInt()<=49) or
+                                               (r.toInt()>=529 && r.toInt()<=599))) {
+          gen_msg=setTxMsg(3);
+          m_QSOProgress=ROGER_REPORT;
+        } else {                // nothing for us
+          return;
         }
-        else {
-          return;               // nothing we need to respond to
-        }
-      }
-      else {                  // nothing for us
-        return;
       }
     }
-  else if (firstcall == "DE" && message_words.size () > 3 && message_words.at (3) == "73") {
-    if (m_QSOProgress >= ROGERS && base_call == qso_partner_base_call && m_currentMessageType) {
+
+    else if (m_QSOProgress >= ROGERS
+             && message_words.size () > 2 && message_words.at (1).contains (m_baseCall) && message_words.at (2) == "73") {
       // 73 back to compound call holder
       if(ui->tabWidget->currentIndex()==1) {
         gen_msg = 5;
-        m_ntx=7;
+        if (ui->rbGenMsg->isChecked ()) m_ntx=7;
         m_gen_message_is_cq = false;
       }
       else {
@@ -4323,14 +4279,61 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       }
       m_QSOProgress = SIGNOFF;
     }
-    else {
+    else if (!(m_bAutoReply && m_QSOProgress > CALLING)) {
+      if ((message_words.size () > 4 && message_words.at (1).contains (m_baseCall) && message_words.at (4) == "OOO")) {
+        // EME short code report or MSK144/FT8 contest mode reply, send back Tx3
+        m_ntx=3;
+        qDebug() << "dd";
+        m_QSOProgress = ROGER_REPORT;
+        ui->txrb3->setChecked (true);
+        if (ui->tabWidget->currentIndex () == 1) {
+          gen_msg = 3;
+          m_ntx = 7;
+          m_gen_message_is_cq = false;
+        }
+      } else if (!is_73) {    // don't respond to sign off messages
+        m_ntx=2;
+        m_QSOProgress = REPORT;
+        ui->txrb2->setChecked(true);
+        if(ui->tabWidget->currentIndex()==1) {
+          gen_msg = 2;
+          m_ntx=7;
+          m_gen_message_is_cq = false;
+        }
+
+        if (m_bDoubleClickAfterCQnnn and m_transmitting) {
+          on_stopTxButton_clicked();
+          TxAgainTimer.start(1500);
+        }
+        m_bDoubleClickAfterCQnnn=false;
+      }
+      else {
+        return;               // nothing we need to respond to
+      }
+    }
+    else {                  // nothing for us
+      return;
+    }
+  }
+  else if (firstcall == "DE" && message_words.size () > 3 && message_words.at (3) == "73") {
+    if (m_QSOProgress >= ROGERS && base_call == qso_partner_base_call && m_currentMessageType) {
+      // 73 back to compound call holder
+      if(ui->tabWidget->currentIndex()==1) {
+        gen_msg = 5;
+        m_ntx=7;
+        m_gen_message_is_cq = false;
+      } else {
+        m_ntx=5;
+        ui->txrb5->setChecked(true);
+      }
+      m_QSOProgress = SIGNOFF;
+    } else {
       // treat like a CQ/QRZ
       if (ui->tx1->isEnabled ()) {
         m_ntx = 1;
         m_QSOProgress = REPLYING;
         ui->txrb1->setChecked (true);
-      }
-      else {
+      } else {
         m_ntx=2;
         m_QSOProgress = REPORT;
         ui->txrb2->setChecked (true);
@@ -4347,31 +4350,27 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       gen_msg = 5;
       if (ui->rbGenMsg->isChecked ()) m_ntx=7;
       m_gen_message_is_cq = false;
-    }
-    else {
+    } else {
       m_ntx=5;
       ui->txrb5->setChecked(true);
     }
     m_QSOProgress = SIGNOFF;
-  }
-  else // just work them
-    {
-      if (ui->tx1->isEnabled ()) {
-        m_ntx = 1;
-        m_QSOProgress = REPLYING;
-        ui->txrb1->setChecked (true);
-      }
-      else {
-        m_ntx=2;
-        m_QSOProgress = REPORT;
-        ui->txrb2->setChecked (true);
-      }
-      if (1 == ui->tabWidget->currentIndex ()) {
-        gen_msg = m_ntx;
-        m_ntx=7;
-        m_gen_message_is_cq = false;
-      }
+  } else {// just work them
+    if (ui->tx1->isEnabled ()) {
+      m_ntx = 1;
+      m_QSOProgress = REPLYING;
+      ui->txrb1->setChecked (true);
+    } else {
+      m_ntx=2;
+      m_QSOProgress = REPORT;
+      ui->txrb2->setChecked (true);
     }
+    if (1 == ui->tabWidget->currentIndex ()) {
+      gen_msg = m_ntx;
+      m_ntx=7;
+      m_gen_message_is_cq = false;
+    }
+  }
 
   // if we get here then we are reacting to the message
   if (m_bAutoReply) m_bCallingCQ = CALLING == m_QSOProgress;
@@ -4384,8 +4383,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   if (s1!=s2 and !message.isTX()) {
     if (!s2.contains(m_baseCall) or m_mode=="MSK144") {  // Taken care of elsewhere if for_us and slow mode
       ui->decodedTextBrowser2->displayDecodedText(message, m_baseCall,
-          false, m_logBook,m_config.color_CQ(), m_config.color_MyCall(),
-          m_config.color_DXCC(),m_config.color_NewCall(),m_config.ppfx());
+                                                  false, m_logBook,m_config.color_CQ(), m_config.color_MyCall(),
+                                                  m_config.color_DXCC(),m_config.color_NewCall(),m_config.ppfx());
     }
     m_QSOText = s2;
   }
@@ -4403,7 +4402,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   }
   if (hisgrid.contains (grid_regexp)) {
     if(ui->dxGridEntry->text().mid(0,4) != hisgrid) ui->dxGridEntry->setText(hisgrid);
-   }
+  }
   if (!ui->dxGridEntry->text ().size ())
     lookup();
   m_hisGrid = ui->dxGridEntry->text();
@@ -5081,7 +5080,8 @@ void MainWindow::displayWidgets(qint64 n)
     if(i==32) ui->cbCQonly->setVisible(b);
     j=j>>1;
   }
-  b=m_config.bEU_VHF_Contest() or (m_config.bRTTYroundup() and m_config.RTTYExchange()=="DX");
+  b=m_config.bEU_VHF_Contest() or (m_config.bRTTYroundup() and
+    (m_config.RTTYExchange()=="#" or m_config.RTTYExchange()=="DX"));
   ui->sbSerialNumber->setVisible(b);
   m_lastCallsign.clear ();     // ensures Tx5 is updated for new modes
   genStdMsgs (m_rpt, true);
