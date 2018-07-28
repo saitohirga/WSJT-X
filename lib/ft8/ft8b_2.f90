@@ -317,15 +317,17 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
      xsnr=-99.0
      if(nharderrors.lt.0 .or. nharderrors.gt.36) cycle
      if(count(cw.eq.0).eq.174) cycle           !Reject the all-zero codeword
-     nbadcrc=0  ! If we get this far, must be a valid codeword.
      write(c77,'(77i1)') message77
      read(c77(72:74),'(b3)') n3
      read(c77(75:77),'(b3)') i3
-     call unpack77(c77,msg37)
-     if(index(msg37,'QU1RK').gt.0) then
-        nbadcrc=1
+     if(i3.gt.4 .or. (i3.eq.0.and.n3.gt.5)) then
         cycle
      endif
+     call unpack77(c77,msg37)
+     if(index(msg37,'QU1RK').gt.0) then
+        cycle
+     endif
+     nbadcrc=0  ! If we get this far: valid codeword, valid (i3,n3), nonquirky message.
      call genft8_174_91(msg37,i3,n3,msgsent37,msgbits,itone)
      if(lsubtract) call subtractft8(dd0,itone,f1,xdt) 
      xsig=0.0
