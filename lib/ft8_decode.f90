@@ -65,8 +65,8 @@ contains
     call ft8apset(mycall12,hiscall12,hisgrid6,apsym1)
 ! For now, turn off apset until we get basic functionality going... AP will 
 ! need to be re-thinked for itype=2 messages.
-!    call ft8apset_174_91(mycall12,hiscall12,hisgrid6,apsym2)
-    apsym2=0
+    call ft8apset_174_91(mycall12,hiscall12,hisgrid6,ncontest,apsym2)
+!write(*,'(28i1,1x,i1,1x,28i1,1x,i1,1x,i1,1x,15i1,1x,3i1)') (apsym2+1)/2
     dd=iwave
     ndecodes=0
     allmessages='                                     '
@@ -144,7 +144,6 @@ contains
 !1004          format(i6.6,2i4,3i2,i3,3f6.1,i4,f6.2,i5,2x,a37,i4)
 !           flush(81)
            if(.not.ldupe .and. associated(this%callback)) then
-!              print*,'nharderrors:',nharderrors
               qual=1.0-(nharderrors+dmin)/60.0 ! scale qual to [0.0,1.0]
               call this%callback(sync,nsnr,xdt,f1,msg37,iaptype,qual)
            endif

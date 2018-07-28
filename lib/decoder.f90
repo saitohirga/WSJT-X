@@ -497,7 +497,7 @@ contains
     annot='  ' 
     if(nap.ne.0) then
        write(annot,'(a1,i1)') 'a',nap
-       if(qual.lt.0.17) decoded0(22:22)='?'
+       if(qual.lt.0.17) decoded0(37:37)='?'
     endif
 
 !    i0=index(decoded0,';')
@@ -507,8 +507,8 @@ contains
     i0=1
     if(i0.le.0) write(*,1000) params%nutc,snr,dt,nint(freq),decoded0(1:22),annot
 1000 format(i6.6,i4,f5.1,i5,' ~ ',1x,a22,1x,a2)
-    if(i0.gt.0) write(*,1001) params%nutc,snr,dt,nint(freq),decoded0
-1001 format(i6.6,i4,f5.1,i5,' ~ ',1x,a37)
+    if(i0.gt.0) write(*,1001) params%nutc,snr,dt,nint(freq),decoded0,annot
+1001 format(i6.6,i4,f5.1,i5,' ~ ',1x,a37,1x,a2)
     write(13,1002) params%nutc,nint(sync),snr,dt,freq,0,decoded0
 1002 format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a37,' FT8')
 

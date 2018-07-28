@@ -15,7 +15,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   real a(5)
   real s8(0:7,NN)
   real s2(0:511),s2l(0:511)
-  real bmeta(3*ND),bmetb(3*ND),bmetc(3*ND),bmetap(3*ND)
+  real bmeta(3*ND),bmetb(3*ND),bmetc(3*ND)
   real bmetal(3*ND),bmetbl(3*ND),bmetcl(3*ND)
   real llra(3*ND),llrb(3*ND),llrc(3*ND),llrd(3*ND)           !Soft symbols
   real llral(3*ND),llrbl(3*ND),llrcl(3*ND)                   !Soft symbols
@@ -23,7 +23,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   integer*1 message77(77),apmask(3*ND),cw(3*ND)
   integer*1 msgbits(77)
   integer apsym(77)
-  integer mcq(28),mde(28),mrrr(16),m73(16),mrr73(16)
+  integer mcq(29),mrrr(19),m73(19),mrr73(19)
   integer itone(NN)
   integer icos7(0:6),ip(1)
   integer nappasses(0:5)  !Number of decoding passes to use for each QSO state
@@ -37,18 +37,16 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   complex cs(0:7,NN)
   logical first,newdat,lsubtract,lapon,lapcqonly,nagain
   data icos7/3,1,4,0,6,5,2/  ! Flipped w.r.t. original FT8 sync array
-  data mcq/1,1,1,1,1,0,1,0,0,0,0,0,1,0,0,0,0,0,1,1,0,0,0,1,1,0,0,1/
-  data mrrr/0,1,1,1,1,1,1,0,1,1,0,0,1,1,1,1/
-  data m73/0,1,1,1,1,1,1,0,1,1,0,1,0,0,0,0/
-  data mde/1,1,1,1,1,1,1,1,0,1,1,0,0,1,0,0,0,0,0,1,1,1,0,1,0,0,0,1/
-  data mrr73/0,0,0,0,0,0,1,0,0,0,0,1,0,1,0,1/
+  data   mcq/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0/
+  data  mrrr/0,1,1,1,1,1,1,0,1,0,0,1,0,0,1,0,0,0,1/
+  data   m73/0,1,1,1,1,1,1,0,1,0,0,1,0,1,0,0,0,0,1/
+  data mrr73/0,1,1,1,1,1,1,0,0,1,1,1,0,1,0,1,0,0,1/
   data first/.true./
   data graymap/0,1,3,2,5,6,4,7/
   save nappasses,naptypes,one
 
   if(first) then
      mcq=2*mcq-1
-     mde=2*mde-1
      mrrr=2*mrrr-1
      m73=2*m73-1
      mrr73=2*mrr73-1
@@ -61,13 +59,12 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
 
 ! iaptype
 !------------------------
-!   1        CQ     ???    ???
-!   2        MyCall ???    ???
-!   3        MyCall DxCall ???
-!   4        MyCall DxCall RRR
-!   5        MyCall DxCall 73
-!   6        MyCall DxCall RR73
-!   7        ???    DxCall ???
+!   1        CQ     ???    ???           (29+3=32 ap bits)
+!   2        MyCall ???    ???           (29+3=32 ap bits)
+!   3        MyCall DxCall ???           (58+3=61 ap bits)
+!   4        MyCall DxCall RRR           (77 ap bits)
+!   5        MyCall DxCall 73            (77 ap bits)
+!   6        MyCall DxCall RR73          (77 ap bits)
 
      naptypes(0,1:4)=(/1,2,0,0/)
      naptypes(1,1:4)=(/2,3,0,0/)
@@ -190,107 +187,108 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
         do ib=0,ibmax
           bm=maxval(s2(0:nt-1),one(0:nt-1,ibmax-ib)) - &
              maxval(s2(0:nt-1),.not.one(0:nt-1,ibmax-ib))
-          bml=maxval(s2l(0:nt-1),one(0:nt-1,ibmax-ib)) - &
-              maxval(s2l(0:nt-1),.not.one(0:nt-1,ibmax-ib))
+!          bml=maxval(s2l(0:nt-1),one(0:nt-1,ibmax-ib)) - &
+!              maxval(s2l(0:nt-1),.not.one(0:nt-1,ibmax-ib))
           if(i32+ib .gt.174) cycle
           if(nsym.eq.1) then
             bmeta(i32+ib)=bm
-            bmetal(i32+ib)=bml
+!            bmetal(i32+ib)=bml
           elseif(nsym.eq.2) then
             bmetb(i32+ib)=bm
-            bmetbl(i32+ib)=bml
+!            bmetbl(i32+ib)=bml
           elseif(nsym.eq.3) then
             bmetc(i32+ib)=bm
-            bmetcl(i32+ib)=bml
+!            bmetcl(i32+ib)=bml
           endif
         enddo
       enddo
     enddo
   enddo
   call normalizebmet(bmeta,3*ND)
-  call normalizebmet(bmetal,3*ND)
+!  call normalizebmet(bmetal,3*ND)
   call normalizebmet(bmetb,3*ND)
-  call normalizebmet(bmetbl,3*ND)
+!  call normalizebmet(bmetbl,3*ND)
   call normalizebmet(bmetc,3*ND)
-  call normalizebmet(bmetcl,3*ND)
-  bmetap=bmeta
+!  call normalizebmet(bmetcl,3*ND)
 
   scalefac=2.83
   llra=scalefac*bmeta
-  llral=scalefac*bmetal
+!  llral=scalefac*bmetal
   llrb=scalefac*bmetb
-  llrbl=scalefac*bmetbl
+!  llrbl=scalefac*bmetbl
   llrc=scalefac*bmetc
-  llrcl=scalefac*bmetcl
+!  llrcl=scalefac*bmetcl
 
-  apmag=scalefac*(maxval(abs(bmetap))*1.01)
+  apmag=maxval(abs(llrb))*1.01
 
 ! pass #
 !------------------------------
-!   1        regular decoding
-!   2        erase 24
-!   3        erase 48
-!   4        ap pass 1
+!   1        regular decoding, nsym=1 
+!   2        regular decoding, nsym=2 
+!   3        regular decoding, nsym=3 
+!   4        ap pass 1, nsym=2 (for now?)
 !   5        ap pass 2
 !   6        ap pass 3
-!   7        ap pass 4, etc.
+!   7        ap pass 4
 
   if(lapon) then 
      if(.not.lapcqonly) then
-        npasses=4+nappasses(nQSOProgress)
+        npasses=3+nappasses(nQSOProgress)
      else
-        npasses=5 
+        npasses=4 
      endif
   else
-     npasses=4
+     npasses=3
   endif
 
-!  do ipass=1,npasses 
-  do ipass=1,3 
+  do ipass=1,npasses 
      llrd=llra
      if(ipass.eq.2) llrd=llrb
      if(ipass.eq.3) llrd=llrc
-!     if(ipass.eq.3) llrd(1:24)=0. 
-     if(ipass.eq.4) llrd(1:24)=0. 
-     if(ipass.le.4) then
+     if(ipass.le.3) then
         apmask=0
         iaptype=0
      endif
 
-! The AP stuff needs to be re-done to accommodate the new message types.        
-!     if(ipass .gt. 4) then
-!        llrd=llrb    ! Needs to be checked
-!        if(.not.lapcqonly) then
-!           iaptype=naptypes(nQSOProgress,ipass-4)
-!        else
-!           iaptype=1
-!        endif
-!        if(iaptype.ge.3 .and. (abs(f1-nfqso).gt.napwid .and. abs(f1-nftx).gt.napwid) ) cycle 
-!        if(iaptype.eq.1 .or. iaptype.eq.2 ) then ! AP,???,??? 
-!           apmask=0
-!           apmask(1:27)=1    ! first 27 bits (9 tones) are AP
-!           if(iaptype.eq.1) llrd(1:27)=apmag*mcq(1:27)
-!           if(iaptype.eq.2) llrd(1:27)=apmag*apsym(1:27)
-!        endif
-!        if(iaptype.eq.3) then   ! mycall, dxcall, ???
-!           apmask=0
-!           apmask(1:54)=1   
-!           llrd(1:54)=apmag*apsym(1:54)
-!        endif
-!        if(iaptype.eq.4 .or. iaptype.eq.5 .or. iaptype.eq.6) then  
-!           apmask=0
-!           apmask(1:72)=1   ! mycall, hiscall, RRR|73|RR73
-!           llrd(1:56)=apmag*apsym(1:56)
-!           if(iaptype.eq.4) llrd(57:72)=apmag*mrrr 
-!           if(iaptype.eq.5) llrd(57:72)=apmag*m73 
-!           if(iaptype.eq.6) llrd(57:72)=apmag*mrr73 
-!        endif
-!        if(iaptype.eq.7) then   ! ???, dxcall, ???
-!           apmask=0
-!           apmask(31:54)=1  ! hiscall
-!           llrd(31:54)=apmag*apsym(31:54)
-!        endif
-!     endif
+     if(ipass .gt. 3) then
+        llrd=llrb    ! Needs to be checked
+        if(.not.lapcqonly) then
+           iaptype=naptypes(nQSOProgress,ipass-3)
+        else
+           iaptype=1
+        endif
+        if(iaptype.ge.3 .and. (abs(f1-nfqso).gt.napwid .and. abs(f1-nftx).gt.napwid) ) cycle 
+        if(iaptype.eq.1 .or. iaptype.eq.2 ) then ! AP,???,??? 
+           apmask=0
+           apmask(1:29)=1  
+           apmask(75:77)=1 
+           llrd(75:77)=apmag*apsym(75:77)
+           if(iaptype.eq.1) llrd(1:29)=apmag*mcq(1:29)
+           if(iaptype.eq.2) llrd(1:29)=apmag*apsym(1:29)
+        endif
+        if(iaptype.eq.3) then   ! mycall, dxcall, ???
+           apmask=0
+           apmask(1:56)=1   
+           apmask(75:77)=1 
+           llrd(1:56)=apmag*apsym(1:56)
+           llrd(75:77)=apmag*apsym(75:77)
+        endif
+        if(iaptype.eq.4 .or. iaptype.eq.5 .or. iaptype.eq.6) then  
+           apmask=0
+           apmask(1:77)=1   ! mycall, hiscall, RRR|73|RR73
+           llrd(1:58)=apmag*apsym(1:58)
+           if(iaptype.eq.4) llrd(59:77)=apmag*mrrr 
+           if(iaptype.eq.5) llrd(59:77)=apmag*m73 
+           if(iaptype.eq.6) llrd(59:77)=apmag*mrr73 
+        endif
+        if(iaptype.eq.7) then   ! ???, dxcall, ???
+           apmask=0
+           apmask(30:58)=1  ! hiscall
+           apmask(75:77)=1 
+           llrd(30:58)=apmag*apsym(30:58)
+           llrd(75:77)=apmag*apsym(75:77)
+        endif
+     endif
 
      cw=0
      call timer('bpd174_91 ',0)
