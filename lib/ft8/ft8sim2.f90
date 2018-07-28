@@ -72,9 +72,14 @@ program ft8sim2
 1000 format('f0:',f9.3,'   DT:',f6.2,'   TxT:',f6.1,'   SNR:',f6.1,    &
        '  BW:',f4.1)
   write(*,*)  
-  write(*,'(a14)') 'Message bits: '
-  write(*,'(77i1)') msgbits
-  write(*,*)  
+  if(i3.eq.1) then
+    write(*,*) '         mycall                         hiscall                    hisgrid'
+    write(*,'(28i1,1x,i1,1x,28i1,1x,i1,1x,i1,1x,15i1,1x,3i1)') msgbits(1:77) 
+  else
+    write(*,'(a14)') 'Message bits: '
+    write(*,'(77i1)') msgbits
+  endif
+  write(*,*) 
   write(*,'(a17)') 'Channel symbols: '
   write(*,'(79i1)') itone
   write(*,*)  
