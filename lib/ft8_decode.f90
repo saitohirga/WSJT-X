@@ -62,11 +62,8 @@ contains
     write(datetime,1001) nutc        !### TEMPORARY ###
 1001 format("000000_",i6.6)
 
-    call ft8apset(mycall12,hiscall12,hisgrid6,apsym1)
-! For now, turn off apset until we get basic functionality going... AP will 
-! need to be re-thinked for itype=2 messages.
+    call ft8apset(mycall12,hiscall12,apsym1)
     call ft8apset_174_91(mycall12,hiscall12,hisgrid6,ncontest,apsym2)
-!write(*,'(28i1,1x,i1,1x,28i1,1x,i1,1x,i1,1x,15i1,1x,3i1)') (apsym2+1)/2
     dd=iwave
     ndecodes=0
     allmessages='                                     '
