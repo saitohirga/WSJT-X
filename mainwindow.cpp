@@ -4516,6 +4516,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
   auto eme_short_codes = m_config.enable_VHF_features () && ui->cbShMsgs->isChecked ()
       && m_mode == "JT65";
   QString t0=hisBase + " " + m_baseCall + " ";
+  if(m_config.bGenerate77()) t0=hisCall + " " + my_callsign + " ";
   QString t00=t0;
   QString t {t0 + my_grid};
   msgtype(t, ui->tx1);
@@ -4524,7 +4525,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     msgtype(t, ui->tx2);
     msgtype("RO", ui->tx3);
     msgtype(m_send_RR73 ? "RR73" : "RRR", ui->tx4);
-    msgtype("73", ui->tx5->lineEdit ());
+    msgtype("73", ui->tx5->lineEdit());
   } else {
     int n=rpt.toInt();
     rpt.sprintf("%+2.2d",n);
@@ -4546,10 +4547,11 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       }
 
       QString rst;
-      int nn=n/6+6;
+      int nn=(n+36)/6;
       if(nn<2) nn=2;
       if(nn>9) nn=9;
       rst.sprintf("5%1d9 ",nn);
+
        if(m_config.bRTTYroundup()) {
         t=t0 + rst + m_config.RTTYExchange();             //Use a real report
         msgtype(t, ui->tx2);
@@ -4600,15 +4602,18 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     t=t0 + (m_send_RR73 ? "RR73" : "RRR");
     if ((m_mode=="JT4" || m_mode=="QRA64") && m_bShMsgs) t="@1500  (RRR)";
     msgtype(t, ui->tx4);
+
+    if(m_config.bGenerate77()) return;
+
     t=t0 + "73";
     if (m_mode=="JT4" || m_mode=="QRA64") {
       if (m_bShMsgs) t="@1750  (73)";
-      msgtype(t, ui->tx5->lineEdit ());
+      msgtype(t, ui->tx5->lineEdit());
     } else if ("MSK144" == m_mode && m_bShMsgs) {
-      msgtype(t, ui->tx5->lineEdit ());
-    } else if (unconditional || hisBase != m_lastCallsign || !m_lastCallsign.size ()) {
+      msgtype(t, ui->tx5->lineEdit());
+    } else if(unconditional || hisBase != m_lastCallsign || !m_lastCallsign.size ()) {
       // only update tx5 when forced or  callsign changes
-      msgtype(t, ui->tx5->lineEdit ());
+      msgtype(t, ui->tx5->lineEdit());
       m_lastCallsign = hisBase;
     }
   }
