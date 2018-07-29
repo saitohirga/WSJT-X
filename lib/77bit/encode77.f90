@@ -30,6 +30,8 @@ program encode77
      if(msg0(2:2).eq.'.' .or. msg0(3:3).eq.'.') cycle
      if(msg0(1:3).eq.'---') cycle
      msg0=adjustl(msg0)
+     i3=-1
+     n3=-1
      call pack77(msg0(1:37),i3,n3,c77)
      call unpack77(c77,msg)
      cerr=' '
