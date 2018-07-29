@@ -19,7 +19,7 @@ subroutine ft8b_1(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   real dd0(15*12000)
   integer*1 decoded(KK),decoded0(KK),apmask(3*ND),cw(3*ND)
   integer*1 msgbits(KK)
-  integer apsym(KK)
+  integer apsym(75)
   integer mcq(28),mde(28),mrrr(16),m73(16),mrr73(16)
   integer itone(NN)
   integer indxs1(8*ND)

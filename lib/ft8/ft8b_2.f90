@@ -251,7 +251,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
      endif
 
      if(ipass .gt. 3) then
-        llrd=llrb    ! Needs to be checked
+        llrd=llra
         if(.not.lapcqonly) then
            iaptype=naptypes(nQSOProgress,ipass-3)
         else
