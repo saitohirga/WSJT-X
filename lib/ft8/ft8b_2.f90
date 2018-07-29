@@ -226,7 +226,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
 !   1        regular decoding, nsym=1 
 !   2        regular decoding, nsym=2 
 !   3        regular decoding, nsym=3 
-!   4        ap pass 1, nsym=2 (for now?)
+!   4        ap pass 1, nsym=1 (for now?)
 !   5        ap pass 2
 !   6        ap pass 3
 !   7        ap pass 4
@@ -280,13 +280,6 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
            if(iaptype.eq.4) llrd(59:77)=apmag*mrrr 
            if(iaptype.eq.5) llrd(59:77)=apmag*m73 
            if(iaptype.eq.6) llrd(59:77)=apmag*mrr73 
-        endif
-        if(iaptype.eq.7) then   ! ???, dxcall, ???
-           apmask=0
-           apmask(30:58)=1  ! hiscall
-           apmask(75:77)=1 
-           llrd(30:58)=apmag*apsym(30:58)
-           llrd(75:77)=apmag*apsym(75:77)
         endif
      endif
 
