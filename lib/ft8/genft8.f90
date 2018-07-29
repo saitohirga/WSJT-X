@@ -39,7 +39,8 @@ subroutine genft8(msg37,i3,n3,isync,msgsent37,msgbits77,itone)
 1004 format(87i1)
 
   call encode174(msgbits,codeword)      !Encode the test message
-
+  msgbits77=-1
+  msgbits77(1:75)=msgbits(1:75)
 ! Message structure: S7 D29 S7 D29 S7
   itone(1:7)=icos7
   itone(36+1:36+7)=icos7

@@ -8,17 +8,17 @@ program ft8sim
   parameter (NWAVE=NN*NSPS)
   type(hdr) h                            !Header for .wav file
   character arg*12,fname*17
-  character msg40*40,msg*22,msgsent*22,msg0*22
+  character msg*37,msgsent*37,msg0*37
   complex c0(0:NMAX-1)
   complex c(0:NMAX-1)
   real wave(NMAX)
   integer itone(NN)
-  integer*1 msgbits(91)
+  integer*1 msgbits(77)
   integer*2 iwave(NMAX)                  !Generated full-length waveform
 
 ! Get command-line argument(s)
   nargs=iargc()
-  if(nargs.ne.9) then
+  if(nargs.ne.8) then
      print*,'Usage:    ft8sim "message"         nsig|f0  DT fdop del width nfiles snr'
      print*,'Examples: ft8sim "K1ABC W9XYZ EN37" 1500.0 0.0  0.1 1.0   0     10   -18'
      print*,'          ft8sim "K1ABC W9XYZ EN37"   10   0.0  0.1 1.0  25     10   -18'
@@ -26,7 +26,7 @@ program ft8sim
      print*,'          ft8sim "K1ABC RR73; W9XYZ <KH1/KH7Z> -11" 300 0 0 0 25 1 -10'
      go to 999
   endif
-  call getarg(1,msg40)                   !Message to be transmitted
+  call getarg(1,msg)                   !Message to be transmitted
   call getarg(2,arg)
   read(arg,*) f0                         !Frequency (only used for single-signal)
   call getarg(3,arg)
@@ -41,8 +41,6 @@ program ft8sim
   read(arg,*) nfiles                     !Number of files
   call getarg(8,arg)
   read(arg,*) snrdb                      !SNR_2500
-  call getarg(9,arg)
-  read(arg,*) itype                      !itype=1 for (174,87), itype=2 for (174,91)
 
   nsig=1
   if(f0.lt.100.0) then
@@ -64,33 +62,23 @@ program ft8sim
   txt=NN*NSPS/12000.0
 
 ! Source-encode, then get itone()
-  if(index(msg40,';').le.0) then
+  if(index(msg,';').le.0) then
      i3bit=0
-     msg=msg40(1:22)
-     if(itype.eq.1) then
-        call genft8(msg,i3bit,msgsent,msgbits,itone)
-     elseif(itype.eq.2) then
-        call genft8_174_91(msg,i3bit,msgsent,msgbits,itone)
-     endif
+     call genft8(msg,i3bit,0,1,msgsent,msgbits,itone)
      write(*,1000) f0,xdt,txt,snrdb,bw,msgsent
 1000 format('f0:',f9.3,'   DT:',f6.2,'   TxT:',f6.1,'   SNR:',f6.1,    &
           '  BW:',f4.1,2x,a22)
   else
-     call foxgen_wrap(msg40,msgbits,itone)
-     write(*,1001) f0,xdt,txt,snrdb,bw,msg40
+     call foxgen_wrap(msg,msgbits,itone)
+     write(*,1001) f0,xdt,txt,snrdb,bw,msg
 1001 format('f0:',f9.3,'   DT:',f6.2,'   TxT:',f6.1,'   SNR:',f6.1,    &
-          '  BW:',f4.1,2x,a40)
+          '  BW:',f4.1,2x,a37)
   endif
 
   write(*,1030) msgbits(1:56)
 1030 format(/'Call1: ',28i1,'    Call2: ',28i1)
-  if(itype.eq.1) then
-     write(*,1032) msgbits(57:72),msgbits(73:75),msgbits(76:87)
-1032 format('Grid:  ',16i1,'   3Bit: ',3i1,'    CRC12: ',12i1)
-  elseif(itype.eq.2) then
-     write(*,1033) msgbits(57:72),msgbits(73:77),msgbits(78:91)
-1033 format('Grid:  ',16i1,'  5Bit: ',5i1,'   CRC14: ',14i1)
-  endif
+  write(*,1032) msgbits(57:72),msgbits(73:75)
+1032 format('Grid:  ',16i1,'   3Bit: ',3i1)
   write(*,1034) itone
 1034 format(/'Channel symbols:'/79i1/)
 
@@ -108,11 +96,7 @@ program ft8sim
            if(isig.eq.2) then
               f0=f0+100
            endif
-           if(itype.eq.1) then
-              call genft8(msg,i3bit,msgsent,msgbits,itone)
-           elseif(itype.eq.2) then
-              call genft8_174_91(msg,i3bit,msgsent,msgbits,itone)
-           endif
+           call genft8(msg,i3bit,msgsent,msgbits,itone)
         endif
         if(nsig.eq.25) then
            f0=(isig+2)*100.0
@@ -131,11 +115,7 @@ program ft8sim
 1002          format('R',i3.2)
               f0=600.0 + mod(isig-1,5)*60.0
            endif
-           if(itype.eq.1) then
-              call genft8(msg,i3bit,msgsent,msgbits,itone)
-           elseif(itype.eq.2) then
-              call genft8_174_91(msg,i3bit,msgsent,msgbits,itone)
-           endif
+           call genft8(msg,i3bit,msgsent,msgbits,itone)
         endif
 !        k=nint((xdt+0.5+0.01*gran())/dt)
         k=nint((xdt+0.5)/dt)
