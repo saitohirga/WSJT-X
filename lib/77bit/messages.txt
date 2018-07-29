@@ -67,4 +67,10 @@ W9XYZ <PJ4/K1ABC> RRR
 -----------------------------------------------------------
 TNX BOB 73 GL
 free text msg
+CQ YW18FIFA
+<YW18FIFA> KA1ABC
+KA1ABC <YW1FIFA> -11
+<YW1FIFA> KA1ABC R-17
+<KA1ABC> YW1FIFA RR73
+<YW1FIFA> KA1ABC 73
 123456789ABCD

@@ -5,20 +5,26 @@ program encode77
   character*80 msg0
   character msg*37,cerr*1
   character*77 c77
+  character*80 infile
 
   nargs=iargc()
-  open(10,file='messages.txt',status='old')
+  if(nargs.ne.1 .and.nargs.ne.2) then
+     print*,'Usage: encode77 "message"'
+     print*,'       encode77 -f <infile>'
+     go to 999
+  endif
+  call getarg(1,msg0)
+  if(nargs.eq.2) then
+     call getarg(2,infile)
+     open(10,file=infile,status='old')
+     write(*,1000)
+1000 format('i3.n3 Err Message to be encoded                 Decoded message' &
+            /80('-'))
+  endif
   
   do iline=1,999
-     if(nargs.eq.1) then
-        call getarg(1,msg0)
-     else
-        if(iline.eq.1) write(*,1000)
-1000    format('i3.n3 Err Message to be encoded                 Decoded message'/ &
-             80('-'))
-        read(10,1002,end=999) msg0
-1002    format(a80)
-     endif
+     if(nargs.eq.2) read(10,1002,end=999) msg0
+1002 format(a80)
      if(msg0(1:1).eq.'$') exit
      if(msg0.eq.'                                     ') cycle
      if(msg0(2:2).eq.'.' .or. msg0(3:3).eq.'.') cycle
