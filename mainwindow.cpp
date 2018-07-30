@@ -1041,6 +1041,7 @@ void MainWindow::writeSettings()
   m_settings->setValue ("HoldTxFreq", ui->cbHoldTxFreq->isChecked ());
   m_settings->setValue("PctTx",m_pctx);
   m_settings->setValue("dBm",m_dBm);
+  m_settings->setValue("RR73",m_send_RR73);
   m_settings->setValue ("WSPRPreferType1", ui->WSPR_prefer_type_1_check_box->isChecked ());
   m_settings->setValue("UploadSpots",m_uploadSpots);
   m_settings->setValue ("BandHopping", ui->band_hopping_group_box->isChecked ());
@@ -1122,6 +1123,11 @@ void MainWindow::readSettings()
   m_ndepth=m_settings->value("NDepth",3).toInt();
   m_pctx=m_settings->value("PctTx",20).toInt();
   m_dBm=m_settings->value("dBm",37).toInt();
+  m_send_RR73=m_settings->value("RR73",37).toBool();
+  if(m_send_RR73) {
+    m_send_RR73=false;
+    on_txrb4_doubleClicked();
+  }
   ui->WSPR_prefer_type_1_check_box->setChecked (m_settings->value ("WSPRPreferType1", true).toBool ());
   m_uploadSpots=m_settings->value("UploadSpots",false).toBool();
   if(!m_uploadSpots) ui->cbUploadWSPR_Spots->setStyleSheet("QCheckBox{background-color: yellow}");
@@ -5209,11 +5215,11 @@ void MainWindow::on_actionFT8_triggered()
 
   if(!m_config.bFox() and !m_config.bHound()) {
     QString t0="";
+    if(m_config.bGenerate77()) t0+=" Tx v2.0";
     if(m_config.bEU_VHF_Contest()) t0="EU VHF";
     if(m_config.bNA_VHF_Contest()) t0="NA VHF";
     if(m_config.bFieldDay()) t0="FD";
     if(m_config.bRTTYroundup()) t0="RTTY";
-    if(m_config.bGenerate77()) t0+=" 2";
     if(t0=="") {
       ui->labDXped->setVisible(false);
     } else {
@@ -5846,7 +5852,7 @@ void MainWindow::band_changed (Frequency f)
         // disable auto Tx if "blind" QSY outside of waterfall
         ui->stopTxButton->click (); // halt any transmission
         auto_tx_mode (false);       // disable auto Tx
-        m_send_RR73 = false;        // force user to reassess on new band
+//        m_send_RR73 = false;        // force user to reassess on new band
       }
     }
     m_lastBand.clear ();
