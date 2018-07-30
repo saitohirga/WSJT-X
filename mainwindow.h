@@ -294,7 +294,8 @@ private slots:
   void on_comboBoxHoundSort_activated (int index);
   void not_GA_warning_message ();
   void setContestType();
-  int setTxMsg(int n);
+  int  setTxMsg(int n);
+  bool stdCall(QString w);
 
 private:
   Q_SIGNAL void initializeAudioOutputStream (QAudioDeviceInfo,

@@ -140,7 +140,7 @@ extern "C" {
 
   void plotsave_(float swide[], int* m_w , int* m_h1, int* irow);
 
-  bool stdmsg_(char const * msg, char const * mygrid, fortran_charlen_t, fortran_charlen_t);
+  void chkcall_(char* w, char* basc_call, bool cok, int len1, int len2);
 }
 
 int volatile itone[NUM_ISCAT_SYMBOLS];   //Audio tones for all Tx symbols
@@ -4464,13 +4464,24 @@ void MainWindow::genCQMsg ()
   if(m_config.my_callsign().size () && m_config.my_grid().size ()) {
     auto const& grid = m_config.my_callsign () != m_baseCall && shortList (m_config.my_callsign ()) ? QString {} : m_config.my_grid ();
     if (ui->cbCQTx->isEnabled () && ui->cbCQTx->isVisible () && ui->cbCQTx->isChecked ()) {
-      msgtype (QString {"CQ %1 %2 %3"}
+      if(stdCall(m_config.my_callsign())) {
+        msgtype (QString {"CQ %1 %2 %3"}
                .arg (m_freqNominal / 1000 - m_freqNominal / 1000000 * 1000, 3, 10, QChar {'0'})
                .arg (m_config.my_callsign())
                .arg (grid.left (4)),
                ui->tx6);
+      } else {
+        msgtype (QString {"CQ %1 %2"}
+               .arg (m_freqNominal / 1000 - m_freqNominal / 1000000 * 1000, 3, 10, QChar {'0'})
+               .arg (m_config.my_callsign()),
+               ui->tx6);
+      }
     } else {
-      msgtype (QString {"%1 %2 %3"}.arg(m_CQtype).arg(m_config.my_callsign()).arg(grid.left(4)),ui->tx6);
+      if(stdCall(m_config.my_callsign())) {
+        msgtype (QString {"%1 %2 %3"}.arg(m_CQtype).arg(m_config.my_callsign()).arg(grid.left(4)),ui->tx6);
+      } else {
+        msgtype (QString {"%1 %2"}.arg(m_CQtype).arg(m_config.my_callsign()),ui->tx6);
+      }
     }
     if ((m_mode=="JT4" or m_mode=="QRA64") and  ui->cbShMsgs->isChecked()) {
       if (ui->cbTx6->isChecked ()) {
@@ -4489,8 +4500,26 @@ void MainWindow::genCQMsg ()
   }
 }
 
-void MainWindow::genStdMsgs(QString rpt, bool unconditional)
+bool MainWindow::stdCall(QString w)
 {
+  int n=w.trimmed().length();
+//Treat /P and /R as special cases:
+  if((w.mid(n-2,2)=="/P") and m_nContest==EU_VHF) w=w.left(n-2);
+  if(w.mid(n-2,2)=="/R") w=w.left(n-2);
+
+  n=w.trimmed().length();
+  if(n>6) return false;
+  w=w.toUpper();
+  for(int i=0; i<n; i++) {
+    QString c=w.mid(i,1);
+    bool b=(c>="A" and c<="Z") or (c>="0" and c<="9") or c=="/";
+    if(!b) return false;
+  }
+  return true;
+}
+
+void MainWindow::genStdMsgs(QString rpt, bool unconditional)
+{  
   genCQMsg ();
   auto const& hisCall=ui->dxCallEntry->text();
   if(!hisCall.size ()) {
@@ -4515,8 +4544,16 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
   auto const& hisBase = Radio::base_callsign (hisCall);
   auto eme_short_codes = m_config.enable_VHF_features () && ui->cbShMsgs->isChecked ()
       && m_mode == "JT65";
+
+  bool bMyCall=stdCall(my_callsign);
+  bool bHisCall=stdCall(hisCall);
+
   QString t0=hisBase + " " + m_baseCall + " ";
-  if(m_config.bGenerate77()) t0=hisCall + " " + my_callsign + " ";
+  if(m_config.bGenerate77()) {
+    if(bHisCall and bMyCall) t0=hisCall + " " + my_callsign + " ";
+    if(bHisCall and !bMyCall) t0=hisCall + " <" + my_callsign + "> ";
+    if(!bHisCall and bMyCall) t0="<"+hisCall + "> " + my_callsign + " ";
+  }
   QString t00=t0;
   QString t {t0 + my_grid};
   msgtype(t, ui->tx1);
@@ -4603,7 +4640,6 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     if ((m_mode=="JT4" || m_mode=="QRA64") && m_bShMsgs) t="@1500  (RRR)";
     msgtype(t, ui->tx4);
 
-    if(m_config.bGenerate77()) return;
 
     t=t0 + "73";
     if (m_mode=="JT4" || m_mode=="QRA64") {
@@ -4617,6 +4653,8 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       m_lastCallsign = hisBase;
     }
   }
+
+  if(m_config.bGenerate77()) return;
 
   if (is_compound) {
     if (is_type_one) {
@@ -4873,24 +4911,25 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
     int i0=t.trimmed().length()-7;
     if(t.mid(i0,3)==" R ") text=false;
   }
-  if(m_config.bFieldDay() or m_config.bRTTYroundup() or m_config.bNA_VHF_Contest() or
-     m_config.bEU_VHF_Contest()) text=false;
+  if(m_config.bGenerate77()) text=false;
 //### ... to here ...
+
 
   QPalette p(tx->palette());
   if(text) {
-    p.setColor(QPalette::Base,"#ffccff");
+    p.setColor(QPalette::Base,"#ffccff");       //pink
   } else {
     if(shortMsg) {
-      p.setColor(QPalette::Base,"#66ffff");
+      p.setColor(QPalette::Base,"#66ffff");     //light blue
     } else {
       p.setColor(QPalette::Base,Qt::transparent);
       if(m_mode=="MSK144" and t.mid(0,1)=="<") {
-        p.setColor(QPalette::Base,"#00ffff");
+        p.setColor(QPalette::Base,"#00ffff");   //another light blue
       }
     }
   }
   tx->setPalette(p);
+
   auto pos  = tx->cursorPosition ();
   tx->setText(t.toUpper());
   tx->setCursorPosition (pos);
