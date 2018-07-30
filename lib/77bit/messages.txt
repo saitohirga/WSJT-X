@@ -66,7 +66,6 @@ W9XYZ <PJ4/K1ABC> RRR
 9. Other stuff
 -----------------------------------------------------------
 TNX BOB 73 GL
-free text msg
 CQ YW18FIFA
 <YW18FIFA> KA1ABC
 KA1ABC <YW18FIFA> -11

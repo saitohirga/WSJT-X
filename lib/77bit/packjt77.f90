@@ -1,20 +1,19 @@
 module packjt77
 
 ! These variables are accessible from outside via "use packjt":
-  integer n28a_77,n28b_77
+  parameter (MAXHASH=20)
+  character*13 callsign(MAXHASH)
+  integer ihash10(MAXHASH),ihash12(MAXHASH),ihash22(MAXHASH)
+  integer n28a,n28b,nzhash
 
   contains
 
 subroutine hash10(n10,c13)
 
-  parameter (MAXHASH=20)
-  character*13 c13,callsign(MAXHASH)
-  integer ihash10(MAXHASH),ihash12(MAXHASH),ihash22(MAXHASH)
-  common/hashcom/ihash10,ihash12,ihash22,callsign
-  save /hashcom/
-  
+  character*13 c13
+
   c13='<...>'
-  do i=1,MAXHASH
+  do i=1,nzhash
      if(ihash10(i).eq.n10) then
         c13=callsign(i)
         go to 900
@@ -24,17 +23,12 @@ subroutine hash10(n10,c13)
 900 return
 end subroutine hash10
 
-
 subroutine hash12(n12,c13)
 
-  parameter (MAXHASH=20)
-  character*13 c13,callsign(MAXHASH)
-  integer ihash10(MAXHASH),ihash12(MAXHASH),ihash22(MAXHASH)
-  common/hashcom/ihash10,ihash12,ihash22,callsign
-  save /hashcom/
+  character*13 c13
   
   c13='<...>'
-  do i=1,MAXHASH
+  do i=1,nzhash
      if(ihash12(i).eq.n12) then
         c13=callsign(i)
         go to 900
@@ -48,14 +42,10 @@ end subroutine hash12
 
 subroutine hash22(n22,c13)
 
-  parameter (MAXHASH=20)
-  character*13 c13,callsign(MAXHASH)
-  integer ihash10(MAXHASH),ihash12(MAXHASH),ihash22(MAXHASH)
-  common/hashcom/ihash10,ihash12,ihash22,callsign
-  save /hashcom/
+  character*13 c13
   
   c13='<...>'
-  do i=1,MAXHASH
+  do i=1,nzhash
      if(ihash22(i).eq.n22) then
         c13=callsign(i)
         go to 900
@@ -90,26 +80,23 @@ end function ihashcall
 
 subroutine save_hash_call(c13,n10,n12,n22)
 
-  parameter (MAXHASH=20)
-  character*13 c13,callsign(MAXHASH)
-  integer ihash10(MAXHASH),ihash12(MAXHASH),ihash22(MAXHASH)
+  character*13 c13
   logical first
-  common/hashcom/ihash10,ihash12,ihash22,callsign
-  save first,/hashcom/
-
+  save first
   
   if(first) then
      ihash10=-1
      ihash12=-1
      ihash22=-1
      callsign='             '
+     nzhash=0
      first=.false.
   endif
 
   n10=ihashcall(c13,10)
   n12=ihashcall(c13,12)
   n22=ihashcall(c13,22)
-  do i=1,MAXHASH
+  do i=1,nzhash
      if(ihash22(i).eq.n22) go to 900     !This one is already in the table
   enddo
 
@@ -124,6 +111,7 @@ subroutine save_hash_call(c13,n10,n12,n22)
   ihash12(1)=n12
   ihash22(1)=n22
   callsign(1)=c13
+  nzhash=nzhash+1
 
 900 return
 end subroutine save_hash_call
@@ -245,14 +233,14 @@ subroutine unpack77(c77,msg)
      
   else if(i3.eq.0 .and. n3.eq.1) then
 ! 0.1  K1ABC RR73; W9XYZ <KH1/KH7Z> -11   28 28 10 5       71   DXpedition Mode
-     read(c77,1010) n28a_77,n28b_77,n10,n5
+     read(c77,1010) n28a,n28b,n10,n5
 1010 format(2b28,b10,b5)
      irpt=2*n5 - 30
      write(crpt,1012) irpt
 1012 format(i3.2)
      if(irpt.ge.0) crpt(1:1)='+'
-     call unpack28(n28a_77,call_1)
-     call unpack28(n28b_77,call_2)
+     call unpack28(n28a,call_1)
+     call unpack28(n28b,call_2)
      call hash10(n10,call_3)
      if(call_3(1:1).eq.'<') then
         msg=trim(call_1)//' RR73; '//trim(call_2)//' '//trim(call_3)//  &
@@ -263,9 +251,9 @@ subroutine unpack77(c77,msg)
      endif
   else if(i3.eq.0 .and. n3.eq.2) then
 ! 0.2  PA3XYZ/P R 590003 IO91NP           28 1 1 3 12 25   70   EU VHF contest
-     read(c77,1020) n28a_77,ip,ir,irpt,iserial,igrid6
+     read(c77,1020) n28a,ip,ir,irpt,iserial,igrid6
 1020 format(b28,2b1,b3,b12,b25)
-     call unpack28(n28a_77,call_1)
+     call unpack28(n28a,call_1)
      nrs=52+irpt
      if(ip.eq.1) call_1=trim(call_1)//'/P'//'        '
      write(cexch,1022) nrs,iserial
@@ -293,11 +281,11 @@ subroutine unpack77(c77,msg)
   else if(i3.eq.0 .and. (n3.eq.3 .or. n3.eq.4)) then
 ! 0.3   WA9XYZ KA1ABC R 16A EMA            28 28 1 4 3 7    71   ARRL Field Day
      ! 0.4   WA9XYZ KA1ABC R 32A EMA            28 28 1 4 3 7    71   ARRL Field Day
-     read(c77,1030) n28a_77,n28b_77,ir,intx,nclass,isec
+     read(c77,1030) n28a,n28b,ir,intx,nclass,isec
 1030 format(2b28,b1,b4,b3,b7)
      if(isec.gt.NSEC) isec=NSEC          !### Check range for other params? ###
-     call unpack28(n28a_77,call_1)
-     call unpack28(n28b_77,call_2)
+     call unpack28(n28a,call_1)
+     call unpack28(n28b,call_2)
      ntx=intx+1
      if(n3.eq.4) ntx=ntx+16
      write(cntx(1:2),1032) ntx
@@ -326,10 +314,10 @@ subroutine unpack77(c77,msg)
 
   else if(i3.eq.1 .or. i3.eq.2) then
 ! Type 1 (standard message) or Type 2 ("/P" form for EU VHF contest)
-     read(c77,1000) n28a_77,ipa,n28b_77,ipb,ir,igrid4,i3
+     read(c77,1000) n28a,ipa,n28b,ipb,ir,igrid4,i3
 1000 format(2(b28,b1),b1,b15,b3)
-     call unpack28(n28a_77,call_1)
-     call unpack28(n28b_77,call_2)
+     call unpack28(n28a,call_1)
+     call unpack28(n28b,call_2)
      if(call_1(1:3).eq.'CQ_') call_1(3:3)=' '
      i=index(call_1,' ')
      if(i.ge.4 .and. ipa.eq.1 .and. i3.eq.1) call_1(i:i+1)='/R'
@@ -368,7 +356,7 @@ subroutine unpack77(c77,msg)
 
   else if(i3.eq.3) then
 ! Type 3: ARRL RTTY Contest
-     read(c77,1040) itu,n28a_77,n28b_77,ir,irpt,nexch,i3
+     read(c77,1040) itu,n28a,n28b,ir,irpt,nexch,i3
 1040 format(b1,2b28.28,b1,b3.3,b13.13,b3.3)
      write(crpt,1042) irpt+2
 1042 format('5',i1,'9')
@@ -378,8 +366,8 @@ subroutine unpack77(c77,msg)
         imult=nexch-8000
         nserial=-1
      endif
-     call unpack28(n28a_77,call_1)
-     call unpack28(n28b_77,call_2)
+     call unpack28(n28a,call_1)
+     call unpack28(n28b,call_2)
      imult=0
      nserial=0
      if(nexch.gt.8000) imult=nexch-8000
@@ -716,10 +704,10 @@ subroutine pack77_01(nwords,w,i3,n3,c77)
 ! Type 0.1:  K1ABC RR73; W9XYZ <KH1/KH7Z> -11   28 28 10 5       71   DXpedition Mode
   i3=0
   n3=1
-  call pack28(w(1),n28a_77)
-  call pack28(w(3),n28b_77)
+  call pack28(w(1),n28a)
+  call pack28(w(3),n28b)
   call save_hash_call(w(4),n10,n12,n22)
-  write(c77,1010) n28a_77,n28b_77,n10,n5,n3,i3
+  write(c77,1010) n28a,n28b,n10,n5,n3,i3
 1010 format(2b28.28,b10.10,b5.5,2b3.3)
   
 900 return
@@ -759,7 +747,7 @@ subroutine pack77_02(nwords,w,i3,n3,c77)
      ip=1
      c13=w(1)(1:i-1)//'         '
   endif
-  call pack28(c13,n28a_77)
+  call pack28(c13,n28a)
   ir=0
   if(w(2)(1:2).eq.'R ') ir=1
   irpt=nx/10000 - 52
@@ -772,7 +760,7 @@ subroutine pack77_02(nwords,w,i3,n3,c77)
   j5=(ichar(grid6(5:5))-ichar('A'))*24
   j6=(ichar(grid6(6:6))-ichar('A'))
   igrid6=j1+j2+j3+j4+j5+j6
-  write(c77,1010) n28a_77,ip,ir,irpt,iserial,igrid6,n3,i3
+  write(c77,1010) n28a,ip,ir,irpt,iserial,igrid6,n3,i3
 1010 format(b28.28,2b1,b3.3,b12.12,b25.25,b4.4,b3.3)
 
   return
@@ -832,11 +820,11 @@ subroutine pack77_03(nwords,w,i3,n3,c77)
      n3=4                              !Type 0.4 ARRL Field Day
      intx=ntx-17
   endif
-  call pack28(w(1),n28a_77)
-  call pack28(w(2),n28b_77)
+  call pack28(w(1),n28a)
+  call pack28(w(2),n28b)
   ir=0
   if(w(3)(1:2).eq.'R ') ir=1
-  write(c77,1010) n28a_77,n28b_77,ir,intx,nclass,isec,n3,i3
+  write(c77,1010) n28a,n28b,ir,intx,nclass,isec,n3,i3
 1010 format(2b28.28,b1,b4.4,b3.3,b7.7,2b3.3)
 
   return
@@ -906,10 +894,10 @@ subroutine pack77_1(nwords,w,i3,n3,c77)
   endif
   c13=bcall_1//'       '
   if(c13(1:3).eq.'CQ_' .or. w(1)(1:1).eq.'<') c13=w(1)
-  call pack28(c13,n28a_77)
+  call pack28(c13,n28a)
   c13=bcall_2//'       '
   if(w(2)(1:1).eq.'<') c13=w(2)
-  call pack28(c13,n28b_77)
+  call pack28(c13,n28b)
   ipa=0
   ipb=0
   if(index(w(1),'/P').ge.4 .or. index(w(1),'/R').ge.4) ipa=1
@@ -932,7 +920,7 @@ subroutine pack77_1(nwords,w,i3,n3,c77)
      irpt=1
      igrid4=MAXGRID4+irpt
   endif
-  write(c77,1000) n28a_77,ipa,n28b_77,ipb,ir,igrid4,i3
+  write(c77,1000) n28a,ipa,n28b,ipb,ir,igrid4,i3
 1000 format(2(b28.28,b1),b1,b15.15,b3.3)
 
   return
@@ -991,8 +979,8 @@ subroutine pack77_3(nwords,w,i3,n3,c77)
         n3=0
         itu=0
         if(trim(w(1)).eq.'TU;') itu=1
-        call pack28(w(1+itu),n28a_77)
-        call pack28(w(2+itu),n28b_77)
+        call pack28(w(1+itu),n28a)
+        call pack28(w(2+itu),n28b)
         ir=0
         if(w(3+itu)(1:2).eq.'R ') ir=1
         read(w(3+itu+ir),*) irpt
@@ -1001,7 +989,7 @@ subroutine pack77_3(nwords,w,i3,n3,c77)
         if(irpt.gt.7) irpt=7
 ! 3     TU; W9XYZ K1ABC R 579 MA             1 28 28 1 3 13       74   ARRL RTTY contest
 ! 3     TU; W9XYZ G8ABC R 559 0013           1 28 28 1 3 13       74   ARRL RTTY (DX)
-        write(c77,1010) itu,n28a_77,n28b_77,ir,irpt,nexch,i3
+        write(c77,1010) itu,n28a,n28b,ir,irpt,nexch,i3
 1010    format(b1,2b28.28,b1,b3.3,b13.13,b3.3)
      endif
   endif

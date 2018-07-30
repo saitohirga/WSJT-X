@@ -542,6 +542,7 @@ set (wsjt_FSRCS
   lib/mskrtd.f90
   lib/fsk4hf/msksoftsym.f90
   lib/fsk4hf/msksoftsymw.f90
+  lib/77bit/my_hash.f90
   lib/ft8/osd174.f90
   lib/ft8/osd174_91.f90
   lib/fsk4hf/osd300.f90

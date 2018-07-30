@@ -4146,10 +4146,11 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   message.deCallAndGrid(/*out*/hiscall,hisgrid);
 
   auto is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
-  if (!is_73 and !message.isStandardMessage() /* and (nWarn==0)*/) {
+  if (!is_73 and !message.isStandardMessage() and !message.string().contains("<")) {
     qDebug () << "Not processing message - hiscall:" << hiscall << "hisgrid:" << hisgrid;
     return;
   }
+
   // only allow automatic mode changes between JT9 and JT65, and when not transmitting
   if (!m_transmitting and m_mode == "JT9+JT65") {
     if (message.isJT9())
@@ -4196,7 +4197,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   auto dtext = " " + message.string () + " ";
   int gen_msg {0};
   if(dtext.contains (" " + m_baseCall + " ")
-     || dtext.contains ("<" + m_baseCall + " ")
+     || dtext.contains ("<" + m_baseCall + "> ")
      || dtext.contains ("/" + m_baseCall + " ")
      || dtext.contains (" " + m_baseCall + "/")
      || (firstcall == "DE" /*&& ((t4.size () > 7 && t4.at(7) != "73") || t4.size () <= 7)*/)) {

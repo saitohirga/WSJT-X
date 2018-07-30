@@ -48,7 +48,7 @@ contains
     real dd(15*12000)
     logical, intent(in) :: lft8apon,lapcqonly,ldecode77,nagain
     logical newdat,lsubtract,ldupe
-    character*12 mycall12, hiscall12
+    character*12 mycall12,hiscall12,mycall12_0
     character*6 hisgrid6
     integer*2 iwave(15*12000)
     integer apsym1(KK),apsym2(77)
@@ -56,7 +56,13 @@ contains
 !   character message*22
     character*37 allmessages(100)
     integer allsnrs(100)
-    save s,dd
+    data mycall12_0/'dummy'/
+    save s,dd,mycall12_0
+
+    if(mycall12.ne.mycall12_0) then
+       call my_hash(mycall12)
+       mycall12_0=mycall12
+    endif
 
     this%callback => callback
     write(datetime,1001) nutc        !### TEMPORARY ###
