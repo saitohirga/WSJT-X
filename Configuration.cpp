@@ -2471,8 +2471,7 @@ void Configuration::impl::on_cbHound_clicked (bool checked)
 
 void Configuration::impl::on_rbNone_toggled(bool b)
 {
-//  if(!b) ui_->cbGenerate77->setChecked(true);
-  ui_->cbGenerate77->setChecked(!b);
+  if(!b) ui_->cbGenerate77->setChecked(true);
 }
 
 void Configuration::impl::on_cbx2ToneSpacing_clicked(bool b)

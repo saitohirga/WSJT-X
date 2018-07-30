@@ -4209,15 +4209,22 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     }
     bool bEU_VHF_w2=(nrpt>=520001 and nrpt<=594000);
     if(bEU_VHF_w2 and m_nContest!=EU_VHF) {
-      //### Should be in EU VHF Contest mode ??? ###
+      // ### Should be in EU VHF Contest mode ??? ###
       MessageBox::information_message (this, tr ("Should you switch to EU VHF Contest mode?"));
     }
 
+    int nw3=w34.length();
+    bool bFieldDay_w34=(nw3==2 or nw3==3) and (w34.right(1)>="A" and w34.right(1)<="F");
+    if(w34.left(nw3-1).toInt()<1) bFieldDay_w34=false;
+    if(bFieldDay_w34 and m_nContest!=FIELD_DAY) {
+      // ### Should be in ARRL Field Day mode ??? ###
+      MessageBox::information_message (this, tr ("Should you switch to ARRL Field Day mode?"));
+    }
     if(message_words.size () > 3   // enough fields for a normal message
        && (message_words.at(1).contains(m_baseCall) || "DE" == message_words.at(1))
        && (message_words.at(2).contains(qso_partner_base_call) or bEU_VHF_w2)) {
 
-      if(message_words.at(3).contains(grid_regexp)) {
+      if(message_words.at(3).contains(grid_regexp) and m_nContest!=EU_VHF) {
         if(m_nContest==NA_VHF){
           gen_msg=setTxMsg(3);
           m_QSOProgress=ROGER_REPORT;
@@ -5215,11 +5222,11 @@ void MainWindow::on_actionFT8_triggered()
 
   if(!m_config.bFox() and !m_config.bHound()) {
     QString t0="";
-    if(m_config.bGenerate77()) t0+=" Tx v2.0";
-    if(m_config.bEU_VHF_Contest()) t0="EU VHF";
-    if(m_config.bNA_VHF_Contest()) t0="NA VHF";
-    if(m_config.bFieldDay()) t0="FD";
-    if(m_config.bRTTYroundup()) t0="RTTY";
+    if(m_config.bGenerate77()) t0=" Tx2.0   ";
+    if(m_config.bEU_VHF_Contest()) t0+="EU VHF";
+    if(m_config.bNA_VHF_Contest()) t0+="NA VHF";
+    if(m_config.bFieldDay()) t0+="Field Day";
+    if(m_config.bRTTYroundup()) t0+="RTTY";
     if(t0=="") {
       ui->labDXped->setVisible(false);
     } else {
