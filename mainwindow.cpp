@@ -4220,6 +4220,13 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       // ### Should be in ARRL Field Day mode ??? ###
       MessageBox::information_message (this, tr ("Should you switch to ARRL Field Day mode?"));
     }
+
+    int n=w34.toInt();
+    if(n>=529 and n<=599 and m_nContest!=RTTY) {
+      // ### Should be in ARRL RTTY Roundup mode ??? ###
+      MessageBox::information_message (this, tr ("Should you switch to ARRL RTTY Roundup mode?"));
+    }
+
     if(message_words.size () > 3   // enough fields for a normal message
        && (message_words.at(1).contains(m_baseCall) || "DE" == message_words.at(1))
        && (message_words.at(2).contains(qso_partner_base_call) or bEU_VHF_w2)) {
