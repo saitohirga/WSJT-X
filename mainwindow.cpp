@@ -3682,6 +3682,11 @@ void MainWindow::guiUpdate()
     }
   }
 
+  if(ui->txrb1->isEnabled() and (m_mode=="FT8" or m_mode=="MSK144") and m_nContest!=NONE) {
+    //We're in a contest-like mode, don't use Tx1.
+    ui->tx1->setEnabled(false);
+  }
+
 //Once per second:
   if(nsec != m_sec0) {
 //    qDebug() << "OneSec:" << m_nContest;
