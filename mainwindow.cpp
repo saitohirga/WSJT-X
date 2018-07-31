@@ -4228,7 +4228,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     }
 
     int n=w34.toInt();
-    if(n>=529 and n<=599 and m_nContest!=RTTY) {
+    bool bRTTY = (n>=529 and n<=599);
+    if(bRTTY and m_nContest!=RTTY) {
       // ### Should be in ARRL RTTY Roundup mode ??? ###
       MessageBox::information_message (this, tr ("Should you switch to ARRL RTTY Roundup mode?"));
     }
@@ -4258,6 +4259,9 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             m_QSOProgress=ROGER_REPORT;
           }
         }
+      } else if(m_nContest==RTTY and bRTTY) {
+        gen_msg=setTxMsg(3);
+        m_QSOProgress=ROGER_REPORT;
       } else if(m_nContest==FIELD_DAY and bFieldDay_w34) {
         gen_msg=setTxMsg(3);
         m_QSOProgress=ROGER_REPORT;
