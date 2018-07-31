@@ -2899,8 +2899,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         m_blankLine = false;
       }
 
-      DecodedText decodedtext {QString::fromUtf8 (t.constData ()).remove (QRegularExpression {"\r|\n"})};
-
+      DecodedText decodedtext {QString::fromUtf8(t.constData()).remove(QRegularExpression {"\r|\n"})};
       if(m_mode=="FT8" and m_config.bFox() and
          (decodedtext.string().contains("R+") or decodedtext.string().contains("R-"))) {
         auto for_us  = decodedtext.string().contains(" " + m_config.my_callsign() + " ") or
@@ -2937,7 +2936,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
       int audioFreq=decodedtext.frequencyOffset();
 
       if(m_mode=="FT8") {
-        auto const& parts = decodedtext.string ().split (' ', QString::SkipEmptyParts);
+        auto const& parts = decodedtext.string().remove("<").remove(">")
+            .split (' ', QString::SkipEmptyParts);
         if (parts.size () > 6) {
           auto for_us = parts[5].contains (m_baseCall)
             || ("DE" == parts[5] && qAbs (ui->RxFreqSpinBox->value () - audioFreq) <= 10);
@@ -4253,6 +4253,9 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             m_QSOProgress=ROGER_REPORT;
           }
         }
+      } else if(m_nContest==FIELD_DAY and bFieldDay_w34) {
+        gen_msg=setTxMsg(3);
+        m_QSOProgress=ROGER_REPORT;
       } else {  // no grid on end of msg
         QString r=message_words.at (3);
         if(m_QSOProgress >= ROGER_REPORT && (r=="RRR" || r.toInt()==73 || "RR73" == r)) {
@@ -4266,8 +4269,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
           }
           m_QSOProgress = SIGNOFF;
         } else if((m_QSOProgress >= REPORT
-                   || (m_QSOProgress >= REPLYING && (m_mode=="MSK144" or m_mode=="FT8")
-                       /*&& ui->cbVHFcontest->isChecked()*/ )) && r.mid(0,1)=="R") {        //### Check this !!! ###
+                   || (m_QSOProgress >= REPLYING && (m_mode=="MSK144" or m_mode=="FT8")))
+                   && r.mid(0,1)=="R") {
           m_ntx=4;
           m_QSOProgress = ROGERS;
           ui->txrb4->setChecked(true);
@@ -4276,16 +4279,20 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             m_ntx=7;
             m_gen_message_is_cq = false;
           }
-        } else if(m_QSOProgress >= CALLING && ((r.toInt()>=-50 && r.toInt()<=49) or
-                                               (r.toInt()>=529 && r.toInt()<=599))) {
-          gen_msg=setTxMsg(3);
-          m_QSOProgress=ROGER_REPORT;
+        } else if(m_QSOProgress>=CALLING and
+              ((r.toInt()>=-50 && r.toInt()<=49) or (r.toInt()>=529 && r.toInt()<=599))) {
+          if(m_nContest==EU_VHF or m_nContest==FIELD_DAY) {
+            gen_msg=setTxMsg(2);
+            m_QSOProgress=REPORT;
+          } else {
+            gen_msg=setTxMsg(3);
+            m_QSOProgress=ROGER_REPORT;
+          }
         } else {                // nothing for us
           return;
         }
       }
     }
-
     else if (m_QSOProgress >= ROGERS
              && message_words.size () > 2 && message_words.at (1).contains (m_baseCall) && message_words.at (2) == "73") {
       // 73 back to compound call holder
@@ -4304,7 +4311,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       if ((message_words.size () > 4 && message_words.at (1).contains (m_baseCall) && message_words.at (4) == "OOO")) {
         // EME short code report or MSK144/FT8 contest mode reply, send back Tx3
         m_ntx=3;
-        qDebug() << "dd";
         m_QSOProgress = ROGER_REPORT;
         ui->txrb3->setChecked (true);
         if (ui->tabWidget->currentIndex () == 1) {
@@ -4483,7 +4489,7 @@ int MainWindow::setTxMsg(int n)
 void MainWindow::genCQMsg ()
 {
   if(m_config.my_callsign().size () && m_config.my_grid().size ()) {
-    auto const& grid = m_config.my_callsign () != m_baseCall && shortList (m_config.my_callsign ()) ? QString {} : m_config.my_grid ();
+    QString grid{m_config.my_grid()};
     if (ui->cbCQTx->isEnabled () && ui->cbCQTx->isVisible () && ui->cbCQTx->isChecked ()) {
       if(stdCall(m_config.my_callsign())) {
         msgtype (QString {"CQ %1 %2 %3"}
@@ -4524,10 +4530,9 @@ void MainWindow::genCQMsg ()
 bool MainWindow::stdCall(QString w)
 {
   int n=w.trimmed().length();
-//Treat /P and /R as special cases:
-  if((w.mid(n-2,2)=="/P") and m_nContest==EU_VHF) w=w.left(n-2);
+//Treat /P and /R as special cases: strip them off for this test.
+  if(w.mid(n-2,2)=="/P") w=w.left(n-2);
   if(w.mid(n-2,2)=="/R") w=w.left(n-2);
-
   n=w.trimmed().length();
   if(n>6) return false;
   w=w.toUpper();
