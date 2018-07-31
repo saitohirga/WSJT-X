@@ -3078,9 +3078,10 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
                || message_words.contains ("DE")))
           || !message.isStandardMessage ()); // free text 73/RR73
     QString w2=message_words.at(2);
+    QString w34;
     int nrpt=0;
     if(message_words.size()>3) {
-      QString w34=message_words.at(3);
+      w34=message_words.at(3);
       nrpt=w2.toInt();
       if(w2=="R") {
         nrpt=w34.toInt();
@@ -3088,6 +3089,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
       }
     }
     bool bEU_VHF_w2=(nrpt>=520001 and nrpt<=594000);
+    if(bEU_VHF_w2) m_xRcvd=message.string().trimmed().right(13);
     if (m_auto
         && (m_QSOProgress==REPLYING  or (!ui->tx1->isEnabled () and m_QSOProgress==REPORT))
         && qAbs (ui->TxFreqSpinBox->value () - df) <= int (stop_tolerance)
@@ -3524,6 +3526,10 @@ void MainWindow::guiUpdate()
                 foxgen_();
               }
             }
+          }
+          if(m_nContest==EU_VHF) {
+            if(m_ntx==2) m_xSent=ui->tx2->text().right(13);
+            if(m_ntx==3) m_xSent=ui->tx3->text().right(13);
           }
         }
         if(m_isync==1) msgsent[22]=0;
@@ -5084,6 +5090,14 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
                         m_config.my_callsign(), m_config.my_grid(), m_noSuffix,
                         m_config.log_as_RTTY(), m_config.report_in_comments(),
                         m_config.bFox(), m_opCall);
+  if(m_nContest!=NONE) {
+    if(m_nContest==NA_VHF) {
+      m_xSent=m_config.my_grid().left(4);
+      m_xRcvd=m_hisGrid;
+    }
+    qDebug() << "Logged:" << m_xSent << m_xRcvd;
+    //call contest logger here
+  }
 }
 
 void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, QString const& grid
