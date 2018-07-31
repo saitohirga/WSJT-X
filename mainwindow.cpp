@@ -4286,7 +4286,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
           }
         } else if(m_QSOProgress>=CALLING and
               ((r.toInt()>=-50 && r.toInt()<=49) or (r.toInt()>=529 && r.toInt()<=599))) {
-          if(m_nContest==EU_VHF or m_nContest==FIELD_DAY) {
+          if(m_nContest==EU_VHF or m_nContest==FIELD_DAY or m_nContest==RTTY) {
             gen_msg=setTxMsg(2);
             m_QSOProgress=REPORT;
           } else {
@@ -4522,11 +4522,15 @@ void MainWindow::genCQMsg ()
         msgtype ("@1000  (TUNE)", ui->tx6);
       }
     }
-    if(m_config.bFieldDay()) {
+
+    if((m_mode=="FT8" or m_mode=="MSK144") and m_nContest!=NONE) {
       QString t=ui->tx6->text();
-      t="CQ FD" + t.mid(2,-1);
-      ui->tx6->setText(t);
+//       if(m_nContest==NA_VHF)    t="CQ QP" + t.mid(2,-1);
+       if(m_nContest==FIELD_DAY) t="CQ FD" + t.mid(2,-1);
+       if(m_nContest==RTTY)      t="CQ RU" + t.mid(2,-1);
+       ui->tx6->setText(t);
     }
+
   } else {
     ui->tx6->clear ();
   }
