@@ -3682,7 +3682,8 @@ void MainWindow::guiUpdate()
     }
   }
 
-  if(ui->txrb1->isEnabled() and (m_mode=="FT8" or m_mode=="MSK144") and m_nContest!=NONE) {
+  if(ui->txrb1->isEnabled() and (m_mode=="FT8" or m_mode=="MSK144")
+     and m_nContest!=NONE and m_nContest!=EU_VHF) {
     //We're in a contest-like mode, don't use Tx1.
     ui->tx1->setEnabled(false);
   }
@@ -4150,7 +4151,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   QString hisgrid;
   message.deCallAndGrid(/*out*/hiscall,hisgrid);
 
-  auto is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
+  bool is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
   if (!is_73 and !message.isStandardMessage() and !message.string().contains("<")) {
     qDebug () << "Not processing message - hiscall:" << hiscall << "hisgrid:" << hisgrid;
     return;
@@ -5249,8 +5250,8 @@ void MainWindow::on_actionFT8_triggered()
   if(!m_config.bFox() and !m_config.bHound()) {
     QString t0="";
     if(m_config.bGenerate77()) t0=" Tx2.0   ";
-    if(m_config.bEU_VHF_Contest()) t0+="EU VHF";
     if(m_config.bNA_VHF_Contest()) t0+="NA VHF";
+    if(m_config.bEU_VHF_Contest()) t0+="EU VHF";
     if(m_config.bFieldDay()) t0+="Field Day";
     if(m_config.bRTTYroundup()) t0+="RTTY";
     if(t0=="") {
@@ -5271,6 +5272,8 @@ void MainWindow::on_actionFT8_triggered()
   }
   statusChanged();
 }
+
+
 
 void MainWindow::on_actionJT4_triggered()
 {
@@ -5558,6 +5561,16 @@ void MainWindow::on_actionMSK144_triggered()
   displayWidgets(nWidgets("101111110100000000010001000010000"));
   fast_config(m_bFastMode);
   statusChanged();
+
+  QString t0="";
+  if(m_config.bNA_VHF_Contest()) t0+="NA VHF";
+  if(m_config.bEU_VHF_Contest()) t0+="EU VHF";
+  if(t0=="") {
+    ui->labDXped->setVisible(false);
+  } else {
+    ui->labDXped->setVisible(true);
+    ui->labDXped->setText(t0);
+  }
 }
 
 void MainWindow::on_actionWSPR_triggered()
