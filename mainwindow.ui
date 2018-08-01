@@ -1024,7 +1024,7 @@ QLabel[oob=&quot;true&quot;] {
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
                  <property name="suffix">
-                  <string> </string>
+                  <string/>
                  </property>
                  <property name="minimum">
                   <number>1</number>
@@ -2620,6 +2620,7 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="actionErase_ALL_TXT"/>
     <addaction name="actionErase_FoxQSO_txt"/>
     <addaction name="actionErase_wsjtx_log_adi"/>
+    <addaction name="actionErase_cabrillo_log"/>
     <addaction name="actionOpen_log_directory"/>
     <addaction name="separator"/>
     <addaction name="actionSettings"/>
@@ -3290,6 +3291,11 @@ QPushButton[state=&quot;ok&quot;] {
   <action name="actionFT8_DXpedition_Mode_User_Guide">
    <property name="text">
     <string>FT8 DXpedition Mode User Guide</string>
+   </property>
+  </action>
+  <action name="actionErase_cabrillo_log">
+   <property name="text">
+    <string>Erase cabrillo.log</string>
    </property>
   </action>
  </widget>

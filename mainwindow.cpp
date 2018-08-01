@@ -5889,6 +5889,17 @@ void MainWindow::on_actionErase_FoxQSO_txt_triggered()
   if(ret==MessageBox::Yes) {
     QFile f{m_config.writeable_data_dir().absoluteFilePath("FoxQSO.txt")};
     f.remove();
+    ui->sbSerialNumber->setValue(1);
+  }
+}
+
+void MainWindow::on_actionErase_cabrillo_log_triggered()
+{
+  int ret = MessageBox::query_message(this, tr("Confirm Erase"),
+                  tr("Are you sure you want to erase file cabrillo.log?"));
+  if(ret==MessageBox::Yes) {
+    QFile f{m_config.writeable_data_dir().absoluteFilePath("cabrillo.log")};
+    f.remove();
   }
 }
 
