@@ -687,6 +687,7 @@ private:
   QString WSPR_hhmm(int n);
   void fast_config(bool b);
   void CQTxFreq();
+  void cabLog();
   QString save_wave_file (QString const& name
                           , short const * data
                           , int seconds

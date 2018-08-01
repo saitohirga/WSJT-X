@@ -1616,6 +1616,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
   auto callsign = m_config.my_callsign ();
   auto my_grid = m_config.my_grid ();
   if (QDialog::Accepted == m_config.exec ()) {
+    setContestType();
     if (m_config.my_callsign () != callsign) {
       m_baseCall = Radio::base_callsign (m_config.my_callsign ());
       morse_(const_cast<char *> (m_config.my_callsign ().toLatin1().constData()),
@@ -1683,7 +1684,6 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       ui->actionEnable_AP_JT65->setVisible(false);
     }
     m_opCall=m_config.opCall();
-    setContestType();
   }
 }
 
@@ -3531,6 +3531,15 @@ void MainWindow::guiUpdate()
             if(m_ntx==2) m_xSent=ui->tx2->text().right(13);
             if(m_ntx==3) m_xSent=ui->tx3->text().right(13);
           }
+
+          if(m_nContest==FIELD_DAY or m_nContest==RTTY) {
+            if(m_ntx==2 or m_ntx==3) {
+              QStringList t=ui->tx2->text().split(' ', QString::SkipEmptyParts);
+              int n=t.size();
+              m_xSent=t.at(n-2) + " " + t.at(n-1);
+            }
+          }
+
         }
         if(m_isync==1) msgsent[22]=0;
         if(m_isync==2) msgsent[37]=0;
@@ -4212,11 +4221,11 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
      || dtext.contains ("<" + m_baseCall + "> ")
      || dtext.contains ("/" + m_baseCall + " ")
      || dtext.contains (" " + m_baseCall + "/")
-     || (firstcall == "DE" /*&& ((t4.size () > 7 && t4.at(7) != "73") || t4.size () <= 7)*/)) {
+     || (firstcall == "DE")) {
     QString w2=message_words.at(2);
     QString w34=message_words.at(3);
     int nrpt=w2.toInt();
-    if(message_words.at(2)=="R") {
+    if(w2=="R") {
       nrpt=w34.toInt();
       w34=message_words.at(4);
     }
@@ -4226,15 +4235,24 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       MessageBox::information_message (this, tr ("Should you switch to EU VHF Contest mode?"));
     }
 
-    int nw3=w34.length();
-    bool bFieldDay_w34=(nw3==2 or nw3==3) and (w34.right(1)>="A" and w34.right(1)<="F");
-    if(w34.left(nw3-1).toInt()<1) bFieldDay_w34=false;
-    if(bFieldDay_w34 and m_nContest!=FIELD_DAY) {
+    QStringList t=message.string().split(' ', QString::SkipEmptyParts);
+    int n=t.size();
+    QString t0=t.at(n-2);
+    QString t1=t0.right(1);
+    bool bFieldDay_msg = (t1>="A" and t1<="F");
+    int m=t0.remove(t1).toInt();
+    if(m < 1) bFieldDay_msg=false;
+    if(bFieldDay_msg) {
+      m_xRcvd=t.at(n-2) + " " + t.at(n-1);
+      t0=t.at(n-3);
+    }
+
+    if(bFieldDay_msg and m_nContest!=FIELD_DAY) {
       // ### Should be in ARRL Field Day mode ??? ###
       MessageBox::information_message (this, tr ("Should you switch to ARRL Field Day mode?"));
     }
 
-    int n=w34.toInt();
+    n=w34.toInt();
     bool bRTTY = (n>=529 and n<=599);
     if(bRTTY and m_nContest!=RTTY) {
       // ### Should be in ARRL RTTY Roundup mode ??? ###
@@ -4269,9 +4287,16 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       } else if(m_nContest==RTTY and bRTTY) {
         gen_msg=setTxMsg(3);
         m_QSOProgress=ROGER_REPORT;
-      } else if(m_nContest==FIELD_DAY and bFieldDay_w34) {
-        gen_msg=setTxMsg(3);
-        m_QSOProgress=ROGER_REPORT;
+        int n=t.size();
+        m_xRcvd=t[n-2] + " " + t[n-1];
+      } else if(m_nContest==FIELD_DAY and bFieldDay_msg) {
+        if(t0=="R") {
+          gen_msg=setTxMsg(4);
+          m_QSOProgress=ROGERS;
+        } else {
+          gen_msg=setTxMsg(3);
+          m_QSOProgress=ROGER_REPORT;
+        }
       } else {  // no grid on end of msg
         QString r=message_words.at (3);
         if(m_QSOProgress >= ROGER_REPORT && (r=="RRR" || r.toInt()==73 || "RR73" == r)) {
@@ -4289,6 +4314,10 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
                    && r.mid(0,1)=="R") {
           m_ntx=4;
           m_QSOProgress = ROGERS;
+          if(m_nContest==RTTY) {
+            int n=t.size();
+            m_xRcvd=t[n-2] + " " + t[n-1];
+          }
           ui->txrb4->setChecked(true);
           if(ui->tabWidget->currentIndex()==1) {
             gen_msg = 4;
@@ -4537,11 +4566,10 @@ void MainWindow::genCQMsg ()
     if((m_mode=="FT8" or m_mode=="MSK144") and m_nContest!=NONE) {
       QString t=ui->tx6->text();
 //       if(m_nContest==NA_VHF)    t="CQ QP" + t.mid(2,-1);
-       if(m_nContest==FIELD_DAY) t="CQ FD" + t.mid(2,-1);
-       if(m_nContest==RTTY)      t="CQ RU" + t.mid(2,-1);
-       ui->tx6->setText(t);
+      if(m_nContest==FIELD_DAY) t="CQ FD" + t.mid(2,-1);
+      if(m_nContest==RTTY)      t="CQ RU" + t.mid(2,-1);
+      ui->tx6->setText(t);
     }
-
   } else {
     ui->tx6->clear ();
   }
@@ -5095,8 +5123,29 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
       m_xSent=m_config.my_grid().left(4);
       m_xRcvd=m_hisGrid;
     }
-    qDebug() << "Logged:" << m_xSent << m_xRcvd;
-    //call contest logger here
+    if(m_nContest!=NONE) cabLog();   //Call the Cabrillo contest logger
+  }
+}
+
+void MainWindow::cabLog()
+{
+  QFile f {m_config.writeable_data_dir ().absoluteFilePath ("cabrillo.log")};
+  if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
+    int nfreq=m_freqNominal/1000;
+    if(m_freqNominal>50000000) nfreq=m_freqNominal/1000000;
+    QString t;
+    t.sprintf("QSO: %5d RY ",nfreq);
+    qDebug() << t;
+    t=t + QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hhmm ") +
+        m_config.my_callsign().leftJustified(13,' ') + m_xSent.leftJustified(14,' ') +
+        m_hisCall.leftJustified(13,' ') + m_xRcvd;
+    QTextStream out(&f);
+    out << t << endl;
+    qDebug() << t;
+    f.close();
+  } else {
+    MessageBox::warning_message (this, tr("File Open Error"),
+      tr("Cannot open \"%1\" for append: %2").arg(f.fileName()).arg(f.errorString()));
   }
 }
 
