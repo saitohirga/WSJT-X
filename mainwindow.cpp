@@ -3697,15 +3697,20 @@ void MainWindow::guiUpdate()
     }
   }
 
-  if(ui->txrb1->isEnabled() and (m_mode=="FT8" or m_mode=="MSK144")
-     and m_nContest!=NONE and m_nContest!=EU_VHF) {
-    //We're in a contest-like mode, don't use Tx1.
-    ui->tx1->setEnabled(false);
+  if(m_mode=="FT8" or m_mode=="MSK144") {
+    if(ui->txrb1->isEnabled() and m_nContest!=NONE and m_nContest!=EU_VHF) {
+      //We're in a contest-like mode other than EU_VHF: start QSO with Tx2.
+      ui->tx1->setEnabled(false);
+    }
+    if(!ui->tx1->isEnabled() and m_nContest==EU_VHF) {
+      //We're in EU_VHF mode: start QSO with Tx1.
+      ui->tx1->setEnabled(true);
+    }
   }
 
 //Once per second:
   if(nsec != m_sec0) {
-//    qDebug() << "OneSec:" << m_nContest;
+//    qDebug() << "OneSec:" << ui->tx1->isEnabled();
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
       if(!m_bVHFwarned) vhfWarning();
     } else {
@@ -5123,7 +5128,11 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
       m_xSent=m_config.my_grid().left(4);
       m_xRcvd=m_hisGrid;
     }
-    if(m_nContest!=NONE) cabLog();   //Call the Cabrillo contest logger
+    if(m_nContest!=NONE) {
+      int n=ui->sbSerialNumber->value();
+      ui->sbSerialNumber->setValue(n+1);
+      cabLog();   //Call the Cabrillo contest logger
+    }
   }
 }
 
@@ -5141,7 +5150,6 @@ void MainWindow::cabLog()
         m_hisCall.leftJustified(13,' ') + m_xRcvd;
     QTextStream out(&f);
     out << t << endl;
-    qDebug() << t;
     f.close();
   } else {
     MessageBox::warning_message (this, tr("File Open Error"),
