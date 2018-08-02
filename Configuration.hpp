@@ -172,7 +172,11 @@ public:
   QColor color_MyCall () const;
   QColor color_TxMsg () const;
   QColor color_DXCC () const;
+  QColor color_DXCCband () const;
   QColor color_NewCall () const;
+  QColor color_NewCallBand () const;
+  QColor color_NewGrid () const;
+  QColor color_NewGridBand () const;
   bool pwrBandTxMemory () const;
   bool pwrBandTuneMemory () const;
 

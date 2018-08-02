@@ -519,6 +519,8 @@ private:
     RTTY
   } m_nContest;           //Contest type
 
+  enum {CALL, GRID, DXCC, MULT};
+
   int			m_ihsym;
   int			m_nzap;
   int			m_npts8;
@@ -544,7 +546,6 @@ private:
   QLabel watchdog_label;
 
   QFuture<void> m_wav_future;
-  QFuture<void> m_readLogFuture;
   QFutureWatcher<void> m_wav_future_watcher;
   QFutureWatcher<void> watcher3;
   QFutureWatcher<QString> m_saveWAVWatcher;
@@ -696,6 +697,7 @@ private:
   void CQTxFreq();
   void cabLog();
   void readLog();
+  bool isWorked(int itype, QString key, float fMHz=0, QString="");
   int  iband(float fMHz);
   QString hamBand(int iband);
 

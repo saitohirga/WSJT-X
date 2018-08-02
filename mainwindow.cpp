@@ -1049,6 +1049,22 @@ void MainWindow::readLog()
   }
 }
 
+bool MainWindow::isWorked(int itype, QString key, float fMHz, QString mode)
+{
+  bool worked;
+  int i=0;
+  if(itype==CALL) i = m_callWorked[key];
+  if(itype==GRID) i = m_gridWorked[key];
+  if(fMHz==0.0) {
+    worked=(i!=0);
+  } else {
+    int ib=iband(fMHz);
+    worked=((i>>ib) & 1)!=0;
+  }
+// Check mode here...
+  return worked;
+}
+
 //--------------------------------------------------- MainWindow destructor
 MainWindow::~MainWindow()
 {
@@ -3094,7 +3110,12 @@ void MainWindow::readFromStdout()                             //readFromStdout
         QString deCall;
         QString grid;
         decodedtext.deCallAndGrid(/*out*/deCall,grid);
-//        qDebug() << "bb" << deCall << grid << m_callWorked[deCall] << m_gridWorked[grid];
+/*
+        qDebug() << "Worked" << deCall << grid << m_callWorked[deCall] << m_gridWorked[grid]
+                    << isWorked(int(CALL),deCall,float(m_freqNominal/1000000.0))
+                    << isWorked(int(CALL),deCall)
+                    << isWorked(int(GRID),grid);
+*/
         {
           QString t=Radio::base_callsign(ui->dxCallEntry->text());
           if((t==deCall or t=="") and rpt!="") m_rptRcvd=rpt;
