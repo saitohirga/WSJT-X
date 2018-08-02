@@ -998,7 +998,7 @@ int MainWindow::iband(float fMHz)
       ibest=i;
     }
   }
-  qDebug() << "AA" << fMHz << ibest << xmin << hamBand(ibest);
+//  qDebug() << "AA" << fMHz << ibest << xmin << hamBand(ibest);
   return ibest;
 }
 
@@ -3094,7 +3094,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         QString deCall;
         QString grid;
         decodedtext.deCallAndGrid(/*out*/deCall,grid);
-        qDebug() << "bb" << deCall << grid << m_callWorked[deCall] << m_gridWorked[grid];
+//        qDebug() << "bb" << deCall << grid << m_callWorked[deCall] << m_gridWorked[grid];
         {
           QString t=Radio::base_callsign(ui->dxCallEntry->text());
           if((t==deCall or t=="") and rpt!="") m_rptRcvd=rpt;
