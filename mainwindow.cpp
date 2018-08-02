@@ -905,6 +905,9 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (&splashTimer, &QTimer::timeout, this, &MainWindow::splash_done);
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
+
+  readLog();   //Read wsjtx.log
+
 /*
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
      m_config.my_callsign()=="G4WJS" or
@@ -979,6 +982,71 @@ void MainWindow::on_the_minute ()
     {
       tx_watchdog (false);
     }
+}
+
+int MainWindow::iband(float fMHz)
+{
+  float f[]={0.1375,0.4755,1.9,3.75,5.3585,7.150,10.125,14.175,18.128,21.225,
+             24.940,28.850,52.0,70.25,146.0,435.0,915.0,1270.0,2375.,3400.,5787.,
+             10250.,24125.,47100.,78500.,122500.,137500.,246000.};
+  float x,xmin=1.0e30;
+  int ibest=-1;
+  for(int i=0; i<28; i++) {
+    x=qAbs(fMHz/f[i] - 1.0);
+    if(x < xmin) {
+      xmin=x;
+      ibest=i;
+    }
+  }
+  qDebug() << "AA" << fMHz << ibest << xmin << hamBand(ibest);
+  return ibest;
+}
+
+QString MainWindow::hamBand(int iband)
+{
+  QString b[]={"2200m","630m","160m","80m","60m","40m","30m","20m","17m","15m",
+               "12m","10m","6m","4m","2m","1.25m","70cm","33cm","23cm","13cm",
+               "6cm","3cm","1.25cm"};
+  if(iband<=23) {
+    return b[iband];
+  } else {
+    return "";
+  }
+}
+
+void MainWindow::readLog()
+{
+  QFile f(m_config.writeable_data_dir ().absoluteFilePath ("wsjtx.log"));
+  if(f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    QTextStream s(&f);
+    QString t0,t,callsign,grid,mode;
+    int nQSO=0;  //Total number of QSOs
+    int i0,i1,i2,len;
+    float fMHz;
+    // Read the log
+    while(!s.atEnd()) {
+      t0=s.readLine().mid(40);
+      i0=t0.indexOf(",");
+      callsign=t0.left(i0);
+      t=t0.mid(i0+1);
+      i0=t.indexOf(",");
+      grid=t.left(i0);
+      t=t.mid(i0+1);
+      i0=t.indexOf(",");
+      fMHz=t.left(i0).toFloat();
+      t=t.mid(i0+1);
+      i0=t.indexOf(",");
+      mode=t.left(i0);
+      nQSO++;
+      i1 = m_callWorked[callsign];
+      i2 = 1 << iband(fMHz);
+      m_callWorked[callsign]=i1 | i2;
+      if(MaidenheadLocatorValidator::Acceptable == MaidenheadLocatorValidator().validate(grid,len)) {
+        m_gridWorked[grid]=i1 | i2;
+      }
+//      qDebug() << nQSO << callsign << grid << fMHz << mode;
+    }
+  }
 }
 
 //--------------------------------------------------- MainWindow destructor
@@ -3026,6 +3094,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         QString deCall;
         QString grid;
         decodedtext.deCallAndGrid(/*out*/deCall,grid);
+        qDebug() << "bb" << deCall << grid << m_callWorked[deCall] << m_gridWorked[grid];
         {
           QString t=Radio::base_callsign(ui->dxCallEntry->text());
           if((t==deCall or t=="") and rpt!="") m_rptRcvd=rpt;

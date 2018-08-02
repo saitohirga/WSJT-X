@@ -544,6 +544,7 @@ private:
   QLabel watchdog_label;
 
   QFuture<void> m_wav_future;
+  QFuture<void> m_readLogFuture;
   QFutureWatcher<void> m_wav_future_watcher;
   QFutureWatcher<void> watcher3;
   QFutureWatcher<QString> m_saveWAVWatcher;
@@ -611,6 +612,11 @@ private:
 
   QMap<QString,FoxQSO> m_foxQSO;       //Key = HoundCall, value = parameters for QSO in progress
   QMap<QString,QString> m_loggedByFox; //Key = HoundCall, value = logged band
+
+  QHash<QString,qint32> m_callWorked;
+  QHash<QString,qint32> m_gridWorked;
+//  QHash<QString,qint32> m_dxccWorked;
+//  QHash<QString,qint32> m_multWorked;
 
   QQueue<QString> m_houndQueue;        //Selected Hounds available for starting a QSO
   QQueue<QString> m_foxQSOinProgress;  //QSOs in progress: Fox has sent a report
@@ -689,6 +695,10 @@ private:
   void fast_config(bool b);
   void CQTxFreq();
   void cabLog();
+  void readLog();
+  int  iband(float fMHz);
+  QString hamBand(int iband);
+
   QString save_wave_file (QString const& name
                           , short const * data
                           , int seconds
@@ -732,5 +742,6 @@ extern void getDev(int* numDevices,char hostAPI_DeviceName[][50],
                    int minChan[], int maxChan[],
                    int minSpeed[], int maxSpeed[]);
 extern int next_tx_state(int pctx);
+//extern void readLog();
 
 #endif // MAINWINDOW_H
