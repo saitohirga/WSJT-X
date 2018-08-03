@@ -866,7 +866,8 @@ subroutine pack77_1(nwords,w,i3,n3,c77)
        trim(w(nwords)).ne.'RR73' .and. trim(w(nwords)).ne.'73') return
   if(c1.eq.'+' .or. c1.eq.'-') then
      ir=0
-     read(w(nwords),*) irpt
+     write(81,*) nwords,w(1:nwords); flush(81)
+     read(w(nwords),*,err=900) irpt
      irpt=irpt+35
   else if(c2.eq.'R+' .or. c2.eq.'R-') then
      ir=1
@@ -922,8 +923,9 @@ subroutine pack77_1(nwords,w,i3,n3,c77)
   endif
   write(c77,1000) n28a,ipa,n28b,ipb,ir,igrid4,i3
 1000 format(2(b28.28,b1),b1,b15.15,b3.3)
-
   return
+
+900 return
 end subroutine pack77_1
 
 
@@ -983,7 +985,7 @@ subroutine pack77_3(nwords,w,i3,n3,c77)
         call pack28(w(2+itu),n28b)
         ir=0
         if(w(3+itu)(1:2).eq.'R ') ir=1
-        read(w(3+itu+ir),*) irpt
+        read(w(3+itu+ir),*,err=900) irpt
         irpt=(irpt-509)/10 - 2
         if(irpt.lt.0) irpt=0
         if(irpt.gt.7) irpt=7

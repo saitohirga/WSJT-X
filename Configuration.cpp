@@ -448,6 +448,7 @@ private:
   Q_SLOT void on_pbNewCallBand_clicked();
   Q_SLOT void on_pbNewGrid_clicked();
   Q_SLOT void on_pbNewGridBand_clicked();
+  Q_SLOT void on_pbResetDefaults_clicked();
   Q_SLOT void on_cbFox_clicked (bool);
   Q_SLOT void on_cbHound_clicked (bool);
   Q_SLOT void on_cbx2ToneSpacing_clicked(bool);
@@ -2177,6 +2178,31 @@ void Configuration::impl::on_pbNewGridBand_clicked()
       ui_->labNewGridBand->setStyleSheet(QString("background: %1").arg(next_color_NewGridBand_.name()));
     }
 }
+
+void Configuration::impl::on_pbResetDefaults_clicked()
+{
+  next_color_CQ_ = color_CQ_ = "#66ff66";
+  next_color_MyCall_ = color_MyCall_ = "#ff6666";
+  next_color_TxMsg_ = color_TxMsg_ = "#ffff00";
+  next_color_DXCC_ = color_DXCC_ = "#ff00ff";
+  next_color_DXCCband_ = color_DXCCband_ = "#ffaaff";
+  next_color_NewCall_ = color_NewCall_ = "#00ffff";
+  next_color_NewCallBand_ = color_NewCallBand_ = "#99ffff";
+  next_color_NewGrid_ = color_NewGrid_ = "#ff80ff";
+  next_color_NewGridBand_ = color_NewGridBand_ = "#ffcc99";
+
+  ui_->labCQ->setStyleSheet(QString("background: %1").arg(next_color_CQ_.name()));
+  ui_->labMyCall->setStyleSheet(QString("background: %1").arg(next_color_MyCall_.name()));
+  ui_->labTx->setStyleSheet(QString("background: %1").arg(next_color_TxMsg_.name()));
+  ui_->labDXCC->setStyleSheet(QString("background: %1").arg(next_color_DXCC_.name()));
+  ui_->labDXCCband->setStyleSheet(QString("background: %1").arg(next_color_DXCCband_.name()));
+  ui_->labNewCall->setStyleSheet(QString("background: %1").arg(next_color_NewCall_.name()));
+  ui_->labNewCallBand->setStyleSheet(QString("background: %1").arg(next_color_NewCallBand_.name()));
+  ui_->labNewGrid->setStyleSheet(QString("background: %1").arg(next_color_NewGrid_.name()));
+  ui_->labNewGridBand->setStyleSheet(QString("background: %1").arg(next_color_NewGridBand_.name()));
+
+}
+
 void Configuration::impl::on_decoded_text_font_push_button_clicked ()
 {
   next_decoded_text_font_ = QFontDialog::getFont (0, decoded_text_font_ , this
