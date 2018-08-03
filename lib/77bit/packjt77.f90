@@ -182,7 +182,7 @@ subroutine pack77(msg0,i3,n3,c77)
   call packtext77(msg(1:13),c77(1:71))
   write(c77(72:77),'(2b3.3)') n3,i3
 
-900  return
+900 return
 end subroutine pack77
 
 subroutine unpack77(c77,msg)
@@ -866,7 +866,6 @@ subroutine pack77_1(nwords,w,i3,n3,c77)
        trim(w(nwords)).ne.'RR73' .and. trim(w(nwords)).ne.'73') return
   if(c1.eq.'+' .or. c1.eq.'-') then
      ir=0
-     write(81,*) nwords,w(1:nwords); flush(81)
      read(w(nwords),*,err=900) irpt
      irpt=irpt+35
   else if(c2.eq.'R+' .or. c2.eq.'R-') then
@@ -999,7 +998,6 @@ subroutine pack77_3(nwords,w,i3,n3,c77)
 900 return
 end subroutine pack77_3
 
-
 subroutine pack77_4(nwords,w,i3,n3,c77)
 ! Check Type 3 (One nonstandard call and one hashed call)
 
@@ -1013,6 +1011,8 @@ subroutine pack77_4(nwords,w,i3,n3,c77)
   character*38 c
   data c/' 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ/'/
 
+  iflip=0
+  i3=-1
   if(nwords.eq.2 .or. nwords.eq.3) then
      call_1=w(1)
      if(call_1(1:1).eq.'<') call_1=w(1)(2:len(trim(w(1)))-1)
@@ -1058,11 +1058,13 @@ subroutine pack77_4(nwords,w,i3,n3,c77)
      endif
      write(c77,1010) n12,n58,iflip,nrpt,icq,i3
 1010 format(b12.12,b58.58,b1,b2.2,b1,b3.3)
+     do i=1,77
+        if(c77(i:i).eq.'*') c77(i:i)='0'     !### Clean up any illegal chars ###
+     enddo
   endif
 
 900 return
 end subroutine pack77_4
-
 
 subroutine packtext77(c13,c71)
 

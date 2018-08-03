@@ -4760,9 +4760,12 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
 
        if(m_config.bRTTYroundup()) {
         t=t0 + rst + m_config.RTTYExchange();             //Use a real report
-        msgtype(t, ui->tx2);
         QString t1=m_config.RTTYExchange();
-        if(t1=="DX" or t1=="#") t1.sprintf("%4.4d",ui->sbSerialNumber->value());
+        if(t1=="DX" or t1=="#") {
+          t1.sprintf("%4.4d",ui->sbSerialNumber->value());
+          t=t0 + rst + t1;
+        }
+        msgtype(t, ui->tx2);
         t=t0 + "R " + rst + t1;
         msgtype(t, ui->tx3);
         m_send_RR73=true;
