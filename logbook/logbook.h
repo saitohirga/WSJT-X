@@ -23,7 +23,8 @@ public:
     void match(/*in*/ const QString call,
               /*out*/ QString &countryName,
                       bool &callWorkedBefore,
-                      bool &countryWorkedBefore) const;
+                      bool &countryWorkedBefore,
+                      QString currentBand="") const;
     void addAsWorked(const QString call, const QString band, const QString mode, const QString date);
 
 private:

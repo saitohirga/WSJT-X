@@ -22,9 +22,10 @@ public:
 
   void setContentFont (QFont const&);
   void insertLineSpacer(QString const&);
-  void displayDecodedText(DecodedText const& decodedText, QString const& myCall, bool displayDXCCEntity,
-        LogBook const& logBook, QColor color_CQ, QColor color_MyCall,
-        QColor color_DXCC, QColor color_NewCall, bool ppfx, bool bCQonly=false);
+  void displayDecodedText(DecodedText const& decodedText, QString const& myCall,
+        bool displayDXCCEntity, LogBook const& logBook, QColor color_CQ, QColor color_MyCall,
+        QColor color_DXCC, QColor color_NewCall, QColor color_NewCallBand,
+        QString currentBand="", bool ppfx=false, bool bCQonly=false);
   void displayTransmittedText(QString text, QString modeTx, qint32 txFreq,
 			      QColor color_TxMsg, bool bFastMode);
   void displayQSY(QString text);
@@ -43,8 +44,9 @@ protected:
 
 private:
   bool m_bPrincipalPrefix;
-  QString appendDXCCWorkedB4(QString message, QString const& callsign, QColor * bg, LogBook const& logBook,
-			     QColor color_CQ, QColor color_DXCC, QColor color_NewCall);
+  QString appendDXCCWorkedB4(QString message, QString const& callsign, QColor * bg,
+           LogBook const& logBook, QColor color_CQ, QColor color_DXCC,
+           QColor color_NewCall, QColor color_NewCallBand, QString currentBand);
 
   QFont char_font_;
   QAction * erase_action_;

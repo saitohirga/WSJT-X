@@ -151,18 +151,18 @@ void DisplayText::appendText(QString const& text, QColor bg, QString const& call
   document ()->setMaximumBlockCount (document ()->maximumBlockCount ());
 }
 
-
 QString DisplayText::appendDXCCWorkedB4(QString message, QString const& callsign, QColor * bg,
-          LogBook const& logBook, QColor color_CQ,
-          QColor color_DXCC,
-          QColor color_NewCall)
+          LogBook const& logBook, QColor color_CQ, QColor color_DXCC, QColor color_NewCall,
+          QColor color_NewCallBand, QString currentBand)
 {
   // allow for seconds
   int padding {message.indexOf (" ") > 4 ? 2 : 0};
   QString call = callsign;
   QString countryName;
   bool callWorkedBefore;
+  bool callB4onBand;
   bool countryWorkedBefore;
+  bool countryB4onBand;
 
   if(call.length()==2) {
     int i0=message.indexOf("CQ "+call);
@@ -174,26 +174,31 @@ QString DisplayText::appendDXCCWorkedB4(QString message, QString const& callsign
   if(!call.contains(QRegExp("[0-9]|[A-Z]"))) return message;
 
   logBook.match(/*in*/call,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
+  logBook.match(/*in*/call,/*out*/countryName,callB4onBand,countryB4onBand,
+                /*in*/ currentBand);
+
   message = message.trimmed ();
-  QString appendage;
-  if (!countryWorkedBefore) // therefore not worked call either
-    {
-      appendage += "!";
-      *bg = color_DXCC;
+  QString appendage{""};
+
+  if (!countryWorkedBefore) {
+    // therefore not worked call either
+    appendage += "!";
+    *bg = color_DXCC;
+  } else {
+    if (!callWorkedBefore) {
+      // but have worked the country
+      appendage += "~";
+      *bg = color_NewCall;
+    } else {
+      if(!callB4onBand) {
+        appendage += "~";
+        *bg = color_NewCallBand;
+      } else {
+        appendage += " ";  // have worked this call before
+        *bg = color_CQ;
+      }
     }
-  else
-    {
-      if (!callWorkedBefore) // but have worked the country
-        {
-          appendage += "~";
-          *bg = color_NewCall;
-        }
-      else
-        {
-          appendage += " ";  // have worked this call before
-          *bg = color_CQ;
-        }
-    }
+  }
 
   int i1=countryName.indexOf(";");
   if(m_bPrincipalPrefix) {
@@ -240,8 +245,9 @@ QString DisplayText::appendDXCCWorkedB4(QString message, QString const& callsign
 void DisplayText::displayDecodedText(DecodedText const& decodedText, QString const& myCall,
                                      bool displayDXCCEntity, LogBook const& logBook,
                                      QColor color_CQ, QColor color_MyCall,
-                                     QColor color_DXCC, QColor color_NewCall, bool ppfx,
-                                     bool bCQonly)
+                                     QColor color_DXCC, QColor color_NewCall,
+                                     QColor color_NewCallBand,
+                                     QString currentBand, bool ppfx, bool bCQonly)
 {
   m_bPrincipalPrefix=ppfx;
   QColor bg {Qt::transparent};
@@ -262,7 +268,7 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
                         or decodedText.indexOf (" " + myCall + ">") >= 0)) {
     bg = color_MyCall;
   }
-  auto message = decodedText.string ();
+  auto message = decodedText.string();
   QString dxCall;
   QString dxGrid;
   decodedText.deCallAndGrid (dxCall, dxGrid);
@@ -271,7 +277,7 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
     // if enabled add the DXCC entity and B4 status to the end of the
     // preformated text line t1
     message = appendDXCCWorkedB4 (message, decodedText.CQersCall (), &bg, logBook, color_CQ,
-                                  color_DXCC, color_NewCall);
+                                  color_DXCC, color_NewCall, color_NewCallBand, currentBand);
   appendText (message.trimmed (), bg, decodedText.call (), dxCall);
 }
 

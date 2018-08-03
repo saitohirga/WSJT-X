@@ -596,6 +596,7 @@ private:
   QString m_fm1;
   QString m_xSent;               //Contest exchange sent
   QString m_xRcvd;               //Contest exchange received
+  QString m_currentBand;
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;
@@ -613,11 +614,6 @@ private:
 
   QMap<QString,FoxQSO> m_foxQSO;       //Key = HoundCall, value = parameters for QSO in progress
   QMap<QString,QString> m_loggedByFox; //Key = HoundCall, value = logged band
-
-  QHash<QString,qint32> m_callWorked;
-  QHash<QString,qint32> m_gridWorked;
-//  QHash<QString,qint32> m_dxccWorked;
-//  QHash<QString,qint32> m_multWorked;
 
   QQueue<QString> m_houndQueue;        //Selected Hounds available for starting a QSO
   QQueue<QString> m_foxQSOinProgress;  //QSOs in progress: Fox has sent a report
@@ -696,10 +692,7 @@ private:
   void fast_config(bool b);
   void CQTxFreq();
   void cabLog();
-  void readLog();
   bool isWorked(int itype, QString key, float fMHz=0, QString="");
-  int  iband(float fMHz);
-  QString hamBand(int iband);
 
   QString save_wave_file (QString const& name
                           , short const * data
@@ -744,6 +737,5 @@ extern void getDev(int* numDevices,char hostAPI_DeviceName[][50],
                    int minChan[], int maxChan[],
                    int minSpeed[], int maxSpeed[]);
 extern int next_tx_state(int pctx);
-//extern void readLog();
 
 #endif // MAINWINDOW_H

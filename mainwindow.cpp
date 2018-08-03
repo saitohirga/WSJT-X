@@ -906,8 +906,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
 
-  readLog();   //Read wsjtx.log
-
 /*
   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
      m_config.my_callsign()=="G4WJS" or
@@ -982,87 +980,6 @@ void MainWindow::on_the_minute ()
     {
       tx_watchdog (false);
     }
-}
-
-int MainWindow::iband(float fMHz)
-{
-  float f[]={0.1375,0.4755,1.9,3.75,5.3585,7.150,10.125,14.175,18.128,21.225,
-             24.940,28.850,52.0,70.25,146.0,435.0,915.0,1270.0,2375.,3400.,5787.,
-             10250.,24125.,47100.,78500.,122500.,137500.,246000.};
-  float x,xmin=1.0e30;
-  int ibest=-1;
-  for(int i=0; i<28; i++) {
-    x=qAbs(fMHz/f[i] - 1.0);
-    if(x < xmin) {
-      xmin=x;
-      ibest=i;
-    }
-  }
-//  qDebug() << "AA" << fMHz << ibest << xmin << hamBand(ibest);
-  return ibest;
-}
-
-QString MainWindow::hamBand(int iband)
-{
-  QString b[]={"2200m","630m","160m","80m","60m","40m","30m","20m","17m","15m",
-               "12m","10m","6m","4m","2m","1.25m","70cm","33cm","23cm","13cm",
-               "6cm","3cm","1.25cm"};
-  if(iband<=23) {
-    return b[iband];
-  } else {
-    return "";
-  }
-}
-
-void MainWindow::readLog()
-{
-  QFile f(m_config.writeable_data_dir ().absoluteFilePath ("wsjtx.log"));
-  if(f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    QTextStream s(&f);
-    QString t0,t,callsign,grid,mode;
-    int nQSO=0;  //Total number of QSOs
-    int i0,i1,i2,len;
-    float fMHz;
-    // Read the log
-    while(!s.atEnd()) {
-      t0=s.readLine().mid(40);
-      i0=t0.indexOf(",");
-      callsign=t0.left(i0);
-      t=t0.mid(i0+1);
-      i0=t.indexOf(",");
-      grid=t.left(i0);
-      t=t.mid(i0+1);
-      i0=t.indexOf(",");
-      fMHz=t.left(i0).toFloat();
-      t=t.mid(i0+1);
-      i0=t.indexOf(",");
-      mode=t.left(i0);
-      nQSO++;
-      i1 = m_callWorked[callsign];
-      i2 = 1 << iband(fMHz);
-      m_callWorked[callsign]=i1 | i2;
-      if(MaidenheadLocatorValidator::Acceptable == MaidenheadLocatorValidator().validate(grid,len)) {
-        m_gridWorked[grid]=i1 | i2;
-      }
-//      qDebug() << nQSO << callsign << grid << fMHz << mode;
-    }
-  }
-}
-
-bool MainWindow::isWorked(int itype, QString key, float fMHz, QString mode)
-{
-  bool worked;
-  int i=0;
-  if(itype==CALL) i = m_callWorked[key];
-  if(itype==GRID) i = m_gridWorked[key];
-  if(fMHz==0.0) {
-    worked=(i!=0);
-  } else {
-    int ib=iband(fMHz);
-    worked=((i>>ib) & 1)!=0;
-  }
-// Check mode here...
-  return worked;
 }
 
 //--------------------------------------------------- MainWindow destructor
@@ -1376,8 +1293,8 @@ void MainWindow::dataSink(qint64 frames)
     QString t=QString::fromLatin1(line);
     DecodedText decodedtext {t};
     ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
-                                                m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
-                                                m_config.color_NewCall(),m_config.ppfx());
+          m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
+          m_config.color_NewCall(),m_config.color_NewCallBand(),m_currentBand, m_config.ppfx());
     if (ui->measure_check_box->isChecked ()) {
       // Append results text to file "fmt.all".
       QFile f {m_config.writeable_data_dir ().absoluteFilePath ("fmt.all")};
@@ -1618,7 +1535,7 @@ void MainWindow::fastSink(qint64 frames)
     DecodedText decodedtext {message.replace (QChar::LineFeed, "")};
     ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
          m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
-         m_config.color_NewCall(),m_config.ppfx());
+         m_config.color_NewCall(),m_config.color_NewCallBand(),m_currentBand,m_config.ppfx());
     m_bDecoded=true;
     auto_sequence (decodedtext, ui->sbFtol->value (), std::numeric_limits<unsigned>::max ());
     if (m_mode != "ISCAT") postDecode (true, decodedtext.string ());
@@ -2862,7 +2779,7 @@ void::MainWindow::fast_decode_done()
     if(!m_bFastDone) {
       ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
          m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
-         m_config.color_NewCall(),m_config.ppfx());
+         m_config.color_NewCall(),m_config.color_NewCallBand(),m_currentBand,m_config.ppfx());
     }
 
     t=message.mid(10,5).toFloat();
@@ -3004,14 +2921,16 @@ void MainWindow::readFromStdout()                             //readFromStdout
             DecodedText dt{"."};
             ui->decodedTextBrowser->displayDecodedText(dt,m_baseCall,m_config.DXCC(),
                 m_logBook,m_config.color_CQ(),m_config.color_MyCall(),
-                m_config.color_DXCC(), m_config.color_NewCall(),m_config.ppfx());
+                m_config.color_DXCC(), m_config.color_NewCall(),m_config.color_NewCallBand(),
+                m_currentBand,m_config.ppfx());
             m_bDisplayedOnce=true;
           }
         } else {
           ui->decodedTextBrowser->displayDecodedText(decodedtext,m_baseCall,m_config.DXCC(),
                m_logBook,m_config.color_CQ(),m_config.color_MyCall(),
-               m_config.color_DXCC(), m_config.color_NewCall(),
-               m_config.ppfx(),(ui->cbCQonly->isVisible() and ui->cbCQonly->isChecked()));
+               m_config.color_DXCC(), m_config.color_NewCall(),m_config.color_NewCallBand(),
+               m_currentBand,m_config.ppfx(),
+               (ui->cbCQonly->isVisible() and ui->cbCQonly->isChecked()));
         }
       }
 
@@ -3046,7 +2965,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
         // or contains MyCall
         ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_baseCall,false,
                m_logBook,m_config.color_CQ(),m_config.color_MyCall(),
-               m_config.color_DXCC(),m_config.color_NewCall(),m_config.ppfx());
+               m_config.color_DXCC(),m_config.color_NewCall(),m_config.color_NewCallBand(),
+               m_currentBand,m_config.ppfx());
 
         if(m_mode!="JT4") {
           bool b65=decodedtext.isJT65();
@@ -3800,12 +3720,14 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-//    qDebug() << "OneSec:" << ui->tx1->isEnabled();
+//    qDebug() << "OneSec:" << m_config.ppfx();
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
       if(!m_bVHFwarned) vhfWarning();
     } else {
       m_bVHFwarned=false;
     }
+    m_currentBand=m_config.bands()->find(m_freqNominal);
+
     // if(m_config.bFox()) {
     //   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
     //      m_config.my_callsign()=="G4WJS" or m_config.my_callsign().contains("KH7Z")) {
@@ -4549,9 +4471,9 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   QString s2 = message.string ().trimmed();
   if (s1!=s2 and !message.isTX()) {
     if (!s2.contains(m_baseCall) or m_mode=="MSK144") {  // Taken care of elsewhere if for_us and slow mode
-      ui->decodedTextBrowser2->displayDecodedText(message, m_baseCall,
-                                                  false, m_logBook,m_config.color_CQ(), m_config.color_MyCall(),
-                                                  m_config.color_DXCC(),m_config.color_NewCall(),m_config.ppfx());
+      ui->decodedTextBrowser2->displayDecodedText(message, m_baseCall,false,
+      m_logBook,m_config.color_CQ(), m_config.color_MyCall(), m_config.color_DXCC(),
+      m_config.color_NewCall(),m_config.color_NewCallBand(),m_currentBand,m_config.ppfx());
     }
     m_QSOText = s2;
   }
@@ -7874,7 +7796,8 @@ void MainWindow::houndCallers()
         if(m_foxQSO.contains(houndCall)) continue;   //still in the QSO map
         QString countryName,continent;
         bool callWorkedBefore,countryWorkedBefore;
-        m_logBook.match(/*in*/houndCall,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
+        m_logBook.match(/*in*/houndCall,/*out*/countryName,callWorkedBefore,countryWorkedBefore,
+                        /*in*/ m_currentBand);
         int i1=countryName.lastIndexOf(";");
         continent=countryName.mid(i1+2,-1);
 

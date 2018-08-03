@@ -67,25 +67,23 @@ void LogBook::_setAlreadyWorkedFromLog()
 void LogBook::match(/*in*/const QString call,
                     /*out*/ QString &countryName,
                     bool &callWorkedBefore,
-                    bool &countryWorkedBefore) const
+                    bool &countryWorkedBefore,
+                    QString currentBand) const
 {
-  if (call.length() > 0)
-    {
-      QString currentMode = "JT9"; // JT65 == JT9 in ADIF::match()
-      QString currentBand = "";  // match any band
-      callWorkedBefore = _log.match(call,currentBand,currentMode);
-      countryName = _countries.find(call);
-//      qDebug() << "B" << countryName;
+  if (call.length() > 0) {
+    QString currentMode = "JT9"; // JT65 == JT9 == FT8 in ADIF::match()
+//    QString currentBand = "";  // match any band
+    callWorkedBefore = _log.match(call,currentBand,currentMode);
+    countryName = _countries.find(call);
 
-      if (countryName.length() > 0)  //  country was found
-        countryWorkedBefore = _worked.getHasWorked(countryName);
-      else
-        {
-          countryName = "where?"; //error: prefix not found
-          countryWorkedBefore = false;
-        }
+    if (countryName.length() > 0) { //  country was found
+      countryWorkedBefore = _worked.getHasWorked(countryName);
+    } else {
+      countryName = "where?"; //error: prefix not found
+      countryWorkedBefore = false;
     }
-  //qDebug() << "Logbook:" << call << ":" << countryName << "Cty B4:" << countryWorkedBefore << "call B4:" << callWorkedBefore;
+//    qDebug() << "Logbook:" << call << currentBand << callWorkedBefore << countryName << countryWorkedBefore;
+  }
 }
 
 void LogBook::addAsWorked(const QString call, const QString band, const QString mode, const QString date)

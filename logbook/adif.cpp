@@ -121,7 +121,7 @@ void ADIF::add(QString const& call, QString const& band, QString const& mode, QS
       }
 }
 
-// return true if in the log same band and mode (where JT65 == JT9)
+// return true if in the log same band and mode (where JT65 == JT9 == FT8)
 bool ADIF::match(QString const& call, QString const& band, QString const& mode) const
 {
     QList<QSO> qsos = _data.values(call);
