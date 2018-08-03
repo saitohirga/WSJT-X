@@ -1305,7 +1305,7 @@ void Configuration::impl::read_settings ()
   next_color_DXCCband_ = color_DXCCband_ = settings_->value("colorDXCCband","#ffaaff").toString();
   next_color_NewCall_ = color_NewCall_ = settings_->value("colorNewCall","#00dddd").toString();
   next_color_NewCallBand_ = color_NewCallBand_ = settings_->value("colorNewCallBand","#99ffff").toString();
-  next_color_NewGrid_ = color_NewGrid_ = settings_->value("colorNewGrid","#ff80ff").toString();
+  next_color_NewGrid_ = color_NewGrid_ = settings_->value("colorNewGrid","#ffaa00").toString();
   next_color_NewGridBand_ = color_NewGridBand_ = settings_->value("colorNewGridBand","#ffcc99").toString();
   if (next_font_.fromString (settings_->value ("Font", QGuiApplication::font ().toString ()).toString ())
       && next_font_ != font_)
@@ -2188,7 +2188,7 @@ void Configuration::impl::on_pbResetDefaults_clicked()
   next_color_DXCCband_ = color_DXCCband_ = "#ffaaff";
   next_color_NewCall_ = color_NewCall_ = "#00dddd";
   next_color_NewCallBand_ = color_NewCallBand_ = "#99ffff";
-  next_color_NewGrid_ = color_NewGrid_ = "#ff80ff";
+  next_color_NewGrid_ = color_NewGrid_ = "#ffaa00";
   next_color_NewGridBand_ = color_NewGridBand_ = "#ffcc99";
 
   ui_->labCQ->setStyleSheet(QString("background: %1").arg(next_color_CQ_.name()));
