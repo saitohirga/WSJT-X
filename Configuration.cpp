@@ -1303,7 +1303,7 @@ void Configuration::impl::read_settings ()
   next_color_TxMsg_ = color_TxMsg_ = settings_->value("colorTxMsg","#ffff00").toString();
   next_color_DXCC_ = color_DXCC_ = settings_->value("colorDXCC","#ff00ff").toString();
   next_color_DXCCband_ = color_DXCCband_ = settings_->value("colorDXCCband","#ffaaff").toString();
-  next_color_NewCall_ = color_NewCall_ = settings_->value("colorNewCall","#00dddd").toString();
+  next_color_NewCall_ = color_NewCall_ = settings_->value("colorNewCall","#66b2ff").toString();
   next_color_NewCallBand_ = color_NewCallBand_ = settings_->value("colorNewCallBand","#99ffff").toString();
   next_color_NewGrid_ = color_NewGrid_ = settings_->value("colorNewGrid","#ffaa00").toString();
   next_color_NewGridBand_ = color_NewGridBand_ = settings_->value("colorNewGridBand","#ffcc99").toString();
@@ -2186,7 +2186,7 @@ void Configuration::impl::on_pbResetDefaults_clicked()
   next_color_TxMsg_ = color_TxMsg_ = "#ffff00";
   next_color_DXCC_ = color_DXCC_ = "#ff00ff";
   next_color_DXCCband_ = color_DXCCband_ = "#ffaaff";
-  next_color_NewCall_ = color_NewCall_ = "#00dddd";
+  next_color_NewCall_ = color_NewCall_ = "#66b2ff";
   next_color_NewCallBand_ = color_NewCallBand_ = "#99ffff";
   next_color_NewGrid_ = color_NewGrid_ = "#ffaa00";
   next_color_NewGridBand_ = color_NewGridBand_ = "#ffcc99";
