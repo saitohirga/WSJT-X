@@ -42,9 +42,10 @@ contains
 
     class(ft8_decoder), intent(inout) :: this
     procedure(ft8_decode_callback) :: callback
+    parameter (MAXCAND=300)
     real s(NH1,NHSYM)
     real sbase(NH1)
-    real candidate(4,200)
+    real candidate(4,MAXCAND)
     real dd(15*12000)
     logical, intent(in) :: lft8apon,lapcqonly,ldecode77,nagain
     logical newdat,lsubtract,ldupe
@@ -102,8 +103,8 @@ contains
         lsubtract=.false. 
       endif 
       call timer('sync8   ',0)
-      maxcand=300
-      call sync8(dd,ifa,ifb,syncmin,nfqso,ldecode77,maxcand,s,candidate,ncand,sbase)
+      maxc=MAXCAND
+      call sync8(dd,ifa,ifb,syncmin,nfqso,ldecode77,maxc,s,candidate,ncand,sbase)
       call timer('sync8   ',1)
       do icand=1,ncand
         sync=candidate(3,icand)
