@@ -102,7 +102,8 @@ contains
         lsubtract=.false. 
       endif 
       call timer('sync8   ',0)
-      call sync8(dd,ifa,ifb,syncmin,nfqso,ldecode77,s,candidate,ncand,sbase)
+      maxcand=300
+      call sync8(dd,ifa,ifb,syncmin,nfqso,ldecode77,maxcand,s,candidate,ncand,sbase)
       call timer('sync8   ',1)
       do icand=1,ncand
         sync=candidate(3,icand)

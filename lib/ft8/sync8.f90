@@ -1,4 +1,4 @@
-subroutine sync8(dd,nfa,nfb,syncmin,nfqso,ldecode77,s,candidate,ncand,sbase)
+subroutine sync8(dd,nfa,nfb,syncmin,nfqso,ldecode77,maxcand,s,candidate,ncand,sbase)
 
   include 'ft8_params.f90'
 ! Search over +/- 2.5s relative to 0.5s TX start time. 
@@ -11,8 +11,8 @@ subroutine sync8(dd,nfa,nfb,syncmin,nfqso,ldecode77,s,candidate,ncand,sbase)
   real x(NFFT1)
   real sync2d(NH1,-JZ:JZ)
   real red(NH1)
-  real candidate0(4,200)
-  real candidate(4,200)
+  real candidate0(4,maxcand)
+  real candidate(4,maxcand)
   real dd(NMAX)
   integer jpeak(NH1)
   integer indx(NH1)
@@ -108,10 +108,10 @@ subroutine sync8(dd,nfa,nfb,syncmin,nfqso,ldecode77,s,candidate,ncand,sbase)
     base=red(ibase)
     red=red/base
 
-    do i=1,200
+    do i=1,min(maxcand,iz)
       n=ia + indx(iz+1-i) - 1
-      if(red(n).lt.syncmin) exit
-      if(k.lt.200) k=k+1
+      if(red(n).lt.syncmin.or.isnan(red(n)).or.k.eq.maxcand) exit
+      k=k+1
       candidate0(1,k)=n*df
       candidate0(2,k)=(jpeak(n)-1)*tstep
       candidate0(3,k)=red(n)
@@ -151,7 +151,6 @@ subroutine sync8(dd,nfa,nfb,syncmin,nfqso,ldecode77,s,candidate,ncand,sbase)
        candidate(2,k)=candidate0(2,j)
        candidate(3,k)=candidate0(3,j)
        candidate(4,k)=candidate0(4,j)
-!write(*,*) i,candidate(1:4,k)
        k=k+1
      endif
   enddo
