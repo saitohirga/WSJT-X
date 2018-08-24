@@ -7799,9 +7799,9 @@ void MainWindow::houndCallers()
         if(m_loggedByFox[houndCall].contains(m_lastBand))   continue;   //already logged on this band
         if(m_foxQSO.contains(houndCall)) continue;   //still in the QSO map
         QString countryName,continent;
-        bool callWorkedBefore,countryWorkedBefore;
-        m_logBook.match(/*in*/houndCall,/*out*/countryName,callWorkedBefore,countryWorkedBefore,
-                        /*in*/ m_currentBand);
+        bool callWorkedBefore,countryWorkedBefore,gridWorkedBefore;
+        m_logBook.match(/*in*/houndCall,"",/*out*/countryName,callWorkedBefore,countryWorkedBefore,
+                        gridWorkedBefore,/*in*/ m_currentBand);
         int i1=countryName.lastIndexOf(";");
         continent=countryName.mid(i1+2,-1);
 

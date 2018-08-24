@@ -151,8 +151,8 @@ void DisplayText::appendText(QString const& text, QColor bg, QString const& call
   document ()->setMaximumBlockCount (document ()->maximumBlockCount ());
 }
 
-QString DisplayText::appendDXCCWorkedB4(QString message, QString const& callsign, QColor * bg,
-          LogBook const& logBook, QString currentBand)
+QString DisplayText::appendWorkedB4(QString message, QString const& callsign, QString grid,
+          QColor * bg, LogBook const& logBook, QString currentBand)
 {
   // allow for seconds
   int padding {message.indexOf (" ") > 4 ? 2 : 0};
@@ -162,6 +162,9 @@ QString DisplayText::appendDXCCWorkedB4(QString message, QString const& callsign
   bool callB4onBand;
   bool countryWorkedBefore;
   bool countryB4onBand;
+  bool gridB4;
+  bool gridB4onBand;
+
 
   if(call.length()==2) {
     int i0=message.indexOf("CQ "+call);
@@ -172,8 +175,8 @@ QString DisplayText::appendDXCCWorkedB4(QString message, QString const& callsign
   if(call.length()<3) return message;
   if(!call.contains(QRegExp("[0-9]|[A-Z]"))) return message;
 
-  logBook.match(/*in*/call,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
-  logBook.match(/*in*/call,/*out*/countryName,callB4onBand,countryB4onBand,
+  logBook.match(/*in*/call,grid,/*out*/countryName,callWorkedBefore,countryWorkedBefore,gridB4);
+  logBook.match(/*in*/call,grid,/*out*/countryName,callB4onBand,countryB4onBand,gridB4onBand,
                 /*in*/ currentBand);
 
   message = message.trimmed ();
@@ -232,12 +235,10 @@ QString DisplayText::appendDXCCWorkedB4(QString message, QString const& callsign
   // it again later, align appended data at a fixed column if
   // there is space otherwise let it float to the right
   int space_count {40 + padding - message.size ()};
-  if (space_count > 0)
-    {
-      message += QString {space_count, QChar {' '}};
-    }
+  if (space_count > 0) {
+    message += QString {space_count, QChar {' '}};
+  }
   message += QChar::Nbsp + appendage;
-
   return message;
 }
 
@@ -267,12 +268,14 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
   auto message = decodedText.string();
   QString dxCall;
   QString dxGrid;
-  decodedText.deCallAndGrid (dxCall, dxGrid);
+  decodedText.deCallAndGrid (/*out*/ dxCall, dxGrid);
+  QRegularExpression m_grid_regexp {"\\A(?![Rr]{2}73)[A-Ra-r]{2}[0-9]{2}([A-Xa-x]{2}){0,1}\\z"};
+  if(!dxGrid.contains(m_grid_regexp)) dxGrid="";
   message = message.left (message.indexOf (QChar::Nbsp)); // strip appended info
   if (displayDXCCEntity && CQcall)
     // if enabled add the DXCC entity and B4 status to the end of the
     // preformated text line t1
-    message = appendDXCCWorkedB4 (message, decodedText.CQersCall (), &bg, logBook, currentBand);
+    message = appendWorkedB4 (message, decodedText.CQersCall(), dxGrid, &bg, logBook, currentBand);
   appendText (message.trimmed (), bg, decodedText.call (), dxCall);
 }
 

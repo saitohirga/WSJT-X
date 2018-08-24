@@ -124,35 +124,29 @@ void ADIF::add(QString const& call, QString const& band, QString const& mode, QS
 // return true if in the log same band and mode (where JT65 == JT9 == FT8)
 bool ADIF::match(QString const& call, QString const& band, QString const& mode) const
 {
-    QList<QSO> qsos = _data.values(call);
-    if (qsos.size()>0)
-    {
-        QSO q;
-        foreach(q,qsos)
-        {
-            if (     (band.compare(q.band,Qt::CaseInsensitive) == 0)
-                  || (band=="")
-                  || (q.band==""))
-            {
-                if (
-                     (
-                       ((mode.compare("JT65",Qt::CaseInsensitive)==0) ||
-                        (mode.compare("JT9",Qt::CaseInsensitive)==0)  ||
-                        (mode.compare("FT8",Qt::CaseInsensitive)==0))
-                       &&
-                       ((q.mode.compare("JT65",Qt::CaseInsensitive)==0) ||
-                        (q.mode.compare("JT9",Qt::CaseInsensitive)==0)  ||
-                        (q.mode.compare("FT8",Qt::CaseInsensitive)==0))
-                     )
-                        || (mode.compare(q.mode,Qt::CaseInsensitive)==0)
-                        || (mode=="")
-                        || (q.mode=="")
-                    )
-                return true;
-            }
-        }
+  QList<QSO> qsos = _data.values(call);
+  if (qsos.size()>0) {
+    QSO q;
+    foreach(q,qsos) {
+      if((band.compare(q.band,Qt::CaseInsensitive) == 0) || (band=="") || (q.band=="")) {
+        if((
+             ((mode.compare("JT65",Qt::CaseInsensitive)==0) ||
+              (mode.compare("JT9",Qt::CaseInsensitive)==0)  ||
+              (mode.compare("FT8",Qt::CaseInsensitive)==0))
+             &&
+             ((q.mode.compare("JT65",Qt::CaseInsensitive)==0) ||
+              (q.mode.compare("JT9",Qt::CaseInsensitive)==0)  ||
+              (q.mode.compare("FT8",Qt::CaseInsensitive)==0))
+             )
+           || (mode.compare(q.mode,Qt::CaseInsensitive)==0)
+           || (mode=="")
+           || (q.mode=="")
+           )
+          return true;
+      }
     }
-    return false;
+  }
+  return false;
 }    
 
 QList<QString> ADIF::getCallList() const

@@ -43,7 +43,7 @@ void LogBook::init()
   //    QString call = "ok1ct";
   //    QString countryName;
   //    bool callWorkedBefore,countryWorkedBefore;
-  //    match(/*in*/call, /*out*/ countryName,callWorkedBefore,countryWorkedBefore);
+  //    match(/*in*/call,grid, /*out*/ countryName,callWorkedBefore,countryWorkedBefore);
   //    qDebug() << countryName;
 
 }
@@ -64,12 +64,16 @@ void LogBook::_setAlreadyWorkedFromLog()
     }
 }
 
-void LogBook::match(/*in*/const QString call,
+void LogBook::match(/*in*/const QString call,QString grid,
                     /*out*/ QString &countryName,
                     bool &callWorkedBefore,
                     bool &countryWorkedBefore,
+                    bool &gridWorkedBefore,
                     QString currentBand) const
 {
+  if(currentBand=="") qDebug() << "aa" << grid;
+  if(currentBand!="") qDebug() << "bb" << grid << currentBand;
+
   if (call.length() > 0) {
     QString currentMode = "JT9"; // JT65 == JT9 == FT8 in ADIF::match()
 //    QString currentBand = "";  // match any band

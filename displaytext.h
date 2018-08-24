@@ -45,7 +45,7 @@ protected:
 
 private:
   bool m_bPrincipalPrefix;
-  QString appendDXCCWorkedB4(QString message, QString const& callsign, QColor * bg,
+  QString appendWorkedB4(QString message, QString const& callsign, QString grid, QColor * bg,
            LogBook const& logBook, QString currentBand);
 
   QFont char_font_;
