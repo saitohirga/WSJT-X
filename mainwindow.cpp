@@ -737,7 +737,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   auto t = "UTC   dB   DT Freq    Message";
   ui->decodedTextLabel->setText(t);
   ui->decodedTextLabel2->setText(t);
-  readSettings();            //Restore user's setup params
+  readSettings();            //Restore user's setup parameters
+  setColorHighlighting();    //Set the color highlighting scheme for decoded text.
   m_audioThread.start (m_audioThreadPriority);
 
 #ifdef WIN32
@@ -1293,8 +1294,7 @@ void MainWindow::dataSink(qint64 frames)
     QString t=QString::fromLatin1(line);
     DecodedText decodedtext {t};
     ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
-          m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
-          m_config.color_NewCall(),m_config.color_NewCallBand(),m_currentBand, m_config.ppfx());
+          m_logBook,m_currentBand, m_config.ppfx());
     if (ui->measure_check_box->isChecked ()) {
       // Append results text to file "fmt.all".
       QFile f {m_config.writeable_data_dir ().absoluteFilePath ("fmt.all")};
@@ -1534,8 +1534,7 @@ void MainWindow::fastSink(qint64 frames)
     QString message {QString::fromLatin1 (line)};
     DecodedText decodedtext {message.replace (QChar::LineFeed, "")};
     ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
-         m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
-         m_config.color_NewCall(),m_config.color_NewCallBand(),m_currentBand,m_config.ppfx());
+         m_logBook,m_currentBand,m_config.ppfx());
     m_bDecoded=true;
     auto_sequence (decodedtext, ui->sbFtol->value (), std::numeric_limits<unsigned>::max ());
     if (m_mode != "ISCAT") postDecode (true, decodedtext.string ());
@@ -1671,10 +1670,8 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     if(m_config.single_decode() or m_mode=="JT4") {
       ui->label_6->setText("Single-Period Decodes");
       ui->label_7->setText("Average Decodes");
-    } else {
-//      ui->label_6->setText("Band Activity");
-//      ui->label_7->setText("Rx Frequency");
     }
+
     update_watchdog_label ();
     if(!m_splitMode) ui->cbCQTx->setChecked(false);
     if(!m_config.enable_VHF_features()) {
@@ -1686,7 +1683,22 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     }
     m_opCall=m_config.opCall();
   }
+  setColorHighlighting();
 }
+
+void MainWindow::setColorHighlighting()
+{
+//Inform the decoded text windows about our color-highlighting scheme.
+  ui->decodedTextBrowser->setDecodedTextColors(m_config.color_CQ(),m_config.color_MyCall(),
+       m_config.color_DXCC(),m_config.color_DXCCband(),m_config.color_NewCall(),
+       m_config.color_NewCallBand(),m_config.color_NewGrid(),m_config.color_NewGridBand(),
+       m_config.color_TxMsg());
+  ui->decodedTextBrowser2->setDecodedTextColors(m_config.color_CQ(),m_config.color_MyCall(),
+       m_config.color_DXCC(),m_config.color_DXCCband(),m_config.color_NewCall(),
+       m_config.color_NewCallBand(),m_config.color_NewGrid(),m_config.color_NewGridBand(),
+       m_config.color_TxMsg());
+}
+
 
 void MainWindow::on_monitorButton_clicked (bool checked)
 {
@@ -2778,8 +2790,7 @@ void::MainWindow::fast_decode_done()
     DecodedText decodedtext {message.replace (QChar::LineFeed, "")};
     if(!m_bFastDone) {
       ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
-         m_logBook,m_config.color_CQ(),m_config.color_MyCall(),m_config.color_DXCC(),
-         m_config.color_NewCall(),m_config.color_NewCallBand(),m_currentBand,m_config.ppfx());
+         m_logBook,m_currentBand,m_config.ppfx());
     }
 
     t=message.mid(10,5).toFloat();
@@ -2920,16 +2931,12 @@ void MainWindow::readFromStdout()                             //readFromStdout
             // This hack sets the font.  Surely there's a better way!
             DecodedText dt{"."};
             ui->decodedTextBrowser->displayDecodedText(dt,m_baseCall,m_config.DXCC(),
-                m_logBook,m_config.color_CQ(),m_config.color_MyCall(),
-                m_config.color_DXCC(), m_config.color_NewCall(),m_config.color_NewCallBand(),
-                m_currentBand,m_config.ppfx());
+                m_logBook,m_currentBand,m_config.ppfx());
             m_bDisplayedOnce=true;
           }
         } else {
           ui->decodedTextBrowser->displayDecodedText(decodedtext,m_baseCall,m_config.DXCC(),
-               m_logBook,m_config.color_CQ(),m_config.color_MyCall(),
-               m_config.color_DXCC(), m_config.color_NewCall(),m_config.color_NewCallBand(),
-               m_currentBand,m_config.ppfx(),
+               m_logBook,m_currentBand,m_config.ppfx(),
                (ui->cbCQonly->isVisible() and ui->cbCQonly->isChecked()));
         }
       }
@@ -2964,9 +2971,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         // This msg is within 10 hertz of our tuned frequency, or a JT4 or JT65 avg,
         // or contains MyCall
         ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_baseCall,false,
-               m_logBook,m_config.color_CQ(),m_config.color_MyCall(),
-               m_config.color_DXCC(),m_config.color_NewCall(),m_config.color_NewCallBand(),
-               m_currentBand,m_config.ppfx());
+               m_logBook,m_currentBand,m_config.ppfx());
 
         if(m_mode!="JT4") {
           bool b65=decodedtext.isJT65();
@@ -3575,7 +3580,7 @@ void MainWindow::guiUpdate()
       write_transmit_entry ("ALL.TXT");
       if (m_config.TX_messages ()) {
         ui->decodedTextBrowser2->displayTransmittedText(m_currentMessage,m_modeTx,
-                     ui->TxFreqSpinBox->value(),m_config.color_TxMsg(),m_bFastMode);
+                     ui->TxFreqSpinBox->value(),m_bFastMode);
         }
     }
 
@@ -3676,7 +3681,7 @@ void MainWindow::guiUpdate()
 
       if (m_config.TX_messages () && !m_tune && !m_config.bFox()) {
         ui->decodedTextBrowser2->displayTransmittedText(current_message, m_modeTx,
-              ui->TxFreqSpinBox->value(),m_config.color_TxMsg(),m_bFastMode);
+              ui->TxFreqSpinBox->value(),m_bFastMode);
       }
 
       switch (m_ntx)
@@ -4472,8 +4477,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   if (s1!=s2 and !message.isTX()) {
     if (!s2.contains(m_baseCall) or m_mode=="MSK144") {  // Taken care of elsewhere if for_us and slow mode
       ui->decodedTextBrowser2->displayDecodedText(message, m_baseCall,false,
-      m_logBook,m_config.color_CQ(), m_config.color_MyCall(), m_config.color_DXCC(),
-      m_config.color_NewCall(),m_config.color_NewCallBand(),m_currentBand,m_config.ppfx());
+      m_logBook,m_currentBand,m_config.ppfx());
     }
     m_QSOText = s2;
   }
@@ -8099,7 +8103,7 @@ void MainWindow::foxGenWaveform(int i,QString fm)
   QString txModeArg;
   txModeArg.sprintf("FT8fox %d",i+1);
   ui->decodedTextBrowser2->displayTransmittedText(fm.trimmed(), txModeArg,
-        ui->TxFreqSpinBox->value()+60*i,m_config.color_TxMsg(),m_bFastMode);
+        ui->TxFreqSpinBox->value()+60*i,m_bFastMode);
   foxcom_.i3bit[i]=0;
   if(fm.indexOf("<")>0) foxcom_.i3bit[i]=1;
   strncpy(&foxcom_.cmsg[i][0],fm.toLatin1(),40);   //Copy this message into cmsg[i]

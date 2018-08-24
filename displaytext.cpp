@@ -152,8 +152,7 @@ void DisplayText::appendText(QString const& text, QColor bg, QString const& call
 }
 
 QString DisplayText::appendDXCCWorkedB4(QString message, QString const& callsign, QColor * bg,
-          LogBook const& logBook, QColor color_CQ, QColor color_DXCC, QColor color_NewCall,
-          QColor color_NewCallBand, QString currentBand)
+          LogBook const& logBook, QString currentBand)
 {
   // allow for seconds
   int padding {message.indexOf (" ") > 4 ? 2 : 0};
@@ -183,19 +182,19 @@ QString DisplayText::appendDXCCWorkedB4(QString message, QString const& callsign
   if (!countryWorkedBefore) {
     // therefore not worked call either
     appendage += "!";
-    *bg = color_DXCC;
+    *bg = m_color_DXCC;
   } else {
     if (!callWorkedBefore) {
       // but have worked the country
       appendage += "~";
-      *bg = color_NewCall;
+      *bg = m_color_NewCall;
     } else {
       if(!callB4onBand) {
         appendage += "~";
-        *bg = color_NewCallBand;
+        *bg = m_color_NewCallBand;
       } else {
         appendage += " ";  // have worked this call before
-        *bg = color_CQ;
+        *bg = m_color_CQ;
       }
     }
   }
@@ -244,9 +243,6 @@ QString DisplayText::appendDXCCWorkedB4(QString message, QString const& callsign
 
 void DisplayText::displayDecodedText(DecodedText const& decodedText, QString const& myCall,
                                      bool displayDXCCEntity, LogBook const& logBook,
-                                     QColor color_CQ, QColor color_MyCall,
-                                     QColor color_DXCC, QColor color_NewCall,
-                                     QColor color_NewCallBand,
                                      QString currentBand, bool ppfx, bool bCQonly)
 {
   m_bPrincipalPrefix=ppfx;
@@ -257,7 +253,7 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
       || decodedText.string ().contains (" QRZ "))
     {
       CQcall = true;
-      bg = color_CQ;
+      bg = m_color_CQ;
     }
   if(bCQonly and !CQcall) return;
   if (myCall != "" and (
@@ -266,7 +262,7 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
                         or decodedText.indexOf ("/" + myCall + " ") >= 0
                         or decodedText.indexOf ("<" + myCall + " ") >= 0
                         or decodedText.indexOf (" " + myCall + ">") >= 0)) {
-    bg = color_MyCall;
+    bg = m_color_MyCall;
   }
   auto message = decodedText.string();
   QString dxCall;
@@ -276,14 +272,12 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
   if (displayDXCCEntity && CQcall)
     // if enabled add the DXCC entity and B4 status to the end of the
     // preformated text line t1
-    message = appendDXCCWorkedB4 (message, decodedText.CQersCall (), &bg, logBook, color_CQ,
-                                  color_DXCC, color_NewCall, color_NewCallBand, currentBand);
+    message = appendDXCCWorkedB4 (message, decodedText.CQersCall (), &bg, logBook, currentBand);
   appendText (message.trimmed (), bg, decodedText.call (), dxCall);
 }
 
 
-void DisplayText::displayTransmittedText(QString text, QString modeTx, qint32 txFreq,
-                                         QColor color_TxMsg, bool bFastMode)
+void DisplayText::displayTransmittedText(QString text, QString modeTx, qint32 txFreq,bool bFastMode)
 {
     QString t1=" @  ";
     if(modeTx=="FT8") t1=" ~  ";
@@ -303,7 +297,7 @@ void DisplayText::displayTransmittedText(QString text, QString modeTx, qint32 tx
       t = QDateTime::currentDateTimeUtc().toString("hhmm") + \
         "  Tx      " + t2 + t1 + text;
     }
-    appendText (t, color_TxMsg);
+    appendText (t, m_color_TxMsg);
 }
 
 void DisplayText::displayQSY(QString text)
@@ -408,4 +402,20 @@ void DisplayText::highlight_callsign (QString const& callsign, QColor const& bg,
         }
     }
   setCurrentCharFormat (old_format);
+}
+
+void DisplayText::setDecodedTextColors(QColor color_CQ, QColor color_MyCall,
+      QColor color_DXCC, QColor color_DXCCband,QColor color_NewCall,QColor color_NewCallBand,
+      QColor color_NewGrid, QColor color_NewGridBand,QColor color_TxMsg)
+{
+// Save the color highlighting scheme selected by the user.
+  m_color_CQ=color_CQ;
+  m_color_DXCC=color_DXCC;
+  m_color_DXCCband=color_DXCCband;
+  m_color_MyCall=color_MyCall;
+  m_color_NewCall=color_NewCall;
+  m_color_NewCallBand=color_NewCallBand;
+  m_color_NewGrid=color_NewGrid;
+  m_color_NewGridBand=color_NewGridBand;
+  m_color_TxMsg=color_TxMsg;
 }

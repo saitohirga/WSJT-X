@@ -33,7 +33,6 @@
 #include "DisplayManual.hpp"
 #include "psk_reporter.h"
 #include "logbook/logbook.h"
-#include "commons.h"
 #include "astro.h"
 #include "MessageBox.hpp"
 #include "NetworkAccessManager.hpp"
@@ -328,6 +327,7 @@ private:
   void auto_sequence (DecodedText const& message, unsigned start_tolerance, unsigned stop_tolerance);
   void hideMenus(bool b);
   void foxTest();
+  void setColorHighlighting();
 
   NetworkAccessManager m_network_manager;
   bool m_valid;

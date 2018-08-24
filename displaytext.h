@@ -23,13 +23,14 @@ public:
   void setContentFont (QFont const&);
   void insertLineSpacer(QString const&);
   void displayDecodedText(DecodedText const& decodedText, QString const& myCall,
-        bool displayDXCCEntity, LogBook const& logBook, QColor color_CQ, QColor color_MyCall,
-        QColor color_DXCC, QColor color_NewCall, QColor color_NewCallBand,
+        bool displayDXCCEntity, LogBook const& logBook,
         QString currentBand="", bool ppfx=false, bool bCQonly=false);
-  void displayTransmittedText(QString text, QString modeTx, qint32 txFreq,
-			      QColor color_TxMsg, bool bFastMode);
+  void displayTransmittedText(QString text, QString modeTx, qint32 txFreq, bool bFastMode);
   void displayQSY(QString text);
   void displayFoxToBeCalled(QString t, QColor bg);
+  void setDecodedTextColors(QColor color_CQ, QColor color_MyCall, QColor color_DXCC,
+                            QColor color_DXCCband, QColor color_NewCall, QColor color_NewCallBand,
+                            QColor color_NewGrid, QColor color_NewGridBand, QColor color_TxMsg);
 
   Q_SIGNAL void selectCallsign (Qt::KeyboardModifiers);
   Q_SIGNAL void erased ();
@@ -45,12 +46,20 @@ protected:
 private:
   bool m_bPrincipalPrefix;
   QString appendDXCCWorkedB4(QString message, QString const& callsign, QColor * bg,
-           LogBook const& logBook, QColor color_CQ, QColor color_DXCC,
-           QColor color_NewCall, QColor color_NewCallBand, QString currentBand);
+           LogBook const& logBook, QString currentBand);
 
   QFont char_font_;
   QAction * erase_action_;
   QHash<QString, QPair<QColor, QColor>> highlighted_calls_;
+  QColor m_color_CQ;
+  QColor m_color_MyCall;
+  QColor m_color_DXCC;
+  QColor m_color_DXCCband;
+  QColor m_color_NewCall;
+  QColor m_color_NewCallBand;
+  QColor m_color_NewGrid;
+  QColor m_color_NewGridBand;
+  QColor m_color_TxMsg;
 };
 
 #endif // DISPLAYTEXT_H
