@@ -71,13 +71,14 @@ void LogBook::match(/*in*/const QString call,QString grid,
                     bool &gridWorkedBefore,
                     QString currentBand) const
 {
-  if(currentBand=="") qDebug() << "aa" << grid;
-  if(currentBand!="") qDebug() << "bb" << grid << currentBand;
+//  if(currentBand=="") qDebug() << "aa" << grid;
+//  if(currentBand!="") qDebug() << "bb" << grid << currentBand;
 
   if (call.length() > 0) {
     QString currentMode = "JT9"; // JT65 == JT9 == FT8 in ADIF::match()
 //    QString currentBand = "";  // match any band
     callWorkedBefore = _log.match(call,currentBand,currentMode);
+    gridWorkedBefore = _log.match(grid,currentBand,currentMode);
     countryName = _countries.find(call);
 
     if (countryName.length() > 0) { //  country was found
@@ -90,10 +91,11 @@ void LogBook::match(/*in*/const QString call,QString grid,
   }
 }
 
-void LogBook::addAsWorked(const QString call, const QString band, const QString mode, const QString date)
+void LogBook::addAsWorked(const QString call, const QString grid, const QString band,
+                          const QString mode, const QString date)
 {
   //qDebug() << "adding " << call << " as worked";
-  _log.add(call,band,mode,date);
+  _log.add(call,grid,band,mode,date);
   QString countryName = _countries.find(call);
   if (countryName.length() > 0)
     _worked.setAsWorked(countryName);

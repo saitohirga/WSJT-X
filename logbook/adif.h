@@ -12,6 +12,7 @@
 #include <QList>
 #include <QString>
 #include <QMultiHash>
+#include <QRegularExpression>
 #else
 #include <QtGui>
 #endif
@@ -23,7 +24,8 @@ class ADIF
 	public:
 	void init(QString const& filename);
 	void load();
-	void add(QString const& call, QString const& band, QString const& mode, QString const& date);
+  void add(QString const& call, const QString &grid, QString const& band, QString const& mode,
+           QString const& date);
 	bool match(QString const& call, QString const& band, QString const& mode) const;
 	QList<QString> getCallList() const;
 	int getCount() const;
@@ -37,19 +39,17 @@ class ADIF
 											 , QString const& strDialFreq, QString const& m_myCall, QString const& m_myGrid
 											 , QString const& m_txPower, QString const& operator_call);
 
-
 private:
 		struct QSO
 		{
-		  QString call,band,mode,date;
+      QString call,grid,band,mode,date;
 		};		  
 
-		QMultiHash<QString, QSO> _data;
-		QString _filename;
-		
+    QMultiHash<QString, QSO> _data;
+    QMultiHash<QString, QSO> _data2;
+    QString _filename;
 		QString extractField(QString const& line, QString const& fieldName) const;
 };
-
 
 #endif
 

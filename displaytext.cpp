@@ -178,6 +178,7 @@ QString DisplayText::appendWorkedB4(QString message, QString const& callsign, QS
   logBook.match(/*in*/call,grid,/*out*/countryName,callWorkedBefore,countryWorkedBefore,gridB4);
   logBook.match(/*in*/call,grid,/*out*/countryName,callB4onBand,countryB4onBand,gridB4onBand,
                 /*in*/ currentBand);
+//  if(gridB4) qDebug() << "aa" << grid << gridB4 << gridB4onBand;
 
   message = message.trimmed ();
   QString appendage{""};
@@ -187,17 +188,29 @@ QString DisplayText::appendWorkedB4(QString message, QString const& callsign, QS
     appendage += "!";
     *bg = m_color_DXCC;
   } else {
-    if (!callWorkedBefore) {
-      // but have worked the country
-      appendage += "~";
-      *bg = m_color_NewCall;
+    if(!countryB4onBand) {
+      *bg = m_color_DXCCband;
     } else {
-      if(!callB4onBand) {
-        appendage += "~";
-        *bg = m_color_NewCallBand;
+      if(!gridB4) {
+        *bg = m_color_NewGrid;
       } else {
-        appendage += " ";  // have worked this call before
-        *bg = m_color_CQ;
+        if(!gridB4onBand) {
+          *bg = m_color_NewGridBand;
+        } else {
+          if (!callWorkedBefore) {
+            // but have worked the country
+            appendage += "~";
+            *bg = m_color_NewCall;
+          } else {
+            if(!callB4onBand) {
+              appendage += "~";
+              *bg = m_color_NewCallBand;
+            } else {
+              appendage += " ";  // have worked this call before
+              *bg = m_color_CQ;
+            }
+          }
+        }
       }
     }
   }
@@ -269,8 +282,8 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
   QString dxCall;
   QString dxGrid;
   decodedText.deCallAndGrid (/*out*/ dxCall, dxGrid);
-  QRegularExpression m_grid_regexp {"\\A(?![Rr]{2}73)[A-Ra-r]{2}[0-9]{2}([A-Xa-x]{2}){0,1}\\z"};
-  if(!dxGrid.contains(m_grid_regexp)) dxGrid="";
+  QRegularExpression grid_regexp {"\\A(?![Rr]{2}73)[A-Ra-r]{2}[0-9]{2}([A-Xa-x]{2}){0,1}\\z"};
+  if(!dxGrid.contains(grid_regexp)) dxGrid="";
   message = message.left (message.indexOf (QChar::Nbsp)); // strip appended info
   if (displayDXCCEntity && CQcall)
     // if enabled add the DXCC entity and B4 status to the end of the
