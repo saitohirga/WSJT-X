@@ -14,6 +14,7 @@ class ColorHighlighting : public QDialog
 public:
   explicit ColorHighlighting(QWidget *parent = 0);
   ~ColorHighlighting();
+  void colorHighlightlingSetup();
 
 private:
   Ui::ColorHighlighting *ui;

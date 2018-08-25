@@ -2375,14 +2375,13 @@ void MainWindow::on_actionFox_Log_triggered()
 
 void MainWindow::on_actionColors_triggered()
 {
-  qDebug() << "aa";
   if (!m_colorHighlighting) {
     m_colorHighlighting.reset (new ColorHighlighting);
   }
   m_colorHighlighting->showNormal();
   m_colorHighlighting->raise ();
   m_colorHighlighting->activateWindow ();
-  qDebug() << "bb";
+  m_colorHighlighting->colorHighlightlingSetup();
 }
 
 void MainWindow::on_actionMessage_averaging_triggered()
