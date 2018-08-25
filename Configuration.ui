@@ -2176,32 +2176,6 @@ Right click for insert and delete options.</string>
       <layout class="QGridLayout" name="gridLayout_5" rowstretch="1,1,2" columnstretch="1,1,2">
        <item row="1" column="1">
         <layout class="QGridLayout" name="gridLayout_13">
-         <item row="6" column="1">
-          <widget class="QLabel" name="labNewCallBand">
-           <property name="styleSheet">
-            <string notr="true">QLabel{background-color: #99ffff}</string>
-           </property>
-           <property name="text">
-            <string notr="true">K1ABC</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="1">
-          <widget class="QLabel" name="labNewGrid">
-           <property name="styleSheet">
-            <string notr="true">QLabel{background-color: #ff8000}</string>
-           </property>
-           <property name="text">
-            <string notr="true">K1ABC</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
          <item row="4" column="1">
           <widget class="QLabel" name="labDXCCband">
            <property name="styleSheet">
@@ -2216,44 +2190,10 @@ Right click for insert and delete options.</string>
            </property>
           </widget>
          </item>
-         <item row="8" column="1">
-          <widget class="QLabel" name="labNewGridBand">
-           <property name="styleSheet">
-            <string notr="true">QLabel{background-color: #ffcc99}</string>
-           </property>
-           <property name="text">
-            <string notr="true">K1ABC</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
          <item row="4" column="0">
           <widget class="QPushButton" name="pbNewDXCCband">
            <property name="text">
             <string>New DXCC on Band</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0">
-          <widget class="QPushButton" name="pbNewCallBand">
-           <property name="text">
-            <string>New Call on Band</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="0">
-          <widget class="QPushButton" name="pbNewGrid">
-           <property name="text">
-            <string>New grid</string>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="0">
-          <widget class="QPushButton" name="pbNewGridBand">
-           <property name="text">
-            <string>New Grid on Band</string>
            </property>
           </widget>
          </item>
@@ -2385,7 +2325,27 @@ Right click for insert and delete options.</string>
            </property>
           </widget>
          </item>
+         <item row="9" column="0">
+          <widget class="QPushButton" name="pbResetDefaults">
+           <property name="text">
+            <string>Reset Defaults</string>
+           </property>
+          </widget>
+         </item>
          <item row="5" column="1">
+          <widget class="QLabel" name="labNewGrid">
+           <property name="styleSheet">
+            <string notr="true">QLabel{background-color: #ff8000}</string>
+           </property>
+           <property name="text">
+            <string notr="true">K1ABC</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
           <widget class="QLabel" name="labNewCall">
            <property name="minimumSize">
             <size>
@@ -2404,7 +2364,40 @@ Right click for insert and delete options.</string>
            </property>
           </widget>
          </item>
+         <item row="6" column="1">
+          <widget class="QLabel" name="labNewGridBand">
+           <property name="styleSheet">
+            <string notr="true">QLabel{background-color: #ffcc99}</string>
+           </property>
+           <property name="text">
+            <string notr="true">K1ABC</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="1">
+          <widget class="QLabel" name="labNewCallBand">
+           <property name="styleSheet">
+            <string notr="true">QLabel{background-color: #99ffff}</string>
+           </property>
+           <property name="text">
+            <string notr="true">K1ABC</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
          <item row="5" column="0">
+          <widget class="QPushButton" name="pbNewGrid">
+           <property name="text">
+            <string>New grid</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0">
           <widget class="QPushButton" name="pbNewCall">
            <property name="minimumSize">
             <size>
@@ -2417,10 +2410,17 @@ Right click for insert and delete options.</string>
            </property>
           </widget>
          </item>
-         <item row="9" column="0">
-          <widget class="QPushButton" name="pbResetDefaults">
+         <item row="6" column="0">
+          <widget class="QPushButton" name="pbNewGridBand">
            <property name="text">
-            <string>Reset Defaults</string>
+            <string>New Grid on Band</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0">
+          <widget class="QPushButton" name="pbNewCallBand">
+           <property name="text">
+            <string>New Call on Band</string>
            </property>
           </widget>
          </item>
@@ -3033,7 +3033,6 @@ soundcard changes</string>
   <tabstop>pbMyCall</tabstop>
   <tabstop>pbTxMsg</tabstop>
   <tabstop>pbNewDXCC</tabstop>
-  <tabstop>pbNewCall</tabstop>
   <tabstop>sbNtrials</tabstop>
   <tabstop>sbAggressive</tabstop>
   <tabstop>cbTwoPass</tabstop>
