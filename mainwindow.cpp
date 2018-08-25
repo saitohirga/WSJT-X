@@ -39,6 +39,7 @@
 #include "fastgraph.h"
 #include "about.h"
 #include "messageaveraging.h"
+#include "colorhighlighting.h"
 #include "widegraph.h"
 #include "sleep.h"
 #include "logqso.h"
@@ -2370,6 +2371,18 @@ void MainWindow::on_actionFox_Log_triggered()
 {
   on_actionMessage_averaging_triggered();
   m_msgAvgWidget->foxLogSetup();
+}
+
+void MainWindow::on_actionColors_triggered()
+{
+  qDebug() << "aa";
+  if (!m_colorHighlighting) {
+    m_colorHighlighting.reset (new ColorHighlighting);
+  }
+  m_colorHighlighting->showNormal();
+  m_colorHighlighting->raise ();
+  m_colorHighlighting->activateWindow ();
+  qDebug() << "bb";
 }
 
 void MainWindow::on_actionMessage_averaging_triggered()
@@ -5163,7 +5176,6 @@ void MainWindow::cabLog()
     if(m_freqNominal>50000000) nfreq=m_freqNominal/1000000;
     QString t;
     t.sprintf("QSO: %5d RY ",nfreq);
-    qDebug() << t;
     t=t + QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hhmm ") +
         m_config.my_callsign().leftJustified(13,' ') + m_xSent.leftJustified(14,' ') +
         m_hisCall.leftJustified(13,' ') + m_xRcvd;

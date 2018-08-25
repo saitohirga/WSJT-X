@@ -68,6 +68,7 @@ class WideGraph;
 class LogQSO;
 class Transceiver;
 class MessageAveraging;
+class ColorHighlighting;
 class MessageClient;
 class QTime;
 class WSPRBandHopping;
@@ -243,6 +244,7 @@ private slots:
   void auto_tx_mode(bool);
   void on_actionMessage_averaging_triggered();
   void on_actionFox_Log_triggered();
+  void on_actionColors_triggered();
   void on_actionInclude_averaging_toggled (bool);
   void on_actionInclude_correlation_toggled (bool);
   void on_actionEnable_AP_DXcall_toggled (bool);
@@ -356,7 +358,7 @@ private:
   QScopedPointer<HelpTextWindow> m_prefixes;
   QScopedPointer<HelpTextWindow> m_mouseCmnds;
   QScopedPointer<MessageAveraging> m_msgAvgWidget;
-
+  QScopedPointer<ColorHighlighting> m_colorHighlighting;
   Transceiver::TransceiverState m_rigState;
   Frequency  m_lastDialFreq;
   QString m_lastBand;

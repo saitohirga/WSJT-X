@@ -302,6 +302,7 @@ set (wsjtx_CXXSRCS
   about.cpp
   astro.cpp
   messageaveraging.cpp
+  colorhighlighting.cpp
   WsprTxScheduler.cpp
   mainwindow.cpp
   Configuration.cpp
@@ -689,6 +690,7 @@ set (wsjtx_UISRCS
   mainwindow.ui
   about.ui
   astro.ui
+  colorhighlighting.ui
   echograph.ui
   fastgraph.ui
   messageaveraging.ui

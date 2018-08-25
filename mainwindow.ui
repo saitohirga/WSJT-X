@@ -2637,6 +2637,7 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="actionEcho_Graph"/>
     <addaction name="actionFast_Graph"/>
     <addaction name="actionFox_Log"/>
+    <addaction name="actionColors"/>
     <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuDecode">
@@ -3296,6 +3297,11 @@ QPushButton[state=&quot;ok&quot;] {
   <action name="actionErase_cabrillo_log">
    <property name="text">
     <string>Erase cabrillo.log</string>
+   </property>
+  </action>
+  <action name="actionColors">
+   <property name="text">
+    <string>Color highlighting scheme</string>
    </property>
   </action>
  </widget>
