@@ -223,6 +223,11 @@ subroutine unpack77(c77,msg)
        "NB ","NS ","QC ","ON ","MB ","SK ","AB ","BC ","NWT","NF ",  &
        "LB ","NU ","VT ","PEI","DC "/
 
+  if(index(c77,'*').ge.1) then        !Check for bad data
+     msg='QUIRK 2'
+     return
+  endif
+
   read(c77(72:77),'(2b3)') n3,i3
   msg=repeat(' ',37)
   if(i3.eq.0 .and. n3.eq.0) then
@@ -421,7 +426,6 @@ subroutine unpack77(c77,msg)
 
   return
 end subroutine unpack77
-
 
 subroutine pack28(c13,n28)
 
