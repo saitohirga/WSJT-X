@@ -2970,7 +2970,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       if (bDisplayRight) {
         // This msg is within 10 hertz of our tuned frequency, or a JT4 or JT65 avg,
         // or contains MyCall
-        ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_baseCall,false,
+        ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_baseCall,m_config.DXCC(),
                m_logBook,m_currentBand,m_config.ppfx());
 
         if(m_mode!="JT4") {

@@ -190,7 +190,7 @@
              <string>Show if decoded stations are new DXCC entities or worked before.</string>
             </property>
             <property name="text">
-             <string>Show &amp;DXCC entity and worked before status</string>
+             <string>Show &amp;DXCC, grid, and worked-before status</string>
             </property>
             <property name="checked">
              <bool>false</bool>
@@ -3111,12 +3111,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="CAT_data_bits_button_group"/>
-  <buttongroup name="TX_mode_button_group"/>
   <buttongroup name="CAT_stop_bits_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="split_mode_button_group"/>
-  <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
+  <buttongroup name="TX_mode_button_group"/>
+  <buttongroup name="PTT_method_button_group"/>
  </buttongroups>
 </ui>
