@@ -3035,12 +3035,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
         QString deCall;
         QString grid;
         decodedtext.deCallAndGrid(/*out*/deCall,grid);
-/*
-        qDebug() << "Worked" << deCall << grid << m_callWorked[deCall] << m_gridWorked[grid]
-                    << isWorked(int(CALL),deCall,float(m_freqNominal/1000000.0))
-                    << isWorked(int(CALL),deCall)
-                    << isWorked(int(GRID),grid);
-*/
         {
           QString t=Radio::base_callsign(ui->dxCallEntry->text());
           if((t==deCall or t=="") and rpt!="") m_rptRcvd=rpt;
@@ -4106,7 +4100,7 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
   QTextCursor cursor;
   if(m_mode=="ISCAT") {
     MessageBox::information_message (this,
-        "Double-click not presently implemented for ISCAT mode");
+        "Double-click not available for ISCAT mode");
   }
   if(m_decodedText2) {
     cursor=ui->decodedTextBrowser->textCursor();
@@ -4624,10 +4618,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     ui->tx2->clear ();
     ui->tx3->clear ();
     ui->tx4->clear ();
-    if (unconditional) {        // leave in place in case it needs
-                                // sending again
-      ui->tx5->lineEdit ()->clear ();
-    }
+    if(unconditional) ui->tx5->lineEdit ()->clear ();   //Test if it needs sending again
     ui->genMsg->clear ();
     m_gen_message_is_cq = false;
     return;
@@ -4675,7 +4666,6 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
         msgtype(t, ui->tx2);
         t=t0 + "R " + m_config.FieldDayExchange();
         msgtype(t, ui->tx3);
-        m_send_RR73=true;
       }
 
       QString rst;
@@ -4694,7 +4684,6 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
         msgtype(t, ui->tx2);
         t=t0 + "R " + rst + t1;
         msgtype(t, ui->tx3);
-        m_send_RR73=true;
       }
 
       QString rs=rst.mid(0,2);
@@ -4707,7 +4696,6 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
         a.sprintf("%4.4d ",ui->sbSerialNumber->value());
         t=t1 + " R " + rs + a + m_config.my_grid();
         msgtype(t, ui->tx3);
-        m_send_RR73=true;
       }
     }
     if(m_mode=="MSK144" and m_bShMsgs) {
@@ -5163,7 +5151,6 @@ void MainWindow::cabLog()
     if(m_freqNominal>50000000) nfreq=m_freqNominal/1000000;
     QString t;
     t.sprintf("QSO: %5d RY ",nfreq);
-    qDebug() << t;
     t=t + QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hhmm ") +
         m_config.my_callsign().leftJustified(13,' ') + m_xSent.leftJustified(14,' ') +
         m_hisCall.leftJustified(13,' ') + m_xRcvd;

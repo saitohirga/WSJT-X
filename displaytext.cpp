@@ -178,7 +178,6 @@ QString DisplayText::appendWorkedB4(QString message, QString const& callsign, QS
   logBook.match(/*in*/call,grid,/*out*/countryName,callWorkedBefore,countryWorkedBefore,gridB4);
   logBook.match(/*in*/call,grid,/*out*/countryName,callB4onBand,countryB4onBand,gridB4onBand,
                 /*in*/ currentBand);
-//  if(gridB4) qDebug() << "aa" << grid << gridB4 << gridB4onBand;
 
   message = message.trimmed ();
   QString appendage{""};

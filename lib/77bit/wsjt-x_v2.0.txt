@@ -155,7 +155,8 @@ CQ TEST G4ABC/P IO91
                                    G4ABC/P PA9XYZ JO22
 PA9XYZ 590003 IO91NP
                                    G4ABC/P R 570007 JO22DB
-PA9XYZ G4ABC/P RR73
+PA9XYZ G4ABC/P RRR
+                                   G4ABC/P PA9XYZ 73
 
 ----------------------------------------------------------------------------------
 8. Compound call
