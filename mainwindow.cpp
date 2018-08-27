@@ -39,6 +39,7 @@
 #include "fastgraph.h"
 #include "about.h"
 #include "messageaveraging.h"
+#include "colorhighlighting.h"
 #include "widegraph.h"
 #include "sleep.h"
 #include "logqso.h"
@@ -2165,6 +2166,7 @@ void MainWindow::closeEvent(QCloseEvent * e)
   m_prefixes.reset ();
   m_shortcuts.reset ();
   m_mouseCmnds.reset ();
+  m_colorHighlighting.reset();
   if(m_mode!="MSK144" and m_mode!="FT8") killFile();
   float sw=0.0;
   int nw=400;
@@ -2178,9 +2180,7 @@ void MainWindow::closeEvent(QCloseEvent * e)
   bool b=proc_jt9.waitForFinished(1000);
   if(!b) proc_jt9.close();
   quitFile.remove();
-
   Q_EMIT finished ();
-
   QMainWindow::closeEvent (e);
 }
 
@@ -2370,6 +2370,20 @@ void MainWindow::on_actionFox_Log_triggered()
 {
   on_actionMessage_averaging_triggered();
   m_msgAvgWidget->foxLogSetup();
+}
+
+void MainWindow::on_actionColors_triggered()
+{
+  if (!m_colorHighlighting) {
+    m_colorHighlighting.reset (new ColorHighlighting {m_settings});
+  }
+  m_colorHighlighting->showNormal();
+  m_colorHighlighting->raise ();
+  m_colorHighlighting->activateWindow ();
+  m_colorHighlighting->colorHighlightlingSetup(m_config.color_CQ(),m_config.color_MyCall(),
+       m_config.color_DXCC(),m_config.color_DXCCband(),m_config.color_NewCall(),
+       m_config.color_NewCallBand(),m_config.color_NewGrid(),m_config.color_NewGridBand(),
+       m_config.color_TxMsg());
 }
 
 void MainWindow::on_actionMessage_averaging_triggered()
