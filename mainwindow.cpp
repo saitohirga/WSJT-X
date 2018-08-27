@@ -4484,7 +4484,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   QString s2 = message.string ().trimmed();
   if (s1!=s2 and !message.isTX()) {
     if (!s2.contains(m_baseCall) or m_mode=="MSK144") {  // Taken care of elsewhere if for_us and slow mode
-      ui->decodedTextBrowser2->displayDecodedText(message, m_baseCall,false,
+      ui->decodedTextBrowser2->displayDecodedText(message, m_baseCall,m_config.DXCC(),
       m_logBook,m_currentBand,m_config.ppfx());
     }
     m_QSOText = s2;
