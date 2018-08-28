@@ -2558,7 +2558,7 @@ Right click for insert and delete options.</string>
          <property name="minimumSize">
           <size>
            <width>0</width>
-           <height>50</height>
+           <height>60</height>
           </size>
          </property>
          <property name="title">
@@ -2568,7 +2568,7 @@ Right click for insert and delete options.</string>
           <property name="geometry">
            <rect>
             <x>9</x>
-            <y>10</y>
+            <y>20</y>
             <width>231</width>
             <height>31</height>
            </rect>
@@ -2576,6 +2576,12 @@ Right click for insert and delete options.</string>
           <layout class="QHBoxLayout" name="horizontalLayout_16">
            <item>
             <widget class="QCheckBox" name="cbFox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="toolTip">
               <string>Fox is the DXpedition station</string>
              </property>
@@ -2586,6 +2592,12 @@ Right click for insert and delete options.</string>
            </item>
            <item>
             <widget class="QCheckBox" name="cbHound">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="toolTip">
               <string>Everybody else is a Hound</string>
              </property>
@@ -2603,7 +2615,7 @@ Right click for insert and delete options.</string>
          <property name="minimumSize">
           <size>
            <width>0</width>
-           <height>50</height>
+           <height>60</height>
           </size>
          </property>
          <property name="maximumSize">
@@ -2613,20 +2625,26 @@ Right click for insert and delete options.</string>
           </size>
          </property>
          <property name="title">
-          <string>FT8 and MSK144 message types</string>
+          <string>FT8 message types</string>
          </property>
          <widget class="QWidget" name="horizontalLayoutWidget_2">
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>10</y>
-            <width>356</width>
+            <y>20</y>
+            <width>471</width>
             <height>31</height>
            </rect>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_15">
            <item>
             <widget class="QCheckBox" name="cbGenerate77">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="text">
               <string>Always generate 77-bit messages</string>
              </property>
@@ -2634,6 +2652,12 @@ Right click for insert and delete options.</string>
            </item>
            <item>
             <widget class="QCheckBox" name="cbDecode77">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="text">
               <string>Decode only 77-bit messages</string>
              </property>
@@ -2736,27 +2760,52 @@ Right click for insert and delete options.</string>
             </property>
            </widget>
           </item>
-          <item row="7" column="0">
-           <widget class="QCheckBox" name="cbx2ToneSpacing">
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate Tx audio with twice the normal tone spacing.  Intended for special LF/MF transmitters that use a divide-by-2 before generating RF.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <item row="7" column="0" colspan="2">
+           <widget class="QGroupBox" name="groupBox_10">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>50</height>
+             </size>
             </property>
-            <property name="text">
-             <string>x 2 Tone Spacing</string>
+            <property name="title">
+             <string>Tone spacing</string>
             </property>
-           </widget>
-          </item>
-          <item row="8" column="0">
-           <widget class="QCheckBox" name="cbx4ToneSpacing">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate Tx audio with four times the normal tone spacing. Intended for special LF/MF transmitters that use a divide-by-4 before generating RF.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="text">
-             <string>x 4 Tone Spacing</string>
-            </property>
+            <widget class="QCheckBox" name="cbx2ToneSpacing">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>20</y>
+               <width>105</width>
+               <height>17</height>
+              </rect>
+             </property>
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate Tx audio with twice the normal tone spacing.  Intended for special LF/MF transmitters that use a divide-by-2 before generating RF.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string>x 2</string>
+             </property>
+            </widget>
+            <widget class="QCheckBox" name="cbx4ToneSpacing">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="geometry">
+              <rect>
+               <x>120</x>
+               <y>20</y>
+               <width>92</width>
+               <height>17</height>
+              </rect>
+             </property>
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate Tx audio with four times the normal tone spacing. Intended for special LF/MF transmitters that use a divide-by-4 before generating RF.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string>x 4 </string>
+             </property>
+            </widget>
            </widget>
           </item>
          </layout>
@@ -2784,32 +2833,18 @@ Right click for insert and delete options.</string>
           </size>
          </property>
          <property name="title">
-          <string>Special operating activity</string>
+          <string>Special operating activity:  FT8 and MSK144</string>
          </property>
          <widget class="QWidget" name="gridLayoutWidget">
           <property name="geometry">
            <rect>
             <x>10</x>
             <y>20</y>
-            <width>451</width>
+            <width>471</width>
             <height>78</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_15">
-           <item row="0" column="2">
-            <widget class="QRadioButton" name="rbNA_VHF_Contest">
-             <property name="text">
-              <string>NA VHF Contest</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2">
-            <widget class="QRadioButton" name="rbEU_VHF_Contest">
-             <property name="text">
-              <string>EU VHF Contest</string>
-             </property>
-            </widget>
-           </item>
            <item row="0" column="0">
             <widget class="QRadioButton" name="rbNone">
              <property name="text">
@@ -2820,57 +2855,29 @@ Right click for insert and delete options.</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <layout class="QHBoxLayout" name="horizontalLayout_17">
-             <item>
-              <widget class="QRadioButton" name="rbFieldDay">
-               <property name="text">
-                <string>ARRL Field Day</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_9">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QLabel" name="label_14">
-               <property name="text">
-                <string>Exch:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="FieldDay_Exchange">
-               <property name="maximumSize">
-                <size>
-                 <width>60</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>6A SNJ</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
-            </layout>
+           <item row="0" column="1">
+            <spacer name="horizontalSpacer_11">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
            </item>
-           <item row="2" column="0">
+           <item row="2" column="2">
             <layout class="QHBoxLayout" name="horizontalLayout_18">
              <item>
               <widget class="QRadioButton" name="rbRTTYroundup">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="text">
                 <string>ARRL RTTY Roundup</string>
                </property>
@@ -2898,6 +2905,12 @@ Right click for insert and delete options.</string>
              </item>
              <item>
               <widget class="QLineEdit" name="RTTY_Exchange">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="maximumSize">
                 <size>
                  <width>60</width>
@@ -2914,18 +2927,90 @@ Right click for insert and delete options.</string>
              </item>
             </layout>
            </item>
-           <item row="0" column="1">
-            <spacer name="horizontalSpacer_11">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+           <item row="2" column="0">
+            <widget class="QRadioButton" name="rbEU_VHF_Contest">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
              </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
+             <property name="text">
+              <string>EU VHF Contest</string>
              </property>
-            </spacer>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <layout class="QHBoxLayout" name="horizontalLayout_17">
+             <item>
+              <widget class="QRadioButton" name="rbFieldDay">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>ARRL Field Day</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_9">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_14">
+               <property name="text">
+                <string>Exch:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="FieldDay_Exchange">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>60</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>6A SNJ</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="1" column="0">
+            <widget class="QRadioButton" name="rbNA_VHF_Contest">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>NA VHF Contest</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -3039,8 +3124,6 @@ soundcard changes</string>
   <tabstop>sbDegrade</tabstop>
   <tabstop>sbBandwidth</tabstop>
   <tabstop>sbTxDelay</tabstop>
-  <tabstop>cbx2ToneSpacing</tabstop>
-  <tabstop>cbx4ToneSpacing</tabstop>
  </tabstops>
  <resources/>
  <connections>
