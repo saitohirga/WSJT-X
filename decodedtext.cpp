@@ -166,7 +166,7 @@ void DecodedText::deCallAndGrid(/*out*/QString& call, QString& grid) const
   grid = match.captured ("word3");
   if ("R" == grid) grid = match.captured ("word4");
   if(match.captured("word1")=="CQ" and call.length()>=3 and call.length()<=4
-     and !call.contains(QRegExp("0-9"))) {
+     and !call.contains(QRegExp("[0-9]"))) {
     //Second word has length 3 or 4 and contains no digits
     call = match.captured ("word3");
     grid = match.captured ("word4");

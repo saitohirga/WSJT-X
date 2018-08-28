@@ -3112,7 +3112,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
       }
     }
     bool bEU_VHF_w2=(nrpt>=520001 and nrpt<=594000);
-    if(bEU_VHF_w2) m_xRcvd=message.string().trimmed().right(13);
+    if(bEU_VHF_w2) m_xRcvd=message.string().left(45).trimmed().right(13);
     if (m_auto
         && (m_QSOProgress==REPLYING  or (!ui->tx1->isEnabled () and m_QSOProgress==REPORT))
         && qAbs (ui->TxFreqSpinBox->value () - df) <= int (stop_tolerance)
@@ -3614,7 +3614,7 @@ void MainWindow::guiUpdate()
       }
     }
 
-    bool b=(m_mode=="FT8" or m_mode=="MSK144") and ui->cbAutoSeq->isChecked();
+    bool b=(m_mode=="FT8") and ui->cbAutoSeq->isChecked();
     if(is_73 and (m_config.disable_TX_on_73() or b)) {
       auto_tx_mode (false);
       if(b) {
@@ -4249,6 +4249,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   int gen_msg {0};
   if(dtext.contains (" " + m_baseCall + " ")
      || dtext.contains ("<" + m_baseCall + "> ")
+     || dtext.contains ("<" + m_baseCall + " " + hiscall + "> ")
      || dtext.contains ("/" + m_baseCall + " ")
      || dtext.contains (" " + m_baseCall + "/")
      || (firstcall == "DE")) {
@@ -4264,7 +4265,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       // ### Should be in EU VHF Contest mode ??? ###
       MessageBox::information_message (this, tr ("Should you switch to EU VHF Contest mode?"));
     }
-
     QStringList t=message.string().split(' ', QString::SkipEmptyParts);
     int n=t.size();
     QString t0=t.at(n-2);
