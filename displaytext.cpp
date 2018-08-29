@@ -165,7 +165,6 @@ QString DisplayText::appendWorkedB4(QString message, QString const& callsign, QS
   bool gridB4;
   bool gridB4onBand;
 
-
   if(call.length()==2) {
     int i0=message.indexOf("CQ "+call);
     call=message.mid(i0+6,-1);
@@ -175,9 +174,14 @@ QString DisplayText::appendWorkedB4(QString message, QString const& callsign, QS
   if(call.length()<3) return message;
   if(!call.contains(QRegExp("[0-9]|[A-Z]"))) return message;
 
-  logBook.match(/*in*/call,grid,/*out*/countryName,callWorkedBefore,countryWorkedBefore,gridB4);
-  logBook.match(/*in*/call,grid,/*out*/countryName,callB4onBand,countryB4onBand,gridB4onBand,
-                /*in*/ currentBand);
+  if(grid=="") {
+    gridB4=true;
+    gridB4onBand=true;
+  } else {
+    logBook.match(/*in*/call,grid,/*out*/countryName,callWorkedBefore,countryWorkedBefore,gridB4);
+    logBook.match(/*in*/call,grid,/*out*/countryName,callB4onBand,countryB4onBand,gridB4onBand,
+                  /*in*/ currentBand);
+  }
 
   message = message.trimmed ();
   QString appendage{""};
@@ -269,12 +273,14 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
       bg = m_color_CQ;
     }
   if(bCQonly and !CQcall) return;
-  if (myCall != "" and (
-                        decodedText.indexOf (" " + myCall + " ") >= 0
-                        or decodedText.indexOf (" " + myCall + "/") >= 0
-                        or decodedText.indexOf ("/" + myCall + " ") >= 0
-                        or decodedText.indexOf ("<" + myCall + " ") >= 0
-                        or decodedText.indexOf (" " + myCall + ">") >= 0)) {
+  if (myCall != "" and (decodedText.indexOf (" " + myCall + " ") >= 0
+        or decodedText.indexOf (" " + myCall + "/") >= 0
+        or decodedText.indexOf ("<" + myCall + "/") >= 0
+        or decodedText.indexOf ("/" + myCall + " ") >= 0
+        or decodedText.indexOf ("/" + myCall + ">") >= 0
+        or decodedText.indexOf ("<" + myCall + " ") >= 0
+        or decodedText.indexOf ("<" + myCall + ">") >= 0
+        or decodedText.indexOf (" " + myCall + ">") >= 0)) {
     bg = m_color_MyCall;
   }
   auto message = decodedText.string();
@@ -367,7 +373,8 @@ namespace
   }
 }
 
-void DisplayText::highlight_callsign (QString const& callsign, QColor const& bg, QColor const& fg, bool last_only)
+void DisplayText::highlight_callsign (QString const& callsign, QColor const& bg,
+                                      QColor const& fg, bool last_only)
 {
   QTextCharFormat old_format {currentCharFormat ()};
   QTextCursor cursor {document ()};
