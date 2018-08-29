@@ -3084,10 +3084,10 @@ void MainWindow::readFromStdout()                             //readFromStdout
 void MainWindow::auto_sequence (DecodedText const& message, unsigned start_tolerance, unsigned stop_tolerance)
 {
   auto const& message_words = message.messageWords ();
-  auto is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
+  auto is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size();
   bool is_OK=false;
   if(m_mode=="MSK144" and message.string().indexOf(ui->dxCallEntry->text()+" R ")>0) is_OK=true;
-  if (message_words.size () > 2 && (message.isStandardMessage () || (is_73 or is_OK))) {
+  if (message_words.size () > 2 && (message.isStandardMessage() || (is_73 or is_OK))) {
     auto df = message.frequencyOffset ();
     auto within_tolerance = (qAbs (ui->RxFreqSpinBox->value () - df) <= int (start_tolerance)
        || qAbs (ui->TxFreqSpinBox->value () - df) <= int (start_tolerance));
@@ -4246,10 +4246,11 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
 
 // Determine appropriate response to received message
   auto dtext = " " + message.string () + " ";
+  dtext=dtext.remove("<").remove(">");
   int gen_msg {0};
   if(dtext.contains (" " + m_baseCall + " ")
      || dtext.contains ("<" + m_baseCall + "> ")
-     || dtext.contains ("<" + m_baseCall + " " + hiscall + "> ")
+//###???     || dtext.contains ("<" + m_baseCall + " " + hiscall + "> ")
      || dtext.contains ("/" + m_baseCall + " ")
      || dtext.contains (" " + m_baseCall + "/")
      || (firstcall == "DE")) {
