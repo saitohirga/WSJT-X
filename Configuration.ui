@@ -2833,7 +2833,7 @@ Right click for insert and delete options.</string>
           </size>
          </property>
          <property name="title">
-          <string>Special operating activity:  FT8 and MSK144</string>
+          <string>Special operating activity (FT8 and MSK144 only)</string>
          </property>
          <widget class="QWidget" name="gridLayoutWidget">
           <property name="geometry">

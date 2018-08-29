@@ -116,7 +116,6 @@ subroutine save_hash_call(c13,n10,n12,n22)
 900 return
 end subroutine save_hash_call
 
-
 subroutine pack77(msg0,i3,n3,c77)
 
   use packjt
@@ -834,7 +833,6 @@ subroutine pack77_03(nwords,w,i3,n3,c77)
   return
 end subroutine pack77_03
 
-
 subroutine pack77_1(nwords,w,i3,n3,c77)
 ! Check Type 1 (Standard 77-bit message) and Type 2 (ditto, with a "/P" call)
 
@@ -860,6 +858,8 @@ subroutine pack77_1(nwords,w,i3,n3,c77)
   if(w(1)(1:1).eq.'<' .and. index(w(1),'>').ge.5) ok1=.true.
   if(w(2)(1:1).eq.'<' .and. index(w(2),'>').ge.5) ok2=.true.
   if(.not.ok1 .or. .not.ok2) return
+  if(w(1)(1:1).eq.'<' .and. index(w(2),'/').gt.0) return
+  if(w(2)(1:1).eq.'<' .and. index(w(1),'/').gt.0) return
   if(nwords.eq.2 .and. (.not.ok2 .or. index(w(2),'/').ge.2)) return
   if(nwords.eq.2) go to 10
 

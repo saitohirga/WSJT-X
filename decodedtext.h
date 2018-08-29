@@ -79,6 +79,7 @@ private:
   int padding_;
   bool contest_mode_;
   QString message_;
+  QString message0_;
   bool is_standard_;
 };
 

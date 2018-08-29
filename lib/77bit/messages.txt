@@ -55,15 +55,24 @@ PA9XYZ 590003 IO91NP
                                    G4ABC/P R 570007 JO22DB
 PA9XYZ G4ABC/P RR73
 
-8. Compound or goofy calls
+8. Compound or nonstandard callsign calls CQ
 -----------------------------------------------------------
 CQ PJ4/K1ABC
-                                   <PJ4/K1ABC> W9XYZ
-W9XYZ K1ABC -11
-                                   K1ABC W9XYZ R-09
-W9XYZ <PJ4/K1ABC> RRR
-                                   <PJ4/K1ABC> W9XYZ 73
-9. Other stuff
+                                   PJ4/K1ABC <W9XYZ>
+W9XYZ <PJ4/K1ABC> -11
+                                   <PJ4/K1ABC> W9XYZ R-09
+<W9XYZ> PJ4/K1ABC RRR
+                                   PJ4/K1ABC <W9XYZ> 73
+
+9. Compound or nonstandard callsign answers a CQ
+-----------------------------------------------------------
+CQ W9XYZ EN37
+                                   <W9XYZ> YW18FIFA
+<YW18FIFA> W9XYZ -11
+                                   W9XYZ <YW18FIFA> R-09
+YW18FIFA <W9XYZ> RRR
+                                   <W9XYZ> YW18FIFA 73
+10. Other stuff
 -----------------------------------------------------------
 TNX BOB 73 GL
 CQ YW18FIFA

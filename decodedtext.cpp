@@ -22,7 +22,8 @@ DecodedText::DecodedText (QString const& the_string)
 {
   if (message_.length() >= 1)
     {
-      message_ = message_.left (36).remove (QRegularExpression {"[<>]"});
+       message0_ = message_.left(36);
+       message_ = message_.left(36).remove (QRegularExpression {"[<>]"});
       int i1 = message_.indexOf ('\r');
       if (i1 > 0)
         {
@@ -41,7 +42,7 @@ DecodedText::DecodedText (QString const& the_string)
         }
       // stdmsg is a Fortran routine that packs the text, unpacks it
       // and compares the result
-      auto message_c_string = message_.toLocal8Bit ();
+      auto message_c_string = message0_.toLocal8Bit ();
       message_c_string += QByteArray {37 - message_c_string.size (), ' '};
       is_standard_ = stdmsg_(message_c_string.constData(),37);
     }
