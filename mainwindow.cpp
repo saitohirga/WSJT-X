@@ -4255,7 +4255,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
      || dtext.contains (" " + m_baseCall + "/")
      || (firstcall == "DE")) {
     QString w2=message_words.at(2);
-    QString w34=message_words.at(3);
+    QString w34="";
+    if(message_words.size()>=4) w34=message_words.at(3);
     int nrpt=w2.toInt();
     if(w2=="R") {
       nrpt=w34.toInt();
@@ -4648,15 +4649,19 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
 
   bool bMyCall=stdCall(my_callsign);
   bool bHisCall=stdCall(hisCall);
+  bool b77=(m_mode=="MSK144" or m_mode=="FT8") and (!bMyCall or !bHisCall);
 
   QString t0=hisBase + " " + m_baseCall + " ";
-  if(m_config.bGenerate77()) {
-    if(bHisCall and bMyCall) t0=hisCall + " " + my_callsign + " ";
-    if(bHisCall and !bMyCall) t0=hisCall + " <" + my_callsign + "> ";
-    if(!bHisCall and bMyCall) t0="<"+hisCall + "> " + my_callsign + " ";
+  QString t0a,t0b;
+  if(b77) {
+//    if(bHisCall and bMyCall) t0=hisCall + " " + my_callsign + " ";
+    t0a="<"+hisCall + "> " + my_callsign + " ";
+    t0b=hisCall + " <" + my_callsign + "> ";
   }
+
   QString t00=t0;
   QString t {t0 + my_grid};
+  if(b77 and (!bMyCall or !bHisCall)) t=t0a;
   msgtype(t, ui->tx1);
   if (eme_short_codes) {
     t=t+" OOO";
@@ -4669,50 +4674,38 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     rpt.sprintf("%+2.2d",n);
 
     if(m_mode=="MSK144" or m_mode=="FT8") {
-      if(m_config.bNA_VHF_Contest()) {
-        t=t0 + my_grid;
-        msgtype(t, ui->tx2);
-        t=t0 + "R " + my_grid;
-        msgtype(t, ui->tx3);
-      }
-
-      if(m_config.bFieldDay()) {
-        t=t0 + m_config.FieldDayExchange();
-        msgtype(t, ui->tx2);
-        t=t0 + "R " + m_config.FieldDayExchange();
-        msgtype(t, ui->tx3);
-      }
-
-      QString rst;
+      QString t2,t3;
+      QString sent=rpt;
+      QString rs,rst;
       int nn=(n+36)/6;
       if(nn<2) nn=2;
       if(nn>9) nn=9;
       rst.sprintf("5%1d9 ",nn);
-
-       if(m_config.bRTTYroundup()) {
-        t=t0 + rst + m_config.RTTYExchange();             //Use a real report
+      rs=rst.mid(0,2);
+      t=t0;
+      if(b77 and !bMyCall) t=t0b;
+      if(b77 and !bHisCall) t=t0a;
+      if(m_config.bNA_VHF_Contest()) sent=my_grid;
+      if(m_config.bFieldDay()) sent=m_config.FieldDayExchange();
+      if(m_config.bRTTYroundup()) {
+        sent=rst + m_config.RTTYExchange();
         QString t1=m_config.RTTYExchange();
         if(t1=="DX" or t1=="#") {
           t1.sprintf("%4.4d",ui->sbSerialNumber->value());
-          t=t0 + rst + t1;
+          sent=rst + t1;
         }
-        msgtype(t, ui->tx2);
-        t=t0 + "R " + rst + t1;
-        msgtype(t, ui->tx3);
       }
-
-      QString rs=rst.mid(0,2);
       if(m_config.bEU_VHF_Contest()) {
         QString t1,a;
-        t1=t0.split(" ").at(0);
+        t=t0.split(" ").at(0) + " ";
         a.sprintf("%4.4d ",ui->sbSerialNumber->value());
-        t=t1 + " " + rs + a + m_config.my_grid();
-        msgtype(t, ui->tx2);
-        a.sprintf("%4.4d ",ui->sbSerialNumber->value());
-        t=t1 + " R " + rs + a + m_config.my_grid();
-        msgtype(t, ui->tx3);
+        sent=rs + a + m_config.my_grid();
       }
+      msgtype(t + sent, ui->tx2);
+      if(sent==rpt) msgtype(t + "R" + sent, ui->tx3);
+      if(sent!=rpt) msgtype(t + "R " + sent, ui->tx3);
     }
+
     if(m_mode=="MSK144" and m_bShMsgs) {
       int i=t0.length()-1;
       t0="<" + t0.mid(0,i) + "> ";
@@ -4728,21 +4721,26 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       }
     }
 
-    if(!m_config.bFieldDay() and !m_config.bRTTYroundup() and !m_config.bEU_VHF_Contest()) {
-      if((m_mode!="MSK144" and m_mode!="FT8") or !m_config.bNA_VHF_Contest()) {
-        t=t00 + rpt;
-        msgtype(t, ui->tx2);
-        t=t0 + "R" + rpt;
-        msgtype(t, ui->tx3);
-      }
+    if((m_mode!="MSK144" and m_mode!="FT8")) {
+      t=t00 + rpt;
+      msgtype(t, ui->tx2);
+      t=t0 + "R" + rpt;
+      msgtype(t, ui->tx3);
     }
 
     t=t0 + (m_send_RR73 ? "RR73" : "RRR");
+    if(m_mode=="MSK144" or m_mode=="FT8") {
+      if(!bHisCall and bMyCall) t=hisCall + " <" + my_callsign + "> " + (m_send_RR73 ? "RR73" : "RRR");
+      if(bHisCall and !bMyCall) t="<" + hisCall + "> " + my_callsign + " " + (m_send_RR73 ? "RR73" : "RRR");
+    }
     if ((m_mode=="JT4" || m_mode=="QRA64") && m_bShMsgs) t="@1500  (RRR)";
     msgtype(t, ui->tx4);
 
-
     t=t0 + "73";
+    if(m_mode=="MSK144" or m_mode=="FT8") {
+      if(!bHisCall and bMyCall) t=hisCall + " <" + my_callsign + "> 73";
+      if(bHisCall and !bMyCall) t="<" + hisCall + "> " + my_callsign + " 73";
+    }
     if (m_mode=="JT4" || m_mode=="QRA64") {
       if (m_bShMsgs) t="@1750  (73)";
       msgtype(t, ui->tx5->lineEdit());
