@@ -8,9 +8,10 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   include 'ft8_params.f90'
   parameter(NP2=2812)
   character*37 msg37,msgsent37
-  character*12 mycall12,hiscall12
+  character*12 mycall12,hiscall12,hiscall12_0
   character*77 c77
   character*6 mycall6,hiscall6,c1,c2
+  character*13 c13
   character*87 cbits
   real a(5)
   real s8(0:7,NN)
@@ -43,7 +44,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   data mrr73/0,1,1,1,1,1,1,0,0,1,1,1,0,1,0,1,0,0,1/
   data first/.true./
   data graymap/0,1,3,2,5,6,4,7/
-  save nappasses,naptypes,one
+  save nappasses,naptypes,one,hiscall12_0
 
   if(first) then
      mcq=2*mcq-1
@@ -80,6 +81,12 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
        enddo
      enddo
      first=.false.
+  endif
+
+  if(hiscall12.ne.hiscall12_0) then
+     c13=hiscall12//' '
+     call save_hash_call(c13,n10,n12,n22)
+     hiscall12_0=hiscall12
   endif
 
   max_iterations=30

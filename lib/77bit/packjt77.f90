@@ -16,6 +16,10 @@ subroutine hash10(n10,c13)
   do i=1,nzhash
      if(ihash10(i).eq.n10) then
         c13=callsign(i)
+        if(c13(1:1).ne.'<') then
+           n=len(trim(c13))
+           c13='<'//trim(c13)//'>'//'         '
+        endif
         go to 900
      endif
   enddo
@@ -31,10 +35,13 @@ subroutine hash12(n12,c13)
   do i=1,nzhash
      if(ihash12(i).eq.n12) then
         c13=callsign(i)
+        if(c13(1:1).ne.'<') then
+           n=len(trim(c13))
+           c13='<'//trim(c13)//'>'//'         '
+        endif
         go to 900
      endif
   enddo
-
 
 900 return
 end subroutine hash12
@@ -48,6 +55,10 @@ subroutine hash22(n22,c13)
   do i=1,nzhash
      if(ihash22(i).eq.n22) then
         c13=callsign(i)
+        if(c13(1:1).ne.'<') then
+           n=len(trim(c13))
+           c13='<'//trim(c13)//'>'//'         '
+        endif
         go to 900
      endif
   enddo
@@ -76,7 +87,6 @@ integer function ihashcall(c0,m)
 
   return
 end function ihashcall
-
 
 subroutine save_hash_call(c13,n10,n12,n22)
 
@@ -602,10 +612,6 @@ subroutine unpack28(n28_0,c13)
 ! This is a 22-bit hash of a callsign
      n22=n28
      call hash22(n22,c13)     !Retrieve callsign from hash table
-     if(c13(1:1).ne.'<') then
-        n=len(trim(c13))
-        c13='<'//c13(1:n)//'>'//'         '
-     endif
      go to 900
   endif
   
