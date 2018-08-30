@@ -232,10 +232,14 @@ subroutine unpack77(c77,msg)
        "NB ","NS ","QC ","ON ","MB ","SK ","AB ","BC ","NWT","NF ",  &
        "LB ","NU ","VT ","PEI","DC "/
 
-  if(index(c77,'*').ge.1) then        !Check for bad data
-     msg='QUIRK 2'
-     return
-  endif
+  
+! Check for bad data
+  do i=1,77
+     if(c77(i:i).ne.'0' .and. c77(i:i).ne.'1') then
+        msg='QUIRK 2'
+        return
+     endif
+  enddo
 
   read(c77(72:77),'(2b3)') n3,i3
   msg=repeat(' ',37)

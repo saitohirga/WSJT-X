@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>532</width>
+    <width>534</width>
     <height>546</height>
    </rect>
   </property>
@@ -3076,10 +3076,10 @@ soundcard changes</string>
  <buttongroups>
   <buttongroup name="CAT_stop_bits_button_group"/>
   <buttongroup name="split_mode_button_group"/>
-  <buttongroup name="CAT_handshake_button_group"/>
-  <buttongroup name="TX_mode_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="TX_audio_source_button_group"/>
+  <buttongroup name="TX_mode_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
  </buttongroups>
 </ui>
