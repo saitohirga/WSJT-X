@@ -2734,7 +2734,7 @@ Right click for insert and delete options.</string>
        <item row="3" column="0" colspan="2">
         <widget class="QGroupBox" name="groupBox_9">
          <property name="title">
-          <string>Special operating activity (FT8 and MSK144 only)</string>
+          <string>Special operating activity:  Generation of FT8 and MSK144 messages</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_15" columnstretch="1,2,1,0">
           <item row="0" column="0">
