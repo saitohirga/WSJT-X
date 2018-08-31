@@ -1,7 +1,7 @@
 module packjt77
 
 ! These variables are accessible from outside via "use packjt":
-  parameter (MAXHASH=20)
+  parameter (MAXHASH=100)
   character*13 callsign(MAXHASH)
   integer ihash10(MAXHASH),ihash12(MAXHASH),ihash22(MAXHASH)
   integer n28a,n28b,nzhash
@@ -121,7 +121,7 @@ subroutine save_hash_call(c13,n10,n12,n22)
   ihash12(1)=n12
   ihash22(1)=n22
   callsign(1)=c13
-  nzhash=nzhash+1
+  if(nzhash.lt.MAXHASH) nzhash=nzhash+1
 
 900 return
 end subroutine save_hash_call
