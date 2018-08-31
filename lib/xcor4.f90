@@ -37,7 +37,7 @@ subroutine xcor4(s2,ipk,nsteps,nsym,lag1,lag2,ich,mode4,ccf,ccf0,   &
 
   ccfmax=0.
   ccfmin=0.
-  nw=nch(ich)
+  nw=nch(min(max(ich,1),7))
 
   do j=1,nsteps
      n=2*mode4
