@@ -82,10 +82,12 @@ program JT65code
      call fmtmsg(decoded,iz)
 
 10   bad=" "
-     if(decoded.ne.msgchk) bad="*"
      expected = 'EXACT'
-     if (msg0.ne.msgchk) expected = 'TRUNCATED'
-     if (nmsg.eq.1) expected = 'UNKNOWN'
+     if(decoded.ne.msg0) then
+        bad="*"
+        if(decoded(1:13).eq.msg0(1:13) .and.                             &
+             decoded(14:22).eq. '         ') expected = 'TRUNCATED'
+     endif
      write(*,1020) imsg,msg0,decoded,bad,itype,msgtype,expected
 1020 format(i2,'.',1x,a22,1x,a22,1x,a1,i3,":",a10,2x,a22)
   enddo

@@ -16,7 +16,7 @@
        "KA1ABC WB9XYZ RRR",      &
        "KA1ABC WB9XYZ 73",       &
        "KA1ABC WB9XYZ",          &
-       "CQ 000 WB9XYZ EN34",     &
+       "CQ 010 WB9XYZ EN34",     &
        "CQ 999 WB9XYZ EN34",     &
        "CQ EU WB9XYZ EN34",      &
        "CQ WY WB9XYZ EN34",      &
