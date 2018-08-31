@@ -105,6 +105,8 @@ subroutine sync8(dd,nfa,nfb,syncmin,nfqso,ldecode77,maxcand,s,candidate,ncand,sb
     iz=ib-ia+1
     call indexx(red(ia:ib),iz,indx)
     ibase=indx(nint(0.40*iz)) - 1 + ia
+    if(ibase.lt.1) ibase=1
+    if(ibase.gt.nh1) ibase=nh1
     base=red(ibase)
     red=red/base
 
