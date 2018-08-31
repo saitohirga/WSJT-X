@@ -142,6 +142,7 @@ void DisplayText::appendText(QString const& text, QColor bg, QString const& call
     }
   format.setBackground (bg);
   format.clearForeground ();
+//  format.setForeground(QColor("#cc0000"));                  //For flagging LoTW users
   cursor.insertText(text.mid (text_index), format);
 
   // position so viewport scrolled to left
