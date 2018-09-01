@@ -1720,11 +1720,11 @@ void MainWindow::setColorHighlighting()
   ui->decodedTextBrowser->setDecodedTextColors(m_config.color_CQ(),m_config.color_MyCall(),
        m_config.color_DXCC(),m_config.color_DXCCband(),m_config.color_NewCall(),
        m_config.color_NewCallBand(),m_config.color_NewGrid(),m_config.color_NewGridBand(),
-       m_config.color_TxMsg());
+       m_config.color_TxMsg(),m_config.color_LoTW());
   ui->decodedTextBrowser2->setDecodedTextColors(m_config.color_CQ(),m_config.color_MyCall(),
        m_config.color_DXCC(),m_config.color_DXCCband(),m_config.color_NewCall(),
        m_config.color_NewCallBand(),m_config.color_NewGrid(),m_config.color_NewGridBand(),
-       m_config.color_TxMsg());
+       m_config.color_TxMsg(),m_config.color_LoTW());
 }
 
 
@@ -2410,7 +2410,7 @@ void MainWindow::on_actionColors_triggered()
   m_colorHighlighting->colorHighlightlingSetup(m_config.color_CQ(),m_config.color_MyCall(),
        m_config.color_DXCC(),m_config.color_DXCCband(),m_config.color_NewCall(),
        m_config.color_NewCallBand(),m_config.color_NewGrid(),m_config.color_NewGridBand(),
-       m_config.color_TxMsg());
+       m_config.color_TxMsg(),m_config.color_LoTW());
 }
 
 void MainWindow::on_actionMessage_averaging_triggered()

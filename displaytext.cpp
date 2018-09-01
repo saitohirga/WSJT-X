@@ -144,7 +144,7 @@ void DisplayText::appendText(QString const& text, QColor bg,
   format.setBackground (bg);
   format.clearForeground ();
   if(call2.size()>0 and !m_LoTW.contains(call2)) {
-    format.setForeground(QColor("#cc0000"));  //Mark LoTW non-users
+    format.setForeground(m_color_LoTW);  //Mark LoTW non-users
   }
   cursor.insertText(text.mid (text_index), format);
 
@@ -432,7 +432,7 @@ void DisplayText::highlight_callsign (QString const& callsign, QColor const& bg,
 
 void DisplayText::setDecodedTextColors(QColor color_CQ, QColor color_MyCall,
       QColor color_DXCC, QColor color_DXCCband,QColor color_NewCall,QColor color_NewCallBand,
-      QColor color_NewGrid, QColor color_NewGridBand,QColor color_TxMsg)
+      QColor color_NewGrid, QColor color_NewGridBand,QColor color_TxMsg,QColor color_LoTW)
 {
 // Save the color highlighting scheme selected by the user.
   m_color_CQ=color_CQ;
@@ -444,4 +444,5 @@ void DisplayText::setDecodedTextColors(QColor color_CQ, QColor color_MyCall,
   m_color_NewGrid=color_NewGrid;
   m_color_NewGridBand=color_NewGridBand;
   m_color_TxMsg=color_TxMsg;
+  m_color_LoTW=color_LoTW;
 }

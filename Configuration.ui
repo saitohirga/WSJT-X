@@ -2152,40 +2152,32 @@ Right click for insert and delete options.</string>
       <attribute name="title">
        <string>Colors</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_5" rowstretch="1,1,2" columnstretch="1,1,2">
+      <layout class="QGridLayout" name="gridLayout_5" rowstretch="1,0,0" columnstretch="1,0,0">
+       <item row="0" column="1">
+        <spacer name="verticalSpacer_9">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
        <item row="1" column="1">
         <layout class="QGridLayout" name="gridLayout_13">
-         <item row="4" column="1">
-          <widget class="QLabel" name="labDXCCband">
+         <item row="9" column="1">
+          <widget class="QLabel" name="labLoTW">
            <property name="styleSheet">
-            <string notr="true">QLabel{background-color: #ffaaff}
-</string>
+            <string notr="true">QLabel{color: #990000}</string>
            </property>
            <property name="text">
-            <string notr="true">K1ABC</string>
+            <string>K1ABC</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
-          <widget class="QPushButton" name="pbNewDXCCband">
-           <property name="text">
-            <string>New DXCC on Band</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QPushButton" name="pbCQmsg">
-           <property name="minimumSize">
-            <size>
-             <width>140</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>CQ in message</string>
            </property>
           </widget>
          </item>
@@ -2202,22 +2194,37 @@ Right click for insert and delete options.</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QLabel" name="labCQ">
-           <property name="minimumSize">
-            <size>
-             <width>80</width>
-             <height>20</height>
-            </size>
+         <item row="4" column="0">
+          <widget class="QPushButton" name="pbNewDXCCband">
+           <property name="text">
+            <string>New DXCC on Band</string>
            </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLabel" name="labDXCCband">
            <property name="styleSheet">
-            <string notr="true">QLabel{background-color: #66ff66}</string>
+            <string notr="true">QLabel{background-color: #ffaaff}
+</string>
            </property>
            <property name="text">
-            <string>K1ABC</string>
+            <string notr="true">K1ABC</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QPushButton" name="pbCQmsg">
+           <property name="minimumSize">
+            <size>
+             <width>140</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>CQ in message</string>
            </property>
           </widget>
          </item>
@@ -2240,6 +2247,19 @@ Right click for insert and delete options.</string>
            </property>
           </widget>
          </item>
+         <item row="2" column="0">
+          <widget class="QPushButton" name="pbTxMsg">
+           <property name="minimumSize">
+            <size>
+             <width>140</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Transmitted message</string>
+           </property>
+          </widget>
+         </item>
          <item row="1" column="1">
           <widget class="QLabel" name="labMyCall">
            <property name="minimumSize">
@@ -2259,16 +2279,22 @@ Right click for insert and delete options.</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QPushButton" name="pbTxMsg">
+         <item row="0" column="1">
+          <widget class="QLabel" name="labCQ">
            <property name="minimumSize">
             <size>
-             <width>140</width>
-             <height>0</height>
+             <width>80</width>
+             <height>20</height>
             </size>
            </property>
+           <property name="styleSheet">
+            <string notr="true">QLabel{background-color: #66ff66}</string>
+           </property>
            <property name="text">
-            <string>Transmitted message</string>
+            <string>K1ABC</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </item>
@@ -2291,6 +2317,13 @@ Right click for insert and delete options.</string>
            </property>
           </widget>
          </item>
+         <item row="10" column="0">
+          <widget class="QPushButton" name="pbResetDefaults">
+           <property name="text">
+            <string>Reset Defaults</string>
+           </property>
+          </widget>
+         </item>
          <item row="3" column="0">
           <widget class="QPushButton" name="pbNewDXCC">
            <property name="minimumSize">
@@ -2304,17 +2337,23 @@ Right click for insert and delete options.</string>
            </property>
           </widget>
          </item>
-         <item row="9" column="0">
-          <widget class="QPushButton" name="pbResetDefaults">
-           <property name="text">
-            <string>Reset Defaults</string>
-           </property>
-          </widget>
-         </item>
          <item row="5" column="1">
           <widget class="QLabel" name="labNewGrid">
            <property name="styleSheet">
             <string notr="true">QLabel{background-color: #ff8000}</string>
+           </property>
+           <property name="text">
+            <string notr="true">K1ABC</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QLabel" name="labNewGridBand">
+           <property name="styleSheet">
+            <string notr="true">QLabel{background-color: #ffcc99}</string>
            </property>
            <property name="text">
             <string notr="true">K1ABC</string>
@@ -2343,16 +2382,17 @@ Right click for insert and delete options.</string>
            </property>
           </widget>
          </item>
-         <item row="6" column="1">
-          <widget class="QLabel" name="labNewGridBand">
-           <property name="styleSheet">
-            <string notr="true">QLabel{background-color: #ffcc99}</string>
-           </property>
+         <item row="5" column="0">
+          <widget class="QPushButton" name="pbNewGrid">
            <property name="text">
-            <string notr="true">K1ABC</string>
+            <string>New grid</string>
            </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QPushButton" name="pbNewGridBand">
+           <property name="text">
+            <string>New Grid on Band</string>
            </property>
           </widget>
          </item>
@@ -2369,13 +2409,6 @@ Right click for insert and delete options.</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="0">
-          <widget class="QPushButton" name="pbNewGrid">
-           <property name="text">
-            <string>New grid</string>
-           </property>
-          </widget>
-         </item>
          <item row="7" column="0">
           <widget class="QPushButton" name="pbNewCall">
            <property name="minimumSize">
@@ -2389,13 +2422,6 @@ Right click for insert and delete options.</string>
            </property>
           </widget>
          </item>
-         <item row="6" column="0">
-          <widget class="QPushButton" name="pbNewGridBand">
-           <property name="text">
-            <string>New Grid on Band</string>
-           </property>
-          </widget>
-         </item>
          <item row="8" column="0">
           <widget class="QPushButton" name="pbNewCallBand">
            <property name="text">
@@ -2403,10 +2429,17 @@ Right click for insert and delete options.</string>
            </property>
           </widget>
          </item>
+         <item row="9" column="0">
+          <widget class="QPushButton" name="pbLoTW">
+           <property name="text">
+            <string>LoTW</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
-       <item row="0" column="1">
-        <spacer name="verticalSpacer_9">
+       <item row="2" column="1">
+        <spacer name="verticalSpacer_10">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -2431,19 +2464,6 @@ Right click for insert and delete options.</string>
          </property>
         </spacer>
        </item>
-       <item row="2" column="1">
-        <spacer name="verticalSpacer_10">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
        <item row="1" column="2">
         <spacer name="horizontalSpacer_8">
          <property name="orientation">
@@ -2456,6 +2476,13 @@ Right click for insert and delete options.</string>
           </size>
          </property>
         </spacer>
+       </item>
+       <item row="2" column="2">
+        <widget class="QPushButton" name="pushButton">
+         <property name="text">
+          <string>PushButton</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -3074,12 +3101,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="CAT_stop_bits_button_group"/>
-  <buttongroup name="split_mode_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
-  <buttongroup name="CAT_handshake_button_group"/>
+  <buttongroup name="split_mode_button_group"/>
   <buttongroup name="TX_audio_source_button_group"/>
-  <buttongroup name="TX_mode_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="CAT_handshake_button_group"/>
+  <buttongroup name="TX_mode_button_group"/>
  </buttongroups>
 </ui>

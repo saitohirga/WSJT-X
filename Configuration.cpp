@@ -448,6 +448,7 @@ private:
   Q_SLOT void on_pbNewCallBand_clicked();
   Q_SLOT void on_pbNewGrid_clicked();
   Q_SLOT void on_pbNewGridBand_clicked();
+  Q_SLOT void on_pbLoTW_clicked();
   Q_SLOT void on_pbResetDefaults_clicked();
   Q_SLOT void on_cbFox_clicked (bool);
   Q_SLOT void on_cbHound_clicked (bool);
@@ -555,6 +556,9 @@ private:
   QColor next_color_NewGrid_;
   QColor color_NewGridBand_;
   QColor next_color_NewGridBand_;
+  QColor color_LoTW_;
+  QColor next_color_LoTW_;
+
   qint32 id_interval_;
   qint32 ntrials_;
   qint32 aggressive_;
@@ -661,6 +665,7 @@ QColor Configuration::color_NewCall () const {return m_->color_NewCall_;}
 QColor Configuration::color_NewCallBand () const {return m_->color_NewCallBand_;}
 QColor Configuration::color_NewGrid () const {return m_->color_NewGrid_;}
 QColor Configuration::color_NewGridBand () const {return m_->color_NewGridBand_;}
+QColor Configuration::color_LoTW() const {return m_->color_LoTW_;}
 QFont Configuration::text_font () const {return m_->font_;}
 QFont Configuration::decoded_text_font () const {return m_->decoded_text_font_;}
 qint32 Configuration::id_interval () const {return m_->id_interval_;}
@@ -1176,6 +1181,7 @@ void Configuration::impl::initialize_models ()
   ui_->labNewCallBand->setStyleSheet(QString("background: %1").arg(color_NewCallBand_.name()));
   ui_->labNewGrid->setStyleSheet(QString("background: %1").arg(color_NewGrid_.name()));
   ui_->labNewGridBand->setStyleSheet(QString("background: %1").arg(color_NewGridBand_.name()));
+  ui_->labLoTW->setStyleSheet(QString("color: %1").arg(color_LoTW_.name()));
   ui_->CW_id_interval_spin_box->setValue (id_interval_);
   ui_->sbNtrials->setValue (ntrials_);
   ui_->sbTxDelay->setValue (txDelay_);
@@ -1307,6 +1313,7 @@ void Configuration::impl::read_settings ()
   next_color_NewCallBand_ = color_NewCallBand_ = settings_->value("colorNewCallBand","#99ffff").toString();
   next_color_NewGrid_ = color_NewGrid_ = settings_->value("colorNewGrid","#ffaa00").toString();
   next_color_NewGridBand_ = color_NewGridBand_ = settings_->value("colorNewGridBand","#ffcc99").toString();
+  next_color_LoTW_ = color_LoTW_ = settings_->value("colorLoTW","#990000").toString();
   if (next_font_.fromString (settings_->value ("Font", QGuiApplication::font ().toString ()).toString ())
       && next_font_ != font_)
     {
@@ -1502,6 +1509,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue("colorNewCallBand",color_NewCallBand_);
   settings_->setValue("colorNewGrid",color_NewGrid_);
   settings_->setValue("colorNewGridBand",color_NewGridBand_);
+  settings_->setValue("colorLoTW",color_LoTW_);
   settings_->setValue ("Font", font_.toString ());
   settings_->setValue ("DecodedTextFont", decoded_text_font_.toString ());
   settings_->setValue ("IDint", id_interval_);
@@ -1877,6 +1885,7 @@ void Configuration::impl::accept ()
   color_NewCallBand_ = next_color_NewCallBand_;
   color_NewGrid_ = next_color_NewGrid_;
   color_NewGridBand_ = next_color_NewGridBand_;
+  color_LoTW_ = next_color_LoTW_;
 
   rig_params_ = temp_rig_params; // now we can go live with the rig
                                  // related configuration parameters
@@ -2179,6 +2188,14 @@ void Configuration::impl::on_pbNewGridBand_clicked()
     }
 }
 
+void Configuration::impl::on_pbLoTW_clicked()
+{
+  auto new_color = QColorDialog::getColor(next_color_LoTW_, this, "Not in LoTW Color");
+  if (new_color.isValid ()) {
+    next_color_LoTW_ = new_color;
+    ui_->labLoTW->setStyleSheet(QString("color: %1").arg(next_color_LoTW_.name()));
+  }
+}
 void Configuration::impl::on_pbResetDefaults_clicked()
 {
   next_color_CQ_ = color_CQ_ = "#66ff66";
@@ -2190,6 +2207,7 @@ void Configuration::impl::on_pbResetDefaults_clicked()
   next_color_NewCallBand_ = color_NewCallBand_ = "#99ffff";
   next_color_NewGrid_ = color_NewGrid_ = "#ffaa00";
   next_color_NewGridBand_ = color_NewGridBand_ = "#ffcc99";
+  next_color_LoTW_ = color_LoTW_ = "#5500ff";
 
   ui_->labCQ->setStyleSheet(QString("background: %1").arg(next_color_CQ_.name()));
   ui_->labMyCall->setStyleSheet(QString("background: %1").arg(next_color_MyCall_.name()));
@@ -2200,7 +2218,7 @@ void Configuration::impl::on_pbResetDefaults_clicked()
   ui_->labNewCallBand->setStyleSheet(QString("background: %1").arg(next_color_NewCallBand_.name()));
   ui_->labNewGrid->setStyleSheet(QString("background: %1").arg(next_color_NewGrid_.name()));
   ui_->labNewGridBand->setStyleSheet(QString("background: %1").arg(next_color_NewGridBand_.name()));
-
+  ui_->labLoTW->setStyleSheet(QString("color: %1").arg(next_color_LoTW_.name()));
 }
 
 void Configuration::impl::on_decoded_text_font_push_button_clicked ()

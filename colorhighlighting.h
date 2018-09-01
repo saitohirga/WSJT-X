@@ -15,10 +15,10 @@ class ColorHighlighting : public QDialog
 public:
   explicit ColorHighlighting(QSettings *, QWidget *parent = 0);
   ~ColorHighlighting();
-  void colorHighlightlingSetup(QColor color_CQ,QColor color_MyCall,
-       QColor color_DXCC,QColor color_DXCCband,QColor color_NewCall,
-       QColor color_NewCallBand,QColor color_NewGrid,QColor color_NewGridBand,
-       QColor color_TxMsg);
+  void colorHighlightlingSetup(QColor color_CQ, QColor color_MyCall,
+       QColor color_DXCC, QColor color_DXCCband, QColor color_NewCall,
+       QColor color_NewCallBand, QColor color_NewGrid, QColor color_NewGridBand,
+       QColor color_TxMsg, QColor color_LoTW);
 
 private:
   QSettings * settings_;

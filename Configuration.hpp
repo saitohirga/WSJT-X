@@ -177,6 +177,7 @@ public:
   QColor color_NewCallBand () const;
   QColor color_NewGrid () const;
   QColor color_NewGridBand () const;
+  QColor color_LoTW() const;
   bool pwrBandTxMemory () const;
   bool pwrBandTuneMemory () const;
 

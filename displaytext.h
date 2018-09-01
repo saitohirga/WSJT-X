@@ -30,7 +30,8 @@ public:
   void displayFoxToBeCalled(QString t, QColor bg);
   void setDecodedTextColors(QColor color_CQ, QColor color_MyCall, QColor color_DXCC,
                             QColor color_DXCCband, QColor color_NewCall, QColor color_NewCallBand,
-                            QColor color_NewGrid, QColor color_NewGridBand, QColor color_TxMsg);
+                            QColor color_NewGrid, QColor color_NewGridBand, QColor color_TxMsg,
+                            QColor color_LoTW);
 
   Q_SIGNAL void selectCallsign (Qt::KeyboardModifiers);
   Q_SIGNAL void erased ();
@@ -58,6 +59,7 @@ private:
   QColor m_color_NewCallBand;
   QColor m_color_NewGrid;
   QColor m_color_NewGridBand;
+  QColor m_color_LoTW;
   QColor m_color_TxMsg;
 };
 

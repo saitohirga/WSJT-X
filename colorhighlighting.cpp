@@ -36,7 +36,7 @@ void ColorHighlighting::write_settings ()
 void ColorHighlighting::colorHighlightlingSetup(QColor color_CQ,QColor color_MyCall,
      QColor color_DXCC,QColor color_DXCCband,QColor color_NewCall,
      QColor color_NewCallBand,QColor color_NewGrid,QColor color_NewGridBand,
-     QColor color_TxMsg)
+     QColor color_TxMsg,QColor color_LoTW)
 {
   setWindowTitle(QApplication::applicationName() + " - Colors");
   ui->label->setStyleSheet(QString("background: %1").arg(color_CQ.name()));
@@ -48,4 +48,5 @@ void ColorHighlighting::colorHighlightlingSetup(QColor color_CQ,QColor color_MyC
   ui->label_13->setStyleSheet(QString("background: %1").arg(color_NewCallBand.name()));
   ui->label_15->setStyleSheet(QString("background: %1").arg(color_NewGrid.name()));
   ui->label_17->setStyleSheet(QString("background: %1").arg(color_NewGridBand.name()));
+  ui->label_19->setStyleSheet(QString("color: %1").arg(color_LoTW.name()));
 }
