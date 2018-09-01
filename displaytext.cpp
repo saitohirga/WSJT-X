@@ -73,7 +73,8 @@ void DisplayText::insertLineSpacer(QString const& line)
   appendText (line, "#d3d3d3");
 }
 
-void DisplayText::appendText(QString const& text, QColor bg, QString const& call1, QString const& call2)
+void DisplayText::appendText(QString const& text, QColor bg,
+                             QString const& call1, QString const& call2)
 {
   auto cursor = textCursor ();
   cursor.movePosition (QTextCursor::End);
@@ -142,7 +143,9 @@ void DisplayText::appendText(QString const& text, QColor bg, QString const& call
     }
   format.setBackground (bg);
   format.clearForeground ();
-//  format.setForeground(QColor("#cc0000"));                  //For flagging LoTW users
+  if(call2.size()>0 and !m_LoTW.contains(call2)) {
+    format.setForeground(QColor("#cc0000"));  //Mark LoTW non-users
+  }
   cursor.insertText(text.mid (text_index), format);
 
   // position so viewport scrolled to left

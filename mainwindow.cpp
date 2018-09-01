@@ -162,6 +162,7 @@ int   fast_jhpeak {0};
 int   fast_jh2 {0};
 int narg[15];
 QVector<QColor> g_ColorTbl;
+QHash<QString,int> m_LoTW;
 
 namespace
 {
@@ -931,6 +932,32 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
     ui->cbMenus->setChecked(true);
     ui->cbMenus->setChecked(false);
   }
+
+  QFile f("c:/tmp/lotw-user-activity.csv");
+  if(f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    QTextStream s(&f);
+    QString line,call;
+    int nLoTW=0;
+    int i1;
+    QDateTime now=QDateTime::currentDateTime();
+    QDateTime callDateTime;
+    // Read and process the file of Hound callers.
+    while(!s.atEnd()) {
+      line=s.readLine();
+      i1=line.indexOf(",");
+      call=line.left(i1);
+      line=line.mid(i1+1);
+      i1=line.indexOf(",");
+      callDateTime=QDateTime::fromString(line.left(i1),"yyyy-MM-dd");
+      int ndays=callDateTime.daysTo(now);
+      if(ndays < 366) {
+        nLoTW++;
+        m_LoTW[call]=ndays;
+      }
+    }
+    f.close();
+  }
+
   // this must be the last statement of constructor
   if (!m_valid) throw std::runtime_error {"Fatal initialization exception"};
 }

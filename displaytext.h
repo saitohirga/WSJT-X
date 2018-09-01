@@ -47,7 +47,6 @@ private:
   bool m_bPrincipalPrefix;
   QString appendWorkedB4(QString message, QString const& callsign, QString grid, QColor * bg,
            LogBook const& logBook, QString currentBand);
-
   QFont char_font_;
   QAction * erase_action_;
   QHash<QString, QPair<QColor, QColor>> highlighted_calls_;
@@ -61,5 +60,7 @@ private:
   QColor m_color_NewGridBand;
   QColor m_color_TxMsg;
 };
+
+  extern QHash<QString,int> m_LoTW;
 
 #endif // DISPLAYTEXT_H
