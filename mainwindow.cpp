@@ -4298,7 +4298,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     int n=t.size();
     QString t0=t.at(n-2);
     QString t1=t0.right(1);
-    bool bFieldDay_msg = (t1>="A" and t1<="F");
+    bool bFieldDay_msg = (t1>="A" and t1<="F" and t0.size()<=3 and n>=9);
     int m=t0.remove(t1).toInt();
     if(m < 1) bFieldDay_msg=false;
     if(bFieldDay_msg) {
