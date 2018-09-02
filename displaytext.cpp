@@ -192,7 +192,7 @@ QString DisplayText::appendWorkedB4(QString message, QString const& callsign, QS
 
   if (!countryWorkedBefore) {
     // therefore not worked call either
-    appendage += "!";
+//    appendage += "!";
     *bg = m_color_DXCC;
   } else {
     if(!countryB4onBand) {
@@ -206,14 +206,14 @@ QString DisplayText::appendWorkedB4(QString message, QString const& callsign, QS
         } else {
           if (!callWorkedBefore) {
             // but have worked the country
-            appendage += "~";
+//            appendage += "~";
             *bg = m_color_NewCall;
           } else {
             if(!callB4onBand) {
-              appendage += "~";
+//              appendage += "~";
               *bg = m_color_NewCallBand;
             } else {
-              appendage += " ";  // have worked this call before
+//              appendage += " ";  // have worked this call before
               *bg = m_color_CQ;
             }
           }
