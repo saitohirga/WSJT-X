@@ -851,6 +851,14 @@ QString Configuration::FieldDayExchange() const
   return m_->FD_exchange_;
 }
 
+void Configuration::setEU_VHF_Contest()
+{
+  m_->bEU_VHF_Contest_ = true;
+  m_->ui_->rbEU_VHF_Contest->setChecked(m_->bEU_VHF_Contest_);
+  m_->ui_->cbGenerate77->setChecked(true);
+  m_->write_settings();
+}
+
 QString Configuration::RTTYExchange() const
 {
   return m_->RTTY_exchange_;

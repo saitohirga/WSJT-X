@@ -4291,8 +4291,16 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     }
     bool bEU_VHF_w2=(nrpt>=520001 and nrpt<=594000);
     if(bEU_VHF_w2 and m_nContest!=EU_VHF) {
-      // ### Should be in EU VHF Contest mode ??? ###
-      MessageBox::information_message (this, tr ("Should you switch to EU VHF Contest mode?"));
+      // Switch automatically to EU VHF Contest mode
+      m_config.setEU_VHF_Contest();
+      m_nContest=EU_VHF;
+      if(m_transmitting) m_restart=true;
+      ui->decodedTextBrowser2->displayQSY (QString{"Enabled EU VHF Contest messages."});
+
+//      MessageBox::information_message (this, tr ("EU VHF Contest messages enabled."));
+      QString t0=" Tx2.0   EU VHF";
+      ui->labDXped->setVisible(true);
+      ui->labDXped->setText(t0);
     }
     QStringList t=message.string().split(' ', QString::SkipEmptyParts);
     int n=t.size();
@@ -4314,8 +4322,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     n=w34.toInt();
     bool bRTTY = (n>=529 and n<=599);
     if(bRTTY and m_nContest!=RTTY) {
-      // ### Should be in ARRL RTTY Roundup mode ??? ###
-      MessageBox::information_message (this, tr ("Should you switch to ARRL RTTY Roundup mode?"));
+      // ### Should be in RTTY contest mode ??? ###
+      MessageBox::information_message (this, tr ("Should you switch to RTTY contest mode?"));
     }
 
     if(message_words.size () > 3   // enough fields for a normal message

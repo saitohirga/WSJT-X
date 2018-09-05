@@ -98,6 +98,7 @@ public:
   QString my_grid () const;
   QString FieldDayExchange() const;
   QString RTTYExchange() const;
+  void setEU_VHF_Contest();
   QFont text_font () const;
   QFont decoded_text_font () const;
   qint32 id_interval () const;
