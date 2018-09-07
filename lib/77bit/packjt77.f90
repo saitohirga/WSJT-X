@@ -302,6 +302,7 @@ subroutine unpack77(c77,msg)
      read(c77,1030) n28a,n28b,ir,intx,nclass,isec
 1030 format(2b28,b1,b4,b3,b7)
      if(isec.gt.NSEC) isec=NSEC          !### Check range for other params? ###
+     if(isec.lt.1) isec=1                !### Flag these so they aren't printed? ###
      call unpack28(n28a,call_1)
      call unpack28(n28b,call_2)
      ntx=intx+1
