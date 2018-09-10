@@ -13,14 +13,14 @@ program tccsim
   integer*4 mettab(-128:127,0:1)
 
   parameter (NSYM=162)
-  parameter (MAXSYM=220)
+  parameter (MAXSYM=162)
   character*12 arg
   character*22 msg,msg2
-  integer*1 data0(11)
-  integer*1 data1(11)
-  integer*1 dat(162)
+  integer*1 data0(13)
+  integer*1 data1(13)
+  integer*1 dat(206)
   integer*1 softsym(162)
-  integer*1 apmask(162),cw(162)
+  integer*1 apmask(162),cw0(162),cw(162)
   real*4    xx0(0:255)
   real      ss(162)
 
@@ -93,12 +93,8 @@ program tccsim
   limit=20000
 
   data0=0
-!  call wqencode(msg,ntype0,data0)             !Source encoding
-data0(1:7)=1
-  write(*,1002) data0(1:7),data0(1:6),data0(7)/64
-1002 format(/'Source-encoded message, 50 bits:'/'Hex:    ',7z3.2/    &
-          'Binary: ',6b9.8,b3.2)
-
+  call wqencode(msg,ntype0,data0)             !Source encoding
+write(*,*) 'data0 ',data0
 ! Demonstrates how to create the generator matrix from a string that contains the interleaved 
 ! polynomial coefficients
   gen=0
@@ -121,18 +117,21 @@ data0(1:7)=1
     enddo
   enddo
 
+  write(*,*) 'Source encoded message bits: '
+  write(*,'(6(8i1,1x),2i1)') mbits
+
 ! Encode message bits using the generator matrix, generating a 162-bit codeword.
-  cw=0
+  cw0=0
   do i=1,50
-    if(mbits(i).eq.1) cw=mod(cw+gen(i,:),2)
+    if(mbits(i).eq.1) cw0=mod(cw0+gen(i,:),2)
   enddo
 
   write(*,*) 'Codeword from generator matrix: '
-  write(*,'(162i1)') cw
+  write(*,'(162i1)') cw0
  
-  call encode232(data0,nbytes,dat,MAXSYM)     !Convolutional encoding
-  write(*,*) 'Codeword from encode232: '
-  write(*,'(162i1)') dat
+!  call encode232(data0,nbytes,dat)     !Convolutional encoding
+!  write(*,*) 'Codeword from encode232: '
+!  write(*,'(162i2)') dat
 
 !  call inter_mept(dat,1)                      !Interleaving
 
@@ -149,7 +148,7 @@ data0(1:7)=1
     nbad=0
     do i=1,ntrials 
       do j=1,162
-        ss(j)=-(2*dat(j)-1)+sigma*gran()           !Simulate soft symbols
+        ss(j)=-(2*cw0(j)-1)+sigma*gran()           !Simulate soft symbols
       enddo
 
       rms=sqrt(sum(ss**2))
@@ -160,7 +159,8 @@ data0(1:7)=1
 
 ! Call the sequential (Fano algorithm) decoder
       nbits=50+31
-      call fano232(softsym,nbits,mettab,ndelta,limit,data1,ncycles,metric,nerr)
+!      call fano232(softsym,nbits,mettab,ndelta,limit,data1,ncycles,metric,nerr)
+nerr=1
       iflag=0
       nhardmin=0
       dmin=0.0
@@ -169,20 +169,20 @@ data0(1:7)=1
       if(nerr.ne.0 .and. ndepth.ge.0) then 
         apmask=0
         cw=0
-        call osdwspr(-ss/127,apmask,ndepth,cw,nhardmin,dmin)
-
+        call osdwspr(softsym,apmask,ndepth,cw,nhardmin,dmin)
 ! OSD produces a codeword, but code is not systematic
 ! Use Fano with hard decisions to retrieve the message from the codeword
-        cw=-(2*cw-1)*64
-        nbits=50+31
-        call fano232(cw,nbits,mettab,ndelta,limit,data1,ncycles,metric,nerr)
-        iflag=1
+!        cw=-(2*cw-1)*64
+!        nbits=50+31
+!dat=0
+!dat(1:162)=cw
+!        call fano232(dat,nbits,mettab,ndelta,limit,data1,ncycles,metric,nerr)
+!        iflag=1
       endif
-
 !  call wqdecode(data1,msg2,ntype1)         
 !  write(*,*) msg2,iflag,nhardmin,dmin
-      if(nerr.eq.0 .and. any(data1.ne.data0)) nbad=nbad+1
-      if(nerr.eq.0 .and. all(data1.eq.data0)) ngood=ngood+1
+      if(any(cw.ne.cw0)) nbad=nbad+1
+      if(all(cw.eq.cw0)) ngood=ngood+1
     enddo
 
   write(*,'(f4.1,i8,i8)') isnr/2.0,ngood,nbad
@@ -190,5 +190,5 @@ data0(1:7)=1
 
 999 end program tccsim
 
-include '../wsprcode/wspr_old_subs.f90'
+#include '../wsprcode/wspr_old_subs.f90'
   

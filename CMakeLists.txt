@@ -521,7 +521,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/msksoftsymw.f90
   lib/ft8/osd174.f90
   lib/fsk4hf/osd300.f90
-  lib/fsk4hf/osdwspr.f90
+  lib/wsprd/osdwspr.f90
   lib/pctile.f90
   lib/peakdt9.f90
   lib/peakup.f90
@@ -1196,7 +1196,7 @@ add_executable (wsprcode lib/wsprcode/wsprcode.f90 lib/wsprcode/nhash.c
 	       wsjtx.rc)
 target_link_libraries (wsprcode wsjt_fort wsjt_cxx)
 
-add_executable (wsprd ${wsprd_CSRCS} lib/indexx.f90 lib/fsk4hf/osdwspr.f90)
+add_executable (wsprd ${wsprd_CSRCS} lib/indexx.f90 lib/wsprd/osdwspr.f90)
 target_include_directories (wsprd PRIVATE ${FFTW3_INCLUDE_DIRS})
 target_link_libraries (wsprd ${FFTW3_LIBRARIES})
 

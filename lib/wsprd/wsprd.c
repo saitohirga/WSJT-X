@@ -718,7 +718,7 @@ int main(int argc, char *argv[])
     char uttime[5],date[7];
     int c,delta,maxpts=65536,verbose=0,quickmode=0,more_candidates=0, stackdecoder=0;
     int writenoise=0,usehashtable=1,wspr_type=2, ipass, nblocksize,use_osd=0;
-    int nhardmin;
+    int nhardmin,ihash;
     int writec2=0,maxdrift;
     int shift1, lagmin, lagmax, lagstep, ifmin, ifmax, worth_a_try, not_decoded;
     unsigned int nbits=81, stacksize=200000;
@@ -1290,6 +1290,7 @@ int main(int argc, char *argv[])
                         }
 
                         tfano += (float)(clock()-t0)/CLOCKS_PER_SEC;
+
                         if( use_osd && not_decoded ) { 
                             int ndeep=5;
                             for(i=0; i<162; i++) {
@@ -1311,12 +1312,11 @@ int main(int argc, char *argv[])
                             unpack50(message,&n1,&n2);
                             if( !unpackcall(n1,callsign) ) break;
                             callsign[12]=0;
-                            for(i=0;i<32768;i++) {
-                                if(strncmp(hashtab+i*13,callsign,13)==0) {
-                                    not_decoded=0;
-                                    osd_decode =1;
-                                    break;
-                                }
+                            ihash=nhash(callsign,strlen(callsign),(uint32_t)146);
+                            if(strncmp(hashtab+ihash*13,callsign,13)==0) {
+                                not_decoded=0;
+                                osd_decode =1;
+                                break;
                             }
                         }
                     
