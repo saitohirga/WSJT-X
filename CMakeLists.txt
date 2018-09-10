@@ -566,7 +566,6 @@ set (wsjt_FSRCS
   lib/sync9f.f90
   lib/sync9w.f90
   lib/synciscat.f90
-  lib/fsk4hf/tccsim.f90
   lib/timf2.f90
   lib/to_contest_msg.f90
   lib/tweak1.f90
@@ -1197,7 +1196,7 @@ add_executable (wsprcode lib/wsprcode/wsprcode.f90 lib/wsprcode/nhash.c
 	       wsjtx.rc)
 target_link_libraries (wsprcode wsjt_fort wsjt_cxx)
 
-add_executable (wsprd ${wsprd_CSRCS})
+add_executable (wsprd ${wsprd_CSRCS} lib/indexx.f90 lib/fsk4hf/osdwspr.f90)
 target_include_directories (wsprd PRIVATE ${FFTW3_INCLUDE_DIRS})
 target_link_libraries (wsprd ${FFTW3_LIBRARIES})
 
@@ -1235,9 +1234,6 @@ target_link_libraries (ft8code wsjt_fort wsjt_cxx)
 
 add_executable (ft8sim lib/ft8/ft8sim.f90 wsjtx.rc)
 target_link_libraries (ft8sim wsjt_fort wsjt_cxx)
-
-add_executable (tccsim lib/fsk4hf/tccsim.f90 wsjtx.rc)
-target_link_libraries (tccsim wsjt_fort wsjt_cxx)
 
 add_executable (wsprlfsim lib/fsk4hf/wsprlfsim.f90 wsjtx.rc)
 target_link_libraries (wsprlfsim wsjt_fort wsjt_cxx)

@@ -708,7 +708,7 @@ int main(int argc, char *argv[])
     extern char *optarg;
     extern int optind;
     int i,j,k;
-    unsigned char *symbols, *decdata, *channel_symbols;
+    unsigned char *symbols, *decdata, *channel_symbols, *apmask, *cw;
     signed char message[]={-9,13,-35,123,57,-39,64,0,0,0,0};
     char *callsign, *call_loc_pow;
     char *ptr_to_infile,*ptr_to_infile_suffix;
@@ -717,19 +717,22 @@ int main(int argc, char *argv[])
     char timer_fname[200],hash_fname[200];
     char uttime[5],date[7];
     int c,delta,maxpts=65536,verbose=0,quickmode=0,more_candidates=0, stackdecoder=0;
-    int writenoise=0,usehashtable=1,wspr_type=2, ipass, nblocksize;
+    int writenoise=0,usehashtable=1,wspr_type=2, ipass, nblocksize,use_osd=0;
+    int nhardmin;
     int writec2=0,maxdrift;
     int shift1, lagmin, lagmax, lagstep, ifmin, ifmax, worth_a_try, not_decoded;
     unsigned int nbits=81, stacksize=200000;
     unsigned int npoints, metric, cycles, maxnp;
     float df=375.0/256.0/2;
     float freq0[200],snr0[200],drift0[200],sync0[200];
+    float fsymbs[162];
     int shift0[200];
     float dt=1.0/375.0, dt_print;
     double dialfreq_cmdline=0.0, dialfreq, freq_print;
     double dialfreq_error=0.0;
     float fmin=-110, fmax=110;
     float f1, fstep, sync1, drift1;
+    float dmin;
     float psavg[512];
     float *idat, *qdat;
     clock_t t0,t00;
@@ -738,13 +741,16 @@ int main(int argc, char *argv[])
     
     struct result { char date[7]; char time[5]; float sync; float snr;
                     float dt; double freq; char message[23]; float drift;
-                    unsigned int cycles; int jitter; int blocksize; unsigned int metric; };
+                    unsigned int cycles; int jitter; int blocksize; unsigned int metric; 
+                    unsigned char osd_decode };
     struct result decodes[50];
     
     char *hashtab;
     hashtab=calloc(32768*13,sizeof(char));
     int nh;
     symbols=calloc(nbits*2,sizeof(char));
+    apmask=calloc(162,sizeof(char));
+    cw=calloc(162,sizeof(char));
     decdata=calloc(11,sizeof(char));
     channel_symbols=calloc(nbits*2,sizeof(char));
     callsign=calloc(13,sizeof(char));
@@ -765,6 +771,7 @@ int main(int argc, char *argv[])
     int block_demod=1;                       //Default is to use block demod on pass 2
     int subtraction=1;
     int npasses=2;
+    int ndepth=3;                            //Depth for OSD 
 
     float minrms=52.0 * (symfac/64.0);      //Final test for plausible decoding
     delta=60;                                //Fano threshold step
@@ -779,7 +786,7 @@ int main(int argc, char *argv[])
     idat=calloc(maxpts,sizeof(float));
     qdat=calloc(maxpts,sizeof(float));
     
-    while ( (c = getopt(argc, argv, "a:BcC:de:f:HJmqstwvz:")) !=-1 ) {
+    while ( (c = getopt(argc, argv, "a:BcC:de:f:HJmoqstwvz:")) !=-1 ) {
         switch (c) {
             case 'a':
                 data_dir = optarg;
@@ -811,6 +818,9 @@ int main(int argc, char *argv[])
                 break;
             case 'm':  //15-minute wspr mode
                 wspr_type = 15;
+                break;
+            case 'o':  //use ordered-statistics-decoder
+                use_osd = 1;
                 break;
             case 'q':  //no shift jittering
                 quickmode = 1;
@@ -1242,7 +1252,9 @@ int main(int argc, char *argv[])
             int idt, ii, jittered_shift;
             float y,sq,rms;
             not_decoded=1;
-            int ib=1, blocksize;  
+            int osd_decode=0;
+            int ib=1, blocksize;
+            int n1,n2;  
             while( ib <= nblocksize && not_decoded ) {
                 blocksize=ib;
                 idt=0; ii=0;
@@ -1278,6 +1290,35 @@ int main(int argc, char *argv[])
                         }
 
                         tfano += (float)(clock()-t0)/CLOCKS_PER_SEC;
+                        if( use_osd && not_decoded ) { 
+                            int ndeep=5;
+                            for(i=0; i<162; i++) {
+                                fsymbs[i]=symbols[i]-127;
+                            }
+                            osdwspr_(fsymbs,apmask,&ndeep,cw,&nhardmin,&dmin);
+                            for(i=0; i<162; i++) {
+                               symbols[i]=255*cw[i];
+                            }
+                            fano(&metric,&cycles,&maxnp,decdata,symbols,nbits,
+                                               mettab,delta,maxcycles);
+                            for(i=0; i<11; i++) {
+                                if( decdata[i]>127 ) {
+                                    message[i]=decdata[i]-256;
+                                } else {
+                                    message[i]=decdata[i];
+                                }
+                            }
+                            unpack50(message,&n1,&n2);
+                            if( !unpackcall(n1,callsign) ) break;
+                            callsign[12]=0;
+                            for(i=0;i<32768;i++) {
+                                if(strncmp(hashtab+i*13,callsign,13)==0) {
+                                    not_decoded=0;
+                                    osd_decode =1;
+                                    break;
+                                }
+                            }
+                        }
                     
                     }
                     idt++;
@@ -1285,7 +1326,7 @@ int main(int argc, char *argv[])
                 }
                 ib++;
             } 
-           
+
             if( worth_a_try && !not_decoded ) {
                 ndecodes_pass++;
                 
@@ -1347,6 +1388,7 @@ int main(int argc, char *argv[])
                     decodes[uniques-1].jitter=ii;
                     decodes[uniques-1].blocksize=blocksize;
                     decodes[uniques-1].metric=metric;
+                    decodes[uniques-1].osd_decode=osd_decode;
                 }
             }
         }
@@ -1378,11 +1420,11 @@ int main(int argc, char *argv[])
                decodes[i].time, decodes[i].snr,decodes[i].dt, decodes[i].freq,
                (int)decodes[i].drift, decodes[i].message);
         fprintf(fall_wspr,
-                "%6s %4s %3d %3.0f %5.2f %11.7f  %-22s %2d %5u %4d %4d %4d\n",
+                "%6s %4s %3d %3.0f %5.2f %11.7f  %-22s %2d %5u %4d %4d %4d %2u\n",
                 decodes[i].date, decodes[i].time, (int)(10*decodes[i].sync),
                 decodes[i].snr, decodes[i].dt, decodes[i].freq,
                 decodes[i].message, (int)decodes[i].drift, decodes[i].cycles/81,
-                decodes[i].jitter,decodes[i].blocksize,decodes[i].metric);
+                decodes[i].jitter,decodes[i].blocksize,decodes[i].metric,decodes[i].osd_decode);
         fprintf(fwsprd,
                 "%6s %4s %3d %3.0f %4.1f %10.6f  %-22s %2d %5u %4d\n",
                 decodes[i].date, decodes[i].time, (int)(10*decodes[i].sync),

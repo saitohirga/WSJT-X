@@ -1,4 +1,4 @@
-subroutine osdwspr(llr,apmask,ndeep,decoded,cw,nhardmin,dmin)
+subroutine osdwspr(ss,apmask,ndeep,cw,nhardmin,dmin)
 ! 
 use iso_c_binding
 parameter (N=162, K=50, L=32)
@@ -6,6 +6,7 @@ parameter (N=162, K=50, L=32)
 !integer*1 p1(L),p2(L),p3(L),p4(L)
 integer*1 gg(64)
 
+real ss(N)
 integer*1 apmask(N),apmaskr(N)
 integer*1 gen(K,N)
 integer*1 genmrb(K,N),g2(N,K)
@@ -13,9 +14,8 @@ integer*1 temp(K),m0(K),me(K),mi(K),misub(K),e2sub(N-K),e2(N-K),ui(N-K)
 integer*1 r2pat(N-K)
 integer indices(N),nxor(N)
 integer*1 cw(N),ce(N),c0(N),hdec(N)
-integer*1 decoded(K)
-integer indx(N)
-real llr(N),rx(N),absrx(N)
+integer indx(N),ndeep,nhardmin
+real rx(N),absrx(N),dmin
 logical first,reset
 data first/.true./
 !data p1/1,0,0,0,1,1,0,0,0,0,1,0,0,0,1,0,1,1,0,0,1,1,1,0,1/
@@ -46,7 +46,7 @@ if( first ) then ! fill the generator matrix
 endif
 
 ! Re-order received vector to place systematic msg bits at the end.
-rx=llr 
+rx=ss/127.0
 apmaskr=apmask
 
 ! Hard decisions on the received word.
@@ -103,10 +103,10 @@ rx=rx(indices)
 apmaskr=apmaskr(indices)
 
 call mrbencode(m0,c0,g2,N,K)
+
 nxor=ieor(c0,hdec)
 nhardmin=sum(nxor)
 dmin=sum(nxor*absrx)
-
 cw=c0
 ntotal=0
 nrejected=0
@@ -117,33 +117,33 @@ if( ndeep.eq. 1) then
    nord=1
    npre1=0
    npre2=0
-   nt=120
+   nt=60
    ntheta=12
 elseif(ndeep.eq.2) then
    nord=1
    npre1=1
    npre2=0
-   nt=120
+   nt=60
    ntheta=12
 elseif(ndeep.eq.3) then
    nord=1
    npre1=1
    npre2=1
-   nt=120
-   ntheta=12
-   ntau=15
+   nt=60
+   ntheta=22
+   ntau=16
 elseif(ndeep.eq.4) then
    nord=2
    npre1=1
    npre2=0
-   nt=120
-   ntheta=12
-   ntau=15
+   nt=60
+   ntheta=22
+   ntau=16
 elseif(ndeep.eq.5) then
    nord=3
    npre1=1
    npre2=1
-   nt=80
+   nt=60
    ntheta=22
    ntau=16
 endif
@@ -250,10 +250,9 @@ if(npre2.eq.1) then
 endif
 
 998 continue
-! Re-order the codeword to place message bits at the end.
+! Re-order the codeword to as-received order.
 cw(indices)=cw
 hdec(indices)=hdec
-decoded=0
 return
 end subroutine osdwspr
 
