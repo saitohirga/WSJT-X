@@ -162,6 +162,7 @@ option (WSJT_SOFT_KEYING "Apply a ramp to CW keying envelope to reduce transient
 option (WSJT_SKIP_MANPAGES "Skip *nix manpage generation.")
 option (WSJT_GENERATE_DOCS "Generate documentation files." ON)
 option (WSJT_RIG_NONE_CAN_SPLIT "Allow split operation with \"None\" as rig.")
+option (WSJT_BUILD_UTILS "Build simulators and code demonstrators." ON)
 
 CMAKE_DEPENDENT_OPTION (WSJT_HAMLIB_VERBOSE_TRACE "Debugging option that turns on full Hamlib internal diagnostics." OFF WSJT_HAMLIB_TRACE OFF)
 CMAKE_DEPENDENT_OPTION (WSJT_QDEBUG_IN_RELEASE "Leave Qt debugging statements in Release configuration." OFF
@@ -176,7 +177,6 @@ If you just want to see the debug output from the application then the easiest w
 attach a debugger which will then receive the console output inside its console." ON
   "WIN32" OFF)
 
-
 set (PROJECT_ARCHITECTURE "${CMAKE_SYSTEM_PROCESSOR}")
 if (NOT PROJECT_ARCHITECTURE)
   # This is supposed to happen already on Windows
@@ -185,7 +185,6 @@ endif (NOT PROJECT_ARCHITECTURE)
 message (STATUS "******************************************************")
 message (STATUS "Building for for: ${CMAKE_SYSTEM_NAME}-${PROJECT_ARCHITECTURE}")
 message (STATUS "******************************************************")
-
 
 #
 # install locations
@@ -1197,6 +1196,56 @@ endif (WIN32)
 add_library (wsjt_qtmm STATIC ${wsjt_qtmm_CXXSRCS} ${wsjt_qtmm_GENUISRCS})
 target_link_libraries (wsjt_qtmm Qt5::Multimedia)
 
+# Always build these:
+add_executable (wsprd ${wsprd_CSRCS})
+target_include_directories (wsprd PRIVATE ${FFTW3_INCLUDE_DIRS})
+target_link_libraries (wsprd ${FFTW3_LIBRARIES})
+
+add_executable (fmtave lib/fmtave.f90 wsjtx.rc)
+
+add_executable (fcal lib/fcal.f90 wsjtx.rc)
+
+add_executable (fmeasure lib/fmeasure.f90 wsjtx.rc)
+
+add_executable (jt9 ${jt9_FSRCS} ${jt9_CXXSRCS} wsjtx.rc)
+if (${OPENMP_FOUND} OR APPLE)
+  if (APPLE)
+    # On  Mac  we don't  have  working  OpenMP  support in  the  C/C++
+    # compilers so we  have to manually set the  correct linking flags
+    # and libraries to get OpenMP support in jt9.
+    set_target_properties (jt9
+      PROPERTIES
+      Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp
+      LINK_LIBRARIES "gomp;gcc_s.1" # assume GNU libgcc OpenMP
+      )
+    target_compile_options (jt9
+      PRIVATE
+      $<$<COMPILE_LANGUAGE:Fortran>:-fopenmp>   # assumes GNU style Fortran compiler
+      )
+  else (APPLE)
+    if (OpenMP_C_FLAGS)
+      set_target_properties (jt9
+        PROPERTIES
+        COMPILE_FLAGS "${OpenMP_C_FLAGS}"
+        LINK_FLAGS "${OpenMP_C_FLAGS}"
+        )
+    endif ()
+    set_target_properties (jt9
+      PROPERTIES
+      Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp
+      )
+  endif (APPLE)
+  if (WIN32)
+    # set_target_properties (jt9 PROPERTIES
+    #   LINK_FLAGS -Wl,--stack,16777216
+    #   )
+  endif ()
+  target_link_libraries (jt9 wsjt_fort_omp wsjt_cxx Qt5::Core)
+else (${OPENMP_FOUND} OR APPLE)
+  target_link_libraries (jt9 wsjt_fort wsjt_cxx Qt5::Core)
+endif (${OPENMP_FOUND} OR APPLE)
+
+if(WSJT_BUILD_UTILS) 
 add_executable (jt4sim lib/jt4sim.f90 wsjtx.rc)
 target_link_libraries (jt4sim wsjt_fort wsjt_cxx)
 
@@ -1228,10 +1277,6 @@ target_link_libraries (wsprcode wsjt_fort wsjt_cxx)
 add_executable (wsprsimf lib/fsk4hf/wsprsimf.f90 lib/wsprcode/nhash.c
 	       wsjtx.rc)
 target_link_libraries (wsprsimf wsjt_fort wsjt_cxx)
-
-add_executable (wsprd ${wsprd_CSRCS})
-target_include_directories (wsprd PRIVATE ${FFTW3_INCLUDE_DIRS})
-target_link_libraries (wsprd ${FFTW3_LIBRARIES})
 
 add_executable (wsprsim ${wsprsim_CSRCS})
 
@@ -1318,50 +1363,7 @@ target_link_libraries (msk144sim wsjt_fort wsjt_cxx)
 
 add_executable (msk144d2 lib/msk144d2.f90 wsjtx.rc)
 target_link_libraries (msk144d2 wsjt_fort wsjt_cxx)
-
-add_executable (fmtave lib/fmtave.f90 wsjtx.rc)
-
-add_executable (fcal lib/fcal.f90 wsjtx.rc)
-
-add_executable (fmeasure lib/fmeasure.f90 wsjtx.rc)
-
-add_executable (jt9 ${jt9_FSRCS} ${jt9_CXXSRCS} wsjtx.rc)
-if (${OPENMP_FOUND} OR APPLE)
-  if (APPLE)
-    # On  Mac  we don't  have  working  OpenMP  support in  the  C/C++
-    # compilers so we  have to manually set the  correct linking flags
-    # and libraries to get OpenMP support in jt9.
-    set_target_properties (jt9
-      PROPERTIES
-      Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp
-      LINK_LIBRARIES "gomp;gcc_s.1" # assume GNU libgcc OpenMP
-      )
-    target_compile_options (jt9
-      PRIVATE
-      $<$<COMPILE_LANGUAGE:Fortran>:-fopenmp>   # assumes GNU style Fortran compiler
-      )
-  else (APPLE)
-    if (OpenMP_C_FLAGS)
-      set_target_properties (jt9
-        PROPERTIES
-        COMPILE_FLAGS "${OpenMP_C_FLAGS}"
-        LINK_FLAGS "${OpenMP_C_FLAGS}"
-        )
-    endif ()
-    set_target_properties (jt9
-      PROPERTIES
-      Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/fortran_modules_omp
-      )
-  endif (APPLE)
-  if (WIN32)
-    # set_target_properties (jt9 PROPERTIES
-    #   LINK_FLAGS -Wl,--stack,16777216
-    #   )
-  endif ()
-  target_link_libraries (jt9 wsjt_fort_omp wsjt_cxx Qt5::Core)
-else (${OPENMP_FOUND} OR APPLE)
-  target_link_libraries (jt9 wsjt_fort wsjt_cxx Qt5::Core)
-endif (${OPENMP_FOUND} OR APPLE)
+endif(WSJT_BUILD_UTILS)
 
 # build the main application
 add_executable (wsjtx MACOSX_BUNDLE
@@ -1492,11 +1494,18 @@ install (TARGETS udp_daemon message_aggregator
   BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   )
 
-install (TARGETS jt9 ft8code jt65code qra64code qra64sim jt9code jt4code
-  msk144code wsprd wspr_fsk8d fmtave fcal fmeasure
+install (TARGETS jt9 wsprd fmtave fcal fmeasure
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   )
+
+if(WSJT_BUILD_UTILS)
+install (TARGETS ft8code jt65code qra64code qra64sim jt9code jt4code
+  msk144code wspr_fsk8d 
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
+  BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
+  )
+endif(WSJT_BUILD_UTILS)  
 
 install (PROGRAMS
   ${RIGCTL_EXE}
