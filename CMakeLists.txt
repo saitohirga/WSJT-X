@@ -887,7 +887,9 @@ endif (WIN32)
 #
 # sub-directories
 #
-add_subdirectory (samples)
+if (EXISTS ${CMAKE_SOURCE_DIR}/samples AND IS_DIRECTORY ${CMAKE_SOURCE_DIR}/samples)
+  add_subdirectory (samples)
+endif ()
 if (WSJT_GENERATE_DOCS)
   add_subdirectory (doc)
 endif (WSJT_GENERATE_DOCS)
