@@ -909,31 +909,18 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
 
-/*
-  if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
-     m_config.my_callsign()=="G4WJS" or
-     m_config.my_callsign().contains("KH7Z")) {
-    ui->actionWSPR_LF->setEnabled(true);
-  } else {
-    QString errorMsg;
-    MessageBox::critical_message (this,
-       "Code in the WSJT-X development branch is\n"
-       "not currently available for on-the-air use.\n\n"
-       "Please use WSJT-X v1.9.1\n", errorMsg);
-    Q_EMIT finished ();
-  }
-
   if(QCoreApplication::applicationVersion().contains("-devel") or
      QCoreApplication::applicationVersion().contains("-rc")) {
     QTimer::singleShot (0, this, SLOT (not_GA_warning_message ()));
   }
-*/
+
   if(!ui->cbMenus->isChecked()) {
     ui->cbMenus->setChecked(true);
     ui->cbMenus->setChecked(false);
   }
 
-  QFile f("c:/tmp/lotw-user-activity.csv");
+//  QFile f("c:/tmp/lotw-user-activity.csv");
+  QFile f{m_config.data_dir().absoluteFilePath ("lotw-user-activity.csv")};
   if(f.open(QIODevice::ReadOnly | QIODevice::Text)) {
     QTextStream s(&f);
     QString line,call;
@@ -941,7 +928,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
     int i1;
     QDateTime now=QDateTime::currentDateTime();
     QDateTime callDateTime;
-    // Read and process the file of Hound callers.
+    // Read and process the file of LoTW-active stations
     while(!s.atEnd()) {
       line=s.readLine();
       i1=line.indexOf(",");
@@ -964,12 +951,17 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
 void MainWindow::not_GA_warning_message ()
 {
+  QDateTime now=QDateTime::currentDateTime();
+  QDateTime timeout=QDateTime(QDate(2018,10,1));
+
   MessageBox::critical_message (this,
-                                "This version of WSJT-X was built from code in the\n"
-                                "development branch, or is a beta-level Release Candidate.\n\n"
+                                "This version of WSJT-X is a beta-level Release Candidate.\n\n"
                                 "On-the-air use carries an obligation to report problems\n"
                                 "to the WSJT Development group and to upgrade to a GA\n"
-                                "(General Availability) release when that is released.\n\n");
+                                "(General Availability) release when it becomes available.\n\n"
+                                "This version cannot be used after October 1, 2018\n\n");
+
+  if(now.daysTo(timeout) < 0) Q_EMIT finished();
 }
 
 void MainWindow::initialize_fonts ()
@@ -3760,7 +3752,8 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-//    qDebug() << "OneSec:" << m_config.ppfx();
+//    qDebug() << "OneSec:";
+
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
       if(!m_bVHFwarned) vhfWarning();
     } else {
@@ -4296,8 +4289,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       m_nContest=EU_VHF;
       if(m_transmitting) m_restart=true;
       ui->decodedTextBrowser2->displayQSY (QString{"Enabled EU VHF Contest messages."});
-
-//      MessageBox::information_message (this, tr ("EU VHF Contest messages enabled."));
       QString t0=" Tx2.0   EU VHF";
       ui->labDXped->setVisible(true);
       ui->labDXped->setText(t0);
