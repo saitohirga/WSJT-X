@@ -18,25 +18,12 @@ integer indx(N),ndeep,nhardmin
 real rx(N),absrx(N),dmin
 logical first,reset
 data first/.true./
-!data p1/1,0,0,0,1,1,0,0,0,0,1,0,0,0,1,0,1,1,0,0,1,1,1,0,1/
-!data p2/1,0,1,0,1,0,1,1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,1,1,1/
-!data p3/1,1,0,1,0,1,0,1,1,0,1,0,0,1,1,0,1,1,1,1,1,1,0,1,1/
-!data p4/1,1,1,0,1,1,1,1,0,1,1,1,0,0,0,1,1,1,1,1,1,0,0,0,1/
-!data p1/1,0,1,0,1,1,0,0,1,1,0,1,1,1,1,1/
-!data p2/1,0,1,1,0,1,0,0,1,1,1,1,1,0,0,1/
-!data p3/1,1,0,0,1,0,1,1,0,1,1,1,0,0,1,1/
-!data p4/1,1,1,0,1,1,0,1,1,1,1,0,0,1,0,1/
 data gg/1,1,0,1,0,1,0,0,1,0,0,0,1,1,0,0,1,0,1,0,0,1,0,1,1,1,0,1,1,0,0,0, &
         0,1,0,0,0,0,0,0,1,0,0,1,1,1,1,0,0,0,1,0,0,1,0,0,1,0,1,1,1,1,1,1/
 
 save first,gen
 
 if( first ) then ! fill the generator matrix
-!  gg=0
-!  gg(1:L)=p1
-!  gg(L+1:2*L)=p2
-!  gg(2*L+1:3*L)=p3
-!  gg(3*L+1:4*L)=p4
   gen=0
   gen(1,1:2*L)=gg(1:2*L)
   do i=2,K
@@ -45,7 +32,6 @@ if( first ) then ! fill the generator matrix
   first=.false.
 endif
 
-! Re-order received vector to place systematic msg bits at the end.
 rx=ss/127.0
 apmaskr=apmask
 
@@ -111,41 +97,41 @@ cw=c0
 ntotal=0
 nrejected=0
 
-if(ndeep.eq.0) goto 998  ! norder=0
+if(ndeep.le.0) goto 998  ! norder=0
 if(ndeep.gt.5) ndeep=5
 if( ndeep.eq. 1) then
    nord=1
    npre1=0
    npre2=0
-   nt=60
-   ntheta=12
+   nt=66
+   ntheta=16
 elseif(ndeep.eq.2) then
    nord=1
    npre1=1
    npre2=0
-   nt=60
-   ntheta=12
+   nt=66
+   ntheta=16
 elseif(ndeep.eq.3) then
-   nord=1
+   nord=2
    npre1=1
-   npre2=1
-   nt=60
+   npre2=0
+   nt=66
    ntheta=22
    ntau=16
 elseif(ndeep.eq.4) then
    nord=2
    npre1=1
-   npre2=0
-   nt=60
+   npre2=1
+   nt=66
    ntheta=22
    ntau=16
 elseif(ndeep.eq.5) then
    nord=3
    npre1=1
-   npre2=1
-   nt=60
+   npre2=0
+   nt=66
    ntheta=22
-   ntau=16
+   ntau=20
 endif
 
 do iorder=1,nord

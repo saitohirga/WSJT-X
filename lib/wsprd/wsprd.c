@@ -693,6 +693,7 @@ void usage(void)
     printf("       -H do not use (or update) the hash table\n");
     printf("       -J use the stack decoder instead of Fano decoder\n");
     printf("       -m decode wspr-15 .wav file\n");
+    printf("       -o n (0<=n<=5), decoding depth for OSD, default is disabled\n");
     printf("       -q quick mode - doesn't dig deep for weak signals\n");
     printf("       -s single pass mode, no subtraction (same as original wsprd)\n");
     printf("       -v verbose mode (shows dupes)\n");
@@ -771,7 +772,7 @@ int main(int argc, char *argv[])
     int block_demod=1;                       //Default is to use block demod on pass 2
     int subtraction=1;
     int npasses=2;
-    int ndepth=3;                            //Depth for OSD 
+    int ndepth=-1;                            //Depth for OSD 
 
     float minrms=52.0 * (symfac/64.0);      //Final test for plausible decoding
     delta=60;                                //Fano threshold step
@@ -786,7 +787,7 @@ int main(int argc, char *argv[])
     idat=calloc(maxpts,sizeof(float));
     qdat=calloc(maxpts,sizeof(float));
     
-    while ( (c = getopt(argc, argv, "a:BcC:de:f:HJmoqstwvz:")) !=-1 ) {
+    while ( (c = getopt(argc, argv, "a:BcC:de:f:HJmo:qstwvz:")) !=-1 ) {
         switch (c) {
             case 'a':
                 data_dir = optarg;
@@ -820,7 +821,7 @@ int main(int argc, char *argv[])
                 wspr_type = 15;
                 break;
             case 'o':  //use ordered-statistics-decoder
-                use_osd = 1;
+                ndepth=(int) strtol(optarg,NULL,10);
                 break;
             case 'q':  //no shift jittering
                 quickmode = 1;
@@ -1291,12 +1292,11 @@ int main(int argc, char *argv[])
 
                         tfano += (float)(clock()-t0)/CLOCKS_PER_SEC;
 
-                        if( use_osd && not_decoded ) { 
-                            int ndeep=5;
+                        if( (ndepth >= 0) && not_decoded ) { 
                             for(i=0; i<162; i++) {
                                 fsymbs[i]=symbols[i]-127;
                             }
-                            osdwspr_(fsymbs,apmask,&ndeep,cw,&nhardmin,&dmin);
+                            osdwspr_(fsymbs,apmask,&ndepth,cw,&nhardmin,&dmin);
                             for(i=0; i<162; i++) {
                                symbols[i]=255*cw[i];
                             }
