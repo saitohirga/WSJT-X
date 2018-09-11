@@ -1379,7 +1379,7 @@ void MainWindow::dataSink(qint64 frames)
       t2.sprintf(" -f %.6f ",f0m1500);
       if((m_ndepth&7)==1) depth_string=" -qB "; //2 pass w subtract, no Block detection, no shift jittering
       if((m_ndepth&7)==2) depth_string=" -B ";  //2 pass w subtract, no Block detection
-      if((m_ndepth&7)==3) depth_string=" ";     //2 pass w subtract, Block detection
+      if((m_ndepth&7)==3) depth_string=" -C 5000 -o 4";   //2 pass w subtract, Block detection and OSD. 
       QString degrade;
       degrade.sprintf("-d %4.1f ",m_config.degrade());
 

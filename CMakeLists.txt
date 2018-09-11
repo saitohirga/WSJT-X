@@ -521,6 +521,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/msksoftsymw.f90
   lib/ft8/osd174.f90
   lib/fsk4hf/osd300.f90
+  lib/wsprd/osdwspr.f90
   lib/pctile.f90
   lib/peakdt9.f90
   lib/peakup.f90
@@ -586,6 +587,8 @@ set (wsjt_FSRCS
   lib/fsk4hf/wspr_fsk8_wav.f90
   lib/fsk4hf/wspr_fsk8_downsample.f90
   lib/fsk4hf/wsprlfsim.f90
+  lib/fsk4hf/wsprsimf.f90
+  lib/fsk4hf/wspr_wav.f90
   lib/wspr_downsample.f90
   lib/zplot9.f90
   )
@@ -1195,7 +1198,7 @@ add_executable (wsprcode lib/wsprcode/wsprcode.f90 lib/wsprcode/nhash.c
 	       wsjtx.rc)
 target_link_libraries (wsprcode wsjt_fort wsjt_cxx)
 
-add_executable (wsprd ${wsprd_CSRCS})
+add_executable (wsprd ${wsprd_CSRCS} lib/indexx.f90 lib/wsprd/osdwspr.f90)
 target_include_directories (wsprd PRIVATE ${FFTW3_INCLUDE_DIRS})
 target_link_libraries (wsprd ${FFTW3_LIBRARIES})
 
@@ -1236,6 +1239,9 @@ target_link_libraries (ft8sim wsjt_fort wsjt_cxx)
 
 add_executable (wsprlfsim lib/fsk4hf/wsprlfsim.f90 wsjtx.rc)
 target_link_libraries (wsprlfsim wsjt_fort wsjt_cxx)
+
+add_executable (wsprsimf lib/fsk4hf/wsprsimf.f90 wsjtx.rc)
+target_link_libraries (wsprsimf wsjt_fort wsjt_cxx)
 
 add_executable (wspr_fsk8d lib/fsk4hf/wspr_fsk8d.f90 wsjtx.rc)
 target_link_libraries (wspr_fsk8d wsjt_fort wsjt_cxx)
