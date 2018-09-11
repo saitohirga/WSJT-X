@@ -167,8 +167,8 @@ subroutine pack77(msg0,i3,n3,c77)
 6 if(ntel(1).ge.0 .and. ntel(2).ge.0 .and. ntel(3).ge.0) then
      i3=0
      n3=5
-     write(c77,1006) ntel,n3
-1006 format(b23.23,2b24.24,b3.3)
+     write(c77,1006) ntel,n3,i3
+1006 format(b23.23,2b24.24,2b3.3)
      go to 900
   endif
 
@@ -232,7 +232,6 @@ subroutine unpack77(c77,msg)
        "NB ","NS ","QC ","ON ","MB ","SK ","AB ","BC ","NWT","NF ",  &
        "LB ","NU ","VT ","PEI","DC "/
 
-  
 ! Check for bad data
   do i=1,77
      if(c77(i:i).ne.'0' .and. c77(i:i).ne.'1') then
