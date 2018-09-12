@@ -375,18 +375,12 @@ set (wsjt_FSRCS
   lib/bpdecode40.f90
   lib/bpdecode144.f90
   lib/bpdecode128_90.f90
-  lib/fsk4hf/bpdecode120.f90
-  lib/fsk4hf/bpdecode168.f90
   lib/ft8/bpdecode174.f90
   lib/ft8/bpdecode174_91.f90
-  lib/fsk4hf/bpdecode300.f90
-  lib/fsk4hf/bpdecode204.f90
   lib/baddata.f90
   lib/calibrate.f90
   lib/ccf2.f90
   lib/ccf65.f90
-  lib/fsk4hf/chkcrc10.f90
-  lib/fsk4hf/chkcrc12.f90
   lib/ft8/chkcrc12a.f90
   lib/ft8/chkcrc13a.f90
   lib/ft8/chkcrc14a.f90
@@ -396,8 +390,6 @@ set (wsjt_FSRCS
   lib/chkss2.f90
   lib/ft8/compress.f90
   lib/coord.f90
-  lib/fsk4hf/cpolyfit.f90
-  lib/fsk4hf/cpolyfitw.f90
   lib/db.f90
   lib/decode4.f90
   lib/decode65a.f90
@@ -415,19 +407,14 @@ set (wsjt_FSRCS
   lib/encode_msk40.f90
   lib/encode_msk144.f90
   lib/encode_128_90.f90
-  lib/fsk4hf/encode120.f90
-  lib/fsk4hf/encode168.f90
   lib/ft8/encode174.f90
   lib/ft8/encode174_91.f90
-  lib/fsk4hf/encode300.f90
-  lib/fsk4hf/encode204.f90
   lib/entail.f90
   lib/ephem.f90
   lib/extract.f90
   lib/extract4.f90
   lib/extractmessage144.f90
   lib/extractmessage77.f90
-  lib/fsk4hf/extractmessage168.f90
   lib/ft8/extractmessage174.f90
   lib/ft8/extractmessage174_91.f90
   lib/fano232.f90
@@ -457,7 +444,6 @@ set (wsjt_FSRCS
   lib/ft8/foxgen_wrap.f90
   lib/fqso_first.f90
   lib/freqcal.f90
-  lib/fsk4hf/fsk4hf.f90
   lib/ft8/ft8apset.f90
   lib/ft8/ft8apset_174_91.f90
   lib/ft8/ft8b_1.f90
@@ -470,20 +456,10 @@ set (wsjt_FSRCS
   lib/gen65.f90
   lib/gen9.f90
   lib/geniscat.f90
-  lib/fsk4hf/genfsk4hf.f90
   lib/ft8/genft8.f90
   lib/ft8/genft8_174_91.f90
   lib/genmsk_128_90.f90
   lib/genmsk40.f90
-  lib/fsk4hf/genmskhf.f90
-  lib/fsk4hf/genwsprlf.f90
-  lib/fsk4hf/genwspr_fsk8.f90
-  lib/fsk4hf/genwsprcpm.f90
-  lib/fsk4hf/genwspr5.f90
-  lib/fsk4hf/getfc1.f90
-  lib/fsk4hf/getfc2.f90
-  lib/fsk4hf/getfc1w.f90
-  lib/fsk4hf/getfc2w.f90
   lib/genqra64.f90
   lib/ft8/genft8refsig.f90
   lib/genwspr.f90
@@ -508,15 +484,6 @@ set (wsjt_FSRCS
   lib/jplsubs.f
   lib/jt9fano.f90
   lib/jtmsg.f90
-  lib/ldpcsim144.f90
-  lib/ldpcsim128_90.f90
-  lib/fsk4hf/ldpcsim120.f90
-  lib/fsk4hf/ldpcsim168.f90
-  lib/fsk4hf/ldpcsim174.f90
-  lib/fsk4hf/ldpcsim174_91.f90
-  lib/fsk4hf/ldpcsim300.f90
-  lib/fsk4hf/ldpcsim204.f90
-  lib/ldpcsim40.f90
   lib/libration.f90
   lib/lorentzian.f90
   lib/lpf1.f90
@@ -538,22 +505,16 @@ set (wsjt_FSRCS
   lib/mskrtd.f90
   lib/msk144signalquality.f90
   lib/msk144sim.f90
-  lib/fsk4hf/mskhfsim.f90
   lib/mskrtd.f90
-  lib/fsk4hf/msksoftsym.f90
-  lib/fsk4hf/msksoftsymw.f90
   lib/77bit/my_hash.f90
   lib/ft8/osd174.f90
   lib/ft8/osd174_91.f90
-  lib/fsk4hf/osd300.f90
-  lib/fsk4hf/osd204.f90
   lib/77bit/parse77.f90
   lib/pctile.f90
   lib/peakdt9.f90
   lib/peakup.f90
   lib/plotsave.f90
   lib/polyfit.f90
-  lib/fsk4hf/polyfit4.f90
   lib/prog_args.f90
   lib/ps4.f90
   lib/qra64a.f90
@@ -572,9 +533,7 @@ set (wsjt_FSRCS
   lib/softsym9f.f90
   lib/softsym9w.f90
   lib/shell.f90
-  lib/fsk4hf/spec4.f90
   lib/spec64.f90
-  lib/fsk4hf/spec8.f90
   lib/spec9f.f90
   lib/stdmsg.f90
   lib/subtract65.f90
@@ -607,15 +566,6 @@ set (wsjt_FSRCS
   lib/xcor4.f90
   lib/wqdecode.f90
   lib/wqencode.f90
-  lib/fsk4hf/wspr_fsk8d.f90
-  lib/fsk4hf/wspr_fsk8_sim.f90
-  lib/fsk4hf/wspr_fsk8_wav.f90
-  lib/fsk4hf/wspr_fsk8_downsample.f90
-  lib/fsk4hf/wspr_wav.f90
-  lib/fsk4hf/wsprlfsim.f90
-  lib/fsk4hf/wsprcpm_wav.f90
-  lib/fsk4hf/wspr5_wav.f90
-  lib/fsk4hf/wspr5_downsample.f90
   lib/wspr_downsample.f90
   lib/zplot9.f90
   )
@@ -1274,7 +1224,7 @@ add_executable (wsprcode lib/wsprcode/wsprcode.f90 lib/wsprcode/nhash.c
 	       wsjtx.rc)
 target_link_libraries (wsprcode wsjt_fort wsjt_cxx)
 
-add_executable (wsprsimf lib/fsk4hf/wsprsimf.f90 lib/wsprcode/nhash.c
+add_executable (wsprsimf lib/wsprd/wsprsimf.f90 lib/wsprcode/nhash.c
 	       wsjtx.rc)
 target_link_libraries (wsprsimf wsjt_fort wsjt_cxx)
 
@@ -1289,36 +1239,6 @@ target_link_libraries (msk144code wsjt_fort wsjt_cxx)
 add_executable (jt65 lib/jt65.f90 lib/jt65_test.f90 wsjtx.rc)
 target_link_libraries (jt65 wsjt_fort wsjt_cxx)
 
-add_executable (ldpcsim40 lib/ldpcsim40.f90 wsjtx.rc)
-target_link_libraries (ldpcsim40 wsjt_fort wsjt_cxx)
-
-add_executable (ldpcsim120 lib/fsk4hf/ldpcsim120.f90 wsjtx.rc)
-target_link_libraries (ldpcsim120 wsjt_fort wsjt_cxx)
-
-add_executable (ldpcsim174 lib/fsk4hf/ldpcsim174.f90 wsjtx.rc)
-target_link_libraries (ldpcsim174 wsjt_fort wsjt_cxx)
-
-add_executable (ldpcsim174_91 lib/fsk4hf/ldpcsim174_91.f90 wsjtx.rc)
-target_link_libraries (ldpcsim174_91 wsjt_fort wsjt_cxx)
-
-add_executable (ldpcsim144 lib/ldpcsim144.f90 wsjtx.rc)
-target_link_libraries (ldpcsim144 wsjt_fort wsjt_cxx)
-
-add_executable (ldpcsim128_90 lib/ldpcsim128_90.f90 wsjtx.rc)
-target_link_libraries (ldpcsim128_90 wsjt_fort wsjt_cxx)
-
-add_executable (ldpcsim168 lib/fsk4hf/ldpcsim168.f90 wsjtx.rc)
-target_link_libraries (ldpcsim168 wsjt_fort wsjt_cxx)
-
-add_executable (ldpcsim300 lib/fsk4hf/ldpcsim300.f90 wsjtx.rc)
-target_link_libraries (ldpcsim300 wsjt_fort wsjt_cxx)
-
-add_executable (ldpcsim204 lib/fsk4hf/ldpcsim204.f90 wsjtx.rc)
-target_link_libraries (ldpcsim204 wsjt_fort wsjt_cxx)
-
-add_executable (fsk4hf lib/fsk4hf/fsk4hf.f90 wsjtx.rc)
-target_link_libraries (fsk4hf wsjt_fort wsjt_cxx)
-
 add_executable (ft8code lib/ft8/ft8code.f90 wsjtx.rc)
 target_link_libraries (ft8code wsjt_fort wsjt_cxx)
 
@@ -1327,33 +1247,6 @@ target_link_libraries (ft8sim wsjt_fort wsjt_cxx)
 
 add_executable (ft8sim2 lib/ft8/ft8sim2.f90 wsjtx.rc)
 target_link_libraries (ft8sim2 wsjt_fort wsjt_cxx)
-
-add_executable (wsprlfsim lib/fsk4hf/wsprlfsim.f90 wsjtx.rc)
-target_link_libraries (wsprlfsim wsjt_fort wsjt_cxx)
-
-add_executable (wspr_fsk8d lib/fsk4hf/wspr_fsk8d.f90 wsjtx.rc)
-target_link_libraries (wspr_fsk8d wsjt_fort wsjt_cxx)
-
-add_executable (wspr_fsk8_sim lib/fsk4hf/wspr_fsk8_sim.f90 wsjtx.rc)
-target_link_libraries (wspr_fsk8_sim wsjt_fort wsjt_cxx)
-
-add_executable (wsprcpmsim lib/fsk4hf/wsprcpmsim.f90 wsjtx.rc)
-target_link_libraries (wsprcpmsim wsjt_fort wsjt_cxx)
-
-add_executable (wsprcpmd lib/fsk4hf/wsprcpmd.f90 wsjtx.rc)
-target_link_libraries (wsprcpmd wsjt_fort wsjt_cxx)
-
-add_executable (wspr5d lib/fsk4hf/wspr5d.f90 wsjtx.rc)
-target_link_libraries (wspr5d wsjt_fort wsjt_cxx)
-
-add_executable (wspr5d_exp lib/fsk4hf/wspr5d_exp.f90 wsjtx.rc)
-target_link_libraries (wspr5d_exp wsjt_fort wsjt_cxx)
-
-add_executable (wspr5sim lib/fsk4hf/wspr5sim.f90 wsjtx.rc)
-target_link_libraries (wspr5sim wsjt_fort wsjt_cxx)
-
-add_executable (mskhfsim lib/fsk4hf/mskhfsim.f90 wsjtx.rc)
-target_link_libraries (mskhfsim wsjt_fort wsjt_cxx)
 
 add_executable (msk144sd lib/msk144sd.f90 wsjtx.rc)
 target_link_libraries (msk144sd wsjt_fort wsjt_cxx)
@@ -1501,7 +1394,7 @@ install (TARGETS jt9 wsprd fmtave fcal fmeasure
 
 if(WSJT_BUILD_UTILS)
 install (TARGETS ft8code jt65code qra64code qra64sim jt9code jt4code
-  msk144code wspr_fsk8d 
+  msk144code 
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   )

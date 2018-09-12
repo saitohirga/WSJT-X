@@ -99,7 +99,7 @@ extern "C" {
 
   void genwspr_(char* msg, char* msgsent, int itone[], fortran_charlen_t, fortran_charlen_t);
 
-  void genwspr_fsk8_(char* msg, char* msgsent, int itone[], fortran_charlen_t, fortran_charlen_t);
+//  void genwspr_fsk8_(char* msg, char* msgsent, int itone[], fortran_charlen_t, fortran_charlen_t);
 
   void geniscat_(char* msg, char* msgsent, int itone[], fortran_charlen_t, fortran_charlen_t);
 
@@ -1423,9 +1423,9 @@ void MainWindow::dataSink(qint64 frames)
           QDir::toNativeSeparators(m_config.writeable_data_dir ().absolutePath()) + "\" \"" + m_path + "\"";
       } else {
         if(m_mode=="WSPR-LF") {
-          cmnd='"' + m_appDir + '"' + "/wspr_fsk8d " + degrade + t2 +" -a \"" +
-            QDir::toNativeSeparators(m_config.writeable_data_dir ().absolutePath()) + "\" " +
-              '"' + m_fnameWE + ".wav\"";
+//          cmnd='"' + m_appDir + '"' + "/wspr_fsk8d " + degrade + t2 +" -a \"" +
+//            QDir::toNativeSeparators(m_config.writeable_data_dir ().absolutePath()) + "\" " +
+//              '"' + m_fnameWE + ".wav\"";
         } else {
           cmnd='"' + m_appDir + '"' + "/wsprd " + depth_string + " -a \"" +
             QDir::toNativeSeparators(m_config.writeable_data_dir ().absolutePath()) + "\" " +
@@ -1436,7 +1436,7 @@ void MainWindow::dataSink(qint64 frames)
       int i1=cmnd.indexOf("/wsprd ");
       cmnd=t3.mid(0,i1+7) + t3.mid(i1+7);
 
-      if(m_mode=="WSPR-LF") cmnd=cmnd.replace("/wsprd ","/wspr_fsk8d "+degrade+t2);
+//      if(m_mode=="WSPR-LF") cmnd=cmnd.replace("/wsprd ","/wspr_fsk8d "+degrade+t2);
       if (ui) ui->DecodeButton->setChecked (true);
       m_cmndP1=QDir::toNativeSeparators(cmnd);
       p1Timer.start(1000);
@@ -3514,8 +3514,8 @@ void MainWindow::guiUpdate()
                                     &m_currentMessageType, 22, 22);
         if(m_modeTx=="WSPR") genwspr_(message, msgsent, const_cast<int *> (itone),
                                     22, 22);
-        if(m_modeTx=="WSPR-LF") genwspr_fsk8_(message, msgsent, const_cast<int *> (itone),
-                                    22, 22);
+//        if(m_modeTx=="WSPR-LF") genwspr_fsk8_(message, msgsent, const_cast<int *> (itone),
+//                                    22, 22);
         if(m_modeTx=="MSK144" or m_modeTx=="FT8") {
           char MyCall[6];
           char MyGrid[6];
