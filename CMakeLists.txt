@@ -512,8 +512,8 @@ set (wsjt_FSRCS
   lib/ldpcsim128_90.f90
   lib/fsk4hf/ldpcsim120.f90
   lib/fsk4hf/ldpcsim168.f90
-  lib/ft8/ldpcsim174.f90
-  lib/ft8/ldpcsim174_91.f90
+  lib/fsk4hf/ldpcsim174.f90
+  lib/fsk4hf/ldpcsim174_91.f90
   lib/fsk4hf/ldpcsim300.f90
   lib/fsk4hf/ldpcsim204.f90
   lib/ldpcsim40.f90
@@ -1295,10 +1295,10 @@ target_link_libraries (ldpcsim40 wsjt_fort wsjt_cxx)
 add_executable (ldpcsim120 lib/fsk4hf/ldpcsim120.f90 wsjtx.rc)
 target_link_libraries (ldpcsim120 wsjt_fort wsjt_cxx)
 
-add_executable (ldpcsim174 lib/ft8/ldpcsim174.f90 wsjtx.rc)
+add_executable (ldpcsim174 lib/fsk4hf/ldpcsim174.f90 wsjtx.rc)
 target_link_libraries (ldpcsim174 wsjt_fort wsjt_cxx)
 
-add_executable (ldpcsim174_91 lib/ft8/ldpcsim174_91.f90 wsjtx.rc)
+add_executable (ldpcsim174_91 lib/fsk4hf/ldpcsim174_91.f90 wsjtx.rc)
 target_link_libraries (ldpcsim174_91 wsjt_fort wsjt_cxx)
 
 add_executable (ldpcsim144 lib/ldpcsim144.f90 wsjtx.rc)
