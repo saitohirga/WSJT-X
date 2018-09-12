@@ -14,6 +14,7 @@ integer*1 msgbits(77)
 integer*1 message77(77)
 integer*1 apmask(N), cw(N)
 integer nerrtot(0:N),nerrdec(0:N)
+logical unpk77_success
 real*8, allocatable ::  rxdata(:)
 real, allocatable :: llr(:)
 
@@ -51,7 +52,7 @@ allocate ( rxdata(N), llr(N) )
   i3=0
   n3=1
   call pack77(msg,i3,n3,c77) !Pack into 12 6-bit bytes
-  call unpack77(c77,msgsent) !Unpack to get msgsent
+  call unpack77(c77,msgsent,unpk77_success) !Unpack to get msgsent
   write(*,*) "message sent ",msgsent
 
   read(c77,'(77i1)') msgbits(1:77)

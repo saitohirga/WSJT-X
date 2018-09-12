@@ -36,7 +36,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   complex ctwk(32)
   complex csymb(32)
   complex cs(0:7,NN)
-  logical first,newdat,lsubtract,lapon,lapcqonly,nagain
+  logical first,newdat,lsubtract,lapon,lapcqonly,nagain,unpk77_success
   data icos7/3,1,4,0,6,5,2/  ! Flipped w.r.t. original FT8 sync array
   data   mcq/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0/
   data  mrrr/0,1,1,1,1,1,1,0,1,0,0,1,0,0,1,0,0,0,1/
@@ -321,8 +321,8 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
      if(i3.gt.4 .or. (i3.eq.0.and.n3.gt.5)) then
         cycle
      endif
-     call unpack77(c77,msg37)
-     if(index(msg37,'QU1RK').gt.0) then
+     call unpack77(c77,msg37,unpk77_success)
+     if(.not.unpk77_success) then
         cycle
      endif
      nbadcrc=0  ! If we get this far: valid codeword, valid (i3,n3), nonquirky message.
