@@ -1224,10 +1224,6 @@ add_executable (wsprcode lib/wsprcode/wsprcode.f90 lib/wsprcode/nhash.c
 	       wsjtx.rc)
 target_link_libraries (wsprcode wsjt_fort wsjt_cxx)
 
-add_executable (wsprsimf lib/wsprd/wsprsimf.f90 lib/wsprcode/nhash.c
-	       wsjtx.rc)
-target_link_libraries (wsprsimf wsjt_fort wsjt_cxx)
-
 add_executable (wsprsim ${wsprsim_CSRCS})
 
 add_executable (jt4code lib/jt4code.f90 wsjtx.rc)
