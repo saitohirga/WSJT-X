@@ -2823,6 +2823,12 @@ Right click for insert and delete options.</string>
               </item>
               <item row="0" column="1">
                <widget class="QLineEdit" name="RTTY_Exchange">
+                <property name="minimumSize">
+                 <size>
+                  <width>70</width>
+                  <height>0</height>
+                 </size>
+                </property>
                 <property name="text">
                  <string>NJ</string>
                 </property>
@@ -2871,6 +2877,12 @@ Right click for insert and delete options.</string>
               </item>
               <item row="0" column="1">
                <widget class="QLineEdit" name="FieldDay_Exchange">
+                <property name="minimumSize">
+                 <size>
+                  <width>70</width>
+                  <height>0</height>
+                 </size>
+                </property>
                 <property name="text">
                  <string>6A SNJ</string>
                 </property>
@@ -3101,12 +3113,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="CAT_data_bits_button_group"/>
   <buttongroup name="split_mode_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
-  <buttongroup name="PTT_method_button_group"/>
   <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="TX_mode_button_group"/>
+  <buttongroup name="PTT_method_button_group"/>
  </buttongroups>
 </ui>
