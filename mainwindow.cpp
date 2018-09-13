@@ -4752,6 +4752,11 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       t=t0 + "R" + rpt;
       msgtype(t, ui->tx3);
     }
+    if(m_mode=="MSK144" and m_bShMsgs) {
+      t=t0 + "R" + rpt;
+      msgtype(t, ui->tx3);
+      m_send_RR73=false;
+    }
 
     t=t0 + (m_send_RR73 ? "RR73" : "RRR");
     if(m_mode=="MSK144" or m_mode=="FT8") {
