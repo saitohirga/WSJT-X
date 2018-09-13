@@ -1150,7 +1150,7 @@ add_library (wsjt_qtmm STATIC ${wsjt_qtmm_CXXSRCS} ${wsjt_qtmm_GENUISRCS})
 target_link_libraries (wsjt_qtmm Qt5::Multimedia)
 
 # Always build these:
-add_executable (wsprd ${wsprd_CSRCS})
+add_executable (wsprd ${wsprd_CSRCS} lib/indexx.f90 lib/wsprd/osdwspr.f90)
 target_include_directories (wsprd PRIVATE ${FFTW3_INCLUDE_DIRS})
 target_link_libraries (wsprd ${FFTW3_LIBRARIES})
 
@@ -1226,10 +1226,6 @@ target_link_libraries (jt9code wsjt_fort wsjt_cxx)
 add_executable (wsprcode lib/wsprcode/wsprcode.f90 lib/wsprcode/nhash.c
 	       wsjtx.rc)
 target_link_libraries (wsprcode wsjt_fort wsjt_cxx)
-
-add_executable (wsprd ${wsprd_CSRCS} lib/indexx.f90 lib/wsprd/osdwspr.f90)
-target_include_directories (wsprd PRIVATE ${FFTW3_INCLUDE_DIRS})
-target_link_libraries (wsprd ${FFTW3_LIBRARIES})
 
 add_executable (wsprsim ${wsprsim_CSRCS})
 
