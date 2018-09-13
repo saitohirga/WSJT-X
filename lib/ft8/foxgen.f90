@@ -18,7 +18,7 @@ subroutine foxgen()
   parameter (NN=79,ND=58,KK=87,NSPS=4*1920)
   parameter (NWAVE=NN*NSPS,NFFT=614400,NH=NFFT/2)
   character*40 cmsg
-  character*22 msg,msgsent
+  character*37 msg,msgsent
   character*87 cbits
   character*88 cb88
   integer itone(NN)
