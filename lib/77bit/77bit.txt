@@ -53,9 +53,9 @@ i3.n3
 -----------------------------------------------------------------------------
 0.0 Free text, up to 13 characters.
 
-0.1 DXpedition mode, as developed for use by KH1/KH7Z.
+0.1 DXpedition mode, as developed for KH1/KH7Z.
 
-0.2 Report, QSO serial number up to 4095, 6-character grid, and Roger
+0.2 Report, QSO serial number from 0001 to 4095, 6-character grid, and Roger
     for EU VHF contests.
 
 0.3 ARRL Field Day exchange (1-16 transmitters).
@@ -71,10 +71,10 @@ i3.n3
 2.  Same as Type 1, but uses /P instead of /R.  For European VHF contests. 
 
 3.  Standard message for ARRL RTTY Roundup.  Optional "TU;" at
-    beginning to finish a previous QSO.  Then two standard callsigns,
+    beginning to finish a previous QSO; then two standard callsigns,
     optional "R", a 3-bit report (529 to 599), and 13 bits to indicate
-    US state, Canadian province/territory, or DX serial number up
-    to 7999.
+    US state, Canadian province/territory, or DX serial number from
+    0001 to 7999.
 
 4.  One hashed call; one standard, compound, or nonstandard call with
     up to 11 characters; and an optional RRR, RR73, or 73.
