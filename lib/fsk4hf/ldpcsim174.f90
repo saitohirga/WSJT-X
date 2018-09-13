@@ -67,8 +67,8 @@ allocate ( rxdata(N), llr(N) )
 
   msg="K1JT K9AN EN50"
 !  msg="G4WJS K9AN EN50"
-  call packmsg(msg,i4Msg6BitWords,itype,.false.) !Pack into 12 6-bit bytes
-  call unpackmsg(i4Msg6BitWords,msgsent,.false.,grid) !Unpack to get msgsent
+  call packmsg(msg,i4Msg6BitWords,itype) !Pack into 12 6-bit bytes
+  call unpackmsg(i4Msg6BitWords,msgsent) !Unpack to get msgsent
   write(*,*) "message sent ",msgsent
 
   i4=0
@@ -129,11 +129,11 @@ allocate ( rxdata(N), llr(N) )
   write(*,*) 'codeword' 
   write(*,'(22(8i1,1x))') codeword
 
-write(*,*) "Es/N0   SNR2500   ngood  nundetected nbadcrc   sigma"
+write(*,*) "Eb/N0   SNR2500   ngood  nundetected nbadcrc   sigma"
 do idb = 20,-10,-1 
 !do idb = -3,-3,-1 
   db=idb/2.0-1.0
-  sigma=1/sqrt( 2*(10**(db/10.0)) )
+  sigma=1/sqrt( 2*rate*(10**(db/10.0)) )
   ngood=0
   nue=0
   nbadcrc=0
@@ -163,7 +163,6 @@ do idb = 20,-10,-1
     if(nerr.ge.1) nerrtot(nerr)=nerrtot(nerr)+1
     nberr=nberr+nerr
 
-! Correct signal normalization is important for this decoder.
     rxav=sum(rxdata)/N
     rx2av=sum(rxdata*rxdata)/N
     rxsig=sqrt(rx2av-rxav*rxav)

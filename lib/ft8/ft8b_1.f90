@@ -1,17 +1,16 @@
-subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
-     napwid,lsubtract,nagain,iaptype,mycall12,mygrid6,hiscall12,bcontest,    &
+subroutine ft8b_1(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
+     napwid,lsubtract,nagain,iaptype,mycall12,hiscall12,                       &
      sync0,f1,xdt,xbase,apsym,nharderrors,dmin,nbadcrc,ipass,iera,msg37,xsnr)  
 
   use crc
   use timer_module, only: timer
   include 'ft8_params.f90'
   parameter(NP2=2812)
-  character*37 msg37
+  character*37 msg37,msgsent37
   character message*22,msgsent*22
   character*12 mycall12,hiscall12
-  character*6 mycall6,mygrid6,hiscall6,c1,c2
+  character*6 mycall6,hiscall6,c1,c2
   character*87 cbits
-  logical bcontest
   real a(5)
   real s1(0:7,ND),s2(0:7,NN),s1sort(8*ND)
   real ps(0:7),psl(0:7)
@@ -20,7 +19,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   real dd0(15*12000)
   integer*1 decoded(KK),decoded0(KK),apmask(3*ND),cw(3*ND)
   integer*1 msgbits(KK)
-  integer apsym(KK)
+  integer apsym(75)
   integer mcq(28),mde(28),mrrr(16),m73(16),mrr73(16)
   integer itone(NN)
   integer indxs1(8*ND)
@@ -28,7 +27,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   integer nappasses(0:5)  !Number of decoding passes to use for each QSO state
   integer naptypes(0:5,4) ! (nQSOProgress, decoding pass)  maximum of 4 passes for now
   integer*1, target:: i1hiscall(12)
-  complex cd0(3200)
+  complex cd0(0:3199)
   complex ctwk(32)
   complex csymb(32)
   logical first,newdat,lsubtract,lapon,lapcqonly,nagain
@@ -89,7 +88,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   i0=nint((xdt+0.5)*fs2)                   !Initial guess for start of signal
   smax=0.0
   do idt=i0-8,i0+8                         !Search over +/- one quarter symbol
-     call sync8d(cd0,idt,ctwk,0,sync)
+     call sync8d(cd0,idt,ctwk,0,1,sync)
      if(sync.gt.smax) then
         smax=sync
         ibest=idt
@@ -108,7 +107,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
       ctwk(i)=cmplx(cos(phi),sin(phi))
       phi=mod(phi+dphi,twopi)
     enddo
-   call sync8d(cd0,i0,ctwk,1,sync)
+   call sync8d(cd0,i0,ctwk,1,1,sync)
     if( sync .gt. smax ) then
       smax=sync
       delfbest=delf
@@ -120,13 +119,13 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   xdt=xdt2
   f1=f1+delfbest                           !Improved estimate of DF
 
-  call sync8d(cd0,i0,ctwk,2,sync)
+  call sync8d(cd0,i0,ctwk,2,1,sync)
 
   j=0
   do k=1,NN
     i1=ibest+(k-1)*32
     csymb=cmplx(0.0,0.0)
-    if( i1.ge.1 .and. i1+31 .le. NP2 ) csymb=cd0(i1:i1+31)
+    if( i1.ge.0 .and. i1+31 .le. NP2-1 ) csymb=cd0(i1:i1+31)
     call four2a(csymb,32,1,-1,1)
     s2(0:7,k)=abs(csymb(1:8))/1e3
   enddo  
@@ -380,8 +379,13 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
         if(i3bit.eq.1) decoded(57:)=0
         call extractmessage174(decoded,message,ncrcflag)
         decoded=decoded0
-! This needs fixing for messages with i3bit=1:        
-        call genft8(message,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
+! This needs fixing for messages with i3bit=1:  
+        i3=0  !TEMPORARY  
+        n3=0 
+        isync=1   
+        msg37='                                     '
+        msg37(1:22)=message
+        call genft8(msg37,i3,n3,isync,msgsent37,msgbits,itone)
         if(lsubtract) call subtractft8(dd0,itone,f1,xdt2)
         xsig=0.0
         xnoi=0.0
@@ -437,7 +441,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,   &
   enddo
 
   return
-end subroutine ft8b
+end subroutine ft8b_1
 
 subroutine normalizebmet(bmet,n)
   real bmet(n)

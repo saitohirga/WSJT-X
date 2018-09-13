@@ -409,6 +409,7 @@ private:
 
   void delete_stations ();
   void insert_station ();
+  void chk77();
 
   Q_SLOT void on_font_push_button_clicked ();
   Q_SLOT void on_decoded_text_font_push_button_clicked ();
@@ -443,11 +444,18 @@ private:
   Q_SLOT void on_pbMyCall_clicked();
   Q_SLOT void on_pbTxMsg_clicked();
   Q_SLOT void on_pbNewDXCC_clicked();
+  Q_SLOT void on_pbNewDXCCband_clicked();
   Q_SLOT void on_pbNewCall_clicked();
+  Q_SLOT void on_pbNewCallBand_clicked();
+  Q_SLOT void on_pbNewGrid_clicked();
+  Q_SLOT void on_pbNewGridBand_clicked();
+  Q_SLOT void on_pbLoTW_clicked();
+  Q_SLOT void on_pbResetDefaults_clicked();
   Q_SLOT void on_cbFox_clicked (bool);
   Q_SLOT void on_cbHound_clicked (bool);
   Q_SLOT void on_cbx2ToneSpacing_clicked(bool);
   Q_SLOT void on_cbx4ToneSpacing_clicked(bool);
+  Q_SLOT void on_rbNone_toggled(bool);
 
   // typenames used as arguments must match registered type names :(
   Q_SIGNAL void start_transceiver (unsigned seqeunce_number) const;
@@ -529,6 +537,8 @@ private:
   // configuration fields that we publish
   QString my_callsign_;
   QString my_grid_;
+  QString FD_exchange_;
+  QString RTTY_exchange_;
   QColor color_CQ_;
   QColor next_color_CQ_;
   QColor color_MyCall_;
@@ -537,8 +547,19 @@ private:
   QColor next_color_TxMsg_;
   QColor color_DXCC_;
   QColor next_color_DXCC_;
+  QColor color_DXCCband_;
+  QColor next_color_DXCCband_;
   QColor color_NewCall_;
   QColor next_color_NewCall_;
+  QColor color_NewCallBand_;
+  QColor next_color_NewCallBand_;
+  QColor color_NewGrid_;
+  QColor next_color_NewGrid_;
+  QColor color_NewGridBand_;
+  QColor next_color_NewGridBand_;
+  QColor color_LoTW_;
+  QColor next_color_LoTW_;
+
   qint32 id_interval_;
   qint32 ntrials_;
   qint32 aggressive_;
@@ -568,6 +589,13 @@ private:
   bool twoPass_;
   bool bFox_;
   bool bHound_;
+  bool bGenerate77_;
+  bool bDecode77_;
+  bool bNoSpecial_;
+  bool bFieldDay_;
+  bool bRTTYroundup_;
+  bool bNA_VHF_Contest_;
+  bool bEU_VHF_Contest_;
   bool x2ToneSpacing_;
   bool x4ToneSpacing_;
   bool use_dynamic_grid_;
@@ -633,7 +661,12 @@ QColor Configuration::color_CQ () const {return m_->color_CQ_;}
 QColor Configuration::color_MyCall () const {return m_->color_MyCall_;}
 QColor Configuration::color_TxMsg () const {return m_->color_TxMsg_;}
 QColor Configuration::color_DXCC () const {return m_->color_DXCC_;}
+QColor Configuration::color_DXCCband() const {return m_->color_DXCCband_;}
 QColor Configuration::color_NewCall () const {return m_->color_NewCall_;}
+QColor Configuration::color_NewCallBand () const {return m_->color_NewCallBand_;}
+QColor Configuration::color_NewGrid () const {return m_->color_NewGrid_;}
+QColor Configuration::color_NewGridBand () const {return m_->color_NewGridBand_;}
+QColor Configuration::color_LoTW() const {return m_->color_LoTW_;}
 QFont Configuration::text_font () const {return m_->font_;}
 QFont Configuration::decoded_text_font () const {return m_->decoded_text_font_;}
 qint32 Configuration::id_interval () const {return m_->id_interval_;}
@@ -669,6 +702,13 @@ bool Configuration::single_decode () const {return m_->single_decode_;}
 bool Configuration::twoPass() const {return m_->twoPass_;}
 bool Configuration::bFox() const {return m_->bFox_;}
 bool Configuration::bHound() const {return m_->bHound_;}
+bool Configuration::bGenerate77() const {return m_->bGenerate77_;}
+bool Configuration::bDecode77() const {return m_->bDecode77_;}
+bool Configuration::bNoSpecial() const {return m_->bNoSpecial_;}
+bool Configuration::bFieldDay() const {return m_->bFieldDay_;}
+bool Configuration::bRTTYroundup() const {return m_->bRTTYroundup_;}
+bool Configuration::bNA_VHF_Contest() const {return m_->bNA_VHF_Contest_;}
+bool Configuration::bEU_VHF_Contest() const {return m_->bEU_VHF_Contest_;}
 bool Configuration::x2ToneSpacing() const {return m_->x2ToneSpacing_;}
 bool Configuration::x4ToneSpacing() const {return m_->x4ToneSpacing_;}
 bool Configuration::split_mode () const {return m_->split_mode ();}
@@ -805,6 +845,24 @@ QString Configuration::my_grid() const
     the_grid = m_->dynamic_grid_;
   }
   return the_grid;
+}
+
+QString Configuration::FieldDayExchange() const
+{
+  return m_->FD_exchange_;
+}
+
+void Configuration::setEU_VHF_Contest()
+{
+  m_->bEU_VHF_Contest_ = true;
+  m_->ui_->rbEU_VHF_Contest->setChecked(m_->bEU_VHF_Contest_);
+  m_->ui_->cbGenerate77->setChecked(true);
+  m_->write_settings();
+}
+
+QString Configuration::RTTYExchange() const
+{
+  return m_->RTTY_exchange_;
 }
 
 void Configuration::set_location (QString const& grid_descriptor)
@@ -1127,8 +1185,13 @@ void Configuration::impl::initialize_models ()
   ui_->labMyCall->setStyleSheet(QString("background: %1").arg(color_MyCall_.name()));
   ui_->labTx->setStyleSheet(QString("background: %1").arg(color_TxMsg_.name()));
   ui_->labDXCC->setStyleSheet(QString("background: %1").arg(color_DXCC_.name()));
+  ui_->labDXCCband->setStyleSheet(QString("background: %1").arg(color_DXCCband_.name()));
   ui_->labNewCall->setStyleSheet(QString("background: %1").arg(color_NewCall_.name()));
-  ui_->CW_id_interval_spin_box->setValue (id_interval_);  
+  ui_->labNewCallBand->setStyleSheet(QString("background: %1").arg(color_NewCallBand_.name()));
+  ui_->labNewGrid->setStyleSheet(QString("background: %1").arg(color_NewGrid_.name()));
+  ui_->labNewGridBand->setStyleSheet(QString("background: %1").arg(color_NewGridBand_.name()));
+  ui_->labLoTW->setStyleSheet(QString("color: %1").arg(color_LoTW_.name()));
+  ui_->CW_id_interval_spin_box->setValue (id_interval_);
   ui_->sbNtrials->setValue (ntrials_);
   ui_->sbTxDelay->setValue (txDelay_);
   ui_->sbAggressive->setValue (aggressive_);
@@ -1160,6 +1223,13 @@ void Configuration::impl::initialize_models ()
   ui_->cbTwoPass->setChecked(twoPass_);
   ui_->cbFox->setChecked(bFox_);
   ui_->cbHound->setChecked(bHound_);
+  ui_->cbGenerate77->setChecked(bGenerate77_);
+  ui_->cbDecode77->setChecked(bDecode77_);
+  ui_->rbNone->setChecked(bNoSpecial_);
+  ui_->rbFieldDay->setChecked(bFieldDay_);
+  ui_->rbRTTYroundup->setChecked(bRTTYroundup_);
+  ui_->rbNA_VHF_Contest->setChecked(bNA_VHF_Contest_);
+  ui_->rbEU_VHF_Contest->setChecked(bEU_VHF_Contest_);
   ui_->cbx2ToneSpacing->setChecked(x2ToneSpacing_);
   ui_->cbx4ToneSpacing->setChecked(x4ToneSpacing_);
   ui_->type_2_msg_gen_combo_box->setCurrentIndex (type_2_msg_gen_);
@@ -1201,6 +1271,7 @@ void Configuration::impl::initialize_models ()
   ui_->udpWindowRestore->setChecked(udpWindowRestore_);
   ui_->calibration_intercept_spin_box->setValue (calibration_.intercept);
   ui_->calibration_slope_ppm_spin_box->setValue (calibration_.slope_ppm);
+  chk77();
 
   if (rig_params_.ptt_port.isEmpty ())
     {
@@ -1239,12 +1310,20 @@ void Configuration::impl::read_settings ()
 
   my_callsign_ = settings_->value ("MyCall", QString {}).toString ();
   my_grid_ = settings_->value ("MyGrid", QString {}).toString ();
+  FD_exchange_ = settings_->value ("FieldDayExchange",QString {}).toString ();
+  RTTY_exchange_ = settings_->value ("RTTYExchange",QString {}).toString ();
+  ui_->FieldDay_Exchange->setText(FD_exchange_);
+  ui_->RTTY_Exchange->setText(RTTY_exchange_);
   next_color_CQ_ = color_CQ_ = settings_->value("colorCQ","#66ff66").toString();
   next_color_MyCall_ = color_MyCall_ = settings_->value("colorMyCall","#ff6666").toString();
   next_color_TxMsg_ = color_TxMsg_ = settings_->value("colorTxMsg","#ffff00").toString();
   next_color_DXCC_ = color_DXCC_ = settings_->value("colorDXCC","#ff00ff").toString();
-  next_color_NewCall_ = color_NewCall_ = settings_->value("colorNewCall","#ffaaff").toString();
-
+  next_color_DXCCband_ = color_DXCCband_ = settings_->value("colorDXCCband","#ffaaff").toString();
+  next_color_NewCall_ = color_NewCall_ = settings_->value("colorNewCall","#66b2ff").toString();
+  next_color_NewCallBand_ = color_NewCallBand_ = settings_->value("colorNewCallBand","#99ffff").toString();
+  next_color_NewGrid_ = color_NewGrid_ = settings_->value("colorNewGrid","#ffaa00").toString();
+  next_color_NewGridBand_ = color_NewGridBand_ = settings_->value("colorNewGridBand","#ffcc99").toString();
+  next_color_LoTW_ = color_LoTW_ = settings_->value("colorLoTW","#990000").toString();
   if (next_font_.fromString (settings_->value ("Font", QGuiApplication::font ().toString ()).toString ())
       && next_font_ != font_)
     {
@@ -1397,6 +1476,13 @@ void Configuration::impl::read_settings ()
   twoPass_ = settings_->value("TwoPass",true).toBool ();
   bFox_ = settings_->value("Fox",false).toBool ();
   bHound_ = settings_->value("Hound",false).toBool ();
+  bGenerate77_ = settings_->value("Generate77",false).toBool ();
+  bDecode77_ = settings_->value("Decode77",false).toBool ();
+  bNoSpecial_ = settings_->value("NoSpecial",false).toBool ();
+  bFieldDay_ = settings_->value("FieldDay",false).toBool ();
+  bRTTYroundup_ = settings_->value("RTTYroundup",false).toBool ();
+  bNA_VHF_Contest_ = settings_->value("NA_VHF_Contest",false).toBool ();
+  bEU_VHF_Contest_ = settings_->value("EU_VHF_Contest",false).toBool ();
   x2ToneSpacing_ = settings_->value("x2ToneSpacing",false).toBool ();
   x4ToneSpacing_ = settings_->value("x4ToneSpacing",false).toBool ();
   rig_params_.poll_interval = settings_->value ("Polling", 0).toInt ();
@@ -1422,11 +1508,18 @@ void Configuration::impl::write_settings ()
 
   settings_->setValue ("MyCall", my_callsign_);
   settings_->setValue ("MyGrid", my_grid_);
+  settings_->setValue ("FieldDayExchange", FD_exchange_);
+  settings_->setValue ("RTTYExchange", RTTY_exchange_);
   settings_->setValue("colorCQ",color_CQ_);
   settings_->setValue("colorMyCall",color_MyCall_);
   settings_->setValue("colorTxMsg",color_TxMsg_);
   settings_->setValue("colorDXCC",color_DXCC_);
+  settings_->setValue("colorDXCCband",color_DXCCband_);
   settings_->setValue("colorNewCall",color_NewCall_);
+  settings_->setValue("colorNewCallBand",color_NewCallBand_);
+  settings_->setValue("colorNewGrid",color_NewGrid_);
+  settings_->setValue("colorNewGridBand",color_NewGridBand_);
+  settings_->setValue("colorLoTW",color_LoTW_);
   settings_->setValue ("Font", font_.toString ());
   settings_->setValue ("DecodedTextFont", decoded_text_font_.toString ());
   settings_->setValue ("IDint", id_interval_);
@@ -1502,6 +1595,13 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("TwoPass", twoPass_);
   settings_->setValue ("Fox", bFox_);
   settings_->setValue ("Hound", bHound_);
+  settings_->setValue ("Generate77", bGenerate77_);
+  settings_->setValue ("Decode77", bDecode77_);
+  settings_->setValue ("NoSpecial", bNoSpecial_);
+  settings_->setValue ("FieldDay", bFieldDay_);
+  settings_->setValue ("RTTYroundup", bRTTYroundup_);
+  settings_->setValue ("NA_VHF_Contest", bNA_VHF_Contest_);
+  settings_->setValue ("EU_VHF_Contest", bEU_VHF_Contest_);
   settings_->setValue ("x2ToneSpacing", x2ToneSpacing_);
   settings_->setValue ("x4ToneSpacing", x4ToneSpacing_);
   settings_->setValue ("OpCall", opCall_);
@@ -1790,7 +1890,12 @@ void Configuration::impl::accept ()
   color_MyCall_ = next_color_MyCall_;
   color_TxMsg_ = next_color_TxMsg_;
   color_DXCC_ = next_color_DXCC_;
+  color_DXCCband_ = next_color_DXCCband_;
   color_NewCall_ = next_color_NewCall_;
+  color_NewCallBand_ = next_color_NewCallBand_;
+  color_NewGrid_ = next_color_NewGrid_;
+  color_NewGridBand_ = next_color_NewGridBand_;
+  color_LoTW_ = next_color_LoTW_;
 
   rig_params_ = temp_rig_params; // now we can go live with the rig
                                  // related configuration parameters
@@ -1872,6 +1977,8 @@ void Configuration::impl::accept ()
 
   my_callsign_ = ui_->callsign_line_edit->text ();
   my_grid_ = ui_->grid_line_edit->text ();
+  FD_exchange_= ui_->FieldDay_Exchange->text ();
+  RTTY_exchange_= ui_->RTTY_Exchange->text ();
   spot_to_psk_reporter_ = ui_->psk_reporter_check_box->isChecked ();
   id_interval_ = ui_->CW_id_interval_spin_box->value ();
   ntrials_ = ui_->sbNtrials->value ();
@@ -1905,6 +2012,14 @@ void Configuration::impl::accept ()
   twoPass_ = ui_->cbTwoPass->isChecked ();
   bFox_ = ui_->cbFox->isChecked ();
   bHound_ = ui_->cbHound->isChecked ();
+  if(bFox_ or bHound_) ui_->rbNone->setChecked(true);     //###
+  bGenerate77_ = ui_->cbGenerate77->isChecked();
+  bDecode77_ = ui_->cbDecode77->isChecked();
+  bNoSpecial_ = ui_->rbNone->isChecked ();
+  bFieldDay_ = ui_->rbFieldDay->isChecked ();
+  bRTTYroundup_ = ui_->rbRTTYroundup->isChecked ();
+  bNA_VHF_Contest_ = ui_->rbNA_VHF_Contest->isChecked ();
+  bEU_VHF_Contest_ = ui_->rbEU_VHF_Contest->isChecked ();
   x2ToneSpacing_ = ui_->cbx2ToneSpacing->isChecked ();
   x4ToneSpacing_ = ui_->cbx4ToneSpacing->isChecked ();
   calibration_.intercept = ui_->calibration_intercept_spin_box->value ();
@@ -2033,6 +2148,16 @@ void Configuration::impl::on_pbNewDXCC_clicked()
     }
 }
 
+void Configuration::impl::on_pbNewDXCCband_clicked()
+{
+  auto new_color = QColorDialog::getColor(next_color_DXCCband_, this, "New DXCCband Color");
+  if (new_color.isValid ())
+    {
+      next_color_DXCCband_ = new_color;
+      ui_->labDXCCband->setStyleSheet(QString("background: %1").arg(next_color_DXCCband_.name()));
+    }
+}
+
 void Configuration::impl::on_pbNewCall_clicked()
 {
   auto new_color = QColorDialog::getColor(next_color_NewCall_, this, "New Call Messages Color");
@@ -2041,6 +2166,69 @@ void Configuration::impl::on_pbNewCall_clicked()
       next_color_NewCall_ = new_color;
       ui_->labNewCall->setStyleSheet(QString("background: %1").arg(next_color_NewCall_.name()));
     }
+}
+
+void Configuration::impl::on_pbNewCallBand_clicked()
+{
+  auto new_color = QColorDialog::getColor(next_color_NewCallBand_, this, "New CallBand Color");
+  if (new_color.isValid ())
+    {
+      next_color_NewCallBand_ = new_color;
+      ui_->labNewCallBand->setStyleSheet(QString("background: %1").arg(next_color_NewCallBand_.name()));
+    }
+}
+
+void Configuration::impl::on_pbNewGrid_clicked()
+{
+  auto new_color = QColorDialog::getColor(next_color_NewGrid_, this, "New Grid Messages Color");
+  if (new_color.isValid ())
+    {
+      next_color_NewGrid_ = new_color;
+      ui_->labNewGrid->setStyleSheet(QString("background: %1").arg(next_color_NewGrid_.name()));
+    }
+}
+
+void Configuration::impl::on_pbNewGridBand_clicked()
+{
+  auto new_color = QColorDialog::getColor(next_color_NewGridBand_, this, "New GridBand Messages Color");
+  if (new_color.isValid ())
+    {
+      next_color_NewGridBand_ = new_color;
+      ui_->labNewGridBand->setStyleSheet(QString("background: %1").arg(next_color_NewGridBand_.name()));
+    }
+}
+
+void Configuration::impl::on_pbLoTW_clicked()
+{
+  auto new_color = QColorDialog::getColor(next_color_LoTW_, this, "Not in LoTW Color");
+  if (new_color.isValid ()) {
+    next_color_LoTW_ = new_color;
+    ui_->labLoTW->setStyleSheet(QString("color: %1").arg(next_color_LoTW_.name()));
+  }
+}
+void Configuration::impl::on_pbResetDefaults_clicked()
+{
+  next_color_CQ_ = color_CQ_ = "#66ff66";
+  next_color_MyCall_ = color_MyCall_ = "#ff6666";
+  next_color_TxMsg_ = color_TxMsg_ = "#ffff00";
+  next_color_DXCC_ = color_DXCC_ = "#ff00ff";
+  next_color_DXCCband_ = color_DXCCband_ = "#ffaaff";
+  next_color_NewCall_ = color_NewCall_ = "#66b2ff";
+  next_color_NewCallBand_ = color_NewCallBand_ = "#99ffff";
+  next_color_NewGrid_ = color_NewGrid_ = "#ffaa00";
+  next_color_NewGridBand_ = color_NewGridBand_ = "#ffcc99";
+  next_color_LoTW_ = color_LoTW_ = "#5500ff";
+
+  ui_->labCQ->setStyleSheet(QString("background: %1").arg(next_color_CQ_.name()));
+  ui_->labMyCall->setStyleSheet(QString("background: %1").arg(next_color_MyCall_.name()));
+  ui_->labTx->setStyleSheet(QString("background: %1").arg(next_color_TxMsg_.name()));
+  ui_->labDXCC->setStyleSheet(QString("background: %1").arg(next_color_DXCC_.name()));
+  ui_->labDXCCband->setStyleSheet(QString("background: %1").arg(next_color_DXCCband_.name()));
+  ui_->labNewCall->setStyleSheet(QString("background: %1").arg(next_color_NewCall_.name()));
+  ui_->labNewCallBand->setStyleSheet(QString("background: %1").arg(next_color_NewCallBand_.name()));
+  ui_->labNewGrid->setStyleSheet(QString("background: %1").arg(next_color_NewGrid_.name()));
+  ui_->labNewGridBand->setStyleSheet(QString("background: %1").arg(next_color_NewGridBand_.name()));
+  ui_->labLoTW->setStyleSheet(QString("color: %1").arg(next_color_LoTW_.name()));
 }
 
 void Configuration::impl::on_decoded_text_font_push_button_clicked ()
@@ -2391,12 +2579,36 @@ void Configuration::impl::on_calibration_slope_ppm_spin_box_valueChanged (double
 
 void Configuration::impl::on_cbFox_clicked (bool checked)
 {
-  if (checked) ui_->cbHound->setChecked (false);
+  if(checked) {
+    ui_->cbHound->setChecked (false);
+    ui_->rbNone->setChecked(true);
+  }
+  chk77();
 }
 
 void Configuration::impl::on_cbHound_clicked (bool checked)
 {
-  if (checked) ui_->cbFox->setChecked (false);
+  if(checked) {
+    ui_->cbFox->setChecked (false);
+    ui_->rbNone->setChecked(true);
+  }
+  chk77();
+}
+
+void Configuration::impl::chk77()
+{
+  bool b77OK = !ui_->cbFox->isChecked() and !ui_->cbHound->isChecked();
+  ui_->groupBox_8->setEnabled(b77OK);
+  ui_->groupBox_9->setEnabled(b77OK);
+  if(!b77OK) {
+    ui_->cbGenerate77->setChecked(false);
+    ui_->cbDecode77->setChecked(false);
+  }
+}
+
+void Configuration::impl::on_rbNone_toggled(bool b)
+{
+  if(!b) ui_->cbGenerate77->setChecked(true);
 }
 
 void Configuration::impl::on_cbx2ToneSpacing_clicked(bool b)

@@ -93,11 +93,13 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 ! We're in FT8 mode
      call timer('decft8  ',0)
      newdat=params%newdat
+     ncontest=iand(params%nexp_decode,7)
      call my_ft8%decode(ft8_decoded,id2,params%nQSOProgress,params%nfqso,    &
           params%nftx,newdat,params%nutc,params%nfa,params%nfb,              &
-          params%nexp_decode,params%ndepth,logical(params%nagain),           &
-          logical(params%lft8apon),logical(params%lapcqonly),params%napwid,  &
-          mycall,mygrid,hiscall,hisgrid)
+          params%ndepth,ncontest,logical(params%nagain),                     &
+          logical(params%lft8apon),logical(params%lapcqonly),                &
+          logical(params%ldecode77),params%napwid,                           &
+          mycall,hiscall,hisgrid)
      call timer('decft8  ',1)
      if(nfox.gt.0) then
         n30min=minval(n30fox(1:nfox))
@@ -495,14 +497,18 @@ contains
     annot='  ' 
     if(nap.ne.0) then
        write(annot,'(a1,i1)') 'a',nap
-       if(qual.lt.0.17) decoded0(22:22)='?'
+       if(qual.lt.0.17) decoded0(37:37)='?'
     endif
 
-    i0=index(decoded0,';')
+!    i0=index(decoded0,';')
+! Always print 37 characters? Or, send i3,n3 up to here from ft8b_2 and use them
+! to decide how many chars to print?
+!TEMP
+    i0=1
     if(i0.le.0) write(*,1000) params%nutc,snr,dt,nint(freq),decoded0(1:22),annot
 1000 format(i6.6,i4,f5.1,i5,' ~ ',1x,a22,1x,a2)
-    if(i0.gt.0) write(*,1001) params%nutc,snr,dt,nint(freq),decoded0
-1001 format(i6.6,i4,f5.1,i5,' ~ ',1x,a37)
+    if(i0.gt.0) write(*,1001) params%nutc,snr,dt,nint(freq),decoded0,annot
+1001 format(i6.6,i4,f5.1,i5,' ~ ',1x,a37,1x,a2)
     write(13,1002) params%nutc,nint(sync),snr,dt,freq,0,decoded0
 1002 format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a37,' FT8')
 

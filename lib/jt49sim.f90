@@ -9,7 +9,7 @@ program jt49sim
   parameter (NFFT=10*65536,NH=NFFT/2)
   type(hdr) h                            !Header for .wav file
   integer*2 iwave(NMAX)                  !Generated waveform
-  integer*4 itone(206)                     !Channel symbols (values 0-8)
+  integer*4 itone(206)                   !Channel symbols (values 0-8)
   real*4 xnoise(NMAX)                    !Generated random noise
   real*4 dat(NMAX)                       !Generated real data
   complex cdat(NMAX)                     !Generated complex waveform
@@ -22,10 +22,12 @@ program jt49sim
   nargs=iargc()
   if(nargs.ne. 7) then
      print *, 'Usage:   jt49sim        "msg"     nA-nE Nsigs fDop DT Nfiles SNR'
-     print *, 'Example  jt49sim "K1ABC W9XYZ EN37" 4G   10   0.2 0.0   1     0'
-     print *, 'Example  jt49sim "K1ABC W9XYZ EN37" 9A    1   0.0 0.0   1    -20'
+     print *, 'Example: jt49sim "K1ABC W9XYZ EN37" 4G   10   0.2 0.0   1     0'
+     print *, 'Example: jt49sim "K1ABC W9XYZ EN37" 9A    1   0.0 0.0   1    -20'
      print *, 'Use msg=@nnnn to generate a tone at nnnn Hz:'
-     print *, 'Example  jt49sim "@1500"            9A    1  10.0 0.0   1    -20'
+     print *, 'Example: jt49sim "@1500"            9A    1  10.0 0.0   1    -20'
+     print *, 'If Nsigs > 100, generate one signal with f0=Nsigs'
+     print *, 'Example: jt49sim "K1ABC W9XYZ EN37" 4F  1800  0.2 0.0   1    -20'
      go to 999
   endif
   call getarg(1,message)
@@ -84,6 +86,7 @@ program jt49sim
         if(mod(nsigs,2).eq.0) f0=1500.0 + dfsig*(isig-0.5-nsigs/2)
         if(mod(nsigs,2).eq.1) f0=1500.0 + dfsig*(isig-(nsigs+1)/2)
         if(nsigs.eq.1) f0=1000.0
+        if(nsigs.gt.100) f0=nsigs
         xsnr=snrdb
         if(snrdb.eq.0.0) xsnr=-20 - isig
 
@@ -121,6 +124,7 @@ program jt49sim
            k=k+1
            if(k.ge.1) cdat(k)=cdat(k) + sig*z
         enddo
+        if(nsigs.gt.100) exit
      enddo
 
      if(fspread.ne.0) then                  !Apply specified Doppler spread

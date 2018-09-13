@@ -20,11 +20,11 @@ class LogBook
 {
 public:
     void init();
-    void match(/*in*/ const QString call,
-              /*out*/ QString &countryName,
-                      bool &callWorkedBefore,
-                      bool &countryWorkedBefore) const;
-    void addAsWorked(const QString call, const QString band, const QString mode, const QString date);
+    void match(/*in*/ const QString call, QString grid,
+              /*out*/ QString &countryName, bool &callWorkedBefore, bool &countryWorkedBefore,
+               bool &gridWorkedBefore, QString currentBand="") const;
+    void addAsWorked(const QString call, const QString grid, const QString band,
+                     const QString mode, const QString date);
 
 private:
    CountryDat _countries;

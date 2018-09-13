@@ -294,7 +294,7 @@ subroutine syncmsk(cdat,npts,jpk,ipk,idf,rmax,snr,metric,decoded)
 1012    format(9b8.8)
         read(c72,1014) i4Msg6BitWords
 1014    format(12b6.6)
-        call unpackmsg(i4Msg6BitWords,decoded,.false.,'      ') !Unpack to get msgsent
+        call unpackmsg(i4Msg6BitWords,decoded) !Unpack to get msgsent
      endif
      if(decoded.ne.'                      ') exit
   enddo

@@ -22,13 +22,9 @@ the *Tx<-Rx* button, and vice-versa for *Rx<-Tx*.  The on-the-air
 frequency of your lowest JT9 or JT65 tone is the sum of dial frequency
 and audio Tx frequency.
 
-* Check the box *Lock Tx=Rx* to make the frequencies always track one
-another.
-
-IMPORTANT: In general we do not recommend using *Lock Tx=Rx* since it
-encourages poor radio etiquette when running a frequency.  With this
-box checked, your own Tx frequency will move around following your
-callers.
+* Check the box *Hold Tx Freq* to ensure that the specified Tx
+frequency is not changed automatically when you double-click on
+decoded text or a signal in the waterfall.
 
 * For modes lacking a multi-decode feature, or when *Enable
 VHF/UHF/Microwave features* has been checked on the *Settings ->

@@ -73,7 +73,8 @@ void DisplayText::insertLineSpacer(QString const& line)
   appendText (line, "#d3d3d3");
 }
 
-void DisplayText::appendText(QString const& text, QColor bg, QString const& call1, QString const& call2)
+void DisplayText::appendText(QString const& text, QColor bg,
+                             QString const& call1, QString const& call2)
 {
   auto cursor = textCursor ();
   cursor.movePosition (QTextCursor::End);
@@ -142,6 +143,9 @@ void DisplayText::appendText(QString const& text, QColor bg, QString const& call
     }
   format.setBackground (bg);
   format.clearForeground ();
+  if(call2.size()>0 and !m_LoTW.contains(call2)) {
+    format.setForeground(m_color_LoTW);  //Mark LoTW non-users
+  }
   cursor.insertText(text.mid (text_index), format);
 
   // position so viewport scrolled to left
@@ -151,18 +155,19 @@ void DisplayText::appendText(QString const& text, QColor bg, QString const& call
   document ()->setMaximumBlockCount (document ()->maximumBlockCount ());
 }
 
-
-QString DisplayText::appendDXCCWorkedB4(QString message, QString const& callsign, QColor * bg,
-          LogBook const& logBook, QColor color_CQ,
-          QColor color_DXCC,
-          QColor color_NewCall)
+QString DisplayText::appendWorkedB4(QString message, QString const& callsign, QString grid,
+          QColor * bg, LogBook const& logBook, QString currentBand)
 {
   // allow for seconds
   int padding {message.indexOf (" ") > 4 ? 2 : 0};
   QString call = callsign;
   QString countryName;
   bool callWorkedBefore;
+  bool callB4onBand;
   bool countryWorkedBefore;
+  bool countryB4onBand;
+  bool gridB4;
+  bool gridB4onBand;
 
   if(call.length()==2) {
     int i0=message.indexOf("CQ "+call);
@@ -173,27 +178,49 @@ QString DisplayText::appendDXCCWorkedB4(QString message, QString const& callsign
   if(call.length()<3) return message;
   if(!call.contains(QRegExp("[0-9]|[A-Z]"))) return message;
 
-  logBook.match(/*in*/call,/*out*/countryName,callWorkedBefore,countryWorkedBefore);
+  if(grid=="") {
+    gridB4=true;
+    gridB4onBand=true;
+  } else {
+    logBook.match(/*in*/call,grid,/*out*/countryName,callWorkedBefore,countryWorkedBefore,gridB4);
+    logBook.match(/*in*/call,grid,/*out*/countryName,callB4onBand,countryB4onBand,gridB4onBand,
+                  /*in*/ currentBand);
+  }
+
   message = message.trimmed ();
-  QString appendage;
-  if (!countryWorkedBefore) // therefore not worked call either
-    {
-      appendage += "!";
-      *bg = color_DXCC;
-    }
-  else
-    {
-      if (!callWorkedBefore) // but have worked the country
-        {
-          appendage += "~";
-          *bg = color_NewCall;
+  QString appendage{""};
+
+  if (!countryWorkedBefore) {
+    // therefore not worked call either
+//    appendage += "!";
+    *bg = m_color_DXCC;
+  } else {
+    if(!countryB4onBand) {
+      *bg = m_color_DXCCband;
+    } else {
+      if(!gridB4) {
+        *bg = m_color_NewGrid;
+      } else {
+        if(!gridB4onBand) {
+          *bg = m_color_NewGridBand;
+        } else {
+          if (!callWorkedBefore) {
+            // but have worked the country
+//            appendage += "~";
+            *bg = m_color_NewCall;
+          } else {
+            if(!callB4onBand) {
+//              appendage += "~";
+              *bg = m_color_NewCallBand;
+            } else {
+//              appendage += " ";  // have worked this call before
+              *bg = m_color_CQ;
+            }
+          }
         }
-      else
-        {
-          appendage += " ";  // have worked this call before
-          *bg = color_CQ;
-        }
+      }
     }
+  }
 
   int i1=countryName.indexOf(";");
   if(m_bPrincipalPrefix) {
@@ -228,20 +255,16 @@ QString DisplayText::appendDXCCWorkedB4(QString message, QString const& callsign
   // it again later, align appended data at a fixed column if
   // there is space otherwise let it float to the right
   int space_count {40 + padding - message.size ()};
-  if (space_count > 0)
-    {
-      message += QString {space_count, QChar {' '}};
-    }
+  if (space_count > 0) {
+    message += QString {space_count, QChar {' '}};
+  }
   message += QChar::Nbsp + appendage;
-
   return message;
 }
 
 void DisplayText::displayDecodedText(DecodedText const& decodedText, QString const& myCall,
                                      bool displayDXCCEntity, LogBook const& logBook,
-                                     QColor color_CQ, QColor color_MyCall,
-                                     QColor color_DXCC, QColor color_NewCall, bool ppfx,
-                                     bool bCQonly)
+                                     QString currentBand, bool ppfx, bool bCQonly)
 {
   m_bPrincipalPrefix=ppfx;
   QColor bg {Qt::transparent};
@@ -251,33 +274,35 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
       || decodedText.string ().contains (" QRZ "))
     {
       CQcall = true;
-      bg = color_CQ;
+      bg = m_color_CQ;
     }
   if(bCQonly and !CQcall) return;
-  if (myCall != "" and (
-                        decodedText.indexOf (" " + myCall + " ") >= 0
-                        or decodedText.indexOf (" " + myCall + "/") >= 0
-                        or decodedText.indexOf ("/" + myCall + " ") >= 0
-                        or decodedText.indexOf ("<" + myCall + " ") >= 0
-                        or decodedText.indexOf (" " + myCall + ">") >= 0)) {
-    bg = color_MyCall;
+  if (myCall != "" and (decodedText.indexOf (" " + myCall + " ") >= 0
+        or decodedText.indexOf (" " + myCall + "/") >= 0
+        or decodedText.indexOf ("<" + myCall + "/") >= 0
+        or decodedText.indexOf ("/" + myCall + " ") >= 0
+        or decodedText.indexOf ("/" + myCall + ">") >= 0
+        or decodedText.indexOf ("<" + myCall + " ") >= 0
+        or decodedText.indexOf ("<" + myCall + ">") >= 0
+        or decodedText.indexOf (" " + myCall + ">") >= 0)) {
+    bg = m_color_MyCall;
   }
-  auto message = decodedText.string ();
+  auto message = decodedText.string();
   QString dxCall;
   QString dxGrid;
-  decodedText.deCallAndGrid (dxCall, dxGrid);
+  decodedText.deCallAndGrid (/*out*/ dxCall, dxGrid);
+  QRegularExpression grid_regexp {"\\A(?![Rr]{2}73)[A-Ra-r]{2}[0-9]{2}([A-Xa-x]{2}){0,1}\\z"};
+  if(!dxGrid.contains(grid_regexp)) dxGrid="";
   message = message.left (message.indexOf (QChar::Nbsp)); // strip appended info
   if (displayDXCCEntity && CQcall)
     // if enabled add the DXCC entity and B4 status to the end of the
     // preformated text line t1
-    message = appendDXCCWorkedB4 (message, decodedText.CQersCall (), &bg, logBook, color_CQ,
-                                  color_DXCC, color_NewCall);
+    message = appendWorkedB4 (message, decodedText.CQersCall(), dxGrid, &bg, logBook, currentBand);
   appendText (message.trimmed (), bg, decodedText.call (), dxCall);
 }
 
 
-void DisplayText::displayTransmittedText(QString text, QString modeTx, qint32 txFreq,
-                                         QColor color_TxMsg, bool bFastMode)
+void DisplayText::displayTransmittedText(QString text, QString modeTx, qint32 txFreq,bool bFastMode)
 {
     QString t1=" @  ";
     if(modeTx=="FT8") t1=" ~  ";
@@ -297,7 +322,7 @@ void DisplayText::displayTransmittedText(QString text, QString modeTx, qint32 tx
       t = QDateTime::currentDateTimeUtc().toString("hhmm") + \
         "  Tx      " + t2 + t1 + text;
     }
-    appendText (t, color_TxMsg);
+    appendText (t, m_color_TxMsg);
 }
 
 void DisplayText::displayQSY(QString text)
@@ -352,7 +377,8 @@ namespace
   }
 }
 
-void DisplayText::highlight_callsign (QString const& callsign, QColor const& bg, QColor const& fg, bool last_only)
+void DisplayText::highlight_callsign (QString const& callsign, QColor const& bg,
+                                      QColor const& fg, bool last_only)
 {
   QTextCharFormat old_format {currentCharFormat ()};
   QTextCursor cursor {document ()};
@@ -402,4 +428,21 @@ void DisplayText::highlight_callsign (QString const& callsign, QColor const& bg,
         }
     }
   setCurrentCharFormat (old_format);
+}
+
+void DisplayText::setDecodedTextColors(QColor color_CQ, QColor color_MyCall,
+      QColor color_DXCC, QColor color_DXCCband,QColor color_NewCall,QColor color_NewCallBand,
+      QColor color_NewGrid, QColor color_NewGridBand,QColor color_TxMsg,QColor color_LoTW)
+{
+// Save the color highlighting scheme selected by the user.
+  m_color_CQ=color_CQ;
+  m_color_DXCC=color_DXCC;
+  m_color_DXCCband=color_DXCCband;
+  m_color_MyCall=color_MyCall;
+  m_color_NewCall=color_NewCall;
+  m_color_NewCallBand=color_NewCallBand;
+  m_color_NewGrid=color_NewGrid;
+  m_color_NewGridBand=color_NewGridBand;
+  m_color_TxMsg=color_TxMsg;
+  m_color_LoTW=color_LoTW;
 }

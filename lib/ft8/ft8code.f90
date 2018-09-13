@@ -14,14 +14,11 @@ program ft8code
   character*6 c1,c2
   character*9 comment
   character*22 msgsent,message
-  character*6 mygrid6
   character bad*1,msgtype*10
   character*87 cbits
-  logical bcontest
   integer itone(NN)
   integer dgen(12)
   integer*1 msgbits(KK),decoded(KK),decoded0(KK)
-  data mygrid6/'EM48  '/
 
 ! Get command-line argument(s)
   nargs=iargc()
@@ -36,17 +33,10 @@ program ft8code
      go to 999
   endif
 
-  bcontest=.false.
   call getarg(1,msg)                    !Message to be transmitted
   if(len(trim(msg)).eq.2 .and. msg(1:2).eq.'-t') then
      testmsg(NTEST+1)='KA1ABC RR73; WB9XYZ <KH1/KH7Z> -11'
      nmsg=NTEST+1
-  else if(len(trim(msg)).eq.2 .and. msg(1:2).eq.'-c') then
-     bcontest=.true.
-     call getarg(2,mygrid6)
-     call getarg(3,msg)
-     msgchk=msg
-     nmsg=1
   else
      msgchk=msg
      call fmtmsg(msgchk,iz)          !To upper case; collapse multiple blanks
@@ -63,7 +53,7 @@ program ft8code
      
 ! Generate msgsent, msgbits, and itone
      if(index(msg,';').le.0) then
-        call packmsg(msg(1:22),dgen,itype,bcontest)
+        call packmsg(msg(1:22),dgen,itype)
         msgtype=""
         if(itype.eq.1) msgtype="Std Msg"
         if(itype.eq.2) msgtype="Type 1 pfx"
@@ -72,7 +62,7 @@ program ft8code
         if(itype.eq.5) msgtype="Type 2 sfx"
         if(itype.eq.6) msgtype="Free text"
         i3bit=0
-        call genft8(msg(1:22),mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
+        call genft8(msg(1:22),i3bit,msgsent,msgbits,itone)
      else
         call foxgen_wrap(msg,msgbits,itone)
         i3bit=1
@@ -86,7 +76,6 @@ program ft8code
      decoded=decoded0
 
      if(i3bit.eq.0) then
-        if(bcontest) call fix_contest_msg(mygrid6,message)
         bad=" "
         comment='         '
         if(itype.ne.6 .and. message.ne.msgchk) bad="*"

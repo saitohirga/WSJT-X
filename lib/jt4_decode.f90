@@ -111,12 +111,6 @@ contains
     character(len=12), intent(in) :: mycall,hiscall
     character(len=6), intent(in) :: hisgrid
     real, intent(in) :: dat(npts) !Raw data
-
-    real ccfblue(-5:540)                             !CCF in time
-    real ccfred(-224:224)                            !CCF in frequency
-    real ps0(450)
-
-!    real z(458,65)
     logical first,prtavg
     character decoded*22,special*5
     character*22 avemsg,deepmsg,deepave,blank,deepmsg0,deepave1
@@ -128,8 +122,6 @@ contains
        nsave=0
        first=.false.
        blank='                      '
-       ccfblue=0.
-       ccfred=0.
 ! Silence compiler warnings
        if(dttol.eq.-99.0 .and. emedelay.eq.-99.0 .and. nagain) stop
     endif
@@ -157,12 +149,11 @@ contains
 
 ! Attempt to synchronize: look for sync pattern, get DF and DT.
     call timer('sync4   ',0)
-    mousedf=nint(nfqso + 1.5*4.375*mode4 - 1270.46)
-    call sync4(dat,npts,ntol,1,MouseDF,4,mode4,minw+1,dtx,dfx,    &
-         snrx,snrsync,ccfblue,ccfred,flip,width,ps0)
+    call sync4(dat,npts,ntol,nfqso,4,mode4,minw+1,dtx,dfx,    &
+         snrx,snrsync,flip,width)
     sync=snrsync
     dtxz=dtx-0.8
-    nfreqz=dfx + 1270.46 - 1.5*4.375*mode4
+    nfreqz=nint(dfx)
     call timer('sync4   ',1)
 
     nsnr=nint(snrx)

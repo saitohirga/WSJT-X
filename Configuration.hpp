@@ -96,6 +96,9 @@ public:
 
   QString my_callsign () const;
   QString my_grid () const;
+  QString FieldDayExchange() const;
+  QString RTTYExchange() const;
+  void setEU_VHF_Contest();
   QFont text_font () const;
   QFont decoded_text_font () const;
   qint32 id_interval () const;
@@ -128,9 +131,15 @@ public:
   bool twoPass() const;
   bool bFox() const;
   bool bHound() const;
+  bool bGenerate77() const;
+  bool bDecode77() const;
+  bool bNoSpecial() const;
+  bool bFieldDay() const;
+  bool bRTTYroundup() const;
+  bool bNA_VHF_Contest() const;
+  bool bEU_VHF_Contest() const;
   bool x2ToneSpacing() const;
   bool x4ToneSpacing() const;
-  bool contestMode() const;
   bool MyDx() const;
   bool CQMyN() const;
   bool NDxG() const;
@@ -164,7 +173,12 @@ public:
   QColor color_MyCall () const;
   QColor color_TxMsg () const;
   QColor color_DXCC () const;
+  QColor color_DXCCband () const;
   QColor color_NewCall () const;
+  QColor color_NewCallBand () const;
+  QColor color_NewGrid () const;
+  QColor color_NewGridBand () const;
+  QColor color_LoTW() const;
   bool pwrBandTxMemory () const;
   bool pwrBandTuneMemory () const;
 

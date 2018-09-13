@@ -15,6 +15,7 @@ void ADIF::init(QString const& filename)
 {
     _filename = filename;
     _data.clear();
+    _data2.clear();
 }
 
 
@@ -54,7 +55,8 @@ QString ADIF::extractField(QString const& record, QString const& fieldName) cons
 
 void ADIF::load()
 {
-    _data.clear();
+  _data.clear();
+  _data2.clear();
     QFile inputFile(_filename);
     if (inputFile.open(QIODevice::ReadOnly))
     {
@@ -98,6 +100,7 @@ void ADIF::load()
           buffer.remove (0, next_record >=0 ? next_record : buffer.size ());
           record = record.mid (record.indexOf (QChar {'<'}));
           add (extractField (record, "CALL")
+               , extractField (record, "GRIDSQUARE")
                , extractField (record, "BAND")
                , extractField (record, "MODE")
                , extractField (record, "QSO_DATE"));
@@ -107,52 +110,55 @@ void ADIF::load()
 }
 
 
-void ADIF::add(QString const& call, QString const& band, QString const& mode, QString const& date)
+void ADIF::add(QString const& call, QString const& grid, QString const& band,
+               QString const& mode, QString const& date)
 {
-    QSO q;
-    q.call = call;
-    q.band = band;
-    q.mode = mode;
-    q.date = date;
-    if (q.call.size ())
-      {
-        _data.insert(q.call,q);
-        // qDebug() << "Added as worked:" << call << band << mode << date;
-      }
+  QSO q;
+  q.call = call;
+  q.grid = grid;
+  q.band = band;
+  q.mode = mode;
+  q.date = date;
+  if(q.call.size ()) {
+    _data.insert(q.call,q);
+    _data2.insert(q.grid,q);
+//    qDebug() << "In the log:" << call << grid << band << mode << date;
+  }
 }
 
-// return true if in the log same band and mode (where JT65 == JT9)
+// return true if in the log same band and mode (where JT65 == JT9 == FT8)
 bool ADIF::match(QString const& call, QString const& band, QString const& mode) const
 {
-    QList<QSO> qsos = _data.values(call);
-    if (qsos.size()>0)
-    {
-        QSO q;
-        foreach(q,qsos)
-        {
-            if (     (band.compare(q.band,Qt::CaseInsensitive) == 0)
-                  || (band=="")
-                  || (q.band==""))
-            {
-                if (
-                     (
-                       ((mode.compare("JT65",Qt::CaseInsensitive)==0) ||
-                        (mode.compare("JT9",Qt::CaseInsensitive)==0)  ||
-                        (mode.compare("FT8",Qt::CaseInsensitive)==0))
-                       &&
-                       ((q.mode.compare("JT65",Qt::CaseInsensitive)==0) ||
-                        (q.mode.compare("JT9",Qt::CaseInsensitive)==0)  ||
-                        (q.mode.compare("FT8",Qt::CaseInsensitive)==0))
-                     )
-                        || (mode.compare(q.mode,Qt::CaseInsensitive)==0)
-                        || (mode=="")
-                        || (q.mode=="")
-                    )
-                return true;
-            }
-        }
+  QList<QSO> qsos;
+  QRegularExpression grid_regexp {"\\A(?![Rr]{2}73)[A-Ra-r]{2}[0-9]{2}([A-Xa-x]{2}){0,1}\\z"};
+  if(!call.contains(grid_regexp)) {
+    qsos = _data.values(call);
+  } else {
+    qsos = _data2.values(call);
+  }
+//  qDebug() << "AA" << call << qsos.size();
+  if (qsos.size()>0) {
+    QSO q;
+    foreach(q,qsos) {
+      if((band.compare(q.band,Qt::CaseInsensitive) == 0) || (band=="") || (q.band=="")) {
+        if((
+             ((mode.compare("JT65",Qt::CaseInsensitive)==0) ||
+              (mode.compare("JT9",Qt::CaseInsensitive)==0)  ||
+              (mode.compare("FT8",Qt::CaseInsensitive)==0))
+             &&
+             ((q.mode.compare("JT65",Qt::CaseInsensitive)==0) ||
+              (q.mode.compare("JT9",Qt::CaseInsensitive)==0)  ||
+              (q.mode.compare("FT8",Qt::CaseInsensitive)==0))
+             )
+           || (mode.compare(q.mode,Qt::CaseInsensitive)==0)
+           || (mode=="")
+           || (q.mode=="")
+           )
+          return true;
+      }
     }
-    return false;
+  }
+  return false;
 }    
 
 QList<QString> ADIF::getCallList() const
