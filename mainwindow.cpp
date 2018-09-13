@@ -951,14 +951,14 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 void MainWindow::not_GA_warning_message ()
 {
   QDateTime now=QDateTime::currentDateTime();
-  QDateTime timeout=QDateTime(QDate(2018,11,1));
+  QDateTime timeout=QDateTime(QDate(2018,10,31));
 
   MessageBox::critical_message (this,
                                 "This version of WSJT-X is a beta-level Release Candidate.\n\n"
                                 "On-the-air use carries an obligation to report problems\n"
                                 "to the WSJT Development group and to upgrade to a GA\n"
                                 "(General Availability) release when it becomes available.\n\n"
-                                "This version cannot be used after November 1, 2018\n\n");
+                                "This version cannot be used after October 31, 2018\n\n");
 
   if(now.daysTo(timeout) < 0) Q_EMIT finished();
 }
