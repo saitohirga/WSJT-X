@@ -32,7 +32,7 @@ subroutine genmsk_128_90(msg0,ichk,msgsent,i4tone,itype)
   real*8 xi(864),xq(864),pi,twopi
   data s8/0,1,1,1,0,0,1,0/
   equivalence (ihash,i1hash)
-  logical first
+  logical first,unpk77_success
   data first/.true./
   save
 
@@ -73,7 +73,7 @@ subroutine genmsk_128_90(msg0,ichk,msgsent,i4tone,itype)
      endif
 
      call pack77(message,i3,n3,c77) 
-     call unpack77(c77,msgsent) !Unpack to get msgsent
+     call unpack77(c77,msgsent,unpk77_success) !Unpack to get msgsent
      if(ichk.eq.1) go to 999
      read(c77,"(77i1)") msgbits
      call encode_128_90(msgbits,codeword)

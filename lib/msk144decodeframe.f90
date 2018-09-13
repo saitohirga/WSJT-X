@@ -15,7 +15,7 @@ subroutine msk144decodeframe(c,softbits,msgreceived,nsuccess,recent_calls,nrecen
   real pp(12)
   real softbits(144)
   real llr(128)
-  logical first
+  logical first,unpk77_success
   data first/.true./
   data s8/0,1,1,1,0,0,1,0/
   save first,cb,fs,pi,twopi,dt,s8,pp
@@ -101,7 +101,7 @@ subroutine msk144decodeframe(c,softbits,msgreceived,nsuccess,recent_calls,nrecen
   if( nharderror .ge. 0 .and. nharderror .lt. 18 ) then
     nsuccess=1
     write(c77,'(77i1)') decoded77
-    call unpack77(c77,msgreceived)
+    call unpack77(c77,msgreceived,unpk77_success)
   endif
 
   return

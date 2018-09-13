@@ -194,7 +194,7 @@ subroutine pack77(msg0,i3,n3,c77)
 900 return
 end subroutine pack77
 
-subroutine unpack77(c77,msg)
+subroutine unpack77(c77,msg,unpk77_success)
 
   parameter (NSEC=84)      !Number of ARRL Sections
   parameter (NUSCAN=65)    !Number of US states and Canadian provinces
@@ -211,6 +211,7 @@ subroutine unpack77(c77,msg)
   character*4 grid4,cserial
   character*3 csec(NSEC)
   character*38 c
+  logical unpk77_success
 
   data c/' 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ/'/
   data csec/                                                         &
@@ -232,10 +233,13 @@ subroutine unpack77(c77,msg)
        "NB ","NS ","QC ","ON ","MB ","SK ","AB ","BC ","NWT","NF ",  &
        "LB ","NU ","VT ","PEI","DC "/
 
+  unpk77_success=.true.
+
 ! Check for bad data
   do i=1,77
      if(c77(i:i).ne.'0' .and. c77(i:i).ne.'1') then
-        msg='QUIRK 2'
+        msg='failed unpack'
+        unpk77_success=.false.
         return
      endif
   enddo
@@ -297,9 +301,10 @@ subroutine unpack77(c77,msg)
 
   else if(i3.eq.0 .and. (n3.eq.3 .or. n3.eq.4)) then
 ! 0.3   WA9XYZ KA1ABC R 16A EMA            28 28 1 4 3 7    71   ARRL Field Day
-     ! 0.4   WA9XYZ KA1ABC R 32A EMA            28 28 1 4 3 7    71   ARRL Field Day
+! 0.4   WA9XYZ KA1ABC R 32A EMA            28 28 1 4 3 7    71   ARRL Field Day
      read(c77,1030) n28a,n28b,ir,intx,nclass,isec
 1030 format(2b28,b1,b4,b3,b7)
+     if(isec.gt.NSEC .or. isec.lt.1) unpk77_success=.false.
      if(isec.gt.NSEC) isec=NSEC          !### Check range for other params? ###
      if(isec.lt.1) isec=1                !### Flag these so they aren't printed? ###
      call unpack28(n28a,call_1)
