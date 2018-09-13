@@ -409,6 +409,7 @@ private:
 
   void delete_stations ();
   void insert_station ();
+  void chk77();
 
   Q_SLOT void on_font_push_button_clicked ();
   Q_SLOT void on_decoded_text_font_push_button_clicked ();
@@ -1270,6 +1271,7 @@ void Configuration::impl::initialize_models ()
   ui_->udpWindowRestore->setChecked(udpWindowRestore_);
   ui_->calibration_intercept_spin_box->setValue (calibration_.intercept);
   ui_->calibration_slope_ppm_spin_box->setValue (calibration_.slope_ppm);
+  chk77();
 
   if (rig_params_.ptt_port.isEmpty ())
     {
@@ -2581,6 +2583,7 @@ void Configuration::impl::on_cbFox_clicked (bool checked)
     ui_->cbHound->setChecked (false);
     ui_->rbNone->setChecked(true);
   }
+  chk77();
 }
 
 void Configuration::impl::on_cbHound_clicked (bool checked)
@@ -2588,6 +2591,18 @@ void Configuration::impl::on_cbHound_clicked (bool checked)
   if(checked) {
     ui_->cbFox->setChecked (false);
     ui_->rbNone->setChecked(true);
+  }
+  chk77();
+}
+
+void Configuration::impl::chk77()
+{
+  bool b77OK = !ui_->cbFox->isChecked() and !ui_->cbHound->isChecked();
+  ui_->groupBox_8->setEnabled(b77OK);
+  ui_->groupBox_9->setEnabled(b77OK);
+  if(!b77OK) {
+    ui_->cbGenerate77->setChecked(false);
+    ui_->cbDecode77->setChecked(false);
   }
 }
 
