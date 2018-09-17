@@ -61,7 +61,7 @@ program JT65code
         go to 10
      endif
 
-     call packmsg(msg1,dgen,itype,.false.) !Pack message into 12 six-bit bytes
+     call packmsg(msg1,dgen,itype) !Pack message into 12 six-bit bytes
      msgtype=""
      if(itype.eq.1) msgtype="Std Msg"
      if(itype.eq.2) msgtype="Type 1 pfx"
@@ -77,15 +77,17 @@ program JT65code
      call graycode(sent,63,-1,tmp)           !Remove Gray code
      call interleave63(tmp,-1)               !Remove interleaving
      call rs_decode(tmp,era,0,recd,nerr)     !Decode the message
-     call unpackmsg(recd,decoded,.false.,'      ') !Unpack the user message
+     call unpackmsg(recd,decoded)            !Unpack the user message
      if(cok.eq."OOO") decoded(20:22)=cok
      call fmtmsg(decoded,iz)
 
 10   bad=" "
-     if(decoded.ne.msgchk) bad="*"
      expected = 'EXACT'
-     if (msg0.ne.msgchk) expected = 'TRUNCATED'
-     if (nmsg.eq.1) expected = 'UNKNOWN'
+     if(decoded.ne.msg0) then
+        bad="*"
+        if(decoded(1:13).eq.msg0(1:13) .and.                             &
+             decoded(14:22).eq. '         ') expected = 'TRUNCATED'
+     endif
      write(*,1020) imsg,msg0,decoded,bad,itype,msgtype,expected
 1020 format(i2,'.',1x,a22,1x,a22,1x,a1,i3,":",a10,2x,a22)
   enddo

@@ -5,7 +5,7 @@
 #include <QDebug>
 
 extern "C" {
-  bool stdmsg_(char const * msg, bool contest_mode, char const * mygrid, fortran_charlen_t, fortran_charlen_t);
+  bool stdmsg_(char const * msg, fortran_charlen_t);
 }
 
 namespace
@@ -13,17 +13,17 @@ namespace
   QRegularExpression words_re {R"(^(?:(?<word1>(?:CQ|DE|QRZ)(?:\s?DX|\s(?:[A-Z]{2}|\d{3}))|[A-Z0-9/]+)\s)(?:(?<word2>[A-Z0-9/]+)(?:\s(?<word3>[-+A-Z0-9]+)(?:\s(?<word4>(?:OOO|(?!RR73)[A-R]{2}[0-9]{2})))?)?)?)"};
 }
 
-DecodedText::DecodedText (QString const& the_string, bool contest_mode, QString const& my_grid)
+DecodedText::DecodedText (QString const& the_string)
   : string_ {the_string.left (the_string.indexOf (QChar::Nbsp))} // discard appended info
   , padding_ {string_.indexOf (" ") > 4 ? 2 : 0} // allow for
                                                     // seconds
-  , contest_mode_ {contest_mode}
   , message_ {string_.mid (column_qsoText + padding_).trimmed ()}
   , is_standard_ {false}
 {
   if (message_.length() >= 1)
     {
-      message_ = message_.left (21).remove (QRegularExpression {"[<>]"});
+       message0_ = message_.left(36);
+       message_ = message_.left(36).remove (QRegularExpression {"[<>]"});
       int i1 = message_.indexOf ('\r');
       if (i1 > 0)
         {
@@ -40,16 +40,11 @@ DecodedText::DecodedText (QString const& the_string, bool contest_mode, QString 
           // remove DXCC entity and worked B4 status. TODO need a better way to do this
           message_ = message_.left (eom_pos + 1);
         }
-      // stdmsg is a fortran routine that packs the text, unpacks it
+      // stdmsg is a Fortran routine that packs the text, unpacks it
       // and compares the result
-      auto message_c_string = message_.toLocal8Bit ();
-      message_c_string += QByteArray {22 - message_c_string.size (), ' '};
-      auto grid_c_string = my_grid.toLocal8Bit ();
-      grid_c_string += QByteArray {6 - grid_c_string.size (), ' '};
-      is_standard_ = stdmsg_ (message_c_string.constData ()
-                              , contest_mode_
-                              , grid_c_string.constData ()
-                              , 22, 6);
+      auto message_c_string = message0_.toLocal8Bit ();
+      message_c_string += QByteArray {37 - message_c_string.size (), ' '};
+      is_standard_ = stdmsg_(message_c_string.constData(),37);
     }
 };
 
@@ -170,10 +165,13 @@ void DecodedText::deCallAndGrid(/*out*/QString& call, QString& grid) const
   auto const& match = words_re.match (message_);
   call = match.captured ("word2");
   grid = match.captured ("word3");
-  if (contest_mode_ && "R" == grid)
-    {
-      grid = match.captured ("word4");
-    }
+  if ("R" == grid) grid = match.captured ("word4");
+  if(match.captured("word1")=="CQ" and call.length()>=3 and call.length()<=4
+     and !call.contains(QRegExp("[0-9]"))) {
+    //Second word has length 3 or 4 and contains no digits
+    call = match.captured ("word3");
+    grid = match.captured ("word4");
+  }
 }
 
 unsigned DecodedText::timeInSeconds() const

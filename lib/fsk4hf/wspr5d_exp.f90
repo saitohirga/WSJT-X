@@ -30,6 +30,8 @@ program wspr5d
   complex cd(0:NZ-1)                    !Complex waveform
   complex ca(0:NZ-1)                    !Complex waveform
   complex zz,zzsum
+  complex cc(110)                        !Complex correlation coefficients
+  complex*8 cfac
   real*8 fMHz
   real rxdata(ND),llr(ND)               !Soft symbols
   real pp(32)                       !Shaped pulse for OQPSK
@@ -134,7 +136,6 @@ program wspr5d
     call getfc1(c400,fs400,fa,fb,fc1,xsnr)         !First approx for freq
     npeaks=5
     call getfc2(c400,npeaks,fs400,fc1,fpks)      !Refined freq
-
 !    do idf=1,npeaks ! consider the top npeak peaks 
     do idf=1,1  ! for genie-aided sync 
       fc1=125.0 ! genie provided
@@ -149,7 +150,7 @@ program wspr5d
         xdt=real(22+idt)/22.222 - 1.0
         ca=cshift(cd,22+idt)
         zzsum=0.0
-        do iseq=3,4 
+        do iseq=1,4,3 
           if(iseq.eq.4) then
             k=1-2*3
             nseq=9
@@ -159,6 +160,7 @@ program wspr5d
             nseq=iseq*3
             istep=iseq*4
           endif
+icc=1
           do i=1,408,istep
             j=(i+1)*16
             if(iseq.eq.4) then
@@ -171,6 +173,9 @@ program wspr5d
             else
                k=k+iseq*2
                call mskseqdet(nseq,ca(j),pp,id(k),softbits,1,zz)
+               cc(icc)=zz
+write(32,*) icc,real(cc(icc)),imag(cc(icc))
+               icc=icc+1
                zzsum=zzsum+zz
             endif 
             sbits(i+1)=softbits(1)
@@ -190,6 +195,27 @@ program wspr5d
               endif
             endif
           enddo
+
+cm=0.0
+do idel=-200,200
+  df=idel*0.001
+!  dpha=twopi*df*12.0*(16/22.0)
+  dpha=twopi*df*4.0*(16/22.0)
+  phase=0.0
+  zzsum=0.0
+  do i=1,102
+    cfac=cmplx(cos(phase),sin(phase))
+    zzsum=zzsum+cc(i)*cfac
+    phase=mod(phase+dpha,twopi)
+  enddo
+  if(abs(zzsum).gt.cm) then
+    cm=abs(zzsum)
+    dfbest=df
+  endif
+!  write(*,*) df,abs(zzsum)
+enddo
+write(*,*) 'dfbest ',dfbest
+write(*,*) 'final estimated frequency is: ',fc1+fc2+dfbest
           j=1
           do i=1,205
             if( abs(id(i)) .ne. 2 ) then
@@ -346,7 +372,7 @@ do idf=0,idfmax
       bestbits=bit
       cbest=cideal
       fbest=deltaf
-      zz=sum(cdat*conjg(cbest))/1.e3
+      zz=sum(cdat(1:64*ns/3)*conjg(cbest(1:64*ns/3)))/1.e3
     endif
   enddo
   if( ibflag .eq. 1 ) then ! new best found

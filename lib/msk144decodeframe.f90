@@ -1,20 +1,21 @@
 subroutine msk144decodeframe(c,softbits,msgreceived,nsuccess,recent_calls,nrecent)
 !  use timer_module, only: timer
-
+  use packjt77
   parameter (NSPM=864)
-  character*22 msgreceived
+  character*37 msgreceived
   character*12 recent_calls(nrecent)
+  character*77 c77
   complex cb(42)
   complex cfac,cca,ccb
   complex c(NSPM)
-  integer*1 decoded(80)
+  integer*1 decoded77(77),apmask(128),cw(128)
   integer s8(8),hardbits(144)
   real*8 dt, fs, pi, twopi
   real cbi(42),cbq(42)
   real pp(12)
   real softbits(144)
   real llr(128)
-  logical first
+  logical first,unpk77_success
   data first/.true./
   data s8/0,1,1,1,0,0,1,0/
   save first,cb,fs,pi,twopi,dt,s8,pp
@@ -87,20 +88,20 @@ subroutine msk144decodeframe(c,softbits,msgreceived,nsuccess,recent_calls,nrecen
   ssig=sqrt(s2av-sav*sav)
   softbits=softbits/ssig
 
-  sigma=0.75
+  sigma=0.60
   llr(1:48)=softbits(9:9+47)
   llr(49:128)=softbits(65:65+80-1)
   llr=2.0*llr/(sigma*sigma)
   
   max_iterations=10
-!  call timer('bpdec144 ',0)
-  call bpdecode144(llr,max_iterations,decoded,niterations)
-!  call timer('bpdec144 ',1)
-  if( niterations .ge. 0.0 ) then
-    call extractmessage144(decoded,msgreceived,nhashflag,recent_calls,nrecent)
-    if( nhashflag .gt. 0 ) then         !Hash codes match, so print it 
-      nsuccess=1
-    endif
+!  call timer('bpdec128_90 ',0)
+  apmask=0
+  call bpdecode128_90(llr,apmask,max_iterations,decoded77,cw,nharderror,niterations)
+!  call timer('bpdec128_90 ',1)
+  if( nharderror .ge. 0 .and. nharderror .lt. 18 ) then
+    nsuccess=1
+    write(c77,'(77i1)') decoded77
+    call unpack77(c77,msgreceived,unpk77_success)
   endif
 
   return

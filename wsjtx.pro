@@ -67,7 +67,8 @@ SOURCES += \
   echoplot.cpp echograph.cpp fastgraph.cpp fastplot.cpp Modes.cpp \
   WSPRBandHopping.cpp MessageAggregator.cpp SampleDownloader.cpp qt_helpers.cpp\
   MultiSettings.cpp PhaseEqualizationDialog.cpp IARURegions.cpp MessageBox.cpp \
-  EqualizationToolsDialog.cpp
+  EqualizationToolsDialog.cpp \
+    colorhighlighting.cpp
 
 HEADERS  += qt_helpers.hpp \
   pimpl_h.hpp pimpl_impl.hpp \
@@ -83,7 +84,8 @@ HEADERS  += qt_helpers.hpp \
   logbook/logbook.h logbook/countrydat.h logbook/countriesworked.h logbook/adif.h \
   messageaveraging.h echoplot.h echograph.h fastgraph.h fastplot.h Modes.hpp WSPRBandHopping.hpp \
   WsprTxScheduler.h SampleDownloader.hpp MultiSettings.hpp PhaseEqualizationDialog.hpp \
-  IARURegions.hpp MessageBox.hpp EqualizationToolsDialog.hpp
+  IARURegions.hpp MessageBox.hpp EqualizationToolsDialog.hpp \
+    colorhighlighting.h
 
 
 INCLUDEPATH += qmake_only
@@ -95,7 +97,8 @@ HEADERS += OmniRigTransceiver.hpp
 
 FORMS    += mainwindow.ui about.ui Configuration.ui widegraph.ui astro.ui \
     logqso.ui wf_palette_design_dialog.ui messageaveraging.ui echograph.ui \
-    fastgraph.ui
+    fastgraph.ui \
+    colorhighlighting.ui
 
 RC_FILE = wsjtx.rc
 RESOURCES = wsjtx.qrc

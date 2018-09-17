@@ -162,6 +162,7 @@ option (WSJT_SOFT_KEYING "Apply a ramp to CW keying envelope to reduce transient
 option (WSJT_SKIP_MANPAGES "Skip *nix manpage generation.")
 option (WSJT_GENERATE_DOCS "Generate documentation files." ON)
 option (WSJT_RIG_NONE_CAN_SPLIT "Allow split operation with \"None\" as rig.")
+option (WSJT_BUILD_UTILS "Build simulators and code demonstrators." ON)
 
 CMAKE_DEPENDENT_OPTION (WSJT_HAMLIB_VERBOSE_TRACE "Debugging option that turns on full Hamlib internal diagnostics." OFF WSJT_HAMLIB_TRACE OFF)
 CMAKE_DEPENDENT_OPTION (WSJT_QDEBUG_IN_RELEASE "Leave Qt debugging statements in Release configuration." OFF
@@ -176,7 +177,6 @@ If you just want to see the debug output from the application then the easiest w
 attach a debugger which will then receive the console output inside its console." ON
   "WIN32" OFF)
 
-
 set (PROJECT_ARCHITECTURE "${CMAKE_SYSTEM_PROCESSOR}")
 if (NOT PROJECT_ARCHITECTURE)
   # This is supposed to happen already on Windows
@@ -185,7 +185,6 @@ endif (NOT PROJECT_ARCHITECTURE)
 message (STATUS "******************************************************")
 message (STATUS "Building for for: ${CMAKE_SYSTEM_NAME}-${PROJECT_ARCHITECTURE}")
 message (STATUS "******************************************************")
-
 
 #
 # install locations
@@ -302,6 +301,7 @@ set (wsjtx_CXXSRCS
   about.cpp
   astro.cpp
   messageaveraging.cpp
+  colorhighlighting.cpp
   WsprTxScheduler.cpp
   mainwindow.cpp
   Configuration.cpp
@@ -313,11 +313,15 @@ set (wsjtx_CXXSRCS
 set (wsjt_CXXSRCS
   lib/crc10.cpp
   lib/crc12.cpp
+  lib/crc13.cpp
+  lib/crc14.cpp
   )
 # deal with a GCC v6 UB error message
 set_source_files_properties (
   lib/crc10.cpp
   lib/crc12.cpp
+  lib/crc13.cpp
+  lib/crc14.cpp
   PROPERTIES COMPILE_FLAGS -fpermissive)
 
 if (WIN32)
@@ -346,6 +350,7 @@ set (wsjt_FSRCS
   lib/jt9_decode.f90
   lib/options.f90
   lib/packjt.f90
+  lib/77bit/packjt77.f90
   lib/readwav.f90
   lib/timer_C_wrapper.f90
   lib/timer_impl.f90
@@ -369,25 +374,22 @@ set (wsjt_FSRCS
   lib/ft8/baseline.f90
   lib/bpdecode40.f90
   lib/bpdecode144.f90
-  lib/fsk4hf/bpdecode120.f90
-  lib/fsk4hf/bpdecode168.f90
+  lib/bpdecode128_90.f90
   lib/ft8/bpdecode174.f90
-  lib/fsk4hf/bpdecode300.f90
+  lib/ft8/bpdecode174_91.f90
   lib/baddata.f90
   lib/calibrate.f90
   lib/ccf2.f90
   lib/ccf65.f90
-  lib/fsk4hf/chkcrc10.f90
-  lib/fsk4hf/chkcrc12.f90
   lib/ft8/chkcrc12a.f90
+  lib/ft8/chkcrc13a.f90
+  lib/ft8/chkcrc14a.f90
   lib/chkcall.f90
   lib/chkhist.f90
   lib/chkmsg.f90
   lib/chkss2.f90
   lib/ft8/compress.f90
   lib/coord.f90
-  lib/fsk4hf/cpolyfit.f90
-  lib/fsk4hf/cpolyfitw.f90
   lib/db.f90
   lib/decode4.f90
   lib/decode65a.f90
@@ -404,17 +406,17 @@ set (wsjt_FSRCS
   lib/encode4.f90
   lib/encode_msk40.f90
   lib/encode_msk144.f90
-  lib/fsk4hf/encode120.f90
-  lib/fsk4hf/encode168.f90
+  lib/encode_128_90.f90
   lib/ft8/encode174.f90
-  lib/fsk4hf/encode300.f90
+  lib/ft8/encode174_91.f90
   lib/entail.f90
   lib/ephem.f90
   lib/extract.f90
   lib/extract4.f90
   lib/extractmessage144.f90
-  lib/fsk4hf/extractmessage168.f90
+  lib/extractmessage77.f90
   lib/ft8/extractmessage174.f90
+  lib/ft8/extractmessage174_91.f90
   lib/fano232.f90
   lib/fast9.f90
   lib/fast_decode.f90
@@ -428,7 +430,6 @@ set (wsjt_FSRCS
   lib/filbig.f90
   lib/ft8/filt8.f90
   lib/fitcal.f90
-  lib/fix_contest_msg.f90
   lib/flat1.f90
   lib/flat1a.f90
   lib/flat1b.f90
@@ -443,27 +444,22 @@ set (wsjt_FSRCS
   lib/ft8/foxgen_wrap.f90
   lib/fqso_first.f90
   lib/freqcal.f90
-  lib/fsk4hf/fsk4hf.f90
   lib/ft8/ft8apset.f90
-  lib/ft8/ft8b.f90
+  lib/ft8/ft8apset_174_91.f90
+  lib/ft8/ft8b_1.f90
+  lib/ft8/ft8b_2.f90
   lib/ft8/ft8code.f90
   lib/ft8/ft8_downsample.f90
   lib/ft8/ft8sim.f90
+  lib/ft8/ft8sim2.f90
   lib/gen4.f90
   lib/gen65.f90
   lib/gen9.f90
   lib/geniscat.f90
-  lib/fsk4hf/genfsk4hf.f90
   lib/ft8/genft8.f90
-  lib/genmsk144.f90
+  lib/ft8/genft8_174_91.f90
+  lib/genmsk_128_90.f90
   lib/genmsk40.f90
-  lib/fsk4hf/genmskhf.f90
-  lib/fsk4hf/genwsprlf.f90
-  lib/fsk4hf/genwspr_fsk8.f90
-  lib/fsk4hf/getfc1.f90
-  lib/fsk4hf/getfc2.f90
-  lib/fsk4hf/getfc1w.f90
-  lib/fsk4hf/getfc2w.f90
   lib/genqra64.f90
   lib/ft8/genft8refsig.f90
   lib/genwspr.f90
@@ -488,12 +484,6 @@ set (wsjt_FSRCS
   lib/jplsubs.f
   lib/jt9fano.f90
   lib/jtmsg.f90
-  lib/ldpcsim144.f90
-  lib/fsk4hf/ldpcsim120.f90
-  lib/fsk4hf/ldpcsim168.f90
-  lib/ft8/ldpcsim174.f90
-  lib/fsk4hf/ldpcsim300.f90
-  lib/ldpcsim40.f90
   lib/libration.f90
   lib/lorentzian.f90
   lib/lpf1.f90
@@ -515,18 +505,17 @@ set (wsjt_FSRCS
   lib/mskrtd.f90
   lib/msk144signalquality.f90
   lib/msk144sim.f90
-  lib/fsk4hf/mskhfsim.f90
   lib/mskrtd.f90
-  lib/fsk4hf/msksoftsym.f90
-  lib/fsk4hf/msksoftsymw.f90
+  lib/77bit/my_hash.f90
   lib/ft8/osd174.f90
-  lib/fsk4hf/osd300.f90
+  lib/wsprd/osdwspr.f90
+  lib/ft8/osd174_91.f90
+  lib/77bit/parse77.f90
   lib/pctile.f90
   lib/peakdt9.f90
   lib/peakup.f90
   lib/plotsave.f90
   lib/polyfit.f90
-  lib/fsk4hf/polyfit4.f90
   lib/prog_args.f90
   lib/ps4.f90
   lib/qra64a.f90
@@ -545,9 +534,7 @@ set (wsjt_FSRCS
   lib/softsym9f.f90
   lib/softsym9w.f90
   lib/shell.f90
-  lib/fsk4hf/spec4.f90
   lib/spec64.f90
-  lib/fsk4hf/spec8.f90
   lib/spec9f.f90
   lib/stdmsg.f90
   lib/subtract65.f90
@@ -566,7 +553,6 @@ set (wsjt_FSRCS
   lib/sync9w.f90
   lib/synciscat.f90
   lib/timf2.f90
-  lib/to_contest_msg.f90
   lib/tweak1.f90
   lib/twkfreq.f90
   lib/ft8/twkfreq1.f90
@@ -581,11 +567,6 @@ set (wsjt_FSRCS
   lib/xcor4.f90
   lib/wqdecode.f90
   lib/wqencode.f90
-  lib/fsk4hf/wspr_fsk8d.f90
-  lib/fsk4hf/wspr_fsk8_sim.f90
-  lib/fsk4hf/wspr_fsk8_wav.f90
-  lib/fsk4hf/wspr_fsk8_downsample.f90
-  lib/fsk4hf/wsprlfsim.f90
   lib/wspr_downsample.f90
   lib/zplot9.f90
   )
@@ -659,6 +640,7 @@ set (wsjtx_UISRCS
   mainwindow.ui
   about.ui
   astro.ui
+  colorhighlighting.ui
   echograph.ui
   fastgraph.ui
   messageaveraging.ui
@@ -887,7 +869,9 @@ endif (WIN32)
 #
 # sub-directories
 #
-add_subdirectory (samples)
+if (EXISTS ${CMAKE_SOURCE_DIR}/samples AND IS_DIRECTORY ${CMAKE_SOURCE_DIR}/samples)
+  add_subdirectory (samples)
+endif ()
 if (WSJT_GENERATE_DOCS)
   add_subdirectory (doc)
 endif (WSJT_GENERATE_DOCS)
@@ -1165,93 +1149,10 @@ endif (WIN32)
 add_library (wsjt_qtmm STATIC ${wsjt_qtmm_CXXSRCS} ${wsjt_qtmm_GENUISRCS})
 target_link_libraries (wsjt_qtmm Qt5::Multimedia)
 
-add_executable (jt4sim lib/jt4sim.f90 wsjtx.rc)
-target_link_libraries (jt4sim wsjt_fort wsjt_cxx)
-
-add_executable (jt65sim lib/jt65sim.f90 wsjtx.rc)
-target_link_libraries (jt65sim wsjt_fort wsjt_cxx)
-
-add_executable (qra64sim lib/qra/qra64/qra64sim.f90 wsjtx.rc)
-target_link_libraries (qra64sim wsjt_fort wsjt_cxx)
-
-add_executable (jt49sim lib/jt49sim.f90 wsjtx.rc)
-target_link_libraries (jt49sim wsjt_fort wsjt_cxx)
-
-add_executable (allsim lib/allsim.f90 wsjtx.rc)
-target_link_libraries (allsim wsjt_fort wsjt_cxx)
-
-add_executable (jt65code lib/jt65code.f90 wsjtx.rc)
-target_link_libraries (jt65code wsjt_fort wsjt_cxx)
-
-add_executable (qra64code lib/qra64code.f90 wsjtx.rc)
-target_link_libraries (qra64code wsjt_fort wsjt_cxx)
-
-add_executable (jt9code lib/jt9code.f90 wsjtx.rc)
-target_link_libraries (jt9code wsjt_fort wsjt_cxx)
-
-add_executable (wsprcode lib/wsprcode/wsprcode.f90 lib/wsprcode/nhash.c
-	       wsjtx.rc)
-target_link_libraries (wsprcode wsjt_fort wsjt_cxx)
-
-add_executable (wsprd ${wsprd_CSRCS})
+# Always build these:
+add_executable (wsprd ${wsprd_CSRCS} lib/indexx.f90 lib/wsprd/osdwspr.f90)
 target_include_directories (wsprd PRIVATE ${FFTW3_INCLUDE_DIRS})
 target_link_libraries (wsprd ${FFTW3_LIBRARIES})
-
-add_executable (wsprsim ${wsprsim_CSRCS})
-
-add_executable (jt4code lib/jt4code.f90 wsjtx.rc)
-target_link_libraries (jt4code wsjt_fort wsjt_cxx)
-
-add_executable (msk144code lib/msk144code.f90 wsjtx.rc)
-target_link_libraries (msk144code wsjt_fort wsjt_cxx)
-
-add_executable (jt65 lib/jt65.f90 lib/jt65_test.f90 wsjtx.rc)
-target_link_libraries (jt65 wsjt_fort wsjt_cxx)
-
-add_executable (ldpcsim40 lib/ldpcsim40.f90 wsjtx.rc)
-target_link_libraries (ldpcsim40 wsjt_fort wsjt_cxx)
-
-add_executable (ldpcsim120 lib/fsk4hf/ldpcsim120.f90 wsjtx.rc)
-target_link_libraries (ldpcsim120 wsjt_fort wsjt_cxx)
-
-add_executable (ldpcsim174 lib/ft8/ldpcsim174.f90 wsjtx.rc)
-target_link_libraries (ldpcsim174 wsjt_fort wsjt_cxx)
-
-add_executable (ldpcsim144 lib/ldpcsim144.f90 wsjtx.rc)
-target_link_libraries (ldpcsim144 wsjt_fort wsjt_cxx)
-
-add_executable (ldpcsim168 lib/fsk4hf/ldpcsim168.f90 wsjtx.rc)
-target_link_libraries (ldpcsim168 wsjt_fort wsjt_cxx)
-
-add_executable (fsk4hf lib/fsk4hf/fsk4hf.f90 wsjtx.rc)
-target_link_libraries (fsk4hf wsjt_fort wsjt_cxx)
-
-add_executable (ft8code lib/ft8/ft8code.f90 wsjtx.rc)
-target_link_libraries (ft8code wsjt_fort wsjt_cxx)
-
-add_executable (ft8sim lib/ft8/ft8sim.f90 wsjtx.rc)
-target_link_libraries (ft8sim wsjt_fort wsjt_cxx)
-
-add_executable (wsprlfsim lib/fsk4hf/wsprlfsim.f90 wsjtx.rc)
-target_link_libraries (wsprlfsim wsjt_fort wsjt_cxx)
-
-add_executable (wspr_fsk8d lib/fsk4hf/wspr_fsk8d.f90 wsjtx.rc)
-target_link_libraries (wspr_fsk8d wsjt_fort wsjt_cxx)
-
-add_executable (wspr_fsk8_sim lib/fsk4hf/wspr_fsk8_sim.f90 wsjtx.rc)
-target_link_libraries (wspr_fsk8_sim wsjt_fort wsjt_cxx)
-
-add_executable (mskhfsim lib/fsk4hf/mskhfsim.f90 wsjtx.rc)
-target_link_libraries (mskhfsim wsjt_fort wsjt_cxx)
-
-add_executable (msk144sd lib/msk144sd.f90 wsjtx.rc)
-target_link_libraries (msk144sd wsjt_fort wsjt_cxx)
-
-add_executable (msk144sim lib/msk144sim.f90 wsjtx.rc)
-target_link_libraries (msk144sim wsjt_fort wsjt_cxx)
-
-add_executable (msk144d2 lib/msk144d2.f90 wsjtx.rc)
-target_link_libraries (msk144d2 wsjt_fort wsjt_cxx)
 
 add_executable (fmtave lib/fmtave.f90 wsjtx.rc)
 
@@ -1296,6 +1197,65 @@ if (${OPENMP_FOUND} OR APPLE)
 else (${OPENMP_FOUND} OR APPLE)
   target_link_libraries (jt9 wsjt_fort wsjt_cxx Qt5::Core)
 endif (${OPENMP_FOUND} OR APPLE)
+
+if(WSJT_BUILD_UTILS) 
+add_executable (jt4sim lib/jt4sim.f90 wsjtx.rc)
+target_link_libraries (jt4sim wsjt_fort wsjt_cxx)
+
+add_executable (jt65sim lib/jt65sim.f90 wsjtx.rc)
+target_link_libraries (jt65sim wsjt_fort wsjt_cxx)
+
+add_executable (qra64sim lib/qra/qra64/qra64sim.f90 wsjtx.rc)
+target_link_libraries (qra64sim wsjt_fort wsjt_cxx)
+
+add_executable (jt49sim lib/jt49sim.f90 wsjtx.rc)
+target_link_libraries (jt49sim wsjt_fort wsjt_cxx)
+
+add_executable (allsim lib/allsim.f90 wsjtx.rc)
+target_link_libraries (allsim wsjt_fort wsjt_cxx)
+
+add_executable (jt65code lib/jt65code.f90 wsjtx.rc)
+target_link_libraries (jt65code wsjt_fort wsjt_cxx)
+
+add_executable (qra64code lib/qra64code.f90 wsjtx.rc)
+target_link_libraries (qra64code wsjt_fort wsjt_cxx)
+
+add_executable (jt9code lib/jt9code.f90 wsjtx.rc)
+target_link_libraries (jt9code wsjt_fort wsjt_cxx)
+
+add_executable (wsprcode lib/wsprcode/wsprcode.f90 lib/wsprcode/nhash.c
+	       wsjtx.rc)
+target_link_libraries (wsprcode wsjt_fort wsjt_cxx)
+
+add_executable (wsprsim ${wsprsim_CSRCS})
+
+add_executable (jt4code lib/jt4code.f90 wsjtx.rc)
+target_link_libraries (jt4code wsjt_fort wsjt_cxx)
+
+add_executable (msk144code lib/msk144code.f90 wsjtx.rc)
+target_link_libraries (msk144code wsjt_fort wsjt_cxx)
+
+add_executable (jt65 lib/jt65.f90 lib/jt65_test.f90 wsjtx.rc)
+target_link_libraries (jt65 wsjt_fort wsjt_cxx)
+
+add_executable (ft8code lib/ft8/ft8code.f90 wsjtx.rc)
+target_link_libraries (ft8code wsjt_fort wsjt_cxx)
+
+add_executable (ft8sim lib/ft8/ft8sim.f90 wsjtx.rc)
+target_link_libraries (ft8sim wsjt_fort wsjt_cxx)
+
+add_executable (ft8sim2 lib/ft8/ft8sim2.f90 wsjtx.rc)
+target_link_libraries (ft8sim2 wsjt_fort wsjt_cxx)
+
+add_executable (msk144sd lib/msk144sd.f90 wsjtx.rc)
+target_link_libraries (msk144sd wsjt_fort wsjt_cxx)
+
+add_executable (msk144sim lib/msk144sim.f90 wsjtx.rc)
+target_link_libraries (msk144sim wsjt_fort wsjt_cxx)
+
+add_executable (msk144d2 lib/msk144d2.f90 wsjtx.rc)
+target_link_libraries (msk144d2 wsjt_fort wsjt_cxx)
+endif(WSJT_BUILD_UTILS)
 
 # build the main application
 add_executable (wsjtx MACOSX_BUNDLE
@@ -1426,11 +1386,18 @@ install (TARGETS udp_daemon message_aggregator
   BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   )
 
-install (TARGETS jt9 ft8code jt65code qra64code qra64sim jt9code jt4code
-  msk144code wsprd wspr_fsk8d fmtave fcal fmeasure
+install (TARGETS jt9 wsprd fmtave fcal fmeasure
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   )
+
+if(WSJT_BUILD_UTILS)
+install (TARGETS ft8code jt65code qra64code qra64sim jt9code jt4code
+  msk144code 
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
+  BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
+  )
+endif(WSJT_BUILD_UTILS)  
 
 install (PROGRAMS
   ${RIGCTL_EXE}
@@ -1460,6 +1427,7 @@ install (FILES
 
 install (FILES
   contrib/Ephemeris/JPLEPH
+  contrib/lotw-user-activity.csv
   DESTINATION ${CMAKE_INSTALL_DATADIR}/${CMAKE_PROJECT_NAME}
   #COMPONENT runtime
   )

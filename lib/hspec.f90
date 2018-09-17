@@ -1,4 +1,4 @@
-subroutine hspec(id2,k,nutc0,ntrpdepth,nrxfreq,ntol,bmsk144,bcontest,  &
+subroutine hspec(id2,k,nutc0,ntrpdepth,nrxfreq,ntol,ncontest,bmsk144,  &
      btrain,pcoeffs,ingain,mycall,hiscall,bshmsg,bswl,datadir,green,s, &
      jh,pxmax,dbNoGain,line1,mygrid)
 
@@ -8,6 +8,7 @@ subroutine hspec(id2,k,nutc0,ntrpdepth,nrxfreq,ntol,bmsk144,bcontest,  &
 !  ntrpdepth TR period and 1000*ndepth
 !  nrxfreq   Rx audio center frequency
 !  ntol      Decoding range is +/- ntol
+!  ncontest  Contest type (0=NONE 1=NA_VHF 2=EU_VHF 3=FIELD_DAY 4=RTTY)
 !  bmsk144   Boolean, true if in MSK144 mode
 !  btrain    Boolean, turns on training in MSK144 mode
 !  ingain    Relative gain for spectra
@@ -23,7 +24,7 @@ subroutine hspec(id2,k,nutc0,ntrpdepth,nrxfreq,ntol,bmsk144,bcontest,  &
   character*12 mycall,hiscall
   character*6 mygrid
   integer*2 id2(0:120*12000-1)
-  logical*1 bmsk144,bcontest,bshmsg,btrain,bswl
+  logical*1 bmsk144,bshmsg,btrain,bswl
   real green(0:JZ-1)
   real s(0:63,0:JZ-1)
   real x(512)
@@ -96,7 +97,7 @@ subroutine hspec(id2,k,nutc0,ntrpdepth,nrxfreq,ntol,bmsk144,bcontest,  &
         tt2=sum(float(abs(id2(k0:k0+3583))))
         if(tt1.ne.0.0 .and. tt2.ne.0) then
            call mskrtd(id2(k-7168+1:k),nutc0,tsec,ntol,nrxfreq,ndepth,   &
-                mycall,mygrid,hiscall,bshmsg,bcontest,btrain,pcoeffs,bswl,&
+                mycall,mygrid,hiscall,bshmsg,btrain,pcoeffs,bswl,        &
                 datadir,line1)
         endif
      endif

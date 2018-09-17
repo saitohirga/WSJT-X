@@ -4,15 +4,13 @@ program msk144sim
   parameter (NMAX=15*12000)
   real pings(0:NMAX-1)
   real waveform(0:NMAX-1)
-  character*6 mygrid
-  character arg*8,msg*22,msgsent*22,fname*40
+  character arg*8,msg*37,msgsent*37,fname*40
+  character*77 c77
   real wave(0:NMAX-1)              !Simulated received waveform
   real*8 twopi,freq,phi,dphi0,dphi1,dphi
   type(hdr) h                          !Header for .wav file
   integer*2 iwave(0:NMAX-1)
   integer itone(144)                   !Message bits
-  logical*1 bcontest
-  data mygrid/"EN50wc"/
 
   nargs=iargc()
   if(nargs.ne.6) then
@@ -37,10 +35,9 @@ program msk144sim
   sig=sqrt(2.0)*10.0**(0.05*snrdb)
   h=default_header(12000,NMAX)
   i1=len(trim(msg))-5
-  bcontest=.false.
-  if(msg(i1:i1+1).eq.'R ') bcontest=.true.
   ichk=0
-  call genmsk144(msg,mygrid,ichk,bcontest,msgsent,itone,itype) 
+  itype=1
+  call genmsk_128_90(msg,ichk,msgsent,itone,itype) 
   twopi=8.d0*atan(1.d0)
 
   nsym=144

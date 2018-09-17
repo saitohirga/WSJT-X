@@ -9,7 +9,7 @@ subroutine encode4(message,ncode)
   integer*1 data0(13),symbol(216)
 
   call chkmsg(message,cok,nspecial,flip)
-  call packmsg(message,dgen,itype,.false.) !Pack 72-bit message into 12 six-bit symbols
+  call packmsg(message,dgen,itype) !Pack 72-bit message into 12 six-bit symbols
   call entail(dgen,data0)
   call encode232(data0,206,symbol)       !Convolutional encoding
   call interleave4(symbol,1)             !Apply JT4 interleaving

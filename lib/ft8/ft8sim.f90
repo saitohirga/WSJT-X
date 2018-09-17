@@ -8,16 +8,13 @@ program ft8sim
   parameter (NWAVE=NN*NSPS)
   type(hdr) h                            !Header for .wav file
   character arg*12,fname*17
-  character msg40*40,msg*22,msgsent*22,msg0*22
-  character*6 mygrid6
-  logical bcontest
+  character msg*37,msgsent*37,msg0*37
   complex c0(0:NMAX-1)
   complex c(0:NMAX-1)
   real wave(NMAX)
   integer itone(NN)
-  integer*1 msgbits(KK)
+  integer*1 msgbits(77)
   integer*2 iwave(NMAX)                  !Generated full-length waveform
-  data mygrid6/'EM48  '/
 
 ! Get command-line argument(s)
   nargs=iargc()
@@ -27,10 +24,9 @@ program ft8sim
      print*,'          ft8sim "K1ABC W9XYZ EN37"   10   0.0  0.1 1.0  25     10   -18'
      print*,'          ft8sim "K1ABC W9XYZ EN37"   25   0.0  0.1 1.0  25     10   -18'
      print*,'          ft8sim "K1ABC RR73; W9XYZ <KH1/KH7Z> -11" 300 0 0 0 25 1 -10'
-     print*,'Make nfiles negative to invoke 72-bit contest mode.'
      go to 999
   endif
-  call getarg(1,msg40)                   !Message to be transmitted
+  call getarg(1,msg)                   !Message to be transmitted
   call getarg(2,arg)
   read(arg,*) f0                         !Frequency (only used for single-signal)
   call getarg(3,arg)
@@ -45,13 +41,13 @@ program ft8sim
   read(arg,*) nfiles                     !Number of files
   call getarg(8,arg)
   read(arg,*) snrdb                      !SNR_2500
+
   nsig=1
   if(f0.lt.100.0) then
      nsig=f0
      f0=1500
   endif
 
-  bcontest=nfiles.lt.0
   nfiles=abs(nfiles)
   twopi=8.0*atan(1.0)
   fs=12000.0                             !Sample rate (Hz)
@@ -66,26 +62,27 @@ program ft8sim
   txt=NN*NSPS/12000.0
 
 ! Source-encode, then get itone()
-  if(index(msg40,';').le.0) then
+  if(index(msg,';').le.0) then
      i3bit=0
-     msg=msg40(1:22)
-     call genft8(msg,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
+     call genft8(msg,i3bit,0,1,msgsent,msgbits,itone)
      write(*,1000) f0,xdt,txt,snrdb,bw,msgsent
 1000 format('f0:',f9.3,'   DT:',f6.2,'   TxT:',f6.1,'   SNR:',f6.1,    &
           '  BW:',f4.1,2x,a22)
   else
-     call foxgen_wrap(msg40,msgbits,itone)
-     write(*,1001) f0,xdt,txt,snrdb,bw,msg40
+     call foxgen_wrap(msg,msgbits,itone)
+     write(*,1001) f0,xdt,txt,snrdb,bw,msg
 1001 format('f0:',f9.3,'   DT:',f6.2,'   TxT:',f6.1,'   SNR:',f6.1,    &
-          '  BW:',f4.1,2x,a40)
+          '  BW:',f4.1,2x,a37)
   endif
 
   write(*,1030) msgbits(1:56)
 1030 format(/'Call1: ',28i1,'    Call2: ',28i1)
-  write(*,1032) msgbits(57:72),msgbits(73:75),msgbits(76:87)
-1032 format('Grid:  ',16i1,'   3Bit: ',3i1,'    CRC12: ',12i1)
+  write(*,1032) msgbits(57:72),msgbits(73:75)
+1032 format('Grid:  ',16i1,'   3Bit: ',3i1)
   write(*,1034) itone
 1034 format(/'Channel symbols:'/79i1/)
+
+  call sgran()
 
   msg0=msg
   do ifile=1,nfiles
@@ -99,7 +96,7 @@ program ft8sim
            if(isig.eq.2) then
               f0=f0+100
            endif
-           call genft8(msg,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
+           call genft8(msg,i3bit,msgsent,msgbits,itone)
         endif
         if(nsig.eq.25) then
            f0=(isig+2)*100.0
@@ -118,18 +115,18 @@ program ft8sim
 1002          format('R',i3.2)
               f0=600.0 + mod(isig-1,5)*60.0
            endif
-           call genft8(msg,mygrid6,bcontest,i3bit,msgsent,msgbits,itone)
+           call genft8(msg,i3bit,msgsent,msgbits,itone)
         endif
-        k=-1 + nint((xdt+0.5+0.01*gran())/dt)
-!        k=-1 + nint((xdt+0.5)/dt)
-        ia=k+1
+!        k=nint((xdt+0.5+0.01*gran())/dt)
+        k=nint((xdt+0.5)/dt)
+        ia=k
         phi=0.0
         do j=1,NN                             !Generate complex waveform
-           dphi=twopi*(f0+itone(j)*baud)*dt
+           dphi=twopi*(f0*dt+itone(j)/real(NSPS))
            do i=1,NSPS
+              if(k.ge.0 .and. k.lt.NMAX) c0(k)=cmplx(cos(phi),sin(phi))
               k=k+1
               phi=mod(phi+dphi,twopi)
-              if(k.ge.0 .and. k.lt.NMAX) c0(k)=cmplx(cos(phi),sin(phi))
            enddo
         enddo
         if(fspread.ne.0.0 .or. delay.ne.0.0) call watterson(c0,NMAX,fs,delay,fspread)
@@ -145,9 +142,6 @@ program ft8sim
      if(snrdb.lt.90) then
         do i=1,NMAX                   !Add gaussian noise at specified SNR
            xnoise=gran()
-!           wave(i)=wave(i) + xnoise
-!           if(i.ge.ia .and. i.le.ib) write(30,3001) i,wave(i)/peak
-!3001       format(i8,f12.6)
            wave(i)=wave(i) + xnoise
         enddo
      endif

@@ -1,5 +1,5 @@
-subroutine sync4(dat,jz,ntol,NFreeze,MouseDF,mode,mode4,minwidth,    &
-     dtx,dfx,snrx,snrsync,ccfblue,ccfred1,flip,width,ps0)
+subroutine sync4(dat,jz,ntol,nfqso,mode,mode4,minwidth,dtx,dfx,snrx,    &
+     snrsync,flip,width)
 
 ! Synchronizes JT4 data, finding the best-fit DT and DF.  
 
@@ -8,22 +8,16 @@ subroutine sync4(dat,jz,ntol,NFreeze,MouseDF,mode,mode4,minwidth,    &
   parameter (NSMAX=525)            !Max number of half-symbol steps
   integer ntol                     !Range of DF search
   real dat(jz)
-  real psavg(NHMAX)                !Average spectrum of whole record
-  real ps0(450)                    !Avg spectrum for plotting
   real s2(NHMAX,NSMAX)             !2d spectrum, stepped by half-symbols
   real ccfblue(-5:540)             !CCF with pseudorandom sequence
-  real ccfred(-450:450)            !Peak of ccfblue, as function of freq
-  real red(-450:450)               !Peak of ccfblue, as function of freq
-  real ccfred1(-224:224)           !Peak of ccfblue, as function of freq
-  real tmp(1260)
+  real ccfred(NHMAX)               !Peak of ccfblue, as function of freq
+  real red(NHMAX)                  !Peak of ccfblue, as function of freq
   integer ipk1(1)
   integer nch(7)
   logical savered
   equivalence (ipk1,ipk1a)
   data nch/1,2,4,9,18,36,72/
   save
-
-
 
 ! Do FFTs of twice symbol length, stepped by half symbols.  Note that 
 ! we have already downsampled the data by factor of 2.
@@ -33,66 +27,50 @@ subroutine sync4(dat,jz,ntol,NFreeze,MouseDF,mode,mode4,minwidth,    &
   nq=nfft/4
   nsteps=jz/nq - 1
   df=0.5*11025.0/nfft
-  psavg(1:nh)=0.
+  ftop=nfqso + 7*mode4*df
+  if(ftop.gt.11025.0/4.0) then
+     print*,'*** Rx Freq is set too high for this sybmode ***'
+     go to 900
+  endif
+
   if(mode.eq.-999) width=0.                        !Silence compiler warning
 
   do j=1,nsteps                     !Compute spectrum for each step, get average
      k=(j-1)*nq + 1
      call ps4(dat(k),nfft,s2(1,j))
-     psavg(1:nh)=psavg(1:nh) + s2(1:nh,j)
-  enddo
-
-  nsmo=min(10*mode4,150)
-  call flat1b(psavg,nsmo,s2,nh,nsteps,NHMAX,NSMAX)        !Flatten spectra
-
-  if(mode4.ge.9) call smo(psavg,nh,tmp,mode4/4)
-
-  i0=132
-  do i=1,450
-     ps0(i)=5.0*(psavg(i0+2*i) + psavg(i0+2*i+1) - 2.0)
   enddo
 
 ! Set freq and lag ranges
-  famin=200.0 + 3*mode4*df
-  fbmax=2700.0 - 3*mode4*df
-  fa=famin
-  fb=fbmax
-  if(NFreeze.eq.1) then
-     fa=max(famin,1270.46+MouseDF-ntol)
-     fb=min(fbmax,1270.46+MouseDF+ntol)
-  else
-     fa=max(famin,1270.46+MouseDF-600)
-     fb=min(fbmax,1270.46+MouseDF+600)
-  endif
-  ia=fa/df - 3*mode4                   !Index of lowest tone, bottom of range
-  ib=fb/df - 3*mode4                   !Index of lowest tone, top of range
-  i0=nint(1270.46/df)
-  irange=450
-  if(ia-i0.lt.-irange) ia=i0-irange
-  if(ib-i0.gt.irange)  ib=i0+irange
+  ia=(nfqso-ntol)/df              !Index of lowest tone, bottom of search range
+  ib=(nfqso+ntol)/df              !Index of lowest tone, top of search range
+  iamin=nint(100.0/df)
+  if(ia.lt.iamin) ia=iamin
+  ibmax=nint(2700.0/df) - 6*mode4
+  if(ib.gt.ibmax) ib=ibmax
+
   lag1=-5
   lag2=59
   syncbest=-1.e30
+  snrx=-26.0
   ccfred=0.
-  jmax=-1000
-  jmin=1000
+  red=0.
+  i0=nint(nfqso/df)
 
   do ich=minwidth,7                       !Find best width
      kz=nch(ich)/2
      savered=.false.
-     do i=ia+kz,ib-kz                     !Find best frequency channel for CCF
+     iaa=ia+kz
+     ibb=ib-kz
+     do i=iaa,ibb                       !Find best frequency channel for CCF
         call xcor4(s2,i,nsteps,nsym,lag1,lag2,ich,mode4,ccfblue,ccf0,   &
              lagpk0,flip)
-        j=i-i0 + 3*mode4
-        if(j.ge.-372 .and. j.le.372) then
-           ccfred(j)=ccf0
-           jmax=max(j,jmax)
-           jmin=min(j,jmin)
-        endif
-
+        ccfred(i)=ccf0
+        
 ! Find rms of the CCF, without main peak
         call slope(ccfblue(lag1),lag2-lag1+1,lagpk0-lag1+1.0)
         sync=abs(ccfblue(lagpk0))
+!        write(*,3000) ich,i,i*df,ccf0,sync,syncbest
+!3000    format(2i5,4f12.3)
 
 ! Find best sync value
         if(sync.gt.syncbest*1.03) then
@@ -105,10 +83,12 @@ subroutine sync4(dat,jz,ntol,NFreeze,MouseDF,mode,mode4,minwidth,    &
      enddo
      if(savered) red=ccfred
   enddo
+  if(syncbest.lt.-1.e29) go to 900
   ccfred=red
+  call pctile(ccfred(iaa:ibb),ibb-iaa+1,45,base)
+  ccfred=ccfred-base
   
-!  width=df*nch(ichpk)
-  dfx=(ipk-i0 + 3*mode4)*df
+  dfx=ipk*df
 
 ! Peak up in time, at best whole-channel frequency
   call xcor4(s2,ipk,nsteps,nsym,lag1,lag2,ichpk,mode4,ccfblue,ccfmax,   &
@@ -131,60 +111,36 @@ subroutine sync4(dat,jz,ntol,NFreeze,MouseDF,mode,mode4,minwidth,    &
   enddo
   rms=sqrt(sq/nsq)
   snrsync=max(0.0,db(abs(ccfblue(lagpk)/rms - 1.0)) - 4.5)
-  snrx=-26.
-  if(mode4.eq.2)  snrx=-25.
-  if(mode4.eq.4)  snrx=-24.
-  if(mode4.eq.9)  snrx=-23.
-  if(mode4.eq.18) snrx=-22.
-  if(mode4.eq.36) snrx=-21.
-  if(mode4.eq.72) snrx=-20.
-  snrx=snrx + snrsync
-
   dt=2.0/11025.0
   istart=xlag*nq
   dtx=istart*dt
-  ccfred1=0.
-  jmin=max(jmin,-224)
-  jmax=min(jmax,224)
-  do i=jmin,jmax
-     ccfred1(i)=ccfred(i)
-  enddo
 
-  ipk1=maxloc(ccfred1) - 225
-  ns=0
-  s=0.
-  iw=min(mode4,(ib-ia)/4)
-  do i=jmin,jmax
-     if(abs(i-ipk1a).gt.iw) then
-        s=s+ccfred1(i)
-        ns=ns+1
-     endif
-  enddo
-  base=s/ns
-  ccfred1=ccfred1-base
-  ccf10=0.5*maxval(ccfred1)
-  do i=ipk1a,jmin,-1
-     if(ccfred1(i).le.ccf10) exit
+  ipk1=maxloc(ccfred)
+  ccf10=0.5*maxval(ccfred)
+  do i=ipk1a,ia,-1
+     if(ccfred(i).le.ccf10) exit
   enddo
   i1=i
-  do i=ipk1a,jmax
-     if(ccfred1(i).le.ccf10) exit
+  do i=ipk1a,ib
+     if(ccfred(i).le.ccf10) exit
   enddo
-  nw=i-il
+  nw=i-i1
   width=nw*df
 
   sq=0.
   ns=0
-  do j=jmin,jmax
-     if(abs(j-ipk1a).lt.nw) then
-        sq=sq + ccfred1(j)*ccfred1(j)
+  iaa=max(ipk1a-10*nw,ia)
+  ibb=min(ipk1a+10*nw,ib)
+  jmax=2*mode4/3
+  do i=iaa,ibb
+     j=abs(i-ipk1a)
+     if(j.gt.nw .and. j.lt.jmax) then
+        sq=sq + ccfred(j)*ccfred(j)
         ns=ns+1
      endif
   enddo
   rms=sqrt(sq/ns)
-  snrx=10.0*log10(ccfred1(ipk1a)) - 26.0
+  snrx=10.0*log10(ccfred(ipk1a)/rms) - 41.2
 
-  return
+900  return
 end subroutine sync4
-
-include 'flat1b.f90'

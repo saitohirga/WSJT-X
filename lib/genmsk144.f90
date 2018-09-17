@@ -1,4 +1,4 @@
-subroutine genmsk144(msg0,mygrid,ichk,bcontest,msgsent,i4tone,itype)
+subroutine genmsk144(msg0,mygrid,ichk,msgsent,i4tone,itype)
 ! s8 + 48bits + s8 + 80 bits = 144 bits (72ms message duration)
 !
 ! Encode an MSK144 message
@@ -32,7 +32,6 @@ subroutine genmsk144(msg0,mygrid,ichk,bcontest,msgsent,i4tone,itype)
   integer*1 bitseq(144)                   !Tone #s, data and sync (values 0-1)
   integer*1 i1hash(4)
   integer*1 s8(8)
-  logical bcontest
   real*8 pp(12)
   real*8 xi(864),xq(864),pi,twopi
   data s8/0,1,1,1,0,0,1,0/
@@ -77,8 +76,8 @@ subroutine genmsk144(msg0,mygrid,ichk,bcontest,msgsent,i4tone,itype)
         go to 999
      endif
 
-     call packmsg(message,i4Msg6BitWords,itype,bcontest) !Pack into 12 6-bit bytes
-     call unpackmsg(i4Msg6BitWords,msgsent,bcontest,mygrid) !Unpack to get msgsent
+     call packmsg(message,i4Msg6BitWords,itype) !Pack into 12 6-bit bytes
+     call unpackmsg(i4Msg6BitWords,msgsent)     !Unpack to get msgsent
 
      if(ichk.eq.1) go to 999
      i4=0

@@ -33,8 +33,8 @@ module ft8_decode
 contains
 
   subroutine decode(this,callback,iwave,nQSOProgress,nfqso,nftx,newdat,  &
-       nutc,nfa,nfb,nexp_decode,ndepth,nagain,lft8apon,lapcqonly,napwid, &
-       mycall12,mygrid6,hiscall12,hisgrid6)
+       nutc,nfa,nfb,ndepth,ncontest,nagain,lft8apon,lapcqonly,ldecode77, &
+       napwid,mycall12,hiscall12,hisgrid6)
 !    use wavhdr
     use timer_module, only: timer
     include 'ft8/ft8_params.f90'
@@ -42,30 +42,38 @@ contains
 
     class(ft8_decoder), intent(inout) :: this
     procedure(ft8_decode_callback) :: callback
+    parameter (MAXCAND=300)
     real s(NH1,NHSYM)
     real sbase(NH1)
-    real candidate(3,200)
+    real candidate(4,MAXCAND)
     real dd(15*12000)
-    logical, intent(in) :: lft8apon,lapcqonly,nagain
-    logical newdat,lsubtract,ldupe,bcontest
-    character*12 mycall12, hiscall12
-    character*6 mygrid6,hisgrid6
+    logical, intent(in) :: lft8apon,lapcqonly,ldecode77,nagain
+    logical newdat,lsubtract,ldupe
+    character*12 mycall12,hiscall12,mycall12_0
+    character*6 hisgrid6
     integer*2 iwave(15*12000)
-    integer apsym(KK)
-    character datetime*13,message*22,msg37*37
-    character*22 allmessages(100)
+    integer apsym1(KK),apsym2(77)
+    character datetime*13,msg37*37
+!   character message*22
+    character*37 allmessages(100)
     integer allsnrs(100)
-    save s,dd
+    data mycall12_0/'dummy'/
+    save s,dd,mycall12_0
 
-    bcontest=iand(nexp_decode,128).ne.0
+    if(mycall12.ne.mycall12_0) then
+       call my_hash(mycall12)
+       mycall12_0=mycall12
+    endif
+
     this%callback => callback
     write(datetime,1001) nutc        !### TEMPORARY ###
 1001 format("000000_",i6.6)
 
-    call ft8apset(mycall12,mygrid6,hiscall12,hisgrid6,bcontest,apsym,iaptype)
+    call ft8apset(mycall12,hiscall12,apsym1)
+    call ft8apset_174_91(mycall12,hiscall12,hisgrid6,ncontest,apsym2)
     dd=iwave
     ndecodes=0
-    allmessages='                      '
+    allmessages='                                     '
     allsnrs=0
     ifa=nfa
     ifb=nfb
@@ -94,46 +102,51 @@ contains
         if((ndecodes-n2).eq.0) cycle
         lsubtract=.false. 
       endif 
-
       call timer('sync8   ',0)
-      call sync8(dd,ifa,ifb,syncmin,nfqso,s,candidate,ncand,sbase)
+      maxc=MAXCAND
+      call sync8(dd,ifa,ifb,syncmin,nfqso,ldecode77,maxc,s,candidate,ncand,sbase)
       call timer('sync8   ',1)
       do icand=1,ncand
         sync=candidate(3,icand)
         f1=candidate(1,icand)
         xdt=candidate(2,icand)
+        isync=candidate(4,icand)
         xbase=10.0**(0.1*(sbase(nint(f1/3.125))-40.0))
         nsnr0=min(99,nint(10.0*log10(sync) - 25.5))    !### empirical ###
         call timer('ft8b    ',0)
-        call ft8b(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lft8apon,       &
-             lapcqonly,napwid,lsubtract,nagain,iaptype,mycall12,mygrid6,   &
-             hiscall12,bcontest,sync,f1,xdt,xbase,apsym,nharderrors,dmin,  &
-             nbadcrc,iappass,iera,msg37,xsnr)
-        message=msg37(1:22)   !###
+        if(isync.eq.1) then
+           call ft8b_1(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lft8apon,     &
+                lapcqonly,napwid,lsubtract,nagain,iaptype,mycall12,   &
+                hiscall12,sync,f1,xdt,xbase,apsym1,nharderrors,dmin,  &
+                nbadcrc,iappass,iera,msg37,xsnr)
+        else
+           call ft8b_2(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lft8apon,     &
+                lapcqonly,napwid,lsubtract,nagain,iaptype,mycall12,   &
+                hiscall12,sync,f1,xdt,xbase,apsym2,nharderrors,dmin,  &
+                nbadcrc,iappass,iera,msg37,xsnr)
+        endif
+!        message=msg37(1:22)   !###
         nsnr=nint(xsnr) 
         xdt=xdt-0.5
         hd=nharderrors+dmin
         call timer('ft8b    ',1)
         if(nbadcrc.eq.0) then
 !           call jtmsg(message,iflag)
-           if(bcontest) then
-              call fix_contest_msg(mygrid6,message)
-              msg37(1:22)=message
-           endif
+! This probably needs to be re-visited for the new message type
 !           if(iand(iflag,31).ne.0) message(22:22)='?'
            ldupe=.false.
            do id=1,ndecodes
-              if(message.eq.allmessages(id).and.nsnr.le.allsnrs(id)) ldupe=.true.
+              if(msg37.eq.allmessages(id).and.nsnr.le.allsnrs(id)) ldupe=.true.
            enddo
            if(.not.ldupe) then
               ndecodes=ndecodes+1
-              allmessages(ndecodes)=message
+              allmessages(ndecodes)=msg37
               allsnrs(ndecodes)=nsnr
            endif
 !           write(81,1004) nutc,ncand,icand,ipass,iaptype,iappass,        &
 !                nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),          &
-!                xdt,nint(f1),message
-!1004          format(i6.6,2i4,3i2,i3,3f6.1,i4,f6.2,i5,2x,a22)
+!                xdt,nint(f1),msg37,isync
+!1004          format(i6.6,2i4,3i2,i3,3f6.1,i4,f6.2,i5,2x,a37,i4)
 !           flush(81)
            if(.not.ldupe .and. associated(this%callback)) then
               qual=1.0-(nharderrors+dmin)/60.0 ! scale qual to [0.0,1.0]

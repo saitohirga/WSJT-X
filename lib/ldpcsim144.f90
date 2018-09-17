@@ -41,8 +41,8 @@ call getarg(4,arg)
 read(arg,*) s
 
 ! don't count hash bits as data bits
+K=72
 N=128
-K=80
 rate=real(K)/real(N)
 
 write(*,*) "rate: ",rate
@@ -53,8 +53,8 @@ allocate ( codeword(N), decoded(K), message(K) )
 allocate ( lratio(N), rxdata(N), rxavgd(N), yy(N), llr(N) )
 
 msg="K9AN K1JT EN50"
-  call packmsg(msg,i4Msg6BitWords,itype,.false.) !Pack into 12 6-bit bytes
-  call unpackmsg(i4Msg6BitWords,msgsent,.false.,'      ') !Unpack to get msgsent
+  call packmsg(msg,i4Msg6BitWords,itype) !Pack into 12 6-bit bytes
+  call unpackmsg(i4Msg6BitWords,msgsent) !Unpack to get msgsent
   write(*,*) "message sent ",msgsent
 
   i4=0
@@ -90,7 +90,7 @@ msg="K9AN K1JT EN50"
   call init_random_seed()
 
 write(*,*) "Eb/N0  SNR2500   ngood  nundetected nbadhash  sigma"
-do idb = -6, 14
+do idb = 14,-6,-1 
   db=idb/2.0-1.0
   sigma=1/sqrt( 2*rate*(10**(db/10.0)) )
   ngood=0

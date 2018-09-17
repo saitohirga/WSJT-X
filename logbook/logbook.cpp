@@ -43,7 +43,7 @@ void LogBook::init()
   //    QString call = "ok1ct";
   //    QString countryName;
   //    bool callWorkedBefore,countryWorkedBefore;
-  //    match(/*in*/call, /*out*/ countryName,callWorkedBefore,countryWorkedBefore);
+  //    match(/*in*/call,grid, /*out*/ countryName,callWorkedBefore,countryWorkedBefore);
   //    qDebug() << countryName;
 
 }
@@ -64,34 +64,38 @@ void LogBook::_setAlreadyWorkedFromLog()
     }
 }
 
-void LogBook::match(/*in*/const QString call,
+void LogBook::match(/*in*/const QString call,QString grid,
                     /*out*/ QString &countryName,
                     bool &callWorkedBefore,
-                    bool &countryWorkedBefore) const
+                    bool &countryWorkedBefore,
+                    bool &gridWorkedBefore,
+                    QString currentBand) const
 {
-  if (call.length() > 0)
-    {
-      QString currentMode = "JT9"; // JT65 == JT9 in ADIF::match()
-      QString currentBand = "";  // match any band
-      callWorkedBefore = _log.match(call,currentBand,currentMode);
-      countryName = _countries.find(call);
-//      qDebug() << "B" << countryName;
+//  if(currentBand=="") qDebug() << "aa" << grid;
+//  if(currentBand!="") qDebug() << "bb" << grid << currentBand;
 
-      if (countryName.length() > 0)  //  country was found
-        countryWorkedBefore = _worked.getHasWorked(countryName);
-      else
-        {
-          countryName = "where?"; //error: prefix not found
-          countryWorkedBefore = false;
-        }
+  if (call.length() > 0) {
+    QString currentMode = "JT9"; // JT65 == JT9 == FT8 in ADIF::match()
+//    QString currentBand = "";  // match any band
+    callWorkedBefore = _log.match(call,currentBand,currentMode);
+    gridWorkedBefore = _log.match(grid,currentBand,currentMode);
+    countryName = _countries.find(call);
+
+    if (countryName.length() > 0) { //  country was found
+      countryWorkedBefore = _worked.getHasWorked(countryName);
+    } else {
+      countryName = "where?"; //error: prefix not found
+      countryWorkedBefore = false;
     }
-  //qDebug() << "Logbook:" << call << ":" << countryName << "Cty B4:" << countryWorkedBefore << "call B4:" << callWorkedBefore;
+//    qDebug() << "Logbook:" << call << currentBand << callWorkedBefore << countryName << countryWorkedBefore;
+  }
 }
 
-void LogBook::addAsWorked(const QString call, const QString band, const QString mode, const QString date)
+void LogBook::addAsWorked(const QString call, const QString grid, const QString band,
+                          const QString mode, const QString date)
 {
   //qDebug() << "adding " << call << " as worked";
-  _log.add(call,band,mode,date);
+  _log.add(call,grid,band,mode,date);
   QString countryName = _countries.find(call);
   if (countryName.length() > 0)
     _worked.setAsWorked(countryName);

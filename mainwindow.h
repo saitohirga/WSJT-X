@@ -33,7 +33,6 @@
 #include "DisplayManual.hpp"
 #include "psk_reporter.h"
 #include "logbook/logbook.h"
-#include "commons.h"
 #include "astro.h"
 #include "MessageBox.hpp"
 #include "NetworkAccessManager.hpp"
@@ -69,6 +68,7 @@ class WideGraph;
 class LogQSO;
 class Transceiver;
 class MessageAveraging;
+class ColorHighlighting;
 class MessageClient;
 class QTime;
 class WSPRBandHopping;
@@ -200,6 +200,7 @@ private slots:
   void bumpFqso(int n);
   void on_actionErase_ALL_TXT_triggered();
   void on_actionErase_FoxQSO_txt_triggered();
+  void on_actionErase_cabrillo_log_triggered();
   void on_actionErase_wsjtx_log_adi_triggered();
   void startTx2();
   void startP1();
@@ -243,6 +244,7 @@ private slots:
   void auto_tx_mode(bool);
   void on_actionMessage_averaging_triggered();
   void on_actionFox_Log_triggered();
+  void on_actionColors_triggered();
   void on_actionInclude_averaging_toggled (bool);
   void on_actionInclude_correlation_toggled (bool);
   void on_actionEnable_AP_DXcall_toggled (bool);
@@ -293,6 +295,9 @@ private slots:
   void on_pbFoxReset_clicked();
   void on_comboBoxHoundSort_activated (int index);
   void not_GA_warning_message ();
+  void setContestType();
+  int  setTxMsg(int n);
+  bool stdCall(QString w);
 
 private:
   Q_SIGNAL void initializeAudioOutputStream (QAudioDeviceInfo,
@@ -324,6 +329,7 @@ private:
   void auto_sequence (DecodedText const& message, unsigned start_tolerance, unsigned stop_tolerance);
   void hideMenus(bool b);
   void foxTest();
+  void setColorHighlighting();
 
   NetworkAccessManager m_network_manager;
   bool m_valid;
@@ -352,7 +358,7 @@ private:
   QScopedPointer<HelpTextWindow> m_prefixes;
   QScopedPointer<HelpTextWindow> m_mouseCmnds;
   QScopedPointer<MessageAveraging> m_msgAvgWidget;
-
+  QScopedPointer<ColorHighlighting> m_colorHighlighting;
   Transceiver::TransceiverState m_rigState;
   Frequency  m_lastDialFreq;
   QString m_lastBand;
@@ -421,7 +427,9 @@ private:
   qint32  m_nTx73;
   qint32  m_UTCdisk;
   qint32  m_wait;
-  qint32  m_i3bit;
+  qint32  m_i3;
+  qint32  m_n3;
+  qint32  m_isync;
   qint32  m_isort;
   qint32  m_max_dB;
   qint32  m_nDXped=0;
@@ -488,13 +496,11 @@ private:
   bool    m_bFastDone;
   bool    m_bAltV;
   bool    m_bNoMoreFiles;
-  bool    m_bQRAsyncWarned;
   bool    m_bDoubleClicked;
   bool    m_bCallingCQ;
   bool    m_bAutoReply;
   bool    m_bCheckedContest;
   bool    m_bWarnedSplit=false;
-  bool    m_bWarnedHound=false;
 
   enum
     {
@@ -505,7 +511,17 @@ private:
       ROGERS,
       SIGNOFF
     }
-    m_QSOProgress;
+    m_QSOProgress;        //State machine counter
+
+  enum {
+    NONE,
+    NA_VHF,
+    EU_VHF,
+    FIELD_DAY,
+    RTTY
+  } m_nContest;           //Contest type
+
+  enum {CALL, GRID, DXCC, MULT};
 
   int			m_ihsym;
   int			m_nzap;
@@ -580,6 +596,9 @@ private:
   QString m_houndCallers;        //Sorted list of Hound callers
   QString m_fm0;
   QString m_fm1;
+  QString m_xSent;               //Contest exchange sent
+  QString m_xRcvd;               //Contest exchange received
+  QString m_currentBand;
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;
@@ -674,6 +693,9 @@ private:
   QString WSPR_hhmm(int n);
   void fast_config(bool b);
   void CQTxFreq();
+  void cabLog();
+  bool isWorked(int itype, QString key, float fMHz=0, QString="");
+
   QString save_wave_file (QString const& name
                           , short const * data
                           , int seconds

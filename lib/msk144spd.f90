@@ -6,7 +6,7 @@ subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret,navg,ct,   &
   use timer_module, only: timer
 
   parameter (NSPM=864, MAXSTEPS=100, NFFT=NSPM, MAXCAND=5, NPATTERNS=6)
-  character*22 msgreceived
+  character*37 msgreceived
   character*12 recent_calls(nrecent)
   complex cbig(n)
   complex cdat(3*NSPM)                    !Analytic signal

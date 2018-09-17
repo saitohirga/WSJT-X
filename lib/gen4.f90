@@ -26,8 +26,8 @@ subroutine gen4(msg0,ichk,msgsent,itone,itype)
 
      message=msg0
      call fmtmsg(message,iz)
-     call packmsg(message,i4Msg6BitWords,itype,.false.) !Pack into 12 6-bit bytes
-     call unpackmsg(i4Msg6BitWords,msgsent,.false.,'      ') !Unpack to get msgsent
+     call packmsg(message,i4Msg6BitWords,itype) !Pack into 12 6-bit bytes
+     call unpackmsg(i4Msg6BitWords,msgsent) !Unpack to get msgsent
      if(ichk.ne.0) go to 999
      call encode4(message,itone)                 !Encode the information bits
      i1=index(message,'-')
