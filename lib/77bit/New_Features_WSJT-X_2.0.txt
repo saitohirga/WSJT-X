@@ -1,4 +1,5 @@
                       New Features in WSJT-X 2.0
+		          September 17, 2018
 		      --------------------------
 
 This document is an update to the white paper "Plans for WSJT-X
@@ -96,6 +97,7 @@ i3.n3     Example Messages                    Comments
  1.       K1ABC W9XYZ RR73                 
  1.       K1ABC/R W9XYZ EN37                  NA VHF Contest             
  1.       K1ABC W9XYZ/R RR73                  NA VHF Contest
+ 1.       K1ABC/R W9XYZ/R RR73                NA VHF Contest 
  1.       <PJ4/K1ABC> W9XYZ                   Compound call
  1.       W9XYZ <PJ4/K1ABC> 73                Compound call
  1.       W9XYZ <YW18FIFA> -13                Nonstandard call
@@ -111,18 +113,26 @@ i3.n3     Example Messages                    Comments
  3.       TU; KA0DEF K1ABC R 569 MA           ARRL RTTY Roundup
  3.       TU; K1ABC G3AAA R 559 0194          ARRL RTTY Roundup
  3.       W9XYZ K1ABC R 589 MA                ARRL RTTY Roundup
- 4.       CQ KH1/KH7Z                         Compound call
+ 4.       CQ PJ4/K1ABC
  4.       CQ YW18FIFA                         Nonstandard call
+ 4.       <KA1ABC> YW18FIFA RR73              Nonstandard call
+ 4.       <W9XYZ> PJ4/K1ABC RRR               Nonstandard call
+ 4.       <W9XYZ> YW18FIFA                    Nonstandard call
+ 4.       <W9XYZ> YW18FIFA 73                 Nonstandard call
+ 4.       PJ4/K1ABC <W9XYZ>                   Nonstandard call
+ 4.       PJ4/K1ABC <W9XYZ> 73                Nonstandard call
+ 4.       YW18FIFA <W9XYZ> RRR                Nonstandard call
 ----------------------------------------------------------------------------------
 
 In the above list, callsigns enclosed in angle brackets (e.g.,
 <PJ4/K1ABC>, <YW18FIFA>) are transmitted as hash codes.  They will be
-displayed correctly by any receiving station that has copied the full
-callsign (without brackets) in a previous transmissiion.  Otherwise
-the receiving software will display <...>.
+displayed correctly by receiving stations that have copied the full
+callsign without brackets in a previous transmissiion.  Otherwise the
+receiving software will display <...>.  Hash collisions are possible
+but should be rare, and extremely rare within a particular QSO.
 
-Some minimal QSO sequences that take advantage of the new 77-bit
-messages are illustrated below.  Model QSOs 1 and 2 are the same as
+Some minimal message sequences that take advantage of the new 77-bit
+formats are illustrated below.  Model QSOs 1 and 2 are the same as
 those used by the old FT8 and MSK144 protocols, and QSO number 3 is
 the same as the existing FT8 DXpedition Mode.  Model QSOs 4 through 9
 were not possible with the old protocols.
@@ -168,8 +178,8 @@ W9XYZ K1ABC R 2B EMA
 ----------------------------------------------------------------------------------
 5. ARRL VHF Contests
 ----------------------------------------------------------------------------------
-CQ TEST K1ABC/R FN42                                           "/R" is optional
-                                   K1ABC/R W9XYZ EN37
+CQ TEST K1ABC/R FN42                                         "/R" is optional
+                                   K1ABC/R W9XYZ EN37        on either callsign
 W9XYZ K1ABC/R R FN42
                                    K1ABC/R W9XYZ RR73
 
@@ -187,8 +197,8 @@ TU; G3AAA K1ABC R 559 MA
 ----------------------------------------------------------------------------------
 7. EU VHF Contest
 ----------------------------------------------------------------------------------
-CQ TEST G4ABC/P IO91                                           "/P" is optional  
-                                   G4ABC/P PA9XYZ JO22
+CQ TEST G4ABC/P IO91                                         "/P" is optional  
+                                   G4ABC/P PA9XYZ JO22       on either callsign
 PA9XYZ 590003 IO91NP
                                    G4ABC/P R 570007 JO22DB
 PA9XYZ G4ABC/P RR73
