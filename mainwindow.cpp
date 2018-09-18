@@ -4640,12 +4640,20 @@ bool MainWindow::stdCall(QString w)
   if(w.mid(n-2,2)=="/P") w=w.left(n-2);
   if(w.mid(n-2,2)=="/R") w=w.left(n-2);
   n=w.trimmed().length();
-  if(n>6) return false;
+  if(n>6) return false;                 //Callsigns longer than 6 chars are nonstandard
   w=w.toUpper();
+  int i1=99;   // index of first letter
+  int i2=-1;   // index of last digit
   for(int i=0; i<n; i++) {
     QString c=w.mid(i,1);
-    bool b=(c>="A" and c<="Z") or (c>="0" and c<="9") or c=="/";
-    if(!b) return false;
+    if(i1==99 and (c>="A" and c<="Z")) i1=i;
+    if(c>="0" and c<="9") i2=i;
+  }
+  if(i1!=0 and i1!=1) return false;    //One of the firat two characters must be a letter
+  if(i2>2) return false;               //No digits allowed after the 3rd character
+  for(int i=i2+1; i<n; i++) {
+    QString c=w.mid(i,1);
+    if(c<"A" or c>"Z") return false;   //Anything after final digit must be a letter
   }
   return true;
 }
@@ -4883,7 +4891,7 @@ void MainWindow::clearDX ()
   m_qsoStop.clear ();
   genStdMsgs (QString {});
   if (ui->tabWidget->currentIndex() == 1) {
-    ui->genMsg->setText(ui->tx6->text());
+    ui->genMsg->setText(ui->tx6->tqext());
     m_ntx=7;
     m_gen_message_is_cq = true;
     ui->rbGenMsg->setChecked(true);
