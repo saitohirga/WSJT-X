@@ -155,9 +155,10 @@ subroutine pack77(msg0,i3,n3,c77)
 ! Check 0.3 and 0.4 (ARRL Field Day exchange)
   call pack77_03(nwords,w,i3,n3,c77)
   if(i3.ge.0) go to 900
+  if(nwords.ge.2) go to 100
 
-! Check 0.5 (telemetry)
-5 i0=index(msg,' ')
+  ! Check 0.5 (telemetry)
+5  i0=index(msg,' ')
   c18=msg(1:i0-1)//'                  '
   c18=adjustr(c18)
   ntel=-99
