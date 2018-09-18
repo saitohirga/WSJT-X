@@ -3616,6 +3616,8 @@ void MainWindow::guiUpdate()
     if (msg_parts.size () > 2) {
       // clean up short code forms
       msg_parts[0].remove (QChar {'<'});
+      msg_parts[0].remove (QChar {'>'});
+      msg_parts[1].remove (QChar {'<'});
       msg_parts[1].remove (QChar {'>'});
     }
     auto is_73 = m_QSOProgress >= ROGER_REPORT
