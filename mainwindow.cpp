@@ -4891,7 +4891,7 @@ void MainWindow::clearDX ()
   m_qsoStop.clear ();
   genStdMsgs (QString {});
   if (ui->tabWidget->currentIndex() == 1) {
-    ui->genMsg->setText(ui->tx6->tqext());
+    ui->genMsg->setText(ui->tx6->text());
     m_ntx=7;
     m_gen_message_is_cq = true;
     ui->rbGenMsg->setChecked(true);
