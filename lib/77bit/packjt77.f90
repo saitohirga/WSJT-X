@@ -262,10 +262,10 @@ subroutine unpack77(c77,msg,unpk77_success)
      write(crpt,1012) irpt
 1012 format(i3.2)
      if(irpt.ge.0) crpt(1:1)='+'
-     call unpack28(n28a,call_1,unpk28_success)
-     if(.not.unpk28_success) unpk77_success=.false.
+     call unpack28(n28a,call_1,unpk28_success) 
+     if(.not.unpk28_success .or. n28a.le.2) unpk77_success=.false.
      call unpack28(n28b,call_2,unpk28_success)
-     if(.not.unpk28_success) unpk77_success=.false.
+     if(.not.unpk28_success .or. n28b.le.2) unpk77_success=.false.
      call hash10(n10,call_3)
      if(call_3(1:1).eq.'<') then
         msg=trim(call_1)//' RR73; '//trim(call_2)//' '//trim(call_3)//  &
@@ -279,7 +279,7 @@ subroutine unpack77(c77,msg,unpk77_success)
      read(c77,1020) n28a,ip,ir,irpt,iserial,igrid6
 1020 format(b28,2b1,b3,b12,b25)
      call unpack28(n28a,call_1,unpk28_success)
-     if(.not.unpk28_success) unpk77_success=.false.
+     if(.not.unpk28_success .or. n28a.le.2) unpk77_success=.false.
      nrs=52+irpt
      if(ip.eq.1) call_1=trim(call_1)//'/P'//'        '
      write(cexch,1022) nrs,iserial
@@ -309,13 +309,14 @@ subroutine unpack77(c77,msg,unpk77_success)
 ! 0.4   WA9XYZ KA1ABC R 32A EMA            28 28 1 4 3 7    71   ARRL Field Day
      read(c77,1030) n28a,n28b,ir,intx,nclass,isec
 1030 format(2b28,b1,b4,b3,b7)
-     if(isec.gt.NSEC .or. isec.lt.1) unpk77_success=.false.
-     if(isec.gt.NSEC) isec=NSEC          !### Check range for other params? ###
-     if(isec.lt.1) isec=1                !### Flag these so they aren't printed? ###
+     if(isec.gt.NSEC .or. isec.lt.1) then
+         unpk77_success=.false.
+         isec=1
+     endif
      call unpack28(n28a,call_1,unpk28_success)
-     if(.not.unpk28_success) unpk77_success=.false.
+     if(.not.unpk28_success .or. n28a.le.2) unpk77_success=.false.
      call unpack28(n28b,call_2,unpk28_success)
-     if(.not.unpk28_success) unpk77_success=.false.
+     if(.not.unpk28_success .or. n28b.le.2) unpk77_success=.false.
      ntx=intx+1
      if(n3.eq.4) ntx=ntx+16
      write(cntx(1:2),1032) ntx
