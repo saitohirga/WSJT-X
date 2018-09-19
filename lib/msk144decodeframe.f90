@@ -102,6 +102,7 @@ subroutine msk144decodeframe(c,softbits,msgreceived,nsuccess,recent_calls,nrecen
     nsuccess=1
     write(c77,'(77i1)') decoded77
     call unpack77(c77,msgreceived,unpk77_success)
+    if(.not.unpk77_success) nsuccess=0
   endif
 
   return

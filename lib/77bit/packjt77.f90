@@ -212,7 +212,7 @@ subroutine unpack77(c77,msg,unpk77_success)
   character*4 grid4,cserial
   character*3 csec(NSEC)
   character*38 c
-  logical unpk77_success
+  logical unpk28_success,unpk77_success
 
   data c/' 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ/'/
   data csec/                                                         &
@@ -261,8 +261,10 @@ subroutine unpack77(c77,msg,unpk77_success)
      write(crpt,1012) irpt
 1012 format(i3.2)
      if(irpt.ge.0) crpt(1:1)='+'
-     call unpack28(n28a,call_1)
-     call unpack28(n28b,call_2)
+     call unpack28(n28a,call_1,unpk28_success)
+     if(.not.unpk28_success) unpk77_success=.false.
+     call unpack28(n28b,call_2,unpk28_success)
+     if(.not.unpk28_success) unpk77_success=.false.
      call hash10(n10,call_3)
      if(call_3(1:1).eq.'<') then
         msg=trim(call_1)//' RR73; '//trim(call_2)//' '//trim(call_3)//  &
@@ -275,7 +277,8 @@ subroutine unpack77(c77,msg,unpk77_success)
 ! 0.2  PA3XYZ/P R 590003 IO91NP           28 1 1 3 12 25   70   EU VHF contest
      read(c77,1020) n28a,ip,ir,irpt,iserial,igrid6
 1020 format(b28,2b1,b3,b12,b25)
-     call unpack28(n28a,call_1)
+     call unpack28(n28a,call_1,unpk28_success)
+     if(.not.unpk28_success) unpk77_success=.false.
      nrs=52+irpt
      if(ip.eq.1) call_1=trim(call_1)//'/P'//'        '
      write(cexch,1022) nrs,iserial
@@ -308,8 +311,10 @@ subroutine unpack77(c77,msg,unpk77_success)
      if(isec.gt.NSEC .or. isec.lt.1) unpk77_success=.false.
      if(isec.gt.NSEC) isec=NSEC          !### Check range for other params? ###
      if(isec.lt.1) isec=1                !### Flag these so they aren't printed? ###
-     call unpack28(n28a,call_1)
-     call unpack28(n28b,call_2)
+     call unpack28(n28a,call_1,unpk28_success)
+     if(.not.unpk28_success) unpk77_success=.false.
+     call unpack28(n28b,call_2,unpk28_success)
+     if(.not.unpk28_success) unpk77_success=.false.
      ntx=intx+1
      if(n3.eq.4) ntx=ntx+16
      write(cntx(1:2),1032) ntx
@@ -340,8 +345,10 @@ subroutine unpack77(c77,msg,unpk77_success)
 ! Type 1 (standard message) or Type 2 ("/P" form for EU VHF contest)
      read(c77,1000) n28a,ipa,n28b,ipb,ir,igrid4,i3
 1000 format(2(b28,b1),b1,b15,b3)
-     call unpack28(n28a,call_1)
-     call unpack28(n28b,call_2)
+     call unpack28(n28a,call_1,unpk28_success)
+     if(.not.unpk28_success) unpk77_success=.false.
+     call unpack28(n28b,call_2,unpk28_success)
+     if(.not.unpk28_success) unpk77_success=.false.
      if(call_1(1:3).eq.'CQ_') call_1(3:3)=' '
      i=index(call_1,' ')
      if(i.ge.4 .and. ipa.eq.1 .and. i3.eq.1) call_1(i:i+1)='/R'
@@ -390,8 +397,10 @@ subroutine unpack77(c77,msg,unpk77_success)
         imult=nexch-8000
         nserial=-1
      endif
-     call unpack28(n28a,call_1)
-     call unpack28(n28b,call_2)
+     call unpack28(n28a,call_1,unpk28_success)
+     if(.not.unpk28_success) unpk77_success=.false.
+     call unpack28(n28b,call_2,unpk28_success)
+     if(.not.unpk28_success) unpk77_success=.false.
      imult=0
      nserial=0
      if(nexch.gt.8000) imult=nexch-8000
@@ -575,10 +584,11 @@ subroutine pack28(c13,n28)
 end subroutine pack28
 
 
-subroutine unpack28(n28_0,c13)
+subroutine unpack28(n28_0,c13,success)
 
   parameter (NTOKENS=2063592,MAX22=4194304)
   integer nc(6)
+  logical success
   character*13 c13
   character*37 c1
   character*36 c2
@@ -590,6 +600,7 @@ subroutine unpack28(n28_0,c13)
   data c4/' ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
   data nc/37,36,19,27,27,27/
 
+  success=.true.
   n28=n28_0
   if(n28.lt.NTOKENS) then
 ! Special tokens DE, QRZ, CQ, CQ_nnn, CQ_aaaa
@@ -642,7 +653,10 @@ subroutine unpack28(n28_0,c13)
   c13=adjustl(c13)
 
 900 i0=index(c13,' ')
-  if(i0.lt.len(trim(c13))) c13='QU1RK'
+  if(i0.lt.len(trim(c13))) then
+     c13='QU1RK'
+     success=.false.
+  endif
   return
 end subroutine unpack28
 
