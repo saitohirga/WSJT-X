@@ -102,6 +102,7 @@ subroutine save_hash_call(c13,n10,n12,n22)
      nzhash=0
      first=.false.
   endif
+  if(c13(1:1).eq.' ' .or. c13(1:5).eq.'<...>') return
 
   n10=ihashcall(c13,10)
   n12=ihashcall(c13,12)
@@ -350,13 +351,16 @@ subroutine unpack77(c77,msg,unpk77_success)
      call unpack28(n28b,call_2,unpk28_success)
      if(.not.unpk28_success) unpk77_success=.false.
      if(call_1(1:3).eq.'CQ_') call_1(3:3)=' '
-     i=index(call_1,' ')
-     if(i.ge.4 .and. ipa.eq.1 .and. i3.eq.1) call_1(i:i+1)='/R'
-     if(i.ge.4 .and. ipa.eq.1 .and. i3.eq.2) call_1(i:i+1)='/P'
-     i=index(call_2,' ')
-     if(i.ge.4 .and. ipb.eq.1 .and. i3.eq.1) call_2(i:i+1)='/R'
-     if(i.ge.4 .and. ipb.eq.1 .and. i3.eq.2) call_2(i:i+1)='/P'
-
+     if(index(call_1,'<').le.0) then
+        i=index(call_1,' ')
+        if(i.ge.4 .and. ipa.eq.1 .and. i3.eq.1) call_1(i:i+1)='/R'
+        if(i.ge.4 .and. ipa.eq.1 .and. i3.eq.2) call_1(i:i+1)='/P'
+     endif
+     if(index(call_2,'<').le.0) then
+        i=index(call_2,' ')
+        if(i.ge.4 .and. ipb.eq.1 .and. i3.eq.1) call_2(i:i+1)='/R'
+        if(i.ge.4 .and. ipb.eq.1 .and. i3.eq.2) call_2(i:i+1)='/P'
+     endif
      if(igrid4.le.MAXGRID4) then
         n=igrid4
         j1=n/(18*10*10)
@@ -533,6 +537,7 @@ subroutine pack28(c13,n28)
         endif
      endif
   endif
+
 ! Check for <...> callsign
   if(c13(1:1).eq.'<')then
      call save_hash_call(c13,n10,n12,n22)   !Save callsign in hash table
@@ -567,6 +572,7 @@ subroutine pack28(c13,n28)
   
   n=len(trim(c13))
 ! This is a standard callsign
+  call save_hash_call(c13,n10,n12,n22)   !Save callsign in hash table
   if(iarea.eq.2) callsign=' '//c13(1:5)
   if(iarea.eq.3) callsign=c13(1:6)
   i1=index(a1,callsign(1:1))-1
