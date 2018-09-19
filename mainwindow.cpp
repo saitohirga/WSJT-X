@@ -88,7 +88,7 @@ extern "C" {
   void gen9_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, fortran_charlen_t, fortran_charlen_t);
 
-  void genmsk_128_90_(char* msg, int* ichk, char* msgsent, int itone[], int* itext,
+  void genmsk_128_90_(char* msg, int* ichk, char* msgsent, int itone[], int* itype,
                       fortran_charlen_t, fortran_charlen_t);
 
   void gen65_(char* msg, int* ichk, char* msgsent, int itone[],

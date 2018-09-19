@@ -46,6 +46,7 @@ subroutine genmsk_128_90(msg0,ichk,msgsent,i4tone,itype)
     enddo
   endif
 
+  itype=1
   if(msg0(1:1).eq.'@') then                    !Generate a fixed tone
      read(msg0(2:5),*,end=1,err=1) nfreq       !at specified frequency
      go to 2
@@ -72,7 +73,9 @@ subroutine genmsk_128_90(msg0,ichk,msgsent,i4tone,itype)
         go to 999
      endif
 
-     call pack77(message,i3,n3,c77) 
+     i3=-1
+     n3=-1
+     call pack77(message,i3,n3,c77)
      call unpack77(c77,msgsent,unpk77_success) !Unpack to get msgsent
      if(ichk.eq.1) go to 999
      read(c77,"(77i1)") msgbits
