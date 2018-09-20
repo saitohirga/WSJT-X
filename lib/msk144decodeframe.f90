@@ -101,8 +101,13 @@ subroutine msk144decodeframe(c,softbits,msgreceived,nsuccess,recent_calls,nrecen
   if( nharderror .ge. 0 .and. nharderror .lt. 18 ) then
     nsuccess=1
     write(c77,'(77i1)') decoded77
-    call unpack77(c77,msgreceived,unpk77_success)
-    if(.not.unpk77_success) nsuccess=0
+    read(c77(72:77),'(2b3)'),n3,i3
+    if( (i3.eq.0.and.(n3.eq.1 .or. n3.eq.3 .or. n3.eq.4 .or. n3.gt.5)) .or. i3.eq.3 .or. i3.gt.4 ) then
+        nsuccess=0 
+    else 
+        call unpack77(c77,msgreceived,unpk77_success)
+        if(.not.unpk77_success) nsuccess=0
+    endif
   endif
 
   return
