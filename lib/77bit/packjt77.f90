@@ -456,6 +456,7 @@ subroutine unpack77(c77,msg,unpk77_success)
         msg='CQ '//trim(call_2)
      endif
   endif
+  if(msg(1:4).eq.'CQ <') unpk77_success=.false.
 
   return
 end subroutine unpack77
