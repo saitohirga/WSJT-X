@@ -1,7 +1,7 @@
 module packjt77
 
 ! These variables are accessible from outside via "use packjt":
-  parameter (MAXHASH=100)
+  parameter (MAXHASH=1000)
   character*13 callsign(MAXHASH)
   integer ihash10(MAXHASH),ihash12(MAXHASH),ihash22(MAXHASH)
   integer n28a,n28b,nzhash
@@ -92,8 +92,9 @@ subroutine save_hash_call(c13,n10,n12,n22)
 
   character*13 c13
   logical first
+  data first/.true./
   save first
-  
+
   if(first) then
      ihash10=-1
      ihash12=-1
@@ -102,6 +103,7 @@ subroutine save_hash_call(c13,n10,n12,n22)
      nzhash=0
      first=.false.
   endif
+  
   if(c13(1:1).eq.' ' .or. c13(1:5).eq.'<...>') return
 
   n10=ihashcall(c13,10)
@@ -467,7 +469,6 @@ subroutine pack28(c13,n28)
 ! integer.
 
   parameter (NTOKENS=2063592,MAX22=4194304)
-  integer nc(6)
   logical is_digit,is_letter
   character*13 c13
   character*6 callsign
@@ -481,7 +482,6 @@ subroutine pack28(c13,n28)
   data a2/'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
   data a3/'0123456789'/
   data a4/' ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
-  data nc/37,36,19,27,27,27/
   
   is_digit(c)=c.ge.'0' .and. c.le.'9'
   is_letter(c)=c.ge.'A' .and. c.le.'Z'
@@ -587,7 +587,7 @@ subroutine pack28(c13,n28)
        27*i5 + i6
   n28=n28 + NTOKENS + MAX22
 
-900 n28=iand(n28,2**28-1)
+900 n28=iand(n28,ishft(1,28)-1)
   return
 end subroutine pack28
 
@@ -595,7 +595,6 @@ end subroutine pack28
 subroutine unpack28(n28_0,c13,success)
 
   parameter (NTOKENS=2063592,MAX22=4194304)
-  integer nc(6)
   logical success
   character*13 c13
   character*37 c1
@@ -606,7 +605,6 @@ subroutine unpack28(n28_0,c13,success)
   data c2/'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
   data c3/'0123456789'/
   data c4/' ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
-  data nc/37,36,19,27,27,27/
 
   success=.true.
   n28=n28_0
@@ -834,7 +832,7 @@ subroutine pack77_03(nwords,w,i3,n3,c77)
   if(.not.ok1 .or. .not.ok2) return
   isec=-1
   do i=1,NSEC
-     if(csec(i).eq.w(nwords)) then
+     if(csec(i).eq.w(nwords)(1:3)) then
         isec=i
         exit
      endif
