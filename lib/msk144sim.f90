@@ -41,9 +41,9 @@ program msk144sim
   write(*,*) 'Requested message: ',msg
   write(*,*) 'Message sent     : ',msgsent
   write(*,*) 'Tones: '
-  write(*,'(72i1)') itone(1:72)
-  write(*,'(72i1)') itone(72:144)
-  write(*,*) itype
+  write(*,'(1x,72i1)') itone(1:72)
+  write(*,'(1x,72i1)') itone(73:144)
+
   twopi=8.d0*atan(1.d0)
   nsym=144
   nsps=6*nslow
