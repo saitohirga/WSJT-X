@@ -38,8 +38,13 @@ program msk144sim
   ichk=0
   itype=1
   call genmsk_128_90(msg,ichk,msgsent,itone,itype) 
+  write(*,*) 'Requested message: ',msg
+  write(*,*) 'Message sent     : ',msgsent
+  write(*,*) 'Tones: '
+  write(*,'(72i1)') itone(1:72)
+  write(*,'(72i1)') itone(72:144)
+  write(*,*) itype
   twopi=8.d0*atan(1.d0)
-
   nsym=144
   nsps=6*nslow
   if( itone(41) .lt. 0 ) nsym=40
@@ -49,7 +54,7 @@ program msk144sim
   phi=0.0
   k=0
   nreps=NMAX/(nsym*nsps)
-  print*,nsym,nslow,nsps,baud,freq
+
   do jrep=1,nreps
     do i=1,nsym
       if( itone(i) .eq. 0 ) then
