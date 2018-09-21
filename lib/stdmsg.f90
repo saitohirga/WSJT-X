@@ -33,8 +33,8 @@ function stdmsg(msg0)
 !###
 !  rewind 82
 !  do i=1,nzhash
-!     write(82,3082) i,nzhash,callsign(i)
-!3082 format(2i5,2x,a13)
+!     write(82,3082) i,nzhash,callsign(i),ihash10(i),ihash12(i),ihash22(i)
+!3082 format(2i5,2x,a13,3i10)
 !  enddo
 !  flush(82)
 !###
