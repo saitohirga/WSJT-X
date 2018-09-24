@@ -1,6 +1,6 @@
 module packjt77
 
-! These variables are accessible from outside via "use packjt":
+! These variables are accessible from outside via "use packjt77":
   parameter (MAXHASH=1000,MAXRECENT=10)
   character*13 callsign(MAXHASH)
   integer ihash10(MAXHASH),ihash12(MAXHASH),ihash22(MAXHASH)
