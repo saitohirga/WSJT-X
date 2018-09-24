@@ -1,19 +1,19 @@
 subroutine msk40decodeframe(c,mycall,hiscall,xsnr,bswl,nhasharray,             &
-                            recent_calls,nrecent,msgreceived,nsuccess)
+                            msgreceived,nsuccess)
 !  use timer_module, only: timer
+  use packjt77
 
   parameter (NSPM=240)
   character*4 rpt(0:15)
   character*6 mycall,hiscall,mycall0,hiscall0
   character*22 hashmsg,msgreceived
-  character*12 recent_calls(nrecent)
   complex cb(42)
   complex cfac,cca
   complex c(NSPM)
   integer*1 cw(32)
   integer*1 decoded(16)
   integer s8r(8),hardbits(40)
-  integer nhasharray(nrecent,nrecent)
+  integer nhasharray(MAXRECENT,MAXRECENT)
   real*8 dt, fs, pi, twopi
   real cbi(42),cbq(42)
   real pp(12)
@@ -139,8 +139,8 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,bswl,nhasharray,             &
                                     trim(hiscall),">",rpt(nrxrpt)
       return
     elseif(bswl .and. nhammd.le.4 .and. cord.lt.0.65 .and. nrxrpt.ge.7 ) then
-      do i=1,nrecent
-        do j=i+1,nrecent
+      do i=1,MAXRECENT
+        do j=i+1,MAXRECENT
           if( nrxhash .eq. nhasharray(i,j) ) then
             nsuccess=2
             write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(recent_calls(i)),   &

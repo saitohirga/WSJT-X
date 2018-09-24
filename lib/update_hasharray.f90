@@ -1,12 +1,12 @@
-subroutine update_hasharray(recent_calls,nrecent,nhasharray)
-  
-  character*12 recent_calls(nrecent)
+subroutine update_hasharray(nhasharray)
+
+  use packjt77  
   character*22 hashmsg
-  integer nhasharray(nrecent,nrecent)
+  integer nhasharray(MAXRECENT,MAXRECENT)
 
   nhasharray=-1
-  do i=1,nrecent
-    do j=i+1,nrecent
+  do i=1,MAXRECENT
+    do j=i+1,MAXRECENT
       if( recent_calls(i)(1:1) .ne. ' ' .and. recent_calls(j)(1:1) .ne. ' ' ) then
         hashmsg=trim(recent_calls(i))//' '//trim(recent_calls(j))
         call fmtmsg(hashmsg,iz)
