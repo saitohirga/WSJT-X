@@ -1156,7 +1156,6 @@ subroutine unpacktext77(c71,c13)
   return
 end subroutine unpacktext77
 
-<<<<<<< HEAD
 subroutine mp_short_ops(w,u)
   character*1 w(*),u(*)
   integer i,ireg,j,n,ir,iv,ii1,ii2
@@ -1221,6 +1220,5 @@ subroutine add_call_to_recent_calls(callsign)
 
   return
 end subroutine add_call_to_recent_calls
->>>>>>> d66724f6e9dd8fd8f1340aec9e5c0ebf45a681ac
 
 end module packjt77
