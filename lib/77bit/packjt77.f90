@@ -1108,56 +1108,94 @@ end subroutine pack77_4
 
 subroutine packtext77(c13,c71)
 
-  real*16 q
   character*13 c13,w
   character*71 c71
   character*42 c
+  character*1 qa(10),qb(10)
   data c/' 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ+-./?'/
 
-  q=0.q0
+  call mp_short_init
+  qa=char(0)
   w=adjustr(c13)
   do i=1,13
      j=index(c,w(i:i))-1
      if(j.lt.0) j=0
-     q=42.q0*q + j
+     call mp_short_mult(qb,qa(2:10),9,42)     !qb(1:9)=42*qa(2:9)
+     call mp_short_add(qa,qb(2:10),9,j)      !qa(1:9)=qb(2:9)+j
   enddo
 
-  do i=71,1,-1
-     c71(i:i)='0'
-     n=mod(q,2.q0)
-     q=q/2.q0
-     if(n.eq.1) then
-        c71(i:i)='1'
-        q=q-0.q5
-     endif
-  enddo
+  write(c71,1010) qa(2:10)
+1010 format(b7.7,8b8.8)
 
   return
 end subroutine packtext77
 
-
 subroutine unpacktext77(c71,c13)
 
-  real*16 q,q1
-  integer*8 n1,n2
+  integer*1   ia(10)
+  character*1 qa(10),qb(10)
   character*13 c13
   character*71 c71
   character*42 c
+  equivalence (qa,ia),(qb,ib)
   data c/' 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ+-./?'/
 
-  read(c71,1001) n1,n2
-1001 format(b63,b8)
-  q=n1*256.q0 + n2
+  qa(1)=char(0)
+  read(c71,1010) qa(2:10)
+1010 format(b7.7,8b8.8)
 
   do i=13,1,-1
-     q1=mod(q,42.q0)
-     j=q1+1.q0
-     c13(i:i)=c(j:j)
-     q=(q-q1)/42.q0
+     call mp_short_div(qb,qa(2:10),9,42,ir)
+     c13(i:i)=c(ir+1:ir+1)
+     qa(2:10)=qb(1:9)
   enddo
 
   return
 end subroutine unpacktext77
 
+subroutine mp_short_ops(w,u)
+  character*1 w(*),u(*)
+  integer i,ireg,j,n,ir,iv,ii1,ii2
+  character*1 creg(4)
+  save ii1,ii2
+  equivalence (ireg,creg)
+
+  entry mp_short_init
+  ireg=256*ichar('2')+ichar('1')
+  do j=1,4
+     if (creg(j).eq.'1') ii1=j
+     if (creg(j).eq.'2') ii2=j
+  enddo
+  return
+
+  entry mp_short_add(w,u,n,iv)
+  ireg=256*iv
+  do j=n,1,-1
+     ireg=ichar(u(j))+ichar(creg(ii2))
+     w(j+1)=creg(ii1)
+  enddo
+  w(1)=creg(ii2)
+  return
+
+  entry mp_short_mult(w,u,n,iv)
+  ireg=0
+  do j=n,1,-1
+     ireg=ichar(u(j))*iv+ichar(creg(ii2))
+     w(j+1)=creg(ii1)
+  enddo
+  w(1)=creg(ii2)
+  return
+
+  entry mp_short_div(w,u,n,iv,ir)
+  ir=0
+  do j=1,n
+     i=256*ir+ichar(u(j))
+     w(j)=char(i/iv)
+     ir=mod(i,iv)
+  enddo
+  return
+  
+  return
+end subroutine mp_short_ops
 
 end module packjt77
