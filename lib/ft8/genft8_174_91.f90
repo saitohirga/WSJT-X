@@ -14,8 +14,10 @@ subroutine genft8_174_91(msg,i3,n3,msgsent,msgbits,itone)
   data icos7/3,1,4,0,6,5,2/                   !Costas 7x7 tone pattern
   data graymap/0,1,3,2,5,6,4,7/
 
+  i3=-1
+  n3=-1
   call pack77(msg,i3,n3,c77)
-  call unpack77(c77,msgsent,unpk77_success) 
+  call unpack77(c77,msgsent,unpk77_success)
 
   read(c77,'(77i1)',err=1) msgbits
   go to 2

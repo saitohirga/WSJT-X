@@ -6,6 +6,7 @@ program encode77
   character msg*37,cerr*1
   character*77 c77
   character*80 infile
+  logical unpk77_success
 
   nargs=iargc()
   if(nargs.ne.1 .and.nargs.ne.2) then
@@ -33,7 +34,7 @@ program encode77
      i3=-1
      n3=-1
      call pack77(msg0(1:37),i3,n3,c77)
-     call unpack77(c77,msg)
+     call unpack77(c77,msg,unpk77_success)
      cerr=' '
      if(msg.ne.msg0(1:37)) cerr='*'
      if(i3.eq.0) write(*,1004) i3,n3,cerr,msg0(1:37),msg

@@ -335,13 +335,13 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
         ios=mod(itone(i)+4,7)
         xnoi=xnoi+s8(ios,i)**2
      enddo
-
      xsnr=0.001
      if(xnoi.gt.0 .and. xnoi.lt.xsig) xsnr=xsig/xnoi-1.0
      xsnr=10.0*log10(xsnr)-27.0
-! need to reconcile signal normalization between this routine and the old ft8b_1 so 
-! that SNRs come out the same.
-     xsnr2=db(xsig/xbase - 1.0) - 32.0
+     xbase=10**(xbase/10.0)
+!    factor=xnoi/xbase
+     factor=3.6e6
+     xsnr2=10*log10(xsig/xbase/factor-1.0)-27.0
 !     if(.not.nagain) xsnr=xsnr2
      if(xsnr .lt. -24.0) xsnr=-24.0
      

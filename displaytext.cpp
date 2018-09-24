@@ -178,13 +178,12 @@ QString DisplayText::appendWorkedB4(QString message, QString const& callsign, QS
   if(call.length()<3) return message;
   if(!call.contains(QRegExp("[0-9]|[A-Z]"))) return message;
 
+  logBook.match(/*in*/call,grid,/*out*/countryName,callWorkedBefore,countryWorkedBefore,gridB4);
+  logBook.match(/*in*/call,grid,/*out*/countryName,callB4onBand,countryB4onBand,gridB4onBand,
+                /*in*/ currentBand);
   if(grid=="") {
     gridB4=true;
     gridB4onBand=true;
-  } else {
-    logBook.match(/*in*/call,grid,/*out*/countryName,callWorkedBefore,countryWorkedBefore,gridB4);
-    logBook.match(/*in*/call,grid,/*out*/countryName,callB4onBand,countryB4onBand,gridB4onBand,
-                  /*in*/ currentBand);
   }
 
   message = message.trimmed ();
