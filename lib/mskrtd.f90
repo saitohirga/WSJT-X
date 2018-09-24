@@ -5,21 +5,22 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
 ! Analysis block size = NZ = 7168 samples, t_block = 0.597333 s 
 ! Called from hspec() at half-block increments, about 0.3 s
 
+  use packjt77
+
   parameter (NZ=7168)                !Block size
   parameter (NSPM=864)               !Number of samples per message frame
   parameter (NFFT1=8192)             !FFT size for making analytic signal
   parameter (NPATTERNS=4)            !Number of frame averaging patterns to try
-  parameter (NRECENT=10)             !Number of recent calls to remember
   parameter (NSHMEM=50)              !Number of recent SWL messages to remember
 
   character*4 decsym                 !"&" for mskspd or "^" for long averages
   character*37 msgreceived           !Decoded message
+  character*22 msgrx22               !Sh messages are returned as 22chars
   character*37 msglast,msglastswl   !Used for dupechecking
   character*80 line                  !Formatted line with UTC dB T Freq Msg
   character*12 mycall,hiscall
   character*6 mygrid
-  character*12 recent_calls(NRECENT)
-  character*22 recent_shmsgs(NSHMEM)
+  character*37 recent_shmsgs(NSHMEM)
   character*512 datadir
 
   complex cdat(NFFT1)                !Analytic signal
@@ -30,7 +31,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   integer iavmask(8)
   integer iavpatterns(8,NPATTERNS)
   integer npkloc(10)
-  integer nhasharray(NRECENT,NRECENT)
+  integer nhasharray(MAXRECENT,MAXRECENT)
   integer nsnrlast,nsnrlastswl
 
   real d(NFFT1)
@@ -54,20 +55,20 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
        1,1,1,1,1,1,1,0/
   data xmc/2.0,4.5,2.5,3.5/     !Used to set time at center of averaging mask
   save first,tsec0,nutc00,pnoise,cdat,msglast,msglastswl,     &
-       nsnrlast,nsnrlastswl,recent_calls,nhasharray,recent_shmsgs
+       nsnrlast,nsnrlastswl,nhasharray,recent_shmsgs
 
   if(first) then
      tsec0=tsec
      nutc00=nutc0
      pnoise=-1.0
-     do i=1,nrecent
-       recent_calls(i)(1:12)=' '
+     do i=1,MAXRECENT
+       recent_calls(i)(1:13)=' '
      enddo
      do i=1,nshmem
-       recent_shmsgs(i)(1:22)=' '
+       recent_shmsgs(i)(1:37)=' '
      enddo
-     msglast='                      '
-     msglastswl='                      '
+     msglast='                                     '
+     msglastswl='                                     '
      nsnrlast=-99
      nsnrlastswl=-99
      first=.false.
@@ -77,8 +78,8 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
 
 ! Dupe checking setup 
   if(nutc00.ne.nutc0 .or. tsec.lt.tsec0) then ! reset dupe checker
-    msglast='                      '
-    msglastswl='                      '
+    msglast='                                     '
+    msglastswl='                                     '
     nsnrlast=-99
     nsnrlastswl=-99
     nutc00=nutc0
@@ -86,7 +87,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   
   tframe=float(NSPM)/12000.0 
   line=char(0)
-  msgreceived='                      '
+  msgreceived='                                     '
   max_iterations=10
   niterations=0
   d(1:NZ)=id2
@@ -116,10 +117,11 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
 ! 3 frames along with 2- and 3-frame averages. 
   np=8*NSPM
   call msk144spd(cdat,np,ntol,ndecodesuccess,msgreceived,fc,fest,tdec,navg,ct, &
-                 softbits,recent_calls,nrecent)
+                 softbits)
   if(ndecodesuccess.eq.0 .and. (bshmsg.or.bswl)) then
      call msk40spd(cdat,np,ntol,mycall(1:6),hiscall(1:6),bswl,nhasharray,      &
-              recent_calls,nrecent,ndecodesuccess,msgreceived,fc,fest,tdec,navg)
+              ndecodesuccess,msgrx22,fc,fest,tdec,navg)
+     if( ndecodesuccess .ge. 1 ) msgreceived(1:22)=msgrx22
   endif
   if( ndecodesuccess .ge. 1 ) then
     tdec=tsec+tdec
@@ -150,8 +152,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
            if(is.eq.2) ic0=max(1,ic0-1)
            if(is.eq.3) ic0=min(NSPM,ic0+1)
            ct=cshift(c,ic0-1)
-           call msk144decodeframe(ct,softbits,msgreceived,ndecodesuccess,      &
-                                  recent_calls,nrecent)
+           call msk144decodeframe(ct,softbits,msgreceived,ndecodesuccess)
            if(ndecodesuccess .gt. 0) then
               tdec=tsec+xmc(iavg)*tframe
               goto 900
@@ -192,7 +193,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
 
   decsym=' &  '
   if( btrain ) decsym=' ^  '
-  if( msgreceived(1:1).eq.'<') then
+  if( bshdecode ) then
     ncorrected=0
     eyeopening=0.0
   endif
@@ -207,11 +208,17 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
      msglast=msgreceived
      nsnrlast=nsnr
      if(.not. bshdecode) then
-        call update_hasharray(recent_calls,nrecent,nhasharray)
+        call update_hasharray(nhasharray)
      endif
-     write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,           &
-          navg,ncorrected,eyeopening,char(0)
-1020 format(i6.6,i4,f5.1,i5,a4,a22,i2,i3,f5.1,a1)
+     if( .not.bshdecode ) then
+        write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived(1:22),           &
+             navg,ncorrected,eyeopening,char(0)
+1020    format(i6.6,i4,f5.1,i5,a4,a22,i2,i3,f5.1,a1)
+     else
+        write(line,1022) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived(1:22),           &
+             navg,char(0)
+1022    format(i6.6,i4,f5.1,i5,a4,a22,i2,a1)
+     endif
   elseif(bswl .and. ndecodesuccess.ge.2) then 
     seenb4=.false.
     do i=1,nshmem
@@ -226,8 +233,8 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
     if(bflag) then
       msglastswl=msgreceived
       nsnrlastswl=nsnr
-      write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,    &
-          navg,ncorrected,eyeopening,char(0)
+      write(line,1022) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,    &
+          navg,char(0)
     endif
   endif
 999 tsec0=tsec
@@ -236,8 +243,8 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
 end subroutine mskrtd
 
 subroutine update_recent_shmsgs(message,msgs,nsize)
-  character*22 msgs(nsize)
-  character*22 message
+  character*37 msgs(nsize)
+  character*37 message
   logical*1 seen
 
   seen=.false.

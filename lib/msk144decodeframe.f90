@@ -1,9 +1,8 @@
-subroutine msk144decodeframe(c,softbits,msgreceived,nsuccess,recent_calls,nrecent)
+subroutine msk144decodeframe(c,softbits,msgreceived,nsuccess)
 !  use timer_module, only: timer
   use packjt77
   parameter (NSPM=864)
   character*37 msgreceived
-  character*12 recent_calls(nrecent)
   character*77 c77
   complex cb(42)
   complex cfac,cca,ccb

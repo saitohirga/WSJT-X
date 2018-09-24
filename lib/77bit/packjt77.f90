@@ -1,10 +1,11 @@
 module packjt77
 
-! These variables are accessible from outside via "use packjt":
-  parameter (MAXHASH=1000)
+! These variables are accessible from outside via "use packjt77":
+  parameter (MAXHASH=1000,MAXRECENT=10)
   character*13 callsign(MAXHASH)
   integer ihash10(MAXHASH),ihash12(MAXHASH),ihash22(MAXHASH)
   integer n28a,n28b,nzhash
+  character*13 recent_calls(MAXRECENT)
 
   contains
 
@@ -358,11 +359,13 @@ subroutine unpack77(c77,msg,unpk77_success)
         i=index(call_1,' ')
         if(i.ge.4 .and. ipa.eq.1 .and. i3.eq.1) call_1(i:i+1)='/R'
         if(i.ge.4 .and. ipa.eq.1 .and. i3.eq.2) call_1(i:i+1)='/P'
+        if(i.ge.4) call add_call_to_recent_calls(call_1)
      endif
      if(index(call_2,'<').le.0) then
         i=index(call_2,' ')
         if(i.ge.4 .and. ipb.eq.1 .and. i3.eq.1) call_2(i:i+1)='/R'
         if(i.ge.4 .and. ipb.eq.1 .and. i3.eq.2) call_2(i:i+1)='/P'
+        if(i.ge.4) call add_call_to_recent_calls(call_2)
      endif
      if(igrid4.le.MAXGRID4) then
         n=igrid4
@@ -1153,6 +1156,7 @@ subroutine unpacktext77(c71,c13)
   return
 end subroutine unpacktext77
 
+<<<<<<< HEAD
 subroutine mp_short_ops(w,u)
   character*1 w(*),u(*)
   integer i,ireg,j,n,ir,iv,ii1,ii2
@@ -1197,5 +1201,26 @@ subroutine mp_short_ops(w,u)
   
   return
 end subroutine mp_short_ops
+=======
+subroutine add_call_to_recent_calls(callsign)
+
+  character*13 callsign
+  logical ladd
+! only add if the callsign is not already on the list
+  ladd=.true.
+  do i=1,MAXRECENT-1 ! if callsign is at the end of the list add it again
+     if(recent_calls(i).eq.callsign) ladd=.false.
+  enddo
+
+  if(ladd) then
+     do i=MAXRECENT,2,-1
+        recent_calls(i)=recent_calls(i-1)
+     enddo
+     recent_calls(1)=callsign
+  endif
+
+  return
+end subroutine add_call_to_recent_calls
+>>>>>>> d66724f6e9dd8fd8f1340aec9e5c0ebf45a681ac
 
 end module packjt77
