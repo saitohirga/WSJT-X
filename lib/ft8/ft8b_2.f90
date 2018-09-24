@@ -342,7 +342,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
 !    factor=xnoi/xbase
      factor=3.6e6
      xsnr2=10*log10(xsig/xbase/factor-1.0)-27.0
-     if(.not.nagain) xsnr=xsnr2
+!     if(.not.nagain) xsnr=xsnr2
      if(xsnr .lt. -24.0) xsnr=-24.0
      
      return
