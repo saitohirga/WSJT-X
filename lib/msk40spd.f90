@@ -1,13 +1,13 @@
-subroutine msk40spd(cbig,n,ntol,mycall,hiscall,bswl,nhasharray,recent_calls,   &
-                    nrecent,nsuccess,msgreceived,fc,fret,tret,navg)
+subroutine msk40spd(cbig,n,ntol,mycall,hiscall,bswl,nhasharray,   &
+                    nsuccess,msgreceived,fc,fret,tret,navg)
 ! msk40 short-ping-decoder
 
+  use packjt77
   use timer_module, only: timer
 
   parameter (NSPM=240, MAXSTEPS=150, NFFT=NSPM, MAXCAND=5, NPATTERNS=6)
   character*6 mycall,hiscall
   character*22 msgreceived
-  character*12 recent_calls(nrecent)
   complex cbig(n)
   complex cdat(3*NSPM)                    !Analytic signal
   complex c(NSPM)
@@ -19,7 +19,6 @@ subroutine msk40spd(cbig,n,ntol,mycall,hiscall,bswl,nhasharray,recent_calls,   &
   integer navpatterns(3,NPATTERNS)
   integer navmask(3)
   integer nstart(MAXCAND)
-  integer nhasharray(nrecent,nrecent)
   logical ismask(NFFT)
   logical*1 bswl
   real detmet(-2:MAXSTEPS+3)
@@ -181,7 +180,7 @@ subroutine msk40spd(cbig,n,ntol,mycall,hiscall,bswl,nhasharray,recent_calls,   &
           if( is.eq.3) ic0=min(NSPM,ic0+1)
           ct=cshift(c,ic0-1)
           call msk40decodeframe(ct,mycall,hiscall,xsnr,bswl,nhasharray,        &
-                                recent_calls,nrecent,msgreceived,ndecodesuccess)   
+                                msgreceived,ndecodesuccess)   
           if( ndecodesuccess .gt. 0 ) then
 !write(*,*) icand, iav, ipk, is, tret, fret, msgreceived
             tret=(nstart(icand)+NSPM/2)/fs

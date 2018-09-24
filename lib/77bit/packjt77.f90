@@ -1,10 +1,11 @@
 module packjt77
 
-! These variables are accessible from outside via "use packjt":
-  parameter (MAXHASH=100)
+! These variables are accessible from outside via "use packjt77":
+  parameter (MAXHASH=1000,MAXRECENT=10)
   character*13 callsign(MAXHASH)
   integer ihash10(MAXHASH),ihash12(MAXHASH),ihash22(MAXHASH)
   integer n28a,n28b,nzhash
+  character*13 recent_calls(MAXRECENT)
 
   contains
 
@@ -92,8 +93,9 @@ subroutine save_hash_call(c13,n10,n12,n22)
 
   character*13 c13
   logical first
+  data first/.true./
   save first
-  
+
   if(first) then
      ihash10=-1
      ihash12=-1
@@ -102,6 +104,8 @@ subroutine save_hash_call(c13,n10,n12,n22)
      nzhash=0
      first=.false.
   endif
+  
+  if(c13(1:1).eq.' ' .or. c13(1:5).eq.'<...>') return
 
   n10=ihashcall(c13,10)
   n12=ihashcall(c13,12)
@@ -155,9 +159,10 @@ subroutine pack77(msg0,i3,n3,c77)
 ! Check 0.3 and 0.4 (ARRL Field Day exchange)
   call pack77_03(nwords,w,i3,n3,c77)
   if(i3.ge.0) go to 900
+  if(nwords.ge.2) go to 100
 
-! Check 0.5 (telemetry)
-5 i0=index(msg,' ')
+  ! Check 0.5 (telemetry)
+5  i0=index(msg,' ')
   c18=msg(1:i0-1)//'                  '
   c18=adjustr(c18)
   ntel=-99
@@ -211,7 +216,7 @@ subroutine unpack77(c77,msg,unpk77_success)
   character*4 grid4,cserial
   character*3 csec(NSEC)
   character*38 c
-  logical unpk77_success
+  logical unpk28_success,unpk77_success
 
   data c/' 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ/'/
   data csec/                                                         &
@@ -260,8 +265,10 @@ subroutine unpack77(c77,msg,unpk77_success)
      write(crpt,1012) irpt
 1012 format(i3.2)
      if(irpt.ge.0) crpt(1:1)='+'
-     call unpack28(n28a,call_1)
-     call unpack28(n28b,call_2)
+     call unpack28(n28a,call_1,unpk28_success) 
+     if(.not.unpk28_success .or. n28a.le.2) unpk77_success=.false.
+     call unpack28(n28b,call_2,unpk28_success)
+     if(.not.unpk28_success .or. n28b.le.2) unpk77_success=.false.
      call hash10(n10,call_3)
      if(call_3(1:1).eq.'<') then
         msg=trim(call_1)//' RR73; '//trim(call_2)//' '//trim(call_3)//  &
@@ -274,7 +281,8 @@ subroutine unpack77(c77,msg,unpk77_success)
 ! 0.2  PA3XYZ/P R 590003 IO91NP           28 1 1 3 12 25   70   EU VHF contest
      read(c77,1020) n28a,ip,ir,irpt,iserial,igrid6
 1020 format(b28,2b1,b3,b12,b25)
-     call unpack28(n28a,call_1)
+     call unpack28(n28a,call_1,unpk28_success)
+     if(.not.unpk28_success .or. n28a.le.2) unpk77_success=.false.
      nrs=52+irpt
      if(ip.eq.1) call_1=trim(call_1)//'/P'//'        '
      write(cexch,1022) nrs,iserial
@@ -304,11 +312,14 @@ subroutine unpack77(c77,msg,unpk77_success)
 ! 0.4   WA9XYZ KA1ABC R 32A EMA            28 28 1 4 3 7    71   ARRL Field Day
      read(c77,1030) n28a,n28b,ir,intx,nclass,isec
 1030 format(2b28,b1,b4,b3,b7)
-     if(isec.gt.NSEC .or. isec.lt.1) unpk77_success=.false.
-     if(isec.gt.NSEC) isec=NSEC          !### Check range for other params? ###
-     if(isec.lt.1) isec=1                !### Flag these so they aren't printed? ###
-     call unpack28(n28a,call_1)
-     call unpack28(n28b,call_2)
+     if(isec.gt.NSEC .or. isec.lt.1) then
+         unpk77_success=.false.
+         isec=1
+     endif
+     call unpack28(n28a,call_1,unpk28_success)
+     if(.not.unpk28_success .or. n28a.le.2) unpk77_success=.false.
+     call unpack28(n28b,call_2,unpk28_success)
+     if(.not.unpk28_success .or. n28b.le.2) unpk77_success=.false.
      ntx=intx+1
      if(n3.eq.4) ntx=ntx+16
      write(cntx(1:2),1032) ntx
@@ -339,16 +350,23 @@ subroutine unpack77(c77,msg,unpk77_success)
 ! Type 1 (standard message) or Type 2 ("/P" form for EU VHF contest)
      read(c77,1000) n28a,ipa,n28b,ipb,ir,igrid4,i3
 1000 format(2(b28,b1),b1,b15,b3)
-     call unpack28(n28a,call_1)
-     call unpack28(n28b,call_2)
+     call unpack28(n28a,call_1,unpk28_success)
+     if(.not.unpk28_success) unpk77_success=.false.
+     call unpack28(n28b,call_2,unpk28_success)
+     if(.not.unpk28_success) unpk77_success=.false.
      if(call_1(1:3).eq.'CQ_') call_1(3:3)=' '
-     i=index(call_1,' ')
-     if(i.ge.4 .and. ipa.eq.1 .and. i3.eq.1) call_1(i:i+1)='/R'
-     if(i.ge.4 .and. ipa.eq.1 .and. i3.eq.2) call_1(i:i+1)='/P'
-     i=index(call_2,' ')
-     if(i.ge.4 .and. ipb.eq.1 .and. i3.eq.1) call_2(i:i+1)='/R'
-     if(i.ge.4 .and. ipb.eq.1 .and. i3.eq.2) call_2(i:i+1)='/P'
-
+     if(index(call_1,'<').le.0) then
+        i=index(call_1,' ')
+        if(i.ge.4 .and. ipa.eq.1 .and. i3.eq.1) call_1(i:i+1)='/R'
+        if(i.ge.4 .and. ipa.eq.1 .and. i3.eq.2) call_1(i:i+1)='/P'
+        if(i.ge.4) call add_call_to_recent_calls(call_1)
+     endif
+     if(index(call_2,'<').le.0) then
+        i=index(call_2,' ')
+        if(i.ge.4 .and. ipb.eq.1 .and. i3.eq.1) call_2(i:i+1)='/R'
+        if(i.ge.4 .and. ipb.eq.1 .and. i3.eq.2) call_2(i:i+1)='/P'
+        if(i.ge.4) call add_call_to_recent_calls(call_2)
+     endif
      if(igrid4.le.MAXGRID4) then
         n=igrid4
         j1=n/(18*10*10)
@@ -389,8 +407,10 @@ subroutine unpack77(c77,msg,unpk77_success)
         imult=nexch-8000
         nserial=-1
      endif
-     call unpack28(n28a,call_1)
-     call unpack28(n28b,call_2)
+     call unpack28(n28a,call_1,unpk28_success)
+     if(.not.unpk28_success) unpk77_success=.false.
+     call unpack28(n28b,call_2,unpk28_success)
+     if(.not.unpk28_success) unpk77_success=.false.
      imult=0
      nserial=0
      if(nexch.gt.8000) imult=nexch-8000
@@ -441,6 +461,7 @@ subroutine unpack77(c77,msg,unpk77_success)
         msg='CQ '//trim(call_2)
      endif
   endif
+  if(msg(1:4).eq.'CQ <') unpk77_success=.false.
 
   return
 end subroutine unpack77
@@ -451,7 +472,6 @@ subroutine pack28(c13,n28)
 ! integer.
 
   parameter (NTOKENS=2063592,MAX22=4194304)
-  integer nc(6)
   logical is_digit,is_letter
   character*13 c13
   character*6 callsign
@@ -465,7 +485,6 @@ subroutine pack28(c13,n28)
   data a2/'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
   data a3/'0123456789'/
   data a4/' ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
-  data nc/37,36,19,27,27,27/
   
   is_digit(c)=c.ge.'0' .and. c.le.'9'
   is_letter(c)=c.ge.'A' .and. c.le.'Z'
@@ -523,6 +542,7 @@ subroutine pack28(c13,n28)
         endif
      endif
   endif
+
 ! Check for <...> callsign
   if(c13(1:1).eq.'<')then
      call save_hash_call(c13,n10,n12,n22)   !Save callsign in hash table
@@ -557,6 +577,7 @@ subroutine pack28(c13,n28)
   
   n=len(trim(c13))
 ! This is a standard callsign
+  call save_hash_call(c13,n10,n12,n22)   !Save callsign in hash table
   if(iarea.eq.2) callsign=' '//c13(1:5)
   if(iarea.eq.3) callsign=c13(1:6)
   i1=index(a1,callsign(1:1))-1
@@ -569,15 +590,15 @@ subroutine pack28(c13,n28)
        27*i5 + i6
   n28=n28 + NTOKENS + MAX22
 
-900 n28=iand(n28,2**28-1)
+900 n28=iand(n28,ishft(1,28)-1)
   return
 end subroutine pack28
 
 
-subroutine unpack28(n28_0,c13)
+subroutine unpack28(n28_0,c13,success)
 
   parameter (NTOKENS=2063592,MAX22=4194304)
-  integer nc(6)
+  logical success
   character*13 c13
   character*37 c1
   character*36 c2
@@ -587,8 +608,8 @@ subroutine unpack28(n28_0,c13)
   data c2/'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
   data c3/'0123456789'/
   data c4/' ABCDEFGHIJKLMNOPQRSTUVWXYZ'/
-  data nc/37,36,19,27,27,27/
 
+  success=.true.
   n28=n28_0
   if(n28.lt.NTOKENS) then
 ! Special tokens DE, QRZ, CQ, CQ_nnn, CQ_aaaa
@@ -641,7 +662,10 @@ subroutine unpack28(n28_0,c13)
   c13=adjustl(c13)
 
 900 i0=index(c13,' ')
-  if(i0.lt.len(trim(c13))) c13='QU1RK'
+  if(i0.lt.len(trim(c13))) then
+     c13='QU1RK'
+     success=.false.
+  endif
   return
 end subroutine unpack28
 
@@ -811,7 +835,7 @@ subroutine pack77_03(nwords,w,i3,n3,c77)
   if(.not.ok1 .or. .not.ok2) return
   isec=-1
   do i=1,NSEC
-     if(csec(i).eq.w(nwords)) then
+     if(csec(i).eq.w(nwords)(1:3)) then
         isec=i
         exit
      endif
@@ -1087,56 +1111,114 @@ end subroutine pack77_4
 
 subroutine packtext77(c13,c71)
 
-  real*16 q
   character*13 c13,w
   character*71 c71
   character*42 c
+  character*1 qa(10),qb(10)
   data c/' 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ+-./?'/
 
-  q=0.q0
+  call mp_short_init
+  qa=char(0)
   w=adjustr(c13)
   do i=1,13
      j=index(c,w(i:i))-1
      if(j.lt.0) j=0
-     q=42.q0*q + j
+     call mp_short_mult(qb,qa(2:10),9,42)     !qb(1:9)=42*qa(2:9)
+     call mp_short_add(qa,qb(2:10),9,j)      !qa(1:9)=qb(2:9)+j
   enddo
 
-  do i=71,1,-1
-     c71(i:i)='0'
-     n=mod(q,2.q0)
-     q=q/2.q0
-     if(n.eq.1) then
-        c71(i:i)='1'
-        q=q-0.q5
-     endif
-  enddo
+  write(c71,1010) qa(2:10)
+1010 format(b7.7,8b8.8)
 
   return
 end subroutine packtext77
 
-
 subroutine unpacktext77(c71,c13)
 
-  real*16 q,q1
-  integer*8 n1,n2
+  integer*1   ia(10)
+  character*1 qa(10),qb(10)
   character*13 c13
   character*71 c71
   character*42 c
+  equivalence (qa,ia),(qb,ib)
   data c/' 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ+-./?'/
 
-  read(c71,1001) n1,n2
-1001 format(b63,b8)
-  q=n1*256.q0 + n2
+  qa(1)=char(0)
+  read(c71,1010) qa(2:10)
+1010 format(b7.7,8b8.8)
 
   do i=13,1,-1
-     q1=mod(q,42.q0)
-     j=q1+1.q0
-     c13(i:i)=c(j:j)
-     q=(q-q1)/42.q0
+     call mp_short_div(qb,qa(2:10),9,42,ir)
+     c13(i:i)=c(ir+1:ir+1)
+     qa(2:10)=qb(1:9)
   enddo
 
   return
 end subroutine unpacktext77
 
+subroutine mp_short_ops(w,u)
+  character*1 w(*),u(*)
+  integer i,ireg,j,n,ir,iv,ii1,ii2
+  character*1 creg(4)
+  save ii1,ii2
+  equivalence (ireg,creg)
+
+  entry mp_short_init
+  ireg=256*ichar('2')+ichar('1')
+  do j=1,4
+     if (creg(j).eq.'1') ii1=j
+     if (creg(j).eq.'2') ii2=j
+  enddo
+  return
+
+  entry mp_short_add(w,u,n,iv)
+  ireg=256*iv
+  do j=n,1,-1
+     ireg=ichar(u(j))+ichar(creg(ii2))
+     w(j+1)=creg(ii1)
+  enddo
+  w(1)=creg(ii2)
+  return
+
+  entry mp_short_mult(w,u,n,iv)
+  ireg=0
+  do j=n,1,-1
+     ireg=ichar(u(j))*iv+ichar(creg(ii2))
+     w(j+1)=creg(ii1)
+  enddo
+  w(1)=creg(ii2)
+  return
+
+  entry mp_short_div(w,u,n,iv,ir)
+  ir=0
+  do j=1,n
+     i=256*ir+ichar(u(j))
+     w(j)=char(i/iv)
+     ir=mod(i,iv)
+  enddo
+  return
+  
+  return
+end subroutine mp_short_ops
+
+subroutine add_call_to_recent_calls(callsign)
+
+  character*13 callsign
+  logical ladd
+! only add if the callsign is not already on the list
+  ladd=.true.
+  do i=1,MAXRECENT-1 ! if callsign is at the end of the list add it again
+     if(recent_calls(i).eq.callsign) ladd=.false.
+  enddo
+
+  if(ladd) then
+     do i=MAXRECENT,2,-1
+        recent_calls(i)=recent_calls(i-1)
+     enddo
+     recent_calls(1)=callsign
+  endif
+
+  return
+end subroutine add_call_to_recent_calls
 
 end module packjt77

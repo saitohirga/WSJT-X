@@ -62,7 +62,9 @@ program ft8sim2
   if(snrdb.gt.90.0) sig=1.0
   txt=NN*NSPS/12000.0
 
-! Source-encode, then get itone()
+  ! Source-encode, then get itone()
+  i3=-1
+  n3=-1
   call pack77(msg37,i3,n3,c77)
   call genft8_174_91(msg37,i3,n3,msgsent37,msgbits,itone)
 

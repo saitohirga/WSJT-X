@@ -1,7 +1,7 @@
 subroutine genmsk40(msg,msgsent,ichk,itone,itype)
 
   use hashing
-  character*22 msg,msgsent,hashmsg
+  character*37 msg,msgsent,hashmsg
   character*4 crpt,rpt(0:15)
   logical first
   integer*4 itone(144)
