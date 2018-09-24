@@ -115,7 +115,6 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,bswl,nhasharray,             &
   
   max_iterations=5
   call bpdecode40(llr,max_iterations,decoded,niterations)
-
   if( niterations .ge. 0.0 ) then
     call encode_msk40(decoded,cw)
     nhammd=0
@@ -133,10 +132,8 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,bswl,nhasharray,             &
     enddo
     nrxrpt=iand(imsg,15)
     nrxhash=(imsg-nrxrpt)/16
-
     if(nhammd.le.4 .and. cord .lt. 0.65 .and.                                  &
        nrxhash.eq.ihash .and. nrxrpt.ge.7) then
-!write(*,*) 'decodeframe 1',nbadsync,nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma
       nsuccess=1    
       write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(mycall),   &
                                     trim(hiscall),">",rpt(nrxrpt)
@@ -148,18 +145,15 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,bswl,nhasharray,             &
             nsuccess=2
             write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(recent_calls(i)),   &
                                   trim(recent_calls(j)),">",rpt(nrxrpt)
-!write(*,*) 'decodeframe 2',nbadsync,nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma
           elseif( nrxhash .eq. nhasharray(j,i) ) then
             nsuccess=2
             write(msgreceived,'(a1,a,1x,a,a1,1x,a4)') "<",trim(recent_calls(j)),   &
                                   trim(recent_calls(i)),">",rpt(nrxrpt)
-!write(*,*) 'decodeframe 3',nbadsync,nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma
           endif
         enddo
       enddo
       if(nsuccess.eq.0) then
         nsuccess=3
-!write(*,*) 'decodeframe 4',bswl,nbadsync,nhammd,cord,nrxhash,nrxrpt,ihash,xsnr,sigma,nsuccess
         write(msgreceived,'(a1,i4.4,a1,1x,a4)') "<",nrxhash,">",rpt(nrxrpt)
       endif
     endif 
