@@ -1200,7 +1200,7 @@ subroutine mp_short_ops(w,u)
   
   return
 end subroutine mp_short_ops
-=======
+
 subroutine add_call_to_recent_calls(callsign)
 
   character*13 callsign
