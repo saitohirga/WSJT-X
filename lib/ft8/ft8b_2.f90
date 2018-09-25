@@ -312,7 +312,6 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
      endif
 
      msg37='                                     '
-     xsnr=-99.0
      if(nharderrors.lt.0 .or. nharderrors.gt.36) cycle
      if(count(cw.eq.0).eq.174) cycle           !Reject the all-zero codeword
      write(c77,'(77i1)') message77
@@ -337,11 +336,11 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
      enddo
      xsnr=0.001
      if(xnoi.gt.0 .and. xnoi.lt.xsig) xsnr=xsig/xnoi-1.0
-     if(.not.nagain) then
-        xbase=10**(xbase/10.0)
-        arg=xsig/xbase/3.6e6-1.0
-        if(arg.gt.0.1) xsnr=arg
-     endif
+!     if(.not.nagain) then
+!        xbase=10**(xbase/10.0)
+!        arg=xsig/xbase/3.6e6-1.0
+!        if(arg.gt.0.1) xsnr=arg
+!     endif
      xsnr=10.0*log10(xsnr)-27.0
      if(xsnr .lt. -24.0) xsnr=-24.0
      
