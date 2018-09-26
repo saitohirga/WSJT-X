@@ -121,7 +121,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   if(ndecodesuccess.eq.0 .and. (bshmsg.or.bswl)) then
      call msk40spd(cdat,np,ntol,mycall(1:6),hiscall(1:6),bswl,nhasharray,      &
               ndecodesuccess,msgrx22,fc,fest,tdec,navg)
-     if( ndecodesuccess .ge. 1 ) msgreceived(1:22)=msgrx22
+     if( ndecodesuccess .ge. 1 ) msgreceived=msgrx22//'               '
   endif
   if( ndecodesuccess .ge. 1 ) then
     tdec=tsec+tdec
@@ -210,15 +210,17 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
      if(.not. bshdecode) then
         call update_hasharray(nhasharray)
      endif
-     if( .not.bshdecode ) then
-        write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived(1:22),           &
-             navg,ncorrected,eyeopening,char(0)
-1020    format(i6.6,i4,f5.1,i5,a4,a22,i2,i3,f5.1,a1)
-     else
-        write(line,1022) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived(1:22),           &
-             navg,char(0)
-1022    format(i6.6,i4,f5.1,i5,a4,a22,i2,a1)
-     endif
+     write(line,1021) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,char(0)
+1021 format(i6.6,i4,f5.1,i5,a4,a37,a1)
+!     if( .not.bshdecode ) then
+!        write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived(1:22),           &
+!             navg,ncorrected,eyeopening,char(0)
+!1020    format(i6.6,i4,f5.1,i5,a4,a22,i2,i3,f5.1,a1)
+!     else
+!        write(line,1022) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived(1:22),           &
+!             navg,char(0)
+!1022    format(i6.6,i4,f5.1,i5,a4,a22,i2,a1)
+!     endif
   elseif(bswl .and. ndecodesuccess.ge.2) then 
     seenb4=.false.
     do i=1,nshmem
@@ -233,8 +235,9 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
     if(bflag) then
       msglastswl=msgreceived
       nsnrlastswl=nsnr
-      write(line,1022) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,    &
-          navg,char(0)
+      write(line,1021) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,char(0)
+!      write(line,1022) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,    &
+!          navg,char(0)
     endif
   endif
 999 tsec0=tsec
