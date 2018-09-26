@@ -115,7 +115,7 @@ void ADIF::add(QString const& call, QString const& grid, QString const& band,
 {
   QSO q;
   q.call = call;
-  q.grid = grid;
+  q.grid = grid.left(4);   //We only want to test matches to 4-character grids.
   q.band = band;
   q.mode = mode;
   q.date = date;
