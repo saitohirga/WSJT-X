@@ -4686,12 +4686,14 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
 
   bool bMyCall=stdCall(my_callsign);
   bool bHisCall=stdCall(hisCall);
-  bool b77=(m_mode=="MSK144" or m_mode=="FT8") and (!bMyCall or !bHisCall);
+  bool b77=(m_mode=="MSK144" or m_mode=="FT8") and
+      (!bMyCall or !bHisCall or m_config.bGenerate77());
+//  qDebug() << "aa" << my_callsign << hisCall << bMyCall << bHisCall << b77;
 
   QString t0=hisBase + " " + m_baseCall + " ";
   QString t0a,t0b;
   if(b77) {
-//    if(bHisCall and bMyCall) t0=hisCall + " " + my_callsign + " ";
+    if(bHisCall and bMyCall) t0=hisCall + " " + my_callsign + " ";
     t0a="<"+hisCall + "> " + my_callsign + " ";
     t0b=hisCall + " <" + my_callsign + "> ";
   }
