@@ -124,7 +124,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
       ctwk(i)=cmplx(cos(phi),sin(phi))
       phi=mod(phi+dphi,twopi)
     enddo
-   call sync8d(cd0,i0,ctwk,1,2,sync)
+    call sync8d(cd0,i0,ctwk,1,2,sync)
     if( sync .gt. smax ) then
       smax=sync
       delfbest=delf
@@ -335,13 +335,16 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
         xnoi=xnoi+s8(ios,i)**2
      enddo
      xsnr=0.001
-     if(xnoi.gt.0 .and. xnoi.lt.xsig) xsnr=xsig/xnoi-1.0
-!     if(.not.nagain) then
-!        xbase=10**(xbase/10.0)
-!        arg=xsig/xbase/3.6e6-1.0
-!        if(arg.gt.0.1) xsnr=arg
-!     endif
+     xsnr2=0.001
+     arg=xsig/xnoi-1.0 
+     if(arg.gt.0.1) xsnr=arg
+     arg=xsig/xbase/2.8e6-1.0
+     if(arg.gt.0.1) xsnr2=arg
      xsnr=10.0*log10(xsnr)-27.0
+     xsnr2=10.0*log10(xsnr2)-27.0
+     if(.not.nagain) then
+       xsnr=xsnr2
+     endif
      if(xsnr .lt. -24.0) xsnr=-24.0
      
      return
