@@ -6225,6 +6225,7 @@ void MainWindow::on_tuneButton_clicked (bool checked)
   }
   else { // we're turning off so remember our Tune pwr setting and reset to Tx pwr
     if (m_config.pwrBandTuneMemory() || m_config.pwrBandTxMemory()) {
+      stopTx();
       m_pwrBandTuneMemory[curBand] = ui->outAttenuation->value(); // remember our Tune pwr
       m_PwrBandSetOK = false;
       ui->outAttenuation->setValue(m_pwrBandTxMemory[curBand].toInt()); // set to Tx pwr
