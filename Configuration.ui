@@ -2432,7 +2432,7 @@ Right click for insert and delete options.</string>
          <item row="9" column="0">
           <widget class="QPushButton" name="pbLoTW">
            <property name="text">
-            <string>LoTW</string>
+            <string>No LoTW</string>
            </property>
           </widget>
          </item>
@@ -3106,12 +3106,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="split_mode_button_group"/>
   <buttongroup name="CAT_stop_bits_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="TX_mode_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
+  <buttongroup name="split_mode_button_group"/>
  </buttongroups>
 </ui>
