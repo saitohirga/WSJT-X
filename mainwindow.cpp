@@ -4610,7 +4610,8 @@ void MainWindow::genCQMsg ()
       }
     } else {
       if(stdCall(m_config.my_callsign())) {
-        msgtype (QString {"%1 %2 %3"}.arg(m_CQtype).arg(m_config.my_callsign()).arg(grid.left(4)),ui->tx6);
+        msgtype (QString {"%1 %2 %3"}.arg(m_CQtype).arg(m_config.my_callsign())
+                 .arg(grid.left(4)),ui->tx6);
       } else {
         msgtype (QString {"%1 %2"}.arg(m_CQtype).arg(m_config.my_callsign()),ui->tx6);
       }
@@ -4623,8 +4624,9 @@ void MainWindow::genCQMsg ()
       }
     }
 
-    if((m_mode=="FT8" or m_mode=="MSK144") and m_nContest!=NONE) {
-      QString t=ui->tx6->text();
+    QString t=ui->tx6->text();
+    if((m_mode=="FT8" or m_mode=="MSK144") and m_nContest!=NONE and
+       t.split(" ").at(1)==m_config.my_callsign()) {
 //       if(m_nContest==NA_VHF)    t="CQ QP" + t.mid(2,-1);
       if(m_nContest==FIELD_DAY) t="CQ FD" + t.mid(2,-1);
       if(m_nContest==RTTY)      t="CQ RU" + t.mid(2,-1);
