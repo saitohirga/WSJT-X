@@ -236,7 +236,7 @@ subroutine unpack77(c77,msg,unpk77_success)
        "NM ","NY ","NC ","ND ","OH ","OK ","OR ","PA ","RI ","SC ",  &
        "SD ","TN ","TX ","UT ","VT ","VA ","WA ","WV ","WI ","WY ",  &
        "NB ","NS ","QC ","ON ","MB ","SK ","AB ","BC ","NWT","NF ",  &
-       "LB ","NU ","VT ","PEI","DC "/
+       "LB ","NU ","YT ","PEI","DC "/
 
   unpk77_success=.true.
 
@@ -990,7 +990,7 @@ subroutine pack77_3(nwords,w,i3,n3,c77)
        "NM ","NY ","NC ","ND ","OH ","OK ","OR ","PA ","RI ","SC ",  &
        "SD ","TN ","TX ","UT ","VT ","VA ","WA ","WV ","WI ","WY ",  &
        "NB ","NS ","QC ","ON ","MB ","SK ","AB ","BC ","NWT","NF ",  &
-       "LB ","NU ","VT ","PEI","DC "/
+       "LB ","NU ","YT ","PEI","DC "/
 
   if(nwords.eq.4 .or. nwords.eq.5 .or. nwords.eq.6) then
      i1=1
