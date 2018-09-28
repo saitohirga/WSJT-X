@@ -358,7 +358,7 @@ write(*,*) apmag,lapon,lapcqonly,npasses,nQSOProgress
         cycle
      endif
      nbadcrc=0  ! If we get this far: valid codeword, valid (i3,n3), nonquirky message.
-     call genft8_174_91(msg37,i3g,n3g,msgsent37,msgbits,itone)
+     call get_tones_from_77bits(message77,itone)
      if(lsubtract) call subtractft8(dd0,itone,f1,xdt) 
      xsig=0.0
      xnoi=0.0
