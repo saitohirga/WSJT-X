@@ -654,9 +654,15 @@ QLabel[oob=&quot;true&quot;] {
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
-                   <property name="maximumSize">
+                   <property name="minimumSize">
                     <size>
                      <width>20</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>50</width>
                      <height>20</height>
                     </size>
                    </property>
@@ -698,9 +704,15 @@ QLabel[oob=&quot;true&quot;] {
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
-                   <property name="maximumSize">
+                   <property name="minimumSize">
                     <size>
                      <width>20</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>50</width>
                      <height>20</height>
                     </size>
                    </property>
