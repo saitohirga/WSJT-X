@@ -22,7 +22,7 @@ subroutine genft8_174_91(msg,i3,n3,msgsent,msgbits,itone)
   read(c77,'(77i1)',err=1) msgbits
   go to 2
 1 write(81,*) msg,c77 ; flush(81)
-2  call encode174_91(msgbits,codeword)      !Encode the test message
+2 call encode174_91(msgbits,codeword)      !Encode 77-bit msg into codeword  
 
 ! Message structure: S7 D29 S7 D29 S7
   itone(1:7)=icos7

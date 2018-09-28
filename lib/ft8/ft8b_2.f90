@@ -1,5 +1,5 @@
 subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
-     napwid,lsubtract,nagain,iaptype,mycall12,hiscall12,                      &
+     napwid,lsubtract,nagain,ncontest,iaptype,mycall12,hiscall12,             &
      sync0,f1,xdt,xbase,apsym,nharderrors,dmin,nbadcrc,ipass,iera,msg37,xsnr)  
 
   use crc
@@ -16,19 +16,20 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   real a(5)
   real s8(0:7,NN)
   real s2(0:511),s2l(0:511)
-  real bmeta(3*ND),bmetb(3*ND),bmetc(3*ND)
-  real bmetal(3*ND),bmetbl(3*ND),bmetcl(3*ND)
-  real llra(3*ND),llrb(3*ND),llrc(3*ND),llrd(3*ND)           !Soft symbols
-  real llral(3*ND),llrbl(3*ND),llrcl(3*ND)                   !Soft symbols
+  real bmeta(174),bmetb(174),bmetc(174)
+  real bmetal(174),bmetbl(174),bmetcl(174)
+  real llra(174),llrb(174),llrc(174),llrd(174)           !Soft symbols
+  real llral(174),llrbl(174),llrcl(174)                   !Soft symbols
   real dd0(15*12000)
-  integer*1 message77(77),apmask(3*ND),cw(3*ND)
+  integer*1 message77(77),apmask(174),cw(174)
   integer*1 msgbits(77)
   integer apsym(77)
-  integer mcq(29),mrrr(19),m73(19),mrr73(19)
+  integer mcq(29),mcqru(29),mrrr(19),m73(19),mrr73(19)
   integer itone(NN)
   integer icos7(0:6),ip(1)
   integer nappasses(0:5)  !Number of decoding passes to use for each QSO state
   integer naptypes(0:5,4) ! (nQSOProgress, decoding pass)  maximum of 4 passes for now
+  integer ncontest,ncontest0
   integer*1, target:: i1hiscall(12)
   logical one(0:511,0:8)
   integer graymap(0:7)
@@ -39,15 +40,18 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   logical first,newdat,lsubtract,lapon,lapcqonly,nagain,unpk77_success
   data icos7/3,1,4,0,6,5,2/  ! Flipped w.r.t. original FT8 sync array
   data   mcq/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0/
+  data mcqru/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,0,0,1,1,0,0/
   data  mrrr/0,1,1,1,1,1,1,0,1,0,0,1,0,0,1,0,0,0,1/
   data   m73/0,1,1,1,1,1,1,0,1,0,0,1,0,1,0,0,0,0,1/
   data mrr73/0,1,1,1,1,1,1,0,0,1,1,1,0,1,0,1,0,0,1/
   data first/.true./
   data graymap/0,1,3,2,5,6,4,7/
-  save nappasses,naptypes,one,hiscall12_0
+  save nappasses,naptypes,ncontest0,one,hiscall12_0
 
-  if(first) then
+
+  if(first.or.(ncontest.ne.ncontest0)) then
      mcq=2*mcq-1
+     mcqru=2*mcqru-1
      mrrr=2*mrrr-1
      m73=2*m73-1
      mrr73=2*mrr73-1
@@ -81,6 +85,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
        enddo
      enddo
      first=.false.
+     ncontest0=ncontest
   endif
 
   if(hiscall12.ne.hiscall12_0) then
@@ -211,12 +216,12 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
       enddo
     enddo
   enddo
-  call normalizebmet(bmeta,3*ND)
-!  call normalizebmet(bmetal,3*ND)
-  call normalizebmet(bmetb,3*ND)
-!  call normalizebmet(bmetbl,3*ND)
-  call normalizebmet(bmetc,3*ND)
-!  call normalizebmet(bmetcl,3*ND)
+  call normalizebmet(bmeta,174)
+!  call normalizebmet(bmetal,174)
+  call normalizebmet(bmetb,174)
+!  call normalizebmet(bmetbl,174)
+  call normalizebmet(bmetc,174)
+!  call normalizebmet(bmetcl,174)
 
   scalefac=2.83
   llra=scalefac*bmeta
@@ -226,7 +231,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   llrc=scalefac*bmetc
 !  llrcl=scalefac*bmetcl
 
-  apmag=maxval(abs(llrb))*1.01
+  apmag=maxval(abs(llra))*1.01
 
 ! pass #
 !------------------------------
@@ -238,7 +243,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
 !   6        ap pass 3
 !   7        ap pass 4
 
-  if(lapon) then 
+  if(lapon.and.(ncontest.eq.0.or.ncontest.eq.4)) then 
      if(.not.lapcqonly) then
         npasses=3+nappasses(nQSOProgress)
      else
@@ -248,6 +253,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
      npasses=3
   endif
 
+write(*,*) apmag,lapon,lapcqonly,npasses,nQSOProgress
   do ipass=1,npasses 
      llrd=llra
      if(ipass.eq.2) llrd=llrb
@@ -265,20 +271,47 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
            iaptype=1
         endif
         if(iaptype.ge.3 .and. (abs(f1-nfqso).gt.napwid .and. abs(f1-nftx).gt.napwid) ) cycle 
-        if(iaptype.eq.1 .or. iaptype.eq.2 ) then ! AP,???,??? 
+        if(iaptype.eq.1) then ! CQ,???,??? or CQ RU,???,???
            apmask=0
            apmask(1:29)=1  
+           if( ncontest.eq.0) llrd(1:29)=apmag*mcq(1:29)
+           if( ncontest.eq.4) llrd(1:29)=apmag*mcqru(1:29)
            apmask(75:77)=1 
-           llrd(75:77)=apmag*apsym(75:77)
-           if(iaptype.eq.1) llrd(1:29)=apmag*mcq(1:29)
-           if(iaptype.eq.2) llrd(1:29)=apmag*apsym(1:29)
+           llrd(75:76)=apmag*(-1)
+           llrd(77)=apmag*(+1)
         endif
-        if(iaptype.eq.3) then   ! mycall, dxcall, ???
+
+        if(iaptype.eq.2) then ! MyCall,???,??? 
            apmask=0
-           apmask(1:56)=1   
-           apmask(75:77)=1 
-           llrd(1:56)=apmag*apsym(1:56)
-           llrd(75:77)=apmag*apsym(75:77)
+           if(ncontest.eq.0) then
+              apmask(1:29)=1  
+              llrd(1:29)=apmag*apsym(1:29)
+              apmask(75:77)=1 
+              llrd(75:76)=apmag*(-1)
+              llrd(77)=apmag*(+1)
+           else if(ncontest.eq.4) then
+              apmask(2:29)=1  
+              llrd(2:29)=apmag*apsym(2:29)
+              apmask(75:77)=1 
+              llrd(75)=apmag*(-1)
+              llrd(76:77)=apmag*(+1)
+           endif
+        endif
+        if(iaptype.eq.3) then ! MyCall,DxCall,??? 
+           apmask=0
+           if(ncontest.eq.0) then
+              apmask(1:58)=1  
+              llrd(1:58)=apmag*apsym(1:58)
+              apmask(75:77)=1 
+              llrd(75:76)=apmag*(-1)
+              llrd(77)=apmag*(+1)
+           else if(ncontest.eq.4) then
+              apmask(2:57)=1  
+              llrd(2:57)=apmag*apsym(2:57)
+              apmask(75:77)=1 
+              llrd(75)=apmag*(-1)
+              llrd(76:77)=apmag*(+1)
+           endif
         endif
         if(iaptype.eq.4 .or. iaptype.eq.5 .or. iaptype.eq.6) then  
            apmask=0
@@ -325,7 +358,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
         cycle
      endif
      nbadcrc=0  ! If we get this far: valid codeword, valid (i3,n3), nonquirky message.
-     call genft8_174_91(msg37,i3,n3,msgsent37,msgbits,itone)
+     call genft8_174_91(msg37,i3g,n3g,msgsent37,msgbits,itone)
      if(lsubtract) call subtractft8(dd0,itone,f1,xdt) 
      xsig=0.0
      xnoi=0.0
@@ -338,10 +371,11 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
      xsnr2=0.001
      arg=xsig/xnoi-1.0 
      if(arg.gt.0.1) xsnr=arg
-     arg=xsig/xbase/2.8e6-1.0
+     arg=xsig/xbase/2.6e6-1.0
      if(arg.gt.0.1) xsnr2=arg
      xsnr=10.0*log10(xsnr)-27.0
      xsnr2=10.0*log10(xsnr2)-27.0
+write(87,'(f10.1,2x,f10.1)') xsnr,xsnr2
      if(.not.nagain) then
        xsnr=xsnr2
      endif
