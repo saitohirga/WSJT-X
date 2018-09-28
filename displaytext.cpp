@@ -76,6 +76,7 @@ void DisplayText::insertLineSpacer(QString const& line)
 void DisplayText::appendText(QString const& text, QColor bg,
                              QString const& call1, QString const& call2)
 {
+  qDebug () << "DisplayText::appendText: text:" << text << "Nbsp pos:" << text.indexOf (QChar::Nbsp);
   auto cursor = textCursor ();
   cursor.movePosition (QTextCursor::End);
   auto block_format = cursor.blockFormat ();

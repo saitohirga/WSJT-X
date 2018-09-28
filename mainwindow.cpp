@@ -6903,27 +6903,28 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
 
   QString format_string {"%1 %2 %3 %4 %5 %6"};
   auto const& time_string = time.toString ("~" == mode || "&" == mode ? "hhmmss" : "hhmm");
-  auto cqtext = format_string
+  auto message_line = format_string
     .arg (time_string)
     .arg (snr, 3)
     .arg (delta_time, 4, 'f', 1)
     .arg (delta_frequency, 4)
     .arg (mode, -2)
     .arg (message_text);
-  auto messages = ui->decodedTextBrowser->toPlainText ();
-  auto position = messages.lastIndexOf (cqtext);
-  if (position < 0)
+  QTextCursor start {ui->decodedTextBrowser->document ()};
+  start.movePosition (QTextCursor::End);
+  auto cursor = ui->decodedTextBrowser->document ()->find (message_line, start, QTextDocument::FindBackward);
+  if (cursor.isNull ())
     {
       // try again with with -0.0 delta time
-      position = messages.lastIndexOf (format_string
-                                       .arg (time_string)
-                                       .arg (snr, 3)
-                                       .arg ('-' + QString::number (delta_time, 'f', 1), 4)
-                                       .arg (delta_frequency, 4)
-                                       .arg (mode, -2)
-                                       .arg (message_text));
+      cursor = ui->decodedTextBrowser->document ()->find (format_string
+                                                          .arg (time_string)
+                                                          .arg (snr, 3)
+                                                          .arg ('-' + QString::number (delta_time, 'f', 1), 4)
+                                                          .arg (delta_frequency, 4)
+                                                          .arg (mode, -2)
+                                                          .arg (message_text), start, QTextDocument::FindBackward);
     }
-  if (position >= 0)
+  if (!cursor.isNull ())
     {
       if (m_config.udpWindowToFront ())
         {
@@ -6936,14 +6937,11 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
           showNormal ();
           raise ();
         }
-      // find the linefeed at the end of the line
-      position = ui->decodedTextBrowser->toPlainText().indexOf(QChar::LineFeed,position);
       if (message_text.contains (QRegularExpression {R"(^(CQ |CQDX |QRZ ))"})) {
         // a message we are willing to accept and auto reply to
         m_bDoubleClicked = true;
       }
-      auto start = messages.left (position).lastIndexOf (QChar::LineFeed) + 1;
-      DecodedText message {messages.mid (start, position - start)};
+      DecodedText message {message_line};
       Qt::KeyboardModifiers kbmod {modifiers << 24};
       processMessage (message, kbmod);
       tx_watchdog (false);
@@ -6951,7 +6949,7 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
     }
   else
     {
-      qDebug () << "process reply message ignored, decode not found:" << cqtext;
+      qDebug () << "process reply message ignored, decode not found:" << message_line;
     }
 }
 
@@ -6988,10 +6986,12 @@ void MainWindow::replayDecodes ()
   // is not checked
 
   // attempt to parse the decoded text
-  Q_FOREACH (auto const& message
-             , ui->decodedTextBrowser->toPlainText ().split (QChar::LineFeed,
-                                                             QString::SkipEmptyParts))
+  for (QTextBlock block = ui->decodedTextBrowser->document ()->firstBlock (); block.isValid (); block = block.next ())
     {
+      auto message = block.text ();
+      message = message.left (message.indexOf (QChar::Nbsp)); // discard
+                                                              // any
+                                                              // appended info
       if (message.size() >= 4 && message.left (4) != "----")
         {
           auto const& parts = message.split (' ', QString::SkipEmptyParts);
@@ -7001,14 +7001,8 @@ void MainWindow::replayDecodes ()
             }
           else
             {
-              auto eom_pos = message.indexOf (' ', 35);
-              // we always want at least the characters to position 35
-              if (eom_pos < 35)
-                {
-                  eom_pos = message.size () - 1;
-                }
               // TODO - how to skip ISCAT decodes
-              postDecode (false, message.left (eom_pos + 1));
+              postDecode (false, message);
             }
         }
     }
