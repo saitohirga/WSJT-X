@@ -52,7 +52,7 @@ contains
     character*12 mycall12,hiscall12,mycall12_0
     character*6 hisgrid6
     integer*2 iwave(15*12000)
-    integer apsym1(KK),apsym2(77)
+    integer apsym1(KK),apsym2(58)
     character datetime*13,msg37*37
 !   character message*22
     character*37 allmessages(100)
@@ -70,7 +70,7 @@ contains
 1001 format("000000_",i6.6)
 
     call ft8apset(mycall12,hiscall12,apsym1)
-    call ft8apset_174_91(mycall12,hiscall12,ncontest,apsym2)
+    call ft8apset_174_91(mycall12,hiscall12,apsym2)
     dd=iwave
     ndecodes=0
     allmessages='                                     '
