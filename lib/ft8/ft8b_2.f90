@@ -22,8 +22,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   real llral(174),llrbl(174),llrcl(174)                   !Soft symbols
   real dd0(15*12000)
   integer*1 message77(77),apmask(174),cw(174)
-  integer*1 msgbits(77)
-  integer apsym(77)
+  integer apsym(58)
   integer mcq(29),mcqru(29),mrrr(19),m73(19),mrr73(19)
   integer itone(NN)
   integer icos7(0:6),ip(1)
@@ -253,7 +252,6 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
      npasses=3
   endif
 
-write(*,*) apmag,lapon,lapcqonly,npasses,nQSOProgress
   do ipass=1,npasses 
      llrd=llra
      if(ipass.eq.2) llrd=llrb
@@ -270,7 +268,11 @@ write(*,*) apmag,lapon,lapcqonly,npasses,nQSOProgress
         else
            iaptype=1
         endif
+        if(iaptype.ge.2 .and. apsym(1).gt.1) cycle ! no mycall was entered
+        if(iaptype.ge.3 .and. apsym(30).gt.1) cycle ! no, or nonstandard dxcall
         if(iaptype.ge.3 .and. (abs(f1-nfqso).gt.napwid .and. abs(f1-nftx).gt.napwid) ) cycle 
+        apsym=2*apsym-1
+
         if(iaptype.eq.1) then ! CQ,???,??? or CQ RU,???,???
            apmask=0
            apmask(1:29)=1  
@@ -291,32 +293,35 @@ write(*,*) apmag,lapon,lapcqonly,npasses,nQSOProgress
               llrd(77)=apmag*(+1)
            else if(ncontest.eq.4) then
               apmask(2:29)=1  
-              llrd(2:29)=apmag*apsym(2:29)
+              llrd(2:29)=apmag*apsym(1:28)
               apmask(75:77)=1 
               llrd(75)=apmag*(-1)
               llrd(76:77)=apmag*(+1)
            endif
         endif
+
         if(iaptype.eq.3) then ! MyCall,DxCall,??? 
            apmask=0
            if(ncontest.eq.0) then
               apmask(1:58)=1  
-              llrd(1:58)=apmag*apsym(1:58)
+              llrd(1:58)=apmag*apsym
               apmask(75:77)=1 
               llrd(75:76)=apmag*(-1)
               llrd(77)=apmag*(+1)
            else if(ncontest.eq.4) then
               apmask(2:57)=1  
-              llrd(2:57)=apmag*apsym(2:57)
+              llrd(2:29)=apmag*apsym(1:28)
+              llrd(30:57)=apmag*apsym(30:57)
               apmask(75:77)=1 
               llrd(75)=apmag*(-1)
               llrd(76:77)=apmag*(+1)
            endif
         endif
+
         if(iaptype.eq.4 .or. iaptype.eq.5 .or. iaptype.eq.6) then  
            apmask=0
            apmask(1:77)=1   ! mycall, hiscall, RRR|73|RR73
-           llrd(1:58)=apmag*apsym(1:58)
+           llrd(1:58)=apmag*apsym
            if(iaptype.eq.4) llrd(59:77)=apmag*mrrr 
            if(iaptype.eq.5) llrd(59:77)=apmag*m73 
            if(iaptype.eq.6) llrd(59:77)=apmag*mrr73 
@@ -375,7 +380,7 @@ write(*,*) apmag,lapon,lapcqonly,npasses,nQSOProgress
      if(arg.gt.0.1) xsnr2=arg
      xsnr=10.0*log10(xsnr)-27.0
      xsnr2=10.0*log10(xsnr2)-27.0
-write(87,'(f10.1,2x,f10.1)') xsnr,xsnr2
+!write(87,'(f10.1,2x,f10.1)') xsnr,xsnr2
      if(.not.nagain) then
        xsnr=xsnr2
      endif
