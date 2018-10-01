@@ -58,6 +58,7 @@
 #include "MultiSettings.hpp"
 #include "MaidenheadLocatorValidator.hpp"
 #include "CallsignValidator.hpp"
+#include "ExchangeValidator.hpp"
 #include "EqualizationToolsDialog.hpp"
 
 #include "ui_mainwindow.h"
