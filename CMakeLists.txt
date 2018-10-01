@@ -411,6 +411,7 @@ set (wsjt_FSRCS
   lib/ft8/encode174_91.f90
   lib/entail.f90
   lib/ephem.f90
+  lib/77bit/exch_valid.f90
   lib/extract.f90
   lib/extract4.f90
   lib/extractmessage144.f90
