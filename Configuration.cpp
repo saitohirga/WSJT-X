@@ -181,6 +181,7 @@
 #include "MaidenheadLocatorValidator.hpp"
 #include "CallsignValidator.hpp"
 #include "LotWUsers.hpp"
+#include "ExchangeValidator.hpp"
 
 #include "ui_Configuration.h"
 #include "moc_Configuration.cpp"
@@ -1003,15 +1004,19 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   // this must be done after the default paths above are set
   read_settings ();
 
+<<<<<<< HEAD
   // load LotW users data
   lotw_users_.load (writeable_data_dir_.absoluteFilePath ("lotw-user-activity.csv"));
 
   //
+=======
+>>>>>>> cd8f13b57... Implement a validator for FD and RTTY exchange entries.
   // validation
-  //
   ui_->callsign_line_edit->setValidator (new CallsignValidator {this});
   ui_->grid_line_edit->setValidator (new MaidenheadLocatorValidator {this});
   ui_->add_macro_line_edit->setValidator (new QRegExpValidator {message_alphabet, this});
+  ui_->FieldDay_Exchange->setValidator(new ExchangeValidator{this});
+  ui_->RTTY_Exchange->setValidator(new ExchangeValidator{this});
 
   ui_->udp_server_port_spin_box->setMinimum (1);
   ui_->udp_server_port_spin_box->setMaximum (std::numeric_limits<port_type>::max ());
