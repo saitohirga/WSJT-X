@@ -162,7 +162,6 @@ int   fast_jhpeak {0};
 int   fast_jh2 {0};
 int narg[15];
 QVector<QColor> g_ColorTbl;
-QHash<QString,int> m_LoTW;
 
 namespace
 {
@@ -204,6 +203,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_settings {multi_settings->settings ()},
   ui(new Ui::MainWindow),
   m_config {temp_directory, m_settings, this},
+  m_lotw_users {&m_config},
   m_WSPR_band_hopping {m_settings, &m_config, this},
   m_WSPR_tx_next {false},
   m_rigErrorMessageBox {MessageBox::Critical, tr ("Rig Control Error")
@@ -386,6 +386,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->dxGridEntry->setValidator (new MaidenheadLocatorValidator {this});
   ui->dxCallEntry->setValidator (new CallsignValidator {this});
   ui->sbTR->values ({5, 10, 15, 30});
+  ui->decodedTextBrowser->setLotWUsers (&m_lotw_users);
+  ui->decodedTextBrowser2->setLotWUsers (&m_lotw_users);
 
   m_baseCall = Radio::base_callsign (m_config.my_callsign ());
   m_opCall = m_config.opCall();
@@ -554,6 +556,10 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
         }
       m_equalizationToolsDialog->show ();
     });
+
+  connect (&m_lotw_users, &LotWUsers::LotW_users_error, this, [this] (QString const& reason) {
+      MessageBox::warning_message (this, tr ("Error Loading LotW Users Data"), reason);
+    }, Qt::QueuedConnection);
 
   QButtonGroup* txMsgButtonGroup = new QButtonGroup {this};
   txMsgButtonGroup->addButton(ui->txrb1,1);
@@ -917,31 +923,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   if(!ui->cbMenus->isChecked()) {
     ui->cbMenus->setChecked(true);
     ui->cbMenus->setChecked(false);
-  }
-
-  QFile f{m_config.data_dir().absoluteFilePath ("lotw-user-activity.csv")};
-  if(f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    QTextStream s(&f);
-    QString line,call;
-    int nLoTW=0;
-    int i1;
-    QDateTime now=QDateTime::currentDateTime();
-    QDateTime callDateTime;
-    // Read and process the file of LoTW-active stations
-    while(!s.atEnd()) {
-      line=s.readLine();
-      i1=line.indexOf(",");
-      call=line.left(i1);
-      line=line.mid(i1+1);
-      i1=line.indexOf(",");
-      callDateTime=QDateTime::fromString(line.left(i1),"yyyy-MM-dd");
-      int ndays=callDateTime.daysTo(now);
-      if(ndays < 366) {
-        nLoTW++;
-        m_LoTW[call]=ndays;
-      }
-    }
-    f.close();
   }
 
   // this must be the last statement of constructor

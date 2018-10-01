@@ -261,6 +261,7 @@ set (wsjt_qt_CXXSRCS
   EqualizationToolsDialog.cpp
   DoubleClickablePushButton.cpp
   DoubleClickableRadioButton.cpp
+  LotWUsers.cpp
   )
 
 set (wsjt_qtmm_CXXSRCS

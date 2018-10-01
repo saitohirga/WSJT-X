@@ -1,5 +1,4 @@
 #include "displaytext.h"
-#include "mainwindow.h"
 #include <QMouseEvent>
 #include <QDateTime>
 #include <QTextCharFormat>
@@ -8,12 +7,14 @@
 #include <QMenu>
 #include <QAction>
 
-#include "qt_helpers.hpp"
+#include "LotWUsers.hpp"
 
+#include "qt_helpers.hpp"
 #include "moc_displaytext.cpp"
 
 DisplayText::DisplayText(QWidget *parent)
   : QTextEdit(parent)
+  , m_lotw_users {0}
   , erase_action_ {new QAction {tr ("&Erase"), this}}
 {
   setReadOnly (true);
@@ -76,7 +77,6 @@ void DisplayText::insertLineSpacer(QString const& line)
 void DisplayText::appendText(QString const& text, QColor bg,
                              QString const& call1, QString const& call2)
 {
-  qDebug () << "DisplayText::appendText: text:" << text << "Nbsp pos:" << text.indexOf (QChar::Nbsp);
   auto cursor = textCursor ();
   cursor.movePosition (QTextCursor::End);
   auto block_format = cursor.blockFormat ();
@@ -144,7 +144,7 @@ void DisplayText::appendText(QString const& text, QColor bg,
     }
   format.setBackground (bg);
   format.clearForeground ();
-  if(call2.size()>0 and !m_LoTW.contains(call2)) {
+  if(call2.size () && !m_lotw_users->user (call2, 365)) {
     format.setForeground(m_color_LoTW);  //Mark LoTW non-users
   }
   cursor.insertText(text.mid (text_index), format);

@@ -36,6 +36,7 @@
 #include "astro.h"
 #include "MessageBox.hpp"
 #include "NetworkAccessManager.hpp"
+#include "LotWUsers.hpp"
 
 #define NUM_JT4_SYMBOLS 206                //(72+31)*2, embedded sync
 #define NUM_JT65_SYMBOLS 126               //63 data + 63 sync
@@ -341,8 +342,8 @@ private:
   QSettings * m_settings;
   QScopedPointer<Ui::MainWindow> ui;
 
-  // other windows
   Configuration m_config;
+  LotWUsers m_lotw_users;
   WSPRBandHopping m_WSPR_band_hopping;
   bool m_WSPR_tx_next;
   MessageBox m_rigErrorMessageBox;

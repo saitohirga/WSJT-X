@@ -12,6 +12,7 @@
 #include "decodedtext.h"
 
 class QAction;
+class LotWUsers;
 
 class DisplayText
   : public QTextEdit
@@ -19,7 +20,7 @@ class DisplayText
   Q_OBJECT
 public:
   explicit DisplayText(QWidget *parent = 0);
-
+  void setLotWUsers (LotWUsers const * lotw_users) {m_lotw_users = lotw_users;}
   void setContentFont (QFont const&);
   void insertLineSpacer(QString const&);
   void displayDecodedText(DecodedText const& decodedText, QString const& myCall,
@@ -45,6 +46,7 @@ protected:
   void mouseDoubleClickEvent(QMouseEvent *e);
 
 private:
+  LotWUsers const * m_lotw_users;
   bool m_bPrincipalPrefix;
   QString appendWorkedB4(QString message, QString const& callsign, QString grid, QColor * bg,
            LogBook const& logBook, QString currentBand);
