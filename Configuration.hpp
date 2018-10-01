@@ -16,11 +16,13 @@ class QWidget;
 class QAudioDeviceInfo;
 class QString;
 class QDir;
+class QNetworkAccessManager;
 class Bands;
 class FrequencyList_v2;
 class StationList;
 class QStringListModel;
 class QHostAddress;
+class LotWUsers;
 
 //
 // Class Configuration
@@ -69,7 +71,7 @@ public:
   enum Type2MsgGen {type_2_msg_1_full, type_2_msg_3_full, type_2_msg_5_only};
   Q_ENUM (Type2MsgGen)
 
-  explicit Configuration (QDir const& temp_directory, QSettings * settings,
+  explicit Configuration (QNetworkAccessManager *, QDir const& temp_directory, QSettings * settings,
                           QWidget * parent = nullptr);
   ~Configuration ();
 
@@ -181,6 +183,7 @@ public:
   QColor color_LoTW() const;
   bool pwrBandTxMemory () const;
   bool pwrBandTuneMemory () const;
+  LotWUsers const& lotw_users () const;
 
   struct CalibrationParams
   {
@@ -239,8 +242,6 @@ public:
   Q_SLOT void transceiver_tx_frequency (Frequency = 0u);
 
   // Set transceiver mode.
-  //
-  // Rationalise means ensure TX uses same mode as RX.
   Q_SLOT void transceiver_mode (MODE);
 
   // Set/unset PTT.

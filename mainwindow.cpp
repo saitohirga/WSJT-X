@@ -59,6 +59,7 @@
 #include "MaidenheadLocatorValidator.hpp"
 #include "CallsignValidator.hpp"
 #include "EqualizationToolsDialog.hpp"
+#include "LotWUsers.hpp"
 
 #include "ui_mainwindow.h"
 #include "moc_mainwindow.cpp"
@@ -202,8 +203,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_configurations_button {0},
   m_settings {multi_settings->settings ()},
   ui(new Ui::MainWindow),
-  m_config {temp_directory, m_settings, this},
-  m_lotw_users {&m_config, &m_network_manager},
+  m_config {&m_network_manager, temp_directory, m_settings, this},
   m_WSPR_band_hopping {m_settings, &m_config, this},
   m_WSPR_tx_next {false},
   m_rigErrorMessageBox {MessageBox::Critical, tr ("Rig Control Error")
@@ -386,8 +386,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->dxGridEntry->setValidator (new MaidenheadLocatorValidator {this});
   ui->dxCallEntry->setValidator (new CallsignValidator {this});
   ui->sbTR->values ({5, 10, 15, 30});
-  ui->decodedTextBrowser->setLotWUsers (&m_lotw_users);
-  ui->decodedTextBrowser2->setLotWUsers (&m_lotw_users);
+  ui->decodedTextBrowser->setLotWUsers (&m_config.lotw_users ());
+  ui->decodedTextBrowser2->setLotWUsers (&m_config.lotw_users ());
 
   m_baseCall = Radio::base_callsign (m_config.my_callsign ());
   m_opCall = m_config.opCall();
@@ -557,7 +557,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
       m_equalizationToolsDialog->show ();
     });
 
-  connect (&m_lotw_users, &LotWUsers::LotW_users_error, this, [this] (QString const& reason) {
+  connect (&m_config.lotw_users (), &LotWUsers::LotW_users_error, this, [this] (QString const& reason) {
       MessageBox::warning_message (this, tr ("Error Loading LotW Users Data"), reason);
     }, Qt::QueuedConnection);
 

@@ -16,8 +16,6 @@
 #include <QNetworkReply>
 #include <QDebug>
 
-#include "Configuration.hpp"
-
 #include "pimpl_impl.hpp"
 
 #include "moc_LotWUsers.cpp"
@@ -34,10 +32,9 @@ class LotWUsers::impl final
   Q_OBJECT
 
 public:
-  impl (LotWUsers * self, QNetworkAccessManager * network_manager, QString const& lotw_csv_file)
+  impl (LotWUsers * self, QNetworkAccessManager * network_manager)
     : self_ {self}
     , network_manager_ {network_manager}
-    , csv_file_ {lotw_csv_file}
     , url_valid_ {false}
     , redirect_count_ {0}
   {
@@ -226,23 +223,20 @@ public:
 
 #include "LotWUsers.moc"
 
-LotWUsers::LotWUsers (Configuration const * configuration, QNetworkAccessManager * network_manager
-                      , QObject * parent)
+LotWUsers::LotWUsers (QNetworkAccessManager * network_manager, QObject * parent)
   : QObject {parent}
-  , m_ {this
-        , network_manager
-        , configuration->writeable_data_dir ().absoluteFilePath ("lotw-user-activity.csv")}
+  , m_ {this, network_manager}
 {
-  m_->load (false);
 }
 
 LotWUsers::~LotWUsers ()
 {
 }
 
-void LotWUsers::download_new_file ()
+void LotWUsers::load (QString const& lotw_csv_file, bool force_download)
 {
-  m_->load (true);
+  m_->csv_file_.setFileName (lotw_csv_file);
+  m_->load (force_download);
 }
 
 bool LotWUsers::user (QString const& call, qint64 uploaded_since_days) const

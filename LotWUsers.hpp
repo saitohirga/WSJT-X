@@ -7,7 +7,6 @@
 
 class QString;
 class QDate;
-class Configuration;
 class QNetworkAccessManager;
 
 //
@@ -19,10 +18,10 @@ class LotWUsers final
   Q_OBJECT
 
 public:
-  LotWUsers (Configuration const * configuration, QNetworkAccessManager *, QObject * parent = 0);
+  LotWUsers (QNetworkAccessManager *, QObject * parent = 0);
   ~LotWUsers ();
 
-  void download_new_file ();
+  void load (QString const& lotw_csv_file, bool force_download = false);
 
   // returns true if the specified call sign 'call' has uploaded their
   // log to LotW in the last 'uploaded_since_days' days

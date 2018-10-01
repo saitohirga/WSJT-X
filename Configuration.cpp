@@ -180,6 +180,7 @@
 #include "MessageBox.hpp"
 #include "MaidenheadLocatorValidator.hpp"
 #include "CallsignValidator.hpp"
+#include "LotWUsers.hpp"
 
 #include "ui_Configuration.h"
 #include "moc_Configuration.cpp"
@@ -354,8 +355,11 @@ public:
   using FrequencyDelta = Radio::FrequencyDelta;
   using port_type = Configuration::port_type;
 
-  explicit impl (Configuration * self, QDir const& temp_directory,
-                 QSettings * settings, QWidget * parent);
+  explicit impl (Configuration * self
+                 , QNetworkAccessManager * network_manager
+                 , QDir const& temp_directory
+                 , QSettings * settings
+                 , QWidget * parent);
   ~impl ();
 
   bool have_rig ();
@@ -471,6 +475,7 @@ private:
 
   QScopedPointer<Ui::configuration_dialog> ui_;
 
+  QNetworkAccessManager * network_manager_;
   QSettings * settings_;
 
   QDir doc_dir_;
@@ -487,6 +492,8 @@ private:
 
   QFont decoded_text_font_;
   QFont next_decoded_text_font_;
+
+  LotWUsers lotw_users_;
 
   bool restart_sound_input_device_;
   bool restart_sound_output_device_;
@@ -602,13 +609,9 @@ private:
   QString opCall_;
   QString udp_server_name_;
   port_type udp_server_port_;
-//  QString n1mm_server_name () const;
   QString n1mm_server_name_;
   port_type n1mm_server_port_;
   bool broadcast_to_n1mm_;
-//  port_type n1mm_server_port () const;
-//  bool valid_n1mm_info () const;
-//  bool broadcast_to_n1mm() const;
   bool accept_udp_requests_;
   bool udpWindowToFront_;
   bool udpWindowRestore_;
@@ -630,9 +633,9 @@ private:
 
 
 // delegate to implementation class
-Configuration::Configuration (QDir const& temp_directory,
+Configuration::Configuration (QNetworkAccessManager * network_manager, QDir const& temp_directory,
                               QSettings * settings, QWidget * parent)
-  : m_ {this, temp_directory, settings, parent}
+  : m_ {this, network_manager, temp_directory, settings, parent}
 {
 }
 
@@ -735,6 +738,7 @@ QDir Configuration::azel_directory () const {return m_->azel_directory_;}
 QString Configuration::rig_name () const {return m_->rig_params_.rig_name;}
 bool Configuration::pwrBandTxMemory () const {return m_->pwrBandTxMemory_;}
 bool Configuration::pwrBandTuneMemory () const {return m_->pwrBandTuneMemory_;}
+LotWUsers const& Configuration::lotw_users () const {return m_->lotw_users_;}
 
 void Configuration::set_calibration (CalibrationParams params)
 {
@@ -906,17 +910,19 @@ namespace
   }
 }
 
-Configuration::impl::impl (Configuration * self, QDir const& temp_directory,
-                           QSettings * settings, QWidget * parent)
+Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network_manager
+                           , QDir const& temp_directory, QSettings * settings, QWidget * parent)
   : QDialog {parent}
   , self_ {self}
   , transceiver_thread_ {nullptr}
   , ui_ {new Ui::configuration_dialog}
+  , network_manager_ {network_manager}
   , settings_ {settings}
   , doc_dir_ {doc_path ()}
   , data_dir_ {data_path ()}
   , temp_dir_ {temp_directory}
   , writeable_data_dir_ {QStandardPaths::writableLocation (QStandardPaths::DataLocation)}
+  , lotw_users_ {network_manager_}
   , restart_sound_input_device_ {false}
   , restart_sound_output_device_ {false}
   , frequencies_ {&bands_}
@@ -996,6 +1002,9 @@ Configuration::impl::impl (Configuration * self, QDir const& temp_directory,
 
   // this must be done after the default paths above are set
   read_settings ();
+
+  // load LotW users data
+  lotw_users_.load (writeable_data_dir_.absoluteFilePath ("lotw-user-activity.csv"));
 
   //
   // validation
