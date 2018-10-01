@@ -203,7 +203,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_settings {multi_settings->settings ()},
   ui(new Ui::MainWindow),
   m_config {temp_directory, m_settings, this},
-  m_lotw_users {&m_config},
+  m_lotw_users {&m_config, &m_network_manager},
   m_WSPR_band_hopping {m_settings, &m_config, this},
   m_WSPR_tx_next {false},
   m_rigErrorMessageBox {MessageBox::Critical, tr ("Rig Control Error")

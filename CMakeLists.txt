@@ -1428,7 +1428,6 @@ install (FILES
 
 install (FILES
   contrib/Ephemeris/JPLEPH
-  contrib/lotw-user-activity.csv
   DESTINATION ${CMAKE_INSTALL_DATADIR}/${CMAKE_PROJECT_NAME}
   #COMPONENT runtime
   )

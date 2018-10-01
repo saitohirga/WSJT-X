@@ -8,6 +8,7 @@
 class QString;
 class QDate;
 class Configuration;
+class QNetworkAccessManager;
 
 //
 // LotWUsers - Lookup Logbook of the World users
@@ -18,8 +19,10 @@ class LotWUsers final
   Q_OBJECT
 
 public:
-  LotWUsers (Configuration const * configuration, QObject * parent = 0);
+  LotWUsers (Configuration const * configuration, QNetworkAccessManager *, QObject * parent = 0);
   ~LotWUsers ();
+
+  void download_new_file ();
 
   // returns true if the specified call sign 'call' has uploaded their
   // log to LotW in the last 'uploaded_since_days' days
