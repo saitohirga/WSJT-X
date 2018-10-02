@@ -1180,6 +1180,8 @@ void MainWindow::setContestType()
   if(m_config.bEU_VHF_Contest()) m_nContest=EU_VHF;
   if(m_config.bFieldDay()) m_nContest=FIELD_DAY;
   if(m_config.bRTTYroundup()) m_nContest=RTTY;
+  if(m_config.bFox()) m_nContest=FOX;
+  if(m_config.bHound()) m_nContest=HOUND;
 }
 
 void MainWindow::set_application_font (QFont const& font)
@@ -2369,7 +2371,7 @@ void MainWindow::on_actionAstronomical_data_toggled (bool checked)
 void MainWindow::on_actionFox_Log_triggered()
 {
   on_actionMessage_averaging_triggered();
-  m_msgAvgWidget->foxLogSetup();
+  m_msgAvgWidget->foxLogSetup(m_nContest);
 }
 
 void MainWindow::on_actionColors_triggered()
@@ -3734,7 +3736,7 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-//    qDebug() << "OneSec:" << m_config.autoLog();
+    qDebug() << "OneSec:" << m_nContest;
 
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
       if(!m_bVHFwarned) vhfWarning();

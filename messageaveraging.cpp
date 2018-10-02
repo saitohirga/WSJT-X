@@ -88,9 +88,23 @@ void MessageAveraging::displayAvg(QString const& t)
   ui->msgAvgPlainTextEdit->setPlainText(t);
 }
 
-void MessageAveraging::foxLogSetup()
+void MessageAveraging::foxLogSetup(int nContest)
 {
-  m_title_=QApplication::applicationName () + " - Fox Log";
+  if(nContest==5) {
+    m_title_=QApplication::applicationName () + " - Fox Log";
+    setWindowTitle(m_title_);
+    ui->header_label->setText("   Date    Time  Call    Grid Sent Rcvd Band");
+  }
+  if(nContest>0 and nContest<5) {
+    m_title_=QApplication::applicationName () + " - Contest Log";
+    setWindowTitle(m_title_);
+    ui->header_label->setText("   Date    Time  Call    Grid Sent Rcvd Band");
+  }
+}
+
+void MessageAveraging::contestLogSetup()
+{
+  m_title_=QApplication::applicationName () + " - Contest Log";
   setWindowTitle(m_title_);
   ui->header_label->setText("   Date    Time  Call    Grid Sent Rcvd Band");
 }

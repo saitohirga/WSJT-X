@@ -3316,6 +3316,11 @@ QPushButton[state=&quot;ok&quot;] {
     <string>Color highlighting scheme</string>
    </property>
   </action>
+  <action name="actionContest_Log">
+   <property name="text">
+    <string>Contest Log</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
