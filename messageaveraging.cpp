@@ -150,4 +150,11 @@ void MessageAveraging::contestAddLog(qint32 nContest, QString logLine)
   QString t;
   t.sprintf("QSOs: %d",m_nLogged_);
   ui->lab1->setText(t);
+  if(m_mult_<1) m_mult_=1;
+  t.sprintf("Mults: %d",m_mult_);
+  ui->lab2->setText(t);
+  int score=m_mult_*m_nLogged_;
+  t.sprintf("Score: %d",score);
+  ui->lab3->setText(t);
+  qDebug() << m_nLogged_ << m_mult_ << score;
 }
