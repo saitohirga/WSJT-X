@@ -2805,7 +2805,7 @@ Right click for insert and delete options.</string>
             <item>
              <layout class="QFormLayout" name="formLayout_17">
               <item row="0" column="0">
-               <widget class="QLabel" name="label_15">
+               <widget class="QLabel" name="labRTTY">
                 <property name="text">
                  <string>Exch:</string>
                 </property>
@@ -2859,7 +2859,7 @@ Right click for insert and delete options.</string>
             <item>
              <layout class="QFormLayout" name="formLayout_16">
               <item row="0" column="0">
-               <widget class="QLabel" name="label_14">
+               <widget class="QLabel" name="labFD">
                 <property name="text">
                  <string>Exch:</string>
                 </property>
@@ -3106,12 +3106,12 @@ soundcard changes</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="CAT_stop_bits_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
+  <buttongroup name="CAT_stop_bits_button_group"/>
   <buttongroup name="TX_mode_button_group"/>
-  <buttongroup name="PTT_method_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="split_mode_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
+  <buttongroup name="PTT_method_button_group"/>
  </buttongroups>
 </ui>

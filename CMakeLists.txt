@@ -257,6 +257,7 @@ set (wsjt_qt_CXXSRCS
   MultiSettings.cpp
   MaidenheadLocatorValidator.cpp
   CallsignValidator.cpp
+  ExchangeValidator.cpp
   SplashScreen.cpp
   EqualizationToolsDialog.cpp
   DoubleClickablePushButton.cpp

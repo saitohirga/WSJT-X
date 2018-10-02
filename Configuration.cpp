@@ -180,6 +180,7 @@
 #include "MessageBox.hpp"
 #include "MaidenheadLocatorValidator.hpp"
 #include "CallsignValidator.hpp"
+#include "ExchangeValidator.hpp"
 
 #include "ui_Configuration.h"
 #include "moc_Configuration.cpp"
@@ -456,6 +457,10 @@ private:
   Q_SLOT void on_cbx2ToneSpacing_clicked(bool);
   Q_SLOT void on_cbx4ToneSpacing_clicked(bool);
   Q_SLOT void on_rbNone_toggled(bool);
+  Q_SLOT void on_rbFieldDay_toggled();
+  Q_SLOT void on_rbRTTYroundup_toggled();
+  Q_SLOT void on_FieldDay_Exchange_textChanged();
+  Q_SLOT void on_RTTY_Exchange_textChanged();
 
   // typenames used as arguments must match registered type names :(
   Q_SIGNAL void start_transceiver (unsigned seqeunce_number) const;
@@ -997,12 +1002,12 @@ Configuration::impl::impl (Configuration * self, QDir const& temp_directory,
   // this must be done after the default paths above are set
   read_settings ();
 
-  //
   // validation
-  //
   ui_->callsign_line_edit->setValidator (new CallsignValidator {this});
   ui_->grid_line_edit->setValidator (new MaidenheadLocatorValidator {this});
   ui_->add_macro_line_edit->setValidator (new QRegExpValidator {message_alphabet, this});
+  ui_->FieldDay_Exchange->setValidator(new ExchangeValidator{this});
+  ui_->RTTY_Exchange->setValidator(new ExchangeValidator{this});
 
   ui_->udp_server_port_spin_box->setMinimum (1);
   ui_->udp_server_port_spin_box->setMaximum (std::numeric_limits<port_type>::max ());
@@ -2347,6 +2352,20 @@ void Configuration::impl::on_add_macro_line_edit_editingFinished ()
   ui_->add_macro_line_edit->setText (ui_->add_macro_line_edit->text ().toUpper ());
 }
 
+void Configuration::impl::on_FieldDay_Exchange_textChanged()
+{
+  bool b=ui_->FieldDay_Exchange->hasAcceptableInput() or !ui_->rbFieldDay->isChecked();
+  if(b)  ui_->FieldDay_Exchange->setStyleSheet("color: black");
+  if(!b) ui_->FieldDay_Exchange->setStyleSheet("color: red");
+}
+
+void Configuration::impl::on_RTTY_Exchange_textChanged()
+{
+  bool b=ui_->RTTY_Exchange->hasAcceptableInput() or !ui_->rbRTTYroundup->isChecked();
+  if(b)  ui_->RTTY_Exchange->setStyleSheet("color: black");
+  if(!b) ui_->RTTY_Exchange->setStyleSheet("color: red");
+}
+
 void Configuration::impl::on_delete_macro_push_button_clicked (bool /* checked */)
 {
   auto selection_model = ui_->macros_list_view->selectionModel ();
@@ -2609,6 +2628,16 @@ void Configuration::impl::chk77()
 void Configuration::impl::on_rbNone_toggled(bool b)
 {
   if(!b) ui_->cbGenerate77->setChecked(true);
+}
+
+void Configuration::impl::on_rbFieldDay_toggled()
+{
+  on_FieldDay_Exchange_textChanged();
+}
+
+void Configuration::impl::on_rbRTTYroundup_toggled()
+{
+  on_RTTY_Exchange_textChanged();
 }
 
 void Configuration::impl::on_cbx2ToneSpacing_clicked(bool b)
