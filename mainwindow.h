@@ -518,7 +518,9 @@ private:
     NA_VHF,
     EU_VHF,
     FIELD_DAY,
-    RTTY
+    RTTY,
+    FOX,
+    HOUND
   } m_nContest;           //Contest type
 
   enum {CALL, GRID, DXCC, MULT};

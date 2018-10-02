@@ -33,7 +33,8 @@ public:
                   QString const& rptSent, QString const& rptRcvd, QDateTime const& dateTimeOn,
                   QDateTime const& dateTimeOff,
                   Radio::Frequency dialFreq, QString const& myCall, QString const& myGrid,
-                  bool noSuffix, bool toRTTY, bool dBtoComments, bool bFox, QString const& opCall);
+                  bool noSuffix, bool toRTTY, bool dBtoComments, bool bFox,
+                  bool bAutoLog, QString const& opCall);
 
 public slots:
   void accept();

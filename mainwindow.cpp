@@ -1199,6 +1199,8 @@ void MainWindow::setContestType()
   if(m_config.bEU_VHF_Contest()) m_nContest=EU_VHF;
   if(m_config.bFieldDay()) m_nContest=FIELD_DAY;
   if(m_config.bRTTYroundup()) m_nContest=RTTY;
+  if(m_config.bFox()) m_nContest=FOX;
+  if(m_config.bHound()) m_nContest=HOUND;
 }
 
 void MainWindow::set_application_font (QFont const& font)
@@ -2388,7 +2390,7 @@ void MainWindow::on_actionAstronomical_data_toggled (bool checked)
 void MainWindow::on_actionFox_Log_triggered()
 {
   on_actionMessage_averaging_triggered();
-  m_msgAvgWidget->foxLogSetup();
+  m_msgAvgWidget->foxLogSetup(m_nContest);
 }
 
 void MainWindow::on_actionColors_triggered()
@@ -2407,13 +2409,12 @@ void MainWindow::on_actionColors_triggered()
 
 void MainWindow::on_actionMessage_averaging_triggered()
 {
-  if (!m_msgAvgWidget)
-    {
-      m_msgAvgWidget.reset (new MessageAveraging {m_settings, m_config.decoded_text_font ()});
+  if(!m_msgAvgWidget) {
+    m_msgAvgWidget.reset (new MessageAveraging {m_settings, m_config.decoded_text_font ()});
 
-      // Connect signals from Message Averaging window
-      connect (this, &MainWindow::finished, m_msgAvgWidget.data (), &MessageAveraging::close);
-    }
+    // Connect signals from Message Averaging window
+    connect (this, &MainWindow::finished, m_msgAvgWidget.data (), &MessageAveraging::close);
+  }
   m_msgAvgWidget->showNormal();
   m_msgAvgWidget->raise ();
   m_msgAvgWidget->activateWindow ();
@@ -3630,8 +3631,8 @@ void MainWindow::guiUpdate()
       if(m_config.id_after_73 ()) {
         icw[0] = m_ncw;
       }
-      if (m_config.prompt_to_log () && !m_tune) {
-        logQSOTimer.start (0);
+      if ((m_config.prompt_to_log() or m_config.autoLog()) && !m_tune) {
+        logQSOTimer.start(0);
       }
     }
 
@@ -3754,7 +3755,7 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-//    qDebug() << "OneSec:";
+//    qDebug() << "OneSec:" << m_nContest;
 
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
       if(!m_bVHFwarned) vhfWarning();
@@ -5185,11 +5186,12 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   if (dateTimeQSOOff < m_dateTimeQSOOn) dateTimeQSOOff = m_dateTimeQSOOn;
   QString grid=m_hisGrid;
   if(grid=="....") grid="";
+  bool bAutoLog=m_config.autoLog() and m_nContest>0;
   m_logDlg->initLogQSO (m_hisCall, grid, m_modeTx, m_rptSent, m_rptRcvd,
                         m_dateTimeQSOOn, dateTimeQSOOff, m_freqNominal + ui->TxFreqSpinBox->value(),
                         m_config.my_callsign(), m_config.my_grid(), m_noSuffix,
                         m_config.log_as_RTTY(), m_config.report_in_comments(),
-                        m_config.bFox(), m_opCall);
+                        m_config.bFox(), bAutoLog, m_opCall);
   if(m_nContest!=NONE) {
     if(m_nContest==NA_VHF) {
       m_xSent=m_config.my_grid().left(4);
@@ -5217,6 +5219,13 @@ void MainWindow::cabLog()
     QTextStream out(&f);
     out << t << endl;
     f.close();
+    if(m_msgAvgWidget != NULL and m_msgAvgWidget->isVisible()) {
+      QString band;
+      band.sprintf(" %5d ",nfreq);
+      t=QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hhmm ") + band +
+          m_hisCall.leftJustified(13,' ') + m_xSent.leftJustified(14,' ') + m_xRcvd;
+      m_msgAvgWidget->foxAddLog(t);
+    }
   } else {
     MessageBox::warning_message (this, tr("File Open Error"),
       tr("Cannot open \"%1\" for append: %2").arg(f.fileName()).arg(f.errorString()));
@@ -6773,7 +6782,7 @@ void::MainWindow::VHF_features_enabled(bool b)
   ui->actionMessage_averaging->setEnabled(b);
   ui->actionEnable_AP_DXcall->setVisible (m_mode=="QRA64");
   ui->actionEnable_AP_JT65->setVisible (b && m_mode=="JT65");
-  if(!b && m_msgAvgWidget and !m_config.bFox()) {
+  if(!b && m_msgAvgWidget and !m_config.bFox() and !m_config.autoLog()) {
     if(m_msgAvgWidget->isVisible()) m_msgAvgWidget->close();
   }
 }

@@ -17,7 +17,7 @@ public:
   ~MessageAveraging();
   void displayAvg(QString const&);
   void changeFont (QFont const&);
-  void foxLogSetup();
+  void foxLogSetup(int nContest);
   void foxLabCallers(int n);
   void foxLabQueued(int n);
   void foxLabRate(int n);
