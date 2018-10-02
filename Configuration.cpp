@@ -465,6 +465,8 @@ private:
   Q_SLOT void on_rbRTTYroundup_toggled();
   Q_SLOT void on_FieldDay_Exchange_textChanged();
   Q_SLOT void on_RTTY_Exchange_textChanged();
+  Q_SLOT void on_prompt_to_log_check_box_clicked(bool);
+  Q_SLOT void on_cbAutoLog_clicked(bool);
 
   // typenames used as arguments must match registered type names :(
   Q_SIGNAL void start_transceiver (unsigned seqeunce_number) const;
@@ -586,6 +588,7 @@ private:
   bool log_as_RTTY_;
   bool report_in_comments_;
   bool prompt_to_log_;
+  bool autoLog_;
   bool insert_blank_;
   bool DXCC_;
   bool ppfx_;
@@ -695,6 +698,7 @@ bool Configuration::monitor_last_used () const {return m_->rig_is_dummy_ || m_->
 bool Configuration::log_as_RTTY () const {return m_->log_as_RTTY_;}
 bool Configuration::report_in_comments () const {return m_->report_in_comments_;}
 bool Configuration::prompt_to_log () const {return m_->prompt_to_log_;}
+bool Configuration::autoLog() const {return m_->autoLog_;}
 bool Configuration::insert_blank () const {return m_->insert_blank_;}
 bool Configuration::DXCC () const {return m_->DXCC_;}
 bool Configuration::ppfx() const {return m_->ppfx_;}
@@ -1223,6 +1227,7 @@ void Configuration::impl::initialize_models ()
   ui_->log_as_RTTY_check_box->setChecked (log_as_RTTY_);
   ui_->report_in_comments_check_box->setChecked (report_in_comments_);
   ui_->prompt_to_log_check_box->setChecked (prompt_to_log_);
+  ui_->cbAutoLog->setChecked(autoLog_);
   ui_->insert_blank_check_box->setChecked (insert_blank_);
   ui_->DXCC_check_box->setChecked (DXCC_);
   ui_->ppfx_check_box->setChecked (ppfx_);
@@ -1476,6 +1481,7 @@ void Configuration::impl::read_settings ()
   rig_params_.ptt_port = settings_->value ("PTTport").toString ();
   data_mode_ = settings_->value ("DataMode", QVariant::fromValue (data_mode_none)).value<Configuration::DataMode> ();
   prompt_to_log_ = settings_->value ("PromptToLog", false).toBool ();
+  autoLog_ = settings_->value ("AutoLog", false).toBool ();
   insert_blank_ = settings_->value ("InsertBlank", false).toBool ();
   DXCC_ = settings_->value ("DXCCEntity", false).toBool ();
   ppfx_ = settings_->value ("PrincipalPrefix", false).toBool ();
@@ -1588,6 +1594,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("CATHandshake", QVariant::fromValue (rig_params_.handshake));
   settings_->setValue ("DataMode", QVariant::fromValue (data_mode_));
   settings_->setValue ("PromptToLog", prompt_to_log_);
+  settings_->setValue ("AutoLog", autoLog_);
   settings_->setValue ("InsertBlank", insert_blank_);
   settings_->setValue ("DXCCEntity", DXCC_);
   settings_->setValue ("PrincipalPrefix", ppfx_);
@@ -2009,6 +2016,7 @@ void Configuration::impl::accept ()
   log_as_RTTY_ = ui_->log_as_RTTY_check_box->isChecked ();
   report_in_comments_ = ui_->report_in_comments_check_box->isChecked ();
   prompt_to_log_ = ui_->prompt_to_log_check_box->isChecked ();
+  autoLog_ = ui_->cbAutoLog->isChecked();
   insert_blank_ = ui_->insert_blank_check_box->isChecked ();
   DXCC_ = ui_->DXCC_check_box->isChecked ();
   ppfx_ = ui_->ppfx_check_box->isChecked ();
@@ -2604,6 +2612,16 @@ void Configuration::impl::on_calibration_intercept_spin_box_valueChanged (double
 void Configuration::impl::on_calibration_slope_ppm_spin_box_valueChanged (double)
 {
   rig_active_ = false;          // force reset
+}
+
+void Configuration::impl::on_prompt_to_log_check_box_clicked(bool checked)
+{
+  if(checked) ui_->cbAutoLog->setChecked(false);
+}
+
+void Configuration::impl::on_cbAutoLog_clicked(bool checked)
+{
+  if(checked) ui_->prompt_to_log_check_box->setChecked(false);
 }
 
 void Configuration::impl::on_cbFox_clicked (bool checked)

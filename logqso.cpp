@@ -59,7 +59,8 @@ void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString 
                         QString const& rptSent, QString const& rptRcvd,
                         QDateTime const& dateTimeOn, QDateTime const& dateTimeOff,
                         Radio::Frequency dialFreq, QString const& myCall, QString const& myGrid,
-                        bool noSuffix, bool toRTTY, bool dBtoComments, bool bFox, QString const& opCall)
+                        bool noSuffix, bool toRTTY, bool dBtoComments, bool bFox,
+                        bool bAutoLog, QString const& opCall)
 {
   if(!isHidden()) return;
   ui->call->setText(hisCall);
@@ -87,7 +88,7 @@ void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString 
   m_myGrid=myGrid;
   ui->band->setText (m_config->bands ()->find (dialFreq));
   ui->loggedOperator->setText(opCall);
-  if(bFox) {
+  if(bFox or bAutoLog) {
     accept();
   } else {
     show ();
