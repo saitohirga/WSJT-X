@@ -5186,23 +5186,35 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   if (dateTimeQSOOff < m_dateTimeQSOOn) dateTimeQSOOff = m_dateTimeQSOOn;
   QString grid=m_hisGrid;
   if(grid=="....") grid="";
-  bool bAutoLog=m_config.autoLog() and m_nContest>0;
-  m_logDlg->initLogQSO (m_hisCall, grid, m_modeTx, m_rptSent, m_rptRcvd,
-                        m_dateTimeQSOOn, dateTimeQSOOff, m_freqNominal + ui->TxFreqSpinBox->value(),
-                        m_config.my_callsign(), m_config.my_grid(), m_noSuffix,
-                        m_config.log_as_RTTY(), m_config.report_in_comments(),
-                        m_config.bFox(), bAutoLog, m_opCall);
-  if(m_nContest!=NONE) {
+  if(m_nContest>NONE and m_nContest<FOX) {
     if(m_nContest==NA_VHF) {
       m_xSent=m_config.my_grid().left(4);
       m_xRcvd=m_hisGrid;
     }
-    if(m_nContest!=NONE) {
-      int n=ui->sbSerialNumber->value();
-      ui->sbSerialNumber->setValue(n+1);
-      cabLog();   //Call the Cabrillo contest logger
+    if(m_nContest==EU_VHF) {
+      m_rptSent=m_xSent.split(" ").at(0).left(2);
+      m_rptRcvd=m_xRcvd.split(" ").at(0).left(2);
     }
+    if(m_nContest==FIELD_DAY) {
+      m_rptSent=m_xSent.split(" ").at(0);
+      m_rptRcvd=m_xRcvd.split(" ").at(0);
+    }
+    if(m_nContest==RTTY) {
+      m_rptSent=m_xSent.split(" ").at(0);
+      m_rptRcvd=m_xRcvd.split(" ").at(0);
+    }
+    int n=ui->sbSerialNumber->value();
+    ui->sbSerialNumber->setValue(n+1);
+    cabLog();   //Call the Cabrillo contest logger
   }
+
+  bool bAutoLog=m_config.autoLog() and m_nContest>0;
+  m_logDlg->initLogQSO (m_hisCall, grid, m_modeTx, m_rptSent, m_rptRcvd,
+                        m_dateTimeQSOOn, dateTimeQSOOff, m_freqNominal +
+                        ui->TxFreqSpinBox->value(), m_config.my_callsign(),
+                        m_config.my_grid(), m_noSuffix, m_config.log_as_RTTY(),
+                        m_config.report_in_comments(), m_config.bFox(),
+                        bAutoLog, m_opCall, m_nContest, m_xSent, m_xRcvd);
 }
 
 void MainWindow::cabLog()

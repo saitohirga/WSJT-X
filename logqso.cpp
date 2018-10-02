@@ -60,9 +60,13 @@ void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString 
                         QDateTime const& dateTimeOn, QDateTime const& dateTimeOff,
                         Radio::Frequency dialFreq, QString const& myCall, QString const& myGrid,
                         bool noSuffix, bool toRTTY, bool dBtoComments, bool bFox,
-                        bool bAutoLog, QString const& opCall)
+                        bool bAutoLog, QString const& opCall, qint32 nContest,
+                        QString xSent, QString xRcvd)
 {
   if(!isHidden()) return;
+  m_nContest=nContest;
+  m_xSent=xSent;
+  m_xRcvd=xRcvd;
   ui->call->setText(hisCall);
   ui->grid->setText(hisGrid);
   ui->name->setText("");
@@ -120,8 +124,9 @@ void LogQSO::accept()
   auto adifilePath = QDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)}.absoluteFilePath ("wsjtx_log.adi");
   adifile.init(adifilePath);
 
-  QByteArray ADIF {adifile.QSOToADIF (hisCall, hisGrid, mode, rptSent, rptRcvd, m_dateTimeOn, m_dateTimeOff, band
-                                      , comments, name, strDialFreq, m_myCall, m_myGrid, m_txPower, operator_call)};
+  QByteArray ADIF {adifile.QSOToADIF (hisCall, hisGrid, mode, rptSent, rptRcvd,
+      m_dateTimeOn, m_dateTimeOff, band, comments, name, strDialFreq, m_myCall,
+      m_myGrid, m_txPower, operator_call, m_xSent, m_xRcvd)};
   if (!adifile.addQSOToFile (ADIF))
   {
     MessageBox::warning_message (this, tr ("Log file error"),
