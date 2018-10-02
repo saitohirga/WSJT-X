@@ -20,6 +20,8 @@ MessageAveraging::MessageAveraging(QSettings * settings, QFont const& font, QWid
   read_settings ();
   if(m_title_.contains("Fox")) {
     ui->header_label->setText("   Date     Time   Call Grid Sent Rcvd Band");
+  } else if(m_title_.contains("Contest")) {
+    ui->header_label->setText("    Date    UTC   Band Call          Sent          Rcvd");
   } else {
     ui->header_label->setText("   UTC  Sync    DT  Freq   ");
     ui->lab1->setVisible(false);
@@ -98,15 +100,8 @@ void MessageAveraging::foxLogSetup(int nContest)
   if(nContest>0 and nContest<5) {
     m_title_=QApplication::applicationName () + " - Contest Log";
     setWindowTitle(m_title_);
-    ui->header_label->setText("   Date    Time  Call    Grid Sent Rcvd Band");
+    ui->header_label->setText("    Date    UTC   Band Call          Sent          Rcvd");
   }
-}
-
-void MessageAveraging::contestLogSetup()
-{
-  m_title_=QApplication::applicationName () + " - Contest Log";
-  setWindowTitle(m_title_);
-  ui->header_label->setText("   Date    Time  Call    Grid Sent Rcvd Band");
 }
 
 void MessageAveraging::foxLabCallers(int n)
