@@ -180,11 +180,12 @@ int ADIF::getCount() const
     return _data.size();
 }   
     
-QByteArray ADIF::QSOToADIF(QString const& hisCall, QString const& hisGrid, QString const& mode
-                           , QString const& rptSent, QString const& rptRcvd, QDateTime const& dateTimeOn
-                           , QDateTime const& dateTimeOff, QString const& band, QString const& comments
-                           , QString const& name, QString const& strDialFreq, QString const& m_myCall
-                           , QString const& m_myGrid, QString const& m_txPower, QString const& operator_call)
+QByteArray ADIF::QSOToADIF(QString const& hisCall, QString const& hisGrid, QString const& mode,
+      QString const& rptSent, QString const& rptRcvd, QDateTime const& dateTimeOn,
+      QDateTime const& dateTimeOff, QString const& band, QString const& comments,
+      QString const& name, QString const& strDialFreq, QString const& m_myCall,
+      QString const& m_myGrid, QString const& m_txPower, QString const& operator_call,
+      QString const& xSent, QString const& xRcvd)
 {
   QString t;
   t = "<call:" + QString::number(hisCall.length()) + ">" + hisCall;
@@ -198,25 +199,16 @@ QByteArray ADIF::QSOToADIF(QString const& hisCall, QString const& hisGrid, QStri
   t += " <time_off:6>" + dateTimeOff.time().toString("hhmmss");
   t += " <band:" + QString::number(band.length()) + ">" + band;
   t += " <freq:" + QString::number(strDialFreq.length()) + ">" + strDialFreq;
-  t += " <station_callsign:" + QString::number(m_myCall.length()) + ">" +
-      m_myCall;
-  t += " <my_gridsquare:" + QString::number(m_myGrid.length()) + ">" +
-      m_myGrid;
-  if (m_txPower != "")
-    t += " <tx_pwr:" + QString::number(m_txPower.length()) +
-        ">" + m_txPower;
-  if (comments != "")
-    t += " <comment:" + QString::number(comments.length()) +
-        ">" + comments;
-  if (name != "")
-    t += " <name:" + QString::number(name.length()) +
-        ">" + name;
-  if (operator_call!="")
-      t+=" <operator:" + QString::number(operator_call.length()) +
-              ">" + operator_call;
-  return t.toLatin1 ();
+  t += " <station_callsign:" + QString::number(m_myCall.length()) + ">" + m_myCall;
+  t += " <my_gridsquare:" + QString::number(m_myGrid.length()) + ">" + m_myGrid;
+  if(m_txPower!="") t += " <tx_pwr:" + QString::number(m_txPower.length()) + ">" + m_txPower;
+  if(comments!="") t += " <comment:" + QString::number(comments.length()) + ">" + comments;
+  if(name!="") t += " <name:" + QString::number(name.length()) + ">" + name;
+  if(operator_call!="") t+=" <operator:" + QString::number(operator_call.length()) + ">" + operator_call;
+  if(xSent!="") t += " <STX_STRING:" + QString::number(xSent.length()) + ">" + xSent;
+  if(xRcvd!="") t += " <SRX_STRING:" + QString::number(xRcvd.length()) + ">" + xRcvd;
+  return t.toLatin1();
 }
-
 
 // open ADIF file and append the QSO details. Return true on success
 bool ADIF::addQSOToFile(QByteArray const& ADIF_record)

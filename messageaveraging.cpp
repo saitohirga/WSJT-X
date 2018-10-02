@@ -156,5 +156,4 @@ void MessageAveraging::contestAddLog(qint32 nContest, QString logLine)
   int score=m_mult_*m_nLogged_;
   t.sprintf("Score: %d",score);
   ui->lab3->setText(t);
-  qDebug() << m_nLogged_ << m_mult_ << score;
 }
