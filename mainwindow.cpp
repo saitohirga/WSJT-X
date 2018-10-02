@@ -5201,6 +5201,10 @@ void MainWindow::cabLog()
     out << t << endl;
     f.close();
     if(m_msgAvgWidget != NULL and m_msgAvgWidget->isVisible()) {
+      QString band;
+      band.sprintf(" %5d ",nfreq);
+      t=QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hhmm ") + band +
+          m_hisCall.leftJustified(13,' ') + m_xSent.leftJustified(14,' ') + m_xRcvd;
       m_msgAvgWidget->foxAddLog(t);
     }
   } else {

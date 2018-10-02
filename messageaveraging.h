@@ -18,7 +18,6 @@ public:
   void displayAvg(QString const&);
   void changeFont (QFont const&);
   void foxLogSetup(int nContest);
-  void contestLogSetup();
   void foxLabCallers(int n);
   void foxLabQueued(int n);
   void foxLabRate(int n);
