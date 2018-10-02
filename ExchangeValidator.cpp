@@ -60,8 +60,6 @@ auto ExchangeValidator::validate (QString& input, int& length) const -> State
   }
 
 done:
-  qDebug() << input << ok;
   if(ok) return Acceptable;
-//  return Invalid;
-  return Acceptable;
+  return Intermediate;
 }

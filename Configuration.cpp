@@ -461,6 +461,10 @@ private:
   Q_SLOT void on_cbx2ToneSpacing_clicked(bool);
   Q_SLOT void on_cbx4ToneSpacing_clicked(bool);
   Q_SLOT void on_rbNone_toggled(bool);
+  Q_SLOT void on_rbFieldDay_toggled();
+  Q_SLOT void on_rbRTTYroundup_toggled();
+  Q_SLOT void on_FieldDay_Exchange_textChanged();
+  Q_SLOT void on_RTTY_Exchange_textChanged();
 
   // typenames used as arguments must match registered type names :(
   Q_SIGNAL void start_transceiver (unsigned seqeunce_number) const;
@@ -2358,6 +2362,20 @@ void Configuration::impl::on_add_macro_line_edit_editingFinished ()
   ui_->add_macro_line_edit->setText (ui_->add_macro_line_edit->text ().toUpper ());
 }
 
+void Configuration::impl::on_FieldDay_Exchange_textChanged()
+{
+  bool b=ui_->FieldDay_Exchange->hasAcceptableInput() or !ui_->rbFieldDay->isChecked();
+  if(b)  ui_->FieldDay_Exchange->setStyleSheet("color: black");
+  if(!b) ui_->FieldDay_Exchange->setStyleSheet("color: red");
+}
+
+void Configuration::impl::on_RTTY_Exchange_textChanged()
+{
+  bool b=ui_->RTTY_Exchange->hasAcceptableInput() or !ui_->rbRTTYroundup->isChecked();
+  if(b)  ui_->RTTY_Exchange->setStyleSheet("color: black");
+  if(!b) ui_->RTTY_Exchange->setStyleSheet("color: red");
+}
+
 void Configuration::impl::on_delete_macro_push_button_clicked (bool /* checked */)
 {
   auto selection_model = ui_->macros_list_view->selectionModel ();
@@ -2620,6 +2638,16 @@ void Configuration::impl::chk77()
 void Configuration::impl::on_rbNone_toggled(bool b)
 {
   if(!b) ui_->cbGenerate77->setChecked(true);
+}
+
+void Configuration::impl::on_rbFieldDay_toggled()
+{
+  on_FieldDay_Exchange_textChanged();
+}
+
+void Configuration::impl::on_rbRTTYroundup_toggled()
+{
+  on_RTTY_Exchange_textChanged();
 }
 
 void Configuration::impl::on_cbx2ToneSpacing_clicked(bool b)
