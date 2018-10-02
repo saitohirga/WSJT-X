@@ -23,7 +23,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   real dd0(15*12000)
   integer*1 message77(77),apmask(174),cw(174)
   integer apsym(58)
-  integer mcq(29),mcqru(29),mrrr(19),m73(19),mrr73(19)
+  integer mcq(29),mcqru(29),mcqfd(29),mrrr(19),m73(19),mrr73(19)
   integer itone(NN)
   integer icos7(0:6),ip(1)
   integer nappasses(0:5)  !Number of decoding passes to use for each QSO state
@@ -40,6 +40,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   data icos7/3,1,4,0,6,5,2/  ! Flipped w.r.t. original FT8 sync array
   data   mcq/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0/
   data mcqru/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,0,0,1,1,0,0/
+  data mcqfd/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,1,0/
   data  mrrr/0,1,1,1,1,1,1,0,1,0,0,1,0,0,1,0,0,0,1/
   data   m73/0,1,1,1,1,1,1,0,1,0,0,1,0,1,0,0,0,0,1/
   data mrr73/0,1,1,1,1,1,1,0,0,1,1,1,0,1,0,1,0,0,1/
@@ -70,12 +71,12 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
 !   5        MyCall DxCall 73            (77 ap bits)
 !   6        MyCall DxCall RR73          (77 ap bits)
 
-     naptypes(0,1:4)=(/1,2,0,0/)
-     naptypes(1,1:4)=(/2,3,0,0/)
-     naptypes(2,1:4)=(/2,3,0,0/)
-     naptypes(3,1:4)=(/3,4,5,6/)
-     naptypes(4,1:4)=(/3,4,5,6/)
-     naptypes(5,1:4)=(/3,1,2,0/)  
+     naptypes(0,1:4)=(/1,2,0,0/) ! Tx6 selected (CQ)
+     naptypes(1,1:4)=(/2,3,0,0/) ! Tx1
+     naptypes(2,1:4)=(/2,3,0,0/) ! Tx2
+     naptypes(3,1:4)=(/3,4,5,6/) ! Tx3
+     naptypes(4,1:4)=(/3,4,5,6/) ! Tx4
+     naptypes(5,1:4)=(/3,1,2,0/) ! Tx5
 
      one=.false.
      do i=0,511
@@ -242,7 +243,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
 !   6        ap pass 3
 !   7        ap pass 4
 
-  if(lapon.and.(ncontest.eq.0.or.ncontest.eq.4)) then 
+  if(lapon) then 
      if(.not.lapcqonly) then
         npasses=3+nappasses(nQSOProgress)
      else
@@ -273,10 +274,23 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
         if(iaptype.ge.3 .and. (abs(f1-nfqso).gt.napwid .and. abs(f1-nftx).gt.napwid) ) cycle 
         apsym=2*apsym-1
 
+! ncontest=0 : NONE
+!          1 : NA_VHF
+!          2 : EU_VHF
+!          3 : FIELD DAY
+!          4 : RTTY
+!          5 : FOX
+!          6 : HOUND
+
+        if(iaptype.eq.1.and.ncontest.eq.5) cycle
+
         if(iaptype.eq.1) then ! CQ,???,??? or CQ RU,???,???
            apmask=0
            apmask(1:29)=1  
-           if( ncontest.eq.0) llrd(1:29)=apmag*mcq(1:29)
+           if( ncontest.eq.0.or.ncontest.eq.1  &
+              .or.ncontest.eq.2.or.ncontest.eq.6 ) &
+                              llrd(1:29)=apmag*mcq(1:29)
+           if( ncontest.eq.3) llrd(1:29)=apmag*mcqfd(1:29)
            if( ncontest.eq.4) llrd(1:29)=apmag*mcqru(1:29)
            apmask(75:77)=1 
            llrd(75:76)=apmag*(-1)
@@ -285,12 +299,17 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
 
         if(iaptype.eq.2) then ! MyCall,???,??? 
            apmask=0
-           if(ncontest.eq.0) then
+           if(ncontest.ge.0.and.ncontest.le.2.or.ncontest.ge.5) then
               apmask(1:29)=1  
               llrd(1:29)=apmag*apsym(1:29)
               apmask(75:77)=1 
               llrd(75:76)=apmag*(-1)
               llrd(77)=apmag*(+1)
+           else if(ncontest.eq.3) then
+              apmask(1:28)=1  
+              llrd(1:28)=apmag*apsym(2:29)
+              apmask(75:77)=1 
+              llrd(75:77)=apmag*(-1)
            else if(ncontest.eq.4) then
               apmask(2:29)=1  
               llrd(2:29)=apmag*apsym(1:28)
@@ -302,13 +321,19 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
 
         if(iaptype.eq.3) then ! MyCall,DxCall,??? 
            apmask=0
-           if(ncontest.eq.0) then
+           if(ncontest.eq.0.or.ncontest.eq.1.or.ncontest.eq.2) then
               apmask(1:58)=1  
               llrd(1:58)=apmag*apsym
               apmask(75:77)=1 
               llrd(75:76)=apmag*(-1)
               llrd(77)=apmag*(+1)
-           else if(ncontest.eq.4) then
+           else if(ncontest.eq.3) then ! Field Day
+              apmask(1:56)=1  
+              llrd(1:28)=apmag*apsym(1:28)
+              llrd(29:56)=apmag*apsym(30:57)
+              apmask(75:77)=1 
+              llrd(75:77)=apmag*(-1)
+           else if(ncontest.eq.4) then ! RTTY RU
               apmask(2:57)=1  
               llrd(2:29)=apmag*apsym(1:28)
               llrd(30:57)=apmag*apsym(30:57)
@@ -317,14 +342,26 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
               llrd(76:77)=apmag*(+1)
            endif
         endif
+        
+        if(iaptype.ge.4.and.ncontest.eq.5) cycle !Fox doesn't care
+        if(iaptype.ge.5.and.ncontest.eq.6) cycle !Hound
 
         if(iaptype.eq.4 .or. iaptype.eq.5 .or. iaptype.eq.6) then  
            apmask=0
-           apmask(1:77)=1   ! mycall, hiscall, RRR|73|RR73
-           llrd(1:58)=apmag*apsym
-           if(iaptype.eq.4) llrd(59:77)=apmag*mrrr 
-           if(iaptype.eq.5) llrd(59:77)=apmag*m73 
-           if(iaptype.eq.6) llrd(59:77)=apmag*mrr73 
+           if(ncontest.le.4) then
+              apmask(1:77)=1   ! mycall, hiscall, RRR|73|RR73
+              llrd(1:58)=apmag*apsym
+              if(iaptype.eq.4) llrd(59:77)=apmag*mrrr 
+              if(iaptype.eq.5) llrd(59:77)=apmag*m73 
+              if(iaptype.eq.6) llrd(59:77)=apmag*mrr73 
+           else if(ncontest.eq.6) then ! Hound listens for MyCall RR73;...
+              apmask(1:28)=1
+              llrd(1:28)=apmag*apsym(1:28)
+              apmask(72:77)=1
+              llrd(72)=apmag*(-1)
+              llrd(73:74)=apmag*(1)
+              llrd(75:77)=apmag*(-1)
+           endif             
         endif
      endif
 
@@ -339,7 +376,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
         if(abs(nfqso-f1).le.napwid .or. abs(nftx-f1).le.napwid) then
           if((ipass.eq.3 .or. ipass.eq.4) .and. .not.nagain) then
             ndeep=3 
-          else   
+          else  
             ndeep=4  
           endif
         endif
