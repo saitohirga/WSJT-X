@@ -656,7 +656,7 @@ QLabel[oob=&quot;true&quot;] {
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>20</width>
+                     <width>50</width>
                      <height>20</height>
                     </size>
                    </property>
@@ -700,7 +700,7 @@ QLabel[oob=&quot;true&quot;] {
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>20</width>
+                     <width>50</width>
                      <height>20</height>
                     </size>
                    </property>
@@ -3275,13 +3275,13 @@ QPushButton[state=&quot;ok&quot;] {
   </action>
   <action name="actionFox_Log">
    <property name="text">
-    <string>Fox Log</string>
+    <string>Fox or Contest Log</string>
    </property>
    <property name="iconText">
-    <string>Fox Log</string>
+    <string>Fox or Contest Log</string>
    </property>
    <property name="toolTip">
-    <string>Fox Log</string>
+    <string>Fox or Contest Log</string>
    </property>
   </action>
   <action name="actionErase_FoxQSO_txt">
