@@ -22,6 +22,7 @@ public:
   void foxLabQueued(int n);
   void foxLabRate(int n);
   void foxAddLog(QString logLine);
+  void contestAddLog(qint32 nContest, QString logLine);
 
 protected:
   void closeEvent (QCloseEvent *) override;
@@ -33,6 +34,7 @@ private:
   QSettings * settings_;
   QString m_title_;
   qint32  m_nLogged_;
+  qint32  m_nContest_;
 
   QScopedPointer<Ui::MessageAveraging> ui;
 };
