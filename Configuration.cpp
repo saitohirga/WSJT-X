@@ -1004,13 +1004,10 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   // this must be done after the default paths above are set
   read_settings ();
 
-<<<<<<< HEAD
   // load LotW users data
   lotw_users_.load (writeable_data_dir_.absoluteFilePath ("lotw-user-activity.csv"));
 
   //
-=======
->>>>>>> cd8f13b57... Implement a validator for FD and RTTY exchange entries.
   // validation
   ui_->callsign_line_edit->setValidator (new CallsignValidator {this});
   ui_->grid_line_edit->setValidator (new MaidenheadLocatorValidator {this});
