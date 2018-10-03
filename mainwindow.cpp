@@ -5971,6 +5971,16 @@ void MainWindow::on_actionErase_cabrillo_log_triggered()
   }
 }
 
+void MainWindow::on_actionExport_Cabrillo_log_triggered()
+{
+  if(!m_exportCabrillo) {
+     m_exportCabrillo.reset(new ExportCabrillo{m_settings});
+  }
+  bool ret=m_exportCabrillo->exec();
+  qDebug() << "aa" << ret;
+}
+
+
 void MainWindow::on_actionErase_wsjtx_log_adi_triggered()
 {
   int ret = MessageBox::query_message (this, tr ("Confirm Erase"),

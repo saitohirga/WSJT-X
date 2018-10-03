@@ -2637,6 +2637,8 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="separator"/>
     <addaction name="actionSettings"/>
     <addaction name="separator"/>
+    <addaction name="actionExport_Cabrillo_log"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuView">
@@ -3319,6 +3321,11 @@ QPushButton[state=&quot;ok&quot;] {
   <action name="actionContest_Log">
    <property name="text">
     <string>Contest Log</string>
+   </property>
+  </action>
+  <action name="actionExport_Cabrillo_log">
+   <property name="text">
+    <string>Export Cabrillo log</string>
    </property>
   </action>
  </widget>

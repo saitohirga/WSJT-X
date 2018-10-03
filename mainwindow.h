@@ -36,6 +36,7 @@
 #include "astro.h"
 #include "MessageBox.hpp"
 #include "NetworkAccessManager.hpp"
+#include "exportCabrillo.h"
 
 #define NUM_JT4_SYMBOLS 206                //(72+31)*2, embedded sync
 #define NUM_JT65_SYMBOLS 126               //63 data + 63 sync
@@ -202,6 +203,7 @@ private slots:
   void on_actionErase_FoxQSO_txt_triggered();
   void on_actionErase_cabrillo_log_triggered();
   void on_actionErase_wsjtx_log_adi_triggered();
+  void on_actionExport_Cabrillo_log_triggered();
   void startTx2();
   void startP1();
   void stopTx();
@@ -358,6 +360,7 @@ private:
   QScopedPointer<HelpTextWindow> m_mouseCmnds;
   QScopedPointer<MessageAveraging> m_msgAvgWidget;
   QScopedPointer<ColorHighlighting> m_colorHighlighting;
+  QScopedPointer<ExportCabrillo> m_exportCabrillo;
   Transceiver::TransceiverState m_rigState;
   Frequency  m_lastDialFreq;
   QString m_lastBand;
