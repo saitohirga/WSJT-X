@@ -205,7 +205,7 @@ public:
       }
     else
       {
-        throw std::runtime_error {QObject::tr ("Failed to open LotW users CSV file: '%1'").arg (f.fileName ()).toLocal8Bit ()};
+        throw std::runtime_error {QObject::tr ("Failed to open LotW users CSV file: '%1'").arg (f.fileName ()).toStdString ()};
       }
     return result;
   }
