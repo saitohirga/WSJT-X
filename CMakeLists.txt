@@ -309,6 +309,7 @@ set (wsjtx_CXXSRCS
   main.cpp
   wsprnet.cpp
   WSPRBandHopping.cpp
+  ExportCabrillo.cpp
   )
 
 set (wsjt_CXXSRCS
@@ -648,6 +649,7 @@ set (wsjtx_UISRCS
   widegraph.ui
   logqso.ui
   Configuration.ui
+  ExportCabrillo.ui
   )
 
 set (UDP_library_CXXSRCS
