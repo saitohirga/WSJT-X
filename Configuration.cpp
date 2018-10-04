@@ -2645,11 +2645,10 @@ void Configuration::impl::on_cbHound_clicked (bool checked)
 void Configuration::impl::chk77()
 {
   bool b77OK = !ui_->cbFox->isChecked() and !ui_->cbHound->isChecked();
-  ui_->groupBox_8->setEnabled(b77OK);
   ui_->groupBox_9->setEnabled(b77OK);
   if(!b77OK) {
-    ui_->cbGenerate77->setChecked(false);
-    ui_->cbDecode77->setChecked(false);
+    ui_->cbGenerate77->setChecked(true);
+    ui_->cbDecode77->setChecked(true);
   }
 }
 
