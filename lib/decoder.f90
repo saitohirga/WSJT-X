@@ -67,20 +67,6 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   else
      open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown',iostat=ios)
   endif
-  if(params%nmode.eq.8) then
-     inquire(file=trim(temp_dir)//'/houndcallers.txt',exist=ex)
-     if(.not.ex) then
-        c2fox='            '
-        g2fox='    '
-        nsnrfox=-99
-        nfreqfox=-99
-        n30z=0
-        nwrap=0
-        nfox=0
-     endif
-     open(19,file=trim(temp_dir)//'/houndcallers.txt',status='unknown')
-  endif
-
   if(ios.ne.0) then
      nfail=nfail+1
      if(nfail.le.3) then
@@ -91,6 +77,22 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 
   if(params%nmode.eq.8) then
 ! We're in FT8 mode
+     
+     if(ncontest.eq.5) then
+! Fox mode: initialize and open houndcallers.txt     
+        inquire(file=trim(temp_dir)//'/houndcallers.txt',exist=ex)
+        if(.not.ex) then
+           c2fox='            '
+           g2fox='    '
+           nsnrfox=-99
+           nfreqfox=-99
+           n30z=0
+           nwrap=0
+           nfox=0
+        endif
+        open(19,file=trim(temp_dir)//'/houndcallers.txt',status='unknown')
+     endif
+
      call timer('decft8  ',0)
      newdat=params%newdat
      ncontest=iand(params%nexp_decode,7)
@@ -106,33 +108,37 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
         n30max=maxval(n30fox(1:nfox))
      endif
      j=0
-     rewind 19
-     if(nfox.eq.0) then
-        endfile 19
+
+     if(ncontest.eq.5) then
+! Fox mode: save decoded Hound calls for possible selection by FoxOp
         rewind 19
-     else
-        do i=1,nfox
-           n=n30fox(i)
-           if(n30max-n30fox(i).le.4) then
-              j=j+1
-              c2fox(j)=c2fox(i)
-              g2fox(j)=g2fox(i)
-              nsnrfox(j)=nsnrfox(i)
-              nfreqfox(j)=nfreqfox(i)
-              n30fox(j)=n
-              m=n30max-n
-              if(len(trim(g2fox(j))).eq.4) then
-                 call azdist(mygrid,g2fox(j),0.d0,nAz,nEl,nDmiles,nDkm, &
-                      nHotAz,nHotABetter)
-              else
-                 nDkm=9999
+        if(nfox.eq.0) then
+           endfile 19
+           rewind 19
+        else
+           do i=1,nfox
+              n=n30fox(i)
+              if(n30max-n30fox(i).le.4) then
+                 j=j+1
+                 c2fox(j)=c2fox(i)
+                 g2fox(j)=g2fox(i)
+                 nsnrfox(j)=nsnrfox(i)
+                 nfreqfox(j)=nfreqfox(i)
+                 n30fox(j)=n
+                 m=n30max-n
+                 if(len(trim(g2fox(j))).eq.4) then
+                    call azdist(mygrid,g2fox(j),0.d0,nAz,nEl,nDmiles,nDkm, &
+                         nHotAz,nHotABetter)
+                 else
+                    nDkm=9999
+                 endif
+                 write(19,1004) c2fox(j),g2fox(j),nsnrfox(j),nfreqfox(j),nDkm,m
+1004             format(a12,1x,a4,i5,i6,i7,i3)
               endif
-              write(19,1004) c2fox(j),g2fox(j),nsnrfox(j),nfreqfox(j),nDkm,m
-1004          format(a12,1x,a4,i5,i6,i7,i3)
-           endif
-        enddo
-        nfox=j
-        flush(19)
+           enddo
+           nfox=j
+           flush(19)
+        endif
      endif
      go to 800
   endif
