@@ -586,6 +586,7 @@ private:
   QString m_modeTx;
   QString m_fnameWE;            // save path without extension
   QString m_rpt;
+  QString m_nextRpt;
   QString m_rptSent;
   QString m_rptRcvd;
   QString m_qsoStart;
@@ -603,6 +604,8 @@ private:
   QString m_xSent;               //Contest exchange sent
   QString m_xRcvd;               //Contest exchange received
   QString m_currentBand;
+  QString m_nextCall;
+  QString m_nextGrid;
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;

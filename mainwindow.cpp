@@ -728,6 +728,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_msg[0][0]=0;
   ui->labDXped->setVisible(false);
   ui->labDXped->setStyleSheet("QLabel {background-color: red; color: white;}");
+  ui->labNextCall->setText("");
+  ui->labNextCall->setVisible(false);
 
   for(int i=0; i<28; i++)  {                      //Initialize dBm values
     float dbm=(10.0*i)/3.0 - 30.0;
@@ -3619,11 +3621,27 @@ void MainWindow::guiUpdate()
 
     bool b=(m_mode=="FT8") and ui->cbAutoSeq->isChecked();
     if(is_73 and (m_config.disable_TX_on_73() or b)) {
-      auto_tx_mode (false);
-      if(b) {
-        m_ntx=6;
-        ui->txrb6->setChecked(true);
-        m_QSOProgress = CALLING;
+      if(m_nextCall!="") {
+        ui->dxCallEntry->setText(m_nextCall);
+        m_nextCall="";
+        ui->labNextCall->setStyleSheet("");
+        ui->labNextCall->setText("");
+        if(m_nextGrid.contains(grid_regexp)) {
+          ui->dxGridEntry->setText(m_nextGrid);
+          m_ntx=2;
+          ui->txrb2->setChecked(true);
+        } else {
+          m_ntx=3;
+          ui->txrb3->setChecked(true);
+        }
+        genStdMsgs(m_nextRpt);
+      } else {
+        auto_tx_mode (false);
+        if(b) {
+          m_ntx=6;
+          ui->txrb6->setChecked(true);
+          m_QSOProgress = CALLING;
+        }
       }
     }
 
@@ -4383,7 +4401,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       }
     }
     else if (m_QSOProgress >= ROGERS
-             && message_words.size () > 2 && message_words.at (1).contains (m_baseCall) && message_words.at (2) == "73") {
+             && message_words.size () > 2 && message_words.at (1).contains (m_baseCall)
+             && message_words.at (2) == "73") {
       // 73 back to compound call holder
       if(ui->tabWidget->currentIndex()==1) {
         gen_msg = 5;
@@ -4397,7 +4416,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       m_QSOProgress = SIGNOFF;
     }
     else if (!(m_bAutoReply && m_QSOProgress > CALLING)) {
-      if ((message_words.size () > 4 && message_words.at (1).contains (m_baseCall) && message_words.at (4) == "OOO")) {
+      if ((message_words.size () > 4 && message_words.at (1).contains (m_baseCall)
+           && message_words.at (4) == "OOO")) {
         // EME short code report or MSK144/FT8 contest mode reply, send back Tx3
         m_ntx=3;
         m_QSOProgress = ROGER_REPORT;
@@ -4428,6 +4448,16 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       }
     }
     else {                  // nothing for us
+      if(message_words.size () > 3   // enough fields for a normal message
+         && (message_words.at(1).contains(m_baseCall) || "DE" == message_words.at(1))
+         && (!message_words.at(2).contains(qso_partner_base_call) and !bEU_VHF_w2)) {
+// Queue up the next QSO partner
+        m_nextCall=message_words.at(2);
+        m_nextGrid=message_words.at(3);
+        m_nextRpt=message.report();
+        ui->labNextCall->setText(m_nextCall);
+        ui->labNextCall->setStyleSheet("QLabel {background-color: #66ff66}");
+      }
       return;
     }
   }
@@ -4471,7 +4501,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       ui->txrb5->setChecked(true);
     }
     m_QSOProgress = SIGNOFF;
-  } else {// just work them
+  } else {
+    // just work them
     if (ui->tx1->isEnabled ()) {
       m_ntx = 1;
       m_QSOProgress = REPLYING;
@@ -5297,7 +5328,7 @@ void MainWindow::displayWidgets(qint64 n)
     if(i==25) ui->actionEnable_AP_JT65->setVisible (b);
     if(i==26) ui->actionEnable_AP_DXcall->setVisible (b);
     if(i==27) ui->cbFirst->setVisible(b);
-//    if(i==28) ui->cbVHFcontest->setVisible(b);
+    if(i==28) ui->labNextCall->setVisible(b);
     if(i==29) ui->measure_check_box->setVisible(b);
     if(i==30) ui->labDXped->setVisible(b);
     if(i==31) ui->cbRxAll->setVisible(b);
@@ -5346,7 +5377,7 @@ void MainWindow::on_actionFT8_triggered()
     ui->label_6->setText("Band Activity");
     ui->decodedTextLabel->setText( "  UTC   dB   DT Freq    Message");
   }
-  displayWidgets(nWidgets("111010000100111000010000100100001"));
+  displayWidgets(nWidgets("111010000100111000010000100110001"));
   ui->txrb2->setEnabled(true);
   ui->txrb4->setEnabled(true);
   ui->txrb5->setEnabled(true);
