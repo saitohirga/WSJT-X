@@ -2633,11 +2633,11 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="actionErase_FoxQSO_txt"/>
     <addaction name="actionErase_wsjtx_log_adi"/>
     <addaction name="actionErase_cabrillo_log"/>
+    <addaction name="actionExport_Cabrillo_log"/>
     <addaction name="actionOpen_log_directory"/>
     <addaction name="separator"/>
     <addaction name="actionSettings"/>
     <addaction name="separator"/>
-    <addaction name="actionExport_Cabrillo_log"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>

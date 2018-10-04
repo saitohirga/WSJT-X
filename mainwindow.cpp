@@ -4610,7 +4610,6 @@ void MainWindow::genCQMsg ()
     QString t=ui->tx6->text();
     if((m_mode=="FT8" or m_mode=="MSK144") and m_nContest!=NONE and
        t.split(" ").at(1)==m_config.my_callsign()) {
-      qDebug() << "aa" << m_nContest;
       if(m_nContest==NA_VHF)    t="CQ TEST" + t.mid(2,-1);
       if(m_nContest==EU_VHF)    t="CQ TEST" + t.mid(2,-1);
       if(m_nContest==FIELD_DAY) t="CQ FD" + t.mid(2,-1);
@@ -4676,7 +4675,6 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
   bool bHisCall=stdCall(hisCall);
   bool b77=(m_mode=="MSK144" or m_mode=="FT8") and
       (!bMyCall or !bHisCall or m_config.bGenerate77());
-//  qDebug() << "aa" << my_callsign << hisCall << bMyCall << bHisCall << b77;
 
   QString t0=hisBase + " " + m_baseCall + " ";
   QString t0a,t0b;
@@ -5979,8 +5977,9 @@ void MainWindow::on_actionExport_Cabrillo_log_triggered()
   if(!m_exportCabrillo) {
      m_exportCabrillo.reset(new ExportCabrillo{m_settings});
   }
-  bool ret=m_exportCabrillo->exec();
-  qDebug() << "aa" << ret;
+  QString CabLog=m_config.writeable_data_dir ().absoluteFilePath ("cabrillo.log");
+  m_exportCabrillo->setFile(CabLog);
+  m_exportCabrillo->exec();
 }
 
 

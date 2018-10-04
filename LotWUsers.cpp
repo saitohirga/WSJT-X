@@ -137,7 +137,7 @@ public:
             else
               {
                 url_valid_ = false; // reset
-                qDebug () << "LotW Users Data downloaded from" << reply_->url ().toDisplayString ();
+//                qDebug () << "LotW Users Data downloaded from" << reply_->url ().toDisplayString ();
                 // load the database asynchronously
                 future_load_ = std::async (std::launch::async, &LotWUsers::impl::load_dictionary, this, csv_file_.fileName ());
               }
@@ -201,7 +201,7 @@ public:
             auto pos = l.indexOf (',');
             result[l.left (pos)] = QDate::fromString (l.mid (pos + 1, l.indexOf (',', pos + 1) - pos - 1), "yyyy-MM-dd");
           }
-        qDebug () << "LotW User Data Loaded";
+//        qDebug () << "LotW User Data Loaded";
       }
     else
       {
