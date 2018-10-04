@@ -131,9 +131,6 @@ contains
         hd=nharderrors+dmin
         call timer('ft8b    ',1)
         if(nbadcrc.eq.0) then
-!           call jtmsg(message,iflag)
-! This probably needs to be re-visited for the new message type
-!           if(iand(iflag,31).ne.0) message(22:22)='?'
            ldupe=.false.
            do id=1,ndecodes
               if(msg37.eq.allmessages(id).and.nsnr.le.allsnrs(id)) ldupe=.true.
