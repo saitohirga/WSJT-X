@@ -188,7 +188,12 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   nsnr=nint(snr0)
 
   bshdecode=.false.
-  if( msgreceived(1:1) .eq. '<' ) bshdecode=.true.
+  if( msgreceived(1:1) .eq. '<' ) then
+    i2=index(msgreceived,'>')
+    i1=0
+    if(i2.gt.0) i1=index(msgreceived(1:i2),' ')
+    if(i1.gt.0) bshdecode=.true. 
+  endif
 
   if(.not. bshdecode) then
     call msk144signalquality(ct,snr0,fest,tdec,softbits,msgreceived,hiscall,   &
