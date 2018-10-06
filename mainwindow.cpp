@@ -4817,7 +4817,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     }
   }
 
-  if(m_config.bGenerate77()) return;
+  if(m_config.bGenerate77() or "MSK144" == m_mode) return;
 
   if (is_compound) {
     if (is_type_one) {
