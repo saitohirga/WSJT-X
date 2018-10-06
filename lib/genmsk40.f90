@@ -29,7 +29,7 @@ subroutine genmsk40(msg,msgsent,ichk,itone,itype)
 10 irpt=i                                   !Report index, 0-15
   if(ichk.lt.10000) then
      hashmsg=msg(2:i1-1)
-     call hash(hashmsg,22,ihash)          
+     call hash(hashmsg,37,ihash)          
      ihash=iand(ihash,4095)                 !12-bit hash 
      ig=16*ihash + irpt                     !4-bit report 
   else

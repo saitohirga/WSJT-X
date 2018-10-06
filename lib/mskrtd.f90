@@ -15,8 +15,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
 
   character*4 decsym                 !"&" for mskspd or "^" for long averages
   character*37 msgreceived           !Decoded message
-  character*22 msgrx22               !Sh messages are returned as 22chars
-  character*37 msglast,msglastswl   !Used for dupechecking
+  character*37 msglast,msglastswl    !Used for dupechecking
   character*80 line                  !Formatted line with UTC dB T Freq Msg
   character*12 mycall,hiscall
   character*6 mygrid
@@ -119,9 +118,8 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   call msk144spd(cdat,np,ntol,ndecodesuccess,msgreceived,fc,fest,tdec,navg,ct, &
                  softbits)
   if(ndecodesuccess.eq.0 .and. (bshmsg.or.bswl)) then
-     call msk40spd(cdat,np,ntol,mycall(1:6),hiscall(1:6),bswl,nhasharray,      &
-              ndecodesuccess,msgrx22,fc,fest,tdec,navg)
-     if( ndecodesuccess .ge. 1 ) msgreceived=msgrx22//'               '
+     call msk40spd(cdat,np,ntol,mycall,hiscall,bswl,nhasharray,      &
+              ndecodesuccess,msgreceived,fc,fest,tdec,navg)
   endif
   if( ndecodesuccess .ge. 1 ) then
     tdec=tsec+tdec
