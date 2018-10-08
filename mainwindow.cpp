@@ -4379,8 +4379,9 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
           } else {
             m_bTUmsg=false;
             if(m_nContest==RTTY and m_nextCall!="") {
-              logQSOTimer.start(0);
 // We're in RTTY contest and have "nextCall" queued up: send a "TU; ..." message
+              on_logQSOButton_clicked();
+              ui->tx3->setText(ui->tx3->text().remove("TU; "));
               useNextCall();
               QString t="TU; " + ui->tx3->text();
               ui->tx3->setText(t);
