@@ -3573,7 +3573,6 @@ void MainWindow::guiUpdate()
               m_xSent=t.at(n-2) + " " + t.at(n-1);
             }
           }
-
         }
         if(m_isync==1) msgsent[22]=0;
         if(m_isync==2) msgsent[37]=0;
