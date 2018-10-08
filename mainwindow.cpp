@@ -3622,19 +3622,7 @@ void MainWindow::guiUpdate()
     bool b=(m_mode=="FT8") and ui->cbAutoSeq->isChecked();
     if(is_73 and (m_config.disable_TX_on_73() or b)) {
       if(m_nextCall!="") {
-        ui->dxCallEntry->setText(m_nextCall);
-        m_nextCall="";
-        ui->labNextCall->setStyleSheet("");
-        ui->labNextCall->setText("");
-        if(m_nextGrid.contains(grid_regexp)) {
-          ui->dxGridEntry->setText(m_nextGrid);
-          m_ntx=2;
-          ui->txrb2->setChecked(true);
-        } else {
-          m_ntx=3;
-          ui->txrb3->setChecked(true);
-        }
-        genStdMsgs(m_nextRpt);
+        useNextCall();
       } else {
         auto_tx_mode (false);
         if(b) {
@@ -3861,6 +3849,22 @@ void MainWindow::guiUpdate()
   m_btxok0=m_btxok;
 }               //End of guiUpdate
 
+void MainWindow::useNextCall()
+{
+  ui->dxCallEntry->setText(m_nextCall);
+  m_nextCall="";
+  ui->labNextCall->setStyleSheet("");
+  ui->labNextCall->setText("");
+  if(m_nextGrid.contains(grid_regexp)) {
+    ui->dxGridEntry->setText(m_nextGrid);
+    m_ntx=2;
+    ui->txrb2->setChecked(true);
+  } else {
+    m_ntx=3;
+    ui->txrb3->setChecked(true);
+  }
+  genStdMsgs(m_nextRpt);
+}
 
 void MainWindow::startTx2()
 {
@@ -4367,8 +4371,17 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             if (ui->rbGenMsg->isChecked ()) m_ntx=7;
             m_gen_message_is_cq = false;
           } else {
-            m_ntx=5;
-            ui->txrb5->setChecked(true);
+            m_bTUmsg=false;
+            if(m_nContest==RTTY and m_nextCall!="") {
+              useNextCall();
+              QString t="TU; " + ui->tx3->text();
+              qDebug() << "aa" << t;
+              ui->tx3->setText(t);
+              m_bTUmsg=true;
+            } else {
+              m_ntx=5;
+              ui->txrb5->setChecked(true);
+            }
           }
           m_QSOProgress = SIGNOFF;
         } else if((m_QSOProgress >= REPORT
@@ -4568,7 +4581,9 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   }
 
   ui->rptSpinBox->setValue(n);
-  if (!m_nTx73) {      // Don't genStdMsgs if we're already sending 73.
+// Don't genStdMsgs if we're already sending 73 or a "TU; " msg is queued.
+  if (!m_nTx73 and !m_bTUmsg) {
+    qDebug() << "bb";
     genStdMsgs(rpt);
     if (gen_msg) {
       switch (gen_msg) {
@@ -4679,7 +4694,12 @@ bool MainWindow::stdCall(QString w)
 }
 
 void MainWindow::genStdMsgs(QString rpt, bool unconditional)
-{  
+{
+  if(ui->tx3->text().left(4)=="TU; ") {
+    qDebug() << "cc" << ui->tx3->text();
+    return;
+  }
+
   genCQMsg ();
   auto const& hisCall=ui->dxCallEntry->text();
   if(!hisCall.size ()) {

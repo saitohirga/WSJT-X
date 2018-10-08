@@ -503,6 +503,7 @@ private:
   bool    m_bAutoReply;
   bool    m_bCheckedContest;
   bool    m_bWarnedSplit=false;
+  bool    m_bTUmsg;
 
   enum
     {
@@ -701,6 +702,7 @@ private:
   void fast_config(bool b);
   void CQTxFreq();
   void cabLog();
+  void useNextCall();
   bool isWorked(int itype, QString key, float fMHz=0, QString="");
 
   QString save_wave_file (QString const& name
