@@ -52,7 +52,7 @@ contains
     character*12 mycall12,hiscall12,mycall12_0
     character*6 hisgrid6
     integer*2 iwave(15*12000)
-    integer apsym1(KK),apsym2(77)
+    integer apsym1(KK),apsym2(58)
     character datetime*13,msg37*37
 !   character message*22
     character*37 allmessages(100)
@@ -70,7 +70,7 @@ contains
 1001 format("000000_",i6.6)
 
     call ft8apset(mycall12,hiscall12,apsym1)
-    call ft8apset_174_91(mycall12,hiscall12,hisgrid6,ncontest,apsym2)
+    call ft8apset_174_91(mycall12,hiscall12,apsym2)
     dd=iwave
     ndecodes=0
     allmessages='                                     '
@@ -121,7 +121,7 @@ contains
                 nbadcrc,iappass,iera,msg37,xsnr)
         else
            call ft8b_2(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lft8apon,     &
-                lapcqonly,napwid,lsubtract,nagain,iaptype,mycall12,   &
+                lapcqonly,napwid,lsubtract,nagain,ncontest,iaptype,mycall12,   &
                 hiscall12,sync,f1,xdt,xbase,apsym2,nharderrors,dmin,  &
                 nbadcrc,iappass,iera,msg37,xsnr)
         endif
@@ -131,9 +131,6 @@ contains
         hd=nharderrors+dmin
         call timer('ft8b    ',1)
         if(nbadcrc.eq.0) then
-!           call jtmsg(message,iflag)
-! This probably needs to be re-visited for the new message type
-!           if(iand(iflag,31).ne.0) message(22:22)='?'
            ldupe=.false.
            do id=1,ndecodes
               if(msg37.eq.allmessages(id).and.nsnr.le.allsnrs(id)) ldupe=.true.
@@ -143,11 +140,11 @@ contains
               allmessages(ndecodes)=msg37
               allsnrs(ndecodes)=nsnr
            endif
-!           write(81,1004) nutc,ncand,icand,ipass,iaptype,iappass,        &
-!                nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),          &
-!                xdt,nint(f1),msg37,isync
-!1004          format(i6.6,2i4,3i2,i3,3f6.1,i4,f6.2,i5,2x,a37,i4)
-!           flush(81)
+           write(81,1004) nutc,ncand,icand,ipass,iaptype,iappass,        &
+                nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),          &
+                xdt,nint(f1),msg37,isync
+1004          format(i6.6,2i4,3i2,i3,3f6.1,i4,f6.2,i5,2x,a37,i4)
+           flush(81)
            if(.not.ldupe .and. associated(this%callback)) then
               qual=1.0-(nharderrors+dmin)/60.0 ! scale qual to [0.0,1.0]
               call this%callback(sync,nsnr,xdt,f1,msg37,iaptype,qual)

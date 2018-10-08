@@ -1,6 +1,6 @@
 subroutine foxgen_wrap(msg40,msgbits,itone)
 
-  parameter (NN=79,ND=58,KK=87,NSPS=4*1920)
+  parameter (NN=79,ND=58,KK=77,NSPS=4*1920)
   parameter (NWAVE=NN*NSPS)
 
   character*40 msg40,cmsg

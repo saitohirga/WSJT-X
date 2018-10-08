@@ -18,7 +18,6 @@ subroutine genft8_174_91(msg,i3,n3,msgsent,msgbits,itone)
   n3=-1
   call pack77(msg,i3,n3,c77)
   call unpack77(c77,msgsent,unpk77_success)
-
   read(c77,'(77i1)',err=1) msgbits
   go to 2
 1 write(81,*) msg,c77 ; flush(81)

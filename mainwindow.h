@@ -36,7 +36,7 @@
 #include "astro.h"
 #include "MessageBox.hpp"
 #include "NetworkAccessManager.hpp"
-#include "exportCabrillo.h"
+#include "ExportCabrillo.h"
 
 #define NUM_JT4_SYMBOLS 206                //(72+31)*2, embedded sync
 #define NUM_JT65_SYMBOLS 126               //63 data + 63 sync

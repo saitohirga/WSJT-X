@@ -15,10 +15,10 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
 
   character*4 decsym                 !"&" for mskspd or "^" for long averages
   character*37 msgreceived           !Decoded message
-  character*22 msgrx22               !Sh messages are returned as 22chars
-  character*37 msglast,msglastswl   !Used for dupechecking
+  character*37 msglast,msglastswl    !Used for dupechecking
   character*80 line                  !Formatted line with UTC dB T Freq Msg
   character*12 mycall,hiscall
+  character*13 mycall13
   character*6 mygrid
   character*37 recent_shmsgs(NSHMEM)
   character*512 datadir
@@ -55,7 +55,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
        1,1,1,1,1,1,1,0/
   data xmc/2.0,4.5,2.5,3.5/     !Used to set time at center of averaging mask
   save first,tsec0,nutc00,pnoise,cdat,msglast,msglastswl,     &
-       nsnrlast,nsnrlastswl,nhasharray,recent_shmsgs
+       nsnrlast,nsnrlastswl,nhasharray,recent_shmsgs,mycall13
 
   if(first) then
      tsec0=tsec
@@ -71,10 +71,15 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
      msglastswl='                                     '
      nsnrlast=-99
      nsnrlastswl=-99
+     mycall13=mycall//" "
+     call save_hash_call(mycall13,n10,n12,n22) ! Make sure that my callsign is in hashtable
      first=.false.
   endif
 
   fc=nrxfreq
+
+! Reset if mycall changes
+  if(mycall13(1:12).ne.mycall) first=.true.
 
 ! Dupe checking setup 
   if(nutc00.ne.nutc0 .or. tsec.lt.tsec0) then ! reset dupe checker
@@ -119,9 +124,8 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   call msk144spd(cdat,np,ntol,ndecodesuccess,msgreceived,fc,fest,tdec,navg,ct, &
                  softbits)
   if(ndecodesuccess.eq.0 .and. (bshmsg.or.bswl)) then
-     call msk40spd(cdat,np,ntol,mycall(1:6),hiscall(1:6),bswl,nhasharray,      &
-              ndecodesuccess,msgrx22,fc,fest,tdec,navg)
-     if( ndecodesuccess .ge. 1 ) msgreceived=msgrx22//'               '
+     call msk40spd(cdat,np,ntol,mycall,hiscall,bswl,nhasharray,      &
+              ndecodesuccess,msgreceived,fc,fest,tdec,navg)
   endif
   if( ndecodesuccess .ge. 1 ) then
     tdec=tsec+tdec
@@ -184,7 +188,12 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   nsnr=nint(snr0)
 
   bshdecode=.false.
-  if( msgreceived(1:1) .eq. '<' ) bshdecode=.true.
+  if( msgreceived(1:1) .eq. '<' ) then
+    i2=index(msgreceived,'>')
+    i1=0
+    if(i2.gt.0) i1=index(msgreceived(1:i2),' ')
+    if(i1.gt.0) bshdecode=.true. 
+  endif
 
   if(.not. bshdecode) then
     call msk144signalquality(ct,snr0,fest,tdec,softbits,msgreceived,hiscall,   &

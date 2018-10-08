@@ -1510,11 +1510,13 @@ void MainWindow::fastSink(qint64 frames)
   int RxFreq=ui->RxFreqSpinBox->value ();
   int nTRpDepth=m_TRperiod + 1000*(m_ndepth & 3);
   qint64 ms0 = QDateTime::currentMSecsSinceEpoch();
-  strncpy(dec_data.params.mycall, (m_baseCall+"            ").toLatin1(),12);
+//  strncpy(dec_data.params.mycall, (m_baseCall+"            ").toLatin1(),12);
+  strncpy(dec_data.params.mycall,(m_config.my_callsign () + "            ").toLatin1(),12);
   QString hisCall {ui->dxCallEntry->text ()};
   bool bshmsg=ui->cbShMsgs->isChecked();
   bool bswl=ui->cbSWL->isChecked();
-  strncpy(dec_data.params.hiscall,(Radio::base_callsign (hisCall) + "            ").toLatin1 ().constData (), 12);
+//  strncpy(dec_data.params.hiscall,(Radio::base_callsign (hisCall) + "            ").toLatin1 ().constData (), 12);
+  strncpy(dec_data.params.hiscall,(hisCall + "            ").toLatin1 ().constData (), 12);
   strncpy(dec_data.params.mygrid, (m_config.my_grid()+"      ").toLatin1(),6);
   QString dataDir;
   dataDir = m_config.writeable_data_dir ().absolutePath ();
@@ -4728,6 +4730,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       (!bMyCall or !bHisCall or m_config.bGenerate77());
 
   QString t0=hisBase + " " + m_baseCall + " ";
+  QString t0s=hisCall + " " + my_callsign + " ";
   QString t0a,t0b;
   if(b77) {
     if(bHisCall and bMyCall) t0=hisCall + " " + my_callsign + " ";
@@ -4783,8 +4786,8 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     }
 
     if(m_mode=="MSK144" and m_bShMsgs) {
-      int i=t0.length()-1;
-      t0="<" + t0.mid(0,i) + "> ";
+      int i=t0s.length()-1;
+      t0="<" + t0s.mid(0,i) + "> ";
       if(!m_config.bNA_VHF_Contest()) {
         if(n<=-2) n=-3;
         if(n>=-1 and n<=1) n=0;
@@ -4810,7 +4813,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     }
 
     t=t0 + (m_send_RR73 ? "RR73" : "RRR");
-    if(m_mode=="MSK144" or m_mode=="FT8") {
+    if((m_mode=="MSK144" and !m_bShMsgs) or m_mode=="FT8") {
       if(!bHisCall and bMyCall) t=hisCall + " <" + my_callsign + "> " + (m_send_RR73 ? "RR73" : "RRR");
       if(bHisCall and !bMyCall) t="<" + hisCall + "> " + my_callsign + " " + (m_send_RR73 ? "RR73" : "RRR");
     }
@@ -4818,7 +4821,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     msgtype(t, ui->tx4);
 
     t=t0 + "73";
-    if(m_mode=="MSK144" or m_mode=="FT8") {
+    if((m_mode=="MSK144" and !m_bShMsgs) or m_mode=="FT8") {
       if(!bHisCall and bMyCall) t=hisCall + " <" + my_callsign + "> 73";
       if(bHisCall and !bMyCall) t="<" + hisCall + "> " + my_callsign + " 73";
     }
@@ -4834,7 +4837,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     }
   }
 
-  if(m_config.bGenerate77()) return;
+  if(m_config.bGenerate77() or "MSK144" == m_mode) return;
 
   if (is_compound) {
     if (is_type_one) {

@@ -1,5 +1,5 @@
 #include "ExportCabrillo.h"
-#include "ui_exportCabrillo.h"
+#include "ui_ExportCabrillo.h"
 #include "SettingsGroup.hpp"
 #include "MessageBox.hpp"
 
