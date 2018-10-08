@@ -935,14 +935,14 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 void MainWindow::not_GA_warning_message ()
 {
   QDateTime now=QDateTime::currentDateTime();
-  QDateTime timeout=QDateTime(QDate(2018,10,31));
+  QDateTime timeout=QDateTime(QDate(2018,11,30));
 
   MessageBox::critical_message (this,
                                 "This version of WSJT-X is a beta-level Release Candidate.\n\n"
                                 "On-the-air use carries an obligation to report problems\n"
                                 "to the WSJT Development group and to upgrade to a GA\n"
                                 "(General Availability) release when it becomes available.\n\n"
-                                "This version cannot be used after October 31, 2018\n\n");
+                                "This version cannot be used after November 30, 2018\n\n");
 
   if(now.daysTo(timeout) < 0) Q_EMIT finished();
 }
@@ -2930,7 +2930,11 @@ void MainWindow::readFromStdout()                             //readFromStdout
         m_blankLine = false;
       }
 
-      DecodedText decodedtext {QString::fromUtf8(t.constData()).remove(QRegularExpression {"\r|\n"})};
+      DecodedText decodedtext0 {QString::fromUtf8(t.constData())
+            .remove(QRegularExpression {"\r|\n"})};
+      DecodedText decodedtext {QString::fromUtf8(t.constData())
+            .remove(QRegularExpression {"\r|\n"}).remove("TU; ")};
+
       if(m_mode=="FT8" and m_config.bFox() and
          (decodedtext.string().contains("R+") or decodedtext.string().contains("R-"))) {
         auto for_us  = decodedtext.string().contains(" " + m_config.my_callsign() + " ") or
@@ -2943,7 +2947,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
           foxRxSequencer(decodedtext.string(),houndCall,houndGrid);
         }
       }
-      //Left (Band activity) window
+
+//Left (Band activity) window
       if(!bAvgMsg) {
         if(m_mode=="FT8" and m_config.bFox()) {
           if(!m_bDisplayedOnce) {
@@ -2954,13 +2959,13 @@ void MainWindow::readFromStdout()                             //readFromStdout
             m_bDisplayedOnce=true;
           }
         } else {
-          ui->decodedTextBrowser->displayDecodedText(decodedtext,m_baseCall,m_config.DXCC(),
+          ui->decodedTextBrowser->displayDecodedText(decodedtext0,m_baseCall,m_config.DXCC(),
                m_logBook,m_currentBand,m_config.ppfx(),
                (ui->cbCQonly->isVisible() and ui->cbCQonly->isChecked()));
         }
       }
 
-        //Right (Rx Frequency) window
+//Right (Rx Frequency) window
       bool bDisplayRight=bAvgMsg;
       int audioFreq=decodedtext.frequencyOffset();
 
@@ -2989,7 +2994,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       if (bDisplayRight) {
         // This msg is within 10 hertz of our tuned frequency, or a JT4 or JT65 avg,
         // or contains MyCall
-        ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_baseCall,m_config.DXCC(),
+        ui->decodedTextBrowser2->displayDecodedText(decodedtext0,m_baseCall,m_config.DXCC(),
                m_logBook,m_currentBand,m_config.ppfx());
 
         if(m_mode!="JT4") {
@@ -3043,8 +3048,9 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
 //### I think this is where we are preventing Hounds from spotting Fox ###
       if(m_mode!="FT8" or !m_config.bHound()) {
-        if(m_mode=="FT8" or m_mode=="QRA64" or m_mode=="JT4" or m_mode=="JT65" or
-           m_mode=="JT9") auto_sequence (decodedtext, 25, 50);
+        if(m_mode=="FT8" or m_mode=="QRA64" or m_mode=="JT4" or m_mode=="JT65" or m_mode=="JT9") {
+          auto_sequence (decodedtext, 25, 50);
+        }
         postDecode (true, decodedtext.string ());
 
 // find and extract any report for myCall, but save in m_rptRcvd only if it's from DXcall
@@ -3616,9 +3622,7 @@ void MainWindow::guiUpdate()
       if(m_config.id_after_73 ()) {
         icw[0] = m_ncw;
       }
-      if ((m_config.prompt_to_log() or m_config.autoLog()) && !m_tune) {
-        logQSOTimer.start(0);
-      }
+      if((m_config.prompt_to_log() or m_config.autoLog()) && !m_tune) logQSOTimer.start(0);
     }
 
     bool b=(m_mode=="FT8") and ui->cbAutoSeq->isChecked();
@@ -4375,9 +4379,10 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
           } else {
             m_bTUmsg=false;
             if(m_nContest==RTTY and m_nextCall!="") {
+              logQSOTimer.start(0);
+// We're in RTTY contest and have "nextCall" queued up: send a "TU; ..." message
               useNextCall();
               QString t="TU; " + ui->tx3->text();
-              qDebug() << "aa" << t;
               ui->tx3->setText(t);
               m_bTUmsg=true;
             } else {
@@ -4470,7 +4475,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
         m_nextCall=message_words.at(2);
         m_nextGrid=message_words.at(3);
         m_nextRpt=message.report();
-        ui->labNextCall->setText(m_nextCall);
+        ui->labNextCall->setText("Next:  " + m_nextCall);
         ui->labNextCall->setStyleSheet("QLabel {background-color: #66ff66}");
       }
       return;
@@ -4583,9 +4588,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   }
 
   ui->rptSpinBox->setValue(n);
-// Don't genStdMsgs if we're already sending 73 or a "TU; " msg is queued.
+// Don't genStdMsgs if we're already sending 73, or a "TU; " msg is queued.
   if (!m_nTx73 and !m_bTUmsg) {
-    qDebug() << "bb";
     genStdMsgs(rpt);
     if (gen_msg) {
       switch (gen_msg) {
@@ -4698,7 +4702,6 @@ bool MainWindow::stdCall(QString w)
 void MainWindow::genStdMsgs(QString rpt, bool unconditional)
 {
   if(ui->tx3->text().left(4)=="TU; ") {
-    qDebug() << "cc" << ui->tx3->text();
     return;
   }
 
