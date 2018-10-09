@@ -4473,6 +4473,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     }
     else {                  // nothing for us
       if(message_words.size () > 3   // enough fields for a normal message
+         && m_nContest==RTTY
          && (message_words.at(1).contains(m_baseCall) || "DE" == message_words.at(1))
          && (!message_words.at(2).contains(qso_partner_base_call) and !bEU_VHF_w2)) {
 // Queue up the next QSO partner

@@ -208,7 +208,8 @@ QByteArray ADIF::QSOToADIF(QString const& hisCall, QString const& hisGrid, QStri
   if(xSent!="") t += " <STX_STRING:" + QString::number(xSent.length()) + ">" + xSent;
   if(xRcvd!="") {
     t += " <SRX_STRING:" + QString::number(xRcvd.length()) + ">" + xRcvd;
-    QString t1=xRcvd.split(" ").at(1);
+    QString t1="";
+    if(xRcvd.split(" ").size()==2) t1=xRcvd.split(" ").at(1);
     if(t1.toInt()>0) {
       t += " <SRX:" + QString::number(t1.length()) + ">" + t1;
     } else {
