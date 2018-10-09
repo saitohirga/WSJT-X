@@ -206,10 +206,15 @@ QByteArray ADIF::QSOToADIF(QString const& hisCall, QString const& hisGrid, QStri
   if(name!="") t += " <name:" + QString::number(name.length()) + ">" + name;
   if(operator_call!="") t+=" <operator:" + QString::number(operator_call.length()) + ">" + operator_call;
   if(xSent!="") t += " <STX_STRING:" + QString::number(xSent.length()) + ">" + xSent;
-  if(xRcvd!="") t += " <SRX_STRING:" + QString::number(xRcvd.length()) + ">" + xRcvd;
-  QString t1=xRcvd.split(" ").at(1);
-  qDebug() << "aa0" << xRcvd << t1;
-  if(xRcvd!="") t += " <STATE:" + QString::number(t1.length()) + ">" + t1;
+  if(xRcvd!="") {
+    t += " <SRX_STRING:" + QString::number(xRcvd.length()) + ">" + xRcvd;
+    QString t1=xRcvd.split(" ").at(1);
+    if(t1.toInt()>0) {
+      t += " <SRX:" + QString::number(t1.length()) + ">" + t1;
+    } else {
+      t += " <STATE:" + QString::number(t1.length()) + ">" + t1;
+    }
+  }
   return t.toLatin1();
 }
 

@@ -92,6 +92,8 @@ void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString 
   m_myGrid=myGrid;
   ui->band->setText (m_config->bands ()->find (dialFreq));
   ui->loggedOperator->setText(opCall);
+  ui->exchSent->setText(m_xSent);
+  ui->exchRcvd->setText(m_xRcvd);
   if(bFox or bAutoLog) {
     accept();
   } else {
