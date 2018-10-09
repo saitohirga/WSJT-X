@@ -2935,7 +2935,7 @@ Right click for insert and delete options.</string>
              </sizepolicy>
             </property>
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;North American VHF/UHF/Mucrowave contests and others in which a 4-character grid locator is the required exchange.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;North American VHF/UHF/Microwave contests and others in which a 4-character grid locator is the required exchange.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
              <string>NA VHF Contest</string>
