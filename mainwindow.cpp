@@ -1824,6 +1824,9 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         }
       }
       break;
+    case Qt::Key_Escape:
+      on_stopTxButton_clicked();
+      return;
     case Qt::Key_F1:
       on_actionOnline_User_Guide_triggered();
       return;

@@ -74,7 +74,7 @@
               <item row="0" column="1">
                <widget class="QLineEdit" name="grid_line_edit">
                 <property name="toolTip">
-                 <string>Maidenhead locator (only the first four characters are required).</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Maidenhead locator, preferably 6 characters.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                </widget>
               </item>
@@ -103,7 +103,11 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QComboBox" name="region_combo_box"/>
+               <widget class="QComboBox" name="region_combo_box">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select your IARU region.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
@@ -1729,7 +1733,7 @@ and DX Grid fields when a 73 or free text message is sent.</string>
           <item row="2" column="0">
            <widget class="QCheckBox" name="log_as_RTTY_check_box">
             <property name="toolTip">
-             <string>Some logging programs will not accept JT-65 or JT9 as a recognized mode.</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Some logging programs will not accept WSJT-X mode names.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
              <string>Con&amp;vert mode to RTTY</string>
@@ -1745,6 +1749,9 @@ and DX Grid fields when a 73 or free text message is sent.</string>
           </item>
           <item row="1" column="0">
            <widget class="QCheckBox" name="cbAutoLog">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to have QSOs logged automatically, when complete.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string>Log automatically</string>
             </property>
@@ -2567,6 +2574,9 @@ Right click for insert and delete options.</string>
          <layout class="QHBoxLayout" name="horizontalLayout_15">
           <item>
            <widget class="QCheckBox" name="cbGenerate77">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;By default, early candidate releases of WSJT-X 2.0 generate 75-bit messages if the message content allows it.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string>Always generate 77-bit messages</string>
             </property>
@@ -2574,6 +2584,9 @@ Right click for insert and delete options.</string>
           </item>
           <item>
            <widget class="QCheckBox" name="cbDecode77">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this box to ignore FT8 transmissions using the older 75-bit protocol.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string>Decode only 77-bit messages</string>
             </property>
@@ -2766,6 +2779,9 @@ Right click for insert and delete options.</string>
          <layout class="QGridLayout" name="gridLayout_15" columnstretch="1,2,1,0">
           <item row="0" column="0">
            <widget class="QRadioButton" name="rbNone">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;For normal operating&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string>None</string>
             </property>
@@ -2782,6 +2798,9 @@ Right click for insert and delete options.</string>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;European VHF+ contests requiring a signal report, serial number, and 6-character locator.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string>EU VHF Contest</string>
             </property>
@@ -2791,6 +2810,9 @@ Right click for insert and delete options.</string>
            <layout class="QHBoxLayout" name="horizontalLayout_18" stretch="2,1,1">
             <item>
              <widget class="QRadioButton" name="rbRTTYroundup">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ARRL RTTY Roundup and similar contests.  Exchange is US state, Canadian province, or &amp;quot;DX&amp;quot;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
               <property name="text">
                <string>ARRL RTTY Roundup</string>
               </property>
@@ -2829,6 +2851,9 @@ Right click for insert and delete options.</string>
                   <height>0</height>
                  </size>
                 </property>
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ARRL RTTY Roundup and similar contests.  Exchange is US state, Canadian province, or &amp;quot;DX&amp;quot;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
                 <property name="text">
                  <string>NJ</string>
                 </property>
@@ -2845,6 +2870,9 @@ Right click for insert and delete options.</string>
            <layout class="QHBoxLayout" name="horizontalLayout_17" stretch="2,1,1">
             <item>
              <widget class="QRadioButton" name="rbFieldDay">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ARRL Field Day exchange: number of transmitters, Class, and ARRL/RAC section or &amp;quot;DX&amp;quot;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
               <property name="text">
                <string>ARRL Field Day</string>
               </property>
@@ -2883,6 +2911,9 @@ Right click for insert and delete options.</string>
                   <height>0</height>
                  </size>
                 </property>
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ARRL Field Day exchange: number of transmitters, Class, and ARRL/RAC section or &amp;quot;DX&amp;quot;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
                 <property name="text">
                  <string>6A SNJ</string>
                 </property>
@@ -2902,6 +2933,9 @@ Right click for insert and delete options.</string>
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;North American VHF/UHF/Mucrowave contests and others in which a 4-character grid locator is the required exchange.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
              <string>NA VHF Contest</string>
@@ -2944,9 +2978,7 @@ Right click for insert and delete options.</string>
    <item>
     <widget class="QDialogButtonBox" name="configuration_dialog_button_box">
      <property name="toolTip">
-      <string>Discard or apply configuration changes including
-resetting the radio interface and applying any
-soundcard changes</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Discard (Cancel) or apply (OK) configuration changes including&lt;/p&gt;&lt;p&gt;resetting the radio interface and applying any soundcard changes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
