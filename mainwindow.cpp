@@ -2939,7 +2939,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
          (decodedtext.string().contains("R+") or decodedtext.string().contains("R-"))) {
         auto for_us  = decodedtext.string().contains(" " + m_config.my_callsign() + " ") or
             decodedtext.string().contains(" "+m_baseCall) or
-            decodedtext.string().contains(m_baseCall+" ");
+            decodedtext.string().contains(m_baseCall+" ") or
+            decodedtext.string().contains(" <" + m_config.my_callsign() + "> ");
         if(decodedtext.string().contains(" DE ")) for_us=true;   //Hound with compound callsign
         if(for_us) {
           QString houndCall,houndGrid;
