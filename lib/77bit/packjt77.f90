@@ -17,10 +17,7 @@ subroutine hash10(n10,c13)
   do i=1,nzhash
      if(ihash10(i).eq.n10) then
         c13=callsign(i)
-        if(c13(1:1).ne.'<') then
-           n=len(trim(c13))
-           c13='<'//trim(c13)//'>'//'         '
-        endif
+        c13='<'//trim(c13)//'>'//'         '
         go to 900
      endif
   enddo
@@ -36,10 +33,7 @@ subroutine hash12(n12,c13)
   do i=1,nzhash
      if(ihash12(i).eq.n12) then
         c13=callsign(i)
-        if(c13(1:1).ne.'<') then
-           n=len(trim(c13))
-           c13='<'//trim(c13)//'>'//'         '
-        endif
+        c13='<'//trim(c13)//'>'//'         '
         go to 900
      endif
   enddo
@@ -56,10 +50,7 @@ subroutine hash22(n22,c13)
   do i=1,nzhash
      if(ihash22(i).eq.n22) then
         c13=callsign(i)
-        if(c13(1:1).ne.'<') then
-           n=len(trim(c13))
-           c13='<'//trim(c13)//'>'//'         '
-        endif
+        c13='<'//trim(c13)//'>'//'         '
         go to 900
      endif
   enddo
