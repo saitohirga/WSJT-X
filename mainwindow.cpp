@@ -1171,8 +1171,8 @@ void MainWindow::readSettings()
   m_audioThreadPriority = static_cast<QThread::Priority> (m_settings->value ("Audio/ThreadPriority", QThread::HighPriority).toInt () % 8);
   m_settings->endGroup ();
 
-  if (displayMsgAvg) on_actionMessage_averaging_triggered();
   setContestType();
+  if(displayMsgAvg or (m_nContest>0 and m_nContest<6)) on_actionMessage_averaging_triggered();
 }
 
 void MainWindow::setContestType()
@@ -1689,6 +1689,9 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       ui->actionEnable_AP_JT65->setVisible(false);
     }
     m_opCall=m_config.opCall();
+    if(m_msgAvgWidget==NULL and m_nContest>0 and m_nContest<6) {
+      on_actionMessage_averaging_triggered();
+    }
   }
   setColorHighlighting();
 }
