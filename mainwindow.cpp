@@ -4669,7 +4669,7 @@ void MainWindow::genCQMsg ()
 
     QString t=ui->tx6->text();
     if((m_mode=="FT8" or m_mode=="MSK144") and m_nContest!=NONE and
-       t.split(" ").at(1)==m_config.my_callsign()) {
+       t.split(" ").at(1)==m_config.my_callsign() and stdCall(m_config.my_callsign())) {
       if(m_nContest==NA_VHF)    t="CQ TEST" + t.mid(2,-1);
       if(m_nContest==EU_VHF)    t="CQ TEST" + t.mid(2,-1);
       if(m_nContest==FIELD_DAY) t="CQ FD" + t.mid(2,-1);
