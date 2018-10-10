@@ -3760,21 +3760,7 @@ void MainWindow::guiUpdate()
     }
     m_currentBand=m_config.bands()->find(m_freqNominal);
 
-    // if(m_config.bFox()) {
-    //   if(m_config.my_callsign()=="K1JT" or m_config.my_callsign()=="K9AN" or
-    //      m_config.my_callsign()=="G4WJS" or m_config.my_callsign().contains("KH7Z")) {
-    //     ui->sbNslots->setMaximum(5);
-    //     m_Nslots=ui->sbNslots->value();
-    //     ui->sbNslots->setEnabled(true);
-    //   } else {
-    //     ui->sbNslots->setMaximum(1);
-    //     m_Nslots=1;
-    //     ui->sbNslots->setEnabled(false);
-    //   }
-    // }
-
     if(m_config.bHound()) {
-//      m_bWarnedHound=false;
       qint32 tHound=QDateTime::currentMSecsSinceEpoch()/1000 - m_tAutoOn;
       //To keep calling Fox, Hound must reactivate Enable Tx at least once every 2 minutes
       if(tHound >= 120 and m_ntx==1) auto_tx_mode(false);
