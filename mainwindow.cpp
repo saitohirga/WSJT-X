@@ -3739,7 +3739,7 @@ void MainWindow::guiUpdate()
   }
 
   if(m_mode=="FT8" or m_mode=="MSK144") {
-    if(ui->txrb1->isEnabled() and m_nContest!=NONE and m_nContest!=EU_VHF) {
+    if(ui->txrb1->isEnabled() and (m_nContest==NA_VHF or m_nContest==FIELD_DAY or m_nContest==RTTY)) {
       //We're in a contest-like mode other than EU_VHF: start QSO with Tx2.
       ui->tx1->setEnabled(false);
     }
@@ -5413,7 +5413,7 @@ void MainWindow::on_actionFT8_triggered()
     ui->tabWidget->setCurrentIndex(2);
     ui->TxFreqSpinBox->setValue(300);
     displayWidgets(nWidgets("111010000100111000010000000000100"));
-    ui->labDXped->setText("DXpedition: Fox");
+    ui->labDXped->setText("Fox");
     on_actionFox_Log_triggered();
   }
   if(m_config.bHound()) {
@@ -5423,7 +5423,7 @@ void MainWindow::on_actionFT8_triggered()
     ui->tabWidget->setCurrentIndex(0);
     ui->cbHoldTxFreq->setChecked(true);
     displayWidgets(nWidgets("111010000100110000010000000000110"));
-    ui->labDXped->setText("DXpedition: Hound");
+    ui->labDXped->setText("Hound");
     ui->txrb1->setChecked(true);
     ui->txrb2->setEnabled(false);
     ui->txrb4->setEnabled(false);
