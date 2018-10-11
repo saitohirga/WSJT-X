@@ -398,11 +398,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
      if(ndepth.eq.3 .and. nharderrors.lt.0) then
         ndeep=3
         if(abs(nfqso-f1).le.napwid .or. abs(nftx-f1).le.napwid) then
-          if((ipass.eq.3 .or. ipass.eq.4) .and. .not.nagain) then
-            ndeep=3 
-          else  
-            ndeep=4  
-          endif
+           ndeep=4  
         endif
         if(nagain) ndeep=5
         call timer('osd174_91 ',0)
