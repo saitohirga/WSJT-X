@@ -4734,7 +4734,8 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
 
   QString t00=t0;
   QString t {t0 + my_grid};
-  if(b77 and (!bMyCall or !bHisCall)) t=t0a;
+//  if(b77 and (!bMyCall or !bHisCall)) t=t0a;
+  if(b77 and (!bMyCall)) t=t0a;
   msgtype(t, ui->tx1);
   if (eme_short_codes) {
     t=t+" OOO";
