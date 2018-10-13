@@ -439,9 +439,11 @@ subroutine unpack77(c77,msg,unpk77_success)
      if(iflip.eq.0) then
         call_1=call_3
         call_2=adjustl(c11)//'  '
+        call add_call_to_recent_calls(call_2)
      else
         call_1=adjustl(c11)//'  '
         call_2=call_3
+        call add_call_to_recent_calls(call_1)
      endif
      if(icq.eq.0) then
         if(nrpt.eq.0) msg=trim(call_1)//' '//trim(call_2)
@@ -1208,6 +1210,9 @@ subroutine add_call_to_recent_calls(callsign)
      enddo
      recent_calls(1)=callsign
   endif
+
+! Make sure that callsign is hashed
+  call save_hash_call(callsign,n10,n12,n22)
 
   return
 end subroutine add_call_to_recent_calls
