@@ -4218,6 +4218,14 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   QString hiscall;
   QString hisgrid;
   message.deCallAndGrid(/*out*/hiscall,hisgrid);
+  if(message.string().contains(hiscall+"/R")) {
+    hiscall+="/R";
+    ui->dxCallEntry->setText(hiscall);
+  }
+  if(message.string().contains(hiscall+"/P")) {
+    hiscall+="/P";
+    ui->dxCallEntry->setText(hiscall);
+  }
 
   bool is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
   if (!is_73 and !message.isStandardMessage() and !message.string().contains("<")) {
@@ -4264,7 +4272,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   }
 
   // prior DX call (possible QSO partner)
-  auto qso_partner_base_call = Radio::base_callsign (ui->dxCallEntry-> text ());
+  auto qso_partner_base_call = Radio::base_callsign (ui->dxCallEntry->text ());
   auto base_call = Radio::base_callsign (hiscall);
 
 // Determine appropriate response to received message
@@ -4277,7 +4285,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
      || dtext.contains ("/" + m_baseCall + " ")
      || dtext.contains (" " + m_baseCall + "/")
      || (firstcall == "DE")) {
-    QString w2=message_words.at(2);
+    QString w2="";
+    if(message_words.size()>=3) message_words.at(2);
     QString w34="";
     if(message_words.size()>=4) w34=message_words.at(3);
     int nrpt=w2.toInt();
@@ -5269,6 +5278,8 @@ void MainWindow::cabLog()
           m_hisCall.leftJustified(13,' ') + m_xSent.leftJustified(14,' ') + m_xRcvd;
       m_msgAvgWidget->contestAddLog(m_nContest,t);
     }
+    m_xSent="";
+    m_xRcvd="";
   } else {
     MessageBox::warning_message (this, tr("File Open Error"),
       tr("Cannot open \"%1\" for append: %2").arg(f.fileName()).arg(f.errorString()));
