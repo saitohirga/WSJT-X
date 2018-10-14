@@ -4286,7 +4286,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
      || dtext.contains (" " + m_baseCall + "/")
      || (firstcall == "DE")) {
     QString w2="";
-    if(message_words.size()>=3) message_words.at(2);
+    if(message_words.size()>=3) w2=message_words.at(2);
     QString w34="";
     if(message_words.size()>=4) w34=message_words.at(3);
     int nrpt=w2.toInt();
