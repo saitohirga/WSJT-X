@@ -3127,7 +3127,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
       }
     }
     bool bEU_VHF_w2=(nrpt>=520001 and nrpt<=594000);
-    if(bEU_VHF_w2) m_xRcvd=message.string().left(45).trimmed().right(13);
+    if(bEU_VHF_w2) m_xRcvd=message.string().trimmed().right(13);
     if (m_auto
         && (m_QSOProgress==REPLYING  or (!ui->tx1->isEnabled () and m_QSOProgress==REPORT))
         && qAbs (ui->TxFreqSpinBox->value () - df) <= int (stop_tolerance)
@@ -5234,6 +5234,9 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
     if(m_nContest==EU_VHF) {
       m_rptSent=m_xSent.split(" ").at(0).left(2);
       m_rptRcvd=m_xRcvd.split(" ").at(0).left(2);
+      m_hisGrid=m_xRcvd.split(" ").at(1);
+      grid=m_hisGrid;
+      ui->dxGridEntry->setText(grid);
     }
     if(m_nContest==FIELD_DAY) {
       m_rptSent=m_xSent.split(" ").at(0);
