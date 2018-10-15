@@ -1091,7 +1091,8 @@ void MainWindow::readSettings()
   ui->cbFirst->setChecked(m_settings->value("CallFirst",true).toBool());
   ui->comboBoxHoundSort->setCurrentIndex(m_settings->value("HoundSort",3).toInt());
   ui->sbNlist->setValue(m_settings->value("FoxNlist",12).toInt());
-  ui->sbNslots->setValue(m_settings->value("FoxNslots",5).toInt());
+  m_Nslots=m_settings->value("FoxNslots",5).toInt();
+  ui->sbNslots->setValue(m_Nslots);
   ui->sbMax_dB->setValue(m_settings->value("FoxMaxDB",30).toInt());
   m_settings->endGroup();
 
@@ -3757,7 +3758,7 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-//    qDebug() << "OneSec:" << m_nContest << m_msgAvgWidget;
+//    qDebug() << "OneSec:" << m_nContest << m_Nslots;
     if(!m_msgAvgWidget and m_nContest>0 and m_nContest<6) on_actionFox_Log_triggered();
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
       if(!m_bVHFwarned) vhfWarning();
