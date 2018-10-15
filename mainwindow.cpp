@@ -5274,7 +5274,7 @@ void MainWindow::cabLog()
     int nfreq=m_freqNominal/1000;
     if(m_freqNominal>50000000) nfreq=m_freqNominal/1000000;
     QString t;
-    t.sprintf("QSO: %5d RY ",nfreq);
+    t.sprintf("QSO: %5d DG ",nfreq);
     t=t + QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hhmm ") +
         m_config.my_callsign().leftJustified(13,' ') + m_xSent.leftJustified(14,' ') +
         m_hisCall.leftJustified(13,' ') + m_xRcvd;
