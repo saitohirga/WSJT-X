@@ -2697,6 +2697,7 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="actionOnline_User_Guide"/>
     <addaction name="actionLocal_User_Guide"/>
     <addaction name="actionFT8_DXpedition_Mode_User_Guide"/>
+    <addaction name="actionQuick_Start_Guide_v2"/>
     <addaction name="download_samples_action"/>
     <addaction name="separator"/>
     <addaction name="actionKeyboard_shortcuts"/>
@@ -3339,6 +3340,11 @@ QPushButton[state=&quot;ok&quot;] {
   <action name="actionExport_Cabrillo_log">
    <property name="text">
     <string>Export Cabrillo log</string>
+   </property>
+  </action>
+  <action name="actionQuick_Start_Guide_v2">
+   <property name="text">
+    <string>Quick-Start Guide to WSJT-X 2.0</string>
    </property>
   </action>
  </widget>

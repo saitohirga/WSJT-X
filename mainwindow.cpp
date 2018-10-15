@@ -2212,6 +2212,12 @@ void MainWindow::on_actionFT8_DXpedition_Mode_User_Guide_triggered()
 {
   QDesktopServices::openUrl (QUrl {"http://physics.princeton.edu/pulsar/k1jt/FT8_DXpedition_Mode.pdf"});
 }
+
+void MainWindow::on_actionQuick_Start_Guide_v2_triggered()
+{
+  QDesktopServices::openUrl (QUrl {"https://physics.princeton.edu/pulsar/k1jt/Quick_Start_WSJT-X_2.0.pdf"});
+}
+
 void MainWindow::on_actionOnline_User_Guide_triggered()      //Display manual
 {
 #if defined (CMAKE_BUILD)
