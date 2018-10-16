@@ -1852,21 +1852,33 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       on_actionOpen_next_in_directory_triggered();
       return;
     case Qt::Key_F11:
-      n=11;
-      if(e->modifiers() & Qt::ControlModifier) n+=100;
-      if(e->modifiers() & Qt::ShiftModifier) {
-        ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()-60);
-      } else{
-        bumpFqso(n);
+      if((e->modifiers() & Qt::ControlModifier) and (e->modifiers() & Qt::ControlModifier)) {
+        m_bandEdited = true;
+        band_changed(m_freqNominal-2000);
+//        qDebug() << "Down" << m_freqNominal;
+      } else {
+        n=11;
+        if(e->modifiers() & Qt::ControlModifier) n+=100;
+        if(e->modifiers() & Qt::ShiftModifier) {
+          ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()-60);
+        } else{
+          bumpFqso(n);
+        }
       }
       return;
     case Qt::Key_F12:
-      n=12;
-      if(e->modifiers() & Qt::ControlModifier) n+=100;
-      if(e->modifiers() & Qt::ShiftModifier) {
-        ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()+60);
+      if((e->modifiers() & Qt::ControlModifier) and (e->modifiers() & Qt::ControlModifier)) {
+        m_bandEdited = true;
+        band_changed(m_freqNominal+2000);
+//        qDebug() << "Up  " << m_freqNominal;
       } else {
-        bumpFqso(n);
+        n=12;
+        if(e->modifiers() & Qt::ControlModifier) n+=100;
+        if(e->modifiers() & Qt::ShiftModifier) {
+          ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()+60);
+        } else {
+          bumpFqso(n);
+        }
       }
       return;
     case Qt::Key_X:
@@ -1928,7 +1940,13 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         return;
       }
       break;
-  }
+    case Qt::Key_PageUp:
+
+      break;
+    case Qt::Key_PageDown:
+      band_changed(m_freqNominal-2000);
+      qDebug() << "Down" << m_freqNominal;
+      break;  }
 
   QMainWindow::keyPressEvent (e);
 }
