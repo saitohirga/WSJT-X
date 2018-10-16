@@ -1852,7 +1852,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       on_actionOpen_next_in_directory_triggered();
       return;
     case Qt::Key_F11:
-      if((e->modifiers() & Qt::ControlModifier) and (e->modifiers() & Qt::ControlModifier)) {
+      if((e->modifiers() & Qt::ControlModifier) and (e->modifiers() & Qt::ShiftModifier)) {
         m_bandEdited = true;
         band_changed(m_freqNominal-2000);
 //        qDebug() << "Down" << m_freqNominal;
@@ -1867,7 +1867,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       }
       return;
     case Qt::Key_F12:
-      if((e->modifiers() & Qt::ControlModifier) and (e->modifiers() & Qt::ControlModifier)) {
+      if((e->modifiers() & Qt::ControlModifier) and (e->modifiers() & Qt::ShiftModifier)) {
         m_bandEdited = true;
         band_changed(m_freqNominal+2000);
 //        qDebug() << "Up  " << m_freqNominal;
