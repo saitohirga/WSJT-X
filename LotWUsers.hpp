@@ -18,16 +18,20 @@ class LotWUsers final
   Q_OBJECT
 
 public:
-  LotWUsers (QNetworkAccessManager *, QObject * parent = 0);
+  explicit LotWUsers (QNetworkAccessManager *, QObject * parent = 0);
   ~LotWUsers ();
 
-  void load (QString const& lotw_csv_file, bool force_download = false);
+  void set_local_file_path (QString const&);
+
+  Q_SLOT void load (QString const& url, bool force_download = false);
+  Q_SLOT void set_age_constraint (qint64 uploaded_since_days);
 
   // returns true if the specified call sign 'call' has uploaded their
-  // log to LotW in the last 'uploaded_since_days' days
-  Q_SLOT bool user (QString const& call, qint64 uploaded_since_days) const;
+  // log to LotW in the last 'age_constraint_days' days
+  bool user (QString const& call) const;
 
   Q_SIGNAL void LotW_users_error (QString const& reason) const;
+  Q_SIGNAL void load_finished () const;
 
 private:
   class impl;

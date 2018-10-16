@@ -263,6 +263,8 @@ set (wsjt_qt_CXXSRCS
   DoubleClickablePushButton.cpp
   DoubleClickableRadioButton.cpp
   LotWUsers.cpp
+  DecodeHighlightingModel.cpp
+  DecodeHighlightingListView.cpp
   )
 
 set (wsjt_qtmm_CXXSRCS

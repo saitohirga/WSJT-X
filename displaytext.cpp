@@ -7,14 +7,16 @@
 #include <QMenu>
 #include <QAction>
 
+#include "Configuration.hpp"
 #include "LotWUsers.hpp"
+#include "DecodeHighlightingModel.hpp"
 
 #include "qt_helpers.hpp"
 #include "moc_displaytext.cpp"
 
 DisplayText::DisplayText(QWidget *parent)
   : QTextEdit(parent)
-  , m_lotw_users {0}
+  , m_config {nullptr}
   , erase_action_ {new QAction {tr ("&Erase"), this}}
 {
   setReadOnly (true);
@@ -74,13 +76,53 @@ void DisplayText::insertLineSpacer(QString const& line)
   appendText (line, "#d3d3d3");
 }
 
-void DisplayText::appendText(QString const& text, QColor bg,
-                             QString const& call1, QString const& call2)
+namespace
+{
+  void set_colours (Configuration const * config, QColor * bg, QColor * fg, DecodeHighlightingModel::Highlight type)
+  {
+    if (config)
+      {
+        for (auto const& item : config->decode_highlighting ().items ())
+          {
+            if (type == item.type_ && item.enabled_)
+              {
+                if (item.background_.style () != Qt::NoBrush)
+                  {
+                    *bg = item.background_.color ();
+                  }
+                if (item.foreground_.style () != Qt::NoBrush)
+                  {
+                    *fg = item.foreground_.color ();
+                  }
+                break;
+              }
+          }
+      }
+  }
+}
+
+void DisplayText::appendText(QString const& text, QColor bg, QColor fg
+                             , QString const& call1, QString const& call2)
 {
   auto cursor = textCursor ();
   cursor.movePosition (QTextCursor::End);
   auto block_format = cursor.blockFormat ();
-  block_format.setBackground (bg);
+  if (bg.isValid ())
+    {
+      block_format.setBackground (bg);
+    }
+  else
+    {
+      block_format.clearBackground ();
+    }
+  if (fg.isValid ())
+    {
+      block_format.setForeground (fg);
+    }
+  else
+    {
+      block_format.clearForeground ();
+    }
   if (0 == cursor.position ())
     {
       cursor.setBlockFormat (block_format);
@@ -91,10 +133,13 @@ void DisplayText::appendText(QString const& text, QColor bg,
   else
     {
       cursor.insertBlock (block_format);
+      auto char_format = cursor.charFormat ();
+      char_format.clearBackground ();
+      char_format.clearForeground ();
+      cursor.setCharFormat (char_format);
     }
 
   QTextCharFormat format = cursor.charFormat();
-  format.clearBackground();
   int text_index {0};
   if (call1.size ())
     {
@@ -127,7 +172,7 @@ void DisplayText::appendText(QString const& text, QColor bg,
           if (pos != highlighted_calls_.end ())
             {
               format.setBackground (bg);
-              format.clearForeground ();
+              format.setForeground (fg);
               cursor.insertText(text.mid (text_index, call_index - text_index), format);
               if (pos.value ().second.isValid ())
                 {
@@ -142,11 +187,14 @@ void DisplayText::appendText(QString const& text, QColor bg,
             }
         }
     }
-  format.setBackground (bg);
-  format.clearForeground ();
-  if(call2.size () && !m_lotw_users->user (call2, 365)) {
-    format.setForeground(m_color_LoTW);  //Mark LoTW non-users
-  }
+  if (call2.size () && m_config && m_config->lotw_users ().user (call2))
+    {
+      QColor bg;
+      QColor fg;
+      set_colours (m_config, &bg, &fg, DecodeHighlightingModel::Highlight::LotW);
+      if (bg.isValid ()) format.setBackground (bg);
+      if (fg.isValid ()) format.setForeground (fg);
+    }
   cursor.insertText(text.mid (text_index), format);
 
   // position so viewport scrolled to left
@@ -157,7 +205,7 @@ void DisplayText::appendText(QString const& text, QColor bg,
 }
 
 QString DisplayText::appendWorkedB4(QString message, QString const& callsign, QString grid,
-          QColor * bg, LogBook const& logBook, QString currentBand)
+                                    QColor * bg, QColor * fg, LogBook const& logBook, QString currentBand)
 {
   // allow for seconds
   int padding {message.indexOf (" ") > 4 ? 2 : 0};
@@ -192,29 +240,29 @@ QString DisplayText::appendWorkedB4(QString message, QString const& callsign, QS
 
   if (!countryWorkedBefore) {
     // therefore not worked call either
-//    appendage += "!";
-    *bg = m_color_DXCC;
+    //    appendage += "!";
+    set_colours (m_config, bg, fg, DecodeHighlightingModel::Highlight::CQ);
   } else {
     if(!countryB4onBand) {
-      *bg = m_color_DXCCband;
+      set_colours (m_config, bg, fg, DecodeHighlightingModel::Highlight::DXCCBand);
     } else {
       if(!gridB4) {
-        *bg = m_color_NewGrid;
+        set_colours (m_config, bg, fg, DecodeHighlightingModel::Highlight::Grid);
       } else {
         if(!gridB4onBand) {
-          *bg = m_color_NewGridBand;
+          set_colours (m_config, bg, fg, DecodeHighlightingModel::Highlight::GridBand);
         } else {
           if (!callWorkedBefore) {
             // but have worked the country
 //            appendage += "~";
-            *bg = m_color_NewCall;
+            set_colours (m_config, bg, fg, DecodeHighlightingModel::Highlight::Call);
           } else {
             if(!callB4onBand) {
 //              appendage += "~";
-              *bg = m_color_NewCallBand;
+              set_colours (m_config, bg, fg, DecodeHighlightingModel::Highlight::CallBand);
             } else {
 //              appendage += " ";  // have worked this call before
-              *bg = m_color_CQ;
+              set_colours (m_config, bg, fg, DecodeHighlightingModel::Highlight::CQ);
             }
           }
         }
@@ -267,14 +315,15 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
                                      QString currentBand, bool ppfx, bool bCQonly)
 {
   m_bPrincipalPrefix=ppfx;
-  QColor bg {Qt::transparent};
+  QColor bg;
+  QColor fg;
   bool CQcall = false;
   if (decodedText.string ().contains (" CQ ")
       || decodedText.string ().contains (" CQDX ")
       || decodedText.string ().contains (" QRZ "))
     {
       CQcall = true;
-      bg = m_color_CQ;
+      set_colours (m_config, &bg, &fg, DecodeHighlightingModel::Highlight::CQ);
     }
   if(bCQonly and !CQcall) return;
   if (myCall != "" and (decodedText.indexOf (" " + myCall + " ") >= 0
@@ -285,7 +334,7 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
         or decodedText.indexOf ("<" + myCall + " ") >= 0
         or decodedText.indexOf ("<" + myCall + ">") >= 0
         or decodedText.indexOf (" " + myCall + ">") >= 0)) {
-    bg = m_color_MyCall;
+    set_colours (m_config, &bg, &fg, DecodeHighlightingModel::Highlight::MyCall);
   }
   auto message = decodedText.string();
   QString dxCall;
@@ -297,8 +346,8 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
   if (displayDXCCEntity && CQcall)
     // if enabled add the DXCC entity and B4 status to the end of the
     // preformated text line t1
-    message = appendWorkedB4 (message, decodedText.CQersCall(), dxGrid, &bg, logBook, currentBand);
-  appendText (message.trimmed (), bg, decodedText.call (), dxCall);
+    message = appendWorkedB4 (message, decodedText.CQersCall(), dxGrid, &bg, &fg, logBook, currentBand);
+  appendText (message.trimmed (), bg, fg, decodedText.call (), dxCall);
 }
 
 
@@ -322,7 +371,10 @@ void DisplayText::displayTransmittedText(QString text, QString modeTx, qint32 tx
       t = QDateTime::currentDateTimeUtc().toString("hhmm") + \
         "  Tx      " + t2 + t1 + text;
     }
-    appendText (t, m_color_TxMsg);
+    QColor bg;
+    QColor fg;
+    set_colours (m_config, &bg, &fg, DecodeHighlightingModel::Highlight::Tx);
+    appendText (t, bg, fg);
 }
 
 void DisplayText::displayQSY(QString text)
@@ -331,9 +383,9 @@ void DisplayText::displayQSY(QString text)
   appendText (t, "hotpink");
 }
 
-void DisplayText::displayFoxToBeCalled(QString t, QColor bg)
+void DisplayText::displayFoxToBeCalled(QString t, QColor bg, QColor fg)
 {
-  appendText(t,bg);
+  appendText (t, bg, fg);
 }
 
 namespace
@@ -428,21 +480,4 @@ void DisplayText::highlight_callsign (QString const& callsign, QColor const& bg,
         }
     }
   setCurrentCharFormat (old_format);
-}
-
-void DisplayText::setDecodedTextColors(QColor color_CQ, QColor color_MyCall,
-      QColor color_DXCC, QColor color_DXCCband,QColor color_NewCall,QColor color_NewCallBand,
-      QColor color_NewGrid, QColor color_NewGridBand,QColor color_TxMsg,QColor color_LoTW)
-{
-// Save the color highlighting scheme selected by the user.
-  m_color_CQ=color_CQ;
-  m_color_DXCC=color_DXCC;
-  m_color_DXCCband=color_DXCCband;
-  m_color_MyCall=color_MyCall;
-  m_color_NewCall=color_NewCall;
-  m_color_NewCallBand=color_NewCallBand;
-  m_color_NewGrid=color_NewGrid;
-  m_color_NewGridBand=color_NewGridBand;
-  m_color_TxMsg=color_TxMsg;
-  m_color_LoTW=color_LoTW;
 }

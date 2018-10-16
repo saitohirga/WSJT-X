@@ -387,8 +387,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->dxGridEntry->setValidator (new MaidenheadLocatorValidator {this});
   ui->dxCallEntry->setValidator (new CallsignValidator {this});
   ui->sbTR->values ({5, 10, 15, 30});
-  ui->decodedTextBrowser->setLotWUsers (&m_config.lotw_users ());
-  ui->decodedTextBrowser2->setLotWUsers (&m_config.lotw_users ());
+  ui->decodedTextBrowser->set_configuration (&m_config);
+  ui->decodedTextBrowser2->set_configuration (&m_config);
 
   m_baseCall = Radio::base_callsign (m_config.my_callsign ());
   m_opCall = m_config.opCall();
@@ -749,7 +749,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->decodedTextLabel->setText(t);
   ui->decodedTextLabel2->setText(t);
   readSettings();            //Restore user's setup parameters
-  setColorHighlighting();    //Set the color highlighting scheme for decoded text.
   m_audioThread.start (m_audioThreadPriority);
 
 #ifdef WIN32
@@ -1203,7 +1202,7 @@ void MainWindow::setDecodedTextFont (QFont const& font)
   ui->decodedTextBrowser->setContentFont (font);
   ui->decodedTextBrowser2->setContentFont (font);
   ui->textBrowser4->setContentFont(font);
-  ui->textBrowser4->displayFoxToBeCalled(" ","#ffffff");
+  ui->textBrowser4->displayFoxToBeCalled(" ");
   ui->textBrowser4->setText("");
   auto style_sheet = "QLabel {" + font_as_stylesheet (font) + '}';
   ui->decodedTextLabel->setStyleSheet (ui->decodedTextLabel->styleSheet () + style_sheet);
@@ -1690,22 +1689,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     }
     m_opCall=m_config.opCall();
   }
-  setColorHighlighting();
 }
-
-void MainWindow::setColorHighlighting()
-{
-//Inform the decoded text windows about our color-highlighting scheme.
-  ui->decodedTextBrowser->setDecodedTextColors(m_config.color_CQ(),m_config.color_MyCall(),
-       m_config.color_DXCC(),m_config.color_DXCCband(),m_config.color_NewCall(),
-       m_config.color_NewCallBand(),m_config.color_NewGrid(),m_config.color_NewGridBand(),
-       m_config.color_TxMsg(),m_config.color_LoTW());
-  ui->decodedTextBrowser2->setDecodedTextColors(m_config.color_CQ(),m_config.color_MyCall(),
-       m_config.color_DXCC(),m_config.color_DXCCband(),m_config.color_NewCall(),
-       m_config.color_NewCallBand(),m_config.color_NewGrid(),m_config.color_NewGridBand(),
-       m_config.color_TxMsg(),m_config.color_LoTW());
-}
-
 
 void MainWindow::on_monitorButton_clicked (bool checked)
 {
@@ -2175,7 +2159,7 @@ void MainWindow::closeEvent(QCloseEvent * e)
   m_prefixes.reset ();
   m_shortcuts.reset ();
   m_mouseCmnds.reset ();
-  m_colorHighlighting.reset();
+  m_colorHighlighting.reset ();
   if(m_mode!="MSK144" and m_mode!="FT8") killFile();
   float sw=0.0;
   int nw=400;
@@ -2383,16 +2367,14 @@ void MainWindow::on_actionFox_Log_triggered()
 
 void MainWindow::on_actionColors_triggered()
 {
-  if (!m_colorHighlighting) {
-    m_colorHighlighting.reset (new ColorHighlighting {m_settings});
-  }
-  m_colorHighlighting->showNormal();
+  if (!m_colorHighlighting)
+    {
+      m_colorHighlighting.reset (new ColorHighlighting {m_settings, m_config.decode_highlighting ()});
+      connect (&m_config, &Configuration::decode_highlighting_changed, m_colorHighlighting.data (), &ColorHighlighting::set_items);
+    }
+  m_colorHighlighting->showNormal ();
   m_colorHighlighting->raise ();
   m_colorHighlighting->activateWindow ();
-  m_colorHighlighting->colorHighlightlingSetup(m_config.color_CQ(),m_config.color_MyCall(),
-       m_config.color_DXCC(),m_config.color_DXCCband(),m_config.color_NewCall(),
-       m_config.color_NewCallBand(),m_config.color_NewGrid(),m_config.color_NewGridBand(),
-       m_config.color_TxMsg(),m_config.color_LoTW());
 }
 
 void MainWindow::on_actionMessage_averaging_triggered()
@@ -3330,13 +3312,9 @@ void MainWindow::guiUpdate()
         auto const& message = tr ("Please choose another Tx frequency."
                                   " WSJT-X will not knowingly transmit another"
                                   " mode in the WSPR sub-band on 30m.");
-#if QT_VERSION >= 0x050400
         QTimer::singleShot (0, [=] { // don't block guiUpdate
             MessageBox::warning_message (this, tr ("WSPR Guard Band"), message);
           });
-#else
-        MessageBox::warning_message (this, tr ("WSPR Guard Band"), message);
-#endif
       }
     }
 
@@ -3351,13 +3329,9 @@ void MainWindow::guiUpdate()
           auto const& message = tr ("Please choose another dial frequency."
                                     " WSJT-X will not operate in Fox mode"
                                     " in the standard FT8 sub-bands.");
-#if QT_VERSION >= 0x050400
           QTimer::singleShot (0, [=] {               // don't block guiUpdate
             MessageBox::warning_message (this, tr ("Fox Mode warning"), message);
           });
-#else
-          MessageBox::warning_message (this, tr ("Fox Mode warning"), message);
-#endif
           break;
         }
       }
@@ -7681,13 +7655,9 @@ void MainWindow::write_transmit_entry (QString const& file_name)
     {
       auto const& message = tr ("Cannot open \"%1\" for append: %2")
         .arg (f.fileName ()).arg (f.errorString ());
-#if QT_VERSION >= 0x050400
       QTimer::singleShot (0, [=] {                   // don't block guiUpdate
           MessageBox::warning_message (this, tr ("Log File Error"), message);
         });
-#else
-      MessageBox::warning_message (this, tr ("Log File Error"), message);
-#endif
     }
 }
 
@@ -7876,9 +7846,9 @@ void MainWindow::selectHound(QString line)
   if(rpt.mid(0,1) != "-" and rpt.mid(0,1) != "+") t2="+" + rpt;
   if(t2.length()==2) t2=t2.mid(0,1) + "0" + t2.mid(1,1);
   t1=t1.mid(0,12) + t2;
-  ui->textBrowser4->displayFoxToBeCalled(t1,"#ffffff");  // Add hound call and rpt to tb4
-  t1=t1 + " " + houndGrid;                               // Append the grid
-  m_houndQueue.enqueue(t1);                              // Put this hound into the queue
+  ui->textBrowser4->displayFoxToBeCalled(t1); // Add hound call and rpt to tb4
+  t1=t1 + " " + houndGrid;                    // Append the grid
+  m_houndQueue.enqueue(t1);     // Put this hound into the queue
   writeFoxQSO(" Sel:  " + t1);
   QTextCursor cursor = ui->textBrowser4->textCursor();
   cursor.setPosition(0);                                 // Scroll to top of list

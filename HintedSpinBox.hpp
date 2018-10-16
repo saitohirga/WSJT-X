@@ -47,7 +47,7 @@ protected:
   void stepBy (int steps) override;
 
 private:
-  std::vector<int> values_;
+  values_type values_;
 };
 
 #endif

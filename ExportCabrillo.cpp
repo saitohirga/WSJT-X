@@ -1,11 +1,13 @@
 #include "ExportCabrillo.h"
-#include "ui_ExportCabrillo.h"
 #include "SettingsGroup.hpp"
 #include "MessageBox.hpp"
 
 #include <QApplication>
 #include <QDebug>
 #include <QFileDialog>
+
+#include "ui_ExportCabrillo.h"
+#include "moc_ExportCabrillo.cpp"
 
 ExportCabrillo::ExportCabrillo(QSettings *settings, QWidget *parent) :
   QDialog(parent),

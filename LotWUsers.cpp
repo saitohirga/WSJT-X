@@ -37,16 +37,17 @@ public:
     , network_manager_ {network_manager}
     , url_valid_ {false}
     , redirect_count_ {0}
+    , age_constraint_ {365}
   {
   }
 
-  void load (bool forced_fetch)
+  void load (QString const& url, bool forced_fetch)
   {
     auto csv_file_name = csv_file_.fileName ();
     abort ();                   // abort any active download
     if (!QFileInfo::exists (csv_file_name) || forced_fetch)
       {
-        current_url_.setUrl ("https://lotw.arrl.org/lotw-user-activity.csv");
+        current_url_.setUrl (url);
         redirect_count_ = 0;
         download (current_url_);
       }
@@ -59,10 +60,11 @@ public:
 
   void download (QUrl url)
   {
-    if (QNetworkAccessManager::Accessible != network_manager_->networkAccessible ()) {
-      // try and recover network access for QNAM
-      network_manager_->setNetworkAccessible (QNetworkAccessManager::Accessible);
-    }
+    if (QNetworkAccessManager::Accessible != network_manager_->networkAccessible ())
+      {
+        // try and recover network access for QNAM
+        network_manager_->setNetworkAccessible (QNetworkAccessManager::Accessible);
+      }
 
     if (url.isValid () && !QSslSocket::supportsSsl ())
       {
@@ -89,8 +91,11 @@ public:
 
   void reply_finished ()
   {
-    if (!reply_) return;        // we probably deleted it in an
-                                // earlier call
+    if (!reply_)
+      {
+        Q_EMIT self_->load_finished ();
+        return;           // we probably deleted it in an earlier call
+      }
     QUrl redirect_url {reply_->attribute (QNetworkRequest::RedirectionTargetAttribute).toUrl ()};
     if (reply_->error () == QNetworkReply::NoError && !redirect_url.isEmpty ())
       {
@@ -104,6 +109,7 @@ public:
             Q_EMIT self_->LotW_users_error (tr ("Network Error - Too many redirects:\n\'%1\'")
                                             .arg (redirect_url.toDisplayString ()));
             url_valid_ = false; // reset
+            Q_EMIT self_->load_finished ();
           }
       }
     else if (reply_->error () != QNetworkReply::NoError)
@@ -117,6 +123,7 @@ public:
             Q_EMIT self_->LotW_users_error (tr ("Network Error:\n%1")
                                             .arg (reply_->errorString ()));
           }
+        Q_EMIT self_->load_finished ();
       }
     else
       {
@@ -125,6 +132,7 @@ public:
             Q_EMIT self_->LotW_users_error (tr ("File System Error - Cannot commit changes to:\n\"%1\"")
                                             .arg (csv_file_.fileName ()));
             url_valid_ = false; // reset
+            Q_EMIT self_->load_finished ();
           }
         else
           {
@@ -137,7 +145,6 @@ public:
             else
               {
                 url_valid_ = false; // reset
-//                qDebug () << "LotW Users Data downloaded from" << reply_->url ().toDisplayString ();
                 // load the database asynchronously
                 future_load_ = std::async (std::launch::async, &LotWUsers::impl::load_dictionary, this, csv_file_.fileName ());
               }
@@ -219,6 +226,7 @@ public:
   QPointer<QNetworkReply> reply_;
   std::future<dictionary> future_load_;
   dictionary last_uploaded_;
+  qint64 age_constraint_;       // days
 };
 
 #include "LotWUsers.moc"
@@ -233,13 +241,22 @@ LotWUsers::~LotWUsers ()
 {
 }
 
-void LotWUsers::load (QString const& lotw_csv_file, bool force_download)
+void LotWUsers::set_local_file_path (QString const& path)
 {
-  m_->csv_file_.setFileName (lotw_csv_file);
-  m_->load (force_download);
+  m_->csv_file_.setFileName (path);
 }
 
-bool LotWUsers::user (QString const& call, qint64 uploaded_since_days) const
+void LotWUsers::load (QString const& url, bool force_download)
+{
+  m_->load (url, force_download);
+}
+
+void LotWUsers::set_age_constraint (qint64 uploaded_since_days)
+{
+  m_->age_constraint_ = uploaded_since_days;
+}
+
+bool LotWUsers::user (QString const& call) const
 {
   if (m_->future_load_.valid ())
     {
@@ -252,11 +269,12 @@ bool LotWUsers::user (QString const& call, qint64 uploaded_since_days) const
         {
           Q_EMIT LotW_users_error (e.what ());
         }
+      Q_EMIT load_finished ();
     }
   auto p = m_->last_uploaded_.constFind (call);
   if (p != m_->last_uploaded_.end ())
     {
-      return p.value ().daysTo (QDate::currentDate ()) <= uploaded_since_days;
+      return p.value ().daysTo (QDate::currentDate ()) <= m_->age_constraint_;
     }
   return false;
 }
