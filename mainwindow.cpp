@@ -1090,7 +1090,8 @@ void MainWindow::readSettings()
   ui->cbFirst->setChecked(m_settings->value("CallFirst",true).toBool());
   ui->comboBoxHoundSort->setCurrentIndex(m_settings->value("HoundSort",3).toInt());
   ui->sbNlist->setValue(m_settings->value("FoxNlist",12).toInt());
-  ui->sbNslots->setValue(m_settings->value("FoxNslots",5).toInt());
+  m_Nslots=m_settings->value("FoxNslots",5).toInt();
+  ui->sbNslots->setValue(m_Nslots);
   ui->sbMax_dB->setValue(m_settings->value("FoxMaxDB",30).toInt());
   m_settings->endGroup();
 
@@ -1835,21 +1836,33 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       on_actionOpen_next_in_directory_triggered();
       return;
     case Qt::Key_F11:
-      n=11;
-      if(e->modifiers() & Qt::ControlModifier) n+=100;
-      if(e->modifiers() & Qt::ShiftModifier) {
-        ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()-60);
-      } else{
-        bumpFqso(n);
+      if((e->modifiers() & Qt::ControlModifier) and (e->modifiers() & Qt::ShiftModifier)) {
+        m_bandEdited = true;
+        band_changed(m_freqNominal-2000);
+//        qDebug() << "Down" << m_freqNominal;
+      } else {
+        n=11;
+        if(e->modifiers() & Qt::ControlModifier) n+=100;
+        if(e->modifiers() & Qt::ShiftModifier) {
+          ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()-60);
+        } else{
+          bumpFqso(n);
+        }
       }
       return;
     case Qt::Key_F12:
-      n=12;
-      if(e->modifiers() & Qt::ControlModifier) n+=100;
-      if(e->modifiers() & Qt::ShiftModifier) {
-        ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()+60);
+      if((e->modifiers() & Qt::ControlModifier) and (e->modifiers() & Qt::ShiftModifier)) {
+        m_bandEdited = true;
+        band_changed(m_freqNominal+2000);
+//        qDebug() << "Up  " << m_freqNominal;
       } else {
-        bumpFqso(n);
+        n=12;
+        if(e->modifiers() & Qt::ControlModifier) n+=100;
+        if(e->modifiers() & Qt::ShiftModifier) {
+          ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()+60);
+        } else {
+          bumpFqso(n);
+        }
       }
       return;
     case Qt::Key_X:
@@ -1911,7 +1924,13 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         return;
       }
       break;
-  }
+    case Qt::Key_PageUp:
+
+      break;
+    case Qt::Key_PageDown:
+      band_changed(m_freqNominal-2000);
+      qDebug() << "Down" << m_freqNominal;
+      break;  }
 
   QMainWindow::keyPressEvent (e);
 }
@@ -2196,6 +2215,12 @@ void MainWindow::on_actionFT8_DXpedition_Mode_User_Guide_triggered()
 {
   QDesktopServices::openUrl (QUrl {"http://physics.princeton.edu/pulsar/k1jt/FT8_DXpedition_Mode.pdf"});
 }
+
+void MainWindow::on_actionQuick_Start_Guide_v2_triggered()
+{
+  QDesktopServices::openUrl (QUrl {"https://physics.princeton.edu/pulsar/k1jt/Quick_Start_WSJT-X_2.0.pdf"});
+}
+
 void MainWindow::on_actionOnline_User_Guide_triggered()      //Display manual
 {
 #if defined (CMAKE_BUILD)
@@ -3109,7 +3134,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
       }
     }
     bool bEU_VHF_w2=(nrpt>=520001 and nrpt<=594000);
-    if(bEU_VHF_w2) m_xRcvd=message.string().left(45).trimmed().right(13);
+    if(bEU_VHF_w2) m_xRcvd=message.string().trimmed().right(13);
     if (m_auto
         && (m_QSOProgress==REPLYING  or (!ui->tx1->isEnabled () and m_QSOProgress==REPORT))
         && qAbs (ui->TxFreqSpinBox->value () - df) <= int (stop_tolerance)
@@ -3725,7 +3750,7 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-//    qDebug() << "OneSec:" << m_nContest << m_msgAvgWidget;
+//    qDebug() << "OneSec:" << m_nContest << m_Nslots;
     if(!m_msgAvgWidget and m_nContest>0 and m_nContest<6) on_actionFox_Log_triggered();
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
       if(!m_bVHFwarned) vhfWarning();
@@ -4784,7 +4809,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       t=t0 + "R" + rpt;
       msgtype(t, ui->tx3);
     }
-    if(m_mode=="MSK144" and m_bShMsgs) {
+    if(m_mode=="MSK144" and m_bShMsgs and m_nContest==NONE) {
       t=t0 + "R" + rpt;
       msgtype(t, ui->tx3);
       m_send_RR73=false;
@@ -5208,6 +5233,9 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
     if(m_nContest==EU_VHF) {
       m_rptSent=m_xSent.split(" ").at(0).left(2);
       m_rptRcvd=m_xRcvd.split(" ").at(0).left(2);
+      m_hisGrid=m_xRcvd.split(" ").at(1);
+      grid=m_hisGrid;
+      ui->dxGridEntry->setText(grid);
     }
     if(m_nContest==FIELD_DAY) {
       m_rptSent=m_xSent.split(" ").at(0);
@@ -5238,7 +5266,7 @@ void MainWindow::cabLog()
     int nfreq=m_freqNominal/1000;
     if(m_freqNominal>50000000) nfreq=m_freqNominal/1000000;
     QString t;
-    t.sprintf("QSO: %5d RY ",nfreq);
+    t.sprintf("QSO: %5d DG ",nfreq);
     t=t + QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hhmm ") +
         m_config.my_callsign().leftJustified(13,' ') + m_xSent.leftJustified(14,' ') +
         m_hisCall.leftJustified(13,' ') + m_xRcvd;
