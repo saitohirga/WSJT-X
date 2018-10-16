@@ -98,9 +98,5 @@ QVariant Modes::headerData (int section, Qt::Orientation orientation, int role) 
   return result;
 }
 
-#if !defined (QT_NO_DEBUG_STREAM)
-ENUM_QDEBUG_OPS_IMPL (Modes, Mode);
-#endif
-
 ENUM_QDATASTREAM_OPS_IMPL (Modes, Mode);
 ENUM_CONVERSION_OPS_IMPL (Modes, Mode);

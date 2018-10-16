@@ -20,6 +20,12 @@ MessageAveraging::MessageAveraging(QSettings * settings, QFont const& font, QWid
   read_settings ();
   if(m_title_.contains("Fox")) {
     ui->header_label->setText("   Date     Time   Call Grid Sent Rcvd Band");
+  } else if(m_title_.contains("Contest")) {
+    ui->header_label->setText("    Date    UTC   Band Call          Sent          Rcvd");
+    ui->lab1->setText("QSOs: 0");
+    ui->lab2->setText("Mults: 0");
+    ui->lab3->setText("Score: 0");
+    ui->lab4->setText("Rate: 0");
   } else {
     ui->header_label->setText("   UTC  Sync    DT  Freq   ");
     ui->lab1->setVisible(false);
@@ -27,6 +33,7 @@ MessageAveraging::MessageAveraging(QSettings * settings, QFont const& font, QWid
     ui->lab3->setVisible(false);
     ui->lab4->setVisible(false);
   }
+
   setWindowTitle(m_title_);
   m_nLogged_=0;
 }
@@ -74,6 +81,7 @@ void MessageAveraging::read_settings ()
   SettingsGroup group {settings_, "MessageAveraging"};
   restoreGeometry (settings_->value ("window/geometry").toByteArray ());
   m_title_=settings_->value("window/title","Message Averaging").toString();
+  m_nContest_=settings_->value("nContest",0).toInt();
 }
 
 void MessageAveraging::write_settings ()
@@ -81,6 +89,7 @@ void MessageAveraging::write_settings ()
   SettingsGroup group {settings_, "MessageAveraging"};
   settings_->setValue ("window/geometry", saveGeometry ());
   settings_->setValue("window/title",m_title_);
+  settings_->setValue("nContest",m_nContest_);
 }
 
 void MessageAveraging::displayAvg(QString const& t)
@@ -88,11 +97,19 @@ void MessageAveraging::displayAvg(QString const& t)
   ui->msgAvgPlainTextEdit->setPlainText(t);
 }
 
-void MessageAveraging::foxLogSetup()
+void MessageAveraging::foxLogSetup(int nContest)
 {
-  m_title_=QApplication::applicationName () + " - Fox Log";
-  setWindowTitle(m_title_);
-  ui->header_label->setText("   Date    Time  Call    Grid Sent Rcvd Band");
+  if(nContest==5) {
+    m_title_=QApplication::applicationName () + " - Fox Log";
+    setWindowTitle(m_title_);
+    ui->header_label->setText("   Date    Time  Call    Grid Sent Rcvd Band");
+  }
+  if(nContest>0 and nContest<5) {
+    m_title_=QApplication::applicationName () + " - Contest Log";
+    setWindowTitle(m_title_);
+    ui->header_label->setText("    Date    UTC   Band Call          Sent          Rcvd");
+  }
+  m_nContest_=nContest;
 }
 
 void MessageAveraging::foxLabCallers(int n)
@@ -122,5 +139,21 @@ void MessageAveraging::foxAddLog(QString logLine)
   m_nLogged_++;
   QString t;
   t.sprintf("Logged: %d",m_nLogged_);
+  ui->lab3->setText(t);
+}
+
+void MessageAveraging::contestAddLog(qint32 nContest, QString logLine)
+{
+  m_nContest_=nContest;
+  ui->msgAvgPlainTextEdit->appendPlainText(logLine);
+  m_nLogged_++;
+  QString t;
+  t.sprintf("QSOs: %d",m_nLogged_);
+  ui->lab1->setText(t);
+  if(m_mult_<1) m_mult_=1;
+  t.sprintf("Mults: %d",m_mult_);
+  ui->lab2->setText(t);
+  int score=m_mult_*m_nLogged_;
+  t.sprintf("Score: %d",score);
   ui->lab3->setText(t);
 }

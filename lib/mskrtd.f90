@@ -15,10 +15,10 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
 
   character*4 decsym                 !"&" for mskspd or "^" for long averages
   character*37 msgreceived           !Decoded message
-  character*22 msgrx22               !Sh messages are returned as 22chars
-  character*37 msglast,msglastswl   !Used for dupechecking
+  character*37 msglast,msglastswl    !Used for dupechecking
   character*80 line                  !Formatted line with UTC dB T Freq Msg
   character*12 mycall,hiscall
+  character*13 mycall13
   character*6 mygrid
   character*37 recent_shmsgs(NSHMEM)
   character*512 datadir
@@ -55,7 +55,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
        1,1,1,1,1,1,1,0/
   data xmc/2.0,4.5,2.5,3.5/     !Used to set time at center of averaging mask
   save first,tsec0,nutc00,pnoise,cdat,msglast,msglastswl,     &
-       nsnrlast,nsnrlastswl,nhasharray,recent_shmsgs
+       nsnrlast,nsnrlastswl,nhasharray,recent_shmsgs,mycall13
 
   if(first) then
      tsec0=tsec
@@ -71,10 +71,15 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
      msglastswl='                                     '
      nsnrlast=-99
      nsnrlastswl=-99
+     mycall13=mycall//" "
+     call save_hash_call(mycall13,n10,n12,n22) ! Make sure that my callsign is in hashtable
      first=.false.
   endif
 
   fc=nrxfreq
+
+! Reset if mycall changes
+  if(mycall13(1:12).ne.mycall) first=.true.
 
 ! Dupe checking setup 
   if(nutc00.ne.nutc0 .or. tsec.lt.tsec0) then ! reset dupe checker
@@ -119,9 +124,8 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   call msk144spd(cdat,np,ntol,ndecodesuccess,msgreceived,fc,fest,tdec,navg,ct, &
                  softbits)
   if(ndecodesuccess.eq.0 .and. (bshmsg.or.bswl)) then
-     call msk40spd(cdat,np,ntol,mycall(1:6),hiscall(1:6),bswl,nhasharray,      &
-              ndecodesuccess,msgrx22,fc,fest,tdec,navg)
-     if( ndecodesuccess .ge. 1 ) msgreceived(1:22)=msgrx22
+     call msk40spd(cdat,np,ntol,mycall,hiscall,bswl,nhasharray,      &
+              ndecodesuccess,msgreceived,fc,fest,tdec,navg)
   endif
   if( ndecodesuccess .ge. 1 ) then
     tdec=tsec+tdec
@@ -184,7 +188,12 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   nsnr=nint(snr0)
 
   bshdecode=.false.
-  if( msgreceived(1:1) .eq. '<' ) bshdecode=.true.
+  if( msgreceived(1:1) .eq. '<' ) then
+    i2=index(msgreceived,'>')
+    i1=0
+    if(i2.gt.0) i1=index(msgreceived(1:i2),' ')
+    if(i1.gt.0) bshdecode=.true. 
+  endif
 
   if(.not. bshdecode) then
     call msk144signalquality(ct,snr0,fest,tdec,softbits,msgreceived,hiscall,   &
@@ -210,15 +219,17 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
      if(.not. bshdecode) then
         call update_hasharray(nhasharray)
      endif
-     if( .not.bshdecode ) then
-        write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived(1:22),           &
-             navg,ncorrected,eyeopening,char(0)
-1020    format(i6.6,i4,f5.1,i5,a4,a22,i2,i3,f5.1,a1)
-     else
-        write(line,1022) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived(1:22),           &
-             navg,char(0)
-1022    format(i6.6,i4,f5.1,i5,a4,a22,i2,a1)
-     endif
+     write(line,1021) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,char(0)
+1021 format(i6.6,i4,f5.1,i5,a4,a37,a1)
+!     if( .not.bshdecode ) then
+!        write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived(1:22),           &
+!             navg,ncorrected,eyeopening,char(0)
+!1020    format(i6.6,i4,f5.1,i5,a4,a22,i2,i3,f5.1,a1)
+!     else
+!        write(line,1022) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived(1:22),           &
+!             navg,char(0)
+!1022    format(i6.6,i4,f5.1,i5,a4,a22,i2,a1)
+!     endif
   elseif(bswl .and. ndecodesuccess.ge.2) then 
     seenb4=.false.
     do i=1,nshmem
@@ -233,8 +244,9 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
     if(bflag) then
       msglastswl=msgreceived
       nsnrlastswl=nsnr
-      write(line,1022) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,    &
-          navg,char(0)
+      write(line,1021) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,char(0)
+!      write(line,1022) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,    &
+!          navg,char(0)
     endif
   endif
 999 tsec0=tsec

@@ -36,6 +36,7 @@
 #include "astro.h"
 #include "MessageBox.hpp"
 #include "NetworkAccessManager.hpp"
+#include "ExportCabrillo.h"
 
 #define NUM_JT4_SYMBOLS 206                //(72+31)*2, embedded sync
 #define NUM_JT65_SYMBOLS 126               //63 data + 63 sync
@@ -139,6 +140,7 @@ private slots:
   void on_stopButton_clicked();
   void on_actionRelease_Notes_triggered ();
   void on_actionFT8_DXpedition_Mode_User_Guide_triggered();
+  void on_actionQuick_Start_Guide_v2_triggered();
   void on_actionOnline_User_Guide_triggered();
   void on_actionLocal_User_Guide_triggered();
   void on_actionWide_Waterfall_triggered();
@@ -202,6 +204,7 @@ private slots:
   void on_actionErase_FoxQSO_txt_triggered();
   void on_actionErase_cabrillo_log_triggered();
   void on_actionErase_wsjtx_log_adi_triggered();
+  void on_actionExport_Cabrillo_log_triggered();
   void startTx2();
   void startP1();
   void stopTx();
@@ -341,7 +344,6 @@ private:
   QSettings * m_settings;
   QScopedPointer<Ui::MainWindow> ui;
 
-  // other windows
   Configuration m_config;
   WSPRBandHopping m_WSPR_band_hopping;
   bool m_WSPR_tx_next;
@@ -359,6 +361,7 @@ private:
   QScopedPointer<HelpTextWindow> m_mouseCmnds;
   QScopedPointer<MessageAveraging> m_msgAvgWidget;
   QScopedPointer<ColorHighlighting> m_colorHighlighting;
+  QScopedPointer<ExportCabrillo> m_exportCabrillo;
   Transceiver::TransceiverState m_rigState;
   Frequency  m_lastDialFreq;
   QString m_lastBand;
@@ -501,6 +504,7 @@ private:
   bool    m_bAutoReply;
   bool    m_bCheckedContest;
   bool    m_bWarnedSplit=false;
+  bool    m_bTUmsg;
 
   enum
     {
@@ -518,7 +522,9 @@ private:
     NA_VHF,
     EU_VHF,
     FIELD_DAY,
-    RTTY
+    RTTY,
+    FOX,
+    HOUND
   } m_nContest;           //Contest type
 
   enum {CALL, GRID, DXCC, MULT};
@@ -582,6 +588,7 @@ private:
   QString m_modeTx;
   QString m_fnameWE;            // save path without extension
   QString m_rpt;
+  QString m_nextRpt;
   QString m_rptSent;
   QString m_rptRcvd;
   QString m_qsoStart;
@@ -599,6 +606,8 @@ private:
   QString m_xSent;               //Contest exchange sent
   QString m_xRcvd;               //Contest exchange received
   QString m_currentBand;
+  QString m_nextCall;
+  QString m_nextGrid;
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;
@@ -694,6 +703,7 @@ private:
   void fast_config(bool b);
   void CQTxFreq();
   void cabLog();
+  void useNextCall();
   bool isWorked(int itype, QString key, float fMHz=0, QString="");
 
   QString save_wave_file (QString const& name

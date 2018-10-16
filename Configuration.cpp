@@ -157,7 +157,6 @@
 #include <QStandardPaths>
 #include <QFont>
 #include <QFontDialog>
-#include <QColorDialog>
 #include <QSerialPortInfo>
 #include <QScopedPointer>
 #include <QDebug>
@@ -180,6 +179,9 @@
 #include "MessageBox.hpp"
 #include "MaidenheadLocatorValidator.hpp"
 #include "CallsignValidator.hpp"
+#include "LotWUsers.hpp"
+#include "ExchangeValidator.hpp"
+#include "DecodeHighlightingModel.hpp"
 
 #include "ui_Configuration.h"
 #include "moc_Configuration.cpp"
@@ -354,8 +356,11 @@ public:
   using FrequencyDelta = Radio::FrequencyDelta;
   using port_type = Configuration::port_type;
 
-  explicit impl (Configuration * self, QDir const& temp_directory,
-                 QSettings * settings, QWidget * parent);
+  explicit impl (Configuration * self
+                 , QNetworkAccessManager * network_manager
+                 , QDir const& temp_directory
+                 , QSettings * settings
+                 , QWidget * parent);
   ~impl ();
 
   bool have_rig ();
@@ -440,22 +445,19 @@ private:
   Q_SLOT void on_calibration_slope_ppm_spin_box_valueChanged (double);
   Q_SLOT void handle_transceiver_update (TransceiverState const&, unsigned sequence_number);
   Q_SLOT void handle_transceiver_failure (QString const& reason);
-  Q_SLOT void on_pbCQmsg_clicked();
-  Q_SLOT void on_pbMyCall_clicked();
-  Q_SLOT void on_pbTxMsg_clicked();
-  Q_SLOT void on_pbNewDXCC_clicked();
-  Q_SLOT void on_pbNewDXCCband_clicked();
-  Q_SLOT void on_pbNewCall_clicked();
-  Q_SLOT void on_pbNewCallBand_clicked();
-  Q_SLOT void on_pbNewGrid_clicked();
-  Q_SLOT void on_pbNewGridBand_clicked();
-  Q_SLOT void on_pbLoTW_clicked();
-  Q_SLOT void on_pbResetDefaults_clicked();
+  Q_SLOT void on_reset_highlighting_to_defaults_push_button_clicked (bool);
+  Q_SLOT void on_LotW_CSV_fetch_push_button_clicked (bool);
   Q_SLOT void on_cbFox_clicked (bool);
   Q_SLOT void on_cbHound_clicked (bool);
   Q_SLOT void on_cbx2ToneSpacing_clicked(bool);
   Q_SLOT void on_cbx4ToneSpacing_clicked(bool);
   Q_SLOT void on_rbNone_toggled(bool);
+  Q_SLOT void on_rbFieldDay_toggled();
+  Q_SLOT void on_rbRTTYroundup_toggled();
+  Q_SLOT void on_FieldDay_Exchange_textChanged();
+  Q_SLOT void on_RTTY_Exchange_textChanged();
+  Q_SLOT void on_prompt_to_log_check_box_clicked(bool);
+  Q_SLOT void on_cbAutoLog_clicked(bool);
 
   // typenames used as arguments must match registered type names :(
   Q_SIGNAL void start_transceiver (unsigned seqeunce_number) const;
@@ -471,6 +473,7 @@ private:
 
   QScopedPointer<Ui::configuration_dialog> ui_;
 
+  QNetworkAccessManager * network_manager_;
   QSettings * settings_;
 
   QDir doc_dir_;
@@ -487,6 +490,8 @@ private:
 
   QFont decoded_text_font_;
   QFont next_decoded_text_font_;
+
+  LotWUsers lotw_users_;
 
   bool restart_sound_input_device_;
   bool restart_sound_output_device_;
@@ -516,9 +521,13 @@ private:
   QAction * reset_frequencies_action_;
   FrequencyDialog * frequency_dialog_;
 
-  QAction * station_delete_action_;
-  QAction * station_insert_action_;
+  QAction station_delete_action_;
+  QAction station_insert_action_;
   StationDialog * station_dialog_;
+
+  DecodeHighlightingModel decode_highlighing_model_;
+  DecodeHighlightingModel next_decode_highlighing_model_;
+  int LotW_days_since_upload_;
 
   TransceiverFactory::ParameterPack rig_params_;
   TransceiverFactory::ParameterPack saved_rig_params_;
@@ -539,26 +548,6 @@ private:
   QString my_grid_;
   QString FD_exchange_;
   QString RTTY_exchange_;
-  QColor color_CQ_;
-  QColor next_color_CQ_;
-  QColor color_MyCall_;
-  QColor next_color_MyCall_;
-  QColor color_TxMsg_;
-  QColor next_color_TxMsg_;
-  QColor color_DXCC_;
-  QColor next_color_DXCC_;
-  QColor color_DXCCband_;
-  QColor next_color_DXCCband_;
-  QColor color_NewCall_;
-  QColor next_color_NewCall_;
-  QColor color_NewCallBand_;
-  QColor next_color_NewCallBand_;
-  QColor color_NewGrid_;
-  QColor next_color_NewGrid_;
-  QColor color_NewGridBand_;
-  QColor next_color_NewGridBand_;
-  QColor color_LoTW_;
-  QColor next_color_LoTW_;
 
   qint32 id_interval_;
   qint32 ntrials_;
@@ -574,6 +563,7 @@ private:
   bool log_as_RTTY_;
   bool report_in_comments_;
   bool prompt_to_log_;
+  bool autoLog_;
   bool insert_blank_;
   bool DXCC_;
   bool ppfx_;
@@ -602,13 +592,9 @@ private:
   QString opCall_;
   QString udp_server_name_;
   port_type udp_server_port_;
-//  QString n1mm_server_name () const;
   QString n1mm_server_name_;
   port_type n1mm_server_port_;
   bool broadcast_to_n1mm_;
-//  port_type n1mm_server_port () const;
-//  bool valid_n1mm_info () const;
-//  bool broadcast_to_n1mm() const;
   bool accept_udp_requests_;
   bool udpWindowToFront_;
   bool udpWindowRestore_;
@@ -630,9 +616,9 @@ private:
 
 
 // delegate to implementation class
-Configuration::Configuration (QDir const& temp_directory,
+Configuration::Configuration (QNetworkAccessManager * network_manager, QDir const& temp_directory,
                               QSettings * settings, QWidget * parent)
-  : m_ {this, temp_directory, settings, parent}
+  : m_ {this, network_manager, temp_directory, settings, parent}
 {
 }
 
@@ -657,16 +643,6 @@ bool Configuration::restart_audio_input () const {return m_->restart_sound_input
 bool Configuration::restart_audio_output () const {return m_->restart_sound_output_device_;}
 auto Configuration::type_2_msg_gen () const -> Type2MsgGen {return m_->type_2_msg_gen_;}
 QString Configuration::my_callsign () const {return m_->my_callsign_;}
-QColor Configuration::color_CQ () const {return m_->color_CQ_;}
-QColor Configuration::color_MyCall () const {return m_->color_MyCall_;}
-QColor Configuration::color_TxMsg () const {return m_->color_TxMsg_;}
-QColor Configuration::color_DXCC () const {return m_->color_DXCC_;}
-QColor Configuration::color_DXCCband() const {return m_->color_DXCCband_;}
-QColor Configuration::color_NewCall () const {return m_->color_NewCall_;}
-QColor Configuration::color_NewCallBand () const {return m_->color_NewCallBand_;}
-QColor Configuration::color_NewGrid () const {return m_->color_NewGrid_;}
-QColor Configuration::color_NewGridBand () const {return m_->color_NewGridBand_;}
-QColor Configuration::color_LoTW() const {return m_->color_LoTW_;}
 QFont Configuration::text_font () const {return m_->font_;}
 QFont Configuration::decoded_text_font () const {return m_->decoded_text_font_;}
 qint32 Configuration::id_interval () const {return m_->id_interval_;}
@@ -687,6 +663,7 @@ bool Configuration::monitor_last_used () const {return m_->rig_is_dummy_ || m_->
 bool Configuration::log_as_RTTY () const {return m_->log_as_RTTY_;}
 bool Configuration::report_in_comments () const {return m_->report_in_comments_;}
 bool Configuration::prompt_to_log () const {return m_->prompt_to_log_;}
+bool Configuration::autoLog() const {return m_->autoLog_;}
 bool Configuration::insert_blank () const {return m_->insert_blank_;}
 bool Configuration::DXCC () const {return m_->DXCC_;}
 bool Configuration::ppfx() const {return m_->ppfx_;}
@@ -735,6 +712,8 @@ QDir Configuration::azel_directory () const {return m_->azel_directory_;}
 QString Configuration::rig_name () const {return m_->rig_params_.rig_name;}
 bool Configuration::pwrBandTxMemory () const {return m_->pwrBandTxMemory_;}
 bool Configuration::pwrBandTuneMemory () const {return m_->pwrBandTuneMemory_;}
+LotWUsers const& Configuration::lotw_users () const {return m_->lotw_users_;}
+DecodeHighlightingModel const& Configuration::decode_highlighting () const {return m_->decode_highlighing_model_;}
 
 void Configuration::set_calibration (CalibrationParams params)
 {
@@ -906,17 +885,19 @@ namespace
   }
 }
 
-Configuration::impl::impl (Configuration * self, QDir const& temp_directory,
-                           QSettings * settings, QWidget * parent)
+Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network_manager
+                           , QDir const& temp_directory, QSettings * settings, QWidget * parent)
   : QDialog {parent}
   , self_ {self}
   , transceiver_thread_ {nullptr}
   , ui_ {new Ui::configuration_dialog}
+  , network_manager_ {network_manager}
   , settings_ {settings}
   , doc_dir_ {doc_path ()}
   , data_dir_ {data_path ()}
   , temp_dir_ {temp_directory}
   , writeable_data_dir_ {QStandardPaths::writableLocation (QStandardPaths::DataLocation)}
+  , lotw_users_ {network_manager_}
   , restart_sound_input_device_ {false}
   , restart_sound_output_device_ {false}
   , frequencies_ {&bands_}
@@ -926,7 +907,10 @@ Configuration::impl::impl (Configuration * self, QDir const& temp_directory,
   , current_offset_ {0}
   , current_tx_offset_ {0}
   , frequency_dialog_ {new FrequencyDialog {&regions_, &modes_, this}}
+  , station_delete_action_ {tr ("&Delete"), nullptr}
+  , station_insert_action_ {tr ("&Insert ..."), nullptr}
   , station_dialog_ {new StationDialog {&next_stations_, &bands_, this}}
+  , LotW_days_since_upload_ {0}
   , last_port_type_ {TransceiverFactory::Capabilities::none}
   , rig_is_dummy_ {false}
   , rig_active_ {false}
@@ -997,12 +981,21 @@ Configuration::impl::impl (Configuration * self, QDir const& temp_directory,
   // this must be done after the default paths above are set
   read_settings ();
 
+  // conditionally load LotW users data
+  ui_->LotW_CSV_fetch_push_button->setEnabled (false);
+  connect (&lotw_users_, &LotWUsers::load_finished, [this] () {
+      ui_->LotW_CSV_fetch_push_button->setEnabled (true);
+    });
+  lotw_users_.set_local_file_path (writeable_data_dir_.absoluteFilePath ("lotw-user-activity.csv"));
+  lotw_users_.load (ui_->LotW_CSV_URL_line_edit->text ());
+
   //
   // validation
-  //
   ui_->callsign_line_edit->setValidator (new CallsignValidator {this});
   ui_->grid_line_edit->setValidator (new MaidenheadLocatorValidator {this});
   ui_->add_macro_line_edit->setValidator (new QRegExpValidator {message_alphabet, this});
+  ui_->FieldDay_Exchange->setValidator(new ExchangeValidator{this});
+  ui_->RTTY_Exchange->setValidator(new ExchangeValidator{this});
 
   ui_->udp_server_port_spin_box->setMinimum (1);
   ui_->udp_server_port_spin_box->setMaximum (std::numeric_limits<port_type>::max ());
@@ -1115,29 +1108,30 @@ Configuration::impl::impl (Configuration * self, QDir const& temp_directory,
   ui_->frequencies_table_view->insertAction (nullptr, reset_frequencies_action_);
   connect (reset_frequencies_action_, &QAction::triggered, this, &Configuration::impl::reset_frequencies);
 
-
   //
   // setup stations table model & view
   //
   stations_.sort (StationList::band_column);
-
   ui_->stations_table_view->setModel (&next_stations_);
   ui_->stations_table_view->sortByColumn (StationList::band_column, Qt::AscendingOrder);
 
-  // delegates
+  // stations delegates
   auto stations_item_delegate = new QStyledItemDelegate {this};
   stations_item_delegate->setItemEditorFactory (item_editor_factory ());
   ui_->stations_table_view->setItemDelegate (stations_item_delegate);
   ui_->stations_table_view->setItemDelegateForColumn (StationList::band_column, new ForeignKeyDelegate {&bands_, &next_stations_, 0, StationList::band_column, this});
 
-  // actions
-  station_delete_action_ = new QAction {tr ("&Delete"), ui_->stations_table_view};
-  ui_->stations_table_view->insertAction (nullptr, station_delete_action_);
-  connect (station_delete_action_, &QAction::triggered, this, &Configuration::impl::delete_stations);
+  // stations actions
+  ui_->stations_table_view->addAction (&station_delete_action_);
+  connect (&station_delete_action_, &QAction::triggered, this, &Configuration::impl::delete_stations);
 
-  station_insert_action_ = new QAction {tr ("&Insert ..."), ui_->stations_table_view};
-  ui_->stations_table_view->insertAction (nullptr, station_insert_action_);
-  connect (station_insert_action_, &QAction::triggered, this, &Configuration::impl::insert_station);
+  ui_->stations_table_view->addAction (&station_insert_action_);
+  connect (&station_insert_action_, &QAction::triggered, this, &Configuration::impl::insert_station);
+
+  //
+  // colours and highlighting setup
+  //
+  ui_->highlighting_list_view->setModel (&next_decode_highlighing_model_);
 
   //
   // load combo boxes with audio setup choices
@@ -1181,16 +1175,6 @@ void Configuration::impl::initialize_models ()
   ui_->callsign_line_edit->setText (my_callsign_);
   ui_->grid_line_edit->setText (my_grid_);
   ui_->use_dynamic_grid->setChecked(use_dynamic_grid_);
-  ui_->labCQ->setStyleSheet(QString("background: %1").arg(color_CQ_.name()));
-  ui_->labMyCall->setStyleSheet(QString("background: %1").arg(color_MyCall_.name()));
-  ui_->labTx->setStyleSheet(QString("background: %1").arg(color_TxMsg_.name()));
-  ui_->labDXCC->setStyleSheet(QString("background: %1").arg(color_DXCC_.name()));
-  ui_->labDXCCband->setStyleSheet(QString("background: %1").arg(color_DXCCband_.name()));
-  ui_->labNewCall->setStyleSheet(QString("background: %1").arg(color_NewCall_.name()));
-  ui_->labNewCallBand->setStyleSheet(QString("background: %1").arg(color_NewCallBand_.name()));
-  ui_->labNewGrid->setStyleSheet(QString("background: %1").arg(color_NewGrid_.name()));
-  ui_->labNewGridBand->setStyleSheet(QString("background: %1").arg(color_NewGridBand_.name()));
-  ui_->labLoTW->setStyleSheet(QString("color: %1").arg(color_LoTW_.name()));
   ui_->CW_id_interval_spin_box->setValue (id_interval_);
   ui_->sbNtrials->setValue (ntrials_);
   ui_->sbTxDelay->setValue (txDelay_);
@@ -1208,6 +1192,7 @@ void Configuration::impl::initialize_models ()
   ui_->log_as_RTTY_check_box->setChecked (log_as_RTTY_);
   ui_->report_in_comments_check_box->setChecked (report_in_comments_);
   ui_->prompt_to_log_check_box->setChecked (prompt_to_log_);
+  ui_->cbAutoLog->setChecked(autoLog_);
   ui_->insert_blank_check_box->setChecked (insert_blank_);
   ui_->DXCC_check_box->setChecked (DXCC_);
   ui_->ppfx_check_box->setChecked (ppfx_);
@@ -1291,6 +1276,9 @@ void Configuration::impl::initialize_models ()
   next_frequencies_.frequency_list (frequencies_.frequency_list ());
   next_stations_.station_list (stations_.station_list ());
 
+  next_decode_highlighing_model_.items (decode_highlighing_model_.items ());
+  ui_->LotW_days_since_upload_spin_box->setValue (LotW_days_since_upload_);
+
   set_rig_invariants ();
 }
 
@@ -1314,16 +1302,6 @@ void Configuration::impl::read_settings ()
   RTTY_exchange_ = settings_->value ("RTTYExchange",QString {}).toString ();
   ui_->FieldDay_Exchange->setText(FD_exchange_);
   ui_->RTTY_Exchange->setText(RTTY_exchange_);
-  next_color_CQ_ = color_CQ_ = settings_->value("colorCQ","#66ff66").toString();
-  next_color_MyCall_ = color_MyCall_ = settings_->value("colorMyCall","#ff6666").toString();
-  next_color_TxMsg_ = color_TxMsg_ = settings_->value("colorTxMsg","#ffff00").toString();
-  next_color_DXCC_ = color_DXCC_ = settings_->value("colorDXCC","#ff00ff").toString();
-  next_color_DXCCband_ = color_DXCCband_ = settings_->value("colorDXCCband","#ffaaff").toString();
-  next_color_NewCall_ = color_NewCall_ = settings_->value("colorNewCall","#66b2ff").toString();
-  next_color_NewCallBand_ = color_NewCallBand_ = settings_->value("colorNewCallBand","#99ffff").toString();
-  next_color_NewGrid_ = color_NewGrid_ = settings_->value("colorNewGrid","#ffaa00").toString();
-  next_color_NewGridBand_ = color_NewGridBand_ = settings_->value("colorNewGridBand","#ffcc99").toString();
-  next_color_LoTW_ = color_LoTW_ = settings_->value("colorLoTW","#990000").toString();
   if (next_font_.fromString (settings_->value ("Font", QGuiApplication::font ().toString ()).toString ())
       && next_font_ != font_)
     {
@@ -1338,6 +1316,8 @@ void Configuration::impl::read_settings ()
       && next_decoded_text_font_ != decoded_text_font_)
     {
       decoded_text_font_ = next_decoded_text_font_;
+      next_decode_highlighing_model_.set_font (decoded_text_font_);
+      ui_->highlighting_list_view->reset ();
       Q_EMIT self_->decoded_text_font_changed (decoded_text_font_);
     }
   else
@@ -1441,6 +1421,10 @@ void Configuration::impl::read_settings ()
 
   stations_.station_list (settings_->value ("stations").value<StationList::Stations> ());
 
+  decode_highlighing_model_.items (settings_->value ("DecodeHighlighting", QVariant::fromValue (DecodeHighlightingModel::default_items ())).value<DecodeHighlightingModel::HighlightItems> ());
+  LotW_days_since_upload_ = settings_->value ("LotWDaysSinceLastUpload", 365).toInt ();
+  lotw_users_.set_age_constraint (LotW_days_since_upload_);
+
   log_as_RTTY_ = settings_->value ("toRTTY", false).toBool ();
   report_in_comments_ = settings_->value("dBtoComments", false).toBool ();
   rig_params_.rig_name = settings_->value ("Rig", TransceiverFactory::basic_transceiver_name_).toString ();
@@ -1461,6 +1445,7 @@ void Configuration::impl::read_settings ()
   rig_params_.ptt_port = settings_->value ("PTTport").toString ();
   data_mode_ = settings_->value ("DataMode", QVariant::fromValue (data_mode_none)).value<Configuration::DataMode> ();
   prompt_to_log_ = settings_->value ("PromptToLog", false).toBool ();
+  autoLog_ = settings_->value ("AutoLog", false).toBool ();
   insert_blank_ = settings_->value ("InsertBlank", false).toBool ();
   DXCC_ = settings_->value ("DXCCEntity", false).toBool ();
   ppfx_ = settings_->value ("PrincipalPrefix", false).toBool ();
@@ -1510,16 +1495,6 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("MyGrid", my_grid_);
   settings_->setValue ("FieldDayExchange", FD_exchange_);
   settings_->setValue ("RTTYExchange", RTTY_exchange_);
-  settings_->setValue("colorCQ",color_CQ_);
-  settings_->setValue("colorMyCall",color_MyCall_);
-  settings_->setValue("colorTxMsg",color_TxMsg_);
-  settings_->setValue("colorDXCC",color_DXCC_);
-  settings_->setValue("colorDXCCband",color_DXCCband_);
-  settings_->setValue("colorNewCall",color_NewCall_);
-  settings_->setValue("colorNewCallBand",color_NewCallBand_);
-  settings_->setValue("colorNewGrid",color_NewGrid_);
-  settings_->setValue("colorNewGridBand",color_NewGridBand_);
-  settings_->setValue("colorLoTW",color_LoTW_);
   settings_->setValue ("Font", font_.toString ());
   settings_->setValue ("DecodedTextFont", decoded_text_font_.toString ());
   settings_->setValue ("IDint", id_interval_);
@@ -1561,6 +1536,8 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("Macros", macros_.stringList ());
   settings_->setValue ("FrequenciesForRegionModes", QVariant::fromValue (frequencies_.frequency_list ()));
   settings_->setValue ("stations", QVariant::fromValue (stations_.station_list ()));
+  settings_->setValue ("DecodeHighlighting", QVariant::fromValue (decode_highlighing_model_.items ()));
+  settings_->setValue ("LotWDaysSinceLastUpload", LotW_days_since_upload_);
   settings_->setValue ("toRTTY", log_as_RTTY_);
   settings_->setValue ("dBtoComments", report_in_comments_);
   settings_->setValue ("Rig", rig_params_.rig_name);
@@ -1573,6 +1550,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("CATHandshake", QVariant::fromValue (rig_params_.handshake));
   settings_->setValue ("DataMode", QVariant::fromValue (data_mode_));
   settings_->setValue ("PromptToLog", prompt_to_log_);
+  settings_->setValue ("AutoLog", autoLog_);
   settings_->setValue ("InsertBlank", insert_blank_);
   settings_->setValue ("DXCCEntity", DXCC_);
   settings_->setValue ("PrincipalPrefix", ppfx_);
@@ -1883,19 +1861,10 @@ void Configuration::impl::accept ()
   if (next_decoded_text_font_ != decoded_text_font_)
     {
       decoded_text_font_ = next_decoded_text_font_;
+      next_decode_highlighing_model_.set_font (decoded_text_font_);
+      ui_->highlighting_list_view->reset ();
       Q_EMIT self_->decoded_text_font_changed (decoded_text_font_);
     }
-
-  color_CQ_ = next_color_CQ_;
-  color_MyCall_ = next_color_MyCall_;
-  color_TxMsg_ = next_color_TxMsg_;
-  color_DXCC_ = next_color_DXCC_;
-  color_DXCCband_ = next_color_DXCCband_;
-  color_NewCall_ = next_color_NewCall_;
-  color_NewCallBand_ = next_color_NewCallBand_;
-  color_NewGrid_ = next_color_NewGrid_;
-  color_NewGridBand_ = next_color_NewGridBand_;
-  color_LoTW_ = next_color_LoTW_;
 
   rig_params_ = temp_rig_params; // now we can go live with the rig
                                  // related configuration parameters
@@ -1994,6 +1963,7 @@ void Configuration::impl::accept ()
   log_as_RTTY_ = ui_->log_as_RTTY_check_box->isChecked ();
   report_in_comments_ = ui_->report_in_comments_check_box->isChecked ();
   prompt_to_log_ = ui_->prompt_to_log_check_box->isChecked ();
+  autoLog_ = ui_->cbAutoLog->isChecked();
   insert_blank_ = ui_->insert_blank_check_box->isChecked ();
   DXCC_ = ui_->DXCC_check_box->isChecked ();
   ppfx_ = ui_->ppfx_check_box->isChecked ();
@@ -2042,10 +2012,8 @@ void Configuration::impl::accept ()
     }
   
   accept_udp_requests_ = ui_->accept_udp_requests_check_box->isChecked ();
-  auto new_n1mm_server = ui_->n1mm_server_name_line_edit->text ();
-  n1mm_server_name_ = new_n1mm_server;
-  auto new_n1mm_port = ui_->n1mm_server_port_spin_box->value ();
-  n1mm_server_port_ = new_n1mm_port;
+  n1mm_server_name_ = ui_->n1mm_server_name_line_edit->text ();
+  n1mm_server_port_ = ui_->n1mm_server_port_spin_box->value ();
   broadcast_to_n1mm_ = ui_->enable_n1mm_broadcast_check_box->isChecked ();
 
   udpWindowToFront_ = ui_->udpWindowToFront->isChecked ();
@@ -2066,9 +2034,17 @@ void Configuration::impl::accept ()
 
   if (stations_.station_list () != next_stations_.station_list ())
     {
-      stations_.station_list(next_stations_.station_list ());
+      stations_.station_list (next_stations_.station_list ());
       stations_.sort (StationList::band_column);
     }
+
+  if (decode_highlighing_model_.items () != next_decode_highlighing_model_.items ())
+    {
+      decode_highlighing_model_.items (next_decode_highlighing_model_.items ());
+      Q_EMIT self_->decode_highlighting_changed (decode_highlighing_model_);
+    }
+  LotW_days_since_upload_ = ui_->LotW_days_since_upload_spin_box->value ();
+  lotw_users_.set_age_constraint (LotW_days_since_upload_);
 
   if (ui_->use_dynamic_grid->isChecked() && !use_dynamic_grid_ )
   {
@@ -2108,136 +2084,27 @@ void Configuration::impl::on_font_push_button_clicked ()
   next_font_ = QFontDialog::getFont (0, next_font_, this);
 }
 
-void Configuration::impl::on_pbCQmsg_clicked()
+void Configuration::impl::on_reset_highlighting_to_defaults_push_button_clicked (bool /*checked*/)
 {
-  auto new_color = QColorDialog::getColor(next_color_CQ_, this, "CQ Messages Color");
-  if (new_color.isValid ())
+  if (MessageBox::Yes == MessageBox::query_message (this
+                                                    , tr ("Reset Decode Highlighting")
+                                                    , tr ("Reset all decode highlighting and priorities to default values")))
     {
-      next_color_CQ_ = new_color;
-      ui_->labCQ->setStyleSheet(QString("background: %1").arg(next_color_CQ_.name()));
+      next_decode_highlighing_model_.items (DecodeHighlightingModel::default_items ());
     }
 }
 
-void Configuration::impl::on_pbMyCall_clicked()
+void Configuration::impl::on_LotW_CSV_fetch_push_button_clicked (bool /*checked*/)
 {
-  auto new_color = QColorDialog::getColor(next_color_MyCall_, this, "My Call Messages Color");
-  if (new_color.isValid ())
-    {
-      next_color_MyCall_ = new_color;
-      ui_->labMyCall->setStyleSheet(QString("background: %1").arg(next_color_MyCall_.name()));
-    }
-}
-
-void Configuration::impl::on_pbTxMsg_clicked()
-{
-  auto new_color = QColorDialog::getColor(next_color_TxMsg_, this, "Tx Messages Color");
-  if (new_color.isValid ())
-    {
-      next_color_TxMsg_ = new_color;
-      ui_->labTx->setStyleSheet(QString("background: %1").arg(next_color_TxMsg_.name()));
-    }
-}
-
-void Configuration::impl::on_pbNewDXCC_clicked()
-{
-  auto new_color = QColorDialog::getColor(next_color_DXCC_, this, "New DXCC Messages Color");
-  if (new_color.isValid ())
-    {
-      next_color_DXCC_ = new_color;
-      ui_->labDXCC->setStyleSheet(QString("background: %1").arg(next_color_DXCC_.name()));
-    }
-}
-
-void Configuration::impl::on_pbNewDXCCband_clicked()
-{
-  auto new_color = QColorDialog::getColor(next_color_DXCCband_, this, "New DXCCband Color");
-  if (new_color.isValid ())
-    {
-      next_color_DXCCband_ = new_color;
-      ui_->labDXCCband->setStyleSheet(QString("background: %1").arg(next_color_DXCCband_.name()));
-    }
-}
-
-void Configuration::impl::on_pbNewCall_clicked()
-{
-  auto new_color = QColorDialog::getColor(next_color_NewCall_, this, "New Call Messages Color");
-  if (new_color.isValid ())
-    {
-      next_color_NewCall_ = new_color;
-      ui_->labNewCall->setStyleSheet(QString("background: %1").arg(next_color_NewCall_.name()));
-    }
-}
-
-void Configuration::impl::on_pbNewCallBand_clicked()
-{
-  auto new_color = QColorDialog::getColor(next_color_NewCallBand_, this, "New CallBand Color");
-  if (new_color.isValid ())
-    {
-      next_color_NewCallBand_ = new_color;
-      ui_->labNewCallBand->setStyleSheet(QString("background: %1").arg(next_color_NewCallBand_.name()));
-    }
-}
-
-void Configuration::impl::on_pbNewGrid_clicked()
-{
-  auto new_color = QColorDialog::getColor(next_color_NewGrid_, this, "New Grid Messages Color");
-  if (new_color.isValid ())
-    {
-      next_color_NewGrid_ = new_color;
-      ui_->labNewGrid->setStyleSheet(QString("background: %1").arg(next_color_NewGrid_.name()));
-    }
-}
-
-void Configuration::impl::on_pbNewGridBand_clicked()
-{
-  auto new_color = QColorDialog::getColor(next_color_NewGridBand_, this, "New GridBand Messages Color");
-  if (new_color.isValid ())
-    {
-      next_color_NewGridBand_ = new_color;
-      ui_->labNewGridBand->setStyleSheet(QString("background: %1").arg(next_color_NewGridBand_.name()));
-    }
-}
-
-void Configuration::impl::on_pbLoTW_clicked()
-{
-  auto new_color = QColorDialog::getColor(next_color_LoTW_, this, "Not in LoTW Color");
-  if (new_color.isValid ()) {
-    next_color_LoTW_ = new_color;
-    ui_->labLoTW->setStyleSheet(QString("color: %1").arg(next_color_LoTW_.name()));
-  }
-}
-void Configuration::impl::on_pbResetDefaults_clicked()
-{
-  next_color_CQ_ = color_CQ_ = "#66ff66";
-  next_color_MyCall_ = color_MyCall_ = "#ff6666";
-  next_color_TxMsg_ = color_TxMsg_ = "#ffff00";
-  next_color_DXCC_ = color_DXCC_ = "#ff00ff";
-  next_color_DXCCband_ = color_DXCCband_ = "#ffaaff";
-  next_color_NewCall_ = color_NewCall_ = "#66b2ff";
-  next_color_NewCallBand_ = color_NewCallBand_ = "#99ffff";
-  next_color_NewGrid_ = color_NewGrid_ = "#ffaa00";
-  next_color_NewGridBand_ = color_NewGridBand_ = "#ffcc99";
-  next_color_LoTW_ = color_LoTW_ = "#5500ff";
-
-  ui_->labCQ->setStyleSheet(QString("background: %1").arg(next_color_CQ_.name()));
-  ui_->labMyCall->setStyleSheet(QString("background: %1").arg(next_color_MyCall_.name()));
-  ui_->labTx->setStyleSheet(QString("background: %1").arg(next_color_TxMsg_.name()));
-  ui_->labDXCC->setStyleSheet(QString("background: %1").arg(next_color_DXCC_.name()));
-  ui_->labDXCCband->setStyleSheet(QString("background: %1").arg(next_color_DXCCband_.name()));
-  ui_->labNewCall->setStyleSheet(QString("background: %1").arg(next_color_NewCall_.name()));
-  ui_->labNewCallBand->setStyleSheet(QString("background: %1").arg(next_color_NewCallBand_.name()));
-  ui_->labNewGrid->setStyleSheet(QString("background: %1").arg(next_color_NewGrid_.name()));
-  ui_->labNewGridBand->setStyleSheet(QString("background: %1").arg(next_color_NewGridBand_.name()));
-  ui_->labLoTW->setStyleSheet(QString("color: %1").arg(next_color_LoTW_.name()));
+  lotw_users_.load (ui_->LotW_CSV_URL_line_edit->text (), true);
+  ui_->LotW_CSV_fetch_push_button->setEnabled (false);
 }
 
 void Configuration::impl::on_decoded_text_font_push_button_clicked ()
 {
   next_decoded_text_font_ = QFontDialog::getFont (0, decoded_text_font_ , this
                                                   , tr ("WSJT-X Decoded Text Font Chooser")
-#if QT_VERSION >= 0x050201
                                                   , QFontDialog::MonospacedFonts
-#endif
                                                   );
 }
 
@@ -2345,6 +2212,20 @@ void Configuration::impl::on_sound_output_combo_box_currentTextChanged (QString 
 void Configuration::impl::on_add_macro_line_edit_editingFinished ()
 {
   ui_->add_macro_line_edit->setText (ui_->add_macro_line_edit->text ().toUpper ());
+}
+
+void Configuration::impl::on_FieldDay_Exchange_textChanged()
+{
+  bool b=ui_->FieldDay_Exchange->hasAcceptableInput() or !ui_->rbFieldDay->isChecked();
+  if(b)  ui_->FieldDay_Exchange->setStyleSheet("color: black");
+  if(!b) ui_->FieldDay_Exchange->setStyleSheet("color: red");
+}
+
+void Configuration::impl::on_RTTY_Exchange_textChanged()
+{
+  bool b=ui_->RTTY_Exchange->hasAcceptableInput() or !ui_->rbRTTYroundup->isChecked();
+  if(b)  ui_->RTTY_Exchange->setStyleSheet("color: black");
+  if(!b) ui_->RTTY_Exchange->setStyleSheet("color: red");
 }
 
 void Configuration::impl::on_delete_macro_push_button_clicked (bool /* checked */)
@@ -2577,6 +2458,16 @@ void Configuration::impl::on_calibration_slope_ppm_spin_box_valueChanged (double
   rig_active_ = false;          // force reset
 }
 
+void Configuration::impl::on_prompt_to_log_check_box_clicked(bool checked)
+{
+  if(checked) ui_->cbAutoLog->setChecked(false);
+}
+
+void Configuration::impl::on_cbAutoLog_clicked(bool checked)
+{
+  if(checked) ui_->prompt_to_log_check_box->setChecked(false);
+}
+
 void Configuration::impl::on_cbFox_clicked (bool checked)
 {
   if(checked) {
@@ -2598,17 +2489,26 @@ void Configuration::impl::on_cbHound_clicked (bool checked)
 void Configuration::impl::chk77()
 {
   bool b77OK = !ui_->cbFox->isChecked() and !ui_->cbHound->isChecked();
-  ui_->groupBox_8->setEnabled(b77OK);
   ui_->groupBox_9->setEnabled(b77OK);
   if(!b77OK) {
-    ui_->cbGenerate77->setChecked(false);
-    ui_->cbDecode77->setChecked(false);
+    ui_->cbGenerate77->setChecked(true);
+    ui_->cbDecode77->setChecked(true);
   }
 }
 
 void Configuration::impl::on_rbNone_toggled(bool b)
 {
   if(!b) ui_->cbGenerate77->setChecked(true);
+}
+
+void Configuration::impl::on_rbFieldDay_toggled()
+{
+  on_FieldDay_Exchange_textChanged();
+}
+
+void Configuration::impl::on_rbRTTYroundup_toggled()
+{
+  on_RTTY_Exchange_textChanged();
 }
 
 void Configuration::impl::on_cbx2ToneSpacing_clicked(bool b)
@@ -3020,11 +2920,6 @@ auto Configuration::impl::remove_calibration (Frequency f) const -> Frequency
   return std::llround ((f - calibration_.intercept)
                        / (1. + calibration_.slope_ppm / 1.e6));
 }
-
-#if !defined (QT_NO_DEBUG_STREAM)
-ENUM_QDEBUG_OPS_IMPL (Configuration, DataMode);
-ENUM_QDEBUG_OPS_IMPL (Configuration, Type2MsgGen);
-#endif
 
 ENUM_QDATASTREAM_OPS_IMPL (Configuration, DataMode);
 ENUM_QDATASTREAM_OPS_IMPL (Configuration, Type2MsgGen);

@@ -34,12 +34,15 @@ void RemoteFile::local_file_path (QString const& name)
           QFile file {local_file_.absoluteFilePath ()};
           if (!file.rename (new_file.absoluteFilePath ()))
             {
-              listener_->error (tr ("File System Error")
-                                , tr ("Cannot rename file:\n\"%1\"\nto: \"%2\"\nError(%3): %4")
-                                .arg (file.fileName ())
-                                .arg (new_file.absoluteFilePath ())
-                                .arg (file.error ())
-                                .arg (file.errorString ()));
+              if (listener_)
+                {
+                  listener_->error (tr ("File System Error")
+                                    , tr ("Cannot rename file:\n\"%1\"\nto: \"%2\"\nError(%3): %4")
+                                    .arg (file.fileName ())
+                                    .arg (new_file.absoluteFilePath ())
+                                    .arg (file.error ())
+                                    .arg (file.errorString ()));
+                }
             }
         }
       std::swap (local_file_, new_file);
@@ -49,15 +52,18 @@ void RemoteFile::local_file_path (QString const& name)
 bool RemoteFile::local () const
 {
   auto is_local = (reply_ && !reply_->isFinished ()) || local_file_.exists ();
-  if (is_local)
+  if (listener_)
     {
-      auto size = local_file_.size ();
-      listener_->download_progress (size, size);
-      listener_->download_finished (true);
-    }
-  else
-    {
-      listener_->download_progress (-1, 0);
+      if (is_local)
+        {
+          auto size = local_file_.size ();
+          listener_->download_progress (size, size);
+          listener_->download_finished (true);
+        }
+      else
+        {
+          listener_->download_progress (-1, 0);
+        }
     }
   return is_local;
 }
@@ -92,13 +98,19 @@ bool RemoteFile::sync (QUrl const& url, bool local, bool force)
           auto path = local_file_.absoluteDir ();
           if (path.remove (local_file_.fileName ()))
             {
-              listener_->download_progress (-1, 0);
+              if (listener_)
+                {
+                  listener_->download_progress (-1, 0);
+                }
             }
           else
             {
-              listener_->error (tr ("File System Error")
-                                , tr ("Cannot delete file:\n\"%1\"")
-                                .arg (local_file_.absoluteFilePath ()));
+              if (listener_)
+                {
+                  listener_->error (tr ("File System Error")
+                                    , tr ("Cannot delete file:\n\"%1\"")
+                                    .arg (local_file_.absoluteFilePath ()));
+                }
               return false;
             }
           path.rmpath (".");
@@ -137,10 +149,13 @@ void RemoteFile::download (QUrl url)
   connect (reply_.data (), &QNetworkReply::readyRead, this, &RemoteFile::store);
   connect (reply_.data (), &QNetworkReply::downloadProgress
            , [this] (qint64 bytes_received, qint64 total_bytes) {
-             // report progress of wanted file
-             if (is_valid_)
+             if (listener_)
                {
-                 listener_->download_progress (bytes_received, total_bytes);
+                 // report progress of wanted file
+                 if (is_valid_)
+                   {
+                     listener_->download_progress (bytes_received, total_bytes);
+                   }
                }
            });
 }
@@ -160,7 +175,7 @@ void RemoteFile::reply_finished ()
   QUrl redirect_url {reply_->attribute (QNetworkRequest::RedirectionTargetAttribute).toUrl ()};
   if (reply_->error () == QNetworkReply::NoError && !redirect_url.isEmpty ())
     {
-      if (listener_->redirect_request (redirect_url))
+      if (!listener_ || listener_->redirect_request (redirect_url))
         {
           if (++redirect_count_ < 10) // maintain sanity
             {
@@ -169,19 +184,25 @@ void RemoteFile::reply_finished ()
             }
           else
             {
-              listener_->download_finished (false);
-              listener_->error (tr ("Network Error")
-                                , tr ("Too many redirects: %1")
-                                .arg (redirect_url.toDisplayString ()));
+              if (listener_)
+                {
+                  listener_->download_finished (false);
+                  listener_->error (tr ("Network Error")
+                                    , tr ("Too many redirects: %1")
+                                    .arg (redirect_url.toDisplayString ()));
+                }
               is_valid_ = false; // reset
             }
         }
       else
         {
-          listener_->download_finished (false);
-          listener_->error (tr ("Network Error")
-                            , tr ("Redirect not followed: %1")
-                            .arg (redirect_url.toDisplayString ()));
+          if (listener_)
+            {
+              listener_->download_finished (false);
+              listener_->error (tr ("Network Error")
+                                , tr ("Redirect not followed: %1")
+                                .arg (redirect_url.toDisplayString ()));
+            }
           is_valid_ = false;    // reset
         }
     }
@@ -189,10 +210,13 @@ void RemoteFile::reply_finished ()
     {
       file_.cancelWriting ();
       file_.commit ();
-      listener_->download_finished (false);
+      if (listener_)
+        {
+          listener_->download_finished (false);
+        }
       is_valid_ = false;        // reset
       // report errors that are not due to abort
-      if (QNetworkReply::OperationCanceledError != reply_->error ())
+      if (listener_ && QNetworkReply::OperationCanceledError != reply_->error ())
         {
           listener_->error (tr ("Network Error"), reply_->errorString ());
         }
@@ -202,11 +226,17 @@ void RemoteFile::reply_finished ()
       auto path = QFileInfo {file_.fileName ()}.absoluteDir ();
       if (is_valid_ && !file_.commit ())
         {
-          listener_->error (tr ("File System Error")
-                            , tr ("Cannot commit changes to:\n\"%1\"")
-                            .arg (file_.fileName ()));
+          if (listener_)
+            {
+              listener_->error (tr ("File System Error")
+                                , tr ("Cannot commit changes to:\n\"%1\"")
+                                .arg (file_.fileName ()));
+            }
           path.rmpath (".");    // tidy empty directories
-          listener_->download_finished (false);
+          if (listener_)
+            {
+              listener_->download_finished (false);
+            }
           is_valid_ = false;    // reset
         }
       else
@@ -219,7 +249,10 @@ void RemoteFile::reply_finished ()
             }
           else
             {
-              listener_->download_finished (true);
+              if (listener_)
+                {
+                  listener_->download_finished (true);
+                }
               is_valid_ = false; // reset
             }
         }
@@ -243,29 +276,38 @@ void RemoteFile::store ()
               if (!file_.open (QSaveFile::WriteOnly))
                 {
                   abort ();
-                  listener_->error (tr ("File System Error")
-                                    , tr ("Cannot open file:\n\"%1\"\nError(%2): %3")
-                                    .arg (path.path ())
-                                    .arg (file_.error ())
-                                    .arg (file_.errorString ()));
+                  if (listener_)
+                    {
+                      listener_->error (tr ("File System Error")
+                                        , tr ("Cannot open file:\n\"%1\"\nError(%2): %3")
+                                        .arg (path.path ())
+                                        .arg (file_.error ())
+                                        .arg (file_.errorString ()));
+                    }
                 }
             }
           else
             {
               abort ();
-              listener_->error (tr ("File System Error")
-                                , tr ("Cannot make path:\n\"%1\"")
-                                .arg (path.path ()));
+              if (listener_)
+                {
+                  listener_->error (tr ("File System Error")
+                                    , tr ("Cannot make path:\n\"%1\"")
+                                    .arg (path.path ()));
+                }
             }
         }
       if (file_.write (reply_->read (reply_->bytesAvailable ())) < 0)
         {
           abort ();
-          listener_->error (tr ("File System Error")
-                            , tr ("Cannot write to file:\n\"%1\"\nError(%2): %3")
-                            .arg (file_.fileName ())
-                            .arg (file_.error ())
-                            .arg (file_.errorString ()));
+          if (listener_)
+            {
+              listener_->error (tr ("File System Error")
+                                , tr ("Cannot write to file:\n\"%1\"\nError(%2): %3")
+                                .arg (file_.fileName ())
+                                .arg (file_.error ())
+                                .arg (file_.errorString ()));
+            }
         }
     }
 }

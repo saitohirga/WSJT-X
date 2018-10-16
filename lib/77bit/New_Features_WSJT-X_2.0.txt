@@ -37,12 +37,14 @@ information:
 
 7. All features of FT8 DXpedition mode, as in WSJT-X v1.9.1
 
-Enhancements to the FT8 decoder ensure that in most situations
-decoding sensitivity is slightly better than for the old protocol.
-Symbol rates and occupied bandwidths are the same as before, and
-false-decode rates are significantly lower.  The decoding threshold
-for MSK144 is a fraction of a dB higher than before, owing to the
-slightly larger message payload and higher code rate.
+Conveying more information in the same bandwidth, using the same
+modulation scheme, necessarily means a higher code rate and less
+energy per information bit.  Nevertheless, the decoding threshold S/N
+for the new FT8 is slightly lower than for the old version, because of
+improvements in the decoding algorithm.  Decoding threshold for MSK144
+is a fraction of a dB higher than before.  Symbol rates and occupied
+bandwidths for both modes are the same as before, and false-decode
+rates are significantly lower.
 
 OTHER PROGRAM ENHANCEMENTS: WSJT-X 2.0 has several other new features
 and capabilities.  The WSPR decoder has significantly better

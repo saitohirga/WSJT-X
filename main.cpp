@@ -17,13 +17,10 @@
 #include <QStandardPaths>
 #include <QStringList>
 #include <QLockFile>
-#include <QStack>
 #include <QSplashScreen>
 
-#if QT_VERSION >= 0x050200
 #include <QCommandLineParser>
 #include <QCommandLineOption>
-#endif
 
 #include "revision_utils.hpp"
 #include "MetaDataRegistry.hpp"
@@ -54,38 +51,12 @@ namespace
       qsrand (seed);            // this is good for rand() as well
     }
   } seeding;
-
-  class MessageTimestamper
-  {
-  public:
-    MessageTimestamper ()
-    {
-      prior_handlers_.push (qInstallMessageHandler (message_handler));
-    }
-    ~MessageTimestamper ()
-    {
-      if (prior_handlers_.size ()) qInstallMessageHandler (prior_handlers_.pop ());
-    }
-
-  private:
-    static void message_handler (QtMsgType type, QMessageLogContext const& context, QString const& msg)
-    {
-      QtMessageHandler handler {prior_handlers_.top ()};
-      if (handler)
-        {
-          handler (type, context,
-                   QDateTime::currentDateTimeUtc ().toString ("yy-MM-ddTHH:mm:ss.zzzZ: ") + msg);
-        }
-    }
-    static QStack<QtMessageHandler> prior_handlers_;
-  };
-  QStack<QtMessageHandler> MessageTimestamper::prior_handlers_;
 }
 
 int main(int argc, char *argv[])
 {
   // Add timestamps to all debug messages
-  MessageTimestamper message_timestamper;
+  qSetMessagePattern ("[%{time yyyyMMdd HH:mm:ss.zzz t} %{if-debug}D%{endif}%{if-info}I%{endif}%{if-warning}W%{endif}%{if-critical}C%{endif}%{if-fatal}F%{endif}] %{message}");
 
   init_random_seed ();
 
@@ -108,7 +79,6 @@ int main(int argc, char *argv[])
       a.setApplicationName ("WSJT-X");
       a.setApplicationVersion (version ());
 
-#if QT_VERSION >= 0x050200
       QCommandLineParser parser;
       parser.setApplicationDescription ("\n" PROJECT_SUMMARY_DESCRIPTION);
       auto help_option = parser.addHelpOption ();
@@ -210,11 +180,11 @@ int main(int argc, char *argv[])
                 }
             }
         }
-#endif
 
 #if WSJT_QDEBUG_TO_FILE
       // Open a trace file
       TraceFile trace_file {temp_dir.absoluteFilePath (a.applicationName () + "_trace.log")};
+      qSetMessagePattern ("[%{time yyyyMMdd HH:mm:ss.zzz t} %{if-debug}D%{endif}%{if-info}I%{endif}%{if-warning}W%{endif}%{if-critical}C%{endif}%{if-fatal}F%{endif}] %{file}:%{line} - %{message}");
       qDebug () << program_title (revision ()) + " - Program startup";
 #endif
 

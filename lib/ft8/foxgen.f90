@@ -14,25 +14,20 @@ subroutine foxgen()
   ! common/foxcom/.  The generated wave(NWAVE) is passed back in the same
   ! common block.
   
-  use crc
-  parameter (NN=79,ND=58,KK=87,NSPS=4*1920)
+  parameter (NN=79,ND=58,NSPS=4*1920)
   parameter (NWAVE=NN*NSPS,NFFT=614400,NH=NFFT/2)
   character*40 cmsg
   character*37 msg,msgsent
-  character*87 cbits
-  character*88 cb88
-  integer itone(NN)
-  integer icos7(0:6)
-  integer*1 msgbits(KK),codeword(3*ND),msgbits2
+  integer itone(79)
+  integer*1 msgbits(77),msgbits2
   integer*1, target:: i1Msg8BitBytes(11)
   integer*1, target:: mycall
   real x(NFFT)
   real*8 dt,twopi,f0,fstep,dfreq,phi,dphi
   complex cx(0:NH)
   common/foxcom/wave(NWAVE),nslots,nfreq,i3bit(5),cmsg(5),mycall(12)
-  common/foxcom2/itone2(NN),msgbits2(KK)
+  common/foxcom2/itone2(NN),msgbits2(77)
   equivalence (x,cx),(y,cy)
-  data icos7/2,5,6,0,4,1,3/                   !Costas 7x7 tone pattern
 
   fstep=60.d0
   dfreq=6.25d0
@@ -43,51 +38,11 @@ subroutine foxgen()
   wave=0.
 
   do n=1,nslots
-     i3b=i3bit(n)
-     if(i3b.eq.0) then
-        msg=cmsg(n)(1:22)                     !Standard FT8 message
-     else
-        i1=index(cmsg(n),' ')                 !Special Fox message
-        i2=index(cmsg(n),';')
-        i3=index(cmsg(n),'<')
-        i4=index(cmsg(n),'>')
-        msg=cmsg(n)(1:i1)//cmsg(n)(i2+1:i3-2)//'                   '
-        read(cmsg(n)(i4+2:i4+4),*) irpt
-     endif
-     call genft8(msg,0,1,1,msgsent,msgbits,itone)
-!     print*,'Foxgen:',n,cmsg(n),msgsent
+     msg=cmsg(n)(1:37)
+     call genft8_174_91(msg,i3,n3,msgsent,msgbits,itone)
+!     print*,'Foxgen:',n,msg,msgsent,i3,n3
+!     write(*,'(77i1)') msgbits
 
-     if(i3b.eq.1) then
-        icrc10=crc10(c_loc(mycall),12)
-        nrpt=irpt+30
-        write(cbits,1001) msgbits(1:56),icrc10,nrpt,i3b,0
-1001    format(56b1.1,b10.10,b6.6,b3.3,b12.12)
-        read(cbits,1002) msgbits
-1002    format(87i1)
-
-        cb88=cbits//'0'
-        read(cb88,1003) i1Msg8BitBytes(1:11)
-1003    format(11b8)
-        icrc12=crc12(c_loc(i1Msg8BitBytes),11)
-
-        write(cbits,1001) msgbits(1:56),icrc10,nrpt,i3b,icrc12
-        read(cbits,1002) msgbits
-
-        call encode174(msgbits,codeword)      !Encode the test message
-        
-! Message structure: S7 D29 S7 D29 S7
-        itone(1:7)=icos7
-        itone(36+1:36+7)=icos7
-        itone(NN-6:NN)=icos7
-        k=7
-        do j=1,ND
-           i=3*j -2
-           k=k+1
-           if(j.eq.30) k=k+7
-           itone(k)=codeword(i)*4 + codeword(i+1)*2 + codeword(i+2)
-        enddo
-     endif
-     
 ! Make copies of itone() and msgbits() for ft8sim
      itone2=itone
      msgbits2=msgbits

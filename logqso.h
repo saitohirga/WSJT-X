@@ -33,7 +33,9 @@ public:
                   QString const& rptSent, QString const& rptRcvd, QDateTime const& dateTimeOn,
                   QDateTime const& dateTimeOff,
                   Radio::Frequency dialFreq, QString const& myCall, QString const& myGrid,
-                  bool noSuffix, bool toRTTY, bool dBtoComments, bool bFox, QString const& opCall);
+                  bool noSuffix, bool toRTTY, bool dBtoComments, bool bFox,
+                  bool bAutoLog, QString const& opCall, qint32 nContest, QString xSent,
+                  QString xRcvd);
 
 public slots:
   void accept();
@@ -61,6 +63,9 @@ private:
   Radio::Frequency m_dialFreq;
   QString m_myCall;
   QString m_myGrid;
+  QString m_xSent;
+  QString m_xRcvd;
+  qint32  m_nContest;
   QDateTime m_dateTimeOn;
   QDateTime m_dateTimeOff;
 };

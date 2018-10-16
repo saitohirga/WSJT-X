@@ -1,23 +1,28 @@
 #include "colorhighlighting.h"
-#include "ui_colorhighlighting.h"
-#include "SettingsGroup.hpp"
 
 #include <QApplication>
 #include <QDebug>
 
-ColorHighlighting::ColorHighlighting(QSettings *settings, QWidget *parent) :
-  QDialog(parent),
-  settings_ {settings},
-  ui(new Ui::ColorHighlighting)
+#include "SettingsGroup.hpp"
+#include "DecodeHighlightingModel.hpp"
+
+#include "ui_colorhighlighting.h"
+#include "moc_colorhighlighting.cpp"
+
+ColorHighlighting::ColorHighlighting (QSettings * settings, DecodeHighlightingModel const& highlight_model, QWidget * parent)
+  : QDialog {parent}
+  , ui {new Ui::ColorHighlighting}
+  , settings_ {settings}
 {
   ui->setupUi(this);
+  setWindowTitle (QApplication::applicationName () + " - Colors");
   read_settings ();
+  set_items (highlight_model);
 }
 
 ColorHighlighting::~ColorHighlighting()
 {
   if (isVisible ()) write_settings ();
-  delete ui;
 }
 
 void ColorHighlighting::read_settings ()
@@ -32,21 +37,68 @@ void ColorHighlighting::write_settings ()
   settings_->setValue ("window/geometry", saveGeometry ());
 }
 
-
-void ColorHighlighting::colorHighlightlingSetup(QColor color_CQ,QColor color_MyCall,
-     QColor color_DXCC,QColor color_DXCCband,QColor color_NewCall,
-     QColor color_NewCallBand,QColor color_NewGrid,QColor color_NewGridBand,
-     QColor color_TxMsg,QColor color_LoTW)
+void ColorHighlighting::set_items (DecodeHighlightingModel const& highlighting_model)
 {
-  setWindowTitle(QApplication::applicationName() + " - Colors");
-  ui->label->setStyleSheet(QString("background: %1").arg(color_CQ.name()));
-  ui->label_3->setStyleSheet(QString("background: %1").arg(color_MyCall.name()));
-  ui->label_5->setStyleSheet(QString("background: %1").arg(color_TxMsg.name()));
-  ui->label_7->setStyleSheet(QString("background: %1").arg(color_DXCC.name()));
-  ui->label_9->setStyleSheet(QString("background: %1").arg(color_DXCCband.name()));
-  ui->label_11->setStyleSheet(QString("background: %1").arg(color_NewCall.name()));
-  ui->label_13->setStyleSheet(QString("background: %1").arg(color_NewCallBand.name()));
-  ui->label_15->setStyleSheet(QString("background: %1").arg(color_NewGrid.name()));
-  ui->label_17->setStyleSheet(QString("background: %1").arg(color_NewGridBand.name()));
-  ui->label_19->setStyleSheet(QString("color: %1").arg(color_LoTW.name()));
+  int index {0};
+  for (auto const& item : highlighting_model.items ())
+    {
+      QLabel * example;
+      QLabel * label;
+      switch (index++)
+        {
+        case 0:
+          example = ui->example1_label;
+          label = ui->p1_label;
+          break;
+        case 1:
+          example = ui->example2_label;
+          label = ui->p2_label;
+          break;
+        case 2:
+          example = ui->example3_label;
+          label = ui->p3_label;
+          break;
+        case 3:
+          example = ui->example4_label;
+          label = ui->p4_label;
+          break;
+        case 4:
+          example = ui->example5_label;
+          label = ui->p5_label;
+          break;
+        case 5:
+          example = ui->example6_label;
+          label = ui->p6_label;
+          break;
+        case 6:
+          example = ui->example7_label;
+          label = ui->p7_label;
+          break;
+        case 7:
+          example = ui->example8_label;
+          label = ui->p8_label;
+          break;
+        case 8:
+          example = ui->example9_label;
+          label = ui->p9_label;
+          break;
+        case 9:
+          example = ui->example10_label;
+          label = ui->p10_label;
+          break;
+        }
+      auto palette = example->parentWidget ()->palette ();
+      if (Qt::NoBrush != item.background_.style ())
+        {
+          palette.setColor (QPalette::Window, item.background_.color ());
+        }
+      if (Qt::NoBrush != item.foreground_.style ())
+        {
+          palette.setColor (QPalette::WindowText, item.foreground_.color ());
+        }
+      example->setPalette (palette);
+      example->setEnabled (item.enabled_);
+      label->setText (DecodeHighlightingModel::highlight_name (item.type_));
+      label->setEnabled (item.enabled_);
+    }
 }

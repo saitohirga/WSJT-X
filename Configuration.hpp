@@ -16,11 +16,14 @@ class QWidget;
 class QAudioDeviceInfo;
 class QString;
 class QDir;
+class QNetworkAccessManager;
 class Bands;
 class FrequencyList_v2;
 class StationList;
 class QStringListModel;
 class QHostAddress;
+class LotWUsers;
+class DecodeHighlightingModel;
 
 //
 // Class Configuration
@@ -56,7 +59,6 @@ class Configuration final
   : public QObject
 {
   Q_OBJECT
-  Q_ENUMS (DataMode Type2MsgGen)
 
 public:
   using MODE = Transceiver::MODE;
@@ -69,7 +71,7 @@ public:
   enum Type2MsgGen {type_2_msg_1_full, type_2_msg_3_full, type_2_msg_5_only};
   Q_ENUM (Type2MsgGen)
 
-  explicit Configuration (QDir const& temp_directory, QSettings * settings,
+  explicit Configuration (QNetworkAccessManager *, QDir const& temp_directory, QSettings * settings,
                           QWidget * parent = nullptr);
   ~Configuration ();
 
@@ -115,6 +117,7 @@ public:
   bool log_as_RTTY () const;
   bool report_in_comments () const;
   bool prompt_to_log () const;
+  bool autoLog() const;
   bool insert_blank () const;
   bool DXCC () const;
   bool ppfx() const;
@@ -169,18 +172,10 @@ public:
   QDir azel_directory () const;
   QString rig_name () const;
   Type2MsgGen type_2_msg_gen () const;
-  QColor color_CQ () const;
-  QColor color_MyCall () const;
-  QColor color_TxMsg () const;
-  QColor color_DXCC () const;
-  QColor color_DXCCband () const;
-  QColor color_NewCall () const;
-  QColor color_NewCallBand () const;
-  QColor color_NewGrid () const;
-  QColor color_NewGridBand () const;
-  QColor color_LoTW() const;
   bool pwrBandTxMemory () const;
   bool pwrBandTuneMemory () const;
+  LotWUsers const& lotw_users () const;
+  DecodeHighlightingModel const& decode_highlighting () const;
 
   struct CalibrationParams
   {
@@ -239,8 +234,6 @@ public:
   Q_SLOT void transceiver_tx_frequency (Frequency = 0u);
 
   // Set transceiver mode.
-  //
-  // Rationalise means ensure TX uses same mode as RX.
   Q_SLOT void transceiver_mode (MODE);
 
   // Set/unset PTT.
@@ -265,15 +258,17 @@ public:
   // These signals indicate a font has been selected and accepted for
   // the application text and decoded text respectively.
   //
-  Q_SIGNAL void text_font_changed (QFont);
-  Q_SIGNAL void decoded_text_font_changed (QFont);
+  Q_SIGNAL void text_font_changed (QFont) const;
+  Q_SIGNAL void decoded_text_font_changed (QFont) const;
 
   //
   // This signal is emitted when the UDP server changes
   //
-  Q_SIGNAL void udp_server_changed (QString const& udp_server);
-  Q_SIGNAL void udp_server_port_changed (port_type server_port);
+  Q_SIGNAL void udp_server_changed (QString const& udp_server) const;
+  Q_SIGNAL void udp_server_port_changed (port_type server_port) const;
 
+  // signal updates to decode highlighting
+  Q_SIGNAL void decode_highlighting_changed (DecodeHighlightingModel const&) const;
 
   //
   // These signals are emitted and reflect transceiver state changes
@@ -294,16 +289,6 @@ private:
   class impl;
   pimpl<impl> m_;
 };
-
-#if QT_VERSION < 0x050500
-Q_DECLARE_METATYPE (Configuration::DataMode);
-Q_DECLARE_METATYPE (Configuration::Type2MsgGen);
-#endif
-
-#if !defined (QT_NO_DEBUG_STREAM)
-ENUM_QDEBUG_OPS_DECL (Configuration, DataMode);
-ENUM_QDEBUG_OPS_DECL (Configuration, Type2MsgGen);
-#endif
 
 ENUM_QDATASTREAM_OPS_DECL (Configuration, DataMode);
 ENUM_QDATASTREAM_OPS_DECL (Configuration, Type2MsgGen);

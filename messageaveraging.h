@@ -17,11 +17,12 @@ public:
   ~MessageAveraging();
   void displayAvg(QString const&);
   void changeFont (QFont const&);
-  void foxLogSetup();
+  void foxLogSetup(int nContest);
   void foxLabCallers(int n);
   void foxLabQueued(int n);
   void foxLabRate(int n);
   void foxAddLog(QString logLine);
+  void contestAddLog(qint32 nContest, QString logLine);
 
 protected:
   void closeEvent (QCloseEvent *) override;
@@ -32,7 +33,9 @@ private:
   void setContentFont (QFont const&);
   QSettings * settings_;
   QString m_title_;
-  qint32  m_nLogged_;
+  qint32  m_nLogged_=0;
+  qint32  m_mult_=0;
+  qint32  m_nContest_;
 
   QScopedPointer<Ui::MessageAveraging> ui;
 };

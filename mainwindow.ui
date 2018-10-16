@@ -654,9 +654,15 @@ QLabel[oob=&quot;true&quot;] {
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
-                   <property name="maximumSize">
+                   <property name="minimumSize">
                     <size>
                      <width>20</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>50</width>
                      <height>20</height>
                     </size>
                    </property>
@@ -698,9 +704,15 @@ QLabel[oob=&quot;true&quot;] {
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
-                   <property name="maximumSize">
+                   <property name="minimumSize">
                     <size>
                      <width>20</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>50</width>
                      <height>20</height>
                     </size>
                    </property>
@@ -1031,6 +1043,19 @@ QLabel[oob=&quot;true&quot;] {
                  </property>
                  <property name="maximum">
                   <number>4095</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QLabel" name="labNextCall">
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Double-click on another caller to queue that call for your next QSO.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="text">
+                  <string>Next Call</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
                  </property>
                 </widget>
                </item>
@@ -2621,9 +2646,11 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="actionErase_FoxQSO_txt"/>
     <addaction name="actionErase_wsjtx_log_adi"/>
     <addaction name="actionErase_cabrillo_log"/>
+    <addaction name="actionExport_Cabrillo_log"/>
     <addaction name="actionOpen_log_directory"/>
     <addaction name="separator"/>
     <addaction name="actionSettings"/>
+    <addaction name="separator"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -2670,6 +2697,7 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="actionOnline_User_Guide"/>
     <addaction name="actionLocal_User_Guide"/>
     <addaction name="actionFT8_DXpedition_Mode_User_Guide"/>
+    <addaction name="actionQuick_Start_Guide_v2"/>
     <addaction name="download_samples_action"/>
     <addaction name="separator"/>
     <addaction name="actionKeyboard_shortcuts"/>
@@ -3275,13 +3303,13 @@ QPushButton[state=&quot;ok&quot;] {
   </action>
   <action name="actionFox_Log">
    <property name="text">
-    <string>Fox Log</string>
+    <string>Fox or Contest Log</string>
    </property>
    <property name="iconText">
-    <string>Fox Log</string>
+    <string>Fox or Contest Log</string>
    </property>
    <property name="toolTip">
-    <string>Fox Log</string>
+    <string>Fox or Contest Log</string>
    </property>
   </action>
   <action name="actionErase_FoxQSO_txt">
@@ -3302,6 +3330,21 @@ QPushButton[state=&quot;ok&quot;] {
   <action name="actionColors">
    <property name="text">
     <string>Color highlighting scheme</string>
+   </property>
+  </action>
+  <action name="actionContest_Log">
+   <property name="text">
+    <string>Contest Log</string>
+   </property>
+  </action>
+  <action name="actionExport_Cabrillo_log">
+   <property name="text">
+    <string>Export Cabrillo log</string>
+   </property>
+  </action>
+  <action name="actionQuick_Start_Guide_v2">
+   <property name="text">
+    <string>Quick-Start Guide to WSJT-X 2.0</string>
    </property>
   </action>
  </widget>

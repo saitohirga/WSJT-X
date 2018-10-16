@@ -6,8 +6,8 @@ subroutine msk40spd(cbig,n,ntol,mycall,hiscall,bswl,nhasharray,   &
   use timer_module, only: timer
 
   parameter (NSPM=240, MAXSTEPS=150, NFFT=NSPM, MAXCAND=5, NPATTERNS=6)
-  character*6 mycall,hiscall
-  character*22 msgreceived
+  character*12 mycall,hiscall
+  character*37 msgreceived
   complex cbig(n)
   complex cdat(3*NSPM)                    !Analytic signal
   complex c(NSPM)

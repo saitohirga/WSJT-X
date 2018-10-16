@@ -257,10 +257,14 @@ set (wsjt_qt_CXXSRCS
   MultiSettings.cpp
   MaidenheadLocatorValidator.cpp
   CallsignValidator.cpp
+  ExchangeValidator.cpp
   SplashScreen.cpp
   EqualizationToolsDialog.cpp
   DoubleClickablePushButton.cpp
   DoubleClickableRadioButton.cpp
+  LotWUsers.cpp
+  DecodeHighlightingModel.cpp
+  DecodeHighlightingListView.cpp
   )
 
 set (wsjt_qtmm_CXXSRCS
@@ -308,6 +312,7 @@ set (wsjtx_CXXSRCS
   main.cpp
   wsprnet.cpp
   WSPRBandHopping.cpp
+  ExportCabrillo.cpp
   )
 
 set (wsjt_CXXSRCS
@@ -647,6 +652,7 @@ set (wsjtx_UISRCS
   widegraph.ui
   logqso.ui
   Configuration.ui
+  ExportCabrillo.ui
   )
 
 set (UDP_library_CXXSRCS
@@ -1427,7 +1433,6 @@ install (FILES
 
 install (FILES
   contrib/Ephemeris/JPLEPH
-  contrib/lotw-user-activity.csv
   DESTINATION ${CMAKE_INSTALL_DATADIR}/${CMAKE_PROJECT_NAME}
   #COMPONENT runtime
   )
