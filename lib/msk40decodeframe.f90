@@ -5,8 +5,8 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,bswl,nhasharray,             &
 
   parameter (NSPM=240)
   character*4 rpt(0:15)
-  character*6 mycall,hiscall,mycall0,hiscall0
-  character*22 hashmsg,msgreceived
+  character*12 mycall,hiscall,mycall0,hiscall0
+  character*37 hashmsg,msgreceived
   complex cb(42)
   complex cfac,cca
   complex c(NSPM)
@@ -59,7 +59,7 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,bswl,nhasharray,             &
     hashmsg=trim(mycall)//' '//trim(hiscall)
     if( hashmsg .ne. ' ' .and. hiscall .ne. ''  ) then ! protect against blank mycall/hiscall
       call fmtmsg(hashmsg,iz)
-      call hash(hashmsg,22,ihash)
+      call hash(hashmsg,37,ihash)
       ihash=iand(ihash,4095)
     else
       ihash=9999  ! so that it can never match a received hash

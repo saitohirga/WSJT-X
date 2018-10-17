@@ -17,10 +17,7 @@ subroutine hash10(n10,c13)
   do i=1,nzhash
      if(ihash10(i).eq.n10) then
         c13=callsign(i)
-        if(c13(1:1).ne.'<') then
-           n=len(trim(c13))
-           c13='<'//trim(c13)//'>'//'         '
-        endif
+        c13='<'//trim(c13)//'>'//'         '
         go to 900
      endif
   enddo
@@ -36,10 +33,7 @@ subroutine hash12(n12,c13)
   do i=1,nzhash
      if(ihash12(i).eq.n12) then
         c13=callsign(i)
-        if(c13(1:1).ne.'<') then
-           n=len(trim(c13))
-           c13='<'//trim(c13)//'>'//'         '
-        endif
+        c13='<'//trim(c13)//'>'//'         '
         go to 900
      endif
   enddo
@@ -56,10 +50,7 @@ subroutine hash22(n22,c13)
   do i=1,nzhash
      if(ihash22(i).eq.n22) then
         c13=callsign(i)
-        if(c13(1:1).ne.'<') then
-           n=len(trim(c13))
-           c13='<'//trim(c13)//'>'//'         '
-        endif
+        c13='<'//trim(c13)//'>'//'         '
         go to 900
      endif
   enddo
@@ -71,17 +62,13 @@ end subroutine hash22
 integer function ihashcall(c0,m)
 
   integer*8 n8
-  character*13 c0,c1
+  character*13 c0
   character*38 c
   data c/' 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ/'/
 
-  c1=c0
-  if(c1(1:1).eq.'<') c1=c1(2:)
-  i=index(c1,'>')
-  if(i.gt.0) c1(i:)='         '
   n8=0
   do i=1,11
-     j=index(c,c1(i:i)) - 1
+     j=index(c,c0(i:i)) - 1
      n8=38*n8 + j
   enddo
   ihashcall=ishft(47055833459_8*n8,m-64)
@@ -91,7 +78,7 @@ end function ihashcall
 
 subroutine save_hash_call(c13,n10,n12,n22)
 
-  character*13 c13
+  character*13 c13,cw
   logical first
   data first/.true./
   save first
@@ -104,12 +91,16 @@ subroutine save_hash_call(c13,n10,n12,n22)
      nzhash=0
      first=.false.
   endif
-  
-  if(c13(1:1).eq.' ' .or. c13(1:5).eq.'<...>') return
+ 
+  cw=c13 
+  if(cw(1:1).eq.' ' .or. cw(1:5).eq.'<...>') return
+  if(cw(1:1).eq.'<') cw=cw(2:)
+  i=index(cw,'>')
+  if(i.gt.0) cw(i:)='         '
 
-  n10=ihashcall(c13,10)
-  n12=ihashcall(c13,12)
-  n22=ihashcall(c13,22)
+  n10=ihashcall(cw,10)
+  n12=ihashcall(cw,12)
+  n22=ihashcall(cw,22)
   do i=1,nzhash
      if(ihash22(i).eq.n22) go to 900     !This one is already in the table
   enddo
@@ -124,7 +115,7 @@ subroutine save_hash_call(c13,n10,n12,n22)
   ihash10(1)=n10
   ihash12(1)=n12
   ihash22(1)=n22
-  callsign(1)=c13
+  callsign(1)=cw
   if(nzhash.lt.MAXHASH) nzhash=nzhash+1
 
 900 return
@@ -448,9 +439,11 @@ subroutine unpack77(c77,msg,unpk77_success)
      if(iflip.eq.0) then
         call_1=call_3
         call_2=adjustl(c11)//'  '
+        call add_call_to_recent_calls(call_2)
      else
         call_1=adjustl(c11)//'  '
         call_2=call_3
+        call add_call_to_recent_calls(call_1)
      endif
      if(icq.eq.0) then
         if(nrpt.eq.0) msg=trim(call_1)//' '//trim(call_2)
@@ -662,7 +655,7 @@ subroutine unpack28(n28_0,c13,success)
   c13=adjustl(c13)
 
 900 i0=index(c13,' ')
-  if(i0.lt.len(trim(c13))) then
+  if(i0.ne.0 .and. i0.lt.len(trim(c13))) then
      c13='QU1RK'
      success=.false.
   endif
@@ -1217,6 +1210,9 @@ subroutine add_call_to_recent_calls(callsign)
      enddo
      recent_calls(1)=callsign
   endif
+
+! Make sure that callsign is hashed
+  call save_hash_call(callsign,n10,n12,n22)
 
   return
 end subroutine add_call_to_recent_calls

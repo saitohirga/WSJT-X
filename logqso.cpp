@@ -92,6 +92,8 @@ void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString 
   m_myGrid=myGrid;
   ui->band->setText (m_config->bands ()->find (dialFreq));
   ui->loggedOperator->setText(opCall);
+  ui->exchSent->setText(m_xSent);
+  ui->exchRcvd->setText(m_xRcvd);
   if(bFox or bAutoLog) {
     accept();
   } else {
@@ -119,7 +121,7 @@ void LogQSO::accept()
   QString strDialFreq(QString::number(m_dialFreq / 1.e6,'f',6));
   operator_call = ui->loggedOperator->text();
   //Log this QSO to ADIF file "wsjtx_log.adi"
-  QString filename = "wsjtx_log.adi";  // TODO allow user to set
+  QString filename = "wsjtx_log.adi";                 // TODO allow user to set
   ADIF adifile;
   auto adifilePath = QDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)}.absoluteFilePath ("wsjtx_log.adi");
   adifile.init(adifilePath);

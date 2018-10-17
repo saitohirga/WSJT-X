@@ -92,9 +92,5 @@ QVariant IARURegions::headerData (int section, Qt::Orientation orientation, int 
   return result;
 }
 
-#if !defined (QT_NO_DEBUG_STREAM)
-ENUM_QDEBUG_OPS_IMPL (IARURegions, Region);
-#endif
-
 ENUM_QDATASTREAM_OPS_IMPL (IARURegions, Region);
 ENUM_CONVERSION_OPS_IMPL (IARURegions, Region);

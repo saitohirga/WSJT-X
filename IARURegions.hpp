@@ -29,8 +29,6 @@ class IARURegions final
   : public QAbstractListModel
 {
   Q_OBJECT
-  Q_ENUMS (Region)
-
 public:
   //
   // This enumeration  contains the  supported regions,  to complement
@@ -61,19 +59,6 @@ public:
   QVariant data (QModelIndex const&, int role = Qt::DisplayRole) const override;
   QVariant headerData (int section, Qt::Orientation, int = Qt::DisplayRole) const override;
 };
-
-// Qt boilerplate  to make the IARURegions::region  enumeration a type
-// that can  be streamed and  queued as a  signal argument as  well as
-// showing the human readable string when output to debug streams.
-#if QT_VERSION < 0x050500
-// Qt 5.5 introduces the Q_ENUM macro which automatically registers
-// the meta-type
-Q_DECLARE_METATYPE (IARURegions::Region);
-#endif
-
-#if !defined (QT_NO_DEBUG_STREAM)
-ENUM_QDEBUG_OPS_DECL (IARURegions, Region);
-#endif
 
 ENUM_QDATASTREAM_OPS_DECL (IARURegions, Region);
 ENUM_CONVERSION_OPS_DECL (IARURegions, Region);

@@ -46,6 +46,7 @@ subroutine genmsk_128_90(msg0,ichk,msgsent,i4tone,itype)
     enddo
   endif
 
+  message(1:37)=' ' 
   itype=1
   if(msg0(1:1).eq.'@') then                    !Generate a fixed tone
      read(msg0(2:5),*,end=1,err=1) nfreq       !at specified frequency
@@ -54,23 +55,28 @@ subroutine genmsk_128_90(msg0,ichk,msgsent,i4tone,itype)
 2    i4tone(1)=nfreq
   else
      message=msg0
+
      do i=1, 37
         if(ichar(message(i:i)).eq.0) then
-           message(i:)='                      '
+           message(i:37)=' '
            exit
         endif
      enddo
-
      do i=1,37                               !Strip leading blanks
         if(message(1:1).ne.' ') exit
         message=message(i+1:)
      enddo
 
      if(message(1:1).eq.'<') then
-        call genmsk40(message,msgsent,ichk,i4tone,itype)
-        if(itype.lt.0) go to 999
-        i4tone(41)=-40
-        go to 999
+        i2=index(message,'>')
+        i1=0
+        if(i2.gt.0) i1=index(message(1:i2),' ')
+        if(i1.gt.0) then
+           call genmsk40(message,msgsent,ichk,i4tone,itype)
+           if(itype.lt.0) go to 999
+           i4tone(41)=-40
+           go to 999
+        endif
      endif
 
      i3=-1

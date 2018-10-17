@@ -13,7 +13,7 @@
 #include "TransceiverFactory.hpp"
 #include "WFPalette.hpp"
 #include "IARURegions.hpp"
-
+#include "DecodeHighlightingModel.hpp"
 #include "FrequencyLineEdit.hpp"
 
 QItemEditorFactory * item_editor_factory ()
@@ -47,10 +47,6 @@ void register_types ()
   qRegisterMetaType<AudioDevice::Channel> ("AudioDevice::Channel");
 
   // Configuration
-#if QT_VERSION < 0x050500
-  qRegisterMetaType<Configuration::DataMode> ("Configuration::DataMode");
-  qRegisterMetaType<Configuration::Type2MsgGen> ("Configuration::Type2MsgGen");
-#endif
   qRegisterMetaTypeStreamOperators<Configuration::DataMode> ("Configuration::DataMode");
   qRegisterMetaTypeStreamOperators<Configuration::Type2MsgGen> ("Configuration::Type2MsgGen");
 
@@ -62,17 +58,8 @@ void register_types ()
 
   // Transceiver
   qRegisterMetaType<Transceiver::TransceiverState> ("Transceiver::TransceiverState");
-  qRegisterMetaType<Transceiver::MODE> ("Transceiver::MODE");
 
   // Transceiver factory
-#if QT_VERSION < 0x050500
-  qRegisterMetaType<TransceiverFactory::DataBits> ("TransceiverFactory::DataBits");
-  qRegisterMetaType<TransceiverFactory::StopBits> ("TransceiverFactory::StopBits");
-  qRegisterMetaType<TransceiverFactory::Handshake> ("TransceiverFactory::Handshake");
-  qRegisterMetaType<TransceiverFactory::PTTMethod> ("TransceiverFactory::PTTMethod");
-  qRegisterMetaType<TransceiverFactory::TXAudioSource> ("TransceiverFactory::TXAudioSource");
-  qRegisterMetaType<TransceiverFactory::SplitMode> ("TransceiverFactory::SplitMode");
-#endif
   qRegisterMetaTypeStreamOperators<TransceiverFactory::DataBits> ("TransceiverFactory::DataBits");
   qRegisterMetaTypeStreamOperators<TransceiverFactory::StopBits> ("TransceiverFactory::StopBits");
   qRegisterMetaTypeStreamOperators<TransceiverFactory::Handshake> ("TransceiverFactory::Handshake");
@@ -84,8 +71,9 @@ void register_types ()
   qRegisterMetaTypeStreamOperators<WFPalette::Colours> ("Colours");
 
   // IARURegions
-#if QT_VERSION < 0x050500
-  qRegisterMetaType<IARURegions::Region> ("IARURegions::Region");
-#endif
   qRegisterMetaTypeStreamOperators<IARURegions::Region> ("IARURegions::Region");
+
+  // DecodeHighlightingModel
+  qRegisterMetaTypeStreamOperators<DecodeHighlightingModel::HighlightInfo> ("HighlightInfo");
+  qRegisterMetaTypeStreamOperators<DecodeHighlightingModel::HighlightItems> ("HighlightItems");
 }

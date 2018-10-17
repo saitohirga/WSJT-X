@@ -334,7 +334,7 @@ MessageClient::MessageClient (QString const& id, QString const& version, QString
   connect (&*m_, static_cast<void (impl::*) (impl::SocketError)> (&impl::error)
            , [this] (impl::SocketError e)
            {
-#if defined (Q_OS_WIN) && QT_VERSION >= 0x050500
+#if defined (Q_OS_WIN)
              if (e != impl::NetworkError // take this out when Qt 5.5
                                          // stops doing this
                                          // spuriously

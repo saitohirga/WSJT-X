@@ -1,2 +1,471 @@
-The content of this  file has been moved to the  NEWS file, please add
-release note updates to that file.
+ __       __   ______      _____  ________      __    __ 
+|  \  _  |  \ /      \    |     \|        \    |  \  |  \
+| $$ / \ | $$|  $$$$$$\    \$$$$$ \$$$$$$$$    | $$  | $$
+| $$/  $\| $$| $$___\$$      | $$   | $$ ______ \$$\/  $$
+| $$  $$$\ $$ \$$    \  __   | $$   | $$|      \ >$$  $$ 
+| $$ $$\$$\$$ _\$$$$$$\|  \  | $$   | $$ \$$$$$$/  $$$$\ 
+| $$$$  \$$$$|  \__| $$| $$__| $$   | $$       |  $$ \$$\
+| $$$    \$$$ \$$    $$ \$$    $$   | $$       | $$  | $$
+ \$$      \$$  \$$$$$$   \$$$$$$     \$$        \$$   \$$
+                                                         
+                                                         
+                                                         
+Copyright 2001 - 2018 by Joe Taylor, K1JT.
+
+		     Release: WSJT-X 2.0-rc3
+		        October 15, 2018
+		     -----------------------
+
+Changes from WSJT-X Version 2.0.0-rc1 include the following:
+
+ - Improved SNR calculation for FT8
+ - Test grid4 (not grid6) for matches in ADIF log
+ - Auto-generate 77-bit messages for callsigns with /R or /P
+ - Fix auto-sequencing for "CQ ABC ...", "CQ ABCD ...", etc.
+ - Fix the "CQ RU RU ..." bug
+ - Implement AP decoding for contest messages and for Hound 
+ - Check Field Day and RTTY Roundup exchanges for validity
+ - Implement "Select next caller" and use of "TU; ..." messages
+ - Option to "auto log" in contests
+ - Real-time display of contest log
+ - Contest exchanges sent to ADIF log and N1MM+
+ - Function to export  Cabrillo log
+ - Convert DXpedition mode to always use 77-bit messages
+ -  Fix bug associated with opening "houndcallers.txt"
+ -  Remove end-of-line numbers from MSK144 decodes
+ -  Finish MSK144 encoding/decoding for Sh msgs and nonstandard calls
+ -  Halt Tx before resetting power after Tune
+ -  Auto update of LoTW info, and faster program startup
+
+
+		     Release: WSJT-X 2.0-rc2
+		        September 25, 2018
+		     -----------------------
+Changes from WSJT-X Version 2.0.0-rc1 include the following:
+
+ - Corrected a flaw that encoded a message's first callsign as
+   hexadecimal telemetry data if the call consisted only of letters
+   A-F and digits 0-9.
+
+ - Corrected program logic that failed to identify certain callsigns
+   as "nonstandard".
+
+ - Fixed a bug that color-highlighted bare CQ messages (no grid
+   locator) as "New DXCC".
+
+ - Fixed a bug that failed to log Report Sent if MyCall is a
+   nonstandard call.
+
+ - Fixed a bug that generated incorrect MSK144 tones for certain
+   messages and caused a "memory" effect on stations receiving the
+   incorrect tones.
+
+ - Fixed several bugs that could cause certain Tx messages to crash
+   the program.
+
+ - Suppressed the display of certain illogical false decodes.
+
+
+		     Release: WSJT-X 2.0-rc1
+		        September 17, 2018
+		     -----------------------
+
+This is the first candidate release on WSJT-X 2.0, intended for
+beta-level testing.  For details see:
+
+http://physics.princeton.edu/pulsar/k1jt/New_Features_WSJT-X_2.0.txt
+http://physics.princeton.edu/pulsar/k1jt/Quick_Start_WSJT-X_2.0.pdf
+http://physics.princeton.edu/pulsar/k1jt/77bit.txt
+
+
+		   Release: WSJT-X Version 1.9.1
+		           May 31, 2018
+		   -----------------------------
+
+This release is a critical bug fix release that removes an unintended 
+restriction of FT8 DXpedition mode.
+
+
+		   Release: WSJT-X Version 1.9.0
+		           May 28, 2018
+		   -----------------------------
+
+Changes from WSJT-X Version 1.9.0-rc4 include the following:
+- Display in the right text window of MSK144 messages addressed to
+  "MyCall" has been restored.
+
+- Fox is not allowed to transmit in any of the default FT8 sub-bands.
+
+- Fox can now work Hounds using compound callsigns.
+
+- Fox can now transmit free-text messages (and any standard FT8 message)
+  by using Tab 1 or Tab 2.
+
+- Added a checkbox to enable more frequent programmed CQs by Fox.
+  Default is OFF.
+
+- Alt+N keyboard shortcut has been restored.
+
+- MacOS program crash on unexpected decode request has been fixed.
+
+- Several minor bug fixes and added convenience features.
+
+- Hamlib, support for TRXManger added.
+
+- Hamlib, improved support for flrig.
+
+
+	     	Release: WSJT-X Version 1.9.0-rc4
+		         April 30, 2018
+		---------------------------------
+
+Changes from WSJT-X Version 1.9.0-rc3 include the following:
+
+- Corrected a number of flaws in Fox and Hound behavior, FT8
+  DXpedition Mode
+
+- Decoded CQ calls where a prefix has been used as a suffix should
+  have the DXCC entity name assigned correctly in almost all cases
+
+- Improved AFC capability for the wider JT65 sub-modes to help with
+  drifting signals
+
+- Better support for macOS using hi-DPI Retina displays
+
+- New UDP message that allows external applications to highlight
+  decoded callsigns
+
+- Main-screen geometry and state of the "splitter" setting between its
+  two text windows is now properly restored after program restart.
+
+- New simulator jt49sim[.exe] replaces jt4sim and jt9sim
+
+- Correct S/N measurements for the JT9 slow/wide submodes
+
+- Other minor bug fixes
+
+- Updated copy of cty.dat
+
+
+		Release: WSJT-X Version 1.9.0-rc3
+		         March 18, 2018
+		---------------------------------
+
+Changes from WSJT-X Version 1.9.0-rc2 include the following:
+
+- Corrected a number of flaws in Fox behavior, FT8 DXpedition Mode
+
+- Allow Hounds to use compound callsigns
+
+- Write debugging information to FoxQSO.txt.
+
+- Fix the "Blue Decode Button" bug
+
+- Allow partial processing of incoming UDP Reply messages so that
+  non-CQ/QRZ decodes can be processed. The processing is the same as
+  double-clicking the same decoded message within WSJT-X except that
+  "Enable Tx" will not be enabled.
+
+- Send DX grid locator to wsjt_status.txt, for use by applications like
+  PstRotatorAZ
+
+- Correct the display of DXCC status of KG4 calls
+
+- Updated copy of cty.dat
+
+- Updates to documentation
+
+- Other minor bug fixes
+
+- This release contains updated Hamlib functionality including changes
+  to the Yaesu FT-817 back end that allows the uBITx kit transceiver
+  to be CAT controlled by WSJT-X.
+
+
+
+		Release: WSJT-X Version 1.9.0-rc2
+		        February 26, 2018
+		---------------------------------
+
+Changes from WSJT-X Version 1.8.0 include the following:
+
+- New FT8 DXpedition Mode to facilitate high QSO rates in pileup
+  situations
+
+- Decoding improvements for JT65 mode, including a priori (AP)
+  decoding when VHF/UHF/Microwave features are enabled
+
+- Optional Auto-Sequencing in JT4, JT9, and JT65 when
+  VHF/UHF/Microwave features are enabled
+
+- Better suppression of low-confidence false decodes generated by AP
+  decoding in FT8 mode
+
+- Improved decoding performance for WSPR mode, especially effective at
+  LF and MF
+
+- Minor adjustments to auto-sequencing behavior
+
+- More flexible Doppler control features for EME
+
+- Improved waterfall sensitivity for very weak signals
+
+- Automatic real-time forwarding of logged information to N1MM Logger+
+
+- Expanded and improved UDP messages sent to companion programs
+
+- Bug fixes and other minor tweaks to user interface
+
+A primary purpose of this beta release is to allow field testing of
+FT8 DXpedition Mode.  Instructions for this mode are posted here:
+
+http://physics.princeton.edu/pulsar/k1jt/FT8_DXpedition_Mode.pdf
+
+Contacts in FT8 DXpedition Mode must use WSJT-X v1.9.0 at both ends of
+the QSO.  Please report any anomalous behavior to email list
+wsjt-devel@lists.sourceforge.net.  You must be a subscriber in order
+to post there.
+
+
+		Release: WSJT-X Version 1.8.0
+		       October 27, 2017
+		-----------------------------
+
+This is the full General Availability release of WSJT-X Version 1.8.0.
+
+Changes from WSJT-X Version 1.8.0-rc3 are very minor:
+
+ - Right-click on the Wide Graph now pops up a Context Menu.  Select
+   the item *Set Rx & Tx Offset* to complete a one-handed setting of
+   both red and green frequency markers.
+
+ - Several clarifications and additions to Tool Tips and the User Guide.
+
+
+We recommend that all users should upgrade to WSJT-X Version 1.8.0.
+
+If you upgrade from v1.8.0-rc1 it may be necessary to do a one-time
+reset of the default list of suggested operating frequencies.  Go to
+*File->Settings->Frequencies*, right click on the table and select
+*Reset*.
+
+
+		Release: WSJT-X Version 1.8.0-rc3
+		        October 16, 2017
+		---------------------------------
+
+Most (but not all) changes since Version 1.8.0-rc2 involve user
+control of the increasingly popular FT8 mode.  The "RC3" release also
+includes minor bug fixes and updates to the WSJT-X User Guide.  
+
+The following list includes all of the more important changes:
+
+- New optimization of GUI for simplex and split behavior in FT8 mode.
+
+    1. Checkbox "Lock Tx Freq" on main window is relabeled "Hold Tx Freq".
+
+    2. Double-clicking on decoded messages that do not contain your own
+    call moves both Rx and Tx frequencies.  If the first callsign is
+    your own call, only Rx freq moves.
+
+    3. Double-clicking on decoded messages moves the Rx frequency.  If
+    "Hold Tx Freq" is checked, Tx frequency is moved only if CTRL was
+    held down.
+
+    4. Clicking on the waterfall moves Rx and Tx frequencies as
+    before: Rx only on a simple click, Tx only on SHIFT-click, and
+    both on CTRL-click.  This happens even if "Hold Tx Freq" is
+    checked. 
+
+- Add a semi-automated "FreqCal" procedure: see *Solve for calibration
+parameters* on the Tools menu.
+
+- Improv auto-sequencing behavior: stop and on-frequency
+transmission if a called station comes back to someone else.
+
+- Improve S/N estimation in some situations involving QRM.
+
+- Fix an initialization issue with user-modified application fonts.
+
+- Fix an issue with Tx5 message generation with Type 2 compound calls.
+
+- Enhance and improve the ADIF parser of logbook records.  Update
+the band limits as per ADIF 3.0.6 specification.
+
+- Increase the FT8 DT range to +/- 2.5 s.
+
+- Do not allow window manager events to close the astronomical data
+window.
+
+- Add an "Erase" item to the context (right-click) menu for decoded
+text.
+
+- Extend UDP messages with an "off air" boolean field indicating that
+the decode was derived from a .WAV file playback rather than an on air
+reception.
+
+- Extend reference applications to use the new off air decode message
+field.
+
+- Improve performance of FT8 decoder, especially for overlapping
+signals.
+
+- Allow specialized use of "x2 Tone Spacing" in FT8 and slow JT9
+modes.
+
+- Move "NA VHF Contest Mode" checkbox to main screen.  Query the
+operator if d > 10000 km.
+
+- Adjust UI to improve portability with font size changes and between
+platforms.
+
+- Extend UDP Reply message to support keyboard modifiers.  This allows
+UDP servers to emulate keyboard modified double-clicks on decoded
+messages, e.g. ALT+double-click for replying to a CQ or QRZ call
+without changing ones Tx frequency offset.
+
+- Update the cty.dat file (21st Sept 2017).
+
+- Ensure that Fast Graph is properly initialized.
+
+- Better handling of worked before and country name display.  Appended
+text is added at a fixed column unless the message overlaps in which
+case the appended information floats to the right.
+
+- Restore printing of MSK144 decode quality information.
+
+- Display Echo Graph automatically when Echo mode is started.
+
+- Fix a bug that prevented double-click on a JT65 EME-style "OOO"
+message from populating the Tx message boxes.
+
+- Fixed behavior with double-click on 'CQ <AA-ZZ> <call> <grid>.'
+
+- Update the "blank line" divider with band ID at 4*TRperiod/5.
+
+- Fix cty.dat lookups that were not honouring exact match flags
+
+- Add some further Copyright protections.
+
+- Fix a bug involving "firstcall contains mycall" but not equal to mycall.
+
+- Fix an issue with editing IARU regions in the working frequencies table.
+
+
+
+
+		Release: WSJT-X Version 1.8.0-rc2
+		        September 2, 2017
+		---------------------------------
+
+Implementation of FT8 and its auto-sequencing feature is now more
+capable and more polished.  The decoder is faster and better: it now
+includes signal subtraction, multi-pass decoding, and the use of
+accumulated "a priori" information as a QSO progresses.  Sensitivity
+extends downward as far as -24 dB in some circumstances.  Overlapping
+signals 2 and 3 deep are frequently decoded at essentially the same
+frequency.  On a crowded band we sometimes see more than 30 decodes in
+a single 15-second interval, over a 2 kHz window.  The North American
+VHF Contesting Mode has been extended to include both FT8 and MSK144
+modes.
+
+The "RC2" release also includes many minor bug fixes and an
+extensively updated WSJT-X User Guide.
+
+Depending on what code revision you upgrade from, it may be necessary 
+to do a one-time reset of the default list of suggested operating 
+frequencies.  Go to *File->Settings->Frequencies*, right click on 
+the table and select *Reset*. 
+
+
+		Release: WSJT-X Version 1.8.0
+		-----------------------------
+
+NEW FEATURES IN WSJT-X Version 1.8.0
+------------------------------------
+
+1.  New mode called FT8: sensitivity down to -20 dB on the AWGN
+    channel; QSOs 4 times faster than JT65 or JT9; auto-sequencing
+    includes an option to respond automatically to first decoded
+    reply to your CQ.
+
+2.  New mode for accurate Frequency Calibration of your radio.
+
+3.  Improved performance of decoders for JT65, QRA64, and MSK144.
+    MSK144 includes facilities for amplitide and phase equalization
+    and an "SWL" mode for short-format messages.
+    
+4.  Options to minimize screen space used by Main and Wide Graph
+    windows.
+    
+5.  Enhanced management scheme for table of operating frequencies, and
+    a new set of default frequencies specific to the three IARU
+    Regions.
+    
+6.  Improved CAT control for many rigs, including those controlled
+    through Commander or OmniRig.
+    
+7.  New keyboard shortcuts to set "Tx even/1st" ON or OFF.
+
+8.  A number of (mostly minor) bug fixes and tweaks to the user
+    interface.  For example: new behavior for the audio level slider;
+    correctly logged QSO start times in certain situations; correct
+    control of FT-891/991 and some other radios via rigctld.
+
+At the time of the v1.8.0-rc1 release the following tasks are yet to
+be completed:
+
+1.  Updates to WSJT-X User Guide.
+2.  Sample files for FT8.
+3.  Enhanced decoding using AP ("a priori") information.
+4.  Signal subtraction and multi-pass decoding.
+5.  Option to Auto-respond to the weakest responder to your CQ.
+
+
+Installation packages for Windows, Linux, OS X, and Raspbian can be 
+downloaded from the WSJT web site:
+http://physics.princeton.edu/pulsar/K1JT/wsjtx.html
+
+Please send bug reports to either wsjtgroup@yahoogroups.com or
+wsjt-devel@lists.sourceforge.net.  Such reports should include a full
+prescription of steps to reproduce the undesired behavior.  You must
+be a subscriber to post to either of these lists.
+
+
+		Brief Description of the FT8 Protocol
+		-------------------------------------
+
+WSJT-X Version 1.8.0 includes a new mode called FT8, developed by K9AN
+and K1JT.  The mode name "FT8" stands for "Franke and Taylor, 8-FSK
+modulation".  FT8 uses 15-second T/R sequences and provides 50% or
+better decoding probability down to -20 dB on an AWGN channel.  An
+auto-sequencing facility includes an option to respond automatically
+to the first decoded reply to your CQ.  FT8 QSOs are 4 times faster
+than those made with JT65 or JT9.  FT8 is an excellent mode for HF
+DXing and for situations like multi-hop E_s on 6 meters, where deep
+QSB may make fast and reliable completion of QSOs desirable.
+
+Some important characteristics of FT8:
+
+  - T/R sequence length: 15 s
+  - Message length: 75 bits + 12-bit CRC
+  - FEC code: LDPC(174,87)
+  - Modulation: 8-FSK, tone spacing 6.25 Hz
+  - Constant-envelope waveform
+  - Occupied bandwidth: 50 Hz
+  - Synchronization: 7x7 Costas arrays at start, middle, and end
+  - Transmission duration: 79*1920/12000 = 12.64 s
+  - Decoding threshold: -20 dB; several dB lower with AP decoding
+  - Multi-decoder finds and decodes all FT8 signals in passband
+  - Optional auto-sequencing and auto-reply to a CQ response
+  - Operational behavior similar to JT9, JT65
+
+We plan to implement signal subtraction, two-pass decoding, and use of
+a priori (AP) information in the decoder.  These features are not yet
+activated in v1.8.0.
+
+We haven't yet finalized what the three extra bits in the message
+payload will be used for.  Suggestions are welcome!
+
+	-- Joe, K1JT, for the WSJT Development Team
+	

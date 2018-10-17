@@ -6,17 +6,8 @@
 #include <QString>
 #include <QFile>
 #include <QTextStream>
-#include <QMessageLogContext>
-#include <QDateTime>
-#include <QMutex>
-#include <QMutexLocker>
 
 #include "pimpl_impl.hpp"
-
-namespace
-{
-  QMutex lock;
-}
 
 class TraceFile::impl
 {
@@ -81,35 +72,8 @@ TraceFile::impl::~impl ()
 // write Qt messages to the diagnostic log file
 void TraceFile::impl::message_handler (QtMsgType type, QMessageLogContext const& context, QString const& msg)
 {
-  char const * severity;
-  switch (type)
-    {
-    case QtDebugMsg:
-      severity = "Debug";
-      break;
-
-    case QtWarningMsg:
-      severity = "Warning";
-      break;
-
-    case QtFatalMsg:
-      severity = "Fatal";
-      break;
-
-    default:
-      severity = "Critical";
-      break;
-    }
-
-  {
-    // guard against multiple threads with overlapping messages
-    QMutexLocker guard (&lock);
-    Q_ASSERT_X (current_stream_, "TraceFile:message_handler", "no stream to write to");
-    *current_stream_
-      << QDateTime::currentDateTimeUtc ().toString ("yyyy-MM-ddTHH:mm:ss.zzzZ")
-      << '(' << context.file << ':' << context.line /* << ", " << context.function */ << ')'
-      << severity << ": " << msg.trimmed () << endl;
-  }
+  Q_ASSERT_X (current_stream_, "TraceFile:message_handler", "no stream to write to");
+  *current_stream_ << qFormatLogMessage (type, context, msg) << endl;
 
   if (QtFatalMsg == type)
     {

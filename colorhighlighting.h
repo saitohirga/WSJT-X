@@ -1,30 +1,33 @@
-#ifndef COLORHIGHLIGHTING_H
-#define COLORHIGHLIGHTING_H
+#ifndef COLORHIGHLIGHTING_H_
+#define COLORHIGHLIGHTING_H_
 
 #include <QDialog>
-#include <QSettings>
+#include <QScopedPointer>
+
+class QSettings;
+class DecodeHighlightingModel;
 
 namespace Ui {
-class ColorHighlighting;
+  class ColorHighlighting;
 }
 
-class ColorHighlighting : public QDialog
+class ColorHighlighting final
+: public QDialog
 {
-  Q_OBJECT
+  Q_OBJECT;
 
-public:
-  explicit ColorHighlighting(QSettings *, QWidget *parent = 0);
-  ~ColorHighlighting();
-  void colorHighlightlingSetup(QColor color_CQ, QColor color_MyCall,
-       QColor color_DXCC, QColor color_DXCCband, QColor color_NewCall,
-       QColor color_NewCallBand, QColor color_NewGrid, QColor color_NewGridBand,
-       QColor color_TxMsg, QColor color_LoTW);
+ public:
+  explicit ColorHighlighting(QSettings *, DecodeHighlightingModel const&, QWidget * parent = nullptr);
+  ~ColorHighlighting ();
 
-private:
-  QSettings * settings_;
+  Q_SLOT void set_items (DecodeHighlightingModel const&);
+
+ private:
   void read_settings ();
   void write_settings ();
-  Ui::ColorHighlighting *ui;
+
+  QScopedPointer<Ui::ColorHighlighting> ui;
+  QSettings * settings_;
 };
 
-#endif // COLORHIGHLIGHTING_H
+#endif

@@ -52,7 +52,6 @@ class Transceiver
   : public QObject
 {
   Q_OBJECT
-  Q_ENUMS (MODE)
 
 public:
   using Frequency = Radio::Frequency;
@@ -154,13 +153,8 @@ public:
 };
 
 Q_DECLARE_METATYPE (Transceiver::TransceiverState);
-#if QT_VERSION < 0x050500
-Q_DECLARE_METATYPE (Transceiver::MODE);
-#endif
 
 #if !defined (QT_NO_DEBUG_STREAM)
-ENUM_QDEBUG_OPS_DECL (Transceiver, MODE);
-
 QDebug operator << (QDebug, Transceiver::TransceiverState const&);
 #endif
 

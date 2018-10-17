@@ -18,7 +18,7 @@
   QDataStream& operator << (QDataStream& os, CLASS::ENUM const& v)		\
   {									\
     auto const& mo = CLASS::staticMetaObject;				\
-    return os << mo.enumerator (mo.indexOfEnumerator (#ENUM)).valueToKey (v); \
+    return os << mo.enumerator (mo.indexOfEnumerator (#ENUM)).valueToKey (static_cast<int> (v)); \
   }									\
 									\
   QDataStream& operator >> (QDataStream& is, CLASS::ENUM& v)		\
@@ -47,34 +47,8 @@
   QString enum_to_qstring (CLASS::ENUM const& m)				\
   {									\
     auto const& mo = CLASS::staticMetaObject;				\
-    return QString {mo.enumerator (mo.indexOfEnumerator (#ENUM)).valueToKey (m)}; \
+    return QString {mo.enumerator (mo.indexOfEnumerator (#ENUM)).valueToKey (static_cast<int> (m))}; \
   }
-
-#if QT_VERSION >= 0x050500
-
-// Qt 5.5 now has Q_ENUM which registers enumns better
-#define ENUM_QDEBUG_OPS_DECL(CLASS, ENUM)
-#define ENUM_QDEBUG_OPS_IMPL(CLASS, ENUM)
-
-#else
-
-#define Q_ENUM(E)
-
-#include <QDebug>
-
-class QVariant;
-
-#define ENUM_QDEBUG_OPS_DECL(CLASS, ENUM)				\
-  QDebug operator << (QDebug, CLASS::ENUM const&);
-
-#define ENUM_QDEBUG_OPS_IMPL(CLASS, ENUM)				\
-  QDebug operator << (QDebug d, CLASS::ENUM const& m)				\
-  {									\
-    auto const& mo = CLASS::staticMetaObject;				\
-    return d << mo.enumerator (mo.indexOfEnumerator (#ENUM)).valueToKey (m); \
-  }
-
-#endif
 
 inline
 void throw_qstring (QString const& qs)

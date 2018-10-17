@@ -1,3 +1,4 @@
+
 # Version number components
 set (WSJTX_VERSION_MAJOR 2)
 set (WSJTX_VERSION_MINOR 0)
