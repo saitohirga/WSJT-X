@@ -2842,7 +2842,7 @@ Right click for insert and delete options.</string>
   <customwidget>
    <class>DecodeHighlightingListView</class>
    <extends>QListView</extends>
-   <header>DecodehigHlightingListView.hpp</header>
+   <header>DecodeHighlightingListView.hpp</header>
   </customwidget>
  </customwidgets>
  <tabstops>
@@ -3026,11 +3026,11 @@ Right click for insert and delete options.</string>
  </connections>
  <buttongroups>
   <buttongroup name="CAT_handshake_button_group"/>
-  <buttongroup name="CAT_data_bits_button_group"/>
-  <buttongroup name="TX_mode_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
-  <buttongroup name="split_mode_button_group"/>
-  <buttongroup name="CAT_stop_bits_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="split_mode_button_group"/>
+  <buttongroup name="TX_mode_button_group"/>
+  <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
  </buttongroups>
 </ui>
