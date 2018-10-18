@@ -241,7 +241,7 @@ QString DisplayText::appendWorkedB4(QString message, QString const& callsign, QS
   if (!countryWorkedBefore) {
     // therefore not worked call either
     //    appendage += "!";
-    set_colours (m_config, bg, fg, DecodeHighlightingModel::Highlight::CQ);
+    set_colours (m_config, bg, fg, DecodeHighlightingModel::Highlight::DXCC);
   } else {
     if(!countryB4onBand) {
       set_colours (m_config, bg, fg, DecodeHighlightingModel::Highlight::DXCCBand);
