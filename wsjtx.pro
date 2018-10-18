@@ -68,8 +68,7 @@ SOURCES += \
   WSPRBandHopping.cpp MessageAggregator.cpp SampleDownloader.cpp qt_helpers.cpp\
   MultiSettings.cpp PhaseEqualizationDialog.cpp IARURegions.cpp MessageBox.cpp \
   EqualizationToolsDialog.cpp CallsignValidator.cpp ExchangeValidator.cpp \
-  colorhighlighting.cpp ExportCabrillo.cpp LotWUsers.cpp
-
+  colorhighlighting.cpp ExportCabrillo.cpp LotWUsers.cpp TraceFile.cpp
 HEADERS  += qt_helpers.hpp \
   pimpl_h.hpp pimpl_impl.hpp \
   Radio.hpp NetworkServerLookup.hpp revision_utils.hpp \
@@ -85,7 +84,7 @@ HEADERS  += qt_helpers.hpp \
   messageaveraging.h echoplot.h echograph.h fastgraph.h fastplot.h Modes.hpp WSPRBandHopping.hpp \
   WsprTxScheduler.h SampleDownloader.hpp MultiSettings.hpp PhaseEqualizationDialog.hpp \
   IARURegions.hpp MessageBox.hpp EqualizationToolsDialog.hpp CallsignValidator.hpp \
-  ExchangeValidator.hpp colorhighlighting.h ExportCabrillo.h LotWUsers.h
+  ExchangeValidator.hpp colorhighlighting.h ExportCabrillo.h LotWUsers.h TraceFile.hpp
 
 
 INCLUDEPATH += qmake_only

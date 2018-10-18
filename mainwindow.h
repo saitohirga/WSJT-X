@@ -704,6 +704,7 @@ private:
   void CQTxFreq();
   void cabLog();
   void useNextCall();
+  void abortQSO();
   bool isWorked(int itype, QString key, float fMHz=0, QString="");
 
   QString save_wave_file (QString const& name
