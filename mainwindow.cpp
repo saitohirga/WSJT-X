@@ -3752,8 +3752,9 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-//    qDebug() << "OneSec:" << m_nContest << m_Nslots;
-    if(!m_msgAvgWidget and m_nContest>0 and m_nContest<6) on_actionFox_Log_triggered();
+//    qDebug() << "OneSec:" << m_nContest << m_msgAvgWidget;
+    if((!m_msgAvgWidget or (m_msgAvgWidget and !m_msgAvgWidget->isVisible()))
+       and (m_nContest>0) and (m_nContest<6)) on_actionFox_Log_triggered();
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
       if(!m_bVHFwarned) vhfWarning();
     } else {
