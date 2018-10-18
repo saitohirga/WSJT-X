@@ -29,9 +29,7 @@ public:
 };
 
 QList<DecodeHighlightingModel::HighlightInfo> const DecodeHighlightingModel::impl::defaults_ = {
-  {Highlight::CQ, true, {}, {{0x66, 0xff, 0x66}}}
-  , {Highlight::MyCall, true, {}, {{0xff, 0x66, 0x66}}}
-  , {Highlight::Tx, true, {}, {{Qt::yellow}}}
+  {Highlight::MyCall, true, {}, {{0xff, 0x66, 0x66}}}
   , {Highlight::DXCC, true, {}, {{0xff, 0x00, 0xff}}}
   , {Highlight::DXCCBand, true, {}, {{0xff, 0xaa, 0xff}}}
   , {Highlight::Grid, false, {}, {{0xff, 0x80, 0x00}}}
@@ -39,6 +37,8 @@ QList<DecodeHighlightingModel::HighlightInfo> const DecodeHighlightingModel::imp
   , {Highlight::Call, false, {}, {{0x00, 0xff, 0xff}}}
   , {Highlight::CallBand, false, {}, {{0x99, 0xff, 0xff}}}
   , {Highlight::LotW, false, {{0x99, 0x00, 0x00}}, {}}
+  , {Highlight::CQ, true, {}, {{0x66, 0xff, 0x66}}}
+  , {Highlight::Tx, true, {}, {{Qt::yellow}}}
 };
 
 bool operator == (DecodeHighlightingModel::HighlightInfo const& lhs, DecodeHighlightingModel::HighlightInfo const& rhs)

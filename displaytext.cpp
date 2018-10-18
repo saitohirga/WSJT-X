@@ -1,4 +1,8 @@
 #include "displaytext.h"
+
+#include <vector>
+#include <algorithm>
+
 #include <QMouseEvent>
 #include <QDateTime>
 #include <QTextCharFormat>
@@ -6,6 +10,7 @@
 #include <QTextBlock>
 #include <QMenu>
 #include <QAction>
+#include <QListIterator>
 
 #include "Configuration.hpp"
 #include "LotWUsers.hpp"
@@ -78,13 +83,19 @@ void DisplayText::insertLineSpacer(QString const& line)
 
 namespace
 {
-  void set_colours (Configuration const * config, QColor * bg, QColor * fg, DecodeHighlightingModel::Highlight type)
+  using highlight_types = std::vector<DecodeHighlightingModel::Highlight>;
+  void set_colours (Configuration const * config, QColor * bg, QColor * fg, highlight_types const& types)
   {
     if (config)
       {
-        for (auto const& item : config->decode_highlighting ().items ())
+        QListIterator<DecodeHighlightingModel::HighlightInfo> it {config->decode_highlighting ().items ()};
+        // iterate in reverse to honor priorities
+        it.toBack ();
+        while (it.hasPrevious ())
           {
-            if (type == item.type_ && item.enabled_)
+            auto const& item = it.previous ();
+            auto const& type = std::find (types.begin (), types.end (), item.type_);
+            if (type != types.end () && *type == item.type_ && item.enabled_)
               {
                 if (item.background_.style () != Qt::NoBrush)
                   {
@@ -94,7 +105,6 @@ namespace
                   {
                     *fg = item.foreground_.color ();
                   }
-                break;
               }
           }
       }
@@ -191,7 +201,8 @@ void DisplayText::appendText(QString const& text, QColor bg, QColor fg
     {
       QColor bg;
       QColor fg;
-      set_colours (m_config, &bg, &fg, DecodeHighlightingModel::Highlight::LotW);
+      highlight_types types {DecodeHighlightingModel::Highlight::LotW};
+      set_colours (m_config, &bg, &fg, types);
       if (bg.isValid ()) format.setBackground (bg);
       if (fg.isValid ()) format.setForeground (fg);
     }
@@ -238,37 +249,28 @@ QString DisplayText::appendWorkedB4(QString message, QString const& callsign, QS
   message = message.trimmed ();
   QString appendage{""};
 
+  highlight_types types;
+  // no shortcuts here as some types may be disabled
   if (!countryWorkedBefore) {
-    // therefore not worked call either
-    //    appendage += "!";
-    set_colours (m_config, bg, fg, DecodeHighlightingModel::Highlight::DXCC);
-  } else {
-    if(!countryB4onBand) {
-      set_colours (m_config, bg, fg, DecodeHighlightingModel::Highlight::DXCCBand);
-    } else {
-      if(!gridB4) {
-        set_colours (m_config, bg, fg, DecodeHighlightingModel::Highlight::Grid);
-      } else {
-        if(!gridB4onBand) {
-          set_colours (m_config, bg, fg, DecodeHighlightingModel::Highlight::GridBand);
-        } else {
-          if (!callWorkedBefore) {
-            // but have worked the country
-//            appendage += "~";
-            set_colours (m_config, bg, fg, DecodeHighlightingModel::Highlight::Call);
-          } else {
-            if(!callB4onBand) {
-//              appendage += "~";
-              set_colours (m_config, bg, fg, DecodeHighlightingModel::Highlight::CallBand);
-            } else {
-//              appendage += " ";  // have worked this call before
-              set_colours (m_config, bg, fg, DecodeHighlightingModel::Highlight::CQ);
-            }
-          }
-        }
-      }
-    }
+    types.push_back (DecodeHighlightingModel::Highlight::DXCC);
   }
+  if(!countryB4onBand) {
+    types.push_back (DecodeHighlightingModel::Highlight::DXCCBand);
+  }
+  if(!gridB4) {
+    types.push_back (DecodeHighlightingModel::Highlight::Grid);
+  }
+  if(!gridB4onBand) {
+    types.push_back (DecodeHighlightingModel::Highlight::GridBand);
+  }
+  if (!callWorkedBefore) {
+    types.push_back (DecodeHighlightingModel::Highlight::Call);
+  }
+  if(!callB4onBand) {
+    types.push_back (DecodeHighlightingModel::Highlight::CallBand);
+  }
+  types.push_back (DecodeHighlightingModel::Highlight::CQ);
+  set_colours (m_config, bg, fg, types);
 
   int i1=countryName.indexOf(";");
   if(m_bPrincipalPrefix) {
@@ -323,7 +325,8 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
       || decodedText.string ().contains (" QRZ "))
     {
       CQcall = true;
-      set_colours (m_config, &bg, &fg, DecodeHighlightingModel::Highlight::CQ);
+      highlight_types types {DecodeHighlightingModel::Highlight::CQ};
+      set_colours (m_config, &bg, &fg, types);
     }
   if(bCQonly and !CQcall) return;
   if (myCall != "" and (decodedText.indexOf (" " + myCall + " ") >= 0
@@ -334,7 +337,8 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
         or decodedText.indexOf ("<" + myCall + " ") >= 0
         or decodedText.indexOf ("<" + myCall + ">") >= 0
         or decodedText.indexOf (" " + myCall + ">") >= 0)) {
-    set_colours (m_config, &bg, &fg, DecodeHighlightingModel::Highlight::MyCall);
+    highlight_types types {DecodeHighlightingModel::Highlight::MyCall};
+    set_colours (m_config, &bg, &fg, types);
   }
   auto message = decodedText.string();
   QString dxCall;
@@ -373,7 +377,8 @@ void DisplayText::displayTransmittedText(QString text, QString modeTx, qint32 tx
     }
     QColor bg;
     QColor fg;
-    set_colours (m_config, &bg, &fg, DecodeHighlightingModel::Highlight::Tx);
+    highlight_types types {DecodeHighlightingModel::Highlight::Tx};
+    set_colours (m_config, &bg, &fg, types);
     appendText (t, bg, fg);
 }
 
