@@ -5729,6 +5729,11 @@ void MainWindow::on_actionISCAT_triggered()
 
 void MainWindow::on_actionMSK144_triggered()
 {
+  if(m_nContest>=3) {
+    MessageBox::warning_message (this, tr ("Improper mode"),
+       "MSK144 not available if Fox, Hound, Field Day, or RTTY contest is selected.");
+    return;
+  }
   m_mode="MSK144";
   m_modeTx="MSK144";
   ui->actionMSK144->setChecked(true);
