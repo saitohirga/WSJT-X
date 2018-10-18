@@ -1622,6 +1622,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
   // things that might change that we need know about
   auto callsign = m_config.my_callsign ();
   auto my_grid = m_config.my_grid ();
+  int nContest0=m_nContest;
   if (QDialog::Accepted == m_config.exec ()) {
     setContestType();
     if (m_config.my_callsign () != callsign) {
@@ -1689,6 +1690,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       ui->actionEnable_AP_JT65->setVisible(false);
     }
     m_opCall=m_config.opCall();
+    if(m_nContest!=nContest0) ui->tx1->setEnabled(true);
   }
 }
 
