@@ -1867,6 +1867,11 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         }
       }
       return;
+    case Qt::Key_A:
+      if(e->modifiers() & Qt::ControlModifier) {
+        abortQSO();
+        return;
+      }
     case Qt::Key_X:
       if(e->modifiers() & Qt::AltModifier) {
         foxTest();
@@ -1931,7 +1936,6 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       break;
     case Qt::Key_PageDown:
       band_changed(m_freqNominal-2000);
-      qDebug() << "Down" << m_freqNominal;
       break;  }
 
   QMainWindow::keyPressEvent (e);
@@ -4674,6 +4678,14 @@ void MainWindow::genCQMsg ()
   } else {
     ui->tx6->clear ();
   }
+}
+
+void MainWindow::abortQSO()
+{
+  bool b=m_auto;
+  clearDX();
+  if(b and !m_auto) auto_tx_mode(true);
+  ui->txrb6->setChecked(true);
 }
 
 bool MainWindow::stdCall(QString w)
