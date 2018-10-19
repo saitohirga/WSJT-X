@@ -151,14 +151,15 @@ set (CSRCS
   usleep.c
   wrapkarn.c
 
-  ../../wsjtx/lib/qra/qra64/qra64.c
-  ../../wsjtx/lib/qra/qra64/qra64_subs.c
-  ../../wsjtx/lib/qra/qracodes/npfwht.c
-  ../../wsjtx/lib/qra/qracodes/pdmath.c 
-  ../../wsjtx/lib/qra/qracodes/qra12_63_64_irr_b.c
-  ../../wsjtx/lib/qra/qracodes/qra13_64_64_irr_e.c
-  ../../wsjtx/lib/qra/qracodes/qracodes.c
-  ../../wsjtx/lib/qra/qracodes/normrnd.c
+  qra64/qra64.c
+  qra64/qra64_subs.c
+  qracodes/npfwht.c
+  qracodes/pdmath.c 
+  qracodes/qra12_63_64_irr_b.c
+  qracodes/qra13_64_64_irr_e.c
+  qracodes/qracodes.c
+  qracodes/normrnd.c
+
 )
 
 if (WIN32)
