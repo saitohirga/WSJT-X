@@ -1811,9 +1811,6 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         }
       }
       break;
-    case Qt::Key_Escape:
-      on_stopTxButton_clicked();
-      return;
     case Qt::Key_F1:
       on_actionOnline_User_Guide_triggered();
       return;
@@ -1867,11 +1864,13 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         }
       }
       return;
-    case Qt::Key_A:
-      if(e->modifiers() & Qt::ControlModifier) {
-        abortQSO();
-        return;
-      }
+    case Qt::Key_Escape:
+      m_nextCall="";
+      ui->labNextCall->setStyleSheet("");
+      ui->labNextCall->setText("");
+      on_stopTxButton_clicked();
+      abortQSO();
+      return;
     case Qt::Key_X:
       if(e->modifiers() & Qt::AltModifier) {
         foxTest();
