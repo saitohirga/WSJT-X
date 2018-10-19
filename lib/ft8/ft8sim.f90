@@ -1,14 +1,16 @@
-program ft8sim
+program ft8sim2
 
-! Generate simulated data for a 15-second HF/6m mode using 8-FSK.
+! Generate simulated "type 2" ft8 files
 ! Output is saved to a *.wav file.
 
   use wavhdr
+  use packjt77
   include 'ft8_params.f90'               !Set various constants
   parameter (NWAVE=NN*NSPS)
   type(hdr) h                            !Header for .wav file
   character arg*12,fname*17
-  character msg*37,msgsent*37,msg0*37
+  character msg37*37,msgsent37*37,msg40*40
+  character c77*77
   complex c0(0:NMAX-1)
   complex c(0:NMAX-1)
   real wave(NMAX)
@@ -19,14 +21,13 @@ program ft8sim
 ! Get command-line argument(s)
   nargs=iargc()
   if(nargs.ne.8) then
-     print*,'Usage:    ft8sim "message"         nsig|f0  DT fdop del width nfiles snr'
-     print*,'Examples: ft8sim "K1ABC W9XYZ EN37" 1500.0 0.0  0.1 1.0   0     10   -18'
-     print*,'          ft8sim "K1ABC W9XYZ EN37"   10   0.0  0.1 1.0  25     10   -18'
-     print*,'          ft8sim "K1ABC W9XYZ EN37"   25   0.0  0.1 1.0  25     10   -18'
-     print*,'          ft8sim "K1ABC RR73; W9XYZ <KH1/KH7Z> -11" 300 0 0 0 25 1 -10'
+     print*,'Usage:    ft8sim2 "message"                 f0     DT fdop del width nfiles snr'
+     print*,'Examples: ft8sim2 "K1ABC W9XYZ EN37"       1500.0 0.0  0.1 1.0   0     10   -18'
+     print*,'          ft8sim2 "WA9XYZ/R KA1ABC/R FN42" 1500.0 0.0  0.1 1.0   0     10   -18'
+     print*,'          ft8sim2 "K1ABC RR73; W9XYZ <KH1/KH7Z> -11" 300 0 0 0 25 1 -10'
      go to 999
   endif
-  call getarg(1,msg)                   !Message to be transmitted
+  call getarg(1,msg37)                   !Message to be transmitted
   call getarg(2,arg)
   read(arg,*) f0                         !Frequency (only used for single-signal)
   call getarg(3,arg)
@@ -61,84 +62,56 @@ program ft8sim
   if(snrdb.gt.90.0) sig=1.0
   txt=NN*NSPS/12000.0
 
-! Source-encode, then get itone()
-  if(index(msg,';').le.0) then
-     i3bit=0
-     call genft8(msg,i3bit,0,1,msgsent,msgbits,itone)
-     write(*,1000) f0,xdt,txt,snrdb,bw,msgsent
-1000 format('f0:',f9.3,'   DT:',f6.2,'   TxT:',f6.1,'   SNR:',f6.1,    &
-          '  BW:',f4.1,2x,a22)
-  else
-     call foxgen_wrap(msg,msgbits,itone)
-     write(*,1001) f0,xdt,txt,snrdb,bw,msg
-1001 format('f0:',f9.3,'   DT:',f6.2,'   TxT:',f6.1,'   SNR:',f6.1,    &
-          '  BW:',f4.1,2x,a37)
-  endif
+  ! Source-encode, then get itone()
+  i3=-1
+  n3=-1
+  call pack77(msg37,i3,n3,c77)
+  call genft8_174_91(msg37,i3,n3,msgsent37,msgbits,itone)
 
-  write(*,1030) msgbits(1:56)
-1030 format(/'Call1: ',28i1,'    Call2: ',28i1)
-  write(*,1032) msgbits(57:72),msgbits(73:75)
-1032 format('Grid:  ',16i1,'   3Bit: ',3i1)
-  write(*,1034) itone
-1034 format(/'Channel symbols:'/79i1/)
+  write(*,*)  
+  write(*,'(a23,a37,3x,a7,i1,a1,i1)') 'New Style FT8 Message: ',msgsent37,'i3.n3: ',i3,'.',n3
+  write(*,1000) f0,xdt,txt,snrdb,bw
+1000 format('f0:',f9.3,'   DT:',f6.2,'   TxT:',f6.1,'   SNR:',f6.1,    &
+       '  BW:',f4.1)
+  write(*,*)  
+  if(i3.eq.1) then
+    write(*,*) '         mycall                         hiscall                    hisgrid'
+    write(*,'(28i1,1x,i1,1x,28i1,1x,i1,1x,i1,1x,15i1,1x,3i1)') msgbits(1:77) 
+  else
+    write(*,'(a14)') 'Message bits: '
+    write(*,'(77i1)') msgbits
+  endif
+  write(*,*) 
+  write(*,'(a17)') 'Channel symbols: '
+  write(*,'(79i1)') itone
+  write(*,*)  
 
   call sgran()
 
   msg0=msg
   do ifile=1,nfiles
-     c=0.
-     do isig=1,nsig
-        c0=0.
-        if(nsig.eq.2) then
-           if(index(msg,'R-').gt.0) f0=500
-           i1=index(msg,' ')
-           msg(i1+4:i1+4)=char(ichar('A')+isig-1)
-           if(isig.eq.2) then
-              f0=f0+100
-           endif
-           call genft8(msg,i3bit,msgsent,msgbits,itone)
-        endif
-        if(nsig.eq.25) then
-           f0=(isig+2)*100.0
-        else if(nsig.eq.50) then
-           msg=msg0
-           f0=1000.0 + (isig-1)*60.0
-           i1=index(msg,' ')
-           i2=index(msg(i1+1:),' ') + i1
-           msg(i1+2:i1+2)=char(ichar('0')+mod(isig-1,10))
-           msg(i1+3:i1+3)=char(ichar('A')+mod(isig-1,26))
-           msg(i1+4:i1+4)=char(ichar('A')+mod(isig-1,26))
-           msg(i1+5:i1+5)=char(ichar('A')+mod(isig-1,26))
-           write(msg(i2+3:i2+4),'(i2.2)') isig-1
-           if(ifile.ge.2 .and. isig.eq.ifile-1) then
-              write(msg(i2+1:i2+4),1002) -isig
-1002          format('R',i3.2)
-              f0=600.0 + mod(isig-1,5)*60.0
-           endif
-           call genft8(msg,i3bit,msgsent,msgbits,itone)
-        endif
-!        k=nint((xdt+0.5+0.01*gran())/dt)
-        k=nint((xdt+0.5)/dt)
-        ia=k
-        phi=0.0
-        do j=1,NN                             !Generate complex waveform
-           dphi=twopi*(f0*dt+itone(j)/real(NSPS))
-           do i=1,NSPS
-              if(k.ge.0 .and. k.lt.NMAX) c0(k)=cmplx(cos(phi),sin(phi))
-              k=k+1
-              phi=mod(phi+dphi,twopi)
-           enddo
+     k=nint((xdt+0.5)/dt)
+     ia=k
+     phi=0.0 
+     c0=0.0
+     do j=1,NN                             !Generate complex waveform
+        dphi=twopi*(f0*dt+itone(j)/real(NSPS))
+        do i=1,NSPS
+           if(k.ge.0 .and. k.lt.NMAX) c0(k)=cmplx(cos(phi),sin(phi))
+           k=k+1
+           phi=mod(phi+dphi,twopi)
         enddo
-        if(fspread.ne.0.0 .or. delay.ne.0.0) call watterson(c0,NMAX,fs,delay,fspread)
-        c=c+sig*c0
      enddo
+     if(fspread.ne.0.0 .or. delay.ne.0.0) call watterson(c0,NMAX,fs,delay,fspread)
+     c=sig*c0
+  
      ib=k
      wave=real(c)
      peak=maxval(abs(wave(ia:ib)))
      rms=sqrt(dot_product(wave(ia:ib),wave(ia:ib))/NWAVE)
      nslots=1
      if(width.gt.0.0) call filt8(f0,nslots,width,wave)
-     
+   
      if(snrdb.lt.90) then
         do i=1,NMAX                   !Add gaussian noise at specified SNR
            xnoise=gran()
@@ -159,8 +132,5 @@ program ft8sim
      close(10)
      write(*,1110) ifile,xdt,f0,snrdb,fname
 1110 format(i4,f7.2,f8.2,f7.1,2x,a17)
-  enddo
-       
-999 end program ft8sim
-
-  
+  enddo    
+999 end program ft8sim2
