@@ -9,6 +9,7 @@ upstream and master. To upgrade the content do the following:
 git checkout upstream
 rm -r *
 # use the bcp tool to populate with the new Boost libraries
+# use git add to stage any new files and directories
 git commit -a -m "Updated Boost v1.63 libraries including ..."
 git tag boost_1_63
 git push origin
