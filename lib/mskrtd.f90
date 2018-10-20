@@ -123,9 +123,11 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   np=8*NSPM
   call msk144spd(cdat,np,ntol,ndecodesuccess,msgreceived,fc,fest,tdec,navg,ct, &
                  softbits)
+  bshdecode=.false.
   if(ndecodesuccess.eq.0 .and. (bshmsg.or.bswl)) then
      call msk40spd(cdat,np,ntol,mycall,hiscall,bswl,nhasharray,      &
               ndecodesuccess,msgreceived,fc,fest,tdec,navg)
+     if(ndecodesuccess .ge.1) bshdecode=.true.
   endif
   if( ndecodesuccess .ge. 1 ) then
     tdec=tsec+tdec
@@ -187,14 +189,6 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   endif
   nsnr=nint(snr0)
 
-  bshdecode=.false.
-  if( msgreceived(1:1) .eq. '<' ) then
-    i2=index(msgreceived,'>')
-    i1=0
-    if(i2.gt.0) i1=index(msgreceived(1:i2),' ')
-    if(i1.gt.0) bshdecode=.true. 
-  endif
-
   if(.not. bshdecode) then
     call msk144signalquality(ct,snr0,fest,tdec,softbits,msgreceived,hiscall,   &
                           btrain,datadir,ncorrected,eyeopening,pcoeffs)
@@ -221,15 +215,6 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
      endif
      write(line,1021) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,char(0)
 1021 format(i6.6,i4,f5.1,i5,a4,a37,a1)
-!     if( .not.bshdecode ) then
-!        write(line,1020) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived(1:22),           &
-!             navg,ncorrected,eyeopening,char(0)
-!1020    format(i6.6,i4,f5.1,i5,a4,a22,i2,i3,f5.1,a1)
-!     else
-!        write(line,1022) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived(1:22),           &
-!             navg,char(0)
-!1022    format(i6.6,i4,f5.1,i5,a4,a22,i2,a1)
-!     endif
   elseif(bswl .and. ndecodesuccess.ge.2) then 
     seenb4=.false.
     do i=1,nshmem
@@ -245,8 +230,6 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
       msglastswl=msgreceived
       nsnrlastswl=nsnr
       write(line,1021) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,char(0)
-!      write(line,1022) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,    &
-!          navg,char(0)
     endif
   endif
 999 tsec0=tsec
