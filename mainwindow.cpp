@@ -4779,9 +4779,14 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       rst.sprintf("5%1d9 ",nn);
       rs=rst.mid(0,2);
       t=t0;
-      if(b77 and !bMyCall) t=t0b;
-      if(b77 and !bHisCall) t=t0a;
-      if(b77 and (t!=t0)) msgtype(t, ui->tx1);
+      if(b77 and !bMyCall) {
+        t=t0b;
+        msgtype(t0a, ui->tx1);
+      }
+      if(b77 and !bHisCall) {
+        t=t0a;
+        msgtype(t0a, ui->tx1);
+      }
       if(m_config.bNA_VHF_Contest()) sent=my_grid;
       if(m_config.bFieldDay()) sent=m_config.FieldDayExchange();
       if(m_config.bRTTYroundup()) {
