@@ -82,8 +82,6 @@ extern "C" {
   void genft8_(char* msg, int* i3, int* n3, int* isync, char* msgsent,
                char ft8msgbits[], int itone[], fortran_charlen_t, fortran_charlen_t);
 
-  void parse77_(char* msg, int* i3, int* n3, fortran_charlen_t);
-
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, fortran_charlen_t, fortran_charlen_t);
 
@@ -3535,20 +3533,6 @@ void MainWindow::guiUpdate()
             if(m_config.bFox() and ui->tabWidget->currentIndex()==2) {
               foxTxSequencer();
             } else {
-              parse77_(message, &m_i3, &m_n3, 37);
-              int ichk=1,itype=-1;
-              gen65_(message,&ichk,msgsent,const_cast<int *>(itone0),&itype,22,22);
-              /*
-               * itype:
-               *  1 Std msg
-               *  2 Type 1 prefix
-               *  3 Type 1 suffix
-               *  4 Type 2 prefix
-               *  5 Type 2 suffix
-               *  6 Free Text
-               *  7 Hashed calls (MSK144 short format)
-              */
-
               m_isync=2;
               m_i3=0;
               char ft8msgbits[77];
