@@ -414,7 +414,6 @@ private:
 
   void delete_stations ();
   void insert_station ();
-  void chk77();
 
   Q_SLOT void on_font_push_button_clicked ();
   Q_SLOT void on_decoded_text_font_push_button_clicked ();
@@ -451,7 +450,6 @@ private:
   Q_SLOT void on_cbHound_clicked (bool);
   Q_SLOT void on_cbx2ToneSpacing_clicked(bool);
   Q_SLOT void on_cbx4ToneSpacing_clicked(bool);
-  Q_SLOT void on_rbNone_toggled(bool);
   Q_SLOT void on_rbFieldDay_toggled();
   Q_SLOT void on_rbRTTYroundup_toggled();
   Q_SLOT void on_FieldDay_Exchange_textChanged();
@@ -579,8 +577,6 @@ private:
   bool twoPass_;
   bool bFox_;
   bool bHound_;
-  bool bGenerate77_;
-  bool bDecode77_;
   bool bNoSpecial_;
   bool bFieldDay_;
   bool bRTTYroundup_;
@@ -679,8 +675,6 @@ bool Configuration::single_decode () const {return m_->single_decode_;}
 bool Configuration::twoPass() const {return m_->twoPass_;}
 bool Configuration::bFox() const {return m_->bFox_;}
 bool Configuration::bHound() const {return m_->bHound_;}
-bool Configuration::bGenerate77() const {return m_->bGenerate77_;}
-bool Configuration::bDecode77() const {return m_->bDecode77_;}
 bool Configuration::bNoSpecial() const {return m_->bNoSpecial_;}
 bool Configuration::bFieldDay() const {return m_->bFieldDay_;}
 bool Configuration::bRTTYroundup() const {return m_->bRTTYroundup_;}
@@ -835,7 +829,6 @@ void Configuration::setEU_VHF_Contest()
 {
   m_->bEU_VHF_Contest_ = true;
   m_->ui_->rbEU_VHF_Contest->setChecked(m_->bEU_VHF_Contest_);
-  m_->ui_->cbGenerate77->setChecked(true);
   m_->write_settings();
 }
 
@@ -925,7 +918,6 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   , default_audio_output_device_selected_ {false}
 {
   ui_->setupUi (this);
-//  ui_->groupBox_6->setVisible(false);              //### Temporary ??? ###
 
   {
     // Find a suitable data file location
@@ -1208,8 +1200,6 @@ void Configuration::impl::initialize_models ()
   ui_->cbTwoPass->setChecked(twoPass_);
   ui_->cbFox->setChecked(bFox_);
   ui_->cbHound->setChecked(bHound_);
-  ui_->cbGenerate77->setChecked(bGenerate77_);
-  ui_->cbDecode77->setChecked(bDecode77_);
   ui_->rbNone->setChecked(bNoSpecial_);
   ui_->rbFieldDay->setChecked(bFieldDay_);
   ui_->rbRTTYroundup->setChecked(bRTTYroundup_);
@@ -1256,7 +1246,6 @@ void Configuration::impl::initialize_models ()
   ui_->udpWindowRestore->setChecked(udpWindowRestore_);
   ui_->calibration_intercept_spin_box->setValue (calibration_.intercept);
   ui_->calibration_slope_ppm_spin_box->setValue (calibration_.slope_ppm);
-  chk77();
 
   if (rig_params_.ptt_port.isEmpty ())
     {
@@ -1461,8 +1450,6 @@ void Configuration::impl::read_settings ()
   twoPass_ = settings_->value("TwoPass",true).toBool ();
   bFox_ = settings_->value("Fox",false).toBool ();
   bHound_ = settings_->value("Hound",false).toBool ();
-  bGenerate77_ = settings_->value("Generate77",false).toBool ();
-  bDecode77_ = settings_->value("Decode77",false).toBool ();
   bNoSpecial_ = settings_->value("NoSpecial",false).toBool ();
   bFieldDay_ = settings_->value("FieldDay",false).toBool ();
   bRTTYroundup_ = settings_->value("RTTYroundup",false).toBool ();
@@ -1573,8 +1560,6 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("TwoPass", twoPass_);
   settings_->setValue ("Fox", bFox_);
   settings_->setValue ("Hound", bHound_);
-  settings_->setValue ("Generate77", bGenerate77_);
-  settings_->setValue ("Decode77", bDecode77_);
   settings_->setValue ("NoSpecial", bNoSpecial_);
   settings_->setValue ("FieldDay", bFieldDay_);
   settings_->setValue ("RTTYroundup", bRTTYroundup_);
@@ -1983,8 +1968,6 @@ void Configuration::impl::accept ()
   bFox_ = ui_->cbFox->isChecked ();
   bHound_ = ui_->cbHound->isChecked ();
   if(bFox_ or bHound_) ui_->rbNone->setChecked(true);     //###
-  bGenerate77_ = ui_->cbGenerate77->isChecked();
-  bDecode77_ = ui_->cbDecode77->isChecked();
   bNoSpecial_ = ui_->rbNone->isChecked ();
   bFieldDay_ = ui_->rbFieldDay->isChecked ();
   bRTTYroundup_ = ui_->rbRTTYroundup->isChecked ();
@@ -2474,7 +2457,6 @@ void Configuration::impl::on_cbFox_clicked (bool checked)
     ui_->cbHound->setChecked (false);
     ui_->rbNone->setChecked(true);
   }
-  chk77();
 }
 
 void Configuration::impl::on_cbHound_clicked (bool checked)
@@ -2483,22 +2465,6 @@ void Configuration::impl::on_cbHound_clicked (bool checked)
     ui_->cbFox->setChecked (false);
     ui_->rbNone->setChecked(true);
   }
-  chk77();
-}
-
-void Configuration::impl::chk77()
-{
-  bool b77OK = !ui_->cbFox->isChecked() and !ui_->cbHound->isChecked();
-  ui_->groupBox_9->setEnabled(b77OK);
-  if(!b77OK) {
-    ui_->cbGenerate77->setChecked(true);
-    ui_->cbDecode77->setChecked(true);
-  }
-}
-
-void Configuration::impl::on_rbNone_toggled(bool b)
-{
-  if(!b) ui_->cbGenerate77->setChecked(true);
 }
 
 void Configuration::impl::on_rbFieldDay_toggled()
