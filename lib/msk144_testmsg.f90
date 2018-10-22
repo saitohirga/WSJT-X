@@ -1,4 +1,4 @@
-  parameter (MAXTEST=75,NTEST=48)
+  parameter (MAXTEST=75,NTEST=43)
   character*37 testmsg(MAXTEST)
   data testmsg(1:NTEST)/                   &
        "CQ K1ABC FN42",                    &
@@ -9,21 +9,12 @@
        "K1ABC W9XYZ 73",                   &
        "K1ABC W9XYZ RR73",                 &
        "CQ KH1/KH7Z",                      &
-       "K1ABC RR73; W9XYZ <KH1/KH7Z> -08", &
-       "CQ FD K1ABC FN42",                 &
-       "K1ABC W9XYZ 6A WI",                &
-       "W9XYZ K1ABC R 2B EMA",             &
        "CQ TEST K1ABC/R FN42",             &
        "K1ABC/R W9XYZ EN37",               &
        "W9XYZ K1ABC/R R FN42",             &
        "K1ABC/R W9XYZ RR73",               &
        "CQ TEST K1ABC FN42",               &
-       "K1ABC W9XYZ 579 WI",               &
-       "W9XYZ K1ABC R 589 MA",             &
-       "K1ABC KA0DEF 559 MO",              &
-       "TU; KA0DEF K1ABC R 569 MA",        &
-       "KA1ABC G3AAA 529 0013",            &
-       "TU; G3AAA K1ABC R 559 MA",         &
+       "K1ABC/R W9XYZ/R R FN42",           &
        "CQ G4ABC/P IO91",                  &
        "G4ABC/P PA9XYZ JO22",              &
        "PA9XYZ 590003 IO91NP",             &
@@ -48,4 +39,9 @@
        "<YW18FIFA> KA1ABC R-17",           &
        "<KA1ABC> YW18FIFA RR73",           &
        "<YW18FIFA> KA1ABC 73",             &
-       "123456789ABCDEF012"/
+       "123456789ABCDEF012",               &
+       "<KA1ABC WB9XYZ> -03",              &
+       "<KA1ABC WB9XYZ> R+03",             &
+       "<KA1ABC WB9XYZ> RRR",              &
+       "<KA1ABC WB9XYZ> 73"/
+

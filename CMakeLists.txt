@@ -456,7 +456,6 @@ set (wsjt_FSRCS
   lib/ft8/ft8code.f90
   lib/ft8/ft8_downsample.f90
   lib/ft8/ft8sim.f90
-  lib/ft8/ft8sim2.f90
   lib/gen4.f90
   lib/gen65.f90
   lib/gen9.f90
@@ -497,7 +496,7 @@ set (wsjt_FSRCS
   lib/moondopjpl.f90
   lib/morse.f90
   lib/move.f90
-  lib/msk144d2.f90
+  lib/msk144d.f90
   lib/msk40decodeframe.f90
   lib/msk144decodeframe.f90
   lib/msk144sd.f90
@@ -515,7 +514,6 @@ set (wsjt_FSRCS
   lib/ft8/osd174.f90
   lib/wsprd/osdwspr.f90
   lib/ft8/osd174_91.f90
-  lib/77bit/parse77.f90
   lib/pctile.f90
   lib/peakdt9.f90
   lib/peakup.f90
@@ -1250,17 +1248,14 @@ target_link_libraries (ft8code wsjt_fort wsjt_cxx)
 add_executable (ft8sim lib/ft8/ft8sim.f90 wsjtx.rc)
 target_link_libraries (ft8sim wsjt_fort wsjt_cxx)
 
-add_executable (ft8sim2 lib/ft8/ft8sim2.f90 wsjtx.rc)
-target_link_libraries (ft8sim2 wsjt_fort wsjt_cxx)
-
 add_executable (msk144sd lib/msk144sd.f90 wsjtx.rc)
 target_link_libraries (msk144sd wsjt_fort wsjt_cxx)
 
 add_executable (msk144sim lib/msk144sim.f90 wsjtx.rc)
 target_link_libraries (msk144sim wsjt_fort wsjt_cxx)
 
-add_executable (msk144d2 lib/msk144d2.f90 wsjtx.rc)
-target_link_libraries (msk144d2 wsjt_fort wsjt_cxx)
+add_executable (msk144d lib/msk144d.f90 wsjtx.rc)
+target_link_libraries (msk144d wsjt_fort wsjt_cxx)
 endif(WSJT_BUILD_UTILS)
 
 # build the main application

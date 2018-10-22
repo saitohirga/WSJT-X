@@ -1,4 +1,4 @@
-program msk144d2
+program msk144d
 
   ! Test the msk144 decoder for WSJT-X
 
@@ -17,7 +17,6 @@ program msk144d2
 
   logical :: display_help=.false.
   logical*1 bShMsgs
-  logical*1 bcontest
   logical*1 btrain
   logical*1 bswl
 
@@ -47,7 +46,6 @@ program msk144d2
   mygrid='EN50WC'
   hiscall=''
   bShMsgs=.false.
-  bcontest=.false.
   btrain=.false.
   bswl=.false.
   datadir='.'
@@ -116,7 +114,7 @@ program msk144d2
        tt=sum(float(abs(id2(i:i+7*512-1))))
        if( tt .ne. 0.0 ) then
          call mskrtd(ichunk,nutc,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,bShMsgs, &
-                     bcontest,btrain,pcoeffs,bswl,datadir,line)
+                     btrain,pcoeffs,bswl,datadir,line)
          if( index(line,"&") .ne. 0 .or.   &
               index(line,"^") .ne. 0 .or.   &
               index(line,"!") .ne. 0 .or.   &
@@ -135,4 +133,4 @@ program msk144d2
   print*,infile
 
 999 continue
-end program msk144d2
+end program msk144d

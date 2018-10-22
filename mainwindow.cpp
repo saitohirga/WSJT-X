@@ -82,8 +82,6 @@ extern "C" {
   void genft8_(char* msg, int* i3, int* n3, int* isync, char* msgsent,
                char ft8msgbits[], int itone[], fortran_charlen_t, fortran_charlen_t);
 
-  void parse77_(char* msg, int* i3, int* n3, fortran_charlen_t);
-
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, fortran_charlen_t, fortran_charlen_t);
 
@@ -1811,9 +1809,6 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         }
       }
       break;
-    case Qt::Key_Escape:
-      on_stopTxButton_clicked();
-      return;
     case Qt::Key_F1:
       on_actionOnline_User_Guide_triggered();
       return;
@@ -1867,11 +1862,13 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         }
       }
       return;
-    case Qt::Key_A:
-      if(e->modifiers() & Qt::ControlModifier) {
-        abortQSO();
-        return;
-      }
+    case Qt::Key_Escape:
+      m_nextCall="";
+      ui->labNextCall->setStyleSheet("");
+      ui->labNextCall->setText("");
+      on_stopTxButton_clicked();
+      abortQSO();
+      return;
     case Qt::Key_X:
       if(e->modifiers() & Qt::AltModifier) {
         foxTest();
@@ -2746,7 +2743,7 @@ void MainWindow::decode()                                       //decode()
   dec_data.params.nexp_decode=m_nContest;
   if(m_config.single_decode()) dec_data.params.nexp_decode += 32;
   if(m_config.enable_VHF_features()) dec_data.params.nexp_decode += 64;
-  dec_data.params.ldecode77 = m_config.bDecode77();
+  dec_data.params.ldecode77 = true;
 
   strncpy(dec_data.params.datetime, m_dateTime.toLatin1(), 20);
   strncpy(dec_data.params.mycall, (m_config.my_callsign()+"            ").toLatin1(),12);
@@ -3536,24 +3533,8 @@ void MainWindow::guiUpdate()
             if(m_config.bFox() and ui->tabWidget->currentIndex()==2) {
               foxTxSequencer();
             } else {
-              parse77_(message, &m_i3, &m_n3, 37);
-              int ichk=1,itype=-1;
-              gen65_(message,&ichk,msgsent,const_cast<int *>(itone0),&itype,22,22);
-              /*
-               * itype:
-               *  1 Std msg
-               *  2 Type 1 prefix
-               *  3 Type 1 suffix
-               *  4 Type 2 prefix
-               *  5 Type 2 suffix
-               *  6 Free Text
-               *  7 Hashed calls (MSK144 short format)
-              */
-
-              m_isync=1;
-              if(!m_config.bGenerate77() and itype == 6 and (m_i3>0 or m_n3>0)) m_isync=2;
-              if(m_config.bGenerate77()) m_isync=2;
-              if(m_isync==1) m_i3=0;
+              m_isync=2;
+              m_i3=0;
               char ft8msgbits[77];
               genft8_(message, &m_i3, &m_n3, &m_isync, msgsent,
                       const_cast<char *> (ft8msgbits), const_cast<int *> (itone), 37, 37);
@@ -4743,22 +4724,18 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
 
   bool bMyCall=stdCall(my_callsign);
   bool bHisCall=stdCall(hisCall);
-  bool b77=(m_mode=="MSK144" or m_mode=="FT8") and
-      (!bMyCall or !bHisCall or m_config.bGenerate77());
 
   QString t0=hisBase + " " + m_baseCall + " ";
   QString t0s=hisCall + " " + my_callsign + " ";
   QString t0a,t0b;
-  if(b77) {
-    if(bHisCall and bMyCall) t0=hisCall + " " + my_callsign + " ";
-    t0a="<"+hisCall + "> " + my_callsign + " ";
-    t0b=hisCall + " <" + my_callsign + "> ";
-  }
+
+  if(bHisCall and bMyCall) t0=hisCall + " " + my_callsign + " ";
+  t0a="<"+hisCall + "> " + my_callsign + " ";
+  t0b=hisCall + " <" + my_callsign + "> ";
 
   QString t00=t0;
   QString t {t0 + my_grid};
-//  if(b77 and (!bMyCall or !bHisCall)) t=t0a;
-  if(b77 and (!bMyCall)) t=t0a;
+  if(!bMyCall) t=t0a;
   msgtype(t, ui->tx1);
   if (eme_short_codes) {
     t=t+" OOO";
@@ -4780,9 +4757,14 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       rst.sprintf("5%1d9 ",nn);
       rs=rst.mid(0,2);
       t=t0;
-      if(b77 and !bMyCall) t=t0b;
-      if(b77 and !bHisCall) t=t0a;
-      if(b77 and (t!=t0)) msgtype(t, ui->tx1);
+      if(!bMyCall) {
+        t=t0b;
+        msgtype(t0a, ui->tx1);
+      }
+      if(!bHisCall) {
+        t=t0a;
+        msgtype(t0a, ui->tx1);
+      }
       if(m_config.bNA_VHF_Contest()) sent=my_grid;
       if(m_config.bFieldDay()) sent=m_config.FieldDayExchange();
       if(m_config.bRTTYroundup()) {
@@ -4856,7 +4838,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     }
   }
 
-  if(m_config.bGenerate77() or "MSK144" == m_mode) return;
+  if(m_mode=="FT8" or m_mode=="MSK144") return;
 
   if (is_compound) {
     if (is_type_one) {
@@ -5113,7 +5095,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
     int i0=t.trimmed().length()-7;
     if(t.mid(i0,3)==" R ") text=false;
   }
-  if(m_config.bGenerate77()) text=false;
+  text=false;
 //### ... to here ...
 
 
@@ -5467,7 +5449,7 @@ void MainWindow::on_actionFT8_triggered()
 
   if(!m_config.bFox() and !m_config.bHound()) {
     QString t0="";
-    if(m_config.bGenerate77()) t0=" Tx2.0   ";
+    t0=" Tx2.0   ";
     if(m_config.bNA_VHF_Contest()) t0+="NA VHF";
     if(m_config.bEU_VHF_Contest()) t0+="EU VHF";
     if(m_config.bFieldDay()) t0+="Field Day";
