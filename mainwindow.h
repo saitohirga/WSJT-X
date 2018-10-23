@@ -518,13 +518,13 @@ private:
     m_QSOProgress;        //State machine counter
 
   enum {
-    NONE,
-    NA_VHF,
-    EU_VHF,
-    FIELD_DAY,
-    RTTY,
-    FOX,
-    HOUND
+    NONE,                 // 0
+    NA_VHF,               // 1
+    EU_VHF,               // 2
+    FIELD_DAY,            // 3
+    RTTY,                 // 4
+    FOX,                  // 5
+    HOUND                 // 6
   } m_nContest;           //Contest type
 
   enum {CALL, GRID, DXCC, MULT};

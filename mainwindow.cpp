@@ -1875,11 +1875,11 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         return;
       }
     case Qt::Key_E:
-      if(e->modifiers() & Qt::ShiftModifier) {
+      if((e->modifiers() & Qt::ShiftModifier) and m_nContest<FOX) {
           ui->txFirstCheckBox->setChecked(false);
           return;
       }
-      else if (e->modifiers() & Qt::ControlModifier) {
+      else if((e->modifiers() & Qt::ControlModifier) and m_nContest<FOX) {
           ui->txFirstCheckBox->setChecked(true);
           return;
       }
