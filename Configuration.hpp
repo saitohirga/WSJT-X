@@ -176,6 +176,7 @@ public:
   bool pwrBandTuneMemory () const;
   LotWUsers const& lotw_users () const;
   DecodeHighlightingModel const& decode_highlighting () const;
+  bool highlight_by_mode () const;
 
   struct CalibrationParams
   {

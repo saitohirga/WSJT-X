@@ -24,6 +24,7 @@
 #include <QAction>
 #include <QActionGroup>
 #include <QSplashScreen>
+#include <QUdpSocket>
 
 #include "revision_utils.hpp"
 #include "qt_helpers.hpp"
@@ -61,6 +62,7 @@
 #include "ExchangeValidator.hpp"
 #include "EqualizationToolsDialog.hpp"
 #include "LotWUsers.hpp"
+#include "logbook/countrydat.h"
 
 #include "ui_mainwindow.h"
 #include "moc_mainwindow.cpp"
@@ -353,6 +355,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
       },
   m_sfx {"P",  "0",  "1",  "2",  "3",  "4",  "5",  "6",  "7",  "8",  "9",  "A"},
   mem_jt9 {shdmem},
+  m_logBook {&m_config},
   m_msAudioOutputBuffered (0u),
   m_framesAudioInputBuffered (RX_SAMPLE_RATE / 10),
   m_downSampleFactor (downSampleFactor),
@@ -1296,7 +1299,7 @@ void MainWindow::dataSink(qint64 frames)
     freqcal_(&dec_data.d2[0],&k,&nkhz,&RxFreq,&ftol,&line[0],80);
     QString t=QString::fromLatin1(line);
     DecodedText decodedtext {t};
-    ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
+    ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_mode,m_config.DXCC(),
           m_logBook,m_currentBand, m_config.ppfx());
     if (ui->measure_check_box->isChecked ()) {
       // Append results text to file "fmt.all".
@@ -1538,7 +1541,7 @@ void MainWindow::fastSink(qint64 frames)
   if(bmsk144 and (line[0]!=0)) {
     QString message {QString::fromLatin1 (line)};
     DecodedText decodedtext {message.replace (QChar::LineFeed, "")};
-    ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
+    ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_mode,m_config.DXCC(),
          m_logBook,m_currentBand,m_config.ppfx());
     m_bDecoded=true;
     auto_sequence (decodedtext, ui->sbFtol->value (), std::numeric_limits<unsigned>::max ());
@@ -2821,7 +2824,7 @@ void::MainWindow::fast_decode_done()
 //Left (Band activity) window
     DecodedText decodedtext {message.replace (QChar::LineFeed, "")};
     if(!m_bFastDone) {
-      ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_config.DXCC(),
+      ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_mode,m_config.DXCC(),
          m_logBook,m_currentBand,m_config.ppfx());
     }
 
@@ -2968,12 +2971,12 @@ void MainWindow::readFromStdout()                             //readFromStdout
           if(!m_bDisplayedOnce) {
             // This hack sets the font.  Surely there's a better way!
             DecodedText dt{"."};
-            ui->decodedTextBrowser->displayDecodedText(dt,m_baseCall,m_config.DXCC(),
+            ui->decodedTextBrowser->displayDecodedText(dt,m_baseCall,m_mode,m_config.DXCC(),
                 m_logBook,m_currentBand,m_config.ppfx());
             m_bDisplayedOnce=true;
           }
         } else {
-          ui->decodedTextBrowser->displayDecodedText(decodedtext0,m_baseCall,m_config.DXCC(),
+          ui->decodedTextBrowser->displayDecodedText(decodedtext0,m_baseCall,m_mode,m_config.DXCC(),
                m_logBook,m_currentBand,m_config.ppfx(),
                (ui->cbCQonly->isVisible() and ui->cbCQonly->isChecked()));
         }
@@ -3008,7 +3011,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       if (bDisplayRight) {
         // This msg is within 10 hertz of our tuned frequency, or a JT4 or JT65 avg,
         // or contains MyCall
-        ui->decodedTextBrowser2->displayDecodedText(decodedtext0,m_baseCall,m_config.DXCC(),
+        ui->decodedTextBrowser2->displayDecodedText(decodedtext0,m_baseCall,m_mode,m_config.DXCC(),
                m_logBook,m_currentBand,m_config.ppfx());
 
         if(m_mode!="JT4") {
@@ -4536,7 +4539,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   QString s2 = message.string ().trimmed();
   if (s1!=s2 and !message.isTX()) {
     if (!s2.contains(m_baseCall) or m_mode=="MSK144") {  // Taken care of elsewhere if for_us and slow mode
-      ui->decodedTextBrowser2->displayDecodedText(message, m_baseCall,m_config.DXCC(),
+      ui->decodedTextBrowser2->displayDecodedText(message, m_baseCall,m_mode,m_config.DXCC(),
       m_logBook,m_currentBand,m_config.ppfx());
     }
     m_QSOText = s2;
@@ -5294,11 +5297,30 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
                             , QString const& my_call, QString const& my_grid, QByteArray const& ADIF)
 {
   QString date = QSO_date_on.toString("yyyyMMdd");
-  m_logBook.addAsWorked (m_hisCall,grid,m_config.bands()->find(m_freqNominal),m_modeTx,date);
+  if (!m_logBook.add (m_hisCall, grid, m_config.bands()->find(m_freqNominal), m_modeTx, ADIF))
+    {
+      MessageBox::warning_message (this, tr ("Log file error"),
+                                   tr ("Cannot open \"%1\"").arg (m_logBook.path ()));
+    }
 
-  m_messageClient->qso_logged (QSO_date_off, call, grid, dial_freq, mode, rpt_sent, rpt_received, tx_power, comments, name, QSO_date_on, operator_call, my_call, my_grid);
+  m_messageClient->qso_logged (QSO_date_off, call, grid, dial_freq, mode, rpt_sent, rpt_received
+                               , tx_power, comments, name, QSO_date_on, operator_call, my_call, my_grid);
   m_messageClient->logged_ADIF (ADIF);
-  if (m_config.clear_DX () and !m_config.bHound()) clearDX ();
+
+  // Log to N1MM Logger
+  if (m_config.broadcast_to_n1mm () && m_config.valid_n1mm_info ())
+    {
+      QUdpSocket sock;
+      if (-1 == sock.writeDatagram (ADIF + " <eor>"
+                                    , QHostAddress {m_config.n1mm_server_name ()}
+                                    , m_config.n1mm_server_port ()))
+        {
+          MessageBox::warning_message (this, tr ("Error sending log to N1MM"),
+                                       tr ("Write returned \"%1\"").arg (sock.errorString ()));
+        }
+    }
+
+  if (m_config.clear_DX () and !m_config.bHound ()) clearDX ();
   m_dateTimeQSOOn = QDateTime {};
 }
 
@@ -6154,7 +6176,7 @@ void MainWindow::vhfWarning()
 void MainWindow::enable_DXCC_entity (bool on)
 {
   if (on and !m_mode.startsWith ("WSPR") and m_mode!="Echo") {
-    m_logBook.init();                        // re-read the log and cty.dat files
+    //m_logBook.init();                        // re-read the log and cty.dat files
 //    ui->gridLayout->setColumnStretch(0,55);  // adjust proportions of text displays
 //    ui->gridLayout->setColumnStretch(1,45);
   } else {
@@ -7915,12 +7937,8 @@ void MainWindow::houndCallers()
       if(!ui->textBrowser4->toPlainText().contains(paddedHoundCall)) {
         if(m_loggedByFox[houndCall].contains(m_lastBand))   continue;   //already logged on this band
         if(m_foxQSO.contains(houndCall)) continue;   //still in the QSO map
-        QString countryName,continent;
-        bool callWorkedBefore,countryWorkedBefore,gridWorkedBefore;
-        m_logBook.match(/*in*/houndCall,"",/*out*/countryName,callWorkedBefore,countryWorkedBefore,
-                        gridWorkedBefore,/*in*/ m_currentBand);
-        int i1=countryName.lastIndexOf(";");
-        continent=countryName.mid(i1+2,-1);
+        auto const& countryName = m_logBook.countries ().find (houndCall);
+        auto const& continent = countryName.mid (countryName.lastIndexOf (';') + 2, -1);
 
 //If we are using a directed CQ, ignore Hound calls that do not comply.
         QString CQtext=ui->comboBoxCQ->currentText();

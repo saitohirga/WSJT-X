@@ -5,9 +5,8 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <QDebug>
-#include <QUdpSocket>
 
-#include "logbook/adif.h"
+#include "logbook/logbook.h"
 #include "MessageBox.hpp"
 #include "Configuration.hpp"
 #include "Bands.hpp"
@@ -120,33 +119,8 @@ void LogQSO::accept()
   m_comments=comments;
   QString strDialFreq(QString::number(m_dialFreq / 1.e6,'f',6));
   operator_call = ui->loggedOperator->text();
-  //Log this QSO to ADIF file "wsjtx_log.adi"
-  QString filename = "wsjtx_log.adi";                 // TODO allow user to set
-  ADIF adifile;
-  auto adifilePath = QDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)}.absoluteFilePath ("wsjtx_log.adi");
-  adifile.init(adifilePath);
 
-  QByteArray ADIF {adifile.QSOToADIF (hisCall, hisGrid, mode, rptSent, rptRcvd,
-      m_dateTimeOn, m_dateTimeOff, band, comments, name, strDialFreq, m_myCall,
-      m_myGrid, m_txPower, operator_call, m_xSent, m_xRcvd)};
-  if (!adifile.addQSOToFile (ADIF))
-  {
-    MessageBox::warning_message (this, tr ("Log file error"),
-                                 tr ("Cannot open \"%1\"").arg (adifilePath));
-  }
-
-  // Log to N1MM Logger
-  if (m_config->broadcast_to_n1mm() && m_config->valid_n1mm_info())  {
-    const QHostAddress n1mmhost = QHostAddress(m_config->n1mm_server_name());
-    QUdpSocket _sock;
-    auto rzult = _sock.writeDatagram (ADIF + " <eor>", n1mmhost, quint16(m_config->n1mm_server_port()));
-    if (rzult == -1) {
-      MessageBox::warning_message (this, tr ("Error sending log to N1MM"),
-                                   tr ("Write returned \"%1\"").arg (rzult));
-    }
-  }
-
-//Log this QSO to file "wsjtx.log"
+  //Log this QSO to file "wsjtx.log"
   static QFile f {QDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)}.absoluteFilePath ("wsjtx.log")};
   if(!f.open(QIODevice::Text | QIODevice::Append)) {
     MessageBox::warning_message (this, tr ("Log file error"),
@@ -165,8 +139,38 @@ void LogQSO::accept()
     f.close();
   }
 
-//Clean up and finish logging
-  Q_EMIT acceptQSO (m_dateTimeOff, hisCall, hisGrid, m_dialFreq, mode, rptSent, rptRcvd, m_txPower, comments, name,m_dateTimeOn, operator_call, m_myCall, m_myGrid, ADIF);
+  //Clean up and finish logging
+  Q_EMIT acceptQSO (m_dateTimeOff
+                    , hisCall
+                    , hisGrid
+                    , m_dialFreq
+                    , mode
+                    , rptSent
+                    , rptRcvd
+                    , m_txPower
+                    , comments
+                    , name
+                    , m_dateTimeOn
+                    , operator_call
+                    , m_myCall
+                    , m_myGrid
+                    , LogBook::QSOToADIF (hisCall
+                                          , hisGrid
+                                          , mode
+                                          , rptSent
+                                          , rptRcvd
+                                          , m_dateTimeOn
+                                          , m_dateTimeOff
+                                          , band
+                                          , comments
+                                          , name
+                                          , strDialFreq
+                                          , m_myCall
+                                          , m_myGrid
+                                          , m_txPower
+                                          , operator_call
+                                          , m_xSent
+                                          , m_xRcvd));
   QDialog::accept();
 }
 

@@ -8,11 +8,11 @@
 #include <QPair>
 #include <QString>
 
-#include "logbook/logbook.h"
 #include "decodedtext.h"
 
 class QAction;
 class Configuration;
+class LogBook;
 
 class DisplayText
   : public QTextEdit
@@ -23,9 +23,9 @@ public:
   void set_configuration (Configuration const * configuration) {m_config = configuration;}
   void setContentFont (QFont const&);
   void insertLineSpacer(QString const&);
-  void displayDecodedText(DecodedText const& decodedText, QString const& myCall,
-        bool displayDXCCEntity, LogBook const& logBook,
-        QString currentBand="", bool ppfx=false, bool bCQonly=false);
+  void displayDecodedText(DecodedText const& decodedText, QString const& myCall, QString const& mode,
+                          bool displayDXCCEntity, LogBook const& logBook,
+                          QString const& currentBand=QString {}, bool ppfx=false, bool bCQonly=false);
   void displayTransmittedText(QString text, QString modeTx, qint32 txFreq, bool bFastMode);
   void displayQSY(QString text);
   void displayFoxToBeCalled(QString t, QColor bg = QColor {}, QColor fg = QColor {});
@@ -45,8 +45,9 @@ private:
   Configuration const * m_config;
   bool m_bPrincipalPrefix;
   QString appendWorkedB4(QString message, QString const& callsign
-                         , QString grid, QColor * bg, QColor * fg
-                         , LogBook const& logBook, QString currentBand);
+                         , QString const& grid, QColor * bg, QColor * fg
+                         , LogBook const& logBook, QString const& currentBand
+                         , QString const& currentMode);
   QFont char_font_;
   QAction * erase_action_;
   QHash<QString, QPair<QColor, QColor>> highlighted_calls_;

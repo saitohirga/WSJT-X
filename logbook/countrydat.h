@@ -4,33 +4,27 @@
  * VK3ACF July 2013
  */
 
+#ifndef COUNTRY_DAT_H_
+#define COUNTRY_DAT_H_
 
-#ifndef __COUNTRYDAT_H
-#define __COUNTRYDAT_H
-
-
+#include <boost/core/noncopyable.hpp>
 #include <QString>
-#include <QStringList>
 #include <QHash>
 
-
-class CountryDat
+class CountryDat final
+  : private boost::noncopyable
 {
-public:
-  void init(const QString filename);
-  void load();
-  QString find(QString prefix) const; // return country name or ""
-  QStringList  getCountryNames() const { return _countryNames; };
+ public:
+  CountryDat ();
+  QString find (QString const& call) const; // return country name or ""
    
 private:
-  QString _extractName(const QString line) const;
-  void _removeBrackets(QString &line, const QString a, const QString b) const;
-  QStringList _extractPrefix(QString &line, bool &more) const;
+  QString extractName (QString const&  line) const;
+  void removeBrackets (QString& line, QString const& a, QString const& b) const;
+  QStringList extractPrefix (QString& line, bool& more) const;
   QString fixup (QString country, QString const& call) const;
 
-  QString _filename;
-  QStringList _countryNames;
-  QHash<QString, QString> _data;
+  QHash<QString, QString> data_;
 };
 
 #endif

@@ -16,18 +16,61 @@
 
 
 #include "countrydat.h"
+#include <QDir>
+#include <QStandardPaths>
 #include <QFile>
 #include <QTextStream>
 #include <QDebug>
 #include "Radio.hpp"
 
-void CountryDat::init(const QString filename)
+namespace
 {
-    _filename = filename;
-    _data.clear();
+  auto countryFileName = "cty.dat";
 }
 
-QString CountryDat::_extractName(const QString line) const
+CountryDat::CountryDat ()
+{
+  QDir dataPath {QStandardPaths::writableLocation (QStandardPaths::DataLocation)};
+  QFile file {dataPath.exists (countryFileName)
+      ? dataPath.absoluteFilePath (countryFileName) // user override
+      : QString {":/"} + countryFileName};          // or original in
+                                                    // the resources FS
+  if (file.open (QFile::ReadOnly))
+    {
+      QTextStream in {&file};
+      while (!in.atEnd ())
+        {
+          QString line1 = in.readLine ();
+          if (!in.atEnd ())
+            {
+              QString line2 = in.readLine ();
+              auto name = extractName (line1);
+              if (name.length () > 0)
+                {
+                  auto const& continent = line1.mid (36,2);
+                  auto principalPrefix = line1.mid (69,4);
+                  principalPrefix = principalPrefix.mid (0, principalPrefix.indexOf (":"));
+                  name += "; " + principalPrefix + "; " + continent;
+                  bool more {true};
+                  QStringList prefixes;
+                  while (more)
+                    {
+                      QStringList p = extractPrefix (line2, more);
+                      prefixes += p;
+                      if (more) line2 = in.readLine ();
+                    }
+
+                  Q_FOREACH (auto const& p, prefixes)
+                    {
+                      if (p.length() > 0) data_.insert (p, name);
+                    }
+                }
+            }
+        }
+    }
+}
+
+QString CountryDat::extractName (QString const& line) const
 {
     int s1 = line.indexOf(':');
     if (s1>=0)
@@ -38,7 +81,7 @@ QString CountryDat::_extractName(const QString line) const
     return "";
 }
 
-void CountryDat::_removeBrackets(QString &line, const QString a, const QString b) const
+void CountryDat::removeBrackets(QString& line, QString const& a, QString const& b) const
 {
     int s1 = line.indexOf(a);
     while (s1 >= 0)
@@ -49,15 +92,15 @@ void CountryDat::_removeBrackets(QString &line, const QString a, const QString b
     }
 }    
 
-QStringList CountryDat::_extractPrefix(QString &line, bool &more) const
+QStringList CountryDat::extractPrefix(QString& line, bool& more) const
 {
     line = line.remove(" \n");
     line = line.replace(" ","");
 
-    _removeBrackets(line,"(",")");
-    _removeBrackets(line,"[","]");
-    _removeBrackets(line,"<",">");
-    _removeBrackets(line,"~","~");
+    removeBrackets(line,"(",")");
+    removeBrackets(line,"[","]");
+    removeBrackets(line,"<",">");
+    removeBrackets(line,"~","~");
 
     int s1 = line.indexOf(';');
     more = true;
@@ -72,73 +115,24 @@ QStringList CountryDat::_extractPrefix(QString &line, bool &more) const
     return r;
 }
 
-
-void CountryDat::load()
-{
-    _data.clear();
-    _countryNames.clear(); //used by countriesWorked
-  
-    QFile inputFile(_filename);
-    if (inputFile.open(QIODevice::ReadOnly))
-    {
-       QTextStream in(&inputFile);
-       while ( !in.atEnd() )
-       {
-          QString line1 = in.readLine();
-          if ( !in.atEnd() )
-          {
-            QString line2 = in.readLine();
-              
-            QString name = _extractName(line1);
-            if (name.length()>0)
-            {
-              QString continent=line1.mid(36,2);
-              QString principalPrefix=line1.mid(69,4);
-              int i1=principalPrefix.indexOf(":");
-              if(i1>0) principalPrefix=principalPrefix.mid(0,i1);
-              name += "; " + principalPrefix + "; " + continent;
-                _countryNames << name;
-                bool more = true;
-                QStringList prefixs;
-                while (more)
-                {
-                    QStringList p = _extractPrefix(line2,more);
-                    prefixs += p;
-                    if (more)
-                        line2 = in.readLine();
-                }
-
-                QString p;
-                foreach(p,prefixs)
-                {
-                    if (p.length() > 0)
-                        _data.insert(p,name);
-                }
-            }
-          }
-       }
-    inputFile.close();
-    }
-}
-
 // return country name else ""
-QString CountryDat::find(QString call) const
+QString CountryDat::find (QString const& call) const
 {
-  call = call.toUpper ();
+  auto const& search_string = call.toUpper ();
 
   // check for exact match first
-  if (_data.contains ("=" + call))
+  if (data_.contains ("=" + search_string))
     {
-      return fixup (_data.value ("=" + call), call);
+      return fixup (data_.value ("=" + search_string), search_string);
     }
 
-  auto prefix = Radio::effective_prefix (call);
+  auto prefix = Radio::effective_prefix (search_string);
   auto match_candidate = prefix;
   while (match_candidate.size () >= 1)
     {
-      if (_data.contains (match_candidate))
+      if (data_.contains (match_candidate))
         {
-          return fixup (_data.value (match_candidate), prefix);
+          return fixup (data_.value (match_candidate), prefix);
         }
       match_candidate = match_candidate.left (match_candidate.size () - 1);
     }

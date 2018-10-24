@@ -11,10 +11,12 @@
 #include <QMenu>
 #include <QAction>
 #include <QListIterator>
+#include <QRegularExpression>
 
 #include "Configuration.hpp"
 #include "LotWUsers.hpp"
 #include "DecodeHighlightingModel.hpp"
+#include "logbook/logbook.h"
 
 #include "qt_helpers.hpp"
 #include "moc_displaytext.cpp"
@@ -95,7 +97,7 @@ namespace
           {
             auto const& item = it.previous ();
             auto const& type = std::find (types.begin (), types.end (), item.type_);
-            if (type != types.end () && *type == item.type_ && item.enabled_)
+            if (type != types.end () && item.enabled_)
               {
                 if (item.background_.style () != Qt::NoBrush)
                   {
@@ -117,40 +119,40 @@ void DisplayText::appendText(QString const& text, QColor bg, QColor fg
   auto cursor = textCursor ();
   cursor.movePosition (QTextCursor::End);
   auto block_format = cursor.blockFormat ();
+  auto format = cursor.blockCharFormat ();
+  format.setFont (char_font_);
+  format.clearBackground ();
   if (bg.isValid ())
     {
       block_format.setBackground (bg);
     }
-  else
-    {
-      block_format.clearBackground ();
-    }
+  format.clearForeground ();
   if (fg.isValid ())
     {
-      block_format.setForeground (fg);
+      format.setForeground (fg);
     }
-  else
+  if (call2.size () && m_config && m_config->lotw_users ().user (call2))
     {
-      block_format.clearForeground ();
-    }
-  if (0 == cursor.position ())
-    {
-      cursor.setBlockFormat (block_format);
-      auto char_format = cursor.charFormat ();
-      char_format.setFont (char_font_);
-      cursor.setCharFormat (char_format);
-    }
-  else
-    {
-      cursor.insertBlock (block_format);
-      auto char_format = cursor.charFormat ();
-      char_format.clearBackground ();
-      char_format.clearForeground ();
-      cursor.setCharFormat (char_format);
+      QColor bg;
+      QColor fg;
+      highlight_types types {DecodeHighlightingModel::Highlight::LotW};
+      set_colours (m_config, &bg, &fg, types);
+      if (bg.isValid ()) block_format.setBackground (bg);
+      if (fg.isValid ()) format.setForeground (fg);
     }
 
-  QTextCharFormat format = cursor.charFormat();
+  if (cursor.position ())
+    {
+      cursor.insertBlock (block_format, format);
+    }
+  else
+    {
+      cursor.setBlockFormat (block_format);
+      cursor.setBlockCharFormat (format);
+    }
+
   int text_index {0};
+  auto temp_format = format;
   if (call1.size ())
     {
       auto call_index = text.indexOf (call1);
@@ -159,16 +161,16 @@ void DisplayText::appendText(QString const& text, QColor bg, QColor fg
           auto pos = highlighted_calls_.find (call1);
           if (pos != highlighted_calls_.end ())
             {
-              cursor.insertText(text.left (call_index), format);
+              cursor.insertText(text.left (call_index));
               if (pos.value ().first.isValid ())
                 {
-                  format.setBackground (pos.value ().first);
+                  temp_format.setBackground (pos.value ().first);
                 }
               if (pos.value ().second.isValid ())
                 {
-                  format.setForeground (pos.value ().second);
+                  temp_format.setForeground (pos.value ().second);
                 }
-              cursor.insertText(text.mid (call_index, call1.size ()), format);
+              cursor.insertText(text.mid (call_index, call1.size ()), temp_format);
               text_index = call_index + call1.size ();
             }
         }
@@ -181,30 +183,20 @@ void DisplayText::appendText(QString const& text, QColor bg, QColor fg
           auto pos = highlighted_calls_.find (call2);
           if (pos != highlighted_calls_.end ())
             {
-              format.setBackground (bg);
-              format.setForeground (fg);
+              temp_format = format;
               cursor.insertText(text.mid (text_index, call_index - text_index), format);
               if (pos.value ().second.isValid ())
                 {
-                  format.setBackground (pos.value ().first);
+                  temp_format.setBackground (pos.value ().first);
                 }
               if (pos.value ().second.isValid ())
                 {
-                  format.setForeground (pos.value ().second);
+                  temp_format.setForeground (pos.value ().second);
                 }
-              cursor.insertText(text.mid (call_index, call2.size ()), format);
+              cursor.insertText(text.mid (call_index, call2.size ()), temp_format);
               text_index = call_index + call2.size ();
             }
         }
-    }
-  if (call2.size () && m_config && m_config->lotw_users ().user (call2))
-    {
-      QColor bg;
-      QColor fg;
-      highlight_types types {DecodeHighlightingModel::Highlight::LotW};
-      set_colours (m_config, &bg, &fg, types);
-      if (bg.isValid ()) format.setBackground (bg);
-      if (fg.isValid ()) format.setForeground (fg);
     }
   cursor.insertText(text.mid (text_index), format);
 
@@ -215,8 +207,9 @@ void DisplayText::appendText(QString const& text, QColor bg, QColor fg
   document ()->setMaximumBlockCount (document ()->maximumBlockCount ());
 }
 
-QString DisplayText::appendWorkedB4(QString message, QString const& callsign, QString grid,
-                                    QColor * bg, QColor * fg, LogBook const& logBook, QString currentBand)
+QString DisplayText::appendWorkedB4 (QString message, QString const& callsign, QString const& grid,
+                                     QColor * bg, QColor * fg, LogBook const& logBook,
+                                     QString const& currentBand, QString const& currentMode)
 {
   // allow for seconds
   int padding {message.indexOf (" ") > 4 ? 2 : 0};
@@ -238,8 +231,8 @@ QString DisplayText::appendWorkedB4(QString message, QString const& callsign, QS
   if(call.length()<3) return message;
   if(!call.contains(QRegExp("[0-9]|[A-Z]"))) return message;
 
-  logBook.match(/*in*/call,grid,/*out*/countryName,callWorkedBefore,countryWorkedBefore,gridB4);
-  logBook.match(/*in*/call,grid,/*out*/countryName,callB4onBand,countryB4onBand,gridB4onBand,
+  logBook.match(/*in*/call,currentMode,grid,/*out*/countryName,callWorkedBefore,countryWorkedBefore,gridB4);
+  logBook.match(/*in*/call,currentMode,grid,/*out*/countryName,callB4onBand,countryB4onBand,gridB4onBand,
                 /*in*/ currentBand);
   if(grid=="") {
     gridB4=true;
@@ -247,7 +240,7 @@ QString DisplayText::appendWorkedB4(QString message, QString const& callsign, QS
   }
 
   message = message.trimmed ();
-  QString appendage{""};
+  QString appendage;
 
   highlight_types types;
   // no shortcuts here as some types may be disabled
@@ -313,8 +306,9 @@ QString DisplayText::appendWorkedB4(QString message, QString const& callsign, QS
 }
 
 void DisplayText::displayDecodedText(DecodedText const& decodedText, QString const& myCall,
+                                     QString const& mode,
                                      bool displayDXCCEntity, LogBook const& logBook,
-                                     QString currentBand, bool ppfx, bool bCQonly)
+                                     QString const& currentBand, bool ppfx, bool bCQonly)
 {
   m_bPrincipalPrefix=ppfx;
   QColor bg;
@@ -348,9 +342,17 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
   if(!dxGrid.contains(grid_regexp)) dxGrid="";
   message = message.left (message.indexOf (QChar::Nbsp)); // strip appended info
   if (displayDXCCEntity && CQcall)
-    // if enabled add the DXCC entity and B4 status to the end of the
-    // preformated text line t1
-    message = appendWorkedB4 (message, decodedText.CQersCall(), dxGrid, &bg, &fg, logBook, currentBand);
+    {
+      // if enabled add the DXCC entity and B4 status to the end of the
+      // preformated text line t1
+      auto currentMode = mode;
+      if ("JT9+JT65" == mode)
+        {
+          currentMode = decodedText.isJT65 () ? "JT65" : "JT9";
+        }
+      message = appendWorkedB4 (message, decodedText.CQersCall(), dxGrid, &bg, &fg
+                                , logBook, currentBand, currentMode);
+    }
   appendText (message.trimmed (), bg, fg, decodedText.call (), dxCall);
 }
 
