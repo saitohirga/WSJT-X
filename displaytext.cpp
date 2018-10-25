@@ -121,7 +121,7 @@ void DisplayText::appendText(QString const& text, QColor bg, QColor fg
   auto block_format = cursor.blockFormat ();
   auto format = cursor.blockCharFormat ();
   format.setFont (char_font_);
-  format.clearBackground ();
+  block_format.clearBackground ();
   if (bg.isValid ())
     {
       block_format.setBackground (bg);
