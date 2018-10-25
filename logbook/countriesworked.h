@@ -1,29 +1,24 @@
-/*
- * maintains a list of country names that have been worked
- * VK3ACF July 2013
- */
+#ifndef COUNTRIES_WORKDED_H_
+#define COUNTRIES_WORKDED_H_
 
-#ifndef __COUNTRIESWORKDED_H
-#define __COUNTRIESWORKDED_H
-
-#include <QList>
 #include <QString>
-#include <QStringList>
-#include <QHash>
 
+#include "pimpl_h.hpp"
 
-class CountriesWorked
+class QStringList;
+
+class CountriesWorked final
 {
  public:
-	void init(const QStringList countryNames);
-	void setAsWorked(const QString countryName);
-	bool getHasWorked(const QString countryName) const;
-	int getWorkedCount() const;
-	int getSize() const;
+	explicit CountriesWorked (QStringList const& countryNames);
+	~CountriesWorked ();
+
+	void add (QString const& country, QString const& band);
+	bool contains (QString const& country, QString const& band = QString {}) const;
 		
  private:
-	QHash<QString, bool> _data;
+	class impl;
+	pimpl<impl> m_;
 };
 
 #endif
-

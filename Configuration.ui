@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>534</width>
-    <height>546</height>
+    <width>527</width>
+    <height>540</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -2235,6 +2235,20 @@ Right click for insert and delete options.</string>
             </property>
            </widget>
           </item>
+          <item>
+           <layout class="QGridLayout" name="gridLayout_5">
+            <item row="0" column="0">
+             <widget class="QCheckBox" name="highlight_by_mode_check_box">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to indicate new DXCC entities, grid squares, and callsigns per mode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Highlight by Mode</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
        </item>
@@ -2314,19 +2328,6 @@ Right click for insert and delete options.</string>
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_6">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
         <spacer name="horizontalSpacer_8">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -2335,6 +2336,19 @@ Right click for insert and delete options.</string>
           <size>
            <width>0</width>
            <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_6">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
           </size>
          </property>
         </spacer>
@@ -2905,6 +2919,7 @@ Right click for insert and delete options.</string>
   <tabstop>stations_table_view</tabstop>
   <tabstop>highlighting_list_view</tabstop>
   <tabstop>reset_highlighting_to_defaults_push_button</tabstop>
+  <tabstop>highlight_by_mode_check_box</tabstop>
   <tabstop>LotW_CSV_URL_line_edit</tabstop>
   <tabstop>LotW_CSV_fetch_push_button</tabstop>
   <tabstop>LotW_days_since_upload_spin_box</tabstop>
@@ -2994,12 +3009,12 @@ Right click for insert and delete options.</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="TX_mode_button_group"/>
-  <buttongroup name="CAT_data_bits_button_group"/>
-  <buttongroup name="PTT_method_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="split_mode_button_group"/>
   <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="TX_mode_button_group"/>
+  <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
  </buttongroups>
 </ui>
