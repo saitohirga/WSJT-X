@@ -30,6 +30,12 @@ public:
 
 QList<DecodeHighlightingModel::HighlightInfo> const DecodeHighlightingModel::impl::defaults_ = {
   {Highlight::MyCall, true, {}, {{0xff, 0x66, 0x66}}}
+  , {Highlight::Continent, true, {}, {{0xff, 0x00, 0x63}}}
+  , {Highlight::ContinentBand, true, {}, {{0xff, 0x99, 0xc2}}}
+  , {Highlight::CQZone, true, {}, {{0xff, 0xbf, 0x00}}}
+  , {Highlight::CQZoneBand, true, {}, {{0xff, 0xe4, 0x99}}}
+  , {Highlight::ITUZone, false, {}, {{0xa6, 0xff, 0x00}}}
+  , {Highlight::ITUZoneBand, false, {}, {{0xdd, 0xff, 0x99}}}
   , {Highlight::DXCC, true, {}, {{0xff, 0x00, 0xff}}}
   , {Highlight::DXCCBand, true, {}, {{0xff, 0xaa, 0xff}}}
   , {Highlight::Grid, false, {}, {{0xff, 0x80, 0x00}}}
@@ -103,6 +109,12 @@ QString DecodeHighlightingModel::highlight_name (Highlight h)
     case Highlight::GridBand: return "New Grid on Band";
     case Highlight::Call: return "New Call";
     case Highlight::CallBand: return "New Call on Band";
+    case Highlight::Continent: return "New Continent";
+    case Highlight::ContinentBand: return "New Continent on Band";
+    case Highlight::CQZone: return "New CQ Zone";
+    case Highlight::CQZoneBand: return "New CQ Zone on Band";
+    case Highlight::ITUZone: return "New ITU Zone";
+    case Highlight::ITUZoneBand: return "New ITU Zone on Band";
     case Highlight::LotW: return "LotW User";
     }
   return "Unknown";

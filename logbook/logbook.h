@@ -26,10 +26,11 @@ class LogBook final
             , QString const& band
             , QString const& mode
             , QByteArray const& ADIF_record);
-  CountryDat const& countries () const {return worked_before_.countries ();}
+  AD1CCty const& countries () const {return worked_before_.countries ();}
   void match (QString const& call, QString const& mode, QString const& grid,
-              QString &countryName, bool &callWorkedBefore, bool &countryWorkedBefore,
-              bool &gridWorkedBefore, QString const& currentBand = QString {}) const;
+              AD1CCty::Record const&, bool& callB4, bool& countryB4,
+              bool &gridB4, bool &continentB4, bool& CQZoneB4, bool& ITUZoneB4,
+              QString const& currentBand = QString {}) const;
   static QByteArray QSOToADIF (QString const& hisCall, QString const& hisGrid, QString const& mode,
                                QString const& rptSent, QString const& rptRcvd, QDateTime const& dateTimeOn,
                                QDateTime const& dateTimeOff, QString const& band, QString const& comments,

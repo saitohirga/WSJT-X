@@ -85,9 +85,11 @@ void DisplayText::insertLineSpacer(QString const& line)
 
 namespace
 {
-  using highlight_types = std::vector<DecodeHighlightingModel::Highlight>;
-  void set_colours (Configuration const * config, QColor * bg, QColor * fg, highlight_types const& types)
+  using Highlight = DecodeHighlightingModel::Highlight;
+  using highlight_types = std::vector<Highlight>;
+  Highlight set_colours (Configuration const * config, QColor * bg, QColor * fg, highlight_types const& types)
   {
+    Highlight result = Highlight::CQ;
     if (config)
       {
         QListIterator<DecodeHighlightingModel::HighlightInfo> it {config->decode_highlighting ().items ()};
@@ -107,9 +109,11 @@ namespace
                   {
                     *fg = item.foreground_.color ();
                   }
+                result = item.type_;
               }
           }
       }
+    return result;            // highest priority enabled highlighting
   }
 }
 
@@ -135,7 +139,7 @@ void DisplayText::appendText(QString const& text, QColor bg, QColor fg
     {
       QColor bg;
       QColor fg;
-      highlight_types types {DecodeHighlightingModel::Highlight::LotW};
+      highlight_types types {Highlight::LotW};
       set_colours (m_config, &bg, &fg, types);
       if (bg.isValid ()) block_format.setBackground (bg);
       if (fg.isValid ()) format.setForeground (fg);
@@ -215,12 +219,18 @@ QString DisplayText::appendWorkedB4 (QString message, QString const& callsign, Q
   int padding {message.indexOf (" ") > 4 ? 2 : 0};
   QString call = callsign;
   QString countryName;
-  bool callWorkedBefore;
+  bool callB4;
   bool callB4onBand;
-  bool countryWorkedBefore;
+  bool countryB4;
   bool countryB4onBand;
   bool gridB4;
   bool gridB4onBand;
+  bool continentB4;
+  bool continentB4onBand;
+  bool CQZoneB4;
+  bool CQZoneB4onBand;
+  bool ITUZoneB4;
+  bool ITUZoneB4onBand;
 
   if(call.length()==2) {
     int i0=message.indexOf("CQ "+call);
@@ -231,9 +241,10 @@ QString DisplayText::appendWorkedB4 (QString message, QString const& callsign, Q
   if(call.length()<3) return message;
   if(!call.contains(QRegExp("[0-9]|[A-Z]"))) return message;
 
-  logBook.match(/*in*/call,currentMode,grid,/*out*/countryName,callWorkedBefore,countryWorkedBefore,gridB4);
-  logBook.match(/*in*/call,currentMode,grid,/*out*/countryName,callB4onBand,countryB4onBand,gridB4onBand,
-                /*in*/ currentBand);
+  auto const& looked_up = logBook.countries ().lookup (call);
+  logBook.match (call, currentMode, grid, looked_up, callB4, countryB4, gridB4, continentB4, CQZoneB4, ITUZoneB4);
+  logBook.match (call, currentMode, grid, looked_up, callB4onBand, countryB4onBand, gridB4onBand,
+                 continentB4onBand, CQZoneB4onBand, ITUZoneB4onBand, currentBand);
   if(grid=="") {
     gridB4=true;
     gridB4onBand=true;
@@ -244,55 +255,91 @@ QString DisplayText::appendWorkedB4 (QString message, QString const& callsign, Q
 
   highlight_types types;
   // no shortcuts here as some types may be disabled
-  if (!countryWorkedBefore) {
-    types.push_back (DecodeHighlightingModel::Highlight::DXCC);
+  if (!countryB4) {
+    types.push_back (Highlight::DXCC);
   }
   if(!countryB4onBand) {
-    types.push_back (DecodeHighlightingModel::Highlight::DXCCBand);
+    types.push_back (Highlight::DXCCBand);
   }
   if(!gridB4) {
-    types.push_back (DecodeHighlightingModel::Highlight::Grid);
+    types.push_back (Highlight::Grid);
   }
   if(!gridB4onBand) {
-    types.push_back (DecodeHighlightingModel::Highlight::GridBand);
+    types.push_back (Highlight::GridBand);
   }
-  if (!callWorkedBefore) {
-    types.push_back (DecodeHighlightingModel::Highlight::Call);
+  if (!callB4) {
+    types.push_back (Highlight::Call);
   }
   if(!callB4onBand) {
-    types.push_back (DecodeHighlightingModel::Highlight::CallBand);
+    types.push_back (Highlight::CallBand);
   }
-  types.push_back (DecodeHighlightingModel::Highlight::CQ);
-  set_colours (m_config, bg, fg, types);
-
-  int i1=countryName.indexOf(";");
-  if(m_bPrincipalPrefix) {
-    int i2=countryName.lastIndexOf(";");
-    if(i1>0) countryName=countryName.mid(i1+2,i2-i1-2);
-  } else {
-    if(i1>0) countryName=countryName.mid(0,i1);
-  // do some obvious abbreviations
-    countryName.replace ("Islands", "Is.");
-    countryName.replace ("Island", "Is.");
-    countryName.replace ("North ", "N. ");
-    countryName.replace ("Northern ", "N. ");
-    countryName.replace ("South ", "S. ");
-    countryName.replace ("East ", "E. ");
-    countryName.replace ("Eastern ", "E. ");
-    countryName.replace ("West ", "W. ");
-    countryName.replace ("Western ", "W. ");
-    countryName.replace ("Central ", "C. ");
-    countryName.replace (" and ", " & ");
-    countryName.replace ("Republic", "Rep.");
-    countryName.replace ("United States", "U.S.A.");
-    countryName.replace ("Fed. Rep. of ", "");
-    countryName.replace ("French ", "Fr.");
-    countryName.replace ("Asiatic", "AS");
-    countryName.replace ("European", "EU");
-    countryName.replace ("African", "AF");
+  if (!continentB4) {
+    types.push_back (Highlight::Continent);
   }
+  if(!continentB4onBand) {
+    types.push_back (Highlight::ContinentBand);
+  }
+  if (!CQZoneB4) {
+    types.push_back (Highlight::CQZone);
+  }
+  if(!CQZoneB4onBand) {
+    types.push_back (Highlight::CQZoneBand);
+  }
+  if (!ITUZoneB4) {
+    types.push_back (Highlight::ITUZone);
+  }
+  if(!ITUZoneB4onBand) {
+    types.push_back (Highlight::ITUZoneBand);
+  }
+  types.push_back (Highlight::CQ);
+  auto top_highlight = set_colours (m_config, bg, fg, types);
 
-  appendage += countryName;
+  switch (top_highlight)
+    {
+    case Highlight::Continent:
+    case Highlight::ContinentBand:
+      appendage = AD1CCty::continent (looked_up.continent);
+      break;
+    case Highlight::CQZone:
+    case Highlight::CQZoneBand:
+      appendage = QString {"CQ Zone %1"}.arg (looked_up.CQ_zone);
+      break;
+    case Highlight::ITUZone:
+    case Highlight::ITUZoneBand:
+      appendage = QString {"ITU Zone %1"}.arg (looked_up.ITU_zone);
+      break;
+    default:
+      if (m_bPrincipalPrefix)
+        {
+          appendage = looked_up.primary_prefix;
+        }
+      else
+        {
+          auto countryName = looked_up.entity_name;
+
+          // do some obvious abbreviations
+          countryName.replace ("Islands", "Is.");
+          countryName.replace ("Island", "Is.");
+          countryName.replace ("North ", "N. ");
+          countryName.replace ("Northern ", "N. ");
+          countryName.replace ("South ", "S. ");
+          countryName.replace ("East ", "E. ");
+          countryName.replace ("Eastern ", "E. ");
+          countryName.replace ("West ", "W. ");
+          countryName.replace ("Western ", "W. ");
+          countryName.replace ("Central ", "C. ");
+          countryName.replace (" and ", " & ");
+          countryName.replace ("Republic", "Rep.");
+          countryName.replace ("United States", "U.S.A.");
+          countryName.replace ("Fed. Rep. of ", "");
+          countryName.replace ("French ", "Fr.");
+          countryName.replace ("Asiatic", "AS");
+          countryName.replace ("European", "EU");
+          countryName.replace ("African", "AF");
+
+          appendage += countryName;
+        }
+    }
 
   // use a nbsp to save the start of appended text so we can find
   // it again later, align appended data at a fixed column if
@@ -319,7 +366,7 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
       || decodedText.string ().contains (" QRZ "))
     {
       CQcall = true;
-      highlight_types types {DecodeHighlightingModel::Highlight::CQ};
+      highlight_types types {Highlight::CQ};
       set_colours (m_config, &bg, &fg, types);
     }
   if(bCQonly and !CQcall) return;
@@ -331,7 +378,7 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
         or decodedText.indexOf ("<" + myCall + " ") >= 0
         or decodedText.indexOf ("<" + myCall + ">") >= 0
         or decodedText.indexOf (" " + myCall + ">") >= 0)) {
-    highlight_types types {DecodeHighlightingModel::Highlight::MyCall};
+    highlight_types types {Highlight::MyCall};
     set_colours (m_config, &bg, &fg, types);
   }
   auto message = decodedText.string();
@@ -379,7 +426,7 @@ void DisplayText::displayTransmittedText(QString text, QString modeTx, qint32 tx
     }
     QColor bg;
     QColor fg;
-    highlight_types types {DecodeHighlightingModel::Highlight::Tx};
+    highlight_types types {Highlight::Tx};
     set_colours (m_config, &bg, &fg, types);
     appendText (t, bg, fg);
 }

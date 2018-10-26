@@ -49,9 +49,9 @@ DEFINES += UNIX
 #
 SOURCES += \
 	logbook/adif.cpp \
-	logbook/countrydat.cpp \
 	logbook/countriesworked.cpp \
-  logbook/logbook.cpp \
+        logbook/logbook.cpp \
+        logbook/AD1CCty.cpp \
   astro.cpp Radio.cpp NetworkServerLookup.cpp revision_utils.cpp \
   Transceiver.cpp TransceiverBase.cpp TransceiverFactory.cpp \
   PollingTransceiver.cpp EmulateSplitTransceiver.cpp LettersSpinBox.cpp \
@@ -80,7 +80,7 @@ HEADERS  += qt_helpers.hpp \
   Transceiver.hpp TransceiverBase.hpp TransceiverFactory.hpp PollingTransceiver.hpp \
   EmulateSplitTransceiver.hpp DXLabSuiteCommanderTransceiver.hpp HamlibTransceiver.hpp \
   Configuration.hpp wsprnet.h signalmeter.h meterwidget.h \
-  logbook/logbook.h logbook/countrydat.h logbook/countriesworked.h logbook/adif.h \
+  logbook/logbook.h logbook/countriesworked.h logbook/adif.h logbook/AD1CCty.h \
   messageaveraging.h echoplot.h echograph.h fastgraph.h fastplot.h Modes.hpp WSPRBandHopping.hpp \
   WsprTxScheduler.h SampleDownloader.hpp MultiSettings.hpp PhaseEqualizationDialog.hpp \
   IARURegions.hpp MessageBox.hpp EqualizationToolsDialog.hpp CallsignValidator.hpp \

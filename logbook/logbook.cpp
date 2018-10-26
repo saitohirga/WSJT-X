@@ -2,8 +2,8 @@
 
 #include <QDateTime>
 #include <QDebug>
-#include "countrydat.h"
 #include "Configuration.hpp"
+#include "AD1CCty.hpp"
 
 LogBook::LogBook (Configuration const * configuration)
   : config_ {configuration}
@@ -11,19 +11,35 @@ LogBook::LogBook (Configuration const * configuration)
 }
 
 void LogBook::match (QString const& call, QString const& mode, QString const& grid,
-                     QString &countryName,
-                     bool &callWorkedBefore,
-                     bool &countryWorkedBefore,
-                     bool &gridWorkedBefore,
+                     AD1CCty::Record const& looked_up,
+                     bool& callB4,
+                     bool& countryB4,
+                     bool& gridB4,
+                     bool& continentB4,
+                     bool& CQZoneB4,
+                     bool& ITUZoneB4,
                      QString const& band) const
 {
   if (call.length() > 0)
     {
       auto const& mode_to_check = (config_ && !config_->highlight_by_mode ()) ? QString {} : mode;
-      callWorkedBefore = worked_before_.call_worked (call, mode_to_check, band);
-      gridWorkedBefore = worked_before_.grid_worked(grid, mode_to_check, band);
-      countryName = worked_before_.countries ().find (call);
-      countryWorkedBefore = worked_before_.country_worked (countryName, mode_to_check, band);
+      callB4 = worked_before_.call_worked (call, mode_to_check, band);
+      gridB4 = worked_before_.grid_worked(grid, mode_to_check, band);
+      auto const& countryName = looked_up.entity_name;
+      if (countryName.size ())
+        {
+          countryB4 = worked_before_.country_worked (countryName, mode_to_check, band);
+          continentB4 = worked_before_.continent_worked (looked_up.continent, mode_to_check, band);
+          CQZoneB4 = worked_before_.CQ_zone_worked (looked_up.CQ_zone, mode_to_check, band);
+          ITUZoneB4 = worked_before_.ITU_zone_worked (looked_up.ITU_zone, mode_to_check, band);
+        }
+      else
+        {
+          countryB4 = true;  // we don't want to flag unknown entities
+          continentB4 = true;
+          CQZoneB4 = true;
+          ITUZoneB4 = true;
+        }
     }
 }
 

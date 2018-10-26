@@ -8,31 +8,44 @@
 #include <QDir>
 #include <QFile>
 #include <QTextStream>
-#include "countrydat.h"
-
 #include "pimpl_impl.hpp"
+
+using namespace boost::multi_index;
 
 // worked before set element
 struct worked_entry
 {
-  explicit worked_entry (std::string const& call
-                         , std::string const& grid
-                         , std::string const& band
-                         , std::string const& mode
-                         , std::string const& country)
-    : call {call}
-    , grid {grid}
-    , band {band}
-    , mode {mode}
-    , country {country}
+  explicit worked_entry (QString const& call, QString const& grid, QString const& band
+                         , QString const& mode, QString const& country, AD1CCty::Continent continent
+                         , int CQ_zone, int ITU_zone)
+    : call_ {call}
+    , grid_ {grid}
+    , band_ {band}
+    , mode_ {mode}
+    , country_ {country}
+    , continent_ {continent}
+    , CQ_zone_ {CQ_zone}
+    , ITU_zone_ {ITU_zone}
   {
   }
 
-  std::string call;
-  std::string grid;
-  std::string band;
-  std::string mode;
-  std::string country;
+  QString call_;
+  QString grid_;
+  QString band_;
+  QString mode_;
+  QString country_;
+  AD1CCty::Continent continent_;
+  int CQ_zone_;
+  int ITU_zone_;
+};
+
+// less then predidate for the Continent enum class
+struct Continent_less
+{
+  operator () (AD1CCty::Continent lhs, AD1CCty::Continent rhs) const
+  {
+    return static_cast<int> (lhs) < static_cast<int> (rhs);
+  }
 };
 
 // tags
@@ -42,77 +55,98 @@ struct grid_mode_band {};
 struct grid_band {};
 struct entity_mode_band {};
 struct entity_band {};
+struct continent_mode_band {};
+struct continent_band {};
+struct CQ_zone_mode_band {};
+struct CQ_zone_band {};
+struct ITU_zone_mode_band {};
+struct ITU_zone_band {};
 
 // set with multiple ordered unique indexes that allow for efficient
 // determination of various categories of worked before status
-typedef boost::multi_index::multi_index_container<
+typedef multi_index_container<
   worked_entry,
-  boost::multi_index::indexed_by<
+  indexed_by<
     // call+mode+band
-    boost::multi_index::ordered_unique<
-      boost::multi_index::tag<call_mode_band>,
-      boost::multi_index::composite_key<
-        worked_entry,
-        boost::multi_index::member<worked_entry, std::string, &worked_entry::call>,
-        boost::multi_index::member<worked_entry, std::string, &worked_entry::mode>,
-        boost::multi_index::member<worked_entry, std::string, &worked_entry::band>
-        >
-      >,
+    ordered_unique<tag<call_mode_band>,
+                   composite_key<worked_entry,
+                                 member<worked_entry, QString, &worked_entry::call_>,
+                                 member<worked_entry, QString, &worked_entry::mode_>,
+                                 member<worked_entry, QString, &worked_entry::band_> > >,
     // call+band
-    boost::multi_index::ordered_unique<
-      boost::multi_index::tag<call_band>,
-      boost::multi_index::composite_key<
-        worked_entry,
-        boost::multi_index::member<worked_entry, std::string, &worked_entry::call>,
-        boost::multi_index::member<worked_entry, std::string, &worked_entry::band>
-        >
-      >,
+    ordered_unique<tag<call_band>,
+                   composite_key<worked_entry,
+                                 member<worked_entry, QString, &worked_entry::call_>,
+                                 member<worked_entry, QString, &worked_entry::band_> > >,
     // grid+mode+band
-    boost::multi_index::ordered_unique<
-      boost::multi_index::tag<grid_mode_band>,
-      boost::multi_index::composite_key<
-        worked_entry,
-        boost::multi_index::member<worked_entry, std::string, &worked_entry::grid>,
-        boost::multi_index::member<worked_entry, std::string, &worked_entry::mode>,
-        boost::multi_index::member<worked_entry, std::string, &worked_entry::band>
-        >
-      >,
+    ordered_unique<tag<grid_mode_band>,
+                   composite_key<worked_entry,
+                                 member<worked_entry, QString, &worked_entry::grid_>,
+                                 member<worked_entry, QString, &worked_entry::mode_>,
+                                 member<worked_entry, QString, &worked_entry::band_> > >,
     // grid+band
-    boost::multi_index::ordered_unique<
-      boost::multi_index::tag<grid_band>,
-      boost::multi_index::composite_key<
-        worked_entry,
-        boost::multi_index::member<worked_entry, std::string, &worked_entry::grid>,
-        boost::multi_index::member<worked_entry, std::string, &worked_entry::band>
-        >
-      >,
+    ordered_unique<tag<grid_band>,
+                   composite_key<worked_entry,
+                                 member<worked_entry, QString, &worked_entry::grid_>,
+                                 member<worked_entry, QString, &worked_entry::band_> > >,
     // country+mode+band
-    boost::multi_index::ordered_unique<
-      boost::multi_index::tag<entity_mode_band>,
-      boost::multi_index::composite_key<
-        worked_entry,
-        boost::multi_index::member<worked_entry, std::string, &worked_entry::country>,
-        boost::multi_index::member<worked_entry, std::string, &worked_entry::mode>,
-        boost::multi_index::member<worked_entry, std::string, &worked_entry::band>
-        >
-      >,
-      // country+band
-    boost::multi_index::ordered_unique<
-      boost::multi_index::tag<entity_band>,
-      boost::multi_index::composite_key<
-        worked_entry,
-        boost::multi_index::member<worked_entry, std::string, &worked_entry::country>,
-        boost::multi_index::member<worked_entry, std::string, &worked_entry::band>
-        >
-      >
-    >
+    ordered_unique<tag<entity_mode_band>,
+                   composite_key<worked_entry,
+                                 member<worked_entry, QString, &worked_entry::country_>,
+                                 member<worked_entry, QString, &worked_entry::mode_>,
+                                 member<worked_entry, QString, &worked_entry::band_> > >,
+    // country+band
+    ordered_unique<tag<entity_band>,
+                   composite_key<worked_entry,
+                                 member<worked_entry, QString, &worked_entry::country_>,
+                                 member<worked_entry, QString, &worked_entry::band_> > >,
+    // continent+mode+band
+    ordered_unique<tag<continent_mode_band>,
+                   composite_key<worked_entry,
+                                 member<worked_entry, AD1CCty::Continent, &worked_entry::continent_>,
+                                 member<worked_entry, QString, &worked_entry::mode_>,
+                                 member<worked_entry, QString, &worked_entry::band_> >,
+                   composite_key_compare<
+                                   Continent_less,
+                                   std::less<QString>,
+                                   std::less<QString> > >,
+    // continent+band
+    ordered_unique<tag<continent_band>,
+                   composite_key<worked_entry,
+                                 member<worked_entry, AD1CCty::Continent, &worked_entry::continent_>,
+                                 member<worked_entry, QString, &worked_entry::band_> >,
+                   composite_key_compare<
+                                   Continent_less,
+                                   std::less<QString> > >,
+    // CQ-zone+mode+band
+    ordered_unique<tag<CQ_zone_mode_band>,
+                   composite_key<worked_entry,
+                                 member<worked_entry, int, &worked_entry::CQ_zone_>,
+                                 member<worked_entry, QString, &worked_entry::mode_>,
+                                 member<worked_entry, QString, &worked_entry::band_> > >,
+    // CQ-zone+band
+    ordered_unique<tag<CQ_zone_band>,
+                   composite_key<worked_entry,
+                                 member<worked_entry, int, &worked_entry::CQ_zone_>,
+                                 member<worked_entry, QString, &worked_entry::band_> > >,
+    // ITU-zone+mode+band
+    ordered_unique<tag<ITU_zone_mode_band>,
+                   composite_key<worked_entry,
+                                 member<worked_entry, int, &worked_entry::ITU_zone_>,
+                                 member<worked_entry, QString, &worked_entry::mode_>,
+                                 member<worked_entry, QString, &worked_entry::band_> > >,
+    // ITU-zone+band
+    ordered_unique<tag<ITU_zone_band>,
+                   composite_key<worked_entry,
+                                 member<worked_entry, int, &worked_entry::ITU_zone_>,
+                                 member<worked_entry, QString, &worked_entry::band_> > > >
   > worked_type;
 
 namespace
 {
   auto const logFileName = "wsjtx_log.adi";
 
-  std::string extractField (QString const& record, QString const& fieldName)
+  QString extractField (QString const& record, QString const& fieldName)
   {
     int fieldNameIndex = record.indexOf ('<' + fieldName + ':', 0, Qt::CaseInsensitive);
     if (fieldNameIndex >=0)
@@ -136,8 +170,7 @@ namespace
             int fieldLength = fieldLengthString.toInt();
             if (fieldLength > 0)
               {
-                QString field = record.mid(closingBracketIndex+1,fieldLength);
-                return field.toStdString ();
+                return record.mid(closingBracketIndex+1,fieldLength);
               }
           }
       }
@@ -154,7 +187,7 @@ public:
   }
 
   QString path_;
-  CountryDat countries_;
+  AD1CCty prefixes_;
   worked_type worked_;
 };
 
@@ -205,11 +238,15 @@ WorkedBefore::WorkedBefore ()
           auto call = extractField (record, "CALL");
           if (call.size ())
             {
+              auto const& entity = m_->prefixes_.lookup (call);
               m_->worked_.emplace (call
-                                   , extractField (record, "GRIDSQUARE").substr (0, 4) // not interested in 6-digit grids
+                                   , extractField (record, "GRIDSQUARE").left (4) // not interested in 6-digit grids
                                    , extractField (record, "BAND")
                                    , extractField (record, "MODE")
-                                   , m_->countries_.find (QString::fromStdString (call)).toStdString ());
+                                   , entity.entity_name
+                                   , entity.continent
+                                   , entity.CQ_zone
+                                   , entity.ITU_zone);
             }
         }
     }
@@ -224,9 +261,9 @@ QString const& WorkedBefore::path () const
   return m_->path_;
 }
 
-CountryDat const& WorkedBefore::countries () const
+AD1CCty const& WorkedBefore::countries () const
 {
-  return m_->countries_;
+  return m_->prefixes_;
 }
 
 bool WorkedBefore::add (QString const& call
@@ -237,6 +274,7 @@ bool WorkedBefore::add (QString const& call
 {
   if (call.size ())
     {
+      auto const& entity = m_->prefixes_.lookup (call);
       QFile file {m_->path_};
       if (!file.open(QIODevice::Text | QIODevice::Append))
         {
@@ -251,11 +289,8 @@ bool WorkedBefore::add (QString const& call
             }
           out << ADIF_record << " <eor>" << endl;
         }
-      m_->worked_.emplace (call.toStdString ()
-                           , grid.toStdString ()
-                           , band.toStdString ()
-                           , mode.toStdString ()
-                           , m_->countries_.find (call).toStdString ());
+      m_->worked_.emplace (call, grid, band, mode, entity.entity_name
+                           , entity.continent, entity.CQ_zone, entity.ITU_zone);
     }
   return true;
 }
@@ -269,9 +304,7 @@ bool WorkedBefore::country_worked (QString const& country, QString const& mode, 
           return
             country.size ()
             && m_->worked_.get<entity_mode_band> ().end ()
-            != m_->worked_.get<entity_mode_band> ().find (std::make_tuple (country.toStdString ()
-                                                                           , mode.toStdString ()
-                                                                           , band.toStdString ()));
+            != m_->worked_.get<entity_mode_band> ().find (std::make_tuple (country, mode, band));
         }
       else
         {
@@ -279,8 +312,7 @@ bool WorkedBefore::country_worked (QString const& country, QString const& mode, 
           return
             country.size ()
             && m_->worked_.get<entity_mode_band> ().end ()
-            != m_->worked_.get<entity_mode_band> ().find (std::make_tuple (country.toStdString ()
-                                                                           , mode.toStdString ()));
+            != m_->worked_.get<entity_mode_band> ().find (std::make_tuple (country, mode));
         }
     }
   else
@@ -290,8 +322,7 @@ bool WorkedBefore::country_worked (QString const& country, QString const& mode, 
           return
             country.size ()
             && m_->worked_.get<entity_band> ().end ()
-            != m_->worked_.get<entity_band> ().find (std::make_tuple (country.toStdString ()
-                                                                      , band.toStdString ()));
+            != m_->worked_.get<entity_band> ().find (std::make_tuple (country, band));
         }
       else
         {
@@ -299,7 +330,7 @@ bool WorkedBefore::country_worked (QString const& country, QString const& mode, 
           return
             country.size ()
             && m_->worked_.get<entity_band> ().end ()
-            != m_->worked_.get<entity_band> ().find (std::make_tuple (country.toStdString ()));
+            != m_->worked_.get<entity_band> ().find (country);
         }
     }
 }
@@ -311,16 +342,13 @@ bool WorkedBefore::grid_worked (QString const& grid, QString const& mode, QStrin
       if (band.size ())
         {
           return m_->worked_.get<grid_mode_band> ().end ()
-            != m_->worked_.get<grid_mode_band> ().find (std::make_tuple (grid.toStdString ()
-                                                                         , mode.toStdString ()
-                                                                         , band.toStdString ()));
+            != m_->worked_.get<grid_mode_band> ().find (std::make_tuple (grid, mode, band));
         }
       else
         {
           // partial key lookup
           return m_->worked_.get<grid_mode_band> ().end ()
-            != m_->worked_.get<grid_mode_band> ().find (std::make_tuple (grid.toStdString ()
-                                                                         , mode.toStdString ()));
+            != m_->worked_.get<grid_mode_band> ().find (std::make_tuple (grid, mode));
         }
     }
   else
@@ -328,14 +356,13 @@ bool WorkedBefore::grid_worked (QString const& grid, QString const& mode, QStrin
       if (band.size ())
         {
           return m_->worked_.get<grid_band> ().end ()
-            != m_->worked_.get<grid_band> ().find (std::make_tuple (grid.toStdString ()
-                                                                    , band.toStdString ()));
+            != m_->worked_.get<grid_band> ().find (std::make_tuple (grid, band));
         }
       else
         {
           // partial key lookup
           return m_->worked_.get<grid_band> ().end ()
-            != m_->worked_.get<grid_band> ().find (std::make_tuple (grid.toStdString ()));
+            != m_->worked_.get<grid_band> ().find (grid);
         }
     }
 }
@@ -347,16 +374,13 @@ bool WorkedBefore::call_worked (QString const& call, QString const& mode, QStrin
       if (band.size ())
         {
           return m_->worked_.get<call_mode_band> ().end ()
-            != m_->worked_.get<call_mode_band> ().find (std::make_tuple (call.toStdString ()
-                                                                         , mode.toStdString ()
-                                                                         , band.toStdString ()));
+            != m_->worked_.get<call_mode_band> ().find (std::make_tuple (call, mode, band));
         }
       else
         {
           // partial key lookup
           return m_->worked_.get<call_mode_band> ().end ()
-            != m_->worked_.get<call_mode_band> ().find (std::make_tuple (call.toStdString ()
-                                                                         , mode.toStdString ()));
+            != m_->worked_.get<call_mode_band> ().find (std::make_tuple (call, mode));
         }
     }
   else
@@ -364,14 +388,109 @@ bool WorkedBefore::call_worked (QString const& call, QString const& mode, QStrin
       if (band.size ())
         {
           return m_->worked_.get<call_band> ().end ()
-            != m_->worked_.get<call_band> ().find (std::make_tuple (call.toStdString ()
-                                                                    , band.toStdString ()));
+            != m_->worked_.get<call_band> ().find (std::make_tuple (call, band));
         }
       else
         {
           // partial key lookup
           return m_->worked_.get<call_band> ().end ()
-            != m_->worked_.get<call_band> ().find (std::make_tuple (call.toStdString ()));
+            != m_->worked_.get<call_band> ().find (std::make_tuple (call));
+        }
+    }
+}
+
+bool WorkedBefore::continent_worked (Continent continent, QString const& mode, QString const& band) const
+{
+  if (mode.size ())
+    {
+      if (band.size ())
+        {
+          return m_->worked_.get<continent_mode_band> ().end ()
+            != m_->worked_.get<continent_mode_band> ().find (std::make_tuple (continent, mode, band));
+        }
+      else
+        {
+          // partial key lookup
+          return m_->worked_.get<continent_mode_band> ().end ()
+            != m_->worked_.get<continent_mode_band> ().find (std::make_tuple (continent, mode));
+        }
+    }
+  else
+    {
+      if (band.size ())
+        {
+          return m_->worked_.get<continent_band> ().end ()
+            != m_->worked_.get<continent_band> ().find (std::make_tuple (continent, band));
+        }
+      else
+        {
+          // partial key lookup
+          return m_->worked_.get<continent_band> ().end ()
+            != m_->worked_.get<continent_band> ().find (continent);
+        }
+    }
+}
+
+bool WorkedBefore::CQ_zone_worked (int CQ_zone, QString const& mode, QString const& band) const
+{
+  if (mode.size ())
+    {
+      if (band.size ())
+        {
+          return m_->worked_.get<CQ_zone_mode_band> ().end ()
+            != m_->worked_.get<CQ_zone_mode_band> ().find (std::make_tuple (CQ_zone, mode, band));
+        }
+      else
+        {
+          // partial key lookup
+          return m_->worked_.get<CQ_zone_mode_band> ().end ()
+            != m_->worked_.get<CQ_zone_mode_band> ().find (std::make_tuple (CQ_zone, mode));
+        }
+    }
+  else
+    {
+      if (band.size ())
+        {
+          return m_->worked_.get<CQ_zone_band> ().end ()
+            != m_->worked_.get<CQ_zone_band> ().find (std::make_tuple (CQ_zone, band));
+        }
+      else
+        {
+          // partial key lookup
+          return m_->worked_.get<CQ_zone_band> ().end ()
+            != m_->worked_.get<CQ_zone_band> ().find (CQ_zone);
+        }
+    }
+}
+
+bool WorkedBefore::ITU_zone_worked (int ITU_zone, QString const& mode, QString const& band) const
+{
+  if (mode.size ())
+    {
+      if (band.size ())
+        {
+          return m_->worked_.get<ITU_zone_mode_band> ().end ()
+            != m_->worked_.get<ITU_zone_mode_band> ().find (std::make_tuple (ITU_zone, mode, band));
+        }
+      else
+        {
+          // partial key lookup
+          return m_->worked_.get<ITU_zone_mode_band> ().end ()
+            != m_->worked_.get<ITU_zone_mode_band> ().find (std::make_tuple (ITU_zone, mode));
+        }
+    }
+  else
+    {
+      if (band.size ())
+        {
+          return m_->worked_.get<ITU_zone_band> ().end ()
+            != m_->worked_.get<ITU_zone_band> ().find (std::make_tuple (ITU_zone, band));
+        }
+      else
+        {
+          // partial key lookup
+          return m_->worked_.get<ITU_zone_band> ().end ()
+            != m_->worked_.get<ITU_zone_band> ().find (ITU_zone);
         }
     }
 }

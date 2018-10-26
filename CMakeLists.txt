@@ -281,9 +281,9 @@ set (jt9_CXXSRCS
   )
 
 set (wsjtx_CXXSRCS
-  logbook/countrydat.cpp
   logbook/logbook.cpp
   logbook/WorkedBefore.cpp
+  logbook/AD1CCty.cpp
   psk_reporter.cpp
   Modulator.cpp
   Detector.cpp

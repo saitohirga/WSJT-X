@@ -86,6 +86,30 @@ void ColorHighlighting::set_items (DecodeHighlightingModel const& highlighting_m
           example = ui->example10_label;
           label = ui->p10_label;
           break;
+        case 10:
+          example = ui->example11_label;
+          label = ui->p11_label;
+          break;
+        case 11:
+          example = ui->example12_label;
+          label = ui->p12_label;
+          break;
+        case 12:
+          example = ui->example13_label;
+          label = ui->p13_label;
+          break;
+        case 13:
+          example = ui->example14_label;
+          label = ui->p14_label;
+          break;
+        case 14:
+          example = ui->example15_label;
+          label = ui->p15_label;
+          break;
+        case 15:
+          example = ui->example16_label;
+          label = ui->p16_label;
+          break;
         }
       auto palette = example->parentWidget ()->palette ();
       if (Qt::NoBrush != item.background_.style ())

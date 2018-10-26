@@ -62,7 +62,7 @@
 #include "ExchangeValidator.hpp"
 #include "EqualizationToolsDialog.hpp"
 #include "LotWUsers.hpp"
-#include "logbook/countrydat.h"
+#include "logbook/AD1CCty.hpp"
 
 #include "ui_mainwindow.h"
 #include "moc_mainwindow.cpp"
@@ -7937,8 +7937,9 @@ void MainWindow::houndCallers()
       if(!ui->textBrowser4->toPlainText().contains(paddedHoundCall)) {
         if(m_loggedByFox[houndCall].contains(m_lastBand))   continue;   //already logged on this band
         if(m_foxQSO.contains(houndCall)) continue;   //still in the QSO map
-        auto const& countryName = m_logBook.countries ().find (houndCall);
-        auto const& continent = countryName.mid (countryName.lastIndexOf (';') + 2, -1);
+        auto const& entity = m_logBook.countries ().lookup (houndCall);
+        auto const& countryName = entity.entity_name;
+        auto const& continent = AD1CCty::continent (entity.continent);
 
 //If we are using a directed CQ, ignore Hound calls that do not comply.
         QString CQtext=ui->comboBoxCQ->currentText();
