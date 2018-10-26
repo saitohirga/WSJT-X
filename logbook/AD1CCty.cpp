@@ -155,6 +155,10 @@ typedef multi_index_container<
 class AD1CCty::impl final
 {
 public:
+  explicit impl ()
+  {
+  }
+
   Record fixup (QString const& call, prefix const& p) const
   {
     using entity_by_id = entities_type::index<id>::type;
