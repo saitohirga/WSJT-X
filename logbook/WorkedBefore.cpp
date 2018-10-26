@@ -42,7 +42,7 @@ struct worked_entry
 // less then predidate for the Continent enum class
 struct Continent_less
 {
-  operator () (AD1CCty::Continent lhs, AD1CCty::Continent rhs) const
+  bool operator () (AD1CCty::Continent lhs, AD1CCty::Continent rhs) const
   {
     return static_cast<int> (lhs) < static_cast<int> (rhs);
   }
