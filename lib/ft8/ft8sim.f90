@@ -102,7 +102,7 @@ program ft8sim
            phi=mod(phi+dphi,twopi)
         enddo
      enddo
-     if(fspread.ne.0.0 .or. delay.ne.0.0) call watterson(c0,NMAX,fs,delay,fspread)
+     if(fspread.ne.0.0 .or. delay.ne.0.0) call watterson(c0,NMAX,NWAVE,fs,delay,fspread)
      c=sig*c0
   
      ib=k
