@@ -1187,6 +1187,7 @@ void MainWindow::setContestType()
       if(m_config.bRTTYroundup()) m_nContest=RTTY;
       if(m_config.bFox()) m_nContest=FOX;
       if(m_config.bHound()) m_nContest=HOUND;
+
       if(m_mode=="MSK144" && m_nContest>EU_VHF)
         {
           MessageBox::warning_message (this, tr ("Improper mode"),
@@ -5460,7 +5461,7 @@ void MainWindow::on_actionFT8_triggered()
     ui->labDXped->setText("Fox");
     on_actionFox_Log_triggered();
   }
-  if(m_nContest != HOUND) {
+  if(m_nContest == HOUND) {
     ui->txFirstCheckBox->setChecked(false);
     ui->txFirstCheckBox->setEnabled(false);
     ui->cbAutoSeq->setEnabled(false);
