@@ -1179,12 +1179,21 @@ void MainWindow::readSettings()
 void MainWindow::setContestType()
 {
   m_nContest=NONE;
-  if(m_config.bNA_VHF_Contest()) m_nContest=NA_VHF;
-  if(m_config.bEU_VHF_Contest()) m_nContest=EU_VHF;
-  if(m_config.bFieldDay()) m_nContest=FIELD_DAY;
-  if(m_config.bRTTYroundup()) m_nContest=RTTY;
-  if(m_config.bFox()) m_nContest=FOX;
-  if(m_config.bHound()) m_nContest=HOUND;
+  if(m_config.bSpecialOp()) 
+    {
+      if(m_config.bNA_VHF_Contest()) m_nContest=NA_VHF;
+      if(m_config.bEU_VHF_Contest()) m_nContest=EU_VHF;
+      if(m_config.bFieldDay()) m_nContest=FIELD_DAY;
+      if(m_config.bRTTYroundup()) m_nContest=RTTY;
+      if(m_config.bFox()) m_nContest=FOX;
+      if(m_config.bHound()) m_nContest=HOUND;
+      if(m_mode=="MSK144" && m_nContest>EU_VHF)
+        {
+          MessageBox::warning_message (this, tr ("Improper mode"),
+           "Mode will be changed to FT8. MSK144 not available if Fox, Hound, Field Day, or RTTY contest is selected.");
+          on_actionFT8_triggered();
+        }
+    }
 }
 
 void MainWindow::set_application_font (QFont const& font)
@@ -1772,7 +1781,7 @@ void MainWindow::auto_tx_mode (bool state)
 
 void MainWindow::keyPressEvent (QKeyEvent * e)
 {
-  if(m_config.bFox()) {
+  if(FOX==m_nContest) {
     switch (e->key()) {
       case Qt::Key_Return:
         doubleClickOnCall2(Qt::KeyboardModifier(Qt::ShiftModifier + Qt::ControlModifier + Qt::AltModifier));
@@ -1787,7 +1796,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
     QMainWindow::keyPressEvent (e);
   }
 
-  if(m_config.bHound()) {
+  if(HOUND==m_nContest) {
     switch (e->key()) {
       case Qt::Key_Return:
         auto_tx_mode(true);
@@ -2706,8 +2715,8 @@ void MainWindow::decode()                                       //decode()
   dec_data.params.nfa=m_wideGraph->nStartFreq();
   dec_data.params.nfSplit=m_wideGraph->Fmin();
   dec_data.params.nfb=m_wideGraph->Fmax();
-  if(m_mode=="FT8" and m_config.bHound() and !ui->cbRxAll->isChecked()) dec_data.params.nfb=1000;
-  if(m_mode=="FT8" and m_config.bFox()) dec_data.params.nfqso=200;
+  if(m_mode=="FT8" and m_nContest==HOUND and !ui->cbRxAll->isChecked()) dec_data.params.nfb=1000;
+  if(m_mode=="FT8" and m_nContest==FOX) dec_data.params.nfqso=200;
   dec_data.params.ntol=ui->sbFtol->value ();
   if(m_mode=="JT9+JT65" or !m_config.enable_VHF_features()) {
     dec_data.params.ntol=20;
@@ -2883,7 +2892,7 @@ void MainWindow::decodeDone ()
   decodeBusy(false);
   m_RxLog=0;
   m_blankLine=true;
-  if(m_config.bFox()) houndCallers();
+  if(m_nContest==FOX) houndCallers();
 }
 
 void MainWindow::readFromStdout()                             //readFromStdout
@@ -2937,7 +2946,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
                                      , tr ("Cannot open \"%1\" for append: %2")
                                      .arg (f.fileName ()).arg (f.errorString ()));
       }
-      if (m_config.insert_blank () && m_blankLine && !m_config.bFox()) {
+      if (m_config.insert_blank () && m_blankLine && m_nContest!=FOX) {
         QString band;
         if((QDateTime::currentMSecsSinceEpoch() / 1000 - m_secBandChanged) > 4*m_TRperiod/4) {
           band = ' ' + m_config.bands ()->find (m_freqNominal);
@@ -2951,7 +2960,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       DecodedText decodedtext {QString::fromUtf8(t.constData())
             .remove(QRegularExpression {"\r|\n"}).remove("TU; ")};
 
-      if(m_mode=="FT8" and m_config.bFox() and
+      if(m_mode=="FT8" and m_nContest==FOX and
          (decodedtext.string().contains("R+") or decodedtext.string().contains("R-"))) {
         auto for_us  = decodedtext.string().contains(" " + m_config.my_callsign() + " ") or
             decodedtext.string().contains(" "+m_baseCall) or
@@ -2967,7 +2976,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
 //Left (Band activity) window
       if(!bAvgMsg) {
-        if(m_mode=="FT8" and m_config.bFox()) {
+        if(m_mode=="FT8" and m_nContest==FOX) {
           if(!m_bDisplayedOnce) {
             // This hack sets the font.  Surely there's a better way!
             DecodedText dt{"."};
@@ -2994,15 +3003,15 @@ void MainWindow::readFromStdout()                             //readFromStdout
             || ("DE" == parts[5] && qAbs (ui->RxFreqSpinBox->value () - audioFreq) <= 10);
           if(m_baseCall==m_config.my_callsign() and m_baseCall!=parts[5]) for_us=false;
           if(m_bCallingCQ && !m_bAutoReply && for_us && ui->cbFirst->isChecked() and
-             !m_config.bFox() and !m_config.bHound()) {
+             m_nContest<FOX) {
             m_bDoubleClicked=true;
             m_bAutoReply = true;
-            if(!m_config.bFox()) processMessage (decodedtext);
+            if(m_nContest!=FOX) processMessage (decodedtext);
             ui->cbFirst->setStyleSheet("");
           }
-          if(m_config.bFox() and decodedtext.string().contains(" DE ")) for_us=true; //Hound with compound callsign
-          if(m_config.bFox() and for_us and (audioFreq<1000)) bDisplayRight=true;
-          if(!m_config.bFox() and (for_us or (abs(audioFreq - m_wideGraph->rxFreq()) <= 10))) bDisplayRight=true;
+          if(m_nContest==FOX and decodedtext.string().contains(" DE ")) for_us=true; //Hound with compound callsign
+          if(m_nContest==FOX and for_us and (audioFreq<1000)) bDisplayRight=true;
+          if(m_nContest!=FOX and (for_us or (abs(audioFreq - m_wideGraph->rxFreq()) <= 10))) bDisplayRight=true;
         }
       } else {
         if(abs(audioFreq - m_wideGraph->rxFreq()) <= 10) bDisplayRight=true;
@@ -3022,7 +3031,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         m_QSOText = decodedtext.string ().trimmed ();
       }
 
-      if(m_mode=="FT8" and m_config.bHound()) {
+      if(m_mode=="FT8" and m_nContest==HOUND) {
         if(decodedtext.string().contains(";")) {
           QStringList w=decodedtext.string().mid(24).split(" ",QString::SkipEmptyParts);
           QString foxCall=w.at(3);
@@ -3064,7 +3073,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       }
 
 //### I think this is where we are preventing Hounds from spotting Fox ###
-      if(m_mode!="FT8" or !m_config.bHound()) {
+      if(m_mode!="FT8" or (m_nContest != HOUND)) {
         if(m_mode=="FT8" or m_mode=="QRA64" or m_mode=="JT4" or m_mode=="JT65" or m_mode=="JT9") {
           auto_sequence (decodedtext, 25, 50);
         }
@@ -3165,7 +3174,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
                 // look for type 2 compound call replies on our Tx and Rx offsets
                 && ((within_tolerance && "DE" == message_words.at (1))
                     || message_words.at (1).contains (m_baseCall))))) {
-      if(!m_config.bFox()) processMessage (message);
+      if(m_nContest!=FOX) processMessage (message);
     }
   }
 }
@@ -3349,7 +3358,7 @@ void MainWindow::guiUpdate()
       }
     }
 
-    if(m_mode=="FT8" and m_config.bFox()) {
+    if(m_mode=="FT8" and m_nContest==FOX) {
 // Don't allow Fox mode in any of the default FT8 sub-bands.
       qint32 ft8Freq[]={1840,3573,7074,10136,14074,18100,21074,24915,28074,50313,70100};
       for(int i=0; i<11; i++) {
@@ -3393,12 +3402,12 @@ void MainWindow::guiUpdate()
       g_iptt = 1;
       setRig ();
       if(m_mode=="FT8") {
-        if (m_config.bFox()) {
+        if (m_nContest==FOX) {
           if (ui->TxFreqSpinBox->value() > 900) {
             ui->TxFreqSpinBox->setValue(300);
           }
         }
-        else if (m_config.bHound ()) {
+        else if (m_nContest==HOUND) {
           if(m_auto && !m_tune) {
             if (ui->TxFreqSpinBox->value() < 999 && m_ntx != 3) {
               int nf = (qrand() % 2000) + 1000;      // Hound randomized range: 1000-3000 Hz
@@ -3420,7 +3429,7 @@ void MainWindow::guiUpdate()
 
 // If HoldTxFreq is not checked, randomize Fox's Tx Freq
 // NB: Maybe this should be done no more than once every 5 minutes or so ?
-      if(m_mode=="FT8" and m_config.bFox() and !ui->cbHoldTxFreq->isChecked()) {
+      if(m_mode=="FT8" and m_nContest==FOX and !ui->cbHoldTxFreq->isChecked()) {
         int fTx = 300.0 + 300.0*double(qrand())/RAND_MAX;
         ui->TxFreqSpinBox->setValue(fTx);
       }
@@ -3476,7 +3485,7 @@ void MainWindow::guiUpdate()
       }
       ba=msg2.toLatin1();
     } else {
-      if(m_config.bHound() and m_ntx!=3) {   //Hound transmits only Tx1 or Tx3
+      if(m_nContest==HOUND and m_ntx!=3) {   //Hound transmits only Tx1 or Tx3
         m_ntx=1;
         ui->txrb1->setChecked(true);
       }
@@ -3533,7 +3542,7 @@ void MainWindow::guiUpdate()
             }
           }
           if(m_modeTx=="FT8") {
-            if(m_config.bFox() and ui->tabWidget->currentIndex()==2) {
+            if(m_nContest==FOX and ui->tabWidget->currentIndex()==2) {
               foxTxSequencer();
             } else {
               m_isync=2;
@@ -3541,7 +3550,7 @@ void MainWindow::guiUpdate()
               char ft8msgbits[77];
               genft8_(message, &m_i3, &m_n3, &m_isync, msgsent,
                       const_cast<char *> (ft8msgbits), const_cast<int *> (itone), 37, 37);
-              if(m_config.bFox()) {
+              if(m_nContest==FOX) {
                 //Fox must generate the full Tx waveform, not just an itone[] array.
                 QString fm = QString::fromStdString(message).trimmed();
                 foxGenWaveform(0,fm);
@@ -3694,7 +3703,7 @@ void MainWindow::guiUpdate()
         write_transmit_entry ("ALL.TXT");
       }
 
-      if (m_config.TX_messages () && !m_tune && !m_config.bFox()) {
+      if (m_config.TX_messages () && !m_tune && m_nContest==FOX) {
         ui->decodedTextBrowser2->displayTransmittedText(current_message, m_modeTx,
               ui->TxFreqSpinBox->value(),m_bFastMode);
       }
@@ -3750,7 +3759,7 @@ void MainWindow::guiUpdate()
     }
     m_currentBand=m_config.bands()->find(m_freqNominal);
 
-    if(m_config.bHound()) {
+    if(m_nContest == HOUND) {
       qint32 tHound=QDateTime::currentMSecsSinceEpoch()/1000 - m_tAutoOn;
       //To keep calling Fox, Hound must reactivate Enable Tx at least once every 2 minutes
       if(tHound >= 120 and m_ntx==1) auto_tx_mode(false);
@@ -3774,7 +3783,7 @@ void MainWindow::guiUpdate()
 
     if(m_transmitting) {
       char s[42];
-      if(m_config.bFox() and ui->tabWidget->currentIndex()==2) {
+      if(m_nContest==FOX and ui->tabWidget->currentIndex()==2) {
         sprintf(s,"Tx:  %d Slots",foxcom_.nslots);
       } else {
         sprintf(s,"Tx: %s",msgsent);
@@ -3796,7 +3805,7 @@ void MainWindow::guiUpdate()
         } else {
           s[40]=0;
           QString t{QString::fromLatin1(s)};
-          if(m_config.bFox() and ui->tabWidget->currentIndex()==2 and foxcom_.nslots==1) {
+          if(m_nContest==FOX and ui->tabWidget->currentIndex()==2 and foxcom_.nslots==1) {
               t=m_fm1.trimmed();
           }
           tx_status_label.setText(t.trimmed());
@@ -3908,7 +3917,7 @@ void MainWindow::stopTx2()
     m_ntr=0;
   }
   last_tx_label.setText("Last Tx: " + m_currentMessage.trimmed());
-//###  if(m_mode=="FT8" and m_config.bHound()) auto_tx_mode(false); ###
+//###  if(m_mode=="FT8" and (m_nContest == HOUND)) auto_tx_mode(false); ###
 }
 
 void MainWindow::ba2msg(QByteArray ba, char message[])             //ba2msg()
@@ -3970,7 +3979,7 @@ void MainWindow::on_txrb1_toggled (bool status)
 
 void MainWindow::on_txrb1_doubleClicked ()
 {
-  if(m_mode=="FT8" and m_config.bHound()) return;
+  if(m_mode=="FT8" and (m_nContest==HOUND)) return;
   // skip Tx1, only allowed if not a type 2 compound callsign
   auto const& my_callsign = m_config.my_callsign ();
   auto is_compound = my_callsign != m_baseCall;
@@ -4050,7 +4059,7 @@ void MainWindow::on_txb1_clicked()
 
 void MainWindow::on_txb1_doubleClicked()
 {
-  if(m_mode=="FT8" and m_config.bHound()) return;
+  if(m_mode=="FT8" and (m_nContest==HOUND)) return;
   // skip Tx1, only allowed if not a type 1 compound callsign
   auto const& my_callsign = m_config.my_callsign ();
   auto is_compound = my_callsign != m_baseCall;
@@ -4139,7 +4148,7 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
     cursor.setPosition(cursor.selectionStart());
   }
 
-  if(m_config.bFox() and m_decodedText2) {
+  if(m_nContest==FOX and m_decodedText2) {
     if(m_houndQueue.count()<10 and m_nSortedHounds>0) {
       QString t=cursor.block().text();
       selectHound(t);
@@ -4198,8 +4207,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
 
   int nmod = message.timeInSeconds () % (2*m_TRperiod);
   m_txFirst=(nmod!=0);
-  if(m_config.bHound()) m_txFirst=false;          //Hound must not transmit first
-  if(m_config.bFox()) m_txFirst=true;             //Fox must always transmit first
+  if(m_nContest==HOUND) m_txFirst=false;          //Hound must not transmit first
+  if(m_nContest==FOX) m_txFirst=true;             //Fox must always transmit first
   ui->txFirstCheckBox->setChecked(m_txFirst);
 
   auto const& message_words = message.messageWords ();
@@ -4250,7 +4259,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
          && firstcall != m_config.my_callsign () && firstcall != m_baseCall
          && firstcall != "DE")
         || "CQ" == firstcall || "QRZ" == firstcall || ctrl || shift) {
-      if ((!m_config.bHound () || m_mode != "FT8")
+      if (((m_nContest != HOUND) || m_mode != "FT8")
           && (!ui->cbHoldTxFreq->isChecked () || shift || ctrl)) {
         ui->TxFreqSpinBox->setValue(frequency);
       }
@@ -4291,7 +4300,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       m_nContest=EU_VHF;
       if(m_transmitting) m_restart=true;
       ui->decodedTextBrowser2->displayQSY (QString{"Enabled EU VHF Contest messages."});
-      QString t0=" Tx2.0   EU VHF";
+      QString t0="EU VHF";
       ui->labDXped->setVisible(true);
       ui->labDXped->setText(t0);
     }
@@ -4768,9 +4777,9 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
         t=t0a;
         msgtype(t0a, ui->tx1);
       }
-      if(m_config.bNA_VHF_Contest()) sent=my_grid;
-      if(m_config.bFieldDay()) sent=m_config.FieldDayExchange();
-      if(m_config.bRTTYroundup()) {
+      if(m_nContest==NA_VHF) sent=my_grid;
+      if(m_nContest==FIELD_DAY) sent=m_config.FieldDayExchange();
+      if(m_nContest==RTTY) {
         sent=rst + m_config.RTTYExchange();
         QString t1=m_config.RTTYExchange();
         if(t1=="DX" or t1=="#") {
@@ -4778,7 +4787,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
           sent=rst + t1;
         }
       }
-      if(m_config.bEU_VHF_Contest()) {
+      if(m_nContest==EU_VHF) {
         QString t1,a;
         t=t0.split(" ").at(0) + " ";
         a.sprintf("%4.4d ",ui->sbSerialNumber->value());
@@ -4792,7 +4801,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     if(m_mode=="MSK144" and m_bShMsgs) {
       int i=t0s.length()-1;
       t0="<" + t0s.mid(0,i) + "> ";
-      if(!m_config.bNA_VHF_Contest()) {
+      if(m_nContest != NA_VHF) {
         if(n<=-2) n=-3;
         if(n>=-1 and n<=1) n=0;
         if(n>=2 and n<=4) n=3;
@@ -4854,7 +4863,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
         case Configuration::type_2_msg_1_full:
           msgtype(t + my_grid, ui->tx1);
           if (!eme_short_codes) {
-            if((m_mode=="MSK144" || m_mode=="FT8") && m_config.bNA_VHF_Contest()) {
+            if((m_mode=="MSK144" || m_mode=="FT8") && m_nContest == NA_VHF) {
               msgtype(t + "R " + my_grid, ui->tx3);
             } else {
               msgtype(t + "R" + rpt, ui->tx3);
@@ -4866,7 +4875,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
           break;
 
         case Configuration::type_2_msg_3_full:
-          if ((m_mode=="MSK144" || m_mode=="FT8") && m_config.bNA_VHF_Contest()) {
+          if ((m_mode=="MSK144" || m_mode=="FT8") && m_nContest==NA_VHF) {
             msgtype(t + "R " + my_grid, ui->tx3);
             msgtype(t + "RRR", ui->tx4);
           } else {
@@ -4881,7 +4890,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
         case Configuration::type_2_msg_5_only:
           msgtype(t00 + my_grid, ui->tx1);
           if (!eme_short_codes) {
-            if ((m_mode=="MSK144" || m_mode=="FT8") && m_config.bNA_VHF_Contest()) {
+            if ((m_mode=="MSK144" || m_mode=="FT8") && m_nContest==NA_VHF) {
               msgtype(t + "R " + my_grid, ui->tx3);
               msgtype(t + "RRR", ui->tx4);
             } else {
@@ -4902,7 +4911,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       msgtype(t, ui->tx5->lineEdit ());
     }
   } else {
-    if (hisCall != hisBase and !m_config.bHound()) {
+    if (hisCall != hisBase and m_nContest != HOUND) {
       if (shortList(hisCall)) {
         // cfm we know his full call with a type 1 tx1 message
         t = hisCall + " " + my_callsign;
@@ -4916,7 +4925,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     }
   }
   m_rpt=rpt;
-  if(m_config.bHound() and is_compound) ui->tx1->setText("DE " + m_config.my_callsign());
+  if(m_nContest==HOUND and is_compound) ui->tx1->setText("DE " + m_config.my_callsign());
 }
 
 void MainWindow::TxAgain()
@@ -4944,7 +4953,7 @@ void MainWindow::clearDX ()
     m_gen_message_is_cq = true;
     ui->rbGenMsg->setChecked(true);
   } else {
-    if(m_mode=="FT8" and m_config.bHound()) {
+    if(m_mode=="FT8" and m_nContest==HOUND) {
       m_ntx=1;
       ui->txrb1->setChecked(true);
     } else {
@@ -5094,7 +5103,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
 //### Check this stuff ###
   if(itype==7 and m_config.enable_VHF_features() and m_mode=="JT65") shortMsg=true;
   if(m_mode=="MSK144" and t.mid(0,1)=="<") text=false;
-  if((m_mode=="MSK144" or m_mode=="FT8") and m_config.bNA_VHF_Contest()) {
+  if((m_mode=="MSK144" or m_mode=="FT8") and m_nContest==NA_VHF) {
     int i0=t.trimmed().length()-7;
     if(t.mid(i0,3)==" R ") text=false;
   }
@@ -5252,11 +5261,12 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   }
 
   bool bAutoLog=m_config.autoLog() and m_nContest>0;
+  bool bFoxMode= FOX==m_nContest;
   m_logDlg->initLogQSO (m_hisCall, grid, m_modeTx, m_rptSent, m_rptRcvd,
                         m_dateTimeQSOOn, dateTimeQSOOff, m_freqNominal +
                         ui->TxFreqSpinBox->value(), m_config.my_callsign(),
                         m_config.my_grid(), m_noSuffix, m_config.log_as_RTTY(),
-                        m_config.report_in_comments(), m_config.bFox(),
+                        m_config.report_in_comments(), bFoxMode,
                         bAutoLog, m_opCall, m_nContest, m_xSent, m_xRcvd);
 }
 
@@ -5320,7 +5330,7 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
         }
     }
 
-  if (m_config.clear_DX () and !m_config.bHound ()) clearDX ();
+  if (m_config.clear_DX () and m_nContest!=HOUND) clearDX ();
   m_dateTimeQSOOn = QDateTime {};
 }
 
@@ -5386,7 +5396,7 @@ void MainWindow::displayWidgets(qint64 n)
     if(i==32) ui->cbCQonly->setVisible(b);
     j=j>>1;
   }
-  b=m_config.bEU_VHF_Contest() or (m_config.bRTTYroundup() and
+  b=m_nContest==EU_VHF or (m_nContest==RTTY and
     (m_config.RTTYExchange()=="#" or m_config.RTTYExchange()=="DX"));
   ui->sbSerialNumber->setVisible(b);
   m_lastCallsign.clear ();     // ensures Tx5 is updated for new modes
@@ -5421,7 +5431,7 @@ void MainWindow::on_actionFT8_triggered()
   m_modulator->setTRPeriod(m_TRperiod); // TODO - not thread safe
   m_detector->setTRPeriod(m_TRperiod);  // TODO - not thread safe
   ui->label_7->setText("Rx Frequency");
-  if(m_config.bFox()) {
+  if(m_nContest==FOX) {
     ui->label_6->setText("Stations calling DXpedition " + m_config.my_callsign());
     ui->decodedTextLabel->setText( "Call         Grid   dB  Freq   Dist Age Continent");
   } else {
@@ -5439,7 +5449,7 @@ void MainWindow::on_actionFT8_triggered()
   ui->txb6->setEnabled(true);
   ui->txFirstCheckBox->setEnabled(true);
   ui->cbAutoSeq->setEnabled(true);
-  if(m_config.bFox()) {
+  if(m_nContest==FOX) {
     ui->txFirstCheckBox->setChecked(true);
     ui->txFirstCheckBox->setEnabled(false);
     ui->cbHoldTxFreq->setChecked(true);
@@ -5450,7 +5460,7 @@ void MainWindow::on_actionFT8_triggered()
     ui->labDXped->setText("Fox");
     on_actionFox_Log_triggered();
   }
-  if(m_config.bHound()) {
+  if(m_nContest != HOUND) {
     ui->txFirstCheckBox->setChecked(false);
     ui->txFirstCheckBox->setEnabled(false);
     ui->cbAutoSeq->setEnabled(false);
@@ -5469,13 +5479,12 @@ void MainWindow::on_actionFT8_triggered()
     ui->txb6->setEnabled(false);
   }
 
-  if(!m_config.bFox() and !m_config.bHound()) {
+  if(m_nContest<FOX) {
     QString t0="";
-    t0=" Tx2.0   ";
-    if(m_config.bNA_VHF_Contest()) t0+="NA VHF";
-    if(m_config.bEU_VHF_Contest()) t0+="EU VHF";
-    if(m_config.bFieldDay()) t0+="Field Day";
-    if(m_config.bRTTYroundup()) t0+="RTTY";
+    if(m_nContest==NA_VHF) t0+="NA VHF";
+    if(m_nContest==EU_VHF) t0+="EU VHF";
+    if(m_nContest==FIELD_DAY) t0+="Field Day";
+    if(m_nContest==RTTY) t0+="RTTY";
     if(t0=="") {
       ui->labDXped->setVisible(false);
     } else {
@@ -5484,7 +5493,7 @@ void MainWindow::on_actionFT8_triggered()
     }
   }
 
-  if((m_config.bFox() or m_config.bHound()) and !m_config.split_mode() and !m_bWarnedSplit) {
+  if((m_nContest==FOX or m_nContest==HOUND) and !m_config.split_mode() and !m_bWarnedSplit) {
     QString errorMsg;
     MessageBox::critical_message (this,
        "Operation in FT8 DXpedition mode normally requires\n"
@@ -5746,7 +5755,20 @@ void MainWindow::on_actionISCAT_triggered()
 
 void MainWindow::on_actionMSK144_triggered()
 {
-  if(m_nContest>=3) {
+  if(m_nContest>EU_VHF) {
+// We are rejecting the requested mode change, so re-check the old mode
+    if("FT8"==m_mode) ui->actionFT8->setChecked(true); 
+    if("JT4"==m_mode) ui->actionJT4->setChecked(true); 
+    if("JT9"==m_mode) ui->actionJT9->setChecked(true); 
+    if("JT65"==m_mode) ui->actionJT65->setChecked(true); 
+    if("JT9_JT65"==m_mode) ui->actionJT9_JT65->setChecked(true); 
+    if("ISCAT"==m_mode) ui->actionISCAT->setChecked(true); 
+    if("QRA64"==m_mode) ui->actionQRA64->setChecked(true); 
+    if("WSPR"==m_mode) ui->actionWSPR->setChecked(true); 
+    if("Echo"==m_mode) ui->actionEcho->setChecked(true); 
+    if("FreqCal"==m_mode) ui->actionFreqCal->setChecked(true); 
+// Make sure that MSK144 is not checked.
+    ui->actionMSK144->setChecked(false);
     MessageBox::warning_message (this, tr ("Improper mode"),
        "MSK144 not available if Fox, Hound, Field Day, or RTTY contest is selected.");
     return;
@@ -5790,8 +5812,8 @@ void MainWindow::on_actionMSK144_triggered()
   statusChanged();
 
   QString t0="";
-  if(m_config.bNA_VHF_Contest()) t0+="NA VHF";
-  if(m_config.bEU_VHF_Contest()) t0+="EU VHF";
+  if(m_nContest==NA_VHF) t0+="NA VHF";
+  if(m_nContest==EU_VHF) t0+="EU VHF";
   if(t0=="") {
     ui->labDXped->setVisible(false);
   } else {
@@ -6628,7 +6650,7 @@ void MainWindow::transmit (double snr)
     toneSpacing=12000.0/1920.0;
     if(m_config.x2ToneSpacing()) toneSpacing=2*12000.0/1920.0;
     if(m_config.x4ToneSpacing()) toneSpacing=4*12000.0/1920.0;
-    if(m_config.bFox() and !m_tune) toneSpacing=-1;
+    if(m_nContest==FOX and !m_tune) toneSpacing=-1;
     Q_EMIT sendMessage (NUM_FT8_SYMBOLS,
            1920.0, ui->TxFreqSpinBox->value () - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),
@@ -6874,7 +6896,7 @@ void::MainWindow::VHF_features_enabled(bool b)
   ui->actionMessage_averaging->setEnabled(b);
   ui->actionEnable_AP_DXcall->setVisible (m_mode=="QRA64");
   ui->actionEnable_AP_JT65->setVisible (b && m_mode=="JT65");
-  if(!b && m_msgAvgWidget and !m_config.bFox() and !m_config.autoLog()) {
+  if(!b && m_msgAvgWidget and (m_nContest!=FOX) and !m_config.autoLog()) {
     if(m_msgAvgWidget->isVisible()) m_msgAvgWidget->close();
   }
 }

@@ -446,8 +446,8 @@ private:
   Q_SLOT void handle_transceiver_failure (QString const& reason);
   Q_SLOT void on_reset_highlighting_to_defaults_push_button_clicked (bool);
   Q_SLOT void on_LotW_CSV_fetch_push_button_clicked (bool);
-  Q_SLOT void on_cbFox_clicked (bool);
-  Q_SLOT void on_cbHound_clicked (bool);
+  Q_SLOT void on_rbFox_clicked (bool);
+  Q_SLOT void on_rbHound_clicked (bool);
   Q_SLOT void on_cbx2ToneSpacing_clicked(bool);
   Q_SLOT void on_cbx4ToneSpacing_clicked(bool);
   Q_SLOT void on_rbFieldDay_toggled();
@@ -578,7 +578,7 @@ private:
   bool twoPass_;
   bool bFox_;
   bool bHound_;
-  bool bNoSpecial_;
+  bool bSpecialOp_;
   bool bFieldDay_;
   bool bRTTYroundup_;
   bool bNA_VHF_Contest_;
@@ -676,7 +676,7 @@ bool Configuration::single_decode () const {return m_->single_decode_;}
 bool Configuration::twoPass() const {return m_->twoPass_;}
 bool Configuration::bFox() const {return m_->bFox_;}
 bool Configuration::bHound() const {return m_->bHound_;}
-bool Configuration::bNoSpecial() const {return m_->bNoSpecial_;}
+bool Configuration::bSpecialOp() const {return m_->bSpecialOp_;}
 bool Configuration::bFieldDay() const {return m_->bFieldDay_;}
 bool Configuration::bRTTYroundup() const {return m_->bRTTYroundup_;}
 bool Configuration::bNA_VHF_Contest() const {return m_->bNA_VHF_Contest_;}
@@ -1201,9 +1201,9 @@ void Configuration::impl::initialize_models ()
   ui_->decode_at_52s_check_box->setChecked(decode_at_52s_);
   ui_->single_decode_check_box->setChecked(single_decode_);
   ui_->cbTwoPass->setChecked(twoPass_);
-  ui_->cbFox->setChecked(bFox_);
-  ui_->cbHound->setChecked(bHound_);
-  ui_->rbNone->setChecked(bNoSpecial_);
+  ui_->rbFox->setChecked(bFox_);
+  ui_->rbHound->setChecked(bHound_);
+  ui_->gbSpecialOpActivity->setChecked(bSpecialOp_);
   ui_->rbFieldDay->setChecked(bFieldDay_);
   ui_->rbRTTYroundup->setChecked(bRTTYroundup_);
   ui_->rbNA_VHF_Contest->setChecked(bNA_VHF_Contest_);
@@ -1455,7 +1455,7 @@ void Configuration::impl::read_settings ()
   twoPass_ = settings_->value("TwoPass",true).toBool ();
   bFox_ = settings_->value("Fox",false).toBool ();
   bHound_ = settings_->value("Hound",false).toBool ();
-  bNoSpecial_ = settings_->value("NoSpecial",false).toBool ();
+  bSpecialOp_ = settings_->value("SpecialOpActivity",false).toBool ();
   bFieldDay_ = settings_->value("FieldDay",false).toBool ();
   bRTTYroundup_ = settings_->value("RTTYroundup",false).toBool ();
   bNA_VHF_Contest_ = settings_->value("NA_VHF_Contest",false).toBool ();
@@ -1566,7 +1566,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("TwoPass", twoPass_);
   settings_->setValue ("Fox", bFox_);
   settings_->setValue ("Hound", bHound_);
-  settings_->setValue ("NoSpecial", bNoSpecial_);
+  settings_->setValue ("SpecialOpActivity", bSpecialOp_);
   settings_->setValue ("FieldDay", bFieldDay_);
   settings_->setValue ("RTTYroundup", bRTTYroundup_);
   settings_->setValue ("NA_VHF_Contest", bNA_VHF_Contest_);
@@ -1971,10 +1971,10 @@ void Configuration::impl::accept ()
   decode_at_52s_ = ui_->decode_at_52s_check_box->isChecked ();
   single_decode_ = ui_->single_decode_check_box->isChecked ();
   twoPass_ = ui_->cbTwoPass->isChecked ();
-  bFox_ = ui_->cbFox->isChecked ();
-  bHound_ = ui_->cbHound->isChecked ();
-  if(bFox_ or bHound_) ui_->rbNone->setChecked(true);     //###
-  bNoSpecial_ = ui_->rbNone->isChecked ();
+  bFox_ = ui_->rbFox->isChecked ();
+  bHound_ = ui_->rbHound->isChecked ();
+//  if(bFox_ or bHound_) ui_->gbSpecialOpActivity->setChecked(true);     //###
+  bSpecialOp_ = ui_->gbSpecialOpActivity->isChecked ();
   bFieldDay_ = ui_->rbFieldDay->isChecked ();
   bRTTYroundup_ = ui_->rbRTTYroundup->isChecked ();
   bNA_VHF_Contest_ = ui_->rbNA_VHF_Contest->isChecked ();
@@ -2458,19 +2458,21 @@ void Configuration::impl::on_cbAutoLog_clicked(bool checked)
   if(checked) ui_->prompt_to_log_check_box->setChecked(false);
 }
 
-void Configuration::impl::on_cbFox_clicked (bool checked)
+//These are not needed because Fox and Hound have been converted to 
+//mutually exclusive radio buttons.
+void Configuration::impl::on_rbFox_clicked (bool checked)
 {
   if(checked) {
-    ui_->cbHound->setChecked (false);
-    ui_->rbNone->setChecked(true);
+//    ui_->rbHound->setChecked (false);
+//    ui_->rbNone->setChecked(true);
   }
 }
 
-void Configuration::impl::on_cbHound_clicked (bool checked)
+void Configuration::impl::on_rbHound_clicked (bool checked)
 {
   if(checked) {
-    ui_->cbFox->setChecked (false);
-    ui_->rbNone->setChecked(true);
+//    ui_->rbFox->setChecked (false);
+//    ui_->rbNone->setChecked(true);
   }
 }
 
