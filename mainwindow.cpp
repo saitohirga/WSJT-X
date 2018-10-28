@@ -3704,7 +3704,7 @@ void MainWindow::guiUpdate()
         write_transmit_entry ("ALL.TXT");
       }
 
-      if (m_config.TX_messages () && !m_tune && m_nContest==FOX) {
+      if (m_config.TX_messages () && !m_tune && m_nContest!=FOX) {
         ui->decodedTextBrowser2->displayTransmittedText(current_message, m_modeTx,
               ui->TxFreqSpinBox->value(),m_bFastMode);
       }
