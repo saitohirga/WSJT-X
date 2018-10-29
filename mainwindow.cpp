@@ -4709,7 +4709,7 @@ bool MainWindow::stdCall(QString w)
 
 void MainWindow::genStdMsgs(QString rpt, bool unconditional)
 {
-// Seems to prevent abortQSO from working when a TU; message is already queue// Seems to prevent abortQSO from working when a TU; message is already queued
+// Prevent abortQSO from working when a TU; message is already queued
 //  if(ui->tx3->text().left(4)=="TU; ") {
 //    return;
 //  }
