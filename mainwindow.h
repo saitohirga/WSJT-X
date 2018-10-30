@@ -298,7 +298,7 @@ private slots:
   void on_pbFoxReset_clicked();
   void on_comboBoxHoundSort_activated (int index);
   void not_GA_warning_message ();
-  void setContestType();
+  void checkMSK144ContestType();
   int  setTxMsg(int n);
   bool stdCall(QString w);
 
@@ -516,16 +516,6 @@ private:
       SIGNOFF
     }
     m_QSOProgress;        //State machine counter
-
-  enum {
-    NONE,                 // 0
-    NA_VHF,               // 1
-    EU_VHF,               // 2
-    FIELD_DAY,            // 3
-    RTTY,                 // 4
-    FOX,                  // 5
-    HOUND                 // 6
-  } m_nContest;           //Contest type
 
   enum {CALL, GRID, DXCC, MULT};
 

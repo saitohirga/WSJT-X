@@ -98,8 +98,8 @@ public:
 
   QString my_callsign () const;
   QString my_grid () const;
-  QString FieldDayExchange() const;
-  QString RTTYExchange() const;
+  QString Field_Day_Exchange() const;
+  QString RTTY_Exchange() const;
   void setEU_VHF_Contest();
   QFont text_font () const;
   QFont decoded_text_font () const;
@@ -137,8 +137,8 @@ public:
   bool bGenerate77() const;
   bool bDecode77() const;
   bool bSpecialOp() const;
-  bool bFieldDay() const;
-  bool bRTTYroundup() const;
+  bool bField_Day() const;
+  bool bRTTY_Roundup() const;
   bool bNA_VHF_Contest() const;
   bool bEU_VHF_Contest() const;
   bool x2ToneSpacing() const;
@@ -177,6 +177,10 @@ public:
   LotWUsers const& lotw_users () const;
   DecodeHighlightingModel const& decode_highlighting () const;
   bool highlight_by_mode () const;
+ 
+  enum class SpecialOperatingActivity {NONE, NA_VHF, EU_VHF, FIELD_DAY, RTTY, FOX, HOUND};
+  SpecialOperatingActivity special_op_activity () const;
+  SpecialOperatingActivity special_op_id () const;
 
   struct CalibrationParams
   {

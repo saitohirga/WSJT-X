@@ -2453,13 +2453,16 @@ Right click for insert and delete options.</string>
           <item row="1" column="3">
            <layout class="QHBoxLayout" name="horizontalLayout_17" stretch="2,1,1">
             <item>
-             <widget class="QRadioButton" name="rbFieldDay">
+             <widget class="QRadioButton" name="rbField_Day">
               <property name="toolTip">
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ARRL Field Day exchange: number of transmitters, Class, and ARRL/RAC section or &amp;quot;DX&amp;quot;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
                <string>ARRL Field Day</string>
               </property>
+              <attribute name="buttonGroup">
+               <string notr="true">special_op_activity_button_group</string>
+              </attribute>
              </widget>
             </item>
             <item>
@@ -2483,12 +2486,12 @@ Right click for insert and delete options.</string>
                  <string>Exch:</string>
                 </property>
                 <property name="buddy">
-                 <cstring>FieldDay_Exchange</cstring>
+                 <cstring>Field_Day_Exchange</cstring>
                 </property>
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="FieldDay_Exchange">
+               <widget class="QLineEdit" name="Field_Day_Exchange">
                 <property name="minimumSize">
                  <size>
                   <width>70</width>
@@ -2513,13 +2516,16 @@ Right click for insert and delete options.</string>
           <item row="2" column="3">
            <layout class="QHBoxLayout" name="horizontalLayout_18" stretch="2,1,1">
             <item>
-             <widget class="QRadioButton" name="rbRTTYroundup">
+             <widget class="QRadioButton" name="rbRTTY_Roundup">
               <property name="toolTip">
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ARRL RTTY Roundup and similar contests.  Exchange is US state, Canadian province, or &amp;quot;DX&amp;quot;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
                <string>ARRL RTTY Roundup</string>
               </property>
+              <attribute name="buttonGroup">
+               <string notr="true">special_op_activity_button_group</string>
+              </attribute>
              </widget>
             </item>
             <item>
@@ -2581,6 +2587,9 @@ Right click for insert and delete options.</string>
             <property name="checked">
              <bool>false</bool>
             </property>
+            <attribute name="buttonGroup">
+             <string notr="true">special_op_activity_button_group</string>
+            </attribute>
            </widget>
           </item>
           <item row="2" column="0">
@@ -2597,6 +2606,9 @@ Right click for insert and delete options.</string>
             <property name="text">
              <string>EU VHF Contest</string>
             </property>
+            <attribute name="buttonGroup">
+             <string notr="true">special_op_activity_button_group</string>
+            </attribute>
            </widget>
           </item>
           <item row="1" column="0">
@@ -2613,6 +2625,9 @@ Right click for insert and delete options.</string>
             <property name="text">
              <string>NA VHF Contest</string>
             </property>
+            <attribute name="buttonGroup">
+             <string notr="true">special_op_activity_button_group</string>
+            </attribute>
            </widget>
           </item>
           <item row="0" column="4" rowspan="3">
@@ -2636,6 +2651,9 @@ Right click for insert and delete options.</string>
             <property name="checked">
              <bool>true</bool>
             </property>
+            <attribute name="buttonGroup">
+             <string notr="true">special_op_activity_button_group</string>
+            </attribute>
            </widget>
           </item>
          </layout>
@@ -2918,9 +2936,9 @@ Right click for insert and delete options.</string>
   <tabstop>rbFox</tabstop>
   <tabstop>rbNA_VHF_Contest</tabstop>
   <tabstop>rbEU_VHF_Contest</tabstop>
-  <tabstop>rbFieldDay</tabstop>
-  <tabstop>FieldDay_Exchange</tabstop>
-  <tabstop>rbRTTYroundup</tabstop>
+  <tabstop>rbField_Day</tabstop>
+  <tabstop>Field_Day_Exchange</tabstop>
+  <tabstop>rbRTTY_Roundup</tabstop>
   <tabstop>RTTY_Exchange</tabstop>
  </tabstops>
  <resources/>
@@ -2991,12 +3009,13 @@ Right click for insert and delete options.</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="TX_audio_source_button_group"/>
-  <buttongroup name="split_mode_button_group"/>
   <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
-  <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="split_mode_button_group"/>
   <buttongroup name="TX_mode_button_group"/>
+  <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="special_op_activity_button_group"/>
  </buttongroups>
 </ui>

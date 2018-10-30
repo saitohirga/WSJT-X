@@ -446,13 +446,11 @@ private:
   Q_SLOT void handle_transceiver_failure (QString const& reason);
   Q_SLOT void on_reset_highlighting_to_defaults_push_button_clicked (bool);
   Q_SLOT void on_LotW_CSV_fetch_push_button_clicked (bool);
-  Q_SLOT void on_rbFox_clicked (bool);
-  Q_SLOT void on_rbHound_clicked (bool);
   Q_SLOT void on_cbx2ToneSpacing_clicked(bool);
   Q_SLOT void on_cbx4ToneSpacing_clicked(bool);
-  Q_SLOT void on_rbFieldDay_toggled();
-  Q_SLOT void on_rbRTTYroundup_toggled();
-  Q_SLOT void on_FieldDay_Exchange_textChanged();
+  Q_SLOT void on_rbField_Day_toggled();
+  Q_SLOT void on_rbRTTY_Roundup_toggled();
+  Q_SLOT void on_Field_Day_Exchange_textChanged();
   Q_SLOT void on_RTTY_Exchange_textChanged();
   Q_SLOT void on_prompt_to_log_check_box_clicked(bool);
   Q_SLOT void on_cbAutoLog_clicked(bool);
@@ -579,8 +577,8 @@ private:
   bool bFox_;
   bool bHound_;
   bool bSpecialOp_;
-  bool bFieldDay_;
-  bool bRTTYroundup_;
+  bool bField_Day_;
+  bool bRTTY_Roundup_;
   bool bNA_VHF_Contest_;
   bool bEU_VHF_Contest_;
   bool x2ToneSpacing_;
@@ -677,8 +675,8 @@ bool Configuration::twoPass() const {return m_->twoPass_;}
 bool Configuration::bFox() const {return m_->bFox_;}
 bool Configuration::bHound() const {return m_->bHound_;}
 bool Configuration::bSpecialOp() const {return m_->bSpecialOp_;}
-bool Configuration::bFieldDay() const {return m_->bFieldDay_;}
-bool Configuration::bRTTYroundup() const {return m_->bRTTYroundup_;}
+bool Configuration::bField_Day() const {return m_->bField_Day_;}
+bool Configuration::bRTTY_Roundup() const {return m_->bRTTY_Roundup_;}
 bool Configuration::bNA_VHF_Contest() const {return m_->bNA_VHF_Contest_;}
 bool Configuration::bEU_VHF_Contest() const {return m_->bEU_VHF_Contest_;}
 bool Configuration::x2ToneSpacing() const {return m_->x2ToneSpacing_;}
@@ -822,7 +820,7 @@ QString Configuration::my_grid() const
   return the_grid;
 }
 
-QString Configuration::FieldDayExchange() const
+QString Configuration::Field_Day_Exchange() const
 {
   return m_->FD_exchange_;
 }
@@ -834,9 +832,14 @@ void Configuration::setEU_VHF_Contest()
   m_->write_settings();
 }
 
-QString Configuration::RTTYExchange() const
+QString Configuration::RTTY_Exchange() const
 {
   return m_->RTTY_exchange_;
+}
+
+auto Configuration::special_op_id () const -> SpecialOperatingActivity
+{
+  return m_->bSpecialOp_ ? static_cast<SpecialOperatingActivity> (m_->ui_->special_op_activity_button_group->checkedId()) : SpecialOperatingActivity::NONE;
 }
 
 void Configuration::set_location (QString const& grid_descriptor)
@@ -989,7 +992,7 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   ui_->callsign_line_edit->setValidator (new CallsignValidator {this});
   ui_->grid_line_edit->setValidator (new MaidenheadLocatorValidator {this});
   ui_->add_macro_line_edit->setValidator (new QRegExpValidator {message_alphabet, this});
-  ui_->FieldDay_Exchange->setValidator(new ExchangeValidator{this});
+  ui_->Field_Day_Exchange->setValidator(new ExchangeValidator{this});
   ui_->RTTY_Exchange->setValidator(new ExchangeValidator{this});
 
   ui_->udp_server_port_spin_box->setMinimum (1);
@@ -1029,6 +1032,13 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   ui_->split_mode_button_group->setId (ui_->split_none_radio_button, TransceiverFactory::split_mode_none);
   ui_->split_mode_button_group->setId (ui_->split_rig_radio_button, TransceiverFactory::split_mode_rig);
   ui_->split_mode_button_group->setId (ui_->split_emulate_radio_button, TransceiverFactory::split_mode_emulate);
+
+  ui_->special_op_activity_button_group->setId (ui_->rbNA_VHF_Contest, static_cast<int> (SpecialOperatingActivity::NA_VHF));
+  ui_->special_op_activity_button_group->setId (ui_->rbEU_VHF_Contest, static_cast<int> (SpecialOperatingActivity::EU_VHF));
+  ui_->special_op_activity_button_group->setId (ui_->rbField_Day, static_cast<int> (SpecialOperatingActivity::FIELD_DAY));
+  ui_->special_op_activity_button_group->setId (ui_->rbRTTY_Roundup, static_cast<int> (SpecialOperatingActivity::RTTY));
+  ui_->special_op_activity_button_group->setId (ui_->rbFox, static_cast<int> (SpecialOperatingActivity::FOX));
+  ui_->special_op_activity_button_group->setId (ui_->rbHound, static_cast<int> (SpecialOperatingActivity::HOUND));
 
   //
   // setup PTT port combo box drop down content
@@ -1204,8 +1214,8 @@ void Configuration::impl::initialize_models ()
   ui_->rbFox->setChecked(bFox_);
   ui_->rbHound->setChecked(bHound_);
   ui_->gbSpecialOpActivity->setChecked(bSpecialOp_);
-  ui_->rbFieldDay->setChecked(bFieldDay_);
-  ui_->rbRTTYroundup->setChecked(bRTTYroundup_);
+  ui_->rbField_Day->setChecked(bField_Day_);
+  ui_->rbRTTY_Roundup->setChecked(bRTTY_Roundup_);
   ui_->rbNA_VHF_Contest->setChecked(bNA_VHF_Contest_);
   ui_->rbEU_VHF_Contest->setChecked(bEU_VHF_Contest_);
   ui_->cbx2ToneSpacing->setChecked(x2ToneSpacing_);
@@ -1291,9 +1301,9 @@ void Configuration::impl::read_settings ()
 
   my_callsign_ = settings_->value ("MyCall", QString {}).toString ();
   my_grid_ = settings_->value ("MyGrid", QString {}).toString ();
-  FD_exchange_ = settings_->value ("FieldDayExchange",QString {}).toString ();
-  RTTY_exchange_ = settings_->value ("RTTYExchange",QString {}).toString ();
-  ui_->FieldDay_Exchange->setText(FD_exchange_);
+  FD_exchange_ = settings_->value ("Field_Day_Exchange",QString {}).toString ();
+  RTTY_exchange_ = settings_->value ("RTTY_Exchange",QString {}).toString ();
+  ui_->Field_Day_Exchange->setText(FD_exchange_);
   ui_->RTTY_Exchange->setText(RTTY_exchange_);
   if (next_font_.fromString (settings_->value ("Font", QGuiApplication::font ().toString ()).toString ())
       && next_font_ != font_)
@@ -1456,8 +1466,8 @@ void Configuration::impl::read_settings ()
   bFox_ = settings_->value("Fox",false).toBool ();
   bHound_ = settings_->value("Hound",false).toBool ();
   bSpecialOp_ = settings_->value("SpecialOpActivity",false).toBool ();
-  bFieldDay_ = settings_->value("FieldDay",false).toBool ();
-  bRTTYroundup_ = settings_->value("RTTYroundup",false).toBool ();
+  bField_Day_ = settings_->value("Field_Day",false).toBool ();
+  bRTTY_Roundup_ = settings_->value("RTTY_Roundup",false).toBool ();
   bNA_VHF_Contest_ = settings_->value("NA_VHF_Contest",false).toBool ();
   bEU_VHF_Contest_ = settings_->value("EU_VHF_Contest",false).toBool ();
   x2ToneSpacing_ = settings_->value("x2ToneSpacing",false).toBool ();
@@ -1485,8 +1495,8 @@ void Configuration::impl::write_settings ()
 
   settings_->setValue ("MyCall", my_callsign_);
   settings_->setValue ("MyGrid", my_grid_);
-  settings_->setValue ("FieldDayExchange", FD_exchange_);
-  settings_->setValue ("RTTYExchange", RTTY_exchange_);
+  settings_->setValue ("Field_Day_Exchange", FD_exchange_);
+  settings_->setValue ("RTTY_Exchange", RTTY_exchange_);
   settings_->setValue ("Font", font_.toString ());
   settings_->setValue ("DecodedTextFont", decoded_text_font_.toString ());
   settings_->setValue ("IDint", id_interval_);
@@ -1567,8 +1577,8 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("Fox", bFox_);
   settings_->setValue ("Hound", bHound_);
   settings_->setValue ("SpecialOpActivity", bSpecialOp_);
-  settings_->setValue ("FieldDay", bFieldDay_);
-  settings_->setValue ("RTTYroundup", bRTTYroundup_);
+  settings_->setValue ("Field_Day", bField_Day_);
+  settings_->setValue ("RTTY_Roundup", bRTTY_Roundup_);
   settings_->setValue ("NA_VHF_Contest", bNA_VHF_Contest_);
   settings_->setValue ("EU_VHF_Contest", bEU_VHF_Contest_);
   settings_->setValue ("x2ToneSpacing", x2ToneSpacing_);
@@ -1937,7 +1947,7 @@ void Configuration::impl::accept ()
 
   my_callsign_ = ui_->callsign_line_edit->text ();
   my_grid_ = ui_->grid_line_edit->text ();
-  FD_exchange_= ui_->FieldDay_Exchange->text ();
+  FD_exchange_= ui_->Field_Day_Exchange->text ();
   RTTY_exchange_= ui_->RTTY_Exchange->text ();
   spot_to_psk_reporter_ = ui_->psk_reporter_check_box->isChecked ();
   id_interval_ = ui_->CW_id_interval_spin_box->value ();
@@ -1975,8 +1985,8 @@ void Configuration::impl::accept ()
   bHound_ = ui_->rbHound->isChecked ();
 //  if(bFox_ or bHound_) ui_->gbSpecialOpActivity->setChecked(true);     //###
   bSpecialOp_ = ui_->gbSpecialOpActivity->isChecked ();
-  bFieldDay_ = ui_->rbFieldDay->isChecked ();
-  bRTTYroundup_ = ui_->rbRTTYroundup->isChecked ();
+  bField_Day_ = ui_->rbField_Day->isChecked ();
+  bRTTY_Roundup_ = ui_->rbRTTY_Roundup->isChecked ();
   bNA_VHF_Contest_ = ui_->rbNA_VHF_Contest->isChecked ();
   bEU_VHF_Contest_ = ui_->rbEU_VHF_Contest->isChecked ();
   x2ToneSpacing_ = ui_->cbx2ToneSpacing->isChecked ();
@@ -2204,16 +2214,16 @@ void Configuration::impl::on_add_macro_line_edit_editingFinished ()
   ui_->add_macro_line_edit->setText (ui_->add_macro_line_edit->text ().toUpper ());
 }
 
-void Configuration::impl::on_FieldDay_Exchange_textChanged()
+void Configuration::impl::on_Field_Day_Exchange_textChanged()
 {
-  bool b=ui_->FieldDay_Exchange->hasAcceptableInput() or !ui_->rbFieldDay->isChecked();
-  if(b)  ui_->FieldDay_Exchange->setStyleSheet("color: black");
-  if(!b) ui_->FieldDay_Exchange->setStyleSheet("color: red");
+  bool b=ui_->Field_Day_Exchange->hasAcceptableInput() or !ui_->rbField_Day->isChecked();
+  if(b)  ui_->Field_Day_Exchange->setStyleSheet("color: black");
+  if(!b) ui_->Field_Day_Exchange->setStyleSheet("color: red");
 }
 
 void Configuration::impl::on_RTTY_Exchange_textChanged()
 {
-  bool b=ui_->RTTY_Exchange->hasAcceptableInput() or !ui_->rbRTTYroundup->isChecked();
+  bool b=ui_->RTTY_Exchange->hasAcceptableInput() or !ui_->rbRTTY_Roundup->isChecked();
   if(b)  ui_->RTTY_Exchange->setStyleSheet("color: black");
   if(!b) ui_->RTTY_Exchange->setStyleSheet("color: red");
 }
@@ -2458,30 +2468,12 @@ void Configuration::impl::on_cbAutoLog_clicked(bool checked)
   if(checked) ui_->prompt_to_log_check_box->setChecked(false);
 }
 
-//These are not needed because Fox and Hound have been converted to 
-//mutually exclusive radio buttons.
-void Configuration::impl::on_rbFox_clicked (bool checked)
+void Configuration::impl::on_rbField_Day_toggled()
 {
-  if(checked) {
-//    ui_->rbHound->setChecked (false);
-//    ui_->rbNone->setChecked(true);
-  }
+  on_Field_Day_Exchange_textChanged();
 }
 
-void Configuration::impl::on_rbHound_clicked (bool checked)
-{
-  if(checked) {
-//    ui_->rbFox->setChecked (false);
-//    ui_->rbNone->setChecked(true);
-  }
-}
-
-void Configuration::impl::on_rbFieldDay_toggled()
-{
-  on_FieldDay_Exchange_textChanged();
-}
-
-void Configuration::impl::on_rbRTTYroundup_toggled()
+void Configuration::impl::on_rbRTTY_Roundup_toggled()
 {
   on_RTTY_Exchange_textChanged();
 }
