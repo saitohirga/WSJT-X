@@ -1180,7 +1180,7 @@ void MainWindow::readSettings()
 
 void MainWindow::checkMSK144ContestType()
 {
-  if(m_config.bSpecialOp()) 
+  if(SpecOp::NONE < m_config.special_op_id()) 
     {
       if(m_mode=="MSK144" && SpecOp::EU_VHF < m_config.special_op_id())
         {
@@ -1530,7 +1530,7 @@ void MainWindow::fastSink(qint64 frames)
   float pxmax = 0;
   float rmsNoGain = 0;
   int ftol = ui->sbFtol->value ();
-  int nContest=(int) m_config.special_op_id();
+  int nContest = static_cast<int> (m_config.special_op_id());
   hspec_(dec_data.d2,&k,&nutc0,&nTRpDepth,&RxFreq,&ftol,&nContest,&bmsk144,
          &m_bTrain,m_phaseEqCoefficients.constData(),&m_inGain,&dec_data.params.mycall[0],
          &dec_data.params.hiscall[0],&bshmsg,&bswl,
@@ -2398,7 +2398,7 @@ void MainWindow::on_actionAstronomical_data_toggled (bool checked)
 void MainWindow::on_actionFox_Log_triggered()
 {
   on_actionMessage_averaging_triggered();
-  m_msgAvgWidget->foxLogSetup((int) m_config.special_op_id());
+  m_msgAvgWidget->foxLogSetup( static_cast<int> (m_config.special_op_id()) );
 }
 
 void MainWindow::on_actionColors_triggered()
@@ -2748,7 +2748,7 @@ void MainWindow::decode()                                       //decode()
   dec_data.params.emedelay=0.0;
   if(m_config.decode_at_52s()) dec_data.params.emedelay=2.5;
   dec_data.params.minSync=ui->syncSpinBox->isVisible () ? m_minSync : 0;
-  dec_data.params.nexp_decode= (int) m_config.special_op_id();
+  dec_data.params.nexp_decode = static_cast<int> (m_config.special_op_id());
   if(m_config.single_decode()) dec_data.params.nexp_decode += 32;
   if(m_config.enable_VHF_features()) dec_data.params.nexp_decode += 64;
   dec_data.params.ldecode77 = true;
@@ -5239,8 +5239,6 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   
   switch( m_config.special_op_id() )
     {
-      case SpecOp::NONE:
-        break;
       case SpecOp::NA_VHF:
         m_xSent=m_config.my_grid().left(4);
         m_xRcvd=m_hisGrid;
@@ -5260,10 +5258,7 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
         m_rptSent=m_xSent.split(" ").at(0);
         m_rptRcvd=m_xRcvd.split(" ").at(0);
         break;
-      case SpecOp::FOX:
-        break;
-      case SpecOp::HOUND:
-        break;
+      default: break;
     }
 
   if(m_config.special_op_id()>SpecOp::NONE and SpecOp::FOX > m_config.special_op_id()) {

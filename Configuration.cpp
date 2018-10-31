@@ -574,13 +574,8 @@ private:
   bool decode_at_52s_;
   bool single_decode_;
   bool twoPass_;
-  bool bFox_;
-  bool bHound_;
   bool bSpecialOp_;
-  bool bField_Day_;
-  bool bRTTY_Roundup_;
-  bool bNA_VHF_Contest_;
-  bool bEU_VHF_Contest_;
+  int  SelectedActivity_;
   bool x2ToneSpacing_;
   bool x4ToneSpacing_;
   bool use_dynamic_grid_;
@@ -672,13 +667,6 @@ bool Configuration::enable_VHF_features () const {return m_->enable_VHF_features
 bool Configuration::decode_at_52s () const {return m_->decode_at_52s_;}
 bool Configuration::single_decode () const {return m_->single_decode_;}
 bool Configuration::twoPass() const {return m_->twoPass_;}
-bool Configuration::bFox() const {return m_->bFox_;}
-bool Configuration::bHound() const {return m_->bHound_;}
-bool Configuration::bSpecialOp() const {return m_->bSpecialOp_;}
-bool Configuration::bField_Day() const {return m_->bField_Day_;}
-bool Configuration::bRTTY_Roundup() const {return m_->bRTTY_Roundup_;}
-bool Configuration::bNA_VHF_Contest() const {return m_->bNA_VHF_Contest_;}
-bool Configuration::bEU_VHF_Contest() const {return m_->bEU_VHF_Contest_;}
 bool Configuration::x2ToneSpacing() const {return m_->x2ToneSpacing_;}
 bool Configuration::x4ToneSpacing() const {return m_->x4ToneSpacing_;}
 bool Configuration::split_mode () const {return m_->split_mode ();}
@@ -827,8 +815,7 @@ QString Configuration::Field_Day_Exchange() const
 
 void Configuration::setEU_VHF_Contest()
 {
-  m_->bEU_VHF_Contest_ = true;
-  m_->ui_->rbEU_VHF_Contest->setChecked(m_->bEU_VHF_Contest_);
+  m_->ui_->rbEU_VHF_Contest->setChecked(true);
   m_->write_settings();
 }
 
@@ -839,7 +826,7 @@ QString Configuration::RTTY_Exchange() const
 
 auto Configuration::special_op_id () const -> SpecialOperatingActivity
 {
-  return m_->bSpecialOp_ ? static_cast<SpecialOperatingActivity> (m_->ui_->special_op_activity_button_group->checkedId()) : SpecialOperatingActivity::NONE;
+  return m_->bSpecialOp_ ? static_cast<SpecialOperatingActivity> (m_->SelectedActivity_) : SpecialOperatingActivity::NONE;
 }
 
 void Configuration::set_location (QString const& grid_descriptor)
@@ -1211,13 +1198,28 @@ void Configuration::impl::initialize_models ()
   ui_->decode_at_52s_check_box->setChecked(decode_at_52s_);
   ui_->single_decode_check_box->setChecked(single_decode_);
   ui_->cbTwoPass->setChecked(twoPass_);
-  ui_->rbFox->setChecked(bFox_);
-  ui_->rbHound->setChecked(bHound_);
   ui_->gbSpecialOpActivity->setChecked(bSpecialOp_);
-  ui_->rbField_Day->setChecked(bField_Day_);
-  ui_->rbRTTY_Roundup->setChecked(bRTTY_Roundup_);
-  ui_->rbNA_VHF_Contest->setChecked(bNA_VHF_Contest_);
-  ui_->rbEU_VHF_Contest->setChecked(bEU_VHF_Contest_);
+  switch(SelectedActivity_)
+    {
+      case 1:
+        ui_->rbNA_VHF_Contest->setChecked(true);
+        break;
+      case 2:
+        ui_->rbEU_VHF_Contest->setChecked(true);
+        break;
+      case 3:
+        ui_->rbField_Day->setChecked(true);
+        break;
+      case 4:
+        ui_->rbRTTY_Roundup->setChecked(true);
+        break;
+      case 5:
+        ui_->rbRTTY_Roundup->setChecked(true);
+        break;
+      case 6:
+        ui_->rbRTTY_Roundup->setChecked(true);
+        break;
+    } 
   ui_->cbx2ToneSpacing->setChecked(x2ToneSpacing_);
   ui_->cbx4ToneSpacing->setChecked(x4ToneSpacing_);
   ui_->type_2_msg_gen_combo_box->setCurrentIndex (type_2_msg_gen_);
@@ -1463,13 +1465,8 @@ void Configuration::impl::read_settings ()
   decode_at_52s_ = settings_->value("Decode52",false).toBool ();
   single_decode_ = settings_->value("SingleDecode",false).toBool ();
   twoPass_ = settings_->value("TwoPass",true).toBool ();
-  bFox_ = settings_->value("Fox",false).toBool ();
-  bHound_ = settings_->value("Hound",false).toBool ();
   bSpecialOp_ = settings_->value("SpecialOpActivity",false).toBool ();
-  bField_Day_ = settings_->value("Field_Day",false).toBool ();
-  bRTTY_Roundup_ = settings_->value("RTTY_Roundup",false).toBool ();
-  bNA_VHF_Contest_ = settings_->value("NA_VHF_Contest",false).toBool ();
-  bEU_VHF_Contest_ = settings_->value("EU_VHF_Contest",false).toBool ();
+  SelectedActivity_ = settings_->value("SelectedActivity").toInt (); 
   x2ToneSpacing_ = settings_->value("x2ToneSpacing",false).toBool ();
   x4ToneSpacing_ = settings_->value("x4ToneSpacing",false).toBool ();
   rig_params_.poll_interval = settings_->value ("Polling", 0).toInt ();
@@ -1574,13 +1571,8 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("Decode52", decode_at_52s_);
   settings_->setValue ("SingleDecode", single_decode_);
   settings_->setValue ("TwoPass", twoPass_);
-  settings_->setValue ("Fox", bFox_);
-  settings_->setValue ("Hound", bHound_);
+  settings_->setValue ("SelectedActivity", SelectedActivity_);
   settings_->setValue ("SpecialOpActivity", bSpecialOp_);
-  settings_->setValue ("Field_Day", bField_Day_);
-  settings_->setValue ("RTTY_Roundup", bRTTY_Roundup_);
-  settings_->setValue ("NA_VHF_Contest", bNA_VHF_Contest_);
-  settings_->setValue ("EU_VHF_Contest", bEU_VHF_Contest_);
   settings_->setValue ("x2ToneSpacing", x2ToneSpacing_);
   settings_->setValue ("x4ToneSpacing", x4ToneSpacing_);
   settings_->setValue ("OpCall", opCall_);
@@ -1981,14 +1973,8 @@ void Configuration::impl::accept ()
   decode_at_52s_ = ui_->decode_at_52s_check_box->isChecked ();
   single_decode_ = ui_->single_decode_check_box->isChecked ();
   twoPass_ = ui_->cbTwoPass->isChecked ();
-  bFox_ = ui_->rbFox->isChecked ();
-  bHound_ = ui_->rbHound->isChecked ();
-//  if(bFox_ or bHound_) ui_->gbSpecialOpActivity->setChecked(true);     //###
   bSpecialOp_ = ui_->gbSpecialOpActivity->isChecked ();
-  bField_Day_ = ui_->rbField_Day->isChecked ();
-  bRTTY_Roundup_ = ui_->rbRTTY_Roundup->isChecked ();
-  bNA_VHF_Contest_ = ui_->rbNA_VHF_Contest->isChecked ();
-  bEU_VHF_Contest_ = ui_->rbEU_VHF_Contest->isChecked ();
+  SelectedActivity_ = ui_->special_op_activity_button_group->checkedId();
   x2ToneSpacing_ = ui_->cbx2ToneSpacing->isChecked ();
   x4ToneSpacing_ = ui_->cbx4ToneSpacing->isChecked ();
   calibration_.intercept = ui_->calibration_intercept_spin_box->value ();

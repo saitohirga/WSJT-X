@@ -136,11 +136,6 @@ public:
   bool bHound() const;
   bool bGenerate77() const;
   bool bDecode77() const;
-  bool bSpecialOp() const;
-  bool bField_Day() const;
-  bool bRTTY_Roundup() const;
-  bool bNA_VHF_Contest() const;
-  bool bEU_VHF_Contest() const;
   bool x2ToneSpacing() const;
   bool x4ToneSpacing() const;
   bool MyDx() const;
@@ -179,7 +174,6 @@ public:
   bool highlight_by_mode () const;
  
   enum class SpecialOperatingActivity {NONE, NA_VHF, EU_VHF, FIELD_DAY, RTTY, FOX, HOUND};
-  SpecialOperatingActivity special_op_activity () const;
   SpecialOperatingActivity special_op_id () const;
 
   struct CalibrationParams
