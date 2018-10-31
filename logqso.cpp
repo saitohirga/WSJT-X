@@ -60,7 +60,6 @@ void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString 
                         Radio::Frequency dialFreq, bool noSuffix, QString xSent, QString xRcvd)
 {
   if(!isHidden()) return;
-  m_nContest = static_cast<qint32> (m_config->special_op_id());
   m_xSent=xSent;
   m_xRcvd=xRcvd;
   ui->call->setText(hisCall);

@@ -1202,27 +1202,7 @@ void Configuration::impl::initialize_models ()
   ui_->single_decode_check_box->setChecked(single_decode_);
   ui_->cbTwoPass->setChecked(twoPass_);
   ui_->gbSpecialOpActivity->setChecked(bSpecialOp_);
-  switch(SelectedActivity_)
-    {
-      case 1:
-        ui_->rbNA_VHF_Contest->setChecked(true);
-        break;
-      case 2:
-        ui_->rbEU_VHF_Contest->setChecked(true);
-        break;
-      case 3:
-        ui_->rbField_Day->setChecked(true);
-        break;
-      case 4:
-        ui_->rbRTTY_Roundup->setChecked(true);
-        break;
-      case 5:
-        ui_->rbRTTY_Roundup->setChecked(true);
-        break;
-      case 6:
-        ui_->rbRTTY_Roundup->setChecked(true);
-        break;
-    } 
+  ui_->special_op_activity_button_group->button (SelectedActivity_)->setChecked (true);
   ui_->cbx2ToneSpacing->setChecked(x2ToneSpacing_);
   ui_->cbx4ToneSpacing->setChecked(x4ToneSpacing_);
   ui_->type_2_msg_gen_combo_box->setCurrentIndex (type_2_msg_gen_);

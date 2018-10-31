@@ -1179,7 +1179,7 @@ void MainWindow::readSettings()
 
 void MainWindow::checkMSK144ContestType()
 {
-  if(SpecOp::NONE < m_config.special_op_id()) 
+  if(SpecOp::NONE != m_config.special_op_id()) 
     {
       if(m_mode=="MSK144" && SpecOp::EU_VHF < m_config.special_op_id())
         {
@@ -5259,7 +5259,7 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
       default: break;
     }
 
-  if(m_config.special_op_id()>SpecOp::NONE and SpecOp::FOX > m_config.special_op_id()) {
+  if(SpecOp::NONE < m_config.special_op_id() and SpecOp::FOX > m_config.special_op_id()) {
     int n=ui->sbSerialNumber->value();
     ui->sbSerialNumber->setValue(n+1);
     cabLog();   //Call the Cabrillo contest logger

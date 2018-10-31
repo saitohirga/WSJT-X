@@ -58,7 +58,6 @@ private:
   QString m_myGrid;
   QString m_xSent;
   QString m_xRcvd;
-  qint32  m_nContest;
   QDateTime m_dateTimeOn;
   QDateTime m_dateTimeOff;
 };
