@@ -150,7 +150,8 @@
 #include <QStringList>
 #include <QStringListModel>
 #include <QLineEdit>
-#include <QRegExpValidator>
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
 #include <QIntValidator>
 #include <QThread>
 #include <QTimer>
@@ -180,7 +181,6 @@
 #include "MaidenheadLocatorValidator.hpp"
 #include "CallsignValidator.hpp"
 #include "LotWUsers.hpp"
-#include "ExchangeValidator.hpp"
 #include "DecodeHighlightingModel.hpp"
 
 #include "ui_Configuration.h"
@@ -195,7 +195,42 @@ namespace
   int const combo_box_item_disabled (0);
 
 //  QRegExp message_alphabet {"[- A-Za-z0-9+./?]*"};
-  QRegExp message_alphabet {"[- @A-Za-z0-9+./?#<>]*"};
+  QRegularExpression message_alphabet {"[- @A-Za-z0-9+./?#<>]*"};
+  QRegularExpression RTTY_roundup_exchange_re {
+    R"(
+        (
+           AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA   # states
+          |HI|ID|IL|IN|IA|KS|KY|LA|ME|MD
+          |MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ
+          |NM|NY|NC|ND|OH|OK|OR|PA|RI|SC
+          |SD|TN|TX|UT|VT|VA|WA|WV|WI|WY
+          |NB|NS|QC|ON|MB|SK|AB|BC|NWT|NF  # VE provinces
+          |LB|NU|YT|PEI|DC
+          |DX                              # anyone else
+        )
+      )", QRegularExpression::CaseInsensitiveOption | QRegularExpression::ExtendedPatternSyntaxOption};
+  QRegularExpression field_day_exchange_re {
+    R"(
+        (
+           [1-9]                          # # transmitters (1 to 32 inc.)
+          |[0-2]\d
+          |3[0-2]
+        )
+        [A-F]\                            # class and space
+        (
+           AB|AK|AL|AR|AZ|BC|CO|CT|DE|EB  # ARRL/RAC section
+          |EMA|ENY|EPA|EWA|GA|GTA|IA|ID
+          |IL|IN|KS|KY|LA|LAX|MAR|MB|MDC
+          |ME|MI|MN|MO|MS|MT|NC|ND|NE|NFL
+          |NH|NL|NLI|NM|NNJ|NNY|NT|NTX|NV
+          |OH|OK|ONE|ONN|ONS|OR|ORG|PAC
+          |PR|QC|RI|SB|SC|SCV|SD|SDG|SF
+          |SFL|SJV|SK|SNJ|STX|SV|TN|UT|VA
+          |VI|VT|WCF|WI|WMA|WNY|WPA|WTX
+          |WV|WWA|WY
+          |DX                             # anyone else
+        )
+      )", QRegularExpression::CaseInsensitiveOption | QRegularExpression::ExtendedPatternSyntaxOption};
 
   // Magic numbers for file validation
   constexpr quint32 qrg_magic {0xadbccbdb};
@@ -341,7 +376,7 @@ public:
   {
     auto editor = new QLineEdit {parent};
     editor->setFrame (false);
-    editor->setValidator (new QRegExpValidator {message_alphabet, editor});
+    editor->setValidator (new QRegularExpressionValidator {message_alphabet, editor});
     return editor;
   }
 };
@@ -448,10 +483,6 @@ private:
   Q_SLOT void on_LotW_CSV_fetch_push_button_clicked (bool);
   Q_SLOT void on_cbx2ToneSpacing_clicked(bool);
   Q_SLOT void on_cbx4ToneSpacing_clicked(bool);
-  Q_SLOT void on_rbField_Day_toggled();
-  Q_SLOT void on_rbRTTY_Roundup_toggled();
-  Q_SLOT void on_Field_Day_Exchange_textChanged();
-  Q_SLOT void on_RTTY_Exchange_textChanged();
   Q_SLOT void on_prompt_to_log_check_box_clicked(bool);
   Q_SLOT void on_cbAutoLog_clicked(bool);
 
@@ -981,9 +1012,9 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   // validation
   ui_->callsign_line_edit->setValidator (new CallsignValidator {this});
   ui_->grid_line_edit->setValidator (new MaidenheadLocatorValidator {this});
-  ui_->add_macro_line_edit->setValidator (new QRegExpValidator {message_alphabet, this});
-  ui_->Field_Day_Exchange->setValidator(new ExchangeValidator{this});
-  ui_->RTTY_Exchange->setValidator(new ExchangeValidator{this});
+  ui_->add_macro_line_edit->setValidator (new QRegularExpressionValidator {message_alphabet, this});
+  ui_->Field_Day_Exchange->setValidator(new QRegularExpressionValidator {field_day_exchange_re});
+  ui_->RTTY_Exchange->setValidator(new QRegularExpressionValidator {RTTY_roundup_exchange_re});
 
   ui_->udp_server_port_spin_box->setMinimum (1);
   ui_->udp_server_port_spin_box->setMaximum (std::numeric_limits<port_type>::max ());
@@ -1754,6 +1785,42 @@ bool Configuration::impl::validate ()
       return false;
     }
 
+  if (ui_->rbField_Day-> isChecked () &&
+      !ui_->Field_Day_Exchange->hasAcceptableInput ())
+    {
+      for (auto * parent = ui_->Field_Day_Exchange->parentWidget (); parent; parent = parent->parentWidget ())
+        {
+          auto index = ui_->configuration_tabs->indexOf (parent);
+          if (index != -1)
+            {
+              ui_->configuration_tabs->setCurrentIndex (index);
+              break;
+            }
+        }
+      ui_->Field_Day_Exchange->setFocus ();
+      MessageBox::critical_message (this, tr ("Invalid Contest Exchange")
+                                    , tr ("You must input a valid ARRL Field Day exchange"));
+      return false;
+    }
+
+  if (ui_->rbRTTY_Roundup-> isChecked () &&
+      !ui_->RTTY_Exchange->hasAcceptableInput ())
+    {
+      for (auto * parent = ui_->RTTY_Exchange->parentWidget (); parent; parent = parent->parentWidget ())
+        {
+          auto index = ui_->configuration_tabs->indexOf (parent);
+          if (index != -1)
+            {
+              ui_->configuration_tabs->setCurrentIndex (index);
+              break;
+            }
+        }
+      ui_->RTTY_Exchange->setFocus ();
+      MessageBox::critical_message (this, tr ("Invalid Contest Exchange")
+                                    , tr ("You must input a valid ARRL RTTY Roundup exchange"));
+      return false;
+    }
+
   return true;
 }
 
@@ -1942,8 +2009,8 @@ void Configuration::impl::accept ()
 
   my_callsign_ = ui_->callsign_line_edit->text ();
   my_grid_ = ui_->grid_line_edit->text ();
-  FD_exchange_= ui_->Field_Day_Exchange->text ();
-  RTTY_exchange_= ui_->RTTY_Exchange->text ();
+  FD_exchange_= ui_->Field_Day_Exchange->text ().toUpper ();
+  RTTY_exchange_= ui_->RTTY_Exchange->text ().toUpper ();
   spot_to_psk_reporter_ = ui_->psk_reporter_check_box->isChecked ();
   id_interval_ = ui_->CW_id_interval_spin_box->value ();
   ntrials_ = ui_->sbNtrials->value ();
@@ -2203,20 +2270,6 @@ void Configuration::impl::on_add_macro_line_edit_editingFinished ()
   ui_->add_macro_line_edit->setText (ui_->add_macro_line_edit->text ().toUpper ());
 }
 
-void Configuration::impl::on_Field_Day_Exchange_textChanged()
-{
-  bool b=ui_->Field_Day_Exchange->hasAcceptableInput() or !ui_->rbField_Day->isChecked();
-  if(b)  ui_->Field_Day_Exchange->setStyleSheet("color: black");
-  if(!b) ui_->Field_Day_Exchange->setStyleSheet("color: red");
-}
-
-void Configuration::impl::on_RTTY_Exchange_textChanged()
-{
-  bool b=ui_->RTTY_Exchange->hasAcceptableInput() or !ui_->rbRTTY_Roundup->isChecked();
-  if(b)  ui_->RTTY_Exchange->setStyleSheet("color: black");
-  if(!b) ui_->RTTY_Exchange->setStyleSheet("color: red");
-}
-
 void Configuration::impl::on_delete_macro_push_button_clicked (bool /* checked */)
 {
   auto selection_model = ui_->macros_list_view->selectionModel ();
@@ -2455,16 +2508,6 @@ void Configuration::impl::on_prompt_to_log_check_box_clicked(bool checked)
 void Configuration::impl::on_cbAutoLog_clicked(bool checked)
 {
   if(checked) ui_->prompt_to_log_check_box->setChecked(false);
-}
-
-void Configuration::impl::on_rbField_Day_toggled()
-{
-  on_Field_Day_Exchange_textChanged();
-}
-
-void Configuration::impl::on_rbRTTY_Roundup_toggled()
-{
-  on_RTTY_Exchange_textChanged();
 }
 
 void Configuration::impl::on_cbx2ToneSpacing_clicked(bool b)
