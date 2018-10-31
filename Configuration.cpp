@@ -814,8 +814,11 @@ QString Configuration::Field_Day_Exchange() const
 }
 
 void Configuration::setEU_VHF_Contest()
-{
+{ 
+  m_->bSpecialOp_=true;
+  m_->ui_->gbSpecialOpActivity->setChecked(m_->bSpecialOp_);
   m_->ui_->rbEU_VHF_Contest->setChecked(true);
+  m_->SelectedActivity_ = static_cast<int> (SpecialOperatingActivity::EU_VHF);
   m_->write_settings();
 }
 
