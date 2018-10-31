@@ -27,11 +27,8 @@ public:
   ~LogQSO();
   void initLogQSO(QString const& hisCall, QString const& hisGrid, QString mode,
                   QString const& rptSent, QString const& rptRcvd, QDateTime const& dateTimeOn,
-                  QDateTime const& dateTimeOff,
-                  Radio::Frequency dialFreq, QString const& myCall, QString const& myGrid,
-                  bool noSuffix, bool toRTTY, bool dBtoComments, bool bFox,
-                  bool bAutoLog, QString const& opCall, qint32 nContest, QString xSent,
-                  QString xRcvd);
+                  QDateTime const& dateTimeOff, Radio::Frequency dialFreq, 
+                  bool noSuffix, QString xSent, QString xRcvd); 
 
 public slots:
   void accept();

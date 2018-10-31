@@ -394,7 +394,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->decodedTextBrowser2->set_configuration (&m_config);
 
   m_baseCall = Radio::base_callsign (m_config.my_callsign ());
-  m_opCall = m_config.opCall();
 
   m_optimizingProgress.setWindowModality (Qt::WindowModal);
   m_optimizingProgress.setAutoReset (false);
@@ -1694,7 +1693,6 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       ui->actionInclude_correlation->setChecked(false);
       ui->actionEnable_AP_JT65->setVisible(false);
     }
-    m_opCall=m_config.opCall();
     if(m_config.special_op_id()!=nContest0) ui->tx1->setEnabled(true);
   }
 }
@@ -5267,14 +5265,9 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
     cabLog();   //Call the Cabrillo contest logger
   }
 
-  bool bAutoLog=m_config.autoLog() and SpecOp::NONE < m_config.special_op_id();
-  bool bFoxMode= SpecOp::FOX==m_config.special_op_id();
   m_logDlg->initLogQSO (m_hisCall, grid, m_modeTx, m_rptSent, m_rptRcvd,
                         m_dateTimeQSOOn, dateTimeQSOOff, m_freqNominal +
-                        ui->TxFreqSpinBox->value(), m_config.my_callsign(),
-                        m_config.my_grid(), m_noSuffix, m_config.log_as_RTTY(),
-                        m_config.report_in_comments(), bFoxMode,
-                        bAutoLog, m_opCall, (qint32) m_config.special_op_id(), m_xSent, m_xRcvd);
+                        ui->TxFreqSpinBox->value(), m_noSuffix, m_xSent, m_xRcvd);
 }
 
 void MainWindow::cabLog()

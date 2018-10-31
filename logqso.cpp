@@ -57,13 +57,10 @@ void LogQSO::storeSettings () const
 void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString mode,
                         QString const& rptSent, QString const& rptRcvd,
                         QDateTime const& dateTimeOn, QDateTime const& dateTimeOff,
-                        Radio::Frequency dialFreq, QString const& myCall, QString const& myGrid,
-                        bool noSuffix, bool toRTTY, bool dBtoComments, bool bFox,
-                        bool bAutoLog, QString const& opCall, qint32 nContest,
-                        QString xSent, QString xRcvd)
+                        Radio::Frequency dialFreq, bool noSuffix, QString xSent, QString xRcvd)
 {
   if(!isHidden()) return;
-  m_nContest=nContest;
+  m_nContest = static_cast<qint32> (m_config->special_op_id());
   m_xSent=xSent;
   m_xRcvd=xRcvd;
   ui->call->setText(hisCall);
@@ -73,27 +70,30 @@ void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString 
   ui->comments->setText("");
   if (ui->cbTxPower->isChecked ()) ui->txPower->setText(m_txPower);
   if (ui->cbComments->isChecked ()) ui->comments->setText(m_comments);
-  if(dBtoComments) {
+  if (m_config->report_in_comments()) {
     QString t=mode;
     if(rptSent!="") t+="  Sent: " + rptSent;
     if(rptRcvd!="") t+="  Rcvd: " + rptRcvd;
     ui->comments->setText(t);
   }
   if(noSuffix and mode.mid(0,3)=="JT9") mode="JT9";
-  if(toRTTY and mode.mid(0,3)=="JT9") mode="RTTY";
+  if(m_config->log_as_RTTY() and mode.mid(0,3)=="JT9") mode="RTTY";
   ui->mode->setText(mode);
   ui->sent->setText(rptSent);
   ui->rcvd->setText(rptRcvd);
   ui->start_date_time->setDateTime (dateTimeOn);
   ui->end_date_time->setDateTime (dateTimeOff);
   m_dialFreq=dialFreq;
-  m_myCall=myCall;
-  m_myGrid=myGrid;
+  m_myCall=m_config->my_callsign();
+  m_myGrid=m_config->my_grid();
   ui->band->setText (m_config->bands ()->find (dialFreq));
-  ui->loggedOperator->setText(opCall);
+  ui->loggedOperator->setText(m_config->opCall());
   ui->exchSent->setText(m_xSent);
   ui->exchRcvd->setText(m_xRcvd);
-  if(bFox or bAutoLog) {
+
+  using SpOp = Configuration::SpecialOperatingActivity;
+  if( SpOp::FOX == m_config->special_op_id() or 
+      (m_config->autoLog() and SpOp::NONE < m_config->special_op_id()) ) {     
     accept();
   } else {
     show ();
