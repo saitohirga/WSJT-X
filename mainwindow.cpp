@@ -1111,7 +1111,7 @@ void MainWindow::readSettings()
   ui->RxFreqSpinBox->setValue(0); // ensure a change is signaled
   ui->RxFreqSpinBox->setValue(m_settings->value("RxFreq",1500).toInt());
   m_nSubMode=m_settings->value("SubMode",0).toInt();
-  ui->sbFtol->setValue (m_settings->value("Ftol", 20).toInt());
+  ui->sbFtol->setValue (m_settings->value("Ftol", 50).toInt());
   m_minSync=m_settings->value("MinSync",0).toInt();
   ui->syncSpinBox->setValue(m_minSync);
   ui->cbAutoSeq->setChecked (m_settings->value ("AutoSeq", false).toBool());
