@@ -31,7 +31,7 @@ SplashScreen::SplashScreen ()
   showMessage ("<h2>" + QString {"WSJT-X v" +
         QCoreApplication::applicationVersion() + " " +
         revision ()}.simplified () + "</h2>"
-    "V1.8 has many new features.<br /><br />"
+    "V2.0 has many new features.<br /><br />"
     "The release notes have more details.<br /><br />"
     "Send issue reports to wsjtgroup@yahoogroups.com, and be sure to save .wav<br />"
     "files where appropriate.<br /><br />"
