@@ -1480,7 +1480,7 @@ void Configuration::impl::read_settings ()
   single_decode_ = settings_->value("SingleDecode",false).toBool ();
   twoPass_ = settings_->value("TwoPass",true).toBool ();
   bSpecialOp_ = settings_->value("SpecialOpActivity",false).toBool ();
-  SelectedActivity_ = settings_->value("SelectedActivity").toInt (); 
+  SelectedActivity_ = settings_->value("SelectedActivity",1).toInt (); 
   x2ToneSpacing_ = settings_->value("x2ToneSpacing",false).toBool ();
   x4ToneSpacing_ = settings_->value("x4ToneSpacing",false).toBool ();
   rig_params_.poll_interval = settings_->value ("Polling", 0).toInt ();
