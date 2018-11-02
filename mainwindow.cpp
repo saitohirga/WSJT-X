@@ -4402,8 +4402,9 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
               ui->tx3->setText(t);
               m_bTUmsg=true;
             } else {
-              m_ntx=5;
-              ui->txrb5->setChecked(true);
+              on_logQSOButton_clicked();
+              m_ntx=6;
+              ui->txrb6->setChecked(true);
             }
           }
           m_QSOProgress = SIGNOFF;
