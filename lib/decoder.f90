@@ -501,7 +501,7 @@ contains
     decoded0=decoded
 
     annot='  ' 
-    if(nap.ne.0) then
+    if(ncontest.eq.0 .and. nap.ne.0) then
        write(annot,'(a1,i1)') 'a',nap
        if(qual.lt.0.17) decoded0(37:37)='?'
     endif
