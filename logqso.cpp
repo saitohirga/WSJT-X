@@ -92,10 +92,11 @@ void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString 
 
   using SpOp = Configuration::SpecialOperatingActivity;
   if( SpOp::FOX == m_config->special_op_id() or 
-      (m_config->autoLog() and SpOp::NONE < m_config->special_op_id()) ) {     
+      (m_config->autoLog() and SpOp::NONE < m_config->special_op_id() and
+      m_xSent!="" and m_xRcvd!="")) {
     accept();
   } else {
-    show ();
+    show();
   }
 }
 

@@ -4374,7 +4374,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
         gen_msg=setTxMsg(3);
         m_QSOProgress=ROGER_REPORT;
         int n=t.size();
-        m_xRcvd=t[n-2] + " " + t[n-1];
+        int nRpt=t[n-2].toInt();
+        if(nRpt>=529 and nRpt<=599) m_xRcvd=t[n-2] + " " + t[n-1];
       } else if(SpecOp::FIELD_DAY==m_config.special_op_id() and bFieldDay_msg) {
         if(t0=="R") {
           gen_msg=setTxMsg(4);
@@ -4413,7 +4414,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
           m_QSOProgress = ROGERS;
           if(SpecOp::RTTY == m_config.special_op_id()) {
             int n=t.size();
-            m_xRcvd=t[n-2] + " " + t[n-1];
+            int nRpt=t[n-2].toInt();
+            if(nRpt>=529 and nRpt<=599) m_xRcvd=t[n-2] + " " + t[n-1];
           }
           ui->txrb4->setChecked(true);
           if(ui->tabWidget->currentIndex()==1) {
@@ -5280,15 +5282,15 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
       default: break;
     }
 
+  m_logDlg->initLogQSO (m_hisCall, grid, m_modeTx, m_rptSent, m_rptRcvd,
+                        m_dateTimeQSOOn, dateTimeQSOOff, m_freqNominal +
+                        ui->TxFreqSpinBox->value(), m_noSuffix, m_xSent, m_xRcvd);
+
   if(SpecOp::NONE < m_config.special_op_id() and SpecOp::FOX > m_config.special_op_id()) {
     int n=ui->sbSerialNumber->value();
     ui->sbSerialNumber->setValue(n+1);
     cabLog();   //Call the Cabrillo contest logger
   }
-
-  m_logDlg->initLogQSO (m_hisCall, grid, m_modeTx, m_rptSent, m_rptRcvd,
-                        m_dateTimeQSOOn, dateTimeQSOOff, m_freqNominal +
-                        ui->TxFreqSpinBox->value(), m_noSuffix, m_xSent, m_xRcvd);
 }
 
 void MainWindow::cabLog()
