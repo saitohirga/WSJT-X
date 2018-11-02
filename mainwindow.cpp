@@ -1120,7 +1120,7 @@ void MainWindow::readSettings()
   m_bSWL=m_settings->value("SWL",false).toBool();
   m_bFast9=m_settings->value("Fast9",false).toBool();
   m_bFastMode=m_settings->value("FastMode",false).toBool();
-  ui->sbTR->setValue (m_settings->value ("TRPeriod", 30).toInt());
+  ui->sbTR->setValue (m_settings->value ("TRPeriod", 15).toInt());
   m_lastMonitoredFrequency = m_settings->value ("DialFreq",
     QVariant::fromValue<Frequency> (default_frequency)).value<Frequency> ();
   ui->WSPRfreqSpinBox->setValue(0); // ensure a change is signaled
