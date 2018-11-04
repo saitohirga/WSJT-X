@@ -48,10 +48,8 @@ DEFINES += UNIX
 # Order matters here as the link is in this order so referrers need to be after referred
 #
 SOURCES += \
-	logbook/adif.cpp \
-	logbook/countriesworked.cpp \
-        logbook/logbook.cpp \
-        logbook/AD1CCty.cpp \
+  logbook/adif.cpp logbook/countriesworked.cpp logbook/logbook.cpp \
+        logbook/AD1CCty.cpp logbook/WorkedBefore.cpp \
   astro.cpp Radio.cpp NetworkServerLookup.cpp revision_utils.cpp \
   Transceiver.cpp TransceiverBase.cpp TransceiverFactory.cpp \
   PollingTransceiver.cpp EmulateSplitTransceiver.cpp LettersSpinBox.cpp \
@@ -69,6 +67,7 @@ SOURCES += \
   MultiSettings.cpp PhaseEqualizationDialog.cpp IARURegions.cpp MessageBox.cpp \
   EqualizationToolsDialog.cpp CallsignValidator.cpp \
   colorhighlighting.cpp ExportCabrillo.cpp LotWUsers.cpp TraceFile.cpp
+
 HEADERS  += qt_helpers.hpp \
   pimpl_h.hpp pimpl_impl.hpp \
   Radio.hpp NetworkServerLookup.hpp revision_utils.hpp \
@@ -79,7 +78,7 @@ HEADERS  += qt_helpers.hpp \
   FrequencyLineEdit.hpp AudioDevice.hpp Detector.hpp Modulator.hpp psk_reporter.h \
   Transceiver.hpp TransceiverBase.hpp TransceiverFactory.hpp PollingTransceiver.hpp \
   EmulateSplitTransceiver.hpp DXLabSuiteCommanderTransceiver.hpp HamlibTransceiver.hpp \
-  Configuration.hpp wsprnet.h signalmeter.h meterwidget.h \
+  Configuration.hpp wsprnet.h signalmeter.h meterwidget.h logbook/WorkedBefore.hpp \
   logbook/logbook.h logbook/countriesworked.h logbook/adif.h logbook/AD1CCty.h \
   messageaveraging.h echoplot.h echograph.h fastgraph.h fastplot.h Modes.hpp WSPRBandHopping.hpp \
   WsprTxScheduler.h SampleDownloader.hpp MultiSettings.hpp PhaseEqualizationDialog.hpp \
