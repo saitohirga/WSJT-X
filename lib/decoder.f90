@@ -100,8 +100,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
           params%nftx,newdat,params%nutc,params%nfa,params%nfb,              &
           params%ndepth,ncontest,logical(params%nagain),                     &
           logical(params%lft8apon),logical(params%lapcqonly),                &
-          logical(params%ldecode77),params%napwid,                           &
-          mycall,hiscall,hisgrid)
+          params%napwid,mycall,hiscall,hisgrid)
      call timer('decft8  ',1)
      if(nfox.gt.0) then
         n30min=minval(n30fox(1:nfox))

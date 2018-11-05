@@ -33,7 +33,7 @@ module ft8_decode
 contains
 
   subroutine decode(this,callback,iwave,nQSOProgress,nfqso,nftx,newdat,  &
-       nutc,nfa,nfb,ndepth,ncontest,nagain,lft8apon,lapcqonly,ldecode77, &
+       nutc,nfa,nfb,ndepth,ncontest,nagain,lft8apon,lapcqonly, &
        napwid,mycall12,hiscall12,hisgrid6)
 !    use wavhdr
     use timer_module, only: timer
@@ -47,7 +47,7 @@ contains
     real sbase(NH1)
     real candidate(3,MAXCAND)
     real dd(15*12000)
-    logical, intent(in) :: lft8apon,lapcqonly,ldecode77,nagain
+    logical, intent(in) :: lft8apon,lapcqonly,nagain
     logical newdat,lsubtract,ldupe
     character*12 mycall12,hiscall12,mycall12_0
     character*6 hisgrid6
@@ -103,7 +103,7 @@ contains
       endif 
       call timer('sync8   ',0)
       maxc=MAXCAND
-      call sync8(dd,ifa,ifb,syncmin,nfqso,ldecode77,maxc,s,candidate,   &
+      call sync8(dd,ifa,ifb,syncmin,nfqso,maxc,s,candidate,   &
            ncand,sbase)
       call timer('sync8   ',1)
       do icand=1,ncand
