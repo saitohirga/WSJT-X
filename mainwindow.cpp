@@ -3642,6 +3642,7 @@ void MainWindow::guiUpdate()
 
     bool b=(m_mode=="FT8") and ui->cbAutoSeq->isChecked();
     if(is_73 and (m_config.disable_TX_on_73() or b)) {
+      m_nextCall="";  //### Temporary: disable use of "TU;" messages;
       if(m_nextCall!="") {
         useNextCall();
       } else {
@@ -4147,6 +4148,10 @@ void MainWindow::doubleClickOnCall2(Qt::KeyboardModifiers modifiers)
 
 void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
 {
+  if(!(modifiers & Qt::AltModifier) and m_transmitting) {
+//    qDebug() << "aa" << "Double-click ignored";
+    return;
+  }
   QTextCursor cursor;
   if(m_mode=="ISCAT") {
     MessageBox::information_message (this,
@@ -4159,6 +4164,7 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
   }
 
   if(modifiers==(Qt::ShiftModifier + Qt::ControlModifier + Qt::AltModifier)) {
+    //### What was the purpose of this ???  ###
     cursor.setPosition(0);
   } else {
     cursor.setPosition(cursor.selectionStart());
@@ -4392,6 +4398,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             m_gen_message_is_cq = false;
           } else {
             m_bTUmsg=false;
+            m_nextCall="";   //### Temporary: disable use of "TU;" message
             if(SpecOp::RTTY == m_config.special_op_id() and m_nextCall!="") {
 // We're in RTTY contest and have "nextCall" queued up: send a "TU; ..." message
               on_logQSOButton_clicked();
@@ -4401,7 +4408,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
               ui->tx3->setText(t);
               m_bTUmsg=true;
             } else {
-              if(SpecOp::RTTY == m_config.special_op_id()) {
+//              if(SpecOp::RTTY == m_config.special_op_id()) {
+              if(false) {
                 on_logQSOButton_clicked();
                 m_ntx=6;
                 ui->txrb6->setChecked(true);
@@ -4614,6 +4622,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
 
   ui->rptSpinBox->setValue(n);
 // Don't genStdMsgs if we're already sending 73, or a "TU; " msg is queued.
+  m_bTUmsg=false;   //### Temporary: disable use of "TU;" messages
   if (!m_nTx73 and !m_bTUmsg) {
     genStdMsgs(rpt);
     if (gen_msg) {
