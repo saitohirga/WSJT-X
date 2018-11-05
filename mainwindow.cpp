@@ -81,8 +81,8 @@ extern "C" {
               fortran_charlen_t, fortran_charlen_t, fortran_charlen_t, fortran_charlen_t,
               fortran_charlen_t);
 
-  void genft8_(char* msg, int* i3, int* n3, int* isync, char* msgsent,
-               char ft8msgbits[], int itone[], fortran_charlen_t, fortran_charlen_t);
+  void genft8_(char* msg, int* i3, int* n3, char* msgsent, char ft8msgbits[],
+               int itone[], fortran_charlen_t, fortran_charlen_t);
 
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, fortran_charlen_t, fortran_charlen_t);
@@ -3560,11 +3560,11 @@ void MainWindow::guiUpdate()
             if(SpecOp::FOX==m_config.special_op_id() and ui->tabWidget->currentIndex()==2) {
               foxTxSequencer();
             } else {
-              m_isync=2;
-              m_i3=0;
+              int i3=0;
+              int n3=0;
               char ft8msgbits[77];
-              genft8_(message, &m_i3, &m_n3, &m_isync, msgsent,
-                      const_cast<char *> (ft8msgbits), const_cast<int *> (itone), 37, 37);
+              genft8_(message, &i3, &n3, msgsent, const_cast<char *> (ft8msgbits),
+                      const_cast<int *> (itone), 37, 37);
               if(SpecOp::FOX == m_config.special_op_id()) {
                 //Fox must generate the full Tx waveform, not just an itone[] array.
                 QString fm = QString::fromStdString(message).trimmed();
@@ -3591,8 +3591,7 @@ void MainWindow::guiUpdate()
             }
           }
         }
-        if(m_isync==1) msgsent[22]=0;
-        if(m_isync==2) msgsent[37]=0;
+        msgsent[37]=0;
       }
     }
 

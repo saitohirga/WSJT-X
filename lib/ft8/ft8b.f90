@@ -1,4 +1,4 @@
-subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
+subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
      napwid,lsubtract,nagain,ncontest,iaptype,mycall12,hiscall12,             &
      sync0,f1,xdt,xbase,apsym,nharderrors,dmin,nbadcrc,ipass,iera,msg37,xsnr)  
 
@@ -116,7 +116,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   i0=nint((xdt+0.5)*fs2)                   !Initial guess for start of signal
   smax=0.0
   do idt=i0-8,i0+8                         !Search over +/- one quarter symbol
-     call sync8d(cd0,idt,ctwk,0,2,sync)
+     call sync8d(cd0,idt,ctwk,0,sync)
      if(sync.gt.smax) then
         smax=sync
         ibest=idt
@@ -135,7 +135,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
       ctwk(i)=cmplx(cos(phi),sin(phi))
       phi=mod(phi+dphi,twopi)
     enddo
-    call sync8d(cd0,i0,ctwk,1,2,sync)
+    call sync8d(cd0,i0,ctwk,1,sync)
     if( sync .gt. smax ) then
       smax=sync
       delfbest=delf
@@ -146,7 +146,7 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   call twkfreq1(cd0,NP2,fs2,a,cd0)
   xdt=xdt2
   f1=f1+delfbest                           !Improved estimate of DF
-  call sync8d(cd0,i0,ctwk,0,2,sync)
+  call sync8d(cd0,i0,ctwk,0,sync)
 
   do k=1,NN
     i1=ibest+(k-1)*32
@@ -445,22 +445,43 @@ subroutine ft8b_2(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
      return
   enddo
   return
-end subroutine ft8b_2
+end subroutine ft8b
 
-! This currently resides in ft8b_1.f90
-!subroutine normalizebmet(bmet,n)
-!  real bmet(n)
-!
-!  bmetav=sum(bmet)/real(n)
-!  bmet2av=sum(bmet*bmet)/real(n)
-!  var=bmet2av-bmetav*bmetav
-!  if( var .gt. 0.0 ) then
-!     bmetsig=sqrt(var)
-!  else
-!     bmetsig=sqrt(bmet2av)
-!  endif
-!  bmet=bmet/bmetsig
-!  return
-!end subroutine normalizebmet
+subroutine normalizebmet(bmet,n)
+  real bmet(n)
+
+  bmetav=sum(bmet)/real(n)
+  bmet2av=sum(bmet*bmet)/real(n)
+  var=bmet2av-bmetav*bmetav
+  if( var .gt. 0.0 ) then
+     bmetsig=sqrt(var)
+  else
+     bmetsig=sqrt(bmet2av)
+  endif
+  bmet=bmet/bmetsig
+  return
+end subroutine normalizebmet
 
 
+function bessi0(x) 
+! From Numerical Recipes
+   real bessi0,x
+   double precision p1,p2,p3,p4,p5,p6,p7,q1,q2,q3,q4,q5,q6,q7,q8,q9,y
+   save p1,p2,p3,p4,p5,p6,p7,q1,q2,q3,q4,q5,q6,q7,q8,q9
+   data p1,p2,p3,p4,p5,p6,p7/1.0d0,3.5156229d0,3.0899424d0,1.2067492d0, &
+      0.2659732d0,0.360768d-1,0.45813d-2/
+   data q1,q2,q3,q4,q5,q6,q7,q8,q9/0.39894228d0,0.1328592d-1,           &
+      0.225319d-2,-0.157565d-2,0.916281d-2,-0.2057706d-1,               &
+      0.2635537d-1,-0.1647633d-1,0.392377d-2/
+
+   if (abs(x).lt.3.75) then 
+      y=(x/3.75)**2
+      bessi0=p1+y*(p2+y*(p3+y*(p4+y*(p5+y*(p6+y*p7))))) 
+   else
+      ax=abs(x)
+      y=3.75/ax 
+      bessi0=(exp(ax)/sqrt(ax))*(q1+y*(q2+y*(q3+y*(q4         &
+           +y*(q5+y*(q6+y*(q7+y*(q8+y*q9))))))))
+   endif
+   return
+end function bessi0

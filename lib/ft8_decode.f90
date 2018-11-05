@@ -45,7 +45,7 @@ contains
     parameter (MAXCAND=300)
     real s(NH1,NHSYM)
     real sbase(NH1)
-    real candidate(4,MAXCAND)
+    real candidate(3,MAXCAND)
     real dd(15*12000)
     logical, intent(in) :: lft8apon,lapcqonly,ldecode77,nagain
     logical newdat,lsubtract,ldupe
@@ -69,8 +69,7 @@ contains
     write(datetime,1001) nutc        !### TEMPORARY ###
 1001 format("000000_",i6.6)
 
-    call ft8apset(mycall12,hiscall12,apsym1)
-    call ft8apset_174_91(mycall12,hiscall12,apsym2)
+    call ft8apset(mycall12,hiscall12,apsym2)
     dd=iwave
     ndecodes=0
     allmessages='                                     '
@@ -104,32 +103,24 @@ contains
       endif 
       call timer('sync8   ',0)
       maxc=MAXCAND
-      call sync8(dd,ifa,ifb,syncmin,nfqso,ldecode77,maxc,s,candidate,ncand,sbase)
+      call sync8(dd,ifa,ifb,syncmin,nfqso,ldecode77,maxc,s,candidate,   &
+           ncand,sbase)
       call timer('sync8   ',1)
       do icand=1,ncand
         sync=candidate(3,icand)
         f1=candidate(1,icand)
         xdt=candidate(2,icand)
-        isync=candidate(4,icand)
         xbase=10.0**(0.1*(sbase(nint(f1/3.125))-40.0))
         nsnr0=min(99,nint(10.0*log10(sync) - 25.5))    !### empirical ###
         call timer('ft8b    ',0)
-        if(isync.eq.1) then
-           call ft8b_1(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lft8apon,     &
-                lapcqonly,napwid,lsubtract,nagain,iaptype,mycall12,   &
-                hiscall12,sync,f1,xdt,xbase,apsym1,nharderrors,dmin,  &
-                nbadcrc,iappass,iera,msg37,xsnr)
-        else
-           call ft8b_2(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lft8apon,     &
-                lapcqonly,napwid,lsubtract,nagain,ncontest,iaptype,mycall12,   &
-                hiscall12,sync,f1,xdt,xbase,apsym2,nharderrors,dmin,  &
-                nbadcrc,iappass,iera,msg37,xsnr)
-        endif
-!        message=msg37(1:22)   !###
+        call ft8b(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lft8apon,      &
+             lapcqonly,napwid,lsubtract,nagain,ncontest,iaptype,mycall12,   &
+             hiscall12,sync,f1,xdt,xbase,apsym2,nharderrors,dmin,           &
+             nbadcrc,iappass,iera,msg37,xsnr)
+        call timer('ft8b    ',1)
         nsnr=nint(xsnr) 
         xdt=xdt-0.5
         hd=nharderrors+dmin
-        call timer('ft8b    ',1)
         if(nbadcrc.eq.0) then
            ldupe=.false.
            do id=1,ndecodes
@@ -142,8 +133,8 @@ contains
            endif
 !           write(81,1004) nutc,ncand,icand,ipass,iaptype,iappass,        &
 !                nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),          &
-!                xdt,nint(f1),msg37,isync
-!1004          format(i6.6,2i4,3i2,i3,3f6.1,i4,f6.2,i5,2x,a37,i4)
+!                xdt,nint(f1),msg37
+!1004          format(i6.6,2i4,3i2,i3,3f6.1,i4,f6.2,i5,2x,a37)
 !           flush(81)
            if(.not.ldupe .and. associated(this%callback)) then
               qual=1.0-(nharderrors+dmin)/60.0 ! scale qual to [0.0,1.0]

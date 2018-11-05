@@ -47,7 +47,7 @@ program ft8code
 ! Generate msgsent, msgbits, and itone
      i3=-1
      n3=-1
-     call genft8_174_91(msg,i3,n3,msgsent,msgbits,itone)
+     call genft8(msg,i3,n3,msgsent,msgbits,itone)
      msgtype=""
      if(i3.eq.0) then
         if(n3.eq.0) msgtype="Free text"

@@ -448,9 +448,7 @@ set (wsjt_FSRCS
   lib/fqso_first.f90
   lib/freqcal.f90
   lib/ft8/ft8apset.f90
-  lib/ft8/ft8apset_174_91.f90
-  lib/ft8/ft8b_1.f90
-  lib/ft8/ft8b_2.f90
+  lib/ft8/ft8b.f90
   lib/ft8/ft8code.f90
   lib/ft8/ft8_downsample.f90
   lib/ft8/ft8sim.f90
@@ -459,7 +457,6 @@ set (wsjt_FSRCS
   lib/gen9.f90
   lib/geniscat.f90
   lib/ft8/genft8.f90
-  lib/ft8/genft8_174_91.f90
   lib/genmsk_128_90.f90
   lib/genmsk40.f90
   lib/genqra64.f90

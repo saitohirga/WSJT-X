@@ -430,9 +430,6 @@ private:
   qint32  m_nTx73;
   qint32  m_UTCdisk;
   qint32  m_wait;
-  qint32  m_i3;
-  qint32  m_n3;
-  qint32  m_isync;
   qint32  m_isort;
   qint32  m_max_dB;
   qint32  m_nDXped=0;
