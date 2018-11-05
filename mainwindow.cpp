@@ -4401,7 +4401,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
               ui->tx3->setText(t);
               m_bTUmsg=true;
             } else {
-              if(m_mode=="FT8") {
+              if(SpecOp::RTTY == m_config.special_op_id()) {
                 on_logQSOButton_clicked();
                 m_ntx=6;
                 ui->txrb6->setChecked(true);
