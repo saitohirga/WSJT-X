@@ -7,7 +7,7 @@
 #include <QNetworkReply>
 #include <QString>
 
-#include "MessageBox.hpp"
+#include "widgets/MessageBox.hpp"
 
 class QNetworkRequest;
 class QIODevice;

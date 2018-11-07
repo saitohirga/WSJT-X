@@ -95,7 +95,7 @@ HEADERS += OmniRigTransceiver.hpp
 
 FORMS    += mainwindow.ui about.ui Configuration.ui widegraph.ui astro.ui \
     logqso.ui wf_palette_design_dialog.ui messageaveraging.ui echograph.ui \
-    fastgraph.ui colorhighlighting.ui ExportCabrillo.ui
+    fastgraph.ui colorhighlighting.ui ExportCabrillo.ui FoxLogWindow.ui
 
 RC_FILE = wsjtx.rc
 RESOURCES = wsjtx.qrc

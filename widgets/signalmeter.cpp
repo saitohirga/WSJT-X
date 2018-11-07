@@ -11,7 +11,7 @@
 #include <QFontMetrics>
 #include <QDebug>
 
-#include <meterwidget.h>
+#include "meterwidget.h"
 
 #include "moc_signalmeter.cpp"
 

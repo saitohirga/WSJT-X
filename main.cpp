@@ -18,7 +18,6 @@
 #include <QStringList>
 #include <QLockFile>
 #include <QSplashScreen>
-
 #include <QCommandLineParser>
 #include <QCommandLineOption>
 
@@ -27,13 +26,13 @@
 #include "SettingsGroup.hpp"
 #include "TraceFile.hpp"
 #include "MultiSettings.hpp"
-#include "mainwindow.h"
+#include "widgets/mainwindow.h"
 #include "commons.h"
 #include "lib/init_random_seed.h"
 #include "Radio.hpp"
-#include "FrequencyList.hpp"
-#include "SplashScreen.hpp"
-#include "MessageBox.hpp"       // last to avoid nasty MS macro definitions
+#include "models/FrequencyList.hpp"
+#include "widgets/SplashScreen.hpp"
+#include "widgets/MessageBox.hpp"       // last to avoid nasty MS macro definitions
 
 extern "C" {
   // Fortran procedures we need

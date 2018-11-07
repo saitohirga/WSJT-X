@@ -46,10 +46,10 @@
 #include "logqso.h"
 #include "decodedtext.h"
 #include "Radio.hpp"
-#include "Bands.hpp"
+#include "models/Bands.hpp"
 #include "TransceiverFactory.hpp"
-#include "StationList.hpp"
-#include "LiveFrequencyValidator.hpp"
+#include "models/StationList.hpp"
+#include "validators/LiveFrequencyValidator.hpp"
 #include "MessageClient.hpp"
 #include "wsprnet.h"
 #include "signalmeter.h"
@@ -57,12 +57,14 @@
 #include "SampleDownloader.hpp"
 #include "Audio/BWFFile.hpp"
 #include "MultiSettings.hpp"
-#include "MaidenheadLocatorValidator.hpp"
-#include "CallsignValidator.hpp"
-#include "ExchangeValidator.hpp"
+#include "validators/MaidenheadLocatorValidator.hpp"
+#include "validators/CallsignValidator.hpp"
+#include "validators/ExchangeValidator.hpp"
 #include "EqualizationToolsDialog.hpp"
 #include "LotWUsers.hpp"
 #include "logbook/AD1CCty.hpp"
+#include "models/FoxLog.hpp"
+#include "FoXLogWindow.hpp"
 
 #include "ui_mainwindow.h"
 #include "moc_mainwindow.cpp"
@@ -1032,7 +1034,8 @@ void MainWindow::writeSettings()
   m_settings->setValue("DXcall",ui->dxCallEntry->text());
   m_settings->setValue("DXgrid",ui->dxGridEntry->text());
   m_settings->setValue ("AstroDisplayed", m_astroWidget && m_astroWidget->isVisible());
-  m_settings->setValue ("MsgAvgDisplayed", m_msgAvgWidget && m_msgAvgWidget->isVisible());
+  m_settings->setValue ("MsgAvgDisplayed", m_msgAvgWidget && m_msgAvgWidget->isVisible ());
+  m_settings->setValue ("FoxLogDisplayed", m_foxLogWindow && m_foxLogWindow->isVisible ());
   m_settings->setValue ("FreeText", ui->freeTextMsg->currentText ());
   m_settings->setValue("ShowMenus",ui->cbMenus->isChecked());
   m_settings->setValue("CallFirst",ui->cbFirst->isChecked());
@@ -1107,6 +1110,7 @@ void MainWindow::readSettings()
   m_txFirst = m_settings->value("TxFirst",false).toBool();
   auto displayAstro = m_settings->value ("AstroDisplayed", false).toBool ();
   auto displayMsgAvg = m_settings->value ("MsgAvgDisplayed", false).toBool ();
+  auto displayFoxLog = m_settings->value ("FoxLogDisplayed", false).toBool ();
   if (m_settings->contains ("FreeText")) ui->freeTextMsg->setCurrentText (
         m_settings->value ("FreeText").toString ());
   ui->cbMenus->setChecked(m_settings->value("ShowMenus",true).toBool());
@@ -1196,6 +1200,7 @@ void MainWindow::readSettings()
 
   checkMSK144ContestType();
   if(displayMsgAvg) on_actionMessage_averaging_triggered();
+  if (displayFoxLog) on_actionFox_Log_triggered ();
 }
 
 void MainWindow::checkMSK144ContestType()
@@ -1235,6 +1240,9 @@ void MainWindow::setDecodedTextFont (QFont const& font)
   ui->decodedTextLabel2->setStyleSheet (ui->decodedTextLabel2->styleSheet () + style_sheet);
   if (m_msgAvgWidget) {
     m_msgAvgWidget->changeFont (font);
+  }
+  if (m_foxLogWindow) {
+    m_foxLogWindow->change_font (font);
   }
   updateGeometry ();
 }
@@ -2416,8 +2424,20 @@ void MainWindow::on_actionAstronomical_data_toggled (bool checked)
 
 void MainWindow::on_actionFox_Log_triggered()
 {
-  on_actionMessage_averaging_triggered();
-  m_msgAvgWidget->foxLogSetup( static_cast<int> (m_config.special_op_id()) );
+  if (!m_foxLog)
+    {
+      m_foxLog.reset (new FoxLog);
+    }
+  if (!m_foxLogWindow)
+    {
+      m_foxLogWindow.reset (new FoxLogWindow {m_settings, &m_config, m_foxLog->model ()});
+
+      // Connect signals from fox log window
+      connect (this, &MainWindow::finished, m_foxLogWindow.data (), &FoxLogWindow::close);
+    }
+  m_foxLogWindow->showNormal ();
+  m_foxLogWindow->raise ();
+  m_foxLogWindow->activateWindow ();
 }
 
 void MainWindow::on_actionColors_triggered()
@@ -3766,8 +3786,12 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-    if((!m_msgAvgWidget or (m_msgAvgWidget and !m_msgAvgWidget->isVisible()))
-       and (SpecOp::NONE < m_config.special_op_id()) and (SpecOp::HOUND > m_config.special_op_id())) on_actionFox_Log_triggered();
+    // if((!m_msgAvgWidget or (m_msgAvgWidget and !m_msgAvgWidget->isVisible()))
+    //    and (SpecOp::NONE < m_config.special_op_id()) and (SpecOp::HOUND > m_config.special_op_id())) on_actionFox_Log_triggered();
+    if (SpecOp::FOX == m_config.special_op_id() && (!m_foxLogWindow || !m_foxLogWindow->isVisible ()))
+      {
+        on_actionFox_Log_triggered();
+      }
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
       if(!m_bVHFwarned) vhfWarning();
     } else {
@@ -8021,9 +8045,10 @@ void MainWindow::houndCallers()
         m_nHoundsCalling++;                // Number of accepted Hounds to be sorted
       }
     }
-    if(m_msgAvgWidget != NULL and m_msgAvgWidget->isVisible()) {
-      m_msgAvgWidget->foxLabCallers(nTotal);
-    }
+    if(m_foxLogWindow && m_foxLogWindow->isVisible ())
+      {
+        m_foxLogWindow->callers (nTotal);
+      }
 
 // Sort and display accumulated list of Hound callers
     if(t.length()>30) {
@@ -8179,21 +8204,23 @@ list2Done:
 
     if(hc1!="") {
       // Log this QSO!
+      auto QSO_time = QDateTime::currentDateTimeUtc ();
       m_hisCall=hc1;
       m_hisGrid=m_foxQSO[hc1].grid;
       m_rptSent=m_foxQSO[hc1].sent;
       m_rptRcvd=m_foxQSO[hc1].rcvd;
-      QDateTime logTime {QDateTime::currentDateTimeUtc ()};
-      QString thc1=(m_hisCall + "   ").mid(0,6);
-      if(m_hisCall.contains("/")) thc1=m_hisCall;
-      QString logLine=logTime.toString("yyyy-MM-dd hh:mm") + " " + thc1 + "  " +
-          m_hisGrid + "  " + m_rptSent + "  " + m_rptRcvd + " " + m_lastBand;
-      if(m_msgAvgWidget != NULL and m_msgAvgWidget->isVisible()) {
-        m_msgAvgWidget->foxAddLog(logLine);
-      }
-      on_logQSOButton_clicked();
-      writeFoxQSO(" Log:  " + logLine.mid(17));
-      m_foxRateQueue.enqueue(now);             //Add present time in seconds to Rate queue.
+      if (!m_foxLogWindow)
+        {
+          on_actionFox_Log_triggered ();
+        }
+      if (m_foxLog->add_QSO (QSO_time, m_hisCall, m_hisGrid, m_rptSent, m_rptRcvd, m_lastBand))
+        {
+          writeFoxQSO (QString {" Log:  %1 %2 %3 %4 %5"}.arg (m_hisCall).arg (m_hisGrid)
+                       .arg (m_rptSent).arg (m_rptRcvd).arg (m_lastBand));
+          on_logQSOButton_clicked();
+          m_foxRateQueue.enqueue (now); //Add present time in seconds
+                                        //to Rate queue.
+        }
       m_loggedByFox[hc1] += (m_lastBand + " ");
     }
 
@@ -8249,10 +8276,11 @@ Transmit:
     if(age < 3600) break;
     m_foxRateQueue.dequeue();
   }
-  if(m_msgAvgWidget != NULL and m_msgAvgWidget->isVisible()) {
-    m_msgAvgWidget->foxLabRate(m_foxRateQueue.size());
-    m_msgAvgWidget->foxLabQueued(m_foxQSOinProgress.count());
-  }
+  if (m_foxLogWindow && m_foxLogWindow->isVisible ())
+    {
+      m_foxLogWindow->rate (m_foxRateQueue.size ());
+      m_foxLogWindow->queued (m_foxQSOinProgress.count ());
+    }
 }
 
 void MainWindow::rm_tb4(QString houndCall)
@@ -8312,7 +8340,7 @@ void MainWindow::foxGenWaveform(int i,QString fm)
   writeFoxQSO(t + fm.trimmed());
 }
 
-void MainWindow::writeFoxQSO(QString msg)
+void MainWindow::writeFoxQSO(QString const& msg)
 {
   QString t;
   t.sprintf("%3d%3d%3d",m_houndQueue.count(),m_foxQSOinProgress.count(),m_foxQSO.count());

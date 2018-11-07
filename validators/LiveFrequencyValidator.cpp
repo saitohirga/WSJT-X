@@ -5,8 +5,8 @@
 #include <QComboBox>
 #include <QLineEdit>
 
-#include "Bands.hpp"
-#include "FrequencyList.hpp"
+#include "models/Bands.hpp"
+#include "models/FrequencyList.hpp"
 
 #include "moc_LiveFrequencyValidator.cpp"
 

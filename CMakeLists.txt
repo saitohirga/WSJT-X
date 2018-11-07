@@ -215,22 +215,22 @@ set (WSJT_QT_CONF_DESTINATION ${QT_CONF_DESTINATION} CACHE PATH "Path for the qt
 #
 set (wsjt_qt_CXXSRCS
   qt_helpers.cpp
-  MessageBox.cpp
+  widgets/MessageBox.cpp
   MetaDataRegistry.cpp
   NetworkServerLookup.cpp
   revision_utils.cpp
   WFPalette.cpp
   Radio.cpp
   RadioMetaType.cpp
-  IARURegions.cpp
-  Bands.cpp
-  Modes.cpp
-  FrequencyList.cpp
-  StationList.cpp
-  FrequencyLineEdit.cpp
-  CandidateKeyFilter.cpp
-  ForeignKeyDelegate.cpp
-  LiveFrequencyValidator.cpp
+  models/IARURegions.cpp
+  models/Bands.cpp
+  models/Modes.cpp
+  models/FrequencyList.cpp
+  models/StationList.cpp
+  widgets/FrequencyLineEdit.cpp
+  item_delegates/CandidateKeyFilter.cpp
+  item_delegates/ForeignKeyDelegate.cpp
+  validators/LiveFrequencyValidator.cpp
   GetUserId.cpp
   TraceFile.cpp
   AudioDevice.cpp
@@ -244,10 +244,10 @@ set (wsjt_qt_CXXSRCS
   DXLabSuiteCommanderTransceiver.cpp
   NetworkMessage.cpp
   MessageClient.cpp
-  LettersSpinBox.cpp
-  HintedSpinBox.cpp
-  RestrictedSpinBox.cpp
-  HelpTextWindow.cpp
+  widgets/LettersSpinBox.cpp
+  widgets/HintedSpinBox.cpp
+  widgets/RestrictedSpinBox.cpp
+  widgets/HelpTextWindow.cpp
   SampleDownloader.cpp
   SampleDownloader/DirectoryDelegate.cpp
   SampleDownloader/Directory.cpp
@@ -255,15 +255,17 @@ set (wsjt_qt_CXXSRCS
   SampleDownloader/RemoteFile.cpp
   DisplayManual.cpp
   MultiSettings.cpp
-  MaidenheadLocatorValidator.cpp
-  CallsignValidator.cpp
-  SplashScreen.cpp
+  validators/MaidenheadLocatorValidator.cpp
+  validators/CallsignValidator.cpp
+  widgets/SplashScreen.cpp
   EqualizationToolsDialog.cpp
-  DoubleClickablePushButton.cpp
-  DoubleClickableRadioButton.cpp
+  widgets/DoubleClickablePushButton.cpp
+  widgets/DoubleClickableRadioButton.cpp
   LotWUsers.cpp
-  DecodeHighlightingModel.cpp
-  DecodeHighlightingListView.cpp
+  models/DecodeHighlightingModel.cpp
+  widgets/DecodeHighlightingListView.cpp
+  models/FoxLog.cpp
+  widgets/FoxLogWindow.cpp
   )
 
 set (wsjt_qtmm_CXXSRCS
@@ -286,31 +288,31 @@ set (wsjtx_CXXSRCS
   psk_reporter.cpp
   Modulator.cpp
   Detector.cpp
-  logqso.cpp
-  displaytext.cpp
+  widgets/logqso.cpp
+  widgets/displaytext.cpp
   decodedtext.cpp
   getfile.cpp
   soundout.cpp
   soundin.cpp
-  meterwidget.cpp
-  signalmeter.cpp
-  plotter.cpp
-  widegraph.cpp
-  echograph.cpp
-  echoplot.cpp
-  fastgraph.cpp
-  fastplot.cpp
-  about.cpp
-  astro.cpp
-  messageaveraging.cpp
-  colorhighlighting.cpp
+  widgets/meterwidget.cpp
+  widgets/signalmeter.cpp
+  widgets/plotter.cpp
+  widgets/widegraph.cpp
+  widgets/echograph.cpp
+  widgets/echoplot.cpp
+  widgets/fastgraph.cpp
+  widgets/fastplot.cpp
+  widgets/about.cpp
+  widgets/astro.cpp
+  widgets/messageaveraging.cpp
+  widgets/colorhighlighting.cpp
   WsprTxScheduler.cpp
-  mainwindow.cpp
+  widgets/mainwindow.cpp
   Configuration.cpp
   main.cpp
   wsprnet.cpp
   WSPRBandHopping.cpp
-  ExportCabrillo.cpp
+  widgets/ExportCabrillo.cpp
   )
 
 set (wsjt_CXXSRCS
@@ -612,6 +614,7 @@ set (wsjt_CSRCS
 
 set (wsjt_qt_UISRCS
   wf_palette_design_dialog.ui
+  widgets/FoxLogWindow.ui
   )
 
 set (wsprsim_CSRCS
@@ -635,17 +638,17 @@ set (wsprd_CSRCS
   )
 
 set (wsjtx_UISRCS
-  mainwindow.ui
-  about.ui
-  astro.ui
-  colorhighlighting.ui
-  echograph.ui
-  fastgraph.ui
-  messageaveraging.ui
-  widegraph.ui
-  logqso.ui
+  widgets/mainwindow.ui
+  widgets/about.ui
+  widgets/astro.ui
+  widgets/colorhighlighting.ui
+  widgets/echograph.ui
+  widgets/fastgraph.ui
+  widgets/messageaveraging.ui
+  widgets/widegraph.ui
+  widgets/logqso.ui
   Configuration.ui
-  ExportCabrillo.ui
+  widgets/ExportCabrillo.ui
   )
 
 set (UDP_library_CXXSRCS
@@ -667,7 +670,7 @@ set (message_aggregator_CXXSRCS
   UDPExamples/DecodesModel.cpp
   UDPExamples/BeaconsModel.cpp
   UDPExamples/ClientWidget.cpp
-  MaidenheadLocatorValidator.cpp
+  validators/MaidenheadLocatorValidator.cpp
   )
 
 set (message_aggregator_STYLESHEETS
@@ -859,6 +862,7 @@ message (STATUS "hamlib_LIBRARY_DIRS: ${hamlib_LIBRARY_DIRS}")
 find_package (Qt5Widgets 5 REQUIRED)
 find_package (Qt5Multimedia 5 REQUIRED)
 find_package (Qt5PrintSupport 5 REQUIRED)
+find_package (Qt5Sql 5 REQUIRED)
 
 if (WIN32)
   add_definitions (-DQT_NEEDS_QTMAIN)
@@ -1139,7 +1143,7 @@ target_link_libraries (qcp Qt5::Widgets Qt5::PrintSupport)
 add_library (wsjt_qt STATIC ${wsjt_qt_CXXSRCS} ${wsjt_qt_GENUISRCS} ${GENAXSRCS})
 # set wsjtx_udp exports to static variants
 target_compile_definitions (wsjt_qt PUBLIC UDP_STATIC_DEFINE)
-target_link_libraries (wsjt_qt qcp Qt5::Widgets Qt5::Network)
+target_link_libraries (wsjt_qt qcp Qt5::Widgets Qt5::Network Qt5::Sql)
 target_include_directories (wsjt_qt BEFORE PRIVATE ${hamlib_INCLUDE_DIRS})
 if (WIN32)
   target_link_libraries (wsjt_qt Qt5::AxContainer Qt5::AxBase)
@@ -1547,6 +1551,13 @@ if (NOT is_debug_build)
 	PATTERN "*quick*${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
 	PATTERN "*_debug${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
 	)
+      install (
+	FILES
+	${QT_PLUGINS_DIR}/sqldrivers/libqsqlite${CMAKE_SHARED_LIBRARY_SUFFIX}
+	DESTINATION ${WSJT_PLUGIN_DESTINATION}/sqldrivers
+	CONFIGURATIONS Release MinSizeRel
+	#COMPONENT runtime
+	)
       # install (
       # 	DIRECTORY
       # 	${QT_PLUGINS_DIR}/platforms
@@ -1594,6 +1605,13 @@ if (NOT is_debug_build)
 	PATTERN "*offscreen*${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
 	PATTERN "*quick*${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
 	PATTERN "*d${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
+	)
+      install (
+	FILES
+	${QT_PLUGINS_DIR}/sqldrivers/qsqlite${CMAKE_SHARED_LIBRARY_SUFFIX}
+	DESTINATION ${WSJT_PLUGIN_DESTINATION}/sqldrivers
+	CONFIGURATIONS Release MinSizeRel
+	#COMPONENT runtime
 	)
       # install (
       # 	DIRECTORY

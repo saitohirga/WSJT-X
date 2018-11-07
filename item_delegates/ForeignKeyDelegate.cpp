@@ -4,7 +4,7 @@
 
 #include "CandidateKeyFilter.hpp"
 
-ForeignKeyDelegate::ForeignKeyDelegate (QAbstractItemModel * referenced_model
+ForeignKeyDelegate::ForeignKeyDelegate (QAbstractItemModel const * referenced_model
                                         , int referenced_key_column
                                         , QObject * parent
                                         , int referenced_key_role)
@@ -13,7 +13,7 @@ ForeignKeyDelegate::ForeignKeyDelegate (QAbstractItemModel * referenced_model
 {
 }
 
-ForeignKeyDelegate::ForeignKeyDelegate (QAbstractItemModel * referenced_model
+ForeignKeyDelegate::ForeignKeyDelegate (QAbstractItemModel const * referenced_model
                                         , QAbstractItemModel const * referencing_model
                                         , int referenced_key_column
                                         , int referencing_key_column

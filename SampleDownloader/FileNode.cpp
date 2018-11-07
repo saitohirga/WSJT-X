@@ -6,7 +6,7 @@
 #include <QFileInfo>
 
 #include "Directory.hpp"
-#include "MessageBox.hpp"
+#include "widgets/MessageBox.hpp"
 
 FileNode::FileNode (QTreeWidgetItem * parent
                     , QNetworkAccessManager * network_manager

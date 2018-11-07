@@ -517,7 +517,7 @@
   <customwidget>
    <class>CPlotter</class>
    <extends>QFrame</extends>
-   <header>plotter.h</header>
+   <header>widgets/plotter.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

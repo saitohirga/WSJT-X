@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>FastGraph</class>
  <widget class="QDialog" name="FastGraph">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>707</width>
+    <height>253</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>Fast Graph</string>
   </property>
@@ -229,7 +237,7 @@
   <customwidget>
    <class>FPlotter</class>
    <extends>QFrame</extends>
-   <header>fastplot.h</header>
+   <header>widgets/fastplot.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

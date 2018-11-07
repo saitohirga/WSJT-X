@@ -25,8 +25,8 @@
 #include "AudioDevice.hpp"
 #include "commons.h"
 #include "Radio.hpp"
-#include "Modes.hpp"
-#include "FrequencyList.hpp"
+#include "models/Modes.hpp"
+#include "models/FrequencyList.hpp"
 #include "Configuration.hpp"
 #include "WSPRBandHopping.hpp"
 #include "Transceiver.hpp"
@@ -69,6 +69,8 @@ class WideGraph;
 class LogQSO;
 class Transceiver;
 class MessageAveraging;
+class FoxLogWindow;
+class FoxLog;
 class ColorHighlighting;
 class MessageClient;
 class QTime;
@@ -360,6 +362,8 @@ private:
   QScopedPointer<HelpTextWindow> m_prefixes;
   QScopedPointer<HelpTextWindow> m_mouseCmnds;
   QScopedPointer<MessageAveraging> m_msgAvgWidget;
+  QScopedPointer<FoxLog> m_foxLog;
+  QScopedPointer<FoxLogWindow> m_foxLogWindow;
   QScopedPointer<ColorHighlighting> m_colorHighlighting;
   QScopedPointer<ExportCabrillo> m_exportCabrillo;
   Transceiver::TransceiverState m_rigState;
@@ -733,7 +737,7 @@ private:
   void foxRxSequencer(QString msg, QString houndCall, QString rptRcvd);
   void foxTxSequencer();
   void foxGenWaveform(int i,QString fm);
-  void writeFoxQSO(QString msg);
+  void writeFoxQSO (QString const& msg);
 };
 
 extern int killbyname(const char* progName);

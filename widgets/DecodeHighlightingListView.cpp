@@ -3,7 +3,7 @@
 #include <QAction>
 #include <QColorDialog>
 
-#include "DecodeHighlightingModel.hpp"
+#include "models/DecodeHighlightingModel.hpp"
 #include "MessageBox.hpp"
 
 #include "pimpl_impl.hpp"

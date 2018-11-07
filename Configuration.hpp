@@ -5,7 +5,7 @@
 #include <QFont>
 
 #include "Radio.hpp"
-#include "IARURegions.hpp"
+#include "models/IARURegions.hpp"
 #include "AudioDevice.hpp"
 #include "Transceiver.hpp"
 

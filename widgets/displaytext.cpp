@@ -15,7 +15,7 @@
 
 #include "Configuration.hpp"
 #include "LotWUsers.hpp"
-#include "DecodeHighlightingModel.hpp"
+#include "models/DecodeHighlightingModel.hpp"
 #include "logbook/logbook.h"
 
 #include "qt_helpers.hpp"

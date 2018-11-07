@@ -18,13 +18,13 @@ class ForeignKeyDelegate final
 {
 public:
   // many to many relationship
-  explicit ForeignKeyDelegate (QAbstractItemModel * referenced_model
+  explicit ForeignKeyDelegate (QAbstractItemModel const * referenced_model
                                , int referenced_key_column
                                , QObject * parent = nullptr
                                , int referenced_key_role = Qt::EditRole);
 
   // one to many (referenced to referencing) relationship
-  explicit ForeignKeyDelegate (QAbstractItemModel * referenced_model
+  explicit ForeignKeyDelegate (QAbstractItemModel const * referenced_model
                                , QAbstractItemModel const * referencing_model
                                , int referenced_key_column
                                , int referencing_key_column

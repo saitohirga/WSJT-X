@@ -29,17 +29,17 @@ public:
   QModelIndex active_key_;
 };
 
-CandidateKeyFilter::CandidateKeyFilter (QAbstractItemModel * referenced_model
+CandidateKeyFilter::CandidateKeyFilter (QAbstractItemModel const * referenced_model
                                         , int referenced_key_column
                                         , QObject * parent
                                         , int referenced_key_role)
   : QSortFilterProxyModel {parent}
   , m_ {referenced_key_column, referenced_key_role, nullptr, 0, Qt::EditRole}
 {
-  setSourceModel (referenced_model);
+  setSourceModel (const_cast<QAbstractItemModel *> (referenced_model));
 }
 
-CandidateKeyFilter::CandidateKeyFilter (QAbstractItemModel * referenced_model
+CandidateKeyFilter::CandidateKeyFilter (QAbstractItemModel const * referenced_model
                                         , QAbstractItemModel const * referencing_model
                                         , int referenced_key_column
                                         , int referencing_key_column
@@ -49,7 +49,7 @@ CandidateKeyFilter::CandidateKeyFilter (QAbstractItemModel * referenced_model
   : QSortFilterProxyModel {parent}
   , m_ {referenced_key_column, referenced_key_role, referencing_model, referencing_key_column, referencing_key_role}
 {
-  setSourceModel (referenced_model);
+  setSourceModel (const_cast<QAbstractItemModel *> (referenced_model));
 }
 
 CandidateKeyFilter::~CandidateKeyFilter ()

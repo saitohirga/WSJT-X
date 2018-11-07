@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>configuration_dialog</class>
  <widget class="QDialog" name="configuration_dialog">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>679</width>
-    <height>619</height>
-   </rect>
-  </property>
   <property name="windowTitle">
    <string>Settings</string>
   </property>
@@ -2832,7 +2824,7 @@ Right click for insert and delete options.</string>
   <customwidget>
    <class>DecodeHighlightingListView</class>
    <extends>QListView</extends>
-   <header>DecodeHighlightingListView.hpp</header>
+   <header>widgets/DecodeHighlightingListView.hpp</header>
   </customwidget>
  </customwidgets>
  <tabstops>

@@ -160,28 +160,30 @@
 #include <QFontDialog>
 #include <QSerialPortInfo>
 #include <QScopedPointer>
+#include <QSqlDatabase>
+#include <QSqlError>
 #include <QDebug>
 
 #include "pimpl_impl.hpp"
 #include "qt_helpers.hpp"
 #include "MetaDataRegistry.hpp"
 #include "SettingsGroup.hpp"
-#include "FrequencyLineEdit.hpp"
-#include "CandidateKeyFilter.hpp"
-#include "ForeignKeyDelegate.hpp"
+#include "widgets/FrequencyLineEdit.hpp"
+#include "item_delegates/CandidateKeyFilter.hpp"
+#include "item_delegates/ForeignKeyDelegate.hpp"
 #include "TransceiverFactory.hpp"
 #include "Transceiver.hpp"
-#include "Bands.hpp"
-#include "IARURegions.hpp"
-#include "Modes.hpp"
-#include "FrequencyList.hpp"
-#include "StationList.hpp"
+#include "models/Bands.hpp"
+#include "models/IARURegions.hpp"
+#include "models/Modes.hpp"
+#include "models/FrequencyList.hpp"
+#include "models/StationList.hpp"
 #include "NetworkServerLookup.hpp"
-#include "MessageBox.hpp"
-#include "MaidenheadLocatorValidator.hpp"
-#include "CallsignValidator.hpp"
+#include "widgets/MessageBox.hpp"
+#include "validators/MaidenheadLocatorValidator.hpp"
+#include "validators/CallsignValidator.hpp"
 #include "LotWUsers.hpp"
-#include "DecodeHighlightingModel.hpp"
+#include "models/DecodeHighlightingModel.hpp"
 
 #include "ui_Configuration.h"
 #include "moc_Configuration.cpp"
@@ -999,6 +1001,18 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
 
   // this must be done after the default paths above are set
   read_settings ();
+
+  // set up SQLite database
+  if (!QSqlDatabase::drivers ().contains ("QSQLITE"))
+    {
+      throw std::runtime_error {"Failed to find SQLite Qt driver"};
+    }
+  auto db = QSqlDatabase::addDatabase ("QSQLITE");
+  db.setDatabaseName (writeable_data_dir_.absoluteFilePath ("db.sqlite"));
+  if (!db.open ())
+    {
+      throw std::runtime_error {("Database Error: " + db.lastError ().text ()).toStdString ()};
+    }
 
   // conditionally load LotW users data
   ui_->LotW_CSV_fetch_push_button->setEnabled (false);

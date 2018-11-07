@@ -9,8 +9,8 @@
 #include "logbook/logbook.h"
 #include "MessageBox.hpp"
 #include "Configuration.hpp"
-#include "Bands.hpp"
-#include "MaidenheadLocatorValidator.hpp"
+#include "models/Bands.hpp"
+#include "validators/MaidenheadLocatorValidator.hpp"
 
 #include "ui_logqso.h"
 #include "moc_logqso.cpp"

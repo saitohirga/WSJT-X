@@ -4,7 +4,7 @@
 #include <QDebug>
 
 #include "SettingsGroup.hpp"
-#include "DecodeHighlightingModel.hpp"
+#include "models/DecodeHighlightingModel.hpp"
 
 #include "ui_colorhighlighting.h"
 #include "moc_colorhighlighting.cpp"

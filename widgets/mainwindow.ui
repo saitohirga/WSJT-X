@@ -3353,38 +3353,38 @@ QPushButton[state=&quot;ok&quot;] {
   <customwidget>
    <class>DisplayText</class>
    <extends>QTextEdit</extends>
-   <header>displaytext.h</header>
+   <header>widgets/displaytext.h</header>
   </customwidget>
   <customwidget>
    <class>LettersSpinBox</class>
    <extends>QSpinBox</extends>
-   <header>LettersSpinBox.hpp</header>
+   <header>widgets/LettersSpinBox.hpp</header>
   </customwidget>
   <customwidget>
    <class>SignalMeter</class>
    <extends>QFrame</extends>
-   <header>signalmeter.h</header>
+   <header>widgets/signalmeter.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>HintedSpinBox</class>
    <extends>QSpinBox</extends>
-   <header>HintedSpinBox.hpp</header>
+   <header>widgets/HintedSpinBox.hpp</header>
   </customwidget>
   <customwidget>
    <class>RestrictedSpinBox</class>
    <extends>QSpinBox</extends>
-   <header>RestrictedSpinBox.hpp</header>
+   <header>widgets/RestrictedSpinBox.hpp</header>
   </customwidget>
   <customwidget>
    <class>DoubleClickableRadioButton</class>
    <extends>QRadioButton</extends>
-   <header>DoubleClickableRadioButton.hpp</header>
+   <header>widgets/DoubleClickableRadioButton.hpp</header>
   </customwidget>
   <customwidget>
    <class>DoubleClickablePushButton</class>
    <extends>QPushButton</extends>
-   <header>DoubleClickablePushButton.hpp</header>
+   <header>widgets/DoubleClickablePushButton.hpp</header>
   </customwidget>
  </customwidgets>
  <tabstops>
