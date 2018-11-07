@@ -64,7 +64,7 @@
 #include "LotWUsers.hpp"
 #include "logbook/AD1CCty.hpp"
 #include "models/FoxLog.hpp"
-#include "FoXLogWindow.hpp"
+#include "FoxLogWindow.hpp"
 
 #include "ui_mainwindow.h"
 #include "moc_mainwindow.cpp"
