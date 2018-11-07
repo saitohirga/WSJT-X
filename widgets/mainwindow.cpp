@@ -943,7 +943,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 void MainWindow::not_GA_warning_message ()
 {
   QDateTime now=QDateTime::currentDateTime();
-  QDateTime timeout=QDateTime(QDate(2018,11,30));
+  QDateTime timeout=QDateTime(QDate(2018,12,31));
 
   MessageBox::critical_message (this,
                                 "This version of WSJT-X is a beta-level Release Candidate.\n\n"
