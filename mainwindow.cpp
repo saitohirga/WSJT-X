@@ -4148,7 +4148,7 @@ void MainWindow::doubleClickOnCall2(Qt::KeyboardModifiers modifiers)
 void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
 {
   if(!(modifiers & Qt::AltModifier) and m_transmitting) {
-//    qDebug() << "aa" << "Double-click ignored";
+//    qDebug() << "aa" << "Double-click on decode is ignored while transmitting";
     return;
   }
   QTextCursor cursor;
@@ -4351,7 +4351,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
 
     if(message_words.size () > 3   // enough fields for a normal message
        && (message_words.at(1).contains(m_baseCall) || "DE" == message_words.at(1))
-       && (message_words.at(2).contains(qso_partner_base_call) or bEU_VHF_w2)) {
+//       && (message_words.at(2).contains(qso_partner_base_call) or bEU_VHF_w2)) {
+       && (message_words.at(2).contains(qso_partner_base_call) or m_bDoubleClicked or bEU_VHF_w2)) {
 
       if(message_words.at(3).contains(grid_regexp) and SpecOp::EU_VHF!=m_config.special_op_id()) {
         if(SpecOp::NA_VHF==m_config.special_op_id()){
@@ -4443,8 +4444,13 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             gen_msg=setTxMsg(2);
             m_QSOProgress=REPORT;
           } else {
-            gen_msg=setTxMsg(3);
-            m_QSOProgress=ROGER_REPORT;
+            if(r.left(2)=="R-" or r.left(2)=="R+") {
+              gen_msg=setTxMsg(4);
+              m_QSOProgress=ROGERS;
+            } else {
+              gen_msg=setTxMsg(3);
+              m_QSOProgress=ROGER_REPORT;
+            }
           }
         } else {                // nothing for us
           return;
