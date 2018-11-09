@@ -1684,6 +1684,11 @@ list. The list can be maintained in Settings (F2).</string>
                     <widget class="QComboBox" name="comboBoxCQ">
                      <item>
                       <property name="text">
+                       <string>CQ HUND</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
                        <string>CQ</string>
                       </property>
                      </item>
