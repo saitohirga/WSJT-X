@@ -23,5 +23,5 @@ FORMS    += \
   widgets/widegraph.ui widgets/astro.ui \
   widgets/logqso.ui widgets/messageaveraging.ui \
   widgets/echograph.ui widgets/fastgraph.ui \
-  widgets/colorhighlighting.ui wodgets/ExportCabrillo.ui \
+  widgets/colorhighlighting.ui widgets/ExportCabrillo.ui \
   widgets/FoxLogWindow.ui
