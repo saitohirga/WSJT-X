@@ -4736,7 +4736,6 @@ void MainWindow::genCQMsg ()
       if(SpecOp::EU_VHF == m_config.special_op_id())    t="CQ TEST" + t.mid(2,-1);
       if(SpecOp::FIELD_DAY == m_config.special_op_id()) t="CQ FD" + t.mid(2,-1);
       if(SpecOp::RTTY == m_config.special_op_id())      t="CQ RU" + t.mid(2,-1);
-      if(SpecOp::FOX == m_config.special_op_id())       t="CQ HUND" + t.mid(2,-1);
       ui->tx6->setText(t);
     }
   } else {
