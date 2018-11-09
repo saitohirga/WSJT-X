@@ -2933,6 +2933,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 {
   while(proc_jt9.canReadLine()) {
     QByteArray t=proc_jt9.readLine();
+    if(m_mode=="JT65") t=t.left(43) + "               " + t.mid(43,-1); //Pad 22-char msg to 37 chars
 //    qint64 ms=QDateTime::currentMSecsSinceEpoch() - m_msec0;
     bool bAvgMsg=false;
     int navg=0;
@@ -4273,7 +4274,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
 
   bool is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
   if (!is_73 and !message.isStandardMessage() and !message.string().contains("<")) {
-    qDebug () << "Not processing message - hiscall:" << hiscall << "hisgrid:" << hisgrid;
+    qDebug () << "Not processing message - hiscall:" << hiscall << "hisgrid:" << hisgrid
+              << message.string() << message.isStandardMessage();
     return;
   }
 
