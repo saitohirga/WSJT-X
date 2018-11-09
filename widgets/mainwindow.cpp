@@ -4385,8 +4385,13 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
           gen_msg=setTxMsg(3);
           m_QSOProgress=ROGER_REPORT;
         } else {
-          gen_msg=setTxMsg(2);
-          m_QSOProgress=REPORT;
+          if(m_mode=="JT65" and message_words.size()>4 and message_words.at(4)=="OOO") {
+            gen_msg=setTxMsg(3);
+            m_QSOProgress=ROGER_REPORT;
+          } else {
+            gen_msg=setTxMsg(2);
+            m_QSOProgress=REPORT;
+          }
         }
       } else if(w34.contains(grid_regexp) and SpecOp::EU_VHF==m_config.special_op_id()) {
         if(nrpt==0) {
@@ -5757,6 +5762,10 @@ void MainWindow::on_actionJT65_triggered()
     displayWidgets(nWidgets("111010000000111000010000000000001"));
   }
   fast_config(false);
+  if(ui->cbShMsgs->isChecked()) {
+    ui->cbAutoSeq->setChecked(false);
+    ui->cbAutoSeq->setVisible(false);
+  }
   statusChanged();
 }
 
@@ -7060,6 +7069,10 @@ void MainWindow::on_cbShMsgs_toggled(bool b)
   m_bShMsgs=b;
   if(b) ui->cbSWL->setChecked(false);
   if(m_bShMsgs and (m_mode=="MSK144")) ui->rptSpinBox->setValue(1);
+  if(m_mode=="JT65") {
+    ui->cbAutoSeq->setVisible(!b);
+    if(b) ui->cbAutoSeq->setChecked(false);
+  }
   int it0=itone[0];
   int ntx=m_ntx;
   m_lastCallsign.clear ();      // ensure Tx5 gets updated
