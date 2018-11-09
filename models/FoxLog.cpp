@@ -1,6 +1,6 @@
 #include "FoxLog.hpp"
 
-#include <String>
+#include <QString>
 #include <QDateTime>
 #include <QSqlDatabase>
 #include <QSqlTableModel>
