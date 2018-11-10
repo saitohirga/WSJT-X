@@ -4172,10 +4172,10 @@ void MainWindow::doubleClickOnCall2(Qt::KeyboardModifiers modifiers)
 
 void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
 {
-  if(!(modifiers & Qt::AltModifier) and m_transmitting) {
+//  if(!(modifiers & Qt::AltModifier) and m_transmitting) {
 //    qDebug() << "aa" << "Double-click on decode is ignored while transmitting";
-    return;
-  }
+//    return;
+//  }
   QTextCursor cursor;
   if(m_mode=="ISCAT") {
     MessageBox::information_message (this,
