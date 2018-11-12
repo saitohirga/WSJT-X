@@ -268,6 +268,7 @@ set (wsjt_qt_CXXSRCS
   widgets/FoxLogWindow.cpp
   item_delegates/CallsignDelegate.cpp
   item_delegates/MaidenheadLocatorDelegate.cpp
+  models/CabrilloLog.cpp
   )
 
 set (wsjt_qtmm_CXXSRCS
