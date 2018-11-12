@@ -266,6 +266,7 @@ set (wsjt_qt_CXXSRCS
   widgets/DecodeHighlightingListView.cpp
   models/FoxLog.cpp
   widgets/FoxLogWindow.cpp
+  widgets/CabrilloLogWindow.cpp
   item_delegates/CallsignDelegate.cpp
   item_delegates/MaidenheadLocatorDelegate.cpp
   models/CabrilloLog.cpp
@@ -618,6 +619,7 @@ set (wsjt_CSRCS
 set (wsjt_qt_UISRCS
   wf_palette_design_dialog.ui
   widgets/FoxLogWindow.ui
+  widgets/CabrilloLogWindow.ui
   )
 
 set (wsprsim_CSRCS
