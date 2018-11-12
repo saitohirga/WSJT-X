@@ -77,7 +77,22 @@ QByteArray LogBook::QSOToADIF (QString const& hisCall, QString const& hisGrid, Q
   if(comments!="") t += " <comment:" + QString::number(comments.length()) + ">" + comments;
   if(name!="") t += " <name:" + QString::number(name.length()) + ">" + name;
   if(operator_call!="") t+=" <operator:" + QString::number(operator_call.length()) + ">" + operator_call;
-  if(xRcvd!="") {
+  if (xSent.size ())
+    {
+      auto words = xSent.split (' ', QString::SkipEmptyParts);
+      if (words.size () > 1)
+        {
+          bool ok;
+          auto sn = words.back ().toUInt (&ok);
+          if (ok && sn)
+            {
+              // assume last word is a serial if there are at least
+              // two words and if it is positive numeric
+              t += " <STX:" + QString::number (words.back ().size ()) + '>' + words.back ();
+            }
+        }
+    }
+  if (xRcvd.size ()) {
     QString t1="";
     if(xRcvd.split(" ").size()==2) t1=xRcvd.split(" ").at(1);
     if(t1.toInt()>0) {
