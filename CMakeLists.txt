@@ -266,6 +266,8 @@ set (wsjt_qt_CXXSRCS
   widgets/DecodeHighlightingListView.cpp
   models/FoxLog.cpp
   widgets/FoxLogWindow.cpp
+  item_delegates/CallsignDelegate.cpp
+  item_delegates/MaidenheadLocatorDelegate.cpp
   )
 
 set (wsjt_qtmm_CXXSRCS
