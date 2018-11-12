@@ -5464,6 +5464,7 @@ void MainWindow::displayWidgets(qint64 n)
     if(i==32) ui->cbCQonly->setVisible(b);
     j=j>>1;
   }
+  if(!ui->cbAutoSeq->isVisible()) ui->cbAutoSeq->setChecked(false);
   b=SpecOp::EU_VHF==m_config.special_op_id() or (SpecOp::RTTY==m_config.special_op_id() and
     (m_config.RTTY_Exchange()=="#" or m_config.RTTY_Exchange()=="DX"));
   ui->sbSerialNumber->setVisible(b);
@@ -5610,7 +5611,7 @@ void MainWindow::on_actionJT4_triggered()
     ui->sbSubmode->setValue(0);
   }
   if(bVHF) {
-    displayWidgets(nWidgets("111110010110111110111100000000000"));
+    displayWidgets(nWidgets("111110010010111110111100000000000"));
   } else {
     displayWidgets(nWidgets("111010000000111000110000000000000"));
   }
@@ -5665,7 +5666,7 @@ void MainWindow::on_actionJT9_triggered()
   ui->label_6->setText("Band Activity");
   ui->label_7->setText("Rx Frequency");
   if(bVHF) {
-    displayWidgets(nWidgets("111110101100111110010000000000000"));
+    displayWidgets(nWidgets("111110101000111110010000000000000"));
   } else {
     displayWidgets(nWidgets("111010000000111000010000000000001"));
   }
@@ -5753,7 +5754,7 @@ void MainWindow::on_actionJT65_triggered()
     ui->label_7->setText("Rx Frequency");
   }
   if(bVHF) {
-    displayWidgets(nWidgets("111110010100111110101100010000000"));
+    displayWidgets(nWidgets("111110010000111110101100010000000"));
   } else {
     displayWidgets(nWidgets("111010000000111000010000000000001"));
   }
@@ -5785,7 +5786,7 @@ void MainWindow::on_actionQRA64_triggered()
   ui->actionInclude_correlation->setVisible (false);
   QString fname {QDir::toNativeSeparators(m_config.temp_dir ().absoluteFilePath ("red.dat"))};
   m_wideGraph->setRedFile(fname);
-  displayWidgets(nWidgets("111110010110111110000000001000000"));
+  displayWidgets(nWidgets("111110010010111110000000001000000"));
   statusChanged();
 }
 
