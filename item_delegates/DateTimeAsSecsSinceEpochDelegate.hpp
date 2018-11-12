@@ -1,5 +1,5 @@
-#ifndef DATE_TIME_AS_SECS_SINCE_EPOCH_ITEM_DELEGATE_HPP_
-#define DATE_TIME_AS_SECS_SINCE_EPOCH_ITEM_DELEGATE_HPP_
+#ifndef DATE_TIME_AS_SECS_SINCE_EPOCH_DELEGATE_HPP_
+#define DATE_TIME_AS_SECS_SINCE_EPOCH_DELEGATE_HPP_
 
 #include <QStyledItemDelegate>
 #include <QVariant>
@@ -7,11 +7,11 @@
 #include <QAbstractItemModel>
 #include <QDateTimeEdit>
 
-class DateTimeAsSecsSinceEpochItemDelegate final
+class DateTimeAsSecsSinceEpochDelegate final
   : public QStyledItemDelegate
 {
 public:
-  DateTimeAsSecsSinceEpochItemDelegate (QObject * parent = nullptr)
+  DateTimeAsSecsSinceEpochDelegate (QObject * parent = nullptr)
     : QStyledItemDelegate {parent}
   {
   }

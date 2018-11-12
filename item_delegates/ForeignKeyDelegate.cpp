@@ -37,5 +37,6 @@ QWidget * ForeignKeyDelegate::createEditor (QWidget * parent
   editor->setFrame (false);
   candidate_key_filter_->set_active_key (index);
   editor->setModel (candidate_key_filter_.data ());
+  editor->setSizeAdjustPolicy (QComboBox::AdjustToContents);
   return editor;
 }
