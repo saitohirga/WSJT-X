@@ -2955,7 +2955,11 @@ void MainWindow::readFromStdout()                             //readFromStdout
 {
   while(proc_jt9.canReadLine()) {
     QByteArray t=proc_jt9.readLine();
-    if(m_mode=="JT65") t=t.left(43) + "               " + t.mid(43,-1); //Pad 22-char msg to 37 chars
+    if(m_mode!="FT8") {
+      //Pad 22-char msg to 37 chars
+      t=t.left(43) + "               " + t.mid(43,-1);
+      t=t.trimmed();
+    }
 //    qint64 ms=QDateTime::currentMSecsSinceEpoch() - m_msec0;
     bool bAvgMsg=false;
     int navg=0;
