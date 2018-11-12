@@ -951,7 +951,7 @@ void MainWindow::not_GA_warning_message ()
                                 "On-the-air use carries an obligation to report problems\n"
                                 "to the WSJT Development group and to upgrade to a GA\n"
                                 "(General Availability) release when it becomes available.\n\n"
-                                "This version cannot be used after November 30, 2018\n\n");
+                                "This version cannot be used after December 31, 2018\n\n");
 
   if(now.daysTo(timeout) < 0) Q_EMIT finished();
 }
