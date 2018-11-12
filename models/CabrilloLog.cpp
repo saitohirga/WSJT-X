@@ -54,8 +54,8 @@ CabrilloLog::impl::impl (Configuration const * configuration)
   
   setEditStrategy (QSqlTableModel::OnManualSubmit);
   setTable ("cabrillo_log");
-  setHeaderData (fieldIndex ("frequency"), Qt::Horizontal, tr ("Frequency"));
-  setHeaderData (fieldIndex ("when"), Qt::Horizontal, tr ("Date and Time"));
+  setHeaderData (fieldIndex ("frequency"), Qt::Horizontal, tr ("Freq(kHz)"));
+  setHeaderData (fieldIndex ("when"), Qt::Horizontal, tr ("Date & Time(UTC)"));
   setHeaderData (fieldIndex ("call"), Qt::Horizontal, tr ("Call"));
   setHeaderData (fieldIndex ("exchange_sent"), Qt::Horizontal, tr ("Sent"));
   setHeaderData (fieldIndex ("exchange_rcvd"), Qt::Horizontal, tr ("Rcvd"));
@@ -104,9 +104,12 @@ bool CabrilloLog::dupe (Frequency frequency, QString const& call) const
 
 void CabrilloLog::reset ()
 {
-  ConditionalTransaction transaction {*m_};
-  SQL_error_check (*m_, &QSqlTableModel::removeRows, 0, m_->rowCount (), QModelIndex {});
-  transaction.submit ();
+  if (m_->rowCount ())
+    {
+      ConditionalTransaction transaction {*m_};
+      SQL_error_check (*m_, &QSqlTableModel::removeRows, 0, m_->rowCount (), QModelIndex {});
+      transaction.submit ();
+    }
 }
 
 void CabrilloLog::export_qsos (QTextStream& stream) const
