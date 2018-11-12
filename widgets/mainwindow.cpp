@@ -64,8 +64,10 @@
 #include "LotWUsers.hpp"
 #include "logbook/AD1CCty.hpp"
 #include "models/FoxLog.hpp"
+#include "models/CabrilloLog.hpp"
 #include "FoxLogWindow.hpp"
-
+#include "CabrilloLogWindow.hpp"
+#include "ExportCabrillo.h"
 #include "ui_mainwindow.h"
 #include "moc_mainwindow.cpp"
 
@@ -1036,6 +1038,7 @@ void MainWindow::writeSettings()
   m_settings->setValue ("AstroDisplayed", m_astroWidget && m_astroWidget->isVisible());
   m_settings->setValue ("MsgAvgDisplayed", m_msgAvgWidget && m_msgAvgWidget->isVisible ());
   m_settings->setValue ("FoxLogDisplayed", m_foxLogWindow && m_foxLogWindow->isVisible ());
+  m_settings->setValue ("ContestLogDisplayed", m_contestLogWindow && m_contestLogWindow->isVisible ());
   m_settings->setValue ("FreeText", ui->freeTextMsg->currentText ());
   m_settings->setValue("ShowMenus",ui->cbMenus->isChecked());
   m_settings->setValue("CallFirst",ui->cbFirst->isChecked());
@@ -1112,6 +1115,7 @@ void MainWindow::readSettings()
   auto displayAstro = m_settings->value ("AstroDisplayed", false).toBool ();
   auto displayMsgAvg = m_settings->value ("MsgAvgDisplayed", false).toBool ();
   auto displayFoxLog = m_settings->value ("FoxLogDisplayed", false).toBool ();
+  auto displayContestLog = m_settings->value ("ContestLogDisplayed", false).toBool ();
   if (m_settings->contains ("FreeText")) ui->freeTextMsg->setCurrentText (
         m_settings->value ("FreeText").toString ());
   ui->cbMenus->setChecked(m_settings->value("ShowMenus",true).toBool());
@@ -1202,7 +1206,8 @@ void MainWindow::readSettings()
 
   checkMSK144ContestType();
   if(displayMsgAvg) on_actionMessage_averaging_triggered();
-  if (displayFoxLog) on_actionFox_Log_triggered ();
+  if (displayFoxLog) on_fox_log_action_triggered ();
+  if (displayContestLog) on_contest_log_action_triggered ();
 }
 
 void MainWindow::checkMSK144ContestType()
@@ -1245,6 +1250,9 @@ void MainWindow::setDecodedTextFont (QFont const& font)
   }
   if (m_foxLogWindow) {
     m_foxLogWindow->change_font (font);
+  }
+  if (m_contestLogWindow) {
+    m_contestLogWindow->change_font (font);
   }
   updateGeometry ();
 }
@@ -2424,12 +2432,9 @@ void MainWindow::on_actionAstronomical_data_toggled (bool checked)
     }
 }
 
-void MainWindow::on_actionFox_Log_triggered()
+void MainWindow::on_fox_log_action_triggered()
 {
-  if (!m_foxLog)
-    {
-      m_foxLog.reset (new FoxLog);
-    }
+  if (!m_foxLog) m_foxLog.reset (new FoxLog);
   if (!m_foxLogWindow)
     {
       m_foxLogWindow.reset (new FoxLogWindow {m_settings, &m_config, m_foxLog->model ()});
@@ -2440,6 +2445,21 @@ void MainWindow::on_actionFox_Log_triggered()
   m_foxLogWindow->showNormal ();
   m_foxLogWindow->raise ();
   m_foxLogWindow->activateWindow ();
+}
+
+void MainWindow::on_contest_log_action_triggered()
+{
+  if (!m_cabrilloLog) m_cabrilloLog.reset (new CabrilloLog {&m_config});
+  if (!m_contestLogWindow)
+    {
+      m_contestLogWindow.reset (new CabrilloLogWindow {m_settings, &m_config, m_cabrilloLog->model ()});
+
+      // Connect signals from contest log window
+      connect (this, &MainWindow::finished, m_contestLogWindow.data (), &CabrilloLogWindow::close);
+    }
+  m_contestLogWindow->showNormal ();
+  m_contestLogWindow->raise ();
+  m_contestLogWindow->activateWindow ();
 }
 
 void MainWindow::on_actionColors_triggered()
@@ -3791,10 +3811,6 @@ void MainWindow::guiUpdate()
   if(nsec != m_sec0) {
     // if((!m_msgAvgWidget or (m_msgAvgWidget and !m_msgAvgWidget->isVisible()))
     //    and (SpecOp::NONE < m_config.special_op_id()) and (SpecOp::HOUND > m_config.special_op_id())) on_actionFox_Log_triggered();
-    if (SpecOp::FOX == m_config.special_op_id() && (!m_foxLogWindow || !m_foxLogWindow->isVisible ()))
-      {
-        on_actionFox_Log_triggered();
-      }
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
       if(!m_bVHFwarned) vhfWarning();
     } else {
@@ -5336,41 +5352,6 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   m_logDlg->initLogQSO (m_hisCall, grid, m_modeTx, m_rptSent, m_rptRcvd,
                         m_dateTimeQSOOn, dateTimeQSOOff, m_freqNominal +
                         ui->TxFreqSpinBox->value(), m_noSuffix, m_xSent, m_xRcvd);
-
-  if(SpecOp::NONE < m_config.special_op_id() and SpecOp::FOX > m_config.special_op_id()) {
-    int n=ui->sbSerialNumber->value();
-    ui->sbSerialNumber->setValue(n+1);
-    cabLog();   //Call the Cabrillo contest logger
-  }
-}
-
-void MainWindow::cabLog()
-{
-  QFile f {m_config.writeable_data_dir ().absoluteFilePath ("cabrillo.log")};
-  if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
-    int nfreq=m_freqNominal/1000;
-    if(m_freqNominal>50000000) nfreq=m_freqNominal/1000000;
-    QString t;
-    t.sprintf("QSO: %5d DG ",nfreq);
-    t=t + QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hhmm ") +
-        m_config.my_callsign().leftJustified(13,' ') + m_xSent.leftJustified(14,' ') +
-        m_hisCall.leftJustified(13,' ') + m_xRcvd;
-    QTextStream out(&f);
-    out << t << endl;
-    f.close();
-    if(m_msgAvgWidget != NULL and m_msgAvgWidget->isVisible()) {
-      QString band;
-      band.sprintf(" %5d ",nfreq);
-      t=QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hhmm ") + band +
-          m_hisCall.leftJustified(13,' ') + m_xSent.leftJustified(14,' ') + m_xRcvd;
-      m_msgAvgWidget->contestAddLog((qint32) m_config.special_op_id(),t);
-    }
-    m_xSent="";
-    m_xRcvd="";
-  } else {
-    MessageBox::warning_message (this, tr("File Open Error"),
-      tr("Cannot open \"%1\" for append: %2").arg(f.fileName()).arg(f.errorString()));
-  }
 }
 
 void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, QString const& grid
@@ -5386,6 +5367,15 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
       MessageBox::warning_message (this, tr ("Log file error"),
                                    tr ("Cannot open \"%1\"").arg (m_logBook.path ()));
     }
+
+
+  if (SpecOp::NONE < m_config.special_op_id() && SpecOp::FOX > m_config.special_op_id()) {
+    if (!m_cabrilloLog) m_cabrilloLog.reset (new CabrilloLog {&m_config});
+    m_cabrilloLog->add_QSO (m_freqNominal, QDateTime::currentDateTimeUtc (), m_hisCall, m_xSent, m_xRcvd);
+    m_xSent="";
+    m_xRcvd="";
+    ui->sbSerialNumber->setValue (ui->sbSerialNumber->value () + 1);
+  }
 
   m_messageClient->qso_logged (QSO_date_off, call, grid, dial_freq, mode, rpt_sent, rpt_received
                                , tx_power, comments, name, QSO_date_on, operator_call, my_call, my_grid);
@@ -5532,7 +5522,7 @@ void MainWindow::on_actionFT8_triggered()
     ui->TxFreqSpinBox->setValue(300);
     displayWidgets(nWidgets("111010000100111000010000000000100"));
     ui->labDXped->setText("Fox");
-    on_actionFox_Log_triggered();
+    on_fox_log_action_triggered();
   }
   if(SpecOp::HOUND == m_config.special_op_id()) {
     ui->txFirstCheckBox->setChecked(false);
@@ -5565,6 +5555,7 @@ void MainWindow::on_actionFT8_triggered()
       ui->labDXped->setVisible(true);
       ui->labDXped->setText(t0);
     }
+    on_contest_log_action_triggered();
   }
 
   if((SpecOp::FOX==m_config.special_op_id() or SpecOp::HOUND==m_config.special_op_id()) and !m_config.split_mode() and !m_bWarnedSplit) {
@@ -6138,35 +6129,38 @@ void MainWindow::on_actionErase_ALL_TXT_triggered()          //Erase ALL.TXT
   }
 }
 
-void MainWindow::on_actionErase_FoxQSO_txt_triggered()
+void MainWindow::on_reset_fox_log_action_triggered ()
 {
-  int ret = MessageBox::query_message(this, tr("Confirm Erase"),
-                  tr("Are you sure you want to erase file FoxQSO.txt?"));
+  int ret = MessageBox::query_message(this, tr("Confirm Reset"),
+                  tr("Are you sure you want to erase file FoxQSO.txt and start a new Fox log?"));
   if(ret==MessageBox::Yes) {
     QFile f{m_config.writeable_data_dir().absoluteFilePath("FoxQSO.txt")};
     f.remove();
-    ui->sbSerialNumber->setValue(1);
+    if (!m_foxLog) m_foxLog.reset (new FoxLog);
+    m_foxLog->reset ();
   }
 }
 
-void MainWindow::on_actionErase_cabrillo_log_triggered()
+void MainWindow::on_reset_cabrillo_log_action_triggered ()
 {
-  int ret = MessageBox::query_message(this, tr("Confirm Erase"),
-                  tr("Are you sure you want to erase file cabrillo.log?"));
-  if(ret==MessageBox::Yes) {
-    QFile f{m_config.writeable_data_dir().absoluteFilePath("cabrillo.log")};
-    f.remove();
-  }
+  if (MessageBox::Yes == MessageBox::query_message(this, tr("Confirm Erase"),
+                                                   tr("Are you sure you want to erase file cabrillo.log"
+                                                      " and start a new Cabrillo log?")))
+    {
+      QFile {m_config.writeable_data_dir ().absoluteFilePath ("cabrillo.log")}.remove ();
+      ui->sbSerialNumber->setValue (1);
+      if (!m_cabrilloLog) m_cabrilloLog.reset (new CabrilloLog {&m_config});
+      m_cabrilloLog->reset ();
+    }
 }
 
 void MainWindow::on_actionExport_Cabrillo_log_triggered()
 {
-  if(!m_exportCabrillo) {
-     m_exportCabrillo.reset(new ExportCabrillo{m_settings});
-  }
-  QString CabLog=m_config.writeable_data_dir ().absoluteFilePath ("cabrillo.log");
-  m_exportCabrillo->setFile(CabLog);
-  m_exportCabrillo->exec();
+  if (!m_cabrilloLog) m_cabrilloLog.reset (new CabrilloLog {&m_config});
+  if (QDialog::Accepted == ExportCabrillo {m_settings, &m_config, m_cabrilloLog.data ()}.exec())
+    {
+      MessageBox::information_message (this, tr ("Cabrillo Log saved"));
+    }
 }
 
 
@@ -8061,10 +8055,7 @@ void MainWindow::houndCallers()
         m_nHoundsCalling++;                // Number of accepted Hounds to be sorted
       }
     }
-    if(m_foxLogWindow && m_foxLogWindow->isVisible ())
-      {
-        m_foxLogWindow->callers (nTotal);
-      }
+    if(m_foxLogWindow) m_foxLogWindow->callers (nTotal);
 
 // Sort and display accumulated list of Hound callers
     if(t.length()>30) {
@@ -8225,10 +8216,8 @@ list2Done:
       m_hisGrid=m_foxQSO[hc1].grid;
       m_rptSent=m_foxQSO[hc1].sent;
       m_rptRcvd=m_foxQSO[hc1].rcvd;
-      if (!m_foxLogWindow)
-        {
-          on_actionFox_Log_triggered ();
-        }
+      if (!m_foxLog) m_foxLog.reset (new FoxLog);
+      if (!m_foxLogWindow) on_fox_log_action_triggered ();
       if (m_foxLog->add_QSO (QSO_time, m_hisCall, m_hisGrid, m_rptSent, m_rptRcvd, m_lastBand))
         {
           writeFoxQSO (QString {" Log:  %1 %2 %3 %4 %5"}.arg (m_hisCall).arg (m_hisGrid)
@@ -8292,7 +8281,7 @@ Transmit:
     if(age < 3600) break;
     m_foxRateQueue.dequeue();
   }
-  if (m_foxLogWindow && m_foxLogWindow->isVisible ())
+  if (m_foxLogWindow)
     {
       m_foxLogWindow->rate (m_foxRateQueue.size ());
       m_foxLogWindow->queued (m_foxQSOinProgress.count ());

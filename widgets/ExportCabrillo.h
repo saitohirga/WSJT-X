@@ -1,37 +1,34 @@
+// -*- Mode: C++ -*-
 #ifndef EXPORTCABRILLO_H
 #define EXPORTCABRILLO_H
 
 #include <QDialog>
-#include <QSettings>
+#include <QScopedPointer>
 
+class QSettings;
+class Configuration;
+class CabrilloLog;
 namespace Ui {
-class ExportCabrillo;
+  class ExportCabrillo;
 }
 
-class ExportCabrillo : public QDialog
+class ExportCabrillo final
+  : public QDialog
 {
-  Q_OBJECT
-
 public:
-  explicit ExportCabrillo(QSettings *settings, QWidget *parent = 0);
-  void setFile(QString t);
-  ~ExportCabrillo();
-
-public slots:
-  void accept();
-
-protected:
-  void closeEvent (QCloseEvent *) override;
-
-private slots:
-  void on_pbSaveAs_clicked();
-
+  explicit ExportCabrillo (QSettings *, Configuration const *
+                           , CabrilloLog const *, QWidget * parent = nullptr);
+  ~ExportCabrillo ();
+  
 private:
-  QSettings * settings_;
-  QString m_CabLog;
   void read_settings();
   void write_settings();
-  Ui::ExportCabrillo *ui;
+  void save_log ();
+
+  QSettings * settings_;
+  Configuration const * configuration_;
+  CabrilloLog const * log_;
+  QScopedPointer<Ui::ExportCabrillo> ui;
 };
 
-#endif // EXPORTCABRILLO_H
+#endif

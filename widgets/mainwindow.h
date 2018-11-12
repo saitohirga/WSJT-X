@@ -36,7 +36,6 @@
 #include "astro.h"
 #include "MessageBox.hpp"
 #include "NetworkAccessManager.hpp"
-#include "ExportCabrillo.h"
 
 #define NUM_JT4_SYMBOLS 206                //(72+31)*2, embedded sync
 #define NUM_JT65_SYMBOLS 126               //63 data + 63 sync
@@ -69,8 +68,10 @@ class WideGraph;
 class LogQSO;
 class Transceiver;
 class MessageAveraging;
-class FoxLogWindow;
 class FoxLog;
+class FoxLogWindow;
+class CabrilloLog;
+class CabrilloLogWindow;
 class ColorHighlighting;
 class MessageClient;
 class QTime;
@@ -203,8 +204,8 @@ private slots:
   void on_actionDeepestDecode_toggled (bool);
   void bumpFqso(int n);
   void on_actionErase_ALL_TXT_triggered();
-  void on_actionErase_FoxQSO_txt_triggered();
-  void on_actionErase_cabrillo_log_triggered();
+  void on_reset_fox_log_action_triggered ();
+  void on_reset_cabrillo_log_action_triggered ();
   void on_actionErase_wsjtx_log_adi_triggered();
   void on_actionExport_Cabrillo_log_triggered();
   void startTx2();
@@ -248,7 +249,8 @@ private slots:
   void stopTuneATU();
   void auto_tx_mode(bool);
   void on_actionMessage_averaging_triggered();
-  void on_actionFox_Log_triggered();
+  void on_contest_log_action_triggered ();
+  void on_fox_log_action_triggered ();
   void on_actionColors_triggered();
   void on_actionInclude_averaging_toggled (bool);
   void on_actionInclude_correlation_toggled (bool);
@@ -364,8 +366,9 @@ private:
   QScopedPointer<MessageAveraging> m_msgAvgWidget;
   QScopedPointer<FoxLog> m_foxLog;
   QScopedPointer<FoxLogWindow> m_foxLogWindow;
+  QScopedPointer<CabrilloLog> m_cabrilloLog;
+  QScopedPointer<CabrilloLogWindow> m_contestLogWindow;
   QScopedPointer<ColorHighlighting> m_colorHighlighting;
-  QScopedPointer<ExportCabrillo> m_exportCabrillo;
   Transceiver::TransceiverState m_rigState;
   Frequency  m_lastDialFreq;
   QString m_lastBand;
@@ -696,7 +699,6 @@ private:
   QString WSPR_hhmm(int n);
   void fast_config(bool b);
   void CQTxFreq();
-  void cabLog();
   void useNextCall();
   void abortQSO();
   void mouseTimerTick();

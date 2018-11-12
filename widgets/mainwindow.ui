@@ -1035,8 +1035,8 @@ QLabel[oob=&quot;true&quot;] {
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
-                 <property name="suffix">
-                  <string/>
+                 <property name="prefix">
+                  <string>Tx# </string>
                  </property>
                  <property name="minimum">
                   <number>1</number>
@@ -2646,9 +2646,9 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="separator"/>
     <addaction name="actionDelete_all_wav_files_in_SaveDir"/>
     <addaction name="actionErase_ALL_TXT"/>
-    <addaction name="actionErase_FoxQSO_txt"/>
+    <addaction name="reset_fox_log_action"/>
     <addaction name="actionErase_wsjtx_log_adi"/>
-    <addaction name="actionErase_cabrillo_log"/>
+    <addaction name="reset_cabrillo_log_action"/>
     <addaction name="actionExport_Cabrillo_log"/>
     <addaction name="actionOpen_log_directory"/>
     <addaction name="separator"/>
@@ -2666,7 +2666,8 @@ QPushButton[state=&quot;ok&quot;] {
     <addaction name="actionMessage_averaging"/>
     <addaction name="actionEcho_Graph"/>
     <addaction name="actionFast_Graph"/>
-    <addaction name="actionFox_Log"/>
+    <addaction name="contest_log_action"/>
+    <addaction name="fox_log_action"/>
     <addaction name="actionColors"/>
     <addaction name="separator"/>
    </widget>
@@ -3304,20 +3305,20 @@ QPushButton[state=&quot;ok&quot;] {
     <string>Shift+F1</string>
    </property>
   </action>
-  <action name="actionFox_Log">
+  <action name="fox_log_action">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
    <property name="text">
-    <string>Fox or Contest Log</string>
-   </property>
-   <property name="iconText">
-    <string>Fox or Contest Log</string>
-   </property>
-   <property name="toolTip">
-    <string>Fox or Contest Log</string>
+    <string>Fox log</string>
    </property>
   </action>
-  <action name="actionErase_FoxQSO_txt">
+  <action name="reset_fox_log_action">
    <property name="text">
-    <string>Erase FoxQSO.txt</string>
+    <string>Reset Fox log ...</string>
+   </property>
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ths will erase the file FoxQSO.txt and delete the Fox log file which is used for dupe detection.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </action>
   <action name="actionFT8_DXpedition_Mode_User_Guide">
@@ -3325,9 +3326,9 @@ QPushButton[state=&quot;ok&quot;] {
     <string>FT8 DXpedition Mode User Guide</string>
    </property>
   </action>
-  <action name="actionErase_cabrillo_log">
+  <action name="reset_cabrillo_log_action">
    <property name="text">
-    <string>Erase cabrillo.log</string>
+    <string>Reset Cabrillo log ...</string>
    </property>
   </action>
   <action name="actionColors">
@@ -3342,12 +3343,17 @@ QPushButton[state=&quot;ok&quot;] {
   </action>
   <action name="actionExport_Cabrillo_log">
    <property name="text">
-    <string>Export Cabrillo log</string>
+    <string>Export Cabrillo log ...</string>
    </property>
   </action>
   <action name="actionQuick_Start_Guide_v2">
    <property name="text">
     <string>Quick-Start Guide to WSJT-X 2.0</string>
+   </property>
+  </action>
+  <action name="contest_log_action">
+   <property name="text">
+    <string>Contest log</string>
    </property>
   </action>
  </widget>
