@@ -83,7 +83,7 @@ namespace
 }
 
 bool FoxLog::add_QSO (QDateTime const& when, QString const& call, QString const& grid
-                      , QString const& report_received, QString const& report_sent
+                      , QString const& report_sent, QString const& report_received
                       , QString const& band)
 {
   ConditionalTransaction transaction {*m_};
