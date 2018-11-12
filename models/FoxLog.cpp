@@ -45,7 +45,7 @@ FoxLog::impl::impl ()
 
   setEditStrategy (QSqlTableModel::OnManualSubmit);
   setTable ("fox_log");
-  setHeaderData (fieldIndex ("when"), Qt::Horizontal, tr ("Date and Time"));
+  setHeaderData (fieldIndex ("when"), Qt::Horizontal, tr ("Date & Time(UTC)"));
   setHeaderData (fieldIndex ("call"), Qt::Horizontal, tr ("Call"));
   setHeaderData (fieldIndex ("grid"), Qt::Horizontal, tr ("Grid"));
   setHeaderData (fieldIndex ("report_sent"), Qt::Horizontal, tr ("Sent"));
@@ -114,7 +114,10 @@ bool FoxLog::dupe (QString const& call, QString const& band) const
 
 void FoxLog::reset ()
 {
-  ConditionalTransaction transaction {*m_};
-  SQL_error_check (*m_, &QSqlTableModel::removeRows, 0, m_->rowCount (), QModelIndex {});
-  transaction.submit ();
+  if (m_->rowCount ())
+    {
+      ConditionalTransaction transaction {*m_};
+      SQL_error_check (*m_, &QSqlTableModel::removeRows, 0, m_->rowCount (), QModelIndex {});
+      transaction.submit ();
+    }
 }
