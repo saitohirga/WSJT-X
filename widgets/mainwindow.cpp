@@ -3091,6 +3091,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
         m_QSOText = decodedtext.string ().trimmed ();
       }
 
+      postDecode (true, decodedtext.string ());
+
       if(m_mode=="FT8" and SpecOp::HOUND==m_config.special_op_id()) {
         if(decodedtext.string().contains(";")) {
           QStringList w=decodedtext.string().mid(24).split(" ",QString::SkipEmptyParts);
@@ -3137,7 +3139,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
         if(m_mode=="FT8" or m_mode=="QRA64" or m_mode=="JT4" or m_mode=="JT65" or m_mode=="JT9") {
           auto_sequence (decodedtext, 25, 50);
         }
-        postDecode (true, decodedtext.string ());
 
 // find and extract any report for myCall, but save in m_rptRcvd only if it's from DXcall
         QString rpt;
@@ -7224,7 +7225,7 @@ void MainWindow::postDecode (bool is_new, QString const& message)
                                , QTime::fromString (parts[0], has_seconds ? "hhmmss" : "hhmm")
                                , parts[1].toInt ()
                                , parts[2].toFloat (), parts[3].toUInt (), parts[4]
-                               , decode.mid (has_seconds ? 24 : 22, 21)
+                               , decode.mid (has_seconds ? 24 : 22)
                                , QChar {'?'} == decode.mid (has_seconds ? 24 + 21 : 22 + 21, 1)
                                , m_diskData);
     }
