@@ -951,7 +951,7 @@ void MainWindow::not_GA_warning_message ()
                                 "On-the-air use carries an obligation to report problems\n"
                                 "to the WSJT Development group and to upgrade to a GA\n"
                                 "(General Availability) release when it becomes available.\n\n"
-                                "This version cannot be used after November 30, 2018\n\n");
+                                "This version cannot be used after December 31, 2018\n\n");
 
   if(now.daysTo(timeout) < 0) Q_EMIT finished();
 }
@@ -4846,7 +4846,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     t=t+" OOO";
     msgtype(t, ui->tx2);
     msgtype("RO", ui->tx3);
-    msgtype(m_send_RR73 ? "RR73" : "RRR", ui->tx4);
+    msgtype("RRR", ui->tx4);
     msgtype("73", ui->tx5->lineEdit());
   } else {
     int n=rpt.toInt();
@@ -7069,10 +7069,6 @@ void MainWindow::on_cbShMsgs_toggled(bool b)
   m_bShMsgs=b;
   if(b) ui->cbSWL->setChecked(false);
   if(m_bShMsgs and (m_mode=="MSK144")) ui->rptSpinBox->setValue(1);
-  if(m_mode=="JT65") {
-    ui->cbAutoSeq->setVisible(!b);
-    if(b) ui->cbAutoSeq->setChecked(false);
-  }
   int it0=itone[0];
   int ntx=m_ntx;
   m_lastCallsign.clear ();      // ensure Tx5 gets updated
