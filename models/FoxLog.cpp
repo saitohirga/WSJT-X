@@ -1,5 +1,7 @@
 #include "FoxLog.hpp"
 
+#include <stdexcept>
+#include <utility>
 #include <QString>
 #include <QDateTime>
 #include <QSqlDatabase>
@@ -8,6 +10,7 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QDebug>
+#include "qt_db_helpers.hpp"
 #include "pimpl_impl.hpp"
 
 class FoxLog::impl final
@@ -15,7 +18,8 @@ class FoxLog::impl final
 {
 public:
   impl ();
-  QSqlQuery insert_;
+
+  QSqlQuery mutable dupe_query_;
 };
 
 FoxLog::impl::impl ()
@@ -23,8 +27,9 @@ FoxLog::impl::impl ()
   if (!database ().tables ().contains ("fox_log"))
     {
       QSqlQuery query;
-      if (!query.exec ("CREATE TABLE fox_log ("
-                       "	id INTEGER PRIMARY KEY AUTOINCREMENT,"
+      SQL_error_check (query, static_cast<bool (QSqlQuery::*) (QString const&)> (&QSqlQuery::exec),
+                       "CREATE TABLE fox_log ("
+                       "	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
                        "	\"when\" DATETIME NOT NULL,"
                        "	call VARCHAR(20) NOT NULL,"
                        "	grid VARCHAR(4),"
@@ -32,13 +37,13 @@ FoxLog::impl::impl ()
                        "	report_rcvd VARCHAR(3),"
                        "	band VARCHAR(6) NOT NULL,"
                        "	CONSTRAINT no_dupes UNIQUE (call, band)"
-                       ")"))
-        {
-          throw std::runtime_error {("SQL Error: " + query.lastError ().text ()).toStdString ()};
-        }
+                       ")");
     }
 
-  setEditStrategy (QSqlTableModel::OnRowChange);
+  SQL_error_check (dupe_query_, &QSqlQuery::prepare,
+                   "SELECT COUNT(*) FROM fox_log WHERE call = :call AND band = :band");
+
+  setEditStrategy (QSqlTableModel::OnManualSubmit);
   setTable ("fox_log");
   setHeaderData (fieldIndex ("when"), Qt::Horizontal, tr ("Date and Time"));
   setHeaderData (fieldIndex ("call"), Qt::Horizontal, tr ("Call"));
@@ -46,10 +51,7 @@ FoxLog::impl::impl ()
   setHeaderData (fieldIndex ("report_sent"), Qt::Horizontal, tr ("Sent"));
   setHeaderData (fieldIndex ("report_rcvd"), Qt::Horizontal, tr ("Rcvd"));
   setHeaderData (fieldIndex ("band"), Qt::Horizontal, tr ("Band"));
-  if (!select ())
-    {
-      throw std::runtime_error {("SQL Error: " + lastError ().text ()).toStdString ()};
-    }
+  SQL_error_check (*this, &QSqlTableModel::select);
 }
 
 FoxLog::FoxLog ()
@@ -65,30 +67,54 @@ QAbstractItemModel * FoxLog::model ()
   return &*m_;
 }
 
+namespace
+{
+  void set_value_maybe_null (QSqlRecord& record, QString const& name, QString const& value)
+  {
+    if (value.size ())
+      {
+        record.setValue (name, value);
+      }
+    else
+      {
+        record.setNull (name);
+      }
+  }
+}
+
 bool FoxLog::add_QSO (QDateTime const& when, QString const& call, QString const& grid
                       , QString const& report_received, QString const& report_sent
                       , QString const& band)
 {
-  auto db = m_->database ();
+  ConditionalTransaction transaction {*m_};
   auto record = m_->record ();
   record.setValue ("when", when.toMSecsSinceEpoch () / 1000);
   record.setValue ("call", call);
-  record.setValue ("grid", grid);
-  record.setValue ("report_sent", report_sent);
-  record.setValue ("report_rcvd", report_received);
+  set_value_maybe_null (record, "grid", grid);
+  set_value_maybe_null (record, "report_sent", report_sent);
+  set_value_maybe_null (record, "report_rcvd", report_received);
   record.setValue ("band", band);
-  if (!m_->insertRecord (-1, record))
+  SQL_error_check (*m_, &QSqlTableModel::insertRecord, -1, record);
+  if (!transaction.submit (false))
     {
-      throw std::runtime_error {("SQL Error: " + m_->lastError ().text ()).toStdString ()};
-    }
-  if (!m_->submitAll ())
-    {
-      qDebug () << "type:" << m_->lastError ().type ();
-      if (QSqlError::TransactionError == m_->lastError ().type ())
-        {
-          return false;
-        }
-      throw std::runtime_error {("SQL Error: " + m_->lastError ().text ()).toStdString ()};
+      transaction.revert ();
+      return false;
     }
   return true;
+}
+
+bool FoxLog::dupe (QString const& call, QString const& band) const
+{
+  m_->dupe_query_.bindValue (":call", call);
+  m_->dupe_query_.bindValue (":band", band);
+  SQL_error_check (m_->dupe_query_, static_cast<bool (QSqlQuery::*) ()> (&QSqlQuery::exec));
+  m_->dupe_query_.next ();
+  return m_->dupe_query_.value (0).toInt ();
+}
+
+void FoxLog::reset ()
+{
+  ConditionalTransaction transaction {*m_};
+  SQL_error_check (*m_, &QSqlTableModel::removeRows, 0, m_->rowCount (), QModelIndex {});
+  transaction.submit ();
 }

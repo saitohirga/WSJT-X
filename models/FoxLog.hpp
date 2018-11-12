@@ -19,8 +19,10 @@ public:
   bool add_QSO (QDateTime const&, QString const& call, QString const& grid
                 , QString const& report_received, QString const& report_sent
                 , QString const& band);
+  bool dupe (QString const& call, QString const& band) const;
 
   QAbstractItemModel * model ();
+  void reset ();
 
 private:
   class impl;
