@@ -378,13 +378,14 @@ void MessageClient::set_server_port (port_type server_port)
   m_->server_port_ = server_port;
 }
 
-void MessageClient::send_raw_datagram (QByteArray const& message, QHostAddress const& dest_address
+qint64 MessageClient::send_raw_datagram (QByteArray const& message, QHostAddress const& dest_address
                                        , port_type dest_port)
 {
   if (dest_port && !dest_address.isNull ())
     {
-      m_->writeDatagram (message, dest_address, dest_port);
+      return m_->writeDatagram (message, dest_address, dest_port);
     }
+  return 0;
 }
 
 void MessageClient::add_blocked_destination (QHostAddress const& a)

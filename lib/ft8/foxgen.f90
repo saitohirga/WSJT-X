@@ -39,10 +39,7 @@ subroutine foxgen()
 
   do n=1,nslots
      msg=cmsg(n)(1:37)
-     call genft8_174_91(msg,i3,n3,msgsent,msgbits,itone)
-!     print*,'Foxgen:',n,msg,msgsent,i3,n3
-!     write(*,'(77i1)') msgbits
-
+     call genft8(msg,i3,n3,msgsent,msgbits,itone)
 ! Make copies of itone() and msgbits() for ft8sim
      itone2=itone
      msgbits2=msgbits

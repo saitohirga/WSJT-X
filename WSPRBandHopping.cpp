@@ -11,8 +11,8 @@
 
 #include "SettingsGroup.hpp"
 #include "Configuration.hpp"
-#include "Bands.hpp"
-#include "FrequencyList.hpp"
+#include "models/Bands.hpp"
+#include "models/FrequencyList.hpp"
 #include "WsprTxScheduler.h"
 #include "pimpl_impl.hpp"
 #include "moc_WSPRBandHopping.cpp"

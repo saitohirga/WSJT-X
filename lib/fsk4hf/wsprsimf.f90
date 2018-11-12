@@ -77,7 +77,7 @@ program wsprsim
      c=c0
      if(nwav.eq.0) then
         if( fspread .ne. 0.0 .or. delay .ne. 0.0 ) then
-           call watterson(c,NMAX/NDOWN,fs,delay,fspread)
+           call watterson(c,NMAX/NDOWN,NN*NSPS,fs,delay,fspread)
         endif
         c=c*sig
         if(snrdb.lt.90) then

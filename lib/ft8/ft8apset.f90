@@ -1,22 +1,44 @@
 subroutine ft8apset(mycall12,hiscall12,apsym)
-  parameter(NAPM=4,KK=87)
-  character*12 mycall12,hiscall12
-  character*37 msg,msgsent
-  character*6 mycall,hiscall
-  character*6 hisgrid6
-  character*4 hisgrid
-  integer apsym(75)
+  use packjt77
+  character*77 c77
+  character*37 msg
+  character*12 mycall12,hiscall12,hiscall
+  integer apsym(58)
   integer*1 msgbits(77)
-  integer itone(79)
-  
-  mycall=mycall12(1:6)
-  hiscall=hiscall12(1:6)
-  if(len(trim(hiscall)).eq.0) hiscall="K9ABC"
-  msg=mycall//' '//hiscall//' RRR' 
-  i3=0 
-  n3=0
-  isync=1
-  call genft8(msg,i3,n3,isync,msgsent,msgbits,itone)
-  apsym=2*msgbits(1:75)-1
+  logical nohiscall
+
+  if(len(trim(mycall12)).eq.0) then
+     apsym=0
+     apsym(1)=99
+     apsym(30)=99
+     return
+  endif
+
+  nohiscall=.false. 
+  hiscall=hiscall12 
+  if(len(trim(hiscall)).eq.0) then
+     hiscall="K9ABC"
+     nohiscall=.true.
+  endif
+
+! Encode a dummy standard message: i3=1, 28 1 28 1 1 15
+!
+  msg=trim(mycall12)//' '//trim(hiscall)//' RRR' 
+  call pack77(msg,i3,n3,c77)
+  if(i3.ne.1) then
+    apsym=0
+    apsym(1)=99
+    apsym(30)=99
+    return
+
+ endif
+
+  read(c77,'(58i1)',err=1) apsym(1:58)
+  if(nohiscall) apsym(30)=99
+  return
+
+1 apsym=0
+  apsym(1)=99
+  apsym(30)=99
   return
 end subroutine ft8apset

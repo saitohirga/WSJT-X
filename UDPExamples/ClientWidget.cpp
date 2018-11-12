@@ -3,7 +3,7 @@
 #include <QRegExp>
 #include <QColor>
 
-#include "MaidenheadLocatorValidator.hpp"
+#include "validators/MaidenheadLocatorValidator.hpp"
 
 namespace
 {

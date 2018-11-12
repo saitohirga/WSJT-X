@@ -36,7 +36,8 @@ namespace
     {
       if (id)
         {
-          auto len = std::min (size_t (4), strlen (id));
+          auto end = reinterpret_cast<char const *> (::memchr (id, '\0', 4u));
+          auto len = end ? end - id : 4u;
           memcpy (id_.data (), id, len);
           if (len < 4u)
             {
@@ -45,7 +46,7 @@ namespace
         }
       else
         {
-          memcpy (id_.data (), "JUNK", 4);
+          memcpy (id_.data (), "JUNK", 4u);
         }
     }
 
@@ -831,7 +832,8 @@ void BWFFile::bext_coding_history (QByteArray const& text)
   m_->header_dirty_ = true;
   m_->bext ();                  // ensure we have a correctly
                                 // initialized m_->bext_
-  auto length = std::min (strlen (text.constData ()), size_t (text.size ()));
+  auto end = static_cast<char const *> (::memchr (text.constData (), '\0', size_t (text.size ())));
+  auto length = end ? end - text.constData () : size_t (text.size ());
   m_->bext_.resize (sizeof (BroadcastAudioExtension) + length);
   std::strncpy (m_->bext ()->coding_history_, text.constData (), length);
 }

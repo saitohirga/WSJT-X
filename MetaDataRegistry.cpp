@@ -5,16 +5,16 @@
 #include <QStandardItemEditorCreator>
 
 #include "Radio.hpp"
-#include "FrequencyList.hpp"
+#include "models/FrequencyList.hpp"
 #include "AudioDevice.hpp"
 #include "Configuration.hpp"
-#include "StationList.hpp"
+#include "models/StationList.hpp"
 #include "Transceiver.hpp"
 #include "TransceiverFactory.hpp"
 #include "WFPalette.hpp"
-#include "IARURegions.hpp"
-#include "DecodeHighlightingModel.hpp"
-#include "FrequencyLineEdit.hpp"
+#include "models/IARURegions.hpp"
+#include "models/DecodeHighlightingModel.hpp"
+#include "widgets/FrequencyLineEdit.hpp"
 
 QItemEditorFactory * item_editor_factory ()
 {

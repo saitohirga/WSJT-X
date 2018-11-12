@@ -70,10 +70,10 @@ public:
   // of record marker
   Q_SLOT void logged_ADIF (QByteArray const& ADIF_record);
 
-  // this slot may be used to send arbitrary UDP datagrams to and
+  // this may be used to send arbitrary UDP datagrams to and
   // destination allowing the underlying socket to be used for general
   // UDP messaging if desired
-  Q_SLOT void send_raw_datagram (QByteArray const&, QHostAddress const& dest_address, port_type dest_port);
+  qint64 send_raw_datagram (QByteArray const&, QHostAddress const& dest_address, port_type dest_port);
 
   // disallowed message destination (does not block datagrams sent
   // with send_raw_datagram() above)

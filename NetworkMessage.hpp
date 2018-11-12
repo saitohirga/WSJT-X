@@ -231,7 +231,7 @@
  *                         DX grid                utf8
  *                         Tx frequency (Hz)      quint64
  *                         Mode                   utf8
- *                         Report send            utf8
+ *                         Report sent            utf8
  *                         Report received        utf8
  *                         Tx power               utf8
  *                         Comments               utf8

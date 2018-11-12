@@ -1,145 +1,51 @@
-  parameter (MAXTEST=75,NTEST=68)
-  character*40 testmsg(MAXTEST)
-  character*40 testmsgchk(MAXTEST)
-  ! Test msgs should include the extremes for the different types
-  ! See pfx.f90
-  ! Type 1 P & A
-  ! Type 1 1A & E5
-  data testmsg(1:NTEST)/         &
-       "CQ WB9XYZ EN34",         &
-       "CQ DX WB9XYZ EN34",      &
-       "QRZ WB9XYZ EN34",        &
-       "KA1ABC WB9XYZ EN34",     &
-       "KA1ABC WB9XYZ RO",       &
-       "KA1ABC WB9XYZ -21",      &
-       "KA1ABC WB9XYZ R-19",     &
-       "KA1ABC WB9XYZ RRR",      &
-       "KA1ABC WB9XYZ 73",       &
-       "KA1ABC WB9XYZ",          &
-       "CQ 000 WB9XYZ EN34",     &
-       "CQ 999 WB9XYZ EN34",     &
-       "CQ EU WB9XYZ EN34",      &
-       "CQ WY WB9XYZ EN34",      &
-       "1A/KA1ABC WB9XYZ",       &
-       "E5/KA1ABC WB9XYZ",       &
-       "KA1ABC 1A/WB9XYZ",       &
-       "KA1ABC E5/WB9XYZ",       &
-       "KA1ABC/P WB9XYZ",        &
-       "KA1ABC/A WB9XYZ",        &
-       "KA1ABC WB9XYZ/P",        &
-       "KA1ABC WB9XYZ/A",        &
-       "CQ KA1ABC/P",            &
-       "CQ WB9XYZ/A",            &
-       "QRZ KA1ABC/P",           &
-       "QRZ WB9XYZ/A",           &
-       "DE KA1ABC/P",            &
-       "DE WB9XYZ/A",            &
-       "CQ 1A/KA1ABC",           &
-       "CQ E5/KA1ABC",           &
-       "DE 1A/KA1ABC",           &
-       "DE E5/KA1ABC",           &
-       "QRZ 1A/KA1ABC",          &
-       "QRZ E5/KA1ABC",          &
-       "CQ WB9XYZ/1A",           &
-       "CQ WB9XYZ/E5",           &
-       "QRZ WB9XYZ/1A",          &
-       "QRZ WB9XYZ/E5",          &
-       "DE WB9XYZ/1A",           &
-       "DE WB9XYZ/E5",           &
-       "CQ A000/KA1ABC FM07",    &
-       "CQ ZZZZ/KA1ABC FM07",    &
-       "QRZ W4/KA1ABC FM07",     &
-       "DE W4/KA1ABC FM07",      &
-       "CQ W4/KA1ABC -22",       &
-       "DE W4/KA1ABC -22",       &
-       "QRZ W4/KA1ABC -22",      &
-       "CQ W4/KA1ABC R-22",      &
-       "DE W4/KA1ABC R-22",      &
-       "QRZ W4/KA1ABC R-22",     &
-       "DE W4/KA1ABC 73",        &
-       "CQ KA1ABC FM07",         &
-       "QRZ KA1ABC FM07",        &
-       "DE KA1ABC/VE6 FM07",     &
-       "CQ KA1ABC/VE6 -22",      &
-       "DE KA1ABC/VE6 -22",      &
-       "QRZ KA1ABC/VE6 -22",     &
-       "CQ KA1ABC/VE6 R-22",     &
-       "DE KA1ABC/VE6 R-22",     &
-       "QRZ KA1ABC/VE6 R-22",    &
-       "DE KA1ABC 73",           &
-       "HELLO WORLD",            &
-       "ZL4/KA1ABC 73",          &
-       "KA1ABC XL/WB9XYZ",       &
-       "KA1ABC WB9XYZ/W4",       &
-       "DE KA1ABC/QRP 2W",       &
-       "KA1ABC/1 WB9XYZ/1",      &
-       "123456789ABCDEFGH"/
-  data testmsgchk(1:NTEST)/      &
-       "CQ WB9XYZ EN34",         &
-       "CQ DX WB9XYZ EN34",      &
-       "QRZ WB9XYZ EN34",        &
-       "KA1ABC WB9XYZ EN34",     &
-       "KA1ABC WB9XYZ RO",       &
-       "KA1ABC WB9XYZ -21",      &
-       "KA1ABC WB9XYZ R-19",     &
-       "KA1ABC WB9XYZ RRR",      &
-       "KA1ABC WB9XYZ 73",       &
-       "KA1ABC WB9XYZ",          &
-       "CQ 000 WB9XYZ EN34",     &
-       "CQ 999 WB9XYZ EN34",     &
-       "CQ EU WB9XYZ EN34",      &
-       "CQ WY WB9XYZ EN34",      &
-       "1A/KA1ABC WB9XYZ",       &
-       "E5/KA1ABC WB9XYZ",       &
-       "KA1ABC 1A/WB9XYZ",       &
-       "KA1ABC E5/WB9XYZ",       &
-       "KA1ABC/P WB9XYZ",        &
-       "KA1ABC/A WB9XYZ",        &
-       "KA1ABC WB9XYZ/P",        &
-       "KA1ABC WB9XYZ/A",        &
-       "CQ KA1ABC/P",            &
-       "CQ WB9XYZ/A",            &
-       "QRZ KA1ABC/P",           &
-       "QRZ WB9XYZ/A",           &
-       "DE KA1ABC/P",            &
-       "DE WB9XYZ/A",            &
-       "CQ 1A/KA1ABC",           &
-       "CQ E5/KA1ABC",           &
-       "DE 1A/KA1ABC",           &
-       "DE E5/KA1ABC",           &
-       "QRZ 1A/KA1ABC",          &
-       "QRZ E5/KA1ABC",          &
-       "CQ WB9XYZ/1A",           &
-       "CQ WB9XYZ/E5",           &
-       "QRZ WB9XYZ/1A",          &
-       "QRZ WB9XYZ/E5",          &
-       "DE WB9XYZ/1A",           &
-       "DE WB9XYZ/E5",           &
-       "CQ A000/KA1ABC FM07",    &
-       "CQ ZZZZ/KA1ABC FM07",    &
-       "QRZ W4/KA1ABC FM07",     &
-       "DE W4/KA1ABC FM07",      &
-       "CQ W4/KA1ABC -22",       &
-       "DE W4/KA1ABC -22",       &
-       "QRZ W4/KA1ABC -22",      &
-       "CQ W4/KA1ABC R-22",      &
-       "DE W4/KA1ABC R-22",      &
-       "QRZ W4/KA1ABC R-22",     &
-       "DE W4/KA1ABC 73",        &
-       "CQ KA1ABC FM07",         &
-       "QRZ KA1ABC FM07",        &
-       "DE KA1ABC/VE6 FM07",     &
-       "CQ KA1ABC/VE6 -22",      &
-       "DE KA1ABC/VE6 -22",      &
-       "QRZ KA1ABC/VE6 -22",     &
-       "CQ KA1ABC/VE6 R-22",     &
-       "DE KA1ABC/VE6 R-22",     &
-       "QRZ KA1ABC/VE6 R-22",    &
-       "DE KA1ABC 73",           &
-       "HELLO WORLD",            &
-       "ZL4/KA1ABC 73",          &
-       "KA1ABC XL/WB9",          &
-       "KA1ABC WB9XYZ",          &
-       "DE KA1ABC/QRP",          &
-       "KA1ABC/1 WB9X",          &
-       "123456789ABCD"/
+  parameter (MAXTEST=75,NTEST=48)
+  character*37 testmsg(MAXTEST)
+  data testmsg(1:NTEST)/                   &
+       "CQ K1ABC FN42",                    &
+       "K1ABC W9XYZ EN37",                 &
+       "W9XYZ K1ABC -11",                  &
+       "K1ABC W9XYZ R-09",                 &
+       "W9XYZ K1ABC RRR",                  &
+       "K1ABC W9XYZ 73",                   &
+       "K1ABC W9XYZ RR73",                 &
+       "CQ KH1/KH7Z",                      &
+       "K1ABC RR73; W9XYZ <KH1/KH7Z> -08", &
+       "CQ FD K1ABC FN42",                 &
+       "K1ABC W9XYZ 6A WI",                &
+       "W9XYZ K1ABC R 2B EMA",             &
+       "CQ TEST K1ABC/R FN42",             &
+       "K1ABC/R W9XYZ EN37",               &
+       "W9XYZ K1ABC/R R FN42",             &
+       "K1ABC/R W9XYZ RR73",               &
+       "CQ TEST K1ABC FN42",               &
+       "K1ABC W9XYZ 579 WI",               &
+       "W9XYZ K1ABC R 589 MA",             &
+       "K1ABC KA0DEF 559 MO",              &
+       "TU; KA0DEF K1ABC R 569 MA",        &
+       "KA1ABC G3AAA 529 0013",            &
+       "TU; G3AAA K1ABC R 559 MA",         &
+       "CQ G4ABC/P IO91",                  &
+       "G4ABC/P PA9XYZ JO22",              &
+       "PA9XYZ 590003 IO91NP",             &
+       "G4ABC/P R 570007 JO22DB",          &
+       "PA9XYZ G4ABC/P RR73",              &
+       "CQ PJ4/K1ABC",                     &
+       "PJ4/K1ABC <W9XYZ>",                &
+       "W9XYZ <PJ4/K1ABC> -11",            &
+       "<PJ4/K1ABC> W9XYZ R-09",           &
+       "<W9XYZ> PJ4/K1ABC RRR",            &
+       "PJ4/K1ABC <W9XYZ> 73",             &
+       "CQ W9XYZ EN37",                    & 
+       "<W9XYZ> YW18FIFA",                 &
+       "<YW18FIFA> W9XYZ -11",             &
+       "W9XYZ <YW18FIFA> R-09",            &
+       "YW18FIFA <W9XYZ> RRR",             &
+       "<W9XYZ> YW18FIFA 73",              &
+       "TNX BOB 73 GL",                    &
+       "CQ YW18FIFA",                      &
+       "<YW18FIFA> KA1ABC",                &
+       "KA1ABC <YW18FIFA> -11",            &
+       "<YW18FIFA> KA1ABC R-17",           &
+       "<KA1ABC> YW18FIFA RR73",           &
+       "<YW18FIFA> KA1ABC 73",             &
+       "123456789ABCDEF012"/

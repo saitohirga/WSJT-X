@@ -263,7 +263,6 @@ program jt9
      shared_data%params%ndepth=ndepth
      shared_data%params%lft8apon=.true.
      shared_data%params%ljt65apon=.true.
-     shared_data%params%ldecode77=.false.
      shared_data%params%napwid=75
      shared_data%params%dttol=3.
 

@@ -1,5 +1,8 @@
-subroutine watterson(c,npts,fs,delay,fspread)
-
+subroutine watterson(c,npts,nsig,fs,delay,fspread)
+!
+! npts is the total length of the simulated data vector
+! nsig is the number of points that are occupied by signal
+!
   complex c(0:npts-1)
   complex c2(0:npts-1)
   complex cs1(0:npts-1)
@@ -55,7 +58,7 @@ subroutine watterson(c,npts,fs,delay,fspread)
 !     write(61,3001) i/12000.0,c(i)
 !3001 format(3f12.6)
   enddo
-  rms=sqrt(sq/npts)
+  rms=sqrt(sq/nsig) 
   c=c/rms
 
   return

@@ -5,7 +5,7 @@
 #include <QFont>
 
 #include "Radio.hpp"
-#include "IARURegions.hpp"
+#include "models/IARURegions.hpp"
 #include "AudioDevice.hpp"
 #include "Transceiver.hpp"
 
@@ -98,8 +98,8 @@ public:
 
   QString my_callsign () const;
   QString my_grid () const;
-  QString FieldDayExchange() const;
-  QString RTTYExchange() const;
+  QString Field_Day_Exchange() const;
+  QString RTTY_Exchange() const;
   void setEU_VHF_Contest();
   QFont text_font () const;
   QFont decoded_text_font () const;
@@ -134,13 +134,6 @@ public:
   bool twoPass() const;
   bool bFox() const;
   bool bHound() const;
-  bool bGenerate77() const;
-  bool bDecode77() const;
-  bool bNoSpecial() const;
-  bool bFieldDay() const;
-  bool bRTTYroundup() const;
-  bool bNA_VHF_Contest() const;
-  bool bEU_VHF_Contest() const;
   bool x2ToneSpacing() const;
   bool x4ToneSpacing() const;
   bool MyDx() const;
@@ -176,6 +169,10 @@ public:
   bool pwrBandTuneMemory () const;
   LotWUsers const& lotw_users () const;
   DecodeHighlightingModel const& decode_highlighting () const;
+  bool highlight_by_mode () const;
+ 
+  enum class SpecialOperatingActivity {NONE, NA_VHF, EU_VHF, FIELD_DAY, RTTY, FOX, HOUND};
+  SpecialOperatingActivity special_op_id () const;
 
   struct CalibrationParams
   {

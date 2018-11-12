@@ -22,7 +22,6 @@ subroutine msk144signalquality(cframe,snr,freq,t0,softbits,msg,dxcall,       &
   integer msgbits(144)
   integer values(8)
 
-  logical*1 bcontest
   logical*1 btrain
   logical*1 first
   logical*1 currently_training
@@ -91,7 +90,6 @@ subroutine msk144signalquality(cframe,snr,freq,t0,softbits,msg,dxcall,       &
 
 ! generate tones from decoded message
   ichk=0
-  bcontest=.false.
   call genmsk_128_90(msg,ichk,msgsent,i4tone,itype)
 
 ! reconstruct message bits from tones

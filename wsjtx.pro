@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 QT       += network multimedia
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets sql
 CONFIG   += thread
 #CONFIG   += console
 
@@ -47,48 +47,43 @@ DEFINES += UNIX
 #
 # Order matters here as the link is in this order so referrers need to be after referred
 #
-SOURCES += \
-	logbook/adif.cpp \
-	logbook/countrydat.cpp \
-	logbook/countriesworked.cpp \
-  logbook/logbook.cpp \
-  astro.cpp Radio.cpp NetworkServerLookup.cpp revision_utils.cpp \
-  Transceiver.cpp TransceiverBase.cpp TransceiverFactory.cpp \
-  PollingTransceiver.cpp EmulateSplitTransceiver.cpp LettersSpinBox.cpp \
-  HRDTransceiver.cpp DXLabSuiteCommanderTransceiver.cpp \
-  HamlibTransceiver.cpp FrequencyLineEdit.cpp Bands.cpp \
-  FrequencyList.cpp StationList.cpp ForeignKeyDelegate.cpp \
-  FrequencyItemDelegate.cpp LiveFrequencyValidator.cpp \
-  Configuration.cpp	psk_reporter.cpp AudioDevice.cpp \
-  Modulator.cpp Detector.cpp logqso.cpp displaytext.cpp \
-  getfile.cpp soundout.cpp soundin.cpp meterwidget.cpp signalmeter.cpp \
-  WFPalette.cpp plotter.cpp widegraph.cpp about.cpp WsprTxScheduler.cpp mainwindow.cpp \
-  main.cpp decodedtext.cpp wsprnet.cpp messageaveraging.cpp \
-  echoplot.cpp echograph.cpp fastgraph.cpp fastplot.cpp Modes.cpp \
-  WSPRBandHopping.cpp MessageAggregator.cpp SampleDownloader.cpp qt_helpers.cpp\
-  MultiSettings.cpp PhaseEqualizationDialog.cpp IARURegions.cpp MessageBox.cpp \
-  EqualizationToolsDialog.cpp CallsignValidator.cpp ExchangeValidator.cpp \
-  colorhighlighting.cpp ExportCabrillo.cpp LotWUsers.cpp DecodeHighlightingModel.cpp \
-  DecodeHighlightingListView.cpp
+include(models/models.pri)
+include(validators/validators.pri)
+include(item_delegates/item_delegates.pri)
+include(logbook/logbook.pri)
+include(widgets/widgets.pri)
 
-HEADERS  += qt_helpers.hpp \
+SOURCES += \
+  Radio.cpp NetworkServerLookup.cpp revision_utils.cpp \
+  Transceiver.cpp TransceiverBase.cpp TransceiverFactory.cpp \
+  PollingTransceiver.cpp EmulateSplitTransceiver.cpp \
+  HRDTransceiver.cpp DXLabSuiteCommanderTransceiver.cpp \
+  HamlibTransceiver.cpp FrequencyLineEdit.cpp \
+  Configuration.cpp psk_reporter.cpp AudioDevice.cpp \
+  Modulator.cpp Detector.cpp \
+  getfile.cpp soundout.cpp soundin.cpp \
+  WFPalette.cpp \
+  WsprTxScheduler.cpp \
+  main.cpp decodedtext.cpp wsprnet.cpp \
+  WSPRBandHopping.cpp MessageAggregator.cpp SampleDownloader.cpp qt_helpers.cpp\
+  MultiSettings.cpp PhaseEqualizationDialog.cpp \
+  EqualizationToolsDialog.cpp \
+  LotWUsers.cpp TraceFile.cpp
+
+HEADERS  += qt_helpers.hpp qt_db_helpers.hpp \
   pimpl_h.hpp pimpl_impl.hpp \
   Radio.hpp NetworkServerLookup.hpp revision_utils.hpp \
-  mainwindow.h plotter.h soundin.h soundout.h astro.h \
-  about.h WFPalette.hpp widegraph.h getfile.h decodedtext.h \
-  commons.h sleep.h displaytext.h logqso.h LettersSpinBox.hpp \
-  Bands.hpp FrequencyList.hpp StationList.hpp ForeignKeyDelegate.hpp FrequencyItemDelegate.hpp LiveFrequencyValidator.hpp \
-  FrequencyLineEdit.hpp AudioDevice.hpp Detector.hpp Modulator.hpp psk_reporter.h \
+  soundin.h soundout.h \
+  WFPalette.hpp getfile.h decodedtext.h \
+  commons.h sleep.h \
+  AudioDevice.hpp Detector.hpp Modulator.hpp psk_reporter.h \
   Transceiver.hpp TransceiverBase.hpp TransceiverFactory.hpp PollingTransceiver.hpp \
   EmulateSplitTransceiver.hpp DXLabSuiteCommanderTransceiver.hpp HamlibTransceiver.hpp \
-  Configuration.hpp wsprnet.h signalmeter.h meterwidget.h \
-  logbook/logbook.h logbook/countrydat.h logbook/countriesworked.h logbook/adif.h \
-  messageaveraging.h echoplot.h echograph.h fastgraph.h fastplot.h Modes.hpp WSPRBandHopping.hpp \
+  Configuration.hpp wsprnet.h \
+  WSPRBandHopping.hpp \
   WsprTxScheduler.h SampleDownloader.hpp MultiSettings.hpp PhaseEqualizationDialog.hpp \
-  IARURegions.hpp MessageBox.hpp EqualizationToolsDialog.hpp CallsignValidator.hpp \
-  ExchangeValidator.hpp colorhighlighting.h ExportCabrillo.h LotWUsers.h \
-  DecodeHighlightingModel.hpp DecodeHighlightingListView.hpp
-
+  EqualizationToolsDialog.hpp \
+  LotWUsers.h TraceFile.hpp
 
 INCLUDEPATH += qmake_only
 
@@ -97,9 +92,9 @@ SOURCES += killbyname.cpp OmniRigTransceiver.cpp
 HEADERS += OmniRigTransceiver.hpp
 }
 
-FORMS    += mainwindow.ui about.ui Configuration.ui widegraph.ui astro.ui \
-    logqso.ui wf_palette_design_dialog.ui messageaveraging.ui echograph.ui \
-    fastgraph.ui colorhighlighting.ui ExportCabrillo.ui
+FORMS    += \
+  Configuration.ui \
+  wf_palette_design_dialog.ui
 
 RC_FILE = wsjtx.rc
 RESOURCES = wsjtx.qrc

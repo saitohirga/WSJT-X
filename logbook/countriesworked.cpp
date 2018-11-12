@@ -1,42 +1,24 @@
 #include "countriesworked.h"
 
-void CountriesWorked::init(const QStringList countryNames)
-{
-    _data.clear();
-    foreach(QString name,countryNames)
-      _data.insert(name,false);
-}
+#include <set>
 
-void CountriesWorked::setAsWorked(const QString countryName)
-{
-    if (_data.contains(countryName))
-      _data.insert(countryName,true);
-}     
-      
-bool CountriesWorked::getHasWorked(const QString countryName) const
-{  
-    if (_data.contains(countryName))
-      return _data.value(countryName);  
+#include "pimpl_impl.hpp"
 
-    return false;
-}
-    
-int CountriesWorked::getWorkedCount() const
+class CountriesWorkedimpl final
 {
-    int count = 0;
-	foreach (bool value,_data)
-		if (value)
-			count += 1;
-    return count;
-}
-    
-int CountriesWorked::getSize() const
+public:
+  // element is country-name+band where the '+' is actual a character
+  // which allows an efficient lower_bound() search for country-name+
+  // to check for ATNOs
+  std::set<QString> worked_;
+};
+
+void CountriesWorked::add (QString const& country, QString const& band)
 {
-    return _data.count();
+  m_->worked_.insert (country + '+' + band);
+}    
+
+bool CountriesWorked::contains (QString const& country, QString const& band) const
+{
+  return m_->worked_.end () != m_->worked_.lower_bound (country + '+' + band);
 }
-    
-    
-        
-    
-    
-      
