@@ -5547,7 +5547,7 @@ void MainWindow::on_actionFT8_triggered()
     ui->txb6->setEnabled(false);
   }
 
-  if(SpecOp::FOX > m_config.special_op_id()) {
+  if (SpecOp::NONE < m_config.special_op_id () && SpecOp::FOX > m_config.special_op_id ()) {
     QString t0="";
     if(SpecOp::NA_VHF==m_config.special_op_id()) t0+="NA VHF";
     if(SpecOp::EU_VHF==m_config.special_op_id()) t0+="EU VHF";
