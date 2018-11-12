@@ -160,8 +160,6 @@
 #include <QFontDialog>
 #include <QSerialPortInfo>
 #include <QScopedPointer>
-#include <QSqlDatabase>
-#include <QSqlError>
 #include <QDebug>
 
 #include "pimpl_impl.hpp"
@@ -949,14 +947,6 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   ui_->setupUi (this);
 
   {
-    // Find a suitable data file location
-    if (!writeable_data_dir_.mkpath ("."))
-      {
-        MessageBox::critical_message (this, tr ("Failed to create data directory"),
-                                      tr ("path: \"%1\"").arg (writeable_data_dir_.absolutePath ()));
-        throw std::runtime_error {"Failed to create data directory"};
-      }
-
     // Make sure the default save directory exists
     QString save_dir {"save"};
     default_save_directory_ = writeable_data_dir_;
@@ -1001,18 +991,6 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
 
   // this must be done after the default paths above are set
   read_settings ();
-
-  // set up SQLite database
-  if (!QSqlDatabase::drivers ().contains ("QSQLITE"))
-    {
-      throw std::runtime_error {"Failed to find SQLite Qt driver"};
-    }
-  auto db = QSqlDatabase::addDatabase ("QSQLITE");
-  db.setDatabaseName (writeable_data_dir_.absoluteFilePath ("db.sqlite"));
-  if (!db.open ())
-    {
-      throw std::runtime_error {("Database Error: " + db.lastError ().text ()).toStdString ()};
-    }
 
   // conditionally load LotW users data
   ui_->LotW_CSV_fetch_push_button->setEnabled (false);

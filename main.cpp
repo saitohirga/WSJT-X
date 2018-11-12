@@ -20,6 +20,8 @@
 #include <QSplashScreen>
 #include <QCommandLineParser>
 #include <QCommandLineOption>
+#include <QSqlDatabase>
+#include <QSqlError>
 
 #include "revision_utils.hpp"
 #include "MetaDataRegistry.hpp"
@@ -232,6 +234,27 @@ int main(int argc, char *argv[])
             a.processEvents ();
           }
       }
+
+      // create writeable data directory if not already there
+      auto writeable_data_dir = QDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)};
+      if (!writeable_data_dir.mkpath ("."))
+        {
+          MessageBox::critical_message (nullptr, a.translate ("main", "Failed to create data directory"),
+                                        a.translate ("main", "path: \"%1\"").arg (writeable_data_dir.absolutePath ()));
+          throw std::runtime_error {"Failed to create data directory"};
+        }
+
+      // set up SQLite database
+      if (!QSqlDatabase::drivers ().contains ("QSQLITE"))
+        {
+          throw std::runtime_error {"Failed to find SQLite Qt driver"};
+        }
+      auto db = QSqlDatabase::addDatabase ("QSQLITE");
+      db.setDatabaseName (writeable_data_dir.absoluteFilePath ("db.sqlite"));
+      if (!db.open ())
+        {
+          throw std::runtime_error {("Database Error: " + db.lastError ().text ()).toStdString ()};
+        }
 
       int result;
       do
