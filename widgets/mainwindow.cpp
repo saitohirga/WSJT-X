@@ -4845,7 +4845,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     t=t+" OOO";
     msgtype(t, ui->tx2);
     msgtype("RO", ui->tx3);
-    msgtype(m_send_RR73 ? "RR73" : "RRR", ui->tx4);
+    msgtype("RRR", ui->tx4);
     msgtype("73", ui->tx5->lineEdit());
   } else {
     int n=rpt.toInt();
