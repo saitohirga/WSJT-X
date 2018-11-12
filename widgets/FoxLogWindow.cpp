@@ -34,10 +34,10 @@ FoxLogWindow::FoxLogWindow (QSettings * settings, Configuration const * configur
   change_font (configuration_->decoded_text_font ());
   ui_->log_table_view->setModel (&fox_log_model_);
   ui_->log_table_view->setColumnHidden (0, true);
-  ui_->log_table_view->setItemDelegateForColumn (1, new ForeignKeyDelegate {configuration_->bands (), &fox_log_model_, 0, 6, this});
-  ui_->log_table_view->setItemDelegateForColumn (2, new DateTimeAsSecsSinceEpochDelegate {this});
-  ui_->log_table_view->setItemDelegateForColumn (3, new CallsignDelegate {this});
-  ui_->log_table_view->setItemDelegateForColumn (4, new MaidenheadLocatorDelegate {this});
+  ui_->log_table_view->setItemDelegateForColumn (1, new DateTimeAsSecsSinceEpochDelegate {this});
+  ui_->log_table_view->setItemDelegateForColumn (2, new CallsignDelegate {this});
+  ui_->log_table_view->setItemDelegateForColumn (3, new MaidenheadLocatorDelegate {this});
+  ui_->log_table_view->setItemDelegateForColumn (6, new ForeignKeyDelegate {configuration_->bands (), &fox_log_model_, 0, 6, this});
   ui_->log_table_view->setSelectionMode (QTableView::SingleSelection);
   auto horizontal_header = ui_->log_table_view->horizontalHeader ();
   horizontal_header->setStretchLastSection (true);
