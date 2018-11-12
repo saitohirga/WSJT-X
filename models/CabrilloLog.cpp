@@ -9,7 +9,7 @@
 #include <QSqlRecord>
 #include <QSqlError>
 #include <QSqlQuery>
-#include <QDataSTream>
+#include <QDataStream>
 #include <QDebug>
 #include "Configuration.hpp"
 #include "Bands.hpp"
