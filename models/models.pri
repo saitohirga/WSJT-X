@@ -14,4 +14,5 @@ HEADERS  += \
   models/Modes.hpp \
   models/IARURegions.hpp \
   models/FoxLog.hpp \
-  models/CabrilloLog.hpp
+  models/CabrilloLog.hpp \
+  models/FontOverrideModel.hpp

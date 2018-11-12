@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QScopedPointer>
 #include <QIdentityProxyModel>
+#include "models/FontOverrideModel.hpp"
 
 class QSettings;
 class Configuration;
@@ -14,28 +15,6 @@ namespace Ui
 {
   class FoxLogWindow;
 }
-
-// fix up font display as header font changes don't currently work
-// from views (I think fixed in Qt 5.11.1)
-class FontOverrideModel final
-  : public QIdentityProxyModel
-{
-public:
-  FontOverrideModel (QObject * parent = nullptr) : QIdentityProxyModel {parent} {}
-  void set_font (QFont const& font) {font_ = font;}
-  QVariant data (QModelIndex const& index, int role) const override
-  {
-    if (Qt::FontRole == role) return font_;
-    return QIdentityProxyModel::data (index, role);
-  }
-  QVariant headerData (int section, Qt::Orientation orientation, int role) const override
-  {
-    if (Qt::FontRole == role) return font_;
-    return QIdentityProxyModel::headerData (section, orientation, role);
-  }
-private:
-  QFont font_;
-};
 
 class FoxLogWindow final
   : public QWidget
@@ -51,8 +30,6 @@ public:
   void rate (int);
 
 private:
-  void closeEvent (QCloseEvent *) override;
-
   void read_settings ();
   void write_settings () const;
 
