@@ -12,11 +12,37 @@
                                                          
 Copyright 2001 - 2018 by Joe Taylor, K1JT.
 
+		     Release: WSJT-X 2.0-rc4
+		        November 12, 2018
+		     -----------------------
+
+Changes from WSJT-X Version 2.0.0-rc3 include the following:
+
+ -  Fix the "cannot open file fort.81" bug
+ -  Avoid too many redirect loops related to openSSL support
+ -  Fix the auto-generated messages for nonstandard callsigns
+ -  Remove all support for the legacy FT8 protocol
+ -  Disallow selecting MSK144 with RTTY or Field Day messages active
+ -  Correct and expand support for color highlighting decoded messages
+ -  ESC key aborts a QSO, clears DX Call, and selects Tx6
+ -  Disable "nextCall" procedure for RTTY contest; it still needs work
+ -  Correct a flaw in handling MSK144 Sh messages
+ -  Prevent Fox from inadvertently toggling Tx 1st/Even
+ -  Re-organize the Fox/Hound/Contest selection boxes
+ -  Improve the validators for contest exchange boxes
+ -  Disable Tx after 5 minutes of no mouse movement
+ -  Remove end-of-line AP info when using contest messages
+ -  Fix forwarding of Sent and Rcvd exchanges to N1MM+ and ADIF log
+ -  Don't auto-log a QSO with incomplete exchange info
+ -  Fix two sequencing flaws after double-clicks on a decoded msg
+ -  New facilities for Contest and Fox-mode logging
+ 
+
 		     Release: WSJT-X 2.0-rc3
 		        October 15, 2018
 		     -----------------------
 
-Changes from WSJT-X Version 2.0.0-rc1 include the following:
+Changes from WSJT-X Version 2.0.0-rc2 include the following:
 
  - Improved SNR calculation for FT8
  - Test grid4 (not grid6) for matches in ADIF log

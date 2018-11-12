@@ -1,5 +1,5 @@
 <table cellspacing=1>
-  <tr><td><b>Esc      </b></td><td>Stop transmitting</td></tr>
+  <tr><td><b>Esc      </b></td><td>Stop Tx, abort QSO, clear next-call queue</td></tr>
   <tr><td><b>F1       </b></td><td>Online User's Guide</td></tr>
   <tr><td><b>Shift+F1  </b></td><td>Copyright Notice</td></tr>
   <tr><td><b>Ctrl+F1  </b></td><td>About WSJT-X</td></tr>

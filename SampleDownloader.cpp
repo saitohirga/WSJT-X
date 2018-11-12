@@ -7,7 +7,7 @@
 #include "pimpl_impl.hpp"
 #include "SettingsGroup.hpp"
 #include "SampleDownloader/Directory.hpp"
-#include "MessageBox.hpp"
+#include "widgets/MessageBox.hpp"
 
 #include "moc_SampleDownloader.cpp"
 

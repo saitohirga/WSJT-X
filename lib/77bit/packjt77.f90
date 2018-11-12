@@ -372,6 +372,7 @@ subroutine unpack77(c77,msg,unpk77_success)
         grid4(4:4)=char(j4+ichar('0'))
         if(ir.eq.0) msg=trim(call_1)//' '//trim(call_2)//' '//grid4
         if(ir.eq.1) msg=trim(call_1)//' '//trim(call_2)//' R '//grid4
+        if(msg(1:3).eq.'CQ ' .and. ir.eq.1) unpk77_success=.false.
      else
         irpt=igrid4-MAXGRID4
         if(irpt.eq.1) msg=trim(call_1)//' '//trim(call_2)
@@ -384,6 +385,7 @@ subroutine unpack77(c77,msg,unpk77_success)
            if(ir.eq.0) msg=trim(call_1)//' '//trim(call_2)//' '//crpt
            if(ir.eq.1) msg=trim(call_1)//' '//trim(call_2)//' R'//crpt
         endif
+        if(msg(1:3).eq.'CQ ' .and. irpt.ge.2) unpk77_success=.false. 
      endif
 
   else if(i3.eq.3) then

@@ -44,7 +44,6 @@ extern struct dec_data {
     bool lft8apon;
     bool lapcqonly;
     bool ljt65apon;
-    bool ldecode77;
     int napwid;
     int ntxmode;
     int nmode;

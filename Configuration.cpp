@@ -150,7 +150,8 @@
 #include <QStringList>
 #include <QStringListModel>
 #include <QLineEdit>
-#include <QRegExpValidator>
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
 #include <QIntValidator>
 #include <QThread>
 #include <QTimer>
@@ -165,23 +166,22 @@
 #include "qt_helpers.hpp"
 #include "MetaDataRegistry.hpp"
 #include "SettingsGroup.hpp"
-#include "FrequencyLineEdit.hpp"
-#include "CandidateKeyFilter.hpp"
-#include "ForeignKeyDelegate.hpp"
+#include "widgets/FrequencyLineEdit.hpp"
+#include "item_delegates/CandidateKeyFilter.hpp"
+#include "item_delegates/ForeignKeyDelegate.hpp"
 #include "TransceiverFactory.hpp"
 #include "Transceiver.hpp"
-#include "Bands.hpp"
-#include "IARURegions.hpp"
-#include "Modes.hpp"
-#include "FrequencyList.hpp"
-#include "StationList.hpp"
+#include "models/Bands.hpp"
+#include "models/IARURegions.hpp"
+#include "models/Modes.hpp"
+#include "models/FrequencyList.hpp"
+#include "models/StationList.hpp"
 #include "NetworkServerLookup.hpp"
-#include "MessageBox.hpp"
-#include "MaidenheadLocatorValidator.hpp"
-#include "CallsignValidator.hpp"
+#include "widgets/MessageBox.hpp"
+#include "validators/MaidenheadLocatorValidator.hpp"
+#include "validators/CallsignValidator.hpp"
 #include "LotWUsers.hpp"
-#include "ExchangeValidator.hpp"
-#include "DecodeHighlightingModel.hpp"
+#include "models/DecodeHighlightingModel.hpp"
 
 #include "ui_Configuration.h"
 #include "moc_Configuration.cpp"
@@ -195,7 +195,42 @@ namespace
   int const combo_box_item_disabled (0);
 
 //  QRegExp message_alphabet {"[- A-Za-z0-9+./?]*"};
-  QRegExp message_alphabet {"[- @A-Za-z0-9+./?#<>]*"};
+  QRegularExpression message_alphabet {"[- @A-Za-z0-9+./?#<>]*"};
+  QRegularExpression RTTY_roundup_exchange_re {
+    R"(
+        (
+           AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA   # states
+          |HI|ID|IL|IN|IA|KS|KY|LA|ME|MD
+          |MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ
+          |NM|NY|NC|ND|OH|OK|OR|PA|RI|SC
+          |SD|TN|TX|UT|VT|VA|WA|WV|WI|WY
+          |NB|NS|QC|ON|MB|SK|AB|BC|NWT|NF  # VE provinces
+          |LB|NU|YT|PEI|DC
+          |DX                              # anyone else
+        )
+      )", QRegularExpression::CaseInsensitiveOption | QRegularExpression::ExtendedPatternSyntaxOption};
+  QRegularExpression field_day_exchange_re {
+    R"(
+        (
+           [1-9]                          # # transmitters (1 to 32 inc.)
+          |[0-2]\d
+          |3[0-2]
+        )
+        [A-F]\                            # class and space
+        (
+           AB|AK|AL|AR|AZ|BC|CO|CT|DE|EB  # ARRL/RAC section
+          |EMA|ENY|EPA|EWA|GA|GTA|IA|ID
+          |IL|IN|KS|KY|LA|LAX|MAR|MB|MDC
+          |ME|MI|MN|MO|MS|MT|NC|ND|NE|NFL
+          |NH|NL|NLI|NM|NNJ|NNY|NT|NTX|NV
+          |OH|OK|ONE|ONN|ONS|OR|ORG|PAC
+          |PR|QC|RI|SB|SC|SCV|SD|SDG|SF
+          |SFL|SJV|SK|SNJ|STX|SV|TN|UT|VA
+          |VI|VT|WCF|WI|WMA|WNY|WPA|WTX
+          |WV|WWA|WY
+          |DX                             # anyone else
+        )
+      )", QRegularExpression::CaseInsensitiveOption | QRegularExpression::ExtendedPatternSyntaxOption};
 
   // Magic numbers for file validation
   constexpr quint32 qrg_magic {0xadbccbdb};
@@ -341,7 +376,7 @@ public:
   {
     auto editor = new QLineEdit {parent};
     editor->setFrame (false);
-    editor->setValidator (new QRegExpValidator {message_alphabet, editor});
+    editor->setValidator (new QRegularExpressionValidator {message_alphabet, editor});
     return editor;
   }
 };
@@ -414,7 +449,6 @@ private:
 
   void delete_stations ();
   void insert_station ();
-  void chk77();
 
   Q_SLOT void on_font_push_button_clicked ();
   Q_SLOT void on_decoded_text_font_push_button_clicked ();
@@ -447,15 +481,8 @@ private:
   Q_SLOT void handle_transceiver_failure (QString const& reason);
   Q_SLOT void on_reset_highlighting_to_defaults_push_button_clicked (bool);
   Q_SLOT void on_LotW_CSV_fetch_push_button_clicked (bool);
-  Q_SLOT void on_cbFox_clicked (bool);
-  Q_SLOT void on_cbHound_clicked (bool);
   Q_SLOT void on_cbx2ToneSpacing_clicked(bool);
   Q_SLOT void on_cbx4ToneSpacing_clicked(bool);
-  Q_SLOT void on_rbNone_toggled(bool);
-  Q_SLOT void on_rbFieldDay_toggled();
-  Q_SLOT void on_rbRTTYroundup_toggled();
-  Q_SLOT void on_FieldDay_Exchange_textChanged();
-  Q_SLOT void on_RTTY_Exchange_textChanged();
   Q_SLOT void on_prompt_to_log_check_box_clicked(bool);
   Q_SLOT void on_cbAutoLog_clicked(bool);
 
@@ -527,6 +554,7 @@ private:
 
   DecodeHighlightingModel decode_highlighing_model_;
   DecodeHighlightingModel next_decode_highlighing_model_;
+  bool highlight_by_mode_;
   int LotW_days_since_upload_;
 
   TransceiverFactory::ParameterPack rig_params_;
@@ -577,15 +605,8 @@ private:
   bool decode_at_52s_;
   bool single_decode_;
   bool twoPass_;
-  bool bFox_;
-  bool bHound_;
-  bool bGenerate77_;
-  bool bDecode77_;
-  bool bNoSpecial_;
-  bool bFieldDay_;
-  bool bRTTYroundup_;
-  bool bNA_VHF_Contest_;
-  bool bEU_VHF_Contest_;
+  bool bSpecialOp_;
+  int  SelectedActivity_;
   bool x2ToneSpacing_;
   bool x4ToneSpacing_;
   bool use_dynamic_grid_;
@@ -677,15 +698,6 @@ bool Configuration::enable_VHF_features () const {return m_->enable_VHF_features
 bool Configuration::decode_at_52s () const {return m_->decode_at_52s_;}
 bool Configuration::single_decode () const {return m_->single_decode_;}
 bool Configuration::twoPass() const {return m_->twoPass_;}
-bool Configuration::bFox() const {return m_->bFox_;}
-bool Configuration::bHound() const {return m_->bHound_;}
-bool Configuration::bGenerate77() const {return m_->bGenerate77_;}
-bool Configuration::bDecode77() const {return m_->bDecode77_;}
-bool Configuration::bNoSpecial() const {return m_->bNoSpecial_;}
-bool Configuration::bFieldDay() const {return m_->bFieldDay_;}
-bool Configuration::bRTTYroundup() const {return m_->bRTTYroundup_;}
-bool Configuration::bNA_VHF_Contest() const {return m_->bNA_VHF_Contest_;}
-bool Configuration::bEU_VHF_Contest() const {return m_->bEU_VHF_Contest_;}
 bool Configuration::x2ToneSpacing() const {return m_->x2ToneSpacing_;}
 bool Configuration::x4ToneSpacing() const {return m_->x4ToneSpacing_;}
 bool Configuration::split_mode () const {return m_->split_mode ();}
@@ -714,6 +726,7 @@ bool Configuration::pwrBandTxMemory () const {return m_->pwrBandTxMemory_;}
 bool Configuration::pwrBandTuneMemory () const {return m_->pwrBandTuneMemory_;}
 LotWUsers const& Configuration::lotw_users () const {return m_->lotw_users_;}
 DecodeHighlightingModel const& Configuration::decode_highlighting () const {return m_->decode_highlighing_model_;}
+bool Configuration::highlight_by_mode () const {return m_->highlight_by_mode_;}
 
 void Configuration::set_calibration (CalibrationParams params)
 {
@@ -826,22 +839,28 @@ QString Configuration::my_grid() const
   return the_grid;
 }
 
-QString Configuration::FieldDayExchange() const
+QString Configuration::Field_Day_Exchange() const
 {
   return m_->FD_exchange_;
 }
 
 void Configuration::setEU_VHF_Contest()
-{
-  m_->bEU_VHF_Contest_ = true;
-  m_->ui_->rbEU_VHF_Contest->setChecked(m_->bEU_VHF_Contest_);
-  m_->ui_->cbGenerate77->setChecked(true);
+{ 
+  m_->bSpecialOp_=true;
+  m_->ui_->gbSpecialOpActivity->setChecked(m_->bSpecialOp_);
+  m_->ui_->rbEU_VHF_Contest->setChecked(true);
+  m_->SelectedActivity_ = static_cast<int> (SpecialOperatingActivity::EU_VHF);
   m_->write_settings();
 }
 
-QString Configuration::RTTYExchange() const
+QString Configuration::RTTY_Exchange() const
 {
   return m_->RTTY_exchange_;
+}
+
+auto Configuration::special_op_id () const -> SpecialOperatingActivity
+{
+  return m_->bSpecialOp_ ? static_cast<SpecialOperatingActivity> (m_->SelectedActivity_) : SpecialOperatingActivity::NONE;
 }
 
 void Configuration::set_location (QString const& grid_descriptor)
@@ -910,6 +929,7 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   , station_delete_action_ {tr ("&Delete"), nullptr}
   , station_insert_action_ {tr ("&Insert ..."), nullptr}
   , station_dialog_ {new StationDialog {&next_stations_, &bands_, this}}
+  , highlight_by_mode_ {false}
   , LotW_days_since_upload_ {0}
   , last_port_type_ {TransceiverFactory::Capabilities::none}
   , rig_is_dummy_ {false}
@@ -925,17 +945,8 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   , default_audio_output_device_selected_ {false}
 {
   ui_->setupUi (this);
-//  ui_->groupBox_6->setVisible(false);              //### Temporary ??? ###
 
   {
-    // Find a suitable data file location
-    if (!writeable_data_dir_.mkpath ("."))
-      {
-        MessageBox::critical_message (this, tr ("Failed to create data directory"),
-                                      tr ("path: \"%1\"").arg (writeable_data_dir_.absolutePath ()));
-        throw std::runtime_error {"Failed to create data directory"};
-      }
-
     // Make sure the default save directory exists
     QString save_dir {"save"};
     default_save_directory_ = writeable_data_dir_;
@@ -993,9 +1004,9 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   // validation
   ui_->callsign_line_edit->setValidator (new CallsignValidator {this});
   ui_->grid_line_edit->setValidator (new MaidenheadLocatorValidator {this});
-  ui_->add_macro_line_edit->setValidator (new QRegExpValidator {message_alphabet, this});
-  ui_->FieldDay_Exchange->setValidator(new ExchangeValidator{this});
-  ui_->RTTY_Exchange->setValidator(new ExchangeValidator{this});
+  ui_->add_macro_line_edit->setValidator (new QRegularExpressionValidator {message_alphabet, this});
+  ui_->Field_Day_Exchange->setValidator(new QRegularExpressionValidator {field_day_exchange_re});
+  ui_->RTTY_Exchange->setValidator(new QRegularExpressionValidator {RTTY_roundup_exchange_re});
 
   ui_->udp_server_port_spin_box->setMinimum (1);
   ui_->udp_server_port_spin_box->setMaximum (std::numeric_limits<port_type>::max ());
@@ -1034,6 +1045,13 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   ui_->split_mode_button_group->setId (ui_->split_none_radio_button, TransceiverFactory::split_mode_none);
   ui_->split_mode_button_group->setId (ui_->split_rig_radio_button, TransceiverFactory::split_mode_rig);
   ui_->split_mode_button_group->setId (ui_->split_emulate_radio_button, TransceiverFactory::split_mode_emulate);
+
+  ui_->special_op_activity_button_group->setId (ui_->rbNA_VHF_Contest, static_cast<int> (SpecialOperatingActivity::NA_VHF));
+  ui_->special_op_activity_button_group->setId (ui_->rbEU_VHF_Contest, static_cast<int> (SpecialOperatingActivity::EU_VHF));
+  ui_->special_op_activity_button_group->setId (ui_->rbField_Day, static_cast<int> (SpecialOperatingActivity::FIELD_DAY));
+  ui_->special_op_activity_button_group->setId (ui_->rbRTTY_Roundup, static_cast<int> (SpecialOperatingActivity::RTTY));
+  ui_->special_op_activity_button_group->setId (ui_->rbFox, static_cast<int> (SpecialOperatingActivity::FOX));
+  ui_->special_op_activity_button_group->setId (ui_->rbHound, static_cast<int> (SpecialOperatingActivity::HOUND));
 
   //
   // setup PTT port combo box drop down content
@@ -1206,15 +1224,8 @@ void Configuration::impl::initialize_models ()
   ui_->decode_at_52s_check_box->setChecked(decode_at_52s_);
   ui_->single_decode_check_box->setChecked(single_decode_);
   ui_->cbTwoPass->setChecked(twoPass_);
-  ui_->cbFox->setChecked(bFox_);
-  ui_->cbHound->setChecked(bHound_);
-  ui_->cbGenerate77->setChecked(bGenerate77_);
-  ui_->cbDecode77->setChecked(bDecode77_);
-  ui_->rbNone->setChecked(bNoSpecial_);
-  ui_->rbFieldDay->setChecked(bFieldDay_);
-  ui_->rbRTTYroundup->setChecked(bRTTYroundup_);
-  ui_->rbNA_VHF_Contest->setChecked(bNA_VHF_Contest_);
-  ui_->rbEU_VHF_Contest->setChecked(bEU_VHF_Contest_);
+  ui_->gbSpecialOpActivity->setChecked(bSpecialOp_);
+  ui_->special_op_activity_button_group->button (SelectedActivity_)->setChecked (true);
   ui_->cbx2ToneSpacing->setChecked(x2ToneSpacing_);
   ui_->cbx4ToneSpacing->setChecked(x4ToneSpacing_);
   ui_->type_2_msg_gen_combo_box->setCurrentIndex (type_2_msg_gen_);
@@ -1256,7 +1267,6 @@ void Configuration::impl::initialize_models ()
   ui_->udpWindowRestore->setChecked(udpWindowRestore_);
   ui_->calibration_intercept_spin_box->setValue (calibration_.intercept);
   ui_->calibration_slope_ppm_spin_box->setValue (calibration_.slope_ppm);
-  chk77();
 
   if (rig_params_.ptt_port.isEmpty ())
     {
@@ -1277,6 +1287,7 @@ void Configuration::impl::initialize_models ()
   next_stations_.station_list (stations_.station_list ());
 
   next_decode_highlighing_model_.items (decode_highlighing_model_.items ());
+  ui_->highlight_by_mode_check_box->setChecked (highlight_by_mode_);
   ui_->LotW_days_since_upload_spin_box->setValue (LotW_days_since_upload_);
 
   set_rig_invariants ();
@@ -1298,9 +1309,9 @@ void Configuration::impl::read_settings ()
 
   my_callsign_ = settings_->value ("MyCall", QString {}).toString ();
   my_grid_ = settings_->value ("MyGrid", QString {}).toString ();
-  FD_exchange_ = settings_->value ("FieldDayExchange",QString {}).toString ();
-  RTTY_exchange_ = settings_->value ("RTTYExchange",QString {}).toString ();
-  ui_->FieldDay_Exchange->setText(FD_exchange_);
+  FD_exchange_ = settings_->value ("Field_Day_Exchange",QString {}).toString ();
+  RTTY_exchange_ = settings_->value ("RTTY_Exchange",QString {}).toString ();
+  ui_->Field_Day_Exchange->setText(FD_exchange_);
   ui_->RTTY_Exchange->setText(RTTY_exchange_);
   if (next_font_.fromString (settings_->value ("Font", QGuiApplication::font ().toString ()).toString ())
       && next_font_ != font_)
@@ -1422,6 +1433,7 @@ void Configuration::impl::read_settings ()
   stations_.station_list (settings_->value ("stations").value<StationList::Stations> ());
 
   decode_highlighing_model_.items (settings_->value ("DecodeHighlighting", QVariant::fromValue (DecodeHighlightingModel::default_items ())).value<DecodeHighlightingModel::HighlightItems> ());
+  highlight_by_mode_ = settings_->value("HighlightByMode", false).toBool ();
   LotW_days_since_upload_ = settings_->value ("LotWDaysSinceLastUpload", 365).toInt ();
   lotw_users_.set_age_constraint (LotW_days_since_upload_);
 
@@ -1459,15 +1471,8 @@ void Configuration::impl::read_settings ()
   decode_at_52s_ = settings_->value("Decode52",false).toBool ();
   single_decode_ = settings_->value("SingleDecode",false).toBool ();
   twoPass_ = settings_->value("TwoPass",true).toBool ();
-  bFox_ = settings_->value("Fox",false).toBool ();
-  bHound_ = settings_->value("Hound",false).toBool ();
-  bGenerate77_ = settings_->value("Generate77",false).toBool ();
-  bDecode77_ = settings_->value("Decode77",false).toBool ();
-  bNoSpecial_ = settings_->value("NoSpecial",false).toBool ();
-  bFieldDay_ = settings_->value("FieldDay",false).toBool ();
-  bRTTYroundup_ = settings_->value("RTTYroundup",false).toBool ();
-  bNA_VHF_Contest_ = settings_->value("NA_VHF_Contest",false).toBool ();
-  bEU_VHF_Contest_ = settings_->value("EU_VHF_Contest",false).toBool ();
+  bSpecialOp_ = settings_->value("SpecialOpActivity",false).toBool ();
+  SelectedActivity_ = settings_->value("SelectedActivity",1).toInt (); 
   x2ToneSpacing_ = settings_->value("x2ToneSpacing",false).toBool ();
   x4ToneSpacing_ = settings_->value("x4ToneSpacing",false).toBool ();
   rig_params_.poll_interval = settings_->value ("Polling", 0).toInt ();
@@ -1493,8 +1498,8 @@ void Configuration::impl::write_settings ()
 
   settings_->setValue ("MyCall", my_callsign_);
   settings_->setValue ("MyGrid", my_grid_);
-  settings_->setValue ("FieldDayExchange", FD_exchange_);
-  settings_->setValue ("RTTYExchange", RTTY_exchange_);
+  settings_->setValue ("Field_Day_Exchange", FD_exchange_);
+  settings_->setValue ("RTTY_Exchange", RTTY_exchange_);
   settings_->setValue ("Font", font_.toString ());
   settings_->setValue ("DecodedTextFont", decoded_text_font_.toString ());
   settings_->setValue ("IDint", id_interval_);
@@ -1537,6 +1542,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("FrequenciesForRegionModes", QVariant::fromValue (frequencies_.frequency_list ()));
   settings_->setValue ("stations", QVariant::fromValue (stations_.station_list ()));
   settings_->setValue ("DecodeHighlighting", QVariant::fromValue (decode_highlighing_model_.items ()));
+  settings_->setValue ("HighlightByMode", highlight_by_mode_);
   settings_->setValue ("LotWDaysSinceLastUpload", LotW_days_since_upload_);
   settings_->setValue ("toRTTY", log_as_RTTY_);
   settings_->setValue ("dBtoComments", report_in_comments_);
@@ -1571,15 +1577,8 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("Decode52", decode_at_52s_);
   settings_->setValue ("SingleDecode", single_decode_);
   settings_->setValue ("TwoPass", twoPass_);
-  settings_->setValue ("Fox", bFox_);
-  settings_->setValue ("Hound", bHound_);
-  settings_->setValue ("Generate77", bGenerate77_);
-  settings_->setValue ("Decode77", bDecode77_);
-  settings_->setValue ("NoSpecial", bNoSpecial_);
-  settings_->setValue ("FieldDay", bFieldDay_);
-  settings_->setValue ("RTTYroundup", bRTTYroundup_);
-  settings_->setValue ("NA_VHF_Contest", bNA_VHF_Contest_);
-  settings_->setValue ("EU_VHF_Contest", bEU_VHF_Contest_);
+  settings_->setValue ("SelectedActivity", SelectedActivity_);
+  settings_->setValue ("SpecialOpActivity", bSpecialOp_);
   settings_->setValue ("x2ToneSpacing", x2ToneSpacing_);
   settings_->setValue ("x4ToneSpacing", x4ToneSpacing_);
   settings_->setValue ("OpCall", opCall_);
@@ -1755,6 +1754,42 @@ bool Configuration::impl::validate ()
           || combo_box_item_disabled == ui_->PTT_port_combo_box->itemData (ui_->PTT_port_combo_box->findText (ptt_port), Qt::UserRole - 1)))
     {
       MessageBox::critical_message (this, tr ("Invalid PTT port"));
+      return false;
+    }
+
+  if (ui_->rbField_Day-> isChecked () &&
+      !ui_->Field_Day_Exchange->hasAcceptableInput ())
+    {
+      for (auto * parent = ui_->Field_Day_Exchange->parentWidget (); parent; parent = parent->parentWidget ())
+        {
+          auto index = ui_->configuration_tabs->indexOf (parent);
+          if (index != -1)
+            {
+              ui_->configuration_tabs->setCurrentIndex (index);
+              break;
+            }
+        }
+      ui_->Field_Day_Exchange->setFocus ();
+      MessageBox::critical_message (this, tr ("Invalid Contest Exchange")
+                                    , tr ("You must input a valid ARRL Field Day exchange"));
+      return false;
+    }
+
+  if (ui_->rbRTTY_Roundup-> isChecked () &&
+      !ui_->RTTY_Exchange->hasAcceptableInput ())
+    {
+      for (auto * parent = ui_->RTTY_Exchange->parentWidget (); parent; parent = parent->parentWidget ())
+        {
+          auto index = ui_->configuration_tabs->indexOf (parent);
+          if (index != -1)
+            {
+              ui_->configuration_tabs->setCurrentIndex (index);
+              break;
+            }
+        }
+      ui_->RTTY_Exchange->setFocus ();
+      MessageBox::critical_message (this, tr ("Invalid Contest Exchange")
+                                    , tr ("You must input a valid ARRL RTTY Roundup exchange"));
       return false;
     }
 
@@ -1946,8 +1981,8 @@ void Configuration::impl::accept ()
 
   my_callsign_ = ui_->callsign_line_edit->text ();
   my_grid_ = ui_->grid_line_edit->text ();
-  FD_exchange_= ui_->FieldDay_Exchange->text ();
-  RTTY_exchange_= ui_->RTTY_Exchange->text ();
+  FD_exchange_= ui_->Field_Day_Exchange->text ().toUpper ();
+  RTTY_exchange_= ui_->RTTY_Exchange->text ().toUpper ();
   spot_to_psk_reporter_ = ui_->psk_reporter_check_box->isChecked ();
   id_interval_ = ui_->CW_id_interval_spin_box->value ();
   ntrials_ = ui_->sbNtrials->value ();
@@ -1980,16 +2015,8 @@ void Configuration::impl::accept ()
   decode_at_52s_ = ui_->decode_at_52s_check_box->isChecked ();
   single_decode_ = ui_->single_decode_check_box->isChecked ();
   twoPass_ = ui_->cbTwoPass->isChecked ();
-  bFox_ = ui_->cbFox->isChecked ();
-  bHound_ = ui_->cbHound->isChecked ();
-  if(bFox_ or bHound_) ui_->rbNone->setChecked(true);     //###
-  bGenerate77_ = ui_->cbGenerate77->isChecked();
-  bDecode77_ = ui_->cbDecode77->isChecked();
-  bNoSpecial_ = ui_->rbNone->isChecked ();
-  bFieldDay_ = ui_->rbFieldDay->isChecked ();
-  bRTTYroundup_ = ui_->rbRTTYroundup->isChecked ();
-  bNA_VHF_Contest_ = ui_->rbNA_VHF_Contest->isChecked ();
-  bEU_VHF_Contest_ = ui_->rbEU_VHF_Contest->isChecked ();
+  bSpecialOp_ = ui_->gbSpecialOpActivity->isChecked ();
+  SelectedActivity_ = ui_->special_op_activity_button_group->checkedId();
   x2ToneSpacing_ = ui_->cbx2ToneSpacing->isChecked ();
   x4ToneSpacing_ = ui_->cbx4ToneSpacing->isChecked ();
   calibration_.intercept = ui_->calibration_intercept_spin_box->value ();
@@ -2043,6 +2070,7 @@ void Configuration::impl::accept ()
       decode_highlighing_model_.items (next_decode_highlighing_model_.items ());
       Q_EMIT self_->decode_highlighting_changed (decode_highlighing_model_);
     }
+  highlight_by_mode_ = ui_->highlight_by_mode_check_box->isChecked ();
   LotW_days_since_upload_ = ui_->LotW_days_since_upload_spin_box->value ();
   lotw_users_.set_age_constraint (LotW_days_since_upload_);
 
@@ -2212,20 +2240,6 @@ void Configuration::impl::on_sound_output_combo_box_currentTextChanged (QString 
 void Configuration::impl::on_add_macro_line_edit_editingFinished ()
 {
   ui_->add_macro_line_edit->setText (ui_->add_macro_line_edit->text ().toUpper ());
-}
-
-void Configuration::impl::on_FieldDay_Exchange_textChanged()
-{
-  bool b=ui_->FieldDay_Exchange->hasAcceptableInput() or !ui_->rbFieldDay->isChecked();
-  if(b)  ui_->FieldDay_Exchange->setStyleSheet("color: black");
-  if(!b) ui_->FieldDay_Exchange->setStyleSheet("color: red");
-}
-
-void Configuration::impl::on_RTTY_Exchange_textChanged()
-{
-  bool b=ui_->RTTY_Exchange->hasAcceptableInput() or !ui_->rbRTTYroundup->isChecked();
-  if(b)  ui_->RTTY_Exchange->setStyleSheet("color: black");
-  if(!b) ui_->RTTY_Exchange->setStyleSheet("color: red");
 }
 
 void Configuration::impl::on_delete_macro_push_button_clicked (bool /* checked */)
@@ -2466,49 +2480,6 @@ void Configuration::impl::on_prompt_to_log_check_box_clicked(bool checked)
 void Configuration::impl::on_cbAutoLog_clicked(bool checked)
 {
   if(checked) ui_->prompt_to_log_check_box->setChecked(false);
-}
-
-void Configuration::impl::on_cbFox_clicked (bool checked)
-{
-  if(checked) {
-    ui_->cbHound->setChecked (false);
-    ui_->rbNone->setChecked(true);
-  }
-  chk77();
-}
-
-void Configuration::impl::on_cbHound_clicked (bool checked)
-{
-  if(checked) {
-    ui_->cbFox->setChecked (false);
-    ui_->rbNone->setChecked(true);
-  }
-  chk77();
-}
-
-void Configuration::impl::chk77()
-{
-  bool b77OK = !ui_->cbFox->isChecked() and !ui_->cbHound->isChecked();
-  ui_->groupBox_9->setEnabled(b77OK);
-  if(!b77OK) {
-    ui_->cbGenerate77->setChecked(true);
-    ui_->cbDecode77->setChecked(true);
-  }
-}
-
-void Configuration::impl::on_rbNone_toggled(bool b)
-{
-  if(!b) ui_->cbGenerate77->setChecked(true);
-}
-
-void Configuration::impl::on_rbFieldDay_toggled()
-{
-  on_FieldDay_Exchange_textChanged();
-}
-
-void Configuration::impl::on_rbRTTYroundup_toggled()
-{
-  on_RTTY_Exchange_textChanged();
 }
 
 void Configuration::impl::on_cbx2ToneSpacing_clicked(bool b)

@@ -3,11 +3,11 @@ program msk144code
 ! Provides examples of message packing, bit and symbol ordering,
 ! LDPC encoding, and other necessary details of the MSK144 protocol.
 
-  use packjt
-  character msg*37,msgsent*37,decoded,bad*1,msgtype*13
+  use packjt77
+  character*77 c77
+  character msg*37,msgsent*37,decoded,bad*1,msgtype*16
   integer*4 i4tone(144)
-  logical*1 bcontest
-  include 'testmsg.f90'
+  include 'msk144_testmsg.f90'
 
   nargs=iargc()
   if(nargs.ne.1) then
@@ -24,44 +24,57 @@ program msk144code
   call getarg(1,msg)
   nmsg=1
   if(msg(1:2).eq."-t") then
-     testmsg(NTEST+1)="<KA1ABC WB9XYZ> -03"
-     testmsg(NTEST+2)="<KA1ABC WB9XYZ> R+03" 
-     testmsg(NTEST+3)="<KA1ABC WB9XYZ> RRR" 
-     testmsg(NTEST+4)="<KA1ABC WB9XYZ> 73" 
-     testmsg(NTEST+5)="KA1ABC WB9XYZ R EN37"
-     nmsg=NTEST+5
+     nmsg=NTEST
   endif
 
   write(*,1010)
-1010 format("     Message                 Decoded                Err? Type"/   &
-            74("-"))
+1010 format(4x,"Message",31x,"Decoded",29x,"Err i3.n3"/100("-")) 
+
   do imsg=1,nmsg
      if(nmsg.gt.1) msg=testmsg(imsg)
      call fmtmsg(msg,iz)                !To upper case, collapse multiple blanks
-     i1=len(trim(msg))-5
-     bcontest=.false.
-     if(msg(i1:i1+1).eq.'R ') bcontest=.true.
-     ichk=0
-     call genmsk_128_90(msg,ichk,bcontest,msgsent,i4tone,itype)
-
+     call genmsk_128_90(msg,ichk,msgsent,i4tone,itype)
+     i3=-1
+     n3=-1
+     call pack77(msg,i3,n3,c77)
      msgtype=""
-     if(itype.eq.1) msgtype="Std Msg"
-     if(itype.eq.2) msgtype="Type 1 prefix"
-     if(itype.eq.3) msgtype="Type 1 suffix"
-     if(itype.eq.4) msgtype="Type 2 prefix"
-     if(itype.eq.5) msgtype="Type 2 suffix"
-     if(itype.eq.6) msgtype="Free text"
-     if(itype.eq.7) msgtype="Hashed calls"
-
+     if(i3.eq.0) then
+        if(n3.eq.0) msgtype="Free text"
+        if(n3.eq.1) msgtype="DXpedition mode"
+        if(n3.eq.2) msgtype="EU VHF Contest"
+        if(n3.eq.3) msgtype="ARRL Field Day"
+        if(n3.eq.4) msgtype="ARRL Field Day"
+        if(n3.eq.5) msgtype="Telemetry"
+        if(n3.ge.6) msgtype="Undefined type"
+     endif
+     if(i3.eq.1) msgtype="Standard msg"
+     if(i3.eq.2) msgtype="EU VHF Contest"
+     if(i3.eq.3) msgtype="ARRL RTTY Roundup"
+     if(i3.eq.4) msgtype="Nonstandard calls"
+     if(i3.ge.5) msgtype="Undefined msg type"
+     if(i3.ge.1) n3=-1
+     if(i4tone(41).lt.0) then
+        msgtype="Sh msg"
+        i3=-1
+     endif
      bad=" "
-     if(msgsent.ne.msg) bad="*"
-     write(*,1020) imsg,msg,msgsent,bad,itype,msgtype
-1020 format(i2,'.',2x,a37,2x,a37,3x,a1,i3,": ",a13)
+     if(msg.ne.msgsent) bad="*"
+     if(i3.eq.0.and.n3.ge.0) then
+        write(*,1020) imsg,msg,msgsent,bad,i3,n3,msgtype
+1020    format(i2,'.',1x,a37,1x,a37,1x,a1,2x,i1,'.',i1,1x,a16)
+     elseif(i3.ge.1) then
+        write(*,1022) imsg,msg,msgsent,bad,i3,msgtype
+1022    format(i2,'.',1x,a37,1x,a37,1x,a1,2x,i1,'.',1x,1x,a16)
+     elseif(i3.lt.0) then
+        write(*,1024) imsg,msg,msgsent,bad,msgtype
+1024    format(i2,'.',1x,a37,1x,a37,1x,a1,6x,a16)
+     endif
+
   enddo
 
   if(nmsg.eq.1) then
      n=144
-     if(msg(1:1).eq."<") n=40
+     if(i4tone(41).lt.0) n=40
      write(*,1030) i4tone(1:n)
 1030 format(/'Channel symbols'/(72i1))
   endif

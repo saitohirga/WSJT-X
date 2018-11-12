@@ -48,6 +48,10 @@ public:
     if (!QFileInfo::exists (csv_file_name) || forced_fetch)
       {
         current_url_.setUrl (url);
+        if (current_url_.isValid () && !QSslSocket::supportsSsl ())
+          {
+            current_url_.setScheme ("http");
+          }
         redirect_count_ = 0;
         download (current_url_);
       }
@@ -66,10 +70,6 @@ public:
         network_manager_->setNetworkAccessible (QNetworkAccessManager::Accessible);
       }
 
-    if (url.isValid () && !QSslSocket::supportsSsl ())
-      {
-        url.setScheme ("http");
-      }
     QNetworkRequest request {url};
     request.setRawHeader ("User-Agent", "WSJT LotW User Downloader");
     request.setOriginatingObject (this);
@@ -99,7 +99,14 @@ public:
     QUrl redirect_url {reply_->attribute (QNetworkRequest::RedirectionTargetAttribute).toUrl ()};
     if (reply_->error () == QNetworkReply::NoError && !redirect_url.isEmpty ())
       {
-        if (++redirect_count_ < 10) // maintain sanity
+        if ("https" == redirect_url.scheme () && !QSslSocket::supportsSsl ())
+          {
+            Q_EMIT self_->LotW_users_error (tr ("Network Error - SSL/TLS support not installed, cannot fetch:\n\'%1\'")
+                                            .arg (redirect_url.toDisplayString ()));
+            url_valid_ = false; // reset
+            Q_EMIT self_->load_finished ();
+          }
+        else if (++redirect_count_ < 10) // maintain sanity
           {
             // follow redirect
             download (reply_->url ().resolved (redirect_url));

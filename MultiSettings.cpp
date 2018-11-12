@@ -30,7 +30,7 @@
 #include "SettingsGroup.hpp"
 #include "qt_helpers.hpp"
 #include "SettingsGroup.hpp"
-#include "MessageBox.hpp"
+#include "widgets/MessageBox.hpp"
 
 #include "pimpl_impl.hpp"
 

@@ -21,7 +21,7 @@
 #include "DirectoryNode.hpp"
 #include "FileNode.hpp"
 #include "revision_utils.hpp"
-#include "MessageBox.hpp"
+#include "widgets/MessageBox.hpp"
 
 #include "moc_Directory.cpp"
 

@@ -3,7 +3,7 @@
 #include <qmath.h>
 #include <QDateTime>
 #include <QDebug>
-#include "mainwindow.h"
+#include "widgets/mainwindow.h" // TODO: G4WJS - break this dependency
 #include "soundout.h"
 #include "commons.h"
 
