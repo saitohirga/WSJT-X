@@ -59,7 +59,6 @@
 #include "MultiSettings.hpp"
 #include "validators/MaidenheadLocatorValidator.hpp"
 #include "validators/CallsignValidator.hpp"
-#include "validators/ExchangeValidator.hpp"
 #include "EqualizationToolsDialog.hpp"
 #include "LotWUsers.hpp"
 #include "logbook/AD1CCty.hpp"
