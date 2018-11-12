@@ -70,7 +70,7 @@ SOURCES += \
   EqualizationToolsDialog.cpp \
   LotWUsers.cpp TraceFile.cpp
 
-HEADERS  += qt_helpers.hpp \
+HEADERS  += qt_helpers.hpp qt_db_helpers.hpp \
   pimpl_h.hpp pimpl_impl.hpp \
   Radio.hpp NetworkServerLookup.hpp revision_utils.hpp \
   soundin.h soundout.h \
