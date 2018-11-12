@@ -7068,10 +7068,6 @@ void MainWindow::on_cbShMsgs_toggled(bool b)
   m_bShMsgs=b;
   if(b) ui->cbSWL->setChecked(false);
   if(m_bShMsgs and (m_mode=="MSK144")) ui->rptSpinBox->setValue(1);
-  if(m_mode=="JT65") {
-    ui->cbAutoSeq->setVisible(!b);
-    if(b) ui->cbAutoSeq->setChecked(false);
-  }
   int it0=itone[0];
   int ntx=m_ntx;
   m_lastCallsign.clear ();      // ensure Tx5 gets updated
