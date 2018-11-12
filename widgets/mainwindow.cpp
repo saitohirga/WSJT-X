@@ -1043,6 +1043,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("FoxNlist",ui->sbNlist->value());
   m_settings->setValue("FoxNslots",ui->sbNslots->value());
   m_settings->setValue("FoxMaxDB",ui->sbMax_dB->value());
+  m_settings->setValue ("SerialNumber",ui->sbSerialNumber->value ());
   m_settings->endGroup();
 
   m_settings->beginGroup("Common");
@@ -1120,6 +1121,7 @@ void MainWindow::readSettings()
   m_Nslots=m_settings->value("FoxNslots",5).toInt();
   ui->sbNslots->setValue(m_Nslots);
   ui->sbMax_dB->setValue(m_settings->value("FoxMaxDB",30).toInt());
+  ui->sbSerialNumber->setValue (m_settings->value ("SerialNumber", 1).toInt ());
   m_settings->endGroup();
 
   // do this outside of settings group because it uses groups internally
