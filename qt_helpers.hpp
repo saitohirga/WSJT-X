@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include <QString>
+#include <QChar>
 #include <QMetaObject>
 #include <QHostAddress>
 #include <QDataStream>
@@ -76,6 +77,26 @@ public:
     return qVariantFromValue (reinterpret_cast<void *> (ptr));
   }
 };
+
+namespace std
+{
+  // std::hash<> specialization for QString based on the dbj2
+  // algorithm http://www.cse.yorku.ca/~oz/hash.html because qHash()
+  // is poor on 64-bit platforms due to being a 32-bit hash value
+  template<>
+  struct hash<QString>
+  {
+    std::size_t operator () (QString const& s) const noexcept
+    {
+      std::size_t hash {5381};
+      for (int i = 0; i < s.size (); ++i)
+        {
+          hash = ((hash << 5) + hash) + ((s.at (i).row () << 8) | s.at (i).cell ());
+        }
+      return hash;
+    }
+  };
+}
 
 // Register some useful Qt types with QMetaType
 Q_DECLARE_METATYPE (QHostAddress);
