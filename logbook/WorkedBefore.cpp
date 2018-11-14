@@ -1,18 +1,34 @@
 #include "WorkedBefore.hpp"
 
+#include <functional>
+#include <boost/functional/hash.hpp>
 #include <boost/multi_index_container.hpp>
+#include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/key_extractors.hpp>
+#include <QChar>
+#include <QString>
 #include <QByteArray>
 #include <QStandardPaths>
 #include <QDir>
 #include <QFile>
 #include <QTextStream>
+#include <QDebug>
+#include "qt_helpers.hpp"
 #include "pimpl_impl.hpp"
 
 using namespace boost::multi_index;
 
+// hash function for QString members in hashed indexes
+inline
+std::size_t hash_value (QString const& s)
+{
+  return std::hash<QString> {} (s);
+}
+
+//
 // worked before set element
+//
 struct worked_entry
 {
   explicit worked_entry (QString const& call, QString const& grid, QString const& band
@@ -39,7 +55,52 @@ struct worked_entry
   int ITU_zone_;
 };
 
-// less then predidate for the Continent enum class
+bool operator == (worked_entry const& lhs, worked_entry const& rhs)
+{
+  return
+    lhs.continent_ == rhs.continent_  // check 1st as it is fast
+    && lhs.CQ_zone_ == rhs.CQ_zone_   // ditto
+    && lhs.ITU_zone_ == rhs.ITU_zone_ // ditto
+    && lhs.call_ == rhs.call_         // check the rest in decreasing
+    && lhs.grid_ == rhs.grid_         // domain size order to shortcut
+    && lhs.country_ == rhs.country_   // differences as quickly as possible
+    && lhs.band_ == rhs.band_
+    && lhs.mode_ == rhs.mode_;
+}
+
+std::size_t hash_value (worked_entry const& we)
+{
+  std::size_t seed {0};
+  boost::hash_combine (seed, we.call_);
+  boost::hash_combine (seed, we.grid_);
+  boost::hash_combine (seed, we.band_);
+  boost::hash_combine (seed, we.mode_);
+  boost::hash_combine (seed, we.country_);
+  boost::hash_combine (seed, we.continent_);
+  boost::hash_combine (seed, we.CQ_zone_);
+  boost::hash_combine (seed, we.ITU_zone_);
+  return seed;
+}
+
+#if !defined (QT_NO_DEBUG_STREAM)
+QDebug operator << (QDebug dbg, worked_entry const& e)
+{
+  QDebugStateSaver saver {dbg};
+  dbg.nospace () << "worked_entry("
+                 << e.call_ << ", "
+                 << e.grid_ << ", "
+                 << e.band_ << ", "
+                 << e.mode_ << ", "
+                 << e.country_ << ", "
+                 << e.continent_ << ", "
+                 << e.CQ_zone_ << ", "
+                 << e.ITU_zone_ << ')';
+  return dbg;
+}
+#endif
+
+// less then predidate for the Continent enum class, needed for
+// ordered indexes
 struct Continent_less
 {
   bool operator () (AD1CCty::Continent lhs, AD1CCty::Continent rhs) const
@@ -48,7 +109,7 @@ struct Continent_less
   }
 };
 
-// tags
+// index tags
 struct call_mode_band {};
 struct call_band {};
 struct grid_mode_band {};
@@ -62,85 +123,92 @@ struct CQ_zone_band {};
 struct ITU_zone_mode_band {};
 struct ITU_zone_band {};
 
-// set with multiple ordered unique indexes that allow for efficient
-// determination of various categories of worked before status
+// set with multiple ordered unique indexes that allow for optimally
+// efficient determination of various categories of worked before
+// status
 typedef multi_index_container<
   worked_entry,
   indexed_by<
+    // basic unordered set constraint - we don't need duplicate worked entries
+    hashed_unique<identity<worked_entry>>,
+
+    //
+    // The following indexes are used to discover worked before stuff.
+    //
+    // They are ordered so as to support partial lookups and
+    // non-unique because container inserts must be valid for all
+    // indexes.
+    //
+
     // call+mode+band
-    ordered_unique<tag<call_mode_band>,
-                   composite_key<worked_entry,
-                                 member<worked_entry, QString, &worked_entry::call_>,
-                                 member<worked_entry, QString, &worked_entry::mode_>,
-                                 member<worked_entry, QString, &worked_entry::band_> > >,
+    ordered_non_unique<tag<call_mode_band>,
+                       composite_key<worked_entry,
+                                     member<worked_entry, QString, &worked_entry::call_>,
+                                     member<worked_entry, QString, &worked_entry::mode_>,
+                                     member<worked_entry, QString, &worked_entry::band_> > >,
     // call+band
-    ordered_unique<tag<call_band>,
-                   composite_key<worked_entry,
-                                 member<worked_entry, QString, &worked_entry::call_>,
-                                 member<worked_entry, QString, &worked_entry::band_> > >,
+    ordered_non_unique<tag<call_band>,
+                       composite_key<worked_entry,
+                                     member<worked_entry, QString, &worked_entry::call_>,
+                                     member<worked_entry, QString, &worked_entry::band_> > >,
     // grid+mode+band
-    ordered_unique<tag<grid_mode_band>,
-                   composite_key<worked_entry,
-                                 member<worked_entry, QString, &worked_entry::grid_>,
-                                 member<worked_entry, QString, &worked_entry::mode_>,
-                                 member<worked_entry, QString, &worked_entry::band_> > >,
+    ordered_non_unique<tag<grid_mode_band>,
+                       composite_key<worked_entry,
+                                     member<worked_entry, QString, &worked_entry::grid_>,
+                                     member<worked_entry, QString, &worked_entry::mode_>,
+                                     member<worked_entry, QString, &worked_entry::band_> > >,
     // grid+band
-    ordered_unique<tag<grid_band>,
-                   composite_key<worked_entry,
-                                 member<worked_entry, QString, &worked_entry::grid_>,
-                                 member<worked_entry, QString, &worked_entry::band_> > >,
+    ordered_non_unique<tag<grid_band>,
+                       composite_key<worked_entry,
+                                     member<worked_entry, QString, &worked_entry::grid_>,
+                                     member<worked_entry, QString, &worked_entry::band_> > >,
     // country+mode+band
-    ordered_unique<tag<entity_mode_band>,
-                   composite_key<worked_entry,
-                                 member<worked_entry, QString, &worked_entry::country_>,
-                                 member<worked_entry, QString, &worked_entry::mode_>,
-                                 member<worked_entry, QString, &worked_entry::band_> > >,
+    ordered_non_unique<tag<entity_mode_band>,
+                       composite_key<worked_entry,
+                                     member<worked_entry, QString, &worked_entry::country_>,
+                                     member<worked_entry, QString, &worked_entry::mode_>,
+                                     member<worked_entry, QString, &worked_entry::band_> > >,
     // country+band
-    ordered_unique<tag<entity_band>,
-                   composite_key<worked_entry,
-                                 member<worked_entry, QString, &worked_entry::country_>,
-                                 member<worked_entry, QString, &worked_entry::band_> > >,
+    ordered_non_unique<tag<entity_band>,
+                       composite_key<worked_entry,
+                                     member<worked_entry, QString, &worked_entry::country_>,
+                                     member<worked_entry, QString, &worked_entry::band_> > >,
     // continent+mode+band
-    ordered_unique<tag<continent_mode_band>,
-                   composite_key<worked_entry,
-                                 member<worked_entry, AD1CCty::Continent, &worked_entry::continent_>,
-                                 member<worked_entry, QString, &worked_entry::mode_>,
-                                 member<worked_entry, QString, &worked_entry::band_> >,
-                   composite_key_compare<
-                                   Continent_less,
-                                   std::less<QString>,
-                                   std::less<QString> > >,
+    ordered_non_unique<tag<continent_mode_band>,
+                       composite_key<worked_entry,
+                                     member<worked_entry, AD1CCty::Continent, &worked_entry::continent_>,
+                                     member<worked_entry, QString, &worked_entry::mode_>,
+                                     member<worked_entry, QString, &worked_entry::band_> >,
+                       composite_key_compare<Continent_less, std::less<QString>, std::less<QString> > >,
     // continent+band
-    ordered_unique<tag<continent_band>,
-                   composite_key<worked_entry,
-                                 member<worked_entry, AD1CCty::Continent, &worked_entry::continent_>,
-                                 member<worked_entry, QString, &worked_entry::band_> >,
-                   composite_key_compare<
-                                   Continent_less,
-                                   std::less<QString> > >,
+    ordered_non_unique<tag<continent_band>,
+                       composite_key<worked_entry,
+                                     member<worked_entry, AD1CCty::Continent, &worked_entry::continent_>,
+                                     member<worked_entry, QString, &worked_entry::band_> >,
+                       composite_key_compare<Continent_less, std::less<QString> > >,
     // CQ-zone+mode+band
-    ordered_unique<tag<CQ_zone_mode_band>,
-                   composite_key<worked_entry,
-                                 member<worked_entry, int, &worked_entry::CQ_zone_>,
-                                 member<worked_entry, QString, &worked_entry::mode_>,
-                                 member<worked_entry, QString, &worked_entry::band_> > >,
+    ordered_non_unique<tag<CQ_zone_mode_band>,
+                       composite_key<worked_entry,
+                                     member<worked_entry, int, &worked_entry::CQ_zone_>,
+                                     member<worked_entry, QString, &worked_entry::mode_>,
+                                     member<worked_entry, QString, &worked_entry::band_> > >,
     // CQ-zone+band
-    ordered_unique<tag<CQ_zone_band>,
-                   composite_key<worked_entry,
-                                 member<worked_entry, int, &worked_entry::CQ_zone_>,
-                                 member<worked_entry, QString, &worked_entry::band_> > >,
+    ordered_non_unique<tag<CQ_zone_band>,
+                       composite_key<worked_entry,
+                                     member<worked_entry, int, &worked_entry::CQ_zone_>,
+                                     member<worked_entry, QString, &worked_entry::band_> > >,
     // ITU-zone+mode+band
-    ordered_unique<tag<ITU_zone_mode_band>,
-                   composite_key<worked_entry,
-                                 member<worked_entry, int, &worked_entry::ITU_zone_>,
-                                 member<worked_entry, QString, &worked_entry::mode_>,
-                                 member<worked_entry, QString, &worked_entry::band_> > >,
+    ordered_non_unique<tag<ITU_zone_mode_band>,
+                       composite_key<worked_entry,
+                                     member<worked_entry, int, &worked_entry::ITU_zone_>,
+                                     member<worked_entry, QString, &worked_entry::mode_>,
+                                     member<worked_entry, QString, &worked_entry::band_> > >,
     // ITU-zone+band
-    ordered_unique<tag<ITU_zone_band>,
-                   composite_key<worked_entry,
-                                 member<worked_entry, int, &worked_entry::ITU_zone_>,
-                                 member<worked_entry, QString, &worked_entry::band_> > > >
-  > worked_type;
+    ordered_non_unique<tag<ITU_zone_band>,
+                       composite_key<worked_entry,
+                                     member<worked_entry, int, &worked_entry::ITU_zone_>,
+                                     member<worked_entry, QString, &worked_entry::band_> > > >
+  > worked_before_database_type;
 
 namespace
 {
@@ -188,7 +256,7 @@ public:
 
   QString path_;
   AD1CCty prefixes_;
-  worked_type worked_;
+  worked_before_database_type worked_;
 };
 
 WorkedBefore::WorkedBefore ()
@@ -196,7 +264,7 @@ WorkedBefore::WorkedBefore ()
   QFile inputFile {m_->path_};
   if (inputFile.open (QFile::ReadOnly))
     {
-      QTextStream in(&inputFile);
+      QTextStream in {&inputFile};
       QString buffer;
       bool pre_read {false};
       int end_position {-1};
