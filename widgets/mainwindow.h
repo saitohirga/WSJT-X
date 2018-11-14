@@ -446,7 +446,6 @@ private:
   qint32  m_Nslots=5;
   qint32  m_nFoxMsgTimes[5]={0,0,0,0,0};
   qint32  m_tAutoOn;
-  qint32  m_mouseIdleSeconds;
   qint32  m_tFoxTx=0;
   qint32  m_tFoxTx0=0;
   qint32  m_maxStrikes=3;      //Max # of repeats: 3 strikes and you're out
@@ -570,9 +569,6 @@ private:
   QTimer minuteTimer;
   QTimer splashTimer;
   QTimer p1Timer;
-  QTimer mouseTimer;
-
-  QPoint mouseLastPos;
 
   QString m_path;
   QString m_baseCall;
@@ -701,7 +697,6 @@ private:
   void CQTxFreq();
   void useNextCall();
   void abortQSO();
-  void mouseTimerTick();
   bool isWorked(int itype, QString key, float fMHz=0, QString="");
 
   QString save_wave_file (QString const& name

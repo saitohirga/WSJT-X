@@ -931,13 +931,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
     ui->cbMenus->setChecked(true);
     ui->cbMenus->setChecked(false);
   }
-
-  mouseLastPos=QCursor::pos();
-  m_mouseIdleSeconds=0;
-  connect(&mouseTimer, &QTimer::timeout, this, &MainWindow::mouseTimerTick);
-  mouseTimer.start(1000);
-
-  // this must be the last statement of constructor
+// this must be the last statement of constructor
   if (!m_valid) throw std::runtime_error {"Fatal initialization exception"};
 }
 
@@ -961,22 +955,6 @@ void MainWindow::initialize_fonts ()
   set_application_font (m_config.text_font ());
   setDecodedTextFont (m_config.decoded_text_font ());
 }
-
-void MainWindow::mouseTimerTick()
-{
-  QPoint point = QCursor::pos();
-  if(point != mouseLastPos)
-    m_mouseIdleSeconds = 0;
-  else
-    m_mouseIdleSeconds++;
-  mouseLastPos = point;
-//Here we should do what's necessary when mouseIdleSeconds gets too big.
-//  qDebug() << m_mouseIdleSeconds;
-  if(ui->cbAutoSeq->isChecked() and m_mouseIdleSeconds>300) {
-    auto_tx_mode (false);
-  }
-}
-
 
 void MainWindow::splash_done ()
 {
@@ -1880,7 +1858,6 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       if((e->modifiers() & Qt::ControlModifier) and (e->modifiers() & Qt::ShiftModifier)) {
         m_bandEdited = true;
         band_changed(m_freqNominal-2000);
-//        qDebug() << "Down" << m_freqNominal;
       } else {
         n=11;
         if(e->modifiers() & Qt::ControlModifier) n+=100;
@@ -1895,7 +1872,6 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       if((e->modifiers() & Qt::ControlModifier) and (e->modifiers() & Qt::ShiftModifier)) {
         m_bandEdited = true;
         band_changed(m_freqNominal+2000);
-//        qDebug() << "Up  " << m_freqNominal;
       } else {
         n=12;
         if(e->modifiers() & Qt::ControlModifier) n+=100;
@@ -5464,7 +5440,6 @@ void MainWindow::displayWidgets(qint64 n)
     if(i==32) ui->cbCQonly->setVisible(b);
     j=j>>1;
   }
-  if(!ui->cbAutoSeq->isVisible()) ui->cbAutoSeq->setChecked(false);
   b=SpecOp::EU_VHF==m_config.special_op_id() or (SpecOp::RTTY==m_config.special_op_id() and
     (m_config.RTTY_Exchange()=="#" or m_config.RTTY_Exchange()=="DX"));
   ui->sbSerialNumber->setVisible(b);
