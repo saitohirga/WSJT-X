@@ -25,7 +25,7 @@ class ConditionalTransaction final
 {
 public:
   explicit ConditionalTransaction (QSqlTableModel& model)
-    : model_ {model}
+    : model_ (model)
     , submitted_ {false}
   {
     model_.database ().transaction ();
