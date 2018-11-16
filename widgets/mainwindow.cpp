@@ -1055,6 +1055,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("RR73",m_send_RR73);
   m_settings->setValue ("WSPRPreferType1", ui->WSPR_prefer_type_1_check_box->isChecked ());
   m_settings->setValue("UploadSpots",m_uploadSpots);
+  m_settings->setValue("NoOwnCall",ui->cbNoOwnCall->isChecked());
   m_settings->setValue ("BandHopping", ui->band_hopping_group_box->isChecked ());
   m_settings->setValue ("TRPeriod", ui->sbTR->value ());
   m_settings->setValue("FastMode",m_bFastMode);
@@ -1146,6 +1147,7 @@ void MainWindow::readSettings()
   ui->WSPR_prefer_type_1_check_box->setChecked (m_settings->value ("WSPRPreferType1", true).toBool ());
   m_uploadSpots=m_settings->value("UploadSpots",false).toBool();
   if(!m_uploadSpots) ui->cbUploadWSPR_Spots->setStyleSheet("QCheckBox{background-color: yellow}");
+  ui->cbNoOwnCall->setChecked(m_settings->value("NoOwnCall",false).toBool());
   ui->band_hopping_group_box->setChecked (m_settings->value ("BandHopping", false).toBool());
   // setup initial value of tx attenuator
   m_block_pwr_tooltip = true;
@@ -7241,6 +7243,10 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
   QString t1;
   while(p1.canReadLine()) {
     QString t(p1.readLine());
+    if(ui->cbNoOwnCall->isChecked()) {
+      if(t.contains(" " + m_config.my_callsign() + " ")) continue;
+      if(t.contains(" <" + m_config.my_callsign() + "> ")) continue;
+    }
     if(t.indexOf("<DecodeFinished>") >= 0) {
       m_bDecoded = m_nWSPRdecodes > 0;
       if(!m_diskData) {
@@ -7365,7 +7371,6 @@ void MainWindow::WSPR_history(Frequency dialFreq, int ndecodes)
                                  .arg (f.fileName ()).arg (f.errorString ()));
   }
 }
-
 
 void MainWindow::uploadSpots()
 {
