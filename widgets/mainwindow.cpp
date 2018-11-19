@@ -735,6 +735,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->labDXped->setStyleSheet("QLabel {background-color: red; color: white;}");
   ui->labNextCall->setText("");
   ui->labNextCall->setVisible(false);
+  ui->labNextCall->setToolTip("");                //### Possibly temporary ? ###
 
   for(int i=0; i<28; i++)  {                      //Initialize dBm values
     float dbm=(10.0*i)/3.0 - 30.0;
@@ -942,10 +943,16 @@ void MainWindow::not_GA_warning_message ()
 
   MessageBox::critical_message (this,
                                 "This version of WSJT-X is a beta-level Release Candidate.\n\n"
+                                "In FT8 and MSK144 modes it uses ONLY the new 77-bit\n"
+                                "message formats. It will not decode 75-bit or 72-bit\n"
+                                "messages.\n\n"
+                                "On December 10, 2018, 77-bit messages will become the\n"
+                                "standard. Everyone should upgrade to WSJT-X 2.0 by\n"
+                                "January 1, 2019.\n\n"
                                 "On-the-air use carries an obligation to report problems\n"
                                 "to the WSJT Development group and to upgrade to a GA\n"
                                 "(General Availability) release when it becomes available.\n\n"
-                                "This version cannot be used after December 31, 2018\n\n");
+                                "This version cannot be used after December 31, 2018.\n\n");
 
   if(now.daysTo(timeout) < 0) Q_EMIT finished();
 }
