@@ -128,7 +128,7 @@ void CabrilloLog::export_qsos (QTextStream& stream) const
       frequency = frequency > 50000000ull ? frequency / 1000ull : frequency;
       stream << QString {"QSO: %1 DG %2 %3 %4 %5 %6\n"}
                       .arg (frequency, 5)
-                      .arg (QDateTime::fromMSecsSinceEpoch (m_->export_query_.value (when_index).toULongLong () * 1000ull).toString ("yyyy-MM-dd hhmm"))
+                         .arg (QDateTime::fromMSecsSinceEpoch (m_->export_query_.value (when_index).toULongLong () * 1000ull, Qt::UTC).toString ("yyyy-MM-dd hhmm"))
                       .arg (my_call, -12)
                       .arg (m_->export_query_.value (sent_index).toString (), -13)
                       .arg (m_->export_query_.value (call_index).toString (), -12)
