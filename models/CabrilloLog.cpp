@@ -78,19 +78,46 @@ QAbstractItemModel * CabrilloLog::model ()
   return &*m_;
 }
 
-void CabrilloLog::add_QSO (Frequency frequency, QDateTime const& when, QString const& call
+namespace
+{
+  void set_value_maybe_null (QSqlRecord& record, QString const& name, QString const& value)
+  {
+    if (value.size ())
+      {
+        record.setValue (name, value);
+      }
+    else
+      {
+        record.setNull (name);
+      }
+  }
+}
+
+bool CabrilloLog::add_QSO (Frequency frequency, QDateTime const& when, QString const& call
                            , QString const& exchange_sent, QString const& exchange_received)
 {
   ConditionalTransaction transaction {*m_};
   auto record = m_->record ();
   record.setValue ("frequency", frequency / 1000ull); // kHz
-  record.setValue ("when", when.toMSecsSinceEpoch () / 1000ull);
-  record.setValue ("call", call);
-  record.setValue ("exchange_sent", exchange_sent);
-  record.setValue ("exchange_rcvd", exchange_received);
-  record.setValue ("band", m_->configuration_->bands ()->find (frequency));
+  if (!when.isNull ())
+    {
+      record.setValue ("when", when.toMSecsSinceEpoch () / 1000ull);
+    }
+  else
+    {
+      record.setNull ("when");
+    }
+  set_value_maybe_null (record, "call", call);
+  set_value_maybe_null (record, "exchange_sent", exchange_sent);
+  set_value_maybe_null (record, "exchange_rcvd", exchange_received);
+  set_value_maybe_null (record, "band", m_->configuration_->bands ()->find (frequency));
   SQL_error_check (*m_, &QSqlTableModel::insertRecord, -1, record);
-  transaction.submit ();
+  if (!transaction.submit (false))
+    {
+      transaction.revert ();
+      return false;
+    }
+  return true;
 }
 
 bool CabrilloLog::dupe (Frequency frequency, QString const& call) const

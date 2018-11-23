@@ -88,12 +88,19 @@ bool FoxLog::add_QSO (QDateTime const& when, QString const& call, QString const&
 {
   ConditionalTransaction transaction {*m_};
   auto record = m_->record ();
-  record.setValue ("when", when.toMSecsSinceEpoch () / 1000);
-  record.setValue ("call", call);
+  if (!when.isNull ())
+    {
+      record.setValue ("when", when.toMSecsSinceEpoch () / 1000);
+    }
+  else
+    {
+      record.setNull ("when");
+    }
+  set_value_maybe_null (record, "call", call);
   set_value_maybe_null (record, "grid", grid);
   set_value_maybe_null (record, "report_sent", report_sent);
   set_value_maybe_null (record, "report_rcvd", report_received);
-  record.setValue ("band", band);
+  set_value_maybe_null (record, "band", band);
   SQL_error_check (*m_, &QSqlTableModel::insertRecord, -1, record);
   if (!transaction.submit (false))
     {

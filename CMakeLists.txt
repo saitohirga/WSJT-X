@@ -265,6 +265,7 @@ set (wsjt_qt_CXXSRCS
   models/DecodeHighlightingModel.cpp
   widgets/DecodeHighlightingListView.cpp
   models/FoxLog.cpp
+  widgets/AbstractLogWindow.cpp
   widgets/FoxLogWindow.cpp
   widgets/CabrilloLogWindow.cpp
   item_delegates/CallsignDelegate.cpp

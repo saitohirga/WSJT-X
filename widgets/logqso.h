@@ -17,6 +17,7 @@ namespace Ui {
 class QSettings;
 class Configuration;
 class QByteArray;
+class CabrilloLog;
 
 class LogQSO : public QDialog
 {
@@ -28,7 +29,7 @@ public:
   void initLogQSO(QString const& hisCall, QString const& hisGrid, QString mode,
                   QString const& rptSent, QString const& rptRcvd, QDateTime const& dateTimeOn,
                   QDateTime const& dateTimeOff, Radio::Frequency dialFreq, 
-                  bool noSuffix, QString xSent, QString xRcvd); 
+                  bool noSuffix, QString xSent, QString xRcvd, CabrilloLog *); 
 
 public slots:
   void accept();
@@ -56,10 +57,9 @@ private:
   Radio::Frequency m_dialFreq;
   QString m_myCall;
   QString m_myGrid;
-  QString m_xSent;
-  QString m_xRcvd;
   QDateTime m_dateTimeOn;
   QDateTime m_dateTimeOff;
+  CabrilloLog * m_cabrilloLog;
 };
 
 #endif // LogQSO_H
