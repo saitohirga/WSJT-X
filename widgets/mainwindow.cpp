@@ -6490,15 +6490,17 @@ void MainWindow::on_readFreq_clicked()
 
 void MainWindow::on_pbTxMode_clicked()
 {
-  if(m_modeTx=="JT9") {
-    m_modeTx="JT65";
-    ui->pbTxMode->setText("Tx JT65  #");
-  } else {
-    m_modeTx="JT9";
-    ui->pbTxMode->setText("Tx JT9  @");
+  if(m_mode=="JT9+JT65") {
+    if(m_modeTx=="JT9") {
+      m_modeTx="JT65";
+      ui->pbTxMode->setText("Tx JT65  #");
+    } else {
+      m_modeTx="JT9";
+      ui->pbTxMode->setText("Tx JT9  @");
+    }
+    m_wideGraph->setModeTx(m_modeTx);
+    statusChanged();
   }
-  m_wideGraph->setModeTx(m_modeTx);
-  statusChanged();
 }
 
 void MainWindow::setXIT(int n, Frequency base)
