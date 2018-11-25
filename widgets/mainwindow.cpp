@@ -2419,6 +2419,10 @@ void MainWindow::on_fox_log_action_triggered()
 
       // Connect signals from fox log window
       connect (this, &MainWindow::finished, m_foxLogWindow.data (), &FoxLogWindow::close);
+      connect (m_foxLogWindow.data (), &FoxLogWindow::reset_log_model, [this] () {
+          if (!m_foxLog) m_foxLog.reset (new FoxLog);
+          m_foxLog->reset ();
+        });
     }
   m_foxLogWindow->showNormal ();
   m_foxLogWindow->raise ();
@@ -5332,7 +5336,6 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
       default: break;
     }
 
-  using SpOp = Configuration::SpecialOperatingActivity;
   auto special_op = m_config.special_op_id ();
   if (SpecOp::NONE < special_op && special_op < SpecOp::FOX)
     {
@@ -5377,7 +5380,6 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
 
   if (m_config.clear_DX () and SpecOp::HOUND != m_config.special_op_id()) clearDX ();
   m_dateTimeQSOOn = QDateTime {};
-  using SpOp = Configuration::SpecialOperatingActivity;
   auto special_op = m_config.special_op_id ();
   if (SpecOp::NONE < special_op && special_op < SpecOp::FOX)
     {
@@ -6116,18 +6118,6 @@ void MainWindow::on_actionErase_ALL_TXT_triggered()          //Erase ALL.TXT
     QFile f {m_config.writeable_data_dir ().absoluteFilePath ("ALL.TXT")};
     f.remove();
     m_RxLog=1;
-  }
-}
-
-void MainWindow::on_reset_fox_log_action_triggered ()
-{
-  int ret = MessageBox::query_message(this, tr("Confirm Reset"),
-                  tr("Are you sure you want to erase file FoxQSO.txt and start a new Fox log?"));
-  if(ret==MessageBox::Yes) {
-    QFile f{m_config.writeable_data_dir().absoluteFilePath("FoxQSO.txt")};
-    f.remove();
-    if (!m_foxLog) m_foxLog.reset (new FoxLog);
-    m_foxLog->reset ();
   }
 }
 

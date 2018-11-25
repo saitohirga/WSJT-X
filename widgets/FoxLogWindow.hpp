@@ -7,13 +7,15 @@
 class QSettings;
 class Configuration;
 class QFont;
-class QAbstractItemModel;
+class QSqlTableModel;
 
 class FoxLogWindow final
   : public AbstractLogWindow
 {
+  Q_OBJECT
+
 public:
-  explicit FoxLogWindow (QSettings *, Configuration const *, QAbstractItemModel * fox_log_model
+  explicit FoxLogWindow (QSettings *, Configuration const *, QSqlTableModel * fox_log_model
                          , QWidget * parent = nullptr);
   ~FoxLogWindow ();
 
@@ -21,7 +23,11 @@ public:
   void queued (int);
   void rate (int);
 
+  Q_SIGNAL void reset_log_model () const;
+
 private:
+  void log_model_changed (int row) override;
+
   class impl;
   pimpl<impl> m_;
 };

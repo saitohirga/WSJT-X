@@ -43,7 +43,7 @@ FoxLog::impl::impl ()
   SQL_error_check (dupe_query_, &QSqlQuery::prepare,
                    "SELECT COUNT(*) FROM fox_log WHERE call = :call AND band = :band");
 
-  setEditStrategy (QSqlTableModel::OnManualSubmit);
+  setEditStrategy (QSqlTableModel::OnRowChange);
   setTable ("fox_log");
   setHeaderData (fieldIndex ("when"), Qt::Horizontal, tr ("Date & Time(UTC)"));
   setHeaderData (fieldIndex ("call"), Qt::Horizontal, tr ("Call"));
@@ -62,7 +62,7 @@ FoxLog::~FoxLog ()
 {
 }
 
-QAbstractItemModel * FoxLog::model ()
+QSqlTableModel * FoxLog::model ()
 {
   return &*m_;
 }
@@ -86,7 +86,6 @@ bool FoxLog::add_QSO (QDateTime const& when, QString const& call, QString const&
                       , QString const& report_sent, QString const& report_received
                       , QString const& band)
 {
-  ConditionalTransaction transaction {*m_};
   auto record = m_->record ();
   if (!when.isNull ())
     {
@@ -101,13 +100,12 @@ bool FoxLog::add_QSO (QDateTime const& when, QString const& call, QString const&
   set_value_maybe_null (record, "report_sent", report_sent);
   set_value_maybe_null (record, "report_rcvd", report_received);
   set_value_maybe_null (record, "band", band);
-  SQL_error_check (*m_, &QSqlTableModel::insertRecord, -1, record);
-  if (!transaction.submit (false))
+  auto ok = m_->insertRecord (-1, record);
+  if (ok)
     {
-      transaction.revert ();
-      return false;
+      m_->select ();            // to refresh views
     }
-  return true;
+  return ok;
 }
 
 bool FoxLog::dupe (QString const& call, QString const& band) const
@@ -123,8 +121,11 @@ void FoxLog::reset ()
 {
   if (m_->rowCount ())
     {
+      m_->setEditStrategy (QSqlTableModel::OnManualSubmit);
       ConditionalTransaction transaction {*m_};
       SQL_error_check (*m_, &QSqlTableModel::removeRows, 0, m_->rowCount (), QModelIndex {});
       transaction.submit ();
+      m_->select ();            // to refresh views
+      m_->setEditStrategy (QSqlTableModel::OnRowChange);
     }
 }

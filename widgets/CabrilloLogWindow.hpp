@@ -7,17 +7,19 @@
 class QSettings;
 class Configuration;
 class QFont;
-class QAbstractItemModel;
+class QSqlTableModel;
 
 class CabrilloLogWindow final
   : public AbstractLogWindow
 {
 public:
-  explicit CabrilloLogWindow (QSettings *, Configuration const *, QAbstractItemModel * cabrillo_log_model
+  explicit CabrilloLogWindow (QSettings *, Configuration const *, QSqlTableModel * cabrillo_log_model
                               , QWidget * parent = nullptr);
   ~CabrilloLogWindow ();
 
 private:
+  void log_model_changed (int row) override;
+
   class impl;
   pimpl<impl> m_;
 };
