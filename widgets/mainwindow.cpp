@@ -5,6 +5,7 @@
 #include <functional>
 #include <fstream>
 #include <iterator>
+#include <algorithm>
 #include <fftw3.h>
 #include <QLineEdit>
 #include <QRegExpValidator>
@@ -7923,9 +7924,9 @@ QString MainWindow::sortHoundCalls(QString t, int isort, int max_dB)
 
   if(isort>1) {
     if(bReverse) {
-      qSort(list.begin(),list.end(),qGreater<int>());
+      std::sort (list.begin (), list.end (), std::greater<int> ());
     } else {
-      qSort(list.begin(),list.end());
+      std::sort (list.begin (), list.end ());
     }
   }
 
