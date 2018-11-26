@@ -36,6 +36,14 @@ Changes from WSJT-X 2.0-rc4 include the following:
  -  Fix a bug causing false AP decodes in JT65 VHF+ operation
  -  Fix a bug that could switch unexpectedly from JT65 to JT9 mode
 
+PLEASE NOTE: As far as WSJT-X 2.0 (RC4, RC5, and GA releases) are
+concerned, signals using the old FT8 protocol are undecodable
+interference.  This means that regenerated replicas cannot be
+subtracted from received data, and consequently second- and third-pass
+decodes may be impeded.  Full performance of the 77-bit decoder will
+not be realized until most signals on a crowded band are using the
+new FT8 protocol.  
+
 
 		     Release: WSJT-X 2.0-rc4
 		        November 12, 2018
