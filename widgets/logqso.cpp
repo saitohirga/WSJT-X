@@ -10,6 +10,7 @@
 #include "MessageBox.hpp"
 #include "Configuration.hpp"
 #include "models/Bands.hpp"
+#include "models/CabrilloLog.hpp"
 #include "validators/MaidenheadLocatorValidator.hpp"
 
 #include "ui_logqso.h"
@@ -57,11 +58,10 @@ void LogQSO::storeSettings () const
 void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString mode,
                         QString const& rptSent, QString const& rptRcvd,
                         QDateTime const& dateTimeOn, QDateTime const& dateTimeOff,
-                        Radio::Frequency dialFreq, bool noSuffix, QString xSent, QString xRcvd)
+                        Radio::Frequency dialFreq, bool noSuffix, QString xSent, QString xRcvd,
+                        CabrilloLog * cabrillo_log)
 {
   if(!isHidden()) return;
-  m_xSent=xSent;
-  m_xRcvd=xRcvd;
   ui->call->setText(hisCall);
   ui->grid->setText(hisGrid);
   ui->name->setText("");
@@ -87,17 +87,23 @@ void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString 
   m_myGrid=m_config->my_grid();
   ui->band->setText (m_config->bands ()->find (dialFreq));
   ui->loggedOperator->setText(m_config->opCall());
-  ui->exchSent->setText(m_xSent);
-  ui->exchRcvd->setText(m_xRcvd);
+  ui->exchSent->setText (xSent);
+  ui->exchRcvd->setText (xRcvd);
+  m_cabrilloLog = cabrillo_log;
 
   using SpOp = Configuration::SpecialOperatingActivity;
-  if( SpOp::FOX == m_config->special_op_id() or 
-      (m_config->autoLog() and SpOp::NONE < m_config->special_op_id() and
-      m_xSent!="" and m_xRcvd!="")) {
-    accept();
-  } else {
-    show();
-  }
+  auto special_op = m_config->special_op_id ();
+  if (SpOp::FOX == special_op
+      || (m_config->autoLog ()
+          && SpOp::NONE < special_op && special_op < SpOp::FOX))
+    {
+      // allow auto logging in Fox mode and contests
+      accept();
+    }
+  else
+    {
+      show();
+    }
 }
 
 void LogQSO::accept()
@@ -119,6 +125,29 @@ void LogQSO::accept()
   m_comments=comments;
   QString strDialFreq(QString::number(m_dialFreq / 1.e6,'f',6));
   operator_call = ui->loggedOperator->text();
+
+  // validate
+  using SpOp = Configuration::SpecialOperatingActivity;
+  auto special_op = m_config->special_op_id ();
+  if (SpOp::NONE < special_op && special_op < SpOp::FOX)
+    {
+      if (ui->exchSent->text ().isEmpty () || ui->exchRcvd->text ().isEmpty ())
+        {
+          show ();
+          MessageBox::warning_message (this, tr ("Invalid QSO Data"),
+                                       tr ("Check exchange sent and received"));
+          return;               // without accepting
+        }
+
+      if (!m_cabrilloLog->add_QSO (m_dialFreq, QDateTime::currentDateTimeUtc (), hisCall,
+                                   ui->exchSent->text (), ui->exchRcvd->text ()))
+        {
+          show ();
+          MessageBox::warning_message (this, tr ("Invalid QSO Data"),
+                                       tr ("Check all fields"));
+          return;               // without accepting
+        }
+    }
 
   //Log this QSO to file "wsjtx.log"
   static QFile f {QDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)}.absoluteFilePath ("wsjtx.log")};
@@ -169,8 +198,8 @@ void LogQSO::accept()
                                           , m_myGrid
                                           , m_txPower
                                           , operator_call
-                                          , m_xSent
-                                          , m_xRcvd));
+                                          , ui->exchSent->text ()
+                                          , ui->exchRcvd->text ()));
   QDialog::accept();
 }
 

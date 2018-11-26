@@ -5,6 +5,7 @@
 #include <functional>
 #include <fstream>
 #include <iterator>
+#include <algorithm>
 #include <fftw3.h>
 #include <QLineEdit>
 #include <QRegExpValidator>
@@ -1235,10 +1236,10 @@ void MainWindow::setDecodedTextFont (QFont const& font)
     m_msgAvgWidget->changeFont (font);
   }
   if (m_foxLogWindow) {
-    m_foxLogWindow->change_font (font);
+    m_foxLogWindow->set_log_view_font (font);
   }
   if (m_contestLogWindow) {
-    m_contestLogWindow->change_font (font);
+    m_contestLogWindow->set_log_view_font (font);
   }
   updateGeometry ();
 }
@@ -2425,6 +2426,10 @@ void MainWindow::on_fox_log_action_triggered()
 
       // Connect signals from fox log window
       connect (this, &MainWindow::finished, m_foxLogWindow.data (), &FoxLogWindow::close);
+      connect (m_foxLogWindow.data (), &FoxLogWindow::reset_log_model, [this] () {
+          if (!m_foxLog) m_foxLog.reset (new FoxLog);
+          m_foxLog->reset ();
+        });
     }
   m_foxLogWindow->showNormal ();
   m_foxLogWindow->raise ();
@@ -5338,9 +5343,15 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
       default: break;
     }
 
+  auto special_op = m_config.special_op_id ();
+  if (SpecOp::NONE < special_op && special_op < SpecOp::FOX)
+    {
+      if (!m_cabrilloLog) m_cabrilloLog.reset (new CabrilloLog {&m_config});
+    }
   m_logDlg->initLogQSO (m_hisCall, grid, m_modeTx, m_rptSent, m_rptRcvd,
                         m_dateTimeQSOOn, dateTimeQSOOff, m_freqNominal +
-                        ui->TxFreqSpinBox->value(), m_noSuffix, m_xSent, m_xRcvd);
+                        ui->TxFreqSpinBox->value(), m_noSuffix, m_xSent, m_xRcvd,
+                        m_cabrilloLog.data ());
 }
 
 void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, QString const& grid
@@ -5356,15 +5367,6 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
       MessageBox::warning_message (this, tr ("Log file error"),
                                    tr ("Cannot open \"%1\"").arg (m_logBook.path ()));
     }
-
-
-  if (SpecOp::NONE < m_config.special_op_id() && SpecOp::FOX > m_config.special_op_id()) {
-    if (!m_cabrilloLog) m_cabrilloLog.reset (new CabrilloLog {&m_config});
-    m_cabrilloLog->add_QSO (m_freqNominal, QDateTime::currentDateTimeUtc (), m_hisCall, m_xSent, m_xRcvd);
-    m_xSent="";
-    m_xRcvd="";
-    ui->sbSerialNumber->setValue (ui->sbSerialNumber->value () + 1);
-  }
 
   m_messageClient->qso_logged (QSO_date_off, call, grid, dial_freq, mode, rpt_sent, rpt_received
                                , tx_power, comments, name, QSO_date_on, operator_call, my_call, my_grid);
@@ -5385,6 +5387,14 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
 
   if (m_config.clear_DX () and SpecOp::HOUND != m_config.special_op_id()) clearDX ();
   m_dateTimeQSOOn = QDateTime {};
+  auto special_op = m_config.special_op_id ();
+  if (SpecOp::NONE < special_op && special_op < SpecOp::FOX)
+    {
+      ui->sbSerialNumber->setValue (ui->sbSerialNumber->value () + 1);
+    }
+
+  m_xSent.clear ();
+  m_xRcvd.clear ();
 }
 
 qint64 MainWindow::nWidgets(QString t)
@@ -6118,25 +6128,14 @@ void MainWindow::on_actionErase_ALL_TXT_triggered()          //Erase ALL.TXT
   }
 }
 
-void MainWindow::on_reset_fox_log_action_triggered ()
-{
-  int ret = MessageBox::query_message(this, tr("Confirm Reset"),
-                  tr("Are you sure you want to erase file FoxQSO.txt and start a new Fox log?"));
-  if(ret==MessageBox::Yes) {
-    QFile f{m_config.writeable_data_dir().absoluteFilePath("FoxQSO.txt")};
-    f.remove();
-    if (!m_foxLog) m_foxLog.reset (new FoxLog);
-    m_foxLog->reset ();
-  }
-}
-
 void MainWindow::on_reset_cabrillo_log_action_triggered ()
 {
-  if (MessageBox::Yes == MessageBox::query_message(this, tr("Confirm Erase"),
-                                                   tr("Are you sure you want to erase file cabrillo.log"
-                                                      " and start a new Cabrillo log?")))
+  if (MessageBox::Yes == MessageBox::query_message (this, tr ("Confirm Reset"),
+                                                    tr ("Are you sure you want to erase your contest log?"),
+                                                    tr ("Doing this will remove all QSO records for the current contest. "
+                                                        "They will be kept in the ADIF log file but will not be available "
+                                                        "for export in your Cabrillo log.")))
     {
-      QFile {m_config.writeable_data_dir ().absoluteFilePath ("cabrillo.log")}.remove ();
       ui->sbSerialNumber->setValue (1);
       if (!m_cabrilloLog) m_cabrilloLog.reset (new CabrilloLog {&m_config});
       m_cabrilloLog->reset ();
@@ -6489,15 +6488,17 @@ void MainWindow::on_readFreq_clicked()
 
 void MainWindow::on_pbTxMode_clicked()
 {
-  if(m_modeTx=="JT9") {
-    m_modeTx="JT65";
-    ui->pbTxMode->setText("Tx JT65  #");
-  } else {
-    m_modeTx="JT9";
-    ui->pbTxMode->setText("Tx JT9  @");
+  if(m_mode=="JT9+JT65") {
+    if(m_modeTx=="JT9") {
+      m_modeTx="JT65";
+      ui->pbTxMode->setText("Tx JT65  #");
+    } else {
+      m_modeTx="JT9";
+      ui->pbTxMode->setText("Tx JT9  @");
+    }
+    m_wideGraph->setModeTx(m_modeTx);
+    statusChanged();
   }
-  m_wideGraph->setModeTx(m_modeTx);
-  statusChanged();
 }
 
 void MainWindow::setXIT(int n, Frequency base)
@@ -7920,9 +7921,9 @@ QString MainWindow::sortHoundCalls(QString t, int isort, int max_dB)
 
   if(isort>1) {
     if(bReverse) {
-      qSort(list.begin(),list.end(),qGreater<int>());
+      std::sort (list.begin (), list.end (), std::greater<int> ());
     } else {
-      qSort(list.begin(),list.end());
+      std::sort (list.begin (), list.end ());
     }
   }
 

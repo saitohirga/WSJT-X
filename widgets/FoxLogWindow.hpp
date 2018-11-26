@@ -1,42 +1,35 @@
 #ifndef FOX_LOG_WINDOW_HPP_
 #define FOX_LOG_WINDOW_HPP_
 
-#include <QWidget>
-#include <QScopedPointer>
-#include <QIdentityProxyModel>
-#include "models/FontOverrideModel.hpp"
+#include "AbstractLogWindow.hpp"
+#include "pimpl_h.hpp"
 
 class QSettings;
 class Configuration;
 class QFont;
-class QDateTime;
-class QAbstractItemModel;
-namespace Ui
-{
-  class FoxLogWindow;
-}
+class QSqlTableModel;
 
 class FoxLogWindow final
-  : public QWidget
+  : public AbstractLogWindow
 {
+  Q_OBJECT
+
 public:
-  explicit FoxLogWindow (QSettings *, Configuration const *, QAbstractItemModel * fox_log_model
+  explicit FoxLogWindow (QSettings *, Configuration const *, QSqlTableModel * fox_log_model
                          , QWidget * parent = nullptr);
   ~FoxLogWindow ();
 
-  void change_font (QFont const&);
   void callers (int);
   void queued (int);
   void rate (int);
 
-private:
-  void read_settings ();
-  void write_settings () const;
+  Q_SIGNAL void reset_log_model () const;
 
-  QSettings * settings_;
-  Configuration const * configuration_;
-  FontOverrideModel fox_log_model_;
-  QScopedPointer<Ui::FoxLogWindow> ui_;
+private:
+  void log_model_changed (int row) override;
+
+  class impl;
+  pimpl<impl> m_;
 };
 
 #endif

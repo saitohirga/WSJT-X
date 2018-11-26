@@ -13,10 +13,10 @@ program msk144sim
   integer itone(144)                   !Message bits
 
   nargs=iargc()
-  if(nargs.ne.6) then
-     print*,'Usage:   msk144sim       message      freq width nslow snr nfiles'
-     print*,'Example: msk144sim "K1ABC W9XYZ EN37" 1500  0.12   1    2    1'
-     print*,'         msk144sim "K1ABC W9XYZ EN37" 1500  2.5   32   15    1'
+  if(nargs.ne.5) then
+     print*,'Usage:   msk144sim       message      freq width snr nfiles'
+     print*,'Example: msk144sim "K1ABC W9XYZ EN37" 1500  0.12   2    1'
+     print*,'         msk144sim "K1ABC W9XYZ EN37" 1500  2.5   15    1'
      go to 999
   endif
   call getarg(1,msg)
@@ -25,10 +25,8 @@ program msk144sim
   call getarg(3,arg)
   read(arg,*) width
   call getarg(4,arg)
-  read(arg,*) nslow
-  call getarg(5,arg)
   read(arg,*) snrdb
-  call getarg(6,arg)
+  call getarg(5,arg)
   read(arg,*) nfiles
 
 !sig is the peak amplitude of the ping. 
@@ -50,9 +48,9 @@ program msk144sim
 
   twopi=8.d0*atan(1.d0)
   nsym=144
-  nsps=6*nslow
+  nsps=6
   if( itone(41) .lt. 0 ) nsym=40
-  baud=2000.d0/nslow
+  baud=2000.d0
   dphi0=twopi*(freq-0.25d0*baud)/12000.d0
   dphi1=twopi*(freq+0.25d0*baud)/12000.d0
   phi=0.0
@@ -79,7 +77,7 @@ program msk144sim
      go to 999
   endif
 
-  if(nslow.eq.1) call makepings(pings,NMAX,width,sig)
+  call makepings(pings,NMAX,width,sig)
 
 !  call sgran()
   do ifile=1,nfiles                  !Loop over requested number of files
@@ -92,8 +90,7 @@ program msk144sim
      fac=sqrt(6000.0/2500.0)
      do i=0,NMAX-1
         xx=gran()
-        if(nslow.eq.1) wave(i)=pings(i)*waveform(i) + fac*xx
-        if(nslow.gt.1) wave(i)=sig*waveform(i) + fac*xx
+        wave(i)=pings(i)*waveform(i) + fac*xx
         iwave(i)=30.0*wave(i)
      enddo
 
