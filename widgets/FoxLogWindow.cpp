@@ -17,6 +17,7 @@
 #include "pimpl_impl.hpp"
 
 #include "ui_FoxLogWindow.h"
+#include "moc_FoxLogWindow.cpp"
 
 class FoxLogWindow::impl final
 {
