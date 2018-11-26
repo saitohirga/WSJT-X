@@ -6,7 +6,7 @@
 
 class QDateTime;
 class QString;
-class QAbstractItemModel;
+class QSqlTableModel;
 
 class FoxLog final
   : private boost::noncopyable
@@ -21,7 +21,7 @@ public:
                 , QString const& band);
   bool dupe (QString const& call, QString const& band) const;
 
-  QAbstractItemModel * model ();
+  QSqlTableModel * model ();
   void reset ();
 
 private:

@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <utility>
 #include <limits>
+#include <algorithm>
 
 #include <QMetaType>
 #include <QAbstractTableModel>
@@ -350,14 +351,6 @@ bool FrequencyList_v2::remove (Item f)
   return m_->removeRow (row);
 }
 
-namespace
-{
-  bool row_is_higher (QModelIndex const& lhs, QModelIndex const& rhs)
-  {
-    return lhs.row () > rhs.row ();
-  }
-}
-
 bool FrequencyList_v2::removeDisjointRows (QModelIndexList rows)
 {
   bool result {true};
@@ -371,7 +364,10 @@ bool FrequencyList_v2::removeDisjointRows (QModelIndexList rows)
     }
 
   // reverse sort by row
-  qSort (rows.begin (), rows.end (), row_is_higher);
+  std::sort (rows.begin (), rows.end (), [] (QModelIndex const& lhs, QModelIndex const& rhs)
+             {
+               return rhs.row () < lhs.row (); // reverse row ordering
+             });
   Q_FOREACH (auto index, rows)
     {
       if (result && !m_->removeRow (index.row ()))

@@ -5,6 +5,7 @@
 #include <functional>
 #include <fstream>
 #include <iterator>
+#include <algorithm>
 #include <fftw3.h>
 #include <QLineEdit>
 #include <QRegExpValidator>
@@ -735,6 +736,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->labDXped->setStyleSheet("QLabel {background-color: red; color: white;}");
   ui->labNextCall->setText("");
   ui->labNextCall->setVisible(false);
+  ui->labNextCall->setToolTip("");                //### Possibly temporary ? ###
 
   for(int i=0; i<28; i++)  {                      //Initialize dBm values
     float dbm=(10.0*i)/3.0 - 30.0;
@@ -931,13 +933,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
     ui->cbMenus->setChecked(true);
     ui->cbMenus->setChecked(false);
   }
-
-  mouseLastPos=QCursor::pos();
-  m_mouseIdleSeconds=0;
-  connect(&mouseTimer, &QTimer::timeout, this, &MainWindow::mouseTimerTick);
-  mouseTimer.start(1000);
-
-  // this must be the last statement of constructor
+// this must be the last statement of constructor
   if (!m_valid) throw std::runtime_error {"Fatal initialization exception"};
 }
 
@@ -948,10 +944,16 @@ void MainWindow::not_GA_warning_message ()
 
   MessageBox::critical_message (this,
                                 "This version of WSJT-X is a beta-level Release Candidate.\n\n"
+                                "In FT8 and MSK144 modes it uses ONLY the new 77-bit\n"
+                                "message formats. It will not decode 75-bit or 72-bit\n"
+                                "messages.\n\n"
+                                "On December 10, 2018, 77-bit messages will become the\n"
+                                "standard. Everyone should upgrade to WSJT-X 2.0 by\n"
+                                "January 1, 2019.\n\n"
                                 "On-the-air use carries an obligation to report problems\n"
                                 "to the WSJT Development group and to upgrade to a GA\n"
                                 "(General Availability) release when it becomes available.\n\n"
-                                "This version cannot be used after December 31, 2018\n\n");
+                                "This version cannot be used after December 31, 2018.\n\n");
 
   if(now.daysTo(timeout) < 0) Q_EMIT finished();
 }
@@ -961,22 +963,6 @@ void MainWindow::initialize_fonts ()
   set_application_font (m_config.text_font ());
   setDecodedTextFont (m_config.decoded_text_font ());
 }
-
-void MainWindow::mouseTimerTick()
-{
-  QPoint point = QCursor::pos();
-  if(point != mouseLastPos)
-    m_mouseIdleSeconds = 0;
-  else
-    m_mouseIdleSeconds++;
-  mouseLastPos = point;
-//Here we should do what's necessary when mouseIdleSeconds gets too big.
-//  qDebug() << m_mouseIdleSeconds;
-  if(ui->cbAutoSeq->isChecked() and m_mouseIdleSeconds>300) {
-    auto_tx_mode (false);
-  }
-}
-
 
 void MainWindow::splash_done ()
 {
@@ -1077,6 +1063,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("RR73",m_send_RR73);
   m_settings->setValue ("WSPRPreferType1", ui->WSPR_prefer_type_1_check_box->isChecked ());
   m_settings->setValue("UploadSpots",m_uploadSpots);
+  m_settings->setValue("NoOwnCall",ui->cbNoOwnCall->isChecked());
   m_settings->setValue ("BandHopping", ui->band_hopping_group_box->isChecked ());
   m_settings->setValue ("TRPeriod", ui->sbTR->value ());
   m_settings->setValue("FastMode",m_bFastMode);
@@ -1168,6 +1155,7 @@ void MainWindow::readSettings()
   ui->WSPR_prefer_type_1_check_box->setChecked (m_settings->value ("WSPRPreferType1", true).toBool ());
   m_uploadSpots=m_settings->value("UploadSpots",false).toBool();
   if(!m_uploadSpots) ui->cbUploadWSPR_Spots->setStyleSheet("QCheckBox{background-color: yellow}");
+  ui->cbNoOwnCall->setChecked(m_settings->value("NoOwnCall",false).toBool());
   ui->band_hopping_group_box->setChecked (m_settings->value ("BandHopping", false).toBool());
   // setup initial value of tx attenuator
   m_block_pwr_tooltip = true;
@@ -1248,10 +1236,10 @@ void MainWindow::setDecodedTextFont (QFont const& font)
     m_msgAvgWidget->changeFont (font);
   }
   if (m_foxLogWindow) {
-    m_foxLogWindow->change_font (font);
+    m_foxLogWindow->set_log_view_font (font);
   }
   if (m_contestLogWindow) {
-    m_contestLogWindow->change_font (font);
+    m_contestLogWindow->set_log_view_font (font);
   }
   updateGeometry ();
 }
@@ -1880,7 +1868,6 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       if((e->modifiers() & Qt::ControlModifier) and (e->modifiers() & Qt::ShiftModifier)) {
         m_bandEdited = true;
         band_changed(m_freqNominal-2000);
-//        qDebug() << "Down" << m_freqNominal;
       } else {
         n=11;
         if(e->modifiers() & Qt::ControlModifier) n+=100;
@@ -1895,7 +1882,6 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       if((e->modifiers() & Qt::ControlModifier) and (e->modifiers() & Qt::ShiftModifier)) {
         m_bandEdited = true;
         band_changed(m_freqNominal+2000);
-//        qDebug() << "Up  " << m_freqNominal;
       } else {
         n=12;
         if(e->modifiers() & Qt::ControlModifier) n+=100;
@@ -2440,6 +2426,10 @@ void MainWindow::on_fox_log_action_triggered()
 
       // Connect signals from fox log window
       connect (this, &MainWindow::finished, m_foxLogWindow.data (), &FoxLogWindow::close);
+      connect (m_foxLogWindow.data (), &FoxLogWindow::reset_log_model, [this] () {
+          if (!m_foxLog) m_foxLog.reset (new FoxLog);
+          m_foxLog->reset ();
+        });
     }
   m_foxLogWindow->showNormal ();
   m_foxLogWindow->raise ();
@@ -5353,9 +5343,15 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
       default: break;
     }
 
+  auto special_op = m_config.special_op_id ();
+  if (SpecOp::NONE < special_op && special_op < SpecOp::FOX)
+    {
+      if (!m_cabrilloLog) m_cabrilloLog.reset (new CabrilloLog {&m_config});
+    }
   m_logDlg->initLogQSO (m_hisCall, grid, m_modeTx, m_rptSent, m_rptRcvd,
                         m_dateTimeQSOOn, dateTimeQSOOff, m_freqNominal +
-                        ui->TxFreqSpinBox->value(), m_noSuffix, m_xSent, m_xRcvd);
+                        ui->TxFreqSpinBox->value(), m_noSuffix, m_xSent, m_xRcvd,
+                        m_cabrilloLog.data ());
 }
 
 void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, QString const& grid
@@ -5371,15 +5367,6 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
       MessageBox::warning_message (this, tr ("Log file error"),
                                    tr ("Cannot open \"%1\"").arg (m_logBook.path ()));
     }
-
-
-  if (SpecOp::NONE < m_config.special_op_id() && SpecOp::FOX > m_config.special_op_id()) {
-    if (!m_cabrilloLog) m_cabrilloLog.reset (new CabrilloLog {&m_config});
-    m_cabrilloLog->add_QSO (m_freqNominal, QDateTime::currentDateTimeUtc (), m_hisCall, m_xSent, m_xRcvd);
-    m_xSent="";
-    m_xRcvd="";
-    ui->sbSerialNumber->setValue (ui->sbSerialNumber->value () + 1);
-  }
 
   m_messageClient->qso_logged (QSO_date_off, call, grid, dial_freq, mode, rpt_sent, rpt_received
                                , tx_power, comments, name, QSO_date_on, operator_call, my_call, my_grid);
@@ -5400,6 +5387,14 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
 
   if (m_config.clear_DX () and SpecOp::HOUND != m_config.special_op_id()) clearDX ();
   m_dateTimeQSOOn = QDateTime {};
+  auto special_op = m_config.special_op_id ();
+  if (SpecOp::NONE < special_op && special_op < SpecOp::FOX)
+    {
+      ui->sbSerialNumber->setValue (ui->sbSerialNumber->value () + 1);
+    }
+
+  m_xSent.clear ();
+  m_xRcvd.clear ();
 }
 
 qint64 MainWindow::nWidgets(QString t)
@@ -5464,7 +5459,6 @@ void MainWindow::displayWidgets(qint64 n)
     if(i==32) ui->cbCQonly->setVisible(b);
     j=j>>1;
   }
-  if(!ui->cbAutoSeq->isVisible()) ui->cbAutoSeq->setChecked(false);
   b=SpecOp::EU_VHF==m_config.special_op_id() or (SpecOp::RTTY==m_config.special_op_id() and
     (m_config.RTTY_Exchange()=="#" or m_config.RTTY_Exchange()=="DX"));
   ui->sbSerialNumber->setVisible(b);
@@ -6134,25 +6128,14 @@ void MainWindow::on_actionErase_ALL_TXT_triggered()          //Erase ALL.TXT
   }
 }
 
-void MainWindow::on_reset_fox_log_action_triggered ()
-{
-  int ret = MessageBox::query_message(this, tr("Confirm Reset"),
-                  tr("Are you sure you want to erase file FoxQSO.txt and start a new Fox log?"));
-  if(ret==MessageBox::Yes) {
-    QFile f{m_config.writeable_data_dir().absoluteFilePath("FoxQSO.txt")};
-    f.remove();
-    if (!m_foxLog) m_foxLog.reset (new FoxLog);
-    m_foxLog->reset ();
-  }
-}
-
 void MainWindow::on_reset_cabrillo_log_action_triggered ()
 {
-  if (MessageBox::Yes == MessageBox::query_message(this, tr("Confirm Erase"),
-                                                   tr("Are you sure you want to erase file cabrillo.log"
-                                                      " and start a new Cabrillo log?")))
+  if (MessageBox::Yes == MessageBox::query_message (this, tr ("Confirm Reset"),
+                                                    tr ("Are you sure you want to erase your contest log?"),
+                                                    tr ("Doing this will remove all QSO records for the current contest. "
+                                                        "They will be kept in the ADIF log file but will not be available "
+                                                        "for export in your Cabrillo log.")))
     {
-      QFile {m_config.writeable_data_dir ().absoluteFilePath ("cabrillo.log")}.remove ();
       ui->sbSerialNumber->setValue (1);
       if (!m_cabrilloLog) m_cabrilloLog.reset (new CabrilloLog {&m_config});
       m_cabrilloLog->reset ();
@@ -6505,15 +6488,17 @@ void MainWindow::on_readFreq_clicked()
 
 void MainWindow::on_pbTxMode_clicked()
 {
-  if(m_modeTx=="JT9") {
-    m_modeTx="JT65";
-    ui->pbTxMode->setText("Tx JT65  #");
-  } else {
-    m_modeTx="JT9";
-    ui->pbTxMode->setText("Tx JT9  @");
+  if(m_mode=="JT9+JT65") {
+    if(m_modeTx=="JT9") {
+      m_modeTx="JT65";
+      ui->pbTxMode->setText("Tx JT65  #");
+    } else {
+      m_modeTx="JT9";
+      ui->pbTxMode->setText("Tx JT9  @");
+    }
+    m_wideGraph->setModeTx(m_modeTx);
+    statusChanged();
   }
-  m_wideGraph->setModeTx(m_modeTx);
-  statusChanged();
 }
 
 void MainWindow::setXIT(int n, Frequency base)
@@ -7266,6 +7251,10 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
   QString t1;
   while(p1.canReadLine()) {
     QString t(p1.readLine());
+    if(ui->cbNoOwnCall->isChecked()) {
+      if(t.contains(" " + m_config.my_callsign() + " ")) continue;
+      if(t.contains(" <" + m_config.my_callsign() + "> ")) continue;
+    }
     if(t.indexOf("<DecodeFinished>") >= 0) {
       m_bDecoded = m_nWSPRdecodes > 0;
       if(!m_diskData) {
@@ -7390,7 +7379,6 @@ void MainWindow::WSPR_history(Frequency dialFreq, int ndecodes)
                                  .arg (f.fileName ()).arg (f.errorString ()));
   }
 }
-
 
 void MainWindow::uploadSpots()
 {
@@ -7933,9 +7921,9 @@ QString MainWindow::sortHoundCalls(QString t, int isort, int max_dB)
 
   if(isort>1) {
     if(bReverse) {
-      qSort(list.begin(),list.end(),qGreater<int>());
+      std::sort (list.begin (), list.end (), std::greater<int> ());
     } else {
-      qSort(list.begin(),list.end());
+      std::sort (list.begin (), list.end ());
     }
   }
 

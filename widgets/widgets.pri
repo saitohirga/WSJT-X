@@ -7,7 +7,8 @@ SOURCES += \
   widgets/echoplot.cpp widgets/echograph.cpp widgets/fastgraph.cpp \
   widgets/fastplot.cpp widgets/MessageBox.cpp \
   widgets/colorhighlighting.cpp widgets/ExportCabrillo.cpp \
-  widgets/CabrilloLogWindow.cpp
+  widgets/AbstractLogWindow.cpp \
+  widgets/FoxLogWindow.cpp widgets/CabrilloLogWindow.cpp
 
 HEADERS  += \
   widgets/mainwindow.h widgets/plotter.h \
@@ -17,8 +18,8 @@ HEADERS  += \
   widgets/meterwidget.h widgets/messageaveraging.h \
   widgets/echoplot.h widgets/echograph.h widgets/fastgraph.h \
   widgets/fastplot.h widgets/MessageBox.hpp widgets/colorhighlighting.h \
-  widgets/ExportCabrillo.h \
-  widgets/CabrilloLogWindow.cpp
+  widgets/ExportCabrillo.h widgets/AbstractLogWindow.hpp \
+  widgets/FoxLogWindow.cpp widgets/CabrilloLogWindow.cpp
 
 FORMS    += \
   widgets/mainwindow.ui widgets/about.ui \
@@ -26,5 +27,4 @@ FORMS    += \
   widgets/logqso.ui widgets/messageaveraging.ui \
   widgets/echograph.ui widgets/fastgraph.ui \
   widgets/colorhighlighting.ui widgets/ExportCabrillo.ui \
-  widgets/FoxLogWindow.ui \
-  widgets/CabrilloLogWindow.ui
+  widgets/FoxLogWindow.ui widgets/CabrilloLogWindow.ui

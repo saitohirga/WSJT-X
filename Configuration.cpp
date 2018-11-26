@@ -1091,6 +1091,8 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   frequencies_.sort (FrequencyList_v2::frequency_column);
 
   ui_->frequencies_table_view->setModel (&next_frequencies_);
+  ui_->frequencies_table_view->horizontalHeader ()->setSectionResizeMode (QHeaderView::ResizeToContents);
+  ui_->frequencies_table_view->verticalHeader ()->setSectionResizeMode (QHeaderView::ResizeToContents);
   ui_->frequencies_table_view->sortByColumn (FrequencyList_v2::frequency_column, Qt::AscendingOrder);
   ui_->frequencies_table_view->setColumnHidden (FrequencyList_v2::frequency_mhz_column, true);
 
@@ -1131,6 +1133,8 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   //
   stations_.sort (StationList::band_column);
   ui_->stations_table_view->setModel (&next_stations_);
+  ui_->stations_table_view->horizontalHeader ()->setSectionResizeMode (QHeaderView::ResizeToContents);
+  ui_->stations_table_view->verticalHeader ()->setSectionResizeMode (QHeaderView::ResizeToContents);
   ui_->stations_table_view->sortByColumn (StationList::band_column, Qt::AscendingOrder);
 
   // stations delegates
@@ -2275,10 +2279,10 @@ void Configuration::impl::delete_selected_macros (QModelIndexList selected_rows)
 {
   // sort in reverse row order so that we can delete without changing
   // indices underneath us
-  qSort (selected_rows.begin (), selected_rows.end (), [] (QModelIndex const& lhs, QModelIndex const& rhs)
-         {
-           return rhs.row () < lhs.row (); // reverse row ordering
-         });
+  std::sort (selected_rows.begin (), selected_rows.end (), [] (QModelIndex const& lhs, QModelIndex const& rhs)
+             {
+               return rhs.row () < lhs.row (); // reverse row ordering
+             });
 
   // now delete them
   Q_FOREACH (auto index, selected_rows)

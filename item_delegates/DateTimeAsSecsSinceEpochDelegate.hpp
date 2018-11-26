@@ -28,7 +28,7 @@ public:
 
   static QDateTime to_date_time (QVariant const& value)
   {
-    return QDateTime::fromMSecsSinceEpoch (value.toULongLong () * 1000ull);
+    return QDateTime::fromMSecsSinceEpoch (value.toULongLong () * 1000ull, Qt::UTC);
   }
 
   QString displayText (QVariant const& value, QLocale const& locale) const override

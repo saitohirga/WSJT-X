@@ -1,7 +1,10 @@
 #include "ForeignKeyDelegate.hpp"
 
+#include <QApplication>
 #include <QComboBox>
-
+#include <QFontMetrics>
+#include <QSize>
+#include <QStyleOptionViewItem>
 #include "CandidateKeyFilter.hpp"
 
 ForeignKeyDelegate::ForeignKeyDelegate (QAbstractItemModel const * referenced_model
@@ -39,4 +42,21 @@ QWidget * ForeignKeyDelegate::createEditor (QWidget * parent
   editor->setModel (candidate_key_filter_.data ());
   editor->setSizeAdjustPolicy (QComboBox::AdjustToContents);
   return editor;
+}
+
+QSize ForeignKeyDelegate::sizeHint (QStyleOptionViewItem const& option, QModelIndex const& index) const
+{
+  auto size_hint = QStyledItemDelegate::sizeHint (option, index);
+  QFontMetrics metrics {option.font};
+  QStyleOptionComboBox combo_box_option;
+  combo_box_option.rect = option.rect;
+  combo_box_option.state = option.state | QStyle::State_Enabled;
+  for (auto row = 0; row < candidate_key_filter_->rowCount (); ++row)
+    {
+      size_hint = size_hint.expandedTo (qApp->style ()->sizeFromContents (QStyle::CT_ComboBox
+                                                                          , &combo_box_option
+                                                                          , {metrics.width (candidate_key_filter_->data (candidate_key_filter_->index (row, 0)).toString ())
+                                                                              , metrics.height ()}));
+    }
+  return size_hint;
 }

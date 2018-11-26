@@ -1712,24 +1712,24 @@ QListView::item:hover {
           <item row="3" column="0">
            <widget class="QCheckBox" name="report_in_comments_check_box">
             <property name="toolTip">
-             <string>Some logging programs will not accept JT-65 or JT9 as a recognized mode.</string>
+             <string>Some logging programs will not accept the type of reports
+saved by this program.
+Check this option to save the sent and received reports in the
+comments field.</string>
             </property>
             <property name="text">
-             <string>Con&amp;vert mode to RTTY</string>
+             <string>d&amp;B reports to comments</string>
             </property>
            </widget>
           </item>
           <item row="4" column="0" colspan="2">
            <widget class="QCheckBox" name="clear_DX_check_box">
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The callsign of the operator, if different from the station callsign.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>Check this option to force the clearing of the DX Call
+and DX Grid fields when a 73 or free text message is sent.</string>
             </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="cbAutoLog">
             <property name="text">
-             <string>Log automatically</string>
+             <string>Clear &amp;DX call and grid after logging</string>
             </property>
            </widget>
           </item>
