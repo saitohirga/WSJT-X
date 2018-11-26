@@ -12,6 +12,31 @@
                                                          
 Copyright 2001 - 2018 by Joe Taylor, K1JT.
 
+		     Release: WSJT-X 2.0-rc5
+		        November 26, 2018
+		     -----------------------
+
+Release Candidate 5 ("RC5") is stable, works well, and fixes the known
+problems in RC4.  It is likely that the General Availability (GA)
+release of WSJT-X 2.0 will be nearly identical to RC5.
+
+Changes from WSJT-X 2.0-rc4 include the following:
+
+ -  Make the "Auto Seq" checkbox sticky, again
+ -  Remove the 5-minute mouse timer
+ -  Correct the "worked before" logic for color highlighting
+ -  Add "No own call decodes" checkbox in WSPR mode
+ -  Display and log UTC (not local time) in contest operations
+ -  Validate contest QSO details before allowing logging
+ -  Force Aqua theme on macOS to avoid issues with Mojave dark theme
+ -  Move Fox log Reset action to Fox log window context menu
+ -  Improve layout of Working Frequencies and Station Information tables
+ -  Allow deletes and editing in Fox and Contest log windows
+ -  Add Tool Tips for Fox and Contest log windows
+ -  Fix a bug causing false AP decodes in JT65 VHF+ operation
+ -  Fix a bug that could switch unexpectedly from JT65 to JT9 mode
+
+
 		     Release: WSJT-X 2.0-rc4
 		        November 12, 2018
 		     -----------------------
