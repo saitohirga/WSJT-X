@@ -16,7 +16,7 @@ set (hamlib_LIBRARY_DIRS)
 
 # pkg-config?
 find_path (__hamlib_pc_path NAMES hamlib.pc
-  PATH_SUFFIXES lib/pkgconfig
+  PATH_SUFFIXES lib/pkgconfig lib64/pkgconfig
   )
 if (__hamlib_pc_path)
   set (ENV{PKG_CONFIG_PATH} "${__hamlib_pc_path}" "$ENV{PKG_CONFIG_PATH}")

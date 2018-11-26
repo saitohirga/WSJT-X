@@ -265,6 +265,7 @@ set (wsjt_qt_CXXSRCS
   models/DecodeHighlightingModel.cpp
   widgets/DecodeHighlightingListView.cpp
   models/FoxLog.cpp
+  widgets/AbstractLogWindow.cpp
   widgets/FoxLogWindow.cpp
   widgets/CabrilloLogWindow.cpp
   item_delegates/CallsignDelegate.cpp
@@ -382,7 +383,6 @@ set (wsjt_FSRCS
   lib/badmsg.f90
   lib/ft8/baseline.f90
   lib/bpdecode40.f90
-  lib/bpdecode144.f90
   lib/bpdecode128_90.f90
   lib/ft8/bpdecode174.f90
   lib/ft8/bpdecode174_91.f90
@@ -414,7 +414,6 @@ set (wsjt_FSRCS
   lib/encode232.f90
   lib/encode4.f90
   lib/encode_msk40.f90
-  lib/encode_msk144.f90
   lib/encode_128_90.f90
   lib/ft8/encode174.f90
   lib/ft8/encode174_91.f90
@@ -422,7 +421,6 @@ set (wsjt_FSRCS
   lib/ephem.f90
   lib/extract.f90
   lib/extract4.f90
-  lib/extractmessage144.f90
   lib/extractmessage77.f90
   lib/ft8/extractmessage174.f90
   lib/ft8/extractmessage174_91.f90
@@ -497,10 +495,8 @@ set (wsjt_FSRCS
   lib/moondopjpl.f90
   lib/morse.f90
   lib/move.f90
-  lib/msk144d.f90
   lib/msk40decodeframe.f90
   lib/msk144decodeframe.f90
-  lib/msk144sd.f90
   lib/msk40spd.f90
   lib/msk144spd.f90
   lib/msk40sync.f90
@@ -519,6 +515,8 @@ set (wsjt_FSRCS
   lib/peakdt9.f90
   lib/peakup.f90
   lib/plotsave.f90
+  lib/platanh.f90
+  lib/pltanh.f90
   lib/polyfit.f90
   lib/prog_args.f90
   lib/ps4.f90
@@ -561,7 +559,6 @@ set (wsjt_FSRCS
   lib/twkfreq.f90
   lib/ft8/twkfreq1.f90
   lib/twkfreq65.f90
-  lib/unpackmsg144.f90
   lib/update_recent_calls.f90
   lib/update_hasharray.f90
   lib/ft8/watterson.f90
@@ -1252,14 +1249,9 @@ target_link_libraries (ft8code wsjt_fort wsjt_cxx)
 add_executable (ft8sim lib/ft8/ft8sim.f90 wsjtx.rc)
 target_link_libraries (ft8sim wsjt_fort wsjt_cxx)
 
-add_executable (msk144sd lib/msk144sd.f90 wsjtx.rc)
-target_link_libraries (msk144sd wsjt_fort wsjt_cxx)
-
 add_executable (msk144sim lib/msk144sim.f90 wsjtx.rc)
 target_link_libraries (msk144sim wsjt_fort wsjt_cxx)
 
-add_executable (msk144d lib/msk144d.f90 wsjtx.rc)
-target_link_libraries (msk144d wsjt_fort wsjt_cxx)
 endif(WSJT_BUILD_UTILS)
 
 # build the main application
@@ -1708,11 +1700,11 @@ endif ()
 
 set (CPACK_DEBIAN_PACKAGE_DESCRIPTION "${PROJECT_DESCRIPTION}")
 set (CPACK_DEBIAN_PACKAGE_HOMEPAGE "${PROJECT_HOMEPAGE}")
-set (CPACK_DEBIAN_PACKAGE_DEPENDS "libgfortran3 (>=4.8.2), libqt5serialport5 (>=5.2), libqt5multimedia5-plugins (>=5.2), libqt5widgets5 (>=5.2), libusb-1.0-0, libudev1, libc6 (>=2.19)")
+set (CPACK_DEBIAN_PACKAGE_DEPENDS "libgfortran3 (>=4.8.2), libqt5serialport5 (>=5.5), libqt5multimedia5-plugins (>=5.5), libqt5widgets5 (>=5.5), libqt5sql5-sqlite (>=5.5), libusb-1.0-0, libudev1, libc6 (>=2.19)")
 set (CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 
 set (CPACK_RPM_PACKAGE_ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
-set (CPACK_RPM_PACKAGE_REQUIRES "qt5-qtserialport >= 5.2, qt5-qtmultimedia >= 5.2, qt5-qtsvg, libusb, systemd-udev, glibc >= 2, libgfortran >= 4.8.2")
+set (CPACK_RPM_PACKAGE_REQUIRES "qt5-qtserialport >= 5.5, qt5-qtmultimedia >= 5.5, qt5-qtsvg, libusb, systemd-udev, glibc >= 2, libgfortran >= 4.8.2")
 set (CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION /usr/share/pixmaps /usr/share/applications /usr/share/man /usr/share/man1)
 
 configure_file ("${PROJECT_SOURCE_DIR}/CMakeCPackOptions.cmake.in"

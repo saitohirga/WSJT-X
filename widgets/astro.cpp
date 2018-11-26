@@ -213,7 +213,7 @@ auto Astro::astroUpdate(QDateTime const& t, QString const& mygrid, QString const
         // we do the next period if we calculate just before it starts
         auto sec_since_epoch = t.toMSecsSinceEpoch () / 1000 + 2;
         auto target_sec = sec_since_epoch - sec_since_epoch % TR_period + TR_period / 2;
-        auto target_date_time = QDateTime::fromMSecsSinceEpoch (target_sec * 1000, QTimeZone::utc ());
+        auto target_date_time = QDateTime::fromMSecsSinceEpoch (target_sec * 1000, Qt::UTC);
         QString date {target_date_time.date().toString("yyyy MMM dd").trimmed ()};
         QString utc {target_date_time.time().toString().trimmed ()};
         int nyear {target_date_time.date().year()};

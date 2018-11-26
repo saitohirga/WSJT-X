@@ -25,37 +25,56 @@ class ConditionalTransaction final
 {
 public:
   explicit ConditionalTransaction (QSqlTableModel& model)
-    : model_ {model}
+    : model_ (model)
     , submitted_ {false}
   {
     model_.database ().transaction ();
   }
+
   bool submit (bool throw_on_error = true)
   {
-    Q_ASSERT (model_.isDirty ());
     bool ok {true};
     if (throw_on_error)
       {
-        SQL_error_check (model_, &QSqlTableModel::submitAll);
+        SQL_error_check (model_
+                         , QSqlTableModel::OnManualSubmit == model_.editStrategy ()
+                         ? &QSqlTableModel::submitAll
+                         : &QSqlTableModel::submit);
       }
     else
       {
-        ok = model_.submitAll ();
+        ok = QSqlTableModel::OnManualSubmit == model_.editStrategy ()
+          ? model_.submitAll () : model_.submit ();
       }
     submitted_ = submitted_ || ok;
     return ok;
   }
+
   void revert ()
   {
-    Q_ASSERT (model_.isDirty ());
-    model_.revertAll ();
+    if (QSqlTableModel::OnManualSubmit == model_.editStrategy ())
+      {
+        model_.revertAll ();
+      }
+    else
+      {
+        model_.revert ();
+      }
   }
+
   ~ConditionalTransaction ()
   {
     if (model_.isDirty ())
       {
         // abandon un-submitted changes to the model
-        model_.revertAll ();
+        if (QSqlTableModel::OnManualSubmit == model_.editStrategy ())
+          {
+            model_.revertAll ();
+          }
+        else
+          {
+            model_.revert ();
+          }
       }
     auto database = model_.database ();
     if (submitted_)
@@ -67,6 +86,7 @@ public:
         database.rollback ();
       }
   }
+
 private:
   QSqlTableModel& model_;
   bool submitted_;

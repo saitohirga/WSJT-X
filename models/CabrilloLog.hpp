@@ -8,7 +8,7 @@
 class Configuration;
 class QDateTime;
 class QString;
-class QAbstractItemModel;
+class QSqlTableModel;
 class QTextStream;
 
 class CabrilloLog final
@@ -21,11 +21,11 @@ public:
   ~CabrilloLog ();
 
   // returns false if insert fails
-  void add_QSO (Frequency, QDateTime const&, QString const& call
+  bool add_QSO (Frequency, QDateTime const&, QString const& call
                 , QString const& report_sent, QString const& report_received);
   bool dupe (Frequency, QString const& call) const;
 
-  QAbstractItemModel * model ();
+  QSqlTableModel * model ();
   void reset ();
   void export_qsos (QTextStream&) const;
 

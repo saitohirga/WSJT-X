@@ -76,7 +76,7 @@ void ExportCabrillo::save_log ()
   auto fname = QFileDialog::getSaveFileName (this
                                              , tr ("Save Log File")
                                              , configuration_->writeable_data_dir ().absolutePath ()
-                                             , tr ("Cabrillo Log (*.log)"));
+                                             , tr ("Cabrillo Log (*.cbr)"));
   if (fname.size ())
     {
       QFile f {fname};

@@ -20,6 +20,7 @@ DecodedText::DecodedText (QString const& the_string)
   , message_ {string_.mid (column_qsoText + padding_).trimmed ()}
   , is_standard_ {false}
 {
+//  qDebug () << "DecodedText: the_string:" << the_string << "Nbsp pos:" << the_string.indexOf (QChar::Nbsp);
   if (message_.length() >= 1)
     {
        message0_ = message_.left(36);

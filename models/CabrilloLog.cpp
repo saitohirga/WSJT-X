@@ -52,7 +52,7 @@ CabrilloLog::impl::impl (Configuration const * configuration)
   SQL_error_check (export_query_, &QSqlQuery::prepare,
                    "SELECT frequency, \"when\", exchange_sent, call, exchange_rcvd FROM cabrillo_log ORDER BY \"when\"");
   
-  setEditStrategy (QSqlTableModel::OnManualSubmit);
+  setEditStrategy (QSqlTableModel::OnRowChange);
   setTable ("cabrillo_log");
   setHeaderData (fieldIndex ("frequency"), Qt::Horizontal, tr ("Freq(kHz)"));
   setHeaderData (fieldIndex ("when"), Qt::Horizontal, tr ("Date & Time(UTC)"));
@@ -73,24 +73,49 @@ CabrilloLog::~CabrilloLog ()
 {
 }
 
-QAbstractItemModel * CabrilloLog::model ()
+QSqlTableModel * CabrilloLog::model ()
 {
   return &*m_;
 }
 
-void CabrilloLog::add_QSO (Frequency frequency, QDateTime const& when, QString const& call
+namespace
+{
+  void set_value_maybe_null (QSqlRecord& record, QString const& name, QString const& value)
+  {
+    if (value.size ())
+      {
+        record.setValue (name, value);
+      }
+    else
+      {
+        record.setNull (name);
+      }
+  }
+}
+
+bool CabrilloLog::add_QSO (Frequency frequency, QDateTime const& when, QString const& call
                            , QString const& exchange_sent, QString const& exchange_received)
 {
-  ConditionalTransaction transaction {*m_};
   auto record = m_->record ();
   record.setValue ("frequency", frequency / 1000ull); // kHz
-  record.setValue ("when", when.toMSecsSinceEpoch () / 1000ull);
-  record.setValue ("call", call);
-  record.setValue ("exchange_sent", exchange_sent);
-  record.setValue ("exchange_rcvd", exchange_received);
-  record.setValue ("band", m_->configuration_->bands ()->find (frequency));
-  SQL_error_check (*m_, &QSqlTableModel::insertRecord, -1, record);
-  transaction.submit ();
+  if (!when.isNull ())
+    {
+      record.setValue ("when", when.toMSecsSinceEpoch () / 1000ull);
+    }
+  else
+    {
+      record.setNull ("when");
+    }
+  set_value_maybe_null (record, "call", call);
+  set_value_maybe_null (record, "exchange_sent", exchange_sent);
+  set_value_maybe_null (record, "exchange_rcvd", exchange_received);
+  set_value_maybe_null (record, "band", m_->configuration_->bands ()->find (frequency));
+  auto ok = m_->insertRecord (-1, record);
+  if (ok)
+    {
+      m_->select ();            // to refresh views
+    }
+  return ok;
 }
 
 bool CabrilloLog::dupe (Frequency frequency, QString const& call) const
@@ -106,9 +131,12 @@ void CabrilloLog::reset ()
 {
   if (m_->rowCount ())
     {
+      m_->setEditStrategy (QSqlTableModel::OnManualSubmit);
       ConditionalTransaction transaction {*m_};
       SQL_error_check (*m_, &QSqlTableModel::removeRows, 0, m_->rowCount (), QModelIndex {});
       transaction.submit ();
+      m_->select ();            // to refresh views
+      m_->setEditStrategy (QSqlTableModel::OnRowChange);
     }
 }
 
@@ -128,7 +156,7 @@ void CabrilloLog::export_qsos (QTextStream& stream) const
       frequency = frequency > 50000000ull ? frequency / 1000ull : frequency;
       stream << QString {"QSO: %1 DG %2 %3 %4 %5 %6\n"}
                       .arg (frequency, 5)
-                      .arg (QDateTime::fromMSecsSinceEpoch (m_->export_query_.value (when_index).toULongLong () * 1000ull).toString ("yyyy-MM-dd hhmm"))
+                         .arg (QDateTime::fromMSecsSinceEpoch (m_->export_query_.value (when_index).toULongLong () * 1000ull, Qt::UTC).toString ("yyyy-MM-dd hhmm"))
                       .arg (my_call, -12)
                       .arg (m_->export_query_.value (sent_index).toString (), -13)
                       .arg (m_->export_query_.value (call_index).toString (), -12)

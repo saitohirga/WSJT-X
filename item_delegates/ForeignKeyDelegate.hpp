@@ -33,9 +33,10 @@ public:
                                , int referencing_key_role = Qt::EditRole);
   ~ForeignKeyDelegate ();
 
-  QWidget * createEditor (QWidget * parent, QStyleOptionViewItem const&, QModelIndex const&) const override;
-
 private:
+  QWidget * createEditor (QWidget * parent, QStyleOptionViewItem const&, QModelIndex const&) const override;
+  QSize sizeHint (QStyleOptionViewItem const&, QModelIndex const&) const override;
+
   QScopedPointer<CandidateKeyFilter> candidate_key_filter_;
 };
 
