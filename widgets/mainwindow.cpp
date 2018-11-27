@@ -5719,6 +5719,7 @@ void MainWindow::on_actionJT65_triggered()
   }
   on_actionJT9_triggered();
   m_mode="JT65";
+  m_modeTx="JT65";
   bool bVHF=m_config.enable_VHF_features();
   WSPR_config(false);
   switch_mode (Modes::JT65);
@@ -5761,7 +5762,6 @@ void MainWindow::on_actionJT65_triggered()
     ui->cbAutoSeq->setVisible(false);
   }
   statusChanged();
-  qDebug() << "aa" << m_mode << m_modeTx;
 }
 
 void MainWindow::on_actionQRA64_triggered()
