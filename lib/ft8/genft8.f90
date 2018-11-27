@@ -20,7 +20,10 @@ subroutine genft8(msg,i3,n3,msgsent,msgbits,itone)
   call unpack77(c77,msgsent,unpk77_success)
   read(c77,'(77i1)',err=1) msgbits
   go to 2
-1 write(81,*) msg,c77 ; flush(81)
+1 msgbits=0
+  itone=0
+  msgsent='*** bad message ***                  '
+  return
 
 entry get_tones_from_77bits(msgbits,itone) 
 
