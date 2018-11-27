@@ -1,8 +1,8 @@
                     Notes on WSJT-X Installation for Mac OS X
                     -----------------------------------------
 
-                               Updated 16 July 2017
-                               -------------------- 
+                               Updated 21 October 2018
+                               -----------------------
 
 If you have already downloaded a previous version of WSJT-X then I suggest 
 you change the name in the Applications folder from WSJT-X to WSJT-X_previous 
@@ -68,6 +68,12 @@ under the WSJT-X Menu and fill in various station details on the General panel.
 I recommend checking the 4 boxes under the Display heading and the first 4 boxes under 
 the Behaviour heading.
 
+IMPORTANT: If you are using macOS 10.14 (Mojave) it is important to note that the default setting
+for audio input is "block".  In order to receive audio from WSJT-X you must visit
+System Preferences > Security & Privacy > Privacy and, with WSJT-X launched, select "Microphone"
+under Location Services and wsjtx should appear in the panel.   Check the "Allow" box.  You will 
+have to quit WSJT-X for this change to take effect.
+
 Next visit the Audio panel and select the Audio Codec you use to communicate between 
 WSJT-X and your rig.   There are so many audio interfaces available that it is not 
 possible to give detailed advice on selection.  If you have difficulties contact me.   
@@ -86,7 +92,7 @@ be located in the device driver directory  /dev. You should install your driver
 and then re-launch WSJT-X. Return to the the Radio panel in Preferences and in 
 the "Serial port" panel select your driver from the list that is presented.   If 
 for some reason your driver is not shown, then insert the full name 
-of your driver in the Serial Port panel.   Such as:  /dev/tty.PL2303-00002226 or 
+of your driver in the Serial Port panel.   Such as:  /dev/cu.PL2303-00002226 or 
 whatever driver you have.  The /dev/ prefix is mandatory.  Set the relevant 
 communication parameters as required by your transceiver and click "Test CAT" to
 check.
