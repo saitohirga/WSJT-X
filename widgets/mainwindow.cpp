@@ -4902,9 +4902,12 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       t=t0 + "R" + rpt;
       msgtype(t, ui->tx3);
     }
-    if(m_mode=="MSK144" and m_bShMsgs and SpecOp::NONE==m_config.special_op_id()) {
-      t=t0 + "R" + rpt;
-      msgtype(t, ui->tx3);
+
+    if(m_mode=="MSK144" and m_bShMsgs) {
+      if(m_config.special_op_id()==SpecOp::NONE) {
+        t=t0 + "R" + rpt;
+        msgtype(t, ui->tx3);
+      }
       m_send_RR73=false;
     }
 
@@ -5758,6 +5761,7 @@ void MainWindow::on_actionJT65_triggered()
     ui->cbAutoSeq->setVisible(false);
   }
   statusChanged();
+  qDebug() << "aa" << m_mode << m_modeTx;
 }
 
 void MainWindow::on_actionQRA64_triggered()
