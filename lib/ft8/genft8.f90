@@ -19,11 +19,11 @@ subroutine genft8(msg,i3,n3,msgsent,msgbits,itone)
   call pack77(msg,i3,n3,c77)
   call unpack77(c77,msgsent,unpk77_success)
   read(c77,'(77i1)',err=1) msgbits
-  go to 2
+  if(unpk77_success) go to 2
 1 msgbits=0
   itone=0
   msgsent='*** bad message ***                  '
-  return
+  go to 900
 
 entry get_tones_from_77bits(msgbits,itone) 
 
@@ -42,5 +42,5 @@ entry get_tones_from_77bits(msgbits,itone)
      itone(k)=graymap(indx)
   enddo
 
-  return
+900 return
 end subroutine genft8
