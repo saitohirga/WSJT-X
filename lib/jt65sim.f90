@@ -190,6 +190,21 @@ program jt65sim
            endif
         enddo
 
+        if(len(trim(msg)).eq.2.or.len(trim(msg)).eq.3) then
+          nshorthand=0
+          if(msg(1:2).eq.'RO') nshorthand=2
+          if(msg(1:3).eq.'RRR') nshorthand=3
+          if(msg(1:2).eq.'73') nshorthand=4
+          if(nshorthand.gt.0) then
+            ntoggle=0
+            do i=1,nsym,2
+              itone(i)=ntoggle*10*nshorthand
+              if(i+1.le.126) itone(i+1)=ntoggle*10*nshorthand
+              ntoggle=mod(ntoggle+1,2)
+            enddo
+          endif
+        endif
+
         bandwidth_ratio=2500.0/(fsample/2.0)
         sig=sqrt(2*bandwidth_ratio)*10.0**(0.05*xsnr)
         if(xsnr.gt.90.0) sig=1.0
