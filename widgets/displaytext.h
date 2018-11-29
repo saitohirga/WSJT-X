@@ -44,7 +44,7 @@ protected:
 private:
   Configuration const * m_config;
   bool m_bPrincipalPrefix;
-  QString appendWorkedB4(QString message, QString const& callsign
+  QString appendWorkedB4(QString message, QString callsign
                          , QString const& grid, QColor * bg, QColor * fg
                          , LogBook const& logBook, QString const& currentBand
                          , QString const& currentMode);
