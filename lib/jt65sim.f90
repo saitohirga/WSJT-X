@@ -105,7 +105,6 @@ program jt65sim
         end if
      case ('M')
         read (optarg(:narglen), '(A)',err=10) msg
-        write(*,*) msg 
      end select
      cycle
 10   display_help=.true.
