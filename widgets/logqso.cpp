@@ -139,7 +139,7 @@ void LogQSO::accept()
           return;               // without accepting
         }
 
-      if (!m_cabrilloLog->add_QSO (m_dialFreq, QDateTime::currentDateTimeUtc (), hisCall,
+      if (!m_cabrilloLog->add_QSO (m_dialFreq, m_dateTimeOff, hisCall,
                                    ui->exchSent->text (), ui->exchRcvd->text ()))
         {
           show ();
