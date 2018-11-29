@@ -6,31 +6,12 @@
 #include "models/DecodeHighlightingModel.hpp"
 #include "MessageBox.hpp"
 
-#include "pimpl_impl.hpp"
-
-class DecodeHighlightingListView::impl final
-{
-public:
-  impl ()
-    : fg_colour_action_ {tr ("&Foreground color ..."), nullptr}
-    , bg_colour_action_ {tr ("&Background color ..."), nullptr}
-    , defaults_action_ {tr ("&Reset this item to defaults"), nullptr}
-  {
-  }
-
-  DecodeHighlightingListView * self_;
-  QAction fg_colour_action_;
-  QAction bg_colour_action_;
-  QAction defaults_action_;
-};
-
 DecodeHighlightingListView::DecodeHighlightingListView (QWidget * parent)
   : QListView {parent}
 {
-  addAction (&m_->fg_colour_action_);
-  addAction (&m_->bg_colour_action_);
-  addAction (&m_->defaults_action_);
-  connect (&m_->fg_colour_action_, &QAction::triggered, [this] (bool /*checked*/) {
+  auto * fg_colour_action = new QAction {tr ("&Foreground color ..."), this};
+  addAction (fg_colour_action);
+  connect (fg_colour_action, &QAction::triggered, [this] (bool /*checked*/) {
       auto const& index = currentIndex ();
       auto colour = QColorDialog::getColor (model ()->data (index, Qt::ForegroundRole).value<QBrush> ().color ()
                                             , this
@@ -38,10 +19,19 @@ DecodeHighlightingListView::DecodeHighlightingListView (QWidget * parent)
                                                 .arg (model ()->data (index).toString ()));
       if (colour.isValid ())
         {
-          model ()->setData (index, colour, Qt::ForegroundRole);
+          model ()->setData (index, QBrush {colour}, Qt::ForegroundRole);
         }
     });
-  connect (&m_->bg_colour_action_, &QAction::triggered, [this] (bool /*checked*/) {
+
+  auto * unset_fg_colour_action = new QAction {tr ("&Unset foreground color"), this};
+  addAction (unset_fg_colour_action);
+  connect (unset_fg_colour_action, &QAction::triggered, [this] (bool /*checked*/) {
+      model ()->setData (currentIndex (), QBrush {}, Qt::ForegroundRole);
+    });
+
+  auto * bg_colour_action = new QAction {tr ("&Background color ..."), this};
+  addAction (bg_colour_action);
+  connect (bg_colour_action, &QAction::triggered, [this] (bool /*checked*/) {
       auto const& index = currentIndex ();
       auto colour = QColorDialog::getColor (model ()->data (index, Qt::BackgroundRole).value<QBrush> ().color ()
                                             , this
@@ -49,19 +39,24 @@ DecodeHighlightingListView::DecodeHighlightingListView (QWidget * parent)
                                                 .arg (model ()->data (index).toString ()));
       if (colour.isValid ())
         {
-          model ()->setData (index, colour, Qt::BackgroundRole);
+          model ()->setData (index, QBrush {colour}, Qt::BackgroundRole);
         }
     });
-  connect (&m_->defaults_action_, &QAction::triggered, [this] (bool /*checked*/) {
+
+  auto * unset_bg_colour_action = new QAction {tr ("U&nset background color"), this};
+  addAction (unset_bg_colour_action);
+  connect (unset_bg_colour_action, &QAction::triggered, [this] (bool /*checked*/) {
+      model ()->setData (currentIndex (), QBrush {}, Qt::BackgroundRole);
+    });
+
+  auto * defaults_action = new QAction {tr ("&Reset this item to defaults"), this};
+  addAction (defaults_action);
+  connect (defaults_action, &QAction::triggered, [this] (bool /*checked*/) {
       auto const& index = currentIndex ();
       model ()->setData (index, model ()->data (index, DecodeHighlightingModel::EnabledDefaultRole).toBool () ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);
       model ()->setData (index, model ()->data (index, DecodeHighlightingModel::ForegroundDefaultRole), Qt::ForegroundRole);
       model ()->setData (index, model ()->data (index, DecodeHighlightingModel::BackgroundDefaultRole), Qt::BackgroundRole);
     });
-}
-
-DecodeHighlightingListView::~DecodeHighlightingListView ()
-{
 }
 
 QSize DecodeHighlightingListView::sizeHint () const

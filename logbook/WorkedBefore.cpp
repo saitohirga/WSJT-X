@@ -307,10 +307,10 @@ WorkedBefore::WorkedBefore ()
           if (call.size ())
             {
               auto const& entity = m_->prefixes_.lookup (call);
-              m_->worked_.emplace (call
-                                   , extractField (record, "GRIDSQUARE").left (4) // not interested in 6-digit grids
-                                   , extractField (record, "BAND")
-                                   , extractField (record, "MODE")
+              m_->worked_.emplace (call.toUpper ()
+                                   , extractField (record, "GRIDSQUARE").left (4).toUpper () // not interested in 6-digit grids
+                                   , extractField (record, "BAND").toUpper ()
+                                   , extractField (record, "MODE").toUpper ()
                                    , entity.entity_name
                                    , entity.continent
                                    , entity.CQ_zone
@@ -357,8 +357,8 @@ bool WorkedBefore::add (QString const& call
             }
           out << ADIF_record << " <eor>" << endl;
         }
-      m_->worked_.emplace (call, grid, band, mode, entity.entity_name
-                           , entity.continent, entity.CQ_zone, entity.ITU_zone);
+      m_->worked_.emplace (call.toUpper (), grid.left (4).toUpper (), band.toUpper (), mode.toUpper ()
+                           , entity.entity_name, entity.continent, entity.CQ_zone, entity.ITU_zone);
     }
   return true;
 }
@@ -372,7 +372,7 @@ bool WorkedBefore::country_worked (QString const& country, QString const& mode, 
           return
             country.size ()
             && m_->worked_.get<entity_mode_band> ().end ()
-            != m_->worked_.get<entity_mode_band> ().find (std::make_tuple (country, mode, band));
+            != m_->worked_.get<entity_mode_band> ().find (std::make_tuple (country, mode.toUpper (), band.toUpper ()));
         }
       else
         {
@@ -380,7 +380,7 @@ bool WorkedBefore::country_worked (QString const& country, QString const& mode, 
           return
             country.size ()
             && m_->worked_.get<entity_mode_band> ().end ()
-            != m_->worked_.get<entity_mode_band> ().find (std::make_tuple (country, mode));
+            != m_->worked_.get<entity_mode_band> ().find (std::make_tuple (country, mode.toUpper ()));
         }
     }
   else
@@ -390,7 +390,7 @@ bool WorkedBefore::country_worked (QString const& country, QString const& mode, 
           return
             country.size ()
             && m_->worked_.get<entity_band> ().end ()
-            != m_->worked_.get<entity_band> ().find (std::make_tuple (country, band));
+            != m_->worked_.get<entity_band> ().find (std::make_tuple (country, band.toUpper ()));
         }
       else
         {
@@ -410,13 +410,13 @@ bool WorkedBefore::grid_worked (QString const& grid, QString const& mode, QStrin
       if (band.size ())
         {
           return m_->worked_.get<grid_mode_band> ().end ()
-            != m_->worked_.get<grid_mode_band> ().find (std::make_tuple (grid, mode, band));
+            != m_->worked_.get<grid_mode_band> ().find (std::make_tuple (grid.left (4).toUpper (), mode.toUpper (), band.toUpper ()));
         }
       else
         {
           // partial key lookup
           return m_->worked_.get<grid_mode_band> ().end ()
-            != m_->worked_.get<grid_mode_band> ().find (std::make_tuple (grid, mode));
+            != m_->worked_.get<grid_mode_band> ().find (std::make_tuple (grid.left (4).toUpper (), mode.toUpper ()));
         }
     }
   else
@@ -424,13 +424,13 @@ bool WorkedBefore::grid_worked (QString const& grid, QString const& mode, QStrin
       if (band.size ())
         {
           return m_->worked_.get<grid_band> ().end ()
-            != m_->worked_.get<grid_band> ().find (std::make_tuple (grid, band));
+            != m_->worked_.get<grid_band> ().find (std::make_tuple (grid.left (4).toUpper (), band.toUpper ()));
         }
       else
         {
           // partial key lookup
           return m_->worked_.get<grid_band> ().end ()
-            != m_->worked_.get<grid_band> ().find (grid);
+            != m_->worked_.get<grid_band> ().find (grid.left (4).toUpper ());
         }
     }
 }
@@ -442,13 +442,13 @@ bool WorkedBefore::call_worked (QString const& call, QString const& mode, QStrin
       if (band.size ())
         {
           return m_->worked_.get<call_mode_band> ().end ()
-            != m_->worked_.get<call_mode_band> ().find (std::make_tuple (call, mode, band));
+            != m_->worked_.get<call_mode_band> ().find (std::make_tuple (call.toUpper (), mode.toUpper (), band.toUpper ()));
         }
       else
         {
           // partial key lookup
           return m_->worked_.get<call_mode_band> ().end ()
-            != m_->worked_.get<call_mode_band> ().find (std::make_tuple (call, mode));
+            != m_->worked_.get<call_mode_band> ().find (std::make_tuple (call.toUpper (), mode.toUpper ()));
         }
     }
   else
@@ -456,13 +456,13 @@ bool WorkedBefore::call_worked (QString const& call, QString const& mode, QStrin
       if (band.size ())
         {
           return m_->worked_.get<call_band> ().end ()
-            != m_->worked_.get<call_band> ().find (std::make_tuple (call, band));
+            != m_->worked_.get<call_band> ().find (std::make_tuple (call.toUpper (), band.toUpper ()));
         }
       else
         {
           // partial key lookup
           return m_->worked_.get<call_band> ().end ()
-            != m_->worked_.get<call_band> ().find (std::make_tuple (call));
+            != m_->worked_.get<call_band> ().find (std::make_tuple (call.toUpper ()));
         }
     }
 }
@@ -474,13 +474,13 @@ bool WorkedBefore::continent_worked (Continent continent, QString const& mode, Q
       if (band.size ())
         {
           return m_->worked_.get<continent_mode_band> ().end ()
-            != m_->worked_.get<continent_mode_band> ().find (std::make_tuple (continent, mode, band));
+            != m_->worked_.get<continent_mode_band> ().find (std::make_tuple (continent, mode.toUpper (), band.toUpper ()));
         }
       else
         {
           // partial key lookup
           return m_->worked_.get<continent_mode_band> ().end ()
-            != m_->worked_.get<continent_mode_band> ().find (std::make_tuple (continent, mode));
+            != m_->worked_.get<continent_mode_band> ().find (std::make_tuple (continent, mode.toUpper ()));
         }
     }
   else
@@ -488,7 +488,7 @@ bool WorkedBefore::continent_worked (Continent continent, QString const& mode, Q
       if (band.size ())
         {
           return m_->worked_.get<continent_band> ().end ()
-            != m_->worked_.get<continent_band> ().find (std::make_tuple (continent, band));
+            != m_->worked_.get<continent_band> ().find (std::make_tuple (continent, band.toUpper ()));
         }
       else
         {
@@ -506,13 +506,13 @@ bool WorkedBefore::CQ_zone_worked (int CQ_zone, QString const& mode, QString con
       if (band.size ())
         {
           return m_->worked_.get<CQ_zone_mode_band> ().end ()
-            != m_->worked_.get<CQ_zone_mode_band> ().find (std::make_tuple (CQ_zone, mode, band));
+            != m_->worked_.get<CQ_zone_mode_band> ().find (std::make_tuple (CQ_zone, mode.toUpper (), band.toUpper ()));
         }
       else
         {
           // partial key lookup
           return m_->worked_.get<CQ_zone_mode_band> ().end ()
-            != m_->worked_.get<CQ_zone_mode_band> ().find (std::make_tuple (CQ_zone, mode));
+            != m_->worked_.get<CQ_zone_mode_band> ().find (std::make_tuple (CQ_zone, mode.toUpper ()));
         }
     }
   else
@@ -520,7 +520,7 @@ bool WorkedBefore::CQ_zone_worked (int CQ_zone, QString const& mode, QString con
       if (band.size ())
         {
           return m_->worked_.get<CQ_zone_band> ().end ()
-            != m_->worked_.get<CQ_zone_band> ().find (std::make_tuple (CQ_zone, band));
+            != m_->worked_.get<CQ_zone_band> ().find (std::make_tuple (CQ_zone, band.toUpper ()));
         }
       else
         {
@@ -538,13 +538,13 @@ bool WorkedBefore::ITU_zone_worked (int ITU_zone, QString const& mode, QString c
       if (band.size ())
         {
           return m_->worked_.get<ITU_zone_mode_band> ().end ()
-            != m_->worked_.get<ITU_zone_mode_band> ().find (std::make_tuple (ITU_zone, mode, band));
+            != m_->worked_.get<ITU_zone_mode_band> ().find (std::make_tuple (ITU_zone, mode.toUpper (), band.toUpper ()));
         }
       else
         {
           // partial key lookup
           return m_->worked_.get<ITU_zone_mode_band> ().end ()
-            != m_->worked_.get<ITU_zone_mode_band> ().find (std::make_tuple (ITU_zone, mode));
+            != m_->worked_.get<ITU_zone_mode_band> ().find (std::make_tuple (ITU_zone, mode.toUpper ()));
         }
     }
   else
@@ -552,7 +552,7 @@ bool WorkedBefore::ITU_zone_worked (int ITU_zone, QString const& mode, QString c
       if (band.size ())
         {
           return m_->worked_.get<ITU_zone_band> ().end ()
-            != m_->worked_.get<ITU_zone_band> ().find (std::make_tuple (ITU_zone, band));
+            != m_->worked_.get<ITU_zone_band> ().find (std::make_tuple (ITU_zone, band.toUpper ()));
         }
       else
         {
