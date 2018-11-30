@@ -182,6 +182,7 @@
 #include "validators/CallsignValidator.hpp"
 #include "LotWUsers.hpp"
 #include "models/DecodeHighlightingModel.hpp"
+#include "logbook/logbook.h"
 
 #include "ui_Configuration.h"
 #include "moc_Configuration.cpp"
@@ -395,6 +396,7 @@ public:
                  , QNetworkAccessManager * network_manager
                  , QDir const& temp_directory
                  , QSettings * settings
+                 , LogBook * logbook
                  , QWidget * parent);
   ~impl ();
 
@@ -480,6 +482,7 @@ private:
   Q_SLOT void handle_transceiver_update (TransceiverState const&, unsigned sequence_number);
   Q_SLOT void handle_transceiver_failure (QString const& reason);
   Q_SLOT void on_reset_highlighting_to_defaults_push_button_clicked (bool);
+  Q_SLOT void on_rescan_log_push_button_clicked (bool);
   Q_SLOT void on_LotW_CSV_fetch_push_button_clicked (bool);
   Q_SLOT void on_cbx2ToneSpacing_clicked(bool);
   Q_SLOT void on_cbx4ToneSpacing_clicked(bool);
@@ -502,6 +505,7 @@ private:
 
   QNetworkAccessManager * network_manager_;
   QSettings * settings_;
+  LogBook * logbook_;
 
   QDir doc_dir_;
   QDir data_dir_;
@@ -638,8 +642,8 @@ private:
 
 // delegate to implementation class
 Configuration::Configuration (QNetworkAccessManager * network_manager, QDir const& temp_directory,
-                              QSettings * settings, QWidget * parent)
-  : m_ {this, network_manager, temp_directory, settings, parent}
+                              QSettings * settings, LogBook * logbook, QWidget * parent)
+  : m_ {this, network_manager, temp_directory, settings, logbook, parent}
 {
 }
 
@@ -905,13 +909,15 @@ namespace
 }
 
 Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network_manager
-                           , QDir const& temp_directory, QSettings * settings, QWidget * parent)
+                           , QDir const& temp_directory, QSettings * settings, LogBook * logbook
+                           , QWidget * parent)
   : QDialog {parent}
   , self_ {self}
   , transceiver_thread_ {nullptr}
   , ui_ {new Ui::configuration_dialog}
   , network_manager_ {network_manager}
   , settings_ {settings}
+  , logbook_ {logbook}
   , doc_dir_ {doc_path ()}
   , data_dir_ {data_path ()}
   , temp_dir_ {temp_directory}
@@ -2124,6 +2130,11 @@ void Configuration::impl::on_reset_highlighting_to_defaults_push_button_clicked 
     {
       next_decode_highlighing_model_.items (DecodeHighlightingModel::default_items ());
     }
+}
+
+void Configuration::impl::on_rescan_log_push_button_clicked (bool /*clicked*/)
+{
+  if (logbook_) logbook_->rescan ();
 }
 
 void Configuration::impl::on_LotW_CSV_fetch_push_button_clicked (bool /*checked*/)

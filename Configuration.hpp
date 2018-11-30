@@ -24,6 +24,7 @@ class QStringListModel;
 class QHostAddress;
 class LotWUsers;
 class DecodeHighlightingModel;
+class LogBook;
 
 //
 // Class Configuration
@@ -72,7 +73,7 @@ public:
   Q_ENUM (Type2MsgGen)
 
   explicit Configuration (QNetworkAccessManager *, QDir const& temp_directory, QSettings * settings,
-                          QWidget * parent = nullptr);
+                          LogBook * logbook, QWidget * parent = nullptr);
   ~Configuration ();
 
   void select_tab (int);

@@ -347,6 +347,7 @@ private:
   QSettings * m_settings;
   QScopedPointer<Ui::MainWindow> ui;
 
+  LogBook m_logBook;            // must be before Configuration construction
   Configuration m_config;
   WSPRBandHopping m_WSPR_band_hopping;
   bool m_WSPR_tx_next;
@@ -626,7 +627,6 @@ private:
   QDateTime m_dateTimeLastTX;
 
   QSharedMemory *mem_jt9;
-  LogBook m_logBook;
   QString m_QSOText;
   unsigned m_msAudioOutputBuffered;
   unsigned m_framesAudioInputBuffered;

@@ -210,7 +210,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_configurations_button {0},
   m_settings {multi_settings->settings ()},
   ui(new Ui::MainWindow),
-  m_config {&m_network_manager, temp_directory, m_settings, this},
+  m_logBook {&m_config},
+  m_config {&m_network_manager, temp_directory, m_settings, &m_logBook, this},
   m_WSPR_band_hopping {m_settings, &m_config, this},
   m_WSPR_tx_next {false},
   m_rigErrorMessageBox {MessageBox::Critical, tr ("Rig Control Error")
@@ -361,7 +362,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
       },
   m_sfx {"P",  "0",  "1",  "2",  "3",  "4",  "5",  "6",  "7",  "8",  "9",  "A"},
   mem_jt9 {shdmem},
-  m_logBook {&m_config},
   m_msAudioOutputBuffered (0u),
   m_framesAudioInputBuffered (RX_SAMPLE_RATE / 10),
   m_downSampleFactor (downSampleFactor),
@@ -462,6 +462,18 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   // setup the log QSO dialog
   connect (m_logDlg.data (), &LogQSO::acceptQSO, this, &MainWindow::acceptQSO);
   connect (this, &MainWindow::finished, m_logDlg.data (), &LogQSO::close);
+
+  // hook up the log book
+  connect (&m_logBook, &LogBook::finished_loading, [this] (int record_count, QString const& error) {
+      if (error.size ())
+        {
+          MessageBox::warning_message (this, tr ("Error Scanning ADIF Log"), error);
+        }
+      else
+        {
+          showStatusMessage (tr ("Scanned ADIF log, %1 worked before records created").arg (record_count));
+        }
+    });
 
   // Network message handlers
   connect (m_messageClient, &MessageClient::reply, this, &MainWindow::replyToCQ);
@@ -1645,7 +1657,9 @@ void MainWindow::showSoundOutError(const QString& errorMsg)
 }
 
 void MainWindow::showStatusMessage(const QString& statusMsg)
-{statusBar()->showMessage(statusMsg);}
+{
+  statusBar()->showMessage(statusMsg, 5000);
+}
 
 void MainWindow::on_actionSettings_triggered()               //Setup Dialog
 {
@@ -2137,8 +2151,8 @@ void MainWindow::createStatusBar()                           //createStatusBar
   band_hopping_label.setMinimumSize (QSize {90, 18});
   band_hopping_label.setFrameStyle (QFrame::Panel | QFrame::Sunken);
 
-  statusBar()->addPermanentWidget(&progressBar, 1);
-  progressBar.setMinimumSize (QSize {100, 18});
+  statusBar()->addPermanentWidget(&progressBar);
+  progressBar.setMinimumSize (QSize {150, 18});
   progressBar.setFormat ("%v/%m");
 
   statusBar ()->addPermanentWidget (&watchdog_label);
