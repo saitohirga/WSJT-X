@@ -5638,7 +5638,7 @@ void MainWindow::on_actionJT9_triggered()
   m_bFastMode=m_bFast9;
   WSPR_config(false);
   switch_mode (Modes::JT9);
-  if(m_modeTx!="JT9") on_pbTxMode_clicked();
+  m_modeTx="JT9";
   m_nsps=6912;
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
