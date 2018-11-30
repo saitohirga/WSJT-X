@@ -105,7 +105,6 @@ program jt65sim
         end if
      case ('M')
         read (optarg(:narglen), '(A)',err=10) msg
-        write(*,*) msg 
      end select
      cycle
 10   display_help=.true.
@@ -297,9 +296,9 @@ program jt65sim
 
      endif
 
-     dat=aimag(cdat) + xnoise                 !Add the generated noise
+     dat(1:npts)=aimag(cdat(1:npts)) + xnoise(1:npts)              !Add the generated noise
      if(snrdb.lt.90.0) then
-       dat=rms*dat(1:npts)
+       dat(1:npts)=rms*dat(1:npts)
      else
        datpk=maxval(abs(dat(1:npts)))
        fac=32766.9/datpk
