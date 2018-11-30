@@ -1843,7 +1843,6 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
   }
 
   int n;
-  bool bContest = m_config.my_callsign()=="K1JT" and SpecOp::RTTY==m_config.special_op_id();
   switch(e->key())
     {
     case Qt::Key_D:
@@ -1857,51 +1856,21 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       }
       break;
     case Qt::Key_F1:
-    if(bContest) {
-      auto_tx_mode(true);
-      on_txb6_clicked();
-      return;
-    } else {
       on_actionOnline_User_Guide_triggered();
       return;
-    }
     case Qt::Key_F2:
-    if(bContest) {
-      auto_tx_mode(true);
-      on_txb2_clicked();
-      return;
-    } else {
       on_actionSettings_triggered();
       return;
-    }
     case Qt::Key_F3:
-    if(bContest) {
-      auto_tx_mode(true);
-      on_txb3_clicked();
-      return;
-    } else {
       on_actionKeyboard_shortcuts_triggered();
       return;
-    }
     case Qt::Key_F4:
-    if(bContest) {
-      auto_tx_mode(true);
-      on_txb4_clicked();
-      return;
-    } else {
       clearDX ();
       ui->dxCallEntry->setFocus();
       return;
-    }
     case Qt::Key_F5:
-    if(bContest) {
-      auto_tx_mode(true);
-      on_txb5_clicked();
-      return;
-    } else {
       on_actionSpecial_mouse_commands_triggered();
       return;
-    }
     case Qt::Key_F6:
       if(e->modifiers() & Qt::ShiftModifier) {
         on_actionDecode_remaining_files_in_directory_triggered();
