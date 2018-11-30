@@ -1645,7 +1645,9 @@ void MainWindow::showSoundOutError(const QString& errorMsg)
 }
 
 void MainWindow::showStatusMessage(const QString& statusMsg)
-{statusBar()->showMessage(statusMsg);}
+{
+  statusBar()->showMessage(statusMsg, 5000);
+}
 
 void MainWindow::on_actionSettings_triggered()               //Setup Dialog
 {
@@ -2106,8 +2108,8 @@ void MainWindow::createStatusBar()                           //createStatusBar
   band_hopping_label.setMinimumSize (QSize {90, 18});
   band_hopping_label.setFrameStyle (QFrame::Panel | QFrame::Sunken);
 
-  statusBar()->addPermanentWidget(&progressBar, 1);
-  progressBar.setMinimumSize (QSize {100, 18});
+  statusBar()->addPermanentWidget(&progressBar);
+  progressBar.setMinimumSize (QSize {150, 18});
   progressBar.setFormat ("%v/%m");
 
   statusBar ()->addPermanentWidget (&watchdog_label);
