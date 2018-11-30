@@ -140,9 +140,8 @@ subroutine sync4(dat,jz,ntol,nfqso,mode,mode4,minwidth,dtx,dfx,snrx,    &
      endif
   enddo
   rms=0.1
-  snrx=-26.0
   if(ns.gt.0) rms=sqrt(sq/ns)
-  if(ccfred(ipk1a).gt.0.0) snrx=10.0*log10(ccfred(ipk1a)/rms) - 41.2
+  snrx=10.0*log10(ccfred(ipk1a)/rms) - 41.2
   if(snrx.gt.50.0) snrx=50.0
 
 900  return
