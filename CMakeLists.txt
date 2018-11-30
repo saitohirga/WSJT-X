@@ -271,6 +271,8 @@ set (wsjt_qt_CXXSRCS
   item_delegates/CallsignDelegate.cpp
   item_delegates/MaidenheadLocatorDelegate.cpp
   models/CabrilloLog.cpp
+  logbook/AD1CCty.cpp
+  logbook/WorkedBefore.cpp
   )
 
 set (wsjt_qtmm_CXXSRCS
@@ -288,8 +290,6 @@ set (jt9_CXXSRCS
 
 set (wsjtx_CXXSRCS
   logbook/logbook.cpp
-  logbook/WorkedBefore.cpp
-  logbook/AD1CCty.cpp
   psk_reporter.cpp
   Modulator.cpp
   Detector.cpp
