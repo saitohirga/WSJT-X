@@ -2233,14 +2233,34 @@ Right click for insert and delete options.</string>
            </widget>
           </item>
           <item>
-           <layout class="QGridLayout" name="gridLayout_5">
-            <item row="0" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_15">
+            <item>
              <widget class="QCheckBox" name="highlight_by_mode_check_box">
               <property name="toolTip">
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to indicate new DXCC entities, grid squares, and callsigns per mode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
                <string>Highlight by Mode</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="rescan_log_push_button">
+              <property name="text">
+               <string>Rescan ADIF Log</string>
               </property>
              </widget>
             </item>
@@ -2924,7 +2944,6 @@ Right click for insert and delete options.</string>
   <tabstop>stations_table_view</tabstop>
   <tabstop>highlighting_list_view</tabstop>
   <tabstop>reset_highlighting_to_defaults_push_button</tabstop>
-  <tabstop>highlight_by_mode_check_box</tabstop>
   <tabstop>LotW_CSV_URL_line_edit</tabstop>
   <tabstop>LotW_CSV_fetch_push_button</tabstop>
   <tabstop>LotW_days_since_upload_spin_box</tabstop>
