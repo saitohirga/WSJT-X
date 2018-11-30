@@ -29,7 +29,7 @@ subroutine sync4(dat,jz,ntol,nfqso,mode,mode4,minwidth,dtx,dfx,snrx,    &
   df=0.5*11025.0/nfft
   ftop=nfqso + 7*mode4*df
   if(ftop.gt.11025.0/4.0) then
-     print*,'*** Rx Freq is set too high for this submode ***'
+     print*,'*** Rx Freq is set too high for this sybmode ***'
      go to 900
   endif
 
