@@ -4,7 +4,6 @@
 #include <QSettings>
 #include <QStandardPaths>
 #include <QDir>
-#include <QDebug>
 
 #include "logbook/logbook.h"
 #include "MessageBox.hpp"

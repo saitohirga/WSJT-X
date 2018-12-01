@@ -1,8 +1,10 @@
 #ifndef DATE_TIME_AS_SECS_SINCE_EPOCH_DELEGATE_HPP_
 #define DATE_TIME_AS_SECS_SINCE_EPOCH_DELEGATE_HPP_
 
+#include <memory>
 #include <QStyledItemDelegate>
 #include <QVariant>
+#include <QLocale>
 #include <QDateTime>
 #include <QAbstractItemModel>
 #include <QDateTimeEdit>
@@ -33,12 +35,16 @@ public:
 
   QString displayText (QVariant const& value, QLocale const& locale) const override
   {
-    return locale.toString (to_date_time (value), QLocale::ShortFormat);
+    return locale.toString (to_date_time (value), locale.dateFormat (QLocale::ShortFormat) + " hh:mm:ss");
   }
 
   QWidget * createEditor (QWidget * parent, QStyleOptionViewItem const& /*option*/, QModelIndex const& /*index*/) const override
   {
-    return new QDateTimeEdit {parent};
+    std::unique_ptr<QDateTimeEdit> editor {new QDateTimeEdit {parent}};
+    editor->setTimeSpec (Qt::UTC); // needed because it ignores time
+                                   // spec of the QDateTime that it is
+                                   // set from
+    return editor.release ();
   }
 
   void setEditorData (QWidget * editor, QModelIndex const& index) const override

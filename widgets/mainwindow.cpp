@@ -188,7 +188,7 @@ namespace
 
   int ms_minute_error ()
   {
-    auto const& now = QDateTime::currentDateTime ();
+    auto const& now = QDateTime::currentDateTimeUtc ();
     auto const& time = now.time ();
     auto second = time.second ();
     return now.msecsTo (now.addSecs (second > 30 ? 60 - second : -second)) - time.msec ();
@@ -1508,7 +1508,7 @@ QString MainWindow::save_wave_file (QString const& name, short const * data, int
   BWFFile::InfoDictionary list_info {
       {{{'I','S','R','C'}}, source.toLocal8Bit ()},
       {{{'I','S','F','T'}}, program_title (revision ()).simplified ().toLocal8Bit ()},
-      {{{'I','C','R','D'}}, QDateTime::currentDateTime ()
+      {{{'I','C','R','D'}}, QDateTime::currentDateTimeUtc ()
                           .toString ("yyyy-MM-ddTHH:mm:ss.zzzZ").toLocal8Bit ()},
       {{{'I','C','M','T'}}, comment.toLocal8Bit ()},
         };
@@ -2712,7 +2712,7 @@ void MainWindow::msgAvgDecode2()
 
 void MainWindow::decode()                                       //decode()
 {
-  QDateTime now = QDateTime::currentDateTime();
+  QDateTime now = QDateTime::currentDateTimeUtc ();
   if( m_dateTimeLastTX.isValid () ) {
     qint64 isecs_since_tx = m_dateTimeLastTX.secsTo(now);
     dec_data.params.lapcqonly= (isecs_since_tx > 600); 
@@ -3266,7 +3266,7 @@ void MainWindow::pskPost (DecodedText const& decodedtext)
   if(grid.contains (grid_regexp)) {
 //    qDebug() << "To PSKreporter:" << deCall << grid << frequency << msgmode << snr;
     psk_Reporter->addRemoteStation(deCall,grid,QString::number(frequency),msgmode,
-           QString::number(snr),QString::number(QDateTime::currentDateTime().toTime_t()));
+           QString::number(snr),QString::number(QDateTime::currentDateTimeUtc ().toTime_t()));
   }
 }
 
@@ -3399,7 +3399,7 @@ void MainWindow::guiUpdate()
   if(m_tune) m_bTxTime=true;                 //"Tune" takes precedence
 
   if(m_transmitting or m_auto or m_tune) {
-    m_dateTimeLastTX = QDateTime::currentDateTime ();
+    m_dateTimeLastTX = QDateTime::currentDateTimeUtc ();
 
 // Check for "txboth" (testing purposes only)
     QFile f(m_appDir + "/txboth");

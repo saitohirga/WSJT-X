@@ -10,7 +10,6 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QDataStream>
-#include <QDebug>
 #include "Configuration.hpp"
 #include "Bands.hpp"
 #include "qt_db_helpers.hpp"
