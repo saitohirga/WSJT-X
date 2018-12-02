@@ -294,8 +294,11 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                 QByteArray operator_call;
                 QByteArray my_call;
                 QByteArray my_grid;
+                QByteArray exchange_sent;
+                QByteArray exchange_rcvd;
                 in >> time_off >> dx_call >> dx_grid >> dial_frequency >> mode >> report_sent >> report_received
-                   >> tx_power >> comments >> name >> time_on >> operator_call >> my_call >> my_grid;
+                   >> tx_power >> comments >> name >> time_on >> operator_call >> my_call >> my_grid
+                   >> exchange_sent >> exchange_rcvd;
                 if (check_status (in) != Fail)
                   {
                     Q_EMIT self_->qso_logged (id, time_off, QString::fromUtf8 (dx_call), QString::fromUtf8 (dx_grid)
@@ -303,7 +306,8 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                                               , QString::fromUtf8 (report_received), QString::fromUtf8 (tx_power)
                                               , QString::fromUtf8 (comments), QString::fromUtf8 (name), time_on
                                               , QString::fromUtf8 (operator_call), QString::fromUtf8 (my_call)
-                                              , QString::fromUtf8 (my_grid));
+                                              , QString::fromUtf8 (my_grid), QString::fromUtf8 (exchange_sent)
+                                              , QString::fromUtf8 (exchange_rcvd));
                   }
               }
               break;

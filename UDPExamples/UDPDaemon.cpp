@@ -99,7 +99,8 @@ public:
                           , Frequency dial_frequency, QString const& mode, QString const& report_sent
                           , QString const& report_received, QString const& tx_power
                           , QString const& comments, QString const& name, QDateTime time_on
-                          , QString const& operator_call, QString const& my_call, QString const& my_grid)
+                          , QString const& operator_call, QString const& my_call, QString const& my_grid
+                          , QString const& exchange_sent, QString const& exchange_rcvd)
   {
       if (client_id == id_)
       {
@@ -107,7 +108,8 @@ public:
                   << "freq:" << dial_frequency << "mode:" << mode << "rpt_sent:" << report_sent
                   << "rpt_rcvd:" << report_received << "Tx_pwr:" << tx_power << "comments:" << comments
                   << "name:" << name << "operator_call:" << operator_call << "my_call:" << my_call
-                  << "my_grid:" << my_grid;
+                  << "my_grid:" << my_grid << "exchange_sent:" << exchange_sent
+                  << "exchange_rcvd:" << exchange_rcvd;
         std::cout << QByteArray {80, '-'}.data () << '\n';
         std::cout << tr ("%1: Logged %2 grid: %3 power: %4 sent: %5 recd: %6 freq: %7 time_off: %8 op: %9 my_call: %10 my_grid: %11")
           .arg (id_).arg (dx_call).arg (dx_grid).arg (tx_power).arg (report_sent).arg (report_received)

@@ -240,6 +240,8 @@
  *                         Operator call          utf8
  *                         My call                utf8
  *                         My grid                utf8
+ *                         Exchange sent          utf8
+ *                         Exchange received      utf8
  *
  *      The  QSO logged  message is  sent  to the  server(s) when  the
  *      WSJT-X user accepts the "Log  QSO" dialog by clicking the "OK"
