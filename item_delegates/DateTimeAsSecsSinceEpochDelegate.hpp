@@ -41,6 +41,7 @@ public:
   QWidget * createEditor (QWidget * parent, QStyleOptionViewItem const& /*option*/, QModelIndex const& /*index*/) const override
   {
     std::unique_ptr<QDateTimeEdit> editor {new QDateTimeEdit {parent}};
+    editor->setDisplayFormat (parent->locale ().dateFormat (QLocale::ShortFormat) + " hh:mm:ss");
     editor->setTimeSpec (Qt::UTC); // needed because it ignores time
                                    // spec of the QDateTime that it is
                                    // set from
