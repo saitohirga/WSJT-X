@@ -124,6 +124,7 @@
  *                         Tx Watchdog            bool
  *                         Sub-mode               utf8
  *                         Fast mode              bool
+ *                         Special operation mode quint8
  *
  *    WSJT-X  sends this  status message  when various  internal state
  *    changes to allow the server to  track the relevant state of each
@@ -142,9 +143,21 @@
  *      At the start and end of decoding,
  *      When the Rx DF changes,
  *      When the Tx DF changes,
- *      When the DE call or grid changes (currently when settings are exited),
+ *      When settings are exited,
  *      When the DX call or grid changes,
  *      When the Tx watchdog is set or reset.
+ *
+ *    The Special operation mode is  an enumeration that indicates the
+ *    setting  selected  in  the  WSJT-X  "Settings->Advanced->Special
+ *    operating activity" panel. The values are as follows:
+ *
+ *       0 -> NONE
+ *       1 -> NA VHF
+ *       2 -> EU VHF
+ *       3 -> FIELD DAY
+ *       4 -> RTTY RU
+ *       5 -> FOX
+ *       6 -> HOUND
  *
  *
  * Decode        Out       2                      quint32

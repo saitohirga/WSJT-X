@@ -52,7 +52,7 @@ public:
                              , QString const& tx_mode, bool tx_enabled, bool transmitting, bool decoding
                              , qint32 rx_df, qint32 tx_df, QString const& de_call, QString const& de_grid
                              , QString const& dx_grid, bool watchdog_timeout, QString const& sub_mode
-                             , bool fast_mode);
+                             , bool fast_mode, quint8 special_op_mode);
   Q_SLOT void decode (bool is_new, QTime time, qint32 snr, float delta_time, quint32 delta_frequency
                       , QString const& mode, QString const& message, bool low_confidence
                       , bool off_air);

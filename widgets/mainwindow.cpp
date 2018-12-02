@@ -7684,7 +7684,8 @@ void MainWindow::statusUpdate () const
                                   ui->RxFreqSpinBox->value (), ui->TxFreqSpinBox->value (),
                                   m_config.my_callsign (), m_config.my_grid (),
                                   m_hisGrid, m_tx_watchdog,
-                                  submode != QChar::Null ? QString {submode} : QString {}, m_bFastMode);
+                                  submode != QChar::Null ? QString {submode} : QString {}, m_bFastMode,
+                                  static_cast<quint8> (m_config.special_op_id ()));
 }
 
 void MainWindow::childEvent (QChildEvent * e)
