@@ -51,7 +51,7 @@ CabrilloLog::impl::impl (Configuration const * configuration)
   SQL_error_check (export_query_, &QSqlQuery::prepare,
                    "SELECT frequency, \"when\", exchange_sent, call, exchange_rcvd FROM cabrillo_log ORDER BY \"when\"");
   
-  setEditStrategy (QSqlTableModel::OnRowChange);
+  setEditStrategy (QSqlTableModel::OnFieldChange);
   setTable ("cabrillo_log");
   setHeaderData (fieldIndex ("frequency"), Qt::Horizontal, tr ("Freq(kHz)"));
   setHeaderData (fieldIndex ("when"), Qt::Horizontal, tr ("Date & Time(UTC)"));
@@ -109,6 +109,10 @@ bool CabrilloLog::add_QSO (Frequency frequency, QDateTime const& when, QString c
   set_value_maybe_null (record, "exchange_sent", exchange_sent);
   set_value_maybe_null (record, "exchange_rcvd", exchange_received);
   set_value_maybe_null (record, "band", m_->configuration_->bands ()->find (frequency));
+  if (m_->isDirty ())
+    {
+      m_->revert ();            // discard any uncommitted changes
+    }
   auto ok = m_->insertRecord (-1, record);
   if (ok)
     {
@@ -135,7 +139,7 @@ void CabrilloLog::reset ()
       SQL_error_check (*m_, &QSqlTableModel::removeRows, 0, m_->rowCount (), QModelIndex {});
       transaction.submit ();
       m_->select ();            // to refresh views
-      m_->setEditStrategy (QSqlTableModel::OnRowChange);
+      m_->setEditStrategy (QSqlTableModel::OnFieldChange);
     }
 }
 
