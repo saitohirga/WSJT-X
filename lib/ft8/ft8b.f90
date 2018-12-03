@@ -275,7 +275,6 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
         if(ncontest.eq.6.and.f1.gt.950.0) cycle     ! Hounds use AP only for signals below 950 Hz
         if(iaptype.ge.2 .and. apsym(1).gt.1) cycle  ! No, or nonstandard, mycall 
         if(iaptype.ge.3 .and. apsym(30).gt.1) cycle ! No, or nonstandard, dxcall
-        apsym=2*apsym-1                             ! Change from [0,1] to antipodal
 
         if(iaptype.eq.1) then ! CQ or CQ RU or CQ TEST or CQ FD
            apmask=0

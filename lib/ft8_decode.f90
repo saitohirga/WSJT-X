@@ -52,7 +52,7 @@ contains
     character*12 mycall12,hiscall12,mycall12_0
     character*6 hisgrid6
     integer*2 iwave(15*12000)
-    integer apsym1(KK),apsym2(58)
+    integer apsym2(58)
     character datetime*13,msg37*37
 !   character message*22
     character*37 allmessages(100)

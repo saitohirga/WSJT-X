@@ -30,10 +30,10 @@ subroutine ft8apset(mycall12,hiscall12,apsym)
     apsym(1)=99
     apsym(30)=99
     return
-
  endif
 
   read(c77,'(58i1)',err=1) apsym(1:58)
+  apsym=2*apsym-1
   if(nohiscall) apsym(30)=99
   return
 
