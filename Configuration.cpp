@@ -200,13 +200,14 @@ namespace
   QRegularExpression RTTY_roundup_exchange_re {
     R"(
         (
-           AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA   # states
-          |HI|ID|IL|IN|IA|KS|KY|LA|ME|MD
+           AL|AZ|AR|CA|CO|CT|DE|FL|GA      # 48 contiguous states
+          |ID|IL|IN|IA|KS|KY|LA|ME|MD
           |MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ
           |NM|NY|NC|ND|OH|OK|OR|PA|RI|SC
           |SD|TN|TX|UT|VT|VA|WA|WV|WI|WY
           |NB|NS|QC|ON|MB|SK|AB|BC|NWT|NF  # VE provinces
-          |LB|NU|YT|PEI|DC
+          |LB|NU|YT|PEI
+          |DC                              # District of Columbia
           |DX                              # anyone else
         )
       )", QRegularExpression::CaseInsensitiveOption | QRegularExpression::ExtendedPatternSyntaxOption};
