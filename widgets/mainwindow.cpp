@@ -188,7 +188,7 @@ namespace
 
   int ms_minute_error ()
   {
-    auto const& now = QDateTime::currentDateTime ();
+    auto const& now = QDateTime::currentDateTimeUtc ();
     auto const& time = now.time ();
     auto second = time.second ();
     return now.msecsTo (now.addSecs (second > 30 ? 60 - second : -second)) - time.msec ();
@@ -1508,7 +1508,7 @@ QString MainWindow::save_wave_file (QString const& name, short const * data, int
   BWFFile::InfoDictionary list_info {
       {{{'I','S','R','C'}}, source.toLocal8Bit ()},
       {{{'I','S','F','T'}}, program_title (revision ()).simplified ().toLocal8Bit ()},
-      {{{'I','C','R','D'}}, QDateTime::currentDateTime ()
+      {{{'I','C','R','D'}}, QDateTime::currentDateTimeUtc ()
                           .toString ("yyyy-MM-ddTHH:mm:ss.zzzZ").toLocal8Bit ()},
       {{{'I','C','M','T'}}, comment.toLocal8Bit ()},
         };
@@ -2712,7 +2712,7 @@ void MainWindow::msgAvgDecode2()
 
 void MainWindow::decode()                                       //decode()
 {
-  QDateTime now = QDateTime::currentDateTime();
+  QDateTime now = QDateTime::currentDateTimeUtc ();
   if( m_dateTimeLastTX.isValid () ) {
     qint64 isecs_since_tx = m_dateTimeLastTX.secsTo(now);
     dec_data.params.lapcqonly= (isecs_since_tx > 600); 
@@ -3266,7 +3266,7 @@ void MainWindow::pskPost (DecodedText const& decodedtext)
   if(grid.contains (grid_regexp)) {
 //    qDebug() << "To PSKreporter:" << deCall << grid << frequency << msgmode << snr;
     psk_Reporter->addRemoteStation(deCall,grid,QString::number(frequency),msgmode,
-           QString::number(snr),QString::number(QDateTime::currentDateTime().toTime_t()));
+           QString::number(snr),QString::number(QDateTime::currentDateTimeUtc ().toTime_t()));
   }
 }
 
@@ -3399,7 +3399,7 @@ void MainWindow::guiUpdate()
   if(m_tune) m_bTxTime=true;                 //"Tune" takes precedence
 
   if(m_transmitting or m_auto or m_tune) {
-    m_dateTimeLastTX = QDateTime::currentDateTime ();
+    m_dateTimeLastTX = QDateTime::currentDateTimeUtc ();
 
 // Check for "txboth" (testing purposes only)
     QFile f(m_appDir + "/txboth");
@@ -5376,7 +5376,9 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
                             , QString const& rpt_sent, QString const& rpt_received
                             , QString const& tx_power, QString const& comments
                             , QString const& name, QDateTime const& QSO_date_on, QString const& operator_call
-                            , QString const& my_call, QString const& my_grid, QByteArray const& ADIF)
+                            , QString const& my_call, QString const& my_grid
+                            , QString const& exchange_sent, QString const& exchange_rcvd
+                            , QByteArray const& ADIF)
 {
   QString date = QSO_date_on.toString("yyyyMMdd");
   if (!m_logBook.add (m_hisCall, grid, m_config.bands()->find(m_freqNominal), m_modeTx, ADIF))
@@ -5386,7 +5388,8 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
     }
 
   m_messageClient->qso_logged (QSO_date_off, call, grid, dial_freq, mode, rpt_sent, rpt_received
-                               , tx_power, comments, name, QSO_date_on, operator_call, my_call, my_grid);
+                               , tx_power, comments, name, QSO_date_on, operator_call, my_call, my_grid
+                               , exchange_sent, exchange_rcvd);
   m_messageClient->logged_ADIF (ADIF);
 
   // Log to N1MM Logger
@@ -5638,7 +5641,7 @@ void MainWindow::on_actionJT9_triggered()
   m_bFastMode=m_bFast9;
   WSPR_config(false);
   switch_mode (Modes::JT9);
-  if(m_modeTx!="JT9") on_pbTxMode_clicked();
+  m_modeTx="JT9";
   m_nsps=6912;
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
@@ -7681,7 +7684,8 @@ void MainWindow::statusUpdate () const
                                   ui->RxFreqSpinBox->value (), ui->TxFreqSpinBox->value (),
                                   m_config.my_callsign (), m_config.my_grid (),
                                   m_hisGrid, m_tx_watchdog,
-                                  submode != QChar::Null ? QString {submode} : QString {}, m_bFastMode);
+                                  submode != QChar::Null ? QString {submode} : QString {}, m_bFastMode,
+                                  static_cast<quint8> (m_config.special_op_id ()));
 }
 
 void MainWindow::childEvent (QChildEvent * e)

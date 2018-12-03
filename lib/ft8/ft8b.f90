@@ -17,13 +17,11 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   real s8(0:7,NN)
   real s2(0:511),s2l(0:511)
   real bmeta(174),bmetb(174),bmetc(174)
-  real bmetal(174),bmetbl(174),bmetcl(174)
   real llra(174),llrb(174),llrc(174),llrd(174)           !Soft symbols
-  real llral(174),llrbl(174),llrcl(174)                   !Soft symbols
   real dd0(15*12000)
   integer*1 message77(77),apmask(174),cw(174)
   integer apsym(58)
-  integer mcq(29),mcqru(29),mcqfd(29),mcqtest(29),mcqhund(29)
+  integer mcq(29),mcqru(29),mcqfd(29),mcqtest(29)
   integer mrrr(19),m73(19),mrr73(19)
   integer itone(NN)
   integer icos7(0:6),ip(1)
@@ -43,7 +41,6 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   data   mcqru/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,0,0,1,1,0,0/
   data   mcqfd/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,1,0/
   data mcqtest/0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,0,1,0,1,1,1,1,1,1,0,0,1,0/
-  data mcqhund/0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,0,0,0,1,0,0,1,1,1,0,0/
   data    mrrr/0,1,1,1,1,1,1,0,1,0,0,1,0,0,1,0,0,0,1/
   data     m73/0,1,1,1,1,1,1,0,1,0,0,1,0,1,0,0,0,0,1/
   data   mrr73/0,1,1,1,1,1,1,0,0,1,1,1,0,1,0,1,0,0,1/
@@ -57,7 +54,6 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
      mcqfd=2*mcqfd-1
      mcqru=2*mcqru-1
      mcqtest=2*mcqtest-1
-     mcqhund=2*mcqhund-1
      mrrr=2*mrrr-1
      m73=2*m73-1
      mrr73=2*mrr73-1
@@ -205,37 +201,26 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
         do ib=0,ibmax
           bm=maxval(s2(0:nt-1),one(0:nt-1,ibmax-ib)) - &
              maxval(s2(0:nt-1),.not.one(0:nt-1,ibmax-ib))
-!          bml=maxval(s2l(0:nt-1),one(0:nt-1,ibmax-ib)) - &
-!              maxval(s2l(0:nt-1),.not.one(0:nt-1,ibmax-ib))
           if(i32+ib .gt.174) cycle
           if(nsym.eq.1) then
             bmeta(i32+ib)=bm
-!            bmetal(i32+ib)=bml
           elseif(nsym.eq.2) then
             bmetb(i32+ib)=bm
-!            bmetbl(i32+ib)=bml
           elseif(nsym.eq.3) then
             bmetc(i32+ib)=bm
-!            bmetcl(i32+ib)=bml
           endif
         enddo
       enddo
     enddo
   enddo
   call normalizebmet(bmeta,174)
-!  call normalizebmet(bmetal,174)
   call normalizebmet(bmetb,174)
-!  call normalizebmet(bmetbl,174)
   call normalizebmet(bmetc,174)
-!  call normalizebmet(bmetcl,174)
 
   scalefac=2.83
   llra=scalefac*bmeta
-!  llral=scalefac*bmetal
   llrb=scalefac*bmetb
-!  llrbl=scalefac*bmetbl
   llrc=scalefac*bmetc
-!  llrcl=scalefac*bmetcl
 
   apmag=maxval(abs(llra))*1.01
 
@@ -290,7 +275,6 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
         if(ncontest.eq.6.and.f1.gt.950.0) cycle     ! Hounds use AP only for signals below 950 Hz
         if(iaptype.ge.2 .and. apsym(1).gt.1) cycle  ! No, or nonstandard, mycall 
         if(iaptype.ge.3 .and. apsym(30).gt.1) cycle ! No, or nonstandard, dxcall
-        apsym=2*apsym-1                             ! Change from [0,1] to antipodal
 
         if(iaptype.eq.1) then ! CQ or CQ RU or CQ TEST or CQ FD
            apmask=0
@@ -300,7 +284,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
            if(ncontest.eq.2) llrd(1:29)=apmag*mcqtest(1:29)
            if(ncontest.eq.3) llrd(1:29)=apmag*mcqfd(1:29)
            if(ncontest.eq.4) llrd(1:29)=apmag*mcqru(1:29)
-           if(ncontest.eq.6) llrd(1:29)=apmag*mcqhund(1:29)
+           if(ncontest.eq.6) llrd(1:29)=apmag*mcq(1:29)
            apmask(75:77)=1 
            llrd(75:76)=apmag*(-1)
            llrd(77)=apmag*(+1)

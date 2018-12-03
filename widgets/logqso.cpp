@@ -4,7 +4,6 @@
 #include <QSettings>
 #include <QStandardPaths>
 #include <QDir>
-#include <QDebug>
 
 #include "logbook/logbook.h"
 #include "MessageBox.hpp"
@@ -70,7 +69,7 @@ void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString 
   if (ui->cbTxPower->isChecked ()) ui->txPower->setText(m_txPower);
   if (ui->cbComments->isChecked ()) ui->comments->setText(m_comments);
   if (m_config->report_in_comments()) {
-    QString t=mode;
+    auto t=mode;
     if(rptSent!="") t+="  Sent: " + rptSent;
     if(rptRcvd!="") t+="  Rcvd: " + rptRcvd;
     ui->comments->setText(t);
@@ -108,30 +107,28 @@ void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString 
 
 void LogQSO::accept()
 {
-  QString hisCall,hisGrid,mode,rptSent,rptRcvd,dateOn,dateOff,timeOn,timeOff,band,operator_call;
-  QString comments,name;
-
-  hisCall=ui->call->text();
-  hisGrid=ui->grid->text();
-  mode=ui->mode->text();
-  rptSent=ui->sent->text();
-  rptRcvd=ui->rcvd->text();
-  m_dateTimeOn = ui->start_date_time->dateTime ();
-  m_dateTimeOff = ui->end_date_time->dateTime ();
-  band=ui->band->text();
-  name=ui->name->text();
-  m_txPower=ui->txPower->text();
-  comments=ui->comments->text();
-  m_comments=comments;
-  QString strDialFreq(QString::number(m_dialFreq / 1.e6,'f',6));
-  operator_call = ui->loggedOperator->text();
+  auto hisCall = ui->call->text ();
+  auto hisGrid = ui->grid->text ();
+  auto mode = ui->mode->text ();
+  auto rptSent = ui->sent->text ();
+  auto rptRcvd = ui->rcvd->text ();
+  auto m_dateTimeOn = ui->start_date_time->dateTime ();
+  auto m_dateTimeOff = ui->end_date_time->dateTime ();
+  auto band = ui->band->text ();
+  auto name = ui->name->text ();
+  auto m_txPower = ui->txPower->text ();
+  auto m_comments = ui->comments->text ();
+  auto strDialFreq = QString::number (m_dialFreq / 1.e6,'f',6);
+  auto operator_call = ui->loggedOperator->text ();
+  auto xsent = ui->exchSent->text ();
+  auto xrcvd = ui->exchRcvd->text ();
 
   // validate
   using SpOp = Configuration::SpecialOperatingActivity;
   auto special_op = m_config->special_op_id ();
   if (SpOp::NONE < special_op && special_op < SpOp::FOX)
     {
-      if (ui->exchSent->text ().isEmpty () || ui->exchRcvd->text ().isEmpty ())
+      if (xsent.isEmpty () || xrcvd.isEmpty ())
         {
           show ();
           MessageBox::warning_message (this, tr ("Invalid QSO Data"),
@@ -139,8 +136,7 @@ void LogQSO::accept()
           return;               // without accepting
         }
 
-      if (!m_cabrilloLog->add_QSO (m_dialFreq, m_dateTimeOff, hisCall,
-                                   ui->exchSent->text (), ui->exchRcvd->text ()))
+      if (!m_cabrilloLog->add_QSO (m_dialFreq, m_dateTimeOff, hisCall, xsent, xrcvd))
         {
           show ();
           MessageBox::warning_message (this, tr ("Invalid QSO Data"),
@@ -162,7 +158,7 @@ void LogQSO::accept()
       m_dateTimeOff.time().toString("hh:mm:ss,") + hisCall + "," +
       hisGrid + "," + strDialFreq + "," + mode +
       "," + rptSent + "," + rptRcvd + "," + m_txPower +
-      "," + comments + "," + name;
+      "," + m_comments + "," + name;
     QTextStream out(&f);
     out << logEntry << endl;
     f.close();
@@ -177,12 +173,14 @@ void LogQSO::accept()
                     , rptSent
                     , rptRcvd
                     , m_txPower
-                    , comments
+                    , m_comments
                     , name
                     , m_dateTimeOn
                     , operator_call
                     , m_myCall
                     , m_myGrid
+                    , xsent
+                    , xrcvd
                     , LogBook::QSOToADIF (hisCall
                                           , hisGrid
                                           , mode
@@ -191,15 +189,15 @@ void LogQSO::accept()
                                           , m_dateTimeOn
                                           , m_dateTimeOff
                                           , band
-                                          , comments
+                                          , m_comments
                                           , name
                                           , strDialFreq
                                           , m_myCall
                                           , m_myGrid
                                           , m_txPower
                                           , operator_call
-                                          , ui->exchSent->text ()
-                                          , ui->exchRcvd->text ()));
+                                          , xsent
+                                          , xrcvd));
   QDialog::accept();
 }
 

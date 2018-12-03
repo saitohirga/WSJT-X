@@ -379,7 +379,7 @@ public:
 
 WorkedBefore::WorkedBefore ()
 {
-  connect (&m_->loader_watcher_, QFutureWatcher<worked_before_database_type>::finished, [this] () {
+  connect (&m_->loader_watcher_, &QFutureWatcher<worked_before_database_type>::finished, [this] () {
       QString error;
       size_t n {0};
       try

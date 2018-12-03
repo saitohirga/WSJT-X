@@ -216,9 +216,10 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                 bool watchdog_timeout {false};
                 QByteArray sub_mode;
                 bool fast_mode {false};
+                quint8 special_op_mode {0};
                 in >> f >> mode >> dx_call >> report >> tx_mode >> tx_enabled >> transmitting >> decoding
                    >> rx_df >> tx_df >> de_call >> de_grid >> dx_grid >> watchdog_timeout >> sub_mode
-                   >> fast_mode;
+                   >> fast_mode >> special_op_mode;
                 if (check_status (in) != Fail)
                   {
                     Q_EMIT self_->status_update (id, f, QString::fromUtf8 (mode), QString::fromUtf8 (dx_call)
@@ -226,7 +227,8 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                                                  , tx_enabled, transmitting, decoding, rx_df, tx_df
                                                  , QString::fromUtf8 (de_call), QString::fromUtf8 (de_grid)
                                                  , QString::fromUtf8 (dx_grid), watchdog_timeout
-                                                 , QString::fromUtf8 (sub_mode), fast_mode);
+                                                 , QString::fromUtf8 (sub_mode), fast_mode
+                                                 , special_op_mode);
                   }
               }
               break;
@@ -294,8 +296,11 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                 QByteArray operator_call;
                 QByteArray my_call;
                 QByteArray my_grid;
+                QByteArray exchange_sent;
+                QByteArray exchange_rcvd;
                 in >> time_off >> dx_call >> dx_grid >> dial_frequency >> mode >> report_sent >> report_received
-                   >> tx_power >> comments >> name >> time_on >> operator_call >> my_call >> my_grid;
+                   >> tx_power >> comments >> name >> time_on >> operator_call >> my_call >> my_grid
+                   >> exchange_sent >> exchange_rcvd;
                 if (check_status (in) != Fail)
                   {
                     Q_EMIT self_->qso_logged (id, time_off, QString::fromUtf8 (dx_call), QString::fromUtf8 (dx_grid)
@@ -303,7 +308,8 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                                               , QString::fromUtf8 (report_received), QString::fromUtf8 (tx_power)
                                               , QString::fromUtf8 (comments), QString::fromUtf8 (name), time_on
                                               , QString::fromUtf8 (operator_call), QString::fromUtf8 (my_call)
-                                              , QString::fromUtf8 (my_grid));
+                                              , QString::fromUtf8 (my_grid), QString::fromUtf8 (exchange_sent)
+                                              , QString::fromUtf8 (exchange_rcvd));
                   }
               }
               break;

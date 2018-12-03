@@ -230,7 +230,9 @@ private slots:
                   , QString const& rpt_sent, QString const& rpt_received
                   , QString const& tx_power, QString const& comments
                   , QString const& name, QDateTime const& QSO_date_on, QString const& operator_call
-                  , QString const& my_call, QString const& my_grid, QByteArray const& ADIF);
+                  , QString const& my_call, QString const& my_grid
+                  , QString const& exchange_sent, QString const& exchange_rcvd
+                  , QByteArray const& ADIF);
   void on_bandComboBox_currentIndexChanged (int index);
   void on_bandComboBox_activated (int index);
   void on_readFreq_clicked();
