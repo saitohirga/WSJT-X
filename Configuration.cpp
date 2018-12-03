@@ -210,6 +210,7 @@ namespace
           |DX                              # anyone else
         )
       )", QRegularExpression::CaseInsensitiveOption | QRegularExpression::ExtendedPatternSyntaxOption};
+
   QRegularExpression field_day_exchange_re {
     R"(
         (
@@ -217,7 +218,7 @@ namespace
           |[0-2]\d
           |3[0-2]
         )
-        [A-F]\                            # class and space
+        [A-F]\ *                          # class and optional space
         (
            AB|AK|AL|AR|AZ|BC|CO|CT|DE|EB  # ARRL/RAC section
           |EMA|ENY|EPA|EWA|GA|GTA|IA|ID
@@ -488,6 +489,8 @@ private:
   Q_SLOT void on_cbx4ToneSpacing_clicked(bool);
   Q_SLOT void on_prompt_to_log_check_box_clicked(bool);
   Q_SLOT void on_cbAutoLog_clicked(bool);
+  Q_SLOT void on_Field_Day_Exchange_textEdited (QString const&);
+  Q_SLOT void on_RTTY_Exchange_textEdited (QString const&);
 
   // typenames used as arguments must match registered type names :(
   Q_SIGNAL void start_transceiver (unsigned seqeunce_number) const;
@@ -1011,8 +1014,8 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   ui_->callsign_line_edit->setValidator (new CallsignValidator {this});
   ui_->grid_line_edit->setValidator (new MaidenheadLocatorValidator {this});
   ui_->add_macro_line_edit->setValidator (new QRegularExpressionValidator {message_alphabet, this});
-  ui_->Field_Day_Exchange->setValidator(new QRegularExpressionValidator {field_day_exchange_re});
-  ui_->RTTY_Exchange->setValidator(new QRegularExpressionValidator {RTTY_roundup_exchange_re});
+  ui_->Field_Day_Exchange->setValidator (new QRegularExpressionValidator {field_day_exchange_re, this});
+  ui_->RTTY_Exchange->setValidator (new QRegularExpressionValidator {RTTY_roundup_exchange_re, this});
 
   ui_->udp_server_port_spin_box->setMinimum (1);
   ui_->udp_server_port_spin_box->setMaximum (std::numeric_limits<port_type>::max ());
@@ -2505,6 +2508,22 @@ void Configuration::impl::on_cbx2ToneSpacing_clicked(bool b)
 void Configuration::impl::on_cbx4ToneSpacing_clicked(bool b)
 {
   if(b) ui_->cbx2ToneSpacing->setChecked(false);
+}
+
+void Configuration::impl::on_Field_Day_Exchange_textEdited (QString const& exchange)
+{
+  auto text = exchange.simplified ().toUpper ();
+  auto class_pos = text.indexOf (QRegularExpression {R"([A-H])"});
+  if (class_pos >= 0 && text.size () >= class_pos + 2 && text.at (class_pos + 1) != QChar {' '})
+    {
+      text.insert (class_pos + 1, QChar {' '});
+    }
+  ui_->Field_Day_Exchange->setText (text);
+}
+
+void Configuration::impl::on_RTTY_Exchange_textEdited (QString const& exchange)
+{
+  ui_->RTTY_Exchange->setText (exchange.toUpper ());
 }
 
 bool Configuration::impl::have_rig ()

@@ -43,7 +43,7 @@ FoxLog::impl::impl ()
   SQL_error_check (dupe_query_, &QSqlQuery::prepare,
                    "SELECT COUNT(*) FROM fox_log WHERE call = :call AND band = :band");
 
-  setEditStrategy (QSqlTableModel::OnRowChange);
+  setEditStrategy (QSqlTableModel::OnFieldChange);
   setTable ("fox_log");
   setHeaderData (fieldIndex ("when"), Qt::Horizontal, tr ("Date & Time(UTC)"));
   setHeaderData (fieldIndex ("call"), Qt::Horizontal, tr ("Call"));
@@ -100,6 +100,10 @@ bool FoxLog::add_QSO (QDateTime const& when, QString const& call, QString const&
   set_value_maybe_null (record, "report_sent", report_sent);
   set_value_maybe_null (record, "report_rcvd", report_received);
   set_value_maybe_null (record, "band", band);
+  if (m_->isDirty ())
+    {
+      m_->revert ();            // discard any uncommitted changes
+    }
   auto ok = m_->insertRecord (-1, record);
   if (ok)
     {
@@ -126,6 +130,6 @@ void FoxLog::reset ()
       SQL_error_check (*m_, &QSqlTableModel::removeRows, 0, m_->rowCount (), QModelIndex {});
       transaction.submit ();
       m_->select ();            // to refresh views
-      m_->setEditStrategy (QSqlTableModel::OnRowChange);
+      m_->setEditStrategy (QSqlTableModel::OnFieldChange);
     }
 }
