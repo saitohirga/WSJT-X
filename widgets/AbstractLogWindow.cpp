@@ -85,9 +85,12 @@ AbstractLogWindow::AbstractLogWindow (QString const& settings_key, QSettings * s
   , m_ {this, settings_key, settings, configuration}
 {
   // ensure view scrolls to latest new row
-  connect (&m_->model_, &QAbstractItemModel::rowsInserted, [this] (QModelIndex const& /*parent*/, int /*first*/, int /*last*/) {
-      if (m_->log_view_) m_->log_view_->scrollToBottom ();
-    });
+  connect (&m_->model_, &QAbstractItemModel::rowsInserted, this, [this] (QModelIndex const& parent, int /*first*/, int last) {
+      // note col 0 is hidden so use col 1
+      // queued connection required otherwise row may not be available
+      // in time
+      if (m_->log_view_) m_->log_view_->scrollTo (m_->log_view_->model ()->index (last, 1, parent));
+    }, Qt::QueuedConnection);
 }
 
 AbstractLogWindow::~AbstractLogWindow ()
@@ -106,6 +109,7 @@ void AbstractLogWindow::set_log_view (QTableView * log_view)
   m_->log_view_->setAlternatingRowColors (true);
   m_->log_view_->setSelectionBehavior (QAbstractItemView::SelectRows);
   m_->log_view_->setSelectionMode (QAbstractItemView::ExtendedSelection);
+  m_->log_view_->setVerticalScrollMode (QAbstractItemView::ScrollPerPixel);
   m_->model_.setSourceModel (m_->log_view_->model ());
   m_->log_view_->setModel (&m_->model_);
   m_->log_view_->setColumnHidden (0, true);
