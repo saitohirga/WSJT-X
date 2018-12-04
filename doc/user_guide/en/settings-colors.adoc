@@ -1,5 +1,7 @@
 image::colors.png[align="center",alt="Colors Screen"]
 
 _WSJT-X_ uses colors to highlight decoded messages containing
-information of particular interest.  Click on one of the buttons to
-select your preferred colors for any message category.
+information of particular interest.  Check the box to select any
+that interest you.  Drag any line up or down to raise or lower
+its logical priority.  Right-click any line to select a new
+foreground or background color.

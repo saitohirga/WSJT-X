@@ -7,7 +7,7 @@ K1**JT**,`" while the suffix "`-X`" indicates that _WSJT-X_ started as
 an extended and experimental branch of the program
 _WSJT_.
 
-_WSJT-X_ Version 1.9 offers nine different protocols or modes: *FT8*,
+_WSJT-X_ Version 2.0 offers nine different protocols or modes: *FT8*,
 *JT4*, *JT9*, *JT65*, *QRA64*, *ISCAT*, *MSK144*, *WSPR*, and *Echo*.
 The first five are designed for making reliable QSOs under extreme
 weak-signal conditions. They use nearly identical message structure
@@ -47,7 +47,7 @@ format with hashed callsigns.
 potential propagation paths using low-power transmissions. WSPR
 messages normally carry the transmitting station’s callsign, grid
 locator, and transmitter power in dBm, and they can be decoded at
-signal-to-noise ratios as low as -28 dB in a 2500 Hz bandwidth.  WSPR
+signal-to-noise ratios as low as -31 dB in a 2500 Hz bandwidth.  WSPR
 users with internet access can automatically upload reception
 reports to a central database called {wsprnet} that provides a mapping
 facility, archival storage, and many other features.
