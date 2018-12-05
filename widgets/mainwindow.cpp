@@ -4793,7 +4793,7 @@ bool MainWindow::stdCall(QString w)
     if(i1==99 and (c>="A" and c<="Z")) i1=i;
     if(c>="0" and c<="9") i2=i;
   }
-  if(i1!=0 and i1!=1) return false;    //One of the firat two characters must be a letter
+  if(i1!=0 and i1!=1) return false;    //One of the first two characters must be a letter
   if(i2>2) return false;               //No digits allowed after the 3rd character
   for(int i=i2+1; i<n; i++) {
     QString c=w.mid(i,1);
