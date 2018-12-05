@@ -470,8 +470,8 @@ contains
     real, intent(in) :: dt
     real, intent(in) :: freq
     character(len=37), intent(in) :: decoded
-    character c1*12,c2*12,g2*4,w*4,ctmp*12
-    integer i0,i1,i2,i3,i4,i5,i6,n30,nwrap
+    character c1*12,c2*12,g2*4,w*4
+    integer i0,i1,i2,i3,i4,i5,n30,nwrap
     integer, intent(in) :: nap 
     real, intent(in) :: qual 
     character*2 annot

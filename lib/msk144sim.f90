@@ -5,7 +5,6 @@ program msk144sim
   real pings(0:NMAX-1)
   real waveform(0:NMAX-1)
   character arg*8,msg*37,msgsent*37,fname*40
-  character*77 c77
   real wave(0:NMAX-1)              !Simulated received waveform
   real*8 twopi,freq,phi,dphi0,dphi1,dphi
   type(hdr) h                          !Header for .wav file

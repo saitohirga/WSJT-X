@@ -20,7 +20,6 @@ subroutine foxgen()
   character*37 msg,msgsent
   integer itone(79)
   integer*1 msgbits(77),msgbits2
-  integer*1, target:: i1Msg8BitBytes(11)
   integer*1, target:: mycall
   real x(NFFT)
   real*8 dt,twopi,f0,fstep,dfreq,phi,dphi

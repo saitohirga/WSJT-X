@@ -7,12 +7,10 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   use packjt77
   include 'ft8_params.f90'
   parameter(NP2=2812)
-  character*37 msg37,msgsent37
+  character*37 msg37
   character*12 mycall12,hiscall12,hiscall12_0
   character*77 c77
-  character*6 mycall6,hiscall6,c1,c2
   character*13 c13
-  character*87 cbits
   real a(5)
   real s8(0:7,NN)
   real s2(0:511),s2l(0:511)
@@ -28,7 +26,6 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   integer nappasses(0:5)  !Number of decoding passes to use for each QSO state
   integer naptypes(0:5,4) ! (nQSOProgress, decoding pass)  maximum of 4 passes for now
   integer ncontest,ncontest0
-  integer*1, target:: i1hiscall(12)
   logical one(0:511,0:8)
   integer graymap(0:7)
   complex cd0(0:3199)
