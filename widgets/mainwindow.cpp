@@ -955,17 +955,12 @@ void MainWindow::not_GA_warning_message ()
   QDateTime timeout=QDateTime(QDate(2018,12,31));
 
   MessageBox::critical_message (this,
-       "This version of WSJT-X is a beta-level Release Candidate.\n\n"
-       "IMPORTANT: WSJT-X 2.0 cannot communicate with other\n"
-       "stations using the FT8 or MSK144 protocols in WSJT-X v1.9.1\n"
-       "or earlier.\n\n"
-       "On December 10, 2018, the new FT8 and MSK144 protocols\n"
-       "will become the standard. Everyone should upgrade to\n"
-       "WSJT-X 2.0 by January 1, 2019.\n\n"
-       "On-the-air use carries an obligation to report problems\n"
-       "to the WSJT Development group and to upgrade to a GA\n"
-       "(General Availability) release when it becomes available.\n\n"
-       "This version cannot be used after December 31, 2018.\n\n");
+       "IMPORTANT: New protocols for the FT8 and MSK144 modes\n"
+       "became the world-wide standards on December 10, 2019.\n\n"
+       "WSJT-X 2.0 cannot communicate in these modes with other\n"
+       "stations using WSJT-X v1.9.1 or earlier.\n\n"
+       "Please help by urging everyone to upgrade to WSJT-X 2.0\n"
+       "no later than January 1, 2019.\n");
 
   if(now.daysTo(timeout) < 0) Q_EMIT finished();
 }
