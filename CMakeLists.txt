@@ -508,7 +508,6 @@ set (wsjt_FSRCS
   lib/msk144sim.f90
   lib/mskrtd.f90
   lib/77bit/my_hash.f90
-  lib/ft8/osd174.f90
   lib/wsprd/osdwspr.f90
   lib/ft8/osd174_91.f90
   lib/pctile.f90

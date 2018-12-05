@@ -305,7 +305,7 @@ private slots:
   void not_GA_warning_message ();
   void checkMSK144ContestType();
   int  setTxMsg(int n);
-  bool stdCall(QString w);
+  bool stdCall(QString const& w);
 
 private:
   Q_SIGNAL void initializeAudioOutputStream (QAudioDeviceInfo,

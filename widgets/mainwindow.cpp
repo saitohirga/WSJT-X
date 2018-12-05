@@ -4772,29 +4772,17 @@ void MainWindow::abortQSO()
   ui->txrb6->setChecked(true);
 }
 
-bool MainWindow::stdCall(QString w)
+bool MainWindow::stdCall(QString const& w)
 {
-  int n=w.trimmed().length();
-//Treat /P and /R as special cases: strip them off for this test.
-  if(w.mid(n-2,2)=="/P") w=w.left(n-2);
-  if(w.mid(n-2,2)=="/R") w=w.left(n-2);
-  n=w.trimmed().length();
-  if(n>6) return false;                 //Callsigns longer than 6 chars are nonstandard
-  w=w.toUpper();
-  int i1=99;   // index of first letter
-  int i2=-1;   // index of last digit
-  for(int i=0; i<n; i++) {
-    QString c=w.mid(i,1);
-    if(i1==99 and (c>="A" and c<="Z")) i1=i;
-    if(c>="0" and c<="9") i2=i;
-  }
-  if(i1!=0 and i1!=1) return false;    //One of the firat two characters must be a letter
-  if(i2>2) return false;               //No digits allowed after the 3rd character
-  for(int i=i2+1; i<n; i++) {
-    QString c=w.mid(i,1);
-    if(c<"A" or c>"Z") return false;   //Anything after final digit must be a letter
-  }
-  return true;
+  static QRegularExpression standard_call_re {
+    R"(
+        ^\s*				# optional leading spaces
+        ( [A-Z]{0,2} | [A-Z][0-9] | [0-9][A-Z] )  # part 1
+        ( [0-9][A-Z]{0,3} )                       # part 2
+        (/R | /P)?			# optional suffix
+        \s*$				# optional trailing spaces
+    )", QRegularExpression::CaseInsensitiveOption | QRegularExpression::ExtendedPatternSyntaxOption};
+  return standard_call_re.match (w).hasMatch ();
 }
 
 void MainWindow::genStdMsgs(QString rpt, bool unconditional)
