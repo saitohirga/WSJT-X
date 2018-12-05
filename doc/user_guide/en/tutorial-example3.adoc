@@ -46,13 +46,14 @@ when double-clicking.
 NOTE: To avoid QRM from competing callers, it is frequently desirable
 to answer a CQ on a different frequency from that of the CQing
 station.  The same is true when you tail-end another QSO.  Choose a Tx
-frequency that appears to be not in use.
+frequency that appears to be not in use.  You might want to check the
+box *Hold Tx Freq*.
 
 NOTE: Keyboard shortcuts *Shift+F11* and *Shift+F12* provide an easy
 way to move your Tx frequency down or up in 60 Hz steps.
 
-NOTE: Further helpful tips on FT8 operating procedures are available
-{ft8_tips}.  Thanks to ZL2IFB!
+NOTE: An online {ft8_tips} by ZL2IFB offers many helpful tips on
+operating procedures.
 
 .FT8 DXpedition Mode:
 
