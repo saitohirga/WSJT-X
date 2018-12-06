@@ -2961,9 +2961,14 @@ void MainWindow::readFromStdout()                             //readFromStdout
 {
   while(proc_jt9.canReadLine()) {
     auto line_read = proc_jt9.readLine ();
+    if (auto p = std::strpbrk (line_read.constData (), "\n\r"))
+      {
+        // truncate before line ending chars
+        line_read = line_read.left (p - line_read.constData ());
+      }
     if(m_mode!="FT8") {
       //Pad 22-char msg to at least 37 chars
-      line_read = line_read.left(43) + "               " + line_read.mid(43,-1);
+      line_read = line_read.left(43) + "               " + line_read.mid(43);
     }
 //    qint64 ms=QDateTime::currentMSecsSinceEpoch() - m_msec0;
     bool bAvgMsg=false;
@@ -3004,6 +3009,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
               << m_mode << endl;
           m_RxLog=0;
         }
+        qDebug () << "line_read:" << line_read;
         out << line_read.left (line_read.size() - 2).trimmed () << endl;
         f.close();
       } else {
@@ -3020,10 +3026,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
         m_blankLine = false;
       }
 
-      DecodedText decodedtext0 {QString::fromUtf8(line_read.constData())
-            .remove(QRegularExpression {"\r|\n"})};
-      DecodedText decodedtext {QString::fromUtf8(line_read.constData())
-            .remove(QRegularExpression {"\r|\n"}).remove("TU; ")};
+      DecodedText decodedtext0 {QString::fromUtf8(line_read.constData())};
+      DecodedText decodedtext {QString::fromUtf8(line_read.constData()).remove("TU; ")};
 
       if(m_mode=="FT8" and SpecOp::FOX == m_config.special_op_id() and
          (decodedtext.string().contains("R+") or decodedtext.string().contains("R-"))) {
