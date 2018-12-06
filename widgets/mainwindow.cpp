@@ -3009,7 +3009,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
               << m_mode << endl;
           m_RxLog=0;
         }
-        qDebug () << "line_read:" << line_read;
         out << line_read.left (line_read.size() - 2).trimmed () << endl;
         f.close();
       } else {
