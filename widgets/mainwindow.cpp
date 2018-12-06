@@ -3011,7 +3011,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
               << m_mode << endl;
           m_RxLog=0;
         }
-        out << line_read.left (line_read.size() - 2).trimmed () << endl;
+        out << line_read.trimmed () << endl;
         f.close();
       } else {
         MessageBox::warning_message (this, tr ("File Open Error")
