@@ -2,6 +2,7 @@
 #include "mainwindow.h"
 #include <cinttypes>
 #include <cstring>
+#include <cmath>
 #include <limits>
 #include <functional>
 #include <fstream>
