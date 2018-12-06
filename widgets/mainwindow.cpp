@@ -951,18 +951,19 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
 void MainWindow::not_GA_warning_message ()
 {
-  QDateTime now=QDateTime::currentDateTime();
-  QDateTime timeout=QDateTime(QDate(2018,12,31));
+
 
   MessageBox::critical_message (this,
        "IMPORTANT: New protocols for the FT8 and MSK144 modes\n"
-       "became the world-wide standards on December 10, 2019.\n\n"
+       "became the world-wide standards on December 10, 2018.\n\n"
        "WSJT-X 2.0 cannot communicate in these modes with other\n"
        "stations using WSJT-X v1.9.1 or earlier.\n\n"
        "Please help by urging everyone to upgrade to WSJT-X 2.0\n"
        "no later than January 1, 2019.\n");
 
-  if(now.daysTo(timeout) < 0) Q_EMIT finished();
+//  QDateTime now=QDateTime::currentDateTime();
+//  QDateTime timeout=QDateTime(QDate(2018,12,31));
+//  if(now.daysTo(timeout) < 0) Q_EMIT finished();
 }
 
 void MainWindow::initialize_fonts ()
