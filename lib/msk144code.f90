@@ -5,7 +5,7 @@ program msk144code
 
   use packjt77
   character*77 c77
-  character msg*37,msgsent*37,decoded,bad*1,msgtype*16
+  character msg*37,msgsent*37,decoded,bad*1,msgtype*18
   integer*4 i4tone(144)
   include 'msk144_testmsg.f90'
 
@@ -61,13 +61,13 @@ program msk144code
      if(msg.ne.msgsent) bad="*"
      if(i3.eq.0.and.n3.ge.0) then
         write(*,1020) imsg,msg,msgsent,bad,i3,n3,msgtype
-1020    format(i2,'.',1x,a37,1x,a37,1x,a1,2x,i1,'.',i1,1x,a16)
+1020    format(i2,'.',1x,a37,1x,a37,1x,a1,2x,i1,'.',i1,1x,a18)
      elseif(i3.ge.1) then
         write(*,1022) imsg,msg,msgsent,bad,i3,msgtype
-1022    format(i2,'.',1x,a37,1x,a37,1x,a1,2x,i1,'.',1x,1x,a16)
+1022    format(i2,'.',1x,a37,1x,a37,1x,a1,2x,i1,'.',1x,1x,a18)
      elseif(i3.lt.0) then
         write(*,1024) imsg,msg,msgsent,bad,msgtype
-1024    format(i2,'.',1x,a37,1x,a37,1x,a1,6x,a16)
+1024    format(i2,'.',1x,a37,1x,a37,1x,a1,6x,a18)
      endif
 
   enddo

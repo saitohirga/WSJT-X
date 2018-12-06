@@ -28,3 +28,4 @@ void CallsignDelegate::setModelData (QWidget * editor, QAbstractItemModel * mode
 {
   model->setData (index, static_cast<QLineEdit *> (editor)->text (), Qt::EditRole);
 }
+

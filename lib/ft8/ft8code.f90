@@ -8,14 +8,11 @@ program ft8code
   include 'ft8_testmsg.f90'
   parameter (NWAVE=NN*NSPS)
  
-  character*77 c77 
   character*37 msg,msgsent
   character*9 comment
-  character bad*1,msgtype*16
-  character*91 cbits
+  character bad*1,msgtype*18
   integer itone(NN)
   integer*1 msgbits(77)
-  logical unpk77_success
 
 ! Get command-line argument(s)
   nargs=iargc()
@@ -69,10 +66,10 @@ program ft8code
      if(msg.ne.msgsent) bad="*"
      if(n3.ge.0) then
         write(*,1020) imsg,msg,msgsent,bad,i3,n3,msgtype,comment
-1020    format(i2,'.',1x,a37,1x,a37,1x,a1,2x,i1,'.',i1,1x,a16,1x,a9)
+1020    format(i2,'.',1x,a37,1x,a37,1x,a1,2x,i1,'.',i1,1x,a18,1x,a9)
      else
         write(*,1022) imsg,msg,msgsent,bad,i3,msgtype,comment
-1022    format(i2,'.',1x,a37,1x,a37,1x,a1,2x,i1,'.',1x,1x,a16,1x,a9)
+1022    format(i2,'.',1x,a37,1x,a37,1x,a1,2x,i1,'.',1x,1x,a18,1x,a9)
      endif
   enddo
 

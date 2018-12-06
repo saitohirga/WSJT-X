@@ -1,5 +1,5 @@
-#ifndef FASTGRAPH_H
-#define FASTGRAPH_H
+#ifndef FASTGRAPH_H_
+#define FASTGRAPH_H_
 
 #include <QDialog>
 #include <QScopedPointer>
@@ -9,6 +9,8 @@ namespace Ui {
 }
 
 class QSettings;
+class QCloseEvent;
+class QKeyEvent;
 
 class FastGraph : public QDialog
 {

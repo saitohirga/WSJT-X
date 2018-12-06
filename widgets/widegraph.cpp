@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <QApplication>
 #include <QSettings>
+#include <QDateTime>
+#include <QKeyEvent>
 #include "ui_widegraph.h"
 #include "commons.h"
 #include "Configuration.hpp"
