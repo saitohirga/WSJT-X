@@ -1,6 +1,6 @@
 // -*- Mode: C++ -*-
-#ifndef LogQSO_H
-#define LogQSO_H
+#ifndef LogQSO_H_
+#define LogQSO_H_
 
 #include <QDialog>
 

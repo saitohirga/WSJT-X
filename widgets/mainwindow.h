@@ -1,12 +1,12 @@
 // -*- Mode: C++ -*-
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-#ifdef QT5
-#include <QtWidgets>
-#else
-#include <QtGui>
-#endif
+
+#include <QMainWindow>
+#include <QLabel>
 #include <QThread>
+#include <QProcess>
+#include <QProgressBar>
 #include <QTimer>
 #include <QDateTime>
 #include <QList>
@@ -58,6 +58,8 @@ namespace Ui {
   class MainWindow;
 }
 
+class QSharedMemory;
+class QSplashScreen;
 class QSettings;
 class QLineEdit;
 class QFont;
@@ -101,6 +103,8 @@ public:
                       QSplashScreen *,
                       QWidget *parent = nullptr);
   ~MainWindow();
+
+  int decoderBusy () const {return m_decoderBusy;}
 
 public slots:
   void showSoundInError(const QString& errorMsg);

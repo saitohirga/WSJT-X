@@ -1,6 +1,8 @@
 #include "echoplot.h"
 #include "commons.h"
 #include <math.h>
+#include <QPainter>
+#include <QPen>
 #include <QDebug>
 #include "moc_echoplot.cpp"
 

@@ -51,6 +51,12 @@ FoxLog::impl::impl ()
   setHeaderData (fieldIndex ("report_sent"), Qt::Horizontal, tr ("Sent"));
   setHeaderData (fieldIndex ("report_rcvd"), Qt::Horizontal, tr ("Rcvd"));
   setHeaderData (fieldIndex ("band"), Qt::Horizontal, tr ("Band"));
+
+  // This descending order by time is important, it makes the view
+  // place the latest row at the top, without this the model/view
+  // interactions are both sluggish and unhelpful.
+  setSort (fieldIndex ("when"), Qt::DescendingOrder);
+
   SQL_error_check (*this, &QSqlTableModel::select);
 }
 
@@ -104,11 +110,14 @@ bool FoxLog::add_QSO (QDateTime const& when, QString const& call, QString const&
     {
       m_->revert ();            // discard any uncommitted changes
     }
+  m_->setEditStrategy (QSqlTableModel::OnManualSubmit);
+  ConditionalTransaction transaction {*m_};
   auto ok = m_->insertRecord (-1, record);
   if (ok)
     {
-      m_->select ();            // to refresh views
+      ok = transaction.submit (false);
     }
+  m_->setEditStrategy (QSqlTableModel::OnFieldChange);
   return ok;
 }
 

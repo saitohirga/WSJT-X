@@ -59,6 +59,12 @@ CabrilloLog::impl::impl (Configuration const * configuration)
   setHeaderData (fieldIndex ("exchange_sent"), Qt::Horizontal, tr ("Sent"));
   setHeaderData (fieldIndex ("exchange_rcvd"), Qt::Horizontal, tr ("Rcvd"));
   setHeaderData (fieldIndex ("band"), Qt::Horizontal, tr ("Band"));
+
+  // This descending order by time is important, it makes the view
+  // place the latest row at the top, without this the model/view
+  // interactions are both sluggish and unhelpful.
+  setSort (fieldIndex ("when"), Qt::DescendingOrder);
+
   SQL_error_check (*this, &QSqlTableModel::select);
 }
 
@@ -113,11 +119,11 @@ bool CabrilloLog::add_QSO (Frequency frequency, QDateTime const& when, QString c
     {
       m_->revert ();            // discard any uncommitted changes
     }
+  m_->setEditStrategy (QSqlTableModel::OnManualSubmit);
+  ConditionalTransaction transaction {*m_};
   auto ok = m_->insertRecord (-1, record);
-  if (ok)
-    {
-      m_->select ();            // to refresh views
-    }
+  transaction.submit ();
+  m_->setEditStrategy (QSqlTableModel::OnFieldChange);
   return ok;
 }
 

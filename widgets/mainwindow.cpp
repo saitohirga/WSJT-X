@@ -1,12 +1,20 @@
 //---------------------------------------------------------- MainWindow
 #include "mainwindow.h"
 #include <cinttypes>
+#include <cstring>
 #include <limits>
 #include <functional>
 #include <fstream>
 #include <iterator>
 #include <algorithm>
 #include <fftw3.h>
+#include <QStringListModel>
+#include <QSettings>
+#include <QKeyEvent>
+#include <QSharedMemory>
+#include <QFileDialog>
+#include <QTextBlock>
+#include <QProgressBar>
 #include <QLineEdit>
 #include <QRegExpValidator>
 #include <QRegExp>
@@ -3100,7 +3108,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           if(w.at(0)==m_config.my_callsign() or w.at(0)==Radio::base_callsign(m_config.my_callsign())) {
             //### Check for ui->dxCallEntry->text()==foxCall before logging! ###
             ui->stopTxButton->click ();
-            on_logQSOButton_clicked();
+            logQSOTimer.start(0);
           }
           if((w.at(2)==m_config.my_callsign() or w.at(2)==Radio::base_callsign(m_config.my_callsign()))
              and ui->tx3->text().length()>0) {
@@ -3118,7 +3126,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
                ui->tx3->text().length()>0) {
               if(w.at(2)=="RR73") {
                 ui->stopTxButton->click ();
-                on_logQSOButton_clicked();
+                logQSOTimer.start(0);
               } else {
                 if(w.at(1)==Radio::base_callsign(ui->dxCallEntry->text()) and
                    (w.at(2).mid(0,1)=="+" or w.at(2).mid(0,1)=="-")) {
@@ -4453,7 +4461,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             m_nextCall="";   //### Temporary: disable use of "TU;" message
             if(SpecOp::RTTY == m_config.special_op_id() and m_nextCall!="") {
 // We're in RTTY contest and have "nextCall" queued up: send a "TU; ..." message
-              on_logQSOButton_clicked();
+              logQSOTimer.start(0);
               ui->tx3->setText(ui->tx3->text().remove("TU; "));
               useNextCall();
               QString t="TU; " + ui->tx3->text();
@@ -4462,7 +4470,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             } else {
 //              if(SpecOp::RTTY == m_config.special_op_id()) {
               if(false) {
-                on_logQSOButton_clicked();
+                logQSOTimer.start(0);
                 m_ntx=6;
                 ui->txrb6->setChecked(true);
               } else {
@@ -8216,7 +8224,7 @@ list2Done:
         {
           writeFoxQSO (QString {" Log:  %1 %2 %3 %4 %5"}.arg (m_hisCall).arg (m_hisGrid)
                        .arg (m_rptSent).arg (m_rptRcvd).arg (m_lastBand));
-          on_logQSOButton_clicked();
+          logQSOTimer.start(0);
           m_foxRateQueue.enqueue (now); //Add present time in seconds
                                         //to Rate queue.
         }

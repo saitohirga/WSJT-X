@@ -84,13 +84,23 @@ AbstractLogWindow::AbstractLogWindow (QString const& settings_key, QSettings * s
   : QWidget {parent}
   , m_ {this, settings_key, settings, configuration}
 {
-  // ensure view scrolls to latest new row
-  connect (&m_->model_, &QAbstractItemModel::rowsInserted, this, [this] (QModelIndex const& parent, int /*first*/, int last) {
-      // note col 0 is hidden so use col 1
-      // queued connection required otherwise row may not be available
-      // in time
-      if (m_->log_view_) m_->log_view_->scrollTo (m_->log_view_->model ()->index (last, 1, parent));
-    }, Qt::QueuedConnection);
+  // this attempt to scroll to the last new record doesn't work, some
+  // sort of issue with model indexes and optimized DB fetches. For
+  // now sorting by the same column and direction as the underlying DB
+  // select and that DB select being in descending order so new rows
+  // at the end appear at view row 0 gets the job done
+
+  // // ensure view scrolls to latest new row
+  // connect (&m_->model_, &QAbstractItemModel::rowsInserted, this, [this] (QModelIndex const& parent, int first, int last) {
+  //     // note col 0 is hidden so use col 1
+  //     // queued connection required otherwise row may not be available
+  //     // in time
+  //     auto index = m_->model_.index (last, 1, parent);
+  //     if (m_->log_view_)
+  //       {
+  //         m_->log_view_->scrollTo (index);
+  //       }
+  //   }, Qt::QueuedConnection);
 }
 
 AbstractLogWindow::~AbstractLogWindow ()
@@ -105,24 +115,27 @@ void AbstractLogWindow::set_log_view (QTableView * log_view)
   SettingsGroup g {m_->settings_, m_->settings_key_};
   restoreGeometry (m_->settings_->value ("window/geometry").toByteArray ());
   m_->log_view_ = log_view;
-  m_->log_view_->setContextMenuPolicy (Qt::ActionsContextMenu);
-  m_->log_view_->setAlternatingRowColors (true);
-  m_->log_view_->setSelectionBehavior (QAbstractItemView::SelectRows);
-  m_->log_view_->setSelectionMode (QAbstractItemView::ExtendedSelection);
-  m_->log_view_->setVerticalScrollMode (QAbstractItemView::ScrollPerPixel);
-  m_->model_.setSourceModel (m_->log_view_->model ());
-  m_->log_view_->setModel (&m_->model_);
-  m_->log_view_->setColumnHidden (0, true);
+  set_log_view_font (m_->configuration_->decoded_text_font ());
+  log_view->setSortingEnabled (true);
+  log_view->setContextMenuPolicy (Qt::ActionsContextMenu);
+  log_view->setAlternatingRowColors (true);
+  log_view->setSelectionBehavior (QAbstractItemView::SelectRows);
+  log_view->setSelectionMode (QAbstractItemView::ExtendedSelection);
+  log_view->setVerticalScrollMode (QAbstractItemView::ScrollPerPixel);
+  m_->model_.setSourceModel (log_view->model ());
+  log_view->setModel (&m_->model_);
+  log_view->setColumnHidden (0, true);
   auto horizontal_header = log_view->horizontalHeader ();
+  horizontal_header->setResizeContentsPrecision (0); // visible region only
   horizontal_header->setSectionResizeMode (QHeaderView::ResizeToContents);
   horizontal_header->setSectionsMovable (true);
-  m_->log_view_->verticalHeader ()->setSectionResizeMode (QHeaderView::ResizeToContents);
-  set_log_view_font (m_->configuration_->decoded_text_font ());
-  m_->log_view_->scrollToBottom ();
+  auto vertical_header = log_view->horizontalHeader ();
+  vertical_header->setResizeContentsPrecision (0); // visible region only
+  vertical_header->setSectionResizeMode (QHeaderView::ResizeToContents);
 
   // actions
-  auto delete_action = new QAction {tr ("&Delete ..."), m_->log_view_};
-  m_->log_view_->insertAction (nullptr, delete_action);
+  auto delete_action = new QAction {tr ("&Delete ..."), log_view};
+  log_view->insertAction (nullptr, delete_action);
   connect (delete_action, &QAction::triggered, [this] (bool /*checked*/) {
       m_->delete_QSOs ();
     });
@@ -130,8 +143,8 @@ void AbstractLogWindow::set_log_view (QTableView * log_view)
 
 void AbstractLogWindow::set_log_view_font (QFont const& font)
 {
-  // m_->log_view_->setFont (font);
-  // m_->log_view_->horizontalHeader ()->setFont (font);
-  // m_->log_view_->verticalHeader ()->setFont (font);
+  m_->log_view_->setFont (font);
+  m_->log_view_->horizontalHeader ()->setFont (font);
+  m_->log_view_->verticalHeader ()->setFont (font);
   m_->model_.set_font (font);
 }
