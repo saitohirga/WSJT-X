@@ -2960,18 +2960,17 @@ void MainWindow::decodeDone ()
 void MainWindow::readFromStdout()                             //readFromStdout
 {
   while(proc_jt9.canReadLine()) {
-    QByteArray t=proc_jt9.readLine();
+    auto line_read = proc_jt9.readLine ();
     if(m_mode!="FT8") {
-      //Pad 22-char msg to 37 chars
-      t=t.left(43) + "               " + t.mid(43,-1);
-      t=t.trimmed();
+      //Pad 22-char msg to at least 37 chars
+      line_read = line_read.left(43) + "               " + line_read.mid(43,-1);
     }
 //    qint64 ms=QDateTime::currentMSecsSinceEpoch() - m_msec0;
     bool bAvgMsg=false;
     int navg=0;
-    if(t.indexOf("<DecodeFinished>") >= 0) {
+    if(line_read.indexOf("<DecodeFinished>") >= 0) {
       if(m_mode=="QRA64") m_wideGraph->drawRed(0,0);
-      m_bDecoded = t.mid(20).trimmed().toInt() > 0;
+      m_bDecoded = line_read.mid(20).trimmed().toInt() > 0;
       int mswait=3*1000*m_TRperiod/4;
       if(!m_diskData) killFileTimer.start(mswait); //Kill in 3/4 period
       decodeDone ();
@@ -2983,16 +2982,16 @@ void MainWindow::readFromStdout()                             //readFromStdout
       return;
     } else {
       if(m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA64" or m_mode=="FT8") {
-        int n=t.indexOf("f");
-        if(n<0) n=t.indexOf("d");
+        int n=line_read.indexOf("f");
+        if(n<0) n=line_read.indexOf("d");
         if(n>0) {
-          QString tt=t.mid(n+1,1);
+          QString tt=line_read.mid(n+1,1);
           navg=tt.toInt();
           if(navg==0) {
             char c = tt.data()->toLatin1();
             if(int(c)>=65 and int(c)<=90) navg=int(c)-54;
           }
-          if(navg>1 or t.indexOf("f*")>0) bAvgMsg=true;
+          if(navg>1 or line_read.indexOf("f*")>0) bAvgMsg=true;
         }
       }
 
@@ -3005,8 +3004,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
               << m_mode << endl;
           m_RxLog=0;
         }
-        int n=t.length();
-        out << t.mid(0,n-2) << endl;
+        out << line_read.left (line_read.size() - 2).trimmed () << endl;
         f.close();
       } else {
         MessageBox::warning_message (this, tr ("File Open Error")
@@ -3022,9 +3020,9 @@ void MainWindow::readFromStdout()                             //readFromStdout
         m_blankLine = false;
       }
 
-      DecodedText decodedtext0 {QString::fromUtf8(t.constData())
+      DecodedText decodedtext0 {QString::fromUtf8(line_read.constData())
             .remove(QRegularExpression {"\r|\n"})};
-      DecodedText decodedtext {QString::fromUtf8(t.constData())
+      DecodedText decodedtext {QString::fromUtf8(line_read.constData())
             .remove(QRegularExpression {"\r|\n"}).remove("TU; ")};
 
       if(m_mode=="FT8" and SpecOp::FOX == m_config.special_op_id() and
