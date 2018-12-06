@@ -9,7 +9,7 @@ program ft8sim
   parameter (NWAVE=NN*NSPS)
   type(hdr) h                            !Header for .wav file
   character arg*12,fname*17
-  character msg37*37,msgsent37*37,msg40*40
+  character msg37*37,msgsent37*37
   character c77*77
   complex c0(0:NMAX-1)
   complex c(0:NMAX-1)

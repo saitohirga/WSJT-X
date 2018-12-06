@@ -955,17 +955,12 @@ void MainWindow::not_GA_warning_message ()
   QDateTime timeout=QDateTime(QDate(2018,12,31));
 
   MessageBox::critical_message (this,
-       "This version of WSJT-X is a beta-level Release Candidate.\n\n"
-       "IMPORTANT: WSJT-X 2.0 cannot communicate with other\n"
-       "stations using the FT8 or MSK144 protocols in WSJT-X v1.9.1\n"
-       "or earlier.\n\n"
-       "On December 10, 2018, the new FT8 and MSK144 protocols\n"
-       "will become the standard. Everyone should upgrade to\n"
-       "WSJT-X 2.0 by January 1, 2019.\n\n"
-       "On-the-air use carries an obligation to report problems\n"
-       "to the WSJT Development group and to upgrade to a GA\n"
-       "(General Availability) release when it becomes available.\n\n"
-       "This version cannot be used after December 31, 2018.\n\n");
+       "IMPORTANT: New protocols for the FT8 and MSK144 modes\n"
+       "became the world-wide standards on December 10, 2019.\n\n"
+       "WSJT-X 2.0 cannot communicate in these modes with other\n"
+       "stations using WSJT-X v1.9.1 or earlier.\n\n"
+       "Please help by urging everyone to upgrade to WSJT-X 2.0\n"
+       "no later than January 1, 2019.\n");
 
   if(now.daysTo(timeout) < 0) Q_EMIT finished();
 }
@@ -4777,29 +4772,17 @@ void MainWindow::abortQSO()
   ui->txrb6->setChecked(true);
 }
 
-bool MainWindow::stdCall(QString w)
+bool MainWindow::stdCall(QString const& w)
 {
-  int n=w.trimmed().length();
-//Treat /P and /R as special cases: strip them off for this test.
-  if(w.mid(n-2,2)=="/P") w=w.left(n-2);
-  if(w.mid(n-2,2)=="/R") w=w.left(n-2);
-  n=w.trimmed().length();
-  if(n>6) return false;                 //Callsigns longer than 6 chars are nonstandard
-  w=w.toUpper();
-  int i1=99;   // index of first letter
-  int i2=-1;   // index of last digit
-  for(int i=0; i<n; i++) {
-    QString c=w.mid(i,1);
-    if(i1==99 and (c>="A" and c<="Z")) i1=i;
-    if(c>="0" and c<="9") i2=i;
-  }
-  if(i1!=0 and i1!=1) return false;    //One of the firat two characters must be a letter
-  if(i2>2) return false;               //No digits allowed after the 3rd character
-  for(int i=i2+1; i<n; i++) {
-    QString c=w.mid(i,1);
-    if(c<"A" or c>"Z") return false;   //Anything after final digit must be a letter
-  }
-  return true;
+  static QRegularExpression standard_call_re {
+    R"(
+        ^\s*				# optional leading spaces
+        ( [A-Z]{0,2} | [A-Z][0-9] | [0-9][A-Z] )  # part 1
+        ( [0-9][A-Z]{0,3} )                       # part 2
+        (/R | /P)?			# optional suffix
+        \s*$				# optional trailing spaces
+    )", QRegularExpression::CaseInsensitiveOption | QRegularExpression::ExtendedPatternSyntaxOption};
+  return standard_call_re.match (w).hasMatch ();
 }
 
 void MainWindow::genStdMsgs(QString rpt, bool unconditional)

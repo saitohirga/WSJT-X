@@ -67,7 +67,7 @@ d). Edit lines as needed. Keeping them in alphabetic order help see dupes.
 :fmt_group: https://groups.yahoo.com/neo/groups/FMT-nuts/info[FMT Group]
 :fmt_k5cm: http://www.k5cm.com/[FMT Event Info]
 :fmt_wspr: http://www.physics.princeton.edu/pulsar/K1JT/FMT_User.pdf[Accurate Frequency Measurements with your WSPR Setup]
-:ft8_tips: http://www.physics.princeton.edu/pulsar/K1JT/FT8_Operating_Tips.pdf[here]
+:ft8_tips: http://www.g4ifb.com/FT8_Hinson_tips_for_HF_DXers.pdf[FT8 Operating Guide]
 :ft8_DXped: http://physics.princeton.edu/pulsar/k1jt/FT8_DXpedition_Mode.pdf[FT8 DXpedition Mode]
 :gnu_gpl: http://www.gnu.org/licenses/gpl-3.0.txt[GNU General Public License]
 :homepage: http://physics.princeton.edu/pulsar/K1JT/[WSJT Home Page]

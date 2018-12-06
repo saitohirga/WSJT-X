@@ -100,7 +100,7 @@ subroutine msk144decodeframe(c,softbits,msgreceived,nsuccess)
   if( nharderror .ge. 0 .and. nharderror .lt. 18 ) then
     nsuccess=1
     write(c77,'(77i1)') decoded77
-    read(c77(72:77),'(2b3)'),n3,i3
+    read(c77(72:77),'(2b3)') n3,i3
     if( (i3.eq.0.and.(n3.eq.1 .or. n3.eq.3 .or. n3.eq.4 .or. n3.gt.5)) .or. i3.eq.3 .or. i3.gt.4 ) then
         nsuccess=0 
     else 

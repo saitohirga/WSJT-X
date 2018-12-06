@@ -1,7 +1,10 @@
 image::colors.png[align="center",alt="Colors Screen"]
 
-_WSJT-X_ uses colors to highlight decoded messages containing
-information of particular interest.  Check the box to select any
-that interest you.  Drag any line up or down to raise or lower
-its logical priority.  Right-click any line to select a new
-foreground or background color.
+_WSJT-X_ uses colors to highlight decoded CQ messages of particular
+interest.  Check the box *Show DXCC, grid, and worked-before status*
+on the *Settings | General* tab, and any boxes of interest to you on
+the *Colors* tab.  You can drag any line up or down to raise or lower
+its logical priority.  Right-click any line to set a new foreground or
+background color.  Foreground and background colors are applied
+separately, and careful choices of foreground, background, and
+priority can provide two indications of worked-before status.

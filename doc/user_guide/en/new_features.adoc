@@ -13,7 +13,7 @@ added to _WSJT-X_ since Version 1.9.1:
 
 * Integration with N1MM+ and WriteLog for contesting
 
-* IMproved support for compound and nonstandard callsigns
+* Improved support for compound and nonstandard callsigns
 
 * Nearly equal (or better) sensitivity compared to old protocols
 
