@@ -16,19 +16,23 @@ directory +
 
 TIP: Your computer may be configured so that this directory is
 "`invisible`".  It's there, however, and accessible.  An alternative
-(shortcut) directory name is `%LOCALAPPDATA%\WSJT-X\`.
+(shortcut) directory name is `"%LOCALAPPDATA%\WSJT-X\"`.
 
 - The built-in Windows facility for time synchronization is usually
 not adequate. We recommend the program _Meinberg NTP_ (see {ntpsetup}
 for downloading and installation instructions) or _Dimension 4_ from
-{dimension4}.
+{dimension4}. Recent versions of Windows 10 are now shipped with a
+more capable Internet time synchronization service that is suitable if
+configured appropriately.
 
 - _WSJT-X_ expects your sound card to do its raw sampling at 48000 Hz.
 To ensure that this will be so when running under recent versions of
-Windows, open the system's *Sound* control panel and select in turn the
-*Recording* and *Playback* tabs. Click on *Properties*, then
-*Advanced*, and select *16 bit, 48000 Hz (DVD Quality)*.
+Windows, open the system's *Sound* control panel and select in turn
+the *Recording* and *Playback* tabs. Click on *Properties*, then
+*Advanced*, and select *16 bit, 48000 Hz (DVD Quality)*. Switch of all
+audio enhancement features for these devices.
 
 - You can uninstall _WSJT-X_ by clicking its *Uninstall* link in the
-Windows *Start* menu, or by using *Uninstall a Program* on the
-Windows Control Panel.
+Windows *Start* menu, or by using *Uninstall a Program* on the Windows
+Control Panel Programs and Features option or in Settings Apps on
+Windows 10.

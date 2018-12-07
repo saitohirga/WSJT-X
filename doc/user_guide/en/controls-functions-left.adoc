@@ -28,6 +28,8 @@ if the rig is detected to be in *Split* mode.  The circle becomes red
 if you have requested CAT control but communication with the radio has
 been lost.
 
++
+
 TIP: Many Icom rigs cannot be queried for split status, current VFO or
 split transmit frequency. When using _WSJT-X_ with such radios you
 should not change the current VFO, split status or dial frequency

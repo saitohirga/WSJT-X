@@ -156,8 +156,8 @@ has been received in full in the recent past.  Otherwise it will be
 displayed as < . . . >.  These restrictions are honored automatically
 by the algorithm that generates default messages for minimal QSOs.
 Except for the special cases involving /P or /R used in VHF
-contesting, _WSJT-X 2.0_ offers no support for two nonstandard
-callsigns to work each other.
+contesting, _WSJT-X {VERSION_MAJOR}.{VERSION_MINOR}_ offers no support
+for two nonstandard callsigns to work each other.
 
 *JT4, JT9, JT65, and QRA64*
 

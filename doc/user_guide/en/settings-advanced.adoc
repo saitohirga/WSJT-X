@@ -27,6 +27,8 @@ receiver's effective noise bandwidth.
 a larger delay between execution of a command to enable PTT and onset
 of Tx audio.  
 
++
+
 IMPORTANT: For the health of your T/R relays and external
 preamplifier, we strongly recommend using a hardware sequencer and
 testing to make sure that sequencing is correct.

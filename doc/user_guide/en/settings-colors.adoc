@@ -1,10 +1,47 @@
 image::colors.png[align="center",alt="Colors Screen"]
 
-_WSJT-X_ uses colors to highlight decoded CQ messages of particular
-interest.  Check the box *Show DXCC, grid, and worked-before status*
-on the *Settings | General* tab, and any boxes of interest to you on
-the *Colors* tab.  You can drag any line up or down to raise or lower
-its logical priority.  Right-click any line to set a new foreground or
-background color.  Foreground and background colors are applied
-separately, and careful choices of foreground, background, and
-priority can provide two indications of worked-before status.
+.Decode Highlighting
+
+* _WSJT-X_ uses colors to highlight decoded CQ messages of particular
+  interest.  Check the box *Show DXCC, grid, and worked-before status*
+  on the *Settings | General* tab, and any boxes of interest to you on
+  the *Colors* tab.  You can drag any line up or down to raise or
+  lower its logical priority.  Right-click any line to set a new
+  foreground or background color.  Foreground and background colors
+  are applied separately, and careful choices of foreground,
+  background, and priority can provide two indications of
+  worked-before status.
+
+* Press the *Reset Highlighting* button to reset all of the color
+  settings to default values.
+
+* Check *Highlight by Mode* if you wish worked before status to be per
+  <<INTRO,mode>>.
+
+* Worked before status is calculated from your _WSJT-X_ ADIF
+  <<LOGGING, Logging>> file, you may replace ADIF log file with one
+  exported from your station logging application, *Rescan ADIF Log*
+  rebuilds the _WSJT-X_ worked before indexes using the current ADIF
+  log file.
+
++
+
+TIP: The _WSJT-X_ ADIF file records must contain the "CALL" field.
+     The "BAND", and "MODE", and "GRIDSQUARE" fields are optional
+     depending on your DXing objectives. DXCC entity, continent, CQ,
+     and ITU Zone data for call prefixes and certain well known
+     overrides are derived from the cty.dat database which is bundled
+     with _WSJT-X_ (See <<LOGGING,Logging>> for details).
+
+.Logbook of The World User Validation
+
+Stations who are known to have uploaded their logs to the ARRL LoTW
+QSL matching service can be highlighted. The data used to determine
+this is available on line.
+
+* *Fetch Now* will download a fresh dataset from the *Users CSV file
+   URL*. The LoTW team normally update this data weekly.
+
+* Adjust *Age of of last upload less than* to set the period within
+  which a station must have uploaded their log to LoTW to trigger
+  highlighting.
