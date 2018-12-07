@@ -47,7 +47,23 @@ location for each instance of _WSJT-X_.
  wsjtx --rig-name=TS2000
  wsjtx --rig-name=FT847
 
-Rig control through _OmniRig_ seems to fail when I click *Test CAT*.  What can I do about it?::
+I occasionally get Rig Control Errors if I adjust my Icom rig's VFO. What's wrong?::
+
+By default most Icom transceivers have *CI-V Tranceive Mode" enabled,
+this will cause unsolicited CAT traffic from the rig that disrupts CAT
+control by a PC. Disable this option in the rig's menu.
+
+I want to control my transceiver with another application as well as _WSJT-X_, is that possible?::
+
+This only possible to do reliably via some kind of rig control server,
+that server must be able to accept both _WSJT-X_ and the other
+application(s) as clients. Using a dumb serial port splitter like the
+VSPE tool is not supported, it may work but it is not reliable due to
+unmanaged CAT control collisions. Applications like the _Hamlib Rig
+Control Server (rigctld)_, _{omnirig}_, and _{dxlsuite} Commander_ are
+potentially suitable and _WSJT-X_ can act as a client to them all.
+
+Rig control through _OmniRig_ seems to fail when I click *Test CAT*. What can I do about it?::
 
 _Omni-Rig_ apparently has a bug that appears when you click *Test
 CAT*.  Forget using *Test CAT* and just click *OK*.  _Omni-Rig_ then

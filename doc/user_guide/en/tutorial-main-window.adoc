@@ -6,6 +6,8 @@
 
 - Set the audio frequencies to *Tx 1224 Hz* and *Rx 1224 Hz*.  
 
++
+
 TIP: Sliders and spinner controls respond to *Arrow* key presses
 and *Page Up/Down* key presses, with the *Page* keys moving the
 controls in larger steps.  You can also type numbers directly into

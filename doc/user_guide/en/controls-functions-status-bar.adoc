@@ -21,3 +21,5 @@ the elapsed fraction of a Tx or Rx sequence.  Finally, if the Watchdog
 lower right-hand corner displays the number of minutes remaining
 before timeout.
 
+TIP: Temporary status messages may occasionally be displayed here for
+a few seconds when background processing completes.
