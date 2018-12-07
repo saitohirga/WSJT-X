@@ -47,6 +47,10 @@ location for each instance of _WSJT-X_.
  wsjtx --rig-name=TS2000
  wsjtx --rig-name=FT847
 
+I am getting a "Network Error - SSL/TLS support not installed" message. What should I do?::
+
+You need to install suitable _OpenSSL_ libraries - see <<OPENSSL,Instructions to install _OpenSSL_>>.
+
 I occasionally get Rig Control Errors if I adjust my Icom rig's VFO. What's wrong?::
 
 By default most Icom transceivers have *CI-V Tranceive Mode" enabled,
