@@ -1446,7 +1446,9 @@ void Configuration::impl::read_settings ()
 
   stations_.station_list (settings_->value ("stations").value<StationList::Stations> ());
 
-  decode_highlighing_model_.items (settings_->value ("DecodeHighlighting", QVariant::fromValue (DecodeHighlightingModel::default_items ())).value<DecodeHighlightingModel::HighlightItems> ());
+  auto highlight_items = settings_->value ("DecodeHighlighting", QVariant::fromValue (DecodeHighlightingModel::default_items ())).value<DecodeHighlightingModel::HighlightItems> ();
+  if (!highlight_items.size ()) highlight_items = DecodeHighlightingModel::default_items ();
+  decode_highlighing_model_.items (highlight_items);
   highlight_by_mode_ = settings_->value("HighlightByMode", false).toBool ();
   LotW_days_since_upload_ = settings_->value ("LotWDaysSinceLastUpload", 365).toInt ();
   lotw_users_.set_age_constraint (LotW_days_since_upload_);
