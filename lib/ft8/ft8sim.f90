@@ -108,7 +108,6 @@ program ft8sim
      ib=k
      wave=real(c)
      peak=maxval(abs(wave(ia:ib)))
-     rms=sqrt(dot_product(wave(ia:ib),wave(ia:ib))/NWAVE)
      nslots=1
      if(width.gt.0.0) call filt8(f0,nslots,width,wave)
    
@@ -119,10 +118,16 @@ program ft8sim
         enddo
      endif
 
-     fac=32767.0
-     rms=100.0
-     if(snrdb.ge.90.0) iwave(1:NMAX)=nint(fac*wave)
-     if(snrdb.lt.90.0) iwave(1:NMAX)=nint(rms*wave)
+     gain=100.0
+     if(snrdb.lt.90.0) then
+       wave=gain*wave
+     else
+       datpk=maxval(abs(wave))
+       fac=32766.9/datpk
+       wave=fac*wave
+     endif
+     if(any(abs(wave).gt.32767.0)) print*,"Warning - data will be clipped."
+     iwave=nint(wave)
 
      h=default_header(12000,NMAX)
      write(fname,1102) ifile
