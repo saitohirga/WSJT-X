@@ -4567,20 +4567,20 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
         return;               // nothing we need to respond to
       }
     }
-//    else {                  // nothing for us
+    else {                  // nothing for us
 //      if(message_words.size () > 3   // enough fields for a normal message
 //         && SpecOp::RTTY == m_config.special_op_id()
 //         && (message_words.at(1).contains(m_baseCall) || "DE" == message_words.at(1))
 //         && (!message_words.at(2).contains(qso_partner_base_call) and !bEU_VHF_w2)) {
-// Queue up the next QSO partner
+//// Queue up the next QSO partner
 //        m_nextCall=message_words.at(2);
 //        m_nextGrid=message_words.at(3);
 //        m_nextRpt=message.report();
 //        ui->labNextCall->setText("Next:  " + m_nextCall);
 //        ui->labNextCall->setStyleSheet("QLabel {background-color: #66ff66}");
 //      }
-//      return;
-//    }
+      return;
+    }
   }
   else if (firstcall == "DE" && message_words.size () > 3 && message_words.at (3) == "73") {
     if (m_QSOProgress >= ROGERS && base_call == qso_partner_base_call && m_currentMessageType) {
