@@ -1,5 +1,5 @@
 // This is a comment line, anything with // is ignored at process time.
-= _WSJT-X_ User Guide
+= _WSJT-X {VERSION_MAJOR}.{VERSION_MINOR}_ User Guide
 Joseph H Taylor, Jr, K1JT
 :revnumber: {VERSION}
 // For web-pages, adding :badges: is ok, but is a security issue for
@@ -113,9 +113,12 @@ include::transceiver-setup.adoc[]
 This section introduces the basic user controls and program behavior
 of _WSJT-X_, with particular emphasis on the JT9, JT65, and FT8 modes.
 We suggest that new users should go through the full HF-oriented
-tutorial, preferably while at your radio.  Subsequent sections cover
-additional details on <<MAKE_QSOS,Making QSOs>>, <<WSPR,WSPR mode>>
-and <<VHF_AND_UP,VHF+ Features>>.
+tutorial, preferably while at your radio.  Note that as of late 2018,
+digital usage on the HF bands has mostly moved from JT65 and JT9 to FT8.  So
+you may wish to pay particular attention to *FT8*, in Section 6.6.
+
+Subsequent sections cover additional details on <<MAKE_QSOS,Making
+QSOs>>, <<WSPR,WSPR mode>> and <<VHF_AND_UP,VHF+ Features>>.
 
 [[TUT_MAIN]]
 === Main Window Settings

@@ -1,6 +1,6 @@
 // -*- Mode: C++ -*-
-#ifndef WIDEGRAPH_H
-#define WIDEGRAPH_H
+#ifndef WIDEGRAPH_H_
+#define WIDEGRAPH_H_
 
 #include <QDialog>
 #include <QScopedPointer>

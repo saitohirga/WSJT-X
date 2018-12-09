@@ -36,6 +36,8 @@ the original frequency.
 * *Erase* clears the right-hand decoded text window. 
 Double-clicking *Erase* clears both text windows.
 
++
+
 TIP: Right-clicking on either text window brings up a context menu
 with several options (including *Erase*) which operate on that window
 alone.

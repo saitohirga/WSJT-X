@@ -2,53 +2,63 @@
 .Receiver Noise Level
 
 - If it is not already highlighted in green, click the *Monitor*
-button to start normal receive operation.  
+  button to start normal receive operation.
 
 - Be sure your transceiver is set to *USB* (or *USB Data*) mode.
 
 - Use the receiver gain controls and/or the computer's audio mixer
-controls to set the background noise level (scale at lower left of
-main window) to around 30 dB when no signals are present.  It is
-usually best to turn AGC off or reduce the RF gain control to minimize
-AGC action.
+  controls to set the background noise level (scale at lower left of
+  main window) to around 30 dB when no signals are present.  It is
+  usually best to turn AGC off or reduce the RF gain control to
+  minimize AGC action.
+
++
+
+TIP: The PC audio mixer normally has two sliders, one for each
+     application attached which should be set to maximum (0dB FS) as
+     it cannot help with distortion from overly high or low input
+     levels from your receiver and another *Master* level which is
+     analogue attenuator on the sound card before the Analogue to
+     Digital Converter (ADC). The *Master* level can be used to adjust
+     the signal level received by _WSJT-X_.
 
 .Bandwidth and Frequency Setting
 
 - If your transceiver offers more than one bandwidth setting in USB
-mode, it may be advantageous to choose the widest one possible, up to
-about 5 kHz.  This choice has the desirable effect of allowing the
-*Wide Graph* (waterfall and 2D spectrum) to display the conventional
-JT65 and JT9 sub-bands simultaneously on most HF bands.  Further
-details are provided in the <<TUTORIAL,Basic Operating Tutorial>>.  A
-wider displayed bandwidth may also be helpful at VHF and above, where
-FT8, JT4, JT65, and QRA64 signals may be found over much wider ranges
-of frequencies.
+  mode, it may be advantageous to choose the widest one possible, up
+  to about 5 kHz.  This choice has the desirable effect of allowing
+  the *Wide Graph* (waterfall and 2D spectrum) to display the
+  conventional JT65 and JT9 sub-bands simultaneously on most HF bands.
+  Further details are provided in the <<TUTORIAL,Basic Operating
+  Tutorial>>.  A wider displayed bandwidth may also be helpful at VHF
+  and above, where FT8, JT4, JT65, and QRA64 signals may be found over
+  much wider ranges of frequencies.
 
 - If you have only a standard SSB filter you won’t be able to display
-more than about 2.7 kHz bandwidth.  Depending on the exact dial
-frequency setting, on HF bands you can display the full sub-band
-generally used for one mode.
+  more than about 2.7 kHz bandwidth.  Depending on the exact dial
+  frequency setting, on HF bands you can display the full sub-band
+  generally used for one mode.
 
 - Of course, you might prefer to concentrate on one mode at a time,
-setting your dial frequency to (say) 14.074 for FT8, 14.076 for JT65,
-or 14.078 for JT9.  Present conventions have the nominal JT9 dial
-frequency 2 kHz higher than the JT65 dial frequency on most bands, and
-the FT8 frequency 2 kHz lower.
+  setting your dial frequency to (say) 14.074 for FT8, 14.076 for
+  JT65, or 14.078 for JT9.  Present conventions have the nominal JT9
+  dial frequency 2 kHz higher than the JT65 dial frequency on most
+  bands, and the FT8 frequency 2 kHz lower.
 
 .Transmitter Audio Level
 
-* Click the *Tune* button on the main screen to switch the
-radio into transmit mode and generate a steady audio tone. 
+* Click the *Tune* button on the main screen to switch the radio into
+  transmit mode and generate a steady audio tone.
 
 * Listen to the generated audio tone using your radio’s *Monitor*
-facility. The transmitted tone should be perfectly smooth, with no
-clicks or glitches.  Make sure that this is true even when you
-simultaneously use the computer to do other tasks such as email, web
-browsing, etc.
+  facility. The transmitted tone should be perfectly smooth, with no
+  clicks or glitches.  Make sure that this is true even when you
+  simultaneously use the computer to do other tasks such as email, web
+  browsing, etc..
 
 * Adjust the *Pwr* slider (at right edge of main window) downward from
-its maximum until the RF output from your transmitter falls slightly.
-This is generally a good level for audio drive.
+  its maximum until the RF output from your transmitter falls
+  slightly.  This is generally a good level for audio drive.
 
 * Toggle the *Tune* button once more or click *Halt Tx* to stop your
-test transmission.
+  test transmission.

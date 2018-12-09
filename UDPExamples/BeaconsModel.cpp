@@ -72,7 +72,7 @@ namespace
 }
 
 BeaconsModel::BeaconsModel (QObject * parent)
-  : QStandardItemModel {0, sizeof (headings) / sizeof (headings[0]), parent}
+  : QStandardItemModel {0, sizeof headings / sizeof headings[0], parent}
 {
   int column {0};
   for (auto const& heading : headings)

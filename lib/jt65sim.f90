@@ -21,12 +21,13 @@ program jt65sim
   character msg*22,fname*11,csubmode*1,c,optarg*500,numbuf*32
 !  character call1*5,call2*5
   logical :: display_help=.false.,seed_prngs=.true.
-  type (option) :: long_options(12) = [ &
+  type (option) :: long_options(13) = [ &
     option ('help',.false.,'h','Display this help message',''),                                &
     option ('sub-mode',.true.,'m','sub mode, default MODE=A','MODE'),                          &
     option ('num-sigs',.true.,'n','number of signals per file, default SIGNALS=10','SIGNALS'), &
     option ('f0',.true.,'F','base frequency offset, default F0=1500.0','F0'), &
     option ('doppler-spread',.true.,'d','Doppler spread, default SPREAD=0.0','SPREAD'),        &
+    option ('drift per min',.true.,'D','Frequency drift (Hz/min), default DRIFT=0.0','DRIFT'),        &
     option ('time-offset',.true.,'t','Time delta, default SECONDS=0.0','SECONDS'),             &
     option ('num-files',.true.,'f','Number of files to generate, default FILES=1','FILES'),    &
     option ('no-prng-seed',.false.,'p','Do not seed PRNGs (use for reproducible tests)',''),   &
@@ -50,6 +51,7 @@ program jt65sim
   nsigs=10
   bf0=1500.
   fspread=0.
+  drift=0.
   xdt=0.
   snrdb=0.
   nfiles=1
@@ -58,7 +60,7 @@ program jt65sim
   msg="K1ABC W9XYZ EN37"
 
   do
-     call getopt('hm:n:F:d:t:f:ps:SG:M:',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
+     call getopt('hm:n:F:d:D:t:f:ps:SG:M:',long_options,c,optarg,narglen,nstat,noffset,nremain,.true.)
      if( nstat .ne. 0 ) then
         exit
      end if
@@ -76,6 +78,8 @@ program jt65sim
         read (optarg(:narglen), *,err=10) bf0
      case ('d')
         read (optarg(:narglen), *,err=10) fspread
+     case ('D')
+        read (optarg(:narglen), *,err=10) drift 
      case ('t')
         read (optarg(:narglen), *) numbuf
         if (numbuf(1:1) == '\') then !'\'
@@ -105,7 +109,6 @@ program jt65sim
         end if
      case ('M')
         read (optarg(:narglen), '(A)',err=10) msg
-        write(*,*) msg 
      end select
      cycle
 10   display_help=.true.
@@ -190,6 +193,21 @@ program jt65sim
            endif
         enddo
 
+        if(len(trim(msg)).eq.2.or.len(trim(msg)).eq.3) then
+          nshorthand=0
+          if(msg(1:2).eq.'RO') nshorthand=2
+          if(msg(1:3).eq.'RRR') nshorthand=3
+          if(msg(1:2).eq.'73') nshorthand=4
+          if(nshorthand.gt.0) then
+            ntoggle=0
+            do i=1,nsym,2
+              itone(i)=ntoggle*10*nshorthand
+              if(i+1.le.126) itone(i+1)=ntoggle*10*nshorthand
+              ntoggle=mod(ntoggle+1,2)
+            enddo
+          endif
+        endif
+
         bandwidth_ratio=2500.0/(fsample/2.0)
         sig=sqrt(2*bandwidth_ratio)*10.0**(0.05*xsnr)
         if(xsnr.gt.90.0) sig=1.0
@@ -203,11 +221,8 @@ program jt65sim
         do i=1,npts                         !Add this signal into cdat()
            isym=floor(i/sps)+1
            if(isym.gt.nsym) exit
-           if(isym.ne.isym0) then
-              freq=f0 + itone(isym)*baud*mode65
-              dphi=twopi*freq*dt
-              isym0=isym
-           endif
+           freq=f0 + (drift/60.0)*(i-npts/2)*dt + itone(isym)*baud*mode65
+           dphi=twopi*freq*dt
            phi=phi + dphi
            if(phi.gt.twopi) phi=phi-twopi
            xphi=phi
@@ -282,9 +297,9 @@ program jt65sim
 
      endif
 
-     dat=aimag(cdat) + xnoise                 !Add the generated noise
+     dat(1:npts)=aimag(cdat(1:npts)) + xnoise(1:npts)              !Add the generated noise
      if(snrdb.lt.90.0) then
-       dat=rms*dat(1:npts)
+       dat(1:npts)=rms*dat(1:npts)
      else
        datpk=maxval(abs(dat(1:npts)))
        fac=32766.9/datpk

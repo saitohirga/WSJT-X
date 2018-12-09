@@ -3,6 +3,7 @@
 #include "commons.h"
 #include <QSettings>
 #include <QApplication>
+#include <QKeyEvent>
 #include "fastplot.h"
 #include "SettingsGroup.hpp"
 

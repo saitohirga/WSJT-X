@@ -121,6 +121,7 @@ void DisplayText::appendText(QString const& text, QColor bg, QColor fg
                              , QString const& call1, QString const& call2)
 {
 //  qDebug () << "DisplayText::appendText: text:" << text << "Nbsp pos:" << text.indexOf (QChar::Nbsp);
+
   auto cursor = textCursor ();
   cursor.movePosition (QTextCursor::End);
   auto block_format = cursor.blockFormat ();
@@ -136,16 +137,6 @@ void DisplayText::appendText(QString const& text, QColor bg, QColor fg
     {
       format.setForeground (fg);
     }
-  if (call2.size () && m_config && m_config->lotw_users ().user (call2))
-    {
-      QColor bg;
-      QColor fg;
-      highlight_types types {Highlight::LotW};
-      set_colours (m_config, &bg, &fg, types);
-      if (bg.isValid ()) block_format.setBackground (bg);
-      if (fg.isValid ()) format.setForeground (fg);
-    }
-
   if (cursor.position ())
     {
       cursor.insertBlock (block_format, format);
@@ -212,13 +203,12 @@ void DisplayText::appendText(QString const& text, QColor bg, QColor fg
   document ()->setMaximumBlockCount (document ()->maximumBlockCount ());
 }
 
-QString DisplayText::appendWorkedB4 (QString message, QString const& callsign, QString const& grid,
+QString DisplayText::appendWorkedB4 (QString message, QString call, QString const& grid,
                                      QColor * bg, QColor * fg, LogBook const& logBook,
                                      QString const& currentBand, QString const& currentMode)
 {
   // allow for seconds
   int padding {message.indexOf (" ") > 4 ? 2 : 0};
-  QString call = callsign;
   QString countryName;
   bool callB4;
   bool callB4onBand;
@@ -292,6 +282,10 @@ QString DisplayText::appendWorkedB4 (QString message, QString const& callsign, Q
   if(!ITUZoneB4onBand) {
     types.push_back (Highlight::ITUZoneBand);
   }
+  if (m_config && m_config->lotw_users ().user (call))
+    {
+      types.push_back (Highlight::LotW);
+    }
   types.push_back (Highlight::CQ);
   auto top_highlight = set_colours (m_config, bg, fg, types);
 
@@ -367,21 +361,22 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
       || decodedText.string ().contains (" QRZ "))
     {
       CQcall = true;
-      highlight_types types {Highlight::CQ};
-      set_colours (m_config, &bg, &fg, types);
     }
-  if(bCQonly and !CQcall) return;
-  if (myCall != "" and (decodedText.indexOf (" " + myCall + " ") >= 0
-        or decodedText.indexOf (" " + myCall + "/") >= 0
-        or decodedText.indexOf ("<" + myCall + "/") >= 0
-        or decodedText.indexOf ("/" + myCall + " ") >= 0
-        or decodedText.indexOf ("/" + myCall + ">") >= 0
-        or decodedText.indexOf ("<" + myCall + " ") >= 0
-        or decodedText.indexOf ("<" + myCall + ">") >= 0
-        or decodedText.indexOf (" " + myCall + ">") >= 0)) {
-    highlight_types types {Highlight::MyCall};
-    set_colours (m_config, &bg, &fg, types);
-  }
+  else
+    {
+      if (bCQonly) return;
+      if (myCall != "" && (decodedText.indexOf (" " + myCall + " ") >= 0
+                           or decodedText.indexOf (" " + myCall + "/") >= 0
+                           or decodedText.indexOf ("<" + myCall + "/") >= 0
+                           or decodedText.indexOf ("/" + myCall + " ") >= 0
+                           or decodedText.indexOf ("/" + myCall + ">") >= 0
+                           or decodedText.indexOf ("<" + myCall + " ") >= 0
+                           or decodedText.indexOf ("<" + myCall + ">") >= 0
+                           or decodedText.indexOf (" " + myCall + ">") >= 0)) {
+        highlight_types types {Highlight::MyCall};
+        set_colours (m_config, &bg, &fg, types);
+      }
+    }
   auto message = decodedText.string();
   QString dxCall;
   QString dxGrid;
@@ -389,17 +384,25 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
   QRegularExpression grid_regexp {"\\A(?![Rr]{2}73)[A-Ra-r]{2}[0-9]{2}([A-Xa-x]{2}){0,1}\\z"};
   if(!dxGrid.contains(grid_regexp)) dxGrid="";
   message = message.left (message.indexOf (QChar::Nbsp)); // strip appended info
-  if (displayDXCCEntity && CQcall)
+  if (CQcall)
     {
-      // if enabled add the DXCC entity and B4 status to the end of the
-      // preformated text line t1
-      auto currentMode = mode;
-      if ("JT9+JT65" == mode)
+      if (displayDXCCEntity)
         {
-          currentMode = decodedText.isJT65 () ? "JT65" : "JT9";
+          // if enabled add the DXCC entity and B4 status to the end of the
+          // preformated text line t1
+          auto currentMode = mode;
+          if ("JT9+JT65" == mode)
+            {
+              currentMode = decodedText.isJT65 () ? "JT65" : "JT9";
+            }
+          message = appendWorkedB4 (message, decodedText.CQersCall(), dxGrid, &bg, &fg
+                                    , logBook, currentBand, currentMode);
         }
-      message = appendWorkedB4 (message, decodedText.CQersCall(), dxGrid, &bg, &fg
-                                , logBook, currentBand, currentMode);
+      else
+        {
+          highlight_types types {Highlight::CQ, Highlight::LotW};
+          set_colours (m_config, &bg, &fg, types);
+        }
     }
   appendText (message.trimmed (), bg, fg, decodedText.call (), dxCall);
 }

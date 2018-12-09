@@ -244,15 +244,29 @@ void ClientWidget::update_status (QString const& id, Frequency f, QString const&
                                   , QString const& report, QString const& tx_mode, bool tx_enabled
                                   , bool transmitting, bool decoding, qint32 rx_df, qint32 tx_df
                                   , QString const& de_call, QString const& de_grid, QString const& dx_grid
-                                  , bool watchdog_timeout, QString const& sub_mode, bool fast_mode)
+                                  , bool watchdog_timeout, QString const& sub_mode, bool fast_mode
+                                  , quint8 special_op_mode)
 {
   if (id == id_)
     {
       fast_mode_ = fast_mode;
       decodes_proxy_model_.de_call (de_call);
       decodes_proxy_model_.rx_df (rx_df);
-      de_label_->setText (de_call.size () >= 0 ? QString {"DE: %1%2"}.arg (de_call)
-                          .arg (de_grid.size () ? '(' + de_grid + ')' : QString {}) : QString {});
+      QString special;
+      switch (special_op_mode)
+        {
+        case 1: special = "[NA VHF]"; break;
+        case 2: special = "[EU VHF]"; break;
+        case 3: special = "[FD]"; break;
+        case 4: special = "[RTTY RU]"; break;
+        case 5: special = "[Fox]"; break;
+        case 6: special = "[Hound]"; break;
+        default: break;
+        }
+      de_label_->setText (de_call.size () >= 0 ? QString {"DE: %1%2%3"}.arg (de_call)
+                          .arg (de_grid.size () ? '(' + de_grid + ')' : QString {})
+                          .arg (special)
+                          : QString {});
       mode_label_->setText (QString {"Mode: %1%2%3%4"}
            .arg (mode)
            .arg (sub_mode)

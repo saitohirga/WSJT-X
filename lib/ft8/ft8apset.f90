@@ -4,7 +4,6 @@ subroutine ft8apset(mycall12,hiscall12,apsym)
   character*37 msg
   character*12 mycall12,hiscall12,hiscall
   integer apsym(58)
-  integer*1 msgbits(77)
   logical nohiscall
 
   if(len(trim(mycall12)).eq.0) then
@@ -30,10 +29,10 @@ subroutine ft8apset(mycall12,hiscall12,apsym)
     apsym(1)=99
     apsym(30)=99
     return
-
  endif
 
   read(c77,'(58i1)',err=1) apsym(1:58)
+  apsym=2*apsym-1
   if(nohiscall) apsym(30)=99
   return
 

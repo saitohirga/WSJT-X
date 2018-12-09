@@ -10,7 +10,6 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QDataStream>
-#include <QDebug>
 #include "Configuration.hpp"
 #include "Bands.hpp"
 #include "qt_db_helpers.hpp"
@@ -52,7 +51,7 @@ CabrilloLog::impl::impl (Configuration const * configuration)
   SQL_error_check (export_query_, &QSqlQuery::prepare,
                    "SELECT frequency, \"when\", exchange_sent, call, exchange_rcvd FROM cabrillo_log ORDER BY \"when\"");
   
-  setEditStrategy (QSqlTableModel::OnRowChange);
+  setEditStrategy (QSqlTableModel::OnFieldChange);
   setTable ("cabrillo_log");
   setHeaderData (fieldIndex ("frequency"), Qt::Horizontal, tr ("Freq(kHz)"));
   setHeaderData (fieldIndex ("when"), Qt::Horizontal, tr ("Date & Time(UTC)"));
@@ -60,6 +59,12 @@ CabrilloLog::impl::impl (Configuration const * configuration)
   setHeaderData (fieldIndex ("exchange_sent"), Qt::Horizontal, tr ("Sent"));
   setHeaderData (fieldIndex ("exchange_rcvd"), Qt::Horizontal, tr ("Rcvd"));
   setHeaderData (fieldIndex ("band"), Qt::Horizontal, tr ("Band"));
+
+  // This descending order by time is important, it makes the view
+  // place the latest row at the top, without this the model/view
+  // interactions are both sluggish and unhelpful.
+  setSort (fieldIndex ("when"), Qt::DescendingOrder);
+
   SQL_error_check (*this, &QSqlTableModel::select);
 }
 
@@ -110,11 +115,15 @@ bool CabrilloLog::add_QSO (Frequency frequency, QDateTime const& when, QString c
   set_value_maybe_null (record, "exchange_sent", exchange_sent);
   set_value_maybe_null (record, "exchange_rcvd", exchange_received);
   set_value_maybe_null (record, "band", m_->configuration_->bands ()->find (frequency));
-  auto ok = m_->insertRecord (-1, record);
-  if (ok)
+  if (m_->isDirty ())
     {
-      m_->select ();            // to refresh views
+      m_->revert ();            // discard any uncommitted changes
     }
+  m_->setEditStrategy (QSqlTableModel::OnManualSubmit);
+  ConditionalTransaction transaction {*m_};
+  auto ok = m_->insertRecord (-1, record);
+  transaction.submit ();
+  m_->setEditStrategy (QSqlTableModel::OnFieldChange);
   return ok;
 }
 
@@ -136,7 +145,7 @@ void CabrilloLog::reset ()
       SQL_error_check (*m_, &QSqlTableModel::removeRows, 0, m_->rowCount (), QModelIndex {});
       transaction.submit ();
       m_->select ();            // to refresh views
-      m_->setEditStrategy (QSqlTableModel::OnRowChange);
+      m_->setEditStrategy (QSqlTableModel::OnFieldChange);
     }
 }
 

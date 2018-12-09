@@ -11,6 +11,8 @@ desired size.
 
 - Select an active WSPR frequency (for example, 10.1387 or 14.0956 MHz).
 
++
+
 IMPORTANT: If you will transmit in the 60 m band, be sure to choose a
 frequency that conforms with your local regulations.
 

@@ -136,12 +136,12 @@ namespace Radio
   // the full call if no valid prefix (or prefix as a suffix) is specified
   QString effective_prefix (QString callsign)
   {
-    auto prefix = callsign.toUpper ();
+    auto prefix = callsign;
     auto slash_pos = callsign.indexOf ('/');
     if (slash_pos >= 0)
       {
         auto right_size = callsign.size () - slash_pos - 1;
-        if (right_size >= slash_pos) // naive call is longer than
+        if (right_size >= slash_pos) // native call is longer than
                                      // prefix/suffix algorithm
           {
             prefix = callsign.left (slash_pos);
@@ -157,6 +157,6 @@ namespace Radio
               }
           }
       }
-    return prefix;
+    return prefix.toUpper ();
   }
 }

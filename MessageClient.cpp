@@ -405,7 +405,7 @@ void MessageClient::status_update (Frequency f, QString const& mode, QString con
                                    , qint32 rx_df, qint32 tx_df, QString const& de_call
                                    , QString const& de_grid, QString const& dx_grid
                                    , bool watchdog_timeout, QString const& sub_mode
-                                   , bool fast_mode)
+                                   , bool fast_mode, quint8 special_op_mode)
 {
   if (m_->server_port_ && !m_->server_string_.isEmpty ())
     {
@@ -414,7 +414,7 @@ void MessageClient::status_update (Frequency f, QString const& mode, QString con
       out << f << mode.toUtf8 () << dx_call.toUtf8 () << report.toUtf8 () << tx_mode.toUtf8 ()
           << tx_enabled << transmitting << decoding << rx_df << tx_df << de_call.toUtf8 ()
           << de_grid.toUtf8 () << dx_grid.toUtf8 () << watchdog_timeout << sub_mode.toUtf8 ()
-          << fast_mode;
+          << fast_mode << special_op_mode;
       m_->send_message (out, message);
     }
 }
@@ -462,7 +462,8 @@ void MessageClient::qso_logged (QDateTime time_off, QString const& dx_call, QStr
                                 , QString const& report_received, QString const& tx_power
                                 , QString const& comments, QString const& name, QDateTime time_on
                                 , QString const& operator_call, QString const& my_call
-                                , QString const& my_grid)
+                                , QString const& my_grid, QString const& exchange_sent
+                                , QString const& exchange_rcvd)
 {
    if (m_->server_port_ && !m_->server_string_.isEmpty ())
     {
@@ -470,7 +471,8 @@ void MessageClient::qso_logged (QDateTime time_off, QString const& dx_call, QStr
       NetworkMessage::Builder out {&message, NetworkMessage::QSOLogged, m_->id_, m_->schema_};
       out << time_off << dx_call.toUtf8 () << dx_grid.toUtf8 () << dial_frequency << mode.toUtf8 ()
           << report_sent.toUtf8 () << report_received.toUtf8 () << tx_power.toUtf8 () << comments.toUtf8 ()
-          << name.toUtf8 () << time_on << operator_call.toUtf8 () << my_call.toUtf8 () << my_grid.toUtf8 ();
+          << name.toUtf8 () << time_on << operator_call.toUtf8 () << my_call.toUtf8 () << my_grid.toUtf8 ()
+          << exchange_sent.toUtf8 () << exchange_rcvd.toUtf8 ();
       m_->send_message (out, message);
     }
 }

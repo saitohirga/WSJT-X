@@ -44,7 +44,6 @@ subroutine sync8(dd,nfa,nfb,syncmin,nfqso,maxcand,s,candidate,   &
   nssy=NSPS/NSTEP   ! # steps per symbol
   nfos=NFFT1/NSPS   ! # frequency bin oversampling factor
   jstrt=0.5/tstep
-
   candidate0=0.
   k=0
 
@@ -133,7 +132,8 @@ subroutine sync8(dd,nfa,nfb,syncmin,nfqso,maxcand,s,candidate,   &
      j=indx(i)
 !     if( candidate0(3,j) .ge. syncmin .and. candidate0(2,j).ge.-1.5 ) then
      if( candidate0(3,j) .ge. syncmin ) then
-       candidate(1:3,k)=abs(candidate0(1:3,j))
+       candidate(2:3,k)=candidate0(2:3,j)
+       candidate(1,k)=abs(candidate0(1,j))
        k=k+1
      endif
   enddo

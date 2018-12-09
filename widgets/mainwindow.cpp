@@ -1,12 +1,21 @@
 //---------------------------------------------------------- MainWindow
 #include "mainwindow.h"
 #include <cinttypes>
+#include <cstring>
+#include <cmath>
 #include <limits>
 #include <functional>
 #include <fstream>
 #include <iterator>
 #include <algorithm>
 #include <fftw3.h>
+#include <QStringListModel>
+#include <QSettings>
+#include <QKeyEvent>
+#include <QSharedMemory>
+#include <QFileDialog>
+#include <QTextBlock>
+#include <QProgressBar>
 #include <QLineEdit>
 #include <QRegExpValidator>
 #include <QRegExp>
@@ -188,7 +197,7 @@ namespace
 
   int ms_minute_error ()
   {
-    auto const& now = QDateTime::currentDateTime ();
+    auto const& now = QDateTime::currentDateTimeUtc ();
     auto const& time = now.time ();
     auto second = time.second ();
     return now.msecsTo (now.addSecs (second > 30 ? 60 - second : -second)) - time.msec ();
@@ -210,7 +219,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_configurations_button {0},
   m_settings {multi_settings->settings ()},
   ui(new Ui::MainWindow),
-  m_config {&m_network_manager, temp_directory, m_settings, this},
+  m_logBook {&m_config},
+  m_config {&m_network_manager, temp_directory, m_settings, &m_logBook, this},
   m_WSPR_band_hopping {m_settings, &m_config, this},
   m_WSPR_tx_next {false},
   m_rigErrorMessageBox {MessageBox::Critical, tr ("Rig Control Error")
@@ -361,7 +371,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
       },
   m_sfx {"P",  "0",  "1",  "2",  "3",  "4",  "5",  "6",  "7",  "8",  "9",  "A"},
   mem_jt9 {shdmem},
-  m_logBook {&m_config},
   m_msAudioOutputBuffered (0u),
   m_framesAudioInputBuffered (RX_SAMPLE_RATE / 10),
   m_downSampleFactor (downSampleFactor),
@@ -462,6 +471,18 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   // setup the log QSO dialog
   connect (m_logDlg.data (), &LogQSO::acceptQSO, this, &MainWindow::acceptQSO);
   connect (this, &MainWindow::finished, m_logDlg.data (), &LogQSO::close);
+
+  // hook up the log book
+  connect (&m_logBook, &LogBook::finished_loading, [this] (int record_count, QString const& error) {
+      if (error.size ())
+        {
+          MessageBox::warning_message (this, tr ("Error Scanning ADIF Log"), error);
+        }
+      else
+        {
+          showStatusMessage (tr ("Scanned ADIF log, %1 worked before records created").arg (record_count));
+        }
+    });
 
   // Network message handlers
   connect (m_messageClient, &MessageClient::reply, this, &MainWindow::replyToCQ);
@@ -939,23 +960,22 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
 void MainWindow::not_GA_warning_message ()
 {
-  QDateTime now=QDateTime::currentDateTime();
-  QDateTime timeout=QDateTime(QDate(2018,12,31));
+
 
   MessageBox::critical_message (this,
-                                "This version of WSJT-X is a beta-level Release Candidate.\n\n"
-                                "In FT8 and MSK144 modes it uses ONLY the new 77-bit\n"
-                                "message formats. It will not decode 75-bit or 72-bit\n"
-                                "messages.\n\n"
-                                "On December 10, 2018, 77-bit messages will become the\n"
-                                "standard. Everyone should upgrade to WSJT-X 2.0 by\n"
-                                "January 1, 2019.\n\n"
-                                "On-the-air use carries an obligation to report problems\n"
-                                "to the WSJT Development group and to upgrade to a GA\n"
-                                "(General Availability) release when it becomes available.\n\n"
-                                "This version cannot be used after December 31, 2018.\n\n");
+                                "<b><p align=\"center\">"
+                                "IMPORTANT: New protocols for the FT8 and MSK144 modes "
+                                "became the world&#8209;wide standards on December&nbsp;10,&nbsp;2018."
+                                , "<p align=\"center\">"
+                                "WSJT&#8209;X&nbsp;2.0 cannot communicate in these modes with other "
+                                "stations using WSJT&#8209;X&nbsp;v1.9.1&nbsp;or&nbsp;earlier."
+                                "<p align=\"center\">"
+                                "Please help by urging everyone to upgrade to WSJT&#8209;X 2.0 "
+                                "<nobr>no later than January&nbsp;1,&nbsp;2019.</nobr>");
 
-  if(now.daysTo(timeout) < 0) Q_EMIT finished();
+//  QDateTime now=QDateTime::currentDateTime();
+//  QDateTime timeout=QDateTime(QDate(2018,12,31));
+//  if(now.daysTo(timeout) < 0) Q_EMIT finished();
 }
 
 void MainWindow::initialize_fonts ()
@@ -1496,7 +1516,7 @@ QString MainWindow::save_wave_file (QString const& name, short const * data, int
   BWFFile::InfoDictionary list_info {
       {{{'I','S','R','C'}}, source.toLocal8Bit ()},
       {{{'I','S','F','T'}}, program_title (revision ()).simplified ().toLocal8Bit ()},
-      {{{'I','C','R','D'}}, QDateTime::currentDateTime ()
+      {{{'I','C','R','D'}}, QDateTime::currentDateTimeUtc ()
                           .toString ("yyyy-MM-ddTHH:mm:ss.zzzZ").toLocal8Bit ()},
       {{{'I','C','M','T'}}, comment.toLocal8Bit ()},
         };
@@ -1645,7 +1665,9 @@ void MainWindow::showSoundOutError(const QString& errorMsg)
 }
 
 void MainWindow::showStatusMessage(const QString& statusMsg)
-{statusBar()->showMessage(statusMsg);}
+{
+  statusBar()->showMessage(statusMsg, 5000);
+}
 
 void MainWindow::on_actionSettings_triggered()               //Setup Dialog
 {
@@ -2106,8 +2128,8 @@ void MainWindow::createStatusBar()                           //createStatusBar
   band_hopping_label.setMinimumSize (QSize {90, 18});
   band_hopping_label.setFrameStyle (QFrame::Panel | QFrame::Sunken);
 
-  statusBar()->addPermanentWidget(&progressBar, 1);
-  progressBar.setMinimumSize (QSize {100, 18});
+  statusBar()->addPermanentWidget(&progressBar);
+  progressBar.setMinimumSize (QSize {150, 18});
   progressBar.setFormat ("%v/%m");
 
   statusBar ()->addPermanentWidget (&watchdog_label);
@@ -2698,7 +2720,7 @@ void MainWindow::msgAvgDecode2()
 
 void MainWindow::decode()                                       //decode()
 {
-  QDateTime now = QDateTime::currentDateTime();
+  QDateTime now = QDateTime::currentDateTimeUtc ();
   if( m_dateTimeLastTX.isValid () ) {
     qint64 isecs_since_tx = m_dateTimeLastTX.secsTo(now);
     dec_data.params.lapcqonly= (isecs_since_tx > 600); 
@@ -2943,18 +2965,22 @@ void MainWindow::decodeDone ()
 void MainWindow::readFromStdout()                             //readFromStdout
 {
   while(proc_jt9.canReadLine()) {
-    QByteArray t=proc_jt9.readLine();
+    auto line_read = proc_jt9.readLine ();
+    if (auto p = std::strpbrk (line_read.constData (), "\n\r"))
+      {
+        // truncate before line ending chars
+        line_read = line_read.left (p - line_read.constData ());
+      }
     if(m_mode!="FT8") {
-      //Pad 22-char msg to 37 chars
-      t=t.left(43) + "               " + t.mid(43,-1);
-      t=t.trimmed();
+      //Pad 22-char msg to at least 37 chars
+      line_read = line_read.left(43) + "               " + line_read.mid(43);
     }
 //    qint64 ms=QDateTime::currentMSecsSinceEpoch() - m_msec0;
     bool bAvgMsg=false;
     int navg=0;
-    if(t.indexOf("<DecodeFinished>") >= 0) {
+    if(line_read.indexOf("<DecodeFinished>") >= 0) {
       if(m_mode=="QRA64") m_wideGraph->drawRed(0,0);
-      m_bDecoded = t.mid(20).trimmed().toInt() > 0;
+      m_bDecoded = line_read.mid(20).trimmed().toInt() > 0;
       int mswait=3*1000*m_TRperiod/4;
       if(!m_diskData) killFileTimer.start(mswait); //Kill in 3/4 period
       decodeDone ();
@@ -2966,16 +2992,16 @@ void MainWindow::readFromStdout()                             //readFromStdout
       return;
     } else {
       if(m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA64" or m_mode=="FT8") {
-        int n=t.indexOf("f");
-        if(n<0) n=t.indexOf("d");
+        int n=line_read.indexOf("f");
+        if(n<0) n=line_read.indexOf("d");
         if(n>0) {
-          QString tt=t.mid(n+1,1);
+          QString tt=line_read.mid(n+1,1);
           navg=tt.toInt();
           if(navg==0) {
             char c = tt.data()->toLatin1();
             if(int(c)>=65 and int(c)<=90) navg=int(c)-54;
           }
-          if(navg>1 or t.indexOf("f*")>0) bAvgMsg=true;
+          if(navg>1 or line_read.indexOf("f*")>0) bAvgMsg=true;
         }
       }
 
@@ -2988,8 +3014,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
               << m_mode << endl;
           m_RxLog=0;
         }
-        int n=t.length();
-        out << t.mid(0,n-2) << endl;
+        out << line_read.trimmed () << endl;
         f.close();
       } else {
         MessageBox::warning_message (this, tr ("File Open Error")
@@ -3005,10 +3030,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
         m_blankLine = false;
       }
 
-      DecodedText decodedtext0 {QString::fromUtf8(t.constData())
-            .remove(QRegularExpression {"\r|\n"})};
-      DecodedText decodedtext {QString::fromUtf8(t.constData())
-            .remove(QRegularExpression {"\r|\n"}).remove("TU; ")};
+      DecodedText decodedtext0 {QString::fromUtf8(line_read.constData())};
+      DecodedText decodedtext {QString::fromUtf8(line_read.constData()).remove("TU; ")};
 
       if(m_mode=="FT8" and SpecOp::FOX == m_config.special_op_id() and
          (decodedtext.string().contains("R+") or decodedtext.string().contains("R-"))) {
@@ -3091,7 +3114,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           if(w.at(0)==m_config.my_callsign() or w.at(0)==Radio::base_callsign(m_config.my_callsign())) {
             //### Check for ui->dxCallEntry->text()==foxCall before logging! ###
             ui->stopTxButton->click ();
-            on_logQSOButton_clicked();
+            logQSOTimer.start(0);
           }
           if((w.at(2)==m_config.my_callsign() or w.at(2)==Radio::base_callsign(m_config.my_callsign()))
              and ui->tx3->text().length()>0) {
@@ -3109,7 +3132,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
                ui->tx3->text().length()>0) {
               if(w.at(2)=="RR73") {
                 ui->stopTxButton->click ();
-                on_logQSOButton_clicked();
+                logQSOTimer.start(0);
               } else {
                 if(w.at(1)==Radio::base_callsign(ui->dxCallEntry->text()) and
                    (w.at(2).mid(0,1)=="+" or w.at(2).mid(0,1)=="-")) {
@@ -3252,7 +3275,7 @@ void MainWindow::pskPost (DecodedText const& decodedtext)
   if(grid.contains (grid_regexp)) {
 //    qDebug() << "To PSKreporter:" << deCall << grid << frequency << msgmode << snr;
     psk_Reporter->addRemoteStation(deCall,grid,QString::number(frequency),msgmode,
-           QString::number(snr),QString::number(QDateTime::currentDateTime().toTime_t()));
+           QString::number(snr),QString::number(QDateTime::currentDateTimeUtc ().toTime_t()));
   }
 }
 
@@ -3385,7 +3408,7 @@ void MainWindow::guiUpdate()
   if(m_tune) m_bTxTime=true;                 //"Tune" takes precedence
 
   if(m_transmitting or m_auto or m_tune) {
-    m_dateTimeLastTX = QDateTime::currentDateTime ();
+    m_dateTimeLastTX = QDateTime::currentDateTimeUtc ();
 
 // Check for "txboth" (testing purposes only)
     QFile f(m_appDir + "/txboth");
@@ -4444,7 +4467,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             m_nextCall="";   //### Temporary: disable use of "TU;" message
             if(SpecOp::RTTY == m_config.special_op_id() and m_nextCall!="") {
 // We're in RTTY contest and have "nextCall" queued up: send a "TU; ..." message
-              on_logQSOButton_clicked();
+              logQSOTimer.start(0);
               ui->tx3->setText(ui->tx3->text().remove("TU; "));
               useNextCall();
               QString t="TU; " + ui->tx3->text();
@@ -4453,7 +4476,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             } else {
 //              if(SpecOp::RTTY == m_config.special_op_id()) {
               if(false) {
-                on_logQSOButton_clicked();
+                logQSOTimer.start(0);
                 m_ntx=6;
                 ui->txrb6->setChecked(true);
               } else {
@@ -4548,17 +4571,17 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       }
     }
     else {                  // nothing for us
-      if(message_words.size () > 3   // enough fields for a normal message
-         && SpecOp::RTTY == m_config.special_op_id()
-         && (message_words.at(1).contains(m_baseCall) || "DE" == message_words.at(1))
-         && (!message_words.at(2).contains(qso_partner_base_call) and !bEU_VHF_w2)) {
-// Queue up the next QSO partner
-        m_nextCall=message_words.at(2);
-        m_nextGrid=message_words.at(3);
-        m_nextRpt=message.report();
-        ui->labNextCall->setText("Next:  " + m_nextCall);
-        ui->labNextCall->setStyleSheet("QLabel {background-color: #66ff66}");
-      }
+//      if(message_words.size () > 3   // enough fields for a normal message
+//         && SpecOp::RTTY == m_config.special_op_id()
+//         && (message_words.at(1).contains(m_baseCall) || "DE" == message_words.at(1))
+//         && (!message_words.at(2).contains(qso_partner_base_call) and !bEU_VHF_w2)) {
+//// Queue up the next QSO partner
+//        m_nextCall=message_words.at(2);
+//        m_nextGrid=message_words.at(3);
+//        m_nextRpt=message.report();
+//        ui->labNextCall->setText("Next:  " + m_nextCall);
+//        ui->labNextCall->setStyleSheet("QLabel {background-color: #66ff66}");
+//      }
       return;
     }
   }
@@ -4763,29 +4786,17 @@ void MainWindow::abortQSO()
   ui->txrb6->setChecked(true);
 }
 
-bool MainWindow::stdCall(QString w)
+bool MainWindow::stdCall(QString const& w)
 {
-  int n=w.trimmed().length();
-//Treat /P and /R as special cases: strip them off for this test.
-  if(w.mid(n-2,2)=="/P") w=w.left(n-2);
-  if(w.mid(n-2,2)=="/R") w=w.left(n-2);
-  n=w.trimmed().length();
-  if(n>6) return false;                 //Callsigns longer than 6 chars are nonstandard
-  w=w.toUpper();
-  int i1=99;   // index of first letter
-  int i2=-1;   // index of last digit
-  for(int i=0; i<n; i++) {
-    QString c=w.mid(i,1);
-    if(i1==99 and (c>="A" and c<="Z")) i1=i;
-    if(c>="0" and c<="9") i2=i;
-  }
-  if(i1!=0 and i1!=1) return false;    //One of the firat two characters must be a letter
-  if(i2>2) return false;               //No digits allowed after the 3rd character
-  for(int i=i2+1; i<n; i++) {
-    QString c=w.mid(i,1);
-    if(c<"A" or c>"Z") return false;   //Anything after final digit must be a letter
-  }
-  return true;
+  static QRegularExpression standard_call_re {
+    R"(
+        ^\s*				# optional leading spaces
+        ( [A-Z]{0,2} | [A-Z][0-9] | [0-9][A-Z] )  # part 1
+        ( [0-9][A-Z]{0,3} )                       # part 2
+        (/R | /P)?			# optional suffix
+        \s*$				# optional trailing spaces
+    )", QRegularExpression::CaseInsensitiveOption | QRegularExpression::ExtendedPatternSyntaxOption};
+  return standard_call_re.match (w).hasMatch ();
 }
 
 void MainWindow::genStdMsgs(QString rpt, bool unconditional)
@@ -4902,9 +4913,12 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       t=t0 + "R" + rpt;
       msgtype(t, ui->tx3);
     }
-    if(m_mode=="MSK144" and m_bShMsgs and SpecOp::NONE==m_config.special_op_id()) {
-      t=t0 + "R" + rpt;
-      msgtype(t, ui->tx3);
+
+    if(m_mode=="MSK144" and m_bShMsgs) {
+      if(m_config.special_op_id()==SpecOp::NONE) {
+        t=t0 + "R" + rpt;
+        msgtype(t, ui->tx3);
+      }
       m_send_RR73=false;
     }
 
@@ -5359,7 +5373,9 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
                             , QString const& rpt_sent, QString const& rpt_received
                             , QString const& tx_power, QString const& comments
                             , QString const& name, QDateTime const& QSO_date_on, QString const& operator_call
-                            , QString const& my_call, QString const& my_grid, QByteArray const& ADIF)
+                            , QString const& my_call, QString const& my_grid
+                            , QString const& exchange_sent, QString const& exchange_rcvd
+                            , QByteArray const& ADIF)
 {
   QString date = QSO_date_on.toString("yyyyMMdd");
   if (!m_logBook.add (m_hisCall, grid, m_config.bands()->find(m_freqNominal), m_modeTx, ADIF))
@@ -5369,7 +5385,8 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
     }
 
   m_messageClient->qso_logged (QSO_date_off, call, grid, dial_freq, mode, rpt_sent, rpt_received
-                               , tx_power, comments, name, QSO_date_on, operator_call, my_call, my_grid);
+                               , tx_power, comments, name, QSO_date_on, operator_call, my_call, my_grid
+                               , exchange_sent, exchange_rcvd);
   m_messageClient->logged_ADIF (ADIF);
 
   // Log to N1MM Logger
@@ -5621,7 +5638,7 @@ void MainWindow::on_actionJT9_triggered()
   m_bFastMode=m_bFast9;
   WSPR_config(false);
   switch_mode (Modes::JT9);
-  if(m_modeTx!="JT9") on_pbTxMode_clicked();
+  m_modeTx="JT9";
   m_nsps=6912;
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
@@ -5716,6 +5733,7 @@ void MainWindow::on_actionJT65_triggered()
   }
   on_actionJT9_triggered();
   m_mode="JT65";
+  m_modeTx="JT65";
   bool bVHF=m_config.enable_VHF_features();
   WSPR_config(false);
   switch_mode (Modes::JT65);
@@ -7663,7 +7681,8 @@ void MainWindow::statusUpdate () const
                                   ui->RxFreqSpinBox->value (), ui->TxFreqSpinBox->value (),
                                   m_config.my_callsign (), m_config.my_grid (),
                                   m_hisGrid, m_tx_watchdog,
-                                  submode != QChar::Null ? QString {submode} : QString {}, m_bFastMode);
+                                  submode != QChar::Null ? QString {submode} : QString {}, m_bFastMode,
+                                  static_cast<quint8> (m_config.special_op_id ()));
 }
 
 void MainWindow::childEvent (QChildEvent * e)
@@ -8211,7 +8230,7 @@ list2Done:
         {
           writeFoxQSO (QString {" Log:  %1 %2 %3 %4 %5"}.arg (m_hisCall).arg (m_hisGrid)
                        .arg (m_rptSent).arg (m_rptRcvd).arg (m_lastBand));
-          on_logQSOButton_clicked();
+          logQSOTimer.start(0);
           m_foxRateQueue.enqueue (now); //Add present time in seconds
                                         //to Rate queue.
         }

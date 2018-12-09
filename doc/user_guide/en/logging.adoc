@@ -18,17 +18,8 @@ this option is checked _WSJT-X_ appends some additional information to
 all CQ messages displayed in the _Band Activity_ window.  The name of
 the DXCC entity is shown, abbreviated if necessary.  Your "`worked
 before`" status for this callsign (according to log file
-`wsjtx_log.adi`) is flagged with a single character and a change of
-background color, as follows:
-
-[horizontal]
-!::  Default color bright purple: New DXCC entity
-~::  Light pink: You have already worked this DXCC entity but not 
-this station
- ::  Green: You have previously worked the calling station
-
-In this respect the program does not distinguish between modes, but it
-does differentiate between bands.
+`wsjtx_log.adi`) is indicated by highlighting colors, if that option
+has been selected.
 
 _WSJT-X_ includes a built-in `cty.dat` file containing DXCC prefix
 information.  Updated files can be downloaded from the {cty_dat} web
@@ -45,3 +36,5 @@ before status* off and then on again will cause _WSJT-X_ to re-read
 the log file.  Very large log files may cause _WSJT-X_ to slow down
 when searching for calls.
 
+Additional features are provided for *Contest* and *Fox* logging.
+(more to come, here ...)

@@ -43,7 +43,7 @@ FoxLogWindow::FoxLogWindow (QSettings * settings, Configuration const * configur
   m_->ui_.log_table_view->setItemDelegateForColumn (1, new DateTimeAsSecsSinceEpochDelegate {this});
   m_->ui_.log_table_view->setItemDelegateForColumn (2, new CallsignDelegate {this});
   m_->ui_.log_table_view->setItemDelegateForColumn (3, new MaidenheadLocatorDelegate {this});
-  m_->ui_.log_table_view->setItemDelegateForColumn (6, new ForeignKeyDelegate {configuration->bands (), m_->log_model_, 0, 6, this});
+  m_->ui_.log_table_view->setItemDelegateForColumn (6, new ForeignKeyDelegate {configuration->bands (), 0, this});
   m_->ui_.log_table_view->horizontalHeader ()->moveSection (6, 1); // move band to first column
   m_->ui_.rate_label->setNum (0);
   m_->ui_.queued_label->setNum (0);

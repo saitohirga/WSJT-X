@@ -4,16 +4,19 @@
 // For more details see the accompanying file LICENSE_WHEATLEY.TXT
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef EPLOTTER_H
-#define EPLOTTER_H
+#ifndef EPLOTTER_H_
+#define EPLOTTER_H_
 
-#include <QtWidgets>
 #include <QFrame>
+#include <QSize>
 #include <QImage>
-#include <cstring>
+#include <QString>
 
 #define VERT_DIVS 7	//specify grid screen divisions
 #define HORZ_DIVS 20
+
+class QPaintEvent;
+class QResizeEvent;
 
 class EPlotter : public QFrame
 {

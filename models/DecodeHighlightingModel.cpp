@@ -4,7 +4,8 @@
 #include <QVariant>
 #include <QList>
 #include <QBrush>
-#include <QFont>
+#include <QColor>
+ #include <QFont>
 #include <QMap>
 #include <QVector>
 #include <QDataStream>
@@ -160,7 +161,10 @@ QVariant DecodeHighlightingModel::data (const QModelIndex& index, int role) cons
           result = item.enabled_ ? Qt::Checked : Qt::Unchecked;
           break;
         case Qt::DisplayRole:
-          result = highlight_name (item.type_);
+          return QString {"%1 [f/g:%2, b/g:%3]"}
+             .arg (highlight_name (item.type_))
+             .arg (item.foreground_.style () != Qt::NoBrush ? QString {"#%1"}.arg (item.foreground_.color ().rgb () & 0xffffff, 6, 16, QChar {'0'}) : QString {"unset"})
+             .arg (item.background_.style () != Qt::NoBrush ? QString {"#%1"}.arg (item.background_.color ().rgb () & 0xffffff, 6, 16, QChar {'0'}) : QString {"unset"});
           break;
         case Qt::ForegroundRole:
           if (Qt::NoBrush != item.foreground_.style ())

@@ -1,13 +1,15 @@
 #include "logbook.h"
 
 #include <QDateTime>
-#include <QDebug>
 #include "Configuration.hpp"
 #include "AD1CCty.hpp"
+
+#include "moc_logbook.cpp"
 
 LogBook::LogBook (Configuration const * configuration)
   : config_ {configuration}
 {
+  connect (&worked_before_, &WorkedBefore::finished_loading, this, &LogBook::finished_loading);
 }
 
 void LogBook::match (QString const& call, QString const& mode, QString const& grid,
@@ -50,6 +52,11 @@ bool LogBook::add (QString const& call
                    , QByteArray const& ADIF_record)
 {
   return worked_before_.add (call, grid, band, mode, ADIF_record);
+}
+
+void LogBook::rescan ()
+{
+  worked_before_.reload ();
 }
 
 QByteArray LogBook::QSOToADIF (QString const& hisCall, QString const& hisGrid, QString const& mode,

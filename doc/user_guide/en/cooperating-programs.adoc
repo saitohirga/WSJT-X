@@ -37,3 +37,11 @@ current band, as well as other options.
 logging applications Aether, MacLoggerDX, RUMlog or RUMlogNG.  It
 checks QSO and QSL status of the call and DXCC entity, as well as many
 other features.
+
+* {n1mm_logger} is a free full feature contest logging application. It
+  is only available for Windows. _WSJT-X_ can send logged QSO
+  information to it via a network connection.
+
+* {writelog} is a non-free full feature contest logging
+  application. It is only available for Windows. _WSJT-X_ can send
+  logged QSO information to it via a network connection.

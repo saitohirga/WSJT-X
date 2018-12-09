@@ -5,18 +5,14 @@
 // For more details see the accompanying file LICENSE_WHEATLEY.TXT
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef PLOTTER_H
-#define PLOTTER_H
+#ifndef PLOTTER_H_
+#define PLOTTER_H_
 
-#ifdef QT5
-#include <QtWidgets>
-#else
-#include <QtGui>
-#endif
 #include <QFrame>
+#include <QSize>
 #include <QImage>
 #include <QVector>
-#include <cstring>
+#include <QColor>
 
 #define VERT_DIVS 7	//specify grid screen divisions
 #define HORZ_DIVS 20

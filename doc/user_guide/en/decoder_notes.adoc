@@ -8,9 +8,9 @@ false decodes.
 
 For example: when you decide to answer a CQ, you already know your own
 callsign and that of your potential QSO partner.  The software
-therefore "`knows`" what to expect for 57 of the 72 message bits (28
-bits for each of two callsigns, 1 bit for message type) in the next
-received message.  The decoder's task can thus be reduced to
+therefore "`knows`" what might be expected for at least 57 message
+bits (28 for each of two callsigns, 1 or more for message type) in the
+next received message.  The decoder's task can thus be reduced to
 determining the remaining 15 bits of the message and ensuring that the
 resulting solution is reliable.
 

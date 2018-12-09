@@ -1,21 +1,28 @@
 #include "WorkedBefore.hpp"
 
 #include <functional>
+#include <stdexcept>
 #include <boost/functional/hash.hpp>
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/key_extractors.hpp>
+#include <QtConcurrent/QtConcurrentRun>
+#include <QFuture>
+#include <QFutureWatcher>
 #include <QChar>
 #include <QString>
 #include <QByteArray>
 #include <QStandardPaths>
 #include <QDir>
+#include <QFileInfo>
 #include <QFile>
 #include <QTextStream>
-#include <QDebug>
+
 #include "qt_helpers.hpp"
 #include "pimpl_impl.hpp"
+
+#include "moc_WorkedBefore.cpp"
 
 using namespace boost::multi_index;
 
@@ -214,6 +221,20 @@ namespace
 {
   auto const logFileName = "wsjtx_log.adi";
 
+  // Expception class suitable for using with QtConcurrent across
+  // thread boundaries
+  class LoaderException final
+    : public QException
+  {
+  public:
+    LoaderException (std::exception const& e) : error_ {e.what ()} {}
+    QString error () const {return error_;}
+    void raise () const override {throw *this;}
+    LoaderException * clone () const override {return new LoaderException {*this};}
+  private:
+    QString error_;
+  };
+
   QString extractField (QString const& record, QString const& fieldName)
   {
     int fieldNameIndex = record.indexOf ('<' + fieldName + ':', 0, Qt::CaseInsensitive);
@@ -228,8 +249,12 @@ namespace
             if (dataTypeIndex > closingBracketIndex)
               dataTypeIndex = -1; // second : was found but it was beyond the closing >
           }
+        else
+          {
+            throw LoaderException (std::runtime_error {"Invalid ADIF field " + fieldName.toStdString () + ": " + record.toStdString ()});
+          }
 
-        if ((closingBracketIndex > fieldNameIndex) && (fieldLengthIndex > fieldNameIndex) && (fieldLengthIndex< closingBracketIndex))
+        if (closingBracketIndex > fieldNameIndex && fieldLengthIndex > fieldNameIndex && fieldLengthIndex < closingBracketIndex)
           {
             int fieldLengthCharCount = closingBracketIndex - fieldLengthIndex -1;
             if (dataTypeIndex >= 0)
@@ -241,8 +266,93 @@ namespace
                 return record.mid(closingBracketIndex+1,fieldLength);
               }
           }
+        else
+          {
+            throw LoaderException (std::runtime_error {"Malformed ADIF field " + fieldName.toStdString () + ": " + record.toStdString ()});
+          }
       }
-    return "";
+    return QString {};
+  }
+
+  worked_before_database_type loader (QString const& path, AD1CCty const * prefixes)
+  {
+    worked_before_database_type worked;
+    QFile inputFile {path};
+    if (inputFile.exists ())
+      {
+        if (inputFile.open (QFile::ReadOnly))
+          {
+            QTextStream in {&inputFile};
+            QString buffer;
+            bool pre_read {false};
+            int end_position {-1};
+
+            // skip optional header record
+            do
+              {
+                buffer += in.readLine () + '\n';
+                if (buffer.startsWith (QChar {'<'})) // denotes no header
+                  {
+                    pre_read = true;
+                  }
+                else
+                  {
+                    end_position = buffer.indexOf ("<EOH>", 0, Qt::CaseInsensitive);
+                  }
+              }
+            while (!in.atEnd () && !pre_read && end_position < 0);
+            if (!pre_read)            // found header
+              {
+                if (end_position < 0)
+                  {
+                    throw LoaderException (std::runtime_error {"Invalid ADIF header"});
+                  }
+                buffer.remove (0, end_position + 5);
+              }
+            while (!in.atEnd ())
+              {
+                end_position = buffer.indexOf ("<EOR>", 0, Qt::CaseInsensitive);
+                do
+                  {
+                    if (!in.atEnd () && end_position < 0)
+                      {
+                        buffer += in.readLine () + '\n';
+                      }
+                  }
+                while ((end_position = buffer.indexOf ("<EOR>", 0, Qt::CaseInsensitive)) < 0 && !in.atEnd ());
+                if (end_position < 0)
+                  {
+                    throw LoaderException (std::runtime_error {"Invalid ADIF record starting at: " + buffer.left (40).toStdString ()});
+                  }
+                auto record = buffer.left (end_position + 5).trimmed ();
+                auto next_record = buffer.indexOf (QChar {'<'}, end_position + 5);
+                buffer.remove (0, next_record >=0 ? next_record : buffer.size ());
+                record = record.mid (record.indexOf (QChar {'<'}));
+                auto call = extractField (record, "CALL");
+                if (call.size ())
+                  {
+                    auto const& entity = prefixes->lookup (call);
+                    worked.emplace (call.toUpper ()
+                                    , extractField (record, "GRIDSQUARE").left (4).toUpper () // not interested in 6-digit grids
+                                    , extractField (record, "BAND").toUpper ()
+                                    , extractField (record, "MODE").toUpper ()
+                                    , entity.entity_name
+                                    , entity.continent
+                                    , entity.CQ_zone
+                                    , entity.ITU_zone);
+                  }
+                else
+                  {
+                    throw LoaderException (std::runtime_error {"Invalid ADIF record with no CALL: " + record.toStdString ()});
+                  }
+              }
+          }
+        else
+          {
+            throw LoaderException (std::runtime_error {"Error opening ADIF log file for read: " + inputFile.errorString ().toStdString ()});
+          }
+      }
+    return worked;
   }
 }
 
@@ -254,70 +364,41 @@ public:
   {
   }
 
+  void reload ()
+  {
+    async_loader_ = QtConcurrent::run (loader, path_, &prefixes_);
+    loader_watcher_.setFuture (async_loader_);
+  }
+
   QString path_;
   AD1CCty prefixes_;
+  QFutureWatcher<worked_before_database_type> loader_watcher_;
+  QFuture<worked_before_database_type> async_loader_;
   worked_before_database_type worked_;
 };
 
 WorkedBefore::WorkedBefore ()
 {
-  QFile inputFile {m_->path_};
-  if (inputFile.open (QFile::ReadOnly))
-    {
-      QTextStream in {&inputFile};
-      QString buffer;
-      bool pre_read {false};
-      int end_position {-1};
+  connect (&m_->loader_watcher_, &QFutureWatcher<worked_before_database_type>::finished, [this] () {
+      QString error;
+      size_t n {0};
+      try
+        {
+          m_->worked_ = m_->loader_watcher_.result ();
+          n = m_->worked_.size ();
+        }
+      catch (LoaderException const& e)
+        {
+          error = e.error ();
+        }
+      Q_EMIT finished_loading (n, error);
+    });
+  reload ();
+}
 
-      // skip optional header record
-      do
-        {
-          buffer += in.readLine () + '\n';
-          if (buffer.startsWith (QChar {'<'})) // denotes no header
-            {
-              pre_read = true;
-            }
-          else
-            {
-              end_position = buffer.indexOf ("<EOH>", 0, Qt::CaseInsensitive);
-            }
-        }
-      while (!in.atEnd () && !pre_read && end_position < 0);
-      if (!pre_read)            // found header
-        {
-          buffer.remove (0, end_position + 5);
-        }
-      while (buffer.size () || !in.atEnd ())
-        {
-          do
-            {
-              end_position = buffer.indexOf ("<EOR>", 0, Qt::CaseInsensitive);
-              if (!in.atEnd () && end_position < 0)
-                {
-                  buffer += in.readLine () + '\n';
-                }
-            }
-          while (!in.atEnd () && end_position < 0);
-          int record_length {end_position >= 0 ? end_position + 5 : -1};
-          auto record = buffer.left (record_length).trimmed ();
-          auto next_record = buffer.indexOf (QChar {'<'}, record_length);
-          buffer.remove (0, next_record >=0 ? next_record : buffer.size ());
-          record = record.mid (record.indexOf (QChar {'<'}));
-          auto call = extractField (record, "CALL");
-          if (call.size ())
-            {
-              auto const& entity = m_->prefixes_.lookup (call);
-              m_->worked_.emplace (call
-                                   , extractField (record, "GRIDSQUARE").left (4) // not interested in 6-digit grids
-                                   , extractField (record, "BAND")
-                                   , extractField (record, "MODE")
-                                   , entity.entity_name
-                                   , entity.continent
-                                   , entity.CQ_zone
-                                   , entity.ITU_zone);
-            }
-        }
-    }
+void WorkedBefore::reload ()
+{
+  m_->reload ();
 }
 
 WorkedBefore::~WorkedBefore ()
@@ -357,8 +438,8 @@ bool WorkedBefore::add (QString const& call
             }
           out << ADIF_record << " <eor>" << endl;
         }
-      m_->worked_.emplace (call, grid, band, mode, entity.entity_name
-                           , entity.continent, entity.CQ_zone, entity.ITU_zone);
+      m_->worked_.emplace (call.toUpper (), grid.left (4).toUpper (), band.toUpper (), mode.toUpper ()
+                           , entity.entity_name, entity.continent, entity.CQ_zone, entity.ITU_zone);
     }
   return true;
 }
@@ -372,7 +453,7 @@ bool WorkedBefore::country_worked (QString const& country, QString const& mode, 
           return
             country.size ()
             && m_->worked_.get<entity_mode_band> ().end ()
-            != m_->worked_.get<entity_mode_band> ().find (std::make_tuple (country, mode, band));
+            != m_->worked_.get<entity_mode_band> ().find (std::make_tuple (country, mode.toUpper (), band.toUpper ()));
         }
       else
         {
@@ -380,7 +461,7 @@ bool WorkedBefore::country_worked (QString const& country, QString const& mode, 
           return
             country.size ()
             && m_->worked_.get<entity_mode_band> ().end ()
-            != m_->worked_.get<entity_mode_band> ().find (std::make_tuple (country, mode));
+            != m_->worked_.get<entity_mode_band> ().find (std::make_tuple (country, mode.toUpper ()));
         }
     }
   else
@@ -390,7 +471,7 @@ bool WorkedBefore::country_worked (QString const& country, QString const& mode, 
           return
             country.size ()
             && m_->worked_.get<entity_band> ().end ()
-            != m_->worked_.get<entity_band> ().find (std::make_tuple (country, band));
+            != m_->worked_.get<entity_band> ().find (std::make_tuple (country, band.toUpper ()));
         }
       else
         {
@@ -410,13 +491,13 @@ bool WorkedBefore::grid_worked (QString const& grid, QString const& mode, QStrin
       if (band.size ())
         {
           return m_->worked_.get<grid_mode_band> ().end ()
-            != m_->worked_.get<grid_mode_band> ().find (std::make_tuple (grid, mode, band));
+            != m_->worked_.get<grid_mode_band> ().find (std::make_tuple (grid.left (4).toUpper (), mode.toUpper (), band.toUpper ()));
         }
       else
         {
           // partial key lookup
           return m_->worked_.get<grid_mode_band> ().end ()
-            != m_->worked_.get<grid_mode_band> ().find (std::make_tuple (grid, mode));
+            != m_->worked_.get<grid_mode_band> ().find (std::make_tuple (grid.left (4).toUpper (), mode.toUpper ()));
         }
     }
   else
@@ -424,13 +505,13 @@ bool WorkedBefore::grid_worked (QString const& grid, QString const& mode, QStrin
       if (band.size ())
         {
           return m_->worked_.get<grid_band> ().end ()
-            != m_->worked_.get<grid_band> ().find (std::make_tuple (grid, band));
+            != m_->worked_.get<grid_band> ().find (std::make_tuple (grid.left (4).toUpper (), band.toUpper ()));
         }
       else
         {
           // partial key lookup
           return m_->worked_.get<grid_band> ().end ()
-            != m_->worked_.get<grid_band> ().find (grid);
+            != m_->worked_.get<grid_band> ().find (grid.left (4).toUpper ());
         }
     }
 }
@@ -442,13 +523,13 @@ bool WorkedBefore::call_worked (QString const& call, QString const& mode, QStrin
       if (band.size ())
         {
           return m_->worked_.get<call_mode_band> ().end ()
-            != m_->worked_.get<call_mode_band> ().find (std::make_tuple (call, mode, band));
+            != m_->worked_.get<call_mode_band> ().find (std::make_tuple (call.toUpper (), mode.toUpper (), band.toUpper ()));
         }
       else
         {
           // partial key lookup
           return m_->worked_.get<call_mode_band> ().end ()
-            != m_->worked_.get<call_mode_band> ().find (std::make_tuple (call, mode));
+            != m_->worked_.get<call_mode_band> ().find (std::make_tuple (call.toUpper (), mode.toUpper ()));
         }
     }
   else
@@ -456,13 +537,13 @@ bool WorkedBefore::call_worked (QString const& call, QString const& mode, QStrin
       if (band.size ())
         {
           return m_->worked_.get<call_band> ().end ()
-            != m_->worked_.get<call_band> ().find (std::make_tuple (call, band));
+            != m_->worked_.get<call_band> ().find (std::make_tuple (call.toUpper (), band.toUpper ()));
         }
       else
         {
           // partial key lookup
           return m_->worked_.get<call_band> ().end ()
-            != m_->worked_.get<call_band> ().find (std::make_tuple (call));
+            != m_->worked_.get<call_band> ().find (std::make_tuple (call.toUpper ()));
         }
     }
 }
@@ -474,13 +555,13 @@ bool WorkedBefore::continent_worked (Continent continent, QString const& mode, Q
       if (band.size ())
         {
           return m_->worked_.get<continent_mode_band> ().end ()
-            != m_->worked_.get<continent_mode_band> ().find (std::make_tuple (continent, mode, band));
+            != m_->worked_.get<continent_mode_band> ().find (std::make_tuple (continent, mode.toUpper (), band.toUpper ()));
         }
       else
         {
           // partial key lookup
           return m_->worked_.get<continent_mode_band> ().end ()
-            != m_->worked_.get<continent_mode_band> ().find (std::make_tuple (continent, mode));
+            != m_->worked_.get<continent_mode_band> ().find (std::make_tuple (continent, mode.toUpper ()));
         }
     }
   else
@@ -488,7 +569,7 @@ bool WorkedBefore::continent_worked (Continent continent, QString const& mode, Q
       if (band.size ())
         {
           return m_->worked_.get<continent_band> ().end ()
-            != m_->worked_.get<continent_band> ().find (std::make_tuple (continent, band));
+            != m_->worked_.get<continent_band> ().find (std::make_tuple (continent, band.toUpper ()));
         }
       else
         {
@@ -506,13 +587,13 @@ bool WorkedBefore::CQ_zone_worked (int CQ_zone, QString const& mode, QString con
       if (band.size ())
         {
           return m_->worked_.get<CQ_zone_mode_band> ().end ()
-            != m_->worked_.get<CQ_zone_mode_band> ().find (std::make_tuple (CQ_zone, mode, band));
+            != m_->worked_.get<CQ_zone_mode_band> ().find (std::make_tuple (CQ_zone, mode.toUpper (), band.toUpper ()));
         }
       else
         {
           // partial key lookup
           return m_->worked_.get<CQ_zone_mode_band> ().end ()
-            != m_->worked_.get<CQ_zone_mode_band> ().find (std::make_tuple (CQ_zone, mode));
+            != m_->worked_.get<CQ_zone_mode_band> ().find (std::make_tuple (CQ_zone, mode.toUpper ()));
         }
     }
   else
@@ -520,7 +601,7 @@ bool WorkedBefore::CQ_zone_worked (int CQ_zone, QString const& mode, QString con
       if (band.size ())
         {
           return m_->worked_.get<CQ_zone_band> ().end ()
-            != m_->worked_.get<CQ_zone_band> ().find (std::make_tuple (CQ_zone, band));
+            != m_->worked_.get<CQ_zone_band> ().find (std::make_tuple (CQ_zone, band.toUpper ()));
         }
       else
         {
@@ -538,13 +619,13 @@ bool WorkedBefore::ITU_zone_worked (int ITU_zone, QString const& mode, QString c
       if (band.size ())
         {
           return m_->worked_.get<ITU_zone_mode_band> ().end ()
-            != m_->worked_.get<ITU_zone_mode_band> ().find (std::make_tuple (ITU_zone, mode, band));
+            != m_->worked_.get<ITU_zone_mode_band> ().find (std::make_tuple (ITU_zone, mode.toUpper (), band.toUpper ()));
         }
       else
         {
           // partial key lookup
           return m_->worked_.get<ITU_zone_mode_band> ().end ()
-            != m_->worked_.get<ITU_zone_mode_band> ().find (std::make_tuple (ITU_zone, mode));
+            != m_->worked_.get<ITU_zone_mode_band> ().find (std::make_tuple (ITU_zone, mode.toUpper ()));
         }
     }
   else
@@ -552,7 +633,7 @@ bool WorkedBefore::ITU_zone_worked (int ITU_zone, QString const& mode, QString c
       if (band.size ())
         {
           return m_->worked_.get<ITU_zone_band> ().end ()
-            != m_->worked_.get<ITU_zone_band> ().find (std::make_tuple (ITU_zone, band));
+            != m_->worked_.get<ITU_zone_band> ().find (std::make_tuple (ITU_zone, band.toUpper ()));
         }
       else
         {

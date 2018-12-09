@@ -29,7 +29,7 @@ subroutine sync4(dat,jz,ntol,nfqso,mode,mode4,minwidth,dtx,dfx,snrx,    &
   df=0.5*11025.0/nfft
   ftop=nfqso + 7*mode4*df
   if(ftop.gt.11025.0/4.0) then
-     print*,'*** Rx Freq is set too high for this submode ***'
+     print*,'*** Rx Freq is set too high for this sybmode ***'
      go to 900
   endif
 
@@ -139,11 +139,8 @@ subroutine sync4(dat,jz,ntol,nfqso,mode,mode4,minwidth,dtx,dfx,snrx,    &
         ns=ns+1
      endif
   enddo
-  rms=0.1
-  snrx=-26.0
-  if(ns.gt.0) rms=sqrt(sq/ns)
-  if(ccfred(ipk1a).gt.0.0) snrx=10.0*log10(ccfred(ipk1a)/rms) - 41.2
-  if(snrx.gt.50.0) snrx=50.0
+  rms=sqrt(sq/ns)
+  snrx=10.0*log10(ccfred(ipk1a)/rms) - 41.2
 
 900  return
 end subroutine sync4

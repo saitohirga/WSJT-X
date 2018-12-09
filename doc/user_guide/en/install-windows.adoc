@@ -3,32 +3,70 @@
 Download and execute the package file {win32}, following these
 instructions:
 
-- Install _WSJT-X_ into its own directory, for example `C:\WSJTX` or
-`C:\WSJT\WSJTX`, rather than the conventional location
-`C:\Program Files\WSJTX`.
+* Install _WSJT-X_ into its own directory, for example `C:\WSJTX` or `
+  C:\WSJT\WSJTX`, rather than the conventional location `C:\Program
+  Files (x86)\WSJTX`.
 
-- All program files relating to _WSJT-X_ will be stored in the chosen
-installation directory and its subdirectories. 
+* All program files relating to _WSJT-X_ will be stored in the chosen
+  installation directory and its subdirectories.
 
-- Logs and other writeable files will normally be found in the 
-directory +
+* Logs and other writeable files will normally be found in the
+  directory +
+
 `C:\Users\<username>\AppData\Local\WSJT-X`.
 
 TIP: Your computer may be configured so that this directory is
-"`invisible`".  It's there, however, and accessible.  An alternative
-(shortcut) directory name is `%LOCALAPPDATA%\WSJT-X\`.
+     "`invisible`".  It's there, however, and accessible.  An
+     alternative (shortcut) directory name is
+     `"%LocalAppData%\WSJT-X\"`.
 
-- The built-in Windows facility for time synchronization is usually
-not adequate. We recommend the program _Meinberg NTP_ (see {ntpsetup}
-for downloading and installation instructions) or _Dimension 4_ from
-{dimension4}.
+* The built-in Windows facility for time synchronization is usually
+  not adequate. We recommend the program _Meinberg NTP_ (see
+  {ntpsetup} for downloading and installation instructions) or
+  _Dimension 4_ from {dimension4}. Recent versions of Windows 10 are
+  now shipped with a more capable Internet time synchronization
+  service that is suitable if configured appropriately.
 
-- _WSJT-X_ expects your sound card to do its raw sampling at 48000 Hz.
-To ensure that this will be so when running under recent versions of
-Windows, open the system's *Sound* control panel and select in turn the
-*Recording* and *Playback* tabs. Click on *Properties*, then
-*Advanced*, and select *16 bit, 48000 Hz (DVD Quality)*.
+[[OPENSSL]]
 
-- You can uninstall _WSJT-X_ by clicking its *Uninstall* link in the
-Windows *Start* menu, or by using *Uninstall a Program* on the
-Windows Control Panel.
+* image:LoTW_TLS_error.png[_WSJT-X_ LoTW download TLS error, role="right"]
+  From this version onward _WSJT-X_ requires the _OpenSSL_ libraries
+  to be installed. Suitable libraries may already be installed on your
+  system, if they are not you will see this error shortly after
+  startup. To fix this you need to install the _OpenSSL_ libraries.
+
+** You can download a suitable _OpenSSL_ package for from
+   {win_openssl_packages}, you need the latest *Win32 v1.0.2 Lite*
+   version (Note it is the Win32 package even if you are using a
+   64-bit Windows operating system) which at the time of writing was
+   {win32_openssl}.
+
+** Install the package and accept the default options, including the
+   option to copy the _OpenSSL_ DLLs to the Windows system directory
+   (this is important). +
+
+NOTE: If you still get the same network error after installing the
+      _OpenSSL_ libraries then you also need to install the
+      {msvcpp_redist} component. From the download page select
+      `vcredist_x86.exe` and run it to install.
+
+TIP: If you cannot install the _OpenSSL_ libraries or do not have an
+     Internet connection on the computer used to run
+     _WSJT-X_&nbsp;{VERSION_MAJOR}.{VERSION_MINOR}, you can download
+     the _LoTW_ file manually. Go to
+     https://lotw.arrl.org/lotw-user-activity.csv in a web browser,
+     download the file, then move it to the _WSJT-X_ log files
+     directory. This directory can be opened by selecting
+     *File&nbsp;|&nbsp;Open&nbsp;log&nbsp;directory*.
+
+* _WSJT-X_ expects your sound card to do its raw sampling at 48000 Hz.
+  To ensure that this will be so when running under recent versions of
+  Windows, open the system's *Sound* control panel and select in turn
+  the *Recording* and *Playback* tabs. Click on *Properties*, then
+  *Advanced*, and select *16 bit, 48000 Hz (DVD Quality)*. Switch of
+  all audio enhancement features for these devices.
+
+* You can uninstall _WSJT-X_ by clicking its *Uninstall* link in the
+  Windows *Start* menu, or by using *Uninstall a Program* on the
+  Windows Control Panel Programs and Features option or in Settings
+  Apps on Windows 10.
