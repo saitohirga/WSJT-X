@@ -963,12 +963,15 @@ void MainWindow::not_GA_warning_message ()
 
 
   MessageBox::critical_message (this,
-       "IMPORTANT: New protocols for the FT8 and MSK144 modes\n"
-       "became the world-wide standards on December 10, 2018.\n\n"
-       "WSJT-X 2.0 cannot communicate in these modes with other\n"
-       "stations using WSJT-X v1.9.1 or earlier.\n\n"
-       "Please help by urging everyone to upgrade to WSJT-X 2.0\n"
-       "no later than January 1, 2019.\n");
+                                "<b><p align=\"center\">"
+                                "IMPORTANT: New protocols for the FT8 and MSK144 modes "
+                                "became the world&#8209;wide standards on December&nbsp;10,&nbsp;2018."
+                                , "<p align=\"center\">"
+                                "WSJT&#8209;X&nbsp;2.0 cannot communicate in these modes with other "
+                                "stations using WSJT&#8209;X&nbsp;v1.9.1&nbsp;or&nbsp;earlier."
+                                "<p align=\"center\">"
+                                "Please help by urging everyone to upgrade to WSJT&#8209;X 2.0 "
+                                "<nobr>no later than January&nbsp;1,&nbsp;2019.</nobr>");
 
 //  QDateTime now=QDateTime::currentDateTime();
 //  QDateTime timeout=QDateTime(QDate(2018,12,31));
