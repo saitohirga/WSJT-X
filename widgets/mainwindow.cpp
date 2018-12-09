@@ -35,6 +35,7 @@
 #include <QActionGroup>
 #include <QSplashScreen>
 #include <QUdpSocket>
+#include <QAbstractItemView>
 
 #include "revision_utils.hpp"
 #include "qt_helpers.hpp"
