@@ -19,7 +19,10 @@ one callsign) followed by the transmitting station’s grid locator, a
 signal report, R plus a signal report, or the final acknowledgements
 RRR or 73.  These messages are compressed and encoded in a highly
 efficient and reliable way.  In uncompressed form (as displayed
-on-screen) they may contain as many as 22 characters.
+on-screen) they may contain as many as 22 characters.  Some operators
+prefer ro send RR73 rather than RRR.  This is workable because RR73 is
+encoded as a valid grid locator, one unlikely ever to be occupied by
+an amateur station.
 
 *Signal reports* are specified as signal-to-noise ratio (S/N) in dB,
 using a standard reference noise bandwidth of 2500 Hz.  Thus, in the
@@ -76,36 +79,92 @@ NOTE: When *Auto-Seq* is enabled the program de-activates *Enable Tx*
 at the end of each QSO.  It is not intended that _WSJT-X_ should make
 fully automated QSOs.
 
-=== VHF Contest Mode
+=== Contest Messages
 
-A special *NA VHF Contest* mode can be activated for FT8 and MSK144.
-To use it you must activate *File | Settings | General | Enable
-VHF/UHF/Microwave features* and then check the box *NA VHF Contest* on
-the main window.  This mode is configured especially for contests in
-which four-character grid locators are the required exchange.  When
-*NA VHF Contest* mode is active, the standard QSO sequence looks like
-this:
+The new FT8 and MSK144 protocols support special messages optimized
+for *NA VHF* and *EU VHF* contests. FT8 also supports messages for
+*ARRL Field Day* and the *ARRL RTTY Roundup*.  The decoders recognize
+and decode these messages at any time.  Configure the program to
+automatically generate the required message types by selecting a
+supported operating activity on the *Settings | Advanced* tab.  Model
+QSOs then proceed as follows, for each event type:
+
+*NA VHF Contest*
 
  CQ K1ABC FN42
-                      K1ABC W9XYZ EN37
+                       K1ABC W9XYZ EN37
  W9XYZ K1ABC R FN42
-                      K1ABC W9XYZ RRR
+                       K1ABC W9XYZ RRR
  W9XYZ K1ABC 73
 
-In contest circumstances K1ABC might choose to call CQ again rather
-than sending 73 for his third transmission.
+Either callsign (or both) may have /R appended.  You can use RR73 in
+place of RRR, and the final 73 is optional.
 
-IMPORTANT: Do not use VHF Contest Mode on an HF band or in conditions
-where worldwide propagation is available.  See
-<<PROTOCOL_OVERVIEW,Protocol Specifications>> for further details.
+
+*EU VHF Contest*
+
+ CQ TEST G4ABC IO91
+                       G4ABC PA9XYZ JO22
+ PA9XYZ 570123 IO91NP
+                       G4ABC R 580071 JO22DB
+ PA9XYZ G4ABC RR73
+
+Either callsign (or both) may have /P appended.
+
+*ARRL Field Day*
+
+ CQ FD K1ABC FN42
+                       K1ABC W9XYZ 6A WI
+ W9XYZ K1ABC R 2B EMA
+                       K1ABC W9XYZ RR73
+
+*ARRL RTTY Roundup*
+
+ CQ RU K1ABC FN42
+                       K1ABC W9XYZ 579 WI
+ W9XYZ K1ABC R 589 MA
+                       K1ABC W9XYZ RR73
 
 [[COMP-CALL]] 
 === Compound Callsigns
 
-Compound callsigns such as xx/K1ABC or K1ABC/x are handled in
-one of two possible ways:
+*FT8 and MSK144*
 
-.Messages containing Type 1 compound callsigns
+Compound callsigns like xx/K1ABC or K1ABC/x and nonstandard callsigns
+like YW18FIFA are supported for normal QSOs but not for the special
+contest-style messages.  Model QSOs look something like this:
+
+ CQ PJ4/K1ABC
+                       <PJ4/K1ABC> W9XYZ
+ W9XYZ <PJ4/K1ABC> +03
+                       <PJ4/K1ABC> W9XYZ R-08
+ <W9XYZ> PJ4/K1ABC RRR
+                       PJ4/K1ABC <W9XYZ> 73
+
+The compound or nonstandard callsigns are automatically recognized and
+handled using special message formats.  One such callsign and one
+standard callsign may appear in most messages, provided that one of
+them is enclosed in <  > angle brackets.  If the message includes a
+grid locator or numerical signal report, the brackets must enclose the
+compound or nonstandard callsign; otherwise the brackets may be around
+either call.
+
+Angle brackets imply that the enclosed callsign is not transmitted in
+full, but rather as a hash code using a smaller number of bits.
+Receiving stations will display the full nonstandard callsign if it
+has been received in full in the recent past.  Otherwise it will be
+displayed as < . . . >.  These restrictions are honored automatically
+by the algorithm that generates default messages for minimal QSOs.
+Except for the special cases involving /P or /R used in VHF
+contesting, _WSJT-X {VERSION_MAJOR}.{VERSION_MINOR}_ offers no support
+for two nonstandard callsigns to work each other.
+
+*JT4, JT9, JT65, and QRA64*
+
+In the 72-bit modes, compound callsigns are handled in one of two
+possible ways:
+
+.Type 1 compound callsigns
 
 A list of about 350 of the most common prefixes and suffixes can be
 displayed from the *Help* menu.  A single compound callsign involving
@@ -139,7 +198,7 @@ Notice that the full compound callsign is sent and received in the
 first two transmissions.  After that, the operators omit the add-on
 prefix or suffix and use the standard structured messages.
 
-.Type 2 Compound-Callsign Messages
+.Type 2 Compound callsigns
 
 Prefixes and suffixes _not_ found in the displayable short list are
 handled by using *Type 2* compound callsigns.  In this case the

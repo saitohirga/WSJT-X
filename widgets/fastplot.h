@@ -4,13 +4,16 @@
 // For more details see the accompanying file LICENSE_WHEATLEY.TXT
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef FPLOTTER_H
-#define FPLOTTER_H
+#ifndef FPLOTTER_H_
+#define FPLOTTER_H_
 
-#include <QtWidgets>
 #include <QFrame>
-#include <QImage>
-#include <cstring>
+#include <QString>
+#include <QPixmap>
+#include <QVector>
+#include <QColor>
+
+class QMouseEvent;
 
 class FPlotter : public QFrame
 {

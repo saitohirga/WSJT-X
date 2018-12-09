@@ -6,6 +6,8 @@
 #include <locale.h>
 #include <fftw3.h>
 
+#include <QSharedMemory>
+#include <QTemporaryFile>
 #include <QDateTime>
 #include <QApplication>
 #include <QRegularExpression>
@@ -21,6 +23,7 @@
 #include <QCommandLineParser>
 #include <QCommandLineOption>
 #include <QSqlDatabase>
+#include <QSqlQuery>
 #include <QSqlError>
 
 #include "revision_utils.hpp"
@@ -287,6 +290,12 @@ int main(int argc, char *argv[])
         {
           throw std::runtime_error {("Database Error: " + db.lastError ().text ()).toStdString ()};
         }
+
+      // better performance traded for a risk of d/b corruption
+      // on system crash or application crash
+      // db.exec ("PRAGMA synchronous=OFF"); // system crash risk
+      // db.exec ("PRAGMA journal_mode=MEMORY"); // application crash risk
+      db.exec ("PRAGMA locking_mode=EXCLUSIVE");
 
       int result;
       do

@@ -182,6 +182,7 @@
 #include "validators/CallsignValidator.hpp"
 #include "LotWUsers.hpp"
 #include "models/DecodeHighlightingModel.hpp"
+#include "logbook/logbook.h"
 
 #include "ui_Configuration.h"
 #include "moc_Configuration.cpp"
@@ -199,16 +200,18 @@ namespace
   QRegularExpression RTTY_roundup_exchange_re {
     R"(
         (
-           AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA   # states
-          |HI|ID|IL|IN|IA|KS|KY|LA|ME|MD
+           AL|AZ|AR|CA|CO|CT|DE|FL|GA      # 48 contiguous states
+          |ID|IL|IN|IA|KS|KY|LA|ME|MD
           |MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ
           |NM|NY|NC|ND|OH|OK|OR|PA|RI|SC
           |SD|TN|TX|UT|VT|VA|WA|WV|WI|WY
           |NB|NS|QC|ON|MB|SK|AB|BC|NWT|NF  # VE provinces
-          |LB|NU|YT|PEI|DC
+          |LB|NU|YT|PEI
+          |DC                              # District of Columbia
           |DX                              # anyone else
         )
       )", QRegularExpression::CaseInsensitiveOption | QRegularExpression::ExtendedPatternSyntaxOption};
+
   QRegularExpression field_day_exchange_re {
     R"(
         (
@@ -216,7 +219,7 @@ namespace
           |[0-2]\d
           |3[0-2]
         )
-        [A-F]\                            # class and space
+        [A-F]\ *                          # class and optional space
         (
            AB|AK|AL|AR|AZ|BC|CO|CT|DE|EB  # ARRL/RAC section
           |EMA|ENY|EPA|EWA|GA|GTA|IA|ID
@@ -395,6 +398,7 @@ public:
                  , QNetworkAccessManager * network_manager
                  , QDir const& temp_directory
                  , QSettings * settings
+                 , LogBook * logbook
                  , QWidget * parent);
   ~impl ();
 
@@ -480,11 +484,14 @@ private:
   Q_SLOT void handle_transceiver_update (TransceiverState const&, unsigned sequence_number);
   Q_SLOT void handle_transceiver_failure (QString const& reason);
   Q_SLOT void on_reset_highlighting_to_defaults_push_button_clicked (bool);
+  Q_SLOT void on_rescan_log_push_button_clicked (bool);
   Q_SLOT void on_LotW_CSV_fetch_push_button_clicked (bool);
   Q_SLOT void on_cbx2ToneSpacing_clicked(bool);
   Q_SLOT void on_cbx4ToneSpacing_clicked(bool);
   Q_SLOT void on_prompt_to_log_check_box_clicked(bool);
   Q_SLOT void on_cbAutoLog_clicked(bool);
+  Q_SLOT void on_Field_Day_Exchange_textEdited (QString const&);
+  Q_SLOT void on_RTTY_Exchange_textEdited (QString const&);
 
   // typenames used as arguments must match registered type names :(
   Q_SIGNAL void start_transceiver (unsigned seqeunce_number) const;
@@ -502,6 +509,7 @@ private:
 
   QNetworkAccessManager * network_manager_;
   QSettings * settings_;
+  LogBook * logbook_;
 
   QDir doc_dir_;
   QDir data_dir_;
@@ -638,8 +646,8 @@ private:
 
 // delegate to implementation class
 Configuration::Configuration (QNetworkAccessManager * network_manager, QDir const& temp_directory,
-                              QSettings * settings, QWidget * parent)
-  : m_ {this, network_manager, temp_directory, settings, parent}
+                              QSettings * settings, LogBook * logbook, QWidget * parent)
+  : m_ {this, network_manager, temp_directory, settings, logbook, parent}
 {
 }
 
@@ -905,13 +913,15 @@ namespace
 }
 
 Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network_manager
-                           , QDir const& temp_directory, QSettings * settings, QWidget * parent)
+                           , QDir const& temp_directory, QSettings * settings, LogBook * logbook
+                           , QWidget * parent)
   : QDialog {parent}
   , self_ {self}
   , transceiver_thread_ {nullptr}
   , ui_ {new Ui::configuration_dialog}
   , network_manager_ {network_manager}
   , settings_ {settings}
+  , logbook_ {logbook}
   , doc_dir_ {doc_path ()}
   , data_dir_ {data_path ()}
   , temp_dir_ {temp_directory}
@@ -1005,8 +1015,8 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   ui_->callsign_line_edit->setValidator (new CallsignValidator {this});
   ui_->grid_line_edit->setValidator (new MaidenheadLocatorValidator {this});
   ui_->add_macro_line_edit->setValidator (new QRegularExpressionValidator {message_alphabet, this});
-  ui_->Field_Day_Exchange->setValidator(new QRegularExpressionValidator {field_day_exchange_re});
-  ui_->RTTY_Exchange->setValidator(new QRegularExpressionValidator {RTTY_roundup_exchange_re});
+  ui_->Field_Day_Exchange->setValidator (new QRegularExpressionValidator {field_day_exchange_re, this});
+  ui_->RTTY_Exchange->setValidator (new QRegularExpressionValidator {RTTY_roundup_exchange_re, this});
 
   ui_->udp_server_port_spin_box->setMinimum (1);
   ui_->udp_server_port_spin_box->setMaximum (std::numeric_limits<port_type>::max ());
@@ -1436,7 +1446,9 @@ void Configuration::impl::read_settings ()
 
   stations_.station_list (settings_->value ("stations").value<StationList::Stations> ());
 
-  decode_highlighing_model_.items (settings_->value ("DecodeHighlighting", QVariant::fromValue (DecodeHighlightingModel::default_items ())).value<DecodeHighlightingModel::HighlightItems> ());
+  auto highlight_items = settings_->value ("DecodeHighlighting", QVariant::fromValue (DecodeHighlightingModel::default_items ())).value<DecodeHighlightingModel::HighlightItems> ();
+  if (!highlight_items.size ()) highlight_items = DecodeHighlightingModel::default_items ();
+  decode_highlighing_model_.items (highlight_items);
   highlight_by_mode_ = settings_->value("HighlightByMode", false).toBool ();
   LotW_days_since_upload_ = settings_->value ("LotWDaysSinceLastUpload", 365).toInt ();
   lotw_users_.set_age_constraint (LotW_days_since_upload_);
@@ -2126,6 +2138,11 @@ void Configuration::impl::on_reset_highlighting_to_defaults_push_button_clicked 
     }
 }
 
+void Configuration::impl::on_rescan_log_push_button_clicked (bool /*clicked*/)
+{
+  if (logbook_) logbook_->rescan ();
+}
+
 void Configuration::impl::on_LotW_CSV_fetch_push_button_clicked (bool /*checked*/)
 {
   lotw_users_.load (ui_->LotW_CSV_URL_line_edit->text (), true);
@@ -2494,6 +2511,22 @@ void Configuration::impl::on_cbx2ToneSpacing_clicked(bool b)
 void Configuration::impl::on_cbx4ToneSpacing_clicked(bool b)
 {
   if(b) ui_->cbx2ToneSpacing->setChecked(false);
+}
+
+void Configuration::impl::on_Field_Day_Exchange_textEdited (QString const& exchange)
+{
+  auto text = exchange.simplified ().toUpper ();
+  auto class_pos = text.indexOf (QRegularExpression {R"([A-H])"});
+  if (class_pos >= 0 && text.size () >= class_pos + 2 && text.at (class_pos + 1) != QChar {' '})
+    {
+      text.insert (class_pos + 1, QChar {' '});
+    }
+  ui_->Field_Day_Exchange->setText (text);
+}
+
+void Configuration::impl::on_RTTY_Exchange_textEdited (QString const& exchange)
+{
+  ui_->RTTY_Exchange->setText (exchange.toUpper ());
 }
 
 bool Configuration::impl::have_rig ()

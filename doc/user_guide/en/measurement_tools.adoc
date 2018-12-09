@@ -20,6 +20,8 @@ tab, delete any default frequencies for *FreqCal* mode that are not
 relevant for your location.  You may want to replace some of them with
 reliably known frequencies receivable at your location.
 
++
+
 TIP: We find major-city AM broadcast stations generally serve well as
 frequency calibrators at the low frequency end of the spectrum.  In
 North America we also use the standard time-and-frequency broadcasts

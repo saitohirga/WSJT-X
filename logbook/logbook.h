@@ -1,12 +1,12 @@
+// -*- Mode: C++ -*-
 /*
  * From an ADIF file and cty.dat, get a call's DXCC entity and its worked before status
- * VK3ACF July 2013
  */
 
 #ifndef LOG_BOOK_H_
 #define LOG_BOOK_H_
 
-#include <boost/core/noncopyable.hpp>
+#include <QObject>
 #include <QString>
 
 #include "WorkedBefore.hpp"
@@ -16,9 +16,11 @@ class QByteArray;
 class QDateTime;
 
 class LogBook final
-  : private boost::noncopyable
+  : public QObject
 {
- public:
+  Q_OBJECT
+
+public:
   LogBook (Configuration const *);
   QString const& path () const {return worked_before_.path ();}
   bool add (QString const& call
@@ -27,6 +29,7 @@ class LogBook final
             , QString const& mode
             , QByteArray const& ADIF_record);
   AD1CCty const& countries () const {return worked_before_.countries ();}
+  void rescan ();
   void match (QString const& call, QString const& mode, QString const& grid,
               AD1CCty::Record const&, bool& callB4, bool& countryB4,
               bool &gridB4, bool &continentB4, bool& CQZoneB4, bool& ITUZoneB4,
@@ -38,7 +41,9 @@ class LogBook final
                                QString const& m_myGrid, QString const& m_txPower, QString const& operator_call,
                                QString const& xSent, QString const& xRcvd);
 
- private:
+  Q_SIGNAL void finished_loading (int worked_before_record_count, QString const& error) const;
+
+private:
   Configuration const * config_;
   WorkedBefore worked_before_;
 };

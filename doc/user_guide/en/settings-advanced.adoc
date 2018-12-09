@@ -27,6 +27,8 @@ receiver's effective noise bandwidth.
 a larger delay between execution of a command to enable PTT and onset
 of Tx audio.  
 
++
+
 IMPORTANT: For the health of your T/R relays and external
 preamplifier, we strongly recommend using a hardware sequencer and
 testing to make sure that sequencing is correct.
@@ -36,9 +38,16 @@ with twice or four times the normal tone spacing.  This feature is
 intended for use with specialized LF/MF transmitters that divide
 generated frequencies by 2 or 4 as part of the transmission process.
 
-_FT8 DXpedition Mode_
+_Special Operating Activity: Generation of FT8 and MSk144 messages_
+
+- Check this box and select the type of activity to enable
+auto-generation of special message formats for contesting and
+DXpeditions.  For *ARRL Field Day*, enter your operating Class and
+ARRL/RAC section; for *ARRL RTTY Roundup*, enter your state or province.
+Use “DX” for section or state if you are not in the US or Canada.  In
+the RTTY Roundup, Stations in Alaska and Hawaii should enter “DX”.
 
 - Check *Fox* if you are a DXpedition station operating in FT8
 DXpedition Mode.  Check *Hound* if you wish to make QSOs with such a
-Fox.  Be sure to read the operating instructions for  {ft8_DXped}.
+Fox.  Be sure to read the operating instructions for {ft8_DXped}.
 

@@ -12,14 +12,14 @@ Example:
 [displayed text] PSK Reporter
 
 Perform searches from the doc root directory: doc
-Search: grep -rl --exclude-dir="*\.svn" {pskreporter} .
-	grep -rl --exclude-dir="*\.svn" PSK Reporter .
-	grep -rl --exclude-dir="*\.svn" {devsvn} .
-        grep -rl --exclude-dir="*\.svn" {kvasd} .
-        grep -rl --exclude-dir="*\.svn" {ntpsetup} .
+Search: grep -rl --exclude-dir="*\.git" {pskreporter} .
+	grep -rl --exclude-dir="*\.git" PSK Reporter .
+	grep -rl --exclude-dir="*\.git" {devrepo} .
+        grep -rl --exclude-dir="*\.git" {kvasd} .
+        grep -rl --exclude-dir="*\.git" {ntpsetup} .
 
-Include links.adoc: grep -rl --exclude-dir="*\.svn" pskreporter .
-Exclude links.adoc: grep -rl --exclude-dir="*\.svn" {pskreporter} .
+Include links.adoc: grep -rl --exclude-dir="*\.git" pskreporter .
+Exclude links.adoc: grep -rl --exclude-dir="*\.git" {pskreporter} .
 
 Note(s):
 a). Don't forget a space then "." at the end.
@@ -54,8 +54,8 @@ d). Edit lines as needed. Keeping them in alphabetic order help see dupes.
 :raspbian: http://physics.princeton.edu/pulsar/K1JT/wsjtx_{VERSION}_armhf.deb[wsjtx_{VERSION}_armhf.deb]
 :debian: http://www.debian.org/[Debian]
 :dev_guide: http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/wsjt-dev-guide.html[Dev-Guide]
-:devsvn1: http://sourceforge.net/p/wsjt/wsjt/HEAD/tree/[Devel-SVN]
-:devsvn: http://sourceforge.net/p/wsjt/wsjt/HEAD/tree/[SourceForge]
+:devsvn: http://sourceforge.net/p/wsjt/wsjt/HEAD/tree/[Devel-SVN]
+:devrepo: https://sourceforge.net/p/wsjt/wsjtx/ci/master/tree/[SourceForge]
 :dimension4: http://www.thinkman.com/dimension4/[Thinking Man Software]
 :download: http://physics.princeton.edu/pulsar/K1JT/wsjtx.html[Download Page]
 :dxatlas: http://www.dxatlas.com/[Afreet Software, Inc.]
@@ -67,7 +67,7 @@ d). Edit lines as needed. Keeping them in alphabetic order help see dupes.
 :fmt_group: https://groups.yahoo.com/neo/groups/FMT-nuts/info[FMT Group]
 :fmt_k5cm: http://www.k5cm.com/[FMT Event Info]
 :fmt_wspr: http://www.physics.princeton.edu/pulsar/K1JT/FMT_User.pdf[Accurate Frequency Measurements with your WSPR Setup]
-:ft8_tips: http://www.physics.princeton.edu/pulsar/K1JT/FT8_Operating_Tips.pdf[here]
+:ft8_tips: http://www.g4ifb.com/FT8_Hinson_tips_for_HF_DXers.pdf[FT8 Operating Guide]
 :ft8_DXped: http://physics.princeton.edu/pulsar/k1jt/FT8_DXpedition_Mode.pdf[FT8 DXpedition Mode]
 :gnu_gpl: http://www.gnu.org/licenses/gpl-3.0.txt[GNU General Public License]
 :homepage: http://physics.princeton.edu/pulsar/K1JT/[WSJT Home Page]
@@ -79,7 +79,9 @@ d). Edit lines as needed. Keeping them in alphabetic order help see dupes.
 :log4om: http://www.log4om.com[Log4OM]
 :lunarEchoes: http://physics.princeton.edu/pulsar/K1JT/LunarEchoes_QEX.pdf[QEX]
 :msk144: http://physics.princeton.edu/pulsar/k1jt/MSK144_Protocol_QEX.pdf[QEX]
+:msvcpp_redist: https://www.microsoft.com/en-ph/download/details.aspx?id=40784[Microsoft VC++ 2013 Redistributable]
 :msys_url: http://sourceforge.net/projects/mingwbuilds/files/external-binary-packages/[MSYS Download]
+:n1mm_logger: https://n1mm.hamdocs.com/tiki-index.php[N1MM Logger+]
 :ntpsetup: http://www.satsignal.eu/ntp/setup.html[Network Time Protocol Setup]
 :osx_instructions: http://physics.princeton.edu/pulsar/K1JT/OSX_Readme[Mac OS X Install Instructions]
 :ppa: http://en.wikipedia.org/wiki/Personal_Package_Archive[PPA]
@@ -88,6 +90,9 @@ d). Edit lines as needed. Keeping them in alphabetic order help see dupes.
 :sourceforge: https://sourceforge.net/user/registration[SourceForge]
 :sourceforge-jtsdk: https://sourceforge.net/projects/jtsdk[SourceForge JTSDK]
 :ubuntu_sdk: https://launchpad.net/~ubuntu-sdk-team/+archive/ppa[Ubuntu SDK Notice]
+:win_openssl_packages: https://slproweb.com/products/Win32OpenSSL.html[Windows OpenSSL Packages]
+:win32_openssl: https://slproweb.com/download/Win32OpenSSL_Light-1_0_2q.exe[Win32 OpenSSL Lite Package]
+:writelog: https://writelog.com/[Writelog]
 :wsjt_yahoo_group: https://groups.yahoo.com/neo/groups/wsjtgroup/info[WSJT Group]
 :wsjtx: http://physics.princeton.edu/pulsar/K1JT/wsjtx.html[WSJT-X]
 :wspr0_guide: http://www.physics.princeton.edu/pulsar/K1JT/WSPR0_Instructions.TXT[WSPR0 Guide]
@@ -111,9 +116,9 @@ d). Edit lines as needed. Keeping them in alphabetic order help see dupes.
 :svn: http://subversion.apache.org/packages.html#windows[Subversion]
 :win32: http://physics.princeton.edu/pulsar/K1JT/wsjtx-{VERSION}-win32.exe[wsjtx-{VERSION}-win32.exe]
 :wsjt-devel: https://lists.sourceforge.net/lists/listinfo/wsjt-devel[here]
-:wsjt_svn: http://sourceforge.net/p/wsjt/wsjt/HEAD/tree/[WSJT Source Repository]
+:wsjt_repo: https://sourceforge.net/p/wsjt/wsjt_orig/ci/master/tree/[WSJT Source Repository]
 :wspr_code: http://physics.princeton.edu/pulsar/K1JT/WSPRcode.exe[WSPRcode.exe]
-:wspr_svn: http://sourceforge.net/p/wsjt/wsjt/HEAD/tree/branches/wspr/[WSPR Source Repository]
+:wspr_svn: https://sourceforge.net/p/wsjt/wspr/ci/master/tree/[WSPR Source Repository]
 
 // MAIL-TO links
 :alex_efros: mailto:powerman@powerman.name[Alex Efros]

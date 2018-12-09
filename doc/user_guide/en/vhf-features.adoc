@@ -1,5 +1,6 @@
-_WSJT-X_ v1.9 suppports a number of features designed for use
-on the VHF and higher bands.  These features include:
+_WSJT-X_ v{VERSION_MAJOR}.{VERSION_MINOR} suppports a number of
+features designed for use on the VHF and higher bands.  These features
+include:
 
 - *FT8*, a mode designed for making fast QSOs with weak, fading
 signals
@@ -276,6 +277,8 @@ this number is well below 100% you may increase the decoding depth
 from *Fast* to *Normal* or *Deep*, and increase *F Tol* from 100 to
 200 Hz.
 
++
+
 NOTE: Most modern multi-core computers can easily handle the optimum
 parameters *Deep* and *F Tol 200*.  Older and slower machines may not
 be able to keep up at these settings; at the *Fast* and *Normal*
@@ -303,6 +306,7 @@ enclosed in <> angle brackets, as in the following model QSO
  <W9XYZ K1ABC> RRR
                     <K1ABC W9XYZ> 73
 
++
 
 NOTE: There is little or no advantage to using MSK144 *Sh*
 messages at 50 or 70 MHz.  At these frequencies, most pings are long

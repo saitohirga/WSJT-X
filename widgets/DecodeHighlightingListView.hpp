@@ -3,8 +3,6 @@
 
 #include <QListView>
 
-#include "pimpl_h.hpp"
-
 class QWidget;
 
 // Class Decode Highlighting List View
@@ -20,13 +18,9 @@ class DecodeHighlightingListView final
 {
 public:
   explicit DecodeHighlightingListView (QWidget * parent = nullptr);
-  ~DecodeHighlightingListView ();
 
 private:
   QSize sizeHint () const override;
-
-  class impl;
-  pimpl<impl> m_;
 };
 
 #endif

@@ -1,12 +1,12 @@
 // -*- Mode: C++ -*-
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-#ifdef QT5
-#include <QtWidgets>
-#else
-#include <QtGui>
-#endif
+
+#include <QMainWindow>
+#include <QLabel>
 #include <QThread>
+#include <QProcess>
+#include <QProgressBar>
 #include <QTimer>
 #include <QDateTime>
 #include <QList>
@@ -58,6 +58,8 @@ namespace Ui {
   class MainWindow;
 }
 
+class QSharedMemory;
+class QSplashScreen;
 class QSettings;
 class QLineEdit;
 class QFont;
@@ -101,6 +103,8 @@ public:
                       QSplashScreen *,
                       QWidget *parent = nullptr);
   ~MainWindow();
+
+  int decoderBusy () const {return m_decoderBusy;}
 
 public slots:
   void showSoundInError(const QString& errorMsg);
@@ -230,7 +234,9 @@ private slots:
                   , QString const& rpt_sent, QString const& rpt_received
                   , QString const& tx_power, QString const& comments
                   , QString const& name, QDateTime const& QSO_date_on, QString const& operator_call
-                  , QString const& my_call, QString const& my_grid, QByteArray const& ADIF);
+                  , QString const& my_call, QString const& my_grid
+                  , QString const& exchange_sent, QString const& exchange_rcvd
+                  , QByteArray const& ADIF);
   void on_bandComboBox_currentIndexChanged (int index);
   void on_bandComboBox_activated (int index);
   void on_readFreq_clicked();
@@ -303,7 +309,7 @@ private slots:
   void not_GA_warning_message ();
   void checkMSK144ContestType();
   int  setTxMsg(int n);
-  bool stdCall(QString w);
+  bool stdCall(QString const& w);
 
 private:
   Q_SIGNAL void initializeAudioOutputStream (QAudioDeviceInfo,
@@ -347,6 +353,7 @@ private:
   QSettings * m_settings;
   QScopedPointer<Ui::MainWindow> ui;
 
+  LogBook m_logBook;            // must be before Configuration construction
   Configuration m_config;
   WSPRBandHopping m_WSPR_band_hopping;
   bool m_WSPR_tx_next;
@@ -626,7 +633,6 @@ private:
   QDateTime m_dateTimeLastTX;
 
   QSharedMemory *mem_jt9;
-  LogBook m_logBook;
   QString m_QSOText;
   unsigned m_msAudioOutputBuffered;
   unsigned m_framesAudioInputBuffered;

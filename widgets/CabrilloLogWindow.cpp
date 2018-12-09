@@ -66,8 +66,9 @@ CabrilloLogWindow::CabrilloLogWindow (QSettings * settings, Configuration const 
   set_log_view (m_->ui_.log_table_view);
   m_->ui_.log_table_view->setItemDelegateForColumn (2, new DateTimeAsSecsSinceEpochDelegate {this});
   m_->ui_.log_table_view->setItemDelegateForColumn (3, new CallsignDelegate {this});
-  m_->ui_.log_table_view->setItemDelegateForColumn (6, new ForeignKeyDelegate {configuration->bands (), m_->log_model_, 0, 6, this});
-  m_->ui_.log_table_view->horizontalHeader ()->moveSection (6, 1); // band to first column
+  m_->ui_.log_table_view->setItemDelegateForColumn (6, new ForeignKeyDelegate {configuration->bands (), 0, this});
+  auto h_header = m_->ui_.log_table_view->horizontalHeader ();
+  h_header->moveSection (6, 1); // band to first column
 }
 
 CabrilloLogWindow::~CabrilloLogWindow ()

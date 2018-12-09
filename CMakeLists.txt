@@ -271,6 +271,8 @@ set (wsjt_qt_CXXSRCS
   item_delegates/CallsignDelegate.cpp
   item_delegates/MaidenheadLocatorDelegate.cpp
   models/CabrilloLog.cpp
+  logbook/AD1CCty.cpp
+  logbook/WorkedBefore.cpp
   )
 
 set (wsjt_qtmm_CXXSRCS
@@ -288,8 +290,6 @@ set (jt9_CXXSRCS
 
 set (wsjtx_CXXSRCS
   logbook/logbook.cpp
-  logbook/WorkedBefore.cpp
-  logbook/AD1CCty.cpp
   psk_reporter.cpp
   Modulator.cpp
   Detector.cpp
@@ -322,14 +322,12 @@ set (wsjtx_CXXSRCS
 
 set (wsjt_CXXSRCS
   lib/crc10.cpp
-  lib/crc12.cpp
   lib/crc13.cpp
   lib/crc14.cpp
   )
 # deal with a GCC v6 UB error message
 set_source_files_properties (
   lib/crc10.cpp
-  lib/crc12.cpp
   lib/crc13.cpp
   lib/crc14.cpp
   PROPERTIES COMPILE_FLAGS -fpermissive)
@@ -384,13 +382,11 @@ set (wsjt_FSRCS
   lib/ft8/baseline.f90
   lib/bpdecode40.f90
   lib/bpdecode128_90.f90
-  lib/ft8/bpdecode174.f90
   lib/ft8/bpdecode174_91.f90
   lib/baddata.f90
   lib/calibrate.f90
   lib/ccf2.f90
   lib/ccf65.f90
-  lib/ft8/chkcrc12a.f90
   lib/ft8/chkcrc13a.f90
   lib/ft8/chkcrc14a.f90
   lib/chkcall.f90
@@ -508,7 +504,6 @@ set (wsjt_FSRCS
   lib/msk144sim.f90
   lib/mskrtd.f90
   lib/77bit/my_hash.f90
-  lib/ft8/osd174.f90
   lib/wsprd/osdwspr.f90
   lib/ft8/osd174_91.f90
   lib/pctile.f90

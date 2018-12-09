@@ -1,6 +1,10 @@
 #include "fastplot.h"
 #include "commons.h"
 #include <math.h>
+#include <QPainter>
+#include <QPen>
+#include <QMouseEvent>
+#include <QDateTime>
 #include <QDebug>
 #include "moc_fastplot.cpp"
 

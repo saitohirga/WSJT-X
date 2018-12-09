@@ -159,8 +159,9 @@ public:
   {
   }
 
-  Record fixup (QString const& call, prefix const& p) const
+  Record fixup (QString call, prefix const& p) const
   {
+    call = call.toUpper ();
     using entity_by_id = entities_type::index<id>::type;
     entity_by_id::iterator e;   // iterator into entity set
 
