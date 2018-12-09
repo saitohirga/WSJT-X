@@ -45,20 +45,3 @@ this is available on line.
 * Adjust *Age of of last upload less than* to set the period within
   which a station must have uploaded their log to LoTW to trigger
   highlighting.
-
-TIP: If you are using Windows and experience LoTW download errors, go
-here https://slproweb.com/products/Win32OpenSSL.html and download the
-OpenSSL installer, specifically the “Win32 OpenSSL v1.0.2q Light”
-version. Note that this is the correct version even if you are running
-64-bit Windows. The direct download link is
-https://slproweb.com/download/Win32OpenSSL_Light-1_0_2q.exe.  Run the
-installer with all default options and accept the option to install
-into the Windows system directory.
-
-TIP: If you cannot install the OpenSSL libraries or do not have an
-Internet connection on the computer used to run WSJT-X 2.0, you can
-download the LoTW file manually. Go to
-https://lotw.arrl.org/lotw-user-activity.csv in a web browser,
-download the file, then move it to the WSJT-X log files
-directory. This directory can be opened by selecting File | Open log
-directory.
