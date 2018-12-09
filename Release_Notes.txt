@@ -20,8 +20,8 @@ WSJT-X 2.0 is a major update that introduces new protocols for FT8 and
 MSK144.  The new protocols become the world-wide standards on December
 10, 2018.
 
-WSJT-X 2.0 cannot communicte in these modes with other stations using
-WSJT-X v1.9.1 or erlier.
+WSJT-X 2.0 cannot communicate in these modes with other stations using
+WSJT-X v1.9.1 or earlier.
 
 Please help by urging everyone to upgrade no later than January 1, 2019.
 
