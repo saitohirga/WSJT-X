@@ -61,13 +61,25 @@ void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString 
                         CabrilloLog * cabrillo_log)
 {
   if(!isHidden()) return;
-  ui->call->setText(hisCall);
-  ui->grid->setText(hisGrid);
-  ui->name->setText("");
-  ui->txPower->setText("");
-  ui->comments->setText("");
-  if (ui->cbTxPower->isChecked ()) ui->txPower->setText(m_txPower);
-  if (ui->cbComments->isChecked ()) ui->comments->setText(m_comments);
+  ui->call->setText (hisCall);
+  ui->grid->setText (hisGrid);
+  ui->name->clear ();
+  if (ui->cbTxPower->isChecked ())
+    {
+      ui->txPower->setText (m_txPower);
+    }
+  else
+    {
+      ui->txPower->clear ();
+    }
+  if (ui->cbComments->isChecked ())
+    {
+      ui->comments->setText (m_comments);
+    }
+  else
+    {
+      ui->comments->clear ();
+    }
   if (m_config->report_in_comments()) {
     auto t=mode;
     if(rptSent!="") t+="  Sent: " + rptSent;
@@ -112,12 +124,12 @@ void LogQSO::accept()
   auto mode = ui->mode->text ();
   auto rptSent = ui->sent->text ();
   auto rptRcvd = ui->rcvd->text ();
-  auto m_dateTimeOn = ui->start_date_time->dateTime ();
-  auto m_dateTimeOff = ui->end_date_time->dateTime ();
+  auto dateTimeOn = ui->start_date_time->dateTime ();
+  auto dateTimeOff = ui->end_date_time->dateTime ();
   auto band = ui->band->text ();
   auto name = ui->name->text ();
-  auto m_txPower = ui->txPower->text ();
-  auto m_comments = ui->comments->text ();
+  m_txPower = ui->txPower->text ();
+  m_comments = ui->comments->text ();
   auto strDialFreq = QString::number (m_dialFreq / 1.e6,'f',6);
   auto operator_call = ui->loggedOperator->text ();
   auto xsent = ui->exchSent->text ();
@@ -136,7 +148,7 @@ void LogQSO::accept()
           return;               // without accepting
         }
 
-      if (!m_cabrilloLog->add_QSO (m_dialFreq, m_dateTimeOff, hisCall, xsent, xrcvd))
+      if (!m_cabrilloLog->add_QSO (m_dialFreq, dateTimeOff, hisCall, xsent, xrcvd))
         {
           show ();
           MessageBox::warning_message (this, tr ("Invalid QSO Data"),
@@ -152,10 +164,10 @@ void LogQSO::accept()
                                  tr ("Cannot open \"%1\" for append").arg (f.fileName ()),
                                  tr ("Error: %1").arg (f.errorString ()));
   } else {
-    QString logEntry=m_dateTimeOn.date().toString("yyyy-MM-dd,") +
-      m_dateTimeOn.time().toString("hh:mm:ss,") +
-      m_dateTimeOff.date().toString("yyyy-MM-dd,") +
-      m_dateTimeOff.time().toString("hh:mm:ss,") + hisCall + "," +
+    QString logEntry=dateTimeOn.date().toString("yyyy-MM-dd,") +
+      dateTimeOn.time().toString("hh:mm:ss,") +
+      dateTimeOff.date().toString("yyyy-MM-dd,") +
+      dateTimeOff.time().toString("hh:mm:ss,") + hisCall + "," +
       hisGrid + "," + strDialFreq + "," + mode +
       "," + rptSent + "," + rptRcvd + "," + m_txPower +
       "," + m_comments + "," + name;
@@ -165,7 +177,7 @@ void LogQSO::accept()
   }
 
   //Clean up and finish logging
-  Q_EMIT acceptQSO (m_dateTimeOff
+  Q_EMIT acceptQSO (dateTimeOff
                     , hisCall
                     , hisGrid
                     , m_dialFreq
@@ -175,7 +187,7 @@ void LogQSO::accept()
                     , m_txPower
                     , m_comments
                     , name
-                    , m_dateTimeOn
+                    , dateTimeOn
                     , operator_call
                     , m_myCall
                     , m_myGrid
@@ -186,8 +198,8 @@ void LogQSO::accept()
                                           , mode
                                           , rptSent
                                           , rptRcvd
-                                          , m_dateTimeOn
-                                          , m_dateTimeOff
+                                          , dateTimeOn
+                                          , dateTimeOff
                                           , band
                                           , m_comments
                                           , name

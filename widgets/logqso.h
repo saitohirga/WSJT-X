@@ -59,8 +59,6 @@ private:
   Radio::Frequency m_dialFreq;
   QString m_myCall;
   QString m_myGrid;
-  QDateTime m_dateTimeOn;
-  QDateTime m_dateTimeOff;
   CabrilloLog * m_cabrilloLog;
 };
 
