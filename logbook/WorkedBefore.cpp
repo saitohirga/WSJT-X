@@ -320,30 +320,27 @@ namespace
                       }
                   }
                 while ((end_position = buffer.indexOf ("<EOR>", 0, Qt::CaseInsensitive)) < 0 && !in.atEnd ());
-                if (end_position < 0)
+                if (end_position >= 0) // require valid ADIF record
+                                       // with terminator
                   {
-                    throw LoaderException (std::runtime_error {"Invalid ADIF record starting at: " + buffer.left (40).toStdString ()});
-                  }
-                auto record = buffer.left (end_position + 5).trimmed ();
-                auto next_record = buffer.indexOf (QChar {'<'}, end_position + 5);
-                buffer.remove (0, next_record >=0 ? next_record : buffer.size ());
-                record = record.mid (record.indexOf (QChar {'<'}));
-                auto call = extractField (record, "CALL");
-                if (call.size ())
-                  {
-                    auto const& entity = prefixes->lookup (call);
-                    worked.emplace (call.toUpper ()
-                                    , extractField (record, "GRIDSQUARE").left (4).toUpper () // not interested in 6-digit grids
-                                    , extractField (record, "BAND").toUpper ()
-                                    , extractField (record, "MODE").toUpper ()
-                                    , entity.entity_name
-                                    , entity.continent
-                                    , entity.CQ_zone
-                                    , entity.ITU_zone);
-                  }
-                else
-                  {
-                    throw LoaderException (std::runtime_error {"Invalid ADIF record with no CALL: " + record.toStdString ()});
+                    auto record = buffer.left (end_position + 5).trimmed ();
+                    auto next_record = buffer.indexOf (QChar {'<'}, end_position + 5);
+                    buffer.remove (0, next_record >=0 ? next_record : buffer.size ());
+                    record = record.mid (record.indexOf (QChar {'<'}));
+                    auto call = extractField (record, "CALL");
+                    if (call.size ()) // require CALL field before we
+                                      // will parse a record
+                      {
+                        auto const& entity = prefixes->lookup (call);
+                        worked.emplace (call.toUpper ()
+                                        , extractField (record, "GRIDSQUARE").left (4).toUpper () // not interested in 6-digit grids
+                                        , extractField (record, "BAND").toUpper ()
+                                        , extractField (record, "MODE").toUpper ()
+                                        , entity.entity_name
+                                        , entity.continent
+                                        , entity.CQ_zone
+                                        , entity.ITU_zone);
+                      }
                   }
               }
           }
