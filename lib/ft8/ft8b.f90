@@ -13,7 +13,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   character*13 c13
   real a(5)
   real s8(0:7,NN)
-  real s2(0:511),s2l(0:511)
+  real s2(0:511)
   real bmeta(174),bmetb(174),bmetc(174)
   real llra(174),llrb(174),llrc(174),llrd(174)           !Soft symbols
   real dd0(15*12000)
@@ -190,7 +190,6 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
             print*,"Error - nsym must be 1, 2, or 3."
           endif
         enddo
-        s2l(0:nt-1)=log(s2(0:nt-1)+1e-32)
         i32=1+(k-1)*3+(ihalf-1)*87
         if(nsym.eq.1) ibmax=2 
         if(nsym.eq.2) ibmax=5 
