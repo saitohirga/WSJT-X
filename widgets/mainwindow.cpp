@@ -1236,7 +1236,18 @@ void MainWindow::set_application_font (QFont const& font)
   qApp->setFont (font);
   // set font in the application style sheet as well in case it has
   // been modified in the style sheet which has priority
-  qApp->setStyleSheet (qApp->styleSheet () + "* {" + font_as_stylesheet (font) + '}');
+  QString ss;
+  if (qApp->styleSheet ().size ())
+    {
+      auto sheet = qApp->styleSheet ();
+      sheet.remove ("file:///");
+      QFile sf {sheet};
+      if (sf.open (QFile::ReadOnly | QFile::Text))
+        {
+          ss = sf.readAll () + ss;
+        }
+    }
+  qApp->setStyleSheet (ss + "* {" + font_as_stylesheet (font) + '}');
   for (auto& widget : qApp->topLevelWidgets ())
     {
       widget->updateGeometry ();
