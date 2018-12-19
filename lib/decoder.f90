@@ -517,34 +517,36 @@ contains
     write(13,1002) params%nutc,nint(sync),snr,dt,freq,0,decoded0
 1002 format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a37,' FT8')
 
-    i1=index(decoded0,' ')
-    i2=i1 + index(decoded0(i1+1:),' ')
-    i3=i2 + index(decoded0(i2+1:),' ')
-    if(i1.ge.3 .and. i2.ge.7 .and. i3.ge.10) then
-       c1=decoded0(1:i1-1)//'            '
-       c2=decoded0(i1+1:i2-1)
-       g2=decoded0(i2+1:i3-1)
-       b0=c1.eq.mycall
-       if(c1(1:3).eq.'DE ' .and. index(c2,'/').ge.2) b0=.true.
-       if(len(trim(c1)).ne.len(trim(mycall))) then
-          i4=index(trim(c1),trim(mycall))
-          i5=index(trim(mycall),trim(c1))
-          if(i4.ge.1 .or. i5.ge.1) b0=.true.
-       endif
-       b1=i3-i2.eq.5 .and. isgrid4(g2)
-       b2=i3-i2.eq.1
-       if(b0 .and. (b1.or.b2) .and. nint(freq).ge.1000) then
-          n=params%nutc
-          n30=(3600*(n/10000) + 60*mod((n/100),100) + mod(n,100))/30
-          if(n30.lt.n30z) nwrap=nwrap+5760    !New UTC day, handle the wrap
-          n30z=n30
-          n30=n30+nwrap
-          nfox=nfox+1
-          c2fox(nfox)=c2
-          g2fox(nfox)=g2
-          nsnrfox(nfox)=snr
-          nfreqfox(nfox)=nint(freq)
-          n30fox(nfox)=n30
+    if(ncontest.eq.5) then
+       i1=index(decoded0,' ')
+       i2=i1 + index(decoded0(i1+1:),' ')
+       i3=i2 + index(decoded0(i2+1:),' ')
+       if(i1.ge.3 .and. i2.ge.7 .and. i3.ge.10) then
+          c1=decoded0(1:i1-1)//'            '
+          c2=decoded0(i1+1:i2-1)
+          g2=decoded0(i2+1:i3-1)
+          b0=c1.eq.mycall
+          if(c1(1:3).eq.'DE ' .and. index(c2,'/').ge.2) b0=.true.
+          if(len(trim(c1)).ne.len(trim(mycall))) then
+             i4=index(trim(c1),trim(mycall))
+             i5=index(trim(mycall),trim(c1))
+             if(i4.ge.1 .or. i5.ge.1) b0=.true.
+          endif
+          b1=i3-i2.eq.5 .and. isgrid4(g2)
+          b2=i3-i2.eq.1
+          if(b0 .and. (b1.or.b2) .and. nint(freq).ge.1000) then
+             n=params%nutc
+             n30=(3600*(n/10000) + 60*mod((n/100),100) + mod(n,100))/30
+             if(n30.lt.n30z) nwrap=nwrap+5760    !New UTC day, handle the wrap
+             n30z=n30
+             n30=n30+nwrap
+             if(nfox.lt.MAXFOX) nfox=nfox+1
+             c2fox(nfox)=c2
+             g2fox(nfox)=g2
+             nsnrfox(nfox)=snr
+             nfreqfox(nfox)=nint(freq)
+             n30fox(nfox)=n30
+          endif
        endif
     endif
     
