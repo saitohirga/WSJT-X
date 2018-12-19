@@ -126,12 +126,12 @@ Either callsign (or both) may have /P appended.
                        K1ABC W9XYZ RR73
 
 [[COMP-CALL]] 
-=== Compound Callsigns
+=== Nonstandard Callsigns
 
 *FT8 and MSK144*
 
-Compound callsigns like xx/K1ABC or K1ABC/x and nonstandard callsigns
-like YW18FIFA are supported for normal QSOs but not for the special
+Compound callsigns like xx/K1ABC or K1ABC/x and special event
+callsigns like YW18FIFA are supported for normal QSOs but not for 
 contest-style messages.  Model QSOs look something like this:
 
  CQ PJ4/K1ABC
@@ -158,6 +158,11 @@ by the algorithm that generates default messages for minimal QSOs.
 Except for the special cases involving /P or /R used in VHF
 contesting, _WSJT-X {VERSION_MAJOR}.{VERSION_MINOR}_ offers no support
 for two nonstandard callsigns to work each other.
+
+TIP: Using a nonstandard callsign has definite costs.  It restricts
+the types of information that can be included in a message.  It
+prevents including your locator in standard messages, which
+necessarily impairs the usefulness of tools like PSK Reporter.
 
 *JT4, JT9, JT65, and QRA64*
 

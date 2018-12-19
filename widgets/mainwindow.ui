@@ -3476,10 +3476,5 @@ list. The list can be maintained in Settings (F2).</string>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup">
-   <property name="exclusive">
-    <bool>true</bool>
-   </property>
-  </buttongroup>
  </buttongroups>
 </ui>
