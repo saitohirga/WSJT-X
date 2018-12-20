@@ -2,10 +2,13 @@ module packjt77
 
 ! These variables are accessible from outside via "use packjt77":
   parameter (MAXHASH=1000,MAXRECENT=10)
-  character*13 callsign(MAXHASH)
-  integer ihash10(MAXHASH),ihash12(MAXHASH),ihash22(MAXHASH)
+  character (len=13), dimension(1:1024) ::  calls10=''
+  character (len=13), dimension(1:4096) ::  calls12=''
+  character (len=13), dimension(1:MAXHASH) :: calls22=''
+  character (len=13), dimension(1:MAXRECENT) :: recent_calls=''
+  character (len=13) :: mycall13,dxcall13
+  integer, dimension(1:MAXHASH) :: ihash22=-1
   integer n28a,n28b,nzhash
-  character*13 recent_calls(MAXRECENT)
 
   contains
 
@@ -14,15 +17,13 @@ subroutine hash10(n10,c13)
   character*13 c13
 
   c13='<...>'
-  do i=1,nzhash
-     if(ihash10(i).eq.n10) then
-        c13=callsign(i)
-        c13='<'//trim(c13)//'>'//'         '
-        go to 900
-     endif
-  enddo
+  if(n10.lt.1 .or. n10.gt.1024) return
+  if(len(trim(calls10(n10))).gt.0) then
+     c13=calls10(n10)
+     c13='<'//trim(c13)//'>'//'         '
+  endif
+  return
 
-900 return
 end subroutine hash10
 
 subroutine hash12(n12,c13)
@@ -30,15 +31,13 @@ subroutine hash12(n12,c13)
   character*13 c13
   
   c13='<...>'
-  do i=1,nzhash
-     if(ihash12(i).eq.n12) then
-        c13=callsign(i)
-        c13='<'//trim(c13)//'>'//'         '
-        go to 900
-     endif
-  enddo
+  if(n12.lt.1 .or. n12.gt.4096) return
+  if(len(trim(calls12(n12))).gt.0) then
+     c13=calls12(n12)
+     c13='<'//trim(c13)//'>'//'         '
+  endif
+  return
 
-900 return
 end subroutine hash12
 
 
@@ -49,7 +48,7 @@ subroutine hash22(n22,c13)
   c13='<...>'
   do i=1,nzhash
      if(ihash22(i).eq.n22) then
-        c13=callsign(i)
+        c13=calls22(i)
         c13='<'//trim(c13)//'>'//'         '
         go to 900
      endif
@@ -84,41 +83,44 @@ subroutine save_hash_call(c13,n10,n12,n22)
   save first
 
   if(first) then
-     ihash10=-1
-     ihash12=-1
+     calls10=''
+     calls12=''
      ihash22=-1
-     callsign='             '
+     calls22='             '
      nzhash=0
      first=.false.
   endif
- 
   cw=c13 
-  if(cw(1:1).eq.' ' .or. cw(1:5).eq.'<...>') return
+  if(cw(1:1).eq.' ' .or. cw(1:5).eq.'<...>' .or. len(trim(cw)).lt.3) return
   if(cw(1:1).eq.'<') cw=cw(2:)
+  if(cw.eq.mycall13) then
+    return
+  endif
   i=index(cw,'>')
   if(i.gt.0) cw(i:)='         '
 
   n10=ihashcall(cw,10)
+  calls10(n10)=cw
+
   n12=ihashcall(cw,12)
+  calls12(n12)=cw
+
   n22=ihashcall(cw,22)
-  do i=1,nzhash
-     if(ihash22(i).eq.n22) go to 900     !This one is already in the table
-  enddo
+  if(any(ihash22.eq.n22)) then   ! If entry exists, make sure callsign is the most recently received one 
+    where(ihash22.eq.n22) calls22=cw
+    go to 900
+  endif
 
 ! New entry: move table down, making room for new one at the top
-  ihash10(MAXHASH:2:-1)=ihash10(MAXHASH-1:1:-1)
-  ihash12(MAXHASH:2:-1)=ihash12(MAXHASH-1:1:-1)
   ihash22(MAXHASH:2:-1)=ihash22(MAXHASH-1:1:-1)
 
 ! Add the new entry
-  callsign(MAXHASH:2:-1)=callsign(MAXHASH-1:1:-1)
-  ihash10(1)=n10
-  ihash12(1)=n12
+  calls22(MAXHASH:2:-1)=calls22(MAXHASH-1:1:-1)
   ihash22(1)=n22
-  callsign(1)=cw
+  calls22(1)=cw
   if(nzhash.lt.MAXHASH) nzhash=nzhash+1
-
-900 return
+900 continue
+  return 
 end subroutine save_hash_call
 
 subroutine pack77(msg0,i3,n3,c77)
@@ -190,8 +192,13 @@ subroutine pack77(msg0,i3,n3,c77)
 900 return
 end subroutine pack77
 
-subroutine unpack77(c77,msg,unpk77_success)
-
+subroutine unpack77(c77,nrx,msg,unpk77_success)
+!
+! nrx=1 when unpacking a received message
+! nrx=0 when unpacking a to-be-transmitted message
+! the value of nrx is used to decide when mycall13 or dxcall13 should
+! be used in place of a callsign from the hashtable
+!
   parameter (NSEC=84)      !Number of ARRL Sections
   parameter (NUSCAN=65)    !Number of US states and Canadian provinces
   parameter (MAXGRID4=32400)
@@ -200,6 +207,7 @@ subroutine unpack77(c77,msg,unpk77_success)
   character*77 c77
   character*37 msg
   character*13 call_1,call_2,call_3
+  character*13 mycall13_0,dxcall13_0
   character*11 c11
   character*3 crpt,cntx
   character*3 cmult(NUSCAN)
@@ -207,7 +215,9 @@ subroutine unpack77(c77,msg,unpk77_success)
   character*4 grid4,cserial
   character*3 csec(NSEC)
   character*38 c
-  logical unpk28_success,unpk77_success
+  integer hashmy10,hashmy12,hashmy22,hashdx10,hashdx12,hashdx22
+  logical unpk28_success,unpk77_success,first
+  logical dxcall13_set,mycall13_set
 
   data c/' 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ/'/
   data csec/                                                         &
@@ -228,7 +238,34 @@ subroutine unpack77(c77,msg,unpk77_success)
        "SD ","TN ","TX ","UT ","VT ","VA ","WA ","WV ","WI ","WY ",  &
        "NB ","NS ","QC ","ON ","MB ","SK ","AB ","BC ","NWT","NF ",  &
        "LB ","NU ","YT ","PEI","DC "/
+  data dxcall13_set/.false./
+  data mycall13_set/.false./
+  data mycall13_0/''/
+  data dxcall13_0/''/
 
+  save hashmy10,hashmy12,hashmy22,hashdx10,hashdx12,hashdx22
+
+  if(mycall13.ne.mycall13_0) then
+    if(len(trim(mycall13)).gt.2) then
+       mycall13_set=.true.
+       mycall13_0=mycall13
+       hashmy10=ihashcall(mycall13,10)
+       hashmy12=ihashcall(mycall13,12)
+       hashmy22=ihashcall(mycall13,22)
+    else
+       mycall13_set=.false.
+    endif
+  endif
+
+  if(dxcall13.ne.dxcall13_0) then
+    if(len(trim(dxcall13)).gt.2) then
+      dxcall13_set=.true.
+      dxcall13_0=dxcall13
+      hashdx10=ihashcall(dxcall13,10)
+      hashdx12=ihashcall(dxcall13,12)
+      hashdx22=ihashcall(dxcall13,22)
+    endif
+  endif
   unpk77_success=.true.
 
 ! Check for bad data
@@ -261,13 +298,13 @@ subroutine unpack77(c77,msg,unpk77_success)
      call unpack28(n28b,call_2,unpk28_success)
      if(.not.unpk28_success .or. n28b.le.2) unpk77_success=.false.
      call hash10(n10,call_3)
-     if(call_3(1:1).eq.'<') then
-        msg=trim(call_1)//' RR73; '//trim(call_2)//' '//trim(call_3)//  &
-             ' '//crpt
-     else
-        msg=trim(call_1)//' RR73; '//trim(call_2)//' <'//trim(call_3)//  &
-             '> '//crpt
-     endif
+     if(nrx.eq.1     .and. &
+        dxcall13_set .and. &
+        hashdx10.eq.n10) call_3='<'//trim(dxcall13)//'>'//'        '
+     if(nrx.eq.0     .and. &
+        mycall13_set .and. &
+        n10.eq.hashmy10) call_3='<'//trim(mycall13)//'>'//'          '
+     msg=trim(call_1)//' RR73; '//trim(call_2)//' '//trim(call_3)//' '//crpt
   else if(i3.eq.0 .and. n3.eq.2) then
 ! 0.2  PA3XYZ/P R 590003 IO91NP           28 1 1 3 12 25   70   EU VHF contest
      read(c77,1020) n28a,ip,ir,irpt,iserial,igrid6
@@ -438,14 +475,25 @@ subroutine unpack77(c77,msg,unpk77_success)
         n58=n58/38
      enddo
      call hash12(n12,call_3)
-     if(iflip.eq.0) then
-        call_1=call_3
-        call_2=adjustl(c11)//'  '
+     if(iflip.eq.0) then       ! 12 bit hash for TO call
+        call_1=call_3          
+        call_2=adjustl(c11)//'          '
         call add_call_to_recent_calls(call_2)
-     else
+        if(nrx.eq.1 .and.                        &  
+           dxcall13_set .and. mycall13_set .and. & 
+           call_2.eq.dxcall13 .and.              &
+           n12.eq.hashmy12 ) call_1='<'//trim(mycall13)//'>'//'        '
+        if(nrx.eq.1 .and.                        &
+           mycall13_set .and.                    & 
+           index(call_1,'<...>').gt.0 .and.      &
+           n12.eq.hashmy12 ) call_1='<'//trim(mycall13)//'>'//'        '
+     else                      ! 12 bit hash for DE call
         call_1=adjustl(c11)//'  '
-        call_2=call_3
+        call_2=call_3          
         call add_call_to_recent_calls(call_1)
+        if(nrx.eq.0 .and.                        & 
+           mycall13_set .and. & 
+           n12.eq.hashmy12) call_2='<'//trim(mycall13)//'>'//'        '
      endif
      if(icq.eq.0) then
         if(nrpt.eq.0) msg=trim(call_1)//' '//trim(call_2)
@@ -541,6 +589,9 @@ subroutine pack28(c13,n28)
 ! Check for <...> callsign
   if(c13(1:1).eq.'<')then
      call save_hash_call(c13,n10,n12,n22)   !Save callsign in hash table
+     i2=index(c13,'>')
+     c13=c13(2:i2-1)//'          '
+     n22=ihashcall(c13,22)
      n28=NTOKENS + n22
      go to 900
   endif
@@ -566,6 +617,7 @@ subroutine pack28(c13,n28)
        npdig.ge.iarea-1 .or. nslet.gt.3) then
 ! Treat this as a nonstandard callsign: compute its 22-bit hash
      call save_hash_call(c13,n10,n12,n22)   !Save callsign in hash table
+     n22=ihashcall(c13,n22)
      n28=NTOKENS + n22
      go to 900
   endif
@@ -718,7 +770,7 @@ subroutine pack77_01(nwords,w,i3,n3,c77)
 ! Pack a Type 0.1 message: DXpedition mode
 ! Example message:  "K1ABC RR73; W9XYZ <KH1/KH7Z> -11"   28 28 10 5
 
-  character*13 w(19)
+  character*13 w(19),c13
   character*77 c77
   character*6 bcall_1,bcall_2
   logical ok1,ok2
@@ -744,6 +796,9 @@ subroutine pack77_01(nwords,w,i3,n3,c77)
   call pack28(w(1),n28a)
   call pack28(w(3),n28b)
   call save_hash_call(w(4),n10,n12,n22)
+  i2=index(w(4),'>')
+  c13=w(4)(2:i2-1)//'          '
+  n10=ihashcall(c13,10)
   write(c77,1010) n28a,n28b,n10,n5,n3,i3
 1010 format(2b28.28,b10.10,b5.5,2b3.3)
   
@@ -1054,8 +1109,10 @@ subroutine pack77_4(nwords,w,i3,n3,c77)
   if(nwords.eq.2 .or. nwords.eq.3) then
      call_1=w(1)
      if(call_1(1:1).eq.'<') call_1=w(1)(2:len(trim(w(1)))-1)
+     call_1=call_1//'          '
      call_2=w(2)
      if(call_2(1:1).eq.'<') call_2=w(2)(2:len(trim(w(2)))-1)
+     call_2=call_2//'          '
      call chkcall(call_1,bcall_1,ok1)
      call chkcall(call_2,bcall_2,ok2)
      icq=0
@@ -1200,6 +1257,7 @@ subroutine add_call_to_recent_calls(callsign)
 
   character*13 callsign
   logical ladd
+
 ! only add if the callsign is not already on the list
   ladd=.true.
   do i=1,MAXRECENT-1 ! if callsign is at the end of the list add it again

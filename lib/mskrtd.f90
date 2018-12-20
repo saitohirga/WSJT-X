@@ -18,7 +18,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   character*37 msglast,msglastswl    !Used for dupechecking
   character*80 line                  !Formatted line with UTC dB T Freq Msg
   character*12 mycall,hiscall
-  character*13 mycall13
+!  character*13 mycall13
   character*6 mygrid
   character*37 recent_shmsgs(NSHMEM)
   character*512 datadir
@@ -55,7 +55,8 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
        1,1,1,1,1,1,1,0/
   data xmc/2.0,4.5,2.5,3.5/     !Used to set time at center of averaging mask
   save first,tsec0,nutc00,pnoise,cdat,msglast,msglastswl,     &
-       nsnrlast,nsnrlastswl,nhasharray,recent_shmsgs,mycall13
+       nsnrlast,nsnrlastswl,nhasharray,recent_shmsgs
+!       nsnrlast,nsnrlastswl,nhasharray,recent_shmsgs,mycall13
 
   if(first) then
      tsec0=tsec
@@ -71,15 +72,15 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
      msglastswl='                                     '
      nsnrlast=-99
      nsnrlastswl=-99
-     mycall13=mycall//" "
-     call save_hash_call(mycall13,n10,n12,n22) ! Make sure that my callsign is in hashtable
+     mycall13=mycall//'          '
+     dxcall13=hiscall//'          '
      first=.false.
   endif
 
   fc=nrxfreq
 
-! Reset if mycall changes
-  if(mycall13(1:12).ne.mycall) first=.true.
+! Reset if mycall or dxcall changes
+  if(mycall13(1:12).ne.mycall .or. dxcall13(1:12).ne.hiscall) first=.true.
 
 ! Dupe checking setup 
   if(nutc00.ne.nutc0 .or. tsec.lt.tsec0) then ! reset dupe checker
@@ -211,7 +212,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
      msglast=msgreceived
      nsnrlast=nsnr
      if(.not. bshdecode) then
-        call update_hasharray(nhasharray)
+        call update_msk40_hasharray(nhasharray)
      endif
      write(line,1021) nutc0,nsnr,tdec,nint(fest),decsym,msgreceived,char(0)
 1021 format(i6.6,i4,f5.1,i5,a4,a37,a1)

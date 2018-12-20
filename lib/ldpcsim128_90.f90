@@ -48,7 +48,7 @@ program ldpcsim128_90
   i3=0
   n3=1
   call pack77(msg,i3,n3,c77)
-  call unpack77(c77,msgsent,unpk77_success)
+  call unpack77(c77,0,msgsent,unpk77_success)
   read(c77,'(77i1)') msgbits
 
   write(*,*) "message sent ",msgsent
@@ -108,7 +108,7 @@ program ldpcsim128_90
 ! If the decoder finds a valid codeword, nharderrors will be .ge. 0.
       if( nharderrors .ge. 0 ) then
         write(c77,'(77i1)') message77
-        call unpack77(c77,msgreceived,unpk77_success)
+        call unpack77(c77,1,msgreceived,unpk77_success)
         nhw=count(cw.ne.codeword)
         if(nhw.eq.0) then ! this is a good decode
           ngood=ngood+1
