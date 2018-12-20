@@ -6,9 +6,11 @@ module packjt77
   character (len=13), dimension(1:4096) ::  calls12=''
   character (len=13), dimension(1:MAXHASH) :: calls22=''
   character (len=13), dimension(1:MAXRECENT) :: recent_calls=''
-  character (len=13) :: mycall13,dxcall13
+  character (len=13) :: mycall13=''
+  character (len=13) :: dxcall13=''
   integer, dimension(1:MAXHASH) :: ihash22=-1
-  integer n28a,n28b,nzhash
+  integer :: nzhash=0
+  integer n28a,n28b
 
   contains
 
@@ -78,18 +80,7 @@ end function ihashcall
 subroutine save_hash_call(c13,n10,n12,n22)
 
   character*13 c13,cw
-  logical first
-  data first/.true./
-  save first
 
-  if(first) then
-     calls10=''
-     calls12=''
-     ihash22=-1
-     calls22='             '
-     nzhash=0
-     first=.false.
-  endif
   cw=c13 
   if(cw(1:1).eq.' ' .or. cw(1:5).eq.'<...>' .or. len(trim(cw)).lt.3) return
   if(cw(1:1).eq.'<') cw=cw(2:)
