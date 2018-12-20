@@ -138,6 +138,10 @@ void LogQSO::accept()
   using SpOp = Configuration::SpecialOperatingActivity;
   auto special_op = m_config->special_op_id ();
 
+  if (special_op == SpOp::NA_VHF) {
+    if(xrcvd!="" and hisGrid!=xrcvd) hisGrid=xrcvd;
+  }
+
   if (special_op == SpOp::RTTY) {
     if(rptSent=="" or !xsent.contains(rptSent+" ")) rptSent=xsent.split(" ",QString::SkipEmptyParts).at(0);
     if(rptRcvd=="" or !xrcvd.contains(rptRcvd+" ")) rptRcvd=xrcvd.split(" ",QString::SkipEmptyParts).at(0);
