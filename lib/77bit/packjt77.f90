@@ -88,13 +88,12 @@ subroutine save_hash_call(c13,n10,n12,n22)
   if(i.gt.0) cw(i:)='         '
 
   if(len(trim(cw)) .lt. 3) return
-  if(cw.eq.mycall13) return 
 
   n10=ihashcall(cw,10)
-  if(n10.ge.1 .and. n10 .le. 1024) calls10(n10)=cw
+  if(n10.ge.1 .and. n10 .le. 1024 .and. cw.ne.mycall13) calls10(n10)=cw
 
   n12=ihashcall(cw,12)
-  if(n12.ge.1 .and. n12 .le. 4096) calls12(n12)=cw
+  if(n12.ge.1 .and. n12 .le. 4096 .and. cw.ne.mycall13) calls12(n12)=cw
 
   n22=ihashcall(cw,22)
   if(any(ihash22.eq.n22)) then   ! If entry exists, make sure callsign is the most recently received one 
@@ -240,9 +239,7 @@ subroutine unpack77(c77,nrx,msg,unpk77_success)
     if(len(trim(mycall13)).gt.2) then
        mycall13_set=.true.
        mycall13_0=mycall13
-       hashmy10=ihashcall(mycall13,10)
-       hashmy12=ihashcall(mycall13,12)
-       hashmy22=ihashcall(mycall13,22)
+       call save_hash_call(mycall13,hashmy10,hashmy12,hashmy22)
     else
        mycall13_set=.false.
     endif
