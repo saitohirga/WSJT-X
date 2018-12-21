@@ -18,7 +18,6 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   character*37 msglast,msglastswl    !Used for dupechecking
   character*80 line                  !Formatted line with UTC dB T Freq Msg
   character*12 mycall,hiscall
-!  character*13 mycall13
   character*6 mygrid
   character*37 recent_shmsgs(NSHMEM)
   character*512 datadir
