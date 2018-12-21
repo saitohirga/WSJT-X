@@ -1312,7 +1312,9 @@ int main(int argc, char *argv[])
                             if( !unpackcall(n1,callsign) ) break;
                             callsign[12]=0;
                             ihash=nhash(callsign,strlen(callsign),(uint32_t)146);
-                            if(strncmp(hashtab+ihash*13,callsign,13)==0) {
+                            int ntype = (n2&127) - 64;
+                            if(strncmp(hashtab+ihash*13,callsign,13)==0  
+                               && (ntype >= 0) && (ntype <= 62) ) {
                                 not_decoded=0;
                                 osd_decode =1;
                                 break;
