@@ -82,19 +82,19 @@ subroutine save_hash_call(c13,n10,n12,n22)
   character*13 c13,cw
 
   cw=c13 
-  if(cw(1:1).eq.' ' .or. cw(1:5).eq.'<...>' .or. len(trim(cw)).lt.3) return
+  if(cw(1:1).eq.' ' .or. cw(1:5).eq.'<...>') return
   if(cw(1:1).eq.'<') cw=cw(2:)
-  if(cw.eq.mycall13) then
-    return
-  endif
   i=index(cw,'>')
   if(i.gt.0) cw(i:)='         '
 
+  if(len(trim(cw)) .lt. 3) return
+  if(cw.eq.mycall13) return 
+
   n10=ihashcall(cw,10)
-  calls10(n10)=cw
+  if(n10.ge.1 .and. n10 .le. 1024) calls10(n10)=cw
 
   n12=ihashcall(cw,12)
-  calls12(n12)=cw
+  if(n12.ge.1 .and. n12 .le. 4096) calls12(n12)=cw
 
   n22=ihashcall(cw,22)
   if(any(ihash22.eq.n22)) then   ! If entry exists, make sure callsign is the most recently received one 
