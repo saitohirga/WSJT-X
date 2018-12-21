@@ -263,7 +263,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 1010 format('<DecodeFinished>',2i4)
   call flush(6)
   close(13)
-  close(19)
+  if(ncontest.eq.5) close(19)
   if(params%nmode.eq.4 .or. params%nmode.eq.65) close(14)
 
   return
