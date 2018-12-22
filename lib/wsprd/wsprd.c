@@ -1315,9 +1315,12 @@ int main(int argc, char *argv[])
                             int ntype = (n2&127) - 64;
                             if(strncmp(hashtab+ihash*13,callsign,13)==0  
                                && (ntype >= 0) && (ntype <= 62) ) {
-                                not_decoded=0;
-                                osd_decode =1;
-                                break;
+                                int nu = ntype%10;
+                                if( nu == 0 || nu == 3 || nu == 7 ) {
+                                   not_decoded=0;
+                                   osd_decode =1;
+                                   break;
+                                }
                             }
                         }
                     
