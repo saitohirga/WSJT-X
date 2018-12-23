@@ -3173,8 +3173,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
         QString grid;
         decodedtext.deCallAndGrid(/*out*/deCall,grid);
         {
-          QString t=Radio::base_callsign(ui->dxCallEntry->text());
-          if((t==deCall or t=="") and rpt!="") m_rptRcvd=rpt;
+          auto t = Radio::base_callsign (ui->dxCallEntry->text ());
+          if ((t == deCall || ui->dxCallEntry->text () == deCall || !t.size ()) && rpt.size ()) m_rptRcvd = rpt;
         }
 // extract details and send to PSKreporter
         int nsec=QDateTime::currentMSecsSinceEpoch()/1000-m_secBandChanged;
