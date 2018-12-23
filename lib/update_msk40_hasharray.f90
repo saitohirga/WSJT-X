@@ -1,4 +1,4 @@
-subroutine update_hasharray(nhasharray)
+subroutine update_msk40_hasharray(nhasharray)
 
   use packjt77  
   character*37 hashmsg
@@ -22,4 +22,4 @@ subroutine update_hasharray(nhasharray)
     enddo
   enddo 
 
-end subroutine update_hasharray
+end subroutine update_msk40_hasharray

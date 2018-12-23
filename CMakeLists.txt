@@ -555,7 +555,7 @@ set (wsjt_FSRCS
   lib/ft8/twkfreq1.f90
   lib/twkfreq65.f90
   lib/update_recent_calls.f90
-  lib/update_hasharray.f90
+  lib/update_msk40_hasharray.f90
   lib/ft8/watterson.f90
   lib/wav11.f90
   lib/wav12.f90

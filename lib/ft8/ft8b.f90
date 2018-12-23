@@ -8,9 +8,8 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   include 'ft8_params.f90'
   parameter(NP2=2812)
   character*37 msg37
-  character*12 mycall12,hiscall12,hiscall12_0
+  character*12 mycall12,hiscall12
   character*77 c77
-  character*13 c13
   real a(5)
   real s8(0:7,NN)
   real s2(0:511)
@@ -43,7 +42,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   data   mrr73/0,1,1,1,1,1,1,0,0,1,1,1,0,1,0,1,0,0,1/
   data first/.true./
   data graymap/0,1,3,2,5,6,4,7/
-  save nappasses,naptypes,ncontest0,one,hiscall12_0
+  save nappasses,naptypes,ncontest0,one
 
 
   if(first.or.(ncontest.ne.ncontest0)) then
@@ -87,11 +86,8 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
      ncontest0=ncontest
   endif
 
-  if(hiscall12.ne.hiscall12_0) then
-     c13=hiscall12//' '
-     call save_hash_call(c13,n10,n12,n22)
-     hiscall12_0=hiscall12
-  endif
+  dxcall13=hiscall12//'          '
+  mycall13=mycall12//'          '
 
   max_iterations=30
   nharderrors=-1
@@ -395,7 +391,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
      if(i3.gt.4 .or. (i3.eq.0.and.n3.gt.5)) then
         cycle
      endif
-     call unpack77(c77,msg37,unpk77_success)
+     call unpack77(c77,1,msg37,unpk77_success)
      if(.not.unpk77_success) then
         cycle
      endif
