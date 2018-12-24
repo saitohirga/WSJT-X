@@ -816,17 +816,14 @@ subroutine pack77_02(nwords,w,i3,n3,c77)
   if(nwords.ge.2) read(w(nwords-1),*,err=2) nx
 2 if(nx.lt.520001 .or. nx.gt.594095) return      !Exchange between 520001 - 594095
   if(.not.is_grid6(w(nwords)(1:6))) return       !Last word must be a valid grid6
+  i=index(w(1)//' ','/P ')
+  if(i.lt.4) return         !Only exactly a trailing /P allowed
 
 ! Type 0.2:   PA3XYZ/P R 590003 IO91NP           28 1 1 3 12 25   70   EU VHF contest
   i3=0
-  n3=2
-  ip=0
-  c13=w(1)
-  i=index(w(1),'/P')
-  if(i.ge.4) then
-     ip=1
-     c13=w(1)(1:i-1)//'         '
-  endif
+  n3=21
+  ip=1
+  c13=w(1)(1:i-1)
   call pack28(c13,n28a)
   ir=0
   if(w(2)(1:2).eq.'R ') ir=1
@@ -967,11 +964,13 @@ subroutine pack77_1(nwords,w,i3,n3,c77)
 ! 1     WA9XYZ/R KA1ABC/R R FN42           28 1 28 1 1 15   74   Standard msg
 ! 2     PA3XYZ/P GM4ABC/P R JO22           28 1 28 1 1 15   74   EU VHF contest  
 
-10 if(nwords.eq.2 .or. nwords.eq.3 .or. (nwords.eq.4 .and.               &
-        w(3)(1:2).eq.'R ')) then
+10 i1psuffix=index(w(1)//' ' ,'/P ')
+  i2psuffix=index(w(2)//' ','/P ')
+  if(nwords.eq.2 .or. nwords.eq.3 .or. (nwords.eq.4 .and.               &
+       w(3)(1:2).eq.'R ')) then
      n3=0
      i3=1                          !Type 1: Standard message, possibly with "/R"
-     if(index(w(1),'/P').ge.4 .or. index(w(2),'/P').ge.4) i3=2  !Type 2, with "/P"
+     if (i1psuffix.ge.4.or.i2psuffix.ge.4) i3=2 !Type 2, with "/P"
   endif
   c13=bcall_1//'       '
   if(c13(1:3).eq.'CQ_' .or. w(1)(1:1).eq.'<') c13=w(1)
@@ -981,8 +980,8 @@ subroutine pack77_1(nwords,w,i3,n3,c77)
   call pack28(c13,n28b)
   ipa=0
   ipb=0
-  if(index(w(1),'/P').ge.4 .or. index(w(1),'/R').ge.4) ipa=1
-  if(index(w(2),'/P').ge.4 .or. index(w(2),'/R').ge.4) ipb=1
+  if(i1psuffix.ge.4.or.index(w(1)//' ','/R ').ge.4) ipa=1
+  if(i2psuffix.ge.4.or.index(w(2)//' ','/R ').ge.4) ipb=1
   
   grid4=w(nwords)(1:4)
   if(is_grid4(grid4)) then
