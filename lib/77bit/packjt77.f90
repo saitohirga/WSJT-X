@@ -816,14 +816,18 @@ subroutine pack77_02(nwords,w,i3,n3,c77)
   if(nwords.ge.2) read(w(nwords-1),*,err=2) nx
 2 if(nx.lt.520001 .or. nx.gt.594095) return      !Exchange between 520001 - 594095
   if(.not.is_grid6(w(nwords)(1:6))) return       !Last word must be a valid grid6
-  i=index(w(1)//' ','/P ')
-  if(i.lt.4) return         !Only exactly a trailing /P allowed
 
 ! Type 0.2:   PA3XYZ/P R 590003 IO91NP           28 1 1 3 12 25   70   EU VHF contest
   i3=0
-  n3=21
-  ip=1
-  c13=w(1)(1:i-1)
+  n3=2
+  i=index(w(1)//' ','/P ')
+  if(i.ge.4) then
+     ip=1
+     c13=w(1)(1:i-1)
+  else
+     ip=0
+     c13=w(1)
+  end if
   call pack28(c13,n28a)
   ir=0
   if(w(2)(1:2).eq.'R ') ir=1
