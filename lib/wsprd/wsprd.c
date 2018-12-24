@@ -1254,7 +1254,7 @@ int main(int argc, char *argv[])
             not_decoded=1;
             int osd_decode=0;
             int ib=1, blocksize;
-            int n1,n2;  
+            int n1,n2,n3,nadd,nu,ntype;  
             while( ib <= nblocksize && not_decoded ) {
                 blocksize=ib;
                 idt=0; ii=0;
@@ -1311,17 +1311,23 @@ int main(int argc, char *argv[])
                             unpack50(message,&n1,&n2);
                             if( !unpackcall(n1,callsign) ) break;
                             callsign[12]=0;
-                            ihash=nhash(callsign,strlen(callsign),(uint32_t)146);
-                            int ntype = (n2&127) - 64;
-                            if(strncmp(hashtab+ihash*13,callsign,13)==0  
-                               && (ntype >= 0) && (ntype <= 62) ) {
-                                int nu = ntype%10;
-                                if( nu == 0 || nu == 3 || nu == 7 ) {
+                            ntype = (n2&127) - 64;
+                            if( (ntype >= 0) && (ntype <= 62) ) {
+                                nu = ntype%10;
+                                if( !(nu == 0 || nu == 3 || nu == 7) ) {
+                                   nadd=nu;
+                                   if( nu > 3 ) nadd=nu-3;
+                                   if( nu > 7 ) nadd=nu-7;
+                                   n3=n2/128+32768*(nadd-1);
+                                   if( !unpackpfx(n3,callsign) ) break;
+                                }
+                                ihash=nhash(callsign,strlen(callsign),(uint32_t)146);
+                                if(strncmp(hashtab+ihash*13,callsign,13)==0) {  
                                    not_decoded=0;
                                    osd_decode =1;
                                    break;
                                 }
-                            }
+                            } 
                         }
                     
                     }
