@@ -15,7 +15,7 @@ subroutine ft8apset(mycall12,hiscall12,apsym)
   nohiscall=.false. 
   hiscall=hiscall12 
   if(len(trim(hiscall)).eq.0) then
-     hiscall=mycall  ! use mycall for dummy hiscall - mycall won't be hashed.
+     hiscall=mycall12  ! use mycall for dummy hiscall - mycall won't be hashed.
      nohiscall=.true.
   endif
 
