@@ -4013,6 +4013,7 @@ void MainWindow::ba2msg(QByteArray ba, char message[])             //ba2msg()
   int iz=ba.length();
   for(int i=0; i<37; i++) {
     if(i<iz) {
+      if(int(ba[i])>=97 and int(ba[i])<=122) ba[i]=int(ba[i])-32;
       message[i]=ba[i];
     } else {
       message[i]=32;
