@@ -1863,6 +1863,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
   }
 
   int n;
+  bool bAltF1F5=m_config.alternate_bindings();
   switch(e->key())
     {
     case Qt::Key_D:
@@ -1876,21 +1877,51 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       }
       break;
     case Qt::Key_F1:
-      on_actionOnline_User_Guide_triggered();
-      return;
+      if(bAltF1F5) {
+        auto_tx_mode(true);
+        on_txb6_clicked();
+        return;
+      } else {
+        on_actionOnline_User_Guide_triggered();
+        return;
+      }
     case Qt::Key_F2:
-      on_actionSettings_triggered();
-      return;
+      if(bAltF1F5) {
+        auto_tx_mode(true);
+        on_txb2_clicked();
+        return;
+      } else {
+        on_actionSettings_triggered();
+        return;
+      }
     case Qt::Key_F3:
-      on_actionKeyboard_shortcuts_triggered();
-      return;
+      if(bAltF1F5) {
+        auto_tx_mode(true);
+        on_txb3_clicked();
+        return;
+      } else {
+        on_actionKeyboard_shortcuts_triggered();
+        return;
+      }
     case Qt::Key_F4:
-      clearDX ();
-      ui->dxCallEntry->setFocus();
-      return;
+      if(bAltF1F5) {
+        auto_tx_mode(true);
+        on_txb4_clicked();
+        return;
+      } else {
+        clearDX ();
+        ui->dxCallEntry->setFocus();
+        return;
+      }
     case Qt::Key_F5:
-      on_actionSpecial_mouse_commands_triggered();
-      return;
+      if(bAltF1F5) {
+        auto_tx_mode(true);
+        on_txb5_clicked();
+        return;
+      } else {
+        on_actionSpecial_mouse_commands_triggered();
+        return;
+      }
     case Qt::Key_F6:
       if(e->modifiers() & Qt::ShiftModifier) {
         on_actionDecode_remaining_files_in_directory_triggered();
