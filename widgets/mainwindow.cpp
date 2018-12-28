@@ -1863,6 +1863,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
   }
 
   int n;
+  bool bAltF1F5=m_config.alternate_bindings();
   switch(e->key())
     {
     case Qt::Key_D:
@@ -1876,21 +1877,51 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       }
       break;
     case Qt::Key_F1:
-      on_actionOnline_User_Guide_triggered();
-      return;
+      if(bAltF1F5) {
+        auto_tx_mode(true);
+        on_txb6_clicked();
+        return;
+      } else {
+        on_actionOnline_User_Guide_triggered();
+        return;
+      }
     case Qt::Key_F2:
-      on_actionSettings_triggered();
-      return;
+      if(bAltF1F5) {
+        auto_tx_mode(true);
+        on_txb2_clicked();
+        return;
+      } else {
+        on_actionSettings_triggered();
+        return;
+      }
     case Qt::Key_F3:
-      on_actionKeyboard_shortcuts_triggered();
-      return;
+      if(bAltF1F5) {
+        auto_tx_mode(true);
+        on_txb3_clicked();
+        return;
+      } else {
+        on_actionKeyboard_shortcuts_triggered();
+        return;
+      }
     case Qt::Key_F4:
-      clearDX ();
-      ui->dxCallEntry->setFocus();
-      return;
+      if(bAltF1F5) {
+        auto_tx_mode(true);
+        on_txb4_clicked();
+        return;
+      } else {
+        clearDX ();
+        ui->dxCallEntry->setFocus();
+        return;
+      }
     case Qt::Key_F5:
-      on_actionSpecial_mouse_commands_triggered();
-      return;
+      if(bAltF1F5) {
+        auto_tx_mode(true);
+        on_txb5_clicked();
+        return;
+      } else {
+        on_actionSpecial_mouse_commands_triggered();
+        return;
+      }
     case Qt::Key_F6:
       if(e->modifiers() & Qt::ShiftModifier) {
         on_actionDecode_remaining_files_in_directory_triggered();
@@ -4013,6 +4044,7 @@ void MainWindow::ba2msg(QByteArray ba, char message[])             //ba2msg()
   int iz=ba.length();
   for(int i=0; i<37; i++) {
     if(i<iz) {
+      if(int(ba[i])>=97 and int(ba[i])<=122) ba[i]=int(ba[i])-32;
       message[i]=ba[i];
     } else {
       message[i]=32;
@@ -5274,8 +5306,11 @@ void MainWindow::on_tx6_editingFinished()                       //tx6 edited
   QString t=ui->tx6->text().toUpper();
   if(t.indexOf(" ")>0) {
     QString t1=t.split(" ").at(1);
+    QRegExp AZ4("^[A-Z]{1,4}$");
+    QRegExp NN3("^[0-9]{1,3}$");
     m_CQtype="CQ";
-    if(t1.size()==2) m_CQtype="CQ " + t1;
+    if(t1.size()<=4 and t1.contains(AZ4)) m_CQtype="CQ " + t1;
+    if(t1.size()<=3 and t1.contains(NN3)) m_CQtype="CQ " + t1;
   }
   msgtype(t, ui->tx6);
 }
