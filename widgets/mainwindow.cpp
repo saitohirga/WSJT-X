@@ -2453,15 +2453,15 @@ void MainWindow::on_actionAstronomical_data_toggled (bool checked)
 
 void MainWindow::on_fox_log_action_triggered()
 {
-  if (!m_foxLog) m_foxLog.reset (new FoxLog);
+  if (!m_foxLog) m_foxLog.reset (new FoxLog {&m_config});
   if (!m_foxLogWindow)
     {
-      m_foxLogWindow.reset (new FoxLogWindow {m_settings, &m_config, m_foxLog->model ()});
+      m_foxLogWindow.reset (new FoxLogWindow {m_settings, &m_config, m_foxLog.data ()});
 
       // Connect signals from fox log window
       connect (this, &MainWindow::finished, m_foxLogWindow.data (), &FoxLogWindow::close);
       connect (m_foxLogWindow.data (), &FoxLogWindow::reset_log_model, [this] () {
-          if (!m_foxLog) m_foxLog.reset (new FoxLog);
+          if (!m_foxLog) m_foxLog.reset (new FoxLog {&m_config});
           m_foxLog->reset ();
         });
     }
@@ -8236,7 +8236,7 @@ list2Done:
       m_hisGrid=m_foxQSO[hc1].grid;
       m_rptSent=m_foxQSO[hc1].sent;
       m_rptRcvd=m_foxQSO[hc1].rcvd;
-      if (!m_foxLog) m_foxLog.reset (new FoxLog);
+      if (!m_foxLog) m_foxLog.reset (new FoxLog {&m_config});
       if (!m_foxLogWindow) on_fox_log_action_triggered ();
       if (m_foxLog->add_QSO (QSO_time, m_hisCall, m_hisGrid, m_rptSent, m_rptRcvd, m_lastBand))
         {

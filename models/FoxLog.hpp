@@ -7,12 +7,14 @@
 class QDateTime;
 class QString;
 class QSqlTableModel;
+class QTextStream;
+class Configuration;
 
 class FoxLog final
   : private boost::noncopyable
 {
 public:
-  explicit FoxLog ();
+  explicit FoxLog (Configuration const *);
   ~FoxLog ();
 
   // returns false if insert fails, dupe call+band
@@ -23,6 +25,7 @@ public:
 
   QSqlTableModel * model ();
   void reset ();
+  void export_qsos (QTextStream&) const;
 
 private:
   class impl;
