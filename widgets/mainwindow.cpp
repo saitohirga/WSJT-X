@@ -4913,7 +4913,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       }
       if(!bHisCall) {
         t=t0a;
-        msgtype(t0a, ui->tx1);
+        msgtype(t0a + my_grid, ui->tx1);
       }
       if(SpecOp::NA_VHF==m_config.special_op_id()) sent=my_grid;
       if(SpecOp::FIELD_DAY==m_config.special_op_id()) sent=m_config.Field_Day_Exchange();
