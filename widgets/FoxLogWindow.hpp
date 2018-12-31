@@ -7,7 +7,7 @@
 class QSettings;
 class Configuration;
 class QFont;
-class QSqlTableModel;
+class FoxLog;
 
 class FoxLogWindow final
   : public AbstractLogWindow
@@ -15,7 +15,7 @@ class FoxLogWindow final
   Q_OBJECT
 
 public:
-  explicit FoxLogWindow (QSettings *, Configuration const *, QSqlTableModel * fox_log_model
+  explicit FoxLogWindow (QSettings *, Configuration const *, FoxLog * fox_log
                          , QWidget * parent = nullptr);
   ~FoxLogWindow ();
 
