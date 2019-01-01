@@ -1004,13 +1004,11 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   // this must be done after the default paths above are set
   read_settings ();
 
-  // conditionally load LotW users data
-  ui_->LotW_CSV_fetch_push_button->setEnabled (false);
+  // set up LoTW users CSV file fetching
   connect (&lotw_users_, &LotWUsers::load_finished, [this] () {
       ui_->LotW_CSV_fetch_push_button->setEnabled (true);
     });
   lotw_users_.set_local_file_path (writeable_data_dir_.absoluteFilePath ("lotw-user-activity.csv"));
-  lotw_users_.load (ui_->LotW_CSV_URL_line_edit->text ());
 
   //
   // validation
