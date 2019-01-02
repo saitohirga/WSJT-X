@@ -241,7 +241,7 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
                 QColor fg;      // default invalid color
                 bool last_only {false};
                 in >> call >> bg >> fg >> last_only;
-                TRACE_UDP ("HighlightCallsign call:" << call << "bg:" << bg << "fg:" << fg);
+                TRACE_UDP ("HighlightCallsign call:" << call << "bg:" << bg << "fg:" << fg << "last only:" << last_only);
                 if (check_status (in) != Fail && call.size ())
                   {
                     Q_EMIT self_->highlight_callsign (QString::fromUtf8 (call), bg, fg, last_only);
