@@ -11,12 +11,20 @@
 #include <QByteArray>
 #include <QHostAddress>
 #include <QColor>
+#include <QDebug>
 
 #include "NetworkMessage.hpp"
 
 #include "pimpl_impl.hpp"
 
 #include "moc_MessageClient.cpp"
+
+// some trace macros
+#if WSJT_TRACE_UDP
+#define TRACE_UDP(MSG) qDebug () << QString {"MessageClient::%1:"}.arg (__func__) << MSG
+#else
+#define TRACE_UDP(MSG)
+#endif
 
 class MessageClient::impl
   : public QUdpSocket
@@ -101,6 +109,7 @@ void MessageClient::impl::host_info_results (QHostInfo host_info)
       if (blocked_addresses_.end () == std::find (blocked_addresses_.begin (), blocked_addresses_.end (), server))
         {
           server_ = server;
+          TRACE_UDP ("resulting server:" << server);
 
           // send initial heartbeat which allows schema negotiation
           heartbeat ();
@@ -129,6 +138,7 @@ void MessageClient::impl::pending_datagrams ()
       port_type sender_port;
       if (0 <= readDatagram (datagram.data (), datagram.size (), &sender_address, &sender_port))
         {
+          TRACE_UDP ("message received from:" << sender_address << "port:" << sender_port);
           parse_message (datagram);
         }
     }
@@ -168,6 +178,7 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
                 quint8 modifiers {0};
                 in >> time >> snr >> delta_time >> delta_frequency >> mode >> message
                    >> low_confidence >> modifiers;
+                TRACE_UDP ("Reply: time:" << time << "snr:" << snr << "dt:" << delta_time << "df:" << delta_frequency << "mode:" << mode << "message:" << message << "low confidence:" << low_confidence << "modifiers: 0x" << hex << modifiers);
                 if (check_status (in) != Fail)
                   {
                     Q_EMIT self_->reply (time, snr, delta_time, delta_frequency
@@ -178,6 +189,7 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
               break;
 
             case NetworkMessage::Replay:
+              TRACE_UDP ("Replay");
               if (check_status (in) != Fail)
                 {
                   last_message_.clear ();
@@ -189,6 +201,7 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
               {
                 bool auto_only {false};
                 in >> auto_only;
+                TRACE_UDP ("Halt Tx auto_only:" << auto_only);
                 if (check_status (in) != Fail)
                   {
                     Q_EMIT self_->halt_tx (auto_only);
@@ -201,6 +214,7 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
                 QByteArray message;
                 bool send {true};
                 in >> message >> send;
+                TRACE_UDP ("FreeText message:" << message << "send:" << send);
                 if (check_status (in) != Fail)
                   {
                     Q_EMIT self_->free_text (QString::fromUtf8 (message), send);
@@ -212,6 +226,7 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
               {
                 QByteArray location;
                 in >> location;
+                TRACE_UDP ("Location location:" << location);
                 if (check_status (in) != Fail)
                 {
                     Q_EMIT self_->location (QString::fromUtf8 (location));
@@ -226,6 +241,7 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
                 QColor fg;      // default invalid color
                 bool last_only {false};
                 in >> call >> bg >> fg >> last_only;
+                TRACE_UDP ("HighlightCallsign call:" << call << "bg:" << bg << "fg:" << fg);
                 if (check_status (in) != Fail && call.size ())
                   {
                     Q_EMIT self_->highlight_callsign (QString::fromUtf8 (call), bg, fg, last_only);
@@ -240,8 +256,16 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
               // parsed here  they are  still partially parsed  in the
               // message reader class to  negotiate the maximum schema
               // number being used on the network.
+              if (NetworkMessage::Heartbeat != in.type ())
+                {
+                  TRACE_UDP ("ignoring message type:" << in.type ());
+                }
               break;
             }
+        }
+      else
+        {
+          TRACE_UDP ("ignored message for id:" << in.id ());
         }
     }
   catch (std::exception const& e)
@@ -264,6 +288,7 @@ void MessageClient::impl::heartbeat ()
          << version_.toUtf8 () << revision_.toUtf8 ();
       if (OK == check_status (hb))
         {
+          TRACE_UDP ("schema:" << schema_ << "max schema:" << NetworkMessage::Builder::schema_number << "version:" << version_ << "revision:" << revision_);
           writeDatagram (message, server_, server_port_);
         }
     }
@@ -277,6 +302,7 @@ void MessageClient::impl::closedown ()
       NetworkMessage::Builder out {&message, NetworkMessage::Close, id_, schema_};
       if (OK == check_status (out))
         {
+          TRACE_UDP ("");
           writeDatagram (message, server_, server_port_);
         }
     }
@@ -369,6 +395,7 @@ void MessageClient::set_server (QString const& server)
   if (!server.isEmpty ())
     {
       // queue a host address lookup
+      TRACE_UDP ("server host DNS lookup:" << server);
       QHostInfo::lookupHost (server, &*m_, SLOT (host_info_results (QHostInfo)));
     }
 }
@@ -415,6 +442,7 @@ void MessageClient::status_update (Frequency f, QString const& mode, QString con
           << tx_enabled << transmitting << decoding << rx_df << tx_df << de_call.toUtf8 ()
           << de_grid.toUtf8 () << dx_grid.toUtf8 () << watchdog_timeout << sub_mode.toUtf8 ()
           << fast_mode << special_op_mode;
+      TRACE_UDP ("frequency:" << f << "mode:" << mode << "DX:" << dx_call << "report:" << report << "Tx mode:" << tx_mode << "tx_enabled:" << tx_enabled << "Tx:" << transmitting << "decoding:" << decoding << "Rx df:" << rx_df << "Tx df:" << tx_df << "DE:" << de_call << "DE grid:" << de_grid << "DX grid:" << dx_grid << "w/d t/o:" << watchdog_timeout << "sub_mode:" << sub_mode << "fast mode:" << fast_mode << "spec op mode:" << special_op_mode);
       m_->send_message (out, message);
     }
 }
@@ -429,6 +457,7 @@ void MessageClient::decode (bool is_new, QTime time, qint32 snr, float delta_tim
       NetworkMessage::Builder out {&message, NetworkMessage::Decode, m_->id_, m_->schema_};
       out << is_new << time << snr << delta_time << delta_frequency << mode.toUtf8 ()
           << message_text.toUtf8 () << low_confidence << off_air;
+      TRACE_UDP ("new" << is_new << "time:" << time << "snr:" << snr << "dt:" << delta_time << "df:" << delta_frequency << "mode:" << mode << "text:" << message_text << "low conf:" << low_confidence << "off air:" << off_air);
       m_->send_message (out, message);
     }
 }
@@ -443,6 +472,7 @@ void MessageClient::WSPR_decode (bool is_new, QTime time, qint32 snr, float delt
       NetworkMessage::Builder out {&message, NetworkMessage::WSPRDecode, m_->id_, m_->schema_};
       out << is_new << time << snr << delta_time << frequency << drift << callsign.toUtf8 ()
           << grid.toUtf8 () << power << off_air;
+      TRACE_UDP ("new:" << is_new << "time:" << time << "snr:" << snr << "dt:" << delta_time << "frequency:" << frequency << "drift:" << drift << "call:" << callsign << "grid:" << grid << "pwr:" << power << "off air:" << off_air);
       m_->send_message (out, message);
     }
 }
@@ -453,6 +483,7 @@ void MessageClient::clear_decodes ()
     {
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::Clear, m_->id_, m_->schema_};
+      TRACE_UDP ("");
       m_->send_message (out, message);
     }
 }
@@ -473,6 +504,7 @@ void MessageClient::qso_logged (QDateTime time_off, QString const& dx_call, QStr
           << report_sent.toUtf8 () << report_received.toUtf8 () << tx_power.toUtf8 () << comments.toUtf8 ()
           << name.toUtf8 () << time_on << operator_call.toUtf8 () << my_call.toUtf8 () << my_grid.toUtf8 ()
           << exchange_sent.toUtf8 () << exchange_rcvd.toUtf8 ();
+      TRACE_UDP ("time off:" << time_off << "DX:" << dx_call << "DX grid:" << dx_grid << "dial:" << dial_frequency << "mode:" << mode << "sent:" << report_sent << "rcvd:" << report_received << "pwr:" << tx_power << "comments:" << comments << "name:" << name << "time on:" << time_on << "op:" << operator_call << "DE:" << my_call << "DE grid:" << my_grid << "exch sent:" << exchange_sent << "exch rcvd:" << exchange_rcvd);
       m_->send_message (out, message);
     }
 }
@@ -485,6 +517,7 @@ void MessageClient::logged_ADIF (QByteArray const& ADIF_record)
       NetworkMessage::Builder out {&message, NetworkMessage::LoggedADIF, m_->id_, m_->schema_};
       QByteArray ADIF {"\n<adif_ver:5>3.0.7\n<programid:6>WSJT-X\n<EOH>\n" + ADIF_record + " <EOR>"};
       out << ADIF;
+      TRACE_UDP ("ADIF:" << ADIF);
       m_->send_message (out, message);
     }
 }

@@ -162,6 +162,7 @@ option (WSJT_SOFT_KEYING "Apply a ramp to CW keying envelope to reduce transient
 option (WSJT_SKIP_MANPAGES "Skip *nix manpage generation.")
 option (WSJT_GENERATE_DOCS "Generate documentation files." ON)
 option (WSJT_RIG_NONE_CAN_SPLIT "Allow split operation with \"None\" as rig.")
+option (WSJT_TRACE_UDP "Debugging option that turns on UDP message protocol diagnostics.")
 option (WSJT_BUILD_UTILS "Build simulators and code demonstrators." ON)
 
 CMAKE_DEPENDENT_OPTION (WSJT_HAMLIB_VERBOSE_TRACE "Debugging option that turns on full Hamlib internal diagnostics." OFF WSJT_HAMLIB_TRACE OFF)

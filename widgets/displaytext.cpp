@@ -400,7 +400,11 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
         }
       else
         {
-          highlight_types types {Highlight::CQ, Highlight::LotW};
+          highlight_types types {Highlight::CQ};
+          if (m_config && m_config->lotw_users ().user (decodedText.CQersCall()))
+            {
+              types.push_back (Highlight::LotW);
+            }
           set_colours (m_config, &bg, &fg, types);
         }
     }
