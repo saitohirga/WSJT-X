@@ -86,8 +86,8 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
      ncontest0=ncontest
   endif
 
-  dxcall13=hiscall12//'          '
-  mycall13=mycall12//'          '
+  dxcall13=hiscall12
+  mycall13=mycall12
 
   max_iterations=30
   nharderrors=-1
