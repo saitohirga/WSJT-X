@@ -1607,7 +1607,8 @@ void MainWindow::fastSink(qint64 frames)
     m_bDecoded=true;
     auto_sequence (decodedtext, ui->sbFtol->value (), std::numeric_limits<unsigned>::max ());
     if (m_mode != "ISCAT") postDecode (true, decodedtext.string ());
-    writeAllTxt(message);
+//    writeAllTxt(message);
+    write_all("Rx",message);
     bool stdMsg = decodedtext.report(m_baseCall,
                   Radio::base_callsign(ui->dxCallEntry->text()),m_rptRcvd);
     if (stdMsg) pskPost (decodedtext);
@@ -2572,17 +2573,16 @@ void MainWindow::read_wav_file (QString const& fname)
         auto pos = fname.indexOf (".wav", 0, Qt::CaseInsensitive);
         // global variables and threads do not mix well, this needs changing
         dec_data.params.nutc = 0;
-        if (pos > 0)
-          {
-            if (pos == fname.indexOf ('_', -11) + 7)
-              {
-                dec_data.params.nutc = fname.mid (pos - 6, 6).toInt ();
-              }
-            else
-              {
-                dec_data.params.nutc = 100 * fname.mid (pos - 4, 4).toInt ();
-              }
+        if (pos > 0) {
+          if (pos == fname.indexOf ('_', -11) + 7) {
+            dec_data.params.nutc = fname.mid (pos - 6, 6).toInt ();
+            m_fileDateTime=fname.mid(pos-13,13);
+          } else {
+            dec_data.params.nutc = 100 * fname.mid (pos - 4, 4).toInt ();
+            m_fileDateTime=fname.mid(pos-11,11);
           }
+        }
+
         BWFFile file {QAudioFormat {}, fname};
         bool ok=file.open (BWFFile::ReadOnly);
         if(ok) {
@@ -2833,7 +2833,7 @@ void MainWindow::decode()                                       //decode()
     dec_data.params.ntol=20;
     dec_data.params.naggressive=0;
   }
-  if(dec_data.params.nutc < m_nutc0) m_RxLog = 1;       //Date and Time to ALL.TXT
+  if(dec_data.params.nutc < m_nutc0) m_RxLog = 1;       //Date and Time to file "ALL.TXT".
   if(dec_data.params.newdat==1 and !m_diskData) m_nutc0=dec_data.params.nutc;
   dec_data.params.ntxmode=9;
   if(m_modeTx=="JT65") dec_data.params.ntxmode=65;
@@ -2953,7 +2953,8 @@ void::MainWindow::fast_decode_done()
       m_bDecoded=true;
     }
     postDecode (true, decodedtext.string ());
-    writeAllTxt(message);
+//    writeAllTxt(message);
+    write_all("Rx",message);
 
     if(m_mode=="JT9" or m_mode=="MSK144") {
 // find and extract any report for myCall
@@ -2969,27 +2970,6 @@ void::MainWindow::fast_decode_done()
   m_nPick=0;
   ui->DecodeButton->setChecked (false);
   m_bFastDone=false;
-}
-
-void MainWindow::writeAllTxt(QString message)
-{
-  // Write decoded text to file "ALL.TXT".
-  QFile f {m_config.writeable_data_dir ().absoluteFilePath ("ALL.TXT")};
-      if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
-        QTextStream out(&f);
-        if(m_RxLog==1) {
-          out << QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm")
-              << "  " << qSetRealNumberPrecision (12) << (m_freqNominal / 1.e6) << " MHz  "
-              << m_mode << endl;
-          m_RxLog=0;
-        }
-        out << message << endl;
-        f.close();
-      } else {
-        MessageBox::warning_message (this, tr ("File Open Error")
-                                     , tr ("Cannot open \"%1\" for append: %2")
-                                     .arg (f.fileName ()).arg (f.errorString ()));
-      }
 }
 
 void MainWindow::decodeDone ()
@@ -3047,23 +3027,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           if(navg>1 or line_read.indexOf("f*")>0) bAvgMsg=true;
         }
       }
-
-      QFile f {m_config.writeable_data_dir ().absoluteFilePath ("ALL.TXT")};
-      if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
-        QTextStream out(&f);
-        if(m_RxLog==1) {
-          out << QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm")
-              << "  " << qSetRealNumberPrecision (12) << (m_freqNominal / 1.e6) << " MHz  "
-              << m_mode << endl;
-          m_RxLog=0;
-        }
-        out << line_read.trimmed () << endl;
-        f.close();
-      } else {
-        MessageBox::warning_message (this, tr ("File Open Error")
-                                     , tr ("Cannot open \"%1\" for append: %2")
-                                     .arg (f.fileName ()).arg (f.errorString ()));
-      }
+      write_all("Rx",line_read.trimmed());
       if (m_config.insert_blank () && m_blankLine && SpecOp::FOX != m_config.special_op_id()) {
         QString band;
         if((QDateTime::currentMSecsSinceEpoch() / 1000 - m_secBandChanged) > 4*m_TRperiod/4) {
@@ -3713,7 +3677,7 @@ void MainWindow::guiUpdate()
       m_currentMessageType = -1;
     }
     if(m_restart) {
-      write_transmit_entry ("ALL.TXT");
+      write_all("Tx",m_currentMessage);
       if (m_config.TX_messages ()) {
         ui->decodedTextBrowser2->displayTransmittedText(m_currentMessage,m_modeTx,
                      ui->TxFreqSpinBox->value(),m_bFastMode);
@@ -3816,9 +3780,7 @@ void MainWindow::guiUpdate()
         m_msgSent0 = current_message;
       }
 
-      if(!m_tune) {
-        write_transmit_entry ("ALL.TXT");
-      }
+      if(!m_tune) write_all("Tx",m_currentMessage);
 
       if (m_config.TX_messages () && !m_tune && SpecOp::FOX!=m_config.special_op_id()) {
         ui->decodedTextBrowser2->displayTransmittedText(current_message, m_modeTx,
@@ -4001,7 +3963,8 @@ void MainWindow::startTx2()
         t=WSPR_hhmm(0) + ' ' + t.rightJustified (66, '-');
         ui->decodedTextBrowser->appendText(t);
       }
-      write_transmit_entry ("ALL_WSPR.TXT");
+      write_all("Tx",m_currentMessage);
+//      write_transmit_entry ("ALL_WSPR.TXT");
     }
   }
 }
@@ -6672,6 +6635,7 @@ void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const&
                || !(ui->cbCQTx->isEnabled () && ui->cbCQTx->isVisible () && ui->cbCQTx->isChecked()))) {
             m_lastDialFreq = m_freqNominal;
             m_secBandChanged=QDateTime::currentMSecsSinceEpoch()/1000;
+            /*
             if(s.frequency () < 30000000u && !m_mode.startsWith ("WSPR")) {
               // Write freq changes to ALL.TXT only below 30 MHz.
               QFile f2 {m_config.writeable_data_dir ().absoluteFilePath ("ALL.TXT")};
@@ -6687,6 +6651,7 @@ void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const&
                                              .arg (f2.fileName ()).arg (f2.errorString ()));
               }
             }
+            */
 
             if (m_config.spot_to_psk_reporter ()) {
               pskSetLocal ();
@@ -8484,5 +8449,38 @@ void MainWindow::foxTest()
                 m_loggedByFox.count(),m_tFoxTx);
       sdiag << t << line.mid(37).trimmed() << "\n";
     }
+  }
+}
+
+void MainWindow::write_all(QString txRx, QString message)
+{
+  QString line;
+  QString t;
+  QString msg=message.mid(6,-1);
+  msg=msg.mid(0,15) + msg.mid(18,-1);
+
+  t.sprintf("%5d",ui->TxFreqSpinBox->value());
+  if(txRx=="Tx") msg="   0  0.0" + t + " " + message;
+  auto time = QDateTime::currentDateTimeUtc ();
+  time = time.addSecs (-(time.time ().second () % m_TRperiod));
+  t.sprintf("%10.3f ",m_freqNominal/1.e6);
+  if(m_diskData) {
+    line=m_fileDateTime + t + txRx + " " + m_mode.leftJustified(6,' ') + msg;
+  } else {
+    line=time.toString("yyMMdd_hhmmss") + t + txRx + " " + m_mode.leftJustified(6,' ') + msg;
+  }
+
+  QString file_name="ALL.TXT";
+  if(m_mode=="WSPR") file_name="ALL_WSPR.TXT";
+  QFile f{m_config.writeable_data_dir().absoluteFilePath(file_name)};
+  if(f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
+    QTextStream out(&f);
+    out << line << endl;
+    f.close();
+  } else {
+    auto const& message2 = tr ("Cannot open \"%1\" for append: %2")
+        .arg (f.fileName ()).arg (f.errorString ());
+    QTimer::singleShot (0, [=] {                   // don't block guiUpdate
+      MessageBox::warning_message(this, tr ("Log File Error"), message2); });
   }
 }

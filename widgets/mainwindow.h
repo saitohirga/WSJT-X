@@ -607,6 +607,7 @@ private:
   QString m_currentBand;
   QString m_nextCall;
   QString m_nextGrid;
+  QString m_fileDateTime;
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;
@@ -702,6 +703,7 @@ private:
   void CQTxFreq();
   void useNextCall();
   void abortQSO();
+  void write_all(QString txRx, QString message);
   bool isWorked(int itype, QString key, float fMHz=0, QString="");
 
   QString save_wave_file (QString const& name
