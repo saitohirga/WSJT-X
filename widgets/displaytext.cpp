@@ -12,6 +12,8 @@
 #include <QAction>
 #include <QListIterator>
 #include <QRegularExpression>
+#include <QScrollBar>
+#include <QDebug>
 
 #include "Configuration.hpp"
 #include "LotWUsers.hpp"
@@ -25,6 +27,8 @@ DisplayText::DisplayText(QWidget *parent)
   : QTextEdit(parent)
   , m_config {nullptr}
   , erase_action_ {new QAction {tr ("&Erase"), this}}
+  , high_volume_ {false}
+  , modified_vertical_scrollbar_max_ {-1}
 {
   setReadOnly (true);
   setUndoRedoEnabled (false);
@@ -68,8 +72,11 @@ void DisplayText::setContentFont(QFont const& font)
   cursor.movePosition (QTextCursor::StartOfLine);
   cursor.endEditBlock ();
 
-  setTextCursor (cursor);
-  ensureCursorVisible ();
+  if (!high_volume_ || !m_config || !m_config->decodes_from_top ())
+    {
+      setTextCursor (cursor);
+      ensureCursorVisible ();
+    }
 }
 
 void DisplayText::mouseDoubleClickEvent(QMouseEvent *e)
@@ -198,9 +205,42 @@ void DisplayText::appendText(QString const& text, QColor bg, QColor fg
 
   // position so viewport scrolled to left
   cursor.movePosition (QTextCursor::StartOfLine);
-  setTextCursor (cursor);
-  ensureCursorVisible ();
+  if (!high_volume_ || !m_config || !m_config->decodes_from_top ())
+    {
+      setTextCursor (cursor);
+      ensureCursorVisible ();
+    }
   document ()->setMaximumBlockCount (document ()->maximumBlockCount ());
+}
+
+void DisplayText::extend_vertical_scrollbar (int min, int max)
+{
+  if (high_volume_
+      && m_config && m_config->decodes_from_top ())
+    {
+      if (max && max != modified_vertical_scrollbar_max_)
+        {
+          auto vp_margins = viewportMargins ();
+          // add enough to vertical scroll bar range to allow last
+          // decode to just scroll of the top of the view port
+          max += viewport ()->height () - vp_margins.top () - vp_margins.bottom ();
+          modified_vertical_scrollbar_max_ = max;
+        }
+      verticalScrollBar ()->setRange (min, max);
+    }
+}
+
+void DisplayText::new_period ()
+{
+  extend_vertical_scrollbar (verticalScrollBar ()->minimum (), verticalScrollBar ()->maximum ());
+  if (high_volume_ && m_config && m_config->decodes_from_top () && !vertical_scroll_connection_)
+    {
+      vertical_scroll_connection_ = connect (verticalScrollBar (), &QScrollBar::rangeChanged
+                                             , [this] (int min, int max) {
+                                               extend_vertical_scrollbar (min, max );
+                                             });
+    }
+  verticalScrollBar ()->setSliderPosition (verticalScrollBar ()->maximum ());
 }
 
 QString DisplayText::appendWorkedB4 (QString message, QString call, QString const& grid,

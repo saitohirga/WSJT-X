@@ -600,6 +600,7 @@ private:
   bool report_in_comments_;
   bool prompt_to_log_;
   bool autoLog_;
+  bool decodes_from_top_;
   bool insert_blank_;
   bool DXCC_;
   bool ppfx_;
@@ -694,6 +695,7 @@ bool Configuration::log_as_RTTY () const {return m_->log_as_RTTY_;}
 bool Configuration::report_in_comments () const {return m_->report_in_comments_;}
 bool Configuration::prompt_to_log () const {return m_->prompt_to_log_;}
 bool Configuration::autoLog() const {return m_->autoLog_;}
+bool Configuration::decodes_from_top () const {return m_->decodes_from_top_;}
 bool Configuration::insert_blank () const {return m_->insert_blank_;}
 bool Configuration::DXCC () const {return m_->DXCC_;}
 bool Configuration::ppfx() const {return m_->ppfx_;}
@@ -1225,6 +1227,7 @@ void Configuration::impl::initialize_models ()
   ui_->report_in_comments_check_box->setChecked (report_in_comments_);
   ui_->prompt_to_log_check_box->setChecked (prompt_to_log_);
   ui_->cbAutoLog->setChecked(autoLog_);
+  ui_->decodes_from_top_check_box->setChecked (decodes_from_top_);
   ui_->insert_blank_check_box->setChecked (insert_blank_);
   ui_->DXCC_check_box->setChecked (DXCC_);
   ui_->ppfx_check_box->setChecked (ppfx_);
@@ -1475,6 +1478,7 @@ void Configuration::impl::read_settings ()
   data_mode_ = settings_->value ("DataMode", QVariant::fromValue (data_mode_none)).value<Configuration::DataMode> ();
   prompt_to_log_ = settings_->value ("PromptToLog", false).toBool ();
   autoLog_ = settings_->value ("AutoLog", false).toBool ();
+  decodes_from_top_ = settings_->value ("DecodesFromTop", false).toBool ();
   insert_blank_ = settings_->value ("InsertBlank", false).toBool ();
   DXCC_ = settings_->value ("DXCCEntity", false).toBool ();
   ppfx_ = settings_->value ("PrincipalPrefix", false).toBool ();
@@ -1575,6 +1579,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("DataMode", QVariant::fromValue (data_mode_));
   settings_->setValue ("PromptToLog", prompt_to_log_);
   settings_->setValue ("AutoLog", autoLog_);
+  settings_->setValue ("DecodesFromTop", decodes_from_top_);
   settings_->setValue ("InsertBlank", insert_blank_);
   settings_->setValue ("DXCCEntity", DXCC_);
   settings_->setValue ("PrincipalPrefix", ppfx_);
@@ -2018,6 +2023,7 @@ void Configuration::impl::accept ()
   report_in_comments_ = ui_->report_in_comments_check_box->isChecked ();
   prompt_to_log_ = ui_->prompt_to_log_check_box->isChecked ();
   autoLog_ = ui_->cbAutoLog->isChecked();
+  decodes_from_top_ = ui_->decodes_from_top_check_box->isChecked ();
   insert_blank_ = ui_->insert_blank_check_box->isChecked ();
   DXCC_ = ui_->DXCC_check_box->isChecked ();
   ppfx_ = ui_->ppfx_check_box->isChecked ();

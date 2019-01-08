@@ -404,7 +404,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->dxGridEntry->setValidator (new MaidenheadLocatorValidator {this});
   ui->dxCallEntry->setValidator (new CallsignValidator {this});
   ui->sbTR->values ({5, 10, 15, 30});
-  ui->decodedTextBrowser->set_configuration (&m_config);
+  ui->decodedTextBrowser->set_configuration (&m_config, true);
   ui->decodedTextBrowser2->set_configuration (&m_config);
 
   m_baseCall = Radio::base_callsign (m_config.my_callsign ());
@@ -3328,7 +3328,14 @@ void MainWindow::rx_frequency_activity_cleared ()
 
 void MainWindow::decodeBusy(bool b)                             //decodeBusy()
 {
-  if (!b) m_optimizingProgress.reset ();
+  if (!b) {
+    m_optimizingProgress.reset ();
+  } else {
+    if (!m_decoderBusy)
+      {
+        ui->decodedTextBrowser->new_period ();
+      }
+  }
   m_decoderBusy=b;
   ui->DecodeButton->setEnabled(!b);
   ui->actionOpen->setEnabled(!b);
