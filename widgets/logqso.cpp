@@ -142,7 +142,7 @@ void LogQSO::accept()
     if(xrcvd!="" and hisGrid!=xrcvd) hisGrid=xrcvd;
   }
 
-  if (special_op == SpOp::RTTY) {
+  if ((special_op == SpOp::RTTY and xsent!="" and xrcvd!="")) {
     if(rptSent=="" or !xsent.contains(rptSent+" ")) rptSent=xsent.split(" ",QString::SkipEmptyParts).at(0);
     if(rptRcvd=="" or !xrcvd.contains(rptRcvd+" ")) rptRcvd=xrcvd.split(" ",QString::SkipEmptyParts).at(0);
   }
