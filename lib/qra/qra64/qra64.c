@@ -242,7 +242,7 @@ void qra64_encode(qra64codec *pcodec, int *y, const int *x)
   // otherwise when a [cq mycall ?] msg is sent we reset the APTYPE_BOTHCALLS 
 
   // look if the msg sent is a std type message (bit15 of grid field = 0)
-  if ((x[9]&0x80)==1)
+  if ((x[9]&0x80))
     return;	// no, it's a text message, nothing to do
 
   // It's a [hiscall mycall grid] message
