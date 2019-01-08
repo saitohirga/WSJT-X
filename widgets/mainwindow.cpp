@@ -6190,6 +6190,17 @@ void MainWindow::on_actionErase_wsjtx_log_adi_triggered()
   }
 }
 
+void MainWindow::on_actionErase_WSPR_hashtable_triggered()
+{
+  int ret = MessageBox::query_message(this, tr ("Confirm Erase"),
+            tr ("Are you sure you want to erase the WSPR hashtable?"));
+  if(ret==MessageBox::Yes) {
+    QFile f {m_config.writeable_data_dir().absoluteFilePath("hashtable.txt")};
+    f.remove();
+  }
+}
+
+
 void MainWindow::on_actionOpen_log_directory_triggered ()
 {
   QDesktopServices::openUrl (QUrl::fromLocalFile (m_config.writeable_data_dir ().absolutePath ()));

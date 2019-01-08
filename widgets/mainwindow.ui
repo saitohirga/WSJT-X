@@ -2636,6 +2636,7 @@ list. The list can be maintained in Settings (F2).</string>
     <addaction name="actionDelete_all_wav_files_in_SaveDir"/>
     <addaction name="actionErase_ALL_TXT"/>
     <addaction name="actionErase_wsjtx_log_adi"/>
+    <addaction name="actionErase_WSPR_hashtable"/>
     <addaction name="reset_cabrillo_log_action"/>
     <addaction name="actionExport_Cabrillo_log"/>
     <addaction name="actionOpen_log_directory"/>
@@ -3330,6 +3331,11 @@ list. The list can be maintained in Settings (F2).</string>
   <action name="contest_log_action">
    <property name="text">
     <string>Contest log</string>
+   </property>
+  </action>
+  <action name="actionErase_WSPR_hashtable">
+   <property name="text">
+    <string>Erase WSPR hashtable</string>
    </property>
   </action>
  </widget>
