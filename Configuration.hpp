@@ -119,6 +119,7 @@ public:
   bool report_in_comments () const;
   bool prompt_to_log () const;
   bool autoLog() const;
+  bool decodes_from_top () const;
   bool insert_blank () const;
   bool DXCC () const;
   bool ppfx() const;
