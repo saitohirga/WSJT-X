@@ -452,6 +452,8 @@ set (wsjt_FSRCS
   lib/ft8/ft8b.f90
   lib/ft8/ft8code.f90
   lib/ft8/ft8_downsample.f90
+  lib/ft8.f90
+  lib/ft8dec.f90
   lib/ft8/ft8sim.f90
   lib/gen4.f90
   lib/gen65.f90
@@ -1244,6 +1246,9 @@ target_link_libraries (jt65 wsjt_fort wsjt_cxx)
 
 add_executable (ft8code lib/ft8/ft8code.f90 wsjtx.rc)
 target_link_libraries (ft8code wsjt_fort wsjt_cxx)
+
+add_executable (ft8 lib/ft8.f90 wsjtx.rc)
+target_link_libraries (ft8 wsjt_fort wsjt_cxx)
 
 add_executable (ft8sim lib/ft8/ft8sim.f90 wsjtx.rc)
 target_link_libraries (ft8sim wsjt_fort wsjt_cxx)
