@@ -772,8 +772,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   }
 
   ui->labAz->setStyleSheet("border: 0px;");
-//  ui->labDist->setStyleSheet("border: 0px;");
-
+  ui->labAz->setText("");
   auto t = "UTC   dB   DT Freq    Message";
   ui->decodedTextLabel->setText(t);
   ui->decodedTextLabel2->setText(t);
@@ -4817,7 +4816,6 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
   auto const& hisCall=ui->dxCallEntry->text();
   if(!hisCall.size ()) {
     ui->labAz->clear ();
-//    ui->labDist->clear ();
     ui->tx1->clear ();
     ui->tx2->clear ();
     ui->tx3->clear ();
