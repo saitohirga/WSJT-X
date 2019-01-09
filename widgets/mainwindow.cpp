@@ -945,10 +945,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
 
-  //if(QCoreApplication::applicationVersion().contains("-devel") or
-  //   QCoreApplication::applicationVersion().contains("-rc")) {
-    QTimer::singleShot (0, this, SLOT (not_GA_warning_message ()));
-  //}
+  //QTimer::singleShot (0, this, SLOT (not_GA_warning_message ()));
 
   if(!ui->cbMenus->isChecked()) {
     ui->cbMenus->setChecked(true);
@@ -960,8 +957,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
 void MainWindow::not_GA_warning_message ()
 {
-
-
   MessageBox::critical_message (this,
                                 "<b><p align=\"center\">"
                                 "IMPORTANT: New protocols for the FT8 and MSK144 modes "
