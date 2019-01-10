@@ -1781,7 +1781,7 @@ bool Configuration::impl::validate ()
       return false;
     }
 
-  if (ui_->rbField_Day-> isChecked () &&
+  if (ui_->rbField_Day->isEnabled () && ui_->rbField_Day->isChecked () &&
       !ui_->Field_Day_Exchange->hasAcceptableInput ())
     {
       for (auto * parent = ui_->Field_Day_Exchange->parentWidget (); parent; parent = parent->parentWidget ())
@@ -1799,7 +1799,7 @@ bool Configuration::impl::validate ()
       return false;
     }
 
-  if (ui_->rbRTTY_Roundup-> isChecked () &&
+  if (ui_->rbRTTY_Roundup->isEnabled () && ui_->rbRTTY_Roundup->isChecked () &&
       !ui_->RTTY_Exchange->hasAcceptableInput ())
     {
       for (auto * parent = ui_->RTTY_Exchange->parentWidget (); parent; parent = parent->parentWidget ())
