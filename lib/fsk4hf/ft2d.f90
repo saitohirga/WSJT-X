@@ -103,7 +103,7 @@ program ft2d
         cd=c2(ib:ib+144*10-1) 
         s2=sum(cd*conjg(cd))/(10*144)
         cd=cd/sqrt(s2)
-        do nseq=1,7
+        do nseq=1,4
            if( nseq.eq.1 ) then  ! noncoherent single-symbol detection
               sbits1=0.0
               do ibit=1,144
@@ -159,11 +159,10 @@ program ft2d
            rx2av=sum(rxdata(1:128)*rxdata(1:128))/128.0
            rxsig=sqrt(rx2av-rxav*rxav)
            rxdata=rxdata/rxsig
-           sigma=0.90
+           sigma=0.80
            llr(1:128)=2*rxdata/(sigma*sigma)
            apmask=0
            max_iterations=40
-           ifer=0
            do ibias=0,0
               llr2=llr
               if(ibias.eq.1) llr2=llr+0.4
