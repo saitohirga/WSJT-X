@@ -9,13 +9,8 @@ subroutine genft2(msg0,ichk,msgsent,i4tone,itype)
 !   - msgsent  message as it will be decoded
 !   - i4tone   array of audio tone values, 0 or 1
 !   - itype    message type 
-!                 1 = standard message  "Call_1 Call_2 Grid/Rpt"
-!                 2 = type 1 prefix
-!                 3 = type 1 suffix
-!                 4 = type 2 prefix
-!                 5 = type 2 suffix
-!                 6 = free text (up to 13 characters)
-!                 7 = short message     "<Call_1 Call2> Rpt"
+!                 1 = 77 bit message 
+!                 7 = 16 bit message     "<Call_1 Call2> Rpt"
 
   use iso_c_binding, only: c_loc,c_size_t
   use packjt77
@@ -27,24 +22,15 @@ subroutine genft2(msg0,ichk,msgsent,i4tone,itype)
   integer*1 codeword(128)
   integer*1 msgbits(77) 
   integer*1 bitseq(144)                   !Tone #s, data and sync (values 0-1)
-  integer*1 s8(8)
-  real*8 pp(12)
+  integer*1 s16(16)
   real*8 xi(864),xq(864),pi,twopi
-  data s8/0,1,1,1,0,0,1,0/
+  data s16/0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0/
   equivalence (ihash,i1hash)
-  logical first,unpk77_success
-  data first/.true./
-  save
+  logical unpk77_success
 
-  if(first) then
-    first=.false.
-    nsym=128
-    pi=4.0*atan(1.0)
-    twopi=8.*atan(1.0)
-    do i=1,12
-      pp(i)=sin((i-1)*pi/12)
-    enddo
-  endif
+  nsym=128
+  pi=4.0*atan(1.0)
+  twopi=8.*atan(1.0)
 
   message(1:37)=' ' 
   itype=1
@@ -89,36 +75,12 @@ subroutine genft2(msg0,ichk,msgsent,i4tone,itype)
      call encode_128_90(msgbits,codeword)
 
 !Create 144-bit channel vector:
-!8-bit sync word + 48 bits + 8-bit sync word + 80 bits
      bitseq=0 
-     bitseq(1:8)=s8
-     bitseq(9:56)=codeword(1:48)
-     bitseq(57:64)=s8
-     bitseq(65:144)=codeword(49:128)
+     bitseq(1:16)=s16
+     bitseq(17:144)=codeword
 
      i4tone=bitseq
-
-!     bitseq=2*bitseq-1
-!     xq(1:6)=bitseq(1)*pp(7:12)   !first bit is mapped to 1st half-symbol on q
-!     do i=1,71
-!       is=(i-1)*12+7
-!       xq(is:is+11)=bitseq(2*i+1)*pp
-!     enddo 
-!     xq(864-5:864)=bitseq(1)*pp(1:6)   !last half symbol
-!     do i=1,72                                    
-!       is=(i-1)*12+1
-!       xi(is:is+11)=bitseq(2*i)*pp
-!     enddo
-! Map I and Q  to tones. 
-!    i4tone=0 
-!    do i=1,72
-!      i4tone(2*i-1)=(bitseq(2*i)*bitseq(2*i-1)+1)/2;
-!      i4tone(2*i)=-(bitseq(2*i)*bitseq(mod(2*i,144)+1)-1)/2;
-!    enddo
   endif
-
-! Flip polarity
-!  i4tone=-i4tone+1
 
 999 return
 end subroutine genft2

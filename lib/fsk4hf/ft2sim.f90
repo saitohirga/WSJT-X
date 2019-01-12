@@ -89,7 +89,7 @@ program ft2sim
   call sgran()
 
   do ifile=1,nfiles
-     k=nint((xdt+0.5)/dt)
+     k=nint((xdt+0.25)/dt)
      ia=k
      phi=0.0 
      c0=0.0

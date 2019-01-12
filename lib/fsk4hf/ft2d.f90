@@ -7,23 +7,28 @@ program ft2d
   character*37 decodes(100)
   character*120 data_dir
   character*90 dmsg
-  complex c2(0:3*1200-1)                  !Complex waveform
+  complex c2(0:NMAX/16-1)                  !Complex waveform
+  complex cb(0:NMAX/16-1)
   complex cd(0:144*10-1)                  !Complex waveform
   complex c1(0:9),c0(0:9)
   complex ccor(0:1,144)
-  complex csum,cterm,cc0,cc1
+  complex csum,cterm,cc0,cc1,csync1,csync2
   real*8 fMHz
 
+  real a(5)
   real rxdata(128),llr(128)               !Soft symbols
   real llr2(128)
   real sbits(144),sbits1(144),sbits3(144)
   real ps(0:8191),psbest(0:8191)
   real candidates(100,2)
+  real savg(NH1),sbase(NH1)
   integer ihdr(11)
   integer*2 iwave(NMAX)                 !Generated full-length waveform  
   integer*1 message77(77),apmask(128),cw(128)
   integer*1 hbits(144),hbits1(144),hbits3(144)
+  integer*1 s16(16)
   logical unpk77_success
+  data s16/0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0/
 
   fs=12000.0/NDOWN                       !Sample rate
   dt=1/fs                                !Sample interval after downsample (s)
@@ -81,7 +86,8 @@ program ft2d
   fr2=0.0
   nav=0
   ngood=0
-
+fsum=0.0
+fsum2=0.0
   do ifile=iarg,nargs
      call getarg(ifile,infile)
      j2=index(infile,'.wav')
@@ -91,16 +97,55 @@ program ft2d
      datetime=infile(j2-11:j2-1)
      close(10)
 
+     call getcandidates2(iwave,100.0,3000.0,0.2,2200.0,100,savg,candidates,ncand,sbase)
+
      ndecodes=0
      ncand=1
      do icand=1,ncand
-        fc0=1500.0
+        f0=candidates(icand,1)
         xsnr=1.0
-        istart=6000+8
-        call ft2_downsample(iwave,c2) ! downsample from 160s/Symbol to 10s/Symbol
-
-        ib=istart/16
-        cd=c2(ib:ib+144*10-1) 
+        call ft2_downsample(iwave,f0,c2) ! downsample from 160s/Symbol to 10s/Symbol
+ibest=-1
+sybest=-99.
+dfbest=-1.
+do if=-15,+15
+        df=if
+        a=0.
+        a(1)=-df
+call twkfreq1(c2,NMAX/16,fs,a,cb)
+! 750 samples/second here
+        do is=0,374
+           csync1=0.
+           cterm=1
+           do ib=1,16
+              i1=(ib-1)*10+is
+              i2=i1+136*10
+              if(s16(ib).eq.1) then
+                csync1=csync1+sum(cb(i1:i1+9)*conjg(c1(0:9)))*cterm
+                cterm=cterm*cc1
+              else
+                csync1=csync1+sum(cb(i1:i1+9)*conjg(c0(0:9)))*cterm
+                cterm=cterm*cc0
+              endif
+           enddo
+           if(abs(csync1).gt.sybest) then
+             ibest=is
+             sybest=abs(csync1)
+             dfbest=df
+           endif
+        enddo 
+enddo
+freq=f0+dfbest
+fsum=fsum+freq
+fsum2=fsum+freq*freq
+a=0.
+a(1)=-dfbest
+!write(*,*) 'dfbest ',dfbest
+!dfbest=0.0
+!ibest=187
+call twkfreq1(c2,NMAX/16,fs,a,cb)
+        ib=ibest
+        cd=cb(ib:ib+144*10-1) 
         s2=sum(cd*conjg(cd))/(10*144)
         cd=cd/sqrt(s2)
         do nseq=1,4
@@ -153,8 +198,7 @@ program ft2d
               sbits=sbits3
               hbits=hbits3
            endif
-           rxdata(1:48)=sbits(9:56)
-           rxdata(49:128)=sbits(65:144)
+           rxdata=sbits(17:144)
            rxav=sum(rxdata(1:128))/128.0
            rx2av=sum(rxdata(1:128)*rxdata(1:128))/128.0
            rxsig=sqrt(rx2av-rxav*rxav)
@@ -175,6 +219,7 @@ program ft2d
            if( nharderror.ge.0 ) then
               write(c77,'(77i1)') message77(1:77)
               call unpack77(c77,message,unpk77_success)
+              idupe=0
               do i=1,ndecodes
                  if(decodes(i).eq.message) idupe=1 
               enddo
@@ -182,10 +227,9 @@ program ft2d
               ndecodes=ndecodes+1 
               decodes(ndecodes)=message
               nsnr=nint(xsnr)
-              freq=fMHz + 1.d-6*(fc1+fbest)
 1210          format(a11,2i4,f6.2,f12.7,2x,a22,i3)
-              write(*,1212) datetime(8:11),nsnr,xdt,freq,message,'*',idf,nseq,ijitter,nharderror,nhardmin
-1212          format(a4,i4,f5.1,f11.6,2x,a22,a1,i5,i5,i5,i5,i5)
+              write(*,1212) datetime(8:11),nsnr,ibest/750.0,freq,message,'*',idf,nseq,ijitter,nharderror,nhardmin
+1212          format(a4,i4,f5.1,f11.1,2x,a22,a1,i5,i5,i5,i5,i5)
               goto 888
            endif
         enddo ! nseq
@@ -195,7 +239,9 @@ program ft2d
 
   write(*,1120)
 1120 format("<DecodeFinished>")
-
+favg=fsum/1000.0
+fstd=sqrt(fsum2/1000.0-favg*favg)
+write(*,*) "Mean, std frequency: ",favg,fstd
 999 end program ft2d
 
 subroutine getbitmetric(ib,ps,ns,xmet)
@@ -234,66 +280,7 @@ subroutine downsample2(ci,f0,co)
   return
 end subroutine downsample2
 
-subroutine getcandidate2(c,npts,fs,fa,fb,ncand,candidates)
-  parameter(NDAT=200,NFFT1=120*12000/32,NH1=NFFT1/2,NFFT2=120*12000/320,NH2=NFFT2/2)
-  complex c(0:npts-1)                   !Complex waveform
-  complex cc(0:NFFT1-1)
-  complex csfil(0:NFFT2-1)
-  complex cwork(0:NFFT2-1)
-  real bigspec(0:NFFT2-1)
-  complex c2(0:NFFT1-1)                 !Short spectra
-  real s(-NH1+1:NH1)                    !Coarse spectrum
-  real ss(-NH1+1:NH1)                   !Smoothed coarse spectrum
-  real candidates(100,2)
-  integer indx(NFFT2-1)
-  logical first
-  data first/.true./
-  save first,w,df,csfil
-
-  if(first) then
-    df=10*fs/NFFT1
-    csfil=cmplx(0.0,0.0)
-    do i=0,NFFT2-1
-       csfil(i)=exp(-((i-NH2)/20.0)**2)
-    enddo
-    csfil=cshift(csfil,NH2)
-    call four2a(csfil,NFFT2,1,-1,1)
-    first=.false.
-  endif
-
-  cc=cmplx(0.0,0.0)
-  cc(0:npts-1)=c;
-  call four2a(cc,NFFT1,1,-1,1)
-  cc=abs(cc)**2
-  call four2a(cc,NFFT1,1,-1,1)
-  cwork(0:NH2)=cc(0:NH2)*conjg(csfil(0:NH2))
-  cwork(NH2+1:NFFT2-1)=cc(NFFT1-NH2+1:NFFT1-1)*conjg(csfil(NH2+1:NFFT2-1))
-
-  call four2a(cwork,NFFT2,1,+1,1)
-  bigspec=cshift(real(cwork),-NH2)
-  il=NH2+fa/df
-  ih=NH2+fb/df 
-  nnl=ih-il+1
-  call indexx(bigspec(il:il+nnl-1),nnl,indx)
-  xn=bigspec(il-1+indx(nint(0.3*nnl)))
-  bigspec=bigspec/xn
-  ncand=0
-  do i=il,ih
-    if((bigspec(i).gt.bigspec(i-1)).and. &
-       (bigspec(i).gt.bigspec(i+1)).and. &
-       (bigspec(i).gt.1.15).and.ncand.lt.100) then 
-         ncand=ncand+1
-         candidates(ncand,1)=df*(i-NH2)
-         candidates(ncand,2)=10*log10(bigspec(i))-30.0
-    endif
-  enddo
-!  do i=1,ncand
-!    write(*,*) i,candidates(i,1),candidates(i,2)
-!  enddo 
-  return
-end subroutine getcandidate2
-
-subroutine ft2_downsample(iwave,c)
+subroutine ft2_downsample(iwave,f0,c)
 
 ! Input: i*2 data in iwave() at sample rate 12000 Hz
 ! Output: Complex data in c(), sampled at 1200 Hz
@@ -310,7 +297,7 @@ subroutine ft2_downsample(iwave,c)
   df=12000.0/NMAX
   x=iwave
   call four2a(x,NMAX,1,-1,0)             !r2c FFT to freq domain
-  i0=nint(1500.0/df)
+  i0=nint(f0/df)
   c1(0)=cx(i0)
   do i=1,NFFT2/2
      c1(i)=cx(i0+i)
