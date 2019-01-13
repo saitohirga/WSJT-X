@@ -98,12 +98,11 @@ fsum2=0.0
      close(10)
 
      call getcandidates2(iwave,100.0,3000.0,0.2,2200.0,100,savg,candidates,ncand,sbase)
-
      ndecodes=0
-     ncand=1
      do icand=1,ncand
         f0=candidates(icand,1)
         xsnr=1.0
+        if( f0.le.375.0 .or. f0.ge.(5000.0-375.0) ) cycle 
         call ft2_downsample(iwave,f0,c2) ! downsample from 160s/Symbol to 10s/Symbol
 ibest=-1
 sybest=-99.
@@ -137,13 +136,12 @@ call twkfreq1(c2,NMAX/16,fs,a,cb)
 enddo
 freq=f0+dfbest
 fsum=fsum+freq
-fsum2=fsum+freq*freq
-a=0.
-a(1)=-dfbest
-!write(*,*) 'dfbest ',dfbest
+fsum2=fsum2+freq*freq
+        a=0.
+        a(1)=-dfbest
 !dfbest=0.0
 !ibest=187
-call twkfreq1(c2,NMAX/16,fs,a,cb)
+        call twkfreq1(c2,NMAX/16,fs,a,cb)
         ib=ibest
         cd=cb(ib:ib+144*10-1) 
         s2=sum(cd*conjg(cd))/(10*144)
@@ -198,6 +196,8 @@ call twkfreq1(c2,NMAX/16,fs,a,cb)
               sbits=sbits3
               hbits=hbits3
            endif
+           nsync_qual=count(hbits(1:16).eq.s16)
+           if(nsync_qual.lt.12) cycle
            rxdata=sbits(17:144)
            rxav=sum(rxdata(1:128))/128.0
            rx2av=sum(rxdata(1:128)*rxdata(1:128))/128.0
@@ -239,9 +239,9 @@ call twkfreq1(c2,NMAX/16,fs,a,cb)
 
   write(*,1120)
 1120 format("<DecodeFinished>")
-favg=fsum/1000.0
-fstd=sqrt(fsum2/1000.0-favg*favg)
-write(*,*) "Mean, std frequency: ",favg,fstd
+favg=fsum/100.0
+fstd=sqrt(fsum2/100.0-favg*favg)
+!write(*,*) "Mean, std frequency: ",favg,fstd
 999 end program ft2d
 
 subroutine getbitmetric(ib,ps,ns,xmet)
@@ -294,14 +294,19 @@ subroutine ft2_downsample(iwave,f0,c)
   real x(NMAX)
   equivalence (x,cx)
 
+  BW=4.0*75
   df=12000.0/NMAX
   x=iwave
   call four2a(x,NMAX,1,-1,0)             !r2c FFT to freq domain
+  ibw=nint(BW/df)
   i0=nint(f0/df)
+  c1=0.
   c1(0)=cx(i0)
   do i=1,NFFT2/2
-     c1(i)=cx(i0+i)
-     c1(NFFT2-i)=cx(i0-i)
+     arg=(i-1)*df/bw
+     win=exp(-arg*arg)
+     c1(i)=cx(i0+i)*win
+     c1(NFFT2-i)=cx(i0-i)*win
   enddo
   c1=c1/NFFT2
   call four2a(c1,NFFT2,1,1,1)            !c2c FFT back to time domain

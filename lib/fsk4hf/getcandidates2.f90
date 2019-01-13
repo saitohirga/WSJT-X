@@ -44,8 +44,8 @@ subroutine getcandidates2(id,nfa,nfb,syncmin,nfqso,maxcand,savg,candidate,   &
       imax=i
     endif
   enddo
+  f0=imax*df
   ncand=1
-  candidate(1,1)=imax*df 
-
+  candidate(1,1)=f0
 return
 end subroutine getcandidates2
