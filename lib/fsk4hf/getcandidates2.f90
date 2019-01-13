@@ -1,4 +1,4 @@
-subroutine getcandidates2(id,nfa,nfb,syncmin,nfqso,maxcand,savg,candidate,   &
+subroutine getcandidates2(id,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
      ncand,sbase)
 
 ! For now, hardwired to find the largest peak in the average spectrum
@@ -12,6 +12,7 @@ subroutine getcandidates2(id,nfa,nfb,syncmin,nfqso,maxcand,savg,candidate,   &
   real candidate(3,maxcand)
   integer*2 id(NMAX)
   integer*1 s8(8)
+  integer indx(NH1)
   data s8/0,1,1,1,0,0,1,0/
   equivalence (x,cx)
 
@@ -36,16 +37,27 @@ subroutine getcandidates2(id,nfa,nfb,syncmin,nfqso,maxcand,savg,candidate,   &
     savsm(i)=sum(savg(i-1:i+1))/3.
   enddo
 
+  nfa=fa/df
+  nfb=fb/df
+  np=nfb-nfa+1
+  indx=0
+  call indexx(savsm(nfa:nfb),np,indx)
+  xn=savsm(nfa+indx(nint(0.3*np)))
+  savsm=savsm/xn
   imax=-1
   xmax=-99.
   do i=2,NH1-1
-    if(savsm(i).gt.savsm(i-1).and.savsm(i).gt.savsm(i+1).and.savsm(i).gt.xmax) then
+    if(savsm(i).gt.savsm(i-1).and.    &
+       savsm(i).gt.savsm(i+1).and.    &
+       savsm(i).gt.xmax) then
       xmax=savsm(i) 
       imax=i
     endif
   enddo
   f0=imax*df
-  ncand=1
-  candidate(1,1)=f0
+  if(xmax.gt.1.2) then
+     ncand=ncand+1
+     candidate(1,ncand)=f0
+  endif
 return
 end subroutine getcandidates2

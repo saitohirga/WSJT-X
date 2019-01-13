@@ -54,7 +54,7 @@ program ft2d
   cc0=cmplx(cos(the),sin(the))
   nargs=iargc()
   if(nargs.lt.1) then
-     print*,'Usage:   ft2d [-a <data_dir>] [-f fMHz] [-c ncoh] file1 [file2 ...]'
+     print*,'Usage:   ft2d [-a <data_dir>] [-f fMHz] file1 [file2 ...]'
      go to 999
   endif
   iarg=1
@@ -71,23 +71,7 @@ program ft2d
      iarg=iarg+2
   endif
   ncoh=1
-  npdi=16
-  if(arg(1:2).eq.'-c') then
-     call getarg(iarg+1,arg)
-     read(arg,*) ncoh
-     iarg=iarg+2
-     npdi=16/ncoh
-  endif
-!  write(*,*) 'ncoh: ',ncoh,' npdi: ',npdi
   
-  xs1=0.0
-  xs2=0.0
-  fr1=0.0
-  fr2=0.0
-  nav=0
-  ngood=0
-fsum=0.0
-fsum2=0.0
   do ifile=iarg,nargs
      call getarg(ifile,infile)
      j2=index(infile,'.wav')
@@ -96,57 +80,56 @@ fsum2=0.0
      read(infile(j2-4:j2-1),*) nutc
      datetime=infile(j2-11:j2-1)
      close(10)
-
-     call getcandidates2(iwave,100.0,3000.0,0.2,2200.0,100,savg,candidates,ncand,sbase)
+     candidates=0.0
+     ncand=0
+     call getcandidates2(iwave,375.0,3000.0,0.2,2200.0,100,savg,candidates,ncand,sbase)
      ndecodes=0
      do icand=1,ncand
         f0=candidates(icand,1)
         xsnr=1.0
         if( f0.le.375.0 .or. f0.ge.(5000.0-375.0) ) cycle 
         call ft2_downsample(iwave,f0,c2) ! downsample from 160s/Symbol to 10s/Symbol
-ibest=-1
-sybest=-99.
-dfbest=-1.
-do if=-15,+15
-        df=if
-        a=0.
-        a(1)=-df
-call twkfreq1(c2,NMAX/16,fs,a,cb)
 ! 750 samples/second here
-        do is=0,374
-           csync1=0.
-           cterm=1
-           do ib=1,16
-              i1=(ib-1)*10+is
-              i2=i1+136*10
-              if(s16(ib).eq.1) then
-                csync1=csync1+sum(cb(i1:i1+9)*conjg(c1(0:9)))*cterm
-                cterm=cterm*cc1
-              else
-                csync1=csync1+sum(cb(i1:i1+9)*conjg(c0(0:9)))*cterm
-                cterm=cterm*cc0
+        ibest=-1
+        sybest=-99.
+        dfbest=-1.
+        do if=-15,+15
+           df=if
+           a=0.
+           a(1)=-df
+           call twkfreq1(c2,NMAX/16,fs,a,cb)
+           do is=0,374
+              csync1=0.
+              cterm=1
+              do ib=1,16
+                 i1=(ib-1)*10+is
+                 i2=i1+136*10
+                 if(s16(ib).eq.1) then
+                    csync1=csync1+sum(cb(i1:i1+9)*conjg(c1(0:9)))*cterm
+                    cterm=cterm*cc1
+                 else
+                    csync1=csync1+sum(cb(i1:i1+9)*conjg(c0(0:9)))*cterm
+                    cterm=cterm*cc0
+                 endif
+              enddo
+              if(abs(csync1).gt.sybest) then
+                 ibest=is
+                 sybest=abs(csync1)
+                 dfbest=df
               endif
-           enddo
-           if(abs(csync1).gt.sybest) then
-             ibest=is
-             sybest=abs(csync1)
-             dfbest=df
-           endif
-        enddo 
-enddo
-freq=f0+dfbest
-fsum=fsum+freq
-fsum2=fsum2+freq*freq
-        a=0.
-        a(1)=-dfbest
+           enddo 
+        enddo
+
 !dfbest=0.0
 !ibest=187
+        a=0.
+        a(1)=-dfbest
         call twkfreq1(c2,NMAX/16,fs,a,cb)
         ib=ibest
         cd=cb(ib:ib+144*10-1) 
         s2=sum(cd*conjg(cd))/(10*144)
         cd=cd/sqrt(s2)
-        do nseq=1,4
+        do nseq=1,5
            if( nseq.eq.1 ) then  ! noncoherent single-symbol detection
               sbits1=0.0
               do ibit=1,144
@@ -197,7 +180,7 @@ fsum2=fsum2+freq*freq
               hbits=hbits3
            endif
            nsync_qual=count(hbits(1:16).eq.s16)
-           if(nsync_qual.lt.12) cycle
+           if(nsync_qual.lt.10) exit 
            rxdata=sbits(17:144)
            rxav=sum(rxdata(1:128))/128.0
            rx2av=sum(rxdata(1:128)*rxdata(1:128))/128.0
@@ -227,21 +210,20 @@ fsum2=fsum2+freq*freq
               ndecodes=ndecodes+1 
               decodes(ndecodes)=message
               nsnr=nint(xsnr)
+              freq=f0+dfbest
 1210          format(a11,2i4,f6.2,f12.7,2x,a22,i3)
               write(*,1212) datetime(8:11),nsnr,ibest/750.0,freq,message,'*',idf,nseq,ijitter,nharderror,nhardmin
 1212          format(a4,i4,f5.1,f11.1,2x,a22,a1,i5,i5,i5,i5,i5)
               goto 888
            endif
         enddo ! nseq
-888     continue
+888  continue
      enddo !candidate list
   enddo !files
 
   write(*,1120)
 1120 format("<DecodeFinished>")
-favg=fsum/100.0
-fstd=sqrt(fsum2/100.0-favg*favg)
-!write(*,*) "Mean, std frequency: ",favg,fstd
+
 999 end program ft2d
 
 subroutine getbitmetric(ib,ps,ns,xmet)
