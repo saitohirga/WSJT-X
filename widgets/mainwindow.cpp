@@ -32,6 +32,7 @@
 #include <QCursor>
 #include <QToolTip>
 #include <QAction>
+#include <QButtonGroup>
 #include <QActionGroup>
 #include <QSplashScreen>
 #include <QUdpSocket>
