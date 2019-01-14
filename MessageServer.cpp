@@ -121,6 +121,7 @@ void MessageServer::impl::join_multicast_group ()
 #endif
       )
     {
+      auto mcast_iface = multicastInterface ();
       if (IPv4Protocol == multicast_group_address_.protocol ()
           && IPv4Protocol != localAddress ().protocol ())
         {
@@ -132,6 +133,11 @@ void MessageServer::impl::join_multicast_group ()
         {
           if (QNetworkInterface::CanMulticast & interface.flags ())
             {
+              // Windows requires outgoing interface to match
+              // interface to be joined while joining, at least for
+              // IPv4 it seems to
+              setMulticastInterface (interface);
+
               joined |= joinMulticastGroup (multicast_group_address_, interface);
             }
         }
@@ -139,6 +145,7 @@ void MessageServer::impl::join_multicast_group ()
         {
           multicast_group_address_.clear ();
         }
+      setMulticastInterface (mcast_iface);
     }
 }
 
