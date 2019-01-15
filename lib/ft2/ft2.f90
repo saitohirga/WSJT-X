@@ -6,7 +6,7 @@ program ft2
   logical allok
   character*20 pttport
   character*8 arg
-  integer*2 iwave2(30000)
+!  integer*2 iwave2(30000)
 
   allok=.true.
 ! Get home-station details
@@ -38,7 +38,7 @@ program ft2
   nwave=NTZ
   nfsample=12000
   ngo=1
-  npabuf=1280
+  npabuf=1152
   ntxok=0
   ntransmitting=0
   tx_once=.false.
@@ -52,25 +52,16 @@ program ft2
      read(arg,*) f0
      call getarg(3,arg)
      read(arg,*) snrdb
-     nTxOK=1
      tx_once=.true.
      call ft2_iwave(txmsg,f0,snrdb,iwave)
+     nTxOK=1
   endif
-
-  iwave2(1:23040)=iwave
-  iwave2(23041:30000)=0
-  nutc=0
-  nfqso=nint(f0)
   
-  call ft2_decode(nutc,nfqso,iwave2)
-
+! Start the audio streams  
   ierr=ft2audio(idevin,idevout,npabuf,nright,y1,y2,NRING,iwrite,itx,     &
        iwave,nwave,nfsample,nTxOK,nTransmitting,ngo)
   if(ierr.ne.0) then
-     print*,'Error',ierr,' in JTaudio, you will only be able to work offline.'
-  else
-     write(*,1006) 
-1006 format('Audio streams terminated normally.')
+     print*,'Error',ierr,' starting audio input and/or output.'
   endif
 
 999 end program ft2
@@ -78,33 +69,31 @@ program ft2
 subroutine update(total_time,ic1,ic2)
 
   real*8 total_time
+  integer*8 count00,count0,count1,clkfreq
   integer ptt
+  integer*2 id(30000)
   logical transmitted
-  integer*2 id(30000),id2(30000)
+  character*30 line
+  character cdate*8,ctime*10,cdatetime*17
   include 'gcom1.f90'
-  data nt0/-1/,transmitted/.false./,snr/0.0/
-  save nt0,transmitted,snr
+  data nt0/-1/,transmitted/.false./,snr/-99.0/,count00/-1/
+  save nt0,transmitted,snr,count00
 
   if(ic1.ne.0 .or. ic2.ne.0) then
      if(ic1.eq.27 .and. ic2.eq.0) ngo=0  !ESC
      if(nTxOK.eq.0 .and. ntransmitting.eq.0) then
         nd=0
-        if(ic1.eq.0 .and. ic2.eq.59) nd=7   !F1
-        if(ic1.eq.0 .and. ic2.eq.60) nd=6   !F2
-        if(ic1.eq.0 .and. ic2.eq.61) nd=5   !F3
+        if(ic1.eq.0 .and. ic2.eq.59) nd=1   !F1
+        if(ic1.eq.0 .and. ic2.eq.60) nd=2   !F2
+        if(ic1.eq.0 .and. ic2.eq.61) nd=3   !F3
         if(ic1.eq.0 .and. ic2.eq.62) nd=4   !F4
-        if(ic1.eq.0 .and. ic2.eq.63) nd=3   !F5
+        if(ic1.eq.0 .and. ic2.eq.63) nd=5   !F5
         if(nd.gt.0) then
            i1=ptt(nport,1,1,iptt)
            ntxok=1
-           n=1000
-           nwave=NTZ
-           do i=1,nwave/nd
-              ib=i*nd
-              ia=ib-nd+1
-              iwave(ia:ib)=n
-              n=-n
-           enddo
+           if(nd.eq.1) txmsg='CQ K1JT FN20'
+           if(nd.eq.2) txmsg='K9AN K1JT 559 NJ'
+           call ft2_iwave(txmsg,1500.0,99.0,iwave)
         endif
      endif
      if(ic1.eq.13 .and. ic2.eq.0) hiscall=hiscall_next
@@ -138,13 +127,25 @@ subroutine update(total_time,ic1,ic2)
      enddo
      nutc=0
      nfqso=1500
-     call ft2_iwave(txmsg,1500.0,snr,id2)   !###
-     snr=snr-1.0
-     call ft2_decode(nutc,nfqso,id2)          !###
-!###     call ft2_decode(nutc,nfqso,id)
-     
-     write(*,1010) nt,total_time,iwrite,itx,ntxok,ntransmitting,sigdb,snr
-1010 format(i6,f9.3,4i6,f6.1,f6.0)
+     ndecodes=0
+     if(maxval(abs(id)).gt.0) then
+        call date_and_time(cdate,ctime)
+        cdatetime=cdate(3:8)//'_'//ctime
+        call system_clock(count0,clkfreq)
+        call ft2_decode(cdatetime,nfqso,id,ndecodes)
+        call system_clock(count1,clkfreq)
+        tdecode=float(count1-count0)/float(clkfreq)
+        if(count00.lt.0) count00=count0
+        trun=float(count1-count00)/float(clkfreq)
+     endif
+     n=2*sigdb-30.0
+     if(n.lt.1) n=1
+     if(n.gt.30) n=30
+     line=' '
+     line(n:n)='*'
+!     write(*,1010) nt,total_time,iwrite,itx,ntxok,ntransmitting,ndecodes,  &
+!          snr,sigdb,line
+!1010 format(i6,f9.3,i10,i6,3i3,f6.0,f6.1,1x,a30)
      nt0=nt
      max1=0
      max2=0

@@ -1,4 +1,4 @@
-subroutine ft2_decode(nutc,nfqso,iwave)
+subroutine ft2_decode(cdatetime,nfqso,iwave,ndecodes)
 
   use crc
   use packjt77
@@ -6,6 +6,7 @@ subroutine ft2_decode(nutc,nfqso,iwave)
   character message*37,c77*77
   character*37 decodes(100)
   character*120 data_dir
+  character*17 cdatetime
   complex c2(0:NMAX/16-1)                  !Complex waveform
   complex cb(0:NMAX/16-1)
   complex cd(0:144*10-1)                  !Complex waveform
@@ -27,7 +28,7 @@ subroutine ft2_decode(nutc,nfqso,iwave)
   integer*1 s16(16)
   logical unpk77_success
   data s16/0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0/
-    
+
   fs=12000.0/NDOWN                       !Sample rate
   dt=1/fs                                !Sample interval after downsample (s)
   tt=NSPS*dt                             !Duration of "itone" symbols (s)
@@ -65,7 +66,6 @@ subroutine ft2_decode(nutc,nfqso,iwave)
   ndecodes=0
   do icand=1,ncand
      f0=candidate(1,icand)
-!     print*,'A',ncand,f0
      xsnr=1.0
      if( f0.le.375.0 .or. f0.ge.(5000.0-375.0) ) cycle 
      call ft2_downsample(iwave,f0,c2) ! downsample from 160s/Symbol to 10s/Symbol
@@ -194,15 +194,16 @@ subroutine ft2_decode(nutc,nfqso,iwave)
            decodes(ndecodes)=message
            nsnr=nint(xsnr)
            freq=f0+dfbest
-           write(*,1212) nutc,nsnr,ibest/750.0,nint(freq),message,     &
+           write(*,1212) cdatetime,nsnr,ibest/750.0,nint(freq),message,     &
                 nseq,nharderror,nhardmin
-1212       format(i4.4,i4,f6.2,i6,2x,a37,3i5)
+1212       format(a17,i4,f6.2,i6,2x,a37,3i5)
            goto 888
         endif
      enddo ! nseq
 888  continue
   enddo !candidate list
 
+  return
 end subroutine ft2_decode
 
 subroutine getbitmetric(ib,ps,ns,xmet)

@@ -43,7 +43,7 @@ subroutine getcandidates2(id,fa,fb,maxcand,savg,candidate,ncand)
   indx=0
   call indexx(savsm(nfa:nfb),np,indx)
   xn=savsm(nfa+indx(nint(0.3*np)))
-  savsm=savsm/xn
+  if(xn.ne.0) savsm=savsm/xn
   imax=-1
   xmax=-99.
   do i=2,NH1-1
@@ -59,6 +59,6 @@ subroutine getcandidates2(id,fa,fb,maxcand,savg,candidate,ncand)
      if(ncand.lt.maxcand) ncand=ncand+1
      candidate(1,ncand)=f0
   endif
-  
-return
+
+  return
 end subroutine getcandidates2

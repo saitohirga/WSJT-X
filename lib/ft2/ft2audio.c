@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "portaudio.h"
 #include <string.h>
+#include <time.h>
 
 int iaa;
 int icc;
@@ -15,7 +16,7 @@ typedef struct
   int    *Transmitting;
   int    *nwave;
   int    *nright;
-  int     nbuflen;
+  int     nring;
   int     nfs;
   short  *y1;
   short  *y2;
@@ -57,10 +58,11 @@ SoundIn( void *inputBuffer, void *outputBuffer,
     }
   }
 
-  if(ia >= data->nbuflen) ia=0;          //Wrap buffer pointer if necessary
+  if(ia >= data->nring) ia=0;          //Wrap buffer pointer if necessary
   *data->iwrite = ia;                    //Save buffer pointer
   iaa=ia;
   total_time += (double)framesPerBuffer/12000.0;
+  //  printf("iwrite:  %d\n",*data->iwrite);
   return 0;
 }
 
@@ -78,28 +80,41 @@ SoundOut( void *inputBuffer, void *outputBuffer,
   static short int n2;
   static int ic=0;
   static int TxOKz=0;
+  static clock_t tstart=-1;
+  static clock_t tend=-1;
+  static int nsent=0;
 
   //  printf("txOK:  %d  %d\n",TxOKz,*data->TxOK);
 
-  if(*data->TxOK && (!TxOKz)) ic=0;
-  TxOKz=*data->TxOK;
-  *data->Transmitting=*data->TxOK;
+  if(*data->TxOK && (!TxOKz)) ic=0;   //Reset buffer pointer to start Tx
+  *data->Transmitting=*data->TxOK;    //Set the "transmitting" flag
 
   if(*data->TxOK)  {
+    if(!TxOKz) {
+      // Start of a transmission
+      tstart=clock();
+      nsent=0;
+      //      printf("Start Tx\n");
+    }
+    TxOKz=*data->TxOK;
     for(i=0 ; i < framesPerBuffer; i++ )  {
       n2=data->iwave[ic];
       *wptr++ = n2;                   //left
       *wptr++ = n2;                   //right
       ic++;
 
-      if(ic >= *data->nwave) {
+      if(ic > *data->nwave) {
 	*data->TxOK = 0;
 	*data->Transmitting = 0;
 	*data->iwrite = 0;            //Reset Rx buffer pointer to 0
 	ic=0;
+	tend=clock();
+	double TxT=((double)(tend-tstart))/CLOCKS_PER_SEC;
+	//	printf("End Tx, TxT = %f  nSent = %d\n",TxT,nsent);
 	break;
       }
     }
+    nsent += framesPerBuffer;
   } else {
     memset((void*)outputBuffer, 0, 2*sizeof(short)*framesPerBuffer);
   }
@@ -110,7 +125,7 @@ SoundOut( void *inputBuffer, void *outputBuffer,
 
 /*******************************************************************/
 int ft2audio_(int *ndevin, int *ndevout, int *npabuf, int *nright, 
-	      short y1[], short y2[], int *nbuflen, int *iwrite, 
+	      short y1[], short y2[], int *nring, int *iwrite, 
 	      int *itx, short iwave[], int *nwave, int *nfsample, 
 	      int *TxOK, int *Transmitting, int *ngo)
 
@@ -134,7 +149,7 @@ int ft2audio_(int *ndevin, int *ndevout, int *npabuf, int *nright,
   data.Transmitting = Transmitting;
   data.y1 = y1;
   data.y2 = y2;
-  data.nbuflen = *nbuflen;
+  data.nring = *nring;
   data.nright = nright;
   data.nwave = nwave;
   data.iwave = iwave;

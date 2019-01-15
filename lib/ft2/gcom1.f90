@@ -2,7 +2,7 @@
 !---------------------------------------------------------------------------
 integer NRING          !Length of Rx ring buffer
 integer NTZ            !Length of Tx waveform in samples
-parameter(NRING=32768) !About 2.7 s at 12000 sam/sec
+parameter(NRING=230400) !Ring buffer at 12000 samples/sec
 parameter(NTZ=23040)   !144*160
 parameter(NMAX=30000)  !2.5*12000
 real snrdb
