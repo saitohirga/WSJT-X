@@ -174,6 +174,8 @@ subroutine update(total_time,ic1,ic2)
               if(nrx.eq.3) then
                  call transmit(4,ftx,iptt)
                  QSO_in_progress=.false.
+                 write(*,1032)
+1032             format('QSO complete: S+P side')
               else
                  call transmit(2,ftx,iptt)
               endif
@@ -181,6 +183,8 @@ subroutine update(total_time,ic1,ic2)
            if(ntxed.eq.3) then
               if(nrx.eq.4) then
                  QSO_in_progress=.false.
+                 write(*,1034)
+1034             format('QSO complete: CQ side')
               else
                  call transmit(3,ftx,iptt)
               endif
@@ -205,6 +209,8 @@ subroutine transmit(nfunc,ftx,iptt)
   character*17 cdatetime
   integer ptt
 
+  if(nTxOK.eq.1) return
+  
   if(nfunc.eq.1) txmsg='CQ '//trim(mycall)//' '//mygrid
   if(nfunc.eq.2) txmsg=trim(hiscall)//' '//trim(mycall)//     &
        ' 559 '//trim(exch)
@@ -218,7 +224,7 @@ subroutine transmit(nfunc,ftx,iptt)
   n=len(trim(txmsg))
   write(*,1010) cdatetime(),0,0.0,nint(ftx),(txmsg(i:i),i=1,n)
   write(12,1010) cdatetime(),0,0.0,nint(ftx),(txmsg(i:i),i=1,n)
-1010 format(a17,' Tx',i4,f6.2,i6,2x,37a1)
+1010 format(a17,i4,f6.2,i5,' Tx ',37a1)
   if(nfunc.ge.1 .and. nfunc.le.4) ntxed=nfunc
   if(nfunc.ge.1 .and. nfunc.le.5) ltx(nfunc)=.true.
   if(nfunc.eq.2 .or. nfunc.eq.3) QSO_in_progress=.true.

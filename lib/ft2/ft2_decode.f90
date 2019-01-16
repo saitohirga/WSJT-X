@@ -195,7 +195,7 @@ subroutine ft2_decode(cdatetime,nfqso,iwave,ndecodes,mycall,hiscall,nrx)
                 nseq,nharderror,nhardmin
            write(12,1000) cdatetime,nsnr,ibest/750.0,nint(freq),message,    &
                 nseq,nharderror,nhardmin
-1000       format(a17,' Rx',i4,f6.2,i6,3x,a37,3i5)
+1000       format(a17,i4,f6.2,i5,' Rx  ',a37,3i5)
 
 !### Temporary: assume most recent decoded message conveys "hiscall".
            i0=index(message,' ')
