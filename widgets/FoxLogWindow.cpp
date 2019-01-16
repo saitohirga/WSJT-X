@@ -1,15 +1,17 @@
 #include "FoxLogWindow.hpp"
 
 #include <QApplication>
-#include <QSqlTableModel>
 #include <QAction>
 #include <QFile>
 #include <QDir>
+#include <QSqlTableModel>
+#include <QFileDialog>
 
 #include "SettingsGroup.hpp"
 #include "Configuration.hpp"
 #include "MessageBox.hpp"
 #include "models/Bands.hpp"
+#include "models/FoxLog.hpp"
 #include "item_delegates/ForeignKeyDelegate.hpp"
 #include "item_delegates/DateTimeAsSecsSinceEpochDelegate.hpp"
 #include "item_delegates/CallsignDelegate.hpp"
@@ -22,23 +24,23 @@
 class FoxLogWindow::impl final
 {
 public:
-  explicit impl (QSqlTableModel * log_model)
-    : log_model_ {log_model}
+  explicit impl (FoxLog * log)
+    : log_ {log}
   {
   }
 
-  QSqlTableModel * log_model_;
+  FoxLog * log_;
   Ui::FoxLogWindow ui_;
 };
 
 FoxLogWindow::FoxLogWindow (QSettings * settings, Configuration const * configuration
-                            , QSqlTableModel * fox_log_model, QWidget * parent)
+                            , FoxLog * fox_log, QWidget * parent)
   : AbstractLogWindow {"Fox Log Window", settings, configuration, parent}
-  , m_ {fox_log_model}
+  , m_ {fox_log}
 {
   setWindowTitle (QApplication::applicationName () + " - Fox Log");
   m_->ui_.setupUi (this);
-  m_->ui_.log_table_view->setModel (m_->log_model_);
+  m_->ui_.log_table_view->setModel (m_->log_->model ());
   set_log_view (m_->ui_.log_table_view);
   m_->ui_.log_table_view->setItemDelegateForColumn (1, new DateTimeAsSecsSinceEpochDelegate {this});
   m_->ui_.log_table_view->setItemDelegateForColumn (2, new CallsignDelegate {this});
@@ -50,6 +52,31 @@ FoxLogWindow::FoxLogWindow (QSettings * settings, Configuration const * configur
   m_->ui_.callers_label->setNum (0);
 
   // actions
+  auto export_action = new QAction {tr ("&Export ADIF ..."), m_->ui_.log_table_view};
+  m_->ui_.log_table_view->insertAction (nullptr, export_action);
+  connect (export_action, &QAction::triggered, [this, configuration] (bool /*checked*/) {
+      auto file_name = QFileDialog::getSaveFileName (this
+                                                     , tr ("Export ADIF Log File")
+                                                     , configuration->writeable_data_dir ().absolutePath ()
+                                                     , tr ("ADIF Log (*.adi)"));
+      if (file_name.size () && m_->log_)
+        {
+          QFile ADIF_file {file_name};
+          if (ADIF_file.open (QIODevice::WriteOnly | QIODevice::Text))
+            {
+              QTextStream output_stream {&ADIF_file};
+              m_->log_->export_qsos (output_stream);
+            }
+          else
+            {
+              MessageBox::warning_message (this
+                                           , tr ("Export ADIF File Error")
+                                           , tr ("Cannot open \"%1\" for writing: %2")
+                                           .arg (ADIF_file.fileName ()).arg (ADIF_file.errorString ()));
+            }
+        }
+    });
+
   auto reset_action = new QAction {tr ("&Reset ..."), m_->ui_.log_table_view};
   m_->ui_.log_table_view->insertAction (nullptr, reset_action);
   connect (reset_action, &QAction::triggered, [this, configuration] (bool /*checked*/) {
@@ -88,10 +115,10 @@ void FoxLogWindow::log_model_changed (int row)
 {
   if (row >= 0)
     {
-      m_->log_model_->selectRow (row);
+      m_->log_->model ()->selectRow (row);
     }
   else
     {
-      m_->log_model_->select ();
+      m_->log_->model ()->select ();
     }
 }

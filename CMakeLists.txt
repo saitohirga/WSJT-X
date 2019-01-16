@@ -162,6 +162,7 @@ option (WSJT_SOFT_KEYING "Apply a ramp to CW keying envelope to reduce transient
 option (WSJT_SKIP_MANPAGES "Skip *nix manpage generation.")
 option (WSJT_GENERATE_DOCS "Generate documentation files." ON)
 option (WSJT_RIG_NONE_CAN_SPLIT "Allow split operation with \"None\" as rig.")
+option (WSJT_TRACE_UDP "Debugging option that turns on UDP message protocol diagnostics.")
 option (WSJT_BUILD_UTILS "Build simulators and code demonstrators." ON)
 
 CMAKE_DEPENDENT_OPTION (WSJT_HAMLIB_VERBOSE_TRACE "Debugging option that turns on full Hamlib internal diagnostics." OFF WSJT_HAMLIB_TRACE OFF)
@@ -451,6 +452,8 @@ set (wsjt_FSRCS
   lib/ft8/ft8b.f90
   lib/ft8/ft8code.f90
   lib/ft8/ft8_downsample.f90
+  lib/ft8.f90
+  lib/ft8dec.f90
   lib/ft8/ft8sim.f90
   lib/gen4.f90
   lib/gen65.f90
@@ -555,7 +558,7 @@ set (wsjt_FSRCS
   lib/ft8/twkfreq1.f90
   lib/twkfreq65.f90
   lib/update_recent_calls.f90
-  lib/update_hasharray.f90
+  lib/update_msk40_hasharray.f90
   lib/ft8/watterson.f90
   lib/wav11.f90
   lib/wav12.f90
@@ -1087,7 +1090,10 @@ qt5_wrap_ui (wsjt_qt_GENUISRCS ${wsjt_qt_UISRCS})
 qt5_wrap_ui (wsjtx_GENUISRCS ${wsjtx_UISRCS})
 
 # Resource generation
-qt5_add_resources (wsjtx_RESOURCES_RCC ${CMAKE_BINARY_DIR}/wsjtx.qrc)
+qt5_add_resources (wsjtx_RESOURCES_RCC
+  ${CMAKE_BINARY_DIR}/wsjtx.qrc
+  contrib/QDarkStyleSheet/qdarkstyle/style.qrc
+  )
 
 # AX COM servers
 if (WIN32)
@@ -1241,6 +1247,9 @@ target_link_libraries (jt65 wsjt_fort wsjt_cxx)
 add_executable (ft8code lib/ft8/ft8code.f90 wsjtx.rc)
 target_link_libraries (ft8code wsjt_fort wsjt_cxx)
 
+add_executable (ft8 lib/ft8.f90 wsjtx.rc)
+target_link_libraries (ft8 wsjt_fort wsjt_cxx)
+
 add_executable (ft8sim lib/ft8/ft8sim.f90 wsjtx.rc)
 target_link_libraries (ft8sim wsjt_fort wsjt_cxx)
 
@@ -1324,7 +1333,10 @@ target_link_libraries (udp_daemon wsjtx_udp-static)
 
 add_resources (message_aggregator_RESOURCES /qss ${message_aggregator_STYLESHEETS})
 configure_file (UDPExamples/message_aggregator.qrc.in message_aggregator.qrc @ONLY)
-qt5_add_resources (message_aggregator_RESOURCES_RCC ${CMAKE_CURRENT_BINARY_DIR}/message_aggregator.qrc)
+qt5_add_resources (message_aggregator_RESOURCES_RCC
+  ${CMAKE_CURRENT_BINARY_DIR}/message_aggregator.qrc
+  contrib/QDarkStyleSheet/qdarkstyle/style.qrc
+  )
 add_executable (message_aggregator
   ${message_aggregator_CXXSRCS}
   ${WSJTX_ICON_FILE}

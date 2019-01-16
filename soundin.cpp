@@ -133,6 +133,12 @@ void SoundInput::handleStateChanged (QAudio::State newState) const
       Q_EMIT status (tr ("Suspended"));
       break;
 
+#if QT_VERSION >= QT_VERSION_CHECK (5, 10, 0)
+    case QAudio::InterruptedState:
+      Q_EMIT status (tr ("Interrupted"));
+      break;
+#endif
+
     case QAudio::StoppedState:
       if (audioError ())
         {

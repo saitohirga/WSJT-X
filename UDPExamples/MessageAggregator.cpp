@@ -63,14 +63,29 @@ int main (int argc, char * argv[])
       QObject::connect (&app, SIGNAL (lastWindowClosed ()), &app, SLOT (quit ()));
 
       {
-        QFile file {":/qss/default.qss"};
-        if (!file.open (QFile::ReadOnly))
+        QString ss;
+        auto sf = qApp->styleSheet ();
+        if (sf.size ())
           {
-            throw std::runtime_error {
-              QString {"failed to open \"" + file.fileName () + "\": " + file.errorString ()}
-              .toLocal8Bit ().constData ()};
+            sf.remove ("file:///");
+            QFile file {sf};
+            if (!file.open (QFile::ReadOnly))
+              {
+                throw std::runtime_error {
+                  QString {"failed to open \"" + file.fileName () + "\": " + file.errorString ()}.toStdString ()};
+              }
+            ss += file.readAll ();
           }
-        app.setStyleSheet (file.readAll());
+        {
+          QFile file {":/qss/default.qss"};
+          if (!file.open (QFile::ReadOnly))
+            {
+              throw std::runtime_error {
+                QString {"failed to open \"" + file.fileName () + "\": " + file.errorString ()}.toStdString ()};
+            }
+          ss += file.readAll ();
+        }
+        app.setStyleSheet (ss);
       }
 
       MessageAggregatorMainWindow window;

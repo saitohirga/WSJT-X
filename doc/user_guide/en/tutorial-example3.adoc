@@ -1,7 +1,7 @@
 // Status=review
 .Main Window:
 - Select *FT8* on the *Mode* menu.
-- Set Tx and Rx frequencies to 1200 Hz.
+- Set Tx frequency to 1600 Hz, Rx to 1442 Hz.
 - Double-click on *Erase* to clear both text windows.
 
 .Wide Graph Settings:
@@ -13,11 +13,13 @@ frequency limit is approximately 2600 Hz.
 .Open a Wave File:
 
 - Select *File | Open* and navigate to
-+...\save\samples\FT8\170709_135615.wav+.  The waterfall and decoded
-text window should look something like the following screen shots:
++...\save\samples\FT8\181201_180245.wav+.  The waterfall and Band
+Activity window should look something like the following screen shots.
+(This recording was made during the "FT8 Roundup" contest, so most
+transmissions happen to be using *RTTY Roundup* message formats.)
 
 [[X15]]
-image::170709_135615.wav.png[align="left",alt="Wide Graph Decode 170709_135615"]
+image::FT8_waterfall.png[align="left",alt="Wide Graph Decode 170709_135615"]
 
 image::ft8_decodes.png[align="left"]
 
@@ -37,9 +39,9 @@ things just described and also invokes the decoder in a small range
 around the Rx frequency.  To decode a particular signal, double-click
 near the left edge of its waterfall trace.
 
-- Now double-click on any of the the lines of decoded text in the main
-window.  All three lines will show the same behavior, setting Rx
-frequency to that of the selected message and leaving Tx frequency
+- Now double-click on any of the the lines of decoded text in the Band
+Activity window.  Any line will show the same behavior, setting
+Rx frequency to that of the selected message and leaving Tx frequency
 unchanged.  To change both Rx and Tx frequencies, hold *Ctrl* down
 when double-clicking.
 

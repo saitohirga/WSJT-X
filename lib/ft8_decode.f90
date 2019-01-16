@@ -61,7 +61,6 @@ contains
     save s,dd,mycall12_0
 
     if(mycall12.ne.mycall12_0) then
-       call my_hash(mycall12)
        mycall12_0=mycall12
     endif
 

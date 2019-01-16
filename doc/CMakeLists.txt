@@ -62,7 +62,6 @@ set (UG_SRCS
 
 set (UG_IMGS
   images/130610_2343-wav-80.png
-  images/170709_135615.wav.png
   images/AstroData_2.png
   images/Astronomical_data.png
   images/auto-seq.png
@@ -79,6 +78,7 @@ set (UG_IMGS
   images/FreqCal_Results.png
   images/freemsg.png
   images/ft8_decodes.png
+  images/FT8_waterfall.png
   images/help-menu.png
   images/JT4F.png
   images/JT65B.png

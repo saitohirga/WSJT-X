@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 
+#include <QNetworkInterface>
 #include <QUdpSocket>
 #include <QString>
 #include <QTimer>
@@ -95,27 +96,56 @@ MessageServer::impl::BindMode constexpr MessageServer::impl::bind_mode_;
 
 void MessageServer::impl::leave_multicast_group ()
 {
-  if (!multicast_group_address_.isNull () && BoundState == state ())
+  if (!multicast_group_address_.isNull () && BoundState == state ()
+#if QT_VERSION >= 0x050600
+      && multicast_group_address_.isMulticast ()
+#endif
+      )
     {
-      leaveMulticastGroup (multicast_group_address_);
+      for (auto const& interface : QNetworkInterface::allInterfaces ())
+        {
+          if (QNetworkInterface::CanMulticast & interface.flags ())
+            {
+              leaveMulticastGroup (multicast_group_address_, interface);
+            }
+        }
     }
 }
 
 void MessageServer::impl::join_multicast_group ()
 {
   if (BoundState == state ()
-      && !multicast_group_address_.isNull ())
+      && !multicast_group_address_.isNull ()
+#if QT_VERSION >= 0x050600
+      && multicast_group_address_.isMulticast ()
+#endif
+      )
     {
+      auto mcast_iface = multicastInterface ();
       if (IPv4Protocol == multicast_group_address_.protocol ()
           && IPv4Protocol != localAddress ().protocol ())
         {
           close ();
           bind (QHostAddress::AnyIPv4, port_, bind_mode_);
         }
-      if (!joinMulticastGroup (multicast_group_address_))
+      bool joined {false};
+      for (auto const& interface : QNetworkInterface::allInterfaces ())
+        {
+          if (QNetworkInterface::CanMulticast & interface.flags ())
+            {
+              // Windows requires outgoing interface to match
+              // interface to be joined while joining, at least for
+              // IPv4 it seems to
+              setMulticastInterface (interface);
+
+              joined |= joinMulticastGroup (multicast_group_address_, interface);
+            }
+        }
+      if (!joined)
         {
           multicast_group_address_.clear ();
         }
+      setMulticastInterface (mcast_iface);
     }
 }
 
