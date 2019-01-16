@@ -600,6 +600,7 @@ private:
   bool report_in_comments_;
   bool prompt_to_log_;
   bool autoLog_;
+  bool decodes_from_top_;
   bool insert_blank_;
   bool DXCC_;
   bool ppfx_;
@@ -607,6 +608,7 @@ private:
   bool miles_;
   bool quick_call_;
   bool disable_TX_on_73_;
+  bool alternate_bindings_;
   int watchdog_;
   bool TX_messages_;
   bool enable_VHF_features_;
@@ -693,6 +695,7 @@ bool Configuration::log_as_RTTY () const {return m_->log_as_RTTY_;}
 bool Configuration::report_in_comments () const {return m_->report_in_comments_;}
 bool Configuration::prompt_to_log () const {return m_->prompt_to_log_;}
 bool Configuration::autoLog() const {return m_->autoLog_;}
+bool Configuration::decodes_from_top () const {return m_->decodes_from_top_;}
 bool Configuration::insert_blank () const {return m_->insert_blank_;}
 bool Configuration::DXCC () const {return m_->DXCC_;}
 bool Configuration::ppfx() const {return m_->ppfx_;}
@@ -700,6 +703,7 @@ bool Configuration::clear_DX () const {return m_->clear_DX_;}
 bool Configuration::miles () const {return m_->miles_;}
 bool Configuration::quick_call () const {return m_->quick_call_;}
 bool Configuration::disable_TX_on_73 () const {return m_->disable_TX_on_73_;}
+bool Configuration::alternate_bindings() const {return m_->alternate_bindings_;}
 int Configuration::watchdog () const {return m_->watchdog_;}
 bool Configuration::TX_messages () const {return m_->TX_messages_;}
 bool Configuration::enable_VHF_features () const {return m_->enable_VHF_features_;}
@@ -1002,13 +1006,11 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   // this must be done after the default paths above are set
   read_settings ();
 
-  // conditionally load LotW users data
-  ui_->LotW_CSV_fetch_push_button->setEnabled (false);
+  // set up LoTW users CSV file fetching
   connect (&lotw_users_, &LotWUsers::load_finished, [this] () {
       ui_->LotW_CSV_fetch_push_button->setEnabled (true);
     });
   lotw_users_.set_local_file_path (writeable_data_dir_.absoluteFilePath ("lotw-user-activity.csv"));
-  lotw_users_.load (ui_->LotW_CSV_URL_line_edit->text ());
 
   //
   // validation
@@ -1225,6 +1227,7 @@ void Configuration::impl::initialize_models ()
   ui_->report_in_comments_check_box->setChecked (report_in_comments_);
   ui_->prompt_to_log_check_box->setChecked (prompt_to_log_);
   ui_->cbAutoLog->setChecked(autoLog_);
+  ui_->decodes_from_top_check_box->setChecked (decodes_from_top_);
   ui_->insert_blank_check_box->setChecked (insert_blank_);
   ui_->DXCC_check_box->setChecked (DXCC_);
   ui_->ppfx_check_box->setChecked (ppfx_);
@@ -1232,6 +1235,7 @@ void Configuration::impl::initialize_models ()
   ui_->miles_check_box->setChecked (miles_);
   ui_->quick_call_check_box->setChecked (quick_call_);
   ui_->disable_TX_on_73_check_box->setChecked (disable_TX_on_73_);
+  ui_->alternate_bindings_check_box->setChecked (alternate_bindings_);
   ui_->tx_watchdog_spin_box->setValue (watchdog_);
   ui_->TX_messages_check_box->setChecked (TX_messages_);
   ui_->enable_VHF_features_check_box->setChecked(enable_VHF_features_);
@@ -1474,6 +1478,7 @@ void Configuration::impl::read_settings ()
   data_mode_ = settings_->value ("DataMode", QVariant::fromValue (data_mode_none)).value<Configuration::DataMode> ();
   prompt_to_log_ = settings_->value ("PromptToLog", false).toBool ();
   autoLog_ = settings_->value ("AutoLog", false).toBool ();
+  decodes_from_top_ = settings_->value ("DecodesFromTop", false).toBool ();
   insert_blank_ = settings_->value ("InsertBlank", false).toBool ();
   DXCC_ = settings_->value ("DXCCEntity", false).toBool ();
   ppfx_ = settings_->value ("PrincipalPrefix", false).toBool ();
@@ -1481,6 +1486,7 @@ void Configuration::impl::read_settings ()
   miles_ = settings_->value ("Miles", false).toBool ();
   quick_call_ = settings_->value ("QuickCall", false).toBool ();
   disable_TX_on_73_ = settings_->value ("73TxDisable", false).toBool ();
+  alternate_bindings_ = settings_->value ("AlternateBindings", false).toBool ();
   watchdog_ = settings_->value ("TxWatchdog", 6).toInt ();
   TX_messages_ = settings_->value ("Tx2QSO", true).toBool ();
   enable_VHF_features_ = settings_->value("VHFUHF",false).toBool ();
@@ -1573,6 +1579,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("DataMode", QVariant::fromValue (data_mode_));
   settings_->setValue ("PromptToLog", prompt_to_log_);
   settings_->setValue ("AutoLog", autoLog_);
+  settings_->setValue ("DecodesFromTop", decodes_from_top_);
   settings_->setValue ("InsertBlank", insert_blank_);
   settings_->setValue ("DXCCEntity", DXCC_);
   settings_->setValue ("PrincipalPrefix", ppfx_);
@@ -1580,6 +1587,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("Miles", miles_);
   settings_->setValue ("QuickCall", quick_call_);
   settings_->setValue ("73TxDisable", disable_TX_on_73_);
+  settings_->setValue ("AlternateBindings", alternate_bindings_);
   settings_->setValue ("TxWatchdog", watchdog_);
   settings_->setValue ("Tx2QSO", TX_messages_);
   settings_->setValue ("CATForceDTR", rig_params_.force_dtr);
@@ -1773,7 +1781,7 @@ bool Configuration::impl::validate ()
       return false;
     }
 
-  if (ui_->rbField_Day-> isChecked () &&
+  if (ui_->rbField_Day->isEnabled () && ui_->rbField_Day->isChecked () &&
       !ui_->Field_Day_Exchange->hasAcceptableInput ())
     {
       for (auto * parent = ui_->Field_Day_Exchange->parentWidget (); parent; parent = parent->parentWidget ())
@@ -1791,7 +1799,7 @@ bool Configuration::impl::validate ()
       return false;
     }
 
-  if (ui_->rbRTTY_Roundup-> isChecked () &&
+  if (ui_->rbRTTY_Roundup->isEnabled () && ui_->rbRTTY_Roundup->isChecked () &&
       !ui_->RTTY_Exchange->hasAcceptableInput ())
     {
       for (auto * parent = ui_->RTTY_Exchange->parentWidget (); parent; parent = parent->parentWidget ())
@@ -2015,6 +2023,7 @@ void Configuration::impl::accept ()
   report_in_comments_ = ui_->report_in_comments_check_box->isChecked ();
   prompt_to_log_ = ui_->prompt_to_log_check_box->isChecked ();
   autoLog_ = ui_->cbAutoLog->isChecked();
+  decodes_from_top_ = ui_->decodes_from_top_check_box->isChecked ();
   insert_blank_ = ui_->insert_blank_check_box->isChecked ();
   DXCC_ = ui_->DXCC_check_box->isChecked ();
   ppfx_ = ui_->ppfx_check_box->isChecked ();
@@ -2022,6 +2031,7 @@ void Configuration::impl::accept ()
   miles_ = ui_->miles_check_box->isChecked ();
   quick_call_ = ui_->quick_call_check_box->isChecked ();
   disable_TX_on_73_ = ui_->disable_TX_on_73_check_box->isChecked ();
+  alternate_bindings_ = ui_->alternate_bindings_check_box->isChecked ();
   watchdog_ = ui_->tx_watchdog_spin_box->value ();
   TX_messages_ = ui_->TX_messages_check_box->isChecked ();
   data_mode_ = static_cast<DataMode> (ui_->TX_mode_button_group->checkedId ());

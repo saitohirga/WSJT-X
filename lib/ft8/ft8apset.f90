@@ -1,22 +1,21 @@
 subroutine ft8apset(mycall12,hiscall12,apsym)
   use packjt77
   character*77 c77
-  character*37 msg
+  character*37 msg,msgchk
   character*12 mycall12,hiscall12,hiscall
   integer apsym(58)
-  logical nohiscall
+  logical nohiscall,unpk77_success
 
-  if(len(trim(mycall12)).eq.0) then
-     apsym=0
-     apsym(1)=99
-     apsym(30)=99
-     return
-  endif
+  apsym=0
+  apsym(1)=99
+  apsym(30)=99
+
+  if(len(trim(mycall12)).lt.3) return 
 
   nohiscall=.false. 
   hiscall=hiscall12 
-  if(len(trim(hiscall)).eq.0) then
-     hiscall="K9ABC"
+  if(len(trim(hiscall)).lt.3) then
+     hiscall=mycall12  ! use mycall for dummy hiscall - mycall won't be hashed.
      nohiscall=.true.
   endif
 
@@ -24,12 +23,9 @@ subroutine ft8apset(mycall12,hiscall12,apsym)
 !
   msg=trim(mycall12)//' '//trim(hiscall)//' RRR' 
   call pack77(msg,i3,n3,c77)
-  if(i3.ne.1) then
-    apsym=0
-    apsym(1)=99
-    apsym(30)=99
-    return
- endif
+  call unpack77(c77,1,msgchk,unpk77_success)
+
+  if(i3.ne.1 .or. (msg.ne.msgchk) .or. .not.unpk77_success) return 
 
   read(c77,'(58i1)',err=1) apsym(1:58)
   apsym=2*apsym-1

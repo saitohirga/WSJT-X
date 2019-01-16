@@ -104,7 +104,7 @@ subroutine msk144decodeframe(c,softbits,msgreceived,nsuccess)
     if( (i3.eq.0.and.(n3.eq.1 .or. n3.eq.3 .or. n3.eq.4 .or. n3.gt.5)) .or. i3.eq.3 .or. i3.gt.4 ) then
         nsuccess=0 
     else 
-        call unpack77(c77,msgreceived,unpk77_success)
+        call unpack77(c77,1,msgreceived,unpk77_success)
         if(.not.unpk77_success) nsuccess=0
     endif
   endif

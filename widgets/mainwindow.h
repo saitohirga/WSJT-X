@@ -210,6 +210,7 @@ private slots:
   void on_actionErase_ALL_TXT_triggered();
   void on_reset_cabrillo_log_action_triggered ();
   void on_actionErase_wsjtx_log_adi_triggered();
+  void on_actionErase_WSPR_hashtable_triggered();
   void on_actionExport_Cabrillo_log_triggered();
   void startTx2();
   void startP1();
@@ -607,6 +608,7 @@ private:
   QString m_currentBand;
   QString m_nextCall;
   QString m_nextGrid;
+  QString m_fileDateTime;
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;
@@ -702,6 +704,7 @@ private:
   void CQTxFreq();
   void useNextCall();
   void abortQSO();
+  void write_all(QString txRx, QString message);
   bool isWorked(int itype, QString key, float fMHz=0, QString="");
 
   QString save_wave_file (QString const& name

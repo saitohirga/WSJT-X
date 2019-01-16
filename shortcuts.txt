@@ -1,13 +1,13 @@
 <table cellspacing=1>
   <tr><td><b>Esc      </b></td><td>Stop Tx, abort QSO, clear next-call queue</td></tr>
-  <tr><td><b>F1       </b></td><td>Online User's Guide</td></tr>
+  <tr><td><b>F1       </b></td><td>Online User's Guide (Alt: transmit Tx6)</td></tr>
   <tr><td><b>Shift+F1  </b></td><td>Copyright Notice</td></tr>
   <tr><td><b>Ctrl+F1  </b></td><td>About WSJT-X</td></tr>
-  <tr><td><b>F2       </b></td><td>Open settings window</td></tr>
-  <tr><td><b>F3       </b></td><td>Display keyboard shortcuts</td></tr>
-  <tr><td><b>F4       </b></td><td>Clear DX Call, DX Grid, Tx messages 1-4</td></tr>
+  <tr><td><b>F2       </b></td><td>Open settings window (Alt: transmit Tx2)</td></tr>
+  <tr><td><b>F3       </b></td><td>Display keyboard shortcuts (Alt: transmit Tx3)</td></tr>
+  <tr><td><b>F4       </b></td><td>Clear DX Call, DX Grid, Tx messages 1-4 (Alt: transmit Tx4)</td></tr>
   <tr><td><b>Alt+F4   </b></td><td>Exit program</td></tr>
-  <tr><td><b>F5       </b></td><td>Display special mouse commands</td></tr>
+  <tr><td><b>F5       </b></td><td>Display special mouse commands (Alt: transmit Tx5)</td></tr>
   <tr><td><b>F6       </b></td><td>Open next file in directory</td></tr>
   <tr><td><b>Shift+F6 </b></td><td>Decode all remaining files in directrory</td></tr>
   <tr><td><b>F7       </b></td><td>Display Message Averaging window</td></tr>

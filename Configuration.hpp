@@ -119,6 +119,7 @@ public:
   bool report_in_comments () const;
   bool prompt_to_log () const;
   bool autoLog() const;
+  bool decodes_from_top () const;
   bool insert_blank () const;
   bool DXCC () const;
   bool ppfx() const;
@@ -126,6 +127,7 @@ public:
   bool miles () const;
   bool quick_call () const;
   bool disable_TX_on_73 () const;
+  bool alternate_bindings() const;
   int watchdog () const;
   bool TX_messages () const;
   bool split_mode () const;
