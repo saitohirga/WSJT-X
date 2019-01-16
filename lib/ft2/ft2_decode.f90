@@ -79,7 +79,7 @@ subroutine ft2_decode(cdatetime,nfqso,iwave,ndecodes,mycall,hiscall,nrx)
         a=0.
         a(1)=-df
         call twkfreq1(c2,NMAX/16,fs,a,cb)
-        do is=0,374
+        do is=0,374                           !DT search range is 0 - 0.5 s
            csync1=0.
            cterm=1
            do ib=1,16
