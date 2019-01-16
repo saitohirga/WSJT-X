@@ -180,7 +180,7 @@ subroutine ft2_decode(cdatetime,nfqso,iwave,ndecodes,mycall,hiscall,nrx)
         if(sum(message77).eq.0) cycle
         if( nharderror.ge.0 ) then
            write(c77,'(77i1)') message77(1:77)
-           call unpack77(c77,message,unpk77_success)
+           call unpack77(c77,nrx,message,unpk77_success)
            idupe=0
            do i=1,ndecodes
               if(decodes(i).eq.message) idupe=1 
