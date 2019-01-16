@@ -62,6 +62,7 @@ program ft2
      tx_once=.true.
      ftx=1500.0
      call transmit(-1,ftx,iptt)
+     snrdb=99.0
   endif
   
 ! Start the audio streams  
@@ -218,7 +219,7 @@ subroutine transmit(nfunc,ftx,iptt)
        ' R 559 '//trim(exch)
   if(nfunc.eq.4) txmsg=trim(hiscall)//' '//trim(mycall)//' RR73'
   if(nfunc.eq.5) txmsg='TNX 73 GL'
-  call ft2_iwave(txmsg,ftx,99.0,iwave)
+  call ft2_iwave(txmsg,ftx,snrdb,iwave)
   i1=ptt(nport,1,1,iptt)
   ntxok=1
   n=len(trim(txmsg))
