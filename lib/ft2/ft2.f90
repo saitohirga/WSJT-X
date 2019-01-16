@@ -94,7 +94,11 @@ subroutine update(total_time,ic1,ic2)
            ntxok=1
            if(nd.eq.1) txmsg='CQ K1JT FN20'
            if(nd.eq.2) txmsg='K9AN K1JT 559 NJ'
+           if(nd.eq.3) txmsg='K9AN K1JT R 559 NJ'
+           if(nd.eq.4) txmsg='K9AN K1JT RR73'
+           if(nd.eq.5) txmsg='TNX STEVE 73'
            call ft2_iwave(txmsg,1500.0,99.0,iwave)
+           print*,'Tx: ',txmsg
         endif
      endif
      if(ic1.eq.13 .and. ic2.eq.0) hiscall=hiscall_next
