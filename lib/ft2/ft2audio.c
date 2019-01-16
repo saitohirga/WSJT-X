@@ -59,7 +59,7 @@ SoundIn( void *inputBuffer, void *outputBuffer,
   }
 
   if(ia >= data->nring) ia=0;          //Wrap buffer pointer if necessary
-  *data->iwrite = ia;                    //Save buffer pointer
+  *data->iwrite = ia;                  //Save buffer pointer
   iaa=ia;
   total_time += (double)framesPerBuffer/12000.0;
   //  printf("iwrite:  %d\n",*data->iwrite);
@@ -165,7 +165,8 @@ int ft2audio_(int *ndevin, int *ndevout, int *npabuf, int *nright,
     return(-1);
   }
 
-  //  printf("Opening device %d for input, %d for output...\n",ndevice_in,ndevice_out);
+  //  printf("Opening device %d for input, %d for output...\n",
+  //         ndevice_in,ndevice_out);
 
   inputParameters.device = ndevice_in;
   inputParameters.channelCount = 2;
@@ -173,7 +174,8 @@ int ft2audio_(int *ndevin, int *ndevout, int *npabuf, int *nright,
   inputParameters.suggestedLatency = 0.2;
   inputParameters.hostApiSpecificStreamInfo = NULL;
 
-// Test if this configuration actually works, so we do not run into an ugly assertion
+// Test if this configuration actually works, so we do not run into an
+// ugly assertion
   err_open_in = Pa_IsFormatSupported(&inputParameters, NULL, dSampleRate);
 
   if (err_open_in == 0) {
@@ -189,16 +191,16 @@ int ft2audio_(int *ndevin, int *ndevout, int *npabuf, int *nright,
 
     if(err_open_in) {   // We should have no error here usually
       printf("Error opening input audio stream:\n");
-      printf("\tErrortext: %s\n\tNumber: %d\n",Pa_GetErrorText(err_open_in), err_open_in);
-
+      printf("\tErrortext: %s\n\tNumber: %d\n",Pa_GetErrorText(err_open_in),
+	     err_open_in);
       err = 1;
     } else {
       //      printf("Successfully opened audio input.\n");
     }
   } else {
     printf("Error opening input audio stream.\n");
-    printf("\tErrortext: %s\n\tNumber: %d\n",Pa_GetErrorText(err_open_in), err_open_in);
-
+    printf("\tErrortext: %s\n\tNumber: %d\n",Pa_GetErrorText(err_open_in),
+	   err_open_in);
     err = 1;
   }
 
@@ -208,7 +210,8 @@ int ft2audio_(int *ndevin, int *ndevout, int *npabuf, int *nright,
   outputParameters.suggestedLatency = 0.2;
   outputParameters.hostApiSpecificStreamInfo = NULL;
 
-// Test if this configuration actually works, so we do not run into an ugly assertion
+// Test if this configuration actually works, so we do not run into an
+// ugly assertion.
   err_open_out = Pa_IsFormatSupported(NULL, &outputParameters, dSampleRate);
 
   if (err_open_out == 0) {
@@ -224,36 +227,34 @@ int ft2audio_(int *ndevin, int *ndevout, int *npabuf, int *nright,
 
     if(err_open_out) {     // We should have no error here usually
       printf("Error opening output audio stream!\n");
-      printf("\tErrortext: %s\n\tNumber: %d\n",Pa_GetErrorText(err_open_out), err_open_out);
-
+      printf("\tErrortext: %s\n\tNumber: %d\n",Pa_GetErrorText(err_open_out),
+	     err_open_out);
       err += 2;
     } else {
       //      printf("Successfully opened audio output.\n");
     }
   } else {
     printf("Error opening output audio stream.\n");
-    printf("\tErrortext: %s\n\tNumber: %d\n",Pa_GetErrorText(err_open_out), err_open_out);
-
+    printf("\tErrortext: %s\n\tNumber: %d\n",Pa_GetErrorText(err_open_out),
+	   err_open_out);
     err += 2;
   }
 
   // if there was no error in opening both streams start them
   if (err == 0) {
     err_start_in = Pa_StartStream(instream);             //Start input stream
-
     if(err_start_in) {
       printf("Error starting input audio stream!\n");
-      printf("\tErrortext: %s\n\tNumber: %d\n",Pa_GetErrorText(err_start_in), err_start_in);
-
+      printf("\tErrortext: %s\n\tNumber: %d\n",Pa_GetErrorText(err_start_in),
+	     err_start_in);
       err += 4;
     }
 
-    err_start_out = Pa_StartStream(outstream);             //Start output stream
-
+    err_start_out = Pa_StartStream(outstream);          //Start output stream
     if(err_start_out) {
       printf("Error starting output audio stream!\n");
-      printf("\tErrortext: %s\n\tNumber: %d\n",Pa_GetErrorText(err_start_out), err_start_out);
-
+      printf("\tErrortext: %s\n\tNumber: %d\n",Pa_GetErrorText(err_start_out),
+	     err_start_out);
       err += 8;
     } 
   }
@@ -322,7 +323,8 @@ int padevsub_(int *idevin, int *idevout)
 //    if(i == Pa_GetDefaultOutputDevice()) ndefout = i;
     nchin[i]=pdi->maxInputChannels;
     nchout[i]=pdi->maxOutputChannels;
-    printf("  %2d       %2d        %2d       %s\n",i,nchin[i],nchout[i],pdi->name);
+    printf("  %2d       %2d        %2d       %s\n",i,nchin[i],nchout[i],
+	   pdi->name);
   }
 
   printf("\nUser requested devices:   Input = %2d   Output = %2d\n",

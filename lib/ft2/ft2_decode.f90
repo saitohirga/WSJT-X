@@ -1,4 +1,4 @@
-subroutine ft2_decode(cdatetime,nfqso,iwave,ndecodes)
+subroutine ft2_decode(cdatetime,nfqso,iwave,ndecodes,mycall,hiscall,nrx)
 
   use crc
   use packjt77
@@ -7,6 +7,7 @@ subroutine ft2_decode(cdatetime,nfqso,iwave,ndecodes)
   character*37 decodes(100)
   character*120 data_dir
   character*17 cdatetime
+  character*6 mycall,hiscall
   complex c2(0:NMAX/16-1)                  !Complex waveform
   complex cb(0:NMAX/16-1)
   complex cd(0:144*10-1)                  !Complex waveform
@@ -66,7 +67,6 @@ subroutine ft2_decode(cdatetime,nfqso,iwave,ndecodes)
   ndecodes=0
   do icand=1,ncand
      f0=candidate(1,icand)
-     xsnr=1.0
      if( f0.le.375.0 .or. f0.ge.(5000.0-375.0) ) cycle 
      call ft2_downsample(iwave,f0,c2) ! downsample from 160s/Symbol to 10s/Symbol
 ! 750 samples/second here
@@ -93,8 +93,6 @@ subroutine ft2_decode(cdatetime,nfqso,iwave,ndecodes)
                  cterm=cterm*cc0
               endif
            enddo
-!           write(60,3001) if,is,abs(csync1)
-!3001       format(2i6,f10.3)
            if(abs(csync1).gt.sybest) then
               ibest=is
               sybest=abs(csync1)
@@ -103,8 +101,6 @@ subroutine ft2_decode(cdatetime,nfqso,iwave,ndecodes)
         enddo
      enddo
 
-!dfbest=0.0
-!ibest=187
      a=0.
      a(1)=-dfbest
      call twkfreq1(c2,NMAX/16,fs,a,cb)
@@ -189,18 +185,37 @@ subroutine ft2_decode(cdatetime,nfqso,iwave,ndecodes)
            do i=1,ndecodes
               if(decodes(i).eq.message) idupe=1 
            enddo
-           if(idupe.eq.1) goto 888
+           if(idupe.eq.1) exit
            ndecodes=ndecodes+1 
            decodes(ndecodes)=message
+           xsnr=db(sybest*sybest) - 115.0   !### Rough estimate of S/N ###
            nsnr=nint(xsnr)
            freq=f0+dfbest
-           write(*,1212) cdatetime,nsnr,ibest/750.0,nint(freq),message,     &
+           write(*,1000) cdatetime,nsnr,ibest/750.0,nint(freq),message,     &
                 nseq,nharderror,nhardmin
-1212       format(a17,i4,f6.2,i6,2x,a37,3i5)
-           goto 888
+           write(12,1000) cdatetime,nsnr,ibest/750.0,nint(freq),message,    &
+                nseq,nharderror,nhardmin
+1000       format(a17,' Rx',i4,f6.2,i6,3x,a37,3i5)
+
+!### Temporary: assume most recent decoded message conveys "hiscall".
+           i0=index(message,' ')
+           if(i0.ge.3 .and. i0.le.7) then
+              hiscall=message(i0+1:i0+6)
+              i1=index(hiscall,' ')
+              if(i1.gt.0) hiscall=hiscall(1:i1)
+           endif
+           nrx=-1
+           if(index(message,'CQ ').eq.1) nrx=1
+           if((index(message,trim(mycall)//' ').eq.1) .and.                 &
+                (index(message,' '//trim(hiscall)//' ').ge.4)) then
+              if(index(message,' 559 ').gt.8) nrx=2
+              if(index(message,' R 559 ').gt.8) nrx=3
+              if(index(message,' RR73 ').gt.8) nrx=4
+           endif
+!###
+           exit
         endif
      enddo ! nseq
-888  continue
   enddo !candidate list
 
   return
