@@ -102,8 +102,8 @@ subroutine update(total_time,ic1,ic2)
         endif
      endif
      if(ic1.eq.13 .and. ic2.eq.0) hiscall=hiscall_next
-     if(ic1.eq.97 .and. ic2.eq.0) autoseq=.not.autoseq
-     if(ic1.eq.108 .and. ic2.eq.0) level=.not.level
+     if((ic1.eq.97 .or. ic1.eq.65) .and. ic2.eq.0) autoseq=.not.autoseq
+     if((ic1.eq.108 .or. ic1.eq.76) .and. ic2.eq.0) level=.not.level
   endif
 
   if(ntransmitting.eq.1) transmitted=.true.
