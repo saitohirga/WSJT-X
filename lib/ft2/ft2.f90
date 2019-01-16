@@ -25,7 +25,8 @@ program ft2
   idevout=ndevout
   call padevsub(idevin,idevout)
   if(idevin.ne.ndevin .or. idevout.ne.ndevout) allok=.false.
-  i1=ptt(nport,1,1,iptt)
+  i1=0
+!  i1=ptt(nport,1,1,iptt)
   if(i1.lt.0 .and. nport.ne.0) allok=.false.
   if(.not.allok) then
      write(*,"('Please fix setup error(s) and restart.')")
@@ -77,7 +78,7 @@ subroutine update(total_time,ic1,ic2)
   character cdate*8,ctime*10,cdatetime*17
   include 'gcom1.f90'
   data nt0/-1/,transmitted/.false./,snr/-99.0/,count00/-1/
-  save nt0,transmitted,snr,count00
+  save nt0,transmitted,snr,count00,iptt
 
   if(ic1.ne.0 .or. ic2.ne.0) then
      if(ic1.eq.27 .and. ic2.eq.0) ngo=0  !ESC
@@ -100,9 +101,11 @@ subroutine update(total_time,ic1,ic2)
   endif
 
   if(ntransmitting.eq.1) transmitted=.true.
-  if(ntransmitting.eq.0) then
+  if(transmitted .and. ntransmitting.eq.0) then
+     i1=0
      if(iptt.eq.1 .and. nport.gt.0) i1=ptt(nport,0,1,iptt)
      if(tx_once .and. transmitted) stop
+     transmitted=.false.
   endif
 
   nt=2*total_time
