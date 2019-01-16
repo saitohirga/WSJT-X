@@ -946,14 +946,10 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   splashTimer.setSingleShot (true);
   splashTimer.start (20 * 1000);
 
-<<<<<<< HEAD
   if(QCoreApplication::applicationVersion().contains("-devel") or
      QCoreApplication::applicationVersion().contains("-rc")) {
-    QTimer::singleShot (0, this, SLOT (not_GA_warning_message ()));
+    // QTimer::singleShot (0, this, SLOT (not_GA_warning_message ()));
   }
-=======
-  //QTimer::singleShot (0, this, SLOT (not_GA_warning_message ()));
->>>>>>> hotfix-2.0.1-rc1
 
   if(!ui->cbMenus->isChecked()) {
     ui->cbMenus->setChecked(true);
