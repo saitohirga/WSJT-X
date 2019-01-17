@@ -93,7 +93,7 @@ program ft2d
         ibest=-1
         sybest=-99.
         dfbest=-1.
-        do if=-15,+15
+        do if=-30,+30
            df=if
            a=0.
            a(1)=-df
@@ -120,8 +120,6 @@ program ft2d
            enddo 
         enddo
 
-!dfbest=0.0
-!ibest=187
         a=0.
         a(1)=-dfbest
         call twkfreq1(c2,NMAX/16,fs,a,cb)
@@ -197,7 +195,6 @@ program ft2d
               call bpdecode128_90(llr2,apmask,max_iterations,message77,cw,nharderror,niterations)
               if(nharderror.ge.0) exit 
            enddo
-           nhardmin=-1
            if(sum(message77).eq.0) cycle
            if( nharderror.ge.0 ) then
               write(c77,'(77i1)') message77(1:77)
@@ -212,8 +209,8 @@ program ft2d
               nsnr=nint(xsnr)
               freq=f0+dfbest
 1210          format(a11,2i4,f6.2,f12.7,2x,a22,i3)
-              write(*,1212) datetime(8:11),nsnr,ibest/750.0,freq,message,'*',idf,nseq,ijitter,nharderror,nhardmin
-1212          format(a4,i4,f5.1,f11.1,2x,a22,a1,i5,i5,i5,i5,i5)
+              write(*,1212) datetime(8:11),nsnr,ibest/750.0,freq,message,'*',nseq,nharderror
+1212          format(a4,i4,f5.1,f11.1,2x,a22,a1,i5,i5)
               goto 888
            endif
         enddo ! nseq
