@@ -1,10 +1,3 @@
-real function gfsk_pulse(b,t)
-pi=4.*atan(1.0)
-c=pi*sqrt(2.0/log(2.0))
-gfsk_pulse=0.5*(erf(c*b*(t+0.5))-erf(c*b*(t-0.5)))
-return
-end function gfsk_pulse
-
 program ft2sim
 
 ! Generate simulated signals for experimental "FT2" mode 
@@ -114,8 +107,8 @@ program ft2sim
   enddo 
  
   c0(0:159)=c0(0:159)*(1.0-cos(twopi*(/(i,i=0,159)/)/320.0) )/2.0
-  c0(144*160:144*160+159)=c0(144*160:144*160+159)*(1.0+cos(twopi*(/(i,i=0,159)/)/320.0 ))/2.0
-  c0(145*160:)=0.
+  c0(145*160:145*160+159)=c0(145*160:145*160+159)*(1.0+cos(twopi*(/(i,i=0,159)/)/320.0 ))/2.0
+  c0(146*160:)=0.
 
   k=nint((xdt+0.25)/dt)
   c0=cshift(c0,-k)
