@@ -13,10 +13,12 @@ program ft2sim
   complex c0(0:NMAX-1)
   complex c(0:NMAX-1)
   real wave(NMAX)
+  real dphi(0:NMAX-1)
+  real pulse(480)               
   integer itone(NN)
   integer*1 msgbits(77)
   integer*2 iwave(NMAX)                  !Generated full-length waveform
-
+  
 ! Get command-line argument(s)
   nargs=iargc()
   if(nargs.ne.8) then
@@ -42,12 +44,6 @@ program ft2sim
   call getarg(8,arg)
   read(arg,*) snrdb                      !SNR_2500
 
-  nsig=1
-  if(f0.lt.100.0) then
-     nsig=f0
-     f0=1500
-  endif
-
   nfiles=abs(nfiles)
   twopi=8.0*atan(1.0)
   fs=12000.0                             !Sample rate (Hz)
@@ -55,8 +51,8 @@ program ft2sim
   hmod=0.8                               !Modulation index (0.5 is MSK, 1.0 is FSK)
   tt=NSPS*dt                             !Duration of symbols (s)
   baud=1.0/tt                            !Keying rate (baud)
-  bw=1.5*baud                            !Occupied bandwidth (Hz)
   txt=NZ*dt                              !Transmission length (s)
+
   bandwidth_ratio=2500.0/(fs/2.0)
   sig=sqrt(2*bandwidth_ratio) * 10.0**(0.05*snrdb)
   if(snrdb.gt.90.0) sig=1.0
@@ -70,9 +66,8 @@ program ft2sim
   call genft2(msg37,0,msgsent37,itone,itype)
   write(*,*)  
   write(*,'(a9,a37,3x,a7,i1,a1,i1)') 'Message: ',msgsent37,'i3.n3: ',i3,'.',n3
-  write(*,1000) f0,xdt,txt,snrdb,bw
-1000 format('f0:',f9.3,'   DT:',f6.2,'   TxT:',f6.1,'   SNR:',f6.1,    &
-       '  BW:',f5.1)
+  write(*,1000) f0,xdt,txt,snrdb
+1000 format('f0:',f9.3,'   DT:',f6.2,'   TxT:',f6.1,'   SNR:',f6.1)
   write(*,*)  
   if(i3.eq.1) then
     write(*,*) '         mycall                         hiscall                    hisgrid'
@@ -88,21 +83,41 @@ program ft2sim
 
   call sgran()
 
+! The filtered frequency pulse 
+  do i=1,480
+     tt=(i-240.5)/160.0
+     pulse(i)=gfsk_pulse(1.0,tt)
+  enddo
+
+! Define the instantaneous frequency waveform
+  dphi_peak=twopi*(hmod/2.0)/real(NSPS)
+  dphi=0.0 
+  do j=1,NN         
+     ib=(j-1)*160
+     ie=ib+480-1
+     dphi(ib:ie)=dphi(ib:ie)+dphi_peak*pulse*(2*itone(j)-1)
+  enddo
+
+  phi=0.0
+  c0=0.0
+  dphi=dphi+twopi*f0*dt
+  do j=0,NMAX-1
+     c0(j)=cmplx(cos(phi),sin(phi))
+     phi=mod(phi+dphi(j),twopi)
+  enddo 
+ 
+  c0(0:159)=c0(0:159)*(1.0-cos(twopi*(/(i,i=0,159)/)/320.0) )/2.0
+  c0(145*160:145*160+159)=c0(145*160:145*160+159)*(1.0+cos(twopi*(/(i,i=0,159)/)/320.0 ))/2.0
+  c0(146*160:)=0.
+
+  k=nint((xdt+0.25)/dt)
+  c0=cshift(c0,-k)
+  ia=k
+  
   do ifile=1,nfiles
-     k=nint((xdt+0.25)/dt)
-     ia=k
-     phi=0.0 
-     c0=0.0
-     do j=1,NN                             !Generate complex waveform
-        dphi=twopi*(f0*dt+(hmod/2.0)*(2*itone(j)-1)/real(NSPS))
-        do i=1,NSPS
-           if(k.ge.0 .and. k.lt.NMAX) c0(k)=cmplx(cos(phi),sin(phi))
-           k=k+1
-           phi=mod(phi+dphi,twopi)
-        enddo
-     enddo
-     if(fspread.ne.0.0 .or. delay.ne.0.0) call watterson(c0,NMAX,NWAVE,fs,delay,fspread)
-     c=sig*c0
+     c=c0
+     if(fspread.ne.0.0 .or. delay.ne.0.0) call watterson(c,NMAX,NWAVE,fs,delay,fspread)
+     c=sig*c
   
      ib=k
      wave=real(c)
