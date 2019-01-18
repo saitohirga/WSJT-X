@@ -31,12 +31,7 @@ subroutine ft2_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
   logical unpk77_success
   data s16/0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0/
 
-  hhmmss='      '
-  if(cdatetime0=='                 ') then
-     cdatetime0=cdatetime()
-     hhmmss=cdatetime0(8:13)
-  endif
-  
+  hhmmss=cdatetime0(8:13)
   fs=12000.0/NDOWN                       !Sample rate
   dt=1/fs                                !Sample interval after downsample (s)
   tt=NSPS*dt                             !Duration of "itone" symbols (s)

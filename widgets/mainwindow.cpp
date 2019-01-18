@@ -99,6 +99,9 @@ extern "C" {
   void genft8_(char* msg, int* i3, int* n3, char* msgsent, char ft8msgbits[],
                int itone[], fortran_charlen_t, fortran_charlen_t);
 
+  void genft2_(char* msg, int* ichk, char* msgsent, int itone[], int* itype,
+               fortran_charlen_t, fortran_charlen_t);
+
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, fortran_charlen_t, fortran_charlen_t);
 
@@ -1883,6 +1886,10 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       break;
     case Qt::Key_F1:
       if(bAltF1F5) {
+        if(m_mode=="FT2") {
+          ft2_tx(6);
+          return;
+        }
         auto_tx_mode(true);
         on_txb6_clicked();
         return;
@@ -1892,6 +1899,10 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       }
     case Qt::Key_F2:
       if(bAltF1F5) {
+        if(m_mode=="FT2") {
+          ft2_tx(2);
+          return;
+        }
         auto_tx_mode(true);
         on_txb2_clicked();
         return;
@@ -1901,6 +1912,10 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       }
     case Qt::Key_F3:
       if(bAltF1F5) {
+        if(m_mode=="FT2") {
+          ft2_tx(3);
+          return;
+        }
         auto_tx_mode(true);
         on_txb3_clicked();
         return;
@@ -1910,6 +1925,10 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       }
     case Qt::Key_F4:
       if(bAltF1F5) {
+        if(m_mode=="FT2") {
+          ft2_tx(4);
+          return;
+        }
         auto_tx_mode(true);
         on_txb4_clicked();
         return;
@@ -1920,6 +1939,10 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       }
     case Qt::Key_F5:
       if(bAltF1F5) {
+        if(m_mode=="FT2") {
+          ft2_tx(5);
+          return;
+        }
         auto_tx_mode(true);
         on_txb5_clicked();
         return;
@@ -3372,7 +3395,7 @@ void MainWindow::guiUpdate()
 
   double tx1=0.0;
   double tx2=txDuration;
-  if(m_mode=="FT8") icw[0]=0;                                   //No CW ID in FT8 mode
+  if(m_mode=="FT8" or m_mode=="FT2") icw[0]=0;              //No CW ID in FT2 or FT8 mode
   if((icw[0]>0) and (!m_bFast9)) tx2 += icw[0]*2560.0/48000.0;  //Full length including CW ID
   if(tx2>m_TRperiod) tx2=m_TRperiod;
 
@@ -3782,21 +3805,22 @@ void MainWindow::guiUpdate()
     }
   }
 
-  if (g_iptt == 1 && m_iptt0 == 0)
-    {
-      auto const& current_message = QString::fromLatin1 (msgsent);
-      if(m_config.watchdog () && !m_mode.startsWith ("WSPR")
-         && current_message != m_msgSent0) {
-        tx_watchdog (false);  // in case we are auto sequencing
-        m_msgSent0 = current_message;
-      }
+  if (g_iptt == 1 && m_iptt0 == 0) {
+    auto const& current_message = QString::fromLatin1 (msgsent);
+    if(m_config.watchdog () && !m_mode.startsWith ("WSPR")
+       && current_message != m_msgSent0) {
+      tx_watchdog (false);  // in case we are auto sequencing
+      m_msgSent0 = current_message;
+    }
 
+    if(m_mode!="FT2") {
       if(!m_tune) write_all("Tx",m_currentMessage);
 
       if (m_config.TX_messages () && !m_tune && SpecOp::FOX!=m_config.special_op_id()) {
         ui->decodedTextBrowser2->displayTransmittedText(current_message, m_modeTx,
-              ui->TxFreqSpinBox->value(),m_bFastMode);
+             ui->TxFreqSpinBox->value(),m_bFastMode);
       }
+    }
 
       switch (m_ntx)
         {
@@ -3842,7 +3866,7 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-//    qDebug() << "cc oneSec" << dec_data.params.kin << m_ihsym;
+//    qDebug() << "cc onesec" << g_iptt << m_iptt0;
     // if((!m_msgAvgWidget or (m_msgAvgWidget and !m_msgAvgWidget->isVisible()))
     //    and (SpecOp::NONE < m_config.special_op_id()) and (SpecOp::HOUND > m_config.special_op_id())) on_actionFox_Log_triggered();
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
@@ -5519,7 +5543,7 @@ void MainWindow::on_actionFT2_triggered()
   Q_EMIT FFTSize (m_FFTSize);
   m_hsymStop=50;
   setup_status_bar (bVHF);
-  m_toneSpacing=0.0;                   //???
+  m_toneSpacing=0.8*75.0;                   //???
   ui->actionFT2->setChecked(true);     //???
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
@@ -6813,6 +6837,15 @@ void MainWindow::transmit (double snr)
            1920.0, ui->TxFreqSpinBox->value () - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),
            true, false, snr, m_TRperiod);
+  }
+
+  if (m_modeTx == "FT2") {
+    toneSpacing=0.8*12000.0/160.0;
+//    if(SpecOp::FOX==m_config.special_op_id() and !m_tune) toneSpacing=-1;
+    Q_EMIT sendMessage (NUM_FT2_SYMBOLS,
+           160.0, ui->TxFreqSpinBox->value() - m_XIT,
+           toneSpacing, m_soundOutput, m_config.audio_output_channel (),
+           true, false, snr, 2);
   }
 
   if (m_modeTx == "QRA64") {
@@ -8555,36 +8588,104 @@ void MainWindow::ft2Data(int k)
 {
   static int nhsec0=-1;
   short id[30000];
+
   int nhsec=k/6000;
-  if(nhsec!=nhsec0) {
-    //Process FT2 data at 0.5 s intervals
-    int j=k-30000;
-    if(j<0) j+=NRING;
-    for(int i=0; i<30000; i++) {
-      id[i]=dec_data.d2[j];
-      j++;
-      if(j>=NRING) j=j-NRING;
-    }
-    if(k>=NRING) {
-      k=k-NRING;
-      dec_data.params.kin=k;
-    }
-    char cdatetime[]="                 ";
-    char mycall6[] ="K1JT  ";
-    char hiscall6[]="K9AN  ";
-    char line[61];
-    int nfqso=1500;
-    int ndecodes=0;
-    int nrx=-1;
-    ft2_decode_(cdatetime,&nfqso,id,&ndecodes,mycall6,hiscall6,&nrx,&line[0],
-        17,6,6,61);
-    line[60]=0;
-    if(ndecodes>0) {
-      QString sline{QString::fromLatin1(line)};
-      DecodedText decodedtext {sline.replace(QChar::LineFeed,"")};
-      ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_mode,
-           m_config.DXCC(),m_logBook,m_currentBand,m_config.ppfx());
-    }
-    nhsec0=nhsec;
+  if(nhsec==nhsec0) return;
+
+//Process FT2 data at 0.5 s intervals
+  int j=k/6000;
+  j=6000*j-30000;
+  if(j<0) j+=NRING;
+  for(int i=0; i<30000; i++) {
+    id[i]=dec_data.d2[j];
+    j++;
+    if(j>=NRING) j=j-NRING;
   }
+
+  if(k>=NRING) {
+//Wrap the ring buffer pointer
+    k=k-NRING;
+    dec_data.params.kin=k;
+  }
+
+  auto time = QDateTime::currentDateTimeUtc ();
+  QString t=time.toString("yyMMdd_hhmmss.sss");
+  QByteArray ba=time.toString("yyMMdd_hhmmss.sss").toLatin1();
+  char* cdatetime=ba.data();
+  char mycall6[] ="K1JT  ";
+  char hiscall6[]="K9AN  ";
+  char line[61];
+  int nfqso=1500;
+  int ndecodes=0;
+  int nrx=-1;
+  ft2_decode_(cdatetime,&nfqso,id,&ndecodes,mycall6,hiscall6,&nrx,&line[0],
+      17,6,6,61);
+  line[60]=0;
+  if(ndecodes>0) {
+    QString sline{QString::fromLatin1(line)};
+    DecodedText decodedtext {sline.replace(QChar::LineFeed,"")};
+    ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_mode,
+                   m_config.DXCC(),m_logBook,m_currentBand,m_config.ppfx());
+  }
+  nhsec0=nhsec;
+}
+
+void MainWindow::ft2_tx(int ntx)
+{
+  if(g_iptt!=0) return;             //Alreadt transmitting?
+  static char message[38];
+  static char msgsent[38];
+  QByteArray ba;
+  m_ntx=ntx;
+  if(m_ntx == 1) ba=ui->tx1->text().toLocal8Bit();
+  if(m_ntx == 2) ba=ui->tx2->text().toLocal8Bit();
+  if(m_ntx == 3) ba=ui->tx3->text().toLocal8Bit();
+  if(m_ntx == 4) ba=ui->tx4->text().toLocal8Bit();
+  if(m_ntx == 5) ba=ui->tx5->currentText().toLocal8Bit();
+  if(m_ntx == 6) ba=ui->tx6->text().toLocal8Bit();
+  if(m_ntx == 7) ba=ui->genMsg->text().toLocal8Bit();
+  if(m_ntx == 8) ba=ui->freeTextMsg->currentText().toLocal8Bit();
+  ba2msg(ba,message);
+  int ichk=0;
+  int itype=-1;
+  genft2_(message, &ichk, msgsent, const_cast<int *>(itone), &itype, 37, 37);
+  msgsent[37]=0;
+  m_currentMessage = QString::fromLatin1(msgsent);
+  on_txb6_clicked();
+  auto_tx_mode(true);
+
+  icw[0]=0;
+  g_iptt = 1;
+  setRig ();
+  setXIT (ui->TxFreqSpinBox->value ());
+  Q_EMIT m_config.transceiver_ptt (true);            //Assert the PTT
+  m_tx_when_ready = true;
+
+  if (g_iptt == 1 && m_iptt0 == 0) {
+    auto const& current_message = QString::fromLatin1 (msgsent);
+    write_all("Tx",m_currentMessage);
+
+    if (m_config.TX_messages () && !m_tune && SpecOp::FOX!=m_config.special_op_id()) {
+      ui->decodedTextBrowser2->displayTransmittedText(current_message, m_modeTx,
+           ui->TxFreqSpinBox->value(),m_bFastMode);
+    }
+
+    switch (m_ntx)
+    {
+    case 1: m_QSOProgress = REPLYING; break;
+    case 2: m_QSOProgress = REPORT; break;
+    case 3: m_QSOProgress = ROGER_REPORT; break;
+    case 4: m_QSOProgress = ROGERS; break;
+    case 5: m_QSOProgress = SIGNOFF; break;
+    case 6: m_QSOProgress = CALLING; break;
+    default: break;             // determined elsewhere
+    }
+    m_transmitting = true;
+    transmitDisplay (true);
+    statusUpdate ();
+  }
+
+  if(!m_btxok && m_btxok0 && g_iptt==1) stopTx();
+
+//  if(!m_bTxTime and !m_tune) m_btxok=false;       //Time to stop transmitting
 }
