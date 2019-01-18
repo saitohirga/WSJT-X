@@ -7,7 +7,7 @@ subroutine ft2_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
   character*61 line
   character*37 decodes(100)
   character*120 data_dir
-  character*17 cdatetime0,cdatetime,cdt
+  character*17 cdatetime0,cdatetime
   character*6 mycall,hiscall,hhmmss
   complex c2(0:NMAX/16-1)                  !Complex waveform
   complex cb(0:NMAX/16-1)
@@ -33,8 +33,8 @@ subroutine ft2_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
 
   hhmmss='      '
   if(cdatetime0=='                 ') then
-     cdt=cdatetime()
-     hhmmss=cdt(8:13)
+     cdatetime0=cdatetime()
+     hhmmss=cdatetime0(8:13)
   endif
   
   fs=12000.0/NDOWN                       !Sample rate
