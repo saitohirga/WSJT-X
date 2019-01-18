@@ -29,6 +29,6 @@ character*4 mygrid
 character*3 exch
 character*37 txmsg
 
-common/gcom1/snrdb,ndevin,ndevout,iwrite,itx,ngo,nTransmitting,nTxOK,nport,    &
-     ntxed,tx_once, y1(NRING),y2(NRING),iwave(NTZ),ltx(5),lrx(5),autoseq,      &
-     QSO_in_progress,mycall,hiscall,hiscall_next,mygrid,exch,txmsg
+common/gcom1/snrdb,ndevin,ndevout,iwrite,itx,ngo,nTransmitting,nTxOK,nport,   &
+     ntxed,tx_once,y1(NRING),y2(NRING),iwave(NTZ+3*1152),ltx(5),lrx(5),      &
+     autoseq,QSO_in_progress,mycall,hiscall,hiscall_next,mygrid,exch,txmsg
