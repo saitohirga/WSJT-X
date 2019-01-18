@@ -159,6 +159,10 @@ extern "C" {
   void plotsave_(float swide[], int* m_w , int* m_h1, int* irow);
 
   void chkcall_(char* w, char* basc_call, bool cok, int len1, int len2);
+
+  void ft2_decode_(char* cdatetime, int* nfqso, short int id[], int* ndecodes,
+                   char* mycall6, char* hiscall6, int* nrx, char* line,
+                   int len1, int len2, int len3, int len4);
 }
 
 int volatile itone[NUM_ISCAT_SYMBOLS];   //Audio tones for all Tx symbols
@@ -544,6 +548,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   on_EraseButton_clicked ();
 
   QActionGroup* modeGroup = new QActionGroup(this);
+  ui->actionFT2->setActionGroup(modeGroup);
   ui->actionFT8->setActionGroup(modeGroup);
   ui->actionJT9->setActionGroup(modeGroup);
   ui->actionJT65->setActionGroup(modeGroup);
@@ -874,6 +879,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   if(m_bFast9) m_bFastMode=true;
   ui->cbFast9->setChecked(m_bFast9 or m_bFastMode);
 
+  if(m_mode=="FT2") on_actionFT2_triggered();
   if(m_mode=="FT8") on_actionFT8_triggered();
   if(m_mode=="JT4") on_actionJT4_triggered();
   if(m_mode=="JT9") on_actionJT9_triggered();
@@ -1345,7 +1351,8 @@ void MainWindow::dataSink(qint64 frames)
   if(m_monitoring || m_diskData) {
     m_wideGraph->dataSink2(s,m_df3,m_ihsym,m_diskData);
   }
-  if(m_mode=="MSK144") return;
+  if(m_mode=="FT2") ft2Data(k);
+  if(m_mode=="MSK144" or m_mode=="FT2") return;
 
   fixStop();
   if (m_mode == "FreqCal"
@@ -1546,7 +1553,6 @@ void MainWindow::fastSink(qint64 frames)
 {
   int k (frames);
   bool decodeNow=false;
-
   if(k < m_k0) {                                 //New sequence ?
     memcpy(fast_green2,fast_green,4*703);        //Copy fast_green[] to fast_green2[]
     memcpy(fast_s2,fast_s,4*703*64);             //Copy fast_s[] into fast_s2[]
@@ -3836,6 +3842,7 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
+//    qDebug() << "cc oneSec" << dec_data.params.kin << m_ihsym;
     // if((!m_msgAvgWidget or (m_msgAvgWidget and !m_msgAvgWidget->isVisible()))
     //    and (SpecOp::NONE < m_config.special_op_id()) and (SpecOp::HOUND > m_config.special_op_id())) on_actionFox_Log_triggered();
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
@@ -5497,6 +5504,52 @@ void MainWindow::displayWidgets(qint64 n)
   genStdMsgs (m_rpt, true);
 }
 
+void MainWindow::on_actionFT2_triggered()
+{
+  m_mode="FT2";
+  m_modeTx="FT2";
+  m_TRperiod=2147483647;
+  bool bVHF=m_config.enable_VHF_features();
+  m_bFast9=false;
+  m_bFastMode=false;
+  WSPR_config(false);
+  switch_mode (Modes::FT2);
+  m_nsps=6912;
+  m_FFTSize = m_nsps/2;
+  Q_EMIT FFTSize (m_FFTSize);
+  m_hsymStop=50;
+  setup_status_bar (bVHF);
+  m_toneSpacing=0.0;                   //???
+  ui->actionFT2->setChecked(true);     //???
+  m_wideGraph->setMode(m_mode);
+  m_wideGraph->setModeTx(m_modeTx);
+  VHF_features_enabled(bVHF);
+  ui->cbAutoSeq->setChecked(false);
+  m_fastGraph->hide();
+  m_wideGraph->show();
+  ui->decodedTextLabel2->setText("  UTC   dB   DT Freq    Message");
+  m_wideGraph->setPeriod(m_TRperiod,m_nsps);
+  m_modulator->setTRPeriod(m_TRperiod); // TODO - not thread safe
+  m_detector->setTRPeriod(m_TRperiod);  // TODO - not thread safe
+  ui->label_7->setText("Rx Frequency");
+  ui->label_6->setText("Band Activity");
+  ui->decodedTextLabel->setText( "  UTC   dB   DT Freq    Message");
+  displayWidgets(nWidgets("111010000100111000010000100110001"));
+  ui->txrb2->setEnabled(true);
+  ui->txrb4->setEnabled(true);
+  ui->txrb5->setEnabled(true);
+  ui->txrb6->setEnabled(true);
+  ui->txb2->setEnabled(true);
+  ui->txb4->setEnabled(true);
+  ui->txb5->setEnabled(true);
+  ui->txb6->setEnabled(true);
+  ui->txFirstCheckBox->setEnabled(true);
+  ui->cbAutoSeq->setEnabled(true);
+  ui->labDXped->setVisible(false);
+  ui->labDXped->setText("");
+  statusChanged();
+}
+
 void MainWindow::on_actionFT8_triggered()
 {
   m_mode="FT8";
@@ -5598,8 +5651,6 @@ void MainWindow::on_actionFT8_triggered()
   }
   statusChanged();
 }
-
-
 
 void MainWindow::on_actionJT4_triggered()
 {
@@ -8497,5 +8548,43 @@ void MainWindow::write_all(QString txRx, QString message)
         .arg (f.fileName ()).arg (f.errorString ());
     QTimer::singleShot (0, [=] {                   // don't block guiUpdate
       MessageBox::warning_message(this, tr ("Log File Error"), message2); });
+  }
+}
+
+void MainWindow::ft2Data(int k)
+{
+  static int nhsec0=-1;
+  short id[30000];
+  int nhsec=k/6000;
+  if(nhsec!=nhsec0) {
+    //Process FT2 data at 0.5 s intervals
+    int j=k-30000;
+    if(j<0) j+=NRING;
+    for(int i=0; i<30000; i++) {
+      id[i]=dec_data.d2[j];
+      j++;
+      if(j>=NRING) j=j-NRING;
+    }
+    if(k>=NRING) {
+      k=k-NRING;
+      dec_data.params.kin=k;
+    }
+    char cdatetime[]="                 ";
+    char mycall6[] ="K1JT  ";
+    char hiscall6[]="K9AN  ";
+    char line[61];
+    int nfqso=1500;
+    int ndecodes=0;
+    int nrx=-1;
+    ft2_decode_(cdatetime,&nfqso,id,&ndecodes,mycall6,hiscall6,&nrx,&line[0],
+        17,6,6,61);
+    line[60]=0;
+    if(ndecodes>0) {
+      QString sline{QString::fromLatin1(line)};
+      DecodedText decodedtext {sline.replace(QChar::LineFeed,"")};
+      ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_mode,
+           m_config.DXCC(),m_logBook,m_currentBand,m_config.ppfx());
+    }
+    nhsec0=nhsec;
   }
 }

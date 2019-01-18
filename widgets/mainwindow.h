@@ -49,6 +49,7 @@
 #define NUM_CW_SYMBOLS 250
 #define TX_SAMPLE_RATE 48000
 #define N_WIDGETS 33
+#define NRING 432000
 
 extern int volatile itone[NUM_ISCAT_SYMBOLS];   //Audio tones for all Tx symbols
 extern int volatile icw[NUM_CW_SYMBOLS];	    //Dits for CW ID
@@ -200,6 +201,7 @@ private slots:
   void on_actionJT65_triggered();
   void on_actionJT9_JT65_triggered();
   void on_actionJT4_triggered();
+  void on_actionFT2_triggered();
   void on_actionFT8_triggered();
   void on_TxFreqSpinBox_valueChanged(int arg1);
   void on_actionSave_decoded_triggered();
@@ -309,6 +311,7 @@ private slots:
   void on_comboBoxHoundSort_activated (int index);
   void not_GA_warning_message ();
   void checkMSK144ContestType();
+  void ft2Data(int k);
   int  setTxMsg(int n);
   bool stdCall(QString const& w);
 

@@ -1,13 +1,14 @@
-subroutine ft2_decode(cdatetime,nfqso,iwave,ndecodes,mycall,hiscall,nrx)
+subroutine ft2_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
 
   use crc
   use packjt77
   include 'ft2_params.f90'
   character message*37,c77*77
+  character*61 line
   character*37 decodes(100)
   character*120 data_dir
-  character*17 cdatetime
-  character*6 mycall,hiscall
+  character*17 cdatetime0,cdatetime,cdt
+  character*6 mycall,hiscall,hhmmss
   complex c2(0:NMAX/16-1)                  !Complex waveform
   complex cb(0:NMAX/16-1)
   complex cd(0:144*10-1)                  !Complex waveform
@@ -30,6 +31,12 @@ subroutine ft2_decode(cdatetime,nfqso,iwave,ndecodes,mycall,hiscall,nrx)
   logical unpk77_success
   data s16/0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0/
 
+  hhmmss='      '
+  if(cdatetime0=='                 ') then
+     cdt=cdatetime()
+     hhmmss=cdt(8:13)
+  endif
+  
   fs=12000.0/NDOWN                       !Sample rate
   dt=1/fs                                !Sample interval after downsample (s)
   tt=NSPS*dt                             !Duration of "itone" symbols (s)
@@ -63,7 +70,7 @@ subroutine ft2_decode(cdatetime,nfqso,iwave,ndecodes,mycall,hiscall,nrx)
   syncmin=0.2
   maxcand=100
   nfqso=-1
-  call getcandidates2(iwave,fa,fb,maxcand,savg,candidate,ncand)
+  call getcandidates2a(iwave,fa,fb,maxcand,savg,candidate,ncand)
   ndecodes=0
   do icand=1,ncand
      f0=candidate(1,icand)
@@ -191,11 +198,15 @@ subroutine ft2_decode(cdatetime,nfqso,iwave,ndecodes,mycall,hiscall,nrx)
            xsnr=db(sybest*sybest) - 115.0   !### Rough estimate of S/N ###
            nsnr=nint(xsnr)
            freq=f0+dfbest
-           write(*,1000) cdatetime,nsnr,ibest/750.0,nint(freq),message,     &
+           write(line,1000) hhmmss,nsnr,ibest/750.0,nint(freq),message
+1000       format(a6,i4,f5.2,i5,' + ',1x,a37)
+           open(24,file='all_ft2.txt',status='unknown',position='append')
+           write(24,1002) cdatetime0,nsnr,ibest/750.0,nint(freq),message,    &
                 nseq,nharderror,nhardmin
-           write(12,1000) cdatetime,nsnr,ibest/750.0,nint(freq),message,    &
-                nseq,nharderror,nhardmin
-1000       format(a17,i4,f6.2,i5,' Rx  ',a37,3i5)
+           if(hhmmss.eq.'      ') write(*,1002) cdatetime0,nsnr,             &
+                ibest/750.0,nint(freq),message,nseq,nharderror,nhardmin
+1002       format(a17,i4,f6.2,i5,' Rx  ',a37,3i5)
+           close(24)
 
 !### Temporary: assume most recent decoded message conveys "hiscall".
            i0=index(message,' ')
@@ -290,4 +301,3 @@ subroutine ft2_downsample(iwave,f0,c)
   c=c1(0:NMAX/16-1)
   return
 end subroutine ft2_downsample
-

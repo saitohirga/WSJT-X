@@ -509,6 +509,8 @@ set (wsjt_FSRCS
   lib/mskrtd.f90
   lib/fsk4hf/ft2sim.f90
   lib/fsk4hf/ft2d.f90
+  lib/ft2/cdatetime.f90
+  lib/ft2/ft2_decode.f90
   lib/77bit/my_hash.f90
   lib/wsprd/osdwspr.f90
   lib/ft8/osd174_91.f90
@@ -550,6 +552,7 @@ set (wsjt_FSRCS
   lib/sync64.f90
   lib/sync65.f90
   lib/fsk4hf/getcandidates2.f90
+  lib/ft2/getcandidates2a.f90
   lib/ft8/sync8.f90
   lib/ft8/sync8d.f90
   lib/sync9.f90
