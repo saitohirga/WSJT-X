@@ -46,10 +46,26 @@ FoxLog::impl::impl (Configuration const * configuration)
     }
 
   SQL_error_check (dupe_query_, &QSqlQuery::prepare,
-                   "SELECT COUNT(*) FROM fox_log WHERE call = :call AND band = :band");
+                   "SELECT "
+                   "    COUNT(*) "
+                   "  FROM "
+                   "    fox_log "
+                   "  WHERE "
+                   "    call = :call "
+                   "    AND band = :band");
 
   SQL_error_check (export_query_, &QSqlQuery::prepare,
-                   "SELECT band, \"when\", call, grid, report_sent, report_rcvd FROM fox_log ORDER BY \"when\"");
+                   "SELECT "
+                   "    band"
+                   "    , \"when\""
+                   "    , call"
+                   "    , grid"
+                   "    , report_sent"
+                   "    , report_rcvd "
+                   "  FROM "
+                   "    fox_log "
+                   "  ORDER BY "
+                   "    \"when\"");
 
   setEditStrategy (QSqlTableModel::OnFieldChange);
   setTable ("fox_log");
@@ -141,6 +157,8 @@ bool FoxLog::dupe (QString const& call, QString const& band) const
 
 void FoxLog::reset ()
 {
+  // synchronize model
+  while (m_->canFetchMore ()) m_->fetchMore ();
   if (m_->rowCount ())
     {
       m_->setEditStrategy (QSqlTableModel::OnManualSubmit);
