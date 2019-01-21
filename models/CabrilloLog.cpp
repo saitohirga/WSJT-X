@@ -21,6 +21,8 @@ class CabrilloLog::impl final
 public:
   impl (Configuration const *);
 
+  QString cabrillo_frequency_string (Radio::Frequency frequency) const;
+
   Configuration const * configuration_;
   QSqlQuery mutable dupe_query_;
   QSqlQuery mutable export_query_;
@@ -81,6 +83,32 @@ CabrilloLog::impl::impl (Configuration const * configuration)
   setSort (fieldIndex ("when"), Qt::DescendingOrder);
 
   SQL_error_check (*this, &QSqlTableModel::select);
+}
+
+// frequency here is in kHz
+QString CabrilloLog::impl::cabrillo_frequency_string (Radio::Frequency frequency) const
+{
+  QString result;
+  auto band = configuration_->bands ()->find (frequency * 1000ull);
+  if ("1mm" == band) result = "LIGHT";
+  else if ("2mm" == band) result = "241G";
+  else if ("2.5mm" == band) result = "134G";
+  else if ("4mm" == band) result = "75G";
+  else if ("6mm" == band) result = "47G";
+  else if ("1.25cm" == band) result = "24G";
+  else if ("3cm" == band) result = "10G";
+  else if ("6cm" == band) result = "5.7G";
+  else if ("9cm" == band) result = "3.4G";
+  else if ("13cm" == band) result = "2.3G";
+  else if ("23cm" == band) result = "1.2G";
+  else if ("33cm" == band) result = "902";
+  else if ("70cm" == band) result = "432";
+  else if ("1.25m" == band) result = "222";
+  else if ("2m" == band) result = "144";
+  else if ("4m" == band) result = "70";
+  else if ("6m" == band) result = "50";
+  else result = QString::number (frequency);
+  return result;
 }
 
 CabrilloLog::CabrilloLog (Configuration const * configuration)
@@ -177,12 +205,10 @@ void CabrilloLog::export_qsos (QTextStream& stream) const
   auto rcvd_index = record.indexOf ("exchange_rcvd");
   while (m_->export_query_.next ())
     {
-      auto frequency = m_->export_query_.value (frequency_index).value<Radio::Frequency> ();
       auto my_call = m_->configuration_->my_callsign ();
-      frequency = frequency > 50000000ull ? frequency / 1000ull : frequency;
       stream << QString {"QSO: %1 DG %2 %3 %4 %5 %6\n"}
-                      .arg (frequency, 5)
-                         .arg (QDateTime::fromMSecsSinceEpoch (m_->export_query_.value (when_index).toULongLong () * 1000ull, Qt::UTC).toString ("yyyy-MM-dd hhmm"))
+                      .arg (m_->cabrillo_frequency_string (m_->export_query_.value (frequency_index).value<Radio::Frequency> ()), 5)
+                      .arg (QDateTime::fromMSecsSinceEpoch (m_->export_query_.value (when_index).toULongLong () * 1000ull, Qt::UTC).toString ("yyyy-MM-dd hhmm"))
                       .arg (my_call, -12)
                       .arg (m_->export_query_.value (sent_index).toString (), -13)
                       .arg (m_->export_query_.value (call_index).toString (), -12)
