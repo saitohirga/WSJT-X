@@ -848,6 +848,7 @@ set (hamlib_STATIC 1)
 find_package (hamlib 3 REQUIRED)
 find_program (RIGCTL_EXE rigctl)
 find_program (RIGCTLD_EXE rigctld)
+find_program (RIGCTLCOM_EXE rigctlcom)
 
 message (STATUS "hamlib_INCLUDE_DIRS: ${hamlib_INCLUDE_DIRS}")
 message (STATUS "hamlib_LIBRARIES: ${hamlib_LIBRARIES}")
@@ -1415,6 +1416,13 @@ install (PROGRAMS
   DESTINATION ${CMAKE_INSTALL_BINDIR}
   #COMPONENT runtime
   RENAME rigctld-wsjtx${CMAKE_EXECUTABLE_SUFFIX}
+  )
+
+install (PROGRAMS
+  ${RIGCTLCOM_EXE}
+  DESTINATION ${CMAKE_INSTALL_BINDIR}
+  #COMPONENT runtime
+  RENAME rigctlcom-wsjtx${CMAKE_EXECUTABLE_SUFFIX}
   )
 
 install (FILES

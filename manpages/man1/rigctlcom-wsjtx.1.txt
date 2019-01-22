@@ -2,23 +2,24 @@
 :man source: AsciiDoc
 :man version: {revnumber}
 :man manual: WSJT-X Manual
-= rigctld-wsjtx(1)
+= rigctlcom-wsjtx(1)
 
 == NAME
 
-rigctld-wsjtx - Hamlib 4 rigctld server.
+rigctlcom-wsjtx - Hamlib 4 rigctlcom Serial port passthru Kenwood TS-2000 emulator.
 
 == SYNOPSIS
 
-*rigctld-wsjtx* [OPTIONS]
+*rigctlcom-wsjtx* [OPTIONS]
 
 == DESCRIPTION
 
 *wsjtx* uses a version of the *hamlib* CAT control library.  This
  library is virtually identical to the current release version of
- *hamlib*. If a *wsjtx* user wishes to use the *hamlib* network rig
- server *rigctld* to remotely control their transceiver; then this
- special version of *rigctld* should be used since that too has the
+ *hamlib*. If a *wsjtx* user wishes to use the *hamlib* TS-2000
+ emulator *rigctlcom* to allow CAT applications that do not talk to
+ *hamlib* to share CAT control control their transceiver; then this
+ special version of *rigctlcom* should be used since that too has the
  modified *hamlib* code embedded with it.
 
 WSJT-X home page:: http://www.physics.princeton.edu/pulsar/K1JT/wsjtx.html
