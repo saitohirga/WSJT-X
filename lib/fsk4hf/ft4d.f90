@@ -106,7 +106,7 @@ program ft4d
         ibest=-1
         sybest=-99.
         dfbest=-1.
-        do if=-60,+60
+        do if=-30,+30
            df=if
            a=0.
            a(1)=-df
@@ -115,7 +115,7 @@ program ft4d
               csync1=0.
               cterm=1
               do ib=1,12
-                 i1=(ib-1)*10+is
+                 i1=(ib-1)*20+is
                  if(s12(ib).eq.0) then
                     csync1=csync1+sum(cb(i1:i1+19)*conjg(c0(0:19)))*cterm
                     cterm=cterm*cc0
