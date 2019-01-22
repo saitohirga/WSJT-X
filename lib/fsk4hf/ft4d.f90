@@ -1,36 +1,35 @@
-program ft2d
+program ft4d
 
   use crc
   use packjt77
-  include 'ft2_params.f90'
+  include 'ft4_params.f90'
   character arg*8,message*37,c77*77,infile*80,fname*16,datetime*11
   character*37 decodes(100)
   character*120 data_dir
   character*90 dmsg
-  complex c2(0:NMAX/16-1)                  !Complex waveform
+  complex cd2(0:NMAX/16-1)                  !Complex waveform
   complex cb(0:NMAX/16-1)
-  complex cd(0:144*10-1)                  !Complex waveform
-  complex c1(0:9),c0(0:9)
-  complex ccor(0:1,144)
+  complex cd(0:76*10-1)                  !Complex waveform
+  complex c3(0:19),c2(0:19),c1(0:19),c0(0:19)
+  complex ccor(0:3,76)
   complex csum,cterm,cc0,cc1,csync1,csync2
-  complex csync(16),csl(0:159)
+  complex csync(12)
   real*8 fMHz
 
   real a(5)
   real rxdata(128),llr(128)               !Soft symbols
   real llr2(128)
-  real sbits(144),sbits1(144),sbits3(144)
+  real sbits(152),sbits1(152),sbits3(152)
   real ps(0:8191),psbest(0:8191)
   real candidates(100,2)
   real savg(NH1),sbase(NH1)
   integer ihdr(11)
   integer*2 iwave(NMAX)                 !Generated full-length waveform  
   integer*1 message77(77),apmask(128),cw(128)
-  integer*1 hbits(144),hbits1(144),hbits3(144)
-  integer*1 s16(16),s45(45)
+  integer*1 hbits(152),hbits1(152),hbits3(152)
+  integer*1 s12(12)
   logical unpk77_success
-  data s16/0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0/
-  data s45/0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,0,0,1,1,1,1,0,0,1,0,0,0,1,1,0,1,0,0,0,1,1,1,0,0/
+  data s12/0,0,0,1,1,1,1,1,1,0,0,0/
 
   fs=12000.0/NDOWN                       !Sample rate
   dt=1/fs                                !Sample interval after downsample (s)
@@ -38,37 +37,36 @@ program ft2d
   baud=1.0/tt                            !Keying rate for "itone" symbols (baud)
   txt=NZ*dt                              !Transmission length (s)
   twopi=8.0*atan(1.0)
-  h=0.800                                  !h=0.8 seems to be optimum for AWGN sensitivity (not for fading)
+  h=1.000                                  !h=0.8 seems to be optimum for AWGN sensitivity (not for fading)
 
   dphi=twopi/2*baud*h*dt*16  ! dt*16 is samp interval after downsample
-  dphi0=-1*dphi
-  dphi1=+1*dphi
+  dphi0=-1.5*dphi
+  dphi1=-0.5*dphi
+  dphi2=+0.5*dphi
+  dphi3=+1.5*dphi
   phi0=0.0
   phi1=0.0
+  phi2=0.0
+  phi3=0.0
   do i=0,9
+    c3(i)=cmplx(cos(phi3),sin(phi3))
+    c2(i)=cmplx(cos(phi2),sin(phi2))
     c1(i)=cmplx(cos(phi1),sin(phi1))
     c0(i)=cmplx(cos(phi0),sin(phi0))
+    phi3=mod(phi1+dphi3,twopi)
+    phi2=mod(phi1+dphi2,twopi)
     phi1=mod(phi1+dphi1,twopi)
     phi0=mod(phi0+dphi0,twopi)
   enddo
   the=twopi*h/2.0
-  cc1=cmplx(cos(the),-sin(the))
-  cc0=cmplx(cos(the),sin(the))
-
-  k=0
-  do j=1,16
-    dphi1=(2*s16(j)-1)*dphi
-    phi1=0.0
-    do i=0,9
-       csl(k)=cmplx(cos(phi1),sin(phi1))
-       phi1=mod(phi1+dphi1,twopi)
-       k=k+1
-    enddo
-  enddo 
+  cc3=cmplx(cos(3*the),-sin(3*the))
+  cc2=cmplx(cos(the),-sin(the))
+  cc1=cmplx(cos(the),sin(the))
+  cc0=cmplx(cos(3*the),-sin(3*the))
 
   nargs=iargc()
   if(nargs.lt.1) then
-     print*,'Usage:   ft2d [-a <data_dir>] [-f fMHz] file1 [file2 ...]'
+     print*,'Usage:   ft4d [-a <data_dir>] [-f fMHz] file1 [file2 ...]'
      go to 999
   endif
   iarg=1
@@ -102,45 +100,28 @@ program ft2d
         f0=candidates(icand,1)
         xsnr=1.0
         if( f0.le.375.0 .or. f0.ge.(5000.0-375.0) ) cycle 
-        call ft2_downsample(iwave,f0,c2) ! downsample from 160s/Symbol to 10s/Symbol
-
-!c2=c2/sqrt(sum(abs(c2(0:NMAX/16-1))))
-!ishift=-1
-!rccbest=-99.
-!do is=0,435
-!rcc=0.0
-!   do id=10,10
-!      rcc=rcc+abs(sum(conjg(c2(is:is+159-id))*c2(is+id:is+159)*csl(0:159-id)*conjg(csl(id:159))))
-!   enddo
-!   if(rcc.gt.rccbest) then
-!      rccbest=rcc
-!      ishift=is
-!   endif
-!write(21,*) is,rcc
-!enddo
+        call ft4_downsample(iwave,f0,cd2) ! downsample from 160s/Symbol to 10s/Symbol
 
 ! 750 samples/second here
         ibest=-1
         sybest=-99.
         dfbest=-1.
-        do if=-30,+30
+        do if=-60,+60
            df=if
            a=0.
            a(1)=-df
-           call twkfreq1(c2,NMAX/16,fs,a,cb)
-           do is=0,374
+           call twkfreq1(cd2,NMAX/16,fs,a,cb)
+           do is=0,380
               csync1=0.
               cterm=1
-              do ib=1,16
-!              do ib=1,45
+              do ib=1,12
                  i1=(ib-1)*10+is
-                 if(s16(ib).eq.1) then
-!                 if(s45(ib).eq.1) then
-                    csync1=csync1+sum(cb(i1:i1+9)*conjg(c1(0:9)))*cterm
-                    cterm=cterm*cc1
-                 else
-                    csync1=csync1+sum(cb(i1:i1+9)*conjg(c0(0:9)))*cterm
+                 if(s12(ib).eq.0) then
+                    csync1=csync1+sum(cb(i1:i1+19)*conjg(c0(0:19)))*cterm
                     cterm=cterm*cc0
+                 else
+                    csync1=csync1+sum(cb(i1:i1+19)*conjg(c3(0:19)))*cterm
+                    cterm=cterm*cc3
                  endif
               enddo
               if(abs(csync1).gt.sybest) then
@@ -159,14 +140,15 @@ program ft2d
 
 !ibest=197
         ib=ibest
-
+write(*,*) f0,f0+dfbest,ibest
+goto 888
         cd=cb(ib:ib+144*10-1) 
         s2=sum(cd*conjg(cd))/(10*144)
         cd=cd/sqrt(s2)
-        do nseq=1,4
+        do nseq=1,1
            if( nseq.eq.1 ) then  ! noncoherent single-symbol detection
               sbits1=0.0
-              do ibit=1,144
+              do ibit=1,76
                  ib=(ibit-1)*10
                  ccor(1,ibit)=sum(cd(ib:ib+9)*conjg(c1(0:9)))        
                  ccor(0,ibit)=sum(cd(ib:ib+9)*conjg(c0(0:9)))   
@@ -261,7 +243,7 @@ program ft2d
   write(*,1120)
 1120 format("<DecodeFinished>")
 
-999 end program ft2d
+999 end program ft4d
 
 subroutine getbitmetric(ib,ps,ns,xmet)
   real ps(0:ns-1)
@@ -299,12 +281,12 @@ subroutine downsample2(ci,f0,co)
   return
 end subroutine downsample2
 
-subroutine ft2_downsample(iwave,f0,c)
+subroutine ft4_downsample(iwave,f0,c)
 
 ! Input: i*2 data in iwave() at sample rate 12000 Hz
 ! Output: Complex data in c(), sampled at 1200 Hz
 
-  include 'ft2_params.f90'
+  include 'ft4_params.f90'
   parameter (NFFT2=NMAX/16)
   integer*2 iwave(NMAX)
   complex c(0:NMAX/16-1)
@@ -331,5 +313,5 @@ subroutine ft2_downsample(iwave,f0,c)
   call four2a(c1,NFFT2,1,1,1)            !c2c FFT back to time domain
   c=c1(0:NMAX/16-1)
   return
-end subroutine ft2_downsample
+end subroutine ft4_downsample
 

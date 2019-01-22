@@ -1,10 +1,10 @@
-program ft2sim
+program ft4sim
 
-! Generate simulated signals for experimental "FT2" mode 
+! Generate simulated signals for experimental "FT4" mode 
 
   use wavhdr
   use packjt77
-  include 'ft2_params.f90'               !Set various constants
+  include 'ft4_params.f90'               !Set various constants
   parameter (NWAVE=NN*NSPS)
   type(hdr) h                            !Header for .wav file
   character arg*12,fname*17
@@ -14,7 +14,7 @@ program ft2sim
   complex c(0:NMAX-1)
   real wave(NMAX)
   real dphi(0:NMAX-1)
-  real pulse(480)               
+  real pulse(960)               
   integer itone(NN)
   integer*1 msgbits(77)
   integer*2 iwave(NMAX)                  !Generated full-length waveform
@@ -22,10 +22,10 @@ program ft2sim
 ! Get command-line argument(s)
   nargs=iargc()
   if(nargs.ne.8) then
-     print*,'Usage:    ft2sim "message"                 f0     DT fdop del width nfiles snr'
-     print*,'Examples: ft2sim "K1ABC W9XYZ EN37"       1500.0 0.0  0.1 1.0   0     10   -18'
-     print*,'          ft2sim "WA9XYZ/R KA1ABC/R FN42" 1500.0 0.0  0.1 1.0   0     10   -18'
-     print*,'          ft2sim "K1ABC RR73; W9XYZ <KH1/KH7Z> -11" 300 0 0 0 25 1 -10'
+     print*,'Usage:    ft4sim "message"                 f0     DT fdop del width nfiles snr'
+     print*,'Examples: ft4sim "K1ABC W9XYZ EN37"       1500.0 0.0  0.1 1.0   0     10   -18'
+     print*,'          ft4sim "WA9XYZ/R KA1ABC/R FN42" 1500.0 0.0  0.1 1.0   0     10   -18'
+     print*,'          ft4sim "K1ABC RR73; W9XYZ <KH1/KH7Z> -11" 300 0 0 0 25 1 -10'
      go to 999
   endif
   call getarg(1,msg37)                   !Message to be transmitted
@@ -48,7 +48,7 @@ program ft2sim
   twopi=8.0*atan(1.0)
   fs=12000.0                             !Sample rate (Hz)
   dt=1.0/fs                              !Sample interval (s)
-  hmod=0.800                               !Modulation index (0.5 is MSK, 1.0 is FSK)
+  hmod=1.000                               !Modulation index (0.5 is MSK, 1.0 is FSK)
   tt=NSPS*dt                             !Duration of symbols (s)
   baud=1.0/tt                            !Keying rate (baud)
   txt=NZ*dt                              !Transmission length (s)
@@ -63,7 +63,7 @@ program ft2sim
   n3=-1
   call pack77(msg37,i3,n3,c77)
   read(c77,'(77i1)') msgbits
-  call genft2(msg37,0,msgsent37,itone,itype)
+  call genft4(msg37,0,msgsent37,itone)
   write(*,*)  
   write(*,'(a9,a37,3x,a7,i1,a1,i1)') 'Message: ',msgsent37,'i3.n3: ',i3,'.',n3
   write(*,1000) f0,xdt,txt,snrdb
@@ -78,14 +78,14 @@ program ft2sim
   endif
   write(*,*) 
   write(*,'(a17)') 'Channel symbols: '
-  write(*,'(79i1)') itone
+  write(*,'(76i1)') itone
   write(*,*)  
 
   call sgran()
 
 ! The filtered frequency pulse 
-  do i=1,480
-     tt=(i-240.5)/160.0
+  do i=1,960
+     tt=(i-480.5)/320.0
      pulse(i)=gfsk_pulse(1.0,tt)
   enddo
 
@@ -93,9 +93,9 @@ program ft2sim
   dphi_peak=twopi*(hmod/2.0)/real(NSPS)
   dphi=0.0 
   do j=1,NN         
-     ib=(j-1)*160
-     ie=ib+480-1
-     dphi(ib:ie)=dphi(ib:ie)+dphi_peak*pulse*(2*itone(j)-1)
+     ib=(j-1)*320
+     ie=ib+960-1
+     dphi(ib:ie)=dphi(ib:ie)+dphi_peak*pulse*(2*itone(j)-3)
   enddo
 
   phi=0.0
@@ -106,13 +106,17 @@ program ft2sim
      phi=mod(phi+dphi(j),twopi)
   enddo 
  
-  c0(0:159)=c0(0:159)*(1.0-cos(twopi*(/(i,i=0,159)/)/320.0) )/2.0
-  c0(145*160:145*160+159)=c0(145*160:145*160+159)*(1.0+cos(twopi*(/(i,i=0,159)/)/320.0 ))/2.0
-  c0(146*160:)=0.
+  c0(0:319)=c0(0:319)*(1.0-cos(twopi*(/(i,i=0,319)/)/640.0) )/2.0
+  c0(77*320:77*320+319)=c0(77*320:77*320+319)*(1.0+cos(twopi*(/(i,i=0,319)/)/640.0 ))/2.0
+  c0(78*320:)=0.
 
   k=nint((xdt+0.25)/dt)
   c0=cshift(c0,-k)
   ia=k
+
+do i=0,NMAX-1
+write(21,*) i,real(c0(i)),imag(c0(i)),dphi(i)
+enddo
   
   do ifile=1,nfiles
      c=c0
@@ -151,4 +155,4 @@ program ft2sim
      write(*,1110) ifile,xdt,f0,snrdb,fname
 1110 format(i4,f7.2,f8.2,f7.1,2x,a17)
   enddo    
-999 end program ft2sim
+999 end program ft4sim
