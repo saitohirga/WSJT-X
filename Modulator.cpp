@@ -47,14 +47,13 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
                        SoundOutput * stream, Channel channel,
                        bool synchronize, bool fastMode, double dBSNR, int TRperiod)
 {
+//  qDebug() << "Mod AA" << symbolsLength << framesPerSymbol << frequency
+//           << toneSpacing << synchronize << fastMode << dBSNR << TRperiod;
   Q_ASSERT (stream);
 // Time according to this computer which becomes our base time
   qint64 ms0 = QDateTime::currentMSecsSinceEpoch() % 86400000;
 
-  if (m_state != Idle)
-    {
-      stop ();
-    }
+  if(m_state != Idle) stop ();
 
   m_quickClose = false;
 
@@ -92,6 +91,14 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
   if (synchronize && !m_tuning && !m_bFastMode)	{
     m_silentFrames = m_ic + m_frameRate / (1000 / delay_ms) - (mstr * (m_frameRate / 1000));
   }
+  if(symbolsLength==144 and framesPerSymbol==160 and toneSpacing==60) {
+    //### FT2 params
+    delay_ms=100;
+    mstr=1947;
+    m_ic=0;
+    m_silentFrames=0;
+  }
+//  qDebug() << "Mod AB" << delay_ms << mstr << m_ic << m_silentFrames;
 
   initialize (QIODevice::ReadOnly, channel);
   Q_EMIT stateChanged ((m_state = (synchronize && m_silentFrames) ?
@@ -170,7 +177,8 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
     case Active:
       {
         unsigned int isym=0;
-//        qDebug() << "Mod A" << m_toneSpacing << m_ic;
+//        qDebug() << "Mod A" << m_toneSpacing << m_frequency << m_nsps
+//                 << m_ic << m_symbolsLength << icw[0];
         if(!m_tuning) isym=m_ic/(4.0*m_nsps);            // Actual fsample=48000
         bool slowCwId=((isym >= m_symbolsLength) && (icw[0] > 0)) && (!m_bFastMode);
         if(m_TRperiod==3) slowCwId=false;
@@ -289,6 +297,8 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
           if (m_ic > i1) m_amp = 0.0;
 
           sample=qRound(m_amp*qSin(m_phi));
+
+//Here's where we transmit from a precomputed wave[] array:
           if(m_toneSpacing < 0) sample=qRound(m_amp*foxcom_.wave[m_ic]);
 
 //          if(m_ic < 100) qDebug() << "Mod C" << m_ic << m_amp << foxcom_.wave[m_ic] << sample;

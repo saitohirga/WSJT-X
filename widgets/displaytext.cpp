@@ -455,6 +455,7 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
 void DisplayText::displayTransmittedText(QString text, QString modeTx, qint32 txFreq,bool bFastMode)
 {
     QString t1=" @  ";
+    if(modeTx=="FT2") t1=" +  ";
     if(modeTx=="FT8") t1=" ~  ";
     if(modeTx=="JT4") t1=" $  ";
     if(modeTx=="JT65") t1=" #  ";

@@ -6,8 +6,21 @@ program ft2
   logical allok
   character*20 pttport
   character*8 arg
-!  integer*2 iwave2(30000)
+  character*80 fname
+  integer*2 id2(30000)
 
+  open(12,file='all_ft2.txt',status='unknown',position='append')
+  nargs=iargc()
+  if(nargs.eq.1) then
+     call getarg(1,fname)
+     open(10,file=fname,status='old',access='stream')
+     read(10) id2(1:22)  !Read (and ignore) the header
+     read(10) id2        !Read the Rx data
+     close(10)
+     call ft2_decode(fname(1:17),nfqso,id2,ndecodes,mycall,hiscall,nrx)
+     go to 999
+  endif
+  
   allok=.true.
 ! Get home-station details
   open(10,file='ft2.ini',status='old',err=1)
@@ -26,13 +39,13 @@ program ft2
   call padevsub(idevin,idevout)
   if(idevin.ne.ndevin .or. idevout.ne.ndevout) allok=.false.
   i1=0
+  i1=ptt(nport,1,1,iptt)
   i1=ptt(nport,1,0,iptt)
   if(i1.lt.0 .and. nport.ne.0) allok=.false.
   if(.not.allok) then
      write(*,"('Please fix setup error(s) and restart.')")
      go to 999
   endif
-  open(12,file='all_ft2.txt',status='unknown',position='append')
 
   nright=1
   iwrite=0
@@ -52,7 +65,6 @@ program ft2
   QSO_in_progress=.false.
   ntxed=0
 
-  nargs=iargc()
   if(nargs.eq.3) then
      call getarg(1,txmsg)
      call getarg(2,arg)
@@ -67,7 +79,7 @@ program ft2
   
 ! Start the audio streams  
   ierr=ft2audio(idevin,idevout,npabuf,nright,y1,y2,NRING,iwrite,itx,     &
-       iwave,nwave,nfsample,nTxOK,nTransmitting,ngo)
+       iwave,nwave+3*1152,nfsample,nTxOK,nTransmitting,ngo)
   if(ierr.ne.0) then
      print*,'Error',ierr,' starting audio input and/or output.'
   endif
@@ -76,13 +88,15 @@ program ft2
 
 subroutine update(total_time,ic1,ic2)
 
+  use wavhdr
+  type(hdr) h
   real*8 total_time
   integer*8 count0,count1,clkfreq
   integer ptt
   integer*2 id(30000)
-  logical transmitted,level
+  logical transmitted,level,ok
   character*70 line
-  character cdatetime*17
+  character cdatetime*17,fname*17,mode*8,band*6
   include 'gcom1.f90'
   data nt0/-1/,transmitted/.false./,snr/-99.0/
   data level/.false./
@@ -157,9 +171,39 @@ subroutine update(total_time,ic1,ic2)
         call ft2_decode(cdatetime(),nfqso,id,ndecodes,mycall,hiscall,nrx)
         call system_clock(count1,clkfreq)
 !        tdecode=float(count1-count0)/float(clkfreq)
-!        write(*,3001) trun
-!3001    format(f10.3)
 
+        if(ndecodes.ge.1) then
+           fMHz=7.074
+           mode='FT2'
+           nsubmode=1
+           ntrperiod=0
+           h=default_header(12000,30000)
+           k=0
+           do i=1,250
+              sq=0
+              do n=1,120
+                 k=k+1
+                 x=id(k)
+                 sq=sq + x*x
+              enddo
+              write(43,3043) i,0.01*i,1.e-4*sq
+3043          format(i7,f12.6,f12.3)
+           enddo
+           call set_wsjtx_wav_params(fMHz,mode,nsubmode,ntrperiod,id)
+           band=""
+           mode=""
+           nsubmode=-1
+           ntrperiod=-1
+           call get_wsjtx_wav_params(id,band,mode,nsubmode,ntrperiod,ok)
+!           write(*,1010) band,ntrperiod,mode,char(ichar('A')-1+id(3))
+!1010       format('Band: ',a6,'  T/R period:',i4,'   Mode: ',a8,1x,a1)
+
+           fname=cdatetime()
+           fname(14:17)='.wav'
+           open(13,file=fname,status='unknown',access='stream')
+           write(13) h,id
+           close(13)
+        endif
         if(autoseq .and.nrx.eq.2) QSO_in_progress=.true.
         if(autoseq .and. QSO_in_progress .and. nrx.ge.1 .and. nrx.le.4) then
            lrx(nrx)=.true.
@@ -220,6 +264,7 @@ subroutine transmit(nfunc,ftx,iptt)
   if(nfunc.eq.4) txmsg=trim(hiscall)//' '//trim(mycall)//' RR73'
   if(nfunc.eq.5) txmsg='TNX 73 GL'
   call ft2_iwave(txmsg,ftx,snrdb,iwave)
+  iwave(23041:)=0
   i1=ptt(nport,1,1,iptt)
   ntxok=1
   n=len(trim(txmsg))

@@ -1,4 +1,4 @@
-subroutine getcandidates2(id,fa,fb,maxcand,savg,candidate,ncand)
+subroutine getcandidates2a(id,fa,fb,maxcand,savg,candidate,ncand)
 
 ! For now, hardwired to find the largest peak in the average spectrum
 
@@ -61,4 +61,4 @@ subroutine getcandidates2(id,fa,fb,maxcand,savg,candidate,ncand)
   endif
 
   return
-end subroutine getcandidates2
+end subroutine getcandidates2a
