@@ -4254,10 +4254,6 @@ void MainWindow::doubleClickOnCall2(Qt::KeyboardModifiers modifiers)
 
 void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
 {
-//  if(!(modifiers & Qt::AltModifier) and m_transmitting) {
-//    qDebug() << "aa" << "Double-click on decode is ignored while transmitting";
-//    return;
-//  }
   QTextCursor cursor;
   if(m_mode=="ISCAT") {
     MessageBox::information_message (this,
@@ -4393,7 +4389,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
         ui->TxFreqSpinBox->setValue(frequency);
       }
       if(m_mode != "JT4" && m_mode != "JT65" && !m_mode.startsWith ("JT9") &&
-         m_mode != "QRA64" && m_mode!="FT8") {
+         m_mode != "QRA64" && m_mode!="FT8" && m_mode!="FT2") {
         return;
       }
     }
