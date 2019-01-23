@@ -3702,7 +3702,7 @@ void MainWindow::guiUpdate()
     if(m_mode!="FT2") m_currentMessage = QString::fromLatin1(msgsent);
     m_bCallingCQ = CALLING == m_QSOProgress
       || m_currentMessage.contains (QRegularExpression {"^(CQ|QRZ) "});
-    if(m_mode=="FT8") {
+    if(m_mode=="FT8" or m_mode=="FT2") {
       if(m_bCallingCQ && ui->cbFirst->isVisible () && ui->cbFirst->isChecked ()) {
         ui->cbFirst->setStyleSheet("QCheckBox{color:red}");
       } else {
@@ -3854,7 +3854,7 @@ void MainWindow::guiUpdate()
     }
   }
 
-  if(m_mode=="FT8" or m_mode=="MSK144") {
+  if(m_mode=="FT8" or m_mode=="MSK144" or m_mode=="FT2") {
     if(ui->txrb1->isEnabled() and 
        (SpecOp::NA_VHF==m_config.special_op_id() or 
         SpecOp::FIELD_DAY==m_config.special_op_id() or 
@@ -3870,7 +3870,7 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-//    qDebug() << "cc onesec" << g_iptt << m_iptt0;
+//    qDebug() << "cc onesec" << (SpecOp::RTTY == m_config.special_op_id());
     // if((!m_msgAvgWidget or (m_msgAvgWidget and !m_msgAvgWidget->isVisible()))
     //    and (SpecOp::NONE < m_config.special_op_id()) and (SpecOp::HOUND > m_config.special_op_id())) on_actionFox_Log_triggered();
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
@@ -4530,7 +4530,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
           }
           m_QSOProgress = SIGNOFF;
         } else if((m_QSOProgress >= REPORT
-                   || (m_QSOProgress >= REPLYING && (m_mode=="MSK144" or m_mode=="FT8")))
+                   || (m_QSOProgress >= REPLYING &&
+                   (m_mode=="MSK144" or m_mode=="FT8" or m_mode=="FT2")))
                    && r.mid(0,1)=="R") {
           m_ntx=4;
           m_QSOProgress = ROGERS;
@@ -4562,6 +4563,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             }
           }
         } else {                // nothing for us
+          qDebug() << "aa";
           return;
         }
       }
@@ -4610,6 +4612,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
         m_bDoubleClickAfterCQnnn=false;
       }
       else {
+        qDebug() << "bb";
         return;               // nothing we need to respond to
       }
     }
@@ -4625,6 +4628,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
 //        ui->labNextCall->setText("Next:  " + m_nextCall);
 //        ui->labNextCall->setStyleSheet("QLabel {background-color: #66ff66}");
 //      }
+      qDebug() << "cc";
       return;
     }
   }
@@ -4754,7 +4758,14 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   }
 
   if(m_transmitting) m_restart=true;
-  if (ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked () && !m_bDoubleClicked) return;
+  if (ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked () && !m_bDoubleClicked) {
+    qDebug() << "dd";
+    return;
+  }
+  if(m_mode=="FT2") {
+    qDebug() << "ee";
+    ft2_tx(m_ntx);   //### Is this right ??? ###
+  }
   if(m_config.quick_call()) auto_tx_mode(true);
   m_bDoubleClicked=false;
 }
@@ -4895,7 +4906,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     int n=rpt.toInt();
     rpt.sprintf("%+2.2d",n);
 
-    if(m_mode=="MSK144" or m_mode=="FT8") {
+    if(m_mode=="MSK144" or m_mode=="FT8" or m_mode=="FT2") {
       QString t2,t3;
       QString sent=rpt;
       QString rs,rst;
@@ -4949,7 +4960,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       }
     }
 
-    if((m_mode!="MSK144" and m_mode!="FT8")) {
+    if((m_mode!="MSK144" and m_mode!="FT8" and m_mode!="FT2")) {
       t=t00 + rpt;
       msgtype(t, ui->tx2);
       t=t0 + "R" + rpt;
@@ -5571,6 +5582,14 @@ void MainWindow::on_actionFT2_triggered()
   ui->cbAutoSeq->setEnabled(true);
   ui->labDXped->setVisible(false);
   ui->labDXped->setText("");
+
+  ui->labDXped->setVisible(false);
+  if (SpecOp::RTTY == m_config.special_op_id ()) {
+    ui->labDXped->setVisible(true);
+    ui->labDXped->setText("RTTY");
+    on_contest_log_action_triggered();
+  }
+
   statusChanged();
 }
 
@@ -7900,7 +7919,7 @@ void MainWindow::on_cbFirst_toggled(bool b)
 void MainWindow::on_cbAutoSeq_toggled(bool b)
 {
   if(!b) ui->cbFirst->setChecked(false);
-  ui->cbFirst->setVisible((m_mode=="FT8") and b);
+  ui->cbFirst->setVisible((m_mode=="FT8" or m_mode=="FT2") and b);
 }
 
 void MainWindow::on_measure_check_box_stateChanged (int state)
@@ -8638,6 +8657,7 @@ void MainWindow::ft2_tx(int ntx)
   static char msgsent[38];
   QByteArray ba;
   m_ntx=ntx;
+  setTxMsg(m_ntx);
   if(m_ntx == 1) ba=ui->tx1->text().toLocal8Bit();
   if(m_ntx == 2) ba=ui->tx2->text().toLocal8Bit();
   if(m_ntx == 3) ba=ui->tx3->text().toLocal8Bit();
@@ -8655,8 +8675,7 @@ void MainWindow::ft2_tx(int ntx)
   tx_status_label.setStyleSheet("QLabel{background-color: #ffff33}");
   tx_status_label.setText("TX: " + m_currentMessage);
 
-  on_txb6_clicked();
-  auto_tx_mode(true);
+  auto_tx_mode(true);                    //Enable Tx
 
   icw[0]=0;
   g_iptt = 1;
