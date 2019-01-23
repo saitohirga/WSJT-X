@@ -9,10 +9,10 @@ program ft4d
   character*90 dmsg
   complex cd2(0:NMAX/16-1)                  !Complex waveform
   complex cb(0:NMAX/16-1)
-  complex cd(0:76*10-1)                  !Complex waveform
+  complex cd(0:76*20-1)                  !Complex waveform
   complex c3(0:19),c2(0:19),c1(0:19),c0(0:19)
   complex ccor(0:3,76)
-  complex csum,cterm,cc0,cc1,csync1,csync2
+  complex csum,cterm,cc0,cc1,cc2,cc3,csync1,csync2
   complex csync(12)
   real*8 fMHz
 
@@ -40,28 +40,28 @@ program ft4d
   h=1.000                                  !h=0.8 seems to be optimum for AWGN sensitivity (not for fading)
 
   dphi=twopi/2*baud*h*dt*16  ! dt*16 is samp interval after downsample
-  dphi0=-1.5*dphi
-  dphi1=-0.5*dphi
-  dphi2=+0.5*dphi
-  dphi3=+1.5*dphi
+  dphi0=-3*dphi
+  dphi1=-dphi
+  dphi2=+dphi
+  dphi3=+3*dphi
   phi0=0.0
   phi1=0.0
   phi2=0.0
   phi3=0.0
-  do i=0,9
+  do i=0,19
     c3(i)=cmplx(cos(phi3),sin(phi3))
     c2(i)=cmplx(cos(phi2),sin(phi2))
     c1(i)=cmplx(cos(phi1),sin(phi1))
     c0(i)=cmplx(cos(phi0),sin(phi0))
-    phi3=mod(phi1+dphi3,twopi)
-    phi2=mod(phi1+dphi2,twopi)
+    phi3=mod(phi3+dphi3,twopi)
+    phi2=mod(phi2+dphi2,twopi)
     phi1=mod(phi1+dphi1,twopi)
     phi0=mod(phi0+dphi0,twopi)
   enddo
   the=twopi*h/2.0
-  cc3=cmplx(cos(3*the),-sin(3*the))
-  cc2=cmplx(cos(the),-sin(the))
-  cc1=cmplx(cos(the),sin(the))
+  cc3=cmplx(cos(3*the),+sin(3*the))
+  cc2=cmplx(cos(the),+sin(the))
+  cc1=cmplx(cos(the),-sin(the))
   cc0=cmplx(cos(3*the),-sin(3*the))
 
   nargs=iargc()
@@ -100,32 +100,33 @@ program ft4d
         f0=candidates(icand,1)
         xsnr=1.0
         if( f0.le.375.0 .or. f0.ge.(5000.0-375.0) ) cycle 
-        call ft4_downsample(iwave,f0,cd2) ! downsample from 160s/Symbol to 10s/Symbol
-
+        call ft4_downsample(iwave,f0,cd2) ! downsample from 320s/Symbol to 20s/Symbol
+        s2=sum(cd2*conjg(cd2))/(20.0*76)
+        if(s2.gt.0.0) cd2=cd2/sqrt(s2)
 ! 750 samples/second here
         ibest=-1
         sybest=-99.
         dfbest=-1.
-        do if=-60,+60
+        do if=-30,+30
            df=if
            a=0.
            a(1)=-df
            call twkfreq1(cd2,NMAX/16,fs,a,cb)
-           do is=0,380
+           do istart=0,380
               csync1=0.
               cterm=1
               do ib=1,12
-                 i1=(ib-1)*10+is
+                 i1=(ib-1)*20+istart
                  if(s12(ib).eq.0) then
                     csync1=csync1+sum(cb(i1:i1+19)*conjg(c0(0:19)))*cterm
-                    cterm=cterm*cc0
+                    cterm=cterm*conjg(cc0)
                  else
                     csync1=csync1+sum(cb(i1:i1+19)*conjg(c3(0:19)))*cterm
-                    cterm=cterm*cc3
+                    cterm=cterm*conjg(cc3)
                  endif
               enddo
               if(abs(csync1).gt.sybest) then
-                 ibest=is
+                 ibest=istart
                  sybest=abs(csync1)
                  dfbest=df
               endif
@@ -136,25 +137,28 @@ program ft4d
 !dfbest=1500.0-f0
         a(1)=-dfbest
 
-        call twkfreq1(c2,NMAX/16,fs,a,cb)
+        call twkfreq1(cd2,NMAX/16,fs,a,cb)
 
-!ibest=197
+!ibest=208
         ib=ibest
-write(*,*) f0,f0+dfbest,ibest
-goto 888
-        cd=cb(ib:ib+144*10-1) 
-        s2=sum(cd*conjg(cd))/(10*144)
-        cd=cd/sqrt(s2)
+
+        cd=cb(ib:ib+76*20-1) 
         do nseq=1,1
            if( nseq.eq.1 ) then  ! noncoherent single-symbol detection
               sbits1=0.0
-              do ibit=1,76
-                 ib=(ibit-1)*10
-                 ccor(1,ibit)=sum(cd(ib:ib+9)*conjg(c1(0:9)))        
-                 ccor(0,ibit)=sum(cd(ib:ib+9)*conjg(c0(0:9)))   
-                 sbits1(ibit)=abs(ccor(1,ibit))-abs(ccor(0,ibit))
-                 hbits1(ibit)=0
-                 if(sbits1(ibit).gt.0) hbits1(ibit)=1
+              do isym=1,76
+                 ib=(isym-1)*20
+                 ccor(3,isym)=sum(cd(ib:ib+19)*conjg(c3(0:19)))        
+                 ccor(2,isym)=sum(cd(ib:ib+19)*conjg(c2(0:19)))        
+                 ccor(1,isym)=sum(cd(ib:ib+19)*conjg(c1(0:19)))        
+                 ccor(0,isym)=sum(cd(ib:ib+19)*conjg(c0(0:19)))   
+                 sbits1(2*isym-1)= max(abs(ccor(2,isym)),abs(ccor(3,isym)))- &
+                                   max(abs(ccor(0,isym)),abs(ccor(1,isym)))
+                 sbits1(2*isym) =  max(abs(ccor(1,isym)),abs(ccor(2,isym)))- &
+                                   max(abs(ccor(0,isym)),abs(ccor(3,isym)))
+                 hbits1(2*isym-1:2*isym)=0
+                 if(sbits1(2*isym-1).gt.0) hbits1(2*isym-1)=1
+                 if(sbits1(2*isym  ).gt.0) hbits1(2*isym  )=1
               enddo 
               sbits=sbits1
               hbits=hbits1
@@ -195,20 +199,16 @@ goto 888
               sbits=sbits3
               hbits=hbits3
            endif
-           nsync_qual=count(hbits(1:16).eq.s16)
+           nsync_qual=count(hbits(1:24).eq.(/0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0/))
 !           if(nsync_qual.lt.10) exit 
-           rxdata=sbits(17:144)
+           rxdata=sbits(25:152)
            rxav=sum(rxdata(1:128))/128.0
            rx2av=sum(rxdata(1:128)*rxdata(1:128))/128.0
            rxsig=sqrt(rx2av-rxav*rxav)
            rxdata=rxdata/rxsig
            sigma=0.80
            llr(1:128)=2*rxdata/(sigma*sigma)
-!xllrmax=maxval(abs(llr))
-!write(*,*) ifile,icand,nseq,nsync_qual
            apmask=0
-!apmask(1:29)=1
-!llr(1:29)=xllrmax*(2*s45(17:45)-1)
            max_iterations=40
            do ibias=0,0
               llr2=llr
@@ -295,7 +295,7 @@ subroutine ft4_downsample(iwave,f0,c)
   real x(NMAX)
   equivalence (x,cx)
 
-  BW=4.0*75
+  BW=6.0*75
   df=12000.0/NMAX
   x=iwave
   call four2a(x,NMAX,1,-1,0)             !r2c FFT to freq domain

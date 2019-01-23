@@ -58,7 +58,7 @@ subroutine genft4(msg0,ichk,msgsent,i4tone)
 !Create 144-bit channel vector:
   i4tone(1:12)=s12
   do i=1,64
-    is=codeword(2*i-1)+2*codeword(2*i)
+    is=codeword(2*i)+2*codeword(2*i-1)
     if(is.le.1) i4tone(12+i)=is
     if(is.eq.2) i4tone(12+i)=3
     if(is.eq.3) i4tone(12+i)=2
