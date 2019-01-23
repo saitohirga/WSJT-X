@@ -581,6 +581,7 @@ private:
   QTimer minuteTimer;
   QTimer splashTimer;
   QTimer p1Timer;
+  QTimer FT2_TxTimer;
 
   QString m_path;
   QString m_baseCall;

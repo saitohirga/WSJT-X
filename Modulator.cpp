@@ -47,8 +47,6 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
                        SoundOutput * stream, Channel channel,
                        bool synchronize, bool fastMode, double dBSNR, int TRperiod)
 {
-//  qDebug() << "Mod AA" << symbolsLength << framesPerSymbol << frequency
-//           << toneSpacing << synchronize << fastMode << dBSNR << TRperiod;
   Q_ASSERT (stream);
 // Time according to this computer which becomes our base time
   qint64 ms0 = QDateTime::currentMSecsSinceEpoch() % 86400000;
@@ -319,6 +317,8 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
 
         m_frequency0 = m_frequency;
         // done for this chunk - continue on next call
+//        qint64 ms1=QDateTime::currentMSecsSinceEpoch() - m_ms0;
+//        if(m_ic>=4*144*160) qDebug() << "Modulator finished" << m_ic << 0.001*ms1;
         return framesGenerated * bytesPerFrame ();
       }
       // fall through

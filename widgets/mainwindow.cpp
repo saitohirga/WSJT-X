@@ -727,6 +727,10 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect(&m_guiTimer, &QTimer::timeout, this, &MainWindow::guiUpdate);
   m_guiTimer.start(100);   //### Don't change the 100 ms! ###
 
+
+  FT2_TxTimer.setSingleShot(true);
+  connect(&FT2_TxTimer, &QTimer::timeout, this, &MainWindow::stopTx);
+
   ptt0Timer.setSingleShot(true);
   connect(&ptt0Timer, &QTimer::timeout, this, &MainWindow::stopTx2);
 
@@ -3553,7 +3557,7 @@ void MainWindow::guiUpdate()
       Q_EMIT m_config.transceiver_ptt (true);            //Assert the PTT
       m_tx_when_ready = true;
     }
-    if(!m_bTxTime and !m_tune) m_btxok=false;       //Time to stop transmitting
+    if(!m_bTxTime and !m_tune and m_mode!="FT2") m_btxok=false;       //Time to stop transmitting
   }
 
   if(m_mode.startsWith ("WSPR") and
@@ -3695,7 +3699,7 @@ void MainWindow::guiUpdate()
       }
     }
 
-    m_currentMessage = QString::fromLatin1(msgsent);
+    if(m_mode!="FT2") m_currentMessage = QString::fromLatin1(msgsent);
     m_bCallingCQ = CALLING == m_QSOProgress
       || m_currentMessage.contains (QRegularExpression {"^(CQ|QRZ) "});
     if(m_mode=="FT8") {
@@ -3925,6 +3929,7 @@ void MainWindow::guiUpdate()
           if(SpecOp::FOX==m_config.special_op_id() and ui->tabWidget->currentIndex()==2 and foxcom_.nslots==1) {
               t=m_fm1.trimmed();
           }
+          if(m_mode=="FT2") t="Tx: "+ m_currentMessage;
           tx_status_label.setText(t.trimmed());
         }
       }
@@ -4000,7 +4005,6 @@ void MainWindow::startTx2()
         ui->decodedTextBrowser->appendText(t);
       }
       write_all("Tx",m_currentMessage);
-//      write_transmit_entry ("ALL_WSPR.TXT");
     }
   }
 }
@@ -7217,7 +7221,8 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
     }
 
   QString format_string {"%1 %2 %3 %4 %5 %6"};
-  auto const& time_string = time.toString ("~" == mode || "&" == mode ? "hhmmss" : "hhmm");
+  auto const& time_string = time.toString ("~" == mode || "&" == mode
+                                           || "+" == mode ? "hhmmss" : "hhmm");
   auto message_line = format_string
     .arg (time_string)
     .arg (snr, 3)
@@ -8650,7 +8655,10 @@ void MainWindow::ft2_tx(int ntx)
   int itype=-1;
   genft2_(message, &ichk, msgsent, const_cast<int *>(itone), &itype, 37, 37);
   msgsent[37]=0;
-  m_currentMessage = QString::fromLatin1(msgsent);
+  m_currentMessage = QString::fromLatin1(msgsent).trimmed();
+  tx_status_label.setStyleSheet("QLabel{background-color: #ffff33}");
+  tx_status_label.setText("TX: " + m_currentMessage);
+
   on_txb6_clicked();
   auto_tx_mode(true);
 
@@ -8660,6 +8668,9 @@ void MainWindow::ft2_tx(int ntx)
   setXIT (ui->TxFreqSpinBox->value ());
   Q_EMIT m_config.transceiver_ptt (true);            //Assert the PTT
   m_tx_when_ready = true;
+  qint64 ms=QDateTime::currentMSecsSinceEpoch();
+  m_modulator->set_ms0(ms);
+  FT2_TxTimer.start(2200);      //Slightly more than FT2 transmission length
 
   if (g_iptt == 1 && m_iptt0 == 0) {
     auto const& current_message = QString::fromLatin1 (msgsent);
