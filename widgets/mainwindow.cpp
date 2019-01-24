@@ -731,6 +731,9 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   FT2_TxTimer.setSingleShot(true);
   connect(&FT2_TxTimer, &QTimer::timeout, this, &MainWindow::stopTx);
 
+  FT2_WriteTxTimer.setSingleShot(true);
+  connect(&FT2_WriteTxTimer, &QTimer::timeout, this, &MainWindow::FT2_writeTx);
+
   ptt0Timer.setSingleShot(true);
   connect(&ptt0Timer, &QTimer::timeout, this, &MainWindow::stopTx2);
 
@@ -3105,7 +3108,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
 //Right (Rx Frequency) window
       bool bDisplayRight=bAvgMsg;
       int audioFreq=decodedtext.frequencyOffset();
-
       if(m_mode=="FT8") {
         auto const& parts = decodedtext.string().remove("<").remove(">")
             .split (' ', QString::SkipEmptyParts);
@@ -4300,7 +4302,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       || ("JT9" == m_mode && mode != "@")
       || ("MSK144" == m_mode && !("&" == mode || "^" == mode))
       || ("QRA64" == m_mode && mode.left (1) != ":")) {
-    return;
+    return;      //Currently we do auto-sequencing only in FT2, FT8, and MSK144
   }
 
   //Skip the rest if no decoded text extracted
@@ -4563,7 +4565,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             }
           }
         } else {                // nothing for us
-          qDebug() << "aa";
           return;
         }
       }
@@ -4612,7 +4613,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
         m_bDoubleClickAfterCQnnn=false;
       }
       else {
-        qDebug() << "bb";
         return;               // nothing we need to respond to
       }
     }
@@ -4628,7 +4628,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
 //        ui->labNextCall->setText("Next:  " + m_nextCall);
 //        ui->labNextCall->setStyleSheet("QLabel {background-color: #66ff66}");
 //      }
-      qDebug() << "cc";
       return;
     }
   }
@@ -4758,13 +4757,14 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   }
 
   if(m_transmitting) m_restart=true;
-  if (ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked () && !m_bDoubleClicked) {
-    qDebug() << "dd";
+  if (ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked ()
+      && !m_bDoubleClicked && m_mode!="FT2") {
     return;
   }
-  if(m_mode=="FT2") {
-    qDebug() << "ee";
-    ft2_tx(m_ntx);   //### Is this right ??? ###
+  if(m_mode=="FT2" and ui->cbAutoSeq->isChecked()) {
+    if(m_ntx==3 or m_ntx==4 or m_bDoubleClicked) {
+      ft2_tx(m_ntx);
+    }
   }
   if(m_config.quick_call()) auto_tx_mode(true);
   m_bDoubleClicked=false;
@@ -5559,7 +5559,7 @@ void MainWindow::on_actionFT2_triggered()
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
   VHF_features_enabled(bVHF);
-  ui->cbAutoSeq->setChecked(false);
+//  ui->cbAutoSeq->setChecked(false);
   m_fastGraph->hide();
   m_wideGraph->show();
   ui->decodedTextLabel2->setText("  UTC   dB   DT Freq    Message");
@@ -5589,7 +5589,6 @@ void MainWindow::on_actionFT2_triggered()
     ui->labDXped->setText("RTTY");
     on_contest_log_action_triggered();
   }
-
   statusChanged();
 }
 
@@ -8581,7 +8580,7 @@ void MainWindow::write_all(QString txRx, QString message)
   t.sprintf("%5d",ui->TxFreqSpinBox->value());
   if(txRx=="Tx") msg="   0  0.0" + t + " " + message;
   auto time = QDateTime::currentDateTimeUtc ();
-  time = time.addSecs (-(time.time ().second () % m_TRperiod));
+  if(m_mode!="FT2") time = time.addSecs(-(time.time().second() % m_TRperiod));
   t.sprintf("%10.3f ",m_freqNominal/1.e6);
   if(m_diskData) {
     line=m_fileDateTime + t + txRx + " " + m_mode.leftJustified(6,' ') + msg;
@@ -8646,6 +8645,31 @@ void MainWindow::ft2Data(int k)
     DecodedText decodedtext {sline.replace(QChar::LineFeed,"")};
     ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_mode,
                    m_config.DXCC(),m_logBook,m_currentBand,m_config.ppfx());
+
+//###
+    //Right (Rx Frequency) window
+    int audioFreq=decodedtext.frequencyOffset();
+    auto const& parts = decodedtext.string().remove("<").remove(">")
+        .split (' ', QString::SkipEmptyParts);
+    if (parts.size () > 6) {
+      auto for_us = parts[5].contains (m_baseCall)
+          || ("DE" == parts[5] && qAbs (ui->RxFreqSpinBox->value () - audioFreq) <= 10);
+      if(m_baseCall==m_config.my_callsign() and m_baseCall!=parts[5]) for_us=false;
+      if(m_bCallingCQ && !m_bAutoReply && for_us && ui->cbFirst->isChecked()) {
+        m_bDoubleClicked=true;
+        m_bAutoReply = true;
+        ui->cbFirst->setStyleSheet("");
+      }
+      if(for_us or (abs(audioFreq - m_wideGraph->rxFreq()) <= 10)) {
+        // This msg is within 10 hertz of our tuned frequency, or contains MyCall
+        ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_baseCall,
+             m_mode,m_config.DXCC(),m_logBook,m_currentBand,m_config.ppfx());
+        m_QSOText = decodedtext.string().trimmed ();
+      }
+      processMessage(decodedtext);
+      write_all("Rx",decodedtext.string().trimmed());
+    }
+//###
   }
   nhsec0=nhsec;
 }
@@ -8676,7 +8700,6 @@ void MainWindow::ft2_tx(int ntx)
   tx_status_label.setText("TX: " + m_currentMessage);
 
   auto_tx_mode(true);                    //Enable Tx
-
   icw[0]=0;
   g_iptt = 1;
   setRig ();
@@ -8689,7 +8712,8 @@ void MainWindow::ft2_tx(int ntx)
 
   if (g_iptt == 1 && m_iptt0 == 0) {
     auto const& current_message = QString::fromLatin1 (msgsent);
-    write_all("Tx",m_currentMessage);
+//    write_all("Tx",m_currentMessage);
+    FT2_WriteTxTimer.start(100);
 
     if (m_config.TX_messages () && !m_tune && SpecOp::FOX!=m_config.special_op_id()) {
       ui->decodedTextBrowser2->displayTransmittedText(current_message, m_modeTx,
@@ -8710,8 +8734,10 @@ void MainWindow::ft2_tx(int ntx)
     transmitDisplay (true);
     statusUpdate ();
   }
-
   if(!m_btxok && m_btxok0 && g_iptt==1) stopTx();
+}
 
-//  if(!m_bTxTime and !m_tune) m_btxok=false;       //Time to stop transmitting
+void MainWindow::FT2_writeTx()
+{
+  write_all("Tx",m_currentMessage);
 }

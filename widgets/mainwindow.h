@@ -582,6 +582,7 @@ private:
   QTimer splashTimer;
   QTimer p1Timer;
   QTimer FT2_TxTimer;
+  QTimer FT2_WriteTxTimer;
 
   QString m_path;
   QString m_baseCall;
@@ -749,6 +750,7 @@ private:
   void foxTxSequencer();
   void foxGenWaveform(int i,QString fm);
   void writeFoxQSO (QString const& msg);
+  void FT2_writeTx();
 };
 
 extern int killbyname(const char* progName);
