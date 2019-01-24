@@ -8738,6 +8738,7 @@ void MainWindow::ft2_tx(int ntx)
     transmitDisplay (true);
     statusUpdate ();
   }
+  m_dateTimeQSOOn=QDateTime::currentDateTimeUtc();
   if(!m_btxok && m_btxok0 && g_iptt==1) stopTx();
 }
 
