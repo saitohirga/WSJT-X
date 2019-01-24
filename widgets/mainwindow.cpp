@@ -4762,6 +4762,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     return;
   }
   if(m_mode=="FT2" and ui->cbAutoSeq->isChecked()) {
+    if(m_ntx==4 or m_ntx==5) logQSOTimer.start(0);  // Log the QSO
     if((m_ntx==3 and ui->cbFirst->isChecked()) or m_ntx==4 or m_bDoubleClicked) {
       ft2_tx(m_ntx);
     }
@@ -8698,6 +8699,11 @@ void MainWindow::ft2_tx(int ntx)
   m_currentMessage = QString::fromLatin1(msgsent).trimmed();
   tx_status_label.setStyleSheet("QLabel{background-color: #ffff33}");
   tx_status_label.setText("TX: " + m_currentMessage);
+  if(m_ntx==2 or m_ntx==3) {
+    QStringList t=ui->tx2->text().split(' ', QString::SkipEmptyParts);
+    int n=t.size();
+    m_xSent=t.at(n-2) + " " + t.at(n-1);
+  }
 
   auto_tx_mode(true);                    //Enable Tx
   icw[0]=0;
