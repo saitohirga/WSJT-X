@@ -4762,7 +4762,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     return;
   }
   if(m_mode=="FT2" and ui->cbAutoSeq->isChecked()) {
-    if(m_ntx==3 or m_ntx==4 or m_bDoubleClicked) {
+    if((m_ntx==3 and ui->cbFirst->isChecked()) or m_ntx==4 or m_bDoubleClicked) {
       ft2_tx(m_ntx);
     }
   }
@@ -8712,9 +8712,7 @@ void MainWindow::ft2_tx(int ntx)
 
   if (g_iptt == 1 && m_iptt0 == 0) {
     auto const& current_message = QString::fromLatin1 (msgsent);
-//    write_all("Tx",m_currentMessage);
-    FT2_WriteTxTimer.start(100);
-
+    FT2_WriteTxTimer.start(100);  //Why is a delay necessary to ensure Tx after Rx in all.txt?
     if (m_config.TX_messages () && !m_tune && SpecOp::FOX!=m_config.special_op_id()) {
       ui->decodedTextBrowser2->displayTransmittedText(current_message, m_modeTx,
            ui->TxFreqSpinBox->value(),m_bFastMode);
