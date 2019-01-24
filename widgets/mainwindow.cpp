@@ -3887,12 +3887,13 @@ void MainWindow::guiUpdate()
       //To keep calling Fox, Hound must reactivate Enable Tx at least once every 2 minutes
       if(tHound >= 120 and m_ntx==1) auto_tx_mode(false);
     }
+
+    progressBar.setVisible(!(m_mode=="FT2"));
     if(m_auto and m_mode=="Echo" and m_bEchoTxOK) {
       progressBar.setMaximum(6);
       progressBar.setValue(int(m_s6));
     }
-
-    if(m_mode!="Echo") {
+    if(m_mode!="Echo" and m_mode!="FT2") {
       if(m_monitoring or m_transmitting) {
         progressBar.setMaximum(m_TRperiod);
         int isec=int(fmod(tsec,m_TRperiod));
