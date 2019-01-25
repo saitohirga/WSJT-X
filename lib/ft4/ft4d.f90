@@ -124,11 +124,11 @@ program ft4d
          enddo
 
          f0=f0+dfbest
-f0=1443.75
+!f0=1443.75
          call ft4_downsample(iwave,f0,cb) ! downsample from 320s/Symbol to 20s/Symbol
          sum2=sum(abs(cb)**2)/(20.0*76)
          if(sum2.gt.0.0) cb=cb/sqrt(sum2)
-ibest=208
+!ibest=208
          cd=cb(ibest:ibest+76*20-1)
          do k=1,NN
             i1=(k-1)*20
