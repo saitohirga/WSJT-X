@@ -8715,7 +8715,7 @@ void MainWindow::ft2_tx(int ntx)
   m_tx_when_ready = true;
   qint64 ms=QDateTime::currentMSecsSinceEpoch();
   m_modulator->set_ms0(ms);
-  FT2_TxTimer.start(2200);      //Slightly more than FT2 transmission length
+  FT2_TxTimer.start(2500);      //Slightly more than FT2 transmission length
 
   if (g_iptt == 1 && m_iptt0 == 0) {
     auto const& current_message = QString::fromLatin1 (msgsent);
