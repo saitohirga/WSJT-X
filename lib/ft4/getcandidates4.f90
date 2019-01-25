@@ -1,9 +1,7 @@
 subroutine getcandidates4(id,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
      ncand,sbase)
 
-! For now, hardwired to find the largest peak in the average spectrum
-
-  include 'ft2_params.f90'
+  include 'ft4_params.f90'
   real s(NH1,NHSYM)
   real savg(NH1),savsm(NH1)
   real sbase(NH1)
@@ -11,9 +9,7 @@ subroutine getcandidates4(id,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
   complex cx(0:NH1)
   real candidate(3,maxcand)
   integer*2 id(NMAX)
-  integer*1 s8(8)
   integer indx(NH1)
-  data s8/0,1,1,1,0,0,1,0/
   equivalence (x,cx)
 
 ! Compute symbol spectra, stepping by NSTEP steps.  
@@ -33,10 +29,9 @@ subroutine getcandidates4(id,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
      savg=savg + s(1:NH1,j)                   !Average spectrum
   enddo
   savsm=0.
-  do i=2,NH1-1
-    savsm(i)=sum(savg(i-1:i+1))/3.
+  do i=6,NH1-5
+    savsm(i)=sum(savg(i-5:i+5))/11.
   enddo
-
   nfa=fa/df
   nfb=fb/df
   np=nfb-nfa+1
@@ -58,6 +53,8 @@ subroutine getcandidates4(id,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
   if(xmax.gt.1.2) then
      ncand=ncand+1
      candidate(1,ncand)=f0
+     candidate(2,ncand)=-99.9
+     candidate(3,ncand)=xmax
   endif
 return
 end subroutine getcandidates4

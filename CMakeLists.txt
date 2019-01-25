@@ -463,7 +463,7 @@ set (wsjt_FSRCS
   lib/genmsk_128_90.f90
   lib/genmsk40.f90
   lib/fsk4hf/genft2.f90
-  lib/fsk4hf/genft4.f90
+  lib/ft4/genft4.f90
   lib/genqra64.f90
   lib/ft8/genft8refsig.f90
   lib/genwspr.f90
@@ -509,8 +509,10 @@ set (wsjt_FSRCS
   lib/msk144signalquality.f90
   lib/msk144sim.f90
   lib/mskrtd.f90
-  lib/fsk4hf/ft4sim.f90
-  lib/fsk4hf/ft4d.f90
+  lib/fsk4hf/ft2sim.f90
+  lib/fsk4hf/ft2d.f90
+  lib/ft4/ft4sim.f90
+  lib/ft4/ft4d.f90
   lib/ft2/cdatetime.f90
   lib/ft2/ft2_decode.f90
   lib/77bit/my_hash.f90
@@ -553,10 +555,13 @@ set (wsjt_FSRCS
   lib/sync4.f90
   lib/sync64.f90
   lib/sync65.f90
+  lib/ft4/getcandidates4.f90
   lib/fsk4hf/getcandidates2.f90
   lib/ft2/getcandidates2a.f90
+  lib/ft4/syncft4.f90
   lib/ft8/sync8.f90
   lib/ft8/sync8d.f90
+  lib/ft4/sync4d.f90
   lib/sync9.f90
   lib/sync9f.f90
   lib/sync9w.f90
@@ -1265,10 +1270,16 @@ target_link_libraries (ft8sim wsjt_fort wsjt_cxx)
 add_executable (msk144sim lib/msk144sim.f90 wsjtx.rc)
 target_link_libraries (msk144sim wsjt_fort wsjt_cxx)
 
-add_executable (ft4sim lib/fsk4hf/ft4sim.f90 wsjtx.rc)
+add_executable (ft2sim lib/fsk4hf/ft2sim.f90 wsjtx.rc)
+target_link_libraries (ft2sim wsjt_fort wsjt_cxx)
+
+add_executable (ft2d lib/fsk4hf/ft2d.f90 wsjtx.rc)
+target_link_libraries (ft2d wsjt_fort wsjt_cxx)
+
+add_executable (ft4sim lib/ft4/ft4sim.f90 wsjtx.rc)
 target_link_libraries (ft4sim wsjt_fort wsjt_cxx)
 
-add_executable (ft4d lib/fsk4hf/ft4d.f90 wsjtx.rc)
+add_executable (ft4d lib/ft4/ft4d.f90 wsjtx.rc)
 target_link_libraries (ft4d wsjt_fort wsjt_cxx)
 
 endif(WSJT_BUILD_UTILS)

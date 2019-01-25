@@ -18,6 +18,8 @@ program ft4sim
   integer itone(NN)
   integer*1 msgbits(77)
   integer*2 iwave(NMAX)                  !Generated full-length waveform
+  integer icos4(4)
+  data icos4/0,1,3,2/
   
 ! Get command-line argument(s)
   nargs=iargc()
@@ -48,7 +50,7 @@ program ft4sim
   twopi=8.0*atan(1.0)
   fs=12000.0                             !Sample rate (Hz)
   dt=1.0/fs                              !Sample interval (s)
-  hmod=1.000                               !Modulation index (0.5 is MSK, 1.0 is FSK)
+  hmod=1.0                               !Modulation index (0.5 is MSK, 1.0 is FSK)
   tt=NSPS*dt                             !Duration of symbols (s)
   baud=1.0/tt                            !Keying rate (baud)
   txt=NZ*dt                              !Transmission length (s)
@@ -114,10 +116,6 @@ program ft4sim
   c0=cshift(c0,-k)
   ia=k
 
-do i=0,NMAX-1
-write(21,*) i,real(c0(i)),imag(c0(i)),dphi(i)
-enddo
-  
   do ifile=1,nfiles
      c=c0
      if(fspread.ne.0.0 .or. delay.ne.0.0) call watterson(c,NMAX,NWAVE,fs,delay,fspread)

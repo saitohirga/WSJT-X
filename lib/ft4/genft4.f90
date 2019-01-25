@@ -15,12 +15,15 @@ subroutine genft4(msg0,ichk,msgsent,i4tone)
   character*37 message                    !Message to be generated
   character*37 msgsent                    !Message as it will be received
   character*77 c77
-  integer*4 i4tone(76)
+  integer*4 i4tone(76),itmp(64)
   integer*1 codeword(128)
   integer*1 msgbits(77) 
   integer*1 s12(12)
+  integer icos4(4)
   real*8 xi(864),xq(864),pi,twopi
-  data s12/0,0,0,3,3,3,3,3,3,0,0,0/
+!  data s12/1,1,1,2,2,2,2,2,2,1,1,1/
+  data icos4/0,1,3,2/
+
   logical unpk77_success
 
   twopi=8.*atan(1.0)
@@ -56,13 +59,17 @@ subroutine genft4(msg0,ichk,msgsent,i4tone)
 ! 10     3
 
 !Create 144-bit channel vector:
-  i4tone(1:12)=s12
   do i=1,64
     is=codeword(2*i)+2*codeword(2*i-1)
-    if(is.le.1) i4tone(12+i)=is
-    if(is.eq.2) i4tone(12+i)=3
-    if(is.eq.3) i4tone(12+i)=2
+    if(is.le.1) itmp(i)=is
+    if(is.eq.2) itmp(i)=3
+    if(is.eq.3) itmp(i)=2
   enddo
+  i4tone(1:4)=icos4
+  i4tone(5:36)=itmp(1:32)
+  i4tone(37:40)=icos4
+  i4tone(41:72)=itmp(33:64)
+  i4tone(73:76)=icos4
 
 999 return
 end subroutine genft4
