@@ -727,6 +727,13 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect(&m_guiTimer, &QTimer::timeout, this, &MainWindow::guiUpdate);
   m_guiTimer.start(100);   //### Don't change the 100 ms! ###
 
+
+  FT2_TxTimer.setSingleShot(true);
+  connect(&FT2_TxTimer, &QTimer::timeout, this, &MainWindow::stopTx);
+
+  FT2_WriteTxTimer.setSingleShot(true);
+  connect(&FT2_WriteTxTimer, &QTimer::timeout, this, &MainWindow::FT2_writeTx);
+
   ptt0Timer.setSingleShot(true);
   connect(&ptt0Timer, &QTimer::timeout, this, &MainWindow::stopTx2);
 
@@ -3101,7 +3108,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
 //Right (Rx Frequency) window
       bool bDisplayRight=bAvgMsg;
       int audioFreq=decodedtext.frequencyOffset();
-
       if(m_mode=="FT8") {
         auto const& parts = decodedtext.string().remove("<").remove(">")
             .split (' ', QString::SkipEmptyParts);
@@ -3553,7 +3559,7 @@ void MainWindow::guiUpdate()
       Q_EMIT m_config.transceiver_ptt (true);            //Assert the PTT
       m_tx_when_ready = true;
     }
-    if(!m_bTxTime and !m_tune) m_btxok=false;       //Time to stop transmitting
+    if(!m_bTxTime and !m_tune and m_mode!="FT2") m_btxok=false;       //Time to stop transmitting
   }
 
   if(m_mode.startsWith ("WSPR") and
@@ -3695,10 +3701,10 @@ void MainWindow::guiUpdate()
       }
     }
 
-    m_currentMessage = QString::fromLatin1(msgsent);
+    if(m_mode!="FT2") m_currentMessage = QString::fromLatin1(msgsent);
     m_bCallingCQ = CALLING == m_QSOProgress
       || m_currentMessage.contains (QRegularExpression {"^(CQ|QRZ) "});
-    if(m_mode=="FT8") {
+    if(m_mode=="FT8" or m_mode=="FT2") {
       if(m_bCallingCQ && ui->cbFirst->isVisible () && ui->cbFirst->isChecked ()) {
         ui->cbFirst->setStyleSheet("QCheckBox{color:red}");
       } else {
@@ -3850,7 +3856,7 @@ void MainWindow::guiUpdate()
     }
   }
 
-  if(m_mode=="FT8" or m_mode=="MSK144") {
+  if(m_mode=="FT8" or m_mode=="MSK144" or m_mode=="FT2") {
     if(ui->txrb1->isEnabled() and 
        (SpecOp::NA_VHF==m_config.special_op_id() or 
         SpecOp::FIELD_DAY==m_config.special_op_id() or 
@@ -3866,7 +3872,7 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-//    qDebug() << "cc onesec" << g_iptt << m_iptt0;
+//    qDebug() << "cc onesec" << (SpecOp::RTTY == m_config.special_op_id());
     // if((!m_msgAvgWidget or (m_msgAvgWidget and !m_msgAvgWidget->isVisible()))
     //    and (SpecOp::NONE < m_config.special_op_id()) and (SpecOp::HOUND > m_config.special_op_id())) on_actionFox_Log_triggered();
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
@@ -3881,12 +3887,13 @@ void MainWindow::guiUpdate()
       //To keep calling Fox, Hound must reactivate Enable Tx at least once every 2 minutes
       if(tHound >= 120 and m_ntx==1) auto_tx_mode(false);
     }
+
+    progressBar.setVisible(!(m_mode=="FT2"));
     if(m_auto and m_mode=="Echo" and m_bEchoTxOK) {
       progressBar.setMaximum(6);
       progressBar.setValue(int(m_s6));
     }
-
-    if(m_mode!="Echo") {
+    if(m_mode!="Echo" and m_mode!="FT2") {
       if(m_monitoring or m_transmitting) {
         progressBar.setMaximum(m_TRperiod);
         int isec=int(fmod(tsec,m_TRperiod));
@@ -3925,6 +3932,7 @@ void MainWindow::guiUpdate()
           if(SpecOp::FOX==m_config.special_op_id() and ui->tabWidget->currentIndex()==2 and foxcom_.nslots==1) {
               t=m_fm1.trimmed();
           }
+          if(m_mode=="FT2") t="Tx: "+ m_currentMessage;
           tx_status_label.setText(t.trimmed());
         }
       }
@@ -4000,7 +4008,6 @@ void MainWindow::startTx2()
         ui->decodedTextBrowser->appendText(t);
       }
       write_all("Tx",m_currentMessage);
-//      write_transmit_entry ("ALL_WSPR.TXT");
     }
   }
 }
@@ -4250,10 +4257,6 @@ void MainWindow::doubleClickOnCall2(Qt::KeyboardModifiers modifiers)
 
 void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
 {
-//  if(!(modifiers & Qt::AltModifier) and m_transmitting) {
-//    qDebug() << "aa" << "Double-click on decode is ignored while transmitting";
-//    return;
-//  }
   QTextCursor cursor;
   if(m_mode=="ISCAT") {
     MessageBox::information_message (this,
@@ -4300,7 +4303,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       || ("JT9" == m_mode && mode != "@")
       || ("MSK144" == m_mode && !("&" == mode || "^" == mode))
       || ("QRA64" == m_mode && mode.left (1) != ":")) {
-    return;
+    return;      //Currently we do auto-sequencing only in FT2, FT8, and MSK144
   }
 
   //Skip the rest if no decoded text extracted
@@ -4389,7 +4392,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
         ui->TxFreqSpinBox->setValue(frequency);
       }
       if(m_mode != "JT4" && m_mode != "JT65" && !m_mode.startsWith ("JT9") &&
-         m_mode != "QRA64" && m_mode!="FT8") {
+         m_mode != "QRA64" && m_mode!="FT8" && m_mode!="FT2") {
         return;
       }
     }
@@ -4530,7 +4533,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
           }
           m_QSOProgress = SIGNOFF;
         } else if((m_QSOProgress >= REPORT
-                   || (m_QSOProgress >= REPLYING && (m_mode=="MSK144" or m_mode=="FT8")))
+                   || (m_QSOProgress >= REPLYING &&
+                   (m_mode=="MSK144" or m_mode=="FT8" or m_mode=="FT2")))
                    && r.mid(0,1)=="R") {
           m_ntx=4;
           m_QSOProgress = ROGERS;
@@ -4754,7 +4758,16 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   }
 
   if(m_transmitting) m_restart=true;
-  if (ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked () && !m_bDoubleClicked) return;
+  if (ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked ()
+      && !m_bDoubleClicked && m_mode!="FT2") {
+    return;
+  }
+  if(m_mode=="FT2" and ui->cbAutoSeq->isChecked()) {
+    if(m_ntx==4 or m_ntx==5) logQSOTimer.start(0);  // Log the QSO
+    if((m_ntx==3 and ui->cbFirst->isChecked()) or m_ntx==4 or m_bDoubleClicked) {
+      ft2_tx(m_ntx);
+    }
+  }
   if(m_config.quick_call()) auto_tx_mode(true);
   m_bDoubleClicked=false;
 }
@@ -4895,7 +4908,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     int n=rpt.toInt();
     rpt.sprintf("%+2.2d",n);
 
-    if(m_mode=="MSK144" or m_mode=="FT8") {
+    if(m_mode=="MSK144" or m_mode=="FT8" or m_mode=="FT2") {
       QString t2,t3;
       QString sent=rpt;
       QString rs,rst;
@@ -4949,7 +4962,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       }
     }
 
-    if((m_mode!="MSK144" and m_mode!="FT8")) {
+    if((m_mode!="MSK144" and m_mode!="FT8" and m_mode!="FT2")) {
       t=t00 + rpt;
       msgtype(t, ui->tx2);
       t=t0 + "R" + rpt;
@@ -5548,7 +5561,7 @@ void MainWindow::on_actionFT2_triggered()
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
   VHF_features_enabled(bVHF);
-  ui->cbAutoSeq->setChecked(false);
+//  ui->cbAutoSeq->setChecked(false);
   m_fastGraph->hide();
   m_wideGraph->show();
   ui->decodedTextLabel2->setText("  UTC   dB   DT Freq    Message");
@@ -5571,6 +5584,13 @@ void MainWindow::on_actionFT2_triggered()
   ui->cbAutoSeq->setEnabled(true);
   ui->labDXped->setVisible(false);
   ui->labDXped->setText("");
+
+  ui->labDXped->setVisible(false);
+  if (SpecOp::RTTY == m_config.special_op_id ()) {
+    ui->labDXped->setVisible(true);
+    ui->labDXped->setText("RTTY");
+    on_contest_log_action_triggered();
+  }
   statusChanged();
 }
 
@@ -7217,7 +7237,8 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
     }
 
   QString format_string {"%1 %2 %3 %4 %5 %6"};
-  auto const& time_string = time.toString ("~" == mode || "&" == mode ? "hhmmss" : "hhmm");
+  auto const& time_string = time.toString ("~" == mode || "&" == mode
+                                           || "+" == mode ? "hhmmss" : "hhmm");
   auto message_line = format_string
     .arg (time_string)
     .arg (snr, 3)
@@ -7899,7 +7920,7 @@ void MainWindow::on_cbFirst_toggled(bool b)
 void MainWindow::on_cbAutoSeq_toggled(bool b)
 {
   if(!b) ui->cbFirst->setChecked(false);
-  ui->cbFirst->setVisible((m_mode=="FT8") and b);
+  ui->cbFirst->setVisible((m_mode=="FT8" or m_mode=="FT2") and b);
 }
 
 void MainWindow::on_measure_check_box_stateChanged (int state)
@@ -8561,7 +8582,7 @@ void MainWindow::write_all(QString txRx, QString message)
   t.sprintf("%5d",ui->TxFreqSpinBox->value());
   if(txRx=="Tx") msg="   0  0.0" + t + " " + message;
   auto time = QDateTime::currentDateTimeUtc ();
-  time = time.addSecs (-(time.time ().second () % m_TRperiod));
+  if(m_mode!="FT2") time = time.addSecs(-(time.time().second() % m_TRperiod));
   t.sprintf("%10.3f ",m_freqNominal/1.e6);
   if(m_diskData) {
     line=m_fileDateTime + t + txRx + " " + m_mode.leftJustified(6,' ') + msg;
@@ -8626,6 +8647,31 @@ void MainWindow::ft2Data(int k)
     DecodedText decodedtext {sline.replace(QChar::LineFeed,"")};
     ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_mode,
                    m_config.DXCC(),m_logBook,m_currentBand,m_config.ppfx());
+
+//###
+    //Right (Rx Frequency) window
+    int audioFreq=decodedtext.frequencyOffset();
+    auto const& parts = decodedtext.string().remove("<").remove(">")
+        .split (' ', QString::SkipEmptyParts);
+    if (parts.size () > 6) {
+      auto for_us = parts[5].contains (m_baseCall)
+          || ("DE" == parts[5] && qAbs (ui->RxFreqSpinBox->value () - audioFreq) <= 10);
+      if(m_baseCall==m_config.my_callsign() and m_baseCall!=parts[5]) for_us=false;
+      if(m_bCallingCQ && !m_bAutoReply && for_us && ui->cbFirst->isChecked()) {
+        m_bDoubleClicked=true;
+        m_bAutoReply = true;
+        ui->cbFirst->setStyleSheet("");
+      }
+      if(for_us or (abs(audioFreq - m_wideGraph->rxFreq()) <= 10)) {
+        // This msg is within 10 hertz of our tuned frequency, or contains MyCall
+        ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_baseCall,
+             m_mode,m_config.DXCC(),m_logBook,m_currentBand,m_config.ppfx());
+        m_QSOText = decodedtext.string().trimmed ();
+      }
+      processMessage(decodedtext);
+      write_all("Rx",decodedtext.string().trimmed());
+    }
+//###
   }
   nhsec0=nhsec;
 }
@@ -8637,6 +8683,7 @@ void MainWindow::ft2_tx(int ntx)
   static char msgsent[38];
   QByteArray ba;
   m_ntx=ntx;
+  setTxMsg(m_ntx);
   if(m_ntx == 1) ba=ui->tx1->text().toLocal8Bit();
   if(m_ntx == 2) ba=ui->tx2->text().toLocal8Bit();
   if(m_ntx == 3) ba=ui->tx3->text().toLocal8Bit();
@@ -8650,21 +8697,29 @@ void MainWindow::ft2_tx(int ntx)
   int itype=-1;
   genft2_(message, &ichk, msgsent, const_cast<int *>(itone), &itype, 37, 37);
   msgsent[37]=0;
-  m_currentMessage = QString::fromLatin1(msgsent);
-  on_txb6_clicked();
-  auto_tx_mode(true);
+  m_currentMessage = QString::fromLatin1(msgsent).trimmed();
+  tx_status_label.setStyleSheet("QLabel{background-color: #ffff33}");
+  tx_status_label.setText("TX: " + m_currentMessage);
+  if(m_ntx==2 or m_ntx==3) {
+    QStringList t=ui->tx2->text().split(' ', QString::SkipEmptyParts);
+    int n=t.size();
+    m_xSent=t.at(n-2) + " " + t.at(n-1);
+  }
 
+  auto_tx_mode(true);                    //Enable Tx
   icw[0]=0;
   g_iptt = 1;
   setRig ();
   setXIT (ui->TxFreqSpinBox->value ());
   Q_EMIT m_config.transceiver_ptt (true);            //Assert the PTT
   m_tx_when_ready = true;
+  qint64 ms=QDateTime::currentMSecsSinceEpoch();
+  m_modulator->set_ms0(ms);
+  FT2_TxTimer.start(2500);      //Slightly more than FT2 transmission length
 
   if (g_iptt == 1 && m_iptt0 == 0) {
     auto const& current_message = QString::fromLatin1 (msgsent);
-    write_all("Tx",m_currentMessage);
-
+    FT2_WriteTxTimer.start(100);  //Why is a delay necessary to ensure Tx after Rx in all.txt?
     if (m_config.TX_messages () && !m_tune && SpecOp::FOX!=m_config.special_op_id()) {
       ui->decodedTextBrowser2->displayTransmittedText(current_message, m_modeTx,
            ui->TxFreqSpinBox->value(),m_bFastMode);
@@ -8684,8 +8739,11 @@ void MainWindow::ft2_tx(int ntx)
     transmitDisplay (true);
     statusUpdate ();
   }
-
+  m_dateTimeQSOOn=QDateTime::currentDateTimeUtc();
   if(!m_btxok && m_btxok0 && g_iptt==1) stopTx();
+}
 
-//  if(!m_bTxTime and !m_tune) m_btxok=false;       //Time to stop transmitting
+void MainWindow::FT2_writeTx()
+{
+  write_all("Tx",m_currentMessage);
 }
