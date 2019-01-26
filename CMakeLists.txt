@@ -513,6 +513,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/ft2d.f90
   lib/ft4/ft4sim.f90
   lib/ft4/ft4d.f90
+  lib/ft4/ft4_decode.f90
   lib/ft2/cdatetime.f90
   lib/ft2/ft2_decode.f90
   lib/77bit/my_hash.f90

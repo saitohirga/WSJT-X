@@ -5,7 +5,6 @@ subroutine genft4(msg0,ichk,msgsent,i4tone)
 ! Input:
 !   - msg0     requested message to be transmitted
 !   - ichk     if ichk=1, return only msgsent
-!              if ichk.ge.10000, set imsg=ichk-10000 for short msg
 !   - msgsent  message as it will be decoded
 !   - i4tone   array of audio tone values, {0,1,2,3} 
 
@@ -21,7 +20,6 @@ subroutine genft4(msg0,ichk,msgsent,i4tone)
   integer*1 s12(12)
   integer icos4(4)
   real*8 xi(864),xq(864),pi,twopi
-!  data s12/1,1,1,2,2,2,2,2,2,1,1,1/
   data icos4/0,1,3,2/
 
   logical unpk77_success

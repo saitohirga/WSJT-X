@@ -92,12 +92,12 @@ program ft4sim
   enddo
 
 ! Define the instantaneous frequency waveform
-  dphi_peak=twopi*(hmod/2.0)/real(NSPS)
+  dphi_peak=twopi*hmod/real(NSPS)
   dphi=0.0 
   do j=1,NN         
      ib=(j-1)*320
      ie=ib+960-1
-     dphi(ib:ie)=dphi(ib:ie)+dphi_peak*pulse*(2*itone(j)-3)
+     dphi(ib:ie)=dphi(ib:ie)+dphi_peak*pulse*itone(j)
   enddo
 
   phi=0.0

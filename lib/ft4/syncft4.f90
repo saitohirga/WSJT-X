@@ -26,7 +26,7 @@ subroutine syncft4(iwave,nfa,nfb,syncmin,nfqso,maxcand,s,candidate,   &
 ! Compute symbol spectra, stepping by NSTEP steps.  
   savg=0.
   tstep=NSTEP/12000.0                         
-  df=12000.0/NFFT1                            !3.125 Hz
+  df=12000.0/NFFT1
   fac=1.0/300.0
   do j=1,NHSYM
      ia=(j-1)*NSTEP + 1
