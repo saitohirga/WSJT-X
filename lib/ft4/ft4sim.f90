@@ -14,7 +14,7 @@ program ft4sim
   complex c(0:NMAX-1)
   real wave(NMAX)
   real dphi(0:NMAX-1)
-  real pulse(960)               
+  real pulse(3*NSPS)               
   integer itone(NN)
   integer*1 msgbits(77)
   integer*2 iwave(NMAX)                  !Generated full-length waveform
@@ -86,8 +86,8 @@ program ft4sim
   call sgran()
 
 ! The filtered frequency pulse 
-  do i=1,960
-     tt=(i-480.5)/320.0
+  do i=1,3*NSPS
+     tt=(i-1.5*NSPS)/real(NSPS)
      pulse(i)=gfsk_pulse(1.0,tt)
   enddo
 
@@ -95,8 +95,8 @@ program ft4sim
   dphi_peak=twopi*hmod/real(NSPS)
   dphi=0.0 
   do j=1,NN         
-     ib=(j-1)*320
-     ie=ib+960-1
+     ib=(j-1)*NSPS
+     ie=ib+3*NSPS-1
      dphi(ib:ie)=dphi(ib:ie)+dphi_peak*pulse*itone(j)
   enddo
 
@@ -108,9 +108,9 @@ program ft4sim
      phi=mod(phi+dphi(j),twopi)
   enddo 
  
-  c0(0:319)=c0(0:319)*(1.0-cos(twopi*(/(i,i=0,319)/)/640.0) )/2.0
-  c0(77*320:77*320+319)=c0(77*320:77*320+319)*(1.0+cos(twopi*(/(i,i=0,319)/)/640.0 ))/2.0
-  c0(78*320:)=0.
+  c0(0:NSPS-1)=c0(0:NSPS-1)*(1.0-cos(twopi*(/(i,i=0,NSPS-1)/)/(2.0*NSPS)) )/2.0
+  c0((NN+1)*NSPS:(NN+2)*NSPS-1)=c0((NN+1)*NSPS:(NN+2)*NSPS-1)*(1.0+cos(twopi*(/(i,i=0,NSPS-1)/)/(2.0*NSPS) ))/2.0
+  c0((NN+2)*NSPS:)=0.
 
   k=nint((xdt+0.25)/dt)
   c0=cshift(c0,-k)
