@@ -319,6 +319,12 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
         // done for this chunk - continue on next call
 //        qint64 ms1=QDateTime::currentMSecsSinceEpoch() - m_ms0;
 //        if(m_ic>=4*144*160) qDebug() << "Modulator finished" << m_ic << 0.001*ms1;
+
+        while (samples != end)  // pad block with silence
+          {
+            samples = load (0, samples);
+            ++framesGenerated;
+          }
         return framesGenerated * bytesPerFrame ();
       }
       // fall through
