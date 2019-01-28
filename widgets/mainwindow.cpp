@@ -4043,7 +4043,6 @@ void MainWindow::stopTx2()
     m_ntr=0;
   }
   last_tx_label.setText("Last Tx: " + m_currentMessage.trimmed());
-//###  if(m_mode=="FT8" and (SpecOp::HOUND == m_config.special_op_id())) auto_tx_mode(false); ###
 }
 
 void MainWindow::ba2msg(QByteArray ba, char message[])             //ba2msg()
@@ -4781,6 +4780,7 @@ int MainWindow::setTxMsg(int n)
   if(n==3) ui->txrb3->setChecked(true);
   if(n==4) ui->txrb4->setChecked(true);
   if(n==5) ui->txrb5->setChecked(true);
+  if(n==6) ui->txrb6->setChecked(true);
   if(ui->tabWidget->currentIndex()==1) {
     m_ntx=7;                      //### FIX THIS ###
     m_gen_message_is_cq = false;
@@ -8691,8 +8691,6 @@ void MainWindow::ft4_tx(int ntx)
   if(m_ntx == 4) ba=ui->tx4->text().toLocal8Bit();
   if(m_ntx == 5) ba=ui->tx5->currentText().toLocal8Bit();
   if(m_ntx == 6) ba=ui->tx6->text().toLocal8Bit();
-  if(m_ntx == 7) ba=ui->genMsg->text().toLocal8Bit();
-  if(m_ntx == 8) ba=ui->freeTextMsg->currentText().toLocal8Bit();
   ba2msg(ba,message);
   int ichk=0;
   int itype=-1;
