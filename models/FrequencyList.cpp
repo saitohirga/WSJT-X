@@ -68,7 +68,7 @@ namespace
       {7038600, Modes::WSPR, IARURegions::ALL},
       {7074000, Modes::FT8, IARURegions::ALL},
       {7076000, Modes::JT65, IARURegions::ALL},
-      {7078000, Modes::FT8, IARURegions::ALL},
+      {7078000, Modes::FT4, IARURegions::ALL},
       {7078000, Modes::JT9, IARURegions::ALL},
 
       {10136000, Modes::FT8, IARURegions::ALL},
@@ -79,7 +79,7 @@ namespace
       {14095600, Modes::WSPR, IARURegions::ALL},
       {14074000, Modes::FT8, IARURegions::ALL},
       {14076000, Modes::JT65, IARURegions::ALL},
-      {14078000, Modes::FT8, IARURegions::ALL},
+      {14078000, Modes::FT4, IARURegions::ALL},
       {14078000, Modes::JT9, IARURegions::ALL},
 
       {18100000, Modes::FT8, IARURegions::ALL},
