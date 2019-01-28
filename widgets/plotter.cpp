@@ -166,7 +166,7 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
 
   ymin=1.e30;
   if(swide[0]>1.e29 and swide[0]< 1.5e30) painter1.setPen(Qt::green);
-  if(swide[0]>1.4e30) painter1.setPen(Qt::yellow);
+  if(swide[0]>1.4e30) painter1.setPen(Qt::red);
   if(!m_bReplot) {
     m_j=0;
     int irow=-1;

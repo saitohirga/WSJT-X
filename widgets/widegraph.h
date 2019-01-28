@@ -108,7 +108,7 @@ private:
 
   bool   m_bFlatten;
   bool   m_bRef;
-  bool   m_bHaveTransmitted;    //Set true at end of a WSPR transmission
+  bool   m_bHaveTransmitted;    //Set true at end of a WSPR or FT4 transmission
 
   QString m_rxBand;
   QString m_mode;
