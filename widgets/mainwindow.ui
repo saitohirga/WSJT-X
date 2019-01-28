@@ -2705,7 +2705,7 @@ list. The list can be maintained in Settings (F2).</string>
     <property name="title">
      <string>Mode</string>
     </property>
-    <addaction name="actionFT2"/>
+    <addaction name="actionFT4"/>
     <addaction name="actionFT8"/>
     <addaction name="actionJT4"/>
     <addaction name="actionJT9"/>
@@ -3339,12 +3339,12 @@ list. The list can be maintained in Settings (F2).</string>
     <string>Erase WSPR hashtable</string>
    </property>
   </action>
-  <action name="actionFT2">
+  <action name="actionFT4">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>FT2</string>
+    <string>FT4</string>
    </property>
   </action>
  </widget>

@@ -46,7 +46,7 @@
 #define NUM_MSK144_SYMBOLS 144             //s8 + d48 + s8 + d80
 #define NUM_QRA64_SYMBOLS 84               //63 data + 21 sync
 #define NUM_FT8_SYMBOLS 79
-#define NUM_FT2_SYMBOLS 144
+#define NUM_FT4_SYMBOLS 103
 #define NUM_CW_SYMBOLS 250
 #define TX_SAMPLE_RATE 48000
 #define N_WIDGETS 33
@@ -202,7 +202,7 @@ private slots:
   void on_actionJT65_triggered();
   void on_actionJT9_JT65_triggered();
   void on_actionJT4_triggered();
-  void on_actionFT2_triggered();
+  void on_actionFT4_triggered();
   void on_actionFT8_triggered();
   void on_TxFreqSpinBox_valueChanged(int arg1);
   void on_actionSave_decoded_triggered();
@@ -312,8 +312,8 @@ private slots:
   void on_comboBoxHoundSort_activated (int index);
   void not_GA_warning_message ();
   void checkMSK144ContestType();
-  void ft2Data(int k);
-  void ft2_tx(int ntx);
+  void ft4Data(int k);
+  void ft4_tx(int ntx);
   int  setTxMsg(int n);
   bool stdCall(QString const& w);
 
@@ -581,8 +581,8 @@ private:
   QTimer minuteTimer;
   QTimer splashTimer;
   QTimer p1Timer;
-  QTimer FT2_TxTimer;
-  QTimer FT2_WriteTxTimer;
+  QTimer FT4_TxTimer;
+  QTimer FT4_WriteTxTimer;
 
   QString m_path;
   QString m_baseCall;
@@ -750,7 +750,7 @@ private:
   void foxTxSequencer();
   void foxGenWaveform(int i,QString fm);
   void writeFoxQSO (QString const& msg);
-  void FT2_writeTx();
+  void FT4_writeTx();
 };
 
 extern int killbyname(const char* progName);

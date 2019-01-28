@@ -89,13 +89,15 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
   if (synchronize && !m_tuning && !m_bFastMode)	{
     m_silentFrames = m_ic + m_frameRate / (1000 / delay_ms) - (mstr * (m_frameRate / 1000));
   }
-  if(symbolsLength==144 and framesPerSymbol==160 and toneSpacing==60) {
-    //### FT2 params
+  if((symbolsLength==103 or symbolsLength==105) and framesPerSymbol==512
+     and toneSpacing==12000.0/512.0) {
+//### FT4 parameters
     delay_ms=100;
-    mstr=1947;
+    mstr=5000;
     m_ic=0;
     m_silentFrames=0;
   }
+//  qDebug() << "Mod AA" << symbolsLength << framesPerSymbol << toneSpacing;
 //  qDebug() << "Mod AB" << delay_ms << mstr << m_ic << m_silentFrames;
 
   initialize (QIODevice::ReadOnly, channel);
