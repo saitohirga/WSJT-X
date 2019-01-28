@@ -64,7 +64,7 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
    candidate=0.0
    ncand=0
 
-   fa=375.0
+   fa=400.0
    fb=3000.0
    syncmin=1.2
    maxcand=100
@@ -311,8 +311,8 @@ subroutine ft4_downsample(iwave,f0,c)
    do i=1,NFFT2/2
       arg=(i-1)*df/bw
       win=exp(-arg*arg)
-      c1(i)=cx(i0+i)*win
-      c1(NFFT2-i)=cx(i0-i)*win
+      if(i0+i.le.NMAX/2) c1(i)=cx(i0+i)*win
+      if(i0-i.ge.0) c1(NFFT2-i)=cx(i0-i)*win
    enddo
    c1=c1/NFFT2
    call four2a(c1,NFFT2,1,1,1)            !c2c FFT back to time domain
