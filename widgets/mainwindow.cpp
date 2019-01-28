@@ -8625,7 +8625,8 @@ void MainWindow::ft4Data(int k)
   }
 
   if(k>=NRING) {
-//Wrap the ring buffer pointer
+    if(m_saveAll) save_FT4();
+    //Wrap the ring buffer pointer
     k=k-NRING;
     dec_data.params.kin=k;
   }
@@ -8740,9 +8741,24 @@ void MainWindow::ft4_tx(int ntx)
   }
   m_dateTimeQSOOn=QDateTime::currentDateTimeUtc();
   if(!m_btxok && m_btxok0 && g_iptt==1) stopTx();
+  if(m_saveAll) save_FT4();
 }
 
 void MainWindow::FT4_writeTx()
 {
   write_all("Tx",m_currentMessage);
+}
+
+void MainWindow::save_FT4()
+{
+  auto time = QDateTime::currentDateTimeUtc ();
+  QString t=time.toString("yyMMdd_hhmmss");
+  m_fnameWE=m_config.save_directory().absoluteFilePath(t);
+  int nsec=(dec_data.params.kin + 3456)/12000;
+// The following is potential a threading hazard - not a good
+// idea to pass pointer to be processed in another thread
+  m_saveWAVWatcher.setFuture (QtConcurrent::run (std::bind (&MainWindow::save_wave_file,
+        this, m_fnameWE, &dec_data.d2[0], nsec, m_config.my_callsign(),
+        m_config.my_grid(), m_mode, m_nSubMode, m_freqNominal, m_hisCall, m_hisGrid)));
+//  qDebug() << "aa" << m_fnameWE << nsec;
 }

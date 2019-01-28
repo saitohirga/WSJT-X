@@ -751,6 +751,7 @@ private:
   void foxGenWaveform(int i,QString fm);
   void writeFoxQSO (QString const& msg);
   void FT4_writeTx();
+  void save_FT4();
 };
 
 extern int killbyname(const char* progName);
