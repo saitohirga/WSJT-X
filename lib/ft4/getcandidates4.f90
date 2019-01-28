@@ -10,6 +10,7 @@ subroutine getcandidates4(id,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
   real candidate(3,maxcand)
   integer*2 id(NMAX)
   integer indx(NH1)
+  integer ipk(1)
   equivalence (x,cx)
 
 ! Compute symbol spectra, stepping by NSTEP steps.  
@@ -29,8 +30,8 @@ subroutine getcandidates4(id,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
      savg=savg + s(1:NH1,j)                   !Average spectrum
   enddo
   savsm=0.
-  do i=6,NH1-5
-    savsm(i)=sum(savg(i-5:i+5))/11.
+  do i=8,NH1-7
+    savsm(i)=sum(savg(i-7:i+7))/15.
   enddo
   nfa=fa/df
   nfb=fb/df
@@ -39,22 +40,22 @@ subroutine getcandidates4(id,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
   call indexx(savsm(nfa:nfb),np,indx)
   xn=savsm(nfa+indx(nint(0.3*np)))
   savsm=savsm/xn
-  imax=-1
-  xmax=-99.
-  do i=2,NH1-1
-    if(savsm(i).gt.savsm(i-1).and.    &
-       savsm(i).gt.savsm(i+1).and.    &
-       savsm(i).gt.xmax) then
-      xmax=savsm(i) 
-      imax=i
-    endif
+
+  ncand=0
+  f_offset = -1.5*12000/512
+  do i=1,maxcand
+     ipk=maxloc(savsm(nfa:nfb))
+     ip=nfa-1+ipk(1)
+     xmax=savsm(ip)
+     savsm(max(1,ip-8):min(NH1,ip+8))=0.0
+     if(xmax.ge.syncmin) then
+        ncand=ncand+1
+        candidate(1,ncand)=ip*df+f_offset 
+        candidate(2,ncand)=-99.9
+        candidate(3,ncand)=xmax
+     else
+        exit
+     endif
   enddo
-  f0=imax*df
-  if(xmax.gt.1.2) then
-     ncand=ncand+1
-     candidate(1,ncand)=f0
-     candidate(2,ncand)=-99.9
-     candidate(3,ncand)=xmax
-  endif
 return
 end subroutine getcandidates4

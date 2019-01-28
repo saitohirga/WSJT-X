@@ -64,16 +64,16 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
    candidate=0.0
    ncand=0
 
-   nfa=375
-   nfb=3000
-   syncmin=1.0
+   fa=375.0
+   fb=3000.0
+   syncmin=1.2
    maxcand=100
 !      call syncft4(iwave,nfa,nfb,syncmin,nfqso,maxcand,s,candidate,ncand,sbase)
 
-   call getcandidates4(iwave,375.0,3000.0,0.2,2200.0,100,savg,candidate,ncand,sbase)
+   call getcandidates4(iwave,fa,fb,syncmin,nfqso,100,savg,candidate,ncand,sbase)
    ndecodes=0
    do icand=1,ncand
-      f0=candidate(1,icand)-35.0
+      f0=candidate(1,icand)
       xsnr=10*log10(candidate(3,icand))-15.0
       if( f0.le.375.0 .or. f0.ge.(5000.0-375.0) ) cycle
       call ft4_downsample(iwave,f0,cd2) ! downsample from 320 Sa/Symbol to 20 Sa/Symbol
@@ -81,26 +81,43 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
       if(sum2.gt.0.0) cd2=cd2/sqrt(sum2)
 
 ! 750 samples/second here
-      ibest=-1
-      smax=-99.
-      dfbest=-1.
-      do idf=-30,+30,2
-         df=idf
-         a=0.
-         a(1)=df
-         ctwk=1.
-         call twkfreq1(ctwk,4*NSS,fs,a,ctwk2)
-         do istart=0,374
-            call sync4d(cd2,istart,ctwk2,1,sync)
-            if(sync.gt.smax) then
-               smax=sync
-               ibest=istart
-               dfbest=df
-            endif
+
+      do isync=1,2
+         if(isync.eq.1) then
+            idfmin=-50
+            idfmax=50
+            idfstp=3
+            ibmin=0
+            ibmax=374
+            ibstp=4
+         else
+            idfmin=idfbest-5
+            idfmax=idfbest+5
+            idfstp=1
+            ibmin=max(0,ibest-5)
+            ibmax=min(ibest+5,NMAX/NDOWN-1)
+            ibstp=1
+         endif   
+         ibest=-1
+         smax=-99.
+         idfbest=0
+         do idf=idfmin,idfmax,idfstp
+            a=0.
+            a(1)=real(idf)
+            ctwk=1.
+            call twkfreq1(ctwk,4*NSS,fs,a,ctwk2)
+            do istart=ibmin,ibmax,ibstp
+               call sync4d(cd2,istart,ctwk2,1,sync)
+               if(sync.gt.smax) then
+                  smax=sync
+                  ibest=istart
+                  idfbest=idf
+               endif
+            enddo
          enddo
       enddo
 
-      f0=f0+dfbest
+      f0=f0+real(idfbest)
       call ft4_downsample(iwave,f0,cb) ! downsample from 320s/Symbol to 20s/Symbol
       sum2=sum(abs(cb)**2)/(real(NSS)*NN)
       if(sum2.gt.0.0) cb=cb/sqrt(sum2)
@@ -111,7 +128,6 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
          call four2a(csymb,NSS,1,-1,1)
          cs(0:3,k)=csymb(1:4)
          s4(0:3,k)=abs(csymb(1:4))
-!write(*,'(i4,4f8.1)') k, s4(0:3,k)
       enddo
 
 ! sync quality check
@@ -188,6 +204,10 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
       ns3=count(hbits(133:140).eq.(/0,0,0,1,1,0,1,1/))
       ns4=count(hbits(199:206).eq.(/0,0,0,1,1,0,1,1/))
       nsync_qual=ns1+ns2+ns3+ns4
+
+      if(nsync.lt.8 .or. nsync_qual.lt. 20) then
+         cycle
+      endif 
 
       scalefac=2.83
       llra(  1: 58)=bmeta(  9: 66)
