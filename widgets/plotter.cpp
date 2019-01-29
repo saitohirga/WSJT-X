@@ -235,13 +235,15 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
   if(m_bReplot) return;
 
   if(swide[0]>1.0e29) m_line=0;
+  if(m_mode=="FT4" and m_line==34) m_line=0;
   if(m_line == painter1.fontMetrics ().height ()) {
     painter1.setPen(Qt::white);
     QString t;
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     int n=(ms/1000) % m_TRperiod;
+    if(m_mode=="FT4") n=0;
     QDateTime t1=QDateTime::currentDateTimeUtc().addSecs(-n);
-    if(m_TRperiod < 60) {
+    if(m_TRperiod < 60 or m_mode=="FT4") {
       t=t1.toString("hh:mm:ss") + "    " + m_rxBand;
     } else {
       t=t1.toString("hh:mm") + "    " + m_rxBand;
