@@ -99,7 +99,7 @@ extern "C" {
   void genft8_(char* msg, int* i3, int* n3, char* msgsent, char ft8msgbits[],
                int itone[], fortran_charlen_t, fortran_charlen_t);
 
-  void genft4_(char* msg, int* ichk, char* msgsent, int itone[], int* itype,
+  void genft4_(char* msg, int* ichk, char* msgsent, int itone[],
                fortran_charlen_t, fortran_charlen_t);
 
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
@@ -8631,9 +8631,13 @@ void MainWindow::ft4Data(int k)
     dec_data.params.kin=k;
   }
 
-  auto time = QDateTime::currentDateTimeUtc ();
-  QString t=time.toString("yyMMdd_hhmmss.sss");
-  QByteArray ba=time.toString("yyMMdd_hhmmss.sss").toLatin1();
+  QByteArray ba;
+  if(m_diskData) {
+    ba=(m_fileDateTime + ".000").toLatin1();
+  } else {
+    auto time = QDateTime::currentDateTimeUtc ();
+    ba=time.toString("yyMMdd_hhmmss.sss").toLatin1();
+  }
   char* cdatetime=ba.data();
   char mycall6[] ="K1JT  ";
   char hiscall6[]="K9AN  ";
@@ -8694,8 +8698,7 @@ void MainWindow::ft4_tx(int ntx)
   if(m_ntx == 6) ba=ui->tx6->text().toLocal8Bit();
   ba2msg(ba,message);
   int ichk=0;
-  int itype=-1;
-  genft4_(message, &ichk, msgsent, const_cast<int *>(itone), &itype, 37, 37);
+  genft4_(message, &ichk, msgsent, const_cast<int *>(itone), 37, 37);
   msgsent[37]=0;
   m_currentMessage = QString::fromLatin1(msgsent).trimmed();
   tx_status_label.setStyleSheet("QLabel{background-color: #ffff33}");

@@ -40,7 +40,7 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
    data first/.true./
    save one
 
-   hhmmss=cdatetime0(12:17)
+   hhmmss=cdatetime0(8:13)
    fs=12000.0/NDOWN                       !Sample rate
    dt=1/fs                                !Sample interval after downsample (s)
    tt=NSPS*dt                             !Duration of "itone" symbols (s)
