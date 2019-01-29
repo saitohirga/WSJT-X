@@ -4763,7 +4763,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     return;
   }
   if(m_mode=="FT4" and ui->cbAutoSeq->isChecked()) {
-    if(m_ntx==4 or m_ntx==5) logQSOTimer.start(0);  // Log the QSO
+    if((m_ntx==4 or m_ntx==5) and !m_diskData) logQSOTimer.start(0);  // Log the QSO
     if((m_ntx==3 and ui->cbFirst->isChecked()) or m_ntx==4 or m_bDoubleClicked) {
       ft4_tx(m_ntx);
     }
@@ -8697,7 +8697,8 @@ void MainWindow::ft4_tx(int ntx)
   if(m_ntx == 5) ba=ui->tx5->currentText().toLocal8Bit();
   if(m_ntx == 6) ba=ui->tx6->text().toLocal8Bit();
   QString msg = QString::fromLatin1(ba.data());
-  if(msg.trimmed().length()==0) return;             //Don't transmit a blank message
+  if(msg.trimmed().length()==0) return;   //Don't transmit a blank message, or ...
+  if(m_diskData) return;                  //... in response to a decode from disk
   ba2msg(ba,message);
   int ichk=0;
   genft4_(message, &ichk, msgsent, const_cast<int *>(itone), 37, 37);
