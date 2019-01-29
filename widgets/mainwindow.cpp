@@ -8687,6 +8687,11 @@ void MainWindow::ft4Data(int k)
 //###
   }
   nhsec0=nhsec;
+  if(m_diskData and (k > (dec_data.params.kin-6000))) m_startAnother=m_loopall;
+  if(m_bNoMoreFiles) {
+    MessageBox::information_message(this, tr("Just one more file to open."));
+    m_bNoMoreFiles=false;
+  }
 }
 
 void MainWindow::ft4_tx(int ntx)
@@ -8764,14 +8769,14 @@ void MainWindow::FT4_writeTx()
 
 void MainWindow::save_FT4()
 {
+  int nsec=(dec_data.params.kin + 3456)/12000;
+  if(nsec<5) return;                               //Saved data must be at least 5 seconds long.
   auto time = QDateTime::currentDateTimeUtc ();
   QString t=time.toString("yyMMdd_hhmmss");
   m_fnameWE=m_config.save_directory().absoluteFilePath(t);
-  int nsec=(dec_data.params.kin + 3456)/12000;
 // The following is potential a threading hazard - not a good
 // idea to pass pointer to be processed in another thread
   m_saveWAVWatcher.setFuture (QtConcurrent::run (std::bind (&MainWindow::save_wave_file,
         this, m_fnameWE, &dec_data.d2[0], nsec, m_config.my_callsign(),
         m_config.my_grid(), m_mode, m_nSubMode, m_freqNominal, m_hisCall, m_hisGrid)));
-//  qDebug() << "aa" << m_fnameWE << nsec;
 }
