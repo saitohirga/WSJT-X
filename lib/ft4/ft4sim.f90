@@ -144,11 +144,13 @@ program ft4sim
      endif
      if(any(abs(wave).gt.32767.0)) print*,"Warning - data will be clipped."
      iwave=nint(wave)
-     h=default_header(12000,NMAX)
+     h=default_header(12000,NMAX+2208)
      write(fname,1102) ifile
 1102 format('000000_',i6.6,'.wav')
      open(10,file=fname,status='unknown',access='stream')
      write(10) h,iwave                !Save to *.wav file
+     iwave(1:2208)=0
+     write(10) iwave(1:2208)          !Add 0.5 s of zeroes
      close(10)
      write(*,1110) ifile,xdt,f0,snrdb,fname
 1110 format(i4,f7.2,f8.2,f7.1,2x,a17)
