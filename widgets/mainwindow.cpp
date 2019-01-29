@@ -8609,10 +8609,13 @@ void MainWindow::write_all(QString txRx, QString message)
 void MainWindow::ft4Data(int k)
 {
   static int nhsec0=-1;
+  static bool wrapped=false;
   short id[60000];
 
   int nhsec=k/6000;
+  if(nhsec0>nhsec) nhsec0=-1;
   if(nhsec==nhsec0) return;
+  if(k<60000 and !wrapped) return;
 
 //Process FT4 data at 0.5 s intervals
   int j=k/6000;
@@ -8621,8 +8624,12 @@ void MainWindow::ft4Data(int k)
   for(int i=0; i<60000; i++) {
     id[i]=dec_data.d2[j];
     j++;
-    if(j>=NRING) j=j-NRING;
+    if(j>=NRING) {
+      j=j-NRING;
+      wrapped=true;
+    }
   }
+  if(j>60000) wrapped=false;
 
   if(k>=NRING) {
     if(m_saveAll) save_FT4();
