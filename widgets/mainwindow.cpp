@@ -8696,6 +8696,8 @@ void MainWindow::ft4_tx(int ntx)
   if(m_ntx == 4) ba=ui->tx4->text().toLocal8Bit();
   if(m_ntx == 5) ba=ui->tx5->currentText().toLocal8Bit();
   if(m_ntx == 6) ba=ui->tx6->text().toLocal8Bit();
+  QString msg = QString::fromLatin1(ba.data());
+  if(msg.trimmed().length()==0) return;             //Don't transmit a blank message
   ba2msg(ba,message);
   int ichk=0;
   genft4_(message, &ichk, msgsent, const_cast<int *>(itone), 37, 37);
