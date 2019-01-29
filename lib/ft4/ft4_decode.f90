@@ -76,7 +76,7 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
       f0=candidate(1,icand)
       xsnr=10*log10(candidate(3,icand))-18.0
       if( f0.le.375.0 .or. f0.ge.(5000.0-375.0) ) cycle
-      call ft4_downsample(iwave,f0,cd2) ! downsample from 320 Sa/Symbol to 20 Sa/Symbol
+      call ft4_downsample(iwave,f0,cd2) ! downsample from 512 Sa/Symbol to 32 Sa/Symbol
       sum2=sum(cd2*conjg(cd2))/(20.0*76)
       if(sum2.gt.0.0) cd2=cd2/sqrt(sum2)
 
