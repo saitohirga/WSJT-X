@@ -509,6 +509,7 @@ set (wsjt_FSRCS
   lib/msk144sim.f90
   lib/mskrtd.f90
   lib/ft4/ft4sim.f90
+  lib/ft4/ft4sim_mult.f90
   lib/ft4/ft4d.f90
   lib/ft4/ft4_decode.f90
   lib/77bit/my_hash.f90
@@ -1267,6 +1268,9 @@ target_link_libraries (msk144sim wsjt_fort wsjt_cxx)
 
 add_executable (ft4sim lib/ft4/ft4sim.f90 wsjtx.rc)
 target_link_libraries (ft4sim wsjt_fort wsjt_cxx)
+
+add_executable (ft4sim_mult lib/ft4/ft4sim_mult.f90 wsjtx.rc)
+target_link_libraries (ft4sim_mult wsjt_fort wsjt_cxx)
 
 add_executable (ft4d lib/ft4/ft4d.f90 wsjtx.rc)
 target_link_libraries (ft4d wsjt_fort wsjt_cxx)
