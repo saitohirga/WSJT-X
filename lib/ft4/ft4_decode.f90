@@ -148,14 +148,9 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
          if(icos4(k-1).eq.(ip(1)-1)) is4=is4+1
       enddo
       nsync=is1+is2+is3+is4   !Number of hard sync errors, 0-16
-
-<<<<<<< HEAD
-      do nseq=1,3             !Try coherent sequences of 1, 2, and 4 symbols
-=======
       if(smax .lt. 0.9 .or. nsync .lt. 9) cycle
-
-      do nseq=1,3
->>>>>>> 66bb999126e00874a7b300735b2aef631386a099
+      
+      do nseq=1,3             !Try coherent sequences of 1, 2, and 4 symbols
          if(nseq.eq.1) nsym=1
          if(nseq.eq.2) nsym=2
          if(nseq.eq.3) nsym=4
