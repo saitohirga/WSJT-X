@@ -6,12 +6,23 @@ subroutine getcandidates4(id,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
   real savg(NH1),savsm(NH1)
   real sbase(NH1)
   real x(NFFT1)
+  real window(NFFT1)
   complex cx(0:NH1)
   real candidate(3,maxcand)
   integer*2 id(NMAX)
   integer indx(NH1)
   integer ipk(1)
   equivalence (x,cx)
+  logical first
+  data first/.true./
+  save first,window
+
+  if(first) then
+    first=.false.
+    pi=4.0*atan(1.)
+    window=0.5*(1-cos(pi*(/(i,i=1,NFFT1)/)/(NFFT1/2.0)))
+    window=window**2
+  endif
 
 ! Compute symbol spectra, stepping by NSTEP steps.  
   savg=0.
@@ -20,9 +31,9 @@ subroutine getcandidates4(id,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
   fac=1.0/300.0
   do j=1,NHSYM
      ia=(j-1)*NSTEP + 1
-     ib=ia+NSPS-1
-     x(1:NSPS)=fac*id(ia:ib)
-     x(NSPS+1:)=0.
+     ib=ia+NFFT1-1
+     if(ib.gt.NMAX) exit
+     x=fac*id(ia:ib)*window
      call four2a(x,NFFT1,1,-1,0)              !r2c FFT
      do i=1,NH1
         s(i,j)=real(cx(i))**2 + aimag(cx(i))**2

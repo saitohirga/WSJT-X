@@ -13,9 +13,9 @@ subroutine sync4d(cd0,i0,ctwk,itwk,sync)
   integer icos4(0:3)
   data icos4/0,1,3,2/
   data first/.true./
-  save first,twopi,csync
+  save first,twopi,csync,fac
 
-  p(z1)=real(z1)**2 + aimag(z1)**2          !Statement function for power
+  p(z1)=real(z1*fac)**2 + aimag(z1*fac)**2          !Statement function for power
 
   if( first ) then
     twopi=8.0*atan(1.0)
@@ -30,6 +30,7 @@ subroutine sync4d(cd0,i0,ctwk,itwk,sync)
       enddo
     enddo
     first=.false.
+    fac=1.0/(4.0*NSS)
   endif
 
   sync=0

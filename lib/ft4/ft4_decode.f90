@@ -77,7 +77,7 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
       xsnr=10*log10(candidate(3,icand))-18.0
       if( f0.le.375.0 .or. f0.ge.(5000.0-375.0) ) cycle
       call ft4_downsample(iwave,f0,cd2) ! downsample from 512 Sa/Symbol to 32 Sa/Symbol
-      sum2=sum(cd2*conjg(cd2))/(20.0*76)
+      sum2=sum(cd2*conjg(cd2))/(real(NMAX)/real(NDOWN))
       if(sum2.gt.0.0) cd2=cd2/sqrt(sum2)
 
 ! 750 samples/second here
@@ -148,6 +148,8 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
 ! hard sync sum - max is 16
       nsync=is1+is2+is3+is4
 
+      if(smax .lt. 0.9 .or. nsync .lt. 9) cycle
+
       do nseq=1,3
          if(nseq.eq.1) nsym=1
          if(nseq.eq.2) nsym=2
@@ -205,9 +207,7 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
       ns4=count(hbits(199:206).eq.(/0,0,0,1,1,0,1,1/))
       nsync_qual=ns1+ns2+ns3+ns4
 
-      if(nsync.lt.8 .or. nsync_qual.lt. 20) then
-         cycle
-      endif 
+      if(nsync_qual.lt. 20) cycle 
 
       scalefac=2.83
       llra(  1: 58)=bmeta(  9: 66)
@@ -296,25 +296,39 @@ subroutine ft4_downsample(iwave,f0,c)
    complex c(0:NMAX/NDOWN-1)
    complex c1(0:NFFT2-1)
    complex cx(0:NMAX/2)
-   real x(NMAX)
+   real x(NMAX), window(0:NFFT2-1)
    equivalence (x,cx)
+   logical first
+   data first/.true./
+   save first,window 
 
-!****** Tune this
-   bw=250.0 
    df=12000.0/NMAX
+   baud=12000.0/NSPS
+   if(first) then
+      bw_transition = 0.5*baud
+      bw_flat = 4*baud
+      iwt = bw_transition / df
+      iwf = bw_flat / df
+      pi=4.0*atan(1.0)
+      window(0:iwt-1) = 0.5*(1+cos(pi*(/(i,i=iwt-1,0,-1)/)/iwt))
+      window(iwt:iwt+iwf-1)=1.0
+      window(iwt+iwf:2*iwt+iwf-1) = 0.5*(1+cos(pi*(/(i,i=0,iwt)/)/iwt))
+      window(2*iwt+iwf:)=0.0
+      iws = baud / df
+      window=cshift(window,iws)
+      first=.false.
+   endif
+
    x=iwave
    call four2a(x,NMAX,1,-1,0)             !r2c FFT to freq domain
-   ibw=nint(bw/df)
    i0=nint(f0/df)
    c1=0.
    c1(0)=cx(i0)
    do i=1,NFFT2/2
-      arg=(i-1)*df/bw
-      win=exp(-arg*arg)
-      if(i0+i.le.NMAX/2) c1(i)=cx(i0+i)*win
-      if(i0-i.ge.0) c1(NFFT2-i)=cx(i0-i)*win
+      if(i0+i.le.NMAX/2) c1(i)=cx(i0+i)
+      if(i0-i.ge.0) c1(NFFT2-i)=cx(i0-i)
    enddo
-   c1=c1/NFFT2
+   c1=c1*window/NFFT2
    call four2a(c1,NFFT2,1,1,1)            !c2c FFT back to time domain
    c=c1(0:NMAX/NDOWN-1)
    return
