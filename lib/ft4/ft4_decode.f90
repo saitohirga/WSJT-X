@@ -3,6 +3,7 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
    use packjt77
    include 'ft4_params.f90'
    parameter (NSS=NSPS/NDOWN)
+   
    character message*37
    character c77*77
    character*61 line
@@ -13,7 +14,7 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
 
    complex cd2(0:NMAX/NDOWN-1)                  !Complex waveform
    complex cb(0:NMAX/NDOWN-1)
-   complex cd(0:NN*NSS-1)                  !Complex waveform
+   complex cd(0:NN*NSS-1)                       !Complex waveform
    complex ctwk(4*NSS),ctwk2(4*NSS)
    complex csymb(NSS)
    complex cs(0:3,NN)
@@ -26,6 +27,7 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
    real s2(0:255)
    real candidate(3,100)
    real savg(NH1),sbase(NH1)
+   
    integer icos4(0:3)
    integer*2 iwave(NMAX)                 !Generated full-length waveform
    integer*1 message77(77),apmask(2*ND),cw(2*ND)
@@ -35,16 +37,17 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
    logical unpk77_success
    logical one(0:255,0:7)    ! 256 4-symbol sequences, 8 bits
    logical first
+   
    data icos4/0,1,3,2/
    data graymap/0,1,3,2/
    data first/.true./
-   save one
+   save one,first
 
    hhmmss=cdatetime0(8:13)
-   fs=12000.0/NDOWN                       !Sample rate
-   dt=1/fs                                !Sample interval after downsample (s)
-   tt=NSPS*dt                             !Duration of "itone" symbols (s)
-   txt=NZ*dt                              !Transmission length (s)
+   fs=12000.0/NDOWN                !Sample rate after downsampling
+   dt=1/fs                         !Sample interval after downsample (s)
+   tt=NSPS*dt                      !Duration of "itone" symbols (s)
+   txt=NZ*dt                       !Transmission length (s) without ramp up/down
    twopi=8.0*atan(1.0)
    h=1.0 
 
@@ -58,30 +61,29 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
       first=.false.
    endif
 
-   data_dir="."
-   fMHz=7.074
-
    candidate=0.0
    ncand=0
-
-   fa=400.0
-   fb=3000.0
    syncmin=1.2
    maxcand=100
-!      call syncft4(iwave,nfa,nfb,syncmin,nfqso,maxcand,s,candidate,ncand,sbase)
 
-   call getcandidates4(iwave,fa,fb,syncmin,nfqso,100,savg,candidate,ncand,sbase)
+! These are temporary.  Correct values should be passed in as arguments.
+   data_dir="."
+   fMHz=7.074
+   fa=400.0
+   fb=3000.0
+
+   call getcandidates4(iwave,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
+        ncand,sbase)
+
    ndecodes=0
    do icand=1,ncand
       f0=candidate(1,icand)
       xsnr=10*log10(candidate(3,icand))-18.0
-      if( f0.le.375.0 .or. f0.ge.(5000.0-375.0) ) cycle
-      call ft4_downsample(iwave,f0,cd2) ! downsample from 512 Sa/Symbol to 32 Sa/Symbol
+      if( f0.le.375.0 .or. f0.ge.(5000.0-375.0) ) cycle    !### TBD? ###
+      call ft4_downsample(iwave,f0,cd2)      !Downsample to 32 Samples/Symbol
       sum2=sum(cd2*conjg(cd2))/(20.0*76)
       if(sum2.gt.0.0) cd2=cd2/sqrt(sum2)
-
-! 750 samples/second here
-
+! Sample rate is now 12000/16 = 750 samples/second
       do isync=1,2
          if(isync.eq.1) then
             idfmin=-50
@@ -107,7 +109,7 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
             ctwk=1.
             call twkfreq1(ctwk,4*NSS,fs,a,ctwk2)
             do istart=ibmin,ibmax,ibstp
-               call sync4d(cd2,istart,ctwk2,1,sync)
+               call sync4d(cd2,istart,ctwk2,1,sync)  !Find sync power
                if(sync.gt.smax) then
                   smax=sync
                   ibest=istart
@@ -118,7 +120,7 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
       enddo
 
       f0=f0+real(idfbest)
-      call ft4_downsample(iwave,f0,cb) ! downsample from 320s/Symbol to 20s/Symbol
+      call ft4_downsample(iwave,f0,cb) !Final downsample with corrected f0
       sum2=sum(abs(cb)**2)/(real(NSS)*NN)
       if(sum2.gt.0.0) cb=cb/sqrt(sum2)
       cd=cb(ibest:ibest+NN*NSS-1)
@@ -130,7 +132,7 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
          s4(0:3,k)=abs(csymb(1:4))
       enddo
 
-! sync quality check
+! Sync quality check
       is1=0
       is2=0
       is3=0
@@ -145,10 +147,9 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
          ip=maxloc(s4(:,k+99))
          if(icos4(k-1).eq.(ip(1)-1)) is4=is4+1
       enddo
-! hard sync sum - max is 16
-      nsync=is1+is2+is3+is4
+      nsync=is1+is2+is3+is4   !Number of hard sync errors, 0-16
 
-      do nseq=1,3
+      do nseq=1,3             !Try coherent sequences of 1, 2, and 4 symbols
          if(nseq.eq.1) nsym=1
          if(nseq.eq.2) nsym=2
          if(nseq.eq.3) nsym=4
@@ -233,7 +234,8 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
             llr2=llr
             if(ibias.eq.1) llr2=llr+0.4
             if(ibias.eq.2) llr2=llr-0.4
-            call bpdecode174_91(llr2,apmask,max_iterations,message77,cw,nharderror,niterations)
+            call bpdecode174_91(llr2,apmask,max_iterations,message77,     &
+                 cw,nharderror,niterations)
             if(nharderror.ge.0) exit
          enddo
          if(sum(message77).eq.0) cycle
@@ -256,11 +258,12 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
             write(24,1002) cdatetime0,nsnr,ibest/750.0,nint(freq),message,    &
                nharderror,nsync_qual,isd,niterations
             if(hhmmss.eq.'      ') write(*,1002) cdatetime0,nsnr,             &
-               ibest/750.0,nint(freq),message,nharderror,nsync_qual,isd,niterations
+                 ibest/750.0,nint(freq),message,nharderror,nsync_qual,isd,    &
+                 niterations
 1002        format(a17,i4,f6.2,i5,' Rx  ',a37,4i5)
             close(24)
 
-!### Temporary: assume most recent decoded message conveys "hiscall".
+!### Temporary: assume most recent decoded message conveys "hiscall". ###
             i0=index(message,' ')
             if(i0.ge.3 .and. i0.le.7) then
                hiscall=message(i0+1:i0+6)
@@ -279,8 +282,8 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
             exit
 
          endif
-      enddo ! sequence estimation
-   enddo !candidate list
+      enddo !Sequence estimation
+   enddo    !Candidate list
 
    return
 end subroutine ft4_decode
@@ -317,6 +320,7 @@ subroutine ft4_downsample(iwave,f0,c)
    c1=c1/NFFT2
    call four2a(c1,NFFT2,1,1,1)            !c2c FFT back to time domain
    c=c1(0:NMAX/NDOWN-1)
+
    return
 end subroutine ft4_downsample
 
