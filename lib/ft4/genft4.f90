@@ -1,6 +1,5 @@
 subroutine genft4(msg0,ichk,msgsent,i4tone)
-! s16 + 87symbols + 2 ramp up/down = 105 channel symbols  4.48s message duration
-! s4+58symb+s4+58symb+s4+58sym+s4 
+
 ! Encode an FT4  message
 ! Input:
 !   - msg0     requested message to be transmitted
@@ -8,7 +7,13 @@ subroutine genft4(msg0,ichk,msgsent,i4tone)
 !   - msgsent  message as it will be decoded
 !   - i4tone   array of audio tone values, {0,1,2,3} 
 
-!  use iso_c_binding, only: c_loc,c_size_t
+! Frame structure:
+! s16 + 87symbols + 2 ramp up/down = 105 total channel symbols
+! r1 + s4 + d29 + s4 + d29 + s4 + d29 + s4 + r1
+
+! Message duration: TxT = 105*512/12000 = 4.48 s
+  
+! use iso_c_binding, only: c_loc,c_size_t
 
   use packjt77
   include 'ft4_params.f90'  
@@ -20,9 +25,8 @@ subroutine genft4(msg0,ichk,msgsent,i4tone)
   integer*1 codeword(2*ND)
   integer*1 msgbits(77) 
   integer icos4(4)
-  data icos4/0,1,3,2/
-
   logical unpk77_success
+  data icos4/0,1,3,2/
 
   message=msg0
 
@@ -60,12 +64,13 @@ subroutine genft4(msg0,ichk,msgsent,i4tone)
     if(is.eq.3) itmp(i)=2
   enddo
 
-   i4tone(1:4)=icos4
-   i4tone(5:33)=itmp(1:29)
-   i4tone(34:37)=icos4
-   i4tone(38:66)=itmp(30:58)
-   i4tone(67:70)=icos4
-   i4tone(71:99)=itmp(59:87)
-   i4tone(100:103)=icos4
+  i4tone(1:4)=icos4
+  i4tone(5:33)=itmp(1:29)
+  i4tone(34:37)=icos4
+  i4tone(38:66)=itmp(30:58)
+  i4tone(67:70)=icos4
+  i4tone(71:99)=itmp(59:87)
+  i4tone(100:103)=icos4
+
 999 return
 end subroutine genft4
