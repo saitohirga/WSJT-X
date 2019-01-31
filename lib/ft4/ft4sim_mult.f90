@@ -71,33 +71,35 @@ program ft4sim_mult
         call pack77(msg37,i3,n3,c77)
         call genft4(msg37,0,msgsent37,itone)
 
-! Compute the smoothed frequency waveform
+! Compute the smoothed frequency waveform.
+! Length = (NN+2)*NSPS samples, zero-padded to NMAX
         dphi_peak=twopi*hmod/real(NSPS)
         dphi=0.0 
         do j=1,NN         
            ib=(j-1)*NSPS
            ie=ib+3*NSPS-1
-           dphi(ib:ie)=dphi(ib:ie)+dphi_peak*pulse*itone(j)
+           dphi(ib:ie) = dphi(ib:ie) + dphi_peak*pulse*itone(j)
         enddo
 
 ! Calculate and insert the audio waveform
         phi=0.0
-        dphi=dphi+twopi*f0*dt
+        dphi = dphi + twopi*f0*dt                          !Shift frequency up by f0
         tmp=0.
-        k0=nint((xdt+0.043)/dt)
+        k0=nint(xdt/dt)
         k=k0-1
         do j=0,NMAX-1
            k=k+1
            tmp(k)=sin(phi)
            phi=mod(phi+dphi(j),twopi)
         enddo
-        k1=k
+        k1=k0+(NN+1)*NSPS
 
 ! Compute the ramp-up and ramp-down symbols
-        tmp(k0-NSPS:k0-1)=tmp(k0-NSPS:k0-1) *                                        &
+        tmp(k0:k0+NSPS-1)=tmp(k0:k0+NSPS-1) *                              &
              (1.0-cos(twopi*(/(i,i=0,NSPS-1)/)/(2.0*NSPS)))/2.0
-        tmp(k1+1:k1+NSPS)=tmp(k1+1:k1+NSPS) *                                        &
+        tmp(k1:k1+NSPS-1)=tmp(k1:k1+NSPS-1) *                              &
              (1.0+cos(twopi*(/(i,i=0,NSPS-1)/)/(2.0*NSPS)))/2.0
+        tmp(k1+NSPS:)=0.
 
  ! Insert this signal into wave() array
         sig=sqrt(2*bandwidth_ratio) * 10.0**(0.05*isnr)
@@ -107,7 +109,8 @@ program ft4sim_mult
      enddo   ! isig
    
 100  backspace 10
-     do i=1,NMAX                   !Add gaussian noise at specified SNR
+
+     do i=1,NZZ                   !Add gaussian noise at specified SNR
         xnoise=gran()
         wave(i)=wave(i) + xnoise
      enddo
