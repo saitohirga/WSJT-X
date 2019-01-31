@@ -35,9 +35,9 @@ subroutine sync4d(cd0,i0,ctwk,itwk,sync)
 
   sync=0
   i1=i0                            !four Costas arrays
-  i2=i0+33*NSS-1                     
-  i3=i0+66*NSS-1
-  i4=i0+99*NSS-1                 
+  i2=i0+33*NSS
+  i3=i0+66*NSS
+  i4=i0+99*NSS
   csync2=csync
   if(itwk.eq.1) csync2=ctwk*csync2      !Tweak the frequency
   if(i1.ge.0 .and. i1+4*NSS-1.le.NP-1) z1=sum(cd0(i1:i1+4*NSS-1)*conjg(csync2))
