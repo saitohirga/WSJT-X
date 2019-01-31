@@ -56,9 +56,13 @@ program ft4d
       cdatetime='      '//datetime
       close(10)
 
-      call ft4_decode(cdatetime,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
+      call ft4_decode(cdatetime,0.0,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
            hiscall,nrx,line)
-      if(ndecodes.ge.1) write(*,'(a61)') line
+      
+      do idecode=1,ndecodes
+         call get_ft4msg(idecode,nrx,line)
+         write(*,'(a61)') line
+      enddo
    enddo !files
 
    write(*,1120)

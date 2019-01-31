@@ -1,4 +1,4 @@
-subroutine ft4_decode(cdatetime0,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
+subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
      hiscall,nrx,line)
 
    use packjt77
@@ -7,7 +7,7 @@ subroutine ft4_decode(cdatetime0,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
    
    character message*37
    character c77*77
-   character*61 line
+   character*61 line,linex(100)
    character*37 decodes(100)
    character*120 data_dir
    character*17 cdatetime0
@@ -22,13 +22,13 @@ subroutine ft4_decode(cdatetime0,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
    real s4(0:3,NN)
 
    real bmeta(2*NN),bmetb(2*NN),bmetc(2*NN)
-   real s(NH1,NHSYM)
    real a(5)
    real llr(2*ND),llr2(2*ND),llra(2*ND),llrb(2*ND),llrc(2*ND)
    real s2(0:255)
    real candidate(3,100)
    real savg(NH1),sbase(NH1)
-   
+
+   integer nrxx(100)
    integer icos4(0:3)
    integer*2 iwave(NMAX)                 !Generated full-length waveform
    integer*1 message77(77),apmask(2*ND),cw(2*ND)
@@ -42,7 +42,7 @@ subroutine ft4_decode(cdatetime0,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
    data icos4/0,1,3,2/
    data graymap/0,1,3,2/
    data first/.true./
-   save one,first
+   save one,first,nrxx,linex
 
    hhmmss=cdatetime0(8:13)
    fs=12000.0/NDOWN                !Sample rate after downsampling
@@ -250,17 +250,19 @@ subroutine ft4_decode(cdatetime0,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
             decodes(ndecodes)=message
             nsnr=nint(xsnr)
             freq=f0
+            tsig=mod(tbuf + ibest/750.0,100.0)
 
-            write(line,1000) hhmmss,nsnr,ibest/750.0,nint(freq),message
-1000        format(a6,i4,f5.2,i5,' + ',1x,a37)
+            write(line,1000) hhmmss,nsnr,tsig,nint(freq),message
+1000        format(a6,i4,f5.1,i5,' + ',1x,a37)
             open(24,file='all_ft4.txt',status='unknown',position='append')
-            write(24,1002) cdatetime0,nsnr,ibest/750.0,nint(freq),message,    &
+            write(24,1002) cdatetime0,nsnr,tsig,nint(freq),message,    &
                nharderror,nsync_qual,isd,niterations
             if(hhmmss.eq.'      ') write(*,1002) cdatetime0,nsnr,             &
-                 ibest/750.0,nint(freq),message,nharderror,nsync_qual,isd,    &
+                 tsig,nint(freq),message,nharderror,nsync_qual,isd,    &
                  niterations
-1002        format(a17,i4,f6.2,i5,' Rx  ',a37,4i5)
+1002        format(a17,i4,f5.1,i5,' Rx  ',a37,4i5)
             close(24)
+            linex(ndecodes)=line
 
 !### Temporary: assume most recent decoded message conveys "hiscall". ###
             i0=index(message,' ')
@@ -273,18 +275,24 @@ subroutine ft4_decode(cdatetime0,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
             if(index(message,'CQ ').eq.1) nrx=1
             if((index(message,trim(mycall)//' ').eq.1) .and.                 &
                (index(message,' '//trim(hiscall)//' ').ge.4)) then
-               if(index(message,' 559 ').gt.8) nrx=2
-               if(index(message,' R 559 ').gt.8) nrx=3
+               if(index(message,' 559 ').gt.8) nrx=2        !### Not right !
+               if(index(message,' R 559 ').gt.8) nrx=3      !### Not right ! 
                if(index(message,' RR73 ').gt.8) nrx=4
             endif
+            nrxx(ndecodes)=nrx
 !###
             exit
 
          endif
       enddo !Sequence estimation
    enddo    !Candidate list
-
    return
+
+   entry get_ft4msg(idecode,nrx,line)
+   line=linex(idecode)
+   nrx=nrxx(idecode)
+   return
+
 end subroutine ft4_decode
 
 subroutine ft4_downsample(iwave,f0,c)

@@ -163,9 +163,12 @@ extern "C" {
 
   void chkcall_(char* w, char* basc_call, bool cok, int len1, int len2);
 
-  void ft4_decode_(char* cdatetime, int* nfa, int* nfb, int* nfqso, short int id[],
-                   int* ndecodes, char* mycall6, char* hiscall6, int* nrx, char* line,
-                   int len1, int len2, int len3, int len4);
+  void ft4_decode_(char* cdatetime, float* tbuf, int* nfa, int* nfb, int* nfqso,
+                   short int id[], int* ndecodes, char* mycall6, char* hiscall6,
+                   int* nrx, char* line, int len1, int len2, int len3, int len4);
+
+  void get_ft4msg_(int* idecode, int* nrx, char* line, int len);
+
 }
 
 int volatile itone[NUM_ISCAT_SYMBOLS];   //Audio tones for all Tx symbols
@@ -8621,6 +8624,7 @@ void MainWindow::ft4Data(int k)
   int j=k/6000;
   j=6000*j-60000;
   if(j<0) j+=NRING;
+  float tbuf=j/12000.0;
   for(int i=0; i<60000; i++) {
     id[i]=dec_data.d2[j];
     j++;
@@ -8654,10 +8658,13 @@ void MainWindow::ft4Data(int k)
   int nrx=-1;
   int nfa=m_wideGraph->nStartFreq();
   int nfb=m_wideGraph->Fmax();
-  ft4_decode_(cdatetime,&nfa,&nfb,&nfqso,id,&ndecodes,mycall6,hiscall6,
+  ft4_decode_(cdatetime,&tbuf,&nfa,&nfb,&nfqso,id,&ndecodes,mycall6,hiscall6,
               &nrx,&line[0],17,6,6,61);
   line[60]=0;
-  if(ndecodes>0) {
+//  if(ndecodes>0) {
+  for (int idecode=1; idecode<=ndecodes; idecode++) {
+    get_ft4msg_(&idecode,&nrx,&line[0],61);
+    line[60]=0;
     QString sline{QString::fromLatin1(line)};
     DecodedText decodedtext {sline.replace(QChar::LineFeed,"")};
     ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_mode,
