@@ -10,10 +10,9 @@ program ft4sim_mult
   type(hdr) h                            !Header for .wav file
   character arg*12,fname*17,cjunk*4
   character msg37*37,msgsent37*37,c77*77
+  real wave0((NN+2)*NSPS)
   real wave(NZZ)
   real tmp(NZZ)
-  real dphi(0:NMAX-1)
-  real pulse(3*NSPS)               
   integer itone(NN)
   integer*2 iwave(NZZ)                  !Generated full-length waveform
   integer icos4(4)
@@ -41,12 +40,6 @@ program ft4sim_mult
   bandwidth_ratio=2500.0/(fs/2.0)
   txt=NN*NSPS/12000.0
   xdtmax=10.0 - 0.086
-
-! Compute the filtered frequency pulse
-  do i=1,3*NSPS
-     tt=(i-1.5*NSPS)/real(NSPS)
-     pulse(i)=gfsk_pulse(1.0,tt)
-  enddo
   open(10,file='messages.txt',status='old',err=998)
 
   do ifile=1,nfiles
@@ -70,36 +63,14 @@ program ft4sim_mult
         n3=-1
         call pack77(msg37,i3,n3,c77)
         call genft4(msg37,0,msgsent37,itone)
+        nwave0=(NN+2)*NSPS
+        call gen_ft4wave(itone,NN,NSPS,12000.0,f0,wave0,nwave0)
 
-! Compute the smoothed frequency waveform.
-! Length = (NN+2)*NSPS samples, zero-padded to NMAX
-        dphi_peak=twopi*hmod/real(NSPS)
-        dphi=0.0 
-        do j=1,NN         
-           ib=(j-1)*NSPS
-           ie=ib+3*NSPS-1
-           dphi(ib:ie) = dphi(ib:ie) + dphi_peak*pulse*itone(j)
-        enddo
-
-! Calculate and insert the audio waveform
-        phi=0.0
-        dphi = dphi + twopi*f0*dt                          !Shift frequency up by f0
-        tmp=0.
         k0=nint(xdt/dt)
-        k=k0-1
-        do j=0,NMAX-1
-           k=k+1
-           tmp(k)=sin(phi)
-           phi=mod(phi+dphi(j),twopi)
-        enddo
-        k1=k0+(NN+1)*NSPS
-
-! Compute the ramp-up and ramp-down symbols
-        tmp(k0:k0+NSPS-1)=tmp(k0:k0+NSPS-1) *                              &
-             (1.0-cos(twopi*(/(i,i=0,NSPS-1)/)/(2.0*NSPS)))/2.0
-        tmp(k1:k1+NSPS-1)=tmp(k1:k1+NSPS-1) *                              &
-             (1.0+cos(twopi*(/(i,i=0,NSPS-1)/)/(2.0*NSPS)))/2.0
-        tmp(k1+NSPS:)=0.
+        if(k0.lt.1) k0=1
+        tmp(:k0-1)=0.0
+        tmp(k0:k0+nwave0-1)=wave0
+        tmp(k0+nwave0:)=0.0
 
  ! Insert this signal into wave() array
         sig=sqrt(2*bandwidth_ratio) * 10.0**(0.05*isnr)
