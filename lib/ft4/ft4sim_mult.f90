@@ -104,8 +104,8 @@ program ft4sim_mult
  ! Insert this signal into wave() array
         sig=sqrt(2*bandwidth_ratio) * 10.0**(0.05*isnr)
         wave=wave + sig*tmp
-        write(*,1100) fname,isig,isnr,nint(f0),msg37
-1100    format(a17,i4,i5,i6,2x,a37)
+        write(*,1100) fname(1:13),isig,isnr,xdt,nint(f0),msg37
+1100    format(a13,i4,i5,f5.1,i6,2x,a37)
      enddo   ! isig
    
 100  backspace 10
