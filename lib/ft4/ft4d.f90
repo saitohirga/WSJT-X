@@ -43,6 +43,8 @@ program ft4d
       iarg=iarg+2
    endif
    ncoh=1
+   nfa=200
+   nfb=3000
 
    do ifile=iarg,nargs
       call getarg(ifile,infile)
@@ -54,7 +56,8 @@ program ft4d
       cdatetime='      '//datetime
       close(10)
 
-      call ft4_decode(cdatetime,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
+      call ft4_decode(cdatetime,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
+           hiscall,nrx,line)
       if(ndecodes.ge.1) write(*,'(a61)') line
    enddo !files
 

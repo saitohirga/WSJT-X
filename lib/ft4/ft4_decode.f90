@@ -1,4 +1,5 @@
-subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
+subroutine ft4_decode(cdatetime0,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
+     hiscall,nrx,line)
 
    use packjt77
    include 'ft4_params.f90'
@@ -66,12 +67,11 @@ subroutine ft4_decode(cdatetime0,nfqso,iwave,ndecodes,mycall,hiscall,nrx,line)
    syncmin=1.2
    maxcand=100
 
-! These are temporary.  Correct values should be passed in as arguments.
+! ### This is temporary.  Correct directory should be passed in as an argument.
    data_dir="."
-   fMHz=7.074
-   fa=400.0
-   fb=3000.0
 
+   fa=nfa
+   fb=nfb
    call getcandidates4(iwave,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
         ncand,sbase)
 

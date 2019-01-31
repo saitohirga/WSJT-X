@@ -163,8 +163,8 @@ extern "C" {
 
   void chkcall_(char* w, char* basc_call, bool cok, int len1, int len2);
 
-  void ft4_decode_(char* cdatetime, int* nfqso, short int id[], int* ndecodes,
-                   char* mycall6, char* hiscall6, int* nrx, char* line,
+  void ft4_decode_(char* cdatetime, int* nfa, int* nfb, int* nfqso, short int id[],
+                   int* ndecodes, char* mycall6, char* hiscall6, int* nrx, char* line,
                    int len1, int len2, int len3, int len4);
 }
 
@@ -8652,8 +8652,10 @@ void MainWindow::ft4Data(int k)
   int nfqso=1500;
   int ndecodes=0;
   int nrx=-1;
-  ft4_decode_(cdatetime,&nfqso,id,&ndecodes,mycall6,hiscall6,&nrx,&line[0],
-      17,6,6,61);
+  int nfa=m_wideGraph->nStartFreq();
+  int nfb=m_wideGraph->Fmax();
+  ft4_decode_(cdatetime,&nfa,&nfb,&nfqso,id,&ndecodes,mycall6,hiscall6,
+              &nrx,&line[0],17,6,6,61);
   line[60]=0;
   if(ndecodes>0) {
     QString sline{QString::fromLatin1(line)};
