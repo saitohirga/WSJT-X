@@ -4,7 +4,7 @@ program ft4d
 
    character*8 arg
    character*17 cdatetime 
-   character*120 data_dir
+   character*512 data_dir
    character*11 datetime
    character*37 decodes(100)
    character*16 fname
@@ -57,7 +57,7 @@ program ft4d
       close(10)
 
       call ft4_decode(cdatetime,0.0,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
-           hiscall,nrx,line)
+           hiscall,nrx,line,data_dir)
       
       do idecode=1,ndecodes
          call get_ft4msg(idecode,nrx,line)

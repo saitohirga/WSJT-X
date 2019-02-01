@@ -6,16 +6,16 @@ subroutine clockit(dname,k)
 
   character*8 dname,name(50),space,ename
   character*16 sname
+  character*512 data_dir,fname
   logical first,on(50)
   real ut(50),ut0(50),dut(50),tt(2)
   integer ncall(50),nlevel(50),nparent(50)
   integer onlevel(0:10)
-!  common/tracer/ limtrace,lu,ntimer
   data first/.true./,eps/0.000001/,ntrace/0/
   data level/0/,nmax/0/,space/'        '/
   data limtrace/0/,lu/29/,ntimer/1/
   save
-  
+
   if(ntimer.eq.0) return
   if(lu.lt.1) lu=6
   if(k.gt.1) go to 40                        !Check for "all done" (k>1)
@@ -62,7 +62,7 @@ subroutine clockit(dname,k)
 
 ! Write out the timer statistics
 
-40 open(lu,file='clockit.out',status='unknown')
+40 open(lu,file=trim(fname),status='unknown')
   write(lu,1040)
 1040 format(/'     name                 time  frac     dtime',       &
              ' dfrac  calls level parent'/73('-'))
@@ -99,6 +99,11 @@ subroutine clockit(dname,k)
   write(lu,1070) sum,sumf
 1070 format(/36x,f10.2,f6.2)
   close(lu)
-
   return
+
+  entry clockit2(data_dir)
+  i0=index(data_dir,char(0))
+  fname=trim(data_dir(1:i0-1))//'/clockit.out'
+  return
+  
 end subroutine clockit

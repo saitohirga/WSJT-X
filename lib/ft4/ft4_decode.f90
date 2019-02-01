@@ -1,5 +1,5 @@
 subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
-     hiscall,nrx,line)
+     hiscall,nrx,line,data_dir)
 
    use packjt77
    include 'ft4_params.f90'
@@ -9,7 +9,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
    character c77*77
    character*61 line,linex(100)
    character*37 decodes(100)
-   character*120 data_dir
+   character*512 data_dir,fname
    character*17 cdatetime0
    character*6 mycall,hiscall,hhmmss
 
@@ -67,9 +67,6 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
    ncand=0
    syncmin=1.2
    maxcand=100
-
-! ### This is temporary.  Correct directory should be passed in as an argument.
-   data_dir="."
 
    fa=nfa
    fb=nfb
@@ -274,7 +271,9 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
 
             write(line,1000) hhmmss,nsnr,tsig,nint(freq),message
 1000        format(a6,i4,f5.1,i5,' + ',1x,a37)
-            open(24,file='all_ft4.txt',status='unknown',position='append')
+            i0=index(data_dir,char(0))
+            fname=trim(data_dir(1:i0-1))//'/all_ft4.txt'
+            open(24,file=trim(fname),status='unknown',position='append')
             write(24,1002) cdatetime0,nsnr,tsig,nint(freq),message,    &
                nharderror,nsync_qual,isd,niterations
             if(hhmmss.eq.'      ') write(*,1002) cdatetime0,nsnr,             &
@@ -307,6 +306,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
       enddo !Sequence estimation
    enddo    !Candidate list
    call clockit('ft4_deco',1)
+   call clockit2(data_dir)
    call clockit('ft4_deco',101)   
    return
 
