@@ -42,7 +42,6 @@ program ft4d
       read(arg,*) fMHz
       iarg=iarg+2
    endif
-   ncoh=1
    nfa=200
    nfb=3000
 

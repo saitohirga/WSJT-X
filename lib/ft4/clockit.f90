@@ -102,8 +102,7 @@ subroutine clockit(dname,k)
   return
 
   entry clockit2(data_dir)
-  i0=index(data_dir,char(0))
-  fname=trim(data_dir(1:i0-1))//'/clockit.out'
+  fname=trim(data_dir)//'/clockit.out'
   return
   
 end subroutine clockit
