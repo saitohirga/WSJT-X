@@ -56,19 +56,32 @@ subroutine getcandidates4(id,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
 
   ncand=0
   f_offset = -1.5*12000/512
-  do i=1,maxcand
-     ipk=maxloc(savsm(nfa:nfb))
-     ip=nfa-1+ipk(1)
-     xmax=savsm(ip)
-     savsm(max(1,ip-8):min(NH1,ip+8))=0.0
-     if(xmax.ge.syncmin) then
-        ncand=ncand+1
-        candidate(1,ncand)=ip*df+f_offset 
-        candidate(2,ncand)=-99.9
-        candidate(3,ncand)=xmax
-     else
-        exit
-     endif
+  do i=nfa+1,nfb-1
+    if(savsm(i).ge.savsm(i-1) .and. savsm(i).ge.savsm(i+1) .and. savsm(i).ge.syncmin) then
+      del=0.5*(savsm(i-1)-savsm(i+1))/(savsm(i-1)-2*savsm(i)+savsm(i+1))
+      fpeak=(i+del)*df+f_offset
+      speak=savsm(i) - 0.25*(savsm(i-1)-savsm(i+1))*del
+      ncand=ncand+1
+      if(ncand.gt.maxcand) exit
+      candidate(1,ncand)=fpeak
+      candidate(2,ncand)=-99.99
+      candidate(3,ncand)=speak
+    endif
   enddo
+
+!  do i=1,maxcand
+!     ipk=maxloc(savsm(nfa:nfb))
+!     ip=nfa-1+ipk(1)
+!     xmax=savsm(ip)
+!     savsm(max(1,ip-8):min(NH1,ip+8))=0.0
+!     if(xmax.ge.syncmin) then
+!        ncand=ncand+1
+!        candidate(1,ncand)=ip*df+f_offset 
+!        candidate(2,ncand)=-99.9
+!        candidate(3,ncand)=xmax
+!     else
+!        exit
+!     endif
+!  enddo
 return
 end subroutine getcandidates4

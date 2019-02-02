@@ -78,7 +78,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
    ndecodes=0
    do icand=1,ncand
       f0=candidate(1,icand)
-      xsnr=10*log10(candidate(3,icand))-18.0
+      snr=candidate(3,icand)-1.0
       if( f0.le.375.0 .or. f0.ge.(5000.0-375.0) ) cycle
       call clockit('ft4_down',0)
       call ft4_downsample(iwave,f0,cd2)  !Downsample from 512 to 32 Sa/Symbol
@@ -89,15 +89,15 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
 ! Sample rate is now 12000/16 = 750 samples/second
       do isync=1,2
          if(isync.eq.1) then
-            idfmin=-50
-            idfmax=50
+            idfmin=-12
+            idfmax=12
             idfstp=3
             ibmin=0
             ibmax=374
             ibstp=4
          else
-            idfmin=idfbest-5
-            idfmax=idfbest+5
+            idfmin=idfbest-4
+            idfmax=idfbest+4
             idfstp=1
             ibmin=max(0,ibest-5)
             ibmax=min(ibest+5,NMAX/NDOWN-1)
@@ -265,6 +265,11 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
             if(idupe.eq.1) exit
             ndecodes=ndecodes+1
             decodes(ndecodes)=message
+            if(snr.gt.0.0) then
+               xsnr=10*log10(snr)-14.0
+            else
+               xsnr=-18.0
+            endif
             nsnr=nint(xsnr)
             freq=f0
             tsig=mod(tbuf + ibest/750.0,100.0)
