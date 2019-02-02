@@ -44,10 +44,9 @@ public:
   Q_SLOT void erase ();
   Q_SLOT void highlight_callsign (QString const& callsign, QColor const& bg, QColor const& fg, bool last_only);
 
-protected:
-  void mouseDoubleClickEvent(QMouseEvent *e);
-
 private:
+  void mouseDoubleClickEvent (QMouseEvent *) override;
+
   void extend_vertical_scrollbar (int min, int max);
 
   Configuration const * m_config;
