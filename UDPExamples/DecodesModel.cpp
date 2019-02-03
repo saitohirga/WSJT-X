@@ -125,7 +125,7 @@ void DecodesModel::add_decode (bool is_new, QString const& client_id, QTime time
                        , off_air, is_fast));
 }
 
-void DecodesModel::clear_decodes (QString const& client_id)
+void DecodesModel::decodes_cleared (QString const& client_id)
 {
   for (auto row = rowCount () - 1; row >= 0; --row)
     {

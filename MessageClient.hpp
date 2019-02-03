@@ -59,7 +59,7 @@ public:
   Q_SLOT void WSPR_decode (bool is_new, QTime time, qint32 snr, float delta_time, Frequency
                            , qint32 drift, QString const& callsign, QString const& grid, qint32 power
                            , bool off_air);
-  Q_SLOT void clear_decodes ();
+  Q_SLOT void decodes_cleared ();
   Q_SLOT void qso_logged (QDateTime time_off, QString const& dx_call, QString const& dx_grid
                           , Frequency dial_frequency, QString const& mode, QString const& report_sent
                           , QString const& report_received, QString const& tx_power, QString const& comments
@@ -79,6 +79,10 @@ public:
   // disallowed message destination (does not block datagrams sent
   // with send_raw_datagram() above)
   Q_SLOT void add_blocked_destination (QHostAddress const&);
+
+  // this signal is emitted if the server has requested a decode
+  // window clear action
+  Q_SIGNAL void clear_decodes (quint8 window);
 
   // this signal is emitted if the server sends us a reply, the only
   // reply supported is reply to a prior CQ or QRZ message

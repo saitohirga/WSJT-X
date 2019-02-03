@@ -12,6 +12,7 @@
 class QAbstractItemModel;
 class QModelIndex;
 class QColor;
+class QAction;
 
 using Frequency = MessageServer::Frequency;
 
@@ -41,8 +42,9 @@ public:
                                  , float delta_time, Frequency delta_frequency, qint32 drift
                                  , QString const& callsign, QString const& grid, qint32 power
                                  , bool off_air);
-  Q_SLOT void clear_decodes (QString const& client_id);
+  Q_SLOT void decodes_cleared (QString const& client_id);
 
+  Q_SIGNAL void do_clear_decodes (QString const& id, quint8 window = 0);
   Q_SIGNAL void do_reply (QModelIndex const&, quint8 modifier);
   Q_SIGNAL void do_halt_tx (QString const& id, bool auto_only);
   Q_SIGNAL void do_free_text (QString const& id, QString const& text, bool);
@@ -74,6 +76,9 @@ private:
     QRegularExpression base_call_re_;
     int rx_df_;
   } decodes_proxy_model_;
+  QAction * erase_action_;
+  QAction * erase_rx_frequency_action_;
+  QAction * erase_both_action_;
   QTableView * decodes_table_view_;
   QTableView * beacons_table_view_;
   QLineEdit * message_line_edit_;

@@ -2,6 +2,7 @@
 
 #include <QRegExp>
 #include <QColor>
+#include <QAction>
 
 #include "validators/MaidenheadLocatorValidator.hpp"
 
@@ -120,6 +121,9 @@ ClientWidget::ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemMod
   , id_ {id}
   , calls_of_interest_ {calls_of_interest}
   , decodes_proxy_model_ {id_}
+  , erase_action_ {new QAction {tr ("&Erase Band Activity"), this}}
+  , erase_rx_frequency_action_ {new QAction {tr ("Erase &Rx Frequency"), this}}
+  , erase_both_action_ {new QAction {tr ("Erase &Both"), this}}
   , decodes_table_view_ {new QTableView}
   , beacons_table_view_ {new QTableView}
   , message_line_edit_ {new QLineEdit}
@@ -143,6 +147,10 @@ ClientWidget::ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemMod
   decodes_table_view_->verticalHeader ()->hide ();
   decodes_table_view_->hideColumn (0);
   decodes_table_view_->horizontalHeader ()->setStretchLastSection (true);
+  decodes_table_view_->setContextMenuPolicy (Qt::ActionsContextMenu);
+  decodes_table_view_->insertAction (nullptr, erase_action_);
+  decodes_table_view_->insertAction (nullptr, erase_rx_frequency_action_);
+  decodes_table_view_->insertAction (nullptr, erase_both_action_);
 
   auto form_layout = new QFormLayout;
   form_layout->addRow (tr ("Free text:"), message_line_edit_);
@@ -171,6 +179,8 @@ ClientWidget::ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemMod
   beacons_table_view_->verticalHeader ()->hide ();
   beacons_table_view_->hideColumn (0);
   beacons_table_view_->horizontalHeader ()->setStretchLastSection (true);
+  beacons_table_view_->setContextMenuPolicy (Qt::ActionsContextMenu);
+  beacons_table_view_->insertAction (nullptr, erase_action_);
 
   auto beacons_page = new QWidget;
   auto beacons_layout = new QVBoxLayout {beacons_page};
@@ -219,8 +229,19 @@ ClientWidget::ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemMod
   setAllowedAreas (Qt::BottomDockWidgetArea);
   setFloating (true);
 
+  // connect context menu actions
+  connect (erase_action_, &QAction::triggered, [this] (bool /*checked*/) {
+      Q_EMIT do_clear_decodes (id_);
+    });
+  connect (erase_rx_frequency_action_, &QAction::triggered, [this] (bool /*checked*/) {
+      Q_EMIT do_clear_decodes (id_, 1);
+    });
+  connect (erase_both_action_, &QAction::triggered, [this] (bool /*checked*/) {
+      Q_EMIT do_clear_decodes (id_, 2);
+    });
+
   // connect up table view signals
-  connect (decodes_table_view_, &QTableView::doubleClicked, this, [this] (QModelIndex const& index) {
+  connect (decodes_table_view_, &QTableView::doubleClicked, [this] (QModelIndex const& index) {
       Q_EMIT do_reply (decodes_proxy_model_.mapToSource (index), QApplication::keyboardModifiers () >> 24);
     });
 
@@ -313,7 +334,7 @@ void ClientWidget::beacon_spot_added (bool /*is_new*/, QString const& client_id,
   beacons_table_view_->scrollToBottom ();
 }
 
-void ClientWidget::clear_decodes (QString const& client_id)
+void ClientWidget::decodes_cleared (QString const& client_id)
 {
   if (client_id == id_)
     {
