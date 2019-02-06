@@ -124,7 +124,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,nfqso,iwave,ndecodes,
       sum2=sum(cd2*conjg(cd2))/(real(NMAX)/real(NDOWN))
       if(sum2.gt.0.0) cd2=cd2/sqrt(sum2)
 ! Sample rate is now 12000/16 = 750 samples/second
-      do isync=1,1
+      do isync=1,2
          if(isync.eq.1) then
             idfmin=-12
             idfmax=12
