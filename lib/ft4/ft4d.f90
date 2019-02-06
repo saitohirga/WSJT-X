@@ -44,6 +44,7 @@ program ft4d
    endif
    nfa=200
    nfb=3000
+   nQSOProgress=0
 
    do ifile=iarg,nargs
       call getarg(ifile,infile)
@@ -55,7 +56,7 @@ program ft4d
       cdatetime='      '//datetime
       close(10)
 
-      call ft4_decode(cdatetime,0.0,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
+      call ft4_decode(cdatetime,0.0,nfa,nfb,nQSOProgress,nfqso,iwave,ndecodes,mycall,    &
            hiscall,nrx,line,data_dir)
       
       do idecode=1,ndecodes

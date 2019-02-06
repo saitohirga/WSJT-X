@@ -163,10 +163,10 @@ extern "C" {
 
   void chkcall_(char* w, char* basc_call, bool cok, int len1, int len2);
 
-  void ft4_decode_(char* cdatetime, float* tbuf, int* nfa, int* nfb, int* nfqso,
-                   short int id[], int* ndecodes, char* mycall6, char* hiscall6,
-                   int* nrx, char* line, char* ddir, int len1, int len2, int len3,
-                   int len4, int len5);
+  void ft4_decode_(char* cdatetime, float* tbuf, int* nfa, int* nfb, int* nQSOProgress,
+                   int* nfqso, short int id[], int* ndecodes, char* mycall6,
+                   char* hiscall6, int* nrx, char* line, char* ddir, int len1, int len2,
+                   int len3, int len4, int len5);
 
   void get_ft4msg_(int* idecode, int* nrx, char* line, int len);
 
@@ -8659,11 +8659,12 @@ void MainWindow::ft4Data(int k)
   int nrx=-1;
   int nfa=m_wideGraph->nStartFreq();
   int nfb=m_wideGraph->Fmax();
+  int nQSOProgress=m_QSOProgress;
   QString dataDir;
   dataDir = m_config.writeable_data_dir ().absolutePath ();
   char ddir[512];
   strncpy(ddir,dataDir.toLatin1(), sizeof (ddir) - 1);
-  ft4_decode_(cdatetime,&tbuf,&nfa,&nfb,&nfqso,id,&ndecodes,mycall6,hiscall6,
+  ft4_decode_(cdatetime,&tbuf,&nfa,&nfb,&nQSOProgress,&nfqso,id,&ndecodes,mycall6,hiscall6,
               &nrx,&line[0],&ddir[0],17,6,6,61,512);
   line[60]=0;
 //  if(ndecodes>0) {

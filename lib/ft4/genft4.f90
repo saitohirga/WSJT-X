@@ -23,11 +23,16 @@ subroutine genft4(msg0,ichk,msgsent,i4tone)
   character*77 c77
   integer*4 i4tone(NN),itmp(ND)
   integer*1 codeword(2*ND)
-  integer*1 msgbits(77) 
-  integer icos4(4)
+  integer*1 msgbits(77),rvec(77) 
+  integer icos4a(4),icos4b(4),icos4c(4),icos4d(4)
   logical unpk77_success
-  data icos4/0,1,3,2/
-
+  data icos4a/0,1,3,2/
+  data icos4b/1,0,2,3/
+  data icos4c/2,3,1,0/
+  data icos4d/3,2,0,1/
+  data rvec/0,1,0,0,1,0,1,0,0,1,0,1,1,1,1,0,1,0,0,0,1,0,0,1,1,0,1,1,0, &
+            1,0,0,1,0,1,1,0,0,0,0,1,0,0,0,1,0,1,0,0,1,1,1,1,0,0,1,0,1, &
+            0,1,0,1,0,1,1,0,1,1,1,1,1,0,0,0,1,0,1/
   message=msg0
 
   do i=1, 37
@@ -48,6 +53,7 @@ subroutine genft4(msg0,ichk,msgsent,i4tone)
 
   if(ichk.eq.1) go to 999
   read(c77,"(77i1)") msgbits
+  msgbits=mod(msgbits+rvec,2)
   call encode174_91(msgbits,codeword)
 
 ! Grayscale mapping:
@@ -64,13 +70,13 @@ subroutine genft4(msg0,ichk,msgsent,i4tone)
     if(is.eq.3) itmp(i)=2
   enddo
 
-  i4tone(1:4)=icos4
+  i4tone(1:4)=icos4a
   i4tone(5:33)=itmp(1:29)
-  i4tone(34:37)=icos4
+  i4tone(34:37)=icos4b
   i4tone(38:66)=itmp(30:58)
-  i4tone(67:70)=icos4
+  i4tone(67:70)=icos4c
   i4tone(71:99)=itmp(59:87)
-  i4tone(100:103)=icos4
+  i4tone(100:103)=icos4d
 
 999 return
 end subroutine genft4

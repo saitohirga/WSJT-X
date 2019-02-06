@@ -1,17 +1,19 @@
-subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
+subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,nfqso,iwave,ndecodes,mycall,    &
      hiscall,nrx,line,data_dir)
 
    use packjt77
    include 'ft4_params.f90'
    parameter (NSS=NSPS/NDOWN)
    
-   character message*37
+   character message*37,msgsent*37
    character c77*77
    character*61 line,linex(100)
    character*37 decodes(100)
    character*512 data_dir,fname
    character*17 cdatetime0
-   character*6 mycall,hiscall,hhmmss
+   character*6 mycall,hiscall
+   character*6 mycall0,hiscall0
+   character*6 hhmmss
 
    complex cd2(0:NMAX/NDOWN-1)                  !Complex waveform
    complex cb(0:NMAX/NDOWN-1)
@@ -29,31 +31,50 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
    real savg(NH1),sbase(NH1)
 
    integer nrxx(100)
-   integer icos4(0:3)
+   integer icos4a(0:3),icos4b(0:3),icos4c(0:3),icos4d(0:3)
    integer*2 iwave(NMAX)                 !Generated full-length waveform
-   integer*1 message77(77),apmask(2*ND),cw(2*ND)
+   integer*1 message77(77),rvec(77),apbits(2*ND),apmask(2*ND),cw(2*ND)
    integer*1 hbits(2*NN)
    integer graymap(0:3)
    integer ip(1)
+   integer nappasses(0:5)    ! # of decoding passes for QSO States 0-5
+   integer naptypes(0:5,4)   ! nQSOProgress, decoding pass
+   integer mcq(29),mcqru(29),mcqfd(29),mcqtest(29)
+   integer mrrr(19),m73(19),mrr73(19)
+   integer mcall(29),hcall(29)
+
    logical unpk77_success
    logical one(0:255,0:7)    ! 256 4-symbol sequences, 8 bits
    logical first
    
-   data icos4/0,1,3,2/
+   data icos4a/0,1,3,2/
+   data icos4b/1,0,2,3/
+   data icos4c/2,3,1,0/
+   data icos4d/3,2,0,1/
    data graymap/0,1,3,2/
    data first/.true./
-   save one,first,nrxx,linex
+   data     mcq/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0/
+   data   mcqru/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,0,0,1,1,0,0/
+   data   mcqfd/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,1,0/
+   data mcqtest/0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,0,1,0,1,1,1,1,1,1,0,0,1,0/
+   data    mrrr/0,1,1,1,1,1,1,0,1,0,0,1,0,0,1,0,0,0,1/
+   data     m73/0,1,1,1,1,1,1,0,1,0,0,1,0,1,0,0,0,0,1/
+   data   mrr73/0,1,1,1,1,1,1,0,0,1,1,1,0,1,0,1,0,0,1/
+   data rvec/0,1,0,0,1,0,1,0,0,1,0,1,1,1,1,0,1,0,0,0,1,0,0,1,1,0,1,1,0, &
+             1,0,0,1,0,1,1,0,0,0,0,1,0,0,0,1,0,1,0,0,1,1,1,1,0,0,1,0,1, &
+             0,1,0,1,0,1,1,0,1,1,1,1,1,0,0,0,1,0,1/
+   save fs,dt,tt,txt,twopi,h,one,first,nrxx,linex,apbits,nappasses,naptypes,mycall0,hiscall0
 
    call clockit('ft4_deco',0)
    hhmmss=cdatetime0(8:13)
-   fs=12000.0/NDOWN                !Sample rate after downsampling
-   dt=1/fs                         !Sample interval after downsample (s)
-   tt=NSPS*dt                      !Duration of "itone" symbols (s)
-   txt=NZ*dt                       !Transmission length (s) without ramp up/down
-   twopi=8.0*atan(1.0)
-   h=1.0 
 
    if(first) then
+      fs=12000.0/NDOWN                !Sample rate after downsampling
+      dt=1/fs                         !Sample interval after downsample (s)
+      tt=NSPS*dt                      !Duration of "itone" symbols (s)
+      txt=NZ*dt                       !Transmission length (s) without ramp up/down
+      twopi=8.0*atan(1.0)
+      h=1.0 
       one=.false.
       do i=0,255
          do j=0,7
@@ -61,6 +82,22 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
          enddo
       enddo
       first=.false.
+   endif
+
+   if(mycall.ne.mycall0 .or. hiscall.ne.hiscall0) then
+      message=trim(mycall)//' '//trim(hiscall)//' '//'RR73'
+      i3=-1
+      n3=-1
+      call pack77(message,i3,n3,c77)
+      call unpack77(c77,0,msgsent,unpk77_success)
+      if(message.ne.msgsent) write(*,*) 'ERROR setting AP message'
+      read(c77,"(77i1)") message77 
+      message77=mod(message77+rvec,2)
+      call encode174_91(message77,cw)
+      mcall=cw(1:29)
+      hcall=cw(30:58)
+      mycall0=mycall
+      hiscall0=hiscall
    endif
 
    candidate=0.0
@@ -87,7 +124,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
       sum2=sum(cd2*conjg(cd2))/(real(NMAX)/real(NDOWN))
       if(sum2.gt.0.0) cd2=cd2/sqrt(sum2)
 ! Sample rate is now 12000/16 = 750 samples/second
-      do isync=1,2
+      do isync=1,1
          if(isync.eq.1) then
             idfmin=-12
             idfmax=12
@@ -116,7 +153,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
             
             call clockit('sync4d  ',0)
             do istart=ibmin,ibmax,ibstp
-               call sync4d(cd2,istart,ctwk2,1,sync)  !Find sync power
+               call sync4d(cd2,istart,ctwk2,1,sync,sync2)  !Find sync power
                if(sync.gt.smax) then
                   smax=sync
                   ibest=istart
@@ -127,8 +164,10 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
             
          enddo
       enddo
-
       f0=f0+real(idfbest)
+
+!f0=1500
+!ibest=219
       call clockit('ft4down ',0)
       call ft4_downsample(iwave,f0,cb) !Final downsample with corrected f0
       call clockit('ft4down ',1)
@@ -152,17 +191,17 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
       is4=0
       do k=1,4
          ip=maxloc(s4(:,k))
-         if(icos4(k-1).eq.(ip(1)-1)) is1=is1+1
+         if(icos4a(k-1).eq.(ip(1)-1)) is1=is1+1
          ip=maxloc(s4(:,k+33))
-         if(icos4(k-1).eq.(ip(1)-1)) is2=is2+1
+         if(icos4b(k-1).eq.(ip(1)-1)) is2=is2+1
          ip=maxloc(s4(:,k+66))
-         if(icos4(k-1).eq.(ip(1)-1)) is3=is3+1
+         if(icos4c(k-1).eq.(ip(1)-1)) is3=is3+1
          ip=maxloc(s4(:,k+99))
-         if(icos4(k-1).eq.(ip(1)-1)) is4=is4+1
+         if(icos4d(k-1).eq.(ip(1)-1)) is4=is4+1
       enddo
       nsync=is1+is2+is3+is4   !Number of hard sync errors, 0-16
-      if(smax .lt. 0.9 .or. nsync .lt. 9) cycle
-      
+      if(smax .lt. 0.7 .or. nsync .lt. 8) cycle
+
       do nseq=1,3             !Try coherent sequences of 1, 2, and 4 symbols
          if(nseq.eq.1) nsym=1
          if(nseq.eq.2) nsym=2
@@ -217,11 +256,10 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
       hbits=0
       where(bmeta.ge.0) hbits=1
       ns1=count(hbits(  1:  8).eq.(/0,0,0,1,1,0,1,1/))
-      ns2=count(hbits( 67: 74).eq.(/0,0,0,1,1,0,1,1/))
-      ns3=count(hbits(133:140).eq.(/0,0,0,1,1,0,1,1/))
-      ns4=count(hbits(199:206).eq.(/0,0,0,1,1,0,1,1/))
+      ns2=count(hbits( 67: 74).eq.(/0,1,0,0,1,1,1,0/))
+      ns3=count(hbits(133:140).eq.(/1,1,1,0,0,1,0,0/))
+      ns4=count(hbits(199:206).eq.(/1,0,1,1,0,0,0,1/))
       nsync_qual=ns1+ns2+ns3+ns4
-
       if(nsync_qual.lt. 20) cycle 
 
       scalefac=2.83
@@ -242,7 +280,9 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
          if(isd.eq.1) llr=llra
          if(isd.eq.2) llr=llrb
          if(isd.eq.3) llr=llrc
+!llr(1:59)=1.5*scalefac*(2*apbits(1:59)-1)
          apmask=0
+!apmask(1:91)=1
          max_iterations=40
          do ibias=0,0
             llr2=llr
@@ -256,6 +296,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
          enddo
          if(sum(message77).eq.0) cycle
          if( nharderror.ge.0 ) then
+            message77=mod(message77+rvec,2)
             write(c77,'(77i1)') message77(1:77)
             call unpack77(c77,1,message,unpk77_success)
             idupe=0
@@ -310,8 +351,9 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nfqso,iwave,ndecodes,mycall,    &
       enddo !Sequence estimation
    enddo    !Candidate list
    call clockit('ft4_deco',1)
-   call clockit2(data_dir)
-   call clockit('ft4_deco',101)   
+! clockit data directory does not get set properly on the Mac.
+!   call clockit2(data_dir)
+!   call clockit('ft4_deco',101)   
    return
 
    entry get_ft4msg(idecode,nrx,line)
