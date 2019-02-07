@@ -16,6 +16,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,nfqso,iwave,ndecodes,
    character*6 hhmmss
 
    complex cd2(0:NMAX/NDOWN-1)                  !Complex waveform
+   complex cds(0:NMAX/NDOWN-1)                  !Complex waveform
    complex cb(0:NMAX/NDOWN-1)
    complex cd(0:NN*NSS-1)                       !Complex waveform
    complex ctwk(4*NSS),ctwk2(4*NSS)

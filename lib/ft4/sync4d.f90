@@ -74,20 +74,22 @@ subroutine sync4d(cd0,i0,ctwk,itwk,sync,sync2)
   sync = p(z1) + p(z2) + p(z3) + p(z4)
 
 sync2=0.0
-do i=1,4
-  i1=i0+(i-1)*33*NSS
-  if(i.eq.1) csync2=ctwk*csynca
-  if(i.eq.2) csync2=ctwk*csyncb
-  if(i.eq.3) csync2=ctwk*csyncc
-  if(i.eq.4) csync2=ctwk*csyncd
-  z1=sum(cd0(i1      :i1+  NSS-1)*conjg(csync2(      1:  NSS)))
-  z2=sum(cd0(i1+  NSS:i1+2*NSS-1)*conjg(csync2(  NSS+1:2*NSS)))
-  z3=sum(cd0(i1+2*NSS:i1+3*NSS-1)*conjg(csync2(2*NSS+1:3*NSS)))
-  z4=sum(cd0(i1+3*NSS:i1+4*NSS-1)*conjg(csync2(3*NSS+1:4*NSS)))
-  sync2=sync2 + abs(z1)**2+abs(z2)**2+abs(z3)**2+abs(z4)**2+&
-        2*abs(z1*conjg(z2)+z2*conjg(z3)+z3*conjg(z4)) 
-enddo
-sync2=sync2*(fac**2)
+!do i=1,4
+!  i1=i0+(i-1)*33*NSS
+!  if(i.eq.1) csync2=ctwk*csynca
+!  if(i.eq.2) csync2=ctwk*csyncb
+!  if(i.eq.3) csync2=ctwk*csyncc
+!  if(i.eq.4) csync2=ctwk*csyncd
+!  z1=sum(cd0(i1      :i1+  NSS-1)*conjg(csync2(      1:  NSS)))
+!  z2=sum(cd0(i1+  NSS:i1+2*NSS-1)*conjg(csync2(  NSS+1:2*NSS)))
+!  z3=sum(cd0(i1+2*NSS:i1+3*NSS-1)*conjg(csync2(2*NSS+1:3*NSS)))
+!  z4=sum(cd0(i1+3*NSS:i1+4*NSS-1)*conjg(csync2(3*NSS+1:4*NSS)))
+!  sync2=sync2 + abs(z1)**2+abs(z2)**2+abs(z3)**2+abs(z4)**2+&
+!       2*abs(z1*conjg(z2)+z2*conjg(z3)+z3*conjg(z4)) + &
+!       2*abs(z1*conjg(z3)+z2*conjg(z4)) + &
+!       2*abs(z1*conjg(z4))
+!enddo
+!sync2=sync2*(fac**2)
 
   return
 end subroutine sync4d
