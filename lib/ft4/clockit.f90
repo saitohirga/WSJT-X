@@ -103,7 +103,7 @@ subroutine clockit(dname,k)
 
   entry clockit2(data_dir)
   l1=index(data_dir,char(0))-1
-  data_dir(l1+1:l1+1)='/'
+  if(l1.ge.1) data_dir(l1+1:l1+1)='/'
   fname=data_dir(1:l1+1)//'clockit.out'
   return
   

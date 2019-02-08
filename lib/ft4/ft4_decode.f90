@@ -412,7 +412,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso,iwave,
             write(line,1000) hhmmss,nsnr,tsig,nint(freq),message
 1000        format(a6,i4,f5.1,i5,' + ',1x,a37)
             l1=index(data_dir,char(0))-1
-            data_dir(l1+1:l1+1)="/"
+            if(l1.ge.1) data_dir(l1+1:l1+1)="/"
             fname=data_dir(1:l1+1)//'all_ft4.txt'
             open(24,file=trim(fname),status='unknown',position='append')
             write(24,1002) cdatetime0,nsnr,tsig,nint(freq),message,    &
