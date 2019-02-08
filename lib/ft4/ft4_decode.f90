@@ -116,9 +116,16 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso,iwave,
       naptypes(3,1:4)=(/3,6,0,0/) ! Tx3
       naptypes(4,1:4)=(/3,6,0,0/) ! Tx4
       naptypes(5,1:4)=(/3,1,2,0/) ! Tx5
+
+      mycall0=''
+      hiscall0=''
       first=.false.
    endif
 
+   l1=index(mycall,char(0))
+   if(l1.ne.0) mycall(l1:)=" "
+   l1=index(hiscall,char(0))
+   if(l1.ne.0) hiscall(l1:)=" "
    if(mycall.ne.mycall0 .or. hiscall.ne.hiscall0) then
       call ft8apset(mycall,hiscall,apbits)
       if(apbits( 1).ne.99) then
@@ -132,7 +139,6 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso,iwave,
       mycall0=mycall
       hiscall0=hiscall
    endif
-
    candidate=0.0
    ncand=0
    syncmin=1.2
@@ -325,6 +331,21 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso,iwave,
          if(ipass .gt. 3) then
             llrd=llrc
             iaptype=naptypes(nQSOProgress,ipass-3)
+
+! ncontest=0 : NONE
+!          1 : NA_VHF
+!          2 : EU_VHF
+!          3 : FIELD DAY
+!          4 : RTTY
+!          5 : FOX
+!          6 : HOUND
+!
+! Conditions that cause us to bail out of AP decoding
+            napwid=50
+            if(ncontest.le.4 .and. iaptype.ge.3 .and. (abs(f0-nfqso).gt.napwid) ) cycle
+            if(iaptype.ge.2 .and. apbits(1).gt.1) cycle  ! No, or nonstandard, mycall
+            if(iaptype.ge.3 .and. apbits(30).gt.1) cycle ! No, or nonstandard, dxcall
+
             if(iaptype.eq.1) then  ! CQ or CQ TEST
                apmask=0
                apmask(1:29)=1
