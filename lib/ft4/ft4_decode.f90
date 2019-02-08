@@ -100,13 +100,16 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso,iwave,
 
 ! iaptype
 !------------------------
-!   1        CQ     ???    ???           (29+3=32 ap bits)
-!   2        MyCall ???    ???           (29+3=32 ap bits)
-!   3        MyCall DxCall ???           (58+3=61 ap bits)
+!   1        CQ     ???    ???           (29 ap bits)
+!   2        MyCall ???    ???           (29 ap bits)
+!   3        MyCall DxCall ???           (58 ap bits)
 !   4        MyCall DxCall RRR           (77 ap bits)
 !   5        MyCall DxCall 73            (77 ap bits)
 !   6        MyCall DxCall RR73          (77 ap bits)
-
+!********
+! For this contest-oriented mode, OK to only look for RR73??
+! Currently, 2 AP passes in all Txn states except for Tx5.
+!********
       naptypes(0,1:4)=(/1,2,0,0/) ! Tx6 selected (CQ)
       naptypes(1,1:4)=(/2,3,0,0/) ! Tx1
       naptypes(2,1:4)=(/2,3,0,0/) ! Tx2
@@ -231,6 +234,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso,iwave,
       enddo
       nsync=is1+is2+is3+is4   !Number of hard sync errors, 0-16
       if(smax .lt. 0.7 .or. nsync .lt. 8) cycle
+
       do nseq=1,3             !Try coherent sequences of 1, 2, and 4 symbols
          if(nseq.eq.1) nsym=1
          if(nseq.eq.2) nsym=2
@@ -307,6 +311,8 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso,iwave,
 
       apmag=maxval(abs(llra))*1.1
       npasses=3+nappasses(nQSOProgress)
+      if(ncontest.ge.5) npasses=3  ! Don't support Fox and Hound
+
       do ipass=1,npasses
          if(ipass.eq.1) llr=llra
          if(ipass.eq.2) llr=llrb
