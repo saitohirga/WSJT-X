@@ -514,6 +514,7 @@ set (wsjt_FSRCS
   lib/ft4/ft4sim_mult.f90
   lib/ft4/ft4d.f90
   lib/ft4/ft4_decode.f90
+  lib/ft4/ft4_downsample.f90
   lib/77bit/my_hash.f90
   lib/wsprd/osdwspr.f90
   lib/ft8/osd174_91.f90

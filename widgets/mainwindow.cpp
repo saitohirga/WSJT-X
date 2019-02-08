@@ -164,8 +164,8 @@ extern "C" {
   void chkcall_(char* w, char* basc_call, bool cok, int len1, int len2);
 
   void ft4_decode_(char* cdatetime, float* tbuf, int* nfa, int* nfb, int* nQSOProgress,
-                   int* nfqso, short int id[], int* ndecodes, char* mycall6,
-                   char* hiscall6, int* nrx, char* line, char* ddir, int len1, int len2,
+                   int* nContest, int* nfqso, short int id[], int* ndecodes, char* mycall,
+                   char* hiscall, int* nrx, char* line, char* ddir, int len1, int len2,
                    int len3, int len4, int len5);
 
   void get_ft4msg_(int* idecode, int* nrx, char* line, int len);
@@ -8651,21 +8651,27 @@ void MainWindow::ft4Data(int k)
     ba=time.toString("yyMMdd_hhmmss.sss").toLatin1();
   }
   char* cdatetime=ba.data();
-  char mycall6[] ="K1JT  ";
-  char hiscall6[]="K9AN  ";
+
+  strncpy(dec_data.params.mycall, (m_config.my_callsign()+"            ").toLatin1(),12);
+  char mycall[13];
+  strncpy(mycall,m_config.my_callsign().toLatin1(),12);
+  char hiscall[13];
+  strncpy(hiscall,m_hisCall.toLatin1(),12);
+
   char line[61];
   int nfqso=1500;
   int ndecodes=0;
   int nrx=-1;
   int nfa=m_wideGraph->nStartFreq();
   int nfb=m_wideGraph->Fmax();
-  int nQSOProgress=m_QSOProgress;
+  int nQSOProgress = static_cast<int> ( m_QSOProgress );
+  int nContest = static_cast<int> (m_config.special_op_id());
   QString dataDir;
   dataDir = m_config.writeable_data_dir ().absolutePath ();
   char ddir[512];
   strncpy(ddir,dataDir.toLatin1(), sizeof (ddir) - 1);
-  ft4_decode_(cdatetime,&tbuf,&nfa,&nfb,&nQSOProgress,&nfqso,id,&ndecodes,mycall6,hiscall6,
-              &nrx,&line[0],&ddir[0],17,6,6,61,512);
+  ft4_decode_(cdatetime,&tbuf,&nfa,&nfb,&nQSOProgress,&nContest,&nfqso,id,&ndecodes,&mycall[0],&hiscall[0],
+              &nrx,&line[0],&ddir[0],17,12,12,61,512);
   line[60]=0;
 //  if(ndecodes>0) {
   for (int idecode=1; idecode<=ndecodes; idecode++) {

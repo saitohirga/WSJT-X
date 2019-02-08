@@ -8,10 +8,10 @@ program ft4d
    character*11 datetime
    character*37 decodes(100)
    character*16 fname
-   character*6 hiscall
+   character*12 mycall
+   character*12 hiscall
    character*80 infile
    character*61 line
-   character*6 mycall
    
    real*8 fMHz
 
@@ -26,7 +26,7 @@ program ft4d
 
    nargs=iargc()
    if(nargs.lt.1) then
-      print*,'Usage:   ft4d [-a <data_dir>] [-f fMHz] file1 [file2 ...]'
+      print*,'Usage:   ft4d [-a <data_dir>] [-f fMHz] [-n nQSOProgress] file1 [file2 ...]'
       go to 999
    endif
    iarg=1
@@ -42,9 +42,18 @@ program ft4d
       read(arg,*) fMHz
       iarg=iarg+2
    endif
+   nQSOProgress=0
+   if(arg(1:2).eq.'-n') then
+      call getarg(iarg+1,arg)
+      read(arg,*) nQSOProgress 
+      iarg=iarg+2
+   endif
    nfa=200
    nfb=3000
-   nQSOProgress=0
+   ncontest=0
+   nfqso=1500
+   mycall="K9AN"
+   hiscall="K1JT"
 
    do ifile=iarg,nargs
       call getarg(ifile,infile)
@@ -56,8 +65,8 @@ program ft4d
       cdatetime='      '//datetime
       close(10)
 
-      call ft4_decode(cdatetime,0.0,nfa,nfb,nQSOProgress,nfqso,iwave,ndecodes,mycall,    &
-           hiscall,nrx,line,data_dir)
+      call ft4_decode(cdatetime,0.0,nfa,nfb,nQSOProgress,ncontest,nfqso,iwave, &
+          ndecodes,mycall,hiscall,nrx,line,data_dir)
       
       do idecode=1,ndecodes
          call get_ft4msg(idecode,nrx,line)
