@@ -1,5 +1,5 @@
-subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso,iwave,    &
-   ndecodes,mycall,hiscall,nrx,line,data_dir)
+subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
+   iwave,ndecodes,mycall,hiscall,nrx,line,data_dir)
 
    use packjt77
    include 'ft4_params.f90'
@@ -31,7 +31,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso,iwave,
    real candidate(3,100)
    real savg(NH1),sbase(NH1)
 
-   integer apbits(58)
+   integer apbits(2*ND)
    integer nrxx(100)
    integer icos4a(0:3),icos4b(0:3),icos4c(0:3),icos4d(0:3)
    integer*2 iwave(NMAX)                 !Generated full-length waveform
@@ -44,7 +44,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso,iwave,
    integer mcq(29),mcqru(29),mcqfd(29),mcqtest(29)
    integer mrrr(19),m73(19),mrr73(19)
 
-   logical unpk77_success
+   logical nohiscall,unpk77_success
    logical one(0:255,0:7)    ! 256 4-symbol sequences, 8 bits
    logical first
 
@@ -127,15 +127,29 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso,iwave,
    l1=index(hiscall,char(0))
    if(l1.ne.0) hiscall(l1:)=" "
    if(mycall.ne.mycall0 .or. hiscall.ne.hiscall0) then
-      call ft8apset(mycall,hiscall,apbits)
-      if(apbits( 1).ne.99) then
-         apbits( 1:29)=(apbits(1:29)+1)/2
-         apbits( 1:29)=2*mod(apbits( 1:29)+rvec( 1:29),2)-1
+      apbits=0
+      apbits(1)=99
+      apbits(30)=99
+
+      if(len(trim(mycall)) .lt. 3) go to 10 
+
+      nohiscall=.false.
+      hiscall0=hiscall
+      if(len(trim(hiscall0)).lt.3) then
+         hiscall0=mycall  ! use mycall for dummy hiscall - mycall won't be hashed.
+         nohiscall=.true.
       endif
-      if(apbits(30).ne.99) then
-         apbits(30:58)=(apbits(30:58)+1)/2
-         apbits(30:58)=2*mod(apbits(30:58)+rvec(30:58),2)-1
-      endif
+      message=trim(mycall)//' '//trim(hiscall0)//' RR73'
+      call pack77(message,i3,n3,c77)
+      call unpack77(c77,1,msgsent,unpk77_success)
+      if(i3.ne.1 .or. (message.ne.msgsent) .or. .not.unpk77_success) go to 10 
+      read(c77,'(77i1)') message77
+      message77=mod(message77+rvec,2)
+      call encode174_91(message77,cw)
+      apbits=2*cw-1
+      if(nohiscall) apbits(30)=99
+
+10    continue
       mycall0=mycall
       hiscall0=hiscall
    endif
@@ -381,7 +395,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso,iwave,
                apmask=0
                if(ncontest.eq.0.or.ncontest.eq.1.or.ncontest.eq.2.or.ncontest.eq.6) then
                   apmask(1:58)=1
-                  llrd(1:58)=apmag*apbits
+                  llrd(1:58)=apmag*apbits(1:58)
                else if(ncontest.eq.3) then ! Field Day
                   apmask(1:56)=1
                   llrd(1:28)=apmag*apbits(1:28)
@@ -397,11 +411,13 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso,iwave,
             if(iaptype.eq.4 .or. iaptype.eq.5 .or. iaptype.eq.6) then
                apmask=0
                if(ncontest.le.4 .or. (ncontest.eq.6.and.iaptype.eq.6)) then
-                  apmask(1:77)=1   ! mycall, hiscall, RRR|73|RR73
-                  llrd(1:58)=apmag*apbits
+!                  apmask(1:77)=1   ! mycall, hiscall, RRR|73|RR73
+                  apmask(1:91)=1   ! mycall, hiscall, RRR|73|RR73
+                  llrd(1:58)=apmag*apbits(1:58)
                   if(iaptype.eq.4) llrd(59:77)=apmag*mrrr
                   if(iaptype.eq.5) llrd(59:77)=apmag*m73
-                  if(iaptype.eq.6) llrd(59:77)=apmag*mrr73
+!                  if(iaptype.eq.6) llrd(59:77)=apmag*mrr73
+                  if(iaptype.eq.6) llrd(1:91)=apmag*apbits(1:91)
                else if(ncontest.eq.6.and.iaptype.eq.4) then ! Hound listens for MyCall RR73;...
                   apmask(1:28)=1
                   llrd(1:28)=apmag*apbits(1:28)
@@ -417,7 +433,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso,iwave,
          call clockit('bpdecode',1)
          if(sum(message77).eq.0) cycle
          if( nharderror.ge.0 ) then
-            message77=mod(message77+rvec,2)
+            message77=mod(message77+rvec,2) ! remove rvec scrambling
             write(c77,'(77i1)') message77(1:77)
             call unpack77(c77,1,message,unpk77_success)
             idupe=0
