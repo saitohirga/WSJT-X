@@ -10,10 +10,10 @@ if (APPLE)
   #
   # otool -l <binary> | grep -A3 LC_VERSION_MIN_MACOSX
   #
-  set (CMAKE_OSX_DEPLOYMENT_TARGET 10.9
+  set (CMAKE_OSX_DEPLOYMENT_TARGET 10.10
     CACHE STRING "Earliest version of OS X supported
 
-Earliest version we can support with Qt 5.8, C++11 & libc++ is 10.9.
+Earliest version we can support with Qt 5.8, C++11 & libc++ is 10.10.
 Do not override this if you intend to build an official deployable installer.")
   set (CMAKE_OSX_SYSROOT /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk
     CACHE STRING "Mac OS X SDK to build with
