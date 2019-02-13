@@ -8612,18 +8612,14 @@ void MainWindow::write_all(QString txRx, QString message)
 
 void MainWindow::ft4Data(int k)
 {
-  static int nhsec0=-1;
   static bool wrapped=false;
   short id[60000];
 
-  int nhsec=k/6000;
-  if(nhsec0>nhsec) nhsec0=-1;
-  if(nhsec==nhsec0) return;
   if(k<60000 and !wrapped) return;
 
-//Process FT4 data at 0.5 s intervals
-  int j=k/6000;
-  j=6000*j-60000;
+//Process FT4 data at 0.288 s intervals
+  int j=k/3456;
+  j=3456*j-60000;
   if(j<0) j+=NRING;
   float tbuf=j/12000.0;
   for(int i=0; i<60000; i++) {
@@ -8707,8 +8703,7 @@ void MainWindow::ft4Data(int k)
     }
 //###
   }
-  nhsec0=nhsec;
-  if(m_diskData and (k > (dec_data.params.kin-6000))) m_startAnother=m_loopall;
+  if(m_diskData and (k > (dec_data.params.kin-3456))) m_startAnother=m_loopall;
   if(m_bNoMoreFiles) {
     MessageBox::information_message(this, tr("Just one more file to open."));
     m_bNoMoreFiles=false;

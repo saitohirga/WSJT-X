@@ -5,7 +5,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    include 'ft4_params.f90'
    parameter (NSS=NSPS/NDOWN)
 
-   character message*37,msgsent*37
+   character message*37,msgsent*37,msg0*37
    character c77*77
    character*61 line,linex(100)
    character*37 decodes(100)
@@ -53,6 +53,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    data icos4c/2,3,1,0/
    data icos4d/3,2,0,1/
    data graymap/0,1,3,2/
+   data msg0/' '/
    data first/.true./
    data     mcq/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0/
    data   mcqru/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,0,0,1,1,0,0/
@@ -65,7 +66,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
       1,0,0,1,0,1,1,0,0,0,0,1,0,0,0,1,0,1,0,0,1,1,1,1,0,0,1,0,1, &
       0,1,0,1,0,1,1,0,1,1,1,1,1,0,0,0,1,0,1/
    save fs,dt,tt,txt,twopi,h,one,first,nrxx,linex,apbits,nappasses,naptypes, &
-      mycall0,hiscall0,ncontest0
+      mycall0,hiscall0,ncontest0,msg0
 
    call clockit('ft4_deco',0)
    hhmmss=cdatetime0(8:13)
@@ -183,7 +184,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
             idfmax=12
             idfstp=3
             ibmin=0
-            ibmax=374
+            ibmax=215
             ibstp=4
          else
             idfmin=idfbest-4
@@ -440,6 +441,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
             do i=1,ndecodes
                if(decodes(i).eq.message) idupe=1
             enddo
+            if(ibest.le.10 .and. message.eq.msg0) idupe=1   !Already decoded
             if(idupe.eq.1) exit
             ndecodes=ndecodes+1
             decodes(ndecodes)=message
@@ -466,6 +468,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
 1002        format(a17,i4,f5.1,i5,' Rx  ',a37,5i5)
             close(24)
             linex(ndecodes)=line
+            if(ibest.ge.210) msg0=message         !Possible dupe candidate
 
 !### Temporary: assume most recent decoded message conveys "hiscall". ###
             i0=index(message,' ')
