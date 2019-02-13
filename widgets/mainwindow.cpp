@@ -5051,6 +5051,7 @@ void MainWindow::TxAgain()
 
 void MainWindow::clearDX ()
 {
+  set_dateTimeQSO (-1);
   if (m_QSOProgress != CALLING)
     {
       auto_tx_mode (false);
