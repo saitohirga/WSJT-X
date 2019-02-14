@@ -301,6 +301,10 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
          enddo
       enddo
 
+      bmetb(205:206)=bmeta(205:206)
+      bmetc(201:204)=bmetb(201:204)
+      bmetc(205:206)=bmeta(205:206)
+
       call clockit('normaliz',0)
       call normalizebmet(bmeta,2*NN)
       call normalizebmet(bmetb,2*NN)

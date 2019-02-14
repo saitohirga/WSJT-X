@@ -27,7 +27,7 @@ subroutine getcandidates4(id,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
 ! Compute symbol spectra, stepping by NSTEP steps.  
   savg=0.
   tstep=NSTEP/12000.0                         
-  df=12000.0/NFFT1                            !3.125 Hz
+  df=12000.0/NFFT1                            !5.86 Hz
   fac=1.0/300.0
   do j=1,NHSYM
      ia=(j-1)*NSTEP + 1
