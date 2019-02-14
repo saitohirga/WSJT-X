@@ -43,7 +43,7 @@ program ft4d
       iarg=iarg+2
    endif
    nfa=0
-   nfb=4200
+   nfb=4224
    ncontest=4
    ndecodes=0
    nfqso=1500
@@ -60,7 +60,7 @@ program ft4d
       close(10)
       cdatetime=infile(1:13)//'.000'
 
-      nsteps=npts/3456
+      nsteps=(npts-60000)/3456 + 1
       do n=1,nsteps
          i0=(n-1)*3456 + 1
          call ft4_decode(cdatetime,0.0,nfa,nfb,nQSOProgress,ncontest,    &
