@@ -5,7 +5,6 @@ program ft4d
    character*8 arg
    character*17 cdatetime 
    character*512 data_dir
-   character*11 datetime
    character*37 decodes(100)
    character*16 fname
    character*12 mycall
@@ -48,9 +47,10 @@ program ft4d
       read(arg,*) nQSOProgress 
       iarg=iarg+2
    endif
-   nfa=200
-   nfb=3000
-   ncontest=0
+   nfa=0
+   nfb=4200
+   ncontest=4
+   ndecodes=0
    nfqso=1500
    mycall="K9AN"
    hiscall="K1JT"
@@ -60,10 +60,8 @@ program ft4d
       j2=index(infile,'.wav')
       open(10,file=infile,status='old',access='stream')
       read(10,end=999) ihdr,iwave
-      read(infile(j2-4:j2-1),*) nutc
-      datetime=infile(j2-11:j2-1)
-      cdatetime='      '//datetime
       close(10)
+      cdatetime=infile(1:13)//'.000'
 
       call ft4_decode(cdatetime,0.0,nfa,nfb,nQSOProgress,ncontest,nfqso,iwave, &
           ndecodes,mycall,hiscall,nrx,line,data_dir)

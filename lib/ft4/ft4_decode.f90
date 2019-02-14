@@ -16,7 +16,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    character*6 hhmmss
 
    complex cd2(0:NMAX/NDOWN-1)                  !Complex waveform
-   complex cds(0:NMAX/NDOWN-1)                  !Complex waveform
+!   complex cds(0:NMAX/NDOWN-1)                  !Complex waveform
    complex cb(0:NMAX/NDOWN-1)
    complex cd(0:NN*NSS-1)                       !Complex waveform
    complex ctwk(4*NSS),ctwk2(4*NSS)
@@ -66,8 +66,8 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
       1,0,0,1,0,1,1,0,0,0,0,1,0,0,0,1,0,1,0,0,1,1,1,1,0,0,1,0,1, &
       0,1,0,1,0,1,1,0,1,1,1,1,1,0,0,0,1,0,1/
    save fs,dt,tt,txt,twopi,h,one,first,nrxx,linex,apbits,nappasses,naptypes, &
-      mycall0,hiscall0,ncontest0,msg0
-
+      mycall0,hiscall0,msg0
+   
    call clockit('ft4_deco',0)
    hhmmss=cdatetime0(8:13)
 
@@ -333,7 +333,6 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
       apmag=maxval(abs(llra))*1.1
       npasses=3+nappasses(nQSOProgress)
       if(ncontest.ge.5) npasses=3  ! Don't support Fox and Hound
-
       do ipass=1,npasses
          if(ipass.eq.1) llr=llra
          if(ipass.eq.2) llr=llrb
@@ -480,7 +479,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
             nrx=-1
             if(index(message,'CQ ').eq.1) nrx=1
             if((index(message,trim(mycall)//' ').eq.1) .and.                 &
-               (index(message,' '//trim(hiscall)//' ').ge.4)) then
+                 (index(message,' '//trim(hiscall)//' ').ge.4)) then
                if(index(message,' 559 ').gt.8) nrx=2        !### Not right !
                if(index(message,' R 559 ').gt.8) nrx=3      !### Not right !
                if(index(message,' RR73 ').gt.8) nrx=4

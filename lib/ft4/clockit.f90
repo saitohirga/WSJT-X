@@ -14,6 +14,7 @@ subroutine clockit(dname,k)
   data first/.true./,eps/0.000001/,ntrace/0/
   data level/0/,nmax/0/,space/'        '/
   data limtrace/0/,lu/29/,ntimer/1/
+!  data limtrace/1000000/,lu/29/,ntimer/1/
   save
 
   if(ntimer.eq.0) return
@@ -56,8 +57,8 @@ subroutine clockit(dname,k)
   endif
 
   ntrace=ntrace+1
-  if(ntrace.lt.limtrace) write(lu,1020) ntrace,dname,k,level,nparent(n)
-1020 format(i5,': ',a8,3i5)
+  if(ntrace.lt.limtrace) write(28,1020) ntrace,dname,k,level,nparent(n)
+1020 format(i8,': ',a8,3i5)
   return
 
 ! Write out the timer statistics
