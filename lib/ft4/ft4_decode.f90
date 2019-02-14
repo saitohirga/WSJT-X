@@ -141,6 +141,8 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
          nohiscall=.true.
       endif
       message=trim(mycall)//' '//trim(hiscall0)//' RR73'
+      i3=-1
+      n3=-1
       call pack77(message,i3,n3,c77)
       call unpack77(c77,1,msgsent,unpk77_success)
       if(i3.ne.1 .or. (message.ne.msgsent) .or. .not.unpk77_success) go to 10 

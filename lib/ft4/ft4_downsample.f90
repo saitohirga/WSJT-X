@@ -25,7 +25,8 @@ subroutine ft4_downsample(iwave,f0,c)
       pi=4.0*atan(1.0)
       window(0:iwt-1) = 0.5*(1+cos(pi*(/(i,i=iwt-1,0,-1)/)/iwt))
       window(iwt:iwt+iwf-1)=1.0
-      window(iwt+iwf:2*iwt+iwf-1) = 0.5*(1+cos(pi*(/(i,i=0,iwt)/)/iwt))
+!      window(iwt+iwf:2*iwt+iwf-1) = 0.5*(1+cos(pi*(/(i,i=0,iwt)/)/iwt))
+      window(iwt+iwf:2*iwt+iwf-1) = 0.5*(1+cos(pi*(/(i,i=0,iwt-1)/)/iwt))
       window(2*iwt+iwf:)=0.0
       iws = baud / df
       window=cshift(window,iws)
