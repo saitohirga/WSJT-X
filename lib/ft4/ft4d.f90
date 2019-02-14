@@ -1,21 +1,16 @@
 program ft4d
 
    include 'ft4_params.f90'
-
    character*8 arg
    character*17 cdatetime 
    character*512 data_dir
-   character*37 decodes(100)
-   character*16 fname
    character*12 mycall
    character*12 hiscall
    character*80 infile
    character*61 line
-   
    real*8 fMHz
-
    integer ihdr(11)
-   integer*2 iwave(NMAX)                 !Generated full-length waveform
+   integer*2 iwave(180000)                !15*12000
 
    fs=12000.0/NDOWN                       !Sample rate
    dt=1/fs                                !Sample interval after downsample (s)
@@ -59,18 +54,23 @@ program ft4d
       call getarg(ifile,infile)
       j2=index(infile,'.wav')
       open(10,file=infile,status='old',access='stream')
-      read(10,end=999) ihdr,iwave
+      read(10) ihdr
+      npts=ihdr(11)/2
+      read(10) iwave(1:npts)
       close(10)
       cdatetime=infile(1:13)//'.000'
 
-      call ft4_decode(cdatetime,0.0,nfa,nfb,nQSOProgress,ncontest,nfqso,iwave, &
-          ndecodes,mycall,hiscall,nrx,line,data_dir)
-      
-      do idecode=1,ndecodes
-         call get_ft4msg(idecode,nrx,line)
-         write(*,'(a61)') line
-      enddo
-   enddo !files
+      nsteps=npts/3456
+      do n=1,nsteps
+         i0=(n-1)*3456 + 1
+         call ft4_decode(cdatetime,0.0,nfa,nfb,nQSOProgress,ncontest,    &
+              nfqso,iwave(i0),ndecodes,mycall,hiscall,nrx,line,data_dir)      
+         do idecode=1,ndecodes
+            call get_ft4msg(idecode,nrx,line)
+            write(*,'(a61)') line
+         enddo
+      enddo        !steps
+   enddo           !files
 
    write(*,1120)
 1120 format("<DecodeFinished>")
