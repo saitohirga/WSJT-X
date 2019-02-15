@@ -433,6 +433,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
             llr=llrd
          endif
          max_iterations=40
+         message77=0
          call clockit('bpdecode',0)
          call bpdecode174_91(llr,apmask,max_iterations,message77,     &
             cw,nharderror,niterations)
