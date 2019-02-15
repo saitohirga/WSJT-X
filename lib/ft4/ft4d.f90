@@ -63,7 +63,8 @@ program ft4d
       nsteps=(npts-60000)/3456 + 1
       do n=1,nsteps
          i0=(n-1)*3456 + 1
-         call ft4_decode(cdatetime,0.0,nfa,nfb,nQSOProgress,ncontest,    &
+         tbuf=(i0-1)/12000.0
+         call ft4_decode(cdatetime,tbuf,nfa,nfb,nQSOProgress,ncontest,    &
               nfqso,iwave(i0),ndecodes,mycall,hiscall,nrx,line,data_dir)      
          do idecode=1,ndecodes
             call get_ft4msg(idecode,nrx,line)
