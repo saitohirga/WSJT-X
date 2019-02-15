@@ -72,8 +72,7 @@ program ft4d
       enddo        !steps
    enddo           !files
 
-   write(*,1120)
-1120 format("<DecodeFinished>")
+   call four2a(xx,-1,1,-1,1)   !Destroy FFTW plans to free their memory
 
 999 end program ft4d
 
