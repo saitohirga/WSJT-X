@@ -8266,7 +8266,7 @@ list2Done:
         {
           writeFoxQSO (QString {" Log:  %1 %2 %3 %4 %5"}.arg (m_hisCall).arg (m_hisGrid)
                        .arg (m_rptSent).arg (m_rptRcvd).arg (m_lastBand));
-          logQSOTimer.start(0);
+          on_logQSOButton_clicked ();
           m_foxRateQueue.enqueue (now); //Add present time in seconds
                                         //to Rate queue.
         }
