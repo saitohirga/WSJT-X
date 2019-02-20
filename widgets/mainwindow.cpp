@@ -2005,7 +2005,8 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       return;
     case Qt::Key_X:
       if(e->modifiers() & Qt::AltModifier) {
-        foxTest();
+//        foxTest();
+        foxLog();
         return;
       }
     case Qt::Key_E:
@@ -5384,6 +5385,7 @@ void MainWindow::on_genStdMsgsPushButton_clicked()         //genStdMsgs button
 
 void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
 {
+  qDebug() << "bbb" << m_hisCall << m_hisGrid;
   if (!m_hisCall.size ()) {
     MessageBox::warning_message (this, tr ("Warning:  DX Call field is empty."));
   }
@@ -8367,7 +8369,9 @@ list2Done:
         {
           writeFoxQSO (QString {" Log:  %1 %2 %3 %4 %5"}.arg (m_hisCall).arg (m_hisGrid)
                        .arg (m_rptSent).arg (m_rptRcvd).arg (m_lastBand));
-          logQSOTimer.start(0);
+          qDebug() << "aaa" << hc1;
+//          logQSOTimer.start(0);
+          on_logQSOButton_clicked();
           m_foxRateQueue.enqueue (now); //Add present time in seconds
                                         //to Rate queue.
         }
@@ -8795,4 +8799,94 @@ void MainWindow::save_FT4()
   m_saveWAVWatcher.setFuture (QtConcurrent::run (std::bind (&MainWindow::save_wave_file,
         this, m_fnameWE, &dec_data.d2[0], nsec, m_config.my_callsign(),
         m_config.my_grid(), m_mode, m_nSubMode, m_freqNominal, m_hisCall, m_hisGrid)));
+}
+
+void MainWindow::foxLog()
+{
+  // This is part of the "Fox-log fixup" code
+  QFile f("FoxQSO_XX9D_1.txt");
+  if(!f.open(QIODevice::ReadOnly | QIODevice::Text)) return;
+  QTextStream s(&f);
+  QString line;
+  QString msg;
+  QString hc1;
+  QString rptRcvd;
+  int nRx=0;
+  int nTx=0;
+
+  while(!s.atEnd()) {
+    line=s.readLine();
+    if(line.length()==0) continue;
+
+    if(line.contains(" Sel:")) {
+      QStringList w=line.split(' ', QString::SkipEmptyParts);
+      hc1=w.at(7);                  // his call
+      m_fixupQSO[hc1].sent=w.at(8); // sent report
+      m_fixupQSO[hc1].grid=w.at(9); // his grid
+    }
+
+    if(line.contains(" Rx:"))  {
+      int i0=line.indexOf(" ~ ") + 4;
+      msg=line.mid(i0);
+      if(msg.left(4)!="XX9D") {
+        break;
+      }
+      int i1=msg.indexOf(" ");
+      nRx++;
+      hc1=msg.mid(i1+1);
+      int i2=hc1.indexOf(" ");
+      hc1=hc1.mid(0,i2);
+      int i3=qMax(msg.indexOf("R+"),msg.indexOf("R-"));
+      if(i3>8) {
+        m_fixupQSO[hc1].rcvd=msg.mid(i3+1,3);
+      }
+    }
+
+    if(line.contains(" Tx")) {
+      int i0=line.indexOf(" Tx") + 7;
+      msg=line.mid(i0);
+      nTx++;
+      QStringList w=msg.split(' ', QString::SkipEmptyParts);
+      if(w.size()<3) continue;
+      if(w.at(2).left(1)=="+" or w.at(2).left(1)=="-") {
+        hc1=w.at(0);
+        m_fixupQSO[hc1].sent=w.at(2);
+      }
+      if(w.at(2)=="RR73") {
+        hc1=w.at(0);
+        loggit(hc1,line);
+      }
+      if(w.at(1)=="RR73;") {
+        hc1=w.at(0);
+        loggit(hc1,line);
+      }
+      hc1=w.at(0);
+    }
+  }
+}
+
+void MainWindow::loggit(QString hc1, QString line)
+{
+  // This is part of the "Fox-log fixup" code
+  static int nQSO=0;
+  // Log a QSO with callsign hc1;
+  QDateTime QSO_time = QDateTime::fromString(line.left(19),"yyyy-MM-dd hh:mm:ss");
+  QString sMHz=line.split(' ', QString::SkipEmptyParts).at(2);
+  Frequency nHz=1000000.0 * sMHz.toDouble() + 0.5;
+  auto const& band_name = m_config.bands()->find(nHz);
+  m_hisCall=hc1;
+  m_hisGrid=m_fixupQSO[hc1].grid;
+  if(m_hisGrid=="....") m_hisGrid="";
+  m_rptSent=m_fixupQSO[hc1].sent;
+  m_rptRcvd=m_fixupQSO[hc1].rcvd;
+  nQSO++;
+  if (!m_foxLog) m_foxLog.reset (new FoxLog {&m_config});
+  if (!m_foxLogWindow) on_fox_log_action_triggered ();
+  bool ok=m_foxLog->add_QSO (QSO_time, m_hisCall, m_hisGrid, m_rptSent, m_rptRcvd, band_name);
+  qDebug().noquote() << nQSO << line.left(19) << m_hisCall << m_hisGrid << m_rptSent
+                     << m_rptRcvd << sMHz << band_name << ok;
+
+  m_logDlg->initLogQSO (m_hisCall, m_hisGrid, m_modeTx, m_rptSent, m_rptRcvd,
+                        QSO_time, QSO_time, nHz, m_noSuffix, "", "",
+                        m_cabrilloLog.data ());
 }

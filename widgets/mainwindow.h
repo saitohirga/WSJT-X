@@ -347,6 +347,7 @@ private:
   void auto_sequence (DecodedText const& message, unsigned start_tolerance, unsigned stop_tolerance);
   void hideMenus(bool b);
   void foxTest();
+  void foxLog();
   void setColorHighlighting();
 
   NetworkAccessManager m_network_manager;
@@ -634,6 +635,15 @@ private:
   QMap<QString,FoxQSO> m_foxQSO;       //Key = HoundCall, value = parameters for QSO in progress
   QMap<QString,QString> m_loggedByFox; //Key = HoundCall, value = logged band
 
+  struct FixupQSO       //Info for fixing Fox's log from file "FoxQSO.txt"
+  {
+    QString grid;       //Hound's declared locator
+    QString sent;       //Report sent to Hound
+    QString rcvd;       //Report received from Hound
+    QDateTime QSO_time;
+  };
+  QMap<QString,FixupQSO> m_fixupQSO;       //Key = HoundCall, value = info for QSO in progress
+
   QQueue<QString> m_houndQueue;        //Selected Hounds available for starting a QSO
   QQueue<QString> m_foxQSOinProgress;  //QSOs in progress: Fox has sent a report
   QQueue<qint64>  m_foxRateQueue;
@@ -752,6 +762,7 @@ private:
   void writeFoxQSO (QString const& msg);
   void FT4_writeTx();
   void save_FT4();
+  void loggit(QString hc1, QString line);
 };
 
 extern int killbyname(const char* progName);
