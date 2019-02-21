@@ -7,15 +7,11 @@ subroutine gen_ft8wave(itone,nsym,nsps,fsample,f0,cwave,nwave)
   real wave(nwave)
   complex cwave(nwave)
   real pulse(5760)
-  real dphi(0:(nsym+2)*nint(fsample)-1)
+  real dphi(0:(nsym+2)*nsps-1)
   integer itone(nsym)
   logical first
   data first/.true./
   save pulse,first,twopi,dt,hmod
-
-  if(nsave .gt. MAX_SECONDS*nint(fsample)) then
-    print*,"gen_ft8wave: ERROR - waveform length too large."
-  endif
 
   if(first) then
      twopi=8.0*atan(1.0)
