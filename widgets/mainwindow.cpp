@@ -102,6 +102,9 @@ extern "C" {
   void genft4_(char* msg, int* ichk, char* msgsent, int itone[],
                fortran_charlen_t, fortran_charlen_t);
 
+  void gen_ft4wave_(int itone[], int* nsym, int* nsps, float* fsample, float* f0,
+                    float wave[], int* nwave);
+
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, fortran_charlen_t, fortran_charlen_t);
 
@@ -6869,8 +6872,8 @@ void MainWindow::transmit (double snr)
   }
 
   if (m_modeTx == "FT4") {
-    toneSpacing=12000.0/512.0;
-//    if(SpecOp::FOX==m_config.special_op_id() and !m_tune) toneSpacing=-1;
+//    toneSpacing=12000.0/512.0;        //Generate Tx waveform from itone[] array
+    toneSpacing=-2.0;                     //Transmit a pre-computed, filtered waveform.
     Q_EMIT sendMessage (NUM_FT4_SYMBOLS,
            512.0, ui->TxFreqSpinBox->value() - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),
@@ -8757,6 +8760,14 @@ void MainWindow::ft4_tx(int ntx)
   g_iptt = 1;
   setRig ();
   setXIT (ui->TxFreqSpinBox->value ());
+
+  int nsym=103;
+  int nsps=4*512;
+  float fsample=48000.0;
+  float f0=ui->TxFreqSpinBox->value() - m_XIT;
+  int nwave=(nsym+2)*nsps;
+  gen_ft4wave_(const_cast<int *>(itone),&nsym,&nsps,&fsample,&f0,foxcom_.wave,&nwave);
+
   Q_EMIT m_config.transceiver_ptt (true);            //Assert the PTT
   m_tx_when_ready = true;
   qint64 ms=QDateTime::currentMSecsSinceEpoch();
