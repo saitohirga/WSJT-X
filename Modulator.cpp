@@ -51,6 +51,9 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
 // Time according to this computer which becomes our base time
   qint64 ms0 = QDateTime::currentMSecsSinceEpoch() % 86400000;
 
+//  qDebug() << "ModStart" << symbolsLength << framesPerSymbol
+//           << frequency << toneSpacing;
+
   if(m_state != Idle) stop ();
 
   m_quickClose = false;
@@ -90,7 +93,7 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
     m_silentFrames = m_ic + m_frameRate / (1000 / delay_ms) - (mstr * (m_frameRate / 1000));
   }
   if((symbolsLength==103 or symbolsLength==105) and framesPerSymbol==512
-     and toneSpacing==12000.0/512.0) {
+     and (toneSpacing==12000.0/512.0 or toneSpacing==-2.0)) {
 //### FT4 parameters
     delay_ms=100;
     mstr=5000;
@@ -300,8 +303,9 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
 
 //Here's where we transmit from a precomputed wave[] array:
           if(m_toneSpacing < 0) sample=qRound(m_amp*foxcom_.wave[m_ic]);
-
-//          if(m_ic < 100) qDebug() << "Mod C" << m_ic << m_amp << foxcom_.wave[m_ic] << sample;
+//          if(m_ic < 10) qDebug() << "Mod Tx" << m_ic << m_amp
+//                                  << foxcom_.wave[m_ic] << sample
+//                                  << m_toneSpacing;
 
           samples = load(postProcessSample(sample), samples);
           ++framesGenerated;

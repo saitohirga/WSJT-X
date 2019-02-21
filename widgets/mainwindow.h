@@ -466,6 +466,7 @@ private:
   qint32  m_tFoxTxSinceCQ=999; //Fox Tx cycles since most recent CQ
   qint32  m_nFoxFreq;          //Audio freq at which Hound received a call from Fox
   qint32  m_nSentFoxRrpt=0;    //Serial number for next R+rpt Hound will send to Fox
+  qint32  m_kin0=0;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
@@ -634,6 +635,15 @@ private:
   QMap<QString,FoxQSO> m_foxQSO;       //Key = HoundCall, value = parameters for QSO in progress
   QMap<QString,QString> m_loggedByFox; //Key = HoundCall, value = logged band
 
+  struct FixupQSO       //Info for fixing Fox's log from file "FoxQSO.txt"
+  {
+    QString grid;       //Hound's declared locator
+    QString sent;       //Report sent to Hound
+    QString rcvd;       //Report received from Hound
+    QDateTime QSO_time;
+  };
+  QMap<QString,FixupQSO> m_fixupQSO;       //Key = HoundCall, value = info for QSO in progress
+
   QQueue<QString> m_houndQueue;        //Selected Hounds available for starting a QSO
   QQueue<QString> m_foxQSOinProgress;  //QSOs in progress: Fox has sent a report
   QQueue<qint64>  m_foxRateQueue;
@@ -716,7 +726,7 @@ private:
 
   QString save_wave_file (QString const& name
                           , short const * data
-                          , int seconds
+                          , int samples
                           , QString const& my_callsign
                           , QString const& my_grid
                           , QString const& mode

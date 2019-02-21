@@ -186,7 +186,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
             idfmax=12
             idfstp=3
             ibmin=0
-            ibmax=215
+            ibmax=216                     !Max DT = 216/750 = 0.288 s
             ibstp=4
          else
             idfmin=idfbest-4
@@ -474,7 +474,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
 1002        format(a17,i4,f5.1,i5,' Rx  ',a37,5i5)
             close(24)
             linex(ndecodes)=line
-            if(ibest.ge.210) msg0=message         !Possible dupe candidate
+            if(ibest.ge.ibmax-15) msg0=message         !Possible dupe candidate
 
 !### Temporary: assume most recent decoded message conveys "hiscall". ###
             i0=index(message,' ')
