@@ -347,7 +347,6 @@ private:
   void auto_sequence (DecodedText const& message, unsigned start_tolerance, unsigned stop_tolerance);
   void hideMenus(bool b);
   void foxTest();
-  void foxLog();
   void setColorHighlighting();
 
   NetworkAccessManager m_network_manager;
@@ -763,7 +762,6 @@ private:
   void writeFoxQSO (QString const& msg);
   void FT4_writeTx();
   void save_FT4();
-  void loggit(QString hc1, QString line);
 };
 
 extern int killbyname(const char* progName);
