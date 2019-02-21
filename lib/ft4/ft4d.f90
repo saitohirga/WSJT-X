@@ -60,12 +60,13 @@ program ft4d
       close(10)
       cdatetime=infile(1:13)//'.000'
 
-      nsteps=(npts-60000)/3456 + 1
+      istep=3456
+      nsteps=(npts-52800)/istep + 1
       do n=1,nsteps
-         i0=(n-1)*3456 + 1
+         i0=(n-1)*istep + 1
          tbuf=(i0-1)/12000.0
          call ft4_decode(cdatetime,tbuf,nfa,nfb,nQSOProgress,ncontest,    &
-              nfqso,iwave(i0),ndecodes,mycall,hiscall,nrx,line,data_dir)      
+              nfqso,iwave(i0),ndecodes,mycall,hiscall,nrx,line,data_dir)
          do idecode=1,ndecodes
             call get_ft4msg(idecode,nrx,line)
             write(*,'(a61)') line

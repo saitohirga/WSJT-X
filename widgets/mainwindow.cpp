@@ -1460,7 +1460,7 @@ void MainWindow::dataSink(qint64 frames)
       // the following is potential a threading hazard - not a good
       // idea to pass pointer to be processed in another thread
       m_saveWAVWatcher.setFuture (QtConcurrent::run (std::bind (&MainWindow::save_wave_file,
-            this, m_fnameWE, &dec_data.d2[0], m_TRperiod, m_config.my_callsign(),
+            this, m_fnameWE, &dec_data.d2[0], m_TRperiod*12000, m_config.my_callsign(),
             m_config.my_grid(), m_mode, m_nSubMode, m_freqNominal, m_hisCall, m_hisGrid)));
       if (m_mode=="WSPR") {
         QString c2name_string {m_fnameWE + ".c2"};
@@ -1519,7 +1519,7 @@ void MainWindow::startP1()
   p1.start(m_cmndP1);
 }
 
-QString MainWindow::save_wave_file (QString const& name, short const * data, int seconds,
+QString MainWindow::save_wave_file (QString const& name, short const * data, int samples,
         QString const& my_callsign, QString const& my_grid, QString const& mode, qint32 sub_mode,
         Frequency frequency, QString const& his_call, QString const& his_grid) const
 {
@@ -1555,7 +1555,7 @@ QString MainWindow::save_wave_file (QString const& name, short const * data, int
   BWFFile wav {format, file_name, list_info};
   if (!wav.open (BWFFile::WriteOnly)
       || 0 > wav.write (reinterpret_cast<char const *> (data)
-                        , sizeof (short) * seconds * format.sampleRate ()))
+                        , sizeof (short) * samples))
     {
       return file_name + ": " + wav.errorString ();
     }
@@ -1670,7 +1670,7 @@ void MainWindow::fastSink(qint64 frames)
         // the following is potential a threading hazard - not a good
         // idea to pass pointer to be processed in another thread
         m_saveWAVWatcher.setFuture (QtConcurrent::run (std::bind (&MainWindow::save_wave_file,
-           this, m_fnameWE, &dec_data.d2[0], m_TRperiod, m_config.my_callsign(),
+           this, m_fnameWE, &dec_data.d2[0], m_TRperiod*12000, m_config.my_callsign(),
            m_config.my_grid(), m_mode, m_nSubMode, m_freqNominal, m_hisCall, m_hisGrid)));
       }
       if(m_mode!="MSK144") {
@@ -4768,8 +4768,12 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     return;
   }
   if(m_mode=="FT4" and ui->cbAutoSeq->isChecked()) {
-    if((m_ntx==4 or m_ntx==5) and !m_diskData) logQSOTimer.start(0);  // Log the QSO
+    if((m_ntx==4 or m_ntx==5) and !m_diskData) {
+      save_FT4();
+      logQSOTimer.start(0);  // Log the QSO
+    }
     if((m_ntx==3 and ui->cbFirst->isChecked()) or m_ntx==4 or m_bDoubleClicked) {
+      QThread::msleep(600);  //Wait a bit.  ### Is this a good idea??? ###
       ft4_tx(m_ntx);
     }
   }
@@ -5385,7 +5389,6 @@ void MainWindow::on_genStdMsgsPushButton_clicked()         //genStdMsgs button
 
 void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
 {
-  qDebug() << "bbb" << m_hisCall << m_hisGrid;
   if (!m_hisCall.size ()) {
     MessageBox::warning_message (this, tr ("Warning:  DX Call field is empty."));
   }
@@ -8369,8 +8372,6 @@ list2Done:
         {
           writeFoxQSO (QString {" Log:  %1 %2 %3 %4 %5"}.arg (m_hisCall).arg (m_hisGrid)
                        .arg (m_rptSent).arg (m_rptRcvd).arg (m_lastBand));
-          qDebug() << "aaa" << hc1;
-//          logQSOTimer.start(0);
           on_logQSOButton_clicked();
           m_foxRateQueue.enqueue (now); //Add present time in seconds
                                         //to Rate queue.
@@ -8616,14 +8617,22 @@ void MainWindow::write_all(QString txRx, QString message)
 
 void MainWindow::ft4Data(int k)
 {
+  static int nhsec0=-1;
   static bool wrapped=false;
   short id[60000];
+  const int istep=3456;
 
-  if(k<60000 and !wrapped) return;
+  if(k<m_kin0) m_kin0=0;
+  int nhsec=k/istep;
+  if(nhsec0>nhsec) nhsec0=-1;
+  if(nhsec==nhsec0) return;
 
-//Process FT4 data at 0.288 s intervals
-  int j=k/3456;
-  j=3456*j-60000;
+//  if(k<60000 and !wrapped) return;
+  if(k<52800 and !wrapped) return;
+
+//Process FT4 data at intervals of istep/12000.0 seconds
+  int j=k/istep;
+  j=istep*j-52800;
   if(j<0) j+=NRING;
   float tbuf=j/12000.0;
   for(int i=0; i<60000; i++) {
@@ -8635,9 +8644,10 @@ void MainWindow::ft4Data(int k)
     }
   }
   if(j>60000) wrapped=false;
+  if(((k-m_kin0)/12000.0 > 15.0) and !m_diskData) save_FT4();
 
   if(k>=NRING) {
-    if(m_saveAll) save_FT4();
+    if(m_saveAll and !m_diskData) save_FT4();
     //Wrap the ring buffer pointer
     k=k-NRING;
     dec_data.params.kin=k;
@@ -8673,7 +8683,6 @@ void MainWindow::ft4Data(int k)
   ft4_decode_(cdatetime,&tbuf,&nfa,&nfb,&nQSOProgress,&nContest,&nfqso,id,&ndecodes,&mycall[0],&hiscall[0],
               &nrx,&line[0],&ddir[0],17,12,12,61,512);
   line[60]=0;
-//  if(ndecodes>0) {
   for (int idecode=1; idecode<=ndecodes; idecode++) {
     get_ft4msg_(&idecode,&nrx,&line[0],61);
     line[60]=0;
@@ -8707,7 +8716,8 @@ void MainWindow::ft4Data(int k)
     }
 //###
   }
-  if(m_diskData and (k > (dec_data.params.kin-3456))) m_startAnother=m_loopall;
+  nhsec0=nhsec;
+  if(m_diskData and (k > (dec_data.params.kin-istep))) m_startAnother=m_loopall;
   if(m_bNoMoreFiles) {
     MessageBox::information_message(this, tr("Just one more file to open."));
     m_bNoMoreFiles=false;
@@ -8743,7 +8753,6 @@ void MainWindow::ft4_tx(int ntx)
     int n=t.size();
     m_xSent=t.at(n-2) + " " + t.at(n-1);
   }
-
   auto_tx_mode(true);                    //Enable Tx
   icw[0]=0;
   g_iptt = 1;
@@ -8753,7 +8762,7 @@ void MainWindow::ft4_tx(int ntx)
   m_tx_when_ready = true;
   qint64 ms=QDateTime::currentMSecsSinceEpoch();
   m_modulator->set_ms0(ms);
-  FT4_TxTimer.start(5000);      //Slightly more than FT4 transmission length
+  FT4_TxTimer.start(4600);      //Slightly more than FT4 transmission length
 
   if (g_iptt == 1 && m_iptt0 == 0) {
     auto const& current_message = QString::fromLatin1 (msgsent);
@@ -8779,7 +8788,7 @@ void MainWindow::ft4_tx(int ntx)
   }
   m_dateTimeQSOOn=QDateTime::currentDateTimeUtc();
   if(!m_btxok && m_btxok0 && g_iptt==1) stopTx();
-  if(m_saveAll) save_FT4();
+  if(m_saveAll and !m_diskData) save_FT4();
 }
 
 void MainWindow::FT4_writeTx()
@@ -8789,16 +8798,21 @@ void MainWindow::FT4_writeTx()
 
 void MainWindow::save_FT4()
 {
-  int nsec=(dec_data.params.kin + 3456)/12000;
-  if(nsec<5) return;                               //Saved data must be at least 5 seconds long.
+  double tsec=(dec_data.params.kin - m_kin0)/12000.0;
+  if(tsec<4.4) return;       //Saved data must be at least 4.4 seconds long.
   auto time = QDateTime::currentDateTimeUtc ();
   QString t=time.toString("yyMMdd_hhmmss");
   m_fnameWE=m_config.save_directory().absoluteFilePath(t);
+
 // The following is potential a threading hazard - not a good
 // idea to pass pointer to be processed in another thread
+  int nsamples=dec_data.params.kin - m_kin0 + 1;
   m_saveWAVWatcher.setFuture (QtConcurrent::run (std::bind (&MainWindow::save_wave_file,
-        this, m_fnameWE, &dec_data.d2[0], nsec, m_config.my_callsign(),
-        m_config.my_grid(), m_mode, m_nSubMode, m_freqNominal, m_hisCall, m_hisGrid)));
+        this, m_fnameWE, &dec_data.d2[m_kin0], nsamples, m_config.my_callsign(),
+        m_config.my_grid(), m_mode, m_nSubMode, m_freqNominal, m_hisCall,
+        m_hisGrid)));
+
+  m_kin0=dec_data.params.kin;
 }
 
 void MainWindow::foxLog()
@@ -8882,9 +8896,9 @@ void MainWindow::loggit(QString hc1, QString line)
   nQSO++;
   if (!m_foxLog) m_foxLog.reset (new FoxLog {&m_config});
   if (!m_foxLogWindow) on_fox_log_action_triggered ();
-  bool ok=m_foxLog->add_QSO (QSO_time, m_hisCall, m_hisGrid, m_rptSent, m_rptRcvd, band_name);
-  qDebug().noquote() << nQSO << line.left(19) << m_hisCall << m_hisGrid << m_rptSent
-                     << m_rptRcvd << sMHz << band_name << ok;
+  m_foxLog->add_QSO (QSO_time, m_hisCall, m_hisGrid, m_rptSent, m_rptRcvd, band_name);
+//  qDebug().noquote() << nQSO << line.left(19) << m_hisCall << m_hisGrid << m_rptSent
+//                     << m_rptRcvd << sMHz << band_name;
 
   m_logDlg->initLogQSO (m_hisCall, m_hisGrid, m_modeTx, m_rptSent, m_rptRcvd,
                         QSO_time, QSO_time, nHz, m_noSuffix, "", "",

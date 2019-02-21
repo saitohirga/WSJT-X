@@ -467,6 +467,7 @@ private:
   qint32  m_tFoxTxSinceCQ=999; //Fox Tx cycles since most recent CQ
   qint32  m_nFoxFreq;          //Audio freq at which Hound received a call from Fox
   qint32  m_nSentFoxRrpt=0;    //Serial number for next R+rpt Hound will send to Fox
+  qint32  m_kin0=0;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
@@ -726,7 +727,7 @@ private:
 
   QString save_wave_file (QString const& name
                           , short const * data
-                          , int seconds
+                          , int samples
                           , QString const& my_callsign
                           , QString const& my_grid
                           , QString const& mode
