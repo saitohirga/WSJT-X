@@ -15,6 +15,7 @@ program ft8sim_gfsk
   complex c(0:NMAX-1)
   complex cwave(0:NWAVE-1)
   real wave(NMAX)
+  real xjunk(NWAVE)
   integer itone(NN)
   integer*1 msgbits(77)
   integer*2 iwave(NMAX)                  !Generated full-length waveform
