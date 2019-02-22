@@ -102,6 +102,9 @@ extern "C" {
   void genft4_(char* msg, int* ichk, char* msgsent, int itone[],
                fortran_charlen_t, fortran_charlen_t);
 
+  void gen_ft8wave_(int itone[], int* nsym, int* nsps, float* fsample, float* f0,
+                    float xjunk[], float wave[], int* icmplx, int* nwave);
+
   void gen_ft4wave_(int itone[], int* nsym, int* nsps, float* fsample, float* f0,
                     float wave[], int* nwave);
 
@@ -6861,7 +6864,17 @@ void MainWindow::transmit (double snr)
   }
 
   if (m_modeTx == "FT8") {
-    toneSpacing=12000.0/1920.0;
+//    toneSpacing=12000.0/1920.0;
+    toneSpacing=-3;
+    int nsym=79;
+    int nsps=4*1920;
+    float fsample=48000.0;
+    float f0=ui->TxFreqSpinBox->value() - m_XIT;
+    int icmplx=0;
+    int nwave=(nsym+2)*nsps;
+    gen_ft8wave_(const_cast<int *>(itone),&nsym,&nsps,&fsample,&f0,foxcom_.wave,
+                 foxcom_.wave,&icmplx,&nwave);
+
     if(m_config.x2ToneSpacing()) toneSpacing=2*12000.0/1920.0;
     if(m_config.x4ToneSpacing()) toneSpacing=4*12000.0/1920.0;
     if(SpecOp::FOX==m_config.special_op_id() and !m_tune) toneSpacing=-1;

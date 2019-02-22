@@ -66,7 +66,7 @@ program ft8sim_gfsk
   n3=-1
   call pack77(msg37,i3,n3,c77)
   call genft8(msg37,i3,n3,msgsent37,msgbits,itone)
-  call gen_ft8wave(itone,NN,NSPS,fs,f0,cwave,NWAVE)
+  call gen_ft8wave(itone,NN,NSPS,fs,f0,cwave,xjunk,1,NWAVE)  !Generate complex cwave
 
   write(*,*)  
   write(*,'(a23,a37,3x,a7,i1,a1,i1)') 'New Style FT8 Message: ',msgsent37,'i3.n3: ',i3,'.',n3
