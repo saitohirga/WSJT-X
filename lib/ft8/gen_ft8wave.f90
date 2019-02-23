@@ -17,7 +17,7 @@ subroutine gen_ft8wave(itone,nsym,nsps,fsample,f0,cwave,wave,icmplx,nwave)
      twopi=8.0*atan(1.0)
      dt=1.0/fsample
      hmod=1.0
-     bt=1.0
+     bt=1.5
 ! Compute the frequency-smoothing pulse
      do i=1,3*nsps
         tt=(i-1.5*nsps)/real(nsps)
