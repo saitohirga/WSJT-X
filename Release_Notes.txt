@@ -10,7 +10,7 @@
                                                          
                                                          
                                                          
-Copyright 2001 - 2018 by Joe Taylor, K1JT.
+Copyright 2001 - 2019 by Joe Taylor, K1JT.
 
 		       Release: WSJT-X 2.0
 		        December 10, 2018
