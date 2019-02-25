@@ -18,7 +18,7 @@ CAboutDlg::CAboutDlg(QWidget *parent) :
                              + " " + revision ()}.simplified () + "</h2><br />"
                          "WSJT-X implements a number of digital modes designed for <br />"
                          "weak-signal Amateur Radio communication.  <br /><br />"
-                         "&copy; 2001-2018 by Joe Taylor, K1JT, with grateful <br />"
+                         "&copy; 2001-2019 by Joe Taylor, K1JT, with grateful <br />"
                          "acknowledgment for contributions from AC6SL, AE4JY, <br />"
                          "DJ0OT, G3WDG, G4KLA, G4WJS, IV3NWV, IW3RAB, K3WYC, K9AN, <br />"
                          "KA6MAL, KA9Q, KB1ZMX, KD6EKQ, KI7MT, KK1D, ND0B, PY2SDR, <br />"
