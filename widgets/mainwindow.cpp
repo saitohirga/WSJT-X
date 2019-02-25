@@ -6871,7 +6871,7 @@ void MainWindow::transmit (double snr)
     float fsample=48000.0;
     float f0=ui->TxFreqSpinBox->value() - m_XIT;
     int icmplx=0;
-    int nwave=(nsym+2)*nsps;
+    int nwave=nsym*nsps;
     gen_ft8wave_(const_cast<int *>(itone),&nsym,&nsps,&fsample,&f0,foxcom_.wave,
                  foxcom_.wave,&icmplx,&nwave);
 
