@@ -135,9 +135,19 @@ void LogQSO::accept()
   auto xsent = ui->exchSent->text ();
   auto xrcvd = ui->exchRcvd->text ();
 
-  // validate
   using SpOp = Configuration::SpecialOperatingActivity;
   auto special_op = m_config->special_op_id ();
+
+  if (special_op == SpOp::NA_VHF) {
+    if(xrcvd!="" and hisGrid!=xrcvd) hisGrid=xrcvd;
+  }
+
+  if ((special_op == SpOp::RTTY and xsent!="" and xrcvd!="")) {
+    if(rptSent=="" or !xsent.contains(rptSent+" ")) rptSent=xsent.split(" ",QString::SkipEmptyParts).at(0);
+    if(rptRcvd=="" or !xrcvd.contains(rptRcvd+" ")) rptRcvd=xrcvd.split(" ",QString::SkipEmptyParts).at(0);
+  }
+
+  // validate
   if (SpOp::NONE < special_op && special_op < SpOp::FOX)
     {
       if (xsent.isEmpty () || xrcvd.isEmpty ())

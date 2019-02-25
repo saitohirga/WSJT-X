@@ -121,7 +121,7 @@ void BeaconsModel::add_beacon_spot (bool is_new, QString const& client_id, QTime
   appendRow (make_row (client_id, time, snr, delta_time, frequency, drift, callsign, grid, power, off_air));
 }
 
-void BeaconsModel::clear_decodes (QString const& client_id)
+void BeaconsModel::decodes_cleared (QString const& client_id)
 {
   for (auto row = rowCount () - 1; row >= 0; --row)
     {

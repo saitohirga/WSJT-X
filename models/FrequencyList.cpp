@@ -68,7 +68,6 @@ namespace
       {7038600, Modes::WSPR, IARURegions::ALL},
       {7074000, Modes::FT8, IARURegions::ALL},
       {7076000, Modes::JT65, IARURegions::ALL},
-      {7078000, Modes::FT8, IARURegions::ALL},
       {7078000, Modes::JT9, IARURegions::ALL},
 
       {10136000, Modes::FT8, IARURegions::ALL},
@@ -79,7 +78,6 @@ namespace
       {14095600, Modes::WSPR, IARURegions::ALL},
       {14074000, Modes::FT8, IARURegions::ALL},
       {14076000, Modes::JT65, IARURegions::ALL},
-      {14078000, Modes::FT8, IARURegions::ALL},
       {14078000, Modes::JT9, IARURegions::ALL},
 
       {18100000, Modes::FT8, IARURegions::ALL},
@@ -106,8 +104,8 @@ namespace
       {50276000, Modes::JT65, IARURegions::R2},
       {50276000, Modes::JT65, IARURegions::R3},
       {50380000, Modes::MSK144, IARURegions::R1},
-      {50280000, Modes::MSK144, IARURegions::R2},
-      {50280000, Modes::MSK144, IARURegions::R3},
+      {50260000, Modes::MSK144, IARURegions::R2},
+      {50260000, Modes::MSK144, IARURegions::R3},
       {50293000, Modes::WSPR, IARURegions::R2},
       {50293000, Modes::WSPR, IARURegions::R3},
       {50310000, Modes::JT65, IARURegions::ALL},

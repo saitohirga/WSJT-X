@@ -10,10 +10,10 @@ if (APPLE)
   #
   # otool -l <binary> | grep -A3 LC_VERSION_MIN_MACOSX
   #
-  set (CMAKE_OSX_DEPLOYMENT_TARGET 10.9
+  set (CMAKE_OSX_DEPLOYMENT_TARGET 10.10
     CACHE STRING "Earliest version of OS X supported
 
-Earliest version we can support with Qt 5.8, C++11 & libc++ is 10.9.
+Earliest version we can support with Qt 5.8, C++11 & libc++ is 10.10.
 Do not override this if you intend to build an official deployable installer.")
   set (CMAKE_OSX_SYSROOT /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk
     CACHE STRING "Mac OS X SDK to build with
@@ -162,6 +162,7 @@ option (WSJT_SOFT_KEYING "Apply a ramp to CW keying envelope to reduce transient
 option (WSJT_SKIP_MANPAGES "Skip *nix manpage generation.")
 option (WSJT_GENERATE_DOCS "Generate documentation files." ON)
 option (WSJT_RIG_NONE_CAN_SPLIT "Allow split operation with \"None\" as rig.")
+option (WSJT_TRACE_UDP "Debugging option that turns on UDP message protocol diagnostics.")
 option (WSJT_BUILD_UTILS "Build simulators and code demonstrators." ON)
 
 CMAKE_DEPENDENT_OPTION (WSJT_HAMLIB_VERBOSE_TRACE "Debugging option that turns on full Hamlib internal diagnostics." OFF WSJT_HAMLIB_TRACE OFF)
@@ -451,6 +452,8 @@ set (wsjt_FSRCS
   lib/ft8/ft8b.f90
   lib/ft8/ft8code.f90
   lib/ft8/ft8_downsample.f90
+  lib/ft8.f90
+  lib/ft8dec.f90
   lib/ft8/ft8sim.f90
   lib/gen4.f90
   lib/gen65.f90
@@ -555,7 +558,7 @@ set (wsjt_FSRCS
   lib/ft8/twkfreq1.f90
   lib/twkfreq65.f90
   lib/update_recent_calls.f90
-  lib/update_hasharray.f90
+  lib/update_msk40_hasharray.f90
   lib/ft8/watterson.f90
   lib/wav11.f90
   lib/wav12.f90
@@ -845,6 +848,7 @@ set (hamlib_STATIC 1)
 find_package (hamlib 3 REQUIRED)
 find_program (RIGCTL_EXE rigctl)
 find_program (RIGCTLD_EXE rigctld)
+find_program (RIGCTLCOM_EXE rigctlcom)
 
 message (STATUS "hamlib_INCLUDE_DIRS: ${hamlib_INCLUDE_DIRS}")
 message (STATUS "hamlib_LIBRARIES: ${hamlib_LIBRARIES}")
@@ -1087,7 +1091,10 @@ qt5_wrap_ui (wsjt_qt_GENUISRCS ${wsjt_qt_UISRCS})
 qt5_wrap_ui (wsjtx_GENUISRCS ${wsjtx_UISRCS})
 
 # Resource generation
-qt5_add_resources (wsjtx_RESOURCES_RCC ${CMAKE_BINARY_DIR}/wsjtx.qrc)
+qt5_add_resources (wsjtx_RESOURCES_RCC
+  ${CMAKE_BINARY_DIR}/wsjtx.qrc
+  contrib/QDarkStyleSheet/qdarkstyle/style.qrc
+  )
 
 # AX COM servers
 if (WIN32)
@@ -1241,6 +1248,9 @@ target_link_libraries (jt65 wsjt_fort wsjt_cxx)
 add_executable (ft8code lib/ft8/ft8code.f90 wsjtx.rc)
 target_link_libraries (ft8code wsjt_fort wsjt_cxx)
 
+add_executable (ft8 lib/ft8.f90 wsjtx.rc)
+target_link_libraries (ft8 wsjt_fort wsjt_cxx)
+
 add_executable (ft8sim lib/ft8/ft8sim.f90 wsjtx.rc)
 target_link_libraries (ft8sim wsjt_fort wsjt_cxx)
 
@@ -1324,7 +1334,10 @@ target_link_libraries (udp_daemon wsjtx_udp-static)
 
 add_resources (message_aggregator_RESOURCES /qss ${message_aggregator_STYLESHEETS})
 configure_file (UDPExamples/message_aggregator.qrc.in message_aggregator.qrc @ONLY)
-qt5_add_resources (message_aggregator_RESOURCES_RCC ${CMAKE_CURRENT_BINARY_DIR}/message_aggregator.qrc)
+qt5_add_resources (message_aggregator_RESOURCES_RCC
+  ${CMAKE_CURRENT_BINARY_DIR}/message_aggregator.qrc
+  contrib/QDarkStyleSheet/qdarkstyle/style.qrc
+  )
 add_executable (message_aggregator
   ${message_aggregator_CXXSRCS}
   ${WSJTX_ICON_FILE}
@@ -1403,6 +1416,13 @@ install (PROGRAMS
   DESTINATION ${CMAKE_INSTALL_BINDIR}
   #COMPONENT runtime
   RENAME rigctld-wsjtx${CMAKE_EXECUTABLE_SUFFIX}
+  )
+
+install (PROGRAMS
+  ${RIGCTLCOM_EXE}
+  DESTINATION ${CMAKE_INSTALL_BINDIR}
+  #COMPONENT runtime
+  RENAME rigctlcom-wsjtx${CMAKE_EXECUTABLE_SUFFIX}
   )
 
 install (FILES

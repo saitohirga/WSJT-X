@@ -1,6 +1,7 @@
 #include "LotWUsers.hpp"
 
 #include <future>
+#include <chrono>
 
 #include <QHash>
 #include <QString>
@@ -265,7 +266,9 @@ void LotWUsers::set_age_constraint (qint64 uploaded_since_days)
 
 bool LotWUsers::user (QString const& call) const
 {
-  if (m_->future_load_.valid ())
+  // check if a pending asynchronous load is ready
+  if (m_->future_load_.valid ()
+      && std::future_status::ready == m_->future_load_.wait_for (std::chrono::seconds {0}))
     {
       try
         {
@@ -278,10 +281,13 @@ bool LotWUsers::user (QString const& call) const
         }
       Q_EMIT load_finished ();
     }
-  auto p = m_->last_uploaded_.constFind (call);
-  if (p != m_->last_uploaded_.end ())
+  if (m_->last_uploaded_.size ())
     {
-      return p.value ().daysTo (QDate::currentDate ()) <= m_->age_constraint_;
+      auto p = m_->last_uploaded_.constFind (call);
+      if (p != m_->last_uploaded_.end ())
+        {
+          return p.value ().daysTo (QDate::currentDate ()) <= m_->age_constraint_;
+        }
     }
   return false;
 }

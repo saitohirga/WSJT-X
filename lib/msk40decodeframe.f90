@@ -128,7 +128,7 @@ subroutine msk40decodeframe(c,mycall,hiscall,xsnr,bswl,nhasharray,             &
 
     imsg=0
     do i=1,16
-      imsg=ishft(imsg,1)+iand(1,decoded(17-i))
+      imsg=ishft(imsg,1)+iand(1_1,decoded(17-i))
     enddo
     nrxrpt=iand(imsg,15)
     nrxhash=(imsg-nrxrpt)/16

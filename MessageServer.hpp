@@ -41,6 +41,9 @@ public:
   Q_SLOT void start (port_type port,
                      QHostAddress const& multicast_group_address = QHostAddress {});
 
+  // ask the client to clear one or both of the decode windows
+  Q_SLOT void clear_decodes (QString const& id, quint8 window = 0);
+
   // ask the client with identification 'id' to make the same action
   // as a double click on the decode would
   //
@@ -91,7 +94,7 @@ public:
                             , QString const& name, QDateTime time_on, QString const& operator_call
                             , QString const& my_call, QString const& my_grid
                             , QString const& exchange_sent, QString const& exchange_rcvd);
-  Q_SIGNAL void clear_decodes (QString const& id);
+  Q_SIGNAL void decodes_cleared (QString const& id);
   Q_SIGNAL void logged_ADIF (QString const& id, QByteArray const& ADIF);
 
   // this signal is emitted when a network error occurs

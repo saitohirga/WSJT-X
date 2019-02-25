@@ -9,7 +9,9 @@
 #include <QSqlRecord>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QTextStream>
 #include <QDebug>
+#include "Configuration.hpp"
 #include "qt_db_helpers.hpp"
 #include "pimpl_impl.hpp"
 
@@ -17,12 +19,15 @@ class FoxLog::impl final
   : public QSqlTableModel
 {
 public:
-  impl ();
+  impl (Configuration const * configuration);
 
+  Configuration const * configuration_;
   QSqlQuery mutable dupe_query_;
+  QSqlQuery mutable export_query_;
 };
 
-FoxLog::impl::impl ()
+FoxLog::impl::impl (Configuration const * configuration)
+  : configuration_ {configuration}
 {
   if (!database ().tables ().contains ("fox_log"))
     {
@@ -41,7 +46,26 @@ FoxLog::impl::impl ()
     }
 
   SQL_error_check (dupe_query_, &QSqlQuery::prepare,
-                   "SELECT COUNT(*) FROM fox_log WHERE call = :call AND band = :band");
+                   "SELECT "
+                   "    COUNT(*) "
+                   "  FROM "
+                   "    fox_log "
+                   "  WHERE "
+                   "    call = :call "
+                   "    AND band = :band");
+
+  SQL_error_check (export_query_, &QSqlQuery::prepare,
+                   "SELECT "
+                   "    band"
+                   "    , \"when\""
+                   "    , call"
+                   "    , grid"
+                   "    , report_sent"
+                   "    , report_rcvd "
+                   "  FROM "
+                   "    fox_log "
+                   "  ORDER BY "
+                   "    \"when\"");
 
   setEditStrategy (QSqlTableModel::OnFieldChange);
   setTable ("fox_log");
@@ -60,7 +84,8 @@ FoxLog::impl::impl ()
   SQL_error_check (*this, &QSqlTableModel::select);
 }
 
-FoxLog::FoxLog ()
+FoxLog::FoxLog (Configuration const * configuration)
+  : m_ {configuration}
 {
 }
 
@@ -132,6 +157,8 @@ bool FoxLog::dupe (QString const& call, QString const& band) const
 
 void FoxLog::reset ()
 {
+  // synchronize model
+  while (m_->canFetchMore ()) m_->fetchMore ();
   if (m_->rowCount ())
     {
       m_->setEditStrategy (QSqlTableModel::OnManualSubmit);
@@ -141,4 +168,60 @@ void FoxLog::reset ()
       m_->select ();            // to refresh views
       m_->setEditStrategy (QSqlTableModel::OnFieldChange);
     }
+}
+
+namespace
+{
+  struct ADIF_field
+  {
+    explicit ADIF_field (QString const& name, QString const& value)
+      : name_ {name}
+      , value_ {value}
+    {
+    }
+
+    QString name_;
+    QString value_;
+  };
+
+  QTextStream& operator << (QTextStream& os, ADIF_field const& field)
+  {
+    if (field.value_.size ())
+      {
+        os << QString {"<%1:%2>%3 "}.arg (field.name_).arg (field.value_.size ()).arg (field.value_);
+      }
+    return os;
+  }
+}
+
+void FoxLog::export_qsos (QTextStream& out) const
+{
+  out << "WSJT-X FT8 DXpedition Mode Fox Log\n<eoh>";
+
+  SQL_error_check (m_->export_query_, static_cast<bool (QSqlQuery::*) ()> (&QSqlQuery::exec));
+  auto record = m_->export_query_.record ();
+  auto band_index = record.indexOf ("band");
+  auto when_index = record.indexOf ("when");
+  auto call_index = record.indexOf ("call");
+  auto grid_index = record.indexOf ("grid");
+  auto sent_index = record.indexOf ("report_sent");
+  auto rcvd_index = record.indexOf ("report_rcvd");
+  while (m_->export_query_.next ())
+    {
+      auto when = QDateTime::fromMSecsSinceEpoch (m_->export_query_.value (when_index).toULongLong () * 1000ull, Qt::UTC);
+      out << '\n'
+          << ADIF_field {"band", m_->export_query_.value (band_index).toString ()}
+          << ADIF_field {"mode", "FT8"}
+          << ADIF_field {"qso_date", when.toString ("yyyyMMdd")}
+          << ADIF_field {"time_on", when.toString ("hhmmss")}
+          << ADIF_field {"call", m_->export_query_.value (call_index).toString ()}
+          << ADIF_field {"gridsquare", m_->export_query_.value (grid_index).toString ()}
+          << ADIF_field {"rst_sent", m_->export_query_.value (sent_index).toString ()}
+          << ADIF_field {"rst_rcvd", m_->export_query_.value (rcvd_index).toString ()}
+          << ADIF_field {"station_callsign", m_->configuration_->my_callsign ()}
+          << ADIF_field {"my_gridsquare", m_->configuration_->my_grid ()}
+          << ADIF_field {"operator", m_->configuration_->opCall ()}
+          << "<eor>";
+    }
+  out << endl;
 }

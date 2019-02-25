@@ -155,25 +155,30 @@ QVariant DecodeHighlightingModel::data (const QModelIndex& index, int role) cons
   if (index.isValid () && index.row () < rowCount ())
     {
       auto const& item = m_->data_[index.row ()];
+      auto fg_unset = Qt::NoBrush == item.foreground_.style ();
+      auto bg_unset = Qt::NoBrush == item.background_.style ();
       switch (role)
         {
         case Qt::CheckStateRole:
           result = item.enabled_ ? Qt::Checked : Qt::Unchecked;
           break;
         case Qt::DisplayRole:
-          return QString {"%1 [f/g:%2, b/g:%3]"}
+          return QString {"%1%2%3%4%4%5%6"}
              .arg (highlight_name (item.type_))
-             .arg (item.foreground_.style () != Qt::NoBrush ? QString {"#%1"}.arg (item.foreground_.color ().rgb () & 0xffffff, 6, 16, QChar {'0'}) : QString {"unset"})
-             .arg (item.background_.style () != Qt::NoBrush ? QString {"#%1"}.arg (item.background_.color ().rgb () & 0xffffff, 6, 16, QChar {'0'}) : QString {"unset"});
+             .arg (fg_unset || bg_unset ? QString {" ["} : QString {})
+             .arg (fg_unset ? QString {"f/g unset"} : QString {})
+             .arg (fg_unset && bg_unset ? QString {" "} : QString {})
+             .arg (bg_unset ? QString {"b/g unset"} : QString {})
+             .arg (fg_unset || bg_unset ? QString {"]"} : QString {});
           break;
         case Qt::ForegroundRole:
-          if (Qt::NoBrush != item.foreground_.style ())
+          if (!fg_unset)
             {
               result = item.foreground_;
             }
           break;
         case Qt::BackgroundRole:
-          if (Qt::NoBrush != item.background_.style ())
+          if (!bg_unset)
             {
               result = item.background_;
             }
