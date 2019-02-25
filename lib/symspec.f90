@@ -58,11 +58,11 @@ subroutine symspec(shared_data,k,ntrperiod,nsps,ingain,nminw,pxdb,s,   &
 ! discrete Hilbert Transform, by Albert Nuttall"
 !
      a0=0.3635819
-     a1=0.4891775;
+     a1=-0.4891775;
      a2=0.1365995;
-     a3=0.0106411;
+     a3=-0.0106411;
      do i=1,nfft3
-         w3(i)=a0-a1*cos(2*pi*(i-1)/(nfft3))+ &
+         w3(i)=a0+a1*cos(2*pi*(i-1)/(nfft3))+ &
                   a2*cos(4*pi*(i-1)/(nfft3))+ &
                   a3*cos(6*pi*(i-1)/(nfft3))
      enddo
