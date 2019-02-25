@@ -86,8 +86,8 @@
 extern "C" {
   //----------------------------------------------------- C and Fortran routines
   void symspec_(struct dec_data *, int* k, int* ntrperiod, int* nsps, int* ingain,
-                int* minw, float* px, float s[], float* df3, int* nhsym, int* npts8,
-                float *m_pxmax);
+                bool* bLowSidelobes, int* minw, float* px, float s[], float* df3,
+                int* nhsym, int* npts8, float *m_pxmax);
 
   void hspec_(short int d2[], int* k, int* nutc0, int* ntrperiod, int* nrxfreq, int* ntol,
               int* nContest, bool* bmsk144, bool* btrain, double const pcoeffs[], int* ingain,
@@ -1364,7 +1364,9 @@ void MainWindow::dataSink(qint64 frames)
   int nsps=m_nsps;
   if(m_bFastMode) nsps=6912;
   int nsmo=m_wideGraph->smoothYellow()-1;
-  symspec_(&dec_data,&k,&trmin,&nsps,&m_inGain,&nsmo,&m_px,s,&m_df3,&m_ihsym,&m_npts8,&m_pxmax);
+  bool bLowSidelobes=m_config.lowSidelobes();
+  symspec_(&dec_data,&k,&trmin,&nsps,&m_inGain,&bLowSidelobes,&nsmo,&m_px,s,
+           &m_df3,&m_ihsym,&m_npts8,&m_pxmax);
   if(m_mode=="WSPR") wspr_downsample_(dec_data.d2,&k);
   if(m_ihsym <=0) return;
   if(ui) ui->signal_meter_widget->setValue(m_px,m_pxmax); // Update thermometer

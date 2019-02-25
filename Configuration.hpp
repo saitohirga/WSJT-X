@@ -137,6 +137,7 @@ public:
   bool twoPass() const;
   bool bFox() const;
   bool bHound() const;
+  bool bLowSidelobes() const;
   bool x2ToneSpacing() const;
   bool x4ToneSpacing() const;
   bool MyDx() const;
@@ -152,6 +153,7 @@ public:
   port_type n1mm_server_port () const;
   bool valid_n1mm_info () const;
   bool broadcast_to_n1mm() const;
+  bool lowSidelobes() const;
   bool accept_udp_requests () const;
   bool udpWindowToFront () const;
   bool udpWindowRestore () const;
