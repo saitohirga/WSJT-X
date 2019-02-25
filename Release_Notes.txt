@@ -12,6 +12,60 @@
                                                          
 Copyright 2001 - 2019 by Joe Taylor, K1JT.
 
+		     Release: WSJT-X 2.0.1
+		       February 25, 2019
+		     ---------------------
+
+WSJT-X  2.0.1 is  a bug  fix  release including  the following  defect
+repairs reported since the v2.0.0 GA release.
+
+ - Remove startup message about importance of upgrading to v2.0.
+ - Relax ADIF log file parsing to allow garbage between records and
+   records with no DX callsign
+ - Fix bug that prevented retention of power and comments in
+   Log QSO window
+ - Updates to User Guide
+ - MSK144 frequency defaults to 50.260 in IARU Regions 2 and 3
+ - Remove hexadecimal RGB values from color-configuration panel
+ - Fix a bounds error by not executing Fox-related code when not
+   in Fox mode
+ - Allow the logQSO dialog to modify "Exch Sent" or "Rcvd" when 
+   operating in RTTY or NA VHF Contest mode, and to have any
+   changes flow through to N1MM Logger.
+ - Fix several problems in handling hashed callsigns
+ - More rigorous quality checking of WSPR decodes from the OSD algorithm
+ - Fix bug that prevented recevied signal reports from
+   compound callsigns to be logged
+ - Improved recognition of callsigns with /P or /R suffixes
+ - Do not waste time trying AP decoding of nonstandard callsigns
+ - Make OSD decoding work with WSPR "type 2" messages
+ - Retain in Tx6 message field any CQ messages like
+   "CQ xxxx K1ABC FN42", where xxxx is 1-4 letters or 1-3 digits
+ - Optional key bindings for F1 through F5, especially for contest use
+ - Include grid in Tx1 messages with hashed callsign, for example
+   "<DF2018ARDF> K1ABC FN42"
+ - Better formatting for the files ALL.TXT and ALL_WSPR.TXT
+ - Correct a flaw in validating contest exchange data when logging
+ - Option to always start new decode periods at top of Band
+   Activity window
+ - New command "Erase WSPR hashtable" on the File menu
+ - Improved validation for ARRL RTTY RU and FD exchange fields
+ - UDP Reference applications join a multicast group on all available
+   multicast capable network interfaces
+ - Minor code changes to support Qt versions >=5.10
+ - Changes to support x64 Windows builds in preparation for Qt v5.12
+ - Add "ADIF Export ..." to Fox Log's contextual popup menu
+ - Use ARRL-required names for VHF+ bands in exported Cabrillo log
+ - New utility program rigctlcom-wsjtx (from Hamlib)
+ - Remove temporary FT8 working frequencies from default frequency list
+ - UDP protocol's Clear (3) message is made two-way, for better
+   communication with DX Lab Suite applications
+ - Reset QSO start time when aborting a QSO or clearing messages by ESC
+   or F4
+ - Correct a logging issue in Fox's ADIF log when Fox sends RR73 to more
+   than one Hound in the same Tx sequence.
+
+
 		       Release: WSJT-X 2.0
 		        December 10, 2018
 		     -----------------------

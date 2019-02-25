@@ -17,6 +17,9 @@ Copyright 2001 - 2019 by Joe Taylor, K1JT.
 		       February 25, 2019
 		     ---------------------
 
+WSJT-X  2.0.1 is  a bug  fix  release including  the following  defect
+repairs reported since the v2.0.0 GA release.
+
  - Remove startup message about importance of upgrading to v2.0.
  - Relax ADIF log file parsing to allow garbage between records and
    records with no DX callsign
