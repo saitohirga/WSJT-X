@@ -487,6 +487,17 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
     });
 
   // Network message handlers
+  connect (m_messageClient, &MessageClient::clear_decodes, [this] (quint8 window) {
+      ++window;
+      if (window & 1)
+        {
+          ui->decodedTextBrowser->erase ();
+        }
+      if (window & 2)
+        {
+          ui->decodedTextBrowser2->erase ();
+        }
+    });
   connect (m_messageClient, &MessageClient::reply, this, &MainWindow::replyToCQ);
   connect (m_messageClient, &MessageClient::replay, this, &MainWindow::replayDecodes);
   connect (m_messageClient, &MessageClient::location, this, &MainWindow::locationChange);
@@ -3313,7 +3324,7 @@ void MainWindow::on_EraseButton_clicked ()
 
 void MainWindow::band_activity_cleared ()
 {
-  m_messageClient->clear_decodes ();
+  m_messageClient->decodes_cleared ();
   QFile f(m_config.temp_dir ().absoluteFilePath ("decoded.txt"));
   if(f.exists()) f.remove();
 }
@@ -5043,6 +5054,7 @@ void MainWindow::TxAgain()
 
 void MainWindow::clearDX ()
 {
+  set_dateTimeQSO (-1);
   if (m_QSOProgress != CALLING)
     {
       auto_tx_mode (false);
@@ -8257,7 +8269,7 @@ list2Done:
         {
           writeFoxQSO (QString {" Log:  %1 %2 %3 %4 %5"}.arg (m_hisCall).arg (m_hisGrid)
                        .arg (m_rptSent).arg (m_rptRcvd).arg (m_lastBand));
-          logQSOTimer.start(0);
+          on_logQSOButton_clicked ();
           m_foxRateQueue.enqueue (now); //Add present time in seconds
                                         //to Rate queue.
         }

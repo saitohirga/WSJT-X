@@ -13,7 +13,7 @@ subroutine chkcrc13a(decoded,nbadcrc)
   read(cbits,1002) ncrc13                         !Received CRC13
 1002 format(77x,b13)
 
-  i1Dec8BitBytes(10)=iand(i1Dec8BitBytes(10),128+64+32+16+8)
+  i1Dec8BitBytes(10)=iand(i1Dec8BitBytes(10),transfer(128+64+32+16+8,0_1))
   i1Dec8BitBytes(11:12)=0
   icrc13=crc13(c_loc(i1Dec8BitBytes),12)          !CRC13 computed from 77 msg bits
 

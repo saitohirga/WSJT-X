@@ -181,8 +181,8 @@ MessageAggregatorMainWindow::MessageAggregatorMainWindow ()
     });
   connect (server_, &MessageServer::client_opened, this, &MessageAggregatorMainWindow::add_client);
   connect (server_, &MessageServer::client_closed, this, &MessageAggregatorMainWindow::remove_client);
-  connect (server_, &MessageServer::client_closed, decodes_model_, &DecodesModel::clear_decodes);
-  connect (server_, &MessageServer::client_closed, beacons_model_, &BeaconsModel::clear_decodes);
+  connect (server_, &MessageServer::client_closed, decodes_model_, &DecodesModel::decodes_cleared);
+  connect (server_, &MessageServer::client_closed, beacons_model_, &BeaconsModel::decodes_cleared);
   connect (server_, &MessageServer::decode, [this] (bool is_new, QString const& id, QTime time
                                                     , qint32 snr, float delta_time
                                                     , quint32 delta_frequency, QString const& mode
@@ -191,8 +191,8 @@ MessageAggregatorMainWindow::MessageAggregatorMainWindow ()
              decodes_model_->add_decode (is_new, id, time, snr, delta_time, delta_frequency, mode, message
                                          , low_confidence, off_air, dock_widgets_[id]->fast_mode ());});
   connect (server_, &MessageServer::WSPR_decode, beacons_model_, &BeaconsModel::add_beacon_spot);
-  connect (server_, &MessageServer::clear_decodes, decodes_model_, &DecodesModel::clear_decodes);
-  connect (server_, &MessageServer::clear_decodes, beacons_model_, &BeaconsModel::clear_decodes);
+  connect (server_, &MessageServer::decodes_cleared, decodes_model_, &DecodesModel::decodes_cleared);
+  connect (server_, &MessageServer::decodes_cleared, beacons_model_, &BeaconsModel::decodes_cleared);
   connect (decodes_model_, &DecodesModel::reply, server_, &MessageServer::reply);
 
   // UI behaviour
@@ -248,7 +248,8 @@ void MessageAggregatorMainWindow::add_client (QString const& id, QString const& 
   connect (server_, &MessageServer::status_update, dock, &ClientWidget::update_status);
   connect (server_, &MessageServer::decode, dock, &ClientWidget::decode_added);
   connect (server_, &MessageServer::WSPR_decode, dock, &ClientWidget::beacon_spot_added);
-  connect (server_, &MessageServer::clear_decodes, dock, &ClientWidget::clear_decodes);
+  connect (server_, &MessageServer::decodes_cleared, dock, &ClientWidget::decodes_cleared);
+  connect (dock, &ClientWidget::do_clear_decodes, server_, &MessageServer::clear_decodes);
   connect (dock, &ClientWidget::do_reply, decodes_model_, &DecodesModel::do_reply);
   connect (dock, &ClientWidget::do_halt_tx, server_, &MessageServer::halt_tx);
   connect (dock, &ClientWidget::do_free_text, server_, &MessageServer::free_text);
