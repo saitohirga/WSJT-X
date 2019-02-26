@@ -82,7 +82,6 @@ void DisplayText::setContentFont(QFont const& font)
 void DisplayText::mouseDoubleClickEvent(QMouseEvent *e)
 {
   Q_EMIT selectCallsign(e->modifiers ());
-  QTextEdit::mouseDoubleClickEvent(e);
 }
 
 void DisplayText::insertLineSpacer(QString const& line)

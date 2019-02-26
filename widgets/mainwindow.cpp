@@ -504,6 +504,17 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
     });
 
   // Network message handlers
+  connect (m_messageClient, &MessageClient::clear_decodes, [this] (quint8 window) {
+      ++window;
+      if (window & 1)
+        {
+          ui->decodedTextBrowser->erase ();
+        }
+      if (window & 2)
+        {
+          ui->decodedTextBrowser2->erase ();
+        }
+    });
   connect (m_messageClient, &MessageClient::reply, this, &MainWindow::replyToCQ);
   connect (m_messageClient, &MessageClient::replay, this, &MainWindow::replayDecodes);
   connect (m_messageClient, &MessageClient::location, this, &MainWindow::locationChange);
@@ -2449,7 +2460,7 @@ void MainWindow::on_actionCopyright_Notice_triggered()
                            "\"The algorithms, source code, look-and-feel of WSJT-X and related "
                            "programs, and protocol specifications for the modes FSK441, FT8, JT4, "
                            "JT6M, JT9, JT65, JTMS, QRA64, ISCAT, MSK144 are Copyright (C) "
-                           "2001-2018 by one or more of the following authors: Joseph Taylor, "
+                           "2001-2019 by one or more of the following authors: Joseph Taylor, "
                            "K1JT; Bill Somerville, G4WJS; Steven Franke, K9AN; Nico Palermo, "
                            "IV3NWV; Greg Beam, KI7MT; Michael Black, W9MDB; Edson Pereira, PY2SDR; "
                            "Philip Karn, KA9Q; and other members of the WSJT Development Group.\"");
@@ -3360,7 +3371,7 @@ void MainWindow::on_EraseButton_clicked ()
 
 void MainWindow::band_activity_cleared ()
 {
-  m_messageClient->clear_decodes ();
+  m_messageClient->decodes_cleared ();
   QFile f(m_config.temp_dir ().absoluteFilePath ("decoded.txt"));
   if(f.exists()) f.remove();
 }
@@ -5104,6 +5115,7 @@ void MainWindow::TxAgain()
 
 void MainWindow::clearDX ()
 {
+  set_dateTimeQSO (-1);
   if (m_QSOProgress != CALLING)
     {
       auto_tx_mode (false);
@@ -8389,7 +8401,7 @@ list2Done:
         {
           writeFoxQSO (QString {" Log:  %1 %2 %3 %4 %5"}.arg (m_hisCall).arg (m_hisGrid)
                        .arg (m_rptSent).arg (m_rptRcvd).arg (m_lastBand));
-          on_logQSOButton_clicked();
+          on_logQSOButton_clicked ();
           m_foxRateQueue.enqueue (now); //Add present time in seconds
                                         //to Rate queue.
         }

@@ -6,7 +6,7 @@
 
 == NAME
 
-rigctl-wsjtx - Hamlib 3 rigctld server.
+rigctl-wsjtx - Hamlib 4 rigctld server.
 
 == SYNOPSIS
 
@@ -15,7 +15,7 @@ rigctl-wsjtx - Hamlib 3 rigctld server.
 == DESCRIPTION
 
 *wsjtx* uses a version of the *hamlib* CAT control library.  This
- library is heavily modified over the current release version of
+ library is virtually identical to the the current release version of
  *hamlib*. If a *wsjtx* user wishes to use the *hamlib* network rig
  server *rigctld* to remotely control their transceiver; then this
  special version of the *rigctl* client should be used since that too

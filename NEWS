@@ -10,7 +10,244 @@
  \$$      \$$  \$$$$$$   \$$$$$$     \$$        \$$   \$$
                                                          
                                                          
-Copyright 2001 - 2018 by Joe Taylor, K1JT.
+Copyright 2001 - 2019 by Joe Taylor, K1JT.
+
+
+		     Release: WSJT-X 2.0.1
+		       February 25, 2019
+		     ---------------------
+
+WSJT-X  2.0.1 is  a bug  fix  release including  the following  defect
+repairs reported since the v2.0.0 GA release.
+
+ - Remove startup message about importance of upgrading to v2.0.
+ - Relax ADIF log file parsing to allow garbage between records and
+   records with no DX callsign
+ - Fix bug that prevented retention of power and comments in
+   Log QSO window
+ - Updates to User Guide
+ - MSK144 frequency defaults to 50.260 in IARU Regions 2 and 3
+ - Remove hexadecimal RGB values from color-configuration panel
+ - Fix a bounds error by not executing Fox-related code when not
+   in Fox mode
+ - Allow the logQSO dialog to modify "Exch Sent" or "Rcvd" when 
+   operating in RTTY or NA VHF Contest mode, and to have any
+   changes flow through to N1MM Logger.
+ - Fix several problems in handling hashed callsigns
+ - More rigorous quality checking of WSPR decodes from the OSD algorithm
+ - Fix bug that prevented recevied signal reports from
+   compound callsigns to be logged
+ - Improved recognition of callsigns with /P or /R suffixes
+ - Do not waste time trying AP decoding of nonstandard callsigns
+ - Make OSD decoding work with WSPR "type 2" messages
+ - Retain in Tx6 message field any CQ messages like
+   "CQ xxxx K1ABC FN42", where xxxx is 1-4 letters or 1-3 digits
+ - Optional key bindings for F1 through F5, especially for contest use
+ - Include grid in Tx1 messages with hashed callsign, for example
+   "<DF2018ARDF> K1ABC FN42"
+ - Better formatting for the files ALL.TXT and ALL_WSPR.TXT
+ - Correct a flaw in validating contest exchange data when logging
+ - Option to always start new decode periods at top of Band
+   Activity window
+ - New command "Erase WSPR hashtable" on the File menu
+ - Improved validation for ARRL RTTY RU and FD exchange fields
+ - UDP Reference applications join a multicast group on all available
+   multicast capable network interfaces
+ - Minor code changes to support Qt versions >=5.10
+ - Changes to support x64 Windows builds in preparation for Qt v5.12
+ - Add "ADIF Export ..." to Fox Log's contextual popup menu
+ - Use ARRL-required names for VHF+ bands in exported Cabrillo log
+ - New utility program rigctlcom-wsjtx (from Hamlib)
+ - Remove temporary FT8 working frequencies from default frequency list
+ - UDP protocol's Clear (3) message is made two-way, for better
+   communication with DX Lab Suite applications
+ - Reset QSO start time when aborting a QSO or clearing messages by ESC
+   or F4
+ - Correct a logging issue in Fox's ADIF log when Fox sends RR73 to more
+   than one Hound in the same Tx sequence.
+
+
+		       Release: WSJT-X 2.0
+		        December 10, 2018
+		     -----------------------
+
+WSJT-X 2.0 is a major update that introduces new protocols for FT8 and
+MSK144.  The new protocols become the world-wide standards on December
+10, 2018.
+
+WSJT-X 2.0 cannot communicate in these modes with other stations using
+WSJT-X v1.9.1 or earlier.
+
+Please help by urging everyone to upgrade no later than January 1, 2019.
+
+New features since WSJT-X v1.9.1:
+
+1. Compound and nonstandard callsigns are automatically recognized and
+handled using new message formats.
+
+2. The new FT8 protocol provides optimized message formats for North
+American VHF contests, European VHF contests, ARRL Field Day, and ARRL
+RTTY Roundup.  Similarly, the new MSK144 protocol provides optimized
+message formats for North American VHF and European VHF contests.
+Full support is provided for "/R" and "/P" calls in the relevant
+contests.
+
+3. The new protocols provide nearly equal (or better) sensitivity
+compared to the old ones, and lower false decode rates.
+
+4. New logging features are provided for contesting and for "Fox"
+(DXpedition) mode.  Logging is optionally integrated with N1MM Logger+
+and WriteLog.
+
+5. Color highlighting of decoded messages provides worked-before
+status for callsigns, grid locators, DXCC entities, continents, CQ
+Zones, and ITU zones on a “by band” and “by mode” basis, and for
+stations that have uploaded their logs to Logbook of the World (LoTW)
+within a specified time interval.
+
+6. The WSPR decoder now achieves decodes down to S/N = -31 dB.  For
+the particular benefit of LF/MF users, an option "No own call decodes"
+has been added.
+
+7. The UDP messages sent to companion programs have been expanded and
+improved.
+
+Some details of changes since WSJT-X-rc5 include the following:
+
+ - Initial load of ADIF log in background
+ - Correct the UTC displayed in Fox/Contest log
+ - Faster entry and correct scrolling for Fox/Contest log
+ - Add contest exchanges and contest type to UDP logged QSO message
+ - Fix a bug that suppressed decodes with negative DT.
+ - AK and HI are DXCCs, not states, for RTTY Roundup
+ - Fix improper truncation of some non-FT8 messages in ALL.TXT
+ - Various minor bug fixes and code cleanup
+ - Update the WSJT-X User Guide to v2.0 (more to come...)
+ - Update cty.dat
+
+		     Release: WSJT-X 2.0-rc5
+		        November 26, 2018
+		     -----------------------
+
+Release Candidate 5 ("RC5") is stable, works well, and fixes the known
+problems in RC4.  It is likely that the General Availability (GA)
+release of WSJT-X 2.0 will be nearly identical to RC5.
+
+Changes from WSJT-X 2.0-rc4 include the following:
+
+ -  Make the "Auto Seq" checkbox sticky, again
+ -  Remove the 5-minute mouse timer
+ -  Correct the "worked before" logic for color highlighting
+ -  Add "No own call decodes" checkbox in WSPR mode
+ -  Display and log UTC (not local time) in contest operations
+ -  Validate contest QSO details before allowing logging
+ -  Force Aqua theme on macOS to avoid issues with Mojave dark theme
+ -  Move Fox log Reset action to Fox log window context menu
+ -  Improve layout of Working Frequencies and Station Information tables
+ -  Allow deletes and editing in Fox and Contest log windows
+ -  Add Tool Tips for Fox and Contest log windows
+ -  Fix a bug causing false AP decodes in JT65 VHF+ operation
+ -  Fix a bug that could switch unexpectedly from JT65 to JT9 mode
+
+PLEASE NOTE: As far as WSJT-X 2.0 (RC4, RC5, and GA releases) are
+concerned, signals using the old FT8 protocol are undecodable
+interference.  This means that regenerated replicas cannot be
+subtracted from received data, and consequently second- and third-pass
+decodes may be impeded.  Full performance of the 77-bit decoder will
+not be realized until most signals on a crowded band are using the
+new FT8 protocol.  
+
+
+		     Release: WSJT-X 2.0-rc4
+		        November 12, 2018
+		     -----------------------
+
+Changes from WSJT-X Version 2.0.0-rc3 include the following:
+
+ -  Fix the "cannot open file fort.81" bug
+ -  Avoid too many redirect loops related to openSSL support
+ -  Fix the auto-generated messages for nonstandard callsigns
+ -  Remove all support for the legacy FT8 protocol
+ -  Disallow selecting MSK144 with RTTY or Field Day messages active
+ -  Correct and expand support for color highlighting decoded messages
+ -  ESC key aborts a QSO, clears DX Call, and selects Tx6
+ -  Disable "nextCall" procedure for RTTY contest; it still needs work
+ -  Correct a flaw in handling MSK144 Sh messages
+ -  Prevent Fox from inadvertently toggling Tx 1st/Even
+ -  Re-organize the Fox/Hound/Contest selection boxes
+ -  Improve the validators for contest exchange boxes
+ -  Disable Tx after 5 minutes of no mouse movement
+ -  Remove end-of-line AP info when using contest messages
+ -  Fix forwarding of Sent and Rcvd exchanges to N1MM+ and ADIF log
+ -  Don't auto-log a QSO with incomplete exchange info
+ -  Fix two sequencing flaws after double-clicks on a decoded msg
+ -  New facilities for Contest and Fox-mode logging
+ 
+
+		     Release: WSJT-X 2.0-rc3
+		        October 15, 2018
+		     -----------------------
+
+Changes from WSJT-X Version 2.0.0-rc2 include the following:
+
+ - Improved SNR calculation for FT8
+ - Test grid4 (not grid6) for matches in ADIF log
+ - Auto-generate 77-bit messages for callsigns with /R or /P
+ - Fix auto-sequencing for "CQ ABC ...", "CQ ABCD ...", etc.
+ - Fix the "CQ RU RU ..." bug
+ - Implement AP decoding for contest messages and for Hound 
+ - Check Field Day and RTTY Roundup exchanges for validity
+ - Implement "Select next caller" and use of "TU; ..." messages
+ - Option to "auto log" in contests
+ - Real-time display of contest log
+ - Contest exchanges sent to ADIF log and N1MM+
+ - Function to export  Cabrillo log
+ - Convert DXpedition mode to always use 77-bit messages
+ -  Fix bug associated with opening "houndcallers.txt"
+ -  Remove end-of-line numbers from MSK144 decodes
+ -  Finish MSK144 encoding/decoding for Sh msgs and nonstandard calls
+ -  Halt Tx before resetting power after Tune
+ -  Auto update of LoTW info, and faster program startup
+
+
+		     Release: WSJT-X 2.0-rc2
+		        September 25, 2018
+		     -----------------------
+Changes from WSJT-X Version 2.0.0-rc1 include the following:
+
+ - Corrected a flaw that encoded a message's first callsign as
+   hexadecimal telemetry data if the call consisted only of letters
+   A-F and digits 0-9.
+
+ - Corrected program logic that failed to identify certain callsigns
+   as "nonstandard".
+
+ - Fixed a bug that color-highlighted bare CQ messages (no grid
+   locator) as "New DXCC".
+
+ - Fixed a bug that failed to log Report Sent if MyCall is a
+   nonstandard call.
+
+ - Fixed a bug that generated incorrect MSK144 tones for certain
+   messages and caused a "memory" effect on stations receiving the
+   incorrect tones.
+
+ - Fixed several bugs that could cause certain Tx messages to crash
+   the program.
+
+ - Suppressed the display of certain illogical false decodes.
+
+
+		     Release: WSJT-X 2.0-rc1
+		        September 17, 2018
+		     -----------------------
+
+This is the first candidate release on WSJT-X 2.0, intended for
+beta-level testing.  For details see:
+
+http://physics.princeton.edu/pulsar/k1jt/New_Features_WSJT-X_2.0.txt
+http://physics.princeton.edu/pulsar/k1jt/Quick_Start_WSJT-X_2.0.pdf
+http://physics.princeton.edu/pulsar/k1jt/77bit.txt
 
 
 		   Release: WSJT-X Version 1.9.1

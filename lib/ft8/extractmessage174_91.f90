@@ -17,7 +17,7 @@ subroutine extractmessage174_91(decoded,msgreceived,ncrcflag)
   read(cbits,1002) ncrc14                         !Received CRC12
 1002 format(77x,b14)
 
-  i1Dec8BitBytes(10)=iand(i1Dec8BitBytes(10),128+64+32+16+8)
+  i1Dec8BitBytes(10)=iand(i1Dec8BitBytes(10),transfer(128+64+32+16+8,0_1))
   i1Dec8BitBytes(11:12)=0
   icrc14=crc14(c_loc(i1Dec8BitBytes),12)          !CRC12 computed from 75 msg bits
 
@@ -26,7 +26,7 @@ subroutine extractmessage174_91(decoded,msgreceived,ncrcflag)
     do ibyte=1,12
       itmp=0
       do ibit=1,6
-        itmp=ishft(itmp,1)+iand(1,decoded((ibyte-1)*6+ibit))
+        itmp=ishft(itmp,1)+iand(1_1,decoded((ibyte-1)*6+ibit))
       enddo
       i4Dec6BitWords(ibyte)=itmp
     enddo

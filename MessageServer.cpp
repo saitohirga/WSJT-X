@@ -224,7 +224,7 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
               break;
 
             case NetworkMessage::Clear:
-              Q_EMIT self_->clear_decodes (id);
+              Q_EMIT self_->decodes_cleared (id);
               break;
 
             case NetworkMessage::Status:
@@ -452,6 +452,18 @@ void MessageServer::start (port_type port, QHostAddress const& multicast_group_a
         {
           m_->port_ = 0;
         }
+    }
+}
+
+void MessageServer::clear_decodes (QString const& id, quint8 window)
+{
+  auto iter = m_->clients_.find (id);
+  if (iter != std::end (m_->clients_))
+    {
+      QByteArray message;
+      NetworkMessage::Builder out {&message, NetworkMessage::Clear, id, (*iter).negotiated_schema_number_};
+      out << window;
+      m_->send_message (out, message, iter.value ().sender_address_, (*iter).sender_port_);
     }
 }
 

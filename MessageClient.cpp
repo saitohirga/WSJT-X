@@ -188,6 +188,18 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
               }
               break;
 
+            case NetworkMessage::Clear:
+              {
+                quint8 window {0};
+                in >> window;
+                TRACE_UDP ("Clear window:" << window);
+                if (check_status (in) != Fail)
+                  {
+                    Q_EMIT self_->clear_decodes (window);
+                  }
+              }
+              break;
+
             case NetworkMessage::Replay:
               TRACE_UDP ("Replay");
               if (check_status (in) != Fail)
@@ -477,7 +489,7 @@ void MessageClient::WSPR_decode (bool is_new, QTime time, qint32 snr, float delt
     }
 }
 
-void MessageClient::clear_decodes ()
+void MessageClient::decodes_cleared ()
 {
    if (m_->server_port_ && !m_->server_string_.isEmpty ())
     {
