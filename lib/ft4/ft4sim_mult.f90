@@ -21,8 +21,8 @@ program ft4sim_mult
 ! Get command-line argument(s)
   nargs=iargc()
   if(nargs.ne.2) then
-     print*,'Usage:    ft4sim nsigs nfiles'
-     print*,'Example:  ft4sim  20     8 '
+     print*,'Usage:    ft4sim_mult nsigs nfiles'
+     print*,'Example:  ft4sim_mult  20     8 '
      go to 999
   endif
   call getarg(1,arg)

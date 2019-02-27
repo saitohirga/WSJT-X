@@ -24,10 +24,10 @@ program ft4sim
 ! Get command-line argument(s)
   nargs=iargc()
   if(nargs.ne.8) then
-     print*,'Usage:    ft4sim "message"                 f0     DT fdop del width nfiles snr'
-     print*,'Examples: ft4sim "K1ABC W9XYZ EN37"       1500.0 0.0  0.1 1.0   0     10   -18'
-     print*,'          ft4sim "WA9XYZ/R KA1ABC/R FN42" 1500.0 0.0  0.1 1.0   0     10   -18'
-     print*,'          ft4sim "K1ABC RR73; W9XYZ <KH1/KH7Z> -11" 300 0 0 0 25 1 -10'
+     print*,'Usage:    ft4sim "message"                 f0     DT fdop del nfiles snr'
+     print*,'Examples: ft4sim "K1ABC W9XYZ EN37"       1500.0 0.0  0.1 1.0   10   -15'
+     print*,'          ft4sim "WA9XYZ/R KA1ABC/R FN42" 1500.0 0.0  0.1 1.0   10   -15'
+     print*,'          ft4sim "K1ABC RR73; W9XYZ <KH1/KH7Z> -11" 300 0 0 0 1 -10'
      go to 999
   endif
   call getarg(1,msg37)                   !Message to be transmitted
@@ -40,10 +40,8 @@ program ft4sim
   call getarg(5,arg)
   read(arg,*) delay                      !Watterson delay (ms)
   call getarg(6,arg)
-  read(arg,*) width                      !Filter transition width (Hz)
-  call getarg(7,arg)
   read(arg,*) nfiles                     !Number of files
-  call getarg(8,arg)
+  call getarg(7,arg)
   read(arg,*) snrdb                      !SNR_2500
 
   nfiles=abs(nfiles)
@@ -125,7 +123,6 @@ program ft4sim
      wave=real(c)
      peak=maxval(abs(wave(ia:ib)))
      nslots=1
-     if(width.gt.0.0) call filt8(f0,nslots,width,wave)
    
      if(snrdb.lt.90) then
         do i=1,NMAX                   !Add gaussian noise at specified SNR
