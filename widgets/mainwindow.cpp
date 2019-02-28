@@ -4849,12 +4849,17 @@ void MainWindow::genCQMsg ()
     }
 
     QString t=ui->tx6->text();
-    if((m_mode=="FT8" or m_mode=="MSK144") and SpecOp::NONE != m_config.special_op_id() and
-       t.split(" ").at(1)==m_config.my_callsign() and stdCall(m_config.my_callsign())) {
+    if((m_mode=="FT4" or m_mode=="FT8" or m_mode=="MSK144") and
+       SpecOp::NONE != m_config.special_op_id() and
+       t.split(" ").at(1)==m_config.my_callsign() and
+       stdCall(m_config.my_callsign())) {
       if(SpecOp::NA_VHF == m_config.special_op_id())    t="CQ TEST" + t.mid(2,-1);
       if(SpecOp::EU_VHF == m_config.special_op_id())    t="CQ TEST" + t.mid(2,-1);
       if(SpecOp::FIELD_DAY == m_config.special_op_id()) t="CQ FD" + t.mid(2,-1);
-      if(SpecOp::RTTY == m_config.special_op_id())      t="CQ RU" + t.mid(2,-1);
+      if(SpecOp::RTTY == m_config.special_op_id()) {
+        if(m_config.RTTY_Exchange()!="SCC")             t="CQ RU" + t.mid(2,-1);
+        if(m_config.RTTY_Exchange()=="SCC")             t="CQ SCC" + t.mid(2,-1);
+      }
       ui->tx6->setText(t);
     }
   } else {
