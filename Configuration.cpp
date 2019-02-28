@@ -209,6 +209,7 @@ namespace
           |LB|NU|YT|PEI
           |DC                              # District of Columbia
           |DX                              # anyone else
+          |SCC                             # Slovenia Contest Club contest
         )
       )", QRegularExpression::CaseInsensitiveOption | QRegularExpression::ExtendedPatternSyntaxOption};
 

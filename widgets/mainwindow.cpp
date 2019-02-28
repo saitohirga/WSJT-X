@@ -5492,10 +5492,10 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
   if (m_config.clear_DX () and SpecOp::HOUND != m_config.special_op_id()) clearDX ();
   m_dateTimeQSOOn = QDateTime {};
   auto special_op = m_config.special_op_id ();
-  if (SpecOp::NONE < special_op && special_op < SpecOp::FOX)
-    {
-      ui->sbSerialNumber->setValue (ui->sbSerialNumber->value () + 1);
-    }
+  if (SpecOp::NONE < special_op && special_op < SpecOp::FOX &&
+      m_config.RTTY_Exchange()!="SCC") {
+    ui->sbSerialNumber->setValue(ui->sbSerialNumber->value() + 1);
+  }
 
   m_xSent.clear ();
   m_xRcvd.clear ();
@@ -5564,7 +5564,7 @@ void MainWindow::displayWidgets(qint64 n)
     j=j>>1;
   }
   b=SpecOp::EU_VHF==m_config.special_op_id() or (SpecOp::RTTY==m_config.special_op_id() and
-    (m_config.RTTY_Exchange()=="#" or m_config.RTTY_Exchange()=="DX"));
+    (m_config.RTTY_Exchange()=="DX" or m_config.RTTY_Exchange()=="SCC"));
   ui->sbSerialNumber->setVisible(b);
   m_lastCallsign.clear ();     // ensures Tx5 is updated for new modes
   genStdMsgs (m_rpt, true);
@@ -6292,7 +6292,7 @@ void MainWindow::on_reset_cabrillo_log_action_triggered ()
                                                         "They will be kept in the ADIF log file but will not be available "
                                                         "for export in your Cabrillo log.")))
     {
-      ui->sbSerialNumber->setValue (1);
+      if(m_config.RTTY_Exchange()!="SCC") ui->sbSerialNumber->setValue(1);
       if (!m_cabrilloLog) m_cabrilloLog.reset (new CabrilloLog {&m_config});
       m_cabrilloLog->reset ();
     }
