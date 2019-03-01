@@ -1,5 +1,4 @@
 CC = gcc
-#CC = clang-3.5
 FC = gfortran
 
 CFLAGS= -I/usr/include -Wall -Wno-missing-braces -Wno-unused-result -O3 -ffast-math
@@ -19,7 +18,7 @@ LIBS = -lfftw3f -lm -lgfortran
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:    wsprd 
+all:    wsprd wsprsim
 
 DEPS =  wsprsim_utils.h wsprd_utils.h fano.h jelinek.h nhash.h
 
@@ -31,5 +30,10 @@ OBJS1 = wsprd.o wsprsim_utils.o wsprd_utils.o tab.o fano.o jelinek.o nhash.o ind
 wsprd: $(OBJS1)
 	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS) $(LIBS)
 
+OBJS2 = wsprsim.o wsprsim_utils.o wsprd_utils.o tab.o fano.o nhash.o 
+
+wsprsim: $(OBJS2) 
+	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS) $(LIBS)
+
 clean:
-	$(RM) *.o wsprd
+	$(RM) *.o wsprd wsprsim
