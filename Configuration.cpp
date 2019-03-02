@@ -1012,6 +1012,9 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
     });
   lotw_users_.set_local_file_path (writeable_data_dir_.absoluteFilePath ("lotw-user-activity.csv"));
 
+  // load the dictionary if it exists
+  lotw_users_.load (ui_->LotW_CSV_URL_line_edit->text (), false);
+
   //
   // validation
   ui_->callsign_line_edit->setValidator (new CallsignValidator {this});
@@ -2155,7 +2158,7 @@ void Configuration::impl::on_rescan_log_push_button_clicked (bool /*clicked*/)
 
 void Configuration::impl::on_LotW_CSV_fetch_push_button_clicked (bool /*checked*/)
 {
-  lotw_users_.load (ui_->LotW_CSV_URL_line_edit->text (), true);
+  lotw_users_.load (ui_->LotW_CSV_URL_line_edit->text (), true, true);
   ui_->LotW_CSV_fetch_push_button->setEnabled (false);
 }
 
