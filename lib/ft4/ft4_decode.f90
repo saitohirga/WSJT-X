@@ -16,7 +16,6 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    character*6 hhmmss
 
    complex cd2(0:NMAX/NDOWN-1)                  !Complex waveform
-!   complex cds(0:NMAX/NDOWN-1)                  !Complex waveform
    complex cb(0:NMAX/NDOWN-1)
    complex cd(0:NN*NSS-1)                       !Complex waveform
    complex ctwk(4*NSS),ctwk2(4*NSS)
@@ -32,6 +31,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    real savg(NH1),sbase(NH1)
 
    integer apbits(2*ND)
+   integer apmy_ru(28),aphis_fd(28)
    integer nrxx(100)
    integer icos4a(0:3),icos4b(0:3),icos4c(0:3),icos4d(0:3)
    integer*2 iwave(NMAX)                 !Generated full-length waveform
@@ -108,9 +108,6 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
 !   5        MyCall DxCall 73            (77 ap bits)
 !   6        MyCall DxCall RR73          (77 ap bits)
 !********
-! For this contest-oriented mode, OK to only look for RR73??
-! Currently, 2 AP passes in all Txn states except for Tx5.
-!********
       naptypes(0,1:4)=(/1,2,0,0/) ! Tx6 selected (CQ)
       naptypes(1,1:4)=(/2,3,0,0/) ! Tx1
       naptypes(2,1:4)=(/2,3,0,0/) ! Tx2
@@ -131,6 +128,8 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
       apbits=0
       apbits(1)=99
       apbits(30)=99
+      apmy_ru=0
+      aphis_fd=0
 
       if(len(trim(mycall)) .lt. 3) go to 10 
 
@@ -147,6 +146,8 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
       call unpack77(c77,1,msgsent,unpk77_success)
       if(i3.ne.1 .or. (message.ne.msgsent) .or. .not.unpk77_success) go to 10 
       read(c77,'(77i1)') message77
+      apmy_ru=2*mod(message77(1:28)+rvec(2:29),2)-1
+      aphis_fd=2*mod(message77(30:57)+rvec(29:56),2)-1
       message77=mod(message77+rvec,2)
       call encode174_91(message77,cw)
       apbits=2*cw-1
@@ -390,43 +391,31 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
                   llrd(1:28)=apmag*apbits(1:28)
                else if(ncontest.eq.4) then
                   apmask(2:29)=1
-                  llrd(2:29)=apmag*apbits(1:28)
-               else if(ncontest.eq.6) then ! ??? RR73; MyCall <???> ???
-                  apmask(29:56)=1
-                  llrd(29:56)=apmag*apbits(1:28)
+                  llrd(2:29)=apmag*apmy_ru(1:28)
                endif
             endif
 
             if(iaptype.eq.3) then ! MyCall,DxCall,???
                apmask=0
-               if(ncontest.eq.0.or.ncontest.eq.1.or.ncontest.eq.2.or.ncontest.eq.6) then
+               if(ncontest.eq.0.or.ncontest.eq.1.or.ncontest.eq.2) then
                   apmask(1:58)=1
                   llrd(1:58)=apmag*apbits(1:58)
                else if(ncontest.eq.3) then ! Field Day
                   apmask(1:56)=1
                   llrd(1:28)=apmag*apbits(1:28)
-                  llrd(29:56)=apmag*apbits(30:57)
+                  llrd(29:56)=apmag*aphis_fd(1:28)
                else if(ncontest.eq.4) then ! RTTY RU
                   apmask(2:57)=1
-                  llrd(2:29)=apmag*apbits(1:28)
+                  llrd(2:29)=apmag*apmy_ru(1:28)
                   llrd(30:57)=apmag*apbits(30:57)
                endif
             endif
 
-            if(iaptype.eq.5.and.ncontest.eq.6) cycle !Hound
             if(iaptype.eq.4 .or. iaptype.eq.5 .or. iaptype.eq.6) then
                apmask=0
-               if(ncontest.le.4 .or. (ncontest.eq.6.and.iaptype.eq.6)) then
-!                  apmask(1:77)=1   ! mycall, hiscall, RRR|73|RR73
+               if(ncontest.le.4) then
                   apmask(1:91)=1   ! mycall, hiscall, RRR|73|RR73
-                  llrd(1:58)=apmag*apbits(1:58)
-                  if(iaptype.eq.4) llrd(59:77)=apmag*mrrr
-                  if(iaptype.eq.5) llrd(59:77)=apmag*m73
-!                  if(iaptype.eq.6) llrd(59:77)=apmag*mrr73
                   if(iaptype.eq.6) llrd(1:91)=apmag*apbits(1:91)
-               else if(ncontest.eq.6.and.iaptype.eq.4) then ! Hound listens for MyCall RR73;...
-                  apmask(1:28)=1
-                  llrd(1:28)=apmag*apbits(1:28)
                endif
             endif
 

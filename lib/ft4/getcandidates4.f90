@@ -20,8 +20,8 @@ subroutine getcandidates4(id,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
   if(first) then
     first=.false.
     pi=4.0*atan(1.)
-    window=0.5*(1-cos(pi*(/(i,i=1,NFFT1)/)/(NFFT1/2.0)))
-    window=window**2
+    window=0.
+    call nuttal_window(window,NFFT1)
   endif
 
 ! Compute symbol spectra, stepping by NSTEP steps.  
@@ -69,19 +69,5 @@ subroutine getcandidates4(id,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
     endif
   enddo
 
-!  do i=1,maxcand
-!     ipk=maxloc(savsm(nfa:nfb))
-!     ip=nfa-1+ipk(1)
-!     xmax=savsm(ip)
-!     savsm(max(1,ip-8):min(NH1,ip+8))=0.0
-!     if(xmax.ge.syncmin) then
-!        ncand=ncand+1
-!        candidate(1,ncand)=ip*df+f_offset 
-!        candidate(2,ncand)=-99.9
-!        candidate(3,ncand)=xmax
-!     else
-!        exit
-!     endif
-!  enddo
 return
 end subroutine getcandidates4
