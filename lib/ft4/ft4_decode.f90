@@ -1,5 +1,5 @@
 subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
-   iwave,ndecodes,mycall,hiscall,nrx,line,data_dir)
+   iwave,ndecodes,mycall,hiscall,cqstr,nrx,line,data_dir)
 
    use packjt77
    include 'ft4_params.f90'
@@ -14,6 +14,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    character*12 mycall,hiscall
    character*12 mycall0,hiscall0
    character*6 hhmmss
+   character*4 cqstr,cqstr0
 
    complex cd2(0:NMAX/NDOWN-1)                  !Complex waveform
    complex cb(0:NMAX/NDOWN-1)
@@ -41,7 +42,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    integer ip(1)
    integer nappasses(0:5)    ! # of decoding passes for QSO States 0-5
    integer naptypes(0:5,4)   ! nQSOProgress, decoding pass
-   integer mcq(29),mcqru(29),mcqfd(29),mcqtest(29)
+   integer mcq(29)
    integer mrrr(19),m73(19),mrr73(19)
 
    logical nohiscall,unpk77_success
@@ -56,9 +57,6 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    data msg0/' '/
    data first/.true./
    data     mcq/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0/
-   data   mcqru/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,0,0,1,1,0,0/
-   data   mcqfd/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,1,0/
-   data mcqtest/0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,0,1,0,1,1,1,1,1,1,0,0,1,0/
    data    mrrr/0,1,1,1,1,1,1,0,1,0,0,1,0,0,1,0,0,0,1/
    data     m73/0,1,1,1,1,1,1,0,1,0,0,1,0,1,0,0,0,0,1/
    data   mrr73/0,1,1,1,1,1,1,0,0,1,1,1,0,1,0,1,0,0,1/
@@ -66,7 +64,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
       1,0,0,1,0,1,1,0,0,0,0,1,0,0,0,1,0,1,0,0,1,1,1,1,0,0,1,0,1, &
       0,1,0,1,0,1,1,0,1,1,1,1,1,0,0,0,1,0,1/
    save fs,dt,tt,txt,twopi,h,one,first,nrxx,linex,apbits,nappasses,naptypes, &
-      mycall0,hiscall0,msg0
+      mycall0,hiscall0,msg0,cqstr0
    
    call clockit('ft4_deco',0)
    hhmmss=cdatetime0(8:13)
@@ -85,10 +83,6 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
          enddo
       enddo
 
-      mcq=2*mod(mcq+rvec(1:29),2)-1
-      mcqfd=2*mod(mcqfd+rvec(1:29),2)-1
-      mcqru=2*mod(mcqru+rvec(1:29),2)-1
-      mcqtest=2*mod(mcqtest+rvec(1:29),2)-1
       mrrr=2*mod(mrrr+rvec(59:77),2)-1
       m73=2*mod(m73+rvec(59:77),2)-1
       mrr73=2*mod(mrr73+rvec(59:77),2)-1
@@ -117,7 +111,24 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
 
       mycall0=''
       hiscall0=''
+      cqstr0=''
       first=.false.
+   endif
+
+   if(cqstr.ne.cqstr0) then
+      i0=index(cqstr,' ')
+      if(i0.le.1) then 
+         message='CQ A1AA AA01'
+      else
+         message='CQ '//cqstr(1:i0-1)//' A1AA AA01'
+      endif
+      i3=-1
+      n3=-1
+      call pack77(message,i3,n3,c77)
+      call unpack77(c77,1,msgsent,unpk77_success)
+      read(c77,'(29i1)') mcq
+      mcq=2*mod(mcq+rvec(1:29),2)-1
+      cqstr0=cqstr
    endif
 
    l1=index(mycall,char(0))
@@ -367,15 +378,10 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
             if(iaptype.ge.2 .and. apbits(1).gt.1) cycle  ! No, or nonstandard, mycall
             if(iaptype.ge.3 .and. apbits(30).gt.1) cycle ! No, or nonstandard, dxcall
 
-            if(iaptype.eq.1) then  ! CQ or CQ TEST
+            if(iaptype.eq.1) then  ! CQ or CQ TEST or CQ FD or CQ RU or CQ SCC
                apmask=0
                apmask(1:29)=1
-               if(ncontest.eq.0) llrd(1:29)=apmag*mcq(1:29)
-               if(ncontest.eq.1) llrd(1:29)=apmag*mcqtest(1:29)
-               if(ncontest.eq.2) llrd(1:29)=apmag*mcqtest(1:29)
-               if(ncontest.eq.3) llrd(1:29)=apmag*mcqfd(1:29)
-               if(ncontest.eq.4) llrd(1:29)=apmag*mcqru(1:29)
-               if(ncontest.eq.6) llrd(1:29)=apmag*mcq(1:29)
+               llrd(1:29)=apmag*mcq(1:29)
             endif
 
             if(iaptype.eq.2) then ! MyCall,???,???
