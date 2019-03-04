@@ -8737,6 +8737,7 @@ void MainWindow::ft4Data(int k)
       if(m_bCallingCQ && !m_bAutoReply && for_us && ui->cbFirst->isChecked()) {
         m_bDoubleClicked=true;
         m_bAutoReply = true;
+        processMessage(decodedtext);
         ui->cbFirst->setStyleSheet("");
       }
       if(for_us or (abs(audioFreq - m_wideGraph->rxFreq()) <= 10)) {
@@ -8745,7 +8746,6 @@ void MainWindow::ft4Data(int k)
              m_mode,m_config.DXCC(),m_logBook,m_currentBand,m_config.ppfx());
         m_QSOText = decodedtext.string().trimmed ();
       }
-      processMessage(decodedtext);
       write_all("Rx",decodedtext.string().trimmed());
     }
 //###
