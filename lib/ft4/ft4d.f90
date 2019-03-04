@@ -8,6 +8,7 @@ program ft4d
    character*12 hiscall
    character*80 infile
    character*61 line
+   character*4  cqstr
    real*8 fMHz
    integer ihdr(11)
    integer*2 iwave(180000)                !15*12000
@@ -44,11 +45,12 @@ program ft4d
    endif
    nfa=0
    nfb=4224
-   ncontest=4
    ndecodes=0
    nfqso=1500
    mycall="K9AN"
    hiscall="K1JT"
+   ncontest=4
+   cqstr="RU  "
 
    do ifile=iarg,nargs
       call getarg(ifile,infile)
@@ -66,7 +68,7 @@ program ft4d
          i0=(n-1)*istep + 1
          tbuf=(i0-1)/12000.0
          call ft4_decode(cdatetime,tbuf,nfa,nfb,nQSOProgress,ncontest,    &
-              nfqso,iwave(i0),ndecodes,mycall,hiscall,nrx,line,data_dir)
+              nfqso,iwave(i0),ndecodes,mycall,hiscall,cqstr,nrx,line,data_dir)
          do idecode=1,ndecodes
             call get_ft4msg(idecode,nrx,line)
             write(*,'(a61)') line
