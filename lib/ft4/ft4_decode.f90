@@ -1,5 +1,5 @@
 subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
-   iwave,ndecodes,mycall,hiscall,nrx,line,data_dir)
+   iwave,ndecodes,mycall,hiscall,cqstr,nrx,line,data_dir)
 
    use packjt77
    include 'ft4_params.f90'
@@ -14,9 +14,9 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    character*12 mycall,hiscall
    character*12 mycall0,hiscall0
    character*6 hhmmss
+   character*4 cqstr,cqstr0
 
    complex cd2(0:NMAX/NDOWN-1)                  !Complex waveform
-!   complex cds(0:NMAX/NDOWN-1)                  !Complex waveform
    complex cb(0:NMAX/NDOWN-1)
    complex cd(0:NN*NSS-1)                       !Complex waveform
    complex ctwk(4*NSS),ctwk2(4*NSS)
@@ -32,6 +32,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    real savg(NH1),sbase(NH1)
 
    integer apbits(2*ND)
+   integer apmy_ru(28),aphis_fd(28)
    integer nrxx(100)
    integer icos4a(0:3),icos4b(0:3),icos4c(0:3),icos4d(0:3)
    integer*2 iwave(NMAX)                 !Generated full-length waveform
@@ -41,7 +42,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    integer ip(1)
    integer nappasses(0:5)    ! # of decoding passes for QSO States 0-5
    integer naptypes(0:5,4)   ! nQSOProgress, decoding pass
-   integer mcq(29),mcqru(29),mcqfd(29),mcqtest(29)
+   integer mcq(29)
    integer mrrr(19),m73(19),mrr73(19)
 
    logical nohiscall,unpk77_success
@@ -56,9 +57,6 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    data msg0/' '/
    data first/.true./
    data     mcq/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0/
-   data   mcqru/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,0,0,1,1,0,0/
-   data   mcqfd/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,1,0/
-   data mcqtest/0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,0,1,0,1,1,1,1,1,1,0,0,1,0/
    data    mrrr/0,1,1,1,1,1,1,0,1,0,0,1,0,0,1,0,0,0,1/
    data     m73/0,1,1,1,1,1,1,0,1,0,0,1,0,1,0,0,0,0,1/
    data   mrr73/0,1,1,1,1,1,1,0,0,1,1,1,0,1,0,1,0,0,1/
@@ -66,7 +64,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
       1,0,0,1,0,1,1,0,0,0,0,1,0,0,0,1,0,1,0,0,1,1,1,1,0,0,1,0,1, &
       0,1,0,1,0,1,1,0,1,1,1,1,1,0,0,0,1,0,1/
    save fs,dt,tt,txt,twopi,h,one,first,nrxx,linex,apbits,nappasses,naptypes, &
-      mycall0,hiscall0,msg0
+      mycall0,hiscall0,msg0,cqstr0
    
    call clockit('ft4_deco',0)
    hhmmss=cdatetime0(8:13)
@@ -85,10 +83,6 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
          enddo
       enddo
 
-      mcq=2*mod(mcq+rvec(1:29),2)-1
-      mcqfd=2*mod(mcqfd+rvec(1:29),2)-1
-      mcqru=2*mod(mcqru+rvec(1:29),2)-1
-      mcqtest=2*mod(mcqtest+rvec(1:29),2)-1
       mrrr=2*mod(mrrr+rvec(59:77),2)-1
       m73=2*mod(m73+rvec(59:77),2)-1
       mrr73=2*mod(mrr73+rvec(59:77),2)-1
@@ -108,9 +102,6 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
 !   5        MyCall DxCall 73            (77 ap bits)
 !   6        MyCall DxCall RR73          (77 ap bits)
 !********
-! For this contest-oriented mode, OK to only look for RR73??
-! Currently, 2 AP passes in all Txn states except for Tx5.
-!********
       naptypes(0,1:4)=(/1,2,0,0/) ! Tx6 selected (CQ)
       naptypes(1,1:4)=(/2,3,0,0/) ! Tx1
       naptypes(2,1:4)=(/2,3,0,0/) ! Tx2
@@ -120,7 +111,24 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
 
       mycall0=''
       hiscall0=''
+      cqstr0=''
       first=.false.
+   endif
+
+   if(cqstr.ne.cqstr0) then
+      i0=index(cqstr,' ')
+      if(i0.le.1) then 
+         message='CQ A1AA AA01'
+      else
+         message='CQ '//cqstr(1:i0-1)//' A1AA AA01'
+      endif
+      i3=-1
+      n3=-1
+      call pack77(message,i3,n3,c77)
+      call unpack77(c77,1,msgsent,unpk77_success)
+      read(c77,'(29i1)') mcq
+      mcq=2*mod(mcq+rvec(1:29),2)-1
+      cqstr0=cqstr
    endif
 
    l1=index(mycall,char(0))
@@ -131,6 +139,8 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
       apbits=0
       apbits(1)=99
       apbits(30)=99
+      apmy_ru=0
+      aphis_fd=0
 
       if(len(trim(mycall)) .lt. 3) go to 10 
 
@@ -147,6 +157,8 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
       call unpack77(c77,1,msgsent,unpk77_success)
       if(i3.ne.1 .or. (message.ne.msgsent) .or. .not.unpk77_success) go to 10 
       read(c77,'(77i1)') message77
+      apmy_ru=2*mod(message77(1:28)+rvec(2:29),2)-1
+      aphis_fd=2*mod(message77(30:57)+rvec(29:56),2)-1
       message77=mod(message77+rvec,2)
       call encode174_91(message77,cw)
       apbits=2*cw-1
@@ -366,15 +378,10 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
             if(iaptype.ge.2 .and. apbits(1).gt.1) cycle  ! No, or nonstandard, mycall
             if(iaptype.ge.3 .and. apbits(30).gt.1) cycle ! No, or nonstandard, dxcall
 
-            if(iaptype.eq.1) then  ! CQ or CQ TEST
+            if(iaptype.eq.1) then  ! CQ or CQ TEST or CQ FD or CQ RU or CQ SCC
                apmask=0
                apmask(1:29)=1
-               if(ncontest.eq.0) llrd(1:29)=apmag*mcq(1:29)
-               if(ncontest.eq.1) llrd(1:29)=apmag*mcqtest(1:29)
-               if(ncontest.eq.2) llrd(1:29)=apmag*mcqtest(1:29)
-               if(ncontest.eq.3) llrd(1:29)=apmag*mcqfd(1:29)
-               if(ncontest.eq.4) llrd(1:29)=apmag*mcqru(1:29)
-               if(ncontest.eq.6) llrd(1:29)=apmag*mcq(1:29)
+               llrd(1:29)=apmag*mcq(1:29)
             endif
 
             if(iaptype.eq.2) then ! MyCall,???,???
@@ -390,43 +397,31 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
                   llrd(1:28)=apmag*apbits(1:28)
                else if(ncontest.eq.4) then
                   apmask(2:29)=1
-                  llrd(2:29)=apmag*apbits(1:28)
-               else if(ncontest.eq.6) then ! ??? RR73; MyCall <???> ???
-                  apmask(29:56)=1
-                  llrd(29:56)=apmag*apbits(1:28)
+                  llrd(2:29)=apmag*apmy_ru(1:28)
                endif
             endif
 
             if(iaptype.eq.3) then ! MyCall,DxCall,???
                apmask=0
-               if(ncontest.eq.0.or.ncontest.eq.1.or.ncontest.eq.2.or.ncontest.eq.6) then
+               if(ncontest.eq.0.or.ncontest.eq.1.or.ncontest.eq.2) then
                   apmask(1:58)=1
                   llrd(1:58)=apmag*apbits(1:58)
                else if(ncontest.eq.3) then ! Field Day
                   apmask(1:56)=1
                   llrd(1:28)=apmag*apbits(1:28)
-                  llrd(29:56)=apmag*apbits(30:57)
+                  llrd(29:56)=apmag*aphis_fd(1:28)
                else if(ncontest.eq.4) then ! RTTY RU
                   apmask(2:57)=1
-                  llrd(2:29)=apmag*apbits(1:28)
+                  llrd(2:29)=apmag*apmy_ru(1:28)
                   llrd(30:57)=apmag*apbits(30:57)
                endif
             endif
 
-            if(iaptype.eq.5.and.ncontest.eq.6) cycle !Hound
             if(iaptype.eq.4 .or. iaptype.eq.5 .or. iaptype.eq.6) then
                apmask=0
-               if(ncontest.le.4 .or. (ncontest.eq.6.and.iaptype.eq.6)) then
-!                  apmask(1:77)=1   ! mycall, hiscall, RRR|73|RR73
+               if(ncontest.le.4) then
                   apmask(1:91)=1   ! mycall, hiscall, RRR|73|RR73
-                  llrd(1:58)=apmag*apbits(1:58)
-                  if(iaptype.eq.4) llrd(59:77)=apmag*mrrr
-                  if(iaptype.eq.5) llrd(59:77)=apmag*m73
-!                  if(iaptype.eq.6) llrd(59:77)=apmag*mrr73
                   if(iaptype.eq.6) llrd(1:91)=apmag*apbits(1:91)
-               else if(ncontest.eq.6.and.iaptype.eq.4) then ! Hound listens for MyCall RR73;...
-                  apmask(1:28)=1
-                  llrd(1:28)=apmag*apbits(1:28)
                endif
             endif
 

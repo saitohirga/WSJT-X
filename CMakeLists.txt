@@ -512,6 +512,7 @@ set (wsjt_FSRCS
   lib/msk144signalquality.f90
   lib/msk144sim.f90
   lib/mskrtd.f90
+  lib/nuttal_window.f90
   lib/ft4/ft4sim.f90
   lib/ft4/ft4sim_mult.f90
   lib/ft4/ft4_decode.f90

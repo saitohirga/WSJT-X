@@ -171,8 +171,8 @@ extern "C" {
 
   void ft4_decode_(char* cdatetime, float* tbuf, int* nfa, int* nfb, int* nQSOProgress,
                    int* nContest, int* nfqso, short int id[], int* ndecodes, char* mycall,
-                   char* hiscall, int* nrx, char* line, char* ddir, int len1, int len2,
-                   int len3, int len4, int len5);
+                   char* hiscall, char* cqstr, int* nrx, char* line, char* ddir, int len1,
+                   int len2, int len3, int len4, int len5, int len6);
 
   void get_ft4msg_(int* idecode, int* nrx, char* line, int len);
 
@@ -8714,8 +8714,17 @@ void MainWindow::ft4Data(int k)
   dataDir = m_config.writeable_data_dir ().absolutePath ();
   char ddir[512];
   strncpy(ddir,dataDir.toLatin1(), sizeof (ddir) - 1);
+  char cqstr[4];
+  strncpy(cqstr,"    ",4);
+  if(SpecOp::NA_VHF == m_config.special_op_id()) strncpy(cqstr,"TEST",4);
+  if(SpecOp::EU_VHF == m_config.special_op_id()) strncpy(cqstr,"TEST",4);
+  if(SpecOp::FIELD_DAY == m_config.special_op_id()) strncpy(cqstr,"FD",2);
+  if(SpecOp::RTTY == m_config.special_op_id()) {
+        if(m_config.RTTY_Exchange()!="SCC") strncpy(cqstr,"RU",2);
+        if(m_config.RTTY_Exchange()=="SCC") strncpy(cqstr,"SCC",3);
+  }
   ft4_decode_(cdatetime,&tbuf,&nfa,&nfb,&nQSOProgress,&nContest,&nfqso,id,&ndecodes,&mycall[0],&hiscall[0],
-              &nrx,&line[0],&ddir[0],17,12,12,61,512);
+              &cqstr[0],&nrx,&line[0],&ddir[0],17,12,12,4,61,512);
   line[60]=0;
   for (int idecode=1; idecode<=ndecodes; idecode++) {
     get_ft4msg_(&idecode,&nrx,&line[0],61);

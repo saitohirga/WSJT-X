@@ -50,18 +50,8 @@ subroutine symspec(shared_data,k,ntrperiod,nsps,ingain,bLowSidelobes,    &
   if(nfft3.ne.nfft3z) then
 ! Compute new window
      pi=4.0*atan(1.0)
-! Coefficients taken from equation 37 of NUSC report:
-! "Some windows with very good sidelobe behavior: application to 
-! discrete Hilbert Transform, by Albert Nuttall"
-     a0=0.3635819
-     a1=-0.4891775;
-     a2=0.1365995;
-     a3=-0.0106411;
-     do i=1,nfft3
-        w3(i)=a0+a1*cos(2*pi*(i-1)/(nfft3))+ &
-             a2*cos(4*pi*(i-1)/(nfft3))+ &
-             a3*cos(6*pi*(i-1)/(nfft3))
-     enddo
+     w3=0
+     call nuttal_window(w3,nfft3)
      nfft3z=nfft3
   endif
 
