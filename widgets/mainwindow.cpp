@@ -4272,6 +4272,7 @@ void MainWindow::on_txb6_clicked()
 
 void MainWindow::doubleClickOnCall2(Qt::KeyboardModifiers modifiers)
 {
+  if(m_mode=="FT4" and m_inQSOwith!="") return;
   set_dateTimeQSO(-1); // reset our QSO start time
   m_decodedText2=true;
   doubleClickOnCall(modifiers);
@@ -4280,6 +4281,7 @@ void MainWindow::doubleClickOnCall2(Qt::KeyboardModifiers modifiers)
 
 void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
 {
+  if(m_mode=="FT4" and m_inQSOwith!="") return;
   QTextCursor cursor;
   if(m_mode=="ISCAT") {
     MessageBox::information_message (this,
@@ -5459,6 +5461,7 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
                         m_dateTimeQSOOn, dateTimeQSOOff, m_freqNominal +
                         ui->TxFreqSpinBox->value(), m_noSuffix, m_xSent, m_xRcvd,
                         m_cabrilloLog.data ());
+  m_inQSOwith="";
 }
 
 void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, QString const& grid
@@ -8751,7 +8754,7 @@ void MainWindow::ft4_rx(int k)
         // (Is that the best logic to use here??)
         ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_baseCall,
              m_mode,m_config.DXCC(),m_logBook,m_currentBand,m_config.ppfx());
-        processMessage(decodedtext);
+        if(decodedtext.string().trimmed().contains(m_inQSOwith)) processMessage(decodedtext);
         m_QSOText = decodedtext.string().trimmed ();
       }
       write_all("Rx",decodedtext.string().trimmed());
@@ -8780,6 +8783,7 @@ void MainWindow::ft4_tx(int ntx)
   if(m_ntx == 5) ba=ui->tx5->currentText().toLocal8Bit();
   if(m_ntx == 6) ba=ui->tx6->text().toLocal8Bit();
   QString msg = QString::fromLatin1(ba.data());
+  if(m_ntx==2 or m_ntx==3) m_inQSOwith=m_hisCall;
   if(msg.trimmed().length()==0) return;   //Don't transmit a blank message, or ...
   if(m_diskData) return;                  //... in response to a decode from disk
   ba2msg(ba,message);

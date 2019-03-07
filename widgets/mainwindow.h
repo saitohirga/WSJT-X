@@ -617,6 +617,7 @@ private:
   QString m_nextCall;
   QString m_nextGrid;
   QString m_fileDateTime;
+  QString m_inQSOwith;
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;
