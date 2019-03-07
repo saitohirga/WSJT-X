@@ -312,7 +312,7 @@ private slots:
   void on_comboBoxHoundSort_activated (int index);
   void not_GA_warning_message ();
   void checkMSK144ContestType();
-  void ft4Data(int k);
+  void ft4_rx(int k);
   void ft4_tx(int ntx);
   int  setTxMsg(int n);
   bool stdCall(QString const& w);

@@ -1384,7 +1384,7 @@ void MainWindow::dataSink(qint64 frames)
   if(m_monitoring || m_diskData) {
     m_wideGraph->dataSink2(s,m_df3,m_ihsym,m_diskData);
   }
-  if(m_mode=="FT4") ft4Data(k);
+  if(m_mode=="FT4") ft4_rx(k);
   if(m_mode=="MSK144" or m_mode=="FT4") return;
 
   fixStop();
@@ -3851,20 +3851,20 @@ void MainWindow::guiUpdate()
       }
     }
 
-      switch (m_ntx)
-        {
-        case 1: m_QSOProgress = REPLYING; break;
-        case 2: m_QSOProgress = REPORT; break;
-        case 3: m_QSOProgress = ROGER_REPORT; break;
-        case 4: m_QSOProgress = ROGERS; break;
-        case 5: m_QSOProgress = SIGNOFF; break;
-        case 6: m_QSOProgress = CALLING; break;
-        default: break;             // determined elsewhere
-        }
-      m_transmitting = true;
-      transmitDisplay (true);
-      statusUpdate ();
+    switch (m_ntx)
+    {
+      case 1: m_QSOProgress = REPLYING; break;
+      case 2: m_QSOProgress = REPORT; break;
+      case 3: m_QSOProgress = ROGER_REPORT; break;
+      case 4: m_QSOProgress = ROGERS; break;
+      case 5: m_QSOProgress = SIGNOFF; break;
+      case 6: m_QSOProgress = CALLING; break;
+      default: break;             // determined elsewhere
     }
+    m_transmitting = true;
+    transmitDisplay (true);
+    statusUpdate ();
+  }
 
   if(!m_btxok && m_btxok0 && g_iptt==1) stopTx();
 
@@ -4375,7 +4375,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     hiscall+="/P";
     ui->dxCallEntry->setText(hiscall);
   }
-
   bool is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
   if (!is_73 and !message.isStandardMessage() and !message.string().contains("<")) {
     qDebug () << "Not processing message - hiscall:" << hiscall << "hisgrid:" << hisgrid
@@ -4534,6 +4533,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
           } else {
             m_bTUmsg=false;
             m_nextCall="";   //### Temporary: disable use of "TU;" message
+
             if(SpecOp::RTTY == m_config.special_op_id() and m_nextCall!="") {
 // We're in RTTY contest and have "nextCall" queued up: send a "TU; ..." message
               logQSOTimer.start(0);
@@ -4740,6 +4740,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     // i.e. compound version of same base call
     ui->dxCallEntry->setText (hiscall);
   }
+
   if (hisgrid.contains (grid_regexp)) {
     if(ui->dxGridEntry->text().mid(0,4) != hisgrid) ui->dxGridEntry->setText(hisgrid);
   }
@@ -5605,7 +5606,7 @@ void MainWindow::on_actionFT4_triggered()
   ui->label_7->setText("Rx Frequency");
   ui->label_6->setText("Band Activity");
   ui->decodedTextLabel->setText( "  UTC   dB   DT Freq    Message");
-  displayWidgets(nWidgets("111010000100111000010000100110001"));
+  displayWidgets(nWidgets("011010000100111000010000100110001"));
   ui->txrb2->setEnabled(true);
   ui->txrb4->setEnabled(true);
   ui->txrb5->setEnabled(true);
@@ -5616,9 +5617,7 @@ void MainWindow::on_actionFT4_triggered()
   ui->txb6->setEnabled(true);
   ui->txFirstCheckBox->setEnabled(true);
   ui->cbAutoSeq->setEnabled(true);
-  ui->labDXped->setVisible(false);
   ui->labDXped->setText("");
-
   ui->labDXped->setVisible(false);
   if (SpecOp::RTTY == m_config.special_op_id ()) {
     ui->labDXped->setVisible(true);
@@ -8649,7 +8648,7 @@ void MainWindow::write_all(QString txRx, QString message)
   }
 }
 
-void MainWindow::ft4Data(int k)
+void MainWindow::ft4_rx(int k)
 {
   static int nhsec0=-1;
   static bool wrapped=false;
@@ -8734,30 +8733,29 @@ void MainWindow::ft4Data(int k)
     ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_mode,
                    m_config.DXCC(),m_logBook,m_currentBand,m_config.ppfx());
 
-//###
-    //Right (Rx Frequency) window
+//Right (Rx Frequency) window
     int audioFreq=decodedtext.frequencyOffset();
     auto const& parts = decodedtext.string().remove("<").remove(">")
         .split (' ', QString::SkipEmptyParts);
-    if (parts.size () > 6) {
-      auto for_us = parts[5].contains (m_baseCall)
-          || ("DE" == parts[5] && qAbs (ui->RxFreqSpinBox->value () - audioFreq) <= 10);
+    if(parts.size() > 6) {
+      auto for_us = parts[5].contains(m_baseCall)
+          || ("DE" == parts[5] && qAbs(ui->TxFreqSpinBox->value() - audioFreq) <= 150);
       if(m_baseCall==m_config.my_callsign() and m_baseCall!=parts[5]) for_us=false;
       if(m_bCallingCQ && !m_bAutoReply && for_us && ui->cbFirst->isChecked()) {
         m_bDoubleClicked=true;
         m_bAutoReply = true;
-        processMessage(decodedtext);
         ui->cbFirst->setStyleSheet("");
       }
-      if(for_us or (abs(audioFreq - m_wideGraph->rxFreq()) <= 10)) {
-        // This msg is within 10 hertz of our tuned frequency, or contains MyCall
+      if(for_us or ((qAbs(audioFreq - ui->TxFreqSpinBox->value()) <= 150) and parts[5]!="CQ")) {
+        // This msg contains MyCall, or is within 150 hertz of our Tx frequency
+        // (Is that the best logic to use here??)
         ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_baseCall,
              m_mode,m_config.DXCC(),m_logBook,m_currentBand,m_config.ppfx());
+        processMessage(decodedtext);
         m_QSOText = decodedtext.string().trimmed ();
       }
       write_all("Rx",decodedtext.string().trimmed());
     }
-//###
   }
   nhsec0=nhsec;
   if(m_diskData and (k > (dec_data.params.kin-istep))) m_startAnother=m_loopall;
