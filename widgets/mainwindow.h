@@ -312,7 +312,7 @@ private slots:
   void on_comboBoxHoundSort_activated (int index);
   void not_GA_warning_message ();
   void checkMSK144ContestType();
-  void ft4Data(int k);
+  void ft4_rx(int k);
   void ft4_tx(int ntx);
   int  setTxMsg(int n);
   bool stdCall(QString const& w);
@@ -617,6 +617,7 @@ private:
   QString m_nextCall;
   QString m_nextGrid;
   QString m_fileDateTime;
+  QString m_inQSOwith;
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;
