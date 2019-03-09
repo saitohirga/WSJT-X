@@ -110,7 +110,7 @@ program ft4sim
   c0((NN+1)*NSPS:(NN+2)*NSPS-1)=c0((NN+1)*NSPS:(NN+2)*NSPS-1)*(1.0+cos(twopi*(/(i,i=0,NSPS-1)/)/(2.0*NSPS) ))/2.0
   c0((NN+2)*NSPS:)=0.
 
-  k=nint((xdt+0.25)/dt)
+  k=nint((xdt+0.14)/dt)
   c0=cshift(c0,-k)
   ia=k
 
