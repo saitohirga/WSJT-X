@@ -1,5 +1,5 @@
 subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
-   iwave,ndecodes,mycall,hiscall,cqstr,nrx,line,data_dir)
+   iwave,ndecodes,mycall,hiscall,cqstr,line,data_dir)
 
    use packjt77
    include 'ft4_params.f90'
@@ -33,7 +33,6 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
 
    integer apbits(2*ND)
    integer apmy_ru(28),aphis_fd(28)
-   integer nrxx(100)
    integer icos4a(0:3),icos4b(0:3),icos4c(0:3),icos4d(0:3)
    integer*2 iwave(NMAX)                 !Generated full-length waveform
    integer*1 message77(77),rvec(77),apmask(2*ND),cw(2*ND)
@@ -63,7 +62,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    data rvec/0,1,0,0,1,0,1,0,0,1,0,1,1,1,1,0,1,0,0,0,1,0,0,1,1,0,1,1,0, &
       1,0,0,1,0,1,1,0,0,0,0,1,0,0,0,1,0,1,0,0,1,1,1,1,0,0,1,0,1, &
       0,1,0,1,0,1,1,0,1,1,1,1,1,0,0,0,1,0,1/
-   save fs,dt,tt,txt,twopi,h,one,first,nrxx,linex,apbits,nappasses,naptypes, &
+   save fs,dt,tt,txt,twopi,h,one,first,linex,apbits,nappasses,naptypes, &
       mycall0,hiscall0,msg0,cqstr0
    
    call clockit('ft4_deco',0)
@@ -471,23 +470,6 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
             linex(ndecodes)=line
             if(ibest.ge.ibmax-15) msg0=message         !Possible dupe candidate
 
-!### Temporary: assume most recent decoded message conveys "hiscall". ###
-            i0=index(message,' ')
-            if(i0.ge.3 .and. i0.le.7) then
-               hiscall=message(i0+1:i0+6)
-               i1=index(hiscall,' ')
-               if(i1.gt.0) hiscall=hiscall(1:i1)
-            endif
-            nrx=-1
-            if(index(message,'CQ ').eq.1) nrx=1
-            if((index(message,trim(mycall)//' ').eq.1) .and.                 &
-                 (index(message,' '//trim(hiscall)//' ').ge.4)) then
-               if(index(message,' 559 ').gt.8) nrx=2        !### Not right !
-               if(index(message,' R 559 ').gt.8) nrx=3      !### Not right !
-               if(index(message,' RR73 ').gt.8) nrx=4
-            endif
-            nrxx(ndecodes)=nrx
-!###
             exit
 
          endif
@@ -498,9 +480,8 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    call clockit('ft4_deco',101)
    return
 
- entry get_ft4msg(idecode,nrx,line)
+ entry get_ft4msg(idecode,line)
    line=linex(idecode)
-   nrx=nrxx(idecode)
    return
 
 end subroutine ft4_decode

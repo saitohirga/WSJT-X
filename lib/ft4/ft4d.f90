@@ -68,9 +68,9 @@ program ft4d
          i0=(n-1)*istep + 1
          tbuf=(i0-1)/12000.0
          call ft4_decode(cdatetime,tbuf,nfa,nfb,nQSOProgress,ncontest,    &
-              nfqso,iwave(i0),ndecodes,mycall,hiscall,cqstr,nrx,line,data_dir)
+              nfqso,iwave(i0),ndecodes,mycall,hiscall,cqstr,line,data_dir)
          do idecode=1,ndecodes
-            call get_ft4msg(idecode,nrx,line)
+            call get_ft4msg(idecode,line)
             write(*,'(a61)') line
          enddo
       enddo        !steps

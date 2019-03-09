@@ -171,10 +171,10 @@ extern "C" {
 
   void ft4_decode_(char* cdatetime, float* tbuf, int* nfa, int* nfb, int* nQSOProgress,
                    int* nContest, int* nfqso, short int id[], int* ndecodes, char* mycall,
-                   char* hiscall, char* cqstr, int* nrx, char* line, char* ddir, int len1,
+                   char* hiscall, char* cqstr, char* line, char* ddir, int len1,
                    int len2, int len3, int len4, int len5, int len6);
 
-  void get_ft4msg_(int* idecode, int* nrx, char* line, int len);
+  void get_ft4msg_(int* idecode, char* line, int len);
 
 }
 
@@ -8707,7 +8707,6 @@ void MainWindow::ft4_rx(int k)
   char line[61];
   int nfqso=1500;
   int ndecodes=0;
-  int nrx=-1;
   int nfa=m_wideGraph->nStartFreq();
   int nfb=m_wideGraph->Fmax();
   int nQSOProgress = static_cast<int> ( m_QSOProgress );
@@ -8726,10 +8725,10 @@ void MainWindow::ft4_rx(int k)
         if(m_config.RTTY_Exchange()=="SCC") strncpy(cqstr,"SCC",3);
   }
   ft4_decode_(cdatetime,&tbuf,&nfa,&nfb,&nQSOProgress,&nContest,&nfqso,id,&ndecodes,&mycall[0],&hiscall[0],
-              &cqstr[0],&nrx,&line[0],&ddir[0],17,12,12,4,61,512);
+              &cqstr[0],&line[0],&ddir[0],17,12,12,4,61,512);
   line[60]=0;
   for (int idecode=1; idecode<=ndecodes; idecode++) {
-    get_ft4msg_(&idecode,&nrx,&line[0],61);
+    get_ft4msg_(&idecode,&line[0],61);
     line[60]=0;
     QString sline{QString::fromLatin1(line)};
     DecodedText decodedtext {sline.replace(QChar::LineFeed,"")};
@@ -8770,7 +8769,7 @@ void MainWindow::ft4_rx(int k)
 
 void MainWindow::ft4_tx(int ntx)
 {
-  if(g_iptt!=0) return;             //Alreadt transmitting?
+  if(g_iptt!=0) return;             //Already transmitting?
   static char message[38];
   static char msgsent[38];
   QByteArray ba;
