@@ -808,6 +808,9 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
     ui->TxPowerComboBox->addItem(t);
   }
 
+  m_dateTimeRcvdRR73=QDateTime::currentDateTimeUtc();
+  m_dateTimeSentTx3=QDateTime::currentDateTimeUtc();
+
   ui->labAz->setStyleSheet("border: 0px;");
   ui->labAz->setText("");
   auto t = "UTC   dB   DT Freq    Message";
@@ -4377,12 +4380,14 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     hiscall+="/P";
     ui->dxCallEntry->setText(hiscall);
   }
+
   bool is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
   if (!is_73 and !message.isStandardMessage() and !message.string().contains("<")) {
     qDebug () << "Not processing message - hiscall:" << hiscall << "hisgrid:" << hisgrid
               << message.string() << message.isStandardMessage();
     return;
   }
+
 
   // only allow automatic mode changes between JT9 and JT65, and when not transmitting
   if (!m_transmitting and m_mode == "JT9+JT65") {
@@ -4981,6 +4986,15 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       msgtype(t + sent, ui->tx2);
       if(sent==rpt) msgtype(t + "R" + sent, ui->tx3);
       if(sent!=rpt) msgtype(t + "R " + sent, ui->tx3);
+      if(m_mode=="FT4") {
+        QDateTime now=QDateTime::currentDateTimeUtc();
+        int sinceTx3 = m_dateTimeSentTx3.secsTo(now);
+        int sinceRR73 = m_dateTimeRcvdRR73.secsTo(now);
+        if(m_bDoubleClicked and (qAbs(sinceTx3-12) <= 3) and (sinceRR73 < 5)) {
+          t="TU; " + ui->tx3->text();
+          ui->tx3->setText(t);
+        }
+      }
     }
 
     if(m_mode=="MSK144" and m_bShMsgs) {
@@ -8740,15 +8754,16 @@ void MainWindow::ft4_rx(int k)
     auto const& parts = decodedtext.string().remove("<").remove(">")
         .split (' ', QString::SkipEmptyParts);
     if(parts.size() > 6) {
-      auto for_us = parts[5].contains(m_baseCall)
-          || ("DE" == parts[5] && qAbs(ui->TxFreqSpinBox->value() - audioFreq) <= 150);
-      if(m_baseCall==m_config.my_callsign() and m_baseCall!=parts[5]) for_us=false;
+      int iFirstCall=5;
+      if(parts[5]=="TU;") iFirstCall=6;
+      auto for_us = parts[iFirstCall].contains(m_baseCall);
+      if(m_baseCall==m_config.my_callsign() and m_baseCall!=parts[iFirstCall]) for_us=false;
       if(m_bCallingCQ && !m_bAutoReply && for_us && ui->cbFirst->isChecked()) {
         m_bDoubleClicked=true;
         m_bAutoReply = true;
         ui->cbFirst->setStyleSheet("");
       }
-      if(for_us or ((qAbs(audioFreq - ui->TxFreqSpinBox->value()) <= 150) and parts[5]!="CQ")) {
+      if(for_us or ((qAbs(audioFreq - ui->TxFreqSpinBox->value()) <= 150) and parts[iFirstCall]!="CQ")) {
         // This msg contains MyCall, or is within 150 hertz of our Tx frequency
         // (Is that the best logic to use here??)
         ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_baseCall,
@@ -8756,6 +8771,7 @@ void MainWindow::ft4_rx(int k)
         if(decodedtext.string().trimmed().contains(m_inQSOwith)) processMessage(decodedtext);
         m_QSOText = decodedtext.string().trimmed ();
       }
+      if(for_us and parts[iFirstCall+2]=="RR73") m_dateTimeRcvdRR73=QDateTime::currentDateTimeUtc();
       write_all("Rx",decodedtext.string().trimmed());
     }
   }
@@ -8809,7 +8825,7 @@ void MainWindow::ft4_tx(int ntx)
   float f0=ui->TxFreqSpinBox->value() - m_XIT;
   int nwave=(nsym+2)*nsps;
   gen_ft4wave_(const_cast<int *>(itone),&nsym,&nsps,&fsample,&f0,foxcom_.wave,&nwave);
-
+  if(m_ntx==3) m_dateTimeSentTx3=QDateTime::currentDateTimeUtc();
   Q_EMIT m_config.transceiver_ptt (true);            //Assert the PTT
   m_tx_when_ready = true;
   qint64 ms=QDateTime::currentMSecsSinceEpoch();
