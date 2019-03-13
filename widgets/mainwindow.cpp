@@ -8671,18 +8671,17 @@ void MainWindow::ft4_rx(int k)
   static bool wrapped=false;
   short id[60000];
   const int istep=3456;
+  const int k_enough=55296;  //4.608 s
 
   if(k<m_kin0) m_kin0=0;
   int nhsec=k/istep;
   if(nhsec0>nhsec) nhsec0=-1;
   if(nhsec==nhsec0) return;
+  if(k<k_enough and !wrapped) return;
 
-//  if(k<60000 and !wrapped) return;
-  if(k<52800 and !wrapped) return;
-
-//Process FT4 data at intervals of istep/12000.0 seconds
+//Process FT4 data at intervals of istep/12000.0 = 0.288 seconds
   int j=k/istep;
-  j=istep*j-52800;
+  j=istep*j-k_enough;
   if(j<0) j+=NRING;
   float tbuf=j/12000.0;
   for(int i=0; i<60000; i++) {

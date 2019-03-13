@@ -34,7 +34,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    integer apbits(2*ND)
    integer apmy_ru(28),aphis_fd(28)
    integer icos4a(0:3),icos4b(0:3),icos4c(0:3),icos4d(0:3)
-   integer*2 iwave(NMAX)                 !Generated full-length waveform
+   integer*2 iwave(NMAX)                 !Raw received data
    integer*1 message77(77),rvec(77),apmask(2*ND),cw(2*ND)
    integer*1 hbits(2*NN)
    integer graymap(0:3)
