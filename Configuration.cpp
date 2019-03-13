@@ -1073,6 +1073,7 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   //
   fill_port_combo_box (ui_->PTT_port_combo_box);
   ui_->PTT_port_combo_box->addItem ("CAT");
+  ui_->PTT_port_combo_box->setItemData (ui_->PTT_port_combo_box->count () - 1, "Delegate to proxy CAT service", Qt::ToolTipRole);
 
   //
   // setup hooks to keep audio channels aligned with devices
@@ -2922,9 +2923,15 @@ void Configuration::impl::fill_port_combo_box (QComboBox * cb)
           // remove possibly confusing Windows device path (OK because
           // it gets added back by Hamlib)
           cb->addItem (p.systemLocation ().remove (QRegularExpression {R"(^\\\\\.\\)"}));
+          auto tip = QString {"%1 %2 %3"}.arg (p.manufacturer ()).arg (p.serialNumber ()).arg (p.description ()).trimmed ();
+          if (tip.size ())
+            {
+              cb->setItemData (cb->count () - 1, tip, Qt::ToolTipRole);
+            }
         }
     }
-  cb->addItem("USB");
+  cb->addItem ("USB");
+  cb->setItemData (cb->count () - 1, "Custom USB device", Qt::ToolTipRole);
   cb->setEditText (current_text);
 }
 
