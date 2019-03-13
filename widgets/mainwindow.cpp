@@ -4173,6 +4173,7 @@ void MainWindow::on_txrb4_doubleClicked ()
   auto const& my_callsign = m_config.my_callsign ();
   auto is_compound = my_callsign != m_baseCall;
   m_send_RR73 = !((is_compound && !shortList (my_callsign)) || m_send_RR73);
+  if(m_mode=="FT4") m_send_RR73=true;
   genStdMsgs (m_rpt);
 }
 
@@ -4248,6 +4249,7 @@ void MainWindow::on_txb4_doubleClicked()
   auto const& my_callsign = m_config.my_callsign ();
   auto is_compound = my_callsign != m_baseCall;
   m_send_RR73 = !((is_compound && !shortList (my_callsign)) || m_send_RR73);
+  if(m_mode=="FT4") m_send_RR73=true;
   genStdMsgs (m_rpt);
 }
 
@@ -5028,7 +5030,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     }
 
     t=t0 + (m_send_RR73 ? "RR73" : "RRR");
-    if((m_mode=="MSK144" and !m_bShMsgs) or m_mode=="FT8") {
+    if((m_mode=="MSK144" and !m_bShMsgs) or m_mode=="FT8" or m_mode=="FT4") {
       if(!bHisCall and bMyCall) t=hisCall + " <" + my_callsign + "> " + (m_send_RR73 ? "RR73" : "RRR");
       if(bHisCall and !bMyCall) t="<" + hisCall + "> " + my_callsign + " " + (m_send_RR73 ? "RR73" : "RRR");
     }
@@ -5603,15 +5605,16 @@ void MainWindow::on_actionFT4_triggered()
   m_bFastMode=false;
   WSPR_config(false);
   switch_mode (Modes::FT4);
-  m_nsps=6912;                         //???
+  m_nsps=6912;
   m_FFTSize = m_nsps/2;
   Q_EMIT FFTSize (m_FFTSize);
-  m_hsymStop=50;                       //???
+  m_hsymStop=50;
   setup_status_bar (bVHF);
   m_toneSpacing=12000.0/512.0;
-  ui->actionFT4->setChecked(true);     //???
+  ui->actionFT4->setChecked(true);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
+  m_send_RR73=true;
   VHF_features_enabled(bVHF);
 //  ui->cbAutoSeq->setChecked(false);
   m_fastGraph->hide();
