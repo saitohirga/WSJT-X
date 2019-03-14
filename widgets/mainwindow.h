@@ -348,6 +348,7 @@ private:
   void hideMenus(bool b);
   void foxTest();
   void setColorHighlighting();
+  void chkFT4();
 
   NetworkAccessManager m_network_manager;
   bool m_valid;

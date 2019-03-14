@@ -1795,6 +1795,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       ui->actionEnable_AP_JT65->setVisible(false);
     }
     if(m_config.special_op_id()!=nContest0) ui->tx1->setEnabled(true);
+    chkFT4();
   }
 }
 
@@ -5636,14 +5637,7 @@ void MainWindow::on_actionFT4_triggered()
   ui->txb5->setEnabled(true);
   ui->txb6->setEnabled(true);
   ui->txFirstCheckBox->setEnabled(true);
-  ui->cbAutoSeq->setEnabled(true);
-  ui->labDXped->setText("");
-  ui->labDXped->setVisible(false);
-  if (SpecOp::RTTY == m_config.special_op_id ()) {
-    ui->labDXped->setVisible(true);
-    ui->labDXped->setText("RTTY");
-    on_contest_log_action_triggered();
-  }
+  chkFT4();
   statusChanged();
 }
 
@@ -8883,4 +8877,35 @@ void MainWindow::save_FT4()
         m_hisGrid)));
 
   m_kin0=dec_data.params.kin;
+}
+
+void MainWindow::chkFT4()
+{
+  if(m_mode!="FT4") return;
+  if(m_config.special_op_id()==SpecOp::RTTY) {
+    ui->cbAutoSeq->setEnabled(true);
+    ui->cbFirst->setEnabled(true);
+  } else {
+    ui->cbAutoSeq->setChecked(false);
+    ui->cbAutoSeq->setEnabled(false);
+    ui->cbFirst->setChecked(false);
+    ui->cbFirst->setEnabled(false);
+    ui->cbFirst->setVisible(false);
+  }
+  ui->cbFirst->setVisible(ui->cbAutoSeq->isChecked());
+
+  if (SpecOp::NONE < m_config.special_op_id () && SpecOp::FOX > m_config.special_op_id ()) {
+    QString t0="";
+    if(SpecOp::NA_VHF==m_config.special_op_id()) t0+="NA VHF";
+    if(SpecOp::EU_VHF==m_config.special_op_id()) t0+="EU VHF";
+    if(SpecOp::FIELD_DAY==m_config.special_op_id()) t0+="Field Day";
+    if(SpecOp::RTTY==m_config.special_op_id()) t0+="RTTY";
+    if(t0=="") {
+      ui->labDXped->setVisible(false);
+    } else {
+      ui->labDXped->setVisible(true);
+      ui->labDXped->setText(t0);
+    }
+    on_contest_log_action_triggered();
+  }
 }
