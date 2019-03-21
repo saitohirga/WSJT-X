@@ -183,7 +183,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    do icand=1,ncand
       f0=candidate(1,icand)
       snr=candidate(3,icand)-1.0
-      if( f0.le.375.0 .or. f0.ge.(5000.0-375.0) ) cycle
+      if( f0.le.10.0 .or. f0.ge.4990.0 ) cycle
       call clockit('ft4_down',0)
       call ft4_downsample(iwave,f0,cd2)  !Downsample from 512 to 32 Sa/Symbol
       call clockit('ft4_down',1)
@@ -232,9 +232,8 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
          enddo
       enddo
       f0=f0+real(idfbest)
+      if( f0.le.10.0 .or. f0.ge.4990.0 ) cycle
 
-!f0=1500
-!ibest=219
       call clockit('ft4down ',0)
       call ft4_downsample(iwave,f0,cb) !Final downsample with corrected f0
       call clockit('ft4down ',1)

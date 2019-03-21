@@ -43,8 +43,8 @@ program ft4d
       read(arg,*) nQSOProgress 
       iarg=iarg+2
    endif
-   nfa=0
-   nfb=4224
+   nfa=10
+   nfb=4990
    ndecodes=0
    nfqso=1500
    mycall="K9AN"
