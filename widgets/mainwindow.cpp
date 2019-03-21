@@ -8759,9 +8759,7 @@ void MainWindow::ft4_rx(int k)
         m_bAutoReply = true;
         ui->cbFirst->setStyleSheet("");
       }
-      if(for_us or ((qAbs(audioFreq - ui->TxFreqSpinBox->value()) <= 150) and parts[iFirstCall]!="CQ")) {
-        // This msg contains MyCall, or is within 150 hertz of our Tx frequency
-        // (Is that the best logic to use here??)
+      if(for_us) {
         ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_baseCall,
              m_mode,m_config.DXCC(),m_logBook,m_currentBand,m_config.ppfx());
         if(decodedtext.string().trimmed().contains(m_inQSOwith)) processMessage(decodedtext);
