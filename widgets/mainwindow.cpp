@@ -988,7 +988,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
   if(QCoreApplication::applicationVersion().contains("-devel") or
      QCoreApplication::applicationVersion().contains("-rc")) {
-    // QTimer::singleShot (0, this, SLOT (not_GA_warning_message ()));
+     QTimer::singleShot (0, this, SLOT (not_GA_warning_message ()));
   }
 
   if(!ui->cbMenus->isChecked()) {
@@ -1003,18 +1003,12 @@ void MainWindow::not_GA_warning_message ()
 {
   MessageBox::critical_message (this,
                                 "<b><p align=\"center\">"
-                                "IMPORTANT: New protocols for the FT8 and MSK144 modes "
-                                "became the world&#8209;wide standards on December&nbsp;10,&nbsp;2018."
-                                , "<p align=\"center\">"
-                                "WSJT&#8209;X&nbsp;2.0 cannot communicate in these modes with other "
-                                "stations using WSJT&#8209;X&nbsp;v1.9.1&nbsp;or&nbsp;earlier."
-                                "<p align=\"center\">"
-                                "Please help by urging everyone to upgrade to WSJT&#8209;X 2.0 "
-                                "<nobr>no later than January&nbsp;1,&nbsp;2019.</nobr>");
-
-//  QDateTime now=QDateTime::currentDateTime();
-//  QDateTime timeout=QDateTime(QDate(2018,12,31));
-//  if(now.daysTo(timeout) < 0) Q_EMIT finished();
+                                "This is a pre-release version of WSJT-X 2.1.0 made "
+                                "available for testing purposes. It will become nonfunctional "
+                                "after May 1, 2019.");
+  QDateTime now=QDateTime::currentDateTime();
+  QDateTime timeout=QDateTime(QDate(2019,5,1));
+  if(now.daysTo(timeout) < 0) Q_EMIT finished();
 }
 
 void MainWindow::initialize_fonts ()
