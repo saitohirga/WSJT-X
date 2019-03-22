@@ -1001,14 +1001,14 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
 void MainWindow::not_GA_warning_message ()
 {
-  MessageBox::critical_message (this,
-                                "<b><p align=\"center\">"
-                                "This is a pre-release version of WSJT-X 2.1.0 made "
-                                "available for testing purposes. It will become nonfunctional "
-                                "after May 1, 2019.");
-  QDateTime now=QDateTime::currentDateTime();
-  QDateTime timeout=QDateTime(QDate(2019,5,1));
-  if(now.daysTo(timeout) < 0) Q_EMIT finished();
+  // MessageBox::critical_message (this,
+  //                               "<b><p align=\"center\">"
+  //                               "This is a pre-release version of WSJT-X 2.1.0 made "
+  //                               "available for testing purposes. It will become nonfunctional "
+  //                               "after May 1, 2019.");
+  // QDateTime now=QDateTime::currentDateTime();
+  // QDateTime timeout=QDateTime(QDate(2019,5,1));
+  // if(now.daysTo(timeout) < 0) Q_EMIT finished();
 }
 
 void MainWindow::initialize_fonts ()
