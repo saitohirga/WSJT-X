@@ -2774,9 +2774,6 @@ list. The list can be maintained in Settings (F2).</string>
    <property name="text">
     <string>About WSJT-X</string>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+F1</string>
-   </property>
   </action>
   <action name="actionWide_Waterfall">
    <property name="text">

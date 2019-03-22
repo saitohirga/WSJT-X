@@ -1915,7 +1915,11 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
     case Qt::Key_F1:
       if(bAltF1F5) {
         if(m_mode=="FT4") {
-          ft4_tx(6);
+          if(e->modifiers() & Qt::ControlModifier) {
+            ft4_tx(1);
+          } else {
+            ft4_tx(6);
+          }
           return;
         }
         auto_tx_mode(true);
