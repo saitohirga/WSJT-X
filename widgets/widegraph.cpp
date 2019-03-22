@@ -187,7 +187,8 @@ void WideGraph::dataSink2(float s[], float df3, int ihsym, int ndiskdata)  //dat
 // Time according to this computer
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     int ntr = (ms/1000) % m_TRperiod;
-    if((ndiskdata && ihsym <= m_waterfallAvg) || (!ndiskdata && ntr<m_ntr0)) {
+    if((ndiskdata && ihsym <= m_waterfallAvg) || (!ndiskdata &&
+       (ntr<m_ntr0 || (m_mode=="FT4" and m_bHaveTransmitted)))) {
       float flagValue=1.0e30;
       if(m_bHaveTransmitted) flagValue=2.0e30;
       for(int i=0; i<MAX_SCREENSIZE; i++) {

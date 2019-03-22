@@ -209,6 +209,7 @@ namespace
           |LB|NU|YT|PEI
           |DC                              # District of Columbia
           |DX                              # anyone else
+          |SCC                             # Slovenia Contest Club contest
         )
       )", QRegularExpression::CaseInsensitiveOption | QRegularExpression::ExtendedPatternSyntaxOption};
 
@@ -630,6 +631,7 @@ private:
   bool udpWindowToFront_;
   bool udpWindowRestore_;
   DataMode data_mode_;
+  bool bLowSidelobes_;
   bool pwrBandTxMemory_;
   bool pwrBandTuneMemory_;
 
@@ -720,6 +722,7 @@ bool Configuration::accept_udp_requests () const {return m_->accept_udp_requests
 QString Configuration::n1mm_server_name () const {return m_->n1mm_server_name_;}
 auto Configuration::n1mm_server_port () const -> port_type {return m_->n1mm_server_port_;}
 bool Configuration::broadcast_to_n1mm () const {return m_->broadcast_to_n1mm_;}
+bool Configuration::lowSidelobes() const {return m_->bLowSidelobes_;}
 bool Configuration::udpWindowToFront () const {return m_->udpWindowToFront_;}
 bool Configuration::udpWindowRestore () const {return m_->udpWindowRestore_;}
 Bands * Configuration::bands () {return &m_->bands_;}
@@ -1289,6 +1292,8 @@ void Configuration::impl::initialize_models ()
   ui_->udpWindowRestore->setChecked(udpWindowRestore_);
   ui_->calibration_intercept_spin_box->setValue (calibration_.intercept);
   ui_->calibration_slope_ppm_spin_box->setValue (calibration_.slope_ppm);
+  ui_->rbLowSidelobes->setChecked(bLowSidelobes_);
+  if(!bLowSidelobes_) ui_->rbMaxSensitivity->setChecked(true);
 
   if (rig_params_.ptt_port.isEmpty ())
     {
@@ -1480,6 +1485,7 @@ void Configuration::impl::read_settings ()
   rig_params_.audio_source = settings_->value ("TXAudioSource", QVariant::fromValue (TransceiverFactory::TX_audio_source_front)).value<TransceiverFactory::TXAudioSource> ();
   rig_params_.ptt_port = settings_->value ("PTTport").toString ();
   data_mode_ = settings_->value ("DataMode", QVariant::fromValue (data_mode_none)).value<Configuration::DataMode> ();
+  bLowSidelobes_ = settings_->value("LowSidelobes",true).toBool();
   prompt_to_log_ = settings_->value ("PromptToLog", false).toBool ();
   autoLog_ = settings_->value ("AutoLog", false).toBool ();
   decodes_from_top_ = settings_->value ("DecodesFromTop", false).toBool ();
@@ -1581,6 +1587,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("CATStopBits", QVariant::fromValue (rig_params_.stop_bits));
   settings_->setValue ("CATHandshake", QVariant::fromValue (rig_params_.handshake));
   settings_->setValue ("DataMode", QVariant::fromValue (data_mode_));
+  settings_->setValue ("LowSidelobes",bLowSidelobes_);
   settings_->setValue ("PromptToLog", prompt_to_log_);
   settings_->setValue ("AutoLog", autoLog_);
   settings_->setValue ("DecodesFromTop", decodes_from_top_);
@@ -2039,6 +2046,7 @@ void Configuration::impl::accept ()
   watchdog_ = ui_->tx_watchdog_spin_box->value ();
   TX_messages_ = ui_->TX_messages_check_box->isChecked ();
   data_mode_ = static_cast<DataMode> (ui_->TX_mode_button_group->checkedId ());
+  bLowSidelobes_ = ui_->rbLowSidelobes->isChecked();
   save_directory_ = ui_->save_path_display_label->text ();
   azel_directory_ = ui_->azel_path_display_label->text ();
   enable_VHF_features_ = ui_->enable_VHF_features_check_box->isChecked ();

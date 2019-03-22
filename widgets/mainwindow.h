@@ -46,9 +46,11 @@
 #define NUM_MSK144_SYMBOLS 144             //s8 + d48 + s8 + d80
 #define NUM_QRA64_SYMBOLS 84               //63 data + 21 sync
 #define NUM_FT8_SYMBOLS 79
+#define NUM_FT4_SYMBOLS 103
 #define NUM_CW_SYMBOLS 250
 #define TX_SAMPLE_RATE 48000
 #define N_WIDGETS 33
+#define NRING 3456000
 
 extern int volatile itone[NUM_ISCAT_SYMBOLS];   //Audio tones for all Tx symbols
 extern int volatile icw[NUM_CW_SYMBOLS];	    //Dits for CW ID
@@ -200,6 +202,7 @@ private slots:
   void on_actionJT65_triggered();
   void on_actionJT9_JT65_triggered();
   void on_actionJT4_triggered();
+  void on_actionFT4_triggered();
   void on_actionFT8_triggered();
   void on_TxFreqSpinBox_valueChanged(int arg1);
   void on_actionSave_decoded_triggered();
@@ -309,6 +312,8 @@ private slots:
   void on_comboBoxHoundSort_activated (int index);
   void not_GA_warning_message ();
   void checkMSK144ContestType();
+  void ft4_rx(int k);
+  void ft4_tx(int ntx);
   int  setTxMsg(int n);
   bool stdCall(QString const& w);
 
@@ -343,6 +348,7 @@ private:
   void hideMenus(bool b);
   void foxTest();
   void setColorHighlighting();
+  void chkFT4();
 
   NetworkAccessManager m_network_manager;
   bool m_valid;
@@ -461,6 +467,7 @@ private:
   qint32  m_tFoxTxSinceCQ=999; //Fox Tx cycles since most recent CQ
   qint32  m_nFoxFreq;          //Audio freq at which Hound received a call from Fox
   qint32  m_nSentFoxRrpt=0;    //Serial number for next R+rpt Hound will send to Fox
+  qint32  m_kin0=0;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
@@ -576,6 +583,8 @@ private:
   QTimer minuteTimer;
   QTimer splashTimer;
   QTimer p1Timer;
+  QTimer FT4_TxTimer;
+  QTimer FT4_WriteTxTimer;
 
   QString m_path;
   QString m_baseCall;
@@ -609,6 +618,7 @@ private:
   QString m_nextCall;
   QString m_nextGrid;
   QString m_fileDateTime;
+  QString m_inQSOwith;
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;
@@ -627,12 +637,23 @@ private:
   QMap<QString,FoxQSO> m_foxQSO;       //Key = HoundCall, value = parameters for QSO in progress
   QMap<QString,QString> m_loggedByFox; //Key = HoundCall, value = logged band
 
+  struct FixupQSO       //Info for fixing Fox's log from file "FoxQSO.txt"
+  {
+    QString grid;       //Hound's declared locator
+    QString sent;       //Report sent to Hound
+    QString rcvd;       //Report received from Hound
+    QDateTime QSO_time;
+  };
+  QMap<QString,FixupQSO> m_fixupQSO;       //Key = HoundCall, value = info for QSO in progress
+
   QQueue<QString> m_houndQueue;        //Selected Hounds available for starting a QSO
   QQueue<QString> m_foxQSOinProgress;  //QSOs in progress: Fox has sent a report
   QQueue<qint64>  m_foxRateQueue;
 
   QDateTime m_dateTimeQSOOn;
   QDateTime m_dateTimeLastTX;
+  QDateTime m_dateTimeSentTx3;
+  QDateTime m_dateTimeRcvdRR73;
 
   QSharedMemory *mem_jt9;
   QString m_QSOText;
@@ -709,7 +730,7 @@ private:
 
   QString save_wave_file (QString const& name
                           , short const * data
-                          , int seconds
+                          , int samples
                           , QString const& my_callsign
                           , QString const& my_grid
                           , QString const& mode
@@ -743,6 +764,8 @@ private:
   void foxTxSequencer();
   void foxGenWaveform(int i,QString fm);
   void writeFoxQSO (QString const& msg);
+  void FT4_writeTx();
+  void save_FT4();
 };
 
 extern int killbyname(const char* progName);

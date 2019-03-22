@@ -51,10 +51,10 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
 // Time according to this computer which becomes our base time
   qint64 ms0 = QDateTime::currentMSecsSinceEpoch() % 86400000;
 
-  if (m_state != Idle)
-    {
-      stop ();
-    }
+//  qDebug() << "ModStart" << symbolsLength << framesPerSymbol
+//           << frequency << toneSpacing;
+
+  if(m_state != Idle) stop ();
 
   m_quickClose = false;
 
@@ -92,6 +92,16 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
   if (synchronize && !m_tuning && !m_bFastMode)	{
     m_silentFrames = m_ic + m_frameRate / (1000 / delay_ms) - (mstr * (m_frameRate / 1000));
   }
+  if((symbolsLength==103 or symbolsLength==105) and framesPerSymbol==512
+     and (toneSpacing==12000.0/512.0 or toneSpacing==-2.0)) {
+//### FT4 parameters
+    delay_ms=100;
+    mstr=5000;
+    m_ic=0;
+    m_silentFrames=0;
+  }
+//  qDebug() << "Mod AA" << symbolsLength << framesPerSymbol << toneSpacing;
+//  qDebug() << "Mod AB" << delay_ms << mstr << m_ic << m_silentFrames;
 
   initialize (QIODevice::ReadOnly, channel);
   Q_EMIT stateChanged ((m_state = (synchronize && m_silentFrames) ?
@@ -170,7 +180,8 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
     case Active:
       {
         unsigned int isym=0;
-//        qDebug() << "Mod A" << m_toneSpacing << m_ic;
+//        qDebug() << "Mod A" << m_toneSpacing << m_frequency << m_nsps
+//                 << m_ic << m_symbolsLength << icw[0];
         if(!m_tuning) isym=m_ic/(4.0*m_nsps);            // Actual fsample=48000
         bool slowCwId=((isym >= m_symbolsLength) && (icw[0] > 0)) && (!m_bFastMode);
         if(m_TRperiod==3) slowCwId=false;
@@ -289,9 +300,12 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
           if (m_ic > i1) m_amp = 0.0;
 
           sample=qRound(m_amp*qSin(m_phi));
-          if(m_toneSpacing < 0) sample=qRound(m_amp*foxcom_.wave[m_ic]);
 
-//          if(m_ic < 100) qDebug() << "Mod C" << m_ic << m_amp << foxcom_.wave[m_ic] << sample;
+//Here's where we transmit from a precomputed wave[] array:
+          if(!m_tuning and (m_toneSpacing < 0)) sample=qRound(m_amp*foxcom_.wave[m_ic]);
+//          if(m_ic < 10) qDebug() << "Mod Tx" << m_ic << m_amp
+//                                  << foxcom_.wave[m_ic] << sample
+//                                  << m_toneSpacing;
 
           samples = load(postProcessSample(sample), samples);
           ++framesGenerated;
@@ -309,6 +323,14 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
 
         m_frequency0 = m_frequency;
         // done for this chunk - continue on next call
+//        qint64 ms1=QDateTime::currentMSecsSinceEpoch() - m_ms0;
+//        if(m_ic>=4*144*160) qDebug() << "Modulator finished" << m_ic << 0.001*ms1;
+
+        while (samples != end)  // pad block with silence
+          {
+            samples = load (0, samples);
+            ++framesGenerated;
+          }
         return framesGenerated * bytesPerFrame ();
       }
       // fall through

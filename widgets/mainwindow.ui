@@ -2705,6 +2705,7 @@ list. The list can be maintained in Settings (F2).</string>
     <property name="title">
      <string>Mode</string>
     </property>
+    <addaction name="actionFT4"/>
     <addaction name="actionFT8"/>
     <addaction name="actionJT4"/>
     <addaction name="actionJT9"/>
@@ -2772,9 +2773,6 @@ list. The list can be maintained in Settings (F2).</string>
   <action name="actionAbout">
    <property name="text">
     <string>About WSJT-X</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+F1</string>
    </property>
   </action>
   <action name="actionWide_Waterfall">
@@ -3336,6 +3334,14 @@ list. The list can be maintained in Settings (F2).</string>
   <action name="actionErase_WSPR_hashtable">
    <property name="text">
     <string>Erase WSPR hashtable</string>
+   </property>
+  </action>
+  <action name="actionFT4">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>FT4</string>
    </property>
   </action>
  </widget>

@@ -394,6 +394,7 @@ set (wsjt_FSRCS
   lib/chkhist.f90
   lib/chkmsg.f90
   lib/chkss2.f90
+  lib/ft4/clockit.f90
   lib/ft8/compress.f90
   lib/coord.f90
   lib/db.f90
@@ -455,6 +456,7 @@ set (wsjt_FSRCS
   lib/ft8.f90
   lib/ft8dec.f90
   lib/ft8/ft8sim.f90
+  lib/ft8/ft8sim_gfsk.f90
   lib/gen4.f90
   lib/gen65.f90
   lib/gen9.f90
@@ -462,12 +464,16 @@ set (wsjt_FSRCS
   lib/ft8/genft8.f90
   lib/genmsk_128_90.f90
   lib/genmsk40.f90
+  lib/ft4/genft4.f90
+  lib/ft4/gen_ft4wave.f90
+  lib/ft8/gen_ft8wave.f90
   lib/genqra64.f90
   lib/ft8/genft8refsig.f90
   lib/genwspr.f90
   lib/geodist.f90
   lib/getlags.f90
   lib/getmet4.f90
+  lib/ft2/gfsk_pulse.f90
   lib/graycode.f90
   lib/graycode65.f90
   lib/grayline.f90
@@ -506,6 +512,11 @@ set (wsjt_FSRCS
   lib/msk144signalquality.f90
   lib/msk144sim.f90
   lib/mskrtd.f90
+  lib/nuttal_window.f90
+  lib/ft4/ft4sim.f90
+  lib/ft4/ft4sim_mult.f90
+  lib/ft4/ft4_decode.f90
+  lib/ft4/ft4_downsample.f90
   lib/77bit/my_hash.f90
   lib/wsprd/osdwspr.f90
   lib/ft8/osd174_91.f90
@@ -546,8 +557,12 @@ set (wsjt_FSRCS
   lib/sync4.f90
   lib/sync64.f90
   lib/sync65.f90
+  lib/ft4/getcandidates4.f90
+  lib/fsk4hf/getcandidates2.f90
+  lib/ft4/syncft4.f90
   lib/ft8/sync8.f90
   lib/ft8/sync8d.f90
+  lib/ft4/sync4d.f90
   lib/sync9.f90
   lib/sync9f.f90
   lib/sync9w.f90
@@ -1254,8 +1269,20 @@ target_link_libraries (ft8 wsjt_fort wsjt_cxx)
 add_executable (ft8sim lib/ft8/ft8sim.f90 wsjtx.rc)
 target_link_libraries (ft8sim wsjt_fort wsjt_cxx)
 
+add_executable (ft8sim_gfsk lib/ft8/ft8sim_gfsk.f90 wsjtx.rc)
+target_link_libraries (ft8sim_gfsk wsjt_fort wsjt_cxx)
+
 add_executable (msk144sim lib/msk144sim.f90 wsjtx.rc)
 target_link_libraries (msk144sim wsjt_fort wsjt_cxx)
+
+add_executable (ft4sim lib/ft4/ft4sim.f90 wsjtx.rc)
+target_link_libraries (ft4sim wsjt_fort wsjt_cxx)
+
+add_executable (ft4sim_mult lib/ft4/ft4sim_mult.f90 wsjtx.rc)
+target_link_libraries (ft4sim_mult wsjt_fort wsjt_cxx)
+
+add_executable (ft4d lib/ft4/ft4d.f90 wsjtx.rc)
+target_link_libraries (ft4d wsjt_fort wsjt_cxx)
 
 endif(WSJT_BUILD_UTILS)
 

@@ -33,6 +33,7 @@ public:
   void setSpread(double s) {m_fSpread=s;}
   void setTRPeriod(unsigned p) {m_period=p;}
   void set_nsym(int n) {m_symbolsLength=n;}
+  void set_ms0(qint64 ms) {m_ms0=ms;}
 
   Q_SLOT void start (unsigned symbolsLength, double framesPerSymbol, double frequency,
                      double toneSpacing, SoundOutput *, Channel = Mono,
@@ -73,6 +74,7 @@ private:
   double m_fSpread;
 
   qint64 m_silentFrames;
+  qint64 m_ms0;
   qint32 m_TRperiod;
   qint16 m_ramp;
 

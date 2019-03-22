@@ -101,7 +101,7 @@ void SoundOutput::restart (QIODevice * source)
   m_stream->setBufferSize (m_stream->format().bytesForDuration((m_msBuffered ? m_msBuffered : MS_BUFFERED) * 1000));
   //  qDebug() << "B" << m_stream->bufferSize() <<
   //  m_stream->periodSize() << m_stream->notifyInterval();
-
+  m_stream->setCategory ("production");
   m_stream->start (source);
 }
 
