@@ -8684,7 +8684,7 @@ void MainWindow::ft4_rx(int k)
     }
   }
   if(j>60000) wrapped=false;
-  if(((k-m_kin0)/12000.0 > 15.0) and !m_diskData) save_FT4();
+  if(m_saveAll and ((k-m_kin0)/12000.0 > 15.0) and !m_diskData) save_FT4();
 
   if(k>=NRING) {
     if(m_saveAll and !m_diskData) save_FT4();
