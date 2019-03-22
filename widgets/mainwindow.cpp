@@ -8872,12 +8872,14 @@ void MainWindow::chkFT4()
   if(m_config.special_op_id()==SpecOp::RTTY or m_config.special_op_id()==SpecOp::NA_VHF) {
     ui->cbAutoSeq->setEnabled(true);
     ui->cbFirst->setEnabled(true);
+    ui->labDXped->setVisible(true);
   } else {
     ui->cbAutoSeq->setChecked(false);
     ui->cbAutoSeq->setEnabled(false);
     ui->cbFirst->setChecked(false);
     ui->cbFirst->setEnabled(false);
     ui->cbFirst->setVisible(false);
+    ui->labDXped->setVisible(false);
   }
   ui->cbFirst->setVisible(ui->cbAutoSeq->isChecked());
 
