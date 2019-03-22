@@ -1993,7 +1993,9 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         n=11;
         if(e->modifiers() & Qt::ControlModifier) n+=100;
         if(e->modifiers() & Qt::ShiftModifier) {
-          ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()-60);
+          int offset=60;
+          if(m_mode=="FT4") offset=120;
+          ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()-offset);
         } else{
           bumpFqso(n);
         }
@@ -2007,7 +2009,9 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         n=12;
         if(e->modifiers() & Qt::ControlModifier) n+=100;
         if(e->modifiers() & Qt::ShiftModifier) {
-          ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()+60);
+          int offset=60;
+          if(m_mode=="FT4") offset=120;
+          ui->TxFreqSpinBox->setValue(ui->TxFreqSpinBox->value()+offset);
         } else {
           bumpFqso(n);
         }
