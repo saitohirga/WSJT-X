@@ -1012,6 +1012,9 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
     });
   lotw_users_.set_local_file_path (writeable_data_dir_.absoluteFilePath ("lotw-user-activity.csv"));
 
+  // load the dictionary if it exists
+  lotw_users_.load (ui_->LotW_CSV_URL_line_edit->text (), false);
+
   //
   // validation
   ui_->callsign_line_edit->setValidator (new CallsignValidator {this});
@@ -1070,6 +1073,7 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   //
   fill_port_combo_box (ui_->PTT_port_combo_box);
   ui_->PTT_port_combo_box->addItem ("CAT");
+  ui_->PTT_port_combo_box->setItemData (ui_->PTT_port_combo_box->count () - 1, "Delegate to proxy CAT service", Qt::ToolTipRole);
 
   //
   // setup hooks to keep audio channels aligned with devices
@@ -2155,7 +2159,7 @@ void Configuration::impl::on_rescan_log_push_button_clicked (bool /*clicked*/)
 
 void Configuration::impl::on_LotW_CSV_fetch_push_button_clicked (bool /*checked*/)
 {
-  lotw_users_.load (ui_->LotW_CSV_URL_line_edit->text (), true);
+  lotw_users_.load (ui_->LotW_CSV_URL_line_edit->text (), true, true);
   ui_->LotW_CSV_fetch_push_button->setEnabled (false);
 }
 
@@ -2919,9 +2923,15 @@ void Configuration::impl::fill_port_combo_box (QComboBox * cb)
           // remove possibly confusing Windows device path (OK because
           // it gets added back by Hamlib)
           cb->addItem (p.systemLocation ().remove (QRegularExpression {R"(^\\\\\.\\)"}));
+          auto tip = QString {"%1 %2 %3"}.arg (p.manufacturer ()).arg (p.serialNumber ()).arg (p.description ()).trimmed ();
+          if (tip.size ())
+            {
+              cb->setItemData (cb->count () - 1, tip, Qt::ToolTipRole);
+            }
         }
     }
-  cb->addItem("USB");
+  cb->addItem ("USB");
+  cb->setItemData (cb->count () - 1, "Custom USB device", Qt::ToolTipRole);
   cb->setEditText (current_text);
 }
 
