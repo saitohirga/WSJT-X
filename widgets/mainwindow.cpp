@@ -4895,11 +4895,6 @@ bool MainWindow::stdCall(QString const& w)
 
 void MainWindow::genStdMsgs(QString rpt, bool unconditional)
 {
-// Prevent abortQSO from working when a TU; message is already queued
-//  if(ui->tx3->text().left(4)=="TU; ") {
-//    return;
-//  }
-
   genCQMsg ();
   auto const& hisCall=ui->dxCallEntry->text();
   if(!hisCall.size ()) {
@@ -4983,7 +4978,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       msgtype(t + sent, ui->tx2);
       if(sent==rpt) msgtype(t + "R" + sent, ui->tx3);
       if(sent!=rpt) msgtype(t + "R " + sent, ui->tx3);
-      if(m_mode=="FT4") {
+      if(m_mode=="FT4" and SpecOp::RTTY==m_config.special_op_id()) {
         QDateTime now=QDateTime::currentDateTimeUtc();
         int sinceTx3 = m_dateTimeSentTx3.secsTo(now);
         int sinceRR73 = m_dateTimeRcvdRR73.secsTo(now);
@@ -8740,7 +8735,7 @@ void MainWindow::ft4_rx(int k)
                    m_config.DXCC(),m_logBook,m_currentBand,m_config.ppfx());
 
 //Right (Rx Frequency) window
-    int audioFreq=decodedtext.frequencyOffset();
+//    int audioFreq=decodedtext.frequencyOffset();
     auto const& parts = decodedtext.string().remove("<").remove(">")
         .split (' ', QString::SkipEmptyParts);
     if(parts.size() > 6) {
@@ -8874,7 +8869,7 @@ void MainWindow::save_FT4()
 void MainWindow::chkFT4()
 {
   if(m_mode!="FT4") return;
-  if(m_config.special_op_id()==SpecOp::RTTY) {
+  if(m_config.special_op_id()==SpecOp::RTTY or m_config.special_op_id()==SpecOp::NA_VHF) {
     ui->cbAutoSeq->setEnabled(true);
     ui->cbFirst->setEnabled(true);
   } else {
