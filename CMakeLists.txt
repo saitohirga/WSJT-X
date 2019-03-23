@@ -558,7 +558,6 @@ set (wsjt_FSRCS
   lib/sync64.f90
   lib/sync65.f90
   lib/ft4/getcandidates4.f90
-  lib/fsk4hf/getcandidates2.f90
   lib/ft4/syncft4.f90
   lib/ft8/sync8.f90
   lib/ft8/sync8d.f90
