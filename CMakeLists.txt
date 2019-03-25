@@ -181,7 +181,11 @@ attach a debugger which will then receive the console output inside its console.
 set (PROJECT_ARCHITECTURE "${CMAKE_SYSTEM_PROCESSOR}")
 if (NOT PROJECT_ARCHITECTURE)
   # This is supposed to happen already on Windows
-  set (PROJECT_ARCHITECTURE "$ENV{PROCESSOR_ARCHITECTURE}")
+  if (CMAKE_SIZEOF_VOID_P MATCHES 8)
+    set (PROJECT_ARCHITECTURE "x64")
+  else ()
+    set (PROJECT_ARCHITECTURE "$ENV{PROCESSOR_ARCHITECTURE}")
+  endif ()
 endif (NOT PROJECT_ARCHITECTURE)
 message (STATUS "******************************************************")
 message (STATUS "Building for for: ${CMAKE_SYSTEM_NAME}-${PROJECT_ARCHITECTURE}")
@@ -808,7 +812,7 @@ if (WIN32)
   endif (NOT AXSERVER)
   string (REPLACE "\"" "" AXSERVER ${AXSERVER})
   file (TO_CMAKE_PATH ${AXSERVER} AXSERVERSRCS)
-endif (WIN32)
+endif ()
 
 
 #
@@ -1632,6 +1636,7 @@ if (NOT is_debug_build)
       install (
 	DIRECTORY
 	${QT_PLUGINS_DIR}/platforms
+	${QT_PLUGINS_DIR}/styles
 	${QT_PLUGINS_DIR}/accessible
 	${QT_PLUGINS_DIR}/audio
 	${QT_PLUGINS_DIR}/imageformats
