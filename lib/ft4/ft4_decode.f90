@@ -265,7 +265,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
          ip=maxloc(s4(:,k+99))
          if(icos4d(k-1).eq.(ip(1)-1)) is4=is4+1
       enddo
-      nsync=is1+is2+is3+is4   !Number of hard sync errors, 0-16
+      nsync=is1+is2+is3+is4   !Number of correct hard sync symbols, 0-16
       if(smax .lt. 0.7 .or. nsync .lt. 8) cycle
 
       do nseq=1,3             !Try coherent sequences of 1, 2, and 4 symbols
@@ -460,17 +460,15 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
             fname=data_dir(1:l1+1)//'all_ft4.txt'
             open(24,file=trim(fname),status='unknown',position='append')
             write(24,1002) cdatetime0,nsnr,tsig,nint(freq),message,    &
-               nharderror,nsync_qual,ipass,niterations,iaptype
+               nharderror,nsync_qual,ipass,niterations,iaptype,nsync
             if(hhmmss.eq.'      ') write(*,1002) cdatetime0,nsnr,             &
                tsig,nint(freq),message,nharderror,nsync_qual,ipass,    &
                niterations,iaptype
-1002        format(a17,i4,f5.1,i5,' Rx  ',a37,5i5)
+1002        format(a17,i4,f5.1,i5,' Rx  ',a37,6i4)
             close(24)
             linex(ndecodes)=line
             if(ibest.ge.ibmax-15) msg0=message         !Possible dupe candidate
-
             exit
-
          endif
       enddo !Sequence estimation
    enddo    !Candidate list

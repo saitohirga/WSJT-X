@@ -57,10 +57,10 @@ program ft4d
       j2=index(infile,'.wav')
       open(10,file=infile,status='old',access='stream')
       read(10) ihdr
-      npts=ihdr(11)/2
+      npts=min(ihdr(11)/2,180000)
       read(10) iwave(1:npts)
       close(10)
-      cdatetime=infile(1:13)//'.000'
+      cdatetime=infile(j2-13:j2)//'000'
 
       istep=3456
       nsteps=(npts-52800)/istep + 1
