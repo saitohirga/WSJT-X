@@ -4373,6 +4373,21 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
         ui->TxFreqSpinBox->setValue(frequency); //Set Tx freq
       }
     }
+    if(m_mode=="FT4") {
+      int i0=message.string().indexOf(" +  ");
+      QString t=message.string().trimmed().mid(i0+4,-1);
+      int n=0;
+      if(t==ui->tx1->text()) n=1;
+      if(t==ui->tx2->text()) n=2;
+      if(t==ui->tx3->text()) n=3;
+      if(t==ui->tx4->text()) n=4;
+      if(t==ui->tx5->currentText()) n=5;
+      if(t==ui->tx6->text()) n=6;
+      if(n>0) {
+        if(ctrl) ui->TxFreqSpinBox->setValue(frequency);
+        ft4_tx(n);
+      }
+    }
     return;
   }
 
