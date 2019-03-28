@@ -54,7 +54,7 @@ subroutine getcandidates4(id,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
   np=n2500-n300+1
   indx=0
   call indexx(savsm(n300:n2500),np,indx)
-  xn=savsm(nfa+indx(nint(0.3*np)))
+  xn=savsm(n300+indx(nint(0.3*np)))
   ncand=0
   if(xn.le.1.e-8) return 
   savsm=savsm/xn
