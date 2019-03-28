@@ -48,9 +48,12 @@ subroutine getcandidates4(id,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
   if(nfa.lt.1) nfa=1
   nfb=fb/df
   if(nfb.gt.nint(5000.0/df)) nfb=nint(5000.0/df)
-  np=nfb-nfa+1
+  n300=300/df
+  n2500=2500/df
+!  np=nfb-nfa+1
+  np=n2500-n300+1
   indx=0
-  call indexx(savsm(nfa:nfb),np,indx)
+  call indexx(savsm(n300:n2500),np,indx)
   xn=savsm(nfa+indx(nint(0.3*np)))
   savsm=savsm/xn
 
