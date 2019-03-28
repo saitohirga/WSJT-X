@@ -4206,7 +4206,11 @@ void MainWindow::on_txb1_clicked()
     m_ntx=1;
     m_QSOProgress = REPLYING;
     ui->txrb1->setChecked(true);
-    if (m_transmitting) m_restart=true;
+    if(m_mode=="FT4") {
+      ft4_tx(1);
+    } else {
+      if(m_transmitting) m_restart=true;
+    }
   }
   else {
     on_txb2_clicked ();
@@ -4227,7 +4231,11 @@ void MainWindow::on_txb2_clicked()
     m_ntx=2;
     m_QSOProgress = REPORT;
     ui->txrb2->setChecked(true);
-    if (m_transmitting) m_restart=true;
+    if(m_mode=="FT4") {
+      ft4_tx(2);
+    } else {
+      if(m_transmitting) m_restart=true;
+    }
 }
 
 void MainWindow::on_txb3_clicked()
@@ -4235,7 +4243,11 @@ void MainWindow::on_txb3_clicked()
     m_ntx=3;
     m_QSOProgress = ROGER_REPORT;
     ui->txrb3->setChecked(true);
-    if (m_transmitting) m_restart=true;
+    if(m_mode=="FT4") {
+      ft4_tx(3);
+    } else {
+      if(m_transmitting) m_restart=true;
+    }
 }
 
 void MainWindow::on_txb4_clicked()
@@ -4243,7 +4255,11 @@ void MainWindow::on_txb4_clicked()
     m_ntx=4;
     m_QSOProgress = ROGERS;
     ui->txrb4->setChecked(true);
-    if (m_transmitting) m_restart=true;
+    if(m_mode=="FT4") {
+      ft4_tx(4);
+    } else {
+      if(m_transmitting) m_restart=true;
+    }
 }
 
 void MainWindow::on_txb4_doubleClicked()
@@ -4261,7 +4277,11 @@ void MainWindow::on_txb5_clicked()
     m_ntx=5;
     m_QSOProgress = SIGNOFF;
     ui->txrb5->setChecked(true);
-    if (m_transmitting) m_restart=true;
+    if(m_mode=="FT4") {
+      ft4_tx(5);
+    } else {
+      if(m_transmitting) m_restart=true;
+    }
 }
 
 void MainWindow::on_txb5_doubleClicked()
@@ -4275,11 +4295,16 @@ void MainWindow::on_txb6_clicked()
     m_QSOProgress = CALLING;
     set_dateTimeQSO(-1);
     ui->txrb6->setChecked(true);
-    if (m_transmitting) m_restart=true;
+    if(m_mode=="FT4") {
+      ft4_tx(6);
+    } else {
+      if(m_transmitting) m_restart=true;
+    }
 }
 
 void MainWindow::doubleClickOnCall2(Qt::KeyboardModifiers modifiers)
 {
+//Confusing: come here after double-click on left text window, not right window.
   if(m_mode=="FT4" and m_inQSOwith!="") return;
   set_dateTimeQSO(-1); // reset our QSO start time
   m_decodedText2=true;
@@ -5149,6 +5174,7 @@ void MainWindow::clearDX ()
   m_rptRcvd.clear ();
   m_qsoStart.clear ();
   m_qsoStop.clear ();
+  m_inQSOwith.clear();
   genStdMsgs (QString {});
   if (ui->tabWidget->currentIndex() == 1) {
     ui->genMsg->setText(ui->tx6->text());
