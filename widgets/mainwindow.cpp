@@ -3892,10 +3892,12 @@ void MainWindow::guiUpdate()
         SpecOp::RTTY==m_config.special_op_id()) ) { 
       //We're in a contest-like mode other than EU_VHF: start QSO with Tx2.
       ui->tx1->setEnabled(false);
+      ui->txb1->setEnabled(false);
     }
     if(!ui->tx1->isEnabled() and SpecOp::EU_VHF==m_config.special_op_id()) { 
       //We're in EU_VHF mode: start QSO with Tx1.
       ui->tx1->setEnabled(true);
+      ui->txb1->setEnabled(true);
     }
   }
 
