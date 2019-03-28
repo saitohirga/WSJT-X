@@ -182,6 +182,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    ndecodes=0
    do icand=1,ncand
       f0=candidate(1,icand)
+      if(f0.le.max(fa,10.0) .or. f0.ge.min(fb,4990.0)) cycle
       snr=candidate(3,icand)-1.0
       if( f0.le.10.0 .or. f0.ge.4990.0 ) cycle
       call clockit('ft4_down',0)

@@ -61,14 +61,15 @@ subroutine getcandidates4(id,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
   f_offset = -1.5*12000/512
   do i=nfa+1,nfb-1
     if(savsm(i).ge.savsm(i-1) .and. savsm(i).ge.savsm(i+1) .and. savsm(i).ge.syncmin) then
-      del=0.5*(savsm(i-1)-savsm(i+1))/(savsm(i-1)-2*savsm(i)+savsm(i+1))
+!      del=0.5*(savsm(i-1)-savsm(i+1))/(savsm(i-1)-2*savsm(i)+savsm(i+1))
+      del=0. 
       fpeak=(i+del)*df+f_offset
       speak=savsm(i) - 0.25*(savsm(i-1)-savsm(i+1))*del
       ncand=ncand+1
-      if(ncand.gt.maxcand) exit
       candidate(1,ncand)=fpeak
       candidate(2,ncand)=-99.99
       candidate(3,ncand)=speak
+      if(ncand.eq.maxcand) exit
     endif
   enddo
 
