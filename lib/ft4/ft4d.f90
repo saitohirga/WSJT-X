@@ -11,7 +11,7 @@ program ft4d
    character*4  cqstr
    real*8 fMHz
    integer ihdr(11)
-   integer*2 iwave(180000)                !15*12000
+   integer*2 iwave(240000)                !20*12000
 
    fs=12000.0/NDOWN                       !Sample rate
    dt=1/fs                                !Sample interval after downsample (s)
