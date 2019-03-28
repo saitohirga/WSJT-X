@@ -4305,7 +4305,6 @@ void MainWindow::on_txb6_clicked()
 void MainWindow::doubleClickOnCall2(Qt::KeyboardModifiers modifiers)
 {
 //Confusing: come here after double-click on left text window, not right window.
-  if(m_mode=="FT4" and m_inQSOwith!="") return;
   set_dateTimeQSO(-1); // reset our QSO start time
   m_decodedText2=true;
   doubleClickOnCall(modifiers);
@@ -4314,7 +4313,6 @@ void MainWindow::doubleClickOnCall2(Qt::KeyboardModifiers modifiers)
 
 void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
 {
-  if(m_mode=="FT4" and m_inQSOwith!="") return;
   QTextCursor cursor;
   if(m_mode=="ISCAT") {
     MessageBox::information_message (this,
