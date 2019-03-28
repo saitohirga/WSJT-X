@@ -1,13 +1,13 @@
-subroutine sync4d(cd0,i0,ctwk,itwk,sync,sync2)
+subroutine sync4d(cd0,i0,ctwk,itwk,sync)
 
 ! Compute sync power for a complex, downsampled FT4 signal.
 
   include 'ft4_params.f90'
   parameter(NP=NMAX/NDOWN,NSS=NSPS/NDOWN)
   complex cd0(0:NP-1)
-  complex csynca(4*NSS),csyncb(4*NSS),csyncc(4*NSS),csyncd(4*NSS)
-  complex csync2(4*NSS)
-  complex ctwk(4*NSS)
+  complex csynca(2*NSS),csyncb(2*NSS),csyncc(2*NSS),csyncd(2*NSS)
+  complex csync2(2*NSS)
+  complex ctwk(2*NSS)
   complex z1,z2,z3,z4
   complex zz1,zz2,zz3,zz4
   logical first
@@ -29,11 +29,11 @@ subroutine sync4d(cd0,i0,ctwk,itwk,sync,sync2)
     phic=0.0
     phid=0.0
     do i=0,3
-      dphia=twopi*icos4a(i)/real(NSS) 
-      dphib=twopi*icos4b(i)/real(NSS) 
-      dphic=twopi*icos4c(i)/real(NSS) 
-      dphid=twopi*icos4d(i)/real(NSS) 
-      do j=1,NSS
+      dphia=2*twopi*icos4a(i)/real(NSS) 
+      dphib=2*twopi*icos4b(i)/real(NSS) 
+      dphic=2*twopi*icos4c(i)/real(NSS) 
+      dphid=2*twopi*icos4d(i)/real(NSS) 
+      do j=1,NSS/2
         csynca(k)=cmplx(cos(phia),sin(phia)) 
         csyncb(k)=cmplx(cos(phib),sin(phib)) 
         csyncc(k)=cmplx(cos(phic),sin(phic)) 
@@ -46,7 +46,7 @@ subroutine sync4d(cd0,i0,ctwk,itwk,sync,sync2)
       enddo
     enddo
     first=.false.
-    fac=1.0/(4.0*NSS)
+    fac=1.0/(2.0*NSS)
   endif
 
   i1=i0                            !four Costas arrays
@@ -60,36 +60,18 @@ subroutine sync4d(cd0,i0,ctwk,itwk,sync,sync2)
   z4=0.
 
   if(itwk.eq.1) csync2=ctwk*csynca      !Tweak the frequency
-  if(i1.ge.0 .and. i1+4*NSS-1.le.NP-1) z1=sum(cd0(i1:i1+4*NSS-1)*conjg(csync2))
+  if(i1.ge.0 .and. i1+4*NSS-1.le.NP-1) z1=sum(cd0(i1:i1+4*NSS-1:2)*conjg(csync2))
 
   if(itwk.eq.1) csync2=ctwk*csyncb      !Tweak the frequency
-  if(i2.ge.0 .and. i2+4*NSS-1.le.NP-1) z2=sum(cd0(i2:i2+4*NSS-1)*conjg(csync2))
+  if(i2.ge.0 .and. i2+4*NSS-1.le.NP-1) z2=sum(cd0(i2:i2+4*NSS-1:2)*conjg(csync2))
 
   if(itwk.eq.1) csync2=ctwk*csyncc      !Tweak the frequency
-  if(i3.ge.0 .and. i3+4*NSS-1.le.NP-1) z3=sum(cd0(i3:i3+4*NSS-1)*conjg(csync2))
+  if(i3.ge.0 .and. i3+4*NSS-1.le.NP-1) z3=sum(cd0(i3:i3+4*NSS-1:2)*conjg(csync2))
 
   if(itwk.eq.1) csync2=ctwk*csyncd      !Tweak the frequency
-  if(i4.ge.0 .and. i4+4*NSS-1.le.NP-1) z4=sum(cd0(i4:i4+4*NSS-1)*conjg(csync2))
+  if(i4.ge.0 .and. i4+4*NSS-1.le.NP-1) z4=sum(cd0(i4:i4+4*NSS-1:2)*conjg(csync2))
 
   sync = p(z1) + p(z2) + p(z3) + p(z4)
-
-sync2=0.0
-!do i=1,4
-!  i1=i0+(i-1)*33*NSS
-!  if(i.eq.1) csync2=ctwk*csynca
-!  if(i.eq.2) csync2=ctwk*csyncb
-!  if(i.eq.3) csync2=ctwk*csyncc
-!  if(i.eq.4) csync2=ctwk*csyncd
-!  z1=sum(cd0(i1      :i1+  NSS-1)*conjg(csync2(      1:  NSS)))
-!  z2=sum(cd0(i1+  NSS:i1+2*NSS-1)*conjg(csync2(  NSS+1:2*NSS)))
-!  z3=sum(cd0(i1+2*NSS:i1+3*NSS-1)*conjg(csync2(2*NSS+1:3*NSS)))
-!  z4=sum(cd0(i1+3*NSS:i1+4*NSS-1)*conjg(csync2(3*NSS+1:4*NSS)))
-!  sync2=sync2 + abs(z1)**2+abs(z2)**2+abs(z3)**2+abs(z4)**2+&
-!       2*abs(z1*conjg(z2)+z2*conjg(z3)+z3*conjg(z4)) + &
-!       2*abs(z1*conjg(z3)+z2*conjg(z4)) + &
-!       2*abs(z1*conjg(z4))
-!enddo
-!sync2=sync2*(fac**2)
 
   return
 end subroutine sync4d
