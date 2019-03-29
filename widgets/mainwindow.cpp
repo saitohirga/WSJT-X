@@ -3700,6 +3700,15 @@ void MainWindow::guiUpdate()
               char ft8msgbits[77];
               genft8_(message, &i3, &n3, msgsent, const_cast<char *> (ft8msgbits),
                       const_cast<int *> (itone), 37, 37);
+              int nsym=79;
+              int nsps=4*1920;
+              float fsample=48000.0;
+              float f0=ui->TxFreqSpinBox->value() - m_XIT;
+              int icmplx=0;
+              int nwave=nsym*nsps;
+              gen_ft8wave_(const_cast<int *>(itone),&nsym,&nsps,&fsample,&f0,foxcom_.wave,
+                           foxcom_.wave,&icmplx,&nwave);
+
               if(SpecOp::FOX == m_config.special_op_id()) {
                 //Fox must generate the full Tx waveform, not just an itone[] array.
                 QString fm = QString::fromStdString(message).trimmed();
@@ -6936,15 +6945,6 @@ void MainWindow::transmit (double snr)
   if (m_modeTx == "FT8") {
 //    toneSpacing=12000.0/1920.0;
     toneSpacing=-3;
-    int nsym=79;
-    int nsps=4*1920;
-    float fsample=48000.0;
-    float f0=ui->TxFreqSpinBox->value() - m_XIT;
-    int icmplx=0;
-    int nwave=nsym*nsps;
-    gen_ft8wave_(const_cast<int *>(itone),&nsym,&nsps,&fsample,&f0,foxcom_.wave,
-                 foxcom_.wave,&icmplx,&nwave);
-
     if(m_config.x2ToneSpacing()) toneSpacing=2*12000.0/1920.0;
     if(m_config.x4ToneSpacing()) toneSpacing=4*12000.0/1920.0;
     if(SpecOp::FOX==m_config.special_op_id() and !m_tune) toneSpacing=-1;
