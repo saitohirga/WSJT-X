@@ -46,7 +46,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
 
    logical nohiscall,unpk77_success
    logical one(0:255,0:7)    ! 256 4-symbol sequences, 8 bits
-   logical first
+   logical first, dobigfft
 
    data icos4a/0,1,3,2/
    data icos4b/1,0,2,3/
@@ -189,12 +189,14 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    call clockit('getcand4',1)
 
    ndecodes=0
+   dobigfft=.true.
    do icand=1,ncand
       f0=candidate(1,icand)
       snr=candidate(3,icand)-1.0
       if( f0.le.10.0 .or. f0.ge.4990.0 ) cycle
       call clockit('ft4_down',0)
-      call ft4_downsample(iwave,f0,cd2)  !Downsample from 512 to 32 Sa/Symbol
+      call ft4_downsample(iwave,dobigfft,f0,cd2)  !Downsample from 512 to 32 Sa/Symbol
+      if(dobigfft) dobigfft=.false.
       call clockit('ft4_down',1)
 
       sum2=sum(cd2*conjg(cd2))/(real(NMAX)/real(NDOWN))
@@ -238,7 +240,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
       if( f0.le.10.0 .or. f0.ge.4990.0 ) cycle
 
       call clockit('ft4down ',0)
-      call ft4_downsample(iwave,f0,cb) !Final downsample with corrected f0
+      call ft4_downsample(iwave,dobigfft,f0,cb) !Final downsample with corrected f0
       call clockit('ft4down ',1)
       sum2=sum(abs(cb)**2)/(real(NSS)*NN)
       if(sum2.gt.0.0) cb=cb/sqrt(sum2)
