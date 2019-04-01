@@ -3704,7 +3704,6 @@ void MainWindow::guiUpdate()
             }
           }
           if(m_modeTx=="FT4") {
-            qDebug () << "AA FT4 Tx";
             int ichk=0;
             genft4_(message, &ichk, msgsent, const_cast<int *>(itone), 37, 37);
             int nsym=103;
@@ -5669,7 +5668,7 @@ void MainWindow::on_actionFT4_triggered()
   ui->label_7->setText("Rx Frequency");
   ui->label_6->setText("Band Activity");
   ui->decodedTextLabel->setText( "  UTC   dB   DT Freq    Message");
-  displayWidgets(nWidgets("011010000100111000010000100110001"));
+  displayWidgets(nWidgets("111010000100111000010000100110001"));
   ui->txrb2->setEnabled(true);
   ui->txrb4->setEnabled(true);
   ui->txrb5->setEnabled(true);
