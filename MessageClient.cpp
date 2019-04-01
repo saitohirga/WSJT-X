@@ -152,7 +152,7 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
       // message format is described in NetworkMessage.hpp
       // 
       NetworkMessage::Reader in {msg};
-      if (OK == check_status (in) && id_ == in.id ()) // OK and for us
+      if (OK == check_status (in))
         {
           if (schema_ < in.schema ()) // one time record of server's
                                       // negotiated schema
