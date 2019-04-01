@@ -583,8 +583,8 @@ private:
   QTimer minuteTimer;
   QTimer splashTimer;
   QTimer p1Timer;
-  QTimer FT4_TxTimer;
-  QTimer FT4_WriteTxTimer;
+//  QTimer FT4_TxTimer;
+//  QTimer FT4_WriteTxTimer;
 
   QString m_path;
   QString m_baseCall;

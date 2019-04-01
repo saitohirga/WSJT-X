@@ -1,4 +1,4 @@
-subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
+subroutine ft4b(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    iwave,ndecodes,mycall,hiscall,cqstr,line,data_dir)
 
    use packjt77
@@ -486,4 +486,4 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    line=linex(idecode)
    return
 
-end subroutine ft4_decode
+ end subroutine ft4b
