@@ -1471,11 +1471,13 @@ void MainWindow::dataSink(qint64 frames)
         m_fnameWE=m_config.save_directory ().absoluteFilePath (period_start.toString ("yyMMdd_hhmm"));
       }
       m_fileToSave.clear ();
+      int samples=m_TRperiod*12000;
+      if(m_mode=="FT4") samples=18*3456;
 
       // the following is potential a threading hazard - not a good
       // idea to pass pointer to be processed in another thread
       m_saveWAVWatcher.setFuture (QtConcurrent::run (std::bind (&MainWindow::save_wave_file,
-            this, m_fnameWE, &dec_data.d2[0], m_TRperiod*12000, m_config.my_callsign(),
+            this, m_fnameWE, &dec_data.d2[0], samples, m_config.my_callsign(),
             m_config.my_grid(), m_mode, m_nSubMode, m_freqNominal, m_hisCall, m_hisGrid)));
       if (m_mode=="WSPR") {
         QString c2name_string {m_fnameWE + ".c2"};
