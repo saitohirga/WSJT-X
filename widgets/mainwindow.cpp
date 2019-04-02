@@ -743,13 +743,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect(&m_guiTimer, &QTimer::timeout, this, &MainWindow::guiUpdate);
   m_guiTimer.start(100);   //### Don't change the 100 ms! ###
 
-
-//  FT4_TxTimer.setSingleShot(true);
-//  connect(&FT4_TxTimer, &QTimer::timeout, this, &MainWindow::stopTx);
-
-//  FT4_WriteTxTimer.setSingleShot(true);
-//  connect(&FT4_WriteTxTimer, &QTimer::timeout, this, &MainWindow::FT4_writeTx);
-
   ptt0Timer.setSingleShot(true);
   connect(&ptt0Timer, &QTimer::timeout, this, &MainWindow::stopTx2);
 
@@ -4212,11 +4205,7 @@ void MainWindow::on_txb1_clicked()
     m_ntx=1;
     m_QSOProgress = REPLYING;
     ui->txrb1->setChecked(true);
-    if(m_mode=="FT4") {
-      ft4_tx(1);
-    } else {
-      if(m_transmitting) m_restart=true;
-    }
+    if(m_transmitting) m_restart=true;
   }
   else {
     on_txb2_clicked ();
@@ -4237,11 +4226,7 @@ void MainWindow::on_txb2_clicked()
     m_ntx=2;
     m_QSOProgress = REPORT;
     ui->txrb2->setChecked(true);
-    if(m_mode=="FT4") {
-      ft4_tx(2);
-    } else {
-      if(m_transmitting) m_restart=true;
-    }
+    if(m_transmitting) m_restart=true;
 }
 
 void MainWindow::on_txb3_clicked()
@@ -4249,11 +4234,7 @@ void MainWindow::on_txb3_clicked()
     m_ntx=3;
     m_QSOProgress = ROGER_REPORT;
     ui->txrb3->setChecked(true);
-    if(m_mode=="FT4") {
-      ft4_tx(3);
-    } else {
-      if(m_transmitting) m_restart=true;
-    }
+    if(m_transmitting) m_restart=true;
 }
 
 void MainWindow::on_txb4_clicked()
@@ -4261,11 +4242,7 @@ void MainWindow::on_txb4_clicked()
     m_ntx=4;
     m_QSOProgress = ROGERS;
     ui->txrb4->setChecked(true);
-    if(m_mode=="FT4") {
-      ft4_tx(4);
-    } else {
-      if(m_transmitting) m_restart=true;
-    }
+    if(m_transmitting) m_restart=true;
 }
 
 void MainWindow::on_txb4_doubleClicked()
@@ -4283,11 +4260,7 @@ void MainWindow::on_txb5_clicked()
     m_ntx=5;
     m_QSOProgress = SIGNOFF;
     ui->txrb5->setChecked(true);
-    if(m_mode=="FT4") {
-      ft4_tx(5);
-    } else {
-      if(m_transmitting) m_restart=true;
-    }
+    if(m_transmitting) m_restart=true;
 }
 
 void MainWindow::on_txb5_doubleClicked()
@@ -4301,11 +4274,7 @@ void MainWindow::on_txb6_clicked()
     m_QSOProgress = CALLING;
     set_dateTimeQSO(-1);
     ui->txrb6->setChecked(true);
-    if(m_mode=="FT4") {
-      ft4_tx(6);
-    } else {
-      if(m_transmitting) m_restart=true;
-    }
+    if(m_transmitting) m_restart=true;
 }
 
 void MainWindow::doubleClickOnCall2(Qt::KeyboardModifiers modifiers)
@@ -4377,6 +4346,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
         ui->TxFreqSpinBox->setValue(frequency); //Set Tx freq
       }
     }
+    /*
     if(m_mode=="FT4") {
       int i0=message.string().indexOf(" +  ");
       QString t=message.string().trimmed().mid(i0+4,-1);
@@ -4392,6 +4362,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
         ft4_tx(n);
       }
     }
+    */
     return;
   }
 
@@ -4842,6 +4813,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       && !m_bDoubleClicked && m_mode!="FT4") {
     return;
   }
+  /*
   if(m_mode=="FT4" and ui->cbAutoSeq->isChecked()) {
     if((m_ntx==4 or m_ntx==5) and !m_diskData) {
       save_FT4();
@@ -4852,6 +4824,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       ft4_tx(m_ntx);
     }
   }
+  */
   if(m_config.quick_call()) auto_tx_mode(true);
   m_bDoubleClicked=false;
 }
@@ -8671,7 +8644,8 @@ void MainWindow::write_all(QString txRx, QString message)
   t.sprintf("%5d",ui->TxFreqSpinBox->value());
   if(txRx=="Tx") msg="   0  0.0" + t + " " + message;
   auto time = QDateTime::currentDateTimeUtc ();
-  if(m_mode!="FT4") time = time.addSecs(-(time.time().second() % m_TRperiod));
+//  if(m_mode!="FT4") time = time.addSecs(-(time.time().second() % m_TRperiod));
+  time = time.addSecs(-(time.time().second() % m_TRperiod));
   t.sprintf("%10.3f ",m_freqNominal/1.e6);
   if(m_diskData) {
     line=m_fileDateTime + t + txRx + " " + m_mode.leftJustified(6,' ') + msg;
@@ -8692,222 +8666,6 @@ void MainWindow::write_all(QString txRx, QString message)
     QTimer::singleShot (0, [=] {                   // don't block guiUpdate
       MessageBox::warning_message(this, tr ("Log File Error"), message2); });
   }
-}
-
-void MainWindow::ft4_rx(int k)
-{
-  static int nhsec0=-1;
-  static bool wrapped=false;
-  short id[60000];
-  const int istep=3456;
-  const int k_enough=55296;  //4.608 s
-
-  if(k<m_kin0) m_kin0=0;
-  int nhsec=k/istep;
-  if(nhsec0>nhsec) nhsec0=-1;
-  if(nhsec==nhsec0) return;
-  if(k<k_enough and !wrapped) return;
-
-//Process FT4 data at intervals of istep/12000.0 = 0.288 seconds
-  int j=k/istep;
-  j=istep*j-k_enough;
-  if(j<0) j+=NRING;
-  float tbuf=j/12000.0;
-  for(int i=0; i<60000; i++) {
-    id[i]=dec_data.d2[j];
-    j++;
-    if(j>=NRING) {
-      j=j-NRING;
-      wrapped=true;
-    }
-  }
-  if(j>60000) wrapped=false;
-  if(m_saveAll and ((k-m_kin0)/12000.0 > 15.0) and !m_diskData) save_FT4();
-
-  if(k>=NRING) {
-    if(m_saveAll and !m_diskData) save_FT4();
-    //Wrap the ring buffer pointer
-    k=k-NRING;
-    dec_data.params.kin=k;
-  }
-
-  QByteArray ba;
-  if(m_diskData) {
-    ba=(m_fileDateTime + ".000").toLatin1();
-  } else {
-    auto time = QDateTime::currentDateTimeUtc ();
-    ba=time.toString("yyMMdd_hhmmss.sss").toLatin1();
-  }
-  char* cdatetime=ba.data();
-
-  strncpy(dec_data.params.mycall, (m_config.my_callsign()+"            ").toLatin1(),12);
-  char mycall[13];
-  strncpy(mycall,m_config.my_callsign().toLatin1(),12);
-  char hiscall[13];
-  strncpy(hiscall,m_hisCall.toLatin1(),12);
-
-  char line[61];
-  int nfqso=1500;
-  int ndecodes=0;
-  int nfa=m_wideGraph->nStartFreq();
-  int nfb=m_wideGraph->Fmax();
-  int nQSOProgress = static_cast<int> ( m_QSOProgress );
-  int nContest = static_cast<int> (m_config.special_op_id());
-  QString dataDir;
-  dataDir = m_config.writeable_data_dir ().absolutePath ();
-  char ddir[512];
-  strncpy(ddir,dataDir.toLatin1(), sizeof (ddir) - 1);
-  char cqstr[4];
-  strncpy(cqstr,"    ",4);
-  if(SpecOp::NA_VHF == m_config.special_op_id()) strncpy(cqstr,"TEST",4);
-  if(SpecOp::EU_VHF == m_config.special_op_id()) strncpy(cqstr,"TEST",4);
-  if(SpecOp::FIELD_DAY == m_config.special_op_id()) strncpy(cqstr,"FD",2);
-  if(SpecOp::RTTY == m_config.special_op_id()) {
-        if(m_config.RTTY_Exchange()!="SCC") strncpy(cqstr,"RU",2);
-        if(m_config.RTTY_Exchange()=="SCC") strncpy(cqstr,"SCC",3);
-  }
-
-//  ft4_decode_(cdatetime,&tbuf,&nfa,&nfb,&nQSOProgress,&nContest,&nfqso,id,&ndecodes,&mycall[0],&hiscall[0],
-//              &cqstr[0],&line[0],&ddir[0],17,12,12,4,61,512);
-  line[60]=0;
-  for (int idecode=1; idecode<=ndecodes; idecode++) {
-    get_ft4msg_(&idecode,&line[0],61);
-    line[60]=0;
-    QString sline{QString::fromLatin1(line)};
-    DecodedText decodedtext {sline.replace(QChar::LineFeed,"")};
-    ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_mode,
-                   m_config.DXCC(),m_logBook,m_currentBand,m_config.ppfx());
-
-//Right (Rx Frequency) window
-//    int audioFreq=decodedtext.frequencyOffset();
-    auto const& parts = decodedtext.string().remove("<").remove(">")
-        .split (' ', QString::SkipEmptyParts);
-    if(parts.size() > 6) {
-      int iFirstCall=5;
-      if(parts[5]=="TU;") iFirstCall=6;
-      auto for_us = parts[iFirstCall].contains(m_baseCall);
-      if(m_baseCall==m_config.my_callsign() and m_baseCall!=parts[iFirstCall]) for_us=false;
-      if(m_bCallingCQ && !m_bAutoReply && for_us && ui->cbFirst->isChecked()) {
-        m_bDoubleClicked=true;
-        m_bAutoReply = true;
-        ui->cbFirst->setStyleSheet("");
-      }
-      if(for_us) {
-        ui->decodedTextBrowser2->displayDecodedText(decodedtext,m_baseCall,
-             m_mode,m_config.DXCC(),m_logBook,m_currentBand,m_config.ppfx());
-        if(decodedtext.string().trimmed().contains(m_inQSOwith)) processMessage(decodedtext);
-        m_QSOText = decodedtext.string().trimmed ();
-      }
-      if(for_us and parts[iFirstCall+2]=="RR73") m_dateTimeRcvdRR73=QDateTime::currentDateTimeUtc();
-      write_all("Rx",decodedtext.string().trimmed());
-    }
-  }
-  nhsec0=nhsec;
-  if(m_diskData and (k > (dec_data.params.kin-istep))) m_startAnother=m_loopall;
-  if(m_bNoMoreFiles) {
-    MessageBox::information_message(this, tr("Just one more file to open."));
-    m_bNoMoreFiles=false;
-  }
-}
-
-void MainWindow::ft4_tx(int ntx)
-{
-  if(g_iptt!=0) return;             //Already transmitting?
-  static char message[38];
-  static char msgsent[38];
-  QByteArray ba;
-  m_ntx=ntx;
-  setTxMsg(m_ntx);
-  if(m_ntx == 1) ba=ui->tx1->text().toLocal8Bit();
-  if(m_ntx == 2) ba=ui->tx2->text().toLocal8Bit();
-  if(m_ntx == 3) ba=ui->tx3->text().toLocal8Bit();
-  if(m_ntx == 4) ba=ui->tx4->text().toLocal8Bit();
-  if(m_ntx == 5) ba=ui->tx5->currentText().toLocal8Bit();
-  if(m_ntx == 6) ba=ui->tx6->text().toLocal8Bit();
-  QString msg = QString::fromLatin1(ba.data());
-  if(m_ntx==2 or m_ntx==3) m_inQSOwith=m_hisCall;
-  if(msg.trimmed().length()==0) return;   //Don't transmit a blank message, or ...
-  if(m_diskData) return;                  //... in response to a decode from disk
-  ba2msg(ba,message);
-  int ichk=0;
-  genft4_(message, &ichk, msgsent, const_cast<int *>(itone), 37, 37);
-  msgsent[37]=0;
-  m_currentMessage = QString::fromLatin1(msgsent).trimmed();
-  tx_status_label.setStyleSheet("QLabel{background-color: #ffff33}");
-  tx_status_label.setText("TX: " + m_currentMessage);
-  if(m_ntx==2 or m_ntx==3) {
-    QStringList t=ui->tx2->text().split(' ', QString::SkipEmptyParts);
-    int n=t.size();
-    m_xSent=t.at(n-2) + " " + t.at(n-1);
-  }
-  auto_tx_mode(true);                    //Enable Tx
-  icw[0]=0;
-  g_iptt = 1;
-  setRig ();
-  setXIT (ui->TxFreqSpinBox->value ());
-
-  int nsym=103;
-  int nsps=4*512;
-  float fsample=48000.0;
-  float f0=ui->TxFreqSpinBox->value() - m_XIT;
-  int nwave=(nsym+2)*nsps;
-  gen_ft4wave_(const_cast<int *>(itone),&nsym,&nsps,&fsample,&f0,foxcom_.wave,&nwave);
-  if(m_ntx==3) m_dateTimeSentTx3=QDateTime::currentDateTimeUtc();
-  Q_EMIT m_config.transceiver_ptt (true);            //Assert the PTT
-  m_tx_when_ready = true;
-  qint64 ms=QDateTime::currentMSecsSinceEpoch();
-  m_modulator->set_ms0(ms);
-//  FT4_TxTimer.start(4600);      //Slightly more than FT4 transmission length
-
-  if (g_iptt == 1 && m_iptt0 == 0) {
-    auto const& current_message = QString::fromLatin1 (msgsent);
-//    FT4_WriteTxTimer.start(100);  //Why is a delay necessary to ensure Tx after Rx in all.txt?
-    if (m_config.TX_messages () && !m_tune && SpecOp::FOX!=m_config.special_op_id()) {
-      ui->decodedTextBrowser2->displayTransmittedText(current_message, m_modeTx,
-           ui->TxFreqSpinBox->value(),m_bFastMode);
-    }
-
-    switch (m_ntx)
-    {
-    case 1: m_QSOProgress = REPLYING; break;
-    case 2: m_QSOProgress = REPORT; break;
-    case 3: m_QSOProgress = ROGER_REPORT; break;
-    case 4: m_QSOProgress = ROGERS; break;
-    case 5: m_QSOProgress = SIGNOFF; break;
-    case 6: m_QSOProgress = CALLING; break;
-    default: break;             // determined elsewhere
-    }
-    m_transmitting = true;
-    transmitDisplay (true);
-    statusUpdate ();
-  }
-  m_dateTimeQSOOn=QDateTime::currentDateTimeUtc();
-  if(!m_btxok && m_btxok0 && g_iptt==1) stopTx();
-  if(m_saveAll and !m_diskData) save_FT4();
-}
-
-void MainWindow::FT4_writeTx()
-{
-  write_all("Tx",m_currentMessage);
-}
-
-void MainWindow::save_FT4()
-{
-  double tsec=(dec_data.params.kin - m_kin0)/12000.0;
-  if(tsec<4.4) return;       //Saved data must be at least 4.4 seconds long.
-  auto time = QDateTime::currentDateTimeUtc ();
-  QString t=time.toString("yyMMdd_hhmmss");
-  m_fnameWE=m_config.save_directory().absoluteFilePath(t);
-
-// The following is potential a threading hazard - not a good
-// idea to pass pointer to be processed in another thread
-  int nsamples=dec_data.params.kin - m_kin0 + 1;
-  m_saveWAVWatcher.setFuture (QtConcurrent::run (std::bind (&MainWindow::save_wave_file,
-        this, m_fnameWE, &dec_data.d2[m_kin0], nsamples, m_config.my_callsign(),
-        m_config.my_grid(), m_mode, m_nSubMode, m_freqNominal, m_hisCall,
-        m_hisGrid)));
-
-  m_kin0=dec_data.params.kin;
 }
 
 void MainWindow::chkFT4()
