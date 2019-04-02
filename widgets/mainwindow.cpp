@@ -1331,7 +1331,7 @@ void MainWindow::fixStop()
   } else if (m_mode=="FT8") {
     m_hsymStop=50;
   } else if (m_mode=="FT4") {
-  m_hsymStop=17;
+  m_hsymStop=18;
 }
 }
 
@@ -1340,8 +1340,7 @@ void MainWindow::dataSink(qint64 frames)
 {
   static float s[NSMAX];
   char line[80];
-
-  int k (frames);
+  int k(frames);
   QString fname {QDir::toNativeSeparators(m_config.writeable_data_dir ().absoluteFilePath ("refspec.dat"))};
   QByteArray bafname = fname.toLatin1();
   const char *c_fname = bafname.data();
@@ -3396,7 +3395,7 @@ void MainWindow::guiUpdate()
 
   if(m_TRperiod==0) m_TRperiod=60;
   txDuration=0.0;
-  if(m_modeTx=="FT4")  txDuration=0.25 + 103*512/12000.0;      // FT4
+  if(m_modeTx=="FT4")  txDuration=0.35 + 105*512/12000.0;     // FT4
   if(m_modeTx=="FT8")  txDuration=1.0 + 79*1920/12000.0;      // FT8
   if(m_modeTx=="JT4")  txDuration=1.0 + 207.0*2520/11025.0;   // JT4
   if(m_modeTx=="JT9")  txDuration=1.0 + 85.0*m_nsps/12000.0;  // JT9
@@ -5650,7 +5649,7 @@ void MainWindow::on_actionFT4_triggered()
   m_nsps=6912;
   m_FFTSize = m_nsps/2;
   Q_EMIT FFTSize (m_FFTSize);
-  m_hsymStop=17;
+  m_hsymStop=18;
   setup_status_bar (bVHF);
   m_toneSpacing=12000.0/512.0;
   ui->actionFT4->setChecked(true);
@@ -6787,18 +6786,17 @@ void MainWindow::setFreq4(int rxFreq, int txFreq)
 
 void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const& s)
 {
-  // qDebug () << "MainWindow::handle_transceiver_update:" << s;
   Transceiver::TransceiverState old_state {m_rigState};
   //transmitDisplay (s.ptt ());
-  if (s.ptt () && !m_rigState.ptt ()) // safe to start audio
-                                      // (caveat - DX Lab Suite Commander)
-    {
-      if (m_tx_when_ready && g_iptt) // waiting to Tx and still needed
-        {
-          ptt1Timer.start(1000 * m_config.txDelay ()); //Start-of-transmission sequencer delay
-        }
-      m_tx_when_ready = false;
+  if (s.ptt () && !m_rigState.ptt ()) { // safe to start audio
+                                        // (caveat - DX Lab Suite Commander)
+    if (m_tx_when_ready && g_iptt) {    // waiting to Tx and still needed
+      int ms_delay=1000*m_config.txDelay();
+      if(m_mode=="FT4") ms_delay=20;
+      ptt1Timer.start(ms_delay); //Start-of-transmission sequencer delay
     }
+    m_tx_when_ready = false;
+  }
   m_rigState = s;
   auto old_freqNominal = m_freqNominal;
   if (!old_freqNominal)

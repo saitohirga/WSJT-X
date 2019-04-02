@@ -92,11 +92,9 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
   if (synchronize && !m_tuning && !m_bFastMode)	{
     m_silentFrames = m_ic + m_frameRate / (1000 / delay_ms) - (mstr * (m_frameRate / 1000));
   }
-  if((symbolsLength==103 or symbolsLength==105) and framesPerSymbol==512
+  if(symbolsLength==105 and framesPerSymbol==512
      and (toneSpacing==12000.0/512.0 or toneSpacing==-2.0)) {
 //### FT4 parameters
-    delay_ms=100;
-    mstr=5000;
     m_ic=0;
     m_silentFrames=0;
   }
@@ -159,6 +157,8 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
   qint16 * end (samples + numFrames * (bytesPerFrame () / sizeof (qint16)));
   qint64 framesGenerated (0);
 
+//  if(m_ic==0) qDebug() << "Modulator::readData" << 0.001*(QDateTime::currentMSecsSinceEpoch() % (1000*m_TRperiod));
+
   switch (m_state)
     {
     case Synchronizing:
@@ -180,8 +180,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
     case Active:
       {
         unsigned int isym=0;
-//        qDebug() << "Mod A" << m_toneSpacing << m_frequency << m_nsps
-//                 << m_ic << m_symbolsLength << icw[0];
+
         if(!m_tuning) isym=m_ic/(4.0*m_nsps);            // Actual fsample=48000
         bool slowCwId=((isym >= m_symbolsLength) && (icw[0] > 0)) && (!m_bFastMode);
         if(m_TRperiod==3) slowCwId=false;
@@ -191,6 +190,8 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
         float tsec=0.001*(ms % (1000*m_TRperiod));
         if(m_bFastMode and (icw[0]>0) and (tsec>(m_TRperiod-5.0))) fastCwId=true;
         if(!m_bFastMode) m_nspd=2560;                 // 22.5 WPM
+
+//        qDebug() << "Mod A" << m_ic << isym << tsec;
 
         if(slowCwId or fastCwId) {     // Transmit CW ID?
           m_dphi = m_twoPi*m_frequency/m_frameRate;
@@ -263,10 +264,10 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
         }
 
         qint16 sample;
+
         for (unsigned i = 0; i < numFrames && m_ic <= i1; ++i) {
           isym=0;
-          if(!m_tuning and m_TRperiod!=3) isym=m_ic / (4.0 * m_nsps);         //Actual
-                                                                              //fsample=48000
+          if(!m_tuning and m_TRperiod!=3) isym=m_ic/(4.0*m_nsps);   //Actual fsample=48000
           if(m_bFastMode) isym=isym%m_symbolsLength;
           if (isym != m_isym0 || m_frequency != m_frequency0) {
             if(itone[0]>=100) {
@@ -278,8 +279,6 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
                 m_toneFrequency0=m_frequency + itone[isym]*m_toneSpacing;
               }
             }
-//            qDebug() << "Mod B" << m_bFastMode << m_ic << numFrames << isym << itone[isym]
-//                     << m_toneFrequency0 << m_nsps;
             m_dphi = m_twoPi * m_toneFrequency0 / m_frameRate;
             m_isym0 = isym;
             m_frequency0 = m_frequency;         //???
@@ -302,10 +301,10 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
           sample=qRound(m_amp*qSin(m_phi));
 
 //Here's where we transmit from a precomputed wave[] array:
-          if(!m_tuning and (m_toneSpacing < 0)) sample=qRound(m_amp*foxcom_.wave[m_ic]);
-//          if(m_ic < 10) qDebug() << "Mod Tx" << m_ic << m_amp
-//                                  << foxcom_.wave[m_ic] << sample
-//                                  << m_toneSpacing;
+          if(!m_tuning and (m_toneSpacing < 0)) {
+            m_amp=32767.0;
+            sample=qRound(m_amp*foxcom_.wave[m_ic]);
+          }
 
           samples = load(postProcessSample(sample), samples);
           ++framesGenerated;
@@ -322,9 +321,9 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
         }
 
         m_frequency0 = m_frequency;
-        // done for this chunk - continue on next call
-//        qint64 ms1=QDateTime::currentMSecsSinceEpoch() - m_ms0;
-//        if(m_ic>=4*144*160) qDebug() << "Modulator finished" << m_ic << 0.001*ms1;
+// done for this chunk - continue on next call
+
+//        qDebug() << "Mod B" << m_ic << i1 << 0.001*(QDateTime::currentMSecsSinceEpoch() % (1000*m_TRperiod));
 
         while (samples != end)  // pad block with silence
           {

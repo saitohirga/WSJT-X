@@ -46,7 +46,7 @@
 #define NUM_MSK144_SYMBOLS 144             //s8 + d48 + s8 + d80
 #define NUM_QRA64_SYMBOLS 84               //63 data + 21 sync
 #define NUM_FT8_SYMBOLS 79
-#define NUM_FT4_SYMBOLS 103
+#define NUM_FT4_SYMBOLS 105
 #define NUM_CW_SYMBOLS 250
 #define TX_SAMPLE_RATE 48000
 #define N_WIDGETS 33
