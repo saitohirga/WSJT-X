@@ -3110,7 +3110,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 //Right (Rx Frequency) window
       bool bDisplayRight=bAvgMsg;
       int audioFreq=decodedtext.frequencyOffset();
-      if(m_mode=="FT8") {
+      if(m_mode=="FT8" or m_mode=="FT4") {
         auto const& parts = decodedtext.string().remove("<").remove(">")
             .split (' ', QString::SkipEmptyParts);
         if (parts.size () > 6) {
@@ -4346,23 +4346,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
         ui->TxFreqSpinBox->setValue(frequency); //Set Tx freq
       }
     }
-    /*
-    if(m_mode=="FT4") {
-      int i0=message.string().indexOf(" +  ");
-      QString t=message.string().trimmed().mid(i0+4,-1);
-      int n=0;
-      if(t==ui->tx1->text()) n=1;
-      if(t==ui->tx2->text()) n=2;
-      if(t==ui->tx3->text()) n=3;
-      if(t==ui->tx4->text()) n=4;
-      if(t==ui->tx5->currentText()) n=5;
-      if(t==ui->tx6->text()) n=6;
-      if(n>0) {
-        if(ctrl) ui->TxFreqSpinBox->setValue(frequency);
-        ft4_tx(n);
-      }
-    }
-    */
     return;
   }
 
@@ -4813,18 +4796,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       && !m_bDoubleClicked && m_mode!="FT4") {
     return;
   }
-  /*
-  if(m_mode=="FT4" and ui->cbAutoSeq->isChecked()) {
-    if((m_ntx==4 or m_ntx==5) and !m_diskData) {
-      save_FT4();
-      logQSOTimer.start(0);  // Log the QSO
-    }
-    if((m_ntx==3 and ui->cbFirst->isChecked()) or m_ntx==4 or m_bDoubleClicked) {
-      QThread::msleep(600);  //Wait a bit.  ### Is this a good idea??? ###
-      ft4_tx(m_ntx);
-    }
-  }
-  */
   if(m_config.quick_call()) auto_tx_mode(true);
   m_bDoubleClicked=false;
 }
@@ -8644,7 +8615,6 @@ void MainWindow::write_all(QString txRx, QString message)
   t.sprintf("%5d",ui->TxFreqSpinBox->value());
   if(txRx=="Tx") msg="   0  0.0" + t + " " + message;
   auto time = QDateTime::currentDateTimeUtc ();
-//  if(m_mode!="FT4") time = time.addSecs(-(time.time().second() % m_TRperiod));
   time = time.addSecs(-(time.time().second() % m_TRperiod));
   t.sprintf("%10.3f ",m_freqNominal/1.e6);
   if(m_diskData) {
