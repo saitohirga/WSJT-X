@@ -3031,7 +3031,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         // truncate before line ending chars
         line_read = line_read.left (p - line_read.constData ());
       }
-    if(m_mode!="FT8") {
+    if(m_mode!="FT8" and m_mode!="FT4") {
       //Pad 22-char msg to at least 37 chars
       line_read = line_read.left(43) + "               " + line_read.mid(43);
     }
