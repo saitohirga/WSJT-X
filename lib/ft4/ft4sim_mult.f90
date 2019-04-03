@@ -6,7 +6,7 @@ program ft4sim_mult
   use packjt77
   include 'ft4_params.f90'               !FT4 protocol constants
   parameter (NWAVE=NN*NSPS)
-  parameter (NZZ=15*12000)               !Length of .wav file, 180,000 i*2 samples
+  parameter (NZZ=18*3456)                !Length of .wav file, 62208 i*2 samples
   type(hdr) h                            !Header for .wav file
   character arg*12,fname*17,cjunk*4
   character msg37*37,msgsent37*37,c77*77
@@ -26,20 +26,19 @@ program ft4sim_mult
      go to 999
   endif
   call getarg(1,arg)
-  read(arg,*) nsigs                      !Number of signals
+  read(arg,*) nsigs               !Number of signals
   call getarg(2,arg)
-  read(arg,*) nfiles                     !Number of files
+  read(arg,*) nfiles              !Number of files
 
   twopi=8.0*atan(1.0)
-  fs=12000.0                             !Sample rate (Hz)
-  dt=1.0/fs                              !Sample interval (s)
-  hmod=1.0                               !Modulation index (0.5 is MSK, 1.0 is FSK)
-  tt=NSPS*dt                             !Duration of unsmoothed symbols (s)
-  baud=1.0/tt                            !Keying rate (baud)
-  txt=NZ*dt                              !Transmission length (s) without ramp up/down
+  fs=12000.0                      !Sample rate (Hz)
+  dt=1.0/fs                       !Sample interval (s)
+  hmod=1.0                        !Modulation index (0.5 is MSK, 1.0 is FSK)
+  tt=NSPS*dt                      !Duration of unsmoothed symbols (s)
+  baud=1.0/tt                     !Keying rate (baud)
+  txt=NZ*dt                       !Transmission length (s) without ramp up/down
   bandwidth_ratio=2500.0/(fs/2.0)
   txt=NN*NSPS/12000.0
-  xdtmax=10.0 - 0.086
   open(10,file='messages.txt',status='old',err=998)
 
   do ifile=1,nfiles
@@ -57,7 +56,7 @@ program ft4sim_mult
         if(isnr.lt.-16) isnr=-16
         f0=ifreq*93.75/50.0
         call random_number(r)
-        xdt=r*xdtmax
+        xdt=r-0.5
 ! Source-encode, then get itone()
         i3=-1
         n3=-1
