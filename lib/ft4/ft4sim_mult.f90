@@ -6,7 +6,7 @@ program ft4sim_mult
   use packjt77
   include 'ft4_params.f90'               !FT4 protocol constants
   parameter (NWAVE=NN*NSPS)
-  parameter (NZZ=18*3456)                !Length of .wav file, 62208 i*2 samples
+  parameter (NZZ=65760)                  !Length of .wav file (4.48+1.0)*12000
   type(hdr) h                            !Header for .wav file
   character arg*12,fname*17,cjunk*4
   character msg37*37,msgsent37*37,c77*77
@@ -65,7 +65,7 @@ program ft4sim_mult
         nwave0=(NN+2)*NSPS
         call gen_ft4wave(itone,NN,NSPS,12000.0,f0,wave0,nwave0)
 
-        k0=nint(xdt/dt)
+        k0=nint((xdt+0.5)/dt)
         if(k0.lt.1) k0=1
         tmp(:k0-1)=0.0
         tmp(k0:k0+nwave0-1)=wave0
