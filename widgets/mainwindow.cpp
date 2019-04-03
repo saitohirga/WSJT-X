@@ -3051,7 +3051,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       }
       return;
     } else {
-      if(m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA64" or m_mode=="FT8") {
+      if(m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA64" or m_mode=="FT8" or m_mode=="FT4") {
         int n=line_read.indexOf("f");
         if(n<0) n=line_read.indexOf("d");
         if(n>0) {
@@ -3114,7 +3114,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       if(m_mode=="FT8" or m_mode=="FT4") {
         auto const& parts = decodedtext.string().remove("<").remove(">")
             .split (' ', QString::SkipEmptyParts);
-        if (parts.size () > 6) {
+        if (parts.size() > 6) {
           auto for_us = parts[5].contains (m_baseCall)
             || ("DE" == parts[5] && qAbs (ui->RxFreqSpinBox->value () - audioFreq) <= 10);
           if(m_baseCall==m_config.my_callsign() and m_baseCall!=parts[5]) for_us=false;
@@ -3192,7 +3192,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
 //### I think this is where we are preventing Hounds from spotting Fox ###
       if(m_mode!="FT8" or (SpecOp::HOUND != m_config.special_op_id())) {
-        if(m_mode=="FT8" or m_mode=="QRA64" or m_mode=="JT4" or m_mode=="JT65" or m_mode=="JT9") {
+        if(m_mode=="FT8" or m_mode=="FT4" or m_mode=="QRA64" or m_mode=="JT4" or m_mode=="JT65" or m_mode=="JT9") {
           auto_sequence (decodedtext, 25, 50);
         }
 
