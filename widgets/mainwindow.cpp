@@ -2690,7 +2690,8 @@ void MainWindow::diskDat()                                   //diskDat()
     float bw=m_config.RxBandwidth();
     if(db > 0.0) degrade_snr_(dec_data.d2,&dec_data.params.kin,&db,&bw);
     for(int n=1; n<=m_hsymStop; n++) {                      // Do the waterfall spectra
-      k=(n+1)*kstep;
+//      k=(n+1)*kstep;           //### Why was this (n+1) ??? ###
+      k=n*kstep;
       if(k > dec_data.params.kin) break;
       dec_data.params.npts8=k/8;
       dataSink(k);

@@ -90,11 +90,9 @@ contains
       0,1,0,1,0,1,1,0,1,1,1,1,1,0,0,0,1,0,1/
    save fs,dt,tt,txt,twopi,h,one,first,apbits,nappasses,naptypes, &
       mycall0,hiscall0,msg0,cqstr0,ctwk2
-    
-    this%callback => callback
 
+    this%callback => callback
     hhmmss=cdatetime0(8:13)
-    
    if(first) then
       fs=12000.0/NDOWN                !Sample rate after downsampling
       dt=1/fs                         !Sample interval after downsample (s)
@@ -471,7 +469,7 @@ contains
          endif
       enddo !Sequence estimation
    enddo    !Candidate list
-    
+
   return
   end subroutine decode
 

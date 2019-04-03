@@ -6,18 +6,19 @@ program ft4sim
   use packjt77
   include 'ft4_params.f90'               !Set various constants
   parameter (NWAVE=NN*NSPS)
+  parameter (NZZ=18*3456)                !62208
   type(hdr) h                            !Header for .wav file
   character arg*12,fname*17
   character msg37*37,msgsent37*37
   character c77*77
-  complex c0(0:NMAX-1)
-  complex c(0:NMAX-1)
-  real wave(NMAX)
-  real dphi(0:NMAX-1)
+  complex c0(0:NZZ-1)
+  complex c(0:NZZ-1)
+  real wave(NZZ)
+  real dphi(0:NZZ-1)
   real pulse(3*NSPS)               
   integer itone(NN)
   integer*1 msgbits(77)
-  integer*2 iwave(NMAX)                  !Generated full-length waveform
+  integer*2 iwave(NZZ)                  !Generated full-length waveform
   integer icos4(4)
   data icos4/0,1,3,2/
   
@@ -100,7 +101,8 @@ program ft4sim
   phi=0.0
   c0=0.0
   dphi=dphi+twopi*f0*dt
-  do j=0,NMAX-1
+!  do j=0,NMAX-1                          !### ??? ###
+  do j=0,(NN+2)*NSPS-1
      c0(j)=cmplx(cos(phi),sin(phi))
      phi=mod(phi+dphi(j),twopi)
   enddo 
@@ -109,13 +111,13 @@ program ft4sim
   c0((NN+1)*NSPS:(NN+2)*NSPS-1)=c0((NN+1)*NSPS:(NN+2)*NSPS-1)*(1.0+cos(twopi*(/(i,i=0,NSPS-1)/)/(2.0*NSPS) ))/2.0
   c0((NN+2)*NSPS:)=0.
 
-  k=nint((xdt+0.14)/dt)
+  k=nint((xdt+0.35)/dt)
   c0=cshift(c0,-k)
   ia=k
 
   do ifile=1,nfiles
      c=c0
-     if(fspread.ne.0.0 .or. delay.ne.0.0) call watterson(c,NMAX,NWAVE,fs,delay,fspread)
+     if(fspread.ne.0.0 .or. delay.ne.0.0) call watterson(c,NZZ,NWAVE,fs,delay,fspread)
      c=sig*c
   
      ib=k
@@ -124,7 +126,7 @@ program ft4sim
      nslots=1
    
      if(snrdb.lt.90) then
-        do i=1,NMAX                   !Add gaussian noise at specified SNR
+        do i=1,NZZ                   !Add gaussian noise at specified SNR
            xnoise=gran()
            wave(i)=wave(i) + xnoise
         enddo
@@ -140,15 +142,14 @@ program ft4sim
      endif
      if(any(abs(wave).gt.32767.0)) print*,"Warning - data will be clipped."
      iwave=nint(wave)
-     h=default_header(12000,NMAX+2208)
+     h=default_header(12000,NZZ)
      write(fname,1102) ifile
 1102 format('000000_',i6.6,'.wav')
      open(10,file=fname,status='unknown',access='stream')
      write(10) h,iwave                !Save to *.wav file
-     iwave(1:2208)=0
-     write(10) iwave(1:2208)          !Add 0.5 s of zeroes
      close(10)
      write(*,1110) ifile,xdt,f0,snrdb,fname
 1110 format(i4,f7.2,f8.2,f7.1,2x,a17)
-  enddo    
+  enddo
+  
 999 end program ft4sim
