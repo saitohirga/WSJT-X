@@ -149,7 +149,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      go to 800
   endif
 
-  if(params%nmode.eq.-4) then
+  if(params%nmode.eq.5) then
      call timer('decft4  ',0)
      call my_ft4%decode(ft4_decoded,id2,params%nQSOProgress,params%nfqso,    &
           params%nutc,params%nfa,params%nfb,params%ndepth,ncontest,          &

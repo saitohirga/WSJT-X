@@ -31,7 +31,7 @@ contains
     class(ft4_decoder), intent(inout) :: this
     procedure(ft4_decode_callback) :: callback
     parameter (NSS=NSPS/NDOWN)
-
+    parameter (NZZ=18*3456)
    character message*37,msgsent*37,msg0*37
    character c77*77
    character*37 decodes(100)
@@ -42,8 +42,8 @@ contains
    character*6 hhmmss
    character*4 cqstr,cqstr0
 
-   complex cd2(0:NMAX/NDOWN-1)                  !Complex waveform
-   complex cb(0:NMAX/NDOWN-1)
+   complex cd2(0:NZZ/NDOWN-1)                  !Complex waveform
+   complex cb(0:NZZ/NDOWN-1+NN*NSS)
    complex cd(0:NN*NSS-1)                       !Complex waveform
    complex ctwk(2*NSS),ctwk2(2*NSS,-16:16)
    complex csymb(NSS)
@@ -60,7 +60,7 @@ contains
    integer apbits(2*ND)
    integer apmy_ru(28),aphis_fd(28)
    integer icos4a(0:3),icos4b(0:3),icos4c(0:3),icos4d(0:3)
-   integer*2 iwave(NMAX)                 !Raw received data
+   integer*2 iwave(NZZ)                 !Raw received data
    integer*1 message77(77),rvec(77),apmask(2*ND),cw(2*ND)
    integer*1 hbits(2*NN)
    integer graymap(0:3)
@@ -216,7 +216,7 @@ contains
       snr=candidate(3,icand)-1.0
       call ft4_downsample(iwave,dobigfft,f0,cd2)  !Downsample to 32 Sam/Sym
       if(dobigfft) dobigfft=.false.
-      sum2=sum(cd2*conjg(cd2))/(real(NMAX)/real(NDOWN))
+      sum2=sum(cd2*conjg(cd2))/(real(NZZ)/real(NDOWN))
       if(sum2.gt.0.0) cd2=cd2/sqrt(sum2)
 ! Sample rate is now 12000/16 = 750 samples/second
       do isync=1,2
@@ -225,15 +225,14 @@ contains
             idfmax=12
             idfstp=3
             ibmin=0
-!            ibmax=216                     !Max DT = 216/750 = 0.288 s
-            ibmax=432
+            ibmax=800
             ibstp=4
          else
             idfmin=idfbest-4
             idfmax=idfbest+4
             idfstp=1
             ibmin=max(0,ibest-5)
-            ibmax=min(ibest+5,NMAX/NDOWN-1)
+            ibmax=min(ibest+5,NZZ/NDOWN-1)
             ibstp=1
          endif
          ibest=-1
@@ -462,7 +461,7 @@ contains
                xsnr=-20.0
             endif
             nsnr=nint(max(-20.0,xsnr))
-            xdt=ibest/750.0 - 0.45
+            xdt=ibest/750.0 - 0.5
             call this%callback(sync,nsnr,xdt,f0,message,iaptype,qual)
             if(ibest.ge.ibmax-15) msg0=message         !Possible dupe candidate
             exit

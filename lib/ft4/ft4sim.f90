@@ -111,18 +111,15 @@ program ft4sim
   c0((NN+1)*NSPS:(NN+2)*NSPS-1)=c0((NN+1)*NSPS:(NN+2)*NSPS-1)*(1.0+cos(twopi*(/(i,i=0,NSPS-1)/)/(2.0*NSPS) ))/2.0
   c0((NN+2)*NSPS:)=0.
 
-  k=nint((xdt+0.35)/dt)
+  k=nint((xdt+0.5)/dt)
   c0=cshift(c0,-k)
-  ia=k
 
   do ifile=1,nfiles
      c=c0
      if(fspread.ne.0.0 .or. delay.ne.0.0) call watterson(c,NZZ,NWAVE,fs,delay,fspread)
      c=sig*c
-  
-     ib=k
      wave=real(c)
-     peak=maxval(abs(wave(ia:ib)))
+     peak=maxval(abs(wave))
      nslots=1
    
      if(snrdb.lt.90) then
