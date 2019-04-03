@@ -206,15 +206,19 @@ contains
 
    fa=nfa
    fb=nfb
+   call timer('getcand4',0)
    call getcandidates4(iwave,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
       ncand,sbase)
+   call timer('getcand4',1)
 
    ndecodes=0
    dobigfft=.true.
    do icand=1,ncand
       f0=candidate(1,icand)
       snr=candidate(3,icand)-1.0
+      call timer('ft4_down',0)
       call ft4_downsample(iwave,dobigfft,f0,cd2)  !Downsample to 32 Sam/Sym
+      call timer('ft4_down',1)
       if(dobigfft) dobigfft=.false.
       sum2=sum(cd2*conjg(cd2))/(real(NZZ)/real(NDOWN))
       if(sum2.gt.0.0) cd2=cd2/sqrt(sum2)
@@ -238,6 +242,7 @@ contains
          ibest=-1
          smax=-99.
          idfbest=0
+         call timer('sync4d  ',0)
          do idf=idfmin,idfmax,idfstp
             do istart=ibmin,ibmax,ibstp
                call sync4d(cd2,istart,ctwk2(:,idf),1,sync)  !Find sync power
@@ -248,15 +253,19 @@ contains
                endif
             enddo
          enddo
+         call timer('sync4d  ',1)
       enddo
       f0=f0+real(idfbest)
       if( f0.le.10.0 .or. f0.ge.4990.0 ) cycle
 !      write(*,3002) smax,ibest/750.0,f0
 !3002  format('b',3f8.2)
-      call ft4_downsample(iwave,dobigfft,f0,cb) !Final downsample with corrected f0
+      call timer('ft4down ',0)
+      call ft4_downsample(iwave,dobigfft,f0,cb) !Final downsample, corrected f0
+      call timer('ft4down ',1)
       sum2=sum(abs(cb)**2)/(real(NSS)*NN)
       if(sum2.gt.0.0) cb=cb/sqrt(sum2)
       cd=cb(ibest:ibest+NN*NSS-1)
+      call timer('four2a  ',0)
       do k=1,NN
          i1=(k-1)*NSS
          csymb=cd(i1:i1+NSS-1)
@@ -264,6 +273,7 @@ contains
          cs(0:3,k)=csymb(1:4)
          s4(0:3,k)=abs(csymb(1:4))
       enddo
+      call timer('four2a  ',1)
 
 ! Sync quality check
       is1=0
@@ -440,8 +450,10 @@ contains
          endif
          max_iterations=40
          message77=0
+         call timer('bpdec174',0)
          call bpdecode174_91(llr,apmask,max_iterations,message77,     &
             cw,nharderror,niterations)
+         call timer('bpdec174',1)
          if(sum(message77).eq.0) cycle
          if( nharderror.ge.0 ) then
             message77=mod(message77+rvec,2) ! remove rvec scrambling
