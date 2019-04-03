@@ -4537,6 +4537,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       } else {  // no grid on end of msg
         QString r=message_words.at (3);
         if(m_QSOProgress >= ROGER_REPORT && (r=="RRR" || r.toInt()==73 || "RR73" == r)) {
+          if(m_mode=="FT4" and r=="RR73") m_dateTimeRcvdRR73=QDateTime::currentDateTimeUtc();
           if(ui->tabWidget->currentIndex()==1) {
             gen_msg = 5;
             if (ui->rbGenMsg->isChecked ()) m_ntx=7;
@@ -4979,7 +4980,8 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
         QDateTime now=QDateTime::currentDateTimeUtc();
         int sinceTx3 = m_dateTimeSentTx3.secsTo(now);
         int sinceRR73 = m_dateTimeRcvdRR73.secsTo(now);
-        if(m_bDoubleClicked and (qAbs(sinceTx3-12) <= 3) and (sinceRR73 < 5)) {
+//        qDebug() << "aa" << m_bDoubleClicked << sinceTx3 << sinceRR73;
+        if(m_bDoubleClicked and (sinceTx3 < 15) and (sinceRR73 < 3)) {
           t="TU; " + ui->tx3->text();
           ui->tx3->setText(t);
         }
@@ -6894,7 +6896,7 @@ void MainWindow::transmit (double snr)
   }
 
   if (m_modeTx == "FT4") {
-//    toneSpacing=12000.0/512.0;        //Generate Tx waveform from itone[] array
+    m_dateTimeSentTx3=QDateTime::currentDateTimeUtc();
     toneSpacing=-2.0;                     //Transmit a pre-computed, filtered waveform.
     Q_EMIT sendMessage (NUM_FT4_SYMBOLS,
            512.0, ui->TxFreqSpinBox->value() - m_XIT,
