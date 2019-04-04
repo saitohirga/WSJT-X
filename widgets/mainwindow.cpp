@@ -4314,7 +4314,7 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
     }
     return;
   }
-  DecodedText message {cursor.block().text()};
+  DecodedText message {cursor.block().text().trimmed().remove("TU; ")};
   m_bDoubleClicked = true;
   processMessage (message, modifiers);
 }
@@ -4325,7 +4325,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   auto shift = modifiers.testFlag (Qt::ShiftModifier);
   auto ctrl = modifiers.testFlag (Qt::ControlModifier);
   // auto alt = modifiers.testFlag (Qt::AltModifier);
-
   // basic mode sanity checks
   auto const& parts = message.string ().split (' ', QString::SkipEmptyParts);
   if (parts.size () < 5) return;
@@ -4545,7 +4544,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
           } else {
             m_bTUmsg=false;
             m_nextCall="";   //### Temporary: disable use of "TU;" message
-
             if(SpecOp::RTTY == m_config.special_op_id() and m_nextCall!="") {
 // We're in RTTY contest and have "nextCall" queued up: send a "TU; ..." message
               logQSOTimer.start(0);
