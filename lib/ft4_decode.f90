@@ -1,13 +1,39 @@
-subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
-   iwave,ndecodes,mycall,hiscall,cqstr,line,data_dir)
+module ft4_decode
+  
+  type :: ft4_decoder
+     procedure(ft4_decode_callback), pointer :: callback
+   contains
+     procedure :: decode
+  end type ft4_decoder
 
-   use packjt77
-   include 'ft4_params.f90'
-   parameter (NSS=NSPS/NDOWN)
+  abstract interface
+     subroutine ft4_decode_callback (this,sync,snr,dt,freq,decoded,nap,qual)
+       import ft4_decoder
+       implicit none
+       class(ft4_decoder), intent(inout) :: this
+       real, intent(in) :: sync
+       integer, intent(in) :: snr
+       real, intent(in) :: dt
+       real, intent(in) :: freq
+       character(len=37), intent(in) :: decoded
+       integer, intent(in) :: nap 
+       real, intent(in) :: qual 
+     end subroutine ft4_decode_callback
+  end interface
 
+contains
+
+  subroutine decode(this,callback,iwave,nQSOProgress,nfqso,    &
+       nutc,nfa,nfb,ndepth,ncontest,mycall,hiscall)
+    use timer_module, only: timer
+    use packjt77
+    include 'ft4/ft4_params.f90'
+    class(ft4_decoder), intent(inout) :: this
+    procedure(ft4_decode_callback) :: callback
+    parameter (NSS=NSPS/NDOWN)
+    parameter (NZZ=18*3456)
    character message*37,msgsent*37,msg0*37
    character c77*77
-   character*61 line,linex(100)
    character*37 decodes(100)
    character*512 data_dir,fname
    character*17 cdatetime0
@@ -16,8 +42,8 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    character*6 hhmmss
    character*4 cqstr,cqstr0
 
-   complex cd2(0:NMAX/NDOWN-1)                  !Complex waveform
-   complex cb(0:NMAX/NDOWN-1)
+   complex cd2(0:NZZ/NDOWN-1)                  !Complex waveform
+   complex cb(0:NZZ/NDOWN-1+NN*NSS)
    complex cd(0:NN*NSS-1)                       !Complex waveform
    complex ctwk(2*NSS),ctwk2(2*NSS,-16:16)
    complex csymb(NSS)
@@ -34,7 +60,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    integer apbits(2*ND)
    integer apmy_ru(28),aphis_fd(28)
    integer icos4a(0:3),icos4b(0:3),icos4c(0:3),icos4d(0:3)
-   integer*2 iwave(NMAX)                 !Raw received data
+   integer*2 iwave(NZZ)                 !Raw received data
    integer*1 message77(77),rvec(77),apmask(2*ND),cw(2*ND)
    integer*1 hbits(2*NN)
    integer graymap(0:3)
@@ -62,12 +88,11 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    data rvec/0,1,0,0,1,0,1,0,0,1,0,1,1,1,1,0,1,0,0,0,1,0,0,1,1,0,1,1,0, &
       1,0,0,1,0,1,1,0,0,0,0,1,0,0,0,1,0,1,0,0,1,1,1,1,0,0,1,0,1, &
       0,1,0,1,0,1,1,0,1,1,1,1,1,0,0,0,1,0,1/
-   save fs,dt,tt,txt,twopi,h,one,first,linex,apbits,nappasses,naptypes, &
+   save fs,dt,tt,txt,twopi,h,one,first,apbits,nappasses,naptypes, &
       mycall0,hiscall0,msg0,cqstr0,ctwk2
-   
-   call clockit('ft4_deco',0)
-   hhmmss=cdatetime0(8:13)
 
+    this%callback => callback
+    hhmmss=cdatetime0(8:13)
    if(first) then
       fs=12000.0/NDOWN                !Sample rate after downsampling
       dt=1/fs                         !Sample interval after downsample (s)
@@ -86,9 +111,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
          a=0.
          a(1)=real(idf)
          ctwk=1.
-         call clockit('twkfreq1',0)
          call twkfreq1(ctwk,2*NSS,fs/2.0,a,ctwk2(:,idf))
-         call clockit('twkfreq1',1)
       enddo
 
       mrrr=2*mod(mrrr+rvec(59:77),2)-1
@@ -183,23 +206,21 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
 
    fa=nfa
    fb=nfb
-   call clockit('getcand4',0)
+   call timer('getcand4',0)
    call getcandidates4(iwave,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
       ncand,sbase)
-   call clockit('getcand4',1)
+   call timer('getcand4',1)
 
    ndecodes=0
    dobigfft=.true.
    do icand=1,ncand
       f0=candidate(1,icand)
       snr=candidate(3,icand)-1.0
-      if( f0.le.10.0 .or. f0.ge.4990.0 ) cycle
-      call clockit('ft4_down',0)
-      call ft4_downsample(iwave,dobigfft,f0,cd2)  !Downsample from 512 to 32 Sa/Symbol
+      call timer('ft4_down',0)
+      call ft4_downsample(iwave,dobigfft,f0,cd2)  !Downsample to 32 Sam/Sym
+      call timer('ft4_down',1)
       if(dobigfft) dobigfft=.false.
-      call clockit('ft4_down',1)
-
-      sum2=sum(cd2*conjg(cd2))/(real(NMAX)/real(NDOWN))
+      sum2=sum(cd2*conjg(cd2))/(real(NZZ)/real(NDOWN))
       if(sum2.gt.0.0) cd2=cd2/sqrt(sum2)
 ! Sample rate is now 12000/16 = 750 samples/second
       do isync=1,2
@@ -208,22 +229,21 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
             idfmax=12
             idfstp=3
             ibmin=0
-            ibmax=216                     !Max DT = 216/750 = 0.288 s
+            ibmax=800
             ibstp=4
          else
             idfmin=idfbest-4
             idfmax=idfbest+4
             idfstp=1
             ibmin=max(0,ibest-5)
-            ibmax=min(ibest+5,NMAX/NDOWN-1)
+            ibmax=min(ibest+5,NZZ/NDOWN-1)
             ibstp=1
          endif
          ibest=-1
          smax=-99.
          idfbest=0
+         call timer('sync4d  ',0)
          do idf=idfmin,idfmax,idfstp
-
-            call clockit('sync4d  ',0)
             do istart=ibmin,ibmax,ibstp
                call sync4d(cd2,istart,ctwk2(:,idf),1,sync)  !Find sync power
                if(sync.gt.smax) then
@@ -232,20 +252,20 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
                   idfbest=idf
                endif
             enddo
-            call clockit('sync4d  ',1)
-
          enddo
+         call timer('sync4d  ',1)
       enddo
       f0=f0+real(idfbest)
       if( f0.le.10.0 .or. f0.ge.4990.0 ) cycle
-
-      call clockit('ft4down ',0)
-      call ft4_downsample(iwave,dobigfft,f0,cb) !Final downsample with corrected f0
-      call clockit('ft4down ',1)
+!      write(*,3002) smax,ibest/750.0,f0
+!3002  format('b',3f8.2)
+      call timer('ft4down ',0)
+      call ft4_downsample(iwave,dobigfft,f0,cb) !Final downsample, corrected f0
+      call timer('ft4down ',1)
       sum2=sum(abs(cb)**2)/(real(NSS)*NN)
       if(sum2.gt.0.0) cb=cb/sqrt(sum2)
       cd=cb(ibest:ibest+NN*NSS-1)
-      call clockit('four2a  ',0)
+      call timer('four2a  ',0)
       do k=1,NN
          i1=(k-1)*NSS
          csymb=cd(i1:i1+NSS-1)
@@ -253,7 +273,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
          cs(0:3,k)=csymb(1:4)
          s4(0:3,k)=abs(csymb(1:4))
       enddo
-      call clockit('four2a  ',1)
+      call timer('four2a  ',1)
 
 ! Sync quality check
       is1=0
@@ -322,11 +342,9 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
       bmetc(201:204)=bmetb(201:204)
       bmetc(205:206)=bmeta(205:206)
 
-      call clockit('normaliz',0)
       call normalizebmet(bmeta,2*NN)
       call normalizebmet(bmetb,2*NN)
       call normalizebmet(bmetc,2*NN)
-      call clockit('normaliz',1)
 
       hbits=0
       where(bmeta.ge.0) hbits=1
@@ -432,10 +450,10 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
          endif
          max_iterations=40
          message77=0
-         call clockit('bpdecode',0)
+         call timer('bpdec174',0)
          call bpdecode174_91(llr,apmask,max_iterations,message77,     &
             cw,nharderror,niterations)
-         call clockit('bpdecode',1)
+         call timer('bpdec174',1)
          if(sum(message77).eq.0) cycle
          if( nharderror.ge.0 ) then
             message77=mod(message77+rvec,2) ! remove rvec scrambling
@@ -455,35 +473,15 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
                xsnr=-20.0
             endif
             nsnr=nint(max(-20.0,xsnr))
-            freq=f0
-            tsig=mod(tbuf + ibest/750.0,100.0)
-
-            write(line,1000) hhmmss,nsnr,tsig,nint(freq),message
-1000        format(a6,i4,f5.1,i5,' + ',1x,a37)
-            l1=index(data_dir,char(0))-1
-            if(l1.ge.1) data_dir(l1+1:l1+1)="/"
-            fname=data_dir(1:l1+1)//'all_ft4.txt'
-            open(24,file=trim(fname),status='unknown',position='append')
-            write(24,1002) cdatetime0,nsnr,tsig,nint(freq),message,    &
-               nharderror,nsync_qual,ipass,niterations,iaptype,nsync
-            if(hhmmss.eq.'      ') write(*,1002) cdatetime0,nsnr,             &
-               tsig,nint(freq),message,nharderror,nsync_qual,ipass,    &
-               niterations,iaptype
-1002        format(a17,i4,f5.1,i5,' Rx  ',a37,6i4)
-            close(24)
-            linex(ndecodes)=line
+            xdt=ibest/750.0 - 0.5
+            call this%callback(sync,nsnr,xdt,f0,message,iaptype,qual)
             if(ibest.ge.ibmax-15) msg0=message         !Possible dupe candidate
             exit
          endif
       enddo !Sequence estimation
    enddo    !Candidate list
-   call clockit('ft4_deco',1)
-   call clockit2(data_dir)
-   call clockit('ft4_deco',101)
-   return
 
- entry get_ft4msg(idecode,line)
-   line=linex(idecode)
-   return
+  return
+  end subroutine decode
 
-end subroutine ft4_decode
+end module ft4_decode

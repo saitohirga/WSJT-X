@@ -360,6 +360,7 @@ set (wsjt_FSRCS
   lib/jt65_decode.f90
   lib/jt65_mod.f90
   lib/ft8_decode.f90
+  lib/ft4_decode.f90
   lib/jt9_decode.f90
   lib/options.f90
   lib/packjt.f90
@@ -517,9 +518,9 @@ set (wsjt_FSRCS
   lib/msk144sim.f90
   lib/mskrtd.f90
   lib/nuttal_window.f90
+  lib/ft4/ft4b.f90
   lib/ft4/ft4sim.f90
   lib/ft4/ft4sim_mult.f90
-  lib/ft4/ft4_decode.f90
   lib/ft4/ft4_downsample.f90
   lib/77bit/my_hash.f90
   lib/wsprd/osdwspr.f90
