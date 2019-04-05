@@ -27,7 +27,7 @@ subroutine getcandidates4(id,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
 ! Compute symbol spectra, stepping by NSTEP steps.  
   savg=0.
   tstep=NSTEP/12000.0                         
-  df=12000.0/NFFT1                            !5.86 Hz
+  df=12000.0/NFFT1                            
   fac=1.0/300.0
   do j=1,NHSYM
      ia=(j-1)*NSTEP + 1
@@ -48,25 +48,38 @@ subroutine getcandidates4(id,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
   if(nfa.lt.1) nfa=1
   nfb=fb/df
   if(nfb.gt.nint(5000.0/df)) nfb=nint(5000.0/df)
-  np=nfb-nfa+1
+  n300=300/df
+  n2500=2500/df
+!  np=nfb-nfa+1
+  np=n2500-n300+1
   indx=0
-  call indexx(savsm(nfa:nfb),np,indx)
-  xn=savsm(nfa+indx(nint(0.3*np)))
-  savsm=savsm/xn
-
+  call indexx(savsm(n300:n2500),np,indx)
+  xn=savsm(n300+indx(nint(0.3*np)))
   ncand=0
+  if(xn.le.1.e-8) return 
+  savsm=savsm/xn
+!  call ft4_baseline(savg,nfa,nfb,sbase)
+!  savsm=savsm/sbase
+
   f_offset = -1.5*12000/512
   do i=nfa+1,nfb-1
-    if(savsm(i).ge.savsm(i-1) .and. savsm(i).ge.savsm(i+1) .and. savsm(i).ge.syncmin) then
-      del=0.5*(savsm(i-1)-savsm(i+1))/(savsm(i-1)-2*savsm(i)+savsm(i+1))
-      fpeak=(i+del)*df+f_offset
-      speak=savsm(i) - 0.25*(savsm(i-1)-savsm(i+1))*del
-      ncand=ncand+1
-      if(ncand.gt.maxcand) exit
-      candidate(1,ncand)=fpeak
-      candidate(2,ncand)=-99.99
-      candidate(3,ncand)=speak
-    endif
+     if(savsm(i).ge.savsm(i-1) .and. savsm(i).ge.savsm(i+1) .and.      &
+          savsm(i).ge.syncmin) then
+        den=savsm(i-1)-2*savsm(i)+savsm(i+1)
+        del=0.
+        if(den.ne.0.0)  del=0.5*(savsm(i-1)-savsm(i+1))/den
+        fpeak=(i+del)*df+f_offset
+        speak=savsm(i) - 0.25*(savsm(i-1)-savsm(i+1))*del
+        ncand=ncand+1
+        if(ncand.gt.maxcand) then
+           ncand=maxcand
+           exit
+        endif
+        candidate(1,ncand)=fpeak
+        candidate(2,ncand)=-99.99
+        candidate(3,ncand)=speak
+        if(ncand.eq.maxcand) exit
+     endif
   enddo
 
 return

@@ -19,7 +19,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    complex cd2(0:NMAX/NDOWN-1)                  !Complex waveform
    complex cb(0:NMAX/NDOWN-1)
    complex cd(0:NN*NSS-1)                       !Complex waveform
-   complex ctwk(4*NSS),ctwk2(4*NSS)
+   complex ctwk(2*NSS),ctwk2(2*NSS,-16:16)
    complex csymb(NSS)
    complex cs(0:3,NN)
    real s4(0:3,NN)
@@ -46,7 +46,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
 
    logical nohiscall,unpk77_success
    logical one(0:255,0:7)    ! 256 4-symbol sequences, 8 bits
-   logical first
+   logical first, dobigfft
 
    data icos4a/0,1,3,2/
    data icos4b/1,0,2,3/
@@ -63,7 +63,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
       1,0,0,1,0,1,1,0,0,0,0,1,0,0,0,1,0,1,0,0,1,1,1,1,0,0,1,0,1, &
       0,1,0,1,0,1,1,0,1,1,1,1,1,0,0,0,1,0,1/
    save fs,dt,tt,txt,twopi,h,one,first,linex,apbits,nappasses,naptypes, &
-      mycall0,hiscall0,msg0,cqstr0
+      mycall0,hiscall0,msg0,cqstr0,ctwk2
    
    call clockit('ft4_deco',0)
    hhmmss=cdatetime0(8:13)
@@ -80,6 +80,15 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
          do j=0,7
             if(iand(i,2**j).ne.0) one(i,j)=.true.
          enddo
+      enddo
+
+      do idf=-16,16
+         a=0.
+         a(1)=real(idf)
+         ctwk=1.
+         call clockit('twkfreq1',0)
+         call twkfreq1(ctwk,2*NSS,fs/2.0,a,ctwk2(:,idf))
+         call clockit('twkfreq1',1)
       enddo
 
       mrrr=2*mod(mrrr+rvec(59:77),2)-1
@@ -180,12 +189,14 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
    call clockit('getcand4',1)
 
    ndecodes=0
+   dobigfft=.true.
    do icand=1,ncand
       f0=candidate(1,icand)
       snr=candidate(3,icand)-1.0
       if( f0.le.10.0 .or. f0.ge.4990.0 ) cycle
       call clockit('ft4_down',0)
-      call ft4_downsample(iwave,f0,cd2)  !Downsample from 512 to 32 Sa/Symbol
+      call ft4_downsample(iwave,dobigfft,f0,cd2)  !Downsample from 512 to 32 Sa/Symbol
+      if(dobigfft) dobigfft=.false.
       call clockit('ft4_down',1)
 
       sum2=sum(cd2*conjg(cd2))/(real(NMAX)/real(NDOWN))
@@ -211,16 +222,10 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
          smax=-99.
          idfbest=0
          do idf=idfmin,idfmax,idfstp
-            a=0.
-            a(1)=real(idf)
-            ctwk=1.
-            call clockit('twkfreq1',0)
-            call twkfreq1(ctwk,4*NSS,fs,a,ctwk2)
-            call clockit('twkfreq1',1)
 
             call clockit('sync4d  ',0)
             do istart=ibmin,ibmax,ibstp
-               call sync4d(cd2,istart,ctwk2,1,sync,sync2)  !Find sync power
+               call sync4d(cd2,istart,ctwk2(:,idf),1,sync)  !Find sync power
                if(sync.gt.smax) then
                   smax=sync
                   ibest=istart
@@ -235,7 +240,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
       if( f0.le.10.0 .or. f0.ge.4990.0 ) cycle
 
       call clockit('ft4down ',0)
-      call ft4_downsample(iwave,f0,cb) !Final downsample with corrected f0
+      call ft4_downsample(iwave,dobigfft,f0,cb) !Final downsample with corrected f0
       call clockit('ft4down ',1)
       sum2=sum(abs(cb)**2)/(real(NSS)*NN)
       if(sum2.gt.0.0) cb=cb/sqrt(sum2)
@@ -265,7 +270,7 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
          ip=maxloc(s4(:,k+99))
          if(icos4d(k-1).eq.(ip(1)-1)) is4=is4+1
       enddo
-      nsync=is1+is2+is3+is4   !Number of hard sync errors, 0-16
+      nsync=is1+is2+is3+is4   !Number of correct hard sync symbols, 0-16
       if(smax .lt. 0.7 .or. nsync .lt. 8) cycle
 
       do nseq=1,3             !Try coherent sequences of 1, 2, and 4 symbols
@@ -460,17 +465,15 @@ subroutine ft4_decode(cdatetime0,tbuf,nfa,nfb,nQSOProgress,ncontest,nfqso, &
             fname=data_dir(1:l1+1)//'all_ft4.txt'
             open(24,file=trim(fname),status='unknown',position='append')
             write(24,1002) cdatetime0,nsnr,tsig,nint(freq),message,    &
-               nharderror,nsync_qual,ipass,niterations,iaptype
+               nharderror,nsync_qual,ipass,niterations,iaptype,nsync
             if(hhmmss.eq.'      ') write(*,1002) cdatetime0,nsnr,             &
                tsig,nint(freq),message,nharderror,nsync_qual,ipass,    &
                niterations,iaptype
-1002        format(a17,i4,f5.1,i5,' Rx  ',a37,5i5)
+1002        format(a17,i4,f5.1,i5,' Rx  ',a37,6i4)
             close(24)
             linex(ndecodes)=line
             if(ibest.ge.ibmax-15) msg0=message         !Possible dupe candidate
-
             exit
-
          endif
       enddo !Sequence estimation
    enddo    !Candidate list

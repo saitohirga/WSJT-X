@@ -3700,6 +3700,15 @@ void MainWindow::guiUpdate()
               char ft8msgbits[77];
               genft8_(message, &i3, &n3, msgsent, const_cast<char *> (ft8msgbits),
                       const_cast<int *> (itone), 37, 37);
+              int nsym=79;
+              int nsps=4*1920;
+              float fsample=48000.0;
+              float f0=ui->TxFreqSpinBox->value() - m_XIT;
+              int icmplx=0;
+              int nwave=nsym*nsps;
+              gen_ft8wave_(const_cast<int *>(itone),&nsym,&nsps,&fsample,&f0,foxcom_.wave,
+                           foxcom_.wave,&icmplx,&nwave);
+
               if(SpecOp::FOX == m_config.special_op_id()) {
                 //Fox must generate the full Tx waveform, not just an itone[] array.
                 QString fm = QString::fromStdString(message).trimmed();
@@ -3892,10 +3901,12 @@ void MainWindow::guiUpdate()
         SpecOp::RTTY==m_config.special_op_id()) ) { 
       //We're in a contest-like mode other than EU_VHF: start QSO with Tx2.
       ui->tx1->setEnabled(false);
+      ui->txb1->setEnabled(false);
     }
     if(!ui->tx1->isEnabled() and SpecOp::EU_VHF==m_config.special_op_id()) { 
       //We're in EU_VHF mode: start QSO with Tx1.
       ui->tx1->setEnabled(true);
+      ui->txb1->setEnabled(true);
     }
   }
 
@@ -4206,7 +4217,11 @@ void MainWindow::on_txb1_clicked()
     m_ntx=1;
     m_QSOProgress = REPLYING;
     ui->txrb1->setChecked(true);
-    if (m_transmitting) m_restart=true;
+    if(m_mode=="FT4") {
+      ft4_tx(1);
+    } else {
+      if(m_transmitting) m_restart=true;
+    }
   }
   else {
     on_txb2_clicked ();
@@ -4227,7 +4242,11 @@ void MainWindow::on_txb2_clicked()
     m_ntx=2;
     m_QSOProgress = REPORT;
     ui->txrb2->setChecked(true);
-    if (m_transmitting) m_restart=true;
+    if(m_mode=="FT4") {
+      ft4_tx(2);
+    } else {
+      if(m_transmitting) m_restart=true;
+    }
 }
 
 void MainWindow::on_txb3_clicked()
@@ -4235,7 +4254,11 @@ void MainWindow::on_txb3_clicked()
     m_ntx=3;
     m_QSOProgress = ROGER_REPORT;
     ui->txrb3->setChecked(true);
-    if (m_transmitting) m_restart=true;
+    if(m_mode=="FT4") {
+      ft4_tx(3);
+    } else {
+      if(m_transmitting) m_restart=true;
+    }
 }
 
 void MainWindow::on_txb4_clicked()
@@ -4243,7 +4266,11 @@ void MainWindow::on_txb4_clicked()
     m_ntx=4;
     m_QSOProgress = ROGERS;
     ui->txrb4->setChecked(true);
-    if (m_transmitting) m_restart=true;
+    if(m_mode=="FT4") {
+      ft4_tx(4);
+    } else {
+      if(m_transmitting) m_restart=true;
+    }
 }
 
 void MainWindow::on_txb4_doubleClicked()
@@ -4261,7 +4288,11 @@ void MainWindow::on_txb5_clicked()
     m_ntx=5;
     m_QSOProgress = SIGNOFF;
     ui->txrb5->setChecked(true);
-    if (m_transmitting) m_restart=true;
+    if(m_mode=="FT4") {
+      ft4_tx(5);
+    } else {
+      if(m_transmitting) m_restart=true;
+    }
 }
 
 void MainWindow::on_txb5_doubleClicked()
@@ -4275,12 +4306,16 @@ void MainWindow::on_txb6_clicked()
     m_QSOProgress = CALLING;
     set_dateTimeQSO(-1);
     ui->txrb6->setChecked(true);
-    if (m_transmitting) m_restart=true;
+    if(m_mode=="FT4") {
+      ft4_tx(6);
+    } else {
+      if(m_transmitting) m_restart=true;
+    }
 }
 
 void MainWindow::doubleClickOnCall2(Qt::KeyboardModifiers modifiers)
 {
-  if(m_mode=="FT4" and m_inQSOwith!="") return;
+//Confusing: come here after double-click on left text window, not right window.
   set_dateTimeQSO(-1); // reset our QSO start time
   m_decodedText2=true;
   doubleClickOnCall(modifiers);
@@ -4289,7 +4324,6 @@ void MainWindow::doubleClickOnCall2(Qt::KeyboardModifiers modifiers)
 
 void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
 {
-  if(m_mode=="FT4" and m_inQSOwith!="") return;
   QTextCursor cursor;
   if(m_mode=="ISCAT") {
     MessageBox::information_message (this,
@@ -4346,6 +4380,21 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       if(!shift) ui->RxFreqSpinBox->setValue(frequency); //Set Rx freq
       if((ctrl or shift) and !ui->cbHoldTxFreq->isChecked ()) {
         ui->TxFreqSpinBox->setValue(frequency); //Set Tx freq
+      }
+    }
+    if(m_mode=="FT4") {
+      int i0=message.string().indexOf(" +  ");
+      QString t=message.string().trimmed().mid(i0+4,-1);
+      int n=0;
+      if(t==ui->tx1->text()) n=1;
+      if(t==ui->tx2->text()) n=2;
+      if(t==ui->tx3->text()) n=3;
+      if(t==ui->tx4->text()) n=4;
+      if(t==ui->tx5->currentText()) n=5;
+      if(t==ui->tx6->text()) n=6;
+      if(n>0) {
+        if(ctrl) ui->TxFreqSpinBox->setValue(frequency);
+        ft4_tx(n);
       }
     }
     return;
@@ -5149,6 +5198,7 @@ void MainWindow::clearDX ()
   m_rptRcvd.clear ();
   m_qsoStart.clear ();
   m_qsoStop.clear ();
+  m_inQSOwith.clear();
   genStdMsgs (QString {});
   if (ui->tabWidget->currentIndex() == 1) {
     ui->genMsg->setText(ui->tx6->text());
@@ -6895,15 +6945,6 @@ void MainWindow::transmit (double snr)
   if (m_modeTx == "FT8") {
 //    toneSpacing=12000.0/1920.0;
     toneSpacing=-3;
-    int nsym=79;
-    int nsps=4*1920;
-    float fsample=48000.0;
-    float f0=ui->TxFreqSpinBox->value() - m_XIT;
-    int icmplx=0;
-    int nwave=nsym*nsps;
-    gen_ft8wave_(const_cast<int *>(itone),&nsym,&nsps,&fsample,&f0,foxcom_.wave,
-                 foxcom_.wave,&icmplx,&nwave);
-
     if(m_config.x2ToneSpacing()) toneSpacing=2*12000.0/1920.0;
     if(m_config.x4ToneSpacing()) toneSpacing=4*12000.0/1920.0;
     if(SpecOp::FOX==m_config.special_op_id() and !m_tune) toneSpacing=-1;
