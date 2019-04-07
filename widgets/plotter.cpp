@@ -241,7 +241,6 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
     QString t;
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     int n=(ms/1000) % m_TRperiod;
-    if(m_mode=="FT4") n=0;
     QDateTime t1=QDateTime::currentDateTimeUtc().addSecs(-n);
     if(m_TRperiod < 60 or m_mode=="FT4") {
       t=t1.toString("hh:mm:ss") + "    " + m_rxBand;
