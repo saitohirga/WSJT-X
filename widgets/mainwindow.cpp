@@ -3116,6 +3116,12 @@ void MainWindow::readFromStdout()                             //readFromStdout
                 m_BestCQpriority="New Call on Band";
                 processMessage(decodedtext0);
               }
+              if(messagePriority=="New DXCC"
+                 and m_BestCQpriority!="New DXCC"
+                 and m_BestCQpriority!="New Multiplier") {
+                m_BestCQpriority="New DXCC";
+                processMessage(decodedtext0);
+              }
             }
           }
         }
