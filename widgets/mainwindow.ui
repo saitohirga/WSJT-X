@@ -1339,6 +1339,13 @@ QPushButton[state=&quot;ok&quot;] {
                   </widget>
                  </item>
                  <item>
+                  <widget class="QPushButton" name="pbCallBest">
+                   <property name="text">
+                    <string>Call Best</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
                   <widget class="QCheckBox" name="measure_check_box">
                    <property name="toolTip">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check this to start recording calibration data.&lt;br/&gt;While measuring calibration correction is disabled.&lt;br/&gt;When not checked you can view the calibration results.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>

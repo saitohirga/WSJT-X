@@ -979,6 +979,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
      QTimer::singleShot (0, this, SLOT (not_GA_warning_message ()));
   }
 
+  ui->pbCallBest->setVisible(m_mode=="FT4");
   if(!ui->cbMenus->isChecked()) {
     ui->cbMenus->setChecked(true);
     ui->cbMenus->setChecked(false);
@@ -5574,6 +5575,7 @@ void MainWindow::displayWidgets(qint64 n)
     if(i==32) ui->cbCQonly->setVisible(b);
     j=j>>1;
   }
+  ui->pbCallBest->setVisible(m_mode=="FT4");
   b=SpecOp::EU_VHF==m_config.special_op_id() or (SpecOp::RTTY==m_config.special_op_id() and
     (m_config.RTTY_Exchange()=="DX" or m_config.RTTY_Exchange()=="SCC"));
   ui->sbSerialNumber->setVisible(b);
