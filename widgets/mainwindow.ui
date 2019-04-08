@@ -1339,9 +1339,9 @@ QPushButton[state=&quot;ok&quot;] {
                   </widget>
                  </item>
                  <item>
-                  <widget class="QPushButton" name="pbCallBest">
+                  <widget class="QPushButton" name="pbBestSP">
                    <property name="text">
-                    <string>Call Best</string>
+                    <string>Best S+P</string>
                    </property>
                   </widget>
                  </item>

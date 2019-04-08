@@ -35,6 +35,7 @@ public:
   void displayQSY(QString text);
   void displayFoxToBeCalled(QString t, QColor bg = QColor {}, QColor fg = QColor {});
   void new_period ();
+  QString CQPriority(){return m_CQPriority;};
 
   Q_SIGNAL void selectCallsign (Qt::KeyboardModifiers);
   Q_SIGNAL void erased ();
@@ -51,6 +52,7 @@ private:
 
   Configuration const * m_config;
   bool m_bPrincipalPrefix;
+  QString m_CQPriority;
   QString appendWorkedB4(QString message, QString callsign
                          , QString const& grid, QColor * bg, QColor * fg
                          , LogBook const& logBook, QString const& currentBand

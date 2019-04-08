@@ -979,7 +979,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
      QTimer::singleShot (0, this, SLOT (not_GA_warning_message ()));
   }
 
-  ui->pbCallBest->setVisible(m_mode=="FT4");
+  ui->pbBestSP->setVisible(m_mode=="FT4");
   if(!ui->cbMenus->isChecked()) {
     ui->cbMenus->setChecked(true);
     ui->cbMenus->setChecked(false);
@@ -2885,7 +2885,10 @@ void MainWindow::decode()                                       //decode()
   if(m_mode=="FT8") dec_data.params.lft8apon = ui->actionEnable_AP_FT8->isVisible () &&
       ui->actionEnable_AP_FT8->isChecked ();
   if(m_mode=="FT8") dec_data.params.napwid=50;
-  if(m_mode=="FT4") dec_data.params.nmode=5;
+  if(m_mode=="FT4") {
+    dec_data.params.nmode=5;
+    m_BestCQpriority="";
+  }
   dec_data.params.ntrperiod=m_TRperiod;
   dec_data.params.nsubmode=m_nSubMode;
   if(m_mode=="QRA64") dec_data.params.nsubmode=100 + m_nSubMode;
@@ -3104,6 +3107,17 @@ void MainWindow::readFromStdout()                             //readFromStdout
           ui->decodedTextBrowser->displayDecodedText(decodedtext0,m_baseCall,m_mode,m_config.DXCC(),
                m_logBook,m_currentBand,m_config.ppfx(),
                (ui->cbCQonly->isVisible() and ui->cbCQonly->isChecked()));
+          if(m_bBestSPArmed and m_mode=="FT4") {
+            QString messagePriority=ui->decodedTextBrowser->CQPriority();
+            if(messagePriority!="") {
+              if(messagePriority=="New Call on Band"
+                 and m_BestCQpriority!="New Call on Band"
+                 and m_BestCQpriority!="New Multiplier") {
+                m_BestCQpriority="New Call on Band";
+                processMessage(decodedtext0);
+              }
+            }
+          }
         }
       }
 
@@ -3135,9 +3149,10 @@ void MainWindow::readFromStdout()                             //readFromStdout
       if (bDisplayRight) {
         // This msg is within 10 hertz of our tuned frequency, or a JT4 or JT65 avg,
         // or contains MyCall
-        ui->decodedTextBrowser2->displayDecodedText(decodedtext0,m_baseCall,m_mode,m_config.DXCC(),
-               m_logBook,m_currentBand,m_config.ppfx());
-
+        if(!m_bBestSPArmed or m_mode!="FT4") {
+          ui->decodedTextBrowser2->displayDecodedText(decodedtext0,m_baseCall,m_mode,m_config.DXCC(),
+                m_logBook,m_currentBand,m_config.ppfx());
+        }
         if(m_mode!="JT4") {
           bool b65=decodedtext.isJT65();
           if(b65 and m_modeTx!="JT65") on_pbTxMode_clicked();
@@ -3614,6 +3629,13 @@ void MainWindow::guiUpdate()
         m_ntx=1;
         ui->txrb1->setChecked(true);
       }
+
+      if(m_mode=="FT4" and m_bBestSPArmed) {
+        m_BestCQpriority="";
+        m_bBestSPArmed=false;
+        ui->pbBestSP->setStyleSheet ("");
+      }
+
       if(m_ntx == 1) ba=ui->tx1->text().toLocal8Bit();
       if(m_ntx == 2) ba=ui->tx2->text().toLocal8Bit();
       if(m_ntx == 3) ba=ui->tx3->text().toLocal8Bit();
@@ -5575,7 +5597,7 @@ void MainWindow::displayWidgets(qint64 n)
     if(i==32) ui->cbCQonly->setVisible(b);
     j=j>>1;
   }
-  ui->pbCallBest->setVisible(m_mode=="FT4");
+  ui->pbBestSP->setVisible(m_mode=="FT4");
   b=SpecOp::EU_VHF==m_config.special_op_id() or (SpecOp::RTTY==m_config.special_op_id() and
     (m_config.RTTY_Exchange()=="DX" or m_config.RTTY_Exchange()=="SCC"));
   ui->sbSerialNumber->setVisible(b);
@@ -8670,4 +8692,10 @@ void MainWindow::chkFT4()
     }
     on_contest_log_action_triggered();
   }
+}
+
+void MainWindow::on_pbBestSP_clicked()
+{
+  ui->pbBestSP->setStyleSheet ("QPushButton{color:red}");
+  m_bBestSPArmed=true;
 }

@@ -312,6 +312,7 @@ private slots:
   void on_comboBoxHoundSort_activated (int index);
   void not_GA_warning_message ();
   void checkMSK144ContestType();
+  void on_pbBestSP_clicked();
   int  setTxMsg(int n);
   bool stdCall(QString const& w);
 
@@ -520,6 +521,7 @@ private:
   bool    m_bCheckedContest;
   bool    m_bWarnedSplit=false;
   bool    m_bTUmsg;
+  bool    m_bBestSPArmed=false;
 
   enum
     {
@@ -615,6 +617,7 @@ private:
   QString m_nextGrid;
   QString m_fileDateTime;
   QString m_inQSOwith;
+  QString m_BestCQpriority;
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;
