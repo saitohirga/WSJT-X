@@ -8702,6 +8702,8 @@ void MainWindow::chkFT4()
 
 void MainWindow::on_pbBestSP_clicked()
 {
-  ui->pbBestSP->setStyleSheet ("QPushButton{color:red}");
-  m_bBestSPArmed=true;
+  if(!m_transmitting) {
+    ui->pbBestSP->setStyleSheet ("QPushButton{color:red}");
+    m_bBestSPArmed=true;
+  }
 }
