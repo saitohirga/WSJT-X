@@ -1340,8 +1340,22 @@ QPushButton[state=&quot;ok&quot;] {
                  </item>
                  <item>
                   <widget class="QPushButton" name="pbBestSP">
+                   <property name="styleSheet">
+                    <string notr="true">QPushButton:checked {
+	background-color: red;
+	border-style: outset;
+	border-width: 1px;
+	border-radius: 5px;
+	border-color: black;
+	min-width: 5em;
+	padding: 3px;
+}</string>
+                   </property>
                    <property name="text">
                     <string>Best S+P</string>
+                   </property>
+                   <property name="checkable">
+                    <bool>true</bool>
                    </property>
                   </widget>
                  </item>

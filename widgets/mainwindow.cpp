@@ -1997,11 +1997,6 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       on_stopTxButton_clicked();
       abortQSO();
       return;
-    case Qt::Key_X:
-      if(e->modifiers() & Qt::AltModifier) {
-//        foxTest();
-        return;
-      }
     case Qt::Key_E:
       if((e->modifiers() & Qt::ShiftModifier) and SpecOp::FOX > m_config.special_op_id()) {
           ui->txFirstCheckBox->setChecked(false);
@@ -8702,8 +8697,8 @@ void MainWindow::chkFT4()
 
 void MainWindow::on_pbBestSP_clicked()
 {
-  if(!m_transmitting) {
-    ui->pbBestSP->setStyleSheet ("QPushButton{color:red}");
-    m_bBestSPArmed=true;
-  }
+  m_bBestSPArmed = !m_bBestSPArmed;
+  ui->pbBestSP->setChecked(m_bBestSPArmed);
+//  if(m_bBestSPArmed and !m_transmitting) ui->pbBestSP->setStyleSheet ("QPushButton{color:red}");
+//  if(!m_bBestSPArmed) ui->pbBestSP->setStyleSheet ("");
 }
