@@ -8699,7 +8699,7 @@ void MainWindow::on_pbBestSP_clicked()
 {
   m_bBestSPArmed = !m_bBestSPArmed;
 //  ui->pbBestSP->setChecked(m_bBestSPArmed);
-  qDebug() << "aa" << m_bBestSPArmed;
+//  qDebug() << "aa" << m_bBestSPArmed;
   if(m_bBestSPArmed and !m_transmitting) ui->pbBestSP->setStyleSheet ("QPushButton{color:red}");
   if(!m_bBestSPArmed) ui->pbBestSP->setStyleSheet ("");
 }
