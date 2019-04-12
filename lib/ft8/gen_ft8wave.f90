@@ -9,7 +9,7 @@ subroutine gen_ft8wave(itone,nsym,nsps,bt,fsample,f0,cwave,wave,icmplx,nwave)
   real pulse(23040)
   real dphi(0:(nsym+2)*nsps-1)
   integer itone(nsym)
-  data first/.true./,ibt0/0/
+  data ibt0/0/
   save pulse,twopi,dt,hmod,ibt0
 
   ibt=nint(10*bt)
