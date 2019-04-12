@@ -1,4 +1,4 @@
-subroutine gen_ft8wave(itone,nsym,nsps,fsample,f0,cwave,wave,icmplx,nwave)
+subroutine gen_ft8wave(itone,nsym,nsps,bt,fsample,f0,cwave,wave,icmplx,nwave)
 !
 ! generate ft8 waveform using Gaussian-filtered frequency pulses.
 !
@@ -9,21 +9,20 @@ subroutine gen_ft8wave(itone,nsym,nsps,fsample,f0,cwave,wave,icmplx,nwave)
   real pulse(23040)
   real dphi(0:(nsym+2)*nsps-1)
   integer itone(nsym)
-  logical first
-  data first/.true./
-  save pulse,first,twopi,dt,hmod
+  data first/.true./,ibt0/0/
+  save pulse,twopi,dt,hmod,ibt0
 
-  if(first) then
+  ibt=nint(10*bt)
+  if(ibt0.ne.ibt) then
      twopi=8.0*atan(1.0)
      dt=1.0/fsample
      hmod=1.0
-     bt=2.0
 ! Compute the frequency-smoothing pulse
      do i=1,3*nsps
         tt=(i-1.5*nsps)/real(nsps)
         pulse(i)=gfsk_pulse(bt,tt)
      enddo
-     first=.false.
+     ibt0=nint(10*bt)
   endif
 
 ! Compute the smoothed frequency waveform.

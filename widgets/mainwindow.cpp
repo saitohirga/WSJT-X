@@ -102,7 +102,7 @@ extern "C" {
   void genft4_(char* msg, int* ichk, char* msgsent, int itone[],
                fortran_charlen_t, fortran_charlen_t);
 
-  void gen_ft8wave_(int itone[], int* nsym, int* nsps, float* fsample, float* f0,
+  void gen_ft8wave_(int itone[], int* nsym, int* nsps, float* bt, float* fsample, float* f0,
                     float xjunk[], float wave[], int* icmplx, int* nwave);
 
   void gen_ft4wave_(int itone[], int* nsym, int* nsps, float* fsample, float* f0,
@@ -3701,10 +3701,11 @@ void MainWindow::guiUpdate()
               int nsym=79;
               int nsps=4*1920;
               float fsample=48000.0;
+              float bt=2.0;
               float f0=ui->TxFreqSpinBox->value() - m_XIT;
               int icmplx=0;
               int nwave=nsym*nsps;
-              gen_ft8wave_(const_cast<int *>(itone),&nsym,&nsps,&fsample,&f0,foxcom_.wave,
+              gen_ft8wave_(const_cast<int *>(itone),&nsym,&nsps,&bt,&fsample,&f0,foxcom_.wave,
                            foxcom_.wave,&icmplx,&nwave);
 
               if(SpecOp::FOX == m_config.special_op_id()) {
