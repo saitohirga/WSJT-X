@@ -8,7 +8,7 @@
   <tr><td><b>F4       </b></td><td>Clear DX Call, DX Grid, Tx messages 1-4 (Alt: transmit Tx4)</td></tr>
   <tr><td><b>Alt+F4   </b></td><td>Exit program</td></tr>
   <tr><td><b>F5       </b></td><td>Display special mouse commands (Alt: transmit Tx5)</td></tr>
-  <tr><td><b>F6       </b></td><td>Open next file in directory</td></tr>
+  <tr><td><b>F6       </b></td><td>Open next file in directory (Alt: toggle Call 11t)</td></tr>
   <tr><td><b>Shift+F6 </b></td><td>Decode all remaining files in directrory</td></tr>
   <tr><td><b>F7       </b></td><td>Display Message Averaging window</td></tr>
   <tr><td><b>F11      </b></td><td>Move Rx frequency down 1 Hz</td></tr>

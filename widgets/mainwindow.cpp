@@ -994,9 +994,9 @@ void MainWindow::not_GA_warning_message ()
                                 "<b><p align=\"center\">"
                                 "This is a pre-release version of WSJT-X 2.1.0 made "
                                 "available for testing purposes. It will become nonfunctional "
-                                "after May 1, 2019.");
+                                "after June 1, 2019.");
   QDateTime now=QDateTime::currentDateTime();
-  QDateTime timeout=QDateTime(QDate(2019,5,1));
+  QDateTime timeout=QDateTime(QDate(2019,6,1));
   if(now.daysTo(timeout) < 0) Q_EMIT finished();
 }
 
@@ -1892,9 +1892,15 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
   }
 
   int n;
-  bool bAltF1F5=m_config.alternate_bindings();
+  bool bAltF1F6=m_config.alternate_bindings();
   switch(e->key())
     {
+    case Qt::Key_C:
+      if(m_mode=="FT4" && e->modifiers() & Qt::AltModifier) {
+        bool b=ui->cbFirst->isChecked();
+        ui->cbFirst->setChecked(!b);
+      }
+    return;
     case Qt::Key_D:
       if(m_mode != "WSPR" && e->modifiers() & Qt::ShiftModifier) {
         if(!m_decoderBusy) {
@@ -1906,7 +1912,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       }
       break;
     case Qt::Key_F1:
-      if(bAltF1F5) {
+      if(bAltF1F6) {
         auto_tx_mode(true);
         on_txb6_clicked();
         return;
@@ -1915,7 +1921,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         return;
       }
     case Qt::Key_F2:
-      if(bAltF1F5) {
+      if(bAltF1F6) {
         auto_tx_mode(true);
         on_txb2_clicked();
         return;
@@ -1924,7 +1930,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         return;
       }
     case Qt::Key_F3:
-      if(bAltF1F5) {
+      if(bAltF1F6) {
         auto_tx_mode(true);
         on_txb3_clicked();
         return;
@@ -1933,7 +1939,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         return;
       }
     case Qt::Key_F4:
-      if(bAltF1F5) {
+      if(bAltF1F6) {
         auto_tx_mode(true);
         on_txb4_clicked();
         return;
@@ -1943,7 +1949,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         return;
       }
     case Qt::Key_F5:
-      if(bAltF1F5) {
+      if(bAltF1F6) {
         auto_tx_mode(true);
         on_txb5_clicked();
         return;
@@ -1952,8 +1958,16 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         return;
       }
     case Qt::Key_F6:
-      if(e->modifiers() & Qt::ShiftModifier) {
-        on_actionDecode_remaining_files_in_directory_triggered();
+      if(bAltF1F6) {
+        bool b=ui->cbFirst->isChecked();
+        ui->cbFirst->setChecked(!b);
+        return;
+      } else {
+        if(e->modifiers() & Qt::ShiftModifier) {
+          on_actionDecode_remaining_files_in_directory_triggered();
+        } else {
+          on_actionOpen_triggered();
+        }
         return;
       }
       on_actionOpen_next_in_directory_triggered();
@@ -4576,11 +4590,11 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
               ui->tx3->setText(t);
               m_bTUmsg=true;
             } else {
-//              if(SpecOp::RTTY == m_config.special_op_id()) {
-              if(false) {
+              if(SpecOp::RTTY == m_config.special_op_id()) {
                 logQSOTimer.start(0);
                 m_ntx=6;
                 ui->txrb6->setChecked(true);
+                ui->cbFirst->setChecked(false);
               } else {
                 m_ntx=5;
                 ui->txrb5->setChecked(true);
@@ -5001,7 +5015,6 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
         QDateTime now=QDateTime::currentDateTimeUtc();
         int sinceTx3 = m_dateTimeSentTx3.secsTo(now);
         int sinceRR73 = m_dateTimeRcvdRR73.secsTo(now);
-//        qDebug() << "aa" << m_bDoubleClicked << sinceTx3 << sinceRR73;
         if(m_bDoubleClicked and (sinceTx3 < 15) and (sinceRR73 < 3)) {
           t="TU; " + ui->tx3->text();
           ui->tx3->setText(t);
@@ -5150,10 +5163,9 @@ void MainWindow::TxAgain()
 void MainWindow::clearDX ()
 {
   set_dateTimeQSO (-1);
-  if (m_QSOProgress != CALLING)
-    {
-      auto_tx_mode (false);
-    }
+  if (m_QSOProgress != CALLING) {
+    auto_tx_mode (false);
+  }
   ui->dxCallEntry->clear ();
   ui->dxGridEntry->clear ();
   m_lastCallsign.clear ();
@@ -5525,7 +5537,7 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
         }
     }
 
-  if (m_config.clear_DX () and SpecOp::HOUND != m_config.special_op_id()) clearDX ();
+  if(m_config.clear_DX () and SpecOp::HOUND != m_config.special_op_id()) clearDX ();
   m_dateTimeQSOOn = QDateTime {};
   auto special_op = m_config.special_op_id ();
   if (SpecOp::NONE < special_op && special_op < SpecOp::FOX &&
@@ -8700,7 +8712,6 @@ void MainWindow::on_pbBestSP_clicked()
 {
   m_bBestSPArmed = !m_bBestSPArmed;
 //  ui->pbBestSP->setChecked(m_bBestSPArmed);
-//  qDebug() << "aa" << m_bBestSPArmed;
   if(m_bBestSPArmed and !m_transmitting) ui->pbBestSP->setStyleSheet ("QPushButton{color:red}");
   if(!m_bBestSPArmed) ui->pbBestSP->setStyleSheet ("");
 }

@@ -2813,9 +2813,6 @@ list. The list can be maintained in Settings (F2).</string>
    <property name="text">
     <string>Open next in directory</string>
    </property>
-   <property name="shortcut">
-    <string>F6</string>
-   </property>
   </action>
   <action name="actionDecode_remaining_files_in_directory">
    <property name="text">
