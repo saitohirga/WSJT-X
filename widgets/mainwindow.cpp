@@ -1895,6 +1895,11 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
   bool bAltF1F6=m_config.alternate_bindings();
   switch(e->key())
     {
+  case Qt::Key_B:
+    if(m_mode=="FT4" && e->modifiers() & Qt::AltModifier) {
+      on_pbBestSP_clicked();
+    }
+  return;
     case Qt::Key_C:
       if(m_mode=="FT4" && e->modifiers() & Qt::AltModifier) {
         bool b=ui->cbFirst->isChecked();
@@ -4024,9 +4029,8 @@ void MainWindow::guiUpdate()
     QString utc = t.date().toString("yyyy MMM dd") + "\n " +
       t.time().toString() + " ";
     ui->labUTC->setText(utc);
-    if(!m_monitoring and !m_diskData) {
-      ui->signal_meter_widget->setValue(0,0);
-    }
+    if(m_bBestSPArmed and (m_dateTimeBestSP.secsTo(t) >= 120)) on_pbBestSP_clicked(); //BestSP timeout
+    if(!m_monitoring and !m_diskData) ui->signal_meter_widget->setValue(0,0);
     m_sec0=nsec;
     displayDialFrequency ();
   }
@@ -8711,7 +8715,7 @@ void MainWindow::chkFT4()
 void MainWindow::on_pbBestSP_clicked()
 {
   m_bBestSPArmed = !m_bBestSPArmed;
-//  ui->pbBestSP->setChecked(m_bBestSPArmed);
   if(m_bBestSPArmed and !m_transmitting) ui->pbBestSP->setStyleSheet ("QPushButton{color:red}");
   if(!m_bBestSPArmed) ui->pbBestSP->setStyleSheet ("");
+  if(m_bBestSPArmed) m_dateTimeBestSP=QDateTime::currentDateTimeUtc();
 }

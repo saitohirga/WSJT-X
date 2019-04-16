@@ -653,6 +653,7 @@ private:
   QDateTime m_dateTimeLastTX;
   QDateTime m_dateTimeSentTx3;
   QDateTime m_dateTimeRcvdRR73;
+  QDateTime m_dateTimeBestSP;
 
   QSharedMemory *mem_jt9;
   QString m_QSOText;
