@@ -1966,16 +1966,13 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       if(bAltF1F6) {
         bool b=ui->cbFirst->isChecked();
         ui->cbFirst->setChecked(!b);
-        return;
       } else {
         if(e->modifiers() & Qt::ShiftModifier) {
           on_actionDecode_remaining_files_in_directory_triggered();
         } else {
-          on_actionOpen_triggered();
+          on_actionOpen_next_in_directory_triggered();
         }
-        return;
       }
-      on_actionOpen_next_in_directory_triggered();
       return;
     case Qt::Key_F11:
       if((e->modifiers() & Qt::ControlModifier) and (e->modifiers() & Qt::ShiftModifier)) {
