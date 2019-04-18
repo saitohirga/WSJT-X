@@ -1,6 +1,7 @@
-subroutine gen_ft4wave(itone,nsym,nsps,fsample,f0,wave,nwave)
+subroutine gen_ft4wave(itone,nsym,nsps,fsample,f0,cwave,wave,icmplx,nwave)
 
   real wave(nwave)
+  complex cwave(nwave)
   real pulse(6144)              !512*4*3
   real dphi(0:240000-1)
   integer itone(nsym)
@@ -34,19 +35,32 @@ subroutine gen_ft4wave(itone,nsym,nsps,fsample,f0,wave,nwave)
   phi=0.0
   dphi = dphi + twopi*f0*dt                          !Shift frequency up by f0
   wave=0.
+  cwave=0.
   k=0
   do j=0,nwave-1
      k=k+1
-     wave(k)=sin(phi)
+     if(icmplx.eq.0) then
+        wave(k)=sin(phi)
+     else
+        cwave(k)=cmplx(cos(phi),sin(phi))
+     endif
      phi=mod(phi+dphi(j),twopi)
   enddo
 
 ! Compute the ramp-up and ramp-down symbols
-  wave(1:nsps)=wave(1:nsps) *                                          &
-       (1.0-cos(twopi*(/(i,i=0,nsps-1)/)/(2.0*nsps)))/2.0
-  k1=(nsym+1)*nsps+1
-  wave(k1:k1+nsps-1)=wave(k1:k1+nsps-1) *                              &
-       (1.0+cos(twopi*(/(i,i=0,nsps-1)/)/(2.0*nsps)))/2.0
+  if(icmplx.eq.0) then
+     wave(1:nsps)=wave(1:nsps) *                                          &
+          (1.0-cos(twopi*(/(i,i=0,nsps-1)/)/(2.0*nsps)))/2.0
+     k1=(nsym+1)*nsps+1
+     wave(k1:k1+nsps-1)=wave(k1:k1+nsps-1) *                              &
+          (1.0+cos(twopi*(/(i,i=0,nsps-1)/)/(2.0*nsps)))/2.0
+  else
+     cwave(1:nsps)=cwave(1:nsps) *                                          &
+          (1.0-cos(twopi*(/(i,i=0,nsps-1)/)/(2.0*nsps)))/2.0
+     k1=(nsym+1)*nsps+1
+     cwave(k1:k1+nsps-1)=cwave(k1:k1+nsps-1) *                              &
+          (1.0+cos(twopi*(/(i,i=0,nsps-1)/)/(2.0*nsps)))/2.0
+  endif
 
   return
 end subroutine gen_ft4wave

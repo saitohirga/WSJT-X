@@ -106,7 +106,7 @@ extern "C" {
                     float xjunk[], float wave[], int* icmplx, int* nwave);
 
   void gen_ft4wave_(int itone[], int* nsym, int* nsps, float* fsample, float* f0,
-                    float wave[], int* nwave);
+                    float xjunk[], float wave[], int* icmplx, int* nwave);
 
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, fortran_charlen_t, fortran_charlen_t);
@@ -3745,7 +3745,9 @@ void MainWindow::guiUpdate()
             float fsample=48000.0;
             float f0=ui->TxFreqSpinBox->value() - m_XIT;
             int nwave=(nsym+2)*nsps;
-            gen_ft4wave_(const_cast<int *>(itone),&nsym,&nsps,&fsample,&f0,foxcom_.wave,&nwave);
+            int icmplx=0;
+            gen_ft4wave_(const_cast<int *>(itone),&nsym,&nsps,&fsample,&f0,foxcom_.wave,
+                           foxcom_.wave,&icmplx,&nwave);
           }
 
           if(SpecOp::EU_VHF==m_config.special_op_id()) {

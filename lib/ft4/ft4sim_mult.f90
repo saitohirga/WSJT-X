@@ -10,6 +10,7 @@ program ft4sim_mult
   type(hdr) h                            !Header for .wav file
   character arg*12,fname*17,cjunk*4
   character msg37*37,msgsent37*37,c77*77
+  complex cwave0((NN+2)*NSPS)
   real wave0((NN+2)*NSPS)
   real wave(NZZ)
   real tmp(NZZ)
@@ -63,7 +64,8 @@ program ft4sim_mult
         call pack77(msg37,i3,n3,c77)
         call genft4(msg37,0,msgsent37,itone)
         nwave0=(NN+2)*NSPS
-        call gen_ft4wave(itone,NN,NSPS,12000.0,f0,wave0,nwave0)
+        icmplx=0
+        call gen_ft4wave(itone,NN,NSPS,12000.0,f0,cwave0,wave0,icmplx,nwave0)
 
         k0=nint((xdt+0.5)/dt)
         if(k0.lt.1) k0=1

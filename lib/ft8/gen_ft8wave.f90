@@ -42,6 +42,7 @@ subroutine gen_ft8wave(itone,nsym,nsps,bt,fsample,f0,cwave,wave,icmplx,nwave)
   phi=0.0
   dphi = dphi + twopi*f0*dt                          !Shift frequency up by f0
   wave=0.
+  cwave=0.
   k=0
   do j=nsps,nsps+nwave-1                             !Don't include dummy symbols
      k=k+1
