@@ -1,4 +1,4 @@
-subroutine getcandidates4(id,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
+subroutine getcandidates4(dd,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
      ncand,sbase)
 
   include 'ft4_params.f90'
@@ -9,7 +9,7 @@ subroutine getcandidates4(id,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
   real window(NFFT1)
   complex cx(0:NH1)
   real candidate(3,maxcand)
-  integer*2 id(NMAX)
+  real dd(NMAX)
   integer indx(NH1)
   integer ipk(1)
   equivalence (x,cx)
@@ -33,7 +33,7 @@ subroutine getcandidates4(id,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
      ia=(j-1)*NSTEP + 1
      ib=ia+NFFT1-1
      if(ib.gt.NMAX) exit
-     x=fac*id(ia:ib)*window
+     x=fac*dd(ia:ib)*window
      call four2a(x,NFFT1,1,-1,0)              !r2c FFT
      do i=1,NH1
         s(i,j)=real(cx(i))**2 + aimag(cx(i))**2

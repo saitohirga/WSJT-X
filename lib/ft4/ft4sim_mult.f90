@@ -15,6 +15,7 @@ program ft4sim_mult
   real wave(NZZ)
   real tmp(NZZ)
   integer itone(NN)
+  integer*1 msgbits(77)
   integer*2 iwave(NZZ)                  !Generated full-length waveform
   integer icos4(4)
   data icos4/0,1,3,2/
@@ -62,7 +63,7 @@ program ft4sim_mult
         i3=-1
         n3=-1
         call pack77(msg37,i3,n3,c77)
-        call genft4(msg37,0,msgsent37,itone)
+        call genft4(msg37,0,msgsent37,msgbits,itone)
         nwave0=(NN+2)*NSPS
         icmplx=0
         call gen_ft4wave(itone,NN,NSPS,12000.0,f0,cwave0,wave0,icmplx,nwave0)

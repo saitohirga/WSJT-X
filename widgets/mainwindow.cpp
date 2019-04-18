@@ -99,7 +99,7 @@ extern "C" {
   void genft8_(char* msg, int* i3, int* n3, char* msgsent, char ft8msgbits[],
                int itone[], fortran_charlen_t, fortran_charlen_t);
 
-  void genft4_(char* msg, int* ichk, char* msgsent, int itone[],
+  void genft4_(char* msg, int* ichk, char* msgsent, char ft4msgbits[], int itone[],
                fortran_charlen_t, fortran_charlen_t);
 
   void gen_ft8wave_(int itone[], int* nsym, int* nsps, float* bt, float* fsample, float* f0,
@@ -3739,7 +3739,9 @@ void MainWindow::guiUpdate()
           }
           if(m_modeTx=="FT4") {
             int ichk=0;
-            genft4_(message, &ichk, msgsent, const_cast<int *>(itone), 37, 37);
+            char ft4msgbits[77];
+            genft4_(message, &ichk, msgsent, const_cast<char *> (ft4msgbits),
+               const_cast<int *>(itone), 37, 37);
             int nsym=103;
             int nsps=4*512;
             float fsample=48000.0;

@@ -1,4 +1,4 @@
-subroutine genft4(msg0,ichk,msgsent,i4tone)
+subroutine genft4(msg0,ichk,msgsent,msgbits,i4tone)
 
 ! Encode an FT4  message
 ! Input:
@@ -52,8 +52,16 @@ subroutine genft4(msg0,ichk,msgsent,i4tone)
   call unpack77(c77,0,msgsent,unpk77_success) !Unpack to get msgsent
 
   if(ichk.eq.1) go to 999
-  read(c77,"(77i1)") msgbits
-  msgbits=mod(msgbits+rvec,2)
+  read(c77,'(77i1)',err=1) msgbits
+  if(unpk77_success) go to 2
+1 msgbits=0
+  itone=0
+  msgsent='*** bad message ***                  '
+  go to 999
+
+entry get_ft4_tones_from_77bits(msgbits,i4tone)
+
+2 msgbits=mod(msgbits+rvec,2)
   call encode174_91(msgbits,codeword)
 
 ! Grayscale mapping:

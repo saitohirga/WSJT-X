@@ -1,11 +1,11 @@
-subroutine ft4_downsample(iwave,newdata,f0,c)
+subroutine ft4_downsample(dd,newdata,f0,c)
 
-! Input: i*2 data in iwave() at sample rate 12000 Hz
+! Input: real data in dd() at sample rate 12000 Hz
 ! Output: Complex data in c(), sampled at 1200 Hz
 
    include 'ft4_params.f90'
    parameter (NFFT2=NMAX/16)
-   integer*2 iwave(NMAX)
+   real dd(NMAX)
    complex c(0:NMAX/NDOWN-1)
    complex c1(0:NFFT2-1)
    complex cx(0:NMAX/2)
@@ -33,7 +33,7 @@ subroutine ft4_downsample(iwave,newdata,f0,c)
    endif
 
    if(newdata) then
-      x=iwave
+      x=dd
       call four2a(x,NMAX,1,-1,0)             !r2c FFT to freq domain
    endif
    i0=nint(f0/df)
