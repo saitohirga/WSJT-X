@@ -11,7 +11,6 @@ subroutine subtractft4(dd,itone,f0,dt)
 
   parameter (NMAX=18*3456,NFRAME=(103+2)*512)
   parameter (NFFT=NMAX,NFILT=1400)
-!  parameter (NFFT=NMAX,NFILT=400)
   real*4  dd(NMAX), window(-NFILT/2:NFILT/2), xjunk
   complex cref,camp,cfilt,cw
   integer itone(103)

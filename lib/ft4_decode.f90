@@ -464,7 +464,9 @@ contains
                   if(unpk77_success) then
                      call get_ft4_tones_from_77bits(message77,i4tone)
                      dt=real(ibest)/750.0
+                     call timer('subtract',0)
                      call subtractft4(dd,i4tone,f0,dt)
+                     call timer('subtract',1)
                   endif
                   idupe=0
                   do i=1,ndecodes
