@@ -994,9 +994,9 @@ void MainWindow::not_GA_warning_message ()
                                 "<b><p align=\"center\">"
                                 "This is a pre-release version of WSJT-X 2.1.0 made "
                                 "available for testing purposes. It will become nonfunctional "
-                                "after June 1, 2019.");
+                                "after June 7, 2019.");
   QDateTime now=QDateTime::currentDateTime();
-  QDateTime timeout=QDateTime(QDate(2019,6,1));
+  QDateTime timeout=QDateTime(QDate(2019,6,7));
   if(now.daysTo(timeout) < 0) Q_EMIT finished();
 }
 
