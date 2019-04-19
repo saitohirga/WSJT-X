@@ -32,7 +32,7 @@ contains
       procedure(ft4_decode_callback) :: callback
       parameter (NSS=NSPS/NDOWN)
       parameter (NZZ=18*3456)
-      character message*37,msgsent*37,msg0*37
+      character message*37,msgsent*37
       character c77*77
       character*37 decodes(100)
       character*512 data_dir,fname
@@ -75,13 +75,13 @@ contains
       logical nohiscall,unpk77_success
       logical one(0:255,0:7)    ! 256 4-symbol sequences, 8 bits
       logical first, dobigfft
+      logical dosubtract
 
       data icos4a/0,1,3,2/
       data icos4b/1,0,2,3/
       data icos4c/2,3,1,0/
       data icos4d/3,2,0,1/
       data graymap/0,1,3,2/
-      data msg0/' '/
       data first/.true./
       data     mcq/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0/
       data    mrrr/0,1,1,1,1,1,1,0,1,0,0,1,0,0,1,0,0,0,1/
@@ -91,7 +91,7 @@ contains
          1,0,0,1,0,1,1,0,0,0,0,1,0,0,0,1,0,1,0,0,1,1,1,1,0,0,1,0,1, &
          0,1,0,1,0,1,1,0,1,1,1,1,1,0,0,0,1,0,1/
       save fs,dt,tt,txt,twopi,h,one,first,apbits,nappasses,naptypes, &
-         mycall0,hiscall0,msg0,cqstr0,ctwk2
+         mycall0,hiscall0,cqstr0,ctwk2
 
       this%callback => callback
       hhmmss=cdatetime0(8:13)
@@ -201,7 +201,6 @@ contains
          mycall0=mycall
          hiscall0=hiscall
       endif
-      syncmin=1.2
       maxcand=100
       ndecodes=0
       decodes=' '
@@ -209,7 +208,21 @@ contains
       fb=nfb
       dd=iwave
 
-      do isp = 1,2
+! ndepth=3: 2 passes, subtract on each pass
+! ndepth=2: 1 pass, no subtraction 
+! ndepth=1: 1 pass, no subtraction, fewer candidates
+
+      max_iterations=40
+      syncmin=1.2
+      dosubtract=.true.
+      nsp=2
+      if(ndepth.lt.3) then 
+        nsp=1
+        dosubtract=.false.
+      endif
+      if(ndepth.eq.1) syncmin=2.0 
+     
+      do isp = 1,nsp
          candidate=0.0
          ncand=0
          call timer('getcand4',0)
@@ -373,6 +386,7 @@ contains
 
             apmag=maxval(abs(llra))*1.1
             npasses=3+nappasses(nQSOProgress)
+            if(ndepth.eq.1) npasses=3  
             if(ncontest.ge.5) npasses=3  ! Don't support Fox and Hound
             do ipass=1,npasses
                if(ipass.eq.1) llr=llra
@@ -384,7 +398,7 @@ contains
                endif
 
                if(ipass .gt. 3) then
-                  llrd=llrc
+                  llrd=llra
                   iaptype=naptypes(nQSOProgress,ipass-3)
 
 ! ncontest=0 : NONE
@@ -450,7 +464,6 @@ contains
 
                   llr=llrd
                endif
-               max_iterations=40
                message77=0
                call timer('bpdec174',0)
                call bpdecode174_91(llr,apmask,max_iterations,message77,     &
@@ -461,7 +474,7 @@ contains
                   message77=mod(message77+rvec,2) ! remove rvec scrambling
                   write(c77,'(77i1)') message77(1:77)
                   call unpack77(c77,1,message,unpk77_success)
-                  if(unpk77_success) then
+                  if(unpk77_success.and.dosubtract) then
                      call get_ft4_tones_from_77bits(message77,i4tone)
                      dt=real(ibest)/750.0
                      call timer('subtract',0)
@@ -472,7 +485,6 @@ contains
                   do i=1,ndecodes
                      if(decodes(i).eq.message) idupe=1
                   enddo
-                  if(ibest.le.10 .and. message.eq.msg0) idupe=1   !Already decoded
                   if(idupe.eq.1) exit
                   ndecodes=ndecodes+1
                   decodes(ndecodes)=message
@@ -484,7 +496,6 @@ contains
                   nsnr=nint(max(-20.0,xsnr))
                   xdt=ibest/750.0 - 0.5
                   call this%callback(sync,nsnr,xdt,f0,message,iaptype,qual)
-                  if(ibest.ge.ibmax-15) msg0=message         !Possible dupe candidate
                   exit
                endif
             enddo !Sequence estimation
