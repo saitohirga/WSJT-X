@@ -35,7 +35,7 @@ subroutine gen_ft4wave(itone,nsym,nsps,fsample,f0,cwave,wave,icmplx,nwave)
   phi=0.0
   dphi = dphi + twopi*f0*dt                          !Shift frequency up by f0
   wave=0.
-  cwave=0.
+  if(icmplx.eq.1) cwave=0.
   k=0
   do j=0,nwave-1
      k=k+1
