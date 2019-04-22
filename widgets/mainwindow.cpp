@@ -4533,7 +4533,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     if(message_words.size () > 3   // enough fields for a normal message
        && (message_words.at(1).contains(m_baseCall) || "DE" == message_words.at(1))
 //       && (message_words.at(2).contains(qso_partner_base_call) or bEU_VHF_w2)) {
-       && (message_words.at(2).contains(qso_partner_base_call) or m_bDoubleClicked or bEU_VHF_w2)) {
+       && (message_words.at(2).contains(qso_partner_base_call) or m_bDoubleClicked
+           or bEU_VHF_w2 or (m_QSOProgress==CALLING))) {
 
       if(message_words.at(3).contains(grid_regexp) and SpecOp::EU_VHF!=m_config.special_op_id()) {
         if(SpecOp::NA_VHF==m_config.special_op_id()){
@@ -4660,7 +4661,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       }
       m_QSOProgress = SIGNOFF;
     }
-    else if (!(m_bAutoReply && m_QSOProgress > CALLING)) {
+    else if (!(m_bAutoReply && (m_QSOProgress > CALLING))) {
       if ((message_words.size () > 4 && message_words.at (1).contains (m_baseCall)
            && message_words.at (4) == "OOO")) {
         // EME short code report or MSK144/FT8 contest mode reply, send back Tx3
