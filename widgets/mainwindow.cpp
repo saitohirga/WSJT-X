@@ -4433,7 +4433,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     return;
   }
 
-
   // only allow automatic mode changes between JT9 and JT65, and when not transmitting
   if (!m_transmitting and m_mode == "JT9+JT65") {
     if (message.isJT9())
@@ -4529,7 +4528,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       // ### Should be in RTTY contest mode ??? ###
       MessageBox::information_message (this, tr ("Should you switch to RTTY contest mode?"));
     }
-
     if(message_words.size () > 3   // enough fields for a normal message
        && (message_words.at(1).contains(m_baseCall) || "DE" == message_words.at(1))
 //       && (message_words.at(2).contains(qso_partner_base_call) or bEU_VHF_w2)) {
@@ -8684,18 +8682,10 @@ void MainWindow::write_all(QString txRx, QString message)
 void MainWindow::chkFT4()
 {
   if(m_mode!="FT4") return;
-  if(m_config.special_op_id()==SpecOp::RTTY or m_config.special_op_id()==SpecOp::NA_VHF) {
-    ui->cbAutoSeq->setEnabled(true);
-    ui->cbFirst->setEnabled(true);
-    ui->labDXped->setVisible(true);
-  } else {
-    ui->cbAutoSeq->setChecked(false);
-    ui->cbAutoSeq->setEnabled(false);
-    ui->cbFirst->setChecked(false);
-    ui->cbFirst->setEnabled(false);
-    ui->cbFirst->setVisible(false);
-    ui->labDXped->setVisible(false);
-  }
+  ui->cbAutoSeq->setEnabled(true);
+  ui->cbFirst->setVisible(true);
+  ui->cbFirst->setEnabled(true);
+  ui->labDXped->setVisible(m_config.special_op_id()!=SpecOp::NONE);
   ui->cbFirst->setVisible(ui->cbAutoSeq->isChecked());
 
   if (SpecOp::NONE < m_config.special_op_id () && SpecOp::FOX > m_config.special_op_id ()) {
