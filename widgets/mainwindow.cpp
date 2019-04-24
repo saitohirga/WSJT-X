@@ -1751,6 +1751,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     bool b = vhf && (m_mode=="JT4" or m_mode=="JT65" or m_mode=="ISCAT" or
                      m_mode=="JT9" or m_mode=="MSK144" or m_mode=="QRA64");
     if(b) VHF_features_enabled(b);
+    if(m_mode=="FT4") on_actionFT8_triggered();
     if(m_mode=="FT8") on_actionFT8_triggered();
     if(m_mode=="JT4") on_actionJT4_triggered();
     if(m_mode=="JT9") on_actionJT9_triggered();
@@ -5616,8 +5617,13 @@ void MainWindow::displayWidgets(qint64 n)
     j=j>>1;
   }
   ui->pbBestSP->setVisible(m_mode=="FT4");
+  b=false;
+  if(m_mode=="FT4" or m_mode=="FT8") {
   b=SpecOp::EU_VHF==m_config.special_op_id() or (SpecOp::RTTY==m_config.special_op_id() and
-    (m_config.RTTY_Exchange()=="DX" or m_config.RTTY_Exchange()=="SCC"));
+    (m_config.RTTY_Exchange()=="DX" or m_config.RTTY_Exchange()=="#" or
+     m_config.RTTY_Exchange()=="SCC"));
+  }
+  if(m_mode=="MSK144") b=SpecOp::EU_VHF==m_config.special_op_id()
   ui->sbSerialNumber->setVisible(b);
   m_lastCallsign.clear ();     // ensures Tx5 is updated for new modes
   genStdMsgs (m_rpt, true);
