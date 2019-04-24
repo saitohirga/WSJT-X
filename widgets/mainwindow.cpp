@@ -5623,7 +5623,7 @@ void MainWindow::displayWidgets(qint64 n)
     (m_config.RTTY_Exchange()=="DX" or m_config.RTTY_Exchange()=="#" or
      m_config.RTTY_Exchange()=="SCC"));
   }
-  if(m_mode=="MSK144") b=SpecOp::EU_VHF==m_config.special_op_id()
+  if(m_mode=="MSK144") b=SpecOp::EU_VHF==m_config.special_op_id();
   ui->sbSerialNumber->setVisible(b);
   m_lastCallsign.clear ();     // ensures Tx5 is updated for new modes
   genStdMsgs (m_rpt, true);
