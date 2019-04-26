@@ -604,9 +604,9 @@ contains
     endif
 
     write(*,1001) params%nutc,snr,dt,nint(freq),decoded0,annot
-1001 format(i6.6,i4,f5.1,i5,' ~ ',1x,a37,1x,a2)
+1001 format(i6.6,i4,f5.1,i5,' + ',1x,a37,1x,a2)
     write(13,1002) params%nutc,nint(sync),snr,dt,freq,0,decoded0
-1002 format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a37,' FT8')
+1002 format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a37,' FT4')
     
     call flush(6)
     call flush(13)
