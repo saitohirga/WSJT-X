@@ -8656,24 +8656,44 @@ void MainWindow::write_all(QString txRx, QString message)
 {
   QString line;
   QString t;
-  QString msg=message.mid(6,-1);
+  QString msg;
+  QString mode_string;
+
+  if (message[4]==' ') {
+     msg=message.mid(4,-1);
+  } else {
+     msg=message.mid(6,-1);
+  }
+
+  if (message[19]=='#') {
+     mode_string="JT65  ";
+  } else if (message[19]=='@') {
+     mode_string="JT9   ";
+  } else {
+     mode_string=m_mode.leftJustified(6,' ');
+  }
+
   msg=msg.mid(0,15) + msg.mid(18,-1);
 
   t.sprintf("%5d",ui->TxFreqSpinBox->value());
-  if(txRx=="Tx") msg="   0  0.0" + t + " " + message;
+  if (txRx=="Tx") msg="   0  0.0" + t + " " + message;
   auto time = QDateTime::currentDateTimeUtc ();
   time = time.addSecs(-(time.time().second() % m_TRperiod));
   t.sprintf("%10.3f ",m_freqNominal/1.e6);
-  if(m_diskData) {
-    line=m_fileDateTime + t + txRx + " " + m_mode.leftJustified(6,' ') + msg;
+  if (m_diskData) {
+    if (m_fileDateTime.size()==11) {
+      line=m_fileDateTime + "  " + t + txRx + " " + mode_string + msg;
+    } else {
+      line=m_fileDateTime + t + txRx + " " + mode_string + msg;
+    } 
   } else {
-    line=time.toString("yyMMdd_hhmmss") + t + txRx + " " + m_mode.leftJustified(6,' ') + msg;
+    line=time.toString("yyMMdd_hhmmss") + t + txRx + " " + mode_string + msg;
   }
 
   QString file_name="ALL.TXT";
-  if(m_mode=="WSPR") file_name="ALL_WSPR.TXT";
+  if (m_mode=="WSPR") file_name="ALL_WSPR.TXT";
   QFile f{m_config.writeable_data_dir().absoluteFilePath(file_name)};
-  if(f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
+  if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
     QTextStream out(&f);
     out << line << endl;
     f.close();
