@@ -2811,7 +2811,7 @@ void MainWindow::decode()                                       //decode()
   QDateTime now = QDateTime::currentDateTimeUtc ();
   if( m_dateTimeLastTX.isValid () ) {
     qint64 isecs_since_tx = m_dateTimeLastTX.secsTo(now);
-    dec_data.params.lapcqonly= (isecs_since_tx > 600); 
+    dec_data.params.lapcqonly= (isecs_since_tx > 300); 
 //    QTextStream(stdout) << "last tx " << isecs_since_tx << endl;
   } else { 
     m_dateTimeLastTX = now.addSecs(-900);
