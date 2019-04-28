@@ -123,6 +123,7 @@ void CPlotter::paintEvent(QPaintEvent *)                                // paint
 
 void CPlotter::draw(float swide[], bool bScroll, bool bRed)
 {
+  if (!m_TRperiod) return;      // not ready to plot yet
   int j,j0;
   static int ktop=0;
   float y,y2,ymin;
