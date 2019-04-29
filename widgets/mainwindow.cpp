@@ -1751,7 +1751,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     bool b = vhf && (m_mode=="JT4" or m_mode=="JT65" or m_mode=="ISCAT" or
                      m_mode=="JT9" or m_mode=="MSK144" or m_mode=="QRA64");
     if(b) VHF_features_enabled(b);
-    if(m_mode=="FT4") on_actionFT8_triggered();
+    if(m_mode=="FT4") on_actionFT4_triggered();
     if(m_mode=="FT8") on_actionFT8_triggered();
     if(m_mode=="JT4") on_actionJT4_triggered();
     if(m_mode=="JT9") on_actionJT9_triggered();
