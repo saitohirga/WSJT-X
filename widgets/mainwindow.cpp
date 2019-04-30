@@ -7549,8 +7549,8 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
       if(grid!="") {
         double utch=0.0;
         int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter;
-        azdist_(const_cast <char *> (m_config.my_grid ().toLatin1().constData()),
-                const_cast <char *> (grid.toLatin1().constData()),&utch,
+        azdist_(const_cast <char *> ((m_config.my_grid () + "      ").left (6).toLatin1 ().constData ()),
+                const_cast <char *> ((grid + "      ").left (6).toLatin1 ().constData ()),&utch,
                 &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,6,6);
         QString t1;
         if(m_config.miles()) {
