@@ -41,6 +41,8 @@ LogQSO::LogQSO(QString const& programTitle, QSettings * settings
 
   ok_->setAutoDefault (false);
   ok_->setFocusPolicy (Qt::ClickFocus);
+  ok_->setStyleSheet ("background-color: green");
+  cancel_->setStyleSheet ("background-color: red");
   cancel_->setAutoDefault (false);
   ui->button_layout->addStretch ();
   ui->button_layout->addWidget (ok_);
