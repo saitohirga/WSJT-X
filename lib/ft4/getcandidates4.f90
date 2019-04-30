@@ -69,6 +69,7 @@ subroutine getcandidates4(dd,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
         del=0.
         if(den.ne.0.0)  del=0.5*(savsm(i-1)-savsm(i+1))/den
         fpeak=(i+del)*df+f_offset
+        if(fpeak.lt.0.0 .or. fpeak.gt.4910.0) cycle
         speak=savsm(i) - 0.25*(savsm(i-1)-savsm(i+1))*del
         ncand=ncand+1
         if(ncand.gt.maxcand) then

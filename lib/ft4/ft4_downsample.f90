@@ -38,7 +38,7 @@ subroutine ft4_downsample(dd,newdata,f0,c)
    endif
    i0=nint(f0/df)
    c1=0.
-   c1(0)=cx(i0)
+   if(i0.ge.0 .and. i0.le.NMAX/2) c1(0)=cx(i0)
    do i=1,NFFT2/2
       if(i0+i.le.NMAX/2) c1(i)=cx(i0+i)
       if(i0-i.ge.0) c1(NFFT2-i)=cx(i0-i)
