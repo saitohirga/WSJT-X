@@ -3341,7 +3341,7 @@ void MainWindow::pskPost (DecodedText const& decodedtext)
   QString grid;
   decodedtext.deCallAndGrid(/*out*/deCall,grid);
   int audioFrequency = decodedtext.frequencyOffset();
-  if(m_mode=="FT8" or m_mode=="MSK144") {
+  if(m_mode=="FT8" or m_mode=="MSK144" or m_mode=="FT4") {
     audioFrequency=decodedtext.string().mid(16,4).toInt();
   }
   int snr = decodedtext.snr();
