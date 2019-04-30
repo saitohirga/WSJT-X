@@ -4108,8 +4108,7 @@ void MainWindow::stopTx2()
     on_stopTxButton_clicked ();
     m_nTx73 = 0;
   }
-  if(((m_mode.startsWith("WSPR") and m_ntr==-1) or m_mode=="FT4") and
-     !m_tuneup) {
+  if((m_mode.startsWith("WSPR") and m_ntr==-1) and !m_tuneup) {
     m_wideGraph->setWSPRtransmitted();
     WSPR_scheduling ();
     m_ntr=0;
