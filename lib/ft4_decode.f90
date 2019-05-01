@@ -215,7 +215,7 @@ contains
       max_iterations=40
       syncmin=1.2
       dosubtract=.true.
-      nsp=2
+      nsp=3
       if(ndepth.lt.3) then 
         nsp=1
         dosubtract=.false.
@@ -223,6 +223,14 @@ contains
       if(ndepth.eq.1) syncmin=2.0 
      
       do isp = 1,nsp
+         if(isp.eq.2) then
+           if(ndecodes.eq.0) exit
+           nd1=ndecodes
+         elseif(isp.eq.3) then
+           nd2=ndecodes-nd1
+           if(nd2.eq.0) exit
+         endif
+          
          candidate=0.0
          ncand=0
          call timer('getcand4',0)
@@ -495,6 +503,7 @@ contains
                   endif
                   nsnr=nint(max(-20.0,xsnr))
                   xdt=ibest/750.0 - 0.5
+!write(21,'(i6.6,i5,2x,f4.1,i6,2x,a37,2x,f4.1,3i3)') nutc,nsnr,xdt,nint(f0),message,sync,iaptype,ipass,isp
                   call this%callback(sync,nsnr,xdt,f0,message,iaptype,qual)
                   exit
                endif
