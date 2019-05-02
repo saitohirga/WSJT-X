@@ -30,8 +30,7 @@ contains
       include 'ft4/ft4_params.f90'
       class(ft4_decoder), intent(inout) :: this
       procedure(ft4_decode_callback) :: callback
-      parameter (NSS=NSPS/NDOWN)
-      parameter (NZZ=18*3456)
+      parameter (NSS=NSPS/NDOWN,NDMAX=NMAX/NDOWN)
       character message*37,msgsent*37
       character c77*77
       character*37 decodes(100)
@@ -42,8 +41,8 @@ contains
       character*6 hhmmss
       character*4 cqstr,cqstr0
 
-      complex cd2(0:NZZ/NDOWN-1)                  !Complex waveform
-      complex cb(0:NZZ/NDOWN-1+NN*NSS)
+      complex cd2(0:NDMAX-1)                  !Complex waveform
+      complex cb(0:NDMAX-1)
       complex cd(0:NN*NSS-1)                       !Complex waveform
       complex ctwk(2*NSS),ctwk2(2*NSS,-16:16)
       complex csymb(NSS)
@@ -52,7 +51,7 @@ contains
 
       real bmeta(2*NN),bmetb(2*NN),bmetc(2*NN)
       real a(5)
-      real dd(NZZ)
+      real dd(NMAX)
       real llr(2*ND),llra(2*ND),llrb(2*ND),llrc(2*ND),llrd(2*ND)
       real s2(0:255)
       real candidate(3,100)
@@ -61,7 +60,7 @@ contains
       integer apbits(2*ND)
       integer apmy_ru(28),aphis_fd(28)
       integer icos4a(0:3),icos4b(0:3),icos4c(0:3),icos4d(0:3)
-      integer*2 iwave(NZZ)                 !Raw received data
+      integer*2 iwave(NMAX)                 !Raw received data
       integer*1 message77(77),rvec(77),apmask(2*ND),cw(2*ND)
       integer*1 hbits(2*NN)
       integer graymap(0:3)
@@ -245,7 +244,7 @@ contains
             call ft4_downsample(dd,dobigfft,f0,cd2)  !Downsample to 32 Sam/Sym
             call timer('ft4_down',1)
             if(dobigfft) dobigfft=.false.
-            sum2=sum(cd2*conjg(cd2))/(real(NZZ)/real(NDOWN))
+            sum2=sum(cd2*conjg(cd2))/(real(NMAX)/real(NDOWN))
             if(sum2.gt.0.0) cd2=cd2/sqrt(sum2)
 ! Sample rate is now 12000/16 = 750 samples/second
             do isync=1,2
@@ -253,15 +252,15 @@ contains
                   idfmin=-12
                   idfmax=12
                   idfstp=3
-                  ibmin=0
-                  ibmax=800
+                  ibmin=-200
+                  ibmax=950
                   ibstp=4
                else
                   idfmin=idfbest-4
                   idfmax=idfbest+4
                   idfstp=1
                   ibmin=max(0,ibest-5)
-                  ibmax=min(ibest+5,NZZ/NDOWN-1)
+                  ibmax=min(ibest+5,NDMAX-1)
                   ibstp=1
                endif
                ibest=-1
@@ -287,7 +286,14 @@ contains
             call timer('ft4down ',1)
             sum2=sum(abs(cb)**2)/(real(NSS)*NN)
             if(sum2.gt.0.0) cb=cb/sqrt(sum2)
-            cd=cb(ibest:ibest+NN*NSS-1)
+            cd=0.
+            if(ibest.ge.0) then
+               it=min(NDMAX-1,ibest+NN*NSS-1)
+               np=it-ibest+1
+               cd(0:np-1)=cb(ibest:it)
+            else
+               cd(-ibest:ibest+NN*NSS-1)=cb(0:NN*NSS+2*ibest-1)
+            endif 
             call timer('four2a  ',0)
             do k=1,NN
                i1=(k-1)*NSS
