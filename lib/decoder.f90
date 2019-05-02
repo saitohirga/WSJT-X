@@ -133,8 +133,8 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
                  n30fox(j)=n
                  m=n30max-n
                  if(len(trim(g2fox(j))).eq.4) then
-                    call azdist(mygrid,g2fox(j),0.d0,nAz,nEl,nDmiles,nDkm, &
-                         nHotAz,nHotABetter)
+                    call azdist(mygrid,g2fox(j)//'  ',0.d0,nAz,nEl,nDmiles,	&
+                         nDkm,nHotAz,nHotABetter)
                  else
                     nDkm=9999
                  endif
