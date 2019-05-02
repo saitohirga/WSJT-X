@@ -92,6 +92,7 @@ d). Edit lines as needed. Keeping them in alphabetic order help see dupes.
 :ubuntu_sdk: https://launchpad.net/~ubuntu-sdk-team/+archive/ppa[Ubuntu SDK Notice]
 :win_openssl_packages: https://slproweb.com/products/Win32OpenSSL.html[Windows OpenSSL Packages]
 :win32_openssl: https://slproweb.com/download/Win32OpenSSL_Light-1_0_2r.exe[Win32 OpenSSL Lite Package]
+:win64_openssl: https://slproweb.com/download/Win64OpenSSL_Light-1_0_2r.exe[Win64 OpenSSL Lite Package]
 :writelog: https://writelog.com/[Writelog]
 :wsjt_yahoo_group: https://groups.yahoo.com/neo/groups/wsjtgroup/info[WSJT Group]
 :wsjtx: http://physics.princeton.edu/pulsar/K1JT/wsjtx.html[WSJT-X]
