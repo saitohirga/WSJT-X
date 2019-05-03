@@ -22,7 +22,8 @@ program jt9
 !### ndepth was defined as 60001.  Why???
   integer :: arglen,stat,offset,remain,mode=0,flow=200,fsplit=2700,          &
        fhigh=4000,nrxfreq=1500,ntrperiod=1,ndepth=1,nexp_decode=0
-  logical :: read_files = .true., tx9 = .false., display_help = .false.
+  logical :: read_files = .true., tx9 = .false., display_help = .false.,     &
+       bLowSidelobes = .false.
   type (option) :: long_options(26) = [ &
     option ('help', .false., 'h', 'Display this help message', ''),          &
     option ('shmem',.true.,'s','Use shared memory for sample data','KEY'),   &
@@ -242,7 +243,7 @@ program jt9
               ingain=0
               call timer('symspec ',0)
               nminw=1
-              call symspec(shared_data,k,ntrperiod,nsps,ingain,nminw,pxdb,  &
+              call symspec(shared_data,k,ntrperiod,nsps,ingain,bLowSidelobes,nminw,pxdb,  &
                    s,df3,ihsym,npts8,pxdbmax)
               call timer('symspec ',1)
            endif
