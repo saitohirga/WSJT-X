@@ -8,5 +8,4 @@ HEADERS  += \
   item_delegates/ForeignKeyDelegate.hpp \
   item_delegates/FrequencyItemDelegate.hpp \
   item_delegates/CallsignDelegate.hpp \
-  item_delegates/MaidenheadLocatorDelegate.hpp \
-  item_delegates/DateTimeAsSecsSinceEpochDelegate.hpp
+  item_delegates/MaidenheadLocatorDelegate.hpp

@@ -19,7 +19,8 @@ HEADERS  += \
   widgets/echoplot.h widgets/echograph.h widgets/fastgraph.h \
   widgets/fastplot.h widgets/MessageBox.hpp widgets/colorhighlighting.h \
   widgets/ExportCabrillo.h widgets/AbstractLogWindow.hpp \
-  widgets/FoxLogWindow.hpp widgets/CabrilloLogWindow.hpp
+  widgets/FoxLogWindow.hpp widgets/CabrilloLogWindow.hpp \
+  widgets/DateTimeEdit.hpp
 
 FORMS    += \
   widgets/mainwindow.ui widgets/about.ui \

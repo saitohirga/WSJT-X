@@ -21,6 +21,23 @@ class CabrilloLog::impl final
 public:
   impl (Configuration const *);
 
+  QVariant data (QModelIndex const& index, int role) const
+  {
+    auto value = QSqlTableModel::data (index, role);
+    if (index.column () == fieldIndex ("when")
+        && (Qt::DisplayRole == role || Qt::EditRole == role))
+      {
+        auto t = QDateTime::fromMSecsSinceEpoch (value.toULongLong () * 1000ull, Qt::UTC);
+        if (Qt::DisplayRole == role)
+          {
+            QLocale locale;
+            return locale.toString (t, locale.dateFormat (QLocale::ShortFormat) + " hh:mm:ss");
+          }
+        value = t;
+      }
+    return value;
+  }
+
   QString cabrillo_frequency_string (Radio::Frequency frequency) const;
 
   Configuration const * configuration_;

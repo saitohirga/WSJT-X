@@ -6,7 +6,6 @@
 #include "Configuration.hpp"
 #include "models/Bands.hpp"
 #include "item_delegates/ForeignKeyDelegate.hpp"
-#include "item_delegates/DateTimeAsSecsSinceEpochDelegate.hpp"
 #include "item_delegates/CallsignDelegate.hpp"
 #include "pimpl_impl.hpp"
 
@@ -64,7 +63,6 @@ CabrilloLogWindow::CabrilloLogWindow (QSettings * settings, Configuration const 
   m_->format_model_.setSourceModel (m_->log_model_);
   m_->ui_.log_table_view->setModel (&m_->format_model_);
   set_log_view (m_->ui_.log_table_view);
-  m_->ui_.log_table_view->setItemDelegateForColumn (2, new DateTimeAsSecsSinceEpochDelegate {this});
   m_->ui_.log_table_view->setItemDelegateForColumn (3, new CallsignDelegate {this});
   m_->ui_.log_table_view->setItemDelegateForColumn (6, new ForeignKeyDelegate {configuration->bands (), 0, this});
   auto h_header = m_->ui_.log_table_view->horizontalHeader ();

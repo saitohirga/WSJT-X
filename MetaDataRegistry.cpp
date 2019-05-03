@@ -15,6 +15,7 @@
 #include "models/IARURegions.hpp"
 #include "models/DecodeHighlightingModel.hpp"
 #include "widgets/FrequencyLineEdit.hpp"
+#include "widgets/DateTimeEdit.hpp"
 
 QItemEditorFactory * item_editor_factory ()
 {
@@ -34,6 +35,9 @@ void register_types ()
   item_editor_factory ()->registerEditor (qMetaTypeId<Radio::Frequency> (), new QStandardItemEditorCreator<FrequencyLineEdit> ());
   //auto frequency_delta_type_id = qRegisterMetaType<Radio::FrequencyDelta> ("FrequencyDelta");
   item_editor_factory ()->registerEditor (qMetaTypeId<Radio::FrequencyDelta> (), new QStandardItemEditorCreator<FrequencyDeltaLineEdit> ());
+  auto factory = new QItemEditorFactory;
+  factory->registerEditor (qMetaTypeId<QDateTime> (), new QStandardItemEditorCreator<DateTimeEdit> ());
+  QItemEditorFactory::setDefaultFactory (factory);
 
   // Frequency list model
   qRegisterMetaTypeStreamOperators<FrequencyList_v2::Item> ("Item_v2");
