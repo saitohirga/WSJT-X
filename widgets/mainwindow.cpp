@@ -5065,7 +5065,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     msgtype(t, ui->tx4);
 
     t=t0 + "73";
-    if((m_mode=="MSK144" and !m_bShMsgs) or m_mode=="FT8") {
+    if((m_mode=="MSK144" and !m_bShMsgs) or m_mode=="FT8" or m_mode=="FT4") {
       if(!bHisCall and bMyCall) t=hisCall + " <" + my_callsign + "> 73";
       if(bHisCall and !bMyCall) t="<" + hisCall + "> " + my_callsign + " 73";
     }
@@ -5081,7 +5081,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     }
   }
 
-  if(m_mode=="FT8" or m_mode=="MSK144") return;
+  if(m_mode=="FT8" or m_mode=="FT4" or m_mode=="MSK144") return;
 
   if (is_compound) {
     if (is_type_one) {
