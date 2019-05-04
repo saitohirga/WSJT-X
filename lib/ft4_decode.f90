@@ -94,6 +94,9 @@ contains
 
       this%callback => callback
       hhmmss=cdatetime0(8:13)
+      dxcall13=hiscall
+      mycall13=mycall
+
       if(first) then
          fs=12000.0/NDOWN                !Sample rate after downsampling
          dt=1/fs                         !Sample interval after downsample (s)
