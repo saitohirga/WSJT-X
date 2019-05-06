@@ -1,12 +1,9 @@
 #include "logqso.h"
 
-#include <random>
-#include <limits>
 #include <QString>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QDir>
-#include <QPushButton>
 
 #include "logbook/logbook.h"
 #include "MessageBox.hpp"
@@ -18,40 +15,17 @@
 #include "ui_logqso.h"
 #include "moc_logqso.cpp"
 
-namespace
-{
-  using dist_type = std::uniform_int_distribution<int>;
-  std::random_device rd;
-  std::mt19937 twister (rd ());
-  dist_type int_distribution;
-}
-
 LogQSO::LogQSO(QString const& programTitle, QSettings * settings
                , Configuration const * config, QWidget *parent)
   : QDialog {parent, Qt::WindowStaysOnTopHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint}
   , ui(new Ui::LogQSO)
-  , ok_ {new QPushButton {"OK", this}}
-  , cancel_ {new QPushButton {"Cancel", this}}
   , m_settings (settings)
   , m_config {config}
 {
   ui->setupUi(this);
   setWindowTitle(programTitle + " - Log QSO");
-  ui->grid->setValidator (new MaidenheadLocatorValidator {this});
-
-  ok_->setAutoDefault (false);
-  ok_->setFocusPolicy (Qt::ClickFocus);
-  cancel_->setAutoDefault (false);
-  ui->button_layout->addStretch ();
-  ui->button_layout->addWidget (ok_);
-  ui->button_layout->addStretch ();
-  ui->button_layout->addWidget (cancel_);
-  ui->button_layout->addStretch ();
-
   loadSettings ();
-
-  connect (ok_, &QAbstractButton::clicked, [this] (bool) {accept ();});
-  connect (cancel_, &QAbstractButton::clicked, [this] (bool) {reject ();});
+  ui->grid->setValidator (new MaidenheadLocatorValidator {this});
 }
 
 LogQSO::~LogQSO ()
@@ -139,22 +113,7 @@ void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString 
     }
   else
     {
-      // randomize accessible name of buttons
-      ok_->setAccessibleName (QString::number (int_distribution (twister)));
-      cancel_->setAccessibleName (QString::number (int_distribution (twister)));
-      // random sibling order of buttons
-      if (int_distribution (twister, dist_type::param_type {0, 1})) ok_->stackUnder (cancel_); else cancel_->stackUnder (ok_);
-      // random shuffle of layout items
-      for (int item = ui->button_layout->count () - 1; item > 0; --item)
-        {
-          auto other_item = int_distribution (twister, dist_type::param_type {0, item});
-          if (item != other_item)
-            {
-              ui->button_layout->insertItem (other_item, ui->button_layout->takeAt (item));
-              ui->button_layout->insertItem (item, ui->button_layout->takeAt (other_item + 1));
-            }
-        }
-      show ();
+      show();
     }
 }
 
