@@ -18,7 +18,6 @@ class QSettings;
 class Configuration;
 class QByteArray;
 class CabrilloLog;
-class QPushButton;
 
 class LogQSO : public QDialog
 {
@@ -53,8 +52,6 @@ private:
   void storeSettings () const;
 
   QScopedPointer<Ui::LogQSO> ui;
-  QPushButton * ok_;
-  QPushButton * cancel_;
   QSettings * m_settings;
   Configuration const * m_config;
   QString m_txPower;
