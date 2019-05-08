@@ -60,7 +60,16 @@ subroutine sync4d(cd0,i0,ctwk,itwk,sync)
   z4=0.
 
   if(itwk.eq.1) csync2=ctwk*csynca      !Tweak the frequency
-  if(i1.ge.0 .and. i1+4*NSS-1.le.NP-1) z1=sum(cd0(i1:i1+4*NSS-1:2)*conjg(csync2))
+  if(i1.ge.0 .and. i1+4*NSS-1.le.NP-1) then
+    z1=sum(cd0(i1:i1+4*NSS-1:2)*conjg(csync2))
+  elseif( i1.lt.0 ) then
+    npts=(i1+4*NSS-1)/2
+    if(npts.le.8) then
+      z1=0.
+    else
+      z1=sum(cd0(0:i1+4*NSS-1:2)*conjg(csync2(2*NSS-npts:)))
+    endif
+  endif
 
   if(itwk.eq.1) csync2=ctwk*csyncb      !Tweak the frequency
   if(i2.ge.0 .and. i2+4*NSS-1.le.NP-1) z2=sum(cd0(i2:i2+4*NSS-1:2)*conjg(csync2))
@@ -69,8 +78,16 @@ subroutine sync4d(cd0,i0,ctwk,itwk,sync)
   if(i3.ge.0 .and. i3+4*NSS-1.le.NP-1) z3=sum(cd0(i3:i3+4*NSS-1:2)*conjg(csync2))
 
   if(itwk.eq.1) csync2=ctwk*csyncd      !Tweak the frequency
-  if(i4.ge.0 .and. i4+4*NSS-1.le.NP-1) z4=sum(cd0(i4:i4+4*NSS-1:2)*conjg(csync2))
-
+  if(i4.ge.0 .and. i4+4*NSS-1.le.NP-1) then
+    z4=sum(cd0(i4:i4+4*NSS-1:2)*conjg(csync2))
+  elseif( i4+4*NSS-1.gt.NP-1 ) then
+    npts=(NP-1-i4+1)/2
+    if(npts.le.8) then
+      z4=0.
+    else
+      z4=sum(cd0(i4:i4+2*npts-1:2)*conjg(csync2(1:npts)))
+    endif
+  endif
   sync = p(z1) + p(z2) + p(z3) + p(z4)
 
   return

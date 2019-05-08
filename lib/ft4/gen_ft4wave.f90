@@ -13,7 +13,7 @@ subroutine gen_ft4wave(itone,nsym,nsps,fsample,f0,cwave,wave,icmplx,nwave)
      twopi=8.0*atan(1.0)
      dt=1.0/fsample
      hmod=1.0
-! Compute the frequency-smoothing pulse
+! Compute the smoothed frequency-deviation pulse
      do i=1,3*nsps
         tt=(i-1.5*nsps)/real(nsps)
         pulse(i)=gfsk_pulse(1.0,tt)

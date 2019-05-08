@@ -262,8 +262,8 @@ contains
                   idfmin=idfbest-4
                   idfmax=idfbest+4
                   idfstp=1
-                  ibmin=max(0,ibest-5)
-                  ibmax=min(ibest+5,NDMAX-1)
+                  ibmin=ibest-5
+                  ibmax=ibest+5
                   ibstp=1
                endif
                ibest=-1
