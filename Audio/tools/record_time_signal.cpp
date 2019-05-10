@@ -18,6 +18,7 @@
 #include <QAudioOutput>
 #include <QTimer>
 #include <QDateTime>
+#include <QDebug>
 
 #include "revision_utils.hpp"
 #include "Audio/BWFFile.hpp"
@@ -52,7 +53,12 @@ public:
       }
     else
       {
-        QTimer::singleShot (int ((((start - (QDateTime::currentMSecsSinceEpoch () / 1000) % 60) + 60) % 60) * 1000), Qt::PreciseTimer, this, &Record::start_recording);
+        auto now = QDateTime::currentDateTimeUtc ();
+        auto time = now.time ();
+        auto then = now;
+        then.setTime (QTime {time.hour (), time.minute (), start});
+        auto delta_ms = (now.msecsTo (then) + (60 * 1000)) % (60 * 1000);
+        QTimer::singleShot (int (delta_ms), Qt::PreciseTimer, this, &Record::start_recording);
       }
   }
 
@@ -113,7 +119,12 @@ public:
       }
     else
       {
-        QTimer::singleShot (int ((((start - (QDateTime::currentMSecsSinceEpoch () / 1000) % 60) + 60) % 60) * 1000), Qt::PreciseTimer, this, &Playback::start_playback);
+        auto now = QDateTime::currentDateTimeUtc ();
+        auto time = now.time ();
+        auto then = now;
+        then.setTime (QTime {time.hour (), time.minute (), start});
+        auto delta_ms = (now.msecsTo (then) + (60 * 1000)) % (60 * 1000);
+        QTimer::singleShot (int (delta_ms), Qt::PreciseTimer, this, &Playback::start_playback);
       }
   }
   
