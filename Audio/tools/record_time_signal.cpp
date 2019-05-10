@@ -2,6 +2,7 @@
 #include <exception>
 #include <stdexcept>
 #include <string>
+#include <memory>
 
 #include <locale.h>
 
@@ -14,6 +15,7 @@
 #include <QAudioFormat>
 #include <QAudioDeviceInfo>
 #include <QAudioInput>
+#include <QAudioOutput>
 #include <QTimer>
 #include <QDateTime>
 
@@ -25,61 +27,149 @@ namespace
   QTextStream qtout {stdout};
 }
 
-class Recorder final
+class Record final
   : public QObject
 {
   Q_OBJECT;
 
 public:
-  Recorder (int start, int duration, QString const& output, QAudioDeviceInfo const& source_device, QAudioFormat const& format, int notify_interval, int buffer_size)
-    : source_ {source_device, format}
+  Record (int start, int duration, QAudioDeviceInfo const& source_device, BWFFile * output, int notify_interval, int buffer_size)
+    : source_ {source_device, output->format ()}
     , notify_interval_ {notify_interval}
-    , output_ {format, output}
+    , output_ {output}
     , duration_ {duration}
   {
-    if (!output_.open (BWFFile::WriteOnly)) throw std::invalid_argument {QString {"cannot open output file \"%1\""}.arg (output).toStdString ()};
-
-    if (buffer_size) source_.setBufferSize (format.bytesForFrames (buffer_size));
+    if (buffer_size) source_.setBufferSize (output_->format ().bytesForFrames (buffer_size));
     if (notify_interval_)
       {
         source_.setNotifyInterval (notify_interval);
-        connect (&source_, &QAudioInput::notify, this, &Recorder::notify);
+        connect (&source_, &QAudioInput::notify, this, &Record::notify);
       }
 
-    QTimer::singleShot (int ((((start - (QDateTime::currentMSecsSinceEpoch () / 1000) % 60) + 60) % 60) * 1000), Qt::PreciseTimer, this, &Recorder::start);
+    if (start == -1)
+      {
+        start_recording ();
+      }
+    else
+      {
+        QTimer::singleShot (int ((((start - (QDateTime::currentMSecsSinceEpoch () / 1000) % 60) + 60) % 60) * 1000), Qt::PreciseTimer, this, &Record::start_recording);
+      }
   }
 
   Q_SIGNAL void done ();
 
 private:
-  Q_SLOT void start ()
+  Q_SLOT void start_recording ()
   {
     qtout << "started recording at " << QDateTime::currentDateTimeUtc ().toString ("hh:mm:ss.zzz UTC") << endl;
-    source_.start (&output_);
-    if (!notify_interval_) QTimer::singleShot (duration_ * 1000, Qt::PreciseTimer, this, &Recorder::stop);
+    source_.start (output_);
+    if (!notify_interval_) QTimer::singleShot (duration_ * 1000, Qt::PreciseTimer, this, &Record::stop_recording);
     qtout << QString {"buffer size used is: %1"}.arg (source_.bufferSize ()) << endl;
   }
 
   Q_SLOT void notify ()
   {
     auto length = source_.elapsedUSecs ();
-    qtout << QString {"%1 US recorded\r"}.arg (length) << flush;
-    if (length >= duration_ * 1000 * 1000) stop ();
+    qtout << QString {"%1 μs recorded\r"}.arg (length) << flush;
+    if (length >= duration_ * 1000 * 1000) stop_recording ();
   }
 
-  Q_SLOT void stop ()
+  Q_SLOT void stop_recording ()
   {
     auto length = source_.elapsedUSecs ();
     source_.stop ();
-    qtout << QString {"%1 uS recorded "}.arg (length) << '(' << source_.format ().framesForBytes (output_.size ()) << " frames recorded)\n";
+    qtout << QString {"%1 μs recorded "}.arg (length) << '(' << source_.format ().framesForBytes (output_->size ()) << " frames recorded)\n";
     qtout << "stopped recording at " << QDateTime::currentDateTimeUtc ().toString ("hh:mm:ss.zzz UTC") << endl;
     Q_EMIT done ();
   }
 
   QAudioInput source_;
   int notify_interval_;
-  BWFFile output_;
+  BWFFile * output_;
   int duration_;
+};
+
+class Playback final
+  : public QObject
+{
+  Q_OBJECT;
+
+public:
+  Playback (int start, BWFFile * input, QAudioDeviceInfo const& sink_device, int notify_interval, int buffer_size)
+    : input_ {input}
+    , sink_ {sink_device, input->format ()}
+    , notify_interval_ {notify_interval}
+  {
+    if (buffer_size) sink_.setBufferSize (input_->format ().bytesForFrames (buffer_size));
+    if (notify_interval_)
+      {
+        sink_.setNotifyInterval (notify_interval);
+        connect (&sink_, &QAudioOutput::notify, this, &Playback::notify);
+      }
+    if (start == -1)
+      {
+        start_playback ();
+
+      }
+    else
+      {
+        QTimer::singleShot (int ((((start - (QDateTime::currentMSecsSinceEpoch () / 1000) % 60) + 60) % 60) * 1000), Qt::PreciseTimer, this, &Playback::start_playback);
+      }
+  }
+  
+  Q_SIGNAL void done ();
+
+private:
+  Q_SLOT void start_playback ()
+  {
+    qtout << "started playback at " << QDateTime::currentDateTimeUtc ().toString ("hh:mm:ss.zzz UTC") << endl;
+    sink_.start (input_);
+    qtout << QString {"buffer size used is: %1 (%2 frames)"}.arg (sink_.bufferSize ()).arg (sink_.format ().framesForBytes (sink_.bufferSize ())) << endl;
+    connect (&sink_, &QAudioOutput::stateChanged, this, &Playback::sink_state_changed);
+  }
+
+  Q_SLOT void notify ()
+  {
+    auto length = sink_.elapsedUSecs ();
+    qtout << QString {"%1 μs rendered\r"}.arg (length) << flush;
+  }
+
+  Q_SLOT void sink_state_changed (QAudio::State state)
+  {
+    switch (state)
+      {
+      case QAudio::ActiveState:
+        qtout << "\naudio output state changed to active\n";
+        break;
+      case QAudio::SuspendedState:
+        qtout << "\naudio output state changed to suspended\n";
+        break;
+      case QAudio::StoppedState:
+        qtout << "\naudio output state changed to stopped\n";
+        break;
+      case QAudio::IdleState:
+        stop_playback ();
+        break;
+#if QT_VERSION >= QT_VERSION_CHECK (5, 10, 0)
+      case QAudio::InterruptedState:
+        qtout << "\naudio output state changed to interrupted\n";
+        break;
+#endif
+      }
+  }
+
+  Q_SLOT void stop_playback ()
+  {
+    auto length = sink_.elapsedUSecs ();
+    sink_.stop ();
+    qtout << QString {"%1 μs rendered "}.arg (length) << '(' << sink_.format ().framesForBytes (input_->size ()) << " frames rendered)\n";
+    qtout << "stopped playback at " << QDateTime::currentDateTimeUtc ().toString ("hh:mm:ss.zzz UTC") << endl;
+    Q_EMIT done ();
+  }
+
+  BWFFile * input_;
+  QAudioOutput sink_;
+  int notify_interval_;
 };
 
 #include "record_time_signal.moc"
@@ -110,8 +200,10 @@ int main(int argc, char *argv[])
       parser.addOptions ({
           {{"I", "list-audio-inputs"},
               app.translate ("main", "List the available audio input devices")},
+          {{"O", "list-audio-outputs"},
+              app.translate ("main", "List the available audio output devices")},
           {{"s", "start-time"},
-              app.translate ("main", "Record from <start-time> seconds"),
+              app.translate ("main", "Record from <start-time> seconds, default start immediately"),
               app.translate ("main", "start-time")},
           {{"d", "duration"},
               app.translate ("main", "Recording <duration> seconds"),
@@ -119,16 +211,22 @@ int main(int argc, char *argv[])
           {{"o", "output"},
               app.translate ("main", "Save output as <output-file>"),
               app.translate ("main", "output-file")},
+          {{"i", "input"},
+              app.translate ("main", "Playback <input-file>"),
+              app.translate ("main", "input-file")},
           {{"f", "force"},
               app.translate ("main", "Overwrite existing file")},
           {{"r", "sample-rate"},
-              app.translate ("main", "Record at <sample-rate>"),
+              app.translate ("main", "Record at <sample-rate>, default 48000 Hz"),
               app.translate ("main", "sample-rate")},
           {{"c", "num-channels"},
-              app.translate ("main", "Record <num> channels"),
+              app.translate ("main", "Record <num> channels, default 2"),
               app.translate ("main", "num")},
           {{"R", "recording-device-number"},
               app.translate ("main", "Record from <device-number>"),
+              app.translate ("main", "device-number")},
+          {{"P", "playback-device-number"},
+              app.translate ("main", "Playback to <device-number>"),
               app.translate ("main", "device-number")},
           {{"n", "notify-interval"},
               app.translate ("main", "use notify signals every <interval> milliseconds, zero to use a timer"),
@@ -150,11 +248,24 @@ int main(int argc, char *argv[])
           return 0;
         }
 
+      auto output_devices = QAudioDeviceInfo::availableDevices (QAudio::AudioOutput);      
+      if (parser.isSet ("O"))
+        {
+          int n {0};
+          for (auto const& device : output_devices)
+            {
+              qtout << ++n << " - [" << device.deviceName () << ']' << endl;
+            }
+          return 0;
+        }
+
       bool ok;
-      int start = parser.value ("s").toInt (&ok);
-      if (!ok) throw std::invalid_argument {"start time not a number"};
-      int duration = parser.value ("d").toInt (&ok);
-      if (!ok) throw std::invalid_argument {"duration not a number"};
+      int start {-1};
+      if (parser.isSet ("s"))
+        {
+          start = parser.value ("s").toInt (&ok);
+          if (!ok) throw std::invalid_argument {"start time not a number"};
+        }
       int sample_rate {48000};
       if (parser.isSet ("r"))
         {
@@ -188,35 +299,74 @@ int main(int argc, char *argv[])
               throw std::invalid_argument {"invalid recording device"};
             }
         }
-      if (!parser.isSet ("o")) throw std::invalid_argument {"output file required"};
-      QFileInfo ofi {parser.value ("o")};
-      if (!ofi.suffix ().size () && ofi.fileName ()[ofi.fileName ().size () - 1] != QChar {'.'})
+      int output_device {0};
+      if (parser.isSet ("P"))
         {
-          ofi.setFile (ofi.filePath () + ".wav");
+          output_device = parser.value ("P").toInt (&ok);
+          if (!ok || 0 >= output_device || output_device > output_devices.size ())
+            {
+              throw std::invalid_argument {"invalid playback device"};
+            }
         }
-      if (!parser.isSet ("f") && ofi.isFile ())
-        {
-          throw std::invalid_argument {"set the `-force' option to overwrite an existing output file"};
-        }
+      if (!(parser.isSet ("o") || parser.isSet ("i"))) throw std::invalid_argument {"file required"};
+      if (parser.isSet ("o") && parser.isSet ("i")) throw std::invalid_argument {"specify either input or output"};
 
       QAudioFormat audio_format;
-      audio_format.setSampleRate (sample_rate);
-      audio_format.setChannelCount (num_channels);
-      audio_format.setSampleSize (16);
-      audio_format.setSampleType (QAudioFormat::SignedInt);
-      audio_format.setCodec ("audio/pcm");
-
-      auto source = input_device ? input_devices[input_device] : QAudioDeviceInfo::defaultInputDevice ();
-      if (!source.isFormatSupported (audio_format))
+      if (parser.isSet ("o"))   // Record
         {
-          qtout << "warning, requested format not supported, using nearest" << endl;
-          audio_format = source.nearestFormat (audio_format);
-        }
+          int duration = parser.value ("d").toInt (&ok);
+          if (!ok) throw std::invalid_argument {"duration not a number"};
 
-      // run the application
-      Recorder record {start, duration, ofi.filePath (), source, audio_format, notify_interval, buffer_size};
-      QObject::connect (&record, &Recorder::done, &app, &QCoreApplication::quit);
-      return app.exec();
+          QFileInfo ofi {parser.value ("o")};
+          if (!ofi.suffix ().size () && ofi.fileName ()[ofi.fileName ().size () - 1] != QChar {'.'})
+            {
+              ofi.setFile (ofi.filePath () + ".wav");
+            }
+          if (!parser.isSet ("f") && ofi.isFile ())
+            {
+              throw std::invalid_argument {"set the `-force' option to overwrite an existing output file"};
+            }
+
+          audio_format.setSampleRate (sample_rate);
+          audio_format.setChannelCount (num_channels);
+          audio_format.setSampleSize (16);
+          audio_format.setSampleType (QAudioFormat::SignedInt);
+          audio_format.setCodec ("audio/pcm");
+
+          auto source = input_device ? input_devices[input_device] : QAudioDeviceInfo::defaultInputDevice ();
+          if (!source.isFormatSupported (audio_format))
+            {
+              qtout << "warning, requested format not supported, using nearest" << endl;
+              audio_format = source.nearestFormat (audio_format);
+            }
+          BWFFile output_file {audio_format, ofi.filePath ()};
+          if (!output_file.open (BWFFile::WriteOnly)) throw std::invalid_argument {QString {"cannot open output file \"%1\""}.arg (ofi.filePath ()).toStdString ()};
+
+          // run the application
+          Record record {start, duration, source, &output_file, notify_interval, buffer_size};
+          QObject::connect (&record, &Record::done, &app, &QCoreApplication::quit);
+          return app.exec();
+        }
+      else                      // Playback
+        {
+          QFileInfo ifi {parser.value ("i")};
+          if (!ifi.isFile () && !ifi.suffix ().size () && ifi.fileName ()[ifi.fileName ().size () - 1] != QChar {'.'})
+            {
+              ifi.setFile (ifi.filePath () + ".wav");
+            }
+          BWFFile input_file {audio_format, ifi.filePath ()};
+          if (!input_file.open (BWFFile::ReadOnly)) throw std::invalid_argument {QString {"cannot open input file \"%1\""}.arg (ifi.filePath ()).toStdString ()};
+          auto sink = output_device ? output_devices[output_device] : QAudioDeviceInfo::defaultOutputDevice ();
+          if (!sink.isFormatSupported (input_file.format ()))
+            {
+              throw std::invalid_argument {"audio output device does not support input file audio format"};
+            }
+
+          // run the application
+          Playback play {start, &input_file, sink, notify_interval, buffer_size};
+          QObject::connect (&play, &Playback::done, &app, &QCoreApplication::quit);
+          return app.exec();
+        }
     }
   catch (std::exception const& e)
     {
