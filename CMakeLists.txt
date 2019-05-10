@@ -1289,6 +1289,9 @@ target_link_libraries (ft4sim_mult wsjt_fort wsjt_cxx)
 add_executable (ft4d lib/ft4/ft4d.f90 wsjtx.rc)
 target_link_libraries (ft4d wsjt_fort wsjt_cxx)
 
+add_executable (record_time_signal Audio/tools/record_time_signal.cpp)
+target_link_libraries (record_time_signal wsjt_cxx wsjt_qtmm wsjt_qt)
+
 endif(WSJT_BUILD_UTILS)
 
 # build the main application
