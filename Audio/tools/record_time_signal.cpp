@@ -101,12 +101,13 @@ class Playback final
   Q_OBJECT;
 
 public:
-  Playback (int start, BWFFile * input, QAudioDeviceInfo const& sink_device, int notify_interval, int buffer_size)
+  Playback (int start, BWFFile * input, QAudioDeviceInfo const& sink_device, int notify_interval, int buffer_size, QString const& category)
     : input_ {input}
     , sink_ {sink_device, input->format ()}
     , notify_interval_ {notify_interval}
   {
     if (buffer_size) sink_.setBufferSize (input_->format ().bytesForFrames (buffer_size));
+    if (category.size ()) sink_.setCategory (category);
     if (notify_interval_)
       {
         sink_.setNotifyInterval (notify_interval);
@@ -239,6 +240,9 @@ int main(int argc, char *argv[])
           {{"P", "playback-device-number"},
               app.translate ("main", "Playback to <device-number>"),
               app.translate ("main", "device-number")},
+          {{"C", "category"},
+              app.translate ("main", "Playback <category-name>"),
+              app.translate ("main", "category-name")},
           {{"n", "notify-interval"},
               app.translate ("main", "use notify signals every <interval> milliseconds, zero to use a timer"),
               app.translate ("main", "interval")},
@@ -375,7 +379,7 @@ int main(int argc, char *argv[])
             }
 
           // run the application
-          Playback play {start, &input_file, sink, notify_interval, buffer_size};
+          Playback play {start, &input_file, sink, notify_interval, buffer_size, parser.value ("category")};
           QObject::connect (&play, &Playback::done, &app, &QCoreApplication::quit);
           return app.exec();
         }
