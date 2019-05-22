@@ -69,7 +69,14 @@ QByteArray LogBook::QSOToADIF (QString const& hisCall, QString const& hisGrid, Q
   QString t;
   t = "<call:" + QString::number(hisCall.length()) + ">" + hisCall;
   t += " <gridsquare:" + QString::number(hisGrid.length()) + ">" + hisGrid;
-  t += " <mode:" + QString::number(mode.length()) + ">" + mode;
+  if (mode != "FT4")
+    {
+      t += " <mode:" + QString::number(mode.length()) + ">" + mode;
+    }
+  else
+    {
+      t += " <mode:4>MFSK <submode:" + QString::number(mode.length()) + ">" + mode;
+    }
   t += " <rst_sent:" + QString::number(rptSent.length()) + ">" + rptSent;
   t += " <rst_rcvd:" + QString::number(rptRcvd.length()) + ">" + rptRcvd;
   t += " <qso_date:8>" + dateTimeOn.date().toString("yyyyMMdd");
