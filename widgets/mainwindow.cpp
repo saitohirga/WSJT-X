@@ -1466,7 +1466,7 @@ void MainWindow::dataSink(qint64 frames)
       }
       m_fileToSave.clear ();
       int samples=m_TRperiod*12000;
-      if(m_mode=="FT4") samples=18*3456;
+      if(m_mode=="FT4") samples=21*3456;
 
       // the following is potential a threading hazard - not a good
       // idea to pass pointer to be processed in another thread
