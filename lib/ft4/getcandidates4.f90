@@ -61,7 +61,7 @@ subroutine getcandidates4(dd,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
 !  call ft4_baseline(savg,nfa,nfb,sbase)
 !  savsm=savsm/sbase
 
-  f_offset = -1.5*12000/512
+  f_offset = -1.5*12000.0/NSPS
   do i=nfa+1,nfb-1
      if(savsm(i).ge.savsm(i-1) .and. savsm(i).ge.savsm(i+1) .and.      &
           savsm(i).ge.syncmin) then

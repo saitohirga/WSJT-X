@@ -249,14 +249,14 @@ contains
             if(dobigfft) dobigfft=.false.
             sum2=sum(cd2*conjg(cd2))/(real(NMAX)/real(NDOWN))
             if(sum2.gt.0.0) cd2=cd2/sqrt(sum2)
-! Sample rate is now 12000/16 = 750 samples/second
+! Sample rate is now 12000/18 = 666.67 samples/second
             do isync=1,2
                if(isync.eq.1) then
                   idfmin=-12
                   idfmax=12
                   idfstp=3
-                  ibmin=-200
-                  ibmax=950
+                  ibmin=-333
+                  ibmax=1000
                   ibstp=4
                else
                   idfmin=idfbest-4
@@ -493,7 +493,7 @@ contains
                   call unpack77(c77,1,message,unpk77_success)
                   if(unpk77_success.and.dosubtract) then
                      call get_ft4_tones_from_77bits(message77,i4tone)
-                     dt=real(ibest)/750.0
+                     dt=real(ibest)/666.67
                      call timer('subtract',0)
                      call subtractft4(dd,i4tone,f0,dt)
                      call timer('subtract',1)
@@ -506,12 +506,12 @@ contains
                   ndecodes=ndecodes+1
                   decodes(ndecodes)=message
                   if(snr.gt.0.0) then
-                     xsnr=10*log10(snr)-14.0
+                     xsnr=10*log10(snr)-14.8
                   else
                      xsnr=-20.0
                   endif
                   nsnr=nint(max(-20.0,xsnr))
-                  xdt=ibest/750.0 - 0.5
+                  xdt=ibest/666.67 - 0.5
 !write(21,'(i6.6,i5,2x,f4.1,i6,2x,a37,2x,f4.1,3i3)') nutc,nsnr,xdt,nint(f0),message,sync,iaptype,ipass,isp
                   call this%callback(sync,nsnr,xdt,f0,message,iaptype,qual)
                   exit

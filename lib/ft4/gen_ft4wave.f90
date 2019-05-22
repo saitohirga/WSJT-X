@@ -2,8 +2,8 @@ subroutine gen_ft4wave(itone,nsym,nsps,fsample,f0,cwave,wave,icmplx,nwave)
 
   real wave(nwave)
   complex cwave(nwave)
-  real pulse(6144)              !512*4*3
-  real dphi(0:240000-1)
+  real pulse(6912)              !576*4*3
+  real dphi(0:250000-1)
   integer itone(nsym)
   logical first
   data first/.true./

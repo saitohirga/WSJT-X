@@ -411,7 +411,7 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
   }
 
   float bw=9.0*12000.0/m_nsps;               //JT9
-  if(m_mode=="FT4") bw=3*12000.0/512.0;      //FT4  ### (3x, or 4x???) ###
+  if(m_mode=="FT4") bw=3*12000.0/576.0;      //FT4  ### (3x, or 4x???) ###
   if(m_mode=="FT8") bw=7*12000.0/1920.0;     //FT8
 
   if(m_mode=="JT4") {                        //JT4

@@ -1466,7 +1466,7 @@ void MainWindow::dataSink(qint64 frames)
       }
       m_fileToSave.clear ();
       int samples=m_TRperiod*12000;
-      if(m_mode=="FT4") samples=18*3456;
+      if(m_mode=="FT4") samples=21*3456;
 
       // the following is potential a threading hazard - not a good
       // idea to pass pointer to be processed in another thread
@@ -3428,7 +3428,7 @@ void MainWindow::guiUpdate()
 
   if(m_TRperiod==0) m_TRperiod=60.0;
   txDuration=0.0;
-  if(m_modeTx=="FT4")  txDuration=0.35 + 105*512/12000.0;     // FT4
+  if(m_modeTx=="FT4")  txDuration=1.0 + 105*576/12000.0;      // FT4
   if(m_modeTx=="FT8")  txDuration=1.0 + 79*1920/12000.0;      // FT8
   if(m_modeTx=="JT4")  txDuration=1.0 + 207.0*2520/11025.0;   // JT4
   if(m_modeTx=="JT9")  txDuration=1.0 + 85.0*m_nsps/12000.0;  // JT9
@@ -3748,7 +3748,7 @@ void MainWindow::guiUpdate()
             genft4_(message, &ichk, msgsent, const_cast<char *> (ft4msgbits),
                const_cast<int *>(itone), 37, 37);
             int nsym=103;
-            int nsps=4*512;
+            int nsps=4*576;
             float fsample=48000.0;
             float f0=ui->TxFreqSpinBox->value() - m_XIT;
             int nwave=(nsym+2)*nsps;
@@ -5652,7 +5652,7 @@ void MainWindow::on_actionFT4_triggered()
   Q_EMIT FFTSize (m_FFTSize);
   m_hsymStop=18;
   setup_status_bar (bVHF);
-  m_toneSpacing=12000.0/512.0;
+  m_toneSpacing=12000.0/576.0;
   ui->actionFT4->setChecked(true);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
@@ -6949,7 +6949,7 @@ void MainWindow::transmit (double snr)
     m_dateTimeSentTx3=QDateTime::currentDateTimeUtc();
     toneSpacing=-2.0;                     //Transmit a pre-computed, filtered waveform.
     Q_EMIT sendMessage (NUM_FT4_SYMBOLS,
-           512.0, ui->TxFreqSpinBox->value() - m_XIT,
+           576.0, ui->TxFreqSpinBox->value() - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel(),
            true, false, snr, m_TRperiod);
   }

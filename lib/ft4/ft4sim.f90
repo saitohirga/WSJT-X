@@ -6,7 +6,7 @@ program ft4sim
   use packjt77
   include 'ft4_params.f90'               !Set various constants
   parameter (NWAVE=NN*NSPS)
-  parameter (NZZ=18*3456)                !62208
+  parameter (NZZ=21*3456)                !72576
   type(hdr) h                            !Header for .wav file
   character arg*12,fname*17
   character msg37*37,msgsent37*37
@@ -51,12 +51,11 @@ program ft4sim
   hmod=1.0                               !Modulation index (0.5 is MSK, 1.0 is FSK)
   tt=NSPS*dt                             !Duration of symbols (s)
   baud=1.0/tt                            !Keying rate (baud)
-  txt=NZ*dt                              !Transmission length (s)
+  txt=NZ2*dt                             !Transmission length (s)
 
   bandwidth_ratio=2500.0/(fs/2.0)
   sig=sqrt(2*bandwidth_ratio) * 10.0**(0.05*snrdb)
   if(snrdb.gt.90.0) sig=1.0
-  txt=NN*NSPS/12000.0
 
   ! Source-encode, then get itone()
   i3=-1

@@ -91,8 +91,8 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
   if (synchronize && !m_tuning && !m_bFastMode)	{
     m_silentFrames = m_ic + m_frameRate / (1000 / delay_ms) - (mstr * (m_frameRate / 1000));
   }
-  if(symbolsLength==105 and framesPerSymbol==512
-     and (toneSpacing==12000.0/512.0 or toneSpacing==-2.0)) {
+  if(symbolsLength==105 and framesPerSymbol==576
+     and (toneSpacing==12000.0/576.0 or toneSpacing==-2.0)) {
 //### FT4 parameters
     m_ic=0;
     m_silentFrames=0;
