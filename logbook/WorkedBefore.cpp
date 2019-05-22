@@ -332,10 +332,15 @@ namespace
                                       // will parse a record
                       {
                         auto const& entity = prefixes->lookup (call);
+                        auto mode = extractField (record, "MODE").toUpper ();
+                        if (!mode.size () || "MFSK" == mode)
+                          {
+                            mode = extractField (record, "SUBMODE").toUpper ();
+                          }
                         worked.emplace (call.toUpper ()
                                         , extractField (record, "GRIDSQUARE").left (4).toUpper () // not interested in 6-digit grids
                                         , extractField (record, "BAND").toUpper ()
-                                        , extractField (record, "MODE").toUpper ()
+                                        , mode
                                         , entity.entity_name
                                         , entity.continent
                                         , entity.CQ_zone
