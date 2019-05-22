@@ -989,6 +989,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
 void MainWindow::not_GA_warning_message ()
 {
+  /*
   MessageBox::critical_message (this,
                                 "<b><p align=\"center\">"
                                 "This is a pre-release version of WSJT-X 2.1.0 made "
@@ -997,6 +998,7 @@ void MainWindow::not_GA_warning_message ()
   QDateTime now=QDateTime::currentDateTime();
   QDateTime timeout=QDateTime(QDate(2019,6,7));
   if(now.daysTo(timeout) < 0) Q_EMIT finished();
+  */
 }
 
 void MainWindow::initialize_fonts ()
@@ -3945,7 +3947,7 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-//    qDebug() << "cc onesec" << (SpecOp::RTTY == m_config.special_op_id());
+//    qDebug() << "cc onesec" << m_bBestSPArmed;
     // if((!m_msgAvgWidget or (m_msgAvgWidget and !m_msgAvgWidget->isVisible()))
     //    and (SpecOp::NONE < m_config.special_op_id()) and (SpecOp::HOUND > m_config.special_op_id())) on_actionFox_Log_triggered();
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
