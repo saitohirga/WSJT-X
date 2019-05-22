@@ -241,9 +241,9 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
     painter1.setPen(Qt::white);
     QString t;
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
-    int n=(ms/1000) % m_TRperiod;
+    int n = fmod(0.001*ms,m_TRperiod);
     QDateTime t1=QDateTime::currentDateTimeUtc().addSecs(-n);
-    if(m_TRperiod < 60 or m_mode=="FT4") {
+    if(m_TRperiod<60.0) {
       t=t1.toString("hh:mm:ss") + "    " + m_rxBand;
     } else {
       t=t1.toString("hh:mm") + "    " + m_rxBand;
@@ -721,9 +721,9 @@ void CPlotter::mouseDoubleClickEvent (QMouseEvent * event)
   }
 }
 
-void CPlotter::setNsps(int ntrperiod, int nsps)                    //setNsps
+void CPlotter::setNsps(double trperiod, int nsps)                    //setNsps
 {
-  m_TRperiod=ntrperiod;
+  m_TRperiod=trperiod;
   m_nsps=nsps;
   m_fftBinWidth=1500.0/2048.0;
   if(m_nsps==15360)  m_fftBinWidth=1500.0/2048.0;

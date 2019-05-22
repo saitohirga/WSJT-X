@@ -11,6 +11,7 @@
 #include <QDir>
 #include <QCloseEvent>
 #include <QDebug>
+#include <math.h>
 
 #include "commons.h"
 #include "MessageBox.hpp"
@@ -90,7 +91,7 @@ void Astro::write_settings ()
 }
 
 auto Astro::astroUpdate(QDateTime const& t, QString const& mygrid, QString const& hisgrid, Frequency freq,
-                        bool dx_is_self, bool bTx, bool no_tx_QSY, int TR_period) -> Correction
+                        bool dx_is_self, bool bTx, bool no_tx_QSY, double TR_period) -> Correction
 {
   Frequency freq_moon {freq};
   double azsun,elsun,azmoon,elmoon,azmoondx,elmoondx;
@@ -211,8 +212,8 @@ auto Astro::astroUpdate(QDateTime const& t, QString const& mygrid, QString const
         //
         // use a base time of (secs-since-epoch + 2) so as to be sure
         // we do the next period if we calculate just before it starts
-        auto sec_since_epoch = t.toMSecsSinceEpoch () / 1000 + 2;
-        auto target_sec = sec_since_epoch - sec_since_epoch % TR_period + TR_period / 2;
+        auto sec_since_epoch = t.toMSecsSinceEpoch ()/1000 + 2;
+        auto target_sec = sec_since_epoch - fmod(double(sec_since_epoch),TR_period) + 0.5*TR_period;
         auto target_date_time = QDateTime::fromMSecsSinceEpoch (target_sec * 1000, Qt::UTC);
         QString date {target_date_time.date().toString("yyyy MMM dd").trimmed ()};
         QString utc {target_date_time.time().toString().trimmed ()};

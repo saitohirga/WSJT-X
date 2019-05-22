@@ -2,6 +2,7 @@
 #include <QDateTime>
 #include <QtAlgorithms>
 #include <QDebug>
+#include <math.h>
 #include "commons.h"
 
 #include "moc_Detector.cpp"
@@ -10,7 +11,7 @@ extern "C" {
   void   fil4_(qint16*, qint32*, qint16*, qint32*);
 }
 
-Detector::Detector (unsigned frameRate, unsigned periodLengthInSeconds,
+Detector::Detector (unsigned frameRate, double periodLengthInSeconds,
                     unsigned downSampleFactor, QObject * parent)
   : AudioDevice (parent)
   , m_frameRate (frameRate)
@@ -128,5 +129,6 @@ unsigned Detector::secondInPeriod () const
   qint64 now (QDateTime::currentMSecsSinceEpoch ());
 
   unsigned secondInToday ((now % 86400000LL) / 1000);
-  return secondInToday % m_period;
+  unsigned secInPeriod = fmod(double(secondInToday),m_period);
+  return secInPeriod;
 }

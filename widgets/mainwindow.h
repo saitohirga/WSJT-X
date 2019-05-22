@@ -406,6 +406,7 @@ private:
 
   double  m_s6;
   double  m_tRemaining;
+  double  m_TRperiod;
 
   float   m_DTtol;
   float   m_t0;
@@ -428,7 +429,6 @@ private:
   qint32  m_ntr;
   qint32  m_tx;
   qint32  m_hsym;
-  qint32  m_TRperiod;
   qint32  m_nsps;
   qint32  m_hsymStop;
   qint32  m_inGain;
