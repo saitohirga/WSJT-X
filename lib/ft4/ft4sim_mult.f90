@@ -6,7 +6,7 @@ program ft4sim_mult
   use packjt77
   include 'ft4_params.f90'               !FT4 protocol constants
   parameter (NWAVE=NN*NSPS)
-  parameter (NZZ=65760)                  !Length of .wav file (4.48+1.0)*12000
+  parameter (NZZ=72576)                  !Length of .wav file (21*3456)
   type(hdr) h                            !Header for .wav file
   character arg*12,fname*17,cjunk*4
   character msg37*37,msgsent37*37,c77*77
@@ -55,8 +55,8 @@ program ft4sim_mult
         read(10,1003,end=100) cjunk,isnr,xdt0,ifreq,msg37
 1003    format(a4,30x,i3,f5.1,i5,1x,a37)
         if(cjunk.eq.'File') go to 100
-        if(isnr.lt.-16) isnr=-16
-        f0=ifreq*93.75/50.0
+        if(isnr.lt.-17) isnr=-17
+        f0=ifreq*960.0/576.0
         call random_number(r)
         xdt=r-0.5
 ! Source-encode, then get itone()
