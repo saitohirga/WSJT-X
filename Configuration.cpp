@@ -609,6 +609,7 @@ private:
   bool miles_;
   bool quick_call_;
   bool disable_TX_on_73_;
+  bool force_call_1st_;
   bool alternate_bindings_;
   int watchdog_;
   bool TX_messages_;
@@ -705,6 +706,7 @@ bool Configuration::clear_DX () const {return m_->clear_DX_;}
 bool Configuration::miles () const {return m_->miles_;}
 bool Configuration::quick_call () const {return m_->quick_call_;}
 bool Configuration::disable_TX_on_73 () const {return m_->disable_TX_on_73_;}
+bool Configuration::force_call_1st() const {return m_->force_call_1st_;}
 bool Configuration::alternate_bindings() const {return m_->alternate_bindings_;}
 int Configuration::watchdog () const {return m_->watchdog_;}
 bool Configuration::TX_messages () const {return m_->TX_messages_;}
@@ -1242,6 +1244,7 @@ void Configuration::impl::initialize_models ()
   ui_->miles_check_box->setChecked (miles_);
   ui_->quick_call_check_box->setChecked (quick_call_);
   ui_->disable_TX_on_73_check_box->setChecked (disable_TX_on_73_);
+  ui_->force_call_1st_check_box->setChecked (force_call_1st_);
   ui_->alternate_bindings_check_box->setChecked (alternate_bindings_);
   ui_->tx_watchdog_spin_box->setValue (watchdog_);
   ui_->TX_messages_check_box->setChecked (TX_messages_);
@@ -1496,6 +1499,7 @@ void Configuration::impl::read_settings ()
   miles_ = settings_->value ("Miles", false).toBool ();
   quick_call_ = settings_->value ("QuickCall", false).toBool ();
   disable_TX_on_73_ = settings_->value ("73TxDisable", false).toBool ();
+  force_call_1st_ = settings_->value ("ForceCallFirst", false).toBool ();
   alternate_bindings_ = settings_->value ("AlternateBindings", false).toBool ();
   watchdog_ = settings_->value ("TxWatchdog", 6).toInt ();
   TX_messages_ = settings_->value ("Tx2QSO", true).toBool ();
@@ -1598,6 +1602,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("Miles", miles_);
   settings_->setValue ("QuickCall", quick_call_);
   settings_->setValue ("73TxDisable", disable_TX_on_73_);
+  settings_->setValue ("ForceCallFirst", force_call_1st_);
   settings_->setValue ("AlternateBindings", alternate_bindings_);
   settings_->setValue ("TxWatchdog", watchdog_);
   settings_->setValue ("Tx2QSO", TX_messages_);
@@ -2042,6 +2047,7 @@ void Configuration::impl::accept ()
   miles_ = ui_->miles_check_box->isChecked ();
   quick_call_ = ui_->quick_call_check_box->isChecked ();
   disable_TX_on_73_ = ui_->disable_TX_on_73_check_box->isChecked ();
+  force_call_1st_ = ui_->force_call_1st_check_box->isChecked ();
   alternate_bindings_ = ui_->alternate_bindings_check_box->isChecked ();
   watchdog_ = ui_->tx_watchdog_spin_box->value ();
   TX_messages_ = ui_->TX_messages_check_box->isChecked ();
