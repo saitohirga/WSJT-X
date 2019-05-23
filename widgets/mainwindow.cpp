@@ -1324,7 +1324,7 @@ void MainWindow::fixStop()
   } else if (m_mode=="FT8") {
     m_hsymStop=50;
   } else if (m_mode=="FT4") {
-  m_hsymStop=18;
+  m_hsymStop=21;
 }
 }
 
@@ -5650,7 +5650,7 @@ void MainWindow::on_actionFT4_triggered()
   m_nsps=6912;
   m_FFTSize = m_nsps/2;
   Q_EMIT FFTSize (m_FFTSize);
-  m_hsymStop=18;
+  m_hsymStop=21;
   setup_status_bar (bVHF);
   m_toneSpacing=12000.0/576.0;
   ui->actionFT4->setChecked(true);
