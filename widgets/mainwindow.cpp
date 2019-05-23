@@ -2838,12 +2838,12 @@ void MainWindow::decode()                                       //decode()
     dec_data.params.nutc=100*ihr + imin;
     if(m_mode=="ISCAT" or m_mode=="MSK144" or m_bFast9 or m_mode=="FT8" or m_mode=="FT4") {
       qint64 ms=1000.0*(2.0-m_TRperiod);
-      if(m_mode=="FT4") ms=1000.0*(3.0-m_TRperiod);
+      if(m_mode=="FT4") ms=1000.0*(2.0-m_TRperiod);
       QDateTime t=QDateTime::currentDateTimeUtc().addMSecs(ms);
       ihr=t.toString("hh").toInt();
       imin=t.toString("mm").toInt();
       int isec=t.toString("ss").toInt();
-      if(m_mode!="FT4") isec=isec - fmod(double(isec),m_TRperiod);
+      isec=isec - fmod(double(isec),m_TRperiod);
       dec_data.params.nutc=10000*ihr + 100*imin + isec;
     }
   }
@@ -3498,9 +3498,9 @@ void MainWindow::guiUpdate()
   if(m_transmitting or m_auto or m_tune) {
     m_dateTimeLastTX = QDateTime::currentDateTimeUtc ();
 
-// Check for "txboth" (testing purposes only)
+// Check for "txboth" (FT4 testing purposes only)
     QFile f(m_appDir + "/txboth");
-    if(f.exists() and fmod(tsec,m_TRperiod) < (1.0 + 85.0*m_nsps/12000.0)) m_bTxTime=true;
+    if(f.exists() and fmod(tsec,m_TRperiod) < (0.5 + 105.0*576.0/12000.0)) m_bTxTime=true;
 
 // Don't transmit another mode in the 30 m WSPR sub-band
     Frequency onAirFreq = m_freqNominal + ui->TxFreqSpinBox->value();

@@ -41,7 +41,6 @@ protected:
 
 private:
   void clear ();		// discard buffer contents
-  unsigned secondInPeriod () const;
 
   unsigned m_frameRate;
   double   m_period;

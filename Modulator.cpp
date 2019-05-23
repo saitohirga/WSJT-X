@@ -32,8 +32,8 @@ Modulator::Modulator (unsigned frameRate, double periodLengthInSeconds,
   , m_phi {0.0}
   , m_toneSpacing {0.0}
   , m_fSpread {0.0}
-  , m_frameRate {frameRate}
   , m_period {periodLengthInSeconds}
+  , m_frameRate {frameRate}
   , m_state {Idle}
   , m_tuning {false}
   , m_cwLevel {false}
@@ -50,13 +50,10 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
   Q_ASSERT (stream);
 // Time according to this computer which becomes our base time
   qint64 ms0 = QDateTime::currentMSecsSinceEpoch() % 86400000;
+  unsigned mstr = ms0 % int(1000.0*m_period); // ms into the nominal Tx start time
 
-//  qDebug() << "ModStart" << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.sss");
-
-  if(m_state != Idle) stop ();
-
+  if(m_state != Idle) stop();
   m_quickClose = false;
-
   m_symbolsLength = symbolsLength;
   m_isym0 = std::numeric_limits<unsigned>::max (); // big number
   m_frequency0 = 0.;
@@ -68,37 +65,33 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
   m_toneSpacing = toneSpacing;
   m_bFastMode=fastMode;
   m_TRperiod=TRperiod;
-  unsigned delay_ms = 1920 == m_nsps && 15 == m_period ? 500 : 1000;
+  unsigned delay_ms=1000;
+  if(m_nsps==1920) delay_ms=500;   //FT8
+  if(m_nsps==576)  delay_ms=300;   //FT4
 
-  // noise generator parameters
+// noise generator parameters
   if (m_addNoise) {
     m_snr = qPow (10.0, 0.05 * (dBSNR - 6.0));
     m_fac = 3000.0;
     if (m_snr > 1.0) m_fac = 3000.0 / m_snr;
   }
 
-  unsigned mstr = ms0 % int(1000.0*m_period); // ms in period
-
-  // round up to an exact portion of a second that allows for startup
-  // delays
+// round up to an exact portion of a second that allows for startup delays
   m_ic = (mstr / delay_ms) * m_frameRate * delay_ms / 1000;
 
   if(m_bFastMode) m_ic=0;
 
   m_silentFrames = 0;
-  // calculate number of silent frames to send, so that audio will start at
-  // the nominal time "delay_ms" into the Tx sequence.
+// calculate number of silent frames to send, so that audio will start at
+// the nominal time "delay_ms" into the Tx sequence.
   if (synchronize && !m_tuning && !m_bFastMode)	{
     m_silentFrames = m_ic + m_frameRate / (1000 / delay_ms) - (mstr * (m_frameRate / 1000));
   }
-  if(symbolsLength==105 and framesPerSymbol==576
-     and (toneSpacing==12000.0/576.0 or toneSpacing==-2.0)) {
-//### FT4 parameters
-    m_ic=0;
-    m_silentFrames=0;
-  }
-//  qDebug() << "Mod AA" << symbolsLength << framesPerSymbol << toneSpacing;
-//  qDebug() << "Mod AB" << delay_ms << mstr << m_ic << m_silentFrames;
+
+//  qDebug() << "aa" << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz")
+//           << m_ic << m_silentFrames << m_silentFrames/48000.0
+//           << mstr << fmod(double(ms0),1000.0*m_period);
+
 
   initialize (QIODevice::ReadOnly, channel);
   Q_EMIT stateChanged ((m_state = (synchronize && m_silentFrames) ?
