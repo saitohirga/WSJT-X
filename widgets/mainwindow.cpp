@@ -3070,7 +3070,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       }
       return;
     } else {
-      if(m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA64" or m_mode=="FT8" or m_mode=="FT4") {
+      if(m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA64") {
         int n=line_read.indexOf("f");
         if(n<0) n=line_read.indexOf("d");
         if(n>0) {
