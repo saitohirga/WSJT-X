@@ -110,8 +110,10 @@ program ft4sim
   c0((NN+1)*NSPS:(NN+2)*NSPS-1)=c0((NN+1)*NSPS:(NN+2)*NSPS-1)*(1.0+cos(twopi*(/(i,i=0,NSPS-1)/)/(2.0*NSPS) ))/2.0
   c0((NN+2)*NSPS:)=0.
 
-  k=nint((xdt+0.5)/dt)
+  k=nint((xdt+0.5)/dt)-NSPS
   c0=cshift(c0,-k)
+  if(k.gt.0) c0(0:k-1)=0.0
+  if(k.lt.0) c0(NZZ+k:NZZ-1)=0.0
 
   do ifile=1,nfiles
      c=c0
