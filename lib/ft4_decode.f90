@@ -255,8 +255,8 @@ contains
                   idfmin=-12
                   idfmax=12
                   idfstp=3
-                  ibmin=-333
-                  ibmax=1000
+                  ibmin=-344
+                  ibmax=1012
                   ibstp=4
                else
                   idfmin=idfbest-4
