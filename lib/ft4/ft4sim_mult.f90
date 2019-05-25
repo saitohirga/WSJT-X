@@ -17,8 +17,6 @@ program ft4sim_mult
   integer itone(NN)
   integer*1 msgbits(77)
   integer*2 iwave(NZZ)                  !Generated full-length waveform
-  integer icos4(4)
-  data icos4/0,1,3,2/
   
 ! Get command-line argument(s)
   nargs=iargc()
