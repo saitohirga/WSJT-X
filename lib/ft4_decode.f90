@@ -74,7 +74,7 @@ contains
       logical nohiscall,unpk77_success
       logical one(0:255,0:7)    ! 256 4-symbol sequences, 8 bits
       logical first, dobigfft
-      logical dosubtract
+      logical dosubtract,doosd
 
       data icos4a/0,1,3,2/
       data icos4b/1,0,2,3/
@@ -210,19 +210,23 @@ contains
       fb=nfb
       dd=iwave
 
-! ndepth=3: 2 passes, subtract on each pass
-! ndepth=2: 1 pass, no subtraction 
-! ndepth=1: 1 pass, no subtraction, fewer candidates
+! ndepth=3: 3 passes, bp+osd
+! ndepth=2: 3 passes, bp only 
+! ndepth=1: 1 pass, no subtraction
 
       max_iterations=40
       syncmin=1.2
       dosubtract=.true.
+      doosd=.true.
       nsp=3
-      if(ndepth.lt.3) then 
+      if(ndepth.eq.2) then
+        doosd=.false.
+      endif
+      if(ndepth.eq.1) then 
         nsp=1
         dosubtract=.false.
+        doosd=.false.
       endif
-      if(ndepth.eq.1) syncmin=2.0 
      
       do isp = 1,nsp
          if(isp.eq.2) then
@@ -482,10 +486,22 @@ contains
                   llr=llrd
                endif
                message77=0
+               dmin=0.0
                call timer('bpdec174',0)
                call bpdecode174_91(llr,apmask,max_iterations,message77,     &
                   cw,nharderror,niterations)
                call timer('bpdec174',1)
+
+               if(doosd .and. nharderror.lt.0) then
+                  ndeep=3
+                  if(abs(nfqso-f1).le.napwid) then
+                     ndeep=4
+                  endif
+                  call timer('osd174_91 ',0)
+                  call osd174_91(llr,apmask,ndeep,message77,cw,nharderror,dmin)
+                  call timer('osd174_91 ',1)
+               endif
+
                if(sum(message77).eq.0) cycle
                if( nharderror.ge.0 ) then
                   message77=mod(message77+rvec,2) ! remove rvec scrambling
@@ -508,11 +524,11 @@ contains
                   if(snr.gt.0.0) then
                      xsnr=10*log10(snr)-14.8
                   else
-                     xsnr=-20.0
+                     xsnr=-21.0
                   endif
-                  nsnr=nint(max(-20.0,xsnr))
+                  nsnr=nint(max(-21.0,xsnr))
                   xdt=ibest/666.67 - 0.5
-!write(21,'(i6.6,i5,2x,f4.1,i6,2x,a37,2x,f4.1,3i3)') nutc,nsnr,xdt,nint(f0),message,sync,iaptype,ipass,isp
+!write(21,'(i6.6,i5,2x,f4.1,i6,2x,a37,2x,f4.1,3i3,f5.1)') nutc,nsnr,xdt,nint(f0),message,sync,iaptype,ipass,isp,dmin
                   call this%callback(sync,nsnr,xdt,f0,message,iaptype,qual)
                   exit
                endif
