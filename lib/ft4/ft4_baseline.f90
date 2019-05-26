@@ -1,6 +1,6 @@
 subroutine ft4_baseline(s,nfa,nfb,sbase)
 
-! Fit baseline to spectrum (for FT8)
+! Fit baseline to spectrum 
 ! Input:  s(npts)         Linear scale in power
 ! Output: sbase(npts)    Baseline
 
