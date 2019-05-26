@@ -24,7 +24,7 @@ module ft4_decode
 contains
 
    subroutine decode(this,callback,iwave,nQSOProgress,nfqso,    &
-      nutc,nfa,nfb,ndepth,ncontest,mycall,hiscall)
+      nutc,nfa,nfb,ndepth,lapcqonly,ncontest,mycall,hiscall)
       use timer_module, only: timer
       use packjt77
       include 'ft4/ft4_params.f90'
@@ -75,6 +75,7 @@ contains
       logical one(0:255,0:7)    ! 256 4-symbol sequences, 8 bits
       logical first, dobigfft
       logical dosubtract,doosd
+      logical, intent(in) :: lapcqonly
 
       data icos4a/0,1,3,2/
       data icos4b/1,0,2,3/
@@ -407,6 +408,7 @@ contains
 
             apmag=maxval(abs(llra))*1.1
             npasses=3+nappasses(nQSOProgress)
+            if(lapcqonly) npasses=4
             if(ndepth.eq.1) npasses=3  
             if(ncontest.ge.5) npasses=3  ! Don't support Fox and Hound
             do ipass=1,npasses
@@ -421,6 +423,7 @@ contains
                if(ipass .gt. 3) then
                   llrd=llra
                   iaptype=naptypes(nQSOProgress,ipass-3)
+                  if(lapcqonly) iaptype=1
 
 ! ncontest=0 : NONE
 !          1 : NA_VHF
