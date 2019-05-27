@@ -10,7 +10,6 @@ subroutine getcandidates4(dd,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
   complex cx(0:NH1)
   real candidate(3,maxcand)
   real dd(NMAX)
-  integer indx(NH1)
   integer ipk(1)
   equivalence (x,cx)
   logical first
@@ -26,7 +25,6 @@ subroutine getcandidates4(dd,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
 
 ! Compute symbol spectra, stepping by NSTEP steps.  
   savg=0.
-  tstep=NSTEP/12000.0                         
   df=12000.0/NFFT1                            
   fac=1.0/300.0
   do j=1,NHSYM
@@ -40,27 +38,20 @@ subroutine getcandidates4(dd,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
      enddo
      savg=savg + s(1:NH1,j)                   !Average spectrum
   enddo
+  savg=savg/NHSYM
   savsm=0.
   do i=8,NH1-7
     savsm(i)=sum(savg(i-7:i+7))/15.
   enddo
+
   nfa=fa/df
-  if(nfa.lt.1) nfa=1
+  if(nfa.lt.8) nfa=8
   nfb=fb/df
   if(nfb.gt.nint(5000.0/df)) nfb=nint(5000.0/df)
-  n300=300/df
-  n2500=2500/df
-!  np=nfb-nfa+1
-  np=n2500-n300+1
-  indx=0
-  call indexx(savsm(n300:n2500),np,indx)
-  xn=savsm(n300+indx(nint(0.3*np)))
   ncand=0
-  if(xn.le.1.e-8) return 
-  savsm=savsm/xn
-!  call ft4_baseline(savg,nfa,nfb,sbase)
-!  savsm=savsm/sbase
-
+  call ft4_baseline(savg,nfa,nfb,sbase)
+  if(any(sbase(nfa:nfb).le.0)) return 
+  savsm(nfa:nfb)=savsm(nfa:nfb)/sbase(nfa:nfb)
   f_offset = -1.5*12000.0/NSPS
   do i=nfa+1,nfb-1
      if(savsm(i).ge.savsm(i-1) .and. savsm(i).ge.savsm(i+1) .and.      &

@@ -387,6 +387,7 @@ set (wsjt_FSRCS
   lib/azdist.f90
   lib/badmsg.f90
   lib/ft8/baseline.f90
+  lib/ft4/ft4_baseline.f90
   lib/bpdecode40.f90
   lib/bpdecode128_90.f90
   lib/ft8/bpdecode174_91.f90
@@ -565,7 +566,6 @@ set (wsjt_FSRCS
   lib/sync64.f90
   lib/sync65.f90
   lib/ft4/getcandidates4.f90
-  lib/ft4/syncft4.f90
   lib/ft8/sync8.f90
   lib/ft8/sync8d.f90
   lib/ft4/sync4d.f90
