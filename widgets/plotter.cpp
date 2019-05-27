@@ -241,9 +241,9 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
     painter1.setPen(Qt::white);
     QString t;
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
-    int n=(ms/1000) % m_TRperiod;
+    int n = fmod(0.001*ms,m_TRperiod);
     QDateTime t1=QDateTime::currentDateTimeUtc().addSecs(-n);
-    if(m_TRperiod < 60 or m_mode=="FT4") {
+    if(m_TRperiod<60.0) {
       t=t1.toString("hh:mm:ss") + "    " + m_rxBand;
     } else {
       t=t1.toString("hh:mm") + "    " + m_rxBand;
@@ -411,7 +411,7 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
   }
 
   float bw=9.0*12000.0/m_nsps;               //JT9
-  if(m_mode=="FT4") bw=3*12000.0/512.0;      //FT4  ### (3x, or 4x???) ###
+  if(m_mode=="FT4") bw=3*12000.0/576.0;      //FT4  ### (3x, or 4x???) ###
   if(m_mode=="FT8") bw=7*12000.0/1920.0;     //FT8
 
   if(m_mode=="JT4") {                        //JT4
@@ -721,9 +721,9 @@ void CPlotter::mouseDoubleClickEvent (QMouseEvent * event)
   }
 }
 
-void CPlotter::setNsps(int ntrperiod, int nsps)                    //setNsps
+void CPlotter::setNsps(double trperiod, int nsps)                    //setNsps
 {
-  m_TRperiod=ntrperiod;
+  m_TRperiod=trperiod;
   m_nsps=nsps;
   m_fftBinWidth=1500.0/2048.0;
   if(m_nsps==15360)  m_fftBinWidth=1500.0/2048.0;

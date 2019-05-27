@@ -383,9 +383,11 @@ set (wsjt_FSRCS
   lib/astro0.f90
   lib/avecho.f90
   lib/averms.f90
+  lib/ft4/averaged_mf.f90
   lib/azdist.f90
   lib/badmsg.f90
   lib/ft8/baseline.f90
+  lib/ft4/ft4_baseline.f90
   lib/bpdecode40.f90
   lib/bpdecode128_90.f90
   lib/ft8/bpdecode174_91.f90
@@ -564,7 +566,6 @@ set (wsjt_FSRCS
   lib/sync64.f90
   lib/sync65.f90
   lib/ft4/getcandidates4.f90
-  lib/ft4/syncft4.f90
   lib/ft8/sync8.f90
   lib/ft8/sync8d.f90
   lib/ft4/sync4d.f90
@@ -1282,6 +1283,9 @@ target_link_libraries (msk144sim wsjt_fort wsjt_cxx)
 
 add_executable (ft4sim lib/ft4/ft4sim.f90 wsjtx.rc)
 target_link_libraries (ft4sim wsjt_fort wsjt_cxx)
+
+add_executable (averaged_mf lib/ft4/averaged_mf.f90 wsjtx.rc)
+target_link_libraries (averaged_mf wsjt_fort wsjt_cxx)
 
 add_executable (ft4sim_mult lib/ft4/ft4sim_mult.f90 wsjtx.rc)
 target_link_libraries (ft4sim_mult wsjt_fort wsjt_cxx)

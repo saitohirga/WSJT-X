@@ -101,21 +101,22 @@ class Playback final
   Q_OBJECT;
 
 public:
-  Playback (int start, BWFFile * input, QAudioDeviceInfo const& sink_device, int notify_interval, int buffer_size)
+  Playback (int start, BWFFile * input, QAudioDeviceInfo const& sink_device, int notify_interval, int buffer_size, QString const& category)
     : input_ {input}
     , sink_ {sink_device, input->format ()}
     , notify_interval_ {notify_interval}
   {
     if (buffer_size) sink_.setBufferSize (input_->format ().bytesForFrames (buffer_size));
+    if (category.size ()) sink_.setCategory (category);
     if (notify_interval_)
       {
         sink_.setNotifyInterval (notify_interval);
         connect (&sink_, &QAudioOutput::notify, this, &Playback::notify);
       }
+    connect (&sink_, &QAudioOutput::stateChanged, this, &Playback::sink_state_changed);
     if (start == -1)
       {
         start_playback ();
-
       }
     else
       {
@@ -136,7 +137,6 @@ private:
     qtout << "started playback at " << QDateTime::currentDateTimeUtc ().toString ("hh:mm:ss.zzz UTC") << endl;
     sink_.start (input_);
     qtout << QString {"buffer size used is: %1 (%2 frames)"}.arg (sink_.bufferSize ()).arg (sink_.format ().framesForBytes (sink_.bufferSize ())) << endl;
-    connect (&sink_, &QAudioOutput::stateChanged, this, &Playback::sink_state_changed);
   }
 
   Q_SLOT void notify ()
@@ -160,6 +160,7 @@ private:
         break;
       case QAudio::IdleState:
         stop_playback ();
+        qtout << "\naudio output state changed to idle\n";
         break;
 #if QT_VERSION >= QT_VERSION_CHECK (5, 10, 0)
       case QAudio::InterruptedState:
@@ -239,6 +240,9 @@ int main(int argc, char *argv[])
           {{"P", "playback-device-number"},
               app.translate ("main", "Playback to <device-number>"),
               app.translate ("main", "device-number")},
+          {{"C", "category"},
+              app.translate ("main", "Playback <category-name>"),
+              app.translate ("main", "category-name")},
           {{"n", "notify-interval"},
               app.translate ("main", "use notify signals every <interval> milliseconds, zero to use a timer"),
               app.translate ("main", "interval")},
@@ -276,6 +280,7 @@ int main(int argc, char *argv[])
         {
           start = parser.value ("s").toInt (&ok);
           if (!ok) throw std::invalid_argument {"start time not a number"};
+          if (0 > start || start > 59) throw std::invalid_argument {"0 > start > 59"};
         }
       int sample_rate {48000};
       if (parser.isSet ("r"))
@@ -344,7 +349,7 @@ int main(int argc, char *argv[])
           audio_format.setSampleType (QAudioFormat::SignedInt);
           audio_format.setCodec ("audio/pcm");
 
-          auto source = input_device ? input_devices[input_device] : QAudioDeviceInfo::defaultInputDevice ();
+          auto source = input_device ? input_devices[input_device - 1] : QAudioDeviceInfo::defaultInputDevice ();
           if (!source.isFormatSupported (audio_format))
             {
               qtout << "warning, requested format not supported, using nearest" << endl;
@@ -367,14 +372,14 @@ int main(int argc, char *argv[])
             }
           BWFFile input_file {audio_format, ifi.filePath ()};
           if (!input_file.open (BWFFile::ReadOnly)) throw std::invalid_argument {QString {"cannot open input file \"%1\""}.arg (ifi.filePath ()).toStdString ()};
-          auto sink = output_device ? output_devices[output_device] : QAudioDeviceInfo::defaultOutputDevice ();
+          auto sink = output_device ? output_devices[output_device - 1] : QAudioDeviceInfo::defaultOutputDevice ();
           if (!sink.isFormatSupported (input_file.format ()))
             {
               throw std::invalid_argument {"audio output device does not support input file audio format"};
             }
 
           // run the application
-          Playback play {start, &input_file, sink, notify_interval, buffer_size};
+          Playback play {start, &input_file, sink, notify_interval, buffer_size, parser.value ("category")};
           QObject::connect (&play, &Playback::done, &app, &QCoreApplication::quit);
           return app.exec();
         }

@@ -157,7 +157,7 @@ program jt9
      end do
      go to 999
   endif
-  
+
   iret=fftwf_init_threads()            !Initialize FFTW threading 
 
 ! Default to 1 thread, but use nthreads for the big ones
@@ -179,6 +179,7 @@ program jt9
      go to 999
   endif
 
+  if(mode.eq.5) ndepth=3
   allocate(shared_data)
   nflatten=0
 
@@ -225,7 +226,7 @@ program jt9
      endif
 
      shared_data%id2=0          !??? Why is this necessary ???
-     if(mode.eq.5) npts=62208
+     if(mode.eq.5) npts=21*3456
      do iblk=1,npts/kstep
         k=iblk*kstep
         if(mode.eq.8 .and. k.gt.179712) exit

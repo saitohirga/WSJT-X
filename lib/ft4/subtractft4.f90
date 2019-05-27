@@ -9,8 +9,8 @@ subroutine subtractft4(dd,itone,f0,dt)
 
   use timer_module, only: timer
 
-  parameter (NMAX=18*3456,NFRAME=(103+2)*512)
-  parameter (NFFT=NMAX,NFILT=1400)
+  parameter (NMAX=21*3456,NSPS=576,NFFT=NMAX,NFILT=1400)
+  parameter (NFRAME=(103+2)*NSPS)
   real*4  dd(NMAX), window(-NFILT/2:NFILT/2), xjunk
   complex cref,camp,cfilt,cw
   integer itone(103)
@@ -19,13 +19,13 @@ subroutine subtractft4(dd,itone,f0,dt)
   common/heap8/cref(NFRAME),camp(NMAX),cfilt(NMAX),cw(NMAX),xjunk(NFRAME)
   save first
 
-  nstart=dt*12000+1-512
+  nstart=dt*12000+1-NSPS
   nsym=103
-  nsps=512
   fs=12000.0
   icmplx=1
   bt=1.0 
-  call gen_ft4wave(itone,nsym,nsps,fs,f0,cref,xjunk,icmplx,NFRAME)
+  nss=NSPS
+  call gen_ft4wave(itone,nsym,nss,fs,f0,cref,xjunk,icmplx,NFRAME)
   camp=0.
   do i=1,nframe
     id=nstart-1+i 

@@ -4,7 +4,7 @@ subroutine ft4_downsample(dd,newdata,f0,c)
 ! Output: Complex data in c(), sampled at 1200 Hz
 
    include 'ft4_params.f90'
-   parameter (NFFT2=NMAX/16)
+   parameter (NFFT2=NMAX/NDOWN)
    real dd(NMAX)
    complex c(0:NMAX/NDOWN-1)
    complex c1(0:NFFT2-1)
