@@ -14,7 +14,7 @@ program robo
   character*12 callsign(0:NMAX)
   integer*1 ic1
   
-  open(10,file='robo.dat',status='old',access='stream')
+  open(10,file='/tmp/robo.dat',status='old',access='stream')
   callsign='            '
   
   do ichar=1,NCHARS
