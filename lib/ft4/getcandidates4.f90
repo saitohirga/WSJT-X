@@ -45,7 +45,7 @@ subroutine getcandidates4(dd,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
   enddo
 
   nfa=fa/df
-  if(nfa.lt.8) nfa=8
+  if(nfa.lt.nint(200.0/df)) nfa=nint(200.0/df)
   nfb=fb/df
   if(nfb.gt.nint(5000.0/df)) nfb=nint(5000.0/df)
   ncand=0
