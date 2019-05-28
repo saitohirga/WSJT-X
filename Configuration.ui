@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>546</width>
-    <height>536</height>
+    <height>553</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1919,7 +1919,7 @@ for assessing propagation and system performance.</string>
        <item>
         <widget class="QGroupBox" name="n1mm_group_box">
          <property name="title">
-          <string>N1MM Logger+  Broadcasts</string>
+          <string>Secondary UDP Server (deprecated)</string>
          </property>
          <layout class="QFormLayout" name="formLayout_15">
           <item row="0" column="0" colspan="2">
@@ -1935,7 +1935,7 @@ for assessing propagation and system performance.</string>
           <item row="1" column="0">
            <widget class="QLabel" name="n1mm_server_name_label">
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;N1MM Server name or IP address:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>Server name or IP address:</string>
             </property>
             <property name="buddy">
              <cstring>n1mm_server_name_line_edit</cstring>
@@ -1952,7 +1952,7 @@ for assessing propagation and system performance.</string>
           <item row="2" column="0">
            <widget class="QLabel" name="n1mm_server_port_label">
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;N1MM Server port number:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>Server port number:</string>
             </property>
             <property name="buddy">
              <cstring>n1mm_server_port_spin_box</cstring>
@@ -3085,13 +3085,13 @@ Right click for insert and delete options.</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="special_op_activity_button_group"/>
-  <buttongroup name="PTT_method_button_group"/>
-  <buttongroup name="CAT_stop_bits_button_group"/>
-  <buttongroup name="CAT_handshake_button_group"/>
-  <buttongroup name="TX_mode_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
   <buttongroup name="split_mode_button_group"/>
   <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="CAT_handshake_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
+  <buttongroup name="TX_mode_button_group"/>
+  <buttongroup name="PTT_method_button_group"/>
+  <buttongroup name="special_op_activity_button_group"/>
+  <buttongroup name="CAT_stop_bits_button_group"/>
  </buttongroups>
 </ui>
