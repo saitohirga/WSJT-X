@@ -35,6 +35,7 @@
   <tr><td><b>Alt+M    </b></td><td>Monitor</td></tr>
   <tr><td><b>Alt+N    </b></td><td>Enable Tx</td></tr>
   <tr><td><b>Ctrl+O   </b></td><td>Open a .wav file</td></tr>
+  <tr><td><b>Alt+O    </b></td><td>Change operator</td></tr>
   <tr><td><b>Alt+Q    </b></td><td>Log QSO</td></tr>
   <tr><td><b>Alt+S    </b></td><td>Stop monitoring</td></tr>
   <tr><td><b>Alt+T    </b></td><td>Tune</td></tr>

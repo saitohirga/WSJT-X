@@ -148,6 +148,7 @@ public:
   bool EMEonly() const;
   bool post_decodes () const;
   QString opCall() const;
+  void opCall (QString const&);
   QString udp_server_name () const;
   port_type udp_server_port () const;
   QString n1mm_server_name () const;

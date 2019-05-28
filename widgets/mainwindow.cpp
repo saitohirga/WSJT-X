@@ -37,6 +37,7 @@
 #include <QSplashScreen>
 #include <QUdpSocket>
 #include <QAbstractItemView>
+#include <QInputDialog>
 
 #include "revision_utils.hpp"
 #include "qt_helpers.hpp"
@@ -2061,6 +2062,15 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       if(e->modifiers() & Qt::ControlModifier) {
           on_actionOpen_triggered();
           return;
+      }
+      else if(e->modifiers() & Qt::AltModifier) {
+        bool ok;
+        auto call = QInputDialog::getText (this, tr ("Change Operator"), tr ("New operator:"),
+                                           QLineEdit::Normal, m_config.opCall (), &ok);
+        if (ok) {
+          m_config.opCall (call);
+        }
+        return;
       }
       break;
     case Qt::Key_V:
