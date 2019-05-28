@@ -40,7 +40,7 @@ class HamlibTransceiver final
   void do_mode (MODE) override;
   void do_ptt (bool) override;
 
-  void poll () override;
+  void do_poll () override;
 
   void error_check (int ret_code, QString const& doing) const;
   void set_conf (char const * item, char const * value);

@@ -48,7 +48,7 @@ protected:
   void do_ptt (bool on) override;
 
   // Implement the PollingTransceiver interface.
-  void poll () override;
+  void do_poll () override;
 
 private:
   QString send_command (QString const&, bool no_debug = false, bool prepend_context = true, bool recurse = false);
