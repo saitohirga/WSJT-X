@@ -84,26 +84,13 @@ CabrilloLog::impl::impl (CabrilloLog * self, Configuration const * configuration
   , configuration_ {configuration}
   , adding_row_ {false}
 {
-  if (!database ().tables ().contains ("cabrillo_log"))
+  if (!database ().tables ().contains ("cabrillo_log_v2"))
     {
       create_table ();
     }
 
   setEditStrategy (QSqlTableModel::OnFieldChange);
-  setTable ("cabrillo_log");
-  if (-1 != fieldIndex ("band")) // schema out of date
-    {
-      QSqlQuery query;
-      SQL_error_check (query, static_cast<bool (QSqlQuery::*) (QString const&)> (&QSqlQuery::exec),
-                       "DROP TABLE IF EXISTS cabrillo_log_backup");
-      SQL_error_check (query, static_cast<bool (QSqlQuery::*) (QString const&)> (&QSqlQuery::exec),
-                       "CREATE TABLE cabrillo_log_backup AS SELECT * FROM cabrillo_log");
-      SQL_error_check (query, static_cast<bool (QSqlQuery::*) (QString const&)> (&QSqlQuery::exec),
-                       "DROP TABLE cabrillo_log");
-      create_table ();
-      setTable ("cabrillo_log");
-    }
-
+  setTable ("cabrillo_log_v2");
   setHeaderData (fieldIndex ("frequency"), Qt::Horizontal, tr ("Freq(MHz)"));
   setHeaderData (fieldIndex ("mode"), Qt::Horizontal, tr ("Mode"));
   setHeaderData (fieldIndex ("when"), Qt::Horizontal, tr ("Date & Time(UTC)"));
@@ -133,7 +120,7 @@ CabrilloLog::impl::impl (CabrilloLog * self, Configuration const * configuration
                    "SELECT "
                    "    frequency "
                    "  FROM "
-                   "    cabrillo_log "
+                   "    cabrillo_log_v2 "
                    "  WHERE "
                    "    call = :call ");
   
@@ -145,7 +132,7 @@ CabrilloLog::impl::impl (CabrilloLog * self, Configuration const * configuration
                    "    , call"
                    "    , exchange_rcvd"
                    "  FROM "
-                   "    cabrillo_log "
+                   "    cabrillo_log_v2 "
                    "  ORDER BY "
                    "    \"when\"");
 }
@@ -154,7 +141,7 @@ void CabrilloLog::impl::create_table ()
 {
   QSqlQuery query;
   SQL_error_check (query, static_cast<bool (QSqlQuery::*) (QString const&)> (&QSqlQuery::exec),
-                   "CREATE TABLE cabrillo_log ("
+                   "CREATE TABLE cabrillo_log_v2 ("
                    "	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
                    "  frequency INTEGER NOT NULL,"
                    "  mode VARCHAR(6) NOT NULL,"
@@ -313,7 +300,7 @@ void CabrilloLog::export_qsos (QTextStream& stream) const
 
 auto CabrilloLog::unique_DXCC_entities (AD1CCty const * countries) const -> worked_set
 {
-  QSqlQuery q {"SELECT DISTINCT BAND, CALL FROM cabrillo_log"};
+  QSqlQuery q {"SELECT DISTINCT BAND, CALL FROM cabrillo_log_v2"};
   auto band_index = q.record ().indexOf ("band");
   auto call_index = q.record ().indexOf ("call");
   worked_set entities;
