@@ -22,6 +22,7 @@ public:
   impl (Configuration const *);
 
   QString cabrillo_frequency_string (Radio::Frequency frequency) const;
+  void create_table ();
 
   Configuration const * configuration_;
   QSqlQuery mutable dupe_query_;
@@ -34,18 +35,24 @@ CabrilloLog::impl::impl (Configuration const * configuration)
 {
   if (!database ().tables ().contains ("cabrillo_log"))
     {
-      QSqlQuery query;
-      SQL_error_check (query, static_cast<bool (QSqlQuery::*) (QString const&)> (&QSqlQuery::exec),
-                       "CREATE TABLE cabrillo_log ("
-                       "	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
-                       "  frequency INTEGER NOT NULL,"
-                       "	\"when\" DATETIME NOT NULL,"
-                       "	call VARCHAR(20) NOT NULL,"
-                       "	exchange_sent VARCHAR(32) NOT NULL,"
-                       "	exchange_rcvd VARCHAR(32) NOT NULL,"
-                       "	band VARCHAR(6) NOT NULL"
-                       ")");
+      create_table ();
     }
+
+  setTable ("cabrillo_log");
+  setEditStrategy (QSqlTableModel::OnFieldChange);
+  setHeaderData (fieldIndex ("frequency"), Qt::Horizontal, tr ("Freq(kHz)"));
+  setHeaderData (fieldIndex ("when"), Qt::Horizontal, tr ("Date & Time(UTC)"));
+  setHeaderData (fieldIndex ("call"), Qt::Horizontal, tr ("Call"));
+  setHeaderData (fieldIndex ("exchange_sent"), Qt::Horizontal, tr ("Sent"));
+  setHeaderData (fieldIndex ("exchange_rcvd"), Qt::Horizontal, tr ("Rcvd"));
+  setHeaderData (fieldIndex ("band"), Qt::Horizontal, tr ("Band"));
+
+  // This descending order by time is important, it makes the view
+  // place the latest row at the top, without this the model/view
+  // interactions are both sluggish and unhelpful.
+  setSort (fieldIndex ("when"), Qt::DescendingOrder);
+
+  SQL_error_check (*this, &QSqlTableModel::select);
 
   SQL_error_check (dupe_query_, &QSqlQuery::prepare,
                    "SELECT "
@@ -67,22 +74,21 @@ CabrilloLog::impl::impl (Configuration const * configuration)
                    "    cabrillo_log "
                    "  ORDER BY "
                    "    \"when\"");
-  
-  setEditStrategy (QSqlTableModel::OnFieldChange);
-  setTable ("cabrillo_log");
-  setHeaderData (fieldIndex ("frequency"), Qt::Horizontal, tr ("Freq(kHz)"));
-  setHeaderData (fieldIndex ("when"), Qt::Horizontal, tr ("Date & Time(UTC)"));
-  setHeaderData (fieldIndex ("call"), Qt::Horizontal, tr ("Call"));
-  setHeaderData (fieldIndex ("exchange_sent"), Qt::Horizontal, tr ("Sent"));
-  setHeaderData (fieldIndex ("exchange_rcvd"), Qt::Horizontal, tr ("Rcvd"));
-  setHeaderData (fieldIndex ("band"), Qt::Horizontal, tr ("Band"));
+}
 
-  // This descending order by time is important, it makes the view
-  // place the latest row at the top, without this the model/view
-  // interactions are both sluggish and unhelpful.
-  setSort (fieldIndex ("when"), Qt::DescendingOrder);
-
-  SQL_error_check (*this, &QSqlTableModel::select);
+void CabrilloLog::impl::create_table ()
+{
+  QSqlQuery query;
+  SQL_error_check (query, static_cast<bool (QSqlQuery::*) (QString const&)> (&QSqlQuery::exec),
+                   "CREATE TABLE cabrillo_log ("
+                   "	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
+                   "  frequency INTEGER NOT NULL,"
+                   "	\"when\" DATETIME NOT NULL,"
+                   "	call VARCHAR(20) NOT NULL,"
+                   "	exchange_sent VARCHAR(32) NOT NULL,"
+                   "	exchange_rcvd VARCHAR(32) NOT NULL,"
+                   "	band VARCHAR(6) NOT NULL"
+                   ")");
 }
 
 // frequency here is in kHz
