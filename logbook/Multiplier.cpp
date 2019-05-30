@@ -31,7 +31,6 @@ Multiplier::~Multiplier ()
 void Multiplier::reload (CabrilloLog const * log)
 {
   m_->entities_worked_ = log->unique_DXCC_entities (m_->countries_);
-  qDebug () << "Entities worked:" << m_->entities_worked_;
 }
 
 auto Multiplier::entities_worked () const -> worked_set const&
