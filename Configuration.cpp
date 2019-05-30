@@ -1122,9 +1122,6 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   ui_->frequencies_table_view->setColumnHidden (FrequencyList_v2::frequency_mhz_column, true);
 
   // delegates
-  auto frequencies_item_delegate = new QStyledItemDelegate {this};
-  frequencies_item_delegate->setItemEditorFactory (item_editor_factory ());
-  ui_->frequencies_table_view->setItemDelegate (frequencies_item_delegate);
   ui_->frequencies_table_view->setItemDelegateForColumn (FrequencyList_v2::region_column, new ForeignKeyDelegate {&regions_, 0, this});
   ui_->frequencies_table_view->setItemDelegateForColumn (FrequencyList_v2::mode_column, new ForeignKeyDelegate {&modes_, 0, this});
 
@@ -1163,9 +1160,6 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   ui_->stations_table_view->sortByColumn (StationList::band_column, Qt::AscendingOrder);
 
   // stations delegates
-  auto stations_item_delegate = new QStyledItemDelegate {this};
-  stations_item_delegate->setItemEditorFactory (item_editor_factory ());
-  ui_->stations_table_view->setItemDelegate (stations_item_delegate);
   ui_->stations_table_view->setItemDelegateForColumn (StationList::band_column, new ForeignKeyDelegate {&bands_, &next_stations_, 0, StationList::band_column, this});
 
   // stations actions
