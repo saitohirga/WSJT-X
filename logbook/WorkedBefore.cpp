@@ -18,7 +18,7 @@
 #include <QFileInfo>
 #include <QFile>
 #include <QTextStream>
-
+#include "Configuration.hpp"
 #include "qt_helpers.hpp"
 #include "pimpl_impl.hpp"
 
@@ -361,8 +361,9 @@ namespace
 class WorkedBefore::impl final
 {
 public:
-  impl ()
+  impl (Configuration const * configuration)
     : path_ {QDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)}.absoluteFilePath (logFileName)}
+    , prefixes_ {configuration}
   {
   }
 
@@ -379,8 +380,10 @@ public:
   worked_before_database_type worked_;
 };
 
-WorkedBefore::WorkedBefore ()
+WorkedBefore::WorkedBefore (Configuration const * configuration)
+  : m_ {configuration}
 {
+  Q_ASSERT (configuration);
   connect (&m_->loader_watcher_, &QFutureWatcher<worked_before_database_type>::finished, [this] () {
       QString error;
       size_t n {0};
@@ -412,9 +415,9 @@ QString const& WorkedBefore::path () const
   return m_->path_;
 }
 
-AD1CCty const& WorkedBefore::countries () const
+AD1CCty const * WorkedBefore::countries () const
 {
-  return m_->prefixes_;
+  return &m_->prefixes_;
 }
 
 bool WorkedBefore::add (QString const& call

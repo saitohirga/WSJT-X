@@ -8,12 +8,16 @@
 
 #include <QObject>
 #include <QString>
+#include <QScopedPointer>
 
 #include "WorkedBefore.hpp"
 
 class Configuration;
 class QByteArray;
 class QDateTime;
+class CabrilloLog;
+class Multiplier;
+class FoxLog;
 
 class LogBook final
   : public QObject
@@ -22,13 +26,14 @@ class LogBook final
 
 public:
   LogBook (Configuration const *);
+  ~LogBook ();
   QString const& path () const {return worked_before_.path ();}
   bool add (QString const& call
             , QString const& grid
             , QString const& band
             , QString const& mode
             , QByteArray const& ADIF_record);
-  AD1CCty const& countries () const {return worked_before_.countries ();}
+  AD1CCty const * countries () const {return worked_before_.countries ();}
   void rescan ();
   void match (QString const& call, QString const& mode, QString const& grid,
               AD1CCty::Record const&, bool& callB4, bool& countryB4,
@@ -43,9 +48,16 @@ public:
 
   Q_SIGNAL void finished_loading (int worked_before_record_count, QString const& error) const;
 
+  CabrilloLog * contest_log ();
+  Multiplier const * multiplier () const;
+  FoxLog * fox_log ();
+
 private:
   Configuration const * config_;
   WorkedBefore worked_before_;
+  QScopedPointer<CabrilloLog> contest_log_;
+  QScopedPointer<Multiplier> mutable multiplier_;
+  QScopedPointer<FoxLog> fox_log_;
 };
 
 #endif
