@@ -53,7 +53,7 @@ contains
     type(riff_descriptor) :: desc
     character(len=4) :: riff_type
 
-    open (newunit=this%lun, file=filename, access='stream', form='unformatted', status='old')
+    open (unit=this%lun, file=filename, access='stream',status='old')
     read (unit=this%lun) desc,riff_type
     inquire (unit=this%lun, pos=filepos)
     do
