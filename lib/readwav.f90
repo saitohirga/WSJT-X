@@ -53,6 +53,7 @@ contains
     type(riff_descriptor) :: desc
     character(len=4) :: riff_type
 
+    this%lun=26
     open (unit=this%lun, file=filename, access='stream',status='old')
     read (unit=this%lun) desc,riff_type
     inquire (unit=this%lun, pos=filepos)
@@ -67,5 +68,6 @@ contains
        end if
        filepos = filepos + (desc%size + 1) / 2 * 2 ! pad to even alignment
     end do
+    return
   end subroutine read
 end module readwav
