@@ -12,6 +12,15 @@
                                                          
 Copyright 2001 - 2019 by Joe Taylor, K1JT.
 
+		   Release: WSJT-X 2.1.0-rc7
+		         June 3, 2019
+		   -------------------------
+
+This release is  a bug fix only release addressing  regressions in the
+prior  RC6 release.  There are  no  functional changes  other than  an
+updated AD1C CTY.DAT database.
+
+
 		   Release: WSJT-X 2.1.0-rc6
 		         June 2, 2019
 		   -------------------------
