@@ -1,8 +1,5 @@
 subroutine ft4_downsample(dd,newdata,f0,c)
 
-! Input: real data in dd() at sample rate 12000 Hz
-! Output: Complex data in c(), sampled at 1200 Hz
-
    include 'ft4_params.f90'
    parameter (NFFT2=NMAX/NDOWN)
    real dd(NMAX)
