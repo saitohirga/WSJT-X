@@ -5559,6 +5559,7 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
     }
 
   if(m_config.clear_DX () and SpecOp::HOUND != m_config.special_op_id()) clearDX ();
+  auto_tx_mode (false);
   m_dateTimeQSOOn = QDateTime {};
   auto special_op = m_config.special_op_id ();
   if (SpecOp::NONE < special_op && special_op < SpecOp::FOX &&
