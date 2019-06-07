@@ -32,7 +32,7 @@ Qt v5, preferably v5.5 or later is required to build WSJT-X.
 
 Qt v5  multimedia support, serial  port, and Linguist is  necessary as
 well  as  the  core  Qt  v5 components,  normally  installing  the  Qt
-multimedia development, Qt serialport development packages, and teh Qt
+multimedia development, Qt serialport development packages, and the Qt
 Linguist  packages are  sufficient  to  pull in  all  the required  Qt
 components and  dependants as a  single transaction.  On  some systems
 the Qt  multimedia plugin  component is  separate in  the distribution
