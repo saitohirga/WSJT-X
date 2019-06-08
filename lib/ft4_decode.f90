@@ -45,43 +45,31 @@ contains
       complex cb(0:NDMAX-1)
       complex cd(0:NN*NSS-1)                       !Complex waveform
       complex ctwk(2*NSS),ctwk2(2*NSS,-16:16)
-      complex csymb(NSS)
-      complex cs(0:3,NN)
-      real s4(0:3,NN)
 
-      real bmeta(2*NN),bmetb(2*NN),bmetc(2*NN)
       real a(5)
+      real bitmetrics(2*NN,3)
       real dd(NMAX)
       real llr(2*ND),llra(2*ND),llrb(2*ND),llrc(2*ND),llrd(2*ND)
-      real s2(0:255)
       real candidate(3,100)
       real savg(NH1),sbase(NH1)
 
       integer apbits(2*ND)
       integer apmy_ru(28),aphis_fd(28)
-      integer icos4a(0:3),icos4b(0:3),icos4c(0:3),icos4d(0:3)
       integer*2 iwave(NMAX)                 !Raw received data
       integer*1 message77(77),rvec(77),apmask(2*ND),cw(2*ND)
       integer*1 hbits(2*NN)
-      integer graymap(0:3)
       integer i4tone(103)
-      integer ip(1)
       integer nappasses(0:5)    ! # of decoding passes for QSO States 0-5
       integer naptypes(0:5,4)   ! nQSOProgress, decoding pass
       integer mcq(29)
       integer mrrr(19),m73(19),mrr73(19)
 
       logical nohiscall,unpk77_success
-      logical one(0:255,0:7)    ! 256 4-symbol sequences, 8 bits
       logical first, dobigfft
       logical dosubtract,doosd
+      logical badsync
       logical, intent(in) :: lapcqonly
 
-      data icos4a/0,1,3,2/
-      data icos4b/1,0,2,3/
-      data icos4c/2,3,1,0/
-      data icos4d/3,2,0,1/
-      data graymap/0,1,3,2/
       data first/.true./
       data     mcq/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0/
       data    mrrr/0,1,1,1,1,1,1,0,1,0,0,1,0,0,1,0,0,0,1/
@@ -90,7 +78,7 @@ contains
       data rvec/0,1,0,0,1,0,1,0,0,1,0,1,1,1,1,0,1,0,0,0,1,0,0,1,1,0,1,1,0, &
          1,0,0,1,0,1,1,0,0,0,0,1,0,0,0,1,0,1,0,0,1,1,1,1,0,0,1,0,1, &
          0,1,0,1,0,1,1,0,1,1,1,1,1,0,0,0,1,0,1/
-      save fs,dt,tt,txt,twopi,h,one,first,apbits,nappasses,naptypes, &
+      save fs,dt,tt,txt,twopi,h,first,apbits,nappasses,naptypes, &
          mycall0,hiscall0,cqstr0,ctwk2
 
       this%callback => callback
@@ -105,12 +93,6 @@ contains
          txt=NZ*dt                       !Transmission length (s) without ramp up/down
          twopi=8.0*atan(1.0)
          h=1.0
-         one=.false.
-         do i=0,255
-            do j=0,7
-               if(iand(i,2**j).ne.0) one(i,j)=.true.
-            enddo
-         enddo
 
          do idf=-16,16
             a=0.
@@ -237,7 +219,7 @@ contains
            nd2=ndecodes-nd1
            if(nd2.eq.0) exit
          endif
-          
+         
          candidate=0.0
          ncand=0
          call timer('getcand4',0)
@@ -302,89 +284,14 @@ contains
             else
                cd(-ibest:ibest+NN*NSS-1)=cb(0:NN*NSS+2*ibest-1)
             endif 
-            call timer('four2a  ',0)
-            do k=1,NN
-               i1=(k-1)*NSS
-               csymb=cd(i1:i1+NSS-1)
-               call four2a(csymb,NSS,1,-1,1)
-               cs(0:3,k)=csymb(1:4)
-               s4(0:3,k)=abs(csymb(1:4))
-            enddo
-            call timer('four2a  ',1)
 
-! Sync quality check
-            is1=0
-            is2=0
-            is3=0
-            is4=0
-            do k=1,4
-               ip=maxloc(s4(:,k))
-               if(icos4a(k-1).eq.(ip(1)-1)) is1=is1+1
-               ip=maxloc(s4(:,k+33))
-               if(icos4b(k-1).eq.(ip(1)-1)) is2=is2+1
-               ip=maxloc(s4(:,k+66))
-               if(icos4c(k-1).eq.(ip(1)-1)) is3=is3+1
-               ip=maxloc(s4(:,k+99))
-               if(icos4d(k-1).eq.(ip(1)-1)) is4=is4+1
-            enddo
-            nsync=is1+is2+is3+is4   !Number of correct hard sync symbols, 0-16
-            if(smax .lt. 0.7 .or. nsync .lt. 8) cycle
-
-            do nseq=1,3             !Try coherent sequences of 1, 2, and 4 symbols
-               if(nseq.eq.1) nsym=1
-               if(nseq.eq.2) nsym=2
-               if(nseq.eq.3) nsym=4
-               nt=2**(2*nsym)
-               do ks=1,NN-nsym+1,nsym  !87+16=103 symbols.
-                  amax=-1.0
-                  do i=0,nt-1
-                     i1=i/64
-                     i2=iand(i,63)/16
-                     i3=iand(i,15)/4
-                     i4=iand(i,3)
-                     if(nsym.eq.1) then
-                        s2(i)=abs(cs(graymap(i4),ks))
-                     elseif(nsym.eq.2) then
-                        s2(i)=abs(cs(graymap(i3),ks)+cs(graymap(i4),ks+1))
-                     elseif(nsym.eq.4) then
-                        s2(i)=abs(cs(graymap(i1),ks  ) + &
-                           cs(graymap(i2),ks+1) + &
-                           cs(graymap(i3),ks+2) + &
-                           cs(graymap(i4),ks+3)   &
-                           )
-                     else
-                        print*,"Error - nsym must be 1, 2, or 4."
-                     endif
-                  enddo
-                  ipt=1+(ks-1)*2
-                  if(nsym.eq.1) ibmax=1
-                  if(nsym.eq.2) ibmax=3
-                  if(nsym.eq.4) ibmax=7
-                  do ib=0,ibmax
-                     bm=maxval(s2(0:nt-1),one(0:nt-1,ibmax-ib)) - &
-                        maxval(s2(0:nt-1),.not.one(0:nt-1,ibmax-ib))
-                     if(ipt+ib.gt.2*NN) cycle
-                     if(nsym.eq.1) then
-                        bmeta(ipt+ib)=bm
-                     elseif(nsym.eq.2) then
-                        bmetb(ipt+ib)=bm
-                     elseif(nsym.eq.4) then
-                        bmetc(ipt+ib)=bm
-                     endif
-                  enddo
-               enddo
-            enddo
-
-            bmetb(205:206)=bmeta(205:206)
-            bmetc(201:204)=bmetb(201:204)
-            bmetc(205:206)=bmeta(205:206)
-
-            call normalizebmet(bmeta,2*NN)
-            call normalizebmet(bmetb,2*NN)
-            call normalizebmet(bmetc,2*NN)
+            call timer('bitmet  ',0)
+            call get_ft4_bitmetrics(cd,smax,bitmetrics,badsync)
+            call timer('bitmet  ',1)
+            if(badsync) cycle
 
             hbits=0
-            where(bmeta.ge.0) hbits=1
+            where(bitmetrics(:,1).ge.0) hbits=1
             ns1=count(hbits(  1:  8).eq.(/0,0,0,1,1,0,1,1/))
             ns2=count(hbits( 67: 74).eq.(/0,1,0,0,1,1,1,0/))
             ns3=count(hbits(133:140).eq.(/1,1,1,0,0,1,0,0/))
@@ -393,17 +300,17 @@ contains
             if(nsync_qual.lt. 20) cycle
 
             scalefac=2.83
-            llra(  1: 58)=bmeta(  9: 66)
-            llra( 59:116)=bmeta( 75:132)
-            llra(117:174)=bmeta(141:198)
+            llra(  1: 58)=bitmetrics(  9: 66, 1)
+            llra( 59:116)=bitmetrics( 75:132, 1)
+            llra(117:174)=bitmetrics(141:198, 1)
             llra=scalefac*llra
-            llrb(  1: 58)=bmetb(  9: 66)
-            llrb( 59:116)=bmetb( 75:132)
-            llrb(117:174)=bmetb(141:198)
+            llrb(  1: 58)=bitmetrics(  9: 66, 2)
+            llrb( 59:116)=bitmetrics( 75:132, 2)
+            llrb(117:174)=bitmetrics(141:198, 2)
             llrb=scalefac*llrb
-            llrc(  1: 58)=bmetc(  9: 66)
-            llrc( 59:116)=bmetc( 75:132)
-            llrc(117:174)=bmetc(141:198)
+            llrc(  1: 58)=bitmetrics(  9: 66, 3)
+            llrc( 59:116)=bitmetrics( 75:132, 3)
+            llrc(117:174)=bitmetrics(141:198, 3)
             llrc=scalefac*llrc
 
             apmag=maxval(abs(llra))*1.1
