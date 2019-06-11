@@ -1587,6 +1587,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("FrequenciesForRegionModes", QVariant::fromValue (frequencies_.frequency_list ()));
   settings_->setValue ("stations", QVariant::fromValue (stations_.station_list ()));
   settings_->setValue ("DecodeHighlighting", QVariant::fromValue (decode_highlighing_model_.items ()));
+  settings_->setValue ("HighlightByMode", highlight_by_mode_);
   settings_->setValue ("IncludeWAEEntities", include_WAE_entities_);
   settings_->setValue ("LotWDaysSinceLastUpload", LotW_days_since_upload_);
   settings_->setValue ("toRTTY", log_as_RTTY_);
