@@ -72,6 +72,9 @@ public:
                                   , QColor const& bg = QColor {}, QColor const& fg = QColor {}
                                   , bool last_only = false);
 
+  // ask the client with identification 'id' to switch configuration
+  Q_SLOT void switch_configuration (QString const& id, QString const& configuration_name);
+
   // the following signals are emitted when a client broadcasts the
   // matching message
   Q_SIGNAL void client_opened (QString const& id, QString const& version, QString const& revision);
@@ -80,7 +83,7 @@ public:
                                , bool transmitting, bool decoding, qint32 rx_df, qint32 tx_df
                                , QString const& de_call, QString const& de_grid, QString const& dx_grid
                                , bool watchdog_timeout, QString const& sub_mode, bool fast_mode
-                               , quint8 special_op_mode);
+                               , quint8 special_op_mode, QString const& configuration_name);
   Q_SIGNAL void client_closed (QString const& id);
   Q_SIGNAL void decode (bool is_new, QString const& id, QTime time, qint32 snr, float delta_time
                         , quint32 delta_frequency, QString const& mode, QString const& message

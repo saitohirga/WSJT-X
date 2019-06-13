@@ -256,6 +256,7 @@ void MessageAggregatorMainWindow::add_client (QString const& id, QString const& 
   connect (dock, &ClientWidget::location, server_, &MessageServer::location);
   connect (view_action, &QAction::toggled, dock, &ClientWidget::setVisible);
   connect (dock, &ClientWidget::highlight_callsign, server_, &MessageServer::highlight_callsign);
+  connect (dock, &ClientWidget::switch_configuration, server_, &MessageServer::switch_configuration);
   dock_widgets_[id] = dock;
   server_->replay (id);         // request decodes and status
 }

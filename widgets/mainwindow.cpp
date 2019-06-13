@@ -560,6 +560,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
   connect (m_messageClient, &MessageClient::highlight_callsign, ui->decodedTextBrowser, &DisplayText::highlight_callsign);
 
+  connect (m_messageClient, &MessageClient::switch_configuration, m_multi_settings, &MultiSettings::select_configuration);
+
   // Hook up WSPR band hopping
   connect (ui->band_hopping_schedule_push_button, &QPushButton::clicked
            , &m_WSPR_band_hopping, &WSPRBandHopping::show_dialog);
@@ -719,6 +721,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
       else {
         config_label.hide ();
       }
+      statusUpdate ();
     });
   m_multi_settings->create_menu_actions (this, ui->menuConfig);
   m_configurations_button = m_rigErrorMessageBox.addButton (tr ("Configurations...")
@@ -7908,7 +7911,8 @@ void MainWindow::statusUpdate () const
                                   m_config.my_callsign (), m_config.my_grid (),
                                   m_hisGrid, m_tx_watchdog,
                                   submode != QChar::Null ? QString {submode} : QString {}, m_bFastMode,
-                                  static_cast<quint8> (m_config.special_op_id ()));
+                                  static_cast<quint8> (m_config.special_op_id ()),
+                                  m_multi_settings->configuration_name ());
 }
 
 void MainWindow::childEvent (QChildEvent * e)

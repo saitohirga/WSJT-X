@@ -247,9 +247,10 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                 QByteArray sub_mode;
                 bool fast_mode {false};
                 quint8 special_op_mode {0};
+                QByteArray configuration_name;
                 in >> f >> mode >> dx_call >> report >> tx_mode >> tx_enabled >> transmitting >> decoding
                    >> rx_df >> tx_df >> de_call >> de_grid >> dx_grid >> watchdog_timeout >> sub_mode
-                   >> fast_mode >> special_op_mode;
+                   >> fast_mode >> special_op_mode >> configuration_name;
                 if (check_status (in) != Fail)
                   {
                     Q_EMIT self_->status_update (id, f, QString::fromUtf8 (mode), QString::fromUtf8 (dx_call)
@@ -258,7 +259,7 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                                                  , QString::fromUtf8 (de_call), QString::fromUtf8 (de_grid)
                                                  , QString::fromUtf8 (dx_grid), watchdog_timeout
                                                  , QString::fromUtf8 (sub_mode), fast_mode
-                                                 , special_op_mode);
+                                                 , special_op_mode, QString::fromUtf8 (configuration_name));
                   }
               }
               break;
@@ -538,6 +539,18 @@ void MessageServer::highlight_callsign (QString const& id, QString const& callsi
     QByteArray message;
     NetworkMessage::Builder out {&message, NetworkMessage::HighlightCallsign, id, (*iter).negotiated_schema_number_};
     out << callsign.toUtf8 () << bg << fg << last_only;
+    m_->send_message (out, message, iter.value ().sender_address_, (*iter).sender_port_);
+  }
+}
+
+void MessageServer::switch_configuration (QString const& id, QString const& configuration_name)
+{
+  auto iter = m_->clients_.find (id);
+  if (iter != std::end (m_->clients_))
+  {
+    QByteArray message;
+    NetworkMessage::Builder out {&message, NetworkMessage::SwitchConfiguration, id, (*iter).negotiated_schema_number_};
+    out << configuration_name.toUtf8 ();
     m_->send_message (out, message, iter.value ().sender_address_, (*iter).sender_port_);
   }
 }

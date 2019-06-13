@@ -261,6 +261,18 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
               }
               break;
 
+            case NetworkMessage::SwitchConfiguration:
+              {
+                QByteArray configuration_name;
+                in >> configuration_name;
+                TRACE_UDP ("SwitchConfiguration name:" << configuration_name);
+                if (check_status (in) != Fail && configuration_name.size ())
+                  {
+                    Q_EMIT self_->switch_configuration (QString::fromUtf8 (configuration_name));
+                  }
+              }
+              break;
+
             default:
               // Ignore
               //
@@ -444,7 +456,8 @@ void MessageClient::status_update (Frequency f, QString const& mode, QString con
                                    , qint32 rx_df, qint32 tx_df, QString const& de_call
                                    , QString const& de_grid, QString const& dx_grid
                                    , bool watchdog_timeout, QString const& sub_mode
-                                   , bool fast_mode, quint8 special_op_mode)
+                                   , bool fast_mode, quint8 special_op_mode
+                                   , QString const& configuration_name)
 {
   if (m_->server_port_ && !m_->server_string_.isEmpty ())
     {
@@ -453,8 +466,8 @@ void MessageClient::status_update (Frequency f, QString const& mode, QString con
       out << f << mode.toUtf8 () << dx_call.toUtf8 () << report.toUtf8 () << tx_mode.toUtf8 ()
           << tx_enabled << transmitting << decoding << rx_df << tx_df << de_call.toUtf8 ()
           << de_grid.toUtf8 () << dx_grid.toUtf8 () << watchdog_timeout << sub_mode.toUtf8 ()
-          << fast_mode << special_op_mode;
-      TRACE_UDP ("frequency:" << f << "mode:" << mode << "DX:" << dx_call << "report:" << report << "Tx mode:" << tx_mode << "tx_enabled:" << tx_enabled << "Tx:" << transmitting << "decoding:" << decoding << "Rx df:" << rx_df << "Tx df:" << tx_df << "DE:" << de_call << "DE grid:" << de_grid << "DX grid:" << dx_grid << "w/d t/o:" << watchdog_timeout << "sub_mode:" << sub_mode << "fast mode:" << fast_mode << "spec op mode:" << special_op_mode);
+          << fast_mode << special_op_mode << configuration_name.toUtf8 ();
+      TRACE_UDP ("frequency:" << f << "mode:" << mode << "DX:" << dx_call << "report:" << report << "Tx mode:" << tx_mode << "tx_enabled:" << tx_enabled << "Tx:" << transmitting << "decoding:" << decoding << "Rx df:" << rx_df << "Tx df:" << tx_df << "DE:" << de_call << "DE grid:" << de_grid << "DX grid:" << dx_grid << "w/d t/o:" << watchdog_timeout << "sub_mode:" << sub_mode << "fast mode:" << fast_mode << "spec op mode:" << special_op_mode << "configuration name:" << configuration_name);
       m_->send_message (out, message);
     }
 }

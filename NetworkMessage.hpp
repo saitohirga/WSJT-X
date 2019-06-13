@@ -124,7 +124,8 @@
  *                         Tx Watchdog            bool
  *                         Sub-mode               utf8
  *                         Fast mode              bool
- *                         Special operation mode quint8
+ *                         Special Operation Mode quint8
+ *                         Configuration Name     utf8
  *
  *    WSJT-X  sends this  status message  when various  internal state
  *    changes to allow the server to  track the relevant state of each
@@ -145,7 +146,8 @@
  *      When the Tx DF changes,
  *      When settings are exited,
  *      When the DX call or grid changes,
- *      When the Tx watchdog is set or reset.
+ *      When the Tx watchdog is set or reset,
+ *      When the configuration name changes.
  *
  *    The Special operation mode is  an enumeration that indicates the
  *    setting  selected  in  the  WSJT-X  "Settings->Advanced->Special
@@ -414,6 +416,15 @@
  *      the  last  instance  only  instead of  all  instances  of  the
  *      specified  call  be  highlighted  or  have  it's  highlighting
  *      cleared.
+ *
+ *
+ * Switch Configuration In 14                     quint32
+ *                         Id (unique key)        utf8
+ *                         Configuration Name     utf8
+ *
+ *      The server  may send  this message at  any time.   The message
+ *      specifies the name of the  configuration to switch to. The new
+ *      configuration must exist.
  */
 
 #include <QDataStream>
@@ -443,6 +454,7 @@ namespace NetworkMessage
       Location,
       LoggedADIF,
       HighlightCallsign,
+      SwitchConfiguration,
       maximum_message_type_     // ONLY add new message types
                                 // immediately before here
     };

@@ -139,6 +139,7 @@ ClientWidget::ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemMod
   , rx_df_label_ {new QLabel}
   , tx_df_label_ {new QLabel}
   , report_label_ {new QLabel}
+  , configuration_line_edit_ {new QLineEdit}
   , columns_resized_ {false}
 {
   // set up widgets
@@ -155,6 +156,7 @@ ClientWidget::ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemMod
   auto form_layout = new QFormLayout;
   form_layout->addRow (tr ("Free text:"), message_line_edit_);
   form_layout->addRow (tr ("Temporary grid:"), grid_line_edit_);
+  form_layout->addRow (tr ("Configuration name:"), configuration_line_edit_);
   message_line_edit_->setValidator (new QRegExpValidator {message_alphabet, this});
   grid_line_edit_->setValidator (new MaidenheadLocatorValidator {this});
   connect (message_line_edit_, &QLineEdit::textEdited, [this] (QString const& text) {
@@ -165,6 +167,9 @@ ClientWidget::ClientWidget (QAbstractItemModel * decodes_model, QAbstractItemMod
     });
   connect (grid_line_edit_, &QLineEdit::editingFinished, [this] () {
       Q_EMIT location (id_, grid_line_edit_->text ());
+  });
+  connect (configuration_line_edit_, &QLineEdit::editingFinished, [this] () {
+      Q_EMIT switch_configuration (id_, configuration_line_edit_->text ());
   });
 
   auto decodes_page = new QWidget;
@@ -266,7 +271,7 @@ void ClientWidget::update_status (QString const& id, Frequency f, QString const&
                                   , bool transmitting, bool decoding, qint32 rx_df, qint32 tx_df
                                   , QString const& de_call, QString const& de_grid, QString const& dx_grid
                                   , bool watchdog_timeout, QString const& sub_mode, bool fast_mode
-                                  , quint8 special_op_mode)
+                                  , quint8 special_op_mode, QString const& configuration_name)
 {
   if (id == id_)
     {
@@ -304,6 +309,10 @@ void ClientWidget::update_status (QString const& id, Frequency f, QString const&
       halt_tx_button_->setEnabled (transmitting);
       update_dynamic_property (mode_label_, "decoding", decoding);
       update_dynamic_property (tx_df_label_, "watchdog_timeout", watchdog_timeout);
+      if (!configuration_line_edit_->hasFocus ())
+        {
+          configuration_line_edit_->setText (configuration_name);
+        }
     }
 }
 
