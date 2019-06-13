@@ -1274,6 +1274,9 @@ target_link_libraries (jt49sim wsjt_fort wsjt_cxx)
 add_executable (allsim lib/allsim.f90 wsjtx.rc)
 target_link_libraries (allsim wsjt_fort wsjt_cxx)
 
+add_executable (rtty_spec lib/rtty_spec.f90 wsjtx.rc)
+target_link_libraries (rtty_spec wsjt_fort wsjt_cxx)
+
 add_executable (jt65code lib/jt65code.f90 wsjtx.rc)
 target_link_libraries (jt65code wsjt_fort wsjt_cxx)
 
