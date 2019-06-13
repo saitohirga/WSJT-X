@@ -53,7 +53,21 @@ program rtty_spec
      dat(i)=dat(i) + sig*sin(phi)
   enddo
 
-! Add the FT8 signal
+! FT8 signal (FSK)
+  i3=0
+  n3=0
+  msg37='WB9XYZ KA2ABC FN42'
+  call genft8(msg37,i3,n3,msgsent37,msgbits,itone)
+  nsym=79
+  nsps=1920
+  bt=99.0
+  f0=3500.0
+  icmplx=0
+  nwave=nsym*nsps
+  call gen_ft8wave(itone,nsym,nsps,bt,fsample,f0,cwave,wave,icmplx,nwave)
+  dat(6001:6000+nwave)=dat(6001:6000+nwave) + sig*wave(1:nwave)
+
+! FT8 signal (GFSK)
   i3=0
   n3=0
   msg37='WB9XYZ KA2ABC FN42'
@@ -61,7 +75,7 @@ program rtty_spec
   nsym=79
   nsps=1920
   bt=2.0
-  f0=3000.0
+  f0=4000.0
   icmplx=0
   nwave=nsym*nsps
   call gen_ft8wave(itone,nsym,nsps,bt,fsample,f0,cwave,wave,icmplx,nwave)
@@ -72,13 +86,15 @@ program rtty_spec
   call genft4(msg37,ichk,msgsent37,msgbits,itone)
   nsym=103
   nsps=576
-  f0=3500.0
+  f0=4500.0
   icmplx=0
   nwave=(nsym+2)*nsps
   call gen_ft4wave(itone,nsym,nsps,fsample,f0,cwave,wave,icmplx,nwave)
   dat(6001:6000+nwave)=dat(6001:6000+nwave) + sig*wave(1:nwave)
+
   h=default_header(12000,NMAX)
-  iwave=nint(rms*dat)
+  datmax=maxval(abs(dat))
+  iwave=nint(32767.0*dat/datmax)
   open(10,file='000000_000001.wav',access='stream',status='unknown')
   write(10) h,iwave
   close(10)
