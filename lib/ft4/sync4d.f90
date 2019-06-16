@@ -18,7 +18,7 @@ subroutine sync4d(cd0,i0,ctwk,itwk,sync)
   data first/.true./
   save first,twopi,csynca,csyncb,csyncc,csyncd,fac
 
-  p(z1)=sqrt(real(z1*fac)**2 + aimag(z1*fac)**2)          !Statement function for power
+  p(z1)=(real(z1*fac)**2 + aimag(z1*fac)**2)**0.5          !Statement function for power
 
   if( first ) then
     twopi=8.0*atan(1.0)
