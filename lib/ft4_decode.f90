@@ -282,7 +282,7 @@ contains
                   call timer('sync4d  ',1)
                enddo
                if(iseg.eq.1) smax1=smax
-               if(smax.lt.0.7) cycle
+               if(smax.lt.1.2) cycle
                if(iseg.gt.1 .and. smax.lt.smax1) cycle 
                f1=f0+real(idfbest)
                if( f1.le.10.0 .or. f1.ge.4990.0 ) cycle
