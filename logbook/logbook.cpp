@@ -32,7 +32,7 @@ void LogBook::match (QString const& call, QString const& mode, QString const& gr
                      bool& ITUZoneB4,
                      QString const& band) const
 {
-  if (call.length() > 0)
+  if (call.size() > 0)
     {
       auto const& mode_to_check = (config_ && !config_->highlight_by_mode ()) ? QString {} : mode;
       callB4 = worked_before_.call_worked (call, mode_to_check, band);
@@ -77,30 +77,30 @@ QByteArray LogBook::QSOToADIF (QString const& hisCall, QString const& hisGrid, Q
                                QString const& xSent, QString const& xRcvd)
 {
   QString t;
-  t = "<call:" + QString::number(hisCall.length()) + ">" + hisCall;
-  t += " <gridsquare:" + QString::number(hisGrid.length()) + ">" + hisGrid;
+  t = "<call:" + QString::number(hisCall.size()) + ">" + hisCall;
+  t += " <gridsquare:" + QString::number(hisGrid.size()) + ">" + hisGrid;
   if (mode != "FT4")
     {
-      t += " <mode:" + QString::number(mode.length()) + ">" + mode;
+      t += " <mode:" + QString::number(mode.size()) + ">" + mode;
     }
   else
     {
-      t += " <mode:4>MFSK <submode:" + QString::number(mode.length()) + ">" + mode;
+      t += " <mode:4>MFSK <submode:" + QString::number(mode.size()) + ">" + mode;
     }
-  t += " <rst_sent:" + QString::number(rptSent.length()) + ">" + rptSent;
-  t += " <rst_rcvd:" + QString::number(rptRcvd.length()) + ">" + rptRcvd;
+  t += " <rst_sent:" + QString::number(rptSent.size()) + ">" + rptSent;
+  t += " <rst_rcvd:" + QString::number(rptRcvd.size()) + ">" + rptRcvd;
   t += " <qso_date:8>" + dateTimeOn.date().toString("yyyyMMdd");
   t += " <time_on:6>" + dateTimeOn.time().toString("hhmmss");
   t += " <qso_date_off:8>" + dateTimeOff.date().toString("yyyyMMdd");
   t += " <time_off:6>" + dateTimeOff.time().toString("hhmmss");
-  t += " <band:" + QString::number(band.length()) + ">" + band;
-  t += " <freq:" + QString::number(strDialFreq.length()) + ">" + strDialFreq;
-  t += " <station_callsign:" + QString::number(myCall.length()) + ">" + myCall;
-  t += " <my_gridsquare:" + QString::number(myGrid.length()) + ">" + myGrid;
-  if(txPower!="") t += " <tx_pwr:" + QString::number(txPower.length()) + ">" + txPower;
-  if(comments!="") t += " <comment:" + QString::number(comments.length()) + ">" + comments;
-  if(name!="") t += " <name:" + QString::number(name.length()) + ">" + name;
-  if(operator_call!="") t+=" <operator:" + QString::number(operator_call.length()) + ">" + operator_call;
+  t += " <band:" + QString::number(band.size()) + ">" + band;
+  t += " <freq:" + QString::number(strDialFreq.size()) + ">" + strDialFreq;
+  t += " <station_callsign:" + QString::number(myCall.size()) + ">" + myCall;
+  t += " <my_gridsquare:" + QString::number(myGrid.size()) + ">" + myGrid;
+  if(txPower!="") t += " <tx_pwr:" + QString::number(txPower.size()) + ">" + txPower;
+  if(comments!="") t += " <comment:" + QString::number(comments.size()) + ">" + comments;
+  if(name!="") t += " <name:" + QString::number(name.size()) + ">" + name;
+  if(operator_call!="") t+=" <operator:" + QString::number(operator_call.size()) + ">" + operator_call;
   if (xSent.size ())
     {
       auto words = xSent.split (' ', QString::SkipEmptyParts);
@@ -131,16 +131,27 @@ QByteArray LogBook::QSOToADIF (QString const& hisCall, QString const& hisGrid, Q
       {
         if (words.at (1).toUInt ())
           {
-            t += " <srx:" + QString::number (words.at (1).length ()) + ">" + words.at (1);
+            t += " <srx:" + QString::number (words.at (1).size ()) + ">" + words.at (1);
           }
         else if (words.at (0).toUInt () && words.at (0).size () > 3) // EU VHF contest exchange
           {
             // strip report and set SRX to serial
-            t += " <srx:" + QString::number (words.at (0).mid (2).length ()) + ">" + words.at (0).mid (2);
+            t += " <srx:" + QString::number (words.at (0).mid (2).size ()) + ">" + words.at (0).mid (2);
           }
         else
           {
-            t += " <state:" + QString::number (words.at (1).length ()) + ">" + words.at (1);
+            if (Configuration::SpecialOperatingActivity::FIELD_DAY == config_->special_op_id ())
+              {
+                // include DX as an ARRL_SECT value even though it is
+                // not in the ADIF spec ARRL_SECT enumeration, done
+                // because N1MM does the same
+                t += " <contest_id:14>ARRL-FIELD-DAY <class:" + QString::number (words.at (0).size ()) + '>'
+                  + words.at (0) + " <arrl_sect:" + QString::number (words.at (1).size ()) + '>' + words.at (1);
+              }
+            else if (Configuration::SpecialOperatingActivity::RTTY == config_->special_op_id ())
+              {
+                t += " <state:" + QString::number (words.at (1).size ()) + ">" + words.at (1);
+              }
           }
       }
   }

@@ -202,23 +202,23 @@ void LogQSO::accept()
                     , m_myGrid
                     , xsent
                     , xrcvd
-                    , LogBook::QSOToADIF (hisCall
-                                          , hisGrid
-                                          , mode
-                                          , rptSent
-                                          , rptRcvd
-                                          , dateTimeOn
-                                          , dateTimeOff
-                                          , band
-                                          , m_comments
-                                          , name
-                                          , strDialFreq
-                                          , m_myCall
-                                          , m_myGrid
-                                          , m_txPower
-                                          , operator_call
-                                          , xsent
-                                          , xrcvd));
+                    , m_log->QSOToADIF (hisCall
+                                        , hisGrid
+                                        , mode
+                                        , rptSent
+                                        , rptRcvd
+                                        , dateTimeOn
+                                        , dateTimeOff
+                                        , band
+                                        , m_comments
+                                        , name
+                                        , strDialFreq
+                                        , m_myCall
+                                        , m_myGrid
+                                        , m_txPower
+                                        , operator_call
+                                        , xsent
+                                        , xrcvd));
   QDialog::accept();
 }
 

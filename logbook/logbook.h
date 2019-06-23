@@ -39,12 +39,12 @@ public:
               AD1CCty::Record const&, bool& callB4, bool& countryB4,
               bool &gridB4, bool &continentB4, bool& CQZoneB4, bool& ITUZoneB4,
               QString const& currentBand = QString {}) const;
-  static QByteArray QSOToADIF (QString const& hisCall, QString const& hisGrid, QString const& mode,
-                               QString const& rptSent, QString const& rptRcvd, QDateTime const& dateTimeOn,
-                               QDateTime const& dateTimeOff, QString const& band, QString const& comments,
-                               QString const& name, QString const& strDialFreq, QString const& myCall,
-                               QString const& m_myGrid, QString const& m_txPower, QString const& operator_call,
-                               QString const& xSent, QString const& xRcvd);
+  QByteArray QSOToADIF (QString const& hisCall, QString const& hisGrid, QString const& mode,
+                        QString const& rptSent, QString const& rptRcvd, QDateTime const& dateTimeOn,
+                        QDateTime const& dateTimeOff, QString const& band, QString const& comments,
+                        QString const& name, QString const& strDialFreq, QString const& myCall,
+                        QString const& m_myGrid, QString const& m_txPower, QString const& operator_call,
+                        QString const& xSent, QString const& xRcvd);
 
   Q_SIGNAL void finished_loading (int worked_before_record_count, QString const& error) const;
 
