@@ -145,7 +145,8 @@ QByteArray LogBook::QSOToADIF (QString const& hisCall, QString const& hisGrid, Q
                 // include DX as an ARRL_SECT value even though it is
                 // not in the ADIF spec ARRL_SECT enumeration, done
                 // because N1MM does the same
-                t += " <contest_id:14>ARRL-FIELD-DAY <class:" + QString::number (words.at (0).size ()) + '>'
+                t += " <contest_id:14>ARRL-FIELD-DAY <SRX_STRING:" + QString::number (xRcvd.size ()) + '>' + xRcvd
+                  + " <class:" + QString::number (words.at (0).size ()) + '>'
                   + words.at (0) + " <arrl_sect:" + QString::number (words.at (1).size ()) + '>' + words.at (1);
               }
             else if (Configuration::SpecialOperatingActivity::RTTY == config_->special_op_id ())
