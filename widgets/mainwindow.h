@@ -313,6 +313,9 @@ private slots:
   void on_pbBestSP_clicked();
   int  setTxMsg(int n);
   bool stdCall(QString const& w);
+  void remote_configure (QString const& mode, quint32 frequency_tolerance, QString const& submode
+                         , bool fast_mode, quint32 tr_period, quint32 rx_df, QString const& dx_call
+                         , QString const& dx_grid, bool generate_messages);
 
 private:
   Q_SIGNAL void initializeAudioOutputStream (QAudioDeviceInfo,
@@ -339,6 +342,7 @@ private:
   Q_SIGNAL void toggleShorthand () const;
 
 private:
+  void set_mode (QString const& mode);
   void astroUpdate ();
   void writeAllTxt(QString message);
   void auto_sequence (DecodedText const& message, unsigned start_tolerance, unsigned stop_tolerance);
@@ -680,6 +684,7 @@ private:
   QHash<QString, QVariant> m_pwrBandTuneMemory; // Remembers power level by band for tuning
   QByteArray m_geometryNoControls;
   QVector<double> m_phaseEqCoefficients;
+  bool m_block_udp_status_updates;
 
   //---------------------------------------------------- private functions
   void readSettings();

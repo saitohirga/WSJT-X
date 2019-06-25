@@ -2092,7 +2092,12 @@ void Configuration::impl::accept ()
       Q_EMIT self_->udp_server_port_changed (new_port);
     }
   
-  accept_udp_requests_ = ui_->accept_udp_requests_check_box->isChecked ();
+  if (ui_->accept_udp_requests_check_box->isChecked () != accept_udp_requests_)
+    {
+      accept_udp_requests_ = ui_->accept_udp_requests_check_box->isChecked ();
+      Q_EMIT self_->accept_udp_requests_changed (accept_udp_requests_);
+    }
+
   n1mm_server_name_ = ui_->n1mm_server_name_line_edit->text ();
   n1mm_server_port_ = ui_->n1mm_server_port_spin_box->value ();
   broadcast_to_n1mm_ = ui_->enable_n1mm_broadcast_check_box->isChecked ();

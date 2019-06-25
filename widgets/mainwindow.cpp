@@ -9,6 +9,7 @@
 #include <iterator>
 #include <algorithm>
 #include <fftw3.h>
+#include <QApplication>
 #include <QStringListModel>
 #include <QSettings>
 #include <QKeyEvent>
@@ -201,6 +202,7 @@ namespace
   QRegExp message_alphabet {"[- @A-Za-z0-9+./?#<>;]*"};
   // grid exact match excluding RR73
   QRegularExpression grid_regexp {"\\A(?![Rr]{2}73)[A-Ra-r]{2}[0-9]{2}([A-Xa-x]{2}){0,1}\\z"};
+  auto quint32_max = std::numeric_limits<quint32>::max ();
 
   bool message_is_73 (int type, QStringList const& msg_parts)
   {
@@ -410,7 +412,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
         m_config.udp_server_name (), m_config.udp_server_port (),
         this}},
   psk_Reporter {new PSK_Reporter {m_messageClient, this}},
-  m_manual {&m_network_manager}
+  m_manual {&m_network_manager},
+  m_block_udp_status_updates {false}
 {
   ui->setupUi(this);
   setUnifiedTitleAndToolBarOnMac (true);
@@ -501,6 +504,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
     });
 
   // Network message handlers
+  m_messageClient->enable (m_config.accept_udp_requests ());
   connect (m_messageClient, &MessageClient::clear_decodes, [this] (quint8 window) {
       ++window;
       if (window & 1)
@@ -513,54 +517,51 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
         }
     });
   connect (m_messageClient, &MessageClient::reply, this, &MainWindow::replyToCQ);
+  connect (m_messageClient, &MessageClient::close, this, &MainWindow::close);
   connect (m_messageClient, &MessageClient::replay, this, &MainWindow::replayDecodes);
   connect (m_messageClient, &MessageClient::location, this, &MainWindow::locationChange);
   connect (m_messageClient, &MessageClient::halt_tx, [this] (bool auto_only) {
-      if (m_config.accept_udp_requests ()) {
-        if (auto_only) {
-          if (ui->autoButton->isChecked ()) {
-            ui->autoButton->click();
-          }
-        } else {
-          ui->stopTxButton->click();
+      if (auto_only) {
+        if (ui->autoButton->isChecked ()) {
+          ui->autoButton->click();
         }
+      } else {
+        ui->stopTxButton->click();
       }
     });
   connect (m_messageClient, &MessageClient::error, this, &MainWindow::networkError);
   connect (m_messageClient, &MessageClient::free_text, [this] (QString const& text, bool send) {
-      if (m_config.accept_udp_requests ()) {
-        tx_watchdog (false);
-        // send + non-empty text means set and send the free text
-        // message, !send + non-empty text means set the current free
-        // text message, send + empty text means send the current free
-        // text message without change, !send + empty text means clear
-        // the current free text message
-        if (0 == ui->tabWidget->currentIndex ()) {
-          if (!text.isEmpty ()) {
-            ui->tx5->setCurrentText (text);
-          }
-          if (send) {
-            ui->txb5->click ();
-          } else if (text.isEmpty ()) {
-            ui->tx5->setCurrentText (text);
-          }
-        } else if (1 == ui->tabWidget->currentIndex ()) {
-          if (!text.isEmpty ()) {
-            ui->freeTextMsg->setCurrentText (text);
-          }
-          if (send) {
-            ui->rbFreeText->click ();
-          } else if (text.isEmpty ()) {
-            ui->freeTextMsg->setCurrentText (text);
-          }
+      tx_watchdog (false);
+      // send + non-empty text means set and send the free text
+      // message, !send + non-empty text means set the current free
+      // text message, send + empty text means send the current free
+      // text message without change, !send + empty text means clear
+      // the current free text message
+      if (0 == ui->tabWidget->currentIndex ()) {
+        if (!text.isEmpty ()) {
+          ui->tx5->setCurrentText (text);
         }
-        QApplication::alert (this);
+        if (send) {
+          ui->txb5->click ();
+        } else if (text.isEmpty ()) {
+          ui->tx5->setCurrentText (text);
+        }
+      } else if (1 == ui->tabWidget->currentIndex ()) {
+        if (!text.isEmpty ()) {
+          ui->freeTextMsg->setCurrentText (text);
+        }
+        if (send) {
+          ui->rbFreeText->click ();
+        } else if (text.isEmpty ()) {
+          ui->freeTextMsg->setCurrentText (text);
+        }
       }
+      QApplication::alert (this);
     });
 
   connect (m_messageClient, &MessageClient::highlight_callsign, ui->decodedTextBrowser, &DisplayText::highlight_callsign);
-
   connect (m_messageClient, &MessageClient::switch_configuration, m_multi_settings, &MultiSettings::select_configuration);
+  connect (m_messageClient, &MessageClient::configure, this, &MainWindow::remote_configure);
 
   // Hook up WSPR band hopping
   connect (ui->band_hopping_schedule_push_button, &QPushButton::clicked
@@ -711,6 +712,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (&m_config, &Configuration::transceiver_failure, this, &MainWindow::handle_transceiver_failure);
   connect (&m_config, &Configuration::udp_server_changed, m_messageClient, &MessageClient::set_server);
   connect (&m_config, &Configuration::udp_server_port_changed, m_messageClient, &MessageClient::set_server_port);
+  connect (&m_config, &Configuration::accept_udp_requests_changed, m_messageClient, &MessageClient::enable);
 
   // set up configurations menu
   connect (m_multi_settings, &MultiSettings::configurationNameChanged, [this] (QString const& name) {
@@ -905,20 +907,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   if(m_bFast9) m_bFastMode=true;
   ui->cbFast9->setChecked(m_bFast9 or m_bFastMode);
 
-  if(m_mode=="FT4") on_actionFT4_triggered();
-  if(m_mode=="FT8") on_actionFT8_triggered();
-  if(m_mode=="JT4") on_actionJT4_triggered();
-  if(m_mode=="JT9") on_actionJT9_triggered();
-  if(m_mode=="JT65") on_actionJT65_triggered();
-  if(m_mode=="JT9+JT65") on_actionJT9_JT65_triggered();
-  if(m_mode=="WSPR") on_actionWSPR_triggered();
-  if(m_mode=="WSPR-LF") on_actionWSPR_LF_triggered();
-  if(m_mode=="ISCAT") on_actionISCAT_triggered();
-  if(m_mode=="MSK144") on_actionMSK144_triggered();
-  if(m_mode=="QRA64") on_actionQRA64_triggered();
-  if(m_mode=="Echo") on_actionEcho_triggered();
+  set_mode (m_mode);
   if(m_mode=="Echo") monitor(false);   //Don't auto-start Monitor in Echo mode.
-  if(m_mode=="FreqCal") on_actionFreqCal_triggered();
 
   ui->sbSubmode->setValue (vhf ? m_nSubMode : 0);
   if(m_mode=="MSK144") {
@@ -1762,19 +1752,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     bool b = vhf && (m_mode=="JT4" or m_mode=="JT65" or m_mode=="ISCAT" or
                      m_mode=="JT9" or m_mode=="MSK144" or m_mode=="QRA64");
     if(b) VHF_features_enabled(b);
-    if(m_mode=="FT4") on_actionFT4_triggered();
-    if(m_mode=="FT8") on_actionFT8_triggered();
-    if(m_mode=="JT4") on_actionJT4_triggered();
-    if(m_mode=="JT9") on_actionJT9_triggered();
-    if(m_mode=="JT9+JT65") on_actionJT9_JT65_triggered();
-    if(m_mode=="JT65") on_actionJT65_triggered();
-    if(m_mode=="QRA64") on_actionQRA64_triggered();
-    if(m_mode=="FreqCal") on_actionFreqCal_triggered();
-    if(m_mode=="ISCAT") on_actionISCAT_triggered();
-    if(m_mode=="MSK144") on_actionMSK144_triggered();
-    if(m_mode=="WSPR") on_actionWSPR_triggered();
-    if(m_mode=="WSPR-LF") on_actionWSPR_LF_triggered();
-    if(m_mode=="Echo") on_actionEcho_triggered();
+    set_mode (m_mode);
     if(b) VHF_features_enabled(b);
 
     m_config.transceiver_online ();
@@ -7190,6 +7168,7 @@ void MainWindow::transmitDisplay (bool transmitting)
 void MainWindow::on_sbFtol_valueChanged(int value)
 {
   m_wideGraph->setTol (value);
+  statusUpdate ();
 }
 
 void::MainWindow::VHF_features_enabled(bool b)
@@ -7227,6 +7206,7 @@ void MainWindow::on_sbTR_valueChanged(int value)
   if(m_transmitting) {
     on_stopTxButton_clicked();
   }
+  statusUpdate ();
 }
 
 QChar MainWindow::current_submode () const
@@ -7328,11 +7308,6 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
                             , QString const& mode, QString const& message_text
                             , bool /*low_confidence*/, quint8 modifiers)
 {
-  if (!m_config.accept_udp_requests ())
-    {
-      return;
-    }
-
   QString format_string {"%1 %2 %3 %4 %5 %6"};
   auto const& time_string = time.toString ("~" == mode || "&" == mode
                                            || "+" == mode ? "hhmmss" : "hhmm");
@@ -7901,8 +7876,18 @@ void MainWindow::on_cbCQTx_toggled(bool b)
 
 void MainWindow::statusUpdate () const
 {
-  if (!ui) return;
+  if (!ui || m_block_udp_status_updates) return;
   auto submode = current_submode ();
+  auto ftol = ui->sbFtol->value ();
+  if (!(ui->sbFtol->isVisible () && ui->sbFtol->isEnabled ()))
+    {
+      ftol = quint32_max;
+    }
+  auto tr_period = ui->sbTR->value ();
+  if (!(ui->sbTR->isVisible () && ui->sbTR->isEnabled ()))
+    {
+      tr_period = quint32_max;
+    }
   m_messageClient->status_update (m_freqNominal, m_mode, m_hisCall,
                                   QString::number (ui->rptSpinBox->value ()),
                                   m_modeTx, ui->autoButton->isChecked (),
@@ -7912,7 +7897,7 @@ void MainWindow::statusUpdate () const
                                   m_hisGrid, m_tx_watchdog,
                                   submode != QChar::Null ? QString {submode} : QString {}, m_bFastMode,
                                   static_cast<quint8> (m_config.special_op_id ()),
-                                  m_multi_settings->configuration_name ());
+                                  ftol, tr_period, m_multi_settings->configuration_name ());
 }
 
 void MainWindow::childEvent (QChildEvent * e)
@@ -8753,4 +8738,80 @@ void MainWindow::on_pbBestSP_clicked()
   if(m_bBestSPArmed and !m_transmitting) ui->pbBestSP->setStyleSheet ("QPushButton{color:red}");
   if(!m_bBestSPArmed) ui->pbBestSP->setStyleSheet ("");
   if(m_bBestSPArmed) m_dateTimeBestSP=QDateTime::currentDateTimeUtc();
+}
+
+void MainWindow::set_mode (QString const& mode)
+{
+    if ("FT4" == mode) on_actionFT4_triggered ();
+    else if ("FT8" == mode) on_actionFT8_triggered ();
+    else if ("JT4" == mode) on_actionJT4_triggered ();
+    else if ("JT9" == mode) on_actionJT9_triggered ();
+    else if ("JT9+JT65" == mode) on_actionJT9_JT65_triggered ();
+    else if ("JT65" == mode) on_actionJT65_triggered ();
+    else if ("QRA64" == mode) on_actionQRA64_triggered ();
+    else if ("FreqCal" == mode) on_actionFreqCal_triggered ();
+    else if ("ISCAT" == mode) on_actionISCAT_triggered ();
+    else if ("MSK144" == mode) on_actionMSK144_triggered ();
+    else if ("WSPR" == mode) on_actionWSPR_triggered ();
+    else if ("WSPR-LF" == mode) on_actionWSPR_LF_triggered ();
+    else if ("Echo" == mode) on_actionEcho_triggered ();
+}
+
+void MainWindow::remote_configure (QString const& mode, quint32 frequency_tolerance
+                                   , QString const& submode, bool fast_mode, quint32 tr_period, quint32 rx_df
+                                   , QString const& dx_call, QString const& dx_grid, bool generate_messages)
+{
+  if (mode.size ())
+    {
+      set_mode (mode);
+    }
+  if (frequency_tolerance != quint32_max && ui->sbFtol->isVisible ())
+    {
+      ui->sbFtol->setValue (frequency_tolerance);
+    }
+  if (submode.size () && ui->sbSubmode->isVisible ())
+    {
+      ui->sbSubmode->setValue (submode.toUpper ().at (0).toLatin1 () - 'A');
+    }
+  if (ui->cbFast9->isVisible () && ui->cbFast9->isChecked () != fast_mode)
+    {
+      ui->cbFast9->click ();
+    }
+  if (tr_period != quint32_max && ui->sbTR->isVisible ())
+    {
+      ui->sbTR->setValue (tr_period);
+      ui->sbTR->interpretText ();
+    }
+  if (rx_df != quint32_max && ui->RxFreqSpinBox->isVisible ())
+    {
+      m_block_udp_status_updates = true;
+      ui->RxFreqSpinBox->setValue (rx_df);
+      ui->RxFreqSpinBox->interpretText ();
+      m_block_udp_status_updates = false;
+    }
+  if (dx_call.size () && ui->dxCallEntry->isVisible ())
+    {
+      ui->dxCallEntry->setText (dx_call);
+    }
+  if (dx_grid.size () && ui->dxGridEntry->isVisible ())
+    {
+      ui->dxGridEntry->setText (dx_grid);
+    }
+  if (generate_messages && ui->genStdMsgsPushButton->isVisible ())
+    {
+      ui->genStdMsgsPushButton->click ();
+    }
+  if (m_config.udpWindowToFront ())
+    {
+      show ();
+      raise ();
+      activateWindow ();
+    }
+  if (m_config.udpWindowRestore () && isMinimized ())
+    {
+      showNormal ();
+      raise ();
+    }
+  tx_watchdog (false);
+  QApplication::alert (this);
 }

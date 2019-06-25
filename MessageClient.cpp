@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <vector>
 #include <algorithm>
+#include <limits>
 
 #include <QUdpSocket>
 #include <QHostInfo>
@@ -35,6 +36,7 @@ public:
   impl (QString const& id, QString const& version, QString const& revision,
         port_type server_port, MessageClient * self)
     : self_ {self}
+    , enabled_ {false}
     , id_ {id}
     , version_ {version}
     , revision_ {revision}
@@ -79,6 +81,7 @@ public:
   Q_SLOT void host_info_results (QHostInfo);
 
   MessageClient * self_;
+  bool enabled_;
   QString id_;
   QString version_;
   QString revision_;
@@ -160,6 +163,12 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
               schema_ = in.schema ();
             }
 
+          if (!enabled_)
+            {
+              TRACE_UDP ("message processing disabled for id:" << in.id ());
+              return;
+            }
+
           //
           // message format is described in NetworkMessage.hpp
           //
@@ -198,6 +207,15 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
                     Q_EMIT self_->clear_decodes (window);
                   }
               }
+              break;
+
+            case NetworkMessage::Close:
+              TRACE_UDP ("Close");
+              if (check_status (in) != Fail)
+                {
+                  last_message_.clear ();
+                  Q_EMIT self_->close ();
+                }
               break;
 
             case NetworkMessage::Replay:
@@ -265,10 +283,34 @@ void MessageClient::impl::parse_message (QByteArray const& msg)
               {
                 QByteArray configuration_name;
                 in >> configuration_name;
-                TRACE_UDP ("SwitchConfiguration name:" << configuration_name);
-                if (check_status (in) != Fail && configuration_name.size ())
+                TRACE_UDP ("Switch Configuration name:" << configuration_name);
+                if (check_status (in) != Fail)
                   {
                     Q_EMIT self_->switch_configuration (QString::fromUtf8 (configuration_name));
+                  }
+              }
+              break;
+
+            case NetworkMessage::Configure:
+              {
+                QByteArray mode;
+                quint32 frequency_tolerance;
+                QByteArray submode;
+                bool fast_mode {false};
+                quint32 tr_period {std::numeric_limits<quint32>::max ()};
+                quint32 rx_df {std::numeric_limits<quint32>::max ()};
+                QByteArray dx_call;
+                QByteArray dx_grid;
+                bool generate_messages {false};
+                in >> mode >> frequency_tolerance >> submode >> fast_mode >> tr_period >> rx_df
+                   >> dx_call >> dx_grid >> generate_messages;
+                TRACE_UDP ("Configure mode:" << mode << "frequency tolerance:" << frequency_tolerance << "submode:" << submode << "fast mode:" << fast_mode << "T/R period:" << tr_period << "rx df:" << rx_df << "dx call:" << dx_call << "dx grid:" << dx_grid << "generate messages:" << generate_messages);
+                if (check_status (in) != Fail)
+                  {
+                    Q_EMIT self_->configure (QString::fromUtf8 (mode), frequency_tolerance
+                                             , QString::fromUtf8 (submode), fast_mode, tr_period, rx_df
+                                             , QString::fromUtf8 (dx_call), QString::fromUtf8 (dx_grid)
+                                             , generate_messages);
                   }
               }
               break;
@@ -450,13 +492,19 @@ void MessageClient::add_blocked_destination (QHostAddress const& a)
     }
 }
 
+void MessageClient::enable (bool flag)
+{
+  m_->enabled_ = flag;
+}
+
 void MessageClient::status_update (Frequency f, QString const& mode, QString const& dx_call
                                    , QString const& report, QString const& tx_mode
                                    , bool tx_enabled, bool transmitting, bool decoding
-                                   , qint32 rx_df, qint32 tx_df, QString const& de_call
+                                   , quint32 rx_df, quint32 tx_df, QString const& de_call
                                    , QString const& de_grid, QString const& dx_grid
                                    , bool watchdog_timeout, QString const& sub_mode
                                    , bool fast_mode, quint8 special_op_mode
+                                   , quint32 frequency_tolerance, quint32 tr_period
                                    , QString const& configuration_name)
 {
   if (m_->server_port_ && !m_->server_string_.isEmpty ())
@@ -466,8 +514,8 @@ void MessageClient::status_update (Frequency f, QString const& mode, QString con
       out << f << mode.toUtf8 () << dx_call.toUtf8 () << report.toUtf8 () << tx_mode.toUtf8 ()
           << tx_enabled << transmitting << decoding << rx_df << tx_df << de_call.toUtf8 ()
           << de_grid.toUtf8 () << dx_grid.toUtf8 () << watchdog_timeout << sub_mode.toUtf8 ()
-          << fast_mode << special_op_mode << configuration_name.toUtf8 ();
-      TRACE_UDP ("frequency:" << f << "mode:" << mode << "DX:" << dx_call << "report:" << report << "Tx mode:" << tx_mode << "tx_enabled:" << tx_enabled << "Tx:" << transmitting << "decoding:" << decoding << "Rx df:" << rx_df << "Tx df:" << tx_df << "DE:" << de_call << "DE grid:" << de_grid << "DX grid:" << dx_grid << "w/d t/o:" << watchdog_timeout << "sub_mode:" << sub_mode << "fast mode:" << fast_mode << "spec op mode:" << special_op_mode << "configuration name:" << configuration_name);
+          << fast_mode << special_op_mode << frequency_tolerance << tr_period << configuration_name.toUtf8 ();
+      TRACE_UDP ("frequency:" << f << "mode:" << mode << "DX:" << dx_call << "report:" << report << "Tx mode:" << tx_mode << "tx_enabled:" << tx_enabled << "Tx:" << transmitting << "decoding:" << decoding << "Rx df:" << rx_df << "Tx df:" << tx_df << "DE:" << de_call << "DE grid:" << de_grid << "DX grid:" << dx_grid << "w/d t/o:" << watchdog_timeout << "sub_mode:" << sub_mode << "fast mode:" << fast_mode << "spec op mode:" << special_op_mode << "frequency tolerance:" << frequency_tolerance << "T/R period:" << tr_period << "configuration name:" << configuration_name);
       m_->send_message (out, message);
     }
 }

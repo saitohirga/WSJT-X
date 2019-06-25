@@ -271,6 +271,7 @@ public:
   //
   Q_SIGNAL void udp_server_changed (QString const& udp_server) const;
   Q_SIGNAL void udp_server_port_changed (port_type server_port) const;
+  Q_SIGNAL void accept_udp_requests_changed (bool checked) const;
 
   // signal updates to decode highlighting
   Q_SIGNAL void decode_highlighting_changed (DecodeHighlightingModel const&) const;
