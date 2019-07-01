@@ -886,7 +886,7 @@ message (STATUS "hamlib_LIBRARY_DIRS: ${hamlib_LIBRARY_DIRS}")
 #
 
 # Widgets finds its own dependencies.
-find_package (Qt5 REQUIRED Widgets Multimedia PrintSupport Sql LinguistTools)
+find_package (Qt5 COMPONENTS Widgets Multimedia PrintSupport Sql LinguistTools REQUIRED)
 
 if (WIN32)
   add_definitions (-DQT_NEEDS_QTMAIN)
