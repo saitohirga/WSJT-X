@@ -6,17 +6,17 @@ program ft4sim_mult
   use packjt77
   include 'ft4_params.f90'               !FT4 protocol constants
   parameter (NWAVE=NN*NSPS)
-  parameter (NZZ=65760)                  !Length of .wav file (4.48+1.0)*12000
+  parameter (NZZ=72576)                  !Length of .wav file (21*3456)
   type(hdr) h                            !Header for .wav file
   character arg*12,fname*17,cjunk*4
   character msg37*37,msgsent37*37,c77*77
+  complex cwave0((NN+2)*NSPS)
   real wave0((NN+2)*NSPS)
   real wave(NZZ)
   real tmp(NZZ)
   integer itone(NN)
+  integer*1 msgbits(77)
   integer*2 iwave(NZZ)                  !Generated full-length waveform
-  integer icos4(4)
-  data icos4/0,1,3,2/
   
 ! Get command-line argument(s)
   nargs=iargc()
@@ -53,17 +53,18 @@ program ft4sim_mult
         read(10,1003,end=100) cjunk,isnr,xdt0,ifreq,msg37
 1003    format(a4,30x,i3,f5.1,i5,1x,a37)
         if(cjunk.eq.'File') go to 100
-        if(isnr.lt.-16) isnr=-16
-        f0=ifreq*93.75/50.0
+        if(isnr.lt.-17) isnr=-17
+        f0=ifreq*960.0/576.0
         call random_number(r)
         xdt=r-0.5
 ! Source-encode, then get itone()
         i3=-1
         n3=-1
         call pack77(msg37,i3,n3,c77)
-        call genft4(msg37,0,msgsent37,itone)
+        call genft4(msg37,0,msgsent37,msgbits,itone)
         nwave0=(NN+2)*NSPS
-        call gen_ft4wave(itone,NN,NSPS,12000.0,f0,wave0,nwave0)
+        icmplx=0
+        call gen_ft4wave(itone,NN,NSPS,12000.0,f0,cwave0,wave0,icmplx,nwave0)
 
         k0=nint((xdt+0.5)/dt)
         if(k0.lt.1) k0=1

@@ -1,12 +1,9 @@
 #include "logqso.h"
 
-#include <random>
-#include <limits>
 #include <QString>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QDir>
-#include <QPushButton>
 
 #include "logbook/logbook.h"
 #include "MessageBox.hpp"
@@ -18,40 +15,18 @@
 #include "ui_logqso.h"
 #include "moc_logqso.cpp"
 
-namespace
-{
-  using dist_type = std::uniform_int_distribution<int>;
-  std::random_device rd;
-  std::mt19937 twister (rd ());
-  dist_type int_distribution;
-}
-
 LogQSO::LogQSO(QString const& programTitle, QSettings * settings
-               , Configuration const * config, QWidget *parent)
+               , Configuration const * config, LogBook * log, QWidget *parent)
   : QDialog {parent, Qt::WindowStaysOnTopHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint}
   , ui(new Ui::LogQSO)
-  , ok_ {new QPushButton {"OK", this}}
-  , cancel_ {new QPushButton {"Cancel", this}}
   , m_settings (settings)
   , m_config {config}
+  , m_log {log}
 {
   ui->setupUi(this);
   setWindowTitle(programTitle + " - Log QSO");
-  ui->grid->setValidator (new MaidenheadLocatorValidator {this});
-
-  ok_->setAutoDefault (false);
-  ok_->setFocusPolicy (Qt::ClickFocus);
-  cancel_->setAutoDefault (false);
-  ui->button_layout->addStretch ();
-  ui->button_layout->addWidget (ok_);
-  ui->button_layout->addStretch ();
-  ui->button_layout->addWidget (cancel_);
-  ui->button_layout->addStretch ();
-
   loadSettings ();
-
-  connect (ok_, &QAbstractButton::clicked, [this] (bool) {accept ();});
-  connect (cancel_, &QAbstractButton::clicked, [this] (bool) {reject ();});
+  ui->grid->setValidator (new MaidenheadLocatorValidator {this});
 }
 
 LogQSO::~LogQSO ()
@@ -83,8 +58,7 @@ void LogQSO::storeSettings () const
 void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString mode,
                         QString const& rptSent, QString const& rptRcvd,
                         QDateTime const& dateTimeOn, QDateTime const& dateTimeOff,
-                        Radio::Frequency dialFreq, bool noSuffix, QString xSent, QString xRcvd,
-                        CabrilloLog * cabrillo_log)
+                        Radio::Frequency dialFreq, bool noSuffix, QString xSent, QString xRcvd)
 {
   if(!isHidden()) return;
   ui->call->setText (hisCall);
@@ -126,7 +100,6 @@ void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString 
   ui->loggedOperator->setText(m_config->opCall());
   ui->exchSent->setText (xSent);
   ui->exchRcvd->setText (xRcvd);
-  m_cabrilloLog = cabrillo_log;
 
   using SpOp = Configuration::SpecialOperatingActivity;
   auto special_op = m_config->special_op_id ();
@@ -139,22 +112,7 @@ void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString 
     }
   else
     {
-      // randomize accessible name of buttons
-      ok_->setAccessibleName (QString::number (int_distribution (twister)));
-      cancel_->setAccessibleName (QString::number (int_distribution (twister)));
-      // random sibling order of buttons
-      if (int_distribution (twister, dist_type::param_type {0, 1})) ok_->stackUnder (cancel_); else cancel_->stackUnder (ok_);
-      // random shuffle of layout items
-      for (int item = ui->button_layout->count () - 1; item > 0; --item)
-        {
-          auto other_item = int_distribution (twister, dist_type::param_type {0, item});
-          if (item != other_item)
-            {
-              ui->button_layout->insertItem (other_item, ui->button_layout->takeAt (item));
-              ui->button_layout->insertItem (item, ui->button_layout->takeAt (other_item + 1));
-            }
-        }
-      show ();
+      show();
     }
 }
 
@@ -199,7 +157,7 @@ void LogQSO::accept()
           return;               // without accepting
         }
 
-      if (!m_cabrilloLog->add_QSO (m_dialFreq, dateTimeOff, hisCall, xsent, xrcvd))
+      if (!m_log->contest_log ()->add_QSO (m_dialFreq, mode, dateTimeOff, hisCall, xsent, xrcvd))
         {
           show ();
           MessageBox::warning_message (this, tr ("Invalid QSO Data"),
@@ -244,23 +202,23 @@ void LogQSO::accept()
                     , m_myGrid
                     , xsent
                     , xrcvd
-                    , LogBook::QSOToADIF (hisCall
-                                          , hisGrid
-                                          , mode
-                                          , rptSent
-                                          , rptRcvd
-                                          , dateTimeOn
-                                          , dateTimeOff
-                                          , band
-                                          , m_comments
-                                          , name
-                                          , strDialFreq
-                                          , m_myCall
-                                          , m_myGrid
-                                          , m_txPower
-                                          , operator_call
-                                          , xsent
-                                          , xrcvd));
+                    , m_log->QSOToADIF (hisCall
+                                        , hisGrid
+                                        , mode
+                                        , rptSent
+                                        , rptRcvd
+                                        , dateTimeOn
+                                        , dateTimeOff
+                                        , band
+                                        , m_comments
+                                        , name
+                                        , strDialFreq
+                                        , m_myCall
+                                        , m_myGrid
+                                        , m_txPower
+                                        , operator_call
+                                        , xsent
+                                        , xrcvd));
   QDialog::accept();
 }
 

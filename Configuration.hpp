@@ -127,6 +127,7 @@ public:
   bool miles () const;
   bool quick_call () const;
   bool disable_TX_on_73 () const;
+  bool force_call_1st() const;
   bool alternate_bindings() const;
   int watchdog () const;
   bool TX_messages () const;
@@ -147,6 +148,7 @@ public:
   bool EMEonly() const;
   bool post_decodes () const;
   QString opCall() const;
+  void opCall (QString const&);
   QString udp_server_name () const;
   port_type udp_server_port () const;
   QString n1mm_server_name () const;
@@ -175,6 +177,7 @@ public:
   LotWUsers const& lotw_users () const;
   DecodeHighlightingModel const& decode_highlighting () const;
   bool highlight_by_mode () const;
+  bool include_WAE_entities () const;
  
   enum class SpecialOperatingActivity {NONE, NA_VHF, EU_VHF, FIELD_DAY, RTTY, FOX, HOUND};
   SpecialOperatingActivity special_op_id () const;
@@ -268,6 +271,7 @@ public:
   //
   Q_SIGNAL void udp_server_changed (QString const& udp_server) const;
   Q_SIGNAL void udp_server_port_changed (port_type server_port) const;
+  Q_SIGNAL void accept_udp_requests_changed (bool checked) const;
 
   // signal updates to decode highlighting
   Q_SIGNAL void decode_highlighting_changed (DecodeHighlightingModel const&) const;

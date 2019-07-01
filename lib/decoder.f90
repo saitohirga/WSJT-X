@@ -133,8 +133,8 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
                  n30fox(j)=n
                  m=n30max-n
                  if(len(trim(g2fox(j))).eq.4) then
-                    call azdist(mygrid,g2fox(j),0.d0,nAz,nEl,nDmiles,nDkm, &
-                         nHotAz,nHotABetter)
+                    call azdist(mygrid,g2fox(j)//'  ',0.d0,nAz,nEl,nDmiles,	&
+                         nDkm,nHotAz,nHotABetter)
                  else
                     nDkm=9999
                  endif
@@ -152,8 +152,8 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   if(params%nmode.eq.5) then
      call timer('decft4  ',0)
      call my_ft4%decode(ft4_decoded,id2,params%nQSOProgress,params%nfqso,    &
-          params%nutc,params%nfa,params%nfb,params%ndepth,ncontest,          &
-          mycall,hiscall)
+          params%nutc,params%nfa,params%nfb,params%ndepth,                   &
+          logical(params%lapcqonly),ncontest,mycall,hiscall)
      call timer('decft4  ',1)
      go to 800
   endif
@@ -517,7 +517,7 @@ contains
     decoded0=decoded
 
     annot='  ' 
-    if(ncontest.eq.0 .and. nap.ne.0) then
+    if(nap.ne.0) then
        write(annot,'(a1,i1)') 'a',nap
        if(qual.lt.0.17) decoded0(37:37)='?'
     endif
@@ -598,15 +598,15 @@ contains
     decoded0=decoded
 
     annot='  ' 
-    if(ncontest.eq.0 .and. nap.ne.0) then
+    if(nap.ne.0) then
        write(annot,'(a1,i1)') 'a',nap
        if(qual.lt.0.17) decoded0(37:37)='?'
     endif
 
     write(*,1001) params%nutc,snr,dt,nint(freq),decoded0,annot
-1001 format(i6.6,i4,f5.1,i5,' ~ ',1x,a37,1x,a2)
+1001 format(i6.6,i4,f5.1,i5,' + ',1x,a37,1x,a2)
     write(13,1002) params%nutc,nint(sync),snr,dt,freq,0,decoded0
-1002 format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a37,' FT8')
+1002 format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a37,' FT4')
     
     call flush(6)
     call flush(13)

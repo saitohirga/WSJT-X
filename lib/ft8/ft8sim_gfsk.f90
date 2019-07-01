@@ -57,6 +57,7 @@ program ft8sim_gfsk
   baud=1.0/tt                            !Keying rate (baud)
   bw=8*baud                              !Occupied bandwidth (Hz)
   txt=NZ*dt                              !Transmission length (s)
+  bt=2.0                         
   bandwidth_ratio=2500.0/(fs/2.0)
   sig=sqrt(2*bandwidth_ratio) * 10.0**(0.05*snrdb)
   if(snrdb.gt.90.0) sig=1.0
@@ -67,7 +68,7 @@ program ft8sim_gfsk
   n3=-1
   call pack77(msg37,i3,n3,c77)
   call genft8(msg37,i3,n3,msgsent37,msgbits,itone)
-  call gen_ft8wave(itone,NN,NSPS,fs,f0,cwave,xjunk,1,NWAVE)  !Generate complex cwave
+  call gen_ft8wave(itone,NN,NSPS,bt,fs,f0,cwave,xjunk,1,NWAVE)  !Generate complex cwave
 
   write(*,*)  
   write(*,'(a23,a37,3x,a7,i1,a1,i1)') 'New Style FT8 Message: ',msgsent37,'i3.n3: ',i3,'.',n3

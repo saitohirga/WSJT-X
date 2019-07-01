@@ -1,4 +1,4 @@
-subroutine genft4(msg0,ichk,msgsent,i4tone)
+subroutine genft4(msg0,ichk,msgsent,msgbits,i4tone)
 
 ! Encode an FT4  message
 ! Input:
@@ -11,7 +11,7 @@ subroutine genft4(msg0,ichk,msgsent,i4tone)
 ! s16 + 87symbols + 2 ramp up/down = 105 total channel symbols
 ! r1 + s4 + d29 + s4 + d29 + s4 + d29 + s4 + r1
 
-! Message duration: TxT = 105*512/12000 = 4.48 s
+! Message duration: TxT = 105*576/12000 = 5.04 s
   
 ! use iso_c_binding, only: c_loc,c_size_t
 
@@ -52,8 +52,16 @@ subroutine genft4(msg0,ichk,msgsent,i4tone)
   call unpack77(c77,0,msgsent,unpk77_success) !Unpack to get msgsent
 
   if(ichk.eq.1) go to 999
-  read(c77,"(77i1)") msgbits
-  msgbits=mod(msgbits+rvec,2)
+  read(c77,'(77i1)',err=1) msgbits
+  if(unpk77_success) go to 2
+1 msgbits=0
+  itone=0
+  msgsent='*** bad message ***                  '
+  go to 999
+
+entry get_ft4_tones_from_77bits(msgbits,i4tone)
+
+2 msgbits=mod(msgbits+rvec,2)
   call encode174_91(msgbits,codeword)
 
 ! Grayscale mapping:

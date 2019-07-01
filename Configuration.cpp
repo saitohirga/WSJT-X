@@ -167,8 +167,11 @@
 #include "MetaDataRegistry.hpp"
 #include "SettingsGroup.hpp"
 #include "widgets/FrequencyLineEdit.hpp"
+#include "widgets/FrequencyDeltaLineEdit.hpp"
 #include "item_delegates/CandidateKeyFilter.hpp"
 #include "item_delegates/ForeignKeyDelegate.hpp"
+#include "item_delegates/FrequencyDelegate.hpp"
+#include "item_delegates/FrequencyDeltaDelegate.hpp"
 #include "TransceiverFactory.hpp"
 #include "Transceiver.hpp"
 #include "models/Bands.hpp"
@@ -248,6 +251,8 @@ namespace
 class FrequencyDialog final
   : public QDialog
 {
+  Q_OBJECT
+
 public:
   using Item = FrequencyList_v2::Item;
 
@@ -294,6 +299,8 @@ private:
 class StationDialog final
   : public QDialog
 {
+  Q_OBJECT
+
 public:
   explicit StationDialog (StationList const * stations, Bands * bands, QWidget * parent = nullptr)
     : QDialog {parent}
@@ -564,6 +571,7 @@ private:
   DecodeHighlightingModel decode_highlighing_model_;
   DecodeHighlightingModel next_decode_highlighing_model_;
   bool highlight_by_mode_;
+  bool include_WAE_entities_;
   int LotW_days_since_upload_;
 
   TransceiverFactory::ParameterPack rig_params_;
@@ -609,6 +617,7 @@ private:
   bool miles_;
   bool quick_call_;
   bool disable_TX_on_73_;
+  bool force_call_1st_;
   bool alternate_bindings_;
   int watchdog_;
   bool TX_messages_;
@@ -705,6 +714,7 @@ bool Configuration::clear_DX () const {return m_->clear_DX_;}
 bool Configuration::miles () const {return m_->miles_;}
 bool Configuration::quick_call () const {return m_->quick_call_;}
 bool Configuration::disable_TX_on_73 () const {return m_->disable_TX_on_73_;}
+bool Configuration::force_call_1st() const {return m_->force_call_1st_;}
 bool Configuration::alternate_bindings() const {return m_->alternate_bindings_;}
 int Configuration::watchdog () const {return m_->watchdog_;}
 bool Configuration::TX_messages () const {return m_->TX_messages_;}
@@ -716,6 +726,7 @@ bool Configuration::x2ToneSpacing() const {return m_->x2ToneSpacing_;}
 bool Configuration::x4ToneSpacing() const {return m_->x4ToneSpacing_;}
 bool Configuration::split_mode () const {return m_->split_mode ();}
 QString Configuration::opCall() const {return m_->opCall_;}
+void Configuration::opCall (QString const& call) {m_->opCall_ = call;}
 QString Configuration::udp_server_name () const {return m_->udp_server_name_;}
 auto Configuration::udp_server_port () const -> port_type {return m_->udp_server_port_;}
 bool Configuration::accept_udp_requests () const {return m_->accept_udp_requests_;}
@@ -742,6 +753,7 @@ bool Configuration::pwrBandTuneMemory () const {return m_->pwrBandTuneMemory_;}
 LotWUsers const& Configuration::lotw_users () const {return m_->lotw_users_;}
 DecodeHighlightingModel const& Configuration::decode_highlighting () const {return m_->decode_highlighing_model_;}
 bool Configuration::highlight_by_mode () const {return m_->highlight_by_mode_;}
+bool Configuration::include_WAE_entities () const {return m_->include_WAE_entities_;}
 
 void Configuration::set_calibration (CalibrationParams params)
 {
@@ -947,6 +959,7 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   , station_insert_action_ {tr ("&Insert ..."), nullptr}
   , station_dialog_ {new StationDialog {&next_stations_, &bands_, this}}
   , highlight_by_mode_ {false}
+  , include_WAE_entities_ {false}
   , LotW_days_since_upload_ {0}
   , last_port_type_ {TransceiverFactory::Capabilities::none}
   , rig_is_dummy_ {false}
@@ -1116,9 +1129,7 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   ui_->frequencies_table_view->setColumnHidden (FrequencyList_v2::frequency_mhz_column, true);
 
   // delegates
-  auto frequencies_item_delegate = new QStyledItemDelegate {this};
-  frequencies_item_delegate->setItemEditorFactory (item_editor_factory ());
-  ui_->frequencies_table_view->setItemDelegate (frequencies_item_delegate);
+  ui_->frequencies_table_view->setItemDelegateForColumn (FrequencyList_v2::frequency_column, new FrequencyDelegate {this});
   ui_->frequencies_table_view->setItemDelegateForColumn (FrequencyList_v2::region_column, new ForeignKeyDelegate {&regions_, 0, this});
   ui_->frequencies_table_view->setItemDelegateForColumn (FrequencyList_v2::mode_column, new ForeignKeyDelegate {&modes_, 0, this});
 
@@ -1157,9 +1168,7 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   ui_->stations_table_view->sortByColumn (StationList::band_column, Qt::AscendingOrder);
 
   // stations delegates
-  auto stations_item_delegate = new QStyledItemDelegate {this};
-  stations_item_delegate->setItemEditorFactory (item_editor_factory ());
-  ui_->stations_table_view->setItemDelegate (stations_item_delegate);
+  ui_->stations_table_view->setItemDelegateForColumn (StationList::offset_column, new FrequencyDeltaDelegate {this});
   ui_->stations_table_view->setItemDelegateForColumn (StationList::band_column, new ForeignKeyDelegate {&bands_, &next_stations_, 0, StationList::band_column, this});
 
   // stations actions
@@ -1242,6 +1251,7 @@ void Configuration::impl::initialize_models ()
   ui_->miles_check_box->setChecked (miles_);
   ui_->quick_call_check_box->setChecked (quick_call_);
   ui_->disable_TX_on_73_check_box->setChecked (disable_TX_on_73_);
+  ui_->force_call_1st_check_box->setChecked (force_call_1st_);
   ui_->alternate_bindings_check_box->setChecked (alternate_bindings_);
   ui_->tx_watchdog_spin_box->setValue (watchdog_);
   ui_->TX_messages_check_box->setChecked (TX_messages_);
@@ -1315,6 +1325,7 @@ void Configuration::impl::initialize_models ()
 
   next_decode_highlighing_model_.items (decode_highlighing_model_.items ());
   ui_->highlight_by_mode_check_box->setChecked (highlight_by_mode_);
+  ui_->include_WAE_check_box->setChecked (include_WAE_entities_);
   ui_->LotW_days_since_upload_spin_box->setValue (LotW_days_since_upload_);
 
   set_rig_invariants ();
@@ -1463,6 +1474,7 @@ void Configuration::impl::read_settings ()
   if (!highlight_items.size ()) highlight_items = DecodeHighlightingModel::default_items ();
   decode_highlighing_model_.items (highlight_items);
   highlight_by_mode_ = settings_->value("HighlightByMode", false).toBool ();
+  include_WAE_entities_ = settings_->value("IncludeWAEEntities", false).toBool ();
   LotW_days_since_upload_ = settings_->value ("LotWDaysSinceLastUpload", 365).toInt ();
   lotw_users_.set_age_constraint (LotW_days_since_upload_);
 
@@ -1496,6 +1508,7 @@ void Configuration::impl::read_settings ()
   miles_ = settings_->value ("Miles", false).toBool ();
   quick_call_ = settings_->value ("QuickCall", false).toBool ();
   disable_TX_on_73_ = settings_->value ("73TxDisable", false).toBool ();
+  force_call_1st_ = settings_->value ("ForceCallFirst", false).toBool ();
   alternate_bindings_ = settings_->value ("AlternateBindings", false).toBool ();
   watchdog_ = settings_->value ("TxWatchdog", 6).toInt ();
   TX_messages_ = settings_->value ("Tx2QSO", true).toBool ();
@@ -1575,6 +1588,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("stations", QVariant::fromValue (stations_.station_list ()));
   settings_->setValue ("DecodeHighlighting", QVariant::fromValue (decode_highlighing_model_.items ()));
   settings_->setValue ("HighlightByMode", highlight_by_mode_);
+  settings_->setValue ("IncludeWAEEntities", include_WAE_entities_);
   settings_->setValue ("LotWDaysSinceLastUpload", LotW_days_since_upload_);
   settings_->setValue ("toRTTY", log_as_RTTY_);
   settings_->setValue ("dBtoComments", report_in_comments_);
@@ -1598,6 +1612,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("Miles", miles_);
   settings_->setValue ("QuickCall", quick_call_);
   settings_->setValue ("73TxDisable", disable_TX_on_73_);
+  settings_->setValue ("ForceCallFirst", force_call_1st_);
   settings_->setValue ("AlternateBindings", alternate_bindings_);
   settings_->setValue ("TxWatchdog", watchdog_);
   settings_->setValue ("Tx2QSO", TX_messages_);
@@ -2042,6 +2057,7 @@ void Configuration::impl::accept ()
   miles_ = ui_->miles_check_box->isChecked ();
   quick_call_ = ui_->quick_call_check_box->isChecked ();
   disable_TX_on_73_ = ui_->disable_TX_on_73_check_box->isChecked ();
+  force_call_1st_ = ui_->force_call_1st_check_box->isChecked ();
   alternate_bindings_ = ui_->alternate_bindings_check_box->isChecked ();
   watchdog_ = ui_->tx_watchdog_spin_box->value ();
   TX_messages_ = ui_->TX_messages_check_box->isChecked ();
@@ -2076,7 +2092,12 @@ void Configuration::impl::accept ()
       Q_EMIT self_->udp_server_port_changed (new_port);
     }
   
-  accept_udp_requests_ = ui_->accept_udp_requests_check_box->isChecked ();
+  if (ui_->accept_udp_requests_check_box->isChecked () != accept_udp_requests_)
+    {
+      accept_udp_requests_ = ui_->accept_udp_requests_check_box->isChecked ();
+      Q_EMIT self_->accept_udp_requests_changed (accept_udp_requests_);
+    }
+
   n1mm_server_name_ = ui_->n1mm_server_name_line_edit->text ();
   n1mm_server_port_ = ui_->n1mm_server_port_spin_box->value ();
   broadcast_to_n1mm_ = ui_->enable_n1mm_broadcast_check_box->isChecked ();
@@ -2109,6 +2130,7 @@ void Configuration::impl::accept ()
       Q_EMIT self_->decode_highlighting_changed (decode_highlighing_model_);
     }
   highlight_by_mode_ = ui_->highlight_by_mode_check_box->isChecked ();
+  include_WAE_entities_ = ui_->include_WAE_check_box->isChecked ();
   LotW_days_since_upload_ = ui_->LotW_days_since_upload_spin_box->value ();
   lotw_users_.set_age_constraint (LotW_days_since_upload_);
 
