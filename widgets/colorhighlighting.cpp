@@ -42,8 +42,8 @@ void ColorHighlighting::set_items (DecodeHighlightingModel const& highlighting_m
   int index {0};
   for (auto const& item : highlighting_model.items ())
     {
-      QLabel * example;
-      QLabel * label;
+      QLabel * example {nullptr};
+      QLabel * label {nullptr};
       switch (index++)
         {
         case 0:
@@ -111,6 +111,7 @@ void ColorHighlighting::set_items (DecodeHighlightingModel const& highlighting_m
           label = ui->p16_label;
           break;
         }
+      if (!example || !label) continue;
       auto palette = example->parentWidget ()->palette ();
       if (Qt::NoBrush != item.background_.style ())
         {
