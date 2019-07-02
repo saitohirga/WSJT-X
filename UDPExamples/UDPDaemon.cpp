@@ -25,7 +25,7 @@
 #include <QHash>
 #include <QDebug>
 
-#include "MessageServer.hpp"
+#include "Network/MessageServer.hpp"
 #include "Radio.hpp"
 
 #include "qt_helpers.hpp"

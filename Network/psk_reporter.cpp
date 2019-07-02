@@ -8,7 +8,7 @@
 #include <QHostInfo>
 #include <QTimer>
 
-#include "MessageClient.hpp"
+#include "Network/MessageClient.hpp"
 
 #include "moc_psk_reporter.cpp"
 

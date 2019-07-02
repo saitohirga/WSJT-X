@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "TransceiverBase.hpp"
+#include "Transceiver/TransceiverBase.hpp"
 
 class QTimer;
 

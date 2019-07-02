@@ -226,7 +226,7 @@ set (wsjt_qt_CXXSRCS
   qt_helpers.cpp
   widgets/MessageBox.cpp
   MetaDataRegistry.cpp
-  NetworkServerLookup.cpp
+  Network/NetworkServerLookup.cpp
   revision_utils.cpp
   WFPalette.cpp
   Radio.cpp
@@ -244,16 +244,16 @@ set (wsjt_qt_CXXSRCS
   GetUserId.cpp
   TraceFile.cpp
   AudioDevice.cpp
-  Transceiver.cpp
-  TransceiverBase.cpp
-  EmulateSplitTransceiver.cpp
-  TransceiverFactory.cpp
-  PollingTransceiver.cpp
-  HamlibTransceiver.cpp
-  HRDTransceiver.cpp
-  DXLabSuiteCommanderTransceiver.cpp
-  NetworkMessage.cpp
-  MessageClient.cpp
+  Transceiver/Transceiver.cpp
+  Transceiver/TransceiverBase.cpp
+  Transceiver/EmulateSplitTransceiver.cpp
+  Transceiver/TransceiverFactory.cpp
+  Transceiver/PollingTransceiver.cpp
+  Transceiver/HamlibTransceiver.cpp
+  Transceiver/HRDTransceiver.cpp
+  Transceiver/DXLabSuiteCommanderTransceiver.cpp
+  Network/NetworkMessage.cpp
+  Network/MessageClient.cpp
   widgets/LettersSpinBox.cpp
   widgets/HintedSpinBox.cpp
   widgets/RestrictedSpinBox.cpp
@@ -268,7 +268,7 @@ set (wsjt_qt_CXXSRCS
   validators/MaidenheadLocatorValidator.cpp
   validators/CallsignValidator.cpp
   widgets/SplashScreen.cpp
-  EqualizationToolsDialog.cpp
+  Transceiver/EqualizationToolsDialog.cpp
   widgets/DoubleClickablePushButton.cpp
   widgets/DoubleClickableRadioButton.cpp
   LotWUsers.cpp
@@ -303,7 +303,7 @@ set (jt9_CXXSRCS
 
 set (wsjtx_CXXSRCS
   logbook/logbook.cpp
-  psk_reporter.cpp
+  Network/psk_reporter.cpp
   Modulator.cpp
   Detector/Detector.cpp
   widgets/logqso.cpp
@@ -353,7 +353,7 @@ if (WIN32)
 
   set (wsjt_qt_CXXSRCS
     ${wsjt_qt_CXXSRCS}
-    OmniRigTransceiver.cpp
+    Transceiver/OmniRigTransceiver.cpp
     )
 endif (WIN32)
 
@@ -683,13 +683,13 @@ set (wsjtx_UISRCS
 set (UDP_library_CXXSRCS
   Radio.cpp
   RadioMetaType.cpp
-  NetworkMessage.cpp
-  MessageServer.cpp
+  Network/NetworkMessage.cpp
+  Network/MessageServer.cpp
   )
 
 set (UDP_library_HEADERS
   Radio.hpp
-  MessageServer.hpp
+  Network/MessageServer.hpp
   ${PROJECT_BINARY_DIR}/udp_export.h
   )
 

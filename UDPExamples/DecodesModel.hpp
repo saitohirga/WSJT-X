@@ -3,7 +3,7 @@
 
 #include <QStandardItemModel>
 
-#include "MessageServer.hpp"
+#include "Network/MessageServer.hpp"
 
 using Frequency = MessageServer::Frequency;
 

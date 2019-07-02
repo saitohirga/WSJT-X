@@ -7,7 +7,7 @@
 #include <QRegularExpression>
 #include <QtWidgets>
 
-#include "MessageServer.hpp"
+#include "Network/MessageServer.hpp"
 
 class QAbstractItemModel;
 class QModelIndex;

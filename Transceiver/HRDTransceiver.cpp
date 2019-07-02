@@ -8,7 +8,7 @@
 #include <QStandardPaths>
 #include <QDir>
 
-#include "NetworkServerLookup.hpp"
+#include "Network/NetworkServerLookup.hpp"
 
 namespace
 {
