@@ -923,7 +923,7 @@ set (CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 #
 set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werrror -Wall -Wextra -fexceptions -frtti")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -Wextra -fexceptions -frtti")
 
 if (NOT APPLE)
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-pragmas")
