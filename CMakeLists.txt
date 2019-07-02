@@ -305,7 +305,7 @@ set (wsjtx_CXXSRCS
   logbook/logbook.cpp
   psk_reporter.cpp
   Modulator.cpp
-  Detector.cpp
+  Detector/Detector.cpp
   widgets/logqso.cpp
   widgets/displaytext.cpp
   decodedtext.cpp
