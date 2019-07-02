@@ -10,7 +10,7 @@
 #include <QHash>
 
 #include "Radio.hpp"
-#include "NetworkMessage.hpp"
+#include "Network/NetworkMessage.hpp"
 #include "qt_helpers.hpp"
 
 #include "pimpl_impl.hpp"

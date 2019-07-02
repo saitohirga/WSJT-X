@@ -5,7 +5,7 @@
 #include <QHash>
 #include <QString>
 
-#include "Network/MessageServer.hpp"
+#include "MessageServer.hpp"
 
 class QDateTime;
 class QStandardItemModel;

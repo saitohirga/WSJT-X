@@ -268,7 +268,7 @@ set (wsjt_qt_CXXSRCS
   validators/MaidenheadLocatorValidator.cpp
   validators/CallsignValidator.cpp
   widgets/SplashScreen.cpp
-  Transceiver/EqualizationToolsDialog.cpp
+  EqualizationToolsDialog.cpp
   widgets/DoubleClickablePushButton.cpp
   widgets/DoubleClickableRadioButton.cpp
   Network/LotWUsers.cpp
@@ -684,12 +684,12 @@ set (UDP_library_CXXSRCS
   Radio.cpp
   RadioMetaType.cpp
   Network/NetworkMessage.cpp
-  Network/MessageServer.cpp
+  UDPExamples/MessageServer.cpp
   )
 
 set (UDP_library_HEADERS
   Radio.hpp
-  Network/MessageServer.hpp
+  UDPExamples/MessageServer.hpp
   ${PROJECT_BINARY_DIR}/udp_export.h
   )
 

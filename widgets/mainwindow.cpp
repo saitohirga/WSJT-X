@@ -73,7 +73,7 @@
 #include "MultiSettings.hpp"
 #include "validators/MaidenheadLocatorValidator.hpp"
 #include "validators/CallsignValidator.hpp"
-#include "Transceiver/EqualizationToolsDialog.hpp"
+#include "EqualizationToolsDialog.hpp"
 #include "Network/LotWUsers.hpp"
 #include "logbook/AD1CCty.hpp"
 #include "models/FoxLog.hpp"
