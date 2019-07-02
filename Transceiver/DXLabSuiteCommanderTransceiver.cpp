@@ -6,7 +6,7 @@
 #include <QThread>
 #include <QDateTime>
 
-#include "NetworkServerLookup.hpp"
+#include "Network/NetworkServerLookup.hpp"
 
 #include "moc_DXLabSuiteCommanderTransceiver.cpp"
 

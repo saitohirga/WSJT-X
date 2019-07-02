@@ -25,7 +25,7 @@
 #include <QHash>
 #include <QDebug>
 
-#include "MessageServer.hpp"
+#include "Network/MessageServer.hpp"
 #include "Radio.hpp"
 
 #include "qt_helpers.hpp"
@@ -147,7 +147,7 @@ public:
     : server_ {new MessageServer {this}}
   {
     // connect up server
-    connect (server_, &MessageServer::error, [this] (QString const& message) {
+    connect (server_, &MessageServer::error, [] (QString const& message) {
         std::cerr << tr ("Network Error: %1").arg ( message).toStdString () << std::endl;
       });
     connect (server_, &MessageServer::client_opened, this, &Server::add_client);

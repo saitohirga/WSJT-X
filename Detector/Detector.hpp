@@ -46,7 +46,6 @@ private:
   double   m_period;
   unsigned m_downSampleFactor;
   qint32 m_samplesPerFFT;	// after any down sampling
-  qint32 m_ns;
   static size_t const max_buffer_size {7 * 512};
   QScopedArrayPointer<short> m_buffer; // de-interleaved sample buffer
   // big enough for all the

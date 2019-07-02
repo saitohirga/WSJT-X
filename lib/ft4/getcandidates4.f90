@@ -10,7 +10,6 @@ subroutine getcandidates4(dd,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
   complex cx(0:NH1)
   real candidate(2,maxcand),candidatet(2,maxcand)
   real dd(NMAX)
-  integer ipk(1)
   equivalence (x,cx)
   logical first
   data first/.true./
@@ -72,7 +71,7 @@ subroutine getcandidates4(dd,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
   candidate=0
   nq=count(abs(candidatet(1,1:ncand)-nfqso).le.20.0)
   n1=1
-  n2=nq+1 
+  n2=nq+1
   do i=1,ncand
      if(abs(candidatet(1,i)-nfqso).le.20.0) then
         candidate(1:2,n1)=candidatet(1:2,i)
@@ -81,6 +80,6 @@ subroutine getcandidates4(dd,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
         candidate(1:2,n2)=candidatet(1:2,i)
         n2=n2+1
      endif
-  enddo 
+  enddo
 return
 end subroutine getcandidates4
