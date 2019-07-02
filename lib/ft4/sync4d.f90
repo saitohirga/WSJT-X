@@ -9,7 +9,6 @@ subroutine sync4d(cd0,i0,ctwk,itwk,sync)
   complex csync2(2*NSS)
   complex ctwk(2*NSS)
   complex z1,z2,z3,z4
-  complex zz1,zz2,zz3,zz4
   logical first
   integer icos4a(0:3),icos4b(0:3),icos4c(0:3),icos4d(0:3)
   data icos4a/0,1,3,2/

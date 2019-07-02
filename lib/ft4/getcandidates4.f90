@@ -10,7 +10,6 @@ subroutine getcandidates4(dd,fa,fb,syncmin,nfqso,maxcand,savg,candidate,   &
   complex cx(0:NH1)
   real candidate(3,maxcand)
   real dd(NMAX)
-  integer ipk(1)
   equivalence (x,cx)
   logical first
   data first/.true./

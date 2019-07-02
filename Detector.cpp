@@ -18,7 +18,6 @@ Detector::Detector (unsigned frameRate, double periodLengthInSeconds,
   , m_period (periodLengthInSeconds)
   , m_downSampleFactor (downSampleFactor)
   , m_samplesPerFFT {max_buffer_size}
-  , m_ns (999)
   , m_buffer ((downSampleFactor > 1) ?
               new short [max_buffer_size * downSampleFactor] : nullptr)
   , m_bufferPos (0)
