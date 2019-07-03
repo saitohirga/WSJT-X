@@ -1600,18 +1600,18 @@ void MainWindow::fastSink(qint64 frames)
   int RxFreq=ui->RxFreqSpinBox->value ();
   int nTRpDepth=m_TRperiod + 1000*(m_ndepth & 3);
   qint64 ms0 = QDateTime::currentMSecsSinceEpoch();
-//  strncpy(dec_data.params.mycall, (m_baseCall+"            ").toLatin1(),12);
-  strncpy(dec_data.params.mycall,(m_config.my_callsign () + "            ").toLatin1(),12);
+//  ::memcpy(dec_data.params.mycall, (m_baseCall+"            ").toLatin1(),sizeof dec_data.params.mycall);
+  ::memcpy(dec_data.params.mycall,(m_config.my_callsign () + "            ").toLatin1(),sizeof dec_data.params.mycall);
   QString hisCall {ui->dxCallEntry->text ()};
   bool bshmsg=ui->cbShMsgs->isChecked();
   bool bswl=ui->cbSWL->isChecked();
-//  strncpy(dec_data.params.hiscall,(Radio::base_callsign (hisCall) + "            ").toLatin1 ().constData (), 12);
-  strncpy(dec_data.params.hiscall,(hisCall + "            ").toLatin1 ().constData (), 12);
-  strncpy(dec_data.params.mygrid, (m_config.my_grid()+"      ").toLatin1(),6);
+//  ::memcpy(dec_data.params.hiscall,(Radio::base_callsign (hisCall) +  "            ").toLatin1 ().constData (), sizeof dec_data.params.hiscall);
+  ::memcpy(dec_data.params.hiscall,(hisCall + "            ").toLatin1 ().constData (), sizeof dec_data.params.hiscall);
+  ::memcpy(dec_data.params.mygrid, (m_config.my_grid()+"      ").toLatin1(), sizeof dec_data.params.mygrid);
   QString dataDir;
   dataDir = m_config.writeable_data_dir ().absolutePath ();
   char ddir[512];
-  strncpy(ddir,dataDir.toLatin1(), sizeof (ddir) - 1);
+  ::strncpy(ddir,dataDir.toLatin1(), sizeof (ddir) - 1);
   float pxmax = 0;
   float rmsNoGain = 0;
   int ftol = ui->sbFtol->value ();
@@ -2915,13 +2915,13 @@ void MainWindow::decode()                                       //decode()
   if(m_config.single_decode()) dec_data.params.nexp_decode += 32;
   if(m_config.enable_VHF_features()) dec_data.params.nexp_decode += 64;
 
-  strncpy(dec_data.params.datetime, m_dateTime.toLatin1(), 20);
-  strncpy(dec_data.params.mycall, (m_config.my_callsign()+"            ").toLatin1(),12);
-  strncpy(dec_data.params.mygrid, (m_config.my_grid()+"      ").toLatin1(),6);
+  ::memcpy(dec_data.params.datetime, m_dateTime.toLatin1()+"    ", sizeof dec_data.params.datetime);
+  ::memcpy(dec_data.params.mycall, (m_config.my_callsign()+"            ").toLatin1(), sizeof dec_data.params.mycall);
+  ::memcpy(dec_data.params.mygrid, (m_config.my_grid()+"      ").toLatin1(), sizeof dec_data.params.mygrid);
   QString hisCall {ui->dxCallEntry->text ()};
   QString hisGrid {ui->dxGridEntry->text ()};
-  strncpy(dec_data.params.hiscall,(hisCall + "            ").toLatin1 ().constData (), 12);
-  strncpy(dec_data.params.hisgrid,(hisGrid + "      ").toLatin1 ().constData (), 6);
+  memcpy(dec_data.params.hiscall,(hisCall + "            ").toLatin1 ().constData (), sizeof dec_data.params.hiscall);
+  memcpy(dec_data.params.hisgrid,(hisGrid + "      ").toLatin1 ().constData (), sizeof dec_data.params.hisgrid);
 
   //newdat=1  ==> this is new data, must do the big FFT
   //nagain=1  ==> decode only at fQSO +/- Tol
@@ -3691,8 +3691,8 @@ void MainWindow::guiUpdate()
         if(m_modeTx=="MSK144" or m_modeTx=="FT8" or m_modeTx=="FT4") {
           char MyCall[6];
           char MyGrid[6];
-          strncpy(MyCall, (m_config.my_callsign()+"      ").toLatin1(),6);
-          strncpy(MyGrid, (m_config.my_grid()+"      ").toLatin1(),6);
+          ::memcpy(MyCall, (m_config.my_callsign()+"      ").toLatin1(), sizeof MyCall);
+          ::memcpy(MyGrid, (m_config.my_grid()+"      ").toLatin1(), sizeof MyGrid);
           if(m_modeTx=="MSK144") {
             genmsk_128_90_(message, &ichk, msgsent, const_cast<int *> (itone),
                        &m_currentMessageType, 37, 37);
@@ -3729,7 +3729,7 @@ void MainWindow::guiUpdate()
                 foxcom_.nfreq=ui->TxFreqSpinBox->value();
                 if(m_config.split_mode()) foxcom_.nfreq = foxcom_.nfreq - m_XIT;  //Fox Tx freq
                 QString foxCall=m_config.my_callsign() + "         ";
-                strncpy(&foxcom_.mycall[0], foxCall.toLatin1(),12);   //Copy Fox callsign into foxcom_
+                ::memcpy(foxcom_.mycall, foxCall.toLatin1(), sizeof foxcom_.mycall); //Copy Fox callsign into foxcom_
                 foxgen_();
               }
             }
@@ -8480,7 +8480,7 @@ Transmit:
   foxcom_.nfreq=ui->TxFreqSpinBox->value();
   if(m_config.split_mode()) foxcom_.nfreq = foxcom_.nfreq - m_XIT;  //Fox Tx freq
   QString foxCall=m_config.my_callsign() + "         ";
-  strncpy(&foxcom_.mycall[0], foxCall.toLatin1(),12);   //Copy Fox callsign into foxcom_
+  ::memcpy(foxcom_.mycall, foxCall.toLatin1(),sizeof foxcom_.mycall);   //Copy Fox callsign into foxcom_
   foxgen_();
   m_tFoxTxSinceCQ++;
 
