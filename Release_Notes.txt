@@ -12,6 +12,27 @@
                                                          
 Copyright 2001 - 2019 by Joe Taylor, K1JT.
 
+		   Release: WSJT-X 2.1
+		      July 15, 2019
+		   -------------------
+		   
+WSJT-X 2.1 is a major update that introduces FT4, a new protocol
+targeted at HF contesting.  Other improvements have been made in the
+following areas:
+
+  - FT8 waveform generated with GMSK, fully backward compatible
+  - user options for waterfall and spectrum display
+  - contest logging
+  - rig control
+  - user interface
+  - UDP messaging for inter-program communication
+  - accessibility
+
+There are numerous minor enhancements and bug fixes.
+
+We now provide a separate installation package for 64-bit Windows 7
+and later, with significant improvements in decoding speed.
+
 		   Release: WSJT-X 2.1.0-rc7
 		         June 3, 2019
 		   -------------------------
