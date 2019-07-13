@@ -20,12 +20,11 @@ subroutine subtractft8(dd,itone,f0,dt)
   save first
 
   nstart=dt*12000+1
-!  call genft8refsig(itone,cref,f0)
   nsym=79
   nsps=1920
   fs=12000.0
   icmplx=1
-  bt=4.0      ! Temporary compromise?
+  bt=2.0 
   call gen_ft8wave(itone,nsym,nsps,bt,fs,f0,cref,xjunk,icmplx,NFRAME)
   camp=0.
   do i=1,nframe

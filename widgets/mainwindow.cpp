@@ -5983,6 +5983,8 @@ void MainWindow::on_actionQRA64_triggered()
   ui->sbSubmode->setValue(m_nSubMode);
   ui->actionInclude_averaging->setVisible (false);
   ui->actionInclude_correlation->setVisible (false);
+  ui->RxFreqSpinBox->setValue(1000);
+  ui->TxFreqSpinBox->setValue(1000);
   QString fname {QDir::toNativeSeparators(m_config.temp_dir ().absoluteFilePath ("red.dat"))};
   m_wideGraph->setRedFile(fname);
   displayWidgets(nWidgets("111110010010111110000000001000000"));
