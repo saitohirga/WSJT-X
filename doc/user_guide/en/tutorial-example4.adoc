@@ -17,7 +17,7 @@ Activity window should look something like the following screen shots.
 This sample file was recorded during a practice contest test session, so
 most of the decoded messages use the *RTTY Roundup* message formats.
 
-[[X15]]
+[[X16]]
 image::ft4_waterfall.png[align="left",alt="Wide Graph Decode FT4"]
 
 image::ft4_decodes.png[align="left"]
