@@ -29,7 +29,7 @@ sudo dpkg -P wsjtx
 [example]
 sudo dpkg -i wsjtx_{VERSION}_amd64.deb
 
-* 64-bit: {raspbian}
+* 32-bit: {raspbian}
 - To install:
 +
 [example]
