@@ -662,10 +662,9 @@ void OmniRigTransceiver::do_ptt (bool on)
               port_->SetDtr (on);
             }
         }
-      else
+      else if (wrapped_)
         {
           TRACE_CAT ("OmniRigTransceiver", "set PTT using basic transceiver");
-          Q_ASSERT (wrapped_);
           TransceiverState new_state {wrapped_->state ()};
           new_state.ptt (on);
           wrapped_->set (new_state, 0);
