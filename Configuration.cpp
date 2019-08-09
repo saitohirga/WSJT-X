@@ -571,6 +571,7 @@ private:
   DecodeHighlightingModel decode_highlighing_model_;
   DecodeHighlightingModel next_decode_highlighing_model_;
   bool highlight_by_mode_;
+  bool highlight_only_fields_;
   bool include_WAE_entities_;
   int LotW_days_since_upload_;
 
@@ -753,6 +754,7 @@ bool Configuration::pwrBandTuneMemory () const {return m_->pwrBandTuneMemory_;}
 LotWUsers const& Configuration::lotw_users () const {return m_->lotw_users_;}
 DecodeHighlightingModel const& Configuration::decode_highlighting () const {return m_->decode_highlighing_model_;}
 bool Configuration::highlight_by_mode () const {return m_->highlight_by_mode_;}
+bool Configuration::highlight_only_fields () const {return m_->highlight_only_fields_;}
 bool Configuration::include_WAE_entities () const {return m_->include_WAE_entities_;}
 
 void Configuration::set_calibration (CalibrationParams params)
@@ -959,6 +961,7 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   , station_insert_action_ {tr ("&Insert ..."), nullptr}
   , station_dialog_ {new StationDialog {&next_stations_, &bands_, this}}
   , highlight_by_mode_ {false}
+  , highlight_only_fields_ {false}
   , include_WAE_entities_ {false}
   , LotW_days_since_upload_ {0}
   , last_port_type_ {TransceiverFactory::Capabilities::none}
@@ -1325,6 +1328,7 @@ void Configuration::impl::initialize_models ()
 
   next_decode_highlighing_model_.items (decode_highlighing_model_.items ());
   ui_->highlight_by_mode_check_box->setChecked (highlight_by_mode_);
+  ui_->only_fields_check_box->setChecked (highlight_only_fields_);
   ui_->include_WAE_check_box->setChecked (include_WAE_entities_);
   ui_->LotW_days_since_upload_spin_box->setValue (LotW_days_since_upload_);
 
@@ -1474,6 +1478,7 @@ void Configuration::impl::read_settings ()
   if (!highlight_items.size ()) highlight_items = DecodeHighlightingModel::default_items ();
   decode_highlighing_model_.items (highlight_items);
   highlight_by_mode_ = settings_->value("HighlightByMode", false).toBool ();
+  highlight_only_fields_ = settings_->value("OnlyFieldsSought", false).toBool ();
   include_WAE_entities_ = settings_->value("IncludeWAEEntities", false).toBool ();
   LotW_days_since_upload_ = settings_->value ("LotWDaysSinceLastUpload", 365).toInt ();
   lotw_users_.set_age_constraint (LotW_days_since_upload_);
@@ -1588,6 +1593,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("stations", QVariant::fromValue (stations_.station_list ()));
   settings_->setValue ("DecodeHighlighting", QVariant::fromValue (decode_highlighing_model_.items ()));
   settings_->setValue ("HighlightByMode", highlight_by_mode_);
+  settings_->setValue ("OnlyFieldsSought", highlight_only_fields_);
   settings_->setValue ("IncludeWAEEntities", include_WAE_entities_);
   settings_->setValue ("LotWDaysSinceLastUpload", LotW_days_since_upload_);
   settings_->setValue ("toRTTY", log_as_RTTY_);
@@ -2130,6 +2136,7 @@ void Configuration::impl::accept ()
       Q_EMIT self_->decode_highlighting_changed (decode_highlighing_model_);
     }
   highlight_by_mode_ = ui_->highlight_by_mode_check_box->isChecked ();
+  highlight_only_fields_ = ui_->only_fields_check_box->isChecked ();
   include_WAE_entities_ = ui_->include_WAE_check_box->isChecked ();
   LotW_days_since_upload_ = ui_->LotW_days_since_upload_spin_box->value ();
   lotw_users_.set_age_constraint (LotW_days_since_upload_);
