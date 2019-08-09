@@ -3116,6 +3116,27 @@ void MainWindow::readFromStdout()                             //readFromStdout
           ui->decodedTextBrowser->displayDecodedText(decodedtext0,m_baseCall,m_mode,m_config.DXCC(),
                m_logBook,m_currentBand,m_config.ppfx(),
                (ui->cbCQonly->isVisible() and ui->cbCQonly->isChecked()));
+
+/*
+//### TEST CODE
+          {
+            if(decodedtext0.CQersCall()!="") {
+              // For CQ messages, find best one to answer, for contest purposes...
+              QString dxCall;
+              QString dxGrid;
+              QString messagePriority=ui->decodedTextBrowser->CQPriority();
+              decodedtext0.deCallAndGrid(dxCall,dxGrid);  //OUTPUT to dxCall and dxGrid!
+              double utch=0.0;
+              int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter,qsoPoints;
+              azdist_(const_cast <char *> ((m_config.my_grid().left(4) + "  ").toLatin1().constData()),
+                      const_cast <char *> ((dxGrid.left(4) + "  ").toLatin1().constData()),&utch,
+                      &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,6,6);
+              qsoPoints=1 + nDkm/3000;
+              qDebug() << "aa" << dxCall << dxGrid << messagePriority << nDkm << qsoPoints;
+            }
+          }
+//###
+*/
           if(m_bBestSPArmed and m_mode=="FT4") {
             QString messagePriority=ui->decodedTextBrowser->CQPriority();
             if(messagePriority!="") {
@@ -3133,6 +3154,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
               }
             }
           }
+
         }
       }
 
