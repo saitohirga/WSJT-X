@@ -5485,6 +5485,14 @@ void MainWindow::on_genStdMsgsPushButton_clicked()         //genStdMsgs button
 
 void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
 {
+  if (SpecOp::FOX != m_config.special_op_id ())
+    {
+      // ensure that auto Tx is disabled even if clear DX call & grid
+      // on 73 is not checked, unless in Fox mode where it is allowed
+      // to be a robot.
+      auto_tx_mode (false);
+    }
+
   if (!m_hisCall.size ()) {
     MessageBox::warning_message (this, tr ("Warning:  DX Call field is empty."));
   }
@@ -5562,7 +5570,6 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
     }
 
   if(m_config.clear_DX () and SpecOp::HOUND != m_config.special_op_id()) clearDX ();
-  auto_tx_mode (false);
   m_dateTimeQSOOn = QDateTime {};
   auto special_op = m_config.special_op_id ();
   if (SpecOp::NONE < special_op && special_op < SpecOp::FOX &&
