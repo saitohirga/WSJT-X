@@ -6793,7 +6793,7 @@ void MainWindow::setFreq4(int rxFreq, int txFreq)
         {
           // we need to regenerate the current transmit waveform for
           // GFSK modulated modes
-          m_restart = true;
+          if (m_transmitting) m_restart = true;
         }
     }
     else if (m_config.enable_VHF_features ()
