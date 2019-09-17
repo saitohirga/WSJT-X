@@ -5545,7 +5545,7 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
                             , QByteArray const& ADIF)
 {
   QString date = QSO_date_on.toString("yyyyMMdd");
-  if (!m_logBook.add (m_hisCall, grid, m_config.bands()->find(m_freqNominal), m_modeTx, ADIF))
+  if (!m_logBook.add (call, grid, m_config.bands()->find(dial_freq), mode, ADIF))
     {
       MessageBox::warning_message (this, tr ("Log file error"),
                                    tr ("Cannot open \"%1\"").arg (m_logBook.path ()));
