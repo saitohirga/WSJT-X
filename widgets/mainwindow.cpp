@@ -3317,7 +3317,9 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
       }
     }
     bool bEU_VHF_w2=(nrpt>=520001 and nrpt<=594000);
-    if(bEU_VHF_w2) m_xRcvd=message.string().trimmed().right(13);
+    if(bEU_VHF_w2 and message.string().contains(m_config.my_callsign() + " ")) {
+      m_xRcvd=message.string().trimmed().right(13);
+    }
     if (m_auto
         && (m_QSOProgress==REPLYING  or (!ui->tx1->isEnabled () and m_QSOProgress==REPORT))
         && qAbs (ui->TxFreqSpinBox->value () - df) <= int (stop_tolerance)
