@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>546</width>
-    <height>553</height>
+    <width>554</width>
+    <height>563</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -2206,8 +2206,45 @@ Right click for insert and delete options.</string>
          <property name="title">
           <string>Decode Highlightling</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_8">
-          <item>
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="2" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_15">
+            <item>
+             <spacer name="horizontalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="rescan_log_push_button">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click to scan the wsjtx_log.adi ADIF file again for worked before information&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Rescan ADIF Log</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="QPushButton" name="reset_highlighting_to_defaults_push_button">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Push to reset all highlight items above to default values and priorities.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Reset Highlighting</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="2">
            <widget class="DecodeHighlightingListView" name="highlighting_list_view">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -2247,69 +2284,32 @@ Right click for insert and delete options.</string>
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QPushButton" name="reset_highlighting_to_defaults_push_button">
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="highlight_by_mode_check_box">
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Push to reset all highlight items above to default values and priorities.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to indicate new DXCC entities, grid squares, and callsigns per mode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>Reset Highlighting</string>
+             <string>Highlight by Mode</string>
             </property>
            </widget>
           </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_15">
-            <item>
-             <widget class="QCheckBox" name="highlight_by_mode_check_box">
-              <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to indicate new DXCC entities, grid squares, and callsigns per mode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="text">
-               <string>Highlight by Mode</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_5">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="rescan_log_push_button">
-              <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click to scan the wsjtx_log.adi ADIF file again for worked before information&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="text">
-               <string>Rescan ADIF Log</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+          <item row="4" column="0">
+           <widget class="QCheckBox" name="include_WAE_check_box">
+            <property name="text">
+             <string>Include extra WAE entities</string>
+            </property>
+           </widget>
           </item>
-          <item>
-           <layout class="QFormLayout" name="formLayout_20">
-            <item row="0" column="0">
-             <widget class="QCheckBox" name="include_WAE_check_box"/>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLabel" name="includeExtraWAEEntitiesLabel">
-              <property name="text">
-               <string>Include extra WAE entities</string>
-              </property>
-              <property name="buddy">
-               <cstring>include_WAE_check_box</cstring>
-              </property>
-             </widget>
-            </item>
-           </layout>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="only_fields_check_box">
+            <property name="toolTip">
+             <string>Check to for grid highlighting to only apply to unworked grid fields</string>
+            </property>
+            <property name="text">
+             <string>Only grid Fields sought</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -3102,13 +3102,13 @@ Right click for insert and delete options.</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="special_op_activity_button_group"/>
-  <buttongroup name="CAT_data_bits_button_group"/>
   <buttongroup name="split_mode_button_group"/>
-  <buttongroup name="TX_mode_button_group"/>
+  <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="special_op_activity_button_group"/>
+  <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
   <buttongroup name="CAT_stop_bits_button_group"/>
-  <buttongroup name="CAT_handshake_button_group"/>
+  <buttongroup name="TX_mode_button_group"/>
   <buttongroup name="TX_audio_source_button_group"/>
  </buttongroups>
 </ui>

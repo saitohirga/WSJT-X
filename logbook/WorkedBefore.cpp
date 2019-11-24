@@ -7,6 +7,7 @@
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/key_extractors.hpp>
+#include <boost/range/iterator_range.hpp>
 #include <QtConcurrent/QtConcurrentRun>
 #include <QFuture>
 #include <QFutureWatcher>
@@ -362,7 +363,8 @@ class WorkedBefore::impl final
 {
 public:
   impl (Configuration const * configuration)
-    : path_ {QDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)}.absoluteFilePath (logFileName)}
+    : configuration_ {configuration}
+    , path_ {QDir {QStandardPaths::writableLocation (QStandardPaths::DataLocation)}.absoluteFilePath (logFileName)}
     , prefixes_ {configuration}
   {
   }
@@ -373,6 +375,7 @@ public:
     loader_watcher_.setFuture (async_loader_);
   }
 
+  Configuration const * configuration_;
   QString path_;
   AD1CCty prefixes_;
   QFutureWatcher<worked_before_database_type> loader_watcher_;
@@ -491,34 +494,56 @@ bool WorkedBefore::country_worked (QString const& country, QString const& mode, 
 
 bool WorkedBefore::grid_worked (QString const& grid, QString const& mode, QString const& band) const
 {
-  if (mode.size ())
+  auto gridsquare = grid.left (4).toUpper ();
+  if (m_->configuration_->highlight_only_fields ())
     {
-      if (band.size ())
+      // can't use a direct set find operation or a set operation with
+      // a (CompatibleKey, CompatibleCompare) concept so we must
+      // partially scan the index
+      auto range = boost::make_iterator_range (
+                                               m_->worked_.get<grid_mode_band> ().lower_bound (gridsquare.left (2))
+                                               , m_->worked_.get<grid_mode_band> ().upper_bound (gridsquare.left (2) + "99"));
+      for (worked_entry const& worked : range)
         {
-          return m_->worked_.get<grid_mode_band> ().end ()
-            != m_->worked_.get<grid_mode_band> ().find (std::make_tuple (grid.left (4).toUpper (), mode.toUpper (), band.toUpper ()));
-        }
-      else
-        {
-          // partial key lookup
-          return m_->worked_.get<grid_mode_band> ().end ()
-            != m_->worked_.get<grid_mode_band> ().find (std::make_tuple (grid.left (4).toUpper (), mode.toUpper ()));
+          if ((!mode.size () || mode.toUpper () == worked.mode_)
+              && (!band.size () || worked.band_ == band.toUpper ()))
+            {
+              return true;
+            }
         }
     }
   else
     {
-      if (band.size ())
+      if (mode.size ())
         {
-          return m_->worked_.get<grid_band> ().end ()
-            != m_->worked_.get<grid_band> ().find (std::make_tuple (grid.left (4).toUpper (), band.toUpper ()));
+          if (band.size ())
+            {
+              return m_->worked_.get<grid_mode_band> ().end ()
+                != m_->worked_.get<grid_mode_band> ().find (std::make_tuple (gridsquare, mode.toUpper (), band.toUpper ()));
+            }
+          else
+            {
+              // partial key lookup
+              return m_->worked_.get<grid_mode_band> ().end ()
+                != m_->worked_.get<grid_mode_band> ().find (std::make_tuple (gridsquare, mode.toUpper ()));
+            }
         }
       else
         {
-          // partial key lookup
-          return m_->worked_.get<grid_band> ().end ()
-            != m_->worked_.get<grid_band> ().find (grid.left (4).toUpper ());
+          if (band.size ())
+            {
+              return m_->worked_.get<grid_band> ().end ()
+                != m_->worked_.get<grid_band> ().find (std::make_tuple (gridsquare, band.toUpper ()));
+            }
+          else
+            {
+              // partial key lookup
+              return m_->worked_.get<grid_band> ().end ()
+                != m_->worked_.get<grid_band> ().find (gridsquare);
+            }
         }
     }
+  return false;
 }
 
 bool WorkedBefore::call_worked (QString const& call, QString const& mode, QString const& band) const

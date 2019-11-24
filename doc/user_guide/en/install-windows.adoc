@@ -34,15 +34,16 @@ TIP: Your computer may be configured so that this directory is
   role="right"] _WSJT-X_ requires the _OpenSSL_ libraries to be
   installed. Suitable libraries may already be installed on your
   system, if they are not you will see this error shortly after
-  startup. To fix this you need to install the _OpenSSL_ libraries.
+  requesting a fetch of the latest LoTW users database. To fix this
+  you need to install the _OpenSSL_ libraries.
 
 ** You can download a suitable _OpenSSL_ package for from
-   {win_openssl_packages}, you need the latest *Windows v1.0.2 Lite*
-   version. For the 32-bit _WSJT-X_ build use the Win32 version of the
-   _OpenSSL_ libraries, for the 64-bit _WSJT-X_ use the Win64 version
-   of the _OpenSSL_ libraries (Note it is OK to install both versions
-   on a 64-bit system) which at the time of writing were
-   {win32_openssl} and {win64_openssl} respectively.
+   {win_openssl_packages}, you need the latest *Windows Light*
+   version. For the 32-bit _WSJT-X_ build use the latest Win32 v1.0.2
+   version of the _OpenSSL_ libraries, for the 64-bit _WSJT-X_ use the
+   latest Win64 v1.1.0 version of the _OpenSSL_ libraries (Note it is
+   OK to install both versions on a 64-bit system) which at the time
+   of writing were {win32_openssl} and {win64_openssl} respectively.
 
 ** Install the package and accept the default options, including the
    option to copy the _OpenSSL_ DLLs to the Windows system
@@ -69,7 +70,7 @@ TIP: If you cannot install the _OpenSSL_ libraries or do not have an
   To ensure that this will be so when running under recent versions of
   Windows, open the system's *Sound* control panel and select in turn
   the *Recording* and *Playback* tabs. Click on *Properties*, then
-  *Advanced*, and select *16 bit, 48000 Hz (DVD Quality)*. Switch of
+  *Advanced*, and select *16 bit, 48000 Hz (DVD Quality)*. Switch off
   all audio enhancement features for these devices.
 
 * You can uninstall _WSJT-X_ by clicking its *Uninstall* link in the
