@@ -469,8 +469,8 @@ set (wsjt_FSRCS
   lib/ft8/ft8_downsample.f90
   lib/ft8.f90
   lib/ft8dec.f90
+  lib/ft8/ft8sim_fsk.f90
   lib/ft8/ft8sim.f90
-  lib/ft8/ft8sim_gfsk.f90
   lib/gen4.f90
   lib/gen65.f90
   lib/gen9.f90
@@ -487,6 +487,7 @@ set (wsjt_FSRCS
   lib/geodist.f90
   lib/getlags.f90
   lib/getmet4.f90
+  lib/ft8/get_spectrum_baseline.f90
   lib/ft2/gfsk_pulse.f90
   lib/graycode.f90
   lib/graycode65.f90
@@ -1248,9 +1249,9 @@ if (${OPENMP_FOUND} OR APPLE)
       )
   endif (APPLE)
   if (WIN32)
-    # set_target_properties (jt9 PROPERTIES
-    #   LINK_FLAGS -Wl,--stack,16777216
-    #   )
+    set_target_properties (jt9 PROPERTIES
+      LINK_FLAGS -Wl,--stack,16777216
+      )
   endif ()
   target_link_libraries (jt9 wsjt_fort_omp wsjt_cxx Qt5::Core)
 else (${OPENMP_FOUND} OR APPLE)
@@ -1306,11 +1307,11 @@ target_link_libraries (ft8code wsjt_fort wsjt_cxx)
 add_executable (ft8 lib/ft8.f90 wsjtx.rc)
 target_link_libraries (ft8 wsjt_fort wsjt_cxx)
 
+add_executable (ft8sim_fsk lib/ft8/ft8sim_fsk.f90 wsjtx.rc)
+target_link_libraries (ft8sim_fsk wsjt_fort wsjt_cxx)
+
 add_executable (ft8sim lib/ft8/ft8sim.f90 wsjtx.rc)
 target_link_libraries (ft8sim wsjt_fort wsjt_cxx)
-
-add_executable (ft8sim_gfsk lib/ft8/ft8sim_gfsk.f90 wsjtx.rc)
-target_link_libraries (ft8sim_gfsk wsjt_fort wsjt_cxx)
 
 add_executable (msk144sim lib/msk144sim.f90 wsjtx.rc)
 target_link_libraries (msk144sim wsjt_fort wsjt_cxx)
