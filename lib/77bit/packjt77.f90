@@ -806,7 +806,7 @@ subroutine pack77_01(nwords,w,i3,n3,c77)
   call chkcall(w(3),bcall_2,ok2)
   if(.not.ok2) go to 900                   !3rd word must be a valid basecall
 
-! Type 0.1:  K1ABC RR73; W9XYZ <KH1/KH7Z> -11   28 28 10 5       71   DXpedition Mode
+! Type 0.1:  K1ABC RR73; W9XYZ <KH1/KH7Z> -11   28 28 10 5       71
   i3=0
   n3=1
   call pack28(w(1),n28a)
@@ -823,6 +823,9 @@ end subroutine pack77_01
 
 
 subroutine pack77_02(nwords,w,i3,n3,c77)
+
+! Pack a Type 0.2 message: EU VHF Contest mode
+! Example message:  PA3XYZ/P R 590003 IO91NP           28 1 1 3 12 25
 
   character*13 w(19),c13
   character*77 c77
@@ -877,7 +880,9 @@ end subroutine pack77_02
 
 
 subroutine pack77_03(nwords,w,i3,n3,c77)
+
 ! Check 0.3 and 0.4 (ARRL Field Day exchange)
+! Example message:  WA9XYZ KA1ABC R 16A EMA       28 28 1 4 3 7    71  
 
   parameter (NSEC=84)      !Number of ARRL Sections
   character*13 w(19)
@@ -939,8 +944,11 @@ subroutine pack77_03(nwords,w,i3,n3,c77)
   return
 end subroutine pack77_03
 
+
 subroutine pack77_1(nwords,w,i3,n3,c77)
+  
 ! Check Type 1 (Standard 77-bit message) and Type 2 (ditto, with a "/P" call)
+! Example message:  WA9XYZ/R KA1ABC/R R FN42     28 1 28 1 1 15   74
 
   parameter (MAXGRID4=32400)
   character*13 w(19),c13
@@ -1041,10 +1049,12 @@ end subroutine pack77_1
 
 
 subroutine pack77_3(nwords,w,i3,n3,c77)
-! Check Type 2 (ARRL RTTY contest exchange)
-!ARRL RTTY   - US/Can: rpt state/prov      R 579 MA
-!     	     - DX:     rpt serial          R 559 0013
-
+  
+! Check Type 3 (ARRL RTTY contest exchange)
+! ARRL RTTY   - US/Can: rpt state/prov      R 579 MA
+!             - DX:     rpt serial          R 559 0013
+! Example message:  TU; W9XYZ K1ABC R 579 MA           1 28 28 1 3 13   74
+  
   parameter (NUSCAN=65)    !Number of US states and Canadian provinces/territories
   character*13 w(19)
   character*77 c77
@@ -1109,8 +1119,11 @@ subroutine pack77_3(nwords,w,i3,n3,c77)
 900 return
 end subroutine pack77_3
 
+
 subroutine pack77_4(nwords,w,i3,n3,c77)
-! Check Type 3 (One nonstandard call and one hashed call)
+  
+! Check Type 4 (One nonstandard call and one hashed call)
+! Example message: <WA9XYZ> PJ4/KA1ABC RR73           12 58 1 2 1      74
 
   integer*8 n58
   logical ok1,ok2
@@ -1178,8 +1191,9 @@ subroutine pack77_4(nwords,w,i3,n3,c77)
 end subroutine pack77_4
 
 subroutine pack77_5(nwords,w,i3,n3,c77)
+  
 ! Check Type 5 (WWROF contest exchange)
-
+!Example message: TU; W9XYZ K1ABC R-09 FN     1 28 28 1 7 9   74   WWROF contest
   character*13 w(19)
   character*77 c77
   character*6 bcall_1,bcall_2
@@ -1222,7 +1236,7 @@ subroutine pack77_5(nwords,w,i3,n3,c77)
      if(trim(w(1)).eq.'TU;') itu=1
      call pack28(w(1+itu),n28a)
      call pack28(w(2+itu),n28b)
-! 5    TU; W9XYZ K1ABC R-09 FN             1 28 28 1 7 9       74   WWROF contest
+!Example message:    TU; W9XYZ K1ABC R-09 FN        1 28 28 1 7 9   74   WWROF contest
      write(c77,1010) itu,n28a,n28b,ir,irpt,nexch,i3
 1010 format(b1,2b28.28,b1,b7.7,b9.9,b3.3)
 
