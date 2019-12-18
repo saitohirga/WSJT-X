@@ -81,15 +81,17 @@ program ft4code
 
   if(nmsg.eq.1) then
      write(*,1030) ieor(msgbits,rvec)
-1030 format(/'Source-encoded message before XOR(), 77 bits: ',/77i1)
-     write(*,1031) msgbits
-1031 format(/'Source-encoded message after XOR(), 77 bits: ',/77i1)
-     write(*,1032) codeword(78:91)
-1032 format(/'14-bit CRC: ',/14i1)
-     write(*,1033) codeword(92:174)
-1033 format(/'83 Parity bits: ',/83i1)     
-     write(*,1034) 0,itone,0
-1034 format(/'Channel symbols (105 tones):'/                            &
+1030 format(/'Source-encoded message before scrambling, 77 bits: ',/77i1)
+     write(*,1032) rvec
+1032 format(/'Scrambling vector, 77 bits: ',/77i1)
+     write(*,1034) msgbits
+1034 format(/'Source-encoded message after scrambling, 77 bits:'/77i1)
+     write(*,1036) codeword(78:91)
+1036 format(/'14-bit CRC: ',/14i1)
+     write(*,1038) codeword(92:174)
+1038 format(/'83 Parity bits: ',/83i1)     
+     write(*,1040) 0,itone,0
+1040 format(/'Channel symbols (105 tones):'/                            &
           'R Sync',13x,'Data',13x,                                      &
           ' Sync',13x,'Data',13x,                                       &
           ' Sync',13x,'Data',13x,' Sync R'/                             &
