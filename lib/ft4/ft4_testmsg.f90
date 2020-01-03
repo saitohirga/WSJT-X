@@ -1,8 +1,7 @@
-  parameter (MAXTEST=75,NTEST=48)
+  parameter (MAXTEST=75,NTEST=47)
   character*37 testmsg(MAXTEST)
-  data testmsg(1:NTEST)/                   &
+  data testmsg(1:NTEST)/                           &
       "TNX BOB 73 GL",                             &     ! 0.0
-      "K1ABC RR73; W9XYZ <KH1/KH7Z> -08",          &     ! 0.1
       "PA9XYZ 590003 IO91NP",                      &     ! 0.2
       "G4ABC/P R 570007 JO22DB",                   &     ! 0.2
       "K1ABC W9XYZ 6A WI",                         &     ! 0.3
