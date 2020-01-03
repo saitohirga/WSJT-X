@@ -635,7 +635,7 @@ subroutine pack28(c13,n28)
        npdig.ge.iarea-1 .or. nslet.gt.3) then
 ! Treat this as a nonstandard callsign: compute its 22-bit hash
      call save_hash_call(c13,n10,n12,n22)   !Save callsign in hash table
-     n22=ihashcall(c13,n22)
+     n22=ihashcall(c13,22)
      n28=NTOKENS + n22
      go to 900
   endif
