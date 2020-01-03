@@ -94,7 +94,7 @@ d). Edit lines as needed. Keeping them in alphabetic order help see dupes.
 :win32_openssl: https://slproweb.com/download/Win32OpenSSL_Light-1_0_2t.exe[Win32 OpenSSL Light Package]
 :win64_openssl: https://slproweb.com/download/Win64OpenSSL_Light-1_1_0L.exe[Win64 OpenSSL Light Package]
 :writelog: https://writelog.com/[Writelog]
-:wsjt_yahoo_group: https://groups.yahoo.com/neo/groups/wsjtgroup/info[WSJT Group]
+:wsjtx_group:  https://groups.io/g/WSJTX[WSJTX Group]
 :wsjtx: http://physics.princeton.edu/pulsar/K1JT/wsjtx.html[WSJT-X]
 :wspr0_guide: http://www.physics.princeton.edu/pulsar/K1JT/WSPR0_Instructions.TXT[WSPR0 Guide]
 :wspr: http://physics.princeton.edu/pulsar/K1JT/wspr.html[WSPR Home Page]
