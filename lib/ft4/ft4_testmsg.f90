@@ -5,7 +5,7 @@
       "PA9XYZ 590003 IO91NP",                      &     ! 0.2
       "G4ABC/P R 570007 JO22DB",                   &     ! 0.2
       "K1ABC W9XYZ 6A WI",                         &     ! 0.3
-      "W9XYZ K1ABC R 2B EMA",                      &     ! 0.3
+      "W9XYZ K1ABC R 17B EMA",                     &     ! 0.3
       "123456789ABCDEF012",                        &     ! 0.5
       "CQ K1ABC FN42",                             &     ! 1.
       "K1ABC W9XYZ EN37",                          &     ! 1.
