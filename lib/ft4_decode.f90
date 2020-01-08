@@ -24,7 +24,7 @@ module ft4_decode
 contains
 
    subroutine decode(this,callback,iwave,nQSOProgress,nfqso,    &
-      nutc,nfa,nfb,ndepth,lapcqonly,ncontest,mycall,hiscall)
+      nutc,nfa,nfb,ndepth,lapcqonly,ncontest,cqstr,mycall,hiscall)
       use timer_module, only: timer
       use packjt77
       include 'ft4/ft4_params.f90'

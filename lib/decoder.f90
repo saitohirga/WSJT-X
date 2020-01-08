@@ -40,6 +40,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   character(len=20) :: datetime
   character(len=12) :: mycall, hiscall
   character(len=6) :: mygrid, hisgrid
+  character(len=4) :: cqstr 
   save
   type(counting_jt4_decoder) :: my_jt4
   type(counting_jt65_decoder) :: my_jt65
@@ -53,6 +54,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   hiscall=transfer(params%hiscall,hiscall)
   mygrid=transfer(params%mygrid,mygrid)
   hisgrid=transfer(params%hisgrid,hisgrid)
+  cqstr=transfer(params%cqstr,cqstr)
 
   ! initialize decode counts
   my_jt4%decoded = 0
@@ -153,7 +155,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      call timer('decft4  ',0)
      call my_ft4%decode(ft4_decoded,id2,params%nQSOProgress,params%nfqso,    &
           params%nutc,params%nfa,params%nfb,params%ndepth,                   &
-          logical(params%lapcqonly),ncontest,mycall,hiscall)
+          logical(params%lapcqonly),ncontest,cqstr,mycall,hiscall)
      call timer('decft4  ',1)
      go to 800
   endif

@@ -589,6 +589,7 @@ private:
   QString m_hisCall;
   QString m_hisGrid;
   QString m_appDir;
+  QString m_cqStr;
   QString m_palette;
   QString m_dateTime;
   QString m_mode;

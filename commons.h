@@ -65,6 +65,7 @@ extern struct dec_data {
     char mygrid[6];
     char hiscall[12];
     char hisgrid[6];
+    char cqstr[4];
   } params;
 } dec_data;
 

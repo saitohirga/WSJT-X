@@ -331,6 +331,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   tx_status_label {"Receiving"},
   wsprNet {new WSPRNet {&m_network_manager, this}},
   m_appDir {QApplication::applicationDirPath ()},
+  m_cqStr {""},
   m_palette {"Linrad"},
   m_mode {"JT9"},
   m_rpt {"-15"},
@@ -2932,6 +2933,7 @@ void MainWindow::decode()                                       //decode()
   QString hisGrid {ui->dxGridEntry->text ()};
   memcpy(dec_data.params.hiscall,(hisCall + "            ").toLatin1 ().constData (), sizeof dec_data.params.hiscall);
   memcpy(dec_data.params.hisgrid,(hisGrid + "      ").toLatin1 ().constData (), sizeof dec_data.params.hisgrid);
+  memcpy(dec_data.params.cqstr,(m_cqStr + "      ").toLatin1 ().constData (), sizeof dec_data.params.cqstr);
 
   //newdat=1  ==> this is new data, must do the big FFT
   //nagain=1  ==> decode only at fQSO +/- Tol
@@ -4929,16 +4931,23 @@ void MainWindow::genCQMsg ()
     }
 
     QString t=ui->tx6->text();
+    QStringList tlist=t.split(" ");
     if((m_mode=="FT4" or m_mode=="FT8" or m_mode=="MSK144") and
        SpecOp::NONE != m_config.special_op_id() and
-       t.split(" ").at(1)==m_config.my_callsign() and
+       ( tlist.at(1)==m_config.my_callsign() or         
+         tlist.at(2)==m_config.my_callsign() ) and   
        stdCall(m_config.my_callsign())) {
-      if(SpecOp::NA_VHF == m_config.special_op_id())    t="CQ TEST" + t.mid(2,-1);
-      if(SpecOp::EU_VHF == m_config.special_op_id())    t="CQ TEST" + t.mid(2,-1);
-      if(SpecOp::FIELD_DAY == m_config.special_op_id()) t="CQ FD" + t.mid(2,-1);
+      if(SpecOp::NA_VHF == m_config.special_op_id())    m_cqStr="TEST";
+      if(SpecOp::EU_VHF == m_config.special_op_id())    m_cqStr="TEST";
+      if(SpecOp::FIELD_DAY == m_config.special_op_id()) m_cqStr="FD";
       if(SpecOp::RTTY == m_config.special_op_id()) {
-        if(m_config.RTTY_Exchange()!="SCC")             t="CQ RU" + t.mid(2,-1);
-        if(m_config.RTTY_Exchange()=="SCC")             t="CQ SCC" + t.mid(2,-1);
+        if(m_config.RTTY_Exchange()!="SCC")             m_cqStr="RU";
+        if(m_config.RTTY_Exchange()=="SCC")             m_cqStr="SCC";
+      }
+      if( tlist.at(1)==m_config.my_callsign() ) { 
+         t="CQ " + m_cqStr + " " + tlist.at(1) + " " + tlist.at(2); 
+      } else {
+         t="CQ " + m_cqStr + " " + tlist.at(2) + " " + tlist.at(3);
       }
       ui->tx6->setText(t);
     }
