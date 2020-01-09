@@ -61,7 +61,7 @@ contains
       integer i4tone(103)
       integer nappasses(0:5)    ! # of decoding passes for QSO States 0-5
       integer naptypes(0:5,4)   ! nQSOProgress, decoding pass
-      integer mcq(29)
+      integer mcq(29),mcqru(29),mcqfd(29),mcqtest(29),mcqscc(29)
       integer mrrr(19),m73(19),mrr73(19)
 
       logical nohiscall,unpk77_success
@@ -72,6 +72,10 @@ contains
 
       data first/.true./
       data     mcq/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0/
+      data   mcqru/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,0,0,1,1,0,0/
+      data   mcqfd/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,1,0/
+      data mcqtest/0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,0,1,0,1,1,1,1,1,1,0,0,1,0/
+      data  mcqscc/0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,0,0,1,0,1,1,0,1,0,0/
       data    mrrr/0,1,1,1,1,1,1,0,1,0,0,1,0,0,1,0,0,0,1/
       data     m73/0,1,1,1,1,1,1,0,1,0,0,1,0,1,0,0,0,0,1/
       data   mrr73/0,1,1,1,1,1,1,0,0,1,1,1,0,1,0,1,0,0,1/
@@ -83,8 +87,6 @@ contains
 
       this%callback => callback
       hhmmss=cdatetime0(8:13)
-      dxcall13=hiscall
-      mycall13=mycall
 
       if(first) then
          fs=12000.0/NDOWN                !Sample rate after downsampling
@@ -101,6 +103,11 @@ contains
             call twkfreq1(ctwk,2*NSS,fs/2.0,a,ctwk2(:,idf))
          enddo
 
+         mcq=2*mod(mcq+rvec(1:29),2)-1
+         mcqru=2*mod(mcqru+rvec(1:29),2)-1
+         mcqfd=2*mod(mcqfd+rvec(1:29),2)-1
+         mcqtest=2*mod(mcqtest+rvec(1:29),2)-1
+         mcqscc=2*mod(mcqscc+rvec(1:29),2)-1
          mrrr=2*mod(mrrr+rvec(59:77),2)-1
          m73=2*mod(m73+rvec(59:77),2)-1
          mrr73=2*mod(mrr73+rvec(59:77),2)-1
@@ -131,22 +138,6 @@ contains
          hiscall0=''
          cqstr0=''
          first=.false.
-      endif
-
-      if(cqstr.ne.cqstr0) then
-         i0=index(cqstr,' ')
-         if(i0.le.1) then
-            message='CQ A1AA AA01'
-         else
-            message='CQ '//cqstr(1:i0-1)//' A1AA AA01'
-         endif
-         i3=-1
-         n3=-1
-         call pack77(message,i3,n3,c77)
-         call unpack77(c77,1,msgsent,unpk77_success)
-         read(c77,'(29i1)') mcq
-         mcq=2*mod(mcq+rvec(1:29),2)-1
-         cqstr0=cqstr
       endif
 
       l1=index(mycall,char(0))
@@ -361,7 +352,12 @@ contains
                      if(iaptype.eq.1) then  ! CQ or CQ TEST or CQ FD or CQ RU or CQ SCC
                         apmask=0
                         apmask(1:29)=1
-                        llrd(1:29)=apmag*mcq(1:29)
+                        if( ncontest.eq.0 ) llrd(1:29)=apmag*mcq(1:29)
+                        if( ncontest.eq.1 ) llrd(1:29)=apmag*mcqtest(1:29)
+                        if( ncontest.eq.2 ) llrd(1:29)=apmag*mcqtest(1:29)
+                        if( ncontest.eq.3 ) llrd(1:29)=apmag*mcqfd(1:29)
+                        if( ncontest.eq.4 .and. cqstr(1:2)=='RU') llrd(1:29)=apmag*mcqru(1:29) 
+                        if( ncontest.eq.4 .and. cqstr(1:3)=='SCC') llrd(1:29)=apmag*mcqscc(1:29) 
                      endif
 
                      if(iaptype.eq.2) then ! MyCall,???,???
