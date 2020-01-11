@@ -344,7 +344,7 @@ contains
 !          6 : HOUND
 !
 ! Conditions that cause us to bail out of AP decoding
-                     napwid=50
+                     napwid=80
                      if(ncontest.le.4 .and. iaptype.ge.3 .and. (abs(f1-nfqso).gt.napwid) ) cycle
                      if(iaptype.ge.2 .and. apbits(1).gt.1) cycle  ! No, or nonstandard, mycall
                      if(iaptype.ge.3 .and. apbits(30).gt.1) cycle ! No, or nonstandard, dxcall
@@ -412,9 +412,9 @@ contains
 
                   if(doosd .and. nharderror.lt.0) then
                      ndeep=3
-!                  if(abs(nfqso-f1).le.napwid) then
-!                     ndeep=4
-!                  endif
+                     if(abs(nfqso-f1).le.napwid) then
+                        ndeep=4
+                     endif
                      call timer('osd174_91 ',0)
                      call osd174_91(llr,apmask,ndeep,message77,cw,nharderror,dmin)
                      call timer('osd174_91 ',1)
