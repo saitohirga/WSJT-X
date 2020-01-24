@@ -40,7 +40,6 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   character(len=20) :: datetime
   character(len=12) :: mycall, hiscall
   character(len=6) :: mygrid, hisgrid
-  character(len=4) :: cqstr 
   save
   type(counting_jt4_decoder) :: my_jt4
   type(counting_jt65_decoder) :: my_jt65
@@ -54,7 +53,6 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   hiscall=transfer(params%hiscall,hiscall)
   mygrid=transfer(params%mygrid,mygrid)
   hisgrid=transfer(params%hisgrid,hisgrid)
-  cqstr=transfer(params%cqstr,cqstr)
 
   ! initialize decode counts
   my_jt4%decoded = 0
@@ -88,7 +86,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   if(params%nmode.eq.8) then
 ! We're in FT8 mode
      
-     if(ncontest.eq.5) then
+     if(ncontest.eq.6) then
 ! Fox mode: initialize and open houndcallers.txt     
         inquire(file=trim(temp_dir)//'/houndcallers.txt',exist=ex)
         if(.not.ex) then
@@ -117,7 +115,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      endif
      j=0
 
-     if(ncontest.eq.5) then
+     if(ncontest.eq.6) then
 ! Fox mode: save decoded Hound calls for possible selection by FoxOp
         rewind 19
         if(nfox.eq.0) then
@@ -155,7 +153,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      call timer('decft4  ',0)
      call my_ft4%decode(ft4_decoded,id2,params%nQSOProgress,params%nfqso,    &
           params%nutc,params%nfa,params%nfb,params%ndepth,                   &
-          logical(params%lapcqonly),ncontest,cqstr,mycall,hiscall)
+          logical(params%lapcqonly),ncontest,mycall,hiscall)
      call timer('decft4  ',1)
      go to 800
   endif
@@ -282,7 +280,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 1010 format('<DecodeFinished>',2i4)
   call flush(6)
   close(13)
-  if(ncontest.eq.5) close(19)
+  if(ncontest.eq.6) close(19)
   if(params%nmode.eq.4 .or. params%nmode.eq.65) close(14)
 
   return
@@ -536,7 +534,7 @@ contains
     write(13,1002) params%nutc,nint(sync),snr,dt,freq,0,decoded0
 1002 format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a37,' FT8')
 
-    if(ncontest.eq.5) then
+    if(ncontest.eq.6) then
        i1=index(decoded0,' ')
        i2=i1 + index(decoded0(i1+1:),' ')
        i3=i2 + index(decoded0(i2+1:),' ')

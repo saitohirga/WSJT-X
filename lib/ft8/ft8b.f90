@@ -18,7 +18,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   real dd0(15*12000)
   integer*1 message77(77),apmask(174),cw(174)
   integer apsym(58)
-  integer mcq(29),mcqru(29),mcqfd(29),mcqtest(29)
+  integer mcq(29),mcqru(29),mcqfd(29),mcqtest(29),mcqww(29)
   integer mrrr(19),m73(19),mrr73(19)
   integer itone(NN)
   integer icos7(0:6),ip(1)
@@ -37,6 +37,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   data   mcqru/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,0,0,1,1,0,0/
   data   mcqfd/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,1,0/
   data mcqtest/0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,0,1,0,1,1,1,1,1,1,0,0,1,0/
+  data   mcqww/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,1,0,1,1,1,1,0/
   data    mrrr/0,1,1,1,1,1,1,0,1,0,0,1,0,0,1,0,0,0,1/
   data     m73/0,1,1,1,1,1,1,0,1,0,0,1,0,1,0,0,0,0,1/
   data   mrr73/0,1,1,1,1,1,1,0,0,1,1,1,0,1,0,1,0,0,1/
@@ -50,6 +51,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
      mcqfd=2*mcqfd-1
      mcqru=2*mcqru-1
      mcqtest=2*mcqtest-1
+     mcqww=2*mcqww-1
      mrrr=2*mrrr-1
      m73=2*m73-1
      mrr73=2*mrr73-1
@@ -226,7 +228,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
 !   6        ap pass 3
 !   7        ap pass 4
 
-  if(lapon.or.ncontest.eq.6) then !Hounds always use AP
+  if(lapon.or.ncontest.eq.7) then !Hounds always use AP
      if(.not.lapcqonly) then
         npasses=3+nappasses(nQSOProgress)
      else
@@ -258,13 +260,14 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
 !          2 : EU_VHF
 !          3 : FIELD DAY
 !          4 : RTTY
-!          5 : FOX
-!          6 : HOUND
+!          5 : WW_DIGI 
+!          6 : FOX
+!          7 : HOUND
 !
 ! Conditions that cause us to bail out of AP decoding
-        if(ncontest.le.4 .and. iaptype.ge.3 .and. (abs(f1-nfqso).gt.napwid .and. abs(f1-nftx).gt.napwid) ) cycle
-        if(ncontest.eq.5) cycle                     ! No AP for Foxes
-        if(ncontest.eq.6.and.f1.gt.950.0) cycle     ! Hounds use AP only for signals below 950 Hz
+        if(ncontest.le.5 .and. iaptype.ge.3 .and. (abs(f1-nfqso).gt.napwid .and. abs(f1-nftx).gt.napwid) ) cycle
+        if(ncontest.eq.6) cycle                     ! No AP for Foxes
+        if(ncontest.eq.7.and.f1.gt.950.0) cycle     ! Hounds use AP only for signals below 950 Hz
         if(iaptype.ge.2 .and. apsym(1).gt.1) cycle  ! No, or nonstandard, mycall 
         if(iaptype.ge.3 .and. apsym(30).gt.1) cycle ! No, or nonstandard, dxcall
 
@@ -276,7 +279,8 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
            if(ncontest.eq.2) llrd(1:29)=apmag*mcqtest(1:29)
            if(ncontest.eq.3) llrd(1:29)=apmag*mcqfd(1:29)
            if(ncontest.eq.4) llrd(1:29)=apmag*mcqru(1:29)
-           if(ncontest.eq.6) llrd(1:29)=apmag*mcq(1:29)
+           if(ncontest.eq.5) llrd(1:29)=apmag*mcqww(1:29)
+           if(ncontest.eq.7) llrd(1:29)=apmag*mcq(1:29)
            apmask(75:77)=1 
            llrd(75:76)=apmag*(-1)
            llrd(77)=apmag*(+1)
@@ -284,7 +288,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
 
         if(iaptype.eq.2) then ! MyCall,???,??? 
            apmask=0
-           if(ncontest.eq.0.or.ncontest.eq.1) then
+           if(ncontest.eq.0.or.ncontest.eq.1.or.ncontest.eq.5) then
               apmask(1:29)=1  
               llrd(1:29)=apmag*apsym(1:29)
               apmask(75:77)=1 
@@ -322,7 +326,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
 
         if(iaptype.eq.3) then ! MyCall,DxCall,??? 
            apmask=0
-           if(ncontest.eq.0.or.ncontest.eq.1.or.ncontest.eq.2.or.ncontest.eq.6) then
+           if(ncontest.eq.0.or.ncontest.eq.1.or.ncontest.eq.2.or.ncontest.eq.5.or.ncontest.eq.7) then
               apmask(1:58)=1  
               llrd(1:58)=apmag*apsym
               apmask(75:77)=1 
@@ -335,7 +339,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
               apmask(72:74)=1 
               apmask(75:77)=1 
               llrd(75:77)=apmag*(-1)
-           else if(ncontest.eq.4) then ! RTTY RU
+           else if(ncontest.eq.4) then 
               apmask(2:57)=1  
               llrd(2:29)=apmag*apsym(1:28)
               llrd(30:57)=apmag*apsym(30:57)
@@ -345,16 +349,16 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
            endif
         endif
 
-        if(iaptype.eq.5.and.ncontest.eq.6) cycle !Hound
+        if(iaptype.eq.5.and.ncontest.eq.7) cycle !Hound
         if(iaptype.eq.4 .or. iaptype.eq.5 .or. iaptype.eq.6) then  
            apmask=0
-           if(ncontest.le.4 .or. (ncontest.eq.6.and.iaptype.eq.6)) then
+           if(ncontest.le.5 .or. (ncontest.eq.7.and.iaptype.eq.6)) then
               apmask(1:77)=1   ! mycall, hiscall, RRR|73|RR73
               llrd(1:58)=apmag*apsym
               if(iaptype.eq.4) llrd(59:77)=apmag*mrrr 
               if(iaptype.eq.5) llrd(59:77)=apmag*m73 
               if(iaptype.eq.6) llrd(59:77)=apmag*mrr73 
-           else if(ncontest.eq.6.and.iaptype.eq.4) then ! Hound listens for MyCall RR73;...
+           else if(ncontest.eq.7.and.iaptype.eq.4) then ! Hound listens for MyCall RR73;...
               apmask(1:28)=1
               llrd(1:28)=apmag*apsym(1:28)
               apmask(72:77)=1

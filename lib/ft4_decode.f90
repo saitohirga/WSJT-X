@@ -24,7 +24,7 @@ module ft4_decode
 contains
 
    subroutine decode(this,callback,iwave,nQSOProgress,nfqso,    &
-      nutc,nfa,nfb,ndepth,lapcqonly,ncontest,cqstr,mycall,hiscall)
+      nutc,nfa,nfb,ndepth,lapcqonly,ncontest,mycall,hiscall)
       use timer_module, only: timer
       use packjt77
       include 'ft4/ft4_params.f90'
@@ -39,7 +39,6 @@ contains
       character*12 mycall,hiscall
       character*12 mycall0,hiscall0
       character*6 hhmmss
-      character*4 cqstr,cqstr0
 
       complex cd2(0:NDMAX-1)                  !Complex waveform
       complex cb(0:NDMAX-1)
@@ -61,7 +60,7 @@ contains
       integer i4tone(103)
       integer nappasses(0:5)    ! # of decoding passes for QSO States 0-5
       integer naptypes(0:5,4)   ! nQSOProgress, decoding pass
-      integer mcq(29),mcqru(29),mcqfd(29),mcqtest(29),mcqscc(29)
+      integer mcq(29),mcqru(29),mcqfd(29),mcqtest(29),mcqww(29)
       integer mrrr(19),m73(19),mrr73(19)
 
       logical nohiscall,unpk77_success
@@ -75,7 +74,7 @@ contains
       data   mcqru/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,0,0,1,1,0,0/
       data   mcqfd/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,1,0/
       data mcqtest/0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,0,1,0,1,1,1,1,1,1,0,0,1,0/
-      data  mcqscc/0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,0,0,1,0,1,1,0,1,0,0/
+      data   mcqww/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,1,0,1,1,1,1,0/      
       data    mrrr/0,1,1,1,1,1,1,0,1,0,0,1,0,0,1,0,0,0,1/
       data     m73/0,1,1,1,1,1,1,0,1,0,0,1,0,1,0,0,0,0,1/
       data   mrr73/0,1,1,1,1,1,1,0,0,1,1,1,0,1,0,1,0,0,1/
@@ -83,7 +82,7 @@ contains
          1,0,0,1,0,1,1,0,0,0,0,1,0,0,0,1,0,1,0,0,1,1,1,1,0,0,1,0,1, &
          0,1,0,1,0,1,1,0,1,1,1,1,1,0,0,0,1,0,1/
       save fs,dt,tt,txt,twopi,h,first,apbits,nappasses,naptypes, &
-         mycall0,hiscall0,cqstr0,ctwk2
+         mycall0,hiscall0,ctwk2
 
       this%callback => callback
       hhmmss=cdatetime0(8:13)
@@ -107,7 +106,7 @@ contains
          mcqru=2*mod(mcqru+rvec(1:29),2)-1
          mcqfd=2*mod(mcqfd+rvec(1:29),2)-1
          mcqtest=2*mod(mcqtest+rvec(1:29),2)-1
-         mcqscc=2*mod(mcqscc+rvec(1:29),2)-1
+         mcqww=2*mod(mcqww+rvec(1:29),2)-1
          mrrr=2*mod(mrrr+rvec(59:77),2)-1
          m73=2*mod(m73+rvec(59:77),2)-1
          mrr73=2*mod(mrr73+rvec(59:77),2)-1
@@ -136,7 +135,6 @@ contains
 
          mycall0=''
          hiscall0=''
-         cqstr0=''
          first=.false.
       endif
 
@@ -320,7 +318,7 @@ contains
                npasses=3+nappasses(nQSOProgress)
                if(lapcqonly) npasses=4
                if(ndepth.eq.1) npasses=3
-               if(ncontest.ge.5) npasses=3  ! Don't support Fox and Hound
+               if(ncontest.ge.6) npasses=3  ! Don't support Fox and Hound
                do ipass=1,npasses
                   if(ipass.eq.1) llr=llra
                   if(ipass.eq.2) llr=llrb
@@ -331,7 +329,7 @@ contains
                   endif
 
                   if(ipass .gt. 3) then
-                     llrd=llra
+                     llrd=llrc
                      iaptype=naptypes(nQSOProgress,ipass-3)
                      if(lapcqonly) iaptype=1
 
@@ -340,29 +338,30 @@ contains
 !          2 : EU_VHF
 !          3 : FIELD DAY
 !          4 : RTTY
-!          5 : FOX
-!          6 : HOUND
+!          5 : WW_DIGI 
+!          6 : FOX
+!          7 : HOUND
 !
 ! Conditions that cause us to bail out of AP decoding
                      napwid=80
-                     if(ncontest.le.4 .and. iaptype.ge.3 .and. (abs(f1-nfqso).gt.napwid) ) cycle
+                     if(ncontest.le.5 .and. iaptype.ge.3 .and. (abs(f1-nfqso).gt.napwid) ) cycle
                      if(iaptype.ge.2 .and. apbits(1).gt.1) cycle  ! No, or nonstandard, mycall
                      if(iaptype.ge.3 .and. apbits(30).gt.1) cycle ! No, or nonstandard, dxcall
 
-                     if(iaptype.eq.1) then  ! CQ or CQ TEST or CQ FD or CQ RU or CQ SCC
+                     if(iaptype.eq.1) then  ! CQ or CQ TEST or CQ FD or CQ RU or CQ WW 
                         apmask=0
                         apmask(1:29)=1
                         if( ncontest.eq.0 ) llrd(1:29)=apmag*mcq(1:29)
                         if( ncontest.eq.1 ) llrd(1:29)=apmag*mcqtest(1:29)
                         if( ncontest.eq.2 ) llrd(1:29)=apmag*mcqtest(1:29)
                         if( ncontest.eq.3 ) llrd(1:29)=apmag*mcqfd(1:29)
-                        if( ncontest.eq.4 .and. cqstr(1:2)=='RU') llrd(1:29)=apmag*mcqru(1:29) 
-                        if( ncontest.eq.4 .and. cqstr(1:3)=='SCC') llrd(1:29)=apmag*mcqscc(1:29) 
+                        if( ncontest.eq.4 ) llrd(1:29)=apmag*mcqru(1:29) 
+                        if( ncontest.eq.5 ) llrd(1:29)=apmag*mcqww(1:29) 
                      endif
 
                      if(iaptype.eq.2) then ! MyCall,???,???
                         apmask=0
-                        if(ncontest.eq.0.or.ncontest.eq.1) then
+                        if(ncontest.eq.0.or.ncontest.eq.1.or.ncontest.eq.5) then
                            apmask(1:29)=1
                            llrd(1:29)=apmag*apbits(1:29)
                         else if(ncontest.eq.2) then
@@ -379,14 +378,14 @@ contains
 
                      if(iaptype.eq.3) then ! MyCall,DxCall,???
                         apmask=0
-                        if(ncontest.eq.0.or.ncontest.eq.1.or.ncontest.eq.2) then
+                        if(ncontest.eq.0.or.ncontest.eq.1.or.ncontest.eq.2.or.ncontest.eq.5) then
                            apmask(1:58)=1
                            llrd(1:58)=apmag*apbits(1:58)
                         else if(ncontest.eq.3) then ! Field Day
                            apmask(1:56)=1
                            llrd(1:28)=apmag*apbits(1:28)
                            llrd(29:56)=apmag*aphis_fd(1:28)
-                        else if(ncontest.eq.4) then ! RTTY RU
+                        else if(ncontest.eq.4) then 
                            apmask(2:57)=1
                            llrd(2:29)=apmag*apmy_ru(1:28)
                            llrd(30:57)=apmag*apbits(30:57)
@@ -395,7 +394,7 @@ contains
 
                      if(iaptype.eq.4 .or. iaptype.eq.5 .or. iaptype.eq.6) then
                         apmask=0
-                        if(ncontest.le.4) then
+                        if(ncontest.le.5) then
                            apmask(1:77)=1   ! mycall, hiscall, RRR|73|RR73
                            if(iaptype.eq.6) llrd(1:77)=apmag*apbits(1:77)
                         endif
@@ -452,11 +451,11 @@ contains
                      call this%callback(smax,nsnr,xdt,f1,message,iaptype,qual)
                      exit
                   endif
-               enddo !Sequence estimation
+               enddo                      !Sequence estimation
                if(nharderror.ge.0) exit
-            enddo !3 DT segments
-         enddo    !Candidate list
-      enddo       !Subtraction loop
+            enddo                         !3 DT segments
+         enddo                            !Candidate list
+      enddo                               !Subtraction loop
       return
    end subroutine decode
 

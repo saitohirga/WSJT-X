@@ -1247,7 +1247,7 @@ void MainWindow::checkMSK144ContestType()
       if(m_mode=="MSK144" && SpecOp::EU_VHF < m_config.special_op_id())
         {
           MessageBox::warning_message (this, tr ("Improper mode"),
-           "Mode will be changed to FT8. MSK144 not available if Fox, Hound, Field Day, or RTTY contest is selected.");
+           "Mode will be changed to FT8. MSK144 not available if Field Day, WW Digi, RTTY or Fox/Hound is selected.");
           on_actionFT8_triggered();
         }
     }
@@ -2933,7 +2933,6 @@ void MainWindow::decode()                                       //decode()
   QString hisGrid {ui->dxGridEntry->text ()};
   memcpy(dec_data.params.hiscall,(hisCall + "            ").toLatin1 ().constData (), sizeof dec_data.params.hiscall);
   memcpy(dec_data.params.hisgrid,(hisGrid + "      ").toLatin1 ().constData (), sizeof dec_data.params.hisgrid);
-  memcpy(dec_data.params.cqstr,(m_cqStr + "      ").toLatin1 ().constData (), sizeof dec_data.params.cqstr);
 
   //newdat=1  ==> this is new data, must do the big FFT
   //nagain=1  ==> decode only at fQSO +/- Tol
@@ -3961,7 +3960,8 @@ void MainWindow::guiUpdate()
     if(ui->txrb1->isEnabled() and 
        (SpecOp::NA_VHF==m_config.special_op_id() or 
         SpecOp::FIELD_DAY==m_config.special_op_id() or 
-        SpecOp::RTTY==m_config.special_op_id()) ) { 
+        SpecOp::RTTY==m_config.special_op_id() or 
+        SpecOp::WW_DIGI==m_config.special_op_id()) ) { 
       //We're in a contest-like mode other than EU_VHF: start QSO with Tx2.
       ui->tx1->setEnabled(false);
       ui->txb1->setEnabled(false);
@@ -4576,7 +4576,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
            or bEU_VHF_w2 or (m_QSOProgress==CALLING))) {
 
       if(message_words.at(3).contains(grid_regexp) and SpecOp::EU_VHF!=m_config.special_op_id()) {
-        if(SpecOp::NA_VHF==m_config.special_op_id()){
+        if(SpecOp::NA_VHF==m_config.special_op_id() or SpecOp::WW_DIGI==m_config.special_op_id()){
           gen_msg=setTxMsg(3);
           m_QSOProgress=ROGER_REPORT;
         } else {
@@ -4667,7 +4667,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
               ((r.toInt()>=-50 && r.toInt()<=49) or (r.toInt()>=529 && r.toInt()<=599))) {
           if(SpecOp::EU_VHF==m_config.special_op_id() or
              SpecOp::FIELD_DAY==m_config.special_op_id() or
-             SpecOp::RTTY==m_config.special_op_id()) {
+             SpecOp::RTTY==m_config.special_op_id()) { 
             gen_msg=setTxMsg(2);
             m_QSOProgress=REPORT;
           } else {
@@ -4940,10 +4940,8 @@ void MainWindow::genCQMsg ()
       if(SpecOp::NA_VHF == m_config.special_op_id())    m_cqStr="TEST";
       if(SpecOp::EU_VHF == m_config.special_op_id())    m_cqStr="TEST";
       if(SpecOp::FIELD_DAY == m_config.special_op_id()) m_cqStr="FD";
-      if(SpecOp::RTTY == m_config.special_op_id()) {
-        if(m_config.RTTY_Exchange()!="SCC")             m_cqStr="RU";
-        if(m_config.RTTY_Exchange()=="SCC")             m_cqStr="SCC";
-      }
+      if(SpecOp::RTTY == m_config.special_op_id())      m_cqStr="RU";
+      if(SpecOp::WW_DIGI == m_config.special_op_id())   m_cqStr="WW";
       if( tlist.at(1)==m_config.my_callsign() ) { 
          t="CQ " + m_cqStr + " " + tlist.at(1) + " " + tlist.at(2); 
       } else {
@@ -5044,8 +5042,9 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
         msgtype(t0a + my_grid, ui->tx1);
       }
       if(SpecOp::NA_VHF==m_config.special_op_id()) sent=my_grid;
+      if(SpecOp::WW_DIGI==m_config.special_op_id()) sent=my_grid;
       if(SpecOp::FIELD_DAY==m_config.special_op_id()) sent=m_config.Field_Day_Exchange();
-      if(SpecOp::RTTY==m_config.special_op_id()) {
+      if(SpecOp::RTTY==m_config.special_op_id()) { 
         sent=rst + m_config.RTTY_Exchange();
         QString t1=m_config.RTTY_Exchange();
         if(t1=="DX" or t1=="#") {
@@ -5547,6 +5546,10 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
         m_rptSent=m_xSent.split(" ").at(0);
         m_rptRcvd=m_xRcvd.split(" ").at(0);
         break;
+      case SpecOp::WW_DIGI:
+        m_xSent=m_config.my_grid().left(4);
+        m_xRcvd=m_hisGrid;
+        break;
       default: break;
     }
 
@@ -5593,8 +5596,7 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
   if(m_config.clear_DX () and SpecOp::HOUND != m_config.special_op_id()) clearDX ();
   m_dateTimeQSOOn = QDateTime {};
   auto special_op = m_config.special_op_id ();
-  if (SpecOp::NONE < special_op && special_op < SpecOp::FOX &&
-      m_config.RTTY_Exchange()!="SCC") {
+  if (SpecOp::NONE < special_op && special_op < SpecOp::FOX) { 
     ui->sbSerialNumber->setValue(ui->sbSerialNumber->value() + 1);
   }
 
@@ -5667,9 +5669,9 @@ void MainWindow::displayWidgets(qint64 n)
   ui->pbBestSP->setVisible(m_mode=="FT4");
   b=false;
   if(m_mode=="FT4" or m_mode=="FT8") {
-  b=SpecOp::EU_VHF==m_config.special_op_id() or (SpecOp::RTTY==m_config.special_op_id() and
-    (m_config.RTTY_Exchange()=="DX" or m_config.RTTY_Exchange()=="#" or
-     m_config.RTTY_Exchange()=="SCC"));
+  b=SpecOp::EU_VHF==m_config.special_op_id() or 
+    ( SpecOp::RTTY==m_config.special_op_id() and
+      (m_config.RTTY_Exchange()=="DX" or m_config.RTTY_Exchange()=="#") );
   }
   if(m_mode=="MSK144") b=SpecOp::EU_VHF==m_config.special_op_id();
   ui->sbSerialNumber->setVisible(b);
@@ -5804,6 +5806,7 @@ void MainWindow::on_actionFT8_triggered()
     if(SpecOp::EU_VHF==m_config.special_op_id()) t0+="EU VHF";
     if(SpecOp::FIELD_DAY==m_config.special_op_id()) t0+="Field Day";
     if(SpecOp::RTTY==m_config.special_op_id()) t0+="RTTY";
+    if(SpecOp::WW_DIGI==m_config.special_op_id()) t0+="WW_DIGI";
     if(t0=="") {
       ui->labDXped->setVisible(false);
     } else {
@@ -8780,6 +8783,7 @@ void MainWindow::chkFT4()
     if(SpecOp::EU_VHF==m_config.special_op_id()) t0+="EU VHF";
     if(SpecOp::FIELD_DAY==m_config.special_op_id()) t0+="Field Day";
     if(SpecOp::RTTY==m_config.special_op_id()) t0+="RTTY";
+    if(SpecOp::WW_DIGI==m_config.special_op_id()) t0+="WW_DIGI";
     if(t0=="") {
       ui->labDXped->setVisible(false);
     } else {
