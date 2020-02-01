@@ -31,12 +31,12 @@
     auto const& me = mo.enumerator (mo.indexOfEnumerator (#ENUM)); \
     if (buffer)								\
       {									\
-	v = static_cast<CLASS::ENUM> (me.keyToValue (buffer, &ok));	\
-	delete [] buffer;						\
+        v = static_cast<CLASS::ENUM> (me.keyToValue (buffer, &ok));	\
+        delete [] buffer;                                           \
       }									\
     if (!ok)								\
       {									\
-	v = static_cast<CLASS::ENUM> (me.value (0));			\
+        v = static_cast<CLASS::ENUM> (me.value (0));  \
       }									\
     return is;								\
   }
