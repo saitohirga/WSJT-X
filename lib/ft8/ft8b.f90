@@ -1,6 +1,6 @@
-subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
+subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,    &
      napwid,lsubtract,nagain,ncontest,iaptype,mycall12,hiscall12,             &
-     sync0,f1,xdt,xbase,apsym,nharderrors,dmin,nbadcrc,ipass,iera,msg37,xsnr)  
+     sync0,f1,xdt,xbase,apsym,aph10,nharderrors,dmin,nbadcrc,ipass,iera,msg37,xsnr)  
 
   use crc
   use timer_module, only: timer
@@ -17,7 +17,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   real llra(174),llrb(174),llrc(174),llrd(174)           !Soft symbols
   real dd0(15*12000)
   integer*1 message77(77),apmask(174),cw(174)
-  integer apsym(58)
+  integer apsym(58),aph10(10)
   integer mcq(29),mcqru(29),mcqfd(29),mcqtest(29),mcqww(29)
   integer mrrr(19),m73(19),mrr73(19)
   integer itone(NN)
@@ -44,7 +44,6 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
   data first/.true./
   data graymap/0,1,3,2,5,6,4,7/
   save nappasses,naptypes,ncontest0,one
-
 
   if(first.or.(ncontest.ne.ncontest0)) then
      mcq=2*mcq-1
@@ -88,7 +87,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
      ncontest0=ncontest
   endif
 
-  dxcall13=hiscall12
+  dxcall13=hiscall12  ! initialize for use in packjt77
   mycall13=mycall12
 
   max_iterations=30
@@ -223,7 +222,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
 !   1        regular decoding, nsym=1 
 !   2        regular decoding, nsym=2 
 !   3        regular decoding, nsym=3 
-!   4        ap pass 1, nsym=1 (for now?)
+!   4        ap pass 1, nsym=1
 !   5        ap pass 2
 !   6        ap pass 3
 !   7        ap pass 4
@@ -269,6 +268,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
         if(ncontest.eq.6) cycle                     ! No AP for Foxes
         if(ncontest.eq.7.and.f1.gt.950.0) cycle     ! Hounds use AP only for signals below 950 Hz
         if(iaptype.ge.2 .and. apsym(1).gt.1) cycle  ! No, or nonstandard, mycall 
+        if(ncontest.eq.7 .and. iaptype.ge.2 .and. aph10(1).gt.1) cycle
         if(iaptype.ge.3 .and. apsym(30).gt.1) cycle ! No, or nonstandard, dxcall
 
         if(iaptype.eq.1) then ! CQ or CQ RU or CQ TEST or CQ FD
@@ -314,9 +314,11 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
               apmask(75:77)=1 
               llrd(75)=apmag*(-1)
               llrd(76:77)=apmag*(+1)
-           else if(ncontest.eq.6) then ! ??? RR73; MyCall <???> ???
+           else if(ncontest.eq.7) then ! ??? RR73; MyCall <Fox Call hash10> ???
               apmask(29:56)=1  
               llrd(29:56)=apmag*apsym(1:28)
+              apmask(57:66)=1
+              llrd(57:66)=apmag*aph10(1:10)
               apmask(72:77)=1 
               llrd(72:73)=apmag*(-1)
               llrd(74)=apmag*(+1)
@@ -361,6 +363,8 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
            else if(ncontest.eq.7.and.iaptype.eq.4) then ! Hound listens for MyCall RR73;...
               apmask(1:28)=1
               llrd(1:28)=apmag*apsym(1:28)
+              apmask(57:66)=1
+              llrd(57:66)=apmag*aph10(1:10)
               apmask(72:77)=1
               llrd(72:73)=apmag*(-1)
               llrd(74)=apmag*(1)
@@ -377,7 +381,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,lapon,lapcqonly,  &
      dmin=0.0
      if(ndepth.eq.3 .and. nharderrors.lt.0) then
         ndeep=3
-        if(abs(nfqso-f1).le.napwid .or. abs(nftx-f1).le.napwid) then
+        if(abs(nfqso-f1).le.napwid .or. abs(nftx-f1).le.napwid .or. ncontest.eq.7) then
            ndeep=4  
         endif
         if(nagain) ndeep=5

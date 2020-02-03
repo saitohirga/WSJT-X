@@ -35,10 +35,8 @@ contains
   subroutine decode(this,callback,iwave,nQSOProgress,nfqso,nftx,newdat,  &
        nutc,nfa,nfb,ndepth,ncontest,nagain,lft8apon,lapcqonly, &
        napwid,mycall12,hiscall12,hisgrid6)
-!    use wavhdr
     use timer_module, only: timer
     include 'ft8/ft8_params.f90'
-!    type(hdr) h
 
     class(ft8_decoder), intent(inout) :: this
     procedure(ft8_decode_callback) :: callback
@@ -49,26 +47,21 @@ contains
     real dd(15*12000)
     logical, intent(in) :: lft8apon,lapcqonly,nagain
     logical newdat,lsubtract,ldupe
-    character*12 mycall12,hiscall12,mycall12_0
+    character*12 mycall12,hiscall12
     character*6 hisgrid6
     integer*2 iwave(15*12000)
-    integer apsym2(58)
+    integer apsym2(58),aph10(10)
     character datetime*13,msg37*37
 !   character message*22
     character*37 allmessages(100)
     integer allsnrs(100)
-    data mycall12_0/'dummy'/
-    save s,dd,mycall12_0
-
-    if(mycall12.ne.mycall12_0) then
-       mycall12_0=mycall12
-    endif
+    save s,dd
 
     this%callback => callback
     write(datetime,1001) nutc        !### TEMPORARY ###
 1001 format("000000_",i6.6)
 
-    call ft8apset(mycall12,hiscall12,apsym2)
+    call ft8apset(mycall12,hiscall12,ncontest,apsym2,aph10)
     dd=iwave
     ndecodes=0
     allmessages='                                     '
@@ -110,11 +103,10 @@ contains
         f1=candidate(1,icand)
         xdt=candidate(2,icand)
         xbase=10.0**(0.1*(sbase(nint(f1/3.125))-40.0))
-        nsnr0=min(99,nint(10.0*log10(sync) - 25.5))    !### empirical ###
         call timer('ft8b    ',0)
         call ft8b(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,lft8apon,      &
              lapcqonly,napwid,lsubtract,nagain,ncontest,iaptype,mycall12,   &
-             hiscall12,sync,f1,xdt,xbase,apsym2,nharderrors,dmin,           &
+             hiscall12,sync,f1,xdt,xbase,apsym2,aph10,nharderrors,dmin,     &
              nbadcrc,iappass,iera,msg37,xsnr)
         call timer('ft8b    ',1)
         nsnr=nint(xsnr) 

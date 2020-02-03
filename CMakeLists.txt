@@ -468,8 +468,6 @@ set (wsjt_FSRCS
   lib/ft8/ft8b.f90
   lib/ft8/ft8code.f90
   lib/ft8/ft8_downsample.f90
-  lib/ft8.f90
-  lib/ft8dec.f90
   lib/ft8/ft8sim_fsk.f90
   lib/ft8/ft8sim.f90
   lib/gen4.f90
