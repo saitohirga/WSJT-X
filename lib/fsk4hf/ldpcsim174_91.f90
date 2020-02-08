@@ -1,6 +1,5 @@
 program ldpcsim174_91
 ! End to end test of the (174,91)/crc14 encoder and decoder.
-use crc
 use packjt77
 
 integer, parameter:: N=174, K=91, M=N-K
@@ -52,7 +51,7 @@ allocate ( rxdata(N), llr(N) )
   i3=0
   n3=1
   call pack77(msg,i3,n3,c77) !Pack into 12 6-bit bytes
-  call unpack77(c77,msgsent,unpk77_success) !Unpack to get msgsent
+  call unpack77(c77,1,msgsent,unpk77_success) !Unpack to get msgsent
   write(*,*) "message sent ",msgsent
 
   read(c77,'(77i1)') msgbits(1:77)
@@ -120,8 +119,7 @@ do idb = 20,-10,-1
     nsumerr=nsumerr+nerr
   enddo
 
-  baud=12000/1920
-  snr2500=db+10.0*log10((baud/2500.0))
+  snr2500=db+10.0*log10(rate/(2500*0.16/3))
   pberr=real(nsumerr)/(real(ntrials*N))
   write(*,"(f4.1,4x,f5.1,1x,i8,1x,i8,8x,f5.2,8x,e10.3)") db,SNR2500,ngood,nue,ss,pberr
 
