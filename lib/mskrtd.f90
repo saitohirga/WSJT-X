@@ -144,6 +144,7 @@ subroutine mskrtd(id2,nutc0,tsec,ntol,nrxfreq,ndepth,mycall,mygrid,hiscall,   &
   npat=NPATTERNS
   if( ndepth .eq. 1 ) npat=0
   if( ndepth .eq. 2 ) npat=2
+  doosd=.false.
   if( ntol .le. 50 ) doosd = .true.
   do iavg=1,npat
      iavmask=iavpatterns(1:8,iavg)

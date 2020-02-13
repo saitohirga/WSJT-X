@@ -31,7 +31,7 @@ subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret,navg,ct,   &
   real tpat(NPATTERNS)
   real*8 dt, df, fs, pi, twopi
   logical first
-  logical doosd
+  logical*1 doosd
   data first/.true./
   data navpatterns/ &
        0,1,0, &
@@ -44,7 +44,9 @@ subroutine msk144spd(cbig,n,ntol,nsuccess,msgreceived,fc,fret,tret,navg,ct,   &
 
   save df,first,fs,pi,twopi,dt,tframe,rcw
 
+  doosd=.false.
   if( ntol .le. 50 ) doosd = .true.
+
   if(first) then
      nmatchedfilter=1
 ! define half-sine pulse and raised-cosine edge window

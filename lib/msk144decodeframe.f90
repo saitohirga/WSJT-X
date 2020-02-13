@@ -14,7 +14,8 @@ subroutine msk144decodeframe(c,softbits,msgreceived,nsuccess,doosd)
   real pp(12)
   real softbits(144)
   real llr(128)
-  logical first,unpk77_success,doosd
+  logical first,unpk77_success
+  logical*1 doosd
   data first/.true./
   data s8/0,1,1,1,0,0,1,0/
   save first,cb,fs,pi,twopi,dt,s8,pp
@@ -95,8 +96,9 @@ subroutine msk144decodeframe(c,softbits,msgreceived,nsuccess,doosd)
   max_iterations=10
 !  call timer('bpdec128_90 ',0)
   apmask=0
+  dmin=0.0
   call bpdecode128_90(llr,apmask,max_iterations,decoded77,cw,nharderror,niterations)
-  if(doosd .and. nharderror .lt. 0) call osd128_90(llr,apmask,3,decoded77,cw,nharderror,dmin)
+!  if(doosd .and. nharderror .lt. 0) call osd128_90(llr,apmask,3,decoded77,cw,nharderror,dmin)
 !  call timer('bpdec128_90 ',1)
   if( nharderror .ge. 0 .and. nharderror .lt. 18 ) then
     nsuccess=1
@@ -106,6 +108,7 @@ subroutine msk144decodeframe(c,softbits,msgreceived,nsuccess,doosd)
         nsuccess=0 
     else 
         call unpack77(c77,1,msgreceived,unpk77_success)
+!if(unpk77_success) write(*,*) msgreceived,nharderror,dmin,nbadsync1,nbadsync2
         if(.not.unpk77_success) nsuccess=0
     endif
   endif
