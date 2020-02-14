@@ -14,6 +14,7 @@ subroutine jt9a()
      end function address_jt9
   end interface
 
+  integer*2 id2a(180000)
   integer*1 attach_jt9
 !  integer*1 lock_jt9,unlock_jt9
   integer size_jt9
@@ -61,6 +62,16 @@ subroutine jt9a()
   local_params=shared_data%params !save a copy because wsjtx carries on accessing
   call flush(6)
   call timer('decoder ',0)
+  if(local_params%nmode.eq.8 .and. local_params%ndiskdat) then
+! "Early" decoding pass for data read from disk: FT8 only
+     nearly=35
+     local_params%nzhsym=nearly
+     id2a(1:nearly*3456)=shared_data%id2(1:nearly*3456)
+     id2a(nearly*3456+1:)=0
+     call multimode_decoder(shared_data%ss,id2a,local_params,12000)
+     local_params%nzhsym=50
+  endif
+! Normal decoding pass
   call multimode_decoder(shared_data%ss,shared_data%id2,local_params,12000)
   call timer('decoder ',1)
 
