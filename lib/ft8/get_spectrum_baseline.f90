@@ -35,8 +35,8 @@ subroutine get_spectrum_baseline(dd,nfa,nfb,sbase)
      savg=savg + s(1:NH1,j)                   !Average spectrum
   enddo
 
-  if(nfa.lt.nint(200.0)) nfa=nint(200.0)
-  if(nfb.gt.nint(4910.0)) nfb=nint(4910.0)
+  if(nfa.lt.100) nfa=100
+  if(nfb.gt.4910) nfb=4910
   call baseline(savg,nfa,nfb,sbase)
 
 return
