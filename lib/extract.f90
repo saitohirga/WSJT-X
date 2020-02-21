@@ -209,7 +209,7 @@ subroutine extract(s3,nadd,mode65,ntrials,naggressive,ndepth,nflip,     &
        tmp(i)=correct(64-i)
      enddo
      correct(1:63)=tmp(1:63)
-     call interleave63(correct,63,1)
+     call interleave63(correct,1)
      call graycode65(correct,63,1)
      call unpackmsg(dat4,decoded)     !Unpack the user message
      ncount=0
