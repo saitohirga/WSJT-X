@@ -77,7 +77,7 @@ contains
     endif
     if(nzhsym.eq.50 .and. ndec_early.ge.1) then
        do i=1,ndec_early
-          call subtractft8(dd,itone_save(1,i),f1_save(i),xdt_save(i))
+          call subtractft8(dd,itone_save(1,i),f1_save(i),xdt_save(i),.true.)
        enddo
     endif
     ifa=nfa
