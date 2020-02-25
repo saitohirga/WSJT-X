@@ -110,11 +110,12 @@ elseif(ndeep.eq.2) then
    npre1=1
    npre2=0
    nt=66
-   ntheta=16
+   ntheta=22
+   ntau = 16
 elseif(ndeep.eq.3) then
-   nord=2
+   nord=1
    npre1=1
-   npre2=0
+   npre2=1
    nt=66
    ntheta=22
    ntau=16
@@ -128,10 +129,10 @@ elseif(ndeep.eq.4) then
 elseif(ndeep.eq.5) then
    nord=3
    npre1=1
-   npre2=0
+   npre2=1
    nt=66
    ntheta=22
-   ntau=20
+   ntau=16
 endif
 
 do iorder=1,nord
