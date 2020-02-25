@@ -314,9 +314,7 @@ int unpk_(signed char *message, char *hashtab, char *loctab, char *call_loc_pow,
                // grid is only 4 chars even though this is a hashed callsign...
                //         isalpha(grid6[4]) && isalpha(grid6[5]) ) ) {
             noprint=1;
-        } else {
-            strncpy(loctab+ihash*5,grid6,4);
-        }
+        } 
         
         ihash=(n2-ntype-64)/128;
         if( strncmp(hashtab+ihash*13,"\0",1) != 0 ) {
