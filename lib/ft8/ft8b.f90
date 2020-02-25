@@ -418,7 +418,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,nzhsym,lapon,     &
      endif
      nbadcrc=0  ! If we get this far: valid codeword, valid (i3,n3), nonquirky message.
      call get_ft8_tones_from_77bits(message77,itone)
-     if(lsubtract) call subtractft8(dd0,itone,f1,xdt)
+     if(lsubtract) call subtractft8(dd0,itone,f1,xdt,.false.)
 !     write(21,3001) nzhsym,npasses,nqsoprogress,ipass,iaptype,lsubtract,   &
 !          f1,xdt,msg37(1:22); flush(21)
 !3001 format(5i3,L3,f7.1,f7.2,2x,a22)
