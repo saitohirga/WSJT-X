@@ -1308,9 +1308,6 @@ target_link_libraries (ft8code wsjt_fort wsjt_cxx)
 add_executable (ft4code lib/ft4/ft4code.f90 wsjtx.rc)
 target_link_libraries (ft4code wsjt_fort wsjt_cxx)
 
-add_executable (ft8 lib/ft8.f90 wsjtx.rc)
-target_link_libraries (ft8 wsjt_fort wsjt_cxx)
-
 add_executable (ft8sim_fsk lib/ft8/ft8sim_fsk.f90 wsjtx.rc)
 target_link_libraries (ft8sim_fsk wsjt_fort wsjt_cxx)
 
