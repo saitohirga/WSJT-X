@@ -1491,8 +1491,8 @@ void MainWindow::dataSink(qint64 frames)
       double f0m1500=m_dialFreqRxWSPR/1000000.0;   // + 0.000001*(m_BFO - 1500);
       t2.sprintf(" -f %.6f ",f0m1500);
       if((m_ndepth&7)==1) depth_string=" -qB "; //2 pass w subtract, no Block detection, no shift jittering
-      if((m_ndepth&7)==2) depth_string=" -B ";  //2 pass w subtract, no Block detection
-      if((m_ndepth&7)==3) depth_string=" -C 5000 -o 4";   //2 pass w subtract, Block detection and OSD. 
+      if((m_ndepth&7)==2) depth_string=" -C 500 -o 4 ";  //3 pass, subtract, Block detection, OSD 
+      if((m_ndepth&7)==3) depth_string=" -C 500 -o 4 -d ";  //3 pass, subtract, Block detect, OSD, more candidates 
       QString degrade;
       degrade.sprintf("-d %4.1f ",m_config.degrade());
 
