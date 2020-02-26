@@ -37,15 +37,13 @@ subroutine subtractft8(dd0,itone,f0,dt,ldt)
      first=.false.
   endif
 
-! Generate complex reference waveform
+! Generate complex reference waveform cref
   call gen_ft8wave(itone,79,1920,2.0,12000.0,f0,cref,xjunk,1,NFRAME)
 
-  if(ldt) then                          !Are we refining DT ?
+  if(ldt) then                         !Are we refining DT ?
      sqa=sqf(-300)
      sqb=sqf(300)
-  endif
-  sq0=sqf(0)                           !Do the subtraction with idt=0
-  if(ldt) then
+     sq0=sqf(0)                        !Do the subtraction with idt=0
      call peakup(sqa,sq0,sqb,dx)
      if(abs(dx).gt.1.0) return         !No acceptable minimum: do not subtract
      i1=nint(300.0*dx)                 !First approximation of best idt
@@ -56,9 +54,10 @@ subroutine subtractft8(dd0,itone,f0,dt,ldt)
      if(abs(dx).gt.1.0) return         !No acceptable minimum: do not subtract
      i2=nint(60.0*dx) + i1             !Best estimate of idt
      sq0=sqf(i2)                       !Do the subtraction with idt=i2
+  else
+     sq0=sqf(0)                        !Do the subtraction with idt=0
   endif
   dd0=dd                               !Return dd0 with this signal subtracted
-
   return
 
 contains
