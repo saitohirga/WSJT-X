@@ -738,7 +738,7 @@ int main(int argc, char *argv[])
     char timer_fname[200],hash_fname[200];
     char uttime[5],date[7];
     int c,delta,maxpts=65536,verbose=0,quickmode=0,more_candidates=0, stackdecoder=0;
-    int writenoise=0,usehashtable=1,wspr_type=2, ipass, nblocksize;
+    int usehashtable=1,wspr_type=2, ipass, nblocksize;
     int nhardmin,ihash;
     int writec2=0,maxdrift;
     int shift1, lagmin, lagmax, lagstep, ifmin, ifmax, not_decoded;
@@ -1490,12 +1490,13 @@ int main(int argc, char *argv[])
                decodes[i].time, decodes[i].snr,decodes[i].dt, decodes[i].freq,
                (int)decodes[i].drift, decodes[i].message);
         fprintf(fall_wspr,
-                "%6s %4s %4d %3.0f %5.2f %11.7f  %-22s %2d %2d %2d %4d %2d %4d %5u %5d\n",
-                decodes[i].date, decodes[i].time, (int)(100*decodes[i].sync),
-                decodes[i].snr, decodes[i].dt, decodes[i].freq,
-                decodes[i].message, (int)decodes[i].drift, decodes[i].ipass,
-                decodes[i].blocksize,decodes[i].jitter,decodes[i].decodetype,
-                decodes[i].nhardmin,decodes[i].cycles/81,decodes[i].metric);
+                "%6s %4s %3.0f %5.2f %11.7f  %-22s %2d %5.2f %2d %2d %4d %2d %3d %5u %5d\n",
+                decodes[i].date, decodes[i].time, decodes[i].snr,
+                decodes[i].dt, decodes[i].freq, decodes[i].message,
+                (int)decodes[i].drift, decodes[i].sync,
+                decodes[i].ipass+1,decodes[i].blocksize,decodes[i].jitter,
+                decodes[i].decodetype,decodes[i].nhardmin,decodes[i].cycles/81,
+                decodes[i].metric);
         fprintf(fwsprd,
                 "%6s %4s %3d %3.0f %4.1f %10.6f  %-22s %2d %5u %4d\n",
                 decodes[i].date, decodes[i].time, (int)(10*decodes[i].sync),
@@ -1563,6 +1564,5 @@ int main(int argc, char *argv[])
         free(stack);
     }
     
-    if(writenoise == 999) return -1;  //Silence compiler warning
     return 0;
 }
