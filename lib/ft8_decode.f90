@@ -76,9 +76,11 @@ contains
        ndecodes=ndec_early
     endif
     if(nzhsym.eq.50 .and. ndec_early.ge.1) then
+       call timer('sub_ft8a',0)
        do i=1,ndec_early
           call subtractft8(dd,itone_save(1,i),f1_save(i),xdt_save(i),.true.)
        enddo
+       call timer('sub_ft8a',1)
     endif
     ifa=nfa
     ifb=nfb
