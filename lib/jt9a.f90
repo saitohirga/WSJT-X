@@ -64,7 +64,7 @@ subroutine jt9a()
   call timer('decoder ',0)
   if(local_params%nmode.eq.8 .and. local_params%ndiskdat) then
 ! "Early" decoding pass for data read from disk: FT8 only
-     nearly=35
+     nearly=41
      local_params%nzhsym=nearly
      id2a(1:nearly*3456)=shared_data%id2(1:nearly*3456)
      id2a(nearly*3456+1:)=0

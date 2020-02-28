@@ -304,7 +304,7 @@ program jt9
      if(mode.eq.9 .and. fsplit.ne.2700) shared_data%params%nfa=fsplit
      if(mode.eq.8) then
 ! "Early" decoding pass, FT8 only
-        nearly=35
+        nearly=41
         shared_data%params%nzhsym=nearly
         id2a(1:nearly*3456)=shared_data%id2(1:nearly*3456)
         id2a(nearly*3456+1:)=0
