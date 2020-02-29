@@ -85,7 +85,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 
   if(params%nmode.eq.8) then
 ! We're in FT8 mode
-     
+
      if(ncontest.eq.6) then
 ! Fox mode: initialize and open houndcallers.txt     
         inquire(file=trim(temp_dir)//'/houndcallers.txt',exist=ex)
@@ -276,9 +276,12 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 ! JT65 is not yet producing info for nsynced, ndecoded.
 800 ndecoded = my_jt4%decoded + my_jt65%decoded + my_jt9%decoded +       &
          my_ft8%decoded + my_ft4%decoded
-  write(*,1010) nsynced,ndecoded
+  if(params%nmode.ne.8 .or. params%nzhsym.ge.48 .or.                     &
+       .not.params%ndiskdat) then
+     write(*,1010) nsynced,ndecoded
 1010 format('<DecodeFinished>',2i4)
-  call flush(6)
+     call flush(6)
+  endif
   close(13)
   if(ncontest.eq.6) close(19)
   if(params%nmode.eq.4 .or. params%nmode.eq.65) close(14)
