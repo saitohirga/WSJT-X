@@ -436,9 +436,6 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,nzhsym,lapon,     &
         call subtractft8(dd0,itone,f1,xdt,.false.)
         call timer('sub_ft8b',1)
      endif
-!     write(21,3001) nzhsym,npasses,nqsoprogress,ipass,iaptype,lsubtract,   &
-!          f1,xdt,msg37(1:22); flush(21)
-!3001 format(5i3,L3,f7.1,f9.4,2x,a22)
      xsig=0.0
      xnoi=0.0
      do i=1,79

@@ -68,14 +68,15 @@ contains
 
     call ft8apset(mycall12,hiscall12,ncontest,apsym2,aph10)
     dd=iwave
-    if(nzhsym.lt.50) then
+    if(nzhsym.eq.41) then
        ndecodes=0
        allmessages='                                     '
        allsnrs=0
     else
        ndecodes=ndec_early
     endif
-    if(nzhsym.eq.50 .and. ndec_early.ge.1) then
+    if(nzhsym.gt.41 .and. ndec_early.ge.1) then
+!       print*,'AAA',nzhsym,ndec_early
        call timer('sub_ft8a',0)
        do i=1,ndec_early
           call subtractft8(dd,itone_save(1,i),f1_save(i),xdt_save(i),.true.)
@@ -156,6 +157,7 @@ contains
    enddo
    ndec_early=0
    if(nzhsym.lt.50) ndec_early=ndecodes
+!   print*,'BBB',nzhsym,ndecodes
    
   return
 end subroutine decode

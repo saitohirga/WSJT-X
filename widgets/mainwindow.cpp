@@ -1411,7 +1411,8 @@ void MainWindow::dataSink(qint64 frames)
     m_dialFreqRxWSPR=m_freqNominal;
   }
 
-  if(m_ihsym==m_hsymStop or (m_mode=="FT8" and m_ihsym==m_earlyDecode and !m_diskData)) {
+  if(m_ihsym==m_hsymStop or (m_mode=="FT8" and m_ihsym==m_earlyDecode and !m_diskData) or
+     (m_mode=="FT8" and m_ihsym==m_earlyDecode2 and !m_diskData)) {
     if(m_mode=="Echo") {
       float snr=0;
       int nfrit=0;
@@ -1449,10 +1450,11 @@ void MainWindow::dataSink(qint64 frames)
     dec_data.params.nagain=0;
     dec_data.params.nzhsym=m_hsymStop;
     if(m_mode=="FT8" and m_ihsym==m_earlyDecode and !m_diskData) dec_data.params.nzhsym=m_earlyDecode;
+    if(m_mode=="FT8" and m_ihsym==m_earlyDecode2 and !m_diskData) dec_data.params.nzhsym=m_earlyDecode2;
     QDateTime now {QDateTime::currentDateTimeUtc ()};
     m_dateTime = now.toString ("yyyy-MMM-dd hh:mm");
     if(!m_mode.startsWith ("WSPR")) decode(); //Start decoder
-    if(m_mode=="FT8" and m_ihsym==m_earlyDecode and !m_diskData) return;
+    if(m_mode=="FT8" and !m_diskData and (m_ihsym==m_earlyDecode or m_ihsym==m_earlyDecode2)) return;
 
     if(!m_diskData) {                        //Always save; may delete later
       if(m_mode=="FT8" or m_mode=="FT4") {
@@ -2845,6 +2847,7 @@ void MainWindow::decode()                                       //decode()
       if(m_mode=="FT4") ms=1000.0*(2.0-m_TRperiod);
       //Adjust for FT8 early decode:
       if(m_mode=="FT8" and m_ihsym==m_earlyDecode and !m_diskData) ms+=(m_hsymStop-m_earlyDecode)*288;
+      if(m_mode=="FT8" and m_ihsym==m_earlyDecode2 and !m_diskData) ms+=(m_hsymStop-m_earlyDecode2)*288;
       QDateTime t=QDateTime::currentDateTimeUtc().addMSecs(ms);
       ihr=t.toString("hh").toInt();
       imin=t.toString("mm").toInt();
@@ -3045,14 +3048,16 @@ void MainWindow::decodeDone ()
   m_RxLog=0;
   m_blankLine=true;
   if(m_mode=="FT8" and dec_data.params.nzhsym==m_earlyDecode) m_blankLine=false;
+  if(m_mode=="FT8" and dec_data.params.nzhsym==m_earlyDecode2) m_blankLine=false;
   if(SpecOp::FOX == m_config.special_op_id()) houndCallers();
+  qDebug() << "cc" << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz") << "decodeDone()";
 }
 
 void MainWindow::readFromStdout()                             //readFromStdout
 {
   while(proc_jt9.canReadLine()) {
     auto line_read = proc_jt9.readLine ();
-//    qDebug() << "cc" << line_read;
+//    qDebug() << "aa" << line_read;
     if (auto p = std::strpbrk (line_read.constData (), "\n\r"))
       {
         // truncate before line ending chars
@@ -3066,6 +3071,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
     bool bAvgMsg=false;
     int navg=0;
     if(line_read.indexOf("<DecodeFinished>") >= 0) {
+//      qDebug() << "bb" << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz") << line_read;
       if(m_mode=="QRA64") m_wideGraph->drawRed(0,0);
       m_bDecoded = line_read.mid(20).trimmed().toInt() > 0;
       int mswait=750.0*m_TRperiod;

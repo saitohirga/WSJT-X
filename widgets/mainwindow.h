@@ -468,6 +468,7 @@ private:
   qint32  m_nSentFoxRrpt=0;    //Serial number for next R+rpt Hound will send to Fox
   qint32  m_kin0=0;
   qint32  m_earlyDecode=41;
+  qint32  m_earlyDecode2=47;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
