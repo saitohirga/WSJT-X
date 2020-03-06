@@ -44,15 +44,15 @@ contains
     real s(NH1,NHSYM)
     real sbase(NH1)
     real candidate(3,MAXCAND)
-    real dd(15*12000)
+    real dd(15*12000),dd1(15*12000)
     logical, intent(in) :: lft8apon,lapcqonly,nagain
     logical newdat,lsubtract,ldupe
+    logical lsubtracted(MAX_EARLY)
     character*12 mycall12,hiscall12
     character*6 hisgrid6
     integer*2 iwave(15*12000)
     integer apsym2(58),aph10(10)
     character datetime*13,msg37*37
-!   character message*22
     character*37 allmessages(100)
     integer allsnrs(100)
     integer itone(NN)
@@ -60,14 +60,14 @@ contains
     real f1_save(MAX_EARLY)
     real xdt_save(MAX_EARLY)
 
-    save s,dd,ndec_early,itone_save,f1_save,xdt_save
+    save s,dd,dd1,ndec_early,itone_save,f1_save,xdt_save,lsubtracted
 
     this%callback => callback
     write(datetime,1001) nutc        !### TEMPORARY ###
 1001 format("000000_",i6.6)
 
     call ft8apset(mycall12,hiscall12,ncontest,apsym2,aph10)
-    dd=iwave
+    if(nzhsym.le.47) dd=iwave
     if(nzhsym.eq.41) then
        ndecodes=0
        allmessages='                                     '
@@ -75,13 +75,29 @@ contains
     else
        ndecodes=ndec_early
     endif
-    if(nzhsym.gt.41 .and. ndec_early.ge.1) then
-!       print*,'AAA',nzhsym,ndec_early
-       call timer('sub_ft8a',0)
+    if(nzhsym.eq.47 .and. ndec_early.ge.1) then
+       lsubtracted=.false.
+       call timer('sub_ft8b',0)
        do i=1,ndec_early
+          if(xdt_save(i)-0.5.lt.0.396) then
+             call subtractft8(dd,itone_save(1,i),f1_save(i),xdt_save(i),.true.)
+             lsubtracted(i)=.true.
+          endif
+       enddo
+       call timer('sub_ft8b',1)
+       dd1=dd
+       go to 900
+    endif
+    if(nzhsym.eq.50 .and. ndec_early.ge.1) then
+       n=47*3456
+       dd(1:n)=dd1(1:n)
+       dd(n+1:)=iwave(n+1)
+       call timer('sub_ft8c',0)
+       do i=1,ndec_early
+          if(lsubtracted(i)) cycle
           call subtractft8(dd,itone_save(1,i),f1_save(i),xdt_save(i),.true.)
        enddo
-       call timer('sub_ft8a',1)
+       call timer('sub_ft8c',1)
     endif
     ifa=nfa
     ifb=nfb
@@ -159,7 +175,7 @@ contains
    if(nzhsym.lt.50) ndec_early=ndecodes
 !   print*,'BBB',nzhsym,ndecodes
    
-  return
+900 return
 end subroutine decode
 
 end module ft8_decode

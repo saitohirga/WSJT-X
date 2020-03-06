@@ -432,9 +432,9 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,nzhsym,lapon,     &
      nbadcrc=0  ! If we get this far: valid codeword, valid (i3,n3), nonquirky message.
      call get_ft8_tones_from_77bits(message77,itone)
      if(lsubtract) then
-        call timer('sub_ft8b',0)
+        call timer('sub_ft8a',0)
         call subtractft8(dd0,itone,f1,xdt,.false.)
-        call timer('sub_ft8b',1)
+        call timer('sub_ft8a',1)
      endif
      xsig=0.0
      xnoi=0.0
