@@ -47,7 +47,7 @@ subroutine subtractft8(dd0,itone,f0,dt,lrefinedt)
      sq0=sqf(0)
      call peakup(sqa,sq0,sqb,dx)
      if(abs(dx).gt.1.0) return         !No acceptable minimum: do not subtract
-     i2=nint(90.0*dx) + i1             !Best estimate of idt
+     i2=nint(90.0*dx)                  !Best estimate of idt
      ldt=.false.
      sq0=sqf(i2)                       !Do the subtraction with idt=i2
   else
