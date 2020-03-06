@@ -46,7 +46,7 @@ contains
     real candidate(3,MAXCAND)
     real dd(15*12000),dd1(15*12000)
     logical, intent(in) :: lft8apon,lapcqonly,nagain
-    logical newdat,lsubtract,ldupe
+    logical newdat,lsubtract,ldupe,lrefinedt
     logical lsubtracted(MAX_EARLY)
     character*12 mycall12,hiscall12
     character*6 hisgrid6
@@ -77,10 +77,12 @@ contains
     endif
     if(nzhsym.eq.47 .and. ndec_early.ge.1) then
        lsubtracted=.false.
+       lrefinedt=.true.
+       if(ndepth.le.2) lrefinedt=.false.
        call timer('sub_ft8b',0)
        do i=1,ndec_early
           if(xdt_save(i)-0.5.lt.0.396) then
-             call subtractft8(dd,itone_save(1,i),f1_save(i),xdt_save(i),.true.)
+             call subtractft8(dd,itone_save(1,i),f1_save(i),xdt_save(i),lrefinedt)
              lsubtracted(i)=.true.
           endif
        enddo
@@ -108,7 +110,7 @@ contains
 
 ! For now:
 ! ndepth=1: no subtraction, 1 pass, belief propagation only
-! ndepth=2: subtraction, 3 passes, belief propagation only
+! ndepth=2: subtraction, 3 passes, bp+osd (no subtract refinement) 
 ! ndepth=3: subtraction, 3 passes, bp+osd
     if(ndepth.eq.1) npass=1
     if(ndepth.ge.2) npass=3

@@ -405,7 +405,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,nzhsym,lapon,     &
           niterations)
      call timer('bpd174_91 ',1)
      dmin=0.0
-     if(ndepth.eq.3 .and. nharderrors.lt.0) then
+     if(ndepth.ge.2 .and. nharderrors.lt.0) then
         ndeep=3
         if(abs(nfqso-f1).le.napwid .or. abs(nftx-f1).le.napwid .or. ncontest.eq.7) then
            ndeep=4  
