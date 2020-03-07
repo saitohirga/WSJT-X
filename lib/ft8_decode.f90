@@ -93,7 +93,7 @@ contains
     if(nzhsym.eq.50 .and. ndec_early.ge.1) then
        n=47*3456
        dd(1:n)=dd1(1:n)
-       dd(n+1:)=iwave(n+1)
+       dd(n+1:)=iwave(n+1:)
        call timer('sub_ft8c',0)
        do i=1,ndec_early
           if(lsubtracted(i)) cycle
