@@ -3050,7 +3050,7 @@ void MainWindow::decodeDone ()
   if(m_mode=="FT8" and dec_data.params.nzhsym==m_earlyDecode) m_blankLine=false;
   if(m_mode=="FT8" and dec_data.params.nzhsym==m_earlyDecode2) m_blankLine=false;
   if(SpecOp::FOX == m_config.special_op_id()) houndCallers();
-  qDebug() << "cc" << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz") << "decodeDone()";
+//  qDebug() << "cc" << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz");
 }
 
 void MainWindow::readFromStdout()                             //readFromStdout
