@@ -2997,7 +2997,7 @@ void MainWindow::decode()                                       //decode()
         dec_data.params.mycall,dec_data.params.hiscall,8000,12,12)));
   } else {
     memcpy(to, from, qMin(mem_jt9->size(), size));
-    if(m_mode=="FT8") to_jt9(m_ihsym);                     //### TEMPORARY ? ###
+    if(m_mode=="FT8") to_jt9(m_ihsym);                //Send m_ihsym to jt9[.exe]
     QFile {m_config.temp_dir ().absoluteFilePath (".lock")}.remove (); // Allow jt9 to start
 
     auto now = QDateTime::currentDateTimeUtc();
@@ -3091,7 +3091,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
 {
   while(proc_jt9.canReadLine()) {
     auto line_read = proc_jt9.readLine ();
-//    qDebug() << "aa" << line_read;
     if (auto p = std::strpbrk (line_read.constData (), "\n\r"))
       {
         // truncate before line ending chars
@@ -3101,7 +3100,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
       //Pad 22-char msg to at least 37 chars
       line_read = line_read.left(43) + "               " + line_read.mid(43);
     }
-//    qint64 ms=QDateTime::currentMSecsSinceEpoch() - m_msec0;
     bool bAvgMsg=false;
     int navg=0;
     if(line_read.indexOf("<DecodeFinished>") >= 0) {

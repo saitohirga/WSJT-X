@@ -18,6 +18,7 @@ subroutine jt9a()
   integer*1 attach_jt9
 !  integer*1 lock_jt9,unlock_jt9
   integer size_jt9
+  integer itime(8)
 ! Multiple instances:
   character*80 mykey
   type(dec_data), pointer :: shared_data
@@ -40,6 +41,7 @@ subroutine jt9a()
   i1=attach_jt9()
   msdelay=10
 
+! Wait here until the .lock file is removed by GUI
 10 inquire(file=trim(temp_dir)//'/.lock',exist=fileExists)
   if(fileExists) then
      call sleep_msec(msdelay)
@@ -61,6 +63,12 @@ subroutine jt9a()
   endif
   call c_f_pointer(address_jt9(),shared_data)
   local_params=shared_data%params !save a copy because wsjtx carries on accessing
+  call date_and_time(values=itime)
+  write(71,3001) 'AA',local_params%nutc,itime(7)+0.001*itime(8),     &
+       nint(shared_data%ss(1,1)),local_params%nzhsym
+3001 format(a2,i8,f8.3,2i6)
+  flush(71)
+  
   call flush(6)
   call timer('decoder ',0)
   if(local_params%nmode.eq.8 .and. local_params%ndiskdat) then
@@ -79,9 +87,14 @@ subroutine jt9a()
   endif
 ! Normal decoding pass
   call multimode_decoder(shared_data%ss,shared_data%id2,local_params,12000)
-!  print*,'AAA',shared_data%ss(1,1)
   call timer('decoder ',1)
 
+  call date_and_time(values=itime)
+  write(71,3001) 'BB',local_params%nutc,itime(7)+0.001*itime(8),     &
+       nint(shared_data%ss(1,1)),local_params%nzhsym
+  flush(71)
+
+! Wait here until GUI routine decodeDone() has re-created the .lock file
 100 inquire(file=trim(temp_dir)//'/.lock',exist=fileExists)
   if(fileExists) go to 10
   call sleep_msec(msdelay)
