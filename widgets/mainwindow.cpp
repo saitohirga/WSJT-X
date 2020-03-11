@@ -1057,9 +1057,14 @@ void MainWindow::release_jt9 ()
     {
       if (!l.remove ())
         {
-          MessageBox::query_message (this
-                                     , tr ("Error removing \"%1\" - %2").arg (l.fileName ()).arg (l.errorString ())
-                                     , tr ("Click OK to retry"));
+          if (MessageBox::Cancel == MessageBox::query_message (this
+                                                               , tr ("IPC Error")
+                                                               , tr ("Error removing \"%1\" - %2").arg (l.fileName ()).arg (l.errorString ())
+                                                               , QString {}
+                                                               , MessageBox::Retry | MessageBox::Cancel))
+            {
+              break;
+            }
         }
     }
 }
@@ -1072,9 +1077,14 @@ void MainWindow::stop_jt9 ()
     {
       if (!q.open (QFile::ReadWrite))
         {
-          MessageBox::query_message (this
-                                     , tr ("Error creating \"%1\" - %2").arg (q.fileName ()).arg (q.errorString ())
-                                     , tr ("Click OK to retry"));
+          if (MessageBox::Cancel == MessageBox::query_message (this
+                                                               , tr ("IPC Error")
+                                                               , tr ("Error creating \"%1\" - %2").arg (q.fileName ()).arg (q.errorString ())
+                                                               , QString {}
+                                                               , MessageBox::Retry | MessageBox::Cancel))
+            {
+              break;
+            }
         }
     }
   release_jt9 ();
@@ -1086,9 +1096,14 @@ void MainWindow::stop_jt9 ()
     {
       if (!q.remove ())
         {
-          MessageBox::query_message (this
-                                     , tr ("Error removing \"%1\" - %2").arg (q.fileName ()).arg (q.errorString ())
-                                     , tr ("Click OK to retry"));
+          if (MessageBox::Cancel == MessageBox::query_message (this
+                                                               , tr ("IPC Error")
+                                                               , tr ("Error removing \"%1\" - %2").arg (q.fileName ()).arg (q.errorString ())
+                                                               , QString {}
+                                                               , MessageBox::Retry | MessageBox::Cancel))
+            {
+              break;
+            }
         }
     }
 }
