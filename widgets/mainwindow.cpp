@@ -3199,8 +3199,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
     bool bAvgMsg=false;
     int navg=0;
     if(line_read.indexOf("<DecodeFinished>") >= 0) {
-//      qDebug() << "bb" << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz") << line_read;
-      m_ndecodes=0;
+//       qDebug() << "bb" << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz") << line_read;
+      m_nDecodes=0;
       if(m_mode=="QRA64") m_wideGraph->drawRed(0,0);
       m_bDecoded =  line_read.mid(20).trimmed().toInt() > 0;
       auto tnow = QDateTime::currentDateTimeUtc ();
@@ -3220,8 +3220,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
       }
       return;
     } else {
-      m_ndecodes+=1;
-      ndecodes_label.setText(QString::number(m_ndecodes));
+      m_nDecodes+=1;
+      ndecodes_label.setText(QString::number(m_nDecodes));
       if(m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA64") {
         int n=line_read.indexOf("f");
         if(n<0) n=line_read.indexOf("d");
