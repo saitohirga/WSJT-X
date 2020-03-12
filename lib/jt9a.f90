@@ -39,7 +39,7 @@ subroutine jt9a()
   i0 = len(mykey)
   i0=setkey_jt9(trim(mykey))
   i1=attach_jt9()
-  msdelay=10
+  msdelay=1
 
 ! Wait here until the .lock file is removed by GUI
 10 inquire(file=trim(temp_dir)//'/.lock',exist=fileExists)
@@ -64,9 +64,12 @@ subroutine jt9a()
   call c_f_pointer(address_jt9(),shared_data)
   local_params=shared_data%params !save a copy because wsjtx carries on accessing
   call date_and_time(values=itime)
-  write(71,3001) 'AA',local_params%nutc,itime(7)+0.001*itime(8),     &
-       nint(shared_data%ss(1,1)),local_params%nzhsym
-3001 format(a2,i8,f8.3,2i6)
+  tsec=mod(itime(7)+0.001*itime(8),15.0)
+  if(tsec.lt.9.0) tsec=tsec+15.0
+  if(local_params%nzhsym.eq.41) write(71,3001) '        '
+  write(71,3001) 'AA Start',local_params%nzhsym,nint(shared_data%ss(1,1)), &
+       local_params%nutc,tsec
+3001 format(a8,2i6,i8,f8.3)
   flush(71)
   
   call flush(6)
@@ -90,8 +93,10 @@ subroutine jt9a()
   call timer('decoder ',1)
 
   call date_and_time(values=itime)
-  write(71,3001) 'BB',local_params%nutc,itime(7)+0.001*itime(8),     &
-       nint(shared_data%ss(1,1)),local_params%nzhsym
+  tsec=mod(itime(7)+0.001*itime(8),15.0)
+  if(tsec.lt.9.0) tsec=tsec+15.0
+  write(71,3001) 'CC Done ',local_params%nzhsym,nint(shared_data%ss(1,1)), &
+       local_params%nutc,tsec
   flush(71)
 
 ! Wait here until GUI routine decodeDone() has re-created the .lock file

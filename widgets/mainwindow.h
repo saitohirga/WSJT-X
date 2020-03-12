@@ -675,7 +675,6 @@ private:
   bool m_PwrBandSetOK;
   bool m_bVHFwarned;
   bool m_bDisplayedOnce;
-  bool m_bStart3=false;
   Frequency m_lastMonitoredFrequency;
   double m_toneSpacing;
   int m_firstDecode;

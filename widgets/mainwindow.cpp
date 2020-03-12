@@ -1508,15 +1508,6 @@ void MainWindow::dataSink(qint64 frames)
   if(m_mode=="FT8" and !m_diskData) {
     if(m_ihsym==m_earlyDecode) bCallDecoder=true;
     if(m_ihsym==m_earlyDecode2) bCallDecoder=true;
-    if(m_ihsym>m_hsymStop and !m_bStart3) {
-      auto now = QDateTime::currentDateTimeUtc();
-      double tseq = fmod(double(now.toMSecsSinceEpoch() ),1000.0*m_TRperiod)/1000.0;
-      if(tseq < 0.5*m_TRperiod) tseq+= m_TRperiod;
-      if(m_ihsym==m_earlyDecode) qDebug() << "";
-      qDebug() << "cc" << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz")
-               << tseq << m_ihsym << m_ndepth << from_jt9();
-      bCallDecoder=true;
-    }
   }
   if(bCallDecoder) {
     if(m_mode=="Echo") {
@@ -3096,7 +3087,6 @@ void MainWindow::decode()                                       //decode()
     memcpy(to, from, qMin(mem_jt9->size(), size));
     if(m_mode=="FT8") {
       to_jt9(m_ihsym);                //Send m_ihsym to jt9[.exe]
-      if(m_ihsym>=m_hsymStop) m_bStart3=true;
     }
     release_jt9 ();
 
@@ -3104,8 +3094,8 @@ void MainWindow::decode()                                       //decode()
     double tseq = fmod(double(now.toMSecsSinceEpoch() ),1000.0*m_TRperiod)/1000.0;
     if(tseq < 0.5*m_TRperiod) tseq+= m_TRperiod;
     if(m_ihsym==m_earlyDecode) qDebug() << "";
-    qDebug() << "aa" << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz")
-             << tseq << m_ihsym << m_ndepth << from_jt9();
+    qDebug() << "aa Start" << m_ihsym
+             << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz") << tseq;
     decodeBusy(true);
   }
 }
@@ -3157,7 +3147,6 @@ void MainWindow::to_jt9(qint32 n)
 {
   float ss0=n;
   memcpy((char*)mem_jt9->data(),&ss0,4);
-//  qDebug() << "cc" << ss0 << "sent to jt9";
 }
 qint32 MainWindow::from_jt9()
 {
@@ -3176,16 +3165,17 @@ void MainWindow::decodeDone ()
   decodeBusy(false);
   m_RxLog=0;
   m_blankLine=true;
-  if(m_mode=="FT8" and dec_data.params.nzhsym==m_earlyDecode) m_blankLine=false;
-  if(m_mode=="FT8" and dec_data.params.nzhsym==m_earlyDecode2) m_blankLine=false;
-  if(m_mode=="FT8" and m_bStart3) m_bStart3=false;
+  if(m_mode=="FT8") {
+    if(dec_data.params.nzhsym==m_earlyDecode) m_blankLine=false;
+    if(dec_data.params.nzhsym==m_earlyDecode2) m_blankLine=false;
+  }
   if(SpecOp::FOX == m_config.special_op_id()) houndCallers();
 
   auto now = QDateTime::currentDateTimeUtc();
   double tseq = fmod(double(now.toMSecsSinceEpoch() ),1000.0*m_TRperiod)/1000.0;
   if(tseq < 0.5*m_TRperiod) tseq+= m_TRperiod;
-  qDebug() << "bb" << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz")
-           << tseq << m_ihsym << from_jt9();
+  qDebug() << "bb Done " << m_ihsym
+           << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz") << tseq;
 }
 
 void MainWindow::readFromStdout()                             //readFromStdout

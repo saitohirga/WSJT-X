@@ -57,6 +57,7 @@ contains
     integer allsnrs(100)
     integer itone(NN)
     integer itone_save(NN,MAX_EARLY)
+    integer itime(8)
     real f1_save(MAX_EARLY)
     real xdt_save(MAX_EARLY)
 
@@ -162,19 +163,24 @@ contains
               xdt_save(ndecodes)=xdt+0.5
               itone_save(1:NN,ndecodes)=itone
            endif
-!           write(81,1004) nutc,ncand,icand,ipass,iaptype,iappass,        &
-!                nharderrors,dmin,hd,min(sync,999.0),nint(xsnr),          &
-!                xdt,nint(f1),msg37
-!1004          format(i6.6,2i4,3i2,i3,3f6.1,i4,f6.2,i5,2x,a37)
-!           flush(81)
            if(.not.ldupe .and. associated(this%callback)) then
               qual=1.0-(nharderrors+dmin)/60.0 ! scale qual to [0.0,1.0]
               call this%callback(sync,nsnr,xdt,f1,msg37,iaptype,qual)
            endif
         endif
-        if(nint(ss0).eq.45) go to 800         !Bail out before finishing
+        if(nzhsym.eq.41 .and. nint(ss0).ge.45) go to 700  !Bail out before done
+        if(nzhsym.eq.47 .and. nint(ss0).ge.48) go to 700  !Bail out before done
       enddo
    enddo
+   go to 800
+   
+700 call date_and_time(values=itime)
+   tsec=mod(itime(7)+0.001*itime(8),15.0)
+   if(tsec.lt.9.0) tsec=tsec+15.0
+   write(71,3001) 'BB Bail ',nzhsym,nint(ss0),nutc,tsec
+3001 format(a8,2i6,i8,f8.3)
+   flush(71)
+   
 800 ndec_early=0
    if(nzhsym.lt.50) ndec_early=ndecodes
    
