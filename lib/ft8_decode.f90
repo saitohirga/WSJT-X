@@ -181,8 +181,8 @@ contains
 700 call date_and_time(values=itime)
    tsec=mod(itime(7)+0.001*itime(8),15.0)
    if(tsec.lt.9.0) tsec=tsec+15.0
-   write(71,3001) 'BB Bail ',nzhsym,nint(ss0),nutc,tsec
-3001 format(a8,2i6,i8,f8.3)
+   write(71,3001) 'BB Bail ',nzhsym,nint(ss0),nutc,tsec,ndecodes
+3001 format(a8,2i6,i8,f8.3,i6)
    flush(71)
    
 800 ndec_early=0

@@ -35,6 +35,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   real ss(184,NSMAX)
   logical baddata,newdat65,newdat9,single_decode,bVHF,bad0,newdat,ex
   integer*2 id2(NTMAX*12000)
+  integer itime(8)
   type(params_block) :: params
   real*4 dd(NTMAX*12000)
   character(len=20) :: datetime
@@ -86,6 +87,15 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 
   if(params%nmode.eq.8) then
 ! We're in FT8 mode
+
+     call date_and_time(values=itime)
+     tsec=mod(itime(7)+0.001*itime(8),15.0)
+     if(tsec.lt.9.0) tsec=tsec+15.0
+     if(params%nzhsym.eq.41) write(71,3001) '        '
+     write(71,3001) 'AA Start',params%nzhsym,nint(ss(1,1)),           &
+          params%nutc,tsec
+3001 format(a8,2i6,i8,f8.3,i6)
+     flush(71)
 
      if(ncontest.eq.6) then
 ! Fox mode: initialize and open houndcallers.txt     
@@ -291,6 +301,13 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   close(13)
   if(ncontest.eq.6) close(19)
   if(params%nmode.eq.4 .or. params%nmode.eq.65) close(14)
+  
+  call date_and_time(values=itime)
+  tsec=mod(itime(7)+0.001*itime(8),15.0)
+  if(tsec.lt.9.0) tsec=tsec+15.0
+  write(71,3001) 'CC Done ',params%nzhsym,nint(ss(1,1)),                &
+       params%nutc,tsec,ndecoded
+  flush(71)
 
   return
 

@@ -62,16 +62,7 @@ subroutine jt9a()
      go to 999
   endif
   call c_f_pointer(address_jt9(),shared_data)
-  local_params=shared_data%params !save a copy because wsjtx carries on accessing
-  call date_and_time(values=itime)
-  tsec=mod(itime(7)+0.001*itime(8),15.0)
-  if(tsec.lt.9.0) tsec=tsec+15.0
-  if(local_params%nzhsym.eq.41) write(71,3001) '        '
-  write(71,3001) 'AA Start',local_params%nzhsym,nint(shared_data%ss(1,1)), &
-       local_params%nutc,tsec
-3001 format(a8,2i6,i8,f8.3)
-  flush(71)
-  
+  local_params=shared_data%params !save a copy because wsjtx carries on accessing  
   call flush(6)
   call timer('decoder ',0)
   if(local_params%nmode.eq.8 .and. local_params%ndiskdat) then
@@ -91,13 +82,6 @@ subroutine jt9a()
 ! Normal decoding pass
   call multimode_decoder(shared_data%ss,shared_data%id2,local_params,12000)
   call timer('decoder ',1)
-
-  call date_and_time(values=itime)
-  tsec=mod(itime(7)+0.001*itime(8),15.0)
-  if(tsec.lt.9.0) tsec=tsec+15.0
-  write(71,3001) 'CC Done ',local_params%nzhsym,nint(shared_data%ss(1,1)), &
-       local_params%nutc,tsec
-  flush(71)
 
 ! Wait here until GUI routine decodeDone() has re-created the .lock file
 100 inquire(file=trim(temp_dir)//'/.lock',exist=fileExists)
