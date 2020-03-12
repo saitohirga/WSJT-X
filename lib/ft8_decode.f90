@@ -91,6 +91,7 @@ contains
           endif
           if(.not.ldiskdat .and. nint(ss0).ge.49) then !Bail out before done
              call timer('sub_ft8b',1)
+             dd1=dd
              go to 700
           endif
        enddo
