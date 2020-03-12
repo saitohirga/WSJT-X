@@ -84,8 +84,13 @@ contains
        call timer('sub_ft8b',0)
        do i=1,ndec_early
           if(xdt_save(i)-0.5.lt.0.396) then
-             call subtractft8(dd,itone_save(1,i),f1_save(i),xdt_save(i),lrefinedt)
+             call subtractft8(dd,itone_save(1,i),f1_save(i),xdt_save(i),  &
+                  lrefinedt)
              lsubtracted(i)=.true.
+          endif
+          if(nzhsym.eq.47 .and. nint(ss0).ge.49) then !Bail out before done
+             call timer('sub_ft8b',1)
+             go to 700
           endif
        enddo
        call timer('sub_ft8b',1)
@@ -168,8 +173,7 @@ contains
               call this%callback(sync,nsnr,xdt,f1,msg37,iaptype,qual)
            endif
         endif
-        if(nzhsym.eq.41 .and. nint(ss0).ge.45) go to 700  !Bail out before done
-        if(nzhsym.eq.47 .and. nint(ss0).ge.48) go to 700  !Bail out before done
+        if(nzhsym.eq.41 .and. nint(ss0).ge.46) go to 700  !Bail out before done
       enddo
    enddo
    go to 800
