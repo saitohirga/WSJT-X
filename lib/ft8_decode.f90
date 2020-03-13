@@ -41,6 +41,7 @@ contains
     class(ft8_decoder), intent(inout) :: this
     procedure(ft8_decode_callback) :: callback
     parameter (MAXCAND=300,MAX_EARLY=100)
+    real*8 tsec
     real s(NH1,NHSYM)
     real sbase(NH1)
     real candidate(3,MAXCAND)
@@ -182,10 +183,15 @@ contains
    go to 800
    
 700 call date_and_time(values=itime)
-   tsec=mod(itime(7)+0.001*itime(8),15.0)
-   if(tsec.lt.9.0) tsec=tsec+15.0
-   write(71,3001) 'BB Bail ',nzhsym,nint(ss0),nutc,tsec,ndecodes
-3001 format(a8,2i6,i8,f8.3,i6)
+   tsec=3600.d0*(itime(5)-itime(4)/60.d0) + 60.d0*itime(6) +      &
+        itime(7) + 0.001d0*itime(8)
+   tsec=mod(tsec+2*86400.d0,86400.d0)
+   tseq=mod(itime(7)+0.001*itime(8),15.0)
+   if(tseq.lt.9.0) tseq=tseq+15.0
+   sec=itime(7)+0.001*itime(8)
+   write(71,3001) 'CC Bailout     ',tsec,nzhsym,nint(ss0),tseq,     &
+        itime(5)-itime(4)/60,itime(6),sec,ndecodes
+3001 format(a15,f11.3,2i6,f8.3,i4.2,':',i2.2,':',f6.3,i6)
    flush(71)
    
 800 ndec_early=0

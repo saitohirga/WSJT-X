@@ -3096,11 +3096,13 @@ void MainWindow::decode()                                       //decode()
     release_jt9 ();
 
     auto now = QDateTime::currentDateTimeUtc();
-    double tseq = fmod(double(now.toMSecsSinceEpoch() ),1000.0*m_TRperiod)/1000.0;
+    double tsec = fmod(double(now.toMSecsSinceEpoch()),86400000.0)/1000.0;
+    double tseq = fmod(double(now.toMSecsSinceEpoch()),1000.0*m_TRperiod)/1000.0;
     if(tseq < 0.5*m_TRperiod) tseq+= m_TRperiod;
     if(m_ihsym==m_earlyDecode) qDebug() << "";
-    qDebug() << "aa Start" << m_ihsym
-             << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz") << tseq;
+    QString t="";
+    t.sprintf("aa release_jt9 %11.3f %5d %5d %7.3f ",tsec,m_ihsym,m_ihsym,tseq);
+    qDebug().noquote() << t << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz");
     decodeBusy(true);
   }
 }
@@ -3177,10 +3179,13 @@ void MainWindow::decodeDone ()
   if(SpecOp::FOX == m_config.special_op_id()) houndCallers();
 
   auto now = QDateTime::currentDateTimeUtc();
+  double tsec = fmod(double(now.toMSecsSinceEpoch()),86400000.0)/1000.0;
   double tseq = fmod(double(now.toMSecsSinceEpoch() ),1000.0*m_TRperiod)/1000.0;
   if(tseq < 0.5*m_TRperiod) tseq+= m_TRperiod;
-  qDebug() << "bb Done " << m_ihsym
-           << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz") << tseq;
+  QString t="";
+  t.sprintf("ee decodeDone  %11.3f %5d %5d %7.3f ",tsec,m_ihsym,m_ihsym,tseq);
+
+  qDebug().noquote() << t << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz");
 }
 
 void MainWindow::readFromStdout()                             //readFromStdout

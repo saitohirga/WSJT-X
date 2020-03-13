@@ -38,6 +38,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   integer itime(8)
   type(params_block) :: params
   real*4 dd(NTMAX*12000)
+  real*8 tsec
   character(len=20) :: datetime
   character(len=12) :: mycall, hiscall
   character(len=6) :: mygrid, hisgrid
@@ -89,12 +90,16 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 ! We're in FT8 mode
 
      call date_and_time(values=itime)
-     tsec=mod(itime(7)+0.001*itime(8),15.0)
-     if(tsec.lt.9.0) tsec=tsec+15.0
+     tsec=3600.d0*(itime(5)-itime(4)/60.d0) + 60.d0*itime(6) +      &
+          itime(7) + 0.001d0*itime(8)
+     tsec=mod(tsec+2*86400.d0,86400.d0)
+     tseq=mod(itime(7)+0.001*itime(8),15.0)
+     if(tseq.lt.9.0) tseq=tseq+15.0
      if(params%nzhsym.eq.41) write(71,3001) '        '
-     write(71,3001) 'AA Start',params%nzhsym,nint(ss(1,1)),           &
-          params%nutc,tsec
-3001 format(a8,2i6,i8,f8.3,i6)
+     sec=itime(7)+0.001*itime(8)
+     write(71,3001) 'BB decoderStart',tsec,params%nzhsym,nint(ss(1,1)),tseq, &
+          itime(5)-itime(4)/60,itime(6),sec
+3001 format(a15,f11.3,2i6,f8.3,i4.2,':',i2.2,':',f6.3,i6)
      flush(71)
 
      if(ncontest.eq.6) then
@@ -303,10 +308,14 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   if(params%nmode.eq.4 .or. params%nmode.eq.65) close(14)
   
   call date_and_time(values=itime)
-  tsec=mod(itime(7)+0.001*itime(8),15.0)
-  if(tsec.lt.9.0) tsec=tsec+15.0
-  write(71,3001) 'CC Done ',params%nzhsym,nint(ss(1,1)),                &
-       params%nutc,tsec,ndecoded
+  tsec=3600.d0*(itime(5)-itime(4)/60.d0) + 60.d0*itime(6) +      &
+       itime(7) + 0.001d0*itime(8)
+  tsec=mod(tsec+2*86400.d0,86400.d0)
+  tseq=mod(itime(7)+0.001*itime(8),15.0)
+  if(tseq.lt.9.0) tseq=tseq+15.0
+  sec=itime(7)+0.001*itime(8)
+  write(71,3001) 'DD decoderEnd  ',tsec,params%nzhsym,nint(ss(1,1)),tseq,    &
+        itime(5)-itime(4)/60,itime(6),sec,ndecoded
   flush(71)
 
   return
