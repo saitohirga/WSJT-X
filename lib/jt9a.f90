@@ -16,7 +16,6 @@ subroutine jt9a()
 
   integer*2 id2a(180000)
   integer*1 attach_jt9
-!  integer*1 lock_jt9,unlock_jt9
   integer size_jt9
 ! Multiple instances:
   character*80 mykey
@@ -41,11 +40,14 @@ subroutine jt9a()
   call c_f_pointer(address_jt9(),shared_data)
 
 ! Wait here until GUI has set ss(2,1) to 1.0
-10 if(shared_data%ss(2,1).eq.999.0) then
+10 call lock_jt9()
+  if(shared_data%ss(2,1).eq.999.0) then
+     call unlock_jt9()
      i1=detach_jt9()
      go to 999
   endif
-   if(shared_data%ss(2,1).ne.1.0) then
+  if(shared_data%ss(2,1).ne.1.0) then
+     call unlock_jt9()
      call sleep_msec(msdelay)
      go to 10
   endif
@@ -53,11 +55,13 @@ subroutine jt9a()
 
   nbytes=size_jt9()
   if(nbytes.le.0) then
+     call unlock_jt9()
      print*,'jt9a: Shared memory mem_jt9 does not exist.'
      print*,"Must start 'jt9 -s <thekey>' from within WSJT-X."
      go to 999
   endif
   local_params=shared_data%params !save a copy because wsjtx carries on accessing  
+  call unlock_jt9()
   call flush(6)
   call timer('decoder ',0)
   if(local_params%nmode.eq.8 .and. local_params%ndiskdat) then
@@ -80,11 +84,14 @@ subroutine jt9a()
 
 
 ! Wait here until GUI routine decodeDone() has set ss(3,1) to 1.0
-100  if(shared_data%ss(3,1).ne.1.0) then
+100 call lock_jt9()
+  if(shared_data%ss(3,1).ne.1.0) then
+     call unlock_jt9()
      call sleep_msec(msdelay)
      go to 100
   endif
   shared_data%ss(3,1)=0.
+  call unlock_jt9()
   go to 10
   
 999 call timer('decoder ',101)

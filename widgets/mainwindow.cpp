@@ -3011,7 +3011,9 @@ void MainWindow::decode()                                       //decode()
         &narg[0],&m_TRperiod,&m_msg[0][0],
         dec_data.params.mycall,dec_data.params.hiscall,8000,12,12)));
   } else {
+    mem_jt9->lock ();
     memcpy(to, from, qMin(mem_jt9->size(), size));
+    mem_jt9->unlock ();
 
     auto now = QDateTime::currentDateTimeUtc();
     double tsec = fmod(double(now.toMSecsSinceEpoch()),86400000.0)/1000.0;
@@ -3072,11 +3074,13 @@ void::MainWindow::fast_decode_done()
 void MainWindow::to_jt9(qint32 n, qint32 istart, qint32 idone)
 {
   float ss0[3];
+  mem_jt9->lock ();
   memcpy(ss0,(char*)mem_jt9->data(),12);
   ss0[0]=n;
   if(istart>=0) ss0[1]=istart;
   if(idone>=0)  ss0[2]=idone;
   memcpy((char*)mem_jt9->data(),ss0,12);
+  mem_jt9->unlock ();
 }
 
 void MainWindow::decodeDone ()
