@@ -178,7 +178,7 @@ extern "C" {
 int volatile itone[NUM_ISCAT_SYMBOLS];   //Audio tones for all Tx symbols
 int volatile itone0[NUM_ISCAT_SYMBOLS];  //Dummy array, data not actually used
 int volatile icw[NUM_CW_SYMBOLS];        //Dits for CW ID
-struct dec_data dec_data;                // for sharing with Fortran
+dec_data_t dec_data;                // for sharing with Fortran
 
 int outBufSize;
 int rc;
@@ -3072,13 +3072,11 @@ void::MainWindow::fast_decode_done()
 
 void MainWindow::to_jt9(qint32 n, qint32 istart, qint32 idone)
 {
-  int ipc[3];
+  dec_data_t * dd = reinterpret_cast<dec_data_t *> (mem_jt9->data());
   mem_jt9->lock ();
-  memcpy(ipc,(char*)mem_jt9->data(),12);
-  ipc[0]=n;
-  if(istart>=0) ipc[1]=istart;
-  if(idone>=0)  ipc[2]=idone;
-  memcpy((char*)mem_jt9->data(),ipc,12);
+  dd->ipc[0]=n;
+  if(istart>=0) dd->ipc[1]=istart;
+  if(idone>=0)  dd->ipc[2]=idone;
   mem_jt9->unlock ();
 }
 

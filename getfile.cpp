@@ -20,6 +20,8 @@
 
 #include "commons.h"
 
+extern dec_data dec_data;
+
 void getfile(QString fname, int ntrperiod)
 {
   // struct WAVHDR {
