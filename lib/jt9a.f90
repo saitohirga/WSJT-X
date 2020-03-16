@@ -26,6 +26,7 @@ subroutine jt9a()
   call c_f_pointer(shmem_address(),shared_data)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ! Terminate if ipc(2) is 999
 10 call lock_jt9()
   if(shared_data%ipc(2).eq.999) then
@@ -36,6 +37,19 @@ subroutine jt9a()
 ! Wait here until GUI has set ipc(2) to 1
   if(shared_data%ipc(2).ne.1) then
      call unlock_jt9()
+=======
+! Wait here until GUI has set ips(2) to 1.0
+10 ok=shmem_lock()
+  if(.not.ok) call abort
+  if(shared_data%ipc(2).eq.999.0) then
+     ok=shmem_unlock()
+     ok=shmem_detach()
+     go to 999
+  endif
+  if(shared_data%ipc(2).ne.1.0) then
+     ok=shmem_unlock()
+     if(.not.ok) call abort
+>>>>>>> 488c2e8066c538e496ff5d7caf8655a065525976
 =======
 ! Wait here until GUI has set ips(2) to 1.0
 10 ok=shmem_lock()
@@ -90,17 +104,23 @@ subroutine jt9a()
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ! Wait here until GUI routine decodeDone() has set ipc(3) to 1
 100 call lock_jt9()
   if(shared_data%ipc(3).ne.1) then
      call unlock_jt9()
 =======
+=======
+>>>>>>> 488c2e8066c538e496ff5d7caf8655a065525976
 ! Wait here until GUI routine decodeDone() has set ipc(3) to 1.0
 100 ok=shmem_lock()
   if(.not.ok) call abort
   if(shared_data%ipc(3).ne.1.0) then
      ok=shmem_unlock()
      if(.not.ok) call abort
+<<<<<<< HEAD
+>>>>>>> 488c2e8066c538e496ff5d7caf8655a065525976
+=======
 >>>>>>> 488c2e8066c538e496ff5d7caf8655a065525976
      call sleep_msec(msdelay)
      go to 100
