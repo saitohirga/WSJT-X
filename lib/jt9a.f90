@@ -1,30 +1,17 @@
 subroutine jt9a()
-  use, intrinsic :: iso_c_binding, only: c_f_pointer
+  use, intrinsic :: iso_c_binding, only: c_f_pointer, c_null_char, c_bool
   use prog_args
   use timer_module, only: timer
   use timer_impl, only: init_timer !, limtrace
+  use shmem
 
   include 'jt9com.f90'
 
-! These routines connect the shared memory region to the decoder.
-  interface
-     function address_jt9()
-       use, intrinsic :: iso_c_binding, only: c_ptr
-       type(c_ptr) :: address_jt9
-     end function address_jt9
-  end interface
-
   integer*2 id2a(180000)
-  integer*1 attach_jt9
-  integer size_jt9
 ! Multiple instances:
-  character*80 mykey
-  type(dec_data), pointer :: shared_data
+  type(dec_data), pointer, volatile :: shared_data !also makes target volatile
   type(params_block) :: local_params
-  volatile shared_data
-
-! Multiple instances:
-  i0 = len(trim(shm_key))
+  logical(c_bool) :: ok
 
   call init_timer (trim(data_dir)//'/timer.out')
 !  open(23,file=trim(data_dir)//'/CALL3.TXT',status='unknown')
@@ -32,36 +19,39 @@ subroutine jt9a()
 !  limtrace=-1                            !Disable all calls to timer()
 
 ! Multiple instances: set the shared memory key before attaching
-  mykey=trim(repeat(shm_key,1))
-  i0 = len(mykey)
-  i0=setkey_jt9(trim(mykey))
-  i1=attach_jt9()
+  call shmem_setkey(trim(shm_key)//c_null_char)
+  ok=shmem_attach()
+  if(.not.ok) call abort
   msdelay=30
-  call c_f_pointer(address_jt9(),shared_data)
+  call c_f_pointer(shmem_address(),shared_data)
 
 ! Wait here until GUI has set ips(2) to 1.0
-10 call lock_jt9()
+10 ok=shmem_lock()
+  if(.not.ok) call abort
   if(shared_data%ipc(2).eq.999.0) then
-     call unlock_jt9()
-     i1=detach_jt9()
+     ok=shmem_unlock()
+     ok=shmem_detach()
      go to 999
   endif
   if(shared_data%ipc(2).ne.1.0) then
-     call unlock_jt9()
+     ok=shmem_unlock()
+     if(.not.ok) call abort
      call sleep_msec(msdelay)
      go to 10
   endif
   shared_data%ipc(2)=0
 
-  nbytes=size_jt9()
+  nbytes=shmem_size()
   if(nbytes.le.0) then
-     call unlock_jt9()
-     print*,'jt9a: Shared memory mem_jt9 does not exist.'
+     ok=shmem_unlock()
+     ok=shmem_detach()
+     print*,'jt9a: Shared memory does not exist.'
      print*,"Must start 'jt9 -s <thekey>' from within WSJT-X."
      go to 999
   endif
   local_params=shared_data%params !save a copy because wsjtx carries on accessing  
-  call unlock_jt9()
+  ok=shmem_unlock()
+  if(.not.ok) call abort
   call flush(6)
   call timer('decoder ',0)
   if(local_params%nmode.eq.8 .and. local_params%ndiskdat) then
@@ -87,14 +77,17 @@ subroutine jt9a()
 
 
 ! Wait here until GUI routine decodeDone() has set ipc(3) to 1.0
-100 call lock_jt9()
+100 ok=shmem_lock()
+  if(.not.ok) call abort
   if(shared_data%ipc(3).ne.1.0) then
-     call unlock_jt9()
+     ok=shmem_unlock()
+     if(.not.ok) call abort
      call sleep_msec(msdelay)
      go to 100
   endif
   shared_data%ipc(3)=0
-  call unlock_jt9()
+  ok=shmem_unlock()
+  if(.not.ok) call abort
   go to 10
   
 999 call timer('decoder ',101)

@@ -224,6 +224,7 @@ set (WSJT_QT_CONF_DESTINATION ${QT_CONF_DESTINATION} CACHE PATH "Path for the qt
 #
 set (wsjt_qt_CXXSRCS
   qt_helpers.cpp
+  lib/shmem.cpp
   widgets/MessageBox.cpp
   MetaDataRegistry.cpp
   Network/NetworkServerLookup.cpp
@@ -298,10 +299,6 @@ set (jt9_FSRCS
   lib/jt9a.f90
   )
 
-set (jt9_CXXSRCS
-  lib/ipcomm.cpp
-  )
-
 set (wsjtx_CXXSRCS
   logbook/logbook.cpp
   Network/psk_reporter.cpp
@@ -360,6 +357,7 @@ endif (WIN32)
 
 set (wsjt_FSRCS
   # put module sources first in the hope that they get rebuilt before use
+  lib/shmem.f90
   lib/crc.f90
   lib/fftw3mod.f90
   lib/hashing.f90
@@ -715,7 +713,6 @@ set (all_CXXSRCS
   ${wsjt_CXXSRCS}
   ${wsjt_qt_CXXSRCS}
   ${wsjt_qtmm_CXXSRCS}
-  ${jt9_CXXSRCS}
   ${wsjtx_CXXSRCS}
   ${qcp_CXXSRCS}
   )
@@ -1221,7 +1218,7 @@ add_executable (fcal lib/fcal.f90 wsjtx.rc)
 
 add_executable (fmeasure lib/fmeasure.f90 wsjtx.rc)
 
-add_executable (jt9 ${jt9_FSRCS} ${jt9_CXXSRCS} wsjtx.rc)
+add_executable (jt9 ${jt9_FSRCS} wsjtx.rc)
 if (${OPENMP_FOUND} OR APPLE)
   if (APPLE)
     # On  Mac  we don't  have  working  OpenMP  support in  the  C/C++
@@ -1254,7 +1251,7 @@ if (${OPENMP_FOUND} OR APPLE)
       LINK_FLAGS -Wl,--stack,16777216
       )
   endif ()
-  target_link_libraries (jt9 wsjt_fort_omp wsjt_cxx Qt5::Core)
+  target_link_libraries (jt9 wsjt_fort_omp wsjt_cxx wsjt_qt)
 else (${OPENMP_FOUND} OR APPLE)
   target_link_libraries (jt9 wsjt_fort wsjt_cxx Qt5::Core)
 endif (${OPENMP_FOUND} OR APPLE)

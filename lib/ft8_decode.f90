@@ -35,7 +35,10 @@ contains
   subroutine decode(this,callback,iwave,nQSOProgress,nfqso,nftx,newdat,  &
        nutc,nfa,nfb,nzhsym,ndepth,ncontest,nagain,lft8apon,lapcqonly,    &
        napwid,mycall12,hiscall12,hisgrid6,ipc1,ldiskdat)
+    use iso_c_binding, only: c_bool, c_int
     use timer_module, only: timer
+    use shmem, only: shmem_lock, shmem_unlock
+
     include 'ft8/ft8_params.f90'
 
     class(ft8_decoder), intent(inout) :: this
@@ -49,6 +52,7 @@ contains
     logical, intent(in) :: lft8apon,lapcqonly,nagain
     logical newdat,lsubtract,ldupe,lrefinedt
     logical*1 ldiskdat
+    integer(c_int), volatile, intent(inout) :: ipc1
     logical lsubtracted(MAX_EARLY)
     character*12 mycall12,hiscall12
     character*6 hisgrid6
@@ -62,9 +66,10 @@ contains
     integer itime(8)
     real f1_save(MAX_EARLY)
     real xdt_save(MAX_EARLY)
+    integer(c_int) :: ihsym
+    logical(c_bool) :: ok
 
     save s,dd,dd1,ndec_early,itone_save,f1_save,xdt_save,lsubtracted
-    volatile ipc1
 
     this%callback => callback
     write(datetime,1001) nutc        !### TEMPORARY ###
@@ -90,7 +95,12 @@ contains
                   lrefinedt)
              lsubtracted(i)=.true.
           endif
-          if(.not.ldiskdat .and. ipc1.ge.49) then !Bail out before done
+          ok=shmem_lock()
+          if(.not.ok) call abort
+          ihsym=ipc1                              !read latest from shared memory
+          ok=shmem_unlock()
+          if(.not.ok) call abort
+          if(.not.ldiskdat .and. ihsym.ge.49) then !Bail out before done
              call timer('sub_ft8b',1)
              dd1=dd
              go to 700
@@ -176,8 +186,13 @@ contains
               call this%callback(sync,nsnr,xdt,f1,msg37,iaptype,qual)
            endif
         endif
+        ok=shmem_lock()
+        if(.not.ok) call abort
+        ihsym=ipc1              !read latest from shared memory
+        ok=shmem_unlock()
+        if(.not.ok) call abort
         if(.not.ldiskdat .and. nzhsym.eq.41 .and.                        &
-             ipc1.ge.46) go to 700                 !Bail out before done
+             ihsym.ge.46) go to 700                 !Bail out before done
       enddo
    enddo
    go to 800
@@ -189,7 +204,7 @@ contains
    tseq=mod(itime(7)+0.001*itime(8),15.0)
    if(tseq.lt.9.0) tseq=tseq+15.0
    sec=itime(7)+0.001*itime(8)
-   write(71,3001) 'CC Bailout     ',tsec,nzhsym,ipc1,tseq,     &
+   write(71,3001) 'CC Bailout     ',tsec,nzhsym,ihsym,tseq,     &
         itime(5)-itime(4)/60,itime(6),sec,ndecodes
 3001 format(a15,f11.3,2i6,f8.3,i4.2,':',i2.2,':',f6.3,i6)
    flush(71)
