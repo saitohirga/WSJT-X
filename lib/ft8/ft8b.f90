@@ -261,7 +261,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,nzhsym,lapon,     &
   else
      npasses=4
   endif
-  if(nzhsym.lt.50) npasses=3
+  if(nzhsym.lt.50) npasses=4
   
   do ipass=1,npasses 
      llrz=llra
@@ -402,11 +402,11 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,nzhsym,lapon,     &
      cw=0
      call timer('bpd174_91 ',0)
      call bpdecode174_91(llrz,apmask,max_iterations,message77,cw,nharderrors,  &
-          niterations)
+          niterations,ncheck)
      call timer('bpd174_91 ',1)
      dmin=0.0
-     if(ndepth.ge.2 .and. nharderrors.lt.0) then
-        ndeep=3
+     if(nharderrors.lt.0 .and. ncheck.le.30 .and. ndepth.ge.2) then
+        ndeep=ndepth
         if(abs(nfqso-f1).le.napwid .or. abs(nftx-f1).le.napwid .or. ncontest.eq.7) then
            ndeep=4  
         endif

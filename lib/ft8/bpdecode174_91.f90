@@ -1,4 +1,4 @@
-subroutine bpdecode174_91(llr,apmask,maxiterations,message77,cw,nharderror,iter)
+subroutine bpdecode174_91(llr,apmask,maxiterations,message77,cw,nharderror,iter,ncheck)
 !
 ! A log-domain belief propagation decoder for the (174,91) code.
 !
@@ -76,6 +76,7 @@ do iter=0,maxiterations
 !    write(*,*) iter,ncheck,nd,ncnt
     if( ncnt .ge. 5 .and. iter .ge. 10 .and. ncheck .gt. 15) then
       nharderror=-1
+
       return
     endif
   endif

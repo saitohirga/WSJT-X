@@ -124,24 +124,26 @@ contains
     endif
 
 ! For now:
-! ndepth=1: no subtraction, 1 pass, belief propagation only
+! ndepth=1: subtraction, 3 passes, bp (no subtract refinement) 
 ! ndepth=2: subtraction, 3 passes, bp+osd (no subtract refinement) 
 ! ndepth=3: subtraction, 3 passes, bp+osd
-    if(ndepth.eq.1) npass=1
-    if(ndepth.ge.2) npass=3
+    npass=3
     do ipass=1,npass
       newdat=.true.
       syncmin=1.3
       if(ipass.eq.1) then
         lsubtract=.true.
-        if(ndepth.eq.1) lsubtract=.false.
+        ndeep=ndepth
+        if(ndepth.eq.3) ndeep=2
       elseif(ipass.eq.2) then
         n2=ndecodes
         if(ndecodes.eq.0) cycle
         lsubtract=.true.
+        ndeep=ndepth
       elseif(ipass.eq.3) then
         if((ndecodes-n2).eq.0) cycle
         lsubtract=.true. 
+        ndeep=3
       endif 
       call timer('sync8   ',0)
       maxc=MAXCAND
@@ -154,7 +156,7 @@ contains
         xdt=candidate(2,icand)
         xbase=10.0**(0.1*(sbase(nint(f1/3.125))-40.0))
         call timer('ft8b    ',0)
-        call ft8b(dd,newdat,nQSOProgress,nfqso,nftx,ndepth,nzhsym,lft8apon, &
+        call ft8b(dd,newdat,nQSOProgress,nfqso,nftx,ndeep,nzhsym,lft8apon, &
              lapcqonly,napwid,lsubtract,nagain,ncontest,iaptype,mycall12,   &
              hiscall12,sync,f1,xdt,xbase,apsym2,aph10,nharderrors,dmin,     &
              nbadcrc,iappass,iera,msg37,xsnr,itone)
@@ -165,7 +167,6 @@ contains
         if(nbadcrc.eq.0) then
            ldupe=.false.
            do id=1,ndecodes
-!              if(msg37.eq.allmessages(id).and.nsnr.le.allsnrs(id)) ldupe=.true.
               if(msg37.eq.allmessages(id)) ldupe=.true.
            enddo
            if(.not.ldupe) then
