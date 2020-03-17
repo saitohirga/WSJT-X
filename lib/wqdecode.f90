@@ -316,7 +316,7 @@ subroutine unpackpfx(ng,call1)
         endif
         n=n/37
      enddo
-     call1=pfx//'/'//call1
+     call1=pfx//'/'//call1(1:8)
      if(call1(1:1).eq.' ') call1=call1(2:)
      if(call1(1:1).eq.' ') call1=call1(2:)
   else

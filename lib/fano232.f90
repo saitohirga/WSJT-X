@@ -126,7 +126,7 @@ subroutine fano232(symbol,nbits,mettab,ndelta,maxcycles,dat,     &
   np=7
   do j=1,nbytes-1
      i4a=nstate(np)
-     dat(j)=i4a
+     dat(j)=int(i4a,1)
      np=np+8
   enddo
   dat(nbytes)=0
