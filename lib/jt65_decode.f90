@@ -94,6 +94,7 @@ contains
     save
 
     this%callback => callback
+    first_time=nrobust                !Silence compiler warning
     first_time=newdat
     dd=dd0
     ndecoded=0
@@ -101,12 +102,6 @@ contains
     if(nsubmode.ge.100) then
 ! This is QRA64 mode
        mode64=2**(nsubmode-100)
-!###
-!       open(60,file='qra64_data.bin',access='stream',position='append')
-!       write(60) dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
-!            mycall,hiscall,hisgrid
-!       close(60)
-!###
        call qra64a(dd,npts,nutc,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
             emedelay,mycall,hiscall,hisgrid,sync,nsnr,dtx,nfreq,decoded,nft)
        if (associated(this%callback)) then
@@ -228,7 +223,7 @@ contains
           freq=ca(icand)%freq
           if(bVHF) then
              flip=ca(icand)%flip
-             nflip=flip
+             nflip=int(flip)
           endif
           if(sync1.lt.float(minsync)) nflip=0
           if(ipass.eq.1) ntry65a=ntry65a + 1
@@ -282,7 +277,7 @@ contains
                      hiscall,hisgrid,nftt,avemsg,qave,deepave,nsum,ndeepave, &
                      nQSOProgress,ljt65apon)
                 nsmo=param(9)
-                nqave=qave
+                nqave=int(qave)
 
                 if (associated(this%callback) .and. nsum.ge.2) then
                    call this%callback(sync1,nsnr,dtx-1.0,nfreq,ndrift,  &
@@ -332,7 +327,7 @@ contains
                 dec(ndecoded)%dt=dtx
                 dec(ndecoded)%sync=sync2
                 dec(ndecoded)%decoded=decoded
-                nqual=min(qual,9999.0)
+                nqual=min(int(qual),9999)
 
                 if (associated(this%callback)) then
                    call this%callback(sync1,nsnr,dtx-1.0,nfreq,ndrift,  &

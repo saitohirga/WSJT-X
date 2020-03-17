@@ -27,10 +27,10 @@ subroutine afc65b(cx,npts,fsample,nflip,mode65,a,ccfbest,dtbest)
 !3081       format(7i4,5f8.2)
         enddo
      enddo
-     i1=a1-istep
-     i2=a1+istep
-     j1=a2-istep
-     j2=a2+istep
+     i1=int(a1)-istep
+     i2=int(a1)+istep
+     j1=int(a2)-istep
+     j2=int(a2)+istep
      istep=1
   enddo
   
