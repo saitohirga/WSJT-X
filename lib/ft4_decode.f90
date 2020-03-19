@@ -24,7 +24,7 @@ module ft4_decode
 contains
 
    subroutine decode(this,callback,iwave,nQSOProgress,nfqso,    &
-      nutc,nfa,nfb,ndepth,lapcqonly,ncontest,mycall,hiscall)
+      nfa,nfb,ndepth,lapcqonly,ncontest,mycall,hiscall)
       use timer_module, only: timer
       use packjt77
       include 'ft4/ft4_params.f90'
@@ -86,6 +86,8 @@ contains
 
       this%callback => callback
       hhmmss=cdatetime0(8:13)
+      smax1=0.
+      nd1=0
 
       if(first) then
          fs=12000.0/NDOWN                !Sample rate after downsampling
@@ -447,8 +449,6 @@ contains
                      nsnr=nint(max(-21.0,xsnr))
                      xdt=ibest/666.67 - 0.5
                      qual=1.0-(nharderror+dmin)/60.0 
-!write(21,'(i6.6,i5,2x,f4.1,i6,2x,a37,2x,f4.1,3i3,f5.1,i4,i4,i4,f6.2)') &
-!  nutc,nsnr,xdt,nint(f1),message,smax,iaptype,ipass,isp,dmin,nsync_qual,nharderror,iseg,qual
                      call this%callback(smax,nsnr,xdt,f1,message,iaptype,qual)
                      exit
                   endif

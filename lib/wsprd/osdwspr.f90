@@ -145,6 +145,7 @@ do iorder=1,nord
       else
          iend=1
       endif
+      d1=0.
       do n1=iflag,iend,-1
          mi=misub
          mi(n1)=1

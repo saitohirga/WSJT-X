@@ -12,8 +12,6 @@ program ft4sim
   complex c0(0:NMAX-1)
   complex c(0:NMAX-1)
   real wave(NMAX)
-  real dphi(0:NMAX-1)
-  real pulse(3*NSPS)               
   integer itone(NN)
   integer*1 msgbits(77)
   integer*2 iwave(NMAX)                  !Generated full-length waveform
