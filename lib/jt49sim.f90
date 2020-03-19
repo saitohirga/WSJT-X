@@ -56,6 +56,9 @@ program jt49sim
   h=default_header(12000,npts)
   dfsig=2000.0/nsigs                 !Freq spacing between sigs in file (Hz)
   ichk=0
+  nsym=0
+  dnsps=0.
+  baud=0.
 
   if(imode.eq.4) then
      nsym=206                           !Number of channel symbols (JT4)
@@ -102,8 +105,7 @@ program jt49sim
         phi=0.d0
         dphi=0.d0
         k=(xdt+1.0)*12000                   !Start audio at t = xdt + 1.0 s
-        isym0=-99
-        
+        isym0=-99        
         do i=1,npts                         !Add this signal into cdat()
            isym=i/dnsps + 1
            if(isym.gt.nsym) exit
