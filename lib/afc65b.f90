@@ -6,6 +6,8 @@ subroutine afc65b(cx,npts,fsample,nflip,mode65,a,ccfbest,dtbest)
   real a(5),deltaa(5)
 
   a=0.
+  a1=0.
+  a2=0.
   i2=8*mode65
   i1=-i2
   j2=8*mode65
