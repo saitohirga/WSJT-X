@@ -187,7 +187,7 @@ contains
 
        ncand=0
        call timer('sync65  ',0)
-       call sync65(nfa,nfb,naggressive,ntol,nqsym,ca,ncand,nrob,bVHF)
+       call sync65(nfa,nfb,ntol,nqsym,ca,ncand,nrob,bVHF)
        call timer('sync65  ',1)
 
 ! If a candidate was found within +/- ntol of nfqso, move it into ca(1).

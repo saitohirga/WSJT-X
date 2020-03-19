@@ -1,5 +1,4 @@
-subroutine sync65(nfa,nfb,naggressive,ntol,nqsym,ca,ncand,nrobust,   &
-     bVHF)
+subroutine sync65(nfa,nfb,ntol,nqsym,ca,ncand,nrobust,bVHF)
 
   parameter (NSZ=3413,NFFT=8192,MAXCAND=300)
   real ss(552,NSZ)
