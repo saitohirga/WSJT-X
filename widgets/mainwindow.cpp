@@ -94,9 +94,8 @@ extern "C" {
   void hspec_(short int d2[], int* k, int* nutc0, int* ntrperiod, int* nrxfreq, int* ntol,
               bool* bmsk144, bool* btrain, double const pcoeffs[], int* ingain,
               char mycall[], char hiscall[], bool* bshmsg, bool* bswl, char ddir[], float green[],
-              float s[], int* jh, float *pxmax, float *rmsNoGain, char line[], char mygrid[],
-              fortran_charlen_t, fortran_charlen_t, fortran_charlen_t, fortran_charlen_t,
-              fortran_charlen_t);
+              float s[], int* jh, float *pxmax, float *rmsNoGain, char line[],
+              fortran_charlen_t, fortran_charlen_t, fortran_charlen_t, fortran_charlen_t);
 
   void genft8_(char* msg, int* i3, int* n3, char* msgsent, char ft8msgbits[],
                int itone[], fortran_charlen_t, fortran_charlen_t);
@@ -1638,8 +1637,7 @@ void MainWindow::fastSink(qint64 frames)
   hspec_(dec_data.d2,&k,&nutc0,&nTRpDepth,&RxFreq,&ftol,&bmsk144,
          &m_bTrain,m_phaseEqCoefficients.constData(),&m_inGain,&dec_data.params.mycall[0],
          &dec_data.params.hiscall[0],&bshmsg,&bswl,
-         &ddir[0],fast_green,fast_s,&fast_jh,&pxmax,&rmsNoGain,&line[0],&dec_data.params.mygrid[0],
-         12,12,512,80,6);
+         &ddir[0],fast_green,fast_s,&fast_jh,&pxmax,&rmsNoGain,&line[0],12,12,512,80);
   float px = fast_green[fast_jh];
   QString t;
   t.sprintf(" Rx noise: %5.1f ",px);
