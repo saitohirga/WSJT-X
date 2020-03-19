@@ -1472,7 +1472,7 @@ void MainWindow::dataSink(qint64 frames)
     if(!m_mode.startsWith ("WSPR")) decode(); //Start decoder
     if(m_mode=="FT8" and !m_diskData and (m_ihsym==m_earlyDecode or m_ihsym==m_earlyDecode2)) return;
 
-    if(!m_diskData) {                        //Always save; may delete later
+    if(!m_diskData and (m_saveAll or m_saveDecoded)) {  //Always save unless "Save None"; may delete later
       if(m_mode=="FT8" or m_mode=="FT4") {
         int n=fmod(double(now.time().second()),m_TRperiod);
         if(n<(m_TRperiod/2)) n=n+m_TRperiod;
@@ -1685,7 +1685,7 @@ void MainWindow::fastSink(qint64 frames)
   }
 
   if(decodeNow or m_bFastDone) {
-    if(!m_diskData) {
+    if(!m_diskData and (m_saveAll or m_saveDecoded)) {
       QDateTime now {QDateTime::currentDateTimeUtc()};
       int n=fmod(double(now.time().second()),m_TRperiod);
       if(n<(m_TRperiod/2)) n=n+m_TRperiod;
@@ -3011,6 +3011,7 @@ void MainWindow::decode()                                       //decode()
     memcpy(to, from, qMin(mem_jt9->size(), size));
     mem_jt9->unlock ();
 
+/*
     auto now = QDateTime::currentDateTimeUtc();
     double tsec = fmod(double(now.toMSecsSinceEpoch()),86400000.0)/1000.0;
     double tseq = fmod(double(now.toMSecsSinceEpoch()),1000.0*m_TRperiod)/1000.0;
@@ -3019,6 +3020,8 @@ void MainWindow::decode()                                       //decode()
     QString t="";
     t.sprintf("aa release_jt9 %11.3f %5d %5d %7.3f ",tsec,m_ihsym,m_ihsym,tseq);
     qDebug().noquote() << t << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz");
+*/
+
     to_jt9(m_ihsym,1,-1);                //Send m_ihsym to jt9[.exe] and start decoding
     decodeBusy(true);
   }
@@ -3093,6 +3096,7 @@ void MainWindow::decodeDone ()
   }
   if(SpecOp::FOX == m_config.special_op_id()) houndCallers();
 
+/*
   auto now = QDateTime::currentDateTimeUtc();
   double tsec = fmod(double(now.toMSecsSinceEpoch()),86400000.0)/1000.0;
   double tseq = fmod(double(now.toMSecsSinceEpoch() ),1000.0*m_TRperiod)/1000.0;
@@ -3100,6 +3104,8 @@ void MainWindow::decodeDone ()
   QString t="";
   t.sprintf("ee decodeDone  %11.3f %5d %5d %7.3f ",tsec,m_ihsym,m_ihsym,tseq);
   qDebug().noquote() << t << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz");
+*/
+
   to_jt9(m_ihsym,-1,1);                //Tell jt9 we know it has finished
 }
 
@@ -3197,26 +3203,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
                m_logBook,m_currentBand,m_config.ppfx(),
                (ui->cbCQonly->isVisible() and ui->cbCQonly->isChecked()));
 
-/*
-//### TEST CODE
-          {
-            if(decodedtext0.CQersCall()!="") {
-              // For CQ messages, find best one to answer, for contest purposes...
-              QString dxCall;
-              QString dxGrid;
-              QString messagePriority=ui->decodedTextBrowser->CQPriority();
-              decodedtext0.deCallAndGrid(dxCall,dxGrid);  //OUTPUT to dxCall and dxGrid!
-              double utch=0.0;
-              int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter,qsoPoints;
-              azdist_(const_cast <char *> ((m_config.my_grid().left(4) + "  ").toLatin1().constData()),
-                      const_cast <char *> ((dxGrid.left(4) + "  ").toLatin1().constData()),&utch,
-                      &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,6,6);
-              qsoPoints=1 + nDkm/3000;
-              qDebug() << "aa" << dxCall << dxGrid << messagePriority << nDkm << qsoPoints;
-            }
-          }
-//###
-*/
           if(m_bBestSPArmed and m_mode=="FT4") {
             QString messagePriority=ui->decodedTextBrowser->CQPriority();
             if(messagePriority!="") {

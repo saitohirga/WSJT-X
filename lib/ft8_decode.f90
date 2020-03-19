@@ -96,7 +96,7 @@ contains
           if(.not.ldiskdat .and. tseq.ge.14.3d0) then !Bail out before done
              call timer('sub_ft8b',1)
              dd1=dd
-             go to 700
+             go to 800
           endif
        enddo
        call timer('sub_ft8b',1)
@@ -182,14 +182,9 @@ contains
         endif
         call timestamp(tsec,tseq,ctime)
         if(.not.ldiskdat .and. nzhsym.eq.41 .and.                        &
-             tseq.ge.13.4d0) go to 700                 !Bail out before done
+             tseq.ge.13.4d0) go to 800                 !Bail out before done
       enddo
    enddo
-   go to 800
-   
-700 write(71,3001) 'CC Bailout     ',tsec,nzhsym,ihsym,tseq,ctime,ndecodes
-3001 format(a15,f11.3,2i6,f8.3,2x,a12,i6)
-   flush(71)
 
 800 ndec_early=0
    if(nzhsym.lt.50) ndec_early=ndecodes

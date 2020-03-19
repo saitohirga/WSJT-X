@@ -88,11 +88,6 @@ subroutine multimode_decoder(ipc1,ss,id2,params,nfsample)
   if(params%nmode.eq.8) then
 ! We're in FT8 mode
 
-     call timestamp(tsec,tseq,ctime)
-     write(71,3001) 'BB decoderStart',tsec,params%nzhsym,ipc1,tseq,ctime
-3001 format(a15,f11.3,2i6,f8.3,2x,a12,i6)
-     flush(71)
-
      if(ncontest.eq.6) then
 ! Fox mode: initialize and open houndcallers.txt     
         inquire(file=trim(temp_dir)//'/houndcallers.txt',exist=ex)
@@ -297,10 +292,6 @@ subroutine multimode_decoder(ipc1,ss,id2,params,nfsample)
   close(13)
   if(ncontest.eq.6) close(19)
   if(params%nmode.eq.4 .or. params%nmode.eq.65) close(14)
-
-  call timestamp(tsec,tseq,ctime)
-  write(71,3001) 'DD decoderEnd  ',tsec,params%nzhsym,ipc1,tseq,ctime,ndecoded
-  flush(71)
 
   return
 
