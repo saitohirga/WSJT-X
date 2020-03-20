@@ -61,19 +61,16 @@ subroutine jt9a()
      local_params%nzhsym=nearly
      id2a(1:nearly*3456)=shared_data%id2(1:nearly*3456)
      id2a(nearly*3456+1:)=0
-     call multimode_decoder(shared_data%ipc(1),shared_data%ss,id2a,    &
-          local_params,12000)
+     call multimode_decoder(shared_data%ss,id2a,local_params,12000)
      nearly=47
      local_params%nzhsym=nearly
      id2a(1:nearly*3456)=shared_data%id2(1:nearly*3456)
      id2a(nearly*3456+1:)=0
-     call multimode_decoder(shared_data%ipc(1),shared_data%ss,id2a,    &
-          local_params,12000)
+     call multimode_decoder(shared_data%ss,id2a,local_params,12000)
      local_params%nzhsym=50
   endif
 ! Normal decoding pass
-  call multimode_decoder(shared_data%ipc(1),shared_data%ss,shared_data%id2,  &
-       local_params,12000)
+  call multimode_decoder(shared_data%ss,shared_data%id2,local_params,12000)
   call timer('decoder ',1)
 
 

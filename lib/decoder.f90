@@ -37,9 +37,8 @@ subroutine multimode_decoder(ipc1,ss,id2,params,nfsample)
   integer*2 id2(NTMAX*12000)
   type(params_block) :: params
   real*4 dd(NTMAX*12000)
-  real*8 tsec,tseq
   character(len=20) :: datetime
-  character(len=12) :: mycall, hiscall, ctime
+  character(len=12) :: mycall, hiscall
   character(len=6) :: mygrid, hisgrid
   data ndec8/0/
   save

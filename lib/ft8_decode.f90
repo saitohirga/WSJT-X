@@ -64,7 +64,6 @@ contains
     integer itone_save(NN,MAX_EARLY)
     real f1_save(MAX_EARLY)
     real xdt_save(MAX_EARLY)
-    integer(c_int) :: ihsym
 
     save s,dd,dd1,ndec_early,itone_save,f1_save,xdt_save,lsubtracted
 
