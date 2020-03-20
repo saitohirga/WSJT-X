@@ -789,6 +789,10 @@ endif (APPLE)
 
 set_source_files_properties (${WSJTX_ICON_FILE} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
+# supress intransigent compiler diagnostics
+set_source_files_properties (lib/decoder.f90 PROPERTIES COMPILE_FLAGS "-Wno-unused-dummy-argument")
+set_source_files_properties (lib/filbig.f90 PROPERTIES COMPILE_FLAGS "-Wno-aliasing")
+
 if (WSJT_QDEBUG_IN_RELEASE)
   # context info in Qt message handler in release configuration
   set_property (DIRECTORY APPEND PROPERTY
