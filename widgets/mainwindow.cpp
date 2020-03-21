@@ -1472,7 +1472,7 @@ void MainWindow::dataSink(qint64 frames)
     if(!m_mode.startsWith ("WSPR")) decode(); //Start decoder
     if(m_mode=="FT8" and !m_diskData and (m_ihsym==m_earlyDecode or m_ihsym==m_earlyDecode2)) return;
 
-    if(!m_diskData and (m_saveAll or m_saveDecoded)) {  //Always save unless "Save None"; may delete later
+    if(!m_diskData and (m_saveAll or m_saveDecoded or m_mode=="WSPR")) {  //Always save unless "Save None"; may delete later
       if(m_mode=="FT8" or m_mode=="FT4") {
         int n=fmod(double(now.time().second()),m_TRperiod);
         if(n<(m_TRperiod/2)) n=n+m_TRperiod;
