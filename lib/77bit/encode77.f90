@@ -45,8 +45,8 @@ program encode77
      if(i3.eq.0 .and.n3.eq.6) then
         call split77(msg,nwords,nw,w)
         j2=0
-        if(nwords.eq.2 .and. len(w(2)).le.2) j2=1
-        if(nwords.eq.2 .and. len(w(2)).eq.6) j2=2
+        if(nwords.eq.2 .and. len(trim(w(2))).le.2) j2=1
+        if(nwords.eq.2 .and. len(trim(w(2))).eq.6) j2=2
         write(*,1005) i3,n3,j2,cerr,msg0(1:37),msg
 1005    format(i2,'.',i1,'.',i1,2x,a1,1x,a37,1x,a37)
      endif
