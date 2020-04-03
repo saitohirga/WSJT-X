@@ -596,6 +596,13 @@ set (wsjt_FSRCS
   lib/wqencode.f90
   lib/wspr_downsample.f90
   lib/zplot9.f90
+  lib/fsk4hf/wsprcpmsim.f90
+  lib/fsk4hf/wsprcpm_wav.f90
+  lib/fsk4hf/wsprcpmd.f90
+  lib/fsk4hf/bpdecode204.f90
+  lib/fsk4hf/osd204.f90
+  lib/fsk4hf/genwsprcpm.f90
+  lib/fsk4hf/encode204.f90
   )
 
 # temporary workaround for a gfortran v7.3 ICE on Fedora 27 64-bit
@@ -1330,6 +1337,12 @@ target_link_libraries (ft4sim_mult wsjt_fort wsjt_cxx)
 
 add_executable (record_time_signal Audio/tools/record_time_signal.cpp)
 target_link_libraries (record_time_signal wsjt_cxx wsjt_qtmm wsjt_qt)
+
+add_executable (wsprcpmsim lib/fsk4hf/wsprcpmsim.f90 wsjtx.rc)
+target_link_libraries (wsprcpmsim wsjt_fort wsjt_cxx)
+
+add_executable (wsprcpmd lib/fsk4hf/wsprcpmd.f90 wsjtx.rc)
+target_link_libraries (wsprcpmd wsjt_fort wsjt_cxx)
 
 endif(WSJT_BUILD_UTILS)
 
