@@ -176,7 +176,7 @@ program wsprcpmd
          imode=1 ! refine istart
          istart=is0
          call coherent_preamble_fsync(c2,h,ipreamble,nsync,NSPS,istart,fcest,imode,xp1)
-         write(*,'(i5,i5,i5,6(f11.5,2x))') ifile,is0,istart,fc0,fc1,fcest,xf1,xp0,xp1
+!         write(*,'(i5,i5,i5,6(f11.5,2x))') ifile,is0,istart,fc0,fc1,fcest,xf1,xp0,xp1
 
 !genie sync
 !istart=375
