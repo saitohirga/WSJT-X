@@ -987,7 +987,7 @@ int main(int argc, char *argv[])
     
     //*************** main loop starts here *****************
     for (ipass=0; ipass<npasses; ipass++) {
-        if(ipass==1 && ndecodes_pass == 0) ipass=2;
+        if(ipass==1 && ndecodes_pass == 0 && npasses>2) ipass=2;
         if(ipass < 2) {
             nblocksize=1;
             maxdrift=4;
