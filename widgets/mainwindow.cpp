@@ -3564,6 +3564,11 @@ void MainWindow::guiUpdate()
 // For all modes other than WSPR
     m_bTxTime = (t2p >= tx1) and (t2p < tx2);
     if(m_mode=="Echo") m_bTxTime = m_bTxTime and m_bEchoTxOK;
+    if(m_mode=="FT8" and ui->tx5->currentText().contains("/B ")) {
+      //FT8 beacon transmissiion from Tx5 only at top of a UTC minute
+      double t4p=fmod(tsec,4*m_TRperiod);
+      if(t4p >= 30.0) m_bTxTime=false;
+    }
   }
   if(m_tune) m_bTxTime=true;                 //"Tune" takes precedence
 
