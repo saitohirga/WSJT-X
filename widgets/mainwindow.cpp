@@ -2593,15 +2593,15 @@ void MainWindow::on_actionColors_triggered()
 
 void MainWindow::on_actionMessage_averaging_triggered()
 {
-  if(!m_msgAvgWidget) {
+  if(m_msgAvgWidget == NULL) {
     m_msgAvgWidget.reset (new MessageAveraging {m_settings, m_config.decoded_text_font ()});
 
     // Connect signals from Message Averaging window
     connect (this, &MainWindow::finished, m_msgAvgWidget.data (), &MessageAveraging::close);
   }
   m_msgAvgWidget->showNormal();
-  m_msgAvgWidget->raise ();
-  m_msgAvgWidget->activateWindow ();
+  m_msgAvgWidget->raise();
+  m_msgAvgWidget->activateWindow();
 }
 
 void MainWindow::on_actionOpen_triggered()                     //Open File
@@ -4013,9 +4013,7 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-//    qDebug() << "onesec" << m_config.force_call_1st();
-    // if((!m_msgAvgWidget or (m_msgAvgWidget and !m_msgAvgWidget->isVisible()))
-    //    and (SpecOp::NONE < m_config.special_op_id()) and (SpecOp::HOUND > m_config.special_op_id())) on_actionFox_Log_triggered();
+//      qDebug() << "onesec" << m_mode;
     if(m_freqNominal!=0 and m_freqNominal<50000000 and m_config.enable_VHF_features()) {
       if(!m_bVHFwarned) vhfWarning();
     } else {
@@ -7281,8 +7279,11 @@ void::MainWindow::VHF_features_enabled(bool b)
   ui->actionMessage_averaging->setEnabled(b);
   ui->actionEnable_AP_DXcall->setVisible (m_mode=="QRA64");
   ui->actionEnable_AP_JT65->setVisible (b && m_mode=="JT65");
+
   if(!b && m_msgAvgWidget and (SpecOp::FOX != m_config.special_op_id()) and !m_config.autoLog()) {
-    if(m_msgAvgWidget->isVisible()) m_msgAvgWidget->close();
+    if(m_msgAvgWidget->isVisible() and m_mode!="JT4" and m_mode!="JT9" and m_mode!="JT65") {
+      m_msgAvgWidget->close();
+    }
   }
 }
 
