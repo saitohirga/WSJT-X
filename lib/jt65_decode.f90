@@ -386,7 +386,6 @@ contains
 ! Silence compiler warnings
        if(nagain .and. ndeepave.eq.-99 .and. neme.eq.-99) stop
        first=.false.
-!       print*,'Clear avg',nutc
     endif
 
     do i=1,64
@@ -402,7 +401,6 @@ contains
     nflipsave(nsave)=nflip
     s1save(-255:256,1:126,nsave)=s1
     s3save(1:64,1:63,nsave)=s3a
-!    print*,'nsave:',nsave
     
 10  syncsum=0.
     dtsum=0.
