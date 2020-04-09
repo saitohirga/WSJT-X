@@ -210,13 +210,13 @@ contains
           nsave=0
        endif
 
-!       if(bVHF) then
+       if(bVHF) then
 ! Be sure to search for shorthand message at nfqso +/- ntol
-!          if(ncand.lt.300) ncand=ncand+1
-!          ca(ncand)%sync=5.0
-!          ca(ncand)%dt=2.5
-!          ca(ncand)%freq=nfqso
-!       endif
+          if(ncand.lt.300) ncand=ncand+1
+          ca(ncand)%sync=5.0
+          ca(ncand)%dt=2.5
+          ca(ncand)%freq=nfqso
+       endif
        do icand=1,ncand
           sync1=ca(icand)%sync
           dtx=ca(icand)%dt
@@ -238,6 +238,10 @@ contains
           if(nspecial.eq.2) decoded='RO'
           if(nspecial.eq.3) decoded='RRR'
           if(nspecial.eq.4) decoded='73'
+          if(nspecial.eq.0 .and. sync1.eq.5.0 .and. dtx.eq.2.5) then
+             nft=0
+             decoded='                      '
+          endif
           call timer('decod65a',1)
           if(sync1.lt.float(minsync) .and.                                  &
                decoded.eq.'                      ') nflip=0
