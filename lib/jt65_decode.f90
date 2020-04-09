@@ -235,14 +235,11 @@ contains
                naggressive,ndepth,ntol,mycall,hiscall,hisgrid,nQSOProgress, &
                ljt65apon,bVHF,sync2,a,dtx,nft,nspecial,qual,                &
                nhist,nsmo,decoded)
+          call timer('decod65a',1)
+          if(nspecial.eq.0 .and. sync1.eq.5.0 .and. dtx.eq.2.5) cycle
           if(nspecial.eq.2) decoded='RO'
           if(nspecial.eq.3) decoded='RRR'
           if(nspecial.eq.4) decoded='73'
-          if(nspecial.eq.0 .and. sync1.eq.5.0 .and. dtx.eq.2.5) then
-             nft=0
-             decoded='                      '
-          endif
-          call timer('decod65a',1)
           if(sync1.lt.float(minsync) .and.                                  &
                decoded.eq.'                      ') nflip=0
           if(nft.ne.0) nsum=1
@@ -449,7 +446,6 @@ contains
     enddo
     if(nsum.lt.2) go to 900
 
-    nftt=0
     df=1378.125/512.0
 
 ! Do the smoothing loop
@@ -462,6 +458,7 @@ contains
     endif
     nn=0
     do ismo=minsmo,maxsmo
+       nftt=0
        if(ismo.gt.0) then
           do j=1,126
              call smo121(s1b(-255,j),512)
@@ -499,7 +496,7 @@ contains
           nsmo=ismo
           param(9)=nsmo
           go to 900
-       else if(nftt.eq.2) then
+       else if(nftt.ge.2) then
           if(qual.gt.qualbest) then
              deepbest=avemsg
              qualbest=qual

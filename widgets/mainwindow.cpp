@@ -3128,27 +3128,26 @@ void MainWindow::readFromStdout()                             //readFromStdout
       m_nDecodes+=1;
       ndecodes_label.setText(QString::number(m_nDecodes));
       if(m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA64") {
-        int n=line_read.indexOf("f");
-        if(n<0) n=line_read.indexOf("d");
-        if(n>0) {
-          QString tt=line_read.mid(n+1,1);
-          navg=tt.toInt();
-          if(navg==0) {
-            char c = tt.data()->toLatin1();
-            if(int(c)>=65 and int(c)<=90) navg=int(c)-54;
-          }
-          if(navg>1 or line_read.indexOf("f*")>0) bAvgMsg=true;
+        int nf=line_read.indexOf("f");
+        if(nf>0) {
+          navg=line_read.mid(nf+1,1).toInt();
+          if(line_read.indexOf("f*")>0) navg=10;
+        }
+        int nd=-1;
+        if(nf<0) nd=line_read.indexOf("d");
+        if(nd>0) {
+          navg=line_read.mid(nd+2,1).toInt();
+          if(line_read.mid(nd+2,1)=="*") navg=10;
         }
         if(m_mode=="JT65") {
-          if(n<0) n=line_read.indexOf("a");
-          if(n>0) {
-            int i=line_read.mid(n+1,2).toInt();
-//            int nap=i/10;
-            navg=0;
-            if(i>10) navg=i%10;
-            if(navg >= 2) bAvgMsg=true;
+          int na=-1;
+          if(nf<0 and nd<0) na=line_read.indexOf("a");
+          if(na>0) {
+            navg=line_read.mid(na+2,1).toInt();
+            if(line_read.mid(na+2,1)=="*") navg=10;
           }
         }
+        if(navg>=2) bAvgMsg=true;
       }
       write_all("Rx",line_read.trimmed());
       if (m_config.insert_blank () && m_blankLine && SpecOp::FOX != m_config.special_op_id()) {

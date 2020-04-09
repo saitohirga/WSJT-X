@@ -151,6 +151,7 @@ subroutine decode65a(dd,npts,newdat,nqd,f0,nflip,mode65,ntrials,     &
      nsmo=nsmobest
      param(9)=nsmo
      nn=nnbest
+     nft=nftbest
   endif
 
   call timer('dec65b  ',1)
