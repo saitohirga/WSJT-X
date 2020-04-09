@@ -76,7 +76,7 @@ contains
        character*22 decoded
     end type accepted_decode
     type(accepted_decode) dec(50)
-    logical :: first_time,prtavg,single_decode,bVHF
+    logical :: first_time,prtavg,single_decode,bVHF,clear_avg65
 
     integer h0(0:11),d0(0:11)
     real r0(0:11)
@@ -90,7 +90,7 @@ contains
 
 !             0    1    2    3    4    5    6    7    8    9   10   11
     data r0/0.70,0.72,0.74,0.76,0.78,0.80,0.82,0.84,0.86,0.88,0.90,0.90/
-    data nutc0/-999/,nfreq0/-999/,nsave/0/
+    data nutc0/-999/,nfreq0/-999/,nsave/0/,clear_avg65/.true./
     save
 
     this%callback => callback
@@ -208,6 +208,7 @@ contains
        if(clearave) then
           nsum=0
           nsave=0
+          clear_avg65=.true.
        endif
 
        if(bVHF) then
@@ -274,9 +275,9 @@ contains
                 nsave=nsave+1
                 nsave=mod(nsave-1,64)+1
                 call avg65(nutc,nsave,sync1,dtx,nflip,nfreq,mode65,ntol,     &
-                     ndepth,nagain,ntrials,naggressive,clearave,neme,mycall, &
-                     hiscall,hisgrid,nftt,avemsg,qave,deepave,nsum,ndeepave, &
-                     nQSOProgress,ljt65apon)
+                     ndepth,nagain,ntrials,naggressive,clear_avg65,neme,     &
+                     mycall,hiscall,hisgrid,nftt,avemsg,qave,deepave,nsum,   &
+                     ndeepave,nQSOProgress,ljt65apon)
                 nsmo=param(9)
                 nqave=int(qave)
 
@@ -349,8 +350,8 @@ contains
   end subroutine decode
 
   subroutine avg65(nutc,nsave,snrsync,dtxx,nflip,nfreq,mode65,ntol,ndepth,    &
-       nagain, ntrials,naggressive,clearave,neme,mycall,hiscall,hisgrid,nftt, &
-       avemsg,qave,deepave,nsum,ndeepave,nQSOProgress,ljt65apon)
+       nagain, ntrials,naggressive,clear_avg65,neme,mycall,hiscall,hisgrid,   &
+       nftt,avemsg,qave,deepave,nsum,ndeepave,nQSOProgress,ljt65apon)
 
 ! Decodes averaged JT65 data
 
@@ -373,11 +374,11 @@ contains
     real s3c(64,63)
     real dtsave(MAXAVE)
     real syncsave(MAXAVE)
-    logical first,clearave,ljt65apon
+    logical first,clear_avg65,ljt65apon
     data first/.true./
     save
 
-    if(first .or. clearave) then
+    if(first .or. clear_avg65) then
        iutc=-1
        nfsave=0
        dtdiff=0.2
@@ -387,6 +388,7 @@ contains
 ! Silence compiler warnings
        if(nagain .and. ndeepave.eq.-99 .and. neme.eq.-99) stop
        first=.false.
+       clear_avg65=.false.
     endif
 
     do i=1,64
@@ -402,6 +404,9 @@ contains
     nflipsave(nsave)=nflip
     s1save(-255:256,1:126,nsave)=s1
     s3save(1:64,1:63,nsave)=s3a
+    avemsg='                      '
+    deepbest='                      '
+    nfttbest=0
     
 10  syncsum=0.
     dtsum=0.
@@ -413,7 +418,7 @@ contains
 
     do i=1,MAXAVE                               !Consider all saved spectra
        cused(i)='.'
-       if(iutc(i).lt.0) cycle
+       if(iutc(i).lt.0) exit
        if(mod(iutc(i),2).ne.mod(nutc,2)) cycle  !Use only same (odd/even) seq
        if(abs(dtxx-dtsave(i)).gt.dtdiff) cycle  !DT must match
        if(abs(nfreq-nfsave(i)).gt.ntol) cycle   !Freq must match
@@ -506,7 +511,6 @@ contains
           endif
        endif
     enddo
-
     if(nfttbest.eq.2) then
        avemsg=deepbest       !### ???
        deepave=deepbest
@@ -516,7 +520,7 @@ contains
        nftt=nfttbest
     endif
 900 continue
-
+    
     return
   end subroutine avg65
 
