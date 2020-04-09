@@ -176,7 +176,9 @@ program jt65sim
 
         nprc_test=0
         i1=len(trim(msg))
-        if(msg(i1-3:i1).eq.' OOO') nprc_test=1
+        if(i1.gt.10) then
+           if(msg(i1-3:i1).eq.' OOO') nprc_test=1
+        endif
         k=0
         do j=1,nsym                         !Insert sync and data into itone()
            if(nprc(j).eq.nprc_test) then
