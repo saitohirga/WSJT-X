@@ -781,8 +781,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
           SLOT(setFreq4(int,int)));
 
   decodeBusy(false);
-  QString t1[28]={"1 uW","2 uW","5 uW","10 uW","20 uW","50 uW","100 uW","200 uW","500 uW",
-                  "1 mW","2 mW","5 mW","10 mW","20 mW","50 mW","100 mW","200 mW","500 mW",
+  QString t1[19]={"1 mW","2 mW","5 mW","10 mW","20 mW","50 mW","100 mW","200 mW","500 mW",
                   "1 W","2 W","5 W","10 W","20 W","50 W","100 W","200 W","500 W","1 kW"};
 
   m_msg[0][0]=0;
@@ -792,11 +791,12 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->labNextCall->setVisible(false);
   ui->labNextCall->setToolTip("");                //### Possibly temporary ? ###
 
-  for(int i=0; i<28; i++)  {                      //Initialize dBm values
-    float dbm=(10.0*i)/3.0 - 30.0;
-    int ndbm=0;
-    if(dbm<0) ndbm=int(dbm-0.5);
-    if(dbm>=0) ndbm=int(dbm+0.5);
+  for(int i=0; i<19; i++)  {                      //Initialize dBm values
+    float dbm=(10.0*i)/3.0;
+//    int ndbm=0;
+//    if(dbm<0) ndbm=int(dbm-0.5);
+//    if(dbm>=0) ndbm=int(dbm+0.5);
+    int ndbm=int(dbm+0.5);
     QString t;
     t.sprintf("%d dBm  ",ndbm);
     t+=t1[i];
