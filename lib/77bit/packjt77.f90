@@ -356,7 +356,6 @@ subroutine unpack77(c77,nrx,msg,unpk77_success)
      j2b=0
      if(j2a.eq.0) read(c77(49:49),'(b1)') j2b
      j2=2*j2a+j2b
-     print*,'bbb',j2a,j2b,j2
      if(j2.eq.0) then
 ! WSPR Type 1
         read(c77,2010) n28,igrid4,idbm
@@ -1010,7 +1009,6 @@ subroutine pack77_06(nwords,w,i3,n3,c77)
      if(idbm.lt.0) idbm=0
      if(idbm.gt.60) idbm=60
      idbm=nint(0.3*idbm)
-     print*,'aaa',idbm
      write(c77,1010) n28,igrid4,idbm,0,0,0,n3,i3
 1010 format(b28.28,b15.15,b5.5,2i1,b21.21,2b3.3)
      go to 900
