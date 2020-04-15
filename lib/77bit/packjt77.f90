@@ -396,15 +396,19 @@ subroutine unpack77(c77,nrx,msg,unpk77_success)
         else
 ! Suffix
            npfx=npfx-nzzz
+           cpfx='   '
            if(npfx.le.35) then
               cpfx(1:1)=a2(npfx+1:npfx+1)
            else if(npfx.gt.35 .and. npfx.le.1295) then
               cpfx(1:1)=a2(npfx/36+1:npfx/36+1)
               cpfx(2:2)=a2(mod(npfx,36)+1:mod(npfx,36)+1)
-           else
+           else if(npfx.gt.1295 .and. npfx.le.12959) then
               cpfx(1:1)=a2(npfx/360+1:npfx/360+1)
               cpfx(2:2)=a2(mod(npfx/10,36)+1:mod(npfx/10,36)+1)
               cpfx(3:3)=a2(mod(npfx,10)+1:mod(npfx,10)+1)
+           else
+              unpk77_success=.false.
+              return
            endif
            msg=trim(call_1)//'/'//trim(adjustl(cpfx))//' '//trim(adjustl(crpt))
         endif
