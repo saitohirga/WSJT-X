@@ -613,6 +613,8 @@ set (wsjt_FSRCS
   lib/fsk4hf/wspr4sim.f90
   lib/fsk4hf/genwspr4.f90
   lib/fsk4hf/gen_wspr4wave.f90
+  lib/fsk4hf/wspr4d.f90
+  lib/fsk4hf/get_wspr4_bitmetrics.f90
   )
 
 # temporary workaround for a gfortran v7.3 ICE on Fedora 27 64-bit
@@ -1361,6 +1363,9 @@ target_link_libraries (ldpcsim174_74 wsjt_fort wsjt_cxx)
 
 add_executable (wspr4sim lib/fsk4hf/wspr4sim.f90 wsjtx.rc)
 target_link_libraries (wspr4sim wsjt_fort wsjt_cxx)
+
+add_executable (wspr4d lib/fsk4hf/wspr4d.f90 wsjtx.rc)
+target_link_libraries (wspr4d wsjt_fort wsjt_cxx)
 
 endif(WSJT_BUILD_UTILS)
 

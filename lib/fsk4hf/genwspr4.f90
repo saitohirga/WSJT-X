@@ -26,7 +26,7 @@ subroutine genwspr4(msg0,ichk,msgsent,msgbits,i4tone)
   integer*1 codeword(2*ND)
   integer*1 msgbits(74),rvec(77) 
   integer icos4a(4),icos4b(4),icos4c(4),icos4d(4)
-  integer*4 ncrc24
+  integer ncrc24
   logical unpk77_success
   data icos4a/0,1,3,2/
   data icos4b/1,0,2,3/
@@ -59,7 +59,6 @@ subroutine genwspr4(msg0,ichk,msgsent,msgbits,i4tone)
   read(c24,'(24i1)') msgbits(51:74)
 
   if(ichk.eq.1) go to 999
-  read(c77,'(74i1)',err=1) msgbits
   if(unpk77_success) go to 2
 1 msgbits=0
   itone=0
@@ -68,8 +67,7 @@ subroutine genwspr4(msg0,ichk,msgsent,msgbits,i4tone)
 
 entry get_wspr4_tones_from_74bits(msgbits,i4tone)
 
-2 msgbits=mod(msgbits+rvec(1:74),2)
-  call encode174_74(msgbits,codeword)
+2  call encode174_74(msgbits,codeword)
 
 ! Grayscale mapping:
 ! bits   tone

@@ -61,7 +61,7 @@ program wspr4sim
     write(*,'(28i1,1x,i1,1x,28i1,1x,i1,1x,i1,1x,15i1,1x,3i1)') msgbits(1:77) 
   else
     write(*,'(a14)') 'Message bits: '
-    write(*,'(77i1)') msgbits
+    write(*,'(50i1,1x,24i1)') msgbits
   endif
   write(*,*) 
   write(*,'(a17)') 'Channel symbols: '
@@ -73,8 +73,7 @@ program wspr4sim
   fsample=12000.0
   icmplx=1
   call gen_wspr4wave(itone,NN,NSPS,fsample,f0,c0,wave,icmplx,NMAX)
-
-  k=nint((xdt+0.5)/dt)-NSPS
+  k=nint((xdt+1.0)/dt)-NSPS
   c0=cshift(c0,-k)
   if(k.gt.0) c0(0:k-1)=0.0
   if(k.lt.0) c0(NMAX+k:NMAX-1)=0.0
