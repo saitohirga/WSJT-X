@@ -21,7 +21,7 @@ program ft4sim
 ! Get command-line argument(s)
   nargs=iargc()
   if(nargs.ne.7) then
-     print*,'Usage:    ft4sim "message"                 f0     DT fdop del nfiles snr'
+     print*,'Usage:    ft4sim "message"               f0   DT fdop del nfiles snr'
      print*,'Examples: ft4sim "CQ W9XYZ EN37"        1500 0.0  0.1 1.0   10   -15'
      print*,'          ft4sim "K1ABC W9XYZ R 539 WI" 1500 0.0  0.1 1.0   10   -15'
      go to 999
