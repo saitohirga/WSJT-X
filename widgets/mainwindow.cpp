@@ -793,9 +793,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
   for(int i=0; i<19; i++)  {                      //Initialize dBm values
     float dbm=(10.0*i)/3.0;
-//    int ndbm=0;
-//    if(dbm<0) ndbm=int(dbm-0.5);
-//    if(dbm>=0) ndbm=int(dbm+0.5);
     int ndbm=int(dbm+0.5);
     QString t;
     t.sprintf("%d dBm  ",ndbm);
