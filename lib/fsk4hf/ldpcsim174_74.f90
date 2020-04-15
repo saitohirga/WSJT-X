@@ -2,7 +2,6 @@ program ldpcsim174_74
 
 ! End-to-end test of the (174,74)/crc24 encoder and decoders.
 
-   use crc
    use packjt77
 
    parameter(N=174, K=74, M=N-K)
