@@ -10,42 +10,25 @@ program wspr4d
    character*22 decodes(100)
    character*37 msg
    character*120 data_dir
-   character*32 uwbits
    character*77 c77
    complex c2(0:NMAX/32-1)              !Complex waveform
-   complex cframe(0:105*NSPS2-1)               !Complex waveform
-   complex cd(0:105*16-1)                   !Complex waveform
-   complex c1(0:9,0:3),c0(0:9,0:3)
-   complex ccor(0:3,103)
-   complex cp(0:3,0:1)
-   complex csum,cterm
-   complex ctwk(NSPS2*4)
+   complex cframe(0:103*NSPS2-1)               !Complex waveform
+   complex cd(0:103*16-1)                   !Complex waveform
    real*8 fMHz
-   real rxdata(2*ND),llr(174),llra(174),llrb(174),llrc(174)
-   real sbits(174),sbits1(174),sbits3(174)
-   real ps(0:8191),psbest(0:8191)
+   real llr(174),llra(174),llrb(174),llrc(174)
    real candidates(100,2)
    real bitmetrics(206,3)
-   integer iuniqueword0
    integer ihdr(11)
    integer*2 iwave(NMAX)                 !Generated full-length waveform
-   integer*1 decoded(74),apmask(174),cw(174)
-   integer*1 hbits(206),hbits1(206),hbits3(206)
+   integer*1 apmask(174),cw(174)
+   integer*1 hbits(206)
    integer*1 message(50)
-   integer*1 rvec(77)
    logical badsync,unpk77_success
-   data rvec/0,1,0,0,1,0,1,0,0,1,0,1,1,1,1,0,1,0,0,0,1,0,0,1,1,0,1,1,0, &
-      1,0,0,1,0,1,1,0,0,0,0,1,0,0,0,1,0,1,0,0,1,1,1,1,0,0,1,0,1, &
-      0,1,0,1,0,1,1,0,1,1,1,1,1,0,0,0,1,0,1/
 
    fs=12000.0/NDOWN                       !Sample rate
    dt=1.0/fs                              !Sample interval (s)
    tt=NSPS*dt                             !Duration of "itone" symbols (s)
-   baud=1.0/tt                            !Keying rate for "itone" symbols (baud)
    txt=NZ*dt                              !Transmission length (s)
-   h=0.50                                !h=0.8 seems to be optimum for AWGN sensitivity (not for fading)
-   twopi=8.0*atan(1.0)
-   pi=4.0*atan(1.0)
 
    nargs=iargc()
    if(nargs.lt.1) then
@@ -75,16 +58,9 @@ program wspr4d
    open(13,file=trim(data_dir)//'/ALL_WSPR.TXT',status='unknown',   &
       position='append')
 
-   xs1=0.0
-   xs2=0.0
-   fr1=0.0
-   fr2=0.0
    nav=0
    ngood=0
-fcsum=0.0
-fcsum2=0.0
-xsum=0.0
-xsum2=0.0
+ngood=0
    do ifile=iarg,nargs
       call getarg(ifile,infile)
       open(10,file=infile,status='old',access='stream')
@@ -109,7 +85,6 @@ xsum2=0.0
       fb=100.0
       fs=12000.0/32.0
       npts=120*12000.0/32.0
-      nsync=16
 
       call getcandidate4(c2,npts,fs,fa,fb,ncand,candidates)         !First approx for freq
 
@@ -133,19 +108,14 @@ xsum2=0.0
            enddo
          enddo
 write(*,*) -1.50*(fs/416),fc1,fc2,isbest
-fcsum=fcsum+fc2
-fcsum2=fcsum2+fc2*fc2
-xsum=xsum+isbest
-xsum2=xsum2+isbest*isbest
 istart=isbest
 fcest=fc2
 !genie sync
 !         istart=375
 !         fcest=0.0-1.50*(fs/416)
-         h=1.0
-         cframe=c2(istart:istart+105*416-1)
-         call downsample4(cframe,fcest,h,cd)
-         s2=sum(cd*conjg(cd))/(16*105)
+         cframe=c2(istart:istart+103*416-1)
+         call downsample4(cframe,fcest,cd)
+         s2=sum(cd*conjg(cd))/(16*103)
          cd=cd/sqrt(s2)
          call get_wspr4_bitmetrics(cd,bitmetrics,badsync)
 !            if(badsync) cycle
@@ -184,12 +154,12 @@ fcest=fc2
             call bpdecode174_74(llr,apmask,max_iterations,message,cw,nhardbp,niterations)
             Keff=64
             if(nhardbp.lt.0) call osd174_74(llr,Keff,apmask,5,message,cw,nhardosd,dmin)
-!write(*,*) ifile,nhardosd,dmin
             if(nhardbp.ge.0 .or. nhardosd.ge.0) then
                write(c77,'(50i1)') message
                c77(51:77)='000000000000000000000110000'
                call unpack77(c77,0,msg,unpk77_success)
                if(unpk77_success .and. index(msg,'K9AN').gt.0) then
+ngood=ngood+1
                   write(*,1100) ifile,fc0,xsnr,msg(1:14),itry,nhardbp,nhardosd,dmin
 1100              format(i5,2x,f8.2,2x,f8.2,2x,a14,i4,i4,i4,f7.2)
                   exit
@@ -201,15 +171,7 @@ fcest=fc2
       enddo !candidate list
    enddo !files
 nfiles=nargs-iarg+1
-fcav=fcsum/nfiles
-fcvar=fcsum2/nfiles-fcav**2
-fcstd=sqrt(fcvar)
-xav=xsum/nfiles
-xvar=xsum2/nfiles-xav**2
-xstd=sqrt(xvar)
-write(*,*) 'averages, nfiles: ',nfiles
-write(*,*) ' avg       freq std   avg offset    std'
-write(*,'(f9.4,2x,f8.4,2x,f8.1,2x,f8.1,2x)') fcav,fcstd,xav,xstd
+write(*,*) 'nfiles: ',nfiles,' ngood: ',ngood
    write(*,1120)
 1120 format("<DecodeFinished>")
 
@@ -322,8 +284,8 @@ subroutine coherent_sync(cd0,i0,f0,itwk,sync)
    return
 end subroutine coherent_sync
 
-subroutine downsample4(ci,f0,h,co)
-   parameter(NI=105*416,NH=NI/2,NO=NI/26)  ! downsample from 416 samples per symbol to 16
+subroutine downsample4(ci,f0,co)
+   parameter(NI=103*416,NH=NI/2,NO=NI/26)  ! downsample from 416 samples per symbol to 16
    complex ci(0:NI-1),ct(0:NI-1)
    complex co(0:NO-1)
    fs=12000.0/32.0
@@ -334,7 +296,7 @@ subroutine downsample4(ci,f0,h,co)
    ct=cshift(ct,i0)
    co=0.0
    co(0)=ct(0)
-   b=max(1.0,h)*8.0
+   b=16.0
    do i=1,NO/2
       arg=(i*df/b)**2
       filt=exp(-arg)

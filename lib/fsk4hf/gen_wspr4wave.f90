@@ -18,7 +18,7 @@ subroutine gen_wspr4wave(itone,nsym,nsps,fsample,f0,cwave,wave,icmplx,nwave)
 ! Compute the smoothed frequency-deviation pulse
      do i=1,3*nsps
         tt=(i-1.5*nsps)/real(nsps)
-        pulse(i)=gfsk_pulse(1.0,tt)
+        pulse(i)=gfsk_pulse(4.0,tt)
      enddo
      first=.false.
   endif
