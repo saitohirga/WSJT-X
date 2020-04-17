@@ -5905,9 +5905,9 @@ void MainWindow::on_actionJT4_triggered()
     ui->sbSubmode->setValue(0);
   }
   if(bVHF) {
-    displayWidgets(nWidgets("111110010010111110111100000000000"));
+    displayWidgets(nWidgets("111110010010110110111100000000000"));
   } else {
-    displayWidgets(nWidgets("111010000000111000110000000000000"));
+    displayWidgets(nWidgets("111010000000110000110000000000000"));
   }
   fast_config(false);
   statusChanged();
@@ -6049,7 +6049,7 @@ void MainWindow::on_actionJT65_triggered()
     ui->label_7->setText("Rx Frequency");
   }
   if(bVHF) {
-    displayWidgets(nWidgets("111110010000111110101100010000000"));
+    displayWidgets(nWidgets("111110010000110110101100010000000"));
   } else {
     displayWidgets(nWidgets("111010000000111000010000000000001"));
   }
@@ -6083,7 +6083,7 @@ void MainWindow::on_actionQRA64_triggered()
   ui->TxFreqSpinBox->setValue(1000);
   QString fname {QDir::toNativeSeparators(m_config.temp_dir ().absoluteFilePath ("red.dat"))};
   m_wideGraph->setRedFile(fname);
-  displayWidgets(nWidgets("111110010010111110000000001000000"));
+  displayWidgets(nWidgets("111110010010110110000000001000000"));
   statusChanged();
 }
 
