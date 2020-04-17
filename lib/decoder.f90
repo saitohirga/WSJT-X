@@ -319,16 +319,19 @@ contains
     if (have_sync) then
        decoded=decoded0
        cflags='   '
-       if(decoded.ne.'                      ') cflags='f  '
-       if(is_deep) then
-          cflags(1:2)='d1'
-          write(cflags(3:3),'(i1)') min(int(qual),9)
-          if(qual.ge.10.0) cflags(3:3)='*'
-          if(qual.lt.3.0) decoded(22:22)='?'
-       endif
-       if(is_average) then
-          write(cflags(2:2),'(i1)') min(ave,9)
-          if(ave.ge.10) cflags(2:2)='*'
+       if(decoded.ne.'                      ') then
+          cflags='f  '
+          if(is_deep) then
+             cflags='d  '
+             write(cflags(2:2),'(i1)') min(int(qual),9)
+             if(qual.ge.10.0) cflags(2:2)='*'
+             if(qual.lt.3.0) decoded(22:22)='?'
+          endif
+          if(is_average) then
+             write(cflags(3:3),'(i1)') min(ave,9)
+             if(ave.ge.10) cflags(3:3)='*'
+             if(cflags(1:1).eq.'f') cflags=cflags(1:1)//cflags(3:3)//' '
+          endif
        endif
        write(*,1000) params%nutc,snr,dt,freq,sync,decoded,cflags
 1000   format(i4.4,i4,f5.1,i5,1x,'$',a1,1x,a22,1x,a3)

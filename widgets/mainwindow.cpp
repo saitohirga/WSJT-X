@@ -3136,7 +3136,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           navg=line_read.mid(nd+2,1).toInt();
           if(line_read.mid(nd+2,1)=="*") navg=10;
         }
-        if(m_mode=="JT65") {
+        if(m_mode=="JT65" or m_mode=="JT4") {
           int na=-1;
           if(nf<0 and nd<0) na=line_read.indexOf("a");
           if(na>0) {
