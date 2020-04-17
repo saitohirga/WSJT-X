@@ -55,7 +55,7 @@ subroutine bpdecode174_74(llr,apmask,maxiterations,message50,cw,nharderror,iter)
       enddo
       if( ncheck .eq. 0 ) then ! we have a codeword - if crc is good, return it
          decoded=cw(1:74)
-         call get_crc24(decoded,nbadcrc)
+         call get_crc24(decoded,74,nbadcrc)
          nharderror=count( (2*cw-1)*llr .lt. 0.0 )
          if(nbadcrc.eq.0) then
             message50=decoded(1:50)
