@@ -65,14 +65,17 @@ contains
     real f1_save(MAX_EARLY)
     real xdt_save(MAX_EARLY)
 
-    save s,dd,dd1,ndec_early,itone_save,f1_save,xdt_save,lsubtracted
-
+    save s,dd,dd1,ndec_early,itone_save,f1_save,xdt_save,lsubtracted,allmessages
+    
     this%callback => callback
     write(datetime,1001) nutc        !### TEMPORARY ###
 1001 format("000000_",i6.6)
 
     call ft8apset(mycall12,hiscall12,ncontest,apsym2,aph10)
-    if(nzhsym.le.47) dd=iwave
+    if(nzhsym.le.47) then
+       dd=iwave
+       dd1=dd
+    endif
     if(nzhsym.eq.41) then
        ndecodes=0
        allmessages='                                     '
@@ -152,6 +155,7 @@ contains
         f1=candidate(1,icand)
         xdt=candidate(2,icand)
         xbase=10.0**(0.1*(sbase(nint(f1/3.125))-40.0))
+        msg37='                                     '
         call timer('ft8b    ',0)
         call ft8b(dd,newdat,nQSOProgress,nfqso,nftx,ndeep,nzhsym,lft8apon,  &
              lapcqonly,napwid,lsubtract,nagain,ncontest,iaptype,mycall12,   &
@@ -182,8 +186,8 @@ contains
         call timestamp(tsec,tseq,ctime)
         if(.not.ldiskdat .and. nzhsym.eq.41 .and.                        &
              tseq.ge.13.4d0) go to 800                 !Bail out before done
-      enddo
-   enddo
+      enddo  ! icand
+   enddo  ! ipass
 
 800 ndec_early=0
    if(nzhsym.lt.50) ndec_early=ndecodes
