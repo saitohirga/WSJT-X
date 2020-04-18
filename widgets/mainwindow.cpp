@@ -1411,6 +1411,7 @@ void MainWindow::dataSink(qint64 frames)
     if(m_ihsym==40 and m_decoderBusy) {
       qDebug() << "ff Clearing hung decoder status";
       decodeDone();  //Clear a hung decoder status
+      m_blankLine=true;
     }
   }
 
@@ -2084,6 +2085,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
     case Qt::Key_Z:                            //### Recover from hung decode() ?? ###
       if(e->modifiers() & Qt::AltModifier) {
         decodeDone();
+        m_blankLine=true;
         return;
       }
     break;    case Qt::Key_PageUp:
@@ -3070,6 +3072,18 @@ void MainWindow::to_jt9(qint32 n, qint32 istart, qint32 idone)
 
 void MainWindow::decodeDone ()
 {
+  if(m_mode!="FT8" or dec_data.params.nzhsym==50) m_nDecodes=0;
+  if(m_mode=="QRA64") m_wideGraph->drawRed(0,0);
+  auto tnow = QDateTime::currentDateTimeUtc ();
+  double tdone = fmod(double(tnow.time().second()),m_TRperiod);
+  int mswait;
+  if( tdone < 0.5*m_TRperiod ) {
+    mswait = 1000.0 * ( 0.75 * m_TRperiod - tdone );
+  } else {
+    mswait = 1000.0 * ( 1.75 * m_TRperiod - tdone );
+  }
+  if(!m_diskData) killFileTimer.start(mswait); //Kill at 3/4 period
+
   dec_data.params.nagain=0;
   dec_data.params.ndiskdat=0;
   m_nclearave=0;
@@ -3084,6 +3098,12 @@ void MainWindow::decodeDone ()
   }
   if(SpecOp::FOX == m_config.special_op_id()) houndCallers();
   to_jt9(m_ihsym,-1,1);                //Tell jt9 we know it has finished
+
+  m_startAnother=m_loopall;
+  if(m_bNoMoreFiles) {
+    MessageBox::information_message(this, tr("No more files to open."));
+    m_bNoMoreFiles=false;
+  }
 }
 
 void MainWindow::readFromStdout()                             //readFromStdout
@@ -3102,24 +3122,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
     int navg=0;
 
     if(line_read.indexOf("<DecodeFinished>") >= 0) {
-      if(m_mode!="FT8" or dec_data.params.nzhsym==50) m_nDecodes=0;
-      if(m_mode=="QRA64") m_wideGraph->drawRed(0,0);
       m_bDecoded =  line_read.mid(20).trimmed().toInt() > 0;
-      auto tnow = QDateTime::currentDateTimeUtc ();
-      double tdone = fmod(double(tnow.time().second()),m_TRperiod);
-      int mswait;
-      if( tdone < 0.5*m_TRperiod ) {
-        mswait = 1000.0 * ( 0.75 * m_TRperiod - tdone );
-      } else {
-        mswait = 1000.0 * ( 1.75 * m_TRperiod - tdone );
-      }
-      if(!m_diskData) killFileTimer.start(mswait); //Kill at 3/4 period
       decodeDone ();
-      m_startAnother=m_loopall;
-      if(m_bNoMoreFiles) {
-        MessageBox::information_message(this, tr("No more files to open."));
-        m_bNoMoreFiles=false;
-      }
       return;
     } else {
       m_nDecodes+=1;
@@ -5905,9 +5909,9 @@ void MainWindow::on_actionJT4_triggered()
     ui->sbSubmode->setValue(0);
   }
   if(bVHF) {
-    displayWidgets(nWidgets("111110010010111110111100000000000"));
+    displayWidgets(nWidgets("111110010010110110111100000000000"));
   } else {
-    displayWidgets(nWidgets("111010000000111000110000000000000"));
+    displayWidgets(nWidgets("111010000000110000110000000000000"));
   }
   fast_config(false);
   statusChanged();
@@ -6049,7 +6053,7 @@ void MainWindow::on_actionJT65_triggered()
     ui->label_7->setText("Rx Frequency");
   }
   if(bVHF) {
-    displayWidgets(nWidgets("111110010000111110101100010000000"));
+    displayWidgets(nWidgets("111110010000110110101100010000000"));
   } else {
     displayWidgets(nWidgets("111010000000111000010000000000001"));
   }
@@ -6083,7 +6087,7 @@ void MainWindow::on_actionQRA64_triggered()
   ui->TxFreqSpinBox->setValue(1000);
   QString fname {QDir::toNativeSeparators(m_config.temp_dir ().absoluteFilePath ("red.dat"))};
   m_wideGraph->setRedFile(fname);
-  displayWidgets(nWidgets("111110010010111110000000001000000"));
+  displayWidgets(nWidgets("111110010010110110000000001000000"));
   statusChanged();
 }
 
