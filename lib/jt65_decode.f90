@@ -217,6 +217,7 @@ contains
           ca(ncand)%sync=5.0
           ca(ncand)%dt=2.5
           ca(ncand)%freq=nfqso
+          ca(ncand)%flip=0
        endif
        do icand=1,ncand
           sync1=ca(icand)%sync
