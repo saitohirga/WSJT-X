@@ -98,10 +98,6 @@ program ldpcsim174_74
          rx2av=sum(rxdata*rxdata)/N
          rxsig=sqrt(rx2av-rxav*rxav)
          rxdata=rxdata/rxsig
-! To match the metric to the channel, s should be set to the noise standard deviation.
-! For now, set s to the value that optimizes decode probability near threshold.
-! The s parameter can be tuned to trade a few tenth's dB of threshold for an order of
-! magnitude in UER
          if( s .lt. 0 ) then
             ss=sigma
          else
@@ -114,7 +110,8 @@ program ldpcsim174_74
          call bpdecode174_74(llr,apmask,max_iterations,message,cw,nharderror,niterations)
          dmin=0.0
          if( (nharderror .lt. 0) .and. (ndeep .ge. 0) ) then
-            call osd174_74(llr, Keff, apmask, ndeep, message, cw, nharderror, dmin)
+!            call osd174_74(llr, Keff, apmask, ndeep, message, cw, nharderror, dmin)
+call decode174_74(llr,Keff,ndeep,apmask,max_iterations,message,cw,nharderror,niterations,ncheck,dmin,isuper)
          endif
 
          if(nharderror.ge.0) then

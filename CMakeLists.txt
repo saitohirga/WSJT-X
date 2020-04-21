@@ -602,7 +602,7 @@ set (wsjt_FSRCS
   lib/fsk4hf/osd204.f90
   lib/fsk4hf/genwsprcpm.f90
   lib/fsk4hf/encode204.f90
-#  lib/ft8/decode174_91.f90
+  lib/fsk4hf/decode174_74.f90
   lib/fsk4hf/ldpcsim174_91.f90
   lib/fsk4hf/ldpcsim174_74.f90
   lib/fsk4hf/ldpcsim174_101.f90

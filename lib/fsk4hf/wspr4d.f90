@@ -119,13 +119,13 @@ program wspr4d
          enddo
 
          if(smax .lt. 100.0 ) cycle
+
          idecoded=0
-         do ijitter=0,4
+         do ijitter=0,2
             if(idecoded.eq.1) exit
-            if(ijitter.eq.1) ioffset=20
-            if(ijitter.eq.2) ioffset=-20
-            if(ijitter.eq.3) ioffset=40
-            if(ijitter.eq.4) ioffset=-40
+            if(ijitter.eq.0) ioffset=0
+            if(ijitter.eq.1) ioffset=50
+            if(ijitter.eq.2) ioffset=-50
             is0=isbest+ioffset
             if(is0.lt.0) cycle
             cframe=c2(is0:is0+103*416-1)
@@ -168,7 +168,13 @@ program wspr4d
                dmin=0.0
                call bpdecode174_74(llr,apmask,max_iterations,message,cw,nhardbp,niterations)
                Keff=64
-               if(nhardbp.lt.0) call osd174_74(llr,Keff,apmask,5,message,cw,nhardosd,dmin)
+!               if(nhardbp.lt.0) call osd174_74(llr,Keff,apmask,5,message,cw,nhardosd,dmin)
+               maxsuperits=2
+               ndeep=4 
+               if(nhardbp.lt.0) then
+                  call decode174_74(llr,Keff,ndeep,apmask,maxsuperits,message,cw,nhardosd,iter,ncheck,dmin,isuper)
+               endif
+
                if(nhardbp.ge.0 .or. nhardosd.ge.0) then
                   write(c77,'(50i1)') message
                   c77(51:77)='000000000000000000000110000'
