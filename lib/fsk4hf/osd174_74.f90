@@ -22,7 +22,7 @@ subroutine osd174_74(llr,k,apmask,ndeep,message74,cw,nhardmin,dmin)
    integer indices(N),nxor(N)
    integer*1 cw(N),ce(N),c0(N),hdec(N)
    integer*1, allocatable :: decoded(:)
-   integer*1 message50(50),message74(74)
+   integer*1 message74(74)
    integer indx(N)
    real llr(N),rx(N),absrx(N)
 
