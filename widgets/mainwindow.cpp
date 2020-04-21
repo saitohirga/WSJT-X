@@ -3361,19 +3361,16 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
                || message_words.contains (Radio::base_callsign (ui->dxCallEntry->text ()))
                || message_words.contains ("DE")))
           || !message.isStandardMessage ()); // free text 73/RR73
-    QString w2=message_words.at(2);
-    QString w34;
+
+    QStringList w=message.string().mid(24).remove("<").remove(">").split(" ",QString::SkipEmptyParts);
+    QString w2=w.at(2);
     int nrpt=0;
-    if(message_words.size()>3) {
-      w34=message_words.at(3);
+    if(w.size()>3) {
       nrpt=w2.toInt();
-      if(w2=="R") {
-        nrpt=w34.toInt();
-        w34=message_words.at(4);
-      }
+      if(w2=="R") nrpt=w.at(3).toInt();
     }
-    bool bEU_VHF_w2=(nrpt>=520001 and nrpt<=594000);
-    if(bEU_VHF_w2 and message.string().contains(m_config.my_callsign() + " ")) {
+    bool bEU_VHF=(nrpt>=520001 and nrpt<=594000);
+    if(bEU_VHF and message.string().contains(m_config.my_callsign() + " ")) {
       m_xRcvd=message.string().trimmed().right(13);
     }
     if (m_auto
@@ -3390,7 +3387,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
         && !m_sentFirst73       // not finished QSO
         && ((message_words.at (1).contains (m_baseCall)
                   // being called and not already in a QSO
-        && (message_words.at(2).contains(Radio::base_callsign(ui->dxCallEntry->text())) or bEU_VHF_w2))
+        && (message_words.at(2).contains(Radio::base_callsign(ui->dxCallEntry->text())) or bEU_VHF))
                  // type 2 compound replies
         || (within_tolerance &&
             (acceptable_73 ||
@@ -4573,15 +4570,18 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
      || dtext.contains ("/" + m_baseCall + " ")
      || dtext.contains (" " + m_baseCall + "/")
      || (firstcall == "DE")) {
+
+    QStringList w=message.string().mid(24).remove("<").remove(">").split(" ",QString::SkipEmptyParts);
     QString w2="";
-    if(message_words.size()>=3) w2=message_words.at(2);
+    if(w.size()>=3) w2=w.at(2);
     QString w34="";
-    if(message_words.size()>=4) w34=message_words.at(3);
+    if(w.size()>=4) w34=w.at(3);
     int nrpt=w2.toInt();
     if(w2=="R") {
       nrpt=w34.toInt();
-      w34=message_words.at(4);
+      w34=w.at(4);
     }
+
     bool bEU_VHF_w2=(nrpt>=520001 and nrpt<=594000);
     if(bEU_VHF_w2 and SpecOp::EU_VHF!=m_config.special_op_id()) {
       // Switch automatically to EU VHF Contest mode
@@ -5100,8 +5100,8 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
         }
       }
       if(SpecOp::EU_VHF==m_config.special_op_id()) {
-        QString t1,a;
-        t=t0.split(" ").at(0) + " ";
+        QString a;
+        t="<" + t0.split(" ").at(0) + "> <" + t0.split(" ").at(1) + "> ";
         a.sprintf("%4.4d ",ui->sbSerialNumber->value());
         sent=rs + a + m_config.my_grid();
       }
