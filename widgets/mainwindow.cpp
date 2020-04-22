@@ -4577,7 +4577,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
      || dtext.contains (" " + m_baseCall + "/")
      || (firstcall == "DE")) {
 
-    QStringList w=message.string().mid(24).remove("<").remove(">").split(" ",QString::SkipEmptyParts);
+    QStringList w=message.string().mid(22).remove("<").remove(">").split(" ",QString::SkipEmptyParts);
     QString w2;
     if(w.size()>=3) w2=w.at(2);
     QString w34;
