@@ -3367,12 +3367,16 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
           || !message.isStandardMessage ()); // free text 73/RR73
 
     QStringList w=message.string().mid(22).remove("<").remove(">").split(" ",QString::SkipEmptyParts);
-    QString w2=w.at(2);
+    QString w2;
     int nrpt=0;
-    if(w.size()>3) {
-      nrpt=w2.toInt();
-      if(w2=="R") nrpt=w.at(3).toInt();
-    }
+    if (w.size () > 2)
+      {
+        w2=w.at(2);
+        if(w.size()>3) {
+          nrpt=w2.toInt();
+          if(w2=="R") nrpt=w.at(3).toInt();
+        }
+      }
     bool bEU_VHF=(nrpt>=520001 and nrpt<=594000);
     if(bEU_VHF and message.string().contains("<"+m_config.my_callsign() + "> ")) {
       m_xRcvd=message.string().trimmed().right(13);
@@ -4574,9 +4578,9 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
      || (firstcall == "DE")) {
 
     QStringList w=message.string().mid(24).remove("<").remove(">").split(" ",QString::SkipEmptyParts);
-    QString w2="";
+    QString w2;
     if(w.size()>=3) w2=w.at(2);
-    QString w34="";
+    QString w34;
     if(w.size()>=4) w34=w.at(3);
     int nrpt=w2.toInt();
     if(w2=="R") {
