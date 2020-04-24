@@ -4517,6 +4517,18 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     ui->dxCallEntry->setText(hiscall);
   }
 
+  QStringList w=message.string().mid(22).remove("<").remove(">").split(" ",QString::SkipEmptyParts);
+  int nw=w.size();
+  if(nw>=4) {
+    // Temporary?  Correct for the fact that message.deCallAndGrid() does not work for EU VHF contest messages
+    QString t=message_words.at(nw-2);
+    int n=w.at(nw-2).toInt();
+    if(n>=520001 and n<=592047) {
+      hiscall=w.at(1);
+      hisgrid=w.at(nw-1);
+    }
+  }
+
   bool is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
   if (!is_73 and !message.isStandardMessage() and !message.string().contains("<")) {
     qDebug () << "Not processing message - hiscall:" << hiscall << "hisgrid:" << hisgrid
@@ -4577,7 +4589,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
      || dtext.contains (" " + m_baseCall + "/")
      || (firstcall == "DE")) {
 
-    QStringList w=message.string().mid(22).remove("<").remove(">").split(" ",QString::SkipEmptyParts);
     QString w2;
     if(w.size()>=3) w2=w.at(2);
     QString w34;
