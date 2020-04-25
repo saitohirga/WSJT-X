@@ -65,14 +65,16 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   
 ! For testing only: return Rx messages stored in a file as decodes
   inquire(file='rx_messages.txt',exist=ex)
-  if(ex .and.  params%nzhsym.eq.41) then
-     open(39,file='rx_messages.txt',status='old')
-     do i=1,9999
-        read(39,'(a60)',end=5) line
-        if(line(1:1).eq.' ' .or. line(1:1).eq.'-') go to 800
-        write(*,'(a)') trim(line)
-     enddo
-5    close(39)
+  if(ex) then
+     if(params%nzhsym.eq.41) then
+        open(39,file='rx_messages.txt',status='old')
+        do i=1,9999
+           read(39,'(a60)',end=5) line
+           if(line(1:1).eq.' ' .or. line(1:1).eq.'-') go to 800
+           write(*,'(a)') trim(line)
+        enddo
+5       close(39)
+     endif
      go to 800
   endif
 
