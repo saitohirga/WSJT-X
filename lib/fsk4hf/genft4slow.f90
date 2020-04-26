@@ -8,13 +8,12 @@ subroutine genft4slow(msg0,ichk,msgsent,msgbits,i4tone)
 !   - i4tone   array of audio tone values, {0,1,2,3} 
 
 ! Frame structure:
-! s16 + 87symbols + 2 ramp up/down = 105 total channel symbols
-! r1 + s4 + d29 + s4 + d29 + s4 + d29 + s4 + r1
+! s4 d24 s4 d24 s4 d24 s4 d24 s4 d24 s4 
 
-! Message duration: TxT = 105*13312/12000 = 116.48 s
+! Message duration: TxT = 144*9600/12000 = 115.2 s
   
   use packjt77
-  include 'wspr4_params.f90'  
+  include 'ft4s_params.f90'  
   character*37 msg0
   character*37 message                    !Message to be generated
   character*37 msgsent                    !Message as it will be received
@@ -23,13 +22,15 @@ subroutine genft4slow(msg0,ichk,msgsent,msgbits,i4tone)
   integer*4 i4tone(NN),itmp(ND)
   integer*1 codeword(2*ND)
   integer*1 msgbits(101),rvec(77) 
-  integer icos4a(4),icos4b(4),icos4c(4),icos4d(4)
+  integer icos4a(4),icos4b(4),icos4c(4),icos4d(4),icos4e(4),icos4f(4)
   integer ncrc24
   logical unpk77_success
   data icos4a/0,1,3,2/
   data icos4b/1,0,2,3/
   data icos4c/2,3,1,0/
   data icos4d/3,2,0,1/
+  data icos4e/0,2,3,1/
+  data icos4f/1,2,0,3/
   data rvec/0,1,0,0,1,0,1,0,0,1,0,1,1,1,1,0,1,0,0,0,1,0,0,1,1,0,1,1,0, &
             1,0,0,1,0,1,1,0,0,0,0,1,0,0,0,1,0,1,0,0,1,1,1,1,0,0,1,0,1, &
             0,1,0,1,0,1,1,0,1,1,1,1,1,0,0,0,1,0,1/
@@ -65,7 +66,7 @@ subroutine genft4slow(msg0,ichk,msgsent,msgbits,i4tone)
 
 entry get_ft4slow_tones_from_101bits(msgbits,i4tone)
 
-2  call encode174_101(msgbits,codeword)
+2  call encode240_101(msgbits,codeword)
 
 ! Grayscale mapping:
 ! bits   tone
@@ -82,12 +83,16 @@ entry get_ft4slow_tones_from_101bits(msgbits,i4tone)
   enddo
 
   i4tone(1:4)=icos4a
-  i4tone(5:33)=itmp(1:29)
-  i4tone(34:37)=icos4b
-  i4tone(38:66)=itmp(30:58)
-  i4tone(67:70)=icos4c
-  i4tone(71:99)=itmp(59:87)
-  i4tone(100:103)=icos4d
+  i4tone(5:28)=itmp(1:24)
+  i4tone(29:32)=icos4b
+  i4tone(33:56)=itmp(25:48)
+  i4tone(57:60)=icos4c
+  i4tone(61:84)=itmp(49:72)
+  i4tone(85:88)=icos4d
+  i4tone(89:112)=itmp(73:96)
+  i4tone(113:116)=icos4e
+  i4tone(117:140)=itmp(97:120)
+  i4tone(141:144)=icos4f
 
 999 return
 end subroutine genft4slow

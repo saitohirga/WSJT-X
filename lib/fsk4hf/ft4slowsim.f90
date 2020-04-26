@@ -4,7 +4,7 @@ program ft4slowsim
 
   use wavhdr
   use packjt77
-  include 'wspr4_params.f90'               !Set various constants
+  include 'ft4s_params.f90'               !Set various constants
   type(hdr) h                            !Header for .wav file
   character arg*12,fname*17
   character msg37*37,msgsent37*37
@@ -83,8 +83,6 @@ program ft4slowsim
      if(fspread.ne.0.0 .or. delay.ne.0.0) call watterson(c,NMAX,NZ,fs,delay,fspread)
      c=sig*c
      wave=real(c)
-     peak=maxval(abs(wave))
-     nslots=1
      if(snrdb.lt.90) then
         do i=1,NMAX                   !Add gaussian noise at specified SNR
            xnoise=gran()

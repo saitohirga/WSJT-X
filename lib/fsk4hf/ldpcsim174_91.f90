@@ -105,6 +105,7 @@ do idb = 20,-10,-1
 ! max_iterations is max number of belief propagation iterations
     call bpdecode174_91(llr, apmask, max_iterations, message77, cw, nharderrors,niterations,ncheck)
     if( ndepth .ge. 0 .and. nharderrors .lt. 0 ) call osd174_91(llr, apmask, ndepth, message77, cw,  nharderrors, dmin)
+!call decode174_91(llr, apmask, max_iterations, message77, cw, nharderrors,niterations,ncheck,dmin,nsuper)
 ! If the decoder finds a valid codeword, nharderrors will be .ge. 0.
     if( nharderrors .ge. 0 ) then
       call extractmessage77(message77,msgreceived)

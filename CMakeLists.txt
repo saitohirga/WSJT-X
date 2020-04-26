@@ -603,17 +603,17 @@ set (wsjt_FSRCS
   lib/fsk4hf/genwsprcpm.f90
   lib/fsk4hf/encode204.f90
   lib/fsk4hf/decode174_74.f90
-  lib/fsk4hf/decode174_101.f90
+  lib/fsk4hf/decode240_101.f90
   lib/fsk4hf/ldpcsim174_91.f90
   lib/fsk4hf/ldpcsim174_74.f90
-  lib/fsk4hf/ldpcsim174_101.f90
+  lib/fsk4hf/ldpcsim240_101.f90
   lib/fsk4hf/get_crc24.f90
   lib/fsk4hf/encode174_74.f90
-  lib/fsk4hf/encode174_101.f90
+  lib/fsk4hf/encode240_101.f90
   lib/fsk4hf/bpdecode174_74.f90
-  lib/fsk4hf/bpdecode174_101.f90
+  lib/fsk4hf/bpdecode240_101.f90
   lib/fsk4hf/osd174_74.f90
-  lib/fsk4hf/osd174_101.f90
+  lib/fsk4hf/osd240_101.f90
   lib/fsk4hf/wspr4sim.f90
   lib/fsk4hf/genwspr4.f90
   lib/fsk4hf/gen_wspr4wave.f90
@@ -621,7 +621,9 @@ set (wsjt_FSRCS
   lib/fsk4hf/get_wspr4_bitmetrics.f90
   lib/fsk4hf/ft4slowsim.f90
   lib/fsk4hf/genft4slow.f90
-  lib/fsk4hf/decode174_101.f90
+  lib/fsk4hf/decode240_101.f90
+  lib/fsk4hf/ft4sd.f90
+  lib/fsk4hf/get_ft4s_bitmetrics.f90
   )
 
 # temporary workaround for a gfortran v7.3 ICE on Fedora 27 64-bit
@@ -1368,8 +1370,8 @@ target_link_libraries (ldpcsim174_91 wsjt_fort wsjt_cxx)
 add_executable (ldpcsim174_74 lib/fsk4hf/ldpcsim174_74.f90 wsjtx.rc)
 target_link_libraries (ldpcsim174_74 wsjt_fort wsjt_cxx)
 
-add_executable (ldpcsim174_101 lib/fsk4hf/ldpcsim174_101.f90 wsjtx.rc)
-target_link_libraries (ldpcsim174_101 wsjt_fort wsjt_cxx)
+add_executable (ldpcsim240_101 lib/fsk4hf/ldpcsim240_101.f90 wsjtx.rc)
+target_link_libraries (ldpcsim240_101 wsjt_fort wsjt_cxx)
 
 add_executable (wspr4sim lib/fsk4hf/wspr4sim.f90 wsjtx.rc)
 target_link_libraries (wspr4sim wsjt_fort wsjt_cxx)
@@ -1379,6 +1381,9 @@ target_link_libraries (wspr4d wsjt_fort wsjt_cxx)
 
 add_executable (ft4slowsim lib/fsk4hf/ft4slowsim.f90 wsjtx.rc)
 target_link_libraries (ft4slowsim wsjt_fort wsjt_cxx)
+
+add_executable (ft4sd lib/fsk4hf/ft4sd.f90 wsjtx.rc)
+target_link_libraries (ft4sd wsjt_fort wsjt_cxx)
 
 endif(WSJT_BUILD_UTILS)
 
