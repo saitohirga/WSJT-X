@@ -18,9 +18,9 @@ program ft4slowsim
   
 ! Get command-line argument(s)
   nargs=iargc()
-  if(nargs.ne.7) then
-     print*,'Usage:    ft4slowsim "message"            f0     DT fdop del nfiles snr'
-     print*,'Examples: ft4slowsim "K1JT K9AN EN50"     1500  0.0  0.1 1.0   10   -15'
+  if(nargs.ne.8) then
+     print*,'Usage:    ft4slowsim "message"            f0     DT   h  fdop  del nfiles snr'
+     print*,'Examples: ft4slowsim "K1JT K9AN EN50"     1500  0.0  1.0  0.1  1.0   10   -15'
      go to 999
   endif
   call getarg(1,msg37)                   !Message to be transmitted
@@ -29,19 +29,20 @@ program ft4slowsim
   call getarg(3,arg)
   read(arg,*) xdt                        !Time offset from nominal (s)
   call getarg(4,arg)
-  read(arg,*) fspread                    !Watterson frequency spread (Hz)
+  read(arg,*) hmod                       !Modulation index, h 
   call getarg(5,arg)
-  read(arg,*) delay                      !Watterson delay (ms)
+  read(arg,*) fspread                    !Watterson frequency spread (Hz)
   call getarg(6,arg)
-  read(arg,*) nfiles                     !Number of files
+  read(arg,*) delay                      !Watterson delay (ms)
   call getarg(7,arg)
+  read(arg,*) nfiles                     !Number of files
+  call getarg(8,arg)
   read(arg,*) snrdb                      !SNR_2500
 
   nfiles=abs(nfiles)
   twopi=8.0*atan(1.0)
   fs=12000.0                             !Sample rate (Hz)
   dt=1.0/fs                              !Sample interval (s)
-  hmod=1.0                               !Modulation index (0.5 is MSK, 1.0 is FSK)
   tt=NSPS*dt                             !Duration of symbols (s)
   baud=1.0/tt                            !Keying rate (baud)
   txt=NZ2*dt                             !Transmission length (s)
@@ -53,8 +54,8 @@ program ft4slowsim
   call genft4slow(msg37,0,msgsent37,msgbits,itone)
   write(*,*)  
   write(*,'(a9,a37,3x,a7,i1,a1,i1)') 'Message: ',msgsent37,'i3.n3: ',i3,'.',n3
-  write(*,1000) f0,xdt,txt,snrdb
-1000 format('f0:',f9.3,'   DT:',f6.2,'   TxT:',f6.1,'   SNR:',f6.1)
+  write(*,1000) f0,xdt,hmod,txt,snrdb
+1000 format('f0:',f9.3,'   DT:',f6.2,'   hmod:',f6.3,'   TxT:',f6.1,'   SNR:',f6.1)
   write(*,*)  
   if(i3.eq.1) then
     write(*,*) '         mycall                         hiscall                    hisgrid'
@@ -72,7 +73,7 @@ program ft4slowsim
 
   fsample=12000.0
   icmplx=1
-  call gen_wspr4wave(itone,NN,NSPS,fsample,f0,c0,wave,icmplx,NMAX)
+  call gen_wspr4wave(itone,NN,NSPS,fsample,hmod,f0,c0,wave,icmplx,NMAX)
   k=nint((xdt+1.0)/dt)-NSPS
   c0=cshift(c0,-k)
   if(k.gt.0) c0(0:k-1)=0.0

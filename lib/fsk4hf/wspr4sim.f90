@@ -72,7 +72,7 @@ program wspr4sim
 
   fsample=12000.0
   icmplx=1
-  call gen_wspr4wave(itone,NN,NSPS,fsample,f0,c0,wave,icmplx,NMAX)
+  call gen_wspr4wave(itone,NN,NSPS,fsample,hmod,f0,c0,wave,icmplx,NMAX)
   k=nint((xdt+1.0)/dt)-NSPS
   c0=cshift(c0,-k)
   if(k.gt.0) c0(0:k-1)=0.0

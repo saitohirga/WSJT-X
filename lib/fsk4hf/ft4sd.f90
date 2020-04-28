@@ -29,6 +29,7 @@ program ft4sd
    dt=1.0/fs                              !Sample interval (s)
    tt=NSPS*dt                             !Duration of "itone" symbols (s)
    txt=NZ*dt                              !Transmission length (s)
+   hmod=1.0
 
    nargs=iargc()
    if(nargs.lt.1) then
@@ -46,6 +47,11 @@ program ft4sd
    if(arg(1:2).eq.'-f') then
       call getarg(iarg+1,arg)
       read(arg,*) fMHz
+      iarg=iarg+2
+   endif
+   if(arg(1:2).eq.'-h') then
+      call getarg(iarg+1,arg)
+      read(arg,*) hmod 
       iarg=iarg+2
    endif
 
@@ -75,16 +81,17 @@ program ft4sd
       fs=12000.0/32.0
       npts=120*12000.0/32.0
 
-      call getcandidate_ft4s(c2,npts,fs,fa,fb,ncand,candidates)         !First approx for freq
+      call getcandidate_ft4s(c2,npts,hmod,fs,fa,fb,ncand,candidates)         !First approx for freq
 
+      del=1.5*hmod*fs/300.0
       ndecodes=0
       do icand=1,ncand
+!      do icand=1,1
          fc0=candidates(icand,1)
          xsnr=candidates(icand,2)
 !write(*,*) 'candidates ',icand,fc0,xsnr
          do isync=0,1
 
-            del=1.5*fs/300.0
             if(isync.eq.0) then
                fc1=fc0-del
                is0=375
@@ -104,7 +111,7 @@ program ft4sd
             do if=-ifhw,ifhw
                fc=fc1+df*if
                do istart=max(1,is0-ishw),is0+ishw,isst
-                  call coherent_sync_ft4s(c2,istart,fc,1,sync)
+                  call coherent_sync_ft4s(c2,istart,hmod,fc,1,sync)
                   if(sync.gt.smax) then
                      fc2=fc
                      isbest=istart
@@ -117,7 +124,7 @@ program ft4sd
 
 !         if(smax .lt. 100.0 ) cycle
 !isbest=375
-!fc2=-del
+!fc2=0
          do ijitter=0,2
             if(ijitter.eq.0) ioffset=0
             if(ijitter.eq.1) ioffset=45
@@ -125,10 +132,10 @@ program ft4sd
             is0=isbest+ioffset
             if(is0.lt.0) cycle
             cframe=c2(is0:is0+144*300-1)
-            call downsample_ft4s(cframe,fc2,cd)
+            call downsample_ft4s(cframe,fc2+del,hmod,cd)
             s2=sum(cd*conjg(cd))/(20*144)
             cd=cd/sqrt(s2)
-            call get_ft4s_bitmetrics(cd,bitmetrics,badsync)
+            call get_ft4s_bitmetrics(cd,hmod,bitmetrics,badsync)
 
             hbits=0
             where(bitmetrics(:,1).ge.0) hbits=1
@@ -191,8 +198,8 @@ program ft4sd
                   call unpack77(c77,0,msg,unpk77_success)
                   if(unpk77_success .and. index(msg,'K9AN').gt.0) then
                      ngood=ngood+1
-                     write(*,1100) ifile,icand,xsnr,isbest/375.0-1.0,1500.0+fc2+del,msg(1:14),itry,nhardbp,nhardosd,dmin,ijitter
-1100                 format(i5,2x,i5,2x,f6.1,2x,f6.2,2x,f8.2,2x,a14,i4,i4,i4,f7.2,i6)
+                     write(*,1100) ifile-2,icand,xsnr,isbest/375.0-1.0,1500.0+fc2+del,msg(1:20),itry,nhardbp,nhardosd,dmin,ijitter
+1100                 format(i5,2x,i5,2x,f6.1,2x,f6.2,2x,f8.2,2x,a20,i4,i4,i4,f7.2,i6)
                      goto 2002 
                   else
                      cycle
@@ -210,7 +217,7 @@ program ft4sd
 
 999 end program ft4sd
 
-subroutine coherent_sync_ft4s(cd0,i0,f0,itwk,sync)
+subroutine coherent_sync_ft4s(cd0,i0,hmod,f0,itwk,sync)
 
 ! Compute sync power for a complex, downsampled FT4s signal.
 
@@ -248,12 +255,12 @@ subroutine coherent_sync_ft4s(cd0,i0,f0,itwk,sync)
       phie=0.0
       phif=0.0
       do i=0,3
-         dphia=twopi*icos4a(i)/real(NSS)
-         dphib=twopi*icos4b(i)/real(NSS)
-         dphic=twopi*icos4c(i)/real(NSS)
-         dphid=twopi*icos4d(i)/real(NSS)
-         dphie=twopi*icos4e(i)/real(NSS)
-         dphif=twopi*icos4f(i)/real(NSS)
+         dphia=twopi*hmod*icos4a(i)/real(NSS)
+         dphib=twopi*hmod*icos4b(i)/real(NSS)
+         dphic=twopi*hmod*icos4c(i)/real(NSS)
+         dphid=twopi*hmod*icos4d(i)/real(NSS)
+         dphie=twopi*hmod*icos4e(i)/real(NSS)
+         dphif=twopi*hmod*icos4f(i)/real(NSS)
          do j=1,NSS
             csynca(k)=cmplx(cos(phia),sin(phia))
             csyncb(k)=cmplx(cos(phib),sin(phib))
@@ -347,7 +354,7 @@ subroutine coherent_sync_ft4s(cd0,i0,f0,itwk,sync)
    return
 end subroutine coherent_sync_ft4s
 
-subroutine downsample_ft4s(ci,f0,co)
+subroutine downsample_ft4s(ci,f0,hmod,co)
    parameter(NI=144*300,NH=NI/2,NO=NI/15)  ! downsample from 315 samples per symbol to 20 
    complex ci(0:NI-1),ct(0:NI-1)
    complex co(0:NO-1)
@@ -359,7 +366,7 @@ subroutine downsample_ft4s(ci,f0,co)
    ct=cshift(ct,i0)
    co=0.0
    co(0)=ct(0)
-   b=16.0
+   b=16.0*hmod
    do i=1,NO/2
       arg=(i*df/b)**2
       filt=exp(-arg)
@@ -371,7 +378,7 @@ subroutine downsample_ft4s(ci,f0,co)
    return
 end subroutine downsample_ft4s
 
-subroutine getcandidate_ft4s(c,npts,fs,fa,fb,ncand,candidates)
+subroutine getcandidate_ft4s(c,npts,hmod,fs,fa,fb,ncand,candidates)
    parameter(NFFT1=120*12000/32,NH1=NFFT1/2,NFFT2=120*12000/320,NH2=NFFT2/2)
    complex c(0:npts-1)                   !Complex waveform
    complex cc(0:NFFT1-1)
@@ -392,7 +399,7 @@ subroutine getcandidate_ft4s(c,npts,fs,fa,fb,ncand,candidates)
       csfil=cmplx(0.0,0.0)
       do i=0,NFFT2-1
 !         csfil(i)=exp(-((i-NH2)/32.0)**2)  ! revisit this
-         csfil(i)=exp(-((i-NH2)/28.0)**2)  ! revisit this
+         csfil(i)=exp(-((i-NH2)/(hmod*28.0))**2)  ! revisit this
       enddo
       csfil=cshift(csfil,NH2)
       call four2a(csfil,NFFT2,1,-1,1)
@@ -422,7 +429,7 @@ subroutine getcandidate_ft4s(c,npts,fs,fa,fb,ncand,candidates)
          (bigspec(i).gt.1.15).and.ncand.lt.100) then
          ncand=ncand+1
          candidates(ncand,1)=df*(i-NH2)
-         candidates(ncand,2)=10*log10(bigspec(i)-1)-28.5
+         candidates(ncand,2)=10*log10(bigspec(i)-1)-26.5
       endif
    enddo
    return
