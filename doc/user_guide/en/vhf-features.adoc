@@ -1,6 +1,5 @@
-_WSJT-X_ v{VERSION_MAJOR}.{VERSION_MINOR} supports a number of
-features designed for use on the VHF and higher bands.  These features
-include:
+_WSJT-X_ supports a number of features designed for use on the VHF and
+higher bands.  These features include:
 
 - *FT8*, a mode designed for making fast QSOs with weak, fading
 signals
@@ -155,6 +154,7 @@ QSO using submode JT4F.
 
 image::JT4F.png[align="center",alt="JT4F"]
 
+[[VHF_JT65]]
 === JT65
 
 In many ways JT65 operation on VHF and higher bands is similar to HF
