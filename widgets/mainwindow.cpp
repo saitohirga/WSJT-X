@@ -4592,19 +4592,24 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
 
     QString w2;
     if(w.size()>=3) w2=w.at(2);
-    QString w34;
-    if(w.size()>=4) w34=w.at(3);
     int nrpt=w2.toInt();
-    if(w2=="R") {
-      nrpt=w34.toInt();
-      w34=w.at(4);
-    }
     bool bEU_VHF_w2=(nrpt>=520001 and nrpt<=594000);
+    QString w34;
+    if(w.size()>=4) {
+      int i=2;
+      if(bEU_VHF_w2) i=3;
+      w34=w.at(i);
+      if(w2=="R") {
+        nrpt=w34.toInt();
+        w34=w.at(i+1);
+      }
+    }
+
     if(bEU_VHF_w2 and SpecOp::EU_VHF!=m_config.special_op_id()) {
-      auto const& message = tr("Should you switch to EU VHF Contest mode?\n\n"
+      auto const& msg = tr("Should you switch to EU VHF Contest mode?\n\n"
                                "To do so, check 'Special operating activity' and\n"
                                "'EU VHF Contest' on the Settings | Advanced tab.");
-      MessageBox::information_message (this, message);
+      MessageBox::information_message (this, msg);
     }
 
     QStringList t=message.string().split(' ', QString::SkipEmptyParts);
@@ -4641,7 +4646,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
        && (message_words.at(1).contains(m_baseCall) || "DE" == message_words.at(1))
        && (message_words.at(2).contains(qso_partner_base_call) or m_bDoubleClicked
            or bEU_VHF_w2 or (m_QSOProgress==CALLING))) {
-
       if(message_words.at(3).contains(grid_regexp) and SpecOp::EU_VHF!=m_config.special_op_id()) {
         if(SpecOp::NA_VHF==m_config.special_op_id() or SpecOp::WW_DIGI==m_config.special_op_id()){
           gen_msg=setTxMsg(3);
