@@ -4591,20 +4591,17 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
      || (firstcall == "DE")) {
 
     QString w2;
-    if(w.size()>=3) w2=w.at(2);
+    int nw=w.size();
+    if(nw>=3) w2=w.at(2);
     int nrpt=w2.toInt();
-    bool bEU_VHF_w2=(nrpt>=520001 and nrpt<=594000);
     QString w34;
-    if(w.size()>=4) {
-      int i=2;
-      if(bEU_VHF_w2) i=3;
-      w34=w.at(i);
-      if(w2=="R") {
-        nrpt=w34.toInt();
-        w34=w.at(i+1);
-      }
+    if(nw>=4) {
+//      w34=w.at(nw-2);
+      nrpt=w.at(nw-2).toInt();
+      w34=w.at(nw-1);
     }
-
+    bool bRTTY = (nrpt>=529 and nrpt<=599);
+    bool bEU_VHF_w2=(nrpt>=520001 and nrpt<=594000);
     if(bEU_VHF_w2 and SpecOp::EU_VHF!=m_config.special_op_id()) {
       auto const& msg = tr("Should you switch to EU VHF Contest mode?\n\n"
                                "To do so, check 'Special operating activity' and\n"
@@ -4627,9 +4624,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       // ### Should be in ARRL Field Day mode ??? ###
       MessageBox::information_message (this, tr ("Should you switch to ARRL Field Day mode?"));
     }
-
-    n=w34.toInt();
-    bool bRTTY = (n>=529 and n<=599);
 
     if(bRTTY and SpecOp::RTTY != m_config.special_op_id()) {
       // ### Should be in RTTY contest mode ??? ###
@@ -4660,6 +4654,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
           }
         }
       } else if(w34.contains(grid_regexp) and SpecOp::EU_VHF==m_config.special_op_id()) {
+
         if(nrpt==0) {
           gen_msg=setTxMsg(2);
           m_QSOProgress=REPORT;
@@ -4673,11 +4668,15 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
           }
         }
       } else if(SpecOp::RTTY == m_config.special_op_id() and bRTTY) {
-        gen_msg=setTxMsg(3);
-        m_QSOProgress=ROGER_REPORT;
-        int n=t.size();
-        int nRpt=t[n-2].toInt();
-        if(nRpt>=529 and nRpt<=599) m_xRcvd=t[n-2] + " " + t[n-1];
+        if(w2=="R") {
+          gen_msg=setTxMsg(4);
+          m_QSOProgress=ROGERS;
+        } else {
+          gen_msg=setTxMsg(3);
+          m_QSOProgress=ROGER_REPORT;
+        }
+        m_xRcvd=t[n-2] + " " + t[n-1];
+//        qDebug() << "bb" << w2 << w34 << t0 << m_xRcvd;
       } else if(SpecOp::FIELD_DAY==m_config.special_op_id() and bFieldDay_msg) {
         if(t0=="R") {
           gen_msg=setTxMsg(4);
