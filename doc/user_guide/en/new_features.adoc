@@ -3,31 +3,32 @@
 *Improvements to decoders*
 
 *FT4:* Corrected bugs that prevented AP (_a priori_) decoding and/or
-multi-pass decoding in some circumstances.  Improved the algorithm for
-AP decoding.
+multi-pass decoding in some circumstances.  Improved and extended the
+algorithm for AP decoding.
 
 *FT8:* Decoding is now spread over three intervals.  The first starts
 11.8 s into an Rx sequence and typically yields around 85% of the
-possible decodes, so you see all of these decodes much earlier than
-before.  A second processing step starts at 13.5 s, and the final one
-at 14.7 s.  Overall decoding yield on the most crowded bands is
-improved by 10% or more.  Systems with receive latency greater than
-0.2 s will see smaller improvements, but will still see many decodes
-earlier than before.  In FT8 DXpedition Mode, AP decoding is now
-implemented for Hounds when the Fox has a compound callsign.
+possible decodes, so you see most decodes much earlier than before.  A
+second processing step starts at 13.5 s, and the final one at 14.7 s.
+Overall decoding yield on crowded bands is improved by 10% or more.
+Systems with receive latency greater than 0.2 s will see smaller
+improvements, but will still see many decodes earlier than before.
 
 SNR estimates no longer saturate at +20 dB, and large signals in the
 passband no longer cause the SNR of weaker signals to be biased low.
 Times written to cumulative journal file ALL.TXT are now correct even
-when the decode occurs after the T/R sequence boundary.
+when the decode occurs after the T/R sequence boundary.  In FT8
+DXpedition Mode, AP decoding is now implemented for Hounds when the
+Fox has a compound callsign.
+
 
 *JT4:*  Formatting and display of averaged and Deep Search decodes has
 been cleaned up and made consistent with other modes used for EME and
-extreme weak-signal work at VHF and above.
+extreme weak-signal work on microwave bands.
 
 *JT65:*  Many improvements have been made for averaged and Deep Search
-decodes and their display to the user.  For details see <<VHF_JT65,JT65>>
-in the <<VHF_AND_UP,VHF+ Features>> section.
+decodes, and their display to the user.  For details see <<VHF_JT65,JT65>>
+in the <<VHF_AND_UP,VHF+ Features>> section of this guide.
 
 *WSPR:* Significant improvements have been made to the WSPR decoder's
 sensitivity, its ability to cope with many signals in a crowded
@@ -36,37 +37,24 @@ three decoding passes.  Passes 1 and 2 use noncoherent demodulation of
 single symbols and allow for frequency drifts up to ±4 Hz in a
 transmission.  Pass 3 assumes no drift and does coherent block
 detection of up to three symbols.  It also applies bit-by-bit
-normalization of the single-symbol bit metrics, which has proven
-helpful for signals corrupted by artifacts of the subtraction of
-stronger signals and also for LF/MF signals heavily contaminated by
-lightning transients.  With these improvements the number of decodes in a
-crowded WSPR sub-band typically increases by 10 to 15%.
+normalization of the single-symbol bit metrics, a technique that has
+proven helpful for signals corrupted by artifacts of the subtraction
+of stronger signals and also for LF/MF signals heavily contaminated by
+lightning transients.  With these improvements the number of decodes
+in a crowded WSPR sub-band typically increases by 10 to 15%.
 
 *New message format:* When *EU VHF Contest* is selected, the Tx2 and
 Tx3 messages -- those conveying signal report, serial number, and
 6-character locator -- now use hashcodes for both callsigns .  This
-change is not backward compatible with earlier versions of _WSJT-X_.
-See <<CONTEST_MSGS,Contest Messages>> for details.
-
-*New modes FT4W and FT4S* are now available for use with extremely
-weak signals on the LF and MF bands.
-
-*FT4W* behaves like WSPR but uses different schemes for coding and
-modulation.  On the AWGN (Additive White Gaussian Noise) channel and
-with 2-minute T/R sequences, FT4W is about 1.5 dB more sensitive than
-WSPR, even with the enhanced decoder outlined above.  With 5-minute
-T/R sequences FT4W reaches a threshold sensitivity close to -37 dB.
-
-*FT4S* is desighned for 2-way QSOs on the 620 amd 2200 m bands.  It
-uses the same message formats as FT4, FT8, and MSK144, but different
-coding and modulation and much slower T/R sequences lasting 2 minutes.
-We intend FT4S to be a replacement for JT9 on the LF and MF bands.
+change is *not* backward compatible with earlier versions of _WSJT-X_, so
+all users of *EU VHF Contest* messages should be sure to upgrade to
+versiion 2.2.0.  See <<CONTEST_MSGS,Contest Messages>> for details.
 
 *Minor enhancements and bug fixes*
 
 - *Save None* now writes no .wav files to disk, even temporarily.
 
-- An explicit entry *WW Digi Contest* has been added to *Special
+- An explicit entry for *WW Digi Contest* has been added to *Special
  operating activities* on the *Settings | Advanced* tab.
 
 - The contest mode FT4 now always uses RR73 for the Tx4 message.
@@ -76,6 +64,10 @@ We intend FT4S to be a replacement for JT9 on the LF and MF bands.
 
 - The *Status bar* now displays the number of decodes found in the
 most recent Rx sequence.
+
+- As an aid for partial color-blindness, the "`inverted goal posts`"
+marking Rx frequency on the Wide Graph's frequency scale are now in a
+darker shade of green.
 
 === Documentation Conventions
 

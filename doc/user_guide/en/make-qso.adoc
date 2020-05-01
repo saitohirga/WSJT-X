@@ -82,7 +82,7 @@ fully automated QSOs.
 [[CONTEST_MSGS]]
 === Contest Messages
 
-The new FT4, FT8, and MSK144 protocols support special messages optimized
+The FT4, FT8, and MSK144 protocols support special messages optimized
 for *NA VHF* and *EU VHF* contests. FT8 also supports messages for
 *ARRL Field Day* and the *ARRL RTTY Roundup*.  The decoders recognize
 and decode these messages at any time.  Configure the program to
