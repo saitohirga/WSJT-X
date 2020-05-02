@@ -83,6 +83,10 @@ contains
     else
        ndecodes=ndec_early
     endif
+    if(nzhsym.eq.47 .and. ndec_early.eq.0) then
+       dd1=dd
+       go to 800
+    endif
     if(nzhsym.eq.47 .and. ndec_early.ge.1) then
        lsubtracted=.false.
        lrefinedt=.true.
