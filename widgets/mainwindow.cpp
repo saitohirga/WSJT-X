@@ -8869,6 +8869,10 @@ void MainWindow::chkFT4()
     }
     on_contest_log_action_triggered();
   }
+  if (SpecOp::HOUND == m_config.special_op_id() or SpecOp::FOX == m_config.special_op_id()) {
+    ui->labDXped->setVisible(false);
+  }
+
 }
 
 void MainWindow::on_pbBestSP_clicked()
