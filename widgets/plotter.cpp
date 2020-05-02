@@ -330,7 +330,8 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
 
   double df = m_binsPerPixel*m_fftBinWidth;
   QPen penOrange(QColor(255,165,0),3);
-  QPen penGreen(Qt::green, 3);                 //Mark Tol range with green line
+//  QPen penGreen(Qt::green, 3);                 //Mark Tol range with green line
+  QPen penGreen(QColor(15,153,105), 3);        //Mark Tol range or BW with dark green line
   QPen penRed(Qt::red, 3);                     //Mark Tx freq with red
   QPainter painter(&m_OverlayPixmap);
   painter.setBackground (palette ().brush (backgroundRole ()));
