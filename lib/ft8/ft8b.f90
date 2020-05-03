@@ -445,7 +445,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,nzhsym,lapon,     &
      xsnr2=0.001
      arg=xsig/xnoi-1.0 
      if(arg.gt.0.1) xsnr=arg
-     arg=xsig/xbase/2.6e6-1.0
+     arg=xsig/xbase/3.0e6-1.0
      if(arg.gt.0.1) xsnr2=arg
      xsnr=10.0*log10(xsnr)-27.0
      xsnr2=10.0*log10(xsnr2)-27.0
