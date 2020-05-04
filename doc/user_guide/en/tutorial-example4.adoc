@@ -45,7 +45,7 @@ when double-clicking.
 
 .Best S+P Button
 
-The FT4 user interface includes a new button labeled *Best S+P*.
+The FT4 user interface includes a button labeled *Best S+P*.
 
 image::Best_S+P.png[align="center"]
 
