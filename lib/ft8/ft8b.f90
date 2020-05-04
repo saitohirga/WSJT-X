@@ -406,14 +406,14 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,nzhsym,lapon,     &
      call timer('bpd174_91 ',1)
      dmin=0.0
      if(nharderrors.lt.0 .and. ncheck.le.30 .and. ndepth.ge.2) then
-        ndeep=ndepth
-!ndeep=ndepth-1
+!        ndeep=ndepth
+        ndeep=ndepth-1
         if(abs(nfqso-f1).le.napwid .or. abs(nftx-f1).le.napwid .or. ncontest.eq.7) then
-           ndeep=4  
-!ndeep=3  
+!           ndeep=4  
+           ndeep=3  
         endif
-        if(nagain) ndeep=5
-!if(nagain) ndeep=4
+!        if(nagain) ndeep=5
+        if(nagain) ndeep=4
         call timer('osd174_91 ',0)
         Keff=91
 !        call osd174_91(llrz,Keff,apmask,ndeep,message91,cw,nharderrors,dmin)
