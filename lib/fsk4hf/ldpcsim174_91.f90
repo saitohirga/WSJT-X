@@ -10,7 +10,7 @@ character*6 grid
 character*96 tmpchar
 integer*1, allocatable ::  codeword(:), decoded(:), message(:)
 integer*1 msgbits(77)
-integer*1 message77(77)
+integer*1 message77(77),message91(91)
 integer*1 apmask(N), cw(N)
 integer nerrtot(0:N),nerrdec(0:N)
 logical unpk77_success
@@ -21,11 +21,12 @@ nerrtot=0
 nerrdec=0
 
 nargs=iargc()
-if(nargs.ne.4) then
-   print*,'Usage: ldpcsim  niter  ndepth  #trials   s '
-   print*,'eg:    ldpcsim    10     2      1000    0.84'
+if(nargs.ne.6) then
+   print*,'Usage: ldpcsim  niter  ndepth  #trials   s     Keff  BPOSD'
+   print*,'eg:    ldpcsim    10     2      1000    0.84    91     1'
    print*,'belief propagation iterations: niter, ordered-statistics depth: ndepth'
    print*,'If s is negative, then value is ignored and sigma is calculated from SNR.'
+   print*,'If BPOSD=0, no coupling. BPOSD=1, BP output to OSD input.'
    return
 endif
 call getarg(1,arg)
@@ -36,9 +37,13 @@ call getarg(3,arg)
 read(arg,*) ntrials 
 call getarg(4,arg)
 read(arg,*) s
+call getarg(5,arg)
+read(arg,*) Keff 
+call getarg(6,arg)
+read(arg,*) nbposd 
 
 ! scale Eb/No for a (174,91) code
-rate=real(K)/real(N)
+rate=real(Keff)/real(N)
 
 write(*,*) "rate: ",rate
 write(*,*) "niter= ",max_iterations," s= ",s
@@ -46,8 +51,7 @@ write(*,*) "niter= ",max_iterations," s= ",s
 allocate ( codeword(N), decoded(K), message(K) )
 allocate ( rxdata(N), llr(N) )
 
-!  msg="K1JT K9AN EN50"
-  msg="G4WJS K9AN EN50"
+  msg="K9ABC K1ABC FN20"
   i3=0
   n3=1
   call pack77(msg,i3,n3,c77) !Pack into 12 6-bit bytes
@@ -55,20 +59,19 @@ allocate ( rxdata(N), llr(N) )
   write(*,*) "message sent ",msgsent
 
   read(c77,'(77i1)') msgbits(1:77)
-
   write(*,*) 'message'
   write(*,'(a71,1x,a3,1x,a3)') c77(1:71),c77(72:74),c77(75:77)
 
-  call encode174_91(msgbits,codeword)
-
   call init_random_seed()
 
+  call encode174_91(msgbits,codeword)
+  write(*,*) 'crc14'
+  write(*,'(14i1)') codeword(78:91)
   write(*,*) 'codeword' 
   write(*,'(22(8i1,1x))') codeword
 
-write(*,*) "Eb/N0   SNR2500   ngood  nundetected  sigma  psymerr"
-do idb = 20,-10,-1 
-!do idb = 0,0,-1 
+write(*,*) "Eb/N0   SNR2500   ngood  nundetected  sigma        psymerr"
+do idb = 10,-4,-1 
   db=idb/2.0-1.0
   sigma=1/sqrt( 2*rate*(10**(db/10.0)) )
   ngood=0
@@ -101,21 +104,26 @@ do idb = 20,-10,-1
     llr(1:nap)=5*(2.0*msgbits(1:nap)-1.0)
     apmask=0
     apmask(1:nap)=1
-
 ! max_iterations is max number of belief propagation iterations
-    call bpdecode174_91(llr, apmask, max_iterations, message77, cw, nharderrors,niterations,ncheck)
-    if( ndepth .ge. 0 .and. nharderrors .lt. 0 ) call osd174_91(llr, apmask, ndepth, message77, cw,  nharderrors, dmin)
-!call decode174_91(llr, apmask, max_iterations, message77, cw, nharderrors,niterations,ncheck,dmin,nsuper)
+    call bpdecode174_91(llr, apmask, max_iterations, message77, cw, nhardbp,niterations,ncheck)
+    if( ndepth .ge. 0 .and. nhardbp .lt. 0 ) then
+       dmin=0.0
+       if(nbposd.eq.0) then
+          call osd174_91(llr,Keff,apmask,ndepth,message91,cw,nhardosd,dmin)
+       else
+          maxsuper=2
+          call decode174_91(llr,Keff,ndepth,apmask,maxsuper,message91,cw,nhardosd,niterations,ncheck,dmin)
+       endif
 ! If the decoder finds a valid codeword, nharderrors will be .ge. 0.
-    if( nharderrors .ge. 0 ) then
-      call extractmessage77(message77,msgreceived)
-      nhw=count(cw.ne.codeword)
-      if(nhw.eq.0) then ! this is a good decode
-         ngood=ngood+1
-         nerrdec(nerr)=nerrdec(nerr)+1
-      else
-         nue=nue+1
-      endif
+    endif
+    if( nhardbp .ge. 0 .or. nhardosd.ge.0 ) then
+       nhw=count(cw.ne.codeword)
+       if(nhw.eq.0) then ! this is a good decode
+          ngood=ngood+1
+          nerrdec(nerr)=nerrdec(nerr)+1
+       else
+          nue=nue+1
+       endif
     endif
     nsumerr=nsumerr+nerr
   enddo

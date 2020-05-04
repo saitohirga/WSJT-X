@@ -428,6 +428,7 @@ set (wsjt_FSRCS
   lib/encode_128_90.f90
   lib/ft8/encode174.f90
   lib/ft8/encode174_91.f90
+  lib/ft8/encode174_91_nocrc.f90
   lib/entail.f90
   lib/ephem.f90
   lib/extract.f90
@@ -603,12 +604,14 @@ set (wsjt_FSRCS
   lib/fsk4hf/genwsprcpm.f90
   lib/fsk4hf/encode204.f90
   lib/fsk4hf/decode174_74.f90
+  lib/ft8/decode174_91.f90
   lib/fsk4hf/decode240_101.f90
   lib/fsk4hf/decode280_101.f90
   lib/fsk4hf/ldpcsim174_91.f90
   lib/fsk4hf/ldpcsim174_74.f90
   lib/fsk4hf/ldpcsim240_101.f90
   lib/fsk4hf/ldpcsim280_101.f90
+  lib/fsk4hf/get_crc14.f90
   lib/fsk4hf/get_crc24.f90
   lib/fsk4hf/encode174_74.f90
   lib/fsk4hf/encode240_101.f90

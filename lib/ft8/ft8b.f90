@@ -18,7 +18,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,nzhsym,lapon,     &
   real llra(174),llrb(174),llrc(174),llrd(174),llrz(174)           !Soft symbols
   real dd0(15*12000)
   real ss(9)
-  integer*1 message77(77),apmask(174),cw(174)
+  integer*1 message77(77),message91(91),apmask(174),cw(174)
   integer apsym(58),aph10(10)
   integer mcq(29),mcqru(29),mcqfd(29),mcqtest(29),mcqww(29)
   integer mrrr(19),m73(19),mrr73(19)
@@ -407,12 +407,19 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,nzhsym,lapon,     &
      dmin=0.0
      if(nharderrors.lt.0 .and. ncheck.le.30 .and. ndepth.ge.2) then
         ndeep=ndepth
+!ndeep=ndepth-1
         if(abs(nfqso-f1).le.napwid .or. abs(nftx-f1).le.napwid .or. ncontest.eq.7) then
            ndeep=4  
+!ndeep=3  
         endif
         if(nagain) ndeep=5
+!if(nagain) ndeep=4
         call timer('osd174_91 ',0)
-        call osd174_91(llrz,apmask,ndeep,message77,cw,nharderrors,dmin)
+        Keff=91
+!        call osd174_91(llrz,Keff,apmask,ndeep,message91,cw,nharderrors,dmin)
+        maxsuper=2
+        call decode174_91(llrz,Keff,ndeep,apmask,maxsuper,message91,cw,nharderrors,niterations,ncheck,dmin)
+        if(nharderrors.ge.0) message77=message91(1:77)
         call timer('osd174_91 ',1)
      endif
 

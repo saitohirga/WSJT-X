@@ -56,6 +56,7 @@ contains
       integer apmy_ru(28),aphis_fd(28)
       integer*2 iwave(NMAX)                 !Raw received data
       integer*1 message77(77),rvec(77),apmask(2*ND),cw(2*ND)
+      integer*1 message91(91)
       integer*1 hbits(2*NN)
       integer i4tone(103)
       integer nappasses(0:5)    ! # of decoding passes for QSO States 0-5
@@ -412,12 +413,19 @@ contains
                   call timer('bpdec174',1)
 
                   if(doosd .and. nharderror.lt.0) then
-                     ndeep=3
+!                     ndeep=3
+                     ndeep=2
                      if(abs(nfqso-f1).le.napwid) then
-                        ndeep=4
+!                        ndeep=4
+                        ndeep=3
                      endif
                      call timer('osd174_91 ',0)
-                     call osd174_91(llr,apmask,ndeep,message77,cw,nharderror,dmin)
+                     Keff=91
+                     maxsuper=2
+!                     call osd174_91(llr,Keff,apmask,ndeep,message91,cw,nharderror,dmin)
+                     call decode174_91(llr,Keff,ndeep,apmask,maxsuper,message91,cw,nharderror, &
+                                       niterations,ncheck,dmin)
+                     message77=message91(1:77)
                      call timer('osd174_91 ',1)
                   endif
 
