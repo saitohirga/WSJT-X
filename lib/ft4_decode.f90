@@ -421,7 +421,7 @@ contains
                      endif
                      call timer('osd174_91 ',0)
                      Keff=91
-                     maxsuper=2
+                     maxsuper=1
 !                     call osd174_91(llr,Keff,apmask,ndeep,message91,cw,nharderror,dmin)
                      call decode174_91(llr,Keff,ndeep,apmask,maxsuper,message91,cw,nharderror, &
                                        niterations,ncheck,dmin)

@@ -417,7 +417,7 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,nzhsym,lapon,     &
         call timer('osd174_91 ',0)
         Keff=91
 !        call osd174_91(llrz,Keff,apmask,ndeep,message91,cw,nharderrors,dmin)
-        maxsuper=2
+        maxsuper=1
         call decode174_91(llrz,Keff,ndeep,apmask,maxsuper,message91,cw,nharderrors,niterations,ncheck,dmin)
         if(nharderrors.ge.0) message77=message91(1:77)
         call timer('osd174_91 ',1)
