@@ -26,8 +26,6 @@ propagation
 - *Doppler tracking*, which becomes increasingly important for EME
 on bands above 1.2 GHz.
 
-- Optional *Auto-Sequencing* in JT4, JT9, and JT65 as well as FT8 and QRA64.
-
 [[VHF_SETUP]]
 === VHF Setup
 
@@ -160,18 +158,16 @@ image::JT4F.png[align="center",alt="JT4F"]
 In many ways JT65 operation on VHF and higher bands is similar to HF
 usage, but a few important differences should be noted.  Typical
 VHF/UHF operation involves only a single signal (or perhaps two or
-three) in the receiver passband.  You may find it best to check
-*Single decode* on the *Settings -> General* tab.  There will be
-little need for *Two pass decoding* on the *Advanced* tab.  With VHF
-features enabled the JT65 decoder will respond to special message
-formats often used for EME: the OOO signal report and two-tone
-shorthand messages for RO, RRR, and 73.  These messages are always
-enabled for reception; they will be automatically generated for
-transmission if you check the shorthand message box *Sh*.
-
-*Deep* on the *Decode* menu will be automatically selected.  You may
-optionally include *Enable averaging*, *Enable Deep search*, and
-*Enable AP*.
+three) in the receiver passband.  We recommend that you check *Single
+decode* on the *Settings -> General* tab, and do not check *Two pass
+decoding* on the *Advanced* tab.  With VHF features enabled the JT65
+decoder will respond to special message formats often used for EME:
+the OOO signal report and two-tone shorthand messages for RO, RRR, and
+73.  These messages are always enabled for reception; they will be
+automatically generated for transmission if you check the shorthand
+message box *Sh*.  *Deep* on the *Decode* menu will be automatically
+selected.  You may optionally include *Enable averaging*, *Enable Deep
+search*, and *Enable AP*.
 
 The following screen shot shows three transmissions from a 144 MHz EME
 QSO using submode JT65B and shorthand messages.  Take note of the
@@ -274,8 +270,6 @@ time being used for execution of the MSK144 real-time decoder.  If
 this number is well below 100%, you may increase the decoding depth
 from *Fast* to *Normal* or *Deep*, and increase *F Tol* from 100 to
 200 Hz.
-
-+
 
 NOTE: Most modern multi-core computers can easily handle the optimum
 parameters *Deep* and *F Tol 200*.  Older and slower machines may not
