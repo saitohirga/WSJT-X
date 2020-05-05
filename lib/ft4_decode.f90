@@ -409,9 +409,10 @@ contains
                   dmin=0.0
 
                   ndeep=2
-                  maxosd=1  
+                  maxosd=2  
                   if(abs(nfqso-f1).le.napwid) then
-                     maxosd=2
+                     ndeep=2
+                     maxosd=3
                   endif
                   if(.not.doosd) maxosd = -1
                   call timer('dec174_91 ',0)
