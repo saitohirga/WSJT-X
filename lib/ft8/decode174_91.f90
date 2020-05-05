@@ -22,7 +22,7 @@ subroutine decode174_91(llr,Keff,maxosd,norder,apmask,message91,cw,ntype,nharder
    real llr(N)
    real Tmn
 
-   include "ldpc_174_91_c_reordered_parity.f90"
+   include "ldpc_174_91_c_parity.f90"
 
    maxiterations=30
    nosd=0

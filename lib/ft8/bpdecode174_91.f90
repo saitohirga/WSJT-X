@@ -19,7 +19,7 @@ real zn(N)
 real llr(N)
 real Tmn
 
-include "ldpc_174_91_c_reordered_parity.f90"
+include "ldpc_174_91_c_parity.f90"
 
 decoded=0
 toc=0
