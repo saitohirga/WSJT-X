@@ -24,7 +24,7 @@ program ldpcsim174_91
    if(nargs.ne.6) then
       print*,'Usage: ldpcsim  niter  ndepth  #trials   s     Keff  nbposd'
       print*,'eg:    ldpcsim    10     2      1000    0.84    91     1'
-      print*,'niter:  max BP iterations
+      print*,'niter:  max BP iterations'
       print*,'ndepth: OSD order'
       print*,'s: noise sigma; if negative value is ignored and sigma is calculated from SNR.'
       print*,'nbposd=0, no coupling. nbposd>0, maxsuper=nbposd; nbposd<0, no OSD'
