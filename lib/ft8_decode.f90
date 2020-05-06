@@ -33,8 +33,8 @@ module ft8_decode
 contains
 
   subroutine decode(this,callback,iwave,nQSOProgress,nfqso,nftx,newdat,  &
-       nutc,nfa,nfb,nzhsym,ndepth,ncontest,nagain,lft8apon,lapcqonly,    &
-       napwid,mycall12,hiscall12,ldiskdat)
+       nutc,nfa,nfb,nzhsym,ndepth,emedelay,ncontest,nagain,lft8apon,     &
+       lapcqonly,napwid,mycall12,hiscall12,ldiskdat)
     use iso_c_binding, only: c_bool, c_int
     use timer_module, only: timer
     use shmem, only: shmem_lock, shmem_unlock
@@ -184,6 +184,7 @@ contains
            endif
            if(.not.ldupe .and. associated(this%callback)) then
               qual=1.0-(nharderrors+dmin)/60.0 ! scale qual to [0.0,1.0]
+              if(emedelay.ne.0) xdt=xdt+2.0
               call this%callback(sync,nsnr,xdt,f1,msg37,iaptype,qual)
            endif
         endif

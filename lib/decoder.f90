@@ -120,11 +120,16 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 
      call timer('decft8  ',0)
      newdat=params%newdat
+     if(params%emedelay.ne.0.0) then
+        id2(1:156000)=id2(24001:180000)  ! Drop the first 2 seconds of data
+        id2(156001:180000)=0
+     endif
      call my_ft8%decode(ft8_decoded,id2,params%nQSOProgress,params%nfqso,    &
           params%nftx,newdat,params%nutc,params%nfa,params%nfb,              &
-          params%nzhsym,params%ndepth,ncontest,logical(params%nagain),       &
-          logical(params%lft8apon),logical(params%lapcqonly),                &
-          params%napwid,mycall,hiscall,params%ndiskdat)
+          params%nzhsym,params%ndepth,params%emedelay,ncontest,              &
+          logical(params%nagain),logical(params%lft8apon),                   &
+          logical(params%lapcqonly),params%napwid,mycall,hiscall,            &
+          params%ndiskdat)
      call timer('decft8  ',1)
      if(nfox.gt.0) then
         n30min=minval(n30fox(1:nfox))
