@@ -748,6 +748,7 @@ int main(int argc, char *argv[])
     int writec2=0,maxdrift;
     int shift1, lagmin, lagmax, lagstep, ifmin, ifmax, not_decoded;
     unsigned int nbits=81, stacksize=200000;
+    struct snode * stack=NULL;
     unsigned int npoints, cycles, maxnp, metric;
     float df=375.0/256.0/2;
     float fsymbs[162];
@@ -1334,7 +1335,7 @@ int main(int argc, char *argv[])
                         deinterleave(symbols);
                         t0 = clock();
                         
-                        if ( stackdecoder ) {
+                        if ( stack ) {
                             not_decoded = jelinek(&metric, &cycles, decdata, symbols, nbits,
                                                   stacksize, stack, mettab,maxcycles);
                         } else {
@@ -1566,9 +1567,7 @@ int main(int argc, char *argv[])
     free(call_loc_pow);
     free(idat);
     free(qdat);
-    if( stackdecoder ) {
-        free(stack);
-    }
+    free(stack);
     
     return 0;
 }
