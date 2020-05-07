@@ -6,7 +6,7 @@ subroutine wav11(d2,npts,dd)
   parameter (NFFT1=64*12000,NFFT2=64*11025)
   integer*2 d2(NZ12)
   real*4 dd(NZ11)
-  real x(NFFT2)
+  real x(NFFT1)
   complex cx(0:NFFT1/2)
   equivalence (x,cx)
   save x,cx
