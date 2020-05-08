@@ -74,6 +74,9 @@ set (UG_IMGS
   images/decodes.png
   images/download_samples.png
   images/echo_144.png
+  images/EME_Deep_0.png
+  images/EME_Deep_1.png
+  images/EME_Deep_2.png
   images/file-menu.png
   images/FreqCal.png
   images/FreqCal_Graph.png

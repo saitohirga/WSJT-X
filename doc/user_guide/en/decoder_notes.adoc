@@ -1,3 +1,4 @@
+[[AP_Decoding]]
 === AP Decoding
 
 The _WSJT-X_ decoders for FT4, FT8, JT65, and QRA64 include optional
@@ -92,6 +93,7 @@ averaged to obtain the decode.
 |===========================================
 
 
+[[Decoded_Lines]]
 === Decoded Lines
 
 Displayed information accompanying decoded messages generally includes UTC,
@@ -109,10 +111,10 @@ summarized in the following Table:
 |===========================================
 |Mode    |Mode character|Sync character|End of line information
 |FT8     | ~            |      | ? &#160; aP
-|JT4     | $            | *, # | f, fN, dNC
+|JT4     | $            | *, # | f, fN, dCN
 |JT9     | @            |      |
 |JT65    | #            |      |
-|JT65 VHF| #            | *, # | f, fN, dNC
+|JT65 VHF| #            | *, # | f, fN, dCN
 |QRA64   | :            | *    | R
 |ISCAT   |              | *    | M  N  C  T
 |MSK144  | &            |      | N  H  E
