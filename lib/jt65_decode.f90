@@ -430,7 +430,9 @@ contains
        if(mod(iutc(i),2).ne.mod(nutc,2)) cycle  !Use only same (odd/even) seq
        if(abs(dtxx-dtsave(i)).gt.dtdiff) cycle  !DT must match
        if(abs(nfreq-nfsave(i)).gt.ntol) cycle   !Freq must match
+       if(nflipsave(i).eq.0) cycle              !No sync
        if(nflip.ne.nflipsave(i)) cycle          !Sync type (*/#) must match
+
        s3b=s3b + s3save(1:64,1:63,i)
        s1b=s1b + s1save(-255:256,1:126,i)
        syncsum=syncsum + syncsave(i)
@@ -452,8 +454,9 @@ contains
     endif
 
     do i=1,nsave
-       csync='*'
+       csync=' '
        if(nflipsave(i).lt.0.0) csync='#'
+       if(nflipsave(i).gt.0.0) csync='*'
        write(14,1000) cused(i),iutc(i),syncsave(i),dtsave(i)-1.0,nfsave(i),csync
 1000   format(a1,i5.4,f6.1,f6.2,i6,1x,a1)
     enddo
