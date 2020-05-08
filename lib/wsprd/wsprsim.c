@@ -152,6 +152,7 @@ int main(int argc, char *argv[])
                 break;
             case 'f':
                 f0 = atof(optarg);
+                break;
             case 'o':
                 c2filename = optarg;
                 writec2=1;
