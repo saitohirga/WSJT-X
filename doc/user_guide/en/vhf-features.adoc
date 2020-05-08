@@ -337,9 +337,23 @@ image::echo_144.png[align="center",alt="Echo 144 MHz"]
 
 === Tips for EME
 
-The following tutorial aims to familiarize you with program features
-of particular interest for EME and other extreme weak-signal
-conditions.  As a starting point, configure _WSJT-X_ as follows:
+Current conventions dictate that digital EME is usually done with
+JT65A on the 50 MHz band, JT65B on 144 and 432 MHz, and JT65C on 1296
+MHz.  On higher microwave bands typical choices are JT65C or one of
+the wider QRA64 or JT4 submodes, depending on the expected amount of
+Doppler spread.  JT4 and JT65 offer message *Averaging* -- the
+summation of subsequent transmissions that convey the same message --
+to enable decodes at signal-to-noise ratios several dB below below the
+threshold for single transmissions.  These modes also allow *Deep
+Search* decoding, in which the decoder hypothesizes messages
+containing known or previously decoded callsigns and tests them for
+reliability using a correlation algorithm.  Finally, JT65 and QRA64
+offer _a priori_ (AP) decoding, which thats advantage of naturally
+accumulating information during a QSO.  The following tutorial aims to
+familiarize you with these program features, all of which are of
+special interest for EME and other extreme weak-signal conditions.
+
+As a starting point, configure _WSJT-X_ as follows:
 
 .Settings | General:
 - *My Call* =  W9XYZ
