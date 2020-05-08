@@ -348,7 +348,7 @@ threshold for single transmissions.  These modes also allow *Deep
 Search* decoding, in which the decoder hypothesizes messages
 containing known or previously decoded callsigns and tests them for
 reliability using a correlation algorithm.  Finally, JT65 and QRA64
-offer _a priori_ (AP) decoding, which thats advantage of naturally
+offer _a priori_ (AP) decoding, which takes advantage of naturally
 accumulating information during a QSO.  The following tutorial aims to
 familiarize you with these program features, all of which are of
 special interest for EME and other extreme weak-signal conditions.
