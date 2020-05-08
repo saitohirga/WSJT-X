@@ -216,6 +216,8 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      if(params%newdat) then
         if(nfsample.eq.12000) call wav11(id2,jz,dd)
         if(nfsample.eq.11025) dd(1:jz)=id2(1:jz)
+     else
+        jz=52*11025
      endif
      call my_jt4%decode(jt4_decoded,dd,jz,params%nutc,params%nfqso,         &
           params%ntol,params%emedelay,params%dttol,logical(params%nagain),  &
