@@ -294,7 +294,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_saveAll {false},
   m_widebandDecode {false},
   m_dataAvailable {false},
-  m_blankLine {false},
   m_decodedText2 {false},
   m_freeText {false},
   m_sentFirst73 {false},
@@ -1426,7 +1425,6 @@ void MainWindow::dataSink(qint64 frames)
     if(m_ihsym==40 and m_decoderBusy) {
       qDebug() << "Clearing hung decoder status";
       decodeDone();  //Clear a hung decoder status
-      m_blankLine=true;
     }
   }
 
@@ -2109,7 +2107,6 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
     case Qt::Key_Z:                            //### Recover from hung decode() ?? ###
       if(e->modifiers() & Qt::AltModifier) {
         decodeDone();
-        m_blankLine=true;
         return;
       }
     break;    case Qt::Key_PageUp:
@@ -2829,7 +2826,6 @@ void MainWindow::on_DecodeButton_clicked (bool /* checked */) //Decode request
     if(!m_mode.startsWith ("WSPR") && !m_decoderBusy) {
       dec_data.params.newdat=0;
       dec_data.params.nagain=1;
-      m_blankLine=false; // don't insert the separator again
       decode();
     }
   }
@@ -3120,11 +3116,6 @@ void MainWindow::decodeDone ()
   ui->DecodeButton->setChecked (false);
   decodeBusy(false);
   m_RxLog=0;
-  m_blankLine=true;
-  if(m_mode=="FT8") {
-    if(dec_data.params.nzhsym==m_earlyDecode) m_blankLine=false;
-    if(dec_data.params.nzhsym==m_earlyDecode2) m_blankLine=false;
-  }
   if(SpecOp::FOX == m_config.special_op_id()) houndCallers();
   to_jt9(m_ihsym,-1,1);                //Tell jt9 we know it has finished
 
@@ -3180,13 +3171,16 @@ void MainWindow::readFromStdout()                             //readFromStdout
         if(navg>=2) bAvgMsg=true;
       }
       write_all("Rx",line_read.trimmed());
-      if (m_config.insert_blank () && m_blankLine && SpecOp::FOX != m_config.special_op_id()) {
+      int ntime=6;
+      if(m_TRperiod>=60) ntime=4;
+      if (m_config.insert_blank () && (line_read.left(ntime)!=m_tBlankLine) &&
+          SpecOp::FOX != m_config.special_op_id()) {
         QString band;
         if((QDateTime::currentMSecsSinceEpoch() / 1000 - m_secBandChanged) > 4*int(m_TRperiod)/4) {
           band = ' ' + m_config.bands ()->find (m_freqNominal);
         }
         ui->decodedTextBrowser->insertLineSpacer (band.rightJustified  (40, '-'));
-        m_blankLine = false;
+        m_tBlankLine = line_read.left(ntime);
       }
 
       DecodedText decodedtext0 {QString::fromUtf8(line_read.constData())};
@@ -7658,7 +7652,6 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
       }
       m_RxLog=0;
       m_startAnother=m_loopall;
-      m_blankLine=true;
       m_decoderBusy = false;
       statusUpdate ();
     } else {
@@ -7710,12 +7703,12 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
         rxLine += t1;
       }
 
-      if (m_config.insert_blank () && m_blankLine) {
+      if (m_config.insert_blank () && (rxLine.left(4)!=m_tBlankLine)) {
         QString band;
         Frequency f=1000000.0*rxFields.at(3).toDouble()+0.5;
         band = ' ' + m_config.bands ()->find (f);
         ui->decodedTextBrowser->appendText(band.rightJustified (71, '-'));
-        m_blankLine = false;
+        m_tBlankLine = rxLine.left(4);
       }
       m_nWSPRdecodes += 1;
       ui->decodedTextBrowser->appendText(rxLine);
@@ -7967,7 +7960,6 @@ void MainWindow::fastPick(int x0, int x1, int y)
   if(!m_decoderBusy) {
     dec_data.params.newdat=0;
     dec_data.params.nagain=1;
-    m_blankLine=false;                 // don't insert the separator again
     m_nPick=1;
     if(y > 120) m_nPick=2;
     m_t0Pick=x0/pixPerSecond;
