@@ -3173,13 +3173,16 @@ void MainWindow::readFromStdout()                             //readFromStdout
       write_all("Rx",line_read.trimmed());
       int ntime=6;
       if(m_TRperiod>=60) ntime=4;
-      if (m_config.insert_blank () && (line_read.left(ntime)!=m_tBlankLine) &&
-          SpecOp::FOX != m_config.special_op_id()) {
-        QString band;
-        if((QDateTime::currentMSecsSinceEpoch() / 1000 - m_secBandChanged) > 4*int(m_TRperiod)/4) {
-          band = ' ' + m_config.bands ()->find (m_freqNominal);
-        }
-        ui->decodedTextBrowser->insertLineSpacer (band.rightJustified  (40, '-'));
+      if (line_read.left(ntime) != m_tBlankLine) {
+          ui->decodedTextBrowser->new_period ();
+          if (m_config.insert_blank ()
+              && SpecOp::FOX != m_config.special_op_id()) {
+            QString band;
+            if((QDateTime::currentMSecsSinceEpoch() / 1000 - m_secBandChanged) > 4*int(m_TRperiod)/4) {
+              band = ' ' + m_config.bands ()->find (m_freqNominal);
+            }
+            ui->decodedTextBrowser->insertLineSpacer (band.rightJustified  (40, '-'));
+          }
         m_tBlankLine = line_read.left(ntime);
       }
 
@@ -3498,11 +3501,6 @@ void MainWindow::decodeBusy(bool b)                             //decodeBusy()
 {
   if (!b) {
     m_optimizingProgress.reset ();
-  } else {
-    if (!m_decoderBusy)
-      {
-        ui->decodedTextBrowser->new_period ();
-      }
   }
   m_decoderBusy=b;
   ui->DecodeButton->setEnabled(!b);
@@ -7703,11 +7701,14 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
         rxLine += t1;
       }
 
-      if (m_config.insert_blank () && (rxLine.left(4)!=m_tBlankLine)) {
-        QString band;
-        Frequency f=1000000.0*rxFields.at(3).toDouble()+0.5;
-        band = ' ' + m_config.bands ()->find (f);
-        ui->decodedTextBrowser->appendText(band.rightJustified (71, '-'));
+      if (rxLine.left (4) != m_tBlankLine) {
+        ui->decodedTextBrowser->new_period ();
+        if (m_config.insert_blank ()) {
+          QString band;
+          Frequency f=1000000.0*rxFields.at(3).toDouble()+0.5;
+          band = ' ' + m_config.bands ()->find (f);
+          ui->decodedTextBrowser->appendText(band.rightJustified (71, '-'));
+        }
         m_tBlankLine = rxLine.left(4);
       }
       m_nWSPRdecodes += 1;
