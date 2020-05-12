@@ -1157,6 +1157,7 @@ subroutine pack77_3(nwords,w,i3,n3,c77)
        "NB ","NS ","QC ","ON ","MB ","SK ","AB ","BC ","NWT","NF ",  &
        "LB ","NU ","YT ","PEI","DC "/
 
+  if(w(1)(1:1).eq.'<' .and. w(2)(1:1).eq.'<') go to 900
   if(nwords.eq.4 .or. nwords.eq.5 .or. nwords.eq.6) then
      i1=1
      if(trim(w(1)).eq.'TU;') i1=2
