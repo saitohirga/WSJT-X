@@ -5134,7 +5134,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       }
       if(SpecOp::EU_VHF==m_config.special_op_id()) {
         QString a;
-        t="<" + t0.split(" ").at(0) + "> <" + t0.split(" ").at(1) + "> ";
+        t="<" + t0s.split(" ").at(0) + "> <" + t0s.split(" ").at(1) + "> ";
         a = a.asprintf("%4.4d ",ui->sbSerialNumber->value());
         sent=rs + a + m_config.my_grid();
       }

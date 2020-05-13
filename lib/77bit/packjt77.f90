@@ -534,6 +534,7 @@ subroutine unpack77(c77,nrx,msg,unpk77_success)
      read(c77,1060) n12,n22,ir,irpt,iserial,igrid6
 1060 format(b12,b22,b1,b3,b11,b25)
      call hash12(n12,call_1)
+     if(n12.eq.hashmy12) call_1='<'//trim(mycall13)//'>'
      call hash22(n22,call_2)
      nrs=52+irpt
      write(cexch,1022) nrs,iserial
