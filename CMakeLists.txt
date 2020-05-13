@@ -1625,7 +1625,7 @@ if (NOT is_debug_build)
 	${QT_PLUGINS_DIR}/audio
 	${QT_PLUGINS_DIR}/accessible
 	${QT_PLUGINS_DIR}/imageformats
-    ${QT_PLUGINS_DIR}/styles
+	${QT_PLUGINS_DIR}/styles
 	DESTINATION ${WSJT_PLUGIN_DESTINATION}
 	CONFIGURATIONS Release MinSizeRel
 	#COMPONENT runtime
