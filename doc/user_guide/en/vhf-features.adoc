@@ -436,4 +436,6 @@ Decoding>>), and is based on the average of 2 transmissions.
 
 You might wish to experiment with other combinations of entries for
 *My Call*, *DX Call*, and *DX Grid*, and with toggling the various
-options of the *Decode* menu on and off.
+options of the *Decode* menu on and off.  For best sensitivity, most
+users will want to use *Deep* decoding with  *Enable averaging*, 
+*Enable deep search*, and *Enable AP* all turned on.
