@@ -1,8 +1,8 @@
 // Status=review
 
-image::settings-audio.png[align="center",alt="_WSJT-X_ Audio Configuration Screen"]
-
 Select the *Audio* tab to configure your sound system.
+
+image::settings-audio.png[align="center",alt="_WSJT-X_ Audio Configuration Screen"]
 
 * _Soundcard_: Select the audio devices to be used for *Input* and
 *Output*.  Usually the *Mono* settings will suffice, but in special
