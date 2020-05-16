@@ -935,7 +935,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_saveDecoded=ui->actionSave_decoded->isChecked();
   m_saveAll=ui->actionSave_all->isChecked();
   ui->sbTxPercent->setValue(m_pctx);
-  ui->TxPowerComboBox->setCurrentIndex(int(0.3*(m_dBm + 30.0)+0.2));
+  ui->TxPowerComboBox->setCurrentIndex(int(0.3*m_dBm+0.2));
   ui->cbUploadWSPR_Spots->setChecked(m_uploadSpots);
   if((m_ndepth&7)==1) ui->actionQuickDecode->setChecked(true);
   if((m_ndepth&7)==2) ui->actionMediumDecode->setChecked(true);
