@@ -39,5 +39,3 @@ outside of _WSJT-X_ you can force _WSJT-X_ to relaod the file from the
 *Settings | Colors* tab using the *Rescan ADIF Log* button, see
 <<COLORS,Decode Highlighting>>.
 
-Additional features are provided for *Contest* and *Fox* logging.
-(more to come, here ...)
