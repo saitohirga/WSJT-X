@@ -102,6 +102,25 @@ include::settings-colors.adoc[]
 === Advanced
 include::settings-advanced.adoc[]
 
+[[DARK_STYLE]]
+=== Dark Style
+
+An optional *Dark* style is available.  To make it effective you will
+probably want to redefine your color settings.  In Windows or Linux,
+start the program from a command-prompt window using the following
+command, or modify the _WSJT-X_ desktop shortcut accordingly:
+
+ wsjtx --stylesheet :/qdarkstyle/style.qss
+
+In macOS, enter the following command from a terminal:
+
+ open /Applications/wsjtx.app --args -stylesheet :/qdarkstyle/style.qss
+
+Depending on your operating system, the main _WSJT-X_ window will look
+something like this:
+
+image::Windows_Dark.png[align="center"]
+
 [[TRANSCEIVER]]
 == Transceiver Setup
 include::transceiver-setup.adoc[]
