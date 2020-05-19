@@ -759,6 +759,96 @@ Format:
 <context>
     <name>DecodeHighlightingModel</name>
     <message>
+        <location filename="../models/DecodeHighlightingModel.cpp" line="104"/>
+        <source>CQ in message</source>
+        <translation type="unfinished">CQ al missatge</translation>
+    </message>
+    <message>
+        <location filename="../models/DecodeHighlightingModel.cpp" line="105"/>
+        <source>My Call in message</source>
+        <translation type="unfinished">El meu Indicatiu en el missatge</translation>
+    </message>
+    <message>
+        <location filename="../models/DecodeHighlightingModel.cpp" line="106"/>
+        <source>Transmitted message</source>
+        <translation type="unfinished">Missatge transmès</translation>
+    </message>
+    <message>
+        <location filename="../models/DecodeHighlightingModel.cpp" line="107"/>
+        <source>New DXCC</source>
+        <translation type="unfinished">Nou DXCC</translation>
+    </message>
+    <message>
+        <location filename="../models/DecodeHighlightingModel.cpp" line="108"/>
+        <source>New DXCC on Band</source>
+        <translation type="unfinished">Nou DXCC en banda</translation>
+    </message>
+    <message>
+        <location filename="../models/DecodeHighlightingModel.cpp" line="109"/>
+        <source>New Grid</source>
+        <translation type="unfinished">Nou Locator</translation>
+    </message>
+    <message>
+        <location filename="../models/DecodeHighlightingModel.cpp" line="110"/>
+        <source>New Grid on Band</source>
+        <translation type="unfinished">Nou Locator en banda</translation>
+    </message>
+    <message>
+        <location filename="../models/DecodeHighlightingModel.cpp" line="111"/>
+        <source>New Call</source>
+        <translation type="unfinished">No Indicatiu</translation>
+    </message>
+    <message>
+        <location filename="../models/DecodeHighlightingModel.cpp" line="112"/>
+        <source>New Call on Band</source>
+        <translation type="unfinished">Nou Indicatiu en banda</translation>
+    </message>
+    <message>
+        <location filename="../models/DecodeHighlightingModel.cpp" line="113"/>
+        <source>New Continent</source>
+        <translation type="unfinished">Nou Continent</translation>
+    </message>
+    <message>
+        <location filename="../models/DecodeHighlightingModel.cpp" line="114"/>
+        <source>New Continent on Band</source>
+        <translation type="unfinished">Nou Continent en banda</translation>
+    </message>
+    <message>
+        <location filename="../models/DecodeHighlightingModel.cpp" line="115"/>
+        <source>New CQ Zone</source>
+        <translation type="unfinished">Nova Zona CQ</translation>
+    </message>
+    <message>
+        <location filename="../models/DecodeHighlightingModel.cpp" line="116"/>
+        <source>New CQ Zone on Band</source>
+        <translation type="unfinished">Nova Zona CQ en banda</translation>
+    </message>
+    <message>
+        <location filename="../models/DecodeHighlightingModel.cpp" line="117"/>
+        <source>New ITU Zone</source>
+        <translation type="unfinished">Nova Zona ITU</translation>
+    </message>
+    <message>
+        <location filename="../models/DecodeHighlightingModel.cpp" line="118"/>
+        <source>New ITU Zone on Band</source>
+        <translation type="unfinished">Nova Zona ITU en banda</translation>
+    </message>
+    <message>
+        <location filename="../models/DecodeHighlightingModel.cpp" line="119"/>
+        <source>LoTW User</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../models/DecodeHighlightingModel.cpp" line="169"/>
+        <source>f/g unset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../models/DecodeHighlightingModel.cpp" line="171"/>
+        <source>b/g unset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../models/DecodeHighlightingModel.cpp" line="244"/>
         <source>Highlight Type</source>
         <translation>Tipus de relleu</translation>
@@ -1856,6 +1946,12 @@ Error(%2): %3</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="50"/>
+        <location filename="../widgets/mainwindow.cpp" line="5797"/>
+        <location filename="../widgets/mainwindow.cpp" line="5845"/>
+        <location filename="../widgets/mainwindow.cpp" line="6003"/>
+        <location filename="../widgets/mainwindow.cpp" line="6043"/>
+        <location filename="../widgets/mainwindow.cpp" line="6091"/>
+        <location filename="../widgets/mainwindow.cpp" line="6216"/>
         <source>Band Activity</source>
         <translation>Activitat a la banda</translation>
     </message>
@@ -1867,6 +1963,11 @@ Error(%2): %3</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="194"/>
+        <location filename="../widgets/mainwindow.cpp" line="5796"/>
+        <location filename="../widgets/mainwindow.cpp" line="5840"/>
+        <location filename="../widgets/mainwindow.cpp" line="6004"/>
+        <location filename="../widgets/mainwindow.cpp" line="6044"/>
+        <location filename="../widgets/mainwindow.cpp" line="6092"/>
         <source>Rx Frequency</source>
         <translation>Freqüència RX</translation>
     </message>
@@ -2328,6 +2429,7 @@ No està disponible per als titulars de indicatiu no estàndard.</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1394"/>
+        <location filename="../widgets/mainwindow.cpp" line="5867"/>
         <source>Fox</source>
         <translation>Guineu</translation>
     </message>
@@ -3181,6 +3283,7 @@ La llista es pot mantenir a la configuració (F2).</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="3125"/>
+        <location filename="../widgets/mainwindow.cpp" line="8103"/>
         <source>Runaway Tx watchdog</source>
         <translation>Vigilant de fugida TX</translation>
     </message>
@@ -3456,6 +3559,13 @@ La llista es pot mantenir a la configuració (F2).</translation>
         <translation>Error del control del equip</translation>
     </message>
     <message>
+        <location filename="../widgets/mainwindow.cpp" line="329"/>
+        <location filename="../widgets/mainwindow.cpp" line="4120"/>
+        <location filename="../widgets/mainwindow.cpp" line="7634"/>
+        <source>Receiving</source>
+        <translation type="unfinished">Rebent</translation>
+    </message>
+    <message>
         <location filename="../widgets/mainwindow.cpp" line="437"/>
         <source>Do you want to reconfigure the radio interface?</source>
         <translation>Vols reconfigurar la interfície de la ràdio ?</translation>
@@ -3486,6 +3596,26 @@ La llista es pot mantenir a la configuració (F2).</translation>
         <translation>Configuracions...</translation>
     </message>
     <message>
+        <location filename="../widgets/mainwindow.cpp" line="828"/>
+        <location filename="../widgets/mainwindow.cpp" line="5792"/>
+        <location filename="../widgets/mainwindow.cpp" line="5798"/>
+        <location filename="../widgets/mainwindow.cpp" line="5836"/>
+        <location filename="../widgets/mainwindow.cpp" line="5846"/>
+        <location filename="../widgets/mainwindow.cpp" line="5943"/>
+        <location filename="../widgets/mainwindow.cpp" line="5944"/>
+        <location filename="../widgets/mainwindow.cpp" line="5992"/>
+        <location filename="../widgets/mainwindow.cpp" line="5993"/>
+        <location filename="../widgets/mainwindow.cpp" line="5997"/>
+        <location filename="../widgets/mainwindow.cpp" line="5998"/>
+        <location filename="../widgets/mainwindow.cpp" line="6045"/>
+        <location filename="../widgets/mainwindow.cpp" line="6046"/>
+        <location filename="../widgets/mainwindow.cpp" line="6211"/>
+        <location filename="../widgets/mainwindow.cpp" line="6212"/>
+        <location filename="../widgets/mainwindow.cpp" line="6397"/>
+        <source>Message</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../widgets/mainwindow.cpp" line="842"/>
         <source>Error Killing jt9.exe Process</source>
         <translation>Error en matar el procés jt9.exe</translation>
@@ -3507,22 +3637,22 @@ La llista es pot mantenir a la configuració (F2).</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="1258"/>
-        <location filename="../widgets/mainwindow.cpp" line="6187"/>
+        <location filename="../widgets/mainwindow.cpp" line="6186"/>
         <source>Improper mode</source>
         <translation>Mode inadequat</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="1409"/>
-        <location filename="../widgets/mainwindow.cpp" line="8731"/>
+        <location filename="../widgets/mainwindow.cpp" line="8730"/>
         <source>File Open Error</source>
         <translation>Error al obrir el fitxer</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="1410"/>
-        <location filename="../widgets/mainwindow.cpp" line="7749"/>
-        <location filename="../widgets/mainwindow.cpp" line="8178"/>
-        <location filename="../widgets/mainwindow.cpp" line="8732"/>
-        <location filename="../widgets/mainwindow.cpp" line="8858"/>
+        <location filename="../widgets/mainwindow.cpp" line="7748"/>
+        <location filename="../widgets/mainwindow.cpp" line="8177"/>
+        <location filename="../widgets/mainwindow.cpp" line="8731"/>
+        <location filename="../widgets/mainwindow.cpp" line="8857"/>
         <source>Cannot open &quot;%1&quot; for append: %2</source>
         <translation>No es pot obrir &quot;%1&quot; per annexar: %2</translation>
     </message>
@@ -3542,6 +3672,20 @@ La llista es pot mantenir a la configuració (F2).</translation>
         <translation>Error en la sortida de so</translation>
     </message>
     <message>
+        <location filename="../widgets/mainwindow.cpp" line="1787"/>
+        <location filename="../widgets/mainwindow.cpp" line="5941"/>
+        <location filename="../widgets/mainwindow.cpp" line="6087"/>
+        <source>Single-Period Decodes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../widgets/mainwindow.cpp" line="1788"/>
+        <location filename="../widgets/mainwindow.cpp" line="5942"/>
+        <location filename="../widgets/mainwindow.cpp" line="6088"/>
+        <source>Average Decodes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../widgets/mainwindow.cpp" line="2089"/>
         <source>Change Operator</source>
         <translation>Canvi d&apos;Operador</translation>
@@ -3558,7 +3702,7 @@ La llista es pot mantenir a la configuració (F2).</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="2200"/>
-        <location filename="../widgets/mainwindow.cpp" line="5406"/>
+        <location filename="../widgets/mainwindow.cpp" line="5405"/>
         <source>Cannot open &quot;%1&quot; for writing: %2</source>
         <translation>No es pot obrir &quot;%1&quot; per escriure: %2</translation>
     </message>
@@ -3682,7 +3826,12 @@ La llista es pot mantenir a la configuració (F2).</translation>
         <translation>Avís de mode Guineu</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="4625"/>
+        <location filename="../widgets/mainwindow.cpp" line="4224"/>
+        <source>Last Tx: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../widgets/mainwindow.cpp" line="4624"/>
         <source>Should you switch to EU VHF Contest mode?
 
 To do so, check &apos;Special operating activity&apos; and
@@ -3693,163 +3842,183 @@ Per fer-ho, comprova &quot;Activitat operativa especial&quot; i
  Concurs EU VHF a la Configuració | Pestanya avançada.</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="4644"/>
+        <location filename="../widgets/mainwindow.cpp" line="4643"/>
         <source>Should you switch to ARRL Field Day mode?</source>
         <translation>Heu de canviar al mode de Field Day de l&apos;ARRL ?</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="4649"/>
+        <location filename="../widgets/mainwindow.cpp" line="4648"/>
         <source>Should you switch to RTTY contest mode?</source>
         <translation>Heu de canviar al mode de concurs RTTY?</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="5373"/>
-        <location filename="../widgets/mainwindow.cpp" line="5392"/>
-        <location filename="../widgets/mainwindow.cpp" line="5405"/>
-        <location filename="../widgets/mainwindow.cpp" line="5431"/>
+        <location filename="../widgets/mainwindow.cpp" line="5372"/>
+        <location filename="../widgets/mainwindow.cpp" line="5391"/>
+        <location filename="../widgets/mainwindow.cpp" line="5404"/>
+        <location filename="../widgets/mainwindow.cpp" line="5430"/>
         <source>Add to CALL3.TXT</source>
         <translation>Afegeix a CALL3.TXT</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="5374"/>
+        <location filename="../widgets/mainwindow.cpp" line="5373"/>
         <source>Please enter a valid grid locator</source>
         <translation>Introduïu un locator vàlid</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="5393"/>
+        <location filename="../widgets/mainwindow.cpp" line="5392"/>
         <source>Cannot open &quot;%1&quot; for read/write: %2</source>
         <translation>No es pot obrir &quot;%1&quot; per llegir o escriure: %2</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="5429"/>
+        <location filename="../widgets/mainwindow.cpp" line="5428"/>
         <source>%1
 is already in CALL3.TXT, do you wish to replace it?</source>
         <translation>%1
 ja és a CALL3.TXT, vols substituir-lo ?</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="5604"/>
+        <location filename="../widgets/mainwindow.cpp" line="5603"/>
         <source>Warning:  DX Call field is empty.</source>
         <translation>Avís:  el camp de indicatiu DX està buit.</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="5661"/>
+        <location filename="../widgets/mainwindow.cpp" line="5660"/>
         <source>Log file error</source>
         <translation>Error al fitxer de registre</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="5662"/>
+        <location filename="../widgets/mainwindow.cpp" line="5661"/>
         <source>Cannot open &quot;%1&quot;</source>
         <translation>No es pot obrir &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="5678"/>
+        <location filename="../widgets/mainwindow.cpp" line="5677"/>
         <source>Error sending log to N1MM</source>
         <translation>Error al enviar el registre a N1MM</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="5679"/>
+        <location filename="../widgets/mainwindow.cpp" line="5678"/>
         <source>Write returned &quot;%1&quot;</source>
         <translation>Escriptura retornada &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="6469"/>
-        <location filename="../widgets/mainwindow.cpp" line="6502"/>
-        <location filename="../widgets/mainwindow.cpp" line="6512"/>
+        <location filename="../widgets/mainwindow.cpp" line="5842"/>
+        <source>Stations calling DXpedition %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../widgets/mainwindow.cpp" line="5877"/>
+        <source>Hound</source>
+        <translation type="unfinished">Hound</translation>
+    </message>
+    <message>
+        <location filename="../widgets/mainwindow.cpp" line="6217"/>
+        <source>Tx Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../widgets/mainwindow.cpp" line="6468"/>
+        <location filename="../widgets/mainwindow.cpp" line="6501"/>
+        <location filename="../widgets/mainwindow.cpp" line="6511"/>
         <source>Confirm Erase</source>
         <translation>Confirma Esborrar</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="6470"/>
+        <location filename="../widgets/mainwindow.cpp" line="6469"/>
         <source>Are you sure you want to erase file ALL.TXT?</source>
         <translation>Estàs segur que vols esborrar el fitxer ALL.TXT ?</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="6480"/>
-        <location filename="../widgets/mainwindow.cpp" line="8223"/>
+        <location filename="../widgets/mainwindow.cpp" line="6479"/>
+        <location filename="../widgets/mainwindow.cpp" line="8222"/>
         <source>Confirm Reset</source>
         <translation>Confirma que vols Restablir</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="6481"/>
+        <location filename="../widgets/mainwindow.cpp" line="6480"/>
         <source>Are you sure you want to erase your contest log?</source>
         <translation>Estàs segur que vols esborrar el registre del concurs ?</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="6482"/>
+        <location filename="../widgets/mainwindow.cpp" line="6481"/>
         <source>Doing this will remove all QSO records for the current contest. They will be kept in the ADIF log file but will not be available for export in your Cabrillo log.</source>
         <translation>Si fas això, suprimiràs tots els registres de QSO del concurs actual. Es conservaran al fitxer de registre ADIF, però no es podran exportar al registre de Cabrillo.</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="6495"/>
+        <location filename="../widgets/mainwindow.cpp" line="6494"/>
         <source>Cabrillo Log saved</source>
         <translation>Registre Cabrillo desat</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="6503"/>
+        <location filename="../widgets/mainwindow.cpp" line="6502"/>
         <source>Are you sure you want to erase file wsjtx_log.adi?</source>
         <translation>Estàs segur que vols esborrar el fitxer wsjtx_log.adi ?</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="6513"/>
+        <location filename="../widgets/mainwindow.cpp" line="6512"/>
         <source>Are you sure you want to erase the WSPR hashtable?</source>
         <translation>Estàs segur que vols esborrar la taula del WSPR ?</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="6607"/>
+        <location filename="../widgets/mainwindow.cpp" line="6606"/>
         <source>VHF features warning</source>
         <translation>Les característiques de VHF tenen un avís</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="7212"/>
+        <location filename="../widgets/mainwindow.cpp" line="7211"/>
         <source>Tune digital gain </source>
         <translation>Guany digital de sintonització </translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="7214"/>
+        <location filename="../widgets/mainwindow.cpp" line="7213"/>
         <source>Transmit digital gain </source>
         <translation>Guany digital de transmissió </translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="7233"/>
+        <location filename="../widgets/mainwindow.cpp" line="7232"/>
         <source>Prefixes</source>
         <translation>Prefixos</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="7602"/>
+        <location filename="../widgets/mainwindow.cpp" line="7601"/>
         <source>Network Error</source>
         <translation>Error de xarxa</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="7603"/>
+        <location filename="../widgets/mainwindow.cpp" line="7602"/>
         <source>Error: %1
 UDP server %2:%3</source>
         <translation>Error: %1
 UDP server %2:%3</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="7748"/>
+        <location filename="../widgets/mainwindow.cpp" line="7747"/>
         <source>File Error</source>
         <translation>Error al fitxer</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="7982"/>
+        <location filename="../widgets/mainwindow.cpp" line="7981"/>
         <source>Phase Training Disabled</source>
         <translation>Entrenament de fase Desactivat</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="7985"/>
+        <location filename="../widgets/mainwindow.cpp" line="7984"/>
         <source>Phase Training Enabled</source>
         <translation>Entrenament de fase activat</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="8181"/>
-        <location filename="../widgets/mainwindow.cpp" line="8861"/>
+        <location filename="../widgets/mainwindow.cpp" line="8118"/>
+        <source>WD:%1m</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../widgets/mainwindow.cpp" line="8180"/>
+        <location filename="../widgets/mainwindow.cpp" line="8860"/>
         <source>Log File Error</source>
         <translation>Error al fitxer de registre</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="8224"/>
+        <location filename="../widgets/mainwindow.cpp" line="8223"/>
         <source>Are you sure you want to clear the QSO queues?</source>
         <translation>Estàs segur que vols esborrar les cues de QSO ?</translation>
     </message>
