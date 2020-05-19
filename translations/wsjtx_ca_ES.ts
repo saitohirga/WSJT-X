@@ -19,8 +19,9 @@
     <message numerus="yes">
         <location filename="../widgets/AbstractLogWindow.cpp" line="65"/>
         <source>Are you sure you want to delete the %n selected QSO(s) from the log?</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translatorcomment>sorry i don&apos;t understand how to fix this</translatorcomment>
+        <translation>
+            <numerusform>Estas segur que vols esborrar els %n QSO&apos;s seleccionats del registre ?</numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -5044,7 +5045,7 @@ uns pocs, particularment alguns equips de Kenwood, ho requereixen.</translation>
     <message>
         <location filename="../Configuration.ui" line="932"/>
         <source>How this program activates the PTT on your radio?</source>
-        <translation type="unfinished"></translation>
+        <translation>Com activa aquest programa el PTT al vostre equip ?</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="935"/>
@@ -6059,12 +6060,12 @@ Fes clic amb el botó dret per a les opcions d&apos;inserció i eliminació.</tr
     <message>
         <location filename="../main.cpp" line="161"/>
         <source>Where &lt;language&gt; is &lt;lang-code&gt;[-&lt;country-code&gt;].</source>
-        <translation type="unfinished"></translation>
+        <translation>On &lt;language&gt; és &lt;lang-code&gt;[-&lt;country-code&gt;].</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="162"/>
         <source>language</source>
-        <translation type="unfinished"></translation>
+        <translation>Idioma</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="166"/>
