@@ -40,7 +40,7 @@ In addition, we have made the following improvements:
  - Allow FT4 to use NA VHF Contest message formats.
  - Added capability for translations of the user interface into
    languages other than English.  First working example (special
-   thanks to Xavi Perez, EA3W), is Catalan.  Spenish will be next.
+   thanks to Xavi Perez, EA3W), is Catalan.  Spanish will be next.
 
 And finally:
 
