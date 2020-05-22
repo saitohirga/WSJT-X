@@ -4432,6 +4432,7 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
   if(m_mode=="ISCAT") {
     MessageBox::information_message (this,
         "Double-click not available for ISCAT mode");
+    return;
   }
   if(m_decodedText2) {
     cursor=ui->decodedTextBrowser->textCursor();
