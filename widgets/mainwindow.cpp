@@ -5723,7 +5723,6 @@ void MainWindow::displayWidgets(qint64 n)
     if(i==12) ui->pbR2T->setVisible(b);
     if(i==13) ui->pbT2R->setVisible(b);
     if(i==14) ui->cbHoldTxFreq->setVisible(b);
-    if(i==14 and (!b)) ui->cbHoldTxFreq->setChecked(false);
     if(i==15) ui->sbSubmode->setVisible(b);
     if(i==16) ui->syncSpinBox->setVisible(b);
     if(i==17) ui->WSPR_controls_widget->setVisible(b);
