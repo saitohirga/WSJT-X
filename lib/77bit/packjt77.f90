@@ -550,7 +550,7 @@ subroutine unpack77(c77,nrx,msg,unpk77_success)
   else if(i3.ge.6) then ! i3 values 6 and 7 are not yet defined
      unpk77_success=.false.
   endif
-!  if(msg(1:4).eq.'CQ <') unpk77_success=.false.
+  if(msg(1:4).eq.'CQ <') unpk77_success=.false.
 
   return
 end subroutine unpack77
