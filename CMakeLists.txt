@@ -58,7 +58,7 @@ set (PROJECT_MANUAL wsjtx-main)
 set (PROJECT_MANUAL_DIRECTORY_URL http://www.physics.princeton.edu/pulsar/K1JT/wsjtx-doc/)
 set (PROJECT_SAMPLES_URL http://downloads.sourceforge.net/project/wsjt/)
 set (PROJECT_SAMPLES_UPLOAD_DEST frs.sourceforge.net:/home/frs/project/wsjt/)
-set (PROJECT_SUMMARY_DESCRIPTION "${PROJECT_NAME} - Digital Modes for Weak Signal Communicaitons in Amateur Radio.")
+set (PROJECT_SUMMARY_DESCRIPTION "${PROJECT_NAME} - Digital Modes for Weak Signal Communications in Amateur Radio.")
 set (PROJECT_DESCRIPTION "${PROJECT_SUMMARY_DESCRIPTION}
  ${PROJECT_NAME} is a computer program designed to facilitate basic amateur
  radio communication using very weak signals. The first four letters in
@@ -1306,9 +1306,6 @@ target_link_libraries (jt4code wsjt_fort wsjt_cxx)
 add_executable (msk144code lib/msk144code.f90 wsjtx.rc)
 target_link_libraries (msk144code wsjt_fort wsjt_cxx)
 
-add_executable (jt65 lib/jt65.f90 lib/jt65_test.f90 wsjtx.rc)
-target_link_libraries (jt65 wsjt_fort wsjt_cxx)
-
 add_executable (ft8code lib/ft8/ft8code.f90 wsjtx.rc)
 target_link_libraries (ft8code wsjt_fort wsjt_cxx)
 
@@ -1627,6 +1624,7 @@ if (NOT is_debug_build)
 	${QT_PLUGINS_DIR}/audio
 	${QT_PLUGINS_DIR}/accessible
 	${QT_PLUGINS_DIR}/imageformats
+	${QT_PLUGINS_DIR}/styles
 	DESTINATION ${WSJT_PLUGIN_DESTINATION}
 	CONFIGURATIONS Release MinSizeRel
 	#COMPONENT runtime

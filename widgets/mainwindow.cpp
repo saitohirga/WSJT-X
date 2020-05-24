@@ -801,8 +801,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
           SLOT(setFreq4(int,int)));
 
   decodeBusy(false);
-  QString t1[19]={"1 mW","2 mW","5 mW","10 mW","20 mW","50 mW","100 mW","200 mW","500 mW",
-                  "1 W","2 W","5 W","10 W","20 W","50 W","100 W","200 W","500 W","1 kW"};
 
   m_msg[0][0]=0;
   ui->labDXped->setVisible(false);
@@ -811,13 +809,10 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->labNextCall->setVisible(false);
   ui->labNextCall->setToolTip("");                //### Possibly temporary ? ###
 
-  for(int i=0; i<19; i++)  {                      //Initialize dBm values
-    float dbm=(10.0*i)/3.0;
-    int ndbm=int(dbm+0.5);
-    QString t;
-    t = t.asprintf("%d dBm  ",ndbm);
-    t+=t1[i];
-    ui->TxPowerComboBox->addItem(t);
+  char const * const power[] = {"1 mW","2 mW","5 mW","10 mW","20 mW","50 mW","100 mW","200 mW","500 mW",
+                  "1 W","2 W","5 W","10 W","20 W","50 W","100 W","200 W","500 W","1 kW"};
+  for(auto i = 0u; i < sizeof power / sizeof power[0]; ++i)  { //Initialize dBm values
+    ui->TxPowerComboBox->addItem (QString {"%1 dBm  %2"}.arg (int (10. * i / 3.)).arg (power[i]));
   }
 
   m_dateTimeRcvdRR73=QDateTime::currentDateTimeUtc();
@@ -935,7 +930,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_saveDecoded=ui->actionSave_decoded->isChecked();
   m_saveAll=ui->actionSave_all->isChecked();
   ui->sbTxPercent->setValue(m_pctx);
-  ui->TxPowerComboBox->setCurrentIndex(int(0.3*m_dBm+0.2));
+  ui->TxPowerComboBox->setCurrentIndex(int(.3 * m_dBm + .2));
   ui->cbUploadWSPR_Spots->setChecked(m_uploadSpots);
   if((m_ndepth&7)==1) ui->actionQuickDecode->setChecked(true);
   if((m_ndepth&7)==2) ui->actionMediumDecode->setChecked(true);
@@ -1199,7 +1194,7 @@ void MainWindow::readSettings()
   m_ndepth=m_settings->value("NDepth",3).toInt();
   m_pctx=m_settings->value("PctTx",20).toInt();
   m_dBm=m_settings->value("dBm",37).toInt();
-  m_send_RR73=m_settings->value("RR73",37).toBool();
+  m_send_RR73=m_settings->value("RR73",false).toBool();
   if(m_send_RR73) {
     m_send_RR73=false;
     on_txrb4_doubleClicked();
@@ -1427,11 +1422,6 @@ void MainWindow::dataSink(qint64 frames)
       decodeDone();  //Clear a hung decoder status
     }
   }
-
-  /*
-  if(m_ihsym==m_hsymStop or (m_mode=="FT8" and m_ihsym==m_earlyDecode and !m_diskData) or
-     (m_mode=="FT8" and m_ihsym==m_earlyDecode2 and !m_diskData)) {
-  */
 
   bool bCallDecoder=false;
   if(m_ihsym==m_hsymStop) bCallDecoder=true;
@@ -2296,10 +2286,13 @@ void MainWindow::setup_status_bar (bool vhf)
     mode_label.setStyleSheet ("QLabel{background-color: #99ff33}");
   } else if ("MSK144" == m_mode) {
     mode_label.setStyleSheet ("QLabel{background-color: #ff6666}");
+  } else if ("FT4" == m_mode) {
+    mode_label.setStyleSheet ("QLabel{background-color: #ff0099}");
   } else if ("FT8" == m_mode) {
     mode_label.setStyleSheet ("QLabel{background-color: #6699ff}");
   } else if ("FreqCal" == m_mode) {
-    mode_label.setStyleSheet ("QLabel{background-color: #ff9933}");  }
+    mode_label.setStyleSheet ("QLabel{background-color: #ff9933}");
+  }
   last_tx_label.setText (QString {});
   if (m_mode.contains (QRegularExpression {R"(^(Echo|ISCAT))"})) {
     if (band_hopping_label.isVisible ()) statusBar ()->removeWidget (&band_hopping_label);
@@ -3173,13 +3166,16 @@ void MainWindow::readFromStdout()                             //readFromStdout
       write_all("Rx",line_read.trimmed());
       int ntime=6;
       if(m_TRperiod>=60) ntime=4;
-      if (m_config.insert_blank () && (line_read.left(ntime)!=m_tBlankLine) &&
-          SpecOp::FOX != m_config.special_op_id()) {
-        QString band;
-        if((QDateTime::currentMSecsSinceEpoch() / 1000 - m_secBandChanged) > 4*int(m_TRperiod)/4) {
-          band = ' ' + m_config.bands ()->find (m_freqNominal);
-        }
-        ui->decodedTextBrowser->insertLineSpacer (band.rightJustified  (40, '-'));
+      if (line_read.left(ntime) != m_tBlankLine) {
+          ui->decodedTextBrowser->new_period ();
+          if (m_config.insert_blank ()
+              && SpecOp::FOX != m_config.special_op_id()) {
+            QString band;
+            if((QDateTime::currentMSecsSinceEpoch() / 1000 - m_secBandChanged) > 4*int(m_TRperiod)/4) {
+              band = ' ' + m_config.bands ()->find (m_freqNominal);
+            }
+            ui->decodedTextBrowser->insertLineSpacer (band.rightJustified  (40, '-'));
+          }
         m_tBlankLine = line_read.left(ntime);
       }
 
@@ -3498,11 +3494,6 @@ void MainWindow::decodeBusy(bool b)                             //decodeBusy()
 {
   if (!b) {
     m_optimizingProgress.reset ();
-  } else {
-    if (!m_decoderBusy)
-      {
-        ui->decodedTextBrowser->new_period ();
-      }
   }
   m_decoderBusy=b;
   ui->DecodeButton->setEnabled(!b);
@@ -4444,6 +4435,7 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
   if(m_mode=="ISCAT") {
     MessageBox::information_message (this,
         "Double-click not available for ISCAT mode");
+    return;
   }
   if(m_decodedText2) {
     cursor=ui->decodedTextBrowser->textCursor();
@@ -5140,7 +5132,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       }
       if(SpecOp::EU_VHF==m_config.special_op_id()) {
         QString a;
-        t="<" + t0.split(" ").at(0) + "> <" + t0.split(" ").at(1) + "> ";
+        t="<" + t0s.split(" ").at(0) + "> <" + t0s.split(" ").at(1) + "> ";
         a = a.asprintf("%4.4d ",ui->sbSerialNumber->value());
         sent=rs + a + m_config.my_grid();
       }
@@ -5226,7 +5218,8 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
         case Configuration::type_2_msg_1_full:
           msgtype(t + my_grid, ui->tx1);
           if (!eme_short_codes) {
-            if((m_mode=="MSK144" || m_mode=="FT8") && SpecOp::NA_VHF == m_config.special_op_id()) {
+            if((m_mode=="MSK144" || m_mode=="FT8" || m_mode=="FT4") &&
+               SpecOp::NA_VHF == m_config.special_op_id()) {
               msgtype(t + "R " + my_grid, ui->tx3);
             } else {
               msgtype(t + "R" + rpt, ui->tx3);
@@ -5238,7 +5231,8 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
           break;
 
         case Configuration::type_2_msg_3_full:
-          if ((m_mode=="MSK144" || m_mode=="FT8") && SpecOp::NA_VHF == m_config.special_op_id()) {
+          if ((m_mode=="MSK144" || m_mode=="FT8" || m_mode=="FT4") &&
+              SpecOp::NA_VHF == m_config.special_op_id()) {
             msgtype(t + "R " + my_grid, ui->tx3);
             msgtype(t + "RRR", ui->tx4);
           } else {
@@ -5253,7 +5247,8 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
         case Configuration::type_2_msg_5_only:
           msgtype(t00 + my_grid, ui->tx1);
           if (!eme_short_codes) {
-            if ((m_mode=="MSK144" || m_mode=="FT8") && SpecOp::NA_VHF == m_config.special_op_id()) {
+            if ((m_mode=="MSK144" || m_mode=="FT8" || m_mode=="FT4") &&
+                SpecOp::NA_VHF == m_config.special_op_id()) {
               msgtype(t + "R " + my_grid, ui->tx3);
               msgtype(t + "RRR", ui->tx4);
             } else {
@@ -5467,7 +5462,8 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
 //### Check this stuff ###
   if(itype==7 and m_config.enable_VHF_features() and m_mode=="JT65") shortMsg=true;
   if(m_mode=="MSK144" and t.mid(0,1)=="<") text=false;
-  if((m_mode=="MSK144" or m_mode=="FT8") and SpecOp::NA_VHF==m_config.special_op_id()) {
+  if((m_mode=="MSK144" or m_mode=="FT8" or m_mode=="FT4") and
+     SpecOp::NA_VHF==m_config.special_op_id()) {
     int i0=t.trimmed().length()-7;
     if(t.mid(i0,3)==" R ") text=false;
   }
@@ -5727,7 +5723,6 @@ void MainWindow::displayWidgets(qint64 n)
     if(i==12) ui->pbR2T->setVisible(b);
     if(i==13) ui->pbT2R->setVisible(b);
     if(i==14) ui->cbHoldTxFreq->setVisible(b);
-    if(i==14 and (!b)) ui->cbHoldTxFreq->setChecked(false);
     if(i==15) ui->sbSubmode->setVisible(b);
     if(i==16) ui->syncSpinBox->setVisible(b);
     if(i==17) ui->WSPR_controls_widget->setVisible(b);
@@ -7702,11 +7697,14 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
         rxLine += t1;
       }
 
-      if (m_config.insert_blank () && (rxLine.left(4)!=m_tBlankLine)) {
-        QString band;
-        Frequency f=1000000.0*rxFields.at(3).toDouble()+0.5;
-        band = ' ' + m_config.bands ()->find (f);
-        ui->decodedTextBrowser->appendText(band.rightJustified (71, '-'));
+      if (rxLine.left (4) != m_tBlankLine) {
+        ui->decodedTextBrowser->new_period ();
+        if (m_config.insert_blank ()) {
+          QString band;
+          Frequency f=1000000.0*rxFields.at(3).toDouble()+0.5;
+          band = ' ' + m_config.bands ()->find (f);
+          ui->decodedTextBrowser->appendText(band.rightJustified (71, '-'));
+        }
         m_tBlankLine = rxLine.left(4);
       }
       m_nWSPRdecodes += 1;
