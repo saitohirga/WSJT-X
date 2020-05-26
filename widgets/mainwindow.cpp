@@ -812,7 +812,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   char const * const power[] = {"1 mW","2 mW","5 mW","10 mW","20 mW","50 mW","100 mW","200 mW","500 mW",
                   "1 W","2 W","5 W","10 W","20 W","50 W","100 W","200 W","500 W","1 kW"};
   for(auto i = 0u; i < sizeof power / sizeof power[0]; ++i)  { //Initialize dBm values
-    ui->TxPowerComboBox->addItem (QString {"%1 dBm  %2"}.arg (int (10. * i / 3.)).arg (power[i]));
+    ui->TxPowerComboBox->addItem (QString {"%1 dBm  %2"}.arg (int ((10. * i / 3.) + .5)).arg (power[i]));
   }
 
   m_dateTimeRcvdRR73=QDateTime::currentDateTimeUtc();
