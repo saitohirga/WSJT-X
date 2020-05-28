@@ -26,7 +26,6 @@ In addition, RC3 has the following enhancements and minor bug fixes:
 
  - Updates to Catalan translation of the UI (thanks to EA3W)
  - Spanish translation of the UI (EA3W)
- - Preparation for Japanese translation of UI
  - Load language translations only when matching primary language
  - Minor corrections to User Guide
  - Increased FT8 sync threshold in "Normal" and "Fast" decoding
