@@ -1104,6 +1104,8 @@ set (LANGUAGES
   es				# Spanish
   ca				# Catalan
   ja				# Japanese
+  zh				# Chinese
+  zh_HK				# Chinese per Hong Kong
   )
 foreach (lang_ ${LANGUAGES})
   file (TO_NATIVE_PATH translations/wsjtx_${lang_}.ts ts_)
