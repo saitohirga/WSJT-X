@@ -229,6 +229,7 @@ set (wsjt_qt_CXXSRCS
   MetaDataRegistry.cpp
   Network/NetworkServerLookup.cpp
   revision_utils.cpp
+  L10nLoader.cpp
   WFPalette.cpp
   Radio.cpp
   RadioMetaType.cpp
