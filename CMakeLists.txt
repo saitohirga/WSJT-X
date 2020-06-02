@@ -1107,12 +1107,14 @@ set (LANGUAGES
   ja				# Japanese
   zh				# Chinese
   zh_HK				# Chinese per Hong Kong
+  #no				# Norwegian
+  #sv				# Swedish
+  #pt				# Portuguese
+  #it				# Italian
   )
 foreach (lang_ ${LANGUAGES})
   file (TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/translations/wsjtx_${lang_}.ts ts_)
-  if (EXISTS "${ts_}")
-    list (APPEND TS_FILES ${ts_})
-  endif ()
+  list (APPEND TS_FILES ${ts_})
   set (qt_translations_ "${QT_TRANSLATIONS_DIR}/qtbase_${lang_}.qm")
   if (EXISTS "${qt_translations_}")
     add_custom_command (
