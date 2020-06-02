@@ -14,7 +14,7 @@ Copyright 2001 - 2020 by Joe Taylor, K1JT.
 
 
 		   Release: WSJT-X 2.2
-		       June 1, 2020
+		       June 2, 2020
 		   -------------------
 
 WSJT-X 2.2 is a program upgrade that provides a number of new features
