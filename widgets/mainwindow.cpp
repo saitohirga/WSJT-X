@@ -2066,7 +2066,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       break;
     case Qt::Key_L:
       if(e->modifiers() & Qt::ControlModifier) {
-        lookup();
+        lookup(true);
         genStdMsgs(m_rpt);
         return;
       }
@@ -4913,12 +4913,10 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     // i.e. compound version of same base call
     ui->dxCallEntry->setText (hiscall);
   }
-
   if (hisgrid.contains (grid_regexp)) {
     if(ui->dxGridEntry->text().mid(0,4) != hisgrid) ui->dxGridEntry->setText(hisgrid);
   }
-  if (!ui->dxGridEntry->text ().size ())
-    lookup();
+  lookup(false);
   m_hisGrid = ui->dxGridEntry->text();
 
   QString rpt = message.report();
@@ -5326,9 +5324,10 @@ void MainWindow::clearDX ()
   m_QSOProgress = CALLING;
 }
 
-void MainWindow::lookup()                                       //lookup()
+void MainWindow::lookup(bool lookupButtonClicked)
 {
   QString hisCall {ui->dxCallEntry->text()};
+  QString hisgrid0 {ui->dxGridEntry->text()};
   if (!hisCall.size ()) return;
   QFile f {m_config.writeable_data_dir ().absoluteFilePath ("CALL3.TXT")};
   if (f.open (QIODevice::ReadOnly | QIODevice::Text))
@@ -5338,7 +5337,13 @@ void MainWindow::lookup()                                       //lookup()
       for(int i=0; i<999999; i++) {
         n=f.readLine(c,sizeof(c));
         if(n <= 0) {
-          ui->dxGridEntry->clear ();
+          if(lookupButtonClicked) {
+            QString msg=hisCall + tr(" not found in CALL3.TXT");
+            MessageBox::information_message (this, msg);
+          }
+          if(!hisgrid0.contains(grid_regexp)) {
+            ui->dxGridEntry->clear();
+          }
           break;
         }
         QString t=QString(c);
@@ -5349,9 +5354,11 @@ void MainWindow::lookup()                                       //lookup()
           if(i1>0) {
             hisgrid=hisgrid.mid(0,4);
           } else {
-            hisgrid=hisgrid.mid(0,4) + hisgrid.mid(4,2).toLower();
+            hisgrid=hisgrid.mid(0,6).toUpper();
           }
-          ui->dxGridEntry->setText(hisgrid);
+          if(hisgrid.left(4)==hisgrid0.left(4) or (hisgrid0.size()==0)) {
+            ui->dxGridEntry->setText(hisgrid);
+          }
           break;
         }
       }
@@ -5361,7 +5368,7 @@ void MainWindow::lookup()                                       //lookup()
 
 void MainWindow::on_lookupButton_clicked()                    //Lookup button
 {
-  lookup();
+  lookup(true);
 }
 
 void MainWindow::on_addButton_clicked()                       //Add button
