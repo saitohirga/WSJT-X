@@ -1105,7 +1105,7 @@ set (LANGUAGES
 				# doesn't need to be populated)
   en_GB				# English UK
   es				# Spanish
-  #it				# Italian
+  it				# Italian
   ja				# Japanese
   #no				# Norwegian
   #pt				# Portuguese
