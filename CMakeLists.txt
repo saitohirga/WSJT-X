@@ -1112,6 +1112,7 @@ set (LANGUAGES
   #sv				# Swedish
   zh				# Chinese
   zh_HK				# Chinese per Hong Kong
+  it				# Italian
   )
 foreach (lang_ ${LANGUAGES})
   file (TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/translations/wsjtx_${lang_}.ts ts_)
