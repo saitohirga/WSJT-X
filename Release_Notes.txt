@@ -34,7 +34,11 @@ in the v2.2.0 GA release. Here is a brief summary;
    DIGI added", Fox, and Hound renumbered). Thanks to Sam, W2JDB, for
    raising this issue.
 
- - Updated Catalan UI translation, tnx Xavi, EA3W. 
+ - Updated Catalan UI translation, tnx Xavi, EA3W.
+
+ - Italian UI translation, tnx Marco, PY1ZRJ.
+
+ - Updated Spanish UI translation, tnx Cédric, EA4AC. 
 
 
 		   Release: WSJT-X 2.2
