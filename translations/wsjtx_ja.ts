@@ -891,12 +891,12 @@ Format:
     <message>
         <location filename="../SampleDownloader/Directory.cpp" line="51"/>
         <source>File</source>
-        <translation type="unfinished">ファイル</translation>
+        <translation>ファイル</translation>
     </message>
     <message>
         <location filename="../SampleDownloader/Directory.cpp" line="51"/>
         <source>Progress</source>
-        <translation type="unfinished"></translation>
+        <translation>進捗</translation>
     </message>
     <message>
         <location filename="../SampleDownloader/Directory.cpp" line="113"/>
@@ -1086,7 +1086,7 @@ Error: %2 - %3</source>
     <message>
         <location filename="../EqualizationToolsDialog.cpp" line="309"/>
         <source>Phase (Π)</source>
-        <translation type="unfinished"></translation>
+        <translation>位相 (Π)</translation>
     </message>
     <message>
         <location filename="../EqualizationToolsDialog.cpp" line="311"/>
@@ -2276,12 +2276,12 @@ Yellow when too low</source>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1139"/>
         <source>▲</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1189"/>
         <source>▼</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1198"/>
@@ -2342,7 +2342,7 @@ Yellow when too low</source>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1257"/>
         <source>Auto Seq</source>
-        <translation type="unfinished">自動シーケンス</translation>
+        <translation>自動シーケンス</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1264"/>
@@ -3753,7 +3753,7 @@ ENTERを押してテキストを登録リストに追加.
 
 %7%L8
 %9%L10 Hz&lt;/pre&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="2466"/>
@@ -3770,7 +3770,7 @@ ENTERを押してテキストを登録リストに追加.
         <source>If you make fair use of any part of WSJT-X under terms of the GNU General Public License, you must display the following copyright notice prominently in your derivative work:
 
 &quot;The algorithms, source code, look-and-feel of WSJT-X and related programs, and protocol specifications for the modes FSK441, FT8, JT4, JT6M, JT9, JT65, JTMS, QRA64, ISCAT, MSK144 are Copyright (C) 2001-2020 by one or more of the following authors: Joseph Taylor, K1JT; Bill Somerville, G4WJS; Steven Franke, K9AN; Nico Palermo, IV3NWV; Greg Beam, KI7MT; Michael Black, W9MDB; Edson Pereira, PY2SDR; Philip Karn, KA9Q; and other members of the WSJT Development Group.&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="2750"/>
@@ -4311,27 +4311,27 @@ Error(%2): %3</source>
     <message>
         <location filename="../SampleDownloader.cpp" line="104"/>
         <source>&amp;Abort</source>
-        <translation type="unfinished"></translation>
+        <translation>中止(&amp;A)</translation>
     </message>
     <message>
         <location filename="../SampleDownloader.cpp" line="105"/>
         <source>&amp;Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation>再読み込み(&amp;R)</translation>
     </message>
     <message>
         <location filename="../SampleDownloader.cpp" line="108"/>
         <source>&amp;Details</source>
-        <translation type="unfinished"></translation>
+        <translation>詳細(&amp;D)</translation>
     </message>
     <message>
         <location filename="../SampleDownloader.cpp" line="112"/>
         <source>Base URL for samples:</source>
-        <translation type="unfinished"></translation>
+        <translation>サンプルのURL:</translation>
     </message>
     <message>
         <location filename="../SampleDownloader.cpp" line="113"/>
         <source>Only use HTTP:</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTPのみ使用:</translation>
     </message>
     <message>
         <location filename="../SampleDownloader.cpp" line="114"/>
