@@ -13,7 +13,6 @@
 #include <QListIterator>
 #include <QRegularExpression>
 #include <QScrollBar>
-#include <QDebug>
 
 #include "Configuration.hpp"
 #include "Network/LotWUsers.hpp"
@@ -126,8 +125,6 @@ namespace
 void DisplayText::appendText(QString const& text, QColor bg, QColor fg
                              , QString const& call1, QString const& call2)
 {
-//  qDebug () << "DisplayText::appendText: text:" << text << "Nbsp pos:" << text.indexOf (QChar::Nbsp);
-
   auto cursor = textCursor ();
   cursor.movePosition (QTextCursor::End);
   auto block_format = cursor.blockFormat ();
@@ -548,12 +545,18 @@ namespace
 void DisplayText::highlight_callsign (QString const& callsign, QColor const& bg,
                                       QColor const& fg, bool last_period_only)
 {
-  // qDebug () << "DisplayText::highlight_callsign: callsign:" << callsign << "last period:" << last_period_only;
   if (!callsign.size ())
     {
       return;
     }
-  QRegularExpression target {QString {"<?"} + callsign + QString {">?"}, QRegularExpression::DontCaptureOption};
+  auto regexp = callsign;
+  // allow for hashed callsigns and escape any regexp metacharacters
+  QRegularExpression target {QString {"<?"}
+                             + regexp.replace (QLatin1Char {'+'}, QLatin1String {"\\+"})
+                                 .replace (QLatin1Char {'.'}, QLatin1String {"\\."})
+                                 .replace (QLatin1Char {'?'}, QLatin1String {"\\?"})
+                             + QString {">?"}
+                             , QRegularExpression::DontCaptureOption};
   QTextCharFormat old_format {currentCharFormat ()};
   QTextCursor cursor {document ()};
   if (last_period_only)
@@ -568,10 +571,10 @@ void DisplayText::highlight_callsign (QString const& callsign, QColor const& bg,
         {
           period_start = prior;
         }
-      while (!cursor.isNull () && cursor > period_start)
+      cursor = period_start;
+      while (!cursor.isNull ())
         {
-          cursor = document ()->find (target, cursor
-                                      , QTextDocument::FindBackward | QTextDocument::FindWholeWords);
+          cursor = document ()->find (target, cursor, QTextDocument::FindWholeWords);
           if (!cursor.isNull () && cursor.hasSelection ())
             {
               if (bg.isValid () || fg.isValid ())
