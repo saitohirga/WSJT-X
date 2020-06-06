@@ -2074,7 +2074,7 @@ Error(%2): %3</translation>
     <message>
         <location filename="../widgets/mainwindow.ui" line="512"/>
         <source>&amp;Halt Tx</source>
-        <translation>&amp;Aturar TX</translation>
+        <translation>Aturar &amp;TX</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="519"/>
@@ -2145,7 +2145,7 @@ en Groc quan és massa baix</translation>
     <message>
         <location filename="../widgets/mainwindow.ui" line="846"/>
         <source>Search for callsign in database</source>
-        <translation>Buscar l&apos;indicatiu a la base de dades</translation>
+        <translation>Buscar el indicatiu a la base de dades</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="849"/>
@@ -3168,7 +3168,7 @@ La llista es pot mantenir a la configuració (F2).</translation>
     <message>
         <location filename="../widgets/mainwindow.ui" line="2938"/>
         <source>Shift+F6</source>
-        <translation>Majúscules+F6</translation>
+        <translation>Maj.+F6</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="2943"/>
@@ -3501,7 +3501,7 @@ La llista es pot mantenir a la configuració (F2).</translation>
     <message>
         <location filename="../widgets/mainwindow.ui" line="3414"/>
         <source>Shift+F1</source>
-        <translation>Majúscules+F1</translation>
+        <translation>Maj.+F1</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="3422"/>
@@ -4738,7 +4738,7 @@ Error(%2): %3</translation>
     <message>
         <location filename="../Configuration.ui" line="64"/>
         <source>M&amp;y Grid:</source>
-        <translation>E&amp;l meu Locator:</translation>
+        <translation>El meu L&amp;ocator:</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="74"/>
@@ -4803,7 +4803,7 @@ Error(%2): %3</translation>
     <message>
         <location filename="../Configuration.ui" line="180"/>
         <source>&amp;Tx messages to Rx frequency window</source>
-        <translation>&amp;Missatges de TX a la finestra de la freqüència de RX</translation>
+        <translation>Missa&amp;tges de TX a la finestra de la freqüència de RX</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="187"/>
@@ -4858,7 +4858,7 @@ Error(%2): %3</translation>
     <message>
         <location filename="../Configuration.ui" line="274"/>
         <source>&amp;Blank line between decoding periods</source>
-        <translation>&amp;Línia en blanc entre els períodes de descodificació</translation>
+        <translation>Lín&amp;ia en blanc entre els períodes de descodificació</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="281"/>
@@ -4955,7 +4955,7 @@ missatge de text lliure.</translation>
     <message>
         <location filename="../Configuration.ui" line="418"/>
         <source>Di&amp;sable Tx after sending 73</source>
-        <translation>De&amp;sactiva TX després d’enviar 73</translation>
+        <translation>Desa&amp;ctiva TX després d’enviar 73</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="427"/>
@@ -5097,12 +5097,12 @@ període tranquil quan es fa la descodificació.</translation>
     <message>
         <location filename="../Configuration.ui" line="669"/>
         <source>D&amp;efault</source>
-        <translation>Per d&amp;efecte</translation>
+        <translation>&amp;Per defecte</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="682"/>
         <source>Se&amp;ven</source>
-        <translation>Se&amp;t</translation>
+        <translation>S&amp;et</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="695"/>
@@ -5172,7 +5172,7 @@ uns pocs, particularment alguns equips de Kenwood, ho requereixen.</translation>
     <message>
         <location filename="../Configuration.ui" line="812"/>
         <source>&amp;Hardware</source>
-        <translation>&amp;Maquinari</translation>
+        <translation>Ma&amp;quinari</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="825"/>
@@ -5520,7 +5520,7 @@ els dos canals.</translation>
     <message>
         <location filename="../Configuration.ui" line="1509"/>
         <source>S&amp;elect</source>
-        <translation>S&amp;elecciona</translation>
+        <translation>Sele&amp;cciona</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1519"/>
@@ -5595,7 +5595,7 @@ Right click for item specific actions
 Click, SHIFT+Click and, CRTL+Click to select items</source>
         <translation>Arrossega i deixa anar els elements per reorganitzar l&apos;ordre.
 Fes clic amb el botó dret per a les accions específiques de l’element.
-Fes clic, MAJÚ + clic i, CTRL+clic per seleccionar els elements.</translation>
+Fes clic, MAJ. + clic i, CTRL+clic per seleccionar els elements.</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1692"/>
@@ -5653,7 +5653,7 @@ Indicatiu DX i Locator DX quan s’envia un missatge de text 73 o lliure.</trans
     <message>
         <location filename="../Configuration.ui" line="1757"/>
         <source>Clear &amp;DX call and grid after logging</source>
-        <translation>Buida les graelles Indicatiu DX i Locator&amp;DX després del registre</translation>
+        <translation>Buida les graelles Indicatiu DX i Locator &amp;DX després del registre</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1764"/>
