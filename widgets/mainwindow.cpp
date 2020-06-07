@@ -5337,10 +5337,6 @@ void MainWindow::lookup(bool lookupButtonClicked)
       for(int i=0; i<999999; i++) {
         n=f.readLine(c,sizeof(c));
         if(n <= 0) {
-          if(lookupButtonClicked) {
-            QString msg=hisCall + tr(" not found in CALL3.TXT");
-            MessageBox::information_message (this, msg);
-          }
           if(!hisgrid0.contains(grid_regexp)) {
             ui->dxGridEntry->clear();
           }
