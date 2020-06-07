@@ -700,7 +700,7 @@ private:
   void genStdMsgs(QString rpt, bool unconditional = false);
   void genCQMsg();
   void clearDX ();
-  void lookup(bool lookupButtonClicked);
+  void lookup();
   void ba2msg(QByteArray ba, char* message);
   void msgtype(QString t, QLineEdit* tx);
   void stub();
