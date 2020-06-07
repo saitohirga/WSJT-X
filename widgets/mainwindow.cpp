@@ -2066,7 +2066,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       break;
     case Qt::Key_L:
       if(e->modifiers() & Qt::ControlModifier) {
-        lookup(true);
+        lookup();
         genStdMsgs(m_rpt);
         return;
       }
@@ -4916,7 +4916,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   if (hisgrid.contains (grid_regexp)) {
     if(ui->dxGridEntry->text().mid(0,4) != hisgrid) ui->dxGridEntry->setText(hisgrid);
   }
-  lookup(false);
+  lookup();
   m_hisGrid = ui->dxGridEntry->text();
 
   QString rpt = message.report();
@@ -5324,7 +5324,7 @@ void MainWindow::clearDX ()
   m_QSOProgress = CALLING;
 }
 
-void MainWindow::lookup(bool lookupButtonClicked)
+void MainWindow::lookup()
 {
   QString hisCall {ui->dxCallEntry->text()};
   QString hisgrid0 {ui->dxGridEntry->text()};
@@ -5364,7 +5364,7 @@ void MainWindow::lookup(bool lookupButtonClicked)
 
 void MainWindow::on_lookupButton_clicked()                    //Lookup button
 {
-  lookup(true);
+  lookup();
 }
 
 void MainWindow::on_addButton_clicked()                       //Add button
