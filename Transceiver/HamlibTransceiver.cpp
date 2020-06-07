@@ -66,11 +66,14 @@ namespace
     TransceiverFactory::Transceivers * rigs = reinterpret_cast<TransceiverFactory::Transceivers *> (callback_data);
 
     // We can't use this one because it is only for testing Hamlib and
-    // would confuse users, possibly causing operating on the wrong frequency!
+    // would confuse users, possibly causing operating on the wrong
+    // frequency!
+#ifdef RIG_MODEL_DUMMY_NOVFO
     if (RIG_MODEL_DUMMY_NOVFO == caps->rig_model)
       {
         return 1;
       }
+#endif
 
     QString key;
     if (RIG_MODEL_DUMMY == caps->rig_model)
