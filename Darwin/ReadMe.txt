@@ -1,9 +1,6 @@
                     Notes on WSJT-X Installation for Mac OS X
                     -----------------------------------------
 
-                               Updated 21 October 2018
-                               -----------------------
-
 If you have already downloaded a previous version of WSJT-X then I suggest 
 you change the name in the Applications folder from WSJT-X to WSJT-X_previous 
 before proceeding.  
