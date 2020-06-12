@@ -151,7 +151,7 @@
     <message>
         <location filename="../widgets/astro.cpp" line="267"/>
         <source>Go to &quot;Menu-&gt;File-&gt;Settings-&gt;Radio&quot; to enable split operation</source>
-        <translation>Vés a &quot;Menú-&gt; Fitxer-&gt; Configuració-&gt; Ràdio&quot; per habilitar l&apos;operació dividida</translation>
+        <translation>Vés a &quot;Menú-&gt; Arxiu-&gt; Configuració-&gt; Ràdio&quot; per habilitar l&apos;operació dividida</translation>
     </message>
 </context>
 <context>
@@ -537,7 +537,7 @@ Format:
         <location filename="../Configuration.cpp" line="2403"/>
         <location filename="../Configuration.cpp" line="2449"/>
         <source>Frequency files (*.qrg);;All files (*.*)</source>
-        <translation>Fitxers de freqüència (*.qrg);;Tots els fitxers (*.*)</translation>
+        <translation>Arxius de freqüència (*.qrg);;Tots els arxius (*.*)</translation>
     </message>
     <message>
         <location filename="../Configuration.cpp" line="2391"/>
@@ -559,12 +559,12 @@ Format:
         <location filename="../Configuration.cpp" line="2429"/>
         <location filename="../Configuration.cpp" line="2439"/>
         <source>Not a valid frequencies file</source>
-        <translation>El fitxer de freqüències no és vàlid</translation>
+        <translation>L&apos;arxiu de freqüències no és vàlid</translation>
     </message>
     <message>
         <location filename="../Configuration.cpp" line="2420"/>
         <source>Incorrect file magic</source>
-        <translation>Fitxer màgic incorrecte</translation>
+        <translation>L&apos;arxiu màgic es incorrecte</translation>
     </message>
     <message>
         <location filename="../Configuration.cpp" line="2429"/>
@@ -931,12 +931,12 @@ Format:
     <message>
         <location filename="../SampleDownloader/Directory.cpp" line="140"/>
         <source>Contents file top level must be a JSON array</source>
-        <translation>El nivell superior del fitxer de contingut ha de ser una matriu JSON</translation>
+        <translation>El nivell superior de l&apos;arxiu de contingut ha de ser una matriu JSON</translation>
     </message>
     <message>
         <location filename="../SampleDownloader/Directory.cpp" line="151"/>
         <source>File System Error</source>
-        <translation>Error al fitxer de sistema</translation>
+        <translation>Error al arxiu de sistema</translation>
     </message>
     <message>
         <location filename="../SampleDownloader/Directory.cpp" line="152"/>
@@ -1264,7 +1264,7 @@ Error: %2 - %3</translation>
     <message>
         <location filename="../widgets/ExportCabrillo.cpp" line="78"/>
         <source>Save Log File</source>
-        <translation>Enregistra el fitxer de log</translation>
+        <translation>Enregistra l&apos;arxiu de log</translation>
     </message>
     <message>
         <location filename="../widgets/ExportCabrillo.cpp" line="80"/>
@@ -1279,7 +1279,7 @@ Error: %2 - %3</translation>
     <message>
         <location filename="../widgets/ExportCabrillo.cpp" line="107"/>
         <source>Export Cabrillo File Error</source>
-        <translation>Error al exportar el fitxer Cabrillo</translation>
+        <translation>Error al exportar l&apos;arxiu Cabrillo</translation>
     </message>
 </context>
 <context>
@@ -1391,7 +1391,7 @@ Error: %2 - %3</translation>
     <message>
         <location filename="../widgets/FoxLogWindow.cpp" line="59"/>
         <source>Export ADIF Log File</source>
-        <translation>Exporta fitxer de reguistre en format ADIF</translation>
+        <translation>Exporta l&apos;arxiu de reguistre en format ADIF</translation>
     </message>
     <message>
         <location filename="../widgets/FoxLogWindow.cpp" line="61"/>
@@ -1401,7 +1401,7 @@ Error: %2 - %3</translation>
     <message>
         <location filename="../widgets/FoxLogWindow.cpp" line="73"/>
         <source>Export ADIF File Error</source>
-        <translation>Error al exportar el fitxer en format ADIF</translation>
+        <translation>Error al exportar l&apos;arxiu en format ADIF</translation>
     </message>
     <message>
         <location filename="../widgets/FoxLogWindow.cpp" line="74"/>
@@ -1421,7 +1421,7 @@ Error: %2 - %3</translation>
     <message>
         <location filename="../widgets/FoxLogWindow.cpp" line="85"/>
         <source>Are you sure you want to erase file FoxQSO.txt and start a new Fox log?</source>
-        <translation>Estàs segur que vols esborrar el fitxer FoxQSO.txt i començar un log nou de FOX ?</translation>
+        <translation>Estàs segur que vols esborrar l&apos;arxiu FoxQSO.txt i començar un log nou de FOX ?</translation>
     </message>
 </context>
 <context>
@@ -1487,7 +1487,7 @@ Error: %2 - %3</translation>
     <message>
         <location filename="../Transceiver/HRDTransceiver.cpp" line="159"/>
         <source>Failed to open file &quot;%1&quot;: %2.</source>
-        <translation>Error a l&apos;obrir el fitxer &quot;%1&quot;: %2.</translation>
+        <translation>Error a l&apos;obrir l&apos;arxiu &quot;%1&quot;: %2.</translation>
     </message>
     <message>
         <location filename="../Transceiver/HRDTransceiver.cpp" line="174"/>
@@ -1572,17 +1572,17 @@ Error: %2 - %3</translation>
     <message>
         <location filename="../Transceiver/HamlibTransceiver.cpp" line="278"/>
         <source>Hamlib settings file error: %1 at character offset %2</source>
-        <translation>Error del fitxer de configuració de Hamlib: %1 en el desplaçament de caràcters %2</translation>
+        <translation>Error de l&apos;arxiu de configuració de Hamlib: %1 en el desplaçament de caràcters %2</translation>
     </message>
     <message>
         <location filename="../Transceiver/HamlibTransceiver.cpp" line="284"/>
         <source>Hamlib settings file error: top level must be a JSON object</source>
-        <translation>Error del fitxer de configuració de Hamlib: el nivell superior ha de ser un objecte JSON</translation>
+        <translation>Error de l&apos;arxiu de configuració de Hamlib: el nivell superior ha de ser un objecte JSON</translation>
     </message>
     <message>
         <location filename="../Transceiver/HamlibTransceiver.cpp" line="296"/>
         <source>Hamlib settings file error: config must be a JSON object</source>
-        <translation>Error del fitxer de configuració de Hamlib: config ha de ser un objecte JSON</translation>
+        <translation>Error de l&apos;arxiu de configuració de Hamlib: config ha de ser un objecte JSON</translation>
     </message>
     <message>
         <location filename="../Transceiver/HamlibTransceiver.cpp" line="361"/>
@@ -1745,7 +1745,7 @@ Error: %2 - %3</translation>
     <message>
         <location filename="../widgets/HelpTextWindow.cpp" line="20"/>
         <source>Help file error</source>
-        <translation>Error del fitxer d&apos;ajuda</translation>
+        <translation>Error de l&apos;arxiu d&apos;ajuda</translation>
     </message>
     <message>
         <location filename="../widgets/HelpTextWindow.cpp" line="21"/>
@@ -1875,7 +1875,7 @@ Error: %2 - %3</translation>
     <message>
         <location filename="../widgets/logqso.cpp" line="172"/>
         <source>Log file error</source>
-        <translation>Error al fitxer de log</translation>
+        <translation>Error a l&apos;arxiu de log</translation>
     </message>
     <message>
         <location filename="../widgets/logqso.cpp" line="173"/>
@@ -1915,7 +1915,7 @@ Error: %2 - %3</translation>
         <location filename="../Network/LotWUsers.cpp" line="144"/>
         <source>File System Error - Cannot commit changes to:
 &quot;%1&quot;</source>
-        <translation>Error de sistema de fitxers: no es poden confirmar els canvis a:
+        <translation>Error de sistema d&apos;arxius: no es poden confirmar els canvis a:
 &quot;%1&quot;</translation>
     </message>
     <message>
@@ -1923,7 +1923,7 @@ Error: %2 - %3</translation>
         <source>File System Error - Cannot open file:
 &quot;%1&quot;
 Error(%2): %3</source>
-        <translation>Error del sistema de fitxers - no es pot obrir el fitxer:
+        <translation>Error del sistema d&apos;arxius - no es pot obrir l&apos;arxiu:
 &quot;%1&quot;
 Error(%2): %3</translation>
     </message>
@@ -1932,7 +1932,7 @@ Error(%2): %3</translation>
         <source>File System Error - Cannot write to file:
 &quot;%1&quot;
 Error(%2): %3</source>
-        <translation>Error del sistema de fitxers - no es pot escriure al fitxer:
+        <translation>Error del sistema d&apos;arxius - no es pot escriure a l&apos;arxiu:
 &quot;%1&quot;
 Error(%2): %3</translation>
     </message>
@@ -3083,7 +3083,7 @@ La llista es pot mantenir a la configuració (F2).</translation>
     <message>
         <location filename="../widgets/mainwindow.ui" line="2767"/>
         <source>File</source>
-        <translation>Fitxer</translation>
+        <translation>Arxiu</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="2788"/>
@@ -3163,7 +3163,7 @@ La llista es pot mantenir a la configuració (F2).</translation>
     <message>
         <location filename="../widgets/mainwindow.ui" line="2935"/>
         <source>Decode remaining files in directory</source>
-        <translation>Descodificar els fitxers restants al directori</translation>
+        <translation>Descodificar els arxius restants al directori</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="2938"/>
@@ -3173,7 +3173,7 @@ La llista es pot mantenir a la configuració (F2).</translation>
     <message>
         <location filename="../widgets/mainwindow.ui" line="2943"/>
         <source>Delete all *.wav &amp;&amp; *.c2 files in SaveDir</source>
-        <translation>Esborrar tots els fitxers *.wav i *.c2</translation>
+        <translation>Esborrar tots els arxius *.wav i *.c2</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="2965"/>
@@ -3228,12 +3228,12 @@ La llista es pot mantenir a la configuració (F2).</translation>
     <message>
         <location filename="../widgets/mainwindow.ui" line="3045"/>
         <source>Erase ALL.TXT</source>
-        <translation>Esborrar el fitxer ALL.TXT</translation>
+        <translation>Esborrar l&apos;arxiu ALL.TXT</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="3050"/>
         <source>Erase wsjtx_log.adi</source>
-        <translation>Esborrar el fitxer wsjt_log.adi</translation>
+        <translation>Esborrar l&apos;arxiu wsjtx_log.adi</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="3058"/>
@@ -3415,7 +3415,7 @@ La llista es pot mantenir a la configuració (F2).</translation>
     <message>
         <location filename="../widgets/mainwindow.ui" line="3292"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Download sample audio files demonstrating the various modes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Descarrega fitxers d’àudio d’exemple mostrant els diversos modes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Descarrega els arxius d’àudio d’exemple mostrant els diversos modes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="3300"/>
@@ -3588,7 +3588,7 @@ La llista es pot mantenir a la configuració (F2).</translation>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="706"/>
         <source>Error Writing WAV File</source>
-        <translation>S&apos;ha produït un error al escriure el fitxer WAV</translation>
+        <translation>S&apos;ha produït un error al escriure l&apos;arxiu WAV</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="749"/>
@@ -3645,7 +3645,7 @@ La llista es pot mantenir a la configuració (F2).</translation>
         <location filename="../widgets/mainwindow.cpp" line="1405"/>
         <location filename="../widgets/mainwindow.cpp" line="8729"/>
         <source>File Open Error</source>
-        <translation>Error al obrir el fitxer</translation>
+        <translation>Error al obrir l&apos;arxiu</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="1406"/>
@@ -3659,7 +3659,7 @@ La llista es pot mantenir a la configuració (F2).</translation>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="1504"/>
         <source>Error saving c2 file</source>
-        <translation>Error en desar el fitxer c2</translation>
+        <translation>Error en desar l&apos;arxiu c2</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="1716"/>
@@ -3698,7 +3698,7 @@ La llista es pot mantenir a la configuració (F2).</translation>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="2190"/>
         <source>Status File Error</source>
-        <translation>Error d&apos;estat del fitxer</translation>
+        <translation>Error d&apos;estat de l&apos;arxiu</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="2191"/>
@@ -3765,7 +3765,7 @@ La llista es pot mantenir a la configuració (F2).</translation>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="2467"/>
         <source>The &quot;fmt.all&quot; file will be renamed as &quot;fmt.bak&quot;</source>
-        <translation>El fitxer &quot;fmt.all&quot; serà renombrat com a &quot;fmt.bak&quot;</translation>
+        <translation>L&apos;arxiu &quot;fmt.all&quot; serà renombrat com a &quot;fmt.bak&quot;</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="2479"/>
@@ -3778,7 +3778,7 @@ La llista es pot mantenir a la configuració (F2).</translation>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="2750"/>
         <source>No data read from disk. Wrong file format?</source>
-        <translation>No es llegeixen dades del disc. Format de fitxer incorrecte ?</translation>
+        <translation>No es llegeixen dades del disc. Format de l&apos;arxiu incorrecte ?</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="2757"/>
@@ -3788,7 +3788,7 @@ La llista es pot mantenir a la configuració (F2).</translation>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="2758"/>
         <source>Are you sure you want to delete all *.wav and *.c2 files in &quot;%1&quot;?</source>
-        <translation>Estàs segur que vols esborrar tots els fitxers *.wav i *.c2&quot;%1&quot; ?</translation>
+        <translation>Estàs segur que vols esborrar tots els arxius *.wav i *.c2&quot;%1&quot; ?</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="2795"/>
@@ -3803,7 +3803,7 @@ La llista es pot mantenir a la configuració (F2).</translation>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="3118"/>
         <source>No more files to open.</source>
-        <translation>No s’obriran més fitxers.</translation>
+        <translation>No s’obriran més arxius.</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="3605"/>
@@ -3884,7 +3884,7 @@ ja és a CALL3.TXT, vols substituir-lo ?</translation>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="5657"/>
         <source>Log file error</source>
-        <translation>Error al fitxer de log</translation>
+        <translation>Error a l&apos;arxiu de log</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="5658"/>
@@ -3926,7 +3926,7 @@ ja és a CALL3.TXT, vols substituir-lo ?</translation>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="6465"/>
         <source>Are you sure you want to erase file ALL.TXT?</source>
-        <translation>Estàs segur que vols esborrar el fitxer ALL.TXT ?</translation>
+        <translation>Estàs segur que vols esborrar l&apos;arxiu ALL.TXT ?</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="6475"/>
@@ -3942,7 +3942,7 @@ ja és a CALL3.TXT, vols substituir-lo ?</translation>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="6477"/>
         <source>Doing this will remove all QSO records for the current contest. They will be kept in the ADIF log file but will not be available for export in your Cabrillo log.</source>
-        <translation>Si fas això, suprimiràs tots els registres de QSO del concurs actual. Es conservaran al fitxer de log ADIF, però no es podran exportar al log de Cabrillo.</translation>
+        <translation>Si fas això, suprimiràs tots els registres de QSO del concurs actual. Es conservaran a l&apos;arxiu de log ADIF, però no es podran exportar al log de Cabrillo.</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="6490"/>
@@ -3952,7 +3952,7 @@ ja és a CALL3.TXT, vols substituir-lo ?</translation>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="6498"/>
         <source>Are you sure you want to erase file wsjtx_log.adi?</source>
-        <translation>Estàs segur que vols esborrar el fitxer wsjtx_log.adi ?</translation>
+        <translation>Estàs segur que vols esborrar l&apos;arxiu wsjtx_log.adi ?</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="6508"/>
@@ -3994,7 +3994,7 @@ UDP server %2:%3</translation>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="7746"/>
         <source>File Error</source>
-        <translation>Error al fitxer</translation>
+        <translation>Error a l&apos;arxiu</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="7980"/>
@@ -4015,7 +4015,7 @@ UDP server %2:%3</translation>
         <location filename="../widgets/mainwindow.cpp" line="8179"/>
         <location filename="../widgets/mainwindow.cpp" line="8859"/>
         <source>Log File Error</source>
-        <translation>Error al fitxer de log</translation>
+        <translation>Error a l&apos;arxiu de log</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="8222"/>
@@ -4188,7 +4188,7 @@ UDP server %2:%3</translation>
     <message>
         <location filename="../Network/LotWUsers.cpp" line="227"/>
         <source>Failed to open LotW users CSV file: &apos;%1&apos;</source>
-        <translation>No s&apos;ha pogut obrir el fitxer CSV dels usuaris de LotW: &apos;%1&apos;</translation>
+        <translation>No s&apos;ha pogut obrir l&apos;arxiu CSV dels usuaris de LotW: &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../models/Bands.cpp" line="50"/>
@@ -4203,27 +4203,27 @@ UDP server %2:%3</translation>
     <message>
         <location filename="../WFPalette.cpp" line="78"/>
         <source>Error reading waterfall palette file &quot;%1:%2&quot; too many colors.</source>
-        <translation>Error de lectura del fitxer de paleta de la cascada &quot;%1:%2&quot; massa colors.</translation>
+        <translation>Error de lectura de l&apos;arxiu de paleta de la cascada &quot;%1:%2&quot; massa colors.</translation>
     </message>
     <message>
         <location filename="../WFPalette.cpp" line="84"/>
         <source>Error reading waterfall palette file &quot;%1:%2&quot; invalid triplet.</source>
-        <translation>Error de lectura del fitxer de paleta de la cascada &quot;%1:%2&quot; triplet no vàlid.</translation>
+        <translation>Error de lectura de l&apos;arxiu de paleta de la cascada &quot;%1:%2&quot; triplet no vàlid.</translation>
     </message>
     <message>
         <location filename="../WFPalette.cpp" line="96"/>
         <source>Error reading waterfall palette file &quot;%1:%2&quot; invalid color.</source>
-        <translation>Error de lectura del fitxer de paleta de la cascada &quot;%1:%2&quot; color no vàlid.</translation>
+        <translation>Error de lectura de l&apos;arxiu de paleta de la cascada &quot;%1:%2&quot; color no vàlid.</translation>
     </message>
     <message>
         <location filename="../WFPalette.cpp" line="104"/>
         <source>Error opening waterfall palette file &quot;%1&quot;: %2.</source>
-        <translation>Error obrint el fitxer de paleta de la cascada &quot;%1&quot;: %2.</translation>
+        <translation>Error obrint l&apos;arxiu de paleta de la cascada &quot;%1&quot;: %2.</translation>
     </message>
     <message>
         <location filename="../WFPalette.cpp" line="250"/>
         <source>Error writing waterfall palette file &quot;%1&quot;: %2.</source>
-        <translation>Error d&apos;escriptura del fitxer de paleta de la cascada &quot;%1&quot;: %2.</translation>
+        <translation>Error d&apos;escriptura de l&apos;arxiu de paleta de la cascada &quot;%1&quot;: %2.</translation>
     </message>
 </context>
 <context>
@@ -4244,7 +4244,7 @@ UDP server %2:%3</translation>
 &quot;%1&quot;
 to: &quot;%2&quot;
 Error(%3): %4</source>
-        <translation>No es pot renombrar el fitxer:
+        <translation>No es pot renombrar l&apos;arxiu:
 &quot;%1&quot;
 a: &quot;%2&quot;
 Error (%3): %4</translation>
@@ -4253,7 +4253,7 @@ Error (%3): %4</translation>
         <location filename="../SampleDownloader/RemoteFile.cpp" line="111"/>
         <source>Cannot delete file:
 &quot;%1&quot;</source>
-        <translation>No es pot esborrar el fitxer:
+        <translation>No es pot esborrar l&apos;arxiu:
 &quot;%1&quot;</translation>
     </message>
     <message>
@@ -4285,7 +4285,7 @@ Error (%3): %4</translation>
         <source>Cannot open file:
 &quot;%1&quot;
 Error(%2): %3</source>
-        <translation>No es pot obrir el fitxer:
+        <translation>No es pot obrir l&apos;arxiu:
 &quot;%1&quot;
 Error (%2): %3</translation>
     </message>
@@ -4803,7 +4803,7 @@ Error(%2): %3</translation>
     <message>
         <location filename="../Configuration.ui" line="180"/>
         <source>&amp;Tx messages to Rx frequency window</source>
-        <translation>Missa&amp;tges de TX a la finestra de la freqüència de RX</translation>
+        <translation>Missatges de &amp;TX a la finestra de la freqüència de RX</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="187"/>
@@ -4965,7 +4965,7 @@ missatge de text lliure.</translation>
     <message>
         <location filename="../Configuration.ui" line="430"/>
         <source>CW ID a&amp;fter 73</source>
-        <translation>CW ID d&amp;esprés del 73</translation>
+        <translation>CW ID després del &amp;73</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="456"/>
@@ -5504,7 +5504,7 @@ els dos canals.</translation>
     <message>
         <location filename="../Configuration.ui" line="1490"/>
         <source>Path to which .WAV files are saved.</source>
-        <translation>Ruta a la qual es desen els fitxers .WAV.</translation>
+        <translation>Ruta a la qual es desen els arxius .WAV.</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1499"/>
@@ -5515,7 +5515,7 @@ els dos canals.</translation>
     <message>
         <location filename="../Configuration.ui" line="1506"/>
         <source>Click to select a different save directory for .WAV files.</source>
-        <translation>Fes clic per seleccionar un directori diferent per desar els fitxers .WAV.</translation>
+        <translation>Fes clic per seleccionar un directori diferent per desar els arxius .WAV.</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1509"/>
@@ -5866,7 +5866,7 @@ Fes clic amb el botó dret per a les opcions d&apos;inserció i eliminació.</tr
     <message>
         <location filename="../Configuration.ui" line="2228"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Click to scan the wsjtx_log.adi ADIF file again for worked before information&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fes clic per analitzar el fitxer ADIF wsjtx_log.adi de nou per obtenir la informació abans treballada&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fes clic per analitzar l&apos;arxiu ADIF wsjtx_log.adi de nou per obtenir la informació abans treballada&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="2231"/>
@@ -5926,12 +5926,12 @@ Fes clic amb el botó dret per a les opcions d&apos;inserció i eliminació.</tr
     <message>
         <location filename="../Configuration.ui" line="2326"/>
         <source>Users CSV file URL:</source>
-        <translation>URL del fitxer CSV dels usuaris:</translation>
+        <translation>URL de l&apos;arxiu CSV dels usuaris:</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="2338"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;URL of the ARRL LotW user&apos;s last upload dates and times data file which is used to highlight decodes from stations that are known to upload their log file to LotW.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;URL de l&apos;últim fitxer de dades de dates i hores de càrrega de ARRL LotW que s&apos;utilitza per ressaltar descodificacions d&apos;estacions que se sap que carreguen el seu arxiu de log a LotW.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;URL de l&apos;últim arxiu de dades de dates i hores de càrrega de ARRL LotW que s&apos;utilitza per ressaltar descodificacions d&apos;estacions que se sap que carreguen el seu arxiu de log a LotW.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="2341"/>
@@ -5941,7 +5941,7 @@ Fes clic amb el botó dret per a les opcions d&apos;inserció i eliminació.</tr
     <message>
         <location filename="../Configuration.ui" line="2348"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Push this button to fetch the latest LotW user&apos;s upload date and time data file.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fes clic sobre aquest botó per obtenir l&apos;últim fitxer de dades de data i hora de càrrega dels usuaris de LotW.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fes clic sobre aquest botó per obtenir l&apos;últim arxiu de dades de data i hora de càrrega dels usuaris de LotW.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="2351"/>
@@ -6108,7 +6108,7 @@ Fes clic amb el botó dret per a les opcions d&apos;inserció i eliminació.</tr
     <message>
         <location filename="../Configuration.ui" line="2742"/>
         <source>Degrade S/N of .wav file: </source>
-        <translation>Grau S/N del fitxer .wav: </translation>
+        <translation>Grau S/N de l&apos;arxiu .wav: </translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="2752"/>
@@ -6239,7 +6239,7 @@ Fes clic amb el botó dret per a les opcions d&apos;inserció i eliminació.</tr
     <message>
         <location filename="../main.cpp" line="211"/>
         <source>Writable files in test location.  Use with caution, for testing only.</source>
-        <translation>Fitxers amb permis d&apos;escriptura a la ubicació de proves. Utilitzar amb precaució, només per a proves.</translation>
+        <translation>Arxius amb permis d&apos;escriptura a la ubicació de proves. Utilitzar amb precaució, només per a proves.</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="216"/>
@@ -6264,7 +6264,7 @@ Fes clic amb el botó dret per a les opcions d&apos;inserció i eliminació.</tr
     <message>
         <location filename="../main.cpp" line="372"/>
         <source>try to remove stale lock file?</source>
-        <translation>intenteu eliminar el fitxer de bloqueig no realitzat?</translation>
+        <translation>intenteu eliminar l&apos;arxiu de bloqueig no realitzat?</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="414"/>
