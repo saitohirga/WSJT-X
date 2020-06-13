@@ -49,6 +49,7 @@ extern "C" {
 
 namespace
 {
+#if QT_VERSION < QT_VERSION_CHECK (5, 15, 0)
   struct RNGSetup
   {
     RNGSetup ()
@@ -58,6 +59,7 @@ namespace
       qsrand (seed);            // this is good for rand() as well
     }
   } seeding;
+#endif
 
   // We  can't use  the GUI  after QApplication::exit()  is called  so
   // uncaught exceptions can  get lost on Windows  systems where there

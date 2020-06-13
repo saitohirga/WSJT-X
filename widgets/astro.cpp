@@ -131,7 +131,11 @@ auto Astro::astroUpdate(QDateTime const& t, QString const& mygrid, QString const
     QTextStream out {&message};
     out << " " << date << "\n"
       "UTC:  " << utc << "\n"
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+        << Qt::fixed
+#else
       << fixed
+#endif
       << qSetFieldWidth (6)
       << qSetRealNumberPrecision (1)
       << "Az:     " << azmoon << "\n"

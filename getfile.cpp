@@ -1,5 +1,9 @@
 #include "getfile.h"
 #include <QDir>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+#include <QRandomGenerator>
+#include <random>
+#endif
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
@@ -171,6 +175,10 @@ void savewav(QString fname, int ntrperiod)
 /* Generate gaussian random float with mean=0 and std_dev=1 */
 float gran()
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+  static std::normal_distribution<float> d;
+  return d (*QRandomGenerator::global ());
+#else
   float fac,rsq,v1,v2;
   static float gset;
   static int iset;
@@ -192,6 +200,7 @@ float gran()
   gset = v1*fac;
   iset++;
   return v2*fac;
+#endif
 }
 
 int ptt(int nport, int ntx, int* iptt, int* nopen)

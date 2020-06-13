@@ -39,11 +39,18 @@ public:
     Radio::register_types ();
 
     connect (this, &QIODevice::readyRead, this, &MessageServer::impl::pending_datagrams);
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
     connect (this, static_cast<void (impl::*) (SocketError)> (&impl::error)
              , [this] (SocketError /* e */)
              {
                Q_EMIT self_->error (errorString ());
              });
+#else
+    connect (this, &impl::errorOccurred, [this] (SocketError /* e */)
+                                 {
+                                   Q_EMIT self_->error (errorString ());
+                                 });
+#endif
     connect (clock_, &QTimer::timeout, this, &impl::tick);
     clock_->start (NetworkMessage::pulse * 1000);
   }

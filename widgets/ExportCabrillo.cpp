@@ -99,7 +99,13 @@ void ExportCabrillo::save_log ()
             << "ADDRESS: " << ui->addr_1_line_edit->text() << '\n'
             << "ADDRESS: " << ui->addr_2_line_edit->text() << '\n';
         if (log_) log_->export_qsos (out);
-        out << "END-OF-LOG:" << endl;
+        out << "END-OF-LOG:"
+#if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
+            << Qt::endl
+#else
+            << endl
+#endif
+          ;
         return;
       } else {
         auto const& message = tr ("Cannot open \"%1\" for writing: %2")
