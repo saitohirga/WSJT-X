@@ -103,7 +103,13 @@ QByteArray LogBook::QSOToADIF (QString const& hisCall, QString const& hisGrid, Q
   if(operator_call!="") t+=" <operator:" + QString::number(operator_call.size()) + ">" + operator_call;
   if (xSent.size ())
     {
-      auto words = xSent.split (' ', QString::SkipEmptyParts);
+      auto words = xSent.split (' '
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+                                , QString::SkipEmptyParts
+#else
+                                , Qt::SkipEmptyParts
+#endif
+                                );
       if (words.size () > 1)
         {
           if (words.back ().toUInt ())
@@ -126,7 +132,13 @@ QByteArray LogBook::QSOToADIF (QString const& hisCall, QString const& hisGrid, Q
         }
     }
   if (xRcvd.size ()) {
-    auto words = xRcvd.split (' ', QString::SkipEmptyParts);
+    auto words = xRcvd.split (' '
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+                              , QString::SkipEmptyParts
+#else
+                              , Qt::SkipEmptyParts
+#endif
+                              );
     if (words.size () == 2)
       {
         if (words.at (1).toUInt ())

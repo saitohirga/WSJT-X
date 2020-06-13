@@ -78,7 +78,12 @@ void TraceFile::impl::message_handler (QtMsgType type, QMessageLogContext const&
   Q_ASSERT_X (current_stream_, "TraceFile:message_handler", "no stream to write to");
   {
     QMutexLocker lock {&mutex_}; // thread safety - serialize writes to the trace file
-    *current_stream_ << qFormatLogMessage (type, context, msg) << endl;
+    *current_stream_ << qFormatLogMessage (type, context, msg) <<
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+                 endl;
+#else
+                 Qt::endl;
+#endif
   }
 
   if (QtFatalMsg == type)

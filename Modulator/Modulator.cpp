@@ -2,6 +2,9 @@
 #include <limits>
 #include <qmath.h>
 #include <QDateTime>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+#include <QRandomGenerator>
+#endif
 #include <QDebug>
 #include "widgets/mainwindow.h" // TODO: G4WJS - break this dependency
 #include "Audio/soundout.h"
@@ -278,8 +281,13 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
 
           int j=m_ic/480;
           if(m_fSpread>0.0 and j!=m_j0) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+            float x1=QRandomGenerator::global ()->generateDouble ();
+            float x2=QRandomGenerator::global ()->generateDouble ();
+#else
             float x1=(float)qrand()/RAND_MAX;
             float x2=(float)qrand()/RAND_MAX;
+#endif
             toneFrequency = m_toneFrequency0 + 0.5*m_fSpread*(x1+x2-1.0);
             m_dphi = m_twoPi * toneFrequency / m_frameRate;
             m_j0=j;

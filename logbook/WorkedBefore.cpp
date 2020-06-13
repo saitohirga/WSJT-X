@@ -442,9 +442,21 @@ bool WorkedBefore::add (QString const& call
           QTextStream out {&file};
           if (!file.size ())
             {
-              out << "WSJT-X ADIF Export<eoh>" << endl;  // new file
+              out << "WSJT-X ADIF Export<eh>" << // new file
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+                 endl
+#else
+                 Qt::endl
+#endif
+                 ;
             }
-          out << ADIF_record << " <eor>" << endl;
+          out << ADIF_record << " <eor>" <<
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+                 endl
+#else
+                 Qt::endl
+#endif
+                 ;
         }
       m_->worked_.emplace (call.toUpper (), grid.left (4).toUpper (), band.toUpper (), mode.toUpper ()
                            , entity.entity_name, entity.continent, entity.CQ_zone, entity.ITU_zone);
