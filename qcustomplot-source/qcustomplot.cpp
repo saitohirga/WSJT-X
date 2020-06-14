@@ -4766,7 +4766,7 @@ Qt::Alignment QCPLayoutInset::insetAlignment(int index) const
   else
   {
     qDebug() << Q_FUNC_INFO << "Invalid element index:" << index;
-    return 0;
+    return Qt::Alignment {};
   }
 }
 
@@ -6013,11 +6013,13 @@ double QCPAxisTickerDateTime::dateTimeToKey(const QDateTime dateTime)
 */
 double QCPAxisTickerDateTime::dateTimeToKey(const QDate date)
 {
-# if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
+#if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
   return QDateTime(date).toTime_t();
-# else
+#elif QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
   return QDateTime(date).toMSecsSinceEpoch()/1000.0;
-# endif
+#else
+  return date.startOfDay().toMSecsSinceEpoch()/1000.0;
+#endif
 }
 /* end of 'src/axis/axistickerdatetime.cpp' */
 
@@ -6499,7 +6501,11 @@ void QCPAxisTickerText::addTick(double position, QString label)
 */
 void QCPAxisTickerText::addTicks(const QMap<double, QString> &ticks)
 {
+# if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
   mTicks.unite(ticks);
+#else
+  mTicks.insert(ticks);
+#endif
 }
 
 /*! \overload
@@ -12598,9 +12604,11 @@ QCustomPlot::QCustomPlot(QWidget *parent) :
   mBufferDevicePixelRatio(1.0), // will be adapted to primary screen below
   mPlotLayout(0),
   mAutoAddPlottableToLegend(true),
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
   mAntialiasedElements(QCP::aeNone),
   mNotAntialiasedElements(QCP::aeNone),
   mInteractions(0),
+#endif
   mSelectionTolerance(8),
   mNoAntialiasingOnDrag(false),
   mBackgroundBrush(Qt::white, Qt::SolidPattern),
@@ -12617,7 +12625,9 @@ QCustomPlot::QCustomPlot(QWidget *parent) :
   mReplotting(false),
   mReplotQueued(false),
   mOpenGlMultisamples(16),
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
   mOpenGlAntialiasedElementsBackup(QCP::aeNone),
+#endif
   mOpenGlCacheLabelsBackup(true)
 {
   setAttribute(Qt::WA_NoMousePropagation);
@@ -14668,7 +14678,15 @@ void QCustomPlot::wheelEvent(QWheelEvent *event)
 {
   emit mouseWheel(event);
   // forward event to layerable under cursor:
-  QList<QCPLayerable*> candidates = layerableListAt(event->pos(), false);
+  QList<QCPLayerable*> candidates = layerableListAt(
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+                                                    event->pos()
+#elif QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+                                                    event->posF()
+#else
+                                                    event->position()
+#endif
+                                                    , false);
   for (int i=0; i<candidates.size(); ++i)
   {
     event->accept(); // default impl of QCPLayerable's mouse events ignore the event, in that case propagate to next candidate in list
@@ -15002,7 +15020,7 @@ void QCustomPlot::processRectSelection(QRect rect, QMouseEvent *event)
   
   if (mInteractions.testFlag(QCP::iSelectPlottables))
   {
-    QMap<int, QPair<QCPAbstractPlottable*, QCPDataSelection> > potentialSelections; // map key is number of selected data points, so we have selections sorted by size
+    QMultiMap<int, QPair<QCPAbstractPlottable*, QCPDataSelection> > potentialSelections; // map key is number of selected data points, so we have selections sorted by size
     QRectF rectF(rect.normalized());
     if (QCPAxisRect *affectedAxisRect = axisRectAt(rectF.topLeft()))
     {
@@ -15013,7 +15031,7 @@ void QCustomPlot::processRectSelection(QRect rect, QMouseEvent *event)
         {
           QCPDataSelection dataSel = plottableInterface->selectTestRect(rectF, true);
           if (!dataSel.isEmpty())
-            potentialSelections.insertMulti(dataSel.dataPointCount(), QPair<QCPAbstractPlottable*, QCPDataSelection>(plottable, dataSel));
+            potentialSelections.insert(dataSel.dataPointCount(), QPair<QCPAbstractPlottable*, QCPDataSelection>(plottable, dataSel));
         }
       }
       
@@ -15022,7 +15040,7 @@ void QCustomPlot::processRectSelection(QRect rect, QMouseEvent *event)
         // only leave plottable with most selected points in map, since we will only select a single plottable:
         if (!potentialSelections.isEmpty())
         {
-          QMap<int, QPair<QCPAbstractPlottable*, QCPDataSelection> >::iterator it = potentialSelections.begin();
+          QMultiMap<int, QPair<QCPAbstractPlottable*, QCPDataSelection> >::iterator it = potentialSelections.begin();
           while (it != potentialSelections.end()-1) // erase all except last element
             it = potentialSelections.erase(it);
         }
@@ -15048,7 +15066,7 @@ void QCustomPlot::processRectSelection(QRect rect, QMouseEvent *event)
       }
       
       // go through selections in reverse (largest selection first) and emit select events:
-      QMap<int, QPair<QCPAbstractPlottable*, QCPDataSelection> >::const_iterator it = potentialSelections.constEnd();
+      QMultiMap<int, QPair<QCPAbstractPlottable*, QCPDataSelection> >::const_iterator it = potentialSelections.constEnd();
       while (it != potentialSelections.constBegin())
       {
         --it;
@@ -17619,14 +17637,24 @@ void QCPAxisRect::wheelEvent(QWheelEvent *event)
     if (mRangeZoom != 0)
     {
       double factor;
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
       double wheelSteps = event->delta()/120.0; // a single step delta is +/-120 usually
+#else
+      double wheelSteps = event->angleDelta().y()/120.0; // a single step delta is +/-120 usually
+#endif
       if (mRangeZoom.testFlag(Qt::Horizontal))
       {
         factor = qPow(mRangeZoomFactorHorz, wheelSteps);
         for (int i=0; i<mRangeZoomHorzAxis.size(); ++i)
         {
           if (!mRangeZoomHorzAxis.at(i).isNull())
-            mRangeZoomHorzAxis.at(i)->scaleRange(factor, mRangeZoomHorzAxis.at(i)->pixelToCoord(event->pos().x()));
+            mRangeZoomHorzAxis.at(i)->scaleRange(factor, mRangeZoomHorzAxis.at(i)->pixelToCoord(
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+                                                                                                event->posF().x()
+#else
+                                                                                                event->position().x()
+#endif
+                                                                                                ));
         }
       }
       if (mRangeZoom.testFlag(Qt::Vertical))
@@ -17635,7 +17663,13 @@ void QCPAxisRect::wheelEvent(QWheelEvent *event)
         for (int i=0; i<mRangeZoomVertAxis.size(); ++i)
         {
           if (!mRangeZoomVertAxis.at(i).isNull())
-            mRangeZoomVertAxis.at(i)->scaleRange(factor, mRangeZoomVertAxis.at(i)->pixelToCoord(event->pos().y()));
+            mRangeZoomVertAxis.at(i)->scaleRange(factor, mRangeZoomVertAxis.at(i)->pixelToCoord(
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+                                                                                                event->posF().y()
+#else
+                                                                                                event->position().y()
+#endif
+                                                                                                ));
         }
       }
       mParentPlot->replot();
@@ -19262,7 +19296,7 @@ void QCPColorScale::setRangeDrag(bool enabled)
   if (enabled)
     mAxisRect.data()->setRangeDrag(QCPAxis::orientation(mType));
   else
-    mAxisRect.data()->setRangeDrag(0);
+    mAxisRect.data()->setRangeDrag(Qt::Orientations());
 }
 
 /*!
@@ -19282,7 +19316,7 @@ void QCPColorScale::setRangeZoom(bool enabled)
   if (enabled)
     mAxisRect.data()->setRangeZoom(QCPAxis::orientation(mType));
   else
-    mAxisRect.data()->setRangeZoom(0);
+    mAxisRect.data()->setRangeZoom(Qt::Orientations());
 }
 
 /*!

@@ -7,6 +7,9 @@
 
 #include <QHostInfo>
 #include <QTimer>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+#include <QRandomGenerator>
+#endif
 
 #include "Network/MessageClient.hpp"
 
@@ -43,7 +46,11 @@ PSK_Reporter::PSK_Reporter(MessageClient * message_client, QObject *parent) :
                            "00960004";        // Report time
 
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
     m_randomId_h = QString("%1").arg(qrand(),8,16,QChar('0'));
+#else
+    m_randomId_h = QString("%1").arg(QRandomGenerator::global ()->generate (), 8, 16, QChar('0'));
+#endif
 
     QHostInfo::lookupHost("report.pskreporter.info", this, SLOT(dnsLookupResult(QHostInfo)));
 

@@ -274,5 +274,9 @@ void FoxLog::export_qsos (QTextStream& out) const
           << ADIF_field {"operator", m_->configuration_->opCall ()}
           << "<eor>";
     }
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
   out << endl;
+#else
+  out << Qt::endl;
+#endif
 }
