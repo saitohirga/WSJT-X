@@ -71,7 +71,16 @@ contains
     write(datetime,1001) nutc        !### TEMPORARY ###
 1001 format("000000_",i6.6)
 
+    if(ndepth.eq.1 .and. nzhsym.lt.50) then
+       ndec_early=0
+       return
+    endif
+    if(ndepth.eq.1 .and. nzhsym.eq.50) then
+       dd=iwave
+    endif
+
     call ft8apset(mycall12,hiscall12,ncontest,apsym2,aph10)
+
     if(nzhsym.le.47) then
        dd=iwave
        dd1=dd
@@ -128,15 +137,15 @@ contains
     endif
 
 ! For now:
-! ndepth=1: subtraction, 3 passes, bp (no subtract refinement) 
+! ndepth=1: 1 pass, bp  
 ! ndepth=2: subtraction, 3 passes, bp+osd (no subtract refinement) 
 ! ndepth=3: subtraction, 3 passes, bp+osd
     npass=3
-    if(ndepth.eq.1) npass=2
+    if(ndepth.eq.1) npass=1
     do ipass=1,npass
       newdat=.true.
       syncmin=1.3
-      if(ndepth.le.2) syncmin=1.6
+      if(ndepth.le.2) syncmin=1.5
       if(ipass.eq.1) then
         lsubtract=.true.
         ndeep=ndepth
