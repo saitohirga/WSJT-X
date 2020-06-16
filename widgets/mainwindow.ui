@@ -2842,6 +2842,8 @@ list. The list can be maintained in Settings (F2).</string>
     <property name="title">
      <string>Mode</string>
     </property>
+    <addaction name="actionFST280"/>
+    <addaction name="actionFST280W"/>
     <addaction name="actionFT4"/>
     <addaction name="actionFT8"/>
     <addaction name="actionJT4"/>
@@ -3474,6 +3476,32 @@ list. The list can be maintained in Settings (F2).</string>
    </property>
    <property name="text">
     <string>FT4</string>
+   </property>
+  </action>
+  <action name="actionFST280">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>FST280</string>
+   </property>
+  </action>
+  <action name="actionFST280_W">
+   <property name="text">
+    <string>FST280-W</string>
+   </property>
+  </action>
+  <action name="actionFT280W">
+   <property name="text">
+    <string>FT280W</string>
+   </property>
+  </action>
+  <action name="actionFST280W">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>FST280W</string>
    </property>
   </action>
  </widget>

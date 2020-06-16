@@ -422,7 +422,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   add_child_to_event_filter (this);
   ui->dxGridEntry->setValidator (new MaidenheadLocatorValidator {this});
   ui->dxCallEntry->setValidator (new CallsignValidator {this});
-  ui->sbTR->values ({5, 10, 15, 30});
+  ui->sbTR->values ({5, 10, 15, 30, 60, 120, 300});
   ui->decodedTextBrowser->set_configuration (&m_config, true);
   ui->decodedTextBrowser2->set_configuration (&m_config);
 
@@ -573,6 +573,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   on_EraseButton_clicked ();
 
   QActionGroup* modeGroup = new QActionGroup(this);
+  ui->actionFST280->setActionGroup(modeGroup);
+  ui->actionFST280W->setActionGroup(modeGroup);
   ui->actionFT4->setActionGroup(modeGroup);
   ui->actionFT8->setActionGroup(modeGroup);
   ui->actionJT9->setActionGroup(modeGroup);
@@ -2317,6 +2319,10 @@ void MainWindow::setup_status_bar (bool vhf)
   } else if ("FT4" == m_mode) {
     mode_label.setStyleSheet ("QLabel{background-color: #ff0099}");
   } else if ("FT8" == m_mode) {
+    mode_label.setStyleSheet ("QLabel{background-color: #ff6699}");
+  } else if ("FST280" == m_mode) {
+    mode_label.setStyleSheet ("QLabel{background-color: #99ff66}");
+  } else if ("FST280W" == m_mode) {
     mode_label.setStyleSheet ("QLabel{background-color: #6699ff}");
   } else if ("FreqCal" == m_mode) {
     mode_label.setStyleSheet ("QLabel{background-color: #ff9933}");
@@ -5812,6 +5818,33 @@ void MainWindow::displayWidgets(qint64 n)
   genStdMsgs (m_rpt, true);
 }
 
+void MainWindow::on_actionFST280_triggered()
+{
+  m_mode="FST280";
+  m_modeTx="FST280";
+  ui->actionFST280->setChecked(true);
+  WSPR_config(false);
+//                         012345678901234567890123456789012
+  displayWidgets(nWidgets("111011000000111100010000000000000"));
+  bool bVHF=m_config.enable_VHF_features();
+  setup_status_bar (bVHF);
+  ui->sbSubmode->setMaximum(3);
+  statusChanged();
+}
+
+void MainWindow::on_actionFST280W_triggered()
+{
+  m_mode="FST280W";
+  m_modeTx="FST280W";
+  WSPR_config(true);
+  ui->actionFST280W->setChecked(true);
+//                         012345678901234567890123456789012
+  displayWidgets(nWidgets("000000000000000001010000000000000"));
+  bool bVHF=m_config.enable_VHF_features();
+  setup_status_bar (bVHF);
+  statusChanged();
+}
+
 void MainWindow::on_actionFT4_triggered()
 {
   m_mode="FT4";
@@ -8994,6 +9027,8 @@ void MainWindow::on_pbBestSP_clicked()
 void MainWindow::set_mode (QString const& mode)
 {
     if ("FT4" == mode) on_actionFT4_triggered ();
+    else if ("FST280" == mode) on_actionFST280_triggered ();
+    else if ("FST280W" == mode) on_actionFST280W_triggered ();
     else if ("FT8" == mode) on_actionFT8_triggered ();
     else if ("JT4" == mode) on_actionJT4_triggered ();
     else if ("JT9" == mode) on_actionJT9_triggered ();

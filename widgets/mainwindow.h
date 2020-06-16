@@ -204,6 +204,8 @@ private slots:
   void on_actionJT4_triggered();
   void on_actionFT4_triggered();
   void on_actionFT8_triggered();
+  void on_actionFST280_triggered();
+  void on_actionFST280W_triggered();
   void on_TxFreqSpinBox_valueChanged(int arg1);
   void on_actionSave_decoded_triggered();
   void on_actionQuickDecode_toggled (bool);
