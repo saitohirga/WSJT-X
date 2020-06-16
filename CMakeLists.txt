@@ -595,6 +595,21 @@ set (wsjt_FSRCS
   lib/wqencode.f90
   lib/wspr_downsample.f90
   lib/zplot9.f90
+  lib/fst280/bpdecode280_101.f90
+  lib/fst280/bpdecode280_74.f90
+  lib/fst280/decode280_101.f90
+  lib/fst280/decode280_74.f90
+  lib/fst280/encode280_101.f90
+  lib/fst280/encode280_74.f90
+  lib/fst280/fst280d.f90
+  lib/fst280/fst280sim.f90
+  lib/fst280/genfst280_wave.f90
+  lib/fst280/genfst280.f90
+  lib/fst280/get_ft280_bitmetrics.f90
+  lib/fst280/ldpcsim280_101.f90
+  lib/fst280/ldpcsim280_74.f90
+  lib/fst280/osd280_101.f90
+  lib/fst280/osd280_74.f90
   )
 
 # temporary workaround for a gfortran v7.3 ICE on Fedora 27 64-bit
@@ -1350,6 +1365,18 @@ target_link_libraries (ft4sim_mult wsjt_fort wsjt_cxx)
 
 add_executable (record_time_signal Audio/tools/record_time_signal.cpp)
 target_link_libraries (record_time_signal wsjt_cxx wsjt_qtmm wsjt_qt)
+
+add_executable (fst280d lib/fst280/fst280d.f90 wsjtx.rc)
+target_link_libraries (fst280d wsjt_fort wsjt_cxx)
+
+add_executable (fst280sim lib/fst280/fst280sim.f90 wsjtx.rc)
+target_link_libraries (fst280sim wsjt_fort wsjt_cxx)
+
+add_executable (ldpcsim280_101 lib/fst280/ldpcsim280_101.f90 wsjtx.rc)
+target_link_libraries (ldpcsim280_101 wsjt_fort wsjt_cxx)
+
+add_executable (ldpcsim280_74 lib/fst280/ldpcsim280_74.f90 wsjtx.rc)
+target_link_libraries (ldpcsim280_74 wsjt_fort wsjt_cxx)
 
 endif(WSJT_BUILD_UTILS)
 
