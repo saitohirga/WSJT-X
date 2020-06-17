@@ -190,9 +190,8 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   if(params%nmode.eq.280) then
 ! We're in FST280/FST280W mode
      call timer('dec280  ',0)
-     ntrperiod=params%kin/12000
      call my_fst280%decode(fst280_decoded,id2,params%nQSOProgress,           &
-          params%nfqso,params%nfa,params%nfb,params%ndepth,ntrperiod)
+          params%nfqso,params%nfa,params%nfb,params%ndepth,params%ntr)
      call timer('dec280  ',1)
      go to 800
   endif
