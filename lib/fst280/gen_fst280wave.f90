@@ -4,6 +4,7 @@ subroutine gen_fst280wave(itone,nsym,nsps,nwave,fsample,hmod,f0,icmplx,cwave,wav
   complex cwave(nwave)
   real, allocatable, save :: pulse(:)
   real, allocatable :: dphi(:)
+  integer hmod
   integer itone(nsym)
   logical first
   data first/.true./

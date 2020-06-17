@@ -12,6 +12,7 @@ program fst280sim
    complex, allocatable :: c0(:)
    complex, allocatable :: c(:)
    real, allocatable :: wave(:)
+   integer hmod
    integer itone(NN)
    integer*1 msgbits(101)
    integer*2, allocatable :: iwave(:)        !Generated full-length waveform
@@ -19,6 +20,7 @@ program fst280sim
 ! Get command-line argument(s)
    nargs=iargc()
    if(nargs.ne.9) then
+      print*,'Need 9 arguments, got ',nargs
       print*,'Usage:    fst280sim "message"         type      f0   DT   h  fdop  del nfiles snr'
       print*,'Examples: fst280sim "K1JT K9AN EN50"    C     1500  0.0  1.0  0.1  1.0   10   -15'
       print*,'A: 15 sec'
@@ -89,7 +91,7 @@ program fst280sim
    write(*,*)
    write(*,'(a9,a37)') 'Message: ',msgsent37
    write(*,1000) f0,xdt,hmod,txt,snrdb
-1000 format('f0:',f9.3,'   DT:',f6.2,'   hmod:',f6.3,'   TxT:',f6.1,'   SNR:',f6.1)
+1000 format('f0:',f9.3,'   DT:',f6.2,'   hmod:',i6,'   TxT:',f6.1,'   SNR:',f6.1)
    write(*,*)
    if(i3.eq.1) then
       write(*,*) '         mycall                         hiscall                    hisgrid'

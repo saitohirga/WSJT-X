@@ -19,21 +19,21 @@ program fst280d
    real llr(280),llra(280),llrb(280),llrc(280),llrd(280)
    real candidates(100,3)
    real bitmetrics(328,4)
-   integer ihdr(11)
+   integer hmod,ihdr(11)
    integer*2, allocatable :: iwave(:)
    integer*1 apmask(280),cw(280)
    integer*1 hbits(328)
    integer*1 message101(101),message74(74)
    logical badsync,unpk77_success
 
-   hmod=1.0
+   hmod=1
    Keff=91
    ndeep=3
    iwspr=0
 
    nargs=iargc()
    if(nargs.lt.1) then
-      print*,'Usage:   fst280d [-a <data_dir>] [-f fMHz] [-h hmod] [-k Keff] file1 [file2 ...]'
+      print*,'Usage:   fst280d [-a <data_dir>] [-f fMHz] [-h hmod] [-k Keff] [-d depth] [-t t/r type] file1 [file2 ...]'
       go to 999
    endif
    iarg=1
@@ -53,8 +53,8 @@ program fst280d
    if(arg(1:2).eq.'-h') then
       call getarg(iarg+1,arg)
       read(arg,*) hmod
-      if(hmod.ne.1.and.hmod.ne.2.and.hmod.ne.4) then
-         print*,'invalid modulation index. h must be 1, 2, or 4'
+      if(hmod.ne.1.and.hmod.ne.2.and.hmod.ne.4.and.hmod.ne.8) then
+         print*,'invalid modulation index. h must be 1, 2, 4, or 8'
          goto 999
       endif
       iarg=iarg+2
@@ -84,25 +84,27 @@ program fst280d
       case('A')
          nsps=800
          nmax=15*12000
-         ndown=32/hmod
+         ndown=20/hmod
+         if(hmod.eq.8) ndown=2
       case('B')
          nsps=1680
          nmax=30*12000
-         ndown=70/hmod
-         if(hmod.eq.4) ndown=15
+         ndown=42/hmod   ! 40 Sa/symbol
+         if(hmod.eq.4) ndown=10 
+         if(hmod.eq.8) ndown=5
       case('C')
          nsps=4000
          nmax=60*12000
-         ndown=160/hmod
+         ndown=100/hmod    ! 40 Sa/symbol
+         if(hmod.eq.8) ndown=16
       case('D')
          nsps=8400
          nmax=120*12000
-         ndown=350/hmod
-         if(hmod.eq.4) ndown=84
+         ndown=200/hmod
       case('E')
          nsps=21504
          nmax=300*12000
-         ndown=896/hmod
+         ndown=512/hmod
    end select
    nss=nsps/ndown
    fs=12000.0                       !Sample rate
@@ -122,12 +124,12 @@ program fst280d
    allocate( cframe(0:164*nss-1) )
    allocate( iwave(nmax) ) 
 
-!write(*,*) 'nsps: ',nsps
-!write(*,*) 'nmax: ',nmax
-!write(*,*) 'nss : ',nss
-!write(*,*) 'nspsec: ',fs2
-!write(*,*) 'nfft1 : ',nfft1
-!write(*,*) 'nfft2 : ',nfft2
+write(*,*) 'nsps: ',nsps
+write(*,*) 'nmax: ',nmax
+write(*,*) 'nss : ',nss
+write(*,*) 'nspsec: ',fs2
+write(*,*) 'nfft1 : ',nfft1
+write(*,*) 'nfft2 : ',nfft2
 
    ngood=0
    ngoodsync=0
@@ -229,20 +231,19 @@ program fst280d
             fc2=fc21
             isbest=isbest1
             ntmax=4
-            if(hmod .gt. 1.0) ntmax=1
+            if(hmod .gt. 1) ntmax=1
             ntmin=1
             njitter=2
          else
             fc2=fc28
             isbest=isbest8
             ntmax=4
-            if(hmod .gt. 1.0) ntmax=1
+            if(hmod .gt. 1) ntmax=1
             ntmin=1
             njitter=2
          endif
          fc_synced = fc0 + fc2
          dt_synced = (isbest-fs2)*dt2  !nominal dt is 1 second so frame starts at sample fs2
-
          call fst280_downsample(c_bigfft,nfft1,ndown,fc_synced,c2)
 
          if(abs((isbest-fs2)/nss) .lt. 0.2 .and. abs(fc_synced-1500.0).lt.0.4) then
@@ -251,8 +252,8 @@ program fst280d
 
          do ijitter=0,2
             if(ijitter.eq.0) ioffset=0
-            if(ijitter.eq.1) ioffset=2
-            if(ijitter.eq.2) ioffset=-2
+            if(ijitter.eq.1) ioffset=1
+            if(ijitter.eq.2) ioffset=-1
             is0=isbest+ioffset
             if(is0.lt.0) cycle
             cframe=c2(is0:is0+164*nss-1)
@@ -344,6 +345,7 @@ subroutine sync_fst280(cd0,i0,f0,hmod,ncoh,np,nss,fs,sync)
    complex z1,z2,z3
    logical first
    integer isyncword(0:7)
+   integer hmod
    real f0save
    data isyncword/0,1,3,2,1,0,2,3/
    data first/.true./
@@ -429,6 +431,7 @@ end subroutine fst280_downsample
 subroutine get_candidates_fst280(c_bigfft,nfft1,nsps,hmod,fs,fa,fb,ncand,candidates)
 
   complex c_bigfft(0:nfft1/2) 
+  integer hmod
   real candidates(100,3)
   real s(18000)
   real s2(18000)
