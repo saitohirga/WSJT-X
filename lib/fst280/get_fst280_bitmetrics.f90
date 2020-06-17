@@ -10,6 +10,7 @@ subroutine get_fst280_bitmetrics(cd,nss,hmod,bitmetrics,badsync)
    integer icos8(0:7)
    integer graymap(0:3)
    integer ip(1)
+   integer hmod
    logical one(0:65535,0:15)    ! 65536 8-symbol sequences, 16 bits
    logical first
    logical badsync
