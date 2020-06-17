@@ -89,13 +89,13 @@ program fst280d
       case('B')
          nsps=1680
          nmax=30*12000
-         ndown=42/hmod   ! 40 Sa/symbol
+         ndown=42/hmod  
          if(hmod.eq.4) ndown=10 
          if(hmod.eq.8) ndown=5
       case('C')
          nsps=4000
          nmax=60*12000
-         ndown=100/hmod    ! 40 Sa/symbol
+         ndown=100/hmod 
          if(hmod.eq.8) ndown=16
       case('D')
          nsps=8400
@@ -461,9 +461,10 @@ subroutine get_candidates_fst280(c_bigfft,nfft1,nsps,hmod,fs,fa,fb,ncand,candida
      s2(i)=db(s2(i)) - 48.5
   enddo
 
-  if(nh.eq.1) thresh=-29.5
-  if(nh.eq.2) thresh=-27.0
-  if(nh.eq.4) thresh=-25.0
+  if(hmod.eq.1) thresh=-29.5
+  if(hmod.eq.2) thresh=-27.0
+  if(hmod.eq.4) thresh=-27.0
+  if(hmod.eq.8) thresh=-27.0
   
   ncand=0
   do i=ia,ib
