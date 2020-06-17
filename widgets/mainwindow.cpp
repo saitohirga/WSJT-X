@@ -1336,7 +1336,13 @@ void MainWindow::fixStop()
     m_hsymStop=50;
   } else if (m_mode=="FT4") {
   m_hsymStop=21;
-}
+  } else if(m_mode=="FST280" or m_mode=="FST280W") {
+    if(m_TRperiod==15)  m_hsymStop=51;
+    if(m_TRperiod==30)  m_hsymStop=95;
+    if(m_TRperiod==60)  m_hsymStop=205;
+    if(m_TRperiod==120) m_hsymStop=414;
+    if(m_TRperiod==300) m_hsymStop=1036;
+  }
 }
 
 //-------------------------------------------------------------- dataSink()
@@ -1368,7 +1374,6 @@ void MainWindow::dataSink(qint64 frames)
 
 // Get power, spectrum, and ihsym
   int trmin=m_TRperiod/60.0;
-//  int k (frames - 1);
   dec_data.params.nfa=m_wideGraph->nStartFreq();
   dec_data.params.nfb=m_wideGraph->Fmax();
   int nsps=m_nsps;
@@ -1388,6 +1393,7 @@ void MainWindow::dataSink(qint64 frames)
   if(m_mode=="MSK144") return;
 
   fixStop();
+  qDebug() << "aa" << m_hsymStop << m_ihsym << m_TRperiod;
   if (m_mode == "FreqCal"
       // only calculate after 1st chunk, also skip chunk where rig
       // changed frequency
@@ -1485,9 +1491,9 @@ void MainWindow::dataSink(qint64 frames)
     m_dateTime = now.toString ("yyyy-MMM-dd hh:mm");
     if(!m_mode.startsWith ("WSPR")) decode(); //Start decoder
     if(m_mode=="FT8" and !m_diskData and (m_ihsym==m_earlyDecode or m_ihsym==m_earlyDecode2)) return;
-
     if(!m_diskData and (m_saveAll or m_saveDecoded or m_mode=="WSPR")) {  //Always save unless "Save None"; may delete later
-      if(m_mode=="FT8" or m_mode=="FT4") {
+//      if(m_mode=="FT8" or m_mode=="FT4") {
+      if(m_TRperiod < 60) {
         int n=fmod(double(now.time().second()),m_TRperiod);
         if(n<(m_TRperiod/2)) n=n+m_TRperiod;
         auto const& period_start=now.addSecs(-n);
@@ -1516,7 +1522,6 @@ void MainWindow::dataSink(qint64 frames)
         if (err!=0) MessageBox::warning_message (this, tr ("Error saving c2 file"), c2name);
       }
     }
-
     if(m_mode.startsWith ("WSPR")) {
       QStringList t2;
       QStringList depth_args;
@@ -2861,13 +2866,6 @@ void MainWindow::decode()                                       //decode()
   if( m_dateTimeLastTX.isValid () ) {
     qint64 isecs_since_tx = m_dateTimeLastTX.secsTo(now);
     dec_data.params.lapcqonly= (isecs_since_tx > 300); 
-//    QTextStream(stdout) << "last tx " << isecs_since_tx
-// #if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
-//     << Qt::endl
-// #else
-//     << endl
-// #endif
-//       ;
   } else { 
     m_dateTimeLastTX = now.addSecs(-900);
     dec_data.params.lapcqonly=true;
@@ -2875,7 +2873,6 @@ void MainWindow::decode()                                       //decode()
   if( m_diskData ) {
     dec_data.params.lapcqonly=false;
   }
-
   m_msec0=QDateTime::currentMSecsSinceEpoch();
   if(!m_dataAvailable or m_TRperiod==0.0) return;
   ui->DecodeButton->setChecked (true);
@@ -2961,6 +2958,7 @@ void MainWindow::decode()                                       //decode()
     dec_data.params.nmode=5;
     m_BestCQpriority="";
   }
+  if(m_mode=="FST280") dec_data.params.nmode=280;
   dec_data.params.ntrperiod=m_TRperiod;
   dec_data.params.nsubmode=m_nSubMode;
   if(m_mode=="QRA64") dec_data.params.nsubmode=100 + m_nSubMode;
@@ -3036,18 +3034,6 @@ void MainWindow::decode()                                       //decode()
     mem_jt9->lock ();
     memcpy(to, from, qMin(mem_jt9->size(), size));
     mem_jt9->unlock ();
-
-/*
-    auto now = QDateTime::currentDateTimeUtc();
-    double tsec = fmod(double(now.toMSecsSinceEpoch()),86400000.0)/1000.0;
-    double tseq = fmod(double(now.toMSecsSinceEpoch()),1000.0*m_TRperiod)/1000.0;
-    if(tseq < 0.5*m_TRperiod) tseq+= m_TRperiod;
-    if(m_ihsym==m_earlyDecode) qDebug() << "";
-    QString t;
-    t = t.asprintf("aa release_jt9 %11.3f %5d %5d %7.3f ",tsec,m_ihsym,m_ihsym,tseq);
-    qDebug().noquote() << t << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz");
-*/
-
     to_jt9(m_ihsym,1,-1);                //Send m_ihsym to jt9[.exe] and start decoding
     decodeBusy(true);
   }
@@ -4676,7 +4662,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
 
     if(SpecOp::EU_VHF==m_config.special_op_id() and message_words.at(1).contains(m_baseCall) and
        (!message_words.at(2).contains(qso_partner_base_call)) and (!m_bDoubleClicked)) {
-//      qDebug() << "aa" << "Ignoring:" << message.string().mid(24);
       return;
     }
 
@@ -5806,6 +5791,7 @@ void MainWindow::displayWidgets(qint64 n)
 
 void MainWindow::on_actionFST280_triggered()
 {
+  on_actionJT65_triggered();
   m_mode="FST280";
   m_modeTx="FST280";
   ui->actionFST280->setChecked(true);
@@ -5818,6 +5804,7 @@ void MainWindow::on_actionFST280_triggered()
   ui->sbTR->setMinimum(15);
   ui->sbTR->setMaximum(300);
   ui->sbSubmode->setMaximum(3);
+  on_sbTR_valueChanged(ui->sbTR->value());
   statusChanged();
 }
 
@@ -7404,7 +7391,7 @@ void::MainWindow::VHF_features_enabled(bool b)
 void MainWindow::on_sbTR_valueChanged(int value)
 {
 //  if(!m_bFastMode and n>m_nSubMode) m_MinW=m_nSubMode;
-  if(m_bFastMode or m_mode=="FreqCal") {
+  if(m_bFastMode or m_mode=="FreqCal" or m_mode=="FST280" or m_mode=="FST280W") {
     m_TRperiod = value;
     m_fastGraph->setTRPeriod (value);
     m_modulator->setTRPeriod (value); // TODO - not thread safe

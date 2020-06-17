@@ -8,6 +8,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   use jt9_decode
   use ft8_decode
   use ft4_decode
+  use fst280_decode
 
   include 'jt9com.f90'
   include 'timer_common.inc'
@@ -32,6 +33,10 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      integer :: decoded
   end type counting_ft4_decoder
 
+  type, extends(fst280_decoder) :: counting_fst280_decoder
+     integer :: decoded
+  end type counting_fst280_decoder
+
   real ss(184,NSMAX)
   logical baddata,newdat65,newdat9,single_decode,bVHF,bad0,newdat,ex
   integer*2 id2(NTMAX*12000)
@@ -48,6 +53,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   type(counting_jt9_decoder) :: my_jt9
   type(counting_ft8_decoder) :: my_ft8
   type(counting_ft4_decoder) :: my_ft4
+  type(counting_fst280_decoder) :: my_fst280
 
   !cast C character arrays to Fortran character strings
   datetime=transfer(params%datetime, datetime)
@@ -62,6 +68,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   my_jt9%decoded = 0
   my_ft8%decoded = 0
   my_ft4%decoded = 0
+  my_fst280%decoded = 0
   
 ! For testing only: return Rx messages stored in a file as decodes
   inquire(file='rx_messages.txt',exist=ex)
@@ -177,6 +184,12 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
           params%nfa,params%nfb,params%ndepth,                               &
           logical(params%lapcqonly),ncontest,mycall,hiscall)
      call timer('decft4  ',1)
+     go to 800
+  endif
+
+  if(params%nmode.eq.280) then
+! We're in FST280/FST280W mode
+     print*,'FST280/FST280W'
      go to 800
   endif
 
