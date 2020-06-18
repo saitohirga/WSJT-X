@@ -190,8 +190,9 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   if(params%nmode.eq.280) then
 ! We're in FST280/FST280W mode
      call timer('dec280  ',0)
-     call my_fst280%decode(fst280_decoded,id2,params%nQSOProgress,           &
-          params%nfqso,params%nfa,params%nfb,params%ndepth,params%ntr)
+     call my_fst280%decode(fst280_decoded,id2,params%nutc,                &
+          params%nQSOProgress,params%nfqso,params%nfa,params%nfb,         &
+          params%ndepth,params%ntr)
      call timer('dec280  ',1)
      go to 800
   endif
@@ -677,12 +678,13 @@ contains
     return
   end subroutine ft4_decoded
 
-  subroutine fst280_decoded (this,sync,nsnr,dt,freq,decoded,nap,qual)
+  subroutine fst280_decoded (this,nutc,sync,nsnr,dt,freq,decoded,nap,qual)
 
     use fst280_decode
     implicit none
 
     class(fst280_decoder), intent(inout) :: this
+    integer, intent(in) :: nutc
     real, intent(in) :: sync
     integer, intent(in) :: nsnr
     real, intent(in) :: dt
@@ -700,9 +702,9 @@ contains
        if(qual.lt.0.17) decoded0(37:37)='?'
     endif
 
-    write(*,1001) params%nutc,nsnr,dt,nint(freq),decoded0,annot
-1001 format(i6.6,i4,f5.1,i5,' + ',1x,a37,1x,a2)
-    write(13,1002) params%nutc,nint(sync),nsnr,dt,freq,0,decoded0
+    write(*,1001) nutc,nsnr,dt,nint(freq),decoded0,annot
+1001 format(i6.6,i4,f5.1,i5,' ` ',1x,a37,1x,a2)
+    write(13,1002) nutc,nint(sync),nsnr,dt,freq,0,decoded0
 1002 format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a37,' FST280')
 
     call flush(6)

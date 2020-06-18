@@ -7,12 +7,14 @@ module fst280_decode
   end type fst280_decoder
 
   abstract interface
-     subroutine fst280_decode_callback (this,sync,snr,dt,freq,decoded,nap,qual)
+     subroutine fst280_decode_callback (this,nutc,sync,nsnr,dt,freq,    &
+          decoded,nap,qual)
        import fst280_decoder
        implicit none
        class(fst280_decoder), intent(inout) :: this
+       integer, intent(in) :: nutc
        real, intent(in) :: sync
-       integer, intent(in) :: snr
+       integer, intent(in) :: nsnr
        real, intent(in) :: dt
        real, intent(in) :: freq
        character(len=37), intent(in) :: decoded
@@ -23,8 +25,8 @@ module fst280_decode
 
 contains
 
- subroutine decode(this,callback,iwave,nQSOProgress,nfqso,    &
-      nfa,nfb,ndepth,ntrperiod)
+ subroutine decode(this,callback,iwave,nutc,nQSOProgress,nfqso,    &
+      nfa,nfb,ndeep,ntrperiod)
 
    use timer_module, only: timer
    use packjt77
@@ -33,18 +35,15 @@ contains
    class(fst280_decoder), intent(inout) :: this
    procedure(fst280_decode_callback) :: callback
    character*37 msg
-   character*120 data_dir
    character*77 c77
-   character*1 tr_designator
    complex, allocatable :: c2(:)
    complex, allocatable :: cframe(:)
    complex, allocatable :: c_bigfft(:)          !Complex waveform
    real, allocatable :: r_data(:)
-   real*8 fMHz
    real llr(280),llra(280),llrb(280),llrc(280),llrd(280)
    real candidates(100,3)
    real bitmetrics(328,4)
-   integer hmod,ihdr(11)
+   integer hmod
    integer*1 apmask(280),cw(280)
    integer*1 hbits(328)
    integer*1 message101(101),message74(74)
@@ -53,8 +52,8 @@ contains
 
    this%callback => callback
    hmod=1                            !### pass as arg ###
+   if(nfqso+nqsoprogress.eq.-999) return
    Keff=91
-   ndeep=3
    iwspr=0
 
    nmax=15*12000
@@ -100,11 +99,9 @@ contains
    allocate( c2(0:nfft2-1) ) 
    allocate( cframe(0:164*nss-1) )
 
-   ngood=0
-   ngoodsync=0
    npts=nmax
-   fa=100.0
-   fb=3500.0
+   fa=nfa
+   fb=nfb
 
 ! The big fft is done once and is used for calculating the smoothed spectrum 
 ! and also for downconverting/downsampling each candidate.
@@ -120,8 +117,8 @@ contains
    ndecodes=0
    isbest1=0
    isbest8=0
-   fc21=fc0
-   fc28=fc0
+   fc21=0.
+   fc28=0.
    do icand=1,ncand
       fc0=candidates(icand,1)
       xsnr=candidates(icand,2)
@@ -192,10 +189,6 @@ contains
       dt_synced = (isbest-fs2)*dt2  !nominal dt is 1 second so frame starts at sample fs2
 
       call fst280_downsample(c_bigfft,nfft1,ndown,fc_synced,c2)
-      
-      if(abs((isbest-fs2)/nss) .lt. 0.2 .and. abs(fc_synced-1500.0).lt.0.4) then
-         ngoodsync=ngoodsync+1
-      endif
 
       do ijitter=0,2
          if(ijitter.eq.0) ioffset=0
@@ -265,15 +258,11 @@ contains
                   call unpack77(c77,0,msg,unpk77_success)
                endif
                if(nharderrors .ge.0 .and. unpk77_success) then
-                  ngood=ngood+1
-!                   write(*,1100) 0,nint(xsnr),dt_synced,nint(fc_synced),  &
-!                        msg(1:22)
-! 1100              format(i6.6,i5,f5.1,i5,' `',1x,a22)
-
                   nsnr=nint(xsnr)
                   iaptype=0
                   qual=0.
-                  call this%callback(smax1,nsnr,xdt,fc_synced,msg,iaptype,qual)
+                  call this%callback(nutc,smax1,nsnr,xdt,fc_synced,msg,    &
+                       iaptype,qual)
                   goto 2002
                else
                   cycle
@@ -416,7 +405,6 @@ contains
       s2(i)=s(i-nh*3) + s(i-nh) +s(i+nh) +s(i+nh*3)
       s2(i)=db(s2(i)) - 48.5
    enddo
-
    
    if(hmod.eq.1) thresh=-29.5              !### temporaray? ###
    if(hmod.eq.2) thresh=-27.0
