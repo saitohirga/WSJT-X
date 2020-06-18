@@ -137,9 +137,14 @@ program fst280sim
       if(any(abs(wave).gt.32767.0)) print*,"Warning - data will be clipped."
       iwave=nint(wave)
       h=default_header(12000,nmax)
-      write(fname,1102) ifile
-1102  format('000000_',i6.6,'.wav')
-      open(10,file=fname,status='unknown',access='stream')
+      if(nmax/12000.le.30) then
+         write(fname,1102) ifile
+1102     format('000000_',i6.6,'.wav')
+      else
+         write(fname,1104) ifile
+1104     format('000000_',i4.4,'.wav')
+      endif
+      open(10,file=trim(fname),status='unknown',access='stream')
       write(10) h,iwave                !Save to *.wav file
       close(10)
       write(*,1110) ifile,xdt,f0,snrdb,fname
