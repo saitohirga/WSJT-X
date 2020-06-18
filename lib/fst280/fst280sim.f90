@@ -22,7 +22,7 @@ program fst280sim
    if(nargs.ne.9) then
       print*,'Need 9 arguments, got ',nargs
       print*,'Usage:    fst280sim "message"         type      f0   DT   h  fdop  del nfiles snr'
-      print*,'Examples: fst280sim "K1JT K9AN EN50"    C     1500  0.0  1.0  0.1  1.0   10   -15'
+      print*,'Examples: fst280sim "K1JT K9AN EN50"    C     1500  0.0   1   0.1  1.0   10   -15'
       print*,'A: 15 sec'
       print*,'B: 30 sec'
       print*,'C: 1 min'
