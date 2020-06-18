@@ -201,18 +201,11 @@ program jt9
      endif
      go to 2
 1    nutc=0
-2    nsps=0
+2    nsps=6912
      npts=TRperiod*12000.d0
-     if(TRperiod.eq.60.d0)  then
-        nsps=6912
-        shared_data%params%nzhsym=181
-        npts=(TRperiod-6.d0)*12000.d0
-     endif
-     if(mode.eq.280) nsps=6912
-     if(nsps.eq.0) stop 'Error: bad TRperiod'
-     
      kstep=nsps/2
      k=0
+     nhsym=0
      nhsym0=-999
      if(iarg .eq. offset + 1) then
         call init_timer (trim(data_dir)//'/timer.out')
@@ -258,7 +251,7 @@ program jt9
      shared_data%params%ntol=20
      shared_data%params%kin=64800
      if(mode.eq.280) shared_data%params%kin=720000   !### 60 s periods ###
-     shared_data%params%nzhsym=181
+     shared_data%params%nzhsym=nhsym
      shared_data%params%ndepth=ndepth
      shared_data%params%lft8apon=.true.
      shared_data%params%ljt65apon=.true.
@@ -321,11 +314,6 @@ program jt9
 999 continue
 ! Output decoder statistics
   call fini_timer ()
-!  open (unit=12, file=trim(data_dir)//'/timer.out', status='unknown', position='append')
-!  write(12,1100) n65a,ntry65a,n65b,ntry65b,numfano,num9
-!1100 format(58('-')/'   JT65_1  Tries_1  JT65_2 Tries_2    JT9   Tries'/  &
-!            58('-')/6i8)
-
 ! Save wisdom and free memory
   iret=fftwf_export_wisdom_to_filename(wisfile)
   call four2a(a,-1,1,1,1)
