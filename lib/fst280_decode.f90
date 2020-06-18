@@ -31,6 +31,7 @@ contains
    include 'fst280/fst280_params.f90'
    parameter (MAXCAND=100)
    class(fst280_decoder), intent(inout) :: this
+   procedure(fst280_decode_callback) :: callback
    character*37 msg
    character*120 data_dir
    character*77 c77
@@ -49,7 +50,8 @@ contains
    integer*1 message101(101),message74(74)
    logical badsync,unpk77_success
    integer*2 iwave(300*12000)
-   
+
+   this%callback => callback
    hmod=1                            !### pass as arg ###
    Keff=91
    ndeep=3
@@ -264,14 +266,14 @@ contains
                endif
                if(nharderrors .ge.0 .and. unpk77_success) then
                   ngood=ngood+1
-                  write(*,1100) 0,nint(xsnr),dt_synced,nint(fc_synced),  &
-                       msg(1:22)
-1100              format(i6.6,i5,f5.1,i5,' `',1x,a22)
+!                   write(*,1100) 0,nint(xsnr),dt_synced,nint(fc_synced),  &
+!                        msg(1:22)
+! 1100              format(i6.6,i5,f5.1,i5,' `',1x,a22)
 
-!                  nsnr=nint(xsnr)
-!                  iaptype=0
-!                  qual=0.
-!                  call this%callback(smax1,nsnr,xdt,fc_synced,msg,iaptype,qual)
+                  nsnr=nint(xsnr)
+                  iaptype=0
+                  qual=0.
+                  call this%callback(smax1,nsnr,xdt,fc_synced,msg,iaptype,qual)
                   goto 2002
                else
                   cycle
