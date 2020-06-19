@@ -2874,7 +2874,7 @@ void MainWindow::decode()                                       //decode()
   m_msec0=QDateTime::currentMSecsSinceEpoch();
   if(!m_dataAvailable or m_TRperiod==0.0) return;
   ui->DecodeButton->setChecked (true);
-  if(!dec_data.params.nagain && m_diskData && !m_bFastMode && m_mode!="FT8" && m_mode!="FT4") {
+  if(!dec_data.params.nagain && m_diskData && (m_TRperiod >= 60.0)) {
     dec_data.params.nutc=dec_data.params.nutc/100;
   }
   if(dec_data.params.nagain==0 && dec_data.params.newdat==1 && (!m_diskData)) {
