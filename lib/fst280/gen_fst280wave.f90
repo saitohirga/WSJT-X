@@ -9,9 +9,13 @@ subroutine gen_fst280wave(itone,nsym,nsps,nwave,fsample,hmod,f0,    &
   integer itone(nsym)
   logical first
   data first/.true./
-  save first,twopi,dt,tsym
+  data nsps0/-99/
+  save first,twopi,dt,tsym,nsps0
 
-  if(first) then
+  if(first.or.nsps.ne.nsps0) then
+     if(allocated(pulse)) then
+        deallocate(pulse)
+     endif
      allocate(pulse(3*nsps*int(fsample)))
      twopi=8.0*atan(1.0)
      dt=1.0/fsample
@@ -22,6 +26,7 @@ subroutine gen_fst280wave(itone,nsym,nsps,nwave,fsample,hmod,f0,    &
         pulse(i)=gfsk_pulse(2.0,tt)
      enddo
      first=.false.
+     nsps0=nsps
   endif
 
 ! Compute the smoothed frequency waveform.
@@ -38,7 +43,7 @@ subroutine gen_fst280wave(itone,nsym,nsps,nwave,fsample,hmod,f0,    &
 ! Calculate and insert the audio waveform
   phi=0.0
   dphi = dphi + twopi*(f0-1.5*hmod/tsym)*dt                          !Shift frequency up by f0
-  wave=0.
+  if(icmplx.eq.0) wave=0.
   if(icmplx.eq.1) cwave=0.
   k=0
   do j=0,(nsym+2)*nsps-1
