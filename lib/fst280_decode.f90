@@ -26,7 +26,7 @@ module fst280_decode
 contains
 
  subroutine decode(this,callback,iwave,nutc,nQSOProgress,nfqso,    &
-      nfa,nfb,ndeep,ntrperiod)
+      nfa,nfb,nsubmode,ndeep,ntrperiod)
 
    use timer_module, only: timer
    use packjt77
@@ -51,12 +51,12 @@ contains
    integer*2 iwave(300*12000)
 
    this%callback => callback
-   hmod=1                            !### pass as arg ###
+   hmod=2**nsubmode
    if(nfqso+nqsoprogress.eq.-999) return
    Keff=91
    iwspr=0
-
    nmax=15*12000
+
    if(ntrperiod.eq.15) then
       nsps=800
       nmax=15*12000
