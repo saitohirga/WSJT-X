@@ -54,6 +54,7 @@ include(logbook/logbook.pri)
 include(widgets/widgets.pri)
 include(Decoder/decodedtext.pri)
 include(Detector/Detector.pri)
+include(Modulator/Modulator.pri)
 
 SOURCES += \
   Radio.cpp NetworkServerLookup.cpp revision_utils.cpp \

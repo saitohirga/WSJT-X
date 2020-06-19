@@ -105,11 +105,17 @@ extern "C" {
   void genft4_(char* msg, int* ichk, char* msgsent, char ft4msgbits[], int itone[],
                fortran_charlen_t, fortran_charlen_t);
 
+  void genfst280_(char* msg, int* ichk, char* msgsent, char fst280msgbits[],
+                 int itone[], int* iwspr, fortran_charlen_t, fortran_charlen_t);
+
   void gen_ft8wave_(int itone[], int* nsym, int* nsps, float* bt, float* fsample, float* f0,
                     float xjunk[], float wave[], int* icmplx, int* nwave);
 
   void gen_ft4wave_(int itone[], int* nsym, int* nsps, float* fsample, float* f0,
                     float xjunk[], float wave[], int* icmplx, int* nwave);
+
+  void gen_fst280wave_(int itone[], int* nsym, int* nsps, int* nwave, float* fsample,
+                       int* hmod, float* f0, int* icmplx, float xjunk[], float wave[]);
 
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
                int* itext, fortran_charlen_t, fortran_charlen_t);
@@ -3801,7 +3807,8 @@ void MainWindow::guiUpdate()
                                     &m_currentMessageType, 22, 22);
         if(m_modeTx=="WSPR") genwspr_(message, msgsent, const_cast<int *> (itone),
                                     22, 22);
-        if(m_modeTx=="MSK144" or m_modeTx=="FT8" or m_modeTx=="FT4") {
+        if(m_modeTx=="MSK144" or m_modeTx=="FT8" or m_modeTx=="FT4"
+           or m_modeTx=="FST280" or m_modeTx=="FST280W") {
           char MyCall[6];
           char MyGrid[6];
           ::memcpy(MyCall, (m_config.my_callsign()+"      ").toLatin1(), sizeof MyCall);
@@ -3862,8 +3869,26 @@ void MainWindow::guiUpdate()
                            foxcom_.wave,&icmplx,&nwave);
           }
           if(m_modeTx=="FST280" or m_modeTx=="FST280W") {
-            // call genfst280()
-            // call gen_fst280wave()
+            int ichk=0;
+            int iwspr=0;
+            char fst280msgbits[101];
+            genfst280_(message,&ichk,msgsent,const_cast<char *> (fst280msgbits),
+                           const_cast<int *>(itone), &iwspr, 37, 37);
+            int hmod=int(pow(2.0,double(m_nSubMode)));
+            int nsps=800;
+            if(m_TRperiod==30) nsps=1680;
+            if(m_TRperiod==60) nsps=4000;
+            if(m_TRperiod==120) nsps=8400;
+            if(m_TRperiod==300) nsps=21504;
+            nsps=4*nsps;                           //48000 Hz sampling
+            int nsym=164;
+            float fsample=48000.0;
+            float dfreq=hmod*fsample/nsps;
+            float f0=ui->TxFreqSpinBox->value() - m_XIT + 1.5*dfreq;
+            int nwave=(nsym+2)*nsps;
+            int icmplx=0;
+            gen_fst280wave_(const_cast<int *>(itone),&nsym,&nsps,&nwave,
+                    &fsample,&hmod,&f0,&icmplx,foxcom_.wave,foxcom_.wave);
           }
 
           if(SpecOp::EU_VHF==m_config.special_op_id()) {
@@ -7138,6 +7163,22 @@ void MainWindow::transmit (double snr)
            576.0, ui->TxFreqSpinBox->value() - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel(),
            true, false, snr, m_TRperiod);
+  }
+
+  if (m_modeTx == "FST280" or m_modeTx == "FST280W") {
+    m_dateTimeSentTx3=QDateTime::currentDateTimeUtc();
+    toneSpacing=-2.0;                     //Transmit a pre-computed, filtered waveform.
+    int nsps=800;
+    if(m_TRperiod==30) nsps=1680;
+    if(m_TRperiod==60) nsps=4000;
+    if(m_TRperiod==120) nsps=8400;
+    if(m_TRperiod==300) nsps=21504;
+    int hmod=int(pow(2.0,double(m_nSubMode)));
+    double dfreq=hmod*12000.0/nsps;
+    double f0=ui->TxFreqSpinBox->value() - m_XIT + 1.5*dfreq;
+    Q_EMIT sendMessage (NUM_FST280_SYMBOLS,double(nsps),f0,toneSpacing,
+                        m_soundOutput,m_config.audio_output_channel(),
+                        true, false, snr, m_TRperiod);
   }
 
   if (m_modeTx == "QRA64") {

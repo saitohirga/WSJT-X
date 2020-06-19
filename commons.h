@@ -85,7 +85,7 @@ extern struct {
 } echocom_;
 
 extern struct {
-  float wave[606720];
+  float wave[14278656];
   int   nslots;
   int   nfreq;
   int   i3bit[5];

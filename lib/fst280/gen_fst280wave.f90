@@ -1,4 +1,5 @@
-subroutine gen_fst280wave(itone,nsym,nsps,nwave,fsample,hmod,f0,icmplx,cwave,wave)
+subroutine gen_fst280wave(itone,nsym,nsps,nwave,fsample,hmod,f0,    &
+     icmplx,cwave,wave)
 
   real wave(nwave)
   complex cwave(nwave)
@@ -11,7 +12,7 @@ subroutine gen_fst280wave(itone,nsym,nsps,nwave,fsample,hmod,f0,icmplx,cwave,wav
   save first,twopi,dt,tsym
 
   if(first) then
-     allocate( pulse(3*nsps*fsample) )
+     allocate(pulse(3*nsps*int(fsample)))
      twopi=8.0*atan(1.0)
      dt=1.0/fsample
      tsym=nsps/fsample
