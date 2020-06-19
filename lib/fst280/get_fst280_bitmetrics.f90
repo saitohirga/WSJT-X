@@ -19,10 +19,11 @@ subroutine get_fst280_bitmetrics(cd,nss,hmod,bitmetrics,badsync)
    real s4(0:3,NN)
    data icos8/0,1,3,2,1,0,2,3/
    data graymap/0,1,3,2/
-   data first/.true./
-   save first,one,cp
+   data first/.true./,nss0/-1/
+   save first,one,cp,nss0
 
-   if(first) then
+   if(nss.ne.nss0 .and. allocated(c1)) deallocate(c1)
+   if(first .or. nss.ne.nss0) then
       allocate(c1(nss,0:3))
       one=.false.
       do i=0,65535

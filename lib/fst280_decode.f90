@@ -292,13 +292,12 @@ contains
    integer hmod,isyncword(0:7)
    real f0save
    data isyncword/0,1,3,2,1,0,2,3/
-   data first/.true./
-   data f0save/0.0/
-   save first,twopi,dt,fac,f0save
+   data first/.true./,f0save/0.0/,nss0/-1/
+   save first,twopi,dt,fac,f0save,nss0
+   p(z1)=(real(z1*fac)**2 + aimag(z1*fac)**2)**0.5     !Compute power
 
-   p(z1)=(real(z1*fac)**2 + aimag(z1*fac)**2)**0.5          !Statement function for power
-
-   if( first ) then
+   if(nss.ne.nss0 .and. allocated(csync)) deallocate(csync,csynct)
+   if(first .or. nss.ne.nss0) then
       allocate( csync(8*nss) )
       allocate( csynct(8*nss) )
       twopi=8.0*atan(1.0)
@@ -314,6 +313,7 @@ contains
          enddo
       enddo
       first=.false.
+      nss0=nss
       fac=1.0/(8.0*nss)
    endif
 
