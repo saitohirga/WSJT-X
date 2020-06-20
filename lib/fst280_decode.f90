@@ -441,9 +441,10 @@ contains
    call pctile(s2(ia:ib),ib-ia+1,30,base)
    s2=s2/base
    
-   thresh=1.25
+   thresh=1.4
  
    ncand=0
+   candidates=0
    if(ia.lt.3) ia=3
    if(ib.gt.18000-2) ib=18000-2
    do i=ia,ib
@@ -464,7 +465,8 @@ contains
    snr_cand(1:ncand)=candidates(1:ncand,2)
    call indexx(snr_cand,ncand,indx)
    nmax=5
-   do i=1,min(ncand,nmax)
+   ncand=min(ncand,nmax)
+   do i=1,ncand
       j=indx(ncand+1-i)
       candidates0(i,1:4)=candidates(j,1:4)
    enddo
