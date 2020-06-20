@@ -281,6 +281,10 @@ subroutine unpack77(c77,nrx,msg,unpk77_success)
      call unpacktext77(c77(1:71),msg(1:13))
      msg(14:)='                        '
      msg=adjustl(msg)
+     if(msg(1:1).eq.' ') then
+        unpk77_success=.false.
+        return
+     endif
 
   else if(i3.eq.0 .and. n3.eq.1) then
 ! 0.1  K1ABC RR73; W9XYZ <KH1/KH7Z> -11   28 28 10 5       71   DXpedition Mode

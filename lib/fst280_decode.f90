@@ -232,6 +232,7 @@ contains
          cframe=c2(is0:is0+164*nss-1)
          s2=sum(cframe*conjg(cframe))
          cframe=cframe/sqrt(s2)
+         bitmetrics=0
          call get_fst280_bitmetrics(cframe,nss,hmod,bitmetrics,badsync)
 
          hbits=0
@@ -243,7 +244,7 @@ contains
          ns5=count(hbits(313:320).eq.(/0,0,0,1,1,0,1,1/))
          ns6=count(hbits(321:328).eq.(/0,1,0,0,1,1,1,0/))
          nsync_qual=ns1+ns2+ns3+ns4+ns5+ns6
-!          if(nsync_qual.lt. 20) cycle
+         if(nsync_qual.lt. 30) cycle                   !### Value ?? ###
 
          scalefac=2.83
          llra(  1:140)=bitmetrics( 17:156, 1)
@@ -442,9 +443,10 @@ contains
    call pctile(s2(ia:ib),ib-ia+1,30,base)
    s2=s2/base
    
-   thresh=1.25
+   thresh=1.4
  
    ncand=0
+   candidates=0
    if(ia.lt.3) ia=3
    if(ib.gt.18000-2) ib=18000-2
    do i=ia,ib
@@ -464,13 +466,14 @@ contains
    snr_cand=0.
    snr_cand(1:ncand)=candidates(1:ncand,2)
    call indexx(snr_cand,ncand,indx)
-   nmax=5
-   do i=1,min(ncand,nmax)
+   nmax=min(ncand,5)
+   do i=1,nmax
       j=indx(ncand+1-i)
       candidates0(i,1:4)=candidates(j,1:4)
    enddo
-   candidates(1:nmax,1:4)=candidates0(1:nmax,1:4)
-   candidates(nmax+1:,1:4)=0.
+   ncand=nmax
+   candidates(1:ncand,1:4)=candidates0(1:ncand,1:4)
+   candidates(ncand+1:,1:4)=0.
 
    return 
  end subroutine get_candidates_fst280
