@@ -323,9 +323,7 @@ contains
          enddo  ! metrics
       enddo  ! istart jitter
 2002  continue
-   enddo !candidate list
-   write(*,1120)
-1120 format("<DecodeFinished>")
+   enddo !candidate list!ws
 
    return
  end subroutine decode
