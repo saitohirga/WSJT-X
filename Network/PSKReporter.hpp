@@ -8,14 +8,14 @@
 class QString;
 class Configuration;
 
-class PSK_Reporter final
+class PSKReporter final
   : public QObject
 {
   Q_OBJECT
 
 public:
-  explicit PSK_Reporter (Configuration const *, QString const& program_info);
-  ~PSK_Reporter ();
+  explicit PSKReporter (Configuration const *, QString const& program_info);
+  ~PSKReporter ();
 
   void reconnect ();
 
