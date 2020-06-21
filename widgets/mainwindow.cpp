@@ -8983,7 +8983,7 @@ void MainWindow::write_all(QString txRx, QString message)
   QFile f{m_config.writeable_data_dir().absoluteFilePath(file_name)};
   if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
     QTextStream out(&f);
-    out << line
+    out << line.trimmed()
 #if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
         << Qt::endl
 #else
