@@ -34,6 +34,7 @@ contains
    parameter (MAXCAND=100)
    class(fst280_decoder), intent(inout) :: this
    procedure(fst280_decode_callback) :: callback
+   character*37 decodes(100)
    character*37 msg
    character*77 c77
    complex, allocatable :: c2(:)
@@ -135,6 +136,8 @@ contains
         ncand,candidates)
 
    ndecodes=0
+   decodes=' '
+
    isbest1=0
    isbest8=0
    fc21=0.
@@ -308,7 +311,14 @@ contains
                   c77(51:77)='000000000000000000000110000'
                   call unpack77(c77,0,msg,unpk77_success)
                endif
-               if(nharderrors .ge.0 .and. unpk77_success) then
+               if(unpk77_success) then
+                  idupe=0
+                  do i=1,ndecodes
+                     if(decodes(i).eq.msg) idupe=1
+                  enddo
+                  if(idupe.eq.1) exit
+                  ndecodes=ndecodes+1
+                  decodes(ndecodes)=msg
                   nsnr=nint(xsnr)
                   iaptype=0
                   qual=0.
