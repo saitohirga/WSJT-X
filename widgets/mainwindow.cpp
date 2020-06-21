@@ -5834,6 +5834,7 @@ void MainWindow::on_actionFST280_triggered()
   ui->cbAutoSeq->setChecked(true);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
+  switch_mode (Modes::FST280);
   statusChanged();
 }
 
@@ -5854,6 +5855,7 @@ void MainWindow::on_actionFST280W_triggered()
   ui->sbSubmode->setMaximum(3);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
+  switch_mode (Modes::FST280W);
   statusChanged();
 }
 
