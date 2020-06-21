@@ -100,10 +100,24 @@ contains
    allocate( cframe(0:164*nss-1) )
 
    npts=nmax
-   fa=nfa
-   fb=nfb
+   fa=max(100,nfa)
+   fb=min(4800,nfb)
 
-! The big fft is done once and is used for calculating the smoothed spectrum 
+   if(ndeep.eq.3) then
+      ntmax=4      ! number of block sizes to try
+      jittermax=2
+      norder=3
+   elseif(ndeep.eq.2) then
+      ntmax=3
+      jittermax=2
+      norder=3
+   elseif(ndeep.eq.1) then
+      ntmax=1
+      jittermax=2
+      norder=2
+   endif
+
+   ! The big fft is done once and is used for calculating the smoothed spectrum 
 ! and also for downconverting/downsampling each candidate.
    r_data(1:nfft1)=iwave(1:nfft1)
    r_data(nfft1+1:nfft1+2)=0.0
@@ -113,7 +127,7 @@ contains
 ! Get first approximation of candidate frequencies
    call get_candidates_fst280(c_bigfft,nfft1,nsps,hmod,fs,fa,fb,     &
         ncand,candidates)
-      
+
    ndecodes=0
    isbest1=0
    isbest8=0
@@ -173,16 +187,12 @@ contains
       if(smax8/smax1 .lt. 0.65 ) then
          fc2=fc21
          isbest=isbest1
-         ntmax=4
          if(hmod.gt.1) ntmax=1
-         ntmin=1
          njitter=2
       else
          fc2=fc28
          isbest=isbest8
-         ntmax=4
          if(hmod.gt.1) ntmax=1
-         ntmin=1
          njitter=2
       endif
       fc_synced = fc0 + fc2
@@ -223,7 +233,7 @@ contains
       xdt=(isbest-nspsec)/fs2
       call fst280_downsample(c_bigfft,nfft1,ndown,fc_synced,c2)
 
-      do ijitter=0,2
+      do ijitter=0,jittermax
          if(ijitter.eq.0) ioffset=0
          if(ijitter.eq.1) ioffset=1
          if(ijitter.eq.2) ioffset=-1
@@ -233,7 +243,8 @@ contains
          s2=sum(cframe*conjg(cframe))
          cframe=cframe/sqrt(s2)
          bitmetrics=0
-         call get_fst280_bitmetrics(cframe,nss,hmod,bitmetrics,badsync)
+         call get_fst280_bitmetrics(cframe,nss,hmod,ntmax,bitmetrics,badsync)
+         if(badsync) cycle
 
          hbits=0
          where(bitmetrics(:,1).ge.0) hbits=1
@@ -261,7 +272,7 @@ contains
          llrd=scalefac*llrd
          apmask=0
 
-         do itry=ntmax,ntmin,-1
+         do itry=1,ntmax
             if(itry.eq.1) llr=llra
             if(itry.eq.2) llr=llrb
             if(itry.eq.3) llr=llrc
@@ -272,13 +283,13 @@ contains
             if(iwspr.eq.0) then
                maxosd=2
                call timer('d280_101',0)
-               call decode280_101(llr,Keff,maxosd,ndeep,apmask,message101, &
+               call decode280_101(llr,Keff,maxosd,norder,apmask,message101, &
                     cw,ntype,nharderrors,dmin)
                call timer('d280_101',1)
             else
                maxosd=2
                call timer('d280_74 ',0)
-               call decode280_74(llr,Keff,maxosd,ndeep,apmask,message74,cw, &
+               call decode280_74(llr,Keff,maxosd,norder,apmask,message74,cw, &
                     ntype,nharderrors,dmin)
                call timer('d280_74 ',1)
             endif
@@ -466,7 +477,7 @@ contains
    snr_cand=0.
    snr_cand(1:ncand)=candidates(1:ncand,2)
    call indexx(snr_cand,ncand,indx)
-   nmax=min(ncand,5)
+   nmax=min(ncand,20)
    do i=1,nmax
       j=indx(ncand+1-i)
       candidates0(i,1:4)=candidates(j,1:4)
@@ -474,7 +485,6 @@ contains
    ncand=nmax
    candidates(1:ncand,1:4)=candidates0(1:ncand,1:4)
    candidates(ncand+1:,1:4)=0.
-
    return 
  end subroutine get_candidates_fst280
 

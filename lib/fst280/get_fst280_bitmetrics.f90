@@ -1,4 +1,4 @@
-subroutine get_fst280_bitmetrics(cd,nss,hmod,bitmetrics,badsync)
+subroutine get_fst280_bitmetrics(cd,nss,hmod,nmax,bitmetrics,badsync)
 
    include 'fst280_params.f90'
    complex cd(0:NN*nss-1)
@@ -78,7 +78,7 @@ subroutine get_fst280_bitmetrics(cd,nss,hmod,bitmetrics,badsync)
    endif
 
    bitmetrics=0.0
-   do nseq=1,4            !Try coherent sequences of 1, 2, and 4 symbols
+   do nseq=1,nmax            !Try coherent sequences of 1, 2, and 4 symbols
       if(nseq.eq.1) nsym=1
       if(nseq.eq.2) nsym=2
       if(nseq.eq.3) nsym=4
