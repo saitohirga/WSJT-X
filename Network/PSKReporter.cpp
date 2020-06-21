@@ -32,13 +32,13 @@
 
 namespace
 {
-  constexpr QLatin1String HOST {"report.pskreporter.info"};
+  // constexpr QLatin1String HOST {"report.pskreporter.info"};
   // constexpr QLatin1String HOST {"127.0.0.1"};
-  // constexpr QLatin1String HOST {"192.168.1.195"};
+  constexpr QLatin1String HOST {"192.168.1.195"};
   constexpr quint16 SERVICE_PORT {4739};
   // constexpr quint16 SERVICE_PORT {14739};
-  constexpr int MIN_SEND_INTERVAL {60}; // in seconds
-  constexpr int FLUSH_INTERVAL {5};     // in send intervals
+  constexpr int MIN_SEND_INTERVAL {15}; // in seconds
+  constexpr int FLUSH_INTERVAL {4 * 5}; // in send intervals
   constexpr bool ALIGNMENT_PADDING {true};
   constexpr int MIN_PAYLOAD_LENGTH {508};
   constexpr int MAX_PAYLOAD_LENGTH {1400};
@@ -363,7 +363,7 @@ void PSKReporter::impl::send_report (bool send_residue)
 
   auto flush = flushing () || send_residue;
   qDebug () << "PSKReporter::impl::send_report: flush:" << flush;
-  while (spots_.size () || (flush && (tx_data_.size () || tx_residue_.size ())))
+  while (spots_.size () || flush)
     {
       if (!payload_.size ())
         {
@@ -371,7 +371,7 @@ void PSKReporter::impl::send_report (bool send_residue)
           build_preamble (message);
         }
 
-      if (!tx_data_.size ())
+      if (!tx_data_.size () && (spots_.size () || tx_residue_.size ()))
         {
           // Set Header
           tx_out
@@ -388,7 +388,7 @@ void PSKReporter::impl::send_report (bool send_residue)
           qDebug () << "PSKReporter::impl::send_report: inserted data residue";
         }
 
-      while (spots_.size () || (flush && tx_data_.size ()))
+      while (spots_.size () || flush)
         {
           auto tx_data_size = tx_data_.size ();
           if (spots_.size ())
@@ -413,18 +413,21 @@ void PSKReporter::impl::send_report (bool send_residue)
           len += num_pad_bytes (len);
           if (len > MAX_PAYLOAD_LENGTH // our upper datagram size limit
               || (!spots_.size () && len > MIN_PAYLOAD_LENGTH) // spots drained and above lower datagram size limit
-              || (flush && !spots_.size () && tx_data_.size ())) // send what we have
+              || (flush && !spots_.size ())) // send what we have, possibly no spots
             {
-              if (len <= MAX_PAYLOAD_LENGTH)
+              if (tx_data_.size ())
                 {
-                  tx_data_size = tx_data_.size ();
-                  qDebug () << "PSKReporter::impl::send_report: sending short payload:" << tx_data_size;
+                  if (len <= MAX_PAYLOAD_LENGTH)
+                    {
+                      tx_data_size = tx_data_.size ();
+                      qDebug () << "PSKReporter::impl::send_report: sending short payload:" << tx_data_size;
+                    }
+                  QByteArray tx {tx_data_.left (tx_data_size)};
+                  QDataStream out {&tx, QIODevice::WriteOnly | QIODevice::Append};
+                  // insert Length
+                  set_length (out, tx);
+                  message.writeRawData (tx.constData (), tx.size ());
                 }
-              QByteArray tx {tx_data_.left (tx_data_size)};
-              QDataStream out {&tx, QIODevice::WriteOnly | QIODevice::Append};
-              // insert Length
-              set_length (out, tx);
-              message.writeRawData (tx.constData (), tx.size ());
 
               // insert Length and Export Time
               set_length (message, payload_);
@@ -434,6 +437,7 @@ void PSKReporter::impl::send_report (bool send_residue)
               // Send data to PSK Reporter site
               socket_->write (payload_); // TODO: handle errors
               qDebug () << "PSKReporter::impl::send_report: sent payload:" << payload_.size () << "observation id:" << observation_id_;
+              flush = false;    // break loop
               message.device ()->seek (0u);
               payload_.clear ();  // Fresh message
               // Save unsent spots
