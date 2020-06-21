@@ -3,6 +3,7 @@
 #include <QStringList>
 #include <QRegularExpression>
 #include <QDebug>
+#include "qt_helpers.hpp"
 
 extern "C" {
   bool stdmsg_(char const * msg, fortran_charlen_t);
@@ -58,7 +59,7 @@ QStringList DecodedText::messageWords () const
     return words_re.match(t).capturedTexts();
   }
   // simple word split for free text messages
-  auto words = message_.split (' ', QString::SkipEmptyParts);
+  auto words = message_.split (' ', SkipEmptyParts);
   // add whole message as item 0 to mimic RE capture list
   words.prepend (message_);
   return words;
@@ -122,7 +123,7 @@ bool DecodedText::report(QString const& myBaseCall, QString const& dxBaseCall, /
 {
   if (message_.size () < 1) return false;
 
-  QStringList const& w = message_.split(" ",QString::SkipEmptyParts);
+  QStringList const& w = message_.split(" ", SkipEmptyParts);
   if (w.size ()
       && is_standard_ && (w[0] == myBaseCall
                           || w[0].endsWith ("/" + myBaseCall)

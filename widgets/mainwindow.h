@@ -3,6 +3,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QString>
+#include <QStringList>
 #include <QLabel>
 #include <QThread>
 #include <QProcess>
@@ -605,8 +607,7 @@ private:
   QString m_rptRcvd;
   QString m_qsoStart;
   QString m_qsoStop;
-  QString m_cmnd;
-  QString m_cmndP1;
+  QStringList m_cmndP1;
   QString m_msgSent0;
   QString m_calls;
   QString m_CQtype;
@@ -700,7 +701,7 @@ private:
   void genStdMsgs(QString rpt, bool unconditional = false);
   void genCQMsg();
   void clearDX ();
-  void lookup(bool lookupButtonClicked);
+  void lookup();
   void ba2msg(QByteArray ba, char* message);
   void msgtype(QString t, QLineEdit* tx);
   void stub();
@@ -713,7 +714,7 @@ private:
   void pskPost(DecodedText const& decodedtext);
   void displayDialFrequency ();
   void transmitDisplay (bool);
-  void processMessage(DecodedText const&, Qt::KeyboardModifiers = 0);
+  void processMessage(DecodedText const&, Qt::KeyboardModifiers = Qt::NoModifier);
   void replyToCQ (QTime, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode, QString const& message_text, bool low_confidence, quint8 modifiers);
   void locationChange(QString const& location);
   void replayDecodes ();

@@ -142,8 +142,20 @@ void LogQSO::accept()
   }
 
   if ((special_op == SpOp::RTTY and xsent!="" and xrcvd!="")) {
-    if(rptSent=="" or !xsent.contains(rptSent+" ")) rptSent=xsent.split(" ",QString::SkipEmptyParts).at(0);
-    if(rptRcvd=="" or !xrcvd.contains(rptRcvd+" ")) rptRcvd=xrcvd.split(" ",QString::SkipEmptyParts).at(0);
+    if(rptSent=="" or !xsent.contains(rptSent+" ")) rptSent=xsent.split(" "
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+                                                                        , QString::SkipEmptyParts
+#else
+                                                                        , Qt::SkipEmptyParts
+#endif
+                                                                        ).at(0);
+    if(rptRcvd=="" or !xrcvd.contains(rptRcvd+" ")) rptRcvd=xrcvd.split(" "
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+                                                                        , QString::SkipEmptyParts
+#else
+                                                                        , Qt::SkipEmptyParts
+#endif
+                                                                        ).at(0);
   }
 
   // validate
@@ -181,7 +193,13 @@ void LogQSO::accept()
       "," + rptSent + "," + rptRcvd + "," + m_txPower +
       "," + m_comments + "," + name;
     QTextStream out(&f);
-    out << logEntry << endl;
+    out << logEntry <<
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+                 endl
+#else
+                 Qt::endl
+#endif
+                 ;
     f.close();
   }
 

@@ -423,6 +423,7 @@ MessageClient::MessageClient (QString const& id, QString const& version, QString
   : QObject {self}
   , m_ {id, version, revision, server_port, this}
 {
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
   connect (&*m_, static_cast<void (impl::*) (impl::SocketError)> (&impl::error)
            , [this] (impl::SocketError e)
            {
@@ -441,6 +442,11 @@ MessageClient::MessageClient (QString const& id, QString const& version, QString
                  Q_EMIT error (m_->errorString ());
                }
            });
+#else
+  connect (&*m_, &impl::errorOccurred, [this] (impl::SocketError) {
+                                         Q_EMIT error (m_->errorString ());
+                                       });
+#endif
   set_server (server);
 }
 

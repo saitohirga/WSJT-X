@@ -121,10 +121,12 @@ bool RemoteFile::sync (QUrl const& url, bool local, bool force)
 
 void RemoteFile::download (QUrl url)
 {
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
   if (QNetworkAccessManager::Accessible != network_manager_->networkAccessible ()) {
     // try and recover network access for QNAM
     network_manager_->setNetworkAccessible (QNetworkAccessManager::Accessible);
   }
+#endif
 
   if (url.isValid () && (!QSslSocket::supportsSsl () || http_only_))
     {

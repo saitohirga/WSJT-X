@@ -95,7 +95,6 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,nzhsym,lapon,     &
 
   max_iterations=30
   nharderrors=-1
-  nbadcrc=1  ! this is used upstream to flag good decodes. 
   fs2=12000.0/NDOWN
   dt2=1.0/fs2
   twopi=8.0*atan(1.0)
@@ -403,13 +402,11 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,nzhsym,lapon,     &
      dmin=0.0
      norder=2
      maxosd=2
-     if(ndepth.lt.3) maxosd=1
-     if(abs(nfqso-f1).le.napwid .or. abs(nftx-f1).le.napwid .or. ncontest.eq.7) then
+     if(ndepth.eq.1) maxosd=-1  ! BP only
+     if(ndepth.eq.2) maxosd=0   ! uncoupled BP+OSD
+     if(ndepth.eq.3 .and.         &
+        (abs(nfqso-f1).le.napwid .or. abs(nftx-f1).le.napwid .or. ncontest.eq.7)) then
         maxosd=2
-     endif
-     if(nagain) then
-        norder=3
-        maxosd=1
      endif
      call timer('dec174_91 ',0)
      Keff=91
@@ -419,16 +416,16 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,nzhsym,lapon,     &
      call timer('dec174_91 ',1)
 
      msg37='                                     '
+     nbadcrc=1
      if(nharderrors.lt.0 .or. nharderrors.gt.36) cycle
      if(count(cw.eq.0).eq.174) cycle           !Reject the all-zero codeword
      write(c77,'(77i1)') message77
      read(c77(72:74),'(b3)') n3
      read(c77(75:77),'(b3)') i3
      if(i3.gt.5 .or. (i3.eq.0.and.n3.gt.6)) cycle
+     if(i3.eq.0 .and. n3.eq.2) cycle
      call unpack77(c77,1,msg37,unpk77_success)
-     if(.not.unpk77_success) then
-        cycle
-     endif
+     if(.not.unpk77_success) cycle
      nbadcrc=0  ! If we get this far: valid codeword, valid (i3,n3), nonquirky message.
      call get_ft8_tones_from_77bits(message77,itone)
      if(lsubtract) then

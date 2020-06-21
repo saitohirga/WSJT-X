@@ -887,7 +887,7 @@ message (STATUS "hamlib_LIBRARY_DIRS: ${hamlib_LIBRARY_DIRS}")
 #
 
 # Widgets finds its own dependencies.
-find_package (Qt5 COMPONENTS Widgets Multimedia PrintSupport Sql LinguistTools REQUIRED)
+find_package (Qt5 COMPONENTS Widgets SerialPort Multimedia PrintSupport Sql LinguistTools REQUIRED)
 
 if (WIN32)
   add_definitions (-DQT_NEEDS_QTMAIN)
@@ -1111,9 +1111,7 @@ set (LANGUAGES
   )
 foreach (lang_ ${LANGUAGES})
   file (TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/translations/wsjtx_${lang_}.ts ts_)
-  if (EXISTS "${ts_}")
-    list (APPEND TS_FILES ${ts_})
-  endif ()
+  list (APPEND TS_FILES ${ts_})
   set (qt_translations_ "${QT_TRANSLATIONS_DIR}/qtbase_${lang_}.qm")
   if (EXISTS "${qt_translations_}")
     add_custom_command (
@@ -1378,9 +1376,9 @@ set_target_properties (wsjtx PROPERTIES
 
 target_include_directories (wsjtx PRIVATE ${FFTW3_INCLUDE_DIRS})
 if (APPLE)
-  target_link_libraries (wsjtx wsjt_fort wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
+  target_link_libraries (wsjtx Qt5::SerialPort wsjt_fort wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
 else ()
-  target_link_libraries (wsjtx wsjt_fort_omp wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
+  target_link_libraries (wsjtx Qt5::SerialPort wsjt_fort_omp wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
   if (OpenMP_C_FLAGS)
     set_target_properties (wsjtx PROPERTIES
       COMPILE_FLAGS "${OpenMP_C_FLAGS}"
@@ -1396,7 +1394,6 @@ else ()
       )
   endif ()
 endif ()
-qt5_use_modules (wsjtx SerialPort) # not sure why the interface link library syntax above doesn't work
 
 # make a library for WSJT-X UDP servers
 # add_library (wsjtx_udp SHARED ${UDP_library_CXXSRCS})
@@ -1416,8 +1413,7 @@ set_target_properties (wsjtx_udp-static PROPERTIES
   OUTPUT_NAME wsjtx_udp
   )
 target_compile_definitions (wsjtx_udp-static PUBLIC UDP_STATIC_DEFINE)
-#qt5_use_modules (wsjtx_udp Network)
-qt5_use_modules (wsjtx_udp-static Network Gui)
+target_link_libraries (wsjtx_udp-static Qt5::Network Qt5::Gui)
 generate_export_header (wsjtx_udp-static BASE_NAME udp)
 
 add_executable (udp_daemon UDPExamples/UDPDaemon.cpp UDPExamples/udp_daemon.rc ${WSJTX_ICON_FILE})

@@ -67,16 +67,34 @@ public:
 private:
   Q_SLOT void start_recording ()
   {
-    qtout << "started recording at " << QDateTime::currentDateTimeUtc ().toString ("hh:mm:ss.zzz UTC") << endl;
+    qtout << "started recording at " << QDateTime::currentDateTimeUtc ().toString ("hh:mm:ss.zzz UTC")
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+          << Qt::endl
+#else
+          << endl
+#endif
+      ;
     source_.start (output_);
     if (!notify_interval_) QTimer::singleShot (duration_ * 1000, Qt::PreciseTimer, this, &Record::stop_recording);
-    qtout << QString {"buffer size used is: %1"}.arg (source_.bufferSize ()) << endl;
+    qtout << QString {"buffer size used is: %1"}.arg (source_.bufferSize ())
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+                                                   << Qt::endl
+#else
+                                                   << endl
+#endif
+                                                   ;
   }
 
   Q_SLOT void notify ()
   {
     auto length = source_.elapsedUSecs ();
-    qtout << QString {"%1 μs recorded\r"}.arg (length) << flush;
+    qtout << QString {"%1 μs recorded\r"}.arg (length)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+                                             << Qt::flush
+#else
+                                             << flush
+#endif
+                                             ;
     if (length >= duration_ * 1000 * 1000) stop_recording ();
   }
 
@@ -85,7 +103,13 @@ private:
     auto length = source_.elapsedUSecs ();
     source_.stop ();
     qtout << QString {"%1 μs recorded "}.arg (length) << '(' << source_.format ().framesForBytes (output_->size ()) << " frames recorded)\n";
-    qtout << "stopped recording at " << QDateTime::currentDateTimeUtc ().toString ("hh:mm:ss.zzz UTC") << endl;
+    qtout << "stopped recording at " << QDateTime::currentDateTimeUtc ().toString ("hh:mm:ss.zzz UTC")
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+          << Qt::endl
+#else
+          << endl
+#endif
+      ;
     Q_EMIT done ();
   }
 
@@ -134,15 +158,33 @@ public:
 private:
   Q_SLOT void start_playback ()
   {
-    qtout << "started playback at " << QDateTime::currentDateTimeUtc ().toString ("hh:mm:ss.zzz UTC") << endl;
+    qtout << "started playback at " << QDateTime::currentDateTimeUtc ().toString ("hh:mm:ss.zzz UTC")
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+          << Qt::endl
+#else
+          << endl
+#endif
+      ;
     sink_.start (input_);
-    qtout << QString {"buffer size used is: %1 (%2 frames)"}.arg (sink_.bufferSize ()).arg (sink_.format ().framesForBytes (sink_.bufferSize ())) << endl;
+    qtout << QString {"buffer size used is: %1 (%2 frames)"}.arg (sink_.bufferSize ()).arg (sink_.format ().framesForBytes (sink_.bufferSize ()))
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+                                                               << Qt::endl
+#else
+                                                               << endl
+#endif
+                                                               ;
   }
 
   Q_SLOT void notify ()
   {
     auto length = sink_.elapsedUSecs ();
-    qtout << QString {"%1 μs rendered\r"}.arg (length) << flush;
+    qtout << QString {"%1 μs rendered\r"}.arg (length) <<
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+                                             Qt::flush
+#else
+                                             flush
+#endif
+                                             ;
   }
 
   Q_SLOT void sink_state_changed (QAudio::State state)
@@ -175,7 +217,13 @@ private:
     auto length = sink_.elapsedUSecs ();
     sink_.stop ();
     qtout << QString {"%1 μs rendered "}.arg (length) << '(' << sink_.format ().framesForBytes (input_->size ()) << " frames rendered)\n";
-    qtout << "stopped playback at " << QDateTime::currentDateTimeUtc ().toString ("hh:mm:ss.zzz UTC") << endl;
+    qtout << "stopped playback at " << QDateTime::currentDateTimeUtc ().toString ("hh:mm:ss.zzz UTC")
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+          << Qt::endl
+#else
+          << endl
+#endif
+      ;
     Q_EMIT done ();
   }
 
@@ -258,7 +306,13 @@ int main(int argc, char *argv[])
           int n {0};
           for (auto const& device : input_devices)
             {
-              qtout << ++n << " - [" << device.deviceName () << ']' << endl;
+              qtout << ++n << " - [" << device.deviceName () << ']'
+#if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
+                    << Qt::endl
+#else
+                    << endl
+#endif
+                ;
             }
           return 0;
         }
@@ -269,7 +323,13 @@ int main(int argc, char *argv[])
           int n {0};
           for (auto const& device : output_devices)
             {
-              qtout << ++n << " - [" << device.deviceName () << ']' << endl;
+              qtout << ++n << " - [" << device.deviceName () << ']'
+#if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
+                    << Qt::endl
+#else
+                    << endl
+#endif
+                ;
             }
           return 0;
         }
@@ -352,7 +412,13 @@ int main(int argc, char *argv[])
           auto source = input_device ? input_devices[input_device - 1] : QAudioDeviceInfo::defaultInputDevice ();
           if (!source.isFormatSupported (audio_format))
             {
-              qtout << "warning, requested format not supported, using nearest" << endl;
+              qtout << "warning, requested format not supported, using nearest"
+#if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
+                    << Qt::endl
+#else
+                    << endl
+#endif
+                ;
               audio_format = source.nearestFormat (audio_format);
             }
           BWFFile output_file {audio_format, ofi.filePath ()};

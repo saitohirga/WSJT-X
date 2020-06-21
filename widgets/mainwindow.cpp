@@ -39,6 +39,9 @@
 #include <QUdpSocket>
 #include <QAbstractItemView>
 #include <QInputDialog>
+#if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
+#include <QRandomGenerator>
+#endif
 
 #include "revision_utils.hpp"
 #include "qt_helpers.hpp"
@@ -83,7 +86,6 @@
 #include "ExportCabrillo.h"
 #include "ui_mainwindow.h"
 #include "moc_mainwindow.cpp"
-
 
 extern "C" {
   //----------------------------------------------------- C and Fortran routines
@@ -654,16 +656,17 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
             subProcessError (&proc_jt9, error);
           });
 #else
-  connect(&proc_jt9, static_cast<void (QProcess::*) (QProcess::ProcessError)> (&QProcess::errorOccurred),
-          [this] (QProcess::ProcessError error) {
-            subProcessError (&proc_jt9, error);
-          });
+  connect(&proc_jt9, &QProcess::errorOccurred, [this] (QProcess::ProcessError error) {
+                                                 subProcessError (&proc_jt9, error);
+                                               });
 #endif
   connect(&proc_jt9, static_cast<void (QProcess::*) (int, QProcess::ExitStatus)> (&QProcess::finished),
           [this] (int exitCode, QProcess::ExitStatus status) {
             subProcessFailed (&proc_jt9, exitCode, status);
           });
-
+  connect(&p1, &QProcess::started, [this] () {
+                                     showStatusMessage (QString {"Started: %1 \"%2\""}.arg (p1.program ()).arg (p1.arguments ().join (QLatin1String {"\" \""})));
+                                   });
   connect(&p1, &QProcess::readyReadStandardOutput, this, &MainWindow::p1ReadFromStdout);
 #if QT_VERSION < QT_VERSION_CHECK (5, 6, 0)
   connect(&p1, static_cast<void (QProcess::*) (QProcess::ProcessError)> (&QProcess::error),
@@ -671,10 +674,9 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
             subProcessError (&p1, error);
           });
 #else
-  connect(&p1, static_cast<void (QProcess::*) (QProcess::ProcessError)> (&QProcess::errorOccurred),
-          [this] (QProcess::ProcessError error) {
-            subProcessError (&p1, error);
-          });
+  connect(&p1, &QProcess::errorOccurred, [this] (QProcess::ProcessError error) {
+                                           subProcessError (&p1, error);
+                                         });
 #endif
   connect(&p1, static_cast<void (QProcess::*) (int, QProcess::ExitStatus)> (&QProcess::finished),
           [this] (int exitCode, QProcess::ExitStatus status) {
@@ -687,11 +689,13 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
             subProcessError (&p3, error);
           });
 #else
-  connect(&p3, static_cast<void (QProcess::*) (QProcess::ProcessError)> (&QProcess::errorOccurred),
-          [this] (QProcess::ProcessError error) {
-            subProcessError (&p3, error);
-          });
+  connect(&p3, &QProcess::errorOccurred, [this] (QProcess::ProcessError error) {
+                                           subProcessError (&p3, error);
+                                         });
 #endif
+  connect(&p3, &QProcess::started, [this] () {
+                                     showStatusMessage (QString {"Started: %1 \"%2\""}.arg (p3.program ()).arg (p3.arguments ().join (QLatin1String {"\" \""})));
+                                   });
   connect(&p3, static_cast<void (QProcess::*) (int, QProcess::ExitStatus)> (&QProcess::finished),
           [this] (int exitCode, QProcess::ExitStatus status) {
             subProcessFailed (&p3, exitCode, status);
@@ -1400,7 +1404,13 @@ void MainWindow::dataSink(qint64 frames)
       QFile f {m_config.writeable_data_dir ().absoluteFilePath ("fmt.all")};
       if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
         QTextStream out(&f);
-        out << t << endl;
+        out << t
+#if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
+            << Qt::endl
+#else
+            << endl
+#endif
+          ;
         f.close();
       } else {
         MessageBox::warning_message (this, tr ("File Open Error")
@@ -1507,36 +1517,39 @@ void MainWindow::dataSink(qint64 frames)
     }
 
     if(m_mode.startsWith ("WSPR")) {
-      QString t2,cmnd,depth_string;
-      double f0m1500=m_dialFreqRxWSPR/1000000.0;   // + 0.000001*(m_BFO - 1500);
-      t2 = t2.asprintf(" -f %.6f ",f0m1500);
-      if((m_ndepth&7)==1) depth_string=" -qB "; //2 pass w subtract, no Block detection, no shift jittering
-      if((m_ndepth&7)==2) depth_string=" -C 500 -o 4 ";  //3 pass, subtract, Block detection, OSD 
-      if((m_ndepth&7)==3) depth_string=" -C 500 -o 4 -d ";  //3 pass, subtract, Block detect, OSD, more candidates 
-      QString degrade;
-      degrade = degrade.asprintf("-d %4.1f ",m_config.degrade());
-
+      QStringList t2;
+      QStringList depth_args;
+      t2 << "-f" << QString {"%1"}.arg (m_dialFreqRxWSPR / 1000000.0, 0, 'f', 6);
+      if((m_ndepth&7)==1) depth_args << "-qB"; //2 pass w subtract, no Block detection, no shift jittering
+      if((m_ndepth&7)==2) depth_args << "-C" << "500" << "-o" << "4"; //3 pass, subtract, Block detection, OSD 
+      if((m_ndepth&7)==3) depth_args << "-C" << "500"  << "-o" << "4" << "-d"; //3 pass, subtract, Block detect, OSD, more candidates 
+      QStringList degrade;
+      degrade << "-d" << QString {"%1"}.arg (m_config.degrade(), 4, 'f', 1);
+      m_cmndP1.clear ();
       if(m_diskData) {
-        cmnd='"' + m_appDir + '"' + "/wsprd " + depth_string + " -a \"" +
-          QDir::toNativeSeparators(m_config.writeable_data_dir ().absolutePath()) + "\" \"" + m_path + "\"";
+        m_cmndP1 << depth_args << "-a"
+                 << QDir::toNativeSeparators (m_config.writeable_data_dir ().absolutePath()) << m_path;
       } else {
-        if(m_mode=="WSPR-LF") {
-//          cmnd='"' + m_appDir + '"' + "/wspr_fsk8d " + degrade + t2 +" -a \"" +
-//            QDir::toNativeSeparators(m_config.writeable_data_dir ().absolutePath()) + "\" " +
-//              '"' + m_fnameWE + ".wav\"";
-        } else {
-          cmnd='"' + m_appDir + '"' + "/wsprd " + depth_string + " -a \"" +
-            QDir::toNativeSeparators(m_config.writeable_data_dir ().absolutePath()) + "\" " +
-              t2 + '"' + m_fnameWE + ".wav\"";
-        }
+        // if(m_mode=="WSPR-LF")
+        //   {
+        //     m_cmndP1 << degrade << t2 << "-a"
+        //              << QDir::toNativeSeparators (m_config.writeable_data_dir ().absolutePath())
+        //              << m_fnameWE + ".wav";
+        //   }
+        // else
+          {
+            m_cmndP1 << depth_args << "-a"
+                     << QDir::toNativeSeparators (m_config.writeable_data_dir ().absolutePath())
+                     << t2 << m_fnameWE + ".wav";
+          }
       }
-      QString t3=cmnd;
-      int i1=cmnd.indexOf("/wsprd ");
-      cmnd=t3.mid(0,i1+7) + t3.mid(i1+7);
+      // QString t3=cmnd;
+      // int i1=cmnd.indexOf("/wsprd ");
+      // cmnd=t3.mid(0,i1+7) + t3.mid(i1+7);
 
 //      if(m_mode=="WSPR-LF") cmnd=cmnd.replace("/wsprd ","/wspr_fsk8d "+degrade+t2);
       if (ui) ui->DecodeButton->setChecked (true);
-      m_cmndP1=QDir::toNativeSeparators(cmnd);
+      // m_cmndP1=QDir::toNativeSeparators(cmnd);
       p1Timer.start(1000);
       m_decoderBusy = true;
       statusUpdate ();
@@ -1547,7 +1560,14 @@ void MainWindow::dataSink(qint64 frames)
 
 void MainWindow::startP1()
 {
-  p1.start(m_cmndP1);
+  // if (m_mode=="WSPR-LF")
+  //   {
+  //     p1.start (QDir::toNativeSeparators (QDir {QApplication::applicationDirPath ()}.absoluteFilePath ("wspr_fsk8d")), m_cmndP1);
+  //   }
+  // else
+    {
+      p1.start (QDir::toNativeSeparators (QDir {QApplication::applicationDirPath ()}.absoluteFilePath ("wsprd")), m_cmndP1);
+    }
 }
 
 QString MainWindow::save_wave_file (QString const& name, short const * data, int samples,
@@ -2066,7 +2086,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       break;
     case Qt::Key_L:
       if(e->modifiers() & Qt::ControlModifier) {
-        lookup(true);
+        lookup();
         genStdMsgs(m_rpt);
         return;
       }
@@ -2184,7 +2204,13 @@ void MainWindow::statusChanged()
     if (!tmpGrid.size ()) tmpGrid="n/a"; // Not Available
     out << qSetRealNumberPrecision (12) << (m_freqNominal / 1.e6)
         << ";" << m_mode << ";" << m_hisCall << ";"
-        << ui->rptSpinBox->value() << ";" << m_modeTx << ";" << tmpGrid << endl;
+        << ui->rptSpinBox->value() << ";" << m_modeTx << ";" << tmpGrid
+#if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
+        << Qt::endl
+#else
+        << endl
+#endif
+      ;
     f.close();
   } else {
     if (m_splash && m_splash->isVisible ()) m_splash->hide ();
@@ -2851,7 +2877,13 @@ void MainWindow::decode()                                       //decode()
   if( m_dateTimeLastTX.isValid () ) {
     qint64 isecs_since_tx = m_dateTimeLastTX.secsTo(now);
     dec_data.params.lapcqonly= (isecs_since_tx > 300); 
-//    QTextStream(stdout) << "last tx " << isecs_since_tx << endl;
+//    QTextStream(stdout) << "last tx " << isecs_since_tx
+// #if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
+//     << Qt::endl
+// #else
+//     << endl
+// #endif
+//       ;
   } else { 
     m_dateTimeLastTX = now.addSecs(-900);
     dec_data.params.lapcqonly=true;
@@ -3240,7 +3272,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
       int audioFreq=decodedtext.frequencyOffset();
       if(m_mode=="FT8" or m_mode=="FT4") {
         auto const& parts = decodedtext.string().remove("<").remove(">")
-            .split (' ', QString::SkipEmptyParts);
+            .split (' ', SkipEmptyParts);
         if (parts.size() > 6) {
           auto for_us = parts[5].contains (m_baseCall)
             || ("DE" == parts[5] && qAbs (ui->RxFreqSpinBox->value () - audioFreq) <= 10);
@@ -3280,7 +3312,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
       if(m_mode=="FT8" and SpecOp::HOUND==m_config.special_op_id()) {
         if(decodedtext.string().contains(";")) {
-          QStringList w=decodedtext.string().mid(24).split(" ",QString::SkipEmptyParts);
+          QStringList w=decodedtext.string().mid(24).split(" ",SkipEmptyParts);
           QString foxCall=w.at(3);
           foxCall=foxCall.remove("<").remove(">");
           if(w.at(0)==m_config.my_callsign() or w.at(0)==Radio::base_callsign(m_config.my_callsign())) {
@@ -3296,7 +3328,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
             hound_reply ();
           }
         } else {
-          QStringList w=decodedtext.string().mid(24).split(" ",QString::SkipEmptyParts);
+          QStringList w=decodedtext.string().mid(24).split(" ",SkipEmptyParts);
           if(decodedtext.string().contains("/")) w.append(" +00");  //Add a dummy report
           if(w.size()>=3) {
             QString foxCall=w.at(1);
@@ -3384,7 +3416,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
                || message_words.contains ("DE")))
           || !message.isStandardMessage ()); // free text 73/RR73
 
-    QStringList w=message.string().mid(22).remove("<").remove(">").split(" ",QString::SkipEmptyParts);
+    QStringList w=message.string().mid(22).remove("<").remove(">").split(" ",SkipEmptyParts);
     QString w2;
     int nrpt=0;
     if (w.size () > 2)
@@ -3665,8 +3697,12 @@ void MainWindow::guiUpdate()
         else if (SpecOp::HOUND == m_config.special_op_id()) {
           if(m_auto && !m_tune) {
             if (ui->TxFreqSpinBox->value() < 999 && m_ntx != 3) {
-              int nf = (qrand() % 2000) + 1000;      // Hound randomized range: 1000-3000 Hz
-              ui->TxFreqSpinBox->setValue(nf);
+              // Hound randomized range: 1000-3000 Hz
+#if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
+              ui->TxFreqSpinBox->setValue (QRandomGenerator::global ()->bounded (1000, 2999));
+#else
+              ui->TxFreqSpinBox->setValue ((qrand () % 2000) + 1000);
+#endif
             }
           }
           if (m_nSentFoxRrpt==2 and m_ntx==3) {
@@ -3685,8 +3721,11 @@ void MainWindow::guiUpdate()
 // If HoldTxFreq is not checked, randomize Fox's Tx Freq
 // NB: Maybe this should be done no more than once every 5 minutes or so ?
       if(m_mode=="FT8" and SpecOp::FOX==m_config.special_op_id() and !ui->cbHoldTxFreq->isChecked()) {
-        int fTx = 300.0 + 300.0*double(qrand())/RAND_MAX;
-        ui->TxFreqSpinBox->setValue(fTx);
+#if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
+        ui->TxFreqSpinBox->setValue (QRandomGenerator::global ()->bounded (300, 599));
+#else
+        ui->TxFreqSpinBox->setValue(300.0 + 300.0*double(qrand())/RAND_MAX);
+#endif
       }
 
       setXIT (ui->TxFreqSpinBox->value ());
@@ -3858,7 +3897,7 @@ void MainWindow::guiUpdate()
 
           if(SpecOp::FIELD_DAY==m_config.special_op_id() or SpecOp::RTTY==m_config.special_op_id()) {
             if(m_ntx==2 or m_ntx==3) {
-              QStringList t=ui->tx2->text().split(' ', QString::SkipEmptyParts);
+              QStringList t=ui->tx2->text().split(' ', SkipEmptyParts);
               int n=t.size();
               m_xSent=t.at(n-2) + " " + t.at(n-1);
             }
@@ -3893,7 +3932,7 @@ void MainWindow::guiUpdate()
 
     auto t2 = QDateTime::currentDateTimeUtc ().toString ("hhmm");
     icw[0] = 0;
-    auto msg_parts = m_currentMessage.split (' ', QString::SkipEmptyParts);
+    auto msg_parts = m_currentMessage.split (' ', SkipEmptyParts);
     if (msg_parts.size () > 2) {
       // clean up short code forms
       msg_parts[0].remove (QChar {'<'});
@@ -3904,7 +3943,7 @@ void MainWindow::guiUpdate()
     auto is_73 = m_QSOProgress >= ROGER_REPORT
       && message_is_73 (m_currentMessageType, msg_parts);
     m_sentFirst73 = is_73
-      && !message_is_73 (m_lastMessageType, m_lastMessageSent.split (' ', QString::SkipEmptyParts));
+      && !message_is_73 (m_lastMessageType, m_lastMessageSent.split (' ', SkipEmptyParts));
     if (m_sentFirst73) {
       m_qsoStop=t2;
       if(m_config.id_after_73 ()) {
@@ -4472,7 +4511,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   auto ctrl = modifiers.testFlag (Qt::ControlModifier);
   // auto alt = modifiers.testFlag (Qt::AltModifier);
   // basic mode sanity checks
-  auto const& parts = message.string ().split (' ', QString::SkipEmptyParts);
+  auto const& parts = message.string ().split (' ', SkipEmptyParts);
   if (parts.size () < 5) return;
   auto const& mode = parts.at (4).left (1);
   if (("JT9+JT65" == m_mode && !("@" == mode || "#" == mode))
@@ -4530,7 +4569,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     ui->dxCallEntry->setText(hiscall);
   }
 
-  QStringList w=message.string().mid(22).remove("<").remove(">").split(" ",QString::SkipEmptyParts);
+  QStringList w=message.string().mid(22).remove("<").remove(">").split(" ",SkipEmptyParts);
   int nw=w.size();
   if(nw>=4) {
     if(message_words.size()<3) return;
@@ -4622,7 +4661,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       MessageBox::information_message (this, msg);
     }
 
-    QStringList t=message.string().split(' ', QString::SkipEmptyParts);
+    QStringList t=message.string().split(' ', SkipEmptyParts);
     int n=t.size();
     QString t0=t.at(n-2);
     QString t1=t0.right(1);
@@ -4916,7 +4955,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   if (hisgrid.contains (grid_regexp)) {
     if(ui->dxGridEntry->text().mid(0,4) != hisgrid) ui->dxGridEntry->setText(hisgrid);
   }
-  lookup(false);
+  lookup();
   m_hisGrid = ui->dxGridEntry->text();
 
   QString rpt = message.report();
@@ -5324,7 +5363,7 @@ void MainWindow::clearDX ()
   m_QSOProgress = CALLING;
 }
 
-void MainWindow::lookup(bool lookupButtonClicked)
+void MainWindow::lookup()
 {
   QString hisCall {ui->dxCallEntry->text()};
   QString hisgrid0 {ui->dxGridEntry->text()};
@@ -5337,10 +5376,6 @@ void MainWindow::lookup(bool lookupButtonClicked)
       for(int i=0; i<999999; i++) {
         n=f.readLine(c,sizeof(c));
         if(n <= 0) {
-          if(lookupButtonClicked) {
-            QString msg=hisCall + tr(" not found in CALL3.TXT");
-            MessageBox::information_message (this, msg);
-          }
           if(!hisgrid0.contains(grid_regexp)) {
             ui->dxGridEntry->clear();
           }
@@ -5368,7 +5403,7 @@ void MainWindow::lookup(bool lookupButtonClicked)
 
 void MainWindow::on_lookupButton_clicked()                    //Lookup button
 {
-  lookup(true);
+  lookup();
 }
 
 void MainWindow::on_addButton_clicked()                       //Add button
@@ -5400,7 +5435,13 @@ void MainWindow::on_addButton_clicked()                       //Add button
   }
   if(f1.size()==0) {
     QTextStream out(&f1);
-    out << "ZZZZZZ" << endl;
+    out << "ZZZZZZ"
+#if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
+        << Qt::endl
+#else
+        << endl
+#endif
+      ;
     f1.close();
     f1.open(QIODevice::ReadOnly | QIODevice::Text);
   }
@@ -5547,6 +5588,7 @@ void MainWindow::on_tx6_editingFinished()                       //tx6 edited
 void MainWindow::on_dxCallEntry_textChanged (QString const& call)
 {
   m_hisCall = call;
+  ui->dxGridEntry->clear();
   statusChanged();
   statusUpdate ();
 }
@@ -6978,7 +7020,13 @@ void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const&
                 QTextStream out(&f2);
                 out << QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm")
                     << "  " << qSetRealNumberPrecision (12) << (m_freqNominal / 1.e6) << " MHz  "
-                    << m_mode << endl;
+                    << m_mode
+#if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
+                    << Qt::endl
+#else
+                    << endl
+#endif
+                    ;
                 f2.close();
               } else {
                 MessageBox::warning_message (this, tr ("File Error")
@@ -7556,7 +7604,7 @@ void MainWindow::replayDecodes ()
                                                               // appended info
       if (message.size() >= 4 && message.left (4) != "----")
         {
-          auto const& parts = message.split (' ', QString::SkipEmptyParts);
+          auto const& parts = message.split (' ', SkipEmptyParts);
           if (parts.size () >= 5 && parts[3].contains ('.')) // WSPR
             {
               postWSPRDecode (false, parts);
@@ -7574,7 +7622,7 @@ void MainWindow::replayDecodes ()
 void MainWindow::postDecode (bool is_new, QString const& message)
 {
   auto const& decode = message.trimmed ();
-  auto const& parts = decode.left (22).split (' ', QString::SkipEmptyParts);
+  auto const& parts = decode.left (22).split (' ', SkipEmptyParts);
   if (parts.size () >= 5)
     {
       auto has_seconds = parts[0].size () > 4;
@@ -7647,9 +7695,11 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
       ui->DecodeButton->setChecked (false);
       if(m_uploadSpots
          && m_config.is_transceiver_online ()) { // need working rig control
-        float x=qrand()/((double)RAND_MAX + 1.0);
-        int msdelay=20000*x;
-        uploadTimer.start(msdelay);                         //Upload delay
+#if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
+        uploadTimer.start(QRandomGenerator::global ()->bounded (0, 20000)); // Upload delay
+#else
+        uploadTimer.start(20000 * qrand()/((double)RAND_MAX + 1.0)); // Upload delay
+#endif
       } else {
         QFile f(QDir::toNativeSeparators(m_config.writeable_data_dir ().absolutePath()) + "/wspr_spots.txt");
         if(f.exists()) f.remove();
@@ -7749,7 +7799,13 @@ void MainWindow::WSPR_history(Frequency dialFreq, int ndecodes)
   QFile f {m_config.writeable_data_dir ().absoluteFilePath ("WSPR_history.txt")};
   if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
     QTextStream out(&f);
-    out << t1 << endl;
+    out << t1
+#if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
+        << Qt::endl
+#else
+        << endl
+#endif
+      ;
     f.close();
   } else {
     MessageBox::warning_message (this, tr ("File Error")
@@ -7839,18 +7895,22 @@ void MainWindow::WSPR_scheduling ()
     if (hop_data.frequencies_index_ >= 0) { // new band
       ui->bandComboBox->setCurrentIndex (hop_data.frequencies_index_);
       on_bandComboBox_activated (hop_data.frequencies_index_);
-      m_cmnd.clear ();
       QStringList prefixes {".bat", ".cmd", ".exe", ""};
+      QString target;
       for (auto const& prefix : prefixes)
         {
-          auto const& path = m_appDir + "/user_hardware" + prefix;
-          QFile f {path};
-          if (f.exists ()) {
-            m_cmnd = QDir::toNativeSeparators (f.fileName ()) + ' ' +
-              m_config.bands ()->find (m_freqNominal).remove ('m');
+          target = QDir {m_appDir}.absoluteFilePath (QLatin1String {"user_hardware"});
+          QFileInfo f {target + prefix};
+          if (f.isExecutable ()) {
+            break;
           }
         }
-      if(m_cmnd!="") p3.start(m_cmnd);     // Execute user's hardware controller
+      if (target.size ())
+        {
+          // Execute user's hardware controller
+          p3.start(QDir::toNativeSeparators (target)
+                   , QStringList {m_config.bands ()->find (m_freqNominal).remove ('m')});
+        }
 
       // Produce a short tuneup signal
       m_tuneup = false;
@@ -8176,7 +8236,13 @@ void MainWindow::write_transmit_entry (QString const& file_name)
       out << time.toString("yyMMdd_hhmmss")
           << "  Transmitting " << qSetRealNumberPrecision (12) << (m_freqNominal / 1.e6)
           << " MHz  " << m_modeTx
-          << ":  " << m_currentMessage << endl;
+          << ":  " << m_currentMessage
+#if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
+          << Qt::endl
+#else
+          << endl
+#endif
+        ;
       f.close();
     }
   else
@@ -8264,7 +8330,7 @@ QString MainWindow::sortHoundCalls(QString t, int isort, int max_dB)
   QString msg,houndCall,t1;
   QString ABC{"ABCDEFGHIJKLMNOPQRSTUVWXYZ _"};
   QList<int> list;
-  int i,j,k,m,n,nlines;
+  int i,j,k,n,nlines;
   bool bReverse=(isort >= 3);
 
   isort=qAbs(isort);
@@ -8281,20 +8347,20 @@ QString MainWindow::sortHoundCalls(QString t, int isort, int max_dB)
   j=0;
   t="";
   for(auto a: map.keys()) {
-    t1=map[a].split(" ",QString::SkipEmptyParts).at(2);
+    t1=map[a].split(" ",SkipEmptyParts).at(2);
     int nsnr=t1.toInt();                         // get snr
     if(nsnr <= max_dB) {                         // keep only if snr in specified range
       if(isort==1) t += map[a] + "\n";
       if(isort==3 or isort==4) {
         i=2;                                           // sort Hound calls by snr
         if(isort==4) i=4;                              // sort Hound calls by distance
-        t1=map[a].split(" ",QString::SkipEmptyParts).at(i);
+        t1=map[a].split(" ",SkipEmptyParts).at(i);
         n=1000*(t1.toInt()+100) + j;                   // pack (snr or dist) and index j into n
         list.insert(j,n);                              // add n to list at [j]
       }
 
       if(isort==2) {                                   // sort Hound calls by grid
-        t1=map[a].split(" ",QString::SkipEmptyParts).at(1);
+        t1=map[a].split(" ",SkipEmptyParts).at(1);
         if(t1=="....") t1="ZZ99";
         int i1=ABC.indexOf(t1.mid(0,1));
         int i2=ABC.indexOf(t1.mid(1,1));
@@ -8331,11 +8397,13 @@ QString MainWindow::sortHoundCalls(QString t, int isort, int max_dB)
       a[i]=i;
     }
     for(i=nn-1; i>-1; i--) {
+#if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
+      j = (i + 1) * QRandomGenerator::global ()->generateDouble ();
+#else
       j=(i+1)*double(qrand())/RAND_MAX;
-      m=a[j];
-      a[j]=a[i];
-      a[i]=m;
-      t += lines2.at(m) + "\n";
+#endif
+      std::swap (a[j], a[i]);
+      t += lines2.at(a[i]) + "\n";
     }
   }
 
@@ -8359,13 +8427,13 @@ void MainWindow::selectHound(QString line)
 */
 
   if(line.length()==0) return;
-  QString houndCall=line.split(" ",QString::SkipEmptyParts).at(0);
+  QString houndCall=line.split(" ",SkipEmptyParts).at(0);
 
 // Don't add a call already enqueued or in QSO
   if(ui->textBrowser4->toPlainText().indexOf(houndCall) >= 0) return;
 
-  QString houndGrid=line.split(" ",QString::SkipEmptyParts).at(1);  // Hound caller's grid
-  QString rpt=line.split(" ",QString::SkipEmptyParts).at(2);        // Hound SNR
+  QString houndGrid=line.split(" ",SkipEmptyParts).at(1);  // Hound caller's grid
+  QString rpt=line.split(" ",SkipEmptyParts).at(2);        // Hound SNR
 
   m_houndCallers=m_houndCallers.remove(line+"\n");      // Remove t from sorted Hound list
   m_nSortedHounds--;
@@ -8729,9 +8797,20 @@ void MainWindow::writeFoxQSO(QString const& msg)
   QFile f {m_config.writeable_data_dir ().absoluteFilePath ("FoxQSO.txt")};
   if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
     QTextStream out(&f);
-    out << QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm:ss")
-        << "  " << fixed << qSetRealNumberPrecision (3) << (m_freqNominal/1.e6)
-        << t << msg << endl;
+    out << QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm:ss") << "  "
+#if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
+        << Qt::fixed
+#else
+        << fixed
+#endif
+        << qSetRealNumberPrecision (3) << (m_freqNominal/1.e6)
+        << t << msg
+#if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
+        << Qt::endl
+#else
+        << endl
+#endif
+      ;
     f.close();
   } else {
     MessageBox::warning_message (this, tr("File Open Error"),
@@ -8858,7 +8937,13 @@ void MainWindow::write_all(QString txRx, QString message)
   QFile f{m_config.writeable_data_dir().absoluteFilePath(file_name)};
   if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
     QTextStream out(&f);
-    out << line << endl;
+    out << line
+#if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
+        << Qt::endl
+#else
+        << endl
+#endif
+      ;
     f.close();
   } else {
     auto const& message2 = tr ("Cannot open \"%1\" for append: %2")

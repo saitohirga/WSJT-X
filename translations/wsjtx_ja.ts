@@ -891,12 +891,12 @@ Format:
     <message>
         <location filename="../SampleDownloader/Directory.cpp" line="51"/>
         <source>File</source>
-        <translation>ファイル</translation>
+        <translation type="unfinished">ファイル</translation>
     </message>
     <message>
         <location filename="../SampleDownloader/Directory.cpp" line="51"/>
         <source>Progress</source>
-        <translation>進捗</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../SampleDownloader/Directory.cpp" line="113"/>
@@ -1078,10 +1078,6 @@ Error: %2 - %3</source>
         <location filename="../EqualizationToolsDialog.cpp" line="348"/>
         <source>Freq (Hz)</source>
         <translation>周波数(Hz)</translation>
-    </message>
-    <message>
-        <source>Phase (Î )</source>
-        <translation type="vanished">位相 (Î )</translation>
     </message>
     <message>
         <location filename="../EqualizationToolsDialog.cpp" line="309"/>
@@ -2179,7 +2175,7 @@ Yellow when too low</source>
     <message>
         <location filename="../widgets/mainwindow.ui" line="904"/>
         <source> Pwr</source>
-        <translation> 電力</translation>
+        <translation> 出力</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="914"/>
@@ -2259,6 +2255,11 @@ Yellow when too low</source>
         <translation>送信周波数を受信周波数へコピー</translation>
     </message>
     <message>
+        <location filename="../widgets/mainwindow.ui" line="1139"/>
+        <source>▲</source>
+        <translation></translation>
+    </message>
+    <message>
         <location filename="../widgets/mainwindow.ui" line="1146"/>
         <source>Frequency tolerance (Hz)</source>
         <translation>許容周波数(Hz)</translation>
@@ -2272,11 +2273,6 @@ Yellow when too low</source>
         <location filename="../widgets/mainwindow.ui" line="1186"/>
         <source>Set Rx frequency to Tx Frequency</source>
         <translation>受信周波数を送信周波数へコピー</translation>
-    </message>
-    <message>
-        <location filename="../widgets/mainwindow.ui" line="1139"/>
-        <source>▲</source>
-        <translation></translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1189"/>
@@ -2414,7 +2410,7 @@ Not available to nonstandard callsign holders.</source>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1349"/>
         <source>Rx All Freqs</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1358"/>
@@ -2973,12 +2969,12 @@ ENTERを押してテキストを登録リストに追加.
     <message>
         <location filename="../widgets/mainwindow.ui" line="2342"/>
         <source>N List     </source>
-        <translation>Nリスト     </translation>
+        <translation>リスト数     </translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="2373"/>
         <source>N Slots    </source>
-        <translation>Nスロット    </translation>
+        <translation>スロット数    </translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="2404"/>
@@ -3004,8 +3000,8 @@ ENTERを押してテキストを登録リストに追加.
     <message>
         <location filename="../widgets/mainwindow.ui" line="2452"/>
         <source>More CQs</source>
-        <translatorcomment>これは何？</translatorcomment>
-        <translation type="unfinished"></translation>
+        <translatorcomment>これは何？チェックすると5回の送信に1回CQを出す</translatorcomment>
+        <translation></translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="2577"/>
@@ -4030,7 +4026,7 @@ UDPサーバー %2:%3</translation>
     <message>
         <location filename="../widgets/messageaveraging.ui" line="29"/>
         <source>   UTC  Sync    DT  Freq   </source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -4172,6 +4168,7 @@ UDPサーバー %2:%3</translation>
 <context>
     <name>QObject</name>
     <message>
+        <location filename="../main.cpp" line="340"/>
         <source>Invalid rig name - \ &amp; / not allowed</source>
         <translation type="vanished">無効な名前 － \ &amp; / は使えません</translation>
     </message>
@@ -4336,7 +4333,7 @@ Error(%2): %3</source>
     <message>
         <location filename="../SampleDownloader.cpp" line="114"/>
         <source>Check this is you get SSL/TLS errors</source>
-        <translation type="unfinished"></translation>
+        <translation>チェックするとSSL/TLSエラーを表示</translation>
     </message>
     <message>
         <location filename="../SampleDownloader.cpp" line="132"/>
@@ -4615,7 +4612,7 @@ Error(%2): %3</source>
         <location filename="../widgets/widegraph.ui" line="247"/>
         <source>Ref Spec</source>
         <translatorcomment>日本語難しい</translatorcomment>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../widgets/widegraph.ui" line="259"/>
@@ -4899,7 +4896,7 @@ Error(%2): %3</source>
     <message>
         <location filename="../Configuration.ui" line="301"/>
         <source>Behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>振る舞い</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="307"/>
@@ -5328,7 +5325,7 @@ or bandwidth is selected).</source>
     <message>
         <location filename="../Configuration.ui" line="1083"/>
         <source>If this is available then it is usually the correct mode for this program.</source>
-        <translation type="unfinished"></translation>
+        <translation>これが使えるときは正しいモード.</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1086"/>
@@ -6214,92 +6211,114 @@ Right click for insert and delete options.</source>
     <name>main</name>
     <message>
         <location filename="../main.cpp" line="83"/>
-        <location filename="../main.cpp" line="408"/>
+        <location filename="../main.cpp" line="563"/>
         <source>Fatal error</source>
         <translation>致命的エラー</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="88"/>
-        <location filename="../main.cpp" line="413"/>
+        <location filename="../main.cpp" line="568"/>
         <source>Unexpected fatal error</source>
         <translation>予期せぬ致命的エラー</translation>
     </message>
     <message>
+        <location filename="../main.cpp" line="194"/>
         <source>Where &lt;rig-name&gt; is for multi-instance support.</source>
         <translation type="vanished">ここで&lt;rig-name&gt;は複数インスタンスのサポート.</translation>
     </message>
     <message>
+        <location filename="../main.cpp" line="195"/>
+        <source>rig-name</source>
+        <translation>無線機名</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="200"/>
         <source>Where &lt;configuration&gt; is an existing one.</source>
         <translation type="vanished">ここで&lt;configuration&gt;はすでに設定済みのもの.</translation>
     </message>
     <message>
-        <source>Where &lt;language&gt; is &lt;lang-code&gt;[-&lt;country-code&gt;].</source>
-        <translation type="vanished">ここで&lt;language&gt;は&lt;lang-code&gt;[-&lt;country-code&gt;].</translation>
+        <location filename="../main.cpp" line="201"/>
+        <source>configuration</source>
+        <translation>コンフィグレーション</translation>
     </message>
     <message>
+        <location filename="../main.cpp" line="206"/>
+        <source>Where &lt;language&gt; is &lt;lang-code&gt;[-&lt;country-code&gt;].</source>
+        <translation>ここで &lt;language&gt; は &lt;lang-code&gt;[-&lt;country-code&gt;].</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="207"/>
+        <source>language</source>
+        <translation>言語</translation>
+    </message>
+    <message>
+        <location filename="../main.cpp" line="211"/>
         <source>Writable files in test location.  Use with caution, for testing only.</source>
         <translation type="vanished">テスト用書き込み可能ファイル. 注意してテストだけに使うこと.</translation>
     </message>
     <message>
+        <location filename="../main.cpp" line="216"/>
         <source>Command line error</source>
         <translation type="vanished">コマンドラインエラー</translation>
     </message>
     <message>
+        <location filename="../main.cpp" line="223"/>
         <source>Command line help</source>
         <translation type="vanished">コマンドラインヘルプ</translation>
     </message>
     <message>
+        <location filename="../main.cpp" line="228"/>
         <source>Application version</source>
         <translation type="vanished">アプリのバージョン</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="223"/>
+        <location filename="../main.cpp" line="371"/>
         <source>Another instance may be running</source>
         <translation>おそらく他のインスタンスが動作中</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="224"/>
+        <location filename="../main.cpp" line="372"/>
         <source>try to remove stale lock file?</source>
         <translation>古いロックファイルの削除を試みますか?</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="259"/>
+        <location filename="../main.cpp" line="414"/>
         <source>Failed to create a temporary directory</source>
         <translation>一時的作業ディレクトリーが作成できません</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="260"/>
-        <location filename="../main.cpp" line="268"/>
+        <location filename="../main.cpp" line="415"/>
+        <location filename="../main.cpp" line="423"/>
         <source>Path: &quot;%1&quot;</source>
         <translation>パス:&quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="266"/>
+        <location filename="../main.cpp" line="421"/>
         <source>Failed to create a usable temporary directory</source>
         <translation>一時的作業ディレクトリが作成できません</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="267"/>
+        <location filename="../main.cpp" line="422"/>
         <source>Another application may be locking the directory</source>
         <translation>おそらく他のアプリがディレクトリをロックしています</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="300"/>
+        <location filename="../main.cpp" line="455"/>
         <source>Failed to create data directory</source>
         <translation>データ用ディレクトリの作成ができません</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="301"/>
+        <location filename="../main.cpp" line="456"/>
         <source>path: &quot;%1&quot;</source>
         <translation>パス: &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="356"/>
+        <location filename="../main.cpp" line="511"/>
         <source>Shared memory error</source>
         <translation>共有メモリエラー</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="357"/>
+        <location filename="../main.cpp" line="512"/>
         <source>Unable to create shared memory segment</source>
         <translation>共有メモリセグメントが作成できません</translation>
     </message>
