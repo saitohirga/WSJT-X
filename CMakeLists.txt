@@ -302,7 +302,7 @@ set (jt9_FSRCS
 
 set (wsjtx_CXXSRCS
   logbook/logbook.cpp
-  Network/psk_reporter.cpp
+  Network/PSK_Reporter.cpp
   Modulator/Modulator.cpp
   Detector/Detector.cpp
   widgets/logqso.cpp
