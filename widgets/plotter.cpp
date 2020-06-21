@@ -330,7 +330,6 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
 
   double df = m_binsPerPixel*m_fftBinWidth;
   QPen penOrange(QColor(255,165,0),3);
-//  QPen penGreen(Qt::green, 3);                 //Mark Tol range with green line
   QPen penGreen(QColor(15,153,105), 3);        //Mark Tol range or BW with dark green line
   QPen penRed(Qt::red, 3);                     //Mark Tx freq with red
   QPainter painter(&m_OverlayPixmap);
@@ -532,6 +531,11 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
       painter0.drawLine(x1,yRxBottom-yh,x1,yRxBottom);
       painter0.drawLine(x1,yRxBottom,x2,yRxBottom);
       painter0.drawLine(x2,yRxBottom-yh,x2,yRxBottom);
+      if(m_mode=="FST280") {
+        x1=XfromFreq(m_rxFreq-m_tol);
+        x2=XfromFreq(m_rxFreq+m_tol);
+        painter0.drawLine(x1,29,x2,29);   // Mark the Tol range
+      }
 
     }
   }
