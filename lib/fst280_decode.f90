@@ -264,7 +264,7 @@ contains
          ns5=count(hbits(313:320).eq.(/0,0,0,1,1,0,1,1/))
          ns6=count(hbits(321:328).eq.(/0,1,0,0,1,1,1,0/))
          nsync_qual=ns1+ns2+ns3+ns4+ns5+ns6
-         if(nsync_qual.lt. 30) cycle                   !### Value ?? ###
+         if(nsync_qual.lt. 28) cycle                   !### Value ?? ###
 
          scalefac=2.83
          llra(  1:140)=bitmetrics( 17:156, 1)
@@ -482,7 +482,7 @@ contains
    call pctile(s2(ia:ib),ib-ia+1,30,base)
    s2=s2/base
    
-   thresh=1.4
+   thresh=1.30
  
    ncand=0
    candidates=0
