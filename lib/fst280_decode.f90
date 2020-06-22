@@ -146,7 +146,7 @@ contains
    fc28=0.
    do icand=1,ncand
       fc0=candidates(icand,1)
-      xsnr=candidates(icand,2)
+      detmet=candidates(icand,2)
 
 ! Downconvert and downsample a slice of the spectrum centered on the
 ! rough estimate of the candidates frequency.
@@ -161,16 +161,16 @@ contains
             fc1=0.0
             is0=nint(fs2)
             ishw=is0
-            isst=4
-            ifhw=10
-            df=.1*8400/nsps
+            isst=4*hmod
+            ifhw=12
+            df=.1*baud
          else if(isync.eq.1) then
             fc1=fc28
             is0=isbest8
-            ishw=4
-            isst=1
-            ifhw=10
-            df=.02*8400/nsps
+            ishw=4*hmod
+            isst=1*hmod
+            ifhw=7
+            df=.02*baud
          endif
 
          smax1=0.0
@@ -211,7 +211,6 @@ contains
       candidates(icand,3)=fc_synced
       candidates(icand,4)=isbest
    enddo 
-
 ! remove duplicate candidates
    do icand=1,ncand
       fc=candidates(icand,3)
@@ -264,8 +263,7 @@ contains
          ns5=count(hbits(313:320).eq.(/0,0,0,1,1,0,1,1/))
          ns6=count(hbits(321:328).eq.(/0,1,0,0,1,1,1,0/))
          nsync_qual=ns1+ns2+ns3+ns4+ns5+ns6
-         if(nsync_qual.lt. 28) cycle                   !### Value ?? ###
-
+         if(nsync_qual.lt. 26) cycle                   !### Value ?? ###
          scalefac=2.83
          llra(  1:140)=bitmetrics( 17:156, 1)
          llra(141:280)=bitmetrics(173:312, 1)
@@ -481,7 +479,6 @@ contains
    enddo
    call pctile(s2(ia:ib),ib-ia+1,30,base)
    s2=s2/base
-   
    thresh=1.30
  
    ncand=0
@@ -494,11 +491,7 @@ contains
            (s2(i).gt.thresh).and.ncand.lt.100) then
          ncand=ncand+1
          candidates(ncand,1)=df2*i
-         x=s2(i)-1
-         snr=-99
-! temporary placeholder until we implement subtraction...
-         if(x.gt.0) snr=10*log10(x)-10*log10(2500.0*nsps/12000.0)+6.0
-         candidates(ncand,2)=snr
+         candidates(ncand,2)=s2(i)
       endif
    enddo
 
