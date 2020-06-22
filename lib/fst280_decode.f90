@@ -44,6 +44,8 @@ contains
    real llr(280),llra(280),llrb(280),llrc(280),llrd(280)
    real candidates(100,4)
    real bitmetrics(328,4)
+   real s4(0:3,NN)
+   integer itone(NN)
    integer hmod
    integer*1 apmask(280),cw(280)
    integer*1 hbits(328)
@@ -133,7 +135,7 @@ contains
 
 ! Get first approximation of candidate frequencies
    call get_candidates_fst280(c_bigfft,nfft1,nsps,hmod,fs,fa,fb,     &
-        ncand,candidates)
+        ncand,candidates,base)
 
    ndecodes=0
    decodes=' '
@@ -249,10 +251,8 @@ contains
          is0=isbest+ioffset
          if(is0.lt.0) cycle
          cframe=c2(is0:is0+164*nss-1)
-         s2=sum(cframe*conjg(cframe))
-         cframe=cframe/sqrt(s2)
          bitmetrics=0
-         call get_fst280_bitmetrics(cframe,nss,hmod,ntmax,bitmetrics,badsync)
+         call get_fst280_bitmetrics(cframe,nss,hmod,ntmax,bitmetrics,s4,badsync)
          if(badsync) cycle
 
          hbits=0
@@ -264,7 +264,7 @@ contains
          ns5=count(hbits(313:320).eq.(/0,0,0,1,1,0,1,1/))
          ns6=count(hbits(321:328).eq.(/0,1,0,0,1,1,1,0/))
          nsync_qual=ns1+ns2+ns3+ns4+ns5+ns6
-         if(nsync_qual.lt. 30) cycle                   !### Value ?? ###
+         if(nsync_qual.lt. 28) cycle                   !### Value ?? ###
 
          scalefac=2.83
          llra(  1:140)=bitmetrics( 17:156, 1)
@@ -319,6 +319,20 @@ contains
                   if(idupe.eq.1) exit
                   ndecodes=ndecodes+1
                   decodes(ndecodes)=msg
+                  if(iwspr.eq.0) then
+                     call get_fst280_tones_from_bits(message101,itone,iwspr)
+                     xsig=0
+                     do i=1,NN
+                        xsig=xsig+s4(itone(i),i)**2
+                     enddo
+                     arg=400.0*(xsig/base)-1.0
+                     if(arg.gt.0.0) then
+                        xsnr=10*log10(arg)-21.0-11.7*log10(nsps/800.0)
+                     else
+                        xsnr=-99.9
+                     endif
+!write(*,*) xsig,base,arg,xsnr
+                  endif
                   nsnr=nint(xsnr)
                   iaptype=0
                   qual=0.
@@ -433,7 +447,7 @@ contains
  end subroutine fst280_downsample
 
  subroutine get_candidates_fst280(c_bigfft,nfft1,nsps,hmod,fs,fa,fb,   &
-      ncand,candidates)
+      ncand,candidates,base)
 
    complex c_bigfft(0:nfft1/2)
    integer hmod
@@ -468,7 +482,7 @@ contains
    call pctile(s2(ia:ib),ib-ia+1,30,base)
    s2=s2/base
    
-   thresh=1.4
+   thresh=1.30
  
    ncand=0
    candidates=0

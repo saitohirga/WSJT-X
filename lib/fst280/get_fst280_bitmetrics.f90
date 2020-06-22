@@ -1,4 +1,4 @@
-subroutine get_fst280_bitmetrics(cd,nss,hmod,nmax,bitmetrics,badsync)
+subroutine get_fst280_bitmetrics(cd,nss,hmod,nmax,bitmetrics,s4,badsync)
 
    include 'fst280_params.f90'
    complex cd(0:NN*nss-1)
