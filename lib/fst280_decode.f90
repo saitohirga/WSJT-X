@@ -464,20 +464,31 @@ contains
    df2=baud/2.0
    nd=df2/df1
    ndh=nd/2
-   ia=fa/df2
-   ib=fb/df2
+   ia=nint(max(100.0,fa)/df2)
+   ib=nint(min(4800.0,fb)/df2)
+   signal_bw=4*(12000.0/nsps)*hmod
+   analysis_bw=min(4800.0,fb)-max(100.0,fa)
+   noise_bw=10.0*signal_bw
+   if(analysis_bw.gt.noise_bw) then
+      ina=ia
+      inb=ib
+   else
+      fcenter=(fa+fb)/2.0
+      ina=nint(max(100.0,fcenter-noise_bw/2.)/df2)
+      inb=nint(min(4800.0,fcenter+noise_bw/2.)/df2)
+   endif
    s=0.
-   do i=ia,ib
+   do i=ina,inb   ! noise analysis window includes signal analysis window
       j0=nint(i*df2/df1)
       do j=j0-ndh,j0+ndh
          s(i)=s(i) + real(c_bigfft(j))**2 + aimag(c_bigfft(j))**2
       enddo
    enddo
    nh=hmod
-   do i=ia,ib
+   do i=ina,inb
       s2(i)=s(i-nh*3) + s(i-nh) +s(i+nh) +s(i+nh*3)
    enddo
-   call pctile(s2(ia:ib),ib-ia+1,30,base)
+   call pctile(s2(ina:inb),ib-ia+1,30,base)
    s2=s2/base
    thresh=1.30
  
