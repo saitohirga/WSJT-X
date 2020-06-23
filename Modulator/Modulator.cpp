@@ -69,8 +69,13 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
   m_bFastMode=fastMode;
   m_TRperiod=TRperiod;
   unsigned delay_ms=1000;
-  if(m_nsps==1920) delay_ms=500;   //FT8
-  if(m_nsps==576)  delay_ms=300;   //FT4
+  if(m_nsps==1920)  delay_ms=500;   //FT8
+  if(m_nsps==576)   delay_ms=300;   //FT4
+  if(m_nsps==800)   delay_ms=750;   //FST280-15
+  if(m_nsps==1680)  delay_ms=650;   //FST280-30
+  if(m_nsps==4000)  delay_ms=450;   //FST280-60
+  if(m_nsps==8400)  delay_ms=250;   //FST280-120
+  if(m_nsps==21504) delay_ms=50;     //FST280-300
 
 // noise generator parameters
   if (m_addNoise) {
@@ -79,22 +84,22 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
     if (m_snr > 1.0) m_fac = 3000.0 / m_snr;
   }
 
+  m_ic=0;
 // round up to an exact portion of a second that allows for startup delays
-  m_ic = (mstr / delay_ms) * m_frameRate * delay_ms / 1000;
-
-  if(m_bFastMode) m_ic=0;
+  if(delay_ms > 0 and !m_bFastMode) {
+    m_ic = (mstr/delay_ms) * m_frameRate * delay_ms / 1000;
+  }
+  if(m_nsps==21504) m_ic=int(0.8*48000);     //FST280-300
 
   m_silentFrames = 0;
 // calculate number of silent frames to send, so that audio will start at
 // the nominal time "delay_ms" into the Tx sequence.
   if (synchronize && !m_tuning && !m_bFastMode)	{
-    m_silentFrames = m_ic + m_frameRate / (1000 / delay_ms) - (mstr * (m_frameRate / 1000));
+    if(delay_ms >= mstr) m_silentFrames = m_ic + 0.001*(delay_ms-mstr)*m_frameRate;
   }
 
 //  qDebug() << "aa" << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz")
-//           << m_ic << m_silentFrames << m_silentFrames/48000.0
-//           << mstr << fmod(double(ms0),1000.0*m_period);
-
+//           << delay_ms << mstr << m_silentFrames << m_ic;
 
   initialize (QIODevice::ReadOnly, channel);
   Q_EMIT stateChanged ((m_state = (synchronize && m_silentFrames) ?
@@ -152,7 +157,8 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
   qint16 * end (samples + numFrames * (bytesPerFrame () / sizeof (qint16)));
   qint64 framesGenerated (0);
 
-//  if(m_ic==0) qDebug() << "Modulator::readData" << 0.001*(QDateTime::currentMSecsSinceEpoch() % (1000*m_TRperiod));
+//  if(m_ic==0) qDebug() << "aa" << 0.001*(QDateTime::currentMSecsSinceEpoch() % qint64(1000*m_TRperiod))
+//                       << m_state << m_TRperiod << m_silentFrames << m_ic << foxcom_.wave[m_ic];
 
   switch (m_state)
     {
