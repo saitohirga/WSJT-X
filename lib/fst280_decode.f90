@@ -60,7 +60,6 @@ contains
    iwspr=0
    nmax=15*12000
    single_decode=iand(nexp_decode,32).eq.32
-
    if(ntrperiod.eq.15) then
       nsps=800
       nmax=15*12000
@@ -236,10 +235,9 @@ contains
       endif
    enddo
    ncand=ic
-
    do icand=1,ncand
       fc_synced=candidates(icand,3)
-      isbest=nint(candidates(icand,4))       
+      isbest=nint(candidates(icand,4))     
       xdt=(isbest-nspsec)/fs2
       call fst280_downsample(c_bigfft,nfft1,ndown,fc_synced,c2)
 
@@ -474,8 +472,10 @@ contains
       inb=ib
    else
       fcenter=(fa+fb)/2.0
-      ina=nint(max(100.0,fcenter-noise_bw/2.)/df2)
-      inb=nint(min(4800.0,fcenter+noise_bw/2.)/df2)
+      fl = max(100.0,fcenter-noise_bw/2.)/df2
+      fh = min(4800.0,fcenter+noise_bw/2.)/df2
+      ina=nint(fl)
+      inb=nint(fh)
    endif
    s=0.
    do i=ina,inb   ! noise analysis window includes signal analysis window
@@ -484,14 +484,13 @@ contains
          s(i)=s(i) + real(c_bigfft(j))**2 + aimag(c_bigfft(j))**2
       enddo
    enddo
-   nh=hmod
    do i=ina,inb
-      s2(i)=s(i-nh*3) + s(i-nh) +s(i+nh) +s(i+nh*3)
+      s2(i)=s(i-hmod*3) + s(i-hmod) +s(i+hmod) +s(i+hmod*3)
    enddo
-   call pctile(s2(ina:inb),ib-ia+1,30,base)
+   call pctile(s2(ina+hmod*3:inb-hmod*3),inb-ina+1-hmod*6,30,base)
    s2=s2/base
    thresh=1.30
- 
+
    ncand=0
    candidates=0
    if(ia.lt.3) ia=3
