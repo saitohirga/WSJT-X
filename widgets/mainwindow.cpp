@@ -4081,6 +4081,20 @@ void MainWindow::guiUpdate()
 //Once per second:
   if(nsec != m_sec0) {
 //      qDebug() << "onesec" << m_mode;
+
+/*
+{
+    qint64 m_silentFrames;
+    unsigned mstr=3000;              //Also try 1000 and 3000
+    unsigned delay_ms=1000;
+    unsigned m_ic=0;
+    unsigned m_frameRate=48000;
+    m_silentFrames = m_ic + (delay_ms-mstr)*m_frameRate/1000;
+//    m_silentFrames = m_ic + 0.001*(delay_ms-mstr)*m_frameRate;
+    qDebug() << m_silentFrames;
+}
+*/
+
     m_currentBand=m_config.bands()->find(m_freqNominal);
 
     if( SpecOp::HOUND == m_config.special_op_id() ) {
