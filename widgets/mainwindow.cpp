@@ -1342,11 +1342,18 @@ void MainWindow::fixStop()
   } else if (m_mode=="FT4") {
   m_hsymStop=21;
   } else if(m_mode=="FST280" or m_mode=="FST280W") {
-    if(m_TRperiod==15)  m_hsymStop=51;
-    if(m_TRperiod==30)  m_hsymStop=95;
-    if(m_TRperiod==60)  m_hsymStop=205;
-    if(m_TRperiod==120) m_hsymStop=414;
-    if(m_TRperiod==300) m_hsymStop=1036;
+    int stop[] = {45,87,192,397,1012};
+    int stop_EME[] = {51,96,201,406,1021};
+    int i=0;
+    if(m_TRperiod==30) i=1;
+    if(m_TRperiod==60) i=2;
+    if(m_TRperiod==120) i=3;
+    if(m_TRperiod==300) i=4;
+    if(m_config.decode_at_52s()) {
+      m_hsymStop=stop_EME[i];
+    } else {
+      m_hsymStop=stop[i];
+    }
   }
 }
 
@@ -3531,11 +3538,11 @@ void MainWindow::guiUpdate()
   if(m_modeTx=="QRA64")  txDuration=1.0 + 84*6912/12000.0;    // QRA64
   if(m_modeTx=="WSPR") txDuration=2.0 + 162*8192/12000.0;     // WSPR
   if(m_modeTx=="FST280" or m_mode=="FST280W") {               //FST280, FST280W
-    if(m_TRperiod==15)  txDuration=1.0 + 164*800/12000.0;
-    if(m_TRperiod==30)  txDuration=1.0 + 164*1680/12000.0;
-    if(m_TRperiod==60)  txDuration=1.0 + 164*4000/12000.0;
-    if(m_TRperiod==120) txDuration=1.0 + 164*8400/12000.0;
-    if(m_TRperiod==300) txDuration=1.0 + 164*2150500/12000.0;
+    if(m_TRperiod==15)  txDuration=1.0 + 166*800/12000.0;
+    if(m_TRperiod==30)  txDuration=1.0 + 166*1680/12000.0;
+    if(m_TRperiod==60)  txDuration=1.0 + 166*3888/12000.0;
+    if(m_TRperiod==120) txDuration=1.0 + 166*8200/12000.0;
+    if(m_TRperiod==300) txDuration=1.0 + 166*21168/12000.0;
   }
   if(m_modeTx=="ISCAT" or m_mode=="MSK144" or m_bFast9) {
     txDuration=m_TRperiod-0.25; // ISCAT, JT9-fast, MSK144
@@ -3877,15 +3884,16 @@ void MainWindow::guiUpdate()
             int hmod=int(pow(2.0,double(m_nSubMode)));
             int nsps=800;
             if(m_TRperiod==30) nsps=1680;
-            if(m_TRperiod==60) nsps=4000;
-            if(m_TRperiod==120) nsps=8400;
-            if(m_TRperiod==300) nsps=21504;
+            if(m_TRperiod==60) nsps=3888;
+            if(m_TRperiod==120) nsps=8200;
+            if(m_TRperiod==300) nsps=21168;
             nsps=4*nsps;                           //48000 Hz sampling
             int nsym=164;
             float fsample=48000.0;
             float dfreq=hmod*fsample/nsps;
             float f0=ui->TxFreqSpinBox->value() - m_XIT + 1.5*dfreq;
-            int nwave=(nsym+2)*nsps;
+//            int nwave=(nsym+2)*nsps;
+            int nwave=48000 + 166*nsps;
             int icmplx=0;
             gen_fst280wave_(const_cast<int *>(itone),&nsym,&nsps,&nwave,
                     &fsample,&hmod,&f0,&icmplx,foxcom_.wave,foxcom_.wave);
@@ -7160,9 +7168,9 @@ void MainWindow::transmit (double snr)
     toneSpacing=-2.0;                     //Transmit a pre-computed, filtered waveform.
     int nsps=800;
     if(m_TRperiod==30) nsps=1680;
-    if(m_TRperiod==60) nsps=4000;
-    if(m_TRperiod==120) nsps=8400;
-    if(m_TRperiod==300) nsps=21504;
+    if(m_TRperiod==60) nsps=3888;
+    if(m_TRperiod==120) nsps=8200;
+    if(m_TRperiod==300) nsps=21168;
     int hmod=int(pow(2.0,double(m_nSubMode)));
     double dfreq=hmod*12000.0/nsps;
     double f0=ui->TxFreqSpinBox->value() - m_XIT + 1.5*dfreq;

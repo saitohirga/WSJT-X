@@ -69,13 +69,8 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
   m_bFastMode=fastMode;
   m_TRperiod=TRperiod;
   unsigned delay_ms=1000;
-  if(m_nsps==1920)  delay_ms=500;   //FT8
-  if(m_nsps==576)   delay_ms=300;   //FT4
-  if(m_nsps==800)   delay_ms=750;   //FST280-15
-  if(m_nsps==1680)  delay_ms=650;   //FST280-30
-  if(m_nsps==4000)  delay_ms=450;   //FST280-60
-  if(m_nsps==8400)  delay_ms=250;   //FST280-120
-  if(m_nsps==21504) delay_ms=50;     //FST280-300
+  if(m_nsps==1920) delay_ms=500;   //FT8
+  if(m_nsps==576)  delay_ms=300;   //FT4
 
 // noise generator parameters
   if (m_addNoise) {
@@ -89,7 +84,6 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
   if(delay_ms > 0 and !m_bFastMode) {
     m_ic = (mstr/delay_ms) * m_frameRate * delay_ms / 1000;
   }
-  if(m_nsps==21504) m_ic=int(0.8*48000);     //FST280-300
 
   m_silentFrames = 0;
 // calculate number of silent frames to send, so that audio will start at
@@ -98,8 +92,20 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
     if(delay_ms >= mstr) m_silentFrames = m_ic + 0.001*(delay_ms-mstr)*m_frameRate;
   }
 
-//  qDebug() << "aa" << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz")
+  // Special case for FST280:
+//  qDebug() << "aa" << m_ic << m_silentFrames << m_symbolsLength << m_nsps;
+  if(m_nsps==800 or m_nsps==1680 or m_nsps==3888 or m_nsps==8200 or m_nsps==21168) {
+    m_ic = m_ic + 48000 - 2*m_nsps + 9600;             //The 9600 is empirical
+    m_silentFrames = m_silentFrames - 2*m_nsps;
+  }
+  if(m_silentFrames<0) {
+    m_ic = m_ic - m_silentFrames;
+    m_silentFrames = 0;
+  }
+//  qDebug() << "bb" << m_ic << m_silentFrames;
+//  qDebug() << "cc" << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz")
 //           << delay_ms << mstr << m_silentFrames << m_ic;
+
 
   initialize (QIODevice::ReadOnly, channel);
   Q_EMIT stateChanged ((m_state = (synchronize && m_silentFrames) ?
@@ -316,6 +322,9 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
           ++framesGenerated;
           ++m_ic;
         }
+
+//        qDebug() << "dd" << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz")
+//                 << m_ic << m_amp << foxcom_.wave[m_ic];
 
         if (m_amp == 0.0) { // TODO G4WJS: compare double with zero might not be wise
           if (icw[0] == 0) {
