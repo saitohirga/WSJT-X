@@ -39,8 +39,10 @@ void LogQSO::loadSettings ()
   restoreGeometry (m_settings->value ("geometry", saveGeometry ()).toByteArray ());
   ui->cbTxPower->setChecked (m_settings->value ("SaveTxPower", false).toBool ());
   ui->cbComments->setChecked (m_settings->value ("SaveComments", false).toBool ());
+  ui->cbPropMode->setChecked (m_settings->value ("SavePropMode", false).toBool ());
   m_txPower = m_settings->value ("TxPower", "").toString ();
   m_comments = m_settings->value ("LogComments", "").toString();
+  m_propmode = m_settings->value ("PropMode", "").toString();
   m_settings->endGroup ();
 }
 
@@ -50,8 +52,68 @@ void LogQSO::storeSettings () const
   m_settings->setValue ("geometry", saveGeometry ());
   m_settings->setValue ("SaveTxPower", ui->cbTxPower->isChecked ());
   m_settings->setValue ("SaveComments", ui->cbComments->isChecked ());
+  m_settings->setValue ("SavePropMode", ui->cbPropMode->isChecked ());
   m_settings->setValue ("TxPower", m_txPower);
   m_settings->setValue ("LogComments", m_comments);
+  switch (ui->comboBoxPropMode->currentIndex()) {
+     case 0:
+        m_settings->setValue ("PropMode", "");
+        break;
+     case 1:
+        m_settings->setValue ("PropMode", "AS");
+        break;
+     case 2:
+        m_settings->setValue ("PropMode", "AUE");
+        break;
+     case 3:
+        m_settings->setValue ("PropMode", "AUR");
+        break;
+     case 4:
+        m_settings->setValue ("PropMode", "BS");
+        break;
+     case 5:
+        m_settings->setValue ("PropMode", "ECH");
+        break;
+     case 6:
+        m_settings->setValue ("PropMode", "EME");
+        break;
+     case 7:
+        m_settings->setValue ("PropMode", "ES");
+        break;
+     case 8:
+        m_settings->setValue ("PropMode", "F2");
+        break;
+     case 9:
+        m_settings->setValue ("PropMode", "FAI");
+        break;
+     case 10:
+        m_settings->setValue ("PropMode", "INTERNET");
+        break;
+     case 11:
+        m_settings->setValue ("PropMode", "ION");
+        break;
+     case 12:
+        m_settings->setValue ("PropMode", "IRL");
+        break;
+     case 13:
+        m_settings->setValue ("PropMode", "MS");
+        break;
+     case 14:
+        m_settings->setValue ("PropMode", "RPT");
+        break;
+     case 15:
+        m_settings->setValue ("PropMode", "RS");
+        break;
+     case 16:
+        m_settings->setValue ("PropMode", "SAT");
+        break;
+     case 17:
+        m_settings->setValue ("PropMode", "TEP");
+        break;
+     case 18:
+        m_settings->setValue ("PropMode", "TR");
+        break;
+  }
   m_settings->endGroup ();
 }
 
@@ -79,6 +141,51 @@ void LogQSO::initLogQSO(QString const& hisCall, QString const& hisGrid, QString 
   else
     {
       ui->comments->clear ();
+    }
+  if (ui->cbPropMode->isChecked ())
+    {
+       if (m_propmode == "")
+          ui->comboBoxPropMode->setCurrentIndex(0);
+       if (m_propmode == "AS")
+          ui->comboBoxPropMode->setCurrentIndex(1);
+       if (m_propmode == "AUE")
+          ui->comboBoxPropMode->setCurrentIndex(2);
+       if (m_propmode == "AUR")
+          ui->comboBoxPropMode->setCurrentIndex(3);
+       if (m_propmode == "BS")
+          ui->comboBoxPropMode->setCurrentIndex(4);
+       if (m_propmode == "ECH")
+          ui->comboBoxPropMode->setCurrentIndex(5);
+       if (m_propmode == "EME")
+          ui->comboBoxPropMode->setCurrentIndex(6);
+       if (m_propmode == "ES")
+          ui->comboBoxPropMode->setCurrentIndex(7);
+       if (m_propmode == "F2")
+          ui->comboBoxPropMode->setCurrentIndex(8);
+       if (m_propmode == "FAI")
+          ui->comboBoxPropMode->setCurrentIndex(9);
+       if (m_propmode == "INTERNET")
+          ui->comboBoxPropMode->setCurrentIndex(10);
+       if (m_propmode == "ION")
+          ui->comboBoxPropMode->setCurrentIndex(11);
+       if (m_propmode == "IRL")
+          ui->comboBoxPropMode->setCurrentIndex(12);
+       if (m_propmode == "MS")
+          ui->comboBoxPropMode->setCurrentIndex(13);
+       if (m_propmode == "RPT")
+          ui->comboBoxPropMode->setCurrentIndex(14);
+       if (m_propmode == "RS")
+          ui->comboBoxPropMode->setCurrentIndex(15);
+       if (m_propmode == "SAT")
+          ui->comboBoxPropMode->setCurrentIndex(16);
+       if (m_propmode == "TEP")
+          ui->comboBoxPropMode->setCurrentIndex(17);
+       if (m_propmode == "TR")
+          ui->comboBoxPropMode->setCurrentIndex(18);
+    }
+  else
+    {
+      ui->comboBoxPropMode->setCurrentIndex(0);
     }
   if (m_config->report_in_comments()) {
     auto t=mode;
@@ -133,6 +240,65 @@ void LogQSO::accept()
   auto operator_call = ui->loggedOperator->text ();
   auto xsent = ui->exchSent->text ();
   auto xrcvd = ui->exchRcvd->text ();
+  switch (ui->comboBoxPropMode->currentIndex()) {
+     case 0:
+        m_propmode = "";
+        break;
+     case 1:
+        m_propmode = "AS";
+        break;
+     case 2:
+        m_propmode = "AUE";
+        break;
+     case 3:
+        m_propmode = "AUR";
+        break;
+     case 4:
+        m_propmode = "BS";
+        break;
+     case 5:
+        m_propmode = "ECH";
+        break;
+     case 6:
+        m_propmode = "EME";
+        break;
+     case 7:
+        m_propmode = "ES";
+        break;
+     case 8:
+        m_propmode = "F2";
+        break;
+     case 9:
+        m_propmode = "FAI";
+        break;
+     case 10:
+        m_propmode = "INTERNET";
+        break;
+     case 11:
+        m_propmode = "ION";
+        break;
+     case 12:
+        m_propmode = "IRL";
+        break;
+     case 13:
+        m_propmode = "MS";
+        break;
+     case 14:
+        m_propmode = "RPT";
+        break;
+     case 15:
+        m_propmode = "RS";
+        break;
+     case 16:
+        m_propmode = "SAT";
+        break;
+     case 17:
+        m_propmode = "TEP";
+        break;
+     case 18:
+        m_propmode = "TR";
+        break;
+  }
 
   using SpOp = Configuration::SpecialOperatingActivity;
   auto special_op = m_config->special_op_id ();
@@ -191,7 +357,7 @@ void LogQSO::accept()
       dateTimeOff.time().toString("hh:mm:ss,") + hisCall + "," +
       hisGrid + "," + strDialFreq + "," + mode +
       "," + rptSent + "," + rptRcvd + "," + m_txPower +
-      "," + m_comments + "," + name;
+      "," + m_comments + "," + name + "," + m_propmode;
     QTextStream out(&f);
     out << logEntry <<
 #if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
@@ -220,6 +386,7 @@ void LogQSO::accept()
                     , m_myGrid
                     , xsent
                     , xrcvd
+                    , m_propmode
                     , m_log->QSOToADIF (hisCall
                                         , hisGrid
                                         , mode
@@ -236,7 +403,8 @@ void LogQSO::accept()
                                         , m_txPower
                                         , operator_call
                                         , xsent
-                                        , xrcvd));
+                                        , xrcvd
+                                        , m_propmode));
   QDialog::accept();
 }
 

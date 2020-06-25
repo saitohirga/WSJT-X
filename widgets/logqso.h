@@ -42,7 +42,7 @@ signals:
                   , QString const& name, QDateTime const& QSO_date_on,  QString const& operator_call
                   , QString const& my_call, QString const& my_grid
                   , QString const& exchange_sent, QString const& exchange_rcvd
-                  , QByteArray const& ADIF);
+                  , QString const& propmode, QByteArray const& ADIF);
 
 protected:
   void hideEvent (QHideEvent *);
@@ -57,6 +57,7 @@ private:
   LogBook * m_log;
   QString m_txPower;
   QString m_comments;
+  QString m_propmode;
   Radio::Frequency m_dialFreq;
   QString m_myCall;
   QString m_myGrid;

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>377</width>
-    <height>287</height>
+    <width>437</width>
+    <height>351</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -448,6 +448,123 @@
     </layout>
    </item>
    <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="0,0,0">
+     <item>
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Prop Mode</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBoxPropMode">
+       <item>
+        <property name="text">
+         <string/>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>AS | Aircraft scatter</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>AUE | Aurora-E</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>AUR | Aurora</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>BS | Back scatter</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>ECH | Echolink</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>EME | Earth-moon-earth</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>ES | Sporadic E</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>F2 | F2 Reflection</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>FAI | Field aligned irregularities</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>INTERNET | Internet-assisted</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>ION | Ionoscatter</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>IRL | IRLP</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>MS | Meteor scatter</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>RPT | Terrestrial or atmospheric repeater or transponder</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>RS | Rain scatter</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>SAT | Satellite</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>TEP | Trans-equatorial</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>TR | Troposheric ducting</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="cbPropMode">
+       <property name="text">
+        <string>Retain</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -486,6 +603,8 @@
   <tabstop>cbTxPower</tabstop>
   <tabstop>comments</tabstop>
   <tabstop>cbComments</tabstop>
+  <tabstop>cbPropMode</tabstop>
+  <tabstop>comboBoxPropMode</tabstop>
  </tabstops>
  <resources/>
  <connections>
