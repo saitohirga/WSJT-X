@@ -105,8 +105,8 @@ contains
 
    npts=nmax
    if(single_decode) then
-      fa=max(100,nfqso-ntol)
-      fb=min(4800,nfqso+ntol)
+      fa=max(100,nint(nfqso+1.5*hmod*baud-ntol))
+      fb=min(4800,nint(nfqso+1.5*hmod*baud+ntol))
    else
       fa=max(100,nfa)
       fb=min(4800,nfb)
@@ -243,6 +243,7 @@ contains
       fc_synced=candidates(icand,3)
       isbest=nint(candidates(icand,4))   
       xdt=(isbest-nspsec)/fs2
+
       call fst280_downsample(c_bigfft,nfft1,ndown,fc_synced,c2)
 
       do ijitter=0,jittermax
@@ -520,8 +521,8 @@ contains
          s(i)=s(i) + real(c_bigfft(j))**2 + aimag(c_bigfft(j))**2
       enddo
    enddo
-   if(ina-hmod*3.lt.1) ina=1+hmod*3
-   if(inb+hmod*3.gt.18000) inb=18000-hmod*3
+   ina=max(ina,1+3*hmod) 
+   inb=min(inb,18000-3*hmod)
    s2=0.
    do i=ina,inb
       s2(i)=s(i-hmod*3) + s(i-hmod) +s(i+hmod) +s(i+hmod*3)
