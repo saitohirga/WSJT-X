@@ -57,7 +57,6 @@ private:
   LogBook * m_log;
   QString m_txPower;
   QString m_comments;
-  QString m_propmode;
   Radio::Frequency m_dialFreq;
   QString m_myCall;
   QString m_myGrid;
