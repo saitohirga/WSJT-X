@@ -520,6 +520,9 @@ contains
          s(i)=s(i) + real(c_bigfft(j))**2 + aimag(c_bigfft(j))**2
       enddo
    enddo
+   if(ina-hmod*3.lt.1) ina=1+hmod*3
+   if(inb+hmod*3.gt.18000) inb=18000-hmod*3
+   s2=0.
    do i=ina,inb
       s2(i)=s(i-hmod*3) + s(i-hmod) +s(i+hmod) +s(i+hmod*3)
    enddo
