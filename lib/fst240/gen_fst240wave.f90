@@ -8,13 +8,11 @@ subroutine gen_fst240wave(itone,nsym,nsps,nwave,fsample,hmod,f0,    &
   real, allocatable :: dphi(:)
   integer hmod
   integer itone(nsym)
-!  integer*8 count0,count1,clkfreq
   logical first
   data first/.true./
   data nsps0/-99/
   save first,twopi,dt,tsym,nsps0,ctab
 
-!  call system_clock(count0,clkfreq)
   if(first) then
      twopi=8.0*atan(1.0)
      do i=0,NTAB-1
@@ -68,7 +66,7 @@ subroutine gen_fst240wave(itone,nsym,nsps,nwave,fsample,hmod,f0,    &
   enddo
 
 ! Compute the ramp-up and ramp-down symbols
-  kshift=nsps-nint(fsample)
+  kshift=nsps
   if(icmplx.eq.0) then
      wave(1:nsps)=0.0
      wave(nsps+1:nsps+nsps/4)=wave(nsps+1:nsps+nsps/4) *                      &
@@ -89,10 +87,11 @@ subroutine gen_fst240wave(itone,nsym,nsps,nwave,fsample,hmod,f0,    &
      cwave=cshift(cwave,kshift)
   endif
 
-!  call system_clock(count1,clkfreq)
-!  tt=float(count1-count0)/float(clkfreq)
-!  write(*,3001) tt
-!3001 format('Tgen:',f8.3)
-  
+!  do i=1,nwave
+!     write(71,3071) i,i/48000.0,wave(i)
+!3071 format(i10,2f15.9)
+!  enddo
+  wave(nsps*nsym:)=0.                !Kill a stray spike ??
+
   return
 end subroutine gen_fst240wave

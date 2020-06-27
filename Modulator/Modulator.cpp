@@ -92,20 +92,8 @@ void Modulator::start (unsigned symbolsLength, double framesPerSymbol,
     if(delay_ms >= mstr) m_silentFrames = m_ic + 0.001*(delay_ms-mstr)*m_frameRate;
   }
 
-  // Special case for FST280:
-//  qDebug() << "aa" << m_ic << m_silentFrames << m_symbolsLength << m_nsps;
-  if(m_nsps==800 or m_nsps==1680 or m_nsps==3888 or m_nsps==8200 or m_nsps==21168) {
-    m_ic = m_ic + 48000 - 2*m_nsps + 9600;             //The 9600 is empirical
-    m_silentFrames = m_silentFrames - 2*m_nsps;
-  }
-  if(m_silentFrames<0) {
-    m_ic = m_ic - m_silentFrames;
-    m_silentFrames = 0;
-  }
-//  qDebug() << "bb" << m_ic << m_silentFrames;
-//  qDebug() << "cc" << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz")
-//           << delay_ms << mstr << m_silentFrames << m_ic;
-
+//  qDebug() << "aa" << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz")
+//           << delay_ms << mstr << m_silentFrames << m_ic << m_symbolsLength;
 
   initialize (QIODevice::ReadOnly, channel);
   Q_EMIT stateChanged ((m_state = (synchronize && m_silentFrames) ?
@@ -317,14 +305,18 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
             m_amp=32767.0;
             sample=qRound(m_amp*foxcom_.wave[m_ic]);
           }
-
+/*
+          if((m_ic<1000 or (4*m_symbolsLength*m_nsps - m_ic) < 1000) and (m_ic%10)==0) {
+            qDebug() << "cc" << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz") << m_ic << sample;
+          }
+*/
           samples = load(postProcessSample(sample), samples);
           ++framesGenerated;
           ++m_ic;
         }
 
 //        qDebug() << "dd" << QDateTime::currentDateTimeUtc().toString("hh:mm:ss.zzz")
-//                 << m_ic << m_amp << foxcom_.wave[m_ic];
+//                 << m_ic << i1 << foxcom_.wave[m_ic] << framesGenerated;
 
         if (m_amp == 0.0) { // TODO G4WJS: compare double with zero might not be wise
           if (icw[0] == 0) {
