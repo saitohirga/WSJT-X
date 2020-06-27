@@ -1342,8 +1342,8 @@ void MainWindow::fixStop()
   } else if (m_mode=="FT4") {
   m_hsymStop=21;
   } else if(m_mode=="FST240" or m_mode=="FST240W") {
-    int stop[] = {45,87,192,397,1012};
-    int stop_EME[] = {51,96,201,406,1021};
+    int stop[] = {44,85,187,387,987};
+    int stop_EME[] = {51,95,197,396,997};
     int i=0;
     if(m_TRperiod==30) i=1;
     if(m_TRperiod==60) i=2;
@@ -3538,11 +3538,11 @@ void MainWindow::guiUpdate()
   if(m_modeTx=="QRA64")  txDuration=1.0 + 84*6912/12000.0;    // QRA64
   if(m_modeTx=="WSPR") txDuration=2.0 + 162*8192/12000.0;     // WSPR
   if(m_modeTx=="FST240" or m_mode=="FST240W") {               //FST240, FST240W
-    if(m_TRperiod==15)  txDuration=1.0 + 166*800/12000.0;
-    if(m_TRperiod==30)  txDuration=1.0 + 166*1680/12000.0;
-    if(m_TRperiod==60)  txDuration=1.0 + 166*3888/12000.0;
-    if(m_TRperiod==120) txDuration=1.0 + 166*8200/12000.0;
-    if(m_TRperiod==300) txDuration=1.0 + 166*21168/12000.0;
+    if(m_TRperiod==15)  txDuration=1.0 + 160*800/12000.0;
+    if(m_TRperiod==30)  txDuration=1.0 + 160*1680/12000.0;
+    if(m_TRperiod==60)  txDuration=1.0 + 160*3888/12000.0;
+    if(m_TRperiod==120) txDuration=1.0 + 160*8200/12000.0;
+    if(m_TRperiod==300) txDuration=1.0 + 160*21168/12000.0;
   }
   if(m_modeTx=="ISCAT" or m_mode=="MSK144" or m_bFast9) {
     txDuration=m_TRperiod-0.25; // ISCAT, JT9-fast, MSK144
