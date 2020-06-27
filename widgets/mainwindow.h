@@ -49,7 +49,7 @@
 #define NUM_QRA64_SYMBOLS 84               //63 data + 21 sync
 #define NUM_FT8_SYMBOLS 79
 #define NUM_FT4_SYMBOLS 105
-#define NUM_FST280_SYMBOLS 166             //280/2 data + 6*4 sync + 2 ramp
+#define NUM_FST240_SYMBOLS 160             //240/2 data + 5*8 sync
 #define NUM_CW_SYMBOLS 250
 #define TX_SAMPLE_RATE 48000
 #define N_WIDGETS 33
@@ -205,8 +205,8 @@ private slots:
   void on_actionJT4_triggered();
   void on_actionFT4_triggered();
   void on_actionFT8_triggered();
-  void on_actionFST280_triggered();
-  void on_actionFST280W_triggered();
+  void on_actionFST240_triggered();
+  void on_actionFST240W_triggered();
   void on_TxFreqSpinBox_valueChanged(int arg1);
   void on_actionSave_decoded_triggered();
   void on_actionQuickDecode_toggled (bool);

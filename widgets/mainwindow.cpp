@@ -105,7 +105,7 @@ extern "C" {
   void genft4_(char* msg, int* ichk, char* msgsent, char ft4msgbits[], int itone[],
                fortran_charlen_t, fortran_charlen_t);
 
-  void genfst280_(char* msg, int* ichk, char* msgsent, char fst280msgbits[],
+  void genfst240_(char* msg, int* ichk, char* msgsent, char fst240msgbits[],
                  int itone[], int* iwspr, fortran_charlen_t, fortran_charlen_t);
 
   void gen_ft8wave_(int itone[], int* nsym, int* nsps, float* bt, float* fsample, float* f0,
@@ -114,7 +114,7 @@ extern "C" {
   void gen_ft4wave_(int itone[], int* nsym, int* nsps, float* fsample, float* f0,
                     float xjunk[], float wave[], int* icmplx, int* nwave);
 
-  void gen_fst280wave_(int itone[], int* nsym, int* nsps, int* nwave, float* fsample,
+  void gen_fst240wave_(int itone[], int* nsym, int* nsps, int* nwave, float* fsample,
                        int* hmod, float* f0, int* icmplx, float xjunk[], float wave[]);
 
   void gen4_(char* msg, int* ichk, char* msgsent, int itone[],
@@ -429,7 +429,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->dxGridEntry->setValidator (new MaidenheadLocatorValidator {this});
   ui->dxCallEntry->setValidator (new CallsignValidator {this});
   ui->sbTR->values ({5, 10, 15, 30, 60, 120, 300});
-  ui->sbTR_FST280W->values ({120, 300});
+  ui->sbTR_FST240W->values ({120, 300});
   ui->decodedTextBrowser->set_configuration (&m_config, true);
   ui->decodedTextBrowser2->set_configuration (&m_config);
 
@@ -580,8 +580,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   on_EraseButton_clicked ();
 
   QActionGroup* modeGroup = new QActionGroup(this);
-  ui->actionFST280->setActionGroup(modeGroup);
-  ui->actionFST280W->setActionGroup(modeGroup);
+  ui->actionFST240->setActionGroup(modeGroup);
+  ui->actionFST240W->setActionGroup(modeGroup);
   ui->actionFT4->setActionGroup(modeGroup);
   ui->actionFT8->setActionGroup(modeGroup);
   ui->actionJT9->setActionGroup(modeGroup);
@@ -1341,7 +1341,7 @@ void MainWindow::fixStop()
     m_hsymStop=50;
   } else if (m_mode=="FT4") {
   m_hsymStop=21;
-  } else if(m_mode=="FST280" or m_mode=="FST280W") {
+  } else if(m_mode=="FST240" or m_mode=="FST240W") {
     int stop[] = {45,87,192,397,1012};
     int stop_EME[] = {51,96,201,406,1021};
     int i=0;
@@ -2313,9 +2313,9 @@ void MainWindow::setup_status_bar (bool vhf)
     mode_label.setStyleSheet ("QLabel{background-color: #ff0099}");
   } else if ("FT8" == m_mode) {
     mode_label.setStyleSheet ("QLabel{background-color: #ff6699}");
-  } else if ("FST280" == m_mode) {
+  } else if ("FST240" == m_mode) {
     mode_label.setStyleSheet ("QLabel{background-color: #99ff66}");
-  } else if ("FST280W" == m_mode) {
+  } else if ("FST240W" == m_mode) {
     mode_label.setStyleSheet ("QLabel{background-color: #6699ff}");
   } else if ("FreqCal" == m_mode) {
     mode_label.setStyleSheet ("QLabel{background-color: #ff9933}");
@@ -2898,7 +2898,7 @@ void MainWindow::decode()                                       //decode()
     dec_data.params.nutc=100*ihr + imin;
     if(m_TRperiod < 60) {
       qint64 ms=1000.0*(2.0-m_TRperiod);
-      if(m_mode=="FST280") ms=1000.0*(6.0-m_TRperiod);
+      if(m_mode=="FST240") ms=1000.0*(6.0-m_TRperiod);
       //Adjust for FT8 early decode:
       if(m_mode=="FT8" and m_ihsym==m_earlyDecode and !m_diskData) ms+=(m_hsymStop-m_earlyDecode)*288;
       if(m_mode=="FT8" and m_ihsym==m_earlyDecode2 and !m_diskData) ms+=(m_hsymStop-m_earlyDecode2)*288;
@@ -2968,7 +2968,7 @@ void MainWindow::decode()                                       //decode()
     dec_data.params.nmode=5;
     m_BestCQpriority="";
   }
-  if(m_mode=="FST280") dec_data.params.nmode=280;
+  if(m_mode=="FST240") dec_data.params.nmode=240;
   dec_data.params.ntrperiod=m_TRperiod;
   dec_data.params.nsubmode=m_nSubMode;
   if(m_mode=="QRA64") dec_data.params.nsubmode=100 + m_nSubMode;
@@ -3250,7 +3250,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 //Right (Rx Frequency) window
       bool bDisplayRight=bAvgMsg;
       int audioFreq=decodedtext.frequencyOffset();
-      if(m_mode=="FT8" or m_mode=="FT4" or m_mode=="FST280") {
+      if(m_mode=="FT8" or m_mode=="FT4" or m_mode=="FST240") {
         auto const& parts = decodedtext.string().remove("<").remove(">")
             .split (' ', SkipEmptyParts);
         if (parts.size() > 6) {
@@ -3334,7 +3334,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 //### I think this is where we are preventing Hounds from spotting Fox ###
       if(m_mode!="FT8" or (SpecOp::HOUND != m_config.special_op_id())) {
         if(m_mode=="FT8" or m_mode=="FT4" or m_mode=="QRA64" or m_mode=="JT4"
-           or m_mode=="JT65" or m_mode=="JT9" or m_mode=="FST280") {
+           or m_mode=="JT65" or m_mode=="JT9" or m_mode=="FST240") {
           auto_sequence (decodedtext, 25, 50);
         }
 
@@ -3537,7 +3537,7 @@ void MainWindow::guiUpdate()
   if(m_modeTx=="JT65") txDuration=1.0 + 126*4096/11025.0;     // JT65
   if(m_modeTx=="QRA64")  txDuration=1.0 + 84*6912/12000.0;    // QRA64
   if(m_modeTx=="WSPR") txDuration=2.0 + 162*8192/12000.0;     // WSPR
-  if(m_modeTx=="FST280" or m_mode=="FST280W") {               //FST280, FST280W
+  if(m_modeTx=="FST240" or m_mode=="FST240W") {               //FST240, FST240W
     if(m_TRperiod==15)  txDuration=1.0 + 166*800/12000.0;
     if(m_TRperiod==30)  txDuration=1.0 + 166*1680/12000.0;
     if(m_TRperiod==60)  txDuration=1.0 + 166*3888/12000.0;
@@ -3815,7 +3815,7 @@ void MainWindow::guiUpdate()
         if(m_modeTx=="WSPR") genwspr_(message, msgsent, const_cast<int *> (itone),
                                     22, 22);
         if(m_modeTx=="MSK144" or m_modeTx=="FT8" or m_modeTx=="FT4"
-           or m_modeTx=="FST280" or m_modeTx=="FST280W") {
+           or m_modeTx=="FST240" or m_modeTx=="FST240W") {
           char MyCall[6];
           char MyGrid[6];
           ::memcpy(MyCall, (m_config.my_callsign()+"      ").toLatin1(), sizeof MyCall);
@@ -3875,11 +3875,11 @@ void MainWindow::guiUpdate()
             gen_ft4wave_(const_cast<int *>(itone),&nsym,&nsps,&fsample,&f0,foxcom_.wave,
                            foxcom_.wave,&icmplx,&nwave);
           }
-          if(m_modeTx=="FST280" or m_modeTx=="FST280W") {
+          if(m_modeTx=="FST240" or m_modeTx=="FST240W") {
             int ichk=0;
             int iwspr=0;
-            char fst280msgbits[101];
-            genfst280_(message,&ichk,msgsent,const_cast<char *> (fst280msgbits),
+            char fst240msgbits[101];
+            genfst240_(message,&ichk,msgsent,const_cast<char *> (fst240msgbits),
                            const_cast<int *>(itone), &iwspr, 37, 37);
             int hmod=int(pow(2.0,double(m_nSubMode)));
             int nsps=800;
@@ -3895,7 +3895,7 @@ void MainWindow::guiUpdate()
 //            int nwave=(nsym+2)*nsps;
             int nwave=48000 + 166*nsps;
             int icmplx=0;
-            gen_fst280wave_(const_cast<int *>(itone),&nsym,&nsps,&nwave,
+            gen_fst240wave_(const_cast<int *>(itone),&nsym,&nsps,&nwave,
                     &fsample,&hmod,&f0,&icmplx,foxcom_.wave,foxcom_.wave);
           }
 
@@ -5813,16 +5813,16 @@ void MainWindow::displayWidgets(qint64 n)
   genStdMsgs (m_rpt, true);
 }
 
-void MainWindow::on_actionFST280_triggered()
+void MainWindow::on_actionFST240_triggered()
 {
   int nsub=m_nSubMode;
   on_actionJT65_triggered();
   ui->sbSubmode->setMaximum(3);
   m_nSubMode=nsub;
   ui->sbSubmode->setValue(m_nSubMode);
-  m_mode="FST280";
-  m_modeTx="FST280";
-  ui->actionFST280->setChecked(true);
+  m_mode="FST240";
+  m_modeTx="FST240";
+  ui->actionFST240->setChecked(true);
   WSPR_config(false);
   bool bVHF=m_config.enable_VHF_features();
 //                         012345678901234567890123456789012
@@ -5835,16 +5835,16 @@ void MainWindow::on_actionFST280_triggered()
   ui->cbAutoSeq->setChecked(true);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
-  switch_mode (Modes::FST280);
+  switch_mode (Modes::FST240);
   statusChanged();
 }
 
-void MainWindow::on_actionFST280W_triggered()
+void MainWindow::on_actionFST240W_triggered()
 {
-  m_mode="FST280W";
-  m_modeTx="FST280W";
+  m_mode="FST240W";
+  m_modeTx="FST240W";
   WSPR_config(true);
-  ui->actionFST280W->setChecked(true);
+  ui->actionFST240W->setChecked(true);
 //                         012345678901234567890123456789012
   displayWidgets(nWidgets("000001000000000001010000000000000"));
   bool bVHF=m_config.enable_VHF_features();
@@ -5856,7 +5856,7 @@ void MainWindow::on_actionFST280W_triggered()
   ui->sbSubmode->setMaximum(3);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
-  switch_mode (Modes::FST280W);
+  switch_mode (Modes::FST240W);
   statusChanged();
 }
 
@@ -7163,7 +7163,7 @@ void MainWindow::transmit (double snr)
            true, false, snr, m_TRperiod);
   }
 
-  if (m_modeTx == "FST280" or m_modeTx == "FST280W") {
+  if (m_modeTx == "FST240" or m_modeTx == "FST240W") {
     m_dateTimeSentTx3=QDateTime::currentDateTimeUtc();
     toneSpacing=-2.0;                     //Transmit a pre-computed, filtered waveform.
     int nsps=800;
@@ -7174,7 +7174,7 @@ void MainWindow::transmit (double snr)
     int hmod=int(pow(2.0,double(m_nSubMode)));
     double dfreq=hmod*12000.0/nsps;
     double f0=ui->TxFreqSpinBox->value() - m_XIT + 1.5*dfreq;
-    Q_EMIT sendMessage (NUM_FST280_SYMBOLS,double(nsps),f0,toneSpacing,
+    Q_EMIT sendMessage (NUM_FST240_SYMBOLS,double(nsps),f0,toneSpacing,
                         m_soundOutput,m_config.audio_output_channel(),
                         true, false, snr, m_TRperiod);
   }
@@ -7430,7 +7430,7 @@ void::MainWindow::VHF_features_enabled(bool b)
 void MainWindow::on_sbTR_valueChanged(int value)
 {
 //  if(!m_bFastMode and n>m_nSubMode) m_MinW=m_nSubMode;
-  if(m_bFastMode or m_mode=="FreqCal" or m_mode=="FST280" or m_mode=="FST280W") {
+  if(m_bFastMode or m_mode=="FreqCal" or m_mode=="FST240" or m_mode=="FST240W") {
     m_TRperiod = value;
     m_fastGraph->setTRPeriod (value);
     m_modulator->setTRPeriod (value); // TODO - not thread safe
@@ -8254,7 +8254,7 @@ void MainWindow::on_cbFirst_toggled(bool b)
 void MainWindow::on_cbAutoSeq_toggled(bool b)
 {
   if(!b) ui->cbFirst->setChecked(false);
-  ui->cbFirst->setVisible((m_mode=="FT8" or m_mode=="FT4" or m_mode=="FST280") and b);
+  ui->cbFirst->setVisible((m_mode=="FT8" or m_mode=="FT4" or m_mode=="FST240") and b);
 }
 
 void MainWindow::on_measure_check_box_stateChanged (int state)
@@ -9031,8 +9031,8 @@ void MainWindow::on_pbBestSP_clicked()
 void MainWindow::set_mode (QString const& mode)
 {
     if ("FT4" == mode) on_actionFT4_triggered ();
-    else if ("FST280" == mode) on_actionFST280_triggered ();
-    else if ("FST280W" == mode) on_actionFST280W_triggered ();
+    else if ("FST240" == mode) on_actionFST240_triggered ();
+    else if ("FST240W" == mode) on_actionFST240W_triggered ();
     else if ("FT8" == mode) on_actionFT8_triggered ();
     else if ("JT4" == mode) on_actionJT4_triggered ();
     else if ("JT9" == mode) on_actionJT9_triggered ();

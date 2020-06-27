@@ -54,7 +54,7 @@ program jt9
     option ('jt4', .false., '4', 'JT4 mode', ''),                            &
     option ('ft4', .false., '5', 'FT4 mode', ''),                            &
     option ('jt65', .false.,'6', 'JT65 mode', ''),                           &
-    option ('fst280', .false., '7', 'FT8 mode', ''),                         &
+    option ('fst240', .false., '7', 'FT8 mode', ''),                         &
     option ('ft8', .false., '8', 'FT8 mode', ''),                            &
     option ('jt9', .false., '9', 'JT9 mode', ''),                            &
     option ('qra64', .false., 'q', 'QRA64 mode', ''),                        &
@@ -124,7 +124,7 @@ program jt9
         case ('6')
            if (mode.lt.65) mode = mode + 65
         case ('7')
-           mode = 280
+           mode = 240
         case ('8')
            mode = 8
         case ('9')
@@ -235,7 +235,7 @@ program jt9
               call timer('symspec ',1)
            endif
            nhsym0=nhsym
-           if(nhsym.ge.181 .and. mode.ne.280) exit
+           if(nhsym.ge.181 .and. mode.ne.240) exit
         endif
      enddo
      close(unit=wav%lun)
@@ -250,7 +250,7 @@ program jt9
      shared_data%params%nfb=fhigh
      shared_data%params%ntol=20
      shared_data%params%kin=64800
-     if(mode.eq.280) shared_data%params%kin=720000   !### 60 s periods ###
+     if(mode.eq.240) shared_data%params%kin=720000   !### 60 s periods ###
      shared_data%params%nzhsym=nhsym
      shared_data%params%ndepth=ndepth
      shared_data%params%lft8apon=.true.

@@ -50,8 +50,8 @@ public:
     FreqCal,
     FT8,
     FT4,
-    FST280,
-    FST280W,
+    FST240,
+    FST240W,
     MODES_END_SENTINAL_AND_COUNT // this must be last
   };
   Q_ENUM (Mode)

@@ -2591,7 +2591,7 @@ list. The list can be maintained in Settings (F2).</string>
                      </widget>
                     </item>
                     <item>
-                     <widget class="RestrictedSpinBox" name="sbTR_FST280W">
+                     <widget class="RestrictedSpinBox" name="sbTR_FST240W">
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
                       </property>
@@ -2861,8 +2861,8 @@ list. The list can be maintained in Settings (F2).</string>
     <property name="title">
      <string>Mode</string>
     </property>
-    <addaction name="actionFST280"/>
-    <addaction name="actionFST280W"/>
+    <addaction name="actionFST240"/>
+    <addaction name="actionFST240W"/>
     <addaction name="actionFT4"/>
     <addaction name="actionFT8"/>
     <addaction name="actionJT4"/>
@@ -3497,30 +3497,30 @@ list. The list can be maintained in Settings (F2).</string>
     <string>FT4</string>
    </property>
   </action>
-  <action name="actionFST280">
+  <action name="actionFST240">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>FST280</string>
+    <string>FST240</string>
    </property>
   </action>
-  <action name="actionFST280_W">
+  <action name="actionFST240_W">
    <property name="text">
-    <string>FST280-W</string>
+    <string>FST240-W</string>
    </property>
   </action>
-  <action name="actionFT280W">
+  <action name="actionFT240W">
    <property name="text">
-    <string>FT280W</string>
+    <string>FT240W</string>
    </property>
   </action>
-  <action name="actionFST280W">
+  <action name="actionFST240W">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>FST280W</string>
+    <string>FST240W</string>
    </property>
   </action>
  </widget>
