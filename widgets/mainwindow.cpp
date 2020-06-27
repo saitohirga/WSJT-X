@@ -3542,7 +3542,7 @@ void MainWindow::guiUpdate()
     if(m_TRperiod==30)  txDuration=1.0 + 160*1680/12000.0;
     if(m_TRperiod==60)  txDuration=1.0 + 160*3888/12000.0;
     if(m_TRperiod==120) txDuration=1.0 + 160*8200/12000.0;
-    if(m_TRperiod==300) txDuration=1.0 + 160*21168/12000.0;
+    if(m_TRperiod==300) txDuration=1.0 + 160*21504/12000.0;
   }
   if(m_modeTx=="ISCAT" or m_mode=="MSK144" or m_bFast9) {
     txDuration=m_TRperiod-0.25; // ISCAT, JT9-fast, MSK144
@@ -3886,13 +3886,13 @@ void MainWindow::guiUpdate()
             if(m_TRperiod==30) nsps=1680;
             if(m_TRperiod==60) nsps=3888;
             if(m_TRperiod==120) nsps=8200;
-            if(m_TRperiod==300) nsps=21168;
+            if(m_TRperiod==300) nsps=21504;
             nsps=4*nsps;                           //48000 Hz sampling
             int nsym=160;
             float fsample=48000.0;
             float dfreq=hmod*fsample/nsps;
             float f0=ui->TxFreqSpinBox->value() - m_XIT + 1.5*dfreq;
-            int nwave=48000 + (nsym+2)*nsps;
+            int nwave=(nsym+2)*nsps;
             int icmplx=0;
             gen_fst240wave_(const_cast<int *>(itone),&nsym,&nsps,&nwave,
                     &fsample,&hmod,&f0,&icmplx,foxcom_.wave,foxcom_.wave);
@@ -7169,7 +7169,7 @@ void MainWindow::transmit (double snr)
     if(m_TRperiod==30) nsps=1680;
     if(m_TRperiod==60) nsps=3888;
     if(m_TRperiod==120) nsps=8200;
-    if(m_TRperiod==300) nsps=21168;
+    if(m_TRperiod==300) nsps=21504;
     int hmod=int(pow(2.0,double(m_nSubMode)));
     double dfreq=hmod*12000.0/nsps;
     double f0=ui->TxFreqSpinBox->value() - m_XIT + 1.5*dfreq;

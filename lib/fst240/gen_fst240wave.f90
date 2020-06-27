@@ -66,7 +66,7 @@ subroutine gen_fst240wave(itone,nsym,nsps,nwave,fsample,hmod,f0,    &
   enddo
 
 ! Compute the ramp-up and ramp-down symbols
-  kshift=nsps-nint(fsample)
+  kshift=nsps
   if(icmplx.eq.0) then
      wave(1:nsps)=0.0
      wave(nsps+1:nsps+nsps/4)=wave(nsps+1:nsps+nsps/4) *                      &
@@ -86,6 +86,12 @@ subroutine gen_fst240wave(itone,nsym,nsps,nwave,fsample,hmod,f0,    &
           (1.0+cos(twopi*(/(i,i=0,nsps/4-1)/)/real(nsps/2)))/2.0
      cwave=cshift(cwave,kshift)
   endif
-  
+
+!  do i=1,nwave
+!     write(71,3071) i,i/48000.0,wave(i)
+!3071 format(i10,2f15.9)
+!  enddo
+  wave(nsps*nsym:)=0.                !Kill a stray spike ??
+
   return
 end subroutine gen_fst240wave
