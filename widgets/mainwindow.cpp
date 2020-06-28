@@ -4501,7 +4501,7 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
     }
     return;
   }
-  DecodedText message {cursor.block().text().trimmed().remove("TU; ")};
+  DecodedText message {cursor.block().text().trimmed().left(61).remove("TU; ")};
   m_bDoubleClicked = true;
   processMessage (message, modifiers);
 }
