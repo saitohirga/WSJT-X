@@ -1342,8 +1342,8 @@ void MainWindow::fixStop()
   } else if (m_mode=="FT4") {
   m_hsymStop=21;
   } else if(m_mode=="FST240" or m_mode=="FST240W") {
-    int stop[] = {44,85,187,387,1003};
-    int stop_EME[] = {51,95,197,396,1012};
+    int stop[] = {39,85,187,387,1003};
+    int stop_EME[] = {48,95,197,396,1012};
     int i=0;
     if(m_TRperiod==30) i=1;
     if(m_TRperiod==60) i=2;
@@ -3538,7 +3538,7 @@ void MainWindow::guiUpdate()
   if(m_modeTx=="QRA64")  txDuration=1.0 + 84*6912/12000.0;    // QRA64
   if(m_modeTx=="WSPR") txDuration=2.0 + 162*8192/12000.0;     // WSPR
   if(m_modeTx=="FST240" or m_mode=="FST240W") {               //FST240, FST240W
-    if(m_TRperiod==15)  txDuration=1.0 + 160*800/12000.0;
+    if(m_TRperiod==15)  txDuration=1.0 + 160*720/12000.0;
     if(m_TRperiod==30)  txDuration=1.0 + 160*1680/12000.0;
     if(m_TRperiod==60)  txDuration=1.0 + 160*3888/12000.0;
     if(m_TRperiod==120) txDuration=1.0 + 160*8200/12000.0;
@@ -3882,7 +3882,7 @@ void MainWindow::guiUpdate()
             genfst240_(message,&ichk,msgsent,const_cast<char *> (fst240msgbits),
                            const_cast<int *>(itone), &iwspr, 37, 37);
             int hmod=int(pow(2.0,double(m_nSubMode)));
-            int nsps=800;
+            int nsps=720;
             if(m_TRperiod==30) nsps=1680;
             if(m_TRperiod==60) nsps=3888;
             if(m_TRperiod==120) nsps=8200;
@@ -7163,7 +7163,7 @@ void MainWindow::transmit (double snr)
   if (m_modeTx == "FST240" or m_modeTx == "FST240W") {
     m_dateTimeSentTx3=QDateTime::currentDateTimeUtc();
     toneSpacing=-2.0;                     //Transmit a pre-computed, filtered waveform.
-    int nsps=800;
+    int nsps=720;
     if(m_TRperiod==30) nsps=1680;
     if(m_TRperiod==60) nsps=3888;
     if(m_TRperiod==120) nsps=8200;
