@@ -193,7 +193,8 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      call my_fst240%decode(fst240_decoded,id2,params%nutc,                &
           params%nQSOProgress,params%nfqso,params%nfa,params%nfb,         &
           params%nsubmode,params%ndepth,params%ntr,params%nexp_decode,    &
-          params%ntol)
+          params%ntol,params%nzhsym,params%emedelay,                      &
+          logical(params%lapcqonly),params%napwid,mycall,hiscall)
      call timer('dec240  ',1)
      go to 800
   endif

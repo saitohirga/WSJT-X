@@ -27,7 +27,8 @@ module fst240_decode
 contains
 
  subroutine decode(this,callback,iwave,nutc,nQSOProgress,nfqso,    &
-      nfa,nfb,nsubmode,ndeep,ntrperiod,nexp_decode,ntol)
+      nfa,nfb,nsubmode,ndeep,ntrperiod,nexp_decode,ntol,nzhsym,    &
+      emedelay,lapcqonly,napwid,mycall,hiscall)
 
    use timer_module, only: timer
    use packjt77
@@ -38,6 +39,7 @@ contains
    character*37 decodes(100)
    character*37 msg
    character*77 c77
+   character*12 mycall,hiscall
    complex, allocatable :: c2(:)
    complex, allocatable :: cframe(:)
    complex, allocatable :: c_bigfft(:)          !Complex waveform
@@ -46,6 +48,7 @@ contains
    real candidates(100,4)
    real bitmetrics(320,4)
    real s4(0:3,NN)
+   logical lapcqonly
    integer itone(NN)
    integer hmod
    integer*1 apmask(240),cw(240)
@@ -58,6 +61,9 @@ contains
              1,0,0,1,0,1,1,0,0,0,0,1,0,0,0,1,0,1,0,0,1,1,1,1,0,0,1,0,1, &
              0,1,0,1,0,1,1,0,1,1,1,1,1,0,0,0,1,0,1/
 
+   write(*,3001) nzhsym,emedelay,lapcqonly,napwid,mycall,hiscall
+3001 format(i4,f6.1,L3,i3,2x,2a12)
+   
    this%callback => callback
    hmod=2**nsubmode
    if(nfqso+nqsoprogress.eq.-999) return
