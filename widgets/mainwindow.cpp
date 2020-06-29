@@ -7133,7 +7133,7 @@ void MainWindow::transmit (double snr)
     if(m_nSubMode==0) toneSpacing=11025.0/4096.0;
     if(m_nSubMode==1) toneSpacing=2*11025.0/4096.0;
     if(m_nSubMode==2) toneSpacing=4*11025.0/4096.0;
-    Q_EMIT sendMessage (NUM_JT65_SYMBOLS,
+    Q_EMIT sendMessage (m_mode, NUM_JT65_SYMBOLS,
            4096.0*12000.0/11025.0, ui->TxFreqSpinBox->value () - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),
            true, false, snr, m_TRperiod);
@@ -7145,7 +7145,7 @@ void MainWindow::transmit (double snr)
     if(m_config.x2ToneSpacing()) toneSpacing=2*12000.0/1920.0;
     if(m_config.x4ToneSpacing()) toneSpacing=4*12000.0/1920.0;
     if(SpecOp::FOX==m_config.special_op_id() and !m_tune) toneSpacing=-1;
-    Q_EMIT sendMessage (NUM_FT8_SYMBOLS,
+    Q_EMIT sendMessage (m_mode, NUM_FT8_SYMBOLS,
            1920.0, ui->TxFreqSpinBox->value () - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),
            true, false, snr, m_TRperiod);
@@ -7154,7 +7154,7 @@ void MainWindow::transmit (double snr)
   if (m_modeTx == "FT4") {
     m_dateTimeSentTx3=QDateTime::currentDateTimeUtc();
     toneSpacing=-2.0;                     //Transmit a pre-computed, filtered waveform.
-    Q_EMIT sendMessage (NUM_FT4_SYMBOLS,
+    Q_EMIT sendMessage (m_mode, NUM_FT4_SYMBOLS,
            576.0, ui->TxFreqSpinBox->value() - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel(),
            true, false, snr, m_TRperiod);
@@ -7171,7 +7171,7 @@ void MainWindow::transmit (double snr)
     int hmod=int(pow(2.0,double(m_nSubMode)));
     double dfreq=hmod*12000.0/nsps;
     double f0=ui->TxFreqSpinBox->value() - m_XIT + 1.5*dfreq;
-    Q_EMIT sendMessage (NUM_FST240_SYMBOLS,double(nsps),f0,toneSpacing,
+    Q_EMIT sendMessage (m_mode, NUM_FST240_SYMBOLS,double(nsps),f0,toneSpacing,
                         m_soundOutput,m_config.audio_output_channel(),
                         true, false, snr, m_TRperiod);
   }
@@ -7182,7 +7182,7 @@ void MainWindow::transmit (double snr)
     if(m_nSubMode==2) toneSpacing=4*12000.0/6912.0;
     if(m_nSubMode==3) toneSpacing=8*12000.0/6912.0;
     if(m_nSubMode==4) toneSpacing=16*12000.0/6912.0;
-    Q_EMIT sendMessage (NUM_QRA64_SYMBOLS,
+    Q_EMIT sendMessage (m_mode, NUM_QRA64_SYMBOLS,
            6912.0, ui->TxFreqSpinBox->value () - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),
            true, false, snr, m_TRperiod);
@@ -7201,7 +7201,7 @@ void MainWindow::transmit (double snr)
       sps=nsps[m_nSubMode-4];
       m_toneSpacing=12000.0/sps;
     }
-    Q_EMIT sendMessage (NUM_JT9_SYMBOLS, sps,
+    Q_EMIT sendMessage (m_mode, NUM_JT9_SYMBOLS, sps,
                         ui->TxFreqSpinBox->value() - m_XIT, m_toneSpacing,
                         m_soundOutput, m_config.audio_output_channel (),
                         true, fastmode, snr, m_TRperiod);
@@ -7220,7 +7220,7 @@ void MainWindow::transmit (double snr)
     int nsym;
     nsym=NUM_MSK144_SYMBOLS;
     if(itone[40] < 0) nsym=40;
-    Q_EMIT sendMessage (nsym, double(m_nsps), f0, m_toneSpacing,
+    Q_EMIT sendMessage (m_mode, nsym, double(m_nsps), f0, m_toneSpacing,
                         m_soundOutput, m_config.audio_output_channel (),
                         true, true, snr, m_TRperiod);
   }
@@ -7233,7 +7233,7 @@ void MainWindow::transmit (double snr)
     if(m_nSubMode==4) toneSpacing=18*4.375;
     if(m_nSubMode==5) toneSpacing=36*4.375;
     if(m_nSubMode==6) toneSpacing=72*4.375;
-    Q_EMIT sendMessage (NUM_JT4_SYMBOLS,
+    Q_EMIT sendMessage (m_mode, NUM_JT4_SYMBOLS,
            2520.0*12000.0/11025.0, ui->TxFreqSpinBox->value () - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),
            true, false, snr, m_TRperiod);
@@ -7242,22 +7242,16 @@ void MainWindow::transmit (double snr)
     int nToneSpacing=1;
     if(m_config.x2ToneSpacing()) nToneSpacing=2;
     if(m_config.x4ToneSpacing()) nToneSpacing=4;
-    Q_EMIT sendMessage (NUM_WSPR_SYMBOLS, 8192.0,
+    Q_EMIT sendMessage (m_mode, NUM_WSPR_SYMBOLS, 8192.0,
                         ui->TxFreqSpinBox->value() - 1.5 * 12000 / 8192,
                         m_toneSpacing*nToneSpacing, m_soundOutput,
                         m_config.audio_output_channel(),true, false, snr,
                         m_TRperiod);
   }
-  if (m_mode=="WSPR-LF") {
-    Q_EMIT sendMessage (NUM_WSPR_LF_SYMBOLS, 24576.0,
-                        ui->TxFreqSpinBox->value(),
-                        m_toneSpacing, m_soundOutput,
-                        m_config.audio_output_channel(),true, false, snr,
-                        m_TRperiod);
-  }
+
   if(m_mode=="Echo") {
     //??? should use "fastMode = true" here ???
-    Q_EMIT sendMessage (27, 1024.0, 1500.0, 0.0, m_soundOutput,
+    Q_EMIT sendMessage (m_mode, 27, 1024.0, 1500.0, 0.0, m_soundOutput,
                         m_config.audio_output_channel(),
                         false, false, snr, m_TRperiod);
   }
@@ -7273,7 +7267,7 @@ void MainWindow::transmit (double snr)
       toneSpacing=11025.0/256.0;
       f0=13*toneSpacing;
     }
-    Q_EMIT sendMessage (NUM_ISCAT_SYMBOLS, sps, f0, toneSpacing, m_soundOutput,
+    Q_EMIT sendMessage (m_mode, NUM_ISCAT_SYMBOLS, sps, f0, toneSpacing, m_soundOutput,
                         m_config.audio_output_channel(),
                         true, true, snr, m_TRperiod);
   }
