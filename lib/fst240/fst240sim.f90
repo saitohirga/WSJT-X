@@ -47,7 +47,7 @@ program fst240sim
    fs=12000.0                             !Sample rate (Hz)
    dt=1.0/fs                              !Sample interval (s)
    nsps=0
-   if(nsec.eq.15) nsps=800
+   if(nsec.eq.15) nsps=720
    if(nsec.eq.30) nsps=1680
    if(nsec.eq.60) nsps=3888
    if(nsec.eq.120) nsps=8200
@@ -99,7 +99,8 @@ program fst240sim
    icmplx=1
    f0=f00+1.5*hmod*baud
    call gen_fst240wave(itone,NN,nsps,nmax,fsample,hmod,f0,icmplx,c0,wave)
-   k=nint(xdt/dt)
+   k=nint((xdt+1.0)/dt)
+   if(nsec.eq.15) k=nint((xdt+0.5)/dt)
    c0=cshift(c0,-k)
    if(k.gt.0) c0(0:k-1)=0.0
    if(k.lt.0) c0(nmax+k:nmax-1)=0.0

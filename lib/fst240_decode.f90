@@ -69,9 +69,10 @@ contains
    nmax=15*12000
    single_decode=iand(nexp_decode,32).eq.32
    if(ntrperiod.eq.15) then
-      nsps=800
+      nsps=720
       nmax=15*12000
-      ndown=20/hmod !nss=40,80,160,400
+      ndown=18/hmod !nss=40,80,160,400
+      if(hmod.eq.4) ndown=4
       if(hmod.eq.8) ndown=2
       nfft1=int(nmax/ndown)*ndown
    else if(ntrperiod.eq.30) then
@@ -87,7 +88,6 @@ contains
          ndown=5
          nfft1=nmax
       endif
-      nfft1=int(nmax/ndown)*ndown
    else if(ntrperiod.eq.60) then
       nsps=3888
       nmax=60*12000
@@ -276,7 +276,7 @@ contains
          if(ijitter.eq.2) ioffset=-1
          is0=isbest+ioffset
          if(is0.lt.0) cycle
-         cframe=c2(is0:is0+164*nss-1)
+         cframe=c2(is0:is0+160*nss-1)
          bitmetrics=0
          call get_fst240_bitmetrics(cframe,nss,hmod,ntmax,bitmetrics,s4,badsync)
          if(badsync) cycle
@@ -392,31 +392,36 @@ contains
 
    include 'fst240/fst240_params.f90'
    complex cd0(0:np-1)
-   complex, allocatable, save ::  csync(:)
-   complex, allocatable, save ::  csynct(:)
+   complex, allocatable, save ::  csync1(:),csync2(:)
+   complex, allocatable, save ::  csynct1(:),csynct2(:)
    complex ctwk(8*nss)
    complex z1,z2,z3,z4,z5
    logical first
-   integer hmod,isyncword(0:7)
+   integer hmod,isyncword1(0:7),isyncword2(0:7)
    real f0save
-   data isyncword/0,1,3,2,1,0,2,3/
+   data isyncword1/0,1,3,2,1,0,2,3/
+   data isyncword2/2,3,1,0,3,2,0,1/
    data first/.true./,f0save/-99.9/,nss0/-1/
    save first,twopi,dt,fac,f0save,nss0
    p(z1)=(real(z1*fac)**2 + aimag(z1*fac)**2)**0.5     !Compute power
 
-   if(nss.ne.nss0 .and. allocated(csync)) deallocate(csync,csynct)
+   if(nss.ne.nss0 .and. allocated(csync1)) deallocate(csync1,csync2,csynct1,csynct2)
    if(first .or. nss.ne.nss0) then
-      allocate( csync(8*nss) )
-      allocate( csynct(8*nss) )
+      allocate( csync1(8*nss), csync2(8*nss) )
+      allocate( csynct1(8*nss), csynct2(8*nss) )
       twopi=8.0*atan(1.0)
       dt=1/fs
       k=1
-      phi=0.0
+      phi1=0.0
+      phi2=0.0
       do i=0,7
-         dphi=twopi*hmod*(isyncword(i)-1.5)/real(nss)
+         dphi1=twopi*hmod*(isyncword1(i)-1.5)/real(nss)
+         dphi2=twopi*hmod*(isyncword2(i)-1.5)/real(nss)
          do j=1,nss
-            csync(k)=cmplx(cos(phi),sin(phi))
-            phi=mod(phi+dphi,twopi)
+            csync1(k)=cmplx(cos(phi1),sin(phi1))
+            csync2(k)=cmplx(cos(phi2),sin(phi2))
+            phi1=mod(phi1+dphi1,twopi)
+            phi2=mod(phi2+dphi2,twopi)
             k=k+1
          enddo
       enddo
@@ -432,7 +437,8 @@ contains
          ctwk(i)=cmplx(cos(phi),sin(phi))
          phi=mod(phi+dphi,twopi)
       enddo
-      csynct=ctwk*csync
+      csynct1=ctwk*csync1
+      csynct2=ctwk*csync2
       f0save=f0
    endif
 
@@ -453,14 +459,14 @@ contains
       is=(i-1)*ncoh*nss
       z1=0
       if(i1+is.ge.1) then
-         z1=sum(cd0(i1+is:i1+is+ncoh*nss-1)*conjg(csynct(is+1:is+ncoh*nss)))
+         z1=sum(cd0(i1+is:i1+is+ncoh*nss-1)*conjg(csynct1(is+1:is+ncoh*nss)))
       endif
-      z2=sum(cd0(i2+is:i2+is+ncoh*nss-1)*conjg(csynct(is+1:is+ncoh*nss)))
-      z3=sum(cd0(i3+is:i3+is+ncoh*nss-1)*conjg(csynct(is+1:is+ncoh*nss)))
-      z4=sum(cd0(i4+is:i4+is+ncoh*nss-1)*conjg(csynct(is+1:is+ncoh*nss)))
+      z2=sum(cd0(i2+is:i2+is+ncoh*nss-1)*conjg(csynct2(is+1:is+ncoh*nss)))
+      z3=sum(cd0(i3+is:i3+is+ncoh*nss-1)*conjg(csynct1(is+1:is+ncoh*nss)))
+      z4=sum(cd0(i4+is:i4+is+ncoh*nss-1)*conjg(csynct2(is+1:is+ncoh*nss)))
       z5=0
       if(i5+is+ncoh*nss-1.le.np) then
-         z5=sum(cd0(i5+is:i5+is+ncoh*nss-1)*conjg(csynct(is+1:is+ncoh*nss)))
+         z5=sum(cd0(i5+is:i5+is+ncoh*nss-1)*conjg(csynct1(is+1:is+ncoh*nss)))
       endif
       s1=s1+abs(z1)/(8*nss)
       s2=s2+abs(z2)/(8*nss)
@@ -482,7 +488,7 @@ contains
 
    df=12000.0/nfft1
    i0=nint(f0/df)
-   ih=nint( ( f0 + 1.2*sigbw/2.0 )/df)
+   ih=nint( ( f0 + 1.3*sigbw/2.0 )/df)
    nbw=ih-i0+1
    c1=0.
    c1(0)=c_bigfft(i0)

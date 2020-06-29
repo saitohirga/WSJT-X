@@ -71,19 +71,19 @@ subroutine gen_fst240wave(itone,nsym,nsps,nwave,fsample,hmod,f0,    &
      wave(1:nsps)=0.0
      wave(nsps+1:nsps+nsps/4)=wave(nsps+1:nsps+nsps/4) *                      &
           (1.0-cos(twopi*(/(i,i=0,nsps/4-1)/)/real(nsps/2)))/2.0
-     k1=nsym*nsps+3*nsps/4
+     k1=nsym*nsps+3*nsps/4+1
      wave((nsym+1)*nsps+1:)=0.0 
-     wave(k1:k1+nsps/4-1)=wave(k1:k1+nsps/4-1) *                              &
-          (1.0+cos(twopi*(/(i,i=0,nsps/4-1)/)/real(nsps/2)))/2.0
+     wave(k1:k1+nsps/4)=wave(k1:k1+nsps/4) *                              &
+          (1.0+cos(twopi*(/(i,i=0,nsps/4)/)/real(nsps/2)))/2.0
      wave=cshift(wave,kshift)
   else
      cwave(1:nsps)=0.0
      cwave(nsps+1:nsps+nsps/4)=cwave(nsps+1:nsps+nsps/4) *                    &
           (1.0-cos(twopi*(/(i,i=0,nsps/4-1)/)/real(nsps/2)))/2.0
-     k1=nsym*nsps+3*nsps/4
+     k1=nsym*nsps+3*nsps/4+1
      cwave((nsym+1)*nsps+1:)=0.0
-     cwave(k1:k1+nsps/4-1)=cwave(k1:k1+nsps/4-1) *                              &
-          (1.0+cos(twopi*(/(i,i=0,nsps/4-1)/)/real(nsps/2)))/2.0
+     cwave(k1:k1+nsps/4)=cwave(k1:k1+nsps/4) *                              &
+          (1.0+cos(twopi*(/(i,i=0,nsps/4)/)/real(nsps/2)))/2.0
      cwave=cshift(cwave,kshift)
   endif
 
