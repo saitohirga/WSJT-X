@@ -4501,7 +4501,7 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
     }
     return;
   }
-  DecodedText message {cursor.block().text().trimmed().remove("TU; ")};
+  DecodedText message {cursor.block().text().trimmed().left(61).remove("TU; ")};
   m_bDoubleClicked = true;
   processMessage (message, modifiers);
 }
@@ -4575,8 +4575,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   int nw=w.size();
   if(nw>=4) {
     if(message_words.size()<3) return;
-    // Temporary?  Correct for the fact that message.deCallAndGrid() does not work for EU VHF contest messages
-    QString t=message_words.at(nw-2);
     int n=w.at(nw-2).toInt();
     if(n>=520001 and n<=592047) {
       hiscall=w.at(1);
