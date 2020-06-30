@@ -238,8 +238,6 @@ contains
       call four2a(r_data,nfft1,1,-1,0)
       c_bigfft=cmplx(r_data(1:nfft1+2:2),r_data(2:nfft1+2:2))
 
-if(iwspr.ne.0.and.iwspr.ne.1.and.iwspr.ne.2) iwspr=1  ! TEMPORARY
-iwspr=1
       if(iwspr.eq.0) then
          itype1=1
          itype2=1
