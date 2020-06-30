@@ -155,8 +155,6 @@ contains
 
       hmod=2**nsubmode
       if(nfqso+nqsoprogress.eq.-999) return
-      Keff=91
-      iwspr=1
       nmax=15*12000
       single_decode=iand(nexp_decode,32).eq.32
       if(ntrperiod.eq.15) then
@@ -239,6 +237,8 @@ contains
       r_data(nfft1+1:nfft1+2)=0.0
       call four2a(r_data,nfft1,1,-1,0)
       c_bigfft=cmplx(r_data(1:nfft1+2:2),r_data(2:nfft1+2:2))
+
+if(iwspr.ne.0.and.iwspr.ne.1.and.iwspr.ne.2) iwspr=1  ! TEMPORARY
 
       if(iwspr.eq.0) then
          itype1=1
@@ -497,6 +497,7 @@ contains
                   unpk77_success=.false.
                   if(iqorw.eq.1) then
                      maxosd=2
+                     Keff=91
                      norder=3
                      call timer('d240_101',0)
                      call decode240_101(llr,Keff,maxosd,norder,apmask,message101, &
@@ -511,8 +512,9 @@ contains
                         ntype,nharderrors,dmin)
                      call timer('d240_74 ',1)
                   endif
+
                   if(nharderrors .ge.0) then
-                     if(iqor2.eq.1) then
+                     if(iqorw.eq.1) then
                         write(c77,'(77i1)') mod(message101(1:77)+rvec,2)
                         call unpack77(c77,0,msg,unpk77_success)
                      else
@@ -552,8 +554,7 @@ contains
                   endif
                enddo  ! metrics
             enddo  ! istart jitter
-2002        continue
-         enddo !candidate list
+2002     enddo !candidate list
       enddo ! iqorw
 
       return
