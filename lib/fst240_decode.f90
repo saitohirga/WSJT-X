@@ -239,7 +239,7 @@ contains
       c_bigfft=cmplx(r_data(1:nfft1+2:2),r_data(2:nfft1+2:2))
 
 if(iwspr.ne.0.and.iwspr.ne.1.and.iwspr.ne.2) iwspr=1  ! TEMPORARY
-
+iwspr=1
       if(iwspr.eq.0) then
          itype1=1
          itype2=1
@@ -531,7 +531,11 @@ if(iwspr.ne.0.and.iwspr.ne.1.and.iwspr.ne.2) iwspr=1  ! TEMPORARY
                         ndecodes=ndecodes+1
                         decodes(ndecodes)=msg
 
-                        call get_fst240_tones_from_bits(message101,itone,iwspr)
+                        if(iqorw.eq.1) then
+                           call get_fst240_tones_from_bits(message101,itone,0)
+                        else
+                           call get_fst240_tones_from_bits(message74,itone,1)
+                        endif
                         xsig=0
                         do i=1,NN
                            xsig=xsig+s4(itone(i),i)**2
