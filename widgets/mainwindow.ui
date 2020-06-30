@@ -2829,6 +2829,7 @@ list. The list can be maintained in Settings (F2).</string>
     <addaction name="actionEnable_AP_FT8"/>
     <addaction name="actionEnable_AP_JT65"/>
     <addaction name="actionEnable_AP_DXcall"/>
+    <addaction name="actionAlso_FST240W"/>
    </widget>
    <widget class="QMenu" name="menuSave">
     <property name="title">
@@ -3521,6 +3522,17 @@ list. The list can be maintained in Settings (F2).</string>
    </property>
    <property name="text">
     <string>FST240W</string>
+   </property>
+  </action>
+  <action name="actionAlso_FST240W">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Also FST240W</string>
    </property>
   </action>
  </widget>

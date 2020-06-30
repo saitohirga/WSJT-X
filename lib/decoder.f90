@@ -189,6 +189,9 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 
   if(params%nmode.eq.240) then
 ! We're in FST240/FST240W mode
+     ndepth=iand(params%ndepth,3)
+     iwspr=0
+     if(iand(params%ndepth,128).ne.0) iwspr=2
      call timer('dec240  ',0)
      call my_fst240%decode(fst240_decoded,id2,params%nutc,                &
           params%nQSOProgress,params%nfqso,params%nfa,params%nfb,         &

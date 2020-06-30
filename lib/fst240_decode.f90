@@ -155,7 +155,6 @@ contains
    hmod=2**nsubmode
    if(nfqso+nqsoprogress.eq.-999) return
    Keff=91
-   iwspr=1
    nmax=15*12000
    single_decode=iand(nexp_decode,32).eq.32
    if(ntrperiod.eq.15) then

@@ -265,6 +265,7 @@ private slots:
   void on_fox_log_action_triggered ();
   void on_actionColors_triggered();
   void on_actionInclude_averaging_toggled (bool);
+  void on_actionAlso_FST240W_toggled (bool);
   void on_actionInclude_correlation_toggled (bool);
   void on_actionEnable_AP_DXcall_toggled (bool);
   void VHF_features_enabled(bool b);
