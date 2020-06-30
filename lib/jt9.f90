@@ -54,7 +54,7 @@ program jt9
     option ('jt4', .false., '4', 'JT4 mode', ''),                            &
     option ('ft4', .false., '5', 'FT4 mode', ''),                            &
     option ('jt65', .false.,'6', 'JT65 mode', ''),                           &
-    option ('fst240', .false., '7', 'FT8 mode', ''),                         &
+    option ('fst240', .false., '7', 'FST240 mode', ''),                      &
     option ('ft8', .false., '8', 'FT8 mode', ''),                            &
     option ('jt9', .false., '9', 'JT9 mode', ''),                            &
     option ('qra64', .false., 'q', 'QRA64 mode', ''),                        &
