@@ -515,6 +515,10 @@ contains
                   endif
 
                   if(nharderrors .ge.0) then
+                     if(count(cw.eq.1).eq.0) then
+                        nharderrors=-nharderrors
+                        cycle
+                     endif
                      if(iqorw.eq.1) then
                         write(c77,'(77i1)') mod(message101(1:77)+rvec,2)
                         call unpack77(c77,0,msg,unpk77_success)
