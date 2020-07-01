@@ -3196,7 +3196,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
           }
         m_tBlankLine = line_read.left(ntime);
       }
-
       DecodedText decodedtext0 {QString::fromUtf8(line_read.constData())};
       DecodedText decodedtext {QString::fromUtf8(line_read.constData()).remove("TU; ")};
 
@@ -3355,8 +3354,15 @@ void MainWindow::readFromStdout()                             //readFromStdout
 // extract details and send to PSKreporter
         int nsec=QDateTime::currentMSecsSinceEpoch()/1000-m_secBandChanged;
         bool okToPost=(nsec > int(4*m_TRperiod)/5);
-        if (stdMsg && okToPost) pskPost(decodedtext);
-
+        if(m_mode=="FST240W" and okToPost) {
+          line_read=line_read.left(22) + " CQ " + line_read.trimmed().mid(22);
+          int n=line_read.trimmed().size();
+          line_read=line_read.trimmed().left(n-3);
+          DecodedText FST240W_post {QString::fromUtf8(line_read.constData())};
+          pskPost(FST240W_post);
+        } else {
+          if (stdMsg && okToPost) pskPost(decodedtext);
+        }
         if((m_mode=="JT4" or m_mode=="JT65" or m_mode=="QRA64") and m_msgAvgWidget!=NULL) {
           if(m_msgAvgWidget->isVisible()) {
             QFile f(m_config.temp_dir ().absoluteFilePath ("avemsg.txt"));
@@ -3446,7 +3452,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
 
 void MainWindow::pskPost (DecodedText const& decodedtext)
 {
-  if (m_diskData || !m_config.spot_to_psk_reporter() || decodedtext.isLowConfidence ()) return;
+//###  if (m_diskData || !m_config.spot_to_psk_reporter() || decodedtext.isLowConfidence ()) return;
 
   QString msgmode=m_mode;
   if(m_mode=="JT9+JT65") {
@@ -3463,6 +3469,7 @@ void MainWindow::pskPost (DecodedText const& decodedtext)
   int snr = decodedtext.snr();
   Frequency frequency = m_freqNominal + audioFrequency;
   pskSetLocal ();
+//  qDebug() << "bb" << deCall << grid << frequency << msgmode << snr;
   if(grid.contains (grid_regexp)) {
 //    qDebug() << "To PSKreporter:" << deCall << grid << frequency << msgmode << snr;
     psk_Reporter->addRemoteStation(deCall,grid,QString::number(frequency),msgmode,
