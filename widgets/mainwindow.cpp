@@ -5839,7 +5839,7 @@ void MainWindow::on_actionFST240W_triggered()
   displayWidgets(nWidgets("000001000000000001010000000000000"));
   bool bVHF=m_config.enable_VHF_features();
   setup_status_bar (bVHF);
-  m_TRperiod = ui->sbTR->value ();
+  m_TRperiod = ui->sbTR_FST240W->value ();
   ui->band_hopping_group_box->setVisible(false);
   ui->sbTR_FST240W->setMinimum(15);           //### 120 ?? ###
   ui->sbTR_FST240W->setMaximum(300);
