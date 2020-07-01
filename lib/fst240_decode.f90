@@ -547,12 +547,14 @@ contains
                         else
                            xsnr=-99.9
                         endif
+                     else
+                        cycle
                      endif
                      nsnr=nint(xsnr)
                      qual=0.
                      fsig=fc_synced - 1.5*hmod*baud
 !write(21,'(i6,7i6,f7.1,f9.2,3f7.1,1x,a37)') &
-!  nutc,icand,itry,iaptype,ijitter,ntype,nsync_qual,nharderrors,dmin,sync,xsnr,x!dt,fsig,msg
+!  nutc,icand,itry,iaptype,ijitter,ntype,nsync_qual,nharderrors,dmin,sync,xsnr,xdt,fsig,msg
                      call this%callback(nutc,smax1,nsnr,xdt,fsig,msg,    &
                         iaptype,qual,ntrperiod,lwspr)
                      goto 2002
