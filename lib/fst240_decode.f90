@@ -238,7 +238,9 @@ contains
       r_data(nfft1+1:nfft1+2)=0.0
       call four2a(r_data,nfft1,1,-1,0)
       c_bigfft=cmplx(r_data(1:nfft1+2:2),r_data(2:nfft1+2:2))
-iwspr=1
+!      write(*,3001) iwspr,nfa,nfb,nfsplit,ndeep
+!3001  format('a',5i5)
+!      iwspr=1                            !### For hardwired tests ###
       if(iwspr.eq.0) then
          itype1=1
          itype2=1
