@@ -188,11 +188,10 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   endif
 
   if(params%nmode.eq.240) then
-! We're in FST240/FST240W mode
+! We're in FST240 mode
      ndepth=iand(params%ndepth,3)
      iwspr=0
-     if(iand(params%ndepth,128).ne.0) iwspr=2
-!     if(iand(params%ndepth,128).ne.0) iwspr=1
+     if(iand(params%ndepth,128).ne.0) iwspr=1
      call timer('dec240  ',0)
      call my_fst240%decode(fst240_decoded,id2,params%nutc,                &
           params%nQSOProgress,params%nfqso,params%nfa,params%nfb,         &
@@ -204,8 +203,23 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      go to 800
   endif
 
-  rms=sqrt(dot_product(float(id2(300000:310000)),                         &
-       float(id2(300000:310000)))/10000.0)
+    if(params%nmode.eq.241) then
+! We're in FST240W mode
+     ndepth=iand(params%ndepth,3)
+     iwspr=1
+     call timer('dec240  ',0)
+     call my_fst240%decode(fst240_decoded,id2,params%nutc,                &
+          params%nQSOProgress,params%nfqso,params%nfa,params%nfb,         &
+          params%nsubmode,ndepth,params%ntr,params%nexp_decode,           &
+          params%ntol,params%nzhsym,params%emedelay,                      &
+          logical(params%lapcqonly),params%napwid,mycall,hiscall,         &
+          params%nfsplit,iwspr)
+     call timer('dec240  ',1)
+     go to 800
+  endif
+
+  rms=sqrt(dot_product(float(id2(60001:61000)),                         &
+       float(id2(60001:61000)))/1000.0)
   if(rms.lt.2.0) go to 800
 
 ! Zap data at start that might come from T/R switching transient?

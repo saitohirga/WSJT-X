@@ -299,6 +299,7 @@ private slots:
   void on_actionErase_reference_spectrum_triggered();
   void on_actionMeasure_phase_response_triggered();
   void on_sbTR_valueChanged (int);
+  void on_sbTR_FST240W_valueChanged (int);
   void on_sbFtol_valueChanged (int);
   void on_cbFast9_clicked(bool b);
   void on_sbCQTxFreq_valueChanged(int n);
@@ -729,6 +730,7 @@ private:
   void setRig (Frequency = 0);  // zero frequency means no change
   void WSPR_history(Frequency dialFreq, int ndecodes);
   QString WSPR_hhmm(int n);
+  QString WSPR_message();
   void fast_config(bool b);
   void CQTxFreq();
   void useNextCall();

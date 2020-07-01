@@ -429,7 +429,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->dxGridEntry->setValidator (new MaidenheadLocatorValidator {this});
   ui->dxCallEntry->setValidator (new CallsignValidator {this});
   ui->sbTR->values ({5, 10, 15, 30, 60, 120, 300});
-  ui->sbTR_FST240W->values ({120, 300});
+  ui->sbTR_FST240W->values ({15, 30, 60, 120, 300});
   ui->decodedTextBrowser->set_configuration (&m_config, true);
   ui->decodedTextBrowser2->set_configuration (&m_config);
 
@@ -1128,6 +1128,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("NoOwnCall",ui->cbNoOwnCall->isChecked());
   m_settings->setValue ("BandHopping", ui->band_hopping_group_box->isChecked ());
   m_settings->setValue ("TRPeriod", ui->sbTR->value ());
+  m_settings->setValue ("TRPeriod_FST240W", ui->sbTR_FST240W->value ());
   m_settings->setValue("FastMode",m_bFastMode);
   m_settings->setValue("Fast9",m_bFast9);
   m_settings->setValue ("CQTxfreq", ui->sbCQTxFreq->value ());
@@ -1200,6 +1201,7 @@ void MainWindow::readSettings()
   m_bFast9=m_settings->value("Fast9",false).toBool();
   m_bFastMode=m_settings->value("FastMode",false).toBool();
   ui->sbTR->setValue (m_settings->value ("TRPeriod", 15).toInt());
+  ui->sbTR_FST240W->setValue (m_settings->value ("TRPeriod_FST240W", 15).toInt());
   m_lastMonitoredFrequency = m_settings->value ("DialFreq",
     QVariant::fromValue<Frequency> (default_frequency)).value<Frequency> ();
   ui->WSPRfreqSpinBox->setValue(0); // ensure a change is signaled
@@ -2971,6 +2973,7 @@ void MainWindow::decode()                                       //decode()
     m_BestCQpriority="";
   }
   if(m_mode=="FST240") dec_data.params.nmode=240;
+  if(m_mode=="FST240W") dec_data.params.nmode=241;
   dec_data.params.ntrperiod=m_TRperiod;
   dec_data.params.nsubmode=m_nSubMode;
   if(m_mode=="QRA64") dec_data.params.nsubmode=100 + m_nSubMode;
@@ -3749,25 +3752,7 @@ void MainWindow::guiUpdate()
     QByteArray ba0;
 
     if(m_mode.startsWith ("WSPR")) {
-      QString sdBm,msg0,msg1,msg2;
-      sdBm = sdBm.asprintf(" %d",m_dBm);
-      m_tx=1-m_tx;
-      int i2=m_config.my_callsign().indexOf("/");
-      if(i2>0
-         || (6 == m_config.my_grid ().size ()
-             && !ui->WSPR_prefer_type_1_check_box->isChecked ())) {
-        if(i2<0) {                                                 // "Type 2" WSPR message
-          msg1=m_config.my_callsign() + " " + m_config.my_grid().mid(0,4) + sdBm;
-        } else {
-          msg1=m_config.my_callsign() + sdBm;
-        }
-        msg0="<" + m_config.my_callsign() + "> " + m_config.my_grid()+ sdBm;
-        if(m_tx==0) msg2=msg0;
-        if(m_tx==1) msg2=msg1;
-      } else {
-        msg2=m_config.my_callsign() + " " + m_config.my_grid().mid(0,4) + sdBm; // Normal WSPR message
-      }
-      ba=msg2.toLatin1();
+      ba=WSPR_message().toLatin1();
     } else {
       if(SpecOp::HOUND == m_config.special_op_id() and m_ntx!=3) {   //Hound transmits only Tx1 or Tx3
         m_ntx=1;
@@ -3881,6 +3866,10 @@ void MainWindow::guiUpdate()
             int ichk=0;
             int iwspr=0;
             char fst240msgbits[101];
+            if(m_mode=="FST240W") {
+              ba=WSPR_message().toLatin1();
+              ba2msg(ba,message);
+            }
             genfst240_(message,&ichk,msgsent,const_cast<char *> (fst240msgbits),
                            const_cast<int *>(itone), &iwspr, 37, 37);
             int hmod=int(pow(2.0,double(m_nSubMode)));
@@ -5841,6 +5830,7 @@ void MainWindow::on_actionFST240_triggered()
 
 void MainWindow::on_actionFST240W_triggered()
 {
+  on_actionFST240_triggered();
   m_mode="FST240W";
   m_modeTx="FST240W";
   WSPR_config(true);
@@ -5851,8 +5841,8 @@ void MainWindow::on_actionFST240W_triggered()
   setup_status_bar (bVHF);
   m_TRperiod = ui->sbTR->value ();
   ui->band_hopping_group_box->setVisible(false);
-  ui->sbTR->setMinimum(120);
-  ui->sbTR->setMaximum(300);
+  ui->sbTR_FST240W->setMinimum(15);           //### 120 ?? ###
+  ui->sbTR_FST240W->setMaximum(300);
   ui->sbSubmode->setMaximum(3);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
@@ -7448,6 +7438,11 @@ void MainWindow::on_sbTR_valueChanged(int value)
     on_stopTxButton_clicked();
   }
   statusUpdate ();
+}
+
+void MainWindow::on_sbTR_FST240W_valueChanged(int value)
+{
+  on_sbTR_valueChanged(value);
 }
 
 QChar MainWindow::current_submode () const
@@ -9105,4 +9100,27 @@ void MainWindow::remote_configure (QString const& mode, quint32 frequency_tolera
     }
   tx_watchdog (false);
   QApplication::alert (this);
+}
+
+QString MainWindow::WSPR_message()
+{
+  QString sdBm,msg0,msg1,msg2;
+  sdBm = sdBm.asprintf(" %d",m_dBm);
+  m_tx=1-m_tx;
+  int i2=m_config.my_callsign().indexOf("/");
+  if(i2>0
+     || (6 == m_config.my_grid ().size ()
+         && !ui->WSPR_prefer_type_1_check_box->isChecked ())) {
+    if(i2<0) {                                                 // "Type 2" WSPR message
+      msg1=m_config.my_callsign() + " " + m_config.my_grid().mid(0,4) + sdBm;
+    } else {
+      msg1=m_config.my_callsign() + sdBm;
+    }
+    msg0="<" + m_config.my_callsign() + "> " + m_config.my_grid()+ sdBm;
+    if(m_tx==0) msg2=msg0;
+    if(m_tx==1) msg2=msg1;
+  } else {
+    msg2=m_config.my_callsign() + " " + m_config.my_grid().mid(0,4) + sdBm; // Normal WSPR message
+  }
+  return msg2;
 }

@@ -26,7 +26,7 @@ program jt9
        fhigh=4000,nrxfreq=1500,ndepth=1,nexp_decode=0,nQSOProg=0
   logical :: read_files = .true., tx9 = .false., display_help = .false.,     &
        bLowSidelobes = .false.
-  type (option) :: long_options(28) = [ &
+  type (option) :: long_options(29) = [ &
     option ('help', .false., 'h', 'Display this help message', ''),          &
     option ('shmem',.true.,'s','Use shared memory for sample data','KEY'),   &
     option ('tr-period', .true., 'p', 'Tx/Rx period, default SECONDS=60',     &
@@ -55,6 +55,7 @@ program jt9
     option ('ft4', .false., '5', 'FT4 mode', ''),                            &
     option ('jt65', .false.,'6', 'JT65 mode', ''),                           &
     option ('fst240', .false., '7', 'FST240 mode', ''),                      &
+    option ('fst240w', .false., 'W', 'FST240W mode', ''),                    &
     option ('ft8', .false., '8', 'FT8 mode', ''),                            &
     option ('jt9', .false., '9', 'JT9 mode', ''),                            &
     option ('qra64', .false., 'q', 'QRA64 mode', ''),                        &
@@ -80,11 +81,12 @@ program jt9
   common/decstats/ntry65a,ntry65b,n65a,n65b,num9,numfano
   data npatience/1/,nthreads/1/
 
+  iwspr=0
   nsubmode = 0
   TRperiod=60.d0
 
   do
-     call getopt('hs:e:a:b:r:m:p:d:f:w:t:987654qTL:S:H:c:G:x:g:X:Q:',      &
+     call getopt('hs:e:a:b:r:m:p:d:f:w:t:987654WqTL:S:H:c:G:x:g:X:Q:',      &
           long_options,c,optarg,arglen,stat,offset,remain,.true.)
      if (stat .ne. 0) then
         exit
@@ -129,6 +131,7 @@ program jt9
            if (mode.lt.65) mode = mode + 65
         case ('7')
            mode = 240
+           iwspr=0
         case ('8')
            mode = 8
         case ('9')
@@ -137,6 +140,9 @@ program jt9
            tx9 = .true.
         case ('w')
            read (optarg(:arglen), *) npatience
+        case ('W')
+           mode = 241
+           iwspr=1
         case ('c')
            read (optarg(:arglen), *) mycall
         case ('G')
@@ -256,6 +262,7 @@ program jt9
      shared_data%params%kin=64800
      if(mode.eq.240) shared_data%params%kin=720000   !### 60 s periods ###
      shared_data%params%nzhsym=nhsym
+     if(mode.eq.240 .and. iwspr.eq.1) ndepth=ior(ndepth,128)
      shared_data%params%ndepth=ndepth
      shared_data%params%lft8apon=.true.
      shared_data%params%ljt65apon=.true.
