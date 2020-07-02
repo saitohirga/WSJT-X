@@ -5846,6 +5846,8 @@ void MainWindow::on_actionFST240W_triggered()
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
   m_wideGraph->setPeriod(m_TRperiod,6912);
+  ui->sbFtol->setValue(100);
+  ui->RxFreqSpinBox->setValue(1500);
   switch_mode (Modes::FST240W);
   statusChanged();
 }
