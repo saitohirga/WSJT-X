@@ -6442,7 +6442,7 @@ void MainWindow::switch_mode (Mode mode)
     ui->label_6->setVisible(false);
     ui->label_7->setVisible(false);
   }
-  ui->actionAlso_FST240W->setVisible(m_mode.startsWith("FST240"));
+  ui->actionAlso_FST240W->setVisible(m_mode=="FST240");
 }
 
 void MainWindow::WSPR_config(bool b)
