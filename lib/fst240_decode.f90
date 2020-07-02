@@ -28,7 +28,7 @@ module fst240_decode
 contains
 
    subroutine decode(this,callback,iwave,nutc,nQSOProgress,nfqso,    &
-      nfa,nfb,nsubmode,ndeep,ntrperiod,nexp_decode,ntol,nzhsym,    &
+      nfa,nfb,nsubmode,ndepth,ntrperiod,nexp_decode,ntol,nzhsym,    &
       emedelay,lapcqonly,napwid,mycall,hiscall,nfsplit,iwspr)
 
       use timer_module, only: timer
@@ -80,6 +80,7 @@ contains
 
       this%callback => callback
 
+      print*,'AAA',iwspr,ndepth
       dxcall13=hiscall   ! initialize for use in packjt77
       mycall13=mycall
 
@@ -216,17 +217,17 @@ contains
       allocate( cframe(0:160*nss-1) )
 
 
-      if(ndeep.eq.3) then
+      if(ndepth.eq.3) then
          nblock=1
          if(hmod.eq.1) nblock=4      ! number of block sizes to try
          jittermax=2
          norder=3
-      elseif(ndeep.eq.2) then
+      elseif(ndepth.eq.2) then
          nblock=1
          if(hmod.eq.1) nblock=3
          jittermax=0
          norder=3
-      elseif(ndeep.eq.1) then
+      elseif(ndepth.eq.1) then
          nblock=1
          jittermax=0
          norder=3
@@ -238,7 +239,7 @@ contains
       r_data(nfft1+1:nfft1+2)=0.0
       call four2a(r_data,nfft1,1,-1,0)
       c_bigfft=cmplx(r_data(1:nfft1+2:2),r_data(2:nfft1+2:2))
-!      write(*,3001) iwspr,nfa,nfb,nfsplit,ndeep
+!      write(*,3001) iwspr,nfa,nfb,nfsplit,ndepth
 !3001  format('a',5i5)
 !      iwspr=1                            !### For hardwired tests ###
       if(iwspr.eq.0) then
@@ -436,7 +437,7 @@ contains
                apmag=maxval(abs(llra))*1.1
                ntmax=nblock+nappasses(nQSOProgress)
                if(lapcqonly) ntmax=nblock+1
-               if(ndeep.eq.1) ntmax=nblock
+               if(ndepth.eq.1) ntmax=nblock
                apmask=0
 
                if(iqorw.eq.2) then ! 50-bit msgs, no ap decoding
