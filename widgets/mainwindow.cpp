@@ -6456,7 +6456,7 @@ void MainWindow::WSPR_config(bool b)
   ui->logQSOButton->setVisible(!b);
   ui->DecodeButton->setEnabled(!b);
   ui->band_hopping_group_box->setVisible(true);
-  if(b and (m_mode!="Echo")) {
+  if(b and m_mode!="Echo" and m_mode!="FST240W") {
     QString t="UTC    dB   DT     Freq     Drift  Call          Grid    dBm    ";
     if(m_config.miles()) t += " mi";
     if(!m_config.miles()) t += " km";
