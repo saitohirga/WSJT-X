@@ -3864,8 +3864,10 @@ void MainWindow::guiUpdate()
             int ichk=0;
             int iwspr=0;
             char fst240msgbits[101];
+            QString wmsg;
             if(m_mode=="FST240W") {
-              ba=WSPR_message().toLatin1();
+              wmsg=WSPR_message();
+              ba=wmsg.toLatin1();
               ba2msg(ba,message);
             }
             genfst240_(message,&ichk,msgsent,const_cast<char *> (fst240msgbits),
@@ -9091,7 +9093,8 @@ QString MainWindow::WSPR_message()
     } else {
       msg1=m_config.my_callsign() + sdBm;
     }
-    msg0="<" + m_config.my_callsign() + "> " + m_config.my_grid()+ sdBm;
+    msg0="<" + m_config.my_callsign() + "> " + m_config.my_grid();
+    if(m_mode=="WSPR") msg0 += sdBm;
     if(m_tx==0) msg2=msg0;
     if(m_tx==1) msg2=msg1;
   } else {
