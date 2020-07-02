@@ -134,8 +134,6 @@ extern "C" {
 
   void genwspr_(char* msg, char* msgsent, int itone[], fortran_charlen_t, fortran_charlen_t);
 
-//  void genwspr_fsk8_(char* msg, char* msgsent, int itone[], fortran_charlen_t, fortran_charlen_t);
-
   void geniscat_(char* msg, char* msgsent, int itone[], fortran_charlen_t, fortran_charlen_t);
 
   void azdist_(char* MyGrid, char* HisGrid, double* utch, int* nAz, int* nEl,
@@ -968,7 +966,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_max_dB=70;
   m_CQtype="CQ";
 
-  if(m_mode.startsWith ("WSPR") and m_pctx>0)  {
+  if(m_mode=="WSPR" and m_pctx>0)  {
     QPalette palette {ui->sbTxPercent->palette ()};
     palette.setColor(QPalette::Base,Qt::yellow);
     ui->sbTxPercent->setPalette(palette);
@@ -1047,15 +1045,12 @@ void MainWindow::on_the_minute ()
         }
     }
 
-  if (m_config.watchdog () && !m_mode.startsWith ("WSPR"))
-    {
-      if (m_idleMinutes < m_config.watchdog ()) ++m_idleMinutes;
-      update_watchdog_label ();
-    }
-  else
-    {
-      tx_watchdog (false);
-    }
+  if (m_config.watchdog () && m_mode!="WSPR" && m_mode!="FST240W") {
+    if (m_idleMinutes < m_config.watchdog ()) ++m_idleMinutes;
+    update_watchdog_label ();
+  } else {
+    tx_watchdog (false);
+  }
 }
 
 //--------------------------------------------------- MainWindow destructor
@@ -1395,14 +1390,12 @@ void MainWindow::dataSink(qint64 frames)
   bool bLowSidelobes=m_config.lowSidelobes();
   symspec_(&dec_data,&k,&m_TRperiod,&nsps,&m_inGain,&bLowSidelobes,&nsmo,&m_px,s,
            &m_df3,&m_ihsym,&m_npts8,&m_pxmax);
-  if(m_mode=="WSPR") wspr_downsample_(dec_data.d2,&k);
+  if(m_mode=="WSPR" or m_mode=="FST240W") wspr_downsample_(dec_data.d2,&k);
   if(m_ihsym <=0) return;
   if(ui) ui->signal_meter_widget->setValue(m_px,m_pxmax); // Update thermometer
   if(m_monitoring || m_diskData) {
     m_wideGraph->dataSink2(s,m_df3,m_ihsym,m_diskData);
   }
-//  if(m_mode=="FT4") ft4_rx(k);
-//  if(m_mode=="MSK144" or m_mode=="FT4") return;
   if(m_mode=="MSK144") return;
 
   fixStop();
@@ -1501,10 +1494,11 @@ void MainWindow::dataSink(qint64 frames)
     if(m_mode=="FT8" and m_ihsym==m_earlyDecode2 and !m_diskData) dec_data.params.nzhsym=m_earlyDecode2;
     QDateTime now {QDateTime::currentDateTimeUtc ()};
     m_dateTime = now.toString ("yyyy-MMM-dd hh:mm");
-    if(!m_mode.startsWith ("WSPR")) decode(); //Start decoder
+    if(m_mode!="WSPR") decode(); //Start decoder
+
     if(m_mode=="FT8" and !m_diskData and (m_ihsym==m_earlyDecode or m_ihsym==m_earlyDecode2)) return;
-    if(!m_diskData and (m_saveAll or m_saveDecoded or m_mode=="WSPR")) {  //Always save unless "Save None"; may delete later
-//      if(m_mode=="FT8" or m_mode=="FT4") {
+    if(!m_diskData and (m_saveAll or m_saveDecoded or m_mode=="WSPR" or m_mode=="FST240W")) {
+      //Always save unless "Save None"; may delete later
       if(m_TRperiod < 60) {
         int n=fmod(double(now.time().second()),m_TRperiod);
         if(n<(m_TRperiod/2)) n=n+m_TRperiod;
@@ -1522,7 +1516,7 @@ void MainWindow::dataSink(qint64 frames)
       m_saveWAVWatcher.setFuture (QtConcurrent::run (std::bind (&MainWindow::save_wave_file,
             this, m_fnameWE, &dec_data.d2[0], samples, m_config.my_callsign(),
             m_config.my_grid(), m_mode, m_nSubMode, m_freqNominal, m_hisCall, m_hisGrid)));
-      if (m_mode=="WSPR") {
+      if (m_mode=="WSPR" or m_mode=="FST240W") {
         QString c2name_string {m_fnameWE + ".c2"};
         int len1=c2name_string.length();
         char c2name[80];
@@ -1534,7 +1528,7 @@ void MainWindow::dataSink(qint64 frames)
         if (err!=0) MessageBox::warning_message (this, tr ("Error saving c2 file"), c2name);
       }
     }
-    if(m_mode.startsWith ("WSPR")) {
+    if(m_mode=="WSPR") {
       QStringList t2;
       QStringList depth_args;
       t2 << "-f" << QString {"%1"}.arg (m_dialFreqRxWSPR / 1000000.0, 0, 'f', 6);
@@ -1588,7 +1582,7 @@ QString MainWindow::save_wave_file (QString const& name, short const * data, int
            ? QString {", Sub Mode="} + QChar {'A' + sub_mode}
          : QString {}})
         .arg (Radio::frequency_MHz_string (frequency))
-     .arg (QString {!mode.startsWith ("WSPR") ? QString {", DXCall=%1, DXGrid=%2"}
+     .arg (QString {mode!="WSPR" ? QString {", DXCall=%1, DXGrid=%2"}
          .arg (his_call)
          .arg (his_grid).toLocal8Bit () : ""});
   BWFFile::InfoDictionary list_info {
@@ -1876,7 +1870,7 @@ void MainWindow::on_autoButton_clicked (bool checked)
     m_nclearave=1;
     echocom_.nsum=0;
   }
-  if(m_mode.startsWith ("WSPR"))  {
+  if(m_mode=="WSPR" or m_mode=="FST240W") {
     QPalette palette {ui->sbTxPercent->palette ()};
     if(m_auto or m_pctx==0) {
       palette.setColor(QPalette::Base,Qt::white);
@@ -2139,7 +2133,7 @@ void MainWindow::bumpFqso(int n)                                 //bumpFqso()
   if (ui->RxFreqSpinBox->isEnabled ()) {
     ui->RxFreqSpinBox->setValue (i);
   }
-  if(ctrl and m_mode.startsWith ("WSPR")) {
+  if(ctrl and m_mode=="WSPR") {
     ui->WSPRfreqSpinBox->setValue(i);
   } else {
     if(ctrl and bTrackTx) {
@@ -2324,7 +2318,7 @@ void MainWindow::setup_status_bar (bool vhf)
   last_tx_label.setText (QString {});
   if (m_mode.contains (QRegularExpression {R"(^(Echo|ISCAT))"})) {
     if (band_hopping_label.isVisible ()) statusBar ()->removeWidget (&band_hopping_label);
-  } else if (m_mode.startsWith ("WSPR")) {
+  } else if (m_mode=="WSPR") {
     mode_label.setStyleSheet ("QLabel{background-color: #ff66ff}");
     if (!band_hopping_label.isVisible ()) {
       statusBar ()->addWidget (&band_hopping_label);
@@ -2534,7 +2528,7 @@ void MainWindow::hideMenus(bool checked)
       minimumSize().setWidth(770);
   }
   ui->menuBar->setVisible(!checked);
-  if(m_mode!="FreqCal" and m_mode!="WSPR") {
+  if(m_mode!="FreqCal" and m_mode!="WSPR" and m_mode!="FSt240W") {
     ui->label_6->setVisible(!checked);
     ui->label_7->setVisible(!checked);
     ui->decodedTextLabel2->setVisible(!checked);
@@ -2844,7 +2838,7 @@ void MainWindow::on_DecodeButton_clicked (bool /* checked */) //Decode request
   if(m_mode=="MSK144") {
     ui->DecodeButton->setChecked(false);
   } else {
-    if(!m_mode.startsWith ("WSPR") && !m_decoderBusy) {
+    if(m_mode!="WSPR" && !m_decoderBusy) {
       dec_data.params.newdat=0;
       dec_data.params.nagain=1;
       decode();
@@ -3482,7 +3476,7 @@ void MainWindow::killFile ()
   if (m_fnameWE.size () && !(m_saveAll || (m_saveDecoded && m_bDecoded))) {
     QFile f1 {m_fnameWE + ".wav"};
     if(f1.exists()) f1.remove();
-    if(m_mode.startsWith ("WSPR")) {
+    if(m_mode=="WSPR" or m_mode=="FST240W") {
       QFile f2 {m_fnameWE + ".c2"};
       if(f2.exists()) f2.remove();
     }
@@ -3493,7 +3487,7 @@ void MainWindow::on_EraseButton_clicked ()
 {
   qint64 ms=QDateTime::currentMSecsSinceEpoch();
   ui->decodedTextBrowser2->erase ();
-  if(m_mode.startsWith ("WSPR") or m_mode=="Echo" or m_mode=="ISCAT") {
+  if(m_mode=="WSPR" or m_mode=="Echo" or m_mode=="ISCAT" or m_mode=="FST240W") {
     ui->decodedTextBrowser->erase ();
   } else {
     if((ms-m_msErase)<500) {
@@ -3564,7 +3558,7 @@ void MainWindow::guiUpdate()
   if((icw[0]>0) and (!m_bFast9)) tx2 += icw[0]*2560.0/48000.0;  //Full length including CW ID
   if(tx2>m_TRperiod) tx2=m_TRperiod;
 
-  if(!m_txFirst and !m_mode.startsWith ("WSPR")) {
+  if(!m_txFirst and m_mode!="WSPR" and m_mode!="FST240W") {
     tx1 += m_TRperiod;
     tx2 += m_TRperiod;
   }
@@ -3585,7 +3579,7 @@ void MainWindow::guiUpdate()
     if(m_transmitting) m_bEchoTxed=true;
   }
 
-  if(m_mode.startsWith ("WSPR")) {
+  if(m_mode=="WSPR" or m_mode=="FST240W") {
     if(m_nseq==0 and m_ntr==0) {                   //Decide whether to Tx or Rx
       m_tuneup=false;                              //This is not an ATU tuneup
       if(m_pctx==0) m_WSPR_tx_next = false;        //Don't transmit if m_pctx=0
@@ -3598,16 +3592,16 @@ void MainWindow::guiUpdate()
         m_ntr=-1;                                  //This says we will have transmitted
         m_txNext=false;
         ui->pbTxNext->setChecked(false);
-        m_bTxTime=true;                            //Start a WSPR Tx sequence
+        m_bTxTime=true;                            //Start a WSPR or FST240W Tx sequence
       } else {
-// This will be a WSPR Rx sequence.
+// This will be a WSPR or FST240W Rx sequence.
         m_ntr=1;                                   //This says we will have received
-        m_bTxTime=false;                           //Start a WSPR Rx sequence
+        m_bTxTime=false;                           //Start a WSPR or FST240W Rx sequence
       }
     }
 
   } else {
-// For all modes other than WSPR
+// For all modes other than WSPR and FSt240W
     m_bTxTime = (t2p >= tx1) and (t2p < tx2);
     if(m_mode=="Echo") m_bTxTime = m_bTxTime and m_bEchoTxOK;
     if(m_mode=="FT8" and ui->tx5->currentText().contains("/B ")) {
@@ -3627,8 +3621,7 @@ void MainWindow::guiUpdate()
 
 // Don't transmit another mode in the 30 m WSPR sub-band
     Frequency onAirFreq = m_freqNominal + ui->TxFreqSpinBox->value();
-    if ((onAirFreq > 10139900 and onAirFreq < 10140320) and
-        !m_mode.startsWith ("WSPR")) {
+    if ((onAirFreq > 10139900 and onAirFreq < 10140320) and m_mode!="WSPR") {
       m_bTxTime=false;
       if (m_auto) auto_tx_mode (false);
       if(onAirFreq!=m_onAirFreq0) {
@@ -3661,7 +3654,7 @@ void MainWindow::guiUpdate()
       }
     }
 
-    if (m_config.watchdog() && !m_mode.startsWith ("WSPR")
+    if (m_config.watchdog() && m_mode!="WSPR" && m_mode!="FST240W"
         && m_idleMinutes >= m_config.watchdog ()) {
       tx_watchdog (true);       // disable transmit
     }
@@ -3733,19 +3726,19 @@ void MainWindow::guiUpdate()
     if(!m_bTxTime and !m_tune) m_btxok=false;       //Time to stop transmitting
   }
 
-  if(m_mode.startsWith ("WSPR") and
+  if((m_mode=="WSPR" or m_mode=="FST240W") and
      ((m_ntr==1 and m_rxDone) or (m_ntr==-1 and m_nseq>tx2))) {
     if(m_monitoring) {
       m_rxDone=false;
     }
     if(m_transmitting) {
       WSPR_history(m_freqNominal,-1);
-      m_bTxTime=false;                        //Time to stop a WSPR transmission
+      m_bTxTime=false;                        //Time to stop a WSPR or FST240W transmission
       m_btxok=false;
     }
     else if (m_ntr != -1) {
       WSPR_scheduling ();
-      m_ntr=0;                                //This WSPR Rx sequence is complete
+      m_ntr=0;                                //This WSPR or FST240W Rx sequence is complete
     }
   }
 
@@ -3756,7 +3749,7 @@ void MainWindow::guiUpdate()
     QByteArray ba;
     QByteArray ba0;
 
-    if(m_mode.startsWith ("WSPR")) {
+    if(m_mode=="WSPR") {
       ba=WSPR_message().toLatin1();
     } else {
       if(SpecOp::HOUND == m_config.special_op_id() and m_ntx!=3) {   //Hound transmits only Tx1 or Tx3
@@ -4022,7 +4015,7 @@ void MainWindow::guiUpdate()
   }
   if (g_iptt == 1 && m_iptt0 == 0) {
     auto const& current_message = QString::fromLatin1 (msgsent);
-    if(m_config.watchdog () && !m_mode.startsWith ("WSPR")
+    if(m_config.watchdog () && m_mode!="WSPR" && m_mode!="FST240W"
        && current_message != m_msgSent0) {
       tx_watchdog (false);  // in case we are auto sequencing
       m_msgSent0 = current_message;
@@ -4211,7 +4204,7 @@ void MainWindow::startTx2()
     ui->signal_meter_widget->setValue(0,0);
     if(m_mode=="Echo" and !m_tune) m_bTransmittedEcho=true;
 
-    if(m_mode.startsWith ("WSPR") and !m_tune) {
+    if((m_mode=="WSPR" or m_mode=="FST240W") and !m_tune) {
       if (m_config.TX_messages ()) {
         t = " Transmitting " + m_mode + " ----------------------- " +
           m_config.bands ()->find (m_freqNominal);
@@ -4247,7 +4240,7 @@ void MainWindow::stopTx2()
     on_stopTxButton_clicked ();
     m_nTx73 = 0;
   }
-  if((m_mode.startsWith("WSPR") and m_ntr==-1) and !m_tuneup) {
+  if(((m_mode=="WSPR" or m_mode=="FST240W") and m_ntr==-1) and !m_tuneup) {
     m_wideGraph->setWSPRtransmitted();
     WSPR_scheduling ();
     m_ntr=0;
@@ -6140,8 +6133,8 @@ void MainWindow::on_actionJT9_JT65_triggered()
 
 void MainWindow::on_actionJT65_triggered()
 {
-  if(m_mode=="JT4" or m_mode.startsWith ("WSPR")) {
-// If coming from JT4 or WSPR mode, pretend temporarily that we're coming
+  if(m_mode=="JT4" or m_mode=="WSPR" or m_mode=="FST240W") {
+// If coming from JT4, WSPR, or FST240W mode, pretend temporarily that we're coming
 // from JT9 and click the pbTxMode button
     m_modeTx="JT9";
     on_pbTxMode_clicked();
@@ -6269,7 +6262,9 @@ void MainWindow::on_actionMSK144_triggered()
     if("QRA64"==m_mode) ui->actionQRA64->setChecked(true); 
     if("WSPR"==m_mode) ui->actionWSPR->setChecked(true); 
     if("Echo"==m_mode) ui->actionEcho->setChecked(true); 
-    if("FreqCal"==m_mode) ui->actionFreqCal->setChecked(true); 
+    if("FreqCal"==m_mode) ui->actionFreqCal->setChecked(true);
+    if("FST240"==m_mode) ui->actionFST240->setChecked(true);
+    if("FST240W"==m_mode) ui->actionFST240W->setChecked(true);
 // Make sure that MSK144 is not checked.
     ui->actionMSK144->setChecked(false);
     MessageBox::warning_message (this, tr ("Improper mode"),
@@ -6655,7 +6650,7 @@ void MainWindow::band_changed (Frequency f)
   }
 
   if (m_bandEdited) {
-    if (!m_mode.startsWith ("WSPR")) { // band hopping preserves auto Tx
+    if (m_mode!="WSPR") { // band hopping preserves auto Tx
       if (f + m_wideGraph->nStartFreq () > m_freqNominal + ui->TxFreqSpinBox->value ()
           || f + m_wideGraph->nStartFreq () + m_wideGraph->fSpan () <=
           m_freqNominal + ui->TxFreqSpinBox->value ()) {
@@ -6681,7 +6676,7 @@ void MainWindow::band_changed (Frequency f)
 
 void MainWindow::enable_DXCC_entity (bool on)
 {
-  if (on and !m_mode.startsWith ("WSPR") and m_mode!="Echo") {
+  if (on and m_mode!="WSPR" and m_mode!="FST240W" and m_mode!="Echo") {
     //m_logBook.init();                        // re-read the log and cty.dat files
 //    ui->gridLayout->setColumnStretch(0,55);  // adjust proportions of text displays
 //    ui->gridLayout->setColumnStretch(1,45);
@@ -6965,7 +6960,7 @@ void MainWindow::setXIT(int n, Frequency base)
 void MainWindow::setFreq4(int rxFreq, int txFreq)
 {
   if (ui->RxFreqSpinBox->isEnabled ()) ui->RxFreqSpinBox->setValue(rxFreq);
-  if(m_mode.startsWith ("WSPR")) {
+  if(m_mode=="WSPR" or m_mode=="FST240W") {
     ui->WSPRfreqSpinBox->setValue(txFreq);
   } else {
     if (ui->TxFreqSpinBox->isEnabled ()) {
@@ -7036,30 +7031,6 @@ void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const&
                || !(ui->cbCQTx->isEnabled () && ui->cbCQTx->isVisible () && ui->cbCQTx->isChecked()))) {
             m_lastDialFreq = m_freqNominal;
             m_secBandChanged=QDateTime::currentMSecsSinceEpoch()/1000;
-            /*
-            if(s.frequency () < 30000000u && !m_mode.startsWith ("WSPR")) {
-              // Write freq changes to ALL.TXT only below 30 MHz.
-              QFile f2 {m_config.writeable_data_dir ().absoluteFilePath ("ALL.TXT")};
-              if (f2.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
-                QTextStream out(&f2);
-                out << QDateTime::currentDateTimeUtc().toString("yyyy-MM-dd hh:mm")
-                    << "  " << qSetRealNumberPrecision (12) << (m_freqNominal / 1.e6) << " MHz  "
-                    << m_mode
-#if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
-                    << Qt::endl
-#else
-                    << endl
-#endif
-                    ;
-                f2.close();
-              } else {
-                MessageBox::warning_message (this, tr ("File Error")
-                                             ,tr ("Cannot open \"%1\" for append: %2")
-                                             .arg (f2.fileName ()).arg (f2.errorString ()));
-              }
-            }
-            */
-
             if (m_config.spot_to_psk_reporter ()) {
               pskSetLocal ();
             }
@@ -7369,14 +7340,9 @@ void MainWindow::transmitDisplay (bool transmitting)
       ui->pbT2R->setEnabled (QSY_allowed);
     }
 
-    if (!m_mode.startsWith ("WSPR")) {
+    if (m_mode!="WSPR" and m_mode!="FST240W") {
       if(m_config.enable_VHF_features ()) {
-//### During tests, at least, allow use of Tx Freq spinner with VHF features enabled.
-        // used fixed 1000Hz Tx DF for VHF & up QSO modes
-//        ui->TxFreqSpinBox->setValue(1000);
-//        ui->TxFreqSpinBox->setEnabled (false);
         ui->TxFreqSpinBox->setEnabled (true);
-//###
       } else {
         ui->TxFreqSpinBox->setEnabled (QSY_allowed and !m_bFastMode);
         ui->pbR2T->setEnabled (QSY_allowed);
@@ -7644,7 +7610,7 @@ void MainWindow::replayDecodes ()
       if (message.size() >= 4 && message.left (4) != "----")
         {
           auto const& parts = message.split (' ', SkipEmptyParts);
-          if (parts.size () >= 5 && parts[3].contains ('.')) // WSPR
+          if (parts.size () >= 5 && parts[3].contains ('.')) //
             {
               postWSPRDecode (false, parts);
             }
@@ -8219,7 +8185,7 @@ void MainWindow::tx_watchdog (bool triggered)
 
 void MainWindow::update_watchdog_label ()
 {
-  if (m_config.watchdog () && !m_mode.startsWith ("WSPR"))
+  if (m_config.watchdog () && m_mode!="WSPR" && m_mode!="FST240W")
     {
       watchdog_label.setText (tr ("WD:%1m").arg (m_config.watchdog () - m_idleMinutes));
       watchdog_label.setVisible (true);
