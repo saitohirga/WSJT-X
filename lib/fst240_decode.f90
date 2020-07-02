@@ -711,14 +711,14 @@ contains
       ib=nint(min(4800.0,fb)/df2)              !High frequency limit
       signal_bw=4*(12000.0/nsps)*hmod
       analysis_bw=min(4800.0,fb)-max(100.0,fa)
-      noise_bw=10.0*signal_bw                  !Is this a good compromise?
-      if(analysis_bw.gt.noise_bw) then
+      xnoise_bw=10.0*signal_bw                  !Is this a good compromise?
+      if(analysis_bw.gt.xnoise_bw) then
          ina=ia
          inb=ib
       else
          fcenter=(fa+fb)/2.0                      !If noise_bw > analysis_bw,
-         fl = max(100.0,fcenter-noise_bw/2.)/df2  !we'll search over noise_bw
-         fh = min(4800.0,fcenter+noise_bw/2.)/df2
+         fl = max(100.0,fcenter-xnoise_bw/2.)/df2  !we'll search over noise_bw
+         fh = min(4800.0,fcenter+xnoise_bw/2.)/df2
          ina=nint(fl)
          inb=nint(fh)
       endif
