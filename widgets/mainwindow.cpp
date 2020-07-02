@@ -5816,9 +5816,10 @@ void MainWindow::on_actionFST240_triggered()
 //                         012345678901234567890123456789012
   displayWidgets(nWidgets("111111000100111100010000000100000"));
   setup_status_bar (bVHF);
-  m_TRperiod = ui->sbTR->value ();
+  m_TRperiod = ui->sbTR->value();
   ui->sbTR->setMinimum(15);
   ui->sbTR->setMaximum(300);
+  m_TRperiod = ui->sbTR->value();
   on_sbTR_valueChanged(ui->sbTR->value());
   ui->cbAutoSeq->setChecked(true);
   m_wideGraph->setMode(m_mode);
@@ -5842,8 +5843,13 @@ void MainWindow::on_actionFST240W_triggered()
   setup_status_bar (bVHF);
   m_TRperiod = ui->sbTR_FST240W->value ();
   ui->band_hopping_group_box->setVisible(false);
+  int ntr=m_TRperiod;
   ui->sbTR_FST240W->setMinimum(15);           //### 120 ?? ###
   ui->sbTR_FST240W->setMaximum(300);
+  ui->sbTR_FST240W->setValue(120);     //### Why is all this necessary? ###
+  ui->sbTR_FST240W->setValue(300);
+  ui->sbTR_FST240W->setValue(ntr);
+  m_TRperiod = ui->sbTR_FST240W->value();
   ui->sbSubmode->setMaximum(3);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
