@@ -5845,6 +5845,7 @@ void MainWindow::on_actionFST240W_triggered()
   ui->sbSubmode->setMaximum(3);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
+  m_wideGraph->setPeriod(m_TRperiod,6912);
   switch_mode (Modes::FST240W);
   statusChanged();
 }
