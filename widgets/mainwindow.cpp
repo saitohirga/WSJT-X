@@ -5821,6 +5821,7 @@ void MainWindow::on_actionFST240_triggered()
   ui->cbAutoSeq->setChecked(true);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
+  m_wideGraph->setPeriod(m_TRperiod,6912);
   switch_mode (Modes::FST240);
   m_wideGraph->setMode(m_mode);
   statusChanged();

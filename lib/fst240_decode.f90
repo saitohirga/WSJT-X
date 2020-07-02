@@ -80,7 +80,6 @@ contains
 
       this%callback => callback
 
-      print*,'AAA',iwspr,ndepth
       dxcall13=hiscall   ! initialize for use in packjt77
       mycall13=mycall
 
