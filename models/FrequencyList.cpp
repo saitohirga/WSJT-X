@@ -58,6 +58,7 @@ namespace
       {474400, Modes::FST240W, IARURegions::ALL},
 
       {1836600, Modes::WSPR, IARURegions::ALL},
+      {1836800, Modes::FST240W, IARURegions::ALL},
       {1838000, Modes::JT65, IARURegions::ALL}, // squeezed allocations
       {1839000, Modes::JT9, IARURegions::ALL},
       {1839000, Modes::FST240, IARURegions::ALL},
