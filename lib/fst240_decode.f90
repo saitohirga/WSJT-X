@@ -83,6 +83,8 @@ contains
       dxcall13=hiscall   ! initialize for use in packjt77
       mycall13=mycall
 
+      fMHz=10.0
+
       if(first) then
          mcq=2*mod(mcq+rvec(1:29),2)-1
          mrrr=2*mod(mrrr+rvec(59:77),2)-1
@@ -217,7 +219,7 @@ contains
 
 
       if(ndepth.eq.3) then
-         nblock=1
+         nblock=4
          if(hmod.eq.1) nblock=4      ! number of block sizes to try
          jittermax=2
          norder=3
@@ -252,6 +254,20 @@ contains
          itype2=2
       endif
 
+      if(hmod.eq.1) then
+         if(fMHz.lt.2.0) then
+            nsyncoh=8    ! Use N=8 for sync
+            nhicoh=1     ! Use N=1,2,4,8 for symbol estimation
+         else
+            nsyncoh=4    ! Use N=4 for sync
+            nhicoh=0     ! Use N=1,2,3,4 for symbol estimation
+         endif
+      else
+         if(hmod.eq.2) nsyncoh=1
+         if(hmod.eq.4) nsyncoh=1
+         if(hmod.eq.8) nsyncoh=1
+      endif
+
       do iqorw=itype1,itype2  ! iqorw=1 for QSO mode and iqorw=2 for wspr-type messages
          if( iwspr.lt.2 ) then
             if( single_decode ) then
@@ -278,10 +294,8 @@ contains
          ndecodes=0
          decodes=' '
 
-         isbest1=0
-         isbest8=0
-         fc21=0.
-         fc28=0.
+         isbest=0
+         fc2=0.
          do icand=1,ncand
             fc0=candidates(icand,1)
             detmet=candidates(icand,2)
@@ -308,47 +322,29 @@ contains
                   ifhw=12
                   df=.1*baud
                else if(isync.eq.1) then
-                  fc1=fc21
-                  if(hmod.eq.1) fc1=fc28
-                  is0=isbest1
-                  if(hmod.eq.1) is0=isbest8
+                  fc1=fc2
+                  is0=isbest
                   ishw=4*hmod
                   isst=1*hmod
                   ifhw=7
                   df=.02*baud
                endif
 
-               smax1=0.0
-               smax8=0.0
+               smax=0.0
                do if=-ifhw,ifhw
                   fc=fc1+df*if
                   do istart=max(1,is0-ishw),is0+ishw,isst
-                     call sync_fst240(c2,istart,fc,hmod,1,nfft2,nss,fs2,sync1)
-                     call sync_fst240(c2,istart,fc,hmod,8,nfft2,nss,fs2,sync8)
-                     if(sync8.gt.smax8) then
-                        fc28=fc
-                        isbest8=istart
-                        smax8=sync8
-                     endif
-                     if(sync1.gt.smax1) then
-                        fc21=fc
-                        isbest1=istart
-                        smax1=sync1
+                     call sync_fst240(c2,istart,fc,hmod,nsyncoh,nfft2,nss,fs2,sync)
+                     if(sync.gt.smax) then
+                        fc2=fc
+                        isbest=istart
+                        smax=sync
                      endif
                   enddo
                enddo
             enddo
             call timer('sync240 ',1)
 
-            if(smax8/smax1 .lt. 0.65 ) then
-               fc2=fc21
-               isbest=isbest1
-               njitter=2
-            else
-               fc2=fc28
-               isbest=isbest8
-               njitter=2
-            endif
             fc_synced = fc0 + fc2
             dt_synced = (isbest-fs2)*dt2  !nominal dt is 1 second so frame starts at sample fs2
             candidates(icand,3)=fc_synced
@@ -387,6 +383,7 @@ contains
             fc_synced=candidates(icand,3)
             isbest=nint(candidates(icand,4))
             xdt=(isbest-nspsec)/fs2
+
             if(ntrperiod.eq.15) xdt=(isbest-real(nspsec)/2.0)/fs2
             call fst240_downsample(c_bigfft,nfft1,ndown,fc_synced,sigbw,c2)
 
@@ -398,7 +395,11 @@ contains
                if(is0.lt.0) cycle
                cframe=c2(is0:is0+160*nss-1)
                bitmetrics=0
-               call get_fst240_bitmetrics(cframe,nss,hmod,nblock,bitmetrics,s4,badsync)
+               if(hmod.eq.1) then
+                  call get_fst240_bitmetrics(cframe,nss,hmod,nblock,nhicoh,bitmetrics,s4,badsync)
+               else
+                  call get_fst240_bitmetrics2(cframe,nss,hmod,nblock,bitmetrics,s4,badsync)
+               endif
                if(badsync) cycle
 
                hbits=0
@@ -409,7 +410,7 @@ contains
                ns4=count(hbits(229:244).eq.(/1,1,1,0,0,1,0,0,1,0,1,1,0,0,0,1/))
                ns5=count(hbits(305:320).eq.(/0,0,0,1,1,0,1,1,0,1,0,0,1,1,1,0/))
                nsync_qual=ns1+ns2+ns3+ns4+ns5
-               if(nsync_qual.lt. 46) cycle                   !### Value ?? ###
+!               if(nsync_qual.lt. 46) cycle                   !### Value ?? ###
 
                scalefac=2.83
                llra(  1: 60)=bitmetrics( 17: 76, 1)
@@ -529,7 +530,7 @@ contains
                         do i=1,ndecodes
                            if(decodes(i).eq.msg) idupe=1
                         enddo
-                        if(idupe.eq.1) exit
+                        if(idupe.eq.1) goto 2002
                         ndecodes=ndecodes+1
                         decodes(ndecodes)=msg
 
@@ -554,9 +555,9 @@ contains
                      nsnr=nint(xsnr)
                      qual=0.
                      fsig=fc_synced - 1.5*hmod*baud
-!write(21,'(i6,7i6,f7.1,f9.2,f7.1,1x,f7.2,1x,f7.1,1x,a37)') &
-!  nutc,icand,itry,iaptype,ijitter,ntype,nsync_qual,nharderrors,dmin,sync,xsnr,xdt,fsig,msg
-!flush(21)
+                     write(21,'(i6,8i6,f7.1,f9.2,f7.1,1x,f7.2,1x,f7.1,1x,a37)') &
+                        nutc,icand,itry,nsyncoh,iaptype,ijitter,ntype,nsync_qual,nharderrors,dmin,sync,xsnr,xdt,fsig,msg
+                     flush(21)
                      call this%callback(nutc,smax1,nsnr,xdt,fsig,msg,    &
                         iaptype,qual,ntrperiod,lwspr)
                      goto 2002
@@ -637,28 +638,47 @@ contains
       s4=0.0
       s5=0.0
 
-      nsec=8/ncoh
-      do i=1,nsec
-         is=(i-1)*ncoh*nss
-         z1=0
-         if(i1+is.ge.1) then
-            z1=sum(cd0(i1+is:i1+is+ncoh*nss-1)*conjg(csynct1(is+1:is+ncoh*nss)))
-         endif
-         z2=sum(cd0(i2+is:i2+is+ncoh*nss-1)*conjg(csynct2(is+1:is+ncoh*nss)))
-         z3=sum(cd0(i3+is:i3+is+ncoh*nss-1)*conjg(csynct1(is+1:is+ncoh*nss)))
-         z4=sum(cd0(i4+is:i4+is+ncoh*nss-1)*conjg(csynct2(is+1:is+ncoh*nss)))
-         z5=0
-         if(i5+is+ncoh*nss-1.le.np) then
-            z5=sum(cd0(i5+is:i5+is+ncoh*nss-1)*conjg(csynct1(is+1:is+ncoh*nss)))
-         endif
-         s1=s1+abs(z1)/(8*nss)
-         s2=s2+abs(z2)/(8*nss)
-         s3=s3+abs(z3)/(8*nss)
-         s4=s4+abs(z4)/(8*nss)
-         s5=s5+abs(z5)/(8*nss)
-      enddo
+      if(ncoh.gt.0) then
+         nsec=8/ncoh
+         do i=1,nsec
+            is=(i-1)*ncoh*nss
+            z1=0
+            if(i1+is.ge.1) then
+               z1=sum(cd0(i1+is:i1+is+ncoh*nss-1)*conjg(csynct1(is+1:is+ncoh*nss)))
+            endif
+            z2=sum(cd0(i2+is:i2+is+ncoh*nss-1)*conjg(csynct2(is+1:is+ncoh*nss)))
+            z3=sum(cd0(i3+is:i3+is+ncoh*nss-1)*conjg(csynct1(is+1:is+ncoh*nss)))
+            z4=sum(cd0(i4+is:i4+is+ncoh*nss-1)*conjg(csynct2(is+1:is+ncoh*nss)))
+            z5=0
+            if(i5+is+ncoh*nss-1.le.np) then
+               z5=sum(cd0(i5+is:i5+is+ncoh*nss-1)*conjg(csynct1(is+1:is+ncoh*nss)))
+            endif
+            s1=s1+abs(z1)/(8*nss)
+            s2=s2+abs(z2)/(8*nss)
+            s3=s3+abs(z3)/(8*nss)
+            s4=s4+abs(z4)/(8*nss)
+            s5=s5+abs(z5)/(8*nss)
+         enddo
+      else
+         nsub=-ncoh
+         nps=nss/nsub
+         do i=1,8
+            do isub=1,nsub
+               is=(i-1)*nss+(isub-1)*nps
+               if(i1+is.ge.1) then
+                  s1=s1+abs(sum(cd0(i1+is:i1+is+nps-1)*conjg(csynct1(is+1:is+nps))))
+               endif
+               s2=s2+abs(sum(cd0(i2+is:i2+is+nps-1)*conjg(csynct1(is+1:is+nps))))
+               s3=s3+abs(sum(cd0(i3+is:i3+is+nps-1)*conjg(csynct1(is+1:is+nps))))
+               s4=s4+abs(sum(cd0(i4+is:i4+is+nps-1)*conjg(csynct1(is+1:is+nps))))
+               s5=0
+               if(i5+is+ncoh*nss-1.le.np) then
+                  s5=s5+abs(sum(cd0(i5+is:i5+is+nps-1)*conjg(csynct1(is+1:is+nps))))
+               endif
+            enddo
+         enddo
+      endif
       sync = s1+s2+s3+s4+s5
-
       return
    end subroutine sync_fst240
 

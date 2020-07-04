@@ -1,4 +1,4 @@
-subroutine get_fst240_bitmetrics(cd,nss,hmod,nmax,bitmetrics,s4,badsync)
+subroutine get_fst240_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,badsync)
 
    include 'fst240_params.f90'
    complex cd(0:NN*nss-1)
@@ -87,10 +87,13 @@ subroutine get_fst240_bitmetrics(cd,nss,hmod,nmax,bitmetrics,s4,badsync)
    do nseq=1,nmax            !Try coherent sequences of 1, 2, and 4 symbols
       if(nseq.eq.1) nsym=1
       if(nseq.eq.2) nsym=2
-      if(nseq.eq.3) nsym=3
-      if(nseq.eq.4) nsym=4
-!      if(nseq.eq.3) nsym=4
-!      if(nseq.eq.4) nsym=8
+      if(nhicoh.eq.0) then
+         if(nseq.eq.3) nsym=3
+         if(nseq.eq.4) nsym=4
+      else
+         if(nseq.eq.3) nsym=4
+         if(nseq.eq.4) nsym=8
+      endif
       nt=4**nsym
       do ks=1,NN-nsym+1,nsym  
          s2=0
