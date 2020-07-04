@@ -83,7 +83,7 @@ contains
       dxcall13=hiscall   ! initialize for use in packjt77
       mycall13=mycall
 
-      fMHz=10.0
+      fMHz=1.0
 
       if(first) then
          mcq=2*mod(mcq+rvec(1:29),2)-1
@@ -285,7 +285,13 @@ contains
             fb=min(4800,nfb)
          endif
 
-         minsync=1.25
+         if(hmod.eq.1) then
+            if(ntrperiod.eq.15) minsync=1.15
+            if(ntrperiod.gt.15) minsync=1.20
+         elseif(hmod.gt.1) then
+            minsync=1.5
+         endif
+
 
 ! Get first approximation of candidate frequencies
          call get_candidates_fst240(c_bigfft,nfft1,nsps,hmod,fs,fa,fb,     &
