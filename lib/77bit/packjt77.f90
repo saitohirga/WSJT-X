@@ -457,7 +457,9 @@ subroutine unpack77(c77,nrx,msg,unpk77_success)
         if(irpt.eq.3) msg=trim(call_1)//' '//trim(call_2)//' RR73'
         if(irpt.eq.4) msg=trim(call_1)//' '//trim(call_2)//' 73'
         if(irpt.ge.5) then
-           write(crpt,'(i3.2)') irpt-35
+           isnr=irpt-35
+           if(isnr.gt.50) isnr=isnr-101
+           write(crpt,'(i3.2)') isnr
            if(crpt(1:1).eq.' ') crpt(1:1)='+'
            if(ir.eq.0) msg=trim(call_1)//' '//trim(call_2)//' '//crpt
            if(ir.eq.1) msg=trim(call_1)//' '//trim(call_2)//' R'//crpt
@@ -1095,10 +1097,12 @@ subroutine pack77_1(nwords,w,i3,n3,c77)
   if(c1.eq.'+' .or. c1.eq.'-') then
      ir=0
      read(w(nwords),*,err=900) irpt
+     if(irpt.ge.-50 .and. irpt.le.-31) irpt=irpt+101
      irpt=irpt+35
   else if(c2.eq.'R+' .or. c2.eq.'R-') then
      ir=1
      read(w(nwords)(2:),*) irpt
+     if(irpt.ge.-50 .and. irpt.le.-31) irpt=irpt+101
      irpt=irpt+35
   else if(trim(w(nwords)).eq.'RRR') then
      ir=0
