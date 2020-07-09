@@ -391,7 +391,6 @@ contains
             fc_synced=candidates(icand,3)
             isbest=nint(candidates(icand,4))
             xdt=(isbest-nspsec)/fs2
-
             if(ntrperiod.eq.15) xdt=(isbest-real(nspsec)/2.0)/fs2
             call fst240_downsample(c_bigfft,nfft1,ndown,fc_synced,sigbw,c2)
 
@@ -419,7 +418,6 @@ contains
                ns5=count(hbits(305:320).eq.(/0,0,0,1,1,0,1,1,0,1,0,0,1,1,1,0/))
                nsync_qual=ns1+ns2+ns3+ns4+ns5
 !               if(nsync_qual.lt. 46) cycle                   !### Value ?? ###
-
                scalefac=2.83
                llra(  1: 60)=bitmetrics( 17: 76, 1)
                llra( 61:120)=bitmetrics( 93:152, 1)
@@ -462,7 +460,6 @@ contains
                      apmask=0
                      iaptype=0
                   endif
-                  napwid=1.2*(4.0*baud*hmod)
 
                   if(itry.gt.nblock) then
                      llr=llra
@@ -538,7 +535,6 @@ contains
                         c77(51:77)='000000000000000000000110000'
                         call unpack77(c77,0,msg,unpk77_success)
                      endif
-!                     if(unpk77_success.and.index(msg,"K9AN").ne.0) then
                      if(unpk77_success) then
                         idupe=0
                         do i=1,ndecodes
