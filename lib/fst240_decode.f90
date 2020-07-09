@@ -220,7 +220,6 @@ contains
 
       if(ndepth.eq.3) then
          nblock=4
-         if(hmod.eq.1) nblock=4      ! number of block sizes to try
          jittermax=2
          norder=3
       elseif(ndepth.eq.2) then
@@ -264,8 +263,8 @@ contains
          endif
       else
          if(hmod.eq.2) nsyncoh=1
-         if(hmod.eq.4) nsyncoh=1
-         if(hmod.eq.8) nsyncoh=1
+         if(hmod.eq.4) nsyncoh=-2
+         if(hmod.eq.8) nsyncoh=-4
       endif
 
       do iqorw=itype1,itype2  ! iqorw=1 for QSO mode and iqorw=2 for wspr-type messages
@@ -289,7 +288,7 @@ contains
             if(ntrperiod.eq.15) minsync=1.15
             if(ntrperiod.gt.15) minsync=1.20
          elseif(hmod.gt.1) then
-            minsync=1.5
+            minsync=1.2
          endif
 
 
@@ -463,8 +462,13 @@ contains
                   napwid=1.2*(4.0*baud*hmod)
 
                   if(itry.gt.nblock) then
-                     if(nblock.eq.1) llr=llra
-                     if(nblock.gt.1) llr=llrc
+                     llr=llra
+                     if(nblock.gt.1) then
+                        if(hmod.eq.1) llr=llrd
+                        if(hmod.eq.2) llr=llrb
+                        if(hmod.eq.4) llr=llrc
+                        if(hmod.eq.8) llr=llrd
+                     endif
                      iaptype=naptypes(nQSOProgress,itry-nblock)
                      if(lapcqonly) iaptype=1
                      if(iaptype.ge.2 .and. apbits(1).gt.1) cycle  ! No, or nonstandard, mycall
@@ -531,6 +535,7 @@ contains
                         c77(51:77)='000000000000000000000110000'
                         call unpack77(c77,0,msg,unpk77_success)
                      endif
+!                     if(unpk77_success.and.index(msg,"K9AN").ne.0) then
                      if(unpk77_success) then
                         idupe=0
                         do i=1,ndecodes
@@ -561,7 +566,7 @@ contains
                      nsnr=nint(xsnr)
                      qual=0.
                      fsig=fc_synced - 1.5*hmod*baud
-!                     write(21,'(i6,8i6,f7.1,f9.2,f7.1,1x,f7.2,1x,f7.1,1x,a37)') &
+!                     write(21,'(i6.6,8i6,f7.1,f10.2,f7.1,1x,f7.2,1x,f7.1,1x,a37)') &
 !                        nutc,icand,itry,nsyncoh,iaptype,ijitter,ntype,nsync_qual,nharderrors,dmin,sync,xsnr,xdt,fsig,msg
 !                     flush(21)
                      call this%callback(nutc,smax1,nsnr,xdt,fsig,msg,    &
@@ -671,16 +676,22 @@ contains
          do i=1,8
             do isub=1,nsub
                is=(i-1)*nss+(isub-1)*nps
+               z1=0.0
                if(i1+is.ge.1) then
-                  s1=s1+abs(sum(cd0(i1+is:i1+is+nps-1)*conjg(csynct1(is+1:is+nps))))
+                  z1=sum(cd0(i1+is:i1+is+nps-1)*conjg(csynct1(is+1:is+nps)))
                endif
-               s2=s2+abs(sum(cd0(i2+is:i2+is+nps-1)*conjg(csynct1(is+1:is+nps))))
-               s3=s3+abs(sum(cd0(i3+is:i3+is+nps-1)*conjg(csynct1(is+1:is+nps))))
-               s4=s4+abs(sum(cd0(i4+is:i4+is+nps-1)*conjg(csynct1(is+1:is+nps))))
-               s5=0
+               z2=sum(cd0(i2+is:i2+is+nps-1)*conjg(csynct2(is+1:is+nps)))
+               z3=sum(cd0(i3+is:i3+is+nps-1)*conjg(csynct1(is+1:is+nps)))
+               z4=sum(cd0(i4+is:i4+is+nps-1)*conjg(csynct2(is+1:is+nps)))
+               z5=0.0
                if(i5+is+ncoh*nss-1.le.np) then
-                  s5=s5+abs(sum(cd0(i5+is:i5+is+nps-1)*conjg(csynct1(is+1:is+nps))))
+                  z5=sum(cd0(i5+is:i5+is+nps-1)*conjg(csynct1(is+1:is+nps)))
                endif
+               s1=s1+abs(z1)/(8*nss)
+               s2=s2+abs(z2)/(8*nss)
+               s3=s3+abs(z3)/(8*nss)
+               s4=s4+abs(z4)/(8*nss)
+               s5=s5+abs(z5)/(8*nss)
             enddo
          enddo
       endif
