@@ -33,6 +33,7 @@ contains
 
       use timer_module, only: timer
       use packjt77
+      use, intrinsic :: iso_c_binding
       include 'fst240/fst240_params.f90'
       parameter (MAXCAND=100)
       class(fst240_decoder), intent(inout) :: this
@@ -45,7 +46,8 @@ contains
       complex, allocatable :: c2(:)
       complex, allocatable :: cframe(:)
       complex, allocatable :: c_bigfft(:)          !Complex waveform
-      real, allocatable :: r_data(:)
+      real, allocatable, target :: r_data(:)
+      complex, pointer, dimension(:) :: c_data_ptr
       real llr(240),llra(240),llrb(240),llrc(240),llrd(240)
       real candidates(100,4)
       real bitmetrics(320,4)
@@ -212,6 +214,7 @@ contains
       nh1=nfft1/2
 
       allocate( r_data(1:nfft1+2) )
+      call c_f_pointer (c_loc (r_data), c_data_ptr, [(nfft1+2)/2]) ! c_data_ptr shares memory with r_data
       allocate( c_bigfft(0:nfft1/2) )
 
       allocate( c2(0:nfft2-1) )
@@ -237,7 +240,7 @@ contains
 ! and also for downconverting/downsampling each candidate.
       r_data(1:nfft1)=iwave(1:nfft1)
       r_data(nfft1+1:nfft1+2)=0.0
-      call four2a(r_data,nfft1,1,-1,0)
+      call four2a(c_data_ptr,nfft1,1,-1,0)
       c_bigfft=cmplx(r_data(1:nfft1+2:2),r_data(2:nfft1+2:2))
 !      write(*,3001) iwspr,nfa,nfb,nfsplit,ndepth
 !3001  format('a',5i5)

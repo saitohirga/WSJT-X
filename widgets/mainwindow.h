@@ -51,7 +51,6 @@
 #define NUM_FST240_SYMBOLS 160             //240/2 data + 5*8 sync
 #define NUM_CW_SYMBOLS 250
 #define TX_SAMPLE_RATE 48000
-#define N_WIDGETS 33
 #define NRING 3456000
 
 extern int volatile itone[NUM_ISCAT_SYMBOLS];   //Audio tones for all Tx symbols

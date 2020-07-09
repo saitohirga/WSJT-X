@@ -2,8 +2,8 @@ module packjt77
 
 ! These variables are accessible from outside via "use packjt77":
   parameter (MAXHASH=1000,MAXRECENT=10)
-  character (len=13), dimension(1:1024) ::  calls10=''
-  character (len=13), dimension(1:4096) ::  calls12=''
+  character (len=13), dimension(0:1023) ::  calls10=''
+  character (len=13), dimension(0:4095) ::  calls12=''
   character (len=13), dimension(1:MAXHASH) :: calls22=''
   character (len=13), dimension(1:MAXRECENT) :: recent_calls=''
   character (len=13) :: mycall13=''
@@ -19,7 +19,7 @@ subroutine hash10(n10,c13)
   character*13 c13
 
   c13='<...>'
-  if(n10.lt.1 .or. n10.gt.1024) return
+  if(n10.lt.0 .or. n10.gt.1023) return
   if(len(trim(calls10(n10))).gt.0) then
      c13=calls10(n10)
      c13='<'//trim(c13)//'>'
@@ -33,7 +33,7 @@ subroutine hash12(n12,c13)
   character*13 c13
   
   c13='<...>'
-  if(n12.lt.1 .or. n12.gt.4096) return
+  if(n12.lt.0 .or. n12.gt.4095) return
   if(len(trim(calls12(n12))).gt.0) then
      c13=calls12(n12)
      c13='<'//trim(c13)//'>'
@@ -90,10 +90,10 @@ subroutine save_hash_call(c13,n10,n12,n22)
   if(len(trim(cw)) .lt. 3) return
 
   n10=ihashcall(cw,10)
-  if(n10.ge.1 .and. n10 .le. 1024 .and. cw.ne.mycall13) calls10(n10)=cw
+  if(n10.ge.0 .and. n10 .le. 1023 .and. cw.ne.mycall13) calls10(n10)=cw
 
   n12=ihashcall(cw,12)
-  if(n12.ge.1 .and. n12 .le. 4096 .and. cw.ne.mycall13) calls12(n12)=cw
+  if(n12.ge.0 .and. n12 .le. 4095 .and. cw.ne.mycall13) calls12(n12)=cw
 
   n22=ihashcall(cw,22)
   if(any(ihash22.eq.n22)) then   ! If entry exists, make sure callsign is the most recently received one 
@@ -457,7 +457,9 @@ subroutine unpack77(c77,nrx,msg,unpk77_success)
         if(irpt.eq.3) msg=trim(call_1)//' '//trim(call_2)//' RR73'
         if(irpt.eq.4) msg=trim(call_1)//' '//trim(call_2)//' 73'
         if(irpt.ge.5) then
-           write(crpt,'(i3.2)') irpt-35
+           isnr=irpt-35
+           if(isnr.gt.50) isnr=isnr-101
+           write(crpt,'(i3.2)') isnr
            if(crpt(1:1).eq.' ') crpt(1:1)='+'
            if(ir.eq.0) msg=trim(call_1)//' '//trim(call_2)//' '//crpt
            if(ir.eq.1) msg=trim(call_1)//' '//trim(call_2)//' R'//crpt
@@ -1095,10 +1097,12 @@ subroutine pack77_1(nwords,w,i3,n3,c77)
   if(c1.eq.'+' .or. c1.eq.'-') then
      ir=0
      read(w(nwords),*,err=900) irpt
+     if(irpt.ge.-50 .and. irpt.le.-31) irpt=irpt+101
      irpt=irpt+35
   else if(c2.eq.'R+' .or. c2.eq.'R-') then
      ir=1
      read(w(nwords)(2:),*) irpt
+     if(irpt.ge.-50 .and. irpt.le.-31) irpt=irpt+101
      irpt=irpt+35
   else if(trim(w(nwords)).eq.'RRR') then
      ir=0

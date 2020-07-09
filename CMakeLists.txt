@@ -861,6 +861,8 @@ endif (APPLE)
 #
 # find some useful tools
 #
+include (CheckSymbolExists)
+
 find_program(CTAGS ctags)
 find_program(ETAGS etags)
 
@@ -895,6 +897,10 @@ find_program (RIGCTLCOM_EXE rigctlcom)
 message (STATUS "hamlib_INCLUDE_DIRS: ${hamlib_INCLUDE_DIRS}")
 message (STATUS "hamlib_LIBRARIES: ${hamlib_LIBRARIES}")
 message (STATUS "hamlib_LIBRARY_DIRS: ${hamlib_LIBRARY_DIRS}")
+
+set (CMAKE_REQUIRED_INCLUDES "${hamlib_INCLUDE_DIRS}")
+set (CMAKE_REQUIRED_LIBRARIES "${hamlib_LIBRARIES}")
+check_symbol_exists (rig_set_cache_timeout_ms "hamlib/rig.h" HAVE_HAMLIB_CACHING)
 
 
 #
@@ -1113,7 +1119,7 @@ add_custom_target (etags COMMAND ${ETAGS} -o ${CMAKE_SOURCE_DIR}/TAGS -R ${sourc
 # Qt i18n - always include the country generic if any regional variant is included
 set (LANGUAGES
   ca				# Catalan
-  #da				# Danish
+  da				# Danish
   en				# English (we need this to stop
 				# translation loaders loading the
 				# second preference UI languge, it
@@ -1514,7 +1520,7 @@ install (TARGETS jt9 wsprd fmtave fcal fmeasure
 
 if(WSJT_BUILD_UTILS)
 install (TARGETS ft8code jt65code qra64code qra64sim jt9code jt4code
-  msk144code 
+  msk144code fst240sim
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   )
