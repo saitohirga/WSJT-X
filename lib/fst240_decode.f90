@@ -46,8 +46,6 @@ contains
       complex, allocatable :: c2(:)
       complex, allocatable :: cframe(:)
       complex, allocatable :: c_bigfft(:)          !Complex waveform
-      real, allocatable, target :: r_data(:)
-      complex, pointer, dimension(:) :: c_data_ptr
       real llr(240),llra(240),llrb(240),llrc(240),llrd(240)
       real candidates(100,4)
       real bitmetrics(320,4)
@@ -121,7 +119,7 @@ contains
          hiscall0=''
          first=.false.
       endif
-
+      
       l1=index(mycall,char(0))
       if(l1.ne.0) mycall(l1:)=" "
       l1=index(hiscall,char(0))
@@ -213,14 +211,10 @@ contains
       nfft1=nfft2*ndown
       nh1=nfft1/2
 
-      allocate( r_data(1:nfft1+2) )
-      call c_f_pointer (c_loc (r_data), c_data_ptr, [(nfft1+2)/2]) ! c_data_ptr shares memory with r_data
-      allocate( c_bigfft(0:nfft1/2) )
-
+      allocate( c_bigfft(0:nfft1/2+1) )
       allocate( c2(0:nfft2-1) )
       allocate( cframe(0:160*nss-1) )
-
-
+      
       if(ndepth.eq.3) then
          nblock=4
          if(hmod.eq.1) nblock=4      ! number of block sizes to try
@@ -239,13 +233,11 @@ contains
 
 ! The big fft is done once and is used for calculating the smoothed spectrum
 ! and also for downconverting/downsampling each candidate.
-      r_data(1:nfft1)=iwave(1:nfft1)
-      r_data(nfft1+1:nfft1+2)=0.0
-      call four2a(c_data_ptr,nfft1,1,-1,0)
-      c_bigfft=cmplx(r_data(1:nfft1+2:2),r_data(2:nfft1+2:2))
-!      write(*,3001) iwspr,nfa,nfb,nfsplit,ndepth
-!3001  format('a',5i5)
-!      iwspr=1                            !### For hardwired tests ###
+      do i=1,nfft1/2
+         c_bigfft(i)=cmplx(float(iwave(2*i-1)),float(iwave(2*i)))
+      enddo
+      c_bigfft(nfft1/2+1)=0.
+      call four2a(c_bigfft,nfft1,1,-1,0)
       if(iwspr.eq.0) then
          itype1=1
          itype2=1
@@ -295,10 +287,9 @@ contains
             minsync=1.5
          endif
 
-
 ! Get first approximation of candidate frequencies
          call get_candidates_fst240(c_bigfft,nfft1,nsps,hmod,fs,fa,fb,     &
-            minsync,ncand,candidates,base)
+              minsync,ncand,candidates,base)
 
          ndecodes=0
          decodes=' '
@@ -317,41 +308,49 @@ contains
             call fst240_downsample(c_bigfft,nfft1,ndown,fc0,sigbw,c2)
 
             call timer('sync240 ',0)
-            do isync=0,1
-               if(isync.eq.0) then
-                  fc1=0.0
-                  if(emedelay.lt.0.1) then  ! search offsets from 0 s to 2 s
-                     is0=1.5*nspsec
-                     ishw=1.5*nspsec
-                  else                      ! search plus or minus 1.5 s centered on emedelay
-                     is0=nint(emedelay*nspsec)
-                     ishw=1.5*nspsec
-                  endif
-                  isst=4*hmod
-                  ifhw=12
-                  df=.1*baud
-               else if(isync.eq.1) then
-                  fc1=fc2
-                  is0=isbest
-                  ishw=4*hmod
-                  isst=1*hmod
-                  ifhw=7
-                  df=.02*baud
-               endif
 
-               smax=0.0
-               do if=-ifhw,ifhw
-                  fc=fc1+df*if
-                  do istart=max(1,is0-ishw),is0+ishw,isst
-                     call sync_fst240(c2,istart,fc,hmod,nsyncoh,nfft2,nss,fs2,sync)
-                     if(sync.gt.smax) then
-                        fc2=fc
-                        isbest=istart
-                        smax=sync
-                     endif
-                  enddo
+            fc1=0.0
+            if(emedelay.lt.0.1) then  ! search offsets from 0 s to 2 s
+               is0=1.5*nspsec
+               ishw=1.5*nspsec
+            else      ! search plus or minus 1.5 s centered on emedelay
+               is0=nint(emedelay*nspsec)
+               ishw=1.5*nspsec
+            endif
+            
+            smax=-1.e30
+            do if=-12,12
+               fc=fc1 + 0.1*baud*if
+               do istart=max(1,is0-ishw),is0+ishw,4*hmod
+                  call sync_fst240(c2,istart,fc,hmod,nsyncoh,nfft2,nss,   &
+                  ntrperiod,fs2,sync)
+                  if(sync.gt.smax) then
+                     fc2=fc
+                     isbest=istart
+                     smax=sync
+                  endif
                enddo
             enddo
+
+            fc1=fc2
+            is0=isbest
+            ishw=4*hmod
+            isst=1*hmod
+            
+            smax=0.0
+            do if=-7,7
+               fc=fc1 + 0.02*baud*if
+               do istart=max(1,is0-ishw),is0+ishw,isst
+                  call sync_fst240(c2,istart,fc,hmod,nsyncoh,nfft2,nss,   &
+                       ntrperiod,fs2,sync)
+                  if(sync.gt.smax) then
+                     fc2=fc
+                     isbest=istart
+                     smax=sync
+                  endif
+               enddo
+            enddo
+
             call timer('sync240 ',1)
 
             fc_synced = fc0 + fc2
@@ -579,29 +578,29 @@ contains
       return
    end subroutine decode
 
-   subroutine sync_fst240(cd0,i0,f0,hmod,ncoh,np,nss,fs,sync)
+   subroutine sync_fst240(cd0,i0,f0,hmod,ncoh,np,nss,ntr,fs,sync)
 
 ! Compute sync power for a complex, downsampled FST240 signal.
 
+      use timer_module, only: timer
       include 'fst240/fst240_params.f90'
       complex cd0(0:np-1)
-      complex, allocatable, save ::  csync1(:),csync2(:)
-      complex, allocatable, save ::  csynct1(:),csynct2(:)
-      complex ctwk(8*nss)
+      complex csync1,csync2,csynct1,csynct2
+      complex ctwk(3200)
       complex z1,z2,z3,z4,z5
-      logical first
       integer hmod,isyncword1(0:7),isyncword2(0:7)
       real f0save
+      common/sync240com/csync1(3200),csync2(3200),csynct1(3200),csynct2(3200)
       data isyncword1/0,1,3,2,1,0,2,3/
       data isyncword2/2,3,1,0,3,2,0,1/
-      data first/.true./,f0save/-99.9/,nss0/-1/
-      save first,twopi,dt,fac,f0save,nss0
+      data f0save/-99.9/,nss0/-1/,ntr0/-1/
+      save twopi,dt,fac,f0save,nss0,ntr0
+
       p(z1)=(real(z1*fac)**2 + aimag(z1*fac)**2)**0.5     !Compute power
 
-      if(nss.ne.nss0 .and. allocated(csync1)) deallocate(csync1,csync2,csynct1,csynct2)
-      if(first .or. nss.ne.nss0) then
-         allocate( csync1(8*nss), csync2(8*nss) )
-         allocate( csynct1(8*nss), csynct2(8*nss) )
+      nz=8*nss
+      call timer('sync240a',0)
+      if(nss.ne.nss0 .or. ntr.ne.ntr0) then
          twopi=8.0*atan(1.0)
          dt=1/fs
          k=1
@@ -618,22 +617,25 @@ contains
                k=k+1
             enddo
          enddo
-         first=.false.
-         nss0=nss
          fac=1.0/(8.0*nss)
+         nss0=nss
+         ntr0=ntr
+         f0save=-1.e30
       endif
 
       if(f0.ne.f0save) then
          dphi=twopi*f0*dt
          phi=0.0
-         do i=1,8*nss
+         do i=1,nz
             ctwk(i)=cmplx(cos(phi),sin(phi))
             phi=mod(phi+dphi,twopi)
          enddo
-         csynct1=ctwk*csync1
-         csynct2=ctwk*csync2
+         csynct1(1:nz)=ctwk(1:nz)*csync1(1:nz)
+         csynct2(1:nz)=ctwk(1:nz)*csync2(1:nz)
          f0save=f0
+         nss0=nss
       endif
+      call timer('sync240a',1)
 
       i1=i0                            !Costas arrays
       i2=i0+38*nss
@@ -662,11 +664,11 @@ contains
             if(i5+is+ncoh*nss-1.le.np) then
                z5=sum(cd0(i5+is:i5+is+ncoh*nss-1)*conjg(csynct1(is+1:is+ncoh*nss)))
             endif
-            s1=s1+abs(z1)/(8*nss)
-            s2=s2+abs(z2)/(8*nss)
-            s3=s3+abs(z3)/(8*nss)
-            s4=s4+abs(z4)/(8*nss)
-            s5=s5+abs(z5)/(8*nss)
+            s1=s1+abs(z1)/nz
+            s2=s2+abs(z2)/nz
+            s3=s3+abs(z3)/nz
+            s4=s4+abs(z4)/nz
+            s5=s5+abs(z5)/nz
          enddo
       else
          nsub=-ncoh
@@ -718,7 +720,7 @@ contains
    subroutine get_candidates_fst240(c_bigfft,nfft1,nsps,hmod,fs,fa,fb,   &
       minsync,ncand,candidates,base)
 
-      complex c_bigfft(0:nfft1/2)              !Full length FFT of raw data
+      complex c_bigfft(0:nfft1/2+1)            !Full length FFT of raw data
       integer hmod                             !Modulation index (submode)
       integer im(1)                            !For maxloc
       real candidates(100,4)                   !Candidate list
