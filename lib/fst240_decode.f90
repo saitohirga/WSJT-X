@@ -211,7 +211,7 @@ contains
       nfft1=nfft2*ndown
       nh1=nfft1/2
 
-      allocate( c_bigfft(0:nfft1/2+1) )
+      allocate( c_bigfft(0:nfft1/2) )
       allocate( c2(0:nfft2-1) )
       allocate( cframe(0:160*nss-1) )
       
@@ -232,10 +232,9 @@ contains
 
 ! The big fft is done once and is used for calculating the smoothed spectrum
 ! and also for downconverting/downsampling each candidate.
-      do i=1,nfft1/2
-         c_bigfft(i)=cmplx(float(iwave(2*i-1)),float(iwave(2*i)))
+      do i=0,nfft1/2
+         c_bigfft(i)=cmplx(float(iwave(2*i+1)),float(iwave(2*i+2)))
       enddo
-      c_bigfft(nfft1/2+1)=0.
       call four2a(c_bigfft,nfft1,1,-1,0)
       if(iwspr.eq.0) then
          itype1=1
@@ -727,7 +726,7 @@ contains
    subroutine get_candidates_fst240(c_bigfft,nfft1,nsps,hmod,fs,fa,fb,   &
       minsync,ncand,candidates,base)
 
-      complex c_bigfft(0:nfft1/2+1)            !Full length FFT of raw data
+      complex c_bigfft(0:nfft1/2)              !Full length FFT of raw data
       integer hmod                             !Modulation index (submode)
       integer im(1)                            !For maxloc
       real candidates(100,4)                   !Candidate list
