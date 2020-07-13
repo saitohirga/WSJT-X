@@ -5813,6 +5813,8 @@ void MainWindow::on_actionFST240_triggered()
 {
   int nsub=m_nSubMode;
   on_actionJT65_triggered();
+  ui->label_6->setText(tr ("Band Activity"));
+  ui->label_7->setText(tr ("Rx Frequency"));
   ui->sbSubmode->setMaximum(3);
   m_nSubMode=nsub;
   ui->sbSubmode->setValue(m_nSubMode);
