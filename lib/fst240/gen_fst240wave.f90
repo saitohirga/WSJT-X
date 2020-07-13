@@ -87,11 +87,5 @@ subroutine gen_fst240wave(itone,nsym,nsps,nwave,fsample,hmod,f0,    &
      cwave=cshift(cwave,kshift)
   endif
 
-!  do i=1,nwave
-!     write(71,3071) i,i/48000.0,wave(i)
-!3071 format(i10,2f15.9)
-!  enddo
-  wave(nsps*nsym:)=0.                !Kill a stray spike ??
-
   return
 end subroutine gen_fst240wave

@@ -547,6 +547,10 @@ contains
                         else
                            call get_fst240_tones_from_bits(message74,itone,1)
                         endif
+                        if(.false.) then
+                           call write_ref(itone,iwave,nsps,nmax,ndown,hmod,  &
+                              isbest,fc_synced)
+                        endif
                         xsig=0
                         do i=1,NN
                            xsig=xsig+s4(itone(i),i)**2
@@ -801,5 +805,22 @@ contains
 
       return
    end subroutine get_candidates_fst240
+
+   subroutine write_ref(itone,iwave,nsps,nmax,ndown,hmod,i0,fc)
+      complex cwave(nmax)
+      integer itone(160)
+      integer*2 iwave(nmax)
+      integer hmod
+
+      wave=0
+      fsample=12000.0
+      nsym=160
+      call gen_fst240wave(itone,nsym,nsps,nmax,fsample,hmod,fc,    &
+                1,cwave,wave)
+      cwave=cshift(cwave,-i0*ndown) 
+      do i=1,nmax
+         write(51,*) i,iwave(i),real(cwave(i)),imag(cwave(i))
+      enddo
+  end subroutine subtract240
 
 end module fst240_decode
