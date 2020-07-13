@@ -306,7 +306,6 @@ contains
             call fst240_downsample(c_bigfft,nfft1,ndown,fc0,sigbw,c2)
 
             call timer('sync240 ',0)
-
             fc1=0.0
             if(emedelay.lt.0.1) then  ! search offsets from 0 s to 2 s
                is0=1.5*nspsec
@@ -391,7 +390,6 @@ contains
             xdt=(isbest-nspsec)/fs2
             if(ntrperiod.eq.15) xdt=(isbest-real(nspsec)/2.0)/fs2
             call fst240_downsample(c_bigfft,nfft1,ndown,fc_synced,sigbw,c2)
-
             do ijitter=0,jittermax
                if(ijitter.eq.0) ioffset=0
                if(ijitter.eq.1) ioffset=1
@@ -821,6 +819,6 @@ contains
       do i=1,nmax
          write(51,*) i,iwave(i),real(cwave(i)),imag(cwave(i))
       enddo
-  end subroutine subtract240
+  end subroutine write_ref 
 
 end module fst240_decode
