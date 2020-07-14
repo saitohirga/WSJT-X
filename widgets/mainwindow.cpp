@@ -7182,7 +7182,7 @@ void MainWindow::transmit (double snr)
     if(m_TRperiod==300) nsps=21504;
     int hmod=int(pow(2.0,double(m_nSubMode)));
     double dfreq=hmod*12000.0/nsps;
-    double f0=ui->WSPRFreqSpinBox->value() - m_XIT + 1.5*dfreq;
+    double f0=ui->WSPRfreqSpinBox->value() - m_XIT + 1.5*dfreq;
     Q_EMIT sendMessage (m_mode, NUM_FST240_SYMBOLS,double(nsps),f0,toneSpacing,
                         m_soundOutput,m_config.audio_output_channel(),
                         true, false, snr, m_TRperiod);
