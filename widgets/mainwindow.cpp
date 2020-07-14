@@ -91,7 +91,7 @@ extern "C" {
   //----------------------------------------------------- C and Fortran routines
   void symspec_(struct dec_data *, int* k, double* trperiod, int* nsps, int* ingain,
                 bool* bLowSidelobes, int* minw, float* px, float s[], float* df3,
-                int* nhsym, int* npts8, float *m_pxmax);
+                int* nhsym, int* npts8, float *m_pxmax, bool *bblank, int* npct);
 
   void hspec_(short int d2[], int* k, int* nutc0, int* ntrperiod, int* nrxfreq, int* ntol,
               bool* bmsk144, bool* btrain, double const pcoeffs[], int* ingain,
@@ -1132,6 +1132,8 @@ void MainWindow::writeSettings()
   m_settings->setValue ("FT8AP", ui->actionEnable_AP_FT8->isChecked ());
   m_settings->setValue ("JT65AP", ui->actionEnable_AP_JT65->isChecked ());
   m_settings->setValue("SplitterState",ui->splitter->saveState());
+  m_settings->setValue("Blanker",ui->cbNB->isChecked());
+
   {
     QList<QVariant> coeffs;     // suitable for QSettings
     for (auto const& coeff : m_phaseEqCoefficients)
@@ -1231,6 +1233,7 @@ void MainWindow::readSettings()
   ui->actionEnable_AP_FT8->setChecked (m_settings->value ("FT8AP", false).toBool());
   ui->actionEnable_AP_JT65->setChecked (m_settings->value ("JT65AP", false).toBool());
   ui->splitter->restoreState(m_settings->value("SplitterState").toByteArray());
+  ui->cbNB->setChecked(m_settings->value("Blanker",false).toBool());
   {
     auto const& coeffs = m_settings->value ("PhaseEqualizationCoefficients"
                                             , QList<QVariant> {0., 0., 0., 0., 0.}).toList ();
@@ -1389,8 +1392,13 @@ void MainWindow::dataSink(qint64 frames)
   if(m_bFastMode) nsps=6912;
   int nsmo=m_wideGraph->smoothYellow()-1;
   bool bLowSidelobes=m_config.lowSidelobes();
+  bool bblank=ui->cbNB->isChecked() and m_mode.startsWith("FST240");
+  int npct=0;
   symspec_(&dec_data,&k,&m_TRperiod,&nsps,&m_inGain,&bLowSidelobes,&nsmo,&m_px,s,
-           &m_df3,&m_ihsym,&m_npts8,&m_pxmax);
+           &m_df3,&m_ihsym,&m_npts8,&m_pxmax,&bblank,&npct);
+  QString t=" ";
+  if(bblank) t=QString::number(npct);
+      ui->labNpct->setText(t);
   if(m_mode=="WSPR" or m_mode=="FST240W") wspr_downsample_(dec_data.d2,&k);
   if(m_ihsym <=0) return;
   if(ui) ui->signal_meter_widget->setValue(m_px,m_pxmax); // Update thermometer
@@ -4079,7 +4087,6 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
-//    qDebug() << "onesec" << ui->RoundRobin->currentText();
     m_currentBand=m_config.bands()->find(m_freqNominal);
     if( SpecOp::HOUND == m_config.special_op_id() ) {
       qint32 tHound=QDateTime::currentMSecsSinceEpoch()/1000 - m_tAutoOn;
@@ -5806,6 +5813,10 @@ void MainWindow::displayWidgets(qint64 n)
   if(m_mode=="MSK144") b=SpecOp::EU_VHF==m_config.special_op_id();
   ui->sbSerialNumber->setVisible(b);
   m_lastCallsign.clear ();     // ensures Tx5 is updated for new modes
+  b=m_mode.startsWith("FST240");
+  ui->labNpct->setVisible(b);
+  ui->labNB->setVisible(b);
+  ui->cbNB->setVisible(b);
   genStdMsgs (m_rpt, true);
 }
 

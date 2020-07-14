@@ -78,6 +78,8 @@ contains
       data first/.true./
       save first,apbits,nappasses,naptypes,mycall0,hiscall0
 
+!      call blanker(iwave,ntrperiod*12000,0.0,0.2)
+      
       this%callback => callback
 
       dxcall13=hiscall   ! initialize for use in packjt77
@@ -788,7 +790,7 @@ contains
          iploc=ia+im(1)-1                         !Index of CCF peak
          pval=s2(iploc)                           !Peak value
          if(pval.lt.minsync) exit
-         if(s2(iploc).gt.thresh) then             !Is this a possible candidate?
+         if(s2(iploc).gt.minsync) then            !Is this a possible candidate?
             do i=-3,+3                            !Remove 0.9 of a model CCF at
                k=iploc+2*hmod*i                   !this frequency from s2()
                if(k.ge.ia .and. k.le.ib) then
@@ -803,5 +805,5 @@ contains
 
       return
    end subroutine get_candidates_fst240
-
+ 
 end module fst240_decode

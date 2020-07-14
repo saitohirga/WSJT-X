@@ -1,5 +1,5 @@
 subroutine symspec(shared_data,k,TRperiod,nsps,ingain,bLowSidelobes,    &
-     nminw,pxdb,s,df3,ihsym,npts8,pxdbmax)
+     nminw,pxdb,s,df3,ihsym,npts8,pxdbmax,bblank,npct)
 
 ! Input:
 !  k              pointer to the most recent new data
@@ -7,8 +7,6 @@ subroutine symspec(shared_data,k,TRperiod,nsps,ingain,bLowSidelobes,    &
 !  nsps           samples per symbol, at 12000 Hz
 !  bLowSidelobes  true to use windowed FFTs
 !  ndiskdat       0/1 to indicate if data from disk
-!  nb             0/1 status of noise blanker (off/on)
-!  nbslider       NB setting, 0-100
 
 ! Output:
 !  pxdb      raw power (0-90 dB)
@@ -31,7 +29,7 @@ subroutine symspec(shared_data,k,TRperiod,nsps,ingain,bLowSidelobes,    &
   real*4 tmp(NSMAX)
   complex cx(0:MAXFFT3/2)
   integer nch(7)
-  logical*1 bLowSidelobes
+  logical*1 bLowSidelobes,bblank
 
   common/spectra/syellow(NSMAX),ref(0:3456),filter(0:3456)
   data k0/99999999/,nfft3z/0/
@@ -65,6 +63,12 @@ subroutine symspec(shared_data,k,TRperiod,nsps,ingain,bLowSidelobes,    &
   gain=10.0**(0.1*ingain)
   sq=0.
   pxmax=0.;
+
+  dwell_time=0.0001
+  fblank=0.15
+  if(k.gt.k0 .and. bblank) call blanker(shared_data%id2(k0+1:k),  &
+       k-k0,dwell_time,fblank,npct)
+
   do i=k0+1,k
      x1=shared_data%id2(i)
      if (abs(x1).gt.pxmax) pxmax = abs(x1);

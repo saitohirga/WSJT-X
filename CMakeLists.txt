@@ -396,6 +396,7 @@ set (wsjt_FSRCS
   lib/badmsg.f90
   lib/ft8/baseline.f90
   lib/ft4/ft4_baseline.f90
+  lib/blanker.f90
   lib/bpdecode40.f90
   lib/bpdecode128_90.f90
   lib/ft8/bpdecode174_91.f90
