@@ -308,7 +308,6 @@ contains
             call fst240_downsample(c_bigfft,nfft1,ndown,fc0,sigbw,c2)
 
             call timer('sync240 ',0)
-
             fc1=0.0
             if(emedelay.lt.0.1) then  ! search offsets from 0 s to 2 s
                is0=1.5*nspsec
@@ -393,7 +392,6 @@ contains
             xdt=(isbest-nspsec)/fs2
             if(ntrperiod.eq.15) xdt=(isbest-real(nspsec)/2.0)/fs2
             call fst240_downsample(c_bigfft,nfft1,ndown,fc_synced,sigbw,c2)
-
             do ijitter=0,jittermax
                if(ijitter.eq.0) ioffset=0
                if(ijitter.eq.1) ioffset=1
@@ -548,6 +546,10 @@ contains
                            call get_fst240_tones_from_bits(message101,itone,0)
                         else
                            call get_fst240_tones_from_bits(message74,itone,1)
+                        endif
+                        if(.false.) then
+                           call write_ref(itone,iwave,nsps,nmax,ndown,hmod,  &
+                              isbest,fc_synced)
                         endif
                         xsig=0
                         do i=1,NN
@@ -790,20 +792,35 @@ contains
          iploc=ia+im(1)-1                         !Index of CCF peak
          pval=s2(iploc)                           !Peak value
          if(pval.lt.minsync) exit
-         if(s2(iploc).gt.minsync) then            !Is this a possible candidate?
-            do i=-3,+3                            !Remove 0.9 of a model CCF at
-               k=iploc+2*hmod*i                   !this frequency from s2()
-               if(k.ge.ia .and. k.le.ib) then
-                  s2(k)=max(0.,s2(k)-0.9*pval*xdb(i))
-               endif
-            enddo
-            ncand=ncand+1
-            candidates(ncand,1)=df2*iploc         !Candidate frequency
-            candidates(ncand,2)=pval              !Rough estimate of SNR
-         endif
+         do i=-3,+3                            !Remove 0.9 of a model CCF at
+            k=iploc+2*hmod*i                   !this frequency from s2()
+            if(k.ge.ia .and. k.le.ib) then
+               s2(k)=max(0.,s2(k)-0.9*pval*xdb(i))
+            endif
+         enddo
+         ncand=ncand+1
+         candidates(ncand,1)=df2*iploc         !Candidate frequency
+         candidates(ncand,2)=pval              !Rough estimate of SNR
       enddo
 
       return
    end subroutine get_candidates_fst240
- 
+
+   subroutine write_ref(itone,iwave,nsps,nmax,ndown,hmod,i0,fc)
+      complex cwave(nmax)
+      integer itone(160)
+      integer*2 iwave(nmax)
+      integer hmod
+
+      wave=0
+      fsample=12000.0
+      nsym=160
+      call gen_fst240wave(itone,nsym,nsps,nmax,fsample,hmod,fc,    &
+                1,cwave,wave)
+      cwave=cshift(cwave,-i0*ndown) 
+      do i=1,nmax
+         write(51,*) i,iwave(i),real(cwave(i)),imag(cwave(i))
+      enddo
+  end subroutine write_ref 
+
 end module fst240_decode
