@@ -64,7 +64,7 @@ contains
       integer mcq(29),mrrr(19),m73(19),mrr73(19)
 
       logical badsync,unpk77_success,single_decode
-      logical first,nohiscall,lwspr
+      logical first,nohiscall,lwspr,ex
 
       integer*2 iwave(300*12000)
 
@@ -547,7 +547,8 @@ contains
                         else
                            call get_fst240_tones_from_bits(message74,itone,1)
                         endif
-                        if(.false.) then
+                        inquire(file='plotspec',exist=ex)
+                        if(ex) then
                            call write_ref(itone,iwave,nsps,nmax,ndown,hmod,  &
                               isbest,fc_synced)
                         endif
@@ -808,6 +809,7 @@ contains
 
    subroutine write_ref(itone,iwave,nsps,nmax,ndown,hmod,i0,fc)
       complex cwave(nmax)
+      complex c(0:1440000-1)
       integer itone(160)
       integer*2 iwave(nmax)
       integer hmod
@@ -817,10 +819,28 @@ contains
       nsym=160
       call gen_fst240wave(itone,nsym,nsps,nmax,fsample,hmod,fc,    &
                 1,cwave,wave)
-      cwave=cshift(cwave,-i0*ndown) 
-      do i=1,nmax
-         write(51,*) i,iwave(i),real(cwave(i)),imag(cwave(i))
+      cwave=cshift(cwave,-i0*ndown)
+!      do i=1,nmax
+!         write(51,1000) i,iwave(i),cwave(i)
+!1000     format(2i10,f12.6)
+!      enddo
+
+      fac=1.0/32768
+      c=fac*float(iwave)*conjg(cwave)
+      call four2a(c,nmax,1,-1,1)         !Forward c2c FFT
+      df=12000.0/nmax
+      ia=-10.0/df
+      ib=10.0/df
+      do i=ia,ib
+         j=i
+         if(j.lt.0) j=i+nmax
+         s=real(c(j))**2 + aimag(c(j))**2
+         f=i*df
+         write(52,1010) f,s,db(s)
+1010     format(f10.3,e12.3,f10.3)
       enddo
+
+      return
   end subroutine write_ref 
 
 end module fst240_decode
