@@ -809,11 +809,15 @@ contains
 
    subroutine write_ref(itone,iwave,nsps,nmax,ndown,hmod,i0,fc)
       complex cwave(nmax)
-      complex c(0:1440000-1)
+      complex, allocatable :: c(:)
       integer itone(160)
       integer*2 iwave(nmax)
       integer hmod
+      data ncall/0/
+      save ncall
 
+      ncall=ncall+1
+      allocate( c(0:nmax-1) )
       wave=0
       fsample=12000.0
       nsym=160
@@ -829,17 +833,26 @@ contains
       c=fac*float(iwave)*conjg(cwave)
       call four2a(c,nmax,1,-1,1)         !Forward c2c FFT
       df=12000.0/nmax
-      ia=-10.0/df
-      ib=10.0/df
+      ia=-10.1/df
+      ib=10.1/df
+      smax=0.
       do i=ia,ib
          j=i
          if(j.lt.0) j=i+nmax
          s=real(c(j))**2 + aimag(c(j))**2
+         smax=max(s,smax)
+      enddo
+      do i=ia,ib
+         j=i
+         if(j.lt.0) j=i+nmax
+         s=(real(c(j))**2 + aimag(c(j))**2)/smax
+         s=s + ncall-1
          f=i*df
          write(52,1010) f,s,db(s)
-1010     format(f10.3,e12.3,f10.3)
+1010     format(f12.6,f12.6,f10.3)
       enddo
-
+!      close(52)
+      
       return
   end subroutine write_ref 
 
