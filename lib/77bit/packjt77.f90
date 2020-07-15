@@ -374,6 +374,7 @@ subroutine unpack77(c77,nrx,msg,unpk77_success)
         call unpack28(n28,call_1,unpk28_success) 
         if(.not.unpk28_success) unpk77_success=.false.
         write(crpt,'(i3)') idbm
+        cpfx='   '
         if(npfx.lt.nzzz) then
 ! Prefix
            do i=3,1,-1
@@ -388,7 +389,6 @@ subroutine unpack77(c77,nrx,msg,unpk77_success)
         else
 ! Suffix
            npfx=npfx-nzzz
-           cpfx='   '
            if(npfx.le.35) then
               cpfx(1:1)=a2(npfx+1:npfx+1)
            else if(npfx.gt.35 .and. npfx.le.1295) then
