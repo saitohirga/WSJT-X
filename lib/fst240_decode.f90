@@ -811,88 +811,99 @@ contains
    end subroutine get_candidates_fst240
 
    subroutine write_ref(itone,iwave,nsps,nmax,ndown,hmod,i0,fc,fmid,w50)
-      complex cwave(nmax)
-      complex, allocatable :: c(:)
-      real,allocatable :: ss(:)
-      integer itone(160)
-      integer*2 iwave(nmax)
-      integer hmod
-      data ncall/0/
-      save ncall
 
-      ncall=ncall+1
-      allocate(c(0:nmax-1))
-      wave=0
-      fsample=12000.0
-      nsym=160
+! On "plotspec" special request, compute Doppler spread for a decoded signal
 
-      call gen_fst240wave(itone,nsym,nsps,nmax,fsample,hmod,fc,    &
-                1,cwave,wave)
-      cwave=cshift(cwave,-i0*ndown)
-!      do i=1,nmax
-!         write(51,1000) i,iwave(i),cwave(i)
-!1000     format(2i10,f12.6)
-!      enddo
+     complex, allocatable :: cwave(:)       !Reconstructed complex signal
+     complex, allocatable :: g(:)           !Channel gain, g(t) in QEX paper
+     real,allocatable :: ss(:)              !Computed power spectrum of g(t)
+     integer itone(160)                     !Tones for this message
+     integer*2 iwave(nmax)                  !Raw Rx data
+     integer hmod                           !Modulation index
+     data ncall/0/
+     save ncall
 
-      fac=1.0/32768
-      c=fac*float(iwave)*conjg(cwave)
-      call four2a(c,nmax,1,-1,1)         !Forward c2c FFT
+     ncall=ncall+1
+     nfft=2*nmax
+     allocate(cwave(0:nmax-1))
+     allocate(g(0:nfft-1))
+     wave=0
+     fsample=12000.0
+     nsym=160
+     call gen_fst240wave(itone,nsym,nsps,nmax,fsample,hmod,fc,1,cwave,wave)
+     cwave=cshift(cwave,-i0*ndown)
+     fac=1.0/32768
+     g(0:nmax-1)=fac*float(iwave)*conjg(cwave)
+     g(nmax:)=0.
+     call four2a(g,nfft,1,-1,1)         !Forward c2c FFT
 
-      df=12000.0/nmax
-      ia=1.0/df
-      smax=0.
-      do i=-ia,ia
-         j=i
-         if(j.lt.0) j=i+nmax
-         s=real(c(j))**2 + aimag(c(j))**2
-         smax=max(s,smax)
-      enddo
-      ia=10.1/df
-      allocate(ss(-ia:ia))
-      sum1=0.
-      sum2=0.
-      ns=0
-      do i=-ia,ia
-         j=i
-         if(j.lt.0) j=i+nmax
-         ss(i)=(real(c(j))**2 + aimag(c(j))**2)/smax
-         f=i*df
-         if(f.ge.-4.0 .and. f.le.-2.0) then
-            sum1=sum1 + ss(i)
-            ns=ns+1
-         else if(f.ge.2.0 .and. f.le.4.0) then
-            sum2=sum2 + ss(i)
-         endif
-      enddo
-      avg=min(sum1/ns,sum2/ns)
+     df=12000.0/nfft
+     ia=1.0/df
+     smax=0.
+     do i=-ia,ia                        !Find smax in +/- 1 Hz around 0.
+        j=i
+        if(j.lt.0) j=i+nfft
+        s=real(g(j))**2 + aimag(g(j))**2
+        smax=max(s,smax)
+     enddo
+     
+     ia=10.1/df
+     allocate(ss(-ia:ia))               !Allocate space for +/- 10 Hz
+     sum1=0.
+     sum2=0.
+     ns=0
+     do i=-ia,ia
+        j=i
+        if(j.lt.0) j=i+nfft
+        ss(i)=(real(g(j))**2 + aimag(g(j))**2)/smax
+        f=i*df
+        if(f.ge.-4.0 .and. f.le.-2.0) then
+           sum1=sum1 + ss(i)                  !Power between -2 and -4 Hz
+           ns=ns+1
+        else if(f.ge.2.0 .and. f.le.4.0) then
+           sum2=sum2 + ss(i)                  !Power between +2 and +4 Hz
+        endif
+     enddo
+     avg=min(sum1/ns,sum2/ns)                 !Compute avg from smaller sum
 
-      sum1=0.
-      do i=-ia,ia
-         f=i*df
-         if(abs(f).le.1.0) sum1=sum1 + ss(i)-avg
-         y=0.99*ss(i) + ncall-1
-         write(52,1010) f,y
-1010     format(f12.6,f12.6)
-      enddo
+     sum1=0.
+     do i=-ia,ia
+        f=i*df
+        if(abs(f).le.1.0) sum1=sum1 + ss(i)-avg !Power in abs(f) < 1 Hz
+     enddo
 
-      ia=nint(1.0/df)
-      sum2=0.0
-      i1=-999
-      i2=-999
-      i3=-999
-      do i=-ia,ia
-         sum2=sum2 + ss(i)-avg
-         if(sum2.ge.0.25*sum1 .and. i1.eq.-999) i1=i
-         if(sum2.ge.0.50*sum1 .and. i2.eq.-999) i2=i
-         if(sum2.ge.0.75*sum1) then
-            i3=i
-            exit
-         endif
-      enddo
-      fmid=i2*df
-      w50=(i3-i1+1)*df
-      
-      return
-  end subroutine write_ref 
+     ia=nint(1.0/df) + 1
+     sum2=0.0
+     xi1=-999
+     xi2=-999
+     xi3=-999
+     sum2z=0.
+     do i=-ia,ia                !Find freq range that has 50% of signal power
+        sum2=sum2 + ss(i)-avg
+        if(sum2.ge.0.25*sum1 .and. xi1.eq.-999.0) then
+           xi1=i - 1 + (sum2-0.25*sum1)/(sum2-sum2z)
+        endif
+        if(sum2.ge.0.50*sum1 .and. xi2.eq.-999.0) then
+           xi2=i - 1 + (sum2-0.50*sum1)/(sum2-sum2z)
+        endif
+        if(sum2.ge.0.75*sum1) then
+           xi3=i - 1 + (sum2-0.75*sum1)/(sum2-sum2z)
+           exit
+        endif
+        sum2z=sum2
+     enddo
+     xdiff=sqrt(1.0+(xi3-xi1)**2) !Keep small values from fluctuating too widely
+     w50=xdiff*df                 !Compute Doppler spread
+     fmid=xi2*df                  !Frequency midpoint of signal powere
+
+     do i=-ia,ia                          !Save the spectrum for plotting
+        f=i*df
+        y=0.99*ss(i+nint(xi2)) + ncall-1
+        write(52,1010) f,y
+1010    format(f12.6,f12.6)
+     enddo
+
+     return
+   end subroutine write_ref
 
 end module fst240_decode
