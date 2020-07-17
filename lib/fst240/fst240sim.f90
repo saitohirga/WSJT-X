@@ -6,6 +6,7 @@ program fst240sim
    use packjt77
    include 'fst240_params.f90'               !Set various constants
    type(hdr) h                                !Header for .wav file
+   logical*1 wspr_hint
    character arg*12,fname*17
    character msg37*37,msgsent37*37,c77*77
    complex, allocatable :: c0(:)
@@ -18,10 +19,11 @@ program fst240sim
 
 ! Get command-line argument(s)
    nargs=iargc()
-   if(nargs.ne.9) then
-      print*,'Need 9 arguments, got ',nargs
-      print*,'Usage:    fst240sim "message"        TRsec f0   DT  h fdop del nfiles snr'
-      print*,'Examples: fst240sim "K1JT K9AN EN50"  60  1500 0.0  1  0.1 1.0   10   -15'
+   if(nargs.ne.10) then
+      print*,'Need 10 arguments, got ',nargs
+      print*,'Usage:    fst240sim "message"        TRsec f0   DT  h fdop del nfiles snr W'
+      print*,'Examples: fst240sim "K1JT K9AN EN50"  60  1500 0.0  1  0.1 1.0   10   -15 F'
+      print*,'W (T or F) argument is hint to encoder to use WSPR message when there is abiguity'
       go to 999
    endif
    call getarg(1,msg37)                   !Message to be transmitted
@@ -41,6 +43,8 @@ program fst240sim
    read(arg,*) nfiles                     !Number of files
    call getarg(9,arg)
    read(arg,*) snrdb                      !SNR_2500
+   call getarg(10,arg)
+   read(arg,*) wspr_hint                  !0:break ties as 77-bit 1:break ties as 50-bit
 
    nfiles=abs(nfiles)
    twopi=8.0*atan(1.0)
@@ -72,12 +76,18 @@ program fst240sim
    sig=sqrt(2*bandwidth_ratio) * 10.0**(0.05*snrdb)
    if(snrdb.gt.90.0) sig=1.0
 
-   i3=-1
-   n3=-1
+   if(wspr_hint) then
+      i3=0
+      n3=6
+   else
+      i3=-1
+      n3=-1
+   endif
    call pack77(msg37,i3,n3,c77)
+   if(i3.eq.0.and.n3.eq.6) iwspr=1
    call genfst240(msg37,0,msgsent37,msgbits,itone,iwspr)
    write(*,*)
-   write(*,'(a9,a37,a7,i2)') 'Message: ',msgsent37,' iwspr:',iwspr
+   write(*,'(a9,a37,a3,L2,a7,i2)') 'Message: ',msgsent37,'W:',wspr_hint,' iwspr:',iwspr
    write(*,1000) f00,xdt,hmod,txt,snrdb
 1000 format('f0:',f9.3,'   DT:',f6.2,'   hmod:',i6,'   TxT:',f6.1,'   SNR:',f6.1)
    write(*,*)

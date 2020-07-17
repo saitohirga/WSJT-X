@@ -5,7 +5,8 @@ subroutine genfst240(msg0,ichk,msgsent,msgbits,i4tone,iwspr)
 !   - ichk     if ichk=1, return only msgsent
 !   - msgsent  message as it will be decoded
 !   - i4tone   array of audio tone values, {0,1,2,3}
-!   - iwspr    0: (240,101)/crc24, 1: (240,74)/crc24
+!   - iwspr    in: 0: FST240 1: FST240W
+!              out 0: (240,101)/crc24, 1: (240,74)/crc24
 !
 ! Frame structure:
 ! s8 d30 s8 d30 s8 d30 s8 d30 s8
@@ -43,6 +44,10 @@ subroutine genfst240(msg0,ichk,msgsent,msgbits,i4tone,iwspr)
 
    i3=-1
    n3=-1
+   if(iwspr.eq.1) then
+      i3=0
+      n3=6
+   endif
    call pack77(message,i3,n3,c77)
    call unpack77(c77,0,msgsent,unpk77_success) !Unpack to get msgsent
    msgbits=0

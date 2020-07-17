@@ -3875,6 +3875,7 @@ void MainWindow::guiUpdate()
             char fst240msgbits[101];
             QString wmsg;
             if(m_mode=="FST240W") {
+              iwspr = 1;
               wmsg=WSPR_message();
               ba=wmsg.toLatin1();
               ba2msg(ba,message);

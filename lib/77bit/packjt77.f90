@@ -124,12 +124,14 @@ subroutine pack77(msg0,i3,n3,c77)
   integer ntel(3)
 
   msg=msg0
-  if(i3.eq.0 .and. n3.eq.5) go to 5
+  i3_hint=i3
+  n3_hint=n3
+  i3=-1
+  n3=-1
+  if(i3_hint.eq.0 .and. n3_hint.eq.5) go to 5
 
 ! Convert msg to upper case; collapse multiple blanks; parse into words.
   call split77(msg,nwords,nw,w)
-  i3=-1
-  n3=-1
   if(msg(1:3).eq.'CQ ' .or. msg(1:3).eq.'DE ' .or. msg(1:4).eq.'QRZ ') go to 100
 
 ! Check 0.1 (DXpedition mode)
@@ -160,7 +162,7 @@ subroutine pack77(msg0,i3,n3,c77)
      go to 900
   endif
 
-100 call pack77_06(nwords,w,i3,n3,c77)
+100 call pack77_06(nwords,w,i3,n3,c77,i3_hint,n3_hint)
   if(i3.ge.0) go to 900
 
 ! Check Type 1 (Standard 77-bit message) or Type 2, with optional "/P"
@@ -414,7 +416,7 @@ subroutine unpack77(c77,nrx,msg,unpk77_success)
         n28=n22+2063592
         call unpack28(n28,call_1,unpk28_success) 
         if(.not.unpk28_success) unpk77_success=.false.
-        call to_grid6(igrid6,grid6)
+        call to_grid(igrid6,grid6)
         msg=trim(call_1)//' '//grid6
 
 
@@ -938,7 +940,7 @@ subroutine pack77_03(nwords,w,i3,n3,c77)
 end subroutine pack77_03
 
 
-subroutine pack77_06(nwords,w,i3,n3,c77)
+subroutine pack77_06(nwords,w,i3,n3,c77,i3_hint,n3_hint)
 
   character*13 w(19)
   character*77 c77
@@ -955,13 +957,14 @@ subroutine pack77_06(nwords,w,i3,n3,c77)
        grid4(3:3).ge.'0' .and. grid4(3:3).le.'9' .and.               &
        grid4(4:4).ge.'0' .and. grid4(4:4).le.'9'
 
-  is_grid6(grid6)=len(trim(grid6)).eq.6 .and.                        &
+  is_grid6(grid6)=(len(trim(grid6)).eq.6.or.len(trim(grid6)).eq.4).and. &
        grid6(1:1).ge.'A' .and. grid6(1:1).le.'R' .and.               &
        grid6(2:2).ge.'A' .and. grid6(2:2).le.'R' .and.               &
        grid6(3:3).ge.'0' .and. grid6(3:3).le.'9' .and.               &
        grid6(4:4).ge.'0' .and. grid6(4:4).le.'9' .and.               &
-       grid6(5:5).ge.'A' .and. grid6(5:5).le.'X' .and.               &
-       grid6(6:6).ge.'A' .and. grid6(6:6).le.'X'
+       (len(trim(grid6)).eq.4.or.                                    &
+       (grid6(5:5).ge.'A' .and. grid6(5:5).le.'X' .and.              &
+       grid6(6:6).ge.'A' .and. grid6(6:6).le.'X'))
 
   is_digit(c)=c.ge.'0' .and. c.le.'9'
 
@@ -1033,8 +1036,13 @@ subroutine pack77_06(nwords,w,i3,n3,c77)
      go to 900
   endif
 
-  if(nwords.eq.2 .and. m1.ge.5 .and. m1.le.12 .and. m2.le.6) then
+  if(i3_hint.eq.0.and.n3_hint.eq.6.and.nwords.eq.2 .and. m1.ge.5  &
+       .and. m1.le.12 .and. m2.le.6) then
 ! WSPR Type 3
+
+     !n3_hint=6 and i3_hint=0 is a hint that the caller wanted a
+     !50-bit encoding rather than the possible alternative n3=4 77-bit
+     !encoding
      if(index(w(1),'<').lt.1 .or. index(w(1),'>').lt.1) go to 900
      grid6=w(2)(1:6)
      if(.not.is_grid6(grid6)) go to 900
@@ -1042,13 +1050,17 @@ subroutine pack77_06(nwords,w,i3,n3,c77)
      n3=6
      call pack28(w(1),n28)
      n22=n28-2063592
-     k1=(ichar(grid6(1:1))-ichar('A'))*18*10*10*24*24
-     k2=(ichar(grid6(2:2))-ichar('A'))*10*10*24*24
-     k3=(ichar(grid6(3:3))-ichar('0'))*10*24*24
-     k4=(ichar(grid6(4:4))-ichar('0'))*24*24
-     k5=(ichar(grid6(5:5))-ichar('A'))*24
-     k6=(ichar(grid6(6:6))-ichar('A'))
-     igrid6=k1+k2+k3+k4+k5+k6
+     k1=(ichar(grid6(1:1))-ichar('A'))*18*10*10*25*25
+     k2=(ichar(grid6(2:2))-ichar('A'))*10*10*25*25
+     k3=(ichar(grid6(3:3))-ichar('0'))*10*25*25
+     k4=(ichar(grid6(4:4))-ichar('0'))*25*25
+     if (grid6(5:6).eq.'  ') then
+        igrid6=k1+k2+k3+k4+24*25+24
+     else
+        k5=(ichar(grid6(5:5))-ichar('A'))*25
+        k6=(ichar(grid6(6:6))-ichar('A'))
+        igrid6=k1+k2+k3+k4+k5+k6
+     endif
      write(c77,1030) n22,igrid6,2,0,n3,i3
 1030 format(b22.22,b25.25,b3.3,b21.21,2b3.3)
   endif
@@ -1522,5 +1534,32 @@ subroutine to_grid6(n,grid6)
 
   return
 end subroutine to_grid6
+
+subroutine to_grid(n,grid6)
+  ! 4-, or 6-character grid
+  character*6 grid6
+
+  j1=n/(18*10*10*25*25)
+  n=n-j1*18*10*10*25*25
+  j2=n/(10*10*25*25)
+  n=n-j2*10*10*25*25
+  j3=n/(10*25*25)
+  n=n-j3*10*25*25
+  j4=n/(25*25)
+  n=n-j4*25*25
+  j5=n/25
+  j6=n-j5*25
+  grid6=''
+  grid6(1:1)=char(j1+ichar('A'))
+  grid6(2:2)=char(j2+ichar('A'))
+  grid6(3:3)=char(j3+ichar('0'))
+  grid6(4:4)=char(j4+ichar('0'))
+  if (j5.ne.24.or.j6.ne.24) then
+     grid6(5:5)=char(j5+ichar('A'))
+     grid6(6:6)=char(j6+ichar('A'))
+  endif
+
+  return
+end subroutine to_grid
 
 end module packjt77
