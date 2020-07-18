@@ -175,7 +175,7 @@ contains
          nsps=1680
          nmax=30*12000
          ndown=42/hmod !nss=40,80,168,336
-         nfft1=359856
+         nfft1=359856  !nfft2=8568=2^3*3^2*7*17
          if(hmod.eq.4) then
             ndown=10
             nfft1=nmax
@@ -189,28 +189,28 @@ contains
          nmax=60*12000
          ndown=96/hmod !nss=36,81,162,324
          if(hmod.eq.1) ndown=108
-         nfft1=int(719808/ndown)*ndown
+         nfft1=7500*96    ! nfft2=7500=2^2*3*5^4
       else if(ntrperiod.eq.120) then
          nsps=8200
          nmax=120*12000
          ndown=200/hmod !nss=40,82,164,328
          if(hmod.eq.1) ndown=205
-         nfft1=int(nmax/ndown)*ndown
+         nfft1=7200*200   ! nfft2=7200=2^5*3^2*5^2
       else if(ntrperiod.eq.300) then
          nsps=21504
          nmax=300*12000
          ndown=512/hmod !nss=42,84,168,336
-         nfft1=int((nmax-200)/ndown)*ndown
+         nfft1=7020*512   ! nfft2=7020=2^2*3^3*5*13
       else if(ntrperiod.eq.900) then
          nsps=66560
          nmax=900*12000
          ndown=1664/hmod !nss=40,80,160,320
-         nfft1=int((nmax-200)/ndown)*ndown
+         nfft1=6480*1664  ! nfft2=6480=2^4*3^4*5
       else if(ntrperiod.eq.1800) then
          nsps=134400
          nmax=1800*12000
          ndown=3360/hmod !nss=40,80,160,320
-         nfft1=int((nmax-200)/ndown)*ndown
+         nfft1=6426*3360  ! nfft2=6426=2*3^3*7*17
       end if
       nss=nsps/ndown
       fs=12000.0                       !Sample rate
