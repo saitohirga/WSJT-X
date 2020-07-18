@@ -420,6 +420,8 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
     if(m_TRperiod==60) nsps=4000;
     if(m_TRperiod==120) nsps=8400;
     if(m_TRperiod==300) nsps=21504;
+    if(m_TRperiod==900) nsps=66560;
+    if(m_TRperiod==1800) nsps=134400;
     float baud=12000.0/nsps;
     bw=3.0*h*baud;
   }
