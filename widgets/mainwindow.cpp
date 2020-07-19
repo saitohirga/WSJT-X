@@ -3234,12 +3234,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           DecodedText decodedtext1=decodedtext0;
           if(m_mode.startsWith("FST240") and m_fSpread>0.0) {
             QString t=decodedtext0.string();
-            QString t2;
-            if(m_fSpread<0.95) t2.sprintf("%5.3f",m_fSpread);
-            if(m_fSpread>=0.95) t2.sprintf("%5.2f",m_fSpread);
-            t=t.left(46)+t2+t.mid(50);
-            t=t.trimmed();
-            DecodedText dt2{t};
+            DecodedText dt2 {QString {"%1%2%3"}.arg (t.left (46)).arg (m_fSpread, 5, 'f', m_fSpread < 0.95 ? 2 : 3).arg (t.mid(50)).trimmed ()};
             decodedtext1=dt2;
           }
           ui->decodedTextBrowser->displayDecodedText(decodedtext1,m_baseCall,m_mode,m_config.DXCC(),
