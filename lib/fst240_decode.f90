@@ -539,11 +539,11 @@ contains
                      endif
                      if(iqorw.eq.1) then
                         write(c77,'(77i1)') mod(message101(1:77)+rvec,2)
-                        call unpack77(c77,0,msg,unpk77_success)
+                        call unpack77(c77,1,msg,unpk77_success)
                      else
                         write(c77,'(50i1)') message74(1:50)
                         c77(51:77)='000000000000000000000110000'
-                        call unpack77(c77,0,msg,unpk77_success)
+                        call unpack77(c77,1,msg,unpk77_success)
                      endif
                      if(unpk77_success) then
                         idupe=0
