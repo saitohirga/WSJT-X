@@ -241,10 +241,9 @@ void DisplayText::new_period ()
 
 QString DisplayText::appendWorkedB4 (QString message, QString call, QString const& grid,
                                      QColor * bg, QColor * fg, LogBook const& logBook,
-                                     QString const& currentBand, QString const& currentMode)
+                                     QString const& currentBand, QString const& currentMode,
+                                     QString extra)
 {
-  // allow for seconds
-  int padding {message.indexOf (" ") > 4 ? 2 : 0};
   QString countryName;
   bool callB4;
   bool callB4onBand;
@@ -278,7 +277,6 @@ QString DisplayText::appendWorkedB4 (QString message, QString call, QString cons
   }
 
   message = message.trimmed ();
-  QString appendage;
 
   highlight_types types;
   // no shortcuts here as some types may be disabled
@@ -329,20 +327,20 @@ QString DisplayText::appendWorkedB4 (QString message, QString call, QString cons
     {
     case Highlight::Continent:
     case Highlight::ContinentBand:
-      appendage = AD1CCty::continent (looked_up.continent);
+      extra += AD1CCty::continent (looked_up.continent);
       break;
     case Highlight::CQZone:
     case Highlight::CQZoneBand:
-      appendage = QString {"CQ Zone %1"}.arg (looked_up.CQ_zone);
+      extra += QString {"CQ Zone %1"}.arg (looked_up.CQ_zone);
       break;
     case Highlight::ITUZone:
     case Highlight::ITUZoneBand:
-      appendage = QString {"ITU Zone %1"}.arg (looked_up.ITU_zone);
+      extra += QString {"ITU Zone %1"}.arg (looked_up.ITU_zone);
       break;
     default:
       if (m_bPrincipalPrefix)
         {
-          appendage = looked_up.primary_prefix;
+          extra += looked_up.primary_prefix;
         }
       else
         {
@@ -368,19 +366,30 @@ QString DisplayText::appendWorkedB4 (QString message, QString call, QString cons
           countryName.replace ("European", "EU");
           countryName.replace ("African", "AF");
 
-          appendage += countryName;
+          extra += countryName;
         }
     }
     m_CQPriority=DecodeHighlightingModel::highlight_name(top_highlight);
 
-  // use a nbsp to save the start of appended text so we can find
-  // it again later, align appended data at a fixed column if
-  // there is space otherwise let it float to the right
-  int space_count {40 + padding - message.size ()};
-  if (space_count > 0) {
-    message += QString {space_count, QChar {' '}};
-  }
-  message += QChar::Nbsp + appendage;
+    return leftJustifyAppendage (message, extra);
+}
+
+QString DisplayText::leftJustifyAppendage (QString message, QString const& appendage) const
+{
+  if (appendage.size ())
+    {
+      // allow for seconds
+      int padding {message.indexOf (" ") > 4 ? 2 : 0};
+
+      // use a nbsp to save the start of appended text so we can find
+      // it again later, align appended data at a fixed column if
+      // there is space otherwise let it float to the right
+      int space_count {40 + padding - message.size ()};
+      if (space_count > 0) {
+        message += QString {space_count, QChar {' '}};
+      }
+      message += QChar::Nbsp + appendage;
+    }
   return message;
 }
 
@@ -421,11 +430,11 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
   decodedText.deCallAndGrid (/*out*/ dxCall, dxGrid);
   QRegularExpression grid_regexp {"\\A(?![Rr]{2}73)[A-Ra-r]{2}[0-9]{2}([A-Xa-x]{2}){0,1}\\z"};
   if(!dxGrid.contains(grid_regexp)) dxGrid="";
-  message = message.left (message.indexOf (QChar::Nbsp)); // strip appended info
+  message = message.left (message.indexOf (QChar::Nbsp)).trimmed (); // strip appended info
+  QString extra;
   if (haveFSpread)
     {
-      message += QString {37 - message.size (), QChar {' '}};
-      message += QChar::Nbsp + QString {"%1"}.arg (fSpread, 5, 'f', fSpread < 0.95 ? 3 : 2);
+      extra = QString {"%1"}.arg (fSpread, 5, 'f', fSpread < 0.95 ? 3 : 2) + QChar {' '};
     }
   m_CQPriority="";
   if (CQcall)
@@ -440,10 +449,11 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
               currentMode = decodedText.isJT65 () ? "JT65" : "JT9";
             }
           message = appendWorkedB4 (message, decodedText.CQersCall(), dxGrid, &bg, &fg
-                                    , logBook, currentBand, currentMode);
+                                    , logBook, currentBand, currentMode, extra);
         }
       else
         {
+          message = leftJustifyAppendage (message, extra);
           highlight_types types {Highlight::CQ};
           if (m_config && m_config->lotw_users ().user (decodedText.CQersCall()))
             {
@@ -451,6 +461,10 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
             }
           set_colours (m_config, &bg, &fg, types);
         }
+    }
+  else
+    {
+      message = leftJustifyAppendage (message, extra);
     }
 
   appendText (message.trimmed (), bg, fg, decodedText.call (), dxCall);

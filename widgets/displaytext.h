@@ -47,6 +47,7 @@ public:
   Q_SLOT void highlight_callsign (QString const& callsign, QColor const& bg, QColor const& fg, bool last_period_only);
 
 private:
+  QString leftJustifyAppendage (QString message, QString const& appendage) const;
   void mouseDoubleClickEvent (QMouseEvent *) override;
 
   void extend_vertical_scrollbar (int min, int max);
@@ -57,7 +58,7 @@ private:
   QString appendWorkedB4(QString message, QString callsign
                          , QString const& grid, QColor * bg, QColor * fg
                          , LogBook const& logBook, QString const& currentBand
-                         , QString const& currentMode);
+                         , QString const& currentMode, QString extra);
   QFont char_font_;
   QAction * erase_action_;
   QHash<QString, QPair<QColor, QColor>> highlighted_calls_;
