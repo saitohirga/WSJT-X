@@ -951,7 +951,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->actionInclude_averaging->setChecked(m_ndepth&16);
   ui->actionInclude_correlation->setChecked(m_ndepth&32);
   ui->actionEnable_AP_DXcall->setChecked(m_ndepth&64);
-  ui->actionAlso_FST240W->setChecked(m_ndepth&128);
 
   m_UTCdisk=-1;
   m_fCPUmskrtd=0.0;
@@ -2933,7 +2932,6 @@ void MainWindow::decode()                                       //decode()
   if (!ui->actionInclude_averaging->isVisible ()) depth &= ~16;
   if (!ui->actionInclude_correlation->isVisible ()) depth &= ~32;
   if (!ui->actionEnable_AP_DXcall->isVisible ()) depth &= ~64;
-  if (!ui->actionAlso_FST240W->isVisible ()) depth &= ~128;
   dec_data.params.ndepth=depth;
   dec_data.params.n2pass=1;
   if(m_config.twoPass()) dec_data.params.n2pass=2;
@@ -6493,7 +6491,6 @@ void MainWindow::switch_mode (Mode mode)
     ui->label_6->setVisible(false);
     ui->label_7->setVisible(false);
   }
-  ui->actionAlso_FST240W->setVisible(m_mode=="FST240");
 }
 
 void MainWindow::WSPR_config(bool b)
@@ -6590,11 +6587,6 @@ void MainWindow::on_actionInclude_correlation_toggled (bool checked)
 void MainWindow::on_actionEnable_AP_DXcall_toggled (bool checked)
 {
   m_ndepth ^= (-checked ^ m_ndepth) & 0x00000040;
-}
-
-void MainWindow::on_actionAlso_FST240W_toggled (bool checked)
-{
-  m_ndepth ^= (-checked ^ m_ndepth) & 0x00000080;
 }
 
 void MainWindow::on_actionErase_ALL_TXT_triggered()          //Erase ALL.TXT

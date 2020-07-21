@@ -2931,7 +2931,7 @@ Yellow when too low</string>
      <x>0</x>
      <y>0</y>
      <width>805</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -2982,7 +2982,6 @@ Yellow when too low</string>
     <addaction name="actionEnable_AP_FT8"/>
     <addaction name="actionEnable_AP_JT65"/>
     <addaction name="actionEnable_AP_DXcall"/>
-    <addaction name="actionAlso_FST240W"/>
    </widget>
    <widget class="QMenu" name="menuSave">
     <property name="title">
