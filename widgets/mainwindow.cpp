@@ -1350,7 +1350,7 @@ void MainWindow::fixStop()
     if(m_TRperiod==120) i=3;
     if(m_TRperiod==300) i=4;
     if(m_TRperiod==900) i=5;
-    if(m_TRperiod==1800) i=5;
+    if(m_TRperiod==1800) i=6;
     if(m_config.decode_at_52s()) {
       m_hsymStop=stop_EME[i];
     } else {
@@ -4104,6 +4104,7 @@ void MainWindow::guiUpdate()
 
 //Once per second:
   if(nsec != m_sec0) {
+//      qDebug() << "AAA" << nsec;
     m_currentBand=m_config.bands()->find(m_freqNominal);
     if( SpecOp::HOUND == m_config.special_op_id() ) {
       qint32 tHound=QDateTime::currentMSecsSinceEpoch()/1000 - m_tAutoOn;
@@ -7200,7 +7201,8 @@ void MainWindow::transmit (double snr)
     if(m_TRperiod==1800) nsps=134400;
     int hmod=int(pow(2.0,double(m_nSubMode)));
     double dfreq=hmod*12000.0/nsps;
-    double f0=ui->WSPRfreqSpinBox->value() - m_XIT + 1.5*dfreq;
+    double f0=ui->WSPRfreqSpinBox->value() - m_XIT;
+    if(!m_tune) f0 += + 1.5*dfreq;
     Q_EMIT sendMessage (m_mode, NUM_FST240_SYMBOLS,double(nsps),f0,toneSpacing,
                         m_soundOutput,m_config.audio_output_channel(),
                         true, false, snr, m_TRperiod);
