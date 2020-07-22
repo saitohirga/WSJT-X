@@ -548,6 +548,7 @@ set (wsjt_FSRCS
   lib/qra64a.f90
   lib/refspectrum.f90
   lib/savec2.f90
+  lib/sec0.f90
   lib/sec_midn.f90
   lib/setup65.f90
   lib/sh65.f90
