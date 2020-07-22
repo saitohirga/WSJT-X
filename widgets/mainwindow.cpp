@@ -5606,6 +5606,8 @@ void MainWindow::on_tx6_editingFinished()                       //tx6 edited
 void MainWindow::on_RoundRobin_currentTextChanged(QString text)
 {
   ui->sbTxPercent->setEnabled(text=="Random");
+  m_WSPR_tx_next = false;       // cancel any pending Tx to avoid
+                                // undesirable consecutive Tx periods
 }
 
 
