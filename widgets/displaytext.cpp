@@ -434,7 +434,13 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
   QString extra;
   if (haveFSpread)
     {
-      extra = QString {"%1"}.arg (fSpread, 5, 'f', fSpread < 0.95 ? 3 : 2) + QChar {' '};
+      extra += QString {"%1"}.arg (fSpread, 5, 'f', fSpread < 0.95 ? 3 : 2) + QChar {' '};
+    }
+  auto ap_pos = message.lastIndexOf (QRegularExpression {R"((?:\?\s)?a[0-9]$)"});
+  if (ap_pos >= 0)
+    {
+      extra += message.mid (ap_pos) + QChar {' '};
+      message = message.left (ap_pos).trimmed ();
     }
   m_CQPriority="";
   if (CQcall)
