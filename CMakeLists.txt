@@ -371,7 +371,7 @@ set (wsjt_FSRCS
   lib/jt65_mod.f90
   lib/ft8_decode.f90
   lib/ft4_decode.f90
-  lib/fst240_decode.f90
+  lib/fst4_decode.f90
   lib/jt9_decode.f90
   lib/options.f90
   lib/packjt.f90
@@ -600,20 +600,20 @@ set (wsjt_FSRCS
   lib/wqencode.f90
   lib/wspr_downsample.f90
   lib/zplot9.f90
-  lib/fst240/decode240_101.f90
-  lib/fst240/decode240_74.f90
-  lib/fst240/encode240_101.f90
-  lib/fst240/encode240_74.f90
-  lib/fst240/fst240sim.f90
-  lib/fst240/gen_fst240wave.f90
-  lib/fst240/genfst240.f90
-  lib/fst240/get_fst240_bitmetrics.f90
-  lib/fst240/get_fst240_bitmetrics2.f90
-  lib/fst240/ldpcsim240_101.f90
-  lib/fst240/ldpcsim240_74.f90
-  lib/fst240/osd240_101.f90
-  lib/fst240/osd240_74.f90
-  lib/fst240/get_crc24.f90
+  lib/fst4/decode240_101.f90
+  lib/fst4/decode240_74.f90
+  lib/fst4/encode240_101.f90
+  lib/fst4/encode240_74.f90
+  lib/fst4/fst4sim.f90
+  lib/fst4/gen_fst4wave.f90
+  lib/fst4/genfst4.f90
+  lib/fst4/get_fst4_bitmetrics.f90
+  lib/fst4/get_fst4_bitmetrics2.f90
+  lib/fst4/ldpcsim240_101.f90
+  lib/fst4/ldpcsim240_74.f90
+  lib/fst4/osd240_101.f90
+  lib/fst4/osd240_74.f90
+  lib/fst4/get_crc24.f90
   )
 
 # temporary workaround for a gfortran v7.3 ICE on Fedora 27 64-bit
@@ -1376,13 +1376,13 @@ target_link_libraries (ft4sim_mult wsjt_fort wsjt_cxx)
 add_executable (record_time_signal Audio/tools/record_time_signal.cpp)
 target_link_libraries (record_time_signal wsjt_cxx wsjt_qtmm wsjt_qt)
 
-add_executable (fst240sim lib/fst240/fst240sim.f90 wsjtx.rc)
-target_link_libraries (fst240sim wsjt_fort wsjt_cxx)
+add_executable (fst4sim lib/fst4/fst4sim.f90 wsjtx.rc)
+target_link_libraries (fst4sim wsjt_fort wsjt_cxx)
 
-add_executable (ldpcsim240_101 lib/fst240/ldpcsim240_101.f90 wsjtx.rc)
+add_executable (ldpcsim240_101 lib/fst4/ldpcsim240_101.f90 wsjtx.rc)
 target_link_libraries (ldpcsim240_101 wsjt_fort wsjt_cxx)
 
-add_executable (ldpcsim240_74 lib/fst240/ldpcsim240_74.f90 wsjtx.rc)
+add_executable (ldpcsim240_74 lib/fst4/ldpcsim240_74.f90 wsjtx.rc)
 target_link_libraries (ldpcsim240_74 wsjt_fort wsjt_cxx)
 
 endif(WSJT_BUILD_UTILS)
@@ -1524,7 +1524,7 @@ install (TARGETS jt9 wsprd fmtave fcal fmeasure
 
 if(WSJT_BUILD_UTILS)
 install (TARGETS ft8code jt65code qra64code qra64sim jt9code jt4code
-  msk144code fst240sim
+  msk144code fst4sim
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   )

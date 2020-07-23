@@ -1,12 +1,11 @@
-subroutine genfst240(msg0,ichk,msgsent,msgbits,i4tone,iwspr)
+subroutine genfst240_64(msg0,ichk,msgsent,msgbits,i4tone,iwspr)
 
 ! Input:
 !   - msg0     requested message to be transmitted
 !   - ichk     if ichk=1, return only msgsent
 !   - msgsent  message as it will be decoded
 !   - i4tone   array of audio tone values, {0,1,2,3}
-!   - iwspr    in: 0: FST240 1: FST240W
-!              out 0: (240,101)/crc24, 1: (240,74)/crc24
+!   - iwspr    0: (240,101)/crc24, 1: (240,74)/crc24
 !
 ! Frame structure:
 ! s8 d30 s8 d30 s8 d30 s8 d30 s8
@@ -23,12 +22,16 @@ subroutine genfst240(msg0,ichk,msgsent,msgbits,i4tone,iwspr)
    integer*1 msgbits(101),rvec(77)
    integer isyncword1(8),isyncword2(8)
    integer ncrc24
+   integer graymap64(64)
    logical unpk77_success
-   data isyncword1/0,1,3,2,1,0,2,3/
-   data isyncword2/2,3,1,0,3,2,0,1/
+   data isyncword1/3,1,4,0,6,5,2/
    data rvec/0,1,0,0,1,0,1,0,0,1,0,1,1,1,1,0,1,0,0,0,1,0,0,1,1,0,1,1,0, &
       1,0,0,1,0,1,1,0,0,0,0,1,0,0,0,1,0,1,0,0,1,1,1,1,0,0,1,0,1, &
       0,1,0,1,0,1,1,0,1,1,1,1,1,0,0,0,1,0,1/
+   data graymap64/ 0, 1, 3, 2, 6, 7, 5, 4,12,13,15,14,10,11, 9, 8, &
+                  24,25,27,26,30,31,29,28,20,21,23,22,18,19,17,16, &
+                  48,49,51,50,54,55,53,52,60,61,63,62,58,59,57,56, &
+                  40,41,43,42,46,47,45,44,36,37,39,38,34,35,33,32/
    message=msg0
 
    do i=1, 37
@@ -44,10 +47,6 @@ subroutine genfst240(msg0,ichk,msgsent,msgbits,i4tone,iwspr)
 
    i3=-1
    n3=-1
-   if(iwspr.eq.1) then
-      i3=0
-      n3=6
-   endif
    call pack77(message,i3,n3,c77)
    call unpack77(c77,0,msgsent,unpk77_success) !Unpack to get msgsent
    msgbits=0
@@ -84,12 +83,8 @@ subroutine genfst240(msg0,ichk,msgsent,msgbits,i4tone,iwspr)
 
 ! Grayscale mapping:
 ! bits   tone
-! 00     0
-! 01     1
-! 11     2
-! 10     3
 
-   do i=1,ND
+   do i=1,40
       is=codeword(2*i)+2*codeword(2*i-1)
       if(is.le.1) itmp(i)=is
       if(is.eq.2) itmp(i)=3
@@ -108,4 +103,6 @@ subroutine genfst240(msg0,ichk,msgsent,msgbits,i4tone,iwspr)
 
 999 return
 
-end subroutine genfst240
+end subroutine genfst240_64
+
+subroutine graycode(in

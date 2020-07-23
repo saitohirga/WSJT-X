@@ -1,6 +1,6 @@
-subroutine get_fst240_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,badsync)
+subroutine get_fst4_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,badsync)
 
-   include 'fst240_params.f90'
+   include 'fst4_params.f90'
    complex cd(0:NN*nss-1)
    complex cs(0:3,NN)
    complex csymb(nss)
@@ -128,4 +128,4 @@ subroutine get_fst240_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,badsync)
    call normalizebmet(bitmetrics(:,4),2*NN)
    return
 
-end subroutine get_fst240_bitmetrics
+end subroutine get_fst4_bitmetrics

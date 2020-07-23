@@ -1,10 +1,10 @@
-program fst240sim
+program fst4sim
 
 ! Generate simulated signals for experimental slow FT4  mode
 
    use wavhdr
    use packjt77
-   include 'fst240_params.f90'               !Set various constants
+   include 'fst4_params.f90'               !Set various constants
    type(hdr) h                                !Header for .wav file
    logical*1 wspr_hint
    character arg*12,fname*17
@@ -21,8 +21,8 @@ program fst240sim
    nargs=iargc()
    if(nargs.ne.10) then
       print*,'Need 10 arguments, got ',nargs
-      print*,'Usage:    fst240sim "message"        TRsec f0   DT  h fdop del nfiles snr W'
-      print*,'Examples: fst240sim "K1JT K9AN EN50"  60  1500 0.0  1  0.1 1.0   10   -15 F'
+      print*,'Usage:    fst4sim "message"        TRsec f0   DT  h fdop del nfiles snr W'
+      print*,'Examples: fst4sim "K1JT K9AN EN50"  60  1500 0.0  1  0.1 1.0   10   -15 F'
       print*,'W (T or F) argument is hint to encoder to use WSPR message when there is abiguity'
       go to 999
    endif
@@ -86,7 +86,7 @@ program fst240sim
    endif
    call pack77(msg37,i3,n3,c77)
    if(i3.eq.0.and.n3.eq.6) iwspr=1
-   call genfst240(msg37,0,msgsent37,msgbits,itone,iwspr)
+   call genfst4(msg37,0,msgsent37,msgbits,itone,iwspr)
    write(*,*)
    write(*,'(a9,a37,a3,L2,a7,i2)') 'Message: ',msgsent37,'W:',wspr_hint,' iwspr:',iwspr
    write(*,1000) f00,xdt,hmod,txt,snrdb
@@ -109,7 +109,7 @@ program fst240sim
    fsample=12000.0
    icmplx=1
    f0=f00+1.5*hmod*baud
-   call gen_fst240wave(itone,NN,nsps,nwave,fsample,hmod,f0,icmplx,c0,wave)
+   call gen_fst4wave(itone,NN,nsps,nwave,fsample,hmod,f0,icmplx,c0,wave)
    k=nint((xdt+1.0)/dt)
    if(nsec.eq.15) k=nint((xdt+0.5)/dt)
    c0=cshift(c0,-k)
@@ -152,4 +152,4 @@ program fst240sim
 1110  format(i4,f7.2,f8.2,f7.1,2x,a17)
    enddo
 
-999 end program fst240sim
+999 end program fst4sim

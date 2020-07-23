@@ -1,4 +1,4 @@
-subroutine gen_fst240wave(itone,nsym,nsps,nwave,fsample,hmod,f0,    &
+subroutine gen_fst4wave(itone,nsym,nsps,nwave,fsample,hmod,f0,    &
      icmplx,cwave,wave)
 
   parameter(NTAB=65536)
@@ -88,4 +88,4 @@ subroutine gen_fst240wave(itone,nsym,nsps,nwave,fsample,hmod,f0,    &
   endif
 
   return
-end subroutine gen_fst240wave
+end subroutine gen_fst4wave

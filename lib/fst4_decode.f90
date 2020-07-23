@@ -1,17 +1,17 @@
-module fst240_decode
+module fst4_decode
 
-   type :: fst240_decoder
-      procedure(fst240_decode_callback), pointer :: callback
+   type :: fst4_decoder
+      procedure(fst4_decode_callback), pointer :: callback
    contains
       procedure :: decode
-   end type fst240_decoder
+   end type fst4_decoder
 
    abstract interface
-      subroutine fst240_decode_callback (this,nutc,sync,nsnr,dt,freq,    &
+      subroutine fst4_decode_callback (this,nutc,sync,nsnr,dt,freq,    &
          decoded,nap,qual,ntrperiod,lwspr,fmid,w50)
-         import fst240_decoder
+         import fst4_decoder
          implicit none
-         class(fst240_decoder), intent(inout) :: this
+         class(fst4_decoder), intent(inout) :: this
          integer, intent(in) :: nutc
          real, intent(in) :: sync
          integer, intent(in) :: nsnr
@@ -24,7 +24,7 @@ module fst240_decode
          logical, intent(in) :: lwspr
          real, intent(in) :: fmid
          real, intent(in) :: w50
-      end subroutine fst240_decode_callback
+      end subroutine fst4_decode_callback
    end interface
 
 contains
@@ -36,10 +36,10 @@ contains
       use timer_module, only: timer
       use packjt77
       use, intrinsic :: iso_c_binding
-      include 'fst240/fst240_params.f90'
+      include 'fst4/fst4_params.f90'
       parameter (MAXCAND=100)
-      class(fst240_decoder), intent(inout) :: this
-      procedure(fst240_decode_callback) :: callback
+      class(fst4_decoder), intent(inout) :: this
+      procedure(fst4_decode_callback) :: callback
       character*37 decodes(100)
       character*37 msg,msgsent
       character*77 c77
@@ -283,7 +283,7 @@ contains
       endif
 
 ! Get first approximation of candidate frequencies
-      call get_candidates_fst240(c_bigfft,nfft1,nsps,hmod,fs,fa,fb,     &
+      call get_candidates_fst4(c_bigfft,nfft1,nsps,hmod,fs,fa,fb,     &
          minsync,ncand,candidates,base)
 
       ndecodes=0
@@ -300,7 +300,7 @@ contains
 ! Output array c2 is complex baseband sampled at 12000/ndown Sa/sec.
 ! The size of the downsampled c2 array is nfft2=nfft1/ndown
 
-         call fst240_downsample(c_bigfft,nfft1,ndown,fc0,sigbw,c2)
+         call fst4_downsample(c_bigfft,nfft1,ndown,fc0,sigbw,c2)
 
          call timer('sync240 ',0)
          fc1=0.0
@@ -316,7 +316,7 @@ contains
          do if=-12,12
             fc=fc1 + 0.1*baud*if
             do istart=max(1,is0-ishw),is0+ishw,4*hmod
-               call sync_fst240(c2,istart,fc,hmod,nsyncoh,nfft2,nss,   &
+               call sync_fst4(c2,istart,fc,hmod,nsyncoh,nfft2,nss,   &
                   ntrperiod,fs2,sync)
                if(sync.gt.smax) then
                   fc2=fc
@@ -335,7 +335,7 @@ contains
          do if=-7,7
             fc=fc1 + 0.02*baud*if
             do istart=max(1,is0-ishw),is0+ishw,isst
-               call sync_fst240(c2,istart,fc,hmod,nsyncoh,nfft2,nss,   &
+               call sync_fst4(c2,istart,fc,hmod,nsyncoh,nfft2,nss,   &
                   ntrperiod,fs2,sync)
                if(sync.gt.smax) then
                   fc2=fc
@@ -386,7 +386,7 @@ contains
          isbest=nint(candidates(icand,4))
          xdt=(isbest-nspsec)/fs2
          if(ntrperiod.eq.15) xdt=(isbest-real(nspsec)/2.0)/fs2
-         call fst240_downsample(c_bigfft,nfft1,ndown,fc_synced,sigbw,c2)
+         call fst4_downsample(c_bigfft,nfft1,ndown,fc_synced,sigbw,c2)
          do ijitter=0,jittermax
             if(ijitter.eq.0) ioffset=0
             if(ijitter.eq.1) ioffset=1
@@ -396,9 +396,9 @@ contains
             cframe=c2(is0:is0+160*nss-1)
             bitmetrics=0
             if(hmod.eq.1) then
-               call get_fst240_bitmetrics(cframe,nss,hmod,nblock,nhicoh,bitmetrics,s4,badsync)
+               call get_fst4_bitmetrics(cframe,nss,hmod,nblock,nhicoh,bitmetrics,s4,badsync)
             else
-               call get_fst240_bitmetrics2(cframe,nss,hmod,nblock,bitmetrics,s4,badsync)
+               call get_fst4_bitmetrics2(cframe,nss,hmod,nblock,bitmetrics,s4,badsync)
             endif
             if(badsync) cycle
 
@@ -538,9 +538,9 @@ contains
                      decodes(ndecodes)=msg
 
                      if(iwspr.eq.0) then
-                        call get_fst240_tones_from_bits(message101,itone,0)
+                        call get_fst4_tones_from_bits(message101,itone,0)
                      else
-                        call get_fst240_tones_from_bits(message74,itone,1)
+                        call get_fst4_tones_from_bits(message74,itone,1)
                      endif
                      inquire(file='plotspec',exist=ex)
                      fmid=-999.0
@@ -581,12 +581,12 @@ contains
       return
    end subroutine decode
 
-   subroutine sync_fst240(cd0,i0,f0,hmod,ncoh,np,nss,ntr,fs,sync)
+   subroutine sync_fst4(cd0,i0,f0,hmod,ncoh,np,nss,ntr,fs,sync)
 
 ! Compute sync power for a complex, downsampled FST240 signal.
 
       use timer_module, only: timer
-      include 'fst240/fst240_params.f90'
+      include 'fst4/fst4_params.f90'
       complex cd0(0:np-1)
       complex csync1,csync2,csynct1,csynct2
       complex ctwk(3200)
@@ -700,9 +700,9 @@ contains
       endif
       sync = s1+s2+s3+s4+s5
       return
-   end subroutine sync_fst240
+   end subroutine sync_fst4
 
-   subroutine fst240_downsample(c_bigfft,nfft1,ndown,f0,sigbw,c1)
+   subroutine fst4_downsample(c_bigfft,nfft1,ndown,f0,sigbw,c1)
 
 ! Output: Complex data in c(), sampled at 12000/ndown Hz
 
@@ -724,9 +724,9 @@ contains
       call four2a(c1,nfft2,1,1,1)            !c2c FFT back to time domain
       return
 
-   end subroutine fst240_downsample
+   end subroutine fst4_downsample
 
-   subroutine get_candidates_fst240(c_bigfft,nfft1,nsps,hmod,fs,fa,fb,   &
+   subroutine get_candidates_fst4(c_bigfft,nfft1,nsps,hmod,fs,fa,fb,   &
       minsync,ncand,candidates,base)
 
       complex c_bigfft(0:nfft1/2)              !Full length FFT of raw data
@@ -806,13 +806,13 @@ contains
       enddo
 
       return
-   end subroutine get_candidates_fst240
+   end subroutine get_candidates_fst4
 
    subroutine write_ref(itone,iwave,nsps,nmax,ndown,hmod,i0,fc,fmid,w50)
 
 ! On "plotspec" special request, compute Doppler spread for a decoded signal
 
-      include 'fst240/fst240_params.f90'
+      include 'fst4/fst4_params.f90'
       complex, allocatable :: cwave(:)       !Reconstructed complex signal
       complex, allocatable :: g(:)           !Channel gain, g(t) in QEX paper
       real,allocatable :: ss(:)              !Computed power spectrum of g(t)
@@ -829,7 +829,7 @@ contains
       allocate(g(0:nfft-1))
       wave=0
       fsample=12000.0
-      call gen_fst240wave(itone,NN,nsps,nwave,fsample,hmod,fc,1,cwave,wave)
+      call gen_fst4wave(itone,NN,nsps,nwave,fsample,hmod,fc,1,cwave,wave)
       cwave=cshift(cwave,-i0*ndown)
       fac=1.0/32768
       g(0:nmax-1)=fac*float(iwave)*conjg(cwave(:nmax-1))
@@ -905,4 +905,4 @@ contains
       return
    end subroutine write_ref
 
-end module fst240_decode
+end module fst4_decode

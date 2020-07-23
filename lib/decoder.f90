@@ -8,7 +8,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   use jt9_decode
   use ft8_decode
   use ft4_decode
-  use fst240_decode
+  use fst4_decode
 
   include 'jt9com.f90'
   include 'timer_common.inc'
@@ -33,9 +33,9 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      integer :: decoded
   end type counting_ft4_decoder
 
-  type, extends(fst240_decoder) :: counting_fst240_decoder
+  type, extends(fst4_decoder) :: counting_fst4_decoder
      integer :: decoded
-  end type counting_fst240_decoder
+  end type counting_fst4_decoder
 
   real ss(184,NSMAX)
   logical baddata,newdat65,newdat9,single_decode,bVHF,bad0,newdat,ex
@@ -53,7 +53,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   type(counting_jt9_decoder) :: my_jt9
   type(counting_ft8_decoder) :: my_ft8
   type(counting_ft4_decoder) :: my_ft4
-  type(counting_fst240_decoder) :: my_fst240
+  type(counting_fst4_decoder) :: my_fst4
 
   !cast C character arrays to Fortran character strings
   datetime=transfer(params%datetime, datetime)
@@ -68,7 +68,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   my_jt9%decoded = 0
   my_ft8%decoded = 0
   my_ft4%decoded = 0
-  my_fst240%decoded = 0
+  my_fst4%decoded = 0
   
 ! For testing only: return Rx messages stored in a file as decodes
   inquire(file='rx_messages.txt',exist=ex)
@@ -193,7 +193,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      iwspr=0
      if(iand(params%ndepth,128).ne.0) iwspr=2
      call timer('dec240  ',0)
-     call my_fst240%decode(fst240_decoded,id2,params%nutc,                &
+     call my_fst4%decode(fst4_decoded,id2,params%nutc,                &
           params%nQSOProgress,params%nfqso,params%nfa,params%nfb,         &
           params%nsubmode,ndepth,params%ntr,params%nexp_decode,           &
           params%ntol,params%emedelay,                                    &
@@ -207,7 +207,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      ndepth=iand(params%ndepth,3)
      iwspr=1
      call timer('dec240  ',0)
-     call my_fst240%decode(fst240_decoded,id2,params%nutc,                &
+     call my_fst4%decode(fst4_decoded,id2,params%nutc,                &
           params%nQSOProgress,params%nfqso,params%nfa,params%nfb,         &
           params%nsubmode,ndepth,params%ntr,params%nexp_decode,           &
           params%ntol,params%emedelay,                                    &
@@ -335,7 +335,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 
 ! JT65 is not yet producing info for nsynced, ndecoded.
 800 ndecoded = my_jt4%decoded + my_jt65%decoded + my_jt9%decoded +       &
-         my_ft8%decoded + my_ft4%decoded + my_fst240%decoded
+         my_ft8%decoded + my_ft4%decoded + my_fst4%decoded
   if(params%nmode.eq.8 .and. params%nzhsym.eq.41) ndec41=ndecoded
   if(params%nmode.eq.8 .and. params%nzhsym.eq.47) ndec47=ndecoded
   if(params%nmode.eq.8 .and. params%nzhsym.eq.50) then
@@ -697,13 +697,13 @@ contains
     return
   end subroutine ft4_decoded
 
-  subroutine fst240_decoded (this,nutc,sync,nsnr,dt,freq,decoded,nap,   &
+  subroutine fst4_decoded (this,nutc,sync,nsnr,dt,freq,decoded,nap,   &
        qual,ntrperiod,lwspr,fmid,w50)
 
-    use fst240_decode
+    use fst4_decode
     implicit none
 
-    class(fst240_decoder), intent(inout) :: this
+    class(fst4_decoder), intent(inout) :: this
     integer, intent(in) :: nutc
     real, intent(in) :: sync
     integer, intent(in) :: nsnr
@@ -752,11 +752,11 @@ contains
     call flush(13)
 
     select type(this)
-    type is (counting_fst240_decoder)
+    type is (counting_fst4_decoder)
        this%decoded = this%decoded + 1
     end select
 
    return
- end subroutine fst240_decoded
+ end subroutine fst4_decoded
 
 end subroutine multimode_decoder

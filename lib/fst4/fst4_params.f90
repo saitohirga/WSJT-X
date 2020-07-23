@@ -1,4 +1,4 @@
-! FST240
+! FST4
 ! LDPC(240,101)/CRC24 code, five 8x4 sync
 
 parameter (KK=77)                     !Information bits (77 + CRC24)

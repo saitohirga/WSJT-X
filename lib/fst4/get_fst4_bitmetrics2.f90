@@ -1,6 +1,6 @@
-subroutine get_fst240_bitmetrics2(cd,nss,hmod,nsizes,bitmetrics,s4hmod,badsync)
+subroutine get_fst4_bitmetrics2(cd,nss,hmod,nsizes,bitmetrics,s4hmod,badsync)
 
-   include 'fst240_params.f90'
+   include 'fst4_params.f90'
    complex cd(0:NN*nss-1)
    complex csymb(nss)
    complex, allocatable, save :: c1(:,:)   ! ideal waveforms, 4 tones
@@ -128,4 +128,4 @@ subroutine get_fst240_bitmetrics2(cd,nss,hmod,nsizes,bitmetrics,s4hmod,badsync)
    if(hmod.eq.8) s4hmod(:,:)=s4(:,:,4)
    return
 
-end subroutine get_fst240_bitmetrics2
+end subroutine get_fst4_bitmetrics2
