@@ -91,7 +91,7 @@ extern "C" {
   //----------------------------------------------------- C and Fortran routines
   void symspec_(struct dec_data *, int* k, double* trperiod, int* nsps, int* ingain,
                 bool* bLowSidelobes, int* minw, float* px, float s[], float* df3,
-                int* nhsym, int* npts8, float *m_pxmax, bool *bblank, int* npct);
+                int* nhsym, int* npts8, float *m_pxmax, int* npct);
 
   void hspec_(short int d2[], int* k, int* nutc0, int* ntrperiod, int* nrxfreq, int* ntol,
               bool* bmsk144, bool* btrain, double const pcoeffs[], int* ingain,
@@ -1131,7 +1131,7 @@ void MainWindow::writeSettings()
   m_settings->setValue ("FT8AP", ui->actionEnable_AP_FT8->isChecked ());
   m_settings->setValue ("JT65AP", ui->actionEnable_AP_JT65->isChecked ());
   m_settings->setValue("SplitterState",ui->splitter->saveState());
-  m_settings->setValue("Blanker",ui->cbNB->isChecked());
+  m_settings->setValue("Blanker",ui->sbNB->value());
 
   {
     QList<QVariant> coeffs;     // suitable for QSettings
@@ -1232,7 +1232,7 @@ void MainWindow::readSettings()
   ui->actionEnable_AP_FT8->setChecked (m_settings->value ("FT8AP", false).toBool());
   ui->actionEnable_AP_JT65->setChecked (m_settings->value ("JT65AP", false).toBool());
   ui->splitter->restoreState(m_settings->value("SplitterState").toByteArray());
-  ui->cbNB->setChecked(m_settings->value("Blanker",false).toBool());
+  ui->sbNB->setValue(m_settings->value("Blanker",0).toInt());
   {
     auto const& coeffs = m_settings->value ("PhaseEqualizationCoefficients"
                                             , QList<QVariant> {0., 0., 0., 0., 0.}).toList ();
@@ -1377,8 +1377,10 @@ void MainWindow::dataSink(qint64 frames)
   }
 
   m_bUseRef=m_wideGraph->useRef();
-  refspectrum_(&dec_data.d2[k-m_nsps/2],&m_bClearRefSpec,&m_bRefSpec,
-      &m_bUseRef,c_fname,len);
+  if(!m_diskData) {
+    refspectrum_(&dec_data.d2[k-m_nsps/2],&m_bClearRefSpec,&m_bRefSpec,
+        &m_bUseRef,c_fname,len);
+  }
   m_bClearRefSpec=false;
 
   if(m_mode=="ISCAT" or m_mode=="MSK144" or m_bFast9) {
@@ -1393,13 +1395,10 @@ void MainWindow::dataSink(qint64 frames)
   if(m_bFastMode) nsps=6912;
   int nsmo=m_wideGraph->smoothYellow()-1;
   bool bLowSidelobes=m_config.lowSidelobes();
-  bool bblank=ui->cbNB->isChecked() and m_mode.startsWith("FST240");
   int npct=0;
+  if(m_mode.startsWith("FST240")) npct=ui->sbNB->value();
   symspec_(&dec_data,&k,&m_TRperiod,&nsps,&m_inGain,&bLowSidelobes,&nsmo,&m_px,s,
-           &m_df3,&m_ihsym,&m_npts8,&m_pxmax,&bblank,&npct);
-  QString t=" ";
-  if(bblank) t=QString::number(npct);
-      ui->labNpct->setText(t);
+           &m_df3,&m_ihsym,&m_npts8,&m_pxmax,&npct);
   if(m_mode=="WSPR" or m_mode=="FST240W") wspr_downsample_(dec_data.d2,&k);
   if(m_ihsym <=0) return;
   if(ui) ui->signal_meter_widget->setValue(m_px,m_pxmax); // Update thermometer
@@ -2991,6 +2990,7 @@ void MainWindow::decode()                                       //decode()
   dec_data.params.nexp_decode = static_cast<int> (m_config.special_op_id());
   if(m_config.single_decode()) dec_data.params.nexp_decode += 32;
   if(m_config.enable_VHF_features()) dec_data.params.nexp_decode += 64;
+  if(m_mode.startsWith("FST240")) dec_data.params.nexp_decode += 256*ui->sbNB->value();
 
   ::memcpy(dec_data.params.datetime, m_dateTime.toLatin1()+"    ", sizeof dec_data.params.datetime);
   ::memcpy(dec_data.params.mycall, (m_config.my_callsign()+"            ").toLatin1(), sizeof dec_data.params.mycall);
@@ -5837,9 +5837,7 @@ void MainWindow::displayWidgets(qint64 n)
   ui->sbSerialNumber->setVisible(b);
   m_lastCallsign.clear ();     // ensures Tx5 is updated for new modes
   b=m_mode.startsWith("FST240");
-  ui->labNpct->setVisible(b);
-  ui->labNB->setVisible(b);
-  ui->cbNB->setVisible(b);
+  ui->sbNB->setVisible(b);
   genStdMsgs (m_rpt, true);
 }
 

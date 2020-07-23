@@ -1,14 +1,11 @@
-subroutine blanker(iwave,nz,dwell_time,fblank,npct)
+subroutine blanker(iwave,nz,ndropmax,npct,c_bigfft)
 
   integer*2 iwave(nz)
+  complex c_bigfft(0:nz/2)
   integer hist(0:32768)
-  real dwell_time                 !Blanking dwell time (s)
   real fblank                     !Fraction of points to be blanked
-  data ncall/0/,thresh/0.0/,fblanked/0.0/
-  save ncall,thresh,fblanked
 
-  ncall=ncall+1  
-  ndropmax=nint(1.0 + dwell_time*12000.0)
+  fblank=0.01*npct
   hist=0
   do i=1,nz
      n=abs(iwave(i))
@@ -19,34 +16,40 @@ subroutine blanker(iwave,nz,dwell_time,fblank,npct)
      n=n+hist(i)
      if(n.ge.nint(nz*fblank/ndropmax)) exit
   enddo
-  thresh=thresh + 0.01*(i-thresh)
-  if(ncall.eq.1) thresh=i
-  nthresh=nint(thresh)
+  nthresh=i
   ndrop=0
   ndropped=0
-     
+
+  xx=0.
   do i=1,nz
      i0=iwave(i)
      if(ndrop.gt.0) then
-        iwave(i)=0
+        i0=0
         ndropped=ndropped+1
         ndrop=ndrop-1
-        cycle
      endif
 
 ! Start to apply blanking
-     if(abs(iwave(i)).gt.nthresh) then
-        iwave(i)=0
+     if(abs(i0).gt.nthresh) then
+        i0=0
         ndropped=ndropped+1
         ndrop=ndropmax
+     endif
+     
+! Now copy the data into c_bigfft
+     if(iand(i,1).eq.1) then
+        xx=i0
+     else
+        yy=i0
+        j=i/2 - 1
+        c_bigfft(j)=cmplx(xx,yy)
      endif
   enddo
 
   fblanked=fblanked + 0.1*(float(ndropped)/nz - fblanked)
-  if(ncall.eq.1) fblanked=float(ndropped)/nz
-  npct=nint(100.0*fblanked)
-!  if(mod(ncall,4).eq.0) write(*,3001) thresh,dwell_time,fblank,fblanked,npct
-!3001 format(f8.1,f8.4,f6.2,f7.3,i6)
+  fblanked=float(ndropped)/nz
+!  write(*,3001) npct,nthresh,fblanked
+!3001 format(2i5,f7.3)
 
   return
 end subroutine blanker

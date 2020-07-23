@@ -554,7 +554,46 @@
     </item>
     <item>
      <layout class="QGridLayout" name="gridLayout_5" columnstretch="0,0,0,0,0">
-      <item row="0" column="3" rowspan="3">
+      <item row="3" column="2">
+       <widget class="QLabel" name="labUTC">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QLabel {
+  font-family: MS Shell Dlg 2;
+  font-size: 16pt;
+  background-color : black;
+  color : yellow;
+}</string>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
+        </property>
+        <property name="lineWidth">
+         <number>2</number>
+        </property>
+        <property name="midLineWidth">
+         <number>0</number>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt; 2015 Jun 17 &lt;/p&gt;&lt;p align=&quot;center&quot;&gt; 01:23:45 &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="margin">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3" rowspan="4">
        <widget class="QStackedWidget" name="controls_stack_widget">
         <property name="currentIndex">
          <number>0</number>
@@ -2401,45 +2440,6 @@ list. The list can be maintained in Settings (F2).</string>
         </widget>
        </widget>
       </item>
-      <item row="2" column="2">
-       <widget class="QLabel" name="labUTC">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QLabel {
-  font-family: MS Shell Dlg 2;
-  font-size: 16pt;
-  background-color : black;
-  color : yellow;
-}</string>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Sunken</enum>
-        </property>
-        <property name="lineWidth">
-         <number>2</number>
-        </property>
-        <property name="midLineWidth">
-         <number>0</number>
-        </property>
-        <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt; 2015 Jun 17 &lt;/p&gt;&lt;p align=&quot;center&quot;&gt; 01:23:45 &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-        <property name="margin">
-         <number>5</number>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="4">
        <widget class="QLabel" name="label">
         <property name="text">
@@ -2447,7 +2447,7 @@ list. The list can be maintained in Settings (F2).</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
+      <item row="2" column="2">
        <widget class="QWidget" name="DX_controls_widget" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -2468,7 +2468,7 @@ list. The list can be maintained in Settings (F2).</string>
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <item row="0" column="0">
+         <item row="1" column="0">
           <widget class="QLabel" name="label_3">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -2560,7 +2560,42 @@ list. The list can be maintained in Settings (F2).</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
+         <item row="3" column="0" colspan="2">
+          <widget class="QLabel" name="labAz">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="autoFillBackground">
+            <bool>true</bool>
+           </property>
+           <property name="text">
+            <string>Az: 251     16553 km</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="indent">
+            <number>4</number>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLineEdit" name="dxCallEntry">
+           <property name="toolTip">
+            <string>Callsign of station to be worked</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
           <widget class="QLabel" name="label_4">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -2652,20 +2687,7 @@ list. The list can be maintained in Settings (F2).</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QLineEdit" name="dxCallEntry">
-           <property name="toolTip">
-            <string>Callsign of station to be worked</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
+         <item row="4" column="0">
           <widget class="QPushButton" name="lookupButton">
            <property name="toolTip">
             <string>Search for callsign in database</string>
@@ -2675,7 +2697,7 @@ list. The list can be maintained in Settings (F2).</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
+         <item row="2" column="1">
           <widget class="QLineEdit" name="dxGridEntry">
            <property name="toolTip">
             <string>Locator of station to be worked</string>
@@ -2688,29 +2710,7 @@ list. The list can be maintained in Settings (F2).</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="0" colspan="2">
-          <widget class="QLabel" name="labAz">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="autoFillBackground">
-            <bool>true</bool>
-           </property>
-           <property name="text">
-            <string>Az: 251     16553 km</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="indent">
-            <number>4</number>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
+         <item row="4" column="1">
           <widget class="QPushButton" name="addButton">
            <property name="toolTip">
             <string>Add callsign and locator to database</string>
@@ -2721,6 +2721,28 @@ list. The list can be maintained in Settings (F2).</string>
           </widget>
          </item>
         </layout>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QComboBox" name="bandComboBox">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select operating band or enter frequency in MHz or enter kHz increment followed by k.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="accessibleName">
+         <string>Frequency entry</string>
+        </property>
+        <property name="accessibleDescription">
+         <string>Select operating band or enter frequency in MHz or enter kHz increment followed by k.</string>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <property name="insertPolicy">
+         <enum>QComboBox::NoInsert</enum>
+        </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+        </property>
        </widget>
       </item>
       <item row="0" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
@@ -2765,7 +2787,7 @@ QPushButton[state=&quot;ok&quot;] {
         </property>
        </widget>
       </item>
-      <item row="1" column="4" rowspan="2">
+      <item row="2" column="4" rowspan="2">
        <widget class="QSlider" name="outAttenuation">
         <property name="toolTip">
          <string>Adjust Tx audio level</string>
@@ -2793,25 +2815,37 @@ QPushButton[state=&quot;ok&quot;] {
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QComboBox" name="bandComboBox">
+      <item row="2" column="0" rowspan="2">
+       <widget class="SignalMeter" name="signal_meter_widget">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select operating band or enter frequency in MHz or enter kHz increment followed by k.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;30dB recommended when only noise present&lt;br/&gt;Green when good&lt;br/&gt;Red when clipping may occur&lt;br/&gt;Yellow when too low&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="accessibleName">
-         <string>Frequency entry</string>
+         <string>Rx Signal</string>
         </property>
         <property name="accessibleDescription">
-         <string>Select operating band or enter frequency in MHz or enter kHz increment followed by k.</string>
+         <string>30dB recommended when only noise present
+Green when good
+Red when clipping may occur
+Yellow when too low</string>
         </property>
-        <property name="editable">
-         <bool>true</bool>
+        <property name="frameShape">
+         <enum>QFrame::Panel</enum>
         </property>
-        <property name="insertPolicy">
-         <enum>QComboBox::NoInsert</enum>
-        </property>
-        <property name="sizeAdjustPolicy">
-         <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
         </property>
        </widget>
       </item>
@@ -2849,77 +2883,21 @@ QLabel[oob=&quot;true&quot;] {
         </property>
        </widget>
       </item>
-      <item row="1" column="0" rowspan="2">
-       <widget class="SignalMeter" name="signal_meter_widget">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+      <item row="1" column="0">
+       <widget class="QSpinBox" name="sbNB">
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
-        <property name="maximumSize">
-         <size>
-          <width>100</width>
-          <height>16777215</height>
-         </size>
+        <property name="suffix">
+         <string>  %</string>
         </property>
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;30dB recommended when only noise present&lt;br/&gt;Green when good&lt;br/&gt;Red when clipping may occur&lt;br/&gt;Yellow when too low&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <property name="prefix">
+         <string>NB  </string>
         </property>
-        <property name="accessibleName">
-         <string>Rx Signal</string>
-        </property>
-        <property name="accessibleDescription">
-         <string>30dB recommended when only noise present
-Green when good
-Red when clipping may occur
-Yellow when too low</string>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::Panel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Sunken</enum>
+        <property name="maximum">
+         <number>25</number>
         </property>
        </widget>
-      </item>
-      <item row="1" column="1">
-       <layout class="QVBoxLayout" name="verticalLayout_NB">
-        <item>
-         <widget class="QLabel" name="labNB">
-          <property name="text">
-           <string>NB</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="cbNB">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="labNpct">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_5">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
       </item>
      </layout>
     </item>
@@ -2931,7 +2909,7 @@ Yellow when too low</string>
      <x>0</x>
      <y>0</y>
      <width>805</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

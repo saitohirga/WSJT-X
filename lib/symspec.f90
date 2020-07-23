@@ -1,5 +1,5 @@
 subroutine symspec(shared_data,k,TRperiod,nsps,ingain,bLowSidelobes,    &
-     nminw,pxdb,s,df3,ihsym,npts8,pxdbmax,bblank,npct)
+     nminw,pxdb,s,df3,ihsym,npts8,pxdbmax,npct)
 
 ! Input:
 !  k              pointer to the most recent new data
@@ -29,7 +29,7 @@ subroutine symspec(shared_data,k,TRperiod,nsps,ingain,bLowSidelobes,    &
   real*4 tmp(NSMAX)
   complex cx(0:MAXFFT3/2)
   integer nch(7)
-  logical*1 bLowSidelobes,bblank
+  logical*1 bLowSidelobes
 
   common/spectra/syellow(NSMAX),ref(0:3456),filter(0:3456)
   data k0/99999999/,nfft3z/0/
@@ -64,10 +64,9 @@ subroutine symspec(shared_data,k,TRperiod,nsps,ingain,bLowSidelobes,    &
   sq=0.
   pxmax=0.;
 
-  dwell_time=0.0001
-  fblank=0.15
-  if(k.gt.k0 .and. bblank) call blanker(shared_data%id2(k0+1:k),  &
-       k-k0,dwell_time,fblank,npct)
+!  dwell_time=0.0001
+!  if(k.gt.k0 .and. npct.gt.0) call blanker(shared_data%id2(k0+1:k),  &
+!       k-k0,dwell_time,npct)
 
   do i=k0+1,k
      x1=shared_data%id2(i)

@@ -80,8 +80,6 @@ contains
       data first/.true./
       save first,apbits,nappasses,naptypes,mycall0,hiscall0
 
-!      call blanker(iwave,ntrperiod*12000,0.0,0.2)
-
       this%callback => callback
 
       dxcall13=hiscall   ! initialize for use in packjt77
@@ -246,12 +244,14 @@ contains
          norder=3
       endif
 
+      ndropmax=1
+      npct=nexp_decode/256
+      call blanker(iwave,nfft1,ndropmax,npct,c_bigfft)
+
 ! The big fft is done once and is used for calculating the smoothed spectrum
 ! and also for downconverting/downsampling each candidate.
-      do i=0,nfft1/2
-         c_bigfft(i)=cmplx(float(iwave(2*i+1)),float(iwave(2*i+2)))
-      enddo
-      call four2a(c_bigfft,nfft1,1,-1,0)
+      call four2a(c_bigfft,nfft1,1,-1,0)         !r2c
+!      call blank2(nfa,nfb,nfft1,c_bigfft,iwave)
 
       if(hmod.eq.1) then
          if(fMHz.lt.2.0) then
