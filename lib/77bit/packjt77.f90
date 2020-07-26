@@ -2,8 +2,8 @@ module packjt77
 
 ! These variables are accessible from outside via "use packjt77":
   parameter (MAXHASH=1000,MAXRECENT=10)
-  character (len=13), dimension(1:1024) ::  calls10=''
-  character (len=13), dimension(1:4096) ::  calls12=''
+  character (len=13), dimension(0:1023) ::  calls10=''
+  character (len=13), dimension(0:4095) ::  calls12=''
   character (len=13), dimension(1:MAXHASH) :: calls22=''
   character (len=13), dimension(1:MAXRECENT) :: recent_calls=''
   character (len=13) :: mycall13=''
@@ -19,7 +19,7 @@ subroutine hash10(n10,c13)
   character*13 c13
 
   c13='<...>'
-  if(n10.lt.1 .or. n10.gt.1024) return
+  if(n10.lt.0 .or. n10.gt.1023) return
   if(len(trim(calls10(n10))).gt.0) then
      c13=calls10(n10)
      c13='<'//trim(c13)//'>'
@@ -33,7 +33,7 @@ subroutine hash12(n12,c13)
   character*13 c13
   
   c13='<...>'
-  if(n12.lt.1 .or. n12.gt.4096) return
+  if(n12.lt.0 .or. n12.gt.4095) return
   if(len(trim(calls12(n12))).gt.0) then
      c13=calls12(n12)
      c13='<'//trim(c13)//'>'
@@ -90,10 +90,10 @@ subroutine save_hash_call(c13,n10,n12,n22)
   if(len(trim(cw)) .lt. 3) return
 
   n10=ihashcall(cw,10)
-  if(n10.ge.1 .and. n10 .le. 1024 .and. cw.ne.mycall13) calls10(n10)=cw
+  if(n10.ge.0 .and. n10 .le. 1023 .and. cw.ne.mycall13) calls10(n10)=cw
 
   n12=ihashcall(cw,12)
-  if(n12.ge.1 .and. n12 .le. 4096 .and. cw.ne.mycall13) calls12(n12)=cw
+  if(n12.ge.0 .and. n12 .le. 4095 .and. cw.ne.mycall13) calls12(n12)=cw
 
   n22=ihashcall(cw,22)
   if(any(ihash22.eq.n22)) then   ! If entry exists, make sure callsign is the most recently received one 
@@ -196,7 +196,7 @@ subroutine unpack77(c77,nrx,msg,unpk77_success)
 ! the value of nrx is used to decide when mycall13 or dxcall13 should
 ! be used in place of a callsign from the hashtable
 !
-  parameter (NSEC=84)      !Number of ARRL Sections
+  parameter (NSEC=85)      !Number of ARRL Sections
   parameter (NUSCAN=65)    !Number of US states and Canadian provinces
   parameter (MAXGRID4=32400)
   integer*8 n58
@@ -228,7 +228,7 @@ subroutine unpack77(c77,nrx,msg,unpk77_success)
        "ONS","OR ","ORG","PAC","PR ","QC ","RI ","SB ","SC ","SCV",  &       
        "SD ","SDG","SF ","SFL","SJV","SK ","SNJ","STX","SV ","TN ",  &       
        "UT ","VA ","VI ","VT ","WCF","WI ","WMA","WNY","WPA","WTX",  &       
-       "WV ","WWA","WY ","DX "/
+       "WV ","WWA","WY ","DX ","PE "/
   data cmult/                                                        &
        "AL ","AK ","AZ ","AR ","CA ","CO ","CT ","DE ","FL ","GA ",  &
        "HI ","ID ","IL ","IN ","IA ","KS ","KY ","LA ","ME ","MD ",  &
@@ -864,7 +864,7 @@ subroutine pack77_03(nwords,w,i3,n3,c77)
 ! Check 0.3 and 0.4 (ARRL Field Day exchange)
 ! Example message:  WA9XYZ KA1ABC R 16A EMA       28 28 1 4 3 7    71  
 
-  parameter (NSEC=84)      !Number of ARRL Sections
+  parameter (NSEC=85)      !Number of ARRL Sections
   character*13 w(19)
   character*77 c77
   character*6 bcall_1,bcall_2
@@ -879,7 +879,7 @@ subroutine pack77_03(nwords,w,i3,n3,c77)
        "ONS","OR ","ORG","PAC","PR ","QC ","RI ","SB ","SC ","SCV",  &       
        "SD ","SDG","SF ","SFL","SJV","SK ","SNJ","STX","SV ","TN ",  &       
        "UT ","VA ","VI ","VT ","WCF","WI ","WMA","WNY","WPA","WTX",  &       
-       "WV ","WWA","WY ","DX "/
+       "WV ","WWA","WY ","DX ","PE "/
 
   if(nwords.lt.4 .or. nwords.gt.5) return  
   call chkcall(w(1),bcall_1,ok1)

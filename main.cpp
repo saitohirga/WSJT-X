@@ -323,6 +323,7 @@ int main(int argc, char *argv[])
       db.exec ("PRAGMA locking_mode=EXCLUSIVE");
 
       int result;
+      auto const& original_style_sheet = a.styleSheet ();
       do
         {
 #if WSJT_QDEBUG_TO_FILE
@@ -352,14 +353,41 @@ int main(int argc, char *argv[])
           // Multiple instances: use rig_name as shared memory key
           mem_jt9.setKey(a.applicationName ());
 
-          if(!mem_jt9.attach()) {
-            if (!mem_jt9.create(sizeof(struct dec_data))) {
-              splash.hide ();
-              MessageBox::critical_message (nullptr, a.translate ("main", "Shared memory error"),
-                                            a.translate ("main", "Unable to create shared memory segment"));
-              throw std::runtime_error {"Shared memory error"};
+          // try and shut down any orphaned jt9 process
+          for (int i = 3; i; --i) // three tries to close old jt9
+            {
+              if (mem_jt9.attach ()) // shared memory presence implies
+                                     // orphaned jt9 sub-process
+                {
+                  dec_data_t * dd = reinterpret_cast<dec_data_t *> (mem_jt9.data());
+                  mem_jt9.lock ();
+                  dd->ipc[1] = 999; // tell jt9 to shut down
+                  mem_jt9.unlock ();
+                  mem_jt9.detach (); // start again
+                }
+              else
+                {
+                  break;        // good to go
+                }
+              QThread::sleep (1); // wait for jt9 to end
             }
-          }
+          if (!mem_jt9.attach ())
+            {
+            if (!mem_jt9.create (sizeof (struct dec_data)))
+              {
+                splash.hide ();
+                MessageBox::critical_message (nullptr, a.translate ("main", "Shared memory error"),
+                                              a.translate ("main", "Unable to create shared memory segment"));
+                throw std::runtime_error {"Shared memory error"};
+              }
+            }
+          else
+            {
+              splash.hide ();
+              MessageBox::critical_message (nullptr, a.translate ("main", "Sub-process error"),
+                                            a.translate ("main", "Failed to close orphaned jt9 process"));
+              throw std::runtime_error {"Sub-process error"};
+            }
           mem_jt9.lock ();
           memset(mem_jt9.data(),0,sizeof(struct dec_data)); //Zero all decoding params in shared memory
           mem_jt9.unlock ();
@@ -387,6 +415,9 @@ int main(int argc, char *argv[])
           splash.raise ();
           QObject::connect (&a, SIGNAL (lastWindowClosed()), &a, SLOT (quit()));
           result = a.exec();
+
+          // ensure config switches start with the right style sheet
+          a.setStyleSheet (original_style_sheet);
         }
       while (!result && !multi_settings.exit ());
 

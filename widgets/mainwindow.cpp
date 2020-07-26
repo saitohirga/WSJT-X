@@ -4501,7 +4501,7 @@ void MainWindow::doubleClickOnCall(Qt::KeyboardModifiers modifiers)
     }
     return;
   }
-  DecodedText message {cursor.block().text().trimmed().remove("TU; ")};
+  DecodedText message {cursor.block().text().trimmed().left(61).remove("TU; ")};
   m_bDoubleClicked = true;
   processMessage (message, modifiers);
 }
@@ -4608,6 +4608,13 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     // if we are not allowing mode change then don't process decode
     return;
   }
+
+  // ignore calls by other hounds
+  if (SpecOp::HOUND == m_config.special_op_id()
+      && message.messageWords ().indexOf (QRegularExpression {R"(R\+-[0-9]+)"}) >= 0)
+    {
+      return;
+    }
 
   QString firstcall = message.call();
   if(firstcall.length()==5 and firstcall.mid(0,3)=="CQ ") firstcall="CQ";
@@ -5702,7 +5709,7 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
                             , QString const& name, QDateTime const& QSO_date_on, QString const& operator_call
                             , QString const& my_call, QString const& my_grid
                             , QString const& exchange_sent, QString const& exchange_rcvd
-                            , QByteArray const& ADIF)
+                            , QString const& propmode, QByteArray const& ADIF)
 {
   QString date = QSO_date_on.toString("yyyyMMdd");
   if (!m_logBook.add (call, grid, m_config.bands()->find(dial_freq), mode, ADIF))
@@ -5713,7 +5720,7 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
 
   m_messageClient->qso_logged (QSO_date_off, call, grid, dial_freq, mode, rpt_sent, rpt_received
                                , tx_power, comments, name, QSO_date_on, operator_call, my_call, my_grid
-                               , exchange_sent, exchange_rcvd);
+                               , exchange_sent, exchange_rcvd, propmode);
   m_messageClient->logged_ADIF (ADIF);
 
   // Log to N1MM Logger
