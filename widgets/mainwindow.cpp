@@ -4291,7 +4291,7 @@ void MainWindow::startTx2()
       if (m_config.TX_messages ()) {
         t = " Transmitting " + m_mode + " ----------------------- " +
           m_config.bands ()->find (m_freqNominal);
-        t=beacon_start_time () + ' ' + t.rightJustified (66, '-');
+        t=beacon_start_time (m_TRperiod / 2) + ' ' + t.rightJustified (66, '-');
         ui->decodedTextBrowser->appendText(t);
       }
       write_all("Tx",m_currentMessage);
@@ -7914,14 +7914,15 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
 
 QString MainWindow::beacon_start_time (int n)
 {
-  auto time =  QDateTime::currentDateTimeUtc ().addSecs (n).time ();
-  auto rounded_time = (int ((time.hour () * 10000 + time.minute () * 100 + time.second ()) * 60 / m_TRperiod) * int (m_TRperiod)) / 60;
-  auto result = QString::number (rounded_time).rightJustified (6, QLatin1Char {'0'});
+  auto bt = qt_truncate_date_time_to (QDateTime::currentDateTimeUtc ().addSecs (n), m_TRperiod);
   if (m_TRperiod < 60)
     {
-      return result;
+      return bt.toString ("HHmmss");
     }
-  return result.left (4);
+  else
+    {
+      return bt.toString ("HHmm");
+    }
 }
 
 void MainWindow::WSPR_history(Frequency dialFreq, int ndecodes)
