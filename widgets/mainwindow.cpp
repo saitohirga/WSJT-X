@@ -6565,6 +6565,7 @@ void MainWindow::WSPR_config(bool b)
   ui->label_7->setVisible(!b and ui->cbMenus->isChecked());
   ui->logQSOButton->setVisible(!b);
   ui->DecodeButton->setEnabled(!b);
+  ui->sbTxPercent->setEnabled (m_mode != "FST4W" || "Random" == ui->RoundRobin->currentText ());
   ui->band_hopping_group_box->setVisible(true);
   ui->RoundRobin->setVisible(m_mode=="FST4W");
   ui->RoundRobin->lineEdit()->setAlignment(Qt::AlignCenter);
