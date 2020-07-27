@@ -4103,14 +4103,15 @@ void MainWindow::guiUpdate()
       m_msgSent0 = current_message;
     }
 
-//    if(m_mode!="FT4") {
-      if(!m_tune) write_all("Tx",m_currentMessage);
-
-      if (m_config.TX_messages () && !m_tune && SpecOp::FOX!=m_config.special_op_id()) {
-        ui->decodedTextBrowser2->displayTransmittedText(current_message, m_modeTx,
-             ui->TxFreqSpinBox->value(),m_bFastMode,m_TRperiod);
+    if (m_mode != "FST4W" && m_mode != "WSPR")
+      {
+        if(!m_tune) write_all("Tx",m_currentMessage);
+        if (m_config.TX_messages () && !m_tune && SpecOp::FOX!=m_config.special_op_id())
+          {
+            ui->decodedTextBrowser2->displayTransmittedText(current_message, m_modeTx,
+                                                            ui->TxFreqSpinBox->value(),m_bFastMode,m_TRperiod);
+          }
       }
-//    }
 
     switch (m_ntx)
     {
