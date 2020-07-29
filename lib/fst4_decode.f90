@@ -545,7 +545,7 @@ contains
                      inquire(file='plotspec',exist=ex)
                      fmid=-999.0
                      if(ex) then
-                        call write_ref(itone,iwave,nsps,nmax,ndown,hmod,  &
+                        call dopspread(itone,iwave,nsps,nmax,ndown,hmod,  &
                            isbest,fc_synced,fmid,w50)
                      endif
                      xsig=0
@@ -813,7 +813,7 @@ contains
       return
    end subroutine get_candidates_fst4
 
-   subroutine write_ref(itone,iwave,nsps,nmax,ndown,hmod,i0,fc,fmid,w50)
+   subroutine dopspread(itone,iwave,nsps,nmax,ndown,hmod,i0,fc,fmid,w50)
 
 ! On "plotspec" special request, compute Doppler spread for a decoded signal
 
@@ -902,29 +902,14 @@ contains
       fmid=xi2*df                  !Frequency midpoint of signal powere
 
       do i=-ia,ia                          !Save the spectrum for plotting
-         f=i*df
-         y=0.99*ss(i+nint(xi2)) + ncall-1
-         write(52,1010) f,y
+         y=ncall-1
+         j=i+nint(xi2)
+         if(abs(j*df).lt.10.0) y=0.99*ss(i+nint(xi2)) + ncall-1
+         write(52,1010) i*df,y
 1010     format(f12.6,f12.6)
       enddo
 
-      if(nsps.eq.720) then
-         ia=101.0/df
-         if(ncall.eq.1) then
-            allocate(ssavg(-ia:ia))
-            ssavg=0.
-         endif
-         rewind 53
-         do i=-ia,ia                        !Find smax in +/- 1 Hz around 0.
-            j=i
-            if(j.lt.0) j=i+nfft
-            ssavg(i)=ssavg(i) + real(g(j))**2 + aimag(g(j))**2
-            write(53,1020) i*df,ssavg(i)
-1020        format(f12.6,e12.3)
-         enddo
-      endif
-
       return
-   end subroutine write_ref
+   end subroutine dopspread
 
 end module fst4_decode
