@@ -42,8 +42,12 @@ program qra66sim
   twopi=8.d0*atan(1.d0)
   npts=NMAX                          !Total samples in .wav file
   nsps=1920
-  baud=12000.d0/nsps                 !Keying rate = 6.25 baud
   nsym=85                            !Number of channel symbols
+  if(csubmode.eq.'B') then
+     nsps=960
+     nsym=169
+  endif
+  baud=12000.d0/nsps                 !Keying rate = 6.25 baud
   h=default_header(12000,npts)
   ichk=66                            !Flag sent to genqra64
 
@@ -76,8 +80,9 @@ program qra66sim
      do i=1,npts                         !Add this signal into cdat()
         isym=i/nsps + 1
         if(isym.gt.nsym) exit
+        if(csubmode.eq.'B' .and. isym.gt.84) isym=isym-84
         if(isym.ne.isym0) then
-           freq=f0 + itone(isym)*baud*mode66
+           freq=f0 + itone(isym)*baud
            dphi=twopi*freq*dt
            isym0=isym
         endif
