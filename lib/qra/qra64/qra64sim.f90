@@ -107,7 +107,7 @@ program qra64sim
         twopi=8*atan(1.0)
         cspread(0)=1.0
         cspread(NH)=0.
-        b=6.0                                     !Lorenzian 3/28 onward
+        b=6.0                       !Use truncated Lorenzian shape for fspread
         do i=1,NH
            f=i*df
            x=b*f/fspread
@@ -129,13 +129,13 @@ program qra64sim
            cspread(NFFT-i)=z
         enddo
 
-        do i=0,NFFT-1
-           f=i*df
-           if(i.gt.NH) f=(i-nfft)*df
-           s=real(cspread(i))**2 + aimag(cspread(i))**2
+!        do i=0,NFFT-1
+!           f=i*df
+!           if(i.gt.NH) f=(i-nfft)*df
+!           s=real(cspread(i))**2 + aimag(cspread(i))**2
 !          write(13,3000) i,f,s,cspread(i)
 !3000      format(i5,f10.3,3f12.6)
-        enddo
+!        enddo
 !        s=real(cspread(0))**2 + aimag(cspread(0))**2
 !        write(13,3000) 1024,0.0,s,cspread(0)
 
