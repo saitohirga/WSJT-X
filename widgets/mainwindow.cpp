@@ -8039,8 +8039,11 @@ void MainWindow::WSPR_scheduling ()
 {
   QString t=ui->RoundRobin->currentText();
   if(m_mode=="FST4W" and t!="Random") {
-    int i=t.left (1).toInt () - 1;
-    int n=t.right(1).toInt();
+    bool ok;
+    int i=t.left (1).toInt (&ok) - 1;
+    if (!ok) return;
+    int n=t.right (1).toInt (&ok);
+    if (!ok || 0 == n) return;
 
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     int nsec=ms/1000;
