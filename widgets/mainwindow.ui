@@ -3001,6 +3001,7 @@ QLabel[oob=&quot;true&quot;] {
     <addaction name="actionJT9_JT65"/>
     <addaction name="actionJT65"/>
     <addaction name="actionQRA64"/>
+    <addaction name="actionQRA66"/>
     <addaction name="separator"/>
     <addaction name="actionISCAT"/>
     <addaction name="actionMSK144"/>
@@ -3640,6 +3641,14 @@ QLabel[oob=&quot;true&quot;] {
    </property>
    <property name="text">
     <string>Also FST4W</string>
+   </property>
+  </action>
+  <action name="actionQRA66">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>QRA66</string>
    </property>
   </action>
  </widget>

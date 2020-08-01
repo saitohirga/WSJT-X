@@ -776,7 +776,7 @@ contains
    return
  end subroutine fst4_decoded
 
- subroutine qra66_decoded (this,nutc,sync,nsnr,dt,freq,decoded,nap,   &
+ subroutine qra66_decoded (this,nutc,sync,nsnr,dt,freq,decoded,irc,   &
        qual,ntrperiod,fmid,w50)
 
     use qra66_decode
@@ -789,42 +789,16 @@ contains
     real, intent(in) :: dt
     real, intent(in) :: freq
     character(len=37), intent(in) :: decoded
-    integer, intent(in) :: nap
+    integer, intent(in) :: irc
     real, intent(in) :: qual
     integer, intent(in) :: ntrperiod
     real, intent(in) :: fmid
     real, intent(in) :: w50
 
-    character*2 annot
-    character*37 decoded0
-    character*70 line
-
-    decoded0=decoded
-    annot='  '
-    if(nap.ne.0) then
-       write(annot,'(a1,i1)') 'a',nap
-       if(qual.lt.0.17) decoded0(37:37)='?'
-    endif
-
-    if(ntrperiod.lt.60) then
-       write(line,1001) nutc,nsnr,dt,nint(freq),decoded0,annot
-1001   format(i6.6,i4,f5.1,i5,' ` ',1x,a37,1x,a2)
-       write(13,1002) nutc,nint(sync),nsnr,dt,freq,0,decoded0
-1002   format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a37,' FST4')
-    else
-       write(line,1003) nutc,nsnr,dt,nint(freq),decoded0,annot
-1003   format(i4.4,i4,f5.1,i5,' ` ',1x,a37,1x,a2,2f7.3)
-       write(13,1004) nutc,nint(sync),nsnr,dt,freq,0,decoded0
-1004   format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a37,' FST4')
-    endif
-
-    if(fmid.ne.-999.0) then
-       if(w50.lt.0.95) write(line(65:70),'(f6.3)') w50
-       if(w50.ge.0.95) write(line(65:70),'(f6.2)') w50
-    endif
-
-    write(*,1005) line
-1005 format(a70)
+    write(*,1001) nutc,nsnr,dt,nint(freq),decoded,irc
+1001 format(i6.6,i4,f5.1,i5,' + ',1x,a37,1x,i2)
+    write(13,1002) nutc,nint(sync),nsnr,dt,freq,0,decoded
+1002 format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a37,' QRA66')
 
     call flush(6)
     call flush(13)

@@ -52,6 +52,8 @@ contains
     data nc1z/-1/,nc2z/-1/,ng2z/-1/,maxaptypez/-1/
     save
 
+!    print*,nutc,nfa,nfb,nfqso,ndepth,lapdx,mycall,hiscall,hisgrid
+
     this%callback => callback
     nsps=1920
     baud=12000.0/nsps
@@ -141,15 +143,12 @@ contains
           decoded='                      '
           irc=-1
        endif
-       nft=100 + irc
        nsnr=nint(snr2)
+       call this%callback(nutc,sync,nsnr,xdt,f0,decoded,              &
+            irc,qual,ntrperiod,fmid,w50)
     else
        snr2=0.
-    call this%callback(nutc,sYNC,nsnr,xdt,fsig,decoded,              &
-         iaptype,qual,ntrperiod,fmid,w50)
     endif
-!    print*,'QRA66 decoder',nutc,jpk,xdt,f0,sync,snr2,irc,decoded
-    print*,decoded
     
     return
   end subroutine decode
