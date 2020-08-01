@@ -47,12 +47,17 @@ program qra66sim
      nsps=960
      nsym=169
   endif
+
+  ichk=66                            !Flag sent to genqra64
+  call genqra64(msg,ichk,msgsent,itone,itype)
+  write(*,1001) itone
+1001 format('Channel symbols:'/(20i3))
+
   baud=12000.d0/nsps                 !Keying rate = 6.25 baud
   h=default_header(12000,npts)
-  ichk=66                            !Flag sent to genqra64
 
   write(*,1000) 
-1000 format('File     Freq  A|B   S/N   DT   Dop    Message'/60('-'))
+1000 format('File     Freq  A|B   S/N   DT    Dop  Message'/60('-'))
 
   do ifile=1,nfiles                  !Loop over requested number of files
      write(fname,1002) ifile         !Output filename
@@ -70,7 +75,6 @@ program qra66sim
      bandwidth_ratio=2500.0/6000.0
      sig=sqrt(2*bandwidth_ratio)*10.0**(0.05*snrdb)
      if(snrdb.gt.90.0) sig=1.0
-     call genqra64(msg,ichk,msgsent,itone,itype)
      write(*,1020) ifile,f0,csubmode,xsnr,xdt,fspread,msgsent
 1020    format(i4,f10.3,2x,a1,2x,f5.1,f6.2,f6.1,1x,a22)
      phi=0.d0
