@@ -6423,9 +6423,10 @@ void MainWindow::on_actionQRA66_triggered()
   switch_mode (Modes::QRA64);
   setup_status_bar (false);
   m_hsymStop=49;
+  m_TRperiod=15.0;
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
-  m_TRperiod=15.0;
+  m_wideGraph->setPeriod(m_TRperiod,6912);
 }
 
 void MainWindow::on_actionISCAT_triggered()
