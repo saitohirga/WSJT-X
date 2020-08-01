@@ -50,23 +50,21 @@ contains
     real s3(-64:127,63)
     real a(5)
     data nc1z/-1/,nc2z/-1/,ng2z/-1/,maxaptypez/-1/
-    save
-
-!    print*,nutc,nfa,nfb,nfqso,ndepth,lapdx,mycall,hiscall,hisgrid
+    save nc1z,nc2z,ng2z,maxaptypez
 
     this%callback => callback
     nsps=1920
     baud=12000.0/nsps
     df1=12000.0/NFFT1
     
-    if(nutc.eq.-999) print*,mycall,hiscall,hisgrid,lapdx,ndepth,nfa,nfb,nfqso
+    if(nutc.eq.-999) print*,lapdx,nfa,nfb,nfqso  !Silence warning
 
 ! Prime the QRA decoder for possible use of AP
     call packcall(mycall(1:6),nc1,ltext)
     call packcall(hiscall(1:6),nc2,ltext)
     call packgrid(hisgrid(1:4),ng2,ltext)
     nSubmode=0
-    b90=1.0
+    b90=10.0
     nFadingModel=1
     maxaptype=4
     if(iand(ndepth,64).ne.0) maxaptype=5
@@ -115,11 +113,14 @@ contains
     call sync66(c0,f0,jpk,sync)            !c0 is analytic signal at 6000 S/s
     xdt=jpk/6000.0 - 0.5
 
+!    write(*,3003) jpk,f0,sync
+!3003 format('A',i6,f8.2,f12.1)
+
     a=0.
     a(1)=-(f0 + 1.5*baud)
     call twkfreq(c0,c0,85*NSPS,6000.0,a)    
     call spec66(c0(jpk:jpk+85*NSPS-1),s3a)
-    s3=s3a/maxval(s3a)
+!    s3=s3a/maxval(s3a)
 !    do j=1,63
 !       ipk=maxloc(s3(-64:127,j))
 !       write(54,3054) j,ipk(1)-65
@@ -148,8 +149,15 @@ contains
             irc,qual,ntrperiod,fmid,w50)
     else
        snr2=0.
+       nsnr=nint(db(sync))
+!### TEMPORARY? ###       
+       call this%callback(nutc,sync,nsnr,xdt,f0,decoded,              &
+            irc,qual,ntrperiod,fmid,w50)
+!###
     endif
-    
+!    write(*,3001) snr2,xdt,f0,decoded(1:22)
+!3001 format('B',f5.1,f6.2,f7.1,2x,a22)
+
     return
   end subroutine decode
 
