@@ -70,7 +70,7 @@ contains
 ! These probably need work:
     maxaptype=0
     if(ndepth.eq.2) maxaptype=3
-    if(ndepth.eq.3) maxaptype=11
+    if(ndepth.eq.3) maxaptype=5
 
 ! Prime the decoder for possible AP decoding
     if(nc1.ne.nc1z .or. nc2.ne.nc2z .or. ng2.ne.ng2z .or.            &
@@ -138,7 +138,7 @@ contains
 
     call pctile(s3a,192*63,40,base)
     s3a=s3a/base
-    print*,'A',maxval(s3a),ndepth,maxaptype,naptype
+!    print*,'A',maxval(s3a),ndepth,maxaptype,naptype
     s3lim=10.
     where(s3a(-64:127,1:63)>s3lim) s3a(-64:127,1:63)=s3lim
     
