@@ -64,10 +64,15 @@ contains
     call packcall(hiscall(1:6),nc2,ltext)
     call packgrid(hisgrid(1:4),ng2,ltext)
     nSubmode=0
-    b90=10.0
+    b90=20
     nFadingModel=1
-    maxaptype=4
-    if(iand(ndepth,64).ne.0) maxaptype=5
+
+! These probably need work:
+    maxaptype=0
+    if(ndepth.eq.2) maxaptype=3
+    if(ndepth.eq.3) maxaptype=11
+
+! Prime the decoder for possible AP decoding
     if(nc1.ne.nc1z .or. nc2.ne.nc2z .or. ng2.ne.ng2z .or.            &
          maxaptype.ne.maxaptypez) then
        do naptype=0,maxaptype
@@ -119,18 +124,24 @@ contains
     a=0.
     a(1)=-(f0 + 1.5*baud)
     call twkfreq(c0,c0,85*NSPS,6000.0,a)    
-    call spec66(c0(jpk:jpk+85*NSPS-1),s3a)
-!    s3=s3a/maxval(s3a)
+    call spec66(c0(jpk:jpk+85*NSPS-1),s3)
+    s3a=s3/maxval(s3)
 !    do j=1,63
-!       ipk=maxloc(s3(-64:127,j))
+!       ipk=maxloc(s3a(-64:127,j))
 !       write(54,3054) j,ipk(1)-65
 !3054   format(2i8)
 !       do i=-64,127
-!          write(53,3053) i,2*s3(i,j)+j-1
+!          write(53,3053) i,2*s3a(i,j)+j-1
 !3053      format(i8,f12.6)
 !       enddo
 !    enddo
-          
+
+    call pctile(s3a,192*63,40,base)
+    s3a=s3a/base
+    print*,'A',maxval(s3a),ndepth,maxaptype,naptype
+    s3lim=10.
+    where(s3a(-64:127,1:63)>s3lim) s3a(-64:127,1:63)=s3lim
+    
     call qra64_dec(s3a,nc1,nc2,ng2,naptype,0,nSubmode,b90,      &
          nFadingModel,dat4,snr2,irc)
     if(irc.gt.0) call badmsg(irc,dat4,nc1,nc2,ng2)
