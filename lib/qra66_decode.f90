@@ -119,30 +119,30 @@ contains
     c0(NFFT2/2+1:NFFT2)=0.                 !Zero the top half
     c0(0)=0.5*c0(0)
     call four2a(c0,nfft2,1,1,1)            !Inverse c2c FFT
-    call sync66(c0,f0,jpk,sync)            !c0 is analytic signal at 6000 S/s
-    xdt=jpk/6000.0 - 0.5
+!    call sync66(c0,f0,jpk,sync)            !c0 is analytic signal at 6000 S/s
 
-!    write(*,3003) jpk,f0,sync
-!3003 format('A',i6,f8.2,f12.1)
+    ntol=100
+    call sync66a(iwave,15*12000,nsps,nfqso,ntol,xdt,f0)
+    jpk=(xdt+0.5)*6000
+    if(jpk.lt.0) jpk=0
+
+! Genie sync:
+!    jpk=3600
+!    xdt=jpk/6000.0 - 0.5
+!    f0=1510
+!    f0=1490
 
     a=0.
-    a(1)=-(f0 + 1.5*baud)
-    call twkfreq(c0,c0,85*NSPS,6000.0,a)    
+!    a(1)=-(f0 + 1.5*baud)           !For sync66
+    a(1)=-(f0 + 2.0*baud)           !For sync66a
+
+    
+    call twkfreq(c0,c0,15*6000,6000.0,a)    
     call spec66(c0(jpk:jpk+85*NSPS-1),s3)
     s3a=s3/maxval(s3)
-!    do j=1,63
-!       ipk=maxloc(s3a(-64:127,j))
-!       write(54,3054) j,ipk(1)-65
-!3054   format(2i8)
-!       do i=-64,127
-!          write(53,3053) i,2*s3a(i,j)+j-1
-!3053      format(i8,f12.6)
-!       enddo
-!    enddo
 
     call pctile(s3a,192*63,40,base)
     s3a=s3a/base
-!    print*,'A',maxval(s3a),ndepth,maxaptype,naptype
     s3lim=10.
     where(s3a(-64:127,1:63)>s3lim) s3a(-64:127,1:63)=s3lim
     
@@ -170,8 +170,6 @@ contains
             irc,qual,ntrperiod,fmid,w50)
 !###
     endif
-!    write(*,3001) snr2,xdt,f0,decoded(1:22)
-!3001 format('B',f5.1,f6.2,f7.1,2x,a22)
 
     return
   end subroutine decode

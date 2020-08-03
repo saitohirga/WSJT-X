@@ -577,7 +577,7 @@ set (wsjt_FSRCS
   lib/symspec65.f90
   lib/sync4.f90
   lib/sync64.f90
-  lib/sync66.f90
+  lib/sync66a.f90
   lib/sync65.f90
   lib/ft4/getcandidates4.f90
   lib/ft4/get_ft4_bitmetrics.f90
@@ -1326,6 +1326,9 @@ target_link_libraries (qra64sim wsjt_fort wsjt_cxx)
 
 add_executable (qra66sim lib/qra/qra66/qra66sim.f90 wsjtx.rc)
 target_link_libraries (qra66sim wsjt_fort wsjt_cxx)
+
+#add_executable (test_sync66 lib/test_sync66.f90 wsjtx.rc)
+#target_link_libraries (test_sync66 wsjt_fort wsjt_cxx)
 
 add_executable (jt49sim lib/jt49sim.f90 wsjtx.rc)
 target_link_libraries (jt49sim wsjt_fort wsjt_cxx)
