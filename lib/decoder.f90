@@ -197,9 +197,8 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   if(params%nmode.eq.66) then
 ! We're in QRA66 mode
      call timer('decqra66',0)
-     call my_qra66%decode(qra66_decoded,id2,params%nutc,params%nfa,         &
-          params%nfb,params%nfqso,params%ndepth,logical(params%lapcqonly),  &
-          mycall,hiscall,hisgrid)
+     call my_qra66%decode(qra66_decoded,id2,params%nutc,params%nfqso,        &
+          params%ntol,params%ndepth,mycall,hiscall,hisgrid)
      call timer('decqra66',1)
      go to 800
   endif
