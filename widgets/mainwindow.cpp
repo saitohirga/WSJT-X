@@ -5359,7 +5359,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       }
     }
 
-    if((m_mode!="MSK144" and m_mode!="FT8" and m_mode!="FT4")) {
+    if((m_mode!="MSK144" and m_mode!="FT8" and m_mode!="FT4" && m_mode != "FST4")) {
       t=t00 + rpt;
       msgtype(t, ui->tx2);
       t=t0 + "R" + rpt;
@@ -5412,7 +5412,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
         case Configuration::type_2_msg_1_full:
           msgtype(t + my_grid, ui->tx1);
           if (!eme_short_codes) {
-            if((m_mode=="MSK144" || m_mode=="FT8" || m_mode=="FT4") &&
+            if((m_mode=="MSK144" || m_mode=="FT8" || m_mode=="FT4" || m_mode == "FST4") &&
                SpecOp::NA_VHF == m_config.special_op_id()) {
               msgtype(t + "R " + my_grid, ui->tx3); // #### Unreachable code
             } else {
@@ -5425,7 +5425,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
           break;
 
         case Configuration::type_2_msg_3_full:
-          if ((m_mode=="MSK144" || m_mode=="FT8" || m_mode=="FT4") &&
+          if ((m_mode=="MSK144" || m_mode=="FT8" || m_mode=="FT4" || m_mode == "FST4") &&
               SpecOp::NA_VHF == m_config.special_op_id()) {
             msgtype(t + "R " + my_grid, ui->tx3);
             msgtype(t + "RRR", ui->tx4);
@@ -5441,7 +5441,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
         case Configuration::type_2_msg_5_only:
           msgtype(t00 + my_grid, ui->tx1);
           if (!eme_short_codes) {
-            if ((m_mode=="MSK144" || m_mode=="FT8" || m_mode=="FT4") &&
+            if ((m_mode=="MSK144" || m_mode=="FT8" || m_mode=="FT4" || m_mode == "FST4") &&
                 SpecOp::NA_VHF == m_config.special_op_id()) {
               msgtype(t + "R " + my_grid, ui->tx3); // #### Unreachable code
               msgtype(t + "RRR", ui->tx4);
