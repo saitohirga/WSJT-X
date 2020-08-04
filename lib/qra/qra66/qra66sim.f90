@@ -19,21 +19,23 @@ program qra66sim
   character msgsent*22
 
   nargs=iargc()
-  if(nargs.ne.6) then
-     print *, 'Usage:   qra66sim         "msg"     A|B fDop DT Nfiles SNR'
-     print *, 'Example  qra66sim "K1ABC W9XYZ EN37" A  0.2 0.0   1    -10'
+  if(nargs.ne.7) then
+     print *, 'Usage:   qra66sim         "msg"     A|B freq fDop DT Nfiles SNR'
+     print *, 'Example: qra66sim "K1ABC W9XYZ EN37" A  1500 0.2 0.0   1    -10'
      go to 999
   endif
   call getarg(1,msg)
   call getarg(2,csubmode)
   mode66=2**(ichar(csubmode)-ichar('A'))
   call getarg(3,arg)
-  read(arg,*) fspread
+  read(arg,*) f0
   call getarg(4,arg)
-  read(arg,*) xdt
+  read(arg,*) fspread
   call getarg(5,arg)
-  read(arg,*) nfiles
+  read(arg,*) xdt
   call getarg(6,arg)
+  read(arg,*) nfiles
+  call getarg(7,arg)
   read(arg,*) snrdb
   
   rms=100.
@@ -71,7 +73,6 @@ program qra66sim
         enddo
      endif
 
-     f0=1500.0
      bandwidth_ratio=2500.0/6000.0
      sig=sqrt(2*bandwidth_ratio)*10.0**(0.05*snrdb)
      if(snrdb.gt.90.0) sig=1.0
