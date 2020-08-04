@@ -91,7 +91,6 @@ contains
     c0(0)=0.5*c0(0)
     call four2a(c0,nfft2,1,1,1)            !Inverse c2c FFT
 
-    ntol=100
     call timer('sync66  ',0)
     call sync66a(iwave,15*12000,nsps,nfqso,ntol,xdt,f0,snr1)
     call timer('sync66  ',1)

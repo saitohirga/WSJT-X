@@ -512,22 +512,22 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
       painter0.setPen(penGreen);
       x1=XfromFreq(m_rxFreq-m_tol);
       x2=XfromFreq(m_rxFreq+m_tol);
-      painter0.drawLine(x1,27,x2,27);
+      painter0.drawLine(x1,26,x2,26);
       x1=XfromFreq(m_rxFreq);
-      painter0.drawLine(x1,21,x1,27);
+      painter0.drawLine(x1,20,x1,26);
 
       if(m_mode=="JT65") {
         painter0.setPen(penOrange);
         x3=XfromFreq(m_rxFreq+20.0*bw/65.0);    //RO
-        painter0.drawLine(x3,24,x3,30);
+        painter0.drawLine(x3,20,x3,26);
         x4=XfromFreq(m_rxFreq+30.0*bw/65.0);    //RRR
-        painter0.drawLine(x4,24,x4,30);
+        painter0.drawLine(x4,20,x4,26);
         x5=XfromFreq(m_rxFreq+40.0*bw/65.0);    //73
-        painter0.drawLine(x5,24,x5,30);
+        painter0.drawLine(x5,20,x5,26);
       }
       painter0.setPen(penGreen);
       x6=XfromFreq(m_rxFreq+bw);             //Highest tone
-      painter0.drawLine(x6,21,x6,27);
+      painter0.drawLine(x6,20,x6,26);
 
     } else {
       // Draw the green "goal post"
