@@ -508,13 +508,13 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
      or m_mode=="QRA64" or m_mode=="QRA66" or m_mode=="FT8" or m_mode=="FT4"
      or m_mode.startsWith("FST4")) {
 
-    if(m_mode=="QRA64" or (m_mode=="JT65" and m_bVHF)) {
+    if(m_mode=="QRA64" or m_mode=="QRA66" or (m_mode=="JT65" and m_bVHF)) {
       painter0.setPen(penGreen);
       x1=XfromFreq(m_rxFreq-m_tol);
       x2=XfromFreq(m_rxFreq+m_tol);
-      painter0.drawLine(x1,28,x2,28);
+      painter0.drawLine(x1,27,x2,27);
       x1=XfromFreq(m_rxFreq);
-      painter0.drawLine(x1,24,x1,30);
+      painter0.drawLine(x1,21,x1,27);
 
       if(m_mode=="JT65") {
         painter0.setPen(penOrange);
@@ -527,7 +527,7 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
       }
       painter0.setPen(penGreen);
       x6=XfromFreq(m_rxFreq+bw);             //Highest tone
-      painter0.drawLine(x6,24,x6,30);
+      painter0.drawLine(x6,21,x6,27);
 
     } else {
       // Draw the green "goal post"
