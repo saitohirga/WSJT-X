@@ -92,7 +92,7 @@ contains
     call four2a(c0,nfft2,1,1,1)            !Inverse c2c FFT
 
     call timer('sync66  ',0)
-    call sync66a(iwave,15*12000,nsps,nfqso,ntol,xdt,f0,snr1)
+    call sync66(iwave,15*12000,nsps,nfqso,ntol,xdt,f0,snr1)
     call timer('sync66  ',1)
     jpk=(xdt+0.5)*6000 - 384               !### Empirical ###
     if(jpk.lt.0) jpk=0
