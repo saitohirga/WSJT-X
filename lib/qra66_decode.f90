@@ -135,7 +135,7 @@ contains
             irc,qual,ntrperiod,fmid,w50)
     else
        snr2=0.
-       nsnr=nint(db(sync))
+       nsnr=-22
 !### TEMPORARY? ###       
        call this%callback(nutc,sync,nsnr,xdt,f0,decoded,              &
             irc,qual,ntrperiod,fmid,w50)
