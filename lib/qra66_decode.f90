@@ -45,9 +45,10 @@ contains
     logical lapdx,ltext
     complex c0(0:NFFT1-1)                  !Analytic signal, 6000 S/s
     real s3(-64:127,63)
+    real s3a(-64:127,63)
     real a(5)
     data nc1z/-1/,nc2z/-1/,ng2z/-1/,maxaptypez/-1/
-    save nc1z,nc2z,ng2z,maxaptypez
+    save nc1z,nc2z,ng2z,maxaptypez,nsave,s3a
 
     this%callback => callback
     nsps=1800
@@ -80,6 +81,8 @@ contains
        nc2z=nc2
        ng2z=ng2
        maxaptypez=maxaptype
+       s3a=0.
+       nsave=0
     endif
     naptype=maxaptype
 
@@ -115,16 +118,31 @@ contains
      if(xx.gt.s3max) s3(-64:127,j)=s3(-64:127,j)*s3max/xx
     enddo
 
-!Call Nico's QRA64 decoder
+! Call Nico's QRA64 decoder
     call timer('qra64_de',0)
     call qra64_dec(s3,nc1,nc2,ng2,naptype,0,nSubmode,b90,      &
          nFadingModel,dat4,snr2,irc)
     call timer('qra64_de',1)
+
+    if(irc.lt.0) then
+! No luck so far. Try for an average decode.
+       call timer('qra64_av',0)
+       s3a=s3a+s3
+       nsave=nsave+1
+       if(nsave.ge.2) then
+          call qra64_dec(s3a,nc1,nc2,ng2,naptype,0,nSubmode,b90,      &
+               nFadingModel,dat4,snr2,irc)
+          if(irc.ge.0) irc=10*nsave + irc
+       endif
+       call timer('qra64_av',1)
+    endif
     snr2=snr2 + 5.563                      !10*log(6912/1920)
     if(irc.gt.0) call badmsg(irc,dat4,nc1,nc2,ng2)
 
     decoded='                                     '
     if(irc.ge.0) then
+       nsave=0
+       s3a=0.
        call unpackmsg(dat4,decoded)               !Unpack the user message
        call fmtmsg(decoded,iz)
        if(index(decoded,"000AAA ").ge.1) then
