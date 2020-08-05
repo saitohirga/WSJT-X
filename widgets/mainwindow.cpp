@@ -3389,7 +3389,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 //Right (Rx Frequency) window
       bool bDisplayRight=bAvgMsg;
       int audioFreq=decodedtext.frequencyOffset();
-      if(m_mode=="FT8" or m_mode=="FT4" or m_mode=="FST4") {
+      if(m_mode=="FT8" or m_mode=="FT4" or m_mode=="FST4" or m_mode=="QRA66") {
         auto const& parts = decodedtext.string().remove("<").remove(">")
             .split (' ', SkipEmptyParts);
         if (parts.size() > 6) {
@@ -6427,7 +6427,9 @@ void MainWindow::on_actionQRA66_triggered()
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
   m_wideGraph->setPeriod(m_TRperiod,6912);
-}
+//                         0123456789012345678901234567890123
+  displayWidgets(nWidgets("1111100001001100000100000001000000"));
+  statusChanged();}
 
 void MainWindow::on_actionISCAT_triggered()
 {
