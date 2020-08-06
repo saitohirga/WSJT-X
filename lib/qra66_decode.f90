@@ -108,8 +108,8 @@ contains
     do j=1,63                              !Normalize to symbol baseline
        call pctile(s3(:,j),192,40,base)
        s3(:,j)=s3(:,j)/base
-       write(71,3071)j,maxloc(s3(:,j))
-3071   format(2i5)
+!       write(71,3071)j,maxloc(s3(:,j))
+!3071   format(2i5)
     enddo
 
     s3max=20.0
