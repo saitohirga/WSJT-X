@@ -402,7 +402,13 @@ void PSKReporter::impl::send_report (bool send_residue)
               writeUtfString (tx_out, spot.grid_);
               tx_out
                 << quint8 (1u)          // REPORTER_SOURCE_AUTOMATIC
-                << static_cast<quint32> (spot.time_.toSecsSinceEpoch ());
+                << static_cast<quint32> (
+#if QT_VERSION >= QT_VERSION_CHECK(5, 8, 0)
+                                         spot.time_.toSecsSinceEpoch ()
+#else
+                                         spot.time_.toMSecsSinceEpoch () / 1000
+#endif
+                                         );
             }
 
           auto len = payload_.size () + tx_data_.size ();
@@ -429,7 +435,13 @@ void PSKReporter::impl::send_report (bool send_residue)
               // insert Length and Export Time
               set_length (message, payload_);
               message.device ()->seek (2 * sizeof (quint16));
-              message << static_cast<quint32> (QDateTime::currentDateTime ().toSecsSinceEpoch ());
+              message << static_cast<quint32> (
+#if QT_VERSION >= QT_VERSION_CHECK(5, 8, 0)
+                                               QDateTime::currentDateTime ().toSecsSinceEpoch ()
+#else
+                                               QDateTime::currentDateTime ().toMSecsSinceEpoch () / 1000
+#endif
+                                               );
 
               // Send data to PSK Reporter site
               socket_->write (payload_); // TODO: handle errors
