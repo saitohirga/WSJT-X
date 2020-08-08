@@ -469,9 +469,13 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (this, &MainWindow::startAudioInputStream, m_soundInput, &SoundInput::start);
   connect (this, &MainWindow::suspendAudioInputStream, m_soundInput, &SoundInput::suspend);
   connect (this, &MainWindow::resumeAudioInputStream, m_soundInput, &SoundInput::resume);
+  connect (this, &MainWindow::reset_audio_input_stream, m_soundInput, &SoundInput::reset);
   connect (this, &MainWindow::finished, m_soundInput, &SoundInput::stop);
   connect(m_soundInput, &SoundInput::error, this, &MainWindow::showSoundInError);
   // connect(m_soundInput, &SoundInput::status, this, &MainWindow::showStatusMessage);
+  connect (m_soundInput, &SoundInput::dropped_frames, this, [this] (qint32 dropped_frames, qint64 usec) {
+                                                              showStatusMessage (tr ("%1 (%2 sec) audio frames dropped").arg (dropped_frames).arg (usec / 1.e6));
+                                                            });
   connect (&m_audioThread, &QThread::finished, m_soundInput, &QObject::deleteLater);
 
   connect (this, &MainWindow::finished, this, &MainWindow::close);
@@ -935,12 +939,18 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (&m_wav_future_watcher, &QFutureWatcher<void>::finished, this, &MainWindow::diskDat);
 
   connect(&watcher3, SIGNAL(finished()),this,SLOT(fast_decode_done()));
-  Q_EMIT startAudioInputStream (m_config.audio_input_device ()
-                                , m_config.audio_input_buffer_size ()
-                                , m_detector, m_downSampleFactor, m_config.audio_input_channel ());
-  Q_EMIT initializeAudioOutputStream (m_config.audio_output_device ()
-                                      , AudioDevice::Mono == m_config.audio_output_channel () ? 1 : 2
-                                      , m_config.audio_output_buffer_size ());
+  if (!m_config.audio_input_device ().isNull ())
+    {
+      Q_EMIT startAudioInputStream (m_config.audio_input_device ()
+                                    , m_config.audio_input_buffer_size ()
+                                    , m_detector, m_downSampleFactor, m_config.audio_input_channel ());
+    }
+  if (!m_config.audio_output_device ().isNull ())
+    {
+      Q_EMIT initializeAudioOutputStream (m_config.audio_output_device ()
+                                          , AudioDevice::Mono == m_config.audio_output_channel () ? 1 : 2
+                                          , m_config.audio_output_buffer_size ());
+    }
   Q_EMIT transmitFrequency (ui->TxFreqSpinBox->value () - m_XIT);
 
   enable_DXCC_entity (m_config.DXCC ());  // sets text window proportions and (re)inits the logbook
@@ -1536,6 +1546,10 @@ void MainWindow::dataSink(qint64 frames)
     if(m_mode!="WSPR") decode(); //Start decoder
 
     if(m_mode=="FT8" and !m_diskData and (m_ihsym==m_earlyDecode or m_ihsym==m_earlyDecode2)) return;
+    if (!m_diskData)
+      {
+        Q_EMIT reset_audio_input_stream (true); // signals dropped samples
+      }
     if(!m_diskData and (m_saveAll or m_saveDecoded or m_mode=="WSPR" or m_mode=="FST4W")) {
       //Always save unless "Save None"; may delete later
       if(m_TRperiod < 60) {
@@ -2280,10 +2294,10 @@ bool MainWindow::eventFilter (QObject * object, QEvent * event)
 void MainWindow::createStatusBar()                           //createStatusBar
 {
   tx_status_label.setAlignment (Qt::AlignHCenter);
-  tx_status_label.setMinimumSize (QSize  {150, 18});
+  tx_status_label.setMinimumSize (QSize  {100, 18});
   tx_status_label.setStyleSheet ("QLabel{color: #000000; background-color: #00ff00}");
   tx_status_label.setFrameStyle (QFrame::Panel | QFrame::Sunken);
-  statusBar()->addWidget (&tx_status_label);
+  statusBar()->addPermanentWidget (&tx_status_label);
 
   config_label.setAlignment (Qt::AlignHCenter);
   config_label.setMinimumSize (QSize {80, 18});

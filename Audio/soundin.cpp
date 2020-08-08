@@ -117,9 +117,9 @@ void SoundInput::resume ()
     }
 }
 
-void SoundInput::handleStateChanged (QAudio::State newState) const
+void SoundInput::handleStateChanged (QAudio::State newState)
 {
-  // qDebug () << "SoundInput::handleStateChanged: newState:" << newState;
+  qDebug () << "SoundInput::handleStateChanged: newState:" << newState;
 
   switch (newState)
     {
@@ -128,6 +128,7 @@ void SoundInput::handleStateChanged (QAudio::State newState) const
       break;
 
     case QAudio::ActiveState:
+      reset (false);
       Q_EMIT status (tr ("Receiving"));
       break;
 
@@ -151,6 +152,19 @@ void SoundInput::handleStateChanged (QAudio::State newState) const
           Q_EMIT status (tr ("Stopped"));
         }
       break;
+    }
+}
+
+void SoundInput::reset (bool report_dropped_frames)
+{
+  if (m_stream)
+    {
+      if (report_dropped_frames)
+        {
+          auto lost_usec = m_stream->elapsedUSecs () - m_stream->processedUSecs () - cummulative_lost_usec_;
+          Q_EMIT dropped_frames (m_stream->format ().framesForDuration (lost_usec), lost_usec);
+        }
+      cummulative_lost_usec_ = m_stream->elapsedUSecs () - m_stream->processedUSecs ();
     }
 }
 
