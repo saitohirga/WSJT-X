@@ -41,7 +41,8 @@ bool SoundInput::audioError () const
   return result;
 }
 
-void SoundInput::start(QAudioDeviceInfo const& device, int framesPerBuffer, AudioDevice * sink, unsigned downSampleFactor, AudioDevice::Channel channel)
+void SoundInput::start(QAudioDeviceInfo const& device, int framesPerBuffer, AudioDevice * sink
+                       , unsigned downSampleFactor, AudioDevice::Channel channel)
 {
   Q_ASSERT (sink);
 
@@ -79,7 +80,9 @@ void SoundInput::start(QAudioDeviceInfo const& device, int framesPerBuffer, Audi
 
   connect (m_stream.data(), &QAudioInput::stateChanged, this, &SoundInput::handleStateChanged);
 
+  qDebug () << "SoundIn default buffer size (bytes):" << m_stream->bufferSize ();
   m_stream->setBufferSize (m_stream->format ().bytesForFrames (framesPerBuffer));
+  qDebug () << "SoundIn selected buffer size (bytes):" << m_stream->bufferSize ();
   if (sink->initialize (QIODevice::WriteOnly, channel))
     {
       m_stream->start (sink);

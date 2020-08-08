@@ -394,8 +394,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
       },
   m_sfx {"P",  "0",  "1",  "2",  "3",  "4",  "5",  "6",  "7",  "8",  "9",  "A"},
   mem_jt9 {shdmem},
-  m_msAudioOutputBuffered (0u),
-  m_framesAudioInputBuffered (RX_SAMPLE_RATE / 10),
   m_downSampleFactor (downSampleFactor),
   m_audioThreadPriority (QThread::HighPriority),
   m_bandEdited {false},
@@ -937,8 +935,12 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (&m_wav_future_watcher, &QFutureWatcher<void>::finished, this, &MainWindow::diskDat);
 
   connect(&watcher3, SIGNAL(finished()),this,SLOT(fast_decode_done()));
-  Q_EMIT startAudioInputStream (m_config.audio_input_device (), m_framesAudioInputBuffered, m_detector, m_downSampleFactor, m_config.audio_input_channel ());
-  Q_EMIT initializeAudioOutputStream (m_config.audio_output_device (), AudioDevice::Mono == m_config.audio_output_channel () ? 1 : 2, m_msAudioOutputBuffered);
+  Q_EMIT startAudioInputStream (m_config.audio_input_device ()
+                                , m_config.audio_input_buffer_size ()
+                                , m_detector, m_downSampleFactor, m_config.audio_input_channel ());
+  Q_EMIT initializeAudioOutputStream (m_config.audio_output_device ()
+                                      , AudioDevice::Mono == m_config.audio_output_channel () ? 1 : 2
+                                      , m_config.audio_output_buffer_size ());
   Q_EMIT transmitFrequency (ui->TxFreqSpinBox->value () - m_XIT);
 
   enable_DXCC_entity (m_config.DXCC ());  // sets text window proportions and (re)inits the logbook
@@ -1277,8 +1279,6 @@ void MainWindow::readSettings()
   // use these initialisation settings to tune the audio o/p buffer
   // size and audio thread priority
   m_settings->beginGroup ("Tune");
-  m_msAudioOutputBuffered = m_settings->value ("Audio/OutputBufferMs").toInt ();
-  m_framesAudioInputBuffered = m_settings->value ("Audio/InputBufferFrames", RX_SAMPLE_RATE / 10).toInt ();
   m_audioThreadPriority = static_cast<QThread::Priority> (m_settings->value ("Audio/ThreadPriority", QThread::HighPriority).toInt () % 8);
   m_settings->endGroup ();
 
@@ -1799,15 +1799,16 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     if(m_config.spot_to_psk_reporter ()) pskSetLocal ();
 
     if(m_config.restart_audio_input ()) {
-      Q_EMIT startAudioInputStream (m_config.audio_input_device (),
-                 m_framesAudioInputBuffered, m_detector, m_downSampleFactor,
-                                      m_config.audio_input_channel ());
+      Q_EMIT startAudioInputStream (m_config.audio_input_device ()
+                                    , m_config.audio_input_buffer_size ()
+                                    , m_detector, m_downSampleFactor
+                                    , m_config.audio_input_channel ());
     }
 
     if(m_config.restart_audio_output ()) {
-      Q_EMIT initializeAudioOutputStream (m_config.audio_output_device (),
-           AudioDevice::Mono == m_config.audio_output_channel () ? 1 : 2,
-                                          m_msAudioOutputBuffered);
+      Q_EMIT initializeAudioOutputStream (m_config.audio_output_device ()
+                                          , AudioDevice::Mono == m_config.audio_output_channel () ? 1 : 2
+                                          , m_config.audio_output_buffer_size ());
     }
 
     displayDialFrequency ();

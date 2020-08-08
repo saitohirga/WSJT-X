@@ -242,6 +242,8 @@ namespace
   // Magic numbers for file validation
   constexpr quint32 qrg_magic {0xadbccbdb};
   constexpr quint32 qrg_version {100}; // M.mm
+
+  constexpr int default_audio_buffer_size = 10;
 }
 
 
@@ -649,9 +651,11 @@ private:
   QAudioDeviceInfo audio_input_device_;
   bool default_audio_input_device_selected_;
   AudioDevice::Channel audio_input_channel_;
+  int audio_input_buffer_size_;
   QAudioDeviceInfo audio_output_device_;
   bool default_audio_output_device_selected_;
   AudioDevice::Channel audio_output_channel_;
+  int audio_output_buffer_size_;
 
   friend class Configuration;
 };
@@ -681,8 +685,10 @@ bool Configuration::is_active () const {return m_->isVisible ();}
 
 QAudioDeviceInfo const& Configuration::audio_input_device () const {return m_->audio_input_device_;}
 AudioDevice::Channel Configuration::audio_input_channel () const {return m_->audio_input_channel_;}
+int Configuration::audio_input_buffer_size () const {return m_->audio_input_buffer_size_ * 1024;}
 QAudioDeviceInfo const& Configuration::audio_output_device () const {return m_->audio_output_device_;}
 AudioDevice::Channel Configuration::audio_output_channel () const {return m_->audio_output_channel_;}
+int Configuration::audio_output_buffer_size () const {return m_->audio_output_buffer_size_ * 1024;}
 bool Configuration::restart_audio_input () const {return m_->restart_sound_input_device_;}
 bool Configuration::restart_audio_output () const {return m_->restart_sound_output_device_;}
 auto Configuration::type_2_msg_gen () const -> Type2MsgGen {return m_->type_2_msg_gen_;}
@@ -977,7 +983,9 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   , degrade_ {0.}               // initialize to zero each run, not
                                 // saved in settings
   , default_audio_input_device_selected_ {false}
+  , audio_input_buffer_size_ {default_audio_buffer_size}
   , default_audio_output_device_selected_ {false}
+  , audio_output_buffer_size_ {default_audio_buffer_size}
 {
   ui_->setupUi (this);
 
@@ -1189,18 +1197,6 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   //
   ui_->highlighting_list_view->setModel (&next_decode_highlighing_model_);
 
-  //
-  // load combo boxes with audio setup choices
-  //
-  default_audio_input_device_selected_ = load_audio_devices (QAudio::AudioInput, ui_->sound_input_combo_box, &audio_input_device_);
-  default_audio_output_device_selected_ = load_audio_devices (QAudio::AudioOutput, ui_->sound_output_combo_box, &audio_output_device_);
-
-  update_audio_channels (ui_->sound_input_combo_box, ui_->sound_input_combo_box->currentIndex (), ui_->sound_input_channel_combo_box, false);
-  update_audio_channels (ui_->sound_output_combo_box, ui_->sound_output_combo_box->currentIndex (), ui_->sound_output_channel_combo_box, true);
-
-  ui_->sound_input_channel_combo_box->setCurrentIndex (audio_input_channel_);
-  ui_->sound_output_channel_combo_box->setCurrentIndex (audio_output_channel_);
-
   enumerate_rigs ();
   initialize_models ();
 
@@ -1238,6 +1234,21 @@ void Configuration::impl::initialize_models ()
   ui_->sbDegrade->setValue (degrade_);
   ui_->sbBandwidth->setValue (RxBandwidth_);
   ui_->PTT_method_button_group->button (rig_params_.ptt_type)->setChecked (true);
+
+  //
+  // load combo boxes with audio setup choices
+  //
+  default_audio_input_device_selected_ = load_audio_devices (QAudio::AudioInput, ui_->sound_input_combo_box, &audio_input_device_);
+  default_audio_output_device_selected_ = load_audio_devices (QAudio::AudioOutput, ui_->sound_output_combo_box, &audio_output_device_);
+
+  update_audio_channels (ui_->sound_input_combo_box, ui_->sound_input_combo_box->currentIndex (), ui_->sound_input_channel_combo_box, false);
+  update_audio_channels (ui_->sound_output_combo_box, ui_->sound_output_combo_box->currentIndex (), ui_->sound_output_channel_combo_box, true);
+
+  ui_->sound_input_channel_combo_box->setCurrentIndex (audio_input_channel_);
+  ui_->audio_ip_buffer_spin_box->setValue (audio_input_buffer_size_);
+  ui_->sound_output_channel_combo_box->setCurrentIndex (audio_output_channel_);
+  ui_->audio_op_buffer_spin_box->setValue (audio_output_buffer_size_);
+
   ui_->save_path_display_label->setText (save_directory_.absolutePath ());
   ui_->azel_path_display_label->setText (azel_directory_.absolutePath ());
   ui_->CW_id_after_73_check_box->setChecked (id_after_73_);
@@ -1446,6 +1457,10 @@ void Configuration::impl::read_settings ()
   audio_input_channel_ = AudioDevice::fromString (settings_->value ("AudioInputChannel", "Mono").toString ());
   audio_output_channel_ = AudioDevice::fromString (settings_->value ("AudioOutputChannel", "Mono").toString ());
 
+  // retrieve audio buffer size values
+  audio_input_buffer_size_ = settings_->value ("AudioInputBufferSize", default_audio_buffer_size).toInt ();
+  audio_output_buffer_size_ = settings_->value ("AudioOutputBufferSize", default_audio_buffer_size).toInt ();
+
   type_2_msg_gen_ = settings_->value ("Type2MsgGen", QVariant::fromValue (Configuration::type_2_msg_3_full)).value<Configuration::Type2MsgGen> ();
 
   monitor_off_at_startup_ = settings_->value ("MonitorOFF", false).toBool ();
@@ -1587,6 +1602,8 @@ void Configuration::impl::write_settings ()
 
   settings_->setValue ("AudioInputChannel", AudioDevice::toString (audio_input_channel_));
   settings_->setValue ("AudioOutputChannel", AudioDevice::toString (audio_output_channel_));
+  settings_->setValue ("AudioInputBufferSize", audio_input_buffer_size_);
+  settings_->setValue ("AudioOutputBufferSize", audio_output_buffer_size_);
   settings_->setValue ("Type2MsgGen", QVariant::fromValue (type_2_msg_gen_));
   settings_->setValue ("MonitorOFF", monitor_off_at_startup_);
   settings_->setValue ("MonitorLastUsed", monitor_last_used_);
@@ -2040,6 +2057,17 @@ void Configuration::impl::accept ()
       restart_sound_output_device_ = true;
     }
   Q_ASSERT (audio_output_channel_ <= AudioDevice::Both);
+
+  if (audio_input_buffer_size_ != ui_->audio_ip_buffer_spin_box->value ())
+    {
+      audio_input_buffer_size_ = ui_->audio_ip_buffer_spin_box->value ();
+      restart_sound_input_device_ = true;
+    }
+  if (audio_output_buffer_size_ != ui_->audio_op_buffer_spin_box->value ())
+    {
+      audio_output_buffer_size_ = ui_->audio_op_buffer_spin_box->value ();
+      restart_sound_output_device_ = true;
+    }
 
   my_callsign_ = ui_->callsign_line_edit->text ();
   my_grid_ = ui_->grid_line_edit->text ();

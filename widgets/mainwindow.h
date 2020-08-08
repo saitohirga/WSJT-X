@@ -666,8 +666,6 @@ private:
 
   QSharedMemory *mem_jt9;
   QString m_QSOText;
-  unsigned m_msAudioOutputBuffered;
-  unsigned m_framesAudioInputBuffered;
   unsigned m_downSampleFactor;
   QThread::Priority m_audioThreadPriority;
   bool m_bandEdited;

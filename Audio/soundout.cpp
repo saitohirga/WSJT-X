@@ -9,15 +9,6 @@
 
 #include "moc_soundout.cpp"
 
-/*
-#if defined (WIN32)
-# define MS_BUFFERED 1000u
-#else
-# define MS_BUFFERED 2000u
-#endif
-*/
-# define MS_BUFFERED 200u
-
 bool SoundOutput::audioError () const
 {
   bool result (true);
@@ -50,11 +41,11 @@ bool SoundOutput::audioError () const
   return result;
 }
 
-void SoundOutput::setFormat (QAudioDeviceInfo const& device, unsigned channels, unsigned msBuffered)
+void SoundOutput::setFormat (QAudioDeviceInfo const& device, unsigned channels, int frames_buffered)
 {
   Q_ASSERT (0 < channels && channels < 3);
 
-  m_msBuffered = msBuffered;
+  m_framesBuffered = frames_buffered;
 
   QAudioFormat format (device.preferredFormat ());
 //  qDebug () << "Preferred audio output format:" << format;
@@ -101,9 +92,9 @@ void SoundOutput::restart (QIODevice * source)
   // we have to set this before every start on the stream because the
   // Windows implementation seems to forget the buffer size after a
   // stop.
-  m_stream->setBufferSize (m_stream->format().bytesForDuration((m_msBuffered ? m_msBuffered : MS_BUFFERED) * 1000));
-  //  qDebug() << "B" << m_stream->bufferSize() <<
-  //  m_stream->periodSize() << m_stream->notifyInterval();
+  qDebug () << "SoundOut default buffer size (bytes):" << m_stream->bufferSize ();
+  m_stream->setBufferSize (m_stream->format().bytesForFrames (m_framesBuffered));
+  qDebug () << "SoundOut selected buffer size (bytes):" << m_stream->bufferSize ();
   m_stream->setCategory ("production");
   m_stream->start (source);
 }
