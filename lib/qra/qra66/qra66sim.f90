@@ -74,7 +74,7 @@ program qra66sim
   h=default_header(12000,npts)
 
   write(*,1000) 
-1000 format('File     Freq  A-E   S/N   DT    Dop  Message'/60('-'))
+1000 format('File    TR   Freq Mode  S/N   DT    Dop  Message'/60('-'))
 
   do ifile=1,nfiles                  !Loop over requested number of files
      write(fname,1002) ifile         !Output filename
@@ -91,11 +91,12 @@ program qra66sim
      bandwidth_ratio=2500.0/6000.0
      sig=sqrt(2*bandwidth_ratio)*10.0**(0.05*snrdb)
      if(snrdb.gt.90.0) sig=1.0
-     write(*,1020) ifile,f0,csubmode,xsnr,xdt,fspread,msgsent
-1020    format(i4,f10.3,2x,a1,2x,f5.1,f6.2,f6.1,1x,a22)
+     write(*,1020) ifile,ntrperiod,f0,csubmode,xsnr,xdt,fspread,msgsent
+1020    format(i4,i6,f7.1,2x,a1,2x,f5.1,f6.2,f6.1,1x,a22)
      phi=0.d0
      dphi=0.d0
-     k=(xdt+0.5)*12000                   !Start audio at t = xdt + 0.5 s
+     k=(xdt+0.5)*12000                   !Start audio at t=xdt+0.5 s (TR=15 and 30 s)
+     if(ntrperiod.ge.60) k=(xdt+1.0)*12000   !TR 60+ at t = xdt + 1.0 s
      isym0=-99
      do i=1,npts                         !Add this signal into cdat()
         isym=i/nsps + 1
@@ -136,16 +137,6 @@ program qra66sim
            endif
            cspread(nfft-i)=z
         enddo
-
-!        do i=0,nfft-1
-!           f=i*df
-!           if(i.gt.nh) f=(i-nfft)*df
-!           s=real(cspread(i))**2 + aimag(cspread(i))**2
-!          write(13,3000) i,f,s,cspread(i)
-!3000      format(i5,f10.3,3f12.6)
-!        enddo
-!        s=real(cspread(0))**2 + aimag(cspread(0))**2
-!        write(13,3000) 1024,0.0,s,cspread(0)
 
         call four2a(cspread,nfft,1,1,1)             !Transform to time domain
 

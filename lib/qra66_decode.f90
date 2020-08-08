@@ -34,7 +34,7 @@ contains
     use timer_module, only: timer
     use packjt
     use, intrinsic :: iso_c_binding
-    parameter (NMAX=60*12000)             !### Needs to be 300*12000 ###
+    parameter (NMAX=300*12000)             !### Needs to be 300*12000 ###
     class(qra66_decoder), intent(inout) :: this
     procedure(qra66_decode_callback) :: callback
     character(len=12) :: mycall, hiscall
@@ -43,7 +43,7 @@ contains
     integer*2 iwave(NMAX)                 !Raw data
     integer dat4(12)
     logical lapdx,ltext
-    complex c0(0:NMAX-1)                  !Analytic signal, 6000 S/s
+    complex, allocatable :: c0(:)         !Analytic signal, 6000 S/s
     real s3(-64:127,63)
     real s3a(-64:127,63)
     real a(5)
@@ -52,6 +52,8 @@ contains
 
     nfft1=ntrperiod*12000
     nfft2=ntrperiod*6000
+    allocate (c0(0:nfft1-1))
+    
     if(ntrperiod.eq.15) then
        nsps=1800
     else if(ntrperiod.eq.30) then
@@ -67,11 +69,12 @@ contains
     endif
     baud=12000.0/nsps
     df1=12000.0/nfft1
-    print*,'aaa',ntrperiod,hisgrid,nsps,baud
-    do i=1,NMAX
-       write(61,3061) i/12000.0,iwave(i)/32767.0
-3061   format(2f12.6)
-    enddo
+
+!    do i=1,NMAX
+!       write(61,3061) i/12000.0,iwave(i)/32767.0
+!3061   format(2f12.6)
+!    enddo
+
     this%callback => callback
     
     if(nutc.eq.-999) print*,lapdx,nfa,nfb,nfqso  !Silence warning
@@ -107,19 +110,20 @@ contains
 
 ! Downsample to give complex data at 6000 S/s
     fac=2.0/nfft1
-    c0=fac*iwave
+    c0=fac*iwave(1:nfft1)
     call four2a(c0,nfft1,1,-1,1)           !Forward c2c FFT
     c0(nfft2/2+1:nfft2)=0.                 !Zero the top half
     c0(0)=0.5*c0(0)
     call four2a(c0,nfft2,1,1,1)            !Inverse c2c FFT
     call timer('sync66  ',0)
-    call sync66(iwave,60*12000,nsps,nfqso,ntol,xdt,f0,snr1)    !### 300*12000 ###
+    call sync66(iwave,ntrperiod*12000,nsps,nfqso,ntol,xdt,f0,snr1)
     call timer('sync66  ',1)
-    jpk=(xdt+0.5)*6000 - 384               !### Empirical ###
+    jpk=(xdt+0.5)*6000 - 384                       !### Empirical ###
+    if(ntrperiod.ge.60) jpk=(xdt+1.0)*6000 - 384   !### TBD ###
     if(jpk.lt.0) jpk=0
     a=0.
     a(1)=-(f0 + 2.0*baud)                  !Data tones start 2 bins higher
-    call twkfreq(c0,c0,15*6000,6000.0,a)
+    call twkfreq(c0,c0,ntrperiod*6000,6000.0,a)
     xdt=jpk/6000.0 - 0.5
     call spec66(c0(jpk:),nsps/2,s3)
 

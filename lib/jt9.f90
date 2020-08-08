@@ -249,7 +249,7 @@ program jt9
               call timer('symspec ',1)
            endif
            nhsym0=nhsym
-           if(nhsym.ge.181 .and. mode.ne.240 .and. mode.ne.241) exit
+           if(nhsym.ge.181 .and. mode.ne.240 .and. mode.ne.241 .and. mode.ne.66) exit
         endif
      enddo
      close(unit=wav%lun)
