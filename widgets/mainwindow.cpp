@@ -474,7 +474,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect(m_soundInput, &SoundInput::error, this, &MainWindow::showSoundInError);
   // connect(m_soundInput, &SoundInput::status, this, &MainWindow::showStatusMessage);
   connect (m_soundInput, &SoundInput::dropped_frames, this, [this] (qint32 dropped_frames, qint64 usec) {
-                                                              showStatusMessage (tr ("%1 (%2 sec) audio frames dropped").arg (dropped_frames).arg (usec / 1.e6));
+                                                              showStatusMessage (tr ("%1 (%2 sec) audio frames dropped").arg (dropped_frames).arg (usec / 1.e6, 5, 'f', 3));
                                                             });
   connect (&m_audioThread, &QThread::finished, m_soundInput, &QObject::deleteLater);
 

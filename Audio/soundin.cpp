@@ -163,6 +163,7 @@ void SoundInput::reset (bool report_dropped_frames)
         {
           auto lost_usec = m_stream->elapsedUSecs () - m_stream->processedUSecs () - cummulative_lost_usec_;
           Q_EMIT dropped_frames (m_stream->format ().framesForDuration (lost_usec), lost_usec);
+          qDebug () << "SoundInput::reset: frames dropped:" << m_stream->format ().framesForDuration (lost_usec) << "sec:" << lost_usec / 1.e6;
         }
       cummulative_lost_usec_ = m_stream->elapsedUSecs () - m_stream->processedUSecs ();
     }
