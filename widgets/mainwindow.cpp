@@ -5756,7 +5756,7 @@ void MainWindow::on_tx6_editingFinished()                       //tx6 edited
 
 void MainWindow::on_RoundRobin_currentTextChanged(QString text)
 {
-  ui->sbTxPercent->setEnabled(text=="Random");
+  ui->sbTxPercent->setEnabled (text == tr ("Random"));
   m_WSPR_tx_next = false;       // cancel any pending Tx to avoid
                                 // undesirable consecutive Tx periods
 }
@@ -6657,7 +6657,7 @@ void MainWindow::WSPR_config(bool b)
   ui->label_7->setVisible(!b and ui->cbMenus->isChecked());
   ui->logQSOButton->setVisible(!b);
   ui->DecodeButton->setEnabled(!b);
-  ui->sbTxPercent->setEnabled (m_mode != "FST4W" || "Random" == ui->RoundRobin->currentText ());
+  ui->sbTxPercent->setEnabled (m_mode != "FST4W" || tr ("Random") == ui->RoundRobin->currentText ());
   ui->band_hopping_group_box->setVisible(true);
   ui->RoundRobin->setVisible(m_mode=="FST4W");
   ui->RoundRobin->lineEdit()->setAlignment(Qt::AlignCenter);
@@ -8156,7 +8156,7 @@ void MainWindow::on_pbTxNext_clicked(bool b)
 void MainWindow::WSPR_scheduling ()
 {
   QString t=ui->RoundRobin->currentText();
-  if(m_mode=="FST4W" and t!="Random") {
+  if(m_mode=="FST4W" and t != tr ("Random")) {
     bool ok;
     int i=t.left (1).toInt (&ok) - 1;
     if (!ok) return;
