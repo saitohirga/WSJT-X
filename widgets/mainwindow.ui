@@ -376,6 +376,7 @@
         </property>
         <property name="styleSheet">
          <string notr="true">QPushButton:checked {
+    color: #000000;
 	background-color: #00ff00;
     border-style: outset;
 	border-width: 1px;

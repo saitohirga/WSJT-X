@@ -943,8 +943,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
   enable_DXCC_entity (m_config.DXCC ());  // sets text window proportions and (re)inits the logbook
 
-  ui->label_9->setStyleSheet("QLabel{background-color: #aabec8}");
-  ui->label_10->setStyleSheet("QLabel{background-color: #aabec8}");
+  ui->label_9->setStyleSheet("QLabel{color: #000000; background-color: #aabec8}");
+  ui->label_10->setStyleSheet("QLabel{color: #000000; background-color: #aabec8}");
 
   // this must be done before initializing the mode as some modes need
   // to turn off split on the rig e.g. WSPR
@@ -1244,7 +1244,7 @@ void MainWindow::readSettings()
   }
   ui->WSPR_prefer_type_1_check_box->setChecked (m_settings->value ("WSPRPreferType1", true).toBool ());
   m_uploadWSPRSpots=m_settings->value("UploadSpots",false).toBool();
-  if(!m_uploadWSPRSpots) ui->cbUploadWSPR_Spots->setStyleSheet("QCheckBox{background-color: yellow}");
+  if(!m_uploadWSPRSpots) ui->cbUploadWSPR_Spots->setStyleSheet("QCheckBox{color: #000000; background-color: yellow}");
   ui->cbNoOwnCall->setChecked(m_settings->value("NoOwnCall",false).toBool());
   ui->band_hopping_group_box->setChecked (m_settings->value ("BandHopping", false).toBool());
   // setup initial value of tx attenuator
@@ -2280,7 +2280,7 @@ void MainWindow::createStatusBar()                           //createStatusBar
 {
   tx_status_label.setAlignment (Qt::AlignHCenter);
   tx_status_label.setMinimumSize (QSize  {150, 18});
-  tx_status_label.setStyleSheet ("QLabel{background-color: #00ff00}");
+  tx_status_label.setStyleSheet ("QLabel{color: #000000; background-color: #00ff00}");
   tx_status_label.setFrameStyle (QFrame::Panel | QFrame::Sunken);
   statusBar()->addWidget (&tx_status_label);
 
@@ -2328,37 +2328,37 @@ void MainWindow::setup_status_bar (bool vhf)
       mode_label.setText (m_mode);
     }
   if ("ISCAT" == m_mode) {
-    mode_label.setStyleSheet ("QLabel{background-color: #ff9933}");
+    mode_label.setStyleSheet ("QLabel{color: #000000; background-color: #ff9933}");
   } else if ("JT9" == m_mode) {
-    mode_label.setStyleSheet ("QLabel{background-color: #ff6ec7}");
+    mode_label.setStyleSheet ("QLabel{color: #000000; background-color: #ff6ec7}");
   } else if ("JT4" == m_mode) {
-    mode_label.setStyleSheet ("QLabel{background-color: #cc99ff}");
+    mode_label.setStyleSheet ("QLabel{color: #000000; background-color: #cc99ff}");
   } else if ("Echo" == m_mode) {
-    mode_label.setStyleSheet ("QLabel{background-color: #66ffff}");
+    mode_label.setStyleSheet ("QLabel{color: #000000; background-color: #66ffff}");
   } else if ("JT9+JT65" == m_mode) {
-    mode_label.setStyleSheet ("QLabel{background-color: #ffff66}");
+    mode_label.setStyleSheet ("QLabel{color: #000000; background-color: #ffff66}");
   } else if ("JT65" == m_mode) {
-    mode_label.setStyleSheet ("QLabel{background-color: #66ff66}");
+    mode_label.setStyleSheet ("QLabel{color: #000000; background-color: #66ff66}");
   } else if ("QRA64" == m_mode) {
-    mode_label.setStyleSheet ("QLabel{background-color: #99ff33}");
+    mode_label.setStyleSheet ("QLabel{color: #000000; background-color: #99ff33}");
   } else if ("MSK144" == m_mode) {
-    mode_label.setStyleSheet ("QLabel{background-color: #ff6666}");
+    mode_label.setStyleSheet ("QLabel{color: #000000; background-color: #ff6666}");
   } else if ("FT4" == m_mode) {
-    mode_label.setStyleSheet ("QLabel{background-color: #ff0099}");
+    mode_label.setStyleSheet ("QLabel{color: #000000; background-color: #ff0099}");
   } else if ("FT8" == m_mode) {
-    mode_label.setStyleSheet ("QLabel{background-color: #ff6699}");
+    mode_label.setStyleSheet ("QLabel{color: #000000; background-color: #ff6699}");
   } else if ("FST4" == m_mode) {
-    mode_label.setStyleSheet ("QLabel{background-color: #99ff66}");
+    mode_label.setStyleSheet ("QLabel{color: #000000; background-color: #99ff66}");
   } else if ("FST4W" == m_mode) {
-    mode_label.setStyleSheet ("QLabel{background-color: #6699ff}");
+    mode_label.setStyleSheet ("QLabel{color: #000000; background-color: #6699ff}");
   } else if ("FreqCal" == m_mode) {
-    mode_label.setStyleSheet ("QLabel{background-color: #ff9933}");
+    mode_label.setStyleSheet ("QLabel{color: #000000; background-color: #ff9933}");
   }
   last_tx_label.setText (QString {});
   if (m_mode.contains (QRegularExpression {R"(^(Echo|ISCAT))"})) {
     if (band_hopping_label.isVisible ()) statusBar ()->removeWidget (&band_hopping_label);
   } else if (m_mode=="WSPR") {
-    mode_label.setStyleSheet ("QLabel{background-color: #ff66ff}");
+    mode_label.setStyleSheet ("QLabel{color: #000000; background-color: #ff66ff}");
     if (!band_hopping_label.isVisible ()) {
       statusBar ()->addWidget (&band_hopping_label);
       band_hopping_label.show ();
@@ -2689,7 +2689,7 @@ void MainWindow::on_actionOpen_triggered()                     //Open File
     m_path=fname;
     int i1=fname.lastIndexOf("/");
     QString baseName=fname.mid(i1+1);
-    tx_status_label.setStyleSheet("QLabel{background-color: #99ffff}");
+    tx_status_label.setStyleSheet("QLabel{color: #000000; background-color: #99ffff}");
     tx_status_label.setText(" " + baseName + " ");
     on_stopButton_clicked();
     m_diskData=true;
@@ -2769,7 +2769,7 @@ void MainWindow::on_actionOpen_next_in_directory_triggered()   //Open Next
       m_path=fname;
       int i1=fname.lastIndexOf("/");
       QString baseName=fname.mid(i1+1);
-      tx_status_label.setStyleSheet("QLabel{background-color: #99ffff}");
+      tx_status_label.setStyleSheet("QLabel{color: #000000; background-color: #99ffff}");
       tx_status_label.setText(" " + baseName + " ");
       m_diskData=true;
       read_wav_file (fname);
@@ -4276,11 +4276,11 @@ void MainWindow::guiUpdate()
       m_nsendingsh=0;
       if(s[4]==64) m_nsendingsh=1;
       if(m_nsendingsh==1 or m_currentMessageType==7) {
-        tx_status_label.setStyleSheet("QLabel{background-color: #66ffff}");
+        tx_status_label.setStyleSheet("QLabel{color: #000000; background-color: #66ffff}");
       } else if(m_nsendingsh==-1 or m_currentMessageType==6) {
-        tx_status_label.setStyleSheet("QLabel{background-color: #ffccff}");
+        tx_status_label.setStyleSheet("QLabel{color: #000000; background-color: #ffccff}");
       } else {
-        tx_status_label.setStyleSheet("QLabel{background-color: #ffff33}");
+        tx_status_label.setStyleSheet("QLabel{color: #000000; background-color: #ffff33}");
       }
       if(m_tune) {
         tx_status_label.setText("Tx: TUNE");
@@ -4299,11 +4299,11 @@ void MainWindow::guiUpdate()
       }
     } else if(m_monitoring) {
       if (!m_tx_watchdog) {
-        tx_status_label.setStyleSheet("QLabel{background-color: #00ff00}");
+        tx_status_label.setStyleSheet("QLabel{color: #000000; background-color: #00ff00}");
         auto t = tr ("Receiving");
         if(m_mode=="MSK144") {
           int npct=int(100.0*m_fCPUmskrtd/0.298667);
-          if(npct>90) tx_status_label.setStyleSheet("QLabel{background-color: #ff0000}");
+          if(npct>90) tx_status_label.setStyleSheet("QLabel{color: #000000; background-color: #ff0000}");
           t += QString {"   %1%"}.arg (npct, 2);
         }
         tx_status_label.setText (t);
@@ -5017,7 +5017,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
 //        m_nextGrid=message_words.at(3);
 //        m_nextRpt=message.report();
 //        ui->labNextCall->setText("Next:  " + m_nextCall);
-//        ui->labNextCall->setStyleSheet("QLabel {background-color: #66ff66}");
+//        ui->labNextCall->setStyleSheet("QLabel {color: #000000; background-color: #66ff66}");
 //      }
       return;
     }
@@ -8125,7 +8125,7 @@ void MainWindow::on_cbUploadWSPR_Spots_toggled(bool b)
   m_uploadWSPRSpots=b;
   if(m_uploadWSPRSpots) ui->cbUploadWSPR_Spots->setStyleSheet("");
   if(!m_uploadWSPRSpots) ui->cbUploadWSPR_Spots->setStyleSheet(
-        "QCheckBox{background-color: yellow}");
+        "QCheckBox{color: #000000; background-color: yellow}");
 }
 
 void MainWindow::on_WSPRfreqSpinBox_valueChanged(int n)
@@ -8442,7 +8442,7 @@ void MainWindow::tx_watchdog (bool triggered)
       m_bTxTime=false;
       if (m_tune) stop_tuning ();
       if (m_auto) auto_tx_mode (false);
-      tx_status_label.setStyleSheet ("QLabel{background-color: #ff0000}");
+      tx_status_label.setStyleSheet ("QLabel{color: #000000; background-color: #ff0000}");
       tx_status_label.setText (tr ("Runaway Tx watchdog"));
       QApplication::alert (this);
     }
