@@ -3018,7 +3018,7 @@ void MainWindow::decode()                                       //decode()
     if(m_TRperiod>=60) imin=imin - (imin % (int(m_TRperiod)/60));
     dec_data.params.nutc=100*ihr + imin;
     if(m_TRperiod < 60) {
-      qint64 ms=1000.0*(2.0-m_TRperiod);
+      qint64 ms=1000.0*(3.5-m_TRperiod);
       if(m_mode=="FST4") ms=1000.0*(6.0-m_TRperiod);
       //Adjust for FT8 early decode:
       if(m_mode=="FT8" and m_ihsym==m_earlyDecode and !m_diskData) ms+=(m_hsymStop-m_earlyDecode)*288;
