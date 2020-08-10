@@ -81,11 +81,13 @@ void SoundInput::start(QAudioDeviceInfo const& device, int framesPerBuffer, Audi
 
   qDebug () << "SoundIn default buffer size (bytes):" << m_stream->bufferSize ();
   m_stream->setBufferSize (m_stream->format ().bytesForFrames (framesPerBuffer));
+  m_stream->setBufferSize (m_stream->format ().bytesForFrames (3456 * 4 * 5));
   qDebug () << "SoundIn selected buffer size (bytes):" << m_stream->bufferSize ();
   if (sink->initialize (QIODevice::WriteOnly, channel))
     {
       m_stream->start (sink);
       audioError ();
+      cummulative_lost_usec_ = -1;
     }
   else
     {
@@ -159,7 +161,9 @@ void SoundInput::reset (bool report_dropped_frames)
 {
   if (m_stream)
     {
-      if (report_dropped_frames)
+      if (cummulative_lost_usec_ >= 0 // don't report first time as we
+                                      // don't yet known latency
+          && report_dropped_frames)
         {
           auto lost_usec = m_stream->elapsedUSecs () - m_stream->processedUSecs () - cummulative_lost_usec_;
           Q_EMIT dropped_frames (m_stream->format ().framesForDuration (lost_usec), lost_usec);
