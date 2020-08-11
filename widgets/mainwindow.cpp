@@ -2310,7 +2310,7 @@ void MainWindow::createStatusBar()                           //createStatusBar
   tx_status_label.setMinimumSize (QSize  {100, 18});
   tx_status_label.setStyleSheet ("QLabel{color: #000000; background-color: #00ff00}");
   tx_status_label.setFrameStyle (QFrame::Panel | QFrame::Sunken);
-  statusBar()->addPermanentWidget (&tx_status_label);
+  statusBar()->addWidget (&tx_status_label);
 
   config_label.setAlignment (Qt::AlignHCenter);
   config_label.setMinimumSize (QSize {80, 18});
