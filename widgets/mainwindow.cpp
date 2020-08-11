@@ -3137,56 +3137,58 @@ void MainWindow::decode()                                       //decode()
   //newdat=1  ==> this is new data, must do the big FFT
   //nagain=1  ==> decode only at fQSO +/- Tol
 
-  char *to = (char*)mem_jt9->data();
-  char *from = (char*) dec_data.ipc;
-  int size=sizeof(struct dec_data);
-  if(dec_data.params.newdat==0) {
-    int noffset {offsetof (struct dec_data, params.nutc)};
-    to += noffset;
-    from += noffset;
-    size -= noffset;
-  }
-  if(m_mode=="ISCAT" or m_mode=="MSK144" or m_bFast9) {
-    float t0=m_t0;
-    float t1=m_t1;
-    qApp->processEvents();                                //Update the waterfall
-    if(m_nPick > 0) {
-      t0=m_t0Pick;
-      t1=m_t1Pick;
+  if (auto * to = reinterpret_cast<char *> (mem_jt9->data()))
+    {
+      char *from = (char*) dec_data.ipc;
+      int size=sizeof(struct dec_data);
+      if(dec_data.params.newdat==0) {
+        int noffset {offsetof (struct dec_data, params.nutc)};
+        to += noffset;
+        from += noffset;
+        size -= noffset;
+      }
+      if(m_mode=="ISCAT" or m_mode=="MSK144" or m_bFast9) {
+        float t0=m_t0;
+        float t1=m_t1;
+        qApp->processEvents();                                //Update the waterfall
+        if(m_nPick > 0) {
+          t0=m_t0Pick;
+          t1=m_t1Pick;
+        }
+        static short int d2b[360000];
+        narg[0]=dec_data.params.nutc;
+        if(m_kdone>int(12000.0*m_TRperiod)) {
+          m_kdone=int(12000.0*m_TRperiod);
+        }
+        narg[1]=m_kdone;
+        narg[2]=m_nSubMode;
+        narg[3]=dec_data.params.newdat;
+        narg[4]=dec_data.params.minSync;
+        narg[5]=m_nPick;
+        narg[6]=1000.0*t0;
+        narg[7]=1000.0*t1;
+        narg[8]=2;                                //Max decode lines per decode attempt
+        if(dec_data.params.minSync<0) narg[8]=50;
+        if(m_mode=="ISCAT") narg[9]=101;          //ISCAT
+        if(m_mode=="JT9") narg[9]=102;            //Fast JT9
+        if(m_mode=="MSK144") narg[9]=104;         //MSK144
+        narg[10]=ui->RxFreqSpinBox->value();
+        narg[11]=ui->sbFtol->value ();
+        narg[12]=0;
+        narg[13]=-1;
+        narg[14]=m_config.aggressive();
+        memcpy(d2b,dec_data.d2,2*360000);
+        watcher3.setFuture (QtConcurrent::run (std::bind (fast_decode_,&d2b[0],
+                                                          &narg[0],&m_TRperiod,&m_msg[0][0],
+                                                          dec_data.params.mycall,dec_data.params.hiscall,8000,12,12)));
+      } else {
+        mem_jt9->lock ();
+        memcpy(to, from, qMin(mem_jt9->size(), size));
+        mem_jt9->unlock ();
+        to_jt9(m_ihsym,1,-1);                //Send m_ihsym to jt9[.exe] and start decoding
+        decodeBusy(true);
+      }
     }
-    static short int d2b[360000];
-    narg[0]=dec_data.params.nutc;
-    if(m_kdone>int(12000.0*m_TRperiod)) {
-      m_kdone=int(12000.0*m_TRperiod);
-    }
-    narg[1]=m_kdone;
-    narg[2]=m_nSubMode;
-    narg[3]=dec_data.params.newdat;
-    narg[4]=dec_data.params.minSync;
-    narg[5]=m_nPick;
-    narg[6]=1000.0*t0;
-    narg[7]=1000.0*t1;
-    narg[8]=2;                                //Max decode lines per decode attempt
-    if(dec_data.params.minSync<0) narg[8]=50;
-    if(m_mode=="ISCAT") narg[9]=101;          //ISCAT
-    if(m_mode=="JT9") narg[9]=102;            //Fast JT9
-    if(m_mode=="MSK144") narg[9]=104;         //MSK144
-    narg[10]=ui->RxFreqSpinBox->value();
-    narg[11]=ui->sbFtol->value ();
-    narg[12]=0;
-    narg[13]=-1;
-    narg[14]=m_config.aggressive();
-    memcpy(d2b,dec_data.d2,2*360000);
-    watcher3.setFuture (QtConcurrent::run (std::bind (fast_decode_,&d2b[0],
-        &narg[0],&m_TRperiod,&m_msg[0][0],
-        dec_data.params.mycall,dec_data.params.hiscall,8000,12,12)));
-  } else {
-    mem_jt9->lock ();
-    memcpy(to, from, qMin(mem_jt9->size(), size));
-    mem_jt9->unlock ();
-    to_jt9(m_ihsym,1,-1);                //Send m_ihsym to jt9[.exe] and start decoding
-    decodeBusy(true);
-  }
 }
 
 void::MainWindow::fast_decode_done()
@@ -3234,12 +3236,14 @@ void::MainWindow::fast_decode_done()
 
 void MainWindow::to_jt9(qint32 n, qint32 istart, qint32 idone)
 {
-  dec_data_t * dd = reinterpret_cast<dec_data_t *> (mem_jt9->data());
-  mem_jt9->lock ();
-  dd->ipc[0]=n;
-  if(istart>=0) dd->ipc[1]=istart;
-  if(idone>=0)  dd->ipc[2]=idone;
-  mem_jt9->unlock ();
+  if (auto * dd = reinterpret_cast<dec_data_t *> (mem_jt9->data()))
+    {
+      mem_jt9->lock ();
+      dd->ipc[0]=n;
+      if(istart>=0) dd->ipc[1]=istart;
+      if(idone>=0)  dd->ipc[2]=idone;
+      mem_jt9->unlock ();
+    }
 }
 
 void MainWindow::decodeDone ()
