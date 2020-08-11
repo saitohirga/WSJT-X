@@ -1124,7 +1124,9 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
 
   ui_->frequencies_table_view->setModel (&next_frequencies_);
   ui_->frequencies_table_view->horizontalHeader ()->setSectionResizeMode (QHeaderView::ResizeToContents);
+  ui_->frequencies_table_view->horizontalHeader ()->setResizeContentsPrecision (0);
   ui_->frequencies_table_view->verticalHeader ()->setSectionResizeMode (QHeaderView::ResizeToContents);
+  ui_->frequencies_table_view->verticalHeader ()->setResizeContentsPrecision (0);
   ui_->frequencies_table_view->sortByColumn (FrequencyList_v2::frequency_column, Qt::AscendingOrder);
   ui_->frequencies_table_view->setColumnHidden (FrequencyList_v2::frequency_mhz_column, true);
 
@@ -1164,7 +1166,9 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   stations_.sort (StationList::band_column);
   ui_->stations_table_view->setModel (&next_stations_);
   ui_->stations_table_view->horizontalHeader ()->setSectionResizeMode (QHeaderView::ResizeToContents);
+  ui_->stations_table_view->horizontalHeader ()->setResizeContentsPrecision (0);
   ui_->stations_table_view->verticalHeader ()->setSectionResizeMode (QHeaderView::ResizeToContents);
+  ui_->stations_table_view->verticalHeader ()->setResizeContentsPrecision (0);
   ui_->stations_table_view->sortByColumn (StationList::band_column, Qt::AscendingOrder);
 
   // stations delegates
