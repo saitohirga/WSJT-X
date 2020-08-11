@@ -476,17 +476,16 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect(m_soundInput, &SoundInput::error, this, &MainWindow::showSoundInError);
   // connect(m_soundInput, &SoundInput::status, this, &MainWindow::showStatusMessage);
   connect (m_soundInput, &SoundInput::dropped_frames, this, [this] (qint32 dropped_frames, qint64 usec) {
-                                                              if (dropped_frames > 4800) // 1/10 second
+                                                              if (dropped_frames > 48000 / 5) // 1/5 second
                                                                 {
                                                                   showStatusMessage (tr ("%1 (%2 sec) audio frames dropped").arg (dropped_frames).arg (usec / 1.e6, 5, 'f', 3));
                                                                 }
-                                                              if (dropped_frames > 24000) // 1/2
-                                                                                          // second
+                                                              if (dropped_frames > 48000) // 1 second
                                                                 {
                                                                   MessageBox::warning_message (this
                                                                                                , tr ("Audio Source")
                                                                                                , tr ("Excessive dropped samples")
-                                                                                               , tr ("Reduce system load, or increase audio buffer size"));
+                                                                                               , tr ("Reduce system load"));
                                                                 }
                                                             });
   connect (&m_audioThread, &QThread::finished, m_soundInput, &QObject::deleteLater);
