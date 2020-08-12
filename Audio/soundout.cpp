@@ -77,7 +77,11 @@ void SoundOutput::setFormat (QAudioDeviceInfo const& device, unsigned channels, 
 
 void SoundOutput::restart (QIODevice * source)
 {
-  Q_ASSERT (m_stream);
+  if (!m_stream)
+    {
+      Q_EMIT error (tr ("No audio output device configured."));
+      return;
+    }
 
   // we have to set this before every start on the stream because the
   // Windows implementation seems to forget the buffer size after a
