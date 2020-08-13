@@ -210,7 +210,7 @@ namespace
   auto quint32_max = std::numeric_limits<quint32>::max ();
   constexpr int N_WIDGETS {34};
   constexpr int rx_chunk_size {3456}; // audio samples at 12000 Hz
-  constexpr int tx_audio_buffer_size {48000}; // audio samples at 48000 Hz
+  constexpr int tx_audio_buffer_size {48000 / 5}; // audio frames at 48000 Hz
 
   bool message_is_73 (int type, QStringList const& msg_parts)
   {
