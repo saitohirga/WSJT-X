@@ -65,7 +65,6 @@ public:
 
     // This timer sets the interval to check for spots to send.
     connect (&report_timer_, &QTimer::timeout, [this] () {send_report ();});
-    report_timer_.start (MIN_SEND_INTERVAL * 1000);
 
     // This timer repeats the sending of IPFIX templates and receiver
     // information if we are using UDP, in case server has been
@@ -80,7 +79,6 @@ public:
                                                          send_receiver_data_ = 3; // three times
                                                        }
                                                    });
-    descriptor_timer_.start (1 * 60 * 60 * 1000); // hourly
   }
 
   void check_connection ()
@@ -156,6 +154,15 @@ public:
     // use this for pseudo connection with UDP, allows us to use
     // QIODevice::write() instead of QUDPSocket::writeDatagram()
     socket_->connectToHost (HOST, SERVICE_PORT, QAbstractSocket::WriteOnly);
+
+    if (!report_timer_.isActive ())
+      {
+        report_timer_.start (MIN_SEND_INTERVAL * 1000);
+      }
+    if (!descriptor_timer_.isActive ())
+      {
+        descriptor_timer_.start (1 * 60 * 60 * 1000); // hourly
+      }
   }
 
   void send_report (bool send_residue = false);
@@ -490,6 +497,7 @@ void PSKReporter::setLocalStation (QString const& call, QString const& gridSquar
 bool PSKReporter::addRemoteStation (QString const& call, QString const& grid, Radio::Frequency freq
                                      , QString const& mode, int snr)
 {
+  m_->check_connection ();
   if (m_->socket_ && m_->socket_->isValid ())
     {
       if (QAbstractSocket::UnconnectedState == m_->socket_->state ())

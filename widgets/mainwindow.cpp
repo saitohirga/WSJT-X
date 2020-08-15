@@ -1814,7 +1814,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     on_dxGridEntry_textChanged (m_hisGrid); // recalculate distances in case of units change
     enable_DXCC_entity (m_config.DXCC ());  // sets text window proportions and (re)inits the logbook
 
-    if(m_config.spot_to_psk_reporter ()) pskSetLocal ();
+    pskSetLocal ();
 
     if(m_config.restart_audio_input ()) {
       Q_EMIT startAudioInputStream (m_config.audio_input_device ()
@@ -6864,7 +6864,11 @@ void MainWindow::band_changed (Frequency f)
     }
     m_lastBand.clear ();
     m_bandEdited = false;
-    m_psk_Reporter.sendReport(); // Upload any queued spots before changing band
+    if (m_config.spot_to_psk_reporter ())
+      {
+        // Upload any queued spots before changing band
+        m_psk_Reporter.sendReport();
+      }
     if (!m_transmitting) monitor (true);
     if ("FreqCal" == m_mode)
       {
@@ -7539,6 +7543,8 @@ bool MainWindow::shortList(QString callsign)
 
 void MainWindow::pskSetLocal ()
 {
+  if (!m_config.spot_to_psk_reporter ()) return;
+
   // find the station row, if any, that matches the band we are on
   auto stations = m_config.stations ();
   auto matches = stations->match (stations->index (0, StationList::band_column)
