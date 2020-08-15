@@ -3505,9 +3505,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
         bool okToPost=(nsec > int(4*m_TRperiod)/5);
         if(m_mode=="FST4W" and okToPost) {
           line_read=line_read.left(22) + " CQ " + line_read.trimmed().mid(22);
-          int n=line_read.trimmed().size();
-          line_read=line_read.trimmed().left(n-3);
-          DecodedText FST4W_post {QString::fromUtf8(line_read.constData())};
+          auto p = line_read.lastIndexOf (' ');
+          DecodedText FST4W_post {QString::fromUtf8 (line_read.left (p).constData ())};
           pskPost(FST4W_post);
         } else {
           if (stdMsg && okToPost) pskPost(decodedtext);
