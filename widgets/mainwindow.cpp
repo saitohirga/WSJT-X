@@ -3742,19 +3742,20 @@ void MainWindow::guiUpdate()
       m_tuneup=false;                              //This is not an ATU tuneup
       bool btx = m_auto && m_WSPR_tx_next;         // To Tx, we need m_auto and
                                                    // scheduled transmit
+      m_WSPR_tx_next = false;
       if(btx) {
         m_ntr=-1;                                  //This says we will have transmitted
         ui->pbTxNext->setChecked (false);
         m_bTxTime=true;                            //Start a WSPR or FST4W Tx sequence
       } else {
-// This will be a WSPR or FST4W Rx sequence.
+        // This will be a WSPR or FST4W Rx sequence.
         m_ntr=1;                                   //This says we will have received
         m_bTxTime=false;                           //Start a WSPR or FST4W Rx sequence
       }
     }
 
   } else {
-// For all modes other than WSPR and Fst4W
+    // For all modes other than WSPR and Fst4W
     m_bTxTime = (t2p >= tx1) and (t2p < tx2);
     if(m_mode=="Echo") m_bTxTime = m_bTxTime and m_bEchoTxOK;
     if(m_mode=="FT8" and ui->tx5->currentText().contains("/B ")) {
@@ -5756,8 +5757,6 @@ void MainWindow::on_tx6_editingFinished()                       //tx6 edited
 void MainWindow::on_RoundRobin_currentTextChanged(QString text)
 {
   ui->sbTxPercent->setEnabled (text == tr ("Random"));
-  m_WSPR_tx_next = false;       // cancel any pending Tx to avoid
-                                // undesirable consecutive Tx periods
 }
 
 
@@ -8138,7 +8137,6 @@ void MainWindow::on_pbTxNext_clicked(bool b)
 {
   if (b && !ui->autoButton->isChecked ())
     {
-      m_WSPR_tx_next = false;   // cancel any pending start from schedule
       ui->autoButton->click (); // make sure Tx is possible
     }
 }
