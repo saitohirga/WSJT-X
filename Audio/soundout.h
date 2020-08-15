@@ -20,6 +20,7 @@ public:
   SoundOutput ()
     : m_framesBuffered {0}
     , m_volume {1.0}
+    , error_ {false}
   {
   }
 
@@ -49,6 +50,7 @@ private:
   QScopedPointer<QAudioOutput> m_stream;
   int m_framesBuffered;
   qreal m_volume;
+  bool error_;
 };
 
 #endif

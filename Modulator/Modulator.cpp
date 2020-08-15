@@ -105,7 +105,14 @@ void Modulator::start (QString mode, unsigned symbolsLength, double framesPerSym
   // qDebug() << "delay_ms:" << delay_ms << "mstr:" << mstr << "m_silentFrames:" << m_silentFrames << "m_ic:" << m_ic << "m_state:" << m_state;
 
   m_stream = stream;
-  if (m_stream) m_stream->restart (this);
+  if (m_stream)
+    {
+      m_stream->restart (this);
+    }
+  else
+    {
+      qDebug () << "Modulator::start: no audio output stream assigned";
+    }
 }
 
 void Modulator::tune (bool newState)
@@ -142,7 +149,7 @@ void Modulator::close ()
 
 qint64 Modulator::readData (char * data, qint64 maxSize)
 {
-  //qDebug () << "readData: maxSize:" << maxSize;
+  // qDebug () << "readData: maxSize:" << maxSize;
 
   double toneFrequency=1500.0;
   if(m_nsps==6) {

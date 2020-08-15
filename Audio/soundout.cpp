@@ -43,44 +43,59 @@ bool SoundOutput::audioError () const
 
 void SoundOutput::setFormat (QAudioDeviceInfo const& device, unsigned channels, int frames_buffered)
 {
-  Q_ASSERT (0 < channels && channels < 3);
-
-  m_framesBuffered = frames_buffered;
-
-  QAudioFormat format (device.preferredFormat ());
-//  qDebug () << "Preferred audio output format:" << format;
-  format.setChannelCount (channels);
-  format.setCodec ("audio/pcm");
-  format.setSampleRate (48000);
-  format.setSampleType (QAudioFormat::SignedInt);
-  format.setSampleSize (16);
-  format.setByteOrder (QAudioFormat::Endian (QSysInfo::ByteOrder));
-  if (!format.isValid ())
+  if (!device.isNull ())
     {
-      Q_EMIT error (tr ("Requested output audio format is not valid."));
+      Q_ASSERT (0 < channels && channels < 3);
+
+      m_framesBuffered = frames_buffered;
+
+      QAudioFormat format (device.preferredFormat ());
+      //  qDebug () << "Preferred audio output format:" << format;
+      format.setChannelCount (channels);
+      format.setCodec ("audio/pcm");
+      format.setSampleRate (48000);
+      format.setSampleType (QAudioFormat::SignedInt);
+      format.setSampleSize (16);
+      format.setByteOrder (QAudioFormat::Endian (QSysInfo::ByteOrder));
+      if (!format.isValid ())
+        {
+          Q_EMIT error (tr ("Requested output audio format is not valid."));
+        }
+      else if (!device.isFormatSupported (format))
+        {
+          Q_EMIT error (tr ("Requested output audio format is not supported on device."));
+        }
+      else
+        {
+          // qDebug () << "Selected audio output format:" << format;
+
+          m_stream.reset (new QAudioOutput (device, format));
+          audioError ();
+          m_stream->setVolume (m_volume);
+          m_stream->setNotifyInterval(100);
+          error_ = false;
+
+          connect (m_stream.data(), &QAudioOutput::stateChanged, this, &SoundOutput::handleStateChanged);
+
+          //      qDebug() << "A" << m_volume << m_stream->notifyInterval();
+        }
     }
-  else if (!device.isFormatSupported (format))
-    {
-      Q_EMIT error (tr ("Requested output audio format is not supported on device."));
-    }
-  qDebug () << "Selected audio output format:" << format;
-
-  m_stream.reset (new QAudioOutput (device, format));
-  audioError ();
-  m_stream->setVolume (m_volume);
-  m_stream->setNotifyInterval(100);
-
-  connect (m_stream.data(), &QAudioOutput::stateChanged, this, &SoundOutput::handleStateChanged);
-
-  //      qDebug() << "A" << m_volume << m_stream->notifyInterval();
 }
 
 void SoundOutput::restart (QIODevice * source)
 {
   if (!m_stream)
     {
-      Q_EMIT error (tr ("No audio output device configured."));
+      if (!error_)
+        {
+          error_ = true;        // only signal error once
+          Q_EMIT error (tr ("No audio output device configured."));
+        }
       return;
+    }
+  else
+    {
+      error_ = false;
     }
 
   // we have to set this before every start on the stream because the
@@ -95,7 +110,7 @@ void SoundOutput::restart (QIODevice * source)
     }
   m_stream->setCategory ("production");
   m_stream->start (source);
-  //qDebug () << "SoundOut selected buffer size (bytes):" << m_stream->bufferSize () << "period size:" << m_stream->periodSize ();
+  // qDebug () << "SoundOut selected buffer size (bytes):" << m_stream->bufferSize () << "period size:" << m_stream->periodSize ();
 }
 
 void SoundOutput::suspend ()
