@@ -1801,6 +1801,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
   auto callsign = m_config.my_callsign ();
   auto my_grid = m_config.my_grid ();
   SpecOp nContest0=m_config.special_op_id();
+  auto psk_on = m_config.spot_to_psk_reporter ();
   if (QDialog::Accepted == m_config.exec ()) {
     checkMSK144ContestType();
     if (m_config.my_callsign () != callsign) {
@@ -1815,6 +1816,12 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     enable_DXCC_entity (m_config.DXCC ());  // sets text window proportions and (re)inits the logbook
 
     pskSetLocal ();
+    // this will close the connection to PSKReporter if it has been
+    // disabled
+    if (psk_on && !m_config.spot_to_psk_reporter ())
+      {
+        m_psk_Reporter.sendReport (true);
+      }
 
     if(m_config.restart_audio_input ()) {
       Q_EMIT startAudioInputStream (m_config.audio_input_device ()
@@ -7238,9 +7245,7 @@ void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const&
                || !(ui->cbCQTx->isEnabled () && ui->cbCQTx->isVisible () && ui->cbCQTx->isChecked()))) {
             m_lastDialFreq = m_freqNominal;
             m_secBandChanged=QDateTime::currentMSecsSinceEpoch()/1000;
-            if (m_config.spot_to_psk_reporter ()) {
-              pskSetLocal ();
-            }
+            pskSetLocal ();
             statusChanged();
             m_wideGraph->setDialFreq(m_freqNominal / 1.e6);
           }

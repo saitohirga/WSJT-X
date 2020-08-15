@@ -165,6 +165,16 @@ public:
       }
   }
 
+  void stop ()
+  {
+    if (socket_)
+      {
+        socket_->disconnectFromHost ();
+      }
+    descriptor_timer_.stop ();
+    report_timer_.stop ();
+  }
+
   void send_report (bool send_residue = false);
   void build_preamble (QDataStream&);
 
@@ -484,6 +494,7 @@ void PSKReporter::reconnect ()
 
 void PSKReporter::setLocalStation (QString const& call, QString const& gridSquare, QString const& antenna)
 {
+  m_->check_connection ();
   if (call != m_->rx_call_ || gridSquare != m_->rx_grid_ || antenna != m_->rx_ant_)
     {
       m_->send_receiver_data_ = m_->socket_
@@ -510,7 +521,14 @@ bool PSKReporter::addRemoteStation (QString const& call, QString const& grid, Ra
   return false;
 }
 
-void PSKReporter::sendReport ()
+void PSKReporter::sendReport (bool last)
 {
-  m_->send_report (true);
+  if (m_->socket_ && QAbstractSocket::ConnectedState == m_->socket_->state ())
+    {
+      m_->send_report (true);
+    }
+  if (last)
+    {
+      m_->stop ();
+    }
 }
