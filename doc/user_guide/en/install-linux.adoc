@@ -78,6 +78,6 @@ You may also need to execute the following command in a terminal:
 [example]
 ....
 sudo dnf install libgfortran fftw-libs-single qt5-qtbase \
-     qt5-qtmultimedia qt5-qtserialport fftw-libs-double \
-     qt5-qtsvg qt5-qtserialport libgomp libusbx
+     qt5-qtmultimedia qt5-qtserialport qt5-qtsvg \
+     qt5-qtserialport libgomp libusbx
 ....
