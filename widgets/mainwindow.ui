@@ -376,6 +376,7 @@
         </property>
         <property name="styleSheet">
          <string notr="true">QPushButton:checked {
+    color: #000000;
 	background-color: #00ff00;
     border-style: outset;
 	border-width: 1px;
@@ -447,6 +448,7 @@
         </property>
         <property name="styleSheet">
          <string notr="true">QPushButton:checked {
+	color: rgb(0, 0, 0);
 	background-color: cyan;
 	border-style: outset;
 	border-width: 1px;
@@ -480,6 +482,7 @@
         </property>
         <property name="styleSheet">
          <string notr="true">QPushButton:checked {
+	color: rgb(0, 0, 0);
 	background-color: red;
 	border-style: outset;
 	border-width: 1px;
@@ -523,6 +526,7 @@
         </property>
         <property name="styleSheet">
          <string notr="true">QPushButton:checked {
+	color: rgb(0, 0, 0);
 	background-color: red;
 	border-style: outset;
 	border-width: 1px;
@@ -997,6 +1001,7 @@ Not available to nonstandard callsign holders.</string>
                   <widget class="QPushButton" name="pbBestSP">
                    <property name="styleSheet">
                     <string notr="true">QPushButton:checked {
+	color: rgb(0, 0, 0);
 	background-color: red;
 	border-style: outset;
 	border-width: 1px;
@@ -2158,6 +2163,12 @@ list. The list can be maintained in Settings (F2).</string>
                       <property name="toolTip">
                        <string>Percentage of minute sequences devoted to transmitting.</string>
                       </property>
+                      <property name="styleSheet">
+                       <string notr="true">QSpinBox:enabled[notx=&quot;true&quot;] {
+	color: rgb(0, 0, 0);
+	background-color: rgb(255, 255, 0);
+}</string>
+                      </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
                       </property>
@@ -2341,6 +2352,12 @@ list. The list can be maintained in Settings (F2).</string>
                           <property name="toolTip">
                            <string>Upload decoded messages to WSPRnet.org.</string>
                           </property>
+                          <property name="styleSheet">
+                           <string notr="true">QCheckBox:unchecked {
+	color: rgb(0, 0, 0);
+	background-color: rgb(255, 255, 0);
+}</string>
+                          </property>
                           <property name="text">
                            <string>Upload spots</string>
                           </property>
@@ -2380,6 +2397,7 @@ list. The list can be maintained in Settings (F2).</string>
                           </property>
                           <property name="styleSheet">
                            <string notr="true">QPushButton:checked {
+	color: rgb(0, 0, 0);
 	background-color: red;
 	border-style: outset;
 	border-width: 1px;
@@ -2485,8 +2503,7 @@ list. The list can be maintained in Settings (F2).</string>
 }
 QLabel[oob=&quot;true&quot;] {
   background-color: red;
-}
-</string>
+}</string>
         </property>
         <property name="text">
          <string>14.078 000</string>

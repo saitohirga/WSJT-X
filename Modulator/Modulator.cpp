@@ -105,7 +105,14 @@ void Modulator::start (QString mode, unsigned symbolsLength, double framesPerSym
   // qDebug() << "delay_ms:" << delay_ms << "mstr:" << mstr << "m_silentFrames:" << m_silentFrames << "m_ic:" << m_ic << "m_state:" << m_state;
 
   m_stream = stream;
-  if (m_stream) m_stream->restart (this);
+  if (m_stream)
+    {
+      m_stream->restart (this);
+    }
+  else
+    {
+      qDebug () << "Modulator::start: no audio output stream assigned";
+    }
 }
 
 void Modulator::tune (bool newState)
