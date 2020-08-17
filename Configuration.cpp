@@ -1197,7 +1197,7 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   ui_->highlighting_list_view->setModel (&next_decode_highlighing_model_);
 
   enumerate_rigs ();
-  // initialize_models ();
+  initialize_models ();
 
   transceiver_thread_ = new QThread {this};
   transceiver_thread_->start ();
