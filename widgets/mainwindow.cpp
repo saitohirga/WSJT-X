@@ -3624,7 +3624,6 @@ void MainWindow::pskPost (DecodedText const& decodedtext)
   }
   int snr = decodedtext.snr();
   Frequency frequency = m_freqNominal + audioFrequency;
-  pskSetLocal ();
   if(grid.contains (grid_regexp)) {
 //    qDebug() << "To PSKreporter:" << deCall << grid << frequency << msgmode << snr;
     if (!m_psk_Reporter.addRemoteStation (deCall, grid, frequency, msgmode, snr))
