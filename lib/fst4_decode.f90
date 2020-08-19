@@ -48,7 +48,7 @@ contains
       complex, allocatable :: c2(:)
       complex, allocatable :: cframe(:)
       complex, allocatable :: c_bigfft(:)          !Complex waveform
-      real llr(240),llra(240),llrb(240),llrc(240),llrd(240)
+      real llr(240),llrs(240,4)
       real candidates(200,4)
       real bitmetrics(320,4)
       real s4(0:3,NN)
@@ -415,28 +415,15 @@ contains
 
             if(nsync_qual.lt. 46) cycle                   !### Value ?? ###
             scalefac=2.83
-            llra(  1: 60)=bitmetrics( 17: 76, 1)
-            llra( 61:120)=bitmetrics( 93:152, 1)
-            llra(121:180)=bitmetrics(169:228, 1)
-            llra(181:240)=bitmetrics(245:304, 1)
-            llra=scalefac*llra
-            llrb(  1: 60)=bitmetrics( 17: 76, 2)
-            llrb( 61:120)=bitmetrics( 93:152, 2)
-            llrb(121:180)=bitmetrics(169:228, 2)
-            llrb(181:240)=bitmetrics(245:304, 2)
-            llrb=scalefac*llrb
-            llrc(  1: 60)=bitmetrics( 17: 76, 3)
-            llrc( 61:120)=bitmetrics( 93:152, 3)
-            llrc(121:180)=bitmetrics(169:228, 3)
-            llrc(181:240)=bitmetrics(245:304, 3)
-            llrc=scalefac*llrc
-            llrd(  1: 60)=bitmetrics( 17: 76, 4)
-            llrd( 61:120)=bitmetrics( 93:152, 4)
-            llrd(121:180)=bitmetrics(169:228, 4)
-            llrd(181:240)=bitmetrics(245:304, 4)
-            llrd=scalefac*llrd
+            do il=1,4
+               llrs(  1: 60,il)=bitmetrics( 17: 76, il)
+               llrs( 61:120,il)=bitmetrics( 93:152, il)
+               llrs(121:180,il)=bitmetrics(169:228, il)
+               llrs(181:240,il)=bitmetrics(245:304, il)
+            enddo
+            llrs=scalefac*llrs
 
-            apmag=maxval(abs(llra))*1.1
+            apmag=maxval(abs(llrs(:,1)))*1.1
             ntmax=nblock+nappasses(nQSOProgress)
             if(lapcqonly) ntmax=nblock+1
             if(ndepth.eq.1) ntmax=nblock
@@ -448,22 +435,22 @@ contains
             endif
 
             do itry=1,ntmax
-               if(itry.eq.1) llr=llra
-               if(itry.eq.2.and.itry.le.nblock) llr=llrb
-               if(itry.eq.3.and.itry.le.nblock) llr=llrc
-               if(itry.eq.4.and.itry.le.nblock) llr=llrd
+               if(itry.eq.1) llr=llrs(:,1)
+               if(itry.eq.2.and.itry.le.nblock) llr=llrs(:,2)
+               if(itry.eq.3.and.itry.le.nblock) llr=llrs(:,3)
+               if(itry.eq.4.and.itry.le.nblock) llr=llrs(:,4)
                if(itry.le.nblock) then
                   apmask=0
                   iaptype=0
                endif
 
                if(itry.gt.nblock) then
-                  llr=llra
+                  llr=llrs(:,1)
                   if(nblock.gt.1) then
-                     if(hmod.eq.1) llr=llrc
-                     if(hmod.eq.2) llr=llra
-                     if(hmod.eq.4) llr=llrb
-                     if(hmod.eq.8) llr=llrc
+                     if(hmod.eq.1) llr=llrs(:,3)
+                     if(hmod.eq.2) llr=llrs(:,1)
+                     if(hmod.eq.4) llr=llrs(:,2)
+                     if(hmod.eq.8) llr=llrs(:,4)
                   endif
                   iaptype=naptypes(nQSOProgress,itry-nblock)
                   if(lapcqonly) iaptype=1
