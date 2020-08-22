@@ -1522,19 +1522,25 @@ void Configuration::impl::find_audio_devices ()
   // retrieve audio input device
   //
   auto saved_name = settings_->value ("SoundInName").toString ();
-  audio_input_device_ = find_audio_device (QAudio::AudioInput, ui_->sound_input_combo_box, saved_name);
-  audio_input_channel_ = AudioDevice::fromString (settings_->value ("AudioInputChannel", "Mono").toString ());
-  update_audio_channels (ui_->sound_input_combo_box, ui_->sound_input_combo_box->currentIndex (), ui_->sound_input_channel_combo_box, false);
-  ui_->sound_input_channel_combo_box->setCurrentIndex (audio_input_channel_);
+  if (audio_input_device_.deviceName () != saved_name)
+    {
+      audio_input_device_ = find_audio_device (QAudio::AudioInput, ui_->sound_input_combo_box, saved_name);
+      audio_input_channel_ = AudioDevice::fromString (settings_->value ("AudioInputChannel", "Mono").toString ());
+      update_audio_channels (ui_->sound_input_combo_box, ui_->sound_input_combo_box->currentIndex (), ui_->sound_input_channel_combo_box, false);
+      ui_->sound_input_channel_combo_box->setCurrentIndex (audio_input_channel_);
+    }
 
   //
   // retrieve audio output device
   //
   saved_name = settings_->value("SoundOutName").toString();
-  audio_output_channel_ = AudioDevice::fromString (settings_->value ("AudioOutputChannel", "Mono").toString ());
-  audio_output_device_ = find_audio_device (QAudio::AudioOutput, ui_->sound_output_combo_box, saved_name);
-  update_audio_channels (ui_->sound_output_combo_box, ui_->sound_output_combo_box->currentIndex (), ui_->sound_output_channel_combo_box, true);
-  ui_->sound_output_channel_combo_box->setCurrentIndex (audio_output_channel_);
+  if (audio_output_device_.deviceName () != saved_name)
+    {
+      audio_output_channel_ = AudioDevice::fromString (settings_->value ("AudioOutputChannel", "Mono").toString ());
+      audio_output_device_ = find_audio_device (QAudio::AudioOutput, ui_->sound_output_combo_box, saved_name);
+      update_audio_channels (ui_->sound_output_combo_box, ui_->sound_output_combo_box->currentIndex (), ui_->sound_output_channel_combo_box, true);
+      ui_->sound_output_channel_combo_box->setCurrentIndex (audio_output_channel_);
+    }
 }
 
 void Configuration::impl::write_settings ()
@@ -1836,6 +1842,8 @@ int Configuration::impl::exec ()
   rig_changed_ = false;
 
   initialize_models ();
+  lazy_models_load (ui_->configuration_tabs->currentIndex ());
+
   return QDialog::exec();
 }
 
@@ -2762,28 +2770,30 @@ QAudioDeviceInfo Configuration::impl::find_audio_device (QAudio::Mode mode, QCom
   using std::copy;
   using std::back_inserter;
 
-  combo_box->clear ();
-
-  int current_index = -1;
-  auto const& devices = QAudioDeviceInfo::availableDevices (mode);
-  Q_FOREACH (auto const& p, devices)
+  if (device_name.size ())
     {
-      // qDebug () << "Audio device: input:" << (QAudio::AudioInput == mode) << "name:" << p.deviceName () << "preferred format:" << p.preferredFormat () << "endians:" << p.supportedByteOrders () << "codecs:" << p.supportedCodecs () << "channels:" << p.supportedChannelCounts () << "rates:" << p.supportedSampleRates () << "sizes:" << p.supportedSampleSizes () << "types:" << p.supportedSampleTypes ();
+      combo_box->clear ();
 
-      // convert supported channel counts into something we can store in the item model
-      QList<QVariant> channel_counts;
-      auto scc = p.supportedChannelCounts ();
-      copy (scc.cbegin (), scc.cend (), back_inserter (channel_counts));
-
-      combo_box->addItem (p.deviceName (), QVariant::fromValue (audio_info_type {p, channel_counts}));
-      if (p.deviceName () == device_name)
+      int current_index = -1;
+      auto const& devices = QAudioDeviceInfo::availableDevices (mode);
+      Q_FOREACH (auto const& p, devices)
         {
-          current_index = combo_box->count () - 1;
-          combo_box->setCurrentIndex (current_index);
-          return p;
+
+          // convert supported channel counts into something we can store in the item model
+          QList<QVariant> channel_counts;
+          auto scc = p.supportedChannelCounts ();
+          copy (scc.cbegin (), scc.cend (), back_inserter (channel_counts));
+
+          combo_box->addItem (p.deviceName (), QVariant::fromValue (audio_info_type {p, channel_counts}));
+          if (p.deviceName () == device_name)
+            {
+              current_index = combo_box->count () - 1;
+              combo_box->setCurrentIndex (current_index);
+              return p;
+            }
         }
+      combo_box->setCurrentIndex (current_index);
     }
-  combo_box->setCurrentIndex (current_index);
   return {};
 }
 
