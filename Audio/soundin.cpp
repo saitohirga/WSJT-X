@@ -1,5 +1,7 @@
 #include "soundin.h"
 
+#include <cstdlib>
+#include <cmath>
 #include <QAudioDeviceInfo>
 #include <QAudioFormat>
 #include <QAudioInput>
@@ -166,15 +168,21 @@ void SoundInput::reset (bool report_dropped_frames)
 {
   if (m_stream)
     {
-      if (cummulative_lost_usec_ >= 0 // don't report first time as we
-                                      // don't yet known latency
-          && report_dropped_frames)
+      auto elapsed_usecs = m_stream->elapsedUSecs ();
+      while (std::abs (elapsed_usecs - m_stream->processedUSecs ())
+             > 24 * 60 * 60 * 500000ll) // half day
         {
-          auto lost_usec = m_stream->elapsedUSecs () - m_stream->processedUSecs () - cummulative_lost_usec_;
+          // QAudioInput::elapsedUSecs() wraps after 24 hours
+          elapsed_usecs += 24 * 60 * 60 * 1000000ll;
+        }
+      // don't report first time as we don't yet known latency
+      if (cummulative_lost_usec_ != std::numeric_limits<qint64>::min () && report_dropped_frames)
+        {
+          auto lost_usec = elapsed_usecs - m_stream->processedUSecs () - cummulative_lost_usec_;
           Q_EMIT dropped_frames (m_stream->format ().framesForDuration (lost_usec), lost_usec);
           //qDebug () << "SoundInput::reset: frames dropped:" << m_stream->format ().framesForDuration (lost_usec) << "sec:" << lost_usec / 1.e6;
         }
-      cummulative_lost_usec_ = m_stream->elapsedUSecs () - m_stream->processedUSecs ();
+      cummulative_lost_usec_ = elapsed_usecs - m_stream->processedUSecs ();
     }
 }
 

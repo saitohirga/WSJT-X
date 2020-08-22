@@ -2,6 +2,7 @@
 #ifndef SOUNDIN_H__
 #define SOUNDIN_H__
 
+#include <limits>
 #include <QObject>
 #include <QString>
 #include <QDateTime>
@@ -24,7 +25,7 @@ public:
   SoundInput (QObject * parent = nullptr)
     : QObject {parent}
     , m_sink {nullptr}
-    , cummulative_lost_usec_ {0}
+    , cummulative_lost_usec_ {std::numeric_limits<qint64>::min ()}
   {
   }
 
