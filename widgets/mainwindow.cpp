@@ -480,10 +480,14 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
                                                                 }
                                                               if (dropped_frames > 48000) // 1 second
                                                                 {
+                                                                  auto period = qt_truncate_date_time_to (QDateTime::currentDateTimeUtc ().addMSecs (-m_TRperiod / 2.), m_TRperiod * 1e3);
                                                                   MessageBox::warning_message (this
                                                                                                , tr ("Audio Source")
                                                                                                , tr ("Reduce system load")
-                                                                                               , tr ("Excessive dropped samples - %1 (%2 sec) audio frames dropped").arg (dropped_frames).arg (usec / 1.e6, 5, 'f', 3));
+                                                                                               , tr ("Excessive dropped samples - %1 (%2 sec) audio frames dropped in period starting %3")
+                                                                                               .arg (dropped_frames)
+                                                                                               .arg (usec / 1.e6, 5, 'f', 3)
+                                                                                               .arg (period.toString ("hh:mm:ss")));
                                                                 }
                                                             });
   connect (&m_audioThread, &QThread::finished, m_soundInput, &QObject::deleteLater);
