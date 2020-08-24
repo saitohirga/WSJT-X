@@ -455,10 +455,12 @@ contains
                      endif
                      inquire(file='plotspec',exist=ex)
                      fmid=-999.0
+                     call timer('dopsprd ',0)
                      if(ex) then
                         call dopspread(itone,iwave,nsps,nmax,ndown,hmod,  &
                            isbest,fc_synced,fmid,w50)
                      endif
+                     call timer('dopsprd ',1)
                      xsig=0
                      do i=1,NN
                         xsig=xsig+s4(itone(i),i)

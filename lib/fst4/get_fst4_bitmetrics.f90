@@ -1,5 +1,6 @@
 subroutine get_fst4_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,nsync_qual,badsync)
 
+   use timer_module, only: timer
    include 'fst4_params.f90'
    complex cd(0:NN*nss-1)
    complex cs(0:3,NN)
@@ -84,6 +85,8 @@ subroutine get_fst4_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,nsync_qual,
       return
    endif
 
+
+   call timer('seqcorrs',0)
    bitmetrics=0.0
    do nseq=1,nmax            !Try coherent sequences of 1,2,3,4 or 1,2,4,8 symbols
       if(nseq.eq.1) nsym=1
@@ -100,11 +103,14 @@ subroutine get_fst4_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,nsync_qual,
          s2=0
          do i=0,nt-1
             csum=0
-            cterm=1
+!            cterm=1  ! hmod.ne.1
+            term=1
             do j=0,nsym-1
                ntone=mod(i/4**(nsym-1-j),4)
-               csum=csum+cs(graymap(ntone),ks+j)*cterm
-               cterm=cterm*conjg(cp(graymap(ntone)))
+               csum=csum+cs(graymap(ntone),ks+j)*term 
+               term=-term
+!               csum=csum+cs(graymap(ntone),ks+j)*cterm  ! hmod.ne.1
+!               cterm=cterm*conjg(cp(graymap(ntone)))    ! hmod.ne.1
             enddo
             s2(i)=abs(csum)
          enddo
@@ -122,6 +128,7 @@ subroutine get_fst4_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,nsync_qual,
          enddo
       enddo
    enddo
+   call timer('seqcorrs',1)
 
    hbits=0
    where(bitmetrics(:,1).ge.0) hbits=1
