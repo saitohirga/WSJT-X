@@ -31,7 +31,7 @@ contains
 
    subroutine decode(this,callback,iwave,nutc,nQSOProgress,nfqso,    &
       nfa,nfb,nsubmode,ndepth,ntrperiod,nexp_decode,ntol,            &
-      emedelay,lapcqonly,mycall,hiscall,nfsplit,iwspr)
+      emedelay,lapcqonly,mycall,hiscall,iwspr)
 
       use timer_module, only: timer
       use packjt77
@@ -48,8 +48,8 @@ contains
       complex, allocatable :: c2(:)
       complex, allocatable :: cframe(:)
       complex, allocatable :: c_bigfft(:)          !Complex waveform
-      real llr(240),llra(240),llrb(240),llrc(240),llrd(240)
-      real candidates(100,4)
+      real llr(240),llrs(240,4)
+      real candidates(200,5)
       real bitmetrics(320,4)
       real s4(0:3,NN)
       real minsync
@@ -57,7 +57,6 @@ contains
       integer itone(NN)
       integer hmod
       integer*1 apmask(240),cw(240)
-      integer*1 hbits(320)
       integer*1 message101(101),message74(74),message77(77)
       integer*1 rvec(77)
       integer apbits(240)
@@ -149,8 +148,7 @@ contains
          if(i3.ne.1 .or. (msg.ne.msgsent) .or. .not.unpk77_success) go to 10
          read(c77,'(77i1)') message77
          message77=mod(message77+rvec,2)
-         call encode174_91(message77,cw)
-         apbits=2*cw-1
+         apbits(1:77)=2*message77-1
          if(nohiscall) apbits(30)=99
 
 10       continue
@@ -253,38 +251,21 @@ contains
       call four2a(c_bigfft,nfft1,1,-1,0)         !r2c
 !      call blank2(nfa,nfb,nfft1,c_bigfft,iwave)
 
-      if(hmod.eq.1) then
-         if(fMHz.lt.2.0) then
-            nsyncoh=8    ! Use N=8 for sync
-            nhicoh=1     ! Use N=1,2,4,8 for symbol estimation
-         else
-            nsyncoh=4    ! Use N=4 for sync
-            nhicoh=0     ! Use N=1,2,3,4 for symbol estimation
-         endif
+      nhicoh=1
+      nsyncoh=8
+      if(iwspr.eq.1) then
+         fa=1400.0
+         fb=1600.0
       else
-         if(hmod.eq.2) nsyncoh=1
-         if(hmod.eq.4) nsyncoh=-2
-         if(hmod.eq.8) nsyncoh=-4
-      endif
-
-      if( single_decode ) then
          fa=max(100,nint(nfqso+1.5*hmod*baud-ntol))
          fb=min(4800,nint(nfqso+1.5*hmod*baud+ntol))
-      else
-         fa=max(100,nfa)
-         fb=min(4800,nfb)
       endif
-
-      if(hmod.eq.1) then
-         if(ntrperiod.eq.15) minsync=1.15
-         if(ntrperiod.gt.15) minsync=1.20
-      elseif(hmod.gt.1) then
-         minsync=1.2
-      endif
+      minsync=1.20
+      if(ntrperiod.eq.15) minsync=1.15
 
 ! Get first approximation of candidate frequencies
       call get_candidates_fst4(c_bigfft,nfft1,nsps,hmod,fs,fa,fb,     &
-         minsync,ncand,candidates,base)
+         minsync,ncand,candidates)
 
       ndecodes=0
       decodes=' '
@@ -300,54 +281,15 @@ contains
 ! Output array c2 is complex baseband sampled at 12000/ndown Sa/sec.
 ! The size of the downsampled c2 array is nfft2=nfft1/ndown
 
+         call timer('dwnsmpl ',0)
          call fst4_downsample(c_bigfft,nfft1,ndown,fc0,sigbw,c2)
+         call timer('dwnsmpl ',1)
 
          call timer('sync240 ',0)
-         fc1=0.0
-         if(emedelay.lt.0.1) then  ! search offsets from 0 s to 2 s
-            is0=1.5*nspsec
-            ishw=1.5*nspsec
-         else      ! search plus or minus 1.5 s centered on emedelay
-            is0=nint((emedelay+1.0)*nspsec)
-            ishw=1.5*nspsec
-         endif
-
-         smax=-1.e30
-         do if=-12,12
-            fc=fc1 + 0.1*baud*if
-            do istart=max(1,is0-ishw),is0+ishw,4*hmod
-               call sync_fst4(c2,istart,fc,hmod,nsyncoh,nfft2,nss,   &
-                  ntrperiod,fs2,sync)
-               if(sync.gt.smax) then
-                  fc2=fc
-                  isbest=istart
-                  smax=sync
-               endif
-            enddo
-         enddo
-
-         fc1=fc2
-         is0=isbest
-         ishw=4*hmod
-         isst=1*hmod
-
-         smax=0.0
-         do if=-7,7
-            fc=fc1 + 0.02*baud*if
-            do istart=max(1,is0-ishw),is0+ishw,isst
-               call sync_fst4(c2,istart,fc,hmod,nsyncoh,nfft2,nss,   &
-                  ntrperiod,fs2,sync)
-               if(sync.gt.smax) then
-                  fc2=fc
-                  isbest=istart
-                  smax=sync
-               endif
-            enddo
-         enddo
-
+         call fst4_sync_search(c2,nfft2,hmod,fs2,nss,ntrperiod,nsyncoh,emedelay,sbest,fcbest,isbest)
          call timer('sync240 ',1)
 
-         fc_synced = fc0 + fc2
+         fc_synced = fc0 + fcbest
          dt_synced = (isbest-fs2)*dt2  !nominal dt is 1 second so frame starts at sample fs2
          candidates(icand,3)=fc_synced
          candidates(icand,4)=isbest
@@ -379,14 +321,18 @@ contains
       enddo
       ncand=ic
       xsnr=0.
-
+!write(*,*) 'ncand ',ncand
       do icand=1,ncand
          sync=candidates(icand,2)
          fc_synced=candidates(icand,3)
          isbest=nint(candidates(icand,4))
          xdt=(isbest-nspsec)/fs2
          if(ntrperiod.eq.15) xdt=(isbest-real(nspsec)/2.0)/fs2
+
+         call timer('dwnsmpl ',0)
          call fst4_downsample(c_bigfft,nfft1,ndown,fc_synced,sigbw,c2)
+         call timer('dwnsmpl ',1)
+
          do ijitter=0,jittermax
             if(ijitter.eq.0) ioffset=0
             if(ijitter.eq.1) ioffset=1
@@ -395,45 +341,20 @@ contains
             if(is0.lt.0) cycle
             cframe=c2(is0:is0+160*nss-1)
             bitmetrics=0
-            if(hmod.eq.1) then
-               call get_fst4_bitmetrics(cframe,nss,hmod,nblock,nhicoh,bitmetrics,s4,badsync)
-            else
-               call get_fst4_bitmetrics2(cframe,nss,hmod,nblock,bitmetrics,s4,badsync)
-            endif
+            call timer('bitmetrc',0)
+            call get_fst4_bitmetrics(cframe,nss,hmod,nblock,nhicoh,bitmetrics, &
+               s4,nsync_qual,badsync)
+            call timer('bitmetrc',1)
             if(badsync) cycle
 
-            hbits=0
-            where(bitmetrics(:,1).ge.0) hbits=1
-            ns1=count(hbits(  1: 16).eq.(/0,0,0,1,1,0,1,1,0,1,0,0,1,1,1,0/))
-            ns2=count(hbits( 77: 92).eq.(/1,1,1,0,0,1,0,0,1,0,1,1,0,0,0,1/))
-            ns3=count(hbits(153:168).eq.(/0,0,0,1,1,0,1,1,0,1,0,0,1,1,1,0/))
-            ns4=count(hbits(229:244).eq.(/1,1,1,0,0,1,0,0,1,0,1,1,0,0,0,1/))
-            ns5=count(hbits(305:320).eq.(/0,0,0,1,1,0,1,1,0,1,0,0,1,1,1,0/))
-            nsync_qual=ns1+ns2+ns3+ns4+ns5
-!               if(nsync_qual.lt. 46) cycle                   !### Value ?? ###
-            scalefac=2.83
-            llra(  1: 60)=bitmetrics( 17: 76, 1)
-            llra( 61:120)=bitmetrics( 93:152, 1)
-            llra(121:180)=bitmetrics(169:228, 1)
-            llra(181:240)=bitmetrics(245:304, 1)
-            llra=scalefac*llra
-            llrb(  1: 60)=bitmetrics( 17: 76, 2)
-            llrb( 61:120)=bitmetrics( 93:152, 2)
-            llrb(121:180)=bitmetrics(169:228, 2)
-            llrb(181:240)=bitmetrics(245:304, 2)
-            llrb=scalefac*llrb
-            llrc(  1: 60)=bitmetrics( 17: 76, 3)
-            llrc( 61:120)=bitmetrics( 93:152, 3)
-            llrc(121:180)=bitmetrics(169:228, 3)
-            llrc(181:240)=bitmetrics(245:304, 3)
-            llrc=scalefac*llrc
-            llrd(  1: 60)=bitmetrics( 17: 76, 4)
-            llrd( 61:120)=bitmetrics( 93:152, 4)
-            llrd(121:180)=bitmetrics(169:228, 4)
-            llrd(181:240)=bitmetrics(245:304, 4)
-            llrd=scalefac*llrd
+            do il=1,4
+               llrs(  1: 60,il)=bitmetrics( 17: 76, il)
+               llrs( 61:120,il)=bitmetrics( 93:152, il)
+               llrs(121:180,il)=bitmetrics(169:228, il)
+               llrs(181:240,il)=bitmetrics(245:304, il)
+            enddo
 
-            apmag=maxval(abs(llra))*1.1
+            apmag=maxval(abs(llrs(:,1)))*1.1
             ntmax=nblock+nappasses(nQSOProgress)
             if(lapcqonly) ntmax=nblock+1
             if(ndepth.eq.1) ntmax=nblock
@@ -445,23 +366,17 @@ contains
             endif
 
             do itry=1,ntmax
-               if(itry.eq.1) llr=llra
-               if(itry.eq.2.and.itry.le.nblock) llr=llrb
-               if(itry.eq.3.and.itry.le.nblock) llr=llrc
-               if(itry.eq.4.and.itry.le.nblock) llr=llrd
+               if(itry.eq.1) llr=llrs(:,1)
+               if(itry.eq.2.and.itry.le.nblock) llr=llrs(:,2)
+               if(itry.eq.3.and.itry.le.nblock) llr=llrs(:,3)
+               if(itry.eq.4.and.itry.le.nblock) llr=llrs(:,4)
                if(itry.le.nblock) then
                   apmask=0
                   iaptype=0
                endif
 
-               if(itry.gt.nblock) then
-                  llr=llra
-                  if(nblock.gt.1) then
-                     if(hmod.eq.1) llr=llrd
-                     if(hmod.eq.2) llr=llrb
-                     if(hmod.eq.4) llr=llrc
-                     if(hmod.eq.8) llr=llrd
-                  endif
+               if(itry.gt.nblock) then ! do ap passes
+                  llr=llrs(:,nblock)  ! Use largest blocksize as the basis for AP passes
                   iaptype=naptypes(nQSOProgress,itry-nblock)
                   if(lapcqonly) iaptype=1
                   if(iaptype.ge.2 .and. apbits(1).gt.1) cycle  ! No, or nonstandard, mycall
@@ -500,7 +415,7 @@ contains
                if(iwspr.eq.0) then
                   maxosd=2
                   Keff=91
-                  norder=3
+                  norder=4
                   call timer('d240_101',0)
                   call decode240_101(llr,Keff,maxosd,norder,apmask,message101, &
                      cw,ntype,nharderrors,dmin)
@@ -544,14 +459,17 @@ contains
                      endif
                      inquire(file='plotspec',exist=ex)
                      fmid=-999.0
+                     call timer('dopsprd ',0)
                      if(ex) then
                         call dopspread(itone,iwave,nsps,nmax,ndown,hmod,  &
                            isbest,fc_synced,fmid,w50)
                      endif
+                     call timer('dopsprd ',1)
                      xsig=0
                      do i=1,NN
-                        xsig=xsig+s4(itone(i),i)**2
+                        xsig=xsig+s4(itone(i),i)
                      enddo
+                     base=candidates(icand,5)
                      arg=600.0*(xsig/base)-1.0
                      if(arg.gt.0.0) then
                         xsnr=10*log10(arg)-35.5-12.5*log10(nsps/8200.0)
@@ -570,8 +488,8 @@ contains
                   fsig=fc_synced - 1.5*hmod*baud
                   if(ex) then
                      write(21,3021) nutc,icand,itry,nsyncoh,iaptype,  &
-                          ijitter,ntype,nsync_qual,nharderrors,dmin,  &
-                          sync,xsnr,xdt,fsig,w50,trim(msg)
+                        ijitter,ntype,nsync_qual,nharderrors,dmin,  &
+                        sync,xsnr,xdt,fsig,w50,trim(msg)
 3021                 format(i6.6,6i3,2i4,f6.1,f7.2,f6.1,f6.2,f7.1,f7.3,1x,a)
                      flush(21)
                   endif
@@ -732,14 +650,15 @@ contains
    end subroutine fst4_downsample
 
    subroutine get_candidates_fst4(c_bigfft,nfft1,nsps,hmod,fs,fa,fb,   &
-      minsync,ncand,candidates,base)
+      minsync,ncand,candidates)
 
       complex c_bigfft(0:nfft1/2)              !Full length FFT of raw data
       integer hmod                             !Modulation index (submode)
       integer im(1)                            !For maxloc
-      real candidates(100,4)                   !Candidate list
+      real candidates(200,5)                   !Candidate list
       real, allocatable :: s(:)                !Low resolution power spectrum
       real, allocatable :: s2(:)               !CCF of s() with 4 tones
+      real, allocatable :: sbase(:)            !noise baseline estimate
       real xdb(-3:3)                           !Model 4-tone CCF peaks
       real minsync
       data xdb/0.25,0.50,0.75,1.0,0.75,0.50,0.25/
@@ -755,20 +674,20 @@ contains
       signal_bw=4*(12000.0/nsps)*hmod
       analysis_bw=min(4800.0,fb)-max(100.0,fa)
       xnoise_bw=10.0*signal_bw                  !Is this a good compromise?
-      if(analysis_bw.gt.xnoise_bw) then
-         ina=ia
-         inb=ib
-      else
-         fcenter=(fa+fb)/2.0                      !If noise_bw > analysis_bw,
-         fl = max(100.0,fcenter-xnoise_bw/2.)/df2  !we'll search over noise_bw
+      if(xnoise_bw .lt. 400.0) xnoise_bw=400.0  
+      if(analysis_bw.gt.xnoise_bw) then         !Estimate noise baseline over analysis bw
+         ina=0.9*ia
+         inb=min(int(1.1*ib),nfft1/2)
+      else                                      !Estimate noise baseline over noise bw
+         fcenter=(fa+fb)/2.0                    
+         fl = max(100.0,fcenter-xnoise_bw/2.)/df2  
          fh = min(4800.0,fcenter+xnoise_bw/2.)/df2
          ina=nint(fl)
          inb=nint(fh)
       endif
-
       nnw=nint(48000.*nsps*2./fs)
       allocate (s(nnw))
-      s=0.                                  !Compute low-resloution power spectrum
+      s=0.                                  !Compute low-resolution power spectrum
       do i=ina,inb   ! noise analysis window includes signal analysis window
          j0=nint(i*df2/df1)
          do j=j0-ndh,j0+ndh
@@ -779,12 +698,15 @@ contains
       ina=max(ina,1+3*hmod)                       !Don't run off the ends
       inb=min(inb,nnw-3*hmod)
       allocate (s2(nnw))
+      allocate (sbase(nnw))
       s2=0.
       do i=ina,inb                                !Compute CCF of s() and 4 tones
          s2(i)=s(i-hmod*3) + s(i-hmod) +s(i+hmod) +s(i+hmod*3)
       enddo
-      call pctile(s2(ina+hmod*3:inb-hmod*3),inb-ina+1-hmod*6,30,base)
-      s2=s2/base                                  !Normalize wrt noise level
+      npct=30
+      call fst4_baseline(s2,nnw,ina+hmod*3,inb-hmod*3,npct,sbase)
+      if(any(sbase(ina:inb).le.0.0)) return
+      s2(ina:inb)=s2(ina:inb)/sbase(ina:inb)             !Normalize wrt noise level
 
       ncand=0
       candidates=0
@@ -794,7 +716,7 @@ contains
 ! Find candidates, using the CLEAN algorithm to remove a model of each one
 ! from s2() after it has been found.
       pval=99.99
-      do while(ncand.lt.100)
+      do while(ncand.lt.200)
          im=maxloc(s2(ia:ib))
          iploc=ia+im(1)-1                         !Index of CCF peak
          pval=s2(iploc)                           !Peak value
@@ -808,10 +730,58 @@ contains
          ncand=ncand+1
          candidates(ncand,1)=df2*iploc         !Candidate frequency
          candidates(ncand,2)=pval              !Rough estimate of SNR
+         candidates(ncand,5)=sbase(iploc)
       enddo
-
       return
    end subroutine get_candidates_fst4
+
+   subroutine fst4_sync_search(c2,nfft2,hmod,fs2,nss,ntrperiod,nsyncoh,emedelay,sbest,fcbest,isbest)
+      complex c2(0:nfft2-1)
+      integer hmod
+      nspsec=int(fs2)
+      baud=fs2/real(nss)
+      fc1=0.0
+      if(emedelay.lt.0.1) then  ! search offsets from 0 s to 2 s
+         is0=1.5*nspsec
+         ishw=1.5*nspsec
+      else      ! search plus or minus 1.5 s centered on emedelay
+         is0=nint((emedelay+1.0)*nspsec)
+         ishw=1.5*nspsec
+      endif
+
+      sbest=-1.e30
+      do if=-12,12
+         fc=fc1 + 0.1*baud*if
+         do istart=max(1,is0-ishw),is0+ishw,4*hmod
+            call sync_fst4(c2,istart,fc,hmod,nsyncoh,nfft2,nss,   &
+               ntrperiod,fs2,sync)
+            if(sync.gt.sbest) then
+               fcbest=fc
+               isbest=istart
+               sbest=sync
+            endif
+         enddo
+      enddo
+
+      fc1=fcbest
+      is0=isbest
+      ishw=4*hmod
+      isst=1*hmod
+
+      sbest=0.0
+      do if=-7,7
+         fc=fc1 + 0.02*baud*if
+         do istart=max(1,is0-ishw),is0+ishw,isst
+            call sync_fst4(c2,istart,fc,hmod,nsyncoh,nfft2,nss,   &
+               ntrperiod,fs2,sync)
+            if(sync.gt.sbest) then
+               fcbest=fc
+               isbest=istart
+               sbest=sync
+            endif
+         enddo
+      enddo
+   end subroutine fst4_sync_search
 
    subroutine dopspread(itone,iwave,nsps,nmax,ndown,hmod,i0,fc,fmid,w50)
 
