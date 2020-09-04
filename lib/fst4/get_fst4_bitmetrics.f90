@@ -1,5 +1,6 @@
-subroutine get_fst4_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,badsync)
+subroutine get_fst4_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,nsync_qual,badsync)
 
+   use timer_module, only: timer
    include 'fst4_params.f90'
    complex cd(0:NN*nss-1)
    complex cs(0:3,NN)
@@ -11,6 +12,7 @@ subroutine get_fst4_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,badsync)
    integer graymap(0:3)
    integer ip(1)
    integer hmod
+   integer hbits(2*NN)
    logical one(0:65535,0:15)    ! 65536 8-symbol sequences, 16 bits
    logical first
    logical badsync
@@ -52,7 +54,7 @@ subroutine get_fst4_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,badsync)
       do itone=0,3
          cs(itone,k)=sum(csymb*conjg(c1(:,itone)))
       enddo
-      s4(0:3,k)=abs(cs(0:3,k))
+      s4(0:3,k)=abs(cs(0:3,k))**2
    enddo
 
 ! Sync quality check
@@ -83,8 +85,10 @@ subroutine get_fst4_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,badsync)
       return
    endif
 
+
+   call timer('seqcorrs',0)
    bitmetrics=0.0
-   do nseq=1,nmax            !Try coherent sequences of 1, 2, and 4 symbols
+   do nseq=1,nmax            !Try coherent sequences of 1,2,3,4 or 1,2,4,8 symbols
       if(nseq.eq.1) nsym=1
       if(nseq.eq.2) nsym=2
       if(nhicoh.eq.0) then
@@ -99,11 +103,14 @@ subroutine get_fst4_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,badsync)
          s2=0
          do i=0,nt-1
             csum=0
-            cterm=1
+!            cterm=1  ! hmod.ne.1
+            term=1
             do j=0,nsym-1
                ntone=mod(i/4**(nsym-1-j),4)
-               csum=csum+cs(graymap(ntone),ks+j)*cterm
-               cterm=cterm*conjg(cp(graymap(ntone)))
+               csum=csum+cs(graymap(ntone),ks+j)*term 
+               term=-term
+!               csum=csum+cs(graymap(ntone),ks+j)*cterm  ! hmod.ne.1
+!               cterm=cterm*conjg(cp(graymap(ntone)))    ! hmod.ne.1
             enddo
             s2(i)=abs(csum)
          enddo
@@ -121,11 +128,30 @@ subroutine get_fst4_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,badsync)
          enddo
       enddo
    enddo
+   call timer('seqcorrs',1)
+
+   hbits=0
+   where(bitmetrics(:,1).ge.0) hbits=1
+   ns1=count(hbits(  1: 16).eq.(/0,0,0,1,1,0,1,1,0,1,0,0,1,1,1,0/))
+   ns2=count(hbits( 77: 92).eq.(/1,1,1,0,0,1,0,0,1,0,1,1,0,0,0,1/))
+   ns3=count(hbits(153:168).eq.(/0,0,0,1,1,0,1,1,0,1,0,0,1,1,1,0/))
+   ns4=count(hbits(229:244).eq.(/1,1,1,0,0,1,0,0,1,0,1,1,0,0,0,1/))
+   ns5=count(hbits(305:320).eq.(/0,0,0,1,1,0,1,1,0,1,0,0,1,1,1,0/))
+   nsync_qual=ns1+ns2+ns3+ns4+ns5
+
+   if(nsync_qual.lt. 46) then
+      badsync=.true.
+      return
+   endif
 
    call normalizebmet(bitmetrics(:,1),2*NN)
    call normalizebmet(bitmetrics(:,2),2*NN)
    call normalizebmet(bitmetrics(:,3),2*NN)
    call normalizebmet(bitmetrics(:,4),2*NN)
+
+   scalefac=2.83
+   bitmetrics=scalefac*bitmetrics
+
    return
 
 end subroutine get_fst4_bitmetrics

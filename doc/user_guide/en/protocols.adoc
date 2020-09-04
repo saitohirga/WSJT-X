@@ -1,3 +1,5 @@
+//status: edited
+
 [[PROTOCOL_OVERVIEW]]
 === Overview
 
@@ -30,17 +32,17 @@ of 4-digit Maidenhead grid locators on earth is 180×180 = 32,400,
 which is less than 2^15^ = 32,768; so a grid locator requires 15 bits.
 
 Some 6 million of the possible 28-bit values are not needed for
-callsigns.  A few of these slots have been assigned to special message
+callsigns.  A few of these slots are assigned to special message
 components such as `CQ`, `DE`, and `QRZ`. `CQ` may be followed by three
 digits to indicate a desired callback frequency. (If K1ABC transmits
-on a standard calling frequency, say 50.280, and sends `CQ 290 K1ABC
+on a standard calling frequency such as 50.280, and sends `CQ 290 K1ABC
 FN42`, it means that s/he will listen on 50.290 and respond there to
 any replies.) A numerical signal report of the form `–nn` or
 `R–nn` can be sent in place of a grid locator.  (As originally
 defined, numerical signal reports `nn` were required to fall between -01
-and -30 dB.  Program versions 2.3 and later accommodate reports between
--50 and +50 dB.) A country prefix or portable suffix may be
-attached to one of the callsigns.  When this feature is used the
+and -30 dB.  Recent program versions 2.3 and later accommodate reports between
+-50 and +49 dB.) A country prefix or portable suffix may be
+attached to one of the callsigns.  When this feature is used, the
 additional information is sent in place of the grid locator or by
 encoding additional information into some of the 6 million available
 slots mentioned above.
@@ -147,7 +149,8 @@ following pseudo-random sequence:
 The synchronizing tone is normally sent in each interval having a
 "`1`" in the sequence. Modulation is 65-FSK at 11025/4096 = 2.692
 baud.  Frequency spacing between tones is equal to the keying rate for
-JT65A, and 2 and 4 times larger for JT65B and JT65C.  For EME QSOs the
+JT65A, and 2 and 4 times larger for JT65B and JT65C, respectively.
+For EME QSOs the
 signal report OOO is sometimes used instead of numerical signal
 reports. It is conveyed by reversing sync and data positions in the
 transmitted sequence.  Shorthand messages for RO, RRR, and 73 dispense
@@ -155,7 +158,7 @@ with the sync vector entirely and use time intervals of 16384/11025 =
 1.486 s for pairs of alternating tones. The lower frequency is the
 same as that of the sync tone used in long messages, and the frequency
 separation is 110250/4096 = 26.92 Hz multiplied by n for JT65A, with n
-= 2, 3, 4 used to convey the messages RO, RRR, and 73.
+= 2, 3, 4 used to convey the messages RO, RRR, and 73, respectively.
 
 [[QRA64_PROTOCOL]]
 ==== QRA64
@@ -225,7 +228,7 @@ the sync bit.
 [[SLOW_SUMMARY]]
 ==== Summary
 
-Table 7 provides a brief summary parameters for the slow modes in
+Table 7 provides a brief summary of parameters for the slow modes in
 _WSJT-X_.  Parameters K and r specify the constraint length and rate
 of the convolutional codes; n and k specify the sizes of the
 (equivalent) block codes; Q is the alphabet size for the
@@ -305,7 +308,7 @@ available character set is:
 Transmissions consist of sequences of 24 symbols: a synchronizing
 pattern of four symbols at tone numbers 0, 1, 3, and 2, followed by
 two symbols with tone number corresponding to (message length) and
-(message length + 5), and finally 18 symbols conveying the user's
+(message length + 5), and, finally, 18 symbols conveying the user's
 message, sent repeatedly character by character.  The message always
 starts with `@`, the beginning-of-message symbol, which is not
 displayed to the user.  The sync pattern and message-length indicator
