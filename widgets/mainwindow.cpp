@@ -4794,7 +4794,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
         ui->TxFreqSpinBox->setValue(frequency);
       }
       if(m_mode != "JT4" && m_mode != "JT65" && !m_mode.startsWith ("JT9") &&
-         m_mode != "QRA64" && m_mode!="FT8" && m_mode!="FT4") {
+         m_mode != "QRA64" && m_mode!="FT8" && m_mode!="FT4" && m_mode!="FST4") {
         return;
       }
     }
