@@ -4767,7 +4767,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
 // Determine appropriate response to received message
   auto dtext = " " + message.string () + " ";
   dtext=dtext.remove("<").remove(">");
-  int gen_msg {0};
   if(dtext.contains (" " + m_baseCall + " ")
      || dtext.contains ("<" + m_baseCall + "> ")
 //###???     || dtext.contains ("<" + m_baseCall + " " + hiscall + "> ")
@@ -4826,46 +4825,46 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
            or bEU_VHF_w2 or (m_QSOProgress==CALLING))) {
       if(message_words.at(3).contains(grid_regexp) and SpecOp::EU_VHF!=m_config.special_op_id()) {
         if(SpecOp::NA_VHF==m_config.special_op_id() or SpecOp::WW_DIGI==m_config.special_op_id()){
-          gen_msg=setTxMsg(3);
+          setTxMsg(3);
           m_QSOProgress=ROGER_REPORT;
         } else {
           if(m_mode=="JT65" and message_words.size()>4 and message_words.at(4)=="OOO") {
-            gen_msg=setTxMsg(3);
+            setTxMsg(3);
             m_QSOProgress=ROGER_REPORT;
           } else {
-            gen_msg=setTxMsg(2);
+            setTxMsg(2);
             m_QSOProgress=REPORT;
           }
         }
       } else if(w34.contains(grid_regexp) and SpecOp::EU_VHF==m_config.special_op_id()) {
 
         if(nrpt==0) {
-          gen_msg=setTxMsg(2);
+          setTxMsg(2);
           m_QSOProgress=REPORT;
         } else {
           if(w2=="R") {
-            gen_msg=setTxMsg(4);
+            setTxMsg(4);
             m_QSOProgress=ROGERS;
           } else {
-            gen_msg=setTxMsg(3);
+            setTxMsg(3);
             m_QSOProgress=ROGER_REPORT;
           }
         }
       } else if(SpecOp::RTTY == m_config.special_op_id() and bRTTY) {
         if(w2=="R") {
-          gen_msg=setTxMsg(4);
+          setTxMsg(4);
           m_QSOProgress=ROGERS;
         } else {
-          gen_msg=setTxMsg(3);
+          setTxMsg(3);
           m_QSOProgress=ROGER_REPORT;
         }
         m_xRcvd=t[n-2] + " " + t[n-1];
       } else if(SpecOp::FIELD_DAY==m_config.special_op_id() and bFieldDay_msg) {
         if(t0=="R") {
-          gen_msg=setTxMsg(4);
+          setTxMsg(4);
           m_QSOProgress=ROGERS;
         } else {
-          gen_msg=setTxMsg(3);
+          setTxMsg(3);
           m_QSOProgress=ROGER_REPORT;
         }
       } else {  // no grid on end of msg
@@ -4905,24 +4904,19 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             if(nRpt>=529 and nRpt<=599) m_xRcvd=t[n-2] + " " + t[n-1];
           }
           ui->txrb4->setChecked(true);
-          if(ui->tabWidget->currentIndex()==1) {
-            gen_msg = 4;
-            m_ntx=7;
-            m_gen_message_is_cq = false;
-          }
         } else if(m_QSOProgress>=CALLING and
               ((r.toInt()>=-50 && r.toInt()<=49) or (r.toInt()>=529 && r.toInt()<=599))) {
           if(SpecOp::EU_VHF==m_config.special_op_id() or
              SpecOp::FIELD_DAY==m_config.special_op_id() or
              SpecOp::RTTY==m_config.special_op_id()) { 
-            gen_msg=setTxMsg(2);
+            setTxMsg(2);
             m_QSOProgress=REPORT;
           } else {
             if(r.left(2)=="R-" or r.left(2)=="R+") {
-              gen_msg=setTxMsg(4);
+              setTxMsg(4);
               m_QSOProgress=ROGERS;
             } else {
-              gen_msg=setTxMsg(3);
+              setTxMsg(3);
               m_QSOProgress=ROGER_REPORT;
             }
           }
@@ -4946,21 +4940,10 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
         m_ntx=3;
         m_QSOProgress = ROGER_REPORT;
         ui->txrb3->setChecked (true);
-        if (ui->tabWidget->currentIndex () == 1) {
-          gen_msg = 3;
-          m_ntx = 7;
-          m_gen_message_is_cq = false;
-        }
       } else if (!is_73) {    // don't respond to sign off messages
         m_ntx=2;
         m_QSOProgress = REPORT;
         ui->txrb2->setChecked(true);
-        if(ui->tabWidget->currentIndex()==1) {
-          gen_msg = 2;
-          m_ntx=7;
-          m_gen_message_is_cq = false;
-        }
-
         if (m_bDoubleClickAfterCQnnn and m_transmitting) {
           on_stopTxButton_clicked();
           TxAgainTimer.start(1500);
@@ -4989,14 +4972,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   else if (firstcall == "DE" && message_words.size () > 3 && message_words.at (3) == "73") {
     if (m_QSOProgress >= ROGERS && base_call == qso_partner_base_call && m_currentMessageType) {
       // 73 back to compound call holder
-      if(ui->tabWidget->currentIndex()==1) {
-        gen_msg = 5;
-        m_ntx=7;
-        m_gen_message_is_cq = false;
-      } else {
-        m_ntx=5;
-        ui->txrb5->setChecked(true);
-      }
+      m_ntx=5;
+      ui->txrb5->setChecked(true);
       m_QSOProgress = SIGNOFF;
     } else {
       // treat like a CQ/QRZ
@@ -5008,11 +4985,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
         m_ntx=2;
         m_QSOProgress = REPORT;
         ui->txrb2->setChecked (true);
-      }
-      if(ui->tabWidget->currentIndex()==1) {
-        gen_msg = 1;
-        m_ntx=7;
-        m_gen_message_is_cq = false;
       }
     }
   }
@@ -5030,11 +5002,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       m_ntx=2;
       m_QSOProgress = REPORT;
       ui->txrb2->setChecked (true);
-    }
-    if (1 == ui->tabWidget->currentIndex ()) {
-      gen_msg = m_ntx;
-      m_ntx=7;
-      m_gen_message_is_cq = false;
     }
   }
   // if we get here then we are reacting to the message
@@ -5097,10 +5064,9 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   }
   if(m_config.quick_call() && m_bDoubleClicked) auto_tx_mode(true);
   m_bDoubleClicked=false;
-  if(gen_msg==-999) return;   //Silence compiler warning
 }
 
-int MainWindow::setTxMsg(int n)
+void MainWindow::setTxMsg(int n)
 {
   m_ntx=n;
   if(n==1) ui->txrb1->setChecked(true);
@@ -5109,11 +5075,6 @@ int MainWindow::setTxMsg(int n)
   if(n==4) ui->txrb4->setChecked(true);
   if(n==5) ui->txrb5->setChecked(true);
   if(n==6) ui->txrb6->setChecked(true);
-  if(ui->tabWidget->currentIndex()==1) {
-    m_ntx=7;                      //### FIX THIS ###
-    m_gen_message_is_cq = false;
-  }
-  return n;
 }
 
 void MainWindow::genCQMsg ()

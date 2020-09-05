@@ -310,7 +310,7 @@ private slots:
   void checkMSK144ContestType();
   void on_pbBestSP_clicked();
   void on_RoundRobin_currentTextChanged(QString text);
-  int  setTxMsg(int n);
+  void  setTxMsg(int n);
   bool stdCall(QString const& w);
   void remote_configure (QString const& mode, quint32 frequency_tolerance, QString const& submode
                          , bool fast_mode, quint32 tr_period, quint32 rx_df, QString const& dx_call
