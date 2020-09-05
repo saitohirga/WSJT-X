@@ -565,15 +565,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
         } else if (text.isEmpty ()) {
           ui->tx5->setCurrentText (text);
         }
-      } else if (1 == ui->tabWidget->currentIndex ()) {
-        if (!text.isEmpty ()) {
-          ui->freeTextMsg->setCurrentText (text);
-        }
-        if (send) {
-          ui->rbFreeText->click ();
-        } else if (text.isEmpty ()) {
-          ui->freeTextMsg->setCurrentText (text);
-        }
       }
       QApplication::alert (this);
     });
@@ -809,17 +800,11 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->tx4->setValidator (new QRegExpValidator {message_alphabet, this});
   ui->tx5->setValidator (new QRegExpValidator {message_alphabet, this});
   ui->tx6->setValidator (new QRegExpValidator {message_alphabet, this});
-  ui->freeTextMsg->setValidator (new QRegExpValidator {message_alphabet, this});
 
   // Free text macros model to widget hook up.
   ui->tx5->setModel (m_config.macros ());
   connect (ui->tx5->lineEdit(), &QLineEdit::editingFinished,
            [this] () {on_tx5_currentTextChanged (ui->tx5->lineEdit()->text());});
-  ui->freeTextMsg->setModel (m_config.macros ());
-  connect (ui->freeTextMsg->lineEdit ()
-           , &QLineEdit::editingFinished
-           , [this] () {on_freeTextMsg_currentTextChanged (ui->freeTextMsg->lineEdit ()->text ());});
-
   connect(&m_guiTimer, &QTimer::timeout, this, &MainWindow::guiUpdate);
   m_guiTimer.start(100);   //### Don't change the 100 ms! ###
 
@@ -964,9 +949,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   Q_EMIT transmitFrequency (ui->TxFreqSpinBox->value () - m_XIT);
 
   enable_DXCC_entity (m_config.DXCC ());  // sets text window proportions and (re)inits the logbook
-
-  ui->label_9->setStyleSheet("QLabel{color: #000000; background-color: #aabec8}");
-  ui->label_10->setStyleSheet("QLabel{color: #000000; background-color: #aabec8}");
 
   // this must be done before initializing the mode as some modes need
   // to turn off split on the rig e.g. WSPR
@@ -1125,7 +1107,6 @@ void MainWindow::writeSettings()
   m_settings->setValue ("MsgAvgDisplayed", m_msgAvgWidget && m_msgAvgWidget->isVisible ());
   m_settings->setValue ("FoxLogDisplayed", m_foxLogWindow && m_foxLogWindow->isVisible ());
   m_settings->setValue ("ContestLogDisplayed", m_contestLogWindow && m_contestLogWindow->isVisible ());
-  m_settings->setValue ("FreeText", ui->freeTextMsg->currentText ());
   m_settings->setValue("ShowMenus",ui->cbMenus->isChecked());
   m_settings->setValue("CallFirst",ui->cbFirst->isChecked());
   m_settings->setValue("HoundSort",ui->comboBoxHoundSort->currentIndex());
@@ -1209,8 +1190,6 @@ void MainWindow::readSettings()
   auto displayMsgAvg = m_settings->value ("MsgAvgDisplayed", false).toBool ();
   auto displayFoxLog = m_settings->value ("FoxLogDisplayed", false).toBool ();
   auto displayContestLog = m_settings->value ("ContestLogDisplayed", false).toBool ();
-  if (m_settings->contains ("FreeText")) ui->freeTextMsg->setCurrentText (
-        m_settings->value ("FreeText").toString ());
   ui->cbMenus->setChecked(m_settings->value("ShowMenus",true).toBool());
   ui->cbFirst->setChecked(m_settings->value("CallFirst",true).toBool());
   ui->comboBoxHoundSort->setCurrentIndex(m_settings->value("HoundSort",3).toInt());
@@ -2123,9 +2102,6 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         if(ui->tabWidget->currentIndex()==0) {
           ui->tx5->clearEditText();
           ui->tx5->setFocus();
-        } else {
-          ui->freeTextMsg->clearEditText();
-          ui->freeTextMsg->setFocus();
         }
         return;
       }
@@ -2603,9 +2579,7 @@ void MainWindow::hideMenus(bool checked)
   }
   ui->decodedTextLabel->setVisible(!checked);
   ui->gridLayout_5->layout()->setSpacing(spacing);
-  ui->horizontalLayout->layout()->setSpacing(spacing);
   ui->horizontalLayout_2->layout()->setSpacing(spacing);
-  ui->horizontalLayout_3->layout()->setSpacing(spacing);
   ui->horizontalLayout_5->layout()->setSpacing(spacing);
   ui->horizontalLayout_6->layout()->setSpacing(spacing);
   ui->horizontalLayout_7->layout()->setSpacing(spacing);
@@ -2619,7 +2593,6 @@ void MainWindow::hideMenus(bool checked)
   ui->verticalLayout->layout()->setSpacing(spacing);
   ui->verticalLayout_2->layout()->setSpacing(spacing);
   ui->verticalLayout_3->layout()->setSpacing(spacing);
-  ui->verticalLayout_4->layout()->setSpacing(spacing);
   ui->verticalLayout_5->layout()->setSpacing(spacing);
   ui->verticalLayout_7->layout()->setSpacing(spacing);
   ui->verticalLayout_8->layout()->setSpacing(spacing);
@@ -3836,8 +3809,6 @@ void MainWindow::guiUpdate()
     if(m_ntx == 4) txMsg=ui->tx4->text();
     if(m_ntx == 5) txMsg=ui->tx5->currentText();
     if(m_ntx == 6) txMsg=ui->tx6->text();
-    if(m_ntx == 7) txMsg=ui->genMsg->text();
-    if(m_ntx == 8) txMsg=ui->freeTextMsg->currentText();
     int msgLength=txMsg.trimmed().length();
     if(msgLength==0 and !m_tune) on_stopTxButton_clicked();
 
@@ -3937,8 +3908,6 @@ void MainWindow::guiUpdate()
       if(m_ntx == 4) ba=ui->tx4->text().toLocal8Bit();
       if(m_ntx == 5) ba=ui->tx5->currentText().toLocal8Bit();
       if(m_ntx == 6) ba=ui->tx6->text().toLocal8Bit();
-      if(m_ntx == 7) ba=ui->genMsg->text().toLocal8Bit();
-      if(m_ntx == 8) ba=ui->freeTextMsg->currentText().toLocal8Bit();
     }
 
     ba2msg(ba,message);
@@ -3984,7 +3953,7 @@ void MainWindow::guiUpdate()
           }
 
           if(m_modeTx=="FT8") {
-            if(SpecOp::FOX==m_config.special_op_id() and ui->tabWidget->currentIndex()==2) {
+            if(SpecOp::FOX==m_config.special_op_id() and ui->tabWidget->currentIndex()==1) {
               foxTxSequencer();
             } else {
               int i3=0;
@@ -4175,17 +4144,8 @@ void MainWindow::guiUpdate()
     m_restart=false;
 //----------------------------------------------------------------------
   } else {
-    if (!m_auto && m_sentFirst73)
-    {
+    if (!m_auto && m_sentFirst73) {
       m_sentFirst73 = false;
-      if (1 == ui->tabWidget->currentIndex())
-      {
-        ui->genMsg->setText(ui->tx6->text());
-        m_ntx=7;
-        m_QSOProgress = CALLING;
-        m_gen_message_is_cq = true;
-        ui->rbGenMsg->setChecked(true);
-      }
     }
   }
   if (g_iptt == 1 && m_iptt0 == 0) {
@@ -4285,7 +4245,7 @@ void MainWindow::guiUpdate()
 
     if(m_transmitting) {
       char s[42];
-      if(SpecOp::FOX==m_config.special_op_id() and ui->tabWidget->currentIndex()==2) {
+      if(SpecOp::FOX==m_config.special_op_id() and ui->tabWidget->currentIndex()==1) {
         sprintf(s,"Tx:  %d Slots",foxcom_.nslots);
       } else {
         sprintf(s,"Tx: %s",msgsent);
@@ -4307,7 +4267,7 @@ void MainWindow::guiUpdate()
         } else {
           s[40]=0;
           QString t{QString::fromLatin1(s)};
-          if(SpecOp::FOX==m_config.special_op_id() and ui->tabWidget->currentIndex()==2 and foxcom_.nslots==1) {
+          if(SpecOp::FOX==m_config.special_op_id() and ui->tabWidget->currentIndex()==1 and foxcom_.nslots==1) {
               t=m_fm1.trimmed();
           }
           if(m_mode=="FT4") t="Tx: "+ m_currentMessage;
@@ -4912,11 +4872,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
         QString r=message_words.at (3);
         if(m_QSOProgress >= ROGER_REPORT && (r=="RRR" || r.toInt()==73 || "RR73" == r)) {
           if(m_mode=="FT4" and r=="RR73") m_dateTimeRcvdRR73=QDateTime::currentDateTimeUtc();
-          if(ui->tabWidget->currentIndex()==1) {
-            gen_msg = 5;
-            if (ui->rbGenMsg->isChecked ()) m_ntx=7;
-            m_gen_message_is_cq = false;
-          } else {
             m_bTUmsg=false;
             m_nextCall="";   //### Temporary: disable use of "TU;" message
             if(SpecOp::RTTY == m_config.special_op_id() and m_nextCall!="") {
@@ -4937,7 +4892,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
                 ui->txrb5->setChecked(true);
               }
             }
-          }
           m_QSOProgress = SIGNOFF;
         } else if((m_QSOProgress >= REPORT
                    || (m_QSOProgress >= REPLYING &&
@@ -4981,15 +4935,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
              && message_words.size () > 2 && message_words.at (1).contains (m_baseCall)
              && message_words.at (2) == "73") {
       // 73 back to compound call holder
-      if(ui->tabWidget->currentIndex()==1) {
-        gen_msg = 5;
-        if (ui->rbGenMsg->isChecked ()) m_ntx=7;
-        m_gen_message_is_cq = false;
-      }
-      else {
-        m_ntx=5;
-        ui->txrb5->setChecked(true);
-      }
+      m_ntx=5;
+      ui->txrb5->setChecked(true);
       m_QSOProgress = SIGNOFF;
     }
     else if (!(m_bAutoReply && (m_QSOProgress > CALLING))) {
@@ -5070,14 +5017,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     }
   }
   else if (is_73 && !message.isStandardMessage ()) {
-    if(ui->tabWidget->currentIndex()==1) {
-      gen_msg = 5;
-      if (ui->rbGenMsg->isChecked ()) m_ntx=7;
-      m_gen_message_is_cq = false;
-    } else {
-      m_ntx=5;
-      ui->txrb5->setChecked(true);
-    }
+    m_ntx=5;
+    ui->txrb5->setChecked(true);
     m_QSOProgress = SIGNOFF;
   } else {
     // just work them
@@ -5148,18 +5089,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   m_bTUmsg=false;   //### Temporary: disable use of "TU;" messages
   if (!m_nTx73 and !m_bTUmsg) {
     genStdMsgs(rpt);
-    if (gen_msg) {
-      switch (gen_msg) {
-      case 1: ui->genMsg->setText (ui->tx1->text ()); break;
-      case 2: ui->genMsg->setText (ui->tx2->text ()); break;
-      case 3: ui->genMsg->setText (ui->tx3->text ()); break;
-      case 4: ui->genMsg->setText (ui->tx4->text ()); break;
-      case 5: ui->genMsg->setText (ui->tx5->currentText ()); break;
-      }
-      if (gen_msg != 5) {        // allow user to pre-select a free message
-        ui->rbGenMsg->setChecked (true);
-      }
-    }
   }
   if(m_transmitting) m_restart=true;
   if (ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked ()
@@ -5168,6 +5097,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   }
   if(m_config.quick_call() && m_bDoubleClicked) auto_tx_mode(true);
   m_bDoubleClicked=false;
+  if(gen_msg==-999) return;   //Silence compiler warning
 }
 
 int MainWindow::setTxMsg(int n)
@@ -5275,7 +5205,6 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     ui->tx3->clear ();
     ui->tx4->clear ();
     if(unconditional) ui->tx5->lineEdit ()->clear ();   //Test if it needs sending again
-    ui->genMsg->clear ();
     m_gen_message_is_cq = false;
     return;
   }
@@ -5517,19 +5446,12 @@ void MainWindow::clearDX ()
   m_qsoStop.clear ();
   m_inQSOwith.clear();
   genStdMsgs (QString {});
-  if (ui->tabWidget->currentIndex() == 1) {
-    ui->genMsg->setText(ui->tx6->text());
-    m_ntx=7;
-    m_gen_message_is_cq = true;
-    ui->rbGenMsg->setChecked(true);
+  if (m_mode=="FT8" and SpecOp::HOUND == m_config.special_op_id()) {
+    m_ntx=1;
+    ui->txrb1->setChecked(true);
   } else {
-    if (m_mode=="FT8" and SpecOp::HOUND == m_config.special_op_id()) {
-      m_ntx=1;
-      ui->txrb1->setChecked(true);
-    } else {
-      m_ntx=6;
-      ui->txrb6->setChecked(true);
-    }
+    m_ntx=6;
+    ui->txrb6->setChecked(true);
   }
   m_QSOProgress = CALLING;
 }
@@ -6893,111 +6815,6 @@ void MainWindow::enable_DXCC_entity (bool on)
 //    ui->gridLayout->setColumnStretch(1,0);
   }
   updateGeometry ();
-}
-
-void MainWindow::on_pbCallCQ_clicked()
-{
-  genStdMsgs(m_rpt);
-  ui->genMsg->setText(ui->tx6->text());
-  m_ntx=7;
-  m_QSOProgress = CALLING;
-  m_gen_message_is_cq = true;
-  ui->rbGenMsg->setChecked(true);
-  if(m_transmitting) m_restart=true;
-  set_dateTimeQSO(-1);
-}
-
-void MainWindow::on_pbAnswerCaller_clicked()
-{
-  genStdMsgs(m_rpt);
-  QString t=ui->tx3->text();
-  int i0=t.indexOf(" R-");
-  if(i0<0) i0=t.indexOf(" R+");
-  t=t.mid(0,i0+1)+t.mid(i0+2,3);
-  ui->genMsg->setText(t);
-  m_ntx=7;
-  m_QSOProgress = REPORT;
-  m_gen_message_is_cq = false;
-  ui->rbGenMsg->setChecked(true);
-  if(m_transmitting) m_restart=true;
-  set_dateTimeQSO(2);
-}
-
-void MainWindow::on_pbSendRRR_clicked()
-{
-  genStdMsgs(m_rpt);
-  ui->genMsg->setText(ui->tx4->text());
-  m_ntx=7;
-  m_QSOProgress = ROGERS;
-  m_gen_message_is_cq = false;
-  ui->rbGenMsg->setChecked(true);
-  if(m_transmitting) m_restart=true;
-}
-
-void MainWindow::on_pbAnswerCQ_clicked()
-{
-  genStdMsgs(m_rpt);
-  ui->genMsg->setText(ui->tx1->text());
-  QString t=ui->tx2->text();
-  int i0=t.indexOf("/");
-  int i1=t.indexOf(" ");
-  if(i0>0 and i0<i1) ui->genMsg->setText(t);
-  m_ntx=7;
-  m_QSOProgress = REPLYING;
-  m_gen_message_is_cq = false;
-  ui->rbGenMsg->setChecked(true);
-  if(m_transmitting) m_restart=true;
-}
-
-void MainWindow::on_pbSendReport_clicked()
-{
-  genStdMsgs(m_rpt);
-  ui->genMsg->setText(ui->tx3->text());
-  m_ntx=7;
-  m_QSOProgress = ROGER_REPORT;
-  m_gen_message_is_cq = false;
-  ui->rbGenMsg->setChecked(true);
-  if(m_transmitting) m_restart=true;
-  set_dateTimeQSO(3);
-}
-
-void MainWindow::on_pbSend73_clicked()
-{
-  genStdMsgs(m_rpt);
-  ui->genMsg->setText(ui->tx5->currentText());
-  m_ntx=7;
-  m_QSOProgress = SIGNOFF;
-  m_gen_message_is_cq = false;
-  ui->rbGenMsg->setChecked(true);
-  if(m_transmitting) m_restart=true;
-}
-
-void MainWindow::on_rbGenMsg_clicked(bool checked)
-{
-  m_freeText=!checked;
-  if(!m_freeText) {
-    if(m_ntx != 7 && m_transmitting) m_restart=true;
-    m_ntx=7;
-    // would like to set m_QSOProgress but what to? So leave alone and
-    // assume it is correct
-  }
-}
-
-void MainWindow::on_rbFreeText_clicked(bool checked)
-{
-  m_freeText=checked;
-  if(m_freeText) {
-    m_ntx=8;
-    // would like to set m_QSOProgress but what to? So leave alone and
-    // assume it is correct. Perhaps should store old value to be
-    // restored above in on_rbGenMsg_clicked
-    if (m_transmitting) m_restart=true;
-  }
-}
-
-void MainWindow::on_freeTextMsg_currentTextChanged (QString const& text)
-{
-  msgtype(text, ui->freeTextMsg->lineEdit ());
 }
 
 void MainWindow::on_rptSpinBox_valueChanged(int n)

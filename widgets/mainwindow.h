@@ -222,15 +222,6 @@ private slots:
   void startP1();
   void stopTx();
   void stopTx2();
-  void on_pbCallCQ_clicked();
-  void on_pbAnswerCaller_clicked();
-  void on_pbSendRRR_clicked();
-  void on_pbAnswerCQ_clicked();
-  void on_pbSendReport_clicked();
-  void on_pbSend73_clicked();
-  void on_rbGenMsg_clicked(bool checked);
-  void on_rbFreeText_clicked(bool checked);
-  void on_freeTextMsg_currentTextChanged (QString const&);
   void on_rptSpinBox_valueChanged(int n);
   void killFile();
   void on_tuneButton_clicked (bool);
