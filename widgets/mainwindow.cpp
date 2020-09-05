@@ -5994,12 +5994,14 @@ void MainWindow::displayWidgets(qint64 n)
 
 void MainWindow::on_actionFST4_triggered()
 {
-  on_actionJT65_triggered();
-  ui->label_6->setText(tr ("Band Activity"));
-  ui->label_7->setText(tr ("Rx Frequency"));
   m_mode="FST4";
   m_modeTx="FST4";
   ui->actionFST4->setChecked(true);
+  m_nsps=6912;                   //For symspec only
+  m_FFTSize = m_nsps / 2;
+  Q_EMIT FFTSize(m_FFTSize);
+  ui->label_6->setText(tr ("Band Activity"));
+  ui->label_7->setText(tr ("Rx Frequency"));
   WSPR_config(false);
 //                         0123456789012345678901234567890123
   displayWidgets(nWidgets("1111110001001110000100000001000000"));
@@ -6020,11 +6022,11 @@ void MainWindow::on_actionFST4W_triggered()
 {
   m_mode="FST4W";
   m_modeTx="FST4W";
+  ui->actionFST4W->setChecked(true);
   m_nsps=6912;                   //For symspec only
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize(m_FFTSize);
   WSPR_config(true);
-  ui->actionFST4W->setChecked(true);
 //                         0123456789012345678901234567890123
   displayWidgets(nWidgets("0000000000000000010100000000000001"));
   setup_status_bar(false);
