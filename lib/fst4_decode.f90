@@ -29,9 +29,9 @@ module fst4_decode
 
 contains
 
-   subroutine decode(this,callback,iwave,nutc,nQSOProgress,nfqso,    &
-      nfa,nfb,nsubmode,ndepth,ntrperiod,nexp_decode,ntol,            &
-      emedelay,lapcqonly,mycall,hiscall,iwspr)
+   subroutine decode(this,callback,iwave,nutc,nQSOProgress,nfqso,      &
+        ndepth,ntrperiod,nexp_decode,ntol,emedelay,lapcqonly,mycall,   &
+        hiscall,iwspr)
 
       use timer_module, only: timer
       use packjt77
@@ -64,7 +64,7 @@ contains
       integer naptypes(0:5,4)  ! (nQSOProgress,decoding pass)
       integer mcq(29),mrrr(19),m73(19),mrr73(19)
 
-      logical badsync,unpk77_success,single_decode
+      logical badsync,unpk77_success
       logical first,nohiscall,lwspr,ex
 
       integer*2 iwave(30*60*12000)
@@ -76,14 +76,12 @@ contains
       data  rvec/0,1,0,0,1,0,1,0,0,1,0,1,1,1,1,0,1,0,0,0,1,0,0,1,1,0,1,1,0, &
          1,0,0,1,0,1,1,0,0,0,0,1,0,0,0,1,0,1,0,0,1,1,1,1,0,0,1,0,1, &
          0,1,0,1,0,1,1,0,1,1,1,1,1,0,0,0,1,0,1/
-      data first/.true./
+      data first/.true./,hmod/1/
       save first,apbits,nappasses,naptypes,mycall0,hiscall0
 
       this%callback => callback
-
       dxcall13=hiscall   ! initialize for use in packjt77
       mycall13=mycall
-
       fMHz=1.0
 
       if(iwspr.ne.0.and.iwspr.ne.1) return
@@ -157,57 +155,43 @@ contains
       endif
 !************************************
 
-      hmod=2**nsubmode
       if(nfqso+nqsoprogress.eq.-999) return
       Keff=91
       nmax=15*12000
-      single_decode=iand(nexp_decode,32).eq.32
       if(ntrperiod.eq.15) then
          nsps=720
          nmax=15*12000
-         ndown=18/hmod !nss=40,80,160,400
-         if(hmod.eq.4) ndown=4
-         if(hmod.eq.8) ndown=2
+         ndown=18                  !nss=40,80,160,400
          nfft1=int(nmax/ndown)*ndown
       else if(ntrperiod.eq.30) then
          nsps=1680
          nmax=30*12000
-         ndown=42/hmod !nss=40,80,168,336
+         ndown=42                  !nss=40,80,168,336
          nfft1=359856  !nfft2=8568=2^3*3^2*7*17
-         if(hmod.eq.4) then
-            ndown=10
-            nfft1=nmax
-         endif
-         if(hmod.eq.8) then
-            ndown=5
-            nfft1=nmax
-         endif
       else if(ntrperiod.eq.60) then
          nsps=3888
          nmax=60*12000
-         ndown=96/hmod !nss=36,81,162,324
-         if(hmod.eq.1) ndown=108
+         ndown=108
          nfft1=7500*96    ! nfft2=7500=2^2*3*5^4
       else if(ntrperiod.eq.120) then
          nsps=8200
          nmax=120*12000
-         ndown=200/hmod !nss=40,82,164,328
-         if(hmod.eq.1) ndown=205
+         ndown=205                 !nss=40,82,164,328
          nfft1=7200*200   ! nfft2=7200=2^5*3^2*5^2
       else if(ntrperiod.eq.300) then
          nsps=21504
          nmax=300*12000
-         ndown=512/hmod !nss=42,84,168,336
+         ndown=512                 !nss=42,84,168,336
          nfft1=7020*512   ! nfft2=7020=2^2*3^3*5*13
       else if(ntrperiod.eq.900) then
          nsps=66560
          nmax=900*12000
-         ndown=1664/hmod !nss=40,80,160,320
+         ndown=1664                !nss=40,80,160,320
          nfft1=6480*1664  ! nfft2=6480=2^4*3^4*5
       else if(ntrperiod.eq.1800) then
          nsps=134400
          nmax=1800*12000
-         ndown=3360/hmod !nss=40,80,160,320
+         ndown=3360                !nss=40,80,160,320
          nfft1=6426*3360  ! nfft2=6426=2*3^3*7*17
       end if
       nss=nsps/ndown
@@ -218,7 +202,7 @@ contains
       dt2=1.0/fs2
       tt=nsps*dt                       !Duration of "itone" symbols (s)
       baud=1.0/tt
-      sigbw=4.0*hmod*baud
+      sigbw=4.0*baud
       nfft2=nfft1/ndown                !make sure that nfft1 is exactly nfft2*ndown
       nfft1=nfft2*ndown
       nh1=nfft1/2
@@ -232,8 +216,7 @@ contains
          jittermax=2
          norder=3
       elseif(ndepth.eq.2) then
-         nblock=1
-         if(hmod.eq.1) nblock=3
+         nblock=3
          jittermax=0
          norder=3
       elseif(ndepth.eq.1) then
@@ -249,17 +232,11 @@ contains
 ! The big fft is done once and is used for calculating the smoothed spectrum
 ! and also for downconverting/downsampling each candidate.
       call four2a(c_bigfft,nfft1,1,-1,0)         !r2c
-!      call blank2(nfa,nfb,nfft1,c_bigfft,iwave)
 
       nhicoh=1
       nsyncoh=8
-      if(iwspr.eq.1) then
-         fa=1400.0
-         fb=1600.0
-      else
-         fa=max(100,nint(nfqso+1.5*hmod*baud-ntol))
-         fb=min(4800,nint(nfqso+1.5*hmod*baud+ntol))
-      endif
+      fa=max(100,nint(nfqso+1.5*baud-ntol))
+      fb=min(4800,nint(nfqso+1.5*baud+ntol))
       minsync=1.20
       if(ntrperiod.eq.15) minsync=1.15
 
@@ -485,7 +462,7 @@ contains
                   endif
                   nsnr=nint(xsnr)
                   qual=0.
-                  fsig=fc_synced - 1.5*hmod*baud
+                  fsig=fc_synced - 1.5*baud
                   if(ex) then
                      write(21,3021) nutc,icand,itry,nsyncoh,iaptype,  &
                         ijitter,ntype,nsync_qual,nharderrors,dmin,  &
@@ -791,7 +768,6 @@ contains
       complex, allocatable :: cwave(:)       !Reconstructed complex signal
       complex, allocatable :: g(:)           !Channel gain, g(t) in QEX paper
       real,allocatable :: ss(:)              !Computed power spectrum of g(t)
-      real,allocatable,save :: ssavg(:)      !Computed power spectrum of g(t)
       integer itone(160)                     !Tones for this message
       integer*2 iwave(nmax)                  !Raw Rx data
       integer hmod                           !Modulation index
