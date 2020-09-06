@@ -2776,7 +2776,7 @@ Yellow when too low</string>
     <addaction name="actionOnline_User_Guide"/>
     <addaction name="actionLocal_User_Guide"/>
     <addaction name="actionFT8_DXpedition_Mode_User_Guide"/>
-    <addaction name="actionQuick_Start_Guide_v2"/>
+    <addaction name="actionQuick_Start_Guide"/>
     <addaction name="download_samples_action"/>
     <addaction name="separator"/>
     <addaction name="actionKeyboard_shortcuts"/>
@@ -3386,9 +3386,9 @@ Yellow when too low</string>
     <string>Export Cabrillo log ...</string>
    </property>
   </action>
-  <action name="actionQuick_Start_Guide_v2">
+  <action name="actionQuick_Start_Guide">
    <property name="text">
-    <string>Quick-Start Guide to WSJT-X 2.0</string>
+    <string>Quick-Start Guide to FST4 and FST4W</string>
    </property>
   </action>
   <action name="contest_log_action">
