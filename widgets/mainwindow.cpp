@@ -6023,7 +6023,7 @@ void MainWindow::on_actionFT8_triggered()
     ui->txFirstCheckBox->setEnabled(false);
     ui->cbHoldTxFreq->setChecked(true);
     ui->cbAutoSeq->setEnabled(false);
-    ui->tabWidget->setCurrentIndex(2);
+    ui->tabWidget->setCurrentIndex(1);
     ui->TxFreqSpinBox->setValue(300);
     displayWidgets(nWidgets("1110100001001110000100000000001000"));
     ui->labDXped->setText(tr ("Fox"));
