@@ -1879,7 +1879,7 @@ void MainWindow::on_monitorButton_clicked (bool checked)
       on_RxFreqSpinBox_valueChanged (ui->RxFreqSpinBox->value ());
     }
       //Get Configuration in/out of strict split and mode checking
-    Q_EMIT m_config.sync_transceiver (true, checked);
+    m_config.sync_transceiver (true, checked);
   } else {
     ui->monitorButton->setChecked (false); // disallow
   }
@@ -3858,7 +3858,7 @@ void MainWindow::guiUpdate()
       }
 
       setXIT (ui->TxFreqSpinBox->value ());
-      Q_EMIT m_config.transceiver_ptt (true);            //Assert the PTT
+      m_config.transceiver_ptt (true); //Assert the PTT
       m_tx_when_ready = true;
     }
 //    if(!m_bTxTime and !m_tune and m_mode!="FT4") m_btxok=false;       //Time to stop transmitting
@@ -4369,7 +4369,7 @@ void MainWindow::stopTx()
 
 void MainWindow::stopTx2()
 {
-  Q_EMIT m_config.transceiver_ptt (false);      //Lower PTT
+  m_config.transceiver_ptt (false); //Lower PTT
   if (m_mode == "JT9" && m_bFast9
       && ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked()
       && m_ntx == 5 && m_nTx73 >= 5) {
@@ -6550,7 +6550,7 @@ void MainWindow::WSPR_config(bool b)
     if(!m_config.miles()) t += " km";
     ui->decodedTextLabel->setText(t);
     if (m_config.is_transceiver_online ()) {
-      Q_EMIT m_config.transceiver_tx_frequency (0); // turn off split
+      m_config.transceiver_tx_frequency (0); // turn off split
     }
     m_bSimplex = true;
   } else
@@ -6864,7 +6864,7 @@ void MainWindow::rigOpen ()
   ui->readFreq->setText ("");
   ui->readFreq->setEnabled (true);
   m_config.transceiver_online ();
-  Q_EMIT m_config.sync_transceiver (true, true);
+  m_config.sync_transceiver (true, true);
 }
 
 void MainWindow::on_pbR2T_clicked()
@@ -6887,7 +6887,7 @@ void MainWindow::on_readFreq_clicked()
 
   if (m_config.transceiver_online ())
     {
-      Q_EMIT m_config.sync_transceiver (true, true);
+      m_config.sync_transceiver (true, true);
     }
 }
 
@@ -6937,7 +6937,7 @@ void MainWindow::setXIT(int n, Frequency base)
         // frequency
         m_freqTxNominal = base + m_XIT;
         if (m_astroWidget) m_astroWidget->nominal_frequency (m_freqNominal, m_freqTxNominal);
-        Q_EMIT m_config.transceiver_tx_frequency (m_freqTxNominal + m_astroCorrection.tx);
+        m_config.transceiver_tx_frequency (m_freqTxNominal + m_astroCorrection.tx);
       }
   }
   //Now set the audio Tx freq
@@ -8094,11 +8094,11 @@ void MainWindow::setRig (Frequency f)
     {
       if (m_transmitting && m_config.split_mode ())
         {
-          Q_EMIT m_config.transceiver_tx_frequency (m_freqTxNominal + m_astroCorrection.tx);
+          m_config.transceiver_tx_frequency (m_freqTxNominal + m_astroCorrection.tx);
         }
       else
         {
-          Q_EMIT m_config.transceiver_frequency (m_freqNominal + m_astroCorrection.rx);
+          m_config.transceiver_frequency (m_freqNominal + m_astroCorrection.rx);
         }
     }
 }
