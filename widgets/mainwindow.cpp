@@ -2197,7 +2197,7 @@ void MainWindow::displayDialFrequency ()
     {
       // only change this when necessary as we get called a lot and it
       // would trash any user input to the band combo box line edit
-      ui->bandComboBox->setCurrentText (band_name);
+      ui->bandComboBox->setCurrentText (band_name.size () ? band_name : m_config.bands ()->oob ());
       m_wideGraph->setRxBand (band_name);
       m_lastBand = band_name;
       band_changed(dial_frequency);
@@ -6696,17 +6696,20 @@ void MainWindow::on_bandComboBox_currentIndexChanged (int index)
 
   // Lookup band
   auto const& band  = m_config.bands ()->find (frequency);
-  if (!band.isEmpty ())
+  ui->bandComboBox->setCurrentText (band.size () ? band : m_config.bands ()->oob ());
+  displayDialFrequency ();
+}
+
+void MainWindow::on_bandComboBox_editTextChanged (QString const& text)
+{
+  if (text.size () && m_config.bands ()->oob () != text)
     {
       ui->bandComboBox->lineEdit ()->setStyleSheet ({});
-      ui->bandComboBox->setCurrentText (band);
     }
   else
     {
       ui->bandComboBox->lineEdit ()->setStyleSheet ("QLineEdit {color: yellow; background-color : red;}");
-      ui->bandComboBox->setCurrentText (m_config.bands ()->oob ());
     }
-  displayDialFrequency ();
 }
 
 void MainWindow::on_bandComboBox_activated (int index)
