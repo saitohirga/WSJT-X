@@ -1879,7 +1879,7 @@ void MainWindow::on_monitorButton_clicked (bool checked)
       on_RxFreqSpinBox_valueChanged (ui->RxFreqSpinBox->value ());
     }
       //Get Configuration in/out of strict split and mode checking
-    Q_EMIT m_config.sync_transceiver (true, checked);
+    m_config.sync_transceiver (true, checked);
   } else {
     ui->monitorButton->setChecked (false); // disallow
   }
@@ -2197,7 +2197,7 @@ void MainWindow::displayDialFrequency ()
     {
       // only change this when necessary as we get called a lot and it
       // would trash any user input to the band combo box line edit
-      ui->bandComboBox->setCurrentText (band_name);
+      ui->bandComboBox->setCurrentText (band_name.size () ? band_name : m_config.bands ()->oob ());
       m_wideGraph->setRxBand (band_name);
       m_lastBand = band_name;
       band_changed(dial_frequency);
@@ -3858,7 +3858,7 @@ void MainWindow::guiUpdate()
       }
 
       setXIT (ui->TxFreqSpinBox->value ());
-      Q_EMIT m_config.transceiver_ptt (true);            //Assert the PTT
+      m_config.transceiver_ptt (true); //Assert the PTT
       m_tx_when_ready = true;
     }
 //    if(!m_bTxTime and !m_tune and m_mode!="FT4") m_btxok=false;       //Time to stop transmitting
@@ -4369,7 +4369,7 @@ void MainWindow::stopTx()
 
 void MainWindow::stopTx2()
 {
-  Q_EMIT m_config.transceiver_ptt (false);      //Lower PTT
+  m_config.transceiver_ptt (false); //Lower PTT
   if (m_mode == "JT9" && m_bFast9
       && ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked()
       && m_ntx == 5 && m_nTx73 >= 5) {
@@ -6023,7 +6023,7 @@ void MainWindow::on_actionFT8_triggered()
     ui->txFirstCheckBox->setEnabled(false);
     ui->cbHoldTxFreq->setChecked(true);
     ui->cbAutoSeq->setEnabled(false);
-    ui->tabWidget->setCurrentIndex(2);
+    ui->tabWidget->setCurrentIndex(1);
     ui->TxFreqSpinBox->setValue(300);
     displayWidgets(nWidgets("1110100001001110000100000000001000"));
     ui->labDXped->setText(tr ("Fox"));
@@ -6550,7 +6550,7 @@ void MainWindow::WSPR_config(bool b)
     if(!m_config.miles()) t += " km";
     ui->decodedTextLabel->setText(t);
     if (m_config.is_transceiver_online ()) {
-      Q_EMIT m_config.transceiver_tx_frequency (0); // turn off split
+      m_config.transceiver_tx_frequency (0); // turn off split
     }
     m_bSimplex = true;
   } else
@@ -6696,17 +6696,20 @@ void MainWindow::on_bandComboBox_currentIndexChanged (int index)
 
   // Lookup band
   auto const& band  = m_config.bands ()->find (frequency);
-  if (!band.isEmpty ())
+  ui->bandComboBox->setCurrentText (band.size () ? band : m_config.bands ()->oob ());
+  displayDialFrequency ();
+}
+
+void MainWindow::on_bandComboBox_editTextChanged (QString const& text)
+{
+  if (text.size () && m_config.bands ()->oob () != text)
     {
       ui->bandComboBox->lineEdit ()->setStyleSheet ({});
-      ui->bandComboBox->setCurrentText (band);
     }
   else
     {
       ui->bandComboBox->lineEdit ()->setStyleSheet ("QLineEdit {color: yellow; background-color : red;}");
-      ui->bandComboBox->setCurrentText (m_config.bands ()->oob ());
     }
-  displayDialFrequency ();
 }
 
 void MainWindow::on_bandComboBox_activated (int index)
@@ -6864,7 +6867,7 @@ void MainWindow::rigOpen ()
   ui->readFreq->setText ("");
   ui->readFreq->setEnabled (true);
   m_config.transceiver_online ();
-  Q_EMIT m_config.sync_transceiver (true, true);
+  m_config.sync_transceiver (true, true);
 }
 
 void MainWindow::on_pbR2T_clicked()
@@ -6887,7 +6890,7 @@ void MainWindow::on_readFreq_clicked()
 
   if (m_config.transceiver_online ())
     {
-      Q_EMIT m_config.sync_transceiver (true, true);
+      m_config.sync_transceiver (true, true);
     }
 }
 
@@ -6937,7 +6940,7 @@ void MainWindow::setXIT(int n, Frequency base)
         // frequency
         m_freqTxNominal = base + m_XIT;
         if (m_astroWidget) m_astroWidget->nominal_frequency (m_freqNominal, m_freqTxNominal);
-        Q_EMIT m_config.transceiver_tx_frequency (m_freqTxNominal + m_astroCorrection.tx);
+        m_config.transceiver_tx_frequency (m_freqTxNominal + m_astroCorrection.tx);
       }
   }
   //Now set the audio Tx freq
@@ -8094,11 +8097,11 @@ void MainWindow::setRig (Frequency f)
     {
       if (m_transmitting && m_config.split_mode ())
         {
-          Q_EMIT m_config.transceiver_tx_frequency (m_freqTxNominal + m_astroCorrection.tx);
+          m_config.transceiver_tx_frequency (m_freqTxNominal + m_astroCorrection.tx);
         }
       else
         {
-          Q_EMIT m_config.transceiver_frequency (m_freqNominal + m_astroCorrection.rx);
+          m_config.transceiver_frequency (m_freqNominal + m_astroCorrection.rx);
         }
     }
 }
