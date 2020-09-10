@@ -82,7 +82,6 @@ contains
       this%callback => callback
       dxcall13=hiscall   ! initialize for use in packjt77
       mycall13=mycall
-      fMHz=1.0
 
       if(iwspr.ne.0.and.iwspr.ne.1) return
 
@@ -241,7 +240,7 @@ contains
       if(ntrperiod.eq.15) minsync=1.15
 
 ! Get first approximation of candidate frequencies
-      call get_candidates_fst4(c_bigfft,nfft1,nsps,hmod,fs,fa,fb,     &
+      call get_candidates_fst4(c_bigfft,nfft1,nsps,hmod,fs,fa,fb,nfa,nfb,     &
          minsync,ncand,candidates)
 
       ndecodes=0
@@ -626,7 +625,7 @@ contains
 
    end subroutine fst4_downsample
 
-   subroutine get_candidates_fst4(c_bigfft,nfft1,nsps,hmod,fs,fa,fb,   &
+   subroutine get_candidates_fst4(c_bigfft,nfft1,nsps,hmod,fs,fa,fb,nfa,nfb,   &
       minsync,ncand,candidates)
 
       complex c_bigfft(0:nfft1/2)              !Full length FFT of raw data
@@ -648,20 +647,10 @@ contains
       ndh=nd/2
       ia=nint(max(100.0,fa)/df2)               !Low frequency search limit
       ib=nint(min(4800.0,fb)/df2)              !High frequency limit
-      signal_bw=4*(12000.0/nsps)*hmod
-      analysis_bw=min(4800.0,fb)-max(100.0,fa)
-      xnoise_bw=10.0*signal_bw                  !Is this a good compromise?
-      if(xnoise_bw .lt. 400.0) xnoise_bw=400.0  
-      if(analysis_bw.gt.xnoise_bw) then         !Estimate noise baseline over analysis bw
-         ina=0.9*ia
-         inb=min(int(1.1*ib),nfft1/2)
-      else                                      !Estimate noise baseline over noise bw
-         fcenter=(fa+fb)/2.0                    
-         fl = max(100.0,fcenter-xnoise_bw/2.)/df2  
-         fh = min(4800.0,fcenter+xnoise_bw/2.)/df2
-         ina=nint(fl)
-         inb=nint(fh)
-      endif
+      ina=nint(max(100.0,real(nfa))/df2)       !Low freq limit for noise baseline fit
+      inb=nint(min(4800.0,real(nfb))/df2)      !High freq limit for noise fit
+      if(ia.lt.ina) ia=ina
+      if(ib.gt.inb) ib=inb
       nnw=nint(48000.*nsps*2./fs)
       allocate (s(nnw))
       s=0.                                  !Compute low-resolution power spectrum
