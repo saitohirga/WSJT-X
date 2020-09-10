@@ -721,6 +721,9 @@ QPushButton[state=&quot;ok&quot;] {
                    <property name="toolTip">
                     <string>Set Tx frequency to Rx Frequency</string>
                    </property>
+                   <property name="accessibleName">
+                    <string>Set Tx frequency to Rx Frequency</string>
+                   </property>
                    <property name="text">
                     <string>▲</string>
                    </property>
@@ -769,6 +772,9 @@ QPushButton[state=&quot;ok&quot;] {
                     </size>
                    </property>
                    <property name="toolTip">
+                    <string>Set Rx frequency to Tx Frequency</string>
+                   </property>
+                   <property name="accessibleName">
                     <string>Set Rx frequency to Tx Frequency</string>
                    </property>
                    <property name="text">
