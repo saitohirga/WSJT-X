@@ -4210,9 +4210,10 @@ void MainWindow::guiUpdate()
     }
   }
 
-//Once per second:
+//Once per second (onesec)
   if(nsec != m_sec0) {
 //      qDebug() << "AAA" << nsec;
+    if(m_mode=="FST4") sbFtolMaxVal();
     m_currentBand=m_config.bands()->find(m_freqNominal);
     if( SpecOp::HOUND == m_config.special_op_id() ) {
       qint32 tHound=QDateTime::currentMSecsSinceEpoch()/1000 - m_tAutoOn;
@@ -5891,6 +5892,7 @@ void MainWindow::on_actionFST4_triggered()
   setup_status_bar(false);
   ui->sbTR->values ({15, 30, 60, 120, 300, 900, 1800});
   on_sbTR_valueChanged (ui->sbTR->value());
+  sbFtolMaxVal();
   ui->cbAutoSeq->setChecked(true);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
@@ -6504,7 +6506,8 @@ void MainWindow::switch_mode (Mode mode)
   ui->rptSpinBox->setSingleStep(1);
   ui->rptSpinBox->setMinimum(-50);
   ui->rptSpinBox->setMaximum(49);
-  ui->sbFtol->values ({10, 20, 50, 100, 200, 500, 1000});
+  ui->sbFtol->values ({1, 2, 5, 10, 20, 50, 100, 200, 500, 1000});
+  ui->sbFST4W_FTol->values({1, 2, 5, 10, 20, 50, 100});
   if(m_mode=="MSK144") {
     ui->RxFreqSpinBox->setMinimum(1400);
     ui->RxFreqSpinBox->setMaximum(1600);
@@ -7439,6 +7442,7 @@ void MainWindow::on_sbTR_valueChanged(int value)
     m_wideGraph->setPeriod (value, m_nsps);
     progressBar.setMaximum (value);
   }
+  if(m_mode=="FST4") sbFtolMaxVal();
   if(m_monitoring) {
     on_stopButton_clicked();
     on_monitorButton_clicked(true);
@@ -7447,6 +7451,14 @@ void MainWindow::on_sbTR_valueChanged(int value)
     on_stopTxButton_clicked();
   }
   statusUpdate ();
+}
+
+void MainWindow::sbFtolMaxVal()
+{
+  if(m_TRperiod<=60) ui->sbFtol->setMaximum(1000);
+  if(m_TRperiod==120) ui->sbFtol->setMaximum(500);
+  if(m_TRperiod==300) ui->sbFtol->setMaximum(200);
+  if(m_TRperiod>=900) ui->sbFtol->setMaximum(100);
 }
 
 void MainWindow::on_sbTR_FST4W_valueChanged(int value)
@@ -7928,6 +7940,9 @@ void MainWindow::on_sbFST4W_RxFreq_valueChanged(int n)
 
 void MainWindow::on_sbFST4W_FTol_valueChanged(int n)
 {
+  int m=(ui->sbFST4W_RxFreq->value() + n/2)/n;
+  ui->sbFST4W_RxFreq->setValue(n*m);
+  ui->sbFST4W_RxFreq->setSingleStep(n);
   m_wideGraph->setTol(n);
   statusUpdate ();
 }

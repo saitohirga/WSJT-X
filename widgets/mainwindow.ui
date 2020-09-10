@@ -1919,7 +1919,7 @@ list. The list can be maintained in Settings (F2).</string>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QSpinBox" name="sbFST4W_FTol">
+                     <widget class="HintedSpinBox" name="sbFST4W_FTol">
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
                       </property>
