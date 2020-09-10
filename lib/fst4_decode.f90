@@ -29,8 +29,8 @@ module fst4_decode
 
 contains
 
-   subroutine decode(this,callback,iwave,nutc,nQSOProgress,nfqso,      &
-        ndepth,ntrperiod,nexp_decode,ntol,emedelay,lapcqonly,mycall,   &
+   subroutine decode(this,callback,iwave,nutc,nQSOProgress,nfa,nfb,nfqso, &
+        ndepth,ntrperiod,nexp_decode,ntol,emedelay,lapcqonly,mycall,      &
         hiscall,iwspr)
 
       use timer_module, only: timer
