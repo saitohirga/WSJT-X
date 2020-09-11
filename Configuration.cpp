@@ -901,7 +901,7 @@ auto Configuration::special_op_id () const -> SpecialOperatingActivity
 void Configuration::set_location (QString const& grid_descriptor)
 {
   // change the dynamic grid
-  qDebug () << "Configuration::set_location - location:" << grid_descriptor;
+  // qDebug () << "Configuration::set_location - location:" << grid_descriptor;
   m_->dynamic_grid_ = grid_descriptor.trimmed ();
 }
 
@@ -2618,7 +2618,7 @@ void Configuration::impl::transceiver_frequency (Frequency f)
   current_offset_ = stations_.offset (f);
   cached_rig_state_.frequency (apply_calibration (f + current_offset_));
 
-  qDebug () << "Configuration::impl::transceiver_frequency: n:" << transceiver_command_number_ + 1 << "f:" << f;
+  // qDebug () << "Configuration::impl::transceiver_frequency: n:" << transceiver_command_number_ + 1 << "f:" << f;
   Q_EMIT set_transceiver (cached_rig_state_, ++transceiver_command_number_);
 }
 
@@ -2644,7 +2644,7 @@ void Configuration::impl::transceiver_tx_frequency (Frequency f)
           cached_rig_state_.tx_frequency (apply_calibration (f + current_tx_offset_));
         }
 
-      qDebug () << "Configuration::impl::transceiver_tx_frequency: n:" << transceiver_command_number_ + 1 << "f:" << f;
+      // qDebug () << "Configuration::impl::transceiver_tx_frequency: n:" << transceiver_command_number_ + 1 << "f:" << f;
       Q_EMIT set_transceiver (cached_rig_state_, ++transceiver_command_number_);
     }
 }
@@ -2653,7 +2653,7 @@ void Configuration::impl::transceiver_mode (MODE m)
 {
   cached_rig_state_.online (true); // we want the rig online
   cached_rig_state_.mode (m);
-  qDebug () << "Configuration::impl::transceiver_mode: n:" << transceiver_command_number_ + 1 << "m:" << m;
+  // qDebug () << "Configuration::impl::transceiver_mode: n:" << transceiver_command_number_ + 1 << "m:" << m;
   Q_EMIT set_transceiver (cached_rig_state_, ++transceiver_command_number_);
 }
 
@@ -2662,7 +2662,7 @@ void Configuration::impl::transceiver_ptt (bool on)
   cached_rig_state_.online (true); // we want the rig online
   set_cached_mode ();
   cached_rig_state_.ptt (on);
-  qDebug () << "Configuration::impl::transceiver_ptt: n:" << transceiver_command_number_ + 1 << "on:" << on;
+  // qDebug () << "Configuration::impl::transceiver_ptt: n:" << transceiver_command_number_ + 1 << "on:" << on;
   Q_EMIT set_transceiver (cached_rig_state_, ++transceiver_command_number_);
 }
 

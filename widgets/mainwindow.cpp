@@ -569,15 +569,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
         } else if (text.isEmpty ()) {
           ui->tx5->setCurrentText (text);
         }
-      } else if (1 == ui->tabWidget->currentIndex ()) {
-        if (!text.isEmpty ()) {
-          ui->freeTextMsg->setCurrentText (text);
-        }
-        if (send) {
-          ui->rbFreeText->click ();
-        } else if (text.isEmpty ()) {
-          ui->freeTextMsg->setCurrentText (text);
-        }
       }
       QApplication::alert (this);
     });
@@ -813,17 +804,11 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->tx4->setValidator (new QRegExpValidator {message_alphabet, this});
   ui->tx5->setValidator (new QRegExpValidator {message_alphabet, this});
   ui->tx6->setValidator (new QRegExpValidator {message_alphabet, this});
-  ui->freeTextMsg->setValidator (new QRegExpValidator {message_alphabet, this});
 
   // Free text macros model to widget hook up.
   ui->tx5->setModel (m_config.macros ());
   connect (ui->tx5->lineEdit(), &QLineEdit::editingFinished,
            [this] () {on_tx5_currentTextChanged (ui->tx5->lineEdit()->text());});
-  ui->freeTextMsg->setModel (m_config.macros ());
-  connect (ui->freeTextMsg->lineEdit ()
-           , &QLineEdit::editingFinished
-           , [this] () {on_freeTextMsg_currentTextChanged (ui->freeTextMsg->lineEdit ()->text ());});
-
   connect(&m_guiTimer, &QTimer::timeout, this, &MainWindow::guiUpdate);
   m_guiTimer.start(100);   //### Don't change the 100 ms! ###
 
@@ -968,9 +953,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   Q_EMIT transmitFrequency (ui->TxFreqSpinBox->value () - m_XIT);
 
   enable_DXCC_entity (m_config.DXCC ());  // sets text window proportions and (re)inits the logbook
-
-  ui->label_9->setStyleSheet("QLabel{color: #000000; background-color: #aabec8}");
-  ui->label_10->setStyleSheet("QLabel{color: #000000; background-color: #aabec8}");
 
   // this must be done before initializing the mode as some modes need
   // to turn off split on the rig e.g. WSPR
@@ -1129,7 +1111,6 @@ void MainWindow::writeSettings()
   m_settings->setValue ("MsgAvgDisplayed", m_msgAvgWidget && m_msgAvgWidget->isVisible ());
   m_settings->setValue ("FoxLogDisplayed", m_foxLogWindow && m_foxLogWindow->isVisible ());
   m_settings->setValue ("ContestLogDisplayed", m_contestLogWindow && m_contestLogWindow->isVisible ());
-  m_settings->setValue ("FreeText", ui->freeTextMsg->currentText ());
   m_settings->setValue("ShowMenus",ui->cbMenus->isChecked());
   m_settings->setValue("CallFirst",ui->cbFirst->isChecked());
   m_settings->setValue("HoundSort",ui->comboBoxHoundSort->currentIndex());
@@ -1149,6 +1130,8 @@ void MainWindow::writeSettings()
   m_settings->setValue("RxFreq",ui->RxFreqSpinBox->value());
   m_settings->setValue("TxFreq",ui->TxFreqSpinBox->value());
   m_settings->setValue("WSPRfreq",ui->WSPRfreqSpinBox->value());
+  m_settings->setValue("FST4W_RxFreq",ui->sbFST4W_RxFreq->value());
+  m_settings->setValue("FST4W_FTol",ui->sbFST4W_FTol->value());
   m_settings->setValue("SubMode",ui->sbSubmode->value());
   m_settings->setValue("DTtol",m_DTtol);
   m_settings->setValue("Ftol", ui->sbFtol->value ());
@@ -1164,6 +1147,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("OutBufSize",outBufSize);
   m_settings->setValue ("HoldTxFreq", ui->cbHoldTxFreq->isChecked ());
   m_settings->setValue("PctTx", ui->sbTxPercent->value ());
+  m_settings->setValue("RoundRobin",ui->RoundRobin->currentText());
   m_settings->setValue("dBm",m_dBm);
   m_settings->setValue("RR73",m_send_RR73);
   m_settings->setValue ("WSPRPreferType1", ui->WSPR_prefer_type_1_check_box->isChecked ());
@@ -1210,8 +1194,6 @@ void MainWindow::readSettings()
   auto displayMsgAvg = m_settings->value ("MsgAvgDisplayed", false).toBool ();
   auto displayFoxLog = m_settings->value ("FoxLogDisplayed", false).toBool ();
   auto displayContestLog = m_settings->value ("ContestLogDisplayed", false).toBool ();
-  if (m_settings->contains ("FreeText")) ui->freeTextMsg->setCurrentText (
-        m_settings->value ("FreeText").toString ());
   ui->cbMenus->setChecked(m_settings->value("ShowMenus",true).toBool());
   ui->cbFirst->setChecked(m_settings->value("CallFirst",true).toBool());
   ui->comboBoxHoundSort->setCurrentIndex(m_settings->value("HoundSort",3).toInt());
@@ -1235,8 +1217,11 @@ void MainWindow::readSettings()
   ui->actionSave_all->setChecked(m_settings->value("SaveAll",false).toBool());
   ui->RxFreqSpinBox->setValue(0); // ensure a change is signaled
   ui->RxFreqSpinBox->setValue(m_settings->value("RxFreq",1500).toInt());
+  ui->sbFST4W_RxFreq->setValue(0);
+  ui->sbFST4W_RxFreq->setValue(m_settings->value("FST4W_RxFreq",1500).toInt());
   m_nSubMode=m_settings->value("SubMode",0).toInt();
   ui->sbFtol->setValue (m_settings->value("Ftol", 50).toInt());
+  ui->sbFST4W_FTol->setValue(m_settings->value("FST4W_FTol",100).toInt());
   m_minSync=m_settings->value("MinSync",0).toInt();
   ui->syncSpinBox->setValue(m_minSync);
   ui->cbAutoSeq->setChecked (m_settings->value ("AutoSeq", false).toBool());
@@ -1256,6 +1241,7 @@ void MainWindow::readSettings()
   m_ndepth=m_settings->value("NDepth",3).toInt();
   ui->sbTxPercent->setValue (m_settings->value ("PctTx", 20).toInt ());
   on_sbTxPercent_valueChanged (ui->sbTxPercent->value ());
+  ui->RoundRobin->setCurrentText(m_settings->value("RoundRobin",tr("Random")).toString());
   m_dBm=m_settings->value("dBm",37).toInt();
   m_send_RR73=m_settings->value("RR73",false).toBool();
   if(m_send_RR73) {
@@ -1897,7 +1883,7 @@ void MainWindow::on_monitorButton_clicked (bool checked)
       on_RxFreqSpinBox_valueChanged (ui->RxFreqSpinBox->value ());
     }
       //Get Configuration in/out of strict split and mode checking
-    Q_EMIT m_config.sync_transceiver (true, checked);
+    m_config.sync_transceiver (true, checked);
   } else {
     ui->monitorButton->setChecked (false); // disallow
   }
@@ -2120,9 +2106,6 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
         if(ui->tabWidget->currentIndex()==0) {
           ui->tx5->clearEditText();
           ui->tx5->setFocus();
-        } else {
-          ui->freeTextMsg->clearEditText();
-          ui->freeTextMsg->setFocus();
         }
         return;
       }
@@ -2218,7 +2201,7 @@ void MainWindow::displayDialFrequency ()
     {
       // only change this when necessary as we get called a lot and it
       // would trash any user input to the band combo box line edit
-      ui->bandComboBox->setCurrentText (band_name);
+      ui->bandComboBox->setCurrentText (band_name.size () ? band_name : m_config.bands ()->oob ());
       m_wideGraph->setRxBand (band_name);
       m_lastBand = band_name;
       band_changed(dial_frequency);
@@ -2480,9 +2463,9 @@ void MainWindow::on_actionFT8_DXpedition_Mode_User_Guide_triggered()
   QDesktopServices::openUrl (QUrl {"http://physics.princeton.edu/pulsar/k1jt/FT8_DXpedition_Mode.pdf"});
 }
 
-void MainWindow::on_actionQuick_Start_Guide_v2_triggered()
+void MainWindow::on_actionQuick_Start_Guide_triggered()
 {
-  QDesktopServices::openUrl (QUrl {"https://physics.princeton.edu/pulsar/k1jt/Quick_Start_WSJT-X_2.0.pdf"});
+  QDesktopServices::openUrl (QUrl {"https://physics.princeton.edu/pulsar/k1jt/FST4_Quick_Start.pdf"});
 }
 
 void MainWindow::on_actionOnline_User_Guide_triggered()      //Display manual
@@ -2600,9 +2583,7 @@ void MainWindow::hideMenus(bool checked)
   }
   ui->decodedTextLabel->setVisible(!checked);
   ui->gridLayout_5->layout()->setSpacing(spacing);
-  ui->horizontalLayout->layout()->setSpacing(spacing);
   ui->horizontalLayout_2->layout()->setSpacing(spacing);
-  ui->horizontalLayout_3->layout()->setSpacing(spacing);
   ui->horizontalLayout_5->layout()->setSpacing(spacing);
   ui->horizontalLayout_6->layout()->setSpacing(spacing);
   ui->horizontalLayout_7->layout()->setSpacing(spacing);
@@ -2616,7 +2597,6 @@ void MainWindow::hideMenus(bool checked)
   ui->verticalLayout->layout()->setSpacing(spacing);
   ui->verticalLayout_2->layout()->setSpacing(spacing);
   ui->verticalLayout_3->layout()->setSpacing(spacing);
-  ui->verticalLayout_4->layout()->setSpacing(spacing);
   ui->verticalLayout_5->layout()->setSpacing(spacing);
   ui->verticalLayout_7->layout()->setSpacing(spacing);
   ui->verticalLayout_8->layout()->setSpacing(spacing);
@@ -3081,6 +3061,7 @@ void MainWindow::decode()                                       //decode()
     dec_data.params.ntol=20;
     dec_data.params.naggressive=0;
   }
+  if(m_mode=="FST4W") dec_data.params.ntol=ui->sbFST4W_FTol->value ();
   if(dec_data.params.nutc < m_nutc0) m_RxLog = 1;       //Date and Time to file "ALL.TXT".
   if(dec_data.params.newdat==1 and !m_diskData) m_nutc0=dec_data.params.nutc;
   dec_data.params.ntxmode=9;
@@ -3832,8 +3813,6 @@ void MainWindow::guiUpdate()
     if(m_ntx == 4) txMsg=ui->tx4->text();
     if(m_ntx == 5) txMsg=ui->tx5->currentText();
     if(m_ntx == 6) txMsg=ui->tx6->text();
-    if(m_ntx == 7) txMsg=ui->genMsg->text();
-    if(m_ntx == 8) txMsg=ui->freeTextMsg->currentText();
     int msgLength=txMsg.trimmed().length();
     if(msgLength==0 and !m_tune) on_stopTxButton_clicked();
 
@@ -3883,7 +3862,7 @@ void MainWindow::guiUpdate()
       }
 
       setXIT (ui->TxFreqSpinBox->value ());
-      Q_EMIT m_config.transceiver_ptt (true);            //Assert the PTT
+      m_config.transceiver_ptt (true); //Assert the PTT
       m_tx_when_ready = true;
     }
 //    if(!m_bTxTime and !m_tune and m_mode!="FT4") m_btxok=false;       //Time to stop transmitting
@@ -3933,8 +3912,6 @@ void MainWindow::guiUpdate()
       if(m_ntx == 4) ba=ui->tx4->text().toLocal8Bit();
       if(m_ntx == 5) ba=ui->tx5->currentText().toLocal8Bit();
       if(m_ntx == 6) ba=ui->tx6->text().toLocal8Bit();
-      if(m_ntx == 7) ba=ui->genMsg->text().toLocal8Bit();
-      if(m_ntx == 8) ba=ui->freeTextMsg->currentText().toLocal8Bit();
     }
 
     ba2msg(ba,message);
@@ -3980,7 +3957,7 @@ void MainWindow::guiUpdate()
           }
 
           if(m_modeTx=="FT8") {
-            if(SpecOp::FOX==m_config.special_op_id() and ui->tabWidget->currentIndex()==2) {
+            if(SpecOp::FOX==m_config.special_op_id() and ui->tabWidget->currentIndex()==1) {
               foxTxSequencer();
             } else {
               int i3=0;
@@ -4037,7 +4014,7 @@ void MainWindow::guiUpdate()
             }
             genfst4_(message,&ichk,msgsent,const_cast<char *> (fst4msgbits),
                            const_cast<int *>(itone), &iwspr, 37, 37);
-            int hmod=int(pow(2.0,double(m_nSubMode)));
+            int hmod=1;                         //No FST4/W submodes
             int nsps=720;
             if(m_TRperiod==30) nsps=1680;
             if(m_TRperiod==60) nsps=3888;
@@ -4056,18 +4033,6 @@ void MainWindow::guiUpdate()
                     &fsample,&hmod,&f0,&icmplx,foxcom_.wave,foxcom_.wave);
 
             QString t = QString::fromStdString(message).trimmed();
-            bool both=(t=="CQ BOTH K1JT FN20" or t=="CQ BOTH K9AN EN50");
-            if(both) {
-              float wave_both[15*48000];
-              memcpy(wave_both,foxcom_.wave,4*15*48000);  //Copy wave[] into wave_both[]
-              f0=f0 + 200 + 25;
-              hmod=2;
-              gen_fst4wave_(const_cast<int *>(itone),&nsym,&nsps,&nwave,
-                    &fsample,&hmod,&f0,&icmplx,foxcom_.wave,foxcom_.wave);
-              for(int i=0; i<15*48000; i++) {
-                foxcom_.wave[i]=0.5*(wave_both[i] + foxcom_.wave[i]);
-              }
-            }
           }
 
           if(SpecOp::EU_VHF==m_config.special_op_id()) {
@@ -4183,17 +4148,8 @@ void MainWindow::guiUpdate()
     m_restart=false;
 //----------------------------------------------------------------------
   } else {
-    if (!m_auto && m_sentFirst73)
-    {
+    if (!m_auto && m_sentFirst73) {
       m_sentFirst73 = false;
-      if (1 == ui->tabWidget->currentIndex())
-      {
-        ui->genMsg->setText(ui->tx6->text());
-        m_ntx=7;
-        m_QSOProgress = CALLING;
-        m_gen_message_is_cq = true;
-        ui->rbGenMsg->setChecked(true);
-      }
     }
   }
   if (g_iptt == 1 && m_iptt0 == 0) {
@@ -4258,9 +4214,10 @@ void MainWindow::guiUpdate()
     }
   }
 
-//Once per second:
+//Once per second (onesec)
   if(nsec != m_sec0) {
 //      qDebug() << "AAA" << nsec;
+    if(m_mode=="FST4") sbFtolMaxVal();
     m_currentBand=m_config.bands()->find(m_freqNominal);
     if( SpecOp::HOUND == m_config.special_op_id() ) {
       qint32 tHound=QDateTime::currentMSecsSinceEpoch()/1000 - m_tAutoOn;
@@ -4293,7 +4250,7 @@ void MainWindow::guiUpdate()
 
     if(m_transmitting) {
       char s[42];
-      if(SpecOp::FOX==m_config.special_op_id() and ui->tabWidget->currentIndex()==2) {
+      if(SpecOp::FOX==m_config.special_op_id() and ui->tabWidget->currentIndex()==1) {
         sprintf(s,"Tx:  %d Slots",foxcom_.nslots);
       } else {
         sprintf(s,"Tx: %s",msgsent);
@@ -4315,7 +4272,7 @@ void MainWindow::guiUpdate()
         } else {
           s[40]=0;
           QString t{QString::fromLatin1(s)};
-          if(SpecOp::FOX==m_config.special_op_id() and ui->tabWidget->currentIndex()==2 and foxcom_.nslots==1) {
+          if(SpecOp::FOX==m_config.special_op_id() and ui->tabWidget->currentIndex()==1 and foxcom_.nslots==1) {
               t=m_fm1.trimmed();
           }
           if(m_mode=="FT4") t="Tx: "+ m_currentMessage;
@@ -4417,7 +4374,7 @@ void MainWindow::stopTx()
 
 void MainWindow::stopTx2()
 {
-  Q_EMIT m_config.transceiver_ptt (false);      //Lower PTT
+  m_config.transceiver_ptt (false); //Lower PTT
   if (m_mode == "JT9" && m_bFast9
       && ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked()
       && m_ntx == 5 && m_nTx73 >= 5) {
@@ -4802,7 +4759,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
         ui->TxFreqSpinBox->setValue(frequency);
       }
       if(m_mode != "JT4" && m_mode != "JT65" && !m_mode.startsWith ("JT9") &&
-         m_mode != "QRA64" && m_mode!="FT8" && m_mode!="FT4") {
+         m_mode != "QRA64" && m_mode!="FT8" && m_mode!="FT4" && m_mode!="FST4") {
         return;
       }
     }
@@ -4815,7 +4772,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
 // Determine appropriate response to received message
   auto dtext = " " + message.string () + " ";
   dtext=dtext.remove("<").remove(">");
-  int gen_msg {0};
   if(dtext.contains (" " + m_baseCall + " ")
      || dtext.contains ("<" + m_baseCall + "> ")
 //###???     || dtext.contains ("<" + m_baseCall + " " + hiscall + "> ")
@@ -4874,57 +4830,52 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
            or bEU_VHF_w2 or (m_QSOProgress==CALLING))) {
       if(message_words.at(3).contains(grid_regexp) and SpecOp::EU_VHF!=m_config.special_op_id()) {
         if(SpecOp::NA_VHF==m_config.special_op_id() or SpecOp::WW_DIGI==m_config.special_op_id()){
-          gen_msg=setTxMsg(3);
+          setTxMsg(3);
           m_QSOProgress=ROGER_REPORT;
         } else {
           if(m_mode=="JT65" and message_words.size()>4 and message_words.at(4)=="OOO") {
-            gen_msg=setTxMsg(3);
+            setTxMsg(3);
             m_QSOProgress=ROGER_REPORT;
           } else {
-            gen_msg=setTxMsg(2);
+            setTxMsg(2);
             m_QSOProgress=REPORT;
           }
         }
       } else if(w34.contains(grid_regexp) and SpecOp::EU_VHF==m_config.special_op_id()) {
 
         if(nrpt==0) {
-          gen_msg=setTxMsg(2);
+          setTxMsg(2);
           m_QSOProgress=REPORT;
         } else {
           if(w2=="R") {
-            gen_msg=setTxMsg(4);
+            setTxMsg(4);
             m_QSOProgress=ROGERS;
           } else {
-            gen_msg=setTxMsg(3);
+            setTxMsg(3);
             m_QSOProgress=ROGER_REPORT;
           }
         }
       } else if(SpecOp::RTTY == m_config.special_op_id() and bRTTY) {
         if(w2=="R") {
-          gen_msg=setTxMsg(4);
+          setTxMsg(4);
           m_QSOProgress=ROGERS;
         } else {
-          gen_msg=setTxMsg(3);
+          setTxMsg(3);
           m_QSOProgress=ROGER_REPORT;
         }
         m_xRcvd=t[n-2] + " " + t[n-1];
       } else if(SpecOp::FIELD_DAY==m_config.special_op_id() and bFieldDay_msg) {
         if(t0=="R") {
-          gen_msg=setTxMsg(4);
+          setTxMsg(4);
           m_QSOProgress=ROGERS;
         } else {
-          gen_msg=setTxMsg(3);
+          setTxMsg(3);
           m_QSOProgress=ROGER_REPORT;
         }
       } else {  // no grid on end of msg
         QString r=message_words.at (3);
         if(m_QSOProgress >= ROGER_REPORT && (r=="RRR" || r.toInt()==73 || "RR73" == r)) {
           if(m_mode=="FT4" and r=="RR73") m_dateTimeRcvdRR73=QDateTime::currentDateTimeUtc();
-          if(ui->tabWidget->currentIndex()==1) {
-            gen_msg = 5;
-            if (ui->rbGenMsg->isChecked ()) m_ntx=7;
-            m_gen_message_is_cq = false;
-          } else {
             m_bTUmsg=false;
             m_nextCall="";   //### Temporary: disable use of "TU;" message
             if(SpecOp::RTTY == m_config.special_op_id() and m_nextCall!="") {
@@ -4945,7 +4896,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
                 ui->txrb5->setChecked(true);
               }
             }
-          }
           m_QSOProgress = SIGNOFF;
         } else if((m_QSOProgress >= REPORT
                    || (m_QSOProgress >= REPLYING &&
@@ -4959,24 +4909,19 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             if(nRpt>=529 and nRpt<=599) m_xRcvd=t[n-2] + " " + t[n-1];
           }
           ui->txrb4->setChecked(true);
-          if(ui->tabWidget->currentIndex()==1) {
-            gen_msg = 4;
-            m_ntx=7;
-            m_gen_message_is_cq = false;
-          }
         } else if(m_QSOProgress>=CALLING and
               ((r.toInt()>=-50 && r.toInt()<=49) or (r.toInt()>=529 && r.toInt()<=599))) {
           if(SpecOp::EU_VHF==m_config.special_op_id() or
              SpecOp::FIELD_DAY==m_config.special_op_id() or
              SpecOp::RTTY==m_config.special_op_id()) { 
-            gen_msg=setTxMsg(2);
+            setTxMsg(2);
             m_QSOProgress=REPORT;
           } else {
             if(r.left(2)=="R-" or r.left(2)=="R+") {
-              gen_msg=setTxMsg(4);
+              setTxMsg(4);
               m_QSOProgress=ROGERS;
             } else {
-              gen_msg=setTxMsg(3);
+              setTxMsg(3);
               m_QSOProgress=ROGER_REPORT;
             }
           }
@@ -4989,15 +4934,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
              && message_words.size () > 2 && message_words.at (1).contains (m_baseCall)
              && message_words.at (2) == "73") {
       // 73 back to compound call holder
-      if(ui->tabWidget->currentIndex()==1) {
-        gen_msg = 5;
-        if (ui->rbGenMsg->isChecked ()) m_ntx=7;
-        m_gen_message_is_cq = false;
-      }
-      else {
-        m_ntx=5;
-        ui->txrb5->setChecked(true);
-      }
+      m_ntx=5;
+      ui->txrb5->setChecked(true);
       m_QSOProgress = SIGNOFF;
     }
     else if (!(m_bAutoReply && (m_QSOProgress > CALLING))) {
@@ -5007,21 +4945,10 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
         m_ntx=3;
         m_QSOProgress = ROGER_REPORT;
         ui->txrb3->setChecked (true);
-        if (ui->tabWidget->currentIndex () == 1) {
-          gen_msg = 3;
-          m_ntx = 7;
-          m_gen_message_is_cq = false;
-        }
       } else if (!is_73) {    // don't respond to sign off messages
         m_ntx=2;
         m_QSOProgress = REPORT;
         ui->txrb2->setChecked(true);
-        if(ui->tabWidget->currentIndex()==1) {
-          gen_msg = 2;
-          m_ntx=7;
-          m_gen_message_is_cq = false;
-        }
-
         if (m_bDoubleClickAfterCQnnn and m_transmitting) {
           on_stopTxButton_clicked();
           TxAgainTimer.start(1500);
@@ -5050,14 +4977,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   else if (firstcall == "DE" && message_words.size () > 3 && message_words.at (3) == "73") {
     if (m_QSOProgress >= ROGERS && base_call == qso_partner_base_call && m_currentMessageType) {
       // 73 back to compound call holder
-      if(ui->tabWidget->currentIndex()==1) {
-        gen_msg = 5;
-        m_ntx=7;
-        m_gen_message_is_cq = false;
-      } else {
-        m_ntx=5;
-        ui->txrb5->setChecked(true);
-      }
+      m_ntx=5;
+      ui->txrb5->setChecked(true);
       m_QSOProgress = SIGNOFF;
     } else {
       // treat like a CQ/QRZ
@@ -5070,22 +4991,11 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
         m_QSOProgress = REPORT;
         ui->txrb2->setChecked (true);
       }
-      if(ui->tabWidget->currentIndex()==1) {
-        gen_msg = 1;
-        m_ntx=7;
-        m_gen_message_is_cq = false;
-      }
     }
   }
   else if (is_73 && !message.isStandardMessage ()) {
-    if(ui->tabWidget->currentIndex()==1) {
-      gen_msg = 5;
-      if (ui->rbGenMsg->isChecked ()) m_ntx=7;
-      m_gen_message_is_cq = false;
-    } else {
-      m_ntx=5;
-      ui->txrb5->setChecked(true);
-    }
+    m_ntx=5;
+    ui->txrb5->setChecked(true);
     m_QSOProgress = SIGNOFF;
   } else {
     // just work them
@@ -5097,11 +5007,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       m_ntx=2;
       m_QSOProgress = REPORT;
       ui->txrb2->setChecked (true);
-    }
-    if (1 == ui->tabWidget->currentIndex ()) {
-      gen_msg = m_ntx;
-      m_ntx=7;
-      m_gen_message_is_cq = false;
     }
   }
   // if we get here then we are reacting to the message
@@ -5156,18 +5061,6 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   m_bTUmsg=false;   //### Temporary: disable use of "TU;" messages
   if (!m_nTx73 and !m_bTUmsg) {
     genStdMsgs(rpt);
-    if (gen_msg) {
-      switch (gen_msg) {
-      case 1: ui->genMsg->setText (ui->tx1->text ()); break;
-      case 2: ui->genMsg->setText (ui->tx2->text ()); break;
-      case 3: ui->genMsg->setText (ui->tx3->text ()); break;
-      case 4: ui->genMsg->setText (ui->tx4->text ()); break;
-      case 5: ui->genMsg->setText (ui->tx5->currentText ()); break;
-      }
-      if (gen_msg != 5) {        // allow user to pre-select a free message
-        ui->rbGenMsg->setChecked (true);
-      }
-    }
   }
   if(m_transmitting) m_restart=true;
   if (ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked ()
@@ -5178,7 +5071,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   m_bDoubleClicked=false;
 }
 
-int MainWindow::setTxMsg(int n)
+void MainWindow::setTxMsg(int n)
 {
   m_ntx=n;
   if(n==1) ui->txrb1->setChecked(true);
@@ -5187,11 +5080,6 @@ int MainWindow::setTxMsg(int n)
   if(n==4) ui->txrb4->setChecked(true);
   if(n==5) ui->txrb5->setChecked(true);
   if(n==6) ui->txrb6->setChecked(true);
-  if(ui->tabWidget->currentIndex()==1) {
-    m_ntx=7;                      //### FIX THIS ###
-    m_gen_message_is_cq = false;
-  }
-  return n;
 }
 
 void MainWindow::genCQMsg ()
@@ -5283,7 +5171,6 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     ui->tx3->clear ();
     ui->tx4->clear ();
     if(unconditional) ui->tx5->lineEdit ()->clear ();   //Test if it needs sending again
-    ui->genMsg->clear ();
     m_gen_message_is_cq = false;
     return;
   }
@@ -5525,19 +5412,12 @@ void MainWindow::clearDX ()
   m_qsoStop.clear ();
   m_inQSOwith.clear();
   genStdMsgs (QString {});
-  if (ui->tabWidget->currentIndex() == 1) {
-    ui->genMsg->setText(ui->tx6->text());
-    m_ntx=7;
-    m_gen_message_is_cq = true;
-    ui->rbGenMsg->setChecked(true);
+  if (m_mode=="FT8" and SpecOp::HOUND == m_config.special_op_id()) {
+    m_ntx=1;
+    ui->txrb1->setChecked(true);
   } else {
-    if (m_mode=="FT8" and SpecOp::HOUND == m_config.special_op_id()) {
-      m_ntx=1;
-      ui->txrb1->setChecked(true);
-    } else {
-      m_ntx=6;
-      ui->txrb6->setChecked(true);
-    }
+    m_ntx=6;
+    ui->txrb6->setChecked(true);
   }
   m_QSOProgress = CALLING;
 }
@@ -6002,23 +5882,21 @@ void MainWindow::displayWidgets(qint64 n)
 
 void MainWindow::on_actionFST4_triggered()
 {
-  int nsub=m_nSubMode;
-  on_actionJT65_triggered();
-  ui->label_6->setText(tr ("Band Activity"));
-  ui->label_7->setText(tr ("Rx Frequency"));
-  ui->sbSubmode->setMaximum(3);
-  m_nSubMode=nsub;
-  ui->sbSubmode->setValue(m_nSubMode);
   m_mode="FST4";
   m_modeTx="FST4";
   ui->actionFST4->setChecked(true);
+  m_nsps=6912;                   //For symspec only
+  m_FFTSize = m_nsps / 2;
+  Q_EMIT FFTSize(m_FFTSize);
+  ui->label_6->setText(tr ("Band Activity"));
+  ui->label_7->setText(tr ("Rx Frequency"));
   WSPR_config(false);
-  bool bVHF=m_config.enable_VHF_features();
 //                         0123456789012345678901234567890123
-  displayWidgets(nWidgets("1111110001001111000100000001000000"));
-  setup_status_bar (bVHF);
+  displayWidgets(nWidgets("1111110001001110000100000001000000"));
+  setup_status_bar(false);
   ui->sbTR->values ({15, 30, 60, 120, 300, 900, 1800});
   on_sbTR_valueChanged (ui->sbTR->value());
+  sbFtolMaxVal();
   ui->cbAutoSeq->setChecked(true);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
@@ -6031,25 +5909,25 @@ void MainWindow::on_actionFST4_triggered()
 
 void MainWindow::on_actionFST4W_triggered()
 {
-  on_actionFST4_triggered();
   m_mode="FST4W";
   m_modeTx="FST4W";
-  WSPR_config(true);
   ui->actionFST4W->setChecked(true);
+  m_nsps=6912;                   //For symspec only
+  m_FFTSize = m_nsps / 2;
+  Q_EMIT FFTSize(m_FFTSize);
+  WSPR_config(true);
 //                         0123456789012345678901234567890123
   displayWidgets(nWidgets("0000000000000000010100000000000001"));
-  bool bVHF=m_config.enable_VHF_features();
-  setup_status_bar (bVHF);
-  m_nSubMode=0;
-  ui->sbSubmode->setValue(m_nSubMode);
+  setup_status_bar(false);
   ui->band_hopping_group_box->setChecked(false);
   ui->band_hopping_group_box->setVisible(false);
   on_sbTR_FST4W_valueChanged (ui->sbTR_FST4W->value ());
-  ui->sbSubmode->setMaximum(3);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
   m_wideGraph->setPeriod(m_TRperiod,6912);
   m_wideGraph->setTxFreq(ui->WSPRfreqSpinBox->value());
+  m_wideGraph->setRxFreq(ui->sbFST4W_RxFreq->value());
+  m_wideGraph->setTol(ui->sbFST4W_FTol->value());
   ui->sbFtol->setValue(100);
   ui->RxFreqSpinBox->setValue(1500);
   switch_mode (Modes::FST4W);
@@ -6151,7 +6029,7 @@ void MainWindow::on_actionFT8_triggered()
     ui->txFirstCheckBox->setEnabled(false);
     ui->cbHoldTxFreq->setChecked(true);
     ui->cbAutoSeq->setEnabled(false);
-    ui->tabWidget->setCurrentIndex(2);
+    ui->tabWidget->setCurrentIndex(1);
     ui->TxFreqSpinBox->setValue(300);
     displayWidgets(nWidgets("1110100001001110000100000000001000"));
     ui->labDXped->setText(tr ("Fox"));
@@ -6625,14 +6503,15 @@ void MainWindow::switch_mode (Mode mode)
   m_fastGraph->setMode(m_mode);
   m_config.frequencies ()->filter (m_config.region (), mode);
   auto const& row = m_config.frequencies ()->best_working_frequency (m_freqNominal);
+  ui->bandComboBox->setCurrentIndex (row);
   if (row >= 0) {
-    ui->bandComboBox->setCurrentIndex (row);
     on_bandComboBox_activated (row);
   }
   ui->rptSpinBox->setSingleStep(1);
   ui->rptSpinBox->setMinimum(-50);
   ui->rptSpinBox->setMaximum(49);
-  ui->sbFtol->values ({10, 20, 50, 100, 200, 500, 1000});
+  ui->sbFtol->values ({1, 2, 5, 10, 20, 50, 100, 200, 300, 400, 500, 1000});
+  ui->sbFST4W_FTol->values({1, 2, 5, 10, 20, 50, 100});
   if(m_mode=="MSK144") {
     ui->RxFreqSpinBox->setMinimum(1400);
     ui->RxFreqSpinBox->setMaximum(1600);
@@ -6665,9 +6544,12 @@ void MainWindow::WSPR_config(bool b)
   ui->label_7->setVisible(!b and ui->cbMenus->isChecked());
   ui->logQSOButton->setVisible(!b);
   ui->DecodeButton->setEnabled(!b);
-  ui->sbTxPercent->setEnabled (m_mode != "FST4W" || tr ("Random") == ui->RoundRobin->currentText ());
+  bool bFST4W=(m_mode=="FST4W");
+  ui->sbTxPercent->setEnabled(!bFST4W or (tr("Random") == ui->RoundRobin->currentText()));
   ui->band_hopping_group_box->setVisible(true);
-  ui->RoundRobin->setVisible(m_mode=="FST4W");
+  ui->RoundRobin->setVisible(bFST4W);
+  ui->sbFST4W_RxFreq->setVisible(bFST4W);
+  ui->sbFST4W_FTol->setVisible(bFST4W);
   ui->RoundRobin->lineEdit()->setAlignment(Qt::AlignCenter);
   if(b and m_mode!="Echo" and m_mode!="FST4W") {
     QString t="UTC    dB   DT     Freq     Drift  Call          Grid    dBm    ";
@@ -6675,7 +6557,7 @@ void MainWindow::WSPR_config(bool b)
     if(!m_config.miles()) t += " km";
     ui->decodedTextLabel->setText(t);
     if (m_config.is_transceiver_online ()) {
-      Q_EMIT m_config.transceiver_tx_frequency (0); // turn off split
+      m_config.transceiver_tx_frequency (0); // turn off split
     }
     m_bSimplex = true;
   } else
@@ -6821,17 +6703,20 @@ void MainWindow::on_bandComboBox_currentIndexChanged (int index)
 
   // Lookup band
   auto const& band  = m_config.bands ()->find (frequency);
-  if (!band.isEmpty ())
+  ui->bandComboBox->setCurrentText (band.size () ? band : m_config.bands ()->oob ());
+  displayDialFrequency ();
+}
+
+void MainWindow::on_bandComboBox_editTextChanged (QString const& text)
+{
+  if (text.size () && m_config.bands ()->oob () != text)
     {
       ui->bandComboBox->lineEdit ()->setStyleSheet ({});
-      ui->bandComboBox->setCurrentText (band);
     }
   else
     {
       ui->bandComboBox->lineEdit ()->setStyleSheet ("QLineEdit {color: yellow; background-color : red;}");
-      ui->bandComboBox->setCurrentText (m_config.bands ()->oob ());
     }
-  displayDialFrequency ();
 }
 
 void MainWindow::on_bandComboBox_activated (int index)
@@ -6901,111 +6786,6 @@ void MainWindow::enable_DXCC_entity (bool on)
 //    ui->gridLayout->setColumnStretch(1,0);
   }
   updateGeometry ();
-}
-
-void MainWindow::on_pbCallCQ_clicked()
-{
-  genStdMsgs(m_rpt);
-  ui->genMsg->setText(ui->tx6->text());
-  m_ntx=7;
-  m_QSOProgress = CALLING;
-  m_gen_message_is_cq = true;
-  ui->rbGenMsg->setChecked(true);
-  if(m_transmitting) m_restart=true;
-  set_dateTimeQSO(-1);
-}
-
-void MainWindow::on_pbAnswerCaller_clicked()
-{
-  genStdMsgs(m_rpt);
-  QString t=ui->tx3->text();
-  int i0=t.indexOf(" R-");
-  if(i0<0) i0=t.indexOf(" R+");
-  t=t.mid(0,i0+1)+t.mid(i0+2,3);
-  ui->genMsg->setText(t);
-  m_ntx=7;
-  m_QSOProgress = REPORT;
-  m_gen_message_is_cq = false;
-  ui->rbGenMsg->setChecked(true);
-  if(m_transmitting) m_restart=true;
-  set_dateTimeQSO(2);
-}
-
-void MainWindow::on_pbSendRRR_clicked()
-{
-  genStdMsgs(m_rpt);
-  ui->genMsg->setText(ui->tx4->text());
-  m_ntx=7;
-  m_QSOProgress = ROGERS;
-  m_gen_message_is_cq = false;
-  ui->rbGenMsg->setChecked(true);
-  if(m_transmitting) m_restart=true;
-}
-
-void MainWindow::on_pbAnswerCQ_clicked()
-{
-  genStdMsgs(m_rpt);
-  ui->genMsg->setText(ui->tx1->text());
-  QString t=ui->tx2->text();
-  int i0=t.indexOf("/");
-  int i1=t.indexOf(" ");
-  if(i0>0 and i0<i1) ui->genMsg->setText(t);
-  m_ntx=7;
-  m_QSOProgress = REPLYING;
-  m_gen_message_is_cq = false;
-  ui->rbGenMsg->setChecked(true);
-  if(m_transmitting) m_restart=true;
-}
-
-void MainWindow::on_pbSendReport_clicked()
-{
-  genStdMsgs(m_rpt);
-  ui->genMsg->setText(ui->tx3->text());
-  m_ntx=7;
-  m_QSOProgress = ROGER_REPORT;
-  m_gen_message_is_cq = false;
-  ui->rbGenMsg->setChecked(true);
-  if(m_transmitting) m_restart=true;
-  set_dateTimeQSO(3);
-}
-
-void MainWindow::on_pbSend73_clicked()
-{
-  genStdMsgs(m_rpt);
-  ui->genMsg->setText(ui->tx5->currentText());
-  m_ntx=7;
-  m_QSOProgress = SIGNOFF;
-  m_gen_message_is_cq = false;
-  ui->rbGenMsg->setChecked(true);
-  if(m_transmitting) m_restart=true;
-}
-
-void MainWindow::on_rbGenMsg_clicked(bool checked)
-{
-  m_freeText=!checked;
-  if(!m_freeText) {
-    if(m_ntx != 7 && m_transmitting) m_restart=true;
-    m_ntx=7;
-    // would like to set m_QSOProgress but what to? So leave alone and
-    // assume it is correct
-  }
-}
-
-void MainWindow::on_rbFreeText_clicked(bool checked)
-{
-  m_freeText=checked;
-  if(m_freeText) {
-    m_ntx=8;
-    // would like to set m_QSOProgress but what to? So leave alone and
-    // assume it is correct. Perhaps should store old value to be
-    // restored above in on_rbGenMsg_clicked
-    if (m_transmitting) m_restart=true;
-  }
-}
-
-void MainWindow::on_freeTextMsg_currentTextChanged (QString const& text)
-{
-  msgtype(text, ui->freeTextMsg->lineEdit ());
 }
 
 void MainWindow::on_rptSpinBox_valueChanged(int n)
@@ -7094,7 +6874,7 @@ void MainWindow::rigOpen ()
   ui->readFreq->setText ("");
   ui->readFreq->setEnabled (true);
   m_config.transceiver_online ();
-  Q_EMIT m_config.sync_transceiver (true, true);
+  m_config.sync_transceiver (true, true);
 }
 
 void MainWindow::on_pbR2T_clicked()
@@ -7117,7 +6897,7 @@ void MainWindow::on_readFreq_clicked()
 
   if (m_config.transceiver_online ())
     {
-      Q_EMIT m_config.sync_transceiver (true, true);
+      m_config.sync_transceiver (true, true);
     }
 }
 
@@ -7167,7 +6947,7 @@ void MainWindow::setXIT(int n, Frequency base)
         // frequency
         m_freqTxNominal = base + m_XIT;
         if (m_astroWidget) m_astroWidget->nominal_frequency (m_freqNominal, m_freqTxNominal);
-        Q_EMIT m_config.transceiver_tx_frequency (m_freqTxNominal + m_astroCorrection.tx);
+        m_config.transceiver_tx_frequency (m_freqTxNominal + m_astroCorrection.tx);
       }
   }
   //Now set the audio Tx freq
@@ -7363,7 +7143,7 @@ void MainWindow::transmit (double snr)
     if(m_TRperiod==300) nsps=21504;
     if(m_TRperiod==900) nsps=66560;
     if(m_TRperiod==1800) nsps=134400;
-    int hmod=int(pow(2.0,double(m_nSubMode)));
+    int hmod=1;                               //No FST4/W submodes
     double dfreq=hmod*12000.0/nsps;
     double f0=ui->WSPRfreqSpinBox->value() - m_XIT;
     if(!m_tune) f0 += + 1.5*dfreq;
@@ -7666,6 +7446,7 @@ void MainWindow::on_sbTR_valueChanged(int value)
     m_wideGraph->setPeriod (value, m_nsps);
     progressBar.setMaximum (value);
   }
+  if(m_mode=="FST4") sbFtolMaxVal();
   if(m_monitoring) {
     on_stopButton_clicked();
     on_monitorButton_clicked(true);
@@ -7674,6 +7455,14 @@ void MainWindow::on_sbTR_valueChanged(int value)
     on_stopTxButton_clicked();
   }
   statusUpdate ();
+}
+
+void MainWindow::sbFtolMaxVal()
+{
+  if(m_TRperiod<=60) ui->sbFtol->setMaximum(1000);
+  if(m_TRperiod==120) ui->sbFtol->setMaximum(500);
+  if(m_TRperiod==300) ui->sbFtol->setMaximum(200);
+  if(m_TRperiod>=900) ui->sbFtol->setMaximum(100);
 }
 
 void MainWindow::on_sbTR_FST4W_valueChanged(int value)
@@ -8147,6 +7936,19 @@ void MainWindow::on_WSPRfreqSpinBox_valueChanged(int n)
   ui->TxFreqSpinBox->setValue(n);
 }
 
+void MainWindow::on_sbFST4W_RxFreq_valueChanged(int n)
+{
+  m_wideGraph->setRxFreq(n);
+  statusUpdate ();
+}
+
+void MainWindow::on_sbFST4W_FTol_valueChanged(int n)
+{
+  ui->sbFST4W_RxFreq->setSingleStep(n);
+  m_wideGraph->setTol(n);
+  statusUpdate ();
+}
+
 void MainWindow::on_pbTxNext_clicked(bool b)
 {
   if (b && !ui->autoButton->isChecked ())
@@ -8312,11 +8114,11 @@ void MainWindow::setRig (Frequency f)
     {
       if (m_transmitting && m_config.split_mode ())
         {
-          Q_EMIT m_config.transceiver_tx_frequency (m_freqTxNominal + m_astroCorrection.tx);
+          m_config.transceiver_tx_frequency (m_freqTxNominal + m_astroCorrection.tx);
         }
       else
         {
-          Q_EMIT m_config.transceiver_frequency (m_freqNominal + m_astroCorrection.rx);
+          m_config.transceiver_frequency (m_freqNominal + m_astroCorrection.rx);
         }
     }
 }

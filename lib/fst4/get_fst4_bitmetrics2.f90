@@ -1,4 +1,4 @@
-subroutine get_fst4_bitmetrics2(cd,nss,hmod,nsizes,bitmetrics,s4hmod,badsync)
+subroutine get_fst4_bitmetrics2(cd,nss,hmod,nsizes,bitmetrics,s4snr,badsync)
 
    include 'fst4_params.f90'
    complex cd(0:NN*nss-1)
@@ -15,7 +15,7 @@ subroutine get_fst4_bitmetrics2(cd,nss,hmod,nsizes,bitmetrics,s4hmod,badsync)
    logical badsync
    real bitmetrics(2*NN,4)
    real s2(0:65535)
-   real s4(0:3,NN,4),s4hmod(0:3,NN)
+   real s4(0:3,NN,4),s4snr(0:3,NN)
    data isyncword1/0,1,3,2,1,0,2,3/
    data isyncword2/2,3,1,0,3,2,0,1/
    data graymap/0,1,3,2/
@@ -49,21 +49,21 @@ subroutine get_fst4_bitmetrics2(cd,nss,hmod,nsizes,bitmetrics,s4hmod,badsync)
       i1=(k-1)*NSS
       csymb=cd(i1:i1+NSS-1)
       do itone=0,3
-         s4(itone,k,1)=abs(sum(csymb*conjg(c1(:,itone))))
-         s4(itone,k,2)=abs(sum(csymb(      1:nss/2)*conjg(c1(      1:nss/2,itone)))) + &
-                       abs(sum(csymb(nss/2+1:  nss)*conjg(c1(nss/2+1:  nss,itone))))
-         s4(itone,k,3)=abs(sum(csymb(        1:  nss/4)*conjg(c1(        1:  nss/4,itone)))) + &
-                       abs(sum(csymb(  nss/4+1:  nss/2)*conjg(c1(  nss/4+1:  nss/2,itone)))) + &
-                       abs(sum(csymb(  nss/2+1:3*nss/4)*conjg(c1(  nss/2+1:3*nss/4,itone)))) + &
-                       abs(sum(csymb(3*nss/4+1:    nss)*conjg(c1(3*nss/4+1:    nss,itone))))
-         s4(itone,k,4)=abs(sum(csymb(        1:  nss/8)*conjg(c1(        1:  nss/8,itone)))) + &
-                       abs(sum(csymb(  nss/8+1:  nss/4)*conjg(c1(  nss/8+1:  nss/4,itone)))) + &
-                       abs(sum(csymb(  nss/4+1:3*nss/8)*conjg(c1(  nss/4+1:3*nss/8,itone)))) + &
-                       abs(sum(csymb(3*nss/8+1:  nss/2)*conjg(c1(3*nss/8+1:  nss/2,itone)))) + &
-                       abs(sum(csymb(  nss/2+1:5*nss/8)*conjg(c1(  nss/2+1:5*nss/8,itone)))) + &
-                       abs(sum(csymb(5*nss/8+1:3*nss/4)*conjg(c1(5*nss/8+1:3*nss/4,itone)))) + &
-                       abs(sum(csymb(3*nss/4+1:7*nss/8)*conjg(c1(3*nss/4+1:7*nss/8,itone)))) + &
-                       abs(sum(csymb(7*nss/8+1:    nss)*conjg(c1(7*nss/8+1:    nss,itone))))
+         s4(itone,k,1)=abs(sum(csymb*conjg(c1(:,itone))))**2
+         s4(itone,k,2)=abs(sum(csymb(      1:nss/2)*conjg(c1(      1:nss/2,itone))))**2 + &
+                       abs(sum(csymb(nss/2+1:  nss)*conjg(c1(nss/2+1:  nss,itone))))**2
+         s4(itone,k,3)=abs(sum(csymb(        1:  nss/4)*conjg(c1(        1:  nss/4,itone))))**2 + &
+                       abs(sum(csymb(  nss/4+1:  nss/2)*conjg(c1(  nss/4+1:  nss/2,itone))))**2 + &
+                       abs(sum(csymb(  nss/2+1:3*nss/4)*conjg(c1(  nss/2+1:3*nss/4,itone))))**2 + &
+                       abs(sum(csymb(3*nss/4+1:    nss)*conjg(c1(3*nss/4+1:    nss,itone))))**2
+         s4(itone,k,4)=abs(sum(csymb(        1:  nss/8)*conjg(c1(        1:  nss/8,itone))))**2 + &
+                       abs(sum(csymb(  nss/8+1:  nss/4)*conjg(c1(  nss/8+1:  nss/4,itone))))**2 + &
+                       abs(sum(csymb(  nss/4+1:3*nss/8)*conjg(c1(  nss/4+1:3*nss/8,itone))))**2 + &
+                       abs(sum(csymb(3*nss/8+1:  nss/2)*conjg(c1(3*nss/8+1:  nss/2,itone))))**2 + &
+                       abs(sum(csymb(  nss/2+1:5*nss/8)*conjg(c1(  nss/2+1:5*nss/8,itone))))**2 + &
+                       abs(sum(csymb(5*nss/8+1:3*nss/4)*conjg(c1(5*nss/8+1:3*nss/4,itone))))**2 + &
+                       abs(sum(csymb(3*nss/4+1:7*nss/8)*conjg(c1(3*nss/4+1:7*nss/8,itone))))**2 + &
+                       abs(sum(csymb(7*nss/8+1:    nss)*conjg(c1(7*nss/8+1:    nss,itone))))**2
 
       enddo
    enddo
@@ -121,11 +121,8 @@ subroutine get_fst4_bitmetrics2(cd,nss,hmod,nsizes,bitmetrics,s4hmod,badsync)
    call normalizebmet(bitmetrics(:,3),2*NN)
    call normalizebmet(bitmetrics(:,4),2*NN)
 
-! Return the s4 array corresponding to N=1/hmod. Will be used for SNR calculation
-   if(hmod.eq.1) s4hmod(:,:)=s4(:,:,1)
-   if(hmod.eq.2) s4hmod(:,:)=s4(:,:,2)
-   if(hmod.eq.4) s4hmod(:,:)=s4(:,:,3)
-   if(hmod.eq.8) s4hmod(:,:)=s4(:,:,4)
+! Return the s4 array corresponding to N=1. Will be used for SNR calculation
+   s4snr(:,:)=s4(:,:,1)
    return
 
 end subroutine get_fst4_bitmetrics2
