@@ -66,9 +66,6 @@ subroutine sync66(iwave,nmax,mode66,nsps,nfqso,ntol,xdt,f0,snr1)
   sync_sig=0.
   ia=min(64,nint(ntol/df))
   dt4=nsps/(NSTEP*12000.0)                      !duration of 1/4 symbol
-!  lag2=nint(0.5/dt4)
-!  if(nsps.ge.7680) lag2=nint(1.0/dt4)
-!  lag1=-lag2
 
   jadd=11
   if(nsps.ge.3600) jadd=7
@@ -78,7 +75,6 @@ subroutine sync66(iwave,nmax,mode66,nsps,nfqso,ntol,xdt,f0,snr1)
   
   do i=-ia,ia
      x=s1(i0+2*mode66+i,:)-s1(i0+i,:)              !Do the 2FSK demodulation
-!     do lag=lag1,lag2
      do lag=-15,15
         do k=1,22
            n=4*NSTEP*(k-1) + 1
@@ -103,16 +99,6 @@ subroutine sync66(iwave,nmax,mode66,nsps,nfqso,ntol,xdt,f0,snr1)
   xdt=jdt*tsym/4.0
 
   snr1=maxval(sync_sig)/22.0
-  
-!  do i=-64,64
-!     write(62,3062) nfqso+i*df,sync_sig(i,jj)
-!3062 format(2f12.3)
-!  enddo
-
-!  do j=-15,15
-!     write(63,3063) j,j*dt4,sync_sig(ii,j)
-!3063 format(i5,2f12.3)
-!  enddo
 
   return
 end subroutine sync66
