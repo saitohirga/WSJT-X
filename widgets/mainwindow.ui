@@ -3293,6 +3293,14 @@ Yellow when too low</string>
     <string>FST4W</string>
    </property>
   </action>
+  <action name="actionQRA66">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>QRA66</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
