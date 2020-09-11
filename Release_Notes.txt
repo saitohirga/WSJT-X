@@ -13,6 +13,19 @@
 Copyright 2001 - 2020 by Joe Taylor, K1JT.
 
 
+		   Release: WSJT-X 2.3.0-rc1
+		         Sept DD, 2020
+		   -------------------------
+
+WSJT-X 2.3.0-rc1 is a beta-quality release candidate for a program
+upgrade that provides a number of new features and capabilities.
+These include:
+
+ - The *On Dx Echo* Doppler compensation method has been modified in
+   response to feedback from Users. Basic functionality is unchanged.
+   See the User Guide (Section 8.1) for more information.
+
+
 		  Release: WSJT-X 2.2.2
 		       June 22, 2020
 		  ---------------------

@@ -208,11 +208,12 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 ! We're in FST4 mode
      ndepth=iand(params%ndepth,3)
      iwspr=0
+     params%nsubmode=0
      call timer('dec240  ',0)
-     call my_fst4%decode(fst4_decoded,id2,params%nutc,                    &
-          params%nQSOProgress,params%nfqso,params%nfa,params%nfb,         &
-          params%nsubmode,ndepth,params%ntr,params%nexp_decode,           &
-          params%ntol,params%emedelay,                                    &
+     call my_fst4%decode(fst4_decoded,id2,params%nutc,                &
+          params%nQSOProgress,params%nfa,params%nfb,                  &
+          params%nfqso,ndepth,params%ntr,                             &
+          params%nexp_decode,params%ntol,params%emedelay,             &
           logical(params%lapcqonly),mycall,hiscall,iwspr)
      call timer('dec240  ',1)
      go to 800
@@ -224,9 +225,9 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      iwspr=1
      call timer('dec240  ',0)
      call my_fst4%decode(fst4_decoded,id2,params%nutc,                &
-          params%nQSOProgress,params%nfqso,params%nfa,params%nfb,         &
-          params%nsubmode,ndepth,params%ntr,params%nexp_decode,           &
-          params%ntol,params%emedelay,                                    &
+          params%nQSOProgress,params%nfa,params%nfb,                  &
+          params%nfqso,ndepth,params%ntr,                             &
+          params%nexp_decode,params%ntol,params%emedelay,             &
           logical(params%lapcqonly),mycall,hiscall,iwspr)
      call timer('dec240  ',1)
      go to 800

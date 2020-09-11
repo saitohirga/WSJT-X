@@ -151,7 +151,7 @@ private slots:
   void on_stopButton_clicked();
   void on_actionRelease_Notes_triggered ();
   void on_actionFT8_DXpedition_Mode_User_Guide_triggered();
-  void on_actionQuick_Start_Guide_v2_triggered();
+  void on_actionQuick_Start_Guide_triggered();
   void on_actionOnline_User_Guide_triggered();
   void on_actionLocal_User_Guide_triggered();
   void on_actionWide_Waterfall_triggered();
@@ -223,15 +223,6 @@ private slots:
   void startP1();
   void stopTx();
   void stopTx2();
-  void on_pbCallCQ_clicked();
-  void on_pbAnswerCaller_clicked();
-  void on_pbSendRRR_clicked();
-  void on_pbAnswerCQ_clicked();
-  void on_pbSendReport_clicked();
-  void on_pbSend73_clicked();
-  void on_rbGenMsg_clicked(bool checked);
-  void on_rbFreeText_clicked(bool checked);
-  void on_freeTextMsg_currentTextChanged (QString const&);
   void on_rptSpinBox_valueChanged(int n);
   void killFile();
   void on_tuneButton_clicked (bool);
@@ -246,6 +237,7 @@ private slots:
                   , QString const& exchange_sent, QString const& exchange_rcvd
                   , QString const& propmode, QByteArray const& ADIF);
   void on_bandComboBox_currentIndexChanged (int index);
+  void on_bandComboBox_editTextChanged (QString const& text);
   void on_bandComboBox_activated (int index);
   void on_readFreq_clicked();
   void on_pbTxMode_clicked();
@@ -289,6 +281,8 @@ private slots:
   void TxAgain();
   void uploadResponse(QString response);
   void on_WSPRfreqSpinBox_valueChanged(int n);
+  void on_sbFST4W_RxFreq_valueChanged(int n);
+  void on_sbFST4W_FTol_valueChanged(int n);
   void on_pbTxNext_clicked(bool b);
   void on_actionEcho_Graph_triggered();
   void on_actionEcho_triggered();
@@ -319,7 +313,8 @@ private slots:
   void checkMSK144ContestType();
   void on_pbBestSP_clicked();
   void on_RoundRobin_currentTextChanged(QString text);
-  int  setTxMsg(int n);
+  void  setTxMsg(int n);
+  void sbFtolMaxVal();
   bool stdCall(QString const& w);
   void remote_configure (QString const& mode, quint32 frequency_tolerance, QString const& submode
                          , bool fast_mode, quint32 tr_period, quint32 rx_df, QString const& dx_call
