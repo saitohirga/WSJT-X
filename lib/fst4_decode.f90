@@ -210,6 +210,7 @@ contains
       allocate( c2(0:nfft2-1) )
       allocate( cframe(0:160*nss-1) )
 
+      jittermax=2
       if(ndepth.eq.3) then
          nblock=4
          jittermax=2
