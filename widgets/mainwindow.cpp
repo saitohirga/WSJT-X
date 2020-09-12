@@ -3061,7 +3061,8 @@ void MainWindow::decode()                                       //decode()
     dec_data.params.ntol=20;
     dec_data.params.naggressive=0;
   }
-  if(m_mode=="FST4W") dec_data.params.ntol=ui->sbFST4W_FTol->value ();
+  if(m_mode=="FST4") dec_data.params.ntol=ui->sbFtol->value();
+  if(m_mode=="FST4W") dec_data.params.ntol=ui->sbFST4W_FTol->value();
   if(dec_data.params.nutc < m_nutc0) m_RxLog = 1;       //Date and Time to file "ALL.TXT".
   if(dec_data.params.newdat==1 and !m_diskData) m_nutc0=dec_data.params.nutc;
   dec_data.params.ntxmode=9;
