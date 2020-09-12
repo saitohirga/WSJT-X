@@ -5885,6 +5885,10 @@ void MainWindow::on_actionFST4_triggered()
   m_mode="FST4";
   m_modeTx="FST4";
   ui->actionFST4->setChecked(true);
+  m_bFast9=false;
+  m_bFastMode=false;
+  m_fastGraph->hide();
+  m_wideGraph->show();
   m_nsps=6912;                   //For symspec only
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize(m_FFTSize);
@@ -5912,6 +5916,10 @@ void MainWindow::on_actionFST4W_triggered()
   m_mode="FST4W";
   m_modeTx="FST4W";
   ui->actionFST4W->setChecked(true);
+  m_bFast9=false;
+  m_bFastMode=false;
+  m_fastGraph->hide();
+  m_wideGraph->show();
   m_nsps=6912;                   //For symspec only
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize(m_FFTSize);
