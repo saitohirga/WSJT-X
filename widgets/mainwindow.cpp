@@ -5931,6 +5931,8 @@ void MainWindow::on_actionFST4W_triggered()
   ui->band_hopping_group_box->setChecked(false);
   ui->band_hopping_group_box->setVisible(false);
   on_sbTR_FST4W_valueChanged (ui->sbTR_FST4W->value ());
+  ui->WSPRfreqSpinBox->setMinimum(100);
+  ui->WSPRfreqSpinBox->setMaximum(5000);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
   m_wideGraph->setPeriod(m_TRperiod,6912);
@@ -6438,6 +6440,8 @@ void MainWindow::on_actionWSPR_triggered()
   setup_status_bar (false);
   ui->actionWSPR->setChecked(true);
   VHF_features_enabled(false);
+  ui->WSPRfreqSpinBox->setMinimum(1400);
+  ui->WSPRfreqSpinBox->setMaximum(1600);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
@@ -7155,6 +7159,7 @@ void MainWindow::transmit (double snr)
     int hmod=1;                               //No FST4/W submodes
     double dfreq=hmod*12000.0/nsps;
     double f0=ui->WSPRfreqSpinBox->value() - m_XIT;
+    if(m_mode=="FST4") f0=ui->TxFreqSpinBox->value() - m_XIT;
     if(!m_tune) f0 += + 1.5*dfreq;
     Q_EMIT sendMessage (m_mode, NUM_FST4_SYMBOLS,double(nsps),f0,toneSpacing,
                         m_soundOutput,m_config.audio_output_channel(),
