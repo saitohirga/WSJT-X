@@ -7,7 +7,7 @@ subroutine get_fst4_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,nsync_qual,
    complex csymb(nss)
    complex, allocatable, save :: ci(:,:)   ! ideal waveforms, 20 samples per symbol, 4 tones
    complex cp(0:3)        ! accumulated phase shift over symbol types 0:3
-   complex c1(4,8),c2(16,4),c4(256,2),c8(655356),cterm
+   complex c1(4,8),c2(16,4),c4(256,2),cterm
    integer isyncword1(0:7),isyncword2(0:7)
    integer graymap(0:3)
    integer ip(1)
@@ -150,8 +150,7 @@ subroutine get_fst4_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,nsync_qual,
       do i=1,256
          do j=1,256
             is=(i-1)*256+j
-            c8(is)=c4(i,1)+c4(j,2)  
-            s2(is-1)=abs(c8(is))  
+            s2(is-1)=abs(c4(i,1)+c4(j,2))
          enddo
       enddo
       ipt=(k-1)*2+1
