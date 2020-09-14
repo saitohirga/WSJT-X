@@ -1,4 +1,4 @@
-subroutine get_fst4_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,nsync_qual,badsync)
+subroutine get_fst4_bitmetrics(cd,nss,nmax,nhicoh,bitmetrics,s4,nsync_qual,badsync)
 
    use timer_module, only: timer
    include 'fst4_params.f90'
@@ -6,12 +6,10 @@ subroutine get_fst4_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,nsync_qual,
    complex cs(0:3,NN)
    complex csymb(nss)
    complex, allocatable, save :: ci(:,:)   ! ideal waveforms, 20 samples per symbol, 4 tones
-   complex cp(0:3)        ! accumulated phase shift over symbol types 0:3
-   complex c1(4,8),c2(16,4),c4(256,2),cterm
+   complex c1(4,8),c2(16,4),c4(256,2)
    integer isyncword1(0:7),isyncword2(0:7)
    integer graymap(0:3)
    integer ip(1)
-   integer hmod
    integer hbits(2*NN)
    logical one(0:65535,0:15)    ! 65536 8-symbol sequences, 16 bits
    logical first
@@ -35,7 +33,7 @@ subroutine get_fst4_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,nsync_qual,
          enddo
       enddo
       twopi=8.0*atan(1.0)
-      dphi=twopi*hmod/nss
+      dphi=twopi/nss
       do itone=0,3
          dp=(itone-1.5)*dphi
          phi=0.0
@@ -43,7 +41,6 @@ subroutine get_fst4_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,nsync_qual,
             ci(j,itone)=cmplx(cos(phi),sin(phi))
             phi=mod(phi+dp,twopi)
          enddo
-         cp(itone)=cmplx(cos(phi),sin(phi))
       enddo
       first=.false.
    endif
