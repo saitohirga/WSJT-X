@@ -2969,7 +2969,10 @@ void MainWindow::on_DecodeButton_clicked (bool /* checked */) //Decode request
 
 void MainWindow::freezeDecode(int n)                          //freezeDecode()
 {
-  if((n%100)==2) on_DecodeButton_clicked (true);
+  if((n%100)==2) {
+    if(m_mode=="FST4") ui->sbFtol->setValue(10);
+    on_DecodeButton_clicked (true);
+  }
 }
 
 void MainWindow::on_ClrAvgButton_clicked()
@@ -5906,6 +5909,7 @@ void MainWindow::on_actionFST4_triggered()
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
   m_wideGraph->setPeriod(m_TRperiod,6912);
+  m_wideGraph->setRxFreq(ui->RxFreqSpinBox->value());
   m_wideGraph->setTxFreq(ui->TxFreqSpinBox->value());
   switch_mode (Modes::FST4);
   m_wideGraph->setMode(m_mode);
