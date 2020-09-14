@@ -5910,6 +5910,7 @@ void MainWindow::on_actionFST4_triggered()
   m_wideGraph->setModeTx(m_modeTx);
   m_wideGraph->setPeriod(m_TRperiod,6912);
   m_wideGraph->setRxFreq(ui->RxFreqSpinBox->value());
+  m_wideGraph->setTol(ui->sbFtol->value());
   m_wideGraph->setTxFreq(ui->TxFreqSpinBox->value());
   switch_mode (Modes::FST4);
   m_wideGraph->setMode(m_mode);
@@ -5944,7 +5945,6 @@ void MainWindow::on_actionFST4W_triggered()
   m_wideGraph->setRxFreq(ui->sbFST4W_RxFreq->value());
   m_wideGraph->setTol(ui->sbFST4W_FTol->value());
   ui->sbFtol->setValue(100);
-  ui->RxFreqSpinBox->setValue(1500);
   switch_mode (Modes::FST4W);
   statusChanged();
 }
