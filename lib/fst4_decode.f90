@@ -392,7 +392,7 @@ contains
                if(iwspr.eq.0) then
                   maxosd=2
                   Keff=91
-                  norder=4
+                  norder=3
                   call timer('d240_101',0)
                   call decode240_101(llr,Keff,maxosd,norder,apmask,message101, &
                      cw,ntype,nharderrors,dmin)
