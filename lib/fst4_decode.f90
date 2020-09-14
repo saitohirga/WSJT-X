@@ -214,15 +214,12 @@ contains
       if(ndepth.eq.3) then
          nblock=4
          jittermax=2
-         norder=3
       elseif(ndepth.eq.2) then
          nblock=3
          jittermax=0
-         norder=3
       elseif(ndepth.eq.1) then
          nblock=1
          jittermax=0
-         norder=3
       endif
 
       ndropmax=1
