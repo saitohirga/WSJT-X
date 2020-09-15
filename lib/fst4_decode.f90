@@ -214,15 +214,12 @@ contains
       if(ndepth.eq.3) then
          nblock=4
          jittermax=2
-         norder=3
       elseif(ndepth.eq.2) then
          nblock=3
          jittermax=0
-         norder=3
       elseif(ndepth.eq.1) then
          nblock=1
          jittermax=0
-         norder=3
       endif
 
       ndropmax=1
@@ -319,7 +316,7 @@ contains
             cframe=c2(is0:is0+160*nss-1)
             bitmetrics=0
             call timer('bitmetrc',0)
-            call get_fst4_bitmetrics(cframe,nss,hmod,nblock,nhicoh,bitmetrics, &
+            call get_fst4_bitmetrics(cframe,nss,nblock,nhicoh,bitmetrics, &
                s4,nsync_qual,badsync)
             call timer('bitmetrc',1)
             if(badsync) cycle
@@ -392,7 +389,7 @@ contains
                if(iwspr.eq.0) then
                   maxosd=2
                   Keff=91
-                  norder=4
+                  norder=3
                   call timer('d240_101',0)
                   call decode240_101(llr,Keff,maxosd,norder,apmask,message101, &
                      cw,ntype,nharderrors,dmin)

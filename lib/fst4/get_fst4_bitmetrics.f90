@@ -1,17 +1,15 @@
-subroutine get_fst4_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,nsync_qual,badsync)
+subroutine get_fst4_bitmetrics(cd,nss,nmax,nhicoh,bitmetrics,s4,nsync_qual,badsync)
 
    use timer_module, only: timer
    include 'fst4_params.f90'
    complex cd(0:NN*nss-1)
    complex cs(0:3,NN)
    complex csymb(nss)
-   complex, allocatable, save :: c1(:,:)   ! ideal waveforms, 20 samples per symbol, 4 tones
-   complex cp(0:3)        ! accumulated phase shift over symbol types 0:3
-   complex csum,cterm
+   complex, allocatable, save :: ci(:,:)   ! ideal waveforms, 20 samples per symbol, 4 tones
+   complex c1(4,8),c2(16,4),c4(256,2)
    integer isyncword1(0:7),isyncword2(0:7)
    integer graymap(0:3)
    integer ip(1)
-   integer hmod
    integer hbits(2*NN)
    logical one(0:65535,0:15)    ! 65536 8-symbol sequences, 16 bits
    logical first
@@ -25,9 +23,9 @@ subroutine get_fst4_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,nsync_qual,
    data first/.true./,nss0/-1/
    save first,one,cp,nss0
 
-   if(nss.ne.nss0 .and. allocated(c1)) deallocate(c1)
+   if(nss.ne.nss0 .and. allocated(ci)) deallocate(ci)
    if(first .or. nss.ne.nss0) then
-      allocate(c1(nss,0:3))
+      allocate(ci(nss,0:3))
       one=.false.
       do i=0,65535
          do j=0,15
@@ -35,15 +33,14 @@ subroutine get_fst4_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,nsync_qual,
          enddo
       enddo
       twopi=8.0*atan(1.0)
-      dphi=twopi*hmod/nss
+      dphi=twopi/nss
       do itone=0,3
          dp=(itone-1.5)*dphi
          phi=0.0
          do j=1,nss
-            c1(j,itone)=cmplx(cos(phi),sin(phi))
+            ci(j,itone)=cmplx(cos(phi),sin(phi))
             phi=mod(phi+dp,twopi)
          enddo
-         cp(itone)=cmplx(cos(phi),sin(phi))
       enddo
       first=.false.
    endif
@@ -52,7 +49,7 @@ subroutine get_fst4_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,nsync_qual,
       i1=(k-1)*NSS
       csymb=cd(i1:i1+NSS-1)
       do itone=0,3
-         cs(itone,k)=sum(csymb*conjg(c1(:,itone)))
+         cs(itone,k)=sum(csymb*conjg(ci(:,itone)))
       enddo
       s4(0:3,k)=abs(cs(0:3,k))**2
    enddo
@@ -85,49 +82,84 @@ subroutine get_fst4_bitmetrics(cd,nss,hmod,nmax,nhicoh,bitmetrics,s4,nsync_qual,
       return
    endif
 
-
    call timer('seqcorrs',0)
    bitmetrics=0.0
-   do nseq=1,nmax            !Try coherent sequences of 1,2,3,4 or 1,2,4,8 symbols
-      if(nseq.eq.1) nsym=1
-      if(nseq.eq.2) nsym=2
-      if(nhicoh.eq.0) then
-         if(nseq.eq.3) nsym=3
-         if(nseq.eq.4) nsym=4
-      else
-         if(nseq.eq.3) nsym=4
-         if(nseq.eq.4) nsym=8
-      endif
-      nt=4**nsym
-      do ks=1,NN-nsym+1,nsym  
+
+! Process the frame in 8-symbol chunks. Use 1-symbol correlations to calculate
+! 2-symbol correlations. Then use 2-symbol correlations to calculate 4-symbol
+! correlations. Finally, use 4-symbol correlations to calculate 8-symbol corrs.
+! This eliminates redundant calculations.
+
+   do k=1,NN,8
+
+      do m=1,8  ! do 4 1-symbol correlations for each of 8 symbs
          s2=0
-         do i=0,nt-1
-            csum=0
-!            cterm=1  ! hmod.ne.1
-            term=1
-            do j=0,nsym-1
-               ntone=mod(i/4**(nsym-1-j),4)
-               csum=csum+cs(graymap(ntone),ks+j)*term 
-               term=-term
-!               csum=csum+cs(graymap(ntone),ks+j)*cterm  ! hmod.ne.1
-!               cterm=cterm*conjg(cp(graymap(ntone)))    ! hmod.ne.1
-            enddo
-            s2(i)=abs(csum)
+         do n=1,4
+            c1(n,m)=cs(graymap(n-1),k+m-1) 
+            s2(n-1)=abs(c1(n,m))
          enddo
-         ipt=1+(ks-1)*2
-         if(nsym.eq.1) ibmax=1
-         if(nsym.eq.2) ibmax=3
-         if(nsym.eq.3) ibmax=5
-         if(nsym.eq.4) ibmax=7
-         if(nsym.eq.8) ibmax=15
-         do ib=0,ibmax
-            bm=maxval(s2(0:nt-1),one(0:nt-1,ibmax-ib)) - &
-               maxval(s2(0:nt-1),.not.one(0:nt-1,ibmax-ib))
+         ipt=(k-1)*2+2*(m-1)+1
+         do ib=0,1
+            bm=maxval(s2(0:3),one(0:3,1-ib)) - &
+               maxval(s2(0:3),.not.one(0:3,1-ib))
             if(ipt+ib.gt.2*NN) cycle
-            bitmetrics(ipt+ib,nseq)=bm
+            bitmetrics(ipt+ib,1)=bm
          enddo
       enddo
+
+      do m=1,4  ! do 16 2-symbol correlations for each of 4 2-symbol groups
+         s2=0
+         do i=1,4
+            do j=1,4
+               is=(i-1)*4+j
+               c2(is,m)=c1(i,2*m-1)-c1(j,2*m)
+               s2(is-1)=abs(c2(is,m))
+            enddo
+         enddo
+         ipt=(k-1)*2+4*(m-1)+1
+         do ib=0,3
+            bm=maxval(s2(0:15),one(0:15,3-ib)) - &
+               maxval(s2(0:15),.not.one(0:15,3-ib))
+            if(ipt+ib.gt.2*NN) cycle
+            bitmetrics(ipt+ib,2)=bm
+         enddo
+      enddo
+  
+      do m=1,2 ! do 256 4-symbol corrs for each of 2 4-symbol groups
+         s2=0
+         do i=1,16
+            do j=1,16
+               is=(i-1)*16+j
+               c4(is,m)=c2(i,2*m-1)+c2(j,2*m)
+               s2(is-1)=abs(c4(is,m))
+            enddo
+         enddo 
+         ipt=(k-1)*2+8*(m-1)+1
+         do ib=0,7
+            bm=maxval(s2(0:255),one(0:255,7-ib)) - &
+               maxval(s2(0:255),.not.one(0:255,7-ib))
+            if(ipt+ib.gt.2*NN) cycle
+            bitmetrics(ipt+ib,3)=bm
+         enddo
+      enddo
+
+      s2=0 ! do 65536 8-symbol correlations for the entire group
+      do i=1,256
+         do j=1,256
+            is=(i-1)*256+j
+            s2(is-1)=abs(c4(i,1)+c4(j,2))
+         enddo
+      enddo
+      ipt=(k-1)*2+1
+      do ib=0,15
+         bm=maxval(s2(0:65535),one(0:65535,15-ib)) - &
+            maxval(s2(0:65535),.not.one(0:65535,15-ib))
+         if(ipt+ib.gt.2*NN) cycle
+         bitmetrics(ipt+ib,4)=bm
+      enddo
+
    enddo
+
    call timer('seqcorrs',1)
 
    hbits=0

@@ -2972,7 +2972,10 @@ void MainWindow::on_DecodeButton_clicked (bool /* checked */) //Decode request
 
 void MainWindow::freezeDecode(int n)                          //freezeDecode()
 {
-  if((n%100)==2) on_DecodeButton_clicked (true);
+  if((n%100)==2) {
+    if(m_mode=="FST4") ui->sbFtol->setValue(10);
+    on_DecodeButton_clicked (true);
+  }
 }
 
 void MainWindow::on_ClrAvgButton_clicked()
@@ -5909,6 +5912,8 @@ void MainWindow::on_actionFST4_triggered()
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
   m_wideGraph->setPeriod(m_TRperiod,6912);
+  m_wideGraph->setRxFreq(ui->RxFreqSpinBox->value());
+  m_wideGraph->setTol(ui->sbFtol->value());
   m_wideGraph->setTxFreq(ui->TxFreqSpinBox->value());
   switch_mode (Modes::FST4);
   m_wideGraph->setMode(m_mode);
@@ -5943,7 +5948,6 @@ void MainWindow::on_actionFST4W_triggered()
   m_wideGraph->setRxFreq(ui->sbFST4W_RxFreq->value());
   m_wideGraph->setTol(ui->sbFST4W_FTol->value());
   ui->sbFtol->setValue(100);
-  ui->RxFreqSpinBox->setValue(1500);
   switch_mode (Modes::FST4W);
   statusChanged();
 }
@@ -7162,6 +7166,7 @@ void MainWindow::transmit (double snr)
     int hmod=1;                               //No FST4/W submodes
     double dfreq=hmod*12000.0/nsps;
     double f0=ui->WSPRfreqSpinBox->value() - m_XIT;
+    if(m_mode=="FST4") f0=ui->TxFreqSpinBox->value() - m_XIT;
     if(!m_tune) f0 += + 1.5*dfreq;
     Q_EMIT sendMessage (m_mode, NUM_FST4_SYMBOLS,double(nsps),f0,toneSpacing,
                         m_soundOutput,m_config.audio_output_channel(),
