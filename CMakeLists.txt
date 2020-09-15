@@ -875,11 +875,12 @@ find_program(ETAGS etags)
 #
 # Boost
 #
-set (Boost_NO_SYSTEM_PATHS TRUE)
-if (Boost_NO_SYSTEM_PATHS)
-  set (BOOST_ROOT ${PROJECT_SOURCE_DIR}/boost)
-endif ()
-find_package (Boost 1.63 REQUIRED)
+# set (Boost_NO_SYSTEM_PATHS TRUE)
+# if (Boost_NO_SYSTEM_PATHS)
+#   set (BOOST_ROOT ${PROJECT_SOURCE_DIR}/boost)
+# endif ()
+set (Boost_USE_STATIC_LIBS OFF)
+find_package (Boost 1.63 REQUIRED COMPONENTS log)
 
 #
 # OpenMP
@@ -1425,9 +1426,9 @@ set_target_properties (wsjtx PROPERTIES
 
 target_include_directories (wsjtx PRIVATE ${FFTW3_INCLUDE_DIRS})
 if (APPLE)
-  target_link_libraries (wsjtx Qt5::SerialPort wsjt_fort wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
+  target_link_libraries (wsjtx Boost::log Qt5::SerialPort wsjt_fort wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
 else ()
-  target_link_libraries (wsjtx Qt5::SerialPort wsjt_fort_omp wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
+  target_link_libraries (wsjtx Boost::log Qt5::SerialPort wsjt_fort_omp wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
   if (OpenMP_C_FLAGS)
     set_target_properties (wsjtx PROPERTIES
       COMPILE_FLAGS "${OpenMP_C_FLAGS}"
