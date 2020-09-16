@@ -64,7 +64,7 @@ contains
       integer naptypes(0:5,4)  ! (nQSOProgress,decoding pass)
       integer mcq(29),mrrr(19),m73(19),mrr73(19)
 
-      logical badsync,unpk77_success
+      logical badsync,unpk77_success,single_decode
       logical first,nohiscall,lwspr,ex
 
       integer*2 iwave(30*60*12000)
@@ -232,8 +232,13 @@ contains
 
       nhicoh=1
       nsyncoh=8
-      fa=max(100,nint(nfqso+1.5*baud-ntol))
-      fb=min(4800,nint(nfqso+1.5*baud+ntol))
+      fa=nfa
+      fb=nfb
+      single_decode=iand(nexp_decode,32).ne.0
+      if(single_decode) then
+         fa=max(100,nint(nfqso+1.5*baud-ntol))
+         fb=min(4800,nint(nfqso+1.5*baud+ntol))
+      endif
       minsync=1.20
       if(ntrperiod.eq.15) minsync=1.15
 
