@@ -30,7 +30,7 @@ module fst4_decode
 contains
 
    subroutine decode(this,callback,iwave,nutc,nQSOProgress,nfa,nfb,nfqso, &
-      ndepth,ntrperiod,nexp_decode,ntol,emedelay,lagain,lapcqonly,mycall, &
+      ndepth,ntrperiod,nexp_decode,ntol,emedelay,lapcqonly,mycall,      &
       hiscall,iwspr)
 
       use timer_module, only: timer
@@ -53,10 +53,9 @@ contains
       real bitmetrics(320,4)
       real s4(0:3,NN)
       real minsync
-      logical lagain,lapcqonly
+      logical lapcqonly
       integer itone(NN)
       integer hmod
-      integer ipct(0:7)
       integer*1 apmask(240),cw(240)
       integer*1 message101(101),message74(74),message77(77)
       integer*1 rvec(77)
@@ -70,7 +69,6 @@ contains
 
       integer*2 iwave(30*60*12000)
 
-      data ipct/0,8,14,4,12,2,10,6/
       data   mcq/0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0/
       data  mrrr/0,1,1,1,1,1,1,0,1,0,0,1,0,0,1,0,0,0,1/
       data   m73/0,1,1,1,1,1,1,0,1,0,0,1,0,1,0,0,0,0,1/
@@ -225,23 +223,7 @@ contains
       endif
 
       ndropmax=1
-      single_decode=iand(nexp_decode,32).ne.0
-      inb0=0
-      inb1=0
-      if((single_decode .or. lagain) .and. (ntol.le.20 .or. iwspr.ne.0)) then
-         inb1=20
-      else
-         ipct(0)=nexp_decode/256
-      endif
-      
-      ndecodes=0
-      decodes=' '
-
-      do inb=inb0,inb1,2
-!         npct=ipct(inb)
-         npct=inb
-         write(*,3001) inb,inb1,lagain,single_decode,npct,ntol
-3001     format(2i4,2L3,2i5)
+      npct=nexp_decode/256
       call blanker(iwave,nfft1,ndropmax,npct,c_bigfft)
 
 ! The big fft is done once and is used for calculating the smoothed spectrum
@@ -250,6 +232,7 @@ contains
 
       nhicoh=1
       nsyncoh=8
+      single_decode=iand(nexp_decode,32).ne.0
       if(iwspr.eq.1) then  !FST4W
          nfa=max(100,nint(nfqso+1.5*baud-150))  ! 300 Hz wide noise-fit window
          nfb=min(4800,nint(nfqso+1.5*baud+150))
@@ -272,6 +255,9 @@ contains
 ! Get first approximation of candidate frequencies
       call get_candidates_fst4(c_bigfft,nfft1,nsps,hmod,fs,fa,fb,nfa,nfb,     &
          minsync,ncand,candidates0)
+
+      ndecodes=0
+      decodes=' '
 
       isbest=0
       fc2=0.
@@ -524,7 +510,6 @@ contains
             enddo  ! metrics
          enddo  ! istart jitter
 2002  enddo !candidate list
-      enddo
 
       return
    end subroutine decode
