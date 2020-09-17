@@ -2981,7 +2981,7 @@ void MainWindow::on_DecodeButton_clicked (bool /* checked */) //Decode request
 void MainWindow::freezeDecode(int n)                          //freezeDecode()
 {
   if((n%100)==2) {
-    if(m_mode=="FST4") ui->sbFtol->setValue(10);
+    if(m_mode=="FST4" and m_config.single_decode() and ui->sbFtol->value()>10) ui->sbFtol->setValue(10);
     on_DecodeButton_clicked (true);
   }
 }
@@ -5926,8 +5926,9 @@ void MainWindow::on_actionFST4_triggered()
     displayWidgets(nWidgets("111111000100111000010000000100000000"));
     m_wideGraph->setSingleDecode(true);
   } else {
-    displayWidgets(nWidgets("111111000100111000010000000100000011"));
+    displayWidgets(nWidgets("111011000100111000010000000100000011"));
     m_wideGraph->setSingleDecode(false);
+    ui->sbFtol->setValue(20);
   }
   setup_status_bar(false);
   ui->sbTR->values ({15, 30, 60, 120, 300, 900, 1800});
@@ -6660,8 +6661,6 @@ void MainWindow::on_sbF_High_valueChanged(int n)
 
 void MainWindow::chk_FST4_freq_range()
 {
-//  qDebug() << "aa" << m_wideGraph->nStartFreq() << m_wideGraph->Fmax()
-//           << ui->sbF_Low->value() << ui->sbF_High->value();
   if(ui->sbF_Low->value() < m_wideGraph->nStartFreq()) ui->sbF_Low->setValue(m_wideGraph->nStartFreq());
   if(ui->sbF_High->value() > m_wideGraph->Fmax()) {
     int n=m_wideGraph->Fmax()/100;
