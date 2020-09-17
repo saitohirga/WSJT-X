@@ -30,8 +30,8 @@ module fst4_decode
 contains
 
    subroutine decode(this,callback,iwave,nutc,nQSOProgress,nfa,nfb,nfqso, &
-        ndepth,ntrperiod,nexp_decode,ntol,emedelay,lapcqonly,mycall,      &
-        hiscall,iwspr)
+      ndepth,ntrperiod,nexp_decode,ntol,emedelay,lapcqonly,mycall,      &
+      hiscall,iwspr)
 
       use timer_module, only: timer
       use packjt77
@@ -49,7 +49,7 @@ contains
       complex, allocatable :: cframe(:)
       complex, allocatable :: c_bigfft(:)          !Complex waveform
       real llr(240),llrs(240,4)
-      real candidates(200,5)
+      real candidates0(200,5),candidates(200,5)
       real bitmetrics(320,4)
       real s4(0:3,NN)
       real minsync
@@ -232,19 +232,29 @@ contains
 
       nhicoh=1
       nsyncoh=8
-      fa=nfa
-      fb=nfb
       single_decode=iand(nexp_decode,32).ne.0
-      if(single_decode) then
-         fa=max(100,nint(nfqso+1.5*baud-ntol))
+      if(iwspr.eq.1) then  !FST4W
+         nfa=max(100,nint(nfqso+1.5*baud-150))  ! 300 Hz wide noise-fit window
+         nfb=min(4800,nint(nfqso+1.5*baud+150))
+         fa=max(100,nint(nfqso+1.5*baud-ntol))  ! signal search window
          fb=min(4800,nint(nfqso+1.5*baud+ntol))
+      else if(single_decode) then
+         fa=max(100,nint(nfa+1.5*baud))
+         fb=min(4800,nint(nfb+1.5*baud))
+         nfa=max(100,nfa-100) ! extend noise fit 100 Hz outside of search window
+         nfb=min(4800,nfb+100)
+      else
+         fa=max(100,nint(nfa+1.5*baud))
+         fb=min(4800,nint(nfb+1.5*baud))
+         nfa=max(100,nfa-100) ! extend noise fit 100 Hz outside of search window
+         nfb=min(4800,nfb+100)
       endif
       minsync=1.20
       if(ntrperiod.eq.15) minsync=1.15
 
 ! Get first approximation of candidate frequencies
       call get_candidates_fst4(c_bigfft,nfft1,nsps,hmod,fs,fa,fb,nfa,nfb,     &
-         minsync,ncand,candidates)
+         minsync,ncand,candidates0)
 
       ndecodes=0
       decodes=' '
@@ -252,8 +262,8 @@ contains
       isbest=0
       fc2=0.
       do icand=1,ncand
-         fc0=candidates(icand,1)
-         detmet=candidates(icand,2)
+         fc0=candidates0(icand,1)
+         detmet=candidates0(icand,2)
 
 ! Downconvert and downsample a slice of the spectrum centered on the
 ! rough estimate of the candidates frequency.
@@ -270,35 +280,56 @@ contains
 
          fc_synced = fc0 + fcbest
          dt_synced = (isbest-fs2)*dt2  !nominal dt is 1 second so frame starts at sample fs2
-         candidates(icand,3)=fc_synced
-         candidates(icand,4)=isbest
+         candidates0(icand,3)=fc_synced
+         candidates0(icand,4)=isbest
       enddo
 
 ! remove duplicate candidates
       do icand=1,ncand
-         fc=candidates(icand,3)
-         isbest=nint(candidates(icand,4))
+         fc=candidates0(icand,3)
+         isbest=nint(candidates0(icand,4))
          do ic2=1,ncand
-            fc2=candidates(ic2,3)
-            isbest2=nint(candidates(ic2,4))
+            fc2=candidates0(ic2,3)
+            isbest2=nint(candidates0(ic2,4))
             if(ic2.ne.icand .and. fc2.gt.0.0) then
                if(abs(fc2-fc).lt.0.10*baud) then ! same frequency
                   if(abs(isbest2-isbest).le.2) then
-                     candidates(ic2,3)=-1
+                     candidates0(ic2,3)=-1
                   endif
                endif
             endif
          enddo
       enddo
-
       ic=0
       do icand=1,ncand
-         if(candidates(icand,3).gt.0) then
+         if(candidates0(icand,3).gt.0) then
             ic=ic+1
-            candidates(ic,:)=candidates(icand,:)
+            candidates0(ic,:)=candidates0(icand,:)
          endif
       enddo
       ncand=ic
+
+! If FST4 and Single Decode is not checked, then find candidates within
+! 20 Hz of nfqso and put them at the top of the list
+      if(iwspr.eq.0 .and. .not.single_decode) then
+         nclose=count(abs(candidates0(:,3)-(nfqso+1.5*baud)).le.20)
+         k=0
+         do i=1,ncand
+            if(abs(candidates0(i,3)-(nfqso+1.5*baud)).le.20) then
+               k=k+1
+               candidates(k,:)=candidates0(i,:)
+            endif
+         enddo
+         do i=1,ncand
+            if(abs(candidates0(i,3)-(nfqso+1.5*baud)).gt.20) then
+               k=k+1
+               candidates(k,:)=candidates0(i,:)
+            endif
+         enddo
+      else
+         candidates=candidates0
+      endif
+
       xsnr=0.
 !write(*,*) 'ncand ',ncand
       do icand=1,ncand
@@ -307,7 +338,7 @@ contains
          isbest=nint(candidates(icand,4))
          xdt=(isbest-nspsec)/fs2
          if(ntrperiod.eq.15) xdt=(isbest-real(nspsec)/2.0)/fs2
-
+!         write(*,*) icand,sync,fc_synced,isbest,xdt
          call timer('dwnsmpl ',0)
          call fst4_downsample(c_bigfft,nfft1,ndown,fc_synced,sigbw,c2)
          call timer('dwnsmpl ',1)
@@ -654,6 +685,7 @@ contains
       inb=nint(min(4800.0,real(nfb))/df2)      !High freq limit for noise fit
       if(ia.lt.ina) ia=ina
       if(ib.gt.inb) ib=inb
+
       nnw=nint(48000.*nsps*2./fs)
       allocate (s(nnw))
       s=0.                                  !Compute low-resolution power spectrum
