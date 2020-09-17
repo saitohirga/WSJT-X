@@ -84,7 +84,7 @@ public:
   void setVHF(bool bVHF);
   void setRedFile(QString fRed);
   void setFST4_FreqRange(int fLow,int fHigh);
-
+  void setSingleDecode(bool b);
 
   bool scaleOK () const {return m_bScaleOK;}
 signals:
@@ -114,6 +114,7 @@ private:
   bool    m_bReference;
   bool    m_bReference0;
   bool    m_bVHF;
+  bool    m_bSingleDecode;
 
   float   m_fSpan;
 

@@ -50,6 +50,7 @@ public:
   void   setVHF(bool bVHF);
   void   setRedFile(QString fRed);
   void   setFST4_FreqRange(int fLow,int fHigh);
+  void   setSingleDecode(bool b);
 
 signals:
   void freezeDecode2(int n);

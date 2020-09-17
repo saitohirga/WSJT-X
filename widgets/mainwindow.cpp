@@ -3077,8 +3077,13 @@ void MainWindow::decode()                                       //decode()
   }
   if(m_mode=="FST4") {
     dec_data.params.ntol=ui->sbFtol->value();
-    dec_data.params.nfa=ui->sbF_Low->value();
-    dec_data.params.nfb=ui->sbF_High->value();
+    if(m_config.single_decode()) {
+      dec_data.params.nfa=m_wideGraph->rxFreq() - ui->sbFtol->value();
+      dec_data.params.nfb=m_wideGraph->rxFreq() + ui->sbFtol->value();
+    } else {
+      dec_data.params.nfa=ui->sbF_Low->value();
+      dec_data.params.nfb=ui->sbF_High->value();
+    }
   }
   if(m_mode=="FST4W") dec_data.params.ntol=ui->sbFST4W_FTol->value();
   if(dec_data.params.nutc < m_nutc0) m_RxLog = 1;       //Date and Time to file "ALL.TXT".
@@ -5916,8 +5921,14 @@ void MainWindow::on_actionFST4_triggered()
   ui->label_6->setText(tr ("Band Activity"));
   ui->label_7->setText(tr ("Rx Frequency"));
   WSPR_config(false);
-//                         012345678901234567890123456789012345
-  displayWidgets(nWidgets("111111000100111000010000000100000011"));
+  if(m_config.single_decode()) {
+//                           012345678901234567890123456789012345
+    displayWidgets(nWidgets("111111000100111000010000000100000000"));
+    m_wideGraph->setSingleDecode(true);
+  } else {
+    displayWidgets(nWidgets("111111000100111000010000000100000011"));
+    m_wideGraph->setSingleDecode(false);
+  }
   setup_status_bar(false);
   ui->sbTR->values ({15, 30, 60, 120, 300, 900, 1800});
   on_sbTR_valueChanged (ui->sbTR->value());
@@ -6649,6 +6660,13 @@ void MainWindow::on_sbF_High_valueChanged(int n)
 
 void MainWindow::chk_FST4_freq_range()
 {
+//  qDebug() << "aa" << m_wideGraph->nStartFreq() << m_wideGraph->Fmax()
+//           << ui->sbF_Low->value() << ui->sbF_High->value();
+  if(ui->sbF_Low->value() < m_wideGraph->nStartFreq()) ui->sbF_Low->setValue(m_wideGraph->nStartFreq());
+  if(ui->sbF_High->value() > m_wideGraph->Fmax()) {
+    int n=m_wideGraph->Fmax()/100;
+    ui->sbF_High->setValue(100*n);
+  }
   int maxDiff=2000;
   if(m_TRperiod==120) maxDiff=1000;
   if(m_TRperiod==300) maxDiff=400;
