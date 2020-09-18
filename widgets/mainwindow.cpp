@@ -4241,7 +4241,7 @@ void MainWindow::guiUpdate()
 //Once per second (onesec)
   if(nsec != m_sec0) {
 //      qDebug() << "AAA" << nsec;
-    if(m_mode=="FST4" and m_bOK_to_chk) chk_FST4_freq_range();
+    if(m_mode=="FST4") chk_FST4_freq_range();
     m_currentBand=m_config.bands()->find(m_freqNominal);
     if( SpecOp::HOUND == m_config.special_op_id() ) {
       qint32 tHound=QDateTime::currentMSecsSinceEpoch()/1000 - m_tAutoOn;
@@ -5946,6 +5946,7 @@ void MainWindow::on_actionFST4_triggered()
   on_sbTR_valueChanged (ui->sbTR->value());
   statusChanged();
   m_bOK_to_chk=true;
+  chk_FST4_freq_range();
 }
 
 void MainWindow::on_actionFST4W_triggered()
@@ -6662,6 +6663,7 @@ void MainWindow::on_sbF_High_valueChanged(int n)
 
 void MainWindow::chk_FST4_freq_range()
 {
+  if(!m_bOK_to_chk) return;
   if(ui->sbF_Low->value() < m_wideGraph->nStartFreq()) ui->sbF_Low->setValue(m_wideGraph->nStartFreq());
   if(ui->sbF_High->value() > m_wideGraph->Fmax()) {
     int n=m_wideGraph->Fmax()/100;
@@ -7529,7 +7531,7 @@ void MainWindow::on_sbTR_valueChanged(int value)
     m_wideGraph->setPeriod (value, m_nsps);
     progressBar.setMaximum (value);
   }
-  if(m_mode=="FST4" and m_bOK_to_chk) chk_FST4_freq_range();
+  if(m_mode=="FST4") chk_FST4_freq_range();
   if(m_monitoring) {
     on_stopButton_clicked();
     on_monitorButton_clicked(true);
