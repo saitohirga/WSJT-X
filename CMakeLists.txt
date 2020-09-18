@@ -337,6 +337,7 @@ set (wsjtx_CXXSRCS
   )
 
 set (wsjt_CXXSRCS
+  Logger.cpp
   lib/crc10.cpp
   lib/crc13.cpp
   lib/crc14.cpp
@@ -749,6 +750,7 @@ set (all_C_and_CXXSRCS
   )
 
 set (TOP_LEVEL_RESOURCES
+  wsjtx_log_config.ini
   icons/Darwin/wsjtx.iconset/icon_128x128.png
   contrib/gpl-v3-logo.svg
   artwork/splash.png
@@ -880,7 +882,7 @@ find_program(ETAGS etags)
 #   set (BOOST_ROOT ${PROJECT_SOURCE_DIR}/boost)
 # endif ()
 set (Boost_USE_STATIC_LIBS OFF)
-find_package (Boost 1.63 REQUIRED COMPONENTS log_setup)
+find_package (Boost 1.63 REQUIRED COMPONENTS log_setup log)
 
 #
 # OpenMP
@@ -1219,6 +1221,7 @@ endif (WIN32)
 
 # build a library of package functionality (without and optionally with OpenMP support)
 add_library (wsjt_cxx STATIC ${wsjt_CSRCS} ${wsjt_CXXSRCS})
+target_link_libraries (wsjt_cxx Boost::log_setup)
 
 # build an OpenMP variant of the Fortran library routines
 add_library (wsjt_fort STATIC ${wsjt_FSRCS})
@@ -1257,7 +1260,7 @@ target_link_libraries (qcp Qt5::Widgets Qt5::PrintSupport)
 add_library (wsjt_qt STATIC ${wsjt_qt_CXXSRCS} ${wsjt_qt_GENUISRCS} ${GENAXSRCS})
 # set wsjtx_udp exports to static variants
 target_compile_definitions (wsjt_qt PUBLIC UDP_STATIC_DEFINE)
-target_link_libraries (wsjt_qt Boost::log_setup qcp Qt5::Widgets Qt5::Network Qt5::Sql)
+target_link_libraries (wsjt_qt Boost::log qcp Qt5::Widgets Qt5::Network Qt5::Sql)
 target_include_directories (wsjt_qt BEFORE PRIVATE ${hamlib_INCLUDE_DIRS})
 if (WIN32)
   target_link_libraries (wsjt_qt Qt5::AxContainer Qt5::AxBase)

@@ -28,8 +28,10 @@
 #include <QSqlQuery>
 #include <QSqlError>
 
+#include "Logger.hpp"
 #include "revision_utils.hpp"
 #include "MetaDataRegistry.hpp"
+#include "qt_helpers.hpp"
 #include "L10nLoader.hpp"
 #include "SettingsGroup.hpp"
 #include "TraceFile.hpp"
