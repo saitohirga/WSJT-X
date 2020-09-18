@@ -3127,7 +3127,7 @@ void MainWindow::decode()                                       //decode()
   dec_data.params.nexp_decode = static_cast<int> (m_config.special_op_id());
   if(m_config.single_decode()) dec_data.params.nexp_decode += 32;
   if(m_config.enable_VHF_features()) dec_data.params.nexp_decode += 64;
-  if(m_mode.startsWith("FST4")) dec_data.params.nexp_decode += 256*ui->sbNB->value();
+  if(m_mode.startsWith("FST4")) dec_data.params.nexp_decode += 256*(ui->sbNB->value()+2);
 
   ::memcpy(dec_data.params.datetime, m_dateTime.toLatin1()+"    ", sizeof dec_data.params.datetime);
   ::memcpy(dec_data.params.mycall, (m_config.my_callsign()+"            ").toLatin1(), sizeof dec_data.params.mycall);
@@ -4241,7 +4241,7 @@ void MainWindow::guiUpdate()
 //Once per second (onesec)
   if(nsec != m_sec0) {
 //      qDebug() << "AAA" << nsec;
-    if(m_mode=="FST4") chk_FST4_freq_range();
+    if(m_mode=="FST4" and m_bOK_to_chk) chk_FST4_freq_range();
     m_currentBand=m_config.bands()->find(m_freqNominal);
     if( SpecOp::HOUND == m_config.special_op_id() ) {
       qint32 tHound=QDateTime::currentMSecsSinceEpoch()/1000 - m_tAutoOn;
@@ -5931,9 +5931,6 @@ void MainWindow::on_actionFST4_triggered()
     ui->sbFtol->setValue(20);
   }
   setup_status_bar(false);
-  ui->sbTR->values ({15, 30, 60, 120, 300, 900, 1800});
-  on_sbTR_valueChanged (ui->sbTR->value());
-  chk_FST4_freq_range();
   ui->cbAutoSeq->setChecked(true);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
@@ -5942,9 +5939,13 @@ void MainWindow::on_actionFST4_triggered()
   m_wideGraph->setTol(ui->sbFtol->value());
   m_wideGraph->setTxFreq(ui->TxFreqSpinBox->value());
   m_wideGraph->setFST4_FreqRange(ui->sbF_Low->value(),ui->sbF_High->value());
+  chk_FST4_freq_range();
   switch_mode (Modes::FST4);
   m_wideGraph->setMode(m_mode);
+  ui->sbTR->values ({15, 30, 60, 120, 300, 900, 1800});
+  on_sbTR_valueChanged (ui->sbTR->value());
   statusChanged();
+  m_bOK_to_chk=true;
 }
 
 void MainWindow::on_actionFST4W_triggered()
@@ -7528,7 +7529,7 @@ void MainWindow::on_sbTR_valueChanged(int value)
     m_wideGraph->setPeriod (value, m_nsps);
     progressBar.setMaximum (value);
   }
-  if(m_mode=="FST4") chk_FST4_freq_range();
+  if(m_mode=="FST4" and m_bOK_to_chk) chk_FST4_freq_range();
   if(m_monitoring) {
     on_stopButton_clicked();
     on_monitorButton_clicked(true);

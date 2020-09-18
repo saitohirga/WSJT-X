@@ -527,6 +527,7 @@ private:
   bool    m_bWarnedSplit=false;
   bool    m_bTUmsg;
   bool    m_bBestSPArmed=false;
+  bool    m_bOK_to_chk=false;
 
   enum
     {
