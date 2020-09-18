@@ -34,7 +34,8 @@
 #include "qt_helpers.hpp"
 #include "L10nLoader.hpp"
 #include "SettingsGroup.hpp"
-#include "TraceFile.hpp"
+//#include "TraceFile.hpp"
+#include "WSJTXLogging.hpp"
 #include "MultiSettings.hpp"
 #include "widgets/mainwindow.h"
 #include "commons.h"
@@ -98,9 +99,7 @@ namespace
 
 int main(int argc, char *argv[])
 {
-  // ### Add timestamps to all debug messages
-  // qSetMessagePattern ("[%{time yyyyMMdd HH:mm:ss.zzz t} %{if-debug}D%{endif}%{if-info}I%{endif}%{if-warning}W%{endif}%{if-critical}C%{endif}%{if-fatal}F%{endif}] %{message}");
-
+  ::qInstallMessageHandler (&WSJTXLogging::qt_log_handler);
   init_random_seed ();
 
   // make the Qt type magic happen
@@ -113,15 +112,15 @@ int main(int argc, char *argv[])
   ExceptionCatchingApplication a(argc, argv);
   try
     {
-      // qDebug () << "+++++++++++++++++++++++++++ Resources ++++++++++++++++++++++++++++";
+      // LOG_INfO ("+++++++++++++++++++++++++++ Resources ++++++++++++++++++++++++++++");
       // {
       //   QDirIterator resources_iter {":/", QDirIterator::Subdirectories};
       //   while (resources_iter.hasNext ())
       //     {
-      //       qDebug () << resources_iter.next ();
+      //       LOG_INFO (resources_iter.next ());
       //     }
       // }
-      // qDebug () << "--------------------------- Resources ----------------------------";
+      // LOG_INFO ("--------------------------- Resources ----------------------------");
 
       QLocale locale;              // get the current system locale
       setlocale (LC_NUMERIC, "C"); // ensure number forms are in
@@ -179,9 +178,6 @@ int main(int argc, char *argv[])
             }
         }
 
-      // load UI translations
-      L10nLoader l10n {&a, locale, parser.value (lang_option)};
-
       QStandardPaths::setTestModeEnabled (parser.isSet (test_option));
 
       // support for multiple instances running from a single installation
@@ -224,8 +220,8 @@ int main(int argc, char *argv[])
           if (QLockFile::LockFailedError == instance_lock.error ())
             {
               auto button = MessageBox::query_message (nullptr
-                                                       , a.translate ("main", "Another instance may be running")
-                                                       , a.translate ("main", "try to remove stale lock file?")
+                                                       , "Another instance may be running"
+                                                       , "try to remove stale lock file?"
                                                        , QString {}
                                                        , MessageBox::Yes | MessageBox::Retry | MessageBox::No
                                                        , MessageBox::Yes);
@@ -244,12 +240,11 @@ int main(int argc, char *argv[])
             }
         }
 
-#if WSJT_QDEBUG_TO_FILE
-      // Open a trace file
-      TraceFile trace_file {temp_dir.absoluteFilePath (a.applicationName () + "_trace.log")};
-      qSetMessagePattern ("[%{time yyyyMMdd HH:mm:ss.zzz t} %{if-debug}D%{endif}%{if-info}I%{endif}%{if-warning}W%{endif}%{if-critical}C%{endif}%{if-fatal}F%{endif}] %{file}:%{line} - %{message}");
-      qDebug () << program_title (revision ()) + " - Program startup";
-#endif
+      WSJTXLogging lg;
+      LOG_INFO (program_title (revision ()) << " - Program startup");
+
+      // load UI translations
+      L10nLoader l10n {&a, locale, parser.value (lang_option)};
 
       // Create a unique writeable temporary directory in a suitable location
       bool temp_ok {false};
@@ -382,7 +377,7 @@ int main(int argc, char *argv[])
                                               a.translate ("main", "Unable to create shared memory segment"));
                 throw std::runtime_error {"Shared memory error"};
               }
-              qDebug () << "shmem size:" << mem_jt9.size ();
+              LOG_INFO ("shmem size:" << mem_jt9.size ());
             }
           else
             {

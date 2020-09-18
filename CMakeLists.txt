@@ -305,6 +305,7 @@ set (jt9_FSRCS
   )
 
 set (wsjtx_CXXSRCS
+  WSJTXLogging.cpp
   logbook/logbook.cpp
   Network/PSKReporter.cpp
   Modulator/Modulator.cpp
