@@ -280,7 +280,7 @@ contains
          fc2=0.
          do icand=1,ncand
             fc0=candidates0(icand,1)
-            if(iwspr.eq.0 .and. nb.lt.0 .and.                            &
+            if(iwspr.eq.0 .and. nb.lt.0 .and. npct.ne.0 .and.            &
                  abs(fc0-(nfqso+1.5*baud)).gt.ntol) cycle
             detmet=candidates0(icand,2)
 
