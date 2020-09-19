@@ -229,7 +229,6 @@ contains
       npct=0
       nb=nexp_decode/256 - 2
       if(nb.ge.0) npct=nb
-      inb0=0
       inb1=20
       inb2=5
       if(nb.eq.-1) then
@@ -240,42 +239,44 @@ contains
          inb1=0                !Fixed NB value, 0 to 25%
          ipct(0)=npct
       endif
+
+      if(iwspr.eq.1) then  !FST4W
+         !300 Hz wide noise-fit window
+         nfa=max(100,nint(nfqso+1.5*baud-150)) 
+         nfb=min(4800,nint(nfqso+1.5*baud+150))
+         fa=max(100,nint(nfqso+1.5*baud-ntol))  ! signal search window
+         fb=min(4800,nint(nfqso+1.5*baud+ntol))
+      else if(single_decode) then
+         fa=max(100,nint(nfa+1.5*baud))
+         fb=min(4800,nint(nfb+1.5*baud))
+         ! extend noise fit 100 Hz outside of search window
+         nfa=max(100,nfa-100) 
+         nfb=min(4800,nfb+100)
+      else
+         fa=max(100,nint(nfa+1.5*baud))
+         fb=min(4800,nint(nfb+1.5*baud))
+         ! extend noise fit 100 Hz outside of search window
+         nfa=max(100,nfa-100) 
+         nfb=min(4800,nfb+100)
+      endif
+         
       ndecodes=0
       decodes=' '
-
-      do inb=inb0,inb1,inb2
+      do inb=0,inb1,inb2
          if(nb.lt.0) npct=inb
          call blanker(iwave,nfft1,ndropmax,npct,c_bigfft)
 
 ! The big fft is done once and is used for calculating the smoothed spectrum
 ! and also for downconverting/downsampling each candidate.
          call four2a(c_bigfft,nfft1,1,-1,0)         !r2c
-
          nhicoh=1
          nsyncoh=8
-         if(iwspr.eq.1) then  !FST4W
-            nfa=max(100,nint(nfqso+1.5*baud-150)) !300 Hz wide noise-fit window
-            nfb=min(4800,nint(nfqso+1.5*baud+150))
-            fa=max(100,nint(nfqso+1.5*baud-ntol))  ! signal search window
-            fb=min(4800,nint(nfqso+1.5*baud+ntol))
-         else if(single_decode) then
-            fa=max(100,nint(nfa+1.5*baud))
-            fb=min(4800,nint(nfb+1.5*baud))
-            nfa=max(100,nfa-100) ! extend noise fit 100 Hz outside of search window
-            nfb=min(4800,nfb+100)
-         else
-            fa=max(100,nint(nfa+1.5*baud))
-            fb=min(4800,nint(nfb+1.5*baud))
-            nfa=max(100,nfa-100) ! extend noise fit 100 Hz outside of search window
-            nfb=min(4800,nfb+100)
-         endif
          minsync=1.20
          if(ntrperiod.eq.15) minsync=1.15
-
+         
 ! Get first approximation of candidate frequencies
          call get_candidates_fst4(c_bigfft,nfft1,nsps,hmod,fs,fa,fb,nfa,nfb,  &
-              minsync,ncand,candidates0)
-
+              minsync,ncand,candidates0)         
          isbest=0
          fc2=0.
          do icand=1,ncand
@@ -307,10 +308,10 @@ contains
          do icand=1,ncand
             fc=candidates0(icand,3)
             isbest=nint(candidates0(icand,4))
-            do ic2=1,ncand
+            do ic2=icand+1,ncand
                fc2=candidates0(ic2,3)
                isbest2=nint(candidates0(ic2,4))
-               if(ic2.ne.icand .and. fc2.gt.0.0) then
+               if(fc2.gt.0.0) then
                   if(abs(fc2-fc).lt.0.10*baud) then ! same frequency
                      if(abs(isbest2-isbest).le.2) then
                         candidates0(ic2,3)=-1
@@ -327,7 +328,7 @@ contains
             endif
          enddo
          ncand=ic
-
+         
 ! If FST4 and Single Decode is not checked, then find candidates within
 ! 20 Hz of nfqso and put them at the top of the list
          if(iwspr.eq.0 .and. .not.single_decode) then
@@ -475,7 +476,7 @@ contains
                         do i=1,ndecodes
                            if(decodes(i).eq.msg) idupe=1
                         enddo
-                        if(idupe.eq.1) goto 2002
+                        if(idupe.eq.1) goto 800
                         ndecodes=ndecodes+1
                         decodes(ndecodes)=msg
                         
@@ -522,14 +523,15 @@ contains
                      endif
                      call this%callback(nutc,smax1,nsnr,xdt,fsig,msg,    &
                           iaptype,qual,ntrperiod,lwspr,fmid,w50)
-                     goto 2002
+                     if(iwspr.eq.0 .and. nb.lt.0) go to 900
+                     goto 800
                   endif
                enddo  ! metrics
             enddo  ! istart jitter
-2002     enddo !candidate list
-      enddo
+800      enddo !candidate list
+      enddo ! noise blanker loop
       
-      return
+900   return
     end subroutine decode
 
    subroutine sync_fst4(cd0,i0,f0,hmod,ncoh,np,nss,ntr,fs,sync)
