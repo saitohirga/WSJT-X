@@ -149,8 +149,6 @@ void Modulator::close ()
 
 qint64 Modulator::readData (char * data, qint64 maxSize)
 {
-  // qDebug () << "readData: maxSize:" << maxSize;
-
   double toneFrequency=1500.0;
   if(m_nsps==6) {
     toneFrequency=1000.0;

@@ -454,6 +454,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   // hook up sound output stream slots & signals and disposal
   connect (this, &MainWindow::initializeAudioOutputStream, m_soundOutput, &SoundOutput::setFormat);
   connect (m_soundOutput, &SoundOutput::error, this, &MainWindow::showSoundOutError);
+  connect (m_soundOutput, &SoundOutput::error, &m_config, &Configuration::invalidate_audio_output_device);
   // connect (m_soundOutput, &SoundOutput::status, this, &MainWindow::showStatusMessage);
   connect (this, &MainWindow::outAttenuationChanged, m_soundOutput, &SoundOutput::setAttenuation);
   connect (&m_audioThread, &QThread::finished, m_soundOutput, &QObject::deleteLater);
@@ -472,13 +473,14 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (this, &MainWindow::reset_audio_input_stream, m_soundInput, &SoundInput::reset);
   connect (this, &MainWindow::finished, m_soundInput, &SoundInput::stop);
   connect(m_soundInput, &SoundInput::error, this, &MainWindow::showSoundInError);
+  connect(m_soundInput, &SoundInput::error, &m_config, &Configuration::invalidate_audio_input_device);
   // connect(m_soundInput, &SoundInput::status, this, &MainWindow::showStatusMessage);
   connect (m_soundInput, &SoundInput::dropped_frames, this, [this] (qint32 dropped_frames, qint64 usec) {
                                                               if (dropped_frames > 48000 / 5) // 1/5 second
                                                                 {
                                                                   showStatusMessage (tr ("%1 (%2 sec) audio frames dropped").arg (dropped_frames).arg (usec / 1.e6, 5, 'f', 3));
                                                                 }
-                                                              if (dropped_frames > 48000) // 1 second
+                                                              if (dropped_frames > 5 * 48000) // seconds
                                                                 {
                                                                   auto period = qt_truncate_date_time_to (QDateTime::currentDateTimeUtc ().addMSecs (-m_TRperiod / 2.), m_TRperiod * 1e3);
                                                                   MessageBox::warning_message (this
@@ -1824,14 +1826,14 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
         m_psk_Reporter.sendReport (true);
       }
 
-    if(m_config.restart_audio_input ()) {
+    if(m_config.restart_audio_input () && !m_config.audio_input_device ().isNull ()) {
       Q_EMIT startAudioInputStream (m_config.audio_input_device ()
                                     , rx_chunk_size * m_downSampleFactor
                                     , m_detector, m_downSampleFactor
                                     , m_config.audio_input_channel ());
     }
 
-    if(m_config.restart_audio_output ()) {
+    if(m_config.restart_audio_output () && !m_config.audio_output_device ().isNull ()) {
       Q_EMIT initializeAudioOutputStream (m_config.audio_output_device ()
                                           , AudioDevice::Mono == m_config.audio_output_channel () ? 1 : 2
                                           , tx_audio_buffer_size);

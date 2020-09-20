@@ -10,11 +10,9 @@
 
 #include "moc_soundin.cpp"
 
-bool SoundInput::audioError () const
+bool SoundInput::checkStream ()
 {
-  bool result (true);
-
-  Q_ASSERT_X (m_stream, "SoundInput", "programming error");
+  bool result (false);
   if (m_stream)
     {
       switch (m_stream->error ())
@@ -36,8 +34,12 @@ bool SoundInput::audioError () const
           break;
 
         case QAudio::NoError:
-          result = false;
+          result = true;
           break;
+        }
+      if (!result)
+        {
+          stop ();
         }
     }
   return result;
@@ -74,12 +76,13 @@ void SoundInput::start(QAudioDeviceInfo const& device, int framesPerBuffer, Audi
   // qDebug () << "Selected audio input format:" << format;
 
   m_stream.reset (new QAudioInput {device, format});
-  if (audioError ())
+  if (!checkStream ())
     {
       return;
     }
 
   connect (m_stream.data(), &QAudioInput::stateChanged, this, &SoundInput::handleStateChanged);
+  connect (m_stream.data(), &QAudioInput::notify, [this] () {checkStream ();});
 
   //qDebug () << "SoundIn default buffer size (bytes):" << m_stream->bufferSize () << "period size:" << m_stream->periodSize ();
   // the Windows MME version of QAudioInput uses 1/5 of the buffer
@@ -89,10 +92,10 @@ void SoundInput::start(QAudioDeviceInfo const& device, int framesPerBuffer, Audi
 #else
   Q_UNUSED (framesPerBuffer);
 #endif
-  if (sink->initialize (QIODevice::WriteOnly, channel))
+  if (m_sink->initialize (QIODevice::WriteOnly, channel))
     {
       m_stream->start (sink);
-      audioError ();
+      checkStream ();
       cummulative_lost_usec_ = -1;
       //qDebug () << "SoundIn selected buffer size (bytes):" << m_stream->bufferSize () << "peirod size:" << m_stream->periodSize ();
     }
@@ -107,7 +110,7 @@ void SoundInput::suspend ()
   if (m_stream)
     {
       m_stream->suspend ();
-      audioError ();
+      checkStream ();
     }
 }
 
@@ -122,14 +125,12 @@ void SoundInput::resume ()
   if (m_stream)
     {
       m_stream->resume ();
-      audioError ();
+      checkStream ();
     }
 }
 
 void SoundInput::handleStateChanged (QAudio::State newState)
 {
-  //qDebug () << "SoundInput::handleStateChanged: newState:" << newState;
-
   switch (newState)
     {
     case QAudio::IdleState:
@@ -152,7 +153,7 @@ void SoundInput::handleStateChanged (QAudio::State newState)
 #endif
 
     case QAudio::StoppedState:
-      if (audioError ())
+      if (!checkStream ())
         {
           Q_EMIT status (tr ("Error"));
         }
@@ -193,11 +194,6 @@ void SoundInput::stop()
       m_stream->stop ();
     }
   m_stream.reset ();
-
-  if (m_sink)
-    {
-      m_sink->close ();
-    }
 }
 
 SoundInput::~SoundInput ()

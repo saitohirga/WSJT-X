@@ -293,6 +293,7 @@ set (wsjt_qt_CXXSRCS
   logbook/WorkedBefore.cpp
   logbook/Multiplier.cpp
   Network/NetworkAccessManager.cpp
+  widgets/LazyFillComboBox.cpp
   )
 
 set (wsjt_qtmm_CXXSRCS

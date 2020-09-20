@@ -33,8 +33,8 @@ public:
   Channel channel () const {return m_channel;}
 
 protected:
-  AudioDevice (QObject * parent = 0)
-    : QIODevice (parent)
+  AudioDevice (QObject * parent = nullptr)
+    : QIODevice {parent}
   {
   }
 
