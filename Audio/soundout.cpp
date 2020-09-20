@@ -7,11 +7,13 @@
 #include <qmath.h>
 #include <QDebug>
 
+#include "Audio/AudioDevice.hpp"
+
 #include "moc_soundout.cpp"
 
-bool SoundOutput::audioError () const
+bool SoundOutput::checkStream () const
 {
-  bool result (true);
+  bool result {false};
 
   Q_ASSERT_X (m_stream, "SoundOutput", "programming error");
   if (m_stream) {
@@ -34,7 +36,7 @@ bool SoundOutput::audioError () const
         break;
 
       case QAudio::NoError:
-        result = false;
+        result = true;
         break;
       }
   }
@@ -43,15 +45,19 @@ bool SoundOutput::audioError () const
 
 void SoundOutput::setFormat (QAudioDeviceInfo const& device, unsigned channels, int frames_buffered)
 {
-  if (!device.isNull ())
+  Q_ASSERT (0 < channels && channels < 3);
+  m_device = device;
+  m_channels = channels;
+  m_framesBuffered = frames_buffered;
+}
+
+void SoundOutput::restart (AudioDevice * source)
+{
+  if (!m_device.isNull ())
     {
-      Q_ASSERT (0 < channels && channels < 3);
-
-      m_framesBuffered = frames_buffered;
-
-      QAudioFormat format (device.preferredFormat ());
+      QAudioFormat format (m_device.preferredFormat ());
       //  qDebug () << "Preferred audio output format:" << format;
-      format.setChannelCount (channels);
+      format.setChannelCount (m_channels);
       format.setCodec ("audio/pcm");
       format.setSampleRate (48000);
       format.setSampleType (QAudioFormat::SignedInt);
@@ -61,29 +67,25 @@ void SoundOutput::setFormat (QAudioDeviceInfo const& device, unsigned channels, 
         {
           Q_EMIT error (tr ("Requested output audio format is not valid."));
         }
-      else if (!device.isFormatSupported (format))
+      else if (!m_device.isFormatSupported (format))
         {
           Q_EMIT error (tr ("Requested output audio format is not supported on device."));
         }
       else
         {
           // qDebug () << "Selected audio output format:" << format;
-
-          m_stream.reset (new QAudioOutput (device, format));
-          audioError ();
+          m_stream.reset (new QAudioOutput (m_device, format));
+          checkStream ();
           m_stream->setVolume (m_volume);
-          m_stream->setNotifyInterval(100);
+          m_stream->setNotifyInterval(1000);
           error_ = false;
 
           connect (m_stream.data(), &QAudioOutput::stateChanged, this, &SoundOutput::handleStateChanged);
+          connect (m_stream.data(), &QAudioOutput::notify, [this] () {checkStream ();});
 
           //      qDebug() << "A" << m_volume << m_stream->notifyInterval();
         }
     }
-}
-
-void SoundOutput::restart (QIODevice * source)
-{
   if (!m_stream)
     {
       if (!error_)
@@ -109,6 +111,7 @@ void SoundOutput::restart (QIODevice * source)
 #endif
     }
   m_stream->setCategory ("production");
+  m_source = source;
   m_stream->start (source);
   // qDebug () << "SoundOut selected buffer size (bytes):" << m_stream->bufferSize () << "period size:" << m_stream->periodSize ();
 }
@@ -118,7 +121,7 @@ void SoundOutput::suspend ()
   if (m_stream && QAudio::ActiveState == m_stream->state ())
     {
       m_stream->suspend ();
-      audioError ();
+      checkStream ();
     }
 }
 
@@ -127,7 +130,7 @@ void SoundOutput::resume ()
   if (m_stream && QAudio::SuspendedState == m_stream->state ())
     {
       m_stream->resume ();
-      audioError ();
+      checkStream ();
     }
 }
 
@@ -136,7 +139,7 @@ void SoundOutput::reset ()
   if (m_stream)
     {
       m_stream->reset ();
-      audioError ();
+      checkStream ();
     }
 }
 
@@ -144,9 +147,10 @@ void SoundOutput::stop ()
 {
   if (m_stream)
     {
+      m_stream->reset ();
       m_stream->stop ();
-      audioError ();
     }
+  m_stream.reset ();
 }
 
 qreal SoundOutput::attenuation () const
@@ -176,8 +180,6 @@ void SoundOutput::resetAttenuation ()
 
 void SoundOutput::handleStateChanged (QAudio::State newState)
 {
-  // qDebug () << "SoundOutput::handleStateChanged: newState:" << newState;
-
   switch (newState)
     {
     case QAudio::IdleState:
@@ -199,7 +201,7 @@ void SoundOutput::handleStateChanged (QAudio::State newState)
 #endif
 
     case QAudio::StoppedState:
-      if (audioError ())
+      if (!checkStream ())
         {
           Q_EMIT status (tr ("Error"));
         }

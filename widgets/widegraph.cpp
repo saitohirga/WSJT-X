@@ -500,6 +500,16 @@ void WideGraph::setTol(int n)                                         //setTol
   ui->widePlot->update();
 }
 
+void WideGraph::setFST4_FreqRange(int fLow,int fHigh)
+{
+  ui->widePlot->setFST4_FreqRange(fLow,fHigh);
+}
+
+void WideGraph::setSingleDecode(bool b)
+{
+  ui->widePlot->setSingleDecode(b);
+}
+
 void WideGraph::on_smoSpinBox_valueChanged(int n)
 {
   m_nsmo=n;

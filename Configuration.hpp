@@ -260,6 +260,8 @@ public:
   // i.e. the transceiver is ready for use.
   Q_SLOT void sync_transceiver (bool force_signal = false, bool enforce_mode_and_split = false);
 
+  Q_SLOT void invalidate_audio_input_device (QString error);
+  Q_SLOT void invalidate_audio_output_device (QString error);
 
   //
   // These signals indicate a font has been selected and accepted for
