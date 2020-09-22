@@ -135,6 +135,7 @@
 #include <cmath>
 
 #include <QApplication>
+#include <QCursor>
 #include <QMetaType>
 #include <QList>
 #include <QPair>
@@ -1044,14 +1045,18 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   read_settings ();
 
   connect (ui_->sound_input_combo_box, &LazyFillComboBox::about_to_show_popup, [this] () {
+      QGuiApplication::setOverrideCursor (QCursor {Qt::WaitCursor});
       load_audio_devices (QAudio::AudioInput, ui_->sound_input_combo_box, &next_audio_input_device_);
       update_audio_channels (ui_->sound_input_combo_box, ui_->sound_input_combo_box->currentIndex (), ui_->sound_input_channel_combo_box, false);
       ui_->sound_input_channel_combo_box->setCurrentIndex (next_audio_input_channel_);
+      QGuiApplication::restoreOverrideCursor ();
     });
   connect (ui_->sound_output_combo_box, &LazyFillComboBox::about_to_show_popup, [this] () {
+      QGuiApplication::setOverrideCursor (QCursor {Qt::WaitCursor});
       load_audio_devices (QAudio::AudioOutput, ui_->sound_output_combo_box, &next_audio_output_device_);
       update_audio_channels (ui_->sound_output_combo_box, ui_->sound_output_combo_box->currentIndex (), ui_->sound_output_channel_combo_box, true);
       ui_->sound_output_channel_combo_box->setCurrentIndex (next_audio_output_channel_);
+      QGuiApplication::restoreOverrideCursor ();
     });
 
   // set up LoTW users CSV file fetching
@@ -2819,7 +2824,7 @@ QAudioDeviceInfo Configuration::impl::find_audio_device (QAudio::Mode mode, QCom
       auto const& devices = QAudioDeviceInfo::availableDevices (mode);
       Q_FOREACH (auto const& p, devices)
         {
-          qDebug () << "Configuration::impl::find_audio_device: input:" << (QAudio::AudioInput == mode) << "name:" << p.deviceName () << "preferred format:" << p.preferredFormat () << "endians:" << p.supportedByteOrders () << "codecs:" << p.supportedCodecs () << "channels:" << p.supportedChannelCounts () << "rates:" << p.supportedSampleRates () << "sizes:" << p.supportedSampleSizes () << "types:" << p.supportedSampleTypes ();
+          // qDebug () << "Configuration::impl::find_audio_device: input:" << (QAudio::AudioInput == mode) << "name:" << p.deviceName () << "preferred format:" << p.preferredFormat () << "endians:" << p.supportedByteOrders () << "codecs:" << p.supportedCodecs () << "channels:" << p.supportedChannelCounts () << "rates:" << p.supportedSampleRates () << "sizes:" << p.supportedSampleSizes () << "types:" << p.supportedSampleTypes ();
           if (p.deviceName () == device_name)
             {
               // convert supported channel counts into something we can store in the item model
