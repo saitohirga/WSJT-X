@@ -248,7 +248,6 @@ set (wsjt_qt_CXXSRCS
   item_delegates/ForeignKeyDelegate.cpp
   validators/LiveFrequencyValidator.cpp
   GetUserId.cpp
-  TraceFile.cpp
   Audio/AudioDevice.cpp
   Transceiver/Transceiver.cpp
   Transceiver/TransceiverBase.cpp
@@ -753,7 +752,6 @@ set (all_C_and_CXXSRCS
   )
 
 set (TOP_LEVEL_RESOURCES
-  wsjtx_log_config.ini
   icons/Darwin/wsjtx.iconset/icon_128x128.png
   contrib/gpl-v3-logo.svg
   artwork/splash.png
@@ -885,7 +883,8 @@ find_program(ETAGS etags)
 #   set (BOOST_ROOT ${PROJECT_SOURCE_DIR}/boost)
 # endif ()
 set (Boost_USE_STATIC_LIBS OFF)
-find_package (Boost 1.63 REQUIRED COMPONENTS log_setup log)
+find_package (Boost 1.63 REQUIRED COMPONENTS log_setup)
+add_definitions (-DBOOST_SYSTEM_NO_DEPRECATED)
 
 #
 # OpenMP
@@ -1432,9 +1431,9 @@ set_target_properties (wsjtx PROPERTIES
 
 target_include_directories (wsjtx PRIVATE ${FFTW3_INCLUDE_DIRS})
 if (APPLE)
-  target_link_libraries (wsjtx Qt5::SerialPort wsjt_fort wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
+  target_link_libraries (wsjtx wsjt_fort)
 else ()
-  target_link_libraries (wsjtx Qt5::SerialPort wsjt_fort_omp wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
+  target_link_libraries (wsjtx wsjt_fort_omp)
   if (OpenMP_C_FLAGS)
     set_target_properties (wsjtx PROPERTIES
       COMPILE_FLAGS "${OpenMP_C_FLAGS}"
@@ -1450,6 +1449,7 @@ else ()
       )
   endif ()
 endif ()
+target_link_libraries (wsjtx Qt5::SerialPort wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES})
 
 # make a library for WSJT-X UDP servers
 # add_library (wsjtx_udp SHARED ${UDP_library_CXXSRCS})
