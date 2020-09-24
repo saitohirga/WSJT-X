@@ -8,11 +8,9 @@
 #include <boost/log/expressions.hpp>
 #include <boost/log/expressions/keyword.hpp>
 #include <boost/log/attributes.hpp>
-#include <boost/log/utility/exception_handler.hpp>
 #include <boost/log/utility/setup/console.hpp>
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/utility/setup/filter_parser.hpp>
-#include <boost/log/utility/setup/formatter_parser.hpp>
 #include <boost/log/utility/setup/from_stream.hpp>
 #include <boost/log/utility/setup/settings.hpp>
 #include <boost/log/sinks/sync_frontend.hpp>
@@ -25,21 +23,21 @@
 #include <fstream>
 #include <string>
 
-namespace logger = boost::log;
-namespace srcs = logger::sources;
-namespace sinks = logger::sinks;
-namespace keywords = logger::keywords;
-namespace expr = logger::expressions;
-namespace attrs = logger::attributes;
+namespace logging = boost::log;
+namespace srcs = logging::sources;
+namespace sinks = logging::sinks;
+namespace keywords = logging::keywords;
+namespace expr = logging::expressions;
+namespace attrs = logging::attributes;
 namespace ptime = boost::posix_time;
 
 namespace Logger
 {
   BOOST_LOG_GLOBAL_LOGGER_CTOR_ARGS (sys,
-                                     srcs::severity_channel_logger_mt<logger::trivial::severity_level>,
+                                     srcs::severity_channel_logger_mt<logging::trivial::severity_level>,
                                      (keywords::channel = "SYSLOG"));
   BOOST_LOG_GLOBAL_LOGGER_CTOR_ARGS (data,
-                                     srcs::severity_channel_logger_mt<logger::trivial::severity_level>,
+                                     srcs::severity_channel_logger_mt<logging::trivial::severity_level>,
                                      (keywords::channel = "DATALOG"));
 
   namespace
@@ -47,10 +45,10 @@ namespace Logger
     // Custom formatter factory to add TimeStamp format support in config ini file.
     // Allows %TimeStamp(format=\"%Y.%m.%d %H:%M:%S.%f\")% to be used in ini config file for property Format.
     class TimeStampFormatterFactory
-      : public logger::basic_formatter_factory<char, ptime::ptime>
+      : public logging::basic_formatter_factory<char, ptime::ptime>
     {
     public:
-      formatter_type create_formatter (logger::attribute_name const& name, args_map const& args)
+      formatter_type create_formatter (logging::attribute_name const& name, args_map const& args)
       {
         args_map::const_iterator it = args.find ("format");
         if (it != args.end ())
@@ -73,10 +71,10 @@ namespace Logger
     // Allows %Uptime(format=\"%O:%M:%S.%f\")% to be used in ini config file for property Format.
     // attrs::timer value type is ptime::time_duration
     class UptimeFormatterFactory
-      : public logger::basic_formatter_factory<char, ptime::time_duration>
+      : public logging::basic_formatter_factory<char, ptime::time_duration>
     {
     public:
-      formatter_type create_formatter (logger::attribute_name const& name, args_map const& args)
+      formatter_type create_formatter (logging::attribute_name const& name, args_map const& args)
       {
         args_map::const_iterator it = args.find ("format");
         if (it != args.end ())
@@ -100,26 +98,21 @@ namespace Logger
     public:
       CommonInitialization ()
       {
-        // Disable all exceptions
-        logger::core::get ()->set_exception_handler (logger::make_exception_suppressor ());
- 
         // Add common attributes: LineID, TimeStamp, ProcessID, ThreadID
-        logger::add_common_attributes ();
+        logging::add_common_attributes ();
         // Add boost log timer as global attribute Uptime
-        logger::core::get ()->add_global_attribute ("Uptime", attrs::timer ());
+        logging::core::get ()->add_global_attribute ("Uptime", attrs::timer ());
         // Allows %Severity% to be used in ini config file for property Filter.
-        logger::register_simple_filter_factory<logger::trivial::severity_level, char> ("Severity");
+        logging::register_simple_filter_factory<logging::trivial::severity_level, char> ("Severity");
         // Allows %Severity% to be used in ini config file for property Format.
-        logger::register_simple_formatter_factory<logger::trivial::severity_level, char> ("Severity");
+        logging::register_simple_formatter_factory<logging::trivial::severity_level, char> ("Severity");
         // Allows %TimeStamp(format=\"%Y.%m.%d %H:%M:%S.%f\")% to be used in ini config file for property Format.
-        logger::register_formatter_factory ("TimeStamp", boost::make_shared<TimeStampFormatterFactory> ());
+        logging::register_formatter_factory ("TimeStamp", boost::make_shared<TimeStampFormatterFactory> ());
         // Allows %Uptime(format=\"%O:%M:%S.%f\")% to be used in ini config file for property Format.
-        logger::register_formatter_factory ("Uptime", boost::make_shared<UptimeFormatterFactory> ());
+        logging::register_formatter_factory ("Uptime", boost::make_shared<UptimeFormatterFactory> ());
       }
       ~CommonInitialization ()
       {
-        // Indicate start of logging
-        LOG_INFO ("Log Start");
       }
     };
   }
@@ -127,9 +120,6 @@ namespace Logger
   void init ()
   {
     CommonInitialization ci;
-    // auto sink = boost::make_shared<sinks::synchronous_sink<sinks::debug_output_backend>> ();
-    // sink->set_filter (expr::is_debugger_present ());
-    // logger::core::get ()->add_sink (sink);
   }
 
   void init_from_config (std::istream& stream)
@@ -138,7 +128,7 @@ namespace Logger
     try
       {
         // Still can throw even with the exception suppressor above.
-        logger::init_from_stream (stream);
+        logging::init_from_stream (stream);
       }
     catch (std::exception& e)
       {
@@ -153,7 +143,7 @@ namespace Logger
 
   void disable ()
   {
-    logger::core::get ()->set_logging_enabled (false);
+    logging::core::get ()->set_logging_enabled (false);
   }
 
   void add_datafile_log (std::string const& log_file_name)
@@ -175,15 +165,15 @@ namespace Logger
     // The log output formatter
     sink->set_formatter (expr::format ("[%1%][%2%] %3%")
                          % expr::attr<ptime::ptime> ("TimeStamp")
-                         % logger::trivial::severity
+                         % logging::trivial::severity
                          % expr::smessage
                          );
      
     // Filter by severity and by DATALOG channel
-    sink->set_filter (logger::trivial::severity >= logger::trivial::info &&
+    sink->set_filter (logging::trivial::severity >= logging::trivial::info &&
                       expr::attr<std::string> ("Channel") == "DATALOG");
      
     // Add it to the core
-    logger::core::get ()->add_sink (sink);
+    logging::core::get ()->add_sink (sink);
   }
 }
