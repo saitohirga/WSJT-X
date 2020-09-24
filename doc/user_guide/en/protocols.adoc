@@ -14,11 +14,11 @@ Special cases allow other information such as add-on callsign prefixes
 aim is to compress the most common messages used for minimally valid
 QSOs into a fixed 72-bit length.
 
-The information payloads for FST4, FT4, FT8, and MSK144 contain 77 bits.
-The 5 new bits added to the original 72 are used to flag special
-message types signifying special message types used for FT8 DXpedition
-Mode, contesting, nonstandard callsigns, and a few other
-possibilities.
+Information payloads for FST4, FT4, FT8, and MSK144 contain 77 bits.
+The 5 additional bits are used to flag special message types used for
+nonstandard callsigns, contest exchanges, FT8 DXpedition Mode, and a
+few other possibilities.  Full details have been published in QEX, see
+{ft4_ft8_protocols}.
 
 A standard amateur callsign consists of a one- or two-character
 prefix, at least one of which must be a letter, followed by a digit
@@ -54,11 +54,6 @@ were the callsigns `E9AA` through `E9ZZ`.  Upon reception they are
 converted back to the form `CQ AA` through `CQ ZZ`, for display to the
 user.
 
-The FST4, FT4, FT8, and MSK144 protocols use different lossless compression
-algorithms with features that generate and recognize special messages
-used for contesting and other special purposes.  Full details have
-been published in QEX, see {ft4_ft8_protocols}.
-
 To be useful on channels with low signal-to-noise ratio, this kind of
 lossless message compression requires use of a strong forward error
 correcting (FEC) code.  Different codes are used for each mode.
@@ -76,15 +71,14 @@ _WSJT-X_ modes have continuous phase and constant envelope.
 
 FST4 offers T/R sequence lengths of 15, 30, 60, 120, 300, 900, and
 1800 seconds.  Submodes are given names like FST4-60, FST4-120, etc.,
-the appended numbers indicating sequence length in seconds.  Message
-payloads contain 77 bits, and a 24-bit cyclic redundancy check (CRC)
-appended to create a 101-bit message-plus-CRC word.  Forward error
+the appended numbers indicating sequence length in seconds.  A 24-bit
+cyclic redundancy check (CRC) is appended to the 77-bit message
+payload to create a 101-bit message-plus-CRC word.  Forward error
 correction is accomplished using a (240,101) LDPC code.  Transmissions
 consist of 160 symbols: 120 information-carrying symbols of two bits
 each, interspersed with five groups of eight predefined
 synchronization symbols.  Modulation uses 4-tone frequency-shift
 keying (4-GFSK) with Gaussian smoothing of frequency transitions.
-
 
 [[FT4PRO]]
 ==== FT4

@@ -2,13 +2,16 @@
 === New in Version {VERSION}
 
 _WSJT-X 2.3.0_ introduces *FST4* and *FST4W*, new digital protocols
-designed particularly for the LF and MF bands.  On these bands their
-fundamental sensitivities are better than other _WSJT-X_ modes with the
-same sequence lengths, approaching the theoretical limits for their
-rates of information throughput.  FST4 is optimized for two-way QSOs,
-while FST4W is for quasi-beacon transmissions of WSPR-style messages.
-FST4 and FST4W do not require the strict, independent time
-synchronization and phase locking of modes like EbNaut.
+designed particularly for the LF and MF bands.  Decoders for these
+modes can take advantage of the very small Doppler spreads present at
+these frequencies, even over intercontinental distances.  As a
+consequence, fundamental sensitivities of FST4 and FST4W are better
+than other _WSJT-X_ modes with the same sequence lengths, approaching
+the theoretical limits for their rates of information throughput.  The
+FST4 protocol is optimized for two-way QSOs, while FST4W is for
+quasi-beacon transmissions of WSPR-style messages.  FST4 and FST4W do
+not require the strict, independent phase locking and time
+synchronization of modes like EbNaut.
 
 The new modes use 4-GFSK modulation and share common software for
 encoding and decoding messages.  FST4 offers T/R sequence lengths of
