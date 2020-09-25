@@ -1,17 +1,17 @@
-module qra66_decode
+module qra65_decode
 
-   type :: qra66_decoder
-      procedure(qra66_decode_callback), pointer :: callback
+   type :: qra65_decoder
+      procedure(qra65_decode_callback), pointer :: callback
    contains
       procedure :: decode
-   end type qra66_decoder
+   end type qra65_decoder
 
    abstract interface
-      subroutine qra66_decode_callback (this,nutc,sync,nsnr,dt,freq,    &
+      subroutine qra65_decode_callback (this,nutc,sync,nsnr,dt,freq,    &
          decoded,nap,qual,ntrperiod,fmid,w50)
-         import qra66_decoder
+         import qra65_decoder
          implicit none
-         class(qra66_decoder), intent(inout) :: this
+         class(qra65_decoder), intent(inout) :: this
          integer, intent(in) :: nutc
          real, intent(in) :: sync
          integer, intent(in) :: nsnr
@@ -23,7 +23,7 @@ module qra66_decode
          integer, intent(in) :: ntrperiod
          real, intent(in) :: fmid
          real, intent(in) :: w50
-      end subroutine qra66_decode_callback
+      end subroutine qra65_decode_callback
    end interface
 
 contains
@@ -35,8 +35,8 @@ contains
     use packjt
     use, intrinsic :: iso_c_binding
     parameter (NMAX=300*12000)             !### Needs to be 300*12000 ###
-    class(qra66_decoder), intent(inout) :: this
-    procedure(qra66_decode_callback) :: callback
+    class(qra65_decoder), intent(inout) :: this
+    procedure(qra65_decode_callback) :: callback
     character(len=12) :: mycall, hiscall
     character(len=6) :: hisgrid
     character*37 decoded
@@ -50,7 +50,7 @@ contains
     data nc1z/-1/,nc2z/-1/,ng2z/-1/,maxaptypez/-1/,nsubmodez/-1/
     save nc1z,nc2z,ng2z,maxaptypez,nsave,nsubmodez
 
-    mode66=2**nsubmode
+    mode65=2**nsubmode
     nfft1=ntrperiod*12000
     nfft2=ntrperiod*6000
     allocate (c0(0:nfft1-1))
@@ -58,8 +58,8 @@ contains
     if(nsubmode.ne.nsubmodez) then
        if(allocated(s3)) deallocate(s3)
        if(allocated(s3a)) deallocate(s3a)
-       allocate(s3(-64:64*mode66+63,63))
-       allocate(s3a(-64:64*mode66+63,63))
+       allocate(s3(-64:64*mode65+63,63))
+       allocate(s3a(-64:64*mode65+63,63))
     endif
     
     if(ntrperiod.eq.15) then
@@ -115,9 +115,9 @@ contains
     endif
     naptype=maxaptype
 
-    call timer('sync66  ',0)
-    call sync66(iwave,ntrperiod*12000,mode66,nsps,nfqso,ntol,xdt,f0,snr1)
-    call timer('sync66  ',1)
+    call timer('sync_q65',0)
+    call sync_qra65(iwave,ntrperiod*12000,mode65,nsps,nfqso,ntol,xdt,f0,snr1)
+    call timer('sync_q65',1)
 
 ! Downsample to give complex data at 6000 S/s
     fac=2.0/nfft1
@@ -131,20 +131,20 @@ contains
     if(ntrperiod.ge.60) jpk=(xdt+1.0)*6000 - 384   !### TBD ###
     if(jpk.lt.0) jpk=0
     a=0.
-    a(1)=-(f0 + mode66*baud)             !Data tones start mode66 bins higher
+    a(1)=-(f0 + mode65*baud)             !Data tones start mode65 bins higher
     call twkfreq(c0,c0,ntrperiod*6000,6000.0,a)
     xdt=jpk/6000.0 - 0.5
     
-    LL=64*(mode66+2)
+    LL=64*(mode65+2)
     NN=63
-    call spec66(c0(jpk:),nsps/2,s3,LL,NN)  !Compute synchronized symbol spectra
+    call spec_qra65(c0(jpk:),nsps/2,s3,LL,NN)  !Compute synchronized symbol spectra
 
     do j=1,63                              !Normalize to symbol baseline
        call pctile(s3(:,j),LL,40,base)
        s3(:,j)=s3(:,j)/base
     enddo
 
-    LL2=64*(mode66+1)-1
+    LL2=64*(mode65+1)-1
     s3max=20.0
     do j=1,63                              !Apply AGC to suppress pings
      xx=maxval(s3(-64:LL2,j))
@@ -201,4 +201,4 @@ contains
     return
   end subroutine decode
 
-end module qra66_decode
+end module qra65_decode

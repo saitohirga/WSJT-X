@@ -380,7 +380,7 @@ set (wsjt_FSRCS
   lib/options.f90
   lib/packjt.f90
   lib/77bit/packjt77.f90
-  lib/qra66_decode.f90
+  lib/qra65_decode.f90
   lib/readwav.f90
   lib/timer_C_wrapper.f90
   lib/timer_impl.f90
@@ -568,7 +568,7 @@ set (wsjt_FSRCS
   lib/softsym9w.f90
   lib/shell.f90
   lib/spec64.f90
-  lib/spec66.f90
+  lib/spec_qra65.f90
   lib/spec9f.f90
   lib/stdmsg.f90
   lib/subtract65.f90
@@ -580,8 +580,8 @@ set (wsjt_FSRCS
   lib/symspec65.f90
   lib/sync4.f90
   lib/sync64.f90
-  lib/sync66.f90
   lib/sync65.f90
+  lib/sync_qra65.f90
   lib/ft4/getcandidates4.f90
   lib/ft4/get_ft4_bitmetrics.f90
   lib/ft8/sync8.f90
@@ -1335,11 +1335,8 @@ target_link_libraries (sumsim wsjt_fort wsjt_cxx)
 add_executable (qra64sim lib/qra/qra64/qra64sim.f90 wsjtx.rc)
 target_link_libraries (qra64sim wsjt_fort wsjt_cxx)
 
-add_executable (qra66sim lib/qra/qra66/qra66sim.f90 wsjtx.rc)
-target_link_libraries (qra66sim wsjt_fort wsjt_cxx)
-
-#add_executable (test_sync66 lib/test_sync66.f90 wsjtx.rc)
-#target_link_libraries (test_sync66 wsjt_fort wsjt_cxx)
+add_executable (qra65sim lib/qra/qra65/qra65sim.f90 wsjtx.rc)
+target_link_libraries (qra65sim wsjt_fort wsjt_cxx)
 
 add_executable (jt49sim lib/jt49sim.f90 wsjtx.rc)
 target_link_libraries (jt49sim wsjt_fort wsjt_cxx)
@@ -1543,7 +1540,7 @@ install (TARGETS jt9 wsprd fmtave fcal fmeasure
 
 if(WSJT_BUILD_UTILS)
 install (TARGETS ft8code jt65code qra64code qra64sim jt9code jt4code
-  msk144code fst4sim
+  msk144code fst4sim qra65sim
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   )

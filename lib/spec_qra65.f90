@@ -1,4 +1,4 @@
-subroutine spec66(c0,nsps,s3,LL,NN)
+subroutine spec_qra65(c0,nsps,s3,LL,NN)
 
 ! Compute synchronized symbol spectra.  
 
@@ -46,4 +46,4 @@ subroutine spec66(c0,nsps,s3,LL,NN)
   enddo
 
   return
-end subroutine spec66
+end subroutine spec_qra65

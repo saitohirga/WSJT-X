@@ -1,6 +1,6 @@
-program qra66sim
+program qra65sim
 
-! Generate simulated QRA66 data for testing the decoder.
+! Generate simulated QRA65 data for testing the decoder.
 
   use wavhdr
   use packjt
@@ -19,13 +19,13 @@ program qra66sim
 
   nargs=iargc()
   if(nargs.ne.8) then
-     print *, 'Usage:   qra66sim         "msg"     A-E freq fDop DT TRp Nfiles SNR'
-     print *, 'Example: qra66sim "K1ABC W9XYZ EN37" A  1500 0.2 0.0  15   1    -10'
+     print *, 'Usage:   qra65sim         "msg"     A-E freq fDop DT TRp Nfiles SNR'
+     print *, 'Example: qra65sim "K1ABC W9XYZ EN37" A  1500 0.2 0.0  15   1    -10'
      go to 999
   endif
   call getarg(1,msg)
   call getarg(2,csubmode)
-  mode66=2**(ichar(csubmode)-ichar('A'))
+  mode65=2**(ichar(csubmode)-ichar('A'))
   call getarg(3,arg)
   read(arg,*) f0
   call getarg(4,arg)
@@ -62,8 +62,7 @@ program qra66sim
   dt=1.d0/fsample                    !Sample interval (s)
   twopi=8.d0*atan(1.d0)
   nsym=85                            !Number of channel symbols
-  mode66=2**(ichar(csubmode) - ichar('A'))
-  print*,csubmode,mode66
+  mode65=2**(ichar(csubmode) - ichar('A'))
 
   ichk=65                            !Flag sent to genqra64
   call genqra64(msg,ichk,msgsent,itone,itype)
@@ -108,7 +107,7 @@ program qra66sim
         isym=i/nsps + 1
         if(isym.gt.nsym) exit
         if(isym.ne.isym0) then
-           freq=f0 + itone(isym)*baud*mode66
+           freq=f0 + itone(isym)*baud*mode65
            dphi=twopi*freq*dt
            isym0=isym
         endif
@@ -176,4 +175,4 @@ program qra66sim
 !     enddo
   enddo
 
-999 end program qra66sim
+999 end program qra65sim

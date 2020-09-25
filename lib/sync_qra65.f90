@@ -1,4 +1,4 @@
-subroutine sync66(iwave,nmax,mode66,nsps,nfqso,ntol,xdt,f0,snr1)
+subroutine sync_qra65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1)
 
   parameter (NSTEP=4)                    !Quarter-symbol steps
   integer*2 iwave(0:nmax-1)              !Raw data
@@ -7,7 +7,7 @@ subroutine sync66(iwave,nmax,mode66,nsps,nfqso,ntol,xdt,f0,snr1)
   real, allocatable :: s1(:,:)           !Symbol spectra, quarter-symbol steps
   real sync(85)                          !sync vector 
   real ccf(-64:64,-15:15)
-  complex, allocatable :: c0(:)            !Complex spectrum of symbol
+  complex, allocatable :: c0(:)          !Complex spectrum of symbol
   data isync/1,9,12,13,15,22,23,26,27,33,35,38,46,50,55,60,62,66,69,74,76,85/
   data sync(1)/99.0/
   save sync
@@ -72,6 +72,9 @@ subroutine sync66(iwave,nmax,mode66,nsps,nfqso,ntol,xdt,f0,snr1)
   if(nsps.ge.7680) jadd=6
   if(nsps.ge.16000) jadd=3
   if(nsps.ge.41472) jadd=1
+  dt4=nsps/(NSTEP*12000.0)                      !1/4 of symbol duration
+!  j0=0.5/dt4
+!  if(nsps.ge.7680) j0=1.0/dt4
   
   do i=-ia,ia
      do lag=-15,15
@@ -96,8 +99,6 @@ subroutine sync66(iwave,nmax,mode66,nsps,nfqso,ntol,xdt,f0,snr1)
   ijpk=maxloc(ccf)
   ipk=ijpk(1)-65
   jpk=ijpk(2)-16
-  dt4=nsps/(NSTEP*12000.0)                      !1/4 of symbol duration
-  if(nsps.ge.7680) j0=1.0/dt4
   f0=nfqso + ipk*df
   xdt=jpk*dt4
   snr1=maxval(ccf)/22.0
@@ -105,4 +106,4 @@ subroutine sync66(iwave,nmax,mode66,nsps,nfqso,ntol,xdt,f0,snr1)
 !3100 format(2i5,f7.2,2f10.2)
 
   return
-end subroutine sync66
+end subroutine sync_qra65

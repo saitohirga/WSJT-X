@@ -9,7 +9,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   use ft8_decode
   use ft4_decode
   use fst4_decode
-  use qra66_decode
+  use qra65_decode
 
   include 'jt9com.f90'
   include 'timer_common.inc'
@@ -38,9 +38,9 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      integer :: decoded
   end type counting_fst4_decoder
 
-  type, extends(qra66_decoder) :: counting_qra66_decoder
+  type, extends(qra65_decoder) :: counting_qra65_decoder
      integer :: decoded
-  end type counting_qra66_decoder
+  end type counting_qra65_decoder
 
   real ss(184,NSMAX)
   logical baddata,newdat65,newdat9,single_decode,bVHF,bad0,newdat,ex
@@ -59,7 +59,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   type(counting_ft8_decoder) :: my_ft8
   type(counting_ft4_decoder) :: my_ft4
   type(counting_fst4_decoder) :: my_fst4
-  type(counting_qra66_decoder) :: my_qra66
+  type(counting_qra65_decoder) :: my_qra65
 
   !cast C character arrays to Fortran character strings
   datetime=transfer(params%datetime, datetime)
@@ -75,7 +75,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   my_ft8%decoded = 0
   my_ft4%decoded = 0
   my_fst4%decoded = 0
-  my_qra66%decoded = 0
+  my_qra65%decoded = 0
   
 ! For testing only: return Rx messages stored in a file as decodes
   inquire(file='rx_messages.txt',exist=ex)
@@ -195,12 +195,12 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   endif
 
   if(params%nmode.eq.66) then
-! We're in QRA66 mode
-     call timer('decqra66',0)
-     call my_qra66%decode(qra66_decoded,id2,params%nutc,params%ntr,        &
+! We're in QRA65 mode
+     call timer('decqra65',0)
+     call my_qra65%decode(qra65_decoded,id2,params%nutc,params%ntr,        &
           params%nsubmode,params%nfqso,params%ntol,params%ndepth,          &
           mycall,hiscall,hisgrid)
-     call timer('decqra66',1)
+     call timer('decqra65',1)
      go to 800
   endif
 
@@ -776,13 +776,13 @@ contains
    return
  end subroutine fst4_decoded
 
- subroutine qra66_decoded (this,nutc,sync,nsnr,dt,freq,decoded,irc,   &
+ subroutine qra65_decoded (this,nutc,sync,nsnr,dt,freq,decoded,irc,   &
        qual,ntrperiod,fmid,w50)
 
-    use qra66_decode
+    use qra65_decode
     implicit none
 
-    class(qra66_decoder), intent(inout) :: this
+    class(qra65_decoder), intent(inout) :: this
     integer, intent(in) :: nutc
     real, intent(in) :: sync
     integer, intent(in) :: nsnr
@@ -801,23 +801,23 @@ contains
        write(*,1001) nutc,nsnr,dt,nint(freq),decoded,mod(irc,100),navg
 1001   format(i6.6,i4,f5.1,i5,' + ',1x,a37,1x,i2,i4)
     write(13,1002) nutc,nint(sync),nsnr,dt,freq,0,decoded
-1002 format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a37,' QRA66')
+1002 format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a37,' QRA65')
     else
        write(*,1003) nutc,nsnr,dt,nint(freq),decoded,mod(irc,100),navg
 1003   format(i4.4,i4,f5.1,i5,' + ',1x,a37,1x,i2,i4)
        write(13,1004) nutc,nint(sync),nsnr,dt,freq,0,decoded
-1004   format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a37,' QRA66')
+1004   format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a37,' QRA65')
 
     endif
     call flush(6)
     call flush(13)
 
     select type(this)
-    type is (counting_qra66_decoder)
+    type is (counting_qra65_decoder)
        this%decoded = this%decoded + 1
     end select
 
    return
- end subroutine qra66_decoded
+ end subroutine qra65_decoded
 
 end subroutine multimode_decoder
