@@ -73,6 +73,7 @@ subroutine sync_qra65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1)
   if(nsps.ge.16000) jadd=3
   if(nsps.ge.41472) jadd=1
   dt4=nsps/(NSTEP*12000.0)                      !1/4 of symbol duration
+!  print*,'DT range +/-',15*dt4
 !  j0=0.5/dt4
 !  if(nsps.ge.7680) j0=1.0/dt4
   

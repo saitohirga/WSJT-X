@@ -6330,16 +6330,17 @@ void MainWindow::on_actionQRA65_triggered()
   m_mode="QRA65";
   m_modeTx="QRA65";
   ui->actionQRA65->setChecked(true);
-  switch_mode (Modes::QRA64);
-  setup_status_bar (false);
+  switch_mode(Modes::QRA65);
+  setup_status_bar(true);
   m_hsymStop=49;
   ui->sbTR->values ({15, 30, 60, 120, 300});
   on_sbTR_valueChanged (ui->sbTR->value());
-  m_wideGraph->setMode(m_mode);
+  ui->sbSubmode->setMaximum(3);
+  ui->sbSubmode->setValue(m_nSubMode);  m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
   m_wideGraph->setPeriod(m_TRperiod,6912);
+  m_wideGraph->setTol(ui->sbFtol->value());
 //                         0123456789012345678901234567890123
-//displayWidgets(nWidgets("1111100001001100000100000001000000"));
   displayWidgets(nWidgets("1111110101101101000100000011000000"));
   statusChanged();}
 
@@ -7523,7 +7524,7 @@ void MainWindow::on_sbTR_FST4W_valueChanged(int value)
 QChar MainWindow::current_submode () const
 {
   QChar submode {0};
-  if (m_mode.contains (QRegularExpression {R"(^(JT65|JT9|JT4|ISCAT|QRA64)$)"})
+  if (m_mode.contains (QRegularExpression {R"(^(JT65|JT9|JT4|ISCAT|QRA64|QRA65)$)"})
       && (m_config.enable_VHF_features () || "JT4" == m_mode || "ISCAT" == m_mode))
     {
       submode = m_nSubMode + 65;

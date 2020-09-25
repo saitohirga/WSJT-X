@@ -1,17 +1,16 @@
-program test_qra66
+program test_qra65
 
   character*70 cmd1,cmd2,line
   character*22 msg
   character*8 arg
   integer nretcode(0:11)
   integer fDop
-  real fspread
   logical decok
 
   nargs=iargc()
   if(nargs.ne.7) then
-     print*,'Usage:   test_qra66        "msg"     ndepth freq  DT fDop nfiles SNR'
-     print*,'Example: test_qra66 "K1ABC W9XYZ EN37"  3   1500 0.0  5    100    0'
+     print*,'Usage:   test_qra65        "msg"     ndepth freq  DT fDop nfiles SNR'
+     print*,'Example: test_qra65 "K1ABC W9XYZ EN37"  3   1500 0.0  5    100    0'
      print*,'         SNR = 0 to loop over all relevant SNRs'
      go to 999
   endif
@@ -31,7 +30,7 @@ program test_qra66
 
 !                1         2         3         4         5         6
 !       1234567890123456789012345678901234567890123456789012345678901234'
-  cmd1='qra66sim "K1ABC W9XYZ EN37      " A 1500  5.0  0.0  100 -10 > junk0'
+  cmd1='qra65sim "K1ABC W9XYZ EN37      " A 1500  5.0  0.0  100 -10 > junk0'
   cmd2='jt9 -3 -p 15 -L 300 -H 3000 -d 1 *.wav > junk'
 
   write(cmd1(10:33),'(a)') '"'//msg//'"'
@@ -96,7 +95,7 @@ program test_qra66
      flush(12)
   enddo
 
-999 end program test_qra66
+999 end program test_qra65
 
   include 'sec0.f90'
 
