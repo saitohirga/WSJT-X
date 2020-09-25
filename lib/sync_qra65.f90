@@ -54,10 +54,10 @@ subroutine sync_qra65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1)
   s1max=20.0
 
 ! Apply AGC
-!  do j=1,jz
-!     smax=maxval(s1(i0-64:i0+192,j))
-!     if(smax.gt.s1max) s1(i0-64:i0+192,j)=s1(i0-64:i0+192,j)*s1max/smax
-!  enddo
+  do j=1,jz
+     smax=maxval(s1(i0-64:i0+192,j))
+     if(smax.gt.s1max) s1(i0-64:i0+192,j)=s1(i0-64:i0+192,j)*s1max/smax
+  enddo
 
 !  do i=1,iz
 !     write(60,3060) i,i*df,sum(s1(i,1:jz))
