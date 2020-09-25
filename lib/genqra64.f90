@@ -1,6 +1,6 @@
 subroutine genqra64(msg0,ichk,msgsent,itone,itype)
 
-! Encodes a QRA64 message to yield itone(1:84)
+! Encodes a QRA64 message to yield itone(1:84) or a QRA65 msg, itone(1:85)
 
   use packjt
   character*22 msg0
@@ -8,15 +8,15 @@ subroutine genqra64(msg0,ichk,msgsent,itone,itype)
   character*22 msgsent            !Message as it will be received
   integer itone(85)               !QRA64 uses only 84
   character*3 cok                 !'   ' or 'OOO'
-  logical old_qra_sync
   integer dgen(13)
   integer sent(63)
-  integer b11(11)                 !Barker 11 code
+  integer isync(22)
   integer icos7(0:6)
   data icos7/2,5,6,0,4,1,3/       !Defines a 7x7 Costas array
-  data b11/1,1,1,0,0,0,1,0,0,1,0/ !Barker 11 definition
+  data isync/1,9,12,13,15,22,23,26,27,33,35,38,46,50,55,60,62,66,69,74,76,85/
   save
 
+  print*,'ichk:',ichk
   if(msg0(1:1).eq.'@') then
      read(msg0(2:5),*,end=1,err=1) nfreq
      go to 2
@@ -44,18 +44,17 @@ subroutine genqra64(msg0,ichk,msgsent,itone,itype)
      if(ichk.eq.1) go to 999             !Return if checking only
      call qra64_enc(dgen,sent)           !Encode using QRA64
 
-     if(ichk.eq.66) then
-! Experimental QRA66 (FST66?) mode
-        j=0
+     if(ichk.eq.65) then
+! Experimental QRA65 mode
+        j=1
         k=0
         do i=1,85
-           if(mod(i,4).eq.1) then
+           if(i.eq.isync(j)) then
               j=j+1                      !Index for next sync symbol
-              if(j.eq.12) j=1
-              itone(i)=b11(j)            !Insert a sync symbol
+              itone(i)=0                 !Insert a sync symbol
            else
               k=k+1
-              itone(i)=sent(k) + 2
+              itone(i)=sent(k) + 1
            endif
         enddo
      else

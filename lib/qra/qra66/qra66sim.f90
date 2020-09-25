@@ -65,7 +65,7 @@ program qra66sim
   mode66=2**(ichar(csubmode) - ichar('A'))
   print*,csubmode,mode66
 
-  ichk=66                            !Flag sent to genqra64
+  ichk=65                            !Flag sent to genqra64
   call genqra64(msg,ichk,msgsent,itone,itype)
   write(*,1001) itone
 1001 format('Channel symbols:'/(20i3))

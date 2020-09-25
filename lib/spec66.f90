@@ -6,12 +6,19 @@ subroutine spec66(c0,nsps,s3,LL,NN)
   complex cs(0:nsps-1)                   !Complex symbol spectrum
   real s3(LL,NN)                         !Synchronized symbol spectra
   real xbase0(LL),xbase(LL)              !Work arrays
+  integer isync(22)                      !Indices of sync symbols
+  data isync/1,9,12,13,15,22,23,26,27,33,35,38,46,50,55,60,62,66,69,74,76,85/
 
   fac=1.0/nsps
-  ja=-nsps
-  do j=1,NN
-     ja=ja+nsps
-     if(mod(ja/nsps,4).eq.0) ja=ja+nsps
+  j=0
+  n=1
+  do k=1,84
+     if(k.eq.isync(n)) then
+        n=n+1
+        cycle
+     endif
+     j=j+1
+     ja=(k-1)*nsps
      jb=ja+nsps-1
      cs=fac*c0(ja:jb)
      call four2a(cs,nsps,1,-1,1)             !c2c FFT to frequency
