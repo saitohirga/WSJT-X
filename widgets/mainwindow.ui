@@ -2806,7 +2806,7 @@ Yellow when too low</string>
     <addaction name="actionJT9_JT65"/>
     <addaction name="actionJT65"/>
     <addaction name="actionQRA64"/>
-    <addaction name="actionQRA66"/>
+    <addaction name="actionQRA65"/>
     <addaction name="separator"/>
     <addaction name="actionISCAT"/>
     <addaction name="actionMSK144"/>
@@ -3293,12 +3293,12 @@ Yellow when too low</string>
     <string>FST4W</string>
    </property>
   </action>
-  <action name="actionQRA66">
+  <action name="actionQRA65">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>QRA66</string>
+    <string>QRA65</string>
    </property>
   </action>
  </widget>

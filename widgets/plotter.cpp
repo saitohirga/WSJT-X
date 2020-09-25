@@ -472,7 +472,7 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
     if(m_nSubMode==4) bw=16*bw;  //E
   }
 
-  if(m_mode=="QRA66") {                      //QRA66
+  if(m_mode=="QRA65") {                      //QRA65
     int h=int(pow(2.0,m_nSubMode));
     int nsps=1800;
     if(m_TRperiod==30) nsps=3600;
@@ -513,10 +513,10 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
   int yTxTop=12;
   int yRxBottom=yTxTop + 2*yh + 4;
   if(m_mode=="JT9" or m_mode=="JT65" or m_mode=="JT9+JT65"
-     or m_mode=="QRA64" or m_mode=="QRA66" or m_mode=="FT8" or m_mode=="FT4"
+     or m_mode=="QRA64" or m_mode=="QRA65" or m_mode=="FT8" or m_mode=="FT4"
      or m_mode.startsWith("FST4")) {
 
-    if(m_mode=="QRA64" or m_mode=="QRA66" or (m_mode=="JT65" and m_bVHF)) {
+    if(m_mode=="QRA64" or m_mode=="QRA65" or (m_mode=="JT65" and m_bVHF)) {
       painter0.setPen(penGreen);
       x1=XfromFreq(m_rxFreq-m_tol);
       x2=XfromFreq(m_rxFreq+m_tol);
@@ -554,7 +554,7 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
   }
 
   if(m_mode=="JT9" or m_mode=="JT65" or m_mode=="JT9+JT65" or
-     m_mode.mid(0,4)=="WSPR" or m_mode=="QRA64" or m_mode=="QRA66" or m_mode=="FT8"
+     m_mode.mid(0,4)=="WSPR" or m_mode=="QRA64" or m_mode=="QRA65" or m_mode=="FT8"
      or m_mode=="FT4" or m_mode.startsWith("FST4")) {
     painter0.setPen(penRed);
     x1=XfromFreq(m_txFreq);

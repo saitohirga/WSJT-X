@@ -194,7 +194,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      go to 800
   endif
 
-  if(params%nmode.eq.66) then
+  if(params%nmode.eq.66) then        !NB: JT65 = 65, QRA65 = 66.
 ! We're in QRA65 mode
      call timer('decqra65',0)
      call my_qra65%decode(qra65_decoded,id2,params%nutc,params%ntr,        &
