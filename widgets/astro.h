@@ -55,12 +55,12 @@ protected:
   void closeEvent (QCloseEvent *) override;
 
 private slots:
-  void on_rbConstFreqOnMoon_clicked();
-  void on_rbFullTrack_clicked();
-  void on_rbOwnEcho_clicked();
-  void on_rbNoDoppler_clicked();
-  void on_rbOnDxEcho_clicked();
-  void on_rbCallDx_clicked();
+  void on_rbConstFreqOnMoon_clicked(bool);
+  void on_rbFullTrack_clicked(bool);
+  void on_rbOwnEcho_clicked(bool);
+  void on_rbNoDoppler_clicked(bool);
+  void on_rbOnDxEcho_clicked(bool);
+  void on_rbCallDx_clicked(bool);
   void on_cbDopplerTracking_toggled(bool);
 
 private:
