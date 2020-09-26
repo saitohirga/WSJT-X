@@ -414,8 +414,8 @@ void HamlibTransceiver::error_check (int ret_code, QString const& doing) const
 
 int HamlibTransceiver::do_start ()
 {
-  TRACE_CAT ("starting: " << QString::fromLatin1 (rig_->caps->mfg_name).trimmed ()
-             << ": " << QString::fromLatin1 (rig_->caps->model_name).trimmed ());
+  TRACE_CAT ("starting: " << rig_->caps->mfg_name
+             << ": " << rig_->caps->model_name);
 
   error_check (rig_open (rig_.data ()), tr ("opening connection to rig"));
 

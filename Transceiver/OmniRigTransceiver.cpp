@@ -152,8 +152,8 @@ int OmniRigTransceiver::do_start ()
            , SIGNAL (CustomReply (int, QVariant const&, QVariant const&))
            , this, SLOT (handle_custom_reply (int, QVariant const&, QVariant const&)));
 
-  TRACE_CAT ("OmniRig s/w version:" << QString::number (omni_rig_->SoftwareVersion ()).toLocal8Bit ()
-             << "i/f version:" << QString::number (omni_rig_->InterfaceVersion ()).toLocal8Bit ());
+  TRACE_CAT ("OmniRig s/w version:" << omni_rig_->SoftwareVersion ()
+             << "i/f version:" << omni_rig_->InterfaceVersion ());
 
   // fetch the interface of the RigX CoClass and instantiate a proxy object
   switch (rig_number_)
@@ -212,7 +212,7 @@ int OmniRigTransceiver::do_start ()
     .arg (rig_type_)
     .arg (readable_params_, 8, 16, QChar ('0'))
     .arg (writable_params_, 8, 16, QChar ('0'))
-    .arg (rig_number_).toLocal8Bit ());
+    .arg (rig_number_).toStdWString ());
   for (int i = 0; i < 5; ++i)
     {
       if (OmniRig::ST_ONLINE == rig_->Status ())
@@ -349,7 +349,7 @@ void OmniRigTransceiver::do_stop ()
 
 void OmniRigTransceiver::handle_COM_exception (int code, QString source, QString desc, QString help)
 {
-  TRACE_CAT (QString::number (code) + " at " + source + ": " + desc + " (" + help + ')');
+  TRACE_CAT ((QString::number (code) + " at " + source + ": " + desc + " (" + help + ')').toStdWString ());
   throw_qstring (tr ("OmniRig COM/OLE error: %1 at %2: %3 (%4)").arg (QString::number (code)).arg (source). arg (desc). arg (help));
 }
 
@@ -371,18 +371,18 @@ void OmniRigTransceiver::handle_rig_type_change (int rig_number)
         .arg (rig_->RigType ())
         .arg (readable_params_, 8, 16, QChar ('0'))
         .arg (writable_params_, 8, 16, QChar ('0'))
-        .arg (rig_number).toLocal8Bit ());
+        .arg (rig_number).toStdWString ());
     }
 }
 
 void OmniRigTransceiver::handle_status_change (int rig_number)
 {
-  TRACE_CAT (QString {"status change for rig %1"}.arg (rig_number).toLocal8Bit ());
+  TRACE_CAT (QString {"status change for rig %1"}.arg (rig_number).toStdWString ());
   if (rig_number_ == rig_number)
     {
       if (!rig_ || rig_->isNull ()) return;
-      auto const& status = rig_->StatusStr ().toLocal8Bit ();
-      TRACE_CAT ("OmniRig status change: new status = " << status);
+      auto const& status = rig_->StatusStr ();
+      TRACE_CAT ("OmniRig status change: new status = " << status.toStdWString ());
       if (OmniRig::ST_ONLINE != rig_->Status ())
         {
           if (!offline_timer_->isActive ())
@@ -411,7 +411,7 @@ void OmniRigTransceiver::handle_params_change (int rig_number, int params)
 {
   TRACE_CAT (QString {"params change: params = 0x%1 for rig %2"}
         .arg (params, 8, 16, QChar ('0'))
-        .arg (rig_number).toLocal8Bit ()
+        .arg (rig_number).toStdWString ()
         << "state before:" << state ());
   if (rig_number_ == rig_number)
     {
@@ -556,7 +556,7 @@ void OmniRigTransceiver::handle_params_change (int rig_number, int params)
         {
           auto f = readable_params_ & OmniRig::PM_FREQA ? rig_->FreqA () : rig_->Freq ();
           auto m = map_mode (rig_->Mode ());
-          TRACE_CAT (QString {"VFOEQUAL f=%1 m=%2"}.arg (f).arg (m));
+          TRACE_CAT (QString {"VFOEQUAL f=%1 m=%2"}.arg (f).arg (m).toStdWString ());
           update_rx_frequency (f);
           update_other_frequency (f);
           update_mode (m);
@@ -664,9 +664,9 @@ void OmniRigTransceiver::handle_custom_reply (int rig_number, QVariant const& co
   if (rig_number_ == rig_number)
     {
       if (!rig_ || rig_->isNull ()) return;
-      TRACE_CAT ("custom command" << command.toString ().toLocal8Bit ()
-                 << "with reply" << reply.toString ().toLocal8Bit ()
-                 << QString ("for rig %1").arg (rig_number).toLocal8Bit ());
+      TRACE_CAT ("custom command" << command.toString ().toStdWString ()
+                 << "with reply" << reply.toString ().toStdWString ()
+                 << QString ("for rig %1").arg (rig_number).toStdWString ());
       TRACE_CAT ("rig number:" << rig_number_ << ':' << state ());
     }
 }

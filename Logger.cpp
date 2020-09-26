@@ -34,11 +34,11 @@ namespace ptime = boost::posix_time;
 namespace Logger
 {
   BOOST_LOG_GLOBAL_LOGGER_CTOR_ARGS (sys,
-                                     srcs::severity_channel_logger_mt<logging::trivial::severity_level>,
-                                     (keywords::channel = "SYSLOG"));
+                                     srcs::wseverity_channel_logger_mt<logging::trivial::severity_level>,
+                                     (keywords::channel = L"SYSLOG"));
   BOOST_LOG_GLOBAL_LOGGER_CTOR_ARGS (data,
-                                     srcs::severity_channel_logger_mt<logging::trivial::severity_level>,
-                                     (keywords::channel = "DATALOG"));
+                                     srcs::wseverity_channel_logger_mt<logging::trivial::severity_level>,
+                                     (keywords::channel = L"DATALOG"));
 
   namespace
   {
@@ -149,24 +149,24 @@ namespace Logger
   void add_datafile_log (std::string const& log_file_name)
   {
     // Create a text file sink
-    boost::shared_ptr<sinks::text_ostream_backend> backend
+    boost::shared_ptr<sinks::wtext_ostream_backend> backend
       (
-       new sinks::text_ostream_backend()
+       new sinks::wtext_ostream_backend()
        );
-    backend->add_stream (boost::shared_ptr<std::ostream> (new std::ofstream (log_file_name)));
+    backend->add_stream (boost::shared_ptr<std::wostream> (new std::wofstream (log_file_name)));
      
     // Flush after each log record
     backend->auto_flush (true);
      
     // Create a sink for the backend
-    typedef sinks::synchronous_sink<sinks::text_ostream_backend> sink_t;
+    typedef sinks::synchronous_sink<sinks::wtext_ostream_backend> sink_t;
     boost::shared_ptr<sink_t> sink (new sink_t (backend));
      
     // The log output formatter
-    sink->set_formatter (expr::format ("[%1%][%2%] %3%")
+    sink->set_formatter (expr::format (L"[%1%][%2%] %3%")
                          % expr::attr<ptime::ptime> ("TimeStamp")
                          % logging::trivial::severity
-                         % expr::smessage
+                         % expr::message
                          );
      
     // Filter by severity and by DATALOG channel

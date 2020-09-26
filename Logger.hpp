@@ -4,6 +4,7 @@
 #include <boost/log/trivial.hpp>
 #include <boost/log/sources/global_logger_storage.hpp>
 #include <boost/log/sources/severity_channel_logger.hpp>
+#include <boost/log/sources/record_ostream.hpp>
 #include <boost/log/attributes/mutable_constant.hpp>
 #include <boost/log/utility/manipulators/add_value.hpp>
 #include <iosfwd>
@@ -12,9 +13,9 @@
 namespace Logger
 {
   BOOST_LOG_GLOBAL_LOGGER (sys,
-                           boost::log::sources::severity_channel_logger_mt<boost::log::trivial::severity_level>);
+                           boost::log::sources::wseverity_channel_logger_mt<boost::log::trivial::severity_level>);
   BOOST_LOG_GLOBAL_LOGGER (data,
-                           boost::log::sources::severity_channel_logger_mt<boost::log::trivial::severity_level>);
+                           boost::log::sources::wseverity_channel_logger_mt<boost::log::trivial::severity_level>);
 
   // trivial logging to console
   void init ();

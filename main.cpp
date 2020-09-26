@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
         }
 
       WSJTXLogging lg;
-      LOG_INFO (program_title (revision ()) << " - Program startup");
+      LOG_INFO (program_title (revision ()).toStdWString () << L" - Program startup");
 
       // load UI translations
       L10nLoader l10n {&a, locale, parser.value (lang_option)};

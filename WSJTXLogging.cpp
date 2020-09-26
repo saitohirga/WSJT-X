@@ -27,6 +27,7 @@
 #include "qt_helpers.hpp"
 
 namespace logging = boost::log;
+namespace trivial = logging::trivial;
 namespace keywords = logging::keywords;
 namespace expr = logging::expressions;
 namespace sinks = logging::sinks;
@@ -99,7 +100,7 @@ WSJTXLogging::WSJTXLogging ()
       std::stringbuf buffer {new_config.toStdString (), std::ios_base::in};
       std::istream stream {&buffer};
       Logger::init_from_config (stream);
-      LOG_INFO ("Unable to read logging configuration file: " << log_config.fileName ());
+      LOG_INFO ("Unable to read logging configuration file: " << log_config.fileName ().toStdWString ());
     }
   else                          // Default setup
     {
@@ -107,10 +108,12 @@ WSJTXLogging::WSJTXLogging ()
       // Define sinks, filters, and formatters using expression
       // templates for efficiency.
       //
+
       // Default log file location.
       QDir app_data {QStandardPaths::writableLocation (QStandardPaths::AppLocalDataLocation)};
       Logger::init ();          // Basic setup of attributes
       auto core = logging::core::get ();
+
       //
       // Sink intended for general use that passes everything above
       // selected severity levels per channel. Log file is appended
@@ -126,6 +129,7 @@ WSJTXLogging::WSJTXLogging ()
          , keywords::open_mode = std::ios_base::out | std::ios_base::app
          , keywords::enable_final_rotation = false
          );
+
       sys_sink->locked_backend ()->set_file_collector
         (
          sinks::file::make_collector
@@ -142,15 +146,16 @@ WSJTXLogging::WSJTXLogging ()
          expr::stream
          << "[" << expr::format_date_time<ptime::ptime> ("TimeStamp", "%Y-%m-%d %H:%M:%S.%f")
          << "][" << expr::format_date_time<ptime::time_duration> ("Uptime", "%O:%M:%S.%f")
-         << "][" << logging::trivial::severity
+         << "][" << trivial::severity
          << "] " << expr::message
          );
+
       core->add_sink (sys_sink);
 
 #if !defined (NDEBUG) && defined (Q_OS_WIN)
-      // auto windbg_sink = boost::make_shared<sinks::synchronous_sink<sinks::debug_output_backend>> ();
-      // windbg_sink->set_filter (logging::trivial::severity >= logging::trivial::trace && expr::is_debugger_present ());
-      // logging::core::get ()->add_sink (windbg_sink);
+      // auto windbg_sink = boost::make_shared<sinks::synchronous_sink<sinks::wdebug_output_backend>> ();
+      // windbg_sink->set_filter (trivial::severity >= trivial::trace && expr::is_debugger_present ());
+      // core->add_sink (windbg_sink);
 #endif
     }
   // Indicate start of logging
@@ -169,14 +174,14 @@ WSJTXLogging::~WSJTXLogging ()
 void WSJTXLogging::qt_log_handler (QtMsgType type, QMessageLogContext const& context, QString const& msg)
 {
   // Convert Qt message types to logger severities
-  auto severity = boost::log::trivial::trace;
+  auto severity = trivial::trace;
   switch (type)
     {
-    case QtDebugMsg: severity = boost::log::trivial::debug; break;
-    case QtInfoMsg: severity = boost::log::trivial::info; break;
-    case QtWarningMsg: severity = boost::log::trivial::warning; break;
-    case QtCriticalMsg: severity = boost::log::trivial::error; break;
-    case QtFatalMsg: severity = boost::log::trivial::fatal; break;
+    case QtDebugMsg: severity = trivial::debug; break;
+    case QtInfoMsg: severity = trivial::info; break;
+    case QtWarningMsg: severity = trivial::warning; break;
+    case QtCriticalMsg: severity = trivial::error; break;
+    case QtFatalMsg: severity = trivial::fatal; break;
     }
   // Map non-default Qt categories to logger channels, Qt logger
   // context is mapped to the appropriate logger attributes.
@@ -187,15 +192,15 @@ void WSJTXLogging::qt_log_handler (QtMsgType type, QMessageLogContext const& con
         << boost::log::add_value ("Line", context.line)
         << boost::log::add_value ("File", context.file)
         << boost::log::add_value ("Function", context.function)
-        << msg.toStdString ();
+        << msg.toStdWString ();
     }
   else
     {
-      BOOST_LOG_CHANNEL_SEV (log, context.category, severity)
+      BOOST_LOG_CHANNEL_SEV (log, QString {context.category}.toStdWString (), severity)
         << boost::log::add_value ("Line", context.line)
         << boost::log::add_value ("File", context.file)
         << boost::log::add_value ("Function", context.function)
-        << msg.toStdString ();
+        << msg.toStdWString ();
     }
   if (QtFatalMsg == type)
     {

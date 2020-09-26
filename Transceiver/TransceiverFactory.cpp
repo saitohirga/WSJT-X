@@ -32,7 +32,7 @@ namespace
 }
 
 TransceiverFactory::TransceiverFactory ()
-  : logger_ (boost::log::keywords::channel = "RIGCTRL")
+  : logger_ (boost::log::keywords::channel = L"RIGCTRL")
 {
   HamlibTransceiver::register_transceivers (&logger_, &transceivers_);
   DXLabSuiteCommanderTransceiver::register_transceivers (&logger_, &transceivers_, CommanderId);

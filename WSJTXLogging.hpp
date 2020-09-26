@@ -16,7 +16,10 @@ public:
 
   //
   // Install this as the Qt message handler (qInstallMessageHandler)
-  // to integrate Qt messages.
+  // to integrate Qt messages. This handler can be installed at any
+  // time, it does not rely on an instance of WSJTXLogging existing,
+  // so logging occurring before the logging sinks, filters, and
+  // formatters, etc, are established can take place.
   static void qt_log_handler (QtMsgType type, QMessageLogContext const& context, QString const&);
 };
 
