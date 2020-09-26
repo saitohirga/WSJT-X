@@ -150,7 +150,7 @@ WSJTXLogging::WSJTXLogging ()
       // Per channel severity level filter
       using min_severity_filter = expr::channel_severity_filter_actor<std::wstring, trivial::severity_level>;
       min_severity_filter min_severity = expr::channel_severity_filter (channel, severity);
-      min_severity[L"SYSLOG"] = trivial::trace;
+      min_severity[L"SYSLOG"] = trivial::info;
       min_severity[L"RIGCTRL"] = trivial::info;
       min_severity[L"DATALOG"] = trivial::info;
       sys_sink->set_filter (min_severity || severity >= trivial::fatal);

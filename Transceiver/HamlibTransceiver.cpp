@@ -137,11 +137,11 @@ int HamlibTransceiver::debug_callback (enum rig_debug_level_e level, rig_ptr_t a
   auto severity = boost::log::trivial::trace;
   switch (level)
     {
-    case RIG_DEBUG_BUG: severity = boost::log::trivial::debug; break;
+    case RIG_DEBUG_BUG: severity = boost::log::trivial::fatal; break;
     case RIG_DEBUG_ERR: severity = boost::log::trivial::error; break;
     case RIG_DEBUG_WARN: severity = boost::log::trivial::warning; break;
-    case RIG_DEBUG_TRACE: severity = boost::log::trivial::info; break;
-    case RIG_DEBUG_VERBOSE: severity = boost::log::trivial::trace; break;
+    case RIG_DEBUG_VERBOSE: severity = boost::log::trivial::debug; break;
+    case RIG_DEBUG_TRACE: severity = boost::log::trivial::trace; break;
     default: break;
     };
   if (level != RIG_DEBUG_NONE) // no idea what level NONE means so
