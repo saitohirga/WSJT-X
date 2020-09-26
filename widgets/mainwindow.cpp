@@ -1043,14 +1043,14 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
 void MainWindow::not_GA_warning_message ()
 {
-  // MessageBox::critical_message (this,
-  //                               "This is a pre-release version of WSJT-X 2.2.0 made\n"
-  //                               "available for testing purposes.  By design it will\n"
-  //                               "be nonfunctional after 0000 UTC on June 10, 2020.");
-  // auto now = QDateTime::currentDateTimeUtc ();
-  // if (now >= QDateTime {{2020, 6, 10}, {0, 0}, Qt::UTC}) {
-  //   Q_EMIT finished ();
-  // }
+  MessageBox::critical_message (this,
+                                "This is a pre-release version of WSJT-X 2.3.0 made\n"
+                                "available for testing purposes.  By design it will\n"
+                                "be nonfunctional after 0000 UTC on Nov 17, 2020.");
+  auto now = QDateTime::currentDateTimeUtc ();
+  if (now >= QDateTime {{2020, 11, 17}, {0, 0}, Qt::UTC}) {
+    Q_EMIT finished ();
+  }
 }
 
 void MainWindow::initialize_fonts ()
