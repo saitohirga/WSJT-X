@@ -1,5 +1,6 @@
 #include "WSJTXLogging.hpp"
 
+#include <string>
 #include <exception>
 #include <sstream>
 
@@ -11,6 +12,7 @@
 #include <boost/log/sinks/debug_output_backend.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/log/expressions/formatters/date_time.hpp>
+#include <boost/log/expressions/predicates/channel_severity_filter.hpp>
 #include <boost/log/support/date_time.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/container/flat_map.hpp>
@@ -33,6 +35,9 @@ namespace expr = logging::expressions;
 namespace sinks = logging::sinks;
 namespace ptime = boost::posix_time;
 namespace container = boost::container;
+
+BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", trivial::severity_level)
+BOOST_LOG_ATTRIBUTE_KEYWORD(channel, "Channel", std::wstring)
 
 namespace
 {
@@ -141,10 +146,20 @@ WSJTXLogging::WSJTXLogging ()
           )
          );
       sys_sink->locked_backend ()->scan_for_files ();
+
+      // Per channel severity level filter
+      using min_severity_filter = expr::channel_severity_filter_actor<std::wstring, trivial::severity_level>;
+      min_severity_filter min_severity = expr::channel_severity_filter (channel, severity);
+      min_severity[L"SYSLOG"] = trivial::trace;
+      min_severity[L"RIGCTRL"] = trivial::info;
+      min_severity[L"DATALOG"] = trivial::info;
+      sys_sink->set_filter (min_severity || severity >= trivial::fatal);
+
       sys_sink->set_formatter
         (
          expr::stream
-         << "[" << expr::format_date_time<ptime::ptime> ("TimeStamp", "%Y-%m-%d %H:%M:%S.%f")
+         << "[" << channel
+         << "][" << expr::format_date_time<ptime::ptime> ("TimeStamp", "%Y-%m-%d %H:%M:%S.%f")
          << "][" << expr::format_date_time<ptime::time_duration> ("Uptime", "%O:%M:%S.%f")
          << "][" << trivial::severity
          << "] " << expr::message
