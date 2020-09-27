@@ -3,7 +3,7 @@
 
 #include <QApplication>
 
-#include "widgets/MessageBox.hpp"
+#include "Logger.hpp"
 
 class QObject;
 class QEvent;
@@ -31,12 +31,12 @@ public:
       }
     catch (std::exception const& e)
       {
-        MessageBox::critical_message (nullptr, "Fatal error", e.what ());
+        LOG_FATAL (e.what ());
         throw;
       }
     catch (...)
       {
-        MessageBox::critical_message (nullptr, "Unexpected fatal error");
+        LOG_FATAL ("Unexpected fatal error");
         throw;
       }
   }
