@@ -870,7 +870,7 @@ find_program(ETAGS etags)
 #   set (BOOST_ROOT ${PROJECT_SOURCE_DIR}/boost)
 # endif ()
 set (Boost_USE_STATIC_LIBS OFF)
-find_package (Boost 1.63 REQUIRED COMPONENTS log_setup)
+find_package (Boost 1.63 REQUIRED COMPONENTS log_setup log)
 add_definitions (-DBOOST_SYSTEM_NO_DEPRECATED)
 
 #
