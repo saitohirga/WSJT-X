@@ -201,7 +201,17 @@ void WSJTXLogging::qt_log_handler (QtMsgType type, QMessageLogContext const& con
   // Map non-default Qt categories to logger channels, Qt logger
   // context is mapped to the appropriate logger attributes.
   auto log = Logger::sys::get ();
-  if (!qstrcmp (context.category, "default"))
+  std::wstring file;
+  std::wstring function;
+  if (context.file)
+    {
+      file = context.file;
+    }
+  if (context.function)
+    {
+      function = context.function;
+    }
+  if (!context.category || !qstrcmp (context.category, "default"))
     {
       BOOST_LOG_SEV (log, severity)
         << boost::log::add_value ("Line", context.line)
@@ -211,7 +221,7 @@ void WSJTXLogging::qt_log_handler (QtMsgType type, QMessageLogContext const& con
     }
   else
     {
-      BOOST_LOG_CHANNEL_SEV (log, QString {context.category}.toStdWString (), severity)
+      BOOST_LOG_CHANNEL_SEV (log, std::wstring {context.category}, severity)
         << boost::log::add_value ("Line", context.line)
         << boost::log::add_value ("File", context.file)
         << boost::log::add_value ("Function", context.function)
