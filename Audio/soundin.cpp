@@ -26,6 +26,7 @@ bool SoundInput::checkStream ()
           break;
 
         case QAudio::UnderrunError:
+          result = true;
           Q_EMIT error (tr ("Audio data not being fed to the audio input device fast enough."));
           break;
 
