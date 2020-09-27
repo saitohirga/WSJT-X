@@ -66,7 +66,7 @@ namespace
   } seeding;
 #endif
 
-  void safe_stream_QVariant (boost::log::wrecord_ostream& os, QVariant const& v)
+  void safe_stream_QVariant (boost::log::record_ostream& os, QVariant const& v)
   {
     if (QMetaType::QByteArray == static_cast<QMetaType::Type> (v.type ()))
       {
@@ -85,7 +85,7 @@ namespace
       }
     else
       {
-        os << v.toString ().toStdWString ();
+        os << v.toString ();
       }
   }
 }
@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
         }
 
       WSJTXLogging lg;
-      LOG_INFO (program_title (revision ()).toStdWString () << L" - Program startup");
+      LOG_INFO (program_title (revision ()) << " - Program startup");
 
       // load UI translations
       L10nLoader l10n {&a, locale, parser.value (lang_option)};
@@ -323,7 +323,7 @@ int main(int argc, char *argv[])
                boost::log::keywords::severity = boost::log::trivial::trace)
               )
             {
-              boost::log::wrecord_ostream strm (rec);
+              boost::log::record_ostream strm (rec);
               strm << "++++++++++++++++++++++++++++ Settings ++++++++++++++++++++++++++++\n";
               for (auto const& key: multi_settings.settings ()->allKeys ())
                 {
@@ -333,7 +333,7 @@ int main(int argc, char *argv[])
                       if (value.canConvert<QVariantList> ())
                         {
                           auto const sequence = value.value<QSequentialIterable> ();
-                          strm << key.toStdWString () << ":\n";
+                          strm << key << ":\n";
                           for (auto const& item: sequence)
                             {
                               strm << "\t";
@@ -343,7 +343,7 @@ int main(int argc, char *argv[])
                         }
                       else
                         {
-                          strm << key.toStdWString () << ": ";
+                          strm << key << ": ";
                           safe_stream_QVariant (strm, value);
                           strm << '\n';
                         }

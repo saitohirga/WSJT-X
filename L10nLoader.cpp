@@ -67,7 +67,7 @@ L10nLoader::L10nLoader (QApplication * app, QLocale const& locale, QString const
      .arg (QLocale::languageToString (locale.language ()))
      .arg (QLocale::scriptToString (locale.script ()))
      .arg (QLocale::countryToString (locale.country ()))
-     .arg (locale.uiLanguages ().join (", ")).toStdWString ());
+     .arg (locale.uiLanguages ().join (", ")));
 
   // we  don't load  translators  if the  language  override is  'en',
   // 'en_US', or 'en-US'. In these cases  we assume the user is trying
@@ -105,12 +105,12 @@ L10nLoader::L10nLoader (QApplication * app, QLocale const& locale, QString const
           auto language = locale_name.left (2);
           if (locale.uiLanguages ().front ().left (2) == language)
             {
-              LOG_TRACE (QString {"Trying %1"}.arg (language).toStdWString ());
+              LOG_TRACE (QString {"Trying %1"}.arg (language));
               if (m_->load_translator ("wsjtx_" + language, translations_dir))
                 {
                   LOG_INFO (QString {"Loaded WSJT-X base translation file from %1 based on language %2"}
                      .arg (translations_dir)
-                     .arg (language).toStdWString ());
+                     .arg (language));
                   break;
                 }
             }
@@ -141,7 +141,7 @@ L10nLoader::L10nLoader (QApplication * app, QLocale const& locale, QString const
         {
           LOG_INFO (QString {"Loaded base translation file from %1 based on language %2"}
              .arg (translations_dir)
-             .arg (base_language).toStdWString ());
+             .arg (base_language));
         }
       // now load the requested translations (may be a duplicate
       // but we shouldn't care)
@@ -150,7 +150,7 @@ L10nLoader::L10nLoader (QApplication * app, QLocale const& locale, QString const
         {
           LOG_INFO (QString {"Loaded translation file from %1 based on language %2"}
               .arg (translations_dir)
-             .arg (language).toStdWString ());
+             .arg (language));
         }
     }
 
@@ -169,10 +169,10 @@ L10nLoader::L10nLoader (QApplication * app, QLocale const& locale, QString const
       auto language = locale_name.left (2);
       if (locale.uiLanguages ().front ().left (2) == language)
         {
-          LOG_TRACE (QString {"Trying %1"}.arg (language).toStdWString ());
+          LOG_TRACE (QString {"Trying %1"}.arg (language));
           if (m_->load_translator ("wsjtx_" + language))
             {
-              LOG_INFO (QString {"Loaded base translation file from $cwd based on language %1"}.arg (language).toStdWString ());
+              LOG_INFO (QString {"Loaded base translation file from $cwd based on language %1"}.arg (language));
               break;
             }
         }
@@ -204,14 +204,14 @@ L10nLoader::L10nLoader (QApplication * app, QLocale const& locale, QString const
       LOG_TRACE ("Looking for WSJT-X translations based on command line override country in the current directory");
       if (m_->load_translator ("wsjtx_" + base_language))
         {
-          LOG_INFO (QString {"Loaded base translation file from $cwd based on language %1"}.arg (base_language).toStdWString ());
+          LOG_INFO (QString {"Loaded base translation file from $cwd based on language %1"}.arg (base_language));
         }
       // now load the requested translations (may be a duplicate
       // but we shouldn't care)
       LOG_TRACE ("Looking for WSJT-X translations based on command line region in the current directory");
       if (m_->load_translator ("wsjtx_" + language))
         {
-          LOG_INFO (QString {"loaded translation file from $cwd based on language %1"}.arg (language).toStdWString ());
+          LOG_INFO (QString {"loaded translation file from $cwd based on language %1"}.arg (language));
         }
     }
 }

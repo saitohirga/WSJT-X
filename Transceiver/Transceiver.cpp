@@ -23,14 +23,14 @@ QDebug operator << (QDebug d, Transceiver::TransceiverState const& s)
 }
 #endif
 
-std::wostream& operator << (std::wostream& os, Transceiver::TransceiverState const& s)
+std::ostream& operator << (std::ostream& os, Transceiver::TransceiverState const& s)
 {
   return os
-    << L"Transceiver::TransceiverState(online: " << (s.online_ ? L"yes" : L"no")
-    << L" Frequency {" << s.rx_frequency_ << L"Hz, " << s.tx_frequency_ << L"Hz} " << s.mode_
-    << L"; SPLIT: " << (Transceiver::TransceiverState::Split::on == s.split_ ? L"on" : Transceiver::TransceiverState::Split::off == s.split_ ? L"off" : L"unknown")
-    << L"; PTT: " << (s.ptt_ ? L"on" : L"off")
-    << L')';
+    << "Transceiver::TransceiverState(online: " << (s.online_ ? "yes" : "no")
+    << " Frequency {" << s.rx_frequency_ << "Hz, " << s.tx_frequency_ << "Hz} " << s.mode_
+    << "; SPLIT: " << (Transceiver::TransceiverState::Split::on == s.split_ ? "on" : Transceiver::TransceiverState::Split::off == s.split_ ? "off" : "unknown")
+    << "; PTT: " << (s.ptt_ ? "on" : "off")
+    << ')';
 }
 
 ENUM_QDATASTREAM_OPS_IMPL (Transceiver, MODE);

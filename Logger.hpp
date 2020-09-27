@@ -13,9 +13,9 @@
 namespace Logger
 {
   BOOST_LOG_GLOBAL_LOGGER (sys,
-                           boost::log::sources::wseverity_channel_logger_mt<boost::log::trivial::severity_level>);
+                           boost::log::sources::severity_channel_logger_mt<boost::log::trivial::severity_level>);
   BOOST_LOG_GLOBAL_LOGGER (data,
-                           boost::log::sources::wseverity_channel_logger_mt<boost::log::trivial::severity_level>);
+                           boost::log::sources::severity_channel_logger_mt<boost::log::trivial::severity_level>);
 
   // trivial logging to console
   void init ();

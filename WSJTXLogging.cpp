@@ -37,7 +37,7 @@ namespace ptime = boost::posix_time;
 namespace container = boost::container;
 
 BOOST_LOG_ATTRIBUTE_KEYWORD(severity, "Severity", trivial::severity_level)
-BOOST_LOG_ATTRIBUTE_KEYWORD(channel, "Channel", std::wstring)
+BOOST_LOG_ATTRIBUTE_KEYWORD(channel, "Channel", std::string)
 
 namespace
 {
@@ -105,7 +105,7 @@ WSJTXLogging::WSJTXLogging ()
       std::stringbuf buffer {new_config.toStdString (), std::ios_base::in};
       std::istream stream {&buffer};
       Logger::init_from_config (stream);
-      LOG_INFO ("Unable to read logging configuration file: " << log_config.fileName ().toStdWString ());
+      LOG_INFO ("Unable to read logging configuration file: " << log_config.fileName ());
     }
   else                          // Default setup
     {
@@ -148,11 +148,11 @@ WSJTXLogging::WSJTXLogging ()
       sys_sink->locked_backend ()->scan_for_files ();
 
       // Per channel severity level filter
-      using min_severity_filter = expr::channel_severity_filter_actor<std::wstring, trivial::severity_level>;
+      using min_severity_filter = expr::channel_severity_filter_actor<std::string, trivial::severity_level>;
       min_severity_filter min_severity = expr::channel_severity_filter (channel, severity);
-      min_severity[L"SYSLOG"] = trivial::info;
-      min_severity[L"RIGCTRL"] = trivial::info;
-      min_severity[L"DATALOG"] = trivial::info;
+      min_severity["SYSLOG"] = trivial::info;
+      min_severity["RIGCTRL"] = trivial::info;
+      min_severity["DATALOG"] = trivial::info;
       sys_sink->set_filter (min_severity || severity >= trivial::fatal);
 
       sys_sink->set_formatter
@@ -168,7 +168,7 @@ WSJTXLogging::WSJTXLogging ()
       core->add_sink (sys_sink);
 
 #if !defined (NDEBUG) && defined (Q_OS_WIN)
-      // auto windbg_sink = boost::make_shared<sinks::synchronous_sink<sinks::wdebug_output_backend>> ();
+      // auto windbg_sink = boost::make_shared<sinks::synchronous_sink<sinks::debug_output_backend>> ();
       // windbg_sink->set_filter (trivial::severity >= trivial::trace && expr::is_debugger_present ());
       // core->add_sink (windbg_sink);
 #endif
@@ -201,8 +201,8 @@ void WSJTXLogging::qt_log_handler (QtMsgType type, QMessageLogContext const& con
   // Map non-default Qt categories to logger channels, Qt logger
   // context is mapped to the appropriate logger attributes.
   auto log = Logger::sys::get ();
-  std::wstring file;
-  std::wstring function;
+  std::string file;
+  std::string function;
   if (context.file)
     {
       file = context.file;
@@ -217,15 +217,15 @@ void WSJTXLogging::qt_log_handler (QtMsgType type, QMessageLogContext const& con
         << boost::log::add_value ("Line", context.line)
         << boost::log::add_value ("File", context.file)
         << boost::log::add_value ("Function", context.function)
-        << msg.toStdWString ();
+        << msg.toStdString ();
     }
   else
     {
-      BOOST_LOG_CHANNEL_SEV (log, std::wstring {context.category}, severity)
+      BOOST_LOG_CHANNEL_SEV (log, std::string {context.category}, severity)
         << boost::log::add_value ("Line", context.line)
         << boost::log::add_value ("File", context.file)
         << boost::log::add_value ("Function", context.function)
-        << msg.toStdWString ();
+        << msg.toStdString ();
     }
   if (QtFatalMsg == type)
     {

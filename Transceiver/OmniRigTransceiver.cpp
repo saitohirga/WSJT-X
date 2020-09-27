@@ -212,7 +212,7 @@ int OmniRigTransceiver::do_start ()
     .arg (rig_type_)
     .arg (readable_params_, 8, 16, QChar ('0'))
     .arg (writable_params_, 8, 16, QChar ('0'))
-    .arg (rig_number_).toStdWString ());
+    .arg (rig_number_));
   for (int i = 0; i < 5; ++i)
     {
       if (OmniRig::ST_ONLINE == rig_->Status ())
@@ -349,7 +349,7 @@ void OmniRigTransceiver::do_stop ()
 
 void OmniRigTransceiver::handle_COM_exception (int code, QString source, QString desc, QString help)
 {
-  CAT_ERROR ((QString::number (code) + " at " + source + ": " + desc + " (" + help + ')').toStdWString ());
+  CAT_ERROR ((QString::number (code) + " at " + source + ": " + desc + " (" + help + ')'));
   throw_qstring (tr ("OmniRig COM/OLE error: %1 at %2: %3 (%4)").arg (QString::number (code)).arg (source). arg (desc). arg (help));
 }
 
@@ -371,18 +371,18 @@ void OmniRigTransceiver::handle_rig_type_change (int rig_number)
         .arg (rig_->RigType ())
         .arg (readable_params_, 8, 16, QChar ('0'))
         .arg (writable_params_, 8, 16, QChar ('0'))
-        .arg (rig_number).toStdWString ());
+        .arg (rig_number));
     }
 }
 
 void OmniRigTransceiver::handle_status_change (int rig_number)
 {
-  CAT_TRACE (QString {"status change for rig %1"}.arg (rig_number).toStdWString ());
+  CAT_TRACE (QString {"status change for rig %1"}.arg (rig_number));
   if (rig_number_ == rig_number)
     {
       if (!rig_ || rig_->isNull ()) return;
       auto const& status = rig_->StatusStr ();
-      CAT_TRACE ("OmniRig status change: new status = " << status.toStdWString ());
+      CAT_TRACE ("OmniRig status change: new status = " << status);
       if (OmniRig::ST_ONLINE != rig_->Status ())
         {
           if (!offline_timer_->isActive ())
@@ -411,7 +411,7 @@ void OmniRigTransceiver::handle_params_change (int rig_number, int params)
 {
   CAT_TRACE (QString {"params change: params=0x%1 for rig %2"}
         .arg (params, 8, 16, QChar ('0'))
-        .arg (rig_number).toStdWString ()
+        .arg (rig_number)
         << "state before:" << state ());
   if (rig_number_ == rig_number)
     {
@@ -556,7 +556,7 @@ void OmniRigTransceiver::handle_params_change (int rig_number, int params)
         {
           auto f = readable_params_ & OmniRig::PM_FREQA ? rig_->FreqA () : rig_->Freq ();
           auto m = map_mode (rig_->Mode ());
-          CAT_TRACE (QString {"VFOEQUAL f=%1 m=%2"}.arg (f).arg (m).toStdWString ());
+          CAT_TRACE (QString {"VFOEQUAL f=%1 m=%2"}.arg (f).arg (m));
           update_rx_frequency (f);
           update_other_frequency (f);
           update_mode (m);
@@ -664,9 +664,9 @@ void OmniRigTransceiver::handle_custom_reply (int rig_number, QVariant const& co
   if (rig_number_ == rig_number)
     {
       if (!rig_ || rig_->isNull ()) return;
-      CAT_TRACE ("custom command" << command.toString ().toStdWString ()
-                 << "with reply" << reply.toString ().toStdWString ()
-                 << QString ("for rig %1").arg (rig_number).toStdWString ());
+      CAT_TRACE ("custom command" << command.toString ()
+                 << "with reply" << reply.toString ()
+                 << QString ("for rig %1").arg (rig_number));
       CAT_TRACE ("rig number:" << rig_number_ << ':' << state ());
     }
 }
