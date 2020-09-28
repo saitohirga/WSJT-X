@@ -14,6 +14,10 @@
 
 #include "moc_HamlibTransceiver.cpp"
 
+#if HAVE_HAMLIB_OLD_CACHING
+#define HAMLIB_CACHE_ALL CACHE_ALL
+#endif
+
 namespace
 {
   // Unfortunately bandwidth is conflated  with mode, this is probably
@@ -606,7 +610,7 @@ int HamlibTransceiver::do_start ()
         }
     }
 
-#if HAVE_HAMLIB_CACHING
+#if HAVE_HAMLIB_CACHING || HAVE_HAMLIB_OLD_CACHING
   // we must disable Hamlib caching because it lies about frequency
   // for less than 1 Hz resolution rigs
   auto orig_cache_timeout = rig_get_cache_timeout_ms (rig_.data (), HAMLIB_CACHE_ALL);
@@ -653,7 +657,7 @@ int HamlibTransceiver::do_start ()
       resolution = -1;          // best guess
     }
 
-#if HAVE_HAMLIB_CACHING
+#if HAVE_HAMLIB_CACHING || HAVE_HAMLIB_OLD_CACHING
   // revert Hamlib cache timeout
   rig_set_cache_timeout_ms (rig_.data (), HAMLIB_CACHE_ALL, orig_cache_timeout);
 #endif
