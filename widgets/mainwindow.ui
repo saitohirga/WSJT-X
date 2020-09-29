@@ -2848,7 +2848,6 @@ Yellow when too low</string>
      <string>Mode</string>
     </property>
     <addaction name="actionFST4"/>
-    <addaction name="actionFST4W"/>
     <addaction name="actionFT4"/>
     <addaction name="actionFT8"/>
     <addaction name="actionJT4"/>
@@ -2860,6 +2859,7 @@ Yellow when too low</string>
     <addaction name="actionISCAT"/>
     <addaction name="actionMSK144"/>
     <addaction name="separator"/>
+    <addaction name="actionFST4W"/>
     <addaction name="actionWSPR"/>
     <addaction name="separator"/>
     <addaction name="actionEcho"/>
