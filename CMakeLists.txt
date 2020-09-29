@@ -43,6 +43,10 @@ if (POLICY CMP0071)
   cmake_policy (SET CMP0071 NEW) # run automoc and autouic on generated sources
 endif (POLICY CMP0071)
 
+if (POLICY CMP0075)
+  cmake_policy (SET CMP0075 NEW) # honour CMAKE_REQUIRED_LIBRARIES in config checks
+endif (POLICY CMP0075)
+
 include (${PROJECT_SOURCE_DIR}/CMake/VersionCompute.cmake)
 message (STATUS "Building ${CMAKE_PROJECT_NAME}-${wsjtx_VERSION}")
 
@@ -868,6 +872,7 @@ endif (APPLE)
 #
 # find some useful tools
 #
+include (CheckTypeSize)
 include (CheckSymbolExists)
 
 find_program(CTAGS ctags)
@@ -907,7 +912,8 @@ message (STATUS "hamlib_LIBRARY_DIRS: ${hamlib_LIBRARY_DIRS}")
 
 set (CMAKE_REQUIRED_INCLUDES "${hamlib_INCLUDE_DIRS}")
 set (CMAKE_REQUIRED_LIBRARIES "${hamlib_LIBRARIES}")
-check_symbol_exists (CACHE_ALL "hamlib/rig.h" HAVE_HAMLIB_OLD_CACHING)
+set (CMAKE_EXTRA_INCLUDE_FILES "hamlib/rig.h")
+check_type_size (CACHE_ALL HAMLIB_OLD_CACHING)
 check_symbol_exists (rig_set_cache_timeout_ms "hamlib/rig.h" HAVE_HAMLIB_CACHING)
 
 
