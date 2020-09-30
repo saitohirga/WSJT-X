@@ -4031,7 +4031,9 @@ void MainWindow::guiUpdate()
             }
             genfst4_(message,&ichk,msgsent,const_cast<char *> (fst4msgbits),
                            const_cast<int *>(itone), &iwspr, 37, 37);
-            int hmod=1;                         //No FST4/W submodes
+            int hmod=1;
+            if(m_config.x2ToneSpacing()) hmod=2;
+            if(m_config.x4ToneSpacing()) hmod=4;
             int nsps=720;
             if(m_TRperiod==30) nsps=1680;
             if(m_TRperiod==60) nsps=3888;
@@ -7224,11 +7226,13 @@ void MainWindow::transmit (double snr)
     if(m_TRperiod==300) nsps=21504;
     if(m_TRperiod==900) nsps=66560;
     if(m_TRperiod==1800) nsps=134400;
-    int hmod=1;                               //No FST4/W submodes
+    int hmod=1;
+    if(m_config.x2ToneSpacing()) hmod=2;
+    if(m_config.x4ToneSpacing()) hmod=4;
     double dfreq=hmod*12000.0/nsps;
     double f0=ui->WSPRfreqSpinBox->value() - m_XIT;
     if(m_mode=="FST4") f0=ui->TxFreqSpinBox->value() - m_XIT;
-    if(!m_tune) f0 += + 1.5*dfreq;
+    if(!m_tune) f0 += 1.5*dfreq;
     Q_EMIT sendMessage (m_mode, NUM_FST4_SYMBOLS,double(nsps),f0,toneSpacing,
                         m_soundOutput,m_config.audio_output_channel(),
                         true, false, snr, m_TRperiod);
