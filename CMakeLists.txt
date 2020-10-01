@@ -898,6 +898,7 @@ message (STATUS "hamlib_LIBRARY_DIRS: ${hamlib_LIBRARY_DIRS}")
 
 set (CMAKE_REQUIRED_INCLUDES "${hamlib_INCLUDE_DIRS}")
 set (CMAKE_REQUIRED_LIBRARIES "${hamlib_LIBRARIES}")
+check_symbol_exists (CACHE_ALL "hamlib/rig.h" HAVE_HAMLIB_OLD_CACHING)
 check_symbol_exists (rig_set_cache_timeout_ms "hamlib/rig.h" HAVE_HAMLIB_CACHING)
 
 
@@ -1695,6 +1696,7 @@ if (NOT is_debug_build)
 	PATTERN "*quick*${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
 	PATTERN "*webgl*${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
 	PATTERN "*_debug${CMAKE_SHARED_LIBRARY_SUFFIX}" EXCLUDE
+	PATTERN "*${CMAKE_SHARED_LIBRARY_SUFFIX}.dSYM" EXCLUDE
 	)
       install (
 	FILES
