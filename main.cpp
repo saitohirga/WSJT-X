@@ -317,7 +317,7 @@ int main(int argc, char *argv[])
       do
         {
           // dump settings
-          auto sys_lg = Logger::sys::get ();
+          auto sys_lg = sys::get ();
           if (auto rec = sys_lg.open_record
               (
                boost::log::keywords::severity = boost::log::trivial::trace)

@@ -200,7 +200,7 @@ void WSJTXLogging::qt_log_handler (QtMsgType type, QMessageLogContext const& con
     }
   // Map non-default Qt categories to logger channels, Qt logger
   // context is mapped to the appropriate logger attributes.
-  auto log = Logger::sys::get ();
+  auto log = sys::get ();
   std::string file;
   std::string function;
   if (context.file)

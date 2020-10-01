@@ -31,15 +31,15 @@ namespace expr = logging::expressions;
 namespace attrs = logging::attributes;
 namespace ptime = boost::posix_time;
 
+BOOST_LOG_GLOBAL_LOGGER_CTOR_ARGS (sys,
+                                   srcs::severity_channel_logger_mt<logging::trivial::severity_level>,
+                                   (keywords::channel = "SYSLOG"));
+BOOST_LOG_GLOBAL_LOGGER_CTOR_ARGS (data,
+                                   srcs::severity_channel_logger_mt<logging::trivial::severity_level>,
+                                   (keywords::channel = "DATALOG"));
+
 namespace Logger
 {
-  BOOST_LOG_GLOBAL_LOGGER_CTOR_ARGS (sys,
-                                     srcs::severity_channel_logger_mt<logging::trivial::severity_level>,
-                                     (keywords::channel = "SYSLOG"));
-  BOOST_LOG_GLOBAL_LOGGER_CTOR_ARGS (data,
-                                     srcs::severity_channel_logger_mt<logging::trivial::severity_level>,
-                                     (keywords::channel = "DATALOG"));
-
   namespace
   {
     // Custom formatter factory to add TimeStamp format support in config ini file.
