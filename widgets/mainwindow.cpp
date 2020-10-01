@@ -6675,8 +6675,8 @@ void MainWindow::chk_FST4_freq_range()
   int diff=ui->sbF_High->value() - ui->sbF_Low->value();
 
   if(diff<100 or diff>maxDiff) {
-    ui->sbF_Low->setStyleSheet("QSpinBox { background-color: red; }");
-    ui->sbF_High->setStyleSheet("QSpinBox { background-color: red; }");
+    ui->sbF_Low->setStyleSheet("QSpinBox { color: white; background-color: red; }");
+    ui->sbF_High->setStyleSheet("QSpinBox { color: white; background-color: red; }");
   } else {
     ui->sbF_Low->setStyleSheet("");
     ui->sbF_High->setStyleSheet("");
