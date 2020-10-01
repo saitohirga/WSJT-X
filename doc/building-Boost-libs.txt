@@ -15,7 +15,7 @@ cd ~/Downloads
 curl -L -O https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2
 mkdir src
 cd !$
-tar --bzip2 -C ~/Downloads -xf boost_1_74_0.tar.bz2
+tar --bzip2 -xf ~/Downloads/boost_1_74_0.tar.bz2
 cd boost_1_74_0/tools/build
 ./bootstrap.sh
 ./b2 toolset=clang --prefix=$HOME/local/boost-build install
