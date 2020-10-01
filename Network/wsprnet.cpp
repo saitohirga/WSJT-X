@@ -144,9 +144,11 @@ void WSPRNet::post (QString const& call, QString const& grid, QString const& rfr
       if (match.hasMatch ())
         {
           SpotQueue::value_type query;
-          // Prevent reporting data ouside of the current frequency band
+          // Prevent reporting data ouside of the current frequency
+          // band - removed by G4WJS to accommodate FST4W spots
+          // outside of WSPR segments
           auto tqrg = match.captured ("freq").toInt ();
-          if (tqrg >= 1400 && tqrg <= 1600)
+          // if (tqrg >= 1400 && tqrg <= 1600)
             {
               query.addQueryItem ("function", "wspr");
               // use time as at 3/4 of T/R period before current to
