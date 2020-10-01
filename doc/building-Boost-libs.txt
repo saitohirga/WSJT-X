@@ -17,14 +17,14 @@ mkdir src
 cd !$
 tar --bzip2 -xf boost_1_74_0.tar.bz2
 cd boost_1_74_0/tools/build
-bootstrap.sh
-./b2 toolset=clang --prefix=~/local/boost-build install
+./bootstrap.sh
+./b2 toolset=clang --prefix=$HOME/local/boost-build install
 cd ../..
 ~/local/boost-build/bin/b2 -j8 toolset=clang cflags=-mmacosx-version-min=10.12 \
    cxxflags=-mmacosx-version-min=10.12 mflags=-mmacosx-version-min=10.12 \
    mmflags=-mmacosx-version-min=10.12 mflags=-mmacosx-version-min=10.12 \
    linkflags=-mmacosx-version-min=10.12 \
-   architecture=x86 address-model=64 --prefix=~/local/boost install
+   architecture=x86 address-model=64 --prefix=$HOME/local/boost install
 
 That will take a while, once successful (warnings can be ignored) you can clean the build tree to save some space:
 
@@ -32,7 +32,7 @@ That will take a while, once successful (warnings can be ignored) you can clean 
    cxxflags=-mmacosx-version-min=10.12 mflags=-mmacosx-version-min=10.12 \
    mmflags=-mmacosx-version-min=10.12 mflags=-mmacosx-version-min=10.12 \
    linkflags=-mmacosx-version-min=10.12 \
-   architecture=x86 address-model=64 --prefix=~/local/boost clean
+   architecture=x86 address-model=64 --prefix=$HOME/local/boost clean
 
 All that remains is to reconfigure your WSJT-X build trees to include ~/local/boost in your CMAKE_PREFIX_PATH, maybe something like these (one each for Debug and Release configuration builds and assumes the Macports GCC v7 tool-chain is being used):
 
