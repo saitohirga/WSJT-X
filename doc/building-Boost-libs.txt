@@ -15,7 +15,7 @@ cd ~/Downloads
 curl -L -O https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2
 mkdir src
 cd !$
-tar --bzip2 -xf boost_1_74_0.tar.bz2
+tar --bzip2 -xf ~/Downloads/boost_1_74_0.tar.bz2
 cd boost_1_74_0/tools/build
 ./bootstrap.sh
 ./b2 toolset=clang --prefix=$HOME/local/boost-build install
@@ -122,7 +122,7 @@ correct compiler is in the PATH. i.e. it identifies (g++ --version) as
 i686-posix-dwarf-rev0.
 
 cd %HOME%\src\boost_1_74_0\tools\build
-bootstrap.bat
+bootstrap.bat mingw
 .\b2 --prefix=C:\Tools\boost-build\MinGW32 install
 cd ..\..
 C:\Tools\boost-build\MinGW32\bin\b2 -j8 toolset=gcc ^
