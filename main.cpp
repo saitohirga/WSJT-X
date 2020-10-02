@@ -106,7 +106,6 @@ int main(int argc, char *argv[])
   try
     {
       LOG_INFO ("Application directory: " << a.applicationDirPath ());
-      qInfo () << "Library paths:" << a.libraryPaths ();
       // LOG_INfO ("+++++++++++++++++++++++++++ Resources ++++++++++++++++++++++++++++");
       // {
       //   QDirIterator resources_iter {":/", QDirIterator::Subdirectories};
