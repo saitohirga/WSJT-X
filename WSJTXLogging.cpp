@@ -4,6 +4,7 @@
 #include <exception>
 #include <sstream>
 
+#include <boost/version.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/utility/exception_handler.hpp>
 #include <boost/log/trivial.hpp>
