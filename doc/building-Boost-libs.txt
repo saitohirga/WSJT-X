@@ -1,7 +1,13 @@
 Linux
 =====
 
+Debian style:
+
 sudo apt install libboost-all-dev
+
+RPM style:
+
+sudo dnf install boost-devel
 
 
 macOS
@@ -9,7 +15,8 @@ macOS
 
 Download the latest Boost sources from here: boost.org
 
-Currently v 1.74.0 - https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2
+Currently v 1.74.0 -
+https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2
 
 cd ~/Downloads
 curl -L -O https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2
@@ -26,7 +33,8 @@ cd ../..
    linkflags=-mmacosx-version-min=10.12 \
    architecture=x86 address-model=64 --prefix=$HOME/local/boost install
 
-That will take a while, once successful (warnings can be ignored) you can clean the build tree to save some space:
+That will take a while, once  successful (warnings can be ignored) you
+can clean the build tree to save some space:
 
 ~/local/boost-build/bin/b2 toolset=clang cflags=-mmacosx-version-min=10.12 \
    cxxflags=-mmacosx-version-min=10.12 mflags=-mmacosx-version-min=10.12 \
@@ -34,7 +42,10 @@ That will take a while, once successful (warnings can be ignored) you can clean 
    linkflags=-mmacosx-version-min=10.12 \
    architecture=x86 address-model=64 --prefix=$HOME/local/boost clean
 
-All that remains is to reconfigure your WSJT-X build trees to include ~/local/boost in your CMAKE_PREFIX_PATH, maybe something like these (one each for Debug and Release configuration builds and assumes the Macports GCC v7 tool-chain is being used):
+All that remains is to reconfigure  your WSJT-X build trees to include
+~/local/boost in  your CMAKE_PREFIX_PATH,  maybe something  like these
+(one each for  Debug and Release configuration builds  and assumes the
+Macports GCC v7 tool-chain is being used):
 
 FC=gfortran-mp-7 \
    cmake \
@@ -54,7 +65,8 @@ FC=gfortran-mp-7 \
    -B ~/build/wsjtx-debug \
    ~/src/bitbucket.org/k1jt/wsjtx
 
-Substitute you installed SDK version, Qt version and location, and Hamlib install locations.
+Substitute you  installed SDK  version, Qt  version and  location, and
+Hamlib install locations.
 
 
 MS Windows
@@ -72,7 +84,7 @@ writing that was
 https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.7z
 . Extract to some convenient location, I use %HOME%\src .
 
-Download and extract the libbacktrace sources from
+Download    and     extract    the    libbacktrace     sources    from
 https://github.com/ianlancetaylor/libbacktrace as follows.
 
 cd %HOME%\src
@@ -82,16 +94,16 @@ mkdir ianlancetaylor
 cd ianlancetaylor
 git clone git@github.com:ianlancetaylor/libbacktrace.git
 
-I install third-party tools under the C:\Tools directory, the
+I  install  third-party  tools   under  the  C:\Tools  directory,  the
 following assumes that, adjust to taste. Note that it is OK to install
-both 32- and 64-bit builds of Boost to the same path as the library
-names are unique per architecture and tool-chain. This saves a lot of
-space as the boost header files are quite big, and there's no need to
+both 32- and  64-bit builds of Boost  to the same path  as the library
+names are unique per architecture and  tool-chain. This saves a lot of
+space as the boost header files are  quite big, and there's no need to
 install multiple copies.
 
-Create a new file %HOME%\src\boost_1_74_0\project-config.jam with the
-following three lines to specify how Boost.Build finds the libbacktrace
-library matched to your relevant C++ compliers:
+Create a new  file %HOME%\src\boost_1_74_0\project-config.jam with the
+following   three  lines   to  specify   how  Boost.Build   finds  the
+libbacktrace library matched to your relevant C++ compliers:
 
 import toolset ;
 
@@ -99,16 +111,16 @@ using gcc : : C:\\Qt\\Tools\\mingw730_32\\bin\\g++ : <compileflags>-I"C:\\Tools\
 
 using gcc : 8~64 : C:\\Qt\\Tools\\mingw810_64\\bin\\g++ : <compileflags>-I"C:\\Tools\\libbacktrace-1.0\\MinGW64\\include" <linkflags>-L"C:\\Tools\\libbacktrace-1.0\\MinGW64\\lib" ;
 
-Note that it may need some local adjustment of the C++ compiler
-version and path depending on the exact tool-chains from your Qt
-installation. Above I am using the Qt v5.12.9 MinGW32 v7 tool-chain
-for 32-bit (toolset=gcc), and Qt v5.15.0 MinGW64 v8 tool-chain
-for 64-bit (toolchain=gcc-8~64).
+Note  that it  may  need some  local adjustment  of  the C++  compiler
+version  and path  depending on  the  exact tool-chains  from your  Qt
+installation. Above  I am using  the Qt v5.12.9 MinGW32  v7 tool-chain
+for 32-bit  (toolset=gcc), and  Qt v5.15.0  MinGW64 v8  tool-chain for
+64-bit (toolchain=gcc-8~64).
 
 32-bit
 ------
 
-Start an MSys or MSys2 shell with the 32-bit C/C++ tool-chain from
+Start an  MSys or MSys2  shell with  the 32-bit C/C++  tool-chain from
 your Qt installation on the PATH environment variable.
 
 cd ~/src/github.com/ianlancetaylor/libbacktrace
@@ -116,8 +128,8 @@ cd ~/src/github.com/ianlancetaylor/libbacktrace
 make && make install
 make clean
 
-Start a CMD window suitably configured for use of the 32-bit MinGW
-tool-chain bundled with your Qt binary installation. Verify the
+Start a  CMD window suitably  configured for  use of the  32-bit MinGW
+tool-chain  bundled  with  your  Qt binary  installation.  Verify  the
 correct compiler is in the PATH. i.e. it identifies (g++ --version) as
 i686-posix-dwarf-rev0.
 
@@ -129,7 +141,7 @@ C:\Tools\boost-build\MinGW32\bin\b2 -j8 toolset=gcc ^
   --build-dir=%HOME%\build\boost ^
   --build-type=complete --prefix=C:\Tools\boost install
 
-If all is well you should see the following line about a 1/3 of the
+If all is  well you should see  the following line about a  1/3 of the
 way through the initial configuration steps.
 
    - libbacktrace builds      : yes
@@ -140,7 +152,7 @@ After some time it should complete with something like:
 ...skipped 1112 targets...
 ...updated 3924 targets...
 
-warnings can usually be ignored. If successful; you can release some
+warnings can usually  be ignored. If successful; you  can release some
 space by cleaning the build tree:
 
 C:\Tools\boost-build\MinGW32\bin\b2 toolset=gcc ^
@@ -150,7 +162,7 @@ C:\Tools\boost-build\MinGW32\bin\b2 toolset=gcc ^
 64-bit
 ======
 
-Start an MSys or MSys2 shell with the 64-bit C/C++ tool-chain from
+Start an  MSys or MSys2  shell with  the 64-bit C/C++  tool-chain from
 your Qt installation on the PATH environment variable.
 
 cd ~/src/github.com/ianlancetaylor/libbacktrace
@@ -158,13 +170,13 @@ cd ~/src/github.com/ianlancetaylor/libbacktrace
 make && make install
 make clean
 
-Start a CMD window suitably configured for use of the 64-bit MinGW
-tool-chain bundled with your Qt binary installation. Verify the
+Start a  CMD window suitably  configured for  use of the  64-bit MinGW
+tool-chain  bundled  with  your  Qt binary  installation.  Verify  the
 correct compiler is in the PATH. i.e. it identifies (g++ --version) as
-x86_64-posix-seh-rev0. Note the toolchain specified must match your
+x86_64-posix-seh-rev0. Note  the toolchain  specified must  match your
 compilers and the project-config.jam file you created above. With a v7
-64-bit C++ compiler use gcc-7~64, with a v8 64-bit C++ compiler use
-gcc-8~64. My example matches my 64-bit Qt v5.15.0 with the bundled
+64-bit C++  compiler use gcc-7~64, with  a v8 64-bit C++  compiler use
+gcc-8~64. My  example matches  my 64-bit Qt  v5.15.0 with  the bundled
 MinGW64 v8.1.0.
 
 cd %HOME%\src\boost_1_74_0\tools\build
@@ -186,18 +198,28 @@ After some time it should complete with something like:
 ...skipped 32 targets...
 ...updated 3648 targets...
 
-warnings can usually be ignored. If successful; you can release some
+warnings can usually  be ignored. If successful; you  can release some
 space by cleaning the build tree:
 
 C:\Tools\boost-build\MinGW32\bin\b2 toolset=gcc-8~64 ^
   address-model=64 --build-dir=%HOME%\build\boost ^
   --build-type=complete clean
 
+Run-time Environment
+--------------------
+
+You  will need  to  add C:\Tools\boost\lib  to  your PATH  environment
+variable in order to run  installed Debug configurations of WSJT-X, or
+to execute  build artefacts from a  build tree. It is  also needed for
+teh install target of  release configuration builds. Installed Release
+configurations will  move any  required DLLs  to the  installation bin
+directory automatically.
+
 Setting up WSJT-X builds
 ------------------------
 
-All that remains is to add C:\Tools\boost\ to your 32- and 64-bit
-build configurations CMAKE_PREFIX_PATH variables. I use tool-chain
+All that  remains is  to add  C:\Tools\boost\ to  your 32-  and 64-bit
+build  configurations CMAKE_PREFIX_PATH  variables.  I use  tool-chain
 files for my WSJT-X builds on Windows, an extract from my 32-bit Debug
 configuration tool-chain file:
 
@@ -216,12 +238,3 @@ set (ASCIIDOCDIR C:/Tools/asciidoc-master)
 set (CMAKE_PREFIX_PATH ${BOOSTDIR} ${QTDIR} ${FFTWDIR} ${HAMLIBDIR} ${HAMLIBDIR}/bin ${LIBUSBDIR} ${PYTHONDIR} ${ASCIIDOCDIR})
 
 # ...
-
-Run-time Environment
---------------------
-
-You will need to add C:\Tools\boost\lib to your PATH environment
-variable in order to run installed Debug configurations of WSJT-X, or
-to execute build artefacts from a build tree. Installed Release
-configurations will move any required DLLs to the installation bin
-directory automatically.
