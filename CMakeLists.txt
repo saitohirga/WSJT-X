@@ -1848,7 +1848,7 @@ set (CPACK_DEBIAN_PACKAGE_DEPENDS "libgfortran5 (>=10), libfftw3-single3 (>=3.3.
 set (CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 
 set (CPACK_RPM_PACKAGE_ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
-set (CPACK_RPM_PACKAGE_REQUIRES "qt5-qtbase >= 5.13.2, qt5-qtserialport >= 5.13.2, qt5-qtmultimedia >= 5.13.2, qt5-qtsvg >= 5.13.2, libusbx >= 1.0.23, libgfortran >= 10.0.1, libgomp >= 10.0.1, fftw-libs-single >= 3.3.8, boost-log >= 1.65")
+set (CPACK_RPM_PACKAGE_REQUIRES "qt5-qtbase >= 5.12.1, qt5-qtserialport >= 5.12.1, qt5-qtmultimedia >= 5.11.1, qt5-qtsvg >= 5.12.1, libusbx >= 1.0.22, libgfortran >= 9.0.1, libgomp >= 9.0.1, fftw-libs-single >= 3.3.8, boost-log >= 1.65")
 set (CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION /usr/share/pixmaps /usr/share/applications /usr/share/man /usr/share/man1)
 
 configure_file ("${PROJECT_SOURCE_DIR}/CMakeCPackOptions.cmake.in"
