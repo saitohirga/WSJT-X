@@ -1844,7 +1844,7 @@ endif ()
 
 set (CPACK_DEBIAN_PACKAGE_DESCRIPTION "${PROJECT_DESCRIPTION}")
 set (CPACK_DEBIAN_PACKAGE_HOMEPAGE "${PROJECT_HOMEPAGE}")
-set (CPACK_DEBIAN_PACKAGE_DEPENDS "libgfortran5 (>=10), libfftw3-single3 (>=3.3.8), libgomp1 (>=10), libqt5serialport5 (>=5.12.8), libqt5multimedia5-plugins (>=5.12.8), libqt5widgets5 (>=5.12.8), libqt5network5 (>=5.12.8), libqt5printsupport5 (>=5.12.8), libqt5sql5-sqlite (>=5.12.8), libusb-1.0-0 (>=1.0.23), libboost-log${Boost_VERSION_STRING} (>= ${Boost_VERSION_STRING})")
+set (CPACK_DEBIAN_PACKAGE_DEPENDS "libgfortran5 (>=10) | libgfortran4 (>=7.3.0), libfftw3-single3 (>=3.3.7), libgomp1 (>=8), libqt5serialport5 (>=5.9.5), libqt5multimedia5-plugins (>=5.9.5), libqt5widgets5 (>=5.9.5), libqt5network5 (>=5.9.5), libqt5printsupport5 (>=5.9.5), libqt5sql5-sqlite (>=5.9.5), libusb-1.0-0 (>=1.0.21), libboost-log1.65.1 (>=1.65.1) | libboost-log1.67.0 (>=1.67.0) | libboost-log1.71.0 (>=1.71.0)")
 set (CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 
 set (CPACK_RPM_PACKAGE_ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
