@@ -222,16 +222,16 @@ void WSJTXLogging::qt_log_handler (QtMsgType type, QMessageLogContext const& con
     {
       BOOST_LOG_SEV (log, severity)
         << boost::log::add_value ("Line", context.line)
-        << boost::log::add_value ("File", context.file)
-        << boost::log::add_value ("Function", context.function)
+        << boost::log::add_value ("File", file)
+        << boost::log::add_value ("Function", function)
         << msg.toStdString ();
     }
   else
     {
       BOOST_LOG_CHANNEL_SEV (log, std::string {context.category}, severity)
         << boost::log::add_value ("Line", context.line)
-        << boost::log::add_value ("File", context.file)
-        << boost::log::add_value ("Function", context.function)
+        << boost::log::add_value ("File", file)
+        << boost::log::add_value ("Function", function)
         << msg.toStdString ();
     }
   if (QtFatalMsg == type)
