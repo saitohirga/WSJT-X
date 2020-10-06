@@ -80,8 +80,9 @@ program test_qra65
   write(12,1000) (j,j=0,11)
 1000 format(/'SNR d  Dop Sync Dec1 DecN Bad',i6,11i4,'  tdec dtavg dtrms'/97('-'))
 
-  dterr=3.0*tsym/4.0
-  nferr=max(1,nint(0.5*baud))
+  dterr=tsym/4.0
+  nferr=max(1,nint(0.5*baud),nint(fdop/3.0))
+  ndecodes0=nfiles
   
   do nsnr=ia,ib,-1
      nsync=0
@@ -89,8 +90,6 @@ program test_qra65
      nfalse=0
      nretcode=0
      navg=0
-     sumxdt=0.
-     sqxdt=0.
      write(cmd1(61:63),'(i3)') nsnr
      call system(cmd1)
      call sec0(0,tdec)
@@ -100,19 +99,20 @@ program test_qra65
      n=0
      do iline=1,9999
         read(10,'(a71)',end=10) line
-        if(len(trim(line)).lt.60) cycle
+        if(index(line,'<Decode').eq.1) cycle
         read(line(11:20),*) xdt,nf
-!        if(ntrperiod.eq.60) xdt=xdt-0.5              !### TEMPORARY ###
-        if(abs(xdt-dt).le.dterr .and. abs(nf-nf0).le.nferr) nsync=nsync+1
-        read(line(60:),*) irc,iavg
-        if(irc.lt.0) cycle
+        if(ntrperiod.ge.60) xdt=xdt-0.5              !### TEMPORARY ###
         decok=index(line,'W9XYZ').gt.0
+        if((abs(xdt-dt).le.dterr .and. abs(nf-nf0).le.nferr) .or. decok) then
+           nsync=nsync+1
+        endif
+        irc=-1
+        if(line(23:23).ne.' ') read(line(60:),*) irc,iavg
+        if(irc.lt.0) cycle
         if(decok) then
            i=irc
            if(i.le.11) then
               ndecodes=ndecodes + 1
-              sumxdt=sumxdt + xdt
-              sqxdt=sqxdt + xdt*xdt
               navg=navg + 1
            else
               i=mod(i,10)
@@ -127,18 +127,21 @@ program test_qra65
 10   close(10)
      xdt_avg=0.
      xdt_rms=0.
-     if(ndecodes.ge.2) then
-        xdt_avg=sumxdt/ndecodes
-        xdt_rms=sqxdt/(ndecodes-1) - xdt_avg*xdt_avg
-     endif
      write(*,1100) nsnr,ndepth,fDop,nsync,ndecodes,navg,nfalse,nretcode,   &
-          tdec/nfiles,xdt_avg,xdt_rms
+          tdec/nfiles
      write(12,1100) nsnr,ndepth,fDop,nsync,ndecodes,navg,nfalse,nretcode,  &
-          tdec/nfiles,xdt_avg,xdt_rms
-1100 format(i3,i2,f5.1,3i5,i4,i6,11i4,3f6.2)
+          tdec/nfiles
+1100 format(i3,i2,f5.1,3i5,i4,i6,11i4,f6.2)
+     if(ndecodes.lt.nfiles/2 .and. ndecodes0.ge.nfiles/2) then
+        snr_thresh=nsnr + float(nfiles/2 - ndecodes)/(ndecodes0-ndecodes)
+        write(13,1200) ndepth,fdop,csubmode,snr_thresh
+1200    format(i1,f6.1,2x,a1,f7.1)
+        flush(13)
+     endif
      flush(6)
      flush(12)
-  enddo
+     ndecodes0=ndecodes
+  enddo  ! nsnr
 
 999 end program test_qra65
 

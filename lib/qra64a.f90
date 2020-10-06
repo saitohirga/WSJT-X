@@ -84,50 +84,50 @@ subroutine qra64a(dd,npts,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   ncall=0
 
   do idf0=1,11
-  idf=idf0/2
-  if(mod(idf0,2).eq.0) idf=-idf
+     idf=idf0/2
+     if(mod(idf0,2).eq.0) idf=-idf
   
-  a=0.
-  a(1)=-(f0+0.868*idf)
-  call twkfreq(c00,c0,npts2,6000.0,a)
+     a=0.
+     a(1)=-(f0+0.868*idf)
+     call twkfreq(c00,c0,npts2,6000.0,a)
 
-  do idt0=1,idtmax
-     idt=idt0/2
-     if(mod(idt0,2).eq.0) idt=-idt
-     jpk=jpk0 + 750*idt
-     call spec64(c0,jpk,s3a,LL,NN)
-     call pctile(s3a,LL*NN,40,base)
-     s3a=s3a/base
-     where(s3a(1:LL*NN)>s3lim) s3a(1:LL*NN)=s3lim
-     do ibw=ibwmax,ibwmin,-2
-        b90=1.728**ibw
-        if(b90.gt.230.0) cycle
-        if(b90.lt.0.15*width) exit
-        s3(1:LL*NN)=s3a(1:LL*NN)
-        ncall=ncall+1
-        call timer('qra64_de',0)
-        call qra64_dec(s3,nc1,nc2,ng2,naptype,0,nSubmode,b90,      &
-             nFadingModel,dat4,snr2,irc)
-        call timer('qra64_de',1)
-        if(irc.eq.0) go to 10
-        if(irc.gt.0) call badmsg(irc,dat4,nc1,nc2,ng2)
-        iirc=max(0,min(irc,11))
-        if(irc.gt.0 .and. nap(iirc).lt.napmin) then
-           dat4x=dat4
-           b90x=b90
-           snr2x=snr2
-           napmin=nap(iirc)
-           irckeep=irc
-           dtxkeep=jpk/6000.0 - 1.0
-           f0keep=-a(1)
-           idfkeep=idf
-           idtkeep=idt
-           ibwkeep=ibw
-        endif
-     enddo
-     if(iand(ndepth,3).lt.3 .and. irc.ge.0) go to 100
-     if(irc.eq.0) go to 100
-  enddo  ! idt (DT loop)
+     do idt0=1,idtmax
+        idt=idt0/2
+        if(mod(idt0,2).eq.0) idt=-idt
+        jpk=jpk0 + 750*idt
+        call spec64(c0,jpk,s3a,LL,NN)
+        call pctile(s3a,LL*NN,40,base)
+        s3a=s3a/base
+        where(s3a(1:LL*NN)>s3lim) s3a(1:LL*NN)=s3lim
+        do ibw=ibwmax,ibwmin,-2
+           b90=1.728**ibw
+           if(b90.gt.230.0) cycle
+           if(b90.lt.0.15*width) exit
+           s3(1:LL*NN)=s3a(1:LL*NN)
+           ncall=ncall+1
+           call timer('qra64_de',0)
+           call qra64_dec(s3,nc1,nc2,ng2,naptype,0,nSubmode,b90,      &
+                nFadingModel,dat4,snr2,irc)
+           call timer('qra64_de',1)
+           if(irc.eq.0) go to 10
+           if(irc.gt.0) call badmsg(irc,dat4,nc1,nc2,ng2)
+           iirc=max(0,min(irc,11))
+           if(irc.gt.0 .and. nap(iirc).lt.napmin) then
+              dat4x=dat4
+              b90x=b90
+              snr2x=snr2
+              napmin=nap(iirc)
+              irckeep=irc
+              dtxkeep=jpk/6000.0 - 1.0
+              f0keep=-a(1)
+              idfkeep=idf
+              idtkeep=idt
+              ibwkeep=ibw
+           endif
+        enddo  ! ibw (b90 loop)
+        if(iand(ndepth,3).lt.3 .and. irc.ge.0) go to 100
+        if(irc.eq.0) go to 100
+     enddo  ! idt (DT loop)
   enddo  ! idf (f0 loop)
 
 100 if(napmin.ne.99) then

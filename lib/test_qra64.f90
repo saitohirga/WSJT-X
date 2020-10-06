@@ -96,10 +96,8 @@ program test_qra64
            i=irc
            if(i.le.11) then
               ndecodes=ndecodes + 1
-              navg=navg + 1
            else
               i=mod(i,10)
-              navg=navg + 1
            endif
            nretcode(i)=nretcode(i) + 1
         else
