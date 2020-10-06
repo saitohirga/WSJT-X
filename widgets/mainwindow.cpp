@@ -6326,7 +6326,7 @@ void MainWindow::on_actionQRA64_triggered()
   m_wideGraph->setTxFreq(ui->TxFreqSpinBox->value());
   m_wideGraph->setRxFreq(ui->RxFreqSpinBox->value());
   m_wideGraph->setTol(ui->sbFtol->value());
-  switch_mode (Modes::FST4);
+  switch_mode (Modes::QRA64);
 //                         0123456789012345678901234567890123
   displayWidgets(nWidgets("1111100100101101100100000010000000"));
   statusChanged();
@@ -6354,6 +6354,7 @@ void MainWindow::on_actionQRA65_triggered()
   m_wideGraph->setTol(ui->sbFtol->value());
   m_wideGraph->setRxFreq(ui->RxFreqSpinBox->value());
   m_wideGraph->setTxFreq(ui->TxFreqSpinBox->value());
+  switch_mode (Modes::QRA65);
 //                         0123456789012345678901234567890123
   displayWidgets(nWidgets("1111110101101101000100000011000000"));
   statusChanged();
