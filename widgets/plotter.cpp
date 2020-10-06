@@ -163,7 +163,6 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
   int iz=XfromFreq(5000.0);
   int jz=iz*m_binsPerPixel;
   m_fMax=FreqfromX(iz);
-
   if(bScroll and swide[0]<1.e29) {
     flat4_(swide,&iz,&m_Flatten);
     if(!m_bReplot) flat4_(&dec_data.savg[j0],&jz,&m_Flatten);
@@ -516,6 +515,15 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
      or m_mode=="QRA64" or m_mode=="QRA65" or m_mode=="FT8" or m_mode=="FT4"
      or m_mode.startsWith("FST4")) {
 
+    if(m_mode=="FST4" and !m_bSingleDecode) {
+      x1=XfromFreq(m_nfa);
+      x2=XfromFreq(m_nfb);
+      painter0.drawLine(x1,25,x1+5,30);   // Mark FST4 F_Low
+      painter0.drawLine(x1,25,x1+5,20);
+      painter0.drawLine(x2,25,x2-5,30);   // Mark FST4 F_High
+      painter0.drawLine(x2,25,x2-5,20);
+    }
+
     if(m_mode=="QRA64" or m_mode=="QRA65" or (m_mode=="JT65" and m_bVHF)) {
       painter0.setPen(penGreen);
       x1=XfromFreq(m_rxFreq-m_tol);
@@ -665,7 +673,9 @@ void CPlotter::setPlot2dZero(int plot2dZero)              //setPlot2dZero
 void CPlotter::setStartFreq(int f)                    //SetStartFreq()
 {
   m_startFreq=f;
+  m_fMax=FreqfromX(XfromFreq(5000.0));
   resizeEvent(NULL);
+  DrawOverlay();
   update();
 }
 
@@ -686,6 +696,7 @@ void CPlotter::setRxRange(int fMin)                           //setRxRange
 void CPlotter::setBinsPerPixel(int n)                         //setBinsPerPixel
 {
   m_binsPerPixel = n;
+  m_fMax=FreqfromX(XfromFreq(5000.0));
   DrawOverlay();                         //Redraw scales and ticks
   update();                              //trigger a new paintEvent}
 }
@@ -819,8 +830,21 @@ void CPlotter::setFlatten(bool b1, bool b2)
 void CPlotter::setTol(int n)                                 //setTol()
 {
   m_tol=n;
-  DrawOverlay();
 }
+
+void CPlotter::setFST4_FreqRange(int fLow,int fHigh)
+{
+  m_nfa=fLow;
+  m_nfb=fHigh;
+  DrawOverlay();
+  update();
+}
+
+void CPlotter::setSingleDecode(bool b)
+{
+  m_bSingleDecode=b;
+}
+
 
 void CPlotter::setColours(QVector<QColor> const& cl)
 {

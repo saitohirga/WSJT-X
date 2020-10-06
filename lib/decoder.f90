@@ -61,6 +61,10 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   type(counting_fst4_decoder) :: my_fst4
   type(counting_qra65_decoder) :: my_qra65
 
+  rms=sqrt(dot_product(float(id2(1:180000)),                         &
+       float(id2(1:180000)))/180000.0)
+  if(rms.lt.3.0) go to 800
+
   !cast C character arrays to Fortran character strings
   datetime=transfer(params%datetime, datetime)
   mycall=transfer(params%mycall,mycall)
@@ -212,8 +216,8 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      call timer('dec240  ',0)
      call my_fst4%decode(fst4_decoded,id2,params%nutc,                &
           params%nQSOProgress,params%nfa,params%nfb,                  &
-          params%nfqso,ndepth,params%ntr,                             &
-          params%nexp_decode,params%ntol,params%emedelay,             &
+          params%nfqso,ndepth,params%ntr,params%nexp_decode,          &
+          params%ntol,params%emedelay,logical(params%nagain),         &
           logical(params%lapcqonly),mycall,hiscall,iwspr)
      call timer('dec240  ',1)
      go to 800
@@ -226,16 +230,12 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      call timer('dec240  ',0)
      call my_fst4%decode(fst4_decoded,id2,params%nutc,                &
           params%nQSOProgress,params%nfa,params%nfb,                  &
-          params%nfqso,ndepth,params%ntr,                             &
-          params%nexp_decode,params%ntol,params%emedelay,             &
+          params%nfqso,ndepth,params%ntr,params%nexp_decode,          &
+          params%ntol,params%emedelay,logical(params%nagain),         &
           logical(params%lapcqonly),mycall,hiscall,iwspr)
      call timer('dec240  ',1)
      go to 800
   endif
-
-  rms=sqrt(dot_product(float(id2(60001:61000)),                         &
-       float(id2(60001:61000)))/1000.0)
-  if(rms.lt.2.0) go to 800
 
 ! Zap data at start that might come from T/R switching transient?
   nadd=100

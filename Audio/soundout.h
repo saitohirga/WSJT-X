@@ -7,6 +7,7 @@
 #include <QAudioOutput>
 #include <QAudioDeviceInfo>
 
+class QIODevice;
 class QAudioDeviceInfo;
 
 // An instance of this sends audio data to a specified soundcard.
@@ -41,12 +42,14 @@ Q_SIGNALS:
   void status (QString message) const;
 
 private:
-  bool audioError () const;
+  bool checkStream () const;
 
 private Q_SLOTS:
   void handleStateChanged (QAudio::State);
 
 private:
+  QAudioDeviceInfo m_device;
+  unsigned m_channels;
   QScopedPointer<QAudioOutput> m_stream;
   int m_framesBuffered;
   qreal m_volume;

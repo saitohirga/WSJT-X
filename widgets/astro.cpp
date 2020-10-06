@@ -269,14 +269,14 @@ void Astro::check_split ()
     }
 }
 
-void Astro::on_rbFullTrack_clicked()
+void Astro::on_rbFullTrack_clicked(bool)
 {
   m_DopplerMethod = 1;
   check_split ();
   Q_EMIT tracking_update ();
 }
 
-void Astro::on_rbOnDxEcho_clicked() //on_rbOnDxEcho_clicked(bool checked)
+void Astro::on_rbOnDxEcho_clicked(bool)
 {
   m_DopplerMethod = 4;
   check_split ();
@@ -287,28 +287,28 @@ void Astro::on_rbOnDxEcho_clicked() //on_rbOnDxEcho_clicked(bool checked)
   Q_EMIT tracking_update ();
 }
 
-void Astro::on_rbOwnEcho_clicked()
+void Astro::on_rbOwnEcho_clicked(bool)
 {
   m_DopplerMethod = 3;
   check_split ();
   Q_EMIT tracking_update ();
 }
 
-void Astro::on_rbCallDx_clicked()
+void Astro::on_rbCallDx_clicked(bool)
 {
   m_DopplerMethod = 5;
   check_split ();
   Q_EMIT tracking_update ();
 }
 
-void Astro::on_rbConstFreqOnMoon_clicked()
+void Astro::on_rbConstFreqOnMoon_clicked(bool)
 {
   m_DopplerMethod = 2;
   check_split ();
   Q_EMIT tracking_update ();
 }
 
-void Astro::on_rbNoDoppler_clicked()
+void Astro::on_rbNoDoppler_clicked(bool)
 {
   m_DopplerMethod = 0;
   Q_EMIT tracking_update ();

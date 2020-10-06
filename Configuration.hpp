@@ -260,6 +260,8 @@ public:
   // i.e. the transceiver is ready for use.
   Q_SLOT void sync_transceiver (bool force_signal = false, bool enforce_mode_and_split = false);
 
+  Q_SLOT void invalidate_audio_input_device (QString error);
+  Q_SLOT void invalidate_audio_output_device (QString error);
 
   //
   // These signals indicate a font has been selected and accepted for
@@ -292,6 +294,12 @@ public:
   // re-established with a call to transceiver_online(true) assuming
   // the fault condition has been rectified or is transient.
   Q_SIGNAL void transceiver_failure (QString const& reason) const;
+
+  // signal announces audio devices are being enumerated
+  //
+  // As this can take some time, particularly on Linux, consumers
+  // might like to notify the user.
+  Q_SIGNAL void enumerating_audio_devices ();
 
 private:
   class impl;

@@ -166,6 +166,7 @@ private slots:
   void on_actionSpecial_mouse_commands_triggered();
   void on_actionSolve_FreqCal_triggered();
   void on_actionCopyright_Notice_triggered();
+  void on_actionSWL_Mode_triggered (bool checked);
   void on_DecodeButton_clicked (bool);
   void decode();
   void decodeBusy(bool b);
@@ -307,6 +308,9 @@ private slots:
   void on_sbNlist_valueChanged(int n);
   void on_sbNslots_valueChanged(int n);
   void on_sbMax_dB_valueChanged(int n);
+  void on_sbF_Low_valueChanged(int n);
+  void on_sbF_High_valueChanged(int n);
+  void chk_FST4_freq_range();
   void on_pbFoxReset_clicked();
   void on_comboBoxHoundSort_activated (int index);
   void not_GA_warning_message ();
@@ -314,7 +318,6 @@ private slots:
   void on_pbBestSP_clicked();
   void on_RoundRobin_currentTextChanged(QString text);
   void  setTxMsg(int n);
-  void sbFtolMaxVal();
   bool stdCall(QString const& w);
   void remote_configure (QString const& mode, quint32 frequency_tolerance, QString const& submode
                          , bool fast_mode, quint32 tr_period, quint32 rx_df, QString const& dx_call
@@ -401,7 +404,6 @@ private:
   qint64  m_msErase;
   qint64  m_secBandChanged;
   qint64  m_freqMoon;
-  qint64  m_msec0;
   qint64  m_fullFoxCallTime;
 
   Frequency m_freqNominal;
@@ -527,6 +529,7 @@ private:
   bool    m_bWarnedSplit=false;
   bool    m_bTUmsg;
   bool    m_bBestSPArmed=false;
+  bool    m_bOK_to_chk=false;
 
   enum
     {
@@ -659,6 +662,7 @@ private:
   QDateTime m_dateTimeSentTx3;
   QDateTime m_dateTimeRcvdRR73;
   QDateTime m_dateTimeBestSP;
+  QDateTime m_dateTimeSeqStart;        //Nominal start time of Rx sequence about to be decoded
 
   QSharedMemory *mem_jt9;
   QString m_QSOText;

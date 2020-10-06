@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
   // Multiple instances communicate with jt9 via this
   QSharedMemory mem_jt9;
 
-  ExceptionCatchingApplication a(argc, argv);
+  QApplication a(argc, argv);
   try
     {
       // qDebug () << "+++++++++++++++++++++++++++ Resources ++++++++++++++++++++++++++++";

@@ -1,5 +1,7 @@
 #include "soundin.h"
 
+#include <cstdlib>
+#include <cmath>
 #include <QAudioDeviceInfo>
 #include <QAudioFormat>
 #include <QAudioInput>
@@ -8,11 +10,9 @@
 
 #include "moc_soundin.cpp"
 
-bool SoundInput::audioError () const
+bool SoundInput::checkStream ()
 {
-  bool result (true);
-
-  Q_ASSERT_X (m_stream, "SoundInput", "programming error");
+  bool result (false);
   if (m_stream)
     {
       switch (m_stream->error ())
@@ -25,16 +25,18 @@ bool SoundInput::audioError () const
           Q_EMIT error (tr ("An error occurred during read from the audio input device."));
           break;
 
-        case QAudio::UnderrunError:
-          Q_EMIT error (tr ("Audio data not being fed to the audio input device fast enough."));
-          break;
+        // case QAudio::UnderrunError:
+        //   Q_EMIT error (tr ("Audio data not being fed to the audio input device fast enough."));
+        //   break;
 
         case QAudio::FatalError:
           Q_EMIT error (tr ("Non-recoverable error, audio input device not usable at this time."));
           break;
 
+        case QAudio::UnderrunError: // TODO G4WJS: stop ignoring this
+                                    // when we find the cause on macOS
         case QAudio::NoError:
-          result = false;
+          result = true;
           break;
         }
     }
@@ -72,12 +74,13 @@ void SoundInput::start(QAudioDeviceInfo const& device, int framesPerBuffer, Audi
   // qDebug () << "Selected audio input format:" << format;
 
   m_stream.reset (new QAudioInput {device, format});
-  if (audioError ())
+  if (!checkStream ())
     {
       return;
     }
 
   connect (m_stream.data(), &QAudioInput::stateChanged, this, &SoundInput::handleStateChanged);
+  connect (m_stream.data(), &QAudioInput::notify, [this] () {checkStream ();});
 
   //qDebug () << "SoundIn default buffer size (bytes):" << m_stream->bufferSize () << "period size:" << m_stream->periodSize ();
   // the Windows MME version of QAudioInput uses 1/5 of the buffer
@@ -87,10 +90,10 @@ void SoundInput::start(QAudioDeviceInfo const& device, int framesPerBuffer, Audi
 #else
   Q_UNUSED (framesPerBuffer);
 #endif
-  if (sink->initialize (QIODevice::WriteOnly, channel))
+  if (m_sink->initialize (QIODevice::WriteOnly, channel))
     {
       m_stream->start (sink);
-      audioError ();
+      checkStream ();
       cummulative_lost_usec_ = -1;
       //qDebug () << "SoundIn selected buffer size (bytes):" << m_stream->bufferSize () << "peirod size:" << m_stream->periodSize ();
     }
@@ -105,7 +108,7 @@ void SoundInput::suspend ()
   if (m_stream)
     {
       m_stream->suspend ();
-      audioError ();
+      checkStream ();
     }
 }
 
@@ -120,14 +123,12 @@ void SoundInput::resume ()
   if (m_stream)
     {
       m_stream->resume ();
-      audioError ();
+      checkStream ();
     }
 }
 
 void SoundInput::handleStateChanged (QAudio::State newState)
 {
-  //qDebug () << "SoundInput::handleStateChanged: newState:" << newState;
-
   switch (newState)
     {
     case QAudio::IdleState:
@@ -150,7 +151,7 @@ void SoundInput::handleStateChanged (QAudio::State newState)
 #endif
 
     case QAudio::StoppedState:
-      if (audioError ())
+      if (!checkStream ())
         {
           Q_EMIT status (tr ("Error"));
         }
@@ -166,15 +167,21 @@ void SoundInput::reset (bool report_dropped_frames)
 {
   if (m_stream)
     {
-      if (cummulative_lost_usec_ >= 0 // don't report first time as we
-                                      // don't yet known latency
-          && report_dropped_frames)
+      auto elapsed_usecs = m_stream->elapsedUSecs ();
+      while (std::abs (elapsed_usecs - m_stream->processedUSecs ())
+             > 24 * 60 * 60 * 500000ll) // half day
         {
-          auto lost_usec = m_stream->elapsedUSecs () - m_stream->processedUSecs () - cummulative_lost_usec_;
+          // QAudioInput::elapsedUSecs() wraps after 24 hours
+          elapsed_usecs += 24 * 60 * 60 * 1000000ll;
+        }
+      // don't report first time as we don't yet known latency
+      if (cummulative_lost_usec_ != std::numeric_limits<qint64>::min () && report_dropped_frames)
+        {
+          auto lost_usec = elapsed_usecs - m_stream->processedUSecs () - cummulative_lost_usec_;
           Q_EMIT dropped_frames (m_stream->format ().framesForDuration (lost_usec), lost_usec);
           //qDebug () << "SoundInput::reset: frames dropped:" << m_stream->format ().framesForDuration (lost_usec) << "sec:" << lost_usec / 1.e6;
         }
-      cummulative_lost_usec_ = m_stream->elapsedUSecs () - m_stream->processedUSecs ();
+      cummulative_lost_usec_ = elapsed_usecs - m_stream->processedUSecs ();
     }
 }
 
@@ -185,11 +192,6 @@ void SoundInput::stop()
       m_stream->stop ();
     }
   m_stream.reset ();
-
-  if (m_sink)
-    {
-      m_sink->close ();
-    }
 }
 
 SoundInput::~SoundInput ()

@@ -8,6 +8,8 @@ subroutine blanker(iwave,nz,ndropmax,npct,c_bigfft)
   fblank=0.01*npct
   hist=0
   do i=1,nz
+! ### NB: if iwave(i)=-32768, abs(iwave(i))=-32768 ###
+     if(iwave(i).eq.-32768) iwave(i)=-32767
      n=abs(iwave(i))
      hist(n)=hist(n)+1
   enddo

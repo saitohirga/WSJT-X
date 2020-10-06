@@ -13,6 +13,99 @@
 Copyright 2001 - 2020 by Joe Taylor, K1JT.
 
 
+		   Release: WSJT-X 2.3.0-rc1
+		         Sept 28, 2020
+		   -------------------------
+
+WSJT-X  2.3.0 is  a program  upgrade offering  two new  modes designed
+especially for use  on the LF and  MF bands.  FST4 is  for 2-way QSOs,
+and FST4W is for WSPR-like transmissions.  Both modes offer a range of
+options for T/R sequence  lengths and threshold decoding sensitivities
+extending well  into the -40 dB  range.  Early tests have  shown these
+modes frequently spanning intercontinental distances on the 2200 m and
+630 m bands.  Further details and  operating hints can be found in the
+"Quick-Start Guide to FST4 and FST4W", posted on the WSJT web site:
+
+https://physics.princeton.edu/pulsar/k1jt/FST4_Quick_Start.pdf
+
+WSJT-X 2.3.0-rc1  is a  beta-quality release  candidate for  a program
+upgrade  that provides  a number  of new  features, capabilities,  and
+defect repairs.  These include:
+
+ - New modes FST4 and FST4W targeting LF and MF bands.
+
+ - Improved noise baseline discovery for more reliable SNR estimates.
+
+ - On the waterfall and 2D spectrum a tool-tip shows the frequency
+   offset under the mouse pointer.
+
+ - The *On Dx Echo* Doppler compensation method has been modified in
+   response to feedback from Users. Basic functionality is unchanged.
+   See the User Guide (Section 8.1) for more information.
+
+ - Improved user_hardware script or program initiation for WSPR
+   band-hopping mode.
+
+ - Decoded  QSO  mode  message   display  narrowed  to  make  appended
+   information easier to view without scrolling the window.
+
+ - Option to record the propagation mode in logged QSO records.
+
+ - ADIF v3.1.1 compliance.
+
+ - Option to connect to PSKReporter using TCP/IP for those with very
+   poor Internet connections.
+
+ - Major rewrite of the PSKReporter interface to improve efficiency
+   and reduce traffic levels.
+
+ - Removal of the Tab 2 generated messages.
+
+ - Accessibility improvements to the UI.
+
+ - Tweaked decode speed options for a better user experience with
+   lower powered single-board computers like the Raspberry Pi.
+
+ - Updates to UI translations in Spanish, Italian, Catalan, Chinese,
+   Hong Kong Chinese, Danish, and Japanese.
+
+ - Audio devices only enumerated when starting up and opening the
+   "Settings->Audio" device lists.
+
+ - Option to select the default audio device removed to minimize the
+   likelihood of system sounds being transmitted.
+
+ - Better handling of missing audio devices.
+
+ - Improved and enhanced meta-data saved to .WAV files.
+
+ - More reliable multi-instance support.
+
+ - Included CTY.DAT file moved to installation share directory.
+
+ - The bundled Hamlib library is updated to the latest available which
+   fixes several regressions, defects, and adds new rig support.
+
+ - Fixed some edge-case message packing and unpacking defects and
+   ambiguities.
+
+ - Fix a defect that allowed non-CQ messages to be replied to via the
+   UDP Message Protocol.
+
+ - Fix a long-standing defect with Tx start timing.
+
+ - Repair a defect with style sheets when switching configurations.
+
+ - Repair defects that made the astronomical data window an several
+   main window controls unreadable when using the dark style sheet.
+
+ - Repair a regression with setting WSPR transmitted power levels.
+
+ - Repair a regression with newly created ADIF log file's header.
+
+ - Many other defects repaired.
+
+
 		  Release: WSJT-X 2.2.2
 		       June 22, 2020
 		  ---------------------
