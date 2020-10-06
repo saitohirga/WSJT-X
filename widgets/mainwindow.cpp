@@ -6320,6 +6320,13 @@ void MainWindow::on_actionQRA64_triggered()
 //  ui->TxFreqSpinBox->setValue(1000);
   QString fname {QDir::toNativeSeparators(m_config.temp_dir ().absoluteFilePath ("red.dat"))};
   m_wideGraph->setRedFile(fname);
+  m_wideGraph->setMode(m_mode);
+  m_wideGraph->setModeTx(m_modeTx);
+  m_wideGraph->setPeriod(m_TRperiod,6912);
+  m_wideGraph->setTxFreq(ui->TxFreqSpinBox->value());
+  m_wideGraph->setRxFreq(ui->RxFreqSpinBox->value());
+  m_wideGraph->setTol(ui->sbFtol->value());
+  switch_mode (Modes::FST4);
 //                         0123456789012345678901234567890123
   displayWidgets(nWidgets("1111100100101101100100000010000000"));
   statusChanged();
