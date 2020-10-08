@@ -570,7 +570,6 @@ set (wsjt_FSRCS
   lib/softsym9w.f90
   lib/shell.f90
   lib/spec64.f90
-  lib/spec_qra65.f90
   lib/spec9f.f90
   lib/stdmsg.f90
   lib/subtract65.f90
@@ -1317,7 +1316,7 @@ if (${OPENMP_FOUND} OR APPLE)
   endif (APPLE)
   if (WIN32)
     set_target_properties (jt9 PROPERTIES
-      LINK_FLAGS -Wl,--stack,16777216
+      LINK_FLAGS -Wl,--stack,28000000
       )
   endif ()
   target_link_libraries (jt9 wsjt_fort_omp wsjt_cxx fort_qt)
@@ -1454,7 +1453,7 @@ else ()
     )
   if (WIN32)
     set_target_properties (wsjtx PROPERTIES
-      LINK_FLAGS -Wl,--stack,16777216
+      LINK_FLAGS -Wl,--stack,28000000
       )
   endif ()
 endif ()

@@ -81,8 +81,6 @@ subroutine qra64a(dd,npts,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
      snr2=0.
   endif
   nfreq=nint(f0)
-  write(71,3071) idf,idt,ncall,irc,nsnr,dtx,nfreq,decoded
-3071 format(5i5,f7.2,i6,2x,a22)
 
 900 if(irc.lt.0) then
      sy=max(1.0,sync)
