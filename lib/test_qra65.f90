@@ -78,7 +78,7 @@ program test_qra65
 
   write(*,1000) (j,j=0,11)
   write(12,1000) (j,j=0,11)
-1000 format(/'SNR d  Dop Sync Dec1 DecN Bad',i6,11i4,'  tdec dtavg dtrms'/97('-'))
+1000 format(/'SNR d  Dop Sync Dec1 DecN Bad',i6,11i4,'  tdec'/85('-'))
 
   dterr=tsym/4.0
   nferr=max(1,nint(0.5*baud),nint(fdop/3.0))
@@ -140,6 +140,7 @@ program test_qra65
      endif
      flush(6)
      flush(12)
+     if(ndecodes.eq.0) exit              !Bail out if no decodes at this SNR
      ndecodes0=ndecodes
   enddo  ! nsnr
 
