@@ -1,5 +1,5 @@
 subroutine qra_loops(c00,npts2,mode,mode64,nsubmode,nFadingModel,minsync,  &
-     ndepth,nc1,nc2,ng2,naptype,jpk0,xdt,f0,width,snr2,s3,irc,dat4)
+     ndepth,nc1,nc2,ng2,naptype,jpk0,xdt,f0,width,snr2,irc,dat4)
 
   use timer_module, only: timer
   parameter (LN=1152*63)
