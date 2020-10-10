@@ -36,7 +36,7 @@ public:
   impl (QString const& id, QString const& version, QString const& revision,
         port_type server_port, MessageClient * self)
     : self_ {self}
-    , dns_lookup_id_ {0}
+    , dns_lookup_id_ {-1}
     , enabled_ {false}
     , id_ {id}
     , version_ {version}
@@ -57,6 +57,10 @@ public:
   ~impl ()
   {
     closedown ();
+    if (dns_lookup_id_ != -1)
+      {
+        QHostInfo::abortHostLookup (dns_lookup_id_);
+      }
   }
 
   enum StreamStatus {Fail, Short, OK};
@@ -104,6 +108,7 @@ public:
 void MessageClient::impl::host_info_results (QHostInfo host_info)
 {
   if (host_info.lookupId () != dns_lookup_id_) return;
+  dns_lookup_id_ = -1;
   if (QHostInfo::NoError != host_info.error ())
     {
       Q_EMIT self_->error ("UDP server lookup failed:\n" + host_info.errorString ());
