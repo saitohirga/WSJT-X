@@ -108,7 +108,7 @@ WSJTXLogging::WSJTXLogging ()
       std::stringbuf buffer {new_config.toStdString (), std::ios_base::in};
       std::istream stream {&buffer};
       Logger::init_from_config (stream);
-      LOG_INFO ("Unable to read logging configuration file: " << log_config.fileName ());
+      LOG_INFO ("Read logging configuration file: " << log_config.fileName ());
     }
   else                          // Default setup
     {
