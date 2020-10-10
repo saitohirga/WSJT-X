@@ -8,8 +8,11 @@
 #include <boost/log/expressions.hpp>
 #include <boost/log/expressions/keyword.hpp>
 #include <boost/log/attributes.hpp>
+#include <boost/log/attributes/clock.hpp>
+#include <boost/log/attributes/counter.hpp>
+#include <boost/log/attributes/current_process_id.hpp>
+#include <boost/log/attributes/current_thread_id.hpp>
 #include <boost/log/utility/setup/console.hpp>
-#include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/utility/setup/filter_parser.hpp>
 #include <boost/log/utility/setup/from_stream.hpp>
 #include <boost/log/utility/setup/settings.hpp>
@@ -98,10 +101,14 @@ namespace Logger
     public:
       CommonInitialization ()
       {
-        // Add common attributes: LineID, TimeStamp, ProcessID, ThreadID
-        logging::add_common_attributes ();
-        // Add boost log timer as global attribute Uptime
-        logging::core::get ()->add_global_attribute ("Uptime", attrs::timer ());
+        // Add attributes: LineID, TimeStamp, ProcessID, ThreadID, and Uptime
+        auto core = logging::core::get ();
+        core->add_global_attribute ("LineID", attrs::counter<unsigned int> (1));
+        core->add_global_attribute("TimeStamp", attrs::utc_clock ());
+        core->add_global_attribute("ProcessID", attrs::current_process_id ());
+        core->add_global_attribute("ThreadID", attrs::current_thread_id ());
+        core->add_global_attribute ("Uptime", attrs::timer ());
+
         // Allows %Severity% to be used in ini config file for property Filter.
         logging::register_simple_filter_factory<logging::trivial::severity_level, char> ("Severity");
         // Allows %Severity% to be used in ini config file for property Format.
