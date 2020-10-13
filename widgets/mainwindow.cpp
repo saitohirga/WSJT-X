@@ -8296,12 +8296,22 @@ void MainWindow::statusUpdate () const
   if (!ui || m_block_udp_status_updates) return;
   auto submode = current_submode ();
   auto ftol = ui->sbFtol->value ();
-  if (!(ui->sbFtol->isVisible () && ui->sbFtol->isEnabled ()))
+  if ("FST4W" == m_mode)
+    {
+      ftol = ui->sbFST4W_FTol->value ();
+    }
+  else if (!(ui->sbFtol->isVisible () && ui->sbFtol->isEnabled ()))
     {
       ftol = quint32_max;
     }
   auto tr_period = ui->sbTR->value ();
-  if (!(ui->sbTR->isVisible () && ui->sbTR->isEnabled ()))
+  auto rx_frequency = ui->RxFreqSpinBox->value ();
+  if ("FST4W" == m_mode)
+    {
+      tr_period = ui->sbTR_FST4W->value ();
+      rx_frequency = ui->sbFST4W_RxFreq->value ();
+    }
+  else if (!(ui->sbTR->isVisible () && ui->sbTR->isEnabled ()))
     {
       tr_period = quint32_max;
     }
@@ -8309,7 +8319,7 @@ void MainWindow::statusUpdate () const
                                   QString::number (ui->rptSpinBox->value ()),
                                   m_modeTx, ui->autoButton->isChecked (),
                                   m_transmitting, m_decoderBusy,
-                                  ui->RxFreqSpinBox->value (), ui->TxFreqSpinBox->value (),
+                                  rx_frequency, ui->TxFreqSpinBox->value (),
                                   m_config.my_callsign (), m_config.my_grid (),
                                   m_hisGrid, m_tx_watchdog,
                                   submode != QChar::Null ? QString {submode} : QString {}, m_bFastMode,
@@ -9215,9 +9225,19 @@ void MainWindow::remote_configure (QString const& mode, quint32 frequency_tolera
     {
       set_mode (mode);
     }
-  if (frequency_tolerance != quint32_max && ui->sbFtol->isVisible ())
+  auto is_FST4W = "FST4W" == m_mode;
+  if (frequency_tolerance != quint32_max && (ui->sbFtol->isVisible () || is_FST4W))
     {
-      ui->sbFtol->setValue (frequency_tolerance);
+      m_block_udp_status_updates = true;
+      if (is_FST4W)
+        {
+          ui->sbFST4W_FTol->setValue (frequency_tolerance);
+        }
+      else
+        {
+          ui->sbFtol->setValue (frequency_tolerance);
+        }
+      m_block_udp_status_updates = false;
     }
   if (submode.size () && ui->sbSubmode->isVisible ())
     {
@@ -9229,14 +9249,30 @@ void MainWindow::remote_configure (QString const& mode, quint32 frequency_tolera
     }
   if (tr_period != quint32_max && ui->sbTR->isVisible ())
     {
-      ui->sbTR->setValue (tr_period);
-      ui->sbTR->interpretText ();
+      if (is_FST4W)
+        {
+          ui->sbTR_FST4W->setValue (tr_period);
+          ui->sbTR_FST4W->interpretText ();
+        }
+      else
+        {
+          ui->sbTR->setValue (tr_period);
+          ui->sbTR->interpretText ();
+        }
     }
   if (rx_df != quint32_max && ui->RxFreqSpinBox->isVisible ())
     {
       m_block_udp_status_updates = true;
-      ui->RxFreqSpinBox->setValue (rx_df);
-      ui->RxFreqSpinBox->interpretText ();
+      if (is_FST4W)
+        {
+          ui->sbFST4W_RxFreq->setValue (rx_df);
+          ui->sbFST4W_RxFreq->interpretText ();
+        }
+      else
+        {
+          ui->RxFreqSpinBox->setValue (rx_df);
+          ui->RxFreqSpinBox->interpretText ();
+        }
       m_block_udp_status_updates = false;
     }
   if (dx_call.size () && ui->dxCallEntry->isVisible ())
