@@ -1,6 +1,6 @@
 program test_qra65
 
-  character*71 cmd1,cmd2,line
+  character*73 cmd1,cmd2,line
   character*22 msg
   character*8 arg
   character*1 csubmode
@@ -60,8 +60,8 @@ program test_qra65
   tsym=1.0/baud
 
 !                1         2         3         4         5         6         7
-!       12345678901234567890123456789012345678901234567890123456789012345678901'
-  cmd1='qra65sim "K1ABC W9XYZ EN37      " A 1500  5.0  0.0  60  100 -10 > junk0'
+!       1234567890123456789012345678901234567890123456789012345678901234567890123'
+  cmd1='qra65sim "K1ABC W9XYZ EN37      " A 1500  5.0  0.0  60  100 F -10 > junk0'
   cmd2='jt9 -3 -p  15 -L 300 -H 3000 -d 3 -b A *.wav > junk'
 
   write(cmd1(10:33),'(a)') '"'//msg//'"'
@@ -90,7 +90,7 @@ program test_qra65
      nfalse=0
      nretcode=0
      navg=0
-     write(cmd1(61:63),'(i3)') nsnr
+     write(cmd1(63:65),'(i3)') nsnr
      call system(cmd1)
      call sec0(0,tdec)
      call system(cmd2)

@@ -37,6 +37,7 @@ subroutine qra64a(dd,npts,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   nFadingModel=1
   maxaptype=4
   if(iand(ndepth,64).ne.0) maxaptype=5
+  call qra_params(ndepth,maxaptype,minsync)
   if(nc1.ne.nc1z .or. nc2.ne.nc2z .or. ng2.ne.ng2z .or.            &
      maxaptype.ne.maxaptypez) then
      do naptype=0,maxaptype
@@ -93,3 +94,18 @@ subroutine qra64a(dd,npts,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
 
   return
 end subroutine qra64a
+
+subroutine qra_params(ndepth,maxaptype,minsync)
+
+! If file qra_params is present in CWD, read decoding params from it.
+  
+  logical ex
+  inquire(file='qra_params',exist=ex)
+  if(ex) then
+     open(29,file='qra_params',status='old')
+     read(29,*) ndepth,maxaptype,minsync
+     close(29)
+  endif
+  
+  return
+end subroutine qra_params

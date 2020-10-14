@@ -45,7 +45,7 @@ program test_qra64
 
 !                1         2         3         4         5         6         7
 !       12345678901234567890123456789012345678901234567890123456789012345678901'
-  cmd1='qra64sim "K1ABC W9XYZ EN37      " A  1  0.2 0.00  100 -20 > junk0'
+  cmd1='qra64sim "K1ABC W9XYZ EN37      " A  1  0.2 0.00  100 F -20 > junk0'
   
   cmd2='jt9 -q -L 300 -H 3000 -f 1000 -d 3 -b A *.wav > junk'
   
@@ -74,7 +74,7 @@ program test_qra64
      ndecodes=0
      nfalse=0
      nretcode=0
-     write(cmd1(55:57),'(i3)') nsnr
+     write(cmd1(57:59),'(i3)') nsnr
      call system(cmd1)
      call sec0(0,tdec)
      call system(cmd2)
