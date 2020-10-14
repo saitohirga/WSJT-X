@@ -5748,7 +5748,8 @@ void MainWindow::on_genStdMsgsPushButton_clicked()         //genStdMsgs button
 
 void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
 {
-  if (SpecOp::FOX != m_config.special_op_id ())
+  if (SpecOp::FOX != m_config.special_op_id ()
+      && ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isEnabled () && ui->cbAutoSeq->isChecked ())
     {
       // ensure that auto Tx is disabled even if clear DX call & grid
       // on 73 is not checked, unless in Fox mode where it is allowed
