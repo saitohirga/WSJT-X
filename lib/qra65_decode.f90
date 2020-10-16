@@ -97,7 +97,7 @@ contains
 !    if(ndepth.eq.3) maxaptype=5
     if(ndepth.ge.2) maxaptype=5       !###
     minsync=-2
-    call qra_params(ndepth,maxaptype,minsync)
+    call qra_params(ndepth,maxaptype,idf0max,idt0max,ibwmin,ibwmax)
 
     if(nc1.ne.nc1z .or. nc2.ne.nc2z .or. ng2.ne.ng2z .or.            &
          maxaptype.ne.maxaptypez) then
@@ -127,7 +127,7 @@ contains
     call ana64(dd,npts,c00)
 
     call timer('qraloops',0)
-    call qra_loops(c00,npts/2,nmode,mode65,nsubmode,nFadingModel,minsync,     &
+    call qra_loops(c00,npts/2,nmode,mode65,nsubmode,nFadingModel,       &
          ndepth,nc1,nc2,ng2,naptype,jpk0,xdt,f0,width,snr2,irc,dat4)
     call timer('qraloops',1)
     xdt=xdt+0.4        !### Empirical -- WHY ??? ###
@@ -146,7 +146,7 @@ contains
             irc,qual,ntrperiod,fmid,w50)
     else
        snr2=0.
-       nsnr=-25 
+       nsnr=-30 
 !### TEMPORARY? ###       
        call this%callback(nutc,sync,nsnr,xdt,f0,decoded,              &
             irc,qual,ntrperiod,fmid,w50)

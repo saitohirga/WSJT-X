@@ -1,4 +1,4 @@
-subroutine qra_loops(c00,npts2,mode,mode64,nsubmode,nFadingModel,minsync,  &
+subroutine qra_loops(c00,npts2,mode,mode64,nsubmode,nFadingModel,      &
      ndepth,nc1,nc2,ng2,naptype,jpk0,xdt,f0,width,snr2,irc,dat4)
 
   use timer_module, only: timer
@@ -15,12 +15,9 @@ subroutine qra_loops(c00,npts2,mode,mode64,nsubmode,nFadingModel,minsync,  &
   s3lim=20.
   ibwmax=11
   if(mode64.le.4) ibwmax=9
-  ibwmin=0
-  idtmax=5
-  if(minsync.eq.-2) then
-     ibwmin=ibwmax
-     idtmax=3
-  endif
+  ibwmin=ibwmax
+  idtmax=3
+  call qra_params(ndepth,maxaptype,idf0max,idt0max,ibwmin,ibwmax)
   LL=64*(mode64+2)
   NN=63
   napmin=99
