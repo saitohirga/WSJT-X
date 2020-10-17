@@ -97,7 +97,7 @@ contains
 !    if(ndepth.eq.3) maxaptype=5
     if(ndepth.ge.2) maxaptype=5       !###
     minsync=-2
-    call qra_params(ndepth,maxaptype,idf0max,idt0max,ibwmin,ibwmax)
+    call qra_params(ndepth,maxaptype,idfmax,idtmax,ibwmin,ibwmax)
 
     if(nc1.ne.nc1z .or. nc2.ne.nc2z .or. ng2.ne.ng2z .or.            &
          maxaptype.ne.maxaptypez) then

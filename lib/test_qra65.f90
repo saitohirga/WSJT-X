@@ -102,7 +102,7 @@ program test_qra65
         if(index(line,'<Decode').eq.1) cycle
         read(line(11:20),*) xdt,nf
         if(ntrperiod.ge.60) xdt=xdt-0.5              !### TEMPORARY ###
-        decok=index(line,'W9XYZ').gt.0
+        decok=index(line,'K1ABC W9XYZ EN37').gt.0
         if((abs(xdt-dt).le.dterr .and. abs(nf-nf0).le.nferr) .or. decok) then
            nsync=nsync+1
         endif

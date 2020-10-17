@@ -1,8 +1,10 @@
 subroutine qra_loops(c00,npts2,mode,mode64,nsubmode,nFadingModel,      &
      ndepth,nc1,nc2,ng2,naptype,jpk0,xdt,f0,width,snr2,irc,dat4)
 
+  use packjt
   use timer_module, only: timer
   parameter (LN=1152*63)
+  character*37 decoded
   complex c00(0:720000)            !Analytic representation of dd(), 6000 Hz
   complex c0(0:720000)             !Ditto, with freq shift
   real a(3)                        !twkfreq params f,f1,f2
@@ -17,7 +19,7 @@ subroutine qra_loops(c00,npts2,mode,mode64,nsubmode,nFadingModel,      &
   if(mode64.le.4) ibwmax=9
   ibwmin=ibwmax
   idtmax=3
-  call qra_params(ndepth,maxaptype,idf0max,idt0max,ibwmin,ibwmax)
+  call qra_params(ndepth,maxaptype,idfmax,idtmax,ibwmin,ibwmax)
   LL=64*(mode64+2)
   NN=63
   napmin=99
@@ -25,16 +27,16 @@ subroutine qra_loops(c00,npts2,mode,mode64,nsubmode,nFadingModel,      &
   nsps=3456                                   !QRA64
   if(mode.eq.65) nsps=3840                    !QRA65  ### Is 3840 too big? ###
 
-  do idf0=1,11
-     idf=idf0/2
-     if(mod(idf0,2).eq.0) idf=-idf
+  do idf=1,idfmax
+     ndf=idfn/2
+     if(mod(idf,2).eq.0) ndf=-ndf
      a=0.
-     a(1)=-(f0+0.868*idf)
+     a(1)=-(f0+0.868*ndf)
      call twkfreq(c00,c0,npts2,6000.0,a)
-     do idt0=1,idtmax
-        idt=idt0/2
-        if(mod(idt0,2).eq.0) idt=-idt
-        jpk=jpk0 + 750*idt
+     do idt=1,idtmax
+        ndt=idt/2
+        if(mod(idt,2).eq.0) ndt=-ndt
+        jpk=jpk0 + 750*ndt
         if(jpk.lt.0) jpk=0
         call spec64(c0,nsps,mode,jpk,s3,LL,NN)
         call pctile(s3,LL*NN,40,base)
@@ -82,8 +84,14 @@ subroutine qra_loops(c00,npts2,mode,mode64,nsubmode,nFadingModel,      &
   endif
 
 200 continue
-  write(53,3053) idt,idf,ibw,irc,b90,xdt,f0,snr2
-3053 format(4i5,f7.1,f7.2,2f7.1)
-  
+!### For tests only:
+  if(irc.ge.0) then
+     open(53,file='fort.53',status='unknown',position='append')
+     call unpackmsg(dat4,decoded)               !Unpack the user message
+     write(53,3053) idf,idt,ibw,b90,xdt,f0,snr2,irc,decoded(1:22)
+3053 format(3i5,f7.1,f7.2,2f7.1,i5,2x,a22)
+     close(53)
+  endif
+!###  
   return
 end subroutine qra_loops

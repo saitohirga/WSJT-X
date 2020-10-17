@@ -37,7 +37,7 @@ subroutine qra64a(dd,npts,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   nFadingModel=1
   maxaptype=4
   if(iand(ndepth,64).ne.0) maxaptype=5
-  call qra_params(ndepth,maxaptype,idf0max,idt0max,ibwmin,ibwmax)
+  call qra_params(ndepth,maxaptype,idfmax,idtmax,ibwmin,ibwmax)
   if(nc1.ne.nc1z .or. nc2.ne.nc2z .or. ng2.ne.ng2z .or.            &
      maxaptype.ne.maxaptypez) then
      do naptype=0,maxaptype
@@ -101,7 +101,8 @@ subroutine qra_params(ndepth,maxaptype,idf0max,idt0max,ibwmin,ibwmax)
 
   integer iparam(6)
   logical first,ex
-  data iparam/3,5,11,5,0,9/     !Default values
+!  data iparam/3,5,11,5,0,9/    !Maximum effort
+  data iparam/3,5,3,3,7,9/     !Default values
   data first/.true./
   save first,iparam
 
@@ -112,7 +113,6 @@ subroutine qra_params(ndepth,maxaptype,idf0max,idt0max,ibwmin,ibwmax)
         read(29,*) iparam
         close(29)
      endif
-     write(*,'(6i4)') iparam
      first=.false.
   endif
   ndepth=iparam(1)
