@@ -3,12 +3,13 @@ subroutine spec_qra65(c0,nsps,s3,LL,NN)
 ! Compute synchronized symbol spectra.  
 
   complex c0(0:85*nsps-1)                !Synchronized complex data at 6000 S/s
-  complex cs(0:nsps-1)                   !Complex symbol spectrum
+  complex, allocatable :: cs(:)          !Complex symbol spectrum
   real s3(LL,NN)                         !Synchronized symbol spectra
   real xbase0(LL),xbase(LL)              !Work arrays
   integer isync(22)                      !Indices of sync symbols
   data isync/1,9,12,13,15,22,23,26,27,33,35,38,46,50,55,60,62,66,69,74,76,85/
 
+  allocate(cs(0:nsps-1))
   fac=1.0/nsps
   j=0
   n=1

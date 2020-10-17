@@ -51,7 +51,7 @@ contains
     character(len=6) :: hisgrid
     character*37 decoded                  !Decoded message
     integer*2 iwave(NMAX)                 !Raw data
-    real dd(NMAX)                         !Raw data
+    real, allocatable :: dd(:)            !Raw data
     integer dat4(12)                      !Decoded message as 12 6-bit integers
     logical ltext
     complex, allocatable :: c00(:)        !Analytic signal, 6000 Sa/s
@@ -62,6 +62,7 @@ contains
     mode65=2**nsubmode
     nfft1=ntrperiod*12000
     nfft2=ntrperiod*6000
+    allocate(dd(NMAX))
     allocate (c00(0:nfft1-1))
     allocate (c0(0:nfft1-1))
 
