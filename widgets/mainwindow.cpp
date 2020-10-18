@@ -7668,13 +7668,21 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
   QString format_string {"%1 %2 %3 %4 %5 %6"};
   auto const& time_string = time.toString ("~" == mode || "&" == mode
                                            || "+" == mode ? "hhmmss" : "hhmm");
+  auto text = message_text;
+  auto ap_pos = text.lastIndexOf (QRegularExpression {R"((?:\?\s)?a[0-9]$)"});
+  if (ap_pos >= 0)
+    {
+      // beware of decodes ending on shorter version of wanted call so
+      // add a space
+      text = text.left (ap_pos).trimmed () + ' ';
+    }
   auto message_line = format_string
     .arg (time_string)
     .arg (snr, 3)
     .arg (delta_time, 4, 'f', 1)
     .arg (delta_frequency, 4)
     .arg (mode, -2)
-    .arg (message_text);
+    .arg (text);
   QTextCursor start {ui->decodedTextBrowser->document ()};
   start.movePosition (QTextCursor::End);
   auto cursor = ui->decodedTextBrowser->document ()->find (message_line, start, QTextDocument::FindBackward);
@@ -7687,7 +7695,7 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
                                                           .arg ('-' + QString::number (delta_time, 'f', 1), 4)
                                                           .arg (delta_frequency, 4)
                                                           .arg (mode, -2)
-                                                          .arg (message_text), start, QTextDocument::FindBackward);
+                                                          .arg (text), start, QTextDocument::FindBackward);
     }
   if (!cursor.isNull ())
     {
@@ -7702,7 +7710,7 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
           showNormal ();
           raise ();
         }
-      if (message_text.contains (QRegularExpression {R"(^(CQ |CQDX |QRZ ))"})) {
+      if (text.contains (QRegularExpression {R"(^(CQ |CQDX |QRZ ))"})) {
         // a message we are willing to accept and auto reply to
         m_bDoubleClicked = true;
       }
