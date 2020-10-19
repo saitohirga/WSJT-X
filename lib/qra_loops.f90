@@ -26,6 +26,9 @@ subroutine qra_loops(c00,npts2,mode,mode64,nsubmode,nFadingModel,      &
   ncall=0
   nsps=3456                                   !QRA64
   if(mode.eq.65) nsps=3840                    !QRA65  ### Is 3840 too big? ###
+  maxdist=5
+  if(ndepth.eq.2) maxdist=10
+  if(ndepth.eq.3) maxdist=30
 
   do idf=1,idfmax
      ndf=idfn/2
@@ -36,13 +39,15 @@ subroutine qra_loops(c00,npts2,mode,mode64,nsubmode,nFadingModel,      &
      do idt=1,idtmax
         ndt=idt/2
         if(mod(idt,2).eq.0) ndt=-ndt
-        jpk=jpk0 + 750*ndt
+        jpk=jpk0 + 240*ndt                  !240/6000 = 0.04 s = tsym/32
         if(jpk.lt.0) jpk=0
         call spec64(c0,nsps,mode,jpk,s3,LL,NN)
         call pctile(s3,LL*NN,40,base)
         s3=s3/base
         where(s3(1:LL*NN)>s3lim) s3(1:LL*NN)=s3lim
         do ibw=ibwmax,ibwmin,-2
+           ndist=ndf**2 + ndt**2 + ((ibwmax-ibw)/2)**2
+           if(ndist.gt.maxdist) cycle
            b90=1.728**ibw
            if(b90.gt.230.0) cycle
            if(b90.lt.0.15*width) exit
@@ -65,9 +70,11 @@ subroutine qra_loops(c00,npts2,mode,mode64,nsubmode,nFadingModel,      &
               idfkeep=idf
               idtkeep=idt
               ibwkeep=ibw
+              ndistx=ndist
+              go to 100   !###
            endif
         enddo  ! ibw (b90 loop)
-        if(iand(ndepth,3).lt.3 .and. irc.ge.0) go to 100
+!###        if(iand(ndepth,3).lt.3 .and. irc.ge.0) go to 100
      enddo  ! idt (DT loop)
   enddo  ! idf (f0 loop)
 
@@ -81,6 +88,7 @@ subroutine qra_loops(c00,npts2,mode,mode64,nsubmode,nFadingModel,      &
      idt=idtkeep
      idf=idfkeep
      ibw=ibwkeep
+     ndist=ndistx
   endif
 
 200 continue
@@ -88,8 +96,8 @@ subroutine qra_loops(c00,npts2,mode,mode64,nsubmode,nFadingModel,      &
   if(irc.ge.0) then
      open(53,file='fort.53',status='unknown',position='append')
      call unpackmsg(dat4,decoded)               !Unpack the user message
-     write(53,3053) idf,idt,ibw,b90,xdt,f0,snr2,irc,decoded(1:22)
-3053 format(3i5,f7.1,f7.2,2f7.1,i5,2x,a22)
+     write(53,3053) idf,idt,ibw,b90,xdt,f0,snr2,ndist,irc,decoded(1:22)
+3053 format(3i5,f7.1,f7.2,2f7.1,2i5,2x,a22)
      close(53)
   endif
 !###  
