@@ -118,21 +118,20 @@ contains
     call sync_qra65(iwave,ntrperiod*12000,mode65,nsps,nfqso,ntol,xdt,f0,snr1)
     call timer('sync_q65',1)
 
-    jpk0=(xdt+1.0)*6000   !###
-    if(jpk0.lt.0) jpk0=0
-
-    fac=1.0/32767.0
-    dd=fac*iwave
-    nmode=65
-
-    call ana64(dd,npts,c00)
-
-    call timer('qraloops',0)
-    call qra_loops(c00,npts/2,nmode,mode65,nsubmode,nFadingModel,       &
-         ndepth,nc1,nc2,ng2,naptype,jpk0,xdt,f0,width,snr2,irc,dat4)
-    call timer('qraloops',1)
-    xdt=xdt+0.4        !### Empirical -- WHY ??? ###
-    snr2=snr2 + db(6912.0/nsps)
+    irc=-1
+    if(snr1.ge.2.7) then
+       jpk0=(xdt+1.0)*6000   !###
+       if(jpk0.lt.0) jpk0=0
+       fac=1.0/32767.0
+       dd=fac*iwave
+       nmode=65
+       call ana64(dd,npts,c00)
+       call timer('qraloops',0)
+       call qra_loops(c00,npts/2,nmode,mode65,nsubmode,nFadingModel,       &
+            ndepth,nc1,nc2,ng2,naptype,jpk0,xdt,f0,width,snr2,irc,dat4)
+       call timer('qraloops',1)
+       snr2=snr2 + db(6912.0/nsps)
+    endif
     decoded='                                     '
     if(irc.ge.0) then
        call unpackmsg(dat4,decoded)               !Unpack the user message
@@ -146,8 +145,7 @@ contains
        call this%callback(nutc,sync,nsnr,xdt,f0,decoded,              &
             irc,qual,ntrperiod,fmid,w50)
     else
-       snr2=0.
-       nsnr=-30 
+       nsnr=db(snr1) - 32.0
 !### TEMPORARY? ###       
        call this%callback(nutc,sync,nsnr,xdt,f0,decoded,              &
             irc,qual,ntrperiod,fmid,w50)

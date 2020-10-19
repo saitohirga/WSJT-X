@@ -31,17 +31,19 @@ subroutine qra_loops(c00,npts2,mode,mode64,nsubmode,nFadingModel,      &
   if(ndepth.eq.3) maxdist=30
 
   do idf=1,idfmax
-     ndf=idfn/2
+     ndf=idf/2
      if(mod(idf,2).eq.0) ndf=-ndf
      a=0.
-     a(1)=-(f0+0.868*ndf)
+     a(1)=-(f0+0.4*ndf)
      call twkfreq(c00,c0,npts2,6000.0,a)
      do idt=1,idtmax
         ndt=idt/2
         if(mod(idt,2).eq.0) ndt=-ndt
         jpk=jpk0 + 240*ndt                  !240/6000 = 0.04 s = tsym/32
         if(jpk.lt.0) jpk=0
+        call timer('spec64  ',0)
         call spec64(c0,nsps,mode,jpk,s3,LL,NN)
+        call timer('spec64  ',1)
         call pctile(s3,LL*NN,40,base)
         s3=s3/base
         where(s3(1:LL*NN)>s3lim) s3(1:LL*NN)=s3lim
@@ -91,7 +93,8 @@ subroutine qra_loops(c00,npts2,mode,mode64,nsubmode,nFadingModel,      &
      ndist=ndistx
   endif
 
-200 continue
+200 if(mode.eq.65) xdt=xdt+0.4        !### Empirical -- WHY ??? ###
+
 !### For tests only:
   if(irc.ge.0) then
      open(53,file='fort.53',status='unknown',position='append')

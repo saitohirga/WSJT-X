@@ -97,7 +97,22 @@ subroutine sync_qra65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1)
   jpk=ijpk(2)-27
   f0=nfqso + ipk*df
   xdt=jpk*dtstep
-  snr1=maxval(ccf)/22.0
 
+  sq=0.
+  nsq=0
+  do j=lag1,lag2
+     if(abs(j-jpk).gt.6) then
+        sq=sq + ccf(ipk,j)**2
+        nsq=nsq+1
+     endif
+  enddo
+  rms=sqrt(sq/nsq)
+  snr1=ccf(ipk,jpk)/rms
+
+!  do j=lag1,lag2
+!     write(55,3055) j,j*dtstep,ccf(ipk,j)/rms
+!3055 format(i5,f8.3,f10.3)
+!  enddo
+  
   return
 end subroutine sync_qra65
