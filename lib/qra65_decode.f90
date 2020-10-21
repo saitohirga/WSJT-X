@@ -119,7 +119,7 @@ contains
     call timer('sync_q65',1)
 
     irc=-1
-    if(snr1.ge.2.7) then
+    if(snr1.ge.2.5) then
        jpk0=(xdt+1.0)*6000   !###
        if(jpk0.lt.0) jpk0=0
        fac=1.0/32767.0
