@@ -1170,6 +1170,11 @@ target_link_libraries (ft4sim_mult wsjt_fort wsjt_cxx)
 
 add_executable (fst4sim lib/fst4/fst4sim.f90)
 target_link_libraries (fst4sim wsjt_fort wsjt_cxx)
+if (WIN32)
+  set_target_properties (fst4sim PROPERTIES
+    LINK_FLAGS -Wl,--stack,0x4000000,--heap,0x6000000
+    )
+endif ()
 
 add_executable (ldpcsim240_101 lib/fst4/ldpcsim240_101.f90)
 target_link_libraries (ldpcsim240_101 wsjt_fort wsjt_cxx)
@@ -1432,7 +1437,7 @@ else ()
     )
   if (WIN32)
     set_target_properties (wsjtx PROPERTIES
-      LINK_FLAGS -Wl,--stack,16777216
+      LINK_FLAGS -Wl,--stack,0x400000,--heap,0x20000000
       )
   endif ()
 endif ()
