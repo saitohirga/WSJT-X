@@ -5,8 +5,8 @@ subroutine qra_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
   use timer_module, only: timer
   parameter (LN=1152*63)
   character*37 decoded
-  complex c00(0:720000)            !Analytic representation of dd(), 6000 Hz
-  complex c0(0:720000)             !Ditto, with freq shift
+  complex c00(0:npts2-1)           !Analytic representation of dd(), 6000 Hz
+  complex ,allocatable :: c0(:)    !Ditto, with freq shift
   real a(3)                        !twkfreq params f,f1,f2
   real s3(LN)                      !Symbol spectra
   real s3avg(LN)                   !Averaged symbol spectra
@@ -15,6 +15,7 @@ subroutine qra_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
   data nap/0,2,3,2,3,4,2,3,6,4,6,6/,nsave/0/
   save nsave,s3avg
 
+  allocate(c0(0:npts2-1))
   irc=-99
   s3lim=20.
   ibwmax=11
