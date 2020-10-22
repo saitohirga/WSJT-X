@@ -1,7 +1,8 @@
 subroutine spec64(c0,nsps,mode,mode64,jpk,s3,LL,NN)
 
-  parameter (MAXFFT=3840)
-  complex c0(0:360000)                       !Complex spectrum of dd()
+  parameter (MAXFFT=20736)
+!### Fix this:
+  complex c0(0:1800000-1)                    !Complex spectrum of dd()
   complex cs(0:MAXFFT-1)                     !Complex symbol spectrum
   real s3(LL,NN)                             !Synchronized symbol spectra
   real xbase0(LL),xbase(LL)
@@ -76,7 +77,6 @@ subroutine spec64(c0,nsps,mode,mode64,jpk,s3,LL,NN)
 !     write(72,3072) j,m,m/2,m/4,m/8
 !3072 format(5i8)
 !  enddo
-!  if(nfft.ne.-999) stop
 
   return
 end subroutine spec64

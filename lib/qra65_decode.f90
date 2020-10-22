@@ -120,7 +120,8 @@ contains
 
     irc=-1
     if(snr1.ge.2.5) then
-       jpk0=(xdt+1.0)*6000   !###
+       jpk0=(xdt+1.0)*6000                      !###
+       if(ntrperiod.le.30) jpk0=(xdt+0.5)*6000  !###
        if(jpk0.lt.0) jpk0=0
        fac=1.0/32767.0
        dd=fac*iwave
