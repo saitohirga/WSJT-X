@@ -1,4 +1,4 @@
-subroutine qra_loops(c00,npts2,mode,mode64,nsubmode,nFadingModel,      &
+subroutine qra_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
      ndepth,nc1,nc2,ng2,naptype,jpk0,xdt,f0,width,snr2,irc,dat4)
 
   use packjt
@@ -26,8 +26,6 @@ subroutine qra_loops(c00,npts2,mode,mode64,nsubmode,nFadingModel,      &
   NN=63
   napmin=99
   ncall=0
-  nsps=3456                                   !QRA64
-  if(mode.eq.65) nsps=3840                    !QRA65  ### Is 3840 too big? ###
   maxdist=5
   if(ndepth.eq.2) maxdist=10
   if(ndepth.eq.3) maxdist=30
@@ -121,7 +119,7 @@ subroutine qra_loops(c00,npts2,mode,mode64,nsubmode,nFadingModel,      &
      ndist=ndistx
   endif
 
-200 if(mode.eq.65) xdt=xdt+0.4        !### Empirical -- WHY ??? ###
+200 if(mode.eq.65 .and. nsps.eq.7680/2) xdt=xdt+0.4 !### Empirical -- WHY ??? ###
 
   if(irc.ge.0) then
      navg=nsave

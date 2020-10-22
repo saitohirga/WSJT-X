@@ -61,8 +61,9 @@ subroutine qra64a(dd,npts,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   nfreq=nint(f0)
   if(mode64.eq.1 .and. minsync.ne.-1 .and. (sync-7.0).lt.minsync) go to 900
 
+  nsps=6912
   call timer('qraloops',0)
-  call qra_loops(c00,npts/2,64,mode64,nsubmode,nFadingModel,         &
+  call qra_loops(c00,npts/2,nsps,64,mode64,nsubmode,nFadingModel,         &
        ndepth,nc1,nc2,ng2,naptype,jpk0,dtx,f0,width,snr2,irc,dat4)
   call timer('qraloops',1)
   

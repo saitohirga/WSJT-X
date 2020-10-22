@@ -18,7 +18,7 @@ subroutine sync_qra65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1)
   integer ijpk(2)                        !Indices i and j at peak of ccf
   real, allocatable :: s1(:,:)           !Symbol spectra, quarter-symbol steps
   real sync(85)                          !sync vector 
-  real ccf(-64:64,-26:107)               !CCF(freq,time)
+  real ccf(-64:64,-53:214)               !CCF(freq,time)
   complex, allocatable :: c0(:)          !Complex spectrum of symbol
   data isync/1,9,12,13,15,22,23,26,27,33,35,38,46,50,55,60,62,66,69,74,76,85/
   data sync(1)/99.0/
@@ -94,10 +94,10 @@ subroutine sync_qra65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1)
 
   ijpk=maxloc(ccf)
   ipk=ijpk(1)-65
-  jpk=ijpk(2)-27
+  jpk=ijpk(2)-54
   f0=nfqso + ipk*df
   xdt=jpk*dtstep
-
+  
   sq=0.
   nsq=0
   do j=lag1,lag2
@@ -115,10 +115,9 @@ subroutine sync_qra65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1)
 !3055 format(i5,f8.3,f10.3)
 !  enddo
 
-!  ncall=ncall+1
 !  do i=-ia,ia
-!     write(56,3056) ncall,i*df,ncall+0.3*ccf(i,0)/rms
-!3056 format(i6,f7.2,f10.3)
+!     write(56,3056) i*df,ccf(i,0)/rms
+!3056 format(2f10.3)
 !  enddo
 
   return

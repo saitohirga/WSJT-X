@@ -127,7 +127,7 @@ contains
        nmode=65
        call ana64(dd,npts,c00)
        call timer('qraloops',0)
-       call qra_loops(c00,npts/2,nmode,mode65,nsubmode,nFadingModel,       &
+       call qra_loops(c00,npts/2,nsps/2,nmode,mode65,nsubmode,nFadingModel,  &
             ndepth,nc1,nc2,ng2,naptype,jpk0,xdt,f0,width,snr2,irc,dat4)
        call timer('qraloops',1)
        snr2=snr2 + db(6912.0/nsps)
