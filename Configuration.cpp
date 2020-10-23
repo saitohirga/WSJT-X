@@ -1065,8 +1065,8 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
     });
   lotw_users_.set_local_file_path (writeable_data_dir_.absoluteFilePath ("lotw-user-activity.csv"));
 
-  // load the dictionary if it exists
-  lotw_users_.load (ui_->LotW_CSV_URL_line_edit->text (), false);
+  // load the dictionary if it exists, fetch and load if it doesn't
+  lotw_users_.load (ui_->LotW_CSV_URL_line_edit->text ());
 
   //
   // validation
