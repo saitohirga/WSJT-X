@@ -1,4 +1,4 @@
-program test_qra65
+program test_q65
 
   character*73 cmd1,cmd2,line
   character*22 msg
@@ -9,8 +9,8 @@ program test_qra65
 
   nargs=iargc()
   if(nargs.ne.9) then
-     print*,'Usage:   test_qra65        "msg"       A-D depth freq  DT fDop TRp nfiles SNR'
-     print*,'Example: test_qra65 "K1ABC W9XYZ EN37"  A    3   1500 0.0  5.0  60  100   -20'
+     print*,'Usage:   test_q65        "msg"       A-D depth freq  DT fDop TRp nfiles SNR'
+     print*,'Example: test_q65 "K1ABC W9XYZ EN37"  A    3   1500 0.0  5.0  60  100   -20'
      print*,'         SNR = 0 to loop over all relevant SNRs'
      go to 999
   endif
@@ -61,7 +61,7 @@ program test_qra65
 
 !                1         2         3         4         5         6         7
 !       1234567890123456789012345678901234567890123456789012345678901234567890123'
-  cmd1='qra65sim "K1ABC W9XYZ EN37      " A 1500  5.0  0.0  60  100 F -10 > junk0'
+  cmd1='q65sim   "K1ABC W9XYZ EN37      " A 1500  5.0  0.0  60  100 F -10 > junk0'
   cmd2='jt9 -3 -p  15 -L 300 -H 3000 -d 3 -b A *.wav > junk'
 
   write(cmd1(10:33),'(a)') '"'//msg//'"'
@@ -71,25 +71,32 @@ program test_qra65
   write(cmd1(46:50),'(f5.2)') dt
   write(cmd1(51:54),'(i4)') ntrperiod
   write(cmd1(55:59),'(i5)') nfiles
+
   write(cmd2(11:13),'(i3)') ntrperiod
   write(cmd2(33:33),'(i1)') ndepth
   cmd2(38:38)=csubmode
   call system('rm -f *.wav')
 
-  write(*,1000) (j,j=0,11)
-  write(12,1000) (j,j=0,11)
-1000 format(/'SNR d  Dop Sync Dec1 DecN Bad',i6,11i4,'  tdec'/85('-'))
+  call qra_params(ndepth,maxaptype,idf0max,idt0max,ibwmin,ibwmax,maxdist)
+  write(*,1000) ndepth,maxaptype,idf0max,idt0max,ibwmin,ibwmax,maxdist
+  write(12,1000) ndepth,maxaptype,idf0max,idt0max,ibwmin,ibwmax,maxdist
+1000 format(/'Depth:',i2,'  AP:',i2,'  df:',i3,'  dt:',i3,'  bw1:',i3,'  bw2:',i3,  &
+          '  dist:',i3)
+  
+  write(*,1010) (j,j=0,11)
+  write(12,1010) (j,j=0,11)
+1010 format('SNR d  Dop Sync DecN Dec1 Bad',i6,11i4,'  tdec'/85('-'))
 
   dterr=tsym/4.0
   nferr=max(1,nint(0.5*baud),nint(fdop/3.0))
-  ndecodes0=nfiles
+  ndec10=nfiles
   
   do nsnr=ia,ib,-1
      nsync=0
-     ndecodes=0
+     ndec1=0
      nfalse=0
      nretcode=0
-     navg=0
+     ndecn=0
      write(cmd1(63:65),'(i3)') nsnr
      call system(cmd1)
      call sec0(0,tdec)
@@ -107,18 +114,15 @@ program test_qra65
            nsync=nsync+1
         endif
         irc=-1
-        if(line(23:23).ne.' ') read(line(60:),*) irc,iavg
+        iavg=0
+        i0=23
+        if(ntrperiod.le.30) i0=25
+        if(line(i0:i0).ne.' ') read(line(60:),*) irc,iavg
         if(irc.lt.0) cycle
         if(decok) then
-           i=irc
-           if(i.le.11) then
-              ndecodes=ndecodes + 1
-              navg=navg + 1
-           else
-              i=mod(i,10)
-              navg=navg + 1
-           endif
-           nretcode(i)=nretcode(i) + 1
+           ndecn=ndecn + 1
+           if(iavg.le.1) ndec1=ndec1 + 1
+           nretcode(irc)=nretcode(irc) + 1
         else
            nfalse=nfalse + 1
            print*,'False: ',line
@@ -127,24 +131,24 @@ program test_qra65
 10   close(10)
      xdt_avg=0.
      xdt_rms=0.
-     write(*,1100) nsnr,ndepth,fDop,nsync,ndecodes,navg,nfalse,nretcode,   &
+     write(*,1100) nsnr,ndepth,fDop,nsync,ndecn,ndec1,nfalse,nretcode,   &
           tdec/nfiles
-     write(12,1100) nsnr,ndepth,fDop,nsync,ndecodes,navg,nfalse,nretcode,  &
+     write(12,1100) nsnr,ndepth,fDop,nsync,ndecn,ndec1,nfalse,nretcode,  &
           tdec/nfiles
 1100 format(i3,i2,f5.1,3i5,i4,i6,11i4,f6.2)
-     if(ndecodes.lt.nfiles/2 .and. ndecodes0.ge.nfiles/2) then
-        snr_thresh=nsnr + float(nfiles/2 - ndecodes)/(ndecodes0-ndecodes)
+     if(ndec1.lt.nfiles/2 .and. ndec10.ge.nfiles/2) then
+        snr_thresh=nsnr + float(nfiles/2 - ndec1)/(ndec10-ndec1)
         write(13,1200) ndepth,fdop,csubmode,snr_thresh
 1200    format(i1,f6.1,2x,a1,f7.1)
         flush(13)
      endif
      flush(6)
      flush(12)
-     if(ndecodes.eq.0) exit              !Bail out if no decodes at this SNR
-     ndecodes0=ndecodes
+     if(ndec1.eq.0 .and. ndecn.eq.0) exit           !Bail out if no decodes at this SNR
+     ndec10=ndec1
   enddo  ! nsnr
 
-999 end program test_qra65
+999 end program test_q65
 
-  include 'sec0.f90'
+include 'sec0.f90'
 

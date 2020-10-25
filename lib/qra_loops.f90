@@ -22,14 +22,11 @@ subroutine qra_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
   if(mode64.le.4) ibwmax=9
   ibwmin=ibwmax
   idtmax=3
-  call qra_params(ndepth,maxaptype,idfmax,idtmax,ibwmin,ibwmax)
+  call qra_params(ndepth,maxaptype,idfmax,idtmax,ibwmin,ibwmax,maxdist)
   LL=64*(mode64+2)
   NN=63
   napmin=99
   ncall=0
-  maxdist=5
-  if(ndepth.eq.2) maxdist=10
-  if(ndepth.eq.3) maxdist=30
 
   do iavg=0,1
      if(iavg.eq.1) then
@@ -95,8 +92,9 @@ subroutine qra_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
         a=0.
         a(1)=-f0
         call twkfreq(c00,c0,npts2,6000.0,a)
-!        jpk=4320
-        jpk=4080
+        jpk=3000                                 !###  These definitions need work ###
+!       if(nsps.ge.3600) jpk=4080                !###
+        if(nsps.ge.3600) jpk=6000                !###
         call spec64(c0,nsps,mode,mode64,jpk,s3,LL,NN)
         call pctile(s3,LL*NN,40,base)
         s3=s3/base

@@ -1,6 +1,6 @@
-subroutine sync_qra65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1)
+subroutine sync_q65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1)
 
-! Detect and align with the QRA65 sync vector, returning time and frequency
+! Detect and align with the Q65 sync vector, returning time and frequency
 ! offsets and SNR estimate.
 
 ! Input:  iwave(0:nmax-1)        Raw data
@@ -121,4 +121,4 @@ subroutine sync_qra65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1)
 !  enddo
 
   return
-end subroutine sync_qra65
+end subroutine sync_q65

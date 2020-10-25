@@ -41,7 +41,7 @@ subroutine spec64(c0,nsps,mode,mode64,jpk,s3,LL,NN)
         cs(0:nfft-1)=fac*c0(ja:jb)
         call four2a(cs,nsps,1,-1,1)             !c2c FFT to frequency
         do ii=1,LL
-           i=ii-65+mode64      !mode64 = 1 2 4 8 16 for QRA65 A B C D E
+           i=ii-65+mode64      !mode64 = 1 2 4 8 16 for Q65 A B C D E
            if(i.lt.0) i=i+nsps
            s3(ii,j)=real(cs(i))**2 + aimag(cs(i))**2
         enddo

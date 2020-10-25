@@ -1,6 +1,6 @@
-program qra65sim
+program q65sim
 
-! Generate simulated QRA65 data for testing the decoder.
+! Generate simulated Q65 data for testing the decoder.
 
   use wavhdr
   use packjt
@@ -21,8 +21,8 @@ program qra65sim
   
   nargs=iargc()
   if(nargs.ne.9) then
-     print *, 'Usage:   qra65sim         "msg"     A-E freq fDop DT TRp Nfiles Sync SNR'
-     print *, 'Example: qra65sim "K1ABC W9XYZ EN37" A  1500 0.0 0.0  60   1      T  -26'
+     print *, 'Usage:   q65sim         "msg"     A-E freq fDop DT TRp Nfiles Sync SNR'
+     print *, 'Example: q65sim "K1ABC W9XYZ EN37" A  1500 0.0 0.0  60   1      T  -26'
      print*,'Sync = T to include sync test.'
      go to 999
   endif
@@ -185,7 +185,7 @@ program qra65sim
         if(ifile.eq.nfiles) cd='d'
         nfqso=nint(f0)
         ntol=100
-        call sync_qra65(iwave,npts,mode65,nsps,nfqso,ntol,xdt2,f02,snr2)
+        call sync_q65(iwave,npts,mode65,nsps,nfqso,ntol,xdt2,f02,snr2)
         terr=1.01/(8.0*baud)
         ferr=1.01*mode65*baud
         if(abs(xdt2-xdt).lt.terr .and. abs(f02-f0).lt.ferr) nsync=nsync+1
@@ -199,4 +199,4 @@ program qra65sim
   if(lsync) write(*,1040) snrdb,nfiles,nsync
 1040 format('SNR:',f6.1,'   nfiles:',i5,'   nsynced:',i5)
 
-999 end program qra65sim
+999 end program q65sim

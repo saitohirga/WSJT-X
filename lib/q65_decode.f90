@@ -1,17 +1,17 @@
-module qra65_decode
+module q65_decode
 
-   type :: qra65_decoder
-      procedure(qra65_decode_callback), pointer :: callback
+   type :: q65_decoder
+      procedure(q65_decode_callback), pointer :: callback
    contains
       procedure :: decode
-   end type qra65_decoder
+   end type q65_decoder
 
    abstract interface
-      subroutine qra65_decode_callback (this,nutc,sync,nsnr,dt,freq,    &
+      subroutine q65_decode_callback (this,nutc,sync,nsnr,dt,freq,    &
          decoded,nap,qual,ntrperiod,fmid,w50)
-         import qra65_decoder
+         import q65_decoder
          implicit none
-         class(qra65_decoder), intent(inout) :: this
+         class(q65_decoder), intent(inout) :: this
          integer, intent(in) :: nutc
          real, intent(in) :: sync
          integer, intent(in) :: nsnr
@@ -23,7 +23,7 @@ module qra65_decode
          integer, intent(in) :: ntrperiod
          real, intent(in) :: fmid
          real, intent(in) :: w50
-      end subroutine qra65_decode_callback
+      end subroutine q65_decode_callback
    end interface
 
 contains
@@ -31,7 +31,7 @@ contains
   subroutine decode(this,callback,iwave,nutc,ntrperiod,nsubmode,nfqso,   &
        ntol,ndepth,mycall,hiscall,hisgrid)
 
-! Decodes QRA65 signals
+! Decodes Q65 signals
 ! Input:  iwave            Raw data, i*2
 !         nutc             UTC for time-tagging the decode
 !         ntrperiod        T/R sequence length (s)
@@ -45,8 +45,8 @@ contains
     use packjt
     use, intrinsic :: iso_c_binding
     parameter (NMAX=300*12000)            !Max TRperiod is 300 s
-    class(qra65_decoder), intent(inout) :: this
-    procedure(qra65_decode_callback) :: callback
+    class(q65_decoder), intent(inout) :: this
+    procedure(q65_decode_callback) :: callback
     character(len=12) :: mycall, hiscall  !Used for AP decoding
     character(len=6) :: hisgrid
     character*37 decoded                  !Decoded message
@@ -98,7 +98,7 @@ contains
 !    if(ndepth.eq.3) maxaptype=5
     if(ndepth.ge.2) maxaptype=5       !###
     minsync=-2
-    call qra_params(ndepth,maxaptype,idfmax,idtmax,ibwmin,ibwmax)
+    call qra_params(ndepth,maxaptype,idfmax,idtmax,ibwmin,ibwmax,maxdist)
 
     if(nc1.ne.nc1z .or. nc2.ne.nc2z .or. ng2.ne.ng2z .or.            &
          maxaptype.ne.maxaptypez) then
@@ -115,7 +115,7 @@ contains
     naptype=maxaptype
 
     call timer('sync_q65',0)
-    call sync_qra65(iwave,ntrperiod*12000,mode65,nsps,nfqso,ntol,xdt,f0,snr1)
+    call sync_q65(iwave,ntrperiod*12000,mode65,nsps,nfqso,ntol,xdt,f0,snr1)
     call timer('sync_q65',1)
 
     irc=-1
@@ -159,4 +159,4 @@ contains
     return
   end subroutine decode
 
-end module qra65_decode
+end module q65_decode

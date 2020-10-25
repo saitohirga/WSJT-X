@@ -70,7 +70,8 @@ void Modulator::start (QString mode, unsigned symbolsLength, double framesPerSym
   m_bFastMode=fastMode;
   m_TRperiod=TRperiod;
   unsigned delay_ms=1000;
-  if(mode=="FT8" or (mode=="FST4" and m_nsps==720) or mode=="QRA65") delay_ms=500; //FT8, FST4-15, QRA65
+  if(mode=="FT8" or (mode=="FST4" and m_nsps==720)) delay_ms=500; //FT8, FST4-15
+  if(mode=="Q65" and m_nsps<=3600) delay_ms=500;                  //Q65-15 and Q65-30
   if(mode=="FT4") delay_ms=300;                                   //FT4
 
 // noise generator parameters

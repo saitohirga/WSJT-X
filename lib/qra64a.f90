@@ -37,7 +37,7 @@ subroutine qra64a(dd,npts,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   nFadingModel=1
   maxaptype=4
   if(iand(ndepth,64).ne.0) maxaptype=5
-  call qra_params(ndepth,maxaptype,idfmax,idtmax,ibwmin,ibwmax)
+  call qra_params(ndepth,maxaptype,idfmax,idtmax,ibwmin,ibwmax,maxdist)
   if(nc1.ne.nc1z .or. nc2.ne.nc2z .or. ng2.ne.ng2z .or.            &
      maxaptype.ne.maxaptypez) then
      do naptype=0,maxaptype
@@ -96,14 +96,14 @@ subroutine qra64a(dd,npts,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   return
 end subroutine qra64a
 
-subroutine qra_params(ndepth,maxaptype,idf0max,idt0max,ibwmin,ibwmax)
+subroutine qra_params(ndepth,maxaptype,idf0max,idt0max,ibwmin,ibwmax,maxdist)
 
 ! If file qra_params is present in CWD, read decoding params from it.
 
-  integer iparam(6)
+  integer iparam(7)
   logical first,ex
-! data iparam/3,5,3,11,0,9/     !Maximum effort
-  data iparam/2,5,3,11,3,9/     !Default values
+! data iparam/3,5,3,11,0,9,30/     !Maximum effort
+  data iparam/2,5,3,11,3,9,10/     !Default values
   data first/.true./
   save first,iparam
 
@@ -122,6 +122,7 @@ subroutine qra_params(ndepth,maxaptype,idf0max,idt0max,ibwmin,ibwmax)
   idt0max=iparam(4)
   ibwmin=iparam(5)
   ibwmax=iparam(6)
-  
+  maxdist=iparam(7)
+
   return
 end subroutine qra_params

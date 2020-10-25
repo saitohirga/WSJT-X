@@ -2895,7 +2895,7 @@ list. The list can be maintained in Settings (F2).</string>
     <addaction name="actionJT9_JT65"/>
     <addaction name="actionJT65"/>
     <addaction name="actionQRA64"/>
-    <addaction name="actionQRA65"/>
+    <addaction name="actionQ65"/>
     <addaction name="separator"/>
     <addaction name="actionISCAT"/>
     <addaction name="actionMSK144"/>
@@ -3383,12 +3383,12 @@ list. The list can be maintained in Settings (F2).</string>
     <string>FST4W</string>
    </property>
   </action>
-  <action name="actionQRA65">
+  <action name="actionQ65">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>QRA65</string>
+    <string>Q65</string>
    </property>
   </action>
   <action name="actionSWL_Mode">
