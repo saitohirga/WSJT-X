@@ -1,6 +1,6 @@
 subroutine pctile(x,npts,npct,xpct)
 
-  parameter (NMAX=128*1024)
+  parameter (NMAX=256*1024)
   real*4 x(npts)
   real*4 tmp(NMAX)
 

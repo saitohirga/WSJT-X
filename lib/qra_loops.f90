@@ -3,7 +3,7 @@ subroutine qra_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
 
   use packjt
   use timer_module, only: timer
-  parameter (LN=1152*63)
+  parameter (LN=2176*63)           !LN=LL*NN; LL = 64*(mode64+2)
   character*37 decoded
   complex c00(0:npts2-1)           !Analytic representation of dd(), 6000 Hz
   complex ,allocatable :: c0(:)    !Ditto, with freq shift
@@ -51,7 +51,6 @@ subroutine qra_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
               call pctile(s3,LL*NN,40,base)
               s3=s3/base
               where(s3(1:LL*NN)>s3lim) s3(1:LL*NN)=s3lim
-!              if(iavg.eq.0 .and. idf.eq.1 .and. idt.eq.1) s3a(1:LL*NN)=s3(1:LL*NN)
            else
               s3(1:LL*NN)=s3avg(1:LL*NN)
            endif

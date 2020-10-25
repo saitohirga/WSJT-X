@@ -74,8 +74,8 @@ subroutine spec64(c0,nsps,mode,mode64,jpk,s3,LL,NN)
 !  do j=1,NN
 !     ipk1=maxloc(s3(1:LL,j))
 !     m=ipk1(1)-65
-!     write(72,3072) j,m,m/2,m/4,m/8
-!3072 format(5i8)
+!     write(72,3072) j,m,m/2,m/4,m/8,m/16,m/32,m/64
+!3072 format(8i7)
 !  enddo
 
   return
