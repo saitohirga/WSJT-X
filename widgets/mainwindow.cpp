@@ -3730,7 +3730,7 @@ void MainWindow::guiUpdate()
   if(m_modeTx=="Q65")  {                                    // Q65
     if(m_TRperiod==15) txDuration=0.5 + 85*1800/12000.0;
     if(m_TRperiod==30) txDuration=0.5 + 85*3600/12000.0;
-    if(m_TRperiod==60) txDuration=1.0 + 85*7680/12000.0;
+    if(m_TRperiod==60) txDuration=1.0 + 85*7200/12000.0;
     if(m_TRperiod==120) txDuration=1.0 + 85*16000/12000.0;
     if(m_TRperiod==300) txDuration=1.0 + 85*41472/12000.0;
   }
@@ -7315,7 +7315,7 @@ void MainWindow::transmit (double snr)
   if (m_modeTx == "Q65") {
     int nsps=1800;
     if(m_TRperiod==30) nsps=3600;
-    if(m_TRperiod==60) nsps=7680;
+    if(m_TRperiod==60) nsps=7200;
     if(m_TRperiod==120) nsps=16000;
     if(m_TRperiod==300) nsps=41472;
     int mode65=pow(2.0,double(m_nSubMode));

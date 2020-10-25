@@ -475,7 +475,7 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
     int h=int(pow(2.0,m_nSubMode));
     int nsps=1800;
     if(m_TRperiod==30) nsps=3600;
-    if(m_TRperiod==60) nsps=7680;
+    if(m_TRperiod==60) nsps=7200;
     if(m_TRperiod==120) nsps=16000;
     if(m_TRperiod==300) nsps=41472;
     float baud=12000.0/nsps;

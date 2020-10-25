@@ -31,7 +31,7 @@ program test_qra64
   call getarg(9,arg)
   read(arg,*) nsnr
 
-  nsps=7680
+  nsps=6192
   i50=-28
   ia=-20
   ib=-33

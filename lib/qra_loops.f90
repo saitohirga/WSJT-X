@@ -118,7 +118,7 @@ subroutine qra_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
      ndist=ndistx
   endif
 
-200 if(mode.eq.65 .and. nsps.eq.7680/2) xdt=xdt+0.4 !### Empirical -- WHY ??? ###
+200 if(mode.eq.65 .and. nsps.eq.7200/2) xdt=xdt+0.4 !### Empirical -- WHY ??? ###
 
   if(irc.ge.0) then
      navg=nsave

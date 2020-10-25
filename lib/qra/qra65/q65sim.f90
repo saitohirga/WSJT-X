@@ -54,7 +54,7 @@ program q65sim
   else if(ntrperiod.eq.30) then
      nsps=3600
   else if(ntrperiod.eq.60) then
-     nsps=7680
+     nsps=7200
   else if(ntrperiod.eq.120) then
      nsps=16000
   else if(ntrperiod.eq.300) then

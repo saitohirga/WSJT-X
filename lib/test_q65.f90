@@ -38,7 +38,7 @@ program test_q65
      nsps=3600
      i50=-24
   else if(ntrperiod.eq.60) then
-     nsps=7680
+     nsps=7200
      i50=-28
   else if(ntrperiod.eq.120) then
      nsps=16000
