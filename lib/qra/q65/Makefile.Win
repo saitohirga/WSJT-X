@@ -16,7 +16,7 @@ CFLAGS = -O2 -Wall -I. -D_WIN32
 all:	 libq65.a q65.exe
 
 OBJS1 = normrnd.o npfwht.o pdmath.o qra15_65_64_irr_e23.o \
-	    q65.o 
+	    q65.o qracodes.o
 
 libq65.a: $(OBJS1)
 	ar cr libq65.a $(OBJS1) 
