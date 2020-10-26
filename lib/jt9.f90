@@ -25,7 +25,7 @@ program jt9
   integer :: arglen,stat,offset,remain,mode=0,flow=200,fsplit=2700,          &
        fhigh=4000,nrxfreq=1500,ndepth=1,nexp_decode=0,nQSOProg=0
   logical :: read_files = .true., tx9 = .false., display_help = .false.,     &
-       bLowSidelobes = .false.
+       bLowSidelobes = .false., nexp_decode_set = .false.
   type (option) :: long_options(30) = [                                      &
     option ('help', .false., 'h', 'Display this help message', ''),          &
     option ('shmem',.true.,'s','Use shared memory for sample data','KEY'),   &
@@ -158,6 +158,7 @@ program jt9
            read (optarg(:arglen), *) hisgrid
         case ('X')
            read (optarg(:arglen), *) nexp_decode
+           nexp_decode_set = .true.
      end select
   end do
   
@@ -206,6 +207,11 @@ program jt9
      ntol = 20
   else
      ntol = min (ntol, 1000)
+  end if
+  if (.not. nexp_decode_set) then
+     if (mode .eq. 240 .or. mode .eq. 241) then
+        nexp_decode = 3 * 256   ! single decode off and nb=0
+     end if
   end if
   allocate(shared_data)
   nflatten=0
