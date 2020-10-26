@@ -1,5 +1,7 @@
 CC = gcc
 CFLAGS = -O2 -Wall -I. -D_WIN32
+FC = gfortran
+FFLAGS = -Wall -fbounds-check
 
 # Default rules
 %.o: %.c
@@ -13,7 +15,7 @@ CFLAGS = -O2 -Wall -I. -D_WIN32
 %.o: %.F90
 	${FC} ${FFLAGS} -c $<
 
-all:	 libq65.a q65.exe
+all:	 libq65.a q65.exe q65_ftn_test.exe
 
 OBJS1 = normrnd.o npfwht.o pdmath.o qra15_65_64_irr_e23.o \
 	    q65.o qracodes.o
@@ -26,6 +28,11 @@ OBJS2 = q65test.o
 
 q65.exe: $(OBJS2)
 	${CC} -o q65.exe $(OBJS2) libq65.a -lm
+
+OBJS3 = q65_ftn_test.o q65_subs.o
+
+q65_ftn_test.exe: $(OBJS3)
+	${FC} -o q65_ftn_test.exe $(OBJS3) libq65.a -lm
 
 .PHONY : clean
 

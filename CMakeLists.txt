@@ -587,6 +587,9 @@ set (qra_CSRCS
   lib/qra/qracodes/qra13_64_64_irr_e.c
   lib/qra/qracodes/qracodes.c
   lib/qra/qracodes/normrnd.c
+  lib/qra/q65/qra15_65_64_irr_e23.c
+  lib/qra/q65/q65.c
+  lib/qra/q65/q65_subs.c
   )
 
 set (wsjt_CSRCS
@@ -1122,6 +1125,9 @@ target_link_libraries (test_qra64 wsjt_fort wsjt_cxx)
 
 add_executable (test_q65 lib/test_q65.f90)
 target_link_libraries (test_q65 wsjt_fort wsjt_cxx)
+
+add_executable (q65_ftn_test lib/qra/q65/q65_ftn_test.f90)
+target_link_libraries (q65_ftn_test wsjt_fort wsjt_cxx)
 
 add_executable (jt49sim lib/jt49sim.f90)
 target_link_libraries (jt49sim wsjt_fort wsjt_cxx)
