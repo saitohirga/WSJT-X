@@ -62,7 +62,17 @@ void q65_dec_(float s3[], int APmask[], int APsymbols[], float s3prob[],
   int rc;
   int ydec[63];
   float esnodb;
+  static int first=1;
   
+  if (first) {
+    // Set the QRA code, allocate memory, and initialize
+    int rc = q65_init(&codec,&qra15_65_64_irr_e23);
+    if (rc<0) {
+      printf("error in q65_init()\n");
+      exit(0);
+    }
+    first=0;
+  }
   //  rc = q65_intrinsics_fastfding(&codec,s3prob,s3,submode,B90,fadingModel);
   rc = q65_intrinsics(&codec,s3prob,s3);
   if(rc<0) {
