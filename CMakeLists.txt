@@ -424,6 +424,7 @@ set (wsjt_FSRCS
   lib/gen9.f90
   lib/geniscat.f90
   lib/ft8/genft8.f90
+  lib/qra/q65/genq65.f90
   lib/genmsk_128_90.f90
   lib/genmsk40.f90
   lib/ft4/ft4code.f90
