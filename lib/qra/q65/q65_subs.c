@@ -67,7 +67,7 @@ void q65_dec_(float s3[], int APmask[], int APsymbols[], int* submode,
   int ydec[63];
   float esnodb;
   static int first=1;
-  
+
   if (first) {
     // Set the QRA code, allocate memory, and initialize
     int rc = q65_init(&codec,&qra15_65_64_irr_e23);
@@ -78,7 +78,6 @@ void q65_dec_(float s3[], int APmask[], int APsymbols[], int* submode,
     first=0;
   }
   rc = q65_intrinsics_fastfading(&codec,s3prob,s3,*submode,*B90,*fadingModel);
-  // rc = q65_intrinsics(&codec,s3prob,s3);
   if(rc<0) {
     printf("error in q65_intrinsics()\n");
     exit(0);
@@ -86,13 +85,11 @@ void q65_dec_(float s3[], int APmask[], int APsymbols[], int* submode,
 
   rc = q65_decode(&codec,ydec,xdec,s3prob,APmask,APsymbols);
   *rc0=rc;
-  if(rc<0) {
-    printf("Error in q65_decode(), rc = %d\n",rc);
-    // rc = -1:  Invalid params
-    // rc = -2:  Decode failed
-    // rc = -3:  CRC mismatch
-    return;
-  }
+  // rc = -1:  Invalid params
+  // rc = -2:  Decode failed
+  // rc = -3:  CRC mismatch
+  *snr2500 = -31.0;
+  if(rc<0) return;
 
   //  rc = q65_esnodb_fastfading(&codec,&esnodb,ydec,s3);
   rc = q65_esnodb(&codec,&esnodb,ydec,s3);
