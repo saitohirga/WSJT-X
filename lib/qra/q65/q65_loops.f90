@@ -65,7 +65,7 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
               if(ndist.gt.maxdist) cycle
               b90=1.728**ibw
               if(b90.gt.230.0) cycle
-              if(b90.lt.0.15*width) exit
+!              if(b90.lt.0.15*width) exit
               ncall=ncall+1
               call timer('qra64_de',0)
 !###
@@ -75,8 +75,6 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
               APsymbols=0
               call s3fix(s3,s3tmp)
               call q65_dec(s3tmp,APmask,APsymbols,s3prob,snr2,dat4,irc)
-              write(74,3074) dat4,0
-3074          format(13i3,i6)
 !###
               call timer('qra64_de',1)
               if(irc.eq.0) go to 200

@@ -53,8 +53,7 @@ contains
     character*77 c77
     integer*2 iwave(NMAX)                 !Raw data
     real, allocatable :: dd(:)            !Raw data
-    integer dat4(12)                      !Decoded message as 12 6-bit integers
-    integer dat4a(13)
+    integer dat4(13)                      !Decoded message as 12 6-bit integers
     logical ltext
     logical unpk77_success
     complex, allocatable :: c00(:)        !Analytic signal, 6000 Sa/s
@@ -138,20 +137,9 @@ contains
     endif
     decoded='                                     '
     if(irc.ge.0) then
-       dat4a(1:12)=dat4
-       dat4a(13)=9
-       write(74,3074) dat4a,1
-3074   format(13i3,i6)
-       write(c77,1000) dat4a
+       write(c77,1000) dat4
 1000   format(12b6.6,b5.5)
        call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
-!       call unpackmsg(dat4,decoded)               !Unpack the user message
-!       call fmtmsg(decoded,iz)
-       if(index(decoded,"000AAA ").ge.1) then
-! Suppress a certain type of garbage decode.
-          decoded='                      '
-          irc=-1
-       endif
        nsnr=nint(snr2)
        call this%callback(nutc,sync,nsnr,xdt,f0,decoded,              &
             irc,qual,ntrperiod,fmid,w50)
