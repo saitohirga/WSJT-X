@@ -91,8 +91,7 @@ void q65_dec_(float s3[], int APmask[], int APsymbols[], int* submode,
   *snr2500 = -31.0;
   if(rc<0) return;
 
-  //  rc = q65_esnodb_fastfading(&codec,&esnodb,ydec,s3);
-  rc = q65_esnodb(&codec,&esnodb,ydec,s3);
+  rc = q65_esnodb_fastfading(&codec,&esnodb,ydec,s3);
   if(rc<0) {
     printf("error in q65_esnodb_fastfading()\n");
     exit(0);

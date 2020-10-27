@@ -118,6 +118,7 @@ contains
     endif
     decoded='                                     '
     if(irc.ge.0) then
+       irc=0                    !### TEMPORARY ??? ###
        write(c77,1000) dat4
 1000   format(12b6.6,b5.5)
        call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
@@ -125,7 +126,7 @@ contains
        call this%callback(nutc,sync,nsnr,xdt,f0,decoded,              &
             irc,qual,ntrperiod,fmid,w50)
     else
-       nsnr=db(snr1) - 32.0
+       nsnr=db(snr1) - 35.0
 !### TEMPORARY? ###       
        call this%callback(nutc,sync,nsnr,xdt,f0,decoded,              &
             irc,qual,ntrperiod,fmid,w50)
