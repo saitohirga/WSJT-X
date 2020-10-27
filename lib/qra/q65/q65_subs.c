@@ -46,13 +46,17 @@ void q65_enc_(int x[], int y[])
   q65_encode(&codec,y,x);
 }
 
-void q65_dec_(float s3[], int APmask[], int APsymbols[], float s3prob[],
+void q65_dec_(float s3[], int APmask[], int APsymbols[], int* submode, 
+	      float* B90, int* fadingModel, float s3prob[],
 	      float* snr2500, int xdec[], int* rc0)
 {
 
 /* Input:   s3[LL,NN]       Received energies
  *          APmask[13]      AP information to be used in decoding
  *          APsymbols[13]   Available AP informtion
+ *          submode         0=A, 4=E
+ *          B90             Spread bandwidth, 90% fractional energy
+ *          fadingModel     0=Gaussian, 1=Lorentzian
  * Output:  s3prob[LL,NN]   Symbol-value intrinsic probabilities
  *          snr2500         SNR_2500 of decoded signal, or lower limit
  *          xdec[13]        Decoded 78-bit message as 13 six-bit integers
@@ -73,8 +77,8 @@ void q65_dec_(float s3[], int APmask[], int APsymbols[], float s3prob[],
     }
     first=0;
   }
-  //  rc = q65_intrinsics_fastfding(&codec,s3prob,s3,submode,B90,fadingModel);
-  rc = q65_intrinsics(&codec,s3prob,s3);
+  rc = q65_intrinsics_fastfading(&codec,s3prob,s3,*submode,*B90,*fadingModel);
+  // rc = q65_intrinsics(&codec,s3prob,s3);
   if(rc<0) {
     printf("error in q65_intrinsics()\n");
     exit(0);

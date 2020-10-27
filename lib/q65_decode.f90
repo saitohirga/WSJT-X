@@ -54,7 +54,6 @@ contains
     integer*2 iwave(NMAX)                 !Raw data
     real, allocatable :: dd(:)            !Raw data
     integer dat4(13)                      !Decoded message as 12 6-bit integers
-    logical ltext
     logical unpk77_success
     complex, allocatable :: c00(:)        !Analytic signal, 6000 Sa/s
     complex, allocatable :: c0(:)         !Analytic signal, 6000 Sa/s
@@ -86,11 +85,6 @@ contains
     df1=12000.0/nfft1
     this%callback => callback    
     if(nutc.eq.-999) print*,lapdx,nfa,nfb,nfqso  !Silence warning
-
-! Prime the QRA decoder for possible use of AP
-!    call packcall(mycall(1:6),nc1,ltext)
-!    call packcall(hiscall(1:6),nc2,ltext)
-!    call packgrid(hisgrid(1:4),ng2,ltext)
     b90=20.0                 !8 to 25 is OK; not very critical
     nFadingModel=1
 
@@ -101,19 +95,6 @@ contains
     if(ndepth.ge.2) maxaptype=5       !###
     minsync=-2
     call qra_params(ndepth,maxaptype,idfmax,idtmax,ibwmin,ibwmax,maxdist)
-
-!    if(nc1.ne.nc1z .or. nc2.ne.nc2z .or. ng2.ne.ng2z .or.            &
-!         maxaptype.ne.maxaptypez) then
-!       do naptype=0,maxaptype
-!          if(naptype.eq.2 .and. maxaptype.eq.4) cycle
-!          call qra64_dec(s3dummy,nc1,nc2,ng2,naptype,1,nSubmode,b90,      &
-!               nFadingModel,dat4,snr2,irc)
-!       enddo
-!       nc1z=nc1
-!       nc2z=nc2
-!       ng2z=ng2
-!       maxaptypez=maxaptype
-!    endif
     naptype=maxaptype
 
     call timer('sync_q65',0)
@@ -131,7 +112,7 @@ contains
        call ana64(dd,npts,c00)
        call timer('q65loops',0)
        call q65_loops(c00,npts/2,nsps/2,nmode,mode65,nsubmode,nFadingModel,  &
-            ndepth,nc1,nc2,ng2,naptype,jpk0,xdt,f0,width,snr2,irc,dat4)
+            ndepth,jpk0,xdt,f0,width,snr2,irc,dat4)
        call timer('q65loops',1)
        snr2=snr2 + db(6912.0/nsps)
     endif

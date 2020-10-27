@@ -1,5 +1,5 @@
 subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
-     ndepth,nc1,nc2,ng2,naptype,jpk0,xdt,f0,width,snr2,irc,dat4)
+     ndepth,jpk0,xdt,f0,width,snr2,irc,dat4)
 
   use packjt77
   use timer_module, only: timer
@@ -68,14 +68,9 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
 !              if(b90.lt.0.15*width) exit
               ncall=ncall+1
               call timer('qra64_de',0)
-!###
-!              call qra64_dec(s3,nc1,nc2,ng2,naptype,0,nSubmode,b90,      &
-!                   nFadingModel,dat4,snr2,irc)
               APmask=0
               APsymbols=0
-              call s3fix(s3,s3tmp)
-              call q65_dec(s3tmp,APmask,APsymbols,s3prob,snr2,dat4,irc)
-!###
+              call q65_dec(s3,APmask,APsymbols,nsubmode,b90,nFadingModel,s3prob,snr2,dat4,irc)
               call timer('qra64_de',1)
               if(irc.eq.0) go to 200
 !              if(irc.gt.0) call badmsg(irc,dat4,nc1,nc2,ng2)
@@ -150,24 +145,3 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
   endif
   return
 end subroutine q65_loops
-
-subroutine s3fix(s3,s3tmp)
-  real s3(0:191,63)
-  real s3tmp(0:63,63)
-  integer ipk1(1)
-  integer y(63)
-  
-  do j=1,63
-     s3tmp(0:63,j)=s3(64:127,j)
-!     s3tmp(y(j),j)=1.0
-     ipk1=maxloc(s3(0:191,j))
-     m=ipk1(1)-65
-     ipk1=maxloc(s3tmp(0:63,j))
-     mtmp=ipk1(1)-1
-     write(72,3072) j,y(j),m,m-y(j),mtmp,mtmp-y(j)
-3072 format(6i7)
-  enddo
-  write(70) s3tmp
-
-  return
-end subroutine s3fix
