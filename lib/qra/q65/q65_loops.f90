@@ -71,9 +71,12 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
               APmask=0
               APsymbols=0
               call q65_dec(s3,APmask,APsymbols,nsubmode,b90,nFadingModel,s3prob,snr2,dat4,irc)
+              ! irc > 0 ==> number of iterations required to decode
+              !  -1 = invalid params
+              !  -2 = decode failed
+              !  -3 = CRC mismatch
               call timer('qra64_de',1)
-              if(irc.eq.0) go to 200
-!              if(irc.gt.0) call badmsg(irc,dat4,nc1,nc2,ng2)
+              if(irc.ge.0) go to 200
               iirc=max(0,min(irc,11))
               if(irc.gt.0 .and. nap(iirc).lt.napmin) then
                  dat4x=dat4
