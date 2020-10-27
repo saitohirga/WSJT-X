@@ -1,7 +1,7 @@
 program q65_ftn_test
 
   use packjt77
-  parameter (LL=64,NN=63)
+  parameter (LL=192,NN=63)
   integer x(13)              !User's 78-bit message as 13 six-bit integers
   integer y(63)              !Q65 codeword for x
   integer xdec(13)            !Decoded message
@@ -35,13 +35,14 @@ program q65_ftn_test
   s3=0.
   s3prob=0.
   do j=1,NN
-     s3(y(j),j)=1.0
+     s3(y(j)+64,j)=1.0
   enddo
   APmask=0
   APsymbols=0
-  
-  call q65_dec(s3,APmask,APsymbols,s3prob,snr2500,xdec,irc)
-
+  nsubmode=0
+  b90=1.0
+  nFadingModel=1
+  call q65_dec(s3,APmask,APsymbols,nsubmode,b90,nFadingModel,s3prob,snr2500,xdec,irc)
   write(c77,1000) xdec
   call unpack77(c77,0,msg,unpk77_success) !Unpack to get msgsent
   write(*,1100) xdec,trim(msg)
