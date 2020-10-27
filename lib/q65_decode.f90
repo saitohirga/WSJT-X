@@ -42,7 +42,7 @@ contains
 ! Output: sent to the callback routine for display to user
 
     use timer_module, only: timer
-    use packjt
+    use packjt77
     use, intrinsic :: iso_c_binding
     parameter (NMAX=300*12000)            !Max TRperiod is 300 s
     class(q65_decoder), intent(inout) :: this
@@ -50,10 +50,13 @@ contains
     character(len=12) :: mycall, hiscall  !Used for AP decoding
     character(len=6) :: hisgrid
     character*37 decoded                  !Decoded message
+    character*77 c77
     integer*2 iwave(NMAX)                 !Raw data
     real, allocatable :: dd(:)            !Raw data
     integer dat4(12)                      !Decoded message as 12 6-bit integers
+    integer dat4a(13)
     logical ltext
+    logical unpk77_success
     complex, allocatable :: c00(:)        !Analytic signal, 6000 Sa/s
     complex, allocatable :: c0(:)         !Analytic signal, 6000 Sa/s
     data nc1z/-1/,nc2z/-1/,ng2z/-1/,maxaptypez/-1/,nsubmodez/-1/
@@ -86,9 +89,9 @@ contains
     if(nutc.eq.-999) print*,lapdx,nfa,nfb,nfqso  !Silence warning
 
 ! Prime the QRA decoder for possible use of AP
-    call packcall(mycall(1:6),nc1,ltext)
-    call packcall(hiscall(1:6),nc2,ltext)
-    call packgrid(hisgrid(1:4),ng2,ltext)
+!    call packcall(mycall(1:6),nc1,ltext)
+!    call packcall(hiscall(1:6),nc2,ltext)
+!    call packgrid(hisgrid(1:4),ng2,ltext)
     b90=20.0                 !8 to 25 is OK; not very critical
     nFadingModel=1
 
@@ -100,18 +103,18 @@ contains
     minsync=-2
     call qra_params(ndepth,maxaptype,idfmax,idtmax,ibwmin,ibwmax,maxdist)
 
-    if(nc1.ne.nc1z .or. nc2.ne.nc2z .or. ng2.ne.ng2z .or.            &
-         maxaptype.ne.maxaptypez) then
-       do naptype=0,maxaptype
-          if(naptype.eq.2 .and. maxaptype.eq.4) cycle
-          call qra64_dec(s3dummy,nc1,nc2,ng2,naptype,1,nSubmode,b90,      &
-               nFadingModel,dat4,snr2,irc)
-       enddo
-       nc1z=nc1
-       nc2z=nc2
-       ng2z=ng2
-       maxaptypez=maxaptype
-    endif
+!    if(nc1.ne.nc1z .or. nc2.ne.nc2z .or. ng2.ne.ng2z .or.            &
+!         maxaptype.ne.maxaptypez) then
+!       do naptype=0,maxaptype
+!          if(naptype.eq.2 .and. maxaptype.eq.4) cycle
+!          call qra64_dec(s3dummy,nc1,nc2,ng2,naptype,1,nSubmode,b90,      &
+!               nFadingModel,dat4,snr2,irc)
+!       enddo
+!       nc1z=nc1
+!       nc2z=nc2
+!       ng2z=ng2
+!       maxaptypez=maxaptype
+!    endif
     naptype=maxaptype
 
     call timer('sync_q65',0)
@@ -127,16 +130,23 @@ contains
        dd=fac*iwave
        nmode=65
        call ana64(dd,npts,c00)
-       call timer('qraloops',0)
-       call qra_loops(c00,npts/2,nsps/2,nmode,mode65,nsubmode,nFadingModel,  &
+       call timer('q65loops',0)
+       call q65_loops(c00,npts/2,nsps/2,nmode,mode65,nsubmode,nFadingModel,  &
             ndepth,nc1,nc2,ng2,naptype,jpk0,xdt,f0,width,snr2,irc,dat4)
-       call timer('qraloops',1)
+       call timer('q65loops',1)
        snr2=snr2 + db(6912.0/nsps)
     endif
     decoded='                                     '
     if(irc.ge.0) then
-       call unpackmsg(dat4,decoded)               !Unpack the user message
-       call fmtmsg(decoded,iz)
+       dat4a(1:12)=dat4
+       dat4a(13)=9
+       write(74,3074) dat4a,1
+3074   format(13i3,i6)
+       write(c77,1000) dat4a
+1000   format(12b6.6,b5.5)
+       call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
+!       call unpackmsg(dat4,decoded)               !Unpack the user message
+!       call fmtmsg(decoded,iz)
        if(index(decoded,"000AAA ").ge.1) then
 ! Suppress a certain type of garbage decode.
           decoded='                      '
