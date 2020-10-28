@@ -77,34 +77,17 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
               !  -2 = decode failed
               !  -3 = CRC mismatch
               call timer('qra64_de',1)
-              if(irc.ge.0) go to 200
-              iirc=max(0,min(irc,11))
-              if(irc.gt.0 .and. nap(iirc).lt.napmin) then
-                 dat4x=dat4
-                 b90x=b90
-                 snr2x=snr2
-                 napmin=nap(iirc)
-                 irckeep=irc
-                 xdtkeep=jpk/6000.0 - 1.0
-                 f0keep=-a(1)
-                 idfkeep=idf
-                 idtkeep=idt
-                 ibwkeep=ibw
-                 ndistx=ndist
-                 go to 100   !###
-              endif
+              if(irc.ge.0) go to 100
            enddo  ! ibw (b90 loop)
-           !###        if(iand(ndepth,3).lt.3 .and. irc.ge.0) go to 100
         enddo  ! idt (DT loop)
      enddo  ! idf (f0 loop)
-!     if(iavg.eq.0 .and. abs(jpk0-4320).le.1300) then
      if(iavg.eq.0) then
         a=0.
         a(1)=-f0
         call twkfreq(c00,c0,npts2,6000.0,a)
-        jpk=3000                                 !###  These definitions need work ###
-!       if(nsps.ge.3600) jpk=4080                !###
-        if(nsps.ge.3600) jpk=6000                !###
+        jpk=3000                       !###  These definitions need work ###
+!       if(nsps.ge.3600) jpk=4080      !###
+        if(nsps.ge.3600) jpk=6000      !###
         call spec64(c0,nsps,mode,mode64,jpk,s3,LL,NN)
         call pctile(s3,LL*NN,40,base)
         s3=s3/base
@@ -113,32 +96,18 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
         nsave=nsave+1
      endif
      if(iavg.eq.0 .and. nsave.lt.2) exit
-  enddo  ! iavg 
-  
-100 if(napmin.ne.99) then
-     dat4=dat4x
-     b90=b90x
-     snr2=snr2x
-     irc=irckeep
-     xdt=xdtkeep
-     f0=f0keep
-     idt=idtkeep
-     idf=idfkeep
-     ibw=ibwkeep
-     ndist=ndistx
-  endif
+  enddo  ! iavg
 
-200 if(mode.eq.65 .and. nsps.eq.7200/2) xdt=xdt+0.4 !### Empirical -- WHY ??? ###
+100 if(mode.eq.65 .and. nsps.eq.7200/2) xdt=xdt+0.4 !### Empirical -- WHY ??? ###
 
   if(irc.ge.0) then
      navg=nsave
      if(iavg.eq.0) navg=0
      !### For tests only:
      open(53,file='fort.53',status='unknown',position='append')
-     write(c77,1200) dat4
-1200 format(12b6.6,b5.5)
+     write(c77,1100) dat4
+1100 format(12b6.6,b5.5)
      call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
-!     call unpackmsg(dat4,decoded)               !Unpack the user message
      write(53,3053) idf,idt,ibw,b90,xdt,f0,snr2,ndist,irc,navg,decoded(1:22)
 3053 format(3i5,f7.1,f7.2,2f7.1,3i4,2x,a22)
      close(53)
