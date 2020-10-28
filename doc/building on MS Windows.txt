@@ -1,0 +1,73 @@
+Building WSJT-X on MS Windows
+=============================
+
+Here I describe my set up, you  may have other preferences due to your
+favoured file system layout for  tools, utilities, and libraries. Many
+variations are possible,  use this guide as a template.  The aim is to
+provide an environment suitable for general development.
+
+Prerequisite Tools and Libraries
+================================
+
+Here is an overview list, details are filled out below:
+
+     * Qt Open Source Framework
+     * Cmake build system generator
+     * FFTW v3 DFT library
+     * libusb usb device library
+     * MSYS2 *nix like command line environment
+     * Hamlib rig control library
+     * Boost C++ libraries
+
+Qt Framework
+------------
+
+At the  time of writing I  recommend using Qt v5.15.0  64-bit, v5.15.1
+has a defect  that affects us so  is best avoided. You  need the MinGW
+version  as we  do not  support  the MSVC  version  due to  lack of  a
+suitable FOSS  Fortran complier. To  install the Qt developer  SDK you
+should download the official Qt  on-line installer, this allows you to
+install one or  more variants of the  Qt SDK and also  to maintain and
+update the installation  at a later date. There are  many versions and
+components within  versions available, you  only need the  base 64-bit
+MinGW framework for Qt v5.15.0,  other components can unchecked within
+the on-line installer.  The default install location is C:\Qt which is
+fine, do not  attempt to move the location of  the installed libraries
+if  you  decide you  want  it  elsewhere,  the installer  patches  the
+libraries for  the installed location  and it is easier  to un-install
+and re-install if you wish to change the installed location.
+
+CMake
+-----
+
+Download  and install  a recent  version from  the official  CMake web
+site. A  default installation is  fine. I am currently  using v3.18.3,
+versions as old as v3.9 should work.
+
+Other tools and libraries without installers
+--------------------------------------------
+
+For small  libraries that  don't have a  Windows installer  and change
+often  I locate  them under  a directory  C:\Tools.  This  location is
+arbitrary and just used to aggregate such items in one place, but this
+document assumes that location so you may need to adjust paths etc. if
+you use a different location.
+
+FFTW v3 DFT library
+-------------------
+
+The   MS   Windows   builds   of  FFTW3   can   be   downloaded   from
+http://www.fftw.org/install/windows.html  and unzipped  into C:\Tools.
+You only need the 64-bit package.
+
+libusb library
+--------------
+
+This  library  is  available  from  https://libusb.info/,  unzip  this
+package into C:\Tools.
+
+MSYS2
+-----
+
+This  utility is  available  from  https://www.msys2.org/. Follow  the
+download and installation instructions there.
