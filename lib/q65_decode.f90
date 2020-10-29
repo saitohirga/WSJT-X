@@ -29,7 +29,7 @@ module q65_decode
 contains
 
   subroutine decode(this,callback,iwave,nutc,ntrperiod,nsubmode,nfqso,   &
-       ntol,ndepth,mycall,hiscall,hisgrid)
+       ntol,ndepth,mycall,hiscall,hisgrid,ncontest,lapcqonly)
 
 ! Decodes Q65 signals
 ! Input:  iwave            Raw data, i*2
@@ -54,7 +54,7 @@ contains
     integer*2 iwave(NMAX)                 !Raw data
     real, allocatable :: dd(:)            !Raw data
     integer dat4(13)                      !Decoded message as 12 6-bit integers
-    logical unpk77_success
+    logical lapcqonly,unpk77_success
     complex, allocatable :: c00(:)        !Analytic signal, 6000 Sa/s
     complex, allocatable :: c0(:)         !Analytic signal, 6000 Sa/s
     data nc1z/-1/,nc2z/-1/,ng2z/-1/,maxaptypez/-1/,nsubmodez/-1/
