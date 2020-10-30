@@ -51,9 +51,13 @@ contains
     character(len=6) :: hisgrid
     character*37 decoded                  !Decoded message
     character*77 c77
+    character*78 c78
     integer*2 iwave(NMAX)                 !Raw data
     real, allocatable :: dd(:)            !Raw data
     integer dat4(13)                      !Decoded message as 12 6-bit integers
+    integer apsym0(58),aph10(10)
+    integer apmask1(78),apsymbols1(78)
+    integer apmask(13),apsymbols(13)
     logical lapcqonly,unpk77_success
     complex, allocatable :: c00(:)        !Analytic signal, 6000 Sa/s
     complex, allocatable :: c0(:)         !Analytic signal, 6000 Sa/s
@@ -101,39 +105,74 @@ contains
     call timer('sync_q65',1)
 
     irc=-1
-    if(snr1.ge.2.5) then
-       jpk0=(xdt+1.0)*6000                      !###
-       if(ntrperiod.le.30) jpk0=(xdt+0.5)*6000  !###
-       if(jpk0.lt.0) jpk0=0
-       fac=1.0/32767.0
-       dd=fac*iwave
-       nmode=65
-       call ana64(dd,npts,c00)
+    if(snr1.lt.2.5) go to 100
+    jpk0=(xdt+1.0)*6000                      !###
+    if(ntrperiod.le.30) jpk0=(xdt+0.5)*6000  !###
+    if(jpk0.lt.0) jpk0=0
+    fac=1.0/32767.0
+    dd=fac*iwave
+    nmode=65
+    call ana64(dd,npts,c00)
+
+    call ft8apset(mycall,hiscall,ncontest,apsym0,aph10)
+    where(apsym0.eq.-1) apsym0=0
+
+    npasses=2
+    if(nQSOprogress.eq.3 .or.nQSOprogress.eq.4) npasses=4
+    if(nQSOprogress.eq.5) npasses=3
+    if(lapcqonly) npasses=1
+    do ipass=0,npasses
+!       print*,'A',nQSOprogress,ipass,npasses
+       apmask=0
+       apsymbols=0
+       if(ipass.ge.1) then
+          call q65_ap(nQSOprogress,ipass,ncontest,lapcqonly,apsym0,apmask1, &
+               apsymbols1)
+          write(c78,1050) apmask1
+1050      format(78i1)
+          c78(75:78)='    '
+          read(c78,1060) apmask
+1060      format(13b6.6)
+          write(c78,1050) apsymbols1
+          read(c78,1060) apsymbols
+
+!          write(72,3060) 'A',ipass,apmask,apmask
+!3060      format(a1,i1,1x,13b6.6/3x,13i6)
+!          write(72,3060) 'B',ipass,apsymbols,apsymbols
+       endif
+
        call timer('q65loops',0)
        call q65_loops(c00,npts/2,nsps/2,nmode,mode65,nsubmode,nFadingModel,  &
-            ndepth,jpk0,xdt,f0,width,snr2,irc,dat4)
+            ndepth,jpk0,xdt,f0,width,ipass,apmask,apsymbols,snr2,irc,dat4)
        call timer('q65loops',1)
        snr2=snr2 + db(6912.0/nsps)
-    endif
-    decoded='                                     '
+       if(irc.ge.0) exit
+    enddo
+
+100 decoded='                                     '
     if(irc.ge.0) then
-       irc=(irc/100) * 100                  !### TEMPORARY ??? ###
+!###       
+!       irc=(irc/100) * 100                  !### TEMPORARY ??? ###
+       navg=irc/100
+       irc=ipass
+!###
        write(c77,1000) dat4
 1000   format(12b6.6,b5.5)
+
+!       write(72,3080) 'C',ipass,c77,'0'
+!3080   format(a1,i1,1x,a77,a1)
+!       write(72,3060) 'C',ipass,dat4,dat4
+       
        call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
        nsnr=nint(snr2)
        call this%callback(nutc,sync,nsnr,xdt,f0,decoded,              &
             irc,qual,ntrperiod,fmid,w50)
     else
+       ! Report sync, even if no decode.
        nsnr=db(snr1) - 35.0
-!### TEMPORARY? ###       
        call this%callback(nutc,sync,nsnr,xdt,f0,decoded,              &
             irc,qual,ntrperiod,fmid,w50)
-!###
     endif
-
-!    write(61,3061) nutc,irc,xdt,f0,snr1,snr2,trim(decoded)
-!3061 format(i6.6,i4,4f10.2,2x,a)
 
     return
   end subroutine decode

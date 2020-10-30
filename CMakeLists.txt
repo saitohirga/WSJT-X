@@ -497,6 +497,7 @@ set (wsjt_FSRCS
   lib/ps4.f90
   lib/qra64a.f90
   lib/qra_loops.f90
+  lib/qra/q65/q65_ap.f90
   lib/qra/q65/q65_loops.f90
   lib/refspectrum.f90
   lib/savec2.f90

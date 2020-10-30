@@ -1,5 +1,5 @@
 subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
-     ndepth,jpk0,xdt,f0,width,snr2,irc,dat4)
+     ndepth,jpk0,xdt,f0,width,ipass,APmask,APsymbols,snr2,irc,dat4)
 
   use packjt77
   use timer_module, only: timer
@@ -69,8 +69,8 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
               ncall=ncall+1
               call timer('qra64_de',0)
               call q65_intrinsics_ff(s3,nsubmode,b90,nFadingModel,s3prob)
-              APmask=0
-              APsymbols=0
+!              APmask=0
+!              APsymbols=0
               call q65_dec(s3,s3prob,APmask,APsymbols,snr2,dat4,irc)
               ! irc > 0 ==> number of iterations required to decode
               !  -1 = invalid params
@@ -108,8 +108,9 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
      write(c77,1100) dat4
 1100 format(12b6.6,b5.5)
      call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
-     write(53,3053) idf,idt,ibw,b90,xdt,f0,snr2,ndist,irc,navg,decoded(1:22)
-3053 format(3i5,f7.1,f7.2,2f7.1,3i4,2x,a22)
+     write(53,3053) idf,idt,ibw,b90,xdt,f0,snr2,ndist,irc,ipass,navg,  &
+          trim(decoded)
+3053 format(3i5,f7.1,f7.2,2f7.1,4i4,2x,a)
      close(53)
      !###  
      nsave=0
