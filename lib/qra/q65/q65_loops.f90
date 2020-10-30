@@ -69,7 +69,7 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
               ncall=ncall+1
               call timer('qra64_de',0)
               call q65_intrinsics_ff(s3,nsubmode,b90,nFadingModel,s3prob)
-              call q65_dec(s3,s3prob,APmask,APsymbols,snr2,dat4,irc)
+              call q65_dec(s3,s3prob,APmask,APsymbols,esnodb,dat4,irc)
               ! irc > 0 ==> number of iterations required to decode
               !  -1 = invalid params
               !  -2 = decode failed
@@ -84,8 +84,7 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
         a(1)=-f0
         call twkfreq(c00,c0,npts2,6000.0,a)
         jpk=3000                       !###  These definitions need work ###
-!       if(nsps.ge.3600) jpk=4080      !###
-        if(nsps.ge.3600) jpk=6000      !###
+        if(nsps.ge.3600) jpk=6000      !###  TR >= 60 s
         call spec64(c0,nsps,mode,mode64,jpk,s3,LL,NN)
         call pctile(s3,LL*NN,40,base)
         s3=s3/base
@@ -100,6 +99,8 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
 
   if(irc.ge.0) then
      navg=nsave
+     baud=6000.0/nsps
+     snr2=esnodb - db(2500.0/baud)
      if(iavg.eq.0) navg=0
      !### For tests only:
      open(53,file='fort.53',status='unknown',position='append')

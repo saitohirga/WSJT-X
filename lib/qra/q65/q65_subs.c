@@ -77,14 +77,14 @@ void q65_intrinsics_ff_(float s3[], int* submode, float* B90,
 }
 		
 void q65_dec_(float s3[], float s3prob[], int APmask[], int APsymbols[],
-	      float* snr2500, int xdec[], int* rc0)
+	      float* esnodb0, int xdec[], int* rc0)
 {
 
 /* Input:   s3prob[LL,NN]   Symbol-value intrinsic probabilities
  *          APmask[13]      AP information to be used in decoding
  *          APsymbols[13]   Available AP informtion
  * Output:  
- *          snr2500         SNR_2500 of decoded signal, or lower limit
+ *          esnodb0         Estimated Es/No in dB
  *          xdec[13]        Decoded 78-bit message as 13 six-bit integers
  *          rc0             Return code from q65_decode()
  */
@@ -98,7 +98,7 @@ void q65_dec_(float s3[], float s3prob[], int APmask[], int APsymbols[],
   // rc = -1:  Invalid params
   // rc = -2:  Decode failed
   // rc = -3:  CRC mismatch
-  *snr2500 = -31.0;
+  *esnodb0 = 0.0;             //Default Es/No for a failed decode
   if(rc<0) return;
 
   rc = q65_esnodb_fastfading(&codec,&esnodb,ydec,s3);
@@ -106,5 +106,5 @@ void q65_dec_(float s3[], float s3prob[], int APmask[], int APsymbols[],
     printf("error in q65_esnodb_fastfading()\n");
     exit(0);
   }
-  *snr2500 = esnodb - 31.0;
+  *esnodb0 = esnodb;
 }
