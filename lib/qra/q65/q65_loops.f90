@@ -67,14 +67,17 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
               if(b90.gt.230.0) cycle
 !              if(b90.lt.0.15*width) exit
               ncall=ncall+1
-              call timer('qra64_de',0)
+              call timer('q65_intr',0)
               call q65_intrinsics_ff(s3,nsubmode,b90,nFadingModel,s3prob)
+              call timer('q65_intr',1)
+
+              call timer('q65_dec ',0)
               call q65_dec(s3,s3prob,APmask,APsymbols,esnodb,dat4,irc)
+              call timer('q65_dec ',1)
               ! irc > 0 ==> number of iterations required to decode
               !  -1 = invalid params
               !  -2 = decode failed
               !  -3 = CRC mismatch
-              call timer('qra64_de',1)
               if(irc.ge.0) go to 100
            enddo  ! ibw (b90 loop)
         enddo  ! idt (DT loop)
