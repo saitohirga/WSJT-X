@@ -102,8 +102,8 @@ subroutine qra_params(ndepth,maxaptype,idf0max,idt0max,ibwmin,ibwmax,maxdist)
 
   integer iparam(7)
   logical first,ex
-! data iparam/3,5,3,11,0,9,30/     !Maximum effort
-  data iparam/2,5,3,11,3,9,10/     !Default values
+! data iparam/3,5,11,11,0,11,60/     !Maximum effort
+  data iparam/3,5,7,7,0,4,15/        !Default values
   data first/.true./
   save first,iparam
 
