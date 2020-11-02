@@ -83,9 +83,8 @@ public:
   struct Client
   {
     Client () = default;
-    Client (QHostAddress const& sender_address, port_type const& sender_port)
-      : sender_address_ {sender_address}
-      , sender_port_ {sender_port}
+    Client (port_type const& sender_port)
+      : sender_port_ {sender_port}
       , negotiated_schema_number_ {2} // not 1 because it's broken
       , last_activity_ {QDateTime::currentDateTime ()}
     {
@@ -93,12 +92,11 @@ public:
     Client (Client const&) = default;
     Client& operator= (Client const&) = default;
 
-    QHostAddress sender_address_;
     port_type sender_port_;
     quint32 negotiated_schema_number_;
     QDateTime last_activity_;
   };
-  QHash<QString, Client> clients_; // maps id to Client
+  QHash<ClientKey, Client> clients_; // maps id to Client
   QTimer * clock_;
 };
 
@@ -171,9 +169,10 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
       auto id = in.id ();
       if (OK == check_status (in))
         {
-          if (!clients_.contains (id))
+          auto client_key = ClientKey {sender, id};
+          if (!clients_.contains (client_key))
             {
-              auto& client = (clients_[id] = {sender, sender_port});
+              auto& client = (clients_[client_key] = {sender_port});
               QByteArray client_version;
               QByteArray client_revision;
 
@@ -194,7 +193,7 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                          << version_.toUtf8 () << revision_.toUtf8 ();
                       if (impl::OK == check_status (hb))
                         {
-                          writeDatagram (message, client.sender_address_, client.sender_port_);
+                          writeDatagram (message, client_key.first, sender_port);
                         }
                       else
                         {
@@ -204,10 +203,10 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                   // we don't care if this fails to read
                   in >> client_version >> client_revision;
                 }
-              Q_EMIT self_->client_opened (id, QString::fromUtf8 (client_version),
+              Q_EMIT self_->client_opened (client_key, QString::fromUtf8 (client_version),
                                            QString::fromUtf8 (client_revision));
             }
-          clients_[id].last_activity_ = QDateTime::currentDateTime ();
+          clients_[client_key].last_activity_ = QDateTime::currentDateTime ();
   
           //
           // message format is described in NetworkMessage.hpp
@@ -219,7 +218,7 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
               break;
 
             case NetworkMessage::Clear:
-              Q_EMIT self_->decodes_cleared (id);
+              Q_EMIT self_->decodes_cleared (client_key);
               break;
 
             case NetworkMessage::Status:
@@ -250,7 +249,8 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                    >> fast_mode >> special_op_mode >> frequency_tolerance >> tr_period >> configuration_name;
                 if (check_status (in) != Fail)
                   {
-                    Q_EMIT self_->status_update (id, f, QString::fromUtf8 (mode), QString::fromUtf8 (dx_call)
+                    Q_EMIT self_->status_update (client_key, f, QString::fromUtf8 (mode)
+                                                 , QString::fromUtf8 (dx_call)
                                                  , QString::fromUtf8 (report), QString::fromUtf8 (tx_mode)
                                                  , tx_enabled, transmitting, decoding, rx_df, tx_df
                                                  , QString::fromUtf8 (de_call), QString::fromUtf8 (de_grid)
@@ -278,7 +278,7 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                    >> message >> low_confidence >> off_air;
                 if (check_status (in) != Fail)
                   {
-                    Q_EMIT self_->decode (is_new, id, time, snr, delta_time, delta_frequency
+                    Q_EMIT self_->decode (is_new, client_key, time, snr, delta_time, delta_frequency
                                           , QString::fromUtf8 (mode), QString::fromUtf8 (message)
                                           , low_confidence, off_air);
                   }
@@ -302,7 +302,7 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                    >> off_air;
                 if (check_status (in) != Fail)
                   {
-                    Q_EMIT self_->WSPR_decode (is_new, id, time, snr, delta_time, frequency, drift
+                    Q_EMIT self_->WSPR_decode (is_new, client_key, time, snr, delta_time, frequency, drift
                                                , QString::fromUtf8 (callsign), QString::fromUtf8 (grid)
                                                , power, off_air);
                   }
@@ -333,8 +333,10 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                    >> exchange_sent >> exchange_rcvd >> prop_mode;
                 if (check_status (in) != Fail)
                   {
-                    Q_EMIT self_->qso_logged (id, time_off, QString::fromUtf8 (dx_call), QString::fromUtf8 (dx_grid)
-                                              , dial_frequency, QString::fromUtf8 (mode), QString::fromUtf8 (report_sent)
+                    Q_EMIT self_->qso_logged (client_key, time_off, QString::fromUtf8 (dx_call)
+                                              , QString::fromUtf8 (dx_grid)
+                                              , dial_frequency, QString::fromUtf8 (mode)
+                                              , QString::fromUtf8 (report_sent)
                                               , QString::fromUtf8 (report_received), QString::fromUtf8 (tx_power)
                                               , QString::fromUtf8 (comments), QString::fromUtf8 (name), time_on
                                               , QString::fromUtf8 (operator_call), QString::fromUtf8 (my_call)
@@ -345,8 +347,8 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
               break;
 
             case NetworkMessage::Close:
-              Q_EMIT self_->client_closed (id);
-              clients_.remove (id);
+              Q_EMIT self_->client_closed (client_key);
+              clients_.remove (client_key);
               break;
 
             case NetworkMessage::LoggedADIF:
@@ -355,7 +357,7 @@ void MessageServer::impl::parse_message (QHostAddress const& sender, port_type s
                 in >> ADIF;
                 if (check_status (in) != Fail)
                   {
-                    Q_EMIT self_->logged_ADIF (id, ADIF);
+                    Q_EMIT self_->logged_ADIF (client_key, ADIF);
                   }
               }
               break;
@@ -388,7 +390,7 @@ void MessageServer::impl::tick ()
     {
       if (now > (*iter).last_activity_.addSecs (NetworkMessage::pulse))
         {
-          Q_EMIT self_->clear_decodes (iter.key ());
+          Q_EMIT self_->decodes_cleared (iter.key ());
           Q_EMIT self_->client_closed (iter.key ());
           iter = clients_.erase (iter); // safe while iterating as doesn't rehash
         }
@@ -462,127 +464,127 @@ void MessageServer::start (port_type port, QHostAddress const& multicast_group_a
     }
 }
 
-void MessageServer::clear_decodes (QString const& id, quint8 window)
+void MessageServer::clear_decodes (ClientKey const& key, quint8 window)
 {
-  auto iter = m_->clients_.find (id);
+  auto iter = m_->clients_.find (key);
   if (iter != std::end (m_->clients_))
     {
       QByteArray message;
-      NetworkMessage::Builder out {&message, NetworkMessage::Clear, id, (*iter).negotiated_schema_number_};
+      NetworkMessage::Builder out {&message, NetworkMessage::Clear, key.second, (*iter).negotiated_schema_number_};
       out << window;
-      m_->send_message (out, message, iter.value ().sender_address_, (*iter).sender_port_);
+      m_->send_message (out, message, key.first, (*iter).sender_port_);
     }
 }
 
-void MessageServer::reply (QString const& id, QTime time, qint32 snr, float delta_time
+void MessageServer::reply (ClientKey const& key, QTime time, qint32 snr, float delta_time
                            , quint32 delta_frequency, QString const& mode
                            , QString const& message_text, bool low_confidence, quint8 modifiers)
 {
-  auto iter = m_->clients_.find (id);
+  auto iter = m_->clients_.find (key);
   if (iter != std::end (m_->clients_))
     {
       QByteArray message;
-      NetworkMessage::Builder out {&message, NetworkMessage::Reply, id, (*iter).negotiated_schema_number_};
+      NetworkMessage::Builder out {&message, NetworkMessage::Reply, key.second, (*iter).negotiated_schema_number_};
       out << time << snr << delta_time << delta_frequency << mode.toUtf8 ()
           << message_text.toUtf8 () << low_confidence << modifiers;
-      m_->send_message (out, message, iter.value ().sender_address_, (*iter).sender_port_);
+      m_->send_message (out, message, key.first, (*iter).sender_port_);
     }
 }
 
-void MessageServer::replay (QString const& id)
+void MessageServer::replay (ClientKey const& key)
 {
-  auto iter = m_->clients_.find (id);
+  auto iter = m_->clients_.find (key);
   if (iter != std::end (m_->clients_))
     {
       QByteArray message;
-      NetworkMessage::Builder out {&message, NetworkMessage::Replay, id, (*iter).negotiated_schema_number_};
-      m_->send_message (out, message, iter.value ().sender_address_, (*iter).sender_port_);
+      NetworkMessage::Builder out {&message, NetworkMessage::Replay, key.second, (*iter).negotiated_schema_number_};
+      m_->send_message (out, message, key.first, (*iter).sender_port_);
     }
 }
 
-void MessageServer::close (QString const& id)
+void MessageServer::close (ClientKey const& key)
 {
-  auto iter = m_->clients_.find (id);
+  auto iter = m_->clients_.find (key);
   if (iter != std::end (m_->clients_))
     {
       QByteArray message;
-      NetworkMessage::Builder out {&message, NetworkMessage::Close, id, (*iter).negotiated_schema_number_};
-      m_->send_message (out, message, iter.value ().sender_address_, (*iter).sender_port_);
+      NetworkMessage::Builder out {&message, NetworkMessage::Close, key.second, (*iter).negotiated_schema_number_};
+      m_->send_message (out, message, key.first, (*iter).sender_port_);
     }
 }
 
-void MessageServer::halt_tx (QString const& id, bool auto_only)
+void MessageServer::halt_tx (ClientKey const& key, bool auto_only)
 {
-  auto iter = m_->clients_.find (id);
+  auto iter = m_->clients_.find (key);
   if (iter != std::end (m_->clients_))
     {
       QByteArray message;
-      NetworkMessage::Builder out {&message, NetworkMessage::HaltTx, id, (*iter).negotiated_schema_number_};
+      NetworkMessage::Builder out {&message, NetworkMessage::HaltTx, key.second, (*iter).negotiated_schema_number_};
       out << auto_only;
-      m_->send_message (out, message, iter.value ().sender_address_, (*iter).sender_port_);
+      m_->send_message (out, message, key.first, (*iter).sender_port_);
     }
 }
 
-void MessageServer::free_text (QString const& id, QString const& text, bool send)
+void MessageServer::free_text (ClientKey const& key, QString const& text, bool send)
 {
-  auto iter = m_->clients_.find (id);
+  auto iter = m_->clients_.find (key);
   if (iter != std::end (m_->clients_))
     {
       QByteArray message;
-      NetworkMessage::Builder out {&message, NetworkMessage::FreeText, id, (*iter).negotiated_schema_number_};
+      NetworkMessage::Builder out {&message, NetworkMessage::FreeText, key.second, (*iter).negotiated_schema_number_};
       out << text.toUtf8 () << send;
-      m_->send_message (out, message, iter.value ().sender_address_, (*iter).sender_port_);
+      m_->send_message (out, message, key.first, (*iter).sender_port_);
     }
 }
 
-void MessageServer::location (QString const& id, QString const& loc)
+void MessageServer::location (ClientKey const& key, QString const& loc)
 {
-  auto iter = m_->clients_.find (id);
+  auto iter = m_->clients_.find (key);
   if (iter != std::end (m_->clients_))
   {
     QByteArray message;
-    NetworkMessage::Builder out {&message, NetworkMessage::Location, id, (*iter).negotiated_schema_number_};
+    NetworkMessage::Builder out {&message, NetworkMessage::Location, key.second, (*iter).negotiated_schema_number_};
     out << loc.toUtf8 ();
-    m_->send_message (out, message, iter.value ().sender_address_, (*iter).sender_port_);
+    m_->send_message (out, message, key.first, (*iter).sender_port_);
   }
 }
 
-void MessageServer::highlight_callsign (QString const& id, QString const& callsign
+void MessageServer::highlight_callsign (ClientKey const& key, QString const& callsign
                                         , QColor const& bg, QColor const& fg, bool last_only)
 {
-  auto iter = m_->clients_.find (id);
+  auto iter = m_->clients_.find (key);
   if (iter != std::end (m_->clients_))
   {
     QByteArray message;
-    NetworkMessage::Builder out {&message, NetworkMessage::HighlightCallsign, id, (*iter).negotiated_schema_number_};
+    NetworkMessage::Builder out {&message, NetworkMessage::HighlightCallsign, key.second, (*iter).negotiated_schema_number_};
     out << callsign.toUtf8 () << bg << fg << last_only;
-    m_->send_message (out, message, iter.value ().sender_address_, (*iter).sender_port_);
+    m_->send_message (out, message, key.first, (*iter).sender_port_);
   }
 }
 
-void MessageServer::switch_configuration (QString const& id, QString const& configuration_name)
+void MessageServer::switch_configuration (ClientKey const& key, QString const& configuration_name)
 {
-  auto iter = m_->clients_.find (id);
+  auto iter = m_->clients_.find (key);
   if (iter != std::end (m_->clients_))
   {
     QByteArray message;
-    NetworkMessage::Builder out {&message, NetworkMessage::SwitchConfiguration, id, (*iter).negotiated_schema_number_};
+    NetworkMessage::Builder out {&message, NetworkMessage::SwitchConfiguration, key.second, (*iter).negotiated_schema_number_};
     out << configuration_name.toUtf8 ();
-    m_->send_message (out, message, iter.value ().sender_address_, (*iter).sender_port_);
+    m_->send_message (out, message, key.first, (*iter).sender_port_);
   }
 }
 
-void MessageServer::configure (QString const& id, QString const& mode, quint32 frequency_tolerance
+void MessageServer::configure (ClientKey const& key, QString const& mode, quint32 frequency_tolerance
                                , QString const& submode, bool fast_mode, quint32 tr_period, quint32 rx_df
                                , QString const& dx_call, QString const& dx_grid, bool generate_messages)
 {
-  auto iter = m_->clients_.find (id);
+  auto iter = m_->clients_.find (key);
   if (iter != std::end (m_->clients_))
   {
     QByteArray message;
-    NetworkMessage::Builder out {&message, NetworkMessage::Configure, id, (*iter).negotiated_schema_number_};
+    NetworkMessage::Builder out {&message, NetworkMessage::Configure, key.second, (*iter).negotiated_schema_number_};
     out << mode.toUtf8 () << frequency_tolerance << submode.toUtf8 () << fast_mode << tr_period << rx_df
         << dx_call.toUtf8 () << dx_grid.toUtf8 () << generate_messages;
-    m_->send_message (out, message, iter.value ().sender_address_, (*iter).sender_port_);
+    m_->send_message (out, message, key.first, (*iter).sender_port_);
   }
 }

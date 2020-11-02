@@ -41,15 +41,17 @@ class Client
 {
   Q_OBJECT
 
+  using ClientKey = MessageServer::ClientKey;
+
 public:
-  explicit Client (QString const& id, QObject * parent = nullptr)
+  explicit Client (ClientKey const& key, QObject * parent = nullptr)
     : QObject {parent}
-    , id_ {id}
+    , key_ {key}
     , dial_frequency_ {0u}
   {
   }
 
-  Q_SLOT void update_status (QString const& id, Frequency f, QString const& mode, QString const& /*dx_call*/
+  Q_SLOT void update_status (ClientKey const& key, Frequency f, QString const& mode, QString const& /*dx_call*/
                              , QString const& /*report*/, QString const& /*tx_mode*/, bool /*tx_enabled*/
                              , bool /*transmitting*/, bool /*decoding*/, qint32 /*rx_df*/, qint32 /*tx_df*/
                              , QString const& /*de_call*/, QString const& /*de_grid*/, QString const& /*dx_grid*/
@@ -57,67 +59,73 @@ public:
                              , quint8 /*special_op_mode*/, quint32 /*frequency_tolerance*/, quint32 /*tr_period*/
                              , QString const& /*configuration_name*/)
   {
-    if (id == id_)
+    if (key == key_)
       {
         if (f != dial_frequency_)
           {
-            std::cout << tr ("%1: Dial frequency changed to %2").arg (id_).arg (f).toStdString () << std::endl;
+            std::cout << tr ("%1(%2): Dial frequency changed to %3")
+              .arg (key_.second).arg (key_.first.toString ()).arg (f).toStdString () << std::endl;
             dial_frequency_ = f;
           }
         if (mode + sub_mode != mode_)
           {
-            std::cout << tr ("%1: Mode changed to %2").arg (id_).arg (mode + sub_mode).toStdString () << std::endl;
+            std::cout << tr ("%1(%2): Mode changed to %3")
+              .arg (key_.second).arg (key_.first.toString ()).arg (mode + sub_mode).toStdString () << std::endl;
             mode_ = mode + sub_mode;
           }
       }
   }
 
-  Q_SLOT void decode_added (bool is_new, QString const& client_id, QTime time, qint32 snr
+  Q_SLOT void decode_added (bool is_new, ClientKey const& key, QTime time, qint32 snr
                             , float delta_time, quint32 delta_frequency, QString const& mode
                             , QString const& message, bool low_confidence, bool off_air)
   {
-    if (client_id == id_)
+    if (key == key_)
       {
         qDebug () << "new:" << is_new << "t:" << time << "snr:" << snr
                   << "Dt:" << delta_time << "Df:" << delta_frequency
                   << "mode:" << mode << "Confidence:" << (low_confidence ? "low" : "high")
                   << "On air:" << !off_air;
-        std::cout << tr ("%1: Decoded %2").arg (id_).arg (message).toStdString () << std::endl;
+        std::cout << tr ("%1(%2): Decoded %3")
+          .arg (key_.second).arg (key_.first.toString ()).arg (message).toStdString () << std::endl;
       }
   }
 
-  Q_SLOT void beacon_spot_added (bool is_new, QString const& client_id, QTime time, qint32 snr
+  Q_SLOT void beacon_spot_added (bool is_new, ClientKey const& key, QTime time, qint32 snr
       , float delta_time, Frequency delta_frequency, qint32 drift, QString const& callsign
                                  , QString const& grid, qint32 power, bool off_air)
   {
-    if (client_id == id_)
+    if (key == key_)
       {
         qDebug () << "new:" << is_new << "t:" << time << "snr:" << snr
                   << "Dt:" << delta_time << "Df:" << delta_frequency
                   << "drift:" << drift;
-        std::cout << tr ("%1: WSPR decode %2 grid %3 power: %4").arg (id_).arg (callsign).arg (grid).arg (power).toStdString ()
+        std::cout << tr ("%1(%2): WSPR decode %3 grid %4 power: %5")
+          .arg (key_.second).arg (key_.first.toString ()).arg (callsign).arg (grid).arg (power).toStdString ()
                   << "On air:" << !off_air << std::endl;
       }
   }
 
-  Q_SLOT void qso_logged (QString const&client_id, QDateTime time_off, QString const& dx_call, QString const& dx_grid
+  Q_SLOT void qso_logged (ClientKey const& key, QDateTime time_off, QString const& dx_call, QString const& dx_grid
                           , Frequency dial_frequency, QString const& mode, QString const& report_sent
                           , QString const& report_received, QString const& tx_power
                           , QString const& comments, QString const& name, QDateTime time_on
                           , QString const& operator_call, QString const& my_call, QString const& my_grid
                           , QString const& exchange_sent, QString const& exchange_rcvd, QString const& prop_mode)
   {
-      if (client_id == id_)
+      if (key == key_)
       {
-        qDebug () << "time_on:" << time_on << "time_off:" << time_off << "dx_call:" << dx_call << "grid:" << dx_grid
+        qDebug () << "time_on:" << time_on << "time_off:" << time_off << "dx_call:"
+                  << dx_call << "grid:" << dx_grid
                   << "freq:" << dial_frequency << "mode:" << mode << "rpt_sent:" << report_sent
                   << "rpt_rcvd:" << report_received << "Tx_pwr:" << tx_power << "comments:" << comments
                   << "name:" << name << "operator_call:" << operator_call << "my_call:" << my_call
                   << "my_grid:" << my_grid << "exchange_sent:" << exchange_sent
                   << "exchange_rcvd:" << exchange_rcvd << "prop_mode:" << prop_mode;
         std::cout << QByteArray {80, '-'}.data () << '\n';
-        std::cout << tr ("%1: Logged %2 grid: %3 power: %4 sent: %5 recd: %6 freq: %7 time_off: %8 op: %9 my_call: %10 my_grid: %11 exchange_sent: %12 exchange_rcvd: %13 comments: %14 prop_mode: %15")
-          .arg (id_).arg (dx_call).arg (dx_grid).arg (tx_power).arg (report_sent).arg (report_received)
+        std::cout << tr ("%1(%2): Logged %3 grid: %4 power: %5 sent: %6 recd: %7 freq: %8 time_off: %9 op: %10 my_call: %11 my_grid: %12 exchange_sent: %13 exchange_rcvd: %14 comments: %15 prop_mode: %16")
+          .arg (key_.second).arg (key.first.toString ()).arg (dx_call).arg (dx_grid).arg (tx_power)
+          .arg (report_sent).arg (report_received)
           .arg (dial_frequency).arg (time_off.toString("yyyy-MM-dd hh:mm:ss.z")).arg (operator_call)
           .arg (my_call).arg (my_grid).arg (exchange_sent).arg (exchange_rcvd)
           .arg (comments).arg (prop_mode).toStdString ()
@@ -125,9 +133,9 @@ public:
       }
   }
 
-  Q_SLOT void logged_ADIF (QString const&client_id, QByteArray const& ADIF)
+  Q_SLOT void logged_ADIF (ClientKey const& key, QByteArray const& ADIF)
   {
-      if (client_id == id_)
+      if (key == key_)
       {
         qDebug () << "ADIF:" << ADIF;
         std::cout << QByteArray {80, '-'}.data () << '\n';
@@ -136,7 +144,7 @@ public:
   }
 
 private:
-  QString id_;
+  ClientKey key_;
   Frequency dial_frequency_;
   QString mode_;
 };
@@ -145,6 +153,8 @@ class Server
   : public QObject
 {
   Q_OBJECT
+
+  using ClientKey = MessageServer::ClientKey;
 
 public:
   Server (port_type port, QHostAddress const& multicast_group, QStringList const& network_interface_names)
@@ -161,17 +171,18 @@ public:
   }
 
 private:
-  void add_client (QString const& id, QString const& version, QString const& revision)
+  void add_client (ClientKey const& key, QString const& version, QString const& revision)
   {
-    auto client = new Client {id};
+    auto client = new Client {key};
     connect (server_, &MessageServer::status_update, client, &Client::update_status);
     connect (server_, &MessageServer::decode, client, &Client::decode_added);
     connect (server_, &MessageServer::WSPR_decode, client, &Client::beacon_spot_added);
     connect (server_, &MessageServer::qso_logged, client, &Client::qso_logged);
     connect (server_, &MessageServer::logged_ADIF, client, &Client::logged_ADIF);
-    clients_[id] = client;
-    server_->replay (id);
-    std::cout << "Discovered WSJT-X instance: " << id.toStdString ();
+    clients_[key] = client;
+    server_->replay (key);
+    std::cout << "Discovered WSJT-X instance: " << key.second.toStdString ()
+              << '(' << key.first.toString ().toStdString () << ')';
     if (version.size ())
       {
         std::cout << " v" << version.toStdString ();
@@ -183,21 +194,22 @@ private:
     std::cout << std::endl;
   }
 
-  void remove_client (QString const& id)
+  void remove_client (ClientKey const& key)
   {
-    auto iter = clients_.find (id);
+    auto iter = clients_.find (key);
     if (iter != std::end (clients_))
       {
         clients_.erase (iter);
         (*iter)->deleteLater ();
       }
-    std::cout << "Removed WSJT-X instance: " << id.toStdString () << std::endl;
+    std::cout << "Removed WSJT-X instance: " << key.second.toStdString ()
+              << '(' << key.first.toString ().toStdString () << ')' << std::endl;
   }
 
   MessageServer * server_;
 
-  // maps client id to clients
-  QHash<QString, Client *> clients_;
+  // maps client key to clients
+  QHash<ClientKey, Client *> clients_;
 };
 
 #include "UDPDaemon.moc"
