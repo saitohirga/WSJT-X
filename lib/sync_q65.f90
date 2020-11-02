@@ -1,4 +1,4 @@
-subroutine sync_q65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1)
+subroutine sync_q65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1,width)
 
 ! Detect and align with the Q65 sync vector, returning time and frequency
 ! offsets and SNR estimate.
@@ -118,9 +118,17 @@ subroutine sync_q65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1)
 !  enddo
 
 !  do i=-ia,ia
-!     write(56,3056) i*df,ccf(i,0)/rms
+!     write(56,3056) i*df,ccf(i,jpk)/rms
 !3056 format(2f10.3)
 !  enddo
+!  flush(56)
+
+  acf0=dot_product(ccf(-ia:ia,jpk),ccf(-ia:ia,jpk))
+  do i=1,ia
+     acf=dot_product(ccf(-ia:ia,jpk),ccf(-ia+i:ia+i,jpk))
+     if(acf.le.0.5*acf0) exit
+  enddo
+  width=i*1.414*df
 
   return
 end subroutine sync_q65

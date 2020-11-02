@@ -61,8 +61,6 @@ contains
     logical lapcqonly,unpk77_success
     complex, allocatable :: c00(:)        !Analytic signal, 6000 Sa/s
     complex, allocatable :: c0(:)         !Analytic signal, 6000 Sa/s
-    data nc1z/-1/,nc2z/-1/,ng2z/-1/,maxaptypez/-1/,nsubmodez/-1/
-    save nc1z,nc2z,ng2z,maxaptypez,nsubmodez
 
     mode65=2**nsubmode
     nfft1=ntrperiod*12000
@@ -90,23 +88,16 @@ contains
     this%callback => callback
     if(nutc.eq.-999) print*,lapdx,nfa,nfb,nfqso  !Silence warning
     nFadingModel=1
-
-! AP control could be done differently, but this works well:
-    maxaptype=0
-!    if(ndepth.eq.2) maxaptype=3
-!    if(ndepth.eq.3) maxaptype=5
-    if(ndepth.ge.2) maxaptype=5       !###
-    minsync=-2
     call qra_params(ndepth,maxaptype,idfmax,idtmax,ibwmin,ibwmax,maxdist)
-    naptype=maxaptype
 
     call timer('sync_q65',0)
-    call sync_q65(iwave,ntrperiod*12000,mode65,nsps,nfqso,ntol,xdt,f0,snr1)
+    call sync_q65(iwave,ntrperiod*12000,mode65,nsps,nfqso,ntol,xdt,f0,   &
+         snr1,width)
     call timer('sync_q65',1)
 
     irc=-1
     if(snr1.lt.2.5) go to 100
-    jpk0=(xdt+1.0)*6000                      !###
+    jpk0=(xdt+1.0)*6000                      !### Is this OK?
     if(ntrperiod.le.30) jpk0=(xdt+0.5)*6000  !###
     if(jpk0.lt.0) jpk0=0
     fac=1.0/32767.0
@@ -122,7 +113,6 @@ contains
     if(nQSOprogress.eq.5) npasses=3
     if(lapcqonly) npasses=1
     do ipass=0,npasses
-!       print*,'A',nQSOprogress,ipass,npasses
        apmask=0
        apsymbols=0
        if(ipass.ge.1) then
@@ -135,9 +125,6 @@ contains
           write(c78,1050) apsymbols1
           read(c78,1060) apsymbols
           apsymbols(13)=apsymbols(13)/2              !Fixup for c77-->c78
-!          write(72,3060) 'A',ipass,apmask,apmask
-!3060      format(a1,i1,1x,13b6.6/3x,13i6)
-!          write(72,3060) 'B',ipass,apsymbols,apsymbols
        endif
        call timer('q65loops',0)
        call q65_loops(c00,npts/2,nsps/2,nmode,mode65,nsubmode,nFadingModel,  &
@@ -149,24 +136,19 @@ contains
 
 100 decoded='                                     '
     if(irc.ge.0) then
-!###       
-!       irc=(irc/100) * 100                  !### TEMPORARY ??? ###
+!###
        navg=irc/100
        irc=ipass
 !###
        write(c77,1000) dat4
 1000   format(12b6.6,b5.5)
 
-!       write(72,3080) 'C',ipass,c77,'0'
-!3080   format(a1,i1,1x,a77,a1)
-!       write(72,3060) 'C',ipass,dat4,dat4
-       
        call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
        nsnr=nint(snr2)
        call this%callback(nutc,sync,nsnr,xdt,f0,decoded,              &
             irc,qual,ntrperiod,fmid,w50)
     else
-       ! Report sync, even if no decode.
+! Report sync, even if no decode.
        nsnr=db(snr1) - 35.0
        call this%callback(nutc,sync,nsnr,xdt,f0,decoded,              &
             irc,qual,ntrperiod,fmid,w50)

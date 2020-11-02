@@ -21,6 +21,7 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
   data nap/0,2,3,2,3,4,2,3,6,4,6,6/,nsave/0/
   save nsave,s3avg
 
+  ircbest=9999
   allocate(c0(0:npts2-1))
   irc=-99
   s3lim=20.
@@ -32,7 +33,7 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
   LL=64*(mode64+2)
   NN=63
   napmin=99
-  ncall=0
+  baud=6000.0/nsps
 
   do iavg=0,1
      if(iavg.eq.1) then
@@ -43,13 +44,13 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
         ndf=idf/2
         if(mod(idf,2).eq.0) ndf=-ndf
         a=0.
-        a(1)=-(f0+0.4*ndf)
+        a(1)=-(f0+0.5*baud*ndf)
         call twkfreq(c00,c0,npts2,6000.0,a)
         do idt=1,idtmax
            ndt=idt/2
            if(iavg.eq.0) then
               if(mod(idt,2).eq.0) ndt=-ndt
-              jpk=jpk0 + 240*ndt                  !240/6000 = 0.04 s = tsym/32
+              jpk=jpk0 + nsps*ndt/16              !tsym/16
               if(jpk.lt.0) jpk=0
               call timer('spec64  ',0)
               call spec64(c0,nsps,mode,mode64,jpk,s3,LL,NN)
@@ -60,13 +61,14 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
            else
               s3(1:LL*NN)=s3avg(1:LL*NN)
            endif
-           do ibw=ibwmax,ibwmin,-2
-              ndist=ndf**2 + ndt**2 + ((ibwmax-ibw)/2)**2
+           do ibw=ibwmin,ibwmax
+              nbw=ibw
+              ndist=ndf**2 + ndt**2 + ((nbw-2))**2
               if(ndist.gt.maxdist) cycle
-              b90=1.728**ibw
+!              b90=1.728**ibw
+              b90=3.0**nbw
               if(b90.gt.230.0) cycle
 !              if(b90.lt.0.15*width) exit
-              ncall=ncall+1
               call timer('q65_intr',0)
               call q65_intrinsics_ff(s3,nsubmode,b90,nFadingModel,s3prob)
               call timer('q65_intr',1)
@@ -74,11 +76,11 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
               call timer('q65_dec ',0)
               call q65_dec(s3,s3prob,APmask,APsymbols,esnodb,dat4,irc)
               call timer('q65_dec ',1)
+              if(irc.ge.0) go to 100
               ! irc > 0 ==> number of iterations required to decode
               !  -1 = invalid params
               !  -2 = decode failed
               !  -3 = CRC mismatch
-              if(irc.ge.0) go to 100
            enddo  ! ibw (b90 loop)
         enddo  ! idt (DT loop)
      enddo  ! idf (f0 loop)
@@ -86,7 +88,7 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
         a=0.
         a(1)=-f0
         call twkfreq(c00,c0,npts2,6000.0,a)
-        jpk=3000                       !###  These definitions need work ###
+        jpk=3000                       !###  Are these definitions OK?
         if(nsps.ge.3600) jpk=6000      !###  TR >= 60 s
         call spec64(c0,nsps,mode,mode64,jpk,s3,LL,NN)
         call pctile(s3,LL*NN,40,base)
@@ -98,26 +100,24 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
      if(iavg.eq.0 .and. nsave.lt.2) exit
   enddo  ! iavg
 
-100 if(mode.eq.65 .and. nsps.eq.7200/2) xdt=xdt+0.4 !### Empirical -- WHY ??? ###
-
-  if(irc.ge.0) then
+100  if(irc.ge.0) then
      navg=nsave
-     baud=6000.0/nsps
      snr2=esnodb - db(2500.0/baud)
      if(iavg.eq.0) navg=0
-     !### For tests only:
+!### For tests only:
      open(53,file='fort.53',status='unknown',position='append')
      write(c77,1100) dat4
 1100 format(12b6.6,b5.5)
      call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
-     write(53,3053) idf,idt,ibw,b90,xdt,f0,snr2,ndist,irc,ipass,navg,  &
+     write(53,3053) ndf,ndt,nbw,b90,xdt,f0,snr2,ndist,irc,ipass,navg,  &
           trim(decoded)
 3053 format(3i5,f7.1,f7.2,2f7.1,4i4,2x,a)
      close(53)
-     !###  
+!###  
      nsave=0
      s3avg=0.
      irc=irc + 100*navg
   endif
+
   return
 end subroutine q65_loops

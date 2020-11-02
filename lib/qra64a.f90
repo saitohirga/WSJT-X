@@ -22,7 +22,7 @@ subroutine qra64a(dd,npts,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,   &
   nft=99
   if(nfqso.lt.nf1 .or. nfqso.gt.nf2) go to 900
 
-  mycall=mycall_12(1:6)                     !### May need fixing ###
+  mycall=mycall_12(1:6)                     !### May need fixing? ###
   hiscall=hiscall_12(1:6)
   hisgrid=hisgrid_6(1:4)
   call packcall(mycall,nc1,ltext)
