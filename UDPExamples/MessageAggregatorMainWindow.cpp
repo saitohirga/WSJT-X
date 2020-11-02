@@ -184,13 +184,16 @@ MessageAggregatorMainWindow::MessageAggregatorMainWindow ()
   connect (server_, &MessageServer::client_closed, this, &MessageAggregatorMainWindow::remove_client);
   connect (server_, &MessageServer::client_closed, decodes_model_, &DecodesModel::decodes_cleared);
   connect (server_, &MessageServer::client_closed, beacons_model_, &BeaconsModel::decodes_cleared);
-  connect (server_, &MessageServer::decode, [this] (bool is_new, QString const& id, QTime time
+  connect (server_, &MessageServer::decode, [this] (bool is_new, ClientKey const& key, QTime time
                                                     , qint32 snr, float delta_time
                                                     , quint32 delta_frequency, QString const& mode
                                                     , QString const& message, bool low_confidence
                                                     , bool off_air) {
-             decodes_model_->add_decode (is_new, id, time, snr, delta_time, delta_frequency, mode, message
-                                         , low_confidence, off_air, dock_widgets_[id]->fast_mode ());});
+                                              decodes_model_->add_decode (is_new, key, time, snr, delta_time
+                                                                          , delta_frequency, mode, message
+                                                                          , low_confidence, off_air
+                                                                          , dock_widgets_[key]->fast_mode ());
+                                            });
   connect (server_, &MessageServer::WSPR_decode, beacons_model_, &BeaconsModel::add_beacon_spot);
   connect (server_, &MessageServer::decodes_cleared, decodes_model_, &DecodesModel::decodes_cleared);
   connect (server_, &MessageServer::decodes_cleared, beacons_model_, &BeaconsModel::decodes_cleared);
@@ -207,7 +210,8 @@ MessageAggregatorMainWindow::MessageAggregatorMainWindow ()
   show ();
 }
 
-void MessageAggregatorMainWindow::log_qso (QString const& /*id*/, QDateTime time_off, QString const& dx_call
+void MessageAggregatorMainWindow::log_qso (ClientKey const& /*key*/, QDateTime time_off
+                                           , QString const& dx_call
                                            , QString const& dx_grid, Frequency dial_frequency, QString const& mode
                                            , QString const& report_sent, QString const& report_received
                                            , QString const& tx_power, QString const& comments
@@ -240,9 +244,9 @@ void MessageAggregatorMainWindow::log_qso (QString const& /*id*/, QDateTime time
   log_table_view_->scrollToBottom ();
 }
 
-void MessageAggregatorMainWindow::add_client (QString const& id, QString const& version, QString const& revision)
+void MessageAggregatorMainWindow::add_client (ClientKey const& key, QString const& version, QString const& revision)
 {
-  auto dock = new ClientWidget {decodes_model_, beacons_model_, id, version, revision, calls_of_interest_, this};
+  auto dock = new ClientWidget {decodes_model_, beacons_model_, key, version, revision, calls_of_interest_, this};
   dock->setAttribute (Qt::WA_DeleteOnClose);
   auto view_action = dock->toggleViewAction ();
   view_action->setEnabled (true);
@@ -262,13 +266,13 @@ void MessageAggregatorMainWindow::add_client (QString const& id, QString const& 
   connect (dock, &ClientWidget::highlight_callsign, server_, &MessageServer::highlight_callsign);
   connect (dock, &ClientWidget::switch_configuration, server_, &MessageServer::switch_configuration);
   connect (dock, &ClientWidget::configure, server_, &MessageServer::configure);
-  dock_widgets_[id] = dock;
-  server_->replay (id);         // request decodes and status
+  dock_widgets_[key] = dock;
+  server_->replay (key);        // request decodes and status
 }
 
-void MessageAggregatorMainWindow::remove_client (QString const& id)
+void MessageAggregatorMainWindow::remove_client (ClientKey const& key)
 {
-  auto iter = dock_widgets_.find (id);
+  auto iter = dock_widgets_.find (key);
   if (iter != std::end (dock_widgets_))
     {
       (*iter)->dispose ();
@@ -287,9 +291,9 @@ MessageAggregatorMainWindow::~MessageAggregatorMainWindow ()
 void MessageAggregatorMainWindow::change_highlighting (QString const& call, QColor const& bg, QColor const& fg
                                                        , bool last_only)
 {
-  for (auto id : dock_widgets_.keys ())
+  for (auto key : dock_widgets_.keys ())
     {
-      server_->highlight_callsign (id, call, bg, fg, last_only);
+      server_->highlight_callsign (key, call, bg, fg, last_only);
     }
 }
 
