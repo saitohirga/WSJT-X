@@ -15,10 +15,10 @@ subroutine sync_q65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1,width)
   parameter (NSTEP=8)                    !Step size nsps/NSTEP
   integer*2 iwave(0:nmax-1)              !Raw data
   integer isync(22)                      !Indices of sync symbols
-  integer ijpk(2)                        !Indices i and j at peak of ccf
   real, allocatable :: s1(:,:)           !Symbol spectra, quarter-symbol steps
+  real, allocatable :: ccf(:,:)          !CCF(freq,lag)
+  real, allocatable :: ccf1(:)           !CCF(freq) at best lag
   real sync(85)                          !sync vector 
-  real ccf(-64:64,-53:214)               !CCF(freq,time)
   complex, allocatable :: c0(:)          !Complex spectrum of symbol
   data isync/1,9,12,13,15,22,23,26,27,33,35,38,46,50,55,60,62,66,69,74,76,85/
   data sync(1)/99.0/
@@ -31,9 +31,12 @@ subroutine sync_q65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1,width)
   txt=85.0*nsps/12000.0
   jz=(txt+1.0)*12000.0/istep             !Number of quarter-symbol steps
   if(nsps.ge.6912) jz=(txt+2.0)*12000.0/istep   !For TR 60 s and higher
+  ia=ntol/df
 
   allocate(s1(iz,jz))
   allocate(c0(0:nfft-1))
+  allocate(ccf(-ia:ia,-53:214))
+  allocate(ccf1(-ia:ia))
 
   if(sync(1).eq.99.0) then               !Generate the sync vector
      sync=-22.0/63.0                     !Sync tone OFF  
@@ -74,7 +77,7 @@ subroutine sync_q65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1,width)
   enddo
 
   dtstep=nsps/(NSTEP*12000.0)                 !Step size in seconds
-  ia=min(64,nint(ntol/df))
+  ia=ntol/df
   lag1=-1.0/dtstep
   lag2=1.0/dtstep + 0.9999
   j0=0.5/dtstep
@@ -94,9 +97,19 @@ subroutine sync_q65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1,width)
      enddo
   enddo
 
-  ijpk=maxloc(ccf)
-  ipk=ijpk(1)-65
-  jpk=ijpk(2)-54
+  ic=ntol/df
+  ccfmax=0.
+  ipk=0
+  jpk=0
+  do i=-ic,ic
+     do j=lag1,lag2
+        if(ccf(i,j).gt.ccfmax) then
+           ipk=i
+           jpk=j
+           ccfmax=ccf(i,j)
+        endif
+     enddo
+  enddo
   f0=nfqso + ipk*df
   xdt=jpk*dtstep
   
@@ -123,9 +136,10 @@ subroutine sync_q65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1,width)
 !  enddo
 !  flush(56)
 
-  acf0=dot_product(ccf(-ia:ia,jpk),ccf(-ia:ia,jpk))
+  ccf1=ccf(-ia:ia,jpk)
+  acf0=dot_product(ccf1,ccf1)
   do i=1,ia
-     acf=dot_product(ccf(-ia:ia,jpk),ccf(-ia+i:ia+i,jpk))
+     acf=dot_product(ccf1,cshift(ccf1,i))
      if(acf.le.0.5*acf0) exit
   enddo
   width=i*1.414*df
