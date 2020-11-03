@@ -12,11 +12,10 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
   real s3(LN)                      !Symbol spectra
   real s3avg(LN)                   !Averaged symbol spectra
   real s3prob(LN)                  !Symbol-value probabilities
-  real s3tmp(4032)
   logical unpk77_success
   integer APmask(13)
   integer APsymbols(13)
-  integer dat4(13),dat4x(13)       !Decoded message (as 13 six-bit integers)
+  integer dat4(13)                 !Decoded message (as 13 six-bit integers)
   integer nap(0:11)                !AP return codes
   data nap/0,2,3,2,3,4,2,3,6,4,6,6/,nsave/0/
   save nsave,s3avg
@@ -105,13 +104,14 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
      snr2=esnodb - db(2500.0/baud)
      if(iavg.eq.0) navg=0
 !### For tests only:
-     open(53,file='fort.53',status='unknown')
+     open(53,file='fort.53',status='unknown',position='append')
      write(c77,1100) dat4
 1100 format(12b6.6,b5.5)
      call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
      write(53,3053) ndf,ndt,nbw,b90,xdt,f0,snr2,ndist,irc,ipass,navg,  &
           snr1,trim(decoded)
 3053 format(3i4,f6.1,f6.2,f7.1,f6.1,4i4,f7.2,1x,a)
+     close(53)
 !###  
      nsave=0
      s3avg=0.
