@@ -241,6 +241,7 @@ set (wsjt_qt_CXXSRCS
   logbook/Multiplier.cpp
   Network/NetworkAccessManager.cpp
   widgets/LazyFillComboBox.cpp
+  widgets/CheckableItemComboBox.cpp
   )
 
 set (wsjt_qtmm_CXXSRCS
