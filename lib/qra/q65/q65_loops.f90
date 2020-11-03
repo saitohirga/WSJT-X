@@ -1,5 +1,5 @@
 subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
-     ndepth,jpk0,xdt,f0,width,ipass,APmask,APsymbols,snr2,irc,dat4)
+     ndepth,jpk0,xdt,f0,width,ipass,APmask,APsymbols,snr1,snr2,irc,dat4)
 
   use packjt77
   use timer_module, only: timer
@@ -105,14 +105,13 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
      snr2=esnodb - db(2500.0/baud)
      if(iavg.eq.0) navg=0
 !### For tests only:
-     open(53,file='fort.53',status='unknown',position='append')
+     open(53,file='fort.53',status='unknown')
      write(c77,1100) dat4
 1100 format(12b6.6,b5.5)
      call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
      write(53,3053) ndf,ndt,nbw,b90,xdt,f0,snr2,ndist,irc,ipass,navg,  &
-          trim(decoded)
-3053 format(3i5,f7.1,f7.2,2f7.1,4i4,2x,a)
-     close(53)
+          snr1,trim(decoded)
+3053 format(3i4,f6.1,f6.2,f7.1,f6.1,4i4,f7.2,1x,a)
 !###  
      nsave=0
      s3avg=0.
