@@ -117,6 +117,16 @@ namespace std
 }
 #endif
 
+inline
+bool is_broadcast_address (QHostAddress const& host_addr)
+{
+#if QT_VERSION >= 0x051100
+  return host_addr.isBroadcast ();
+#else
+  bool ok;
+  return host_addr.toIPv4Address (&ok) == 0xffffffffu && ok;
+#endif
+}
 
 inline
 bool is_multicast_address (QHostAddress const& host_addr)
