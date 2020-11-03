@@ -120,7 +120,7 @@ namespace std
 inline
 bool is_broadcast_address (QHostAddress const& host_addr)
 {
-#if QT_VERSION >= 0x051100
+#if QT_VERSION >= QT_VERSION_CHECK (5, 11, 0)
   return host_addr.isBroadcast ();
 #else
   bool ok;
@@ -131,7 +131,7 @@ bool is_broadcast_address (QHostAddress const& host_addr)
 inline
 bool is_multicast_address (QHostAddress const& host_addr)
 {
-#if QT_VERSION >= 0x050600
+#if QT_VERSION >= QT_VERSION_CHECK (5, 6, 0)
   return host_addr.isMulticast ();
 #else
   bool ok;
