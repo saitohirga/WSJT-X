@@ -10,7 +10,7 @@ class QWidget;
 //
 // QComboBox derivative that signals show and hide of the pop up list.
 //
-class LazyFillComboBox final
+class LazyFillComboBox
   : public QComboBox
 {
   Q_OBJECT

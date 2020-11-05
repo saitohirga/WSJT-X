@@ -65,14 +65,14 @@ public:
       {
         if (f != dial_frequency_)
           {
-            std::cout << tr ("%1(%2): Dial frequency changed to %3")
-              .arg (key_.second).arg (key_.first.toString ()).arg (f).toStdString () << std::endl;
+            std::cout << QString {"%1(%2): "}.arg (key_.second).arg (key_.first.toString ()).toStdString ()
+                      << QString {"Dial frequency changed to %1"}.arg (f).toStdString () << std::endl;
             dial_frequency_ = f;
           }
         if (mode + sub_mode != mode_)
           {
-            std::cout << tr ("%1(%2): Mode changed to %3")
-              .arg (key_.second).arg (key_.first.toString ()).arg (mode + sub_mode).toStdString () << std::endl;
+            std::cout << QString {"%1(%2): "}.arg (key_.second).arg (key_.first.toString ()).toStdString ()
+                      << QString {"Mode changed to %1"}.arg (mode + sub_mode).toStdString () << std::endl;
             mode_ = mode + sub_mode;
           }
       }
@@ -88,8 +88,8 @@ public:
                   << "Dt:" << delta_time << "Df:" << delta_frequency
                   << "mode:" << mode << "Confidence:" << (low_confidence ? "low" : "high")
                   << "On air:" << !off_air;
-        std::cout << tr ("%1(%2): Decoded %3")
-          .arg (key_.second).arg (key_.first.toString ()).arg (message).toStdString () << std::endl;
+        std::cout << QString {"%1(%2): "}.arg (key_.second).arg (key_.first.toString ()).toStdString ()
+                  << QString {"Decoded %1"}.arg (message).toStdString () << std::endl;
       }
   }
 
@@ -102,8 +102,9 @@ public:
         qDebug () << "new:" << is_new << "t:" << time << "snr:" << snr
                   << "Dt:" << delta_time << "Df:" << delta_frequency
                   << "drift:" << drift;
-        std::cout << tr ("%1(%2): WSPR decode %3 grid %4 power: %5")
-          .arg (key_.second).arg (key_.first.toString ()).arg (callsign).arg (grid).arg (power).toStdString ()
+        std::cout << QString {"%1(%2): "}.arg (key_.second).arg (key_.first.toString ()).toStdString ()
+                  << QString {"WSPR decode %1 grid %2 power: %3"}
+                       .arg (callsign).arg (grid).arg (power).toStdString ()
                   << "On air:" << !off_air << std::endl;
       }
   }
@@ -125,12 +126,13 @@ public:
                   << "my_grid:" << my_grid << "exchange_sent:" << exchange_sent
                   << "exchange_rcvd:" << exchange_rcvd << "prop_mode:" << prop_mode;
         std::cout << QByteArray {80, '-'}.data () << '\n';
-        std::cout << tr ("%1(%2): Logged %3 grid: %4 power: %5 sent: %6 recd: %7 freq: %8 time_off: %9 op: %10 my_call: %11 my_grid: %12 exchange_sent: %13 exchange_rcvd: %14 comments: %15 prop_mode: %16")
-          .arg (key_.second).arg (key.first.toString ()).arg (dx_call).arg (dx_grid).arg (tx_power)
-          .arg (report_sent).arg (report_received)
-          .arg (dial_frequency).arg (time_off.toString("yyyy-MM-dd hh:mm:ss.z")).arg (operator_call)
-          .arg (my_call).arg (my_grid).arg (exchange_sent).arg (exchange_rcvd)
-          .arg (comments).arg (prop_mode).toStdString ()
+        std::cout << QString {"%1(%2): "}.arg (key_.second).arg (key_.first.toString ()).toStdString ()
+                  << QString {"Logged %1 grid: %2 power: %3 sent: %4 recd: %5 freq: %6 time_off: %7 op: %8 my_call: %9 my_grid: %10 exchange_sent: %11 exchange_rcvd: %12 comments: %13 prop_mode: %14"}
+                       .arg (dx_call).arg (dx_grid).arg (tx_power)
+                       .arg (report_sent).arg (report_received)
+                       .arg (dial_frequency).arg (time_off.toString("yyyy-MM-dd hh:mm:ss.z")).arg (operator_call)
+                       .arg (my_call).arg (my_grid).arg (exchange_sent).arg (exchange_rcvd)
+                       .arg (comments).arg (prop_mode).toStdString ()
                   << std::endl;
       }
   }

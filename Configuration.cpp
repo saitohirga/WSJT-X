@@ -166,6 +166,7 @@
 #include <QNetworkInterface>
 #include <QHostInfo>
 #include <QHostAddress>
+#include <QStandardItem>
 #include <QDebug>
 
 #include "pimpl_impl.hpp"
@@ -442,7 +443,8 @@ private:
   void load_audio_devices (QAudio::Mode, QComboBox *, QAudioDeviceInfo *);
   void update_audio_channels (QComboBox const *, int, QComboBox *, bool);
 
-  void load_network_interfaces (QComboBox *, QString const& current);
+  void load_network_interfaces (CheckableItemComboBox *, QStringList const& current);
+  QStringList get_selected_network_interfaces (CheckableItemComboBox *);
   Q_SLOT void host_info_results (QHostInfo);
   void check_multicast (QHostAddress const&);
 
@@ -653,7 +655,7 @@ private:
   bool udp_server_name_edited_;
   int dns_lookup_id_;
   port_type udp_server_port_;
-  QString udp_interface_name_;
+  QStringList udp_interface_names_;
   int udp_TTL_;
   QString n1mm_server_name_;
   port_type n1mm_server_port_;
@@ -754,7 +756,7 @@ QString Configuration::opCall() const {return m_->opCall_;}
 void Configuration::opCall (QString const& call) {m_->opCall_ = call;}
 QString Configuration::udp_server_name () const {return m_->udp_server_name_;}
 auto Configuration::udp_server_port () const -> port_type {return m_->udp_server_port_;}
-QString Configuration::udp_interface_name () const {return m_->udp_interface_name_;}
+QStringList Configuration::udp_interface_names () const {return m_->udp_interface_names_;}
 int Configuration::udp_TTL () const {return m_->udp_TTL_;}
 bool Configuration::accept_udp_requests () const {return m_->accept_udp_requests_;}
 QString Configuration::n1mm_server_name () const {return m_->n1mm_server_name_;}
@@ -1078,9 +1080,9 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
     });
 
   // set up dynamic loading of network interfaces
-  connect (ui_->udp_interface_combo_box, &LazyFillComboBox::about_to_show_popup, [this] () {
+  connect (ui_->udp_interfaces_combo_box, &LazyFillComboBox::about_to_show_popup, [this] () {
       QGuiApplication::setOverrideCursor (QCursor {Qt::WaitCursor});
-      load_network_interfaces (ui_->udp_interface_combo_box, udp_interface_name_);
+      load_network_interfaces (ui_->udp_interfaces_combo_box, udp_interface_names_);
       QGuiApplication::restoreOverrideCursor ();
     });
 
@@ -1362,10 +1364,10 @@ void Configuration::impl::initialize_models ()
   ui_->udp_server_line_edit->setText (udp_server_name_);
   on_udp_server_line_edit_editingFinished ();
   ui_->udp_server_port_spin_box->setValue (udp_server_port_);
-  load_network_interfaces (ui_->udp_interface_combo_box, udp_interface_name_);
-  if (!udp_interface_name_.size ())
+  load_network_interfaces (ui_->udp_interfaces_combo_box, udp_interface_names_);
+  if (!udp_interface_names_.size ())
     {
-      udp_interface_name_ = ui_->udp_interface_combo_box->currentData ().toString ();
+      udp_interface_names_ = get_selected_network_interfaces (ui_->udp_interfaces_combo_box);
     }
   ui_->udp_TTL_spin_box->setValue (udp_TTL_);
   ui_->accept_udp_requests_check_box->setChecked (accept_udp_requests_);
@@ -1545,7 +1547,7 @@ void Configuration::impl::read_settings ()
   rig_params_.split_mode = settings_->value ("SplitMode", QVariant::fromValue (TransceiverFactory::split_mode_none)).value<TransceiverFactory::SplitMode> ();
   opCall_ = settings_->value ("OpCall", "").toString ();
   udp_server_name_ = settings_->value ("UDPServer", "127.0.0.1").toString ();
-  udp_interface_name_ = settings_->value ("UDPInterface").toString ();
+  udp_interface_names_ = settings_->value ("UDPInterface").toStringList ();
   udp_TTL_ = settings_->value ("UDPTTL", 1).toInt ();
   udp_server_port_ = settings_->value ("UDPServerPort", 2237).toUInt ();
   n1mm_server_name_ = settings_->value ("N1MMServer", "127.0.0.1").toString ();
@@ -1675,7 +1677,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("OpCall", opCall_);
   settings_->setValue ("UDPServer", udp_server_name_);
   settings_->setValue ("UDPServerPort", udp_server_port_);
-  settings_->setValue ("UDPInterface", udp_interface_name_);
+  settings_->setValue ("UDPInterface", QVariant::fromValue (udp_interface_names_));
   settings_->setValue ("UDPTTL", udp_TTL_);
   settings_->setValue ("N1MMServer", n1mm_server_name_);
   settings_->setValue ("N1MMServerPort", n1mm_server_port_);
@@ -2105,12 +2107,12 @@ void Configuration::impl::accept ()
   opCall_=ui_->opCallEntry->text();
 
   auto new_server = ui_->udp_server_line_edit->text ().trimmed ();
-  auto new_interface = ui_->udp_interface_combo_box->currentData ().toString ();
-  if (new_server != udp_server_name_ || new_interface != udp_interface_name_)
+  auto new_interfaces = get_selected_network_interfaces (ui_->udp_interfaces_combo_box);
+  if (new_server != udp_server_name_ || new_interfaces != udp_interface_names_)
     {
       udp_server_name_ = new_server;
-      udp_interface_name_ = new_interface;
-      Q_EMIT self_->udp_server_changed (udp_server_name_, udp_interface_name_);
+      udp_interface_names_ = new_interfaces;
+      Q_EMIT self_->udp_server_changed (udp_server_name_, udp_interface_names_);
     }
 
   auto new_port = ui_->udp_server_port_spin_box->value ();
@@ -2452,8 +2454,8 @@ void Configuration::impl::host_info_results (QHostInfo host_info)
 void Configuration::impl::check_multicast (QHostAddress const& ha)
 {
   auto is_multicast = is_multicast_address (ha);
-  ui_->udp_interface_label->setVisible (is_multicast);
-  ui_->udp_interface_combo_box->setVisible (is_multicast);
+  ui_->udp_interfaces_label->setVisible (is_multicast);
+  ui_->udp_interfaces_combo_box->setVisible (is_multicast);
   ui_->udp_TTL_label->setVisible (is_multicast);
   ui_->udp_TTL_spin_box->setVisible (is_multicast);
   if (isVisible ())
@@ -2993,28 +2995,53 @@ void Configuration::impl::load_audio_devices (QAudio::Mode mode, QComboBox * com
 }
 
 // load the available network interfaces into the selection combo box
-void Configuration::impl::load_network_interfaces (QComboBox * combo_box, QString const& current)
+void Configuration::impl::load_network_interfaces (CheckableItemComboBox * combo_box, QStringList const& current)
 {
   combo_box->clear ();
-  int current_index = -1;
-  for (auto const& interface : QNetworkInterface::allInterfaces ())
+  for (auto const& net_if : QNetworkInterface::allInterfaces ())
     {
-      if (interface.flags () & QNetworkInterface::IsUp)
+      auto flags = QNetworkInterface::IsUp | QNetworkInterface::CanMulticast;
+      if ((net_if.flags () & flags) == flags)
         {
-          auto const& name = interface.name ();
-          combo_box->addItem (interface.humanReadableName (), name);
-          // select the first loopback interface as a default to
-          // discourage spamming the network (possibly the Internet),
-          // particularly important with administratively scoped
-          // multicast UDP
-          if (name == current
-              || (!current.size () && (interface.flags () & QNetworkInterface::IsLoopBack)))
+          auto is_loopback = net_if.flags () & QNetworkInterface::IsLoopBack;
+          auto item = combo_box->addCheckItem (net_if.humanReadableName ()
+                                               , net_if.name ()
+                                               , is_loopback || current.contains (net_if.name ()) ? Qt::Checked : Qt::Unchecked);
+          item->setEnabled (!is_loopback);
+          auto tip = QString {"name(index): %1(%2) - %3"}.arg (net_if.name ()).arg (net_if.index ())
+                       .arg (net_if.flags () & QNetworkInterface::IsUp ? "Up" : "Down");
+          auto hw_addr = net_if.hardwareAddress ();
+          if (hw_addr.size ())
             {
-              current_index = combo_box->count () - 1;
+              tip += QString {"\nhw: %1"}.arg (net_if.hardwareAddress ());
             }
+          auto aes = net_if.addressEntries ();
+          if (aes.size ())
+            {
+              tip += "\naddresses:";
+              for (auto const& ae : aes)
+                {
+                  tip += QString {"\n  ip: %1/%2"}.arg (ae.ip ().toString ()).arg (ae.prefixLength ());
+                }
+            }
+          item->setToolTip (tip);
         }
     }
-  combo_box->setCurrentIndex (current_index);
+}
+
+// get the select network interfaces from the selection combo box
+QStringList Configuration::impl::get_selected_network_interfaces (CheckableItemComboBox * combo_box)
+{
+  QStringList interfaces;
+  auto model = static_cast<QStandardItemModel *> (combo_box->model ());
+  for (int row = 0; row < model->rowCount (); ++row)
+    {
+      if (Qt::Checked == model->item (row)->checkState ())
+        {
+          interfaces << model->item (row)->data ().toString ();
+        }
+    }
+  return interfaces;
 }
 
 // enable only the channels that are supported by the selected audio device

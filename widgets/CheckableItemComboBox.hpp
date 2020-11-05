@@ -1,8 +1,9 @@
 #ifndef CHECKABLE_ITEM_COMBO_BOX_HPP__
 #define CHECKABLE_ITEM_COMBO_BOX_HPP__
 
-#include <QComboBox>
 #include <QScopedPointer>
+
+#include "LazyFillComboBox.hpp"
 
 class QStandardItemModel;
 class QStandardItem;
@@ -12,7 +13,7 @@ class QStandardItem;
  * http://stackoverflow.com/questions/8422760/combobox-of-checkboxes
  */
 class CheckableItemComboBox
-  : public QComboBox
+  : public LazyFillComboBox
 {
   Q_OBJECT
 
