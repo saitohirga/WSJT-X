@@ -25,7 +25,7 @@ public:
 };
 
 CheckableItemComboBox::CheckableItemComboBox (QWidget * parent)
-  : QComboBox {parent}
+  : LazyFillComboBox {parent}
   , model_ {new QStandardItemModel()}
 {
   setModel (model_.data ());

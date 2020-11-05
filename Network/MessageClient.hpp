@@ -36,7 +36,7 @@ public:
   // messages will be silently dropped until a server host lookup is complete
   MessageClient (QString const& id, QString const& version, QString const& revision,
                  QString const& server_name, port_type server_port,
-                 QString const& network_interface_name,
+                 QStringList const& network_interface_names,
                  int TTL, QObject * parent = nullptr);
 
   // query server details
@@ -46,7 +46,7 @@ public:
   // initiate a new server host lookup or if the server name is empty
   // the sending of messages is disabled, if an interface is specified
   // then that interface is used for outgoing datagrams
-  Q_SLOT void set_server (QString const& server_name, QString const& network_interface_name);
+  Q_SLOT void set_server (QString const& server_name, QStringList const& network_interface_names);
 
   // change the server port messages are sent to
   Q_SLOT void set_server_port (port_type server_port = 0u);

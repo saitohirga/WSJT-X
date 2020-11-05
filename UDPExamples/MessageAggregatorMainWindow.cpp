@@ -266,17 +266,17 @@ MessageAggregatorMainWindow::MessageAggregatorMainWindow ()
 void MessageAggregatorMainWindow::restart_server ()
 {
   QSet<QString> net_ifs;
-    if (network_interfaces_combo_box_->isVisible ())
-      {
-        auto model = static_cast<QStandardItemModel *> (network_interfaces_combo_box_->model ());
-        for (int row = 0; row < model->rowCount (); ++row)
-          {
-            if (Qt::Checked == model->item (row)->checkState ())
-              {
-                net_ifs << model->item (row)->data ().toString ();
-              }
-          }
-      }
+  if (network_interfaces_combo_box_->isVisible ())
+    {
+      auto model = static_cast<QStandardItemModel *> (network_interfaces_combo_box_->model ());
+      for (int row = 0; row < model->rowCount (); ++row)
+        {
+          if (Qt::Checked == model->item (row)->checkState ())
+            {
+              net_ifs << model->item (row)->data ().toString ();
+            }
+        }
+    }
     server_->start (port_spin_box_->value ()
                     , QHostAddress {multicast_group_line_edit_->text ()}
                     , net_ifs);

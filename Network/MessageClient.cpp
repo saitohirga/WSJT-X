@@ -59,7 +59,7 @@ public:
 
   enum StreamStatus {Fail, Short, OK};
 
-  void set_server (QString const& server_name, QString const& network_interface_name);
+  void set_server (QString const& server_name, QStringList const& network_interface_names);
   Q_SLOT void host_info_results (QHostInfo);
   void start ();
   void parse_message (QByteArray const&);
@@ -67,12 +67,12 @@ public:
   void heartbeat ();
   void closedown ();
   StreamStatus check_status (QDataStream const&) const;
-  void send_message (QByteArray const&);
-  void send_message (QDataStream const& out, QByteArray const& message)
+  void send_message (QByteArray const&, bool queue_if_pending = true);
+  void send_message (QDataStream const& out, QByteArray const& message, bool queue_if_pending = true)
   {
     if (OK == check_status (out))
       {
-        send_message (message);
+        send_message (message, queue_if_pending);
       }
     else
       {
@@ -89,7 +89,7 @@ public:
   QHostAddress server_;
   port_type server_port_;
   int TTL_;
-  QNetworkInterface network_interface_;
+  std::vector<QNetworkInterface> network_interfaces_;
   quint32 schema_;
   QTimer * heartbeat_timer_;
   std::vector<QHostAddress> blocked_addresses_;
@@ -101,10 +101,15 @@ public:
 
 #include "MessageClient.moc"
 
-void MessageClient::impl::set_server (QString const& server_name, QString const& network_interface_name)
+void MessageClient::impl::set_server (QString const& server_name, QStringList const& network_interface_names)
 {
   server_.setAddress (server_name);
-  network_interface_ = QNetworkInterface::interfaceFromName (network_interface_name);
+  network_interfaces_.clear ();
+  for (auto const& net_if_name : network_interface_names)
+    {
+      network_interfaces_.push_back (QNetworkInterface::interfaceFromName (net_if_name));
+    }
+
   if (server_.isNull () && server_name.size ()) // DNS lookup required
     {
       // queue a host address lookup
@@ -162,33 +167,10 @@ void MessageClient::impl::start ()
       return;
     }
 
-  TRACE_UDP ("Trying server:" << server_.toString () << "on interface:" << network_interface_.humanReadableName ());
-  QHostAddress interface_ip {QHostAddress::Any};
-  if (network_interface_.isValid ())
-    {
-      if (is_multicast_address (server_) && !(network_interface_.flags () & QNetworkInterface::CanMulticast))
-        {
-          Q_EMIT self_->error ("Network interface is not multicast capable, please try another");
-          return;
-        }
-      for (auto const& ae : network_interface_.addressEntries ())
-        {
-          auto const& ip = ae.ip ();
-          if (server_.protocol () == ip.protocol ())
-            {
-              interface_ip = ip;
-              break;
-            }
-        }
-      if (QHostAddress {QHostAddress::Any} == interface_ip)
-        {
-          Q_EMIT self_->error ("Network interface has no suitable address for server IP protocol, please try another");
-          pending_messages_.clear (); // discard
-          return;
-        }
-    }
+  TRACE_UDP ("Trying server:" << server_.toString ());
+  QHostAddress interface_addr {IPv6Protocol == server_.protocol () ? QHostAddress::AnyIPv6 : QHostAddress::AnyIPv4};
 
-  if (localAddress () != interface_ip)
+  if (localAddress () != interface_addr)
     {
       if (UnconnectedState != state () || state ())
         {
@@ -196,8 +178,8 @@ void MessageClient::impl::start ()
         }
       // bind to an ephemeral port on the selected interface and set
       // up for sending datagrams
-      bind (interface_ip);
-      setMulticastInterface (network_interface_);
+      bind (interface_addr);
+      qDebug () << "Bound to UDP port:" << localPort () << "on:" << localAddress ();
 
       // set multicast TTL to limit scope when sending to multicast
       // group addresses
@@ -210,7 +192,7 @@ void MessageClient::impl::start ()
   // clear any backlog
   while (pending_messages_.size ())
     {
-      send_message (pending_messages_.dequeue ());
+      send_message (pending_messages_.dequeue (), false);
     }
 }
 
@@ -438,14 +420,11 @@ void MessageClient::impl::heartbeat ()
    if (server_port_ && !server_.isNull ())
     {
       QByteArray message;
-      NetworkMessage::Builder hb {&message, NetworkMessage::Heartbeat, id_, schema_};
-      hb << NetworkMessage::Builder::schema_number // maximum schema number accepted
-         << version_.toUtf8 () << revision_.toUtf8 ();
-      if (OK == check_status (hb))
-        {
-          TRACE_UDP ("schema:" << schema_ << "max schema:" << NetworkMessage::Builder::schema_number << "version:" << version_ << "revision:" << revision_);
-          writeDatagram (message, server_, server_port_);
-        }
+      NetworkMessage::Builder out {&message, NetworkMessage::Heartbeat, id_, schema_};
+      out << NetworkMessage::Builder::schema_number // maximum schema number accepted
+          << version_.toUtf8 () << revision_.toUtf8 ();
+      TRACE_UDP ("schema:" << schema_ << "max schema:" << NetworkMessage::Builder::schema_number << "version:" << version_ << "revision:" << revision_);
+      send_message (out, message, false);
     }
 }
 
@@ -455,15 +434,12 @@ void MessageClient::impl::closedown ()
     {
       QByteArray message;
       NetworkMessage::Builder out {&message, NetworkMessage::Close, id_, schema_};
-      if (OK == check_status (out))
-        {
-          TRACE_UDP ("");
-          writeDatagram (message, server_, server_port_);
-        }
+      TRACE_UDP ("");
+      send_message (out, message, false);
     }
 }
 
-void MessageClient::impl::send_message (QByteArray const& message)
+void MessageClient::impl::send_message (QByteArray const& message, bool queue_if_pending)
 {
   if (server_port_)
     {
@@ -471,11 +447,15 @@ void MessageClient::impl::send_message (QByteArray const& message)
         {
           if (message != last_message_) // avoid duplicates
             {
-              writeDatagram (message, server_, server_port_);
+              for (auto const& net_if : network_interfaces_)
+                {
+                  setMulticastInterface (net_if);
+                  writeDatagram (message, server_, server_port_);
+                }
               last_message_ = message;
             }
         }
-      else
+      else if (queue_if_pending)
         {
           pending_messages_.enqueue (message);
         }
@@ -509,7 +489,7 @@ auto MessageClient::impl::check_status (QDataStream const& stream) const -> Stre
 
 MessageClient::MessageClient (QString const& id, QString const& version, QString const& revision,
                               QString const& server_name, port_type server_port,
-                              QString const& network_interface_name,
+                              QStringList const& network_interface_names,
                               int TTL, QObject * self)
   : QObject {self}
   , m_ {id, version, revision, server_port, TTL, this}
@@ -532,7 +512,7 @@ MessageClient::MessageClient (QString const& id, QString const& version, QString
                                          Q_EMIT error (m_->errorString ());
                                        }
                                        });
-  m_->set_server (server_name, network_interface_name);
+  m_->set_server (server_name, network_interface_names);
 }
 
 QHostAddress MessageClient::server_address () const
@@ -545,9 +525,9 @@ auto MessageClient::server_port () const -> port_type
   return m_->server_port_;
 }
 
-void MessageClient::set_server (QString const& server_name, QString const& network_interface_name)
+void MessageClient::set_server (QString const& server_name, QStringList const& network_interface_names)
 {
-  m_->set_server (server_name, network_interface_name);
+  m_->set_server (server_name, network_interface_names);
 }
 
 void MessageClient::set_server_port (port_type server_port)
