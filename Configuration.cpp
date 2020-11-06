@@ -444,7 +444,7 @@ private:
   void update_audio_channels (QComboBox const *, int, QComboBox *, bool);
 
   void load_network_interfaces (CheckableItemComboBox *, QStringList current);
-  void validate_network_interfaces (CheckableItemComboBox *);
+  Q_SLOT void validate_network_interfaces (QString const&);
   QStringList get_selected_network_interfaces (CheckableItemComboBox *);
   Q_SLOT void host_info_results (QHostInfo);
   void check_multicast (QHostAddress const&);
@@ -1087,9 +1087,7 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
       load_network_interfaces (ui_->udp_interfaces_combo_box, udp_interface_names_);
       QGuiApplication::restoreOverrideCursor ();
     });
-  connect (ui_->udp_interfaces_combo_box, &QComboBox::currentTextChanged, [this] (QString const& /*text*/) {
-      validate_network_interfaces (ui_->udp_interfaces_combo_box);
-    });
+  connect (ui_->udp_interfaces_combo_box, &QComboBox::currentTextChanged, this, &Configuration::impl::validate_network_interfaces);
 
   // set up LoTW users CSV file fetching
   connect (&lotw_users_, &LotWUsers::load_finished, [this] () {
@@ -3037,9 +3035,9 @@ void Configuration::impl::load_network_interfaces (CheckableItemComboBox * combo
 }
 
 // get the select network interfaces from the selection combo box
-void Configuration::impl::validate_network_interfaces (CheckableItemComboBox * combo_box)
+void Configuration::impl::validate_network_interfaces (QString const& /*text*/)
 {
-  auto model = static_cast<QStandardItemModel *> (combo_box->model ());
+  auto model = static_cast<QStandardItemModel *> (ui_->udp_interfaces_combo_box->model ());
   bool has_checked {false};
   int loopback_row {-1};
   for (int row = 0; row < model->rowCount (); ++row)
