@@ -13,6 +13,7 @@
 #include <QStringListModel>
 #include <QSettings>
 #include <QKeyEvent>
+#include <QProcessEnvironment>
 #include <QSharedMemory>
 #include <QFileDialog>
 #include <QTextBlock>
@@ -233,8 +234,9 @@ namespace
 MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
                        MultiSettings * multi_settings, QSharedMemory *shdmem,
                        unsigned downSampleFactor,
-                       QSplashScreen * splash, QWidget *parent) :
+                       QSplashScreen * splash, QProcessEnvironment const& env, QWidget *parent) :
   QMainWindow(parent),
+  m_env {env},
   m_network_manager {this},
   m_valid {true},
   m_splash {splash},
@@ -266,6 +268,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_secBandChanged {0},
   m_freqNominal {0},
   m_freqTxNominal {0},
+  m_reverse_Doppler {"1" == env.value ("WSJT_REVERSE_DOPPLER", "0")},
   m_s6 {0.},
   m_tRemaining {0.},
   m_TRperiod {60.0},
@@ -926,9 +929,9 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
       , "-a", QDir::toNativeSeparators (m_config.writeable_data_dir ().absolutePath ())
       , "-t", QDir::toNativeSeparators (m_config.temp_dir ().absolutePath ())
       };
-  QProcessEnvironment env {QProcessEnvironment::systemEnvironment ()};
-  env.insert ("OMP_STACKSIZE", "4M");
-  proc_jt9.setProcessEnvironment (env);
+  QProcessEnvironment new_env {m_env};
+  new_env.insert ("OMP_STACKSIZE", "4M");
+  proc_jt9.setProcessEnvironment (new_env);
   proc_jt9.start(QDir::toNativeSeparators (m_appDir) + QDir::separator () +
           "jt9", jt9_args, QIODevice::ReadWrite | QIODevice::Unbuffered);
 
@@ -4227,7 +4230,15 @@ void MainWindow::guiUpdate()
     transmitDisplay (true);
     statusUpdate ();
   }
-  if(!m_btxok && m_btxok0 && g_iptt==1) stopTx();
+  if(!m_btxok && m_btxok0 && g_iptt==1)
+    {
+      stopTx();
+      if ("1" == m_env.value ("WSJT_TX_BOTH", "0"))
+        {
+          m_txFirst = !m_txFirst;
+          ui->txFirstCheckBox->setChecked (m_txFirst);
+        }
+    }
 
   if(m_startAnother) {
     if(m_mode=="MSK144") {
@@ -8193,6 +8204,10 @@ void MainWindow::astroUpdate ()
               correction.tx = correction.tx / 10 * 10;
             }
           m_astroCorrection = correction;
+          if (m_reverse_Doppler)
+            {
+              m_astroCorrection.reverse ();
+            }
         }
       else
         {
