@@ -203,7 +203,7 @@
     <message>
         <location filename="../models/CabrilloLog.cpp" line="91"/>
         <source>Freq(MHz)</source>
-        <translation>頻率(MHz)</translation>
+        <translation>頻率(兆赫)</translation>
     </message>
     <message>
         <location filename="../models/CabrilloLog.cpp" line="92"/>
@@ -398,7 +398,7 @@
     <message>
         <location filename="../Configuration.cpp" line="1006"/>
         <source>path: &quot;%1&quot;</source>
-        <translation>目录: &quot;%1&quot;</translation>
+        <translation>目錄: &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../Configuration.cpp" line="1156"/>
@@ -739,7 +739,7 @@ Format:
     <message>
         <location filename="../widgets/DecodeHighlightingListView.cpp" line="48"/>
         <source>U&amp;nset background color</source>
-        <translation>未設定背景顏色(&amp;n)</translation>
+        <translation>清除底色(&amp;n)</translation>
     </message>
     <message>
         <location filename="../widgets/DecodeHighlightingListView.cpp" line="54"/>
@@ -903,7 +903,7 @@ Format:
         <location filename="../SampleDownloader/Directory.cpp" line="113"/>
         <location filename="../SampleDownloader/Directory.cpp" line="189"/>
         <source>URL Error</source>
-        <translation>網址出錯誤</translation>
+        <translation>網址錯誤</translation>
     </message>
     <message>
         <location filename="../SampleDownloader/Directory.cpp" line="114"/>
@@ -922,12 +922,12 @@ Format:
         <location filename="../SampleDownloader/Directory.cpp" line="225"/>
         <location filename="../SampleDownloader/Directory.cpp" line="232"/>
         <source>JSON Error</source>
-        <translation>JSON出錯誤</translation>
+        <translation>JSON錯誤</translation>
     </message>
     <message>
         <location filename="../SampleDownloader/Directory.cpp" line="133"/>
         <source>Contents file syntax error %1 at character offset %2</source>
-        <translation>內容檔案語法出錯誤 %1 字符偏移量 %2</translation>
+        <translation>內容檔案語法錯誤 %1 字符偏移量 %2</translation>
     </message>
     <message>
         <location filename="../SampleDownloader/Directory.cpp" line="140"/>
@@ -937,7 +937,7 @@ Format:
     <message>
         <location filename="../SampleDownloader/Directory.cpp" line="151"/>
         <source>File System Error</source>
-        <translation>檔案系統出錯誤</translation>
+        <translation>檔案系統錯誤</translation>
     </message>
     <message>
         <location filename="../SampleDownloader/Directory.cpp" line="152"/>
@@ -974,7 +974,7 @@ Error: %2 - %3</source>
     <message>
         <location filename="../SampleDownloader/Directory.cpp" line="318"/>
         <source>Network Error</source>
-        <translation>網絡出錯誤</translation>
+        <translation>網絡錯誤</translation>
     </message>
     <message>
         <location filename="../SampleDownloader/Directory.cpp" line="318"/>
@@ -1083,7 +1083,7 @@ Error: %2 - %3</source>
         <location filename="../EqualizationToolsDialog.cpp" line="307"/>
         <location filename="../EqualizationToolsDialog.cpp" line="348"/>
         <source>Freq (Hz)</source>
-        <translation>頻率 (Hz)</translation>
+        <translation>頻率 (赫兹)</translation>
     </message>
     <message>
         <location filename="../EqualizationToolsDialog.cpp" line="309"/>
@@ -1477,7 +1477,7 @@ Error: %2 - %3</source>
         <location filename="../models/FrequencyList.cpp" line="745"/>
         <location filename="../models/FrequencyList.cpp" line="828"/>
         <source>Frequency (MHz)</source>
-        <translation>頻率 (MHz)</translation>
+        <translation>頻率 (兆赫)</translation>
     </message>
 </context>
 <context>
@@ -1573,22 +1573,22 @@ Error: %2 - %3</source>
         <location filename="../Transceiver/HamlibTransceiver.cpp" line="212"/>
         <location filename="../Transceiver/HamlibTransceiver.cpp" line="266"/>
         <source>Hamlib initialisation error</source>
-        <translation>Hamlib 初始化出錯誤</translation>
+        <translation>Hamlib 初始化錯誤</translation>
     </message>
     <message>
         <location filename="../Transceiver/HamlibTransceiver.cpp" line="288"/>
         <source>Hamlib settings file error: %1 at character offset %2</source>
-        <translation>Hamlib 設置檔案出錯誤: %1 字符偏移量 %2</translation>
+        <translation>Hamlib 設置檔案錯誤: %1 字符偏移量 %2</translation>
     </message>
     <message>
         <location filename="../Transceiver/HamlibTransceiver.cpp" line="294"/>
         <source>Hamlib settings file error: top level must be a JSON object</source>
-        <translation>Hamlib 設置檔案出錯誤: 頂層必須是 JSON 對象</translation>
+        <translation>Hamlib 設置檔案錯誤: 頂層必須是 JSON 對象</translation>
     </message>
     <message>
         <location filename="../Transceiver/HamlibTransceiver.cpp" line="306"/>
         <source>Hamlib settings file error: config must be a JSON object</source>
-        <translation>Hamlib 設置檔案出錯誤: 配置必須是JSON對象</translation>
+        <translation>Hamlib 設置檔案錯誤: 配置必須是JSON對象</translation>
     </message>
     <message>
         <location filename="../Transceiver/HamlibTransceiver.cpp" line="371"/>
@@ -1598,7 +1598,7 @@ Error: %2 - %3</source>
     <message>
         <location filename="../Transceiver/HamlibTransceiver.cpp" line="424"/>
         <source>Hamlib error: %1 while %2</source>
-        <translation>Hamlib 出錯誤: %1 當 %2</translation>
+        <translation>Hamlib 錯誤: %1 當 %2</translation>
     </message>
     <message>
         <location filename="../Transceiver/HamlibTransceiver.cpp" line="434"/>
@@ -2092,7 +2092,7 @@ Error(%2): %3</source>
     <message>
         <location filename="../widgets/mainwindow.ui" line="346"/>
         <source>Log &amp;QSO</source>
-        <translation>紀錄通聯(&amp;Q)</translation>
+        <translation>記錄通聯(&amp;Q)</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="359"/>
@@ -2112,7 +2112,7 @@ Error(%2): %3</source>
     <message>
         <location filename="../widgets/mainwindow.ui" line="390"/>
         <source>&amp;Monitor</source>
-        <translation>监听(&amp;M)</translation>
+        <translation>監聽(&amp;M)</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="409"/>
@@ -2489,7 +2489,7 @@ Yellow when too low</source>
     <message>
         <location filename="../widgets/mainwindow.ui" line="735"/>
         <source>Frequency tolerance (Hz)</source>
-        <translation>頻率容差 (Hz)</translation>
+        <translation>頻率容差 (赫兹)</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="741"/>
@@ -2617,7 +2617,7 @@ Yellow when too low</source>
     <message>
         <location filename="../widgets/mainwindow.ui" line="905"/>
         <source>Frequency to call CQ on in kHz above the current MHz</source>
-        <translation>呼叫CQ 的頻率以 kHz 高於目前的 MHz</translation>
+        <translation>呼叫 CQ 的頻率以千赫高於目前的兆赫</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="908"/>
@@ -2704,12 +2704,12 @@ When not checked you can view the calibration results.</source>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1048"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Signal report: Signal-to-noise ratio in 2500 Hz reference bandwidth (dB).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;信號報告: 參考2500 Hz 頻寬 (dB) 中的信噪比.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;信號報告: 參考2500赫兹頻寬 (dB) 中的信噪比.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1051"/>
         <source>Signal report: Signal-to-noise ratio in 2500 Hz reference bandwidth (dB).</source>
-        <translation>信號報告: 參考2500 Hz 頻寬 (dB) 中的信噪比.</translation>
+        <translation>信號報告: 參考2500赫兹頻寬 (dB) 中的信噪比.</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1057"/>
@@ -3583,7 +3583,7 @@ list. The list can be maintained in Settings (F2).</source>
     <message>
         <location filename="../widgets/mainwindow.ui" line="3248"/>
         <source>Color highlighting scheme</source>
-        <translation>色彩突顯機制</translation>
+        <translation>顏色突出顯示方案</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="3253"/>
@@ -3660,7 +3660,7 @@ list. The list can be maintained in Settings (F2).</source>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="785"/>
         <source>Enumerating audio devices</source>
-        <translation type="unfinished"></translation>
+        <translation>列舉音訊設備</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="800"/>
@@ -3703,7 +3703,7 @@ list. The list can be maintained in Settings (F2).</source>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="899"/>
         <source>Error removing &quot;%1&quot;</source>
-        <translation>刪除時出錯誤 &quot;%1&quot;</translation>
+        <translation>刪除時錯誤 &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="900"/>
@@ -3720,7 +3720,7 @@ list. The list can be maintained in Settings (F2).</source>
         <location filename="../widgets/mainwindow.cpp" line="1473"/>
         <location filename="../widgets/mainwindow.cpp" line="8942"/>
         <source>File Open Error</source>
-        <translation>檔案開啟出錯誤</translation>
+        <translation>檔案開啟錯誤</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="1474"/>
@@ -3734,17 +3734,17 @@ list. The list can be maintained in Settings (F2).</source>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="1577"/>
         <source>Error saving c2 file</source>
-        <translation>保存c2檔案出錯誤</translation>
+        <translation>保存c2檔案錯誤</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="1777"/>
         <source>Error in Sound Input</source>
-        <translation>聲音輸入出錯誤</translation>
+        <translation>聲音輸入錯誤</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="1783"/>
         <source>Error in Sound Output</source>
-        <translation>聲音輸出錯誤</translation>
+        <translation>聲音輸錯誤</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="1847"/>
@@ -3784,7 +3784,7 @@ list. The list can be maintained in Settings (F2).</source>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="2394"/>
         <source>Subprocess Error</source>
-        <translation>子流程出錯誤</translation>
+        <translation>子流程錯誤</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="2395"/>
@@ -3802,7 +3802,7 @@ list. The list can be maintained in Settings (F2).</source>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="2416"/>
         <source>Subprocess error</source>
-        <translation>子進程出錯誤</translation>
+        <translation>子進程錯誤</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="2454"/>
@@ -3841,7 +3841,7 @@ list. The list can be maintained in Settings (F2).</source>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="2819"/>
         <source>No data read from disk. Wrong file format?</source>
-        <translation>沒有從磁盤讀取數據. 檔案格式出錯誤?</translation>
+        <translation>沒有從磁盤讀取數據. 檔案格式錯誤?</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="2826"/>
@@ -3955,7 +3955,51 @@ list. The list can be maintained in Settings (F2).</source>
   &lt;tr&gt;&lt;td&gt;&lt;b&gt;Alt+Z    &lt;/b&gt;&lt;/td&gt;&lt;td&gt;Clear hung decoder status&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;</source>
         <extracomment>Keyboard shortcuts help window contents</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;table cellspacing=1&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Esc      &lt;/b&gt;&lt;/td&gt;&lt;td&gt;停止發送,中止通聯,清除下一個呼叫隊列&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;F1       &lt;/b&gt;&lt;/td&gt;&lt;td&gt;在線用戶指南  (Alt: 發射 Tx6)&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Shift+F1  &lt;/b&gt;&lt;/td&gt;&lt;td&gt;版權聲明&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Ctrl+F1  &lt;/b&gt;&lt;/td&gt;&lt;td&gt;關於 WSJT-X&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;F2       &lt;/b&gt;&lt;/td&gt;&lt;td&gt;打開設置窗口 (Alt: 發射 Tx2)&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;F3       &lt;/b&gt;&lt;/td&gt;&lt;td&gt;顯示鍵盤快捷鍵  (Alt: 發射 Tx3)&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;F4       &lt;/b&gt;&lt;/td&gt;&lt;td&gt;清除DX呼號, DX網格, 發射信息 1-4 (Alt: 發射 Tx4)&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Alt+F4   &lt;/b&gt;&lt;/td&gt;&lt;td&gt;退出程序&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;F5       &lt;/b&gt;&lt;/td&gt;&lt;td&gt;顯示特殊鼠標命令 (Alt: transmit Tx5)&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;F6       &lt;/b&gt;&lt;/td&gt;&lt;td&gt;打開目錄中下一個文件 (Alt: toggle &quot;Call 1st&quot;)&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Shift+F6 &lt;/b&gt;&lt;/td&gt;&lt;td&gt;直接解碼所有剩餘檔&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;F7       &lt;/b&gt;&lt;/td&gt;&lt;td&gt;顯示信息平均視窗&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;F11      &lt;/b&gt;&lt;/td&gt;&lt;td&gt;將發射頻率向下移動 1 赫茲&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Ctrl+F11 &lt;/b&gt;&lt;/td&gt;&lt;td&gt;移動相同的 接收 和 發射頻率向下移動 1 赫茲&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Shift+F11 &lt;/b&gt;&lt;/td&gt;&lt;td&gt;將發射頻率向下移動 60 赫茲 (FT8) 或 90 赫茲 (FT4)&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Ctrl+Shift+F11 &lt;/b&gt;&lt;/td&gt;&lt;td&gt;將頻率向下移動 2000 赫茲&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;F12      &lt;/b&gt;&lt;/td&gt;&lt;td&gt;將接收頻率向上移動 1 赫茲&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Ctrl+F12 &lt;/b&gt;&lt;/td&gt;&lt;td&gt;相同的接收和發射頻率向上 1 赫茲&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Shift+F12 &lt;/b&gt;&lt;/td&gt;&lt;td&gt;將發射頻率向上移動 60 赫茲(FT8) or 90 赫茲 (FT4)&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Ctrl+Shift+F12 &lt;/b&gt;&lt;/td&gt;&lt;td&gt;將頻率調高 2000 赫茲&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Alt+1-6  &lt;/b&gt;&lt;/td&gt;&lt;td&gt;現在將傳輸設置為選項卡 1 上的此號碼&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Ctl+1-6  &lt;/b&gt;&lt;/td&gt;&lt;td&gt;在選項卡 1 上將下一個傳輸設置為此號碼&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Alt+B    &lt;/b&gt;&lt;/td&gt;&lt;td&gt;切換 &quot;最佳 S+P&quot; 狀態&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Alt+C    &lt;/b&gt;&lt;/td&gt;&lt;td&gt;切換 &quot;呼叫 CQ 強制呼叫第 1&quot; 複選框&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Alt+D    &lt;/b&gt;&lt;/td&gt;&lt;td&gt;在通聯頻率再次解碼&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Shift+D  &lt;/b&gt;&lt;/td&gt;&lt;td&gt;全部解碼(兩個視窗)&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Ctrl+E   &lt;/b&gt;&lt;/td&gt;&lt;td&gt;打開 TX even/1st&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Shift+E  &lt;/b&gt;&lt;/td&gt;&lt;td&gt;關閉 TX even/1st&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Alt+E    &lt;/b&gt;&lt;/td&gt;&lt;td&gt;擦除&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Ctrl+F   &lt;/b&gt;&lt;/td&gt;&lt;td&gt;編輯自訂義文字資訊&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Alt+G    &lt;/b&gt;&lt;/td&gt;&lt;td&gt;生成標準信息&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Alt+H    &lt;/b&gt;&lt;/td&gt;&lt;td&gt;停止發射&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Ctrl+L   &lt;/b&gt;&lt;/td&gt;&lt;td&gt;在資料庫中尋找呼號, 生成標準信息&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Alt+M    &lt;/b&gt;&lt;/td&gt;&lt;td&gt;監聽&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Alt+N    &lt;/b&gt;&lt;/td&gt;&lt;td&gt;啟用發射&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Ctrl+O   &lt;/b&gt;&lt;/td&gt;&lt;td&gt;打開 .wav 檔案&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Alt+O    &lt;/b&gt;&lt;/td&gt;&lt;td&gt;更換操作員&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Alt+Q    &lt;/b&gt;&lt;/td&gt;&lt;td&gt;記錄通聯&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Ctrl+R   &lt;/b&gt;&lt;/td&gt;&lt;td&gt;將 Tx4 訊息設定為 RRR(不在 FT4 中)&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Alt+R    &lt;/b&gt;&lt;/td&gt;&lt;td&gt;將 Tx4 消息設置為 RR73&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Alt+S    &lt;/b&gt;&lt;/td&gt;&lt;td&gt;停止監聽&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Alt+T    &lt;/b&gt;&lt;/td&gt;&lt;td&gt;切換調諧狀態&lt;/td&gt;&lt;/tr&gt;
+  &lt;tr&gt;&lt;td&gt;&lt;b&gt;Alt+Z    &lt;/b&gt;&lt;/td&gt;&lt;td&gt;清除掛起解碼器狀態&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="2924"/>
@@ -3991,7 +4035,37 @@ list. The list can be maintained in Settings (F2).</source>
   &lt;/tr&gt;
 &lt;/table&gt;</source>
         <extracomment>Mouse commands help window contents</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;table cellpadding=5&gt;
+  &lt;tr&gt;
+    &lt;th align=&quot;right&quot;&gt;點擊&lt;/th&gt;
+    &lt;th align=&quot;left&quot;&gt;行動&lt;/th&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td align=&quot;right&quot;&gt;瀑布圖:&lt;/td&gt;
+    &lt;td&gt;&lt;b&gt;Click&lt;/b&gt; 設置接收頻率.&lt;br/&gt;
+        &lt;b&gt;Shift-click&lt;/b&gt; 設置發射頻率.&lt;br/&gt;
+        &lt;b&gt;Ctrl-click&lt;/b&gt; or &lt;b&gt;右鍵單擊&lt;/b&gt; 設置接收和發射頻率.&lt;br/&gt;
+        &lt;b&gt;Double-click&lt;/b&gt; 在接收頻率解碼.&lt;br/&gt;
+    &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td align=&quot;right&quot;&gt;解碼文字:&lt;/td&gt;
+    &lt;td&gt;&lt;b&gt;Double-click&lt;/b&gt; 解碼的文字將第二個呼號複製到 Dx 呼號,&lt;br/&gt;
+        定位器到 Dx 網格,將接收和發射頻率更改為&lt;br/&gt;
+        解碼信號的頻率, 並生成&lt;br/&gt;
+        標準信息.&lt;br/&gt;
+        如果 &lt;b&gt;保持發射頻率&lt;/b&gt; 已選中或在消息中顯示第一個呼號&lt;br/&gt;
+        是你自己的呼叫, 發射頻率不更改,除非 &lt;br/&gt;
+        &lt;b&gt;Ctrl&lt;/b&gt; 鍵被按下.&lt;br/&gt;
+    &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td align=&quot;right&quot;&gt;擦除按鈕:&lt;/td&gt;
+    &lt;td&gt;&lt;b&gt;點擊&lt;/b&gt; 擦除通聯視窗.&lt;br/&gt;
+        &lt;b&gt;按兩下&lt;/b&gt; to erase QSO and Band Activity windows.
+    &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="4396"/>
@@ -4341,7 +4415,7 @@ UDP 服務器 %2:%3</translation>
     <message>
         <location filename="../Transceiver/PollingTransceiver.cpp" line="179"/>
         <source>Unexpected rig error</source>
-        <translation>無線電設備意外出錯誤</translation>
+        <translation>無線電設備意外錯誤</translation>
     </message>
 </context>
 <context>
@@ -4369,27 +4443,27 @@ UDP 服務器 %2:%3</translation>
     <message>
         <location filename="../WFPalette.cpp" line="78"/>
         <source>Error reading waterfall palette file &quot;%1:%2&quot; too many colors.</source>
-        <translation>讀取瀑布調色板檔案時出錯誤 &quot;%1:%2&quot; 太多顏色.</translation>
+        <translation>讀取瀑布調色板檔案時錯誤 &quot;%1:%2&quot; 太多顏色.</translation>
     </message>
     <message>
         <location filename="../WFPalette.cpp" line="84"/>
         <source>Error reading waterfall palette file &quot;%1:%2&quot; invalid triplet.</source>
-        <translation>讀取瀑布調色板檔案時出錯誤 &quot;%1:%2&quot; 無效的三元組.</translation>
+        <translation>讀取瀑布調色板檔案時錯誤 &quot;%1:%2&quot; 無效的三元組.</translation>
     </message>
     <message>
         <location filename="../WFPalette.cpp" line="96"/>
         <source>Error reading waterfall palette file &quot;%1:%2&quot; invalid color.</source>
-        <translation>讀取瀑布調色板檔案時出錯誤 &quot;%1:%2&quot; 無效的顏色.</translation>
+        <translation>讀取瀑布調色板檔案時錯誤 &quot;%1:%2&quot; 無效的顏色.</translation>
     </message>
     <message>
         <location filename="../WFPalette.cpp" line="104"/>
         <source>Error opening waterfall palette file &quot;%1&quot;: %2.</source>
-        <translation>讀取瀑布調色板檔案時出錯誤 &quot;%1&quot;: %2.</translation>
+        <translation>讀取瀑布調色板檔案時錯誤 &quot;%1&quot;: %2.</translation>
     </message>
     <message>
         <location filename="../WFPalette.cpp" line="256"/>
         <source>Error writing waterfall palette file &quot;%1&quot;: %2.</source>
-        <translation>讀取瀑布調色板檔案時出錯誤 &quot;%1&quot;: %2.</translation>
+        <translation>讀取瀑布調色板檔案時錯誤 &quot;%1&quot;: %2.</translation>
     </message>
 </context>
 <context>
@@ -4402,7 +4476,7 @@ UDP 服務器 %2:%3</translation>
         <location filename="../SampleDownloader/RemoteFile.cpp" line="296"/>
         <location filename="../SampleDownloader/RemoteFile.cpp" line="307"/>
         <source>File System Error</source>
-        <translation>檔案系統出錯誤</translation>
+        <translation>檔案系統錯誤</translation>
     </message>
     <message>
         <location filename="../SampleDownloader/RemoteFile.cpp" line="40"/>
@@ -4413,7 +4487,7 @@ Error(%3): %4</source>
         <translation>無法重命名檔案:
 &quot;%1&quot;
 到: &quot;%2&quot;
-出錯誤(%3): %4</translation>
+錯誤(%3): %4</translation>
     </message>
     <message>
         <location filename="../SampleDownloader/RemoteFile.cpp" line="111"/>
@@ -4453,7 +4527,7 @@ Error(%3): %4</source>
 Error(%2): %3</source>
         <translation>無法開啟檔案:
 &quot;%1&quot;
-出錯誤(%2): %3</translation>
+錯誤(%2): %3</translation>
     </message>
     <message>
         <location filename="../SampleDownloader/RemoteFile.cpp" line="297"/>
@@ -4469,7 +4543,7 @@ Error(%2): %3</source>
 Error(%2): %3</source>
         <translation>無法寫入檔案:
 &quot;%1&quot;
-出錯誤(%2): %3</translation>
+錯誤(%2): %3</translation>
     </message>
 </context>
 <context>
@@ -4508,7 +4582,7 @@ Error(%2): %3</source>
     <message>
         <location filename="../SampleDownloader.cpp" line="114"/>
         <source>Check this if you get SSL/TLS errors</source>
-        <translation>如果您收到SSL/TLS錯誤, 請選擇此項</translation>
+        <translation>如果您得到SSL/TLS錯誤, 請選擇此項</translation>
     </message>
     <message>
         <location filename="../SampleDownloader.cpp" line="132"/>
@@ -4526,12 +4600,12 @@ Error(%2): %3</source>
     <message>
         <location filename="../Audio/soundin.cpp" line="23"/>
         <source>An error opening the audio input device has occurred.</source>
-        <translation>開啟音頻輸入設備時出錯誤.</translation>
+        <translation>開啟音頻輸入設備時錯誤.</translation>
     </message>
     <message>
         <location filename="../Audio/soundin.cpp" line="27"/>
         <source>An error occurred during read from the audio input device.</source>
-        <translation>從音頻輸入設備讀取時出錯誤.</translation>
+        <translation>從音頻輸入設備讀取時錯誤.</translation>
     </message>
     <message>
         <location filename="../Audio/soundin.cpp" line="31"/>
@@ -4541,7 +4615,7 @@ Error(%2): %3</source>
     <message>
         <location filename="../Audio/soundin.cpp" line="35"/>
         <source>Non-recoverable error, audio input device not usable at this time.</source>
-        <translation>不可恢復的出錯誤, 音頻輸入設備此時不可用.</translation>
+        <translation>不可恢復的錯誤, 音頻輸入設備此時不可用.</translation>
     </message>
     <message>
         <location filename="../Audio/soundin.cpp" line="65"/>
@@ -4718,7 +4792,7 @@ Error(%2): %3</source>
     <message>
         <location filename="../Transceiver/TransceiverBase.cpp" line="14"/>
         <source>Unexpected rig error</source>
-        <translation>無線電設備意外出錯誤</translation>
+        <translation>無線電設備意外錯誤</translation>
     </message>
 </context>
 <context>
@@ -4998,7 +5072,7 @@ Error(%2): %3</source>
     <message>
         <location filename="../Configuration.ui" line="134"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Type 2 compound callsigns are those with prefixes or suffixes not included in the allowed shortlist (See Help-&amp;gt;Add-on prefixes and suffixes).&lt;/p&gt;&lt;p&gt;This option determines which generated messages should contain your full type 2 compound call sign rather than your base callsign. It only applies if you have a type 2 compound callsign.&lt;/p&gt;&lt;p&gt;This option controls the way the messages that are used to answer CQ calls are generated. Generated messages 6 (CQ) and 5 (73) will always contain your full callsign. The JT65 and JT9 protocols allow for some standard messages with your full call at the expense of another piece of information such as the DX call or your locator.&lt;/p&gt;&lt;p&gt;Choosing message 1 omits the DX callsign which may be an issue when replying to CQ calls. Choosing message 3 also omits the DX callsign and many versions of this and other software will not extract the report. Choosing neither means that your full callsign only goes in your message 5 (73) so your QSO partner may log the wrong callsign.&lt;/p&gt;&lt;p&gt;None of these options are perfect, message 3 is usually best but be aware your QSO partner may not log the report you send them.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;複合呼號類型2是那些前綴或後綴不包括在允許的決選名單中 (請參閱説明-&amp; gt; 載入項目前綴和後綴).&lt;p&gt;&lt;p&gt;這個選項確定哪些產生的資訊應包含完整類型2複合呼號, 而不是基本呼號.它僅適用於類型為2的複合呼號.&lt;/p&gt;&lt;p&gt;這個選項控制用於應答 CQ 呼叫的資訊產生方式.產生的資訊 6 (CQ) 和 5 (73) 將始終包含您的完整呼號.jt65 和 jt9 協定允許在您的完整呼叫中使用一些標準資訊, 而犧牲了另一條資訊, 如 DX 呼叫或您的定位.&lt;/p&gt;&lt;p&gt;選擇資訊1省略 DX 呼號, 這在答覆 CQ 呼叫時可能是一個問題.選擇資訊3也會省略 DX 呼號, 此軟體和其他軟體的許多版本都不會提取報告.選擇這兩個都意味著你的完整呼號只會出現在你的資訊 5 (73) 中, 所以你的通聯夥伴我的日誌是出錯誤的呼號.&lt;/p&gt;&lt;p&gt;這些選項都不是完美的, 資訊 3 是最好的, 但請注意, 您的通聯合作夥伴可能不會記錄您傳送的報告.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;複合呼號類型2是那些前綴或後綴不包括在允許的決選名單中 (請參閱説明-&amp; gt; 載入項目前綴和後綴).&lt;p&gt;&lt;p&gt;這個選項確定哪些產生的資訊應包含完整類型2複合呼號, 而不是基本呼號.它僅適用於類型為2的複合呼號.&lt;/p&gt;&lt;p&gt;這個選項控制用於應答 CQ 呼叫的資訊產生方式.產生的資訊 6 (CQ) 和 5 (73) 將始終包含您的完整呼號.jt65 和 jt9 協定允許在您的完整呼叫中使用一些標準資訊, 而犧牲了另一條資訊, 如 DX 呼叫或您的定位.&lt;/p&gt;&lt;p&gt;選擇資訊1省略 DX 呼號, 這在答覆 CQ 呼叫時可能是一個問題.選擇資訊3也會省略 DX 呼號, 此軟體和其他軟體的許多版本都不會提取報告.選擇這兩個都意味著你的完整呼號只會出現在你的資訊 5 (73) 中, 所以你的通聯夥伴我的日誌是錯誤的呼號.&lt;/p&gt;&lt;p&gt;這些選項都不是完美的, 資訊 3 是最好的, 但請注意, 您的通聯合作夥伴可能不會記錄您傳送的報告.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="141"/>
@@ -5531,7 +5605,7 @@ or bandwidth is selected).</source>
         <location filename="../Configuration.ui" line="1088"/>
         <location filename="../Configuration.ui" line="1322"/>
         <source>None</source>
-        <translation>無</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1098"/>
