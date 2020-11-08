@@ -1,11 +1,11 @@
 subroutine display(nkeep,ftol)
 
-  parameter (MAXLINES=400,MX=400)
+  parameter (MAXLINES=400,MX=400,MAXCALLS=500)
   integer indx(MAXLINES),indx2(MX)
   character*83 line(MAXLINES),line2(MX),line3(MAXLINES)
   character out*52,cfreq0*3,livecq*58
   character*6 callsign,callsign0
-  character*12 freqcall(100)
+  character*12 freqcall(MAXCALLS)
   real freqkHz(MAXLINES)
   integer utc(MAXLINES),utc2(MX),utcz
   real*8 f0
@@ -142,7 +142,7 @@ subroutine display(nkeep,ftol)
            len=i2-1
            if(len.lt.0) len=6
            if(len.ge.4) then                        !Omit short "callsigns"
-              nc=nc+1
+              if(nc.lt.MAXCALLS) nc=nc+1
               freqcall(nc)=cfreq0//' '//callsign//line3(k)(73:74)
               callsign0=callsign
            endif
@@ -153,9 +153,9 @@ subroutine display(nkeep,ftol)
      endif
   enddo
   flush(19)
-  nc=nc+1
+  if(nc.lt.MAXCALLS) nc=nc+1
   freqcall(nc)='            '
-  nc=nc+1
+  if(nc.lt.MAXCALLS) nc=nc+1
   freqcall(nc)='            '
   freqcall(nc+1)='            '
   freqcall(nc+2)='            '

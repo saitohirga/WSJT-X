@@ -64,7 +64,7 @@ LIBS += libwsock32
 #LIBS += C:/MinGW/lib/libf95.a
 LIBS += -lgfortran
 #LIBS += -lusb
-LIBS += /users/joe/linrad/3.37/libusb.a
-LIBS += -lQt5Concurrent
+LIBS += ../map65/libusb.a
+#LIBS += -lQt5Concurrent
 #LIBS += c:\JTSDK-QT\Qt5\Tools\mingw48_32\i686-w64-mingw32\lib\libmingwex.a
 }
