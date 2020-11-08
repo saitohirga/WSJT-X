@@ -150,15 +150,14 @@ set (CSRCS
   tmoonsub.c
   usleep.c
   wrapkarn.c
-  
-#  qra64/qra64.c
-#  qra64/qra64_subs.c
-#  qracodes/npfwht.c
-#  qracodes/pdmath.c 
-#  qracodes/qra12_63_64_irr_b.c
-#  qracodes/qra13_64_64_irr_e.c
-#  qracodes/qracodes.c
-#  qracodes/normrnd.c
+  qra64/qra64.c
+  qra64/qra64_subs.c
+  qracodes/npfwht.c
+  qracodes/pdmath.c 
+  qracodes/qra12_63_64_irr_b.c
+  qracodes/qra13_64_64_irr_e.c
+  qracodes/qracodes.c
+  qracodes/normrnd.c
 )
 
 if (WIN32)
