@@ -138,11 +138,10 @@ contains
     if(irc.ge.0) then
 !###
        navg=irc/100
-       irc=ipass
+       irc=100*navg + ipass
 !###
        write(c77,1000) dat4
 1000   format(12b6.6,b5.5)
-
        call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
        nsnr=nint(snr2)
        call this%callback(nutc,sync,nsnr,xdt,f0,decoded,              &

@@ -47,7 +47,7 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
         call twkfreq(c00,c0,npts2,6000.0,a)
         do idt=1,idtmax
            ndt=idt/2
-           if(iavg.eq.0) then
+           if(ipass.eq.0 .and. iavg.eq.0) then
               if(mod(idt,2).eq.0) ndt=-ndt
               jpk=jpk0 + nsps*ndt/16              !tsym/16
               if(jpk.lt.0) jpk=0
@@ -57,7 +57,8 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
               call pctile(s3,LL*NN,40,base)
               s3=s3/base
               where(s3(1:LL*NN)>s3lim) s3(1:LL*NN)=s3lim
-           else
+           endif
+           if(iavg.eq.1) then
               s3(1:LL*NN)=s3avg(1:LL*NN)
            endif
            do ibw=ibwmin,ibwmax
@@ -83,7 +84,7 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
            enddo  ! ibw (b90 loop)
         enddo  ! idt (DT loop)
      enddo  ! idf (f0 loop)
-     if(iavg.eq.0) then
+     if(ipass.eq.0 .and. iavg.eq.0) then
         a=0.
         a(1)=-f0
         call twkfreq(c00,c0,npts2,6000.0,a)
