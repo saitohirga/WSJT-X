@@ -1776,7 +1776,7 @@ Error: %2 - %3</translation>
         <location filename="../Transceiver/HamlibTransceiver.cpp" line="438"/>
         <source>opening connection to rig</source>
         <translatorcomment>conexión de apertura al equipo</translatorcomment>
-        <translation>abriendo conexión al equipo</translation>
+        <translation>se abre la conexión al equipo</translation>
     </message>
     <message>
         <location filename="../Transceiver/HamlibTransceiver.cpp" line="485"/>
@@ -2452,12 +2452,12 @@ Error(%2): %3</translation>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1297"/>
         <source>F High </source>
-        <translation type="unfinished"></translation>
+        <translation>F Alto </translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1388"/>
         <source>F Low   </source>
-        <translation type="unfinished"></translation>
+        <translation>F Bajo   </translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="2484"/>
@@ -2577,12 +2577,12 @@ Error(%2): %3</translation>
     <message>
         <location filename="../widgets/mainwindow.ui" line="3390"/>
         <source>SWL Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Modo Escucha</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="3393"/>
         <source>Hide lower panel controls to maximize deocde windows</source>
-        <translation type="unfinished"></translation>
+        <translation>Ocultar panel de controles inferior para maximizar la ventana de decodificados</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="603"/>
