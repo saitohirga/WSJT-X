@@ -356,6 +356,7 @@ private:
   void foxTest();
   void setColorHighlighting();
   void chkFT4();
+  bool elide_tx1_not_allowed () const;
 
   QProcessEnvironment const& m_env;
   NetworkAccessManager m_network_manager;
@@ -709,7 +710,7 @@ private:
   void stub();
   void statusChanged();
   void fixStop();
-  bool shortList(QString callsign);
+  bool shortList(QString callsign) const;
   void transmit (double snr = 99.);
   void rigFailure (QString const& reason);
   void pskSetLocal ();
