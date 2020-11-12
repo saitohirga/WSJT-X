@@ -14,6 +14,7 @@
 #include <QStringListModel>
 #include <QSettings>
 #include <QKeyEvent>
+#include <QProcessEnvironment>
 #include <QSharedMemory>
 #include <QFileDialog>
 #include <QTextBlock>
@@ -234,8 +235,9 @@ namespace
 MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
                        MultiSettings * multi_settings, QSharedMemory *shdmem,
                        unsigned downSampleFactor,
-                       QSplashScreen * splash, QWidget *parent) :
+                       QSplashScreen * splash, QProcessEnvironment const& env, QWidget *parent) :
   QMainWindow(parent),
+  m_env {env},
   m_network_manager {this},
   m_valid {true},
   m_splash {splash},
@@ -267,6 +269,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_secBandChanged {0},
   m_freqNominal {0},
   m_freqTxNominal {0},
+  m_reverse_Doppler {"1" == env.value ("WSJT_REVERSE_DOPPLER", "0")},
   m_s6 {0.},
   m_tRemaining {0.},
   m_TRperiod {60.0},
@@ -415,6 +418,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_messageClient {new MessageClient {QApplication::applicationName (),
         version (), revision (),
         m_config.udp_server_name (), m_config.udp_server_port (),
+        m_config.udp_interface_names (), m_config.udp_TTL (),
         this}},
   m_psk_Reporter {&m_config, QString {"WSJT-X v" + version () + " " + m_revision}.simplified ()},
   m_manual {&m_network_manager},
@@ -783,6 +787,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect (&m_config, &Configuration::transceiver_failure, this, &MainWindow::handle_transceiver_failure);
   connect (&m_config, &Configuration::udp_server_changed, m_messageClient, &MessageClient::set_server);
   connect (&m_config, &Configuration::udp_server_port_changed, m_messageClient, &MessageClient::set_server_port);
+  connect (&m_config, &Configuration::udp_TTL_changed, m_messageClient, &MessageClient::set_TTL);
   connect (&m_config, &Configuration::accept_udp_requests_changed, m_messageClient, &MessageClient::enable);
   connect (&m_config, &Configuration::enumerating_audio_devices, [this] () {
                                                                    showStatusMessage (tr ("Enumerating audio devices"));
@@ -927,9 +932,9 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
       , "-a", QDir::toNativeSeparators (m_config.writeable_data_dir ().absolutePath ())
       , "-t", QDir::toNativeSeparators (m_config.temp_dir ().absolutePath ())
       };
-  QProcessEnvironment env {QProcessEnvironment::systemEnvironment ()};
-  env.insert ("OMP_STACKSIZE", "4M");
-  proc_jt9.setProcessEnvironment (env);
+  QProcessEnvironment new_env {m_env};
+  new_env.insert ("OMP_STACKSIZE", "4M");
+  proc_jt9.setProcessEnvironment (new_env);
   proc_jt9.start(QDir::toNativeSeparators (m_appDir) + QDir::separator () +
           "jt9", jt9_args, QIODevice::ReadWrite | QIODevice::Unbuffered);
 
@@ -1813,6 +1818,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     checkMSK144ContestType();
     if (m_config.my_callsign () != callsign) {
       m_baseCall = Radio::base_callsign (m_config.my_callsign ());
+      ui->tx1->setEnabled (elide_tx1_not_allowed () || ui->tx1->isEnabled ());
       morse_(const_cast<char *> (m_config.my_callsign ().toLatin1().constData()),
              const_cast<int *> (icw), &m_ncw, m_config.my_callsign ().length());
     }
@@ -4228,7 +4234,15 @@ void MainWindow::guiUpdate()
     transmitDisplay (true);
     statusUpdate ();
   }
-  if(!m_btxok && m_btxok0 && g_iptt==1) stopTx();
+  if(!m_btxok && m_btxok0 && g_iptt==1)
+    {
+      stopTx();
+      if ("1" == m_env.value ("WSJT_TX_BOTH", "0"))
+        {
+          m_txFirst = !m_txFirst;
+          ui->txFirstCheckBox->setChecked (m_txFirst);
+        }
+    }
 
   if(m_startAnother) {
     if(m_mode=="MSK144") {
@@ -4492,13 +4506,19 @@ void MainWindow::on_txrb1_toggled (bool status)
   }
 }
 
+bool MainWindow::elide_tx1_not_allowed () const
+{
+  auto const& my_callsign = m_config.my_callsign ();
+  return
+    (m_mode=="FT8" && SpecOp::HOUND == m_config.special_op_id())
+    || ((m_mode.startsWith ("FT") || "MSK144" == m_mode || "Q65" == m_mode || "FST4" == m_mode)
+        && Radio::is_77bit_nonstandard_callsign (my_callsign))
+    || (my_callsign != m_baseCall && !shortList (my_callsign));
+}
+
 void MainWindow::on_txrb1_doubleClicked ()
 {
-  if(m_mode=="FT8" and SpecOp::HOUND == m_config.special_op_id()) return;
-  // skip Tx1, only allowed if not a type 2 compound callsign
-  auto const& my_callsign = m_config.my_callsign ();
-  auto is_compound = my_callsign != m_baseCall;
-  ui->tx1->setEnabled ((is_compound && shortList (my_callsign)) || !ui->tx1->isEnabled ());
+  ui->tx1->setEnabled (elide_tx1_not_allowed () || !ui->tx1->isEnabled ());
   if (!ui->tx1->isEnabled ()) {
     // leave time for clicks to complete before setting txrb2
     QTimer::singleShot (500, ui->txrb2, SLOT (click ()));
@@ -4575,11 +4595,7 @@ void MainWindow::on_txb1_clicked()
 
 void MainWindow::on_txb1_doubleClicked()
 {
-  if (m_mode=="FT8" and SpecOp::HOUND == m_config.special_op_id()) return;
-  // skip Tx1, only allowed if not a type 1 compound callsign
-  auto const& my_callsign = m_config.my_callsign ();
-  auto is_compound = my_callsign != m_baseCall;
-  ui->tx1->setEnabled ((is_compound && shortList (my_callsign)) || !ui->tx1->isEnabled ());
+  ui->tx1->setEnabled (elide_tx1_not_allowed () || !ui->tx1->isEnabled ());
 }
 
 void MainWindow::on_txb2_clicked()
@@ -4917,34 +4933,38 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
           m_QSOProgress=ROGER_REPORT;
         }
       } else {  // no grid on end of msg
-        QString r=message_words.at (3);
-        if(m_QSOProgress >= ROGER_REPORT && (r=="RRR" || r.toInt()==73 || "RR73" == r)) {
-          if(m_mode=="FT4" and r=="RR73") m_dateTimeRcvdRR73=QDateTime::currentDateTimeUtc();
-            m_bTUmsg=false;
-            m_nextCall="";   //### Temporary: disable use of "TU;" message
-            if(SpecOp::RTTY == m_config.special_op_id() and m_nextCall!="") {
-// We're in RTTY contest and have "nextCall" queued up: send a "TU; ..." message
+        auto const& word_3 = message_words.at (3);
+        bool word_3_is_int;
+        auto word_3_as_number = word_3.toInt (&word_3_is_int);
+        if(m_QSOProgress >= ROGER_REPORT && ("RRR" == word_3
+                                             || (word_3_is_int && word_3_as_number == 73)
+                                             || "RR73" == word_3)) {
+          if(m_mode=="FT4" and "RR73" == word_3) m_dateTimeRcvdRR73=QDateTime::currentDateTimeUtc();
+          m_bTUmsg=false;
+          m_nextCall="";   //### Temporary: disable use of "TU;" message
+          if(SpecOp::RTTY == m_config.special_op_id() and m_nextCall!="") {
+            // We're in RTTY contest and have "nextCall" queued up: send a "TU; ..." message
+            logQSOTimer.start(0);
+            ui->tx3->setText(ui->tx3->text().remove("TU; "));
+            useNextCall();
+            QString t="TU; " + ui->tx3->text();
+            ui->tx3->setText(t);
+            m_bTUmsg=true;
+          } else {
+            if(SpecOp::RTTY == m_config.special_op_id()) {
               logQSOTimer.start(0);
-              ui->tx3->setText(ui->tx3->text().remove("TU; "));
-              useNextCall();
-              QString t="TU; " + ui->tx3->text();
-              ui->tx3->setText(t);
-              m_bTUmsg=true;
+              m_ntx=6;
+              ui->txrb6->setChecked(true);
             } else {
-              if(SpecOp::RTTY == m_config.special_op_id()) {
-                logQSOTimer.start(0);
-                m_ntx=6;
-                ui->txrb6->setChecked(true);
-              } else {
-                m_ntx=5;
-                ui->txrb5->setChecked(true);
-              }
+              m_ntx=5;
+              ui->txrb5->setChecked(true);
             }
+          }
           m_QSOProgress = SIGNOFF;
         } else if((m_QSOProgress >= REPORT
                    || (m_QSOProgress >= REPLYING &&
                    (m_mode=="MSK144" or m_mode=="FT8" or m_mode=="FT4")))
-                   && r.mid(0,1)=="R") {
+                  && word_3.startsWith ('R')) {
           m_ntx=4;
           m_QSOProgress = ROGERS;
           if(SpecOp::RTTY == m_config.special_op_id()) {
@@ -4953,23 +4973,30 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             if(nRpt>=529 and nRpt<=599) m_xRcvd=t[n-2] + " " + t[n-1];
           }
           ui->txrb4->setChecked(true);
-        } else if(m_QSOProgress>=CALLING and
-              ((r.toInt()>=-50 && r.toInt()<=49) or (r.toInt()>=529 && r.toInt()<=599))) {
-          if(SpecOp::EU_VHF==m_config.special_op_id() or
-             SpecOp::FIELD_DAY==m_config.special_op_id() or
-             SpecOp::RTTY==m_config.special_op_id()) { 
-            setTxMsg(2);
-            m_QSOProgress=REPORT;
-          } else {
-            if(r.left(2)=="R-" or r.left(2)=="R+") {
-              setTxMsg(4);
-              m_QSOProgress=ROGERS;
+        } else if (m_QSOProgress >= CALLING)
+          {
+            if (word_3_is_int
+                && ((word_3_as_number >= -50 && word_3_as_number <= 49)
+                    || (word_3_as_number >= 529 && word_3_as_number <= 599))) {
+              if(SpecOp::EU_VHF==m_config.special_op_id() or
+                 SpecOp::FIELD_DAY==m_config.special_op_id() or
+                 SpecOp::RTTY==m_config.special_op_id()) {
+                setTxMsg(2);
+                m_QSOProgress=REPORT;
+              }
+              else {
+                setTxMsg (3);
+                m_QSOProgress = ROGER_REPORT;
+              }
             } else {
-              setTxMsg(3);
-              m_QSOProgress=ROGER_REPORT;
+              if (word_3.startsWith ("R-") || word_3.startsWith ("R+")) {
+                setTxMsg(4);
+                m_QSOProgress=ROGERS;
             }
           }
-        } else {                // nothing for us
+        }
+      else
+        {                // nothing for us
           return;
         }
       }
@@ -7424,7 +7451,7 @@ Type 1 Suffixes:    /0 /1 /2 /3 /4 /5 /6 /7 /8 /9 /A /P)", {"Courier", 10}});
   m_prefixes->raise ();
 }
 
-bool MainWindow::shortList(QString callsign)
+bool MainWindow::shortList(QString callsign) const
 {
   int n=callsign.length();
   int i1=callsign.indexOf("/");
@@ -7669,13 +7696,21 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
   QString format_string {"%1 %2 %3 %4 %5 %6"};
   auto const& time_string = time.toString ("~" == mode || "&" == mode
                                            || "+" == mode ? "hhmmss" : "hhmm");
+  auto text = message_text;
+  auto ap_pos = text.lastIndexOf (QRegularExpression {R"((?:\?\s)?a[0-9]$)"});
+  if (ap_pos >= 0)
+    {
+      // beware of decodes ending on shorter version of wanted call so
+      // add a space
+      text = text.left (ap_pos).trimmed () + ' ';
+    }
   auto message_line = format_string
     .arg (time_string)
     .arg (snr, 3)
     .arg (delta_time, 4, 'f', 1)
     .arg (delta_frequency, 4)
     .arg (mode, -2)
-    .arg (message_text);
+    .arg (text);
   QTextCursor start {ui->decodedTextBrowser->document ()};
   start.movePosition (QTextCursor::End);
   auto cursor = ui->decodedTextBrowser->document ()->find (message_line, start, QTextDocument::FindBackward);
@@ -7688,7 +7723,7 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
                                                           .arg ('-' + QString::number (delta_time, 'f', 1), 4)
                                                           .arg (delta_frequency, 4)
                                                           .arg (mode, -2)
-                                                          .arg (message_text), start, QTextDocument::FindBackward);
+                                                          .arg (text), start, QTextDocument::FindBackward);
     }
   if (!cursor.isNull ())
     {
@@ -7703,7 +7738,7 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
           showNormal ();
           raise ();
         }
-      if (message_text.contains (QRegularExpression {R"(^(CQ |CQDX |QRZ ))"})) {
+      if (text.contains (QRegularExpression {R"(^(CQ |CQDX |QRZ ))"})) {
         // a message we are willing to accept and auto reply to
         m_bDoubleClicked = true;
       }
@@ -7817,7 +7852,7 @@ void MainWindow::networkError (QString const& e)
                                                         , MessageBox::Cancel))
     {
       // retry server lookup
-      m_messageClient->set_server (m_config.udp_server_name ());
+      m_messageClient->set_server (m_config.udp_server_name (), m_config.udp_interface_names ());
     }
 }
 
@@ -8186,6 +8221,10 @@ void MainWindow::astroUpdate ()
               correction.tx = correction.tx / 10 * 10;
             }
           m_astroCorrection = correction;
+          if (m_reverse_Doppler)
+            {
+              m_astroCorrection.reverse ();
+            }
         }
       else
         {
@@ -9110,15 +9149,15 @@ void MainWindow::write_all(QString txRx, QString message)
   QString msg;
   QString mode_string;
 
-  if (message[4]==' ') {
+  if (message.size () > 5 && message[4]==' ') {
      msg=message.mid(4,-1);
   } else {
      msg=message.mid(6,-1);
   }
 
-  if (message[19]=='#') {
+  if (message.size () > 19 && message[19]=='#') {
      mode_string="JT65  ";
-  } else if (message[19]=='@') {
+  } else if (message.size () > 19 && message[19]=='@') {
      mode_string="JT9   ";
   } else {
      mode_string=m_mode.leftJustified(6,' ');

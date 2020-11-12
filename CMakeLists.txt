@@ -235,6 +235,7 @@ set (wsjt_qt_CXXSRCS
   logbook/Multiplier.cpp
   Network/NetworkAccessManager.cpp
   widgets/LazyFillComboBox.cpp
+  widgets/CheckableItemComboBox.cpp
   )
 
 set (wsjt_qtmm_CXXSRCS
@@ -1158,6 +1159,11 @@ target_link_libraries (ft4sim_mult wsjt_fort wsjt_cxx)
 
 add_executable (fst4sim lib/fst4/fst4sim.f90)
 target_link_libraries (fst4sim wsjt_fort wsjt_cxx)
+if (WIN32)
+  set_target_properties (fst4sim PROPERTIES
+    LINK_FLAGS -Wl,--stack,0x4000000,--heap,0x6000000
+    )
+endif ()
 
 add_executable (ldpcsim240_101 lib/fst4/ldpcsim240_101.f90)
 target_link_libraries (ldpcsim240_101 wsjt_fort wsjt_cxx)
@@ -1323,7 +1329,7 @@ generate_version_info (jt9_VERSION_RESOURCES
   NAME jt9
   BUNDLE ${PROJECT_BUNDLE_NAME}
   ICON ${WSJTX_ICON_FILE}
-  FILE_DESCRIPTION "Slow mode decoder"
+  FILE_DESCRIPTION "jt9 - WSJT-X slow mode decoder"
   )
 
 add_executable (record_time_signal Audio/tools/record_time_signal.cpp)
@@ -1415,7 +1421,7 @@ else ()
     )
   if (WIN32)
     set_target_properties (wsjtx PROPERTIES
-      LINK_FLAGS -Wl,--stack,16777216
+      LINK_FLAGS -Wl,--stack,0x1000000,--heap,0x20000000
       )
   endif ()
 endif ()
@@ -1468,7 +1474,7 @@ add_executable (message_aggregator
   ${message_aggregator_RESOURCES_RCC}
   ${message_aggregator_VERSION_RESOURCES}
   )
-target_link_libraries (message_aggregator Qt5::Widgets wsjtx_udp-static)
+target_link_libraries (message_aggregator wsjt_qt Qt5::Widgets wsjtx_udp-static)
 
 if (WSJT_CREATE_WINMAIN)
   set_target_properties (message_aggregator PROPERTIES WIN32_EXECUTABLE ON)

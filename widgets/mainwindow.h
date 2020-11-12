@@ -64,6 +64,7 @@ namespace Ui {
   class MainWindow;
 }
 
+class QProcessEnvironment;
 class QSharedMemory;
 class QSplashScreen;
 class QSettings;
@@ -104,7 +105,7 @@ public:
 
   explicit MainWindow(QDir const& temp_directory, bool multiple, MultiSettings *,
                       QSharedMemory *shdmem, unsigned downSampleFactor,
-                      QSplashScreen *,
+                      QSplashScreen *, QProcessEnvironment const&,
                       QWidget *parent = nullptr);
   ~MainWindow();
 
@@ -356,7 +357,9 @@ private:
   void foxTest();
   void setColorHighlighting();
   void chkFT4();
+  bool elide_tx1_not_allowed () const;
 
+  QProcessEnvironment const& m_env;
   NetworkAccessManager m_network_manager;
   bool m_valid;
   QSplashScreen * m_splash;
@@ -408,6 +411,7 @@ private:
   Frequency m_freqNominal;
   Frequency m_freqTxNominal;
   Astro::Correction m_astroCorrection;
+  bool m_reverse_Doppler;
 
   double  m_s6;
   double  m_tRemaining;
@@ -707,7 +711,7 @@ private:
   void stub();
   void statusChanged();
   void fixStop();
-  bool shortList(QString callsign);
+  bool shortList(QString callsign) const;
   void transmit (double snr = 99.);
   void rigFailure (QString const& reason);
   void pskSetLocal ();

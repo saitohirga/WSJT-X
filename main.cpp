@@ -9,6 +9,7 @@
 #include <fftw3.h>
 
 #include <QSharedMemory>
+#include <QProcessEnvironment>
 #include <QTemporaryFile>
 #include <QDateTime>
 #include <QLocale>
@@ -106,6 +107,8 @@ int main(int argc, char *argv[])
 
   // Multiple instances communicate with jt9 via this
   QSharedMemory mem_jt9;
+
+  auto const env = QProcessEnvironment::systemEnvironment ();
 
   QApplication a(argc, argv);
   try
@@ -421,7 +424,7 @@ int main(int argc, char *argv[])
           }
 
           // run the application UI
-          MainWindow w(temp_dir, multiple, &multi_settings, &mem_jt9, downSampleFactor, &splash);
+          MainWindow w(temp_dir, multiple, &multi_settings, &mem_jt9, downSampleFactor, &splash, env);
           w.show();
           splash.raise ();
           QObject::connect (&a, SIGNAL (lastWindowClosed()), &a, SLOT (quit()));
