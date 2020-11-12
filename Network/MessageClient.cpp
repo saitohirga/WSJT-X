@@ -36,7 +36,6 @@ public:
   impl (QString const& id, QString const& version, QString const& revision,
         port_type server_port, int TTL, MessageClient * self)
     : self_ {self}
-    , dns_lookup_id_ {-1}
     , enabled_ {false}
     , id_ {id}
     , version_ {version}
