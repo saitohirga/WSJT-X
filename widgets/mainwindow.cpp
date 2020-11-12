@@ -4932,34 +4932,38 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
           m_QSOProgress=ROGER_REPORT;
         }
       } else {  // no grid on end of msg
-        QString r=message_words.at (3);
-        if(m_QSOProgress >= ROGER_REPORT && (r=="RRR" || r.toInt()==73 || "RR73" == r)) {
-          if(m_mode=="FT4" and r=="RR73") m_dateTimeRcvdRR73=QDateTime::currentDateTimeUtc();
-            m_bTUmsg=false;
-            m_nextCall="";   //### Temporary: disable use of "TU;" message
-            if(SpecOp::RTTY == m_config.special_op_id() and m_nextCall!="") {
-// We're in RTTY contest and have "nextCall" queued up: send a "TU; ..." message
+        auto const& word_3 = message_words.at (3);
+        bool word_3_is_int;
+        auto word_3_as_number = word_3.toInt (&word_3_is_int);
+        if(m_QSOProgress >= ROGER_REPORT && ("RRR" == word_3
+                                             || (word_3_is_int && word_3_as_number == 73)
+                                             || "RR73" == word_3)) {
+          if(m_mode=="FT4" and "RR73" == word_3) m_dateTimeRcvdRR73=QDateTime::currentDateTimeUtc();
+          m_bTUmsg=false;
+          m_nextCall="";   //### Temporary: disable use of "TU;" message
+          if(SpecOp::RTTY == m_config.special_op_id() and m_nextCall!="") {
+            // We're in RTTY contest and have "nextCall" queued up: send a "TU; ..." message
+            logQSOTimer.start(0);
+            ui->tx3->setText(ui->tx3->text().remove("TU; "));
+            useNextCall();
+            QString t="TU; " + ui->tx3->text();
+            ui->tx3->setText(t);
+            m_bTUmsg=true;
+          } else {
+            if(SpecOp::RTTY == m_config.special_op_id()) {
               logQSOTimer.start(0);
-              ui->tx3->setText(ui->tx3->text().remove("TU; "));
-              useNextCall();
-              QString t="TU; " + ui->tx3->text();
-              ui->tx3->setText(t);
-              m_bTUmsg=true;
+              m_ntx=6;
+              ui->txrb6->setChecked(true);
             } else {
-              if(SpecOp::RTTY == m_config.special_op_id()) {
-                logQSOTimer.start(0);
-                m_ntx=6;
-                ui->txrb6->setChecked(true);
-              } else {
-                m_ntx=5;
-                ui->txrb5->setChecked(true);
-              }
+              m_ntx=5;
+              ui->txrb5->setChecked(true);
             }
+          }
           m_QSOProgress = SIGNOFF;
         } else if((m_QSOProgress >= REPORT
                    || (m_QSOProgress >= REPLYING &&
                    (m_mode=="MSK144" or m_mode=="FT8" or m_mode=="FT4")))
-                   && r.mid(0,1)=="R") {
+                  && word_3.startsWith ('R')) {
           m_ntx=4;
           m_QSOProgress = ROGERS;
           if(SpecOp::RTTY == m_config.special_op_id()) {
@@ -4968,23 +4972,30 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             if(nRpt>=529 and nRpt<=599) m_xRcvd=t[n-2] + " " + t[n-1];
           }
           ui->txrb4->setChecked(true);
-        } else if(m_QSOProgress>=CALLING and
-              ((r.toInt()>=-50 && r.toInt()<=49) or (r.toInt()>=529 && r.toInt()<=599))) {
-          if(SpecOp::EU_VHF==m_config.special_op_id() or
-             SpecOp::FIELD_DAY==m_config.special_op_id() or
-             SpecOp::RTTY==m_config.special_op_id()) { 
-            setTxMsg(2);
-            m_QSOProgress=REPORT;
-          } else {
-            if(r.left(2)=="R-" or r.left(2)=="R+") {
-              setTxMsg(4);
-              m_QSOProgress=ROGERS;
+        } else if (m_QSOProgress >= CALLING)
+          {
+            if (word_3_is_int
+                && ((word_3_as_number >= -50 && word_3_as_number <= 49)
+                    || (word_3_as_number >= 529 && word_3_as_number <= 599))) {
+              if(SpecOp::EU_VHF==m_config.special_op_id() or
+                 SpecOp::FIELD_DAY==m_config.special_op_id() or
+                 SpecOp::RTTY==m_config.special_op_id()) {
+                setTxMsg(2);
+                m_QSOProgress=REPORT;
+              }
+              else {
+                setTxMsg (3);
+                m_QSOProgress = ROGER_REPORT;
+              }
             } else {
-              setTxMsg(3);
-              m_QSOProgress=ROGER_REPORT;
+              if (word_3.startsWith ("R-") || word_3.startsWith ("R+")) {
+                setTxMsg(4);
+                m_QSOProgress=ROGERS;
             }
           }
-        } else {                // nothing for us
+        }
+      else
+        {                // nothing for us
           return;
         }
       }
