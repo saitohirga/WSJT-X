@@ -1817,6 +1817,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     checkMSK144ContestType();
     if (m_config.my_callsign () != callsign) {
       m_baseCall = Radio::base_callsign (m_config.my_callsign ());
+      ui->tx1->setEnabled (elide_tx1_not_allowed () || ui->tx1->isEnabled ());
       morse_(const_cast<char *> (m_config.my_callsign ().toLatin1().constData()),
              const_cast<int *> (icw), &m_ncw, m_config.my_callsign ().length());
     }
@@ -4504,13 +4505,19 @@ void MainWindow::on_txrb1_toggled (bool status)
   }
 }
 
+bool MainWindow::elide_tx1_not_allowed () const
+{
+  auto const& my_callsign = m_config.my_callsign ();
+  return
+    (m_mode=="FT8" && SpecOp::HOUND == m_config.special_op_id())
+    || ((m_mode.startsWith ("FT") || "MSK144" == m_mode || "Q65" == m_mode || "FST4" == m_mode)
+        && Radio::is_77bit_nonstandard_callsign (my_callsign))
+    || (my_callsign != m_baseCall && !shortList (my_callsign));
+}
+
 void MainWindow::on_txrb1_doubleClicked ()
 {
-  if(m_mode=="FT8" and SpecOp::HOUND == m_config.special_op_id()) return;
-  // skip Tx1, only allowed if not a type 2 compound callsign
-  auto const& my_callsign = m_config.my_callsign ();
-  auto is_compound = my_callsign != m_baseCall;
-  ui->tx1->setEnabled ((is_compound && shortList (my_callsign)) || !ui->tx1->isEnabled ());
+  ui->tx1->setEnabled (elide_tx1_not_allowed () || !ui->tx1->isEnabled ());
   if (!ui->tx1->isEnabled ()) {
     // leave time for clicks to complete before setting txrb2
     QTimer::singleShot (500, ui->txrb2, SLOT (click ()));
@@ -4587,11 +4594,7 @@ void MainWindow::on_txb1_clicked()
 
 void MainWindow::on_txb1_doubleClicked()
 {
-  if (m_mode=="FT8" and SpecOp::HOUND == m_config.special_op_id()) return;
-  // skip Tx1, only allowed if not a type 1 compound callsign
-  auto const& my_callsign = m_config.my_callsign ();
-  auto is_compound = my_callsign != m_baseCall;
-  ui->tx1->setEnabled ((is_compound && shortList (my_callsign)) || !ui->tx1->isEnabled ());
+  ui->tx1->setEnabled (elide_tx1_not_allowed () || !ui->tx1->isEnabled ());
 }
 
 void MainWindow::on_txb2_clicked()
@@ -7436,7 +7439,7 @@ Type 1 Suffixes:    /0 /1 /2 /3 /4 /5 /6 /7 /8 /9 /A /P)", {"Courier", 10}});
   m_prefixes->raise ();
 }
 
-bool MainWindow::shortList(QString callsign)
+bool MainWindow::shortList(QString callsign) const
 {
   int n=callsign.length();
   int i1=callsign.indexOf("/");
