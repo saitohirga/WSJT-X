@@ -1,5 +1,6 @@
 subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
-     ndepth,jpk0,xdt,f0,width,iaptype,APmask,APsymbols,snr1,snr2,irc,dat4)
+     ndepth,jpk0,xdt0,f0,width,iaptype,APmask,APsymbols,snr1,xdt1,f1,    &
+     snr2,irc,dat4)
 
   use packjt77
   use timer_module, only: timer
@@ -38,6 +39,8 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
   NN=63
   napmin=99
   baud=6000.0/nsps
+  xdt1=xdt0
+  f1=f0
   
   maxavg=0
   if(iand(ndepth,16).ne.0) maxavg=1
@@ -111,6 +114,8 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
      navg=nsave
      snr2=esnodb - db(2500.0/baud)
      if(iavg.eq.0) navg=0
+     xdt1=xdt0 +  nsps*ndt/(16.0*6000.0)
+     f1=f0 + 0.5*baud*ndf
 !### For tests only:
      open(53,file='fort.53',status='unknown',position='append')
      write(c77,1100) dat4(1:12),dat4(13)/2

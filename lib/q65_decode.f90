@@ -133,15 +133,11 @@ contains
 !3002   format('b   ',13b6.6/4x,13b6.6)
        call timer('q65loops',0)
        call q65_loops(c00,npts/2,nsps/2,nmode,mode65,nsubmode,nFadingModel,  &
-            ndepth,jpk0,xdt,f0,width,iaptype,apmask,apsymbols,snr1,snr2,     &
-            irc,dat4)
+            ndepth,jpk0,xdt,f0,width,iaptype,apmask,apsymbols,snr1,xdt1,f1,  &
+            snr2,irc,dat4)
        call timer('q65loops',1)
        snr2=snr2 + db(6912.0/nsps)
-       if(irc.ge.0) then
-!          write(54,3003) dat4,dat4
-!3003      format('c   ',13b6.6,13i3)
-          exit
-       endif
+       if(irc.ge.0) exit
     enddo
 
 100 decoded='                                     '
@@ -155,12 +151,12 @@ contains
 1000   format(12b6.6,b5.5)
        call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
        nsnr=nint(snr2)
-       call this%callback(nutc,sync,nsnr,xdt,f0,decoded,              &
+       call this%callback(nutc,sync,nsnr,xdt1,f1,decoded,              &
             irc,qual,ntrperiod,fmid,w50)
     else
 ! Report sync, even if no decode.
        nsnr=db(snr1) - 35.0
-       call this%callback(nutc,sync,nsnr,xdt,f0,decoded,              &
+       call this%callback(nutc,sync,nsnr,xdt1,f1,decoded,              &
             irc,qual,ntrperiod,fmid,w50)
     endif
 
