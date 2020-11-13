@@ -192,53 +192,53 @@ WSJTXLogging::~WSJTXLogging ()
   lg->remove_all_sinks ();
 }
 
-// // Reroute Qt messages to the system logger
-// void WSJTXLogging::qt_log_handler (QtMsgType type, QMessageLogContext const& context, QString const& msg)
-// {
-//   std::cerr << "qt_log_handler: type: " << int(type) << " file: " << context.file << " line: " << context.line << " msg: " << msg.toStdString () << '\n';
+// Reroute Qt messages to the system logger
+void WSJTXLogging::qt_log_handler (QtMsgType type, QMessageLogContext const& context, QString const& msg)
+{
+  std::cerr << "qt_log_handler: type: " << int(type) << " file: " << context.file << " line: " << context.line << " msg: " << msg.toStdString () << '\n';
   
-//   // Convert Qt message types to logger severities
-//   auto severity = trivial::trace;
-//   switch (type)
-//     {
-//     case QtDebugMsg: severity = trivial::debug; break;
-//     case QtInfoMsg: severity = trivial::info; break;
-//     case QtWarningMsg: severity = trivial::warning; break;
-//     case QtCriticalMsg: severity = trivial::error; break;
-//     case QtFatalMsg: severity = trivial::fatal; break;
-//     }
-//   // Map non-default Qt categories to logger channels, Qt logger
-//   // context is mapped to the appropriate logger attributes.
-//   auto log = sys::get ();
-//   std::string file;
-//   std::string function;
-//   if (context.file)
-//     {
-//       file = context.file;
-//     }
-//   if (context.function)
-//     {
-//       function = context.function;
-//     }
-//   if (!context.category || !qstrcmp (context.category, "default"))
-//     {
-//       BOOST_LOG_SEV (log, severity)
-//         // << boost::log::add_value ("Line", context.line)
-//         // << boost::log::add_value ("File", file)
-//         // << boost::log::add_value ("Function", function)
-//         << msg.toStdString ();
-//     }
-//   else
-//     {
-//       BOOST_LOG_CHANNEL_SEV (log, std::string {context.category}, severity)
-//         // << boost::log::add_value ("Line", context.line)
-//         // << boost::log::add_value ("File", file)
-//         // << boost::log::add_value ("Function", function)
-//         << msg.toStdString ();
-//     }
-//   if (QtFatalMsg == type)
-//     {
-//       // bail out
-//       throw std::runtime_error {"Fatal Qt Error"};
-//     }
-// }
+  // Convert Qt message types to logger severities
+  auto severity = trivial::trace;
+  switch (type)
+    {
+    case QtDebugMsg: severity = trivial::debug; break;
+    case QtInfoMsg: severity = trivial::info; break;
+    case QtWarningMsg: severity = trivial::warning; break;
+    case QtCriticalMsg: severity = trivial::error; break;
+    case QtFatalMsg: severity = trivial::fatal; break;
+    }
+  // Map non-default Qt categories to logger channels, Qt logger
+  // context is mapped to the appropriate logger attributes.
+  auto log = sys::get ();
+  std::string file;
+  std::string function;
+  if (context.file)
+    {
+      file = context.file;
+    }
+  if (context.function)
+    {
+      function = context.function;
+    }
+  if (!context.category || !qstrcmp (context.category, "default"))
+    {
+      BOOST_LOG_SEV (log, severity)
+        // << boost::log::add_value ("Line", context.line)
+        // << boost::log::add_value ("File", file)
+        // << boost::log::add_value ("Function", function)
+        << msg.toStdString ();
+    }
+  else
+    {
+      BOOST_LOG_CHANNEL_SEV (log, std::string {context.category}, severity)
+        // << boost::log::add_value ("Line", context.line)
+        // << boost::log::add_value ("File", file)
+        // << boost::log::add_value ("Function", function)
+        << msg.toStdString ();
+    }
+  if (QtFatalMsg == type)
+    {
+      // bail out
+      throw std::runtime_error {"Fatal Qt Error"};
+    }
+}
