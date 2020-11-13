@@ -22,7 +22,7 @@ public:
   // time, it does not rely on an instance of WSJTXLogging existing,
   // so logging occurring before the logging sinks, filters, and
   // formatters, etc, are established can take place.
-  static void qt_log_handler (QtMsgType type, QMessageLogContext const& context, QString const&);
+  // static void qt_log_handler (QtMsgType type, QMessageLogContext const& context, QString const&);
 };
 
 #endif
