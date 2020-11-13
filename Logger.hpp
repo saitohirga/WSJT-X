@@ -31,11 +31,15 @@ namespace Logger
   void add_data_file_log (std::string const& log_file_name);
 }
 
+#if 0
 #define LOG_LOG_LOCATION(LOGGER, LEVEL, ARG)                  \
   BOOST_LOG_SEV (LOGGER, boost::log::trivial::LEVEL)          \
-  << boost::log::add_value ("Line", __LINE__)                 \
-  << boost::log::add_value ("File", __FILE__)                 \
-  << boost::log::add_value ("Function", __FUNCTION__) << ARG;
+   << boost::log::add_value ("Line", __LINE__)                 \
+   << boost::log::add_value ("File", __FILE__)                 \
+   << boost::log::add_value ("Function", __FUNCTION__) << ARG;
+#endif
+
+#define LOG_LOG_LOCATION(LOGGER, LEVEL, ARG)
 
 /// System Log macros.
 /// TRACE < DEBUG < INFO < WARN < ERROR < FATAL
