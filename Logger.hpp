@@ -10,10 +10,10 @@
 #include <iosfwd>
 #include <string>
 
-// BOOST_LOG_GLOBAL_LOGGER (sys,
-//                          boost::log::sources::severity_channel_logger_mt<boost::log::trivial::severity_level>);
-// BOOST_LOG_GLOBAL_LOGGER (data,
-//                          boost::log::sources::severity_channel_logger_mt<boost::log::trivial::severity_level>);
+BOOST_LOG_GLOBAL_LOGGER (sys,
+                         boost::log::sources::severity_channel_logger_mt<boost::log::trivial::severity_level>);
+BOOST_LOG_GLOBAL_LOGGER (data,
+                         boost::log::sources::severity_channel_logger_mt<boost::log::trivial::severity_level>);
 
 namespace Logger
 {
