@@ -51,7 +51,7 @@ program jt9
     option ('fft-threads', .true., 'm',                                      &
         'Number of threads to process large FFTs, default THREADS=1',        &
         'THREADS'),                                                          &
-    option ('qra66', .false., '3', 'QRA66 mode', ''),                        &
+    option ('q65', .false., '3', 'Q65 mode', ''),                        &
     option ('jt4', .false., '4', 'JT4 mode', ''),                            &
     option ('ft4', .false., '5', 'FT4 mode', ''),                            &
     option ('jt65', .false.,'6', 'JT65 mode', ''),                           &
@@ -263,6 +263,7 @@ program jt9
      shared_data%params%nfsplit=fsplit
      shared_data%params%nfb=fhigh
      shared_data%params%ntol=20
+     if(mode.eq.66) shared_data%params%ntol=10
      shared_data%params%kin=64800
      if(mode.eq.240) shared_data%params%kin=720000   !### 60 s periods ###
      shared_data%params%nzhsym=nhsym
