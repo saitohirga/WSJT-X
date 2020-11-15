@@ -1,4 +1,4 @@
-subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
+subroutine q65_loops(c00,nutc,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
      ndepth,jpk0,xdt0,f0,width,iaptype,APmask,APsymbols,snr1,xdt1,f1,    &
      snr2,irc,dat4)
 
@@ -121,9 +121,12 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
      write(c77,1100) dat4(1:12),dat4(13)/2
 1100 format(12b6.6,b5.5)
      call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
-     write(53,3053) ndf,ndt,nbw,b90,xdt1,f1,snr2,ndist,irc,iaptype,navg,  &
-          snr1,trim(decoded)
-3053 format(3i4,f6.1,f6.2,f7.1,f6.1,4i4,f7.2,1x,a)
+     if(nsps.lt.3600) write(53,3001) nutc,ndf,ndt,nbw,ndist,irc,   &
+          iaptype,navg,snr1,xdt1,f1,snr2,trim(decoded)
+3001 format(i6.6,7i4,f7.1,f7.2,2f7.1,1x,a)
+     if(nsps.ge.3600) write(53,3002) nutc,ndf,ndt,nbw,ndist,irc,   &
+          iaptype,navg,snr1,xdt1,f1,snr2,trim(decoded)
+3002 format(i4.4,2x,7i4,f7.1,f7.2,2f7.1,1x,a)
      close(53)
 !###  
      nsave=0

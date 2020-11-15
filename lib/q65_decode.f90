@@ -63,9 +63,10 @@ contains
     complex, allocatable :: c0(:)         !Analytic signal, 6000 Sa/s
 
     mode65=2**nsubmode
+    npts=ntrperiod*12000
     nfft1=ntrperiod*12000
     nfft2=ntrperiod*6000
-    allocate(dd(NMAX))
+    allocate(dd(npts))
     allocate (c00(0:nfft1-1))
     allocate (c0(0:nfft1-1))
 
@@ -82,7 +83,6 @@ contains
     else
        stop 'Invalid TR period'
     endif
-    npts=ntrperiod*12000
     baud=12000.0/nsps
     df1=12000.0/nfft1
     this%callback => callback
@@ -100,7 +100,19 @@ contains
     if(ntrperiod.le.30) jpk0=(xdt+0.5)*6000  !###
     if(jpk0.lt.0) jpk0=0
     fac=1.0/32767.0
-    dd=fac*iwave
+    dd=fac*iwave(1:npts)
+!###
+! Optionslly write noise level to LU 56
+!    sq=dot_product(dd,dd)/npts
+!    m=nutc
+!    if(ntrperiod.ge.60) m=100*m
+!    ihr=m/10000
+!    imin=mod(m/100,100)
+!    isec=mod(m,100)
+!    hours=ihr + imin/60.0 + isec/3600.0
+!    write(56,3056) m,hours,db(sq)+90.3
+!3056 format(i6.6,f10.6,f10.3)
+!###
     nmode=65
     call ana64(dd,npts,c00)
 
@@ -132,9 +144,9 @@ contains
 !       write(54,3002) apmask,apsymbols
 !3002   format('b   ',13b6.6/4x,13b6.6)
        call timer('q65loops',0)
-       call q65_loops(c00,npts/2,nsps/2,nmode,mode65,nsubmode,nFadingModel,  &
-            ndepth,jpk0,xdt,f0,width,iaptype,apmask,apsymbols,snr1,xdt1,f1,  &
-            snr2,irc,dat4)
+       call q65_loops(c00,nutc,npts/2,nsps/2,nmode,mode65,nsubmode,         &
+            nFadingModel,ndepth,jpk0,xdt,f0,width,iaptype,apmask,apsymbols, &
+            snr1,xdt1,f1,snr2,irc,dat4)
        call timer('q65loops',1)
        snr2=snr2 + db(6912.0/nsps)
        if(irc.ge.0) exit
