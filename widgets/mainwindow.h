@@ -26,6 +26,7 @@
 #include <QFuture>
 #include <QFutureWatcher>
 
+#include "NonInheritingProcess.hpp"
 #include "Audio/AudioDevice.hpp"
 #include "commons.h"
 #include "Radio.hpp"
@@ -63,6 +64,7 @@ namespace Ui {
   class MainWindow;
 }
 
+class QProcessEnvironment;
 class QSharedMemory;
 class QSplashScreen;
 class QSettings;
@@ -103,7 +105,7 @@ public:
 
   explicit MainWindow(QDir const& temp_directory, bool multiple, MultiSettings *,
                       QSharedMemory *shdmem, unsigned downSampleFactor,
-                      QSplashScreen *,
+                      QSplashScreen *, QProcessEnvironment const&,
                       QWidget *parent = nullptr);
   ~MainWindow();
 
@@ -165,6 +167,7 @@ private slots:
   void on_actionSpecial_mouse_commands_triggered();
   void on_actionSolve_FreqCal_triggered();
   void on_actionCopyright_Notice_triggered();
+  void on_actionSWL_Mode_triggered (bool checked);
   void on_DecodeButton_clicked (bool);
   void decode();
   void decodeBusy(bool b);
@@ -278,7 +281,7 @@ private slots:
   void WSPR_config(bool b);
   void uploadWSPRSpots (bool direct_post = false, QString const& decode_text = QString {});
   void TxAgain();
-  void uploadResponse(QString response);
+  void uploadResponse(QString const& response);
   void on_WSPRfreqSpinBox_valueChanged(int n);
   void on_sbFST4W_RxFreq_valueChanged(int n);
   void on_sbFST4W_FTol_valueChanged(int n);
@@ -354,7 +357,9 @@ private:
   void foxTest();
   void setColorHighlighting();
   void chkFT4();
+  bool elide_tx1_not_allowed () const;
 
+  QProcessEnvironment const& m_env;
   NetworkAccessManager m_network_manager;
   bool m_valid;
   QSplashScreen * m_splash;
@@ -401,12 +406,12 @@ private:
   qint64  m_msErase;
   qint64  m_secBandChanged;
   qint64  m_freqMoon;
-  qint64  m_msec0;
   qint64  m_fullFoxCallTime;
 
   Frequency m_freqNominal;
   Frequency m_freqTxNominal;
   Astro::Correction m_astroCorrection;
+  bool m_reverse_Doppler;
 
   double  m_s6;
   double  m_tRemaining;
@@ -572,9 +577,9 @@ private:
   QFutureWatcher<void> watcher3;
   QFutureWatcher<QString> m_saveWAVWatcher;
 
-  QProcess proc_jt9;
-  QProcess p1;
-  QProcess p3;
+  NonInheritingProcess proc_jt9;
+  NonInheritingProcess p1;
+  NonInheritingProcess p3;
 
   WSPRNet *wsprNet;
 
@@ -706,7 +711,7 @@ private:
   void stub();
   void statusChanged();
   void fixStop();
-  bool shortList(QString callsign);
+  bool shortList(QString callsign) const;
   void transmit (double snr = 99.);
   void rigFailure (QString const& reason);
   void pskSetLocal ();

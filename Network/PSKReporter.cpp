@@ -84,7 +84,7 @@ public:
   {
     if (!socket_
         || QAbstractSocket::UnconnectedState == socket_->state ()
-        || (socket_->socketType () != config_->psk_reporter_tcpip () ? QAbstractSocket::TcpSocket : QAbstractSocket::UdpSocket))
+        || (socket_->socketType () != (config_->psk_reporter_tcpip () ? QAbstractSocket::TcpSocket : QAbstractSocket::UdpSocket)))
       {
         // we need to create the appropriate socket
         if (socket_
@@ -145,8 +145,10 @@ public:
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     connect (socket_.get (), &QAbstractSocket::errorOccurred, this, &PSKReporter::impl::handle_socket_error);
-#else
+#elif QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
     connect (socket_.data (), QOverload<QAbstractSocket::SocketError>::of (&QAbstractSocket::error), this, &PSKReporter::impl::handle_socket_error);
+#else
+    connect (socket_.data (), static_cast<void (QAbstractSocket::*) (QAbstractSocket::SocketError)> (&QAbstractSocket::error), this, &PSKReporter::impl::handle_socket_error);
 #endif
 
     // use this for pseudo connection with UDP, allows us to use
