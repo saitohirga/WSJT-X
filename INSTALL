@@ -23,10 +23,10 @@ Building from Source
 ====================
 
 On Linux systems  some of the prerequisite libraries  are available in
-the mainstream distribution repositories. They  are Qt v5 and FFTW v3.
-For MS  Windows see the section  "Building from Source on  MS Windows"
-below. For  Apple Mac see the  section "Building from Source  on Apple
-Mac".
+the mainstream distribution repositories. They are Qt v5, FFTW v3, and
+the Boost  C++ libraries.   For MS Windows  see the  section "Building
+from  Source on  MS  Windows" below.  For Apple  Mac  see the  section
+"Building from Source on Apple Mac".
 
 Qt v5, preferably v5.9 or later is required to build WSJT-X.
 
