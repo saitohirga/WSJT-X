@@ -94,7 +94,7 @@ contains
          snr1,width)
     call timer('sync_q65',1)
 
-    irc=-1
+    irc=-9
     if(snr1.lt.2.8) go to 100
     jpk0=(xdt+1.0)*6000                      !### Is this OK?
     if(ntrperiod.le.30) jpk0=(xdt+0.5)*6000  !###
@@ -125,8 +125,6 @@ contains
     if(lapcqonly) npasses=1
     iaptype=0
     do ipass=0,npasses
-!       write(54,3000) nQSOprogress,ipass
-!3000   format(i1,i2)
        apmask=0
        apsymbols=0
        if(ipass.ge.1) then
@@ -138,11 +136,7 @@ contains
 1060      format(13b6.6)
           write(c78,1050) apsymbols1
           read(c78,1060) apsymbols
-!          write(54,3001) iaptype,c78
-!3001      format('a',i2,1x,a78)
        endif
-!       write(54,3002) apmask,apsymbols
-!3002   format('b   ',13b6.6/4x,13b6.6)
        call timer('q65loops',0)
        call q65_loops(c00,nutc,npts/2,nsps/2,nmode,mode65,nsubmode,         &
             nFadingModel,ndepth,jpk0,xdt,f0,width,iaptype,apmask,apsymbols, &
