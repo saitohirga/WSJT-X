@@ -2843,7 +2843,8 @@ list. The list can be maintained in Settings (F2).</string>
     <addaction name="actionOnline_User_Guide"/>
     <addaction name="actionLocal_User_Guide"/>
     <addaction name="actionFT8_DXpedition_Mode_User_Guide"/>
-    <addaction name="actionQuick_Start_Guide"/>
+    <addaction name="actionQSG_FST4"/>
+    <addaction name="actionQSG_Q65"/>
     <addaction name="download_samples_action"/>
     <addaction name="separator"/>
     <addaction name="actionKeyboard_shortcuts"/>
@@ -3314,7 +3315,7 @@ list. The list can be maintained in Settings (F2).</string>
     <string>Export Cabrillo log ...</string>
    </property>
   </action>
-  <action name="actionQuick_Start_Guide">
+  <action name="actionQSG_FST4">
    <property name="text">
     <string>Quick-Start Guide to FST4 and FST4W</string>
    </property>
@@ -3370,6 +3371,11 @@ list. The list can be maintained in Settings (F2).</string>
    </property>
    <property name="toolTip">
     <string>Hide lower panel controls to maximize deocde windows</string>
+   </property>
+  </action>
+  <action name="actionQSG_Q65">
+   <property name="text">
+    <string>Quick-Start Guide to Q65</string>
    </property>
   </action>
  </widget>

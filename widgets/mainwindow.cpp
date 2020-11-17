@@ -2491,9 +2491,14 @@ void MainWindow::on_actionFT8_DXpedition_Mode_User_Guide_triggered()
   QDesktopServices::openUrl (QUrl {"http://physics.princeton.edu/pulsar/k1jt/FT8_DXpedition_Mode.pdf"});
 }
 
-void MainWindow::on_actionQuick_Start_Guide_triggered()
+void MainWindow::on_actionQSG_FST4_triggered()
 {
   QDesktopServices::openUrl (QUrl {"https://physics.princeton.edu/pulsar/k1jt/FST4_Quick_Start.pdf"});
+}
+
+void MainWindow::on_actionQSG_Q65_triggered()
+{
+  QDesktopServices::openUrl (QUrl {"https://physics.princeton.edu/pulsar/k1jt/Q65_Quick_Start.pdf"});
 }
 
 void MainWindow::on_actionOnline_User_Guide_triggered()      //Display manual
