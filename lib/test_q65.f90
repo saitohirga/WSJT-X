@@ -62,7 +62,7 @@ program test_q65
 !                1         2         3         4         5         6         7
 !       1234567890123456789012345678901234567890123456789012345678901234567890123'
   cmd1='q65sim   "K1ABC W9XYZ EN37      " A 1500  5.0  0.0  60  100 F -10 > junk0'
-  cmd2='jt9 -3 -p  15 -L 300 -H 3000 -d 3 -b A *.wav > junk'
+  cmd2='jt9 -3 -p  15 -L 300 -H 3000 -d  3 -b A *.wav > junk'
 
   write(cmd1(10:33),'(a)') '"'//msg//'"'
   cmd1(35:35)=csubmode
@@ -73,8 +73,8 @@ program test_q65
   write(cmd1(55:59),'(i5)') nfiles
 
   write(cmd2(11:13),'(i3)') ntrperiod
-  write(cmd2(33:33),'(i1)') ndepth
-  cmd2(38:38)=csubmode
+  write(cmd2(33:34),'(i2)') ndepth
+  cmd2(39:39)=csubmode
   call system('rm -f *.wav')
 
 !  call qra_params(ndepth,maxaptype,idf0max,idt0max,ibwmin,ibwmax,maxdist)
