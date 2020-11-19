@@ -54,8 +54,8 @@ program test_q65
   else
      stop 'Invalid TR period'
   endif
-  ia=i50 + 8
-  ib=i50 - 5
+  ia=i50 + 5
+  ib=i50 - 10
   if(snr.ne.0.0) then
      ia=99
      ib=99
