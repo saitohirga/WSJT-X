@@ -54,7 +54,7 @@ program test_q65
   else
      stop 'Invalid TR period'
   endif
-  ia=i50 + 5
+  ia=i50 + 7
   ib=i50 - 10
   if(snr.ne.0.0) then
      ia=99
@@ -145,9 +145,11 @@ program test_q65
 1100 format(f5.1,i3,f5.1,3i5,i4,i6,6i4,f6.2)
      if(ndec1.lt.nfiles/2 .and. ndec10.ge.nfiles/2) then
         snr_thresh=snr1 + float(nfiles/2 - ndec1)/(ndec10-ndec1)
-        write(13,1200) ndepth,fdop,csubmode,snr_thresh
-1200    format(i3,f6.1,2x,a1,f7.1)
-        flush(13)
+        open(13,file='snr_thresh.out',status='unknown',position='append')
+        write(13,1200) ntrperiod,csubmode,ndepth,nQSOprogress,nfiles,   &
+             fdop,snr_thresh,trim(msg)
+1200    format(i3,a1,2i3,i5,2f7.1,2x,a)
+        close(13)
      endif
      flush(6)
      flush(12)
