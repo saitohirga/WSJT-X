@@ -16,7 +16,8 @@ Double-click on the wsjtx-...-Darwin.dmg file you have downloaded from K1JT's we
 Now open a Terminal window by going to Applications->Utilities and clicking on Terminal.
 
 Along with this ReadMe file there is a file:   sysctl.conf  which must be copied to a
-system area by typing this line in the Terminal window and then pressing the Return key.
+system area by typing these two lines in the Terminal window and then pressing the Return key
+after each line.
 
               sudo  cp  /Volumes/WSJT-X/sysctl.conf  /etc
 
@@ -28,7 +29,7 @@ change has been made by typing:
 
   sysctl -a | grep sysv.shm
 
-If shmmax is not shown as 14680064 then contact me since WSJT-X will fail to load with
+If shmmax is not shown as 104857600 then contact me since WSJT-X will fail to load with
 an error message: "Unable to create shared memory segment".
 
 You can now close the Terminal window.  It will not be necessary to repeat this procedure 
@@ -85,15 +86,8 @@ has to be increased.  The sysctl.conf file is used for this purpose.  You can
 use a Mac editor to examine sysctl.conf.  (Do not use another editor - the file 
 would be probably be corrupted.)
 
-There are two important parameters that you need to consider.  shmmax determines the
-amount of shared memory that must be allocated for WSJT-X to operate.  This is 14680064 (14MB)
-and this is defined in the sysctl.conf file and should not be changed.  
+It is possible to run two instances of WSJT-X simultaneously.  See "Section 16.2 
+Frequently asked Questions" in the User Guide.  If you wish to run more than two instances
+simutaneously, the sysctl.conf file needs to be modified.  Please email me with your
+requirements and I will provide a replacement sysctl.conf to suit.
 
-It is possible to run more than one instance of WSJT-X simultaneously.  See 
-"Section 16.2 Frequently asked Questions" in the User Guide.  The second important parameter 
-shmall=17920 determines how many instances are permitted.  This is calculated as: 
-  (shmall x 4096/14680064) = 5.
-The sysctl.conf file is configured to permit up to 5 instances of wsjtx to run simultaneously.
-If this limitation is acceptable then you can continue to install the sysctl.conf file without making any
-alterations.  Otherwise you must edit the file to increase shmall according to this calculation.
- 
