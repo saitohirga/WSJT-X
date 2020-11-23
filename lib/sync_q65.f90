@@ -1,4 +1,5 @@
-subroutine sync_q65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1,width)
+subroutine sync_q65(iwave,nmax,mode65,nQSOprogress,nsps,nfqso,ntol,    &
+     xdt,f0,snr1,width)
 
 ! Detect and align with the Q65 sync vector, returning time and frequency
 ! offsets and SNR estimate.
@@ -13,6 +14,7 @@ subroutine sync_q65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1,width)
 !         snr1                   Relative SNR of sync signal
   
   parameter (NSTEP=8)                    !Step size nsps/NSTEP
+  parameter (LN=2176*63)           !LN=LL*NN; LL=64*(mode_q65+2), NN=63
   character*37 msg,msgsent
   integer*2 iwave(0:nmax-1)              !Raw data
   integer isync(22)                      !Indices of sync symbols
@@ -20,7 +22,9 @@ subroutine sync_q65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1,width)
   real, allocatable :: s1(:,:)           !Symbol spectra, quarter-symbol steps
   real, allocatable :: ccf(:,:)          !CCF(freq,lag)
   real, allocatable :: ccf1(:)           !CCF(freq) at best lag
-  real sync(85)                          !sync vector 
+  real sync(85)                          !sync vector
+  real s3(LN)                            !Symbol spectra
+  real s3prob(LN)                        !Symbol-value probabilities
   complex, allocatable :: c0(:)          !Complex spectrum of symbol
   data isync/1,9,12,13,15,22,23,26,27,33,35,38,46,50,55,60,62,66,69,74,76,85/
   data sync(1)/99.0/
@@ -147,14 +151,15 @@ subroutine sync_q65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1,width)
   width=i*1.414*df
 
 !### Experimental:
-  nQSOprogress=3
   if(nQSOprogress.lt.1) go to 900
 ! "Deep Likelihood" decode attempt
-  do imsg=1,3
+  snr1a_best=0.
+  do imsg=1,4
      ccf=0.
      msg='K1ABC W9XYZ RRR'
      if(imsg.eq.2) msg='K1ABC W9XYZ RR73'
      if(imsg.eq.3) msg='K1ABC W9XYZ 73'
+     if(imsg.eq.4) msg='CQ K9AN EN50'
      call genq65(msg,0,msgsent,itone,i3,n3)
 
      do lag=lag1,lag2
@@ -196,19 +201,33 @@ subroutine sync_q65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1,width)
      rms=sqrt(sq/nsq)
      smax=ccf(ipk,jpk)
      snr1a=smax/rms
-     write(57,3001) imsg,xdt,xdta,f0,f0a,snr1,snr1a
-3001 format(i1,6f8.2)
+     if(snr1a.gt.snr1a_best) then
+        snr1a_best=snr1a
+        imsg_best=imsg
+        xdta_best=xdta
+        f0a_best=f0a
+     endif
+!     write(57,3001) imsg,xdt,xdta,f0,f0a,snr1,snr1a
+!3001 format(i1,6f8.2)
   
-     do j=lag1,lag2
-        write(55,3055) j,j*dtstep,ccf(ipk,j)/rms
-3055    format(i5,f8.3,f10.3)
-     enddo
+!     do j=lag1,lag2
+!        write(55,3055) j,j*dtstep,ccf(ipk,j)/rms
+!3055    format(i5,f8.3,f10.3)
+!     enddo
 
-     do i=-ia,ia
-        write(56,3056) i*df,ccf(i,jpk)/rms
-3056    format(2f10.3)
-     enddo
+!     do i=-ia,ia
+!        write(56,3056) i*df,ccf(i,jpk)/rms
+!3056    format(2f10.3)
+!     enddo
   enddo
+  if(snr1a_best.gt.2.0) then
+     xdt=xdta_best
+     f0=f0a_best
+     snr1=1.4*snr1a_best
+  endif
+  
+!  write(58,3006) xdta_best,f0a_best,snr1a_best,imsg_best
+!3006 format(3f8.2,i3)
 
 900 return
 end subroutine sync_q65

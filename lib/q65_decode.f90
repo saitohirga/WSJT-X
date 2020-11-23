@@ -91,8 +91,8 @@ contains
     if(nutc.eq.-999) print*,lapdx,nfa,nfb,nfqso  !Silence warning
     nFadingModel=1
     call timer('sync_q65',0)
-    call sync_q65(iwave,ntrperiod*12000,mode65,nsps,nfqso,ntol,xdt,f0,   &
-         snr1,width)
+    call sync_q65(iwave,ntrperiod*12000,mode65,nQSOprogress,nsps,nfqso,  &
+         ntol,xdt,f0,snr1,width)
     call timer('sync_q65',1)
 
     irc=-9
