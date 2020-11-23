@@ -1,6 +1,6 @@
 subroutine q65_loops(c00,nutc,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
      ndepth,jpk0,xdt0,f0,width,iaptype,APmask,APsymbols,snr1,xdt1,f1,    &
-     snr2,irc,dat4)
+     snr2,irc,dat4,baud)
 
   use packjt77
   use timer_module, only: timer
@@ -84,7 +84,8 @@ subroutine q65_loops(c00,nutc,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
               if(b90.gt.230.0) cycle
 !              if(b90.lt.0.15*width) exit
               call timer('q65_intr',0)
-              call q65_intrinsics_ff(s3,nsubmode,b90,nFadingModel,s3prob)
+			  b90ts = b90/baud	
+              call q65_intrinsics_ff(s3,nsubmode,b90ts,nFadingModel,s3prob)
               call timer('q65_intr',1)
 
               call timer('q65_dec ',0)

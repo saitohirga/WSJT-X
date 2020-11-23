@@ -69,7 +69,7 @@ int		q65_intrinsics_fastfading(q65_codec_ds *pCodec,
 					float *pIntrinsics,				// intrinsic symbol probabilities output
 					const float *pInputEnergies,	// received energies input
 					const int submode,				// submode idx (0=A ... 4=E)
-					const float B90,				// spread bandwidth (90% fractional energy)
+					const float B90Ts,				// normalized spread bandwidth (90% fractional energy)
 					const int fadingModel);			// 0=Gaussian 1=Lorentzian fade model
 
 

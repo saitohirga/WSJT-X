@@ -277,9 +277,9 @@ int q65_esnodb(const q65_codec_ds *pCodec, float *pEsNodB, const int *ydec, cons
 
 // Symbol time interval in seconds
 #define TS_QRA64 0.576
-#define TS_Q65   0.640
+// #define TS_Q65   0.640 // T/R = 60 s
 // The tables are computed assuming that the bin spacing is that of QRA64, that's to say
-// 1/Ts = 12000/6912 Hz, but in q65 Ts is longer (0.640 s) and the table index
+// 1/Ts = 12000/6912 Hz, but in Q65 Ts depends on the T/R interval and the table index
 // corresponding to a given B90 must be scaled appropriately.
 // See below.
 
@@ -287,7 +287,7 @@ int q65_intrinsics_fastfading(q65_codec_ds *pCodec,
 								float *pIntrinsics,				// intrinsic symbol probabilities output
 								const float *pInputEnergies,	// received energies input
 								const int submode,				// submode idx (0=A ... 4=E)
-								const float B90,				// spread bandwidth (90% fractional energy)
+								const float B90Ts,				// spread bandwidth (90% fractional energy)
 								const int fadingModel)			// 0=Gaussian 1=Lorentzian fade model
 {
 	int n, k, j;
@@ -295,26 +295,26 @@ int q65_intrinsics_fastfading(q65_codec_ds *pCodec,
 	int hidx, hlen, hhsz, hlast;
 	const float *hptr;
 	float fTemp, fNoiseVar, sumix, maxlogp;
-	float EsNoMetric;
+	float EsNoMetric,B90;
 	float *weight;
 	const float *pCurSym, *pCurBin;
 	float *pCurIx;
 
+//	printf("pcodec=%08x submode=%d fadingmodel=%d B90Ts=%f\n",pcodec, submode,fadingModel, B90Ts);
+	
 	if (pCodec==NULL)
 		return Q65_DECODE_INVPARAMS;	// invalid pCodec pointer
 
+	
 	if (submode<0 || submode>4)
 		return Q65_DECODE_INVPARAMS;	// invalid submode
 
-	// As the symbol duration in q65 is longer than in QRA64 the fading tables continue
-	// to be valid if the B90 parameter is scaled by the actual symbol rate
+	// As the symbol duration in q65 is different than in QRA64,
+	// the fading tables continue to be valid if the B90Ts parameter 
+	// is properly scaled to the QRA64 symbol interval
 	// Compute index to most appropriate weighting function coefficients
-    hidx = (int)(logf(B90*TS_Q65/TS_QRA64)/logf(1.09f) - 0.499f);
-
-//	if (hidx<0 || hidx > 64) 
-//		// index of weighting function out of range
-//		// B90 out of range
-//		return q65_DECODE_INVPARAMS;	
+	B90 = B90Ts/TS_QRA64;
+    hidx = (int)(logf(B90)/logf(1.09f) - 0.499f);
 
 	// Unlike in QRA64 we accept any B90, anyway limiting it to
 	// the extreme cases (0.9 to 210 Hz approx.)
