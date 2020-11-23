@@ -13,8 +13,10 @@ subroutine sync_q65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1,width)
 !         snr1                   Relative SNR of sync signal
   
   parameter (NSTEP=8)                    !Step size nsps/NSTEP
+  character*37 msg,msgsent
   integer*2 iwave(0:nmax-1)              !Raw data
   integer isync(22)                      !Indices of sync symbols
+  integer itone(85)
   real, allocatable :: s1(:,:)           !Symbol spectra, quarter-symbol steps
   real, allocatable :: ccf(:,:)          !CCF(freq,lag)
   real, allocatable :: ccf1(:)           !CCF(freq) at best lag
@@ -112,7 +114,7 @@ subroutine sync_q65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1,width)
   enddo
   f0=nfqso + ipk*df
   xdt=jpk*dtstep
-  
+
   sq=0.
   nsq=0
   do j=lag1,lag2
@@ -144,5 +146,69 @@ subroutine sync_q65(iwave,nmax,mode65,nsps,nfqso,ntol,xdt,f0,snr1,width)
   enddo
   width=i*1.414*df
 
-  return
+!### Experimental:
+  nQSOprogress=3
+  if(nQSOprogress.lt.1) go to 900
+! "Deep Likelihood" decode attempt
+  do imsg=1,3
+     ccf=0.
+     msg='K1ABC W9XYZ RRR'
+     if(imsg.eq.2) msg='K1ABC W9XYZ RR73'
+     if(imsg.eq.3) msg='K1ABC W9XYZ 73'
+     call genq65(msg,0,msgsent,itone,i3,n3)
+
+     do lag=lag1,lag2
+        do k=1,85
+           j=j0 + NSTEP*(k-1) + 1 + lag
+           if(j.ge.1 .and. j.le.jz) then
+              do i=-ia,ia
+                 ii=i0+2*itone(k)+i
+                 ccf(i,lag)=ccf(i,lag) + s1(ii,j)
+              enddo
+           endif
+        enddo
+     enddo
+
+     ic=ntol/df
+     ccfmax=0.
+     ipk=0
+     jpk=0
+     do i=-ic,ic
+        do j=lag1,lag2
+           if(ccf(i,j).gt.ccfmax) then
+              ipk=i
+              jpk=j
+              ccfmax=ccf(i,j)
+           endif
+        enddo
+     enddo
+     f0a=nfqso + ipk*df
+     xdta=jpk*dtstep
+     
+     sq=0.
+     nsq=0
+     do j=lag1,lag2
+        if(abs(j-jpk).gt.6) then
+           sq=sq + ccf(ipk,j)**2
+           nsq=nsq+1
+        endif
+     enddo
+     rms=sqrt(sq/nsq)
+     smax=ccf(ipk,jpk)
+     snr1a=smax/rms
+     write(57,3001) imsg,xdt,xdta,f0,f0a,snr1,snr1a
+3001 format(i1,6f8.2)
+  
+     do j=lag1,lag2
+        write(55,3055) j,j*dtstep,ccf(ipk,j)/rms
+3055    format(i5,f8.3,f10.3)
+     enddo
+
+     do i=-ia,ia
+        write(56,3056) i*df,ccf(i,jpk)/rms
+3056    format(2f10.3)
+     enddo
+  enddo
+
+900 return
 end subroutine sync_q65

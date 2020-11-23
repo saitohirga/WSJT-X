@@ -146,6 +146,10 @@ contains
           endif
        endif
        call timer('q65loops',0)
+!       call q65_loops(c00,nutc,npts/2,nsps/2,nmode,mode65,nsubmode,         &
+!            nFadingModel,ndepth,jpk0,xdt,f0,width,iaptype,apmask,apsymbols, &
+!            snr1,xdt1,f1,snr2,irc,dat4)
+!      baud rate required to compute B90TS later
        call q65_loops(c00,nutc,npts/2,nsps/2,nmode,mode65,nsubmode,         &
             nFadingModel,ndepth,jpk0,xdt,f0,width,iaptype,apmask,apsymbols, &
             codewords,snr1,xdt1,f1,snr2,irc,dat4)

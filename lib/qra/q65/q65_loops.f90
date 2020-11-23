@@ -85,7 +85,8 @@ subroutine q65_loops(c00,nutc,npts2,nsps,mode,mode64,nsubmode,nFadingModel,   &
               if(b90.gt.230.0) cycle
 !              if(b90.lt.0.15*width) exit
               call timer('q65_intr',0)
-              call q65_intrinsics_ff(s3,nsubmode,b90,nFadingModel,s3prob)
+			  b90ts = b90/baud	
+              call q65_intrinsics_ff(s3,nsubmode,b90ts,nFadingModel,s3prob)
               call timer('q65_intr',1)
               if(iaptype.eq.4) then
                  call timer('q65_apli',0)

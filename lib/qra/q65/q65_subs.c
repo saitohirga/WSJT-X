@@ -46,7 +46,7 @@ void q65_enc_(int x[], int y[])
   q65_encode(&codec,y,x);
 }
 
-void q65_intrinsics_ff_(float s3[], int* submode, float* B90,
+void q65_intrinsics_ff_(float s3[], int* submode, float* B90Ts,
 			int* fadingModel, float s3prob[])
 {
 
@@ -69,7 +69,7 @@ void q65_intrinsics_ff_(float s3[], int* submode, float* B90,
     }
     first=0;
   }
-  rc = q65_intrinsics_fastfading(&codec,s3prob,s3,*submode,*B90,*fadingModel);
+  rc = q65_intrinsics_fastfading(&codec,s3prob,s3,*submode,*B90Ts,*fadingModel);
   if(rc<0) {
     printf("error in q65_intrinsics()\n");
     exit(0);
