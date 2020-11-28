@@ -18,7 +18,6 @@
 #include <boost/log/utility/setup/settings.hpp>
 #include <boost/log/sinks/sync_frontend.hpp>
 #include <boost/log/sinks/text_ostream_backend.hpp>
-#include <boost/log/sinks/debug_output_backend.hpp>
 #include <boost/log/support/date_time.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
