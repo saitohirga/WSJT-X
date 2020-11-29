@@ -28,7 +28,7 @@ subroutine sync_q65(iwave,nmax,mode65,nQSOprogress,nsps,nfqso,ntol,    &
   data sync(1)/99.0/
   save sync
 
-  nfft=2*nsps
+  nfft=nsps
   df=12000.0/nfft                        !Freq resolution = 0.5*baud
   istep=nsps/NSTEP
   iz=5000.0/df                           !Uppermost frequency bin, at 5000 Hz
@@ -165,7 +165,7 @@ subroutine sync_q65(iwave,nmax,mode65,nQSOprogress,nsps,nfqso,ntol,    &
            j=j0 + NSTEP*(k-1) + 1 + lag
            if(j.ge.1 .and. j.le.jz) then
               do i=-ia,ia
-                 ii=i0+2*itone(k)+i
+                 ii=i0+itone(k)+i
                  ccf(i,lag)=ccf(i,lag) + s1(ii,j)
               enddo
            endif
@@ -207,7 +207,7 @@ subroutine sync_q65(iwave,nmax,mode65,nQSOprogress,nsps,nfqso,ntol,    &
      endif
 !     write(57,3001) imsg,xdt,xdta,f0,f0a,snr1,snr1a
 !3001 format(i1,6f8.2)
-  
+
 !     do j=lag1,lag2
 !        write(55,3055) j,j*dtstep,ccf(ipk,j)/rms
 !3055    format(i5,f8.3,f10.3)
@@ -223,7 +223,7 @@ subroutine sync_q65(iwave,nmax,mode65,nQSOprogress,nsps,nfqso,ntol,    &
      f0=f0a_best
      snr1=1.4*snr1a_best
   endif
-  
+
 !  write(58,3006) xdta_best,f0a_best,snr1a_best,imsg_best
 !3006 format(3f8.2,i3)
 

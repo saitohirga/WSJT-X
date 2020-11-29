@@ -102,18 +102,6 @@ contains
     if(jpk0.lt.0) jpk0=0
     fac=1.0/32767.0
     dd=fac*iwave(1:npts)
-!###
-! Optionslly write noise level to LU 56
-!    sq=dot_product(dd,dd)/npts
-!    m=nutc
-!    if(ntrperiod.ge.60) m=100*m
-!    ihr=m/10000
-!    imin=mod(m/100,100)
-!    isec=mod(m,100)
-!    hours=ihr + imin/60.0 + isec/3600.0
-!    write(56,3056) m,hours,db(sq)+90.3
-!3056 format(i6.6,f10.6,f10.3)
-!###
     nmode=65
     call ana64(dd,npts,c00)
 
@@ -146,10 +134,6 @@ contains
           endif
        endif
        call timer('q65loops',0)
-!       call q65_loops(c00,nutc,npts/2,nsps/2,nmode,mode65,nsubmode,         &
-!            nFadingModel,ndepth,jpk0,xdt,f0,width,iaptype,apmask,apsymbols, &
-!            snr1,xdt1,f1,snr2,irc,dat4)
-!      baud rate required to compute B90TS later
        call q65_loops(c00,nutc,npts/2,nsps/2,nmode,mode65,nsubmode,         &
             nFadingModel,ndepth,jpk0,xdt,f0,width,iaptype,apmask,apsymbols, &
             codewords,snr1,xdt1,f1,snr2,irc,dat4)
