@@ -1,4 +1,4 @@
-subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
+subroutine q65_sync(iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
      xdt,f0,snr1,dat4,snr2,id1)
 
 ! Detect and align with the Q65 sync vector, returning time and frequency
@@ -126,7 +126,7 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
            j=j0 + NSTEP*(k-1) + 1 + lag
            if(j.ge.1 .and. j.le.jz) then
               do i=-ia,ia
-                 ii=i0+itone(k)+i
+                 ii=i0+mode_q65*itone(k)+i
                  ccf(i,lag)=ccf(i,lag) + s1(ii,j)
               enddo
            endif
@@ -157,6 +157,10 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
   enddo
   
   nsubmode=0
+  if(mode_q65.eq.2) nsubmode=1
+  if(mode_q65.eq.4) nsubmode=2
+  if(mode_q65.eq.8) nsubmode=3
+  if(mode_q65.eq.16) nsubmode=4
   nFadingModel=1
   baud=12000.0/nsps
   do ibw=0,10
