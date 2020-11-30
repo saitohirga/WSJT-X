@@ -5,7 +5,6 @@
 #include <QColor>
 #include <QtWidgets>
 #include <QAction>
-#include <QDebug>
 
 #include "validators/MaidenheadLocatorValidator.hpp"
 
@@ -73,7 +72,7 @@ bool ClientWidget::IdFilterModel::filterAcceptsRow (int source_row
                                                     , QModelIndex const& source_parent) const
 {
   auto source_index_col0 = sourceModel ()->index (source_row, 0, source_parent);
-  return sourceModel ()->data (source_index_col0).value<ClientKey> () == key_;
+  return sourceModel ()->data (source_index_col0, Qt::UserRole + 1).value<ClientKey> () == key_;
 }
 
 void ClientWidget::IdFilterModel::de_call (QString const& call)
