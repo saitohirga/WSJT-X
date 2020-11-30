@@ -153,7 +153,7 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
         cycle
      endif
      n=n+1
-     s3(-64:LL-65,n)=s1(ia:ib,j)
+     if(j.ge.1 .and. j.le.jz) s3(-64:LL-65,n)=s1(ia:ib,j)
   enddo
   
   nsubmode=0
