@@ -90,16 +90,17 @@ contains
     this%callback => callback
     if(nutc.eq.-999) print*,lapdx,nfa,nfb,nfqso  !Silence warning
     nFadingModel=1
+    call q65_set_list(mycall,hiscall,hisgrid,codewords,ncw)
     dgen=0
     call q65_enc(dgen,codewords)         !Initialize Q65
 !    nQSOprogress=3  !###
     dat4=0
     call timer('sync_q65',0)
-    call q65_sync(iwave,ntrperiod*12000,mode65,nQSOprogress,nsps,nfqso,  &
-         ntol,xdt,f0,snr1,dat4,snr2,irc)
+    call q65_sync(iwave,ntrperiod*12000,mode65,codewords,ncw,nsps,   &
+         nfqso,ntol,xdt,f0,snr1,dat4,snr2,irc)
     call timer('sync_q65',1)
-    write(55,3055) nutc,xdt,f0,snr1,snr2,irc
-3055  format(i4.4,4f9.2,i5)
+!    write(55,3055) nutc,xdt,f0,snr1,snr2,irc
+!3055  format(i4.4,4f9.2,i5)
     if(irc.ge.0) then
        xdt1=xdt
        f1=f0

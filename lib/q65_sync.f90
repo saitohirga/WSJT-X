@@ -1,4 +1,4 @@
-subroutine q65_sync(iwave,nmax,mode_q65,nQSOprogress,nsps,nfqso,ntol,    &
+subroutine q65_sync(iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
      xdt,f0,snr1,dat4,snr2,irc)
 
 ! Detect and align with the Q65 sync vector, returning time and frequency
@@ -15,7 +15,6 @@ subroutine q65_sync(iwave,nmax,mode_q65,nQSOprogress,nsps,nfqso,ntol,    &
   
   parameter (NSTEP=8)                    !Step size nsps/NSTEP
   parameter (LN=2176*63)           !LN=LL*NN; LL=64*(mode_q65+2), NN=63
-  character*37 msg,msgsent
   integer*2 iwave(0:nmax-1)              !Raw data
   integer isync(22)                      !Indices of sync symbols
   integer itone(85)
@@ -98,27 +97,28 @@ subroutine q65_sync(iwave,nmax,mode_q65,nQSOprogress,nsps,nfqso,ntol,    &
      lag2=4.0/dtstep + 0.9999   !Include EME delays
   endif
 
+  if(ncw.lt.1) go to 100
+  
 !######################################################################
 ! Try list decoding via "Deep Likelihood".
 
   ipk=0
   jpk=0
   ccf_best=0.
-  do imsg=1,4
-     ccf=0.
-     msg='K1ABC W9XYZ RRR'
-     if(imsg.eq.2) msg='K1ABC W9XYZ RR73'
-     if(imsg.eq.3) msg='K1ABC W9XYZ 73'
-     if(imsg.eq.4) msg='CQ K9AN EN50'
-     call genq65(msg,0,msgsent,itone,i3,n3)
-     j=0
-     do k=1,85
-        if(sync(k)>0.) cycle
-        j=j+1
-        codewords(j,imsg)=itone(k) - 1
+  do imsg=1,ncw
+     i=1
+     k=0
+     do j=1,85
+        if(j.eq.isync(i)) then
+           i=i+1
+           itone(j)=-1
+        else
+           k=k+1
+           itone(j)=codewords(k,imsg)
+        endif
      enddo
-
 ! Compute 2D ccf using all 85 symbols in the list message
+     ccf=0.
      do lag=lag1,lag2
         do k=1,85
            j=j0 + NSTEP*(k-1) + 1 + lag
@@ -162,7 +162,7 @@ subroutine q65_sync(iwave,nmax,mode_q65,nQSOprogress,nsps,nfqso,ntol,    &
   do ibw=0,10
      b90=1.72**ibw
      call q65_intrinsics_ff(s3,nsubmode,b90/baud,nFadingModel,s3prob)
-     call q65_dec_fullaplist(s3,s3prob,codewords,4,esnodb,dat4,plog,irc)
+     call q65_dec_fullaplist(s3,s3prob,codewords,ncw,esnodb,dat4,plog,irc)
      if(irc.ge.0) then
         snr2=esnodb - db(2500.0/baud)
         go to 900
@@ -171,7 +171,7 @@ subroutine q65_sync(iwave,nmax,mode_q65,nQSOprogress,nsps,nfqso,ntol,    &
 
 !######################################################################
 ! Establish xdt, f0, and snr1 using sync symbols (and perhaps some AP symbols)
-  ccf=0.
+100 ccf=0.
   irc=-2
   dat4=0
   ia=ntol/df
