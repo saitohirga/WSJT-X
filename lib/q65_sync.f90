@@ -97,41 +97,13 @@ subroutine q65_sync(iwave,nmax,mode_q65,nQSOprogress,nsps,nfqso,ntol,    &
      j0=1.0/dtstep              !Nominal index for start of signal
      lag2=4.0/dtstep + 0.9999   !Include EME delays
   endif
-  ccf=0.
-
-  do lag=lag1,lag2
-     do k=1,85
-        n=NSTEP*(k-1) + 1
-        j=n+lag+j0
-        if(j.ge.1 .and. j.le.jz) then
-           ccf(-ia:ia,lag)=ccf(-ia:ia,lag) + sync(k)*s1(i0-ia:i0+ia,j)
-        endif
-     enddo
-  enddo
-
-  ijpk=maxloc(ccf)
-  ipk=ijpk(1)-ia-1
-  jpk=ijpk(2)-53-1
-  f0=nfqso + ipk*df
-  xdt=jpk*dtstep
-
-  sq=0.
-  nsq=0
-  do j=lag1,lag2
-     if(abs(j-jpk).gt.6) then
-        sq=sq + ccf(ipk,j)**2
-        nsq=nsq+1
-     endif
-  enddo
-  rms=sqrt(sq/nsq)
-  smax=ccf(ipk,jpk)
-  snr1=smax/rms
 
 !######################################################################
-! Experimental: Try early list decoding via "Deep Likelihood".
+! Try list decoding via "Deep Likelihood".
 
-  if(nQSOprogress.lt.1) go to 900
-  snr1a_best=0.
+  ipk=0
+  jpk=0
+  ccf_best=0.
   do imsg=1,4
      ccf=0.
      msg='K1ABC W9XYZ RRR'
@@ -158,37 +130,16 @@ subroutine q65_sync(iwave,nmax,mode_q65,nQSOprogress,nsps,nfqso,ntol,    &
            endif
         enddo
      enddo
-
-     ijpk=maxloc(ccf)
-     ipk=ijpk(1)-ia-1
-     jpk=ijpk(2)-53-1     
-     f0a=nfqso + ipk*df
-     xdta=jpk*dtstep
-
-     sq=0.
-     nsq=0
-     do j=lag1,lag2
-        if(abs(j-jpk).gt.6) then
-           sq=sq + ccf(ipk,j)**2
-           nsq=nsq+1
-        endif
-     enddo
-     rms=sqrt(sq/nsq)
-     smax=ccf(ipk,jpk)
-     snr1a=smax/rms
-     if(snr1a.gt.snr1a_best) then
-        snr1a_best=snr1a
-        imsg_best=imsg
-        xdta_best=xdta
-        f0a_best=f0a
+     ccfmax=maxval(ccf)
+     if(ccfmax.gt.ccf_best) then
+        ccf_best=ccfmax
+        ijpk=maxloc(ccf)
+        ipk=ijpk(1)-ia-1
+        jpk=ijpk(2)-53-1     
+        f0=nfqso + ipk*df
+        xdt=jpk*dtstep
      endif
   enddo  ! imsg
-
-  if(snr1a_best.gt.2.0) then
-     xdt=xdta_best
-     f0=f0a_best
-     snr1=1.4*snr1a_best
-  endif
 
   ia=i0+ipk-63
   ib=ia+LL-1
@@ -213,12 +164,42 @@ subroutine q65_sync(iwave,nmax,mode_q65,nQSOprogress,nsps,nfqso,ntol,    &
      call q65_intrinsics_ff(s3,nsubmode,b90/baud,nFadingModel,s3prob)
      call q65_dec_fullaplist(s3,s3prob,codewords,4,esnodb,dat4,plog,irc)
      if(irc.ge.0) then
-        xdt=xdta_best
-        f0=f0a_best
         snr2=esnodb - db(2500.0/baud)
-        exit
+        go to 900
      endif
   enddo
 
+!######################################################################
+! Establish xdt, f0, and snr1 using sync symbols (and perhaps some AP symbols)
+  ccf=0.
+  irc=-2
+  dat4=0
+  ia=ntol/df
+  do lag=lag1,lag2
+     do k=1,85
+        n=NSTEP*(k-1) + 1
+        j=n+lag+j0
+        if(j.ge.1 .and. j.le.jz) then
+           ccf(-ia:ia,lag)=ccf(-ia:ia,lag) + sync(k)*s1(i0-ia:i0+ia,j)
+        endif
+     enddo
+  enddo
+  ijpk=maxloc(ccf)
+  ipk=ijpk(1)-ia-1
+  jpk=ijpk(2)-53-1
+  f0=nfqso + ipk*df
+  xdt=jpk*dtstep
+  sq=0.
+  nsq=0
+  do j=lag1,lag2
+     if(abs(j-jpk).gt.6) then
+        sq=sq + ccf(ipk,j)**2
+        nsq=nsq+1
+     endif
+  enddo
+  rms=sqrt(sq/nsq)
+  smax=ccf(ipk,jpk)
+  snr1=smax/rms
+  
 900 return
 end subroutine q65_sync
