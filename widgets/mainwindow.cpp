@@ -3441,19 +3441,21 @@ void MainWindow::readFromStdout()                             //readFromStdout
                                                      ui->cbCQonly->isVisible() && ui->cbCQonly->isChecked(),
                                                      haveFSpread, fSpread);
 
-          if(m_bBestSPArmed and m_mode=="FT4") {
+          if(m_bBestSPArmed && m_mode=="FT4" && CALLING == m_QSOProgress) {
             QString messagePriority=ui->decodedTextBrowser->CQPriority();
             if(messagePriority!="") {
               if(messagePriority=="New Call on Band"
                  and m_BestCQpriority!="New Call on Band"
                  and m_BestCQpriority!="New Multiplier") {
                 m_BestCQpriority="New Call on Band";
+                m_bDoubleClicked = true;
                 processMessage(decodedtext0);
               }
               if(messagePriority=="New DXCC"
                  and m_BestCQpriority!="New DXCC"
                  and m_BestCQpriority!="New Multiplier") {
                 m_BestCQpriority="New DXCC";
+                m_bDoubleClicked = true;
                 processMessage(decodedtext0);
               }
             }
@@ -7607,10 +7609,6 @@ void MainWindow::on_sbTR_valueChanged(int value)
     progressBar.setMaximum (value);
   }
   if(m_mode=="FST4") chk_FST4_freq_range();
-  if(m_monitoring) {
-    on_stopButton_clicked();
-    on_monitorButton_clicked(true);
-  }
   if(m_transmitting) {
     on_stopTxButton_clicked();
   }

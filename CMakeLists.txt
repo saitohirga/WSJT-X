@@ -70,7 +70,7 @@ message (STATUS "******************************************************")
 
 include (set_build_type)
 # RC 0 or omitted is a development build, GA is a General Availability release build
-set_build_type (RC 2)
+set_build_type (RC 3)
 set (wsjtx_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}${BUILD_TYPE_REVISION}")
 
 #
@@ -1570,6 +1570,13 @@ install (FILES
   cty.dat
   contrib/Ephemeris/JPLEPH
   DESTINATION ${CMAKE_INSTALL_DATADIR}/${CMAKE_PROJECT_NAME}
+  #COMPONENT runtime
+  )
+
+install (DIRECTORY
+  example_log_configurations
+  DESTINATION ${CMAKE_INSTALL_DOCDIR}
+  FILES_MATCHING REGEX "^.*[^~]$"
   #COMPONENT runtime
   )
 
