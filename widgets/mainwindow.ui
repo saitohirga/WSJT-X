@@ -1185,6 +1185,9 @@ Not available to nonstandard callsign holders.</string>
                     </item>
                     <item>
                      <widget class="QPushButton" name="pbBestSP">
+                      <property name="toolTip">
+                       <string>Enable auto response to the first decode from a new DXCC or new call on the current band.</string>
+                      </property>
                       <property name="styleSheet">
                        <string notr="true">QPushButton:checked {
 	color: rgb(0, 0, 0);
