@@ -8,7 +8,7 @@ module q65_decode
 
    abstract interface
       subroutine q65_decode_callback (this,nutc,sync,nsnr,dt,freq,    &
-         decoded,nap,qual,ntrperiod,fmid,w50)
+         decoded,nap,ntrperiod)
          import q65_decoder
          implicit none
          class(q65_decoder), intent(inout) :: this
@@ -19,10 +19,7 @@ module q65_decode
          real, intent(in) :: freq
          character(len=37), intent(in) :: decoded
          integer, intent(in) :: nap
-         real, intent(in) :: qual
          integer, intent(in) :: ntrperiod
-         real, intent(in) :: fmid
-         real, intent(in) :: w50
       end subroutine q65_decode_callback
    end interface
 
@@ -64,6 +61,8 @@ contains
     complex, allocatable :: c00(:)        !Analytic signal, 6000 Sa/s
     complex, allocatable :: c0(:)         !Analytic signal, 6000 Sa/s
 
+    id1=0
+    id2=0
     mode65=2**nsubmode
     npts=ntrperiod*12000
     nfft1=ntrperiod*12000
@@ -90,33 +89,27 @@ contains
     this%callback => callback
     if(nutc.eq.-999) print*,lapdx,nfa,nfb,nfqso  !Silence warning
     nFadingModel=1
+    call q65_set_list(mycall,hiscall,hisgrid,codewords,ncw)
+    dgen=0
+    call q65_enc(dgen,codewords)         !Initialize Q65
     call timer('sync_q65',0)
-    call sync_q65(iwave,ntrperiod*12000,mode65,nQSOprogress,nsps,nfqso,  &
-         ntol,xdt,f0,snr1,width)
+    call q65_sync(iwave,ntrperiod*12000,mode65,codewords,ncw,nsps,   &
+         nfqso,ntol,xdt,f0,snr1,dat4,snr2,id1)
     call timer('sync_q65',1)
-
-    irc=-9
+    if(id1.eq.1) then
+       xdt1=xdt
+       f1=f0
+       go to 100
+    endif
+    
     if(snr1.lt.2.8) go to 100
     jpk0=(xdt+1.0)*6000                      !### Is this OK?
     if(ntrperiod.le.30) jpk0=(xdt+0.5)*6000  !###
     if(jpk0.lt.0) jpk0=0
     fac=1.0/32767.0
     dd=fac*iwave(1:npts)
-!###
-! Optionslly write noise level to LU 56
-!    sq=dot_product(dd,dd)/npts
-!    m=nutc
-!    if(ntrperiod.ge.60) m=100*m
-!    ihr=m/10000
-!    imin=mod(m/100,100)
-!    isec=mod(m,100)
-!    hours=ihr + imin/60.0 + isec/3600.0
-!    write(56,3056) m,hours,db(sq)+90.3
-!3056 format(i6.6,f10.6,f10.3)
-!###
     nmode=65
     call ana64(dd,npts,c00)
-
     call ft8apset(mycall,hiscall,ncontest,apsym0,aph10)
     where(apsym0.eq.-1) apsym0=0
 
@@ -146,37 +139,29 @@ contains
           endif
        endif
        call timer('q65loops',0)
-!       call q65_loops(c00,nutc,npts/2,nsps/2,nmode,mode65,nsubmode,         &
-!            nFadingModel,ndepth,jpk0,xdt,f0,width,iaptype,apmask,apsymbols, &
-!            snr1,xdt1,f1,snr2,irc,dat4)
-!      baud rate required to compute B90TS later
-       call q65_loops(c00,nutc,npts/2,nsps/2,nmode,mode65,nsubmode,         &
-            nFadingModel,ndepth,jpk0,xdt,f0,width,iaptype,apmask,apsymbols, &
-            codewords,snr1,xdt1,f1,snr2,irc,dat4)
+       call q65_loops(c00,npts/2,nsps/2,nmode,mode65,nsubmode,         &
+            nFadingModel,ndepth,jpk0,xdt,f0,iaptype,apmask,apsymbols, &
+            xdt1,f1,snr2,dat4,id2)
        call timer('q65loops',1)
        snr2=snr2 + db(6912.0/nsps)
-       if(irc.ge.0) exit
+       if(id2.gt.0) exit
     enddo
 
 100 decoded='                                     '
-!    if(irc.lt.0 .and.iaptype.eq.4) print*,'AAA',irc,iaptype
-    if(irc.ge.0) then
-!###
-       navg=irc/100
-!       irc=100*navg + ipass
-       irc=100*navg + iaptype
-!###
+    if(id1.gt.0 .or. id2.gt.0) then
+       idec=id1+id2
        write(c77,1000) dat4(1:12),dat4(13)/2
 1000   format(12b6.6,b5.5)
        call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
        nsnr=nint(snr2)
        call this%callback(nutc,sync,nsnr,xdt1,f1,decoded,              &
-            irc,qual,ntrperiod,fmid,w50)
+            idec,ntrperiod)
     else
 ! Report sync, even if no decode.
        nsnr=db(snr1) - 35.0
+       idec=-1
        call this%callback(nutc,sync,nsnr,xdt1,f1,decoded,              &
-            irc,qual,ntrperiod,fmid,w50)
+            idec,ntrperiod)
     endif
 
     return
