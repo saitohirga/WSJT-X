@@ -34,7 +34,7 @@
 // Verify loglikelihood after successful decoding
 #define Q65_CHECKLLH
 // Max codeword list size in q65_decode_fullaplist
-#define Q65_FULLAPLIST_SIZE	64
+#define Q65_FULLAPLIST_SIZE	256
 
 // maximum number of weights for the fast-fading metric evaluation
 #define Q65_FASTFADING_MAXWEIGTHS 65

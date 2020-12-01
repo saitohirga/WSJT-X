@@ -681,8 +681,7 @@ int q65_decode_fullaplist(q65_codec_ds *codec,
 	int			k;
 	int			nK, nN, nM;
 
-	float llh;
-	float maxllh = Q65_LLH_THRESHOLD-1; // set to a value less than the threshold
+	float llh, maxllh, llh_threshold; 
 	int   maxcw = -1;					// index of the most likely codeword
 	const int  *pCw;
 
@@ -692,6 +691,12 @@ int q65_decode_fullaplist(q65_codec_ds *codec,
 	nK  = q65_get_message_length(codec);
 	nN	= q65_get_codeword_length(codec);
 	nM	= q65_get_alphabet_size(codec);
+
+	// we adjust the llh threshold in order to mantain the
+	// same false decode rate independently from the size
+	// of the list
+	llh_threshold = Q65_LLH_THRESHOLD + logf(1.0f*nCodewords/3);
+	maxllh = llh_threshold; // at least one llh should be larger than the threshold
 
 	// compute codewords log likelihoods and find max
 	pCw = pCodewords;	// start from the first codeword
@@ -717,9 +722,6 @@ int q65_decode_fullaplist(q65_codec_ds *codec,
 	return maxcw;	// index to the decoded message (>=0)
 
 }
-
-
-
 
 
 // helper functions -------------------------------------------------------------
@@ -874,5 +876,3 @@ static void _q65_crc12(int *y, int *x, int sz)
 	y[0] = sr&0x3F; 
 	y[1] = (sr>>6);
 }
-
-
