@@ -4,7 +4,7 @@ program test_q65
   character*22 msg
   character*8 arg
   character*1 csubmode
-  integer naptype(0:4)
+  integer naptype(1:6)
   logical decok
 
   nargs=iargc()
@@ -89,9 +89,9 @@ program test_q65
 !1000 format(/'Depth:',i2,'  AP:',i2,'  df:',i3,'  dt:',i3,'  bw1:',i3,'  bw2:',i3,  &
 !          '  dist:',i3)
   
-  write(*,1010) (j,j=0,4)
-  write(12,1010) (j,j=0,4)
-1010 format(' SNR   Mode  d  Dop  Sync DecN Dec1 Bad',5i5,'  tdec'/70('-'))
+  write(*,1010) (j,j=1,6)
+  write(12,1010) (j,j=1,6)
+1010 format(' SNR   Mode  d  Dop  Sync DecN Dec1 Bad',6i5,'  tdec'/75('-'))
 
   dterr=tsym/4.0
   nferr=max(1,nint(0.5*baud),nint(fdop/3.0))
@@ -120,16 +120,16 @@ program test_q65
         if((abs(xdt-dt).le.dterr .and. abs(nf-nf0).le.nferr) .or. decok) then
            nsync=nsync+1
         endif
-        irc=-1
+        idec=-1
         iavg=0
         i0=23
         if(ntrperiod.le.30) i0=25
-        if(line(i0:i0).ne.' ') read(line(60:),*) irc,iavg
-        if(irc.lt.0) cycle
+        if(line(i0:i0).ne.' ') read(line(60:),*) idec
+        if(idec.lt.0) cycle
         if(decok) then
            ndecn=ndecn + 1
            if(iavg.le.1) ndec1=ndec1 + 1
-           naptype(irc)=naptype(irc) + 1
+           naptype(idec)=naptype(idec) + 1
         else
            nfalse=nfalse + 1
            print*,'False: ',line
@@ -142,7 +142,7 @@ program test_q65
           ndec1,nfalse,naptype,tdec/nfiles
      write(12,1100) snr1,ntrperiod,csubmode,ndepth,fDop,nsync,ndecn,    &
           ndec1,nfalse,naptype,tdec/nfiles
-1100 format(f5.1,i4,1x,a1,i3,f5.1,3i5,i4,i6,4i5,f6.2)
+1100 format(f5.1,i4,1x,a1,i3,f5.1,3i5,i4,i6,5i5,f6.2)
      if(ndec1.lt.nfiles/2 .and. ndec10.ge.nfiles/2) then
         snr_thresh=snr1 + float(nfiles/2 - ndec1)/(ndec10-ndec1)
         open(13,file='snr_thresh.out',status='unknown',position='append')
