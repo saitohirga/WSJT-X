@@ -144,9 +144,6 @@ subroutine q65_sync(iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
      endif
   enddo  ! imsg
 
-  write(71,3071) imsg_best,ipk,jpk,xdt,f0,ccf_best
-3071 format(3i5,3f10.2)
-
   ia=i0+ipk-64
   ib=ia+LL-1
   j=j0+jpk-7
@@ -160,13 +157,6 @@ subroutine q65_sync(iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
      if(j.ge.1 .and. j.le.jz) s3(-64:LL-65,n)=s1(ia:ib,j)
   enddo
 
-  write(73,3001) codewords(1:10,3)
-3001 format(3x,10i7)
-  do i=-5,68
-     write(73,3073) i,(s3(i,j),j=1,10)
-3073 format(i3,10f7.1)
-  enddo
-  
   nsubmode=0
   if(mode_q65.eq.2) nsubmode=1
   if(mode_q65.eq.4) nsubmode=2
@@ -178,8 +168,6 @@ subroutine q65_sync(iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
      b90=1.72**ibw
      call q65_intrinsics_ff(s3,nsubmode,b90/baud,nFadingModel,s3prob)
      call q65_dec_fullaplist(s3,s3prob,codewords,ncw,esnodb,dat4,plog,irc)
-     write(72,3072) ibw,dat4,plog,irc
-3072 format(i2,2x,13i3,f8.1,i5)
      if(irc.ge.0) then
         snr2=esnodb - db(2500.0/baud)
         id1=1
