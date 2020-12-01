@@ -36,6 +36,7 @@
 static int	_q65_crc6(int *x, int sz);
 static void _q65_crc12(int *y, int *x, int sz);
 
+float q65_llh;
 
 int q65_init(q65_codec_ds *pCodec, 	const qracode *pqracode)
 {
