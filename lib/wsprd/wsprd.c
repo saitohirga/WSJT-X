@@ -71,7 +71,7 @@ unsigned long readc2file(char *ptr_to_infile, float *idat, float *qdat,
     float *buffer;
     double dfreq;
     int i,ntrmin;
-    char *c2file[15];
+    char c2file[15];
     size_t nr;
     FILE* fp;
     
