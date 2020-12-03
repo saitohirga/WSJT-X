@@ -2904,13 +2904,13 @@ Amarillo cuando esta muy bajo.</translation>
         <location filename="../widgets/mainwindow.ui" line="1586"/>
         <source>Check to Tx in even-numbered minutes or sequences, starting at 0; uncheck for odd sequences.</source>
         <translatorcomment>Marca a TX en minutos o secuencias de números pares, a partir de 0; desmarca las secuencias impares.</translatorcomment>
-        <translation>Marcar para transmitir en secuencias o minutos pares, comenzando por 0; desmarca para transmitir en las secuencias o minutos impares.</translation>
+        <translation type="unfinished">Marcar para transmitir en secuencias o minutos pares, comenzando por 0; desmarca para transmitir en las secuencias o minutos impares.</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1589"/>
         <source>Tx even/1st</source>
         <translatorcomment>Alternar periodo TX Par/Impar</translatorcomment>
-        <translation>TX segundo par</translation>
+        <translation type="unfinished">Tx primer par/1ro</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1481"/>
