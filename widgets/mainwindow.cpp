@@ -212,7 +212,7 @@ namespace
   auto quint32_max = std::numeric_limits<quint32>::max ();
   constexpr int N_WIDGETS {36};
   constexpr int rx_chunk_size {3456}; // audio samples at 12000 Hz
-  constexpr int tx_audio_buffer_size {48000 / 5}; // audio frames at 48000 Hz
+  constexpr int default_tx_audio_buffer_frames {48000 / 5}; // audio frames at 48000 Hz
 
   bool message_is_73 (int type, QStringList const& msg_parts)
   {
@@ -265,6 +265,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_soundInput {new SoundInput},
   m_modulator {new Modulator {TX_SAMPLE_RATE, NTMAX}},
   m_soundOutput {new SoundOutput},
+  m_tx_audio_buffer_frames {0},
   m_msErase {0},
   m_secBandChanged {0},
   m_freqNominal {0},
@@ -455,6 +456,9 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_modulator->moveToThread (&m_audioThread);
   m_soundInput->moveToThread (&m_audioThread);
   m_detector->moveToThread (&m_audioThread);
+  bool ok;
+  auto buffer_size = env.value ("WSJT_TX_AUDIO_BUFFER_FRAMES", "0").toInt (&ok);
+  m_tx_audio_buffer_frames = ok && buffer_size ? buffer_size : default_tx_audio_buffer_frames;
 
   // hook up sound output stream slots & signals and disposal
   connect (this, &MainWindow::initializeAudioOutputStream, m_soundOutput, &SoundOutput::setFormat);
@@ -942,7 +946,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
     {
       Q_EMIT initializeAudioOutputStream (m_config.audio_output_device ()
                                           , AudioDevice::Mono == m_config.audio_output_channel () ? 1 : 2
-                                          , tx_audio_buffer_size);
+                                          , m_tx_audio_buffer_frames);
     }
   Q_EMIT transmitFrequency (ui->TxFreqSpinBox->value () - m_XIT);
 
@@ -1855,7 +1859,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
     if(m_config.restart_audio_output () && !m_config.audio_output_device ().isNull ()) {
       Q_EMIT initializeAudioOutputStream (m_config.audio_output_device ()
                                           , AudioDevice::Mono == m_config.audio_output_channel () ? 1 : 2
-                                          , tx_audio_buffer_size);
+                                          , m_tx_audio_buffer_frames);
     }
 
     displayDialFrequency ();

@@ -7,6 +7,7 @@
 #include <qmath.h>
 #include <QDebug>
 
+#include "Logger.hpp"
 #include "Audio/AudioDevice.hpp"
 
 #include "moc_soundout.cpp"
@@ -104,17 +105,13 @@ void SoundOutput::restart (QIODevice * source)
   // Windows implementation seems to forget the buffer size after a
   // stop.
   //qDebug () << "SoundOut default buffer size (bytes):" << m_stream->bufferSize () << "period size:" << m_stream->periodSize ();
-  if (m_framesBuffered)
+  if (m_framesBuffered > 0)
     {
-#if defined (Q_OS_WIN)
       m_stream->setBufferSize (m_stream->format().bytesForFrames (m_framesBuffered));
-#else
-      m_stream->setBufferSize (m_stream->format().bytesForFrames (48000 / 10));
-#endif
     }
   m_stream->setCategory ("game");
   m_stream->start (source);
-  // qDebug () << "SoundOut selected buffer size (bytes):" << m_stream->bufferSize () << "period size:" << m_stream->periodSize ();
+  LOG_INFO ("Selected buffer size (bytes): " << m_stream->bufferSize () << " period size: " << m_stream->periodSize ());
 }
 
 void SoundOutput::suspend ()
