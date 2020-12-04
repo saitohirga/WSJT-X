@@ -5156,7 +5156,7 @@ void MainWindow::genCQMsg ()
         msgtype (QString {"%1 %2"}.arg(m_CQtype).arg(m_config.my_callsign()),ui->tx6);
       }
     }
-    if ((m_mode=="JT4" or m_mode=="QRA64") and  ui->cbShMsgs->isChecked()) {
+    if ((m_mode=="JT4" or m_mode=="QRA64" or m_mode=="Q65") and  ui->cbShMsgs->isChecked()) {
       if (ui->cbTx6->isChecked ()) {
         msgtype ("@1250  (SEND MSGS)", ui->tx6);
       } else {

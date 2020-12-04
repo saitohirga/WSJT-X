@@ -318,7 +318,7 @@ qint64 Modulator::readData (char * data, qint64 maxSize)
           sample=qRound(m_amp*qSin(m_phi));
 
 //Here's where we transmit from a precomputed wave[] array:
-          if(!m_tuning and (m_toneSpacing < 0)) {
+          if(!m_tuning and (m_toneSpacing < 0) and (itone[0]<100)) {
             m_amp=32767.0;
             sample=qRound(m_amp*foxcom_.wave[m_ic]);
           }
