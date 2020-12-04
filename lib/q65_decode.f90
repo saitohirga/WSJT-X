@@ -102,11 +102,6 @@ contains
        go to 100
     endif
     
-	! Nico's trick to speed up data analysis
-	! with fullaplist decoding
-	! Uncomment to check only fullaplist synch and decode
-	! snr1 = 1 ! skip non fullaplist decoding attempts
-	
     if(snr1.lt.2.8) go to 100
     jpk0=(xdt+1.0)*6000                      !### Is this OK?
     if(ntrperiod.le.30) jpk0=(xdt+0.5)*6000  !###

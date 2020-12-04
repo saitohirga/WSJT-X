@@ -27,12 +27,6 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
   real, allocatable :: s1(:,:)           !Symbol spectra, 1/8-symbol steps
   real, allocatable :: s3(:,:)           !Data-symbol energies s3(LL,63)
   real, allocatable :: ccf(:,:)          !CCF(freq,lag)
-  
-  ! real, allocatable :: ccfcw(:)        ! Method 2
-  ! real, allocatable :: ccfpk(:)        ! Method 2
-  ! integer cwpk(1)                      ! Method 2
-  ! integer, allocatable :: cwtone(:,:)  ! Method 2
-  
   real, allocatable :: ccf1(:)           !CCF(freq) at best lag
   real s3prob(0:63,63)                   !Symbol-value probabilities
   real sync(85)                          !sync vector
@@ -58,10 +52,6 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
   allocate(c0(0:nfft-1))
   allocate(ccf(-ia:ia,-53:214))
   allocate(ccf1(-ia:ia))
-  
-  ! allocate(ccfcw(1:ncw))               ! Method 2
-  ! allocate(ccfpk(1:ncw))               ! Method 2
-  ! allocate(cwtone(ncw,85))             ! Method 2
 
   if(sync(1).eq.99.0) then               !Generate the sync vector
      sync=-22.0/63.0                     !Sync tone OFF  
@@ -116,7 +106,6 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
 !######################################################################
 ! Try list decoding via "Deep Likelihood".
 
-! Joe's method
   ipk=0
   jpk=0
   ccf_best=0.
@@ -158,66 +147,6 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
      endif
   enddo  ! imsg
 
-! Nico's Method 2
-! Computes the ccf in a different order so that
-! we can see what the ccfs of the list looked like
-! on ccfmax
-
-! Compute codeword tones
-! cwtone = 0
-! do imsg=1,ncw
-!     i=1
-!     k=0
-!     do j=1,85
-!        if(j.eq.isync(i)) then
-!           i=i+1
-!           cwtone(imsg,j)=-1
-!        else
-!           k=k+1
-!           cwtone(imsg,j)=codewords(k,imsg)
-!        endif
-!     enddo
-! enddo
-
-! ipk=0
-! jpk=0
-! ccf_best=0.
-! imsg_best=-1
-! ccf=0.
-! do lag=lag1,lag2
-!    do i=-ia,ia
-!		ccfcw = 0.
-!        do k=1,85
-!            j=j0 + NSTEP*(k-1) + 1 + lag
-!            if(j.ge.1 .and. j.le.jz) then
-!				do imsg=1,ncw
-!				    ! if we would like to check only non systematic symbols
-!					! uncomment the following if
-!					!if (k.gt.18 .or. cwtone(imsg,k).eq.-1) then
-!						ii=i0+mode_q65*cwtone(imsg,k)+i
-!						ccfcw(imsg)=ccfcw(imsg) + s1(ii,j)
-!					!endif
-!			    enddo
-!			endif
-!		enddo
-!		ccfmax=maxval(ccfcw)
-!		ccf(i,lag) = ccfmax
-!       if(ccfmax.gt.ccf_best) then
-!		    ccfpk = ccfcw
-!			cwpk = maxloc(ccfpk)
-!			imsg_best = cwpk(1)
-!			ccf_best = ccfmax
-!		endif
-!	enddo
-! enddo
-! ccfmax=maxval(ccf)
-! ccf_best=ccfmax
-! ijpk=maxloc(ccf)
-! ipk=ijpk(1)-ia-1
-! jpk=ijpk(2)-53-1     
-! f0=nfqso + ipk*df
-! xdt=jpk*dtstep
-  
   ia=i0+ipk-64
   ib=ia+LL-1
   j=j0+jpk-7
@@ -238,46 +167,22 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
   if(mode_q65.eq.16) nsubmode=4
   nFadingModel=1
   baud=12000.0/nsps
-  isreport = 0;
   do ibw=2,4
      b90=1.72**ibw
      call q65_intrinsics_ff(s3,nsubmode,b90/baud,nFadingModel,s3prob)
      call q65_dec_fullaplist(s3,s3prob,codewords,ncw,esnodb,dat4,plog,irc)
-!    Joe's threshold	 
-!     if(irc.ge.0 .and. plog.ge.-255.0) then
-!    Nico's threshold
-	 if (irc.ge.0) then
-	   ! if it is an RRR type or a CQ Mycall grid
-	   ! we accept the fullaplist threshold
-	   ! other cases in the list are reports which
-	   ! are more frequent in the list and then 
-	   ! must be filtered with a higher threshold
-	   if((irc.le.3.0 .or. irc.eq.56.0) .or. plog.ge.-250.0) then
+     if(irc.ge.0 .and. plog.ge.-255.0) then
         snr2=esnodb - db(2500.0/baud)
         id1=1
         write(c77,1000) dat4(1:12),dat4(13)/2
 1000    format(12b6.6,b5.5)
         call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
         open(55,file='fort.55',status='unknown',position='append')
-		
-! Joe's dump		
-!        write(55,3055) nutc,ibw,xdt,f0,85.0*base,ccfmax,snr2,plog,   &
-!             irc,trim(decoded)
-!3055    format(i6,i3,6f8.2,i5,2x,a)
-
-! Nico's dump for Method 2
-!       This are the ccfs of the codeword in the list at the
-!       ccf peak
-!       write(55,3083) ccfpk
-!3083	format(10f6.1)
-!       Show also the imsg_best in order to compare it with
-!       irc. (Interestingly they are always equal!)
-!       write(55,3055) nutc,ibw,xdt,f0,85.0*base,ccfmax,snr2,plog,   &
-!             irc,(imsg_best-1),trim(decoded)
-!3055    format(i6,i3,6f8.2,2i5,2x,a)
+        write(55,3055) nutc,ibw,xdt,f0,85.0*base,ccfmax,snr2,plog,   &
+             irc,trim(decoded)
+3055    format(i6,i3,6f8.2,i5,2x,a)
         close(55)
         go to 900
-	   endif
      endif
   enddo
 
