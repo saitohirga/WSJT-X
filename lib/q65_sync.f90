@@ -261,9 +261,9 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
         open(55,file='fort.55',status='unknown',position='append')
 		
 ! Joe's dump		
-!        write(55,3055) nutc,ibw,xdt,f0,85.0*base,ccfmax,snr2,plog,   &
-!             irc,trim(decoded)
-!3055    format(i6,i3,6f8.2,i5,2x,a)
+        write(55,3055) nutc,ibw,xdt,f0,85.0*base,ccfmax,snr2,plog,   &
+             irc,trim(decoded)
+3055    format(i6,i3,6f8.2,i5,2x,a)
 
 ! Nico's dump for Method 2
 !       This are the ccfs of the codeword in the list at the
