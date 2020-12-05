@@ -95,7 +95,7 @@ program test_q65
 
   dterr=tsym/4.0
   nferr=max(1,nint(0.5*baud),nint(fdop/3.0))
-  ndec10=nfiles
+  ndec1z=nfiles
   
   do nsnr=ia,ib,-1
      snr1=nsnr
@@ -143,8 +143,8 @@ program test_q65
      write(12,1100) snr1,ntrperiod,csubmode,ndepth,fDop,nsync,ndecn,    &
           ndec1,nfalse,naptype,tdec/nfiles
 1100 format(f5.1,i4,1x,a1,i3,f5.1,3i5,i4,i6,5i5,f6.2)
-     if(ndec1.lt.nfiles/2 .and. ndec10.ge.nfiles/2) then
-        snr_thresh=snr1 + float(nfiles/2 - ndec1)/(ndec10-ndec1)
+     if(ndec1.lt.nfiles/2 .and. ndec1z.ge.nfiles/2) then
+        snr_thresh=snr1 + float(nfiles/2 - ndec1)/(ndec1z-ndec1)
         open(13,file='snr_thresh.out',status='unknown',position='append')
         write(13,1200) ntrperiod,csubmode,ndepth,nQSOprogress,nfiles,   &
              fdop,snr_thresh,trim(msg)
@@ -154,7 +154,7 @@ program test_q65
      flush(6)
      flush(12)
      if(ndec1.eq.0 .and. ndecn.eq.0) exit           !Bail out if no decodes at this SNR
-     ndec10=ndec1
+     ndec1z=ndec1
   enddo  ! nsnr
 
 999 end program test_q65
