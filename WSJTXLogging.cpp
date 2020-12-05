@@ -93,15 +93,15 @@ namespace
           << boost::log::add_value ("Line", context.line)
           << boost::log::add_value ("File", file)
           << boost::log::add_value ("Function", function)
-          << msg.toStdString ();
+          << msg.toStdWString ();
       }
     else
       {
-        BOOST_LOG_CHANNEL_SEV (log, std::string {context.category}, severity)
+        BOOST_LOG_SEV (log, severity)
           << boost::log::add_value ("Line", context.line)
           << boost::log::add_value ("File", file)
           << boost::log::add_value ("Function", function)
-          << msg.toStdString ();
+          << context.category << ": " << msg.toStdWString ();
       }
     if (QtFatalMsg == type)
       {
@@ -155,8 +155,8 @@ WSJTXLogging::WSJTXLogging ()
           pos = match.capturedEnd (0);
         }
       new_config += config.mid (pos);
-      std::stringbuf buffer {new_config.toStdString (), std::ios_base::in};
-      std::istream stream {&buffer};
+      std::wstringbuf buffer {new_config.toStdWString (), std::ios_base::in};
+      std::wistream stream {&buffer};
       Logger::init_from_config (stream);
       LOG_INFO ("Read logging configuration file: " << log_config.fileName ());
     }
@@ -180,7 +180,7 @@ WSJTXLogging::WSJTXLogging ()
         (
          keywords::auto_flush = false
 #if BOOST_VERSION / 100 >= 1070
-         , keywords::file_name = app_data.absoluteFilePath ("wsjtx_syslog.log").toStdString ()
+         , keywords::file_name = app_data.absoluteFilePath ("wsjtx_syslog.log").toStdWString ()
          , keywords::target_file_name =
 #else
          , keywords::file_name =
@@ -200,7 +200,7 @@ WSJTXLogging::WSJTXLogging ()
           keywords::max_size = 40 * 1024 * 1024
           , keywords::min_free_space = 1024 * 1024 * 1024
           , keywords::max_files = 12
-          , keywords::target = app_data.absoluteFilePath ("logs").toStdString ()
+          , keywords::target = app_data.absoluteFilePath ("logs").toStdWString ()
           )
          );
       sys_sink->locked_backend ()->scan_for_files ();

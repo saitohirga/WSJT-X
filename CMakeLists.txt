@@ -1457,6 +1457,15 @@ generate_version_info (udp_daemon_VERSION_RESOURCES
 add_executable (udp_daemon UDPExamples/UDPDaemon.cpp ${udp_daemon_VERSION_RESOURCES})
 target_link_libraries (udp_daemon wsjtx_udp-static)
 
+generate_version_info (wsjtx_app_version_VERSION_RESOURCES
+  NAME wsjtx_app_version
+  BUNDLE ${PROJECT_BUNDLE_NAME}
+  ICON ${WSJTX_ICON_FILE}
+  FILE_DESCRIPTION "Display WSJT-X Application Version on console"
+  )
+add_executable (wsjtx_app_version AppVersion/AppVersion.cpp ${wsjtx_app_version_VERSION_RESOURCES})
+target_link_libraries (wsjtx_app_version wsjt_qt)
+
 generate_version_info (message_aggregator_VERSION_RESOURCES
   NAME message_aggregator
   BUNDLE ${PROJECT_BUNDLE_NAME}
@@ -1516,7 +1525,7 @@ install (TARGETS wsjtx
 #   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wsjtx
 #   )
 
-install (TARGETS udp_daemon message_aggregator
+install (TARGETS udp_daemon message_aggregator wsjtx_app_version
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
   )
