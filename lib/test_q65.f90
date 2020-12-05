@@ -38,13 +38,13 @@ program test_q65
 
   if(ntrperiod.eq.15) then
      nsps=1800
-     i50=-21
+     i50=-23
   else if(ntrperiod.eq.30) then
      nsps=3600
-     i50=-24
+     i50=-26
   else if(ntrperiod.eq.60) then
      nsps=7200
-     i50=-28
+     i50=-29
   else if(ntrperiod.eq.120) then
      nsps=16000
      i50=-31
@@ -54,6 +54,8 @@ program test_q65
   else
      stop 'Invalid TR period'
   endif
+
+  i50=i50 + 8.0*log(fDop)/log(240.0)
   ia=i50 + 7
   ib=i50 - 10
   if(snr.ne.0.0) then
@@ -67,12 +69,12 @@ program test_q65
 !                1         2         3         4         5         6         7
 !       123456789012345678901234567890123456789012345678901234567890123456789012345'
   cmd1='q65sim   "K1ABC W9XYZ EN37      " A 1500  5.0  0.0  60  100 F -10.0 > junk0'
-  cmd2='jt9 -3 -p  15 -L 300 -H 3000 -d  3 -b A -Q 3 *.wav > junk'
+  cmd2='jt9 -3 -p  15 -L 300 -H 3000 -d  3 -b A -Q 3 -f 1500 *.wav > junk'
 
   write(cmd1(10:33),'(a)') '"'//msg//'"'
   cmd1(35:35)=csubmode
   write(cmd1(37:40),'(i4)') nf0
-  write(cmd1(41:45),'(f5.1)') fDop
+  write(cmd1(41:45),'(f5.0)') fDop
   write(cmd1(46:50),'(f5.2)') dt
   write(cmd1(51:54),'(i4)') ntrperiod
   write(cmd1(55:59),'(i5)') nfiles
@@ -80,7 +82,9 @@ program test_q65
   write(cmd2(11:13),'(i3)') ntrperiod
   write(cmd2(33:34),'(i2)') ndepth
   write(cmd2(44:44),'(i1)') nQSOprogress
+  write(cmd2(49:52),'(i4)') nf0
   cmd2(39:39)=csubmode
+
   call system('rm -f *.wav')
 
 !  call qra_params(ndepth,maxaptype,idf0max,idt0max,ibwmin,ibwmax,maxdist)
@@ -142,7 +146,7 @@ program test_q65
           ndec1,nfalse,naptype,tdec/nfiles
      write(12,1100) snr1,ntrperiod,csubmode,ndepth,fDop,nsync,ndecn,    &
           ndec1,nfalse,naptype,tdec/nfiles
-1100 format(f5.1,i4,1x,a1,i3,f5.1,3i5,i4,i6,5i5,f6.2)
+1100 format(f5.1,i4,1x,a1,i3,f5.0,3i5,i4,i6,5i5,f6.2)
      if(ndec1.lt.nfiles/2 .and. ndec1z.ge.nfiles/2) then
         snr_thresh=snr1 + float(nfiles/2 - ndec1)/(ndec1z-ndec1)
         open(13,file='snr_thresh.out',status='unknown',position='append')
