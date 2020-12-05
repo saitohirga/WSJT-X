@@ -47,6 +47,7 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
   jz=(txt+1.0)*12000.0/istep             !Number of quarter-symbol steps
   if(nsps.ge.6912) jz=(txt+2.0)*12000.0/istep   !For TR 60 s and higher
   ia=ntol/df
+  nsmo=int(0.7*mode_q65*mode_q65)
 
   allocate(s1(iz,jz))
   allocate(s3(-64:LL-65,63))
@@ -78,7 +79,9 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
         s1(i,j)=real(c0(i))**2 + aimag(c0(i))**2
      enddo
 ! For large Doppler spreads, should we smooth the spectra here?
-!    call smo121(s1(1:iz,j),iz)
+     do i=1,nsmo
+        call smo121(s1(1:iz,j),iz)
+     enddo
   enddo
 
   i0=nint(nfqso/df)                           !Target QSO frequency
@@ -168,7 +171,9 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
   if(mode_q65.eq.16) nsubmode=4
   nFadingModel=1
   baud=12000.0/nsps
-  do ibw=2,4
+  ibwa=1.8*log(baud*mode_q65) + 2
+  ibwb=ibwa+4
+  do ibw=ibwa,ibwb
      b90=1.72**ibw
      call q65_intrinsics_ff(s3,nsubmode,b90/baud,nFadingModel,s3prob)
      call q65_dec_fullaplist(s3,s3prob,codewords,ncw,esnodb,dat4,plog,irc)
