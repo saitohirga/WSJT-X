@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>805</width>
-    <height>584</height>
+    <height>589</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -596,7 +596,7 @@
         </layout>
        </item>
        <item>
-        <layout class="QGridLayout" name="gridLayout_5" rowstretch="1,0,0">
+        <layout class="QGridLayout" name="gridLayout_5" rowstretch="1,0,0,0">
          <item row="0" column="2">
           <widget class="QLabel" name="labDialFreq">
            <property name="sizePolicy">
@@ -1225,6 +1225,25 @@ Yellow when too low</string>
                     </item>
                    </layout>
                   </item>
+                  <item row="0" column="1">
+                   <widget class="QPushButton" name="pbTxMode">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="toolTip">
+                     <string>Toggle Tx mode</string>
+                    </property>
+                    <property name="text">
+                     <string>Tx JT9 @</string>
+                    </property>
+                   </widget>
+                  </item>
                   <item row="1" column="0">
                    <widget class="QSpinBox" name="TxFreqSpinBox">
                     <property name="toolTip">
@@ -1247,6 +1266,53 @@ Yellow when too low</string>
                     </property>
                     <property name="value">
                      <number>1500</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="8" column="1">
+                   <widget class="LettersSpinBox" name="sbSubmode">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Submode determines tone spacing; A is narrowest.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="accessibleDescription">
+                     <string>Submode determines tone spacing; A is narrowest.</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                    <property name="prefix">
+                     <string>Submode </string>
+                    </property>
+                    <property name="minimum">
+                     <number>0</number>
+                    </property>
+                    <property name="maximum">
+                     <number>7</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="1">
+                   <widget class="QSpinBox" name="sbF_High">
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                    <property name="suffix">
+                     <string/>
+                    </property>
+                    <property name="prefix">
+                     <string>F High </string>
+                    </property>
+                    <property name="minimum">
+                     <number>100</number>
+                    </property>
+                    <property name="maximum">
+                     <number>5000</number>
+                    </property>
+                    <property name="singleStep">
+                     <number>100</number>
+                    </property>
+                    <property name="value">
+                     <number>1400</number>
                     </property>
                    </widget>
                   </item>
@@ -1318,6 +1384,44 @@ Yellow when too low</string>
                      </widget>
                     </item>
                    </layout>
+                  </item>
+                  <item row="4" column="1">
+                   <widget class="QSpinBox" name="sbF_Low">
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                    <property name="prefix">
+                     <string>F Low   </string>
+                    </property>
+                    <property name="minimum">
+                     <number>100</number>
+                    </property>
+                    <property name="maximum">
+                     <number>5000</number>
+                    </property>
+                    <property name="singleStep">
+                     <number>100</number>
+                    </property>
+                    <property name="value">
+                     <number>600</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="1">
+                   <widget class="QLabel" name="labNextCall">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Double-click on another caller to queue that call for your next QSO.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="accessibleDescription">
+                     <string>Double-click on another caller to queue that call for your next QSO.</string>
+                    </property>
+                    <property name="text">
+                     <string>Next Call</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
                   </item>
                   <item row="5" column="0">
                    <widget class="QSpinBox" name="RxFreqSpinBox">
@@ -1424,6 +1528,60 @@ Not available to nonstandard callsign holders.</string>
                      </widget>
                     </item>
                    </layout>
+                  </item>
+                  <item row="7" column="1">
+                   <widget class="QSpinBox" name="sbSerialNumber">
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="prefix">
+                     <string>Tx# </string>
+                    </property>
+                    <property name="minimum">
+                     <number>1</number>
+                    </property>
+                    <property name="maximum">
+                     <number>4095</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QCheckBox" name="cbHoldTxFreq">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to keep Tx frequency fixed when double-clicking on decoded text.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="accessibleDescription">
+                     <string>Check to keep Tx frequency fixed when double-clicking on decoded text.</string>
+                    </property>
+                    <property name="text">
+                     <string>Hold Tx Freq</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="9" column="1">
+                   <widget class="QSpinBox" name="syncSpinBox">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Synchronizing threshold.  Lower numbers accept weaker sync signals.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="accessibleDescription">
+                     <string>Synchronizing threshold. Lower numbers accept weaker sync signals.</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                    <property name="prefix">
+                     <string>Sync   </string>
+                    </property>
+                    <property name="minimum">
+                     <number>-2</number>
+                    </property>
+                    <property name="maximum">
+                     <number>10</number>
+                    </property>
+                    <property name="value">
+                     <number>1</number>
+                    </property>
+                   </widget>
                   </item>
                   <item row="0" column="0">
                    <widget class="QCheckBox" name="txFirstCheckBox">
@@ -1551,129 +1709,6 @@ When not checked you can view the calibration results.</string>
                      </size>
                     </property>
                    </spacer>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QCheckBox" name="cbHoldTxFreq">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to keep Tx frequency fixed when double-clicking on decoded text.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="accessibleDescription">
-                     <string>Check to keep Tx frequency fixed when double-clicking on decoded text.</string>
-                    </property>
-                    <property name="text">
-                     <string>Hold Tx Freq</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QSpinBox" name="sbF_Low">
-                    <property name="alignment">
-                     <set>Qt::AlignCenter</set>
-                    </property>
-                    <property name="prefix">
-                     <string>F Low   </string>
-                    </property>
-                    <property name="minimum">
-                     <number>100</number>
-                    </property>
-                    <property name="maximum">
-                     <number>5000</number>
-                    </property>
-                    <property name="singleStep">
-                     <number>100</number>
-                    </property>
-                    <property name="value">
-                     <number>600</number>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="4" column="1">
-                   <widget class="QSpinBox" name="sbF_High">
-                    <property name="alignment">
-                     <set>Qt::AlignCenter</set>
-                    </property>
-                    <property name="suffix">
-                     <string/>
-                    </property>
-                    <property name="prefix">
-                     <string>F High </string>
-                    </property>
-                    <property name="minimum">
-                     <number>100</number>
-                    </property>
-                    <property name="maximum">
-                     <number>5000</number>
-                    </property>
-                    <property name="singleStep">
-                     <number>100</number>
-                    </property>
-                    <property name="value">
-                     <number>1400</number>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="5" column="1">
-                   <widget class="QSpinBox" name="sbSerialNumber">
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                    <property name="prefix">
-                     <string>Tx# </string>
-                    </property>
-                    <property name="minimum">
-                     <number>1</number>
-                    </property>
-                    <property name="maximum">
-                     <number>4095</number>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="6" column="1">
-                   <widget class="LettersSpinBox" name="sbSubmode">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Submode determines tone spacing; A is narrowest.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="accessibleDescription">
-                     <string>Submode determines tone spacing; A is narrowest.</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignCenter</set>
-                    </property>
-                    <property name="prefix">
-                     <string>Submode </string>
-                    </property>
-                    <property name="minimum">
-                     <number>0</number>
-                    </property>
-                    <property name="maximum">
-                     <number>7</number>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="7" column="1">
-                   <widget class="QSpinBox" name="syncSpinBox">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Synchronizing threshold.  Lower numbers accept weaker sync signals.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="accessibleDescription">
-                     <string>Synchronizing threshold. Lower numbers accept weaker sync signals.</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignCenter</set>
-                    </property>
-                    <property name="prefix">
-                     <string>Sync   </string>
-                    </property>
-                    <property name="minimum">
-                     <number>-2</number>
-                    </property>
-                    <property name="maximum">
-                     <number>10</number>
-                    </property>
-                    <property name="value">
-                     <number>1</number>
-                    </property>
-                   </widget>
                   </item>
                  </layout>
                 </item>
@@ -2864,6 +2899,7 @@ list. The list can be maintained in Settings (F2).</string>
     <addaction name="actionFT8"/>
     <addaction name="actionJT4"/>
     <addaction name="actionJT9"/>
+    <addaction name="actionJT9_JT65"/>
     <addaction name="actionJT65"/>
     <addaction name="actionQRA64"/>
     <addaction name="actionQ65"/>
