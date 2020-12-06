@@ -301,8 +301,7 @@ int q65_intrinsics_fastfading(q65_codec_ds *pCodec,
 	const float *pCurSym, *pCurBin;
 	float *pCurIx;
 
-//	printf("pcodec=%08x submode=%d fadingmodel=%d B90Ts=%f\n",pcodec, submode,fadingModel, B90Ts);
-	
+	//	printf("pcodec=%08x submode=%d fadingmodel=%d B90Ts=%f\n",pCodec, submode,fadingModel, B90Ts);
 	if (pCodec==NULL)
 		return Q65_DECODE_INVPARAMS;	// invalid pCodec pointer
 
@@ -322,8 +321,8 @@ int q65_intrinsics_fastfading(q65_codec_ds *pCodec,
 	if (hidx<0)
 		hidx = 0;
 	else
-		if (hidx > 64) 
-			hidx=64;
+	  if (hidx > 63)   //Changed by K1JT: previously max was 64.
+	    hidx=63;       //Changed by K1JT: previously max was 64.
 
 	// select the appropriate weighting fading coefficients array
 	if (fadingModel==0) {	 // gaussian fading model
@@ -337,7 +336,7 @@ int q65_intrinsics_fastfading(q65_codec_ds *pCodec,
 		hptr = gptr_tab_lorentz[hidx];   // pointer to the first (L+1)/2 coefficients of w fun
 		}
 	else 
-		return Q65_DECODE_INVPARAMS;	 // invalid fading model 
+		return Q65_DECODE_INVPARAMS;	 // invalid fading model
 
 	// compute (euristically) the optimal decoder metric accordingly the given spread amount
 	// We assume that the decoder 50% decoding threshold is:
@@ -400,7 +399,8 @@ int q65_intrinsics_fastfading(q65_codec_ds *pCodec,
 	// compute the fast fading weights accordingly to the Es/No ratio
 	// for which we compute the exact intrinsics probabilities
 	for (k=0;k<hlen;k++) {	
-		fTemp = hptr[k]*EsNoMetric; 
+		fTemp = hptr[k]*EsNoMetric;
+		//		printf("%d  %d  %f  %f  %f\n",hlen,k,EsNoMetric,hptr[k],fTemp);
 		weight[k] = fTemp/(1.0f+fTemp)/fNoiseVar;
 		}
 
