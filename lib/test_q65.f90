@@ -55,7 +55,7 @@ program test_q65
      stop 'Invalid TR period'
   endif
 
-  i50=i50 + 8.0*log(fDop)/log(240.0)
+  i50=i50 + 8.0*log(1.0+fDop)/log(240.0)
   ia=i50 + 7
   ib=i50 - 10
   if(snr.ne.0.0) then
