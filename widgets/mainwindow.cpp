@@ -6428,6 +6428,7 @@ void MainWindow::on_actionQ65_triggered()
   m_modeTx="Q65";
   ui->actionQ65->setChecked(true);
   switch_mode(Modes::Q65);
+  fast_config(false);
   setup_status_bar(true);
   m_nsps=6912;                   //For symspec only
   m_FFTSize = m_nsps / 2;
