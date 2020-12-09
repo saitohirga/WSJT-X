@@ -135,7 +135,7 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
            if(j.ge.1 .and. j.le.jz) then
               do i=-ia,ia
                  ii=i0+mode_q65*itone(k)+i
-                 ccf(i,lag)=ccf(i,lag) + s1(ii,j)
+                 if(ii.ge.1 .and. ii.le.iz) ccf(i,lag)=ccf(i,lag) + s1(ii,j)
               enddo
            endif
         enddo
