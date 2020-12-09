@@ -36,6 +36,7 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
   data sync(1)/99.0/
   save sync
 
+  snr1=0.
   id1=0
   dat4=0
   LL=64*(2+mode_q65)
@@ -86,6 +87,7 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
   enddo
 
   i0=nint(nfqso/df)                           !Target QSO frequency
+  if(i0-64.lt.1 .or. i0-65+LL.gt.iz) go to 900
   call pctile(s1(i0-64:i0-65+LL,1:jz),LL*jz,40,base)
   s1=s1/base
 
