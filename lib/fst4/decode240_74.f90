@@ -135,7 +135,8 @@ subroutine decode240_74(llr,Keff,maxosd,norder,apmask,message74,cw,ntype,nharder
 
    do i=1,nosd
       zn=zsave(:,i)
-      call osd240_74(zn,Keff,apmask,norder,message74,cw,nharderror,dminosd)
+!      call osd240_74(zn,Keff,apmask,norder,message74,cw,nharderror,dminosd)
+      call fastosd240_74(zn,Keff,apmask,norder,message74,cw,nharderror,dminosd)
       if(nharderror.gt.0) then
          hdec=0
          where(llr .ge. 0) hdec=1
