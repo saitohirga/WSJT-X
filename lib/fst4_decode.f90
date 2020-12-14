@@ -69,7 +69,7 @@ contains
 
       logical badsync,unpk77_success,single_decode
       logical first,nohiscall,lwspr
-      logical new_callsign,plotspec_exists,wcalls_exists,do_nocrc_decode
+      logical new_callsign,plotspec_exists,wcalls_exists,do_k50_decode
       logical decdata_exists
 
       integer*2 iwave(30*60*12000)
@@ -232,18 +232,19 @@ contains
       allocate( cframe(0:160*nss-1) )
 
       jittermax=2
+      do_k50_decode=.false.
       if(ndepth.eq.3) then
          nblock=4
          jittermax=2
-         do_nocrc_decode=.true.
+         do_k50_decode=.true.
       elseif(ndepth.eq.2) then
          nblock=4
          jittermax=2
-         do_nocrc_decode=.false.
+         do_k50_decode=.false.
       elseif(ndepth.eq.1) then
          nblock=4
          jittermax=0
-         do_nocrc_decode=.false.
+         do_k50_decode=.false.
       endif
 
       ndropmax=1
@@ -480,10 +481,10 @@ contains
                      write(c77,'(77i1)') mod(message101(1:77)+rvec,2)
                      call unpack77(c77,1,msg,unpk77_success)
                   elseif(iwspr.eq.1) then
-! First try decoding with Keff=64
+! Try decoding with Keff=66
                      maxosd=2
                      call timer('d240_74 ',0)
-                     Keff=64
+                     Keff=66
                      norder=3
                      call decode240_74(llr,Keff,maxosd,norder,apmask,message74,cw, &
                         ntype,nharderrors,dmin)
@@ -496,25 +497,27 @@ contains
                      write(c77,'(50i1)') message74(1:50)
                      c77(51:77)='000000000000000000000110000'
                      call unpack77(c77,1,msg,unpk77_success)
-                     if(unpk77_success) then
-! If decode was obtained with Keff=64, save call/grid in fst4w_calls.txt if not there already.
+                     if(unpk77_success .and. do_k50_decode) then
+! If decode was obtained with Keff=66, save call/grid in fst4w_calls.txt if not there already.
                         i1=index(msg,' ')
                         i2=i1+index(msg(i1+1:),' ')
                         wpart=trim(msg(1:i2))
+! Only save callsigns/grids from type 1 messages
+                        if(index(wpart,'/').eq.0 .and. index(wpart,'<').eq.0) then
+                           ifound=0
+                           do i=1,nwcalls
+                              if(index(wcalls(i),wpart).ne.0) ifound=1
+                           enddo
 
-                        ifound=0
-                        do i=1,nwcalls
-                           if(index(wcalls(i),wpart).ne.0) ifound=1
-                        enddo
-
-                        if(ifound.eq.0) then ! This is a new callsign
-                           new_callsign=.true.
-                           if(nwcalls.lt.MAXWCALLS) then
-                              nwcalls=nwcalls+1
-                              wcalls(nwcalls)=wpart
-                           else
-                              wcalls(1:nwcalls-1)=wcalls(2:nwcalls)
-                              wcalls(nwcalls)=wpart
+                           if(ifound.eq.0) then ! This is a new callsign
+                              new_callsign=.true.
+                              if(nwcalls.lt.MAXWCALLS) then
+                                 nwcalls=nwcalls+1
+                                 wcalls(nwcalls)=wpart
+                              else
+                                 wcalls(1:nwcalls-1)=wcalls(2:nwcalls)
+                                 wcalls(nwcalls)=wpart
+                              endif
                            endif
                         endif
                      endif
@@ -522,7 +525,7 @@ contains
 
 ! If no decode then try Keff=50
                      iaptype=0
-                     if( .not. unpk77_success .and. do_nocrc_decode ) then
+                     if( .not. unpk77_success .and. do_k50_decode ) then
                         maxosd=1
                         call timer('d240_74 ',0)
                         Keff=50
@@ -608,7 +611,7 @@ contains
 800      enddo !candidate list
       enddo ! noise blanker loop
 
-      if(new_callsign) then ! re-write the fst4w_calls.txt file
+      if(new_callsign .and. do_k50_decode) then ! re-write the fst4w_calls.txt file
          open(42,file=trim(data_dir)//'/fst4w_calls.txt',status='unknown')
          do i=1,nwcalls
             write(42,'(a20)') trim(wcalls(i))
