@@ -84,6 +84,7 @@ namespace std
   // algorithm http://www.cse.yorku.ca/~oz/hash.html because qHash()
   // is poor on 64-bit platforms due to being a 32-bit hash value
   template<>
+#if (QT_VERSION < QT_VERSION_CHECK(5, 14, 0))
   struct hash<QString>
   {
     std::size_t operator () (QString const& s) const noexcept
@@ -96,6 +97,7 @@ namespace std
       return hash;
     }
   };
+#endif
 }
 
 // Register some useful Qt types with QMetaType
