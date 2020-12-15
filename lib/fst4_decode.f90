@@ -595,7 +595,7 @@ contains
                      fsig=fc_synced - 1.5*baud
                      inquire(file=trim(data_dir)//'/decdata',exist=decdata_exists)
                      if(decdata_exists) then
-                        open(21,file=trim(data_dir)//'/fst4_decodes.dat',status='unknown')
+                        open(21,file=trim(data_dir)//'/fst4_decodes.dat',status='unknown',position='append')
                         write(21,3021) nutc,icand,itry,nsyncoh,iaptype,  &
                            ijitter,ntype,Keff,nsync_qual,nharderrors,dmin,  &
                            sync,xsnr,xdt,fsig,w50,trim(msg)
