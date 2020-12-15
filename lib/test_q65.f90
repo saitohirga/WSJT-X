@@ -95,7 +95,8 @@ program test_q65
   
   write(*,1010) (j,j=1,6)
   write(12,1010) (j,j=1,6)
-1010 format(' SNR   Mode  d  Dop  Sync DecN Dec1 Bad',6i5,'  tdec'/75('-'))
+1010 format(' SNR  Mode  d Dop Sync Avg Dec Bad',6i4,'  tdec   avg  rms'/  &
+          75('-'))
 
   dterr=tsym/4.0
   nferr=max(1,nint(0.5*baud),nint(fdop/3.0))
@@ -154,11 +155,11 @@ program test_q65
         snr_avg=snrsum/nsum
         snr_rms=sqrt(snrsq/nsum - snr_avg**2)
      endif
-     write(*,1100) snr1,ntrperiod,csubmode,ndepth,fDop,nsync,ndecn,     &
+     write(*,1100) snr1,ntrperiod,csubmode,ndepth,nint(fDop),nsync,ndecn,     &
           ndec1,nfalse,naptype,tdec/nfiles,snr_avg,snr_rms
-     write(12,1100) snr1,ntrperiod,csubmode,ndepth,fDop,nsync,ndecn,    &
+     write(12,1100) snr1,ntrperiod,csubmode,ndepth,nint(fDop),nsync,ndecn,    &
           ndec1,nfalse,naptype,tdec/nfiles,snr_avg,snr_rms
-1100 format(f5.1,i4,1x,a1,i3,f5.0,3i5,i4,i6,5i5,f6.2,f6.1,f5.1)
+1100 format(f5.1,i4,a1,i3,5i4,i5,5i4,f6.2,f6.1,f5.1)
      if(ndec1.lt.nfiles/2 .and. ndec1z.ge.nfiles/2) then
         snr_thresh=snr1 + float(nfiles/2 - ndec1)/(ndec1z-ndec1)
         open(13,file='snr_thresh.out',status='unknown',position='append')
