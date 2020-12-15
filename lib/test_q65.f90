@@ -116,11 +116,19 @@ program test_q65
      call sec0(1,tdec)
      open(10,file='junk',status='unknown')
      n=0
+     snrsum=0.
+     snrsq=0.
+     nsum=0
      do iline=1,9999
         read(10,'(a71)',end=10) line
         if(index(line,'<Decode').eq.1) cycle
-        read(line(11:20),*) xdt,nf
+        read(line,*) itime,xsnr,xdt,nf
         decok=index(line,trim(msg)).gt.0
+        if(decok) then
+           snrsum=snrsum + xsnr
+           snrsq=snrsq + xsnr*xsnr
+           nsum=nsum+1
+        endif
         if((abs(xdt-dt).le.dterr .and. abs(nf-nf0).le.nferr) .or. decok) then
            nsync=nsync+1
         endif
@@ -140,13 +148,17 @@ program test_q65
         endif
      enddo
 10   close(10)
-     xdt_avg=0.
-     xdt_rms=0.
+     snr_avg=0.
+     snr_rms=0.
+     if(nsum.ge.1) then
+        snr_avg=snrsum/nsum
+        snr_rms=sqrt(snrsq/nsum - snr_avg**2)
+     endif
      write(*,1100) snr1,ntrperiod,csubmode,ndepth,fDop,nsync,ndecn,     &
-          ndec1,nfalse,naptype,tdec/nfiles
+          ndec1,nfalse,naptype,tdec/nfiles,snr_avg,snr_rms
      write(12,1100) snr1,ntrperiod,csubmode,ndepth,fDop,nsync,ndecn,    &
-          ndec1,nfalse,naptype,tdec/nfiles
-1100 format(f5.1,i4,1x,a1,i3,f5.0,3i5,i4,i6,5i5,f6.2)
+          ndec1,nfalse,naptype,tdec/nfiles,snr_avg,snr_rms
+1100 format(f5.1,i4,1x,a1,i3,f5.0,3i5,i4,i6,5i5,f6.2,f6.1,f5.1)
      if(ndec1.lt.nfiles/2 .and. ndec1z.ge.nfiles/2) then
         snr_thresh=snr1 + float(nfiles/2 - ndec1)/(ndec1z-ndec1)
         open(13,file='snr_thresh.out',status='unknown',position='append')
