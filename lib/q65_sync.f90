@@ -20,7 +20,7 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
   integer*2 iwave(0:nmax-1)              !Raw data
   integer isync(22)                      !Indices of sync symbols
   integer itone(85)
-  integer codewords(63,64)
+  integer codewords(63,206)
   integer dat4(13)
   integer ijpk(2)
   logical unpk77_success

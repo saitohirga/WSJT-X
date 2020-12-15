@@ -56,7 +56,7 @@ contains
     integer apmask1(78),apsymbols1(78)
     integer apmask(13),apsymbols(13)
     integer dgen(13)
-    integer codewords(63,64)
+    integer codewords(63,206)
     logical lapcqonly,unpk77_success
     complex, allocatable :: c00(:)        !Analytic signal, 6000 Sa/s
     complex, allocatable :: c0(:)         !Analytic signal, 6000 Sa/s
