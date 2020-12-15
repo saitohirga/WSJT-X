@@ -186,11 +186,11 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
         write(c77,1000) dat4(1:12),dat4(13)/2
 1000    format(12b6.6,b5.5)
         call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
-        open(55,file='fort.55',status='unknown',position='append')
-        write(55,3055) nutc,ibw,xdt,f0,85.0*base,ccfmax,snr2,plog,   &
-             irc,trim(decoded)
-3055    format(i6,i3,6f8.2,i5,2x,a)
-        close(55)
+!        open(55,file='fort.55',status='unknown',position='append')
+!        write(55,3055) nutc,ibw,xdt,f0,85.0*base,ccfmax,snr2,plog,   &
+!             irc,trim(decoded)
+!3055    format(i6,i3,6f8.2,i5,2x,a)
+!        close(55)
         go to 900
      endif
   enddo
