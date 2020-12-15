@@ -1398,7 +1398,7 @@ void MainWindow::fixStop()
   } else if (m_mode=="JT9"){
     m_hsymStop=173;
     if(m_config.decode_at_52s()) m_hsymStop=179;
-  } else if (m_mode=="JT65" or m_mode=="JT9+JT65"){
+  } else if (m_mode=="JT65"){
     m_hsymStop=174;
     if(m_config.decode_at_52s()) m_hsymStop=179;
   } else if (m_mode=="QRA64"){
@@ -2393,8 +2393,6 @@ void MainWindow::setup_status_bar (bool vhf)
     mode_label.setStyleSheet ("QLabel{color: #000000; background-color: #cc99ff}");
   } else if ("Echo" == m_mode) {
     mode_label.setStyleSheet ("QLabel{color: #000000; background-color: #66ffff}");
-  } else if ("JT9+JT65" == m_mode) {
-    mode_label.setStyleSheet ("QLabel{color: #000000; background-color: #ffff66}");
   } else if ("JT65" == m_mode) {
     mode_label.setStyleSheet ("QLabel{color: #000000; background-color: #66ff66}");
   } else if ("QRA64" == m_mode) {
@@ -3125,7 +3123,7 @@ void MainWindow::decode()                                       //decode()
   if(m_mode=="FT8" and SpecOp::HOUND == m_config.special_op_id() and !ui->cbRxAll->isChecked()) dec_data.params.nfb=1000;
   if(m_mode=="FT8" and SpecOp::FOX == m_config.special_op_id() ) dec_data.params.nfqso=200;
   dec_data.params.ntol=ui->sbFtol->value ();
-  if(m_mode=="JT9+JT65" or !m_config.enable_VHF_features()) {
+  if(!m_config.enable_VHF_features()) {
     dec_data.params.ntol=20;
     dec_data.params.naggressive=0;
   }
@@ -3152,7 +3150,6 @@ void MainWindow::decode()                                       //decode()
   if(m_mode=="QRA64") dec_data.params.ntxmode=164;
   if(m_mode=="Q65") dec_data.params.nmode=66;
   if(m_mode=="Q65") dec_data.params.ntxmode=66;
-  if(m_mode=="JT9+JT65") dec_data.params.nmode=9+65;  // = 74
   if(m_mode=="JT4") {
     dec_data.params.nmode=4;
     dec_data.params.ntxmode=4;
@@ -3686,10 +3683,6 @@ void MainWindow::pskPost (DecodedText const& decodedtext)
   if (m_diskData || !m_config.spot_to_psk_reporter() || decodedtext.isLowConfidence ()) return;
 
   QString msgmode=m_mode;
-  if(m_mode=="JT9+JT65") {
-    msgmode="JT9";
-    if (decodedtext.isJT65()) msgmode="JT65";
-  }
   QString deCall;
   QString grid;
   decodedtext.deCallAndGrid(/*out*/deCall,grid);
@@ -4773,8 +4766,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   auto const& parts = message.string ().split (' ', SkipEmptyParts);
   if (parts.size () < 5) return;
   auto const& mode = parts.at (4).left (1);
-  if (("JT9+JT65" == m_mode && !("@" == mode || "#" == mode))
-      || ("JT65" == m_mode && mode != "#")
+  if (("JT65" == m_mode && mode != "#")
       || ("JT9" == m_mode && mode != "@")
       || ("MSK144" == m_mode && !("&" == mode || "^" == mode))
       || ("QRA64" == m_mode && mode.left (1) != ":")
@@ -4848,19 +4840,9 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     return;
   }
 
-  // only allow automatic mode changes between JT9 and JT65, and when not transmitting
-  if (!m_transmitting and m_mode == "JT9+JT65") {
-    if (message.isJT9())
-      {
-        m_modeTx="JT9";
-        m_wideGraph->setModeTx(m_modeTx);
-      } else if (message.isJT65()) {
-      m_modeTx="JT65";
-      m_wideGraph->setModeTx(m_modeTx);
-    }
-  } else if ((message.isJT9 () and m_modeTx != "JT9" and m_mode != "JT4") or
+  if ((message.isJT9 () and m_modeTx != "JT9" and m_mode != "JT4") or
              (message.isJT65 () and m_modeTx != "JT65" and m_mode != "JT4")) {
-    // if we are not allowing mode change then don't process decode
+    // We are not allowing mode change, so don't process decode
     return;
   }
 
