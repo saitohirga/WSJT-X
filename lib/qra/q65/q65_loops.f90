@@ -29,7 +29,7 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode_q65,nsubmode,nFadingModel, &
 
   idfmax=3
   idtmax=3
-  ibwmin=1
+  ibwmin=0
   ibwmax=2
   maxdist=5
   if(iand(ndepth,3).ge.2) then
@@ -70,7 +70,8 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode_q65,nsubmode,nFadingModel, &
            ndist=ndf**2 + ndt**2 + ((nbw-2))**2
            if(ndist.gt.maxdist) cycle
            !              b90=1.728**ibw
-           b90=3.0**nbw
+           b90=3.0**nbw                    !### Mult by ~baud/3.33 ??? ###
+           if(nbw.eq.0) b90=baud
            if(b90.gt.230.0) cycle
            call timer('q65_intr',0)
            b90ts = b90/baud

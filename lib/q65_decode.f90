@@ -143,7 +143,7 @@ contains
             nFadingModel,ndepth,jpk0,xdt,f0,iaptype,apmask,apsymbols, &
             xdt1,f1,snr2,dat4,id2)
        call timer('q65loops',1)
-       snr2=snr2 + db(6912.0/nsps)
+!       snr2=snr2 + db(6912.0/nsps)
        if(id2.gt.0) exit
     enddo
 
