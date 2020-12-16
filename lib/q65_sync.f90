@@ -201,6 +201,7 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol,    &
   irc=-2
   dat4=0
   ia=ntol/df
+  if(i0-ia.lt.1 .or. i0+ia.gt.iz) go to 900
   do lag=lag1,lag2
      do k=1,85
         n=NSTEP*(k-1) + 1
