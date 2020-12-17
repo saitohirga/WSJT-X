@@ -203,8 +203,8 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      call timer('dec_q65 ',0)
      call my_q65%decode(q65_decoded,id2,params%nutc,params%ntr,        &
           params%nsubmode,params%nfqso,params%ntol,params%ndepth,      &
-          mycall,hiscall,hisgrid,params%nQSOProgress,ncontest,         &
-          logical(params%lapcqonly))
+          params%emedelay,mycall,hiscall,hisgrid,params%nQSOProgress,  &
+          ncontest,logical(params%lapcqonly))
      call timer('dec_q65 ',1)
      go to 800
   endif
