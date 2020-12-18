@@ -224,7 +224,7 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
 
     if(i==iz-1) {
       painter2D.drawPolyline(LineBuf,j);
-      if(m_mode=="QRA64") {
+      if(m_mode=="QRA64" or m_mode=="Q65") {
         painter2D.setPen(Qt::red);
         painter2D.drawPolyline(LineBuf2,ktop);
       }
@@ -269,33 +269,28 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
     painter2D.drawText(x1-4,y,"73");
   }
 
-    if(bRed) {
-      std::ifstream f;
-      f.open(m_redFile.toLatin1());
-      if(f) {
-        int x,y;
-        float freq,sync;
-        float slimit=6.0;
-        QPen pen0(Qt::red,1);
-        painter1.setPen(pen0);
-        for(int i=0; i<99999; i++) {
-          f >> freq >> sync;
-          if(f.eof()) break;
-          x=XfromFreq(freq);
-          y=(sync-slimit)*3.0;
-          if(y>0) {
-            if(y>15.0) y=15.0;
-            if(x>=0 and x<=m_w) {
-              painter1.setPen(pen0);
-              painter1.drawLine(x,0,x,y);
-            }
-          }
-        }
-        f.close();
+  if(bRed and m_bQ65_Sync) {
+    int k=0;
+    std::ifstream f;
+    f.open(m_redFile.toLatin1());
+    if(f) {
+      int x,y;
+      float freq,sync;
+      for(int i=0; i<99999; i++) {
+        f >> freq >> sync;
+        if(f.eof()) break;
+        x=XfromFreq(freq);
+        y=m_h2*(0.9 - 0.09*gain2d*sync) - m_plot2dZero;
+        LineBuf2[k].setX(x);
+        LineBuf2[k].setY(y);
+        k++;
       }
-//      m_bDecodeFinished=false;
+      f.close();
+      QPen pen0(Qt::red,2);
+      painter2D.setPen(pen0);
+      painter2D.drawPolyline(LineBuf2,k);
     }
-
+  }
   update();                                    //trigger a new paintEvent
   m_bScaleOK=true;
 }

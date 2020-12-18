@@ -151,11 +151,12 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
         f0=nfqso + (ipk-1)*df
         xdt=jpk*dtstep
         imsg_best=imsg
+        ccf1=ccf(-ia:ia,jpk)
      endif
   enddo  ! imsg
 
-  ia=i0+ipk-64
-  ib=ia+LL-1
+  i1=i0+ipk-64
+  i2=i1+LL-1
   j=j0+jpk-7
   n=0
   do k=1,85
@@ -164,7 +165,7 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
         cycle
      endif
      n=n+1
-     if(j.ge.1 .and. j.le.jz) s3(-64:LL-65,n)=s1(ia:ib,j)
+     if(j.ge.1 .and. j.le.jz) s3(-64:LL-65,n)=s1(i1:i2,j)
   enddo
 
   nsubmode=0
@@ -191,7 +192,12 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
 !             irc,trim(decoded)
 !3055    format(i6,i3,6f8.2,i5,2x,a)
 !        close(55)
-        go to 900
+        base=(sum(ccf1(-ia:-ia+9)) + sum(ccf1(ia-9:ia)))/20.0
+        ccf1=ccf1-base
+        smax=maxval(ccf1)
+        if(smax.gt.10.0) ccf1=10.0*ccf1/smax
+        go to 200
+!        go to 900
      endif
   enddo
 
@@ -214,31 +220,44 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
   ijpk=maxloc(ccf)
   ipk=ijpk(1)-ia-1
   jpk=ijpk(2)-53-1
+
   f0=nfqso + ipk*df
   xdt=jpk*dtstep
   sq=0.
   nsq=0
-  do j=lag1,lag2
-     if(abs(j-jpk).gt.6) then
-        sq=sq + ccf(ipk,j)**2
-        nsq=nsq+1
-     endif
+  do i=-ia,ia
+     do j=lag1,lag2
+        if(abs(j-jpk).gt.8 .and. abs(i-ipk).gt.ia/2) then
+           sq=sq + ccf(i,j)**2
+           nsq=nsq+1
+        endif
+     enddo
   enddo
   rms=sqrt(sq/nsq)
   smax=ccf(ipk,jpk)
   snr1=smax/rms
-  call zplot_q65(ccf(-ia:ia,lag1:lag2),ia,lag1,lag2,rms,dtstep,ntol,emedelay)
+  ccf1=ccf(-ia:ia,jpk)/rms
+  if(snr1.gt.10.0) ccf1=(10.0/snr1)*ccf1
+
+200 do i=-ia,ia
+     freq=nfqso + i*df
+     write(17,1100) freq,ccf1(i)
+1100 format(2f10.3)
+  enddo
+  close(17)
   
+  if(ia.le.60) call zplot_q65(ccf(-ia:ia,lag1:lag2),ia,lag1,lag2,   &
+       rms,dtstep,ntol,smax,emedelay)
 900 return
 end subroutine q65_sync
 
-subroutine zplot_q65(ccf,ia,lag1,lag2,rms,dtstep,ntol,emedelay)
+subroutine zplot_q65(ccf,ia,lag1,lag2,rms,dtstep,ntol,smax,emedelay)
 
   real ccf(-ia:ia,lag1:lag2)
-  character*1 line(70),mark(0:6)
-  character*35 blanks
+  character*1 line(130),mark(0:6)
+  character*60 blanks
   data mark/' ',' ','.','-','+','X','#'/
-  data blanks/'                                   '/
+  data blanks/'                                                  '/
 
 !  open(35,file='ccf.dat',status='unknown',access='stream')
 !  write(35) ia,lag1,lag2,rms,dtstep
@@ -246,14 +265,16 @@ subroutine zplot_q65(ccf,ia,lag1,lag2,rms,dtstep,ntol,emedelay)
 !  close(35)
   open(34,file='ccf.txt',status='unknown')
   write(34,1000) -ntol,blanks(1:ia-2),0,blanks(1:ia-2),ntol
-1000 format(5x,i3,a,i1,a,i3)
+1000 format(4x,i4,a,i1,a,i3)
+  fac=1.0
+  if(smax/rms.gt.7.0) fac=7.0*rms/smax
   k=0
   do j=lag2,lag1,-1
      t=j*dtstep
      if(emedelay.eq.0.0 .and. abs(t).gt.1.0) cycle
      do i=-ia,ia
         k=i+ia+2
-        n=ccf(i,j)/rms
+        n=fac*ccf(i,j)/rms
         if(n.lt.0) n=0
         if(n.gt.6) n=6
         line(k)=mark(n)
@@ -261,7 +282,7 @@ subroutine zplot_q65(ccf,ia,lag1,lag2,rms,dtstep,ntol,emedelay)
      line(1)='|'
      line(k+1)='|'
      write(34,1010) t,line(1:k+1)
-1010 format(f5.2,1x,72a1)
+1010 format(f5.2,1x,132a1)
   enddo
   close(34)
 

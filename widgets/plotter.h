@@ -80,6 +80,8 @@ public:
   void setRxBand(QString band);
   void setReference(bool b) {m_bReference = b;}
   bool Reference() const {return m_bReference;}
+  void setQ65_Sync(bool b) {m_bQ65_Sync = b;}
+  bool Q65_Sync() const {return m_bQ65_Sync;}
   void drawRed(int ia, int ib, float swide[]);
   void setVHF(bool bVHF);
   void setRedFile(QString fRed);
@@ -113,6 +115,7 @@ private:
   bool    m_bLinearAvg;
   bool    m_bReference;
   bool    m_bReference0;
+  bool    m_bQ65_Sync;
   bool    m_bVHF;
   bool    m_bSingleDecode;
 

@@ -3305,7 +3305,7 @@ void MainWindow::to_jt9(qint32 n, qint32 istart, qint32 idone)
 void MainWindow::decodeDone ()
 {
   if(m_mode!="FT8" or dec_data.params.nzhsym==50) m_nDecodes=0;
-  if(m_mode=="QRA64") m_wideGraph->drawRed(0,0);
+  if(m_mode=="QRA64" or m_mode=="Q65") m_wideGraph->drawRed(0,0);
 
   if(m_mode=="Q65" and m_msgAvgWidget!=NULL) {
     if(m_msgAvgWidget->isVisible()) {
@@ -6442,7 +6442,8 @@ void MainWindow::on_actionQ65_triggered()
 //###  ui->sbSubmode->setMaximum(4);
   ui->sbSubmode->setMaximum(7);
   ui->sbSubmode->setValue(m_nSubMode);
-  m_wideGraph->setMode(m_mode);
+  QString fname {QDir::toNativeSeparators(m_config.temp_dir().absoluteFilePath ("red.dat"))};
+  m_wideGraph->setRedFile(fname);
   m_wideGraph->setMode(m_mode);
   m_wideGraph->setModeTx(m_modeTx);
   m_wideGraph->setPeriod(m_TRperiod,6912);
