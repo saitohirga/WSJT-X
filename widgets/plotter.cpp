@@ -273,20 +273,27 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
     f.open(m_redFile.toLatin1());
     if(f) {
       int x,y;
-      float freq,sync;
+      float freq,sync,xdt;
       for(int i=0; i<99999; i++) {
-        f >> freq >> sync;
+        f >> freq >> sync >> xdt;
         if(f.eof()) break;
         x=XfromFreq(freq);
         y=m_h2*(0.9 - 0.09*gain2d*sync) - m_plot2dZero;
         LineBuf2[k].setX(x);
         LineBuf2[k].setY(y);
+
         k++;
       }
       f.close();
       QPen pen0(Qt::red,2);
       painter2D.setPen(pen0);
       painter2D.drawPolyline(LineBuf2,k);
+      QString t;
+      t = t.asprintf("DT = %6.2f",xdt);
+      painter2D.setPen(Qt::white);
+      Font.setWeight(QFont::Bold);
+      painter2D.setFont(Font);
+      painter2D.drawText(m_w-100,m_h2/2,t);
     }
   }
   update();                                    //trigger a new paintEvent

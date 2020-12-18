@@ -241,8 +241,8 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
 
 200 do i=-ia,ia
      freq=nfqso + i*df
-     write(17,1100) freq,ccf1(i)
-1100 format(2f10.3)
+     write(17,1100) freq,ccf1(i),xdt
+1100 format(3f10.3)
   enddo
   close(17)
 
