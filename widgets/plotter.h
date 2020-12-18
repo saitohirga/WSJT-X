@@ -118,6 +118,7 @@ private:
   bool    m_bQ65_Sync;
   bool    m_bVHF;
   bool    m_bSingleDecode;
+  bool    m_bFirst=true;
 
   float   m_fSpan;
 
