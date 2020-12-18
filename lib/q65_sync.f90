@@ -245,46 +245,6 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
 1100 format(2f10.3)
   enddo
   close(17)
-  
-  if(ia.le.60) call zplot_q65(ccf(-ia:ia,lag1:lag2),ia,lag1,lag2,   &
-       rms,dtstep,ntol,smax,emedelay)
+
 900 return
 end subroutine q65_sync
-
-subroutine zplot_q65(ccf,ia,lag1,lag2,rms,dtstep,ntol,smax,emedelay)
-
-  real ccf(-ia:ia,lag1:lag2)
-  character*1 line(130),mark(0:6)
-  character*60 blanks
-  data mark/' ',' ','.','-','+','X','#'/
-  data blanks/'                                                  '/
-
-!  open(35,file='ccf.dat',status='unknown',access='stream')
-!  write(35) ia,lag1,lag2,rms,dtstep
-!  write(35) ccf
-!  close(35)
-  open(34,file='ccf.txt',status='unknown')
-  write(34,1000) -ntol,blanks(1:ia-2),0,blanks(1:ia-2),ntol
-1000 format(4x,i4,a,i1,a,i3)
-  fac=1.0
-  if(smax/rms.gt.7.0) fac=7.0*rms/smax
-  k=0
-  do j=lag2,lag1,-1
-     t=j*dtstep
-     if(emedelay.eq.0.0 .and. abs(t).gt.1.0) cycle
-     do i=-ia,ia
-        k=i+ia+2
-        n=fac*ccf(i,j)/rms
-        if(n.lt.0) n=0
-        if(n.gt.6) n=6
-        line(k)=mark(n)
-     enddo
-     line(1)='|'
-     line(k+1)='|'
-     write(34,1010) t,line(1:k+1)
-1010 format(f5.2,1x,132a1)
-  enddo
-  close(34)
-
-  return
-end subroutine zplot_q65

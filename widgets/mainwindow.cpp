@@ -3305,22 +3305,6 @@ void MainWindow::decodeDone ()
 {
   if(m_mode!="FT8" or dec_data.params.nzhsym==50) m_nDecodes=0;
   if(m_mode=="QRA64" or m_mode=="Q65") m_wideGraph->drawRed(0,0);
-
-  if(m_mode=="Q65" and m_msgAvgWidget!=NULL) {
-    if(m_msgAvgWidget->isVisible()) {
-//      QFile f(m_config.temp_dir ().absoluteFilePath ("ccf.txt"));
-
-      QFont font("Courier New",7);
-      m_msgAvgWidget->changeFont(font);
-      QFile f("ccf.txt");
-      if(f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream s(&f);
-        QString t=s.readAll();
-        m_msgAvgWidget->displayAvg(t);
-      }
-    }
-  }
-
   if ("FST4W" == m_mode)
     {
       if (m_uploadWSPRSpots
