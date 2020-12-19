@@ -284,6 +284,7 @@ namespace
       {70091000, Modes::WSPR, IARURegions::R1},
       {70230000, Modes::MSK144, IARURegions::R1},
       
+      {144116000, Modes::Q65, IARURegions::ALL},
       {144120000, Modes::JT65, IARURegions::ALL},
       {144120000, Modes::Echo, IARURegions::ALL},
       {144170000, Modes::FT4, IARURegions::ALL},
@@ -291,7 +292,6 @@ namespace
       {144360000, Modes::MSK144, IARURegions::R1},
       {144150000, Modes::MSK144, IARURegions::R2},
       {144489000, Modes::WSPR, IARURegions::ALL},
-      {144120000, Modes::QRA64, IARURegions::ALL},
       
       {222065000, Modes::Echo, IARURegions::R2},
       {222065000, Modes::JT65, IARURegions::R2},
