@@ -145,6 +145,7 @@ private:
   QString m_Str;
   QString m_HDivText[483];
   QString m_mode;
+  QString m_mode0;
   QString m_modeTx;
   QString m_rxBand;
   QString m_redFile;

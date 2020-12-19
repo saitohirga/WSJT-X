@@ -140,10 +140,11 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
 //move current data down one line (must do this before attaching a QPainter object)
   if(bScroll and !m_bReplot) m_WaterfallPixmap.scroll(0,1,0,0,m_w,m_h1);
   QPainter painter1(&m_WaterfallPixmap);
-  if(m_bFirst or bRed or !m_bQ65_Sync) {
+  if(m_bFirst or bRed or !m_bQ65_Sync or m_mode!=m_mode0) {
     m_2DPixmap = m_OverlayPixmap.copy(0,0,m_w,m_h2);
     m_bFirst=false;
   }
+  m_mode0=m_mode;
   QPainter painter2D(&m_2DPixmap);
   if(!painter2D.isActive()) return;
   QFont Font("Arial");
