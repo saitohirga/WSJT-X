@@ -354,7 +354,8 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 
 ! JT65 is not yet producing info for nsynced, ndecoded.
 800 ndecoded = my_jt4%decoded + my_jt65%decoded + my_jt9%decoded +       &
-         my_ft8%decoded + my_ft4%decoded + my_fst4%decoded
+         my_ft8%decoded + my_ft4%decoded + my_fst4%decoded +             &
+         my_q65%decoded
   if(params%nmode.eq.8 .and. params%nzhsym.eq.41) ndec41=ndecoded
   if(params%nmode.eq.8 .and. params%nzhsym.eq.47) ndec47=ndecoded
   if(params%nmode.eq.8 .and. params%nzhsym.eq.50) then
