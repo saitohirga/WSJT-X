@@ -208,13 +208,15 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
   irc=-2
   dat4=0
   ia=ntol/df
-  if(i0-ia.lt.1 .or. i0+ia.gt.iz) go to 900
   do lag=lag1,lag2
      do k=1,85
         n=NSTEP*(k-1) + 1
         j=n+lag+j0
         if(j.ge.1 .and. j.le.jz) then
-           ccf(-ia:ia,lag)=ccf(-ia:ia,lag) + sync(k)*s1(i0-ia:i0+ia,j)
+           do i=-ia,ia
+              if(i0+i.lt.1 .or. i0+i.gt.iz) cycle
+              ccf(i,lag)=ccf(i,lag) + sync(k)*s1(i0+i,j)
+           enddo
         endif
      enddo
   enddo
