@@ -13,12 +13,6 @@
 #include "SettingsGroup.hpp"
 #include "moc_widegraph.cpp"
 
-namespace
-{
-  auto user_defined = QObject::tr ("User Defined");
-  float swide[MAX_SCREENSIZE];
-}
-
 WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   QDialog(parent),
   ui(new Ui::WideGraph),
@@ -26,7 +20,8 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
   m_palettes_path {":/Palettes"},
   m_tr0 {0.0},
   m_n {0},
-  m_bHaveTransmitted {false}
+  m_bHaveTransmitted {false},
+  m_user_defined {tr ("User Defined")}
 {
   ui->setupUi(this);
 
@@ -105,8 +100,8 @@ WideGraph::WideGraph(QSettings * settings, QWidget *parent) :
     if(t==m_waterfallPalette) ui->paletteComboBox->setCurrentIndex(index);
     index++;
   }
-  ui->paletteComboBox->addItem (user_defined);
-  if (user_defined == m_waterfallPalette) ui->paletteComboBox->setCurrentIndex(index);
+  ui->paletteComboBox->addItem (m_user_defined);
+  if (m_user_defined == m_waterfallPalette) ui->paletteComboBox->setCurrentIndex(index);
   readPalette ();
 }
 
@@ -150,7 +145,7 @@ void WideGraph::saveSettings()                                           //saveS
 
 void WideGraph::drawRed(int ia, int ib)
 {
-  ui->widePlot->drawRed(ia,ib,swide);
+  ui->widePlot->drawRed(ia,ib,m_swide);
 }
 
 void WideGraph::dataSink2(float s[], float df3, int ihsym, int ndiskdata)  //dataSink2
@@ -184,8 +179,8 @@ void WideGraph::dataSink2(float s[], float df3, int ihsym, int ndiskdata)  //dat
         ss += sp;
         smax=qMax(smax,sp);
       }
-//      swide[j]=nbpp*smax;
-      swide[j]=nbpp*ss;
+//      m_swide[j]=nbpp*smax;
+      m_swide[j]=nbpp*ss;
     }
 
 // Time according to this computer
@@ -195,7 +190,7 @@ void WideGraph::dataSink2(float s[], float df3, int ihsym, int ndiskdata)  //dat
       float flagValue=1.0e30;
       if(m_bHaveTransmitted) flagValue=2.0e30;
       for(int i=0; i<MAX_SCREENSIZE; i++) {
-        swide[i] = flagValue;
+        m_swide[i] = flagValue;
       }
       for(int i=0; i<NSMAX; i++) {
         splot[i] = flagValue;
@@ -203,7 +198,7 @@ void WideGraph::dataSink2(float s[], float df3, int ihsym, int ndiskdata)  //dat
       m_bHaveTransmitted=false;
     }
     m_tr0=tr;
-    ui->widePlot->draw(swide,true,false);
+    ui->widePlot->draw(m_swide,true,false);
   }
 }
 
@@ -241,7 +236,7 @@ void WideGraph::keyPressEvent(QKeyEvent *e)                                 //F1
 void WideGraph::setRxFreq(int n)                                           //setRxFreq
 {
   ui->widePlot->setRxFreq(n);
-  ui->widePlot->draw(swide,false,false);
+  ui->widePlot->draw(m_swide,false,false);
 }
 
 int WideGraph::rxFreq()                                                   //rxFreq
@@ -391,7 +386,7 @@ void WideGraph::readPalette ()                                   //readPalette
 {
   try
     {
-      if (user_defined == m_waterfallPalette)
+      if (m_user_defined == m_waterfallPalette)
         {
           ui->widePlot->setColours (WFPalette {m_userPalette}.interpolate ());
         }
@@ -444,7 +439,7 @@ void WideGraph::on_adjust_palette_push_button_clicked (bool)   //Adjust Palette
     {
       if (m_userPalette.design ())
         {
-          m_waterfallPalette = user_defined;
+          m_waterfallPalette = m_user_defined;
           ui->paletteComboBox->setCurrentText (m_waterfallPalette);
           readPalette ();
         }
@@ -486,8 +481,8 @@ void WideGraph::on_gain2dSlider_valueChanged(int value)               //Gain2
 {
   ui->widePlot->setPlot2dGain(value);
   if(ui->widePlot->scaleOK ()) {
-    ui->widePlot->draw(swide,false,false);
-    if(m_mode=="QRA64" or m_mode=="Q65") ui->widePlot->draw(swide,false,true);
+    ui->widePlot->draw(m_swide,false,false);
+    if(m_mode=="QRA64" or m_mode=="Q65") ui->widePlot->draw(m_swide,false,true);
   }
 }
 
@@ -495,8 +490,8 @@ void WideGraph::on_zero2dSlider_valueChanged(int value)               //Zero2
 {
   ui->widePlot->setPlot2dZero(value);
   if(ui->widePlot->scaleOK ()) {
-    ui->widePlot->draw(swide,false,false);
-    if(m_mode=="QRA64" or m_mode=="Q65") ui->widePlot->draw(swide,false,true);
+    ui->widePlot->draw(m_swide,false,false);
+    if(m_mode=="QRA64" or m_mode=="Q65") ui->widePlot->draw(m_swide,false,true);
   }
 }
 
