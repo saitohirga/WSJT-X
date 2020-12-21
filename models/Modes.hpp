@@ -46,7 +46,6 @@ public:
     Echo,
     ISCAT,
     MSK144,
-    QRA64,
     FreqCal,
     FT8,
     FT4,
