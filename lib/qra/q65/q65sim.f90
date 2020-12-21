@@ -17,14 +17,11 @@ program q65sim
   real*8 f0,dt,twopi,phi,dphi,baud,fsample,freq
   character msg*37,fname*17,csubmode*1,arg*12,cd*1
   character msgsent*37
-  logical lsync
-  data lsync/.false./
   
   nargs=iargc()
-  if(nargs.ne.9) then
-     print *, 'Usage:   q65sim         "msg"     A-E freq fDop DT TRp Nfiles Sync SNR'
-     print *, 'Example: q65sim "K1ABC W9XYZ EN37" A  1500 0.0 0.0  60   1      T  -26'
-     print*,'Sync = T to include sync test.'
+  if(nargs.ne.8) then
+     print *, 'Usage:   q65sim         "msg"     A-E freq fDop DT TRp Nfiles SNR'
+     print *, 'Example: q65sim "K1ABC W9XYZ EN37" A  1500 0.0 0.0  60   1    -26'
      go to 999
   endif
   call getarg(1,msg)
@@ -41,14 +38,7 @@ program q65sim
   call getarg(7,arg)
   read(arg,*) nfiles
   call getarg(8,arg)
-  if(arg(1:1).eq.'T' .or. arg(1:1).eq.'1') lsync=.true.
-  call getarg(9,arg)
   read(arg,*) snrdb
-
-  if(nfiles.lt.0) then
-     nfiles=-nfiles
-     lsync=.true.
-  endif
 
   if(ntrperiod.eq.15) then
      nsps=1800
@@ -98,7 +88,6 @@ program q65sim
   write(*,1004) 
 1004 format('File    TR   Freq Mode  S/N   DT    Dop  Message'/60('-'))
 
-  nsync=0
   do ifile=1,nfiles                  !Loop over requested number of files
      if(ntrperiod.lt.60) then
         write(fname,1005) ifile         !Output filename
@@ -192,24 +181,6 @@ program q65sim
      if(snrdb.lt.90.0) iwave(1:npts)=nint(rms*dat(1:npts))
      write(10) h,iwave(1:npts)                !Save the .wav file
      close(10)
-
-!     if(lsync) then
-!        cd=' '
-!        if(ifile.eq.nfiles) cd='d'
-!        nfqso=nint(f0)
-!        ntol=100
-!        call q65_sync(iwave,npts,mode65,nsps,nfqso,ntol,xdt2,f02,snr2)
-!        terr=1.01/(8.0*baud)
-!        ferr=1.01*mode65*baud
-!        if(abs(xdt2-xdt).lt.terr .and. abs(f02-f0).lt.ferr) nsync=nsync+1
-!        open(40,file='sync65.out',status='unknown',position='append')
-!        write(40,1030) ifile,65,csubmode,snrdb,fspread,xdt2-xdt,f02-f0,   &
-!            snr2,nsync,cd
-!1030    format(i4,i3,1x,a1,2f7.1,f7.2,2f8.1,i5,1x,a1)
-!        close(40)
-!     endif
   enddo
-  if(lsync) write(*,1040) snrdb,nfiles,nsync
-1040 format('SNR:',f6.1,'   nfiles:',i5,'   nsynced:',i5)
 
 999 end program q65sim
