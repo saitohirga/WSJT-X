@@ -102,11 +102,9 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
   dtstep=nsps/(NSTEP*12000.0)                 !Step size in seconds
   lag1=-1.0/dtstep
   lag2=1.0/dtstep + 0.9999
+  if(nsps.ge.3600 .and. emedelay.gt.0) lag2=4.0/dtstep + 0.9999  !Include EME
   j0=0.5/dtstep
-  if(nsps.ge.7200) then
-     j0=1.0/dtstep              !Nominal index for start of signal
-     lag2=4.0/dtstep + 0.9999   !Include EME delays
-  endif
+  if(nsps.ge.7200) j0=1.0/dtstep              !Nominal start-signal index
 
   if(ncw.lt.1) go to 100
   
