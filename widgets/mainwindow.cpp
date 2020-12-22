@@ -1397,11 +1397,14 @@ void MainWindow::fixStop()
     m_hsymStop=174;
     if(m_config.decode_at_52s()) m_hsymStop=179;
   } else if (m_mode=="Q65"){
-    m_hsymStop=48;
-    if(m_TRperiod==30) m_hsymStop=96;
-    if(m_TRperiod==60) m_hsymStop=196;
-    if(m_TRperiod==120) m_hsymStop=401;
-    if(m_TRperiod==300) m_hsymStop=1027;
+    m_hsymStop=48;                                  // 13.8 s
+    if(m_TRperiod==30) {
+      m_hsymStop=96;                                // 27.6 s
+      if(m_config.decode_at_52s()) m_hsymStop=100;  // 28.8 s
+    }
+    if(m_TRperiod==60) m_hsymStop=196;              // 56.4 s
+    if(m_TRperiod==120) m_hsymStop=408;             // 117.5 s
+    if(m_TRperiod==300) m_hsymStop=1030;            // 296.6 s
   } else if (m_mode=="FreqCal"){
     m_hsymStop=((int(m_TRperiod/0.288))/8)*8;
   } else if (m_mode=="FT8") {
