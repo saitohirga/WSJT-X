@@ -59,7 +59,7 @@ contains
       integer itone(NN)
       integer hmod
       integer ipct(0:7)
-      integer*1 apmask(240),cw(240)
+      integer*1 apmask(240),cw(240),hdec(240)
       integer*1 message101(101),message74(74),message77(77)
       integer*1 rvec(77)
       integer apbits(240)
@@ -392,8 +392,9 @@ contains
                if(ijitter.eq.1) ioffset=1
                if(ijitter.eq.2) ioffset=-1
                is0=isbest+ioffset
-               if(is0.lt.0) cycle
-               cframe=c2(is0:is0+160*nss-1)
+               iend=is0+160*nss-1
+               if( is0.lt.0 .or. iend.gt.(nfft2-1) ) cycle
+               cframe=c2(is0:iend)
                bitmetrics=0
                call timer('bitmetrc',0)
                call get_fst4_bitmetrics(cframe,nss,nblock,nhicoh,bitmetrics, &
@@ -408,10 +409,10 @@ contains
                   llrs(181:240,il)=bitmetrics(245:304, il)
                enddo
 
-               apmag=maxval(abs(llrs(:,1)))*1.1
+               apmag=maxval(abs(llrs(:,4)))*1.1
                ntmax=nblock+nappasses(nQSOProgress)
                if(lapcqonly) ntmax=nblock+1
-               if(ndepth.eq.1) ntmax=nblock
+               if(ndepth.eq.1) ntmax=nblock ! no ap for ndepth=1
                apmask=0
 
                if(iwspr.eq.1) then ! 50-bit msgs, no ap decoding
@@ -595,11 +596,15 @@ contains
                      fsig=fc_synced - 1.5*baud
                      inquire(file=trim(data_dir)//'/decdata',exist=decdata_exists)
                      if(decdata_exists) then
+                        hdec=0
+                        where(llrs(:,1).ge.0.0) hdec=1
+                        nhp=count(hdec.ne.cw) ! # hard errors wrt N=1 soft symbols
+                        hd=sum(ieor(hdec,cw)*abs(llrs(:,1))) ! weighted distance wrt N=1 symbols
                         open(21,file=trim(data_dir)//'/fst4_decodes.dat',status='unknown',position='append')
                         write(21,3021) nutc,icand,itry,nsyncoh,iaptype,  &
-                           ijitter,ntype,Keff,nsync_qual,nharderrors,dmin,  &
+                           ijitter,ntype,Keff,nsync_qual,nharderrors,dmin,nhp,hd,  &
                            sync,xsnr,xdt,fsig,w50,trim(msg)
-3021                    format(i6.6,6i3,3i4,f6.1,f9.2,f6.1,f6.2,f7.1,f7.3,1x,a)
+3021                    format(i6.6,6i3,3i4,f6.1,i4,f6.1,f9.2,f6.1,f6.2,f7.1,f7.3,1x,a)
                         close(21)
                      endif
                      call this%callback(nutc,smax1,nsnr,xdt,fsig,msg,    &
