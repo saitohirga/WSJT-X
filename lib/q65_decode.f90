@@ -96,7 +96,7 @@ contains
     call q65_sync(nutc,iwave,ntrperiod*12000,mode65,codewords,ncw,nsps,   &
          nfqso,ntol,emedelay,xdt,f0,snr1,width,dat4,snr2,id1)
     call timer('sync_q65',1)
-    if(id1.eq.1) then
+    if(id1.eq.1 .or. id1.ge.12) then
        xdt1=xdt
        f1=f0
        go to 100

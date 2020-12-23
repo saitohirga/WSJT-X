@@ -139,6 +139,10 @@ program test_q65
         if(ntrperiod.le.30) i0=25
         if(line(i0:i0).ne.' ') read(line(60:),*) idec
         if(idec.lt.0) cycle
+        if(idec.ge.12) then
+           iavg=idec-10
+           idec=1
+        endif
         if(decok) then
            ndecn=ndecn + 1
            if(iavg.le.1) ndec1=ndec1 + 1

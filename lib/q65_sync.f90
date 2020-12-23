@@ -24,17 +24,19 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
   integer dat4(13)
   integer ijpk(2)
   logical unpk77_success
+  logical lavg
   character*77 c77,decoded*37
   real, allocatable :: s1(:,:)           !Symbol spectra, 1/8-symbol steps
   real, allocatable :: s3(:,:)           !Data-symbol energies s3(LL,63)
+  real, allocatable,save :: s3avg(:,:)   !Averaged data-symbol energies
   real, allocatable :: ccf(:,:)          !CCF(freq,lag)
   real, allocatable :: ccf1(:)           !CCF(freq) at best lag
   real s3prob(0:63,63)                   !Symbol-value probabilities
   real sync(85)                          !sync vector
   complex, allocatable :: c0(:)          !Complex spectrum of symbol
   data isync/1,9,12,13,15,22,23,26,27,33,35,38,46,50,55,60,62,66,69,74,76,85/
-  data sync(1)/99.0/
-  save sync
+  data sync(1)/99.0/,LL0/-1/
+  save sync,navg,LL0
 
   snr1=0.
   id1=0
@@ -54,6 +56,12 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
 
   allocate(s1(iz,jz))
   allocate(s3(-64:LL-65,63))
+  if(LL.ne.LL0) then
+     if(allocated(s3avg)) deallocate(s3avg)
+     allocate(s3avg(-64:LL-65,63))
+     navg=0
+     LL0=LL
+  endif
   allocate(c0(0:nfft-1))
   allocate(ccf(-ia2:ia2,-53:214))
   allocate(ccf1(-ia2:ia2))
@@ -63,6 +71,8 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
      do k=1,22
         sync(isync(k))=1.0               !Sync tone ON
      enddo
+     s3avg=0.
+     navg=0
   endif
 
   fac=1/32767.0
@@ -175,7 +185,9 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
   baud=12000.0/nsps
   ibwa=1.8*log(baud*mode_q65) + 2
   ibwb=min(10,ibwa+4)
-  do ibw=ibwa,ibwb
+  lavg=.false.
+
+10 do ibw=ibwa,ibwb
      b90=1.72**ibw
      call q65_intrinsics_ff(s3,nsubmode,b90/baud,nFadingModel,s3prob)
      call q65_dec_fullaplist(s3,s3prob,codewords,ncw,esnodb,dat4,plog,irc)
@@ -196,9 +208,9 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
         smax=maxval(ccf1)
         if(smax.gt.10.0) ccf1=10.0*ccf1/smax
         go to 200
-!        go to 900
      endif
   enddo
+  if(lavg) go to 900
 
 !######################################################################
 ! Establish xdt, f0, and snr1 using sync symbols (and perhaps some AP symbols)
@@ -241,6 +253,7 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
   if(snr1.gt.10.0) ccf1=(10.0/snr1)*ccf1
 
 200 smax=maxval(ccf1)
+  if(lavg) id1=10+navg                    !This is an average decode
   i1=-9999
   i2=-9999
   do i=-ia,ia
@@ -254,6 +267,21 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
   enddo
   close(17)
   width=df*(i2-i1)
+  if(id1.ge.1) then
+     navg=0
+     s3avg=0.
+     if(lavg) go to 900
+  elseif(snr1.ge.0.0) then
+     s3avg=s3avg+s3
+     navg=navg+1
+     write(71,3071) nutc,navg,xdt,f0,snr1
+3071 format(2i5,3f10.2)
+     if(navg.ge.2) then
+        s3=s3avg/navg
+        lavg=.true.
+        go to 10
+     endif
+  endif
 
 900 return
 end subroutine q65_sync
