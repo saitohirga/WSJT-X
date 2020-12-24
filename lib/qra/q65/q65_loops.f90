@@ -7,6 +7,8 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode_q65,nsubmode,nFadingModel, &
   parameter (LN=1152*63)           !LN=LL*NN; LL=64*(mode_q65+2), NN=63
   complex c00(0:npts2-1)           !Analytic representation of dd(), 6000 Hz
   complex ,allocatable :: c0(:)    !Ditto, with freq shift
+!  character c77*77,decoded*37
+!  logical unpk77_success
   real a(3)                        !twkfreq params f,f1,f2
   real s3(LN)                      !Symbol spectra
   real s3prob(64*NN)               !Symbol-value probabilities
@@ -81,6 +83,22 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode_q65,nsubmode,nFadingModel, &
            call q65_dec(s3,s3prob,APmask,APsymbols,esnodb,dat4,irc)
            call timer('q65_dec ',1)
            if(irc.ge.0) id2=iaptype+2
+
+!### Temporary ###
+!           if(irc.ge.0) then
+!              write(c77,1000) dat4(1:12),dat4(13)/2
+!1000          format(12b6.6,b5.5)
+!              call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
+!              snr2=esnodb - db(2500.0/baud)
+!              xdt1=xdt0 +  nsps*ndt/(16.0*6000.0)
+!              f1=f0 + 0.5*baud*ndf
+!              open(56,file='fort.56',status='unknown',position='append')
+!              write(56,3055) idf,idt,ibw,id2,irc,xdt1,f1,snr2,trim(decoded)
+!3055          format(5i3,3f8.2,2x,a)
+!              close(56)
+!           endif
+!###
+
            if(irc.ge.0) go to 100
               ! irc > 0 ==> number of iterations required to decode
               !  -1 = invalid params

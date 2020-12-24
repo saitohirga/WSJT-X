@@ -197,14 +197,16 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
      if(irc.ge.0 .and. plog.ge.PLOG_MIN) then
         snr2=esnodb - db(2500.0/baud) + 3.0     !Empirical adjustment
         id1=1
-        write(c77,1000) dat4(1:12),dat4(13)/2
-1000    format(12b6.6,b5.5)
-        call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
+
+!        write(c77,1000) dat4(1:12),dat4(13)/2
+!1000    format(12b6.6,b5.5)
+!        call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
 !        open(55,file='fort.55',status='unknown',position='append')
 !        write(55,3055) nutc,ibw,xdt,f0,85.0*base,ccfmax,snr2,plog,   &
 !             irc,trim(decoded)
 !3055    format(i6,i3,6f8.2,i5,2x,a)
 !        close(55)
+
         ic=ia2/4;
         base=(sum(ccf1(-ia2:-ia2+ic)) + sum(ccf1(ia2-ic:ia2)))/(2.0+2.0*ic);
         ccf1=ccf1-base
@@ -253,6 +255,21 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
   snr1=smax/rms
   ccf1=ccf(:,jpk)/rms
   if(snr1.gt.10.0) ccf1=(10.0/snr1)*ccf1
+
+! Compute s3() here, then call q65_avg().
+  i1=i0+ipk-64
+  i2=i1+LL-1
+  j=j0+jpk-7
+  n=0
+  do k=1,85
+     j=j+8
+     if(sync(k).gt.0.0) then
+        cycle
+     endif
+     n=n+1
+     if(j.ge.1 .and. j.le.jz) s3(-64:LL-65,n)=s1(i1:i2,j)
+  enddo
+  write(40) nutc,mode_q65,LL,xdt,f0,snr1,s3
 
 200 smax=maxval(ccf1)
   if(lavg) id1=10+navg                    !This is an average decode
