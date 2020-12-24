@@ -6388,7 +6388,7 @@ void MainWindow::on_actionQ65_triggered()
   m_wideGraph->setTxFreq(ui->TxFreqSpinBox->value());
   switch_mode (Modes::Q65);
 //                         012345678901234567890123456789012345
-  displayWidgets(nWidgets("111111010110110100011000000100000000"));
+  displayWidgets(nWidgets("111111010110110100111000000100000000"));
   statusChanged();
 }
 

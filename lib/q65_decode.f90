@@ -25,8 +25,9 @@ module q65_decode
 
 contains
 
-  subroutine decode(this,callback,iwave,nutc,ntrperiod,nsubmode,nfqso,   &
-       ntol,ndepth,emedelay,mycall,hiscall,hisgrid,nQSOprogress,ncontest,lapcqonly)
+  subroutine decode(this,callback,iwave,nutc,ntrperiod,nsubmode,nfqso,      &
+       ntol,ndepth,lclearave,emedelay,mycall,hiscall,hisgrid,nQSOprogress,  &
+       ncontest,lapcqonly)
 
 ! Decodes Q65 signals
 ! Input:  iwave            Raw data, i*2
@@ -57,7 +58,7 @@ contains
     integer apmask(13),apsymbols(13)
     integer dgen(13)
     integer codewords(63,206)
-    logical lapcqonly,unpk77_success
+    logical lclearave,lapcqonly,unpk77_success
     complex, allocatable :: c00(:)        !Analytic signal, 6000 Sa/s
     complex, allocatable :: c0(:)         !Analytic signal, 6000 Sa/s
 
@@ -94,7 +95,7 @@ contains
     call q65_enc(dgen,codewords)         !Initialize Q65
     call timer('sync_q65',0)
     call q65_sync(nutc,iwave,ntrperiod*12000,mode65,codewords,ncw,nsps,   &
-         nfqso,ntol,emedelay,xdt,f0,snr1,width,dat4,snr2,id1)
+         nfqso,ntol,ndepth,lclearave,emedelay,xdt,f0,snr1,width,dat4,snr2,id1)
     call timer('sync_q65',1)
     if(id1.eq.1 .or. id1.ge.12) then
        xdt1=xdt

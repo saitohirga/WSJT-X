@@ -204,8 +204,8 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      call timer('dec_q65 ',0)
      call my_q65%decode(q65_decoded,id2,params%nutc,params%ntr,        &
           params%nsubmode,params%nfqso,params%ntol,params%ndepth,      &
-          params%emedelay,mycall,hiscall,hisgrid,params%nQSOProgress,  &
-          ncontest,logical(params%lapcqonly))
+          logical(params%nclearave),params%emedelay,mycall,hiscall,    &
+          hisgrid,params%nQSOProgress,ncontest,logical(params%lapcqonly))
      call timer('dec_q65 ',1)
      go to 800
   endif
@@ -523,8 +523,7 @@ contains
     write(13,1012) params%nutc,nint(sync),snr,dt,float(freq),drift,    &
          decoded,ft,nsum,nsmo
 1012 format(i4.4,i4,i5,f6.2,f8.0,i4,3x,a22,' JT65',3i3)
-
-100 call flush(6)
+    call flush(6)
 
 !$omp end critical(decode_results)
     select type(this)

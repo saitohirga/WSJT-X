@@ -1,5 +1,5 @@
 subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
-     emedelay,xdt,f0,snr1,width,dat4,snr2,id1)
+     ndepth,lclearave,emedelay,xdt,f0,snr1,width,dat4,snr2,id1)
 
 ! Detect and align with the Q65 sync vector, returning time and frequency
 ! offsets and SNR estimate.
@@ -24,7 +24,7 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
   integer dat4(13)
   integer ijpk(2)
   logical unpk77_success
-  logical lavg
+  logical lavg,lclearave
   character*77 c77,decoded*37
   real, allocatable :: s1(:,:)           !Symbol spectra, 1/8-symbol steps
   real, allocatable :: s3(:,:)           !Data-symbol energies s3(LL,63)
@@ -66,13 +66,16 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
   allocate(ccf(-ia2:ia2,-53:214))
   allocate(ccf1(-ia2:ia2))
 
+  if(lclearave) then
+     s3avg=0.
+     navg=0
+  endif
+  
   if(sync(1).eq.99.0) then               !Generate the sync vector
      sync=-22.0/63.0                     !Sync tone OFF  
      do k=1,22
         sync(isync(k))=1.0               !Sync tone ON
      enddo
-     s3avg=0.
-     navg=0
   endif
 
   fac=1/32767.0
@@ -270,7 +273,7 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
      navg=0
      s3avg=0.
      if(lavg) go to 900
-  elseif(snr1.ge.0.0) then
+  elseif(iand(ndepth,16).eq.16) then
      s3avg=s3avg+s3
      navg=navg+1
      write(71,3071) nutc,navg,xdt,f0,snr1
