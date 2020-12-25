@@ -132,8 +132,8 @@ contains
     ifa=nfa
     ifb=nfb
     if(nagain) then
-       ifa=nfqso-10
-       ifb=nfqso+10
+       ifa=nfqso-20
+       ifb=nfqso+20
     endif
 
 ! For now:
