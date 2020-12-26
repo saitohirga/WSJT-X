@@ -201,6 +201,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   if(params%nmode.eq.66) then        !NB: JT65 = 65, Q65 = 66.
 ! We're in Q65 mode
      open(17,file=trim(temp_dir)//'/red.dat',status='unknown')
+     open(14,file=trim(temp_dir)//'/avemsg.txt',status='unknown')
      call timer('dec_q65 ',0)
      call my_q65%decode(q65_decoded,id2,params%nutc,params%ntr,        &
           params%nsubmode,params%nfqso,params%ntol,params%ndepth,      &
@@ -368,7 +369,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   endif
   close(13)
   if(ncontest.eq.6) close(19)
-  if(params%nmode.eq.4 .or. params%nmode.eq.65) close(14)
+  if(params%nmode.eq.4 .or. params%nmode.eq.65 .or. params%nmode.eq.66) close(14)
 
   return
 

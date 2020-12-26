@@ -1,4 +1,4 @@
-subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
+subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
      ndepth,lclearave,emedelay,xdt,f0,snr1,width,dat4,snr2,id1)
 
 ! Detect and align with the Q65 sync vector, returning time and frequency
@@ -17,7 +17,7 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
   parameter (NSTEP=8)                    !Step size nsps/NSTEP
   parameter (LN=2176*63)           !LN=LL*NN; LL=64*(mode_q65+2), NN=63
   parameter (PLOG_MIN=-240.0)            !List decoding threshold
-  integer*2 iwave(0:nmax-1)              !Raw data
+  integer*2 iwave(0:12000*ntrperiod-1)   !Raw data
   integer isync(22)                      !Indices of sync symbols
   integer itone(85)
   integer codewords(63,206)
@@ -142,13 +142,14 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
      enddo
 ! Compute 2D ccf using all 85 symbols in the list message
      ccf=0.
+     iia=200.0/df
      do lag=lag1,lag2
         do k=1,85
            j=j0 + NSTEP*(k-1) + 1 + lag
            if(j.ge.1 .and. j.le.jz) then
               do i=-ia2,ia2
                  ii=i0+mode_q65*(itone(k)+1)+i
-                 if(ii.ge.1 .and. ii.le.iz) ccf(i,lag)=ccf(i,lag) + s1(ii,j)
+                 if(ii.ge.iia .and. ii.le.iz) ccf(i,lag)=ccf(i,lag) + s1(ii,j)
               enddo
            endif
         enddo
@@ -259,20 +260,23 @@ subroutine q65_sync(nutc,iwave,nmax,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
 ! Compute s3() here, then call q65_avg().
   i1=i0+ipk-64
   i2=i1+LL-1
-  j=j0+jpk-7
-  n=0
-  do k=1,85
-     j=j+8
-     if(sync(k).gt.0.0) then
-        cycle
-     endif
-     n=n+1
-     if(j.ge.1 .and. j.le.jz) s3(-64:LL-65,n)=s1(i1:i2,j)
-  enddo
-  write(40) nutc,mode_q65,LL,xdt,f0,snr1,s3
+  if(i1.ge.1 .and. i2.le.iz) then
+     j=j0+jpk-7
+     n=0
+     do k=1,85
+        j=j+8
+        if(sync(k).gt.0.0) then
+           cycle
+        endif
+        n=n+1
+        if(j.ge.1 .and. j.le.jz) s3(-64:LL-65,n)=s1(i1:i2,j)
+     enddo
+     call q65_avg(nutc,ntrperiod,mode_q65,LL,nfqso,ntol,lclearave,xdt,   &
+          f0,snr1,s3)
+  endif
 
 200 smax=maxval(ccf1)
-  if(lavg) id1=10+navg                    !This is an average decode
+  if(lavg) id1=10+navg                    !If this is an average decode
   i1=-9999
   i2=-9999
   do i=-ia,ia

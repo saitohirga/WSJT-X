@@ -94,7 +94,7 @@ contains
     dgen=0
     call q65_enc(dgen,codewords)         !Initialize Q65
     call timer('sync_q65',0)
-    call q65_sync(nutc,iwave,ntrperiod*12000,mode65,codewords,ncw,nsps,   &
+    call q65_sync(nutc,iwave,ntrperiod,mode65,codewords,ncw,nsps,   &
          nfqso,ntol,ndepth,lclearave,emedelay,xdt,f0,snr1,width,dat4,snr2,id1)
     call timer('sync_q65',1)
     if(id1.eq.1 .or. id1.ge.12) then
