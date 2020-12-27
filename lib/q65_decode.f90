@@ -42,6 +42,8 @@ contains
     use timer_module, only: timer
     use packjt77
     use, intrinsic :: iso_c_binding
+    use q65
+ 
     parameter (NMAX=300*12000)            !Max TRperiod is 300 s
     class(q65_decoder), intent(inout) :: this
     procedure(q65_decode_callback) :: callback
@@ -55,7 +57,6 @@ contains
     integer dat4(13)                      !Decoded message as 12 6-bit integers
     integer apsym0(58),aph10(10)
     integer apmask1(78),apsymbols1(78)
-    integer apmask(13),apsymbols(13)
     integer dgen(13)
     integer codewords(63,206)
     logical lclearave,lapcqonly,unpk77_success

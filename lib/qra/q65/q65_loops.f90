@@ -17,7 +17,7 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode_q65,nsubmode,nFadingModel, &
   integer cw4(63)
   integer dat4(13)                 !Decoded message (as 13 six-bit integers)
   integer nap(0:11)                !AP return codes
-  data nap/0,2,3,2,3,4,2,3,6,4,6,6/,nsave/0/
+  data nap/0,2,3,2,3,4,2,3,6,4,6,6/
   data cw4/0, 0, 0, 0, 8, 4,60,35,17,48,33,25,34,43,43,43,35,15,46,30, &
           54,24,26,26,57,57,42, 3,23,11,49,49,16, 2, 6, 6,55,21,39,51, &
           51,51,42,42,50,25,31,35,57,30, 1,54,54,10,10,22,44,58,57,40, &
@@ -82,6 +82,9 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode_q65,nsubmode,nFadingModel, &
            call timer('q65_dec ',0)
            call q65_dec(s3,s3prob,APmask,APsymbols,esnodb,dat4,irc)
            call timer('q65_dec ',1)
+           print*,'H',ibw,irc,iaptype,sum(s3(1:LL*NN))
+!           rewind 41
+!           write(41) LL*NN,s3(1:LL*NN)
            if(irc.ge.0) id2=iaptype+2
 
 !### Temporary ###
@@ -107,17 +110,18 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode_q65,nsubmode,nFadingModel, &
         enddo  ! ibw (b90 loop)
      enddo  ! idt (DT loop)
   enddo  ! idf (f0 loop)
-  if(iaptype.eq.0) then
-     a=0.
-     a(1)=-f0
-     call twkfreq(c00,c0,npts2,6000.0,a)
-     jpk=3000                       !###  Are these definitions OK?
-     if(nsps.ge.3600) jpk=6000      !###  TR >= 60 s
-     call spec64(c0,nsps,mode,mode_q65,jpk,s3,LL,NN)
-     call pctile(s3,LL*NN,40,base)
-     s3=s3/base
-     where(s3(1:LL*NN)>s3lim) s3(1:LL*NN)=s3lim
-  endif
+
+!  if(iaptype.eq.0) then
+!     a=0.
+!     a(1)=-f0
+!     call twkfreq(c00,c0,npts2,6000.0,a)
+!     jpk=3000                       !###  Are these definitions OK?
+!     if(nsps.ge.3600) jpk=6000      !###  TR >= 60 s
+!     call spec64(c0,nsps,mode,mode_q65,jpk,s3,LL,NN)
+!     call pctile(s3,LL*NN,40,base)
+!     s3=s3/base
+!     where(s3(1:LL*NN)>s3lim) s3(1:LL*NN)=s3lim
+!  endif
 
 100 if(irc.ge.0) then
      snr2=esnodb - db(2500.0/baud)

@@ -157,13 +157,17 @@ subroutine q65_avg(nutc,ntrperiod,mode_q65,LL,nfqso,ntol,lclearave,   &
      endif
   enddo
 
+  APmask=0
+  APsymbols=0
+  read(41) LNZ,s3avg
+
   do ibw=ibwa,ibwb
      b90=1.72**ibw
      call q65_intrinsics_ff(s3avg,nsubmode,b90/baud,nFadingModel,s3prob)
      call q65_dec(s3avg,s3prob,APmask,APsymbols,esnodb,dat4,irc)
+     print*,'G',ibw,irc,sum(s3avg)
      if(irc.ge.0) then
         id2=iaptype+2
-        print*,'G',id2
         exit
      endif
   enddo  ! ibw (b90 loop)
