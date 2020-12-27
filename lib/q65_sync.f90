@@ -195,6 +195,14 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,nfqso,ntol,
      b90=1.72**ibw
      call q65_intrinsics_ff(s3,nsubmode,b90/baud,nFadingModel,s3prob)
      call q65_dec_fullaplist(s3,s3prob,codewords,ncw,esnodb,dat4,plog,irc)
+!###
+     write(*,3001) 'A',ibw,irc,xdt,f0,plog,sum(s3)
+3001 format(a1,2i3,f7.2,3f8.1)
+     if(irc.gt.0) then
+        s3avg=s3
+        go to 100
+     endif
+!###
      if(irc.ge.0 .and. plog.ge.PLOG_MIN) then
         snr2=esnodb - db(2500.0/baud) + 3.0     !Empirical adjustment
         id1=1
@@ -260,7 +268,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,nfqso,ntol,
 ! Compute s3() here, then call q65_avg().
   i1=i0+ipk-64
   i2=i1+LL-1
-  if(i1.ge.1 .and. i2.le.iz) then
+  if(snr1.ge.2.8 .and. i1.ge.1 .and. i2.le.iz) then
      j=j0+jpk-7
      n=0
      do k=1,85
@@ -271,8 +279,11 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,nfqso,ntol,
         n=n+1
         if(j.ge.1 .and. j.le.jz) s3(-64:LL-65,n)=s1(i1:i2,j)
      enddo
-     call q65_avg(nutc,ntrperiod,mode_q65,LL,nfqso,ntol,lclearave,xdt,   &
-          f0,snr1,s3)
+!     s3=s3avg
+     write(*,3002) 'B',xdt,f0,sum(s3)
+3002 format(a1,f7.2,2f8.1)
+     call q65_avg(nutc,ntrperiod,mode_q65,LL,nfqso,ntol,lclearave,     &
+          baud,nsubmode,ibwa,ibwb,codewords,ncw,xdt,f0,snr1,s3)
   endif
 
 200 smax=maxval(ccf1)
@@ -290,21 +301,21 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,nfqso,ntol,
   enddo
   close(17)
   width=df*(i2-i1)
-  if(id1.ge.1) then
-     navg=0
-     s3avg=0.
-     if(lavg) go to 900
-  elseif(iand(ndepth,16).eq.16) then
-     s3avg=s3avg+s3
-     navg=navg+1
-     write(71,3071) nutc,navg,xdt,f0,snr1
-3071 format(2i5,3f10.2)
-     if(navg.ge.2) then
-        s3=s3avg/navg
-        lavg=.true.
-        go to 10
-     endif
-  endif
+!  if(id1.ge.1) then
+!     navg=0
+!     s3avg=0.
+!     if(lavg) go to 900
+!  elseif(iand(ndepth,16).eq.16) then
+!     s3avg=s3avg+s3
+!     navg=navg+1
+!     write(71,3071) nutc,navg,xdt,f0,snr1
+!3071 format(2i5,3f10.2)
+!     if(navg.ge.2) then
+!        s3=s3avg/navg
+!        lavg=.true.
+!        go to 10
+!     endif
+!  endif
 
 900 return
 end subroutine q65_sync

@@ -5,7 +5,7 @@ module q65
   integer iutc(MAXAVE)
   integer iseq(MAXAVE)
   integer listutc(10)
-  real    fsave(MAXAVE)
+  real    f0save(MAXAVE)
   real    xdtsave(MAXAVE)
   real    snr1save(MAXAVE)
   real,allocatable :: s3save(:,:,:)
