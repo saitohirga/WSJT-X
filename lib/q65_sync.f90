@@ -148,7 +148,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,nfqso,ntol,
            j=j0 + NSTEP*(k-1) + 1 + lag
            if(j.ge.1 .and. j.le.jz) then
               do i=-ia2,ia2
-                 ii=i0+mode_q65*(itone(k)+1)+i
+                 ii=i0+mode_q65*itone(k)+i
                  if(ii.ge.iia .and. ii.le.iz) ccf(i,lag)=ccf(i,lag) + s1(ii,j)
               enddo
            endif
@@ -159,8 +159,8 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,nfqso,ntol,
         ccf_best=ccfmax
         ijpk=maxloc(ccf(-ia:ia,:))
         ipk=ijpk(1)-ia-1
-        jpk=ijpk(2)-53-1     
-        f0=nfqso + ipk*df
+        jpk=ijpk(2)-53-1
+        f0=nfqso + (ipk-mode_q65)*df
         xdt=jpk*dtstep
         imsg_best=imsg
         ccf1=ccf(:,jpk)
@@ -284,7 +284,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,nfqso,ntol,
      if(i2.eq.-9999 .and. ccf1(-i).ge.0.5*smax) i2=-i
   enddo
   do i=-ia2,ia2
-     freq=nfqso + i*df
+     freq=nfqso + (i-mode_q65)*df
      write(17,1100) freq,ccf1(i),xdt
 1100 format(3f10.3)
   enddo
