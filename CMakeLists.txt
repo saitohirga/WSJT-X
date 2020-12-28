@@ -325,7 +325,7 @@ set (wsjt_FSRCS
   lib/options.f90
   lib/packjt.f90
   lib/77bit/packjt77.f90
-  lib/q65.f90
+  lib/qra/q65/q65.f90
   lib/q65_decode.f90
   lib/readwav.f90
   lib/timer_C_wrapper.f90
@@ -496,8 +496,8 @@ set (wsjt_FSRCS
   lib/polyfit.f90
   lib/prog_args.f90
   lib/ps4.f90
-  lib/q65_avg.f90
-  lib/q65_sync.f90
+  lib/qra/q65/q65_avg.f90
+  lib/qra/q65/q65_sync.f90
   lib/qra/q65/q65_ap.f90
   lib/qra/q65/q65_loops.f90
   lib/qra/q65/q65_set_list.f90

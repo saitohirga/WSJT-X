@@ -1,5 +1,5 @@
-subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,nfqso,ntol, &
-     ndepth,lclearave,emedelay,xdt,f0,snr1,width,dat4,snr2,id1)
+subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
+     nfqso,ntol,ndepth,lclearave,emedelay,xdt,f0,snr1,width,dat4,snr2,id1)
 
 ! Detect and align with the Q65 sync vector, returning time and frequency
 ! offsets and SNR estimate.
@@ -23,9 +23,8 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,nfqso,ntol,
   integer codewords(63,206)
   integer dat4(13)
   integer ijpk(2)
-  logical unpk77_success
   logical lclearave
-  character*77 c77,decoded*37
+  character*37 decoded
   real, allocatable :: s1(:,:)           !Symbol spectra, 1/8-symbol steps
   real, allocatable :: s3(:,:)           !Data-symbol energies s3(LL,63)
   real, allocatable :: ccf(:,:)          !CCF(freq,lag)
@@ -178,34 +177,22 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,nfqso,ntol,
   ibwa=1.8*log(baud*mode_q65) + 2
   ibwb=min(10,ibwa+4)
 
-10 do ibw=ibwa,ibwb
+  do ibw=ibwa,ibwb
      b90=1.72**ibw
-     call q65_intrinsics_ff(s3,nsubmode,b90/baud,nFadingModel,s3prob)
-     call q65_dec_fullaplist(s3,s3prob,codewords,ncw,esnodb,dat4,plog,irc)
-!###
-     write(*,3001) 'A',ibw,irc,xdt,f0,plog,sum(s3)
-3001 format(a1,2i3,f7.2,3f8.1)
-     if(irc.gt.0) go to 100
-!###
-     if(irc.ge.0 .and. plog.ge.PLOG_MIN) then
+     b90ts=b90/baud
+     call q65_dec1(s3,nsubmode,b90ts,codewords,ncw,esnodb,irc,dat4,decoded)
+!     irc=-99  !### TEMPORARY ###
+     if(irc.ge.0) then
+        print*,'A dec1 ',ibw,irc,decoded
         snr2=esnodb - db(2500.0/baud) + 3.0     !Empirical adjustment
         id1=1
-
-!        write(c77,1000) dat4(1:12),dat4(13)/2
-!1000    format(12b6.6,b5.5)
-!        call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
-!        open(55,file='fort.55',status='unknown',position='append')
-!        write(55,3055) nutc,ibw,xdt,f0,85.0*base,ccfmax,snr2,plog,   &
-!             irc,trim(decoded)
-!3055    format(i6,i3,6f8.2,i5,2x,a)
-!        close(55)
-
         ic=ia2/4;
         base=(sum(ccf1(-ia2:-ia2+ic)) + sum(ccf1(ia2-ic:ia2)))/(2.0+2.0*ic);
         ccf1=ccf1-base
         smax=maxval(ccf1)
         if(smax.gt.10.0) ccf1=10.0*ccf1/smax
-        go to 200
+        go to 100   !### TEMPORARY ###
+!        go to 200
      endif
   enddo
 
@@ -248,24 +235,26 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,nfqso,ntol,
   ccf1=ccf(:,jpk)/rms
   if(snr1.gt.10.0) ccf1=(10.0/snr1)*ccf1
 
-! Compute s3() here, then call q65_avg().
-  i1=i0+ipk-64
-  i2=i1+LL-1
-  if(snr1.ge.2.8 .and. i1.ge.1 .and. i2.le.iz) then
-     j=j0+jpk-7
-     n=0
-     do k=1,85
-        j=j+8
-        if(sync(k).gt.0.0) then
-           cycle
-        endif
-        n=n+1
-        if(j.ge.1 .and. j.le.jz) s3(-64:LL-65,n)=s1(i1:i2,j)
-     enddo
-     write(*,3002) 'B',xdt,f0,sum(s3)
-3002 format(a1,f7.2,2f8.1)
-     call q65_avg(nutc,ntrperiod,mode_q65,LL,nfqso,ntol,lclearave,     &
-          baud,nsubmode,ibwa,ibwb,codewords,ncw,xdt,f0,snr1,s3)
+  if(iand(ndepth,16).eq.16) then
+! Fill s3() from s1() here, then call q65_avg().
+     i1=i0+ipk-64
+     i2=i1+LL-1
+     if(snr1.ge.2.8 .and. i1.ge.1 .and. i2.le.iz) then
+        j=j0+jpk-7
+        n=0
+        do k=1,85
+           j=j+8
+           if(sync(k).gt.0.0) then
+              cycle
+           endif
+           n=n+1
+           if(j.ge.1 .and. j.le.jz) s3(-64:LL-65,n)=s1(i1:i2,j)
+        enddo
+!        write(*,3002) 'B',xdt,f0,sum(s3)
+!3002    format(a1,f7.2,2f8.1)
+        call q65_avg(nutc,ntrperiod,mode_q65,LL,nfqso,ntol,lclearave,     &
+             baud,nsubmode,ibwa,ibwb,codewords,ncw,xdt,f0,snr1,s3)
+     endif
   endif
 
 200 smax=maxval(ccf1)
@@ -286,3 +275,48 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,nfqso,ntol,
 
 900 return
 end subroutine q65_sync
+
+subroutine q65_dec1(s3,nsubmode,b90ts,codewords,ncw,esnodb,irc,dat4,decoded)
+
+  use q65
+  use packjt77
+  real s3prob(0:63,63)                   !Symbol-value probabilities
+  integer codewords(63,206)
+  integer dat4(13)
+  character c77*77,decoded*37
+  logical unpk77_success
+  
+  nFadingModel=1
+  decoded='                                     '
+  call q65_intrinsics_ff(s3,nsubmode,b90ts,nFadingModel,s3prob)
+  call q65_dec_fullaplist(s3,s3prob,codewords,ncw,esnodb,dat4,plog,irc)
+  if(irc.ge.0 .and. plog.gt.PLOG_MIN) then
+     write(c77,1000) dat4(1:12),dat4(13)/2
+1000 format(12b6.6,b5.5)
+     call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
+  endif
+
+  return
+end subroutine q65_dec1
+
+subroutine q65_dec2(s3,nsubmode,b90ts,esnodb,irc,dat4,decoded)
+
+  use q65
+  use packjt77
+  real s3prob(0:63,63)                   !Symbol-value probabilities
+  integer dat4(13)
+  character c77*77,decoded*37
+  logical unpk77_success
+
+  nFadingModel=1
+  decoded='                                     '
+  call q65_intrinsics_ff(s3,nsubmode,b90ts,nFadingModel,s3prob)
+  call q65_dec(s3,s3prob,APmask,APsymbols,esnodb,dat4,irc)
+  if(irc.ge.0) then
+     write(c77,1000) dat4(1:12),dat4(13)/2
+1000 format(12b6.6,b5.5)
+     call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
+  endif
+
+  return
+end subroutine q65_dec2

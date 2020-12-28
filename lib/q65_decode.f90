@@ -42,7 +42,7 @@ contains
     use timer_module, only: timer
     use packjt77
     use, intrinsic :: iso_c_binding
-    use q65
+    use q65                               !Shared variables
  
     parameter (NMAX=300*12000)            !Max TRperiod is 300 s
     class(q65_decoder), intent(inout) :: this
@@ -89,44 +89,51 @@ contains
     baud=12000.0/nsps
     df1=12000.0/nfft1
     this%callback => callback
-    if(nutc.eq.-999) print*,lapdx,nfa,nfb,nfqso  !Silence warning
     nFadingModel=1
-    call q65_set_list(mycall,hiscall,hisgrid,codewords,ncw)
+! Set up the codewords for full-AP list decoding    
+    call q65_set_list(mycall,hiscall,hisgrid,codewords,ncw) 
     dgen=0
-    call q65_enc(dgen,codewords)         !Initialize Q65
+    call q65_enc(dgen,codewords)         !Initialize the Q65 codec
     call timer('sync_q65',0)
-    call q65_sync(nutc,iwave,ntrperiod,mode65,codewords,ncw,nsps,   &
-         nfqso,ntol,ndepth,lclearave,emedelay,xdt,f0,snr1,width,dat4,snr2,id1)
+    call q65_sync(nutc,iwave,ntrperiod,mode65,codewords,ncw,nsps,      &
+         nfqso,ntol,ndepth,lclearave,emedelay,xdt,f0,snr1,width,dat4,  &
+         snr2,id1)
     call timer('sync_q65',1)
+
     if(id1.eq.1 .or. id1.ge.12) then
-       xdt1=xdt
+       xdt1=xdt                          !We have a list-decode result
        f1=f0
-       go to 100
+!       go to 100   !### TEMPORARILY REMOVED ###
     endif
     
     if(snr1.lt.2.8) then
-       xdt1=0.
+       xdt1=0.                   !No reliable sync, abandon decoding attempt
        f1=0.
        go to 100
     endif
-    jpk0=(xdt+1.0)*6000                      !### Is this OK?
-    if(ntrperiod.le.30) jpk0=(xdt+0.5)*6000  !###
+    
+    jpk0=(xdt+1.0)*6000                      !Index of nominal start of signal
+    if(ntrperiod.le.30) jpk0=(xdt+0.5)*6000  !For shortest sequences
     if(jpk0.lt.0) jpk0=0
     fac=1.0/32767.0
     dd=fac*iwave(1:npts)
-    nmode=65
-    call ana64(dd,npts,c00)
+    call ana64(dd,npts,c00)              !Convert to complex c00() at 6000 Sa/s
+
+! Generate ap symbols as in FT8
     call ft8apset(mycall,hiscall,ncontest,apsym0,aph10)
     where(apsym0.eq.-1) apsym0=0
 
+! Main decoding loop starts here
     npasses=2
     if(nQSOprogress.eq.5) npasses=3
     if(lapcqonly) npasses=1
     iaptype=0
     do ipass=0,npasses
-       apmask=0
+       apmask=0                         !Try first with no AP information
        apsymbols=0
+
        if(ipass.ge.1) then
+          ! Subsequent passes use AP information appropiate for nQSOprogress
           call q65_ap(nQSOprogress,ipass,ncontest,lapcqonly,iaptype,   &
                apsym0,apmask1,apsymbols1)
           write(c78,1050) apmask1
@@ -144,17 +151,21 @@ contains
              enddo
           endif
        endif
+
        call timer('q65loops',0)
-       call q65_loops(c00,npts/2,nsps/2,nmode,mode65,nsubmode,              &
+       call q65_loops(c00,npts/2,nsps/2,mode65,nsubmode,              &
             nFadingModel,ndepth,jpk0,xdt,f0,width,iaptype,apmask,apsymbols, &
             xdt1,f1,snr2,dat4,id2)
        call timer('q65loops',1)
-!       snr2=snr2 + db(6912.0/nsps)
-       if(id2.gt.0) exit
+       if(id2.gt.0) exit             !Exit main loop after a successful decode
     enddo
+
+! No single-transmission decode.
+!    if(iand(ndepth,16).eq.16) call q65_avg2
 
 100 decoded='                                     '
     if(id1.gt.0 .or. id2.gt.0) then
+! Unpack decoded message for display to user
        idec=id1+id2
        write(c77,1000) dat4(1:12),dat4(13)/2
 1000   format(12b6.6,b5.5)

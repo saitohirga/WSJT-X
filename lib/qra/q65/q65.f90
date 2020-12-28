@@ -1,6 +1,7 @@
 module q65
 
   parameter (MAXAVE=64)
+  parameter (PLOG_MIN=-240.0)            !List decoding threshold
   integer nsave,nlist,LL0
   integer iutc(MAXAVE)
   integer iseq(MAXAVE)

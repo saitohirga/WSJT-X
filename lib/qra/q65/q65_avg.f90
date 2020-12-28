@@ -6,7 +6,6 @@ subroutine q65_avg(nutc,ntrperiod,mode_q65,LL,nfqso,ntol,lclearave,   &
 
   use q65
   use packjt77
-  parameter (PLOG_MIN=-240.0)            !List decoding threshold
   character*37 avemsg
   character*1 csync,cused(MAXAVE)
   character*6 cutc
@@ -69,7 +68,6 @@ subroutine q65_avg(nutc,ntrperiod,mode_q65,LL,nfqso,ntol,lclearave,   &
 10 continue
 
 !10 if(nsave.lt.2) go to 900
-
   snr1sum=0.
   xdtsum=0.
   fsum=0.
@@ -107,7 +105,7 @@ subroutine q65_avg(nutc,ntrperiod,mode_q65,LL,nfqso,ntol,lclearave,   &
      fave=fsum/nsum
   endif
 
-! Write parameters for display to User in the Message Averaging window.
+! Write parameters for display to User in the Message Averaging (F7) window.
   do i=1,nsave
      if(ntrperiod.le.30) write(14,1000) cused(i),iutc(i),snr1save(i),    &
           xdtsave(i),f0save(i)
@@ -118,56 +116,30 @@ subroutine q65_avg(nutc,ntrperiod,mode_q65,LL,nfqso,ntol,lclearave,   &
   enddo
 !  if(nsum.lt.2) go to 900                  !Must have at least 2
 
-! Find rms scatter of DT and f0 values
-  sqt=0.
-  sqf=0.
-  do j=1,MAXAVE
-     i=iused(j)
-     if(i.eq.0) exit
-     csync='*'
-     sqt=sqt + (xdtsave(i)-dtave)**2
-     sqf=sqf + (f0save(i)-fave)**2
-  enddo
-  rmst=0.
-  rmsf=0.
-  if(nsum.ge.2) then
-     rmst=sqrt(sqt/(nsum-1))
-     rmsf=sqrt(sqf/(nsum-1))
-  endif
-
   s3avg=s3avg/nsum
   nFadingModel=1
   do ibw=ibwa,ibwb
      b90=1.72**ibw
-     call q65_intrinsics_ff(s3avg,nsubmode,b90/baud,nFadingModel,s3prob)
-     call q65_dec_fullaplist(s3avg,s3prob,codewords,ncw,esnodb,dat4,plog,irc)
+     b90ts=b90/baud
+     call q65_dec1(s3,nsubmode,b90ts,codewords,ncw,esnodb,irc,dat4,avemsg)
      if(irc.ge.0 .and. plog.ge.PLOG_MIN) then
         snr2=esnodb - db(2500.0/baud) + 3.0     !Empirical adjustment
         id1=1                                   !###
-        write(c77,3050) dat4(1:12),dat4(13)/2
-3050    format(12b6.6,b5.5)
-        call unpack77(c77,0,avemsg,unpk77_success) !Unpack to get msgsent
-        open(55,file='fort.55',status='unknown',position='append')
-        write(55,3055) nutc,ibw,xdt,f0,85.0*base,ccfmax,snr2,plog,   &
-             irc,trim(avemsg)
-3055    format(i6,i3,6f8.2,i5,2x,a)
-        close(55)
-        print*,'F ',avemsg
+        print*,'B dec1 ',ibw,irc,avemsg
         exit
      endif
   enddo
 
   APmask=0
   APsymbols=0
-  read(41) LNZ,s3avg
 
   do ibw=ibwa,ibwb
      b90=1.72**ibw
-     call q65_intrinsics_ff(s3avg,nsubmode,b90/baud,nFadingModel,s3prob)
-     call q65_dec(s3avg,s3prob,APmask,APsymbols,esnodb,dat4,irc)
-     print*,'G',ibw,irc,sum(s3avg)
+     b90ts=b90/baud
+     call q65_dec2(s3,nsubmode,b90ts,esnodb,irc,dat4,avemsg)
      if(irc.ge.0) then
         id2=iaptype+2
+        print*,'C dec2 ',ibw,irc,avemsg
         exit
      endif
   enddo  ! ibw (b90 loop)

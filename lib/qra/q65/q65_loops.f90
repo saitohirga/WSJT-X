@@ -1,4 +1,4 @@
-subroutine q65_loops(c00,npts2,nsps,mode,mode_q65,nsubmode,nFadingModel, &
+subroutine q65_loops(c00,npts2,nsps,mode_q65,nsubmode,nFadingModel, &
      ndepth,jpk0,xdt0,f0,width,iaptype,APmask,APsymbols,xdt1,f1,snr2,dat4,id2)
 
   use packjt77
@@ -7,8 +7,7 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode_q65,nsubmode,nFadingModel, &
   parameter (LN=1152*63)           !LN=LL*NN; LL=64*(mode_q65+2), NN=63
   complex c00(0:npts2-1)           !Analytic representation of dd(), 6000 Hz
   complex ,allocatable :: c0(:)    !Ditto, with freq shift
-!  character c77*77,decoded*37
-!  logical unpk77_success
+  character decoded*37
   real a(3)                        !twkfreq params f,f1,f2
   real s3(LN)                      !Symbol spectra
   real s3prob(64*NN)               !Symbol-value probabilities
@@ -61,7 +60,7 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode_q65,nsubmode,nFadingModel, &
            jpk=jpk0 + nsps*ndt/16              !tsym/16
            if(jpk.lt.0) jpk=0
            call timer('spec64  ',0)
-           call spec64(c0,nsps,mode,mode_q65,jpk,s3,LL,NN)
+           call spec64(c0,nsps,65,mode_q65,jpk,s3,LL,NN)
            call timer('spec64  ',1)
            call pctile(s3,LL*NN,40,base)
            s3=s3/base
@@ -75,53 +74,20 @@ subroutine q65_loops(c00,npts2,nsps,mode,mode_q65,nsubmode,nFadingModel, &
            xx=1.885*log(3.0*width)+nbw
            b90=1.7**xx
            if(b90.gt.345.0) cycle
-           call timer('q65_intr',0)
            b90ts = b90/baud
-           call q65_intrinsics_ff(s3,nsubmode,b90ts,nFadingModel,s3prob)
-           call timer('q65_intr',1)
-           call timer('q65_dec ',0)
-           call q65_dec(s3,s3prob,APmask,APsymbols,esnodb,dat4,irc)
-           call timer('q65_dec ',1)
-           print*,'H',ibw,irc,iaptype,sum(s3(1:LL*NN))
-!           rewind 41
-!           write(41) LL*NN,s3(1:LL*NN)
-           if(irc.ge.0) id2=iaptype+2
-
-!### Temporary ###
-!           if(irc.ge.0) then
-!              write(c77,1000) dat4(1:12),dat4(13)/2
-!1000          format(12b6.6,b5.5)
-!              call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
-!              snr2=esnodb - db(2500.0/baud)
-!              xdt1=xdt0 +  nsps*ndt/(16.0*6000.0)
-!              f1=f0 + 0.5*baud*ndf
-!              open(56,file='fort.56',status='unknown',position='append')
-!              write(56,3055) idf,idt,ibw,id2,irc,xdt1,f1,snr2,trim(decoded)
-!3055          format(5i3,3f8.2,2x,a)
-!              close(56)
-!           endif
-!###
-
-           if(irc.ge.0) go to 100
+           call q65_dec2(s3,nsubmode,b90ts,esnodb,irc,dat4,decoded)
               ! irc > 0 ==> number of iterations required to decode
               !  -1 = invalid params
               !  -2 = decode failed
               !  -3 = CRC mismatch
+           if(irc.ge.0) then
+              id2=iaptype+2
+              print*,'D dec2 ',ibw,irc,decoded
+              go to 100
+           endif
         enddo  ! ibw (b90 loop)
      enddo  ! idt (DT loop)
   enddo  ! idf (f0 loop)
-
-!  if(iaptype.eq.0) then
-!     a=0.
-!     a(1)=-f0
-!     call twkfreq(c00,c0,npts2,6000.0,a)
-!     jpk=3000                       !###  Are these definitions OK?
-!     if(nsps.ge.3600) jpk=6000      !###  TR >= 60 s
-!     call spec64(c0,nsps,mode,mode_q65,jpk,s3,LL,NN)
-!     call pctile(s3,LL*NN,40,base)
-!     s3=s3/base
-!     where(s3(1:LL*NN)>s3lim) s3(1:LL*NN)=s3lim
-!  endif
 
 100 if(irc.ge.0) then
      snr2=esnodb - db(2500.0/baud)
