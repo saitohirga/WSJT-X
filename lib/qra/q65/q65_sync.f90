@@ -29,7 +29,6 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
   real, allocatable :: s3(:,:)           !Data-symbol energies s3(LL,63)
   real, allocatable :: ccf(:,:)          !CCF(freq,lag)
   real, allocatable :: ccf1(:)           !CCF(freq) at best lag
-  real s3prob(0:63,63)                   !Symbol-value probabilities
   real sync(85)                          !sync vector
   complex, allocatable :: c0(:)          !Complex spectrum of symbol
   data isync/1,9,12,13,15,22,23,26,27,33,35,38,46,50,55,60,62,66,69,74,76,85/
@@ -183,7 +182,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
      call q65_dec1(s3,nsubmode,b90ts,codewords,ncw,esnodb,irc,dat4,decoded)
 !     irc=-99  !### TEMPORARY ###
      if(irc.ge.0) then
-        print*,'A dec1 ',ibw,irc,decoded
+!        print*,'A dec1 ',ibw,irc,decoded
         snr2=esnodb - db(2500.0/baud) + 3.0     !Empirical adjustment
         id1=1
         ic=ia2/4;
@@ -191,8 +190,8 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
         ccf1=ccf1-base
         smax=maxval(ccf1)
         if(smax.gt.10.0) ccf1=10.0*ccf1/smax
-        go to 100   !### TEMPORARY ###
-!        go to 200
+!        go to 100   !### TEMPORARY ###
+        go to 200
      endif
   enddo
 
@@ -252,7 +251,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
         enddo
 !        write(*,3002) 'B',xdt,f0,sum(s3)
 !3002    format(a1,f7.2,2f8.1)
-        call q65_avg(nutc,ntrperiod,mode_q65,LL,nfqso,ntol,lclearave,     &
+        call q65_avg(nutc,ntrperiod,LL,ntol,lclearave,     &
              baud,nsubmode,ibwa,ibwb,codewords,ncw,xdt,f0,snr1,s3)
      endif
   endif
@@ -266,7 +265,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
      if(i2.eq.-9999 .and. ccf1(-i).ge.0.5*smax) i2=-i
   enddo
   do i=-ia2,ia2
-     freq=nfqso + (i-mode_q65)*df
+     freq=nfqso + i*df
      write(17,1100) freq,ccf1(i),xdt
 1100 format(3f10.3)
   enddo

@@ -7,6 +7,7 @@ module q65
   integer iseq(MAXAVE)
   integer listutc(10)
   integer apmask(13),apsymbols(13)
+  integer navg
   real    f0save(MAXAVE)
   real    xdtsave(MAXAVE)
   real    snr1save(MAXAVE)

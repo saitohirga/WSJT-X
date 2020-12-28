@@ -1,4 +1,4 @@
-subroutine q65_avg(nutc,ntrperiod,mode_q65,LL,nfqso,ntol,lclearave,   &
+subroutine q65_avg(nutc,ntrperiod,LL,ntol,lclearave,   &
      baud,nsubmode,ibwa,ibwb,codewords,ncw,xdt,f0,snr1,s3)
 
 ! Accumulate Q65 spectra s3(LL,63) and associated parameters for
@@ -7,15 +7,13 @@ subroutine q65_avg(nutc,ntrperiod,mode_q65,LL,nfqso,ntol,lclearave,   &
   use q65
   use packjt77
   character*37 avemsg
-  character*1 csync,cused(MAXAVE)
+  character*1 cused(MAXAVE)
   character*6 cutc
-  character*77 c77
   real s3(-64:LL-65,63)                  !Symbol spectra
-  real s3prob(0:63,63)                   !Symbol-value probabilities
   integer iused(MAXAVE)
   integer dat4(13)
   integer codewords(63,206)
-  logical first,lclearave,unpk77_success
+  logical first,lclearave
   data first/.true./
   save
 
@@ -71,7 +69,7 @@ subroutine q65_avg(nutc,ntrperiod,mode_q65,LL,nfqso,ntol,lclearave,   &
   snr1sum=0.
   xdtsum=0.
   fsum=0.
-  nsum=0
+  navg=0
   s3avg=0.
 
 ! Find previously saved spectra that should be averaged with this one
@@ -90,19 +88,19 @@ subroutine q65_avg(nutc,ntrperiod,mode_q65,LL,nfqso,ntol,lclearave,   &
      snr1sum=snr1sum + snr1save(i)
      xdtsum=xdtsum + xdtsave(i)
      fsum=fsum + f0save(i)
-     nsum=nsum+1
-     iused(nsum)=i
+     navg=navg+1
+     iused(navg)=i
   enddo
-  if(nsum.lt.MAXAVE) iused(nsum+1)=0
+  if(navg.lt.MAXAVE) iused(navg+1)=0
 
 ! Find averages of snr1, xdt, and f0 used in this decoding attempt.
   snr1ave=0.
   xdtave=0.
   fave=0.
-  if(nsum.gt.0) then
-     snr1ave=snr1sum/nsum
-     xdtave=xdtsum/nsum
-     fave=fsum/nsum
+  if(navg.gt.0) then
+     snr1ave=snr1sum/navg
+     xdtave=xdtsum/navg
+     fave=fsum/navg
   endif
 
 ! Write parameters for display to User in the Message Averaging (F7) window.
@@ -114,9 +112,9 @@ subroutine q65_avg(nutc,ntrperiod,mode_q65,LL,nfqso,ntol,lclearave,   &
           xdtsave(i),f0save(i)
 1001 format(a1,i5.4,f6.1,f6.2,f7.1)
   enddo
-!  if(nsum.lt.2) go to 900                  !Must have at least 2
+!  if(navg.lt.2) go to 900                  !Must have at least 2
 
-  s3avg=s3avg/nsum
+  s3avg=s3avg/navg
   nFadingModel=1
   do ibw=ibwa,ibwb
      b90=1.72**ibw
@@ -125,7 +123,7 @@ subroutine q65_avg(nutc,ntrperiod,mode_q65,LL,nfqso,ntol,lclearave,   &
      if(irc.ge.0 .and. plog.ge.PLOG_MIN) then
         snr2=esnodb - db(2500.0/baud) + 3.0     !Empirical adjustment
         id1=1                                   !###
-        print*,'B dec1 ',ibw,irc,avemsg
+!        print*,'B dec1 ',ibw,irc,avemsg
         exit
      endif
   enddo
@@ -139,10 +137,10 @@ subroutine q65_avg(nutc,ntrperiod,mode_q65,LL,nfqso,ntol,lclearave,   &
      call q65_dec2(s3,nsubmode,b90ts,esnodb,irc,dat4,avemsg)
      if(irc.ge.0) then
         id2=iaptype+2
-        print*,'C dec2 ',ibw,irc,avemsg
+!        print*,'C dec2 ',ibw,irc,avemsg
         exit
      endif
   enddo  ! ibw (b90 loop)
 
-900 return
+  return
 end subroutine q65_avg

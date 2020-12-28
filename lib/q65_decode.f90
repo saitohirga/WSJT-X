@@ -153,16 +153,16 @@ contains
        endif
 
        call timer('q65loops',0)
-       call q65_loops(c00,npts/2,nsps/2,mode65,nsubmode,              &
-            nFadingModel,ndepth,jpk0,xdt,f0,width,iaptype,apmask,apsymbols, &
-            xdt1,f1,snr2,dat4,id2)
+       call q65_loops(c00,npts/2,nsps/2,mode65,nsubmode,ndepth,jpk0,   &
+            xdt,f0,width,iaptype,xdt1,f1,snr2,dat4,id2)
        call timer('q65loops',1)
        if(id2.gt.0) exit             !Exit main loop after a successful decode
     enddo
 
 ! No single-transmission decode.
 !    if(iand(ndepth,16).eq.16) call q65_avg2
-
+!    print*,'AAA: try for avg',navg
+    
 100 decoded='                                     '
     if(id1.gt.0 .or. id2.gt.0) then
 ! Unpack decoded message for display to user

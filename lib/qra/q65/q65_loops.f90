@@ -1,5 +1,5 @@
-subroutine q65_loops(c00,npts2,nsps,mode_q65,nsubmode,nFadingModel, &
-     ndepth,jpk0,xdt0,f0,width,iaptype,APmask,APsymbols,xdt1,f1,snr2,dat4,id2)
+subroutine q65_loops(c00,npts2,nsps,mode_q65,nsubmode,ndepth,jpk0,    &
+     xdt0,f0,width,iaptype,xdt1,f1,snr2,dat4,id2)
 
   use packjt77
   use timer_module, only: timer
@@ -10,9 +10,6 @@ subroutine q65_loops(c00,npts2,nsps,mode_q65,nsubmode,nFadingModel, &
   character decoded*37
   real a(3)                        !twkfreq params f,f1,f2
   real s3(LN)                      !Symbol spectra
-  real s3prob(64*NN)               !Symbol-value probabilities
-  integer APmask(13)
-  integer APsymbols(13)
   integer cw4(63)
   integer dat4(13)                 !Decoded message (as 13 six-bit integers)
   integer nap(0:11)                !AP return codes
@@ -82,7 +79,7 @@ subroutine q65_loops(c00,npts2,nsps,mode_q65,nsubmode,nFadingModel, &
               !  -3 = CRC mismatch
            if(irc.ge.0) then
               id2=iaptype+2
-              print*,'D dec2 ',ibw,irc,decoded
+!              print*,'D dec2 ',ibw,irc,id2,decoded
               go to 100
            endif
         enddo  ! ibw (b90 loop)
