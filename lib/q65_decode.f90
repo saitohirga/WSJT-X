@@ -97,13 +97,12 @@ contains
     call timer('sync_q65',0)
     call q65_sync(nutc,iwave,ntrperiod,mode65,codewords,ncw,nsps,      &
          nfqso,ntol,ndepth,lclearave,emedelay,xdt,f0,snr1,width,dat4,  &
-         snr2,id1)
+         snr2,idec)
     call timer('sync_q65',1)
-
-    if(id1.eq.1 .or. id1.ge.12) then
+    if(idec.ge.0) then
        xdt1=xdt                          !We have a list-decode result
        f1=f0
-!       go to 100   !### TEMPORARILY REMOVED ###
+       go to 100
     endif
     
     if(snr1.lt.2.8) then
@@ -154,19 +153,20 @@ contains
 
        call timer('q65loops',0)
        call q65_loops(c00,npts/2,nsps/2,mode65,nsubmode,ndepth,jpk0,   &
-            xdt,f0,width,iaptype,xdt1,f1,snr2,dat4,id2)
+            xdt,f0,width,iaptype,xdt1,f1,snr2,dat4,idec)
        call timer('q65loops',1)
        if(id2.gt.0) exit             !Exit main loop after a successful decode
     enddo
 
 ! No single-transmission decode.
-!    if(iand(ndepth,16).eq.16) call q65_avg2
-!    print*,'AAA: try for avg',navg
+    if(iand(ndepth,16).eq.16) then
+       call q65_avg2(nutc,ntrperiod,LL,ntol,lclearave,     &
+            baud,nsubmode,ibwa,ibwb,codewords,ncw,xdt,f0,snr1,s3,dat4,idec)
+    endif
     
 100 decoded='                                     '
-    if(id1.gt.0 .or. id2.gt.0) then
+    if(idec.gt.0) then
 ! Unpack decoded message for display to user
-       idec=id1+id2
        write(c77,1000) dat4(1:12),dat4(13)/2
 1000   format(12b6.6,b5.5)
        call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent

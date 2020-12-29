@@ -1,5 +1,5 @@
-subroutine q65_avg(nutc,ntrperiod,LL,ntol,lclearave,   &
-     baud,nsubmode,ibwa,ibwb,codewords,ncw,xdt,f0,snr1,s3)
+subroutine q65_avg(nutc,ntrperiod,LL,ntol,lclearave,baud,nsubmode,   &
+     ibwa,ibwb,codewords,ncw,xdt,f0,snr1,s3)
 
 ! Accumulate Q65 spectra s3(LL,63) and associated parameters for
 ! message averaging.
@@ -63,9 +63,14 @@ subroutine q65_avg(nutc,ntrperiod,LL,ntol,lclearave,   &
   f0save(nsave)=f0                           !f0
   s3save(:,:,nsave)=s3(:,:)                 !Symbol spectra
 
-10 continue
+10 return
 
-!10 if(nsave.lt.2) go to 900
+  entry q65_avg2(nutc,ntrperiod,LL,ntol,lclearave,baud,nsubmode,   &
+     ibwa,ibwb,codewords,ncw,xdt,f0,snr1,s3,dat4,idec)
+
+  mode_q65=2**nsubmode
+  ibwa=1.8*log(baud*mode_q65) + 2
+  ibwb=min(10,ibwa+4)
   snr1sum=0.
   xdtsum=0.
   fsum=0.
@@ -77,12 +82,8 @@ subroutine q65_avg(nutc,ntrperiod,LL,ntol,lclearave,   &
      cused(i)='.'                                   !Flag for "not used"
      if(iutc(i).lt.0) cycle
      if(iseq(i).ne.iseq(nsave)) cycle               !Sequence must match
-!     write(*,3000) i,iseq(i),nutc,iutc(i),xdt-xdtsave(i),f0-f0save(i)
-!3000 format(2i2,2i5,2f7.2)
      if(abs(xdt-xdtsave(i)).gt.dtdiff) cycle        !DT must be close
      if(abs(f0-f0save(i)).gt.float(ntol)) cycle   !Freq must match
-!     write(*,3001) 'a',i,nsave,iseq(i),snr1,xdt,f0
-!3001 format(a1,3i4,3f8.2)
      cused(i)='$'                                   !Flag for "use this one"
      s3avg=s3avg + s3save(:,:,i)                    !Add this spectrum
      snr1sum=snr1sum + snr1save(i)
@@ -92,15 +93,16 @@ subroutine q65_avg(nutc,ntrperiod,LL,ntol,lclearave,   &
      iused(navg)=i
   enddo
   if(navg.lt.MAXAVE) iused(navg+1)=0
-
+  if(navg.lt.2) go to 900
+  
 ! Find averages of snr1, xdt, and f0 used in this decoding attempt.
   snr1ave=0.
   xdtave=0.
-  fave=0.
+  f0ave=0.
   if(navg.gt.0) then
      snr1ave=snr1sum/navg
      xdtave=xdtsum/navg
-     fave=fsum/navg
+     f0ave=fsum/navg
   endif
 
 ! Write parameters for display to User in the Message Averaging (F7) window.
@@ -119,28 +121,30 @@ subroutine q65_avg(nutc,ntrperiod,LL,ntol,lclearave,   &
   do ibw=ibwa,ibwb
      b90=1.72**ibw
      b90ts=b90/baud
-     call q65_dec1(s3,nsubmode,b90ts,codewords,ncw,esnodb,irc,dat4,avemsg)
+     call q65_dec1(s3avg,nsubmode,b90ts,codewords,ncw,esnodb,irc,dat4,avemsg)
+!     irc=-99  !### TEMPORARY ###
      if(irc.ge.0 .and. plog.ge.PLOG_MIN) then
         snr2=esnodb - db(2500.0/baud) + 3.0     !Empirical adjustment
-        id1=1                                   !###
-!        print*,'B dec1 ',ibw,irc,avemsg
-        exit
+        idec=10+navg                            !###
+!        print*,'C dec1 ',ibw,irc,idec,avemsg
+        go to 900
      endif
   enddo
 
-  APmask=0
-  APsymbols=0
+! Should loop here over full range of available AP
+!  APmask=0
+!  APsymbols=0
 
   do ibw=ibwa,ibwb
      b90=1.72**ibw
      b90ts=b90/baud
-     call q65_dec2(s3,nsubmode,b90ts,esnodb,irc,dat4,avemsg)
+     call q65_dec2(s3avg,nsubmode,b90ts,esnodb,irc,dat4,avemsg)
      if(irc.ge.0) then
-        id2=iaptype+2
-!        print*,'C dec2 ',ibw,irc,avemsg
-        exit
+        idec=10*(iaptype+2) + navg
+!        print*,'D dec2 ',ibw,irc,avemsg
+        go to 900
      endif
   enddo  ! ibw (b90 loop)
 
-  return
+900  return
 end subroutine q65_avg

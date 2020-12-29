@@ -1,5 +1,5 @@
 subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
-     nfqso,ntol,ndepth,lclearave,emedelay,xdt,f0,snr1,width,dat4,snr2,id1)
+     nfqso,ntol,ndepth,lclearave,emedelay,xdt,f0,snr1,width,dat4,snr2,idec)
 
 ! Detect and align with the Q65 sync vector, returning time and frequency
 ! offsets and SNR estimate.
@@ -35,8 +35,8 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
   data sync(1)/99.0/
   save sync
 
+  idec=-1
   snr1=0.
-  id1=0
   dat4=0
   LL=64*(2+mode_q65)
   nfft=nsps
@@ -182,15 +182,14 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
      call q65_dec1(s3,nsubmode,b90ts,codewords,ncw,esnodb,irc,dat4,decoded)
 !     irc=-99  !### TEMPORARY ###
      if(irc.ge.0) then
-!        print*,'A dec1 ',ibw,irc,decoded
+!        print*,'A dec1 ',ibw,irc,esnodb,baud,trim(decoded)
         snr2=esnodb - db(2500.0/baud) + 3.0     !Empirical adjustment
-        id1=1
+        idec=1
         ic=ia2/4;
         base=(sum(ccf1(-ia2:-ia2+ic)) + sum(ccf1(ia2-ic:ia2)))/(2.0+2.0*ic);
         ccf1=ccf1-base
         smax=maxval(ccf1)
         if(smax.gt.10.0) ccf1=10.0*ccf1/smax
-!        go to 100   !### TEMPORARY ###
         go to 200
      endif
   enddo
@@ -257,7 +256,6 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
   endif
 
 200 smax=maxval(ccf1)
-!  if(lavg) id1=10+navg                    !If this is an average decode
   i1=-9999
   i2=-9999
   do i=-ia,ia

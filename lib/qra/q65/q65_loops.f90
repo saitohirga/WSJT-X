@@ -77,9 +77,10 @@ subroutine q65_loops(c00,npts2,nsps,mode_q65,nsubmode,ndepth,jpk0,    &
               !  -1 = invalid params
               !  -2 = decode failed
               !  -3 = CRC mismatch
+!           irc=-99  !###  TEMPORARY ###
            if(irc.ge.0) then
               id2=iaptype+2
-!              print*,'D dec2 ',ibw,irc,id2,decoded
+!              print*,'B dec2 ',ibw,irc,id2,decoded
               go to 100
            endif
         enddo  ! ibw (b90 loop)
