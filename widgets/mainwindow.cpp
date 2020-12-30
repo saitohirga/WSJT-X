@@ -3571,7 +3571,16 @@ void MainWindow::readFromStdout()                             //readFromStdout
         decodedtext.deCallAndGrid(/*out*/deCall,grid);
         {
           auto t = Radio::base_callsign (ui->dxCallEntry->text ());
-          if ((t == deCall || ui->dxCallEntry->text () == deCall || !t.size ()) && rpt.size ()) m_rptRcvd = rpt;
+          auto const& dx_call = decodedtext.call ();
+          if (rpt.size ()       // report in message
+              && (m_baseCall == Radio::base_callsign (dx_call) // for us
+                  || "DE" == dx_call)                          // probably for us
+              && (t == deCall   // DX station base call is QSO partner
+                  || ui->dxCallEntry->text () == deCall // DX station full call is QSO partner
+                  || !t.size ()))                       // not in QSO
+            {
+              m_rptRcvd = rpt;
+            }
         }
 // extract details and send to PSKreporter
         int nsec=QDateTime::currentMSecsSinceEpoch()/1000-m_secBandChanged;
