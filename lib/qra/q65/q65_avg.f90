@@ -66,7 +66,7 @@ subroutine q65_avg(nutc,ntrperiod,LL,ntol,lclearave,xdt,f0,snr1,s3)
 10 return
 
   entry q65_avg2(ntrperiod,ntol,baud,nsubmode,ibwa,ibwb,codewords,ncw,   &
-       xdt,f0,snr1,dat4,idec)
+       xdt,f0,snr1,snr2,dat4,idec)
 
   mode_q65=2**nsubmode
   ibwa=1.8*log(baud*mode_q65) + 2
@@ -114,7 +114,6 @@ subroutine q65_avg(nutc,ntrperiod,LL,ntol,lclearave,xdt,f0,snr1,s3)
           xdtsave(i),f0save(i)
 1001 format(a1,i5.4,f6.1,f6.2,f7.1)
   enddo
-!  if(navg.lt.2) go to 900                  !Must have at least 2
 
   s3avg=s3avg/navg
   nFadingModel=1
@@ -125,7 +124,8 @@ subroutine q65_avg(nutc,ntrperiod,LL,ntol,lclearave,xdt,f0,snr1,s3)
 !     irc=-99  !### TEMPORARY ###
      if(irc.ge.0 .and. plog.ge.PLOG_MIN) then
         snr2=esnodb - db(2500.0/baud) + 3.0     !Empirical adjustment
-        idec=10+navg                            !###
+        snr2=snr2 - db(float(navg))             !Is this right?
+        idec=10+navg
 !        print*,'C dec1 ',ibw,irc,idec,avemsg
         go to 900
      endif
@@ -140,8 +140,10 @@ subroutine q65_avg(nutc,ntrperiod,LL,ntol,lclearave,xdt,f0,snr1,s3)
      b90ts=b90/baud
      call q65_dec2(s3avg,nsubmode,b90ts,esnodb,irc,dat4,avemsg)
      if(irc.ge.0) then
+        snr2=esnodb - db(2500.0/baud) + 3.0     !Empirical adjustment
+        snr2=snr2 - db(float(navg))             !Is this right?
         idec=10*(iaptype+2) + navg
-!        print*,'D dec2 ',ibw,irc,avemsg
+!        print*,'D dec2 ',ibw,dec,snr2,avemsg
         go to 900
      endif
   enddo  ! ibw (b90 loop)
