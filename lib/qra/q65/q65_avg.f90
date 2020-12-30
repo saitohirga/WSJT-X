@@ -123,12 +123,10 @@ subroutine q65_avg(nutc,ntrperiod,LL,nfqso,ntol,lclearave,xdt,f0,snr1,s3)
      b90=1.72**ibw
      b90ts=b90/baud
      call q65_dec1(s3avg,nsubmode,b90ts,codewords,ncw,esnodb,irc,dat4,avemsg)
-!     irc=-99  !### TEMPORARY ###
-     if(irc.ge.0 .and. plog.ge.PLOG_MIN) then
+     if(irc.ge.0) then
         snr2=esnodb - 0.5*db(2500.0/baud) + 3.0     !Empirical adjustment
         snr2=snr2 - db(float(navg))             !Is this right?
         idec=100+navg
-!        print*,'C dec1 ',ibw,irc,idec,avemsg
         go to 900
      endif
   enddo

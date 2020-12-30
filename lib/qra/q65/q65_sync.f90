@@ -180,9 +180,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
      b90=1.72**ibw
      b90ts=b90/baud
      call q65_dec1(s3,nsubmode,b90ts,codewords,ncw,esnodb,irc,dat4,decoded)
-!     irc=-99  !### TEMPORARY ###
      if(irc.ge.0) then
-!        print*,'A dec1 ',ibw,irc,esnodb,baud,trim(decoded)
         snr2=esnodb - db(2500.0/baud) + 3.0     !Empirical adjustment
         idec=1
         ic=ia2/4;
@@ -290,6 +288,8 @@ subroutine q65_dec1(s3,nsubmode,b90ts,codewords,ncw,esnodb,irc,dat4,decoded)
      write(c77,1000) dat4(1:12),dat4(13)/2
 1000 format(12b6.6,b5.5)
      call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
+  else
+     irc=-1
   endif
 
   return

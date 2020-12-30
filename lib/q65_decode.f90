@@ -62,12 +62,12 @@ contains
     complex, allocatable :: c00(:)        !Analytic signal, 6000 Sa/s
     complex, allocatable :: c0(:)         !Analytic signal, 6000 Sa/s
 
-    id1=0
-    id2=0
+    idec=-1
     mode65=2**nsubmode
     npts=ntrperiod*12000
     nfft1=ntrperiod*12000
     nfft2=ntrperiod*6000
+    if(lclearave) nsave=0
     allocate(dd(npts))
     allocate (c00(0:nfft1-1))
     allocate (c0(0:nfft1-1))
