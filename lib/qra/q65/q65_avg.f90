@@ -51,6 +51,7 @@ subroutine q65_avg(nutc,ntrperiod,LL,ntol,lclearave,baud,nsubmode,   &
 
 ! Save data for message averaging
   nsave=nsave+1
+  nsave=mod(nsave-1,MAXAVE)+1
   n=nutc
   if(ntrperiod.ge.60) n=100*n
   write(cutc,'(i6.6)') n
