@@ -1,5 +1,4 @@
-subroutine q65_avg(nutc,ntrperiod,LL,ntol,lclearave,baud,nsubmode,   &
-     ibwa,ibwb,codewords,ncw,xdt,f0,snr1,s3)
+subroutine q65_avg(nutc,ntrperiod,LL,ntol,lclearave,xdt,f0,snr1,s3)
 
 ! Accumulate Q65 spectra s3(LL,63) and associated parameters for
 ! message averaging.
@@ -66,8 +65,8 @@ subroutine q65_avg(nutc,ntrperiod,LL,ntol,lclearave,baud,nsubmode,   &
 
 10 return
 
-  entry q65_avg2(nutc,ntrperiod,LL,ntol,lclearave,baud,nsubmode,   &
-     ibwa,ibwb,codewords,ncw,xdt,f0,snr1,s3,dat4,idec)
+  entry q65_avg2(ntrperiod,ntol,baud,nsubmode,ibwa,ibwb,codewords,ncw,   &
+       xdt,f0,snr1,dat4,idec)
 
   mode_q65=2**nsubmode
   ibwa=1.8*log(baud*mode_q65) + 2

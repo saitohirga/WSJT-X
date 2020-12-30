@@ -160,8 +160,8 @@ contains
 
 ! No single-transmission decode.
     if(iand(ndepth,16).eq.16) then
-       call q65_avg2(nutc,ntrperiod,LL,ntol,lclearave,     &
-            baud,nsubmode,ibwa,ibwb,codewords,ncw,xdt,f0,snr1,s3,dat4,idec)
+       call q65_avg2(ntrperiod,ntol,baud,nsubmode,ibwa,ibwb,codewords,ncw, &
+            xdt,f0,snr1,dat4,idec)
     endif
     
 100 decoded='                                     '
