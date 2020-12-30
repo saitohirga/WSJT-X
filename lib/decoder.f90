@@ -464,7 +464,7 @@ contains
     integer, intent(in) :: nsum
     integer, intent(in) :: minsync
 
-    integer i,nap,nft
+    integer i,nap
     logical is_deep,is_average
     character decoded*22,csync*2,cflags*3
 
@@ -774,15 +774,21 @@ contains
     character(len=37), intent(in) :: decoded
     integer, intent(in) :: idec
     integer, intent(in) :: ntrperiod
+    character*3 cflags
+
+    write(cflags,1000) idec
+1000 format('q',i2)
+    if(cflags(2:2).eq.' ') cflags(2:3)=cflags(3:3)//' '
+    if(cflags(2:2).eq.'-') cflags='   '
 
     if(ntrperiod.lt.60) then
-       write(*,1001) nutc,nsnr,dt,nint(freq),decoded,idec
-1001   format(i6.6,i4,f5.1,i5,' : ',1x,a37,1x,i2)
+       write(*,1001) nutc,nsnr,dt,nint(freq),decoded,cflags
+1001   format(i6.6,i4,f5.1,i5,' : ',1x,a37,1x,a3)
     write(13,1002) nutc,nint(sync),nsnr,dt,freq,0,decoded
 1002 format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a37,' Q65')
     else
-       write(*,1003) nutc,nsnr,dt,nint(freq),decoded,idec
-1003   format(i4.4,i4,f5.1,i5,' : ',1x,a37,1x,i2)
+       write(*,1003) nutc,nsnr,dt,nint(freq),decoded,cflags
+1003   format(i4.4,i4,f5.1,i5,' : ',1x,a37,1x,a3)
        write(13,1004) nutc,nint(sync),nsnr,dt,freq,0,decoded
 1004   format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a37,' Q65')
 

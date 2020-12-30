@@ -166,6 +166,19 @@ contains
     
 100 decoded='                                     '
     if(idec.gt.0) then
+
+! ------------------------------------------------------
+! idec Meaning
+! ------------------------------------------------------
+! -1:  No decode
+!  1:  Decode with AP for "MyCall DxCall ?"
+!  2:  Decode without AP information
+!  3:  Decode with AP for "CQ ? ?"
+!  4:  Decode with AP for "MyCall ? ?"
+! ------------------------------------------------------
+! Second digit (if any) is number of sequences averaged.
+! ------------------------------------------------------
+
 ! Unpack decoded message for display to user
        write(c77,1000) dat4(1:12),dat4(13)/2
 1000   format(12b6.6,b5.5)

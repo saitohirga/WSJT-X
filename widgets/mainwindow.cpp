@@ -3359,8 +3359,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
           continue;
         }
       }
-    if (m_mode!="FT8" and m_mode!="FT4"
-        && !m_mode.startsWith ("FST4")) {
+    if (m_mode!="FT8" and m_mode!="FT4" and !m_mode.startsWith ("FST4") and m_mode!="Q65") {
       //Pad 22-char msg to at least 37 chars
       line_read = line_read.left(44) + "              " + line_read.mid(44);
     }
@@ -3375,7 +3374,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
     } else {
       m_nDecodes+=1;
       ndecodes_label.setText(QString::number(m_nDecodes));
-      if(m_mode=="JT4" or m_mode=="JT65") {
+      if(m_mode=="JT4" or m_mode=="JT65" or m_mode=="Q65") {
         //### Do something about Q65 here ?  ###
         int nf=line_read.indexOf("f");
         if(nf>0) {
@@ -3388,13 +3387,17 @@ void MainWindow::readFromStdout()                             //readFromStdout
           navg=line_read.mid(nd+2,1).toInt();
           if(line_read.mid(nd+2,1)=="*") navg=10;
         }
-        if(m_mode=="JT65" or m_mode=="JT4") {
-          int na=-1;
-          if(nf<0 and nd<0) na=line_read.indexOf("a");
-          if(na>0) {
-            navg=line_read.mid(na+2,1).toInt();
-            if(line_read.mid(na+2,1)=="*") navg=10;
-          }
+        int na=-1;
+        if(nf<0 and nd<0) na=line_read.indexOf("a");
+        if(na>0) {
+          navg=line_read.mid(na+2,1).toInt();
+          if(line_read.mid(na+2,1)=="*") navg=10;
+        }
+        int nq=-1;
+        if(nf<0 and nd<0 and na<0) nq=line_read.indexOf("q");
+        if(nq>0) {
+          navg=line_read.mid(nq+2,1).toInt();
+          if(line_read.mid(nq+2,1)=="*") navg=10;
         }
         if(navg>=2) bAvgMsg=true;
       }
@@ -6389,6 +6392,10 @@ void MainWindow::on_actionQ65_triggered()
   switch_mode (Modes::Q65);
 //                         012345678901234567890123456789012345
   displayWidgets(nWidgets("111111010110110100111000000100000000"));
+  ui->lh_decodes_title_label->setText(tr ("Single-Period Decodes"));
+  ui->rh_decodes_title_label->setText(tr ("Average Decodes"));
+  ui->lh_decodes_headings_label->setText("UTC   dB   DT Freq    " + tr ("Message"));
+  ui->rh_decodes_headings_label->setText("UTC   dB   DT Freq    " + tr ("Message"));
   statusChanged();
 }
 
