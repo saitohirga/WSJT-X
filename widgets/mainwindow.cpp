@@ -3577,7 +3577,16 @@ void MainWindow::readFromStdout()                             //readFromStdout
         decodedtext.deCallAndGrid(/*out*/deCall,grid);
         {
           auto t = Radio::base_callsign (ui->dxCallEntry->text ());
-          if ((t == deCall || ui->dxCallEntry->text () == deCall || !t.size ()) && rpt.size ()) m_rptRcvd = rpt;
+          auto const& dx_call = decodedtext.call ();
+          if (rpt.size ()       // report in message
+              && (m_baseCall == Radio::base_callsign (dx_call) // for us
+                  || "DE" == dx_call)                          // probably for us
+              && (t == deCall   // DX station base call is QSO partner
+                  || ui->dxCallEntry->text () == deCall // DX station full call is QSO partner
+                  || !t.size ()))                       // not in QSO
+            {
+              m_rptRcvd = rpt;
+            }
         }
 // extract details and send to PSKreporter
         int nsec=QDateTime::currentMSecsSinceEpoch()/1000-m_secBandChanged;
@@ -4164,7 +4173,14 @@ void MainWindow::guiUpdate()
       }
     }
 
-    m_currentMessage = QString::fromLatin1(msgsent);
+    {
+      auto temp = m_currentMessage;
+      m_currentMessage = QString::fromLatin1(msgsent);
+      if (m_currentMessage != temp) // check if tx message changed
+        {
+          statusUpdate ();
+        }
+    }
     m_bCallingCQ = CALLING == m_QSOProgress
       || m_currentMessage.contains (QRegularExpression {"^(CQ|QRZ) "});
     if(m_mode=="FT8" or m_mode=="FT4") {
@@ -8389,7 +8405,8 @@ void MainWindow::statusUpdate () const
                                   m_hisGrid, m_tx_watchdog,
                                   submode != QChar::Null ? QString {submode} : QString {}, m_bFastMode,
                                   static_cast<quint8> (m_config.special_op_id ()),
-                                  ftol, tr_period, m_multi_settings->configuration_name ());
+                                  ftol, tr_period, m_multi_settings->configuration_name (),
+                                  m_currentMessage);
 }
 
 void MainWindow::childEvent (QChildEvent * e)
