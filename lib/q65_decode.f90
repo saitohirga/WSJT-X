@@ -153,9 +153,9 @@ contains
 
        call timer('q65loops',0)
        call q65_loops(c00,npts/2,nsps/2,mode65,nsubmode,ndepth,jpk0,   &
-            xdt,f0,width,iaptype,xdt1,f1,snr2,dat4,idec)
+            xdt,f0,iaptype,xdt1,f1,snr2,dat4,idec)
        call timer('q65loops',1)
-       if(id2.gt.0) exit             !Exit main loop after a successful decode
+       if(idec.gt.0) go to 100       !Successful decode, we're done
     enddo
 
 ! No single-transmission decode.

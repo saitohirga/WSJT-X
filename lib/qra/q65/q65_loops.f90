@@ -1,5 +1,5 @@
 subroutine q65_loops(c00,npts2,nsps,mode_q65,nsubmode,ndepth,jpk0,    &
-     xdt0,f0,width,iaptype,xdt1,f1,snr2,dat4,id2)
+     xdt0,f0,iaptype,xdt1,f1,snr2,dat4,idec)
 
   use packjt77
   use timer_module, only: timer
@@ -19,16 +19,18 @@ subroutine q65_loops(c00,npts2,nsps,mode_q65,nsubmode,ndepth,jpk0,    &
           51,51,42,42,50,25,31,35,57,30, 1,54,54,10,10,22,44,58,57,40, &
           21,21,19/
 
-  id2=-1
+  idec=-1
   ircbest=9999
   allocate(c0(0:npts2-1))
   irc=-99
   s3lim=20.
+  baud=6000.0/nsps
 
   idfmax=3
   idtmax=3
-  ibwmin=1
-  ibwmax=3
+  ibwa=max(1,int(1.8*log(baud*mode_q65)) + 2)
+  ibwb=min(10,ibwa+4)
+  ibw0=(ibwa+ibwb)/2
   maxdist=5
   if(iand(ndepth,3).ge.2) then
      idfmax=5
@@ -36,11 +38,14 @@ subroutine q65_loops(c00,npts2,nsps,mode_q65,nsubmode,ndepth,jpk0,    &
      maxdist=15
   endif
   if(iand(ndepth,3).eq.3) then
-     ibwmax=5
+     maxdist=25
+     ibwa=max(1,ibwa-1)
+     ibwb=min(10,ibwb+1)
   endif
+
+  
   LL=64*(mode_q65+2)
   napmin=99
-  baud=6000.0/nsps
   xdt1=xdt0
   f1=f0
 
@@ -63,13 +68,10 @@ subroutine q65_loops(c00,npts2,nsps,mode_q65,nsubmode,ndepth,jpk0,    &
            s3=s3/base
            where(s3(1:LL*NN)>s3lim) s3(1:LL*NN)=s3lim
         endif
-        do ibw=ibwmin,ibwmax
-           nbw=ibw/2
-           if(mod(ibw,2).eq.0) nbw=-nbw
-           ndist=ndf**2 + ndt**2 + nbw**2
+        do ibw=ibwa,ibwb
+           ndist=ndf**2 + ndt**2 + (ibw-ibw0)**2
            if(ndist.gt.maxdist) cycle
-           xx=1.885*log(3.0*width)+nbw
-           b90=1.7**xx
+           b90=1.72**ibw
            if(b90.gt.345.0) cycle
            b90ts = b90/baud
            call q65_dec2(s3,nsubmode,b90ts,esnodb,irc,dat4,decoded)
@@ -77,17 +79,13 @@ subroutine q65_loops(c00,npts2,nsps,mode_q65,nsubmode,ndepth,jpk0,    &
               !  -1 = invalid params
               !  -2 = decode failed
               !  -3 = CRC mismatch
-!           irc=-99  !###  TEMPORARY ###
-           if(irc.ge.0) then
-              id2=iaptype+2
-!              print*,'B dec2 ',ibw,irc,id2,decoded
-              go to 100
-           endif
+           if(irc.ge.0) go to 100
         enddo  ! ibw (b90 loop)
      enddo  ! idt (DT loop)
   enddo  ! idf (f0 loop)
 
 100 if(irc.ge.0) then
+     idec=iaptype+2
      snr2=esnodb - db(2500.0/baud)
      xdt1=xdt0 +  nsps*ndt/(16.0*6000.0)
      f1=f0 + 0.5*baud*ndf

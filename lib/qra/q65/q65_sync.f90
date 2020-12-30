@@ -250,7 +250,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
         enddo
 !        write(*,3002) 'B',xdt,f0,sum(s3)
 !3002    format(a1,f7.2,2f8.1)
-        call q65_avg(nutc,ntrperiod,LL,ntol,lclearave,xdt,f0,snr1,s3)
+        call q65_avg(nutc,ntrperiod,LL,nfqso,ntol,lclearave,xdt,f0,snr1,s3)
      endif
   endif
 

@@ -3498,6 +3498,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
           if(SpecOp::FOX==m_config.special_op_id() and for_us and (audioFreq<1000)) bDisplayRight=true;
           if(SpecOp::FOX!=m_config.special_op_id() and (for_us or (abs(audioFreq - m_wideGraph->rxFreq()) <= 10))) bDisplayRight=true;
         }
+        if((abs(audioFreq - m_wideGraph->rxFreq()) <= ui->sbFtol->value()) and
+           m_mode=="Q65") bDisplayRight=true;
       } else {
         if((abs(audioFreq - m_wideGraph->rxFreq()) <= 10) and
            !m_config.enable_VHF_features()) bDisplayRight=true;

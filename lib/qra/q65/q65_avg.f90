@@ -1,4 +1,4 @@
-subroutine q65_avg(nutc,ntrperiod,LL,ntol,lclearave,xdt,f0,snr1,s3)
+subroutine q65_avg(nutc,ntrperiod,LL,nfqso,ntol,lclearave,xdt,f0,snr1,s3)
 
 ! Accumulate Q65 spectra s3(LL,63) and associated parameters for
 ! message averaging.
@@ -47,7 +47,7 @@ subroutine q65_avg(nutc,ntrperiod,LL,ntol,lclearave,xdt,f0,snr1,s3)
   endif
 
   do i=1,MAXAVE       !Don't save info more than once for same UTC and freq
-     if(nutc.eq.iutc(i) .and. abs(nfreq-f0save(i)).le.ntol) go to 10
+     if(nutc.eq.iutc(i) .and. abs(nfqso-f0save(i)).le.ntol) go to 10
   enddo
 
 ! Save data for message averaging
