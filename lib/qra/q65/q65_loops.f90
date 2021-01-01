@@ -35,14 +35,13 @@ subroutine q65_loops(c00,npts2,nsps,mode_q65,nsubmode,ndepth,jpk0,    &
   if(iand(ndepth,3).ge.2) then
      idfmax=5
      idtmax=5
-     maxdist=15
+     maxdist=10
   endif
   if(iand(ndepth,3).eq.3) then
-     maxdist=25
+     maxdist=15
      ibwa=max(1,ibwa-1)
      ibwb=min(10,ibwb+1)
   endif
-
   
   LL=64*(mode_q65+2)
   napmin=99
@@ -57,17 +56,15 @@ subroutine q65_loops(c00,npts2,nsps,mode_q65,nsubmode,ndepth,jpk0,    &
      call twkfreq(c00,c0,npts2,6000.0,a)
      do idt=1,idtmax
         ndt=idt/2
-        if(iaptype.eq.0) then
-           if(mod(idt,2).eq.0) ndt=-ndt
-           jpk=jpk0 + nsps*ndt/16              !tsym/16
-           if(jpk.lt.0) jpk=0
-           call timer('spec64  ',0)
-           call spec64(c0,nsps,65,mode_q65,jpk,s3,LL,NN)
-           call timer('spec64  ',1)
-           call pctile(s3,LL*NN,40,base)
-           s3=s3/base
-           where(s3(1:LL*NN)>s3lim) s3(1:LL*NN)=s3lim
-        endif
+        if(mod(idt,2).eq.0) ndt=-ndt
+        jpk=jpk0 + nsps*ndt/16              !tsym/16
+        if(jpk.lt.0) jpk=0
+        call timer('spec64  ',0)
+        call spec64(c0,nsps,65,mode_q65,jpk,s3,LL,NN)
+        call timer('spec64  ',1)
+        call pctile(s3,LL*NN,40,base)
+        s3=s3/base
+        where(s3(1:LL*NN)>s3lim) s3(1:LL*NN)=s3lim
         do ibw=ibwa,ibwb
            ndist=ndf**2 + ndt**2 + (ibw-ibw0)**2
            if(ndist.gt.maxdist) cycle
@@ -87,6 +84,9 @@ subroutine q65_loops(c00,npts2,nsps,mode_q65,nsubmode,ndepth,jpk0,    &
   enddo  ! idf (f0 loop)
 
 100 if(irc.ge.0) then
+!     write(55,3055) ndepth,iaptype,idf,idt,ibw,ndist,irc,sum(s3(1:LL*NN)), &
+!          trim(decoded)
+!3055 format(7i4,f10.1,1x,a)
      idec=iaptype+2
      snr2=esnodb - db(2500.0/baud)
      xdt1=xdt0 +  nsps*ndt/(16.0*6000.0)

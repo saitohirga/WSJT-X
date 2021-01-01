@@ -23,7 +23,6 @@ subroutine q65_avg(nutc,ntrperiod,LL,nfqso,ntol,lclearave,xdt,f0,snr1,s3)
      iutc=-1
      iseq=-1
      f0save=0.0
-     dtdiff=0.2
      nsave=0
      LL0=LL
      first=.false.
@@ -73,6 +72,7 @@ subroutine q65_avg(nutc,ntrperiod,LL,nfqso,ntol,lclearave,xdt,f0,snr1,s3)
 
   if(nsave.lt.2) go to 900
   mode_q65=2**nsubmode
+  f0diff=baud*mode_q65
   ibwa=1.8*log(baud*mode_q65) + 2
   ibwb=min(10,ibwa+4)
   snr1sum=0.
@@ -87,7 +87,7 @@ subroutine q65_avg(nutc,ntrperiod,LL,nfqso,ntol,lclearave,xdt,f0,snr1,s3)
      if(iutc(i).lt.0) cycle
      if(iseq(i).ne.iseq(nsave)) cycle               !Sequence must match
      if(abs(xdt-xdtsave(i)).gt.dtdiff) cycle        !DT must be close
-     if(abs(f0-f0save(i)).gt.float(ntol)) cycle   !Freq must match
+     if(abs(f0-f0save(i)).gt.f0diff) cycle          !Freq must match
      cused(i)='$'                                   !Flag for "use this one"
      s3avg=s3avg + s3save(:,:,i)                    !Add this spectrum
      snr1sum=snr1sum + snr1save(i)
@@ -97,7 +97,6 @@ subroutine q65_avg(nutc,ntrperiod,LL,nfqso,ntol,lclearave,xdt,f0,snr1,s3)
      iused(navg)=i
   enddo
   if(navg.lt.MAXAVE) iused(navg+1)=0
-  if(navg.lt.2) go to 900
   
 ! Find averages of snr1, xdt, and f0 used in this decoding attempt.
   snr1ave=0.
@@ -118,6 +117,7 @@ subroutine q65_avg(nutc,ntrperiod,LL,nfqso,ntol,lclearave,xdt,f0,snr1,s3)
           xdtsave(i),f0save(i)
 1001 format(a1,i5.4,f6.1,f6.2,f7.1)
   enddo
+  if(navg.lt.2) go to 900
 
   s3avg=s3avg/navg
   nFadingModel=1
@@ -129,7 +129,7 @@ subroutine q65_avg(nutc,ntrperiod,LL,nfqso,ntol,lclearave,xdt,f0,snr1,s3)
      call timer('dec1avg ',1)
      if(irc.ge.0) then
         snr2=esnodb - 0.5*db(2500.0/baud) + 3.0     !Empirical adjustment
-        snr2=snr2 - db(float(navg))             !Is this right?
+        snr2=snr2 - db(float(navg))                 !Is this right?
         idec=100+navg
         go to 900
      endif

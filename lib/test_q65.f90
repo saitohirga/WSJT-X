@@ -4,7 +4,7 @@ program test_q65
   character*22 msg
   character*8 arg
   character*1 csubmode
-  integer naptype(1:6)
+  integer naptype(0:5)
   logical decok
 
   nargs=iargc()
@@ -93,8 +93,8 @@ program test_q65
 !1000 format(/'Depth:',i2,'  AP:',i2,'  df:',i3,'  dt:',i3,'  bw1:',i3,'  bw2:',i3,  &
 !          '  dist:',i3)
   
-  write(*,1010) (j,j=1,6)
-  write(12,1010) (j,j=1,6)
+  write(*,1010) (j,j=0,5)
+  write(12,1010) (j,j=0,5)
 1010 format(' SNR  Mode  d Dop Sync Avg Dec Bad',6i4,'  tdec   avg  rms'/  &
           75('-'))
 
