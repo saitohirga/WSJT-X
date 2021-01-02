@@ -130,6 +130,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
 ! Compute 2D ccf using all 85 symbols in the list message
      ccf=0.
      iia=200.0/df
+
      do lag=lag1,lag2
         do k=1,85
            j=j0 + NSTEP*(k-1) + 1 + lag
@@ -141,6 +142,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
            endif
         enddo
      enddo
+
      ccfmax=maxval(ccf(-ia:ia,:))
      if(ccfmax.gt.ccf_best) then
         ccf_best=ccfmax
@@ -164,7 +166,11 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
         cycle
      endif
      n=n+1
-     if(j.ge.1 .and. j.le.jz) s3(-64:LL-65,n)=s1(i1:i2,j)
+     if(j.ge.1 .and. j.le.jz) then
+        do i=0,LL
+           s3(i-64,n)=s1(i+i1,j)
+        enddo
+     endif
   enddo
 
   nsubmode=0
