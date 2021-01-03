@@ -167,7 +167,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
      endif
      n=n+1
      if(j.ge.1 .and. j.le.jz) then
-        do i=0,LL
+        do i=0,LL-1
            s3(i-64,n)=s1(i+i1,j)
         enddo
      endif
