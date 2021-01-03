@@ -1,6 +1,6 @@
 program test_q65
 
-  character*75 cmd1,cmd2,line
+  character*82 cmd1,cmd2,line
   character*22 msg
   character*8 arg
   character*1 csubmode
@@ -8,9 +8,9 @@ program test_q65
   logical decok
 
   nargs=iargc()
-  if(nargs.ne.10) then
-     print*,'Usage:   test_q65        "msg"       A-D depth freq  DT fDop TRp Q nfiles SNR'
-     print*,'Example: test_q65 "K1ABC W9XYZ EN37"  A    3   1500 0.0  5.0  60 3  100   -20'
+  if(nargs.ne.12) then
+     print*,'Usage:   test_q65        "msg"       A-D depth freq  DT fDop  f1 Stp TRp Q nfiles SNR'
+     print*,'Example: test_q65 "K1ABC W9XYZ EN37"  A    3   1500 0.0  5.0 0.0  1   60 3  100   -20'
      print*,'Use SNR = 0 to loop over all relevant SNRs'
      print*,'Use MyCall=K1ABC, HisCall=W9XYZ, HisGrid="EN37" for AP decodes'
      print*,'Option Q sets QSOprogress (0-5) for AP decoding.'
@@ -28,12 +28,16 @@ program test_q65
   call getarg(6,arg)
   read(arg,*) fDop
   call getarg(7,arg)
-  read(arg,*) ntrperiod
+  read(arg,*) f1
   call getarg(8,arg)
-  read(arg,*) nQSOprogress
+  read(arg,*) nstp
   call getarg(9,arg)
-  read(arg,*) nfiles
+  read(arg,*) ntrperiod
   call getarg(10,arg)
+  read(arg,*) nQSOprogress
+  call getarg(11,arg)
+  read(arg,*) nfiles
+  call getarg(12,arg)
   read(arg,*) snr
 
   if(ntrperiod.eq.15) then
@@ -68,7 +72,7 @@ program test_q65
 
 !                1         2         3         4         5         6         7
 !       123456789012345678901234567890123456789012345678901234567890123456789012345'
-  cmd1='q65sim   "K1ABC W9XYZ EN37      " A 1500  5.0  0.0  60  100   -10.0 > junk0'
+  cmd1='q65sim   "K1ABC W9XYZ EN37      " A 1500  5.0  0.0 0.0  1  60  100   -10.0 > junk0'
   cmd2='jt9 -3 -p  15 -L 300 -H 3000 -d  3 -b A -Q 3 -f 1500 *.wav > junk'
 
   write(cmd1(10:33),'(a)') '"'//msg//'"'
@@ -76,15 +80,17 @@ program test_q65
   write(cmd1(37:40),'(i4)') nf0
   write(cmd1(41:45),'(f5.0)') fDop
   write(cmd1(46:50),'(f5.2)') dt
-  write(cmd1(51:54),'(i4)') ntrperiod
-  write(cmd1(55:59),'(i5)') nfiles
+  write(cmd1(51:54),'(f4.0)') f1
+  write(cmd1(55:57),'(i3)') nstp
+  write(cmd1(58:61),'(i4)') ntrperiod
+  write(cmd1(62:66),'(i5)') nfiles
 
   write(cmd2(11:13),'(i3)') ntrperiod
   write(cmd2(33:34),'(i2)') ndepth
   write(cmd2(44:44),'(i1)') nQSOprogress
   write(cmd2(49:52),'(i4)') nf0
   cmd2(39:39)=csubmode
-
+  
   call system('rm -f *.wav')
 
 !  call qra_params(ndepth,maxaptype,idf0max,idt0max,ibwmin,ibwmax,maxdist)
@@ -110,7 +116,7 @@ program test_q65
      nfalse=0
      naptype=0
      ndecn=0
-     write(cmd1(63:67),'(f5.1)') snr1
+     write(cmd1(70:74),'(f5.1)') snr1
      call system(cmd1)
      call sec0(0,tdec)
      call system(cmd2)
