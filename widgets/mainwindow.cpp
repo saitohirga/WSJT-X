@@ -1034,6 +1034,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
 void MainWindow::not_GA_warning_message ()
 {
+<<<<<<< HEAD
   // MessageBox::critical_message (this,
   //                               "This is a pre-release version of WSJT-X 2.3.0 made\n"
   //                               "available for testing purposes.  By design it will\n"
@@ -1042,6 +1043,16 @@ void MainWindow::not_GA_warning_message ()
   // if (now >= QDateTime {{2021, 1, 19}, {0, 0}, Qt::UTC}) {
   //   Q_EMIT finished ();
   // }
+=======
+  MessageBox::critical_message (this,
+                                "This is a pre-release version of WSJT-X 2.3.0 made\n"
+                                "available for testing purposes.  By design it will\n"
+                                "be nonfunctional after 0000 UTC on Jan 26, 2021.");
+  auto now = QDateTime::currentDateTimeUtc ();
+  if (now >= QDateTime {{2021, 1, 26}, {0, 0}, Qt::UTC}) {
+    Q_EMIT finished ();
+  }
+>>>>>>> master
 }
 
 void MainWindow::initialize_fonts ()
@@ -2598,7 +2609,7 @@ void MainWindow::on_actionCopyright_Notice_triggered()
                            "\"The algorithms, source code, look-and-feel of WSJT-X and related "
                            "programs, and protocol specifications for the modes FSK441, FST4, FT8, "
                            "JT4, JT6M, JT9, JT65, JTMS, QRA64, Q65, ISCAT, MSK144 are Copyright (C) "
-                           "2001-2020 by one or more of the following authors: Joseph Taylor, "
+                           "2001-2021 by one or more of the following authors: Joseph Taylor, "
                            "K1JT; Bill Somerville, G4WJS; Steven Franke, K9AN; Nico Palermo, "
                            "IV3NWV; Greg Beam, KI7MT; Michael Black, W9MDB; Edson Pereira, PY2SDR; "
                            "Philip Karn, KA9Q; and other members of the WSJT Development Group.\"");
