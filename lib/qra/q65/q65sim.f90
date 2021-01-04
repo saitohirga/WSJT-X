@@ -125,8 +125,9 @@ program q65sim
         isym=i/nsps + 1
         if(isym.gt.nsym) exit
         if(isym.ne.isym0) then
-           freq = f0 + itone(isym)*baud*mode65 + f1*i*dt/60.0
+           freq = f0 + f1*i*dt/60.0
            if(nstp.ne.0) freq=nstp*nint(freq/nstp)
+           freq=freq + itone(isym)*baud*mode65
            dphi=twopi*freq*dt
            isym0=isym
         endif

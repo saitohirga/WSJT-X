@@ -93,16 +93,12 @@ program test_q65
   
   call system('rm -f *.wav')
 
-!  call qra_params(ndepth,maxaptype,idf0max,idt0max,ibwmin,ibwmax,maxdist)
-!  write(*,1000) ndepth,maxaptype,idf0max,idt0max,ibwmin,ibwmax,maxdist
-!  write(12,1000) ndepth,maxaptype,idf0max,idt0max,ibwmin,ibwmax,maxdist
-!1000 format(/'Depth:',i2,'  AP:',i2,'  df:',i3,'  dt:',i3,'  bw1:',i3,'  bw2:',i3,  &
-!          '  dist:',i3)
-  
+  write(*,1008) ntrperiod,csubmode,ndepth,fDop,f1,nstp
+1008 format('Mode:',i4,a1,'  Depth:',i3,'  fDop:',f6.1,'  Drift:',f6.1,  &
+          '  Steps:',i3)
   write(*,1010) (j,j=0,5)
   write(12,1010) (j,j=0,5)
-1010 format(' SNR  Mode  d Dop Sync Avg Dec Bad',6i4,'  tdec   avg  rms'/  &
-          75('-'))
+1010 format(' SNR Sync Avg Dec  Bad',6i4,'  tdec   avg  rms'/64('-'))
 
   dterr=tsym/4.0
   nferr=max(1,nint(0.5*baud),nint(fdop/3.0))
@@ -169,17 +165,17 @@ program test_q65
         snr_avg=snrsum/nsum
         snr_rms=sqrt(snrsq/nsum - snr_avg**2)
      endif
-     write(*,1100) snr1,ntrperiod,csubmode,ndepth,nint(fDop),nsync,ndecn,     &
-          ndec1,nfalse,naptype,tdec/nfiles,snr_avg,snr_rms
-     write(12,1100) snr1,ntrperiod,csubmode,ndepth,nint(fDop),nsync,ndecn,    &
-          ndec1,nfalse,naptype,tdec/nfiles,snr_avg,snr_rms
-1100 format(f5.1,i4,a1,i3,5i4,i5,5i4,f6.2,f6.1,f5.1)
+     write(*,1100) snr1,nsync,ndecn,ndec1,nfalse,naptype,tdec/nfiles,  &
+          snr_avg,snr_rms
+     write(12,1100) snr1,nsync,ndecn,ndec1,nfalse,naptype,tdec/nfiles, &
+          snr_avg,snr_rms
+1100 format(f5.1,4i4,i5,5i4,f6.2,f6.1,f5.1)
      if(ndec1.lt.nfiles/2 .and. ndec1z.ge.nfiles/2) then
         snr_thresh=snr1 + float(nfiles/2 - ndec1)/(ndec1z-ndec1)
         open(13,file='snr_thresh.out',status='unknown',position='append')
         write(13,1200) ntrperiod,csubmode,ndepth,nQSOprogress,nfiles,   &
-             fdop,snr_thresh,trim(msg)
-1200    format(i3,a1,2i3,i5,2f7.1,2x,a)
+             fdop,f1,nstp,nfalse,snr_thresh,trim(msg)
+1200    format(i3,a1,2i3,i5,2f7.1,2i3,f7.1,2x,a)
         close(13)
      endif
      flush(6)
