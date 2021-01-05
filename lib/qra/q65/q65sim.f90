@@ -22,7 +22,10 @@ program q65sim
   if(nargs.ne.10) then
      print*,'Usage:   q65sim         "msg"     A-E freq fDop DT  f1 Stp TRp Nfile SNR'
      print*,'Example: q65sim "K1ABC W9XYZ EN37" A  1500 0.0 0.0 0.0  1   60   1   -26'
-     print*,'         fDop: Doppler spread; f1: drift rate (Hz/min); Stp: step size (Hz)'
+     print*,'         fDop = Doppler spread'
+     print*,'         f1   = Drift or Doppler rate (Hz/min)'
+     print*,'         Stp  = Step size (Hz)'
+     print*,'         Stp  = 0 implies no Doppler tracking'
      go to 999
   endif
   call getarg(1,msg)
@@ -125,9 +128,9 @@ program q65sim
         isym=i/nsps + 1
         if(isym.gt.nsym) exit
         if(isym.ne.isym0) then
-           freq = f0 + f1*i*dt/60.0
-           if(nstp.ne.0) freq=nstp*nint(freq/nstp)
-           freq=freq + itone(isym)*baud*mode65
+           freq_drift=f1*i*dt/60.0
+           if(nstp.ne.0) freq_drift=freq_drift - nstp*nint(freq_drift/nstp)
+           freq = f0 + freq_drift + itone(isym)*baud*mode65
            dphi=twopi*freq*dt
            isym0=isym
         endif
