@@ -511,7 +511,7 @@ Format:
     <message>
         <location filename="../Configuration.cpp" line="1880"/>
         <source>Pending DNS lookup, please try again later</source>
-        <translation type="unfinished"></translation>
+        <translation>Afventer DNS-opslag. Prøv igen senere</translation>
     </message>
     <message>
         <location filename="../Configuration.cpp" line="2223"/>
@@ -531,12 +531,12 @@ Format:
     <message>
         <location filename="../Configuration.cpp" line="2435"/>
         <source>UDP server DNS lookup failed</source>
-        <translation type="unfinished"></translation>
+        <translation>UDP-server DNS-opslag mislykkedes</translation>
     </message>
     <message>
         <location filename="../Configuration.cpp" line="2459"/>
         <source>MAC-ambiguous multicast groups addresses not supported</source>
-        <translation type="unfinished"></translation>
+        <translation>MAC-tvetydige multicast-grupper adresser understøttes ikke</translation>
     </message>
     <message>
         <location filename="../Configuration.cpp" line="2477"/>
@@ -2262,12 +2262,12 @@ Fejl(%2): %3</translation>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1143"/>
         <source>Decode other Hounds calling above 1000 Hz audio offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Afkod andre Hounds, der kalder over 1000 Hz offset</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1192"/>
         <source>Enable auto response to the first decode from a new DXCC or new call on the current band.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktivér automatisk reaktion på den første afkodning fra et nyt DXCC eller nyt opkald på det aktuelle bånd.</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="2615"/>
@@ -5332,7 +5332,7 @@ Fejl(%2): %3</translation>
     <message>
         <location filename="../widgets/widegraph.cpp" line="24"/>
         <source>User Defined</source>
-        <translation type="unfinished">Bruger Defineret</translation>
+        <translation>Bruger Defineret</translation>
     </message>
     <message>
         <location filename="../widgets/widegraph.cpp" line="28"/>
@@ -6111,27 +6111,27 @@ transmissionsperioder.</translation>
     <message>
         <location filename="../Configuration.ui" line="1888"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the service port number of the UDP server that WSJT-X should send updates to. If this is zero no updates will be sent.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt; &lt;p&gt; Indtast serviceportnummeret på den UDP-server, som WSJT-X skal sende opdateringer til. Hvis denne er nul, sendes der ingen opdateringer. &lt;/p&gt; &lt;/body&gt; &lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1898"/>
         <source>Outgoing interfaces:</source>
-        <translation type="unfinished"></translation>
+        <translation>Udgående Interface</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1908"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When sending updates to a multicast group address it is necessary to specify which network interface(s) to send them to. If the loop-back interface is multicast capable then at least that one will be selected.&lt;/p&gt;&lt;p&gt;For most users the loop-back interface is all that is needed, that will allow multiple other applications on the same machine to interoperate with WSJT-X. If applications running on other hosts are to receive status updates then a suitable network interface should be used.&lt;/p&gt;&lt;p&gt;On some Linux systems it may be necessary to enable multicast on the loop-back network interface.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt; Når der sendes opdateringer til en multicast-gruppeadresse, er det nødvendigt at angive, hvilke (n) netværksgrænseflade (r) de skal sendes til. Hvis loop-back-grænsefladen er multicast-kompatibel, vælges i det mindste den ene.&lt;/p&gt; &lt;p&gt; For de fleste brugere er loop-back-interface alt, hvad der er behov for, hvilket gør det muligt for flere andre applikationer på den samme maskine at interoperere med WSJT-X. Hvis applikationer, der kører på andre værter, skal modtage statusopdateringer, skal der anvendes en passende netværksgrænseflade.&lt;/p&gt;&lt;p&gt; På nogle Linux-systemer kan det være nødvendigt at aktivere multicast på loop-back-netværksgrænsefladen. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1915"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sets the number or router hops that multicast datagrams are allowed to make. Almost everyone should set this to 1 to keep outgoing multicast traffic withn the local subnet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Indstiller antallet eller routerhop, som multicast-datagrammer har tilladelse til at lave. Næsten alle skal sætte dette til 1 for at holde udgående multicast-trafik i det lokale subneet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1928"/>
         <source>Multicast TTL:</source>
-        <translation type="unfinished"></translation>
+        <translation>Multicast TTL:</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="2434"/>
@@ -6515,7 +6515,7 @@ til vurdering af udbrednings forhold og systemydelse.</translation>
     <message>
         <location filename="../Configuration.ui" line="2047"/>
         <source>Frequencies</source>
-        <translation>Frekvneser</translation>
+        <translation>Frekvenser</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="2050"/>
