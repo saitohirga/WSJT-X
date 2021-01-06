@@ -37,6 +37,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
   data sync(1)/99.0/
   save sync
 
+  irc=-2
   idec=-1
   snr1=0.
   dat4=0
