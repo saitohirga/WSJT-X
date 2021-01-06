@@ -166,7 +166,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
 !### TEMPORARY
   if(f0.le.0.0 .or. xdt.lt.-90.) then
      write(71) iz,jz,ia2,ccf_best,ipk,jpk,nfqso,mode_q65,df,xdt,f0,  &
-          imsg_best,ccf,ccf1
+          imsg_best,ccf,ccf1,s1
   endif
 !###
 
