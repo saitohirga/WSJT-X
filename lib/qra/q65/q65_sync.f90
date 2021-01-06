@@ -53,6 +53,11 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
   nsmo=int(0.7*mode_q65*mode_q65)
   if(nsmo.lt.1) nsmo=1
 
+!### TEMPORARY
+  f0=-99
+  xdt=-99
+!###
+  
   allocate(s1(iz,jz))
   allocate(s3(-64:LL-65,63))
   allocate(c0(0:nfft-1))
@@ -157,6 +162,13 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
         ccf1=ccf(:,jpk)
      endif
   enddo  ! imsg
+
+!### TEMPORARY
+  if(f0.le.0.0 .or. xdt.lt.-90.) then
+     write(71) iz,jz,ia2,ccf_best,ipk,jpk,nfqso,mode_q65,df,xdt,f0,  &
+          imsg_best,ccf,ccf1
+  endif
+!###
 
   i1=i0+ipk-64
   i2=i1+LL-1
