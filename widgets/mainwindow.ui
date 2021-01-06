@@ -1139,6 +1139,9 @@ Not available to nonstandard callsign holders.</string>
                     </item>
                     <item>
                      <widget class="QCheckBox" name="cbRxAll">
+                      <property name="toolTip">
+                       <string>Decode other Hounds calling above 1000 Hz audio offset</string>
+                      </property>
                       <property name="text">
                        <string>Rx All Freqs</string>
                       </property>
