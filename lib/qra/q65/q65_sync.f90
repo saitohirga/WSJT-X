@@ -37,6 +37,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
   data sync(1)/99.0/
   save sync
 
+  irc=-2
   idec=-1
   snr1=0.
   dat4=0
@@ -308,6 +309,7 @@ subroutine q65_dec1(s3,nsubmode,b90ts,codewords,ncw,esnodb,irc,dat4,decoded)
   decoded='                                     '
   call q65_intrinsics_ff(s3,nsubmode,b90ts,nFadingModel,s3prob)
   call q65_dec_fullaplist(s3,s3prob,codewords,ncw,esnodb,dat4,plog,irc)
+  if(sum(dat4).le.0) irc=-2
   if(irc.ge.0 .and. plog.gt.PLOG_MIN) then
      write(c77,1000) dat4(1:12),dat4(13)/2
 1000 format(12b6.6,b5.5)
@@ -332,6 +334,7 @@ subroutine q65_dec2(s3,nsubmode,b90ts,esnodb,irc,dat4,decoded)
   decoded='                                     '
   call q65_intrinsics_ff(s3,nsubmode,b90ts,nFadingModel,s3prob)
   call q65_dec(s3,s3prob,APmask,APsymbols,esnodb,dat4,irc)
+  if(sum(dat4).le.0) irc=-2
   if(irc.ge.0) then
      write(c77,1000) dat4(1:12),dat4(13)/2
 1000 format(12b6.6,b5.5)
