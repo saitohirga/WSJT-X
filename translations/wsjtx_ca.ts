@@ -204,7 +204,7 @@
     <message>
         <location filename="../widgets/plotter.cpp" line="26"/>
         <source>&amp;Set Rx &amp;&amp; Tx Offset</source>
-        <translation>&amp;Definieix el desplaçament de RX &amp;&amp; TX</translation>
+        <translation>&amp;Definieix el desplaçament de RX i TX</translation>
     </message>
 </context>
 <context>
@@ -519,7 +519,7 @@ Format:
     <message>
         <location filename="../Configuration.cpp" line="1880"/>
         <source>Pending DNS lookup, please try again later</source>
-        <translation type="unfinished"></translation>
+        <translation>Pendent de cerca de DNS, torna-ho a provar més tard</translation>
     </message>
     <message>
         <location filename="../Configuration.cpp" line="2223"/>
@@ -539,12 +539,12 @@ Format:
     <message>
         <location filename="../Configuration.cpp" line="2435"/>
         <source>UDP server DNS lookup failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Ha fallat la cerca de DNS del servidor UDP</translation>
     </message>
     <message>
         <location filename="../Configuration.cpp" line="2459"/>
         <source>MAC-ambiguous multicast groups addresses not supported</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;admeten adreces de grups de multidifusió MAC ambigües</translation>
     </message>
     <message>
         <location filename="../Configuration.cpp" line="2477"/>
@@ -2263,12 +2263,12 @@ Error(%2): %3</translation>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1143"/>
         <source>Decode other Hounds calling above 1000 Hz audio offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Descodifica altres Hounds cridant per sobre de 1000 Hz de compensació d&apos;àudio</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1192"/>
         <source>Enable auto response to the first decode from a new DXCC or new call on the current band.</source>
-        <translation type="unfinished"></translation>
+        <translation>Habilita la resposta automàtica a la primera descodificació d&apos;un nou DXCC o d&apos;una nova crida a la banda actual.</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="2615"/>
@@ -5330,7 +5330,7 @@ Error(%2): %3</translation>
     <message>
         <location filename="../widgets/widegraph.cpp" line="24"/>
         <source>User Defined</source>
-        <translation type="unfinished">Definit per l&apos;usuari</translation>
+        <translation>Definit per l&apos;usuari</translation>
     </message>
     <message>
         <location filename="../widgets/widegraph.cpp" line="28"/>
@@ -5885,27 +5885,27 @@ uns pocs, particularment alguns equips de Kenwood, ho requereixen.</translation>
     <message>
         <location filename="../Configuration.ui" line="1888"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the service port number of the UDP server that WSJT-X should send updates to. If this is zero no updates will be sent.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Introdueix el número de port del servei del servidor UDP al qual WSJT-X hauria d&apos;enviar les actualitzacions. Si és zero, no s&apos;enviaran les actualitzacions.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1898"/>
         <source>Outgoing interfaces:</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfícies de sortida:</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1908"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When sending updates to a multicast group address it is necessary to specify which network interface(s) to send them to. If the loop-back interface is multicast capable then at least that one will be selected.&lt;/p&gt;&lt;p&gt;For most users the loop-back interface is all that is needed, that will allow multiple other applications on the same machine to interoperate with WSJT-X. If applications running on other hosts are to receive status updates then a suitable network interface should be used.&lt;/p&gt;&lt;p&gt;On some Linux systems it may be necessary to enable multicast on the loop-back network interface.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A l&apos;enviar actualitzacions a una adreça de grup de multidifusió, cal especificar a quina interfície de xarxa enviar. Si la interfície de bucle de retorn té capacitat de multidifusió, es seleccionarà el menys aquesta.&lt;/p&gt;&lt;p&gt;Per a la majoria dels usuaris, la interfície de bucle de retorn és tot el que es necessita, el que permetrà que moltes altres aplicacions en la mateixa màquina interoperin amb WSJT-X. Si les aplicacions que s&apos;executen en altres hosts han de rebre actualitzacions d&apos;estat, s&apos;ha d&apos;utilitzar una interfície de xarxa adequada.&lt;/p&gt;&lt;p&gt;En alguns sistemes Linux, pot ser necessari habilitar la multidifusió a la interfície de xarxa de bucle de retorn.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1915"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sets the number or router hops that multicast datagrams are allowed to make. Almost everyone should set this to 1 to keep outgoing multicast traffic withn the local subnet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Estableix el nombre de salts de l&apos;encaminador que els datagrames de multidifusió poden realitzar. Gairebé tothom hauria d&apos;establir això en 1 per a mantenir el trànsit de multidifusió sortint dins de la subxarxa local.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1928"/>
         <source>Multicast TTL:</source>
-        <translation type="unfinished"></translation>
+        <translation>Multidifusió TTL:</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="2434"/>
