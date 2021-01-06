@@ -89,10 +89,10 @@ contains
     df1=12000.0/nfft1
     this%callback => callback
     nFadingModel=1
+! Set up the codewords for full-AP list decoding    
+    call q65_set_list(mycall,hiscall,hisgrid,codewords,ncw) 
     dgen=0
     call q65_enc(dgen,codewords)         !Initialize the Q65 codec
-! Set up the codewords for full-AP list decoding
-    call q65_set_list(mycall,hiscall,hisgrid,codewords,ncw)
     call timer('sync_q65',0)
     call q65_sync(nutc,iwave,ntrperiod,mode65,codewords,ncw,nsps,      &
          nfqso,ntol,ndepth,lclearave,emedelay,xdt,f0,snr1,width,dat4,  &
