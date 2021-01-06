@@ -12,6 +12,5 @@ subroutine pctile(x,npts,npct,xpct)
   if(j.gt.npts) j=npts
   xpct=tmp(j)
 
-900 continue
   return
 end subroutine pctile

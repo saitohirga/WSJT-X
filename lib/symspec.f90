@@ -37,7 +37,7 @@ subroutine symspec(shared_data,k,TRperiod,nsps,ingain,bLowSidelobes,    &
   equivalence (xc,cx)
   save
 
-  if(TRperiod.lt.0.d0) stop                    !Silence compiler warning
+  if(TRperiod+npct.eq.-999.9) stop             !Silence compiler warning
   nfft3=16384                                  !df=12000.0/16384 = 0.732422
   jstep=nsps/2                                 !Step size = half-symbol in id2()
   if(k.gt.NMAX) go to 900

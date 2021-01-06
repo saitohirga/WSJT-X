@@ -94,7 +94,7 @@ contains
     save
 
     this%callback => callback
-    first_time=nrobust                !Silence compiler warning
+    first_time=nrobust .and. (emedelay.eq.-999.9)    !Silence compiler warning
     first_time=newdat
     dd=dd0
     ndecoded=0
