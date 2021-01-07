@@ -11,7 +11,6 @@ subroutine q65_avg(nutc,ntrperiod,LL,nfqso,ntol,lclearave,xdt,f0,snr1,s3)
   character*1 cused(MAXAVE)
   character*6 cutc
   real s3(-64:LL-65,63)                  !Symbol spectra
-  integer iused(MAXAVE)
   integer dat4(13)
   integer codewords(63,206)
   integer apmask1(78),apsymbols1(78)
@@ -19,17 +18,21 @@ subroutine q65_avg(nutc,ntrperiod,LL,nfqso,ntol,lclearave,xdt,f0,snr1,s3)
   data first/.true./
   save
 
-  if(first .or. LL.ne.LL0 .or.lclearave) then
-     iutc=-1
-     iseq=-1
-     f0save=0.0
-     nsave=0
+  if(LL.ne.LL0) then
      LL0=LL
-     first=.false.
      if(allocated(s3save)) deallocate(s3save)
      if(allocated(s3avg)) deallocate(s3avg)
      allocate(s3save(-64:LL-65,63,MAXAVE))
      allocate(s3avg(-64:LL-65,63))
+     s3save=0.
+     s3avg=0.
+  endif
+  if(first .or. lclearave) then
+     iutc=-1
+     iseq=-1
+     f0save=0.0
+     nsave=0
+     first=.false.
      s3save=0.
      s3avg=0.
   endif
@@ -52,7 +55,7 @@ subroutine q65_avg(nutc,ntrperiod,LL,nfqso,ntol,lclearave,xdt,f0,snr1,s3)
 
 ! Save data for message averaging
   nsave=nsave+1
-  nsave=mod(nsave-1,MAXAVE)+1
+  if(nsave.gt.MAXAVE) nsave=nsave-MAXAVE
   n=nutc
   if(ntrperiod.ge.60) n=100*n
   write(cutc,'(i6.6)') n
@@ -62,7 +65,7 @@ subroutine q65_avg(nutc,ntrperiod,LL,nfqso,ntol,lclearave,xdt,f0,snr1,s3)
   iutc(nsave)=nutc                          !UTC, hhmm or hhmmss
   snr1save(nsave)=snr1                      !SNR from sync
   xdtsave(nsave)=xdt                        !DT
-  f0save(nsave)=f0                           !f0
+  f0save(nsave)=f0                          !f0
   s3save(:,:,nsave)=s3(:,:)                 !Symbol spectra
 
 10 return
@@ -93,9 +96,7 @@ subroutine q65_avg(nutc,ntrperiod,LL,nfqso,ntol,lclearave,xdt,f0,snr1,s3)
      xdtsum=xdtsum + xdtsave(i)
      fsum=fsum + f0save(i)
      navg=navg+1
-     iused(navg)=i
   enddo
-  if(navg.lt.MAXAVE) iused(navg+1)=0
   
 ! Find averages of snr1, xdt, and f0 used in this decoding attempt.
   snr1ave=0.
@@ -108,7 +109,8 @@ subroutine q65_avg(nutc,ntrperiod,LL,nfqso,ntol,lclearave,xdt,f0,snr1,s3)
   endif
 
 ! Write parameters for display to User in the Message Averaging (F7) window.
-  do i=1,nsave
+  do i=1,MAXAVE
+     if(iutc(i).lt.0) cycle
      if(ntrperiod.le.30) write(14,1000) cused(i),iutc(i),snr1save(i),    &
           xdtsave(i),f0save(i)
 1000 format(a1,i7.6,f6.1,f6.2,f7.1)
@@ -183,7 +185,7 @@ subroutine q65_avg(nutc,ntrperiod,LL,nfqso,ntol,lclearave,xdt,f0,snr1,s3)
 100 return
 
   entry q65_clravg
-  
+
   iutc=-1
   iseq=-1
   snr1save=0.

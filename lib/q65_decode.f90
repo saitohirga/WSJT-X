@@ -157,8 +157,9 @@ contains
        if(idec.gt.0) go to 100       !Successful decode, we're done
     enddo
 
-! No single-transmission decode.
+! There was no single-transmission decode.
     if(iand(ndepth,16).eq.16) then
+! Try for an average decode.
        call q65_avg2(ntrperiod,ntol,baud,nsubmode,nQSOprogress,lapcqonly, &
             ibwa,ibwb,codewords,ncw,xdt,f0,snr1,snr2,dat4,idec)
     endif
