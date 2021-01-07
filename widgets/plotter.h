@@ -179,6 +179,7 @@ private:
   qint32  m_h1;
   qint32  m_h2;
   qint32  m_rxFreq;
+  qint32  m_rxFreq0=0;
   qint32  m_txFreq;
   qint32  m_fMin;
   qint32  m_fMax;
