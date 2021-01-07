@@ -370,9 +370,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   close(13)
   if(ncontest.eq.6) close(19)
   if(params%nmode.eq.4 .or. params%nmode.eq.65 .or. params%nmode.eq.66) close(14)
-
   return
-
 contains
 
   subroutine jt4_decoded(this,snr,dt,freq,have_sync,sync,is_deep,    &
@@ -812,7 +810,7 @@ contains
 
     select type(this)
     type is (counting_q65_decoder)
-       this%decoded = this%decoded + 1
+       if(idec.gt.0) this%decoded = this%decoded + 1
     end select
 
    return
