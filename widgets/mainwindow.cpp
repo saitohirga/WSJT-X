@@ -4192,7 +4192,7 @@ void MainWindow::guiUpdate()
     if(m_restart) {
       write_all("Tx",m_currentMessage);
       if (m_config.TX_messages ()) {
-        ui->decodedTextBrowser2->displayTransmittedText(m_currentMessage,m_modeTx,
+        ui->decodedTextBrowser2->displayTransmittedText(m_currentMessage.trimmed(),m_modeTx,
                      ui->TxFreqSpinBox->value(),m_bFastMode,m_TRperiod);
         }
     }
@@ -4287,8 +4287,8 @@ void MainWindow::guiUpdate()
         if(!m_tune) write_all("Tx",m_currentMessage);
         if (m_config.TX_messages () && !m_tune && SpecOp::FOX!=m_config.special_op_id())
           {
-            ui->decodedTextBrowser2->displayTransmittedText(current_message, m_modeTx,
-                                                            ui->TxFreqSpinBox->value(),m_bFastMode,m_TRperiod);
+            ui->decodedTextBrowser2->displayTransmittedText(current_message.trimmed(),
+                  m_modeTx,ui->TxFreqSpinBox->value(),m_bFastMode,m_TRperiod);
           }
       }
 
