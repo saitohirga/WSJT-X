@@ -568,7 +568,7 @@ Formato:
     <message>
         <location filename="../Configuration.cpp" line="1880"/>
         <source>Pending DNS lookup, please try again later</source>
-        <translation type="unfinished"></translation>
+        <translation>Búsqueda de DNS pendiente, inténtelo de nuevo más tarde</translation>
     </message>
     <message>
         <location filename="../Configuration.cpp" line="2223"/>
@@ -591,12 +591,12 @@ Formato:
     <message>
         <location filename="../Configuration.cpp" line="2435"/>
         <source>UDP server DNS lookup failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Error en la búsqueda de DNS del servidor UDP</translation>
     </message>
     <message>
         <location filename="../Configuration.cpp" line="2459"/>
         <source>MAC-ambiguous multicast groups addresses not supported</source>
-        <translation type="unfinished"></translation>
+        <translation>No se admiten direcciones MAC ambiguas de grupos &quot;multicast&quot;</translation>
     </message>
     <message>
         <location filename="../Configuration.cpp" line="2477"/>
@@ -2467,12 +2467,12 @@ Error(%2): %3</translation>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1143"/>
         <source>Decode other Hounds calling above 1000 Hz audio offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Decodifica otros &quot;Hounds&quot; llamando por encima de 1000 Hz</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1192"/>
         <source>Enable auto response to the first decode from a new DXCC or new call on the current band.</source>
-        <translation type="unfinished"></translation>
+        <translation>Habilite la respuesta automática por un nuevo DXCC o un nuevo indicativo en la banda actual.</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1640"/>
@@ -2929,13 +2929,13 @@ Amarillo cuando esta muy bajo.</translation>
         <location filename="../widgets/mainwindow.ui" line="1308"/>
         <source>Check to Tx in even-numbered minutes or sequences, starting at 0; uncheck for odd sequences.</source>
         <translatorcomment>Marca a TX en minutos o secuencias de números pares, a partir de 0; desmarca las secuencias impares.</translatorcomment>
-        <translation type="unfinished">Marcar para transmitir en secuencias o minutos pares, comenzando por 0; desmarca para transmitir en las secuencias o minutos impares.</translation>
+        <translation>Marcar para transmitir en secuencias o minutos pares, comenzando por 0; desmarca para transmitir en las secuencias o minutos impares.</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1311"/>
         <source>Tx even/1st</source>
         <translatorcomment>Alternar periodo TX Par/Impar</translatorcomment>
-        <translation type="unfinished">Tx primer par/1ro</translation>
+        <translation>Tx par/1ro</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1104"/>
@@ -5746,7 +5746,7 @@ Error(%2): %3</translation>
     <message>
         <location filename="../widgets/widegraph.cpp" line="24"/>
         <source>User Defined</source>
-        <translation type="unfinished">Definido por el usuario</translation>
+        <translation>Definido por el usuario</translation>
     </message>
     <message>
         <location filename="../widgets/widegraph.cpp" line="28"/>
@@ -6967,27 +6967,27 @@ para evaluar la propagación y el rendimiento del sistema.</translation>
     <message>
         <location filename="../Configuration.ui" line="1888"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the service port number of the UDP server that WSJT-X should send updates to. If this is zero no updates will be sent.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ingrese el puerto UDP del servidor al que WSJT-X debe enviar actualizaciones. Si es cero, no se enviarán actualizaciones.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1898"/>
         <source>Outgoing interfaces:</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfaces salientes:</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1908"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When sending updates to a multicast group address it is necessary to specify which network interface(s) to send them to. If the loop-back interface is multicast capable then at least that one will be selected.&lt;/p&gt;&lt;p&gt;For most users the loop-back interface is all that is needed, that will allow multiple other applications on the same machine to interoperate with WSJT-X. If applications running on other hosts are to receive status updates then a suitable network interface should be used.&lt;/p&gt;&lt;p&gt;On some Linux systems it may be necessary to enable multicast on the loop-back network interface.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Al enviar actualizaciones a una dirección de grupo &quot;multicast&quot;, es necesario especificar a qué interfaces de red enviarlas. Si la interfaz &quot;loop-back&quot; permite &quot;multicast&quot;, al menos se seleccionará esa. &lt;/p&gt; &lt;p&gt; Para la mayoría de los usuarios, la interfaz &quot;loop-back&quot; es todo lo que se necesita, que permitirá que otras múltiples aplicaciones en el mismo ordenador interoperar con WSJT-X. Si las aplicaciones que se ejecutan en otros &quot;hosts&quot; van a recibir actualizaciones de estado, se debe usar una interfaz de red adecuada. &lt;/p&gt; &lt;p&gt; En algunos sistemas Linux, puede ser necesario habilitar &quot;multicast&quot; en la interfaz de red &quot;loop-back&quot;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1915"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sets the number or router hops that multicast datagrams are allowed to make. Almost everyone should set this to 1 to keep outgoing multicast traffic withn the local subnet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Establece el número de saltos que los datagramas de &quot;multicast&quot; pueden realizar. Casi todo el mundo debería establecer esto en 1 para mantener el tráfico de &quot;multicast&quot; saliente dentro de la subred local.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1928"/>
         <source>Multicast TTL:</source>
-        <translation type="unfinished"></translation>
+        <translation>Multicast TTL:</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1942"/>
