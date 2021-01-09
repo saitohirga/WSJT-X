@@ -69,6 +69,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
      enddo
   endif
 
+  call timer('s1      ',0)
   fac=1/32767.0
   do j=1,jz                              !Compute symbol spectra at step size
      i1=(j-1)*istep
@@ -90,6 +91,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
         call smo121(s1(1:iz,j),iz)
      enddo
   enddo
+  call timer('s1      ',1)
 
   i0=nint(nfqso/df)                           !Target QSO frequency
   if(i0-64.lt.1 .or. i0-65+LL.gt.iz) go to 900
@@ -115,6 +117,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
 !######################################################################
 ! Try list decoding via "Deep Likelihood".
 
+  call timer('list_dec',0)
   ipk=0
   jpk=0
   ccf_best=0.
@@ -159,6 +162,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
         ccf1=ccf(:,jpk)
      endif
   enddo  ! imsg
+  call timer('list_dec',1)
 
   i1=i0+ipk-64
   i2=i1+LL-1
@@ -212,6 +216,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
 !######################################################################
 ! Compute the 2D CCF using sync symbols only
 100 ccf=0.
+  call timer('2dccf   ',0)
   do lag=lag1,lag2
      do k=1,85
         n=NSTEP*(k-1) + 1
@@ -249,6 +254,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
   snr1=smax/rms
   ccf2=ccf2/rms
   if(snr1.gt.10.0) ccf2=(10.0/snr1)*ccf2
+  call timer('2dccf   ',1)
 
   if(irc.le.0) then
      f0=nfqso + ipk*df
@@ -270,7 +276,9 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
               n=n+1
               if(j.ge.1 .and. j.le.jz) s3(-64:LL-65,n)=s1(i1:i2,j)
            enddo
+           call timer('q65_avg ',0)
            call q65_avg(nutc,ntrperiod,LL,nfqso,ntol,lclearave,xdt,f0,snr1,s3)
+           call timer('q65_avg ',1)
         endif
      endif
   endif
