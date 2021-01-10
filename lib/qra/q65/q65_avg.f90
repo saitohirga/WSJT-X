@@ -1,3 +1,22 @@
+module q65
+
+  parameter (MAXAVE=64)
+  parameter (PLOG_MIN=-240.0)            !List decoding threshold
+  integer nsave,nlist,LL0
+  integer iutc(MAXAVE)
+  integer iseq(MAXAVE)
+  integer listutc(10)
+  integer apsym0(58),aph10(10)
+  integer apmask(13),apsymbols(13)
+  integer navg,ibwa,ibwb
+  real    f0save(MAXAVE)
+  real    xdtsave(MAXAVE)
+  real    snr1save(MAXAVE)
+  real,allocatable :: s3save(:,:,:)
+  real,allocatable :: s3avg(:,:)
+
+contains
+
 subroutine q65_avg(nutc,ntrperiod,LL,nfqso,ntol,lclearave,xdt,f0,snr1,s3)
 
 ! Accumulate Q65 spectra s3(LL,63) and associated parameters for
@@ -69,8 +88,9 @@ subroutine q65_avg(nutc,ntrperiod,LL,nfqso,ntol,lclearave,xdt,f0,snr1,s3)
   s3save(:,:,nsave)=s3(:,:)                 !Symbol spectra
 
 10 return
+end subroutine q65_avg
 
-  entry q65_avg2(ntrperiod,ntol,baud,nsubmode,nQSOprogress,lapcqonly, &
+subroutine q65_avg2(ntrperiod,ntol,baud,nsubmode,nQSOprogress,lapcqonly, &
        codewords,ncw,xdt,f0,snr1,snr2,dat4,idec)
 
   mode_q65=2**nsubmode
@@ -196,3 +216,5 @@ subroutine q65_avg(nutc,ntrperiod,LL,nfqso,ntol,lclearave,xdt,f0,snr1,s3)
   return
   
 end subroutine q65_avg
+
+end module q65
