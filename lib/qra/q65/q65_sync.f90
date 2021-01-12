@@ -54,6 +54,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
   ia2=max(ia,10*mode_q65,nint(100.0/df))
   nsmo=int(0.7*mode_q65*mode_q65)
   if(nsmo.lt.1) nsmo=1
+!  nsmo=1  !### TEMPORARY ###
 
   allocate(s1(iz,jz))
   allocate(s3(-64:LL-65,63))
