@@ -1,27 +1,27 @@
 module q65_decode
 
-   type :: q65_decoder
-      procedure(q65_decode_callback), pointer :: callback
+  type :: q65_decoder
+     procedure(q65_decode_callback), pointer :: callback
    contains
-      procedure :: decode
-   end type q65_decoder
+     procedure :: decode
+  end type q65_decoder
 
-   abstract interface
-      subroutine q65_decode_callback (this,nutc,sync,nsnr,dt,freq,    &
-         decoded,nap,ntrperiod)
-         import q65_decoder
-         implicit none
-         class(q65_decoder), intent(inout) :: this
-         integer, intent(in) :: nutc
-         real, intent(in) :: sync
-         integer, intent(in) :: nsnr
-         real, intent(in) :: dt
-         real, intent(in) :: freq
-         character(len=37), intent(in) :: decoded
-         integer, intent(in) :: nap
-         integer, intent(in) :: ntrperiod
-      end subroutine q65_decode_callback
-   end interface
+  abstract interface
+     subroutine q65_decode_callback (this,nutc,sync,nsnr,dt,freq,    &
+          decoded,nap,ntrperiod)
+       import q65_decoder
+       implicit none
+       class(q65_decoder), intent(inout) :: this
+       integer, intent(in) :: nutc
+       real, intent(in) :: sync
+       integer, intent(in) :: nsnr
+       real, intent(in) :: dt
+       real, intent(in) :: freq
+       character(len=37), intent(in) :: decoded
+       integer, intent(in) :: nap
+       integer, intent(in) :: ntrperiod
+     end subroutine q65_decode_callback
+  end interface
 
 contains
 
