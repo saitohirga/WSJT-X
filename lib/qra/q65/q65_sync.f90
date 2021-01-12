@@ -60,6 +60,14 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
   allocate(ccf(-ia2:ia2,-53:214))
   allocate(ccf1(-ia2:ia2))
   allocate(ccf2(-ia2:ia2))
+  if(LL.ne.LL0 .or. lclearave) then
+     if(allocated(s1a)) deallocate(s1a)
+     allocate(s1a(iz,jz))
+     s1a=0.
+     navg=0
+     LL0=LL
+  endif
+
   s3=0.
   if(sync(1).eq.99.0) then               !Generate the sync vector
      sync=-22.0/63.0                     !Sync tone OFF  
@@ -93,11 +101,13 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
   if(nsps.ge.7200) j0=1.0/dtstep              !Nominal start-signal index
 
   if(ncw.lt.1) go to 100
-  
+
 !######################################################################
 ! Try list decoding via "Deep Likelihood".
 
   call timer('list_dec',0)
+!  call q65_dec_q3(codewords,ncw,isync,df
+
   ipk=0
   jpk=0
   ccf_best=0.
@@ -190,6 +200,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
         go to 100
      endif
   enddo
+  
   irc=-2
   dat4=0
 
@@ -256,9 +267,9 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
               n=n+1
               if(j.ge.1 .and. j.le.jz) s3(-64:LL-65,n)=s1(i1:i2,j)
            enddo
-           call timer('q65_avg ',0)
-           call q65_avg(nutc,ntrperiod,LL,nfqso,ntol,lclearave,xdt,f0,snr1,s3)
-           call timer('q65_avg ',1)
+!           call timer('q65_avg ',0)
+!           call q65_avg(nutc,ntrperiod,LL,nfqso,ntol,lclearave,xdt,f0,snr1,s3)
+!           call timer('q65_avg ',1)
         endif
      endif
   endif
@@ -284,12 +295,12 @@ end subroutine q65_sync
 
 subroutine q65_symspec(iwave,nmax,nsps,iz,jz,istep,nsmo,s1)
 
+  use q65
   integer*2 iwave(0:nmax-1)              !Raw data
   real s1(iz,jz)
   complex, allocatable :: c0(:)          !Complex spectrum of symbol
 
   allocate(c0(0:nsps-1))
-
   nfft=nsps
   fac=1/32767.0
   do j=1,jz                              !Compute symbol spectra at step size
@@ -312,6 +323,8 @@ subroutine q65_symspec(iwave,nmax,nsps,iz,jz,istep,nsmo,s1)
         call smo121(s1(1:iz,j),iz)
      enddo
   enddo
+  s1a=s1a+s1
+  navg=navg+1
 
   return
 end subroutine q65_symspec

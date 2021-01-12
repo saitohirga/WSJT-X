@@ -12,6 +12,7 @@ module q65
   real    f0save(MAXAVE)
   real    xdtsave(MAXAVE)
   real    snr1save(MAXAVE)
+  real,allocatable,save :: s1a(:,:)           !Cumulative symbol spectra
   real,allocatable :: s3save(:,:,:)
   real,allocatable :: s3avg(:,:)
 
