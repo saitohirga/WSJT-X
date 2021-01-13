@@ -1,4 +1,4 @@
-subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
+subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,nsps,   &
      nfqso,ntol,ndepth,lclearave,emedelay,xdt,f0,snr1,width,dat4,snr2,idec)
 
 ! Detect and align with the Q65 sync vector, returning time and frequency
@@ -17,11 +17,9 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,codewords,ncw,nsps,   &
   use timer_module, only: timer
   use q65
 
-  parameter (NSTEP=8)                    !Step size nsps/NSTEP
   parameter (LN=2176*63)           !LN=LL*NN; LL=64*(mode_q65+2), NN=63
   integer*2 iwave(0:12000*ntrperiod-1)   !Raw data
   integer isync(22)                      !Indices of sync symbols
-  integer codewords(63,206)
   integer dat4(13)
   integer ijpk(2)
   character*37 decoded

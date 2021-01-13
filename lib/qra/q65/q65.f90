@@ -1,34 +1,22 @@
 module q65
 
-  parameter (MAXAVE=64)
-  parameter (PLOG_MIN=-240.0)            !List decoding threshold
+  parameter (NSTEP=8)                !Time bins per symbol, in s1() and s1a()
+  parameter (PLOG_MIN=-240.0)        !List decoding threshold
   integer nsave,nlist,LL0
-  integer iutc(MAXAVE)
-  integer iseq(MAXAVE)
   integer listutc(10)
   integer apsym0(58),aph10(10)
   integer apmask(13),apsymbols(13)
-  integer navg,ibwa,ibwb,LL
-  real    f0save(MAXAVE)
-  real    xdtsave(MAXAVE)
-  real    snr1save(MAXAVE)
+  integer codewords(63,206)
+  integer navg,ibwa,ibwb,ncw
   real,allocatable,save :: s1a(:,:)           !Cumulative symbol spectra
-  real,allocatable :: s3save(:,:,:)
-  real,allocatable :: s3avg(:,:)
 
 contains
 
 
 subroutine q65_clravg
 
-  iutc=-1
-  iseq=-1
-  snr1save=0.
-  xdtsave=0.
-  f0save=0.0
-  nsave=0
-  if(allocated(s3save)) s3save=0.
-  if(allocated(s3avg)) s3avg=0.
+  s1a=0.
+  navg=0
   
   return
 end subroutine q65_clravg

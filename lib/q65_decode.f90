@@ -57,7 +57,6 @@ contains
     integer dat4(13)                      !Decoded message as 12 6-bit integers
     integer apmask1(78),apsymbols1(78)
     integer dgen(13)
-    integer codewords(63,206)
     logical lclearave,lapcqonly,unpk77_success
     complex, allocatable :: c00(:)        !Analytic signal, 6000 Sa/s
     complex, allocatable :: c0(:)         !Analytic signal, 6000 Sa/s
@@ -102,7 +101,7 @@ contains
     dgen=0
     call q65_enc(dgen,codewords)         !Initialize the Q65 codec
     call timer('sync_q65',0)
-    call q65_sync(nutc,iwave,ntrperiod,mode65,codewords,ncw,nsps,      &
+    call q65_sync(nutc,iwave,ntrperiod,mode65,nsps,      &
          nfqso,ntol,ndepth,lclearave,emedelay,xdt,f0,snr1,width,dat4,  &
          snr2,idec)
     call timer('sync_q65',1)
