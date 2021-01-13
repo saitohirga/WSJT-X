@@ -1,4 +1,4 @@
-subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,   &
+subroutine q65_sync(nutc,iwave,ntrperiod,   &
      nfqso,ntol,ndepth,lclearave,emedelay,xdt,f0,snr1,width,dat4,snr2,idec)
 
 ! Detect and align with the Q65 sync vector, returning time and frequency
@@ -102,7 +102,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,   &
 ! Try list decoding via "Deep Likelihood".
      call timer('list_dec',0)
      call q65_dec_q3(df,s1,iz,jz,ia,      &
-          mode_q65,lag1,lag2,i0,j0,ccf,ccf1,ccf2,ia2,s3,LL,snr2,  &
+          lag1,lag2,i0,j0,ccf,ccf1,ccf2,ia2,s3,LL,snr2,  &
           dat4,idec,decoded)
      call timer('list_dec',1)
   endif
@@ -215,7 +215,7 @@ subroutine q65_symspec(iwave,nmax,iz,jz,istep,nsmo,s1)
 end subroutine q65_symspec
 
 subroutine q65_dec_q3(df,s1,iz,jz,ia,  &
-     mode_q65,lag1,lag2,i0,j0,ccf,ccf1,ccf2,ia2,s3,LL,snr2,    &
+     lag1,lag2,i0,j0,ccf,ccf1,ccf2,ia2,s3,LL,snr2,    &
      dat4,idec,decoded)
 
   use q65

@@ -62,7 +62,7 @@ contains
     complex, allocatable :: c0(:)         !Analytic signal, 6000 Sa/s
 
     idec=-1
-    mode65=2**nsubmode
+    mode_q65=2**nsubmode
     npts=ntrperiod*12000
     nfft1=ntrperiod*12000
     nfft2=ntrperiod*6000
@@ -89,7 +89,7 @@ contains
     df1=12000.0/nfft1
     this%callback => callback
     nFadingModel=1
-    ibwa=max(1,int(1.8*log(baud*mode65)) + 2)
+    ibwa=max(1,int(1.8*log(baud*mode_q65)) + 2)
     ibwb=min(10,ibwa+4)
     if(iand(ndepth,3).eq.3) then
        ibwa=max(1,ibwa-1)
@@ -101,7 +101,7 @@ contains
     dgen=0
     call q65_enc(dgen,codewords)         !Initialize the Q65 codec
     call timer('sync_q65',0)
-    call q65_sync(nutc,iwave,ntrperiod,mode65,      &
+    call q65_sync(nutc,iwave,ntrperiod,      &
          nfqso,ntol,ndepth,lclearave,emedelay,xdt,f0,snr1,width,dat4,  &
          snr2,idec)
     call timer('sync_q65',1)
@@ -150,7 +150,7 @@ contains
        endif
 
        call timer('q65loops',0)
-       call q65_loops(c00,npts/2,nsps/2,mode65,nsubmode,ndepth,jpk0,   &
+       call q65_loops(c00,npts/2,nsps/2,nsubmode,ndepth,jpk0,   &
             xdt,f0,iaptype,xdt1,f1,snr2,dat4,idec)
        call timer('q65loops',1)
        if(idec.gt.0) go to 100       !Successful decode, we're done

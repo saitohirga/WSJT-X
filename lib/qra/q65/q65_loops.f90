@@ -1,4 +1,4 @@
-subroutine q65_loops(c00,npts2,nsps2,mode_q65,nsubmode,ndepth,jpk0,    &
+subroutine q65_loops(c00,npts2,nsps2,nsubmode,ndepth,jpk0,    &
      xdt0,f0,iaptype,xdt1,f1,snr2,dat4,idec)
 
   use packjt77
