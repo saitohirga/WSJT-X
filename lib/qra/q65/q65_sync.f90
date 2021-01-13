@@ -1,5 +1,5 @@
-subroutine q65_sync(nutc,iwave,ntrperiod,   &
-     nfqso,ntol,ndepth,lclearave,emedelay,xdt,f0,snr1,width,dat4,snr2,idec)
+subroutine q65_sync(nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
+     emedelay,xdt,f0,snr1,width,dat4,snr2,idec)
 
 ! Detect and align with the Q65 sync vector, returning time and frequency
 ! offsets and SNR estimate.
@@ -73,7 +73,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,   &
 
   call timer('s1      ',0)
   nmax=ntrperiod*12000
-  call q65_symspec(iwave,nmax,iz,jz,istep,nsmo,s1)
+  call q65_symspec(iwave,nmax,iz,jz,s1)
   call timer('s1      ',1)
 
   i0=nint(nfqso/df)                           !Target QSO frequency
@@ -178,7 +178,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,   &
 900 return
 end subroutine q65_sync
 
-subroutine q65_symspec(iwave,nmax,iz,jz,istep,nsmo,s1)
+subroutine q65_symspec(iwave,nmax,iz,jz,s1)
 
   use q65
   integer*2 iwave(0:nmax-1)              !Raw data
