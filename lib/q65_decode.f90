@@ -101,7 +101,7 @@ contains
     dgen=0
     call q65_enc(dgen,codewords)         !Initialize the Q65 codec
     call timer('sync_q65',0)
-    call q65_sync(nutc,iwave,ntrperiod,mode65,nsps,      &
+    call q65_sync(nutc,iwave,ntrperiod,mode65,      &
          nfqso,ntol,ndepth,lclearave,emedelay,xdt,f0,snr1,width,dat4,  &
          snr2,idec)
     call timer('sync_q65',1)

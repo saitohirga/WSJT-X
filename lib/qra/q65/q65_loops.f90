@@ -1,4 +1,4 @@
-subroutine q65_loops(c00,npts2,nsps,mode_q65,nsubmode,ndepth,jpk0,    &
+subroutine q65_loops(c00,npts2,nsps2,mode_q65,nsubmode,ndepth,jpk0,    &
      xdt0,f0,iaptype,xdt1,f1,snr2,dat4,idec)
 
   use packjt77
@@ -21,7 +21,7 @@ subroutine q65_loops(c00,npts2,nsps,mode_q65,nsubmode,ndepth,jpk0,    &
   allocate(c0(0:npts2-1))
   irc=-99
   s3lim=20.
-  baud=6000.0/nsps
+  baud=6000.0/nsps2
 
   idfmax=3
   idtmax=3
@@ -48,10 +48,10 @@ subroutine q65_loops(c00,npts2,nsps,mode_q65,nsubmode,ndepth,jpk0,    &
      do idt=1,idtmax
         ndt=idt/2
         if(mod(idt,2).eq.0) ndt=-ndt
-        jpk=jpk0 + nsps*ndt/16              !tsym/16
+        jpk=jpk0 + nsps2*ndt/16              !tsym/16
         if(jpk.lt.0) jpk=0
         call timer('spec64  ',0)
-        call spec64(c0,nsps,65,mode_q65,jpk,s3,LL,NN)
+        call spec64(c0,nsps2,65,mode_q65,jpk,s3,LL,NN)
         call timer('spec64  ',1)
         call pctile(s3,LL*NN,40,base)
         s3=s3/base
@@ -80,7 +80,7 @@ subroutine q65_loops(c00,npts2,nsps,mode_q65,nsubmode,ndepth,jpk0,    &
 !3055 format(7i4,f10.1,1x,a)
      idec=iaptype+2
      snr2=esnodb - db(2500.0/baud)
-     xdt1=xdt0 +  nsps*ndt/(16.0*6000.0)
+     xdt1=xdt0 +  nsps2*ndt/(16.0*6000.0)
      f1=f0 + 0.5*baud*ndf
   endif
 

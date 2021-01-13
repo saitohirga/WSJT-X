@@ -9,7 +9,7 @@ module q65
   integer,dimension(22) ::  isync = (/1,9,12,13,15,22,23,26,27,33,35,   &
                                      38,46,50,55,60,62,66,69,74,76,85/)
   integer codewords(63,206)
-  integer navg,ibwa,ibwb,ncw
+  integer navg,ibwa,ibwb,ncw,nsps
   real,allocatable,save :: s1a(:,:)      !Cumulative symbol spectra
   real sync(85)                          !sync vector
 
