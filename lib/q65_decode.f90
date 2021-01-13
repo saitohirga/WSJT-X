@@ -153,7 +153,7 @@ contains
        call q65_loops(c00,npts/2,nsps/2,nsubmode,ndepth,jpk0,   &
             xdt,f0,iaptype,xdt1,f1,snr2,dat4,idec)
        call timer('q65loops',1)
-       if(idec.gt.0) go to 100       !Successful decode, we're done
+       if(idec.ge.0) go to 100       !Successful decode, we're done
     enddo
 
 ! There was no single-transmission decode.
