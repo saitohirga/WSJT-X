@@ -19,7 +19,6 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,nsps,   &
 
   parameter (LN=2176*63)           !LN=LL*NN; LL=64*(mode_q65+2), NN=63
   integer*2 iwave(0:12000*ntrperiod-1)   !Raw data
-  integer isync(22)                      !Indices of sync symbols
   integer dat4(13)
   integer ijpk(2)
   character*37 decoded
@@ -30,7 +29,6 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,nsps,   &
   real, allocatable :: ccf1(:)           !CCF(freq) at best lag
   real, allocatable :: ccf2(:)           !CCF(freq) at any lag
   real sync(85)                          !sync vector
-  data isync/1,9,12,13,15,22,23,26,27,33,35,38,46,50,55,60,62,66,69,74,76,85/
   data sync(1)/99.0/
   save sync
 
@@ -104,8 +102,8 @@ subroutine q65_sync(nutc,iwave,ntrperiod,mode_q65,nsps,   &
   if(ncw.gt.0) then
 ! Try list decoding via "Deep Likelihood".
      call timer('list_dec',0)
-     call q65_dec_q3(codewords,ncw,isync,sync,df,s1,iz,jz,ia,ibwa,ibwb,      &
-          nstep,nsps,mode_q65,lag1,lag2,i0,j0,ccf,ccf1,ccf2,ia2,s3,LL,snr2,  &
+     call q65_dec_q3(sync,df,s1,iz,jz,ia,      &
+          nsps,mode_q65,lag1,lag2,i0,j0,ccf,ccf1,ccf2,ia2,s3,LL,snr2,  &
           dat4,idec,decoded)
      call timer('list_dec',1)
   endif
@@ -217,15 +215,14 @@ subroutine q65_symspec(iwave,nmax,nsps,iz,jz,istep,nsmo,s1)
   return
 end subroutine q65_symspec
 
-subroutine q65_dec_q3(codewords,ncw,isync,sync,df,s1,iz,jz,ia,ibwa,ibwb,  &
-     nstep,nsps,mode_q65,lag1,lag2,i0,j0,ccf,ccf1,ccf2,ia2,s3,LL,snr2,    &
+subroutine q65_dec_q3(sync,df,s1,iz,jz,ia,  &
+     nsps,mode_q65,lag1,lag2,i0,j0,ccf,ccf1,ccf2,ia2,s3,LL,snr2,    &
      dat4,idec,decoded)
 
+  use q65
   character*37 decoded
-  integer isync(22)                      !Indices of sync symbols
   integer itone(85)
   integer ijpk(2)
-  integer codewords(63,206)
   integer dat4(13)
   real ccf(-ia2:ia2,-53:214)
   real ccf1(-ia2:ia2)

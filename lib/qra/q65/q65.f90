@@ -6,9 +6,11 @@ module q65
   integer listutc(10)
   integer apsym0(58),aph10(10)
   integer apmask(13),apsymbols(13)
+  integer,dimension(22) ::  isync = (/1,9,12,13,15,22,23,26,27,33,35,   &
+                                     38,46,50,55,60,62,66,69,74,76,85/)
   integer codewords(63,206)
   integer navg,ibwa,ibwb,ncw
-  real,allocatable,save :: s1a(:,:)           !Cumulative symbol spectra
+  real,allocatable,save :: s1a(:,:)      !Cumulative symbol spectra
 
 contains
 
@@ -46,7 +48,7 @@ end subroutine q65_dec2
 
 subroutine q65_s1_to_s3(s1,iz,jz,i0,j0,ipk,jpk,LL,mode_q65,sync,s3)
 
-! Copy from s1a into s3, then call the dec_q* routines
+! Copy from s1 or s1a into s3
 
   real s1(iz,jz)
   real s3(-64:LL-65,63)
