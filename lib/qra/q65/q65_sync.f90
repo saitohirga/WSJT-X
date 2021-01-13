@@ -329,36 +329,10 @@ subroutine q65_dec_q3(codewords,ncw,isync,sync,df,s1,iz,jz,ia,ibwa,ibwb,  &
   return
 end subroutine q65_dec_q3
 
-subroutine q65_s1_to_s3(s1,iz,jz,i0,j0,ipk,jpk,LL,mode_q65,sync,s3)
-
-! Copy from s1a into s3, then call the dec_q* routines
-
-  real s1(iz,jz)
-  real s3(-64:LL-65,63)
-  real sync(85)                          !sync vector
-  
-  i1=i0+ipk-64 + mode_q65
-  i2=i1+LL-1
-  if(i1.ge.1 .and. i2.le.iz) then
-     j=j0+jpk-7
-     n=0
-     do k=1,85
-        j=j+8
-        if(sync(k).gt.0.0) then
-           cycle
-        endif
-        n=n+1
-        if(j.ge.1 .and. j.le.jz) s3(-64:LL-65,n)=s1(i1:i2,j)
-     enddo
-  endif
-
-  return
-end subroutine q65_s1_to_s3
-
 subroutine q65_dec1(s3,nsubmode,b90ts,codewords,ncw,esnodb,irc,dat4,decoded)
 
-  use q65
   use packjt77
+  parameter (PLOG_MIN=-240.0)            !List decoding threshold
   real s3(1,1)       !Silence compiler warning that wants to see a 2D array
   real s3prob(0:63,63)                   !Symbol-value probabilities
   integer codewords(63,206)
@@ -381,27 +355,3 @@ subroutine q65_dec1(s3,nsubmode,b90ts,codewords,ncw,esnodb,irc,dat4,decoded)
   
   return
 end subroutine q65_dec1
-
-subroutine q65_dec2(s3,nsubmode,b90ts,esnodb,irc,dat4,decoded)
-
-  use q65
-  use packjt77
-  real s3(1,1)       !Silence compiler warning that wants to see a 2D array
-  real s3prob(0:63,63)                   !Symbol-value probabilities
-  integer dat4(13)
-  character c77*77,decoded*37
-  logical unpk77_success
-
-  nFadingModel=1
-  decoded='                                     '
-  call q65_intrinsics_ff(s3,nsubmode,b90ts,nFadingModel,s3prob)
-  call q65_dec(s3,s3prob,APmask,APsymbols,esnodb,dat4,irc)
-  if(sum(dat4).le.0) irc=-2
-  if(irc.ge.0) then
-     write(c77,1000) dat4(1:12),dat4(13)/2
-1000 format(12b6.6,b5.5)
-     call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
-  endif
-
-  return
-end subroutine q65_dec2
