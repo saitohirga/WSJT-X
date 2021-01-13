@@ -102,7 +102,7 @@ subroutine q65_sync(nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
 ! Try list decoding via "Deep Likelihood".
      call timer('list_dec',0)
      call q65_dec_q3(df,s1,iz,jz,ia,lag1,lag2,i0,j0,ccf,ccf1,ccf2, &
-          ia2,s3,LL,snr2,dat4,idec,decoded)
+          ia2,s3,LL,nfqso,dtstep,xdt,f0,snr2,dat4,idec,decoded)
      call timer('list_dec',1)
   endif
 
