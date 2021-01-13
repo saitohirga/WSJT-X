@@ -161,8 +161,8 @@ contains
     if(iand(ndepth,16).eq.16) then
        ! Try for an average decode.
        call timer('q65_avg2',0)
-       call q65_avg2(ntrperiod,baud,nsubmode,nQSOprogress,lapcqonly, &
-            codewords,ncw,xdt,f0,snr2,dat4,idec)
+!       call q65_avg2(ntrperiod,baud,nsubmode,nQSOprogress,lapcqonly, &
+!            codewords,ncw,xdt,f0,snr2,dat4,idec)
        call timer('q65_avg2',1)
     endif
     
