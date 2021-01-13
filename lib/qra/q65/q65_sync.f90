@@ -72,8 +72,8 @@ subroutine q65_sync(nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   endif
 
   call timer('s1      ',0)
-  nmax=ntrperiod*12000
-  call q65_symspec(iwave,nmax,iz,jz,s1)
+! Compute spectra with symbol length and NSTEP time bins per symbol.
+  call q65_symspec(iwave,ntrperiod*12000,iz,jz,s1)
   call timer('s1      ',1)
 
   i0=nint(nfqso/df)                           !Target QSO frequency
@@ -101,9 +101,8 @@ subroutine q65_sync(nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   if(ncw.gt.0) then
 ! Try list decoding via "Deep Likelihood".
      call timer('list_dec',0)
-     call q65_dec_q3(df,s1,iz,jz,ia,      &
-          lag1,lag2,i0,j0,ccf,ccf1,ccf2,ia2,s3,LL,snr2,  &
-          dat4,idec,decoded)
+     call q65_dec_q3(df,s1,iz,jz,ia,lag1,lag2,i0,j0,ccf,ccf1,ccf2, &
+          ia2,s3,LL,snr2,dat4,idec,decoded)
      call timer('list_dec',1)
   endif
 
@@ -302,7 +301,7 @@ subroutine q65_dec_q3(df,s1,iz,jz,ia,  &
   do ibw=ibwa,ibwb
      b90=1.72**ibw
      b90ts=b90/baud
-     call q65_dec1(s3,nsubmode,b90ts,codewords,ncw,esnodb,irc,dat4,decoded)
+     call q65_dec1(s3,nsubmode,b90ts,esnodb,irc,dat4,decoded)
      if(irc.ge.0) then
         snr2=esnodb - db(2500.0/baud) + 3.0     !Empirical adjustment
         idec=1
@@ -321,30 +320,3 @@ subroutine q65_dec_q3(df,s1,iz,jz,ia,  &
 
   return
 end subroutine q65_dec_q3
-
-subroutine q65_dec1(s3,nsubmode,b90ts,codewords,ncw,esnodb,irc,dat4,decoded)
-
-  use packjt77
-  parameter (PLOG_MIN=-240.0)            !List decoding threshold
-  real s3(1,1)       !Silence compiler warning that wants to see a 2D array
-  real s3prob(0:63,63)                   !Symbol-value probabilities
-  integer codewords(63,206)
-  integer dat4(13)
-  character c77*77,decoded*37
-  logical unpk77_success
-  
-  nFadingModel=1
-  decoded='                                     '
-  call q65_intrinsics_ff(s3,nsubmode,b90ts,nFadingModel,s3prob)
-  call q65_dec_fullaplist(s3,s3prob,codewords,ncw,esnodb,dat4,plog,irc)
-  if(sum(dat4).le.0) irc=-2
-  if(irc.ge.0 .and. plog.gt.PLOG_MIN) then
-     write(c77,1000) dat4(1:12),dat4(13)/2
-1000 format(12b6.6,b5.5)
-     call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
-  else
-     irc=-1
-  endif
-  
-  return
-end subroutine q65_dec1

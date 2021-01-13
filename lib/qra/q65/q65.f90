@@ -24,6 +24,31 @@ subroutine q65_clravg
   return
 end subroutine q65_clravg
 
+subroutine q65_dec1(s3,nsubmode,b90ts,esnodb,irc,dat4,decoded)
+
+  use packjt77
+  real s3(1,1)       !Silence compiler warning that wants to see a 2D array
+  real s3prob(0:63,63)                   !Symbol-value probabilities
+  integer dat4(13)
+  character c77*77,decoded*37
+  logical unpk77_success
+  
+  nFadingModel=1
+  decoded='                                     '
+  call q65_intrinsics_ff(s3,nsubmode,b90ts,nFadingModel,s3prob)
+  call q65_dec_fullaplist(s3,s3prob,codewords,ncw,esnodb,dat4,plog,irc)
+  if(sum(dat4).le.0) irc=-2
+  if(irc.ge.0 .and. plog.gt.PLOG_MIN) then
+     write(c77,1000) dat4(1:12),dat4(13)/2
+1000 format(12b6.6,b5.5)
+     call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
+  else
+     irc=-1
+  endif
+  
+  return
+end subroutine q65_dec1
+
 subroutine q65_dec2(s3,nsubmode,b90ts,esnodb,irc,dat4,decoded)
 
   use packjt77
