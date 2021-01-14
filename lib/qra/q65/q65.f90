@@ -60,7 +60,7 @@ subroutine q65_dec0(nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
 
   if(nutc+ndepth.eq.-999) stop           !Silence compiler warnings
 
-! Set seom parameters and allocate storage for large arrays
+! Set some parameters and allocate storage for large arrays
   irc=-2
   idec=-1
   snr1=0.
@@ -104,10 +104,10 @@ subroutine q65_dec0(nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   if(nsps.ge.7200) j0=1.0/dtstep              !Nominal start-signal index
 
   s3=0.
-  call timer('s1      ',0)
+  call timer('q65_syms',0)
 ! Compute symbol spectra with NSTEP time bins per symbol
   call q65_symspec(iwave,ntrperiod*12000,iz,jz,s1)
-  call timer('s1      ',1)
+  call timer('q65_syms',1)
 
   i0=nint(nfqso/df)                             !Target QSO frequency
   if(i0-64.lt.1 .or. i0-65+LL.gt.iz) go to 900  !Frequency out of range

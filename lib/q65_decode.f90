@@ -166,11 +166,17 @@ contains
     enddo
 
     if(iand(ndepth,16).eq.16) then
-! There was no single-transmission decode. Try for an average decode.
+! There was no single-transmission decode. Try for an average 'q3n' decode.
        call timer('list_avg',0)
        call q65_q3a(xdt,f0,nfqso,nsps,snr2,dat4,idec,decoded)
        call timer('list_avg',1)
-       nused=navg
+       if(idec.ge.0) then
+          nused=navg
+          go to 100
+       endif
+
+! There was no 'q3n' decode.  Try for a 'q[012]n' decode.
+!       call q65_q012a()
     endif
     
 100 decoded='                                     '
