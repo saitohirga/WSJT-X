@@ -9,9 +9,11 @@ module q65
   integer,dimension(22) ::  isync = (/1,9,12,13,15,22,23,26,27,33,35,   &
                                      38,46,50,55,60,62,66,69,74,76,85/)
   integer codewords(63,206)
-  integer navg,ibwa,ibwb,ncw,nsps,mode_q65,istep,nsmo
+  integer navg,ibwa,ibwb,ncw,nsps,mode_q65,istep,nsmo,lag1,lag2
+  integer i0,j0
   real,allocatable,save :: s1a(:,:)      !Cumulative symbol spectra
   real sync(85)                          !sync vector
+  real df,dtstep
 
 contains
 
@@ -117,8 +119,8 @@ subroutine q65_dec0(nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   if(ncw.gt.0) then
 ! Try list decoding via "Deep Likelihood".
      call timer('list_dec',0)
-     call q65_dec_q3(df,s1,iz,jz,ia,lag1,lag2,i0,j0,ccf,ccf1,ccf2, &
-          ia2,s3,LL,nfqso,dtstep,xdt,f0,snr2,dat4,idec,decoded)
+     call q65_dec_q3(s1,iz,jz,ia,ia2,ccf,ccf1,ccf2,s3,LL,nfqso,xdt,f0, &
+          snr2,dat4,idec,decoded)
      call timer('list_dec',1)
   endif
 
@@ -170,7 +172,7 @@ subroutine q65_dec0(nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
      xdt=jpk*dtstep
      ccf1=ccf(:,jpk)/rms
      if(snr1.gt.10.0) ccf1=(10.0/snr1)*ccf1
-     call q65_s1_to_s3(s1,iz,jz,i0,j0,ipk,jpk,LL,mode_q65,sync,s3)
+     call q65_s1_to_s3(s1,iz,jz,ipk,jpk,LL,mode_q65,sync,s3)
   endif
 
   smax=maxval(ccf1)
@@ -236,12 +238,10 @@ subroutine q65_symspec(iwave,nmax,iz,jz,s1)
   return
 end subroutine q65_symspec
 
-subroutine q65_dec_q3(df,s1,iz,jz,ia,lag1,lag2,i0,j0,ccf,ccf1,ccf2,  &
-     ia2,s3,LL,nfqso,dtstep,xdt,f0,snr2,dat4,idec,decoded)
+subroutine q65_dec_q3(s1,iz,jz,ia,ia2,ccf,ccf1,ccf2,s3,LL,nfqso,xdt,f0, &
+     snr2,dat4,idec,decoded)
 
   character*37 decoded
-  integer itone(85)
-  integer ijpk(2)
   integer dat4(13)
   real ccf(-ia2:ia2,-53:214)
   real ccf1(-ia2:ia2)
@@ -249,50 +249,8 @@ subroutine q65_dec_q3(df,s1,iz,jz,ia,lag1,lag2,i0,j0,ccf,ccf1,ccf2,  &
   real s1(iz,jz)
   real s3(-64:LL-65,63)
 
-  ipk=0
-  jpk=0
-  ccf_best=0.
-  imsg_best=-1
-  do imsg=1,ncw
-     i=1
-     k=0
-     do j=1,85
-        if(j.eq.isync(i)) then
-           i=i+1
-           itone(j)=-1
-        else
-           k=k+1
-           itone(j)=codewords(k,imsg)
-        endif
-     enddo
-! Compute 2D ccf using all 85 symbols in the list message
-     ccf=0.
-     iia=200.0/df
-
-     do lag=lag1,lag2
-        do k=1,85
-           j=j0 + NSTEP*(k-1) + 1 + lag
-           if(j.ge.1 .and. j.le.jz) then
-              do i=-ia2,ia2
-                 ii=i0+mode_q65*itone(k)+i
-                 if(ii.ge.iia .and. ii.le.iz) ccf(i,lag)=ccf(i,lag) + s1(ii,j)
-              enddo
-           endif
-        enddo
-     enddo
-
-     ccfmax=maxval(ccf(-ia:ia,:))
-     if(ccfmax.gt.ccf_best) then
-        ccf_best=ccfmax
-        ijpk=maxloc(ccf(-ia:ia,:))
-        ipk=ijpk(1)-ia-1
-        jpk=ijpk(2)-53-1
-        f0=nfqso + (ipk-mode_q65)*df
-        xdt=jpk*dtstep
-        imsg_best=imsg
-        ccf1=ccf(:,jpk)
-     endif
-  enddo  ! imsg
+  call q65_ccf_85(s1,iz,jz,nfqso,ia,ia2,   &
+       ipk,jpk,f0,xdt,imsg_best,ccf,ccf1)
 
   i1=i0+ipk-64
   i2=i1+LL-1
@@ -340,6 +298,64 @@ subroutine q65_dec_q3(df,s1,iz,jz,ia,lag1,lag2,i0,j0,ccf,ccf1,ccf2,  &
 
   return
 end subroutine q65_dec_q3
+
+subroutine q65_ccf_85(s1,iz,jz,nfqso,ia,ia2,  &
+     ipk,jpk,f0,xdt,imsg_best,ccf,ccf1)
+
+  real s1(iz,jz)
+  real ccf(-ia2:ia2,-53:214)
+  real ccf1(-ia2:ia2)
+  integer ijpk(2)
+  integer itone(85)
+  
+  ipk=0
+  jpk=0
+  ccf_best=0.
+  imsg_best=-1
+  do imsg=1,ncw
+     i=1
+     k=0
+     do j=1,85
+        if(j.eq.isync(i)) then
+           i=i+1
+           itone(j)=-1
+        else
+           k=k+1
+           itone(j)=codewords(k,imsg)
+        endif
+     enddo
+! Compute 2D ccf using all 85 symbols in the list message
+     ccf=0.
+     iia=200.0/df
+
+     do lag=lag1,lag2
+        do k=1,85
+           j=j0 + NSTEP*(k-1) + 1 + lag
+           if(j.ge.1 .and. j.le.jz) then
+              do i=-ia2,ia2
+                 ii=i0+mode_q65*itone(k)+i
+                 if(ii.ge.iia .and. ii.le.iz) ccf(i,lag)=ccf(i,lag) + s1(ii,j)
+              enddo
+           endif
+        enddo
+     enddo
+
+     ccfmax=maxval(ccf(-ia:ia,:))
+     if(ccfmax.gt.ccf_best) then
+        ccf_best=ccfmax
+        ijpk=maxloc(ccf(-ia:ia,:))
+        ipk=ijpk(1)-ia-1
+        jpk=ijpk(2)-53-1
+        f0=nfqso + (ipk-mode_q65)*df
+        xdt=jpk*dtstep
+        imsg_best=imsg
+        ccf1=ccf(:,jpk)
+     endif
+  enddo  ! imsg
+
+  return
+end subroutine q65_ccf_85
+
 
 subroutine q65_dec1(s3,nsubmode,b90ts,esnodb,irc,dat4,decoded)
 
@@ -389,7 +405,7 @@ subroutine q65_dec2(s3,nsubmode,b90ts,esnodb,irc,dat4,decoded)
   return
 end subroutine q65_dec2
 
-subroutine q65_s1_to_s3(s1,iz,jz,i0,j0,ipk,jpk,LL,mode_q65,sync,s3)
+subroutine q65_s1_to_s3(s1,iz,jz,ipk,jpk,LL,mode_q65,sync,s3)
 
 ! Copy from s1 or s1a into s3
 
