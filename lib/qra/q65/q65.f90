@@ -17,12 +17,13 @@ module q65
 
 contains
 
-subroutine q65_dec0(nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
+subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
      emedelay,xdt,f0,snr1,width,dat4,snr2,idec)
 
 ! Top-level routine in q65 module
 
-! Input:  iwave(0:nmax-1)        Raw data
+! Input:  iavg                   0 for single-period decode, 1 for average
+!         iwave(0:nmax-1)        Raw data
 !         ntrperiod              T/R sequence length (s)
 !         nfqso                  Target frequency (Hz)
 !         ntol                   Search range around nfqso (Hz)
@@ -104,10 +105,14 @@ subroutine q65_dec0(nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   if(nsps.ge.7200) j0=1.0/dtstep              !Nominal start-signal index
 
   s3=0.
-  call timer('q65_syms',0)
+  if(iavg.eq.0) then
+     call timer('q65_syms',0)
 ! Compute symbol spectra with NSTEP time bins per symbol
-  call q65_symspec(iwave,ntrperiod*12000,iz,jz,s1)
-  call timer('q65_syms',1)
+     call q65_symspec(iwave,ntrperiod*12000,iz,jz,s1)
+     call timer('q65_syms',1)
+  else
+     s1=s1a
+  endif
 
   i0=nint(nfqso/df)                             !Target QSO frequency
   if(i0-64.lt.1 .or. i0-65+LL.gt.iz) go to 900  !Frequency out of range
@@ -281,27 +286,6 @@ subroutine q65_dec_q3(s1,iz,jz,s3,LL,ipk,jpk,snr2,dat4,idec,decoded)
 
   return
 end subroutine q65_dec_q3
-
-subroutine q65_q3a(xdt,f0,nfqso,nsps,snr2,dat4,idec,decoded)
-
-  integer dat4(13)
-  character*37 decoded
-  real, allocatable :: s3a(:,:)         !Symbol energies for avg s3a(LL,63)
-
-  df=12000.0/nsps
-  dtstep=float(nsps)/(NSTEP*12000.0)
-  iz=5000.0/df                     !Uppermost frequency bin, at 5000 Hz
-  txt=85.0*nsps/12000.0
-  istep=nsps/NSTEP
-  jz=(txt+1.0)*12000.0/istep       !Number of symbol/NSTEP bins
-  LL=64*(2+mode_q65)
-  allocate(s3a(-64:LL-65,63))
-  ipk=nint((f0-nfqso)/df) + mode_q65
-  jpk=nint(xdt/dtstep)
-  call q65_dec_q3(s1a,iz,jz,s3a,LL,ipk,jpk,snr2,dat4,idec,decoded)
-
-  return
-end subroutine q65_q3a
 
 subroutine q65_ccf_85(s1,iz,jz,nfqso,ia,ia2,  &
      ipk,jpk,f0,xdt,imsg_best,ccf,ccf1)

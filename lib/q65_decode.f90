@@ -108,9 +108,10 @@ contains
     call q65_enc(dgen,codewords)         !Initialize the Q65 codec
 
     nused=1
+    iavg=0
     call timer('q65_dec0',0)
 ! Call top-level routine in q65 module: establish sync and try for a q3 decode.
-    call q65_dec0(nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
+    call q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
          emedelay,xdt,f0,snr1,width,dat4,snr2,idec)
 !    idec=-1   !### TEMPORARY ###
     call timer('q65_dec0',1)
@@ -168,7 +169,10 @@ contains
     if(iand(ndepth,16).eq.16) then
 ! There was no single-transmission decode. Try for an average 'q3n' decode.
        call timer('list_avg',0)
-       call q65_q3a(xdt,f0,nfqso,nsps,snr2,dat4,idec,decoded)
+! Call top-level routine in q65 module: establish sync and try for a q3 decode.
+       iavg=1
+       call q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
+            emedelay,xdt,f0,snr1,width,dat4,snr2,idec)
        call timer('list_avg',1)
        if(idec.ge.0) then
           nused=navg
