@@ -61,7 +61,6 @@ contains
     integer*2 iwave(NMAX)                 !Raw data
     real, allocatable :: dd(:)            !Raw data
     integer dat4(13)                      !Decoded message as 12 6-bit integers
-    integer apmask1(78),apsymbols1(78)
     integer dgen(13)
     logical lclearave,lapcqonly,unpk77_success
     complex, allocatable :: c00(:)        !Analytic signal, 6000 Sa/s
@@ -165,38 +164,31 @@ contains
        if(idec.ge.0) go to 100       !Successful decode, we're done
     enddo  ! ipass
 
-    if(iand(ndepth,16).eq.16) then
+    if(iand(ndepth,16).eq.0 .or. navg.lt.2) go to 100
 ! There was no single-transmission decode. Try for an average 'q3n' decode.
-       call timer('list_avg',0)
+    call timer('list_avg',0)
 ! Call top-level routine in q65 module: establish sync and try for a q3
 ! decode, this time using the cumulative 's1a' symbol spectra.
-       iavg=1
-       call q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
-            emedelay,xdt,f0,snr1,width,dat4,snr2,idec)
-       call timer('list_avg',1)
-       if(idec.ge.0) then
-          nused=navg
-          go to 100
-       endif
+    iavg=1
+    call q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
+         emedelay,xdt,f0,snr1,width,dat4,snr2,idec)
+    call timer('list_avg',1)
+    if(idec.ge.0) then
+       nused=navg
+       go to 100
+    endif
 
 ! There was no 'q3n' decode.  Try for a 'q[012]n' decode.
-       do ipass=0,npasses                  !Loop over AP passes
-          apmask=0                         !Try first with no AP information
-          apsymbols=0
-          if(ipass.ge.1) then
-          ! Subsequent passes use AP information appropiate for nQSOprogress
-             call q65_ap(nQSOprogress,ipass,ncontest,lapcqonly,iaptype,   &
-                  apsym0,apmask1,apsymbols1)
-             write(c78,1050) apmask1
-             read(c78,1060) apmask
-             write(c78,1050) apsymbols1
-             read(c78,1060) apsymbols
-          endif
-!          call q65_dec012()    
-          if(idec.ge.0) go to 100       !Successful decode, we're done
-       enddo
-    endif
-    
+! Call top-level routine in q65 module: establish sync and try for a q[012]n
+! decode, this time using the cumulative 's1a' symbol spectra.
+
+    call timer('q65_avg ',0)
+    iavg=2
+    call q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
+         emedelay,xdt,f0,snr1,width,dat4,snr2,idec)
+    call timer('q65_avg ',1)
+     if(idec.ge.0) nused=navg
+
 100 decoded='                                     '
     if(idec.ge.0) then
 ! idec Meaning
@@ -217,6 +209,7 @@ contains
     else
 ! Report snr1, even if no decode.
        nsnr=db(snr1) - 35.0
+       if(nsnr.lt.-35) nsnr=-35
        idec=-1
        call this%callback(nutc,snr1,nsnr,xdt1,f1,decoded,              &
             idec,navg,ntrperiod)

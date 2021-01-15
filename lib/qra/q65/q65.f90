@@ -5,11 +5,13 @@ module q65
   integer nsave,nlist,LL0
   integer listutc(10)
   integer apsym0(58),aph10(10)
+  integer apmask1(78),apsymbols1(78)
   integer apmask(13),apsymbols(13)
   integer,dimension(22) ::  isync = (/1,9,12,13,15,22,23,26,27,33,35,   &
                                      38,46,50,55,60,62,66,69,74,76,85/)
   integer codewords(63,206)
-  integer navg,ibwa,ibwb,ncw,nsps,mode_q65,istep,nsmo,lag1,lag2
+  integer navg,ibwa,ibwb,ncw,nsps,mode_q65
+  integer istep,nsmo,lag1,lag2,npasses,nused
   integer i0,j0
   real,allocatable,save :: s1a(:,:)      !Cumulative symbol spectra
   real sync(85)                          !sync vector
@@ -96,6 +98,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
      s1a=0.
      navg=0
      LL0=LL
+     lclearave=.false.
   endif
   dtstep=nsps/(NSTEP*12000.0)                 !Step size in seconds
   lag1=-1.0/dtstep
@@ -113,7 +116,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   else
      s1=s1a
   endif
-
+  
   i0=nint(nfqso/df)                             !Target QSO frequency
   if(i0-64.lt.1 .or. i0-65+LL.gt.iz) go to 900  !Frequency out of range
   call pctile(s1(i0-64:i0-65+LL,1:jz),LL*jz,40,base)
@@ -127,7 +130,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   enddo
 
   dat4=0
-  if(ncw.gt.0) then
+  if(ncw.gt.0 .and. iavg.lt.2) then
 ! Try list decoding via "Deep Likelihood".
      call timer('ccf_85  ',0)
 ! Try to synchronize using all 85 symbols
@@ -196,6 +199,10 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   enddo
   close(17)
 
+  if(iavg.eq.2) then
+     call q65_dec_q012(s3,LL,snr2,dat4,idec,decoded)
+  endif
+  
 900 return
 end subroutine q65_dec0
   
@@ -286,6 +293,56 @@ subroutine q65_dec_q3(s1,iz,jz,s3,LL,ipk,jpk,snr2,dat4,idec,decoded)
 
   return
 end subroutine q65_dec_q3
+
+subroutine q65_dec_q012(s3,LL,snr2,dat4,idec,decoded)
+
+  character*37 decoded
+  character*78 c78
+  integer dat4(13)
+  real s3(-64:LL-65,63)
+  logical lapcqonly
+
+  nsubmode=0
+  if(mode_q65.eq.2) nsubmode=1
+  if(mode_q65.eq.4) nsubmode=2
+  if(mode_q65.eq.8) nsubmode=3
+  if(mode_q65.eq.16) nsubmode=4
+  
+  baud=12000.0/nsps
+  iaptype=0
+  nQSOprogress=0    !### TEMPORARY  ? ###
+  ncontest=0
+  lapcqonly=.false.
+  
+  do ipass=0,npasses                  !Loop over AP passes
+     apmask=0                         !Try first with no AP information
+     apsymbols=0
+     if(ipass.ge.1) then
+        ! Subsequent passes use AP information appropiate for nQSOprogress
+        call q65_ap(nQSOprogress,ipass,ncontest,lapcqonly,iaptype,   &
+             apsym0,apmask1,apsymbols1)
+        write(c78,1050) apmask1
+1050    format(78i1)
+        read(c78,1060) apmask
+1060    format(13b6.6)
+        write(c78,1050) apsymbols1
+        read(c78,1060) apsymbols
+     endif
+
+     do ibw=ibwa,ibwb
+        b90=1.72**ibw
+        b90ts=b90/baud
+        call q65_dec2(s3,nsubmode,b90ts,esnodb,irc,dat4,decoded)
+        if(irc.ge.0) then
+           snr2=esnodb - db(2500.0/baud) + 3.0     !Empirical adjustment
+           idec=iaptype
+           go to 100
+        endif
+     enddo
+  enddo
+
+100 return
+end subroutine q65_dec_q012
 
 subroutine q65_ccf_85(s1,iz,jz,nfqso,ia,ia2,  &
      ipk,jpk,f0,xdt,imsg_best,ccf,ccf1)
