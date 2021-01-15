@@ -2853,6 +2853,7 @@ Double-click to reset to the standard 73 message</string>
     <addaction name="actionEnable_AP_FT8"/>
     <addaction name="actionEnable_AP_JT65"/>
     <addaction name="actionEnable_AP_DXcall"/>
+    <addaction name="actionAuto_Clear_Avg"/>
    </widget>
    <widget class="QMenu" name="menuSave">
     <property name="title">
@@ -3394,6 +3395,14 @@ Double-click to reset to the standard 73 message</string>
   <action name="actionQSG_Q65">
    <property name="text">
     <string>Quick-Start Guide to Q65</string>
+   </property>
+  </action>
+  <action name="actionAuto_Clear_Avg">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Auto Clear Avg after decode</string>
    </property>
   </action>
  </widget>

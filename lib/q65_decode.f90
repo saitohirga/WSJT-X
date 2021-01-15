@@ -205,7 +205,7 @@ contains
        call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
        nsnr=nint(snr2)
        call this%callback(nutc,snr1,nsnr,xdt1,f1,decoded,idec,nused,ntrperiod)
-       call q65_clravg       !Automatic ClrAvg after a decode
+       if(iand(ndepth,128).ne.0) call q65_clravg    !AutoClrAvg after decode
     else
 ! Report snr1, even if no decode.
        nsnr=db(snr1) - 35.0
