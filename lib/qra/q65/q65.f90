@@ -154,7 +154,11 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   endif
 
 ! Get 2d CCF and ccf2 using sync symbols only
-  call q65_ccf_22(s1,iz,jz,nfqso,ia,ia2,ipk,jpk,f0,xdt,ccf,ccf2)
+  call q65_ccf_22(s1,iz,jz,nfqso,ia,ia2,ipk,jpk,f0a,xdta,ccf,ccf2)
+  if(idec.lt.0) then
+     f0=f0a
+     xdt=xdta
+  endif
 
 ! Estimate rms on ccf baseline
   sq=0.
