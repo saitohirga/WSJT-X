@@ -3373,12 +3373,18 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
     if(line_read.indexOf("<DecodeFinished>") >= 0) {
       m_bDecoded =  line_read.mid(20).trimmed().toInt() > 0;
-      if(m_nDecodes==0) ndecodes_label.setText("0");
+      int n=line_read.trimmed().size();
+      int navg=line_read.trimmed().mid(n-2).toInt();
+      if(m_mode=="Q65") {
+        ndecodes_label.setText(QString::number(navg));
+      } else {
+        if(m_nDecodes==0) ndecodes_label.setText("0");
+      }
       decodeDone ();
       return;
     } else {
       m_nDecodes+=1;
-      ndecodes_label.setText(QString::number(m_nDecodes));
+      if(m_mode!="Q65") ndecodes_label.setText(QString::number(m_nDecodes));
       if(m_mode=="JT4" or m_mode=="JT65" or m_mode=="Q65") {
         //### Do something about Q65 here ?  ###
         int nf=line_read.indexOf("f");

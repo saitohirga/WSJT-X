@@ -10,7 +10,7 @@ module q65
   integer,dimension(22) ::  isync = (/1,9,12,13,15,22,23,26,27,33,35,   &
                                      38,46,50,55,60,62,66,69,74,76,85/)
   integer codewords(63,206)
-  integer navg,ibwa,ibwb,ncw,nsps,mode_q65
+  integer navg,ibwa,ibwb,ncw,nsps,mode_q65,nfa,nfb
   integer istep,nsmo,lag1,lag2,npasses,nused
   integer i0,j0
   real,allocatable,save :: s1a(:,:)      !Cumulative symbol spectra
@@ -198,8 +198,10 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
 ! Write data for the red and orange sync curves.
   do i=-ia2,ia2
      freq=nfqso + i*df
-     write(17,1100) freq,ccf1(i),xdt,ccf2(i)
-1100 format(4f10.3)
+     if(freq.ge.float(nfa) .and. freq.le.float(nfb)) then
+        write(17,1100) freq,ccf1(i),xdt,ccf2(i)
+1100    format(4f10.3)
+     endif
   enddo
   close(17)
 

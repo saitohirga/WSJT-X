@@ -27,8 +27,8 @@ module q65_decode
 contains
 
   subroutine decode(this,callback,iwave,nutc,ntrperiod,nsubmode,nfqso,      &
-       ntol,ndepth,lclearave,emedelay,mycall,hiscall,hisgrid,nQSOprogress,  &
-       ncontest,lapcqonly)
+       ntol,ndepth,nfa0,nfb0,lclearave,emedelay,mycall,hiscall,hisgrid,       &
+       nQSOprogress,ncontest,lapcqonly,navg0)
 
 ! Top-level routine that organizes the decoding of Q65 signals
 ! Input:  iwave            Raw data, i*2
@@ -67,6 +67,8 @@ contains
     complex, allocatable :: c0(:)         !Analytic signal, 6000 Sa/s
 
 ! Start by setting some parameters and allocating storage for large arrays
+    nfa=nfa0
+    nfb=nfb0
     idec=-1
     mode_q65=2**nsubmode
     npts=ntrperiod*12000
@@ -212,8 +214,9 @@ contains
        if(nsnr.lt.-35) nsnr=-35
        idec=-1
        call this%callback(nutc,snr1,nsnr,xdt1,f1,decoded,              &
-            idec,navg,ntrperiod)
+            idec,0,ntrperiod)
     endif
+    navg0=navg
 
     return
   end subroutine decode
