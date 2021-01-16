@@ -77,7 +77,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   jz=(txt+1.0)*12000.0/istep             !Number of symbol/NSTEP bins
   if(nsps.ge.6912) jz=(txt+2.0)*12000.0/istep   !For TR 60 s and higher
   ia=ntol/df
-  ia2=max(ia,10*mode_q65,nint(100.0/df))
+  ia2=max(ia,10*mode_q65,nint(3000.0/df))
   nsmo=int(0.7*mode_q65*mode_q65)
   if(nsmo.lt.1) nsmo=1
   if(first) then                         !Generate the sync vector
