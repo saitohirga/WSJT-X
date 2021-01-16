@@ -11,7 +11,7 @@ module q65
                                      38,46,50,55,60,62,66,69,74,76,85/)
   integer codewords(63,206)
   integer navg,ibwa,ibwb,ncw,nsps,mode_q65,nfa,nfb
-  integer istep,nsmo,lag1,lag2,npasses,nused
+  integer istep,lag1,lag2,npasses,nused
   integer i0,j0
   real,allocatable,save :: s1a(:,:)      !Cumulative symbol spectra
   real sync(85)                          !sync vector
@@ -77,9 +77,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   jz=(txt+1.0)*12000.0/istep             !Number of symbol/NSTEP bins
   if(nsps.ge.6912) jz=(txt+2.0)*12000.0/istep   !For TR 60 s and higher
   ia=ntol/df
-  ia2=max(ia,10*mode_q65,nint(3000.0/df))
-  nsmo=int(0.7*mode_q65*mode_q65)
-  if(nsmo.lt.1) nsmo=1
+  ia2=max(ia,10*mode_q65,nint(100.0/df))
   if(first) then                         !Generate the sync vector
      sync=-22.0/63.0                     !Sync tone OFF  
      do k=1,22
@@ -243,10 +241,6 @@ subroutine q65_symspec(iwave,nmax,iz,jz,s1)
      call four2a(c0,nfft,1,-1,0)              !r2c FFT
      do i=1,iz
         s1(i,j)=real(c0(i))**2 + aimag(c0(i))**2
-     enddo
-! For large Doppler spreads, should we smooth the spectra here?
-     do i=1,nsmo
-        call smo121(s1(1:iz,j),iz)
      enddo
   enddo
   s1a=s1a+s1
