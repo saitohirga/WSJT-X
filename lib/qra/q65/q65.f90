@@ -2,7 +2,7 @@ module q65
 
   parameter (NSTEP=8)                !Time bins per symbol, in s1() and s1a()
   parameter (PLOG_MIN=-240.0)        !List decoding threshold
-  integer nsave,nlist,LL0
+  integer nsave,nlist,LL0,iz0,jz0
   integer listutc(10)
   integer apsym0(58),aph10(10)
   integer apmask1(78),apsymbols1(78)
@@ -90,12 +90,14 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   allocate(ccf(-ia2:ia2,-53:214))
   allocate(ccf1(-ia2:ia2))
   allocate(ccf2(-ia2:ia2))
-  if(LL.ne.LL0 .or. lclearave) then
+  if(LL.ne.LL0 .or. iz.ne.iz0 .or. jz.ne.jz0 .or. lclearave) then
      if(allocated(s1a)) deallocate(s1a)
      allocate(s1a(iz,jz))
      s1a=0.
      navg=0
      LL0=LL
+     iz0=iz
+     jz0=jz
      lclearave=.false.
   endif
   dtstep=nsps/(NSTEP*12000.0)                 !Step size in seconds
@@ -114,7 +116,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   else
      s1=s1a
   endif
-  
+
   i0=nint(nfqso/df)                             !Target QSO frequency
   if(i0-64.lt.1 .or. i0-65+LL.gt.iz) go to 900  !Frequency out of range
   call pctile(s1(i0-64:i0-65+LL,1:jz),LL*jz,40,base)
@@ -206,7 +208,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   if(iavg.eq.2) then
      call q65_dec_q012(s3,LL,snr2,dat4,idec,decoded)
   endif
-  
+
 900 return
 end subroutine q65_dec0
   
@@ -461,7 +463,7 @@ end subroutine q65_dec1
 subroutine q65_dec2(s3,nsubmode,b90ts,esnodb,irc,dat4,decoded)
 
   use packjt77
-  real s3(1,1)       !Silence compiler warning that wants to see a 2D array
+  real s3(iz0,jz0)       !Silence compiler warning that wants to see a 2D array
   real s3prob(0:63,63)                   !Symbol-value probabilities
   integer dat4(13)
   character c77*77,decoded*37
