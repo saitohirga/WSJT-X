@@ -23,7 +23,10 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
      emedelay,xdt,f0,snr1,width,dat4,snr2,idec)
 
 ! Top-level routine in q65 module
-
+!   - Compute symbol spectra
+!   - Attempt sync and q3 decode using all 85 symbols
+!   - If that fails, try sync with 22 symbols and standard q[0124] decode
+  
 ! Input:  iavg                   0 for single-period decode, 1 for average
 !         iwave(0:nmax-1)        Raw data
 !         ntrperiod              T/R sequence length (s)
@@ -41,8 +44,8 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
 !         idec                   Flag for decing results
 !            -1  No decode
 !             0  No AP
-!             1  "CQ      ?  ?"
-!             2  "Mycall  ?  ?"
+!             1  "CQ        ?    ?"
+!             2  "Mycall    ?    ?"
 !             3  "MyCall HisCall ?"
 
   use packjt77
@@ -211,8 +214,10 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
 
 900 return
 end subroutine q65_dec0
-  
+
 subroutine q65_clravg
+
+! Clear the averaging array to start a new average.
 
   if(allocated(s1a)) s1a=0.
   navg=0
@@ -222,6 +227,8 @@ end subroutine q65_clravg
 
 subroutine q65_symspec(iwave,nmax,iz,jz,s1)
 
+! Compute symbol spectra with NSTEP time-steps per symbol.
+  
   integer*2 iwave(0:nmax-1)              !Raw data
   real s1(iz,jz)
   complex, allocatable :: c0(:)          !Complex spectrum of symbol
@@ -252,6 +259,8 @@ subroutine q65_symspec(iwave,nmax,iz,jz,s1)
 end subroutine q65_symspec
 
 subroutine q65_dec_q3(s1,iz,jz,s3,LL,ipk,jpk,snr2,dat4,idec,decoded)
+
+! Copy synchronized symbol spectra from s1 into s3, then attempt a q3 decode.
 
   character*37 decoded
   integer dat4(13)
@@ -298,6 +307,8 @@ end subroutine q65_dec_q3
 
 subroutine q65_dec_q012(s3,LL,snr2,dat4,idec,decoded)
 
+! Do separate passes attempting q0, q1, q2 decodes.
+  
   character*37 decoded
   character*78 c78
   integer dat4(13)
@@ -346,9 +357,11 @@ subroutine q65_dec_q012(s3,LL,snr2,dat4,idec,decoded)
 100 return
 end subroutine q65_dec_q012
 
-subroutine q65_ccf_85(s1,iz,jz,nfqso,ia,ia2,  &
-     ipk,jpk,f0,xdt,imsg_best,ccf,ccf1)
+subroutine q65_ccf_85(s1,iz,jz,nfqso,ia,ia2,ipk,jpk,f0,xdt,imsg_best,ccf,ccf1)
 
+! Attempt synchronization using all 85 symbols, in advance of an
+! attempt at q3 decoding.  Return ccf1 for the "red sync curve".
+  
   real s1(iz,jz)
   real ccf(-ia2:ia2,-53:214)
   real ccf1(-ia2:ia2)
@@ -371,6 +384,7 @@ subroutine q65_ccf_85(s1,iz,jz,nfqso,ia,ia2,  &
            itone(j)=codewords(k,imsg)
         endif
      enddo
+
 ! Compute 2D ccf using all 85 symbols in the list message
      ccf=0.
      iia=200.0/df
@@ -405,6 +419,9 @@ end subroutine q65_ccf_85
 
 subroutine q65_ccf_22(s1,iz,jz,nfqso,ia,ia2,ipk,jpk,f0,xdt,ccf,ccf2)
 
+! Attempt synchronization using only the 22 sync symbols.  Return ccf2
+! for the "orange sync curve".
+  
   real s1(iz,jz)
   real ccf(-ia2:ia2,-53:214)
   real ccf2(-ia2:ia2)
@@ -437,6 +454,8 @@ end subroutine q65_ccf_22
 
 subroutine q65_dec1(s3,nsubmode,b90ts,esnodb,irc,dat4,decoded)
 
+! Attmpt a full-AP list decode.
+
   use packjt77
   real s3(1,1)       !Silence compiler warning that wants to see a 2D array
   real s3prob(0:63,63)                   !Symbol-value probabilities
@@ -462,6 +481,8 @@ end subroutine q65_dec1
 
 subroutine q65_dec2(s3,nsubmode,b90ts,esnodb,irc,dat4,decoded)
 
+! Attempt a q0, q1, or q2 decode using spcified AP information.
+
   use packjt77
   real s3(iz0,jz0)       !Silence compiler warning that wants to see a 2D array
   real s3prob(0:63,63)                   !Symbol-value probabilities
@@ -485,7 +506,7 @@ end subroutine q65_dec2
 
 subroutine q65_s1_to_s3(s1,iz,jz,ipk,jpk,LL,mode_q65,sync,s3)
 
-! Copy from s1 or s1a into s3
+! Copy synchronized symbol energies from s1 (or s1a) into s3.
 
   real s1(iz,jz)
   real s3(-64:LL-65,63)
