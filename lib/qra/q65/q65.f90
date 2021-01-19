@@ -10,9 +10,10 @@ module q65
   integer,dimension(22) ::  isync = (/1,9,12,13,15,22,23,26,27,33,35,   &
                                      38,46,50,55,60,62,66,69,74,76,85/)
   integer codewords(63,206)
-  integer navg,ibwa,ibwb,ncw,nsps,mode_q65,nfa,nfb
+  integer ibwa,ibwb,ncw,nsps,mode_q65,nfa,nfb
   integer istep,nsmo,lag1,lag2,npasses,nused,iseq
   integer i0,j0
+  integer navg(0:1)
   real,allocatable,save :: s1a(:,:,:)      !Cumulative symbol spectra
   real sync(85)                            !sync vector
   real df,dtstep,dtdec,f0dec
@@ -222,8 +223,8 @@ subroutine q65_clravg
 
 ! Clear the averaging array to start a new average.
 
-  if(allocated(s1a)) s1a=0.
-  navg=0
+  if(allocated(s1a)) s1a(:,:,iseq)=0.
+  navg(iseq)=0
   
   return
 end subroutine q65_clravg
@@ -260,7 +261,7 @@ subroutine q65_symspec(iwave,nmax,iz,jz,s1)
      enddo
   enddo
   s1a(:,:,iseq)=s1a(:,:,iseq) + s1
-  navg=navg+1
+  navg(iseq)=navg(iseq) + 1
 
   return
 end subroutine q65_symspec

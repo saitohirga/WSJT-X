@@ -3374,9 +3374,13 @@ void MainWindow::readFromStdout()                             //readFromStdout
     if(line_read.indexOf("<DecodeFinished>") >= 0) {
       m_bDecoded =  line_read.mid(20).trimmed().toInt() > 0;
       int n=line_read.trimmed().size();
-      int navg=line_read.trimmed().mid(n-2).toInt();
+      int n2=line_read.trimmed().mid(n-7).toInt();
+      int n0=n2/1000;
+      int n1=n2%1000;
       if(m_mode=="Q65") {
-        ndecodes_label.setText(QString::number(navg));
+        QString t;
+        t.sprintf("%d  %d",n0,n1);
+        ndecodes_label.setText(t);
       } else {
         if(m_nDecodes==0) ndecodes_label.setText("0");
       }

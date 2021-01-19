@@ -180,7 +180,7 @@ contains
        endif
     enddo  ! ipass
 
-    if(iand(ndepth,16).eq.0 .or. navg.lt.2) go to 100
+    if(iand(ndepth,16).eq.0 .or. navg(iseq).lt.2) go to 100
 ! There was no single-transmission decode. Try for an average 'q3n' decode.
     call timer('list_avg',0)
 ! Call top-level routine in q65 module: establish sync and try for a q3
@@ -192,7 +192,7 @@ contains
     if(idec.ge.0) then
        dtdec=xdt               !We have a list-decode result from averaged data
        f0dec=f0
-       nused=navg
+       nused=navg(iseq)
        go to 100
     endif
 
@@ -208,7 +208,7 @@ contains
     if(idec.ge.0) then
        dtdec=xdt                          !We have a q[012]n result
        f0dec=f0
-       nused=navg
+       nused=navg(iseq)
     endif
 
 100 decoded='                                     '
@@ -237,7 +237,7 @@ contains
        call this%callback(nutc,snr1,nsnr,xdt,f0,decoded,              &
             idec,0,ntrperiod)
     endif
-    navg0=navg
+    navg0=1000*navg(0) + navg(1)
 
     return
   end subroutine decode

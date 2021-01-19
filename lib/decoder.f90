@@ -367,8 +367,9 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   endif
   if(params%nmode.ne.8 .or. params%nzhsym.eq.50 .or.                     &
        .not.params%ndiskdat) then
+     
      write(*,1010) nsynced,ndecoded,navg0
-1010 format('<DecodeFinished>',3i4)
+1010 format('<DecodeFinished>',2i4,i9)
      call flush(6)
   endif
   close(13)
@@ -763,7 +764,7 @@ contains
  end subroutine fst4_decoded
 
  subroutine q65_decoded (this,nutc,snr1,nsnr,dt,freq,decoded,idec,   &
-      navg,ntrperiod)
+      nused,ntrperiod)
 
     use q65_decode
     implicit none
@@ -776,7 +777,7 @@ contains
     real, intent(in) :: freq
     character(len=37), intent(in) :: decoded
     integer, intent(in) :: idec
-    integer, intent(in) :: navg
+    integer, intent(in) :: nused
     integer, intent(in) :: ntrperiod
     character*3 cflags
   
@@ -784,7 +785,7 @@ contains
     if(idec.ge.0) then
        cflags='q  '
        write(cflags(2:2),'(i1)') idec
-       if(navg.ge.2) write(cflags(3:3),'(i1)') navg
+       if(nused.ge.2) write(cflags(3:3),'(i1)') nused
     endif
 
     if(ntrperiod.lt.60) then
