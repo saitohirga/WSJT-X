@@ -1,7 +1,7 @@
 module q65
 
   parameter (NSTEP=8)                !Time bins per symbol, in s1() and s1a()
-  parameter (PLOG_MIN=-240.0)        !List decoding threshold
+  parameter (PLOG_MIN=-242.0)        !List decoding threshold
   integer nsave,nlist,LL0,iz0,jz0
   integer listutc(10)
   integer apsym0(58),aph10(10)
@@ -15,7 +15,7 @@ module q65
   integer i0,j0
   real,allocatable,save :: s1a(:,:)      !Cumulative symbol spectra
   real sync(85)                          !sync vector
-  real df,dtstep
+  real df,dtstep,dtdec,f0dec
 
 contains
 
@@ -208,7 +208,8 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
 1100    format(4f10.3)
      endif
   enddo
-  close(17)
+  rewind 17
+
 
   if(iavg.eq.2) then
      call q65_dec_q012(s3,LL,snr2,dat4,idec,decoded)

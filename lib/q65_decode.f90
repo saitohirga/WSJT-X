@@ -118,14 +118,14 @@ contains
     call timer('q65_dec0',1)
 
     if(idec.ge.0) then
-       xdt1=xdt                          !We have a list-decode result
-       f1=f0
+       dtdec=xdt                          !We have a list-decode result
+       f0dec=f0
        go to 100
     endif
 
     if(snr1.lt.2.8) then
-       xdt1=0.                   !No reliable sync, abandon decoding attempt
-       f1=0.
+       dtdec=0.                   !No reliable sync, abandon decoding attempt
+       f0dec=0.
        go to 100
     endif
 
@@ -163,7 +163,11 @@ contains
             xdt,f0,iaptype,xdt1,f1,snr2,dat4,idec)
 !       idec=-1   !### TEMPORARY ###
        call timer('q65loops',1)
-       if(idec.ge.0) go to 100       !Successful decode, we're done
+       if(idec.ge.0) then
+          dtdec=xdt1
+          f0dec=f1
+          go to 100       !Successful decode, we're done
+       endif
     enddo  ! ipass
 
     if(iand(ndepth,16).eq.0 .or. navg.lt.2) go to 100
@@ -176,6 +180,8 @@ contains
          emedelay,xdt,f0,snr1,width,dat4,snr2,idec)
     call timer('list_avg',1)
     if(idec.ge.0) then
+       dtdec=xdt               !We have a list-decode result from averaged data
+       f0dec=f0
        nused=navg
        go to 100
     endif
@@ -189,7 +195,11 @@ contains
     call q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
          emedelay,xdt,f0,snr1,width,dat4,snr2,idec)
     call timer('q65_avg ',1)
-     if(idec.ge.0) nused=navg
+    if(idec.ge.0) then
+       dtdec=xdt                          !We have a q[012]n result
+       f0dec=f0
+       nused=navg
+    endif
 
 100 decoded='                                     '
     if(idec.ge.0) then
@@ -206,14 +216,14 @@ contains
 1000   format(12b6.6,b5.5)
        call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
        nsnr=nint(snr2)
-       call this%callback(nutc,snr1,nsnr,xdt1,f1,decoded,idec,nused,ntrperiod)
+       call this%callback(nutc,snr1,nsnr,dtdec,f0dec,decoded,idec,nused,ntrperiod)
        if(iand(ndepth,128).ne.0) call q65_clravg    !AutoClrAvg after decode
     else
 ! Report snr1, even if no decode.
        nsnr=db(snr1) - 35.0
        if(nsnr.lt.-35) nsnr=-35
        idec=-1
-       call this%callback(nutc,snr1,nsnr,xdt1,f1,decoded,              &
+       call this%callback(nutc,snr1,nsnr,xdt,f0,decoded,              &
             idec,0,ntrperiod)
     endif
     navg0=navg

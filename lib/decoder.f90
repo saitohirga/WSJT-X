@@ -211,6 +211,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
           params%emedelay,mycall,hiscall,hisgrid,params%nQSOProgress,  &
           ncontest,logical(params%lapcqonly),navg0)
      call timer('dec_q65 ',1)
+     close(17)
      go to 800
   endif
 
