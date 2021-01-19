@@ -1,6 +1,6 @@
 module q65
 
-  parameter (NSTEP=8)                !Time bins per symbol, in s1() and s1a()
+  parameter (NSTEP=8)          !Number of time bins per symbol in s1, s1a, s1b
   parameter (PLOG_MIN=-242.0)        !List decoding threshold
   integer nsave,nlist,LL0,iz0,jz0
   integer listutc(10)
@@ -11,10 +11,10 @@ module q65
                                      38,46,50,55,60,62,66,69,74,76,85/)
   integer codewords(63,206)
   integer navg,ibwa,ibwb,ncw,nsps,mode_q65,nfa,nfb
-  integer istep,nsmo,lag1,lag2,npasses,nused
+  integer istep,nsmo,lag1,lag2,npasses,nused,iseq
   integer i0,j0
-  real,allocatable,save :: s1a(:,:)      !Cumulative symbol spectra
-  real sync(85)                          !sync vector
+  real,allocatable,save :: s1a(:,:,:)      !Cumulative symbol spectra
+  real sync(85)                            !sync vector
   real df,dtstep,dtdec,f0dec
 
 contains
@@ -97,7 +97,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   allocate(ccf2(-ia2:ia2))
   if(LL.ne.LL0 .or. iz.ne.iz0 .or. jz.ne.jz0 .or. lclearave) then
      if(allocated(s1a)) deallocate(s1a)
-     allocate(s1a(iz,jz))
+     allocate(s1a(iz,jz,0:1))
      s1a=0.
      navg=0
      LL0=LL
@@ -119,7 +119,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
      call q65_symspec(iwave,ntrperiod*12000,iz,jz,s1)
      call timer('q65_syms',1)
   else
-     s1=s1a
+     s1=s1a(:,:,iseq)
   endif
 
   i0=nint(nfqso/df)                             !Target QSO frequency
@@ -259,7 +259,7 @@ subroutine q65_symspec(iwave,nmax,iz,jz,s1)
         call smo121(s1(1:iz,j),iz)
      enddo
   enddo
-  s1a=s1a+s1
+  s1a(:,:,iseq)=s1a(:,:,iseq) + s1
   navg=navg+1
 
   return

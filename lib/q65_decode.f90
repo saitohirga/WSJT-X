@@ -8,7 +8,7 @@ module q65_decode
 
   abstract interface
      subroutine q65_decode_callback (this,nutc,snr1,nsnr,dt,freq,    &
-          decoded,idec,navg,ntrperiod)
+          decoded,idec,nused,ntrperiod)
        import q65_decoder
        implicit none
        class(q65_decoder), intent(inout) :: this
@@ -19,7 +19,7 @@ module q65_decode
        real, intent(in) :: freq
        character(len=37), intent(in) :: decoded
        integer, intent(in) :: idec
-       integer, intent(in) :: navg
+       integer, intent(in) :: nused
        integer, intent(in) :: ntrperiod
      end subroutine q65_decode_callback
   end interface
@@ -58,6 +58,7 @@ contains
     character*37 decoded                  !Decoded message
     character*77 c77
     character*78 c78
+    character*6 cutc
     integer*2 iwave(NMAX)                 !Raw data
     real, allocatable :: dd(:)            !Raw data
     integer dat4(13)                      !Decoded message as 12 6-bit integers
@@ -74,6 +75,15 @@ contains
     npts=ntrperiod*12000
     nfft1=ntrperiod*12000
     nfft2=ntrperiod*6000
+
+! Determine the T/R sequence: iseq=0 (even), or iseq=1 (odd)
+    n=nutc
+    if(ntrperiod.ge.60) n=100*n
+    write(cutc,'(i6.6)') n
+    read(cutc,'(3i2)') ih,im,is
+    nsec=3600*ih + 60*im + is
+    iseq=mod(nsec/ntrperiod,2)
+
     if(lclearave) call q65_clravg
     allocate(dd(npts))
     allocate (c00(0:nfft1-1))
@@ -216,7 +226,8 @@ contains
 1000   format(12b6.6,b5.5)
        call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
        nsnr=nint(snr2)
-       call this%callback(nutc,snr1,nsnr,dtdec,f0dec,decoded,idec,nused,ntrperiod)
+       call this%callback(nutc,snr1,nsnr,dtdec,f0dec,decoded,    &
+            idec,nused,ntrperiod)
        if(iand(ndepth,128).ne.0) call q65_clravg    !AutoClrAvg after decode
     else
 ! Report snr1, even if no decode.
