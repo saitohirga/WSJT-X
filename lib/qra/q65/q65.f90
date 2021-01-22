@@ -256,6 +256,7 @@ subroutine q65_symspec(iwave,nmax,iz,jz,s1)
         s1(i,j)=real(c0(i))**2 + aimag(c0(i))**2
      enddo
 ! For large Doppler spreads, should we smooth the spectra here?
+     if(nsmo.le.1) nsmo=0
      do i=1,nsmo
         call smo121(s1(1:iz,j),iz)
      enddo
