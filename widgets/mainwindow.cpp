@@ -9171,6 +9171,8 @@ void MainWindow::write_all(QString txRx, QString message)
      mode_string="JT65  ";
   } else if (message.size () > 19 && message[19]=='@') {
      mode_string="JT9   ";
+  } else if(m_mode=="Q65") {
+    mode_string=mode_label.text();
   } else {
      mode_string=m_mode.leftJustified(6,' ');
   }
