@@ -14,6 +14,7 @@ module q65
   integer istep,nsmo,lag1,lag2,npasses,nused,iseq
   integer i0,j0
   integer navg(0:1)
+  logical lnewdat
   real,allocatable,save :: s1a(:,:,:)      !Cumulative symbol spectra
   real sync(85)                            !sync vector
   real df,dtstep,dtdec,f0dec
@@ -261,8 +262,10 @@ subroutine q65_symspec(iwave,nmax,iz,jz,s1)
         call smo121(s1(1:iz,j),iz)
      enddo
   enddo
-  s1a(:,:,iseq)=s1a(:,:,iseq) + s1
-  navg(iseq)=navg(iseq) + 1
+  if(lnewdat) then
+     s1a(:,:,iseq)=s1a(:,:,iseq) + s1
+     navg(iseq)=navg(iseq) + 1
+  endif
 
   return
 end subroutine q65_symspec
