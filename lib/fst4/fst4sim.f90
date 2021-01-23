@@ -120,7 +120,7 @@ program fst4sim
       if(fspread.gt.0.0 .or. delay.ne.0.0) call watterson(c,nwave,NZ,fs,delay,fspread)
       if(fspread.lt.0.0) call lorentzian_fading(c,nwave,fs,-fspread)
       c=sig*c
-      wave=real(c)
+      wave=aimag(c)
       if(snrdb.lt.90) then
          do i=1,nmax                   !Add gaussian noise at specified SNR
             xnoise=gran()
