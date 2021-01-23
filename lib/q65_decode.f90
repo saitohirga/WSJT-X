@@ -108,7 +108,7 @@ contains
     this%callback => callback
     nFadingModel=1
     ibwa=max(1,int(1.8*log(baud*mode_q65)) + 2)
-    ibwb=min(10,ibwa+4)
+    ibwb=min(10,ibwa+5)
     if(iand(ndepth,3).eq.3) then
        ibwa=max(1,ibwa-1)
        ibwb=min(10,ibwb+1)
