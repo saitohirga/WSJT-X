@@ -1041,7 +1041,7 @@ void MainWindow::not_GA_warning_message ()
                                 "available for testing purposes.  By design it will\n"
                                 "be nonfunctional after 0000 UTC on Jan 26, 2021.");
   auto now = QDateTime::currentDateTimeUtc ();
-  if (now >= QDateTime {{2021, 1, 26}, {0, 0}, Qt::UTC}) {
+  if (now >= QDateTime {{2021, 2, 2}, {0, 0}, Qt::UTC}) {
     Q_EMIT finished ();
   }
 }
