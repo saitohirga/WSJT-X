@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
 
   auto const env = QProcessEnvironment::systemEnvironment ();
 
-  QApplication a(argc, argv);
+  ExceptionCatchingApplication a(argc, argv);
   try
     {
       // LOG_INfO ("+++++++++++++++++++++++++++ Resources ++++++++++++++++++++++++++++");
@@ -397,7 +397,7 @@ int main(int argc, char *argv[])
                                               a.translate ("main", "Unable to create shared memory segment"));
                 throw std::runtime_error {"Shared memory error"};
               }
-              LOG_INFO ("shmem size:" << mem_jt9.size ());
+              LOG_INFO ("shmem size: " << mem_jt9.size ());
             }
           else
             {
