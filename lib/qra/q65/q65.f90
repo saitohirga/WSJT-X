@@ -11,6 +11,7 @@ module q65
                                      38,46,50,55,60,62,66,69,74,76,85/)
   integer codewords(63,206)
   integer ibwa,ibwb,ncw,nsps,mode_q65,nfa,nfb
+  integer idf,idt,ibw
   integer istep,nsmo,lag1,lag2,npasses,nused,iseq
   integer i0,j0
   integer navg(0:1)

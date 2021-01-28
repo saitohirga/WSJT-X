@@ -49,6 +49,7 @@ contains
     use packjt77
     use, intrinsic :: iso_c_binding
     use q65                               !Shared variables
+    use prog_args
  
     parameter (NMAX=300*12000)            !Max TRperiod is 300 s
     class(q65_decoder), intent(inout) :: this
@@ -59,6 +60,7 @@ contains
     character*77 c77
     character*78 c78
     character*6 cutc
+    character c6*6,c4*4
     integer*2 iwave(NMAX)                 !Raw data
     real, allocatable :: dd(:)            !Raw data
     integer dat4(13)                      !Decoded message as 12 6-bit integers
@@ -68,10 +70,14 @@ contains
     complex, allocatable :: c0(:)         !Analytic signal, 6000 Sa/s
 
 ! Start by setting some parameters and allocating storage for large arrays
+    call sec0(0,tdecode)
     nfa=nfa0
     nfb=nfb0
     lnewdat=lnewdat0
     idec=-1
+    idf=0
+    idt=0
+    irc=0
     mode_q65=2**nsubmode
     npts=ntrperiod*12000
     nfft1=ntrperiod*12000
@@ -230,12 +236,34 @@ contains
        call this%callback(nutc,snr1,nsnr,dtdec,f0dec,decoded,    &
             idec,nused,ntrperiod)
        if(iand(ndepth,128).ne.0) call q65_clravg    !AutoClrAvg after decode
+       call sec0(1,tdecode)
+       open(22,file=trim(data_dir)//'/q65_decodes.dat',status='unknown',     &
+            position='append',iostat=ios)
+       if(ios.eq.0) then
+! Save decoding parameters to q65_decoded.dat, for later analysis.
+          c6=hiscall(1:6)
+          if(c6.eq.'      ') c6='<b>   '
+          c4=hisgrid(1:4)
+          if(c4.eq.'    ') c4='<b> '
+          if(ntrperiod.ge.60) then
+             write(22,1022) nutc,ntrperiod,nsubmode,nQSOprogress,idec,     &
+                  nused,iaptype,irc,idf,idt,ibw,xdt,f0,snr1,snr2,          &
+                  tdecode,mycall(1:6),c6,c4,trim(decoded)
+1022         format(i6.4,10i3,f6.2,f7.1,f7.2,f6.1,f6.2,1x,a6,1x,a6,1x,a4,1x,a)
+          else
+             write(22,1023) nutc,ntrperiod,nsubmode,nQSOprogress,idec,     &
+                  nused,iaptype,irc,idf,idt,ibw,xdt,f0,snr1,snr2,          &
+                  tdecode,mycall(1:6),c6,c4,trim(decoded)
+1023         format(i6.6,10i3,f6.2,f7.1,f7.2,f6.1,f6.2,1x,a6,1x,a6,1x,a4,1x,a)
+          endif
+          close(22)
+       endif
     else
 ! Report snr1, even if no decode.
        nsnr=db(snr1) - 35.0
        if(nsnr.lt.-35) nsnr=-35
        idec=-1
-       call this%callback(nutc,snr1,nsnr,xdt,f0,decoded,              &
+       call this%callback(nutc,snr1,nsnr,xdt,f0,decoded,                  &
             idec,0,ntrperiod)
     endif
     navg0=1000*navg(0) + navg(1)
