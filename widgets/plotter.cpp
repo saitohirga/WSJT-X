@@ -165,6 +165,7 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
   }
   static QPoint LineBuf[MAX_SCREENSIZE];
   static QPoint LineBuf2[MAX_SCREENSIZE];
+  static QPoint LineBuf3[MAX_SCREENSIZE];
   j=0;
   j0=int(m_startFreq/m_fftBinWidth + 0.5);
   int iz=XfromFreq(5000.0);
@@ -284,17 +285,23 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
         f >> freq >> sync >> xdt >> sync2;
         if(f.eof()) break;
         x=XfromFreq(freq);
-        if(m_bQ65_MultiSync) sync=sync2;
+//        if(m_bQ65_MultiSync) sync=sync2;
         y=m_h2*(0.9 - 0.09*gain2d*sync) - m_plot2dZero;
         LineBuf2[k].setX(x);
         LineBuf2[k].setY(y);
+        y=m_h2*(0.9 - 0.09*gain2d*sync2) - m_plot2dZero - 10;
+        LineBuf3[k].setX(x);
+        LineBuf3[k].setY(y);
         k++;
       }
       f.close();
      QPen pen0(Qt::red,2);
-     if(m_bQ65_MultiSync) pen0.setColor("orange");
+//     if(m_bQ65_MultiSync) pen0.setColor("orange");
       painter2D.setPen(pen0);
       painter2D.drawPolyline(LineBuf2,k);
+      pen0.setColor("orange");
+      painter2D.setPen(pen0);
+      painter2D.drawPolyline(LineBuf3,k);
       if(m_bQ65_Sync) {
         QString t;
         t = t.asprintf("DT = %6.2f",xdt);
