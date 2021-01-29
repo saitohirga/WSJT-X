@@ -203,16 +203,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   enddo
   width=df*(i2-i1)
 
-! Write data for the red and orange sync curves.
-  do i=-ia2,ia2
-     freq=nfqso + i*df
-     if(freq.ge.float(nfa) .and. freq.le.float(nfb)) then
-        write(17,1100) freq,ccf1(i),xdt,ccf2(i)
-1100    format(4f10.3)
-     endif
-  enddo
-  rewind 17
-
+  call q65_write_red(ia2,nfqso,xdt,ccf1,ccf2)
 
   if(iavg.eq.2) then
      call q65_dec_q012(s3,LL,snr2,dat4,idec,decoded)
@@ -528,5 +519,23 @@ subroutine q65_s1_to_s3(s1,iz,jz,ipk,jpk,LL,mode_q65,sync,itone0,s3)
 
   return
 end subroutine q65_s1_to_s3
+
+subroutine q65_write_red(ia2,nfqso,xdt,ccf1,ccf2)
+
+  real ccf1(-ia2:ia2)
+  real ccf2(-ia2:ia2)
+
+! Write data for the red and orange sync curves to LU 17.
+  rewind 17
+  do i=-ia2,ia2
+     freq=nfqso + i*df
+     if(freq.ge.float(nfa) .and. freq.le.float(nfb)) then
+        write(17,1100) freq,ccf1(i),xdt,ccf2(i)
+1100    format(4f10.3)
+     endif
+  enddo
+
+  return
+end subroutine q65_write_red
 
 end module q65
