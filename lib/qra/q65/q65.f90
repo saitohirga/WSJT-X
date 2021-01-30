@@ -148,7 +148,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
      call timer('list_dec',0)
      call q65_dec_q3(s1,iz,jz,s3,LL,ipk,jpk,snr2,dat4,idec,decoded)
      call timer('list_dec',1)
-     if(idec.ne.0) then
+     if(idec.eq.3) then
         ic=ia2/4;
         base=(sum(ccf1(-ia2:-ia2+ic)) + sum(ccf1(ia2-ic:ia2)))/(2.0+2.0*ic);
         ccf1=ccf1-base
@@ -191,7 +191,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
 ! into s3 and prepare to try a more general decode.
      ccf1=ccf(:,jpk)/rms
      if(snr1.gt.10.0) ccf1=(10.0/snr1)*ccf1
-     call q65_s1_to_s3(s1,iz,jz,ipk,jpk,LL,mode_q65,sync,1,s3)
+     call q65_s1_to_s3(s1,iz,jz,ipk,jpk,LL,mode_q65,sync,s3)
   endif
 
   smax=maxval(ccf1)
@@ -271,7 +271,7 @@ subroutine q65_dec_q3(s1,iz,jz,s3,LL,ipk,jpk,snr2,dat4,idec,decoded)
   real s1(iz,jz)
   real s3(-64:LL-65,63)
 
-  call q65_s1_to_s3(s1,iz,jz,ipk,jpk,LL,mode_q65,sync,0,s3)
+  call q65_s1_to_s3(s1,iz,jz,ipk,jpk,LL,mode_q65,sync,s3)
 
   nsubmode=0
   if(mode_q65.eq.2) nsubmode=1
@@ -368,10 +368,10 @@ subroutine q65_ccf_85(s1,iz,jz,nfqso,ia,ia2,ipk,jpk,f0,xdt,imsg_best,ccf,ccf1)
      do j=1,85
         if(j.eq.isync(i)) then
            i=i+1
-           itone(j)=-1
+           itone(j)=0
         else
            k=k+1
-           itone(j)=codewords(k,imsg)
+           itone(j)=codewords(k,imsg) + 1
         endif
      enddo
 
@@ -397,7 +397,7 @@ subroutine q65_ccf_85(s1,iz,jz,nfqso,ia,ia2,ipk,jpk,f0,xdt,imsg_best,ccf,ccf1)
         ijpk=maxloc(ccf(-ia:ia,:))
         ipk=ijpk(1)-ia-1
         jpk=ijpk(2)-53-1
-        f0=nfqso + (ipk-mode_q65)*df
+        f0=nfqso + ipk*df
         xdt=jpk*dtstep
         imsg_best=imsg
         ccf1=ccf(:,jpk)
@@ -415,27 +415,40 @@ subroutine q65_ccf_22(s1,iz,jz,nfqso,ia,ia2,ipk,jpk,f0,xdt,ccf,ccf2)
   real s1(iz,jz)
   real ccf(-ia2:ia2,-53:214)
   real ccf2(-ia2:ia2)
-  integer ijpk(2)
 
   ccf=0.
-  do lag=lag1,lag2
-     do k=1,85
-        n=NSTEP*(k-1) + 1
-        j=n+lag+j0
-        if(j.ge.1 .and. j.le.jz) then
-           do i=-ia2,ia2
-              if(i0+i.lt.1 .or. i0+i.gt.iz) cycle
-              ccf(i,lag)=ccf(i,lag) + sync(k)*s1(i0+i,j)
-           enddo
-        endif
-     enddo
-  enddo
+  ccfbest=0.
+  ibest=0
+  lagpk=0
+  lagbest=0
   do i=-ia2,ia2
-     ccf2(i)=maxval(ccf(i,:))
+     if(i0+i.lt.1 .or. i0+i.gt.iz) cycle
+     ccfmax=0.
+     do lag=lag1,lag2
+        ccft=0.
+        do k=1,85
+           n=NSTEP*(k-1) + 1
+           j=n+lag+j0
+           if(j.ge.1 .and. j.le.jz) then
+              ccft=ccft + sync(k)*s1(i0+i,j)
+           endif
+        enddo
+        if(ccft.gt.ccfmax) then
+           ccfmax=ccft
+           lagpk=lag
+        endif
+        ccf(i,lag)=ccft
+     enddo
+     ccf2(i)=ccfmax
+     if(ccfmax.gt.ccfbest) then
+        ccfbest=ccfmax
+        ibest=i
+        lagbest=lagpk
+     endif
   enddo
-  ijpk=maxloc(ccf(-ia:ia,:))
-  ipk=ijpk(1)-ia-1
-  jpk=ijpk(2)-53-1
+
+  ipk=ibest
+  jpk=lagbest
   f0=nfqso + ipk*df
   xdt=jpk*dtstep
 
@@ -494,7 +507,7 @@ subroutine q65_dec2(s3,nsubmode,b90ts,esnodb,irc,dat4,decoded)
   return
 end subroutine q65_dec2
 
-subroutine q65_s1_to_s3(s1,iz,jz,ipk,jpk,LL,mode_q65,sync,itone0,s3)
+subroutine q65_s1_to_s3(s1,iz,jz,ipk,jpk,LL,mode_q65,sync,s3)
 
 ! Copy synchronized symbol energies from s1 (or s1a) into s3.
 
@@ -502,7 +515,7 @@ subroutine q65_s1_to_s3(s1,iz,jz,ipk,jpk,LL,mode_q65,sync,itone0,s3)
   real s3(-64:LL-65,63)
   real sync(85)                          !sync vector
   
-  i1=i0+ipk-64 + mode_q65*itone0
+  i1=i0+ipk-64 + mode_q65
   i2=i1+LL-1
   if(i1.ge.1 .and. i2.le.iz) then
      j=j0+jpk-7
