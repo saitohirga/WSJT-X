@@ -21,7 +21,6 @@ subroutine spec64(c0,nsps,mode_q65,jpk,s3,LL,NN)
      j=j+1
      ja=(k-1)*nsps + jpk
      jb=ja+nsps-1
-     write(71,*) k,ja,jb ; flush(71)
      cs(0:nfft-1)=c0(ja:jb)
      call four2a(cs,nsps,1,-1,1)             !c2c FFT to frequency
      do ii=1,LL
