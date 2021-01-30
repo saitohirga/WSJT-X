@@ -169,19 +169,9 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   endif
 
 ! Estimate rms on ccf baseline
-  sq=0.
-  nsq=0
-  jd=(lag2-lag1)/4
-  do i=-ia2,ia2
-     do j=lag1,lag2
-        if(abs(j-jpk).gt.jd .and. abs(i-ipk).gt.ia/2) then
-           sq=sq + ccf(i,j)**2
-           nsq=nsq+1
-        endif
-     enddo
-  enddo
-  rms=sqrt(sq/nsq)
-  smax=ccf(ipk,jpk)
+  call pctile(ccf2(-ia2:ia2),2*ia2+1,40,base)
+  rms=0.6*base                              !Empirical constant 0.6
+  smax=maxval(ccf2)
   snr1=smax/rms
   ccf2=ccf2/rms
   if(snr1.gt.10.0) ccf2=(10.0/snr1)*ccf2
