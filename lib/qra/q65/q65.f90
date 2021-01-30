@@ -148,39 +148,23 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
      call timer('list_dec',0)
      call q65_dec_q3(s1,iz,jz,s3,LL,ipk,jpk,snr2,dat4,idec,decoded)
      call timer('list_dec',1)
-     if(idec.eq.3) then
-        ic=ia2/4;
-        base=(sum(ccf1(-ia2:-ia2+ic)) + sum(ccf1(ia2-ic:ia2)))/(2.0+2.0*ic);
-        ccf1=ccf1-base
-        smax=maxval(ccf1)
-        if(smax.gt.10.0) ccf1=10.0*ccf1/smax
-        base=(sum(ccf2(-ia2:-ia2+ic)) + sum(ccf2(ia2-ic:ia2)))/(2.0+2.0*ic);
-        ccf2=ccf2-base
-        smax=maxval(ccf2)
-        if(smax.gt.10.0) ccf2=10.0*ccf2/smax
-     endif
   endif
 
 ! Get 2d CCF and ccf2 using sync symbols only
-  call q65_ccf_22(s1,iz,jz,nfqso,ia,ia2,ipk,jpk,f0a,xdta,ccf,ccf2)
+  call q65_ccf_22(s1,iz,jz,nfqso,ia2,ipk,jpk,f0a,xdta,ccf2)
   if(idec.lt.0) then
      f0=f0a
      xdt=xdta
   endif
 
-! Estimate rms on ccf baseline
-  call pctile(ccf2(-ia2:ia2),2*ia2+1,40,base)
-  rms=0.6*base                              !Empirical constant 0.6
+! Estimate rms on ccf2 baseline
+  call q65_sync_curve(ccf2,ia2,rms2)
   smax=maxval(ccf2)
-  snr1=smax/rms
-  ccf2=ccf2/rms
-  if(snr1.gt.10.0) ccf2=(10.0/snr1)*ccf2
+  snr1=smax/rms2
 
   if(idec.le.0) then
-! The q3 decode attempt failed. Copy synchronied symbol energies from s1
+! The q3 decode attempt failed. Copy synchronized symbol energies from s1
 ! into s3 and prepare to try a more general decode.
-     ccf1=ccf(:,jpk)/rms
-     if(snr1.gt.10.0) ccf1=(10.0/snr1)*ccf1
      call q65_s1_to_s3(s1,iz,jz,ipk,jpk,LL,mode_q65,sync,s3)
   endif
 
@@ -399,16 +383,14 @@ subroutine q65_ccf_85(s1,iz,jz,nfqso,ia,ia2,ipk,jpk,f0,xdt,imsg_best,ccf,ccf1)
   return
 end subroutine q65_ccf_85
 
-subroutine q65_ccf_22(s1,iz,jz,nfqso,ia,ia2,ipk,jpk,f0,xdt,ccf,ccf2)
+subroutine q65_ccf_22(s1,iz,jz,nfqso,ia2,ipk,jpk,f0,xdt,ccf2)
 
 ! Attempt synchronization using only the 22 sync symbols.  Return ccf2
 ! for the "orange sync curve".
   
   real s1(iz,jz)
-  real ccf(-ia2:ia2,-53:214)
   real ccf2(-ia2:ia2)
 
-  ccf=0.
   ccfbest=0.
   ibest=0
   lagpk=0
@@ -429,7 +411,6 @@ subroutine q65_ccf_22(s1,iz,jz,nfqso,ia,ia2,ipk,jpk,f0,xdt,ccf,ccf2)
            ccfmax=ccft
            lagpk=lag
         endif
-        ccf(i,lag)=ccft
      enddo
      ccf2(i)=ccfmax
      if(ccfmax.gt.ccfbest) then
@@ -527,10 +508,14 @@ end subroutine q65_s1_to_s3
 
 subroutine q65_write_red(ia2,nfqso,xdt,ccf1,ccf2)
 
+! Write data for the red and orange sync curves to LU 17.
+
   real ccf1(-ia2:ia2)
   real ccf2(-ia2:ia2)
 
-! Write data for the red and orange sync curves to LU 17.
+  call q65_sync_curve(ccf1,ia2,rms1)
+  call q65_sync_curve(ccf2,ia2,rms2)
+
   rewind 17
   do i=-ia2,ia2
      freq=nfqso + i*df
@@ -542,5 +527,26 @@ subroutine q65_write_red(ia2,nfqso,xdt,ccf1,ccf2)
 
   return
 end subroutine q65_write_red
+
+subroutine q65_sync_curve(ccf1,ia2,rms1)
+
+! Condition the red or orange sync curve for plotting.
+
+  real ccf1(-ia2:ia2)
+
+  ic=ia2/4;
+  nsum=2*(ic+1)
+
+  base1=(sum(ccf1(-ia2:-ia2+ic)) + sum(ccf1(ia2-ic:ia2)))/nsum
+  ccf1(-ia2:ia2)=ccf1(-ia2:ia2)-base1
+  sq=dot_product(ccf1(-ia2:-ia2+ic),ccf1(-ia2:-ia2+ic)) +         &
+       dot_product(ccf1(ia2-ic:ia2),ccf1(ia2-ic:ia2))
+  rms1=sqrt(sq/nsum)
+  ccf1=2.0*ccf1/rms1
+  smax1=maxval(ccf1)
+  if(smax1.gt.10.0) ccf1=10.0*ccf1/smax1
+
+  return
+end subroutine q65_sync_curve
 
 end module q65
