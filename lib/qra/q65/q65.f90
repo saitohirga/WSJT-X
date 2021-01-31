@@ -18,7 +18,7 @@ module q65
   logical lnewdat
   real,allocatable,save :: s1a(:,:,:)      !Cumulative symbol spectra
   real sync(85)                            !sync vector
-  real df,dtstep,dtdec,f0dec
+  real df,dtstep,dtdec,f0dec,ftol
 
 contains
 
@@ -81,6 +81,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   txt=85.0*nsps/12000.0
   jz=(txt+1.0)*12000.0/istep             !Number of symbol/NSTEP bins
   if(nsps.ge.6912) jz=(txt+2.0)*12000.0/istep   !For TR 60 s and higher
+  ftol=ntol
   ia=ntol/df
   ia2=max(ia,10*mode_q65,nint(100.0/df))
   nsmo=int(0.7*mode_q65*mode_q65)
@@ -95,7 +96,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   allocate(s1(iz,jz))
   allocate(s3(-64:LL-65,63))
   allocate(ccf1(-ia2:ia2))
-  allocate(ccf2(-ia2:ia2))
+  allocate(ccf2(iz))
   if(LL.ne.LL0 .or. iz.ne.iz0 .or. jz.ne.jz0 .or. lclearave) then
      if(allocated(s1a)) deallocate(s1a)
      allocate(s1a(iz,jz,0:1))
@@ -149,14 +150,14 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   endif
 
 ! Get 2d CCF and ccf2 using sync symbols only
-  call q65_ccf_22(s1,iz,jz,nfqso,ia2,ipk,jpk,f0a,xdta,ccf2)
+  call q65_ccf_22(s1,iz,jz,nfqso,ipk,jpk,f0a,xdta,ccf2)
   if(idec.lt.0) then
      f0=f0a
      xdt=xdta
   endif
 
 ! Estimate rms on ccf2 baseline
-  call q65_sync_curve(ccf2,ia2,rms2)
+  call q65_sync_curve(ccf2,1,iz,rms2)
   smax=maxval(ccf2)
   snr1=0.
   if(rms2.gt.0) snr1=smax/rms2
@@ -179,7 +180,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   width=df*(i2-i1)
 
   if(ncw.eq.0) ccf1=0.
-  call q65_write_red(ia2,nfqso,xdt,ccf1,ccf2)
+  call q65_write_red(iz,ia2,xdt,ccf1,ccf2)
 
   if(iavg.eq.2) then
      call q65_dec_q012(s3,LL,snr2,dat4,idec,decoded)
@@ -385,20 +386,19 @@ subroutine q65_ccf_85(s1,iz,jz,nfqso,ia,ia2,ipk,jpk,f0,xdt,imsg_best,ccf1)
   return
 end subroutine q65_ccf_85
 
-subroutine q65_ccf_22(s1,iz,jz,nfqso,ia2,ipk,jpk,f0,xdt,ccf2)
+subroutine q65_ccf_22(s1,iz,jz,nfqso,ipk,jpk,f0,xdt,ccf2)
 
 ! Attempt synchronization using only the 22 sync symbols.  Return ccf2
 ! for the "orange sync curve".
-  
+
   real s1(iz,jz)
-  real ccf2(-ia2:ia2)
+  real ccf2(iz)                               !Orange sync curve
 
   ccfbest=0.
   ibest=0
   lagpk=0
   lagbest=0
-  do i=-ia2,ia2
-     if(i0+i.lt.1 .or. i0+i.gt.iz) cycle
+  do i=1,iz
      ccfmax=0.
      do lag=lag1,lag2
         ccft=0.
@@ -406,7 +406,7 @@ subroutine q65_ccf_22(s1,iz,jz,nfqso,ia2,ipk,jpk,f0,xdt,ccf2)
            n=NSTEP*(k-1) + 1
            j=n+lag+j0
            if(j.ge.1 .and. j.le.jz) then
-              ccft=ccft + sync(k)*s1(i0+i,j)
+              ccft=ccft + sync(k)*s1(i,j)
            endif
         enddo
         if(ccft.gt.ccfmax) then
@@ -415,14 +415,14 @@ subroutine q65_ccf_22(s1,iz,jz,nfqso,ia2,ipk,jpk,f0,xdt,ccf2)
         endif
      enddo
      ccf2(i)=ccfmax
-     if(ccfmax.gt.ccfbest) then
+     if(ccfmax.gt.ccfbest .and. abs(i*df-nfqso).le.ftol) then
         ccfbest=ccfmax
         ibest=i
         lagbest=lagpk
      endif
   enddo
 
-  ipk=ibest
+  ipk=ibest - i0
   jpk=lagbest
   f0=nfqso + ipk*df
   xdt=jpk*dtstep
@@ -508,21 +508,24 @@ subroutine q65_s1_to_s3(s1,iz,jz,ipk,jpk,LL,mode_q65,sync,s3)
   return
 end subroutine q65_s1_to_s3
 
-subroutine q65_write_red(ia2,nfqso,xdt,ccf1,ccf2)
+subroutine q65_write_red(iz,ia2,xdt,ccf1,ccf2)
 
 ! Write data for the red and orange sync curves to LU 17.
 
   real ccf1(-ia2:ia2)
-  real ccf2(-ia2:ia2)
+  real ccf2(iz)
 
-  call q65_sync_curve(ccf1,ia2,rms1)
-  call q65_sync_curve(ccf2,ia2,rms2)
+  call q65_sync_curve(ccf1,-ia2,ia2,rms1)
+  call q65_sync_curve(ccf2,1,iz,rms2)
 
   rewind 17
-  do i=-ia2,ia2
-     freq=nfqso + i*df
+  do i=1,iz
+     freq=i*df
+     ii=i-i0
      if(freq.ge.float(nfa) .and. freq.le.float(nfb)) then
-        write(17,1100) freq,ccf1(i),xdt,ccf2(i)
+        ccf1a=-99.0
+        if(ii.ge.-ia2 .and. ii.le.ia2) ccf1a=ccf1(ii)
+        write(17,1100) freq,ccf1a,xdt,ccf2(i)
 1100    format(4f10.3)
      endif
   enddo
@@ -530,19 +533,19 @@ subroutine q65_write_red(ia2,nfqso,xdt,ccf1,ccf2)
   return
 end subroutine q65_write_red
 
-subroutine q65_sync_curve(ccf1,ia2,rms1)
+subroutine q65_sync_curve(ccf1,ia,ib,rms1)
 
 ! Condition the red or orange sync curve for plotting.
 
-  real ccf1(-ia2:ia2)
+  real ccf1(ia:ib)
 
-  ic=ia2/4;
+  ic=(ib-ia)/8;
   nsum=2*(ic+1)
 
-  base1=(sum(ccf1(-ia2:-ia2+ic)) + sum(ccf1(ia2-ic:ia2)))/nsum
-  ccf1(-ia2:ia2)=ccf1(-ia2:ia2)-base1
-  sq=dot_product(ccf1(-ia2:-ia2+ic),ccf1(-ia2:-ia2+ic)) +         &
-       dot_product(ccf1(ia2-ic:ia2),ccf1(ia2-ic:ia2))
+  base1=(sum(ccf1(ia:ia+ic)) + sum(ccf1(ib-ic:ib)))/nsum
+  ccf1=ccf1-base1
+  sq=dot_product(ccf1(ia:ia+ic),ccf1(ia:ia+ic)) +         &
+       dot_product(ccf1(ib-ic:ib),ccf1(ib-ic:ib))
   rms1=0.
   if(nsum.gt.0) rms1=sqrt(sq/nsum)
   if(rms1.gt.0.0) ccf1=2.0*ccf1/rms1

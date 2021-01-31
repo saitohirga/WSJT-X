@@ -276,6 +276,7 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
 
   if(bRed and (m_bQ65_Sync or m_bQ65_MultiSync)) {      //Plot the Q65 red or orange sync curve
     int k=0;
+    int k2=0;
     std::ifstream f;
     f.open(m_redFile.toLatin1());
     if(f) {
@@ -286,11 +287,14 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
         if(f.eof()) break;
         x=XfromFreq(freq);
 //        if(m_bQ65_MultiSync) sync=sync2;
-        y=m_h2*(0.9 - 0.09*gain2d*sync) - m_plot2dZero;
-        LineBuf2[k].setX(x);
-        LineBuf2[k].setY(y);
-        y=m_h2*(0.9 - 0.09*gain2d*sync2) - m_plot2dZero - 10;
-        LineBuf3[k].setX(x);
+        if(sync>-99.0) {
+          y=m_h2*(0.9 - 0.09*gain2d*sync) - m_plot2dZero - 10;
+          LineBuf2[k2].setX(x);                          //Red sync curve
+          LineBuf2[k2].setY(y);
+          k2++;
+        }
+        y=m_h2*(0.9 - 0.09*gain2d*sync2) - m_plot2dZero;
+        LineBuf3[k].setX(x);                            //Orange sync curve
         LineBuf3[k].setY(y);
         k++;
       }
@@ -298,7 +302,7 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
      QPen pen0(Qt::red,2);
 //     if(m_bQ65_MultiSync) pen0.setColor("orange");
       painter2D.setPen(pen0);
-      painter2D.drawPolyline(LineBuf2,k);
+      painter2D.drawPolyline(LineBuf2,k2);
       pen0.setColor("orange");
       painter2D.setPen(pen0);
       painter2D.drawPolyline(LineBuf3,k);
