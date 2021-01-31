@@ -287,7 +287,7 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
         if(f.eof()) break;
         x=XfromFreq(freq);
 //        if(m_bQ65_MultiSync) sync=sync2;
-        if(sync>-99.0) {
+        if(sync > -99.0 and sync != 0.0) {
           y=m_h2*(0.9 - 0.09*gain2d*sync) - m_plot2dZero - 10;
           LineBuf2[k2].setX(x);                          //Red sync curve
           LineBuf2[k2].setY(y);
