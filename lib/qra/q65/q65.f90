@@ -393,7 +393,9 @@ subroutine q65_ccf_22(s1,iz,jz,nfqso,ipk,jpk,f0,xdt,ccf2)
 
   real s1(iz,jz)
   real ccf2(iz)                               !Orange sync curve
+  real, allocatable :: xdt2(:)
 
+  allocate(xdt2(iz))
   ccfbest=0.
   ibest=0
   lagpk=0
@@ -415,6 +417,7 @@ subroutine q65_ccf_22(s1,iz,jz,nfqso,ipk,jpk,f0,xdt,ccf2)
         endif
      enddo
      ccf2(i)=ccfmax
+     xdt2(i)=lagpk*dtstep
      if(ccfmax.gt.ccfbest .and. abs(i*df-nfqso).le.ftol) then
         ccfbest=ccfmax
         ibest=i
@@ -519,14 +522,15 @@ subroutine q65_write_red(iz,ia2,xdt,ccf1,ccf2)
   call q65_sync_curve(ccf2,1,iz,rms2)
 
   rewind 17
+  write(17,1000) xdt
   do i=1,iz
      freq=i*df
      ii=i-i0
      if(freq.ge.float(nfa) .and. freq.le.float(nfb)) then
         ccf1a=-99.0
         if(ii.ge.-ia2 .and. ii.le.ia2) ccf1a=ccf1(ii)
-        write(17,1100) freq,ccf1a,xdt,ccf2(i)
-1100    format(4f10.3)
+        write(17,1000) freq,ccf1a,ccf2(i)
+1000    format(3f10.3)
      endif
   enddo
 

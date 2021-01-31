@@ -281,9 +281,10 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
     f.open(m_redFile.toLatin1());
     if(f) {
       int x,y;
-      float freq,sync,xdt,sync2;
+      float freq,xdt,sync,sync2;
+      f >> xdt;
       for(int i=0; i<99999; i++) {
-        f >> freq >> sync >> xdt >> sync2;
+        f >> freq >> sync >> sync2;
         if(f.eof()) break;
         x=XfromFreq(freq);
 //        if(m_bQ65_MultiSync) sync=sync2;
