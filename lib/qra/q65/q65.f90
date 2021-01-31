@@ -61,7 +61,6 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   logical first,lclearave
   real, allocatable :: s1(:,:)           !Symbol spectra, 1/8-symbol steps
   real, allocatable :: s3(:,:)           !Data-symbol energies s3(LL,63)
-  real, allocatable :: ccf(:,:)          !CCF(freq,lag)
   real, allocatable :: ccf1(:)           !CCF(freq) at fixed lag (red)
   real, allocatable :: ccf2(:)           !Max CCF(freq) at any lag (orange)
   data first/.true./
@@ -95,7 +94,6 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
 
   allocate(s1(iz,jz))
   allocate(s3(-64:LL-65,63))
-  allocate(ccf(-ia2:ia2,-53:214))
   allocate(ccf1(-ia2:ia2))
   allocate(ccf2(-ia2:ia2))
   if(LL.ne.LL0 .or. iz.ne.iz0 .or. jz.ne.jz0 .or. lclearave) then
@@ -142,7 +140,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
 ! Try list decoding via "Deep Likelihood".
      call timer('ccf_85  ',0)
 ! Try to synchronize using all 85 symbols
-     call q65_ccf_85(s1,iz,jz,nfqso,ia,ia2,ipk,jpk,f0,xdt,imsg_best,ccf,ccf1)
+     call q65_ccf_85(s1,iz,jz,nfqso,ia,ia2,ipk,jpk,f0,xdt,imsg_best,ccf1)
      call timer('ccf_85  ',1)
 
      call timer('list_dec',0)
@@ -325,17 +323,18 @@ subroutine q65_dec_q012(s3,LL,snr2,dat4,idec,decoded)
 100 return
 end subroutine q65_dec_q012
 
-subroutine q65_ccf_85(s1,iz,jz,nfqso,ia,ia2,ipk,jpk,f0,xdt,imsg_best,ccf,ccf1)
+subroutine q65_ccf_85(s1,iz,jz,nfqso,ia,ia2,ipk,jpk,f0,xdt,imsg_best,ccf1)
 
 ! Attempt synchronization using all 85 symbols, in advance of an
 ! attempt at q3 decoding.  Return ccf1 for the "red sync curve".
   
   real s1(iz,jz)
-  real ccf(-ia2:ia2,-53:214)
+  real, allocatable :: ccf(:,:)          !CCF(freq,lag)
   real ccf1(-ia2:ia2)
   integer ijpk(2)
   integer itone(85)
-  
+
+  allocate(ccf(-ia2:ia2,-53:214))
   ipk=0
   jpk=0
   ccf_best=0.
@@ -381,6 +380,7 @@ subroutine q65_ccf_85(s1,iz,jz,nfqso,ia,ia2,ipk,jpk,f0,xdt,imsg_best,ccf,ccf1)
         ccf1=ccf(:,jpk)
      endif
   enddo  ! imsg
+  deallocate(ccf)
 
   return
 end subroutine q65_ccf_85
