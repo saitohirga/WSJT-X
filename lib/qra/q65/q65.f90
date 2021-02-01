@@ -436,8 +436,8 @@ subroutine q65_ccf_22(s1,iz,jz,nfqso,ipk,jpk,f0,xdt,ccf2)
   xdt=jpk*dtstep
 
 ! Save parameters for best candidates
-  i1=nfa/df
-  i2=nfb/df
+  i1=max(nfa,100)/df
+  i2=min(nfb,4900)/df
   jzz=i2-i1+1
   call pctile(ccf2(i1:i2),jzz,40,base)
   ccf2=ccf2/base
