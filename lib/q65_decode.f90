@@ -144,9 +144,7 @@ contains
     jpk0=(xdt+1.0)*6000                      !Index of nominal start of signal
     if(ntrperiod.le.30) jpk0=(xdt+0.5)*6000  !For shortest sequences
     if(jpk0.lt.0) jpk0=0
-    fac=1.0/32767.0
-    dd=fac*iwave(1:npts)
-    call ana64(dd,npts,c00)              !Convert to complex c00() at 6000 Sa/s
+    call ana64(iwave,npts,c00)          !Convert to complex c00() at 6000 Sa/s
     call ft8apset(mycall,hiscall,ncontest,apsym0,aph10) ! Generate ap symbols
     where(apsym0.eq.-1) apsym0=0
 
@@ -262,10 +260,78 @@ contains
     endif
     navg0=1000*navg(0) + navg(1)
 
-!    do icand=1,ncand
-!       write(72,3072) icand,candidates(icand,1:3)
-!3072   format(i2,3f10.3)
-!    enddo
+    do icand=1,ncand
+! Prepare for single-period candidate decodes with iaptype = 0, 1, 2, or 4
+       snr1=candidates(icand,1)
+       xdt= candidates(icand,2)
+       f0 = candidates(icand,3)
+       jpk0=(xdt+1.0)*6000                   !Index of nominal start of signal
+       if(ntrperiod.le.30) jpk0=(xdt+0.5)*6000  !For shortest sequences
+       if(jpk0.lt.0) jpk0=0
+       call ana64(iwave,npts,c00)       !Convert to complex c00() at 6000 Sa/s
+       call ft8apset(mycall,hiscall,ncontest,apsym0,aph10) ! Generate ap symbols
+       where(apsym0.eq.-1) apsym0=0
+
+       npasses=2
+       if(nQSOprogress.eq.5) npasses=3
+       if(lapcqonly) npasses=1
+       iaptype=0
+       do ipass=0,npasses                  !Loop over AP passes
+          apmask=0                         !Try first with no AP information
+          apsymbols=0
+          if(ipass.ge.1) then
+          ! Subsequent passes use AP information appropiate for nQSOprogress
+             call q65_ap(nQSOprogress,ipass,ncontest,lapcqonly,iaptype,   &
+                  apsym0,apmask1,apsymbols1)
+             write(c78,1050) apmask1
+             read(c78,1060) apmask
+             write(c78,1050) apsymbols1
+             read(c78,1060) apsymbols
+          endif
+
+          call timer('q65loops',0)
+          call q65_loops(c00,npts/2,nsps/2,nsubmode,ndepth,jpk0,   &
+               xdt,f0,iaptype,xdt1,f1,snr2,dat4,idec)
+!       idec=-1   !### TEMPORARY ###
+          call timer('q65loops',1)
+          if(idec.ge.0) then
+             dtdec=xdt1
+             f0dec=f1
+             go to 200       !Successful decode, we're done
+          endif
+       enddo  ! ipass
+
+200    decoded='                                     '
+       if(idec.ge.0) then
+! Unpack decoded message for display to user
+          write(c77,1000) dat4(1:12),dat4(13)/2
+          call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
+          nsnr=nint(snr2)
+          call this%callback(nutc,snr1,nsnr,dtdec,f0dec,decoded,    &
+               idec,nused,ntrperiod)
+          if(iand(ndepth,128).ne.0) call q65_clravg    !AutoClrAvg after decode
+          call sec0(1,tdecode)
+          open(22,file=trim(data_dir)//'/q65_decodes.dat',status='unknown',     &
+               position='append',iostat=ios)
+          if(ios.eq.0) then
+! Save decoding parameters to q65_decoded.dat, for later analysis.
+             c6=hiscall(1:6)
+             if(c6.eq.'      ') c6='<b>   '
+             c4=hisgrid(1:4)
+             if(c4.eq.'    ') c4='<b> '
+             if(ntrperiod.ge.60) then
+                write(22,1022) nutc,ntrperiod,nsubmode,nQSOprogress,idec,     &
+                     nused,iaptype,irc,idf,idt,ibw,xdt,f0,snr1,snr2,          &
+                     tdecode,mycall(1:6),c6,c4,trim(decoded)
+             else
+                write(22,1023) nutc,ntrperiod,nsubmode,nQSOprogress,idec,     &
+                     nused,iaptype,irc,idf,idt,ibw,xdt,f0,snr1,snr2,          &
+                     tdecode,mycall(1:6),c6,c4,trim(decoded)
+             endif
+             close(22)
+          endif
+       endif
+    enddo
 
     return
   end subroutine decode

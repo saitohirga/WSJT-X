@@ -446,10 +446,12 @@ subroutine q65_ccf_22(s1,iz,jz,nfqso,ipk,jpk,f0,xdt,ccf2)
   do j=1,20
      i=indx(jzz-j+1)+i1-1
      if(ccf2(i).lt.3.0) exit
+     f=i*df
+     if(f.ge.(nfqso-ftol) .and. f.le.(nfqso+ftol)) cycle     
      ncand=ncand+1
      candidates(ncand,1)=ccf2(i)
      candidates(ncand,2)=xdt2(i)
-     candidates(ncand,3)=i*df
+     candidates(ncand,3)=f
   enddo
 
   return
