@@ -80,6 +80,8 @@ public:
   void setRxBand(QString band);
   void setReference(bool b) {m_bReference = b;}
   bool Reference() const {return m_bReference;}
+  void setQ65_Sync(bool b) {m_bQ65_Sync = b;}
+  bool Q65_Sync() const {return m_bQ65_Sync;}
   void drawRed(int ia, int ib, float swide[]);
   void setVHF(bool bVHF);
   void setRedFile(QString fRed);
@@ -113,8 +115,11 @@ private:
   bool    m_bLinearAvg;
   bool    m_bReference;
   bool    m_bReference0;
+  bool    m_bQ65_Sync;
   bool    m_bVHF;
   bool    m_bSingleDecode;
+  bool    m_bFirst=true;
+  bool    m_bResized;
 
   float   m_fSpan;
 
@@ -141,6 +146,7 @@ private:
   QString m_Str;
   QString m_HDivText[483];
   QString m_mode;
+  QString m_mode0;
   QString m_modeTx;
   QString m_rxBand;
   QString m_redFile;
@@ -171,6 +177,7 @@ private:
   qint32  m_h1;
   qint32  m_h2;
   qint32  m_rxFreq;
+  qint32  m_rxFreq0=0;
   qint32  m_txFreq;
   qint32  m_fMin;
   qint32  m_fMax;

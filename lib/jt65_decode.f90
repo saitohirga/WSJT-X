@@ -94,29 +94,11 @@ contains
     save
 
     this%callback => callback
-    first_time=nrobust                !Silence compiler warning
+    first_time=nrobust .and. (emedelay.eq.-999.9)    !Silence compiler warning
     first_time=newdat
     dd=dd0
     ndecoded=0
     ndecoded0=0
-
-    if(nsubmode.ge.100) then
-! This is QRA64 mode
-       mode64=2**(nsubmode-100)
-       call qra64a(dd,npts,nf1,nf2,nfqso,ntol,mode64,minsync,ndepth,         &
-            emedelay,mycall,hiscall,hisgrid,sync,nsnr,dtx,nfreq,decoded,nft)
-       if (associated(this%callback)) then
-          ndrift=0
-          nflip=1
-          width=1.0
-          nsmo=0
-          nqual=0
-          call this%callback(sync,nsnr,dtx,nfreq,ndrift,  &
-               nflip,width,decoded,nft,nqual,nsmo,1,minsync)
-       end if
-       go to 900
-    endif
-
     single_decode=iand(nexp_decode,32).ne.0 .or. nagain
     bVHF=iand(nexp_decode,64).ne.0
 
@@ -179,6 +161,7 @@ contains
           ia=max(1,nint((nfa-100)/df))
           ib=min(NSZ,nint((nfb+100)/df))
           nz=ib-ia+1
+          if(nz.lt.50) go to 900
           call lorentzian(savg(ia),nz,a)
           baseline=a(1)
           amp=a(2)

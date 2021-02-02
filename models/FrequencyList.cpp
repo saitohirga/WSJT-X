@@ -263,6 +263,8 @@ namespace
       {28180000, Modes::FT4, IARURegions::ALL},
 
       {50200000, Modes::Echo, IARURegions::ALL},
+      {50211000, Modes::Q65, IARURegions::ALL},
+      {50275000, Modes::Q65, IARURegions::ALL},
       {50276000, Modes::JT65, IARURegions::R2},
       {50276000, Modes::JT65, IARURegions::R3},
       {50380000, Modes::MSK144, IARURegions::R1},
@@ -282,6 +284,7 @@ namespace
       {70091000, Modes::WSPR, IARURegions::R1},
       {70230000, Modes::MSK144, IARURegions::R1},
       
+      {144116000, Modes::Q65, IARURegions::ALL},
       {144120000, Modes::JT65, IARURegions::ALL},
       {144120000, Modes::Echo, IARURegions::ALL},
       {144170000, Modes::FT4, IARURegions::ALL},
@@ -289,58 +292,57 @@ namespace
       {144360000, Modes::MSK144, IARURegions::R1},
       {144150000, Modes::MSK144, IARURegions::R2},
       {144489000, Modes::WSPR, IARURegions::ALL},
-      {144120000, Modes::QRA64, IARURegions::ALL},
       
       {222065000, Modes::Echo, IARURegions::R2},
       {222065000, Modes::JT65, IARURegions::R2},
-      {222065000, Modes::QRA64, IARURegions::R2},
+      {222065000, Modes::Q65, IARURegions::R2},
 	  
       {432065000, Modes::Echo, IARURegions::ALL},
       {432065000, Modes::JT65, IARURegions::ALL},
       {432300000, Modes::WSPR, IARURegions::ALL},
       {432360000, Modes::MSK144, IARURegions::ALL},
-      {432065000, Modes::QRA64, IARURegions::ALL},
+      {432065000, Modes::Q65, IARURegions::ALL},
       
       {902065000, Modes::JT65, IARURegions::R2},
-      {902065000, Modes::QRA64, IARURegions::R2},
+      {902065000, Modes::Q65, IARURegions::R2},
       
       {1296065000, Modes::Echo, IARURegions::ALL},
       {1296065000, Modes::JT65, IARURegions::ALL},
       {1296500000, Modes::WSPR, IARURegions::ALL},
-      {1296065000, Modes::QRA64, IARURegions::ALL},
+      {1296065000, Modes::Q65, IARURegions::ALL},
       
       {2301000000, Modes::Echo, IARURegions::ALL},
       {2301065000, Modes::JT4, IARURegions::ALL},
       {2301065000, Modes::JT65, IARURegions::ALL},
-      {2301065000, Modes::QRA64, IARURegions::ALL},
+      {2301065000, Modes::Q65, IARURegions::ALL},
 
       {2304065000, Modes::Echo, IARURegions::ALL},
       {2304065000, Modes::JT4, IARURegions::ALL},
       {2304065000, Modes::JT65, IARURegions::ALL},
-      {2304065000, Modes::QRA64, IARURegions::ALL},
+      {2304065000, Modes::Q65, IARURegions::ALL},
       
       {2320065000, Modes::Echo, IARURegions::ALL},
       {2320065000, Modes::JT4, IARURegions::ALL},
       {2320065000, Modes::JT65, IARURegions::ALL},
-      {2320065000, Modes::QRA64, IARURegions::ALL},
+      {2320065000, Modes::Q65, IARURegions::ALL},
       
       {3400065000, Modes::Echo, IARURegions::ALL},
       {3400065000, Modes::JT4, IARURegions::ALL},
       {3400065000, Modes::JT65, IARURegions::ALL},
-      {3400065000, Modes::QRA64, IARURegions::ALL},
+      {3400065000, Modes::Q65, IARURegions::ALL},
       
       {5760065000, Modes::Echo, IARURegions::ALL},
       {5760065000, Modes::JT4, IARURegions::ALL},
       {5760065000, Modes::JT65, IARURegions::ALL},
-      {5760200000, Modes::QRA64, IARURegions::ALL},
+      {5760200000, Modes::Q65, IARURegions::ALL},
       
       {10368100000, Modes::Echo, IARURegions::ALL},
       {10368200000, Modes::JT4, IARURegions::ALL},
-      {10368200000, Modes::QRA64, IARURegions::ALL},
+      {10368200000, Modes::Q65, IARURegions::ALL},
 	  
       {24048100000, Modes::Echo, IARURegions::ALL},
       {24048200000, Modes::JT4, IARURegions::ALL},
-      {24048200000, Modes::QRA64, IARURegions::ALL},
+      {24048200000, Modes::Q65, IARURegions::ALL},
     };
 }
 

@@ -110,6 +110,7 @@ void CPlotter::resizeEvent(QResizeEvent* )                    //resizeEvent()
     m_ScalePixmap = QPixmap(m_w,30);
     m_ScalePixmap.fill(Qt::white);
     m_Percent2DScreen0 = m_Percent2DScreen;
+    m_bResized = true;
   }
   DrawOverlay();
 }
@@ -129,7 +130,6 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
 {
   if (!m_TRperiod) return;      // not ready to plot yet
   int j,j0;
-  static int ktop=0;
   float y,y2,ymin;
   double fac = sqrt(m_binsPerPixel*m_waterfallAvg/15.0);
   double gain = fac*pow(10.0,0.015*m_plotGain);
@@ -141,7 +141,14 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
 //move current data down one line (must do this before attaching a QPainter object)
   if(bScroll and !m_bReplot) m_WaterfallPixmap.scroll(0,1,0,0,m_w,m_h1);
   QPainter painter1(&m_WaterfallPixmap);
-  m_2DPixmap = m_OverlayPixmap.copy(0,0,m_w,m_h2);
+  if(m_bFirst or bRed or !m_bQ65_Sync or m_mode!=m_mode0
+     or m_bResized or m_rxFreq!=m_rxFreq0) {
+    m_2DPixmap = m_OverlayPixmap.copy(0,0,m_w,m_h2);
+    m_bFirst=false;
+    m_bResized=false;
+    m_rxFreq0=m_rxFreq;
+  }
+  m_mode0=m_mode;
   QPainter painter2D(&m_2DPixmap);
   if(!painter2D.isActive()) return;
   QFont Font("Arial");
@@ -158,6 +165,7 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
   }
   static QPoint LineBuf[MAX_SCREENSIZE];
   static QPoint LineBuf2[MAX_SCREENSIZE];
+  static QPoint LineBuf3[MAX_SCREENSIZE];
   j=0;
   j0=int(m_startFreq/m_fftBinWidth + 0.5);
   int iz=XfromFreq(5000.0);
@@ -222,12 +230,8 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
 
     }
 
-    if(i==iz-1) {
+    if(i==iz-1 and !m_bQ65_Sync) {
       painter2D.drawPolyline(LineBuf,j);
-      if(m_mode=="QRA64") {
-        painter2D.setPen(Qt::red);
-        painter2D.drawPolyline(LineBuf2,ktop);
-      }
     }
     LineBuf[j].setX(i);
     LineBuf[j].setY(int(0.9*m_h2-y2*m_h2/70.0));
@@ -253,13 +257,14 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
     painter1.drawText (5, painter1.fontMetrics ().ascent (), t);
   }
 
-  if(m_mode=="JT4" or m_mode=="QRA64") {
-    QPen pen3(Qt::yellow);                     //Mark freqs of JT4 single-tone msgs
+  if(m_mode=="JT4" or (m_mode=="Q65" and m_nSubMode>=2)) {
+    DrawOverlay();
+    QPen pen3(Qt::yellow);                     //Mark freqs of JT4/Q65 single-tone msgs
     painter2D.setPen(pen3);
     Font.setWeight(QFont::Bold);
     painter2D.setFont(Font);
     int x1=XfromFreq(m_rxFreq);
-    y=0.2*m_h2;
+    y=0.25*m_h2;
     painter2D.drawText(x1-4,y,"T");
     x1=XfromFreq(m_rxFreq+250);
     painter2D.drawText(x1-4,y,"M");
@@ -269,33 +274,47 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
     painter2D.drawText(x1-4,y,"73");
   }
 
-    if(bRed) {
-      std::ifstream f;
-      f.open(m_redFile.toLatin1());
-      if(f) {
-        int x,y;
-        float freq,sync;
-        float slimit=6.0;
-        QPen pen0(Qt::red,1);
-        painter1.setPen(pen0);
-        for(int i=0; i<99999; i++) {
-          f >> freq >> sync;
-          if(f.eof()) break;
-          x=XfromFreq(freq);
-          y=(sync-slimit)*3.0;
-          if(y>0) {
-            if(y>15.0) y=15.0;
-            if(x>=0 and x<=m_w) {
-              painter1.setPen(pen0);
-              painter1.drawLine(x,0,x,y);
-            }
-          }
+  if(bRed and m_bQ65_Sync) {      //Plot the Q65 red or orange sync curve
+    int k=0;
+    int k2=0;
+    std::ifstream f;
+    f.open(m_redFile.toLatin1());
+    if(f) {
+      int x,y;
+      float freq,xdt,sync,sync2;
+      f >> xdt;
+      for(int i=0; i<99999; i++) {
+        f >> freq >> sync >> sync2;
+        if(f.eof()) break;
+        x=XfromFreq(freq);
+        if(sync > -99.0 and sync != 0.0) {
+          y=m_h2*(0.9 - 0.09*gain2d*sync) - m_plot2dZero - 10;
+          LineBuf2[k2].setX(x);                          //Red sync curve
+          LineBuf2[k2].setY(y);
+          k2++;
         }
-        f.close();
+        y=m_h2*(0.9 - 0.09*gain2d*sync2) - m_plot2dZero;
+        LineBuf3[k].setX(x);                            //Orange sync curve
+        LineBuf3[k].setY(y);
+        k++;
       }
-//      m_bDecodeFinished=false;
+      f.close();
+     QPen pen0(Qt::red,2);
+      painter2D.setPen(pen0);
+      painter2D.drawPolyline(LineBuf2,k2);
+      pen0.setColor("orange");
+      painter2D.setPen(pen0);
+      painter2D.drawPolyline(LineBuf3,k);
+      if(m_bQ65_Sync) {
+        QString t;
+        t = t.asprintf("DT = %6.2f",xdt);
+        painter2D.setPen(Qt::white);
+        Font.setWeight(QFont::Bold);
+        painter2D.setFont(Font);
+        painter2D.drawText(m_w-100,m_h2/2,t);
+      }
     }
-
+  }
   update();                                    //trigger a new paintEvent
   m_bScaleOK=true;
 }
@@ -463,14 +482,16 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
     if(m_nSubMode==7) bw=128*bw; //H
   }
 
-  if(m_mode=="QRA64") {                      //QRA64
-    bw=63.0*12000.0/m_nsps;
-    if(m_nSubMode==1) bw=2*bw;   //B
-    if(m_nSubMode==2) bw=4*bw;   //C
-    if(m_nSubMode==3) bw=8*bw;   //D
-    if(m_nSubMode==4) bw=16*bw;  //E
+  if(m_mode=="Q65") {                      //Q65
+    int h=int(pow(2.0,m_nSubMode));
+    int nsps=1800;
+    if(m_TRperiod==30) nsps=3600;
+    if(m_TRperiod==60) nsps=7200;
+    if(m_TRperiod==120) nsps=16000;
+    if(m_TRperiod==300) nsps=41472;
+    float baud=12000.0/nsps;
+    bw=65.0*h*baud;
   }
-
   if(m_modeTx=="JT65") {                     //JT65
     bw=65.0*11025.0/4096.0;
     if(m_nSubMode==1) bw=2*bw;   //B
@@ -502,7 +523,7 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
   int yTxTop=12;
   int yRxBottom=yTxTop + 2*yh + 4;
   if(m_mode=="JT9" or m_mode=="JT65" or m_mode=="JT9+JT65"
-     or m_mode=="QRA64" or m_mode=="FT8" or m_mode=="FT4"
+     or m_mode=="Q65" or m_mode=="FT8" or m_mode=="FT4"
      or m_mode.startsWith("FST4")) {
 
     if(m_mode=="FST4" and !m_bSingleDecode) {
@@ -514,26 +535,26 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
       painter0.drawLine(x2,25,x2-5,20);
     }
 
-    if(m_mode=="QRA64" or (m_mode=="JT65" and m_bVHF)) {
+    if(m_mode=="Q65" or (m_mode=="JT65" and m_bVHF)) {
       painter0.setPen(penGreen);
       x1=XfromFreq(m_rxFreq-m_tol);
       x2=XfromFreq(m_rxFreq+m_tol);
       painter0.drawLine(x1,26,x2,26);
       x1=XfromFreq(m_rxFreq);
-      painter0.drawLine(x1,24,x1,30);
+      painter0.drawLine(x1,20,x1,26);
 
       if(m_mode=="JT65") {
         painter0.setPen(penOrange);
         x3=XfromFreq(m_rxFreq+20.0*bw/65.0);    //RO
-        painter0.drawLine(x3,24,x3,30);
+        painter0.drawLine(x3,20,x3,26);
         x4=XfromFreq(m_rxFreq+30.0*bw/65.0);    //RRR
-        painter0.drawLine(x4,24,x4,30);
+        painter0.drawLine(x4,20,x4,26);
         x5=XfromFreq(m_rxFreq+40.0*bw/65.0);    //73
-        painter0.drawLine(x5,24,x5,30);
+        painter0.drawLine(x5,20,x5,26);
       }
       painter0.setPen(penGreen);
       x6=XfromFreq(m_rxFreq+bw);             //Highest tone
-      painter0.drawLine(x6,24,x6,30);
+      painter0.drawLine(x6,20,x6,26);
 
     } else {
       // Draw the green "goal post"
@@ -552,7 +573,7 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
   }
 
   if(m_mode=="JT9" or m_mode=="JT65" or m_mode=="JT9+JT65" or
-     m_mode.mid(0,4)=="WSPR" or m_mode=="QRA64" or m_mode=="FT8"
+     m_mode.mid(0,4)=="WSPR" or m_mode=="Q65" or m_mode=="FT8"
      or m_mode=="FT4" or m_mode.startsWith("FST4")) {
     painter0.setPen(penRed);
     x1=XfromFreq(m_txFreq);

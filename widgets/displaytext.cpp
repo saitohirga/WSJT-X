@@ -437,7 +437,7 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
     {
       extra += QString {"%1"}.arg (fSpread, 5, 'f', fSpread < 0.95 ? 3 : 2) + QChar {' '};
     }
-  auto ap_pos = message.lastIndexOf (QRegularExpression {R"((?:\?\s)?a[0-9]$)"});
+  auto ap_pos = message.lastIndexOf (QRegularExpression {R"((?:\?\s)?(?:a[0-9]|q[0-9][0-9*]?)$)"});
   if (ap_pos >= 0)
     {
       extra += message.mid (ap_pos) + QChar {' '};
@@ -485,6 +485,7 @@ void DisplayText::displayTransmittedText(QString text, QString modeTx, qint32 tx
     if(modeTx=="FT4") t1=" +  ";
     if(modeTx=="FT8") t1=" ~  ";
     if(modeTx=="JT4") t1=" $  ";
+    if(modeTx=="Q65") t1=" :  ";
     if(modeTx=="JT65") t1=" #  ";
     if(modeTx=="MSK144") t1=" &  ";
     if(modeTx=="FST4") t1=" `  ";

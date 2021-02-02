@@ -9,6 +9,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   use ft8_decode
   use ft4_decode
   use fst4_decode
+  use q65_decode
 
   include 'jt9com.f90'
   include 'timer_common.inc'
@@ -37,6 +38,10 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      integer :: decoded
   end type counting_fst4_decoder
 
+  type, extends(q65_decoder) :: counting_q65_decoder
+     integer :: decoded
+  end type counting_q65_decoder
+
   real ss(184,NSMAX)
   logical baddata,newdat65,newdat9,single_decode,bVHF,bad0,newdat,ex
   integer*2 id2(NTMAX*12000)
@@ -46,7 +51,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   character(len=12) :: mycall, hiscall
   character(len=6) :: mygrid, hisgrid
   character*60 line
-  data ndec8/0/
+  data ndec8/0/,ntr0/-1/
   save
   type(counting_jt4_decoder) :: my_jt4
   type(counting_jt65_decoder) :: my_jt65
@@ -54,7 +59,10 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   type(counting_ft8_decoder) :: my_ft8
   type(counting_ft4_decoder) :: my_ft4
   type(counting_fst4_decoder) :: my_fst4
+  type(counting_q65_decoder) :: my_q65
 
+  if(.not.params%newdat .and. params%ntr.gt.ntr0) go to 800
+  ntr0=params%ntr
   rms=sqrt(dot_product(float(id2(1:180000)),                         &
        float(id2(1:180000)))/180000.0)
   if(rms.lt.3.0) go to 800
@@ -73,6 +81,7 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   my_ft8%decoded = 0
   my_ft4%decoded = 0
   my_fst4%decoded = 0
+  my_q65%decoded = 0
   
 ! For testing only: return Rx messages stored in a file as decodes
   inquire(file='rx_messages.txt',exist=ex)
@@ -191,18 +200,34 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
      go to 800
   endif
 
+  if(params%nmode.eq.66) then        !NB: JT65 = 65, Q65 = 66.
+! We're in Q65 mode
+     open(17,file=trim(temp_dir)//'/red.dat',status='unknown')
+     open(14,file=trim(temp_dir)//'/avemsg.txt',status='unknown')
+     call timer('dec_q65 ',0)
+     call my_q65%decode(q65_decoded,id2,params%nutc,params%ntr,          &
+          params%nsubmode,params%nfqso,params%ntol,params%ndepth,        &
+          params%nfa,params%nfb,logical(params%nclearave),               &
+          single_decode,logical(params%nagain),                          &
+          logical(params%newdat),params%emedelay,mycall,hiscall,hisgrid, &
+          params%nQSOProgress,ncontest,logical(params%lapcqonly),navg0)
+     call timer('dec_q65 ',1)
+     close(17)
+     go to 800
+  endif
+
   if(params%nmode.eq.240) then
 ! We're in FST4 mode
      ndepth=iand(params%ndepth,3)
      iwspr=0
      params%nsubmode=0
-     call timer('dec240  ',0)
+     call timer('dec_fst4',0)
      call my_fst4%decode(fst4_decoded,id2,params%nutc,                &
           params%nQSOProgress,params%nfa,params%nfb,                  &
           params%nfqso,ndepth,params%ntr,params%nexp_decode,          &
           params%ntol,params%emedelay,logical(params%nagain),         &
           logical(params%lapcqonly),mycall,hiscall,iwspr)
-     call timer('dec240  ',1)
+     call timer('dec_fst4',1)
      go to 800
   endif
 
@@ -210,13 +235,13 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 ! We're in FST4W mode
      ndepth=iand(params%ndepth,3)
      iwspr=1
-     call timer('dec240  ',0)
+     call timer('dec_fst4',0)
      call my_fst4%decode(fst4_decoded,id2,params%nutc,                &
           params%nQSOProgress,params%nfa,params%nfb,                  &
           params%nfqso,ndepth,params%ntr,params%nexp_decode,          &
           params%ntol,params%emedelay,logical(params%nagain),         &
           logical(params%lapcqonly),mycall,hiscall,iwspr)
-     call timer('dec240  ',1)
+     call timer('dec_fst4',1)
      go to 800
   endif
 
@@ -279,9 +304,8 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 !$omp parallel sections num_threads(2) copyin(/timer_private/) shared(ndecoded) if(.true.) !iif() needed on Mac
 
 !$omp section
-  if(params%nmode.eq.65 .or. params%nmode.eq.164 .or.                      &
-       (params%nmode.eq.(65+9) .and. params%ntxmode.eq.65)) then
-! We're in JT65 or QRA64 mode, or should do JT65 first
+  if(params%nmode.eq.65) then
+! We're in JT65 mode
 
      if(newdat65) dd(1:npts65)=id2(1:npts65)
      nf1=params%nfa
@@ -335,7 +359,8 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 
 ! JT65 is not yet producing info for nsynced, ndecoded.
 800 ndecoded = my_jt4%decoded + my_jt65%decoded + my_jt9%decoded +       &
-         my_ft8%decoded + my_ft4%decoded + my_fst4%decoded
+         my_ft8%decoded + my_ft4%decoded + my_fst4%decoded +             &
+         my_q65%decoded
   if(params%nmode.eq.8 .and. params%nzhsym.eq.41) ndec41=ndecoded
   if(params%nmode.eq.8 .and. params%nzhsym.eq.47) ndec47=ndecoded
   if(params%nmode.eq.8 .and. params%nzhsym.eq.50) then
@@ -343,16 +368,15 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   endif
   if(params%nmode.ne.8 .or. params%nzhsym.eq.50 .or.                     &
        .not.params%ndiskdat) then
-     write(*,1010) nsynced,ndecoded
-1010 format('<DecodeFinished>',2i4)
+     
+     write(*,1010) nsynced,ndecoded,navg0
+1010 format('<DecodeFinished>',2i4,i9)
      call flush(6)
   endif
   close(13)
   if(ncontest.eq.6) close(19)
-  if(params%nmode.eq.4 .or. params%nmode.eq.65) close(14)
-
+  if(params%nmode.eq.4 .or. params%nmode.eq.65 .or. params%nmode.eq.66) close(14)
   return
-
 contains
 
   subroutine jt4_decoded(this,snr,dt,freq,have_sync,sync,is_deep,    &
@@ -444,7 +468,7 @@ contains
     integer, intent(in) :: nsum
     integer, intent(in) :: minsync
 
-    integer i,nap,nft
+    integer i,nap
     logical is_deep,is_average
     character decoded*22,csync*2,cflags*3
 
@@ -454,24 +478,6 @@ contains
     cflags='   '
     is_deep=ft.eq.2
 
-    if(ft.ge.80) then                      !QRA64 mode
-       nft=ft-100
-       csync=': '
-       if(sync-3.4.ge.float(minsync) .or. nft.ge.0) csync=':*'
-       if(nft.lt.0) then
-          write(*,1009) params%nutc,snr,dt,freq,csync,decoded
-       else
-          write(*,1009) params%nutc,snr,dt,freq,csync,decoded,nft
-1009      format(i4.4,i4,f5.1,i5,1x,a2,1x,a22,i2)
-       endif
-       write(13,1011) params%nutc,nint(sync),snr,dt,float(freq),drift,    &
-            decoded,nft
-1011   format(i4.4,i4,i5,f6.2,f8.0,i4,3x,a22,' QRA64',i3)
-       go to 100
-    endif
-
-!    write(*,3001) ft,nsum,qual,sync,bVHF
-!3001 format('a',3i3,f5.1,L3)
     if(ft.eq.0 .and. minsync.ge.0 .and. int(sync).lt.minsync) then
        write(*,1010) params%nutc,snr,dt,freq
     else
@@ -522,8 +528,7 @@ contains
     write(13,1012) params%nutc,nint(sync),snr,dt,float(freq),drift,    &
          decoded,ft,nsum,nsmo
 1012 format(i4.4,i4,i5,f6.2,f8.0,i4,3x,a22,' JT65',3i3)
-
-100 call flush(6)
+    call flush(6)
 
 !$omp end critical(decode_results)
     select type(this)
@@ -758,5 +763,53 @@ contains
 
    return
  end subroutine fst4_decoded
+
+ subroutine q65_decoded (this,nutc,snr1,nsnr,dt,freq,decoded,idec,   &
+      nused,ntrperiod)
+
+    use q65_decode
+    implicit none
+
+    class(q65_decoder), intent(inout) :: this
+    integer, intent(in) :: nutc
+    real, intent(in) :: snr1
+    integer, intent(in) :: nsnr
+    real, intent(in) :: dt
+    real, intent(in) :: freq
+    character(len=37), intent(in) :: decoded
+    integer, intent(in) :: idec
+    integer, intent(in) :: nused
+    integer, intent(in) :: ntrperiod
+    character*3 cflags
+  
+    cflags='   '
+    if(idec.ge.0) then
+       cflags='q  '
+       write(cflags(2:2),'(i1)') idec
+       if(nused.ge.2) write(cflags(3:3),'(i1)') nused
+    endif
+
+    if(ntrperiod.lt.60) then
+       write(*,1001) nutc,nsnr,dt,nint(freq),decoded,cflags
+1001   format(i6.6,i4,f5.1,i5,' : ',1x,a37,1x,a3)
+    write(13,1002) nutc,nint(snr1),nsnr,dt,freq,0,decoded
+1002 format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a37,' Q65')
+    else
+       write(*,1003) nutc,nsnr,dt,nint(freq),decoded,cflags
+1003   format(i4.4,i4,f5.1,i5,' : ',1x,a37,1x,a3)
+       write(13,1004) nutc,nint(snr1),nsnr,dt,freq,0,decoded
+1004   format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a37,' Q65')
+
+    endif
+    call flush(6)
+    call flush(13)
+
+    select type(this)
+    type is (counting_q65_decoder)
+       if(idec.gt.0) this%decoded = this%decoded + 1
+    end select
+
+   return
+ end subroutine q65_decoded
 
 end subroutine multimode_decoder

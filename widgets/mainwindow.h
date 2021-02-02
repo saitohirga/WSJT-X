@@ -49,7 +49,7 @@
 #define NUM_WSPR_SYMBOLS 162               //(50+31)*2, embedded sync
 #define NUM_ISCAT_SYMBOLS 1291             //30*11025/256
 #define NUM_MSK144_SYMBOLS 144             //s8 + d48 + s8 + d80
-#define NUM_QRA64_SYMBOLS 84               //63 data + 21 sync
+#define NUM_Q65_SYMBOLS 85                 //63 data + 22 sync
 #define NUM_FT8_SYMBOLS 79
 #define NUM_FT4_SYMBOLS 105
 #define NUM_FST4_SYMBOLS 160             //240/2 data + 5*8 sync
@@ -155,7 +155,8 @@ private slots:
   void on_stopButton_clicked();
   void on_actionRelease_Notes_triggered ();
   void on_actionFT8_DXpedition_Mode_User_Guide_triggered();
-  void on_actionQuick_Start_Guide_triggered();
+  void on_actionQSG_FST4_triggered();
+  void on_actionQSG_Q65_triggered();
   void on_actionOnline_User_Guide_triggered();
   void on_actionLocal_User_Guide_triggered();
   void on_actionWide_Waterfall_triggered();
@@ -207,7 +208,6 @@ private slots:
   void on_logQSOButton_clicked();
   void on_actionJT9_triggered();
   void on_actionJT65_triggered();
-  void on_actionJT9_JT65_triggered();
   void on_actionJT4_triggered();
   void on_actionFT4_triggered();
   void on_actionFT8_triggered();
@@ -245,7 +245,6 @@ private slots:
   void on_bandComboBox_editTextChanged (QString const& text);
   void on_bandComboBox_activated (int index);
   void on_readFreq_clicked();
-  void on_pbTxMode_clicked();
   void on_RxFreqSpinBox_valueChanged(int n);
   void on_outAttenuation_valueChanged (int);
   void rigOpen ();
@@ -265,6 +264,7 @@ private slots:
   void on_actionInclude_averaging_toggled (bool);
   void on_actionInclude_correlation_toggled (bool);
   void on_actionEnable_AP_DXcall_toggled (bool);
+  void on_actionAuto_Clear_Avg_toggled (bool);
   void VHF_features_enabled(bool b);
   void on_sbSubmode_valueChanged(int n);
   void on_cbShMsgs_toggled(bool b);
@@ -304,7 +304,7 @@ private slots:
   void on_sbCQTxFreq_valueChanged(int n);
   void on_cbCQTx_toggled(bool b);
   void on_actionMSK144_triggered();
-  void on_actionQRA64_triggered();
+  void on_actionQ65_triggered();
   void on_actionFreqCal_triggered();
   void splash_done ();
   void on_measure_check_box_stateChanged (int);
