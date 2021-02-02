@@ -27,8 +27,8 @@ module q65_decode
 contains
 
   subroutine decode(this,callback,iwave,nutc,ntrperiod,nsubmode,nfqso,   &
-       ntol,ndepth,nfa0,nfb0,lclearave,lnewdat0,emedelay,mycall,         &
-       hiscall,hisgrid,nQSOprogress,ncontest,lapcqonly,navg0)
+       ntol,ndepth,nfa0,nfb0,lclearave,single_decode,lagain,lnewdat0,    &
+       emedelay,mycall,hiscall,hisgrid,nQSOprogress,ncontest,lapcqonly,navg0)
 
 ! Top-level routine that organizes the decoding of Q65 signals
 ! Input:  iwave            Raw data, i*2
@@ -67,6 +67,7 @@ contains
     integer dat4(13)                      !Decoded message as 12 6-bit integers
     integer dgen(13)
     logical lclearave,lnewdat0,lapcqonly,unpk77_success
+    logical single_decode,lagain
     complex, allocatable :: c00(:)        !Analytic signal, 6000 Sa/s
     complex, allocatable :: c0(:)         !Analytic signal, 6000 Sa/s
 
@@ -260,6 +261,7 @@ contains
             idec,0,ntrperiod)
     endif
     navg0=1000*navg(0) + navg(1)
+    if(single_decode .or. lagain) go to 900
 
     do icand=1,ncand
 ! Prepare for single-period candidate decodes with iaptype = 0, 1, 2, or 4
@@ -333,7 +335,7 @@ contains
        endif
     enddo
 
-    return
+900 return
   end subroutine decode
 
 end module q65_decode
