@@ -483,6 +483,7 @@ private:
   qint32  m_earlyDecode=41;
   qint32  m_earlyDecode2=47;
   qint32  m_nDecodes=0;
+  qint32  m_lastQSOProgress=0;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
