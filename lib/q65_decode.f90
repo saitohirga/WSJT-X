@@ -115,13 +115,13 @@ contains
     ibwa=max(1,int(1.8*log(baud*mode_q65)) + 1)
     ibwb=min(10,ibwa+3)
     if(iand(ndepth,3).ge.2) then
-       ibwa=max(1,int(1.8*log(baud*mode_q65)) + 2)
+       ibwa=max(1,int(1.8*log(baud*mode_q65)) + 1)
        ibwb=min(10,ibwa+5)
     else if(iand(ndepth,3).eq.3) then
        ibwa=max(1,ibwa-1)
        ibwb=min(10,ibwb+1)
     endif
-    
+
 ! Generate codewords for full-AP list decoding    
     call q65_set_list(mycall,hiscall,hisgrid,codewords,ncw) 
     dgen=0
