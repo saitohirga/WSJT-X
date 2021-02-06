@@ -538,6 +538,7 @@ private:
   bool    m_bTUmsg;
   bool    m_bBestSPArmed=false;
   bool    m_bOK_to_chk=false;
+  bool    m_bSentReport=false;
 
   enum
     {

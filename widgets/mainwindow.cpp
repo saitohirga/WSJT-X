@@ -4036,6 +4036,8 @@ void MainWindow::guiUpdate()
     if(m_tune or m_mode=="Echo") {
       itone[0]=0;
     } else {
+      if(m_QSOProgress==2 or m_QSOProgress==3) m_bSentReport=true;
+      if(m_bSentReport and (m_QSOProgress<2 or m_QSOProgress>3)) m_bSentReport=false;
       if(m_mode=="ISCAT") {
         geniscat_(message, msgsent, const_cast<int *> (itone), 28, 28);
         msgsent[28]=0;
@@ -5188,10 +5190,10 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     rpt=QString::number(n);
   }
 
-  ui->rptSpinBox->setValue(n);
+  if(!m_bSentReport) ui->rptSpinBox->setValue(n);    //Don't change report within a QSO
 // Don't genStdMsgs if we're already sending 73, or a "TU; " msg is queued.
   m_bTUmsg=false;   //### Temporary: disable use of "TU;" messages
-  if (!m_nTx73 and !m_bTUmsg) {
+  if (!m_bSentReport and !m_nTx73 and !m_bTUmsg) {
     genStdMsgs(rpt);
   }
   if(m_transmitting) m_restart=true;
