@@ -6417,6 +6417,8 @@ void MainWindow::on_actionQ65_triggered()
 //###  ui->sbSubmode->setMaximum(4);
   ui->sbSubmode->setMaximum(7);
   ui->sbSubmode->setValue(m_nSubMode);
+  //ui->TxFreqSpinBox->setValue(1000); //wdg
+  //if(m_nSubMode==4) ui->TxFreqSpinBox->setValue(700); //wdg
   QString fname {QDir::toNativeSeparators(m_config.temp_dir().absoluteFilePath ("red.dat"))};
   m_wideGraph->setRedFile(fname);
   m_wideGraph->setMode(m_mode);
@@ -7638,6 +7640,13 @@ void MainWindow::on_sbSubmode_valueChanged(int n)
   if(m_mode=="ISCAT") {
     if(m_nSubMode==0) ui->TxFreqSpinBox->setValue(1012);
     if(m_nSubMode==1) ui->TxFreqSpinBox->setValue(560);
+  }
+    if(m_mode=="Q65") {
+     if((m_nSubMode==4 && m_TRperiod==60.0) || (m_nSubMode==3 && m_TRperiod==30.0) || (m_nSubMode==2 && m_TRperiod==15.0))
+         { ui->TxFreqSpinBox->setValue(700);
+     } else {
+      ui->TxFreqSpinBox->setValue(1000);//wdg
+     }
   }
   if(m_mode=="JT9") {
     if(m_nSubMode<4) {
