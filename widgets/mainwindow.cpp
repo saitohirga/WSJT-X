@@ -6414,11 +6414,7 @@ void MainWindow::on_actionQ65_triggered()
   m_hsymStop=49;
   ui->sbTR->values ({15, 30, 60, 120, 300});
   on_sbTR_valueChanged (ui->sbTR->value());
-//###  ui->sbSubmode->setMaximum(4);
-  ui->sbSubmode->setMaximum(7);
-  ui->sbSubmode->setValue(m_nSubMode);
-  //ui->TxFreqSpinBox->setValue(1000); //wdg
-  //if(m_nSubMode==4) ui->TxFreqSpinBox->setValue(700); //wdg
+  ui->sbSubmode->setValue(m_nSubMode); 
   QString fname {QDir::toNativeSeparators(m_config.temp_dir().absoluteFilePath ("red.dat"))};
   m_wideGraph->setRedFile(fname);
   m_wideGraph->setMode(m_mode);
@@ -7594,7 +7590,17 @@ void MainWindow::on_sbTR_valueChanged(int value)
                 ui->rh_decodes_headings_label->setText("UTC   dB   DT Freq    " + tr ("Message"));
               }
           }
-      }
+      
+       if ("Q65" == m_mode)
+         {
+         switch (value)
+             {
+              case 15: ui->sbSubmode->setMaximum (2); break;
+              case 30: ui->sbSubmode->setMaximum (3); break;
+              default: ui->sbSubmode->setMaximum (4); break;
+              }
+          }
+       } 
     m_fastGraph->setTRPeriod (value);
     m_modulator->setTRPeriod (value); // TODO - not thread safe
     m_detector->setTRPeriod (value);  // TODO - not thread safe
@@ -7645,7 +7651,7 @@ void MainWindow::on_sbSubmode_valueChanged(int n)
      if((m_nSubMode==4 && m_TRperiod==60.0) || (m_nSubMode==3 && m_TRperiod==30.0) || (m_nSubMode==2 && m_TRperiod==15.0))
          { ui->TxFreqSpinBox->setValue(700);
      } else {
-      ui->TxFreqSpinBox->setValue(1000);//wdg
+      ui->TxFreqSpinBox->setValue(1000);
      }
   }
   if(m_mode=="JT9") {
