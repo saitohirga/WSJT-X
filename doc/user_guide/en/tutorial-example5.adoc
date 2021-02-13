@@ -1,5 +1,5 @@
 Do not confuse FST4 with FT4, which has a very different purpose!
-FST4 is is designed for making 2-way QSOs on the LF and MF bands.
+FST4 is designed primarily for making 2-way QSOs on the LF and MF bands.
 Operation with FST4 is similar to that with other _WSJT-X_ modes: most
 on-screen controls, auto-sequencing, and other features behave in
 familiar ways.  However, operating conventions on the 2200 and 630 m
