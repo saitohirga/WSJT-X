@@ -31,4 +31,9 @@ synchronization symbols.
 for making 2-way QSOs, and FST4W should replace WSPR for propagation
 tests*.  Operating conventions on these LF and MF bands will
 eventually determine the most useful T/R sequence lengths for each
-type of operation.
+type of operation. We also expect that the 60 second variant of FST4
+(FST4-60) will outperform JT9 for DX QSOs on HF bands due, in part,
+to the FST4 decoder's ability to use AP decoding for messages received
+from a QSO partner. In addition, FST4 provides the added benefits 
+associated with 77-bit messages and auto-sequencing. 
+
