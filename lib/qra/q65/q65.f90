@@ -45,7 +45,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
 !         width                  Estimated Doppler spread
 !         dat4(13)               Decoded message as 13 six-bit integers
 !         snr2                   Estimated SNR of decoded signal
-!         idec                   Flag for decing results
+!         idec                   Flag for decoding results
 !            -1  No decode
 !             0  No AP
 !             1  "CQ        ?    ?"
