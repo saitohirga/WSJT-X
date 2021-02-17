@@ -232,7 +232,11 @@ HamlibTransceiver::HamlibTransceiver (logger_type * logger,
         {
           set_conf ("ptt_type", "RTS");
         }
+      set_conf ("ptt_share", "1");
     }
+
+  // do this late to allow any configuration option to be overriden
+  load_user_settings ();
 }
 
 HamlibTransceiver::HamlibTransceiver (logger_type * logger,
@@ -259,51 +263,6 @@ HamlibTransceiver::HamlibTransceiver (logger_type * logger,
     }
 
   // rig_->state.obj = this;
-
-  //
-  // user defined Hamlib settings
-  //
-  auto settings_file_name = QStandardPaths::locate (QStandardPaths::AppConfigLocation
-                                                    , "hamlib_settings.json");
-  if (!settings_file_name.isEmpty ())
-    {
-      QFile settings_file {settings_file_name};
-      qDebug () << "Using Hamlib settings file:" << settings_file_name;
-      if (settings_file.open (QFile::ReadOnly))
-        {
-          QJsonParseError status;
-          auto settings_doc = QJsonDocument::fromJson (settings_file.readAll (), &status);
-          if (status.error)
-            {
-              throw error {tr ("Hamlib settings file error: %1 at character offset %2")
-                             .arg (status.errorString ()).arg (status.offset)};
-            }
-          qDebug () << "Hamlib settings JSON:" << settings_doc.toJson ();
-          if (!settings_doc.isObject ())
-            {
-              throw error {tr ("Hamlib settings file error: top level must be a JSON object")};
-            }
-          auto const& settings = settings_doc.object ();
-
-          //
-          // configuration settings
-          //
-          auto const& config = settings["config"];
-          if (!config.isUndefined ())
-            {
-              if (!config.isObject ())
-                {
-                  throw error {tr ("Hamlib settings file error: config must be a JSON object")};
-                }
-              auto const& config_list = config.toObject ();
-              for (auto item = config_list.constBegin (); item != config_list.constEnd (); ++item)
-                {
-                  set_conf (item.key ().toLocal8Bit ().constData ()
-                            , (*item).toVariant ().toString ().toLocal8Bit ().constData ());
-                }
-            }
-        }
-    }
 
   if (!is_dummy_)
     {
@@ -399,10 +358,14 @@ HamlibTransceiver::HamlibTransceiver (logger_type * logger,
         {
           set_conf ("ptt_type", "RTS");
         }
+      set_conf ("ptt_share", "1");
     }
 
   // Make Icom CAT split commands less glitchy
   set_conf ("no_xchg", "1");
+
+  // do this late to allow any configuration option to be overriden
+  load_user_settings ();
 
   // would be nice to get events but not supported on Windows and also not on a lot of rigs
   // rig_set_freq_callback (rig_.data (), &frequency_change_callback, this);
@@ -414,6 +377,54 @@ void HamlibTransceiver::error_check (int ret_code, QString const& doing) const
     {
       CAT_ERROR ("error: " << rigerror (ret_code));
       throw error {tr ("Hamlib error: %1 while %2").arg (rigerror (ret_code)).arg (doing)};
+    }
+}
+
+void HamlibTransceiver::load_user_settings ()
+{
+  //
+  // user defined Hamlib settings
+  //
+  auto settings_file_name = QStandardPaths::locate (QStandardPaths::AppConfigLocation
+                                                    , "hamlib_settings.json");
+  if (!settings_file_name.isEmpty ())
+    {
+      QFile settings_file {settings_file_name};
+      qDebug () << "Using Hamlib settings file:" << settings_file_name;
+      if (settings_file.open (QFile::ReadOnly))
+        {
+          QJsonParseError status;
+          auto settings_doc = QJsonDocument::fromJson (settings_file.readAll (), &status);
+          if (status.error)
+            {
+              throw error {tr ("Hamlib settings file error: %1 at character offset %2")
+                             .arg (status.errorString ()).arg (status.offset)};
+            }
+          qDebug () << "Hamlib settings JSON:" << settings_doc.toJson ();
+          if (!settings_doc.isObject ())
+            {
+              throw error {tr ("Hamlib settings file error: top level must be a JSON object")};
+            }
+          auto const& settings = settings_doc.object ();
+
+          //
+          // configuration settings
+          //
+          auto const& config = settings["config"];
+          if (!config.isUndefined ())
+            {
+              if (!config.isObject ())
+                {
+                  throw error {tr ("Hamlib settings file error: config must be a JSON object")};
+                }
+              auto const& config_list = config.toObject ();
+              for (auto item = config_list.constBegin (); item != config_list.constEnd (); ++item)
+                {
+                  set_conf (item.key ().toLocal8Bit ().constData ()
+                            , (*item).toVariant ().toString ().toLocal8Bit ().constData ());
+                }
+            }
+        }
     }
 }
 
