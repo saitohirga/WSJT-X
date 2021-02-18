@@ -49,6 +49,8 @@ Directory::Directory (Configuration const * configuration
 
   setColumnCount (2);
   setHeaderLabels ({tr ("File"), tr ("Progress")});
+  headerItem ()->setTextAlignment (0, Qt::AlignHCenter);
+  headerItem ()->setTextAlignment (1, Qt::AlignHCenter);
   header ()->setSectionResizeMode (QHeaderView::ResizeToContents);
   setItemDelegate (&item_delegate_);
 
