@@ -74,6 +74,7 @@ include_directories (${fftw3f_INCLUDES})
 
 if (WIN32)
    find_library (usb_RUNTIME NAMES usb0 PATH_SUFFIXES bin)
+   set (CMAKE_INSTALL_PREFIX C:/MAP65)
 endif (WIN32)
 
 # Qt5 setup
@@ -111,7 +112,7 @@ add_subdirectory (libm65)
 qt5_wrap_ui (GENUISRCS ${UISRCS})
 
 add_executable (map65 ${CXXSRCS} ${CSRCS} ${GENUISRCS} map65.rc)
-target_link_libraries (map65 m65impl ${fftw3f_LIBRARIES} ${CMAKE_CURRENT_SOURCE_DIR}/palir-02.dll ${CMAKE_CURRENT_SOURCE_DIR}/libusb.a ${CMAKE_CURRENT_SOURCE_DIR}/libwsock32.a)
+target_link_libraries (map65 m65impl ${fftw3f_LIBRARIES} ${CMAKE_CURRENT_SOURCE_DIR}/palir-02.dll ${CMAKE_CURRENT_SOURCE_DIR}/libusb0.dll ${CMAKE_CURRENT_SOURCE_DIR}/libwsock32.a)
 
 if (WIN32)
   target_link_libraries (map65)
