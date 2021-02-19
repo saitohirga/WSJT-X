@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>635</width>
-    <height>497</height>
+    <height>512</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -276,7 +276,7 @@ p, li { white-space: pre-wrap; }
              <string notr="true"/>
             </property>
             <property name="title">
-             <string>    DX   Call              Grid</string>
+             <string>    DX   Call           Grid     </string>
             </property>
             <widget class="QPushButton" name="pushButton">
              <property name="geometry">
@@ -371,6 +371,18 @@ p, li { white-space: pre-wrap; }
                <layout class="QHBoxLayout" name="horizontalLayout_4">
                 <item>
                  <widget class="QPushButton" name="lookupButton">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>70</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="maximumSize">
                    <size>
                     <width>50</width>
@@ -384,6 +396,12 @@ p, li { white-space: pre-wrap; }
                 </item>
                 <item>
                  <widget class="QPushButton" name="addButton">
+                  <property name="minimumSize">
+                   <size>
+                    <width>70</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="maximumSize">
                    <size>
                     <width>50</width>
@@ -404,9 +422,21 @@ p, li { white-space: pre-wrap; }
               <rect>
                <x>40</x>
                <y>80</y>
-               <width>70</width>
+               <width>90</width>
                <height>23</height>
               </rect>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>90</width>
+               <height>0</height>
+              </size>
              </property>
              <property name="maximumSize">
               <size>
@@ -510,7 +540,7 @@ p, li { white-space: pre-wrap; }
            <widget class="QPushButton" name="pbTxMode">
             <property name="minimumSize">
              <size>
-              <width>80</width>
+              <width>90</width>
               <height>0</height>
              </size>
             </property>
@@ -529,7 +559,7 @@ p, li { white-space: pre-wrap; }
            <widget class="QPushButton" name="setTxFreqButton">
             <property name="minimumSize">
              <size>
-              <width>80</width>
+              <width>90</width>
               <height>0</height>
              </size>
             </property>
@@ -1108,7 +1138,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>635</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
