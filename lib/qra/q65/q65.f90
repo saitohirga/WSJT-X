@@ -17,7 +17,9 @@ module q65
   integer navg(0:1)
   logical lnewdat
   real candidates(20,3)                    !snr, xdt, and f0 of top candidates
-  real,allocatable,save :: s1a(:,:,:)      !Cumulative symbol spectra
+  real, allocatable :: s1raw(:,:)          !Symbol spectra, 1/8-symbol steps
+  real, allocatable :: s1(:,:)             !Symbol spectra w/suppressed peaks
+  real, allocatable,save :: s1a(:,:,:)     !Cumulative symbol spectra
   real sync(85)                            !sync vector
   real df,dtstep,dtdec,f0dec,ftol
 
@@ -60,7 +62,6 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   integer dat4(13)
   character*37 decoded
   logical first,lclearave
-  real, allocatable :: s1(:,:)           !Symbol spectra, 1/8-symbol steps
   real, allocatable :: s3(:,:)           !Data-symbol energies s3(LL,63)
   real, allocatable :: ccf1(:)           !CCF(freq) at fixed lag (red)
   real, allocatable :: ccf2(:)           !Max CCF(freq) at any lag (orange)
@@ -95,13 +96,17 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
      enddo
   endif
 
-  allocate(s1(iz,jz))
   allocate(s3(-64:LL-65,63))
   allocate(ccf1(-ia2:ia2))
   allocate(ccf2(iz))
   if(LL.ne.LL0 .or. iz.ne.iz0 .or. jz.ne.jz0 .or. lclearave) then
+     if(allocated(s1raw)) deallocate(s1raw)
+     allocate(s1raw(iz,jz))
+     if(allocated(s1)) deallocate(s1)
+     allocate(s1(iz,jz))
      if(allocated(s1a)) deallocate(s1a)
      allocate(s1a(iz,jz,0:1))
+     s1=0.
      s1a=0.
      navg=0
      LL0=LL
@@ -130,6 +135,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   if(i0-64.lt.1 .or. i0-65+LL.gt.iz) go to 900  !Frequency out of range
   call pctile(s1(i0-64:i0-65+LL,1:jz),LL*jz,45,base)
   s1=s1/base
+  s1raw=s1
 
 ! Apply fast AGC to the symbol spectra
   s1max=20.0                                  !Empirical choice
@@ -620,4 +626,64 @@ subroutine q65_bzap(s3,LL)
   return
 end subroutine q65_bzap
 
+subroutine q65_snr(dat4,dtdec,f0dec,mode_q65,snr2)
+
+! Estimate SNR of a decoded transmission by aligning the spectra of
+! all 85 symbols.
+  
+  integer dat4(13)
+  integer codeword(63)
+  integer itone(85)
+  real, allocatable :: spec(:)
+
+!  write(70) mode_q65,df,dtdec,f0dec,iz0,jz0,s1raw
+
+  allocate(spec(iz0))
+  call q65_enc(dat4,codeword)
+  i=1
+  k=0
+  do j=1,85
+     if(j.eq.isync(i)) then
+        i=i+1
+        itone(j)=0
+     else
+        k=k+1
+        itone(j)=codeword(k) + 1
+     endif
+  enddo
+
+  spec=0.
+  lagpk=nint(dtdec/dtstep)
+  do k=1,85
+     j=j0 + NSTEP*(k-1) + 1 + lagpk
+     if(j.ge.1 .and. j.le.jz0) then
+        do i=1,iz0
+           ii=i+mode_q65*itone(k)
+           if(ii.ge.1 .and. ii.le.iz0) spec(i)=spec(i) + s1raw(ii,j)
+        enddo
+     endif
+  enddo
+
+  i0=nint(f0dec/df)
+  nsum=max(10*mode_q65,nint(50.0/df))
+  ia=i0 - 2*nsum
+  ib=i0 + 2*nsum
+  sum1=sum(spec(ia:ia+nsum-1))
+  sum2=sum(spec(ib-nsum+1:ib))
+  avg=(sum1+sum2)/(2.0*nsum)
+  spec=spec/avg                          !Baseline level is now 1.0
+  smax=maxval(spec(ia:ib))
+  sig_area=sum(spec(ia+nsum:ib-nsum)-1.0)
+  w_equiv=sig_area/(smax-1.0)
+  snr2=db(max(1.0,sig_area)) - db(2500.0/df)
+
+!  do i=ia,ib
+!     write(71,3071) i*df,spec(i),db(spec(i))
+!3071 format(3f10.3)
+!  enddo
+!  flush(71)
+
+  return
+end subroutine q65_snr
+  
 end module q65
