@@ -20,6 +20,7 @@ scheduling behavior, you should select *Random* with this control.
 .Open a Wave File:
 
 - Select *FST4W* on the *Mode* menu. Set *T/R* to 1800 s and *Decode | Deep*.
+- Set *NB* to 0%.
 - Select appropriate wide graph settings. For example, try *Bins/Pixel* 1, 
 *Start* 1200 Hz and *N Avg* 150. 
 - Open a sample Wave file using *File | Open* and select the file
