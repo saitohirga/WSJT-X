@@ -112,14 +112,17 @@ contains
     baud=12000.0/nsps
     this%callback => callback
     nFadingModel=1
+    maxiters=50
     ibwa=max(1,int(1.8*log(baud*mode_q65)) + 1)
     ibwb=min(10,ibwa+3)
     if(iand(ndepth,3).ge.2) then
        ibwa=max(1,int(1.8*log(baud*mode_q65)) + 1)
        ibwb=min(10,ibwa+5)
+       maxiters=75
     else if(iand(ndepth,3).eq.3) then
        ibwa=max(1,ibwa-1)
        ibwb=min(10,ibwb+1)
+       maxiters=100
     endif
 
 ! Generate codewords for full-AP list decoding    
@@ -241,12 +244,12 @@ contains
           if(c6.eq.'      ') c6='<b>   '
           c4=hisgrid(1:4)
           if(c4.eq.'    ') c4='<b> '
-          fmt='(i6.4,1x,a4,5i2,5i3,f6.2,f7.1,f7.2,f6.1,f6.2,'//   &
+          fmt='(i6.4,1x,a4,4i2,6i3,i4,f6.2,f7.1,f6.1,f6.2,'//   &
                '1x,a6,1x,a6,1x,a4,1x,a)'
           if(ntrperiod.le.30) fmt(5:5)='6'
           if(idec.eq.3) nrc=0
-          write(22,fmt) nutc,cmode,nQSOprogress,idec,ndist,idf,idt,ibw,    &
-               nused,icand,ncand,nrc,xdt,f0,db(snr1),snr2,tdecode,         &
+          write(22,fmt) nutc,cmode,nQSOprogress,idec,idf,idt,ibw,ndist,    &
+               nused,icand,ncand,nrc,ndepth,xdt,f0,snr2,tdecode,           &
                mycall(1:6),c6,c4,trim(decoded)
           close(22)
        endif
@@ -323,13 +326,12 @@ contains
              if(c6.eq.'      ') c6='<b>   '
              c4=hisgrid(1:4)
              if(c4.eq.'    ') c4='<b> '
-             fmt='(i6.4,1x,a4,5i2,5i3,f6.2,f7.1,f7.2,f6.1,f6.2,'//   &
+             fmt='(i6.4,1x,a4,4i2,6i3,i4,f6.2,f7.1,f6.1,f6.2,'//   &
                   '1x,a6,1x,a6,1x,a4,1x,a)'
-
              if(ntrperiod.le.30) fmt(5:5)='6'
              if(idec.eq.3) nrc=0
-             write(22,fmt) nutc,cmode,nQSOprogress,idec,ndist,idf,idt,ibw,    &
-                  nused,icand,ncand,nrc,xdt,f0,db(snr1),snr2,tdecode,         &
+             write(22,fmt) nutc,cmode,nQSOprogress,idec,idf,idt,ibw,ndist,    &
+                  nused,icand,ncand,nrc,ndepth,xdt,f0,snr2,tdecode,           &
                   mycall(1:6),c6,c4,trim(decoded)
              close(22)
           endif

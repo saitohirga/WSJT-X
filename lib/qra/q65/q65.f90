@@ -11,7 +11,7 @@ module q65
                                      38,46,50,55,60,62,66,69,74,76,85/)
   integer codewords(63,206)
   integer ibwa,ibwb,ncw,nsps,mode_q65,nfa,nfb
-  integer idf,idt,ibw,ndist
+  integer idf,idt,ibw,ndist,maxiters
   integer istep,nsmo,lag1,lag2,npasses,nused,iseq,ncand,nrc
   integer i0,j0
   integer navg(0:1)
@@ -516,7 +516,7 @@ subroutine q65_dec2(s3,nsubmode,b90ts,esnodb,irc,dat4,decoded)
   nFadingModel=1
   decoded='                                     '
   call q65_intrinsics_ff(s3,nsubmode,b90ts,nFadingModel,s3prob)
-  call q65_dec(s3,s3prob,APmask,APsymbols,esnodb,dat4,irc)
+  call q65_dec(s3,s3prob,APmask,APsymbols,maxiters,esnodb,dat4,irc)
   if(sum(dat4).le.0) irc=-2
   nrc=irc
   if(irc.ge.0) then
