@@ -26,13 +26,13 @@ subroutine q65_loops(c00,npts2,nsps2,nsubmode,ndepth,jpk0,    &
   idfmax=3
   idtmax=3
   ibw0=(ibwa+ibwb)/2
-  maxdist=5
+  maxdist=2
   if(iand(ndepth,3).ge.2) then
      idfmax=5
      idtmax=5
-     maxdist=10
+     maxdist=3
   endif
-  if(iand(ndepth,3).eq.3) maxdist=15
+  if(iand(ndepth,3).eq.3) maxdist=4
 
   LL=64*(mode_q65+2)
   napmin=99
@@ -58,7 +58,7 @@ subroutine q65_loops(c00,npts2,nsps2,nsubmode,ndepth,jpk0,    &
         where(s3(1:LL*NN)>s3lim) s3(1:LL*NN)=s3lim
         call q65_bzap(s3,LL)                   !Zap birdies
         do ibw=ibwa,ibwb
-           ndist=ndf**2 + ndt**2 + (ibw-ibw0)**2
+           ndist=sqrt(float(ndf**2 + ndt**2 + (ibw-ibw0)**2))
            if(ndist.gt.maxdist) cycle
            b90=1.72**ibw
            if(b90.gt.345.0) cycle
