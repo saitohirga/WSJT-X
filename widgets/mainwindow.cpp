@@ -5000,14 +5000,18 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             ui->tx3->setText(t);
             m_bTUmsg=true;
           } else {
-            if(SpecOp::RTTY == m_config.special_op_id()) {
-              logQSOTimer.start(0);
-              m_ntx=6;
-              ui->txrb6->setChecked(true);
-            } else {
-              m_ntx=5;
-              ui->txrb5->setChecked(true);
-            }
+            if (SpecOp::RTTY == m_config.special_op_id ()
+               && ("RR73" == word_3 || 73 == word_3_as_number))
+              {
+                logQSOTimer.start(0);
+                m_ntx=6;
+                ui->txrb6->setChecked(true);
+              }
+            else
+              {
+                m_ntx=5;
+                ui->txrb5->setChecked(true);
+              }
           }
           m_QSOProgress = SIGNOFF;
         } else if((m_QSOProgress >= REPORT
@@ -5024,30 +5028,35 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
           ui->txrb4->setChecked(true);
         } else if (m_QSOProgress >= CALLING)
           {
-            if (word_3_is_int
-                && ((word_3_as_number >= -50 && word_3_as_number <= 49)
-                    || (word_3_as_number >= 529 && word_3_as_number <= 599))) {
-              if(SpecOp::EU_VHF==m_config.special_op_id() or
-                 SpecOp::FIELD_DAY==m_config.special_op_id() or
-                 SpecOp::RTTY==m_config.special_op_id()) {
-                setTxMsg(2);
-                m_QSOProgress=REPORT;
+            if ((word_3_as_number >= -50 && word_3_as_number <= 49)
+                || (word_3_as_number >= 529 && word_3_as_number <= 599))
+              {
+                if(SpecOp::EU_VHF==m_config.special_op_id() or
+                   SpecOp::FIELD_DAY==m_config.special_op_id() or
+                   SpecOp::RTTY==m_config.special_op_id())
+                  {
+                    setTxMsg(2);
+                    m_QSOProgress=REPORT;
+                  }
+                else
+                  {
+                    if (word_3.startsWith ("R-") || word_3.startsWith ("R+"))
+                      {
+                        setTxMsg(4);
+                        m_QSOProgress=ROGERS;
+                      }
+                    else
+                      {
+                        setTxMsg (3);
+                        m_QSOProgress = ROGER_REPORT;
+                      }
+                  }
               }
-              else {
-                setTxMsg (3);
-                m_QSOProgress = ROGER_REPORT;
-              }
-            } else {
-              if (word_3.startsWith ("R-") || word_3.startsWith ("R+")) {
-                setTxMsg(4);
-                m_QSOProgress=ROGERS;
-            }
           }
-        }
-      else
-        {                // nothing for us
-          return;
-        }
+        else
+          {                // nothing for us
+            return;
+          }
       }
     }
     else if (m_QSOProgress >= ROGERS
