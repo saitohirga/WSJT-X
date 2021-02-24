@@ -5718,7 +5718,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
       p.setColor(QPalette::Base,"#66ffff");     //light blue
     } else {
       p.setColor(QPalette::Base,Qt::transparent);
-      if(m_mode=="MSK144" and t.mid(0,1)=="<") {
+      if ("MSK144" == m_mode && t.count ('<') == 1) {
         p.setColor(QPalette::Base,"#00ffff");   //another light blue
       }
     }
