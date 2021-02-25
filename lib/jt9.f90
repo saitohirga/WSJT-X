@@ -206,6 +206,11 @@ program jt9
      go to 999
   endif
 
+  if(hiscall.eq.'b') then
+     hiscall='            '
+     hisgrid='      '
+  endif
+
   if (mode .eq. 241) then
      ntol = min (ntol, 100)
   else if (mode .eq. 65 + 9 .and. .not. have_ntol) then
