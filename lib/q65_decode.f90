@@ -67,7 +67,7 @@ contains
     integer dat4(13)                      !Decoded message as 12 6-bit integers
     integer dgen(13)
     logical lclearave,lnewdat0,lapcqonly,unpk77_success
-    logical single_decode,lagain
+    logical single_decode,lagain,ex
     complex, allocatable :: c00(:)        !Analytic signal, 6000 Sa/s
     complex, allocatable :: c0(:)         !Analytic signal, 6000 Sa/s
     
@@ -112,6 +112,9 @@ contains
     baud=12000.0/nsps
     this%callback => callback
     nFadingModel=1
+
+    inquire(file='ndepth.dat',exist=ex)
+    if(.not.ex) ndepth=iand(ndepth,not(3)) + 1    !Treat any ndepth as "Fast"
     maxiters=67
     ibwa=max(1,int(1.8*log(baud*mode_q65)) + 1)
     ibwb=min(10,ibwa+4)
