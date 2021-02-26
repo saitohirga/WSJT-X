@@ -73,8 +73,8 @@ Commit        No_AP       MyCall     BothCalls
 94c315: 3  0 11  92    21 21  64    22 22   7
 
 7ad881: 1  0 11  32    21 21  23    22 22   7
-7ad881: 2
-7ad881: 3
+7ad881: 2  0 11  77    21 21  53    22 22   7
+7ad881: 3  0 11  86    21 21  63    22 22  11
 
 Mode: Q65-60D
 Data: 60D_2 (21 files, 1296 troposcatter)
