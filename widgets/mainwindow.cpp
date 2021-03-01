@@ -4184,16 +4184,15 @@ void MainWindow::guiUpdate()
       msg_parts[1].remove (QChar {'<'});
       msg_parts[1].remove (QChar {'>'});
     }
-    auto is_73 = m_QSOProgress >= ROGER_REPORT
-      && message_is_73 (m_currentMessageType, msg_parts);
+    auto is_73 = message_is_73 (m_currentMessageType, msg_parts);
     m_sentFirst73 = is_73
       && !message_is_73 (m_lastMessageType, m_lastMessageSent.split (' ', SkipEmptyParts));
-    if (m_sentFirst73) {
+    if (m_sentFirst73 || (is_73 && CALLING == m_QSOProgress)) {
       m_qsoStop=t2;
       if(m_config.id_after_73 ()) {
         icw[0] = m_ncw;
       }
-      if((m_config.prompt_to_log() or m_config.autoLog()) && !m_tune) logQSOTimer.start(0);
+      if((m_config.prompt_to_log() or m_config.autoLog()) && !m_tune && CALLING != m_QSOProgress) logQSOTimer.start(0);
     }
 
     bool b=(m_mode=="FT8" or m_mode=="FT4") and ui->cbAutoSeq->isChecked();
@@ -4985,9 +4984,10 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
         auto const& word_3 = message_words.at (3);
         bool word_3_is_int;
         auto word_3_as_number = word_3.toInt (&word_3_is_int);
-        if(m_QSOProgress >= ROGER_REPORT && ("RRR" == word_3
-                                             || (word_3_is_int && word_3_as_number == 73)
-                                             || "RR73" == word_3)) {
+        if (("RRR" == word_3
+             || (word_3_is_int && word_3_as_number == 73)
+             || "RR73" == word_3
+             || ("R" == word_3 && m_QSOProgress != REPORT))) {
           if(m_mode=="FT4" and "RR73" == word_3) m_dateTimeRcvdRR73=QDateTime::currentDateTimeUtc();
           m_bTUmsg=false;
           m_nextCall="";   //### Temporary: disable use of "TU;" message
@@ -5000,12 +5000,17 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             ui->tx3->setText(t);
             m_bTUmsg=true;
           } else {
-            if (SpecOp::RTTY == m_config.special_op_id ()
+            if (SpecOp::NONE < m_config.special_op_id () && SpecOp::FOX > m_config.special_op_id ()
                && ("RR73" == word_3 || 73 == word_3_as_number))
               {
                 logQSOTimer.start(0);
                 m_ntx=6;
                 ui->txrb6->setChecked(true);
+              }
+            else if (word_3.startsWith ('R') && word_3 != "RRR" && m_QSOProgress != ROGER_REPORT)
+              {
+                m_ntx=4;
+                ui->txrb4->setChecked(true);
               }
             else
               {
@@ -5013,7 +5018,10 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
                 ui->txrb5->setChecked(true);
               }
           }
-          m_QSOProgress = SIGNOFF;
+          if (m_QSOProgress >= ROGER_REPORT)
+            {
+              m_QSOProgress = SIGNOFF;
+            }
         } else if((m_QSOProgress >= REPORT
                    || (m_QSOProgress >= REPLYING &&
                    (m_mode=="MSK144" or m_mode=="FT8" or m_mode=="FT4")))
