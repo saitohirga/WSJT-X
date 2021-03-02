@@ -4152,7 +4152,7 @@ void MainWindow::guiUpdate()
           statusUpdate ();
         }
     }
-    m_bCallingCQ = CALLING == m_QSOProgress
+    m_bCallingCQ = 6 == m_ntx
       || m_currentMessage.contains (QRegularExpression {"^(CQ|QRZ) "});
     if(m_mode=="FT8" or m_mode=="FT4") {
       if(m_bCallingCQ && ui->cbFirst->isVisible () && ui->cbFirst->isChecked ()) {
@@ -5007,7 +5007,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
                 m_ntx=6;
                 ui->txrb6->setChecked(true);
               }
-            else if (word_3.startsWith ('R') && word_3 != "RRR" && m_QSOProgress != ROGER_REPORT)
+            else if (word_3.contains (QRegularExpression {"^R(?!R73|RR)"})
+                     && m_QSOProgress != ROGER_REPORT)
               {
                 m_ntx=4;
                 ui->txrb4->setChecked(true);
