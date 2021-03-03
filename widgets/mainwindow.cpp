@@ -3621,7 +3621,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
   auto const& message_words = message.messageWords ();
   auto is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size();
   bool is_OK=false;
-  if(m_mode=="MSK144" and message.string().indexOf(ui->dxCallEntry->text()+" R ")>0) is_OK=true;
+  if(m_mode=="MSK144" and message.clean_string ().indexOf(ui->dxCallEntry->text()+" R ")>0) is_OK=true;
   if (message_words.size () > 2 && (message.isStandardMessage() || (is_73 or is_OK))) {
     auto df = message.frequencyOffset ();
     auto within_tolerance = (qAbs (ui->RxFreqSpinBox->value () - df) <= int (start_tolerance)
@@ -3636,7 +3636,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
                || message_words.contains ("DE")))
           || !message.isStandardMessage ()); // free text 73/RR73
 
-    QStringList w=message.string().mid(22).remove("<").remove(">").split(" ",SkipEmptyParts);
+    QStringList w=message.clean_string ().mid(22).remove("<").remove(">").split(" ",SkipEmptyParts);
     QString w2;
     int nrpt=0;
     if (w.size () > 2)
@@ -3648,8 +3648,8 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
         }
       }
     bool bEU_VHF=(nrpt>=520001 and nrpt<=594000);
-    if(bEU_VHF and message.string().contains("<"+m_config.my_callsign() + "> ")) {
-      m_xRcvd=message.string().trimmed().right(13);
+    if(bEU_VHF and message.clean_string ().contains("<"+m_config.my_callsign() + "> ")) {
+      m_xRcvd=message.clean_string ().trimmed().right(13);
     }
     if (m_auto
         && (m_QSOProgress==REPLYING  or (!ui->tx1->isEnabled () and m_QSOProgress==REPORT))
@@ -4751,7 +4751,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   auto ctrl = modifiers.testFlag (Qt::ControlModifier);
   // auto alt = modifiers.testFlag (Qt::AltModifier);
   // basic mode sanity checks
-  auto const& parts = message.string ().split (' ', SkipEmptyParts);
+  auto const& parts = message.clean_string ().split (' ', SkipEmptyParts);
   if (parts.size () < 5) return;
   auto const& mode = parts.at (4).left (1);
   if (("JT9+JT65" == m_mode && !("@" == mode || "#" == mode))
@@ -4801,16 +4801,16 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   QString hisgrid;
   message.deCallAndGrid(/*out*/hiscall,hisgrid);
 
-  if(message.string().contains(hiscall+"/R")) {
+  if(message.clean_string ().contains(hiscall+"/R")) {
     hiscall+="/R";
     ui->dxCallEntry->setText(hiscall);
   }
-  if(message.string().contains(hiscall+"/P")) {
+  if(message.clean_string ().contains(hiscall+"/P")) {
     hiscall+="/P";
     ui->dxCallEntry->setText(hiscall);
   }
 
-  QStringList w=message.string().mid(22).remove("<").remove(">").split(" ",SkipEmptyParts);
+  QStringList w=message.clean_string ().mid(22).remove("<").remove(">").split(" ",SkipEmptyParts);
   int nw=w.size();
   if(nw>=4) {
     if(message_words.size()<3) return;
@@ -4822,9 +4822,9 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   }
 
   bool is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
-  if (!is_73 and !message.isStandardMessage() and !message.string().contains("<")) {
+  if (!is_73 and !message.isStandardMessage() and !message.clean_string ().contains("<")) {
     qDebug () << "Not processing message - hiscall:" << hiscall << "hisgrid:" << hisgrid
-              << message.string() << message.isStandardMessage();
+              << message.clean_string () << message.isStandardMessage();
     return;
   }
 
@@ -4878,7 +4878,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   auto base_call = Radio::base_callsign (hiscall);
 
 // Determine appropriate response to received message
-  auto dtext = " " + message.string () + " ";
+  auto dtext = " " + message.clean_string () + " ";
   dtext=dtext.remove("<").remove(">");
   if(dtext.contains (" " + m_baseCall + " ")
      || dtext.contains ("<" + m_baseCall + "> ")
@@ -4906,7 +4906,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       MessageBox::information_message (this, msg);
     }
 
-    QStringList t=message.string().split(' ', SkipEmptyParts);
+    QStringList t=message.clean_string ().split(' ', SkipEmptyParts);
     int n=t.size();
     QString t0=t.at(n-2);
     QString t1=t0.right(1);
@@ -5154,7 +5154,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   }
 
   QString s1 = m_QSOText.trimmed ();
-  QString s2 = message.string ().trimmed();
+  QString s2 = message.clean_string ().trimmed();
   if (s1!=s2 and !message.isTX()) {
     if (!s2.contains(m_baseCall) or m_mode=="MSK144") {  // Taken care of elsewhere if for_us and slow mode
       ui->decodedTextBrowser2->displayDecodedText(message, m_baseCall,m_mode,m_config.DXCC(),
