@@ -381,7 +381,7 @@ decode*, *Decode after EME delay*
 
 .Wide Graph:
 
-- *Bins/Pixel* = 3, *N Avg* = 10
+- *Bins/Pixel* = 4, *N Avg* = 10
 
 - Adjust the width of the window so that the frequency range extends
   up to at least 2400 Hz.

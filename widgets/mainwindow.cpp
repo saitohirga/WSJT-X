@@ -3633,7 +3633,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
   auto const& message_words = message.messageWords ();
   auto is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size();
   bool is_OK=false;
-  if(m_mode=="MSK144" and message.string().indexOf(ui->dxCallEntry->text()+" R ")>0) is_OK=true;
+  if(m_mode=="MSK144" and message.clean_string ().indexOf(ui->dxCallEntry->text()+" R ")>0) is_OK=true;
   if (message_words.size () > 2 && (message.isStandardMessage() || (is_73 or is_OK))) {
     auto df = message.frequencyOffset ();
     auto within_tolerance = (qAbs (ui->RxFreqSpinBox->value () - df) <= int (start_tolerance)
@@ -3648,7 +3648,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
                || message_words.contains ("DE")))
           || !message.isStandardMessage ()); // free text 73/RR73
 
-    QStringList w=message.string().mid(22).remove("<").remove(">").split(" ",SkipEmptyParts);
+    QStringList w=message.clean_string ().mid(22).remove("<").remove(">").split(" ",SkipEmptyParts);
     QString w2;
     int nrpt=0;
     if (w.size () > 2)
@@ -3660,8 +3660,8 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
         }
       }
     bool bEU_VHF=(nrpt>=520001 and nrpt<=594000);
-    if(bEU_VHF and message.string().contains("<"+m_config.my_callsign() + "> ")) {
-      m_xRcvd=message.string().trimmed().right(13);
+    if(bEU_VHF and message.clean_string ().contains("<"+m_config.my_callsign() + "> ")) {
+      m_xRcvd=message.clean_string ().trimmed().right(13);
     }
     if (m_auto
         && (m_QSOProgress==REPLYING  or (!ui->tx1->isEnabled () and m_QSOProgress==REPORT))
@@ -4180,7 +4180,7 @@ void MainWindow::guiUpdate()
           statusUpdate ();
         }
     }
-    m_bCallingCQ = CALLING == m_QSOProgress
+    m_bCallingCQ = 6 == m_ntx
       || m_currentMessage.contains (QRegularExpression {"^(CQ|QRZ) "});
     if(m_mode=="FT8" or m_mode=="FT4") {
       if(m_bCallingCQ && ui->cbFirst->isVisible () && ui->cbFirst->isChecked ()) {
@@ -4212,16 +4212,15 @@ void MainWindow::guiUpdate()
       msg_parts[1].remove (QChar {'<'});
       msg_parts[1].remove (QChar {'>'});
     }
-    auto is_73 = m_QSOProgress >= ROGER_REPORT
-      && message_is_73 (m_currentMessageType, msg_parts);
+    auto is_73 = message_is_73 (m_currentMessageType, msg_parts);
     m_sentFirst73 = is_73
       && !message_is_73 (m_lastMessageType, m_lastMessageSent.split (' ', SkipEmptyParts));
-    if (m_sentFirst73) {
+    if (m_sentFirst73 || (is_73 && CALLING == m_QSOProgress)) {
       m_qsoStop=t2;
       if(m_config.id_after_73 ()) {
         icw[0] = m_ncw;
       }
-      if((m_config.prompt_to_log() or m_config.autoLog()) && !m_tune) logQSOTimer.start(0);
+      if((m_config.prompt_to_log() or m_config.autoLog()) && !m_tune && CALLING != m_QSOProgress) logQSOTimer.start(0);
     }
 
     bool b=(m_mode=="FT8" or m_mode=="FT4") and ui->cbAutoSeq->isChecked();
@@ -4778,7 +4777,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   auto ctrl = modifiers.testFlag (Qt::ControlModifier);
   // auto alt = modifiers.testFlag (Qt::AltModifier);
   // basic mode sanity checks
-  auto const& parts = message.string ().split (' ', SkipEmptyParts);
+  auto const& parts = message.clean_string ().split (' ', SkipEmptyParts);
   if (parts.size () < 5) return;
   auto const& mode = parts.at (4).left (1);
   if (("JT65" == m_mode && mode != "#")
@@ -4827,16 +4826,16 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   QString hisgrid;
   message.deCallAndGrid(/*out*/hiscall,hisgrid);
 
-  if(message.string().contains(hiscall+"/R")) {
+  if(message.clean_string ().contains(hiscall+"/R")) {
     hiscall+="/R";
     ui->dxCallEntry->setText(hiscall);
   }
-  if(message.string().contains(hiscall+"/P")) {
+  if(message.clean_string ().contains(hiscall+"/P")) {
     hiscall+="/P";
     ui->dxCallEntry->setText(hiscall);
   }
 
-  QStringList w=message.string().mid(22).remove("<").remove(">").split(" ",SkipEmptyParts);
+  QStringList w=message.clean_string ().mid(22).remove("<").remove(">").split(" ",SkipEmptyParts);
   int nw=w.size();
   if(nw>=4) {
     if(message_words.size()<3) return;
@@ -4848,9 +4847,9 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   }
 
   bool is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size ();
-  if (!is_73 and !message.isStandardMessage() and !message.string().contains("<")) {
+  if (!is_73 and !message.isStandardMessage() and !message.clean_string ().contains("<")) {
     qDebug () << "Not processing message - hiscall:" << hiscall << "hisgrid:" << hisgrid
-              << message.string() << message.isStandardMessage();
+              << message.clean_string () << message.isStandardMessage();
     return;
   }
 
@@ -4892,7 +4891,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   auto base_call = Radio::base_callsign (hiscall);
 
 // Determine appropriate response to received message
-  auto dtext = " " + message.string () + " ";
+  auto dtext = " " + message.clean_string () + " ";
   dtext=dtext.remove("<").remove(">");
   if(dtext.contains (" " + m_baseCall + " ")
      || dtext.contains ("<" + m_baseCall + "> ")
@@ -4920,7 +4919,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       MessageBox::information_message (this, msg);
     }
 
-    QStringList t=message.string().split(' ', SkipEmptyParts);
+    QStringList t=message.clean_string ().split(' ', SkipEmptyParts);
     int n=t.size();
     QString t0=t.at(n-2);
     QString t1=t0.right(1);
@@ -4996,11 +4995,11 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
         }
       } else {  // no grid on end of msg
         auto const& word_3 = message_words.at (3);
-        bool word_3_is_int;
-        auto word_3_as_number = word_3.toInt (&word_3_is_int);
-        if(m_QSOProgress >= ROGER_REPORT && ("RRR" == word_3
-                                             || (word_3_is_int && word_3_as_number == 73)
-                                             || "RR73" == word_3)) {
+        auto word_3_as_number = word_3.toInt ();
+        if (("RRR" == word_3
+             || word_3_as_number == 73
+             || "RR73" == word_3
+             || ("R" == word_3 && m_QSOProgress != REPORT))) {
           if(m_mode=="FT4" and "RR73" == word_3) m_dateTimeRcvdRR73=QDateTime::currentDateTimeUtc();
           m_bTUmsg=false;
           m_nextCall="";   //### Temporary: disable use of "TU;" message
@@ -5013,16 +5012,30 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             ui->tx3->setText(t);
             m_bTUmsg=true;
           } else {
-            if(SpecOp::RTTY == m_config.special_op_id()) {
-              logQSOTimer.start(0);
-              m_ntx=6;
-              ui->txrb6->setChecked(true);
-            } else {
-              m_ntx=5;
-              ui->txrb5->setChecked(true);
-            }
+            if (m_QSOProgress > CALLING && m_QSOProgress < SIGNOFF
+                && SpecOp::NONE < m_config.special_op_id () && SpecOp::FOX > m_config.special_op_id ()
+                && ("RR73" == word_3 || 73 == word_3_as_number))
+              {
+                logQSOTimer.start(0);
+                m_ntx=6;
+                ui->txrb6->setChecked(true);
+              }
+            else if (word_3.contains (QRegularExpression {"^R(?!R73|RR)"})
+                     && m_QSOProgress != ROGER_REPORT)
+              {
+                m_ntx=4;
+                ui->txrb4->setChecked(true);
+              }
+            else
+              {
+                m_ntx=5;
+                ui->txrb5->setChecked(true);
+              }
           }
-          m_QSOProgress = SIGNOFF;
+          if (m_QSOProgress >= ROGER_REPORT)
+            {
+              m_QSOProgress = SIGNOFF;
+            }
         } else if((m_QSOProgress >= REPORT
                    || (m_QSOProgress >= REPLYING &&
                    (m_mode=="MSK144" or m_mode=="FT8" or m_mode=="FT4")))
@@ -5037,30 +5050,35 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
           ui->txrb4->setChecked(true);
         } else if (m_QSOProgress >= CALLING)
           {
-            if (word_3_is_int
-                && ((word_3_as_number >= -50 && word_3_as_number <= 49)
-                    || (word_3_as_number >= 529 && word_3_as_number <= 599))) {
-              if(SpecOp::EU_VHF==m_config.special_op_id() or
-                 SpecOp::FIELD_DAY==m_config.special_op_id() or
-                 SpecOp::RTTY==m_config.special_op_id()) {
-                setTxMsg(2);
-                m_QSOProgress=REPORT;
+            if ((word_3_as_number >= -50 && word_3_as_number <= 49)
+                || (word_3_as_number >= 529 && word_3_as_number <= 599))
+              {
+                if(SpecOp::EU_VHF==m_config.special_op_id() or
+                   SpecOp::FIELD_DAY==m_config.special_op_id() or
+                   SpecOp::RTTY==m_config.special_op_id())
+                  {
+                    setTxMsg(2);
+                    m_QSOProgress=REPORT;
+                  }
+                else
+                  {
+                    if (word_3.startsWith ("R-") || word_3.startsWith ("R+"))
+                      {
+                        setTxMsg(4);
+                        m_QSOProgress=ROGERS;
+                      }
+                    else
+                      {
+                        setTxMsg (3);
+                        m_QSOProgress = ROGER_REPORT;
+                      }
+                  }
               }
-              else {
-                setTxMsg (3);
-                m_QSOProgress = ROGER_REPORT;
-              }
-            } else {
-              if (word_3.startsWith ("R-") || word_3.startsWith ("R+")) {
-                setTxMsg(4);
-                m_QSOProgress=ROGERS;
-            }
           }
-        }
-      else
-        {                // nothing for us
-          return;
-        }
+        else
+          {                // nothing for us
+            return;
+          }
       }
     }
     else if (m_QSOProgress >= ROGERS
@@ -5138,7 +5156,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   }
 
   QString s1 = m_QSOText.trimmed ();
-  QString s2 = message.string ().trimmed();
+  QString s2 = message.clean_string ().trimmed();
   if (s1!=s2 and !message.isTX()) {
     if (!s2.contains(m_baseCall) or m_mode=="MSK144") {  // Taken care of elsewhere if for_us and slow mode
       ui->decodedTextBrowser2->displayDecodedText(message, m_baseCall,m_mode,m_config.DXCC(),
@@ -5711,7 +5729,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
       p.setColor(QPalette::Base,"#66ffff");     //light blue
     } else {
       p.setColor(QPalette::Base,Qt::transparent);
-      if(m_mode=="MSK144" and t.mid(0,1)=="<") {
+      if ("MSK144" == m_mode && t.count ('<') == 1) {
         p.setColor(QPalette::Base,"#00ffff");   //another light blue
       }
     }
@@ -6488,6 +6506,7 @@ void MainWindow::on_actionMSK144_triggered()
   } else {
     ui->labDXped->setVisible(true);
     ui->labDXped->setText(t0);
+    on_contest_log_action_triggered();
   }
 }
 
