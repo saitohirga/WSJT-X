@@ -6576,6 +6576,7 @@ void MainWindow::on_actionMSK144_triggered()
   } else {
     ui->labDXped->setVisible(true);
     ui->labDXped->setText(t0);
+    on_contest_log_action_triggered();
   }
 }
 
