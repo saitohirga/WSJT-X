@@ -424,7 +424,6 @@ set (wsjt_FSRCS
   lib/gen4.f90
   lib/gen65.f90
   lib/gen9.f90
-  lib/geniscat.f90
   lib/genwave.f90
   lib/ft8/genft8.f90
   lib/qra/q65/genq65.f90
@@ -456,7 +455,6 @@ set (wsjt_FSRCS
   lib/interleave63.f90
   lib/interleave9.f90
   lib/inter_wspr.f90
-  lib/iscat.f90
   lib/jplsubs.f
   lib/jt9fano.f90
   lib/jtmsg.f90
@@ -538,7 +536,6 @@ set (wsjt_FSRCS
   lib/sync9.f90
   lib/sync9f.f90
   lib/sync9w.f90
-  lib/synciscat.f90
   lib/timf2.f90
   lib/tweak1.f90
   lib/twkfreq.f90
