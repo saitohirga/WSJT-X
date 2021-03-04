@@ -11,7 +11,8 @@ higher bands.  These features include:
 
 - *JT65*, widely used for EME on VHF and higher bands
 
-- *QRA64*, another mode for EME
+- *QRA65*, another mode for EME, also used for tropo-, and
+   iono-scatter propagation on VHF and higher bands
 
 - *MSK144*, for meteor scatter
 
@@ -215,14 +216,6 @@ decode them by double-clicking on the lowest tone of each one in the
 waterfall.
 
 TIP: G3WDG has prepared a more detailed tutorial on using {QRA64_EME}. 
-
-=== ISCAT
-
-ISCAT is a useful mode for signals that are weak but more or less
-steady in amplitude over several seconds or longer.  Aircraft scatter
-at 10 GHz is a good example.  ISCAT messages are free-format and may
-have any length from 1 to 28 characters.  This protocol includes no
-error-correction facility.
 
 === MSK144
 

@@ -42,7 +42,7 @@ control.  The *Sync* control sets a minimum threshold for establishing
 time and frequency synchronization with a received signal.
 
 * Spinner control *T/R xx s* sets sequence lengths for transmission
-and reception in ISCAT, MSK144, and the fast JT9 modes.
+and reception in Q65, MSK144, and the fast JT9 modes.
 
 * With *Split operation* activated on the *File -> Settings -> Radio* tab, in
 MSK144 and the fast JT9 submodes you can activate the spinner control

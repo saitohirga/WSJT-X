@@ -8,9 +8,9 @@ as an extended branch of an earlier program, _WSJT_, first released in
 2001.  Bill Somerville, G4WJS, and Steve Franke, K9AN, have been major
 contributors to development of _WSJT-X_ since 2013 and 2015, respectively.
 
-_WSJT-X_ Version {VERSION_MAJOR}.{VERSION_MINOR} offers twelve
+_WSJT-X_ Version {VERSION_MAJOR}.{VERSION_MINOR} offers eleven
 different protocols or modes: *FST4*, *FT4*, *FT8*, *JT4*, *JT9*,
-*JT65*, *QRA64*, *ISCAT*, *MSK144*, *WSPR*, *FST4W*, and *Echo*.  The
+*JT65*, *QRA65*, *MSK144*, *WSPR*, *FST4W*, and *Echo*.  The
 first seven are designed for making reliable QSOs under weak-signal
 conditions. They use nearly identical message structure and source
 encoding.  JT65 and QRA64 were designed for EME ("`moonbounce`") on
@@ -39,14 +39,13 @@ On VHF bands and higher, QSOs are possible (by EME and other
 propagation types) at signal levels 10 to 15 dB below those required
 for CW.
 
-*ISCAT*, *MSK144*, and optionally submodes *JT9E-H* are "`fast`"
+*MSK144*, and optionally submodes *JT9E-H* are "`fast`"
 protocols designed to take advantage of brief signal enhancements from
 ionized meteor trails, aircraft scatter, and other types of scatter
 propagation. These modes use timed sequences of 5, 10, 15, or 30 s
 duration.  User messages are transmitted repeatedly at high rate (up
 to 250 characters per second for MSK144) to make good use of the
-shortest meteor-trail reflections or "`pings`".  ISCAT uses free-form
-messages up to 28 characters long, while MSK144 uses the same
+shortest meteor-trail reflections or "`pings`".  MSK144 uses the same
 structured messages as the slow modes and optionally an abbreviated
 format with hashed callsigns.  
 

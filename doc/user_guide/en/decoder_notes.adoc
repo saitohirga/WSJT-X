@@ -118,9 +118,7 @@ summarized in the following Table:
 |JT9     | @            |      |
 |JT65    | #            |      |
 |JT65 VHF| #            | *, # | f, fN, dCN
-|QRA64   | :            | *    | R:w
-
-|ISCAT   |              | *    | M  N  C  T
+|QRA65   | :            |      | qP
 |MSK144  | &            |      |
 |===========================================
 Sync character::
@@ -130,14 +128,11 @@ Sync character::
 End of line information::
  `?` - Decoded with lower confidence +
  `a` - Decoded with aid of some _a priori_ (AP) information +
- `C` - Confidence indicator [ISCAT and Deep Search; (0-9,*)] +
+ `C` - Confidence indicator [Deep Search; (0-9,*)] +
  `d` - Deep Search algorithm +
  `f` - Franke-Taylor or Fano algorithm +
- `M` - Message length (characters) +
  `N` - Number of Rx intervals or frames averaged +
  `P` - Number indicating type of AP information (Table 1, above) +
- `R` - Return code from QRA64 decoder +
- `T` - Length of analyzed region (s)
 
 Table 6 below shows the meaning of the return codes R in QRA64 mode.
 
