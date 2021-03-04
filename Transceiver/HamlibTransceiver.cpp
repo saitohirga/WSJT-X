@@ -436,7 +436,7 @@ HamlibTransceiver::HamlibTransceiver (logger_type * logger,
         {
           m_->set_conf ("ptt_type", "RTS");
         }
-      set_conf ("ptt_share", "1");
+      m_->set_conf ("ptt_share", "1");
     }
 
   // do this late to allow any configuration option to be overriden
@@ -457,7 +457,7 @@ HamlibTransceiver::HamlibTransceiver (logger_type * logger,
 
   // m_->rig_->state.obj = this;
 
-  if (!is_dummy_)
+  if (!m_->is_dummy_)
     {
       switch (rig_get_caps_int (m_->model_, RIG_CAPS_PORT_TYPE))
         {
@@ -551,7 +551,7 @@ HamlibTransceiver::HamlibTransceiver (logger_type * logger,
         {
           m_->set_conf ("ptt_type", "RTS");
         }
-      set_conf ("ptt_share", "1");
+      m_->set_conf ("ptt_share", "1");
     }
 
   // Make Icom CAT split commands less glitchy
@@ -606,8 +606,8 @@ void HamlibTransceiver::load_user_settings ()
               auto const& config_list = config.toObject ();
               for (auto item = config_list.constBegin (); item != config_list.constEnd (); ++item)
                 {
-                  set_conf (item.key ().toLocal8Bit ().constData ()
-                            , (*item).toVariant ().toString ().toLocal8Bit ().constData ());
+                  m_->set_conf (item.key ().toLocal8Bit ().constData ()
+                                , (*item).toVariant ().toString ().toLocal8Bit ().constData ());
                 }
             }
         }
