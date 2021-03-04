@@ -15,7 +15,7 @@ first seven are designed for making reliable QSOs under weak-signal
 conditions. They use nearly identical message structure and source
 encoding.  JT65 was designed for EME ("`moonbounce`") on VHF and
 higher bands and is mostly used for that purpose today.  Q65 replaces
-an earlier mode, QRA64; it is particularly effective for tropospheric
+an earlier mode, QRA64.  Q65 is particularly effective for tropospheric
 scatter, rain scatter, ionospheric scatter, TEP, and EME on VHF and
 higher bands, as well as other types of fast-fading signals.  JT9 was
 originally designed for the HF and lower bands.  Its submode JT9A is 1

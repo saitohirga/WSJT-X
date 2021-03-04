@@ -2,12 +2,12 @@
 
 === AP Decoding
 
-The _WSJT-X_ decoders for FST4, FT4, FT8, JT65, and QRA64 include 
+The _WSJT-X_ decoders for FST4, FT4, FT8, JT65, and Q65 include
 procedures that use naturally accumulating information during a
 minimal QSO.  This _a priori_ (AP) information increases sensitivity
 of the decoder by up to 4 dB, at the cost of a slightly higher rate of
-false decodes.  AP is optional in FT8, JT65, and QRA64, but is always
-enabled for FT4 and FST4 when decode depth is Normal or Deep.
+false decodes.  AP is optional in FT8 and JT65, but is always enabled
+for Q65 and for FT4 and FST4 when decode depth is Normal or Deep.
 
 For example: when you decide to answer a CQ, you already know your own
 callsign and that of your potential QSO partner.  The software
@@ -132,25 +132,16 @@ End of line information::
  `d` - Deep Search algorithm +
  `f` - Franke-Taylor or Fano algorithm +
  `N` - Number of Rx intervals or frames averaged +
- `P` - Number indicating type of AP information (Table 1, above) +
+ `P` - Number indicating type of AP information (Table 1 or Table 6) +
 
-Table 6 below shows the meaning of the return codes R in QRA64 mode.
-
-[[QRA64_AP_INFO_TABLE]]
-.QRA64 AP return codes
-[width="35%",cols="h10,<m20",frame=topbot,options="header"]
+[[Q65_AP_INFO_TABLE]]
+.Q65 end-of-line codes
+[width="45%",cols="h10,<m20",frame=topbot,options="header"]
 |===============================================
-|rc | Message components
-|0  | ?    &#160; &#160;   ?   &#160; &#160;   ?
-|1  | CQ   &#160; &#160;   ?   &#160; &#160;   ? 
-|2  | CQ   &#160; &#160;   ?   
-|3  | MyCall   &#160; &#160;   ?   &#160; &#160;   ? 
-|4  | MyCall   &#160; &#160;   ?  
-|5  | MyCall DxCall &#160; &#160;   ?
-|6  | ?    &#160; &#160;   DxCall   &#160; &#160;   ?
-|7  | ?    &#160; &#160;   DxCall   
-|8  | MyCall     DxCall DxGrid
-|9  | CQ     DxCall &#160; &#160;   ?
-|10 | CQ     DxCall 
-|11 | CQ     DxCall DxGrid
+|   | Message components
+|q0  | ?    &#160; &#160;   ?   &#160; &#160;   ?
+|q1  | CQ   &#160; &#160;   ?   &#160; &#160;   ? 
+|q2  | MyCall   &#160; &#160;   ?   &#160; &#160;   ? 
+|q3  | MyCall DxCall &#160; &#160;   ?
+|q4  | MyCall DxCall &#160; &#160; [<blank> \| RRR \| RR73 \| 73]
 |===============================================
