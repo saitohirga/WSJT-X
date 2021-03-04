@@ -11,8 +11,8 @@ higher bands.  These features include:
 
 - *JT65*, widely used for EME on VHF and higher bands
 
-- *QRA65*, another mode for EME, also used for tropo-, and
-   iono-scatter propagation on VHF and higher bands
+- *Q65*, for propagation modes including tropospheric scatter, rain
+scatter, ionospheric scatter, TEP, and EME
 
 - *MSK144*, for meteor scatter
 
@@ -175,9 +175,13 @@ RO, RRR, and 73.
 
 image::JT65B.png[align="center",alt="JT65B"]
 
-=== QRA64
+=== Q65
 
-QRA64 is designed for EME on VHF and higher bands; its
+Q65 is designed for propagation paths that produce signals exhibiting fast
+fading, including tropospheric scatter, rain scatter, ionospheric scatter,
+trans-equatorial propagation (TEP), and EME.  
+
+EME on VHF and higher bands; its
 operation is generally similar to JT4 and JT65.  The following screen
 shot shows an example of a QRA64C transmission from DL7YC recorded at
 G3WDG over the EME path at 24 GHz.  Doppler spread on the path was 78
@@ -186,7 +190,7 @@ broadened enough to make them hard to see on the waterfall.  The
 triangular red marker below the frequency scale shows that the decoder
 has achieved synchronization with a signal at approximately 967 Hz.
 
-image::QRA64.png[align="center",alt="QRA64"]
+image::Q65_6m_ionoscatter.png[align="center",alt="QRA64"]
 
 The QRA64 decoder makes no use of a callsign database.  Instead, it
 takes advantage of _a priori_ (AP) information such as one's own

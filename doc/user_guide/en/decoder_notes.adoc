@@ -118,7 +118,7 @@ summarized in the following Table:
 |JT9     | @            |      |
 |JT65    | #            |      |
 |JT65 VHF| #            | *, # | f, fN, dCN
-|QRA65   | :            |      | qP
+|Q65     | :            |      | qP
 |MSK144  | &            |      |
 |===========================================
 Sync character::
