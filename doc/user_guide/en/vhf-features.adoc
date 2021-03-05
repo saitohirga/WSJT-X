@@ -178,8 +178,9 @@ image::JT65B.png[align="center",alt="JT65B"]
 Q65 is designed for propagation paths that produce fast fading
 signals: tropospheric scatter, rain scatter, ionospheric scatter,
 trans-equatorial propagation (TEP), EME, and the like.  The following
-screen shot shows an example with submode Q65-30A on a 6-meter
-ionospheric scatter path of about 1100 km.
+screen shot shows a series of ionospheric scatter QSOs using submode
+Q65-30A on the 6 meter band.  The received signals were barely audible
+most of the time.
 
 image::Q65_6m_ionoscatter.png[align="center",alt="Q65"]
 

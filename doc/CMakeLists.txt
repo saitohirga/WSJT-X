@@ -95,7 +95,7 @@ set (UG_IMGS
   images/JT65B.png
   images/keyboard-shortcuts.png
   images/MSK144.png
-  images/QRA64.png
+  images/Q65_6m_ionoscatter.png
   images/WSPR_WideGraphControls.png
   images/WSPR_1a.png
   images/WSPR_2.png
