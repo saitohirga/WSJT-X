@@ -1,42 +1,21 @@
                     Notes on WSJT-X Installation for Mac OS X
                     -----------------------------------------
 
-Important:  If you are using the new Mac with the M1 chip then please read
-the section marked:  BEGIN M1.  Otherwise BEGIN INTEL applies.
-
 If you have already downloaded a previous version of WSJT-X then I suggest 
 you change the name in the Applications folder from WSJT-X to WSJT-X_previous 
 before proceeding.  
 
 I recommend that you follow the installation instructions especially if you
-are moving from v2.2 to v2.3 of WSJT-X or you have upgraded macOS.
-
-BEGIN M1:
+are moving from v2.2 to v2.3 or later, of WSJT-X or you have upgraded macOS.
 
 Double-click on the wsjtx-...-Darwin.dmg file you have downloaded from K1JT's web-site.
 
 Now open a Terminal window by going to Applications->Utilities and clicking on Terminal.
 
-There are two system variables that must be set manually since the M1 Macs do not recognise
-automatic parameter settings by means of the sysctl.conf file present in the download.
-Type these commands - you will be asked for your password which will not be echoed:
-
-      sudo  sysctl  -w  kern.sysv.shmmax=52428800
-      sudo  sysctl  -w  kern.sysv.shmall=25600
-
-It is important to note that these parameter settings will not survive a reboot.  If you
-need to reboot your Mac, then these commands must be re-entered.  Now proceed to NEXT.
-
-BEGIN INTEL:
-
-Double-click on the wsjtx-...-Darwin.dmg file you have downloaded from K1JT's web-site.
-
-Now open a Terminal window by going to Applications->Utilities and clicking on Terminal.
-
-Along with this ReadMe file there is a file:   sysctl.conf  which must be copied to a
+Along with this ReadMe file there is a file:   com.wsjtx.sysctl.plist  which must be copied to a
 system area by typing this line in the Terminal window and then pressing the Return key.
 
-      sudo  cp  /Volumes/WSJT-X/sysctl.conf  /etc
+      sudo  cp  /Volumes/WSJT-X/com.wsjtx.sysctl.plist  /Library/LaunchDaemons
 
 you will be asked for your normal password because authorisation is needed to copy this file.
 (Your password will not be echoed but press the Return key when completed.)
@@ -53,8 +32,6 @@ You can now close the Terminal window.  It will not be necessary to repeat this 
 again, even when you download an updated version of WSJT-X.  It might be necessary if you
 upgrade macOS.
  
-NEXT:
-
 Drag the WSJT-X app to your preferred location, such as Applications.
 
 You need to configure your sound card.   Visit Applications > Utilities > Audio MIDI 
@@ -95,27 +72,22 @@ Please email me if you have problems.
 
 --- John G4KLA     (g4kla@rmnjmn.co.uk)
 
-Addendum:  Information about sysctl.conf and multiple instances of WSJT-X.
+Addendum:  Information about com.wsjtx.sysctl.plist and multiple instances of WSJT-X.
 
 WSJT-X makes use of a block of memory which is shared between different parts of
 the code.  The normal allocation of shared memory on a Mac is insufficient and this 
-has to be increased.  The sysctl.conf file is used for this purpose.  You can 
-use a Mac editor to examine sysctl.conf.  (Do not use another editor - the file 
+has to be increased.  The com.wsjtx.sysctl.plist file is used for this purpose.  You can 
+use a Mac editor to examine the file.  (Do not use another editor - the file 
 would probably be corrupted.)
 
 It is possible to run two instances of WSJT-X simultaneously.  See "Section 16.2 
 Frequently asked Questions" in the User Guide.  If you wish to run more than two instances
-simultaneously, the shmall parameter in the sysctl.conf file needs to be modified as follows.
+simultaneously, the shmall parameter in the com.wsjtx.sysctl.plist file needs to be modified as follows.
 
 The shmall parameter determines the amount of shared memory which is allocated in 4096 byte pages
 with 50MB (52428800) required for each instance.   The shmall parameter is calculated as: 
-(n * 52428800)/4096  where 'n' is the number of instances required to run simultaneously. If
-you are using an Intel Mac, modify the shmall parameter in the sysctl.conf file using a Mac editor
-and then install in the /etc directory using the installation procedure described above for an 
-Intel Mac.  Remember to reboot your Mac afterwards.
-
-If you are using an M1 Mac, then simply issue the sudo sysctl -w kern.sysv.shmall=xxx command where
-xxx is the new value of shmall that is required.
+(n * 52428800)/4096  where 'n' is the number of instances required to run simultaneously.
+Remember to reboot your Mac afterwards.
 
 Note that the shmmax parameter remains unchanged.  This is the maximum amount of shared memory that
 any one instance is allowed to request from the total shared memory allocation and should not
