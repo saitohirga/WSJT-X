@@ -3292,8 +3292,6 @@ void MainWindow::to_jt9(qint32 n, qint32 istart, qint32 idone)
 
 void MainWindow::decodeDone ()
 {
-  if(m_mode!="FT8" or dec_data.params.nzhsym==50) m_nDecodes=0;
-  if(m_mode=="QRA64") m_wideGraph->drawRed(0,0);
   if ("FST4W" == m_mode)
     {
       if (m_uploadWSPRSpots
@@ -3313,7 +3311,10 @@ void MainWindow::decodeDone ()
   } else {
     mswait = 1000.0 * ( 1.75 * m_TRperiod - tdone );
   }
-  if(!m_diskData) killFileTimer.start(mswait); //Kill at 3/4 period
+  if(!m_diskData and !m_saveAll) {
+    if(m_saveDecoded and (m_nDecodes==0)) killFileTimer.start(mswait); //Kill at 3/4 period
+  }
+  if(m_mode!="FT8" or dec_data.params.nzhsym==50) m_nDecodes=0;
 
   dec_data.params.nagain=0;
   dec_data.params.ndiskdat=0;
