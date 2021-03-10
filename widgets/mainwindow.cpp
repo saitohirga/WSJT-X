@@ -3309,12 +3309,18 @@ void MainWindow::decodeDone ()
   double tdone = fmod(double(tnow.time().second()),m_TRperiod);
   int mswait;
   if( tdone < 0.5*m_TRperiod ) {
-    mswait = 1000.0 * ( 0.75 * m_TRperiod - tdone );
+    mswait = 1000.0 * ( 0.6 * m_TRperiod - tdone );
   } else {
-    mswait = 1000.0 * ( 1.75 * m_TRperiod - tdone );
+    mswait = 1000.0 * ( 1.6 * m_TRperiod - tdone );
   }
+  m_bDecoded=m_nDecodes>0;
+//  qDebug() << "aa 3316" << m_saveDecoded << m_saveAll << m_bDecoded << m_nDecodes
+//           << m_TRperiod << tdone << mswait;
   if(!m_diskData and !m_saveAll) {
-    if(m_saveDecoded and (m_nDecodes==0)) killFileTimer.start(mswait); //Kill at 3/4 period
+    if(m_saveDecoded and (m_nDecodes==0)) {
+//      qDebug() << "bb 3319" << mswait;
+      killFileTimer.start(mswait); //Kill at 3/4 period
+    }
   }
   if(m_mode!="FT8" or dec_data.params.nzhsym==50) m_nDecodes=0;
 
@@ -3719,6 +3725,7 @@ void MainWindow::pskPost (DecodedText const& decodedtext)
 
 void MainWindow::killFile ()
 {
+//  qDebug() << "cc 3725" << m_saveDecoded << m_saveAll << m_bDecoded << m_nDecodes << m_fnameWE;
   if (m_fnameWE.size () && !(m_saveAll || (m_saveDecoded && m_bDecoded))) {
     QFile f1 {m_fnameWE + ".wav"};
     if(f1.exists()) f1.remove();
