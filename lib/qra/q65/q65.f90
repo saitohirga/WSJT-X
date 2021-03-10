@@ -581,7 +581,7 @@ subroutine q65_write_red(iz,xdt,ccf2_avg,ccf2)
 
   rewind 17
   write(17,1000) xdt
-  do i=nint(nfa/df),nint(nfb/df)
+  do i=max(1,nint(nfa/df)),nint(nfb/df)
      freq=i*df
      write(17,1000) freq,ccf2_avg(i),ccf2(i)
 1000 format(f10.3,2e12.3)
