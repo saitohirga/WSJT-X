@@ -6408,7 +6408,6 @@ void MainWindow::on_actionJT65_triggered()
 
 void MainWindow::on_actionQ65_triggered()
 {
-//  on_actionFST4_triggered();
   m_mode="Q65";
   m_modeTx="Q65";
   ui->actionQ65->setChecked(true);
@@ -6422,7 +6421,7 @@ void MainWindow::on_actionQ65_triggered()
   m_hsymStop=49;
   ui->sbTR->values ({15, 30, 60, 120, 300});
   on_sbTR_valueChanged (ui->sbTR->value());
-  ui->sbSubmode->setValue(m_nSubMode); 
+  ui->sbSubmode->setValue(m_nSubMode);
   QString fname {QDir::toNativeSeparators(m_config.temp_dir().absoluteFilePath ("red.dat"))};
   m_wideGraph->setRedFile(fname);
   m_wideGraph->setMode(m_mode);
@@ -6686,6 +6685,16 @@ void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
   if(m_mode!="MSK144") {
     Q_EMIT transmitFrequency (n - m_XIT);
   }
+
+  if(m_mode=="Q65") {
+    if(((m_nSubMode==4 && m_TRperiod==60.0) || (m_nSubMode==3 && m_TRperiod==30.0) ||
+       (m_nSubMode==2 && m_TRperiod==15.0)) && ui->TxFreqSpinBox->value()!=700) {
+      ui->TxFreqSpinBox->setStyleSheet("QSpinBox{background-color:red}");
+    } else {
+      ui->TxFreqSpinBox->setStyleSheet("");
+    }
+  }
+
   statusUpdate ();
 }
 
@@ -7564,9 +7573,7 @@ void MainWindow::on_sbTR_valueChanged(int value)
     progressBar.setMaximum (value);
   }
   if(m_mode=="FST4") chk_FST4_freq_range();
-  if(m_transmitting) {
-    on_stopTxButton_clicked();
-  }
+//  if(m_transmitting) on_stopTxButton_clicked();      //### Is this needed or desirable? ###
   on_sbSubmode_valueChanged(ui->sbSubmode->value());
   statusUpdate ();
 }
@@ -7600,10 +7607,11 @@ void MainWindow::on_sbSubmode_valueChanged(int n)
     mode_label.setText (m_mode);
   }
   if(m_mode=="Q65") {
-    if((m_nSubMode==4 && m_TRperiod==60.0) || (m_nSubMode==3 && m_TRperiod==30.0) || (m_nSubMode==2 && m_TRperiod==15.0))
-    { ui->TxFreqSpinBox->setValue(700);
+    if(((m_nSubMode==4 && m_TRperiod==60.0) || (m_nSubMode==3 && m_TRperiod==30.0) ||
+       (m_nSubMode==2 && m_TRperiod==15.0)) && ui->TxFreqSpinBox->value()!=700) {
+      ui->TxFreqSpinBox->setStyleSheet("QSpinBox{background-color:red}");
     } else {
-      ui->TxFreqSpinBox->setValue(1000);
+      ui->TxFreqSpinBox->setStyleSheet("");
     }
   }
   if(m_mode=="JT9") {
