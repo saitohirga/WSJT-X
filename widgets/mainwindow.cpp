@@ -6440,11 +6440,19 @@ void MainWindow::on_actionQ65_triggered()
   switch_mode (Modes::Q65);
 //                         0123456789012345678901234567890123456
   displayWidgets(nWidgets("1111110101101101001110000001000000001"));
+  ui->labDXped->setText("");
   ui->lh_decodes_title_label->setText(tr ("Single-Period Decodes"));
   ui->rh_decodes_title_label->setText(tr ("Average Decodes"));
   ui->lh_decodes_headings_label->setText("UTC   dB   DT Freq    " + tr ("Message"));
   ui->rh_decodes_headings_label->setText("UTC   dB   DT Freq    " + tr ("Message"));
   statusChanged();
+  if(SpecOp::NONE < m_config.special_op_id()) {
+    ui->labDXped->setVisible(true);
+    ui->labDXped->setText("Contest ?");
+  } else {
+    ui->labDXped->setVisible(false);
+    ui->labDXped->setText("");
+  }
 }
 
 void MainWindow::on_actionMSK144_triggered()
