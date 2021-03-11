@@ -142,8 +142,8 @@ namespace Logger
         err += e.what ();
         // Since we cannot be sure of boost log state, output to cerr and cout.
         std::cerr << "ERROR: " << err << std::endl;
-        std::cout << "ERROR: " << err << std::endl;
         LOG_ERROR (err);
+        throw;
       }
   }
 
