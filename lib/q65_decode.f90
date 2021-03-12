@@ -234,7 +234,9 @@ contains
        nsnr=nint(snr2)
        call this%callback(nutc,snr1,nsnr,dtdec,f0dec,decoded,    &
             idec,nused,ntrperiod)
-       if(iand(ndepth,128).ne.0) call q65_clravg    !AutoClrAvg after decode
+!       if(iand(ndepth,128).ne.0) call q65_clravg    !AutoClrAvg after decode
+       if(iand(ndepth,128).ne.0 .and. .not.lagain .and.      &
+            int(abs(f0dec-nfqso)).le.ntol ) call q65_clravg    !AutoClrAvg
        call sec0(1,tdecode)
        open(22,file=trim(data_dir)//'/q65_decodes.dat',status='unknown',     &
             position='append',iostat=ios)
@@ -316,7 +318,9 @@ contains
           nsnr=nint(snr2)
           call this%callback(nutc,snr1,nsnr,dtdec,f0dec,decoded,    &
                idec,nused,ntrperiod)
-          if(iand(ndepth,128).ne.0) call q65_clravg    !AutoClrAvg after decode
+!          if(iand(ndepth,128).ne.0) call q65_clravg    !AutoClrAvg after decode
+          if(iand(ndepth,128).ne.0 .and. .not.lagain .and.      &
+               int(abs(f0dec-nfqso)).le.ntol ) call q65_clravg    !AutoClrAvg
           call sec0(1,tdecode)
           open(22,file=trim(data_dir)//'/q65_decodes.dat',status='unknown',     &
                position='append',iostat=ios)

@@ -583,8 +583,12 @@ subroutine q65_write_red(iz,xdt,ccf2_avg,ccf2)
   write(17,1000) xdt
   do i=max(1,nint(nfa/df)),nint(nfb/df)
      freq=i*df
-     write(17,1000) freq,ccf2_avg(i),ccf2(i)
-1000 format(f10.3,2e12.3)
+     y1=ccf2_avg(i)
+     if(y1.gt.10.0) y1=10.0 + 2.0*log10(y1/10.0)
+     y2=ccf2(i)
+     if(y2.gt.10.0) y2=10.0 + 2.0*log10(y2/10.0)
+     write(17,1000) freq,y1,y2
+1000 format(3f10.3)
   enddo
   flush(17)
 
