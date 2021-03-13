@@ -5006,7 +5006,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
         auto const& word_3 = message_words.at (3);
         auto word_3_as_number = word_3.toInt ();
         if (("RRR" == word_3
-             || word_3_as_number == 73
+             || (word_3_as_number == 73 && ROGERS == m_QSOProgress)
              || "RR73" == word_3
              || ("R" == word_3 && m_QSOProgress != REPORT))) {
           if(m_mode=="FT4" and "RR73" == word_3) m_dateTimeRcvdRR73=QDateTime::currentDateTimeUtc();
@@ -5035,10 +5035,30 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
                 m_ntx=4;
                 ui->txrb4->setChecked(true);
               }
-            else
+            else if ((m_QSOProgress > CALLING && m_QSOProgress < ROGERS)
+                     || word_3.contains (QRegularExpression {"^RR(?:R|73)$"}))
               {
                 m_ntx=5;
                 ui->txrb5->setChecked(true);
+              }
+            else if (ROGERS == m_QSOProgress)
+              {
+                logQSOTimer.start(0);
+                m_ntx=6;
+                ui->txrb6->setChecked(true);
+              }
+            else
+              {
+                // just work them (again)
+                if (ui->tx1->isEnabled ()) {
+                  m_ntx = 1;
+                  m_QSOProgress = REPLYING;
+                  ui->txrb1->setChecked (true);
+                } else {
+                  m_ntx=2;
+                  m_QSOProgress = REPORT;
+                  ui->txrb2->setChecked (true);
+                }
               }
           }
           if (m_QSOProgress >= ROGER_REPORT)

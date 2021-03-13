@@ -1602,7 +1602,7 @@ install (DIRECTORY
 if (APPLE)
     install (FILES
         Darwin/ReadMe.txt
-        Darwin/sysctl.conf
+        Darwin/com.wsjtx.sysctl.plist
         DESTINATION .
         #COMPONENT runtime
     )

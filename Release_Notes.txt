@@ -63,7 +63,7 @@ the RC1 release.
 
 
 		   Release: WSJT-X 2.3.1
-		         Mar 8, 2021
+		        Mar 18, 2021
 		   ---------------------
 
 WSJT-X 2.3.1  General Availability release  updates the User  Guide to
@@ -95,6 +95,10 @@ below.
 
  - Repair a defect  that could caused incorrect log  entry fields when
    using FT4 mode and a priori (AP) decoding.
+
+ - Repair defects saving .WAV files for periods with decodes.
+
+ - Offer a new scheme for adjusting macOS shared memory parameters.
 
 
 		   Release: WSJT-X 2.4.0-rc1

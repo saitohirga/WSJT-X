@@ -104,6 +104,77 @@ namespace
           << context.category << ": " << msg.toStdWString ();
       }
   }
+
+  void default_log_config ()
+  {
+    auto core = logging::core::get ();
+
+    //
+    // Define sinks, filters, and formatters using expression
+    // templates for efficiency.
+    //
+
+    // Default log file location.
+    QDir app_data {QStandardPaths::writableLocation (QStandardPaths::AppLocalDataLocation)};
+    Logger::init ();          // Basic setup of attributes
+
+    //
+    // Sink intended for general use that passes everything above
+    // selected severity levels per channel. Log file is appended
+    // between sessions and rotated to limit storage space usage.
+    //
+    auto sys_sink = boost::make_shared<sinks::asynchronous_sink<sinks::text_file_backend>>
+      (
+       keywords::auto_flush = false
+#if BOOST_VERSION / 100 >= 1070
+       , keywords::file_name = app_data.absoluteFilePath ("wsjtx_syslog.log").toStdWString ()
+       , keywords::target_file_name =
+#else
+       , keywords::file_name =
+#endif
+       app_data.absoluteFilePath ("logs/wsjtx_syslog_%Y-%m.log").toStdString ()
+       , keywords::time_based_rotation = sinks::file::rotation_at_time_point (gregorian::greg_day (1), 0, 0, 0)
+       , keywords::open_mode = std::ios_base::out | std::ios_base::app
+#if BOOST_VERSION / 100 >= 1063
+       , keywords::enable_final_rotation = false
+#endif
+       );
+
+    sys_sink->locked_backend ()->set_file_collector
+      (
+       sinks::file::make_collector
+       (
+        keywords::max_size = 5 * 1024 * 1024
+        , keywords::min_free_space = 1024 * 1024 * 1024
+        , keywords::max_files = 12
+        , keywords::target = app_data.absoluteFilePath ("logs").toStdWString ()
+        )
+       );
+    sys_sink->locked_backend ()->scan_for_files ();
+
+    // Per channel severity level filter
+    using min_severity_filter = expr::channel_severity_filter_actor<std::string, trivial::severity_level>;
+    min_severity_filter min_severity = expr::channel_severity_filter (channel, severity);
+    min_severity["SYSLOG"] = trivial::info;
+    min_severity["RIGCTRL"] = trivial::info;
+    min_severity["DATALOG"] = trivial::info;
+    sys_sink->set_filter (min_severity || severity >= trivial::fatal);
+
+    sys_sink->set_formatter
+      (
+       expr::stream
+       << "[" << channel
+       << "][" << expr::format_date_time<posix_time::ptime> ("TimeStamp", "%Y-%m-%d %H:%M:%S.%f")
+       << "][" << expr::format_date_time<posix_time::time_duration> ("Uptime", "%O:%M:%S.%f")
+       << "][" << trivial::severity
+       << "] " << expr::message
+       );
+
+    core->add_sink (sys_sink);
+
+    // Indicate start of logging
+    LOG_INFO ("Log Start");
+  }
 }
 
 WSJTXLogging::WSJTXLogging ()
@@ -152,77 +223,23 @@ WSJTXLogging::WSJTXLogging ()
       new_config += config.mid (pos);
       std::wstringbuf buffer {new_config.toStdWString (), std::ios_base::in};
       std::wistream stream {&buffer};
-      Logger::init_from_config (stream);
-      LOG_INFO ("Read logging configuration file: " << log_config.fileName ());
+      try
+        {
+          Logger::init_from_config (stream);
+          LOG_INFO ("Read logging configuration file: " << log_config.fileName ());
+        }
+      catch (std::exception const& e)
+        {
+          default_log_config ();
+          LOG_ERROR ("Reading logging configuration file: " << log_config.fileName () << " - " << e.what ());
+          LOG_INFO ("Reverting to default logging configuration");
+        }
     }
   else                          // Default setup
     {
-      //
-      // Define sinks, filters, and formatters using expression
-      // templates for efficiency.
-      //
-
-      // Default log file location.
-      QDir app_data {QStandardPaths::writableLocation (QStandardPaths::AppLocalDataLocation)};
-      Logger::init ();          // Basic setup of attributes
-
-      //
-      // Sink intended for general use that passes everything above
-      // selected severity levels per channel. Log file is appended
-      // between sessions and rotated to limit storage space usage.
-      //
-      auto sys_sink = boost::make_shared<sinks::asynchronous_sink<sinks::text_file_backend>>
-        (
-         keywords::auto_flush = false
-#if BOOST_VERSION / 100 >= 1070
-         , keywords::file_name = app_data.absoluteFilePath ("wsjtx_syslog.log").toStdWString ()
-         , keywords::target_file_name =
-#else
-         , keywords::file_name =
-#endif
-             app_data.absoluteFilePath ("logs/wsjtx_syslog_%Y-%m.log").toStdString ()
-         , keywords::time_based_rotation = sinks::file::rotation_at_time_point (gregorian::greg_day (1), 0, 0, 0)
-         , keywords::open_mode = std::ios_base::out | std::ios_base::app
-#if BOOST_VERSION / 100 >= 1063
-         , keywords::enable_final_rotation = false
-#endif
-         );
-
-      sys_sink->locked_backend ()->set_file_collector
-        (
-         sinks::file::make_collector
-         (
-          keywords::max_size = 5 * 1024 * 1024
-          , keywords::min_free_space = 1024 * 1024 * 1024
-          , keywords::max_files = 12
-          , keywords::target = app_data.absoluteFilePath ("logs").toStdWString ()
-          )
-         );
-      sys_sink->locked_backend ()->scan_for_files ();
-
-      // Per channel severity level filter
-      using min_severity_filter = expr::channel_severity_filter_actor<std::string, trivial::severity_level>;
-      min_severity_filter min_severity = expr::channel_severity_filter (channel, severity);
-      min_severity["SYSLOG"] = trivial::info;
-      min_severity["RIGCTRL"] = trivial::info;
-      min_severity["DATALOG"] = trivial::info;
-      sys_sink->set_filter (min_severity || severity >= trivial::fatal);
-
-      sys_sink->set_formatter
-        (
-         expr::stream
-         << "[" << channel
-         << "][" << expr::format_date_time<posix_time::ptime> ("TimeStamp", "%Y-%m-%d %H:%M:%S.%f")
-         << "][" << expr::format_date_time<posix_time::time_duration> ("Uptime", "%O:%M:%S.%f")
-         << "][" << trivial::severity
-         << "] " << expr::message
-         );
-
-      core->add_sink (sys_sink);
+      default_log_config ();
     }
 
-  // Indicate start of logging
-  LOG_INFO ("Log Start");
   ::qInstallMessageHandler (&qt_log_handler);
 }
 
