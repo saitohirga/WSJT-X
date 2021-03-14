@@ -28,7 +28,7 @@ the RC2 and v2.3.0 GA releases.
 
  - Behavior of "Save decoded" has been corrected.
 
- - Repaied a defect that caused crash when displaying the Wide Graph
+ - Repaired a defect that caused crash when displaying the Wide Graph
    with lower frequency limit set to 0.
 
  - Program no longer terminates a transmission when Settings is
