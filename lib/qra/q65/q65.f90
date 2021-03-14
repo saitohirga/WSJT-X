@@ -16,12 +16,14 @@ module q65
   integer i0,j0
   integer navg(0:1)
   logical lnewdat
-  real candidates(20,3)                    !snr, xdt, and f0 of top candidates
-  real, allocatable :: s1raw(:,:)          !Symbol spectra, 1/8-symbol steps
-  real, allocatable :: s1(:,:)             !Symbol spectra w/suppressed peaks
-  real, allocatable,save :: s1a(:,:,:)     !Cumulative symbol spectra
-  real sync(85)                            !sync vector
-  real df,dtstep,dtdec,f0dec,ftol
+  real candidates(20,3)                  !snr, xdt, and f0 of top candidates
+  real, allocatable :: s1raw(:,:)        !Symbol spectra, 1/8-symbol steps
+  real, allocatable :: s1(:,:)           !Symbol spectra w/suppressed peaks
+  real, allocatable,save :: s1a(:,:,:)   !Cumulative symbol spectra
+  real, allocatable,save :: ccf2(:)      !Max CCF(freq) at any lag, single seq
+  real, allocatable,save :: ccf2_avg(:)  !Like ccf2, but for accumulated average
+  real sync(85)                          !sync vector
+  real df,dtstep,dtdec,f0dec,ftol,plog
 
 contains
 
@@ -64,7 +66,6 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   logical first,lclearave
   real, allocatable :: s3(:,:)           !Data-symbol energies s3(LL,63)
   real, allocatable :: ccf1(:)           !CCF(freq) at fixed lag (red)
-  real, allocatable :: ccf2(:)           !Max CCF(freq) at any lag (orange)
   data first/.true./
   save first
 
@@ -98,7 +99,6 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
 
   allocate(s3(-64:LL-65,63))
   allocate(ccf1(-ia2:ia2))
-  allocate(ccf2(iz))
   if(LL.ne.LL0 .or. iz.ne.iz0 .or. jz.ne.jz0 .or. lclearave) then
      if(allocated(s1raw)) deallocate(s1raw)
      allocate(s1raw(iz,jz))
@@ -106,6 +106,10 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
      allocate(s1(iz,jz))
      if(allocated(s1a)) deallocate(s1a)
      allocate(s1a(iz,jz,0:1))
+     if(allocated(ccf2)) deallocate(ccf2)
+     allocate(ccf2(iz))
+     if(allocated(ccf2_avg)) deallocate(ccf2_avg)
+     allocate(ccf2_avg(iz))
      s1=0.
      s1a=0.
      navg=0
@@ -114,6 +118,8 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
      jz0=jz
      lclearave=.false.
   endif
+  ccf1=0.
+  ccf2_avg=0.
   dtstep=nsps/(NSTEP*12000.0)                 !Step size in seconds
   lag1=-1.0/dtstep
   lag2=1.0/dtstep + 0.9999
@@ -145,7 +151,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   enddo
 
   dat4=0
-  if(ncw.gt.0 .and. iavg.lt.2) then
+  if(ncw.gt.0 .and. iavg.le.1) then
 ! Try list decoding via "Deep Likelihood".
      call timer('ccf_85  ',0)
 ! Try to synchronize using all 85 symbols
@@ -157,8 +163,14 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
      call timer('list_dec',1)
   endif
 
+  if(iavg.eq.0) then
+     call q65_ccf_22(s1,iz,jz,nfqso,ipk,jpk,f0a,xdta,ccf2)
+  endif
+
 ! Get 2d CCF and ccf2 using sync symbols only
-  call q65_ccf_22(s1,iz,jz,nfqso,ipk,jpk,f0a,xdta,ccf2)
+  if(iavg.ge.1) then
+     call q65_ccf_22(s1,iz,jz,nfqso,ipk,jpk,f0a,xdta,ccf2_avg)
+  endif
   if(idec.lt.0) then
      f0=f0a
      xdt=xdta
@@ -188,7 +200,9 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   width=df*(i2-i1)
 
   if(ncw.eq.0) ccf1=0.
-  call q65_write_red(iz,ia2,xdt,ccf1,ccf2)
+!  write(*,3001) nutc,iavg,navg(0),sum(ccf2_avg),sum(ccf2)
+!3001 format(i4.4,2i4,2f8.2)
+  call q65_write_red(iz,xdt,ccf2_avg,ccf2)
 
   if(iavg.eq.2) then
      call q65_dec_q012(s3,LL,snr2,dat4,idec,decoded)
@@ -555,28 +569,28 @@ subroutine q65_s1_to_s3(s1,iz,jz,ipk,jpk,LL,mode_q65,sync,s3)
   return
 end subroutine q65_s1_to_s3
 
-subroutine q65_write_red(iz,ia2,xdt,ccf1,ccf2)
+subroutine q65_write_red(iz,xdt,ccf2_avg,ccf2)
 
 ! Write data for the red and orange sync curves to LU 17.
 
-  real ccf1(-ia2:ia2)
+  real ccf2_avg(iz)
   real ccf2(iz)
 
-  call q65_sync_curve(ccf1,-ia2,ia2,rms1)
+  call q65_sync_curve(ccf2_avg,1,iz,rms1)
   call q65_sync_curve(ccf2,1,iz,rms2)
 
   rewind 17
   write(17,1000) xdt
-  do i=1,iz
+  do i=max(1,nint(nfa/df)),nint(nfb/df)
      freq=i*df
-     ii=i-i0
-     if(freq.ge.float(nfa) .and. freq.le.float(nfb)) then
-        ccf1a=-99.0
-        if(ii.ge.-ia2 .and. ii.le.ia2) ccf1a=ccf1(ii)
-        write(17,1000) freq,ccf1a,ccf2(i)
-1000    format(3f10.3)
-     endif
+     y1=ccf2_avg(i)
+     if(y1.gt.10.0) y1=10.0 + 2.0*log10(y1/10.0)
+     y2=ccf2(i)
+     if(y2.gt.10.0) y2=10.0 + 2.0*log10(y2/10.0)
+     write(17,1000) freq,y1,y2
+1000 format(3f10.3)
   enddo
+  flush(17)
 
   return
 end subroutine q65_write_red
@@ -596,9 +610,9 @@ subroutine q65_sync_curve(ccf1,ia,ib,rms1)
        dot_product(ccf1(ib-ic:ib),ccf1(ib-ic:ib))
   rms1=0.
   if(nsum.gt.0) rms1=sqrt(sq/nsum)
-  if(rms1.gt.0.0) ccf1=2.0*ccf1/rms1
-  smax1=maxval(ccf1)
-  if(smax1.gt.10.0) ccf1=10.0*ccf1/smax1
+  if(rms1.gt.0.0) ccf1=ccf1/rms1
+!  smax1=maxval(ccf1)
+!  if(smax1.gt.10.0) ccf1=10.0*ccf1/smax1
 
   return
 end subroutine q65_sync_curve

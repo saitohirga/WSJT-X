@@ -12,6 +12,41 @@
 Copyright 2001 - 2021 by Joe Taylor, K1JT.
 
 
+	        Release: WSJT-X 2.4.0-rc3
+	               Mar 16, 2021
+	        -------------------------
+
+WSJT-X 2.4.0 Release Candidate 3 adds new Q65 mode functionality and
+decoder optimizations; repairs defects and regressions discovered in
+the RC2 and v2.3.0 GA releases.
+
+ - Repaired a memory corruption related to display of Q65_Sync,
+   particularly nasty on macOS.
+
+ - Q65 now dissplays two sync curves: orange for the current sequence,
+   red for the accumulated average.
+
+ - Behavior of "Save decoded" has been corrected.
+
+ - Repaied a defect that caused crash when displaying the Wide Graph
+   with lower frequency limit set to 0.
+
+ - Program no longer terminates a transmission when Settings is
+   closed.
+
+ - Program no longer forces TxFreq to 700 or 1000 Hz when entering Q65
+   mode or closing Settings.  Instead, it highlights TxFreq with red
+   background when its value should be 700 Hz but is not.
+
+ - Program displays a warning label if a contest mode is active in Q65
+   mode.
+
+ - Many updates to User Guide, mostly related to Q65.
+
+ - Repaired a regression that disallowed a new QSO initiation after an
+   abandoned QSO.
+
+
 	        Release: WSJT-X 2.4.0-rc2
 	               Mar 6, 2021
 	        -------------------------
@@ -63,7 +98,7 @@ the RC1 release.
 
 
 		   Release: WSJT-X 2.3.1
-		         Mar 8, 2021
+		        Mar 18, 2021
 		   ---------------------
 
 WSJT-X 2.3.1  General Availability release  updates the User  Guide to
@@ -95,6 +130,10 @@ below.
 
  - Repair a defect  that could caused incorrect log  entry fields when
    using FT4 mode and a priori (AP) decoding.
+
+ - Repair defects saving .WAV files for periods with decodes.
+
+ - Offer a new scheme for adjusting macOS shared memory parameters.
 
 
 		   Release: WSJT-X 2.4.0-rc1

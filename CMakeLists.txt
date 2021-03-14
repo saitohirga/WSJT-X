@@ -71,7 +71,7 @@ message (STATUS "******************************************************")
 
 include (set_build_type)
 # RC 0 or omitted is a development build, GA is a General Availability release build
-set_build_type (RC 2)
+set_build_type (RC 3)
 set (wsjtx_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}${BUILD_TYPE_REVISION}")
 
 #
@@ -526,7 +526,6 @@ set (wsjt_FSRCS
   lib/symspec2.f90
   lib/symspec65.f90
   lib/sync4.f90
-  lib/sync64.f90
   lib/sync65.f90
   lib/ft4/getcandidates4.f90
   lib/ft4/get_ft4_bitmetrics.f90
@@ -1603,7 +1602,7 @@ install (DIRECTORY
 if (APPLE)
     install (FILES
         Darwin/ReadMe.txt
-        Darwin/sysctl.conf
+        Darwin/com.wsjtx.sysctl.plist
         DESTINATION .
         #COMPONENT runtime
     )

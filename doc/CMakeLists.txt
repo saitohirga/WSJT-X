@@ -95,7 +95,7 @@ set (UG_IMGS
   images/JT65B.png
   images/keyboard-shortcuts.png
   images/MSK144.png
-  images/QRA64.png
+  images/Q65_6m_ionoscatter.png
   images/WSPR_WideGraphControls.png
   images/WSPR_1a.png
   images/WSPR_2.png
@@ -224,7 +224,7 @@ foreach (lang ${LANGUAGES})
     SOURCE user_guide/wsjtx-main.adoc
     LANG "${lang}"
     OUTPUT html
-    ASCIIDOCTOR_OPTIONS -d book -a data-uri -a toc=left -a max-width=1024px
+    ASCIIDOCTOR_OPTIONS -d book -a data-uri -a toc=left
     DEPENDS ${common_SRCS} ${_sources}
     )
   document(

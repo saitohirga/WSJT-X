@@ -75,8 +75,8 @@ responder to your CQ.
 
 NOTE: When *Auto-Seq* is enabled, the program de-activates *Enable Tx*
 at the end of each QSO.  It is not intended that _WSJT-X_ should make
-fully automated QSOs.  *Auto-sequencing is an operator aid, not an
-operator replacement.*
+fully automated QSOs.  Auto-sequencing is an operator aid, not an
+operator replacement.
 
 [[CONTEST_MSGS]]
 === Contest Messages
@@ -159,9 +159,9 @@ guidelines for contest logging with FT4, FT8, and MSK144:
 [[COMP-CALL]] 
 === Nonstandard Callsigns
 
-*FST4, FT4, FT8, MSK144, and Q65*
+*Modes with 77-bit message payloads: FST4, FT4, FT8, MSK144, and Q65*
 
-Compound callsigns like xx/K1ABC or K1ABC/x and special event
+Compound callsigns like PJ4/K1ABC or K1ABC/3 and special event
 callsigns like YW18FIFA are supported for normal QSOs but not for 
 contest-style messages.  Model QSOs look something like this:
 
@@ -195,7 +195,7 @@ the types of information that can be included in a message.  It
 prevents including your locator in standard messages, which
 necessarily impairs the usefulness of tools like PSK Reporter.
 
-*JT4, JT9, and JT65*
+*Modes with 72-bit message payloads: JT4, JT9, and JT65*
 
 In the 72-bit modes, compound callsigns are handled in one of two
 possible ways:
