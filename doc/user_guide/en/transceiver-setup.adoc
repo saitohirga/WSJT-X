@@ -26,13 +26,7 @@ TIP: The PC audio mixer normally has two sliders, one for each
 
 - If your transceiver offers more than one bandwidth setting in USB
   mode, it may be advantageous to choose the widest one possible, up
-  to about 5 kHz.  This choice has the desirable effect of allowing
-  the *Wide Graph* (waterfall and 2D spectrum) to display the
-  conventional JT65 and JT9 sub-bands simultaneously on most HF bands.
-  Further details are provided in the <<TUTORIAL,Basic Operating
-  Tutorial>>.  A wider displayed bandwidth may also be helpful at VHF
-  and above, where FT8, JT4, JT65, and Q65 signals may be found over
-  much wider ranges of frequencies.
+  to about 5 kHz. 
 
 - If you have only a standard SSB filter you won’t be able to display
   more than about 2.7 kHz bandwidth.  Depending on the exact dial

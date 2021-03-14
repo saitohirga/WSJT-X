@@ -175,19 +175,20 @@ separation is 110250/4096 = 26.92 Hz multiplied by n for JT65A, with n
 Q65 is intended for scatter, EME, and other extreme weak-signal
 applications.  Forward error correction (FEC) uses a specially
 designed (65,15) block code with six-bit symbols.  Two symbols are
-“punctured” from the code, yielding an effective (63,13) code with a
-payload of k = 13 information symbols conveyed by n = 63 channel
-symbols.  The punctured symbols consist of a 12-bit CRC computed from
-the 13 information symbols.  The CRC is used to reduce the
-false-decode rate to a very low value.  A 22-symbol pseudo-random
-sequence spread throughout a transmission is sent as “tone 0” and used
-for synchronization.  The total number of channel symbols in a Q65
-transmission is thus 63 + 22 = 85.
-
-For each T/R sequence length, submodes A - E have tone spacings and
-occupied bandwidths 1, 2, 4, 8, and 16 times those specified in the
-above table.  Full submode designations include a number for sequence
-length and a letter for tone spacing, as in Q65-15A, Q65-120C, etc.
+“punctured” from the code and not transmitted, thereby yielding an
+effective (63,13) code with a payload of k = 13 information symbols
+conveyed by n = 63 channel symbols.  The punctured symbols consist of
+a 12-bit CRC computed from the 13 information symbols.  The CRC is
+used to reduce the false-decode rate to a very low value.  A 22-symbol
+pseudorandom sequence spread throughout a transmission is sent as
+“tone 0” and used for synchronization.  The total number of channel
+symbols in a Q65 transmission is thus 63 + 22 = 85.  Q65 offers T/R
+sequence lengths of 15, 30, 60, 120, and 300 s, and submodes A - E
+have tone spacings 1, 2, 4, 8, and 16 times the symbol rate.  Submode
+designations include a number for sequence length and a letter for
+tone spacing, as in Q65-15A, Q65-120C, etc.  Occupied bandwidths are
+65 times the tone spacing, ranging from 19 Hz (Q65-300A) to a maximum
+of 1733 Hz (Q65-15C, Q65-30D, and Q65-60E).  
 
 [[WSPR_PROTOCOL]]
 ==== WSPR

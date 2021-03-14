@@ -87,7 +87,7 @@ contains
 
 ! Determine the T/R sequence: iseq=0 (even), or iseq=1 (odd)
     n=nutc
-    if(ntrperiod.ge.60) n=100*n
+    if(ntrperiod.ge.60 .and. nutc.le.2359) n=100*n
     write(cutc,'(i6.6)') n
     read(cutc,'(3i2)') ih,im,is
     nsec=3600*ih + 60*im + is
@@ -234,7 +234,9 @@ contains
        nsnr=nint(snr2)
        call this%callback(nutc,snr1,nsnr,dtdec,f0dec,decoded,    &
             idec,nused,ntrperiod)
-       if(iand(ndepth,128).ne.0) call q65_clravg    !AutoClrAvg after decode
+!       if(iand(ndepth,128).ne.0) call q65_clravg    !AutoClrAvg after decode
+       if(iand(ndepth,128).ne.0 .and. .not.lagain .and.      &
+            int(abs(f0dec-nfqso)).le.ntol ) call q65_clravg    !AutoClrAvg
        call sec0(1,tdecode)
        open(22,file=trim(data_dir)//'/q65_decodes.dat',status='unknown',     &
             position='append',iostat=ios)
@@ -246,13 +248,13 @@ contains
           if(c6.eq.'      ') c6='<b>   '
           c4=hisgrid(1:4)
           if(c4.eq.'    ') c4='<b> '
-          fmt='(i6.4,1x,a4,4i2,6i3,i4,f6.2,f7.1,f6.1,f6.2,'//   &
+          fmt='(i6.4,1x,a4,4i2,6i3,i4,f6.2,f7.1,f6.1,f7.1,f6.2,'//   &
                '1x,a6,1x,a6,1x,a4,1x,a)'
           if(ntrperiod.le.30) fmt(5:5)='6'
           if(idec.eq.3) nrc=0
           write(22,fmt) nutc,cmode,nQSOprogress,idec,idfbest,idtbest,ibw,    &
-               ndistbest,nused,icand,ncand,nrc,ndepth,xdt,f0,snr2,tdecode,   &
-               mycall(1:6),c6,c4,trim(decoded)
+               ndistbest,nused,icand,ncand,nrc,ndepth,xdt,f0,snr2,plog,      &
+               tdecode,mycall(1:6),c6,c4,trim(decoded)
           close(22)
        endif
 !    else
@@ -316,7 +318,9 @@ contains
           nsnr=nint(snr2)
           call this%callback(nutc,snr1,nsnr,dtdec,f0dec,decoded,    &
                idec,nused,ntrperiod)
-          if(iand(ndepth,128).ne.0) call q65_clravg    !AutoClrAvg after decode
+!          if(iand(ndepth,128).ne.0) call q65_clravg    !AutoClrAvg after decode
+          if(iand(ndepth,128).ne.0 .and. .not.lagain .and.      &
+               int(abs(f0dec-nfqso)).le.ntol ) call q65_clravg    !AutoClrAvg
           call sec0(1,tdecode)
           open(22,file=trim(data_dir)//'/q65_decodes.dat',status='unknown',     &
                position='append',iostat=ios)
@@ -328,13 +332,13 @@ contains
              if(c6.eq.'      ') c6='<b>   '
              c4=hisgrid(1:4)
              if(c4.eq.'    ') c4='<b> '
-             fmt='(i6.4,1x,a4,4i2,6i3,i4,f6.2,f7.1,f6.1,f6.2,'//   &
+             fmt='(i6.4,1x,a4,4i2,6i3,i4,f6.2,f7.1,f6.1,f7.1,f6.2,'//   &
                   '1x,a6,1x,a6,1x,a4,1x,a)'
              if(ntrperiod.le.30) fmt(5:5)='6'
              if(idec.eq.3) nrc=0
              write(22,fmt) nutc,cmode,nQSOprogress,idec,idfbest,idtbest,ibw,  &
-                  ndistbest,nused,icand,ncand,nrc,ndepth,xdt,f0,snr2,tdecode, &
-                  mycall(1:6),c6,c4,trim(decoded)
+                  ndistbest,nused,icand,ncand,nrc,ndepth,xdt,f0,snr2,plog,    &
+                  tdecode,mycall(1:6),c6,c4,trim(decoded)
              close(22)
           endif
        endif

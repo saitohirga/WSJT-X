@@ -3293,7 +3293,6 @@ void MainWindow::to_jt9(qint32 n, qint32 istart, qint32 idone)
 
 void MainWindow::decodeDone ()
 {
-  if(m_mode!="FT8" or dec_data.params.nzhsym==50) m_nDecodes=0;
   if(m_mode=="Q65") m_wideGraph->drawRed(0,0);
   if ("FST4W" == m_mode)
     {
@@ -3310,11 +3309,20 @@ void MainWindow::decodeDone ()
   double tdone = fmod(double(tnow.time().second()),m_TRperiod);
   int mswait;
   if( tdone < 0.5*m_TRperiod ) {
-    mswait = 1000.0 * ( 0.75 * m_TRperiod - tdone );
+    mswait = 1000.0 * ( 0.6 * m_TRperiod - tdone );
   } else {
-    mswait = 1000.0 * ( 1.75 * m_TRperiod - tdone );
+    mswait = 1000.0 * ( 1.6 * m_TRperiod - tdone );
   }
-  if(!m_diskData) killFileTimer.start(mswait); //Kill at 3/4 period
+  m_bDecoded=m_nDecodes>0;
+//  qDebug() << "aa 3316" << m_saveDecoded << m_saveAll << m_bDecoded << m_nDecodes
+//           << m_TRperiod << tdone << mswait;
+  if(!m_diskData and !m_saveAll) {
+    if(m_saveDecoded and (m_nDecodes==0)) {
+//      qDebug() << "bb 3319" << mswait;
+      killFileTimer.start(mswait); //Kill at 3/4 period
+    }
+  }
+  if(m_mode!="FT8" or dec_data.params.nzhsym==50) m_nDecodes=0;
 
   dec_data.params.nagain=0;
   dec_data.params.ndiskdat=0;
@@ -3717,6 +3725,7 @@ void MainWindow::pskPost (DecodedText const& decodedtext)
 
 void MainWindow::killFile ()
 {
+//  qDebug() << "cc 3725" << m_saveDecoded << m_saveAll << m_bDecoded << m_nDecodes << m_fnameWE;
   if (m_fnameWE.size () && !(m_saveAll || (m_saveDecoded && m_bDecoded))) {
     QFile f1 {m_fnameWE + ".wav"};
     if(f1.exists()) f1.remove();
@@ -4029,8 +4038,8 @@ void MainWindow::guiUpdate()
     if(m_tune or m_mode=="Echo") {
       itone[0]=0;
     } else {
-      if(m_QSOProgress==2 or m_QSOProgress==3) m_bSentReport=true;
-      if(m_bSentReport and (m_QSOProgress<2 or m_QSOProgress>3)) m_bSentReport=false;
+      if(m_QSOProgress==REPORT || m_QSOProgress==ROGER_REPORT) m_bSentReport=true;
+      if(m_bSentReport and (m_QSOProgress<REPORT or m_QSOProgress>ROGER_REPORT)) m_bSentReport=false;
       if(m_modeTx=="JT4") gen4_(message, &ichk , msgsent, const_cast<int *> (itone),
                                 &m_currentMessageType, 22, 22);
       if(m_modeTx=="JT9") gen9_(message, &ichk, msgsent, const_cast<int *> (itone),
@@ -4997,7 +5006,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
         auto const& word_3 = message_words.at (3);
         auto word_3_as_number = word_3.toInt ();
         if (("RRR" == word_3
-             || word_3_as_number == 73
+             || (word_3_as_number == 73 && ROGERS == m_QSOProgress)
              || "RR73" == word_3
              || ("R" == word_3 && m_QSOProgress != REPORT))) {
           if(m_mode=="FT4" and "RR73" == word_3) m_dateTimeRcvdRR73=QDateTime::currentDateTimeUtc();
@@ -5026,10 +5035,30 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
                 m_ntx=4;
                 ui->txrb4->setChecked(true);
               }
-            else
+            else if ((m_QSOProgress > CALLING && m_QSOProgress < ROGERS)
+                     || word_3.contains (QRegularExpression {"^RR(?:R|73)$"}))
               {
                 m_ntx=5;
                 ui->txrb5->setChecked(true);
+              }
+            else if (ROGERS == m_QSOProgress)
+              {
+                logQSOTimer.start(0);
+                m_ntx=6;
+                ui->txrb6->setChecked(true);
+              }
+            else
+              {
+                // just work them (again)
+                if (ui->tx1->isEnabled ()) {
+                  m_ntx = 1;
+                  m_QSOProgress = REPLYING;
+                  ui->txrb1->setChecked (true);
+                } else {
+                  m_ntx=2;
+                  m_QSOProgress = REPORT;
+                  ui->txrb2->setChecked (true);
+                }
               }
           }
           if (m_QSOProgress >= ROGER_REPORT)
@@ -5182,25 +5211,24 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   lookup();
   m_hisGrid = ui->dxGridEntry->text();
 
-  QString rpt = message.report();
-  int n=rpt.toInt();
-  if(m_mode=="MSK144" and m_bShMsgs) {
-    int n=rpt.toInt();
-    if(n<=-2) n=-3;
-    if(n>=-1 and n<=1) n=0;
-    if(n>=2 and n<=4) n=3;
-    if(n>=5 and n<=7) n=6;
-    if(n>=8 and n<=11) n=10;
-    if(n>=12 and n<=14) n=13;
-    if(n>=15) n=16;
-    rpt=QString::number(n);
-  }
-
-  if(!m_bSentReport) ui->rptSpinBox->setValue(n);    //Don't change report within a QSO
+  if (!m_bSentReport || base_call != qso_partner_base_call) // Don't change report within a QSO
+    {
+      auto n = message.report ().toInt ();
+      if(m_mode=="MSK144" and m_bShMsgs) {
+        if(n<=-2) n=-3;
+        if(n>=-1 and n<=1) n=0;
+        if(n>=2 and n<=4) n=3;
+        if(n>=5 and n<=7) n=6;
+        if(n>=8 and n<=11) n=10;
+        if(n>=12 and n<=14) n=13;
+        if(n>=15) n=16;
+      }
+      ui->rptSpinBox->setValue (n);
+    }
 // Don't genStdMsgs if we're already sending 73, or a "TU; " msg is queued.
   m_bTUmsg=false;   //### Temporary: disable use of "TU;" messages
-  if (!m_bSentReport and !m_nTx73 and !m_bTUmsg) {
-    genStdMsgs(rpt);
+  if (!m_nTx73 and !m_bTUmsg) {
+    genStdMsgs (QString::number (ui->rptSpinBox->value ()));
   }
   if(m_transmitting) m_restart=true;
   if (ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked ()
@@ -6406,7 +6434,6 @@ void MainWindow::on_actionJT65_triggered()
 
 void MainWindow::on_actionQ65_triggered()
 {
-//  on_actionFST4_triggered();
   m_mode="Q65";
   m_modeTx="Q65";
   ui->actionQ65->setChecked(true);
@@ -6420,7 +6447,7 @@ void MainWindow::on_actionQ65_triggered()
   m_hsymStop=49;
   ui->sbTR->values ({15, 30, 60, 120, 300});
   on_sbTR_valueChanged (ui->sbTR->value());
-  ui->sbSubmode->setValue(m_nSubMode); 
+  ui->sbSubmode->setValue(m_nSubMode);
   QString fname {QDir::toNativeSeparators(m_config.temp_dir().absoluteFilePath ("red.dat"))};
   m_wideGraph->setRedFile(fname);
   m_wideGraph->setMode(m_mode);
@@ -6432,11 +6459,19 @@ void MainWindow::on_actionQ65_triggered()
   switch_mode (Modes::Q65);
 //                         0123456789012345678901234567890123456
   displayWidgets(nWidgets("1111110101101101001110000001000000001"));
+  ui->labDXped->setText("");
   ui->lh_decodes_title_label->setText(tr ("Single-Period Decodes"));
   ui->rh_decodes_title_label->setText(tr ("Average Decodes"));
   ui->lh_decodes_headings_label->setText("UTC   dB   DT Freq    " + tr ("Message"));
   ui->rh_decodes_headings_label->setText("UTC   dB   DT Freq    " + tr ("Message"));
   statusChanged();
+  if(SpecOp::NONE < m_config.special_op_id()) {
+    ui->labDXped->setVisible(true);
+    ui->labDXped->setText("Contest ?");
+  } else {
+    ui->labDXped->setVisible(false);
+    ui->labDXped->setText("");
+  }
 }
 
 void MainWindow::on_actionMSK144_triggered()
@@ -6684,6 +6719,16 @@ void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
   if(m_mode!="MSK144") {
     Q_EMIT transmitFrequency (n - m_XIT);
   }
+
+  if(m_mode=="Q65") {
+    if(((m_nSubMode==4 && m_TRperiod==60.0) || (m_nSubMode==3 && m_TRperiod==30.0) ||
+       (m_nSubMode==2 && m_TRperiod==15.0)) && ui->TxFreqSpinBox->value()!=700) {
+      ui->TxFreqSpinBox->setStyleSheet("QSpinBox{background-color:red}");
+    } else {
+      ui->TxFreqSpinBox->setStyleSheet("");
+    }
+  }
+
   statusUpdate ();
 }
 
@@ -7562,9 +7607,7 @@ void MainWindow::on_sbTR_valueChanged(int value)
     progressBar.setMaximum (value);
   }
   if(m_mode=="FST4") chk_FST4_freq_range();
-  if(m_transmitting) {
-    on_stopTxButton_clicked();
-  }
+//  if(m_transmitting) on_stopTxButton_clicked();      //### Is this needed or desirable? ###
   on_sbSubmode_valueChanged(ui->sbSubmode->value());
   statusUpdate ();
 }
@@ -7598,10 +7641,11 @@ void MainWindow::on_sbSubmode_valueChanged(int n)
     mode_label.setText (m_mode);
   }
   if(m_mode=="Q65") {
-    if((m_nSubMode==4 && m_TRperiod==60.0) || (m_nSubMode==3 && m_TRperiod==30.0) || (m_nSubMode==2 && m_TRperiod==15.0))
-    { ui->TxFreqSpinBox->setValue(700);
+    if(((m_nSubMode==4 && m_TRperiod==60.0) || (m_nSubMode==3 && m_TRperiod==30.0) ||
+       (m_nSubMode==2 && m_TRperiod==15.0)) && ui->TxFreqSpinBox->value()!=700) {
+      ui->TxFreqSpinBox->setStyleSheet("QSpinBox{background-color:red}");
     } else {
-      ui->TxFreqSpinBox->setValue(1000);
+      ui->TxFreqSpinBox->setStyleSheet("");
     }
   }
   if(m_mode=="JT9") {

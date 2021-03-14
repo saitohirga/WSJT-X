@@ -239,7 +239,7 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
     if(y2>y2max) y2max=y2;
     j++;
   }
-  if(m_bReplot) return;
+  if(m_bReplot and m_mode!="Q65") return;
 
   if(swide[0]>1.0e29) m_line=0;
   if(m_mode=="FT4" and m_line==34) m_line=0;
@@ -274,7 +274,7 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
     painter2D.drawText(x1-4,y,"73");
   }
 
-  if(bRed and m_bQ65_Sync) {      //Plot the Q65 red or orange sync curve
+  if(bRed and m_bQ65_Sync) {      //Plot the Q65 red/orange sync curves
     int k=0;
     int k2=0;
     std::ifstream f;
@@ -283,23 +283,25 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
       int x,y;
       float freq,xdt,sync,sync2;
       f >> xdt;
-      for(int i=0; i<99999; i++) {
-        f >> freq >> sync >> sync2;
-        if(f.eof()) break;
-        x=XfromFreq(freq);
-        if(sync > -99.0 and sync != 0.0) {
-          y=m_h2*(0.9 - 0.09*gain2d*sync) - m_plot2dZero - 10;
-          LineBuf2[k2].setX(x);                          //Red sync curve
-          LineBuf2[k2].setY(y);
-          k2++;
+      if(f) {
+        for(int i=0; i<99999; i++) {
+          f >> freq >> sync >> sync2;
+          if(!f or f.eof()) break;
+          x=XfromFreq(freq);
+          if(sync > -99.0 and sync != 0.0) {
+            y=m_h2*(0.9 - 0.09*gain2d*sync) - m_plot2dZero - 10;
+            LineBuf2[k2].setX(x);                          //Red sync curve
+            LineBuf2[k2].setY(y);
+            k2++;
+          }
+          y=m_h2*(0.9 - 0.09*gain2d*sync2) - m_plot2dZero;
+          LineBuf3[k].setX(x);                            //Orange sync curve
+          LineBuf3[k].setY(y);
+          k++;
         }
-        y=m_h2*(0.9 - 0.09*gain2d*sync2) - m_plot2dZero;
-        LineBuf3[k].setX(x);                            //Orange sync curve
-        LineBuf3[k].setY(y);
-        k++;
       }
       f.close();
-     QPen pen0(Qt::red,2);
+      QPen pen0(Qt::red,2);
       painter2D.setPen(pen0);
       painter2D.drawPolyline(LineBuf2,k2);
       pen0.setColor("orange");
@@ -334,6 +336,9 @@ void CPlotter::replot()
     m_j=irow;
     plotsave_(swide,&m_w,&m_h1,&irow);
     draw(swide,false,false);
+  }
+  if(m_mode=="Q65" and m_bQ65_Sync) {
+    draw(swide,false,true);
   }
   update();                                    //trigger a new paintEvent
   m_bReplot=false;
@@ -623,7 +628,6 @@ void CPlotter::MakeFrequencyStrs()                       //MakeFrequencyStrs
 
 int CPlotter::XfromFreq(float f)                               //XfromFreq()
 {
-//  float w = m_WaterfallPixmap.width();
   int x = int(m_w * (f - m_startFreq)/m_fSpan + 0.5);
   if(x<0 ) return 0;
   if(x>m_w) return m_w;
@@ -765,6 +769,7 @@ void CPlotter::mouseReleaseEvent (QMouseEvent * event)
   else {
     event->ignore ();           // let parent handle
   }
+//  replot();                // ### Not needed?  ###
 }
 
 void CPlotter::mouseDoubleClickEvent (QMouseEvent * event)
@@ -774,8 +779,7 @@ void CPlotter::mouseDoubleClickEvent (QMouseEvent * event)
     int n=2;
     if(ctrl) n+=100;
     emit freezeDecode1(n);
-  }
-  else {
+  } else {
     event->ignore ();           // let parent handle
   }
 }
