@@ -13,7 +13,7 @@ Copyright 2001 - 2021 by Joe Taylor, K1JT.
 
 
 	        Release: WSJT-X 2.4.0-rc3
-	               Mar 16, 2021
+	               Mar 15, 2021
 	        -------------------------
 
 WSJT-X 2.4.0 Release Candidate 3 adds new Q65 mode functionality and
