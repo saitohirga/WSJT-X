@@ -12,7 +12,7 @@
 #include <fstream>
 #include <iostream>
 
-#define MAX_SCREENSIZE 2048
+#define MAX_SCREENSIZE 8192
 
 extern "C" {
   void flat4_(float swide[], int* iz, int* nflatten);
@@ -281,14 +281,14 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
     f.open(m_redFile.toLatin1());
     if(f) {
       int x,y;
-      float freq,xdt,sync,sync2;
-      f >> xdt;
+      float freq,xdt,smin,smax,sync,sync2;
+      f >> xdt >> smin >> smax;
       if(f) {
         for(int i=0; i<99999; i++) {
           f >> freq >> sync >> sync2;
-          if(!f or f.eof()) break;
+          if(!f or f.eof() or k>=MAX_SCREENSIZE or k2>=MAX_SCREENSIZE) break;
           x=XfromFreq(freq);
-          if(sync > -99.0 and sync != 0.0) {
+          if(sync > -99.0 and (smin!=0.0 or smax != 0.0)) {
             y=m_h2*(0.9 - 0.09*gain2d*sync) - m_plot2dZero - 10;
             LineBuf2[k2].setX(x);                          //Red sync curve
             LineBuf2[k2].setY(y);
@@ -303,18 +303,18 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
       f.close();
       QPen pen0(Qt::red,2);
       painter2D.setPen(pen0);
-      painter2D.drawPolyline(LineBuf2,k2);
+      if(smin!=0.0 or smax != 0.0) {
+        painter2D.drawPolyline(LineBuf2,k2);
+      }
       pen0.setColor("orange");
       painter2D.setPen(pen0);
       painter2D.drawPolyline(LineBuf3,k);
-      if(m_bQ65_Sync) {
-        QString t;
-        t = t.asprintf("DT = %6.2f",xdt);
-        painter2D.setPen(Qt::white);
-        Font.setWeight(QFont::Bold);
-        painter2D.setFont(Font);
-        painter2D.drawText(m_w-100,m_h2/2,t);
-      }
+      QString t;
+      t = t.asprintf("DT = %6.2f",xdt);
+      painter2D.setPen(Qt::white);
+      Font.setWeight(QFont::Bold);
+      painter2D.setFont(Font);
+      painter2D.drawText(m_w-100,m_h2/2,t);
     }
   }
   update();                                    //trigger a new paintEvent

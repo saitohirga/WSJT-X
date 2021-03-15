@@ -580,7 +580,7 @@ subroutine q65_write_red(iz,xdt,ccf2_avg,ccf2)
   call q65_sync_curve(ccf2,1,iz,rms2)
 
   rewind 17
-  write(17,1000) xdt
+  write(17,1000) xdt,minval(ccf2_avg),maxval(ccf2_avg)
   do i=max(1,nint(nfa/df)),nint(nfb/df)
      freq=i*df
      y1=ccf2_avg(i)
