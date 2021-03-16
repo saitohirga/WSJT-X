@@ -246,13 +246,24 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
   if(m_line == painter1.fontMetrics ().height ()) {
     painter1.setPen(Qt::white);
     QString t;
-    qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
-    int n = fmod(0.001*ms,m_TRperiod);
-    QDateTime t1=QDateTime::currentDateTimeUtc().addSecs(-n);
-    if(m_TRperiod<60.0) {
-      t=t1.toString("hh:mm:ss") + "    " + m_rxBand;
+    if(m_nUTC<0) {
+      qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
+      int n = fmod(0.001*ms,m_TRperiod);
+      QDateTime t1=QDateTime::currentDateTimeUtc().addSecs(-n);
+      if(m_TRperiod<60.0) {
+        t=t1.toString("hh:mm:ss") + "    " + m_rxBand;
+      } else {
+        t=t1.toString("hh:mm") + "    " + m_rxBand;
+      }
     } else {
-      t=t1.toString("hh:mm") + "    " + m_rxBand;
+      int ih=m_nUTC/10000;
+      int im=(m_nUTC - 10000*ih)/100;
+      int is=m_nUTC%100;
+      if(m_TRperiod<60) {
+        t.sprintf("%02d:%02d:%02d",ih,im,is) + "    " + m_rxBand;
+      } else {
+        t.sprintf("%02d:%02d",ih,im) + "    " + m_rxBand;
+      }
     }
     painter1.drawText (5, painter1.fontMetrics ().ascent (), t);
   }
@@ -881,4 +892,9 @@ void CPlotter::setVHF(bool bVHF)
 void CPlotter::setRedFile(QString fRed)
 {
   m_redFile=fRed;
+}
+
+void CPlotter::setDiskUTC(int nutc)
+{
+  m_nUTC=nutc;
 }

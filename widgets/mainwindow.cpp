@@ -1443,6 +1443,7 @@ void MainWindow::dataSink(qint64 frames)
     dec_data.params.ndiskdat=1;
   } else {
     dec_data.params.ndiskdat=0;
+    m_wideGraph->setDiskUTC(-1);
   }
 
   m_bUseRef=m_wideGraph->useRef();
@@ -2864,6 +2865,7 @@ void MainWindow::on_actionDecode_remaining_files_in_directory_triggered()
 
 void MainWindow::diskDat()                                   //diskDat()
 {
+  m_wideGraph->setDiskUTC(dec_data.params.nutc);
   if(dec_data.params.kin>0) {
     int k;
     int kstep=m_FFTSize;

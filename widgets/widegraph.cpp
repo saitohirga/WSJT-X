@@ -542,3 +542,8 @@ void WideGraph::setRedFile(QString fRed)
 {
   ui->widePlot->setRedFile(fRed);
 }
+
+void WideGraph::setDiskUTC(int nutc)
+{
+  ui->widePlot->setDiskUTC(nutc);
+}
