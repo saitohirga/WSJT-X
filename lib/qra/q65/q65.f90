@@ -678,8 +678,8 @@ subroutine q65_snr(dat4,dtdec,f0dec,mode_q65,nused,snr2)
 
   i0=nint(f0dec/df)
   nsum=max(10*mode_q65,nint(50.0/df))
-  ia=i0 - 2*nsum
-  ib=i0 + 2*nsum
+  ia=max(1,i0-2*nsum)
+  ib=min(iz0,i0+2*nsum)
   sum1=sum(spec(ia:ia+nsum-1))
   sum2=sum(spec(ib-nsum+1:ib))
   avg=(sum1+sum2)/(2.0*nsum)
