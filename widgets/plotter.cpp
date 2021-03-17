@@ -7,6 +7,7 @@
 #include <QPen>
 #include <QMouseEvent>
 #include <QDebug>
+#include "qt_helpers.hpp"
 #include "commons.h"
 #include "moc_plotter.cpp"
 #include <fstream>
@@ -247,23 +248,14 @@ void CPlotter::draw(float swide[], bool bScroll, bool bRed)
     painter1.setPen(Qt::white);
     QString t;
     if(m_nUTC<0) {
-      qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
-      int n = fmod(0.001*ms,m_TRperiod);
-      QDateTime t1=QDateTime::currentDateTimeUtc().addSecs(-n);
-      if(m_TRperiod<60.0) {
-        t=t1.toString("hh:mm:ss") + "    " + m_rxBand;
-      } else {
-        t=t1.toString("hh:mm") + "    " + m_rxBand;
-      }
+      auto start = qt_truncate_date_time_to (QDateTime::currentDateTimeUtc(), m_TRperiod * 1e3)
+        .toString (m_TRperiod < 60. ? "hh:mm:ss" : "hh:mm");
+      t = QString {"%1    %2"}.arg (start, m_rxBand);
     } else {
-      int ih=m_nUTC/10000;
-      int im=(m_nUTC - 10000*ih)/100;
-      int is=m_nUTC%100;
-      if(m_TRperiod<60) {
-        t.sprintf("%02d:%02d:%02d",ih,im,is) + "    " + m_rxBand;
-      } else {
-        t.sprintf("%02d:%02d",ih,im) + "    " + m_rxBand;
-      }
+      auto hr = m_nUTC / 10000;
+      auto start = QTime {hr, (m_nUTC - 10000 * hr) / 100, m_nUTC % 100}
+         .toString (m_TRperiod < 60. ? "hh:mm:ss" : "hh:mm");
+      t = QString {"%1    %2"}.arg (start).arg (m_rxBand);
     }
     painter1.drawText (5, painter1.fontMetrics ().ascent (), t);
   }
