@@ -98,6 +98,10 @@ contains
     allocate (c00(0:nfft1-1))
     allocate (c0(0:nfft1-1))
 
+    if(lagain) then
+       call q65_hist(nfqso,dxcall=hiscall,dxgrid=hisgrid)
+    endif
+
     nsps=1800
     if(ntrperiod.eq.30) then
        nsps=3600
@@ -235,7 +239,7 @@ contains
        nsnr=nint(snr2)
        call this%callback(nutc,snr1,nsnr,dtdec,f0dec,decoded,    &
             idec,nused,ntrperiod)
-!       if(iand(ndepth,128).ne.0) call q65_clravg    !AutoClrAvg after decode
+       call q65_hist(nint(f0dec),msg0=decoded)
        if(iand(ndepth,128).ne.0 .and. .not.lagain .and.      &
             int(abs(f0dec-nfqso)).le.ntol ) call q65_clravg    !AutoClrAvg
        call sec0(1,tdecode)
@@ -312,7 +316,7 @@ contains
           nsnr=nint(snr2)
           call this%callback(nutc,snr1,nsnr,dtdec,f0dec,decoded,    &
                idec,nused,ntrperiod)
-!          if(iand(ndepth,128).ne.0) call q65_clravg    !AutoClrAvg after decode
+          call q65_hist(nint(f0dec),msg0=decoded)
           if(iand(ndepth,128).ne.0 .and. .not.lagain .and.      &
                int(abs(f0dec-nfqso)).le.ntol ) call q65_clravg    !AutoClrAvg
           call sec0(1,tdecode)

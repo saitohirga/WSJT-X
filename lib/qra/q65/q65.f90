@@ -700,5 +700,51 @@ subroutine q65_snr(dat4,dtdec,f0dec,mode_q65,nused,snr2)
 
   return
 end subroutine q65_snr
-  
+
+subroutine q65_hist(if0,msg0,dxcall,dxgrid)
+
+  parameter (MAXHIST=100)
+  integer,intent(in) :: if0
+  character(len=37),intent(in),optional :: msg0
+  character(len=12),intent(out),optional :: dxcall
+  character(len=6),intent(out),optional :: dxgrid
+  character*6 g1
+  character*37 msg(MAXHIST)
+  integer nf0(MAXHIST)
+  logical isgrid
+  data nhist/0/
+  save nhist,nf0,msg
+
+  isgrid(g1)=g1(1:1).ge.'A' .and. g1(1:1).le.'R' .and. g1(2:2).ge.'A' .and. &
+       g1(2:2).le.'R' .and. g1(3:3).ge.'0' .and. g1(3:3).le.'9' .and.       &
+       g1(4:4).ge.'0' .and. g1(4:4).le.'9' .and. g1(1:4).ne.'RR73'
+
+  if(present(dxcall)) go to 100
+
+  if(nhist.eq.MAXHIST) then
+     nf0(1:MAXHIST-1)=nf0(2:MAXHIST)
+     msg(1:MAXHIST-1)=msg(2:MAXHIST)
+     nhist=MAXHIST-1
+  endif
+  nhist=nhist+1
+  nf0(nhist)=if0
+  msg(nhist)=msg0
+  go to 900
+
+100 dxcall='            '
+  dxgrid='      '
+  do i=1,nhist
+     if(abs(nf0(i)-if0).gt.10) cycle
+     i1=index(msg(i),' ')
+     if(i1.ge.4 .and. i1.le.13) then
+        i2=index(msg(i)(i1+1:),' ') + i1
+        dxcall=msg(i)(i1+1:i2-1)
+        g1=msg(i)(i2+1:i2+4)
+        if(isgrid(g1)) dxgrid=g1(1:4)
+     endif
+  enddo
+
+900 return
+end subroutine q65_hist
+
 end module q65
