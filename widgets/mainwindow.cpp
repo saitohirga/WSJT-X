@@ -3682,7 +3682,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
       // auto stop to avoid accidental QRM
       ui->stopTxButton->click (); // halt any transmission
     } else if (m_auto             // transmit allowed
-        && ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked() // auto-sequencing allowed
+        && ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isEnabled () && ui->cbAutoSeq->isChecked () // auto-sequencing allowed
         && ((!m_bCallingCQ      // not calling CQ/QRZ
         && !m_sentFirst73       // not finished QSO
         && ((message_words.at (1).contains (m_baseCall)
@@ -4231,10 +4231,13 @@ void MainWindow::guiUpdate()
       if(m_config.id_after_73 ()) {
         icw[0] = m_ncw;
       }
-      if((m_config.prompt_to_log() or m_config.autoLog()) && !m_tune && CALLING != m_QSOProgress) logQSOTimer.start(0);
+      if((m_config.prompt_to_log() or m_config.autoLog()) && !m_tune && CALLING != m_QSOProgress)
+        {
+          logQSOTimer.start(0);
+        }
     }
 
-    bool b=(m_mode=="FT8" or m_mode=="FT4") and ui->cbAutoSeq->isChecked();
+    bool b=(m_mode=="FT8" or m_mode=="FT4") and ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isEnabled () && ui->cbAutoSeq->isChecked ();
     if(is_73 and (m_config.disable_TX_on_73() or b)) {
       m_nextCall="";  //### Temporary: disable use of "TU;" messages;
       if(m_nextCall!="") {
@@ -4519,7 +4522,7 @@ void MainWindow::stopTx2()
 {
   m_config.transceiver_ptt (false); //Lower PTT
   if (m_mode == "JT9" && m_bFast9
-      && ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked()
+      && ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isEnabled () && ui->cbAutoSeq->isChecked ()
       && m_ntx == 5 && m_nTx73 >= 5) {
     on_stopTxButton_clicked ();
     m_nTx73 = 0;
@@ -4787,6 +4790,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   auto shift = modifiers.testFlag (Qt::ShiftModifier);
   auto ctrl = modifiers.testFlag (Qt::ControlModifier);
   // auto alt = modifiers.testFlag (Qt::AltModifier);
+  auto auto_seq = ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isEnabled () && ui->cbAutoSeq->isChecked ();
   // basic mode sanity checks
   auto const& parts = message.clean_string ().split (' ', SkipEmptyParts);
   if (parts.size () < 5) return;
@@ -5877,7 +5881,7 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
   if (SpecOp::FOX != m_config.special_op_id ()
       && ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isEnabled () && ui->cbAutoSeq->isChecked ())
     {
-      // ensure that auto Tx is disabled even if clear DX call & grid
+      // ensure that auto Tx is disabled even if disable Tx
       // on 73 is not checked, unless in Fox mode where it is allowed
       // to be a robot.
       auto_tx_mode (false);
@@ -7412,7 +7416,7 @@ void MainWindow::transmit (double snr)
 
 // In auto-sequencing mode, stop after 5 transmissions of "73" message.
   if (m_bFastMode || m_bFast9) {
-    if (ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked ()) {
+    if (ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isEnabled () && ui->cbAutoSeq->isChecked ()) {
       if(m_ntx==5) {
         m_nTx73 += 1;
       } else {
