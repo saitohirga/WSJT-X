@@ -5237,8 +5237,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
     genStdMsgs (QString::number (ui->rptSpinBox->value ()));
   }
   if(m_transmitting) m_restart=true;
-  if (ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isChecked ()
-      && !m_bDoubleClicked && m_mode!="FT4") {
+  if (auto_seq && !m_bDoubleClicked && m_mode!="FT4") {
     return;
   }
   if(m_config.quick_call() && m_bDoubleClicked) auto_tx_mode(true);
