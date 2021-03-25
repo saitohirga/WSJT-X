@@ -2256,7 +2256,7 @@ Error(%2): %3</source>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1200"/>
         <source>Enable auto response to the first decode from a new DXCC or new call on the current band.</source>
-        <translation>バンドの未交信DXCCまたは未交信局を自動的に応答</translation>
+        <translation>バンドの未交信DXCCまたは未交信局を自動的に応答.</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="2588"/>
@@ -2276,12 +2276,12 @@ Error(%2): %3</source>
     <message>
         <location filename="../widgets/mainwindow.ui" line="3399"/>
         <source>Quick-Start Guide to Q65</source>
-        <translation type="unfinished"></translation>
+        <translation>Q65 クイックスタートガイド</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="3407"/>
         <source>Auto Clear Avg after decode</source>
-        <translation type="unfinished"></translation>
+        <translation>デコード後平均値を自動クリア</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="573"/>
@@ -2986,7 +2986,7 @@ ENTERを押してテキストを登録リストに追加.
     <message>
         <location filename="../widgets/mainwindow.ui" line="3383"/>
         <source>Q65</source>
-        <translation type="unfinished"></translation>
+        <translation>Q65</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="3391"/>
@@ -4055,7 +4055,9 @@ ENTERを押してテキストを登録リストに追加.
         <source>If you make fair use of any part of WSJT-X under terms of the GNU General Public License, you must display the following copyright notice prominently in your derivative work:
 
 &quot;The algorithms, source code, look-and-feel of WSJT-X and related programs, and protocol specifications for the modes FSK441, FST4, FT8, JT4, JT6M, JT9, JT65, JTMS, QRA64, Q65, MSK144 are Copyright (C) 2001-2021 by one or more of the following authors: Joseph Taylor, K1JT; Bill Somerville, G4WJS; Steven Franke, K9AN; Nico Palermo, IV3NWV; Greg Beam, KI7MT; Michael Black, W9MDB; Edson Pereira, PY2SDR; Philip Karn, KA9Q; and other members of the WSJT Development Group.&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>もしあなたがGNU General Public LicenseのもとでWSJT-Xの一部または全部のコードを使う場合、あなたのアプリで以下の著作権に関する文章を明確に表示しなければなりません.
+
+&quot;The algorithms, source code, look-and-feel of WSJT-X and related programs, and protocol specifications for the modes FSK441, FST4, FT8, JT4, JT6M, JT9, JT65, JTMS, QRA64, Q65, MSK144 are Copyright (C) 2001-2021 by one or more of the following authors: Joseph Taylor, K1JT; Bill Somerville, G4WJS; Steven Franke, K9AN; Nico Palermo, IV3NWV; Greg Beam, KI7MT; Michael Black, W9MDB; Edson Pereira, PY2SDR; Philip Karn, KA9Q; and other members of the WSJT Development Group.&quot;</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.cpp" line="2885"/>
@@ -5224,7 +5226,7 @@ Error(%2): %3</source>
     <message>
         <location filename="../widgets/widegraph.ui" line="340"/>
         <source>Q65_Sync</source>
-        <translation type="unfinished"></translation>
+        <translation>Q65_Sync</translation>
     </message>
     <message>
         <location filename="../widgets/widegraph.ui" line="348"/>
