@@ -46,21 +46,21 @@ libm65.a: $(OBJS1)
 qra64_subs.o: ./qra64/qra64_subs.c
 	gcc -c -O2 -o qra64_subs.o ./qra64/qra64_subs.c
 	
-qracodes.o: ../../wsjtx/lib/qra/qracodes/qracodes.c
-	gcc -c -O2 -o qracodes.o ../../wsjtx/lib/qra/qracodes/qracodes.c
+qracodes.o: qracodes/qracodes.c
+	gcc -c -O2 -o qracodes.o qracodes/qracodes.c
 
-qra64.o: ../../wsjtx/lib/qra/qra64/qra64.c
-	gcc -c -O2 -o qra64.o ../../wsjtx/lib/qra/qra64/qra64.c
+qra64.o: qra64/qra64.c
+	gcc -c -O2 -o qra64.o qra64/qra64.c
 
-qra13_64_64_irr_e.o: ../../wsjtx/lib/qra/qracodes/qra13_64_64_irr_e.c
+qra13_64_64_irr_e.o: qracodes/qra13_64_64_irr_e.c
 	gcc -c -O2 -o qra13_64_64_irr_e.o  \
-	../../wsjtx/lib/qra/qracodes/qra13_64_64_irr_e.c
+	qracodes/qra13_64_64_irr_e.c
 
-npfwht.o: ../../wsjtx/lib/qra/qracodes/npfwht.c
-	gcc -c -O2 -o npfwht.o ../../wsjtx/lib/qra/qracodes/npfwht.c
+npfwht.o: qracodes/npfwht.c
+	gcc -c -O2 -o npfwht.o qracodes/npfwht.c
 
-pdmath.o: ../../wsjtx/lib/qra/qracodes/pdmath.c
-	gcc -c -O2 -o pdmath.o ../../wsjtx/lib/qra/qracodes/pdmath.c
+pdmath.o: qracodes/pdmath.c
+	gcc -c -O2 -o pdmath.o qracodes/pdmath.c
 
 OBJS3 = m65.o m65a.o map65a.o symspec.o decode0.o ftninit.o ftnquit.o \
 	timer.o ipcomm.o sec_midn.o usleep.o
