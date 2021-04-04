@@ -3,7 +3,8 @@ CC  = c:/JTSDK/Qt55/Tools/mingw492_32/bin/gcc
 FC = c:/JTSDK/Qt55/Tools/mingw492_32/bin/gfortran
 CXX = c:/JTSDK/Qt55/Tools/mingw492_32/bin/g++
 
-FFLAGS = -O2 -fbounds-check -Wall -Wno-precision-loss -fno-second-underscore
+FFLAGS = -O2 -fbounds-check -Wall -Wno-conversion -Wno-precision-loss \
+       -fno-second-underscore
 CFLAGS = -I. -fbounds-check
 
 # Default rules
