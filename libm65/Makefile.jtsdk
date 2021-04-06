@@ -4,7 +4,9 @@ FC = c:/JTSDK/Qt55/Tools/mingw492_32/bin/gfortran
 CXX = c:/JTSDK/Qt55/Tools/mingw492_32/bin/g++
 
 FFLAGS = -O2 -fbounds-check -Wall -Wno-conversion -Wno-precision-loss \
-       -fno-second-underscore
+       -fno-second-underscore -fbacktrace \
+       -ffpe-summary=none
+#       -ffpe-trap=invalid,zero,overflow,underflow,denormal
 CFLAGS = -I. -fbounds-check
 
 # Default rules
