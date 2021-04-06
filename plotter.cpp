@@ -134,6 +134,7 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
 
 //  if(m_line==63) {
   if(m_bDecodeFinished) {
+    /*
     std::ifstream f;
     f.open("./red.dat");
     if(f) {
@@ -157,6 +158,7 @@ void CPlotter::paintEvent(QPaintEvent *)                    // paintEvent()
       }
       f.close();
     }
+    */
     m_bDecodeFinished=false;
   }
 

@@ -551,7 +551,7 @@ p, li { white-space: pre-wrap; }
              </size>
             </property>
             <property name="text">
-             <string>Tx QRA64  $</string>
+             <string>Tx Q65  $</string>
             </property>
            </widget>
           </item>
@@ -1138,7 +1138,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>635</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -1202,7 +1202,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionNormal_Deep_Search"/>
     <addaction name="actionAggressive_Deep_Search"/>
     <addaction name="separator"/>
-    <addaction name="actionDecode_QRA64_near_QSO_frequency"/>
+    <addaction name="actionDecode_Q65_near_QSO_frequency"/>
    </widget>
    <widget class="QMenu" name="menuSave">
     <property name="title">
@@ -1230,12 +1230,12 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionJT65B"/>
     <addaction name="actionJT65C"/>
     <addaction name="separator"/>
-    <addaction name="actionNoQRA64"/>
-    <addaction name="actionQRA64A"/>
-    <addaction name="actionQRA64B"/>
-    <addaction name="actionQRA64C"/>
-    <addaction name="actionQRA64D"/>
-    <addaction name="actionQRA64E"/>
+    <addaction name="actionNoQ65"/>
+    <addaction name="actionQ65A"/>
+    <addaction name="actionQ65B"/>
+    <addaction name="actionQ65C"/>
+    <addaction name="actionQ65D"/>
+    <addaction name="actionQ65E"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSetup"/>
@@ -1595,28 +1595,28 @@ p, li { white-space: pre-wrap; }
     <string>Alt+T</string>
    </property>
   </action>
-  <action name="actionDecode_QRA64_near_QSO_frequency">
+  <action name="actionDecode_Q65_near_QSO_frequency">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Decode QRA64 near QSO frequency</string>
+    <string>Decode Q65 near QSO frequency</string>
    </property>
   </action>
-  <action name="actionQRA64A">
+  <action name="actionQ65A">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>QRA64A</string>
+    <string>Q65A</string>
    </property>
   </action>
-  <action name="actionQRA64B">
+  <action name="actionQ65B">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>QRA64B</string>
+    <string>Q65B</string>
    </property>
   </action>
   <action name="actionNoJT65">
@@ -1627,7 +1627,7 @@ p, li { white-space: pre-wrap; }
     <string>No JT65</string>
    </property>
   </action>
-  <action name="actionNoQRA64">
+  <action name="actionNoQ65">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1635,31 +1635,31 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>No QRA64</string>
+    <string>No Q65</string>
    </property>
   </action>
-  <action name="actionQRA64C">
+  <action name="actionQ65C">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>QRA64C</string>
+    <string>Q65C</string>
    </property>
   </action>
-  <action name="actionQRA64D">
+  <action name="actionQ65D">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>QRA64D</string>
+    <string>Q65D</string>
    </property>
   </action>
-  <action name="actionQRA64E">
+  <action name="actionQ65E">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>QRA64E</string>
+    <string>Q65E</string>
    </property>
   </action>
  </widget>

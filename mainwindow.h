@@ -126,13 +126,13 @@ private slots:
   void on_actionFUNcube_Dongle_triggered();
   void on_actionEdit_wsjt_log_triggered();
   void on_actionTx_Tune_triggered();
-  void on_actionQRA64A_triggered();
-  void on_actionQRA64B_triggered();
+  void on_actionQ65A_triggered();
+  void on_actionQ65B_triggered();
   void on_actionNoJT65_triggered();
-  void on_actionNoQRA64_triggered();
-  void on_actionQRA64C_triggered();
-  void on_actionQRA64D_triggered();
-  void on_actionQRA64E_triggered();
+  void on_actionNoQ65_triggered();
+  void on_actionQ65C_triggered();
+  void on_actionQ65D_triggered();
+  void on_actionQ65E_triggered();
 
   void on_pbTxMode_clicked();
 
@@ -172,7 +172,7 @@ private:
     qint32  m_nsave;
     qint32  m_TRperiod;
     qint32  m_modeJT65;
-    qint32  m_modeQRA64;
+    qint32  m_modeQ65;
 
     double  m_fAdd;
 //    double  m_IQamp;
