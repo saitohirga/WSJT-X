@@ -20,7 +20,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   character mycall*12,hiscall*12,mygrid*6,hisgrid*6,grid*6,cp*1,cm*1
   integer indx(MAXMSG),nsiz(MAXMSG)
   logical done(MAXMSG)
-  logical xpol,bqra64
+  logical xpol,bq65
   character decoded*22,blank*22,cmode*2
   real short(3,NFFT)                 !SNR dt ipol for potential shorthands
   real qphi(12)
@@ -35,8 +35,8 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   mode65=mod(nmode,10)
   if(mode65.eq.3) mode65=4
   mode64=nmode/10
-  nwrite_qra64=0
-  bqra64=mode64.gt.0
+  nwrite_q65=0
+  bq65=mode64.gt.0
   mcall3a=mcall3b
   mousefqso0=mousefqso
   xpol=(nxpol.ne.0)
@@ -60,7 +60,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
 2  if(ndphi.eq.1) dphi=30*iloop/57.2957795
 
   nqdz=1
-  if(bqra64) nqdz=2
+  if(bq65) nqdz=2
   do nqd=nqdz,0,-1
      if(nqd.eq.2) then
         fa=1000.0*fqso
@@ -219,15 +219,15 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                  idf=nint(1000.0*(freq+0.5*(nfa+nfb)-foffset-(ikHz+nfshift)))
                  call decode1a(dd,newdat,f00,nflip,mode65,nfsample,       &
                       xpol,mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,   &
-                      ndphi,iloop,nutc,ikHz,idf,ipol,ntol,bqra64,sync2,   &
+                      ndphi,iloop,nutc,ikHz,idf,ipol,ntol,bq65,sync2,   &
                       a,dt,pol,nkv,nhist,nsum,nsave,qual,decoded)
                  call timer('decode1a',1)
                  if(nqd.eq.2) then
-                    call timer('qra64   ',0)
+                    call timer('q65     ',0)
                     call q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,     &
                          mousedf,ntol,xpol,mycall,hiscall,hisgrid,        &
                          mode64)
-                    call timer('qra64   ',1)
+                    call timer('q65     ',1)
                     cycle
                  endif
 
@@ -338,7 +338,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
            endif
         enddo
 
-        if(nwrite.eq.0 .and. nwrite_qra64.eq.0) then
+        if(nwrite.eq.0 .and. nwrite_q65.eq.0) then
            write(*,1012) mousefqso,nutc
 1012       format('!',i3,9x,i6.4,'  ')
         endif
