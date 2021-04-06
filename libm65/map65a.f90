@@ -47,8 +47,6 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
 !  open(23,file='release/CALL3.TXT',status='unknown')
   open(23,file='CALL3.TXT',status='unknown')
 
-  if(nutc.ne.nutc0) nfile=nfile+1
-  nutc0=nutc
   df=96000.0/NFFT                     !df = 96000/NFFT = 2.930 Hz
   if(nfsample.eq.95238) df=95238.1/NFFT
   ftol=0.010                          !Frequency tolerance (kHz)
@@ -60,7 +58,10 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
 2  if(ndphi.eq.1) dphi=30*iloop/57.2957795
 
   nqdz=1
-  if(bq65) nqdz=2
+  if(bq65 .and. nutc0.ge.0) nqdz=2
+  if(nutc.ne.nutc0) nfile=nfile+1
+  nutc0=nutc
+
   do nqd=nqdz,0,-1
      if(nqd.eq.2) then
         fa=1000.0*fqso
