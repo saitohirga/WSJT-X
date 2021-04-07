@@ -1,5 +1,5 @@
 subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
-     mycall_12,hiscall_12,hisgrid_6,mode64)
+     mycall0,hiscall0,hisgrid,mode64)
 
   use wavhdr
   parameter (MAXFFT1=5376000)              !56*96000
@@ -11,14 +11,23 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   complex cx(0:MAXFFT2-1),cy(0:MAXFFT2-1),cz(0:MAXFFT2-1)
   logical xpol
   real*8 fcenter
-  character*12 mycall_12,hiscall_12
-  character*6 hisgrid_6
-  character*83 cmnd
+  character*12 mycall0,hiscall0
+  character*12 mycall,hiscall
+  character*6 hisgrid
+  character*4 grid4
+  character*125 cmnd
   character*62 line
   character*80 line2
   character*40 msg40
   character*15 fname
   common/cacb/ca,cb
+
+  mycall='K1JT'
+  hiscall='IV3NWV'
+  grid4='AA00'
+  if(mycall0(1:1).ne.' ') mycall=mycall0
+  if(hiscall0(1:1).ne.' ') hiscall=hiscall0
+  if(hisgrid(1:4).ne.'    ') grid4=hisgrid(1:4)
 
   nfft1=MAXFFT1
   nfft2=MAXFFT2
@@ -56,11 +65,14 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
 
 !  write(77,*) nutc,ikhz,mousedf,ntol
 
-!                1         2         3         4         5         6         7         0
-!       12345678901234567890123456789012345678901234567890123456789012345678901234567890123
-  cmnd='\WSJT-X\install\bin\jt9 -3 -X 32 -f 1079 -F 1000 000000_0001.wav  > q65_decodes.txt'
+!                1         2         3         4         5         6         7         8         9        10        11        12
+!       1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901'
+  cmnd='\WSJT-X\install\bin\jt9 -3 -X 32 -f 1079 -F 1000 -c MyCall      -x HisCall     -g FN42 000000_0001.wav  > q65_decodes.txt'
   write(cmnd(37:40),'(i4)') 1000
   write(cmnd(45:48),'(i4)') ntol
+  write(cmnd(53:64),'(a12)') mycall
+  write(cmnd(68:79),'(a12)') hiscall
+  write(cmnd(83:86),'(a4)') grid4
   fname='000000_0001.wav'
   npol=1
   if(xpol) npol=4
@@ -81,8 +93,8 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
      open(25,file=fname,access='stream',status='unknown')
      write(25) h,iwave
      close(25)
-     if(ipol.eq.2) cmnd(66:66)='>'
-     write(cmnd(60:60),'(i1)') ipol
+     write(cmnd(98:98),'(i1)') ipol
+     if(ipol.eq.2) cmnd(104:104)='>'
      call execute_command_line(trim(cmnd))
   enddo
 
