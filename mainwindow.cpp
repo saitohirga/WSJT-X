@@ -1491,7 +1491,7 @@ void MainWindow::guiUpdate()
       gen65_(message,&mode65,&samfac,&nsendingsh,msgsent,iwave,
              &nwave,len1,len1);
     } else {
-      if(m_modeQ65==5) ntxFreq=600;
+      if(m_modeQ65==5) ntxFreq=700;
       genqra64a_(message,&ichk,&ntxFreq,&m_modeQ65,&itype,msgsent,iwave,
                  &nwave,len1,len1);
     }

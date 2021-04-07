@@ -79,7 +79,7 @@ private:
   qint32 m_fCal;
   qint32 m_fSample;
   qint32 m_mode65;
-  qint32 m_TRperiod;
+  qint32 m_TRperiod=60;
 
   Ui::WideGraph *ui;
 };
