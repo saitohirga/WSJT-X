@@ -9,7 +9,7 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   integer*2 iwave(60*12000)
   complex ca(MAXFFT1),cb(MAXFFT1)          !FFTs of raw x,y data
   complex cx(0:MAXFFT2-1),cy(0:MAXFFT2-1),cz(0:MAXFFT2-1)
-  logical xpol
+  logical xpol,first
   real*8 fcenter
   character*12 mycall0,hiscall0
   character*12 mycall,hiscall
@@ -20,7 +20,17 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   character*80 line2
   character*40 msg40
   character*15 fname
+  character*80 wsjtx_dir
   common/cacb/ca,cb
+  data first/.true./
+  save
+
+  if(first) then
+     open(9,file='wsjtx_dir.txt',status='old')
+     read(9,*) wsjtx_dir
+     close(9)
+     first=.false.
+  endif
 
   mycall='K1JT'
   hiscall='IV3NWV'
@@ -65,14 +75,14 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
 
 !  write(77,*) nutc,ikhz,mousedf,ntol
 
-!                1         2         3         4         5         6         7         8         9        10        11        12
-!       1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901'
-  cmnd='\WSJT-X\install\bin\jt9 -3 -X 32 -f 1079 -F 1000 -c MyCall      -x HisCall     -g FN42 000000_0001.wav  > q65_decodes.txt'
-  write(cmnd(37:40),'(i4)') 1000
-  write(cmnd(45:48),'(i4)') ntol
-  write(cmnd(53:64),'(a12)') mycall
-  write(cmnd(68:79),'(a12)') hiscall
-  write(cmnd(83:86),'(a4)') grid4
+!                1         2         3         4         5         6         7         8         9        10
+!       12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901'
+  cmnd='jt9 -3 -X 32 -f 1079 -F 1000 -c MyCall      -x HisCall     -g FN42 000000_0001.wav  > q65_decodes.txt'
+  write(cmnd(17:20),'(i4)') 1000
+  write(cmnd(25:28),'(i4)') ntol
+  write(cmnd(33:44),'(a12)') mycall
+  write(cmnd(48:59),'(a12)') hiscall
+  write(cmnd(63:66),'(a4)') grid4
   fname='000000_0001.wav'
   npol=1
   if(xpol) npol=4
@@ -93,9 +103,9 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
      open(25,file=fname,access='stream',status='unknown')
      write(25) h,iwave
      close(25)
-     write(cmnd(98:98),'(i1)') ipol
-     if(ipol.eq.2) cmnd(104:104)='>'
-     call execute_command_line(trim(cmnd))
+     write(cmnd(78:78),'(i1)') ipol
+     if(ipol.eq.2) cmnd(84:84)='>'
+     call execute_command_line(trim(trim(wsjtx_dir)//cmnd))
   enddo
 
   open(24,file='q65_decodes.txt',status='unknown')

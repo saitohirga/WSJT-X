@@ -7,6 +7,7 @@ subroutine gen_q65_wave(msg,ichk,ntxfreq,mode65,itype,msgsent,iwave,nwave)
   character*22 msg
   character*22 msgsent          !Message as it will be received
   character*120 cmnd
+  character*80 wsjtx_dir
   character*16 cjunk
   real*8 t,dt,phi,f,f0,dfgen,dphi,twopi,tsym
   integer itone(85)
@@ -14,9 +15,17 @@ subroutine gen_q65_wave(msg,ichk,ntxfreq,mode65,itype,msgsent,iwave,nwave)
   integer sent(63)
   integer*2 iwave(NMAX)
   integer icos7(0:6)
+  logical first
   data icos7/2,5,6,0,4,1,3/     !Defines a 7x7 Costas array
-  data twopi/6.283185307179586476d0/
+  data twopi/6.283185307179586476d0/,first/.true./
   save
+
+  if(first) then
+     open(9,file='wsjtx_dir.txt',status='old')
+     read(9,*) wsjtx_dir
+     close(9)
+     first=.false.
+  endif
 
   msgsent=msg
 !                1         2         3         4         5
@@ -24,7 +33,7 @@ subroutine gen_q65_wave(msg,ichk,ntxfreq,mode65,itype,msgsent,iwave,nwave)
   cmnd='q65sim "K1ABC W9XYZ EN37      " A 1500 0 0 0 0 60 0 99 >itone.txt'
   cmnd(9:30)=msg
   write(cmnd(35:38),'(i4)') ntxfreq
-  cmnd='\WSJT-X\install\bin\\'//cmnd
+  cmnd=trim(wsjtx_dir)//cmnd
   call execute_command_line(cmnd)
   open(9,file='itone.txt',status='old')
   do i=1,99
