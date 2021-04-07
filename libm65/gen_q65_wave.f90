@@ -1,15 +1,15 @@
-subroutine gen_q65_wave(msg0,ichk,ntxfreq,mode64,itype,msgsent,iwave,nwave)
+subroutine gen_q65_wave(msg,ichk,ntxfreq,mode65,itype,msgsent,iwave,nwave)
 
-! Encodes a QRA64 message to yield itone(1:84)
+! Encodes a QRA64 message to yield complex iwave() at fsample = 11025 Hz
 
   use packjt
   parameter (NMAX=2*60*11025)
-  character*22 msg0
-  character*22 message          !Message to be generated
+  character*22 msg
   character*22 msgsent          !Message as it will be received
-  integer itone(84)
-  character*3 cok               !'   ' or 'OOO'
-  real*8 t,dt,phi,f,f0,dfgen,dphi,twopi,samfac,tsym
+  character*120 cmnd
+  character*16 cjunk
+  real*8 t,dt,phi,f,f0,dfgen,dphi,twopi,tsym
+  integer itone(85)
   integer dgen(13)
   integer sent(63)
   integer*2 iwave(NMAX)
@@ -18,41 +18,34 @@ subroutine gen_q65_wave(msg0,ichk,ntxfreq,mode64,itype,msgsent,iwave,nwave)
   data twopi/6.283185307179586476d0/
   save
 
-  itone=0
-  if(msg0(1:1).eq.'@') then
-     read(msg0(2:5),*,end=1,err=1) nfreq
-     go to 2
-1    nfreq=1000
-2    itone(1)=nfreq
-     write(msgsent,1000) nfreq
-1000 format(i5,' Hz')
-  else
-     message=msg0
-     do i=1,22
-        if(ichar(message(i:i)).eq.0) then
-           message(i:)='                      '
-           exit
-        endif
-     enddo
-
-     do i=1,22                               !Strip leading blanks
-        if(message(1:1).ne.' ') exit
-        message=message(i+1:)
-     enddo
-  endif
+  msgsent=msg
+!                1         2         3         4         5
+!       12345678901234567890123456789012345678901234567890123456789012345
+  cmnd='q65sim "K1ABC W9XYZ EN37      " A 1500 0 0 0 0 60 0 99 >itone.txt'
+  cmnd(9:30)=msg
+  write(cmnd(35:38),'(i4)') ntxfreq
+  cmnd='\WSJT-X\install\bin\\'//cmnd
+  call execute_command_line(cmnd)
+  open(9,file='itone.txt',status='old')
+  do i=1,99
+     read(9,1000,end=999) cjunk
+1000 format(a16)
+     if(cjunk.eq.'Channel symbols:') exit
+  enddo
+  read(9,1002) itone
+1002 format(20i3)
 
 ! Set up necessary constants
-  nsym=84
-  tsym=6912.d0/12000.d0
-  samfac=1.d0
-  dt=1.d0/(samfac*11025.d0)
+  nsym=85
+  tsym=7200.d0/12000.d0
+  dt=1.d0/11025.d0
   f0=ntxfreq
-  ndf=2**(mode64-1)
-  dfgen=ndf*12000.d0/6912.d0
+  ndf=2**(mode65-1)
+  dfgen=ndf*12000.d0/7200.d0
   phi=0.d0
   dphi=twopi*dt*f0
   i=0
-  iz=84*6912*11025.d0/12000.d0
+  iz=85*7200*11025.d0/12000.d0
   t=0.d0
   j0=0
   do i=1,iz
@@ -71,5 +64,5 @@ subroutine gen_q65_wave(msg0,ichk,ntxfreq,mode64,itype,msgsent,iwave,nwave)
   enddo
   nwave=2*iz
 
-999 return
+999  return
 end subroutine gen_q65_wave
