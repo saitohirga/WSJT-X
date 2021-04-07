@@ -1492,7 +1492,7 @@ void MainWindow::guiUpdate()
              &nwave,len1,len1);
     } else {
       if(m_modeQ65==5) ntxFreq=700;
-      genqra64a_(message,&ichk,&ntxFreq,&m_modeQ65,&itype,msgsent,iwave,
+      gen_q65_wave_(message,&ichk,&ntxFreq,&m_modeQ65,&itype,msgsent,iwave,
                  &nwave,len1,len1);
     }
     msgsent[22]=0;
