@@ -37,7 +37,7 @@ OBJS1 = trimlist.o display.o getdphi.o pctile.o ccf65.o \
 	gen65.o chkmsg.o ptt.o astrosub.o astro0.o recvpkt.o symspec.o \
 	iqcal.o iqfix.o timf2.o s3avg.o packjt.o badmsg.o fmtmsg.o \
 	qracodes.o qra64.o smo.o averms.o lorentzian.o npfwht.o pdmath.o \
-	qra13_64_64_irr_e.o fchisq0.o genqra64a.o wavhdr.o
+	qra13_64_64_irr_e.o fchisq0.o gen_q65_wave.o wavhdr.o
 
 packjt.o: packjt.f90
 	$(FC) -c packjt.f90
@@ -48,7 +48,7 @@ libm65.a: $(OBJS1)
 
 qra64_subs.o: ./qra64/qra64_subs.c
 	gcc -c -O2 -o qra64_subs.o ./qra64/qra64_subs.c
-	
+
 qracodes.o: qracodes/qracodes.c
 	gcc -c -O2 -o qracodes.o qracodes/qracodes.c
 
