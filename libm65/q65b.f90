@@ -114,6 +114,7 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
 !  0001 -22  2.9 1081 :  EA2AGZ IK4WLV -16                     q0
 !  110  101   2  1814  2.9  -11 # QRZ HB9Q JN47          1    0   30 H
   nsnr0=-99
+  line2=' '
   do i=1,8
      read(24,1002,end=100) line
 1002 format(a62)
@@ -128,9 +129,9 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
      endif
   enddo
   
-100 if(nsnr.gt.-40) write(*,1100) trim(line2)
+100 if(nsnr0.gt.-40) write(*,1100) trim(line2)
 1100 format(a)
-  close(24)
+  close(24,status='delete')
   
 900 return
 end subroutine q65b
