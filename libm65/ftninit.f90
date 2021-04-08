@@ -30,7 +30,7 @@ subroutine ftninit(appd)
 
   addpfx='    '
   call pfxdump(appd//'/prefixes.txt')
-  open(12,file=appd//'/timer.out',status='unknown',err=920)
+  open(12,file=appd//'/timer_map65.out',status='unknown',err=920)
   open(13,file=appd//'/map65.log',status='unknown')
   open(19,file=appd//'/livecq.txt',status='unknown')
   open(21,file=appd//'/map65_rx.log',status='unknown',access='append',err=950)
