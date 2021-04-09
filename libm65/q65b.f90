@@ -123,14 +123,23 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
 1010 format(4x,i4,f5.1,i5,4x,a40)
      nfreq=nfreq+mousedf
      if(nsnr.gt.nsnr0) then
-        write(line2,1020) ikhz,nfreq-1000,(i/2)*45,nutc,xdt,nsnr,msg40(1:30),msg40(39:40)
-1020    format('!',i3.3,i5,i4,i6,f5.1,i5,' : ',a30,2x,a2)
+        ipol0=(i/2)*45
         nsnr0=nsnr
+        write(line2,1020) ikhz,nfreq-1000,ipol0,nutc,xdt,nsnr0,msg40(1:30),msg40(39:40)
+1020    format('!',i3.3,i5,i4,i6.4,f5.1,i5,' : ',a30,2x,a2)
+        nsnr0=nsnr
+        freq0=144.0 + 0.001*ikhz
+        nfreq0=nfreq-1000
+        xdt0=xdt
      endif
   enddo
   
-100 if(nsnr0.gt.-40) write(*,1100) trim(line2)
+100 if(nsnr0.gt.-40) then
+     write(*,1100) trim(line2)
 1100 format(a)
+     write(21,1110)  freq0,nfreq0,xdt0,ipol0,nsnr0,nutc,msg40(1:28),msg40(39:40)
+1110 format(f8.3,i5,f5.1,2i4,i5.4,2x,a28,': A',2x,a2)
+  endif
   close(24,status='delete')
   
 900 return
