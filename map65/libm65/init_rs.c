@@ -34,12 +34,8 @@ void *INIT_RS(unsigned int symsize,unsigned int gfpoly,unsigned fcr,unsigned pri
   struct rs *rs;
   int i, j, sr,root,iprim;
 
-<<<<<<< HEAD:lib/init_rs.c
   /* Check parameter ranges */
   if(symsize < 0 || symsize > (int)(8*sizeof(DTYPE)))
-=======
-  if(symsize > 8*sizeof(DTYPE))
->>>>>>> 280c8344cd80339491e9bad1dcc4ac9a1e5f684e:map65/libm65/init_rs.c
     return NULL; /* Need version with ints rather than chars */
 
   if(fcr >= (1<<symsize))

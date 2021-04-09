@@ -31,7 +31,7 @@ void Messages::setText(QString t, QString t2)
   ui->messagesTextBrowser->setStyleSheet(s);
 
   ui->messagesTextBrowser->clear();
-  QStringList lines = t.split( "\n", QString::SkipEmptyParts );
+  QStringList lines = t.split( "\n", Qt::SkipEmptyParts );
   foreach( QString line, lines ) {
     QString t1=line.mid(0,50);
     int ncq=t1.indexOf(" CQ ");
@@ -57,7 +57,7 @@ void Messages::setText(QString t, QString t2)
   }
 }
 
-void Messages::selectCallsign2(bool ctrl)
+void Messages::selectCallsign2(bool /*ctrl*/)
 {
   QString t = ui->messagesTextBrowser->toPlainText();   //Full contents
   int i=ui->messagesTextBrowser->textCursor().position();

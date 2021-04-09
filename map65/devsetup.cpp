@@ -1,5 +1,6 @@
 #include "devsetup.h"
 #include "mainwindow.h"
+#include <QTextStream>
 #include <QDebug>
 #include <portaudio.h>
 
@@ -110,8 +111,10 @@ void DevSetup::initDlg()
   ui.mult570TxSpinBox->setValue(m_mult570Tx);
   ui.cal570SpinBox->setValue(m_cal570);
   ui.sbTxOffset->setValue(m_TxOffset);
-  sscanf(m_colors.toLatin1(),"%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x%2x",
-         &r,&g,&b,&r0,&g0,&b0,&r1,&g1,&b1,&r2,&g2,&b2,&r3,&g3,&b3);
+  QTextStream its {&m_colors, QIODevice::ReadOnly};
+  its.setIntegerBase (16);
+  its.setFieldWidth (2);
+  its >> r >> g >> b >> r0 >> g0 >> b0 >> r1 >> g1 >> b1 >> r2 >> g2 >> b2 >> r3 >> g3 >> b3;
   updateColorLabels();
   ui.sbBackgroundRed->setValue(r);
   ui.sbBackgroundGreen->setValue(g);
@@ -234,95 +237,122 @@ void DevSetup::updateColorLabels()
   int b2=ui.sbBlue2->value();
   int b3=ui.sbBlue3->value();
 
-  t.sprintf("QLabel{background-color: #%2.2x%2.2x%2.2x;"
-            "color: #%2.2x%2.2x%2.2x}",r,g,b,r0,g0,b0);
-  ui.lab0->setStyleSheet(t);
-  t.sprintf("QLabel{background-color: #%2.2x%2.2x%2.2x;"
-            "color: #%2.2x%2.2x%2.2x}",r,g,b,r1,g1,b1);
-  ui.lab1->setStyleSheet(t);
-  t.sprintf("QLabel{background-color: #%2.2x%2.2x%2.2x;"
-            "color: #%2.2x%2.2x%2.2x}",r,g,b,r2,g2,b2);
-  ui.lab2->setStyleSheet(t);
-  t.sprintf("QLabel{background-color: #%2.2x%2.2x%2.2x;"
-            "color: #%2.2x%2.2x%2.2x}",r,g,b,r3,g3,b3);
-  ui.lab3->setStyleSheet(t);
+  ui.lab0->setStyleSheet (
+                          QString {"QLabel{background-color: #%1%2%3; color: #%4%5%6}"}
+                             .arg (r, 2, 16, QLatin1Char {'0'})
+                             .arg (g, 2, 16, QLatin1Char {'0'})
+                             .arg (b, 2, 16, QLatin1Char {'0'})
+                             .arg (r0, 2, 16, QLatin1Char {'0'})
+                             .arg (g0, 2, 16, QLatin1Char {'0'})
+                             .arg (b0, 2, 16, QLatin1Char {'0'})
+                          );
+  ui.lab1->setStyleSheet(
+                         QString {"QLabel{background-color: #%1%2%3; color: #%4%5%6}"}
+                            .arg (r, 2, 16, QLatin1Char {'0'})
+                            .arg (g, 2, 16, QLatin1Char {'0'})
+                            .arg (b, 2, 16, QLatin1Char {'0'})
+                            .arg (r1, 2, 16, QLatin1Char {'0'})
+                            .arg (g1, 2, 16, QLatin1Char {'0'})
+                            .arg (b1, 2, 16, QLatin1Char {'0'})
+                         );
+  ui.lab2->setStyleSheet(
+                         QString {"QLabel{background-color: #%1%2%3; color: #%4%5%6}"}
+                            .arg (r, 2, 16, QLatin1Char {'0'})
+                            .arg (g, 2, 16, QLatin1Char {'0'})
+                            .arg (b, 2, 16, QLatin1Char {'0'})
+                            .arg (r2, 2, 16, QLatin1Char {'0'})
+                            .arg (g2, 2, 16, QLatin1Char {'0'})
+                            .arg (b2, 2, 16, QLatin1Char {'0'})
+                         );
+  ui.lab3->setStyleSheet(
+                         QString {"QLabel{background-color: #%1%2%3; color: #%4%5%6}"}
+                            .arg (r, 2, 16, QLatin1Char {'0'})
+                            .arg (g, 2, 16, QLatin1Char {'0'})
+                            .arg (b, 2, 16, QLatin1Char {'0'})
+                            .arg (r3, 2, 16, QLatin1Char {'0'})
+                            .arg (g3, 2, 16, QLatin1Char {'0'})
+                            .arg (b3, 2, 16, QLatin1Char {'0'})
+                         );
 
-  m_colors.sprintf("%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x"
-            "%2.2x%2.2x%2.2x",r,g,b,r0,g0,b0,r1,g1,b1,r2,g2,b2,r3,g3,b3);
+  QTextStream ots {&m_colors, QIODevice::WriteOnly};
+  ots.setIntegerBase (16);
+  ots.setFieldWidth (2);
+  ots.setPadChar ('0');
+  ots << r << g << b << r0 << g0 << b0 << r1 << g1 << b1 << r2 << g2 << b2 << r3 << g3 << b3;
 }
 
-void DevSetup::on_sbBackgroundRed_valueChanged(int r)
+void DevSetup::on_sbBackgroundRed_valueChanged(int /*r*/)
 {
   updateColorLabels();
 }
 
-void DevSetup::on_sbBackgroundGreen_valueChanged(int g)
+void DevSetup::on_sbBackgroundGreen_valueChanged(int /*g*/)
 {
   updateColorLabels();
 }
 
-void DevSetup::on_sbBackgroundBlue_valueChanged(int b)
+void DevSetup::on_sbBackgroundBlue_valueChanged(int /*b*/)
 {
   updateColorLabels();
 }
 
 
-void DevSetup::on_sbRed0_valueChanged(int arg1)
+void DevSetup::on_sbRed0_valueChanged(int /*arg1*/)
 {
   updateColorLabels();
 }
 
-void DevSetup::on_sbGreen0_valueChanged(int arg1)
+void DevSetup::on_sbGreen0_valueChanged(int /*arg1*/)
 {
   updateColorLabels();
 }
 
-void DevSetup::on_sbBlue0_valueChanged(int arg1)
+void DevSetup::on_sbBlue0_valueChanged(int /*arg1*/)
 {
   updateColorLabels();
 }
 
-void DevSetup::on_sbRed1_valueChanged(int arg1)
+void DevSetup::on_sbRed1_valueChanged(int /*arg1*/)
 {
    updateColorLabels();
 }
 
-void DevSetup::on_sbGreen1_valueChanged(int arg1)
+void DevSetup::on_sbGreen1_valueChanged(int /*arg1*/)
 {
   updateColorLabels();
 }
 
-void DevSetup::on_sbBlue1_valueChanged(int arg1)
+void DevSetup::on_sbBlue1_valueChanged(int /*arg1*/)
 {
    updateColorLabels();
 }
 
-void DevSetup::on_sbRed2_valueChanged(int arg1)
+void DevSetup::on_sbRed2_valueChanged(int /*arg1*/)
 {
    updateColorLabels();
 }
 
-void DevSetup::on_sbGreen2_valueChanged(int arg1)
+void DevSetup::on_sbGreen2_valueChanged(int /*arg1*/)
 {
    updateColorLabels();
 }
 
-void DevSetup::on_sbBlue2_valueChanged(int arg1)
+void DevSetup::on_sbBlue2_valueChanged(int /*arg1*/)
 {
    updateColorLabels();
 }
 
-void DevSetup::on_sbRed3_valueChanged(int arg1)
+void DevSetup::on_sbRed3_valueChanged(int /*arg1*/)
 {
   updateColorLabels();
 }
 
-void DevSetup::on_sbGreen3_valueChanged(int arg1)
+void DevSetup::on_sbGreen3_valueChanged(int /*arg1*/)
 {
   updateColorLabels();
 }
 
-void DevSetup::on_sbBlue3_valueChanged(int arg1)
+void DevSetup::on_sbBlue3_valueChanged(int /*arg1*/)
 {
   updateColorLabels();
 }
