@@ -24,10 +24,10 @@ typedef struct   //Parameters sent to or received from callback function
 } paUserData;
 
 //--------------------------------------------------------------- d2aCallback
-extern "C" int d2aCallback(const void *inputBuffer, void *outputBuffer,
+extern "C" int d2aCallback(const void * /*inputBuffer*/, void *outputBuffer,
                            unsigned long framesToProcess,
-                           const PaStreamCallbackTimeInfo* timeInfo,
-                           PaStreamCallbackFlags statusFlags,
+                           const PaStreamCallbackTimeInfo* /*timeInfo*/,
+                           PaStreamCallbackFlags /*statusFlags*/,
                            void *userData )
 {
   paUserData *udata=(paUserData*)userData;

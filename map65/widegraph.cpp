@@ -380,14 +380,9 @@ void WideGraph::tx570()
 
 void WideGraph::updateFreqLabel()
 {
-  double rxFreq=ui->widePlot->rxFreq();
-  double txFreq=ui->widePlot->txFreq();
-  QString t;
-  t.sprintf("Rx:  %10.6f",rxFreq);
-  QString t1=t.mid(0,12) + "." + t.mid(12,3);
-  t.sprintf("Tx:  %10.6f",txFreq);
-  QString t2=t.mid(0,12) + "." + t.mid(12,3);
-  ui->labFreq->setText(t1 + "\n" + t2);
+  auto rxFreq = QString {"%1"}.arg (ui->widePlot->rxFreq (), 10, 'f', 6).insert (7, '.');
+  auto txFreq = QString {"%1"}.arg (ui->widePlot->txFreq (), 10, 'f', 6).insert (7, '.');
+  ui->labFreq->setText (QString {"Rx:  %1\nTx:  %2"}.arg (rxFreq, txFreq));
 }
 
 void WideGraph::enableSetRxHardware(bool b)

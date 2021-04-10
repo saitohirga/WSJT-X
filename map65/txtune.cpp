@@ -37,44 +37,35 @@ void TxTune::reject()
 void TxTune::on_pwrSlider_valueChanged(int n)
 {
   txPower=n;
-  QString t;
-  t.sprintf("%d %%",n);
-  ui->labPower->setText(t);
+  ui->labPower->setText (QString {"%1 %"}.arg (n));
 }
 
 void TxTune::on_ampSlider_valueChanged(int n)
 {
   m_iqAmp1=n;
   iqAmp=10*m_iqAmp1 + m_iqAmp2;
-  QString t;
-  t.sprintf("%.4f",1.0 + 0.0001*iqAmp);
-  ui->labAmpReal->setText(t);
+  ui->labAmpReal->setText (QString::number (1.0 + 0.0001 * iqAmp, 'f', 4));
 }
 
 void TxTune::on_fineAmpSlider_valueChanged(int n)
 {
   m_iqAmp2=n;
   iqAmp=10*m_iqAmp1 + m_iqAmp2;
-  QString t;
-  t.sprintf("%.4f",1.0 + 0.0001*iqAmp);
-  ui->labAmpReal->setText(t);}
+  ui->labAmpReal->setText (QString::number (1.0 + 0.0001*iqAmp, 'f', 4));
+}
 
 void TxTune::on_phaSlider_valueChanged(int n)
 {
   m_iqPha1=n;
   iqPhase=10*m_iqPha1 + m_iqPha2;
-  QString t;
-  t.sprintf("%.2f",0.01*iqPhase);
-  ui->labPhaReal->setText(t);
+  ui->labPhaReal->setText (QString::number (0.01*iqPhase, 'f', 2));
 }
 
 void TxTune::on_finePhaSlider_valueChanged(int n)
 {
   m_iqPha2=n;
   iqPhase=10*m_iqPha1 + m_iqPha2;
-  QString t;
-  t.sprintf("%.2f",0.01*iqPhase);
-  ui->labPhaReal->setText(t);
+  ui->labPhaReal->setText (QString::number (0.01*iqPhase, 'f', 2));
 }
 
 void TxTune::set_iqAmp(int n)

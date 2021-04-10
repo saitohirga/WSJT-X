@@ -887,19 +887,6 @@ if (WIN32)
 endif (WIN32)
 
 #
-# sub-directories
-#
-if (EXISTS ${CMAKE_SOURCE_DIR}/samples AND IS_DIRECTORY ${CMAKE_SOURCE_DIR}/samples)
-  add_subdirectory (samples)
-endif ()
-if (WSJT_GENERATE_DOCS)
-  add_subdirectory (doc)
-endif (WSJT_GENERATE_DOCS)
-if (EXISTS ${CMAKE_SOURCE_DIR}/tests AND IS_DIRECTORY ${CMAKE_SOURCE_DIR}/tests)
-  add_subdirectory (tests)
-endif ()
-
-#
 # Library building setup
 #
 include (GenerateExportHeader)
@@ -962,7 +949,7 @@ if (Fortran_COMPILER_NAME MATCHES "gfortran.*")
   endif (CMAKE_OSX_SYSROOT)
 
   set (CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -fbounds-check -funroll-all-loops -fno-f2c ${General_FFLAGS}")
-  set (CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG} -fbounds-check -fno-f2c ${General_FFLAGS}")
+  set (CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG} -fbounds-check -fno-f2c -ffpe-trap=denormal,invalid,zero,overflow ${General_FFLAGS}")
 elseif (Fortran_COMPILER_NAME MATCHES "ifort.*")
   # ifort (untested)
   set (CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -f77rtl ${General_FFLAGS}")
@@ -1062,6 +1049,19 @@ if (CMAKE_HOST_UNIX)
   add_definitions (-DUNIX)
 elseif (CMAKE_HOST_WIN32)
   add_definitions (-DWIN32)
+endif ()
+
+#
+# sub-directories
+#
+if (EXISTS ${CMAKE_SOURCE_DIR}/samples AND IS_DIRECTORY ${CMAKE_SOURCE_DIR}/samples)
+  add_subdirectory (samples)
+endif ()
+if (WSJT_GENERATE_DOCS)
+  add_subdirectory (doc)
+endif (WSJT_GENERATE_DOCS)
+if (EXISTS ${CMAKE_SOURCE_DIR}/tests AND IS_DIRECTORY ${CMAKE_SOURCE_DIR}/tests)
+  add_subdirectory (tests)
 endif ()
 
 # build a library of package functionality (without and optionally with OpenMP support)
@@ -1379,6 +1379,9 @@ if (${OPENMP_FOUND} OR APPLE)
 else (${OPENMP_FOUND} OR APPLE)
   target_link_libraries (jt9 wsjt_fort wsjt_cxx fort_qt)
 endif (${OPENMP_FOUND} OR APPLE)
+
+# build map65
+add_subdirectory (map65)
 
 # build the main application
 generate_version_info (wsjtx_VERSION_RESOURCES

@@ -38,7 +38,7 @@ void BandMap::setText(QString t)
   s3="<span style=color:"+m_color3+";>";
 
   ui->bmTextBrowser->clear();
-  QStringList lines = t.split( "\n", QString::SkipEmptyParts );
+  QStringList lines = t.split( "\n", Qt::SkipEmptyParts );
   int nrows=(lines.length()+ncols-1)/ncols;
 
   for(int i=0; i<nrows; i++) {

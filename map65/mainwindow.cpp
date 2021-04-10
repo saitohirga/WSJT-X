@@ -10,7 +10,7 @@
 #include "bandmap.h"
 #include "txtune.h"
 #include "sleep.h"
-#include "portaudio.h"
+#include <portaudio.h>
 
 #define NFFT 32768
 
@@ -202,7 +202,7 @@ MainWindow::MainWindow(QWidget *parent) :
   lockFile.open(QIODevice::ReadWrite);
   QFile quitFile(m_appDir + "/.lock");
   quitFile.remove();
-  proc_m65.start(QDir::toNativeSeparators(m_appDir + "/m65 -s"));
+  proc_m65.start(QDir::toNativeSeparators(m_appDir + "/m65"), {"-s", });
 
   m_pbdecoding_style1="QPushButton{background-color: cyan; \
       border-style: outset; border-width: 1px; border-radius: 5px; \
@@ -564,9 +564,20 @@ void MainWindow::dataSink(int k)
            &px, &py, s, &nkhz, &ihsym, &nzap, &slimit, lstrong);
   QString t;
   m_pctZap=nzap/178.3;
-  if(m_xpol) t.sprintf(" Rx noise: %5.1f  %5.1f %5.1f %% ",px,py,m_pctZap);
-  if(!m_xpol) t.sprintf(" Rx noise: %5.1f  %5.1f %% ",px,m_pctZap);
-  lab4->setText(t);
+  if(m_xpol) {
+    lab4->setText (
+                  QString {" Rx noise: %1  %2 %3 %% "}
+                     .arg (px, 5, 'f', 1)
+                     .arg (py, 5, 'f', 1)
+                     .arg (m_pctZap, 5, 'f', 1)
+                  );
+  } else {
+    lab4->setText (
+                  QString {" Rx noise: %1  %2 %% "}
+                  .arg (px, 5, 'f', 1)
+                  .arg (m_pctZap, 5, 'f', 1)
+                  );
+  }
   xSignalMeter->setValue(px);                   // Update the signal meters
   ySignalMeter->setValue(py);
   if(m_monitoring || m_diskData) {
@@ -575,10 +586,18 @@ void MainWindow::dataSink(int k)
 
   if(nadj == 10) {
     if(m_xpol) {
-      t.sprintf("Amp: %6.4f %6.4f   Phase: %6.4f %6.4f",
-                m_gainx,m_gainy,m_phasex,m_phasey);
+      ui->decodedTextBrowser->append (
+                                      QString {"Amp: %1 %2   Phase: %3 %4"}
+                                         .arg (m_gainx, 6, 'f', 4).arg (m_gainy, 6, 'f', 4)
+                                         .arg (m_phasex, 6, 'f', 4)
+                                         .arg (m_phasey, 6, 'f', 4)
+                                      );
     } else {
-      t.sprintf("Amp: %6.4f   Phase: %6.4f",m_gainx,m_phasex);
+      ui->decodedTextBrowser->append(
+                                     QString {"Amp: %1   Phase: %1"}
+                                        .arg (m_gainx, 6, 'f', 4)
+                                        .arg (m_phasex, 6, 'f', 4)
+                                     );
     }
     ui->decodedTextBrowser->append(t);
     m_adjustIQ=0;
@@ -798,6 +817,7 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
       m_ntx=6;
       ui->txrb6->setChecked(true);
     }
+    break;
   case Qt::Key_F6:
     if(e->modifiers() & Qt::ShiftModifier) {
       on_actionDecode_remaining_files_in_directory_triggered();
@@ -824,8 +844,8 @@ void MainWindow::keyPressEvent( QKeyEvent *e )                //keyPressEvent
   case Qt::Key_G:
     if(e->modifiers() & Qt::AltModifier) {
       genStdMsgs("");
-      break;
     }
+    break;
   case Qt::Key_L:
     if(e->modifiers() & Qt::ControlModifier) {
       lookup();
@@ -1288,11 +1308,11 @@ void MainWindow::decode()                                       //decode()
   QString hcall=(ui->dxCallEntry->text()+"            ").mid(0,12);
   QString hgrid=(ui->dxGridEntry->text()+"      ").mid(0,6);
 
-  strncpy(datcom_.mycall, mcall.toLatin1(), 12);
-  strncpy(datcom_.mygrid, mgrid.toLatin1(), 6);
-  strncpy(datcom_.hiscall, hcall.toLatin1(), 12);
-  strncpy(datcom_.hisgrid, hgrid.toLatin1(), 6);
-  strncpy(datcom_.datetime, m_dateTime.toLatin1(), 20);
+  memcpy(datcom_.mycall, mcall.toLatin1(), 12);
+  memcpy(datcom_.mygrid, mgrid.toLatin1(), 6);
+  memcpy(datcom_.hiscall, hcall.toLatin1(), 12);
+  memcpy(datcom_.hisgrid, hgrid.toLatin1(), 6);
+  memcpy(datcom_.datetime, m_dateTime.toLatin1(), 20);
 
   //newdat=1  ==> this is new data, must do the big FFT
   //nagain=1  ==> decode only at fQSO +/- Tol
@@ -1345,9 +1365,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
     if(t.indexOf("<QuickDecodeDone>") >= 0) {
       m_nsum=t.mid(17,4).toInt();
       m_nsave=t.mid(21,4).toInt();
-      QString t2;
-      t2.sprintf("Avg: %d",m_nsum);
-      lab7->setText(t2);
+      lab7->setText (QString {"Avg: %1"}.arg (m_nsum));
       if(m_modeQ65>0) g_pWideGraph->setDecodeFinished();
     }
     if(t.indexOf("<DecodeFinished>") >= 0) {
@@ -1502,7 +1520,7 @@ void MainWindow::guiUpdate()
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
       QTextStream out(&f);
       out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-          << "  Tx message:  " << QString::fromLatin1(msgsent) << endl;
+          << "  Tx message:  " << QString::fromLatin1(msgsent) << Qt::endl;
       f.close();
     }
 
@@ -1525,7 +1543,7 @@ void MainWindow::guiUpdate()
     f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
     QTextStream out(&f);
     out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-        << "  Tx message:  " << QString::fromLatin1(msgsent) << endl;
+        << "  Tx message:  " << QString::fromLatin1(msgsent) << Qt::endl;
     f.close();
   }
 
@@ -1643,14 +1661,14 @@ void MainWindow::ba2msg(QByteArray ba, char message[])             //ba2msg()
   bool eom;
   eom=false;
   for(int i=0;i<22; i++) {
-    if((int)ba[i] == 0) eom=true;
+    if (i >= ba.size () || !ba[i]) eom=true;
     if(eom) {
-      message[i]=32;
+      message[i] = ' ';
     } else {
       message[i]=ba[i];
     }
   }
-  message[22]=0;
+  message[22] = '\0';
 }
 
 void MainWindow::on_txFirstCheckBox_stateChanged(int nstate)        //TxFirst
@@ -1867,7 +1885,7 @@ void MainWindow::on_addButton_clicked()                       //Add button
 
   if(f1.size()==0) {
     QTextStream out(&f1);
-    out << "ZZZZZZ" << endl;
+    out << "ZZZZZZ" << Qt::endl;
     f1.close();
     f1.open(QIODevice::ReadOnly | QIODevice::Text);
   }
@@ -2192,13 +2210,12 @@ void MainWindow::on_actionApply_IQ_Calibration_triggered()
 
 void MainWindow::on_actionFUNcube_Dongle_triggered()
 {
-  proc_qthid.start(QDir::toNativeSeparators(m_appDir + "/qthid"));
+  proc_qthid.start (QDir::toNativeSeparators(m_appDir + "/qthid"), QStringList {});
 }
 
 void MainWindow::on_actionEdit_wsjt_log_triggered()
 {
-  QString cmnd=m_editorCommand + " " + m_appDir + "/wsjt.log";
-  proc_editor.start(QDir::toNativeSeparators(cmnd));
+  proc_editor.start (QDir::toNativeSeparators (m_editorCommand), {QDir::toNativeSeparators (m_appDir + "/wsjt.log"), });
 }
 
 void MainWindow::on_actionTx_Tune_triggered()
