@@ -873,7 +873,7 @@ find_package (FFTW3 COMPONENTS single threads REQUIRED)
 # libhamlib setup
 #
 set (hamlib_STATIC 1)
-find_package (hamlib 3 REQUIRED)
+find_package (hamlib REQUIRED)
 find_program (RIGCTL_EXE rigctl)
 find_program (RIGCTLD_EXE rigctld)
 find_program (RIGCTLCOM_EXE rigctlcom)

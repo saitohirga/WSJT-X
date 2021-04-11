@@ -12,70 +12,36 @@
 # If portaudio_STATIC is TRUE then static linking will be assumed
 #
 
-function(dump_cmake_variables)
-  get_cmake_property(_variableNames VARIABLES)
-  list (SORT _variableNames)
-  foreach (_variableName ${_variableNames})
-    if (ARGV0)
-      unset(MATCHED)
-      string(REGEX MATCH ${ARGV0} MATCHED ${_variableName})
-      if (NOT MATCHED)
-        continue()
-      endif()
-    endif()
-    message(STATUS "${_variableName}=${${_variableName}}")
-  endforeach()
-endfunction()
+# function(dump_cmake_variables)
+#   get_cmake_property(_variableNames VARIABLES)
+#   list (SORT _variableNames)
+#   foreach (_variableName ${_variableNames})
+#     if (ARGV0)
+#       unset(MATCHED)
+#       string(REGEX MATCH ${ARGV0} MATCHED ${_variableName})
+#       if (NOT MATCHED)
+#         continue()
+#       endif()
+#     endif()
+#     message(STATUS "${_variableName}=${${_variableName}}")
+#   endforeach()
+# endfunction()
 
 include (LibFindMacros)
 
-# Use pkg-config to get hints about paths, libs and, flags
-libfind_pkg_check_modules (portaudio_PC portaudio-2.0)
-
-# Include dir
-find_path (portaudio_INCLUDE_DIR
-  NAMES portaudio.h
-  PATHS ${portaudio_PC_INCLUDE_DIRS}
-  )
-
-# Library
-if (portaudio_STATIC)
-  find_library (portaudio_LIBRARY
-    NAMES portaudio
-    PATHS ${portaudio_PC_STATIC_LIBRARY_DIRS}
-    )
-else ()
-  find_library (portaudio_LIBRARY
-    NAMES portaudio
-    PATHS ${portaudio_PC_LIBRARY_DIRS}
-    )
-endif ()
-set (portaudio_PROCESS_INCLUDES portaudio_INCLUDE_DIR)
-set (portaudio_PROCESS_LIBS portaudio_LIBRARY)
+libfind_pkg_detect (portaudio portaudio-2.0 FIND_PATH portaudio.h FIND_LIBRARY portaudio)
+set (portaudio_PROCESS_LIBS portaudio_PKGCONF_LDFLAGS)
 libfind_process (portaudio)
 
-# Handle the  QUIETLY and REQUIRED  arguments and set  PORTAUDIO_FOUND to
-# TRUE if all listed variables are TRUE
-include (FindPackageHandleStandardArgs)
-find_package_handle_standard_args (portaudio
-  REQUIRED_VARS
-     portaudio_LIBRARY
-     portaudio_INCLUDE_DIR
-  VERSION_VAR portaudio_VERSION
-  )
-
-if (portaudio_FOUND)
-  set (portaudio_LIBRARIES ${portaudio_LIBRARY})
-  set (portaudio_INCLUDE_DIRS ${portaudio_INCLUDE_DIR})
-  set (portaudio_DEFINITIONS ${portaudio_CFLAGS_OTHER})
-endif ()
+#dump_cmake_variables ("^portaudio_")
 
 if (portaudio_FOUND AND NOT TARGET portaudio::portaudio)
   add_library (portaudio::portaudio UNKNOWN IMPORTED)
   set_target_properties (portaudio::portaudio PROPERTIES
     IMPORTED_LOCATION "${portaudio_LIBRARY}"
-    INTERFACE_COMPILE_OPTIONS "${portaudio_CFLAGS_OTHER}"
-    INTERFACE_INCLUDE_DIRECTORIES "${portaudio_INCLUDE_DIR}"
+    INTERFACE_COMPILE_OPTIONS "${portaudio_CFLAGS_OTHERS}"
+    INTERFACE_INCLUDE_DIRECTORIES "${portaudio_INCLUDE_DIRS}"
+    INTERFACE_LINK_LIBRARIES "${portaudio_LIBRARIES}"
     )
 endif ()
 
