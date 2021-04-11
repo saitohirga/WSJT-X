@@ -17,56 +17,60 @@
 
 include (LibFindMacros)
 
-# Use pkg-config to get hints about paths, libs and, flags
-libfind_pkg_check_modules (libusb_PC libusb-1.0)
+libfind_pkg_detect (libusb libusb-1.0 FIND_PATH libusb.h PATH_SUFFIXES libusb-1.0 FIND_LIBRARY libusb-1.0)
+# # Use pkg-config to get hints about paths, libs and, flags
+# libfind_pkg_check_modules (libusb_PC libusb-1.0)
 
-# Include dir
-find_path (libusb_INCLUDE_DIR
-  libusb.h
-  PATHS ${libusb_PC_INCLUDE_DIRS}
-  PATH_SUFFIXES libusb-1.0
-  )
+# # Include dir
+# find_path (libusb_INCLUDE_DIR
+#   libusb.h
+#   PATHS ${libusb_PC_INCLUDE_DIRS}
+#   PATH_SUFFIXES libusb-1.0
+#   )
 
-# Library
-if (libusb_STATIC)
-  find_library (libusb_LIBRARY
-    NAMES usb-1.0
-    PATHS ${libusb_PC_STATIC_LIBRARY_DIRS}
-    )
-else ()
-  find_library (libusb_LIBRARY
-    NAMES usb-1.0
-    PATHS ${libusb_PC_LIBRARY_DIRS}
-    )
-endif ()
-set (libusb_PROCESS_INCLUDES libusb_INCLUDE_DIR)
-set (libusb_PROCESS_LIBS libusb_LIBRARY)
+# # Library
+# if (libusb_STATIC)
+#   find_library (libusb_LIBRARY
+#     NAMES usb-1.0
+#     PATHS ${libusb_PC_STATIC_LIBRARY_DIRS}
+#     PATH_SUFFIXES static
+#     )
+# else ()
+#   find_library (libusb_LIBRARY
+#     NAMES usb-1.0
+#     PATHS ${libusb_PC_LIBRARY_DIRS}
+#     )
+# endif ()
+# set (libusb_PROCESS_INCLUDES libusb_INCLUDE_DIR)
+# set (libusb_PROCESS_LIBS libusb_LIBRARY)
 libfind_process (libusb)
 
-include (FindPackageHandleStandardArgs)
-find_package_handle_standard_args (libusb
-  REQUIRED_VARS
-     libusb_LIBRARY
-     libusb_INCLUDE_DIR
-  VERSION_VAR libusb_VERSION
-  )
+# include (FindPackageHandleStandardArgs)
+# find_package_handle_standard_args (libusb
+#   REQUIRED_VARS
+#      libusb_LIBRARY
+#      libusb_INCLUDE_DIR
+#   VERSION_VAR libusb_VERSION
+#   )
 
-if (libusb_FOUND)
-  set (libusb_LIBRARIES ${libusb_LIBRARY})
-  set (libusb_INCLUDE_DIRS ${libusb_INCLUDE_DIR})
-  set (libusb_DEFINITIONS ${libusb_CFLAGS_OTHER})
-endif ()
+# if (libusb_FOUND)
+#   set (libusb_LIBRARIES ${libusb_LIBRARY})
+#   set (libusb_INCLUDE_DIRS ${libusb_INCLUDE_DIR})
+#   set (libusb_DEFINITIONS ${libusb_CFLAGS_OTHER})
+# endif ()
 
 if (libusb_FOUND AND NOT TARGET libusb::libusb)
   add_library (libusb::libusb UNKNOWN IMPORTED)
   set_target_properties (libusb::libusb PROPERTIES
     IMPORTED_LOCATION "${libusb_LIBRARY}"
     INTERFACE_COMPILE_OPTIONS "${libusb_CFLAGS_OTHER}"
-    INTERFACE_INCLUDE_DIRECTORIES "${libusb_INCLUDE_DIR}"
+    INTERFACE_INCLUDE_DIRECTORIES "${libusb_INCLUDE_DIRS}"
+    INTERFACE_LINK_LIBRARAIES "${libusb_LIBRARIES}"
     )
 endif ()
 
 mark_as_advanced (
   libusb_INCLUDE_DIR
   libusb_LIBRARY
+  libusb_LIBRARIES
   )
