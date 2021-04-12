@@ -872,19 +872,11 @@ find_package (FFTW3 COMPONENTS single threads REQUIRED)
 #
 # libhamlib setup
 #
-set (hamlib_STATIC 1)
 find_package (hamlib REQUIRED)
 find_program (RIGCTL_EXE rigctl)
 find_program (RIGCTLD_EXE rigctld)
 find_program (RIGCTLCOM_EXE rigctlcom)
 
-message (STATUS "hamlib_INCLUDE_DIRS: ${hamlib_INCLUDE_DIRS}")
-message (STATUS "hamlib_LIBRARIES: ${hamlib_LIBRARIES}")
-message (STATUS "hamlib_LIBRARY_DIRS: ${hamlib_LIBRARY_DIRS}")
-
-set (CMAKE_REQUIRED_INCLUDES "${hamlib_INCLUDE_DIRS}")
-set (CMAKE_REQUIRED_LIBRARIES "${hamlib_LIBRARIES}")
-set (CMAKE_EXTRA_INCLUDE_FILES "hamlib/rig.h")
 check_type_size (CACHE_ALL HAMLIB_OLD_CACHING)
 check_symbol_exists (rig_set_cache_timeout_ms "hamlib/rig.h" HAVE_HAMLIB_CACHING)
 
@@ -1332,8 +1324,7 @@ target_link_libraries (qcp Qt5::Widgets Qt5::PrintSupport)
 add_library (wsjt_qt STATIC ${wsjt_qt_CXXSRCS} ${wsjt_qt_GENUISRCS} ${GENAXSRCS})
 # set wsjtx_udp exports to static variants
 target_compile_definitions (wsjt_qt PUBLIC UDP_STATIC_DEFINE)
-target_link_libraries (wsjt_qt Boost::log qcp Qt5::Widgets Qt5::Network Qt5::Sql)
-target_include_directories (wsjt_qt BEFORE PRIVATE ${hamlib_INCLUDE_DIRS})
+target_link_libraries (wsjt_qt hamlib::hamlib Boost::log qcp Qt5::Widgets Qt5::Network Qt5::Sql)
 if (WIN32)
   target_link_libraries (wsjt_qt Qt5::AxContainer Qt5::AxBase)
 endif (WIN32)
@@ -1450,7 +1441,7 @@ else ()
       )
   endif ()
 endif ()
-target_link_libraries (wsjtx Qt5::SerialPort wsjt_cxx wsjt_qt wsjt_qtmm ${hamlib_LIBRARIES} ${FFTW3_LIBRARIES} ${LIBM_LIBRARIES})
+target_link_libraries (wsjtx Qt5::SerialPort wsjt_cxx wsjt_qt wsjt_qtmm ${FFTW3_LIBRARIES} ${LIBM_LIBRARIES})
 
 # make a library for WSJT-X UDP servers
 # add_library (wsjtx_udp SHARED ${UDP_library_CXXSRCS})
