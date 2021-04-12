@@ -15,9 +15,24 @@
 # If libusb_STATIC is TRUE then static linking will be assumed
 #
 
-include (LibFindMacros)
+function(dump_cmake_variables)
+  get_cmake_property(_variableNames VARIABLES)
+  list (SORT _variableNames)
+  foreach (_variableName ${_variableNames})
+    if (ARGV0)
+      unset(MATCHED)
+      string(REGEX MATCH ${ARGV0} MATCHED ${_variableName})
+      if (NOT MATCHED)
+        continue()
+      endif()
+    endif()
+    message(STATUS "${_variableName}=${${_variableName}}")
+  endforeach()
+endfunction()
 
+include (LibFindMacros)
 libfind_pkg_detect (libusb libusb-1.0 FIND_PATH libusb.h PATH_SUFFIXES libusb-1.0 FIND_LIBRARY libusb-1.0)
+set (libusb_LIBRARY C:/Tools/libusb-1.0.24/MinGW64/dll/libusb-1.0.dll.a)
 # # Use pkg-config to get hints about paths, libs and, flags
 # libfind_pkg_check_modules (libusb_PC libusb-1.0)
 
