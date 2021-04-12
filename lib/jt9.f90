@@ -322,6 +322,10 @@ program jt9
         shared_data%params%nmode=mode
      end if
      shared_data%params%nsubmode=nsubmode
+
+!### temporary, for MAP65:
+     if(mode.eq.66 .and. TRperiod.eq.60) shared_data%params%emedelay=2.5
+
      datetime="2013-Apr-16 15:13" !### Temp
      shared_data%params%datetime=transfer(datetime,shared_data%params%datetime)
      if(mode.eq.9 .and. fsplit.ne.2700) shared_data%params%nfa=fsplit
