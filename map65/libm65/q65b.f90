@@ -8,7 +8,7 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   type(hdr) h                              !Header for the .wav file
   integer*2 iwave(60*12000)
   complex ca(MAXFFT1),cb(MAXFFT1)          !FFTs of raw x,y data
-  complex cx(0:MAXFFT2-1),cy(0:MAXFFT2-1),cz(0:MAXFFT2-1)
+  complex cx(0:MAXFFT2-1),cy(0:MAXFFT2-1),cz(0:MAXFFT2)
   logical xpol,first
   real*8 fcenter
   character*12 mycall0,hiscall0
@@ -87,10 +87,11 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   npol=1
   if(xpol) npol=4
   do ipol=1,npol
-     if(ipol.eq.1) cz=cx
-     if(ipol.eq.2) cz=0.707*(cx+cy)
-     if(ipol.eq.3) cz=cy
-     if(ipol.eq.4) cz=0.707*(cx-cy)
+     if(ipol.eq.1) cz(0:MAXFFT2-1)=cx
+     if(ipol.eq.2) cz(0:MAXFFT2-1)=0.707*(cx+cy)
+     if(ipol.eq.3) cz(0:MAXFFT2-1)=cy
+     if(ipol.eq.4) cz(0:MAXFFT2-1)=0.707*(cx-cy)
+     cz(MAXFFT2)=0.
      call four2a(cz,2*nfft2,1,1,-1)     !Transform to time domain (real), fsample=12000 Hz
      do i=0,nfft2-1
         j=nfft2-1-i
