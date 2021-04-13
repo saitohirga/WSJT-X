@@ -467,7 +467,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
         endif
      endif
      j=j+nsiz(n)
-  enddo
+  enddo  !i=1,km
   write(26,1015) nutc
 1015 format(37x,i6.4,' ')
   call flush(21)

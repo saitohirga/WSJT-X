@@ -140,6 +140,9 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
 1100 format(a)
 
 ! Should write to lu 26 here, for Messages and Band Map windows ?
+!     write(26,1014) freq0,nfreq0,0,0,0,xdt0,ipol0,0,                   &
+!          nsnr0,nutc,msg40(1:22),' ',char(ichar('A') + mode_q65-1)
+!1014 format(f8.3,i5,3i3,f5.1,i4,i3,i4,i5.4,4x,a22,2x,a1,3x,':',a1)
 
      write(21,1110)  freq0,nfreq0,xdt0,ipol0,nsnr0,nutc,msg40(1:28),msg40(39:40)
 1110 format(f8.3,i5,f5.1,2i4,i5.4,2x,a28,': A',2x,a2)
