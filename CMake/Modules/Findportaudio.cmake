@@ -37,11 +37,13 @@ dump_cmake_variables ("portaudio")
 if (portaudio_FOUND AND NOT TARGET portaudio::portaudio)
   add_library (portaudio::portaudio UNKNOWN IMPORTED)
   set_target_properties (portaudio::portaudio PROPERTIES
-    IMPORTED_LOCATION ${portaudio_LIBRARY}
-    INTERFACE_COMPILE_OPTIONS ${portaudio_PKGCONF_CFLAGS_OTHER}
-    INTERFACE_INCLUDE_DIRECTORIES ${portaudio_INCLUDE_DIRS}
+    IMPORTED_LOCATION "${portaudio_LIBRARY}"
+    INTERFACE_COMPILE_OPTIONS "${portaudio_PKGCONF_CFLAGS_OTHER}"
+    INTERFACE_INCLUDE_DIRECTORIES "${portaudio_INCLUDE_DIRS}"
+    INTERFACE_LINK_OPTIONS "${portaudio_PKGCONF_LDFLAGS_OTHER}"
+    INTERFACE_LINK_DIRECTORIES "${portaudio_PKGCONF_LIBDIR}"
+    INTERFACE_LINK_LIBRARIES "${portaudio_PKGCONF_LIBRARIES}"
     )
-  target_link_libraries (portaudio::portaudio INTERFACE ${portaudio_PKGCONF_LDFLAGS})
 endif ()
 
 mark_as_advanced (
