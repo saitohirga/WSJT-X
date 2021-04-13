@@ -26,7 +26,6 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid,
                         int fQSO, int nsetftx, int ntxFreq, QString azelDir)
 {
   static int ntxFreq0=-99;
-  static bool astroBusy=false;
   char cc[300];
   double azsun,elsun,azmoon,elmoon,azmoondx,elmoondx;
   double ramoon,decmoon,dgrd,poloffset,xnr;
@@ -44,14 +43,10 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid,
   int nfreq=(int)datcom_.fcenter;
   if(nfreq<10 or nfreq > 50000) nfreq=144;
 
-  if(!astroBusy) {
-    astroBusy=true;
-    astrosub_(&nyear, &month, &nday, &uth, &nfreq, mygrid.toLatin1(),
+  astrosub_(&nyear, &month, &nday, &uth, &nfreq, mygrid.toLatin1(),
             hisgrid.toLatin1(), &azsun, &elsun, &azmoon, &elmoon,
             &azmoondx, &elmoondx, &ntsky, &ndop, &ndop00,&ramoon, &decmoon,
             &dgrd, &poloffset, &xnr, 6, 6);
-    astroBusy=false;
-  }
 
   sprintf(cc,
           "Az:    %6.1f\n"
