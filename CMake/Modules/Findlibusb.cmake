@@ -13,6 +13,8 @@
 #  libusb::libusb	- The libusb library
 #
 
+include (LibFindMacros)
+
 if (WIN32)
   # Use path suffixes on MS Windows as we probably shouldn't
   # trust the PATH envvar. PATH will still be searched to find the
@@ -25,7 +27,7 @@ if (WIN32)
 endif ()
 libfind_pkg_detect (libusb libusb-1.0
   FIND_PATH libusb.h PATH_SUFFIXES libusb-1.0
-  FIND_LIBRARY libusb-1.0 ${_library_options}
+  FIND_LIBRARY usb-1.0 ${_library_options}
   )
 
 libfind_process (libusb)
