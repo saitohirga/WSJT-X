@@ -1,5 +1,5 @@
 subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
-     mycall0,hiscall0,hisgrid,mode64)
+     mycall0,hiscall0,hisgrid,mode65)
 
   use wavhdr
   parameter (MAXFFT1=5376000)              !56*96000
@@ -73,16 +73,17 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
 !   96000  5376000  0.017857143  336000   6000.000
 !   95238  5120000  0.018601172  322560   5999.994
 
-!  write(77,*) nutc,ikhz,mousedf,ntol
+  write(71,*) nutc,ikhz,mousedf,ntol,mode65
 
 !                1         2         3         4         5         6         7         8         9        10
 !       12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901'
-  cmnd='jt9 -3 -X 32 -f 1079 -F 1000 -c MyCall      -x HisCall     -g FN42 000000_0001.wav  > q65_decodes.txt'
+  cmnd='jt9 -3 -X 32 -f 1079 -F 1000 -c MyCall      -x HisCall     -g FN42 -b A 000000_0001.wav  > q65_decodes.txt'
   write(cmnd(17:20),'(i4)') 1000
   write(cmnd(25:28),'(i4)') ntol
   write(cmnd(33:44),'(a12)') mycall
   write(cmnd(48:59),'(a12)') hiscall
   write(cmnd(63:66),'(a4)') grid4
+  write(cmnd(71:71),'(a1)') char(ichar('A')+mode65-1)
   fname='000000_0001.wav'
   npol=1
   if(xpol) npol=4
@@ -105,8 +106,8 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
      open(25,file=fname,access='stream',status='unknown')
      write(25) h,iwave
      close(25)
-     write(cmnd(78:78),'(i1)') ipol
-     if(ipol.eq.2) cmnd(84:84)='>'
+     write(cmnd(83:83),'(i1)') ipol
+     if(ipol.eq.2) cmnd(89:89)='>'
      call execute_command_line(trim(trim(wsjtx_dir)//cmnd))
   enddo
 
