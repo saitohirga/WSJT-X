@@ -55,7 +55,6 @@ subroutine decode0(dd,ss,savg,nstandalone)
        mousedf,mousefqso,nagain,ndecdone,ndiskdat,nfshift,ndphi,           &
        nfcal,nkeep,mcall3b,nsum,nsave,nxant,rmsdd,mycall,mygrid,          &
        neme,ndepth,hiscall,hisgrid,nhsym,nfsample,nxpol,nmode)
-
   call timer('map65a  ',1)
   call timer('decode0 ',1)
 

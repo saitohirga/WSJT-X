@@ -73,7 +73,7 @@ subroutine filbig(dd,nmax,f0,newdat,nfsample,xpol,c4a,c4b,n4)
 ! When new data comes along, we need to compute a new "big FFT"
 ! If we just have a new f0, continue with the existing ca and cb.
 
-  if(newdat.ne.0) then
+  if(newdat.ne.0 .or. sum(abs(ca)).eq.0.0) then  !### Test on ca should be unnecessary?
      nz=min(nmax,nfft1)
      do i=1,nz
         ca(i)=cmplx(dd(1,i),dd(2,i))

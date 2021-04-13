@@ -92,7 +92,8 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
      if(ipol.eq.3) cz(0:MAXFFT2-1)=cy
      if(ipol.eq.4) cz(0:MAXFFT2-1)=0.707*(cx-cy)
      cz(MAXFFT2)=0.
-     call four2a(cz,2*nfft2,1,1,-1)     !Transform to time domain (real), fsample=12000 Hz
+!Transform to time domain (real), fsample=12000 Hz
+     call four2a(cz,2*nfft2,1,1,-1)
      do i=0,nfft2-1
         j=nfft2-1-i
         iwave(2*i+1)=nint(real(cz(j)))

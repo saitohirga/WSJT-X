@@ -31,7 +31,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   data shmsg0/'ATT','RO ','RRR','73 '/
   data nfile/0/,nutc0/-999/,nid/0/,ip000/1/,ip001/1/,mousefqso0/-999/
   save
-
+  
   mode65=mod(nmode,10)
   if(mode65.eq.3) mode65=4
   mode64=nmode/10
@@ -258,7 +258,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
               endif
            endif
         endif
-     enddo
+     enddo  !i=ia,ib
 
      if(nqd.eq.1) then
         nwrite=0
@@ -343,8 +343,8 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
            write(*,1012) mousefqso,nutc
 1012       format('!',i3,9x,i6.4,'  ')
         endif
-   
-     endif
+     endif  !nqd.eq.1
+
      if(ndphi.eq.1 .and.iloop.lt.12) then
         iloop=iloop+1
         go to 2
