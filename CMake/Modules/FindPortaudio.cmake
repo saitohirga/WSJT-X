@@ -2,12 +2,12 @@
 #
 # Once done, this will define:
 #
-#  portaudio_FOUND - system has portaudio
-#  portaudio_VERSION - The version of the portaudio library which was found
+#  Portaudio_FOUND - system has portaudio
+#  Portaudio_VERSION - The version of the portaudio library which was found
 #
 # and the following imported targets::
 #
-#   portaudio::portaudio	- The portaudio library
+#   Portaudio::Portaudio	- The portaudio library
 #
 
 function(dump_cmake_variables)
@@ -80,28 +80,42 @@ endfunction(print_target_properties)
 
 include (LibFindMacros)
 
-libfind_pkg_detect (portaudio portaudio-2.0
+libfind_pkg_detect (Portaudio portaudio-2.0
   FIND_PATH portaudio.h
   FIND_LIBRARY portaudio
   )
 
-libfind_process (portaudio)
-dump_cmake_variables ("portaudio")
-if (portaudio_FOUND AND NOT TARGET portaudio::portaudio)
-  add_library (portaudio::portaudio UNKNOWN IMPORTED)
-  set_target_properties (portaudio::portaudio PROPERTIES
-    IMPORTED_LOCATION "${portaudio_LIBRARY}"
-    INTERFACE_COMPILE_OPTIONS "${portaudio_PKGCONF_CFLAGS_OTHER}"
-    INTERFACE_INCLUDE_DIRECTORIES "${portaudio_INCLUDE_DIRS}"
-    INTERFACE_LINK_OPTIONS "${portaudio_PKGCONF_LDFLAGS_OTHER}"
-    INTERFACE_LINK_DIRECTORIES "${portaudio_PKGCONF_LIBDIR}"
-    INTERFACE_LINK_LIBRARIES "${portaudio_PKGCONF_LIBRARIES}"
+libfind_process (Portaudio)
+
+# fix up extra link libraries for macOS as target_link_libraries gets
+# it wrong for frameworks
+unset (_next_is_framework)
+unset (_portaudio_EXTRA_LIBS)
+foreach (_lib IN LISTS Portaudio_PKGCONF_LDFLAGS_OTHER)
+  if (_next_is_framework)
+    list (APPEND _portaudio_EXTRA_LIBS "-framework ${_lib}")
+    unset (_next_is_framework)
+  elseif (${_lib} STREQUAL "-framework")
+    set (_next_is_framework TRUE)
+  else ()
+    list (APPEND _portaudio_EXTRA_LIBS ${_lib})
+  endif ()
+endforeach ()
+
+dump_cmake_variables ("Portaudio")
+if (Portaudio_FOUND AND NOT TARGET Portaudio::Portaudio)
+  add_library (Portaudio::Portaudio UNKNOWN IMPORTED)
+  set_target_properties (Portaudio::Portaudio PROPERTIES
+    IMPORTED_LOCATION "${Portaudio_LIBRARY}"
+    INTERFACE_COMPILE_OPTIONS "${Portaudio_PKGCONF_CFLAGS_OTHER}"
+    INTERFACE_INCLUDE_DIRECTORIES "${Portaudio_INCLUDE_DIRS}"
+    INTERFACE_LINK_LIBRARIES "${_portaudio_EXTRA_LIBS}"
     )
 endif ()
 
-print_target_properties (portaudio::portaudio)
+print_target_properties (Portaudio::Portaudio)
 
 mark_as_advanced (
-  portaudio_INCLUDE_DIR
-  portaudio_LIBRARY
+  Portaudio_INCLUDE_DIR
+  Portaudio_LIBRARY
   )
