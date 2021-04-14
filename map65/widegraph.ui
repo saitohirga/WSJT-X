@@ -66,16 +66,13 @@ Tx:  144.127.317</string>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
-        <spacer name="horizontalSpacer_3">
+        <spacer name="horizontalSpacer_2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Preferred</enum>
-         </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>20</width>
+           <width>40</width>
            <height>20</height>
           </size>
          </property>
@@ -84,7 +81,7 @@ Tx:  144.127.317</string>
        <item>
         <widget class="QSpinBox" name="freqOffsetSpinBox">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -97,12 +94,15 @@ Tx:  144.127.317</string>
          </property>
          <property name="maximumSize">
           <size>
-           <width>60</width>
+           <width>16777215</width>
            <height>16777215</height>
           </size>
          </property>
          <property name="suffix">
           <string> kHz</string>
+         </property>
+         <property name="prefix">
+          <string>Offset </string>
          </property>
          <property name="minimum">
           <number>-24</number>
@@ -119,38 +119,9 @@ Tx:  144.127.317</string>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="f0Label">
-         <property name="minimumSize">
-          <size>
-           <width>50</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Freq Offset</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_4">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Preferred</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
         <widget class="QSpinBox" name="freqSpanSpinBox">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -163,12 +134,15 @@ Tx:  144.127.317</string>
          </property>
          <property name="maximumSize">
           <size>
-           <width>60</width>
+           <width>16777215</width>
            <height>16777215</height>
           </size>
          </property>
          <property name="suffix">
           <string> kHz</string>
+         </property>
+         <property name="prefix">
+          <string>Span </string>
          </property>
          <property name="minimum">
           <number>5</number>
@@ -185,32 +159,9 @@ Tx:  144.127.317</string>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Freq Span</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_6">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Preferred</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
         <widget class="QSpinBox" name="waterfallAvgSpinBox">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -223,9 +174,12 @@ Tx:  144.127.317</string>
          </property>
          <property name="maximumSize">
           <size>
-           <width>40</width>
+           <width>16777215</width>
            <height>16777215</height>
           </size>
+         </property>
+         <property name="prefix">
+          <string>N Avg </string>
          </property>
          <property name="minimum">
           <number>1</number>
@@ -236,35 +190,21 @@ Tx:  144.127.317</string>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>N Avg</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Preferred</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
         <widget class="QSpinBox" name="gainSpinBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="maximumSize">
           <size>
-           <width>40</width>
+           <width>16777215</width>
            <height>16777215</height>
           </size>
+         </property>
+         <property name="prefix">
+          <string>Gain </string>
          </property>
          <property name="minimum">
           <number>-20</number>
@@ -275,35 +215,21 @@ Tx:  144.127.317</string>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>Gain</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_7">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Preferred</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
         <widget class="QSpinBox" name="zeroSpinBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="maximumSize">
           <size>
-           <width>40</width>
+           <width>16777215</width>
            <height>16777215</height>
           </size>
+         </property>
+         <property name="prefix">
+          <string>Zero </string>
          </property>
          <property name="minimum">
           <number>-100</number>
@@ -314,50 +240,11 @@ Tx:  144.127.317</string>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Zero</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Preferred</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
         <widget class="QPushButton" name="autoZeroPushButton">
          <property name="text">
           <string>Auto Zero</string>
          </property>
         </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_8">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Preferred</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
        </item>
        <item>
         <widget class="QCheckBox" name="cbSpec2d">
@@ -367,16 +254,13 @@ Tx:  144.127.317</string>
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer_9">
+        <spacer name="horizontalSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Preferred</enum>
-         </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>20</width>
+           <width>40</width>
            <height>20</height>
           </size>
          </property>
@@ -388,22 +272,6 @@ Tx:  144.127.317</string>
           <string>Lock Tx=Rx Freq</string>
          </property>
         </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_5">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Expanding</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
        </item>
        <item>
         <widget class="QCheckBox" name="cbFcenter">
