@@ -22,8 +22,9 @@ void getfile(QString fname, bool xpol, int dbDgrd)
   FILE* fp=fopen(name,"rb");
 
   if(fp != NULL) {
-    (void)fread(&datcom_.fcenter,sizeof(datcom_.fcenter),1,fp);
-    (void)fread(id,2,npts,fp);
+    auto n = fread(&datcom_.fcenter,sizeof(datcom_.fcenter),1,fp);
+    n = fread(id,2,npts,fp);
+    Q_UNUSED (n);
     int j=0;
 
     if(dbDgrd<0) {

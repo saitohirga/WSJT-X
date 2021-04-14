@@ -273,7 +273,7 @@ void CPlotter::UTCstr()
     ihr=imin/60;
     imin=imin % 60;
   }
-  sprintf(m_sutc,"%2.2d:%2.2d",ihr,imin);
+  m_sutc = QString {"%1:%2"}.arg (ihr, 2).arg (imin, 2);
 }
 
 void CPlotter::DrawOverlay()                                 //DrawOverlay()

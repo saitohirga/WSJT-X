@@ -27,11 +27,6 @@ if (WIN32)
   set (map65_CXXSRCS ${map65_CXXSRCS} killbyname.cpp)
 endif (WIN32)
 
-set (map65_CSRCS
-  paInputDevice.c
-  pa_get_device_info.c
-)
-
 set (map65_UISRCS
   about.ui
   astro.ui

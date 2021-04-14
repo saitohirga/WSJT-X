@@ -115,7 +115,7 @@ private:
   qint32  m_FreqUnits;
   qint32  m_hdivs;
   bool    m_dataFromDisk;
-  char    m_sutc[5];
+  QString m_sutc;
   qint32  m_line;
   qint32  m_hist1[256];
   qint32  m_hist2[256];
