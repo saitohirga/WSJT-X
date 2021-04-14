@@ -1,4 +1,4 @@
-find_package (portaudio REQUIRED)
+find_package (Portaudio REQUIRED)
 
 find_package (libusb REQUIRED)
 
@@ -57,8 +57,7 @@ add_subdirectory (libm65)
 qt5_wrap_ui (map65_GENUISRCS ${map65_UISRCS})
 
 add_executable (map65 ${map65_CXXSRCS} ${map65_CSRCS} ${map65_GENUISRCS} map65.rc)
-target_include_directories (map65 PRIVATE ${PORTAUDIO_INCLUDE_DIRS})
-target_link_libraries (map65 m65impl ${FFTW3_LIBRARIES} Qt5::Widgets Qt5::Network portaudio::portaudio libusb::libusb)
+target_link_libraries (map65 m65impl ${FFTW3_LIBRARIES} Qt5::Widgets Qt5::Network Portaudio::Portaudio libusb::libusb)
 
 install (
   TARGETS map65

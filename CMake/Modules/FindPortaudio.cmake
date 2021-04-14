@@ -90,15 +90,15 @@ libfind_process (Portaudio)
 # fix up extra link libraries for macOS as target_link_libraries gets
 # it wrong for frameworks
 unset (_next_is_framework)
-unset (_portaudio_EXTRA_LIBS)
-foreach (_lib IN LISTS Portaudio_PKGCONF_LDFLAGS_OTHER)
+unset (_Portaudio_EXTRA_LIBS)
+foreach (_lib IN LISTS Portaudio_PKGCONF_LDFLAGS)
   if (_next_is_framework)
-    list (APPEND _portaudio_EXTRA_LIBS "-framework ${_lib}")
+    list (APPEND _Portaudio_EXTRA_LIBS "-framework ${_lib}")
     unset (_next_is_framework)
   elseif (${_lib} STREQUAL "-framework")
     set (_next_is_framework TRUE)
   else ()
-    list (APPEND _portaudio_EXTRA_LIBS ${_lib})
+    list (APPEND _Portaudio_EXTRA_LIBS ${_lib})
   endif ()
 endforeach ()
 
@@ -109,7 +109,7 @@ if (Portaudio_FOUND AND NOT TARGET Portaudio::Portaudio)
     IMPORTED_LOCATION "${Portaudio_LIBRARY}"
     INTERFACE_COMPILE_OPTIONS "${Portaudio_PKGCONF_CFLAGS_OTHER}"
     INTERFACE_INCLUDE_DIRECTORIES "${Portaudio_INCLUDE_DIRS}"
-    INTERFACE_LINK_LIBRARIES "${_portaudio_EXTRA_LIBS}"
+    INTERFACE_LINK_LIBRARIES "${_Portaudio_EXTRA_LIBS}"
     )
 endif ()
 
