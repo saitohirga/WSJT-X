@@ -158,6 +158,7 @@ MainWindow::MainWindow(QWidget *parent) :
   m_nsave=0;
   m_modeJT65=0;
   m_modeQ65=0;
+  m_TRperiod=60;
   m_modeTx="JT65";
   bTune=false;
   txPower=100;
