@@ -34,9 +34,9 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   
   mode65=mod(nmode,10)
   if(mode65.eq.3) mode65=4
-  mode64=nmode/10
+  mode_q65=nmode/10
   nwrite_q65=0
-  bq65=mode64.gt.0
+  bq65=mode_q65.gt.0
   mcall3a=mcall3b
   mousefqso0=mousefqso
   xpol=(nxpol.ne.0)
@@ -226,8 +226,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                  if(nqd.eq.2) then
                     call timer('q65     ',0)
                     call q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,     &
-                         mousedf,ntol,xpol,mycall,hiscall,hisgrid,        &
-                         mode64)
+                         mousedf,ntol,xpol,mycall,hiscall,hisgrid,mode_q65)
                     call timer('q65     ',1)
                     cycle
                  endif
