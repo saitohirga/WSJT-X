@@ -44,8 +44,8 @@ subroutine ccf65(ss,nhsym,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
 ! Not sure why, but it works significantly better without the following line:
 !        pr(j-1)=pr(j)
      enddo
-     call four2a(pr,NFFT,1,-1,0)
-     call four2a(pr2,NFFT,1,-1,0)
+     call four2a(cpr,NFFT,1,-1,0)
+     call four2a(cpr2,NFFT,1,-1,0)
      first=.false.
   endif
 
