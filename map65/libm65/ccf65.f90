@@ -113,8 +113,9 @@ subroutine ccf65(ss,nhsym,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
      tmp1(i)=ss(ipol2,i)
   enddo
   call pctile(tmp1,nhsym,40,base)
-  snr2=0.398107*ccfbest2/base                !### empirical
-  syncshort=0.5*ccfbest2/rms - 4.0           !### better normalizer than rms?
+  snr2=0.01
+  if(base.gt.0.0) snr2=0.398107*ccfbest2/base  !### empirical
+  syncshort=0.5*ccfbest2/rms - 4.0             !### better normalizer than rms?
   dt2=2.5 + lagpk2*(2048.0/11025.0)
 
   return
