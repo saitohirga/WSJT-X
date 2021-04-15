@@ -11,14 +11,16 @@ subroutine q65_loops(c00,npts2,nsps2,nsubmode,ndepth,jpk0,    &
   complex ,allocatable :: c0(:)    !Ditto, with freq shift
   character decoded*37
   real a(3)                        !twkfreq params f,f1,f2
-  real s3(LN)                      !Symbol spectra
+  real,allocatable :: s3(:)        !Symbol spectra
   integer dat4(13)                 !Decoded message (as 13 six-bit integers)
   integer nap(0:11)                !AP return codes
   data nap/0,2,3,2,3,4,2,3,6,4,6,6/
 
+  LL=64*(mode_q65+2)
+  allocate(s3(LL*NN))
+  allocate(c0(0:npts2-1))
   idec=-1
   ircbest=9999
-  allocate(c0(0:npts2-1))
   irc=-99
   s3lim=20.
   baud=6000.0/nsps2
@@ -34,7 +36,6 @@ subroutine q65_loops(c00,npts2,nsps2,nsubmode,ndepth,jpk0,    &
   endif
   if(iand(ndepth,3).eq.3) maxdist=15
 
-  LL=64*(mode_q65+2)
   napmin=99
   xdt1=xdt0
   f1=f0
