@@ -870,9 +870,9 @@ find_package (OpenMP)
 find_package (FFTW3 COMPONENTS single threads REQUIRED)
 
 #
-# libhamlib setup
+# hamlib setup
 #
-find_package (hamlib REQUIRED)
+find_package (Hamlib REQUIRED)
 find_program (RIGCTL_EXE rigctl)
 find_program (RIGCTLD_EXE rigctld)
 find_program (RIGCTLCOM_EXE rigctlcom)
@@ -1324,7 +1324,7 @@ target_link_libraries (qcp Qt5::Widgets Qt5::PrintSupport)
 add_library (wsjt_qt STATIC ${wsjt_qt_CXXSRCS} ${wsjt_qt_GENUISRCS} ${GENAXSRCS})
 # set wsjtx_udp exports to static variants
 target_compile_definitions (wsjt_qt PUBLIC UDP_STATIC_DEFINE)
-target_link_libraries (wsjt_qt hamlib::hamlib Boost::log qcp Qt5::Widgets Qt5::Network Qt5::Sql)
+target_link_libraries (wsjt_qt Hamlib::Hamlib Boost::log qcp Qt5::Widgets Qt5::Network Qt5::Sql)
 if (WIN32)
   target_link_libraries (wsjt_qt Qt5::AxContainer Qt5::AxBase)
 endif (WIN32)
@@ -1709,7 +1709,7 @@ if (NOT is_debug_build)
     # if a system Qt is used (e.g. installed in /usr/lib/), it will not be included in the installation
     set (fixup_exe "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/${CMAKE_PROJECT_NAME}${CMAKE_EXECUTABLE_SUFFIX}")
 
-    #get_filename_component (hamlib_lib_dir ${hamlib_LIBRARIES} PATH)
+    #get_filename_component (hamlib_lib_dir ${Hamlib_LIBRARIES} PATH)
 
     if (APPLE)
       # install required Qt plugins
@@ -1823,9 +1823,9 @@ if (NOT is_debug_build)
     endif (WIN32)
 
     #list (APPEND fixup_library_dirs ${hamlib_lib_dir})
-    list (APPEND fixup_library_dirs ${hamlib_LIBRARY_DIRS})
+    list (APPEND fixup_library_dirs ${Hamlib_LIBRARY_DIRS})
 
-    install (CODE "
+    INSTALL (CODE "
         get_filename_component (the_path \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WSJT_PLUGIN_DESTINATION}\" REALPATH)
         file (GLOB_RECURSE QTPLUGINS \"\${the_path}/*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
         set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake/Modules ${CMAKE_MODULE_PATH})
