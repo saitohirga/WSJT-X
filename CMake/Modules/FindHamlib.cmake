@@ -104,7 +104,7 @@ endif ()
 # it wrong for frameworks
 unset (_next_is_framework)
 unset (_Hamlib_EXTRA_LIBS)
-foreach (_lib IN LISTS Hamlib_LIBRARIES)
+foreach (_lib IN LISTS Hamlib_LIBRARIES Hamlib_PKGCONF_LDFLAGS)
   if (_next_is_framework)
     list (APPEND _Hamlib_EXTRA_LIBS "-framework ${_lib}")
     unset (_next_is_framework)
