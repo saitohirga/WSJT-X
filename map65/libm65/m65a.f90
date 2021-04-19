@@ -63,16 +63,17 @@ subroutine m65c(dd,ss,savg,nparams0)
   integer*1 detach_m65
   real*4 dd(4,5760000),ss(4,322,32768),savg(4,32768)
   real*8 fcenter
-  integer nparams0(189),nparams(189)
+  integer nparams0(139),nparams(139)
   character*12 mycall,hiscall
   character*6 mygrid,hisgrid
   character*20 datetime
-  character*300 datadir,tempdir
+  character*200 datadir0,tempdir0
   character*1 c0
   common/npar/fcenter,nutc,idphi,mousedf,mousefqso,nagain,                &
        ndepth,ndiskdat,neme,newdat,nfa,nfb,nfcal,nfshift,                 &
        mcall3,nkeep,ntol,nxant,nrxlog,nfsample,nxpol,nmode,               &
-       nfast,nsave,mycall,mygrid,hiscall,hisgrid,datetime,datadir,tempdir
+       nfast,nsave,mycall,mygrid,hiscall,hisgrid,datetime,                &
+       datadir0,tempdir0
   equivalence (nparams,fcenter)
 
   nparams=nparams0                     !Copy parameters into common/npar/
@@ -92,11 +93,11 @@ subroutine m65c(dd,ss,savg,nparams0)
   i0=index(datetime,c0)
   if(i0.gt.0) datetime=datetime(1:i0-1)
 
-  i0=index(datadir,c0)
-  if(i0.gt.0) datadir=datadir(1:i0-1)
+  i0=index(datadir0,c0)
+  if(i0.gt.0) datadir0=datadir0(1:i0-1)
 
-  i0=index(tempdir,c0)
-  if(i0.gt.0) tempdir=tempdir(1:i0-1)
+  i0=index(tempdir0,c0)
+  if(i0.gt.0) tempdir0=tempdir0(1:i0-1)
 
   if(iand(nrxlog,1).ne.0) then
      write(21,1000) datetime(:17)
