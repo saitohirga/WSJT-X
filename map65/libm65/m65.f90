@@ -83,7 +83,7 @@ program m65
      mousefqso=70
   endif
 
-  call ftninit('.')
+!  call ftninit('.')
 
   do ifile=ifile1,nargs
      call getarg(ifile,infile)

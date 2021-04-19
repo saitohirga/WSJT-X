@@ -8,6 +8,7 @@ subroutine decode0(dd,ss,savg,nstandalone)
   integer hist(0:32768)
   character mycall*12,hiscall*12,mygrid*6,hisgrid*6,datetime*20
   character mycall0*12,hiscall0*12,hisgrid0*6
+  character*80 cwd
   character*200 datadir0,tempdir0,datadir,tempdir
   common/osdir/datadir,tempdir
   common/npar/fcenter,nutc,idphi,mousedf,mousefqso,nagain,                &
@@ -21,6 +22,11 @@ subroutine decode0(dd,ss,savg,nstandalone)
 
   datadir="'"//trim(datadir0)//"'"
   tempdir="'"//trim(tempdir0)//"'"
+
+!###
+  call getcwd(cwd)
+  call ftninit(trim(cwd))
+!###
 
   call timer('decode0 ',0)
   if(newdat.ne.0) then
