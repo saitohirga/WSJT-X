@@ -38,15 +38,6 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   nwrite_q65=0
   bq65=mode_q65.gt.0
 
-  !###
-  write(71,3071) newdat,nutc,ntol,idphi,nfa,nfb,                     &
-     mousedf,mousefqso,nagain,ndecdone,ndiskdat,nfshift,ndphi,       &
-     nfcal,nkeep,mcall3b,nsum,nsave,nxant,neme,ndepth,               &
-     nhsym,nfsample,nxpol,nmode,mycall,mygrid,hiscall,hisgrid,       &
-     sum(dd),sum(ss),sum(savg)
-3071 format(16i5/9i6/a12,a6,2x,a12,a6/3e15.6)
-!###
-
   mcall3a=mcall3b
   mousefqso0=mousefqso
   xpol=(nxpol.ne.0)
@@ -69,7 +60,6 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   nqdz=1
   if(bq65 .and. (nutc0.ge.0 .or. (nstandalone.eq.1))) nqdz=2
 !  if(bq65) nqdz=2
-  write(69,*) nqdz,mousefqso
   if(nutc.ne.nutc0) nfile=nfile+1
   nutc0=nutc
 
