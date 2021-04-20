@@ -63,41 +63,18 @@ subroutine m65c(dd,ss,savg,nparams0)
   integer*1 detach_m65
   real*4 dd(4,5760000),ss(4,322,32768),savg(4,32768)
   real*8 fcenter
-  integer nparams0(189),nparams(189)
+  integer nparams0(40),nparams(40)
   character*12 mycall,hiscall
   character*6 mygrid,hisgrid
   character*20 datetime
-  character*300 datadir,tempdir
-  character*1 c0
-  common/npar/fcenter,nutc,idphi,mousedf,mousefqso,nagain,                &
-       ndepth,ndiskdat,neme,newdat,nfa,nfb,nfcal,nfshift,                 &
-       mcall3,nkeep,ntol,nxant,nrxlog,nfsample,nxpol,nmode,               &
-       nfast,nsave,mycall,mygrid,hiscall,hisgrid,datetime,datadir,tempdir
+  common/npar/fcenter,nutc,idphi,mousedf,mousefqso,nagain,              &
+       ndepth,ndiskdat,neme,newdat,nfa,nfb,nfcal,nfshift,               &
+       mcall3,nkeep,ntol,nxant,nrxlog,nfsample,nxpol,nmode,             &
+       nfast,nsave,mycall,mygrid,hiscall,hisgrid,datetime
   equivalence (nparams,fcenter)
-
+  
   nparams=nparams0                     !Copy parameters into common/npar/
   npatience=1
-  i0=index(mycall,c0)
-  if(i0.gt.0) mycall=mycall(1:i0-1)
-  
-  i0=index(mygrid,c0)
-  if(i0.gt.0) mygrid=mygrid(1:i0-1)
-  
-  i0=index(hiscall,c0)
-  if(i0.gt.0) hiscall=hiscall(1:i0-1)
-  
-  i0=index(hisgrid,c0)
-  if(i0.gt.0) hisgrid=hisgrid(1:i0-1)
-  
-  i0=index(datetime,c0)
-  if(i0.gt.0) datetime=datetime(1:i0-1)
-
-  i0=index(datadir,c0)
-  if(i0.gt.0) datadir=datadir(1:i0-1)
-
-  i0=index(tempdir,c0)
-  if(i0.gt.0) tempdir=tempdir(1:i0-1)
-
   if(iand(nrxlog,1).ne.0) then
      write(21,1000) datetime(:17)
 1000 format(/'UTC Date: 'a17/78('-'))

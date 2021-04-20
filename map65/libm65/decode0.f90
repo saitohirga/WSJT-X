@@ -8,16 +8,16 @@ subroutine decode0(dd,ss,savg,nstandalone)
   integer hist(0:32768)
   character mycall*12,hiscall*12,mygrid*6,hisgrid*6,datetime*20
   character mycall0*12,hiscall0*12,hisgrid0*6
-  character*300 datadir,tempdir
   common/npar/fcenter,nutc,idphi,mousedf,mousefqso,nagain,                &
        ndepth,ndiskdat,neme,newdat,nfa,nfb,nfcal,nfshift,                 &
        mcall3,nkeep,ntol,nxant,nrxlog,nfsample,nxpol,nmode,               &
-       nfast,nsave,mycall,mygrid,hiscall,hisgrid,datetime,datadir,tempdir
+       nfast,nsave,mycall,mygrid,hiscall,hisgrid,datetime
   common/tracer/ limtrace,lu
   data neme0/-99/,mcall3b/1/
   save
 
   call timer('decode0 ',0)
+
   if(newdat.ne.0) then
      nz=52*96000
      hist=0
