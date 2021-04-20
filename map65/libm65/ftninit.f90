@@ -1,41 +1,32 @@
 ! Fortran logical units used in WSJT6
 !
-!    9  
-!   10        binary input data, *.tf2 files
-!   11  temp  prefixes.txt
-!   12  data  timer.out
-!   13  data  map65.log
+!   10  binary input data, *.tf2 files
+!   11  prefixes.txt
+!   12  timer.out
+!   13  map65.log
 !   14  
 !   15  
 !   16
-!   17  data/save  saved *.tf2 files
-!   18  data  test file to be transmitted (wsjtgen.f90)
-!   19  data  livecq.txt
+!   17  saved *.tf2 files
+!   18  test file to be transmitted (wsjtgen.f90)
+!   19  livecq.txt
 !   20  
-!   21  data  map65_rx.log
+!   21  map65_rx.log
 !   22  
-!   23  data  CALL3.TXT
+!   23  CALL3.TXT
 !   24  
 !   25  
-!   26  temp  tmp26.txt
+!   26  tmp26.txt
 !   27  
-!   28  data  fftw_wisdom.dat
-!   77  temp  deep65
+!   28  fftw_wisdom.dat
 !------------------------------------------------ ftn_init
-!subroutine ftninit(datadir,tempdir)
 subroutine ftninit(appd)
 
   character*(*) appd
   character firstline*30
   character addpfx*8
   integer junk(256)
-  character*200 datadir,tempdir
-  common/osdir/datadir,tempdir
   common/pfxcom/addpfx
-
-  write(62,*) 'datadir: ',trim(datadir)
-  write(62,*) 'tempdir: ',trim(tempdir)
-  write(62,*) 'appd:    ',appd
 
   addpfx='    '
   call pfxdump(appd//'/prefixes.txt')

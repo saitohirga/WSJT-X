@@ -9,14 +9,15 @@ subroutine m65a
   integer*1 attach_m65,lock_m65,unlock_m65
   integer size_m65
   integer*1, pointer :: p_m65
-  logical fileExists
   character*80 cwd
+  logical fileExists
   common/tracer/limtrace,lu
 
+  call getcwd(cwd)
+  call ftninit(trim(cwd))
   limtrace=0
   lu=12
   i1=attach_m65()
-  call getcwd(cwd)
 
 10 inquire(file=trim(cwd)//'/.lock',exist=fileExists)
   if(fileExists) then
