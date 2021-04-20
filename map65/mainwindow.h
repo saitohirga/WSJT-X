@@ -256,8 +256,6 @@ private:
     QString m_colors;
     QString m_editorCommand;
     QString m_modeTx;
-    QString m_dataDir;
-    QString m_tempDir;
 
     QHash<QString,bool> m_worked;
 
