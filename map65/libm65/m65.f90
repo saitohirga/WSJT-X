@@ -13,14 +13,13 @@ program m65
   common/tracer/limtrace,lu
   real*8 fc0,fcenter
   character*80 arg,infile
-  character*200 datadir0,tempdir0
+  character*300 datadir,tempdir
   character mycall*12,hiscall*12,mygrid*6,hisgrid*6,datetime*20
   common/datcom/dd(4,5760000),ss(4,322,NFFT),savg(4,NFFT),fc0,nutc0,junk(36)
   common/npar/fcenter,nutc,idphi,mousedf,mousefqso,nagain,                &
        ndepth,ndiskdat,neme,newdat,nfa,nfb,nfcal,nfshift,                 &
        mcall3,nkeep,ntol,nxant,nrxlog,nfsample,nxpol,nmode,               &
-       nfast,nsave,mycall,mygrid,hiscall,hisgrid,datetime,                &
-       datadir0,tempdir0
+       nfast,nsave,mycall,mygrid,hiscall,hisgrid,datetime,datadir,tempdir
 
   nargs=iargc()
   if(nargs.ne.1 .and. nargs.lt.5) then
