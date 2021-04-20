@@ -116,7 +116,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
   QTimer *guiTimer = new QTimer(this);
   connect(guiTimer, SIGNAL(timeout()), this, SLOT(guiUpdate()));
-  guiTimer->start(100);                            //Don't change the 100 ms!
+
+  QTimer *m65Timer = new QTimer(this);
+  m65Timer->setSingleShot(true);
+  connect(m65Timer, SIGNAL(timeout()), this, SLOT(setup_m65()));
 
   m_auto=false;
   m_waterfallAvg = 1;
@@ -293,8 +296,10 @@ MainWindow::MainWindow(QWidget *parent) :
   if(ui->actionAFMHot->isChecked()) on_actionAFMHot_triggered();
   if(ui->actionBlue->isChecked()) on_actionBlue_triggered();
 
-  m_dataDir = QStandardPaths::writableLocation (QStandardPaths::DataLocation);
-  m_tempDir = QStandardPaths::writableLocation (QStandardPaths::TempLocation) + "/map65";
+
+
+  m65Timer->start(200);
+  guiTimer->start(100);                            //Don't change the 100 ms!
 
                                              // End of MainWindow constructor
 }
@@ -317,6 +322,14 @@ MainWindow::~MainWindow()
     lockFile.remove();
   }
   delete ui;
+}
+
+void MainWindow::setup_m65()
+{
+  m_dataDir = QStandardPaths::writableLocation (QStandardPaths::DataLocation);
+  m_tempDir = QStandardPaths::writableLocation (QStandardPaths::TempLocation) + "/map65";
+  memcpy(datcom_.datadir, m_dataDir.toLatin1(),m_dataDir.length());
+  memcpy(datcom_.tempdir, m_tempDir.toLatin1(),m_tempDir.length());
 }
 
 //-------------------------------------------------------- writeSettings()

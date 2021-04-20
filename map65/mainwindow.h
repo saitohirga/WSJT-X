@@ -45,6 +45,7 @@ public slots:
   void guiUpdate();
   void doubleClickOnCall(QString hiscall, bool ctrl);
   void doubleClickOnMessages(QString hiscall, QString t2);
+  void setup_m65();
 
 protected:
   virtual void keyPressEvent( QKeyEvent *e );
@@ -263,7 +264,6 @@ private:
 
     SignalMeter *xSignalMeter;
     SignalMeter *ySignalMeter;
-
 
     SoundInThread soundInThread;             //Instantiate the audio threads
     SoundOutThread soundOutThread;
