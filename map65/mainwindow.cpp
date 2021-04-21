@@ -630,7 +630,8 @@ void MainWindow::dataSink(int k)
     ntrz=ntr;
     n=0;
   }
-  if(ihsym == 280) {
+//if(ihsym == 280) {   //For JT65, decode at t=52 s
+  if(ihsym == 302) {   //For Q65, decode at t=56 s
     datcom_.newdat=1;
     datcom_.nagain=0;
     QDateTime t = QDateTime::currentDateTimeUtc();
