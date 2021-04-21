@@ -25,16 +25,20 @@ subroutine q65_loops(c00,npts2,nsps2,nsubmode,ndepth,jpk0,    &
   s3lim=20.
   baud=6000.0/nsps2
 
-  idfmax=3
-  idtmax=3
+  idfmax=1
+  idtmax=1
+  maxdist=4
   ibw0=(ibwa+ibwb)/2
-  maxdist=5
-  if(iand(ndepth,3).ge.2) then
+  if(iand(ndepth,3).eq.2) then
+     idfmax=3
+     idtmax=3
+     maxdist=5
+  endif
+  if(iand(ndepth,3).eq.3) then
      idfmax=5
      idtmax=5
-     maxdist=10
+     maxdist=15
   endif
-  if(iand(ndepth,3).eq.3) maxdist=15
 
   napmin=99
   xdt1=xdt0

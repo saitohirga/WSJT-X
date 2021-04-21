@@ -119,12 +119,13 @@ contains
 
     inquire(file='ndepth.dat',exist=ex)
     if(.not.ex) ndepth=iand(ndepth,not(3)) + 1    !Treat any ndepth as "Fast"
-    maxiters=67
+    maxiters=33
     ibwa=max(1,int(1.8*log(baud*mode_q65)) + 1)
-    ibwb=min(10,ibwa+4)
+    ibwb=min(10,ibwa+2)
     if(iand(ndepth,3).ge.2) then
        ibwa=max(1,int(1.8*log(baud*mode_q65)) + 1)
        ibwb=min(10,ibwa+5)
+       maxiters=67
     else if(iand(ndepth,3).eq.3) then
        ibwa=max(1,ibwa-1)
        ibwb=min(10,ibwb+1)
