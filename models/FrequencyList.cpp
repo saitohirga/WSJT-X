@@ -965,8 +965,11 @@ auto FrequencyList_v2::all_bands (Region region, Mode mode) const -> BandSet
   BandSet result;
   for (auto const& item : m_->frequency_list_)
     {
-      if (region == IARURegions::ALL || item.region_ == region
-          || mode == Modes::ALL || item.mode_ == mode)
+      // Match frequencies that are for all regions, for the specified
+      // region (which can also be "all"), and where the mode matches
+      // the specified mode (which can also be "all").
+      if ((region == IARURegions::ALL || item.region_ == IARURegions::ALL || item.region_ == region)
+          && (mode == Modes::ALL || item.mode_ == Modes::ALL || item.mode_ == mode))
         {
           result << m_->bands_->find (item.frequency_);
         }
