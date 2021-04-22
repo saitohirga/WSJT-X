@@ -58,9 +58,6 @@ set (libm65_FSRCS
   packjt.f90
   pctile.f90
   pfxdump.f90
-  qra64b.f90
-  qra64c.f90
-  qra64zap.f90
   recvpkt.f90
   rfile3a.f90
   s3avg.f90
@@ -70,7 +67,6 @@ set (libm65_FSRCS
   shell.f90
   sleep_msec.f90
   smo.f90
-  spec64.f90
   sun.f90
   symspec.f90
   sync64.f90
