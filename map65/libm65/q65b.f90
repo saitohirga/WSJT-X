@@ -70,8 +70,8 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
 !   95238  5120000  0.018601172  322560   5999.994
 
 !                1         2         3         4         5         6         7         8         9        10
-!       12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901'
-  cmnd='jt9 -3 -X 32 -f 1079 -F 1000 -c MyCall      -x HisCall     -g FN42 -b A 000000_0001.wav  > q65_decodes.txt'
+!       123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901'
+  cmnd='jt9 -3 -X 32 -f 1079 -F 1000 -c MyCall      -x HisCall     -g FN42 -b A -d 1 000000_0001.wav  > q65_decodes.txt'
   write(cmnd(17:20),'(i4)') 1000
   write(cmnd(25:28),'(i4)') ntol
   write(cmnd(33:44),'(a12)') mycall
@@ -100,8 +100,8 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
      open(25,file=fname,access='stream',status='unknown')
      write(25) h,iwave
      close(25)
-     write(cmnd(83:83),'(i1)') ipol
-     if(ipol.eq.2) cmnd(89:89)='>'
+     write(cmnd(88:88),'(i1)') ipol
+     if(ipol.eq.2) cmnd(94:94)='>'
      call execute_command_line(trim(trim(wsjtx_dir)//cmnd))
   enddo
 
