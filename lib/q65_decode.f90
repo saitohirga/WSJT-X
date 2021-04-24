@@ -116,9 +116,6 @@ contains
     baud=12000.0/nsps
     this%callback => callback
     nFadingModel=1
-
-    inquire(file='ndepth.dat',exist=ex)
-    if(.not.ex) ndepth=iand(ndepth,not(3)) + 1    !Treat any ndepth as "Fast"
     maxiters=33
     ibwa=max(1,int(1.8*log(baud*mode_q65)) + 1)
     ibwb=min(10,ibwa+2)
