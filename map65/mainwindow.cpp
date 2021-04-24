@@ -1388,7 +1388,11 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
     if(t.indexOf("!") >= 0) {
       int n=t.length();
-      if(n>=30) ui->decodedTextBrowser->append(t.mid(1,n-3));
+      int m=2;
+#ifdef WIN32
+      m=3;
+#endif
+      if(n>=30) ui->decodedTextBrowser->append(t.mid(1,n-m));
 //      if(n<30) ui->decodedTextBrowser->append(t.mid(1,n-3));  //Write a no-decode JT65 line
       n=ui->decodedTextBrowser->verticalScrollBar()->maximum();
       ui->decodedTextBrowser->verticalScrollBar()->setValue(n);
