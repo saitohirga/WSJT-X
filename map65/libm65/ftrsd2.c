@@ -203,7 +203,7 @@ NB: j is the symbol-vector index of the symbol with rank i.
   param[1]=nhard_min;
   param[2]=nsoft_min;
   param[3]=nera_best;
-  param[4]=1000.0*pp2/pp1;
+  param[4]= pp1 > 0 ? 1000.0*pp2/pp1 : 1000.0;
   param[5]=ntotal_min;
   param[6]=ntry[0];
   param[7]=1000.0*pp2;
