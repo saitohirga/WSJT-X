@@ -103,6 +103,16 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
      write(cmnd(88:88),'(i1)') ipol
      if(ipol.eq.2) cmnd(94:94)='>'
      call execute_command_line(trim(trim(wsjtx_dir)//cmnd))
+!###
+     nsubmode=2
+     nfa=300
+     nfb=2883
+     nfqso=1000
+     newdat=1
+     nagain=0
+     call map65_mmdec(nutc,iwave,nsubmode,nfa,nfb,nfqso,ntol,newdat,nagain,  &
+     mycall,hiscall,hisgrid)
+!###
   enddo
 
   open(24,file='q65_decodes.txt',status='unknown')
