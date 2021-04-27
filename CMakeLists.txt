@@ -462,6 +462,7 @@ set (wsjt_FSRCS
   lib/lorentzian.f90
   lib/fst4/lorentzian_fading.f90
   lib/lpf1.f90
+  lib/map65_mmdec.f90
   lib/mixlpf.f90
   lib/makepings.f90
   lib/moondopjpl.f90
