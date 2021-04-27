@@ -84,7 +84,8 @@ contains
     if(nutc+snr1+nsnr+dt+freq+idec+nused+ntrperiod.eq.-999) stop
     if(decoded.eq.'-999') stop
 
-!    print*,'BBB',nutc,snr1,nsnr,dt,freq,decoded,idec,nused,ntrperiod
+    write(24,1010) nutc,nsnr,dt,nint(freq),decoded
+1010 format(i4.4,i4,f5.1,i5,4x,a37)
 
     select type(this)
     type is (counting_q65_decoder)

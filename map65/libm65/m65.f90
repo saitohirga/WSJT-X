@@ -105,6 +105,7 @@ program m65
         read(10,end=10) i2
         do i=1,NREAD,nch
            k=k+1
+           if(k.gt.60*96000) exit
            dd(1,k)=i2(i)
            dd(2,k)=i2(i+1)
            if(nxpol.eq.1) then

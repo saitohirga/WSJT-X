@@ -5,7 +5,6 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   parameter (MAXFFT1=5376000)              !56*96000
   parameter (MAXFFT2=336000)               !56*6000 (downsampled by 1/16)
   parameter (NMAX=60*12000)
-  type(hdr) h                              !Header for the .wav file
   integer*2 iwave(60*12000)
   complex ca(MAXFFT1),cb(MAXFFT1)          !FFTs of raw x,y data
   complex cx(0:MAXFFT2-1),cy(0:MAXFFT2-1),cz(0:MAXFFT2)
@@ -15,11 +14,9 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   character*12 mycall,hiscall
   character*6 hisgrid
   character*4 grid4
-  character*125 cmnd
   character*62 line
   character*80 line2
   character*40 msg40
-  character*15 fname
   character*80 wsjtx_dir
   common/cacb/ca,cb
   save
@@ -27,6 +24,7 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   open(9,file='wsjtx_dir.txt',status='old')
   read(9,'(a)') wsjtx_dir
   close(9)
+  open(24,file='q65_decodes.txt',status='unknown')
 
   mycall='K1JT'
   hiscall='IV3NWV'
@@ -69,16 +67,6 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
 !   96000  5376000  0.017857143  336000   6000.000
 !   95238  5120000  0.018601172  322560   5999.994
 
-!                1         2         3         4         5         6         7         8         9        10
-!       123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901'
-  cmnd='jt9 -3 -X 32 -f 1079 -F 1000 -c MyCall      -x HisCall     -g FN42 -b A -d 1 000000_0001.wav  > q65_decodes.txt'
-  write(cmnd(17:20),'(i4)') 1000
-  write(cmnd(25:28),'(i4)') ntol
-  write(cmnd(33:44),'(a12)') mycall
-  write(cmnd(48:59),'(a12)') hiscall
-  write(cmnd(63:66),'(a4)') grid4
-  write(cmnd(71:71),'(a1)') char(ichar('A') + mode_q65-1)
-  fname='000000_0001.wav'
   npol=1
   if(xpol) npol=4
   do ipol=1,npol
@@ -95,16 +83,7 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
         iwave(2*i+2)=nint(aimag(cz(j)))
      enddo
      iwave(2*nfft2+1:)=0
-     h=default_header(12000,NMAX)
-     write(fname(11:11),'(i1)') ipol
-     open(25,file=fname,access='stream',status='unknown')
-     write(25) h,iwave
-     close(25)
-     write(cmnd(88:88),'(i1)') ipol
-     if(ipol.eq.2) cmnd(94:94)='>'
-     call execute_command_line(trim(trim(wsjtx_dir)//cmnd))
-!###
-     nsubmode=2
+     nsubmode=mode_q65-1
      nfa=300
      nfb=2883
      nfqso=1000
@@ -112,16 +91,16 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
      nagain=0
      call map65_mmdec(nutc,iwave,nsubmode,nfa,nfb,nfqso,ntol,newdat,nagain,  &
      mycall,hiscall,hisgrid)
-!###
   enddo
 
-  open(24,file='q65_decodes.txt',status='unknown')
 !           1         2         3         4         5         6
 !  1234567890123456789012345678901234567890123456789012345678901234567
 !  0001 -22  2.9 1081 :  EA2AGZ IK4WLV -16                     q0
 !  110  101   2  1814  2.9  -11 # QRZ HB9Q JN47          1    0   30 H
   nsnr0=-99
   line2=' '
+  rewind 24
+
   do i=1,8
      read(24,1002,end=100) line
 1002 format(a62)
