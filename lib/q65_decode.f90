@@ -67,10 +67,10 @@ contains
     integer dat4(13)                      !Decoded message as 12 6-bit integers
     integer dgen(13)
     logical lclearave,lnewdat0,lapcqonly,unpk77_success
-    logical single_decode,lagain,ex
+    logical single_decode,lagain
     complex, allocatable :: c00(:)        !Analytic signal, 6000 Sa/s
     complex, allocatable :: c0(:)         !Analytic signal, 6000 Sa/s
-    
+
 ! Start by setting some parameters and allocating storage for large arrays
     call sec0(0,tdecode)
     nfa=nfa0
@@ -128,7 +128,6 @@ contains
        ibwb=min(10,ibwb+1)
        maxiters=100
     endif
-
 ! Generate codewords for full-AP list decoding    
     call q65_set_list(mycall,hiscall,hisgrid,codewords,ncw) 
     dgen=0
