@@ -16,6 +16,7 @@ subroutine decode0(dd,ss,savg,nstandalone)
   data neme0/-99/,mcall3b/1/
   save
 
+!  write(60) ss,savg
   call timer('decode0 ',0)
 
   if(newdat.ne.0) then
