@@ -63,7 +63,8 @@ program m65
   ifile1=5
   limtrace=0
   lu=12
-  
+
+! Some default parameters for command-line execution, in early testing.
   mycall='K1JT'
   mygrid='FN20QI'
   hiscall='K9AN'
@@ -73,6 +74,7 @@ program m65
   ntol=500
   nkeep=10
   mousefqso=141
+  mousedf=-198
   nfcal=-720
 
   if(nxpol.eq.0) then
