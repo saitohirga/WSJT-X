@@ -71,10 +71,10 @@ program m65
   hisgrid='EN50'
   nfa=100
   nfb=162
-  ntol=500
+  ntol=100
   nkeep=10
   mousefqso=141
-  mousedf=-198
+  mousedf=-201
   nfcal=-720
 
   if(nxpol.eq.0) then
