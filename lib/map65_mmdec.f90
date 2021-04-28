@@ -80,12 +80,16 @@ contains
     integer, intent(in) :: idec
     integer, intent(in) :: nused
     integer, intent(in) :: ntrperiod
+    character*3 cq
 
     if(nutc+snr1+nsnr+dt+freq+idec+nused+ntrperiod.eq.-999) stop
     if(decoded.eq.'-999') stop
 
-    write(24,1010) nutc,nsnr,dt,nint(freq),decoded
-1010 format(i4.4,i4,f5.1,i5,4x,a37)
+    cq='q  '
+    write(cq(2:2),'(i1)') idec
+    if(nused.ge.2) write(cq(3:3),'(i1)') nused
+    write(24,1010) nutc,nsnr,dt,nint(freq),decoded,cq
+1010 format(i4.4,i4,f5.1,i5,4x,a37,1x,a3)
 
     select type(this)
     type is (counting_q65_decoder)
