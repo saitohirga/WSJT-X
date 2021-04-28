@@ -86,12 +86,12 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
      nsubmode=mode_q65-1
      nfa=300
      nfb=2883
-     nfqso=1000
+     nfqso=1000 + mousedf
      newdat=1
      nagain=0
+     nsnr0=-99             !Default snr for no decode
      call map65_mmdec(nutc,iwave,nsubmode,nfa,nfb,nfqso,ntol,newdat,nagain,  &
           mycall,hiscall,hisgrid)
-!     print*,'bbb',ipol,nsnr0,xdt0,nfreq0,msg0,cq0
      if(nsnr0.gt.nsnr1) then
         nsnr1=nsnr0
         xdt1=xdt0
@@ -105,9 +105,9 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   nfreq=nfreq1+mousedf-1000
   write(line,1020) ikhz,nfreq,ipol1,nutc,xdt1,nsnr1,msg1(1:27),cq1
 1020 format('!',i3.3,i5,i4,i6.4,f5.1,i5,' : ',a27,a3)
-  freq0=144.0 + 0.001*ikhz
   write(*,1100) trim(line)
 1100 format(a)
+  freq0=144.0 + 0.001*ikhz
 
 ! Should write to lu 26 here, for Messages and Band Map windows ?
 !     write(26,1014) freq0,nfreq0,0,0,0,xdt0,ipol0,0,                   &
@@ -117,6 +117,13 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
 ! Write to file map65_rx.log:
   write(21,1110)  freq0,nfreq,xdt1,ipol1,nsnr1,nutc,msg1(1:28),cq1
 1110 format(f8.3,i5,f5.1,2i4,i5.4,2x,a28,': A',2x,a3)
-  
-900 return
+
+900 close(13)
+  close(14)
+  close(17)
+  write(*,1900)
+1900 format('<DecodeFinished>')
+  call flush(6)
+
+  return
 end subroutine q65b
