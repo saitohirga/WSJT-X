@@ -90,8 +90,10 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
      newdat=1
      nagain=0
      nsnr0=-99             !Default snr for no decode
+     call timer('mmdec   ',0)
      call map65_mmdec(nutc,iwave,nsubmode,nfa,nfb,nfqso,ntol,newdat,nagain,  &
           mycall,hiscall,hisgrid)
+     call timer('mmdec   ',1)
      if(nsnr0.gt.nsnr1) then
         nsnr1=nsnr0
         xdt1=xdt0
@@ -100,7 +102,7 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
         cq1=cq0
         ipol1=45*ipol
      endif
-  enddo
+  enddo  !ipol
 
   nfreq=nfreq1+mousedf-1000
   write(line,1020) ikhz,nfreq,ipol1,nutc,xdt1,nsnr1,msg1(1:27),cq1
