@@ -1,5 +1,9 @@
 module q65_decode
 
+  integer nsnr0,nfreq0
+  real xdt0
+  character msg0*37,cq0*3
+
   type :: q65_decoder
      procedure(q65_decode_callback), pointer :: callback
    contains

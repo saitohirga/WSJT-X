@@ -1,7 +1,7 @@
 subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
      mycall0,hiscall0,hisgrid,mode_q65)
 
-  use wavhdr
+  use q65_decode
   parameter (MAXFFT1=5376000)              !56*96000
   parameter (MAXFFT2=336000)               !56*6000 (downsampled by 1/16)
   parameter (NMAX=60*12000)
@@ -14,9 +14,9 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   character*12 mycall,hiscall
   character*6 hisgrid
   character*4 grid4
-  character*62 line
-  character*80 line2
-  character*40 msg40
+  character*80 line
+  character*37 msg1
+  character*3 cq1
   character*80 wsjtx_dir
   common/cacb/ca,cb
   save
@@ -24,7 +24,6 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   open(9,file='wsjtx_dir.txt',status='old')
   read(9,'(a)') wsjtx_dir
   close(9)
-  open(24,file='q65_decodes.txt',status='unknown')
 
   mycall='K1JT'
   hiscall='IV3NWV'
@@ -67,6 +66,7 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
 !   96000  5376000  0.017857143  336000   6000.000
 !   95238  5120000  0.018601172  322560   5999.994
 
+  nsnr1=-99
   npol=1
   if(xpol) npol=4
   do ipol=1,npol
@@ -90,38 +90,23 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
      newdat=1
      nagain=0
      call map65_mmdec(nutc,iwave,nsubmode,nfa,nfb,nfqso,ntol,newdat,nagain,  &
-     mycall,hiscall,hisgrid)
-  enddo
-
-!           1         2         3         4         5         6
-!  1234567890123456789012345678901234567890123456789012345678901234567
-!  0001 -22  2.9 1081 :  EA2AGZ IK4WLV -16                     q0
-!  110  101   2  1814  2.9  -11 # QRZ HB9Q JN47          1    0   30 H
-  nsnr0=-99
-  line2=' '
-  rewind 24
-
-  do i=1,8
-     read(24,1002,end=100) line
-1002 format(a62)
-     if(line(1:4).eq.'<Dec') cycle
-     read(line,1010) nsnr,xdt,nfreq,msg40
-1010 format(4x,i4,f5.1,i5,4x,a40)
-     nfreq=nfreq+mousedf
-     if(nsnr.gt.nsnr0) then
-        ipol0=(i/2)*45
-        nsnr0=nsnr
-        write(line2,1020) ikhz,nfreq-1000,ipol0,nutc,xdt,nsnr0,msg40(1:27),msg40(39:40)
-1020    format('!',i3.3,i5,i4,i6.4,f5.1,i5,' : ',a27,a2)
-        nsnr0=nsnr
-        freq0=144.0 + 0.001*ikhz
-        nfreq0=nfreq-1000
-        xdt0=xdt
+          mycall,hiscall,hisgrid)
+!     print*,'bbb',ipol,nsnr0,xdt0,nfreq0,msg0,cq0
+     if(nsnr0.gt.nsnr1) then
+        nsnr1=nsnr0
+        xdt1=xdt0
+        nfreq1=nfreq0
+        msg1=msg0
+        cq1=cq0
+        ipol1=45*ipol
      endif
   enddo
-  
-100 if(nsnr0.gt.-40) then
-     write(*,1100) trim(line2)
+
+  nfreq=nfreq1+mousedf-1000
+  write(line,1020) ikhz,nfreq,ipol1,nutc,xdt1,nsnr1,msg1(1:27),cq1
+1020 format('!',i3.3,i5,i4,i6.4,f5.1,i5,' : ',a27,a3)
+  freq0=144.0 + 0.001*ikhz
+  write(*,1100) trim(line)
 1100 format(a)
 
 ! Should write to lu 26 here, for Messages and Band Map windows ?
@@ -129,10 +114,9 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
 !          nsnr0,nutc,msg40(1:22),' ',char(ichar('A') + mode_q65-1)
 !1014 format(f8.3,i5,3i3,f5.1,i4,i3,i4,i5.4,4x,a22,2x,a1,3x,':',a1)
 
-     write(21,1110)  freq0,nfreq0,xdt0,ipol0,nsnr0,nutc,msg40(1:28),msg40(39:40)
-1110 format(f8.3,i5,f5.1,2i4,i5.4,2x,a28,': A',2x,a2)
-  endif
-  close(24,status='delete')
+! Write to file map65_rx.log:
+  write(21,1110)  freq0,nfreq,xdt1,ipol1,nsnr1,nutc,msg1(1:28),cq1
+1110 format(f8.3,i5,f5.1,2i4,i5.4,2x,a28,': A',2x,a3)
   
 900 return
 end subroutine q65b
