@@ -19,8 +19,6 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   character*6 hisgrid
   character*4 grid4
   character*80 line
-  character*37 msg1
-  character*3 cq1
   character*80 wsjtx_dir
   common/cacb/ca,cb
   save
@@ -70,17 +68,20 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
 !   96000  5376000  0.017857143  336000   6000.000
 !   95238  5120000  0.018601172  322560   5999.994
 
+  ipol=1
+  if(xpol) then
 ! Get best ipol by referring to the "orange sync curve".
-  ff=ikhz+0.001*(mousedf+1270.459)              !supposed freq of sync tone
-  ifreq=nint(1000.0*(ff-77.0)*32768.0/96000.0)  !Freq index into ss(4,322,32768)
-  dff=96000.0/32768.0
-  ia=nint(ifreq-ntol/dff)
-  ib=nint(ifreq+ntol/dff)
-  ipk1=maxloc(sync_dat(ia:ib,2))
-  ipk=ia+ipk1(1)-1
-  ipol=nint(sync_dat(ipk,4))
-
-  nsnr1=-99
+     nkhz_center=nint(1000.0*(fcenter-int(fcenter)))
+     ff=ikhz+0.001*(mousedf+1270.459)              !supposed freq of sync tone
+     ifreq=nint(1000.0*(ff-nkhz_center+48)*32768.0/96000.0)  !Freq index into ss(4,322,32768)
+     dff=96000.0/32768.0
+     ia=nint(ifreq-ntol/dff)
+     ib=nint(ifreq+ntol/dff)
+     ipk1=maxloc(sync_dat(ia:ib,2))
+     ipk=ia+ipk1(1)-1
+     ipol=nint(sync_dat(ipk,4))
+  endif
+  
   if(ipol.eq.1) cz(0:MAXFFT2-1)=cx
   if(ipol.eq.2) cz(0:MAXFFT2-1)=0.707*(cx+cy)
   if(ipol.eq.3) cz(0:MAXFFT2-1)=cy
@@ -106,21 +107,14 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   call map65_mmdec(nutc,iwave,nsubmode,nfa,nfb,nfqso,ntol,newdat,nagain,  &
        mycall,hiscall,hisgrid)
   call timer('mmdec   ',1)
-  if(nsnr0.gt.nsnr1) then
-     nsnr1=nsnr0
-     xdt1=xdt0
-     nfreq1=nfreq0
-     msg1=msg0
-     cq1=cq0
-     ipol1=45*(ipol-1)
-  endif
 
-  nfreq=nfreq1+mousedf-1000
-  write(line,1020) ikhz,nfreq,ipol1,nutc,xdt1,nsnr1,msg1(1:27),cq1
-1020 format('!',i3.3,i5,i4,i6.4,f5.1,i5,' : ',a27,a3)
-  write(*,1100) trim(line)
-1100 format(a)
+  nfreq=nfreq0+mousedf-1000
   freq0=144.0 + 0.001*ikhz
+  if(nsnr0.gt.-99) then
+     write(line,1020) ikhz,nfreq,45*(ipol-1),nutc,xdt0,nsnr0,msg0(1:27),cq0
+1020 format('!',i3.3,i5,i4,i6.4,f5.1,i5,' : ',a27,a3)
+     write(*,1100) trim(line)
+1100 format(a)
 
 ! Should write to lu 26 here, for Messages and Band Map windows ?
 !     write(26,1014) freq0,nfreq0,0,0,0,xdt0,ipol0,0,                   &
@@ -128,8 +122,9 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
 !1014 format(f8.3,i5,3i3,f5.1,i4,i3,i4,i5.4,4x,a22,2x,a1,3x,':',a1)
 
 ! Write to file map65_rx.log:
-  write(21,1110)  freq0,nfreq,xdt1,ipol1,nsnr1,nutc,msg1(1:28),cq1
+     write(21,1110)  freq0,nfreq,xdt0,45*(ipol-1),nsnr0,nutc,msg0(1:28),cq0
 1110 format(f8.3,i5,f5.1,2i4,i5.4,2x,a28,': A',2x,a3)
+  endif
 
 900 close(13)
   close(14)

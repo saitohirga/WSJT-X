@@ -3,11 +3,11 @@ program m65
 ! Decoder for map65.  Can run stand-alone, reading data from *.tf2 files;
 ! or as the back end of map65, with data placed in a shared memory region.
 
+  use wideband_sync
   use timer_module, only: timer
   use timer_impl, only: init_timer, fini_timer
 
   parameter (NSMAX=60*96000)
-  parameter (NFFT=32768)
   parameter (NREAD=2048)
   integer*2 i2(NREAD)
   real*8 hsym
@@ -77,13 +77,15 @@ program m65
   ntol=100
   nkeep=10         !???
   mousefqso=140    !For IK4WLV in 210220_1814.tf2
-  mousedf=79
+  mousedf=0
   nfcal=0
+  nkhz_center=125
 
   if(nxpol.eq.0) then
      nfa=55        !For KA1GT files
      nfb=143
-     mousefqso=70  !W2HRO signal
+     mousefqso=69  !W2HRO signal
+     nkhz_center=100
   endif
 
   call ftninit('.')

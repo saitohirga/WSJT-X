@@ -19,9 +19,11 @@ subroutine decode0(dd,ss,savg,nstandalone)
 
   call timer('decode0 ',0)
 
-  call timer('wb_sync ',0)
-  call wb_sync(ss,savg)
-  call timer('wb_sync ',1)
+  if(nxpol.eq.1) then
+     call timer('wb_sync ',0)
+     call wb_sync(ss,savg)
+     call timer('wb_sync ',1)
+  endif
 
   if(newdat.ne.0) then
      nz=52*96000
