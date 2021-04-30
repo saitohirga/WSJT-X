@@ -13,7 +13,7 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   complex cx(0:MAXFFT2-1),cy(0:MAXFFT2-1),cz(0:MAXFFT2)
   logical xpol
   integer ipk1(1)
-  real*8 fcenter
+  real*8 fcenter,freq0
   character*12 mycall0,hiscall0
   character*12 mycall,hiscall
   character*6 hisgrid
@@ -31,6 +31,18 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   if(hiscall0(1:1).ne.' ') hiscall=hiscall0
   if(hisgrid(1:4).ne.'    ') grid4=hisgrid(1:4)
 
+! Find best frequency and  ipol from sync_dat, the "orange sync curve".
+  ff=ikhz+0.001*(mousedf+1270.459)              !supposed freq of sync tone
+  ifreq=nint(1000.0*(ff-nkhz_center+48)*32768.0/96000.0)  !Freq index into ss(4,322,32768)
+  dff=96000.0/32768.0
+  ia=nint(ifreq-ntol/dff)
+  ib=nint(ifreq+ntol/dff)
+  ipk1=maxloc(sync_dat(ia:ib,2))
+  ipk=ia+ipk1(1)-1
+  ipol=1
+  if(xpol) ipol=nint(sync_dat(ipk,4))
+  nhz=nint((ipk-ifreq)*dff)
+
   nfft1=MAXFFT1
   nfft2=MAXFFT2
   df=96000.0/NFFT1
@@ -41,7 +53,7 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   endif
   nh=nfft2/2
   ikhz0=nint(1000.0*(fcenter-int(fcenter)))
-  k0=((ikhz-ikhz0+48.0+0.27)*1000.0+nfcal+mousedf)/df
+  k0=((ikhz-ikhz0+48.0+0.270)*1000.0+nfcal+mousedf+nhz)/df  !0.270 = 1.270-1.000
   if(k0.lt.nh .or. k0.gt.nfft1-nh) go to 900
 
   fac=1.0/nfft2
@@ -65,20 +77,6 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
 !   96000  5376000  0.017857143  336000   6000.000
 !   95238  5120000  0.018601172  322560   5999.994
 
-  ipol=1
-  if(xpol) then
-! Get best ipol by referring to the "orange sync curve".
-     nkhz_center=nint(1000.0*(fcenter-int(fcenter)))
-     ff=ikhz+0.001*(mousedf+1270.459)              !supposed freq of sync tone
-     ifreq=nint(1000.0*(ff-nkhz_center+48)*32768.0/96000.0)  !Freq index into ss(4,322,32768)
-     dff=96000.0/32768.0
-     ia=nint(ifreq-ntol/dff)
-     ib=nint(ifreq+ntol/dff)
-     ipk1=maxloc(sync_dat(ia:ib,2))
-     ipk=ia+ipk1(1)-1
-     ipol=nint(sync_dat(ipk,4))
-  endif
-  
   if(ipol.eq.1) cz(0:MAXFFT2-1)=cx
   if(ipol.eq.2) cz(0:MAXFFT2-1)=0.707*(cx+cy)
   if(ipol.eq.3) cz(0:MAXFFT2-1)=cy
@@ -93,21 +91,25 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   enddo
   iwave(2*nfft2+1:)=0
   nsubmode=mode_q65-1
-  nfa=300
-  nfb=2883
-  nfqso=1000 + mousedf
+  nfa=max(100,1000-ntol)
+  nfb=min(4900,1000+ntol)
   newdat=1
   nagain=0
   nsnr0=-99             !Default snr for no decode
 
   call timer('mmdec   ',0)
-  call map65_mmdec(nutc,iwave,nsubmode,nfa,nfb,nfqso,ntol,newdat,nagain,  &
+  call map65_mmdec(nutc,iwave,nsubmode,nfa,nfb,1000+mousedf,ntol,newdat,nagain,  &
        mycall,hiscall,hisgrid)
   call timer('mmdec   ',1)
 
-  nfreq=nfreq0+mousedf-1000
+
+  nfreq=nfreq0 + nhz + mousedf - 1000
   freq0=144.0 + 0.001*ikhz
   if(nsnr0.gt.-99) then
+!     write(71,3071) mousedf,ntol,ia,ib,ifreq,ipk,ikhz,nfreq,nsnr0,xdt0,freq0,trim(msg0)
+!3071 format(9i6,f6.2,f9.3,1x,a)
+!     write(72,3072) mousedf,nfa,nfb,nfreq,ifreq,ipk,ipk-ifreq,nhz,(ipk-ifreq)*dff
+!3072 format(8i6,f7.1)
      write(line,1020) ikhz,nfreq,45*(ipol-1),nutc,xdt0,nsnr0,msg0(1:27),cq0
 1020 format('!',i3.3,i5,i4,i6.4,f5.1,i5,' : ',a27,a3)
      write(*,1100) trim(line)
@@ -124,7 +126,6 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   endif
 
 900 close(13)
-  close(14)
   close(17)
   write(*,1900)
 1900 format('<DecodeFinished>')

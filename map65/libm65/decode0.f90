@@ -19,11 +19,10 @@ subroutine decode0(dd,ss,savg,nstandalone)
 
   call timer('decode0 ',0)
 
-  if(nxpol.eq.1) then
-     call timer('wb_sync ',0)
-     call wb_sync(ss,savg)
-     call timer('wb_sync ',1)
-  endif
+  nkhz_center=nint(1000.0*(fcenter-int(fcenter)))
+  call timer('wb_sync ',0)
+  call wb_sync(ss,savg)
+  call timer('wb_sync ',1)
 
   if(newdat.ne.0) then
      nz=52*96000

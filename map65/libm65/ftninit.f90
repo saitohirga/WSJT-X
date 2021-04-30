@@ -1,25 +1,3 @@
-! Fortran logical units used in WSJT6
-!
-!   10  binary input data, *.tf2 files
-!   11  prefixes.txt
-!   12
-!   13  map65.log
-!   14  
-!   15  
-!   16
-!   17  saved *.tf2 files
-!   18  test file to be transmitted (wsjtgen.f90)
-!   19  livecq.txt
-!   20  
-!   21  map65_rx.log
-!   22  
-!   23  CALL3.TXT
-!   24  
-!   25  
-!   26  tmp26.txt
-!   27  
-!   28  fftw_wisdom.dat
-!------------------------------------------------ ftn_init
 subroutine ftninit(appd)
 
   use timer_module, only: timer

@@ -54,15 +54,14 @@ subroutine wb_sync(ss,savg)
         enddo  ! lag
      enddo  !ipol
 
-     fkhz=0.001*i*df + 125.0 - 48.0
-     if(nkhz_center.eq.100) fkhz=fkhz-35.0    !### Why 35 ???  ###
+     fkhz=0.001*i*df + nkhz_center - 48.0
      xdt=lagbest*tstep-1.0
      sync_dat(i,1)=fkhz
      sync_dat(i,2)=ccfmax
      sync_dat(i,3)=xdt
      sync_dat(i,4)=ipolbest
-     write(14,3010) i,sync_dat(i,1:3),nint(sync_dat(i,4))
-3010 format(i6,3f10.3,i5)
+!     write(14,3010) i,sync_dat(i,1:3),nint(sync_dat(i,4)),0.001*i*df,nkhz_center
+!3010 format(i6,3f10.3,i5,f10.3,i5)
 
   enddo
 
