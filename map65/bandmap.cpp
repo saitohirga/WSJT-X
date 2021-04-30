@@ -1,6 +1,6 @@
 #include "bandmap.h"
 #include "ui_bandmap.h"
-#include "../qt_helpers.hpp"
+#include "qt_helpers.hpp"
 #include <QDebug>
 
 BandMap::BandMap(QWidget *parent) :

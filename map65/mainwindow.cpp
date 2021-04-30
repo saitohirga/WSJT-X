@@ -1,5 +1,6 @@
 //------------------------------------------------------------------ MainWindow
 #include "mainwindow.h"
+#include "revision_utils.hpp"
 #include "ui_mainwindow.h"
 #include "devsetup.h"
 #include "plotter.h"
@@ -31,8 +32,6 @@ Messages*  g_pMessages = NULL;
 BandMap*   g_pBandMap = NULL;
 TxTune*    g_pTxTune = NULL;
 QSharedMemory mem_m65("mem_m65");
-
-QString Program_Title_Version="  MAP65 3.0.0-devel   by K1JT, G4WJS, K9AN, and IV3NWV";
 
 extern const int RxDataFrequency = 96000;
 extern const int TxDataFrequency = 11025;
@@ -92,7 +91,7 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(ui->decodedTextBrowser,SIGNAL(selectCallsign(bool)),this,
           SLOT(selectCall2(bool)));
 
-  setWindowTitle(Program_Title_Version);
+  setWindowTitle (program_title ());
 
   connect(&soundInThread, SIGNAL(readyForFFT(int)),
              this, SLOT(dataSink(int)));
@@ -782,7 +781,7 @@ void MainWindow::on_actionBlue_triggered()
 
 void MainWindow::on_actionAbout_triggered()                  //Display "About"
 {
-  CAboutDlg dlg(this,Program_Title_Version);
+  CAboutDlg dlg(this);
   dlg.exec();
 }
 

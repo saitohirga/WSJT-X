@@ -1,7 +1,7 @@
 #include "messages.h"
 #include "ui_messages.h"
 #include "mainwindow.h"
-#include "../qt_helpers.hpp"
+#include "qt_helpers.hpp"
 
 Messages::Messages(QWidget *parent) :
   QDialog(parent),
