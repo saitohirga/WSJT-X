@@ -53,7 +53,7 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   endif
   nh=nfft2/2
   ikhz0=nint(1000.0*(fcenter-int(fcenter)))
-  k0=((ikhz-ikhz0+48.0+0.270)*1000.0+nfcal+mousedf+nhz)/df  !0.270 = 1.270-1.000
+  k0=(1000*(ikhz-ikhz0+48.0) + 1270 - 1000 + nfcal + mousedf + nhz)/df
   if(k0.lt.nh .or. k0.gt.nfft1-nh) go to 900
 
   fac=1.0/nfft2
