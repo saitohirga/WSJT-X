@@ -1,6 +1,14 @@
 subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
      mycall0,hiscall0,hisgrid,mode_q65)
 
+! This routine provides an interface between MAP65 and the Q65 decoder
+! in WSJT-X.  All arguments are input data obtained from the MAP65 GUI.
+! Raw Rx data are available as the 96 kHz complex spectrum ca(MAXFFT1)
+! in common/cacb.  If xpol is true, we also have cb(MAXFFT1) for the
+! orthogonal polarization.  Decoded messages are sent back to the GUI
+! on stdout.
+
+!  use wavhdr
   use q65_decode
   use wideband_sync
   use timer_module, only: timer
@@ -8,6 +16,7 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   parameter (MAXFFT1=5376000)              !56*96000
   parameter (MAXFFT2=336000)               !56*6000 (downsampled by 1/16)
   parameter (NMAX=60*12000)
+!  type(hdr) h                            !Header for the .wav file
   integer*2 iwave(60*12000)
   complex ca(MAXFFT1),cb(MAXFFT1)          !FFTs of raw x,y data
   complex cx(0:MAXFFT2-1),cy(0:MAXFFT2-1),cz(0:MAXFFT2)
@@ -24,7 +33,7 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   save
 
   open(9,file='wsjtx_dir.txt',status='old')
-  read(9,'(a)') wsjtx_dir
+  read(9,'(a)') wsjtx_dir                      !Establish the working directory
   close(9)
 
   if(mycall0(1:1).ne.' ') mycall=mycall0
@@ -57,12 +66,10 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   if(k0.lt.nh .or. k0.gt.nfft1-nh) go to 900
 
   fac=1.0/nfft2
-  cx(0:nh)=ca(k0:k0+nh)
-  cx(nh+1:nfft2-1)=ca(k0-nh+1:k0-1)
+  cx(0:nfft2-1)=ca(k0:k0+nfft2-1)
   cx=fac*cx
   if(xpol) then
-     cy(0:nh)=cb(k0:k0+nh)
-     cy(nh+1:nfft2-1)=cb(k0-nh+1:k0-1)
+     cy(0:nfft2-1)=cb(k0:k0+nfft2-1)
      cy=fac*cy
   endif
 
@@ -82,14 +89,32 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   if(ipol.eq.3) cz(0:MAXFFT2-1)=cy
   if(ipol.eq.4) cz(0:MAXFFT2-1)=0.707*(cx-cy)
   cz(MAXFFT2)=0.
+! Roll off below 500 Hz and above 2500 Hz.
+  ja=nint(500.0/df)
+  jb=nint(2500.0/df)
+  do i=0,ja
+     r=0.5*(1.0+cos(i*3.14159/ja))
+     cz(ja-i)=r*cz(ja-i)
+     cz(jb+i)=r*cz(jb+i)
+  enddo
+ cz(ja+jb+1:)=0.
+
 !Transform to time domain (real), fsample=12000 Hz
   call four2a(cz,2*nfft2,1,1,-1)
   do i=0,nfft2-1
      j=nfft2-1-i
-     iwave(2*i+1)=nint(real(cz(j)))
-     iwave(2*i+2)=nint(aimag(cz(j)))
+     iwave(2*i+2)=nint(real(cz(j)))       !Note the reversed order!
+     iwave(2*i+1)=nint(aimag(cz(j)))
   enddo
   iwave(2*nfft2+1:)=0
+
+!###
+!  h=default_header(12000,NMAX)  
+!  open(60,file='000000_0001.wav',access='stream',status='unknown')
+!  write(60) h,iwave
+!  close(60)
+!###
+
   nsubmode=mode_q65-1
   nfa=max(100,1000-ntol)
   nfb=min(4900,1000+ntol)
@@ -106,10 +131,6 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   nfreq=nfreq0 + nhz + mousedf - 1000
   freq0=144.0 + 0.001*ikhz
   if(nsnr0.gt.-99) then
-!     write(71,3071) mousedf,ntol,ia,ib,ifreq,ipk,ikhz,nfreq,nsnr0,xdt0,freq0,trim(msg0)
-!3071 format(9i6,f6.2,f9.3,1x,a)
-!     write(72,3072) mousedf,nfa,nfb,nfreq,ifreq,ipk,ipk-ifreq,nhz,(ipk-ifreq)*dff
-!3072 format(8i6,f7.1)
      write(line,1020) ikhz,nfreq,45*(ipol-1),nutc,xdt0,nsnr0,msg0(1:27),cq0
 1020 format('!',i3.3,i5,i4,i6.4,f5.1,i5,' : ',a27,a3)
      write(*,1100) trim(line)
