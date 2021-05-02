@@ -1417,6 +1417,11 @@ void MainWindow::readFromStdout()                             //readFromStdout
         m_bandmapText += q;
       }
     }
+    if(t.indexOf("#") >= 0) {
+      int n=t.size();
+      qDebug() << t.mid(1,n-3).trimmed();
+    }
+
   }
 }
 
