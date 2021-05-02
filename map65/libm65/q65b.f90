@@ -51,6 +51,7 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   ipol=1
   if(xpol) ipol=nint(sync_dat(ipk,4))
   nhz=nint((ipk-ifreq)*dff)
+  snr1=sync_dat(ipk,2)
 
   nfft1=MAXFFT1
   nfft2=MAXFFT2
@@ -62,8 +63,11 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   endif
   nh=nfft2/2
   ikhz0=nint(1000.0*(fcenter-int(fcenter)))
-  k0=(1000*(ikhz-ikhz0+48.0) + 1270 - 1000 + nfcal + mousedf + nhz)/df
+!  k0=(1000*(ikhz-ikhz0+48.0) + 1270 - 1000 + nfcal + mousedf + nhz)/df
+  k0=nint((ipk*dff-1000.0)/df)
+!  print*,'#',snr1,ipk*dff,k0*df
   if(k0.lt.nh .or. k0.gt.nfft1-nh) go to 900
+  if(snr1.lt.2.0) go to 900
 
   fac=1.0/nfft2
   cx(0:nfft2-1)=ca(k0:k0+nfft2-1)
@@ -123,13 +127,15 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   nsnr0=-99             !Default snr for no decode
 
   call timer('mmdec   ',0)
-  call map65_mmdec(nutc,iwave,nsubmode,nfa,nfb,1000+mousedf,ntol,newdat,nagain,  &
-       mycall,hiscall,hisgrid)
+  call map65_mmdec(nutc,iwave,nsubmode,nfa,nfb,1000+mousedf,ntol,     &
+       newdat,nagain,mycall,hiscall,hisgrid)
   call timer('mmdec   ',1)
-
 
   nfreq=nfreq0 + nhz + mousedf - 1000
   freq0=144.0 + 0.001*ikhz
+!  write(*,3001) nfa,nfb,mousedf,ntol,newdat,nagain,nhz,nsnr0,  &
+!       0.001*ipk*dff,0.001*ifreq*dff,0.001*k0*df
+!3001 format('#',8i5,3f10.4)
   if(nsnr0.gt.-99) then
      write(line,1020) ikhz,nfreq,45*(ipol-1),nutc,xdt0,nsnr0,msg0(1:27),cq0
 1020 format('!',i3.3,i5,i4,i6.4,f5.1,i5,' : ',a27,a3)
