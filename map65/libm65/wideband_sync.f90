@@ -43,9 +43,9 @@ subroutine wb_sync(ss,savg)
            ccf=0.
            do j=1,22
               k=isync(j) + lag
-              ccf=ccf + ss(ipol,k,i) 
+              ccf=ccf + ss(ipol,k,i+1) 
            enddo
-           ccf=ccf - savg(ipol,i)*22.0/322.0
+           ccf=ccf - savg(ipol,i+1)*22.0/322.0
            if(ccf.gt.ccfmax) then
               ipolbest=ipol
               lagbest=lag
@@ -60,8 +60,9 @@ subroutine wb_sync(ss,savg)
      sync_dat(i,2)=ccfmax
      sync_dat(i,3)=xdt
      sync_dat(i,4)=ipolbest
-!     write(14,3010) i,sync_dat(i,1:3),nint(sync_dat(i,4)),0.001*i*df,nkhz_center
-!3010 format(i6,3f10.3,i5,f10.3,i5)
+!     f0=0.001*i*df
+!     write(70,3010) f0,sync_dat(i,2:3),nint(sync_dat(i,4)),0.001*i*df,nkhz_center
+!3010 format(3f10.3,i5,f10.3,i5)
 
   enddo
 
