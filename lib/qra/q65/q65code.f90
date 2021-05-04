@@ -134,12 +134,12 @@ subroutine get_q65crc12(mc2,ncrc1,ncrc2)
    character c12*12,c6*6
    integer*1 mc(90),mc2(90),tmp(6)
    integer*1 r(13),p(13)
-   integer ncrc,nnn
+   integer ncrc
 ! polynomial for 12-bit CRC 0xF01
    data p/1,1,0,0,0,0,0,0,0,1,1,1,1/
 
 ! flip bit order of each 6-bit symbol for consistency with Nico's calculation
-   do i=0,12
+   do i=0,14
       tmp=mc2(i*6+1:i*6+6)
       mc(i*6+1:i*6+6)=tmp(6:1:-1)
    enddo
@@ -158,6 +158,7 @@ subroutine get_q65crc12(mc2,ncrc1,ncrc2)
    write(c6,'(6b1)') r(12:7:-1)
    read(c6,'(b6.6)') ncrc2
    read(c6,'(6b1)') mc2(85:90)
+
 end subroutine get_q65crc12
 
 program q65code
