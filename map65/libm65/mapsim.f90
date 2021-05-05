@@ -9,9 +9,31 @@ program mapsim
   complex cwave(NMAX)                 !Generated complex waveform (no noise)
   complex z,zx,zy
   real*8 fcenter,fsample,samfac,f,dt,twopi,phi,dphi
-  character msg0*22,message*22,msgsent*22,arg*8,fname*13,mode*2
   logical bq65
-
+  character msg0*22,message*22,msgsent*22,arg*8,fname*13,mode*2
+  character*16 msg_list(60)
+  data ilist/0/,msg_list/                                          &
+       'W1AAA K2BBB EM00','W2CCC K3DDD EM01','W3EEE K4FFF EM02',   &
+       'W5GGG K6HHH EM03','W7III K8JJJ EM04','W9KKK K0LLL EM05',   &
+       'G0MMM F1NNN JN06','G2OOO F3PPP JN07','G4QQQ F5RRR JN08',   &
+       'G6SSS F7TTT JN09','W1XAA K2XBB EM10','W2XCC K3XDD EM11',   &
+       'W3XEE K4XFF EM12','W5XGG K6XHH EM13','W7XII K8XJJ EM14',   &
+       'W9XKK K0XLL EM15','G0XMM F1XNN JN16','G2XOO F3XPP JN17',   &
+       'G4XQQ F5XRR JN18','G6XSS F7XTT JN19','W1YAA K2YBB EM20',   &
+       'W2YCC K3YDD EM21','W3YEE K4YFF EM22','W5YGG K6YHH EM23',   &
+       'W7YII K8YJJ EM24','W9YKK K0YLL EM25','G0YMM F1YNN JN26',   &
+       'G2YOO F3YPP JN27','G4YQQ F5YRR JN28','G6YSS F7YTT JN29',   &
+       'W1ZAA K2ZBB EM30','W2ZCC K3ZDD EM31','W3ZEE K4ZFF EM32',   &
+       'W5ZGG K6ZHH EM33','W7ZII K8ZJJ EM34','W9ZKK K0ZLL EM35',   &
+       'G0ZMM F1ZNN JN36','G2ZOO F3ZPP JN37','G4ZQQ F5ZRR JN38',   &
+       'G6ZSS F7ZTT JN39','W1AXA K2BXB EM40','W2CXC K3DXD EM41',   &
+       'W3EXE K4FXF EM42','W5GXG K6HXH EM43','W7IXI K8JXJ EM44',   &
+       'W9KXK K0LXL EM45','G0MXM F1NXN JN46','G2OXO F3PXP JN47',   &
+       'G4QXQ F5RXR JN48','G6SXS F7TXT JN49','W1AYA K2BYB EM50',   &
+       'W2CYC K3DYD EM51','W3EYE K4FYF EM52','W5GYG K6HYH EM53',   &
+       'W7IYI K8JYJ EM54','W9KYK K0LYL EM55','G0MYM F1NYN JN56',   &
+       'G2OYO F3PYP JN57','G4QYQ F5RYR JN58','G6SYS F7TYT JN59'/
+  
   nargs=iargc()
   if(nargs.ne.10) then
      print*,'Usage:   mapsim "message"     mode DT  fa fb nsigs pol fDop SNR nfiles'
@@ -20,14 +42,13 @@ program mapsim
      print*,'         mode = A B C for JT65; QA-QE for Q65-60A' 
      print*,'         fa = lowest freq in kHz, relative to center'
      print*,'         fb = highest freq in kHz, relative to center'
-     print*,'         message = "" to use entries in msgs.txt.'
+     print*,'         message = "list" to use callsigns from list'
      print*,'         pol = -1 to generate a range of polarization angles.'
      print*,'         SNR = 0 to generate a range of SNRs.'
      go to 999
   endif
 
   call getarg(1,msg0)
-  message=msg0                       !Transmitted message
   call getarg(2,mode)                !JT65 sub-mode (A B C QA-QE)
   call getarg(3,arg)
   read(arg,*) dt0                    !Time delay
@@ -47,6 +68,7 @@ program mapsim
   call getarg(10,arg)
   read(arg,*) nfiles                 !Number of files
 
+  message=msg0                       !Transmitted message
   rmsdb=25.
   rms=10.0**(0.05*rmsdb)
   fcenter=144.125d0                  !Center frequency (MHz)
@@ -64,11 +86,9 @@ program mapsim
   if(mode(2:2).eq.'D') ntone_spacing=8
   if(mode(2:2).eq.'E') ntone_spacing=16
   npts=NMAX
-  open(12,file='msgs.txt',status='old')
 
   write(*,1000)
-1000 format('File N Mode  DT    freq   pol   fDop   SNR   Message'/    &
-            '--------------------------------------------------------------------')
+1000 format('File N Mode  DT    freq   pol   fDop   SNR   Message'/68('-'))
 
   do ifile=1,nfiles
      nmin=ifile-1
@@ -80,28 +100,28 @@ program mapsim
 
      call noisegen(d4,npts)                      !Generate Gaussuian noise
 
-     if(msg0.ne.'                      ') then
+     if(msg0(1:4).ne.'list') then
         if(bq65) then
-           call gen_q65_cwave(message,ntxfreq,ntone_spacing,msgsent,      &
+           call gen_q65_cwave(message,ntxfreq,ntone_spacing,msgsent,        &
                 cwave,nwave)
         else
-           call cgen65(message,ntone_spacing,samfac,nsendingsh,msgsent,  &
+           call cgen65(message,ntone_spacing,samfac,nsendingsh,msgsent,     &
                 cwave,nwave)
         endif
      endif
-     rewind 12
 
-     if(fdop.gt.0.0) call dopspread(cwave,nwave,fdop)
+     if(fdop.gt.0.0) call dopspread(cwave,fdop)
 
      do isig=1,nsigs
 
-        if(msg0.eq.'                      ') then
-           read(12,1004) message
-1004       format(a22)
+        if(msg0(1:4).eq.'list') then
+           ilist=ilist+1
+           message=msg_list(ilist)
            if(bq65) then
-           call gen_q65_cwave(msg,ntxfreq,mode65,msgsent,cwave,nwave)
+              call gen_q65_cwave(message,ntxfreq,ntone_spacing,msgsent,     &
+                   cwave,nwave)
            else
-              call cgen65(message,ntone_spacing,samfac,nsendingsh,msgsent,    &
+              call cgen65(message,ntone_spacing,samfac,nsendingsh,msgsent,  &
                    cwave,nwave)
            endif
         endif
@@ -155,7 +175,7 @@ program mapsim
 
 999 end program mapsim
 
-subroutine dopspread(cwave,nwave,fspread)
+subroutine dopspread(cwave,fspread)
 
   parameter (NMAX=60*96000)
   parameter (NFFT=NMAX,NH=NFFT/2)
