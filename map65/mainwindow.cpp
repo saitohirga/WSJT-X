@@ -115,7 +115,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
   QTimer *guiTimer = new QTimer(this);
   connect(guiTimer, SIGNAL(timeout()), this, SLOT(guiUpdate()));
-  guiTimer->start(100);                            //Don't change the 100 ms!
 
   m_auto=false;
   m_waterfallAvg = 1;
@@ -291,7 +290,11 @@ MainWindow::MainWindow(QWidget *parent) :
   if(ui->actionCuteSDR->isChecked()) on_actionCuteSDR_triggered();
   if(ui->actionAFMHot->isChecked()) on_actionAFMHot_triggered();
   if(ui->actionBlue->isChecked()) on_actionBlue_triggered();
-                                             // End of MainWindow constructor
+
+  // only start the guiUpdate timer after this constructor has finished
+  QTimer::singleShot (0, [=] {
+                           guiTimer->start(100); //Don't change the 100 ms!
+                         });
 }
 
   //--------------------------------------------------- MainWindow destructor
