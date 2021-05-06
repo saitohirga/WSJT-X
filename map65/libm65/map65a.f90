@@ -359,7 +359,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
         flush(6)
      endif
      if(nqd.eq.2 .and. mode65.eq.0) go to 999
-     if(nagain.eq.1 .and. nqd.eq.1) go to 999
+     if(nqd.eq.1 .and. nagain.eq.1) go to 999
   enddo
 
 !  Trim the list and produce a sorted index and sizes of groups.
@@ -469,6 +469,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
      endif
      j=j+nsiz(n)
   enddo  !i=1,km
+
   write(26,1015) nutc
 1015 format(37x,i6.4,' ')
   call flush(21)
