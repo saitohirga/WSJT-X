@@ -41,7 +41,7 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   if(hisgrid(1:4).ne.'    ') grid4=hisgrid(1:4)
 
 ! Find best frequency and  ipol from sync_dat, the "orange sync curve".
-  ff=ikhz+0.001*(mousedf+1270.459)              !supposed freq of sync tone
+  ff=ikhz+0.001*(mousedf+nfcal+1270.459)           !supposed freq of sync tone
   ifreq=nint(1000.0*(ff-nkhz_center+48)*32768.0/96000.0)  !Freq index into ss(4,322,32768)
   dff=96000.0/32768.0
   ia=nint(ifreq-ntol/dff)
