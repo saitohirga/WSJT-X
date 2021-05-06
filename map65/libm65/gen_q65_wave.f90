@@ -1,6 +1,6 @@
 subroutine gen_q65_wave(msg,ntxfreq,mode65,msgsent,iwave,nwave)
 
-! Encodes a QRA64 message to yield complex iwave() at fsample = 11025 Hz
+! Encodes a Q65 message to yield complex iwave() at fsample = 11025 Hz
 
   use packjt
   use q65_encoding
