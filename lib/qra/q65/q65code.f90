@@ -111,6 +111,10 @@ module q65_generator
 
 end module q65_generator
 
+module q65_encoding
+
+contains
+
 subroutine q65_encode(message,codeword)
    use gf64math
    use q65_generator
@@ -161,33 +165,26 @@ subroutine get_q65crc12(mc2,ncrc1,ncrc2)
 
 end subroutine get_q65crc12
 
-program q65code
-
+subroutine get_q65_tones(msg37,codeword,itone)
    use packjt77
-
    implicit none
-   character msg*37,msgsent*27,arg*12,c12*12,c6*6
+   character*37 msg37
+   character*77 c77
+   character*12 c12
+   character*6  c6
+   integer codeword(65)
+   integer sync(22)
    integer message(15)
-   integer codeword(65), shortcodeword(63)
-   integer isync(22)
+   integer shortcodeword(63)
    integer itone(85)
    integer i,j,k
-   integer nargs,ncrc1,ncrc2,ncrc
-   integer i3,n3
    integer*1 mbits(90)
-   integer msymbols(15)
-   character*77 c77
-   data isync/1,9,12,13,15,22,23,26,27,33,35,38,46,50,55,60,62,66,69,74,76,85/
-   nargs=iargc()
-   if(nargs .ne. 1) then
-      print*,'Usage: q65sf "msg"'
-      goto 999
-   endif
-   call getarg(1,msg)
+   integer i3,n3,ncrc1,ncrc2
+   data sync/1,9,12,13,15,22,23,26,27,33,35,38,46,50,55,60,62,66,69,74,76,85/
 
    i3=-1
    n3=-1
-   call pack77(msg,i3,n3,c77)
+   call pack77(msg37,i3,n3,c77)
    mbits=0
    read(c77,'(77i1)') mbits(1:77)
 
@@ -205,13 +202,6 @@ program q65code
 ! Encode to create a 65-symbol codeword
    call q65_encode(message,codeword)
 
-   write(*,*) 'Generated message plus CRC (90 bits)'
-   write(*,'(a8,15i4)') '6 bit : ',message
-   write(*,'(a8,90i1)') 'binary: ',mbits
-   write(*,*) ' '
-   write(*,*) 'Codeword with CRC symbols (65 symbols)'
-   write(*,'(20i3)') codeword
-
 !Shorten the codeword by omitting the CRC symbols (symbols 14 and 15)
    shortcodeword(1:13)=codeword(1:13)
    shortcodeword(14:63)=codeword(16:65)
@@ -220,7 +210,7 @@ program q65code
    j=1
    k=0
    do i=1,85
-      if(i.eq.isync(j)) then
+      if(i.eq.sync(j)) then
          j=j+1
          itone(i)=0
       else
@@ -228,9 +218,36 @@ program q65code
          itone(i)=shortcodeword(k)+1
       endif
    enddo
+end subroutine get_q65_tones
+
+end module q65_encoding
+
+program q65code
+   use q65_encoding
+
+   implicit none
+   character*37 msg37
+   integer nargs
+   integer codeword(65),tones(85)
+
+   nargs=iargc()
+   if(nargs .ne. 1) then
+      print*,'Usage: q65code "msg"'
+      goto 999
+   endif
+   call getarg(1,msg37)
+
+   call get_q65_tones(msg37,codeword,tones)
+
+   write(*,*) 'Generated message plus CRC (90 bits)'
+   write(*,'(a8,15i4)') '6 bit : ',codeword(1:15)
+   write(*,'(a8,15b6.6)') 'binary: ',codeword(1:15)
+   write(*,*) ' '
+   write(*,*) 'Codeword with CRC symbols (65 symbols)'
+   write(*,'(20i3)') codeword
 
    write(*,*) ' '
    write(*,*) 'Channel symbols (85 total)'
-   write(*,'(20i3)') itone
+   write(*,'(20i3)') tones
 
 999 end program q65code
