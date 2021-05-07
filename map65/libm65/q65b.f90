@@ -154,8 +154,6 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
 
 900 close(13)
   close(17)
-  write(*,1900)
-1900 format('<DecodeFinished>')
   call flush(6)
 
   return
