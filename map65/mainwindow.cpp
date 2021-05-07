@@ -2141,6 +2141,11 @@ void MainWindow::on_actionNoJT65_triggered()
 {
   m_mode65=0;
   m_modeJT65=0;
+  m_TRperiod=60;
+  soundInThread.setPeriod(m_TRperiod);
+  soundOutThread.setPeriod(m_TRperiod);
+  g_pWideGraph->setMode65(m_mode65);
+  g_pWideGraph->setPeriod(m_TRperiod);
   lab5->setStyleSheet("");
   lab5->setText("");
 }
