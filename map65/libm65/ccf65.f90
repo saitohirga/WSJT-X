@@ -110,7 +110,8 @@ subroutine ccf65(ss,nhsym,ssmax,sync1,ipol1,jpz,dt1,flipk,      &
      if(abs(lag-lagpk).gt.1) sq=sq + (ccf(lag,ipol1)-base)**2
   enddo
   rms=sqrt(sq/49.0)
-  sync1=ccfbest/rms - 4.0
+  sync1=-4.0
+  if(rms.gt.0.0) sync1=ccfbest/rms - 4.0
   dt1=lagpk*(2048.0/11025.0) - 2.5
 
 ! Find base level for normalizing snr2.
