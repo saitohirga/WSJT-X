@@ -41,16 +41,16 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   if(hisgrid(1:4).ne.'    ') grid4=hisgrid(1:4)
 
 ! Find best frequency and  ipol from sync_dat, the "orange sync curve".
-  ff=ikhz+0.001*(mousedf+nfcal+1270.459)           !supposed freq of sync tone
-  ifreq=nint(1000.0*(ff-nkhz_center+48)*32768.0/96000.0)  !Freq index into ss(4,322,32768)
-  dff=96000.0/32768.0
-  ia=nint(ifreq-ntol/dff)
-  ib=nint(ifreq+ntol/dff)
+  df3=96000.0/32768.0
+  ff=ikhz+0.001*(mousedf+nfcal+1270.459)       !Supposed freq of sync tone
+  ifreq=nint(1000.0*(ff-nkhz_center+48)/df3)   !Freq index into ss(4,322,32768)
+  ia=nint(ifreq-ntol/df3)
+  ib=nint(ifreq+ntol/df3)
   ipk1=maxloc(sync_dat(ia:ib,2))
   ipk=ia+ipk1(1)-1
   ipol=1
   if(xpol) ipol=nint(sync_dat(ipk,4))
-  nhz=nint((ipk-ifreq)*dff)
+  nhz=nint((ipk-ifreq)*df3)
   snr1=sync_dat(ipk,2)
 
   nfft1=MAXFFT1
@@ -63,9 +63,8 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   endif
   nh=nfft2/2
   ikhz0=nint(1000.0*(fcenter-int(fcenter)))
-!  k0=(1000*(ikhz-ikhz0+48.0) + 1270 - 1000 + nfcal + mousedf + nhz)/df
-  k0=nint((ipk*dff-1000.0)/df)
-!  print*,'#',snr1,ipk*dff,k0*df
+  k0=nint((ipk*df3-1000.0)/df)
+
   if(k0.lt.nh .or. k0.gt.nfft1-nh) go to 900
   if(snr1.lt.2.0) go to 900
 
@@ -127,15 +126,13 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   nsnr0=-99             !Default snr for no decode
 
   call timer('mmdec   ',0)
-  call map65_mmdec(nutc,iwave,nsubmode,nfa,nfb,1000+mousedf,ntol,     &
+! NB: Frequency of ipk is now shifted to 1000 Hz.
+  call map65_mmdec(nutc,iwave,nsubmode,nfa,nfb,1000,ntol,     &
        newdat,nagain,mycall,hiscall,hisgrid)
   call timer('mmdec   ',1)
 
   nfreq=nfreq0 + nhz + mousedf - 1000
   freq0=144.0 + 0.001*ikhz
-!  write(*,3001) nfa,nfb,mousedf,ntol,newdat,nagain,nhz,nsnr0,  &
-!       0.001*ipk*dff,0.001*ifreq*dff,0.001*k0*df
-!3001 format('#',8i5,3f10.4)
   if(nsnr0.gt.-99) then
      write(line,1020) ikhz,nfreq,45*(ipol-1),nutc,xdt0,nsnr0,msg0(1:27),cq0
 1020 format('!',i3.3,i5,i4,i6.4,f5.1,i5,' : ',a27,a3)
