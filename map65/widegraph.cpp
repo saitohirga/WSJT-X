@@ -15,8 +15,6 @@ WideGraph::WideGraph(QWidget *parent) :
   this->setMaximumHeight(880);
   ui->widePlot->setMaximumHeight(800);
   m_bIQxt=false;
-  ui->labFreq->setStyleSheet( \
-        "QLabel { background-color : black; color : yellow; }");
   connect(ui->widePlot, SIGNAL(freezeDecode1(int)),this,
           SLOT(wideFreezeDecode(int)));
 
@@ -60,7 +58,7 @@ void WideGraph::resizeEvent(QResizeEvent* )                    //resizeEvent()
   if(!size().isValid()) return;
   int w = size().width();
   int h = size().height();
-  ui->labFreq->setGeometry(QRect(w-160,h-100,131,41));
+  ui->labFreq->setGeometry(QRect(w-256,h-100,227,41));
 }
 
 void WideGraph::saveSettings()
@@ -372,8 +370,10 @@ void WideGraph::tx570()
 
 void WideGraph::updateFreqLabel()
 {
-  auto rxFreq = QString {"%1"}.arg (ui->widePlot->rxFreq (), 10, 'f', 6).insert (7, '.');
-  auto txFreq = QString {"%1"}.arg (ui->widePlot->txFreq (), 10, 'f', 6).insert (7, '.');
+  auto rxFreq = QString {"%1"}.arg (ui->widePlot->rxFreq (), 10, 'f', 6);
+  auto txFreq = QString {"%1"}.arg (ui->widePlot->txFreq (), 10, 'f', 6);
+  rxFreq.insert (rxFreq.size () - 3, '.');
+  txFreq.insert (txFreq.size () - 3, '.');
   ui->labFreq->setText (QString {"Rx:  %1\nTx:  %2"}.arg (rxFreq, txFreq));
 }
 
