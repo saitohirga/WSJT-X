@@ -125,7 +125,8 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
            if(nqd.lt.2) then
 !  Look for JT65 sync patterns and shorthand square-wave patterns.
               call timer('ccf65   ',0)
-              ssmax=smax
+              !              ssmax=smax
+              ssmax=1.e30
               call ccf65(ss(1,1,i),nhsym,ssmax,sync1,ipol,jpz,dt,     &
                    flipk,syncshort,snr2,ipol2,dt2)
               call timer('ccf65   ',1)
