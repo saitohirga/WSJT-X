@@ -71,6 +71,8 @@ private slots:
   void on_actionAstro_Data_triggered();
   void on_stopButton_clicked();
   void on_actionOnline_Users_Guide_triggered();
+  void on_actionQSG_Q65_triggered();
+  void on_actionQSG_MAP65_v3_triggered();
   void on_actionWide_Waterfall_triggered();
   void on_actionBand_Map_triggered();
   void on_actionMessages_triggered();

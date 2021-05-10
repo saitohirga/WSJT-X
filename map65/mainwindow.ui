@@ -1216,6 +1216,8 @@ p, li { white-space: pre-wrap; }
      <string>Help</string>
     </property>
     <addaction name="actionOnline_Users_Guide"/>
+    <addaction name="actionQSG_Q65"/>
+    <addaction name="actionQSG_MAP65_v3"/>
     <addaction name="actionKeyboard_shortcuts"/>
     <addaction name="actionSpecial_mouse_commands"/>
     <addaction name="actionAvailable_suffixes_and_add_on_prefixes"/>
@@ -1660,6 +1662,16 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Q65E</string>
+   </property>
+  </action>
+  <action name="actionQSG_Q65">
+   <property name="text">
+    <string>Quick-Start Guide to Q65</string>
+   </property>
+  </action>
+  <action name="actionQSG_MAP65_v3">
+   <property name="text">
+    <string>Quick-Start Guide to MAP65 3.0 and WSJT-X 2.5.0</string>
    </property>
   </action>
  </widget>

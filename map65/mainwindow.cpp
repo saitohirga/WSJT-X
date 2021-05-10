@@ -989,8 +989,18 @@ void MainWindow::stub()                                        //stub()
 void MainWindow::on_actionOnline_Users_Guide_triggered()      //Display manual
 {
   QDesktopServices::openUrl(QUrl(
-  "http://www.physics.princeton.edu/pulsar/K1JT/MAP65_Users_Guide.pdf",
+  "https://www.physics.princeton.edu/pulsar/K1JT/MAP65_Users_Guide.pdf",
                               QUrl::TolerantMode));
+}
+
+void MainWindow::on_actionQSG_Q65_triggered()
+{
+  QDesktopServices::openUrl (QUrl {"https://physics.princeton.edu/pulsar/k1jt/Q65_Quick_Start.pdf"});
+}
+
+void MainWindow::on_actionQSG_MAP65_v3_triggered()
+{
+  QDesktopServices::openUrl (QUrl {"https://physics.princeton.edu/pulsar/k1jt/MAP65_3.0_Quick_Start.pdf"});
 }
 
 void MainWindow::on_actionAstro_Data_triggered()             //Display Astro
