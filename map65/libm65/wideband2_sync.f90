@@ -17,7 +17,7 @@ subroutine wb2_sync(ss,savg,nfa,nfb)
   real savg(4,NFFT)
   logical first
   integer isync0(22)
-  integer jsync0(63)
+  integer jsync0(63),jsync1(63)
 ! Q65 sync symbols
   data isync0/1,9,12,13,15,22,23,26,27,33,35,38,46,50,55,60,62,66,69,74,76,85/
   data jsync0/                                                         &
@@ -25,14 +25,13 @@ subroutine wb2_sync(ss,savg,nfa,nfb)
        33, 34, 37, 38, 39, 40, 42, 43, 45, 46, 47, 48, 52, 53, 55, 57, &
        59, 60, 63, 64, 66, 68, 70, 73, 80, 81, 89, 90, 92, 95, 97, 98, &
        100,102,104,107,108,111,114,119,120,121,122,123,124,125,126/
+  data jsync1/                                                         &
+       2,  3,  6,  7,  8, 15, 17, 19, 20, 21, 23, 26, 27, 29, 30, 31,  &
+       35, 36, 41, 44, 49, 50, 51, 54, 56, 58, 61, 62, 65, 67, 69, 71, &
+       72, 74, 75, 76, 77, 78, 79, 82, 83, 84, 85, 86, 87, 88, 91, 93, &
+       94, 96, 99,101,103,105,106,109,110,112,113,115,116,117,118/
   data first/.true./
   save first
-
-  do j=322,1,-1
-     if(sum(ss(1,j,1:NFFT)).gt.0.0) exit
-  enddo
-  jz=j
-
 
   tstep=2048.0/11025.0        !0.185760 s: 0.5*tsym_jt65, 0.3096*tsym_q65
   if(first) then
@@ -42,9 +41,16 @@ subroutine wb2_sync(ss,savg,nfa,nfb)
      enddo
      do i=1,63
         jsync0(i)=2*(jsync0(i)-1) + 1
+        jsync1(i)=2*(jsync1(i)-1) + 1
      enddo
      first=.false.
   endif
+
+  do j=322,1,-1
+     if(sum(ss(1,j,1:NFFT)).gt.0.0) exit
+  enddo
+  jz=j
+
 
   df3=96000.0/NFFT
   ia=nint(1000*nfa/df3)          !Flat frequency range for WSE converters
@@ -91,6 +97,19 @@ subroutine wb2_sync(ss,savg,nfa,nfb)
               lagbest=lag
               ccfmax=ccf
               flip=1.0
+           endif
+
+           ccf=0.
+           do j=1,63
+              k=jsync1(j) + lag
+              ccf=ccf + ss(ipol,k,i+1) + ss(ipol,k+1,i+1)
+           enddo
+           ccf=ccf - savg(ipol,i+1)*2*63/float(jz)
+           if(ccf.gt.ccfmax) then
+              ipolbest=ipol
+              lagbest=lag
+              ccfmax=ccf
+              flip=-1.0
            endif
 
         enddo  ! lag
