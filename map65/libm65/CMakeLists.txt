@@ -1,6 +1,7 @@
 set (libm65_FSRCS
 # Modules come first:
   wideband_sync.f90
+  wideband2_sync.f90
 
 # Non-module Fortran routines:
   afc65b.f90
@@ -134,6 +135,9 @@ target_link_libraries (m65 m65impl ${FFTW3_LIBRARIES})
 
 add_executable (mapsim mapsim.f90)
 target_link_libraries (mapsim m65impl ${FFTW3_LIBRARIES})
+
+add_executable (synctest synctest.f90)
+target_link_libraries (synctest m65impl ${FFTW3_LIBRARIES})
 
 install (
   TARGETS m65 mapsim

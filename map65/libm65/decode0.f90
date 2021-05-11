@@ -19,6 +19,11 @@ subroutine decode0(dd,ss,savg,nstandalone)
 
   call timer('decode0 ',0)
 
+!###
+!  npol=1 + 3*nxpol
+!  write(50) nutc,npol,ss(1:npol,:,:),savg(1:npol,:)
+!###
+  
   nkhz_center=nint(1000.0*(fcenter-int(fcenter)))
   ntone_spacing=2**(nmode/10)
   call timer('wb_sync ',0)
