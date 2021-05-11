@@ -3,11 +3,12 @@ module wideband2_sync
   parameter (NFFT=32768)
   integer isync(22)
   integer nkhz_center
-  real sync_dat(NFFT,5)     !fkhz, ccfmax, xdt, ipol, flip
+  real sync_dat(NFFT,6)     !fkhz, ccfmax, xdt, ipol, flip
+  real savg_med(4)
 
   contains
-  
-subroutine wb2_sync(ss,savg,ntone_spacing)
+
+subroutine wb2_sync(ss,savg,nfa,nfb)
 
 ! Compute "orange sync curve" using the Q65 sync pattern
 
@@ -15,7 +16,6 @@ subroutine wb2_sync(ss,savg,ntone_spacing)
   real ss(4,322,NFFT)
   real savg(4,NFFT)
   logical first
-  character*1 c1
   integer isync0(22)
   integer jsync0(63)
 ! Q65 sync symbols
@@ -33,6 +33,7 @@ subroutine wb2_sync(ss,savg,ntone_spacing)
   enddo
   jz=j
 
+
   tstep=2048.0/11025.0        !0.185760 s: 0.5*tsym_jt65, 0.3096*tsym_q65
   if(first) then
      fac=0.6/tstep
@@ -45,11 +46,21 @@ subroutine wb2_sync(ss,savg,ntone_spacing)
      first=.false.
   endif
 
-  df=96000.0/NFFT
-  ia=nint(7000.0/df)          !Flat frequency range for WSE converters
-  ib=nint(89000.0/df)
-  lagbest=-1
-  ipolbest=-1
+  df3=96000.0/NFFT
+  ia=nint(1000*nfa/df3)          !Flat frequency range for WSE converters
+  ib=nint(1000*nfb/df3)
+
+  do i=1,4
+     call pctile(savg(i,ia:ib),ib-ia+1,50,savg_med(i))
+  enddo
+  do i=ia,ib
+     write(14,3014) 0.001*i*df3,savg(1:4,i)
+3014 format(5f10.3)
+  enddo
+
+  lagbest=0
+  ipolbest=1
+  flip=0.
 
   do i=ia,ib
      ccfmax=0.
@@ -85,13 +96,14 @@ subroutine wb2_sync(ss,savg,ntone_spacing)
         enddo  ! lag
      enddo  !ipol
 
-     fkhz=0.001*i*df + nkhz_center - 48.0
+     fkhz=0.001*i*df3 + nkhz_center - 48.0
      xdt=lagbest*tstep-1.0
      sync_dat(i,1)=fkhz
      sync_dat(i,2)=ccfmax
      sync_dat(i,3)=xdt
      sync_dat(i,4)=ipolbest
      sync_dat(i,5)=flip
+     sync_dat(i,6)=ccfmax/(savg(ipolbest,i)/savg_med(ipolbest))
   enddo
 
   call pctile(sync_dat(ia:ib,2),ib-ia+1,50,base)
