@@ -65,11 +65,7 @@ call wb2_sync(ss,savg,jz,nfa,nfb)
 ! Test for signal outside of TxT range and set bw for this signal type   
      j1=(sync(n)%xdt + 1.0)/tstep - 1.0
      j2=(sync(n)%xdt + 52.0)/tstep + 1.0
-     bw=nts_q65*108.0
-     if(flip.ne.0) then
-        bw=nts_jt65*177.0
-        j2=(sync(n)%xdt + 47.811)/tstep + 1.0
-     endif
+     if(flip.ne.0) j2=(sync(n)%xdt + 47.811)/tstep + 1.0
      ipol=sync(n)%ipol
      pavg=0.
      do j=1,j1
@@ -83,14 +79,14 @@ call wb2_sync(ss,savg,jz,nfa,nfb)
      base=(sum(pavg)-pmax)/jsum
      pmax=pmax/base
      if(pmax.gt.5.0) cycle
-
      skip=.false.
      do m=1,k                              !Skip false syncs within signal bw
         diffhz=1000.0*(f0-cand(m)%f)
+        bw=nts_q65*108.0
+        if(cand(m)%iflip.ne.0) bw=nts_jt65*177.0
         if(diffhz.gt.-10.0 .and. diffhz.lt.bw) skip=.true.
      enddo
      if(skip) cycle
-
      k=k+1
      cand(k)%snr=snr1
      cand(k)%f=f0
