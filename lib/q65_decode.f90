@@ -30,8 +30,8 @@ module q65_decode
 
 contains
 
-  subroutine decode(this,callback,iwave,nutc,ntrperiod,nsubmode,nfqso,   &
-       ntol,ndepth,nfa0,nfb0,lclearave,single_decode,lagain,lnewdat0,    &
+  subroutine decode(this,callback,iwave,nqd,nutc,ntrperiod,nsubmode,nfqso,   &
+       ntol,ndepth,nfa0,nfb0,lclearave,single_decode,lagain,lnewdat0,        &
        emedelay,mycall,hiscall,hisgrid,nQSOprogress,ncontest,lapcqonly,navg0)
 
 ! Top-level routine that organizes the decoding of Q65 signals
@@ -135,10 +135,12 @@ contains
 ! Generate codewords for full-AP list decoding
     if(ichar(hiscall(1:1)).eq.0) hiscall=' '
     if(ichar(hisgrid(1:1)).eq.0) hisgrid=' '
-    call q65_set_list(mycall,hiscall,hisgrid,codewords,ncw) 
+    ncw=0
+    if(nqd.eq.1 .or. lagain) then
+       call q65_set_list(mycall,hiscall,hisgrid,codewords,ncw)
+    endif
     dgen=0
     call q65_enc(dgen,codewords)         !Initialize the Q65 codec
-
     nused=1
     iavg=0
     call timer('q65_dec0',0)

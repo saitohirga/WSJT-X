@@ -41,7 +41,6 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   mfb=nfb-nkhz_center+48
   nts_jt65=2
   nts_q65=1
-  ncand=0
   if(nagain.eq.0) then
      call timer('get_cand',0)
      call get_candidates(ss,savg,mfa,mfb,nts_jt65,nts_q65,cand,ncand)
@@ -126,7 +125,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                  else
                     write(13,*) 'Error in iii:',iii,ia,ib,fa,fb
                     flush(13)
-                    go to 999
+                    go to 900
                  endif
               enddo
               call pctile(tavg,101,50,base(jp))
@@ -236,12 +235,12 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                     write(*,*) '! Signal too strong, or suspect data?  Decoding aborted.'
                     write(13,*) 'Signal too strong, or suspect data?  Decoding aborted.'
                     call flush(13)
-                    go to 999
+                    go to 900
                  endif
 
                  call timer('decode1a',0)
                  ifreq=i
-                 ikHz=nint(freq+0.5*(nfa+nfb)-foffset)-nfshift
+                 ikhz=nint(freq+0.5*(nfa+nfb)-foffset)-nfshift
                  idf=nint(1000.0*(freq+0.5*(nfa+nfb)-foffset-(ikHz+nfshift)))
                  call decode1a(dd,newdat,f00,nflip,mode65,nfsample,       &
                       xpol,mycall,hiscall,hisgrid,neme,ndepth,nqd,dphi,   &
@@ -359,10 +358,10 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
         do n=1,ncand
            if(cand(n)%iflip.ne.0) cycle
            freq=cand(n)%f+77.0-1.27046
-           if(nqd.eq.1 .and. abs(freq-mousefqso).gt.float(ntol)) cycle
+           if(nqd.eq.1 .and. abs(freq-mousefqso).gt.0.001*ntol) cycle
            ikhz=nint(freq)
-!           write(*,3201) nqd,freq,mousefqso,mousedf,ntol
-!3201       format('=A',i3,f10.3,3i5)
+!           write(*,3201) nqd,freq,mousefqso,mousedf,ntol,mycall,hiscall,hisgrid
+!3201       format('=A',i3,f10.3,3i5,2a12,a6)
            call timer('q65b    ',0)
            call q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,             &
                 mousedf,ntol,xpol,mycall,hiscall,hisgrid,mode_q65)
@@ -386,13 +385,13 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
 1013    format('<QuickDecodeDone>',2i4)
         flush(6)
      endif
-     if(nqd.eq.1 .and. nagain.eq.1) go to 999
+     if(nqd.eq.1 .and. nagain.eq.1) go to 900
 
      if(nqd.eq.0) then
         do n=1,ncand
            if(cand(n)%iflip.ne.0) cycle
            freq=cand(n)%f+77.0-1.27046
-           if(nqd.eq.1 .and. abs(freq-mousefqso).gt.float(ntol)) cycle
+           if(nqd.eq.1 .and. abs(freq-mousefqso).gt.0.001*ntol) cycle
            ikhz=nint(freq)
 !           write(*,3202) nqd,freq,mousefqso,mousedf,ntol
 !3202       format('=B',i3,f10.3,3i5)
@@ -520,7 +519,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   call display(nkeep,ftol)
   ndecdone=2
 
-999 close(23)
+900 close(23)
   ndphi=0
   nagain=0
   mcall3b=mcall3a

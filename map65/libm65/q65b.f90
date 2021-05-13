@@ -53,7 +53,7 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   snr1=sync(ipk)%ccfmax
   ipol=1
   if(xpol) ipol=sync(ipk)%ipol
-!  print*,'BBB',ipk00,ipk,snr1,ipol
+!  print*,'=A',nqd,ikhz,ff,ifreq,0.001*ia*df3+77,0.001*ib*df3+77
 !###
   
   nfft1=MAXFFT1
@@ -129,7 +129,7 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   nsnr0=-99             !Default snr for no decode
 
 ! NB: Frequency of ipk is now shifted to 1000 Hz.
-  call map65_mmdec(nutc,iwave,nsubmode,nfa,nfb,1000,ntol,     &
+  call map65_mmdec(nutc,iwave,nqd,nsubmode,nfa,nfb,1000,ntol,     &
        newdat,nagain,mycall,hiscall,hisgrid)
 
   nfreq=nfreq0 + nhz + mousedf - 1000
