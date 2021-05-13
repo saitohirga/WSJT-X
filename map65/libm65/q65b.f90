@@ -10,7 +10,7 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
 
 !  use wavhdr
   use q65_decode
-  use wideband2_sync
+  use wideband_sync
   use timer_module, only: timer
 
   parameter (MAXFFT1=5376000)              !56*96000

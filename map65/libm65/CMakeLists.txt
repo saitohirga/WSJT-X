@@ -1,6 +1,6 @@
 set (libm65_FSRCS
 # Modules come first:
-  wideband2_sync.f90
+  wideband_sync.f90
 
 # Non-module Fortran routines:
   afc65b.f90

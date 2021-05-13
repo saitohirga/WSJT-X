@@ -5,7 +5,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
 
 !  Processes timf2 data from Linrad to find and decode JT65 signals.
 
-  use wideband2_sync
+  use wideband_sync
   use timer_module, only: timer
 
   parameter (MAXMSG=1000)            !Size of decoded message list
@@ -47,15 +47,14 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
      call get_candidates(ss,savg,mfa,mfb,nts_jt65,nts_q65,cand,ncand)
      call timer('get_cand',1)
   endif
-  !###
+!###
 !  print*,'=',nagain
-!  do k=1,ncand
-!     freq=cand(k)%f+77.0-1.27046
-!     write(*,3010) nutc,k,cand(k)%snr,cand(k)%f,freq,cand(k)%xdt,    &
-!          cand(k)%ipol,cand(k)%iflip
-!3010 format('= ',i4.4,i5,f10.1,3f10.3,2i3)
-!  enddo
-
+  do k=1,ncand
+     freq=cand(k)%f+77.0-1.27046
+     write(*,3010) nutc,k,cand(k)%snr,cand(k)%f,freq,cand(k)%xdt,    &
+          cand(k)%ipol,cand(k)%iflip
+3010 format('= ',i4.4,i5,f10.1,3f10.3,2i3)
+  enddo
 !  print*,'AAA',nfa,nfb,ncand
 !###
 
