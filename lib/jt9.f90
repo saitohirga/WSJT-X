@@ -20,7 +20,7 @@ program jt9
   real*8 TRperiod
   character c
   character(len=500) optarg, infile
-  character wisfile*80
+  character wisfile*256
 !### ndepth was defined as 60001.  Why???
   integer :: arglen,stat,offset,remain,mode=0,flow=200,fsplit=2700,          &
        fhigh=4000,nrxfreq=1500,ndepth=1,nexp_decode=0,nQSOProg=0

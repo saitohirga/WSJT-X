@@ -2,6 +2,8 @@ subroutine m65a
   
   use timer_module, only: timer
   use timer_impl, only: init_timer !, limtrace
+  use, intrinsic :: iso_c_binding, only: C_NULL_CHAR
+  use FFTW3
   
   interface
      function address_m65()
@@ -13,6 +15,7 @@ subroutine m65a
   integer size_m65
   integer*1, pointer :: p_m65
   character*80 cwd
+  character wisfile*256
   logical fileExists
   common/tracer/limtrace,lu
 
@@ -33,8 +36,14 @@ subroutine m65a
   inquire(file=trim(cwd)//'/.quit',exist=fileExists)
   if(fileExists) then
      call timer('decode0 ',101)
-     call ftnquit
      i=detach_m65()
+     ! Save FFTW wisdom and free memory
+     wisfile=trim(cwd)//'/m65_wisdom.dat'// C_NULL_CHAR
+     if(len(trim(wisfile)).gt.0) iret=fftwf_export_wisdom_to_filename(wisfile)
+     call four2a(a,-1,1,1,1)
+     call filbig(a,-1,1,0.0,0,0,0,0,0) !used for FFT plans
+     call fftwf_cleanup_threads()
+     call fftwf_cleanup()
      go to 999
   endif
   

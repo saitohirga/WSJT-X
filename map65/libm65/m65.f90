@@ -22,8 +22,6 @@ program m65
 !   24
 !   25
 !   26  tmp26.txt
-!   27
-!   28  fftw_wisdom.dat
 
   use timer_module, only: timer
   use timer_impl, only: init_timer, fini_timer
@@ -58,7 +56,6 @@ program m65
   call getarg(1,arg)
   if(arg(1:2).eq.'-s') then
      call m65a
-     call ftnquit
      go to 999
   endif
   n=1
@@ -181,6 +178,5 @@ program m65
   print*,infile
 
 999 call fini_timer()
-  call ftnquit
 
 end program m65

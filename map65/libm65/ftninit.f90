@@ -1,9 +1,11 @@
 subroutine ftninit(appd)
 
   use timer_module, only: timer
+  use, intrinsic :: iso_c_binding, only: C_NULL_CHAR
+  use FFTW3
   character*(*) appd
-  character firstline*30
   character addpfx*8
+  character wisfile*256
   common/pfxcom/addpfx
 
   addpfx='    '
@@ -14,20 +16,14 @@ subroutine ftninit(appd)
   open(26,file=appd//'/tmp26.txt',status='unknown')
 
 ! Import FFTW wisdom, if available:
-  open(28,file=appd//'/fftwf_wisdom.dat',status='old',err=30)
-  read(28,1000,err=30,end=30) firstline
-1000 format(a30)
-  rewind 28
-  call import_wisdom_from_file(isuccess,28)
-  close(28)
-  if(isuccess.ne.0) write(13,1010) firstline
-1010 format('Imported FFTW wisdom: ',a30)
-
-30 flush(13)
+  iret=fftwf_init_threads()            !Initialize FFTW threading 
+! Default to 1 thread, but use nthreads for the big ones
+  call fftwf_plan_with_nthreads(1)
+! Import FFTW wisdom, if available
+  wisfile=trim(appd)//'/m65_wisdom.dat'// C_NULL_CHAR
+  iret=fftwf_import_wisdom_from_filename(wisfile)
   return
 
-920 write(0,*) '!Error opening timer.out'
-  stop
 950 write(0,*) '!Error opening ALL65.TXT'
   stop
 
