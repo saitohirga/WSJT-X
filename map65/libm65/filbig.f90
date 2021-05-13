@@ -57,9 +57,7 @@ subroutine filbig(dd,nmax,f0,newdat,nfsample,xpol,c4a,c4b,n4)
         cfilt(i)=fac*halfpulse(i)
         cfilt(nfft2+2-i)=fac*halfpulse(i)
      enddo
-     call timer('FFTfilt ',0)
      call sfftw_execute(plan5)
-     call timer('FFTfilt ',1)
 
      base=cfilt(nfft2/2+1)
      do i=1,nfft2

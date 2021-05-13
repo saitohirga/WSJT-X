@@ -67,10 +67,8 @@ subroutine decode1a(dd,newdat,f0,nflip,mode65,nfsample,xpol,            &
 
 ! We're looking only at sync tone here... so why not downsample by another
 ! factor of 1/8, say?  Should be a significant execution speed-up.
-  call timer('afc65b  ',0)
 ! Best fit for DF, f1, f2, pol
   call afc65b(c5x(i0),c5y(i0),nz,fsample,nflip,ipol,xpol,ndphi,a,ccfbest,dtbest)
-  call timer('afc65b  ',1)
 
   pol=a(4)/57.2957795
   aa=cos(pol)
