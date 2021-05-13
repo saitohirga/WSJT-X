@@ -1,5 +1,7 @@
 //------------------------------------------------------------------ MainWindow
 #include "mainwindow.h"
+#include <fftw3.h>
+#include <QDir>
 #include "revision_utils.hpp"
 #include "widgets/MessageBox.hpp"
 #include "ui_mainwindow.h"
@@ -193,6 +195,8 @@ MainWindow::MainWindow(QWidget *parent) :
   }
   memset(to,0,size);         //Zero all decoding params in shared memory
 
+  fftwf_import_wisdom_from_filename (QDir {m_appDir}.absoluteFilePath ("map65_wisdom.dat").toLocal8Bit ());
+
   PaError paerr=Pa_Initialize();                    //Initialize Portaudio
   if(paerr!=paNoError) {
     msgBox("Unable to initialize PortAudio.");
@@ -312,6 +316,7 @@ MainWindow::~MainWindow()
     soundOutThread.wait(3000);
   }
   Pa_Terminate();
+  fftwf_export_wisdom_to_filename (QDir {m_appDir}.absoluteFilePath ("map65_wisdom.dat").toLocal8Bit ());
   if(!m_decoderBusy) {
     QFile lockFile(m_appDir + "/.lock");
     lockFile.remove();
