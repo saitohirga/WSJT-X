@@ -1,4 +1,4 @@
-subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
+subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
      mycall0,hiscall0,hisgrid,mode_q65)
 
 ! This routine provides an interface between MAP65 and the Q65 decoder
@@ -135,12 +135,15 @@ subroutine q65b(nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   nfreq=nfreq0 + nhz + mousedf - 1000
   freq0=144.0 + 0.001*ikhz
   if(nsnr0.gt.-99) then
-     write(line,1020) ikhz,nfreq,45*(ipol-1),nutc,xdt0,nsnr0,msg0(1:27),cq0
-1020 format('!',i3.3,i5,i4,i6.4,f5.1,i5,' : ',a27,a3)
-     write(*,1100) trim(line)
-1100 format(a)
 
-! Should write to lu 26 here, for Messages and Band Map windows ?
+     if(nqd.eq.1) then
+        write(line,1020) ikhz,nfreq,45*(ipol-1),nutc,xdt0,nsnr0,msg0(1:27),cq0
+1020    format('!',i3.3,i5,i4,i6.4,f5.1,i5,' : ',a27,a3)
+        write(*,1100) trim(line)
+1100    format(a)
+     endif
+
+! Write to lu 26, for Messages and Band Map windows
      write(26,1014) freq0,nfreq0,0,0,0,xdt0,ipol0,0,                   &
           nsnr0,nutc,msg0(1:22),':',char(ichar('A') + mode_q65-1)
 1014 format(f8.3,i5,3i3,f5.1,i4,i3,i4,i5.4,4x,a22,2x,a1,3x,':',a1)
