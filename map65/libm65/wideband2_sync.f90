@@ -56,7 +56,8 @@ call wb2_sync(ss,savg,jz,nfa,nfb)
      n=indx(iz+1-i) + ia - 1
      f0=0.001*(n-1)*df3
      snr1=sync(n)%ccfmax
-     if(snr1.lt.5.0) exit
+!     print*,'=',f0,snr1
+     if(snr1.lt.4.5) exit
      flip=sync(n)%iflip
      if(flip.ne.0.0 .and. nts_jt65.eq.0) cycle
      if(flip.eq.0.0 .and. nts_q65.eq.0) cycle
@@ -83,8 +84,10 @@ call wb2_sync(ss,savg,jz,nfa,nfb)
      do m=1,k                              !Skip false syncs within signal bw
         diffhz=1000.0*(f0-cand(m)%f)
         bw=nts_q65*108.0
-        if(cand(m)%iflip.ne.0) bw=nts_jt65*177.0
-        if(diffhz.gt.-10.0 .and. diffhz.lt.bw) skip=.true.
+        if(cand(m)%iflip.ne.0) bw=nts_jt65*178.0
+        if(diffhz.gt.-20.0 .and. diffhz.lt.bw) skip=.true.
+!        write(*,3301) i,k,m,f0,cand(m)%f,diffhz,snr1,skip
+!3301    format('=',3i5,f10.1,3f10.3,L3)
      enddo
      if(skip) cycle
      k=k+1

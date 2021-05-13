@@ -41,14 +41,19 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   mfb=nfb-nkhz_center+48
   nts_jt65=2
   nts_q65=1
-  call timer('get_cand',0)
-  call get_candidates(ss,savg,mfa,mfb,nts_jt65,nts_q65,cand,ncand)
-  call timer('get_cand',1)
-!###
+  ncand=0
+  if(nagain.eq.0) then
+     call timer('get_cand',0)
+     call get_candidates(ss,savg,mfa,mfb,nts_jt65,nts_q65,cand,ncand)
+     call timer('get_cand',1)
+  endif
+  !###
+!  print*,'=',nagain
 !  do k=1,ncand
-!     write(*,3010) k,cand(k)%snr,cand(k)%f,cand(k)%f+77,cand(k)%xdt,    &
+!     freq=cand(k)%f+77.0-1.27046
+!     write(*,3010) nutc,k,cand(k)%snr,cand(k)%f,freq,cand(k)%xdt,    &
 !          cand(k)%ipol,cand(k)%iflip
-!3010 format(i3,4f10.3,2i3)
+!3010 format('= ',i4.4,i5,f10.1,3f10.3,2i3)
 !  enddo
 
 !  print*,'AAA',nfa,nfb,ncand
