@@ -16,7 +16,7 @@ module wideband_sync
   end type sync_dat
 
   parameter (NFFT=32768)
-  parameter (MAX_CANDIDATES=20)
+  parameter (MAX_CANDIDATES=50)
   type(sync_dat) :: sync(NFFT)
   integer nkhz_center
 

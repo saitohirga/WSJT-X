@@ -1,5 +1,5 @@
 subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
-     mycall0,hiscall0,hisgrid,mode_q65)
+     mycall0,hiscall0,hisgrid,mode_q65,idec)
 
 ! This routine provides an interface between MAP65 and the Q65 decoder
 ! in WSJT-X.  All arguments are input data obtained from the MAP65 GUI.
@@ -162,6 +162,8 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
 900 close(13)
   close(17)
   call flush(6)
+  idec=-1
+  read(cq0(2:2),*) idec
 
   return
 end subroutine q65b
