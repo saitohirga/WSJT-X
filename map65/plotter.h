@@ -10,6 +10,7 @@
 #include <QtGui>
 #include <QFrame>
 #include <QImage>
+#include <QToolTip>
 #include <cstring>
 #include "commons.h"
 
@@ -82,6 +83,7 @@ protected:
   //re-implemented widget event handlers
   void paintEvent(QPaintEvent *event);
   void resizeEvent(QResizeEvent* event);
+  void mouseMoveEvent(QMouseEvent * event) override;
 
 private:
 

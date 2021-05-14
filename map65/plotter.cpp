@@ -16,6 +16,7 @@ CPlotter::CPlotter(QWidget *parent) :                  //CPlotter Constructor
   setAutoFillBackground(false);
   setAttribute(Qt::WA_OpaquePaintEvent, false);
   setAttribute(Qt::WA_NoSystemBackground, true);
+  setMouseTracking(true);
 
   m_StartFreq = 100;
   m_nSpan=65;                    //Units: kHz
@@ -761,6 +762,23 @@ void CPlotter::setLockTxRx(bool b)
     DrawOverlay();                         //Redraw scales and ticks
     update();                              //trigger a new paintEvent}
   }
+}
+
+void CPlotter::mouseMoveEvent (QMouseEvent * event)
+{
+  int h = m_WaterfallPixmap.height();
+  int x=event->x();
+  int y=event->y();
+  bool lower=(y > 30+h);
+  float freq=FreqfromX(x);
+  float df=m_fSample/32768.0;
+  int ndf=x*df + m_ZoomStartFreq;
+  if(lower) {
+    QToolTip::showText(event->globalPos(),QString::number(ndf));
+  } else {
+    QToolTip::showText(event->globalPos(),QString::number(freq));
+  }
+  QWidget::mouseMoveEvent(event);
 }
 
 double CPlotter::rxFreq()
