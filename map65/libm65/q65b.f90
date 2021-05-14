@@ -32,6 +32,9 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   common/cacb/ca,cb
   save
 
+  write(71,*) nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
+       mycall0,hiscall0,hisgrid,mode_q65
+
   open(9,file='wsjtx_dir.txt',status='old')
   read(9,'(a)') wsjtx_dir                      !Establish the working directory
   close(9)
@@ -53,7 +56,10 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   snr1=sync(ipk)%ccfmax
   ipol=1
   if(xpol) ipol=sync(ipk)%ipol
-!  print*,'=A',nqd,ikhz,ff,ifreq,0.001*ia*df3+77,0.001*ib*df3+77
+!  print*,'=CCC',nqd,nkhz_center,ikhz,ff,ifreq,     &
+!       0.001*ia*df3+nkhz_center-48.0-1.27046,      &
+!       0.001*ib*df3+nkhz_center-48.0-1/27046
+!  print*,'=CCC2',sum(abs(ca)),sum(abs(cb))
 !###
   
   nfft1=MAXFFT1

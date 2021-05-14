@@ -22,7 +22,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   character mycall*12,hiscall*12,mygrid*6,hisgrid*6,grid*6,cp*1,cm*1
   integer indx(MAXMSG),nsiz(MAXMSG)
   logical done(MAXMSG)
-  logical xpol,bq65
+  logical xpol,bq65,first_loop
   character decoded*22,blank*22,cmode*2
   real short(3,NFFT)                 !SNR dt ipol for potential shorthands
   real qphi(12)
@@ -39,27 +39,25 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   nkhz_center=nint(1000.0*(fcenter-int(fcenter)))
   mfa=nfa-nkhz_center+48
   mfb=nfb-nkhz_center+48
-  nts_jt65=2
-  nts_q65=1
+  mode65=mod(nmode,10)
+  if(mode65.eq.3) mode65=4
+  mode_q65=nmode/10
+  nts_jt65=2**(mode65-1)
+  nts_q65=2**(mode_q65)
   if(nagain.eq.0) then
      call timer('get_cand',0)
      call get_candidates(ss,savg,mfa,mfb,nts_jt65,nts_q65,cand,ncand)
      call timer('get_cand',1)
   endif
 !###
-!  print*,'=',nagain
 !  do k=1,ncand
-!     freq=cand(k)%f+77.0-1.27046
+!     freq=cand(k)%f+nkhz_center-48.0-1.27046
 !     write(*,3010) nutc,k,cand(k)%snr,cand(k)%f,freq,cand(k)%xdt,    &
 !          cand(k)%ipol,cand(k)%iflip
-!3010 format('= ',i4.4,i5,f10.1,3f10.3,2i3)
+!3010 format('=aaa ',i4.4,i5,f10.1,3f10.3,2i3)
 !  enddo
-!  print*,'AAA',nfa,nfb,ncand
 !###
 
-  mode65=mod(nmode,10)
-  if(mode65.eq.3) mode65=4
-  mode_q65=nmode/10
   nwrite_q65=0
   bq65=mode_q65.gt.0
 
@@ -113,6 +111,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
      jpz=1
      if(xpol) jpz=4
 
+     first_loop=.true.
      do i=ia,ib                               !Search over freq range
         freq=0.001*(i-16385)*df
 !  Find the local base level for each polarization; update every 10 bins.
@@ -216,9 +215,10 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
            if(nqd.eq.1 .and. ntol.le.100) thresh1=0.
            noffset=0
            if(nqd.ge.1) noffset=nint(1000.0*(freq-fqso)-mousedf)
-           if(nqd.eq.2) then
+           if(first_loop) then    !### For Q65 changes ??? ###
               sync1=thresh1+1.0
               noffset=0
+              first_loop=.false.
            endif
            if(sync1.gt.thresh1 .and. abs(noffset).le.ntol) then
 !  Keep only the best candidate within ftol.
@@ -357,7 +357,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
 
         do n=1,ncand
            if(cand(n)%iflip.ne.0) cycle
-           freq=cand(n)%f+77.0-1.27046
+           freq=cand(n)%f+nkhz_center-48.0-1.27046
            if(nqd.eq.1 .and. abs(freq-mousefqso).gt.0.001*ntol) cycle
            ikhz=nint(freq)
 !           write(*,3201) nqd,freq,mousefqso,mousedf,ntol,mycall,hiscall,hisgrid
@@ -390,7 +390,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
      if(nqd.eq.0) then
         do n=1,ncand
            if(cand(n)%iflip.ne.0) cycle
-           freq=cand(n)%f+77.0-1.27046
+           freq=cand(n)%f+nkhz_center-48.0-1.27046
            if(nqd.eq.1 .and. abs(freq-mousefqso).gt.0.001*ntol) cycle
            ikhz=nint(freq)
 !           write(*,3202) nqd,freq,mousefqso,mousedf,ntol

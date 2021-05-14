@@ -56,7 +56,7 @@ call wb_sync(ss,savg,jz,nfa,nfb)
      n=indx(iz+1-i) + ia - 1
      f0=0.001*(n-1)*df3
      snr1=sync(n)%ccfmax
-!     print*,'=',f0,snr1
+!     print*,'=A',f0,snr1
      if(snr1.lt.4.5) exit
      flip=sync(n)%iflip
      if(flip.ne.0.0 .and. nts_jt65.eq.0) cycle
