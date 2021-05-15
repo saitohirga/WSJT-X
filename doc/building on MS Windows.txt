@@ -185,7 +185,7 @@ was  the pa_stable_v190600_20161030.tgz  file.  Unzip  and unpack  the
 tarball in a suitable location like ~/src :
 
     cd ~/src
-    tar xf ~/Downloads/pa_stable_v190700_20210406.tgz
+    tar xf ~/Downloads/pa_stable_v190600_20161030.tgz
 
 
 Note that on Windows portaudio  will only build static libraries using
