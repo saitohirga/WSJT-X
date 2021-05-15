@@ -354,9 +354,10 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
 
         if(mode_q65.ge.1) then
            do icand=1,ncand
-              if(cand(icand)%iflip.ne.0) cycle
+              if(cand(icand)%iflip.ne.0) cycle        !Keep only Q65 candidates
               freq=cand(icand)%f+nkhz_center-48.0-1.27046
-              if(nqd.eq.1 .and. abs(freq-mousefqso).gt.0.001*ntol) cycle
+              nhzdiff=nint(1000.0*(freq-mousefqso)-mousedf)
+              if(nqd.eq.1 .and. abs(nhzdiff).gt.ntol) cycle
               ikhz=nint(freq)
               call timer('q65b    ',0)
               call q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,             &

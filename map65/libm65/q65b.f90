@@ -32,9 +32,6 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   common/cacb/ca,cb
   save
 
-  write(71,*) nutc,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
-       mycall0,hiscall0,hisgrid,mode_q65
-
   open(9,file='wsjtx_dir.txt',status='old')
   read(9,'(a)') wsjtx_dir                      !Establish the working directory
   close(9)
