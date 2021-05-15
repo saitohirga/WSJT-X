@@ -49,19 +49,12 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   ifreq=nint(1000.0*(ff-nkhz_center+48)/df3)   !Freq index into ss(4,322,32768)
   ia=nint(ifreq-ntol/df3)
   ib=nint(ifreq+ntol/df3)
-
-!###
   ipk1=maxloc(sync(ia:ib)%ccfmax)
   ipk=ia+ipk1(1)-1
   snr1=sync(ipk)%ccfmax
   ipol=1
   if(xpol) ipol=sync(ipk)%ipol
-!  print*,'=CCC',nqd,nkhz_center,ikhz,ff,ifreq,     &
-!       0.001*ia*df3+nkhz_center-48.0-1.27046,      &
-!       0.001*ib*df3+nkhz_center-48.0-1/27046
-!  print*,'=CCC2',sum(abs(ca)),sum(abs(cb))
-!###
-  
+
   nfft1=MAXFFT1
   nfft2=MAXFFT2
   df=96000.0/NFFT1
@@ -71,7 +64,6 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
      df=96000.0/nfft1
   endif
   nh=nfft2/2
-  ikhz0=nint(1000.0*(fcenter-int(fcenter)))
   k0=nint((ipk*df3-1000.0)/df)
 
   if(k0.lt.nh .or. k0.gt.nfft1-nh) go to 900
@@ -120,13 +112,6 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   enddo
   iwave(2*nfft2+1:)=0
 
-!###
-!  h=default_header(12000,NMAX)  
-!  open(60,file='000000_0001.wav',access='stream',status='unknown')
-!  write(60) h,iwave
-!  close(60)
-!###
-
   nsubmode=mode_q65-1
   nfa=max(100,1000-ntol)
   nfb=min(4900,1000+ntol)
@@ -138,24 +123,24 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   call map65_mmdec(nutc,iwave,nqd,nsubmode,nfa,nfb,1000,ntol,     &
        newdat,nagain,mycall,hiscall,hisgrid)
 
-  nfreq=nfreq0 + nhz + mousedf - 1000
-  freq0=144.0 + 0.001*ikhz
+  MHz=fcenter
+  freq0=MHz + 0.001*ikhz
   if(nsnr0.gt.-99) then
-
+     nq65df=nint(1000*(0.001*k0*df+nkhz_center-48.0+1.000-1.27046-ikhz))
      if(nqd.eq.1) then
-        write(line,1020) ikhz,nfreq,45*(ipol-1),nutc,xdt0,nsnr0,msg0(1:27),cq0
+        write(line,1020) ikhz,nq65df,45*(ipol-1),nutc,xdt0,nsnr0,msg0(1:27),cq0
 1020    format('!',i3.3,i5,i4,i6.4,f5.1,i5,' : ',a27,a3)
         write(*,1100) trim(line)
 1100    format(a)
      endif
 
 ! Write to lu 26, for Messages and Band Map windows
-     write(26,1014) freq0,nfreq0,0,0,0,xdt0,45*(ipol-1),0,                   &
+     write(26,1014) freq0,nq65df,0,0,0,xdt0,45*(ipol-1),0,                   &
           nsnr0,nutc,msg0(1:22),':',char(ichar('A') + mode_q65-1)
 1014 format(f8.3,i5,3i3,f5.1,i4,i3,i4,i5.4,4x,a22,2x,a1,3x,':',a1)
 
 ! Write to file map65_rx.log:
-     write(21,1110)  freq0,nfreq,xdt0,45*(ipol-1),nsnr0,nutc,msg0(1:28),cq0
+     write(21,1110)  freq0,nq65df,xdt0,45*(ipol-1),nsnr0,nutc,msg0(1:28),cq0
 1110 format(f8.3,i5,f5.1,2i4,i5.4,2x,a28,': A',2x,a3)
   endif
 
