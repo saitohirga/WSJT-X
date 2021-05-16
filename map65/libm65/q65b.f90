@@ -64,7 +64,7 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   k0=nint((ipk*df3-1000.0)/df)
 
   if(k0.lt.nh .or. k0.gt.nfft1-nh) go to 900
-  if(snr1.lt.2.0) go to 900
+  if(snr1.lt.1.5) go to 900                      !### Threshold needs work? ###
 
   fac=1.0/nfft2
   cx(0:nfft2-1)=ca(k0:k0+nfft2-1)

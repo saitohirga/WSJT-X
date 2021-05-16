@@ -22,7 +22,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   character mycall*12,hiscall*12,mygrid*6,hisgrid*6,grid*6,cp*1,cm*1
   integer indx(MAXMSG),nsiz(MAXMSG)
   logical done(MAXMSG)
-  logical xpol,bq65,first_loop
+  logical xpol,bq65,first_loop,q65b_called
   logical candec(MAX_CANDIDATES)
   character decoded*22,blank*22,cmode*2
   real short(3,NFFT)                 !SNR dt ipol for potential shorthands
@@ -353,18 +353,28 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
         enddo  ! k=1,km
 
         if(mode_q65.ge.1) then
+           q65b_called=.false.
            do icand=1,ncand
               if(cand(icand)%iflip.ne.0) cycle        !Keep only Q65 candidates
               freq=cand(icand)%f+nkhz_center-48.0-1.27046
               nhzdiff=nint(1000.0*(freq-mousefqso)-mousedf)
               if(nqd.eq.1 .and. abs(nhzdiff).gt.ntol) cycle
               ikhz=nint(freq)
+              q65b_called=.true.
               call timer('q65b    ',0)
               call q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,             &
                    mousedf,ntol,xpol,mycall,hiscall,hisgrid,mode_q65,idec)
               call timer('q65b    ',1)
               if(idec.ge.0) candec(icand)=.true.
            enddo
+           if(.not.q65b_called) then
+              freq=mousefqso + 0.001*mousedf
+              ikhz=nint(freq)
+              call timer('q65b    ',0)
+              call q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,             &
+                   mousedf,ntol,xpol,mycall,hiscall,hisgrid,mode_q65,idec)
+              call timer('q65b    ',1)
+           endif
         endif
 
         if(nwrite.eq.0 .and. nwrite_q65.eq.0) then
