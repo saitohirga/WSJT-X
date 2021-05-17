@@ -147,6 +147,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
            ssmax=1.e30
            call ccf65(ss(1,1,i),nhsym,ssmax,sync1,ipol,jpz,dt,     &
                 flipk,syncshort,snr2,ipol2,dt2)
+           if(dt.lt.-2.6 .or. dt.gt.2.5) sync1=-99.0  !###
            call timer('ccf65   ',1)
            if(mode65.eq.0) syncshort=-99.0     !If "No JT65", don't waste time
 
@@ -214,7 +215,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
            if(nqd.eq.1 .and. ntol.le.100) thresh1=0.
            noffset=0
            if(nqd.ge.1) noffset=nint(1000.0*(freq-fqso)-mousedf)
-           if(first_loop) then    !### For Q65 changes ??? ###
+           if(first_loop .and. sync1.gt.0.0) then
               sync1=thresh1+1.0
               noffset=0
               first_loop=.false.
