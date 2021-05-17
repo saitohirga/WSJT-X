@@ -3,8 +3,8 @@
 #include <QtGui>
 #include <QtWidgets>
 #include <QPointer>
+#include <QScopedPointer>
 #include <QLabel>
-#include <QTimer>
 #include <QDateTime>
 #include <QHash>
 #include <QProcess>
@@ -24,6 +24,7 @@ namespace Ui {
   class MainWindow;
 }
 
+class QTimer;
 class Astro;
 class BandMap;
 class Messages;
@@ -52,10 +53,10 @@ public slots:
   void doubleClickOnCall(QString hiscall, bool ctrl);
   void doubleClickOnMessages(QString hiscall, QString t2);
 
-protected:
-  virtual void keyPressEvent( QKeyEvent *e );
-  void  closeEvent(QCloseEvent*);
-  virtual bool eventFilter(QObject *object, QEvent *event);
+private:
+  virtual void keyPressEvent (QKeyEvent *) override;
+  virtual bool eventFilter (QObject *, QEvent *) override;
+  virtual void closeEvent (QCloseEvent *) override;
 
 private slots:
   void on_tx1_editingFinished();
@@ -68,7 +69,6 @@ private slots:
   void on_monitorButton_clicked();
   void on_actionExit_triggered();
   void on_actionAbout_triggered();
-  void OnExit();
   void on_actionLinrad_triggered();
   void on_actionCuteSDR_triggered();
   void on_autoButton_clicked();
@@ -148,10 +148,11 @@ private:
   Ui::MainWindow *ui;
   QString m_appDir;
   QString m_settings_filename;
-  QPointer<Astro> m_astro_window;
-  QPointer<BandMap> m_band_map_window;
-  QPointer<Messages> m_messages_window;
-  QPointer<WideGraph> m_wide_graph_window;
+  QScopedPointer<Astro> m_astro_window;
+  QScopedPointer<BandMap> m_band_map_window;
+  QScopedPointer<Messages> m_messages_window;
+  QScopedPointer<WideGraph> m_wide_graph_window;
+  QPointer<QTimer> m_gui_timer;
   qint64  m_msErase;
   qint32  m_nDevIn;
   qint32  m_nDevOut;
@@ -204,7 +205,6 @@ private:
   bool    m_auto;
   bool    m_txMute;
   bool    m_restart;
-  bool    m_killAll;
   bool    m_xpol;
   bool    m_xpolx;
   bool    m_call3Modified;

@@ -3,6 +3,7 @@
 #include <fftw3.h>
 #include <QDir>
 #include <QSettings>
+#include <QTimer>
 #include "revision_utils.hpp"
 #include "SettingsGroup.hpp"
 #include "widgets/MessageBox.hpp"
@@ -46,7 +47,8 @@ MainWindow::MainWindow(QWidget *parent) :
   m_astro_window {new Astro {m_settings_filename}},
   m_band_map_window {new BandMap {m_settings_filename}},
   m_messages_window {new Messages {m_settings_filename}},
-  m_wide_graph_window {new WideGraph {m_settings_filename}}
+  m_wide_graph_window {new WideGraph {m_settings_filename}},
+  m_gui_timer {new QTimer {this}}
 {
   ui->setupUi(this);
   on_EraseButton_clicked();
@@ -120,8 +122,7 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(&proc_editor, SIGNAL(error(QProcess::ProcessError)),
           this, SLOT(editor_error()));
 
-  QTimer *guiTimer = new QTimer(this);
-  connect(guiTimer, SIGNAL(timeout()), this, SLOT(guiUpdate()));
+  connect(m_gui_timer, &QTimer::timeout, this, &MainWindow::guiUpdate);
 
   m_auto=false;
   m_waterfallAvg = 1;
@@ -131,7 +132,6 @@ MainWindow::MainWindow(QWidget *parent) :
   btxok=false;
   m_restart=false;
   m_transmitting=false;
-  m_killAll=false;
   m_widebandDecode=false;
   m_ntx=1;
   m_myCall="K1JT";
@@ -299,13 +299,13 @@ MainWindow::MainWindow(QWidget *parent) :
   if(ui->actionAFMHot->isChecked()) on_actionAFMHot_triggered();
   if(ui->actionBlue->isChecked()) on_actionBlue_triggered();
 
-  connect (m_messages_window, &Messages::click2OnCallsign, this, &MainWindow::doubleClickOnMessages);
-  connect (m_wide_graph_window, &WideGraph::freezeDecode2, this, &MainWindow::freezeDecode);
-  connect (m_wide_graph_window, &WideGraph::f11f12, this, &MainWindow::bumpDF);
+  connect (m_messages_window.get (), &Messages::click2OnCallsign, this, &MainWindow::doubleClickOnMessages);
+  connect (m_wide_graph_window.get (), &WideGraph::freezeDecode2, this, &MainWindow::freezeDecode);
+  connect (m_wide_graph_window.get (), &WideGraph::f11f12, this, &MainWindow::bumpDF);
 
   // only start the guiUpdate timer after this constructor has finished
   QTimer::singleShot (0, [=] {
-                           guiTimer->start(100); //Don't change the 100 ms!
+                           m_gui_timer->start(100); //Don't change the 100 ms!
                          });
 }
 
@@ -926,29 +926,37 @@ void MainWindow::on_tolSpinBox_valueChanged(int i)             //tolSpinBox
 
 void MainWindow::on_actionExit_triggered()                     //Exit()
 {
-  OnExit();
+  close ();
 }
 
-void MainWindow::closeEvent(QCloseEvent*)
+void MainWindow::closeEvent (QCloseEvent * e)
 {
-  OnExit();
-}
-
-void MainWindow::OnExit()
-{
+  if (m_gui_timer) m_gui_timer->stop ();
   m_wide_graph_window->saveSettings();
-  m_killAll=true;
-  mem_m65.detach();
-  proc_m65.closeReadChannel (QProcess::StandardOutput);
-  proc_m65.closeReadChannel (QProcess::StandardError);
   QFile quitFile(m_appDir + "/.quit");
   quitFile.open(QIODevice::ReadWrite);
   QFile lockFile(m_appDir + "/.lock");
   lockFile.remove();                      // Allow m65 to terminate
-  bool b=proc_m65.waitForFinished(1000);
-  if(!b) proc_m65.kill();
+
+  // close pipes
+  proc_m65.closeReadChannel (QProcess::StandardOutput);
+  proc_m65.closeReadChannel (QProcess::StandardError);
+
+  // flush all input
+  proc_m65.setReadChannel (QProcess::StandardOutput);
+  proc_m65.readAll ();
+  proc_m65.setReadChannel (QProcess::StandardError);
+  proc_m65.readAll ();
+
+  // allow time for any decode cycle to finish
+  if (!proc_m65.waitForFinished ()) proc_m65.kill();
   quitFile.remove();
-  qApp->exit(0);                          // Exit the event loop
+  mem_m65.detach();
+  if (m_astro_window) m_astro_window->close ();
+  if (m_band_map_window) m_band_map_window->close ();
+  if (m_messages_window) m_messages_window->close ();
+  if (m_wide_graph_window) m_wide_graph_window->close ();
+  QMainWindow::closeEvent (e);
 }
 
 void MainWindow::on_stopButton_clicked()                       //stopButton
@@ -1321,18 +1329,14 @@ bool MainWindow::subProcessFailed (QProcess * process, int exit_code, QProcess::
 
 void MainWindow::m65_error (QProcess::ProcessError)
 {
-  if(!m_killAll) {
-    msgBox("Error starting or running\n" + m_appDir + "/m65 -s\n\n"
-           + proc_m65.errorString ());
-    QTimer::singleShot (0, this, SLOT (close ()));
-  }
+  msgBox("Error starting or running\n" + m_appDir + "/m65 -s\n\n"
+         + proc_m65.errorString ());
+  QTimer::singleShot (0, this, SLOT (close ()));
 }
 
 void MainWindow::editor_error()                                 //editor_error
 {
-  if(!m_killAll) {
-    msgBox("Error starting or running\n" + m_appDir + "/" + m_editorCommand);
-  }
+  msgBox("Error starting or running\n" + m_appDir + "/" + m_editorCommand);
 }
 
 void MainWindow::readFromStdout()                             //readFromStdout

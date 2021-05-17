@@ -54,11 +54,8 @@ subroutine m65a
   endif
   p_m65=>address_m65()
   call m65b(p_m65,nbytes)
-
-100 inquire(file=trim(cwd)//'/.lock',exist=fileExists)
-  if(fileExists) go to 10
-  call sleep_msec(100)
-  go to 100
+  call sleep_msec(500)          ! wait for .lock to be recreated
+  go to 10
 
 999 return
 end subroutine m65a
