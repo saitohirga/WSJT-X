@@ -28,7 +28,7 @@ subroutine decode1a(dd,newdat,f0,nflip,mode65,nfsample,xpol,            &
   call filbig(dd,NMAX,f0,newdat,nfsample,xpol,cx,cy,n5)
 ! NB: cx, cy have sample rate 96000*77125/5376000 = 1378.125 Hz
   call timer('filbig  ',1)
-  if(nqd.eq.2) goto 900
+  if(mode65.eq.0) goto 900
   sqa=0.
   sqb=0.
   do i=1,n5
