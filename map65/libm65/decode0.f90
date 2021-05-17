@@ -16,12 +16,6 @@ subroutine decode0(dd,ss,savg,nstandalone)
   save
 
   call timer('decode0 ',0)
-
-!###
-!  npol=1 + 3*nxpol
-!  write(50) nutc,npol,ss(1:npol,:,:),savg(1:npol,:)
-!###
-
   if(newdat.ne.0) then
      nz=52*96000
      hist=0
