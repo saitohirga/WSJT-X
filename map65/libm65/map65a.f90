@@ -43,6 +43,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   mode65=mod(nmode,10)
   if(mode65.eq.3) mode65=4
   mode_q65=nmode/10
+
   nts_jt65=2**(mode65-1)
   nts_q65=2**(mode_q65)
   if(nagain.eq.0) then
@@ -147,6 +148,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
            call ccf65(ss(1,1,i),nhsym,ssmax,sync1,ipol,jpz,dt,     &
                 flipk,syncshort,snr2,ipol2,dt2)
            call timer('ccf65   ',1)
+           if(mode65.eq.0) syncshort=-99.0     !If "No JT65", don't waste time
 
 ! ########################### Search for Shorthand Messages #################
 !  Is there a shorthand tone above threshold?
@@ -245,29 +247,31 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                       a,dt,pol,nkv,nhist,nsum,nsave,qual,decoded)
                  call timer('decode1a',1)
 
-                 if(km.lt.MAXMSG) km=km+1
-                 sig(km,1)=nfile
-                 sig(km,2)=nutc
-                 sig(km,3)=freq + 0.5*(nfa+nfb)
-                 sig(km,4)=sync1
-                 sig(km,5)=dt
-                 sig(km,6)=pol
-                 sig(km,7)=flipk
-                 sig(km,8)=sync2
-                 sig(km,9)=nkv
-                 sig(km,10)=qual
+                 if(mode65.ne.0) then
+                    if(km.lt.MAXMSG) km=km+1
+                    sig(km,1)=nfile
+                    sig(km,2)=nutc
+                    sig(km,3)=freq + 0.5*(nfa+nfb)
+                    sig(km,4)=sync1
+                    sig(km,5)=dt
+                    sig(km,6)=pol
+                    sig(km,7)=flipk
+                    sig(km,8)=sync2
+                    sig(km,9)=nkv
+                    sig(km,10)=qual
 !                 sig(km,11)=idphi
-                 sig(km,12)=savg(ipol,i)
-                 sig(km,13)=a(1)
-                 sig(km,14)=a(2)
-                 sig(km,15)=a(3)
-                 sig(km,16)=a(4)
+                    sig(km,12)=savg(ipol,i)
+                    sig(km,13)=a(1)
+                    sig(km,14)=a(2)
+                    sig(km,15)=a(3)
+                    sig(km,16)=a(4)
 !                     sig(km,17)=a(5)
-                 sig(km,18)=nhist
-                 msg(km)=decoded
-                 freq0=freq
-                 sync10=sync1
-                 nkm=1
+                    sig(km,18)=nhist
+                    msg(km)=decoded
+                    freq0=freq
+                    sync10=sync1
+                    nkm=1
+                 endif
               endif
            endif
         endif
