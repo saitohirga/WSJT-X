@@ -731,7 +731,8 @@ subroutine q65_hist(if0,msg0,dxcall,dxgrid)
   msg(nhist)=msg0
   go to 900
 
-100 dxcall='            '                        !This is a lookup request
+100 if(dxcall(1:3).ne.'   ') go to 900
+  dxcall='            '                        !This is a lookup request
   dxgrid='      '
 ! Look for a decode close to if0, starting with most recent ones
   do i=nhist,1,-1                     
