@@ -205,7 +205,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
 !3001 format(i4.4,2i4,2f8.2)
   call q65_write_red(iz,xdt,ccf2_avg,ccf2)
 
-  if(iavg.eq.2) then
+  if(iavg.eq.0 .or. iavg.eq.2) then
      call q65_dec_q012(s3,LL,snr2,dat4,idec,decoded)
   endif
 
