@@ -248,7 +248,8 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
                       a,dt,pol,nkv,nhist,nsum,nsave,qual,decoded)
                  call timer('decode1a',1)
 
-                 if(mode65.ne.0) then
+! The case sycc1=2.0 is just to make sure decode1a is called and bigfft done.
+                 if(mode65.ne.0 .and. sync1.ne.2.000000) then
                     if(km.lt.MAXMSG) km=km+1
                     sig(km,1)=nfile
                     sig(km,2)=nutc
