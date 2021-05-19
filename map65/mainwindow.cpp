@@ -1807,7 +1807,10 @@ void MainWindow::doubleClickOnMessages(QString hiscall, QString t2)
     lookup();
   }
 
-  genStdMsgs("");
+  QString rpt="";
+  if(m_modeTx=="Q65") rpt=t2.mid(20,3);
+  genStdMsgs(rpt);
+
   if(t2.indexOf(m_myCall)>0) {
     m_ntx=2;
     ui->txrb2->setChecked(true);
