@@ -276,7 +276,7 @@ p, li { white-space: pre-wrap; }
              <string notr="true"/>
             </property>
             <property name="title">
-             <string>    DX   Call           Grid     </string>
+             <string>       DX Call             DX Grid     </string>
             </property>
             <widget class="QPushButton" name="pushButton">
              <property name="geometry">
