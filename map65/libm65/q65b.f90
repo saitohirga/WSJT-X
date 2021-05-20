@@ -139,7 +139,7 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
      nq65df=nint(1000*(0.001*k0*df+nkhz_center-48.0+1.000-1.27046-ikhz))-nfcal
      nq65df=nq65df + nfreq0 - 1000
 
-     if(nqd.eq.1 .and. abs(nq65df).lt.ntol) then
+     if(nqd.eq.1 .and. abs(nq65df-mousedf).lt.ntol) then
         write(line,1020) ikhz,nq65df,45*(ipol-1),nutc,xdt0,nsnr0,msg0(1:27),cq0
 1020    format('!',i3.3,i5,i4,i6.4,f5.1,i5,' : ',a27,a3)
         write(*,1100) trim(line)
