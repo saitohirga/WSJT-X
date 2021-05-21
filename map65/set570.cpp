@@ -44,7 +44,6 @@ double delay_average;
 int  from_freq;
 int  to_freq;
 int  increment_freq;
-int  retval = -1;
 int  display_freq = -1;
 int  delay;
 static libusb_device_handle * global_si570usb_handle;
@@ -84,21 +83,23 @@ int set570(double freq_MHz)
 //  if(freq_MHz != 999.0) return 0;
 //###
 
-  char * my_usbSerialID = NULL;
+  char * my_usbSerialID = nullptr;
 
 // MAIN MENU DIALOG
-  retval=Si570usbOpenDevice(&global_si570usb_handle, my_usbSerialID);
-  if (retval != 0) return -1;
+  if (Si570usbOpenDevice(&global_si570usb_handle, my_usbSerialID) != USB_SUCCESS)
+    {
+      return -1;
+    }
 
 //SET FREQUENCY
   if((freq_MHz < 3.45)|(freq_MHz > 866.0)) return -2;
-  retval=setFreqByValue(global_si570usb_handle,freq_MHz);
+  setFreqByValue(global_si570usb_handle,freq_MHz);
   return 0;
 }
 
 unsigned char Si570usbOpenDevice (libusb_device_handle * * udh, char * usbSerialID)
 {
-  // if (*udh) return USB_SUCCESS; // only scan USB devices 1st time
+  if (*udh) return USB_SUCCESS; // only scan USB devices 1st time
 
   int  vendor        = USBDEV_SHARED_VENDOR;
   char *vendorName   = (char *)VENDOR_NAME;
@@ -130,7 +131,7 @@ unsigned char Si570usbOpenDevice (libusb_device_handle * * udh, char * usbSerial
           libusb_device_descriptor descriptor;
           if ((rc = libusb_get_device_descriptor (device, &descriptor)) < 0)
             {
-              printf ("usb get devive descriptor error message %s\n", libusb_error_name (rc));
+              printf ("usb get device descriptor error message %s\n", libusb_error_name (rc));
               errorCode = USB_ERROR_ACCESS;
               continue;
             }
@@ -139,7 +140,7 @@ unsigned char Si570usbOpenDevice (libusb_device_handle * * udh, char * usbSerial
               // now we must open the device to query strings
               if ((rc = libusb_open (device, &handle)) < 0)
                 {
-                  printf ("usb open device descriptor error message %s\n", libusb_error_name (rc));
+                  printf ("usb open device error message %s\n", libusb_error_name (rc));
                   errorCode = USB_ERROR_ACCESS;
                   continue;
                 }
