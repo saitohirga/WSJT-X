@@ -46,7 +46,7 @@ discovered in the RC3 and v2.3.0 GA releases.
 
 
 	        Release: WSJT-X 2.4.0-rc3
-	               Mar 16, 2021
+	               Mar 15, 2021
 	        -------------------------
 
 WSJT-X 2.4.0 Release Candidate 3 adds new Q65 mode functionality and
@@ -61,7 +61,7 @@ the RC2 and v2.3.0 GA releases.
 
  - Behavior of "Save decoded" has been corrected.
 
- - Repaied a defect that caused crash when displaying the Wide Graph
+ - Repaired a defect that caused crash when displaying the Wide Graph
    with lower frequency limit set to 0.
 
  - Program no longer terminates a transmission when Settings is
@@ -131,7 +131,7 @@ the RC1 release.
 
 
 		   Release: WSJT-X 2.3.1
-		        Mar 18, 2021
+		        Mar 26, 2021
 		   ---------------------
 
 WSJT-X 2.3.1  General Availability release  updates the User  Guide to
@@ -578,7 +578,7 @@ of course the updated WSJT-X 2.2 User Guide.
 
 
 		   Release: WSJT-X 2.2.0-rc3
-		          May 30, 2020
+		          May 29, 2020
 		   -------------------------
 
 WSJT-X 2.2.0-rc3 is the third release candidate for WSJT-X 2.2.0.
@@ -801,9 +801,77 @@ We now provide a separate installation package for 64-bit Windows 7
 and later, with significant improvements in decoding speed.
 
 
-                     Release: WSJT-X 2.0.1
-                       February 25, 2019
-                     ---------------------
+ - New "Call Best" button for FT4 mode to select the best reply to a
+   CQ call based on neediness.
+ - Fixed UTC display on FT4 waterfall.
+
+This release is made by invitation only to selected testers to trial
+the FT4 mode in semi-realistic contest simulations and to elicit
+feedback to guide future development.
+
+*Note* this release is not for general public release and we request
+       that it is not distributed.
+
+
+		   Release: WSJT-X 2.1.0-rc3
+		         April 5, 2019
+		   -------------------------
+
+WSJT-X 2.1.0 third release candidate is an enhancement release to
+change the implementation of the new FT4 mode to a synchronous T/R
+period of 6 seconds.
+
+This release is made by invitation only to selected testers to trial
+the FT4 mode in semi-realistic contest simulations and to elicit
+feedback to guide future development.
+
+*Note* this release is not for general public release and we request
+       that it is not distributed.
+
+
+		   Release: WSJT-X 2.1.0-rc2
+		        March 29, 2019
+		   -------------------------
+
+WSJT-X 2.1.0 second release candidate is a bug fix release to repair
+some usability issues with FT4 contest mode. The following new
+features are also included.
+
+ - Better options for QSO flow by clicking Tx# buttons to transmit
+ - A 64-bit package for Windows 64-bit systems
+ - Improved FT4 sync detection speed
+
+This release is made by invitation only to selected testers to trial
+the FT4 mode in semi-realistic contest simulations and to elicit
+feedback to guide future development.
+
+*Note* this release is not for general public release and we request
+that it is not distributed.
+
+		   Release: WSJT-X 2.1.0-rc1
+		        March 25, 2019
+		   -------------------------
+
+WSJT-X 2.1.0 first release candidate is a preview alpha quality
+release containing the following new features.
+
+ - FT4 mode, a new mode targeted at HF digital contesting
+ - GMSK modulation for FT4 and FT8
+ - New waterfall option to select between raw sensitivity or a
+   filtered signal representation for best visualization of signal
+   quality
+
+This release is made by invitation only to selected testers to trial
+the FT4 mode in semi-realistic contest simulations and to elicit
+feedback to guide future development.
+
+*Note* this release is not for general public release and we request
+that it is not distributed.
+
+
+		     Release: WSJT-X 2.0.1
+		       February 25, 2019
+		     ---------------------
 
 WSJT-X  2.0.1 is  a bug  fix  release including  the following  defect
 repairs reported since the v2.0.0 GA release.

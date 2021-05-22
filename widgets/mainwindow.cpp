@@ -825,7 +825,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   connect(&logQSOTimer, &QTimer::timeout, this, &MainWindow::on_logQSOButton_clicked);
 
   tuneButtonTimer.setSingleShot(true);
-  connect(&tuneButtonTimer, &QTimer::timeout, this, &MainWindow::on_stopTxButton_clicked);
+  connect(&tuneButtonTimer, &QTimer::timeout, this, &MainWindow::end_tuning);
 
   tuneATU_Timer.setSingleShot(true);
   connect(&tuneATU_Timer, &QTimer::timeout, this, &MainWindow::stopTuneATU);
@@ -1493,8 +1493,8 @@ void MainWindow::dataSink(qint64 frames)
     freqcal_(&dec_data.d2[0],&k,&nkhz,&RxFreq,&ftol,&line[0],80);
     QString t=QString::fromLatin1(line);
     DecodedText decodedtext {t};
-    ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_mode,m_config.DXCC(),
-          m_logBook,m_currentBand, m_config.ppfx());
+    ui->decodedTextBrowser->displayDecodedText (decodedtext, m_config.my_callsign (), m_mode, m_config.DXCC (),
+          m_logBook, m_currentBand, m_config.ppfx ());
     if (ui->measure_check_box->isChecked ()) {
       // Append results text to file "fmt.all".
       QFile f {m_config.writeable_data_dir ().absoluteFilePath ("fmt.all")};
@@ -1748,8 +1748,8 @@ void MainWindow::fastSink(qint64 frames)
   if(bmsk144 and (line[0]!=0)) {
     QString message {QString::fromLatin1 (line)};
     DecodedText decodedtext {message.replace (QChar::LineFeed, "")};
-    ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_mode,m_config.DXCC(),
-         m_logBook,m_currentBand,m_config.ppfx());
+    ui->decodedTextBrowser->displayDecodedText (decodedtext, m_config.my_callsign (), m_mode, m_config.DXCC(),
+         m_logBook, m_currentBand, m_config.ppfx ());
     m_bDecoded=true;
     auto_sequence (decodedtext, ui->sbFtol->value (), std::numeric_limits<unsigned>::max ());
     postDecode (true, decodedtext.string ());
@@ -3253,8 +3253,8 @@ void::MainWindow::fast_decode_done()
 //Left (Band activity) window
     DecodedText decodedtext {message.replace (QChar::LineFeed, "")};
     if(!m_bFastDone) {
-      ui->decodedTextBrowser->displayDecodedText (decodedtext,m_baseCall,m_mode,m_config.DXCC(),
-         m_logBook,m_currentBand,m_config.ppfx());
+      ui->decodedTextBrowser->displayDecodedText (decodedtext, m_config.my_callsign (), m_mode, m_config.DXCC (),
+         m_logBook, m_currentBand, m_config.ppfx ());
     }
 
     t=message.mid(10,5).toFloat();
@@ -3460,16 +3460,16 @@ void MainWindow::readFromStdout()                             //readFromStdout
           if(!m_bDisplayedOnce) {
             // This hack sets the font.  Surely there's a better way!
             DecodedText dt{"."};
-            ui->decodedTextBrowser->displayDecodedText(dt,m_baseCall,m_mode,m_config.DXCC(),
-                m_logBook,m_currentBand,m_config.ppfx());
+            ui->decodedTextBrowser->displayDecodedText (dt, m_config.my_callsign (), m_mode, m_config.DXCC (),
+                m_logBook, m_currentBand, m_config.ppfx ());
             m_bDisplayedOnce=true;
           }
         } else {
           DecodedText decodedtext1=decodedtext0;
-          ui->decodedTextBrowser->displayDecodedText(decodedtext1,m_baseCall,m_mode,m_config.DXCC(),
-                                                     m_logBook,m_currentBand,m_config.ppfx(),
-                                                     ui->cbCQonly->isVisible() && ui->cbCQonly->isChecked(),
-                                                     haveFSpread, fSpread);
+          ui->decodedTextBrowser->displayDecodedText (decodedtext1, m_config.my_callsign (), m_mode, m_config.DXCC (),
+                                                      m_logBook, m_currentBand, m_config.ppfx (),
+                                                      ui->cbCQonly->isVisible() && ui->cbCQonly->isChecked(),
+                                                      haveFSpread, fSpread);
 
           if(m_bBestSPArmed && m_mode=="FT4" && CALLING == m_QSOProgress) {
             QString messagePriority=ui->decodedTextBrowser->CQPriority();
@@ -3498,7 +3498,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
       bool bDisplayRight=bAvgMsg;
       int audioFreq=decodedtext.frequencyOffset();
       if(m_mode=="FT8" or m_mode=="FT4" or m_mode=="FST4" or m_mode=="Q65") {
-//      if(m_mode=="FT8" or m_mode=="FT4" or m_mode=="FST4") {
         int ftol=10;
         if(m_mode=="Q65") ftol=ui->sbFtol->value();
         auto const& parts = decodedtext.string().remove("<").remove(">")
@@ -3506,7 +3505,23 @@ void MainWindow::readFromStdout()                             //readFromStdout
         if (parts.size() > 6) {
           auto for_us = parts[5].contains (m_baseCall)
             || ("DE" == parts[5] && qAbs (ui->RxFreqSpinBox->value () - audioFreq) <= ftol);
-          if(m_baseCall==m_config.my_callsign() and m_baseCall!=parts[5]) for_us=false;
+          if(m_baseCall == m_config.my_callsign())
+            {
+              if (m_baseCall != parts[5])
+                {
+                  for_us=false;
+                }
+            }
+          else
+            {
+              if (m_config.my_callsign () != parts[5])
+                {
+                  for_us = false; // same base call as ours but
+                                  // different prefix or suffix, rare
+                                  // but can happen with multi station
+                                  // special events
+                }
+            }
           if(m_bCallingCQ && !m_bAutoReply && for_us && ui->cbFirst->isChecked() and
              SpecOp::FOX > m_config.special_op_id()) {
             m_bDoubleClicked=true;
@@ -3527,8 +3542,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
         // This msg is within 10 hertz of our tuned frequency, or a JT4 or JT65 avg,
         // or contains MyCall
         if(!m_bBestSPArmed or m_mode!="FT4") {
-          ui->decodedTextBrowser2->displayDecodedText(decodedtext0,m_baseCall,m_mode,m_config.DXCC(),
-                m_logBook,m_currentBand,m_config.ppfx());
+          ui->decodedTextBrowser2->displayDecodedText (decodedtext0, m_config.my_callsign (), m_mode, m_config.DXCC (),
+                m_logBook, m_currentBand, m_config.ppfx ());
         }
         m_QSOText = decodedtext.string ().trimmed ();
       }
@@ -5194,8 +5209,8 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   QString s2 = message.clean_string ().trimmed();
   if (s1!=s2 and !message.isTX()) {
     if (!s2.contains(m_baseCall) or m_mode=="MSK144") {  // Taken care of elsewhere if for_us and slow mode
-      ui->decodedTextBrowser2->displayDecodedText(message, m_baseCall,m_mode,m_config.DXCC(),
-      m_logBook,m_currentBand,m_config.ppfx());
+      ui->decodedTextBrowser2->displayDecodedText (message, m_config.my_callsign (), m_mode, m_config.DXCC (),
+      m_logBook, m_currentBand, m_config.ppfx ());
     }
     m_QSOText = s2;
   }
@@ -6920,14 +6935,14 @@ void MainWindow::on_bandComboBox_activated (int index)
 void MainWindow::band_changed (Frequency f)
 {
   // Set the attenuation value if options are checked
-  QString curBand = ui->bandComboBox->currentText();
   if (m_config.pwrBandTxMemory() && !m_tune) {
-      if (m_pwrBandTxMemory.contains(curBand)) {
-        ui->outAttenuation->setValue(m_pwrBandTxMemory[curBand].toInt());
-      }
-      else {
-        m_pwrBandTxMemory[curBand] = ui->outAttenuation->value();
-      }
+    auto const&curBand = ui->bandComboBox->currentText();
+    if (m_pwrBandTxMemory.contains(curBand)) {
+      ui->outAttenuation->setValue(m_pwrBandTxMemory[curBand].toInt());
+    }
+    else {
+      m_pwrBandTxMemory[curBand] = ui->outAttenuation->value();
+    }
   }
 
   if (m_bandEdited) {
@@ -6997,23 +7012,14 @@ void MainWindow::on_tuneButton_clicked (bool checked)
   static bool lastChecked = false;
   if (lastChecked == checked) return;
   lastChecked = checked;
-  QString curBand = ui->bandComboBox->currentText();
   if (checked && m_tune==false) { // we're starting tuning so remember Tx and change pwr to Tune value
     if (m_config.pwrBandTuneMemory ()) {
+      auto const& curBand = ui->bandComboBox->currentText();
       m_pwrBandTxMemory[curBand] = ui->outAttenuation->value(); // remember our Tx pwr
       m_PwrBandSetOK = false;
       if (m_pwrBandTuneMemory.contains(curBand)) {
         ui->outAttenuation->setValue(m_pwrBandTuneMemory[curBand].toInt()); // set to Tune pwr
       }
-      m_PwrBandSetOK = true;
-    }
-  }
-  else { // we're turning off so remember our Tune pwr setting and reset to Tx pwr
-    if (m_config.pwrBandTuneMemory() || m_config.pwrBandTxMemory()) {
-      stopTx();
-      m_pwrBandTuneMemory[curBand] = ui->outAttenuation->value(); // remember our Tune pwr
-      m_PwrBandSetOK = false;
-      ui->outAttenuation->setValue(m_pwrBandTxMemory[curBand].toInt()); // set to Tx pwr
       m_PwrBandSetOK = true;
     }
   }
@@ -7026,6 +7032,19 @@ void MainWindow::on_tuneButton_clicked (bool checked)
     m_tune=true;
   }
   Q_EMIT tune (checked);
+}
+
+void MainWindow::end_tuning ()
+{
+  on_stopTxButton_clicked ();
+  // we're turning off so remember our Tune pwr setting and reset to Tx pwr
+  if (m_config.pwrBandTuneMemory() || m_config.pwrBandTxMemory()) {
+    auto const& curBand = ui->bandComboBox->currentText();
+    m_pwrBandTuneMemory[curBand] = ui->outAttenuation->value(); // remember our Tune pwr
+    m_PwrBandSetOK = false;
+    ui->outAttenuation->setValue(m_pwrBandTxMemory[curBand].toInt()); // set to Tx pwr
+    m_PwrBandSetOK = true;
+  }
 }
 
 void MainWindow::stop_tuning ()
@@ -9199,7 +9218,7 @@ void MainWindow::write_all(QString txRx, QString message)
   t = t.asprintf("%5d",ui->TxFreqSpinBox->value());
   if (txRx=="Tx") msg="   0  0.0" + t + " " + message;
   auto time = QDateTime::currentDateTimeUtc ();
-  if( txRx=="Rx" ) time=m_dateTimeSeqStart;
+  if( txRx=="Rx" && !m_bFastMode ) time=m_dateTimeSeqStart;
 
   t = t.asprintf("%10.3f ",m_freqNominal/1.e6);
   if (m_diskData) {
