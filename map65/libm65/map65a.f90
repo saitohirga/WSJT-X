@@ -361,7 +361,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
            do icand=1,ncand
               if(cand(icand)%iflip.ne.0) cycle        !Keep only Q65 candidates
               freq=cand(icand)%f+nkhz_center-48.0-1.27046
-              nhzdiff=nint(1000.0*(freq-mousefqso)-mousedf)
+              nhzdiff=nint(1000.0*(freq-mousefqso)-mousedf) - nfcal
 ! Now looking for "quick decode" (nqd=1) candidates at cursor freq +/- ntol.
               if(nqd.eq.1 .and. abs(nhzdiff).gt.ntol) cycle
               ikhz=mousefqso
