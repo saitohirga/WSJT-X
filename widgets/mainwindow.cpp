@@ -8578,6 +8578,7 @@ void MainWindow::on_sbNlist_valueChanged(int n)
 void MainWindow::on_sbNslots_valueChanged(int n)
 {
   m_Nslots=n;
+  if(m_config.special_op_id()!=SpecOp::FOX) return;
   QString t;
   t = t.asprintf(" NSlots %d",m_Nslots);
   writeFoxQSO(t);
@@ -8586,6 +8587,7 @@ void MainWindow::on_sbNslots_valueChanged(int n)
 void MainWindow::on_sbMax_dB_valueChanged(int n)
 {
   m_max_dB=n;
+  if(m_config.special_op_id()!=SpecOp::FOX) return;
   QString t;
   t = t.asprintf(" Max_dB %d",m_max_dB);
   writeFoxQSO(t);
@@ -8593,6 +8595,7 @@ void MainWindow::on_sbMax_dB_valueChanged(int n)
 
 void MainWindow::on_pbFoxReset_clicked()
 {
+  if(m_config.special_op_id()!=SpecOp::FOX) return;
   auto button = MessageBox::query_message (this, tr ("Confirm Reset"),
       tr ("Are you sure you want to clear the QSO queues?"));
   if(button == MessageBox::Yes) {
