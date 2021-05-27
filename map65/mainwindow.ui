@@ -1202,7 +1202,6 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionNormal_Deep_Search"/>
     <addaction name="actionAggressive_Deep_Search"/>
     <addaction name="separator"/>
-    <addaction name="actionDecode_Q65_near_QSO_frequency"/>
    </widget>
    <widget class="QMenu" name="menuSave">
     <property name="title">
