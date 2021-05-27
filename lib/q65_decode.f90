@@ -30,7 +30,7 @@ module q65_decode
 
 contains
 
-  subroutine decode(this,callback,iwave,nqd,nutc,ntrperiod,nsubmode,nfqso,   &
+  subroutine decode(this,callback,iwave,nqd0,nutc,ntrperiod,nsubmode,nfqso,  &
        ntol,ndepth,nfa0,nfb0,lclearave,single_decode,lagain,lnewdat0,        &
        emedelay,mycall,hiscall,hisgrid,nQSOprogress,ncontest,lapcqonly,navg0)
 
@@ -79,6 +79,7 @@ contains
     call sec0(0,tdecode)
     nfa=nfa0
     nfb=nfb0
+    nqd=nqd0
     lnewdat=lnewdat0
     idec=-1
     idf=0

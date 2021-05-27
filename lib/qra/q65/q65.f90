@@ -10,7 +10,7 @@ module q65
   integer,dimension(22) ::  isync = (/1,9,12,13,15,22,23,26,27,33,35,   &
                                      38,46,50,55,60,62,66,69,74,76,85/)
   integer codewords(63,206)
-  integer ibwa,ibwb,ncw,nsps,mode_q65,nfa,nfb
+  integer ibwa,ibwb,ncw,nsps,mode_q65,nfa,nfb,nqd
   integer idfbest,idtbest,ibw,ndistbest,maxiters
   integer istep,nsmo,lag1,lag2,npasses,nused,iseq,ncand,nrc
   integer i0,j0
@@ -23,7 +23,7 @@ module q65
   real, allocatable,save :: ccf2(:)      !Max CCF(freq) at any lag, single seq
   real, allocatable,save :: ccf2_avg(:)  !Like ccf2, but for accumulated average
   real sync(85)                          !sync vector
-  real df,dtstep,dtdec,f0dec,ftol,plog
+  real df,dtstep,dtdec,f0dec,ftol,plog,drift
 
 contains
 
@@ -166,12 +166,16 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   endif
 
   if(iavg.eq.0) then
-     call q65_ccf_22(s1,iz,jz,nfqso,ipk,jpk,f0a,xdta,ccf2)
+     call timer('ccf_22a ',0)
+     call q65_ccf_22(s1,iz,jz,nfqso,ntol,ndepth,iavg,ipk,jpk,f0a,xdta,ccf2)
+     call timer('ccf_22a ',1)
   endif
 
 ! Get 2d CCF and ccf2 using sync symbols only
   if(iavg.ge.1) then
-     call q65_ccf_22(s1,iz,jz,nfqso,ipk,jpk,f0a,xdta,ccf2_avg)
+     call timer('ccf_22b ',0)
+     call q65_ccf_22(s1,iz,jz,nfqso,ntol,ndepth,iavg,ipk,jpk,f0a,xdta,ccf2_avg)
+     call timer('ccf_22b ',1)
   endif
   if(idec.lt.0) then
      f0=f0a
@@ -202,8 +206,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   width=df*(i2-i1)
 
   if(ncw.eq.0) ccf1=0.
-!  write(*,3001) nutc,iavg,navg(0),sum(ccf2_avg),sum(ccf2)
-!3001 format(i4.4,2i4,2f8.2)
+
   call q65_write_red(iz,xdt,ccf2_avg,ccf2)
 
   if(iavg.eq.0 .or. iavg.eq.2) then
@@ -414,7 +417,7 @@ subroutine q65_ccf_85(s1,iz,jz,nfqso,ia,ia2,ipk,jpk,f0,xdt,imsg_best,ccf1)
   return
 end subroutine q65_ccf_85
 
-subroutine q65_ccf_22(s1,iz,jz,nfqso,ipk,jpk,f0,xdt,ccf2)
+subroutine q65_ccf_22(s1,iz,jz,nfqso,ntol,ndepth,iavg,ipk,jpk,f0,xdt,ccf2)
 
 ! Attempt synchronization using only the 22 sync symbols.  Return ccf2
 ! for the "orange sync curve".
@@ -422,57 +425,80 @@ subroutine q65_ccf_22(s1,iz,jz,nfqso,ipk,jpk,f0,xdt,ccf2)
   real s1(iz,jz)
   real ccf2(iz)                               !Orange sync curve
   real, allocatable :: xdt2(:)
+  real, allocatable :: s1avg(:)
   integer, allocatable :: indx(:)
 
   allocate(xdt2(iz))
+  allocate(s1avg(iz))
   allocate(indx(iz))
 
+  ia=max(nfa,100)/df
+  ib=min(nfb,4900)/df
+  if(nqd.eq.1 .and. iavg.eq.0 .and. ntol.le.100) then
+     ia=nint((nfqso-ntol)/df)
+     ib=nint((nfqso+ntol)/df)
+  endif
+
+  do i=ia,ib
+     s1avg(i)=sum(s1(i,1:jz))
+  enddo
+
+  max_drift=10                             !Drift units: bins/TRperiod ?
   ccfbest=0.
   ibest=0
   lagpk=0
   lagbest=0
-  do i=1,iz
+  do i=ia,ib
      ccfmax=0.
      do lag=lag1,lag2
-        ccft=0.
-        do k=1,85
-           n=NSTEP*(k-1) + 1
-           j=n+lag+j0
-           if(j.ge.1 .and. j.le.jz) then
-              ccft=ccft + sync(k)*s1(i,j)
+        do idrift=-max_drift,max_drift
+           ccft=0.
+           do kk=1,22
+              k=isync(kk)
+              ii=i + nint(idrift*(k-43)/85.0)
+              if(ii.lt.1 .or. ii.gt.iz) cycle
+              n=NSTEP*(k-1) + 1
+              j=n+lag+j0
+              if(j.ge.1 .and. j.le.jz) ccft=ccft + s1(ii,j)
+           enddo  ! kk
+           ccft=ccft - (22.0/jz)*s1avg(i)
+           if(ccft.gt.ccfmax) then
+              ccfmax=ccft
+              lagpk=lag
+              idrift_max=idrift
            endif
-        enddo
-        if(ccft.gt.ccfmax) then
-           ccfmax=ccft
-           lagpk=lag
-        endif
-     enddo
+        enddo  ! idrift
+     enddo  ! lag
      ccf2(i)=ccfmax
      xdt2(i)=lagpk*dtstep
      if(ccfmax.gt.ccfbest .and. abs(i*df-nfqso).le.ftol) then
         ccfbest=ccfmax
         ibest=i
         lagbest=lagpk
+        idrift_best=idrift_max
      endif
-  enddo
+  enddo  ! i
 
 ! Parameters for the top candidate:
   ipk=ibest - i0
   jpk=lagbest
   f0=nfqso + ipk*df
   xdt=jpk*dtstep
+  drift=df*idrift_best
+  ccf2(:ia)=0.
+  ccf2(ib:)=0.
 
 ! Save parameters for best candidates
-  i1=max(nfa,100)/df
-  i2=min(nfb,4900)/df
-  jzz=i2-i1+1
-  call pctile(ccf2(i1:i2),jzz,40,base)
+  jzz=ib-ia+1
+  call pctile(ccf2(ia:ib),jzz,40,base)
   ccf2=ccf2/base
-  call indexx(ccf2(i1:i2),jzz,indx)
+  call indexx(ccf2(ia:ib),jzz,indx)
   ncand=0
   maxcand=20
   do j=1,20
-     i=indx(jzz-j+1)+i1-1
+     k=jzz-j+1
+     if(k.lt.1 .or. k.gt.iz) cycle
+     i=indx(k)+ia-1
      if(ccf2(i).lt.3.3) exit                !Candidate limit
      f=i*df
      if(f.ge.(nfqso-ftol) .and. f.le.(nfqso+ftol)) cycle  !Looked here already
