@@ -8,7 +8,7 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
 ! orthogonal polarization.  Decoded messages are sent back to the GUI
 ! on stdout.
 
-  use wavhdr
+!  use wavhdr
   use q65_decode
   use wideband_sync
   use timer_module, only: timer
@@ -16,7 +16,7 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   parameter (MAXFFT1=5376000)              !56*96000
   parameter (MAXFFT2=336000)               !56*6000 (downsampled by 1/16)
   parameter (NMAX=60*12000)
-  type(hdr) h                            !Header for the .wav file
+!  type(hdr) h                            !Header for the .wav file
   integer*2 iwave(60*12000)
   complex ca(MAXFFT1),cb(MAXFFT1)          !FFTs of raw x,y data
   complex cx(0:MAXFFT2-1),cy(0:MAXFFT2-1),cz(0:MAXFFT2)
@@ -112,10 +112,10 @@ subroutine q65b(nutc,nqd,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol,  &
   enddo
   iwave(2*nfft2+1:)=0
 
-  open(30,file='000000_0001.wav',status='unknown',access='stream')
-  h=default_header(12000,NMAX)
-  write(30) h,iwave
-  close(30)
+!  open(30,file='000000_0001.wav',status='unknown',access='stream')
+!  h=default_header(12000,NMAX)
+!  write(30) h,iwave
+!  close(30)
 
   nsubmode=mode_q65-1
   nfa=990                   !Tight limits around ipk for the wideband decode
