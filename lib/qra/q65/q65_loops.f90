@@ -52,6 +52,7 @@ subroutine q65_loops(c00,npts2,nsps2,nsubmode,ndepth,jpk0,    &
      if(mod(idf,2).eq.0) ndf=-ndf
      a=0.
      a(1)=-(f0+0.5*baud*ndf)
+! Variable 'drift' is frequency increase over full TxT.  Therefore we want:
      a(2)=-0.5*drift
      call twkfreq(c00,c0,npts2,6000.0,a)
      do idt=1,idtmax
