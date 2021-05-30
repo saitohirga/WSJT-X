@@ -28,7 +28,7 @@ SignalMeter::~SignalMeter()
 
 void SignalMeter::paintEvent( QPaintEvent * )
 {
-    QPainter p;
+  QPainter p {this};
 
     p.drawLine(22, 10, 22, 130);
 
