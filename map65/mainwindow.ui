@@ -576,6 +576,9 @@ p, li { white-space: pre-wrap; }
           </item>
           <item>
            <widget class="QSpinBox" name="sbMaxDrift">
+            <property name="toolTip">
+             <string>Maximum drift rate in units of symbol rate per transmissiion.</string>
+            </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
             </property>
@@ -1687,7 +1690,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionQSG_MAP65_v3">
    <property name="text">
-    <string>Quick-Start Guide to MAP65 3.0 and WSJT-X 2.5.0</string>
+    <string>Quick-Start Guide to WSJT-X 2.5.0 and MAP65 3.0</string>
    </property>
   </action>
   <action name="actionQ65_Sensitivity_in_MAP65_3_0">

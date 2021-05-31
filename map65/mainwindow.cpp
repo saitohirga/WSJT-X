@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QSettings>
 #include <QTimer>
+#include <QToolTip>
 #include "revision_utils.hpp"
 #include "qt_helpers.hpp"
 #include "SettingsGroup.hpp"
@@ -994,7 +995,7 @@ void MainWindow::on_actionQSG_Q65_triggered()
 
 void MainWindow::on_actionQSG_MAP65_v3_triggered()
 {
-  QDesktopServices::openUrl (QUrl {"https://physics.princeton.edu/pulsar/k1jt/MAP65_3.0_Quick_Start.pdf"});
+  QDesktopServices::openUrl (QUrl {"https://physics.princeton.edu/pulsar/k1jt/WSJTX_2.5.0_MAP65_3.0_Quick_Start.pdf"});
 }
 
 void MainWindow::on_actionQ65_Sensitivity_in_MAP65_3_0_triggered()

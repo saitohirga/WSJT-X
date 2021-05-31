@@ -2515,6 +2515,12 @@ void MainWindow::on_actionQSG_Q65_triggered()
   QDesktopServices::openUrl (QUrl {"https://physics.princeton.edu/pulsar/k1jt/Q65_Quick_Start.pdf"});
 }
 
+void MainWindow::on_actionQSG_X250_M3()
+{
+  QDesktopServices::openUrl (QUrl {"https://physics.princeton.edu/pulsar/k1jt/WSJTX_2.5.0_MAP65_3.0_Quick_Start.pdf"});
+
+}
+
 void MainWindow::on_actionOnline_User_Guide_triggered()      //Display manual
 {
 #if defined (CMAKE_BUILD)
