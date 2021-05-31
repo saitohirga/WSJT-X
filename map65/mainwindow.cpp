@@ -5,6 +5,7 @@
 #include <QSettings>
 #include <QTimer>
 #include "revision_utils.hpp"
+#include "qt_helpers.hpp"
 #include "SettingsGroup.hpp"
 #include "widgets/MessageBox.hpp"
 #include "ui_mainwindow.h"
@@ -1776,7 +1777,7 @@ void MainWindow::doubleClickOnCall(QString hiscall, bool ctrl)
   int i3=t3.indexOf("\n");
   if(i3<0) i3=t3.length();
   t3=t3.left(i3);
-  auto const& words = t3.mid(30).split(' ', Qt::SkipEmptyParts);
+  auto const& words = t3.mid(30).split(' ', SkipEmptyParts);
   QString grid=words[2];
   if(isGrid4(grid) and hiscall==words[1]) {
     ui->dxGridEntry->setText(grid);
@@ -1810,7 +1811,7 @@ void MainWindow::doubleClickOnMessages(QString hiscall, QString t2, bool ctrl)
   if((t2.indexOf(":")<0) and m_modeTx!="JT65") on_pbTxMode_clicked();
   if((t2.indexOf(":")>0) and m_modeTx!="Q65") on_pbTxMode_clicked();
 
-  auto const& words = t2.mid(25).split(' ', Qt::SkipEmptyParts);
+  auto const& words = t2.mid(25).split(' ', SkipEmptyParts);
   QString grid=words[2];
   if(isGrid4(grid) and hiscall==words[1]) {
     ui->dxGridEntry->setText(grid);
