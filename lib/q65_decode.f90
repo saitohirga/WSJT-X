@@ -148,13 +148,14 @@ contains
     nused=1
     iavg=0
     call timer('q65_dec0',0)
-! Call top-level routine in q65 module: establish sync and try for a q3 decode.
+! Call top-level routine in q65 module: establish sync and try for a
+! q3 of q0 decode.
     call q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
          emedelay,xdt,f0,snr1,width,dat4,snr2,idec)
     call timer('q65_dec0',1)
 
     if(idec.ge.0) then
-       dtdec=xdt                        !We have a list-decode result at nfqso
+       dtdec=xdt                    !We have a q3 or q0 decode at nfqso
        f0dec=f0
        go to 100
     endif
