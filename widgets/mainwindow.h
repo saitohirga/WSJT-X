@@ -454,7 +454,6 @@ private:
   qint32  m_nclearave;
   qint32  m_minSync;
   qint32  m_dBm;
-  qint32  m_nseq;
   qint32  m_nWSPRdecodes;
   qint32  m_k0;
   qint32  m_kdone;

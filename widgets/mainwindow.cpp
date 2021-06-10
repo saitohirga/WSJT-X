@@ -294,7 +294,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_idleMinutes {0},
   m_nSubMode {0},
   m_nclearave {1},
-  m_nseq {0},
   m_nWSPRdecodes {0},
   m_k0 {9999999},
   m_nPick {0},
@@ -3805,14 +3804,11 @@ void MainWindow::guiUpdate()
 
   if(m_TRperiod==0) m_TRperiod=60.0;
   txDuration=tx_duration(m_mode,m_TRperiod,m_nsps,m_bFast9);
-
-
   double tx1=0.0;
   double tx2=txDuration;
   if(m_mode=="FT8" or m_mode=="FT4") icw[0]=0;              //No CW ID in FT4 or FT8 mode
   if((icw[0]>0) and (!m_bFast9)) tx2 += icw[0]*2560.0/48000.0;  //Full length including CW ID
   if(tx2>m_TRperiod) tx2=m_TRperiod;
-
   if(!m_txFirst and m_mode!="WSPR" and m_mode!="FST4W") {
     tx1 += m_TRperiod;
     tx2 += m_TRperiod;
@@ -3823,7 +3819,7 @@ void MainWindow::guiUpdate()
   double tsec=0.001*ms;
   double t2p=fmod(tsec,2*m_TRperiod);
   m_s6=fmod(tsec,6.0);
-  m_nseq = fmod(double(nsec),m_TRperiod);
+  int nseq = fmod(double(nsec),m_TRperiod);
   m_tRemaining=m_TRperiod - fmod(tsec,m_TRperiod);
 
   if(m_mode=="Echo") {
@@ -3834,7 +3830,7 @@ void MainWindow::guiUpdate()
   }
 
   if(m_mode=="WSPR" or m_mode=="FST4W") {
-    if(m_nseq==0 and m_ntr==0) {                   //Decide whether to Tx or Rx
+    if(nseq==0 and m_ntr==0) {                   //Decide whether to Tx or Rx
       m_tuneup=false;                              //This is not an ATU tuneup
       bool btx = m_auto && m_WSPR_tx_next;         // To Tx, we need m_auto and
                                                    // scheduled transmit
@@ -3975,7 +3971,7 @@ void MainWindow::guiUpdate()
   }
 
   if((m_mode=="WSPR" or m_mode=="FST4W") and
-     ((m_ntr==1 and m_rxDone) or (m_ntr==-1 and m_nseq>tx2))) {
+     ((m_ntr==1 and m_rxDone) or (m_ntr==-1 and nseq>tx2))) {
     if(m_monitoring) {
       m_rxDone=false;
     }
