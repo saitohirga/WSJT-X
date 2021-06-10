@@ -61,7 +61,6 @@ public:
   void setTxFreq(int n);
   void setMode(QString mode);
   void setSubMode(int n);
-  void setModeTx(QString modeTx);
   void SetPercent2DScreen(int percent);
   int  Fmax();
   void setDialFreq(double d);
@@ -149,7 +148,6 @@ private:
   QString m_HDivText[483];
   QString m_mode;
   QString m_mode0;
-  QString m_modeTx;
   QString m_rxBand;
   QString m_redFile;
 

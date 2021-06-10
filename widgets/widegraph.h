@@ -39,7 +39,6 @@ public:
   void   setTxFreq(int n);
   void   setMode(QString mode);
   void   setSubMode(int n);
-  void   setModeTx(QString modeTx);
   bool   flatten();
   bool   useRef();
   void   setTol(int n);
@@ -116,7 +115,6 @@ private:
 
   QString m_rxBand;
   QString m_mode;
-  QString m_modeTx;
   QString m_waterfallPalette;  
   float   m_swide[MAX_SCREENSIZE];
   QString m_user_defined;

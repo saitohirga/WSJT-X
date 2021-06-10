@@ -1009,7 +1009,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
   m_fastGraph->setMode(m_mode);
   m_wideGraph->setMode(m_mode);
-  m_wideGraph->setModeTx(m_modeTx);
 
   connect (&minuteTimer, &QTimer::timeout, this, &MainWindow::on_the_minute);
   minuteTimer.setSingleShot (true);
@@ -6084,7 +6083,6 @@ void MainWindow::on_actionFST4_triggered()
   setup_status_bar(false);
   ui->cbAutoSeq->setChecked(true);
   m_wideGraph->setMode(m_mode);
-  m_wideGraph->setModeTx(m_modeTx);
   m_wideGraph->setPeriod(m_TRperiod,6912);
   m_wideGraph->setRxFreq(ui->RxFreqSpinBox->value());
   m_wideGraph->setTol(ui->sbFtol->value());
@@ -6122,7 +6120,6 @@ void MainWindow::on_actionFST4W_triggered()
   ui->WSPRfreqSpinBox->setMinimum(100);
   ui->WSPRfreqSpinBox->setMaximum(5000);
   m_wideGraph->setMode(m_mode);
-  m_wideGraph->setModeTx(m_modeTx);
   m_wideGraph->setPeriod(m_TRperiod,6912);
   m_wideGraph->setTxFreq(ui->WSPRfreqSpinBox->value());
   m_wideGraph->setRxFreq(ui->sbFST4W_RxFreq->value());
@@ -6150,7 +6147,6 @@ void MainWindow::on_actionFT4_triggered()
   m_toneSpacing=12000.0/576.0;
   ui->actionFT4->setChecked(true);
   m_wideGraph->setMode(m_mode);
-  m_wideGraph->setModeTx(m_modeTx);
   m_send_RR73=true;
   VHF_features_enabled(bVHF);
   m_fastGraph->hide();
@@ -6194,7 +6190,6 @@ void MainWindow::on_actionFT8_triggered()
   m_toneSpacing=0.0;                   //???
   ui->actionFT8->setChecked(true);     //???
   m_wideGraph->setMode(m_mode);
-  m_wideGraph->setModeTx(m_modeTx);
   VHF_features_enabled(bVHF);
   ui->cbAutoSeq->setChecked(true);
   m_TRperiod=15.0;
@@ -6303,7 +6298,6 @@ void MainWindow::on_actionJT4_triggered()
   VHF_features_enabled(true);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_wideGraph->setMode(m_mode);
-  m_wideGraph->setModeTx(m_modeTx);
   m_bFastMode=false;
   m_bFast9=false;
   setup_status_bar (bVHF);
@@ -6345,7 +6339,6 @@ void MainWindow::on_actionJT9_triggered()
   m_toneSpacing=0.0;
   ui->actionJT9->setChecked(true);
   m_wideGraph->setMode(m_mode);
-  m_wideGraph->setModeTx(m_modeTx);
   VHF_features_enabled(bVHF);
   if(m_nSubMode>=4 and bVHF) {
     ui->cbFast9->setEnabled(true);
@@ -6409,7 +6402,6 @@ void MainWindow::on_actionJT65_triggered()
   VHF_features_enabled(bVHF);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_wideGraph->setMode(m_mode);
-  m_wideGraph->setModeTx(m_modeTx);
   m_wideGraph->setRxFreq(ui->RxFreqSpinBox->value());
   m_wideGraph->setTol(ui->sbFtol->value());
   m_wideGraph->setTxFreq(ui->TxFreqSpinBox->value());
@@ -6459,7 +6451,6 @@ void MainWindow::on_actionQ65_triggered()
   QString fname {QDir::toNativeSeparators(m_config.temp_dir().absoluteFilePath ("red.dat"))};
   m_wideGraph->setRedFile(fname);
   m_wideGraph->setMode(m_mode);
-  m_wideGraph->setModeTx(m_modeTx);
   m_wideGraph->setPeriod(m_TRperiod,6912);
   m_wideGraph->setTol(ui->sbFtol->value());
   m_wideGraph->setRxFreq(ui->RxFreqSpinBox->value());
@@ -6575,7 +6566,6 @@ void MainWindow::on_actionWSPR_triggered()
   ui->WSPRfreqSpinBox->setMaximum(1600);
   m_wideGraph->setPeriod(m_TRperiod,m_nsps);
   m_wideGraph->setMode(m_mode);
-  m_wideGraph->setModeTx(m_modeTx);
   m_bFastMode=false;
   m_bFast9=false;
   ui->TxFreqSpinBox->setValue(ui->WSPRfreqSpinBox->value());
@@ -6602,7 +6592,6 @@ void MainWindow::on_actionEcho_triggered()
   m_modeTx="Echo";
   setup_status_bar (true);
   m_wideGraph->setMode(m_mode);
-  m_wideGraph->setModeTx(m_modeTx);
   ui->TxFreqSpinBox->setValue(1500);
   ui->TxFreqSpinBox->setEnabled (false);
   if(!m_echoGraph->isVisible()) m_echoGraph->show();

@@ -479,7 +479,7 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
     }
   }
 
-  if(m_modeTx=="JT9" and m_nSubMode>0) {     //JT9
+  if(m_mode=="JT9" and m_nSubMode>0) {     //JT9
     bw=8.0*12000.0/m_nsps;
     if(m_nSubMode==1) bw=2*bw;   //B
     if(m_nSubMode==2) bw=4*bw;   //C
@@ -500,7 +500,7 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
     float baud=12000.0/nsps;
     bw=65.0*h*baud;
   }
-  if(m_modeTx=="JT65") {                     //JT65
+  if(m_mode=="JT65") {                     //JT65
     bw=65.0*11025.0/4096.0;
     if(m_nSubMode==1) bw=2*bw;   //B
     if(m_nSubMode==2) bw=4*bw;   //C
@@ -815,11 +815,6 @@ void CPlotter::setMode(QString mode)                            //setMode
 void CPlotter::setSubMode(int n)                                //setSubMode
 {
   m_nSubMode=n;
-}
-
-void CPlotter::setModeTx(QString modeTx)                        //setModeTx
-{
-  m_modeTx=modeTx;
 }
 
 int CPlotter::Fmax()

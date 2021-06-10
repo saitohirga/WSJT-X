@@ -305,13 +305,6 @@ void WideGraph::setSubMode(int n)                                  //setSubMode
   ui->widePlot->DrawOverlay();
   ui->widePlot->update();
 }
-void WideGraph::setModeTx(QString modeTx)                          //setModeTx
-{
-  m_modeTx=modeTx;
-  ui->widePlot->setModeTx(modeTx);
-  ui->widePlot->DrawOverlay();
-  ui->widePlot->update();
-}
 
 void WideGraph::on_spec2dComboBox_currentIndexChanged(int index)
 {
