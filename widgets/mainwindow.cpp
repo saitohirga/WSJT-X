@@ -3802,7 +3802,6 @@ void MainWindow::guiUpdate()
   static char message[38];
   static char msgsent[38];
   double txDuration;
-  QString rt;
 
   if(m_TRperiod==0) m_TRperiod=60.0;
   txDuration=0.0;
