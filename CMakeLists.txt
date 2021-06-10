@@ -169,6 +169,7 @@ set (fort_qt_CXXSRCS
   )
 
 set (wsjt_qt_CXXSRCS
+  helper_functions.cpp
   qt_helpers.cpp
   widgets/MessageBox.cpp
   MetaDataRegistry.cpp

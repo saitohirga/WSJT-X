@@ -45,6 +45,7 @@
 #include <QRandomGenerator>
 #endif
 
+#include "helper_functions.h"
 #include "revision_utils.hpp"
 #include "qt_helpers.hpp"
 #include "Network/NetworkAccessManager.hpp"
@@ -1031,6 +1032,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
 void MainWindow::not_GA_warning_message ()
 {
+  /*
   MessageBox::critical_message (this,
                                 "This is a pre-release version of WSJT-X 2.5.0 made\n"
                                 "available for testing purposes.  By design it will\n"
@@ -1039,6 +1041,7 @@ void MainWindow::not_GA_warning_message ()
   if (now >= QDateTime {{2021, 8, 31}, {23, 59, 59, 999}, Qt::UTC}) {
     Q_EMIT finished ();
   }
+  */
 }
 
 void MainWindow::initialize_fonts ()
@@ -2203,7 +2206,7 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
     break;
   case Qt::Key_X:
     if(e->modifiers() & Qt::AltModifier) {
-//      qDebug() << "Alt-X" << WSPR_message();
+      qDebug() << "Alt-X" << revision();
       return;
     }
   }
@@ -3858,6 +3861,9 @@ void MainWindow::guiUpdate()
     if(m_transmitting) m_bEchoTxed=true;
   }
 
+  Q_ASSERT(txDuration == tx_duration(m_mode,m_TRperiod,m_nsps,m_bFast9));
+  Q_ASSERT(m_mode==m_modeTx);
+
   if(m_mode=="WSPR" or m_mode=="FST4W") {
     if(m_nseq==0 and m_ntr==0) {                   //Decide whether to Tx or Rx
       m_tuneup=false;                              //This is not an ATU tuneup
@@ -4381,6 +4387,7 @@ void MainWindow::guiUpdate()
 //Once per second (onesec)
   if(nsec != m_sec0) {
 //    qDebug() << "AAA" << nsec;
+
     if(m_mode=="FST4") chk_FST4_freq_range();
     m_currentBand=m_config.bands()->find(m_freqNominal);
     if( SpecOp::HOUND == m_config.special_op_id() ) {
