@@ -275,7 +275,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_freqNominal {0},
   m_freqTxNominal {0},
   m_reverse_Doppler {"1" == env.value ("WSJT_REVERSE_DOPPLER", "0")},
-  m_s6 {0.},
   m_tRemaining {0.},
   m_TRperiod {60.0},
   m_DTtol {3.0},
@@ -3818,14 +3817,14 @@ void MainWindow::guiUpdate()
   int nsec=ms/1000;
   double tsec=0.001*ms;
   double t2p=fmod(tsec,2*m_TRperiod);
-  m_s6=fmod(tsec,6.0);
+  double s6=fmod(tsec,6.0);
   int nseq = fmod(double(nsec),m_TRperiod);
   m_tRemaining=m_TRperiod - fmod(tsec,m_TRperiod);
 
   if(m_mode=="Echo") {
     tx1=0.0;
     tx2=txDuration;
-    if(m_auto and m_s6>4.0) m_bEchoTxOK=true;
+    if(m_auto and s6>4.0) m_bEchoTxOK=true;
     if(m_transmitting) m_bEchoTxed=true;
   }
 
@@ -4365,7 +4364,7 @@ void MainWindow::guiUpdate()
     progressBar.setFormat ("%v/%m");
     if(m_auto and m_mode=="Echo" and m_bEchoTxOK) {
       progressBar.setMaximum(3);
-      progressBar.setValue(int(m_s6));
+      progressBar.setValue(int(s6));
     }
     if(m_mode!="Echo") {
       if(m_monitoring or m_transmitting) {

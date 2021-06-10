@@ -419,7 +419,6 @@ private:
   Astro::Correction m_astroCorrection;
   bool m_reverse_Doppler;
 
-  double  m_s6;
   double  m_tRemaining;
   double  m_TRperiod;
 
