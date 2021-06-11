@@ -927,7 +927,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   QByteArray cfname=fname.toLocal8Bit();
   fftwf_import_wisdom_from_filename(cfname);
 
-  //genStdMsgs(m_rpt);
   m_ntx = 6;
   ui->txrb6->setChecked(true);
 
@@ -2201,7 +2200,8 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
     break;
   case Qt::Key_X:
     if(e->modifiers() & Qt::AltModifier) {
-      qDebug() << "Alt-X" << revision();
+//      qDebug() << "Alt-X" << m_mode << m_TRperiod << m_nsps << m_bFast9
+//               << tx_duration(m_mode,m_TRperiod,m_nsps,m_bFast9);
       return;
     }
   }
