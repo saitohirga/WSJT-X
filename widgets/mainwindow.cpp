@@ -2201,17 +2201,12 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       return;
     }
     break;
-    case Qt::Key_Z:                            //### Recover from hung decode() ?? ###
-      if(e->modifiers() & Qt::AltModifier) {
-        decodeDone();
-        return;
-      }
-    break;    case Qt::Key_PageUp:
-
-      break;
-    case Qt::Key_PageDown:
-      band_changed(m_freqNominal-2000);
-      break;  }
+  case Qt::Key_X:
+    if(e->modifiers() & Qt::AltModifier) {
+//      qDebug() << "Alt-X" << WSPR_message();
+      return;
+    }
+  }
 
   QMainWindow::keyPressEvent (e);
 }
