@@ -6,12 +6,6 @@
 #include <QDebug>
 #include <valarray>
 
-#ifdef Q_OS_WIN32
-#include <winsock.h>
-#else
-#include <sys/socket.h>
-#endif //Q_OS_WIN32
-
 // Thread gets audio data from soundcard and signals when a buffer of
 // specified size is available.
 class SoundInThread : public QThread
