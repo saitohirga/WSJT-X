@@ -149,10 +149,12 @@ contains
     iavg=0
     call timer('q65_dec0',0)
 ! Call top-level routine in q65 module: establish sync and try for a
-! q3 of q0 decode.
+! q3 or q0 decode.
     call q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
          emedelay,xdt,f0,snr1,width,dat4,snr2,idec)
     call timer('q65_dec0',1)
+!    write(*,3001) '=a',sum(abs(float(iwave))),nfqso,ntol,ndepth,xdt,f0,idec
+!3001 format(a2,f15.0,3i5,f7.2,f7.1,i5)
 
     if(idec.ge.0) then
        dtdec=xdt                    !We have a q3 or q0 decode at nfqso
