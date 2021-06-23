@@ -59,7 +59,6 @@ call wb_sync(ss,savg,xpol,jz,nfa,nfb)
      n=indx(iz+1-i) + ia - 1
      f0=0.001*(n-1)*df3
      snr1=sync(n)%ccfmax
-!     print*,'=A',f0,snr1
      if(snr1.lt.SNR1_THRESHOLD) exit
      flip=sync(n)%iflip
      if(flip.ne.0.0 .and. nts_jt65.eq.0) cycle
@@ -177,9 +176,10 @@ subroutine wb_sync(ss,savg,xpol,jz,nfa,nfb)
         ccf4=0.
         do j=1,22                        !Test for Q65 sync
            k=isync(j) + lag
-           ccf4=ccf4 + ss(1:npol,k,i+1) + ss(1:npol,k+1,i+1) + ss(1:npol,k+2,i+1) 
+           ccf4(1:npol)=ccf4(1:npol) + ss(1:npol,k,i+1) +       &
+                ss(1:npol,k+1,i+1) + ss(1:npol,k+2,i+1) 
         enddo
-        ccf4=ccf4 - savg(1:npol,i+1)*3*22/float(jz)
+        ccf4(1:npol)=ccf4(1:npol) - savg(1:npol,i+1)*3*22/float(jz)
         ccf=maxval(ccf4)
         ip=maxloc(ccf4)
         ipol=ip(1)
@@ -195,9 +195,9 @@ subroutine wb_sync(ss,savg,xpol,jz,nfa,nfb)
         ccf4=0.
         do j=1,63                       !Test for JT65 sync, std msg
            k=jsync0(j) + lag
-           ccf4=ccf4 + ss(1:npol,k,i+1) + ss(1:npol,k+1,i+1)
+           ccf4(1:npol)=ccf4(1:npol) + ss(1:npol,k,i+1) + ss(1:npol,k+1,i+1)
         enddo
-        ccf4=ccf4 - savg(1:npol,i+1)*2*63/float(jz)
+        ccf4(1:npol)=ccf4(1:npol) - savg(1:npol,i+1)*2*63/float(jz)
         ccf=maxval(ccf4)
         ip=maxloc(ccf4)
         ipol=ip(1)
@@ -213,9 +213,9 @@ subroutine wb_sync(ss,savg,xpol,jz,nfa,nfb)
         ccf4=0.
         do j=1,63                       !Test for JT65 sync, OOO msg
            k=jsync1(j) + lag
-           ccf4=ccf4 + ss(1:npol,k,i+1) + ss(1:npol,k+1,i+1)
+           ccf4(1:npol)=ccf4(1:npol) + ss(1:npol,k,i+1) + ss(1:npol,k+1,i+1)
         enddo
-        ccf4=ccf4 - savg(1:npol,i+1)*2*63/float(jz)
+        ccf4(1:npol)=ccf4(1:npol) - savg(1:npol,i+1)*2*63/float(jz)
         ccf=maxval(ccf4)
         ip=maxloc(ccf4)
         ipol=ip(1)
@@ -241,11 +241,11 @@ subroutine wb_sync(ss,savg,xpol,jz,nfa,nfb)
      sync(i)%iflip=flip
      sync(i)%birdie=.false.
      if(ccfmax/(savg(ipolbest,i)/savg_med(ipolbest)).lt.3.0) sync(i)%birdie=.true.
-     if(sync(i)%iflip.eq.0 .and. sync(i)%ccfmax .gt. 20.0) then
-        write(50,3050) i,lagbest,sync(i)%ccfmax,sync(i)%xdt,sync(i)%ipol,  &
-             sync(i)%birdie,ccf4best
-3050    format(2i5,f10.3,f8.2,i5,1x,L3,4f7.1)
-     endif
+!     if(sync(i)%iflip.eq.0 .and. sync(i)%ccfmax .gt. 20.0) then
+!        write(50,3050) i,lagbest,sync(i)%ccfmax,sync(i)%xdt,sync(i)%ipol,  &
+!             sync(i)%birdie,ccf4best
+!3050    format(2i5,f10.3,f8.2,i5,1x,L3,4f7.1)
+!     endif
 
   enddo  ! i (frequency bin)
 
