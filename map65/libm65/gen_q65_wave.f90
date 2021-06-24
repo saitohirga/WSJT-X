@@ -36,7 +36,7 @@ subroutine gen_q65_wave(msg,ntxfreq,mode65,msgsent,iwave,nwave)
   j0=0
   do i=1,iz
      t=t+dt
-     j=t/tsym
+     j=t/tsym + 1.0
      if(j.ne.j0) then
         f=f0 + itone(j)*dfgen
         dphi=twopi*dt*f
