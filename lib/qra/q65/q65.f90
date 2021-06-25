@@ -124,7 +124,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   dtstep=nsps/(NSTEP*12000.0)                 !Step size in seconds
   lag1=-1.0/dtstep
   lag2=1.0/dtstep + 0.9999
-  if(nsps.ge.3600 .and. emedelay.gt.0) lag2=5.0/dtstep + 0.9999  !Include EME
+  if(nsps.ge.3600 .and. emedelay.gt.0) lag2=5.5/dtstep + 0.9999  !Include EME
   j0=0.5/dtstep
   if(nsps.ge.7200) j0=1.0/dtstep              !Nominal start-signal index
 
@@ -439,8 +439,8 @@ subroutine q65_ccf_22(s1,iz,jz,nfqso,ntol,ndepth,ntrperiod,iavg,ipk,jpk,  &
   ib=min(nfb,4900)/df
   if(nqd.ne.1 .or. iavg.ne.0) max_drift=0
   if(max_drift.ne.0) then
-     ia=max(100,nint((nfqso-ntol)/df))
-     ib=min(4900,nint((nfqso+ntol)/df))
+     ia=max(nint(100/df),nint((nfqso-ntol)/df))
+     ib=min(nint(4900/df),nint((nfqso+ntol)/df))
   endif
 
   do i=ia,ib
