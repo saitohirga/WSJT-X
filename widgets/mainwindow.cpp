@@ -6426,6 +6426,7 @@ void MainWindow::on_actionQ65_triggered()
   fast_config(false);
   WSPR_config(false);
   setup_status_bar(true);
+  ui->actionQuickDecode->setChecked(true);
   m_nsps=6912;                   //For symspec only
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize(m_FFTSize);
