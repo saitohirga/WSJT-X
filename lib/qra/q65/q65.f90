@@ -162,9 +162,10 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
      call timer('list_dec',0)
      call q65_dec_q3(s1,iz,jz,s3,LL,ipk,jpk,snr2,dat4,idec,decoded)
      call timer('list_dec',1)
-     if(idec.eq.3) go to 900         !Good q3 decode, we're done
+! If idec=3 we have a q3 decode.  Continue to compute sync curve for plotting.
   endif
 
+! Get 2d CCF and ccf2 using sync symbols only
   if(iavg.eq.0) then
      call timer('ccf_22a ',0)
      call q65_ccf_22(s1,iz,jz,nfqso,ntol,ndepth,ntrperiod,iavg,ipk,jpk,  &
@@ -172,7 +173,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
      call timer('ccf_22a ',1)
   endif
 
-! Get 2d CCF and ccf2 using sync symbols only
+! Get 2d CCF and ccf2_avg using sync symbols only
   if(iavg.ge.1) then
      call timer('ccf_22b ',0)
      call q65_ccf_22(s1,iz,jz,nfqso,ntol,ndepth,ntrperiod,iavg,ipk,jpk,  &
@@ -211,7 +212,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
 
   call q65_write_red(iz,xdt,ccf2_avg,ccf2)
 
-  if(iavg.eq.0 .or. iavg.eq.2) then
+  if(idec.lt.0 .and. (iavg.eq.0 .or. iavg.eq.2)) then
      call q65_dec_q012(s3,LL,snr2,dat4,idec,decoded)
   endif
 
