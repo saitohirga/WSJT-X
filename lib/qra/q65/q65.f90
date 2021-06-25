@@ -139,16 +139,17 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   endif
 
   i0=nint(nfqso/df)                             !Target QSO frequency
-  if(i0-64.lt.1 .or. i0-65+LL.gt.iz) go to 900  !Frequency out of range
-  call pctile(s1(i0-64:i0-65+LL,1:jz),LL*jz,45,base)
+  ii1=max(1,i0-64)
+  ii2=i0-65+LL
+  call pctile(s1(ii1:ii2,1:jz),ii2-ii1+1*jz,45,base)
   s1=s1/base
   s1raw=s1
 
 ! Apply fast AGC to the symbol spectra
   s1max=20.0                                  !Empirical choice
   do j=1,jz                                   !### Maybe wrong way? ###
-     smax=maxval(s1(i0-64:i0-65+LL,j))
-     if(smax.gt.s1max) s1(i0-64:i0-65+LL,j)=s1(i0-64:i0-65+LL,j)*s1max/smax
+     smax=maxval(s1(ii1:ii2,j))
+     if(smax.gt.s1max) s1(ii1:ii2,j)=s1(ii1:ii2,j)*s1max/smax
   enddo
 
   dat4=0
