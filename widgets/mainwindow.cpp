@@ -7543,7 +7543,7 @@ void::MainWindow::VHF_features_enabled(bool b)
   }
   ui->actionInclude_averaging->setVisible (b);
   ui->actionInclude_correlation->setVisible (b && m_mode!="Q65");
-  ui->actionMessage_averaging->setEnabled(b);
+  ui->actionMessage_averaging->setEnabled(b && (m_mode=="JT4" or m_mode=="JT65"));
   ui->actionEnable_AP_JT65->setVisible (b && m_mode=="JT65");
 
   if(!b && m_msgAvgWidget and (SpecOp::FOX != m_config.special_op_id()) and !m_config.autoLog()) {
