@@ -754,10 +754,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->bandComboBox->setModel (m_config.frequencies ());
   ui->bandComboBox->setModelColumn (FrequencyList_v2::frequency_mhz_column);
 
-  // combo box drop down width defaults to the line edit + decorator width,
-  // here we change that to the column width size hint of the model column
-  ui->bandComboBox->view ()->setMinimumWidth (ui->bandComboBox->view ()->sizeHintForColumn (FrequencyList_v2::frequency_mhz_column));
-
   // Enable live band combo box entry validation and action.
   auto band_validator = new LiveFrequencyValidator {ui->bandComboBox
                                                     , m_config.bands ()
@@ -5243,27 +5239,32 @@ void MainWindow::setTxMsg(int n)
 
 void MainWindow::genCQMsg ()
 {
-  if(m_config.my_callsign().size () && m_config.my_grid().size ()) {
-    QString grid{m_config.my_grid()};
+  auto const& my_callsign = m_config.my_callsign ();
+  auto is_compound = my_callsign != m_baseCall;
+  auto is_type_two = !is77BitMode () && is_compound && stdCall (m_baseCall) && !shortList (my_callsign);
+  if(my_callsign.size () && m_config.my_grid().size ()) {
+    auto const& grid = m_config.my_grid ();
     if (ui->cbCQTx->isEnabled () && ui->cbCQTx->isVisible () && ui->cbCQTx->isChecked ()) {
-      if(stdCall(m_config.my_callsign())) {
+      if(stdCall (my_callsign)
+         || is_type_two) {
         msgtype (QString {"CQ %1 %2 %3"}
                .arg (m_freqNominal / 1000 - m_freqNominal / 1000000 * 1000, 3, 10, QChar {'0'})
-               .arg (m_config.my_callsign())
+               .arg (my_callsign)
                .arg (grid.left (4)),
                ui->tx6);
       } else {
         msgtype (QString {"CQ %1 %2"}
                .arg (m_freqNominal / 1000 - m_freqNominal / 1000000 * 1000, 3, 10, QChar {'0'})
-               .arg (m_config.my_callsign()),
+               .arg (my_callsign),
                ui->tx6);
       }
     } else {
-      if(stdCall(m_config.my_callsign())) {
-        msgtype (QString {"%1 %2 %3"}.arg(m_CQtype).arg(m_config.my_callsign())
+      if (stdCall (my_callsign)
+          || is_type_two) {
+        msgtype (QString {"%1 %2 %3"}.arg(m_CQtype).arg(my_callsign)
                  .arg(grid.left(4)),ui->tx6);
       } else {
-        msgtype (QString {"%1 %2"}.arg(m_CQtype).arg(m_config.my_callsign()),ui->tx6);
+        msgtype (QString {"%1 %2"}.arg(m_CQtype).arg(my_callsign),ui->tx6);
       }
     }
     if ((m_mode=="JT4" or m_mode=="Q65") and  ui->cbShMsgs->isChecked()) {
@@ -5278,15 +5279,15 @@ void MainWindow::genCQMsg ()
     QStringList tlist=t.split(" ");
     if((m_mode=="FT4" or m_mode=="FT8" or m_mode=="MSK144") and
        SpecOp::NONE != m_config.special_op_id() and
-       ( tlist.at(1)==m_config.my_callsign() or         
-         tlist.at(2)==m_config.my_callsign() ) and   
-       stdCall(m_config.my_callsign())) {
+       ( tlist.at(1)==my_callsign or
+         tlist.at(2)==my_callsign ) and
+       stdCall(my_callsign)) {
       if(SpecOp::NA_VHF == m_config.special_op_id())    m_cqStr="TEST";
       if(SpecOp::EU_VHF == m_config.special_op_id())    m_cqStr="TEST";
       if(SpecOp::FIELD_DAY == m_config.special_op_id()) m_cqStr="FD";
       if(SpecOp::RTTY == m_config.special_op_id())      m_cqStr="RU";
       if(SpecOp::WW_DIGI == m_config.special_op_id())   m_cqStr="WW";
-      if( tlist.at(1)==m_config.my_callsign() ) { 
+      if( tlist.at(1)==my_callsign ) {
          t="CQ " + m_cqStr + " " + tlist.at(1) + " " + tlist.at(2); 
       } else {
          t="CQ " + m_cqStr + " " + tlist.at(2) + " " + tlist.at(3);
@@ -5319,6 +5320,12 @@ bool MainWindow::stdCall(QString const& w)
   return standard_call_re.match (w).hasMatch ();
 }
 
+bool MainWindow::is77BitMode () const
+{
+  return "FT8" == m_mode || "FT4" == m_mode || "MSK144" == m_mode
+    || "FST4" == m_mode || "Q65" == m_mode;
+}
+
 void MainWindow::genStdMsgs(QString rpt, bool unconditional)
 {
   genCQMsg ();
@@ -5335,7 +5342,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
   }
   auto const& my_callsign = m_config.my_callsign ();
   auto is_compound = my_callsign != m_baseCall;
-  auto is_type_one = is_compound && shortList (my_callsign);
+  auto is_type_one = !is77BitMode () && is_compound && shortList (my_callsign);
   auto const& my_grid = m_config.my_grid ().left (4);
   auto const& hisBase = Radio::base_callsign (hisCall);
   auto eme_short_codes = m_config.enable_VHF_features () && ui->cbShMsgs->isChecked ()
@@ -5348,7 +5355,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
   QString t0s=hisCall + " " + my_callsign + " ";
   QString t0a,t0b;
 
-  if(bHisCall and bMyCall) t0=hisCall + " " + my_callsign + " ";
+  if (is77BitMode () && bHisCall && bMyCall) t0=hisCall + " " + my_callsign + " ";
   t0a="<"+hisCall + "> " + my_callsign + " ";
   t0b=hisCall + " <" + my_callsign + "> ";
 
@@ -5366,7 +5373,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     int n=rpt.toInt();
     rpt = rpt.asprintf("%+2.2d",n);
 
-    if(m_mode=="MSK144" or m_mode=="FT8" or m_mode=="FT4" || m_mode=="FST4") {
+    if (is77BitMode ()) {
       QString t2,t3;
       QString sent=rpt;
       QString rs,rst;
@@ -5430,8 +5437,8 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       }
     }
 
-    if((m_mode!="MSK144" and m_mode!="FT8" and m_mode!="FT4" && m_mode != "FST4")) {
-      t=t00 + rpt;
+    if (!is77BitMode ()) {
+      t=(is_type_one ? t0 : t00) + rpt;
       msgtype(t, ui->tx2);
       t=t0 + "R" + rpt;
       msgtype(t, ui->tx3);
@@ -5470,7 +5477,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     }
   }
 
-  if(m_mode=="FT8" or m_mode=="FT4" or m_mode=="MSK144" || m_mode == "FST4") return;
+  if (is77BitMode ()) return;
 
   if (is_compound) {
     if (is_type_one) {
@@ -5483,8 +5490,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
         case Configuration::type_2_msg_1_full:
           msgtype(t + my_grid, ui->tx1);
           if (!eme_short_codes) {
-            if((m_mode=="MSK144" || m_mode=="FT8" || m_mode=="FT4" || m_mode == "FST4") &&
-               SpecOp::NA_VHF == m_config.special_op_id()) {
+            if(is77BitMode () && SpecOp::NA_VHF == m_config.special_op_id()) {
               msgtype(t + "R " + my_grid, ui->tx3); // #### Unreachable code
             } else {
               msgtype(t + "R" + rpt, ui->tx3);
@@ -5496,8 +5502,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
           break;
 
         case Configuration::type_2_msg_3_full:
-          if ((m_mode=="MSK144" || m_mode=="FT8" || m_mode=="FT4" || m_mode == "FST4") &&
-              SpecOp::NA_VHF == m_config.special_op_id()) {
+          if (is77BitMode () && SpecOp::NA_VHF == m_config.special_op_id()) {
             msgtype(t + "R " + my_grid, ui->tx3);
             msgtype(t + "RRR", ui->tx4);
           } else {
@@ -5512,8 +5517,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
         case Configuration::type_2_msg_5_only:
           msgtype(t00 + my_grid, ui->tx1);
           if (!eme_short_codes) {
-            if ((m_mode=="MSK144" || m_mode=="FT8" || m_mode=="FT4" || m_mode == "FST4") &&
-                SpecOp::NA_VHF == m_config.special_op_id()) {
+            if (is77BitMode () && SpecOp::NA_VHF == m_config.special_op_id()) {
               msgtype(t + "R " + my_grid, ui->tx3); // #### Unreachable code
               msgtype(t + "RRR", ui->tx4);
             } else {
@@ -5548,7 +5552,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     }
   }
   m_rpt=rpt;
-  if(SpecOp::HOUND == m_config.special_op_id() and is_compound) ui->tx1->setText("DE " + m_config.my_callsign());
+  if(SpecOp::HOUND == m_config.special_op_id() and is_compound) ui->tx1->setText("DE " + my_callsign);
 }
 
 void MainWindow::TxAgain()
