@@ -12,6 +12,54 @@
 Copyright 2001 - 2021 by Joe Taylor, K1JT.
 
 
+	        Release: WSJT-X 2.5.0-rc2
+	               Jun 28, 2021
+	        -------------------------
+
+This release repairs several MAP65 defects and omissions discovered in
+the  first release  candidate,  it also  repairs  some regressions  in
+WSJT-X, including some in the Hamlib library.
+
+Changes for MAP65:
+
+ - Implement linear drift compensation for Q65 mode when FTol >100 Hz.
+
+ - Implement a "Max drift" UI control for Q65.
+
+ - Repair a regression which omitted signal meter scales.
+
+ - Basic instruction document for building an MS Windows portaudio DLL
+   for MAP65  users who  are unable  to use  WDM/KS drivers  for their
+   multi-channel sound cards.
+
+Changes for WSJT-X:
+
+ - Implement linear drift compensation for Q65 mode when FTol >100 Hz.
+
+ - Implement a "Max drift" UI control for Q65.
+
+ - Repair a long standing regression with message generation for
+   72-bit modes when using a compound callsign.
+
+ - Message averaging window no longer available in Q65 mode as it is
+   not relevant.
+
+ - Improvements to the frequency/band combo box pop up list width to
+   address a regression occurring in recent releases.
+
+ - Updated CTY database.
+
+ - Repair a defect  in diagnostic logging that could  cause crashes on
+   some platforms.
+
+ - Repair a defect which failed to strip leading and trailing spaces
+   on input of callsigns during validation.
+
+ - Hamlib updates including repair of defects with PTT handling on a
+   separate serial port via rigctld, delayed PTT with Elecraft K3
+   series rigs, and support for the Icom IC-575 rig.
+
+
 	        Release: WSJT-X 2.5.0-rc1
 	                Jun 3, 2021
 	        -------------------------
