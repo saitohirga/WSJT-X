@@ -274,7 +274,7 @@ void CPlotter::UTCstr()
     ihr=imin/60;
     imin=imin % 60;
   }
-  m_sutc = QString {"%1:%2"}.arg (ihr, 2).arg (imin, 2);
+  m_sutc = QString {"%1:%2"}.arg (ihr,2,10,QLatin1Char('0')).arg (imin,2,10,QLatin1Char('0'));
 }
 
 void CPlotter::DrawOverlay()                                 //DrawOverlay()

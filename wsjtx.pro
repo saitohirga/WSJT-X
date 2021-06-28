@@ -65,6 +65,7 @@ SOURCES += \
   getfile.cpp \
   WFPalette.cpp \
   WsprTxScheduler.cpp \
+  helper_functions.cpp \
   main.cpp decodedtext.cpp wsprnet.cpp \
   WSPRBandHopping.cpp MessageAggregator.cpp SampleDownloader.cpp qt_helpers.cpp\
   MultiSettings.cpp PhaseEqualizationDialog.cpp \
@@ -72,6 +73,7 @@ SOURCES += \
   LotWUsers.cpp TraceFile.cpp
 
 HEADERS  += qt_helpers.hpp qt_db_helpers.hpp \
+  helper_functions.h \
   pimpl_h.hpp pimpl_impl.hpp \
   ExceptionCatchingApplication.hpp Logger.hpp WSJTXLogging.hpp \
   Radio.hpp NetworkServerLookup.hpp revision_utils.hpp \

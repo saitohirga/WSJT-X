@@ -1,10 +1,12 @@
 #include "soundout.h"
 
+#ifdef Q_OS_WIN32
+#include <windows.h>
+#endif
+
 #define FRAMES_PER_BUFFER 256
 
-extern "C" {
 #include <portaudio.h>
-}
 
 extern float gran();                  //Noise generator (for tests only)
 
@@ -120,18 +122,42 @@ extern "C" int d2aCallback(const void * /*inputBuffer*/, void *outputBuffer,
   return 0;
 }
 
+namespace
+{
+  struct COMWrapper
+  {
+    explicit COMWrapper ()
+    {
+#ifdef Q_OS_WIN32
+      // required because Qt only does this for GUI thread
+      CoInitializeEx (nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+#endif
+    }
+    ~COMWrapper ()
+    {
+#ifdef Q_OS_WIN32
+      CoUninitialize ();
+#endif
+    }
+  };
+}
+
 void SoundOutThread::run()
 {
+  COMWrapper c;
+
   PaError paerr;
   PaStreamParameters outParam;
   PaStream *outStream;
   paUserData udata;
   quitExecution = false;
 
+  auto device_info = Pa_GetDeviceInfo (m_nDevOut);
+
   outParam.device=m_nDevOut;                 //Output device number
   outParam.channelCount=2;                   //Number of analog channels
   outParam.sampleFormat=paInt16;             //Send short ints to PortAudio
-  outParam.suggestedLatency=0.05;
+  outParam.suggestedLatency=device_info->defaultLowOutputLatency;
   outParam.hostApiSpecificStreamInfo=NULL;
 
   udata.nTRperiod=m_TRperiod;

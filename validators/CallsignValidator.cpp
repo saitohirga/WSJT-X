@@ -14,7 +14,7 @@ auto CallsignValidator::validate (QString& input, int& pos) const -> State
       input.remove (0, 1);
       if (pos > 0) --pos;
     }
-  while (input.size () && input[input.size ()].isSpace ())
+  while (input.size () && input[input.size () - 1].isSpace ())
     {
       if (pos > input.size ()) --pos;
       input.chop (1);

@@ -124,7 +124,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   dtstep=nsps/(NSTEP*12000.0)                 !Step size in seconds
   lag1=-1.0/dtstep
   lag2=1.0/dtstep + 0.9999
-  if(nsps.ge.3600 .and. emedelay.gt.0) lag2=4.0/dtstep + 0.9999  !Include EME
+  if(nsps.ge.3600 .and. emedelay.gt.0) lag2=5.5/dtstep + 0.9999  !Include EME
   j0=0.5/dtstep
   if(nsps.ge.7200) j0=1.0/dtstep              !Nominal start-signal index
 
@@ -139,16 +139,17 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
   endif
 
   i0=nint(nfqso/df)                             !Target QSO frequency
-  if(i0-64.lt.1 .or. i0-65+LL.gt.iz) go to 900  !Frequency out of range
-  call pctile(s1(i0-64:i0-65+LL,1:jz),LL*jz,45,base)
+  ii1=max(1,i0-64)
+  ii2=i0-65+LL
+  call pctile(s1(ii1:ii2,1:jz),ii2-ii1+1*jz,45,base)
   s1=s1/base
   s1raw=s1
 
 ! Apply fast AGC to the symbol spectra
   s1max=20.0                                  !Empirical choice
   do j=1,jz                                   !### Maybe wrong way? ###
-     smax=maxval(s1(i0-64:i0-65+LL,j))
-     if(smax.gt.s1max) s1(i0-64:i0-65+LL,j)=s1(i0-64:i0-65+LL,j)*s1max/smax
+     smax=maxval(s1(ii1:ii2,j))
+     if(smax.gt.s1max) s1(ii1:ii2,j)=s1(ii1:ii2,j)*s1max/smax
   enddo
 
   dat4=0
@@ -162,9 +163,10 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
      call timer('list_dec',0)
      call q65_dec_q3(s1,iz,jz,s3,LL,ipk,jpk,snr2,dat4,idec,decoded)
      call timer('list_dec',1)
-     if(idec.eq.3) go to 900         !Good q3 decode, we're done
+! If idec=3 we have a q3 decode.  Continue to compute sync curve for plotting.
   endif
 
+! Get 2d CCF and ccf2 using sync symbols only
   if(iavg.eq.0) then
      call timer('ccf_22a ',0)
      call q65_ccf_22(s1,iz,jz,nfqso,ntol,ndepth,ntrperiod,iavg,ipk,jpk,  &
@@ -172,7 +174,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
      call timer('ccf_22a ',1)
   endif
 
-! Get 2d CCF and ccf2 using sync symbols only
+! Get 2d CCF and ccf2_avg using sync symbols only
   if(iavg.ge.1) then
      call timer('ccf_22b ',0)
      call q65_ccf_22(s1,iz,jz,nfqso,ntol,ndepth,ntrperiod,iavg,ipk,jpk,  &
@@ -211,7 +213,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
 
   call q65_write_red(iz,xdt,ccf2_avg,ccf2)
 
-  if(iavg.eq.0 .or. iavg.eq.2) then
+  if(idec.lt.0 .and. (iavg.eq.0 .or. iavg.eq.2)) then
      call q65_dec_q012(s3,LL,snr2,dat4,idec,decoded)
   endif
 
@@ -439,8 +441,8 @@ subroutine q65_ccf_22(s1,iz,jz,nfqso,ntol,ndepth,ntrperiod,iavg,ipk,jpk,  &
   ib=min(nfb,4900)/df
   if(nqd.ne.1 .or. iavg.ne.0) max_drift=0
   if(max_drift.ne.0) then
-     ia=nint((nfqso-ntol)/df)
-     ib=nint((nfqso+ntol)/df)
+     ia=max(nint(100/df),nint((nfqso-ntol)/df))
+     ib=min(nint(4900/df),nint((nfqso+ntol)/df))
   endif
 
   do i=ia,ib

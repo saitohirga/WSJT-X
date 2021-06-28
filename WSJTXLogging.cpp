@@ -93,7 +93,7 @@ namespace
           << boost::log::add_value ("Line", context.line)
           << boost::log::add_value ("File", file)
           << boost::log::add_value ("Function", function)
-          << msg.toStdWString ();
+          << msg.toStdString ();
       }
     else
       {
@@ -101,7 +101,7 @@ namespace
           << boost::log::add_value ("Line", context.line)
           << boost::log::add_value ("File", file)
           << boost::log::add_value ("Function", function)
-          << context.category << ": " << msg.toStdWString ();
+          << context.category << ": " << msg.toStdString ();
       }
   }
 
@@ -132,7 +132,7 @@ namespace
 #else
        , keywords::file_name =
 #endif
-       app_data.absoluteFilePath ("logs/wsjtx_syslog_%Y-%m.log").toStdString ()
+       app_data.absoluteFilePath ("logs/wsjtx_syslog_%Y-%m.log").toStdWString ()
        , keywords::time_based_rotation = sinks::file::rotation_at_time_point (gregorian::greg_day (1), 0, 0, 0)
        , keywords::open_mode = std::ios_base::out | std::ios_base::app
 #if BOOST_VERSION / 100 >= 1063

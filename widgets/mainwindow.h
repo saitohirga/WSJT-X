@@ -419,7 +419,6 @@ private:
   Astro::Correction m_astroCorrection;
   bool m_reverse_Doppler;
 
-  double  m_s6;
   double  m_tRemaining;
   double  m_TRperiod;
 
@@ -454,7 +453,6 @@ private:
   qint32  m_nclearave;
   qint32  m_minSync;
   qint32  m_dBm;
-  qint32  m_nseq;
   qint32  m_nWSPRdecodes;
   qint32  m_k0;
   qint32  m_kdone;
@@ -612,7 +610,6 @@ private:
   QString m_palette;
   QString m_dateTime;
   QString m_mode;
-  QString m_modeTx;
   QString m_fnameWE;            // save path without extension
   QString m_rpt;
   QString m_nextRpt;
@@ -781,6 +778,7 @@ private:
   void foxGenWaveform(int i,QString fm);
   void writeFoxQSO (QString const& msg);
   void to_jt9(qint32 n, qint32 istart, qint32 idone);
+  bool is77BitMode () const;
 };
 
 extern int killbyname(const char* progName);

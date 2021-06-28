@@ -71,7 +71,7 @@ message (STATUS "******************************************************")
 
 include (set_build_type)
 # RC 0 or omitted is a development build, GA is a General Availability release build
-set_build_type (RC 1)
+set_build_type (RC 2)
 set (wsjtx_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}${BUILD_TYPE_REVISION}")
 
 #
@@ -169,6 +169,7 @@ set (fort_qt_CXXSRCS
   )
 
 set (wsjt_qt_CXXSRCS
+  helper_functions.cpp
   qt_helpers.cpp
   widgets/MessageBox.cpp
   MetaDataRegistry.cpp
@@ -237,6 +238,7 @@ set (wsjt_qt_CXXSRCS
   Network/NetworkAccessManager.cpp
   widgets/LazyFillComboBox.cpp
   widgets/CheckableItemComboBox.cpp
+  widgets/BandComboBox.cpp
   )
 
 set (wsjt_qtmm_CXXSRCS

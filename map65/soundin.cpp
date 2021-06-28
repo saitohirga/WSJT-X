@@ -1,45 +1,52 @@
 #include "soundin.h"
-#include <stdexcept>
+
+#ifdef Q_OS_WIN32
+#include <windows.h>
+#else
+#include <sys/socket.h>
+#endif
 
 #define NFFT 32768
 #define FRAMES_PER_BUFFER 1024
 
-extern "C" {
 #include <portaudio.h>
-extern struct {
-  double d8[2*60*96000];   //This is "common/datcom/..." in fortran
-  float ss[4*322*NFFT];
-  float savg[4*NFFT];
-  double fcenter;
-  int nutc;
-  int idphi;                        //Phase correction for Y pol'n, degrees
-  int mousedf;                      //User-selected DF
-  int mousefqso;                    //User-selected QSO freq (kHz)
-  int nagain;                       //1 ==> decode only at fQSO +/- Tol
-  int ndepth;                       //How much hinted decoding to do?
-  int ndiskdat;                     //1 ==> data read from *.tf2 or *.iq file
-  int neme;                         //Hinted decoding tries only for EME calls
-  int newdat;                       //1 ==> new data, must do long FFT
-  int nfa;                          //Low decode limit (kHz)
-  int nfb;                          //High decode limit (kHz)
-  int nfcal;                        //Frequency correction, for calibration (Hz)
-  int nfshift;                      //Shift of displayed center freq (kHz)
-  int mcall3;                       //1 ==> CALL3.TXT has been modified
-  int ntimeout;                     //Max for timeouts in Messages and BandMap
-  int ntol;                         //+/- decoding range around fQSO (Hz)
-  int nxant;                        //1 ==> add 45 deg to measured pol angle
-  int map65RxLog;                   //Flags to control log files
-  int nfsample;                     //Input sample rate
-  int nxpol;                        //1 if using xpol antennas, 0 otherwise
-  int mode65;                       //JT65 sub-mode: A=1, B=2, C=4
-  int nfast;                        //1No longer used
-  int nsave;                        //Number of s3(64,63) spectra saved
-  char mycall[12];
-  char mygrid[6];
-  char hiscall[12];
-  char hisgrid[6];
-  char datetime[20];
-} datcom_;
+extern "C"
+{
+  struct
+  {
+    double d8[2*60*96000];   //This is "common/datcom/..." in fortran
+    float ss[4*322*NFFT];
+    float savg[4*NFFT];
+    double fcenter;
+    int nutc;
+    int idphi;                        //Phase correction for Y pol'n, degrees
+    int mousedf;                      //User-selected DF
+    int mousefqso;                    //User-selected QSO freq (kHz)
+    int nagain;                       //1 ==> decode only at fQSO +/- Tol
+    int ndepth;                       //How much hinted decoding to do?
+    int ndiskdat;                     //1 ==> data read from *.tf2 or *.iq file
+    int neme;                         //Hinted decoding tries only for EME calls
+    int newdat;                       //1 ==> new data, must do long FFT
+    int nfa;                          //Low decode limit (kHz)
+    int nfb;                          //High decode limit (kHz)
+    int nfcal;                        //Frequency correction, for calibration (Hz)
+    int nfshift;                      //Shift of displayed center freq (kHz)
+    int mcall3;                       //1 ==> CALL3.TXT has been modified
+    int ntimeout;                     //Max for timeouts in Messages and BandMap
+    int ntol;                         //+/- decoding range around fQSO (Hz)
+    int nxant;                        //1 ==> add 45 deg to measured pol angle
+    int map65RxLog;                   //Flags to control log files
+    int nfsample;                     //Input sample rate
+    int nxpol;                        //1 if using xpol antennas, 0 otherwise
+    int mode65;                       //JT65 sub-mode: A=1, B=2, C=4
+    int nfast;                        //1No longer used
+    int nsave;                        //Number of s3(64,63) spectra saved
+    char mycall[12];
+    char mygrid[6];
+    char hiscall[12];
+    char hisgrid[6];
+    char datetime[20];
+  } datcom_;
 }
 
 typedef struct
@@ -133,6 +140,26 @@ extern "C" int a2dCallback( const void *inputBuffer, void *outputBuffer,
   return paContinue;
 }
 
+namespace
+{
+  struct COMWrapper
+  {
+    explicit COMWrapper ()
+    {
+#ifdef Q_OS_WIN32
+      // required because Qt only does this for GUI thread
+      CoInitializeEx (nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+#endif
+    }
+    ~COMWrapper ()
+    {
+#ifdef Q_OS_WIN32
+      CoUninitialize ();
+#endif
+    }
+  };
+}
+
 void SoundInThread::run()                           //SoundInThread::run()
 {
   quitExecution = false;
@@ -144,8 +171,10 @@ void SoundInThread::run()                           //SoundInThread::run()
     return;
   }
 
-//---------------------------------------------------- Soundcard Setup
-//  qDebug() << "Start souncard input";
+  COMWrapper c;
+
+  //---------------------------------------------------- Soundcard Setup
+  //  qDebug() << "Start souncard input";
 
   PaError paerr;
   PaStreamParameters inParam;
@@ -158,15 +187,27 @@ void SoundInThread::run()                           //SoundInThread::run()
   udata.iqswap=m_IQswap;
   udata.b10db=m_10db;
 
+  auto device_info = Pa_GetDeviceInfo (m_nDevIn);
+
   inParam.device=m_nDevIn;                  //### Input Device Number ###
   inParam.channelCount=2*m_nrx;             //Number of analog channels
   inParam.sampleFormat=paFloat32;           //Get floats from Portaudio
-  inParam.suggestedLatency=0.05;
+  inParam.suggestedLatency=device_info->defaultHighInputLatency;
   inParam.hostApiSpecificStreamInfo=NULL;
 
   paerr=Pa_IsFormatSupported(&inParam,NULL,96000.0);
   if(paerr<0) {
-    emit error("PortAudio says requested soundcard format not supported.");
+    QString error_message;
+    if (paUnanticipatedHostError == paerr)
+      {
+        auto const * last_host_error = Pa_GetLastHostErrorInfo ();
+        error_message = QString {"PortAudio Host API error: %1"}.arg (last_host_error->errorText);
+      }
+    else
+      {
+        error_message = "PortAudio says requested soundcard format not supported.";
+      }
+    emit error(error_message);
 //    return;
   }
   paerr=Pa_OpenStream(&inStream,            //Input stream
