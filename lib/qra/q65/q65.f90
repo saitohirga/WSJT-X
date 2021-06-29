@@ -453,6 +453,7 @@ subroutine q65_ccf_22(s1,iz,jz,nfqso,ntol,ndepth,ntrperiod,iavg,ipk,jpk,  &
   ibest=0
   lagpk=0
   lagbest=0
+  idrift_best=0
   do i=ia,ib
      ccfmax=0.
      do lag=lag1,lag2
