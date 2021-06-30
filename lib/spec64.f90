@@ -22,7 +22,9 @@ subroutine spec64(c0,npts,nsps,mode_q65,jpk,s3,LL,NN)
      jb=ja+nsps-1
      if(ja.lt.0) ja=0
      if(jb.gt.npts-1) jb=npts-1
-     cs(0:nfft-1)=c0(ja:jb)
+     nz=jb-ja
+     cs(0:nz)=c0(ja:jb)
+     if(nz.lt.nfft-1) cs(nz+1:)=0.
      call four2a(cs,nsps,1,-1,1)             !c2c FFT to frequency
      do ii=1,LL
         i=ii-65+mode_q65      !mode_q65 = 1 2 4 8 16 for Q65 A B C D E
