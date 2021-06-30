@@ -1,8 +1,7 @@
-subroutine spec64(c0,nsps,mode_q65,jpk,s3,LL,NN)
+subroutine spec64(c0,npts,nsps,mode_q65,jpk,s3,LL,NN)
 
   parameter (MAXFFT=20736)
-!### Fix this:
-  complex c0(0:1800000-1)                    !Complex spectrum of dd()
+  complex c0(0:npts-1)                      !Complex spectrum of dd()
   complex cs(0:MAXFFT-1)                     !Complex symbol spectrum
   real s3(LL,NN)                             !Synchronized symbol spectra
   real xbase0(LL),xbase(LL)

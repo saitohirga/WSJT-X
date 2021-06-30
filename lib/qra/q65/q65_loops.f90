@@ -61,7 +61,7 @@ subroutine q65_loops(c00,npts2,nsps2,nsubmode,ndepth,jpk0,    &
         jpk=jpk0 + nsps2*ndt/16              !tsym/16
         jpk=max(0,jpk)
         jpk=min(29000,jpk)
-        call spec64(c0,nsps2,mode_q65,jpk,s3,LL,NN)
+        call spec64(c0,npts2,nsps2,mode_q65,jpk,s3,LL,NN)
         call pctile(s3,LL*NN,40,base)
         s3=s3/base
         where(s3(1:LL*NN)>s3lim) s3(1:LL*NN)=s3lim
