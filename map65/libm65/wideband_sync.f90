@@ -44,7 +44,7 @@ subroutine get_candidates(ss,savg,xpol,nfa,nfb,nts_jt65,nts_q65,cand,ncand)
   enddo
   jz=j
   
-call wb_sync(ss,savg,xpol,jz,nfa,nfb)
+  call wb_sync(ss,savg,xpol,jz,nfa,nfb)
 
   tstep=2048.0/11025.0        !0.185760 s: 0.5*tsym_jt65, 0.3096*tsym_q65
   df3=96000.0/NFFT
