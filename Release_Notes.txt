@@ -12,6 +12,20 @@
 Copyright 2001 - 2021 by Joe Taylor, K1JT.
 
 
+	        Release: WSJT-X 2.5.0-rc3
+	               Jul 3, 2021
+	        -------------------------
+
+Remember that the WSJT-X 2.5.0 package includes MAP65 3.0.0.  Changes
+in the package since WSJT-X 2.5.0-rc2 include the following
+enhancements and defect repairs:
+
+MAP65:
+ - Correct two defects that could cause "hung decoder" status
+ - Translate reported frequencies so that |DF| <= 500 Hz for Q65
+   decodes.
+ - Provide access to Release Notes from the Help menu
+
 	        Release: WSJT-X 2.5.0-rc2
 	               Jun 28, 2021
 	        -------------------------
