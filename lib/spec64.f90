@@ -1,8 +1,7 @@
-subroutine spec64(c0,nsps,mode_q65,jpk,s3,LL,NN)
+subroutine spec64(c0,npts,nsps,mode_q65,jpk,s3,LL,NN)
 
   parameter (MAXFFT=20736)
-!### Fix this:
-  complex c0(0:1800000-1)                    !Complex spectrum of dd()
+  complex c0(0:npts-1)                      !Complex spectrum of dd()
   complex cs(0:MAXFFT-1)                     !Complex symbol spectrum
   real s3(LL,NN)                             !Synchronized symbol spectra
   real xbase0(LL),xbase(LL)
@@ -21,7 +20,11 @@ subroutine spec64(c0,nsps,mode_q65,jpk,s3,LL,NN)
      j=j+1
      ja=(k-1)*nsps + jpk
      jb=ja+nsps-1
-     cs(0:nfft-1)=c0(ja:jb)
+     if(ja.lt.0) ja=0
+     if(jb.gt.npts-1) jb=npts-1
+     nz=jb-ja
+     cs(0:nz)=c0(ja:jb)
+     if(nz.lt.nfft-1) cs(nz+1:)=0.
      call four2a(cs,nsps,1,-1,1)             !c2c FFT to frequency
      do ii=1,LL
         i=ii-65+mode_q65      !mode_q65 = 1 2 4 8 16 for Q65 A B C D E

@@ -56,15 +56,16 @@ subroutine polfit(y,npts,a)
         deltaa(j)=deltaa(j)*fn/3.
 !          write(*,4000) iter,j,a,deltaa,chisq2
 !4000      format(2i2,2(2x,3f8.2),f12.5)
-     enddo
+     enddo  ! j=1,nterms
      chisqr=fchisq_pol(y,npts,a)
 !     write(*,4000) 0,0,a,chisqr
+     if(chisqr.lt.1.0) exit
      if(deltaa(1).lt.0.01*(a(2)-a(1)) .and. deltaa(2).lt.0.01*(a(2)-a(1))   &
           .and. deltaa(3).lt.1.0) exit
      if(chisqr/chisqr0.gt.0.99) exit
-     a(3)=mod(a(3)+360.0,180.0)
      chisqr0=chisqr
-  enddo
+  enddo  ! iter
+  a(3)=mod(a(3)+360.0,180.0)
 
   return
 end subroutine polfit

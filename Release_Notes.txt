@@ -12,6 +12,25 @@
 Copyright 2001 - 2021 by Joe Taylor, K1JT.
 
 
+	        Release: WSJT-X 2.5.0-rc3
+	               Jul 3, 2021
+	        -------------------------
+
+Remember that the WSJT-X 2.5.0 package includes MAP65 3.0.0.  Changes
+in the package since WSJT-X 2.5.0-rc2 include the following
+enhancements and defect repairs:
+
+MAP65:
+ - Correct two defects that could cause "hung decoder" status
+ - Translate reported frequencies so that |DF| <= 500 Hz for Q65
+   decodes.
+ - Provide access to Release Notes from the Help menu
+
+WSJT-X:
+ - Repair a long standing defect that caused UDP Protocol Heartbeat
+   messages to not be sent when no other intervening messages are
+   sent.
+
 	        Release: WSJT-X 2.5.0-rc2
 	               Jun 28, 2021
 	        -------------------------
@@ -23,7 +42,7 @@ enhancements and defect repairs:
 MAP65:
  - Compute polarization angle for Xpol systems and display to nearest
    degree
- - Compute and display the recommended Tx polarization
+ - Compute and display the recommended Tx polarization	
  - Protect against Fortran bounds errors in several places
  - Insert leading 0 when needed in UTC hours and minutes on waterfall
  - Wideband Q65 synchronization corrected to include single-polarization

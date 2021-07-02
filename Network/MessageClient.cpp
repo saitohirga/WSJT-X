@@ -71,12 +71,12 @@ public:
   void heartbeat ();
   void closedown ();
   StreamStatus check_status (QDataStream const&) const;
-  void send_message (QByteArray const&, bool queue_if_pending = true);
-  void send_message (QDataStream const& out, QByteArray const& message, bool queue_if_pending = true)
+  void send_message (QByteArray const&, bool queue_if_pending = true, bool allow_duplicates = false);
+  void send_message (QDataStream const& out, QByteArray const& message, bool queue_if_pending = true, bool allow_duplicates = false)
   {
     if (OK == check_status (out))
       {
-        send_message (message, queue_if_pending);
+        send_message (message, queue_if_pending, allow_duplicates);
       }
     else
       {
@@ -197,7 +197,7 @@ void MessageClient::impl::start ()
   // clear any backlog
   while (pending_messages_.size ())
     {
-      send_message (pending_messages_.dequeue (), false);
+      send_message (pending_messages_.dequeue (), true, false);
     }
 }
 
@@ -429,7 +429,7 @@ void MessageClient::impl::heartbeat ()
       out << NetworkMessage::Builder::schema_number // maximum schema number accepted
           << version_.toUtf8 () << revision_.toUtf8 ();
       TRACE_UDP ("schema:" << schema_ << "max schema:" << NetworkMessage::Builder::schema_number << "version:" << version_ << "revision:" << revision_);
-      send_message (out, message, false);
+      send_message (out, message, false, true);
     }
 }
 
@@ -444,13 +444,13 @@ void MessageClient::impl::closedown ()
     }
 }
 
-void MessageClient::impl::send_message (QByteArray const& message, bool queue_if_pending)
+void MessageClient::impl::send_message (QByteArray const& message, bool queue_if_pending, bool allow_duplicates)
 {
   if (server_port_)
     {
       if (!server_.isNull ())
         {
-          if (message != last_message_) // avoid duplicates
+          if (allow_duplicates || message != last_message_) // avoid duplicates
             {
               if (is_multicast_address (server_))
                 {
