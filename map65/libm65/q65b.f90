@@ -24,7 +24,7 @@ subroutine q65b(nutc,nqd,nxant,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol, &
   complex cx(0:MAXFFT2-1),cy(0:MAXFFT2-1),cz(0:MAXFFT2)
   logical xpol
   integer ipk1(1)
-  real*8 fcenter,freq0
+  real*8 fcenter,freq0,freq1
   character*12 mycall0,hiscall0
   character*12 mycall,hiscall
   character*6 mygrid,hisgrid
@@ -138,7 +138,7 @@ subroutine q65b(nutc,nqd,nxant,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol, &
        newdat,nagain,max_drift,mycall,hiscall,hisgrid)
 
   MHz=fcenter
-  freq0=MHz + 0.001*ikhz
+  freq0=MHz + 0.001d0*ikhz
 
   if(nsnr0.gt.-99) then
      nq65df=nint(1000*(0.001*k0*df+nkhz_center-48.0+1.000-1.27046-ikhz))-nfcal
@@ -149,8 +149,13 @@ subroutine q65b(nutc,nqd,nxant,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol, &
         if(npol.lt.0) npol=npol+180
      endif
      call txpol(xpol,msg0(1:22),mygrid,npol,nxant,ntxpol,cp)
+     ikhz1=ikhz
+     ndf=nq65df
+     if(ndf.gt.500) ikhz1=ikhz + (nq65df+500)/1000
+     if(ndf.lt.-500) ikhz1=ikhz + (nq65df-500)/1000
+     ndf=nq65df - 1000*(ikhz1-ikhz)
      if(nqd.eq.1 .and. abs(nq65df-mousedf).lt.ntol) then
-        write(line,1020) ikhz,nq65df,npol,nutc,xdt0,nsnr0,msg0(1:27),cq0,  &
+        write(line,1020) ikhz1,ndf,npol,nutc,xdt0,nsnr0,msg0(1:27),cq0,  &
              ntxpol,cp
 1020    format('!',i3.3,i5,i4,i6.4,f5.1,i5,' : ',a27,a3,i4,1x,a1)
         write(*,1100) trim(line)
@@ -161,12 +166,13 @@ subroutine q65b(nutc,nqd,nxant,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol, &
 
      cmode=': '
      cmode(2:2)=char(ichar('A') + mode_q65-1)
-     write(26,1014) freq0,nq65df,0,0,0,xdt0,npol,0,                 &
-          nsnr0,nutc,msg0(1:22),':',cp,cmode
+     freq1=freq0 + 0.001d0*(ikhz1-ikhz)
+     write(26,1014) freq1,ndf,0,0,0,xdt0,npol,0,nsnr0,nutc,msg0(1:22),   &
+          ':',cp,cmode
 1014 format(f8.3,i5,3i3,f5.1,i4,i3,i4,i5.4,4x,a22,1x,2a1,2x,a2)
 
 ! Write to file map65_rx.log:
-     write(21,1110)  freq0,nq65df,xdt0,npol,nsnr0,nutc,msg0(1:28),cq0
+     write(21,1110)  freq1,ndf,xdt0,npol,nsnr0,nutc,msg0(1:28),cq0
 1110 format(f8.3,i5,f5.1,2i4,i5.4,2x,a28,': A',2x,a3)
   endif
 
