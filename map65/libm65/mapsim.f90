@@ -12,7 +12,7 @@ program mapsim
   logical bq65
   character msg0*22,message*22,msgsent*22,arg*8,fname*11,mode*2
   character*16 msg_list(60)
-  data ilist/0/,msg_list/                                          &
+  data msg_list/                                          &
        'W1AAA K2BBB EM00','W2CCC K3DDD EM01','W3EEE K4FFF EM02',   &
        'W5GGG K6HHH EM03','W7III K8JJJ EM04','W9KKK K0LLL EM05',   &
        'G0MMM F1NNN JN06','G2OOO F3PPP JN07','G4QQQ F5RRR JN08',   &
@@ -91,6 +91,7 @@ program mapsim
 1000 format('File N Mode  DT    freq   pol   fDop   SNR   Message'/68('-'))
 
   do ifile=1,nfiles
+     ilist=0
      nmin=ifile-1
      if(mode(2:2).eq.' ') nmin=2*nmin
      write(fname,1002) nmin                      !Create the output filenames
