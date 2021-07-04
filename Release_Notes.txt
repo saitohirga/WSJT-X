@@ -26,6 +26,11 @@ MAP65:
    decodes.
  - Provide access to Release Notes from the Help menu
 
+WSJT-X:
+ - Repair a long standing defect that caused UDP Protocol Heartbeat
+   messages to not be sent when no other intervening messages are
+   sent.
+
 	        Release: WSJT-X 2.5.0-rc2
 	               Jun 28, 2021
 	        -------------------------
@@ -37,7 +42,7 @@ enhancements and defect repairs:
 MAP65:
  - Compute polarization angle for Xpol systems and display to nearest
    degree
- - Compute and display the recommended Tx polarization
+ - Compute and display the recommended Tx polarization	
  - Protect against Fortran bounds errors in several places
  - Insert leading 0 when needed in UTC hours and minutes on waterfall
  - Wideband Q65 synchronization corrected to include single-polarization
