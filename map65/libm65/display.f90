@@ -127,6 +127,8 @@ subroutine display(nkeep,ftol)
         livecq=line3(k)(6:13)//line3(k)(28:31)//line3(k)(39:45)//       &
              line3(k)(23:27)//line3(k)(35:38)//line3(k)(46:70)//        &
              line3(k)(73:77)
+        if(livecq(56:56).eq.':') livecq(56:58)=' '//livecq(56:57)
+        print*,'= ',trim(livecq)
         if(index(livecq,' CQ ').gt.0 .or. index(livecq,' QRZ ').gt.0 .or.   &
            index(livecq,' QRT ').gt.0 .or. index(livecq,' CQV ').gt.0 .or.  &
            index(livecq,' CQH ').gt.0) write(19,1029) livecq
