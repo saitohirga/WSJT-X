@@ -16,7 +16,6 @@ subroutine decode0(dd,ss,savg,nstandalone)
   save
 
   call timer('decode0 ',0)
-  nhsym=302
   if(newdat.ne.0) then
      istep=10000
      do i=NSMAX,1,-istep
