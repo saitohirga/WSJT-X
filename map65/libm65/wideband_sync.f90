@@ -32,7 +32,7 @@ subroutine get_candidates(ss,savg,xpol,nfa,nfb,nts_jt65,nts_q65,cand,ncand)
 ! spacings: 1 2 4 8 16 for A B C D E.  Birdies are detected and
 ! excised.  Candidates are returned in the structure array cand().
 
-  parameter (MAX_PEAKS=300)
+  parameter (MAX_PEAKS=100)
   real ss(4,322,NFFT),savg(4,NFFT)
   real pavg(-20:20)
   integer indx(NFFT)
@@ -87,11 +87,11 @@ subroutine get_candidates(ss,savg,xpol,nfa,nfb,nts_jt65,nts_q65,cand,ncand)
         diffhz=1000.0*(f0-cand(m)%f)
         bw=nts_q65*110.0
         if(cand(m)%iflip.ne.0) bw=nts_jt65*178.0
-        if(diffhz.gt.-20.0 .and. diffhz.lt.bw+20.0) skip=.true.
-!        write(*,3301) i,k,m,f0,cand(m)%f,diffhz,snr1,skip
-!3301    format('=',3i5,f10.1,3f10.3,L3)
+        if(diffhz.gt.-0.03*bw .and. diffhz.lt.1.03*bw) skip=.true.
      enddo
      if(skip) cycle
+!     write(*,3301) i,k,m,f0,diffhz,bw,db(snr1)
+!3301 format('=A',3i5,f8.3,2f8.0,f8.2)
      k=k+1
      cand(k)%snr=snr1
      cand(k)%f=f0

@@ -47,7 +47,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   xpol=(nxpol.ne.0)
 
   nts_jt65=2**(mode65-1)              !JT65 tone separation factor
-  nts_q65=2**(mode_q65)               !Q65 tone separation factor
+  nts_q65=2**(mode_q65-1)             !Q65 tone separation factor
   if(nagain.eq.0) then
      call timer('get_cand',0)
      call get_candidates(ss,savg,xpol,mfa,mfb,nts_jt65,nts_q65,cand,ncand)
@@ -57,9 +57,9 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
 !###
 !  do k=1,ncand
 !     freq=cand(k)%f+nkhz_center-48.0-1.27046
-!     write(70,3010) nutc,k,cand(k)%snr,cand(k)%f,freq,cand(k)%xdt,    &
+!     write(*,3010) nutc,k,db(cand(k)%snr),cand(k)%f,freq,cand(k)%xdt,    &
 !          cand(k)%ipol,cand(k)%iflip
-!3010 format(i4.4,i5,f10.1,3f10.3,2i3)
+!3010 format('=a',i5.4,i5,f8.2,3f10.3,2i3)
 !  enddo
 !###
 
