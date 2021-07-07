@@ -21,6 +21,7 @@ module wideband_sync
   parameter (MAX_CANDIDATES=50)
   parameter (SNR1_THRESHOLD=4.5)
   type(sync_dat) :: sync(NFFT)
+  logical ldecoded(NFFT)
   integer nkhz_center
 
   contains
@@ -43,7 +44,7 @@ subroutine get_candidates(ss,savg,xpol,nfa,nfb,nts_jt65,nts_q65,cand,ncand)
      if(sum(ss(1,j,1:NFFT)).gt.0.0) exit
   enddo
   jz=j
-  
+  ldecoded=.false.
   call wb_sync(ss,savg,xpol,jz,nfa,nfb)
 
   tstep=2048.0/11025.0        !0.185760 s: 0.5*tsym_jt65, 0.3096*tsym_q65

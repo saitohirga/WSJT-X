@@ -50,8 +50,8 @@ subroutine q65b(nutc,nqd,nxant,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol, &
   ib=nint(ifreq+ntol/df3)
   ipk1=maxloc(sync(ia:ib)%ccfmax)
   ipk=ia+ipk1(1)-1
+  if(ldecoded(ipk)) go to 900
   snr1=sync(ipk)%ccfmax
-
   ipol=1
   if(xpol) ipol=sync(ipk)%ipol
 
@@ -141,6 +141,7 @@ subroutine q65b(nutc,nqd,nxant,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol, &
   freq0=MHz + 0.001d0*ikhz
 
   if(nsnr0.gt.-99) then
+     ldecoded(ipk)=.true.
      nq65df=nint(1000*(0.001*k0*df+nkhz_center-48.0+1.000-1.27046-ikhz))-nfcal
      nq65df=nq65df + nfreq0 - 1000
      npol=nint(poldeg)
@@ -163,7 +164,6 @@ subroutine q65b(nutc,nqd,nxant,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol, &
      endif
 
 ! Write to lu 26, for Messages and Band Map windows
-
      cmode=': '
      cmode(2:2)=char(ichar('A') + mode_q65-1)
      freq1=freq0 + 0.001d0*(ikhz1-ikhz)
