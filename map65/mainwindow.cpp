@@ -624,6 +624,7 @@ void MainWindow::dataSink(int k)
   if(ihsym == 302) {   //For Q65, decode at t=56 s
     datcom_.newdat=1;
     datcom_.nagain=0;
+    datcom_.nhsym=ihsym;
     QDateTime t = QDateTime::currentDateTimeUtc();
     m_dateTime=t.toString("yyyy-MMM-dd hh:mm");
     decode();                                           //Start the decoder

@@ -72,14 +72,14 @@ end subroutine m65b
 subroutine m65c(dd,ss,savg,nparams0)
   real*4 dd(4,5760000),ss(4,322,32768),savg(4,32768)
   real*8 fcenter
-  integer nparams0(40),nparams(40)
+  integer nparams0(41),nparams(41)
   character*12 mycall,hiscall
   character*6 mygrid,hisgrid
   character*20 datetime
   common/npar/fcenter,nutc,idphi,mousedf,mousefqso,nagain,              &
        ndepth,ndiskdat,neme,newdat,nfa,nfb,nfcal,nfshift,               &
        mcall3,nkeep,ntol,nxant,nrxlog,nfsample,nxpol,nmode,             &
-       nfast,nsave,max_drift,mycall,mygrid,hiscall,hisgrid,datetime
+       nfast,nsave,max_drift,nhsym,mycall,mygrid,hiscall,hisgrid,datetime
   equivalence (nparams,fcenter)
   
   nparams=nparams0                     !Copy parameters into common/npar/

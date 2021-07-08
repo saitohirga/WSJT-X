@@ -11,19 +11,13 @@ subroutine decode0(dd,ss,savg,nstandalone)
   common/npar/fcenter,nutc,idphi,mousedf,mousefqso,nagain,                &
        ndepth,ndiskdat,neme,newdat,nfa,nfb,nfcal,nfshift,                 &
        mcall3,nkeep,ntol,nxant,nrxlog,nfsample,nxpol,nmode,               &
-       nfast,nsave,max_drift,mycall,mygrid,hiscall,hisgrid,datetime
+       nfast,nsave,max_drift,nhsym,mycall,mygrid,hiscall,hisgrid,datetime
   data neme0/-99/,mcall3b/1/
   save
 
   call timer('decode0 ',0)
   if(newdat.ne.0) then
-     istep=10000
-     do i=NSMAX,1,-istep
-        n=maxval(abs(dd(1,i-istep+1:i)))
-        if(n.gt.10) exit
-     enddo
-     nz=i
-     nhsym=5.3833*nz/96000.0
+     nz=96000*nhsym/5.3833
      hist=0
      do i=1,nz
         j1=min(abs(dd(1,i)),32768.0)
