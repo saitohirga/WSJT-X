@@ -1391,11 +1391,11 @@ void MainWindow::readFromStdout()                             //readFromStdout
       QFile lockFile(m_appDir + "/.lock");
       lockFile.open(QIODevice::ReadWrite);
       if(t.indexOf("<DecodeFinished>") >= 0) {
-        ui->DecodeButton->setStyleSheet("");
-        decodeBusy(false);
         m_map65RxLog=0;
         m_startAnother=m_loopall;
       }
+      ui->DecodeButton->setStyleSheet("");
+      decodeBusy(false);
       return;
     }
 
