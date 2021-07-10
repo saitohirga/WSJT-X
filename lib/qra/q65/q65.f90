@@ -157,12 +157,17 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
 ! Try list decoding via "Deep Likelihood".
      call timer('ccf_85  ',0)
 ! Try to synchronize using all 85 symbols
-     call q65_ccf_85(s1,iz,jz,nfqso,ia,ia2,ipk,jpk,f0,xdt,imsg_best,ccf1)
+     call q65_ccf_85(s1,iz,jz,nfqso,ia,ia2,ipk,jpk,f0,xdt,imsg_best,   &
+          better,ccf1)
      call timer('ccf_85  ',1)
 
-     call timer('list_dec',0)
-     call q65_dec_q3(s1,iz,jz,s3,LL,ipk,jpk,snr2,dat4,idec,decoded)
-     call timer('list_dec',1)
+     if(better.ge.1.10) then
+        call timer('list_dec',0)
+        call q65_dec_q3(s1,iz,jz,s3,LL,ipk,jpk,snr2,dat4,idec,decoded)
+        call timer('list_dec',1)
+        if(idec.ge.0) write(70,3070) idec,better,trim(decoded)
+3070    format(i3,f8.2,2x,a)
+     endif
 ! If idec=3 we have a q3 decode.  Continue to compute sync curve for plotting.
   endif
 
@@ -359,18 +364,21 @@ subroutine q65_dec_q012(s3,LL,snr2,dat4,idec,decoded)
 100 return
 end subroutine q65_dec_q012
 
-subroutine q65_ccf_85(s1,iz,jz,nfqso,ia,ia2,ipk,jpk,f0,xdt,imsg_best,ccf1)
+subroutine q65_ccf_85(s1,iz,jz,nfqso,ia,ia2,ipk,jpk,f0,xdt,imsg_best,   &
+     better,ccf1)
 
 ! Attempt synchronization using all 85 symbols, in advance of an
 ! attempt at q3 decoding.  Return ccf1 for the "red sync curve".
   
   real s1(iz,jz)
   real, allocatable :: ccf(:,:)          !CCF(freq,lag)
+  real, allocatable :: best(:)           !best(imsg) -- for checking 2nd best
   real ccf1(-ia2:ia2)
   integer ijpk(2)
   integer itone(85)
 
   allocate(ccf(-ia2:ia2,-53:214))
+  allocate(best(ncw))
   ipk=0
   jpk=0
   ccf_best=0.
@@ -415,8 +423,11 @@ subroutine q65_ccf_85(s1,iz,jz,nfqso,ia,ia2,ipk,jpk,f0,xdt,imsg_best,ccf1)
         imsg_best=imsg
         ccf1=ccf(:,jpk)
      endif
+     best(imsg)=ccfmax
   enddo  ! imsg
   deallocate(ccf)
+  best(imsg_best)=0.
+  better=ccf_best/maxval(best)
 
   return
 end subroutine q65_ccf_85
