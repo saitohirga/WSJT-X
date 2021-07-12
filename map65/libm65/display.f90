@@ -3,13 +3,14 @@ subroutine display(nkeep,ftol)
   parameter (MAXLINES=400,MX=400,MAXCALLS=500)
   integer indx(MAXLINES),indx2(MX)
   character*83 line(MAXLINES),line2(MX),line3(MAXLINES)
-  character out*52,cfreq0*3,livecq*58
+  character out*52,out0*52,cfreq0*3,livecq*58
   character*6 callsign,callsign0
   character*12 freqcall(MAXCALLS)
   real freqkHz(MAXLINES)
   integer utc(MAXLINES),utc2(MX),utcz
   real*8 f0
 
+  out0=' '
   rewind 26
 
   do i=1,MAXLINES
@@ -132,8 +133,14 @@ subroutine display(nkeep,ftol)
            index(livecq,' QRT ').gt.0 .or. index(livecq,' CQV ').gt.0 .or.  &
            index(livecq,' CQH ').gt.0) write(19,1029) livecq
 1029    format(a58)
-        write(*,1030) out                           !Messages
-1030    format('@',a52)
+
+! Suppress listing duplicate (same time, same decoded message)
+        if(out(14:17).ne.out0(14:17) .or. out(26:50).ne.out0(26:50)) then
+           write(*,1030) out                  !Messages
+1030       format('@',a52)
+           out0=out
+        endif
+
         i1=index(out(26:),' ')
         callsign=out(i1+26:)
         i2=index(callsign,' ')
