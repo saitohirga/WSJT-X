@@ -40,7 +40,9 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   data nfile/0/,nutc0/-999/,nid/0/,ip000/1/,ip001/1/,mousefqso0/-999/
   save
 
-  if(nhsym.eq.nhsym1 .or. newdat.ne.0 .or. nagain.ne.0) ldecoded=.false.
+! Clean start for Q65 at early decode
+  if(nhsym.eq.nhsym1 .or. nagain.ne.0) ldecoded=.false.
+
   nkhz_center=nint(1000.0*(fcenter-int(fcenter)))
   mfa=nfa-nkhz_center+48
   mfb=nfb-nkhz_center+48
@@ -50,8 +52,6 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   nts_jt65=2**(mode65-1)              !JT65 tone separation factor
   nts_q65=2**(mode_q65-1)             !Q65 tone separation factor
   xpol=(nxpol.ne.0)
-
-  if(nhsym.eq.nhsym1) ldecoded=.false.  !Clean start for Q65 at early decode
   
 ! No second decode for JT65?
   if(nhsym.eq.nhsym2 .and. (nstandalone.eq.1 .or. ndiskdat.eq.0)) mode65=0
