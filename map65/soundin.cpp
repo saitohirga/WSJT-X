@@ -496,6 +496,9 @@ void SoundInThread::inputMockRT()
           msleep(mswait);
         }
         read_tf2_(&k);
+        if(m_bForceCenterFreq) {
+          datcom_.fcenter=m_dForceCenterFreq;
+        }
       }
       m_hsym=(k-2048)*11025.0/(2048.0*m_rate);
       if(m_hsym != nhsym0) {
