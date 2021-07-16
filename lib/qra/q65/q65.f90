@@ -165,8 +165,8 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
         call timer('list_dec',0)
         call q65_dec_q3(s1,iz,jz,s3,LL,ipk,jpk,snr2,dat4,idec,decoded)
         call timer('list_dec',1)
-        if(idec.ge.0) write(70,3070) idec,better,trim(decoded)
-3070    format(i3,f8.2,2x,a)
+!        if(idec.ge.0) write(70,3070) idec,better,trim(decoded)
+!3070    format(i3,f8.2,2x,a)
      endif
 ! If idec=3 we have a q3 decode.  Continue to compute sync curve for plotting.
   endif
