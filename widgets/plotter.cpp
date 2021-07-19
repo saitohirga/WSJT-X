@@ -530,9 +530,8 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
   int yh=5;
   int yTxTop=12;
   int yRxBottom=yTxTop + 2*yh + 4;
-  if(m_mode=="JT9" or m_mode=="JT65" or m_mode=="JT9+JT65"
-     or m_mode=="Q65" or m_mode=="FT8" or m_mode=="FT4"
-     or m_mode.startsWith("FST4")) {
+  if(m_mode=="JT9" or m_mode=="JT65" or m_mode=="Q65" or m_mode=="FT8"
+     or m_mode=="FT4" or m_mode.startsWith("FST4")) {
 
     if(m_mode=="FST4" and !m_bSingleDecode) {
       x1=XfromFreq(m_nfa);
@@ -580,9 +579,8 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
     }
   }
 
-  if(m_mode=="JT9" or m_mode=="JT65" or m_mode=="JT9+JT65" or
-     m_mode.mid(0,4)=="WSPR" or m_mode=="Q65" or m_mode=="FT8"
-     or m_mode=="FT4" or m_mode.startsWith("FST4")) {
+  if(m_mode=="JT9" or m_mode=="JT65" or m_mode.mid(0,4)=="WSPR" or m_mode=="Q65"
+     or m_mode=="FT8" or m_mode=="FT4" or m_mode.startsWith("FST4")) {
     painter0.setPen(penRed);
     x1=XfromFreq(m_txFreq);
     x2=XfromFreq(m_txFreq+bw);
@@ -595,15 +593,6 @@ void CPlotter::DrawOverlay()                   //DrawOverlay()
     painter0.drawLine(x1,yTxTop,x1,yTxTop+yh);
     painter0.drawLine(x1,yTxTop,x2,yTxTop);
     painter0.drawLine(x2,yTxTop,x2,yTxTop+yh);
-  }
-
-  if(m_mode=="JT9+JT65") {
-    QPen pen2(Qt::blue, 3);                //Mark the JT65 | JT9 divider
-    painter0.setPen(pen2);
-    x1=XfromFreq(m_fMin);
-    if(x1<2) x1=2;
-    x2=x1+30;
-    painter0.drawLine(x1,8,x1,28);
   }
 
   if(m_dialFreq>10.13 and m_dialFreq< 10.15 and m_mode.mid(0,4)!="WSPR") {
