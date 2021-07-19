@@ -20,6 +20,6 @@ the spinner controls or use the mouse wheel.
 
 - Download some or all of the available sample files using checkboxes
 on the screen shown below.  For this tutorial you will need at least
-the JT9 and JT9+JT65 files.
+the JT9 files.
 
 image::download_samples.png[align="center",alt="Downlod Samples"]
