@@ -453,10 +453,6 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
           // if enabled add the DXCC entity and B4 status to the end of the
           // preformated text line t1
           auto currentMode = mode;
-          if ("JT9+JT65" == mode)
-            {
-              currentMode = decodedText.isJT65 () ? "JT65" : "JT9";
-            }
           message = appendWorkedB4 (message, decodedText.CQersCall(), dxGrid, &bg, &fg
                                     , logBook, currentBand, currentMode, extra);
         }
