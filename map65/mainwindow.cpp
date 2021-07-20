@@ -520,6 +520,7 @@ void MainWindow::dataSink(int k)
   static int nkhz;
   static int nfsample=96000;
   static int nxpol=0;
+  static int iRxState=0;
   static float fgreen;
   static int ndiskdat;
   static int nb;
@@ -529,7 +530,6 @@ void MainWindow::dataSink(int k)
   static float rejectx;
   static float rejecty;
   static float slimit;
-
 
   if(m_diskData) {
     ndiskdat=1;
@@ -620,7 +620,8 @@ void MainWindow::dataSink(int k)
     n=0;
   }
 
-  if(ihsym == 280) {   //Early decode, t=52 s
+  if(iRxState==0 and ihsym>=280) {   //Early decode, t=52 s
+    iRxState=1;
     datcom_.newdat=1;
     datcom_.nagain=0;
     datcom_.nhsym=ihsym;
@@ -629,7 +630,8 @@ void MainWindow::dataSink(int k)
     decode();                                           //Start the decoder
   }
 
-  if(ihsym == 302) {   //Decode at t=56 s (for Q65 and data from disk)
+  if(iRxState<=1 and ihsym>=302) {   //Decode at t=56 s (for Q65 and data from disk)
+    iRxState=2;
     datcom_.newdat=1;
     datcom_.nagain=0;
     datcom_.nhsym=ihsym;
@@ -1298,7 +1300,7 @@ void MainWindow::decode()                                       //decode()
   datcom_.ntol=m_tol;
   datcom_.nxant=0;
   if(m_xpolx) datcom_.nxant=1;
-  if(datcom_.nutc < m_nutc0) m_map65RxLog |= 1;  //Date and Time to all65.txt
+  if(datcom_.nutc < m_nutc0) m_map65RxLog |= 1;  //Date and Time to map65_rx.log
   m_nutc0=datcom_.nutc;
   datcom_.map65RxLog=m_map65RxLog;
   datcom_.nfsample=96000;
