@@ -1121,10 +1121,6 @@ void MainWindow::diskDat()                                   //diskDat()
   m_diskData=true;
   datcom_.newdat=1;
 
-//  if(g_pWideGraph->m_bForceCenterFreq)  datcom_.fcenter=g_pWideGraph->m_dForceCenterFreq;
-//  qDebug() << "aa" << datcom_.fcenter << g_pWideGraph->m_dForceCenterFreq
-//           << g_pWideGraph->m_bForceCenterFreq;
-
   if(m_fs96000) hsym=2048.0*96000.0/11025.0;   //Samples per JT65 half-symbol
   if(!m_fs96000) hsym=2048.0*95238.1/11025.0;
   for(int i=0; i<304; i++) {           // Do the half-symbol FFTs
