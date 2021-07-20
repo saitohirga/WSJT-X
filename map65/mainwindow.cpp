@@ -1556,11 +1556,13 @@ void MainWindow::guiUpdate()
     msgsent[22]=0;
 
     if(m_restart) {
+      QString t="  Tx " + m_modeTx + "   ";
+      t=t.left(11);
       QFile f("map65_tx.log");
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
       QTextStream out(&f);
       out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-          << "  Tx message:  " << QString::fromLatin1(msgsent)
+          << t << QString::fromLatin1(msgsent)
 #if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
           << Qt::endl
 #else
@@ -1585,11 +1587,13 @@ void MainWindow::guiUpdate()
     m_transmitting=true;
     m_wide_graph_window->enableSetRxHardware(false);
 
+    QString t="  Tx " + m_modeTx + "   ";
+    t=t.left(11);
     QFile f("map65_tx.log");
     f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
     QTextStream out(&f);
     out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-        << "  Tx message:  " << QString::fromLatin1(msgsent)
+        << t << QString::fromLatin1(msgsent)
 #if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
         << Qt::endl
 #else
