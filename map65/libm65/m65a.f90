@@ -89,7 +89,7 @@ subroutine m65c(dd,ss,savg,nparams0)
   
   nparams=nparams0                     !Copy parameters into common/npar/
   npatience=1
-  if(iand(nrxlog,1).ne.0) then
+  if(nhsym.eq.nhsym1 .and. iand(nrxlog,1).ne.0) then
      write(21,1000) datetime(:17)
 1000 format(/'UTC Date: 'a17/78('-'))
      flush(21)
