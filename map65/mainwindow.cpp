@@ -1338,6 +1338,7 @@ void MainWindow::decode()                                       //decode()
   memcpy(to, from, qMin(mem_m65.size(), size-8));
   datcom_.nagain=0;
   datcom_.ndiskdat=0;
+  m_map65RxLog=0;
   m_call3Modified=false;
 
   QFile lockFile(m_appDir + "/.lock");       // Allow m65 to start

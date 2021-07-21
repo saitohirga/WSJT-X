@@ -186,5 +186,10 @@ program m65
   print*,infile
 
 999 call fini_timer()
+  if(arg(1:2).eq.'-s') then
+     write(21,1999) datetime(:17)
+1999 format('Subprocess m65 terminated normally at UTC ',a17)
+     close(21)
+  endif
 
 end program m65

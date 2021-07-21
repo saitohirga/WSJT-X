@@ -1,5 +1,5 @@
 subroutine m65a
-  
+
   use timer_module, only: timer
   use timer_impl, only: init_timer !, limtrace
   use, intrinsic :: iso_c_binding, only: C_NULL_CHAR
