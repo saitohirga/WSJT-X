@@ -1,20 +1,35 @@
 // Status=review
 
-Set up the Wide Graph (also called the Waterfall). It is important to set appropriate lower and upper 
-audio frequency limits for the Wide Graph because these limits define the FT8 decoder's search window.
+Set up the Wide Graph (also called the Waterfall). 
+It is important to set appropriate lower and upper 
+audio frequency limits for the Wide Graph because these limits define the FT8 decoder's search window:
 
 - Set *Start* = 100 Hz.
 - Set *Bins/Pixel* = 5. Smaller/larger values make the Wide Graph cover a smaller/larger 
 frequency range.
 - Use the mouse to grab the left or right edge of the *Wide Graph*, and
 adjust its width so that the upper frequency limit is about 3300 Hz.
-- Set *N Avg* = 2. Smaller/larger values will make the wide graph update more/less frequently, resulting
-in signals being more/less spread out in the vertical (time) direction on the Wide Graph spectrogram. 
-Larger values make it easier to see very weak signals. 
-- *Palette* = Digipan 
+
+The *N Avg* setting controls how many spectra are averaged to produce each line in the spectrogram. 
+Smaller values make the spectrogram update more frequently, resulting in signals being more spread
+out in the vertical (time) direction.
+On the other hand, larger values make it easier to detect very weak signals:
+
+- Set *N Avg* = 2. 
+
+The *Palette* setting controls the color scheme used for the spectrogram: 
+
+- Set *Palette* = Fldigi 
+
+When *Flatten* is checked, WSJT-X attempts to correct for rolloff at the lowest and highest
+frequencies in the spectrum: 
+
 - *Flatten* = checked 
 - Select *Cumulative* for data display
-- *Gain* and *Zero* sliders for waterfall and spectrum set near midscale
-- Set *Spec* = 25%. This value determines the percentage of the vertical size of the Wide Graph 
-that will be used for the line plot of the spectrum.
+- Set the *Gain* and *Zero* sliders for the waterfall and spectrum to near midscale
+
+The *Spec* setting determines what fraction of the vertical extent of the Wide Graph will
+be used for the line plot of the spectrum. Setting *Spec* to 0 will eliminate the line plot.
+
+- Set *Spec* = 25% 
 
