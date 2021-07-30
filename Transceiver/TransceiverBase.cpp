@@ -16,6 +16,8 @@ namespace
 
 void TransceiverBase::start (unsigned sequence_number) noexcept
 {
+  CAT_TRACE ("#: " << sequence_number);
+
   QString message;
   try
     {
@@ -26,10 +28,12 @@ void TransceiverBase::start (unsigned sequence_number) noexcept
     }
   catch (std::exception const& e)
     {
+      CAT_TRACE ("#: " << sequence_number << " what: " << e.what ());
       message = e.what ();
     }
   catch (...)
     {
+      CAT_TRACE ("#: " << sequence_number);
       message = unexpected;
     }
   if (!message.isEmpty ())
@@ -41,7 +45,7 @@ void TransceiverBase::start (unsigned sequence_number) noexcept
 void TransceiverBase::set (TransceiverState const& s,
                            unsigned sequence_number) noexcept
 {
-  CAT_TRACE ("#: " << sequence_number << " " << s);
+  CAT_TRACE ("#: " << s);
 
   QString message;
   try
@@ -119,10 +123,12 @@ void TransceiverBase::set (TransceiverState const& s,
     }
   catch (std::exception const& e)
     {
+      CAT_TRACE ("#: " << sequence_number << " what: " << e.what ());
       message = e.what ();
     }
   catch (...)
     {
+      CAT_TRACE ("#: " << sequence_number << " " << sequence_number);
       message = unexpected;
     }
   if (!message.isEmpty ())
@@ -133,6 +139,7 @@ void TransceiverBase::set (TransceiverState const& s,
 
 void TransceiverBase::startup ()
 {
+  CAT_TRACE ("startup");
   QString message;
   try
     {
@@ -144,10 +151,12 @@ void TransceiverBase::startup ()
     }
   catch (std::exception const& e)
     {
+      CAT_TRACE ("startup" << " what: " << e.what ());
       message = e.what ();
     }
   catch (...)
     {
+      CAT_TRACE ("startup");
       message = unexpected;
     }
   if (!message.isEmpty ())
@@ -158,6 +167,7 @@ void TransceiverBase::startup ()
 
 void TransceiverBase::shutdown ()
 {
+  CAT_TRACE ("shutdown");
   may_update u {this};
   if (requested_.online ())
     {
@@ -177,6 +187,7 @@ void TransceiverBase::shutdown ()
         }
       catch (...)
         {
+          CAT_TRACE ("shutdown");
           // don't care about exceptions
         }
     }
@@ -186,6 +197,7 @@ void TransceiverBase::shutdown ()
 
 void TransceiverBase::stop () noexcept
 {
+  CAT_TRACE ("stop");
   QString message;
   try
     {
@@ -193,10 +205,12 @@ void TransceiverBase::stop () noexcept
     }
   catch (std::exception const& e)
     {
+      CAT_TRACE ("stop" << " what: " << e.what ());
       message = e.what ();
     }
   catch (...)
     {
+      CAT_TRACE ("stop");
       message = unexpected;
     }
   if (!message.isEmpty ())
@@ -211,6 +225,7 @@ void TransceiverBase::stop () noexcept
 
 void TransceiverBase::update_rx_frequency (Frequency rx)
 {
+  CAT_TRACE ("frequency: " << rx);
   if (rx)
     {
       actual_.frequency (rx);
@@ -220,28 +235,35 @@ void TransceiverBase::update_rx_frequency (Frequency rx)
 
 void TransceiverBase::update_other_frequency (Frequency tx)
 {
+  CAT_TRACE ("frequency: " << tx);
   actual_.tx_frequency (tx);
 }
 
 void TransceiverBase::update_split (bool state)
 {
+  CAT_TRACE ("state: " << state);
   actual_.split (state);
 }
 
 void TransceiverBase::update_mode (MODE m)
 {
+  CAT_TRACE ("mode: " << m);
   actual_.mode (m);
   requested_.mode (m);    // track rig changes
 }
 
 void TransceiverBase::update_PTT (bool state)
 {
+  CAT_TRACE ("state: " << state);
   actual_.ptt (state);
 }
 
 void TransceiverBase::update_complete (bool force_signal)
 {
-  if ((do_pre_update () && actual_ != last_) || force_signal)
+  CAT_TRACE ("force signal: " << force_signal);
+  if ((do_pre_update ()
+       && actual_ != last_)
+      || force_signal)
     {
       Q_EMIT update (actual_, last_sequence_number_);
       last_ = actual_;
@@ -250,6 +272,7 @@ void TransceiverBase::update_complete (bool force_signal)
 
 void TransceiverBase::offline (QString const& reason)
 {
+  CAT_TRACE ("reason: " << reason);
   Q_EMIT failure (reason);
   try
     {
@@ -257,6 +280,7 @@ void TransceiverBase::offline (QString const& reason)
     }
   catch (...)
     {
+      CAT_TRACE ("reason: " << reason);
       // don't care
     }
 }

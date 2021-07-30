@@ -2735,6 +2735,7 @@ bool Configuration::impl::open_rig (bool force)
 
           ui_->test_CAT_push_button->setStyleSheet ({});
           rig_active_ = true;
+          LOG_TRACE ("emitting startup_transceiver");
           Q_EMIT start_transceiver (++transceiver_command_number_); // start rig on its thread
           result = true;
         }
@@ -2782,6 +2783,7 @@ void Configuration::impl::transceiver_frequency (Frequency f)
   cached_rig_state_.frequency (apply_calibration (f + current_offset_));
 
   // qDebug () << "Configuration::impl::transceiver_frequency: n:" << transceiver_command_number_ + 1 << "f:" << f;
+  LOG_TRACE ("emitting set_transceiver: requested state:" << cached_rig_state_);
   Q_EMIT set_transceiver (cached_rig_state_, ++transceiver_command_number_);
 }
 
@@ -2808,6 +2810,7 @@ void Configuration::impl::transceiver_tx_frequency (Frequency f)
         }
 
       // qDebug () << "Configuration::impl::transceiver_tx_frequency: n:" << transceiver_command_number_ + 1 << "f:" << f;
+      LOG_TRACE ("emitting set_transceiver: requested state:" << cached_rig_state_);
       Q_EMIT set_transceiver (cached_rig_state_, ++transceiver_command_number_);
     }
 }
@@ -2817,6 +2820,7 @@ void Configuration::impl::transceiver_mode (MODE m)
   cached_rig_state_.online (true); // we want the rig online
   cached_rig_state_.mode (m);
   // qDebug () << "Configuration::impl::transceiver_mode: n:" << transceiver_command_number_ + 1 << "m:" << m;
+  LOG_TRACE ("emitting set_transceiver: requested state:" << cached_rig_state_);
   Q_EMIT set_transceiver (cached_rig_state_, ++transceiver_command_number_);
 }
 
@@ -2826,6 +2830,7 @@ void Configuration::impl::transceiver_ptt (bool on)
   set_cached_mode ();
   cached_rig_state_.ptt (on);
   // qDebug () << "Configuration::impl::transceiver_ptt: n:" << transceiver_command_number_ + 1 << "on:" << on;
+  LOG_TRACE ("emitting set_transceiver: requested state:" << cached_rig_state_);
   Q_EMIT set_transceiver (cached_rig_state_, ++transceiver_command_number_);
 }
 
@@ -2909,6 +2914,7 @@ void Configuration::impl::close_rig ()
   if (rig_active_)
     {
       ui_->test_CAT_push_button->setStyleSheet ("QPushButton {background-color: red;}");
+      LOG_TRACE ("emitting stop_transceiver");
       Q_EMIT stop_transceiver ();
       for (auto const& connection: rig_connections_)
         {

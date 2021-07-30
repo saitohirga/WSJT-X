@@ -42,6 +42,15 @@ namespace Radio
         value = v.toDouble ();
         if (ok) *ok = true;
       }
+    if (ok && !*ok)
+      {
+        return value;
+      }
+    return frequency (value, scale, ok);
+  }
+
+  Frequency frequency (double value, int scale, bool * ok)
+  {
     value *= std::pow (10., scale);
     if (ok)
       {
@@ -49,6 +58,10 @@ namespace Radio
           {
             value = 0.;
             *ok = false;
+          }
+        else
+          {
+            *ok = true;
           }
       }
     return std::llround (value);
@@ -66,6 +79,15 @@ namespace Radio
         value = v.toDouble ();
         if (ok) *ok = true;
       }
+    if (ok && !*ok)
+      {
+        return value;
+      }
+    return frequency_delta (value, scale, ok);
+  }
+
+  FrequencyDelta frequency_delta (double value, int scale, bool * ok)
+  {
     value *= std::pow (10., scale);
     if (ok)
       {
@@ -74,6 +96,10 @@ namespace Radio
           {
             value = 0.;
             *ok = false;
+          }
+        else
+          {
+            *ok = true;
           }
       }
     return std::llround (value);
