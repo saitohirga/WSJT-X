@@ -44,9 +44,6 @@ public:
   void do_ptt (bool on) override;
 
 private:
-  bool await_notification_with_timeout (int timeout);
-  Q_SIGNAL void notified () const;
-  // Q_SLOT void timeout_check ();
   Q_SLOT void handle_COM_exception (int,  QString, QString, QString);
   Q_SLOT void handle_visible_change ();
   Q_SLOT void handle_rig_type_change (int rig_number);

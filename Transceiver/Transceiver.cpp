@@ -23,6 +23,12 @@ QDebug operator << (QDebug d, Transceiver::TransceiverState const& s)
 }
 #endif
 
+std::ostream& operator << (std::ostream& os, Transceiver::MODE m)
+{
+  auto const& mo = Transceiver::staticMetaObject;                             \
+  return os << mo.enumerator (mo.indexOfEnumerator ("MODE")).valueToKey (static_cast<int> (m)); \
+}
+
 std::ostream& operator << (std::ostream& os, Transceiver::TransceiverState const& s)
 {
   return os

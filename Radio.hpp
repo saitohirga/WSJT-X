@@ -34,10 +34,12 @@ namespace Radio
   //	QVariant argument is convertible to double and is assumed to
   //	be scaled by (10 ** -scale).
   //
-  Frequency UDP_EXPORT frequency (QVariant const&, int scale,
+  Frequency UDP_EXPORT frequency (QVariant const&, int scale = 0,
                                   bool * ok = nullptr, QLocale const& = QLocale ());
-  FrequencyDelta UDP_EXPORT frequency_delta (QVariant const&, int scale,
+  FrequencyDelta UDP_EXPORT frequency_delta (QVariant const&, int scale = 0,
                                              bool * ok = nullptr, QLocale const& = QLocale ());
+  Frequency UDP_EXPORT frequency (double, int scale = 0, bool * ok = nullptr);
+  FrequencyDelta UDP_EXPORT frequency_delta (double, int scale = 0, bool * ok = nullptr);
 
   //
   // Frequency type formatting

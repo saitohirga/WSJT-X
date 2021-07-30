@@ -1128,7 +1128,7 @@ void HamlibTransceiver::do_poll ()
         {
           m_->error_check (rig_get_freq (m_->rig_.data (), RIG_VFO_CURR, &f), tr ("getting current VFO frequency"));
           f = std::round (f);
-          CAT_TRACE ("rig_get_freq frequency=" << f);
+          CAT_TRACE ("rig_get_freq frequency=" << Radio::frequency (f));
           update_rx_frequency (f);
         }
 
