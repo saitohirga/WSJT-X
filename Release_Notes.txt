@@ -23,7 +23,8 @@ enhancements and defect repairs:
 MAP65:
  - Suppress display of duplicate decodes
  - Increase the length of .tf2 & .iq files to 56 s
- - Implements an early decoding pass at 52 s
+ - Implement an early decoding pass at 52 s
+ - Clean up the output written to map65_rx.log
  
 WSJT-X:
  - Repair a defect in CALL3.TXT lookups that incorrectly matched
