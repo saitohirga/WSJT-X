@@ -169,6 +169,7 @@ Q_DECLARE_METATYPE (Transceiver::TransceiverState);
 QDebug operator << (QDebug, Transceiver::TransceiverState const&);
 #endif
 
+std::ostream& operator << (std::ostream&, Transceiver::MODE);
 std::ostream& operator << (std::ostream&, Transceiver::TransceiverState const&);
 
 ENUM_QDATASTREAM_OPS_DECL (Transceiver, MODE);

@@ -55,7 +55,8 @@ subroutine jt9a()
   if(.not.ok) call abort
   call flush(6)
   call timer('decoder ',0)
-  if(local_params%nmode.eq.8 .and. local_params%ndiskdat) then
+  if(local_params%nmode.eq.8 .and. local_params%ndiskdat .and.    &
+       .not. local_params%nagain) then
 ! Early decoding pass, FT8 only, when wsjtx reads from disk
      nearly=41
      local_params%nzhsym=nearly

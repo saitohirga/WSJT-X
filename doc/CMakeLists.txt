@@ -49,12 +49,11 @@ set (UG_SRCS
   system-requirements.adoc
   transceiver-setup.adoc
   tutorial-example1.adoc
-  tutorial-example2.adoc
   tutorial-example3.adoc
   tutorial-example4.adoc
   tutorial-example5.adoc
   tutorial-example6.adoc
-  tutorial-main-window.adoc
+  tutorial-download-samples.adoc
   tutorial-wide-graph-settings.adoc
   utilities.adoc
   vhf-features.adoc
@@ -63,7 +62,6 @@ set (UG_SRCS
   )
 
 set (UG_IMGS
-  images/130610_2343-wav-80.png
   images/AstroData_2.png
   images/Astronomical_data.png
   images/auto-seq.png
@@ -72,7 +70,6 @@ set (UG_IMGS
   images/colors.png
   images/config-menu.png
   images/decode-menu.png
-  images/decodes.png
   images/download_samples.png
   images/echo_144.png
   images/EME_Deep_0.png

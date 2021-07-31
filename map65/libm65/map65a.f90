@@ -1,7 +1,8 @@
 subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
      mousedf,mousefqso,nagain,ndecdone,nfshift,ndphi,max_drift,             &
      nfcal,nkeep,mcall3b,nsum,nsave,nxant,mycall,mygrid,                    &
-     neme,ndepth,nstandalone,hiscall,hisgrid,nhsym,nfsample,nxpol,nmode)
+     neme,ndepth,nstandalone,hiscall,hisgrid,nhsym,nfsample,                &
+     ndiskdat,nxpol,nmode)
 
 !  Processes timf2 data from Linrad to find and decode JT65 signals.
 
@@ -24,6 +25,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   logical done(MAXMSG)
   logical xpol,bq65,q65b_called
   logical candec(MAX_CANDIDATES)
+  logical ldecoded
   character decoded*22,blank*22,cmode*2
   real short(3,NFFT)                 !SNR dt ipol for potential shorthands
   real qphi(12)
@@ -31,35 +33,44 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   
   common/c3com/ mcall3a
   common/testcom/ifreq
-  
+  common/early/nhsym1,nhsym2,ldecoded(32768)
+
   data blank/'                      '/,cm/'#'/
   data shmsg0/'ATT','RO ','RRR','73 '/
   data nfile/0/,nutc0/-999/,nid/0/,ip000/1/,ip001/1/,mousefqso0/-999/
   save
 
-  call sec0(0,tquick)
+! Clean start for Q65 at early decode
+  if(nhsym.eq.nhsym1 .or. nagain.ne.0) ldecoded=.false.
+
   nkhz_center=nint(1000.0*(fcenter-int(fcenter)))
   mfa=nfa-nkhz_center+48
   mfb=nfb-nkhz_center+48
   mode65=mod(nmode,10)
   if(mode65.eq.3) mode65=4
   mode_q65=nmode/10
-  xpol=(nxpol.ne.0)
-
   nts_jt65=2**(mode65-1)              !JT65 tone separation factor
-  nts_q65=2**(mode_q65)               !Q65 tone separation factor
+  nts_q65=2**(mode_q65-1)             !Q65 tone separation factor
+  xpol=(nxpol.ne.0)
+  
+! No second decode for JT65?
+!  if(nhsym.eq.nhsym2 .and. (nstandalone.eq.1 .or. ndiskdat.eq.0)) mode65=0
+  if(nhsym.eq.nhsym2 .and. nagain.eq.0) mode65=0
+!  print*,'=a',nhsym,nagain,mode65
+
   if(nagain.eq.0) then
      call timer('get_cand',0)
-     call get_candidates(ss,savg,xpol,mfa,mfb,nts_jt65,nts_q65,cand,ncand)
+     call get_candidates(ss,savg,xpol,nhsym,mfa,mfb,nts_jt65,nts_q65,cand,ncand)
      call timer('get_cand',1)
      candec=.false.
   endif
 !###
 !  do k=1,ncand
 !     freq=cand(k)%f+nkhz_center-48.0-1.27046
-!     write(70,3010) nutc,k,cand(k)%snr,cand(k)%f,freq,cand(k)%xdt,    &
-!          cand(k)%ipol,cand(k)%iflip
-!3010 format(i4.4,i5,f10.1,3f10.3,2i3)
+!     ipk=cand(k)%indx
+!     write(*,3010) nutc,k,db(cand(k)%snr),freq,cand(k)%xdt,    &
+!          cand(k)%ipol,cand(k)%iflip,ipk,ldecoded(ipk)
+!3010 format('=a',i5.4,i5,f8.2,f10.3,f8.2,2i3,i6,L4)
 !  enddo
 !###
 
@@ -111,7 +122,9 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
      short=0.                                 !Zero the whole short array
      jpz=1
      if(xpol) jpz=4
+     if(mode65.eq.0) go to 50
 
+! First steps for JT65 decoding
      do i=ia,ib                               !Search over freq range
         freq=0.001*(i-16385)*df
 !  Find the local base level for each polarization; update every 10 bins.
@@ -278,8 +291,9 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
         endif
      enddo  !i=ia,ib
 
-     if(nqd.eq.1) then
+50   if(nqd.eq.1) then
         nwrite=0
+        if(mode65.eq.0) km=0
         do k=1,km
            decoded=msg(k)
            if(decoded.ne.'                      ') then
@@ -350,7 +364,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
               call timer('q65b    ',0)
               call q65b(nutc,nqd,nxant,fcenter,nfcal,nfsample,ikhz,mousedf,   &
                    ntol,xpol,mycall,mygrid, hiscall,hisgrid,mode_q65,f0,fqso, &
-                   newdat,nagain,max_drift,idec)
+                   newdat,nagain,max_drift,nhsym,idec)
               call timer('q65b    ',1)
               if(idec.ge.0) candec(icand)=.true.
            enddo
@@ -361,7 +375,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
               call timer('q65b    ',0)
               call q65b(nutc,nqd,nxant,fcenter,nfcal,nfsample,ikhz,mousedf,   &
                    ntol,xpol,mycall,mygrid,hiscall,hisgrid,mode_q65,f0,fqso,  &
-                   newdat,nagain,max_drift,idec)
+                   newdat,nagain,max_drift,nhsym,idec)
               call timer('q65b    ',1)
            endif
         endif
@@ -379,15 +393,17 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
      
      if(ndphi.eq.1 .and.iloop.eq.12) call getdphi(qphi)
      if(nqd.eq.1) then
-        write(*,1013) nsum,nsave
-1013    format('<QuickDecodeDone>',2i4)
+        call sec0(1,tdec)
+        write(*,1013) nsum,nsave,nstandalone,nhsym,tdec
+1013    format('<QuickDecodeDone>',3i4,i6,f6.2)
         flush(6)
-        call sec0(1,tquick)
         open(16,file='tquick.dat',status='unknown',access='append')
-        write(16,1016) nutc,tquick
+        write(16,1016) nutc,tdec
 1016    format(i4.4,f7.1)
         close(16)
      endif
+     call sec0(1,tsec0)
+     if(nhsym.eq.nhsym1 .and. tsec0.gt.3.0) go to 700
      if(nqd.eq.1 .and. nagain.eq.1) go to 900
 
      if(nqd.eq.0 .and. bq65) then
@@ -403,21 +419,19 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
            call timer('q65b    ',0)
            call q65b(nutc,nqd,nxant,fcenter,nfcal,nfsample,ikhz,mousedf,ntol, &
                 xpol,mycall,mygrid,hiscall,hisgrid,mode_q65,f0,fqso,newdat,   &
-                nagain,max_drift,idec)
+                nagain,max_drift,nhsym,idec)
            call timer('q65b    ',1)
            if(idec.ge.0) candec(icand)=.true.
         enddo  ! icand
      endif
+     call sec0(1,tsec0)
 
   enddo  ! nqd
 
 !  Trim the list and produce a sorted index and sizes of groups.
 !  (Should trimlist remove all but best SNR for given UTC and message content?)
-  call trimlist(sig,km,ftol,indx,nsiz,nz)
-
-  do i=1,km
-     done(i)=.false.
-  enddo
+700 call trimlist(sig,km,ftol,indx,nsiz,nz)
+  done(1:km)=.false.
   j=0
   ilatest=-1
   do n=1,nz
@@ -490,11 +504,8 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
            write(21,1100) f0,ndf,dt,npol,nsync2,nutc,decoded,cp,          &
                 cmode(1:1),cmode(2:2)
 1100       format(f8.3,i5,f5.1,2i4,i5.4,2x,a22,2x,a1,3x,a1,1x,a1)
-          
-!           write(21,1014) f0,ndf,ndf0,ndf1,ndf2,dt,npol,nsync1,       &
-!                nutc,decoded,cp,cmode
-
         endif
+
      endif
      j=j+nsiz(n)
   enddo  !i=1,km

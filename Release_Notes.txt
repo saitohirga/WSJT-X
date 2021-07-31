@@ -12,6 +12,27 @@
 Copyright 2001 - 2021 by Joe Taylor, K1JT.
 
 
+	        Release: WSJT-X 2.5.0-rc4
+	               Aug 2, 2021
+	        -------------------------
+
+Remember that the WSJT-X 2.5.0 package includes MAP65 3.0.0.  Changes
+in the package since WSJT-X 2.5.0-rc3 include the following
+enhancements and defect repairs:
+
+MAP65:
+ - Suppress display of duplicate decodes
+ - Increase the length of .tf2 & .iq files to 56 s
+ - Implement an early decoding pass at 52 s
+ - Clean up the output written to map65_rx.log
+ 
+WSJT-X:
+ - Repair a defect in CALL3.TXT lookups that incorrectly matched
+   partial calls
+ - Instructions in macOS ReadMe.txt to suppress App Nap energy saving
+ - Revised User Guide using FT8 mode for the basic tutorial
+ - Allow contest and FD operating in Q65 mode
+
 	        Release: WSJT-X 2.5.0-rc3
 	               Jul 5, 2021
 	        -------------------------

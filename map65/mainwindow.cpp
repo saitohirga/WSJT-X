@@ -520,6 +520,7 @@ void MainWindow::dataSink(int k)
   static int nkhz;
   static int nfsample=96000;
   static int nxpol=0;
+  static int iRxState=0;
   static float fgreen;
   static int ndiskdat;
   static int nb;
@@ -529,7 +530,6 @@ void MainWindow::dataSink(int k)
   static float rejectx;
   static float rejecty;
   static float slimit;
-
 
   if(m_diskData) {
     ndiskdat=1;
@@ -620,10 +620,23 @@ void MainWindow::dataSink(int k)
     n=0;
   }
 
-//  if(ihsym == 280) {   //For JT65, decode at t=52 s (also for old *.tf2/*.iq disk files)
-  if(ihsym == 302) {   //For Q65, decode at t=56 s
+  if(ihsym<280) iRxState=0;
+
+  if(iRxState==0 and ihsym>=280) {   //Early decode, t=52 s
+    iRxState=1;
     datcom_.newdat=1;
     datcom_.nagain=0;
+    datcom_.nhsym=ihsym;
+    QDateTime t = QDateTime::currentDateTimeUtc();
+    m_dateTime=t.toString("yyyy-MMM-dd hh:mm");
+    decode();                                           //Start the decoder
+  }
+
+  if(iRxState<=1 and ihsym>=302) {   //Decode at t=56 s (for Q65 and data from disk)
+    iRxState=2;
+    datcom_.newdat=1;
+    datcom_.nagain=0;
+    datcom_.nhsym=ihsym;
     QDateTime t = QDateTime::currentDateTimeUtc();
     m_dateTime=t.toString("yyyy-MMM-dd hh:mm");
     decode();                                           //Start the decoder
@@ -636,6 +649,7 @@ void MainWindow::dataSink(int k)
       watcher2->setFuture(*future2);
     }
   }
+
   soundInThread.m_dataSinkBusy=false;
 }
 
@@ -1107,15 +1121,14 @@ void MainWindow::diskDat()                                   //diskDat()
   m_diskData=true;
   datcom_.newdat=1;
 
-//  if(g_pWideGraph->m_bForceCenterFreq)  datcom_.fcenter=g_pWideGraph->m_dForceCenterFreq;
-//  qDebug() << "aa" << datcom_.fcenter << g_pWideGraph->m_dForceCenterFreq
-//           << g_pWideGraph->m_bForceCenterFreq;
-
   if(m_fs96000) hsym=2048.0*96000.0/11025.0;   //Samples per JT65 half-symbol
   if(!m_fs96000) hsym=2048.0*95238.1/11025.0;
   for(int i=0; i<304; i++) {           // Do the half-symbol FFTs
     int k = i*hsym + 2048.5;
     dataSink(k);
+    while(m_decoderBusy) {
+      qApp->processEvents();
+    }
     if(i%10 == 0) qApp->processEvents();       //Keep the GUI responsive
   }
 }
@@ -1248,6 +1261,9 @@ void MainWindow::freezeDecode(int n)                          //freezeDecode()
 void MainWindow::decode()                                       //decode()
 {
   ui->DecodeButton->setStyleSheet(m_pbdecoding_style1);
+
+//  QFile f("mockRTfiles.txt");
+//  if(datcom_.nagain==0 && (!m_diskData) && !f.exists()) {
   if(datcom_.nagain==0 && (!m_diskData)) {
     qint64 ms = QDateTime::currentMSecsSinceEpoch() % 86400000;
     int imin=ms/60000;
@@ -1282,7 +1298,7 @@ void MainWindow::decode()                                       //decode()
   datcom_.ntol=m_tol;
   datcom_.nxant=0;
   if(m_xpolx) datcom_.nxant=1;
-  if(datcom_.nutc < m_nutc0) m_map65RxLog |= 1;  //Date and Time to all65.txt
+  if(datcom_.nutc < m_nutc0) m_map65RxLog |= 1;  //Date and Time to map65_rx.log
   m_nutc0=datcom_.nutc;
   datcom_.map65RxLog=m_map65RxLog;
   datcom_.nfsample=96000;
@@ -1303,7 +1319,9 @@ void MainWindow::decode()                                       //decode()
   memcpy(datcom_.mygrid, mgrid.toLatin1(), 6);
   memcpy(datcom_.hiscall, hcall.toLatin1(), 12);
   memcpy(datcom_.hisgrid, hgrid.toLatin1(), 6);
-  memcpy(datcom_.datetime, m_dateTime.toLatin1(), 20);
+  memcpy(datcom_.datetime, m_dateTime.toLatin1(), 17);
+  datcom_.junk1=1234;
+  datcom_.junk2=5678;
 
   //newdat=1  ==> this is new data, must do the big FFT
   //nagain=1  ==> decode only at fQSO +/- Tol
@@ -1317,9 +1335,10 @@ void MainWindow::decode()                                       //decode()
     from += noffset;
     size -= noffset;
   }
-  memcpy(to, from, qMin(mem_m65.size(), size));
+  memcpy(to, from, qMin(mem_m65.size(), size-8));
   datcom_.nagain=0;
   datcom_.ndiskdat=0;
+  m_map65RxLog=0;
   m_call3Modified=false;
 
   QFile lockFile(m_appDir + "/.lock");       // Allow m65 to start
@@ -1371,7 +1390,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
       lab7->setText (QString {"Avg: %1"}.arg (m_nsum));
       if(m_modeQ65>0) m_wide_graph_window->setDecodeFinished();
     }
-    if(t.indexOf("<DecodeFinished>") >= 0) {
+
+    if((t.indexOf("<EarlyFinished>") >= 0) or (t.indexOf("<DecodeFinished>") >= 0)) {
       if(m_widebandDecode) {
         m_messages_window->setText(m_messagesText,m_bandmapText);
         m_band_map_window->setText(m_bandmapText);
@@ -1379,10 +1399,12 @@ void MainWindow::readFromStdout()                             //readFromStdout
       }
       QFile lockFile(m_appDir + "/.lock");
       lockFile.open(QIODevice::ReadWrite);
+      if(t.indexOf("<DecodeFinished>") >= 0) {
+        m_map65RxLog=0;
+        m_startAnother=m_loopall;
+      }
       ui->DecodeButton->setStyleSheet("");
       decodeBusy(false);
-      m_map65RxLog=0;
-      m_startAnother=m_loopall;
       return;
     }
 
@@ -1531,11 +1553,13 @@ void MainWindow::guiUpdate()
     msgsent[22]=0;
 
     if(m_restart) {
+      QString t="  Tx " + m_modeTx + "   ";
+      t=t.left(11);
       QFile f("map65_tx.log");
       f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
       QTextStream out(&f);
       out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-          << "  Tx message:  " << QString::fromLatin1(msgsent)
+          << t << QString::fromLatin1(msgsent)
 #if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
           << Qt::endl
 #else
@@ -1560,11 +1584,13 @@ void MainWindow::guiUpdate()
     m_transmitting=true;
     m_wide_graph_window->enableSetRxHardware(false);
 
+    QString t="  Tx " + m_modeTx + "   ";
+    t=t.left(11);
     QFile f("map65_tx.log");
     f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
     QTextStream out(&f);
     out << QDateTime::currentDateTimeUtc().toString("yyyy-MMM-dd hh:mm")
-        << "  Tx message:  " << QString::fromLatin1(msgsent)
+        << t << QString::fromLatin1(msgsent)
 #if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
         << Qt::endl
 #else

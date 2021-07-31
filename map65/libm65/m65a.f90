@@ -1,5 +1,5 @@
 subroutine m65a
-  
+
   use timer_module, only: timer
   use timer_impl, only: init_timer !, limtrace
   use, intrinsic :: iso_c_binding, only: C_NULL_CHAR
@@ -70,27 +70,35 @@ subroutine m65b(m65com,nbytes)
 end subroutine m65b
 
 subroutine m65c(dd,ss,savg,nparams0)
+
+  include 'njunk.f90'
   real*4 dd(4,5760000),ss(4,322,32768),savg(4,32768)
   real*8 fcenter
-  integer nparams0(40),nparams(40)
+  integer nparams0(NJUNK+2),nparams(NJUNK+2)
+  logical ldecoded
   character*12 mycall,hiscall
   character*6 mygrid,hisgrid
   character*20 datetime
   common/npar/fcenter,nutc,idphi,mousedf,mousefqso,nagain,              &
        ndepth,ndiskdat,neme,newdat,nfa,nfb,nfcal,nfshift,               &
        mcall3,nkeep,ntol,nxant,nrxlog,nfsample,nxpol,nmode,             &
-       nfast,nsave,max_drift,mycall,mygrid,hiscall,hisgrid,datetime
+       nfast,nsave,max_drift,nhsym,mycall,mygrid,hiscall,hisgrid,       &
+       datetime,junk1,junk2
+  common/early/nhsym1,nhsym2,ldecoded(32768)
   equivalence (nparams,fcenter)
   
   nparams=nparams0                     !Copy parameters into common/npar/
   npatience=1
-  if(iand(nrxlog,1).ne.0) then
+  if(nhsym.eq.nhsym1 .and. iand(nrxlog,1).ne.0) then
      write(21,1000) datetime(:17)
 1000 format(/'UTC Date: 'a17/78('-'))
      flush(21)
   endif
-  if(iand(nrxlog,2).ne.0) rewind 21
-  if(iand(nrxlog,4).ne.0) rewind 26
+  if(iand(nrxlog,2).ne.0) rewind(21)
+  if(iand(nrxlog,4).ne.0) then
+     if(nhsym.eq.nhsym1) rewind(26)
+     if(nhsym.eq.nhsym2) backspace(26)
+  endif
 
   nstandalone=0
   if(sum(nparams).ne.0) call decode0(dd,ss,savg,nstandalone)

@@ -7,6 +7,7 @@ module wideband_sync
      real :: pol          !Polarization angle, degrees
      integer :: ipol      !Polarization angle, 1 to 4 ==> 0, 45, 90, 135 deg
      integer :: iflip     !Sync type: JT65 = +/- 1, Q65 = 0
+     integer :: indx
   end type candidate
   type sync_dat
      real :: ccfmax
@@ -25,25 +26,21 @@ module wideband_sync
 
   contains
 
-subroutine get_candidates(ss,savg,xpol,nfa,nfb,nts_jt65,nts_q65,cand,ncand)
+subroutine get_candidates(ss,savg,xpol,jz,nfa,nfb,nts_jt65,nts_q65,cand,ncand)
 
 ! Search symbol spectra ss() over frequency range nfa to nfb (in kHz) for
 ! JT65 and Q65 sync patterns. The nts_* variables are the submode tone
 ! spacings: 1 2 4 8 16 for A B C D E.  Birdies are detected and
 ! excised.  Candidates are returned in the structure array cand().
 
-  parameter (MAX_PEAKS=300)
+  parameter (MAX_PEAKS=100)
   real ss(4,322,NFFT),savg(4,NFFT)
   real pavg(-20:20)
   integer indx(NFFT)
-  logical xpol,skip
+  logical xpol,skip,ldecoded
   type(candidate) :: cand(MAX_CANDIDATES)
+  common/early/nhsym1,nhsym2,ldecoded(32768)
 
-  do j=322,1,-1                            !Find end of data in ss()
-     if(sum(ss(1,j,1:NFFT)).gt.0.0) exit
-  enddo
-  jz=j
-  
   call wb_sync(ss,savg,xpol,jz,nfa,nfb)
 
   tstep=2048.0/11025.0        !0.185760 s: 0.5*tsym_jt65, 0.3096*tsym_q65
@@ -87,11 +84,11 @@ subroutine get_candidates(ss,savg,xpol,nfa,nfb,nts_jt65,nts_q65,cand,ncand)
         diffhz=1000.0*(f0-cand(m)%f)
         bw=nts_q65*110.0
         if(cand(m)%iflip.ne.0) bw=nts_jt65*178.0
-        if(diffhz.gt.-20.0 .and. diffhz.lt.bw+20.0) skip=.true.
-!        write(*,3301) i,k,m,f0,cand(m)%f,diffhz,snr1,skip
-!3301    format('=',3i5,f10.1,3f10.3,L3)
+        if(diffhz.gt.-0.03*bw .and. diffhz.lt.1.03*bw) skip=.true.
      enddo
      if(skip) cycle
+!     write(*,3301) i,k,m,f0,diffhz,bw,db(snr1)
+!3301 format('=A',3i5,f8.3,2f8.0,f8.2)
      k=k+1
      cand(k)%snr=snr1
      cand(k)%f=f0
@@ -99,6 +96,7 @@ subroutine get_candidates(ss,savg,xpol,nfa,nfb,nts_jt65,nts_q65,cand,ncand)
      cand(k)%pol=sync(n)%pol
      cand(k)%ipol=sync(n)%ipol
      cand(k)%iflip=nint(flip)
+     cand(k)%indx=n
      if(k.ge.MAX_CANDIDATES) exit
   enddo
   ncand=k

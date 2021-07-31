@@ -1118,7 +1118,7 @@ subroutine pack77_1(nwords,w,i3,n3,c77)
      irpt=irpt+35
   else if(c2.eq.'R+' .or. c2.eq.'R-') then
      ir=1
-     read(w(nwords)(2:),*) irpt
+     read(w(nwords)(2:),*,err=900) irpt
      if(irpt.ge.-50 .and. irpt.le.-31) irpt=irpt+101
      irpt=irpt+35
   else if(trim(w(nwords)).eq.'RRR') then
@@ -1274,6 +1274,7 @@ subroutine pack77_4(nwords,w,i3,n3,c77)
      if(call_1(1:1).eq.'<') call_1=w(1)(2:len(trim(w(1)))-1)
      call_2=w(2)
      if(call_2(1:1).eq.'<') call_2=w(2)(2:len(trim(w(2)))-1)
+     if(call_1(1:1).ne.'<' .and. call_2(1:1).ne.'<') goto 900
      call chkcall(call_1,bcall_1,ok1)
      call chkcall(call_2,bcall_2,ok2)
      icq=0

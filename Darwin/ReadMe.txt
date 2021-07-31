@@ -6,7 +6,7 @@ you change the name in the Applications folder from WSJT-X to WSJT-X_previous
 before proceeding.  
 
 I recommend that you follow the installation instructions especially if you
-are moving from v2.2 to v2.3 or later, of WSJT-X or you have upgraded macOS.
+are moving from v2.3 to v2.4 or later, of WSJT-X or you have upgraded macOS.
 
 Double-click on the wsjtx-...-Darwin.dmg file you have downloaded from K1JT's web-site.
 
@@ -25,7 +25,7 @@ change has been made by typing:
 
       sysctl -a | grep sysv.shm
 
-If shmmax is not shown as 52428800 then contact me since WSJT-X will fail to load with
+If shmmax is not shown as 52428800 then contact me since WSJT-X might fail to load with
 an error message: "Unable to create shared memory segment".
 
 You can now close the Terminal window.  It will not be necessary to repeat this procedure 
@@ -72,7 +72,9 @@ Please email me if you have problems.
 
 --- John G4KLA     (g4kla@rmnjmn.co.uk)
 
-Addendum:  Information about com.wsjtx.sysctl.plist and multiple instances of WSJT-X.
+Additional Notes:
+
+1.  Information about com.wsjtx.sysctl.plist and multiple instances of WSJT-X
 
 WSJT-X makes use of a block of memory which is shared between different parts of
 the code.  The normal allocation of shared memory on a Mac is insufficient and this 
@@ -87,7 +89,8 @@ simultaneously, the shmall parameter in the com.wsjtx.sysctl.plist file needs to
 The shmall parameter determines the amount of shared memory which is allocated in 4096 byte pages
 with 50MB (52428800) required for each instance.   The shmall parameter is calculated as: 
 (n * 52428800)/4096  where 'n' is the number of instances required to run simultaneously.
-Remember to reboot your Mac afterwards.
+Replace your new version of this file in /Library/LaunchDaemons and remember to reboot your
+Mac afterwards.
 
 Note that the shmmax parameter remains unchanged.  This is the maximum amount of shared memory that
 any one instance is allowed to request from the total shared memory allocation and should not
@@ -96,4 +99,15 @@ be changed.
 If two instances of WSJT-X are running, it is likely that you might need additional
 audio devices, from two rigs for example.  Visit Audio MIDI Setup and create an Aggregate Device
 which will allow you to specify more than one interface.  I recommend you consult Apple's guide
-on combining multiple audio interfaces which is at https://support.apple.com/en-us/HT202000.  
+on combining multiple audio interfaces which is at https://support.apple.com/en-us/HT202000.
+
+2.  Preventing WSJT-X from being put into 'sleep' mode (App Nap).
+
+In normal circumstances an application which has not been directly accessed for a while can be 
+subject to App Nap which means it is suspended until such time as its windows are accessed.  If
+it is intended that WSJT-X should be submitting continued reports to, for example, PSK Reporter
+then reporting will be interrupted.  App Nap can be disabled as follows, but first quit WSJT-X:
+
+Open a Terminal window and type:    defaults  write  org.k1jt.wsjtx  NSAppSleepDisable  -bool  YES
+If you type:   defaults  read  org.k1jt.wsjtx   then the response will be:  NSAppSleepDisable = 1;
+Close the Terminal window and launch WSJT-X.  (If you 'Hide' WSJT-X, this scheme will be suspended.)

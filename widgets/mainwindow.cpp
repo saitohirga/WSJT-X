@@ -1028,9 +1028,9 @@ void MainWindow::not_GA_warning_message ()
   MessageBox::critical_message (this,
                                 "This is a pre-release version of WSJT-X 2.5.0 made\n"
                                 "available for testing purposes.  By design it will\n"
-                                "be nonfunctional after Aug 31, 2021.");
+                                "be nonfunctional after Sept 30, 2021.");
   auto now = QDateTime::currentDateTimeUtc ();
-  if (now >= QDateTime {{2021, 8, 31}, {23, 59, 59, 999}, Qt::UTC}) {
+  if (now >= QDateTime {{2021, 9, 30}, {23, 59, 59, 999}, Qt::UTC}) {
     Q_EMIT finished ();
   }
 }
@@ -4942,12 +4942,13 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       return;
     }
 
+    bool bContestOK=(m_mode=="FT4" or m_mode=="FT8" or m_mode=="Q65" or m_mode=="MSK144");
     if(message_words.size () > 3   // enough fields for a normal message
        && (message_words.at(1).contains(m_baseCall) || "DE" == message_words.at(1))
        && (message_words.at(2).contains(qso_partner_base_call) or m_bDoubleClicked
            or bEU_VHF_w2 or (m_QSOProgress==CALLING))) {
       if(message_words.at(3).contains(grid_regexp) and SpecOp::EU_VHF!=m_config.special_op_id()) {
-        if(SpecOp::NA_VHF==m_config.special_op_id() or SpecOp::WW_DIGI==m_config.special_op_id()){
+        if((SpecOp::NA_VHF==m_config.special_op_id() or SpecOp::WW_DIGI==m_config.special_op_id()) and bContestOK){
           setTxMsg(3);
           m_QSOProgress=ROGER_REPORT;
         } else {
@@ -5604,8 +5605,8 @@ void MainWindow::lookup()
           break;
         }
         QString t=QString(c);
-        if(t.indexOf(hisCall)==0) {
-          int i1=t.indexOf(",");
+        int i1=t.indexOf(",");
+        if(t.left(i1)==hisCall) {
           QString hisgrid=t.mid(i1+1,6);
           i1=hisgrid.indexOf(",");
           if(i1>0) {
@@ -6454,13 +6455,21 @@ void MainWindow::on_actionQ65_triggered()
   ui->lh_decodes_headings_label->setText("UTC   dB   DT Freq    " + tr ("Message"));
   ui->rh_decodes_headings_label->setText("UTC   dB   DT Freq    " + tr ("Message"));
   statusChanged();
-  if(SpecOp::NONE < m_config.special_op_id()) {
-    ui->labDXped->setVisible(true);
-    ui->labDXped->setText("Contest ?");
-  } else {
-    ui->labDXped->setVisible(false);
-    ui->labDXped->setText("");
+
+  if (SpecOp::NONE < m_config.special_op_id () && SpecOp::FOX > m_config.special_op_id ()) {
+    QString t0="";
+    if(SpecOp::NA_VHF==m_config.special_op_id()) t0="NA VHF";
+    if(SpecOp::EU_VHF==m_config.special_op_id()) t0="EU VHF";
+    if(SpecOp::FIELD_DAY==m_config.special_op_id()) t0="Field Day";
+    if(t0=="") {
+      ui->labDXped->setVisible(false);
+    } else {
+      ui->labDXped->setVisible(true);
+      ui->labDXped->setText(t0);
+    }
+    on_contest_log_action_triggered();
   }
+
 }
 
 void MainWindow::on_actionMSK144_triggered()
