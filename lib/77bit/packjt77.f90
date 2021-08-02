@@ -1274,9 +1274,9 @@ subroutine pack77_4(nwords,w,i3,n3,c77)
      if(call_1(1:1).eq.'<') call_1=w(1)(2:len(trim(w(1)))-1)
      call_2=w(2)
      if(call_2(1:1).eq.'<') call_2=w(2)(2:len(trim(w(2)))-1)
-     if(call_1(1:1).ne.'<' .and. call_2(1:1).ne.'<') goto 900
      call chkcall(call_1,bcall_1,ok1)
      call chkcall(call_2,bcall_2,ok2)
+     if(call_1.eq.bcall_1 .and. call_2.eq.bcall_2 .and. ok1 .and. ok2) go to 900
      icq=0
      if(trim(w(1)).eq.'CQ' .or. (ok1.and.ok2)) then
         if(trim(w(1)).eq.'CQ' .and. len(trim(w(2))).le.4) go to 900
