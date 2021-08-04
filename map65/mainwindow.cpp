@@ -1248,7 +1248,7 @@ void MainWindow::freezeDecode(int n)                          //freezeDecode()
     datcom_.ntol=m_tol;
     datcom_.mousedf=0;
   } else {
-    ui->tolSpinBox->setValue(3);
+    ui->tolSpinBox->setValue(qMin(3,ui->tolSpinBox->value()));
     datcom_.ntol=m_tol;
   }
   if(!m_decoderBusy) {
