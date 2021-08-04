@@ -9,6 +9,7 @@ subroutine display(nkeep,ftol)
   real freqkHz(MAXLINES)
   integer utc(MAXLINES),utc2(MX),utcz
   real*8 f0
+  save
 
   out0=' '
   rewind(26)
@@ -134,8 +135,9 @@ subroutine display(nkeep,ftol)
            index(livecq,' CQH ').gt.0) write(19,1029) livecq
 1029    format(a58)
 
-! Suppress listing duplicate (same time, same decoded message)
-        if(out(14:17).ne.out0(14:17) .or. out(26:50).ne.out0(26:50)) then
+! Suppress listing duplicate (same time, decoded message, and frequency)
+        if(out(14:17).ne.out0(14:17) .or. out(26:50).ne.out0(26:50) .or.  &
+             out(1:3).ne.out0(1:3)) then
            write(*,1030) out                  !Messages
 1030       format('@',a52)
            out0=out

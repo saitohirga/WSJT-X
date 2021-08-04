@@ -42,6 +42,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
 
 ! Clean start for Q65 at early decode
   if(nhsym.eq.nhsym1 .or. nagain.ne.0) ldecoded=.false.
+  if(ndiskdat.eq.1) ldecoded=.false.
 
   nkhz_center=nint(1000.0*(fcenter-int(fcenter)))
   mfa=nfa-nkhz_center+48
@@ -54,9 +55,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
   xpol=(nxpol.ne.0)
   
 ! No second decode for JT65?
-!  if(nhsym.eq.nhsym2 .and. (nstandalone.eq.1 .or. ndiskdat.eq.0)) mode65=0
-  if(nhsym.eq.nhsym2 .and. nagain.eq.0) mode65=0
-!  print*,'=a',nhsym,nagain,mode65
+  if(nhsym.eq.nhsym2 .and. nagain.eq.0 .and.ndiskdat.eq.0) mode65=0
 
   if(nagain.eq.0) then
      call timer('get_cand',0)
@@ -110,6 +109,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
      ib=nint(fb/df) + 16385
      ia=max(51,ia)
      ib=min(32768-51,ib)
+     if(ndiskdat.eq.1 .and. mode65.eq.0) ib=ia
 
      km=0
      nkm=1
@@ -122,7 +122,6 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
      short=0.                                 !Zero the whole short array
      jpz=1
      if(xpol) jpz=4
-     if(mode65.eq.0) go to 50
 
 ! First steps for JT65 decoding
      do i=ia,ib                               !Search over freq range
@@ -156,7 +155,6 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
         if(smax.gt.1.1 .or. ia.eq.ib) then
 !  Look for JT65 sync patterns and shorthand square-wave patterns.
            call timer('ccf65   ',0)
-              !              ssmax=smax
            ssmax=1.e30
            call ccf65(ss(1,1,i),nhsym,ssmax,sync1,ipol,jpz,dt,     &
                 flipk,syncshort,snr2,ipol2,dt2)
@@ -291,7 +289,7 @@ subroutine map65a(dd,ss,savg,newdat,nutc,fcenter,ntol,idphi,nfa,nfb,        &
         endif
      enddo  !i=ia,ib
 
-50   if(nqd.eq.1) then
+     if(nqd.eq.1) then
         nwrite=0
         if(mode65.eq.0) km=0
         do k=1,km

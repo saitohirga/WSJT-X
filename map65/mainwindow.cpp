@@ -520,7 +520,6 @@ void MainWindow::dataSink(int k)
   static int nkhz;
   static int nfsample=96000;
   static int nxpol=0;
-  static int iRxState=0;
   static float fgreen;
   static int ndiskdat;
   static int nb;
@@ -620,10 +619,10 @@ void MainWindow::dataSink(int k)
     n=0;
   }
 
-  if(ihsym<280) iRxState=0;
+  if(ihsym<280) m_RxState=0;
 
-  if(iRxState==0 and ihsym>=280) {   //Early decode, t=52 s
-    iRxState=1;
+  if(m_RxState==0 and ihsym>=280 and !m_diskData) {   //Early decode, t=52 s
+    m_RxState=1;
     datcom_.newdat=1;
     datcom_.nagain=0;
     datcom_.nhsym=ihsym;
@@ -632,8 +631,8 @@ void MainWindow::dataSink(int k)
     decode();                                           //Start the decoder
   }
 
-  if(iRxState<=1 and ihsym>=302) {   //Decode at t=56 s (for Q65 and data from disk)
-    iRxState=2;
+  if(m_RxState<=1 and ihsym>=302) {   //Decode at t=56 s (for Q65 and data from disk)
+    m_RxState=2;
     datcom_.newdat=1;
     datcom_.nagain=0;
     datcom_.nhsym=ihsym;
@@ -1126,10 +1125,7 @@ void MainWindow::diskDat()                                   //diskDat()
   for(int i=0; i<304; i++) {           // Do the half-symbol FFTs
     int k = i*hsym + 2048.5;
     dataSink(k);
-    while(m_decoderBusy) {
-      qApp->processEvents();
-    }
-    if(i%10 == 0) qApp->processEvents();       //Keep the GUI responsive
+    qApp->processEvents();             // Allow the waterfall to update
   }
 }
 
@@ -1248,7 +1244,7 @@ void MainWindow::freezeDecode(int n)                          //freezeDecode()
     datcom_.ntol=m_tol;
     datcom_.mousedf=0;
   } else {
-    ui->tolSpinBox->setValue(3);
+    ui->tolSpinBox->setValue(qMin(3,ui->tolSpinBox->value()));
     datcom_.ntol=m_tol;
   }
   if(!m_decoderBusy) {

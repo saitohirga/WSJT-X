@@ -191,6 +191,8 @@ private:
   qint32  m_TRperiod;
   qint32  m_modeJT65;
   qint32  m_modeQ65;
+  qint32  m_RxState;
+
 
   double  m_fAdd;
   //    double  m_IQamp;

@@ -12,6 +12,23 @@
 Copyright 2001 - 2021 by Joe Taylor, K1JT.
 
 
+	        Release: WSJT-X 2.5.0-rc5
+	               Aug 6, 2021
+	        -------------------------
+
+Remember that the WSJT-X 2.5.0 package includes MAP65 3.0.0.  Changes
+in the package since WSJT-X 2.5.0-rc4 include the following
+enhancements and defect repairs:
+
+MAP65:
+ - Avoid widening of FTol when double-clicking lower waterfall
+ - Disable early decoding pass when reading from disk
+ - Suppressed duplicate decodes must also be at the same frequency
+ 
+WSJT-X:
+ - Repair a regression that caused some i3=4 messages to be encoded as
+   free text
+ 
 	        Release: WSJT-X 2.5.0-rc4
 	               Aug 2, 2021
 	        -------------------------
