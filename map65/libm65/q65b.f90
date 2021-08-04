@@ -38,6 +38,7 @@ subroutine q65b(nutc,nqd,nxant,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol, &
   data nutc00/-1/,msg00/'                            '/
   save
 
+  if(newdat.eq.1) nutc00=-1
   open(9,file='wsjtx_dir.txt',status='old')
   read(9,'(a)') wsjtx_dir                      !Establish the working directory
   close(9)
@@ -174,13 +175,15 @@ subroutine q65b(nutc,nqd,nxant,fcenter,nfcal,nfsample,ikhz,mousedf,ntol,xpol, &
           ':',cp,cmode
 1014 format(f8.3,i5,3i3,f5.1,i4,i3,i4,i5.4,4x,a22,1x,2a1,2x,a2)
 
-! Suppress writing duplicates (same time, same decoded message) to map65_rx.log
-     if(nutc.ne.nutc00 .or. msg0(1:28).ne.msg00) then
+! Suppress writing duplicates (same time, decoded message, and frequency)
+! to map65_rx.log
+     if(nutc.ne.nutc00 .or. msg0(1:28).ne.msg00 .or. freq1.ne.freq1_00) then
 ! Write to file map65_rx.log:
         write(21,1110)  freq1,ndf,xdt0,npol,nsnr0,nutc,msg0(1:28),cq0
 1110    format(f8.3,i5,f5.1,2i4,i5.4,2x,a28,': A',2x,a3)
         nutc00=nutc
         msg00=msg0(1:28)
+        freq1_00=freq1
      endif
   endif
 
