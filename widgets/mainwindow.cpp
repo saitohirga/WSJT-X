@@ -1891,7 +1891,10 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       ui->actionEnable_AP_JT65->setVisible(false);
       ui->actionAuto_Clear_Avg->setVisible(false);
     }
-    if(m_config.special_op_id()!=nContest0) ui->tx1->setEnabled(true);
+    if(m_config.special_op_id()!=nContest0) {
+      ui->tx1->setEnabled(true);
+      ui->txb1->setEnabled(true);
+    }
     chkFT4();
     if(SpecOp::EU_VHF==m_config.special_op_id() and m_config.my_grid().size()<6) {
       MessageBox::information_message (this,
