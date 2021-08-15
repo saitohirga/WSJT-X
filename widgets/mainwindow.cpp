@@ -4032,33 +4032,10 @@ void MainWindow::guiUpdate()
                                 &m_currentMessageType, 22, 22);
       if(m_mode=="JT65") gen65_(message, &ichk, msgsent, const_cast<int *> (itone),
                                   &m_currentMessageType, 22, 22);
-      if(m_mode=="Q65") {
-        int i3=-1;
-        int n3=-1;
-        genq65_(message,&ichk,msgsent,const_cast<int *>(itone),&i3,&n3,37,37);
-        int nsps=1800;
-        if(m_TRperiod==30) nsps=3600;
-        if(m_TRperiod==60) nsps=7200;
-        if(m_TRperiod==120) nsps=16000;
-        if(m_TRperiod==300) nsps=41472;
-        int nsps4=4*nsps;                           //48000 Hz sampling
-        int nsym=85;
-        float fsample=48000.0;
-        int nwave=(nsym+2)*nsps4;
-        int icmplx=0;
-        int hmod=1;
-        float f0=ui->TxFreqSpinBox->value()-m_XIT;
-        genwave_(const_cast<int *>(itone),&nsym,&nsps4,&nwave,
-                 &fsample,&hmod,&f0,&icmplx,foxcom_.wave,foxcom_.wave);
-      }
       if(m_mode=="WSPR") genwspr_(message, msgsent, const_cast<int *> (itone),
                                     22, 22);
       if(m_mode=="MSK144" or m_mode=="FT8" or m_mode=="FT4"
-         or m_mode=="FST4" or m_mode=="FST4W") {
-        char MyCall[6];
-        char MyGrid[6];
-        ::memcpy(MyCall, (m_config.my_callsign()+"      ").toLatin1(), sizeof MyCall);
-        ::memcpy(MyGrid, (m_config.my_grid()+"      ").toLatin1(), sizeof MyGrid);
+         or m_mode=="FST4" or m_mode=="FST4W" || "Q65" == m_mode) {
         if(m_mode=="MSK144") {
           genmsk_128_90_(message, &ichk, msgsent, const_cast<int *> (itone),
                          &m_currentMessageType, 37, 37);
@@ -4149,6 +4126,25 @@ void MainWindow::guiUpdate()
                         &fsample,&hmod,&f0,&icmplx,foxcom_.wave,foxcom_.wave);
 
           QString t = QString::fromStdString(message).trimmed();
+        }
+        if(m_mode=="Q65") {
+          int i3=-1;
+          int n3=-1;
+          genq65_(message,&ichk,msgsent,const_cast<int *>(itone),&i3,&n3,37,37);
+          int nsps=1800;
+          if(m_TRperiod==30) nsps=3600;
+          if(m_TRperiod==60) nsps=7200;
+          if(m_TRperiod==120) nsps=16000;
+          if(m_TRperiod==300) nsps=41472;
+          int nsps4=4*nsps;                           //48000 Hz sampling
+          int nsym=85;
+          float fsample=48000.0;
+          int nwave=(nsym+2)*nsps4;
+          int icmplx=0;
+          int hmod=1;
+          float f0=ui->TxFreqSpinBox->value()-m_XIT;
+          genwave_(const_cast<int *>(itone),&nsym,&nsps4,&nwave,
+                   &fsample,&hmod,&f0,&icmplx,foxcom_.wave,foxcom_.wave);
         }
 
         if(SpecOp::EU_VHF==m_config.special_op_id()) {
@@ -4329,7 +4325,7 @@ void MainWindow::guiUpdate()
     }
   }
 
-  if(m_mode=="FT8" or m_mode=="MSK144" or m_mode=="FT4") {
+  if(m_mode=="FT8" or m_mode=="MSK144" or m_mode=="FT4" || "Q65" == m_mode) {
     if(ui->txrb1->isEnabled() and
        (SpecOp::NA_VHF==m_config.special_op_id() or
         SpecOp::FIELD_DAY==m_config.special_op_id() or
@@ -5059,7 +5055,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             }
         } else if((m_QSOProgress >= REPORT
                    || (m_QSOProgress >= REPLYING &&
-                   (m_mode=="MSK144" or m_mode=="FT8" or m_mode=="FT4")))
+                   (m_mode=="MSK144" or m_mode=="FT8" or m_mode=="FT4" || "Q65" == m_mode)))
                   && word_3.startsWith ('R')) {
           m_ntx=4;
           m_QSOProgress = ROGERS;
@@ -6043,7 +6039,7 @@ void MainWindow::displayWidgets(qint64 n)
   }
   ui->pbBestSP->setVisible(m_mode=="FT4");
   b=false;
-  if(m_mode=="FT4" or m_mode=="FT8") {
+  if(m_mode=="FT4" or m_mode=="FT8" || "Q65" == m_mode) {
   b=SpecOp::EU_VHF==m_config.special_op_id() or 
     ( SpecOp::RTTY==m_config.special_op_id() and
       (m_config.RTTY_Exchange()=="DX" or m_config.RTTY_Exchange()=="#") );
