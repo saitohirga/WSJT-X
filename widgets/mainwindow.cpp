@@ -4217,7 +4217,7 @@ void MainWindow::guiUpdate()
         }
     }
 
-    bool b=(m_mode=="FT8" or m_mode=="FT4") and ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isEnabled () && ui->cbAutoSeq->isChecked ();
+    bool b=("FT8"==m_mode or "FT4"==m_mode or "Q65"==m_mode) and ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isEnabled () && ui->cbAutoSeq->isChecked ();
     if(is_73 and (m_config.disable_TX_on_73() or b)) {
       m_nextCall="";  //### Temporary: disable use of "TU;" messages;
       if(m_nextCall!="") {
