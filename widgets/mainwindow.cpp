@@ -5277,7 +5277,7 @@ void MainWindow::genCQMsg ()
 
     QString t=ui->tx6->text();
     QStringList tlist=t.split(" ");
-    if((m_mode=="FT4" or m_mode=="FT8" or m_mode=="MSK144") and
+    if((m_mode=="FT4" or m_mode=="FT8" or m_mode=="MSK144" || "Q65" == m_mode) and
        SpecOp::NONE != m_config.special_op_id() and
        ( tlist.at(1)==my_callsign or
          tlist.at(2)==my_callsign ) and
@@ -5735,7 +5735,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
 //### Check this stuff ###
   if(itype==7 and m_config.enable_VHF_features() and m_mode=="JT65") shortMsg=true;
   if(m_mode=="MSK144" and t.mid(0,1)=="<") text=false;
-  if((m_mode=="MSK144" or m_mode=="FT8" or m_mode=="FT4") and
+  if((m_mode=="MSK144" or m_mode=="FT8" or m_mode=="FT4" || "Q65" == m_mode) and
      SpecOp::NA_VHF==m_config.special_op_id()) {
     int i0=t.trimmed().length()-7;
     if(t.mid(i0,3)==" R ") text=false;
@@ -6460,6 +6460,8 @@ void MainWindow::on_actionQ65_triggered()
     if(SpecOp::NA_VHF==m_config.special_op_id()) t0="NA VHF";
     if(SpecOp::EU_VHF==m_config.special_op_id()) t0="EU VHF";
     if(SpecOp::FIELD_DAY==m_config.special_op_id()) t0="Field Day";
+    if(SpecOp::RTTY==m_config.special_op_id()) t0+="RTTY";
+    if(SpecOp::WW_DIGI==m_config.special_op_id()) t0+="WW_DIGI";
     if(t0=="") {
       ui->labDXped->setVisible(false);
     } else {
