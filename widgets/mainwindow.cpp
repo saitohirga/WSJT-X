@@ -4215,6 +4215,10 @@ void MainWindow::guiUpdate()
         {
           logQSOTimer.start(0);
         }
+      else
+        {
+          cease_auto_Tx_after_QSO ();
+        }
     }
 
     bool b=("FT8"==m_mode or "FT4"==m_mode or "Q65"==m_mode) and ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isEnabled () && ui->cbAutoSeq->isChecked ();
@@ -5002,7 +5006,12 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
           m_nextCall="";   //### Temporary: disable use of "TU;" message
           if(SpecOp::RTTY == m_config.special_op_id() and m_nextCall!="") {
             // We're in RTTY contest and have "nextCall" queued up: send a "TU; ..." message
-            logQSOTimer.start(0);
+            if (m_config.prompt_to_log() || m_config.autoLog()) {
+              logQSOTimer.start(0);
+            }
+            else {
+              cease_auto_Tx_after_QSO ();
+            }
             ui->tx3->setText(ui->tx3->text().remove("TU; "));
             useNextCall();
             QString t="TU; " + ui->tx3->text();
@@ -5013,7 +5022,12 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
                 && SpecOp::NONE < m_config.special_op_id () && SpecOp::FOX > m_config.special_op_id ()
                 && ("RR73" == word_3 || 73 == word_3_as_number))
               {
-                logQSOTimer.start(0);
+                if (m_config.prompt_to_log() || m_config.autoLog()) {
+                  logQSOTimer.start(0);
+                }
+                else {
+                  cease_auto_Tx_after_QSO ();
+                }
                 m_ntx=6;
                 ui->txrb6->setChecked(true);
               }
@@ -5031,7 +5045,12 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
               }
             else if (ROGERS == m_QSOProgress)
               {
-                logQSOTimer.start(0);
+                if (m_config.prompt_to_log() || m_config.autoLog()) {
+                  logQSOTimer.start(0);
+                }
+                else {
+                  cease_auto_Tx_after_QSO ();
+                }
                 m_ntx=6;
                 ui->txrb6->setChecked(true);
               }
@@ -5865,7 +5884,7 @@ void MainWindow::on_genStdMsgsPushButton_clicked()         //genStdMsgs button
   genStdMsgs(m_rpt);
 }
 
-void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
+void MainWindow::cease_auto_Tx_after_QSO ()
 {
   if (SpecOp::FOX != m_config.special_op_id ()
       && ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isEnabled () && ui->cbAutoSeq->isChecked ())
@@ -5875,6 +5894,11 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
       // to be a robot.
       auto_tx_mode (false);
     }
+}
+
+void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
+{
+  cease_auto_Tx_after_QSO ();
 
   if (!m_hisCall.size ()) {
     MessageBox::warning_message (this, tr ("Warning:  DX Call field is empty."));
