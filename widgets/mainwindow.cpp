@@ -8129,9 +8129,9 @@ void MainWindow::WSPR_scheduling ()
     return;
   }
   m_WSPR_tx_next = false;
-  if (!ui->sbTxPercent->isEnabled () || !ui->sbTxPercent->value ())
+  if (!ui->sbTxPercent->isEnabled ())
     {
-      return;                   // don't schedule if %age disabled or zero
+      return;                   // don't schedule if %age disabled
     }
   if (m_config.is_transceiver_online () // need working rig control for hopping
       && !m_config.is_dummy_rig ()
