@@ -23,7 +23,7 @@ DecodedText::DecodedText (QString const& the_string)
   , is_standard_ {false}
 {
   // discard appended AP info
-  clean_string_.replace (QRegularExpression {R"(^(.*?)(?:\?\s)?a[0-9].*$)"}, "\\1");
+  clean_string_.replace (QRegularExpression {R"(^(.*?)(?:\?\s)?(?:a|q)[0-9].*$)"}, "\\1");
 
 //  qDebug () << "DecodedText: the_string:" << the_string << "Nbsp pos:" << the_string.indexOf (QChar::Nbsp);
   if (message_.length() >= 1)

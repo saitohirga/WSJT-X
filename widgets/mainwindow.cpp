@@ -98,7 +98,8 @@ extern "C" {
 
   void hspec_(short int d2[], int* k, int* nutc0, int* ntrperiod, int* nrxfreq, int* ntol,
               bool* bmsk144, bool* btrain, double const pcoeffs[], int* ingain,
-              char mycall[], char hiscall[], bool* bshmsg, bool* bswl, char ddir[], float green[],
+              char const * mycall, char const * hiscall, bool* bshmsg, bool* bswl,
+              char const * ddir, float green[],
               float s[], int* jh, float *pxmax, float *rmsNoGain, char line[],
               fortran_charlen_t, fortran_charlen_t, fortran_charlen_t, fortran_charlen_t);
 
@@ -150,7 +151,7 @@ extern "C" {
 
   void wspr_downsample_(short int d2[], int* k);
 
-  int savec2_(char* fname, int* TR_seconds, double* dial_freq, fortran_charlen_t);
+  int savec2_(char const * fname, int* TR_seconds, double* dial_freq, fortran_charlen_t);
 
   void avecho_( short id2[], int* dop, int* nfrit, int* nqual, float* f1,
                 float* level, float* sigdb, float* snr, float* dfreq,
@@ -171,7 +172,7 @@ extern "C" {
 
   void fix_contest_msg_(char* MyGrid, char* msg, fortran_charlen_t, fortran_charlen_t);
 
-  void calibrate_(char data_dir[], int* iz, double* a, double* b, double* rms,
+  void calibrate_(char const * data_dir, int* iz, double* a, double* b, double* rms,
                   double* sigmaa, double* sigmab, int* irc, fortran_charlen_t);
 
   void foxgen_();
@@ -919,9 +920,8 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   proc_jt9.start(QDir::toNativeSeparators (m_appDir) + QDir::separator () +
           "jt9", jt9_args, QIODevice::ReadWrite | QIODevice::Unbuffered);
 
-  QString fname {QDir::toNativeSeparators(m_config.writeable_data_dir ().absoluteFilePath ("wsjtx_wisdom.dat"))};
-  QByteArray cfname=fname.toLocal8Bit();
-  fftwf_import_wisdom_from_filename(cfname);
+  auto fname {QDir::toNativeSeparators(m_config.writeable_data_dir ().absoluteFilePath ("wsjtx_wisdom.dat"))};
+  fftwf_import_wisdom_from_filename (fname.toLocal8Bit ());
 
   m_ntx = 6;
   ui->txrb6->setChecked(true);
@@ -1075,9 +1075,8 @@ void MainWindow::on_the_minute ()
 MainWindow::~MainWindow()
 {
   m_astroWidget.reset ();
-  QString fname {QDir::toNativeSeparators(m_config.writeable_data_dir ().absoluteFilePath ("wsjtx_wisdom.dat"))};
-  QByteArray cfname=fname.toLocal8Bit();
-  fftwf_export_wisdom_to_filename(cfname);
+  auto fname {QDir::toNativeSeparators(m_config.writeable_data_dir ().absoluteFilePath ("wsjtx_wisdom.dat"))};
+  fftwf_export_wisdom_to_filename (fname.toLocal8Bit ());
   m_audioThread.quit ();
   m_audioThread.wait ();
   remove_child_from_event_filter (this);
@@ -1428,10 +1427,7 @@ void MainWindow::dataSink(qint64 frames)
   static float s[NSMAX];
   char line[80];
   int k(frames);
-  QString fname {QDir::toNativeSeparators(m_config.writeable_data_dir ().absoluteFilePath ("refspec.dat"))};
-  QByteArray bafname = fname.toLatin1();
-  const char *c_fname = bafname.data();
-  int len=fname.length();
+  auto fname {QDir::toNativeSeparators(m_config.writeable_data_dir ().absoluteFilePath ("refspec.dat")).toLocal8Bit ()};
 
   if(m_diskData) {
     dec_data.params.ndiskdat=1;
@@ -1443,7 +1439,7 @@ void MainWindow::dataSink(qint64 frames)
   m_bUseRef=m_wideGraph->useRef();
   if(!m_diskData) {
     refspectrum_(&dec_data.d2[k-m_nsps/2],&m_bClearRefSpec,&m_bRefSpec,
-        &m_bUseRef,c_fname,len);
+                 &m_bUseRef, fname.constData (), fname.size ());
   }
   m_bClearRefSpec=false;
 
@@ -1598,14 +1594,11 @@ void MainWindow::dataSink(qint64 frames)
             this, m_fnameWE, &dec_data.d2[0], samples, m_config.my_callsign(),
             m_config.my_grid(), m_mode, m_nSubMode, m_freqNominal, m_hisCall, m_hisGrid)));
       if (m_mode=="WSPR") {
-        QString c2name_string {m_fnameWE + ".c2"};
-        int len1=c2name_string.length();
-        char c2name[80];
-        strcpy(c2name,c2name_string.toLatin1 ().constData ());
+        auto c2name {(m_fnameWE + ".c2").toLocal8Bit ()};
         int nsec=120;
         int nbfo=1500;
         double f0m1500=m_freqNominal/1000000.0 + nbfo - 1500;
-        int err = savec2_(c2name,&nsec,&f0m1500,len1);
+        int err = savec2_(c2name.constData (),&nsec,&f0m1500, c2name.size ());
         if (err!=0) MessageBox::warning_message (this, tr ("Error saving c2 file"), c2name);
       }
     }
@@ -1721,17 +1714,14 @@ void MainWindow::fastSink(qint64 frames)
 //  ::memcpy(dec_data.params.hiscall,(Radio::base_callsign (hisCall) +  "            ").toLatin1 ().constData (), sizeof dec_data.params.hiscall);
   ::memcpy(dec_data.params.hiscall,(hisCall + "            ").toLatin1 ().constData (), sizeof dec_data.params.hiscall);
   ::memcpy(dec_data.params.mygrid, (m_config.my_grid()+"      ").toLatin1(), sizeof dec_data.params.mygrid);
-  QString dataDir;
-  dataDir = m_config.writeable_data_dir ().absolutePath ();
-  char ddir[512];
-  ::strncpy(ddir,dataDir.toLatin1(), sizeof (ddir) - 1);
+  auto data_dir {m_config.writeable_data_dir ().absolutePath ().toLocal8Bit ()};
   float pxmax = 0;
   float rmsNoGain = 0;
   int ftol = ui->sbFtol->value ();
   hspec_(dec_data.d2,&k,&nutc0,&nTRpDepth,&RxFreq,&ftol,&bmsk144,
          &m_bTrain,m_phaseEqCoefficients.constData(),&m_inGain,&dec_data.params.mycall[0],
          &dec_data.params.hiscall[0],&bshmsg,&bswl,
-         &ddir[0],fast_green,fast_s,&fast_jh,&pxmax,&rmsNoGain,&line[0],12,12,512,80);
+         data_dir.constData (),fast_green,fast_s,&fast_jh,&pxmax,&rmsNoGain,&line[0],12,12,data_dir.size (),80);
   float px = fast_green[fast_jh];
   QString t;
   t = t.asprintf(" Rx noise: %5.1f ",px);
@@ -1891,7 +1881,10 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       ui->actionEnable_AP_JT65->setVisible(false);
       ui->actionAuto_Clear_Avg->setVisible(false);
     }
-    if(m_config.special_op_id()!=nContest0) ui->tx1->setEnabled(true);
+    if(m_config.special_op_id()!=nContest0) {
+      ui->tx1->setEnabled(true);
+      ui->txb1->setEnabled(true);
+    }
     chkFT4();
     if(SpecOp::EU_VHF==m_config.special_op_id() and m_config.my_grid().size()<6) {
       MessageBox::information_message (this,
@@ -2540,16 +2533,13 @@ void MainWindow::on_actionFast_Graph_triggered()
 
 void MainWindow::on_actionSolve_FreqCal_triggered()
 {
-  QString dpath{QDir::toNativeSeparators(m_config.writeable_data_dir().absolutePath()+"/")};
-  char data_dir[512];
-  int len=dpath.length();
+  auto data_dir {QDir::toNativeSeparators(m_config.writeable_data_dir().absolutePath()).toLocal8Bit ()};
   int iz,irc;
   double a,b,rms,sigmaa,sigmab;
-  strncpy(data_dir,dpath.toLatin1(),len);
-  calibrate_(data_dir,&iz,&a,&b,&rms,&sigmaa,&sigmab,&irc,len);
+  calibrate_(data_dir.constData (),&iz,&a,&b,&rms,&sigmaa,&sigmab,&irc,data_dir.size ());
   QString t2;
-  if(irc==-1) t2="Cannot open " + dpath + "fmt.all";
-  if(irc==-2) t2="Cannot open " + dpath + "fcal2.out";
+  if(irc==-1) t2="Cannot open " + data_dir + "/fmt.all";
+  if(irc==-2) t2="Cannot open " + data_dir + "/fcal2.out";
   if(irc==-3) t2="Insufficient data in fmt.all";
   if(irc==-4) t2 = tr ("Invalid data in fmt.all at line %1").arg (iz);
   if(irc>0 or rms>1.0) t2="Check fmt.all for possible bad data.";
@@ -4029,33 +4019,10 @@ void MainWindow::guiUpdate()
                                 &m_currentMessageType, 22, 22);
       if(m_mode=="JT65") gen65_(message, &ichk, msgsent, const_cast<int *> (itone),
                                   &m_currentMessageType, 22, 22);
-      if(m_mode=="Q65") {
-        int i3=-1;
-        int n3=-1;
-        genq65_(message,&ichk,msgsent,const_cast<int *>(itone),&i3,&n3,37,37);
-        int nsps=1800;
-        if(m_TRperiod==30) nsps=3600;
-        if(m_TRperiod==60) nsps=7200;
-        if(m_TRperiod==120) nsps=16000;
-        if(m_TRperiod==300) nsps=41472;
-        int nsps4=4*nsps;                           //48000 Hz sampling
-        int nsym=85;
-        float fsample=48000.0;
-        int nwave=(nsym+2)*nsps4;
-        int icmplx=0;
-        int hmod=1;
-        float f0=ui->TxFreqSpinBox->value()-m_XIT;
-        genwave_(const_cast<int *>(itone),&nsym,&nsps4,&nwave,
-                 &fsample,&hmod,&f0,&icmplx,foxcom_.wave,foxcom_.wave);
-      }
       if(m_mode=="WSPR") genwspr_(message, msgsent, const_cast<int *> (itone),
                                     22, 22);
       if(m_mode=="MSK144" or m_mode=="FT8" or m_mode=="FT4"
-         or m_mode=="FST4" or m_mode=="FST4W") {
-        char MyCall[6];
-        char MyGrid[6];
-        ::memcpy(MyCall, (m_config.my_callsign()+"      ").toLatin1(), sizeof MyCall);
-        ::memcpy(MyGrid, (m_config.my_grid()+"      ").toLatin1(), sizeof MyGrid);
+         or m_mode=="FST4" or m_mode=="FST4W" || "Q65" == m_mode) {
         if(m_mode=="MSK144") {
           genmsk_128_90_(message, &ichk, msgsent, const_cast<int *> (itone),
                          &m_currentMessageType, 37, 37);
@@ -4147,6 +4114,25 @@ void MainWindow::guiUpdate()
 
           QString t = QString::fromStdString(message).trimmed();
         }
+        if(m_mode=="Q65") {
+          int i3=-1;
+          int n3=-1;
+          genq65_(message,&ichk,msgsent,const_cast<int *>(itone),&i3,&n3,37,37);
+          int nsps=1800;
+          if(m_TRperiod==30) nsps=3600;
+          if(m_TRperiod==60) nsps=7200;
+          if(m_TRperiod==120) nsps=16000;
+          if(m_TRperiod==300) nsps=41472;
+          int nsps4=4*nsps;                           //48000 Hz sampling
+          int nsym=85;
+          float fsample=48000.0;
+          int nwave=(nsym+2)*nsps4;
+          int icmplx=0;
+          int hmod=1;
+          float f0=ui->TxFreqSpinBox->value()-m_XIT;
+          genwave_(const_cast<int *>(itone),&nsym,&nsps4,&nwave,
+                   &fsample,&hmod,&f0,&icmplx,foxcom_.wave,foxcom_.wave);
+        }
 
         if(SpecOp::EU_VHF==m_config.special_op_id()) {
           if(m_ntx==2) m_xSent=ui->tx2->text().right(13);
@@ -4216,9 +4202,13 @@ void MainWindow::guiUpdate()
         {
           logQSOTimer.start(0);
         }
+      else
+        {
+          cease_auto_Tx_after_QSO ();
+        }
     }
 
-    bool b=(m_mode=="FT8" or m_mode=="FT4") and ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isEnabled () && ui->cbAutoSeq->isChecked ();
+    bool b=("FT8"==m_mode or "FT4"==m_mode or "Q65"==m_mode) and ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isEnabled () && ui->cbAutoSeq->isChecked ();
     if(is_73 and (m_config.disable_TX_on_73() or b)) {
       m_nextCall="";  //### Temporary: disable use of "TU;" messages;
       if(m_nextCall!="") {
@@ -4326,7 +4316,7 @@ void MainWindow::guiUpdate()
     }
   }
 
-  if(m_mode=="FT8" or m_mode=="MSK144" or m_mode=="FT4") {
+  if(m_mode=="FT8" or m_mode=="MSK144" or m_mode=="FT4" || "Q65" == m_mode) {
     if(ui->txrb1->isEnabled() and
        (SpecOp::NA_VHF==m_config.special_op_id() or
         SpecOp::FIELD_DAY==m_config.special_op_id() or
@@ -5003,7 +4993,12 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
           m_nextCall="";   //### Temporary: disable use of "TU;" message
           if(SpecOp::RTTY == m_config.special_op_id() and m_nextCall!="") {
             // We're in RTTY contest and have "nextCall" queued up: send a "TU; ..." message
-            logQSOTimer.start(0);
+            if (m_config.prompt_to_log() || m_config.autoLog()) {
+              logQSOTimer.start(0);
+            }
+            else {
+              cease_auto_Tx_after_QSO ();
+            }
             ui->tx3->setText(ui->tx3->text().remove("TU; "));
             useNextCall();
             QString t="TU; " + ui->tx3->text();
@@ -5014,7 +5009,12 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
                 && SpecOp::NONE < m_config.special_op_id () && SpecOp::FOX > m_config.special_op_id ()
                 && ("RR73" == word_3 || 73 == word_3_as_number))
               {
-                logQSOTimer.start(0);
+                if (m_config.prompt_to_log() || m_config.autoLog()) {
+                  logQSOTimer.start(0);
+                }
+                else {
+                  cease_auto_Tx_after_QSO ();
+                }
                 m_ntx=6;
                 ui->txrb6->setChecked(true);
               }
@@ -5032,7 +5032,12 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
               }
             else if (ROGERS == m_QSOProgress)
               {
-                logQSOTimer.start(0);
+                if (m_config.prompt_to_log() || m_config.autoLog()) {
+                  logQSOTimer.start(0);
+                }
+                else {
+                  cease_auto_Tx_after_QSO ();
+                }
                 m_ntx=6;
                 ui->txrb6->setChecked(true);
               }
@@ -5056,7 +5061,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             }
         } else if((m_QSOProgress >= REPORT
                    || (m_QSOProgress >= REPLYING &&
-                   (m_mode=="MSK144" or m_mode=="FT8" or m_mode=="FT4")))
+                   (m_mode=="MSK144" or m_mode=="FT8" or m_mode=="FT4" || "Q65" == m_mode)))
                   && word_3.startsWith ('R')) {
           m_ntx=4;
           m_QSOProgress = ROGERS;
@@ -5278,7 +5283,7 @@ void MainWindow::genCQMsg ()
 
     QString t=ui->tx6->text();
     QStringList tlist=t.split(" ");
-    if((m_mode=="FT4" or m_mode=="FT8" or m_mode=="MSK144") and
+    if((m_mode=="FT4" or m_mode=="FT8" or m_mode=="MSK144" || "Q65" == m_mode) and
        SpecOp::NONE != m_config.special_op_id() and
        ( tlist.at(1)==my_callsign or
          tlist.at(2)==my_callsign ) and
@@ -5736,7 +5741,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
 //### Check this stuff ###
   if(itype==7 and m_config.enable_VHF_features() and m_mode=="JT65") shortMsg=true;
   if(m_mode=="MSK144" and t.mid(0,1)=="<") text=false;
-  if((m_mode=="MSK144" or m_mode=="FT8" or m_mode=="FT4") and
+  if((m_mode=="MSK144" or m_mode=="FT8" or m_mode=="FT4" || "Q65" == m_mode) and
      SpecOp::NA_VHF==m_config.special_op_id()) {
     int i0=t.trimmed().length()-7;
     if(t.mid(i0,3)==" R ") text=false;
@@ -5866,7 +5871,7 @@ void MainWindow::on_genStdMsgsPushButton_clicked()         //genStdMsgs button
   genStdMsgs(m_rpt);
 }
 
-void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
+void MainWindow::cease_auto_Tx_after_QSO ()
 {
   if (SpecOp::FOX != m_config.special_op_id ()
       && ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isEnabled () && ui->cbAutoSeq->isChecked ())
@@ -5876,6 +5881,11 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
       // to be a robot.
       auto_tx_mode (false);
     }
+}
+
+void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
+{
+  cease_auto_Tx_after_QSO ();
 
   if (!m_hisCall.size ()) {
     MessageBox::warning_message (this, tr ("Warning:  DX Call field is empty."));
@@ -6040,7 +6050,7 @@ void MainWindow::displayWidgets(qint64 n)
   }
   ui->pbBestSP->setVisible(m_mode=="FT4");
   b=false;
-  if(m_mode=="FT4" or m_mode=="FT8") {
+  if(m_mode=="FT4" or m_mode=="FT8" || "Q65" == m_mode) {
   b=SpecOp::EU_VHF==m_config.special_op_id() or 
     ( SpecOp::RTTY==m_config.special_op_id() and
       (m_config.RTTY_Exchange()=="DX" or m_config.RTTY_Exchange()=="#") );
@@ -6461,6 +6471,8 @@ void MainWindow::on_actionQ65_triggered()
     if(SpecOp::NA_VHF==m_config.special_op_id()) t0="NA VHF";
     if(SpecOp::EU_VHF==m_config.special_op_id()) t0="EU VHF";
     if(SpecOp::FIELD_DAY==m_config.special_op_id()) t0="Field Day";
+    if(SpecOp::RTTY==m_config.special_op_id()) t0+="RTTY";
+    if(SpecOp::WW_DIGI==m_config.special_op_id()) t0+="WW_DIGI";
     if(t0=="") {
       ui->labDXped->setVisible(false);
     } else {
@@ -8139,9 +8151,9 @@ void MainWindow::WSPR_scheduling ()
     return;
   }
   m_WSPR_tx_next = false;
-  if (!ui->sbTxPercent->isEnabled () || !ui->sbTxPercent->value ())
+  if (!ui->sbTxPercent->isEnabled ())
     {
-      return;                   // don't schedule if %age disabled or zero
+      return;                   // don't schedule if %age disabled
     }
   if (m_config.is_transceiver_online () // need working rig control for hopping
       && !m_config.is_dummy_rig ()
