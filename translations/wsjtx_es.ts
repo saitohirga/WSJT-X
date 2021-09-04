@@ -3209,7 +3209,7 @@ Haz doble clic para alternar el uso del mensaje TX1 para iniciar un QSO con una 
     <message>
         <location filename="../widgets/mainwindow.ui" line="1958"/>
         <source>Tx &amp;1</source>
-        <translation>Tx &amp;1</translation>
+        <translation>TX &amp;1</translation>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1961"/>
