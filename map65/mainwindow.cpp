@@ -1864,6 +1864,8 @@ void MainWindow::doubleClickOnMessages(QString hiscall, QString t2, bool ctrl)
 
 void MainWindow::genStdMsgs(QString rpt)                       //genStdMsgs()
 {
+  if(rpt.left(2)==" -") rpt="-0"+rpt.mid(2,1);
+  if(rpt.left(2)==" +") rpt="+0"+rpt.mid(2,1);
   QString hiscall=ui->dxCallEntry->text().toUpper().trimmed();
   ui->dxCallEntry->setText(hiscall);
   QString t0=hiscall + " " + m_myCall + " ";
