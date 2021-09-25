@@ -13,9 +13,9 @@
                                                          
 Copyright (C) 2001 - 2021 by Joe Taylor, K1JT.
 
-WSJT-X Version 2.3 offers ten different protocols or modes: FT4, FT8,
-JT4, JT9, JT65, Q65, FST4, MSK144, WSPR, FST4W, and Echo. The first
-seven are designed for making reliable QSOs under weak-signal
+WSJT-X Version 2.5 offers eleven different protocols or modes: FT4,
+FT8, JT4, JT9, JT65, Q65, FST4, MSK144, WSPR, FST4W, and Echo. The
+first seven are designed for making reliable QSOs under weak-signal
 conditions. They use nearly identical message structure and source
 encoding. JT65 and Q65 were designed for EME (“moonbounce”), but not
 limited to just that propagation path, on the VHF/UHF bands and JT65
