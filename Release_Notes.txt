@@ -38,6 +38,8 @@ MAP65:
 WSJTX:
  - Repair a defect that caused CAT errors when using WSPR band hopping
    and auto tune-up with some Icom rigs.
+ - Ensure that CALL3.TXT is not  deleted while updating the file (this
+   allows sharing using symlinks to work).
 
 	        Release: WSJT-X 2.5.0-rc6
 	              Sept 6, 2021
