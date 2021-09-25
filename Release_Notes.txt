@@ -27,6 +27,18 @@ other changes included  in this release. WSJT-X 2.5.0  is bundled with
 Hamlib version 4.3.1 which  includes important regression repairs over
 the earlier 4.3 release.
 
+Other  changes  in the  package  since  WSJT-X 2.5.0-rc6  include  the
+following enhancements and defect repairs:
+
+MAP65:
+ - Ensure that CALL3.TXT is not  deleted while updating the file (this
+   allows sharing using symlinks to work).
+ - Fix MAP65's generation of Tx3 message for abs(SNR)< 10.
+
+WSJTX:
+ - Repair a defect that caused CAT errors when using WSPR band hopping
+   and auto tune-up with some Icom rigs.
+
 	        Release: WSJT-X 2.5.0-rc6
 	              Sept 6, 2021
 	        -------------------------
