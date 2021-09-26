@@ -12,6 +12,35 @@
 Copyright 2001 - 2021 by Joe Taylor, K1JT.
 
 
+	        Release: WSJT-X 2.5.0
+	              Sept 27, 2021
+	        -------------------------
+
+WSJT-X in  this release is nearly  identical to that in  WSJT-X 2.4.0.
+The Q65 decoder has been enhanced to measure and compensate for linear
+frequency drift in Q65 signals.  In addition, the Windows installation
+package now  includes version 3.0  of application MAP65 which  has Q65
+support to  match and improve  on its existing JT65  capabilities.
+
+See the 2.5.0  release candidate notices below for a  summaries of the
+other changes included  in this release. WSJT-X 2.5.0  is bundled with
+Hamlib version 4.3.1 which  includes important regression repairs over
+the earlier 4.3 release.
+
+Other  changes  in the  package  since  WSJT-X 2.5.0-rc6  include  the
+following enhancements and defect repairs:
+
+MAP65:
+ - Ensure that CALL3.TXT is not  deleted while updating the file (this
+   allows sharing using symlinks to work).
+ - Fix MAP65's generation of Tx3 message for abs(SNR)< 10.
+
+WSJTX:
+ - Repair a defect that caused CAT errors when using WSPR band hopping
+   and auto tune-up with some Icom rigs.
+ - Ensure that CALL3.TXT is not  deleted while updating the file (this
+   allows sharing using symlinks to work).
+
 	        Release: WSJT-X 2.5.0-rc6
 	              Sept 6, 2021
 	        -------------------------

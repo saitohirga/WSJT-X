@@ -1,7 +1,7 @@
 program msk144sim
 
   use wavhdr
-  parameter (NMAX=15*12000)
+  parameter (NMAX=30*12000)
   real pings(0:NMAX-1)
   real waveform(0:NMAX-1)
   character arg*8,msg*37,msgsent*37,fname*40
@@ -12,25 +12,28 @@ program msk144sim
   integer itone(144)                   !Message bits
 
   nargs=iargc()
-  if(nargs.ne.5) then
-     print*,'Usage:   msk144sim       message      freq width snr nfiles'
-     print*,'Example: msk144sim "K1ABC W9XYZ EN37" 1500  0.12   2    1'
-     print*,'         msk144sim "K1ABC W9XYZ EN37" 1500  2.5   15    1'
+  if(nargs.ne.6) then
+     print*,'Usage:   msk144sim       message      TRp freq width snr nfiles'
+     print*,'Example: msk144sim "K1ABC W9XYZ EN37"  15 1500  0.12   2    1'
+     print*,'         msk144sim "K1ABC W9XYZ EN37"  30 1500  2.5   15    1'
      go to 999
   endif
   call getarg(1,msg)
   call getarg(2,arg)
-  read(arg,*) freq
+  read(arg,*) nTRperiod
   call getarg(3,arg)
-  read(arg,*) width
+  read(arg,*) freq
   call getarg(4,arg)
-  read(arg,*) snrdb
+  read(arg,*) width
   call getarg(5,arg)
+  read(arg,*) snrdb
+  call getarg(6,arg)
   read(arg,*) nfiles
 
 !sig is the peak amplitude of the ping. 
   sig=sqrt(2.0)*10.0**(0.05*snrdb)
-  h=default_header(12000,NMAX)
+  npts=nTRperiod*12000
+  h=default_header(12000,npts)
   i1=len(trim(msg))-5
   ichk=0
   itype=1
@@ -55,7 +58,7 @@ program msk144sim
   dphi1=twopi*(freq+0.25d0*baud)/12000.d0
   phi=0.0
   k=0
-  nreps=NMAX/(nsym*nsps)
+  nreps=npts/(nsym*nsps)
 
   do jrep=1,nreps
     do i=1,nsym
@@ -77,7 +80,7 @@ program msk144sim
      go to 999
   endif
 
-  call makepings(pings,NMAX,width,sig)
+  call makepings(pings,nTRperiod,npts,width,sig)
 
 !  call sgran()
   do ifile=1,nfiles                  !Loop over requested number of files
@@ -88,13 +91,14 @@ program msk144sim
      wave=0.0
      iwave=0
      fac=sqrt(6000.0/2500.0)
-     do i=0,NMAX-1
+     do i=0,npts-1
         xx=gran()
         wave(i)=pings(i)*waveform(i) + fac*xx
         iwave(i)=30.0*wave(i)
      enddo
 
-     write(10) h,iwave               !Save the .wav file
+     write(10) h,iwave(0:npts-1)               !Save the .wav file
+     endfile(10)
      close(10)
 
   enddo

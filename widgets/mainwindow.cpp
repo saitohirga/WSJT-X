@@ -5670,57 +5670,60 @@ void MainWindow::on_addButton_clicked()                       //Add button
         << endl
 #endif
       ;
-    f1.close();
-    f1.open(QIODevice::ReadOnly | QIODevice::Text);
+    f1.seek (0);
   }
   QFile f2 {m_config.writeable_data_dir ().absoluteFilePath ("CALL3.TMP")};
-  if(!f2.open(QIODevice::WriteOnly | QIODevice::Text)) {
+  if(!f2.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
     MessageBox::warning_message (this, tr ("Add to CALL3.TXT")
                                  , tr ("Cannot open \"%1\" for writing: %2")
                                  .arg (f2.fileName ()).arg (f2.errorString ()));
     return;
   }
-  QTextStream in(&f1);          //Read from CALL3.TXT
-  QTextStream out(&f2);         //Copy into CALL3.TMP
-  QString hc=hisCall;
-  QString hc1="";
-  QString hc2="000000";
-  QString s;
-  do {
-    s=in.readLine();
-    hc1=hc2;
-    if(s.mid(0,2)=="//") {
-      out << s + QChar::LineFeed; //Copy all comment lines
-    } else {
-      int i1=s.indexOf(",");
-      hc2=s.mid(0,i1);
-      if(hc>hc1 && hc<hc2) {
-        out << newEntry + QChar::LineFeed;
-        out << s + QChar::LineFeed;
-        m_call3Modified=true;
-      } else if(hc==hc2) {
-        QString t {tr ("%1\nis already in CALL3.TXT"
-                       ", do you wish to replace it?").arg (s)};
-        int ret = MessageBox::query_message (this, tr ("Add to CALL3.TXT"), t);
-        if(ret==MessageBox::Yes) {
-          out << newEntry + QChar::LineFeed;
-          m_call3Modified=true;
-        }
+  {
+    QTextStream in(&f1);          //Read from CALL3.TXT
+    QTextStream out(&f2);         //Copy into CALL3.TMP
+    QString hc=hisCall;
+    QString hc1="";
+    QString hc2="000000";
+    QString s;
+    do {
+      s=in.readLine();
+      hc1=hc2;
+      if(s.mid(0,2)=="//") {
+        out << s + QChar::LineFeed; //Copy all comment lines
       } else {
-        if(s!="") out << s + QChar::LineFeed;
+        int i1=s.indexOf(",");
+        hc2=s.mid(0,i1);
+        if(hc>hc1 && hc<hc2) {
+          out << newEntry + QChar::LineFeed;
+          out << s + QChar::LineFeed;
+          m_call3Modified=true;
+        } else if(hc==hc2) {
+          QString t {tr ("%1\nis already in CALL3.TXT"
+                         ", do you wish to replace it?").arg (s)};
+          int ret = MessageBox::query_message (this, tr ("Add to CALL3.TXT"), t);
+          if(ret==MessageBox::Yes) {
+            out << newEntry + QChar::LineFeed;
+            m_call3Modified=true;
+          }
+        } else {
+          if(s!="") out << s + QChar::LineFeed;
+        }
       }
-    }
-  } while(!s.isNull());
+    } while(!s.isNull());
+    if(hc>hc1 && !m_call3Modified) out << newEntry + QChar::LineFeed;
+  }
 
-  f1.close();
-  if(hc>hc1 && !m_call3Modified) out << newEntry + QChar::LineFeed;
   if(m_call3Modified) {
-    QFile f0 {m_config.writeable_data_dir ().absoluteFilePath ("CALL3.OLD")};
-    if(f0.exists()) f0.remove();
-    QFile f1 {m_config.writeable_data_dir ().absoluteFilePath ("CALL3.TXT")};
-    f1.rename(m_config.writeable_data_dir ().absoluteFilePath ("CALL3.OLD"));
-    f2.rename(m_config.writeable_data_dir ().absoluteFilePath ("CALL3.TXT"));
-    f2.close();
+    auto const& old_path = m_config.writeable_data_dir ().absoluteFilePath ("CALL3.OLD");
+    QFile f0 {old_path};
+    if (f0.exists ()) f0.remove ();
+    f1.copy (old_path);                       // copying as we want to
+                                              // preserve symlinks
+    f1.open (QFile::WriteOnly | QFile::Text); // truncates
+    f2.seek (0);
+    f1.write (f2.readAll ());                 // copy contents
+    f2.remove ();
   }
 }
 

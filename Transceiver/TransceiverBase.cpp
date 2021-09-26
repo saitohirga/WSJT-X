@@ -81,8 +81,7 @@ void TransceiverBase::set (TransceiverState const& s,
             }
           if (s.frequency ()    // ignore bogus zero frequencies
               && ((s.frequency () != requested_.frequency () // and QSY
-                   || (s.mode () != UNK && s.mode () != requested_.mode ())) // or mode change
-                  || ptt_off))       // or just returned to rx
+                   || (s.mode () != UNK && s.mode () != requested_.mode ())))) // or mode change
             {
               do_frequency (s.frequency (), s.mode (), ptt_off);
               do_post_frequency (s.frequency (), s.mode ());
