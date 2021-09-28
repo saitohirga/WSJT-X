@@ -884,8 +884,6 @@ find_program (RIGCTLCOM_EXE rigctlcom)
 check_type_size (CACHE_ALL HAMLIB_OLD_CACHING)
 check_symbol_exists (rig_set_cache_timeout_ms "hamlib/rig.h" HAVE_HAMLIB_CACHING)
 
-find_package (Portaudio REQUIRED)
-
 find_package (Usb REQUIRED)
 
 #
@@ -1405,6 +1403,7 @@ endif (${OPENMP_FOUND} OR APPLE)
 
 if (WIN32)
   # build map65
+  find_package (Portaudio REQUIRED)
   add_subdirectory (map65)
 endif ()
 
