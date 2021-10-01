@@ -4,6 +4,7 @@ The following controls appear at the bottom of the Wide Graph window.
 Decoding occurs only in the displayed frequency range; otherwise,
 controls on the Wide Graph window have no effect on the decoding
 process.
+
 image::wide-graph-controls.png[align="center",alt="Wide Graph Controls"]
 
 - *Bins/Pixel* controls the displayed frequency resolution.  Set this
