@@ -93,6 +93,9 @@ contains
     nfft2=ntrperiod*6000
     npasses=1
 
+    dxcall13=hiscall  ! initialize for use in packjt77
+    mycall13=mycall
+
 ! Determine the T/R sequence: iseq=0 (even), or iseq=1 (odd)
     n=nutc
     if(ntrperiod.ge.60 .and. nutc.le.2359) n=100*n
