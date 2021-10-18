@@ -5371,6 +5371,8 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
   msgtype(t, ui->tx1);
   if (eme_short_codes) {
     t=t+" OOO";
+    if(!bHisCall) t=hisCall + " " + m_baseCall + " OOO";
+    if(!bMyCall) t=hisBase + " " + my_callsign + " OOO";
     msgtype(t, ui->tx2);
     msgtype("RO", ui->tx3);
     msgtype("RRR", ui->tx4);
