@@ -33,8 +33,11 @@ subroutine q65_set_list(mycall,hiscall,hisgrid,codewords,ncw)
      if(i.eq.2) msg(j0:j0+2)='RRR'
      if(i.eq.3) msg(j0:j0+3)='RR73'
      if(i.eq.4) msg(j0:j0+1)='73'
-     if(i.eq.5) msg='CQ '//trim(hiscall)//' '//hisgrid(1:4)
-     if(i.eq.6) msg(j0:j0+3)=hisgrid(1:4)
+     if(i.eq.5) then
+        if(his_std) msg='CQ '//trim(hiscall)//' '//hisgrid(1:4)
+        if(.not.his_std) msg='CQ '//trim(hiscall)
+     endif
+     if(i.eq.6 .and. his_std) msg(j0:j0+3)=hisgrid(1:4)
      if(i.ge.7 .and. i.le.206) then
         isnr = -50 + (i-7)/2
         if(iand(i,1).eq.1) then
