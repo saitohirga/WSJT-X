@@ -1261,6 +1261,7 @@ set (LANGUAGES
   #sv				# Swedish
   zh				# Chinese
   zh_HK				# Chinese per Hong Kong
+  zh_TW				# Chinese traditional
   it				# Italian
   )
 foreach (lang_ ${LANGUAGES})
