@@ -35,7 +35,7 @@
     <message>
         <location filename="../widgets/astro.ui" line="40"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;One station does all Doppler shift correction, their QSO partner receives and transmits on the sked frequency.&lt;/p&gt;&lt;p&gt;If the rig does not accept CAT QSY commands while transmitting a single correction is applied for the whole transmit period.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;片方の局がドップラーシフトを修正します.相手局はスケジュール通りの周波数で送受信します.&lt;/p&gt;&lt;p&gt;もし無線機が送信中にCAT QSYコマンドを受け付けない場合、1回の送信では一度だけ周波数調整が行われます.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;片方の局がドップラーシフトを修正します.相手局はスケジュール通りの周波数で送受信します.&lt;/p&gt;&lt;p&gt;もし無線機が送信中にCAT QSYコマンドを受け付けない場合、一回の送信で一度だけ周波数調整が行われます.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../widgets/astro.ui" line="43"/>
@@ -5481,7 +5481,7 @@ Error(%2): %3</source>
     <message>
         <location filename="../Configuration.ui" line="274"/>
         <source>&amp;Blank line between decoding periods</source>
-        <translation>デコード時間の間に空白行を入れる(&amp;B)</translation>
+        <translation>デコードシーケンスの間に区切りを入れる(&amp;B)</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="281"/>
@@ -5496,7 +5496,7 @@ Error(%2): %3</source>
     <message>
         <location filename="../Configuration.ui" line="301"/>
         <source>Behavior</source>
-        <translation>振る舞い</translation>
+        <translation>動作</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="307"/>
@@ -6157,7 +6157,7 @@ both here.</source>
         <location filename="../Configuration.ui" line="1480"/>
         <location filename="../Configuration.ui" line="1483"/>
         <source>Save Directory</source>
-        <translation>ディレクトリ保存</translation>
+        <translation>保存ディレクトリ</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1489"/>
@@ -6376,7 +6376,7 @@ for assessing propagation and system performance.</source>
     <message>
         <location filename="../Configuration.ui" line="1837"/>
         <source>Use TCP/IP connection</source>
-        <translation>TCP/IP接続を仕様</translation>
+        <translation>TCP/IP接続を使用</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1847"/>
@@ -6415,7 +6415,7 @@ for assessing propagation and system performance.</source>
     <message>
         <location filename="../Configuration.ui" line="1952"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Indicate acceptance of an incoming UDP request. The effect of this option varies depending on the operating system and window manager, its intent is to notify the acceptance of an incoming UDP request even if this application is minimized or hidden.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;UDPリクエストを受け付けたことを表示. OSやウィンドウマネージャによって振る舞いが変わります. アプリウィンドウが最小化されていたり隠れていたりしていてもUDPリクエストが送られてきたことを知るために使うことができます.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;UDPリクエストを受け付けたことを表示. OSやウィンドウマネージャによって動作が変わります. アプリウィンドウが最小化されていたり隠れていたりしていてもUDPリクエストが送られてきたことを知るために使うことができます.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1955"/>
@@ -6435,7 +6435,7 @@ for assessing propagation and system performance.</source>
     <message>
         <location filename="../Configuration.ui" line="1977"/>
         <source>Secondary UDP Server (deprecated)</source>
-        <translation>第二UDPサーバー（使わないことを推奨）</translation>
+        <translation>セカンドUDPサーバー（使わないことを推奨）</translation>
     </message>
     <message>
         <location filename="../Configuration.ui" line="1983"/>
