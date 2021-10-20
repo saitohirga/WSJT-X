@@ -12,6 +12,28 @@
 Copyright 2001 - 2021 by Joe Taylor, K1JT.
 
 
+		Release: WSJT-X 2.5.1
+	              Oct 21, 2021
+	        ---------------------
+
+WSJT-X 2.5.1 is a bug fix release, mainly to address issues with the
+use of nonstandard callsigns in the JT65 and Q65 modes.  Changes since
+WSJT-X 2.5.0 include the following:
+
+ - Repair an issue with MyCall and DxCall not being automatically
+   added to the hashtable on program startup in Q65 mode
+ - Repair the Q65 default message generation when MyCall or DxCall
+   is nonstandard
+ - Generate the correct JT65 message for Tx2 when one callsign is
+   compound
+ - Display a properly decoded nonstandard call in < > brackets,
+   rather than displaying it as <...>
+ - Enable q2 and q3 decoding for Q65 messages that contain a
+   nonstandard callsign
+ - Fix several other minor bugs that could occur in unusual
+   circumstances
+
+
 	        Release: WSJT-X 2.5.0
 	              Sept 27, 2021
 	        -------------------------
