@@ -47,7 +47,7 @@ and a number of defect repairs detected since the 2.5.0 GA release.
  - Repair a defect that required a blank DX Grid  to achieve  Q65 'q3'
    decodes of messages containing a non-standard call.
 
- - Repair the logic that enables Q65 "Deep" decoding.
+ - Repair the logic that sets parameters for Q65 "Deep" decoding.
 
  - In Q65 mode, allow 'q2' decodes when MyCall is compound or
    non-standard.
