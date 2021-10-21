@@ -21,7 +21,7 @@ subroutine four2a(a,nfft,ndim,isign,iform)
 
   use fftw3
   parameter (NPMAX=2100)                 !Max numberf of stored plans
-  parameter (NSMALL=16384)               !Max size of "small" FFTs
+  parameter (NSMALL=16385)               !Max half complex size of "small" FFTs
   complex a(nfft)                        !Array to be transformed
   complex aa(NSMALL)                     !Local copy of "small" a()
   integer nn(NPMAX),ns(NPMAX),nf(NPMAX)  !Params of stored plans 
@@ -67,7 +67,7 @@ subroutine four2a(a,nfft,ndim,isign,iform)
 
      if(nfft.le.NSMALL) then
         jz=nfft
-        if(iform.eq.0) jz=nfft/2
+        if(iform.le.0) jz=nfft/2+1
         aa(1:jz)=a(1:jz)
      endif
 
@@ -87,7 +87,7 @@ subroutine four2a(a,nfft,ndim,isign,iform)
 
      if(nfft.le.NSMALL) then
         jz=nfft
-        if(iform.eq.0) jz=nfft/2
+        if(iform.le.0) jz=nfft/2+1
         a(1:jz)=aa(1:jz)
      endif
   end if

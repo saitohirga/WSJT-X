@@ -2073,12 +2073,12 @@ Error(%2): %3</source>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="44"/>
-        <location filename="../widgets/mainwindow.cpp" line="6075"/>
-        <location filename="../widgets/mainwindow.cpp" line="6161"/>
-        <location filename="../widgets/mainwindow.cpp" line="6208"/>
-        <location filename="../widgets/mainwindow.cpp" line="6370"/>
-        <location filename="../widgets/mainwindow.cpp" line="6416"/>
-        <location filename="../widgets/mainwindow.cpp" line="6528"/>
+        <location filename="../widgets/mainwindow.cpp" line="6082"/>
+        <location filename="../widgets/mainwindow.cpp" line="6168"/>
+        <location filename="../widgets/mainwindow.cpp" line="6215"/>
+        <location filename="../widgets/mainwindow.cpp" line="6377"/>
+        <location filename="../widgets/mainwindow.cpp" line="6423"/>
+        <location filename="../widgets/mainwindow.cpp" line="6537"/>
         <source>Band Activity</source>
         <translation>波段活动</translation>
     </message>
@@ -2090,11 +2090,11 @@ Error(%2): %3</source>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="188"/>
-        <location filename="../widgets/mainwindow.cpp" line="6076"/>
-        <location filename="../widgets/mainwindow.cpp" line="6160"/>
-        <location filename="../widgets/mainwindow.cpp" line="6203"/>
-        <location filename="../widgets/mainwindow.cpp" line="6371"/>
-        <location filename="../widgets/mainwindow.cpp" line="6417"/>
+        <location filename="../widgets/mainwindow.cpp" line="6083"/>
+        <location filename="../widgets/mainwindow.cpp" line="6167"/>
+        <location filename="../widgets/mainwindow.cpp" line="6210"/>
+        <location filename="../widgets/mainwindow.cpp" line="6378"/>
+        <location filename="../widgets/mainwindow.cpp" line="6424"/>
         <source>Rx Frequency</source>
         <translation>接收信息</translation>
     </message>
@@ -2712,7 +2712,7 @@ Not available to nonstandard callsign holders.</source>
     </message>
     <message>
         <location filename="../widgets/mainwindow.ui" line="1177"/>
-        <location filename="../widgets/mainwindow.cpp" line="6232"/>
+        <location filename="../widgets/mainwindow.cpp" line="6239"/>
         <source>Fox</source>
         <translation>狐狸</translation>
     </message>
@@ -3190,10 +3190,10 @@ list. The list can be maintained in Settings (F2).</source>
         <location filename="../widgets/mainwindow.ui" line="2269"/>
         <location filename="../widgets/mainwindow.ui" line="2276"/>
         <location filename="../widgets/mainwindow.ui" line="2496"/>
-        <location filename="../widgets/mainwindow.cpp" line="1267"/>
-        <location filename="../widgets/mainwindow.cpp" line="5820"/>
-        <location filename="../widgets/mainwindow.cpp" line="6683"/>
-        <location filename="../widgets/mainwindow.cpp" line="8134"/>
+        <location filename="../widgets/mainwindow.cpp" line="1265"/>
+        <location filename="../widgets/mainwindow.cpp" line="5822"/>
+        <location filename="../widgets/mainwindow.cpp" line="6692"/>
+        <location filename="../widgets/mainwindow.cpp" line="8143"/>
         <source>Random</source>
         <translation>随机</translation>
     </message>
@@ -3439,7 +3439,7 @@ list. The list can be maintained in Settings (F2).</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="8455"/>
+        <location filename="../widgets/mainwindow.cpp" line="8464"/>
         <source>Runaway Tx watchdog</source>
         <translation>运行发射监管计时器</translation>
     </message>
@@ -3675,19 +3675,19 @@ list. The list can be maintained in Settings (F2).</source>
         <translation>WSJT-X 2.5.0和MAP65 3.0快速入门指南</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="257"/>
+        <location filename="../widgets/mainwindow.cpp" line="258"/>
         <source>Rig Control Error</source>
         <translation>无线电设备控制错误</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="343"/>
-        <location filename="../widgets/mainwindow.cpp" line="4422"/>
-        <location filename="../widgets/mainwindow.cpp" line="7908"/>
+        <location filename="../widgets/mainwindow.cpp" line="344"/>
+        <location filename="../widgets/mainwindow.cpp" line="4404"/>
+        <location filename="../widgets/mainwindow.cpp" line="7917"/>
         <source>Receiving</source>
         <translation>接收</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="450"/>
+        <location filename="../widgets/mainwindow.cpp" line="451"/>
         <source>Do you want to reconfigure the radio interface?</source>
         <translation>是否要重新配置无线电设备接口?</translation>
     </message>
@@ -3708,191 +3708,191 @@ list. The list can be maintained in Settings (F2).</source>
         <translation type="vanished">样品丢失过多 - %1 (%2 sec) 音频帧在周期开始时丢失 %3</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="518"/>
+        <location filename="../widgets/mainwindow.cpp" line="519"/>
         <source>Error Scanning ADIF Log</source>
         <translation>扫描 ADIF 日志错误</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="522"/>
+        <location filename="../widgets/mainwindow.cpp" line="523"/>
         <source>Scanned ADIF log, %1 worked before records created</source>
         <translation>扫描 ADIF 日志, %1 创建曾经通联记录</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="630"/>
+        <location filename="../widgets/mainwindow.cpp" line="631"/>
         <source>Error Loading LotW Users Data</source>
         <translation>加载 LotW 用户数据错误</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="749"/>
+        <location filename="../widgets/mainwindow.cpp" line="750"/>
         <source>Error Writing WAV File</source>
         <translation>写入 WAV 文件时错误</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="777"/>
+        <location filename="../widgets/mainwindow.cpp" line="778"/>
         <source>Enumerating audio devices</source>
         <translation>列举音频设备</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="792"/>
+        <location filename="../widgets/mainwindow.cpp" line="793"/>
         <source>Configurations...</source>
         <translation>配置文件...</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="858"/>
-        <location filename="../widgets/mainwindow.cpp" line="6156"/>
-        <location filename="../widgets/mainwindow.cpp" line="6162"/>
-        <location filename="../widgets/mainwindow.cpp" line="6199"/>
-        <location filename="../widgets/mainwindow.cpp" line="6209"/>
-        <location filename="../widgets/mainwindow.cpp" line="6307"/>
-        <location filename="../widgets/mainwindow.cpp" line="6308"/>
-        <location filename="../widgets/mainwindow.cpp" line="6356"/>
-        <location filename="../widgets/mainwindow.cpp" line="6357"/>
+        <location filename="../widgets/mainwindow.cpp" line="859"/>
+        <location filename="../widgets/mainwindow.cpp" line="6163"/>
+        <location filename="../widgets/mainwindow.cpp" line="6169"/>
+        <location filename="../widgets/mainwindow.cpp" line="6206"/>
+        <location filename="../widgets/mainwindow.cpp" line="6216"/>
+        <location filename="../widgets/mainwindow.cpp" line="6314"/>
+        <location filename="../widgets/mainwindow.cpp" line="6315"/>
         <location filename="../widgets/mainwindow.cpp" line="6363"/>
         <location filename="../widgets/mainwindow.cpp" line="6364"/>
-        <location filename="../widgets/mainwindow.cpp" line="6462"/>
-        <location filename="../widgets/mainwindow.cpp" line="6463"/>
-        <location filename="../widgets/mainwindow.cpp" line="6523"/>
-        <location filename="../widgets/mainwindow.cpp" line="6524"/>
-        <location filename="../widgets/mainwindow.cpp" line="7586"/>
-        <location filename="../widgets/mainwindow.cpp" line="7589"/>
-        <location filename="../widgets/mainwindow.cpp" line="7594"/>
-        <location filename="../widgets/mainwindow.cpp" line="7597"/>
+        <location filename="../widgets/mainwindow.cpp" line="6370"/>
+        <location filename="../widgets/mainwindow.cpp" line="6371"/>
+        <location filename="../widgets/mainwindow.cpp" line="6469"/>
+        <location filename="../widgets/mainwindow.cpp" line="6470"/>
+        <location filename="../widgets/mainwindow.cpp" line="6532"/>
+        <location filename="../widgets/mainwindow.cpp" line="6533"/>
+        <location filename="../widgets/mainwindow.cpp" line="7595"/>
+        <location filename="../widgets/mainwindow.cpp" line="7598"/>
+        <location filename="../widgets/mainwindow.cpp" line="7603"/>
+        <location filename="../widgets/mainwindow.cpp" line="7606"/>
         <source>Message</source>
         <translation>信息</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="872"/>
+        <location filename="../widgets/mainwindow.cpp" line="873"/>
         <source>Error Killing jt9.exe Process</source>
         <translation>错误终止 jt9.exe 进程</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="873"/>
+        <location filename="../widgets/mainwindow.cpp" line="874"/>
         <source>KillByName return code: %1</source>
         <translation>按名称终止返回代码: %1</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="888"/>
+        <location filename="../widgets/mainwindow.cpp" line="889"/>
         <source>Error removing &quot;%1&quot;</source>
         <translation>删除时错误 &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="889"/>
+        <location filename="../widgets/mainwindow.cpp" line="890"/>
         <source>Click OK to retry</source>
         <translation>单击 确定 重试</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="1324"/>
-        <location filename="../widgets/mainwindow.cpp" line="6498"/>
+        <location filename="../widgets/mainwindow.cpp" line="1322"/>
+        <location filename="../widgets/mainwindow.cpp" line="6507"/>
         <source>Improper mode</source>
         <translation>模式不正确</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="1505"/>
-        <location filename="../widgets/mainwindow.cpp" line="9105"/>
+        <location filename="../widgets/mainwindow.cpp" line="1500"/>
+        <location filename="../widgets/mainwindow.cpp" line="9114"/>
         <source>File Open Error</source>
         <translation>文件打开错误</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="1506"/>
-        <location filename="../widgets/mainwindow.cpp" line="8037"/>
-        <location filename="../widgets/mainwindow.cpp" line="8536"/>
-        <location filename="../widgets/mainwindow.cpp" line="9106"/>
-        <location filename="../widgets/mainwindow.cpp" line="9235"/>
+        <location filename="../widgets/mainwindow.cpp" line="1501"/>
+        <location filename="../widgets/mainwindow.cpp" line="8046"/>
+        <location filename="../widgets/mainwindow.cpp" line="8545"/>
+        <location filename="../widgets/mainwindow.cpp" line="9115"/>
+        <location filename="../widgets/mainwindow.cpp" line="9244"/>
         <source>Cannot open &quot;%1&quot; for append: %2</source>
         <translation>无法打开 &quot;%1&quot; 用于附加: %2</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="1609"/>
+        <location filename="../widgets/mainwindow.cpp" line="1601"/>
         <source>Error saving c2 file</source>
         <translation>保存 c2 文件出错误</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="1809"/>
+        <location filename="../widgets/mainwindow.cpp" line="1798"/>
         <source>Error in Sound Input</source>
         <translation>声音输入出错误</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="1815"/>
+        <location filename="../widgets/mainwindow.cpp" line="1804"/>
         <source>Error in Sound Output</source>
         <translation>声音输出错误</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="1880"/>
-        <location filename="../widgets/mainwindow.cpp" line="6305"/>
-        <location filename="../widgets/mainwindow.cpp" line="6412"/>
-        <location filename="../widgets/mainwindow.cpp" line="6460"/>
+        <location filename="../widgets/mainwindow.cpp" line="1869"/>
+        <location filename="../widgets/mainwindow.cpp" line="6312"/>
+        <location filename="../widgets/mainwindow.cpp" line="6419"/>
+        <location filename="../widgets/mainwindow.cpp" line="6467"/>
         <source>Single-Period Decodes</source>
         <translation>单周期解码</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="1881"/>
-        <location filename="../widgets/mainwindow.cpp" line="6306"/>
-        <location filename="../widgets/mainwindow.cpp" line="6413"/>
-        <location filename="../widgets/mainwindow.cpp" line="6461"/>
+        <location filename="../widgets/mainwindow.cpp" line="1870"/>
+        <location filename="../widgets/mainwindow.cpp" line="6313"/>
+        <location filename="../widgets/mainwindow.cpp" line="6420"/>
+        <location filename="../widgets/mainwindow.cpp" line="6468"/>
         <source>Average Decodes</source>
         <translation>平均解码</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="2181"/>
+        <location filename="../widgets/mainwindow.cpp" line="2170"/>
         <source>Change Operator</source>
         <translation>改变操作员</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="2181"/>
+        <location filename="../widgets/mainwindow.cpp" line="2170"/>
         <source>New operator:</source>
         <translation>新操作员:</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="2293"/>
+        <location filename="../widgets/mainwindow.cpp" line="2282"/>
         <source>Status File Error</source>
         <translation>状态文件错误</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="2294"/>
-        <location filename="../widgets/mainwindow.cpp" line="5681"/>
+        <location filename="../widgets/mainwindow.cpp" line="2283"/>
+        <location filename="../widgets/mainwindow.cpp" line="5679"/>
         <source>Cannot open &quot;%1&quot; for writing: %2</source>
         <translation>无法打开 &quot;%1&quot; 用于写入: %2</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="2424"/>
+        <location filename="../widgets/mainwindow.cpp" line="2413"/>
         <source>Subprocess Error</source>
         <translation>子流程出错误</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="2425"/>
+        <location filename="../widgets/mainwindow.cpp" line="2414"/>
         <source>Subprocess failed with exit code %1</source>
         <translation>子流程失败, 退出代码为 %1</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="2427"/>
-        <location filename="../widgets/mainwindow.cpp" line="2447"/>
+        <location filename="../widgets/mainwindow.cpp" line="2416"/>
+        <location filename="../widgets/mainwindow.cpp" line="2436"/>
         <source>Running: %1
 %2</source>
         <translation>运行: %1
 %2</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="2446"/>
+        <location filename="../widgets/mainwindow.cpp" line="2435"/>
         <source>Subprocess error</source>
         <translation>子进程错误</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="2484"/>
+        <location filename="../widgets/mainwindow.cpp" line="2473"/>
         <source>Reference spectrum saved</source>
         <translation>保存参考频谱</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="2557"/>
+        <location filename="../widgets/mainwindow.cpp" line="2543"/>
         <source>Invalid data in fmt.all at line %1</source>
         <translation>在 %1 行中 fmt.all 的无效数据</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="2563"/>
+        <location filename="../widgets/mainwindow.cpp" line="2549"/>
         <source>Good Calibration Solution</source>
         <translation>良好的校准解决方案</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="2564"/>
+        <location filename="../widgets/mainwindow.cpp" line="2550"/>
         <source>&lt;pre&gt;%1%L2 ±%L3 ppm
 %4%L5 ±%L6 Hz
 
@@ -3901,12 +3901,12 @@ list. The list can be maintained in Settings (F2).</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="2578"/>
+        <location filename="../widgets/mainwindow.cpp" line="2564"/>
         <source>Delete Calibration Measurements</source>
         <translation>删除校准测量值</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="2579"/>
+        <location filename="../widgets/mainwindow.cpp" line="2565"/>
         <source>The &quot;fmt.all&quot; file will be renamed as &quot;fmt.bak&quot;</source>
         <translation>&quot;fmt.all&quot; 文件将重命名为 &quot;fmt.bak&quot;</translation>
     </message>
@@ -3919,7 +3919,7 @@ list. The list can be maintained in Settings (F2).</source>
 &quot;WSJT-X和相关程序的算法、源代码、外观和感觉, 以及模式的协议规范 FSK441, FST4, FT8, JT4, JT6M, JT9, JT65, JTMS, QRA64, Q65, ISCAT, MSK144 版权所有(C) 2001-2021是由以下一个或多个作者拥有的: Joseph Taylor, K1JT; Bill Somerville, G4WJS; Steven Franke, K9AN; Nico Palermo, IV3NWV; Greg Beam, KI7MT; Michael Black, W9MDB; Edson Pereira, PY2SDR; Philip Karn, KA9Q; 和WSJT发展小组的其他成员.&quot;</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="2591"/>
+        <location filename="../widgets/mainwindow.cpp" line="2577"/>
         <source>If you make fair use of any part of WSJT-X under terms of the GNU General Public License, you must display the following copyright notice prominently in your derivative work:
 
 &quot;The algorithms, source code, look-and-feel of WSJT-X and related programs, and protocol specifications for the modes FSK441, FST4, FT8, JT4, JT6M, JT9, JT65, JTMS, QRA64, Q65, MSK144 are Copyright (C) 2001-2021 by one or more of the following authors: Joseph Taylor, K1JT; Bill Somerville, G4WJS; Steven Franke, K9AN; Nico Palermo, IV3NWV; Greg Beam, KI7MT; Michael Black, W9MDB; Edson Pereira, PY2SDR; Philip Karn, KA9Q; and other members of the WSJT Development Group.&quot;</source>
@@ -3928,27 +3928,27 @@ list. The list can be maintained in Settings (F2).</source>
 &quot;WSJT-X和相关程序的算法、源代码、外观和感觉, 以及模式的协议规范 FSK441, FST4, FT8, JT4, JT6M, JT9, JT65, JTMS, QRA64, Q65,  MSK144 版权所有(C) 2001-2021是由以下一个或多个作者拥有的: Joseph Taylor, K1JT; Bill Somerville, G4WJS; Steven Franke, K9AN; Nico Palermo, IV3NWV; Greg Beam, KI7MT; Michael Black, W9MDB; Edson Pereira, PY2SDR; Philip Karn, KA9Q; 和WSJT发展小组的其他成员.&quot;</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="2882"/>
+        <location filename="../widgets/mainwindow.cpp" line="2868"/>
         <source>No data read from disk. Wrong file format?</source>
         <translation>没有从磁盘读取数据. 文件格式出错误?</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="2889"/>
+        <location filename="../widgets/mainwindow.cpp" line="2875"/>
         <source>Confirm Delete</source>
         <translation>确认删除</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="2890"/>
+        <location filename="../widgets/mainwindow.cpp" line="2876"/>
         <source>Are you sure you want to delete all *.wav and *.c2 files in &quot;%1&quot;?</source>
         <translation>是否确实要删除所有 *.wav 和 *.c2 文件在 &quot;%1&quot;?</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="2927"/>
+        <location filename="../widgets/mainwindow.cpp" line="2913"/>
         <source>Keyboard Shortcuts</source>
         <translation>键盘快捷键</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="2929"/>
+        <location filename="../widgets/mainwindow.cpp" line="2915"/>
         <source>&lt;table cellspacing=1&gt;
   &lt;tr&gt;&lt;td&gt;&lt;b&gt;Esc      &lt;/b&gt;&lt;/td&gt;&lt;td&gt;Stop Tx, abort QSO, clear next-call queue&lt;/td&gt;&lt;/tr&gt;
   &lt;tr&gt;&lt;td&gt;&lt;b&gt;F1       &lt;/b&gt;&lt;/td&gt;&lt;td&gt;Online User&apos;s Guide (Alt: transmit Tx6)&lt;/td&gt;&lt;/tr&gt;
@@ -4042,12 +4042,12 @@ list. The list can be maintained in Settings (F2).</source>
 &lt;/table&gt;</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="2985"/>
+        <location filename="../widgets/mainwindow.cpp" line="2971"/>
         <source>Special Mouse Commands</source>
         <translation>特殊鼠标组合</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="2987"/>
+        <location filename="../widgets/mainwindow.cpp" line="2973"/>
         <source>&lt;table cellpadding=5&gt;
   &lt;tr&gt;
     &lt;th align=&quot;right&quot;&gt;Click on&lt;/th&gt;
@@ -4112,42 +4112,42 @@ list. The list can be maintained in Settings (F2).</source>
 &lt;/table&gt;</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="3339"/>
+        <location filename="../widgets/mainwindow.cpp" line="3325"/>
         <source>No more files to open.</source>
         <translation>没有要打开的文件.</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="3739"/>
+        <location filename="../widgets/mainwindow.cpp" line="3722"/>
         <source>Spotting to PSK Reporter unavailable</source>
         <translation>发送到 Pskreporter 不可用</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="3875"/>
+        <location filename="../widgets/mainwindow.cpp" line="3858"/>
         <source>Please choose another Tx frequency. WSJT-X will not knowingly transmit another mode in the WSPR sub-band on 30m.</source>
         <translation>请选择另一个发射频率. WSJT-X 不会故意在 30m 的 WSPR 子频段中传输另一种模式.</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="3879"/>
+        <location filename="../widgets/mainwindow.cpp" line="3862"/>
         <source>WSPR Guard Band</source>
         <translation>WSPR 守护波段</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="3892"/>
+        <location filename="../widgets/mainwindow.cpp" line="3875"/>
         <source>Please choose another dial frequency. WSJT-X will not operate in Fox mode in the standard FT8 sub-bands.</source>
         <translation>请选择另一个频率. WSJT-X在标准的FT8子带中不会以狐狸模式工作.</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="3896"/>
+        <location filename="../widgets/mainwindow.cpp" line="3879"/>
         <source>Fox Mode warning</source>
         <translation>狐狸模式警告</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="4524"/>
+        <location filename="../widgets/mainwindow.cpp" line="4506"/>
         <source>Last Tx: %1</source>
         <translation>最后发射: %1</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="4920"/>
+        <location filename="../widgets/mainwindow.cpp" line="4902"/>
         <source>Should you switch to EU VHF Contest mode?
 
 To do so, check &apos;Special operating activity&apos; and
@@ -4158,178 +4158,178 @@ To do so, check &apos;Special operating activity&apos; and
 设置高级选项卡上的 &apos;欧洲 VHF 竞赛&apos;.</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="4939"/>
+        <location filename="../widgets/mainwindow.cpp" line="4921"/>
         <source>Should you switch to ARRL Field Day mode?</source>
         <translation>是否应切换到 ARRL Field Day 模式?</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="4944"/>
+        <location filename="../widgets/mainwindow.cpp" line="4926"/>
         <source>Should you switch to RTTY contest mode?</source>
         <translation>是否应切换到 RTTY 竞赛模式?</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="5642"/>
-        <location filename="../widgets/mainwindow.cpp" line="5661"/>
-        <location filename="../widgets/mainwindow.cpp" line="5680"/>
-        <location filename="../widgets/mainwindow.cpp" line="5706"/>
+        <location filename="../widgets/mainwindow.cpp" line="5641"/>
+        <location filename="../widgets/mainwindow.cpp" line="5660"/>
+        <location filename="../widgets/mainwindow.cpp" line="5678"/>
+        <location filename="../widgets/mainwindow.cpp" line="5705"/>
         <source>Add to CALL3.TXT</source>
         <translation>添加到 CALL3.TXT</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="5643"/>
+        <location filename="../widgets/mainwindow.cpp" line="5642"/>
         <source>Please enter a valid grid locator</source>
         <translation>请输入有效的网格定位</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="5662"/>
+        <location filename="../widgets/mainwindow.cpp" line="5661"/>
         <source>Cannot open &quot;%1&quot; for read/write: %2</source>
         <translation>无法打开 &quot;%1&quot; 用于读/写: %2</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="5704"/>
+        <location filename="../widgets/mainwindow.cpp" line="5703"/>
         <source>%1
 is already in CALL3.TXT, do you wish to replace it?</source>
         <translation>%1
 已经在 CALL3.TXT, 你想替换它吗?</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="5888"/>
+        <location filename="../widgets/mainwindow.cpp" line="5895"/>
         <source>Warning:  DX Call field is empty.</source>
         <translation>警告:  DX 呼号字段为空.</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="5945"/>
+        <location filename="../widgets/mainwindow.cpp" line="5952"/>
         <source>Log file error</source>
         <translation>日志文件错误</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="5946"/>
+        <location filename="../widgets/mainwindow.cpp" line="5953"/>
         <source>Cannot open &quot;%1&quot;</source>
         <translation>无法打开 &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="5962"/>
+        <location filename="../widgets/mainwindow.cpp" line="5969"/>
         <source>Error sending log to N1MM</source>
         <translation>将日志发送到 N1MM 时发生错误</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="5963"/>
+        <location filename="../widgets/mainwindow.cpp" line="5970"/>
         <source>Write returned &quot;%1&quot;</source>
         <translation>写入返回 &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="6205"/>
+        <location filename="../widgets/mainwindow.cpp" line="6212"/>
         <source>Stations calling DXpedition %1</source>
         <translation>呼叫远征电台 %1</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="6243"/>
+        <location filename="../widgets/mainwindow.cpp" line="6250"/>
         <source>Hound</source>
         <translation>猎犬</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="6529"/>
+        <location filename="../widgets/mainwindow.cpp" line="6538"/>
         <source>Tx Messages</source>
         <translation>发射信息</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="6820"/>
-        <location filename="../widgets/mainwindow.cpp" line="6853"/>
-        <location filename="../widgets/mainwindow.cpp" line="6863"/>
+        <location filename="../widgets/mainwindow.cpp" line="6829"/>
+        <location filename="../widgets/mainwindow.cpp" line="6862"/>
+        <location filename="../widgets/mainwindow.cpp" line="6872"/>
         <source>Confirm Erase</source>
         <translation>确认擦除</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="6821"/>
+        <location filename="../widgets/mainwindow.cpp" line="6830"/>
         <source>Are you sure you want to erase file ALL.TXT?</source>
         <translation>是否确实要擦除 ALL.TXT 文件?</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="6831"/>
-        <location filename="../widgets/mainwindow.cpp" line="8584"/>
+        <location filename="../widgets/mainwindow.cpp" line="6840"/>
+        <location filename="../widgets/mainwindow.cpp" line="8593"/>
         <source>Confirm Reset</source>
         <translation>确认重置</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="6832"/>
+        <location filename="../widgets/mainwindow.cpp" line="6841"/>
         <source>Are you sure you want to erase your contest log?</source>
         <translation>是否确实要擦除竞赛日志?</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="6833"/>
+        <location filename="../widgets/mainwindow.cpp" line="6842"/>
         <source>Doing this will remove all QSO records for the current contest. They will be kept in the ADIF log file but will not be available for export in your Cabrillo log.</source>
         <translation>执行此操作将删除当前竞赛的所有通联记录. 它们将保留在 ADIF 日志文件中, 但无法导出到您的卡布里略日志中.</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="6846"/>
+        <location filename="../widgets/mainwindow.cpp" line="6855"/>
         <source>Cabrillo Log saved</source>
         <translation>卡布里略日志已保存</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="6854"/>
+        <location filename="../widgets/mainwindow.cpp" line="6863"/>
         <source>Are you sure you want to erase file wsjtx_log.adi?</source>
         <translation>是否确实要擦除 wsjtx_log.adi 文件?</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="6864"/>
+        <location filename="../widgets/mainwindow.cpp" line="6873"/>
         <source>Are you sure you want to erase the WSPR hashtable?</source>
         <translation>是否确实要擦除 WSPR 哈希表?</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="7436"/>
+        <location filename="../widgets/mainwindow.cpp" line="7445"/>
         <source>Tune digital gain </source>
         <translation>调谐数码增益 </translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="7438"/>
+        <location filename="../widgets/mainwindow.cpp" line="7447"/>
         <source>Transmit digital gain </source>
         <translation>传输数码增益 </translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="7457"/>
+        <location filename="../widgets/mainwindow.cpp" line="7466"/>
         <source>Prefixes</source>
         <translation>前缀</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="7875"/>
+        <location filename="../widgets/mainwindow.cpp" line="7884"/>
         <source>Network Error</source>
         <translation>网络错误</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="7876"/>
+        <location filename="../widgets/mainwindow.cpp" line="7885"/>
         <source>Error: %1
 UDP server %2:%3</source>
         <translation>错误: %1
 UDP 服务器 %2:%3</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="8036"/>
+        <location filename="../widgets/mainwindow.cpp" line="8045"/>
         <source>File Error</source>
         <translation>文件错误</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="8322"/>
+        <location filename="../widgets/mainwindow.cpp" line="8331"/>
         <source>Phase Training Disabled</source>
         <translation>已禁用阶段训练</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="8325"/>
+        <location filename="../widgets/mainwindow.cpp" line="8334"/>
         <source>Phase Training Enabled</source>
         <translation>已启用阶段训练</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="8470"/>
+        <location filename="../widgets/mainwindow.cpp" line="8479"/>
         <source>WD:%1m</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="8539"/>
-        <location filename="../widgets/mainwindow.cpp" line="9238"/>
+        <location filename="../widgets/mainwindow.cpp" line="8548"/>
+        <location filename="../widgets/mainwindow.cpp" line="9247"/>
         <source>Log File Error</source>
         <translation>日志文件错误</translation>
     </message>
     <message>
-        <location filename="../widgets/mainwindow.cpp" line="8585"/>
+        <location filename="../widgets/mainwindow.cpp" line="8594"/>
         <source>Are you sure you want to clear the QSO queues?</source>
         <translation>是否确实要清除通联队列?</translation>
     </message>

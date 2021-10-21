@@ -6,20 +6,19 @@ subroutine ft8apset(mycall12,hiscall12,ncontest,apsym,aph10)
   character*13 hc13
   character*10 c10
   integer apsym(58),aph10(10)
-  logical nohiscall,unpk77_success
+  logical nohiscall,unpk77_success,std
 
   apsym=0
   apsym(1)=99
   apsym(30)=99
   aph10=0
   aph10(1)=99
-
   if(len(trim(mycall12)).lt.3) return 
 
   nohiscall=.false. 
   hiscall=hiscall12 
   if(len(trim(hiscall)).lt.3) then
-     hiscall=mycall12  ! use mycall for dummy hiscall - mycall won't be hashed.
+     hiscall='KA1ABC'                   !Use a dummy hiscall
      nohiscall=.true.
   else
      hc13=hiscall
@@ -34,7 +33,9 @@ subroutine ft8apset(mycall12,hiscall12,ncontest,apsym,aph10)
 
 ! Encode a dummy standard message: i3=1, 28 1 28 1 1 15
 !
-  msg=trim(mycall12)//' '//trim(hiscall)//' RRR' 
+  msg=trim(mycall12)//' '//trim(hiscall)//' RRR'
+  call stdcall(mycall12,std)
+  if(.not.std) msg='<'//trim(mycall12)//'> '//trim(hiscall)//' RRR'
   i3=0
   n3=0
   call pack77(msg,i3,n3,c77)

@@ -45,7 +45,7 @@ if (POLICY CMP0075)
 endif ()
 
 project (wsjtx
-  VERSION 2.5.0.0
+  VERSION 2.5.1.0
   LANGUAGES C CXX Fortran
   )
 set (PROJECT_DESCRIPTION "WSJT-X: Digital Modes for Weak Signal Communications in Amateur Radio")
@@ -71,7 +71,7 @@ message (STATUS "******************************************************")
 
 include (set_build_type)
 # RC 0 or omitted is a development build, GA is a General Availability release build
-set_build_type (GA)
+set_build_type (RC GA)
 set (wsjtx_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}${BUILD_TYPE_REVISION}")
 
 #
@@ -884,8 +884,6 @@ find_program (RIGCTLCOM_EXE rigctlcom)
 check_type_size (CACHE_ALL HAMLIB_OLD_CACHING)
 check_symbol_exists (rig_set_cache_timeout_ms "hamlib/rig.h" HAVE_HAMLIB_CACHING)
 
-find_package (Portaudio REQUIRED)
-
 find_package (Usb REQUIRED)
 
 #
@@ -1095,7 +1093,7 @@ target_link_libraries (wsjt_fort  ${FFTW3_LIBRARIES})
 if (${OPENMP_FOUND} OR APPLE)
   add_library (wsjt_fort_omp STATIC ${wsjt_FSRCS})
   target_link_libraries (wsjt_fort_omp  ${FFTW3_LIBRARIES})
-  if (OpenMP_C_FLAGS)
+  if (OpenMP_C_FLAGS AND NOT APPLE)
     set_target_properties (wsjt_fort_omp
       PROPERTIES
       COMPILE_FLAGS "${OpenMP_C_FLAGS}"
@@ -1263,6 +1261,7 @@ set (LANGUAGES
   #sv				# Swedish
   zh				# Chinese
   zh_HK				# Chinese per Hong Kong
+  zh_TW				# Chinese traditional
   it				# Italian
   )
 foreach (lang_ ${LANGUAGES})
@@ -1405,6 +1404,7 @@ endif (${OPENMP_FOUND} OR APPLE)
 
 if (WIN32)
   # build map65
+  find_package (Portaudio REQUIRED)
   add_subdirectory (map65)
 endif ()
 

@@ -76,6 +76,10 @@ contains
     complex, allocatable :: c00(:)        !Analytic signal, 6000 Sa/s
     complex, allocatable :: c0(:)         !Analytic signal, 6000 Sa/s
 
+!w3sz added
+    integer stageno
+    stageno=0
+
 ! Start by setting some parameters and allocating storage for large arrays
     call sec0(0,tdecode)
     nfa=nfa0
@@ -92,6 +96,9 @@ contains
     nfft1=ntrperiod*12000
     nfft2=ntrperiod*6000
     npasses=1
+
+    dxcall13=hiscall  ! initialize for use in packjt77
+    mycall13=mycall
 
 ! Determine the T/R sequence: iseq=0 (even), or iseq=1 (odd)
     n=nutc
@@ -131,7 +138,8 @@ contains
        ibwa=max(1,int(1.8*log(baud*mode_q65)) + 1)
        ibwb=min(10,ibwa+5)
        maxiters=67
-    else if(iand(ndepth,3).eq.3) then
+    endif
+    if(iand(ndepth,3).eq.3) then
        ibwa=max(1,ibwa-1)
        ibwb=min(10,ibwb+1)
        maxiters=100
@@ -151,7 +159,7 @@ contains
 ! Call top-level routine in q65 module: establish sync and try for a
 ! q3 or q0 decode.
     call q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
-         emedelay,xdt,f0,snr1,width,dat4,snr2,idec)
+         emedelay,xdt,f0,snr1,width,dat4,snr2,idec,stageno)
     call timer('q65_dec0',1)
 !    write(*,3001) '=a',sum(abs(float(iwave))),nfqso,ntol,ndepth,xdt,f0,idec
 !3001 format(a2,f15.0,3i5,f7.2,f7.1,i5)
@@ -208,7 +216,7 @@ contains
 ! decode, this time using the cumulative 's1a' symbol spectra.
     iavg=1
     call q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
-         emedelay,xdt,f0,snr1,width,dat4,snr2,idec)
+         emedelay,xdt,f0,snr1,width,dat4,snr2,idec,stageno)
     call timer('list_avg',1)
 
     if(idec.ge.0) then
@@ -225,7 +233,7 @@ contains
     call timer('q65_avg ',0)
     iavg=2
     call q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
-         emedelay,xdt,f0,snr1,width,dat4,snr2,idec)
+         emedelay,xdt,f0,snr1,width,dat4,snr2,idec,stageno)
     call timer('q65_avg ',1)
     if(idec.ge.0) then
        dtdec=xdt                          !We have a q[012]n result
@@ -233,7 +241,22 @@ contains
        nused=navg(iseq)
     endif
 
-100 decoded='                                     '
+100 stageno = 5
+
+    if(idec.lt.0) then
+       call timer('q65_dec0',0)
+       ! Call top-level routine in q65 module: establish sync and try for a
+       ! q3 or q0 decode.
+       call q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
+            emedelay,xdt,f0,snr1,width,dat4,snr2,idec,stageno)
+       call timer('q65_dec0',1)
+       if(idec.ge.0) then
+          dtdec=xdt             !We have a q[012]n result
+          f0dec=f0
+       endif
+    endif                       ! if(idec.lt.0)
+
+    decoded='                                     '
     if(idec.ge.0) then
 ! idec Meaning
 ! ------------------------------------------------------
@@ -246,7 +269,7 @@ contains
 ! Unpack decoded message for display to user
        write(c77,1000) dat4(1:12),dat4(13)/2
 1000   format(12b6.6,b5.5)
-       call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
+       call unpack77(c77,1,decoded,unpk77_success) !Unpack to get msgsent
        call q65_snr(dat4,dtdec,f0dec,mode_q65,nused,snr2)
        nsnr=nint(snr2)
        call this%callback(nutc,snr1,nsnr,dtdec,f0dec,decoded,    &
@@ -322,7 +345,7 @@ contains
        if(idec.ge.0) then
 ! Unpack decoded message for display to user
           write(c77,1000) dat4(1:12),dat4(13)/2
-          call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
+          call unpack77(c77,1,decoded,unpk77_success) !Unpack to get msgsent
           call q65_snr(dat4,dtdec,f0dec,mode_q65,nused,snr2)
           nsnr=nint(snr2)
           call this%callback(nutc,snr1,nsnr,dtdec,f0dec,decoded,    &
