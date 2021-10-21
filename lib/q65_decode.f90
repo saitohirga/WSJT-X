@@ -97,6 +97,9 @@ contains
     nfft2=ntrperiod*6000
     npasses=1
 
+    dxcall13=hiscall  ! initialize for use in packjt77
+    mycall13=mycall
+
 ! Determine the T/R sequence: iseq=0 (even), or iseq=1 (odd)
     n=nutc
     if(ntrperiod.ge.60 .and. nutc.le.2359) n=100*n
@@ -135,7 +138,8 @@ contains
        ibwa=max(1,int(1.8*log(baud*mode_q65)) + 1)
        ibwb=min(10,ibwa+5)
        maxiters=67
-    else if(iand(ndepth,3).eq.3) then
+    endif
+    if(iand(ndepth,3).eq.3) then
        ibwa=max(1,ibwa-1)
        ibwb=min(10,ibwb+1)
        maxiters=100
@@ -265,7 +269,7 @@ contains
 ! Unpack decoded message for display to user
        write(c77,1000) dat4(1:12),dat4(13)/2
 1000   format(12b6.6,b5.5)
-       call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
+       call unpack77(c77,1,decoded,unpk77_success) !Unpack to get msgsent
        call q65_snr(dat4,dtdec,f0dec,mode_q65,nused,snr2)
        nsnr=nint(snr2)
        call this%callback(nutc,snr1,nsnr,dtdec,f0dec,decoded,    &
@@ -341,7 +345,7 @@ contains
        if(idec.ge.0) then
 ! Unpack decoded message for display to user
           write(c77,1000) dat4(1:12),dat4(13)/2
-          call unpack77(c77,0,decoded,unpk77_success) !Unpack to get msgsent
+          call unpack77(c77,1,decoded,unpk77_success) !Unpack to get msgsent
           call q65_snr(dat4,dtdec,f0dec,mode_q65,nused,snr2)
           nsnr=nint(snr2)
           call this%callback(nutc,snr1,nsnr,dtdec,f0dec,decoded,    &

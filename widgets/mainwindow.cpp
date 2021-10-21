@@ -1024,15 +1024,14 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
 void MainWindow::not_GA_warning_message ()
 {
-  
-  MessageBox::critical_message (this,
-                                "This is a pre-release version of WSJT-X 2.5.0 made\n"
-                                "available for testing purposes.  By design it will\n"
-                                "be nonfunctional after Sept 30, 2021.");
-  auto now = QDateTime::currentDateTimeUtc ();
-  if (now >= QDateTime {{2021, 9, 30}, {23, 59, 59, 999}, Qt::UTC}) {
-    Q_EMIT finished ();
-  }
+  // MessageBox::critical_message (this,
+  //                               "This is a pre-release version of WSJT-X " + version (false) + " made\n"
+  //                               "available for testing purposes.  By design it will\n"
+  //                               "be nonfunctional after Nov 30, 2021.");
+  // auto now = QDateTime::currentDateTimeUtc ();
+  // if (now >= QDateTime {{2021, 11, 30}, {23, 59, 59, 999}, Qt::UTC}) {
+  //   Q_EMIT finished ();
+  // }
 }
 
 void MainWindow::initialize_fonts ()
@@ -5371,6 +5370,8 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
   msgtype(t, ui->tx1);
   if (eme_short_codes) {
     t=t+" OOO";
+    if(!bHisCall) t=hisCall + " " + m_baseCall + " OOO";
+    if(!bMyCall) t=hisBase + " " + my_callsign + " OOO";
     msgtype(t, ui->tx2);
     msgtype("RO", ui->tx3);
     msgtype("RRR", ui->tx4);
@@ -5459,7 +5460,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     }
 
     t=t0 + (m_send_RR73 ? "RR73" : "RRR");
-    if((m_mode=="MSK144" and !m_bShMsgs) or m_mode=="FT8" or m_mode=="FT4" || m_mode == "FST4") {
+    if((m_mode=="MSK144" and !m_bShMsgs) or m_mode=="FT8" or m_mode=="FT4" || m_mode == "FST4" || m_mode == "Q65") {
       if(!bHisCall and bMyCall) t=hisCall + " <" + my_callsign + "> " + (m_send_RR73 ? "RR73" : "RRR");
       if(bHisCall and !bMyCall) t="<" + hisCall + "> " + my_callsign + " " + (m_send_RR73 ? "RR73" : "RRR");
     }
@@ -5467,7 +5468,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
     msgtype(t, ui->tx4);
 
     t=t0 + "73";
-    if((m_mode=="MSK144" and !m_bShMsgs) or m_mode=="FT8" or m_mode=="FT4" || m_mode == "FST4") {
+    if((m_mode=="MSK144" and !m_bShMsgs) or m_mode=="FT8" or m_mode=="FT4" || m_mode == "FST4" || m_mode == "Q65") {
       if(!bHisCall and bMyCall) t=hisCall + " <" + my_callsign + "> 73";
       if(bHisCall and !bMyCall) t="<" + hisCall + "> " + my_callsign + " 73";
     }
