@@ -552,7 +552,7 @@
         </layout>
        </item>
        <item>
-        <layout class="QGridLayout" name="gridLayout_5" rowstretch="1,0,0" columnstretch="0,0,1,5,0">
+        <layout class="QGridLayout" name="gridLayout_5" rowstretch="1,0,0" columnstretch="0,0,1,4,0">
          <item row="0" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
           <widget class="QPushButton" name="readFreq">
            <property name="enabled">
@@ -1283,14 +1283,8 @@ When not checked you can view the calibration results.</string>
                         </property>
                         <property name="minimumSize">
                          <size>
-                          <width>20</width>
+                          <width>30</width>
                           <height>0</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>50</width>
-                          <height>20</height>
                          </size>
                         </property>
                         <property name="toolTip">
@@ -1336,14 +1330,8 @@ When not checked you can view the calibration results.</string>
                         </property>
                         <property name="minimumSize">
                          <size>
-                          <width>20</width>
+                          <width>30</width>
                           <height>0</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>50</width>
-                          <height>20</height>
                          </size>
                         </property>
                         <property name="toolTip">
