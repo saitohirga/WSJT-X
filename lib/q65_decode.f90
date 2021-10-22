@@ -241,9 +241,8 @@ contains
        nused=navg(iseq)
     endif
 
-100 stageno = 5
-
-    if(idec.lt.0) then
+100 if(idec.lt.0 .and. max_drift.eq.50) then
+       stageno = 5
        call timer('q65_dec0',0)
        ! Call top-level routine in q65 module: establish sync and try for a
        ! q3 or q0 decode.
