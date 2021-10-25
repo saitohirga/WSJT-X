@@ -5,7 +5,7 @@ been an Open Source project, which now includes the programs _WSJT_,
 _MAP65_, _WSPR_, _WSJT-X_, and _WSPR-X_.  *G4WJS* (since 2013), *K9AN*
 (since 2015), and *IV3NWV* (since 2016) have made major contributions
 to _WSJT-X_.  Together with K1JT they now form the core development
-team.  *G4WJS* and *W9MDB* have made major contributiions to _hamlib_,
+team.  *G4WJS* and *W9MDB* have made major contributions to _hamlib_,
 on which _WSJT-X_ depends for rig control.
 
 All code in the _WSJT_ project is licensed under the GNU Public
