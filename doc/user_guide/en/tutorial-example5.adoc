@@ -31,7 +31,7 @@ image::FST4_center.png[align="center"]
 It's best to keep the decoding range fairly small, since QRM and
 transmissions in other modes or sequence lengths will slow down the
 decoding process (and of course will be undecodable).  By checking 
-*Single decode* on the the *File | Settings | General* tab, you can
+*Single decode* on the *File | Settings | General* tab, you can
 further limit the decoding range to the setting of *F Tol* on
 either side of *Rx Freq*.
 

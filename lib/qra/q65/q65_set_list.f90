@@ -22,12 +22,8 @@ subroutine q65_set_list(mycall,hiscall,hisgrid,codewords,ncw)
         if(i.eq.1 .or. i.ge.6)  msg='<'//trim(mycall)//'> '//trim(hiscall)
         if(i.ge.2 .and. i.le.4) msg=trim(mycall)//' <'//trim(hiscall)//'>'
      else if(.not.his_std) then
-        if(i.le.4) msg='<'//trim(mycall)//'> '//trim(hiscall)
+        if(i.le.4 .or. i.eq.6) msg='<'//trim(mycall)//'> '//trim(hiscall)
         if(i.ge.7) msg=trim(mycall)//' <'//trim(hiscall)//'>'
-        if(i.eq.6) then
-           msg='TNX 73 GL'
-           go to 10
-        endif
      endif
      j0=len(trim(msg))+2
      if(i.eq.2) msg(j0:j0+2)='RRR'
