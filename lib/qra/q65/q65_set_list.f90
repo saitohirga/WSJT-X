@@ -1,6 +1,6 @@
 subroutine q65_set_list(mycall,hiscall,hisgrid,codewords,ncw)
 
-  parameter (MAX_NCW=206)
+  parameter (MAX_NCW=207)
   character*12 mycall,hiscall
   character*6 hisgrid
   character*37 msg0,msg,msgsent
@@ -44,6 +44,7 @@ subroutine q65_set_list(mycall,hiscall,hisgrid,codewords,ncw)
            if(msg(j0+1:j0+1).eq.' ') msg(j0+1:j0+1)='+'
         endif
      endif
+     if(i.eq.207) msg='TNX 73 GL'
 
 10   call genq65(msg,0,msgsent,itone,i3,n3)
      i0=1
