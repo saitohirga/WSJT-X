@@ -104,6 +104,12 @@ subroutine ft8b(dd0,newdat,nQSOProgress,nfqso,nftx,ndepth,nzhsym,lapon,     &
   call timer('ft8_down',0)
   call ft8_downsample(dd0,newdat,f1,cd0)   !Mix f1 to baseband and downsample
   call timer('ft8_down',1)
+  if(f1.eq.1500.0) then
+     do i=0,3199
+        write(40,3040) i,i/200.0,cd0(i)
+3040    format(i5,f10.6,2x,2f10.3)
+     enddo
+  endif
 
   i0=nint((xdt+0.5)*fs2)                   !Initial guess for start of signal
   smax=0.0
