@@ -36,16 +36,22 @@ release 2.5.1:
 
  - Polarization offset 'Dpol' from the asronomical data window is now
    written to file azel.dat if environment variable
-   WSJT_AZEL_EXTRA_LINES has been defined. Dpol is especially useful
-   for EME on the higher microwave bands.
+   WSJT_AZEL_EXTRA_LINES has been defined as 1 or greater. Dpol is
+   especially useful for EME on the higher microwave bands.
 
  - New hamlib code to correct minor flaws in controlling several rigs
 
  - Update the Chinese and Hong Kong translations of the user
    interface.
 
-
-		Release: WSJT-X 2.5.1
+ - Note  that since  the WSJT-X  v2.5.0 GA  release we  have not  been
+   providing pre-built 32-bit  packages for Linux on  Intel CPUs, this
+   is  due to  the mainstream  Linux Desktop  distributions no  longer
+   providing updates for 32-bit only  systems. 32-bit WSJT-X can still
+   be  built for  Linux Intel  and is  supported at  least until  some
+   prerequisite package is no longer available.
+ 
+	        Release: WSJT-X 2.5.1
 	             Oct 21, 2021
 	        ----------------------
 
