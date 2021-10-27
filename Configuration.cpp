@@ -735,7 +735,7 @@ bool Configuration::monitor_last_used () const {return m_->rig_is_dummy_ || m_->
 bool Configuration::log_as_RTTY () const {return m_->log_as_RTTY_;}
 bool Configuration::report_in_comments () const {return m_->report_in_comments_;}
 bool Configuration::prompt_to_log () const {return m_->prompt_to_log_;}
-bool Configuration::autoLog() const {return m_->autoLog_ && m_->bSpecialOp_;}
+bool Configuration::autoLog() const {return m_->autoLog_;}
 bool Configuration::decodes_from_top () const {return m_->decodes_from_top_;}
 bool Configuration::insert_blank () const {return m_->insert_blank_;}
 bool Configuration::DXCC () const {return m_->DXCC_;}
