@@ -237,22 +237,17 @@ contains
       do i=1,ndec(jseq,0)
          if(f0(i,jseq,0).eq.-99.0) exit
          if(f0(i,jseq,0).eq.-98.0) cycle
-!         f0(i,jseq,0)=527
-!         msg0(i,jseq,0)='LX1KL OE6MDF'
-!         print*,'aa',i,jseq,newdat,f0(i,jseq,0),trim(msg0(i,jseq,0))
          call ft8_downsample(dd,newdat,f0(i,jseq,0),cd0)
-         call ft8_dec7(cd0,dt0(i,jseq,0),f0(i,jseq,0),msg0(i,jseq,0),msg37,snr7)
-         if(snr7.gt.4.0) then
-!            print*,i,msg0(i,jseq,0)(1:22),msg37(1:22),snr7
+         call ft8_dec7(cd0,dt0(i,jseq,0),f0(i,jseq,0),msg0(i,jseq,0),   &
+              xdt,xsnr,msg37)
+         if(xsnr.gt.-99.0) then
             if(associated(this%callback)) then
-               nsnr=nint(db(snr7)-24.0)
-               xdt=0.
+               nsnr=nint(xsnr)
                f1=f0(i,jseq,0)
                iaptype=7
                qual=1.0
                call this%callback(sync,nsnr,xdt,f1,msg37,iaptype,qual)
            endif
-
          endif
          newdat=.false.
       enddo
