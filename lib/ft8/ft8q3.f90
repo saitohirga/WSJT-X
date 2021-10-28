@@ -69,6 +69,14 @@ subroutine ft8q3(cd,xdt,f0,call_1,call_2,grid4,msgbest,snr)
 ! Generate complex cwave
      call gen_ft8wave(itone,NN,NSPS,bt,fs,f0,cwave,xjunk,1,NWAVE)
 
+     if(imsg.eq.79) then
+        print*,NN,NSPS,bt,fs,f0,NWAVE,itone(1:7)
+        do i=0,NWAVE-1
+           write(45,3045) i,cd(i),100*cwave(i)
+3045       format(i5,4e12.3)
+        enddo
+     endif
+
      lagmax=-1
      ccfmax=0.
      nsum=32*2

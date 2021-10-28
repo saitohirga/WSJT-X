@@ -38,6 +38,7 @@ contains
     use iso_c_binding, only: c_bool, c_int
     use timer_module, only: timer
     use shmem, only: shmem_lock, shmem_unlock
+    use ft8_a7
 
     include 'ft8/ft8_params.f90'
 
@@ -64,12 +65,30 @@ contains
     integer itone_save(NN,MAX_EARLY)
     real f1_save(MAX_EARLY)
     real xdt_save(MAX_EARLY)
+    complex cd0(0:3199)
+    data nutc0/-1/
 
-    save s,dd,dd1,ndec_early,itone_save,f1_save,xdt_save,lsubtracted,allmessages
+    save s,dd,dd1,nutc0,ndec_early,itone_save,f1_save,xdt_save,lsubtracted,&
+         allmessages
     
     this%callback => callback
     write(datetime,1001) nutc        !### TEMPORARY ###
 1001 format("000000_",i6.6)
+
+    if(nutc0.eq.-1) then
+       msg0=' '
+    endif
+    if(nutc.ne.nutc0) then
+! New UTC.  Move previously saved 'a7' data from k=1 to k=0
+       iz=ndec(jseq,1)
+       dt0(1:iz,jseq,0)  = dt0(1:iz,jseq,1)
+       f0(1:iz,jseq,0)   = f0(1:iz,jseq,1)
+       msg0(1:iz,jseq,0) = msg0(1:iz,jseq,1)
+       ndec(jseq,0)=iz
+       ndec(jseq,1)=0
+       nutc0=nutc
+!       print*,'BBB',jseq,ndec(0,0),ndec(0,1)
+    endif
 
     if(ndepth.eq.1 .and. nzhsym.lt.50) then
        ndec_early=0
@@ -178,7 +197,7 @@ contains
              hiscall12,f1,xdt,xbase,apsym2,aph10,nharderrors,dmin,          &
              nbadcrc,iappass,msg37,xsnr,itone)
         call timer('ft8b    ',1)
-        nsnr=nint(xsnr) 
+        nsnr=nint(xsnr)
         xdt=xdt-0.5
         hd=nharderrors+dmin
         if(nbadcrc.eq.0) then
@@ -198,6 +217,7 @@ contains
               qual=1.0-(nharderrors+dmin)/60.0 ! scale qual to [0.0,1.0]
               if(emedelay.ne.0) xdt=xdt+2.0
               call this%callback(sync,nsnr,xdt,f1,msg37,iaptype,qual)
+              call ft8_a7_save(nutc,xdt,f1,msg37)
            endif
         endif
         call timestamp(tsec,tseq,ctime)
@@ -209,7 +229,37 @@ contains
 800 ndec_early=0
    if(nzhsym.lt.50) ndec_early=ndecodes
    
-900 return
+900 continue
+!   if(nzhsym.eq.50) print*,'AA0',jseq,ndec(0,0),ndec(0,1)
+   if(nzhsym.eq.50 .and. ndec(jseq,0).ge.1) then
+      call timer('ft8_dec7',0)
+      newdat=.true.
+      do i=1,ndec(jseq,0)
+         if(f0(i,jseq,0).eq.-99.0) exit
+         if(f0(i,jseq,0).eq.-98.0) cycle
+!         f0(i,jseq,0)=527
+!         msg0(i,jseq,0)='LX1KL OE6MDF'
+!         print*,'aa',i,jseq,newdat,f0(i,jseq,0),trim(msg0(i,jseq,0))
+         call ft8_downsample(dd,newdat,f0(i,jseq,0),cd0)
+         call ft8_dec7(cd0,dt0(i,jseq,0),f0(i,jseq,0),msg0(i,jseq,0),msg37,snr7)
+         if(snr7.gt.4.0) then
+!            print*,i,msg0(i,jseq,0)(1:22),msg37(1:22),snr7
+            if(associated(this%callback)) then
+               nsnr=nint(db(snr7)-24.0)
+               xdt=0.
+               f1=f0(i,jseq,0)
+               iaptype=7
+               qual=1.0
+               call this%callback(sync,nsnr,xdt,f1,msg37,iaptype,qual)
+           endif
+
+         endif
+         newdat=.false.
+      enddo
+      call timer('ft8_dec7',1)
+   endif
+   
+   return
 end subroutine decode
 
 subroutine timestamp(tsec,tseq,ctime)
