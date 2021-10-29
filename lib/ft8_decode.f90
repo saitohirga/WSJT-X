@@ -87,8 +87,8 @@ contains
        ndec(jseq,0)=iz
        ndec(jseq,1)=0
        nutc0=nutc
-!       print*,'BBB',jseq,ndec(0,0),ndec(0,1)
     endif
+!    write(44,*) 'AAA',nutc,nzhsym
 
     if(ndepth.eq.1 .and. nzhsym.lt.50) then
        ndec_early=0
@@ -234,6 +234,7 @@ contains
    if(nzhsym.eq.50 .and. ndec(jseq,0).ge.1) then
       call timer('ft8_dec7',0)
       newdat=.true.
+      write(44,*) 'BBB',nutc
       do i=1,ndec(jseq,0)
          if(f0(i,jseq,0).eq.-99.0) exit
          if(f0(i,jseq,0).eq.-98.0) cycle
@@ -242,21 +243,22 @@ contains
          call ft8_dec7(cd0,dt0(i,jseq,0),f0(i,jseq,0),msg0(i,jseq,0),   &
               xdt,xsnr,msg37,snr7,snr7b)
          ddt=xdt-dt0(i,jseq,0)
-         write(41,3041) nutc,snr7,snr7b,xdt,ddt,nint(f0(i,jseq,0)),trim(msg37)
-3041     format(i6.6,4f7.2,i5,2x,a)
+!         write(41,3041) nutc,snr7,snr7b,xdt,ddt,nint(f0(i,jseq,0)),trim(msg37)
+!3041     format(i6.6,4f7.2,i5,2x,a)
          if(snr7.lt.6.0 .or. snr7b.lt.1.8) cycle
-         write(42,3041) nutc,snr7,snr7b,xdt,ddt,nint(f0(i,jseq,0)),trim(msg37)
-         flush(41)
-         flush(42)
-         if(xsnr.gt.-99.0 .and. associated(this%callback)) then
+!         write(42,3041) nutc,snr7,snr7b,xdt,ddt,nint(f0(i,jseq,0)),trim(msg37)
+!         flush(41)
+!         flush(42)
+         if(associated(this%callback)) then
             nsnr=xsnr
             f1=f0(i,jseq,0)
             iaptype=7
             qual=1.0
             call this%callback(sync,nsnr,xdt,f1,msg37,iaptype,qual)
 ! Call subtract here?
+            call subtractft8(dd,itone_a7,f1,xdt+0.5,.false.)  !### ??? ###
          endif
-         newdat=.false.
+!         newdat=.false.
       enddo
       call timer('ft8_dec7',1)
    endif

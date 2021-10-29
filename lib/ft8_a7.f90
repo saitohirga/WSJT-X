@@ -10,6 +10,7 @@ module ft8_a7
   real f0(MAXDEC,0:1,0:1)                  !f0(i,j,k)
   character*37 msg0(MAXDEC,0:1,0:1)        !msg0(i,j,k)
 
+  integer itone_a7(79)
   integer jseq                             !even=0, odd=1
   integer ndec(0:1,0:1)                    !ndec(j,k)
   data ndec/4*0/,jseq/0/
@@ -186,6 +187,7 @@ subroutine ft8_dec7(cd,xdt0,f0,msg0,xdt,xsnr,msgbest,snr7,snr7b)
         lagbest=lagmax
         msgbest=msg
         imsgbest=imsg
+        itone_a7=itone
      endif
   enddo  ! imsg
 
