@@ -243,7 +243,7 @@ contains
               xdt,xsnr,msg37,snr7,snr7b)
          ddt=xdt-dt0(i,jseq,0)
          write(41,3041) nutc,snr7,snr7b,xdt,ddt,nint(f0(i,jseq,0)),trim(msg37)
-3041     format(i6.6,3f7.2,2f6.2,i5,2x,a)
+3041     format(i6.6,4f7.2,i5,2x,a)
          if(snr7.lt.6.0 .or. snr7b.lt.1.8) cycle
          write(42,3041) nutc,snr7,snr7b,xdt,ddt,nint(f0(i,jseq,0)),trim(msg37)
          flush(41)
