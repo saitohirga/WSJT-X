@@ -237,17 +237,24 @@ contains
       do i=1,ndec(jseq,0)
          if(f0(i,jseq,0).eq.-99.0) exit
          if(f0(i,jseq,0).eq.-98.0) cycle
+         if(index(msg0(i,jseq,0),'<').ge.1) cycle      !### Temporary ###
          call ft8_downsample(dd,newdat,f0(i,jseq,0),cd0)
          call ft8_dec7(cd0,dt0(i,jseq,0),f0(i,jseq,0),msg0(i,jseq,0),   &
-              xdt,xsnr,msg37)
-         if(xsnr.gt.-99.0) then
-            if(associated(this%callback)) then
-               nsnr=nint(xsnr)
-               f1=f0(i,jseq,0)
-               iaptype=7
-               qual=1.0
-               call this%callback(sync,nsnr,xdt,f1,msg37,iaptype,qual)
-           endif
+              xdt,xsnr,msg37,snr7,snr7b)
+         ddt=xdt-dt0(i,jseq,0)
+         write(41,3041) nutc,snr7,snr7b,xdt,ddt,nint(f0(i,jseq,0)),trim(msg37)
+3041     format(i6.6,3f7.2,2f6.2,i5,2x,a)
+         if(snr7.lt.6.0 .or. snr7b.lt.1.8) cycle
+         write(42,3041) nutc,snr7,snr7b,xdt,ddt,nint(f0(i,jseq,0)),trim(msg37)
+         flush(41)
+         flush(42)
+         if(xsnr.gt.-99.0 .and. associated(this%callback)) then
+            nsnr=xsnr
+            f1=f0(i,jseq,0)
+            iaptype=7
+            qual=1.0
+            call this%callback(sync,nsnr,xdt,f1,msg37,iaptype,qual)
+! Call subtract here?
          endif
          newdat=.false.
       enddo
