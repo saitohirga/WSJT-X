@@ -1701,9 +1701,6 @@ When not checked you can view the calibration results.</string>
                           <verstretch>0</verstretch>
                          </sizepolicy>
                         </property>
-                        <property name="maxLength">
-                         <number>30</number>
-                        </property>
                        </widget>
                       </item>
                       <item row="4" column="1">
@@ -1755,9 +1752,6 @@ Double click to toggle the use of the Tx1 message to start a QSO with a station 
                           <verstretch>0</verstretch>
                          </sizepolicy>
                         </property>
-                        <property name="maxLength">
-                         <number>30</number>
-                        </property>
                        </widget>
                       </item>
                       <item row="5" column="2">
@@ -1804,9 +1798,6 @@ Double-click to reset to the standard 73 message</string>
                           <verstretch>0</verstretch>
                          </sizepolicy>
                         </property>
-                        <property name="maxLength">
-                         <number>30</number>
-                        </property>
                        </widget>
                       </item>
                       <item row="0" column="2">
@@ -1846,9 +1837,6 @@ Double-click to reset to the standard 73 message</string>
                           <verstretch>0</verstretch>
                          </sizepolicy>
                         </property>
-                        <property name="maxLength">
-                         <number>30</number>
-                        </property>
                        </widget>
                       </item>
                       <item row="3" column="0">
@@ -1858,9 +1846,6 @@ Double-click to reset to the standard 73 message</string>
                           <horstretch>0</horstretch>
                           <verstretch>0</verstretch>
                          </sizepolicy>
-                        </property>
-                        <property name="maxLength">
-                         <number>30</number>
                         </property>
                        </widget>
                       </item>
@@ -2863,6 +2848,14 @@ Yellow when too low</string>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>842</width>
+     <height>21</height>
+    </rect>
+   </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
