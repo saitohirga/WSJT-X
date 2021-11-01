@@ -785,9 +785,9 @@ subroutine q65_snr(dat4,dtdec,f0dec,mode_q65,nused,snr2)
   sig_area=sum(spec(ia+nsum:ib-nsum)-1.0)
   w_equiv=sig_area/(smax-1.0)
   snr2=db(max(1.0,sig_area)) - db(2500.0/df)
-  if(nused.eq.2) snr2=snr2 - 2.0
-  if(nused.eq.3) snr2=snr2 - 2.9
-  if(nused.ge.4) snr2=snr2 - 3.5
+  if(nused.eq.2) snr2=snr2 - 1.5
+  if(nused.eq.3) snr2=snr2 - 2.4
+  if(nused.ge.4) snr2=snr2 - 3.0
 
   return
 end subroutine q65_snr
