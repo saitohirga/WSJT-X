@@ -171,8 +171,6 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
         call timer('list_dec',0)
         call q65_dec_q3(s1,iz,jz,s3,LL,ipk,jpk,snr2,dat4,idec,decoded)
         call timer('list_dec',1)
-!        if(idec.ge.0) write(70,3070) idec,mode_q65,better,trim(decoded)
-!3070    format(i3,i5,f8.2,2x,a)
      endif
 ! If idec=3 we have a q3 decode.  Continue to compute sync curve for plotting.
   endif
@@ -250,16 +248,15 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
         call q65_ccf_85(s1w,iz,jz,nfqso,ia,ia2,ipk,jpk,f0,xdt,imsg_best,   &
              better,ccf1)
         call timer('ccf_85  ',1)
-	!         nsubmode  is Tone-spacing indicator, 0-4 for A-E: a 0; b 1; c 2; d 3; e 4.
-	!         and mode_q65=2**nsubmode
+
+! nsubmode  is Tone-spacing indicator, 0-4 for A-E: a 0; b 1; c 2; d 3; e 4.
+! and mode_q65=2**nsubmode
         if(better.ge.1.10) then
            !     if(better.ge.1.04 .or. mode_q65.ge.8) then
            !     if(better.ge.1.10 .or. mode_q65.ge.8) then  ORIGINAL
            call timer('list_dec',0)
            call q65_dec_q3(s1w,iz,jz,s3,LL,ipk,jpk,snr2,dat4,idec,decoded)
            call timer('list_dec',1)
-           !        if(idec.ge.0) write(70,3070) idec,mode_q65,better,trim(decoded)
-           !3070    format(i3,i5,f8.2,2x,a)
         endif ! if(better.ge.1.10)
      endif    ! if(ncw.gt.0 .and. iavg.le.1)
      ! If idec=3 we have a q3 decode.  Continue to compute sync curve for plotting.
