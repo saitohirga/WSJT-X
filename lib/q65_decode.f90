@@ -75,9 +75,7 @@ contains
     logical single_decode,lagain
     complex, allocatable :: c00(:)        !Analytic signal, 6000 Sa/s
     complex, allocatable :: c0(:)         !Analytic signal, 6000 Sa/s
-
-!w3sz added
-    integer stageno
+    integer stageno                       !Added by W3SZ
     stageno=0
 
 ! Start by setting some parameters and allocating storage for large arrays
@@ -96,7 +94,7 @@ contains
     nfft1=ntrperiod*12000
     nfft2=ntrperiod*6000
     npasses=1
-
+    if(lagain) ndepth=ior(ndepth,3)       !Use 'Deep' for manual Q65 decodes
     dxcall13=hiscall  ! initialize for use in packjt77
     mycall13=mycall
 
@@ -241,9 +239,8 @@ contains
        nused=navg(iseq)
     endif
 
-100 stageno = 5
-
-    if(idec.lt.0) then
+100 if(idec.lt.0 .and. max_drift.eq.50) then
+       stageno = 5
        call timer('q65_dec0',0)
        ! Call top-level routine in q65 module: establish sync and try for a
        ! q3 or q0 decode.

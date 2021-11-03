@@ -268,7 +268,7 @@ subroutine q65_dec0(iavg,nutc,iwave,ntrperiod,nfqso,ntol,ndepth,lclearave,  &
         idec=5
      endif
 
-  endif        ! if(idec.lt.0 .and. maxdrift.eq.50 .and. stageno.eq.5)
+  endif        ! if(idec.lt.0 .and. max_drift.eq.50 .and. stageno.eq.5)
 
   return
 end subroutine q65_dec0
