@@ -54,7 +54,8 @@ contains
     logical newdat,lsubtract,ldupe,lrefinedt
     logical*1 ldiskdat
     logical lsubtracted(MAX_EARLY)
-    character*12 mycall12,hiscall12
+    character*12 mycall12,hiscall12,call_1,call_2
+    character*4 grid4
     integer*2 iwave(15*12000)
     integer apsym2(58),aph10(10)
     character datetime*13,msg37*37
@@ -65,7 +66,6 @@ contains
     integer itone_save(NN,MAX_EARLY)
     real f1_save(MAX_EARLY)
     real xdt_save(MAX_EARLY)
-    complex cd0(0:3199)
     data nutc0/-1/
 
     save s,dd,dd1,nutc0,ndec_early,itone_save,f1_save,xdt_save,lsubtracted,&
@@ -232,35 +232,40 @@ contains
 900 continue
 !   if(nzhsym.eq.50) print*,'AA0',jseq,ndec(0,0),ndec(0,1)
    if(nzhsym.eq.50 .and. ndec(jseq,0).ge.1) then
-      call timer('ft8_dec7',0)
       newdat=.true.
-      write(44,*) 'BBB',nutc
       do i=1,ndec(jseq,0)
          if(f0(i,jseq,0).eq.-99.0) exit
          if(f0(i,jseq,0).eq.-98.0) cycle
          if(index(msg0(i,jseq,0),'<').ge.1) cycle      !### Temporary ###
-         call ft8_downsample(dd,newdat,f0(i,jseq,0),cd0)
-         call ft8_dec7(cd0,dt0(i,jseq,0),f0(i,jseq,0),msg0(i,jseq,0),   &
-              xdt,xsnr,msg37,snr7,snr7b)
-         ddt=xdt-dt0(i,jseq,0)
-!         write(41,3041) nutc,snr7,snr7b,xdt,ddt,nint(f0(i,jseq,0)),trim(msg37)
-!3041     format(i6.6,4f7.2,i5,2x,a)
-         if(snr7.lt.6.0 .or. snr7b.lt.1.8) cycle
-!         write(42,3041) nutc,snr7,snr7b,xdt,ddt,nint(f0(i,jseq,0)),trim(msg37)
-!         flush(41)
-!         flush(42)
-         if(associated(this%callback)) then
-            nsnr=xsnr
-            f1=f0(i,jseq,0)
-            iaptype=7
-            qual=1.0
-            call this%callback(sync,nsnr,xdt,f1,msg37,iaptype,qual)
-! Call subtract here?
-            call subtractft8(dd,itone_a7,f1,xdt+0.5,.false.)  !### ??? ###
+         msg37=msg0(i,jseq,0)
+         i1=index(msg37,' ')
+         i2=index(msg37(i1+1:),' ') + i1
+         call_1=msg37(1:i1-1)
+         call_2=msg37(i1+1:i2-1)
+         grid4=msg37(i2+1:i2+4)
+         if(grid4.eq.'RR73' .or. index(grid4,'+').gt.0 .or.                      &
+              index(grid4,'-').gt.0) grid4='    '         
+!         print*,'aa ',call_1,call_2,grid4,'  ',msg37
+         msg37='                                     '
+         xdt=dt0(i,jseq,0)
+         f1=f0(i,jseq,0)
+         write(50,3050) i,sum(dd),newdat,mycall12,hiscall12,xdt,f1
+3050     format(i3,f10.3,L3,2x,2a12,f7.2,f7.1)
+         call timer('ft8c    ',0)
+         call ft8c(dd,newdat,call_1,call_2,grid4,f1,xdt,nharderrors,dmin,msg37,xsnr)
+         call timer('ft8c    ',1)
+         if(nharderrors.ge.0 .and. nharderrors.le.44 .and. dmin.le.80.0) then
+            if(associated(this%callback)) then
+               nsnr=xsnr
+               iaptype=7
+               qual=1.0
+               call this%callback(sync,nsnr,xdt,f1,msg37,iaptype,qual)
+            endif
+!            write(*,3901) xdt,nint(f1),nharderrors,dmin,trim(msg37)
+!3901        format('$$$',f6.1,i5,i5,f7.1,1x,a)
          endif
 !         newdat=.false.
       enddo
-      call timer('ft8_dec7',1)
    endif
    
    return

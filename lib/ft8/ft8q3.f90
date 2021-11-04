@@ -108,10 +108,10 @@ subroutine ft8q3(cd,xdt,f0,call_1,call_2,grid4,msgbest,snr)
   call pctile(ccfmsg,207,67,sigma)
   sigma=sigma-base
   ccfmsg=(ccfmsg-base)/(2.5*sigma)
-  do imsg=1,207
-     write(44,3044) imsg,ccfmsg(imsg)
-3044 format(i5,f10.3)
-  enddo
+!  do imsg=1,207
+!     write(44,3044) imsg,ccfmsg(imsg)
+!3044 format(i5,f10.3)
+!  enddo
   snr=maxval(ccfmsg)
 
   return
