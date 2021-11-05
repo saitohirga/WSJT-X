@@ -254,10 +254,10 @@ contains
          xdt=dt0(i,jseq,0)
          f1=f0(i,jseq,0)
          msg37='                                     '
-         call timer('ft8c    ',0)
-         call ft8c(dd,newdat,call_1,call_2,grid4,xdt,f1,nharderrors,   &
+         call timer('ft8_a7d ',0)
+         call ft8_a7d(dd,newdat,call_1,call_2,grid4,xdt,f1,nharderrors,   &
               dmin,msg37,xsnr)
-         call timer('ft8c    ',1)
+         call timer('ft8_a7d ',1)
 !         write(51,3051) i,xdt,nint(f1),nharderrors,dmin,call_1,call_2,grid4
 !3051     format(i3,f7.2,2i5,f7.1,1x,a12,a12,1x,a4)
          if(nharderrors.ge.0 .and. dmin.le.80.0) then

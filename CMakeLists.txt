@@ -336,7 +336,7 @@ set (wsjt_FSRCS
   lib/timer_module.f90
   lib/wavhdr.f90
   lib/qra/q65/q65_encoding_modules.f90
-  lib/ft8_a7.f90
+  lib/ft8/ft8_a7.f90
 
   # remaining non-module sources
   lib/addit.f90
@@ -422,7 +422,6 @@ set (wsjt_FSRCS
   lib/freqcal.f90
   lib/ft8/ft8apset.f90
   lib/ft8/ft8b.f90
-  lib/ft8/ft8c.f90
   lib/ft8/ft8code.f90
   lib/ft8/ft8_downsample.f90
   lib/ft8/ft8sim.f90
