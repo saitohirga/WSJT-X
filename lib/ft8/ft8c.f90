@@ -1,4 +1,5 @@
-subroutine ft8c(dd0,newdat,call_1,call_2,grid4,f1,xdt,nharderrors,dmin,msg37,xsnr)
+subroutine ft8c(dd0,newdat,call_1,call_2,grid4,xdt,f1,nharderrors,dmin,  &
+     msg37,xsnr)
 
   use crc
   use timer_module, only: timer
@@ -49,7 +50,6 @@ subroutine ft8c(dd0,newdat,call_1,call_2,grid4,f1,xdt,nharderrors,dmin,msg37,xsn
   if(call_1(1:3).eq.'CQ ') std_1=.true.
   call stdcall(call_2,std_2)
 
-  max_iterations=30
   nharderrors=-1
   fs2=12000.0/NDOWN
   dt2=1.0/fs2
@@ -130,10 +130,7 @@ subroutine ft8c(dd0,newdat,call_1,call_2,grid4,f1,xdt,nharderrors,dmin,msg37,xsn
   enddo
 ! hard sync sum - max is 21
   nsync=is1+is2+is3
-  if(nsync .le. 6) then ! bail out
-    nbadcrc=1
-    return
-  endif
+!  if(nsync .le. 6) return ! bail out
 
   do nsym=1,3
     nt=2**(3*nsym)

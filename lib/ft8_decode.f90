@@ -77,6 +77,8 @@ contains
 
     if(nutc0.eq.-1) then
        msg0=' '
+       dt0=0.
+       f0=0.
     endif
     if(nutc.ne.nutc0) then
 ! New UTC.  Move previously saved 'a7' data from k=1 to k=0
@@ -87,8 +89,9 @@ contains
        ndec(jseq,0)=iz
        ndec(jseq,1)=0
        nutc0=nutc
+       dt0(:,jseq,1)=0.
+       f0(:,jseq,1)=0.
     endif
-!    write(44,*) 'AAA',nutc,nzhsym
 
     if(ndepth.eq.1 .and. nzhsym.lt.50) then
        ndec_early=0
@@ -218,6 +221,10 @@ contains
               if(emedelay.ne.0) xdt=xdt+2.0
               call this%callback(sync,nsnr,xdt,f1,msg37,iaptype,qual)
               call ft8_a7_save(nutc,xdt,f1,msg37)
+!              ii=ndec(jseq,1)
+!              write(41,3041) jseq,ii,nint(f0(ii,jseq,0)),msg0(ii,jseq,0)(1:22),&
+!                   nint(f0(ii,jseq,1)),msg0(ii,jseq,1)(1:22)
+!3041          format(3i5,2x,a22,i5,2x,a22)
            endif
         endif
         call timestamp(tsec,tseq,ctime)
@@ -230,7 +237,6 @@ contains
    if(nzhsym.lt.50) ndec_early=ndecodes
    
 900 continue
-!   if(nzhsym.eq.50) print*,'AA0',jseq,ndec(0,0),ndec(0,1)
    if(nzhsym.eq.50 .and. ndec(jseq,0).ge.1) then
       newdat=.true.
       do i=1,ndec(jseq,0)
@@ -245,21 +251,22 @@ contains
          grid4=msg37(i2+1:i2+4)
          if(grid4.eq.'RR73' .or. index(grid4,'+').gt.0 .or.                      &
               index(grid4,'-').gt.0) grid4='    '         
-!         print*,'aa ',call_1,call_2,grid4,'  ',msg37
-         msg37='                                     '
          xdt=dt0(i,jseq,0)
          f1=f0(i,jseq,0)
-         write(50,3050) i,sum(dd),newdat,mycall12,hiscall12,xdt,f1
-3050     format(i3,f10.3,L3,2x,2a12,f7.2,f7.1)
+         msg37='                                     '
          call timer('ft8c    ',0)
-         call ft8c(dd,newdat,call_1,call_2,grid4,f1,xdt,nharderrors,dmin,msg37,xsnr)
+         call ft8c(dd,newdat,call_1,call_2,grid4,xdt,f1,nharderrors,   &
+              dmin,msg37,xsnr)
          call timer('ft8c    ',1)
-         if(nharderrors.ge.0 .and. nharderrors.le.44 .and. dmin.le.80.0) then
+!         write(51,3051) i,xdt,nint(f1),nharderrors,dmin,call_1,call_2,grid4
+!3051     format(i3,f7.2,2i5,f7.1,1x,a12,a12,1x,a4)
+         if(nharderrors.ge.0 .and. dmin.le.80.0) then
             if(associated(this%callback)) then
                nsnr=xsnr
                iaptype=7
                qual=1.0
                call this%callback(sync,nsnr,xdt,f1,msg37,iaptype,qual)
+               call ft8_a7_save(nutc,xdt,f1,msg37)
             endif
 !            write(*,3901) xdt,nint(f1),nharderrors,dmin,trim(msg37)
 !3901        format('$$$',f6.1,i5,i5,f7.1,1x,a)

@@ -32,7 +32,7 @@ subroutine ft8_a7_save(nutc,dt,f,msg)
        ichar(g4(2:2)).ge.ichar('A') .and. ichar(g4(2:2)).le.ichar('R') .and.  &
        ichar(g4(3:3)).ge.ichar('0') .and. ichar(g4(3:3)).le.ichar('9') .and.  &
        ichar(g4(4:4)).ge.ichar('0') .and. ichar(g4(4:4)).le.ichar('9'))
-
+  
   j=mod(nutc/5,2)                        !j is 0 or 1 for odd/even sequence
   jseq=j
 
