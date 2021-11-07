@@ -85,9 +85,7 @@ QStringList DecodedText::messageWords () const
     // extract up to the first four message words
     QString t=message_;
     if(t.left(4)=="TU; ") t=message_.mid(4,-1);
-    auto res = tokens_re.match(t).capturedTexts();
-    qDebug () << "captured texts:" << res;
-    return res;
+    return tokens_re.match(t).capturedTexts();
   }
   // simple word split for free text messages
   auto words = message_.split (' ', SkipEmptyParts);
