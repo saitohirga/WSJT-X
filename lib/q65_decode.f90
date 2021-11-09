@@ -153,6 +153,13 @@ contains
     call q65_enc(dgen,codewords)         !Initialize the Q65 codec
     nused=1
     iavg=0
+
+! W3SZ patch: Initialize AP params here, rather than afer the call to ana64().
+    call ft8apset(mycall,hiscall,ncontest,apsym0,aph10) ! Generate ap symbols
+    where(apsym0.eq.-1) apsym0=0
+    npasses=2
+    if(nQSOprogress.eq.5) npasses=3
+
     call timer('q65_dec0',0)
 ! Call top-level routine in q65 module: establish sync and try for a
 ! q3 or q0 decode.
@@ -173,11 +180,6 @@ contains
     if(ntrperiod.le.30) jpk0=(xdt+0.5)*6000  !For shortest sequences
     if(jpk0.lt.0) jpk0=0
     call ana64(iwave,npts,c00)          !Convert to complex c00() at 6000 Sa/s
-    call ft8apset(mycall,hiscall,ncontest,apsym0,aph10) ! Generate ap symbols
-    where(apsym0.eq.-1) apsym0=0
-
-    npasses=2
-    if(nQSOprogress.eq.5) npasses=3
     if(lapcqonly) npasses=1
     iaptype=0
     do ipass=0,npasses                  !Loop over AP passes
