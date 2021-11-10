@@ -3641,8 +3641,9 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
 {
   auto const& message_words = message.messageWords ();
   auto is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size();
+  auto const& msg_no_hash = message.clean_string ().mid(22).remove("<").remove(">");
   bool is_OK=false;
-  if(m_mode=="MSK144" and message.clean_string ().indexOf(ui->dxCallEntry->text()+" R ")>0) is_OK=true;
+  if(m_mode=="MSK144" && msg_no_hash.indexOf(ui->dxCallEntry->text()+" R ")>0) is_OK=true;
   if (message_words.size () > 3 && (message.isStandardMessage() || (is_73 or is_OK))) {
     auto df = message.frequencyOffset ();
     auto within_tolerance = (qAbs (ui->RxFreqSpinBox->value () - df) <= int (start_tolerance)
@@ -3657,7 +3658,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
                || message_words.contains ("DE")))
           || !message.isStandardMessage ()); // free text 73/RR73
 
-    QStringList w=message.clean_string ().mid(22).remove("<").remove(">").split(" ",SkipEmptyParts);
+    auto const& w = msg_no_hash.split(" ",SkipEmptyParts);
     QString w2;
     int nrpt=0;
     if (w.size () > 2)
@@ -7757,10 +7758,11 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
                             , bool /*low_confidence*/, quint8 modifiers)
 {
   QString format_string {"%1 %2 %3 %4 %5 %6"};
-  auto const& time_string = time.toString ("~" == mode || "&" == mode
-                                           || "+" == mode ? "hhmmss" : "hhmm");
+  auto const& time_string = time.toString ("~" == mode || "&" == mode || "+" == mode
+                                           || (m_TRperiod < 60. && ("`" == mode || ":" == mode))
+                                           ? "hhmmss" : "hhmm");
   auto text = message_text;
-  auto ap_pos = text.lastIndexOf (QRegularExpression {R"((?:\?\s)?a[0-9]$)"});
+  auto ap_pos = text.lastIndexOf (QRegularExpression {R"((?:\?\s)?(?:a[0-9]|q[0-9][0-9]?)$)"});
   if (ap_pos >= 0)
     {
       // beware of decodes ending on shorter version of wanted call so
@@ -7881,7 +7883,7 @@ void MainWindow::postDecode (bool is_new, QString const& message)
                                , parts[1].toInt ()
                                , parts[2].toFloat (), parts[3].toUInt (), parts[4]
                                , decode.mid (has_seconds ? 24 : 22)
-                               , QChar {'?'} == decode.mid (has_seconds ? 24 + 21 : 22 + 21, 1)
+                               , QChar {'?'} == decode.mid (has_seconds ? 24 + 36 : 22 + 36, 1)
                                , m_diskData);
     }
 }

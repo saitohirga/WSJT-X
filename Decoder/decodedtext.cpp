@@ -13,25 +13,32 @@ namespace
 {
   QRegularExpression tokens_re {R"(
 ^
-  (?:(?<dual>[A-Z0-9/]+)\sRR73;\s)?
+  (?:(?<dual>[A-Z0-9/]+)\sRR73;\s)? # dual reply DXpedition message
   (?:
     (?<word1>
       (?:CQ|DE|QRZ)
       (?:\s?DX|\s
-        (?:[A-Z]{1,4}|\d{3})
+        (?:[A-Z]{1,4}|\d{3})  # directional CQ
       )
-      | [A-Z0-9/]+
-      |\.{3}
+      | [A-Z0-9/]+            # DX call
+      |\.{3}                  # unknown hash code
     )\s
   )
   (?:
-    (?<word2>[A-Z0-9/]+)
+    (?<word2>[A-Z0-9/]+)      # DE call
     (?:\s
-      (?<word3>[-+A-Z0-9]+)
+      (?<word3>[-+A-Z0-9]+)   # report
       (?:\s
         (?<word4>
-          (?:OOO | (?!RR73)[A-R]{2}[0-9]{2})
+          (?:
+            OOO               # EME
+            | (?!RR73)[A-R]{2}[0-9]{2} # grid square (not RR73)
+            | 5[0-9]{5}       # EU VHF Contest report & serial
+          )
         )
+        (?:\s
+          (?<word5>[A-R]{2}[0-9]{2}[A-X]{2}) # EU VHF Contest grid locator
+        )?
       )?
     )?
   )?
@@ -48,13 +55,13 @@ DecodedText::DecodedText (QString const& the_string)
   , is_standard_ {false}
 {
   // discard appended AP info
-  clean_string_.replace (QRegularExpression {R"(^(.*?)(?:\?\s)?(?:a|q)[0-9].*$)"}, "\\1");
+  clean_string_.replace (QRegularExpression {R"(^(.*?)(?:\?\s)?[aq][0-9].*$)"}, "\\1");
 
 //  qDebug () << "DecodedText: the_string:" << the_string << "Nbsp pos:" << the_string.indexOf (QChar::Nbsp);
   if (message_.length() >= 1)
     {
-       message0_ = message_.left(36);
-       message_ = message_.left(36).remove (QRegularExpression {"[<>]"});
+       message0_ = message_.left(37);
+       message_ = message_.left(37).remove (QRegularExpression {"[<>]"});
       int i1 = message_.indexOf ('\r');
       if (i1 > 0)
         {
@@ -89,7 +96,9 @@ QStringList DecodedText::messageWords () const
   }
   // simple word split for free text messages
   auto words = message_.split (' ', SkipEmptyParts);
-  // add whole message as item 0 to mimic RE capture list
+  // add whole message and two empty strings as item 0 & 1 to mimic RE
+  // capture list
+  words.prepend (QString {});
   words.prepend (message_);
   return words;
 }
@@ -119,7 +128,7 @@ bool DecodedText::isTX() const
 
 bool DecodedText::isLowConfidence () const
 {
-  return QChar {'?'} == string_.mid (padding_ + column_qsoText + 21, 1);
+  return QChar {'?'} == string_.mid (padding_ + column_qsoText + 36, 1);
 }
 
 int DecodedText::frequencyOffset() const
