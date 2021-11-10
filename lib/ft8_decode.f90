@@ -220,7 +220,7 @@ contains
               qual=1.0-(nharderrors+dmin)/60.0 ! scale qual to [0.0,1.0]
               if(emedelay.ne.0) xdt=xdt+2.0
               call this%callback(sync,nsnr,xdt,f1,msg37,iaptype,qual)
-              call ft8_a7_save(nutc,xdt,f1,msg37)
+              call ft8_a7_save(nutc,xdt,f1,msg37)  !Enter decode in table
 !              ii=ndec(jseq,1)
 !              write(41,3041) jseq,ii,nint(f0(ii,jseq,0)),msg0(ii,jseq,0)(1:22),&
 !                   nint(f0(ii,jseq,1)),msg0(ii,jseq,1)(1:22)
@@ -260,13 +260,16 @@ contains
          call timer('ft8_a7d ',1)
 !         write(51,3051) i,xdt,nint(f1),nharderrors,dmin,call_1,call_2,grid4
 !3051     format(i3,f7.2,2i5,f7.1,1x,a12,a12,1x,a4)
-         if(nharderrors.ge.0 .and. dmin.le.80.0) then
+
+         if(nharderrors.ge.0) then
             if(associated(this%callback)) then
                nsnr=xsnr
                iaptype=7
+               if(nharderrors.eq.0 .and.dmin.eq.0.0) iaptype=8
                qual=1.0
+!               if(iaptype.eq.8) print*,'b',nsnr,xdt,f1,msg37,'a8'
                call this%callback(sync,nsnr,xdt,f1,msg37,iaptype,qual)
-               call ft8_a7_save(nutc,xdt,f1,msg37)
+               call ft8_a7_save(nutc,xdt,f1,msg37)  !Enter decode in table
             endif
 !            write(*,3901) xdt,nint(f1),nharderrors,dmin,trim(msg37)
 !3901        format('$$$',f6.1,i5,i5,f7.1,1x,a)
@@ -274,7 +277,8 @@ contains
 !         newdat=.false.
       enddo
    endif
-   
+!   if(nzhsym.eq.50) print*,'A',ndec(0,0:1),ndec(1,0:1)
+
    return
 end subroutine decode
 

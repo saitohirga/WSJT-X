@@ -38,32 +38,31 @@ subroutine ft8_a7_save(nutc,dt,f,msg)
 
 ! Add this decode to current table for this sequence
   ndec(j,1)=ndec(j,1)+1                  !Number of decodes in this sequence
-  i=ndec(j,1)                            !i is pointer to new table entry
+  i=ndec(j,1)                            !i is index of a new table entry
   if(i.ge.MAXDEC-1) return               !Prevent table overflow
-  if(index(msg,'<...>').ge.1) return     !Don't save an unknown hashcall
 
   dt0(i,j,1)=dt                          !Save dt in table
   f0(i,j,1)=f                            !Save f in table
-  f0(i+1,j,1)=-99.0                      !Flag after last entry in current table
   call split77(msg,nwords,nw,w)          !Parse msg into words
-  msg0(i,j,1)=trim(w(1))//' '//trim(w(2))
+  msg0(i,j,1)=trim(w(1))//' '//trim(w(2)) !Save "call_1 call_2"
   if(w(1)(1:3).eq.'CQ ' .and. nw(2).le.2) then
-     msg0(i,j,1)='CQ '//trim(w(2))//' '//trim(w(3))
+     msg0(i,j,1)='CQ '//trim(w(2))//' '//trim(w(3)) !Save "CQ DX Call_2"
   endif
   msg1=msg0(i,j,1)                       !Message without grid
   nn=len(trim(msg1))                     !Message length without grid
+! Include grid as part of message
   if(isgrid4(w(nwords))) msg0(i,j,1)=trim(msg0(i,j,1))//' '//trim(w(nwords))
 
-! If a transmission at this frequency with this message fragment
+! If a transmission at this frequency with message fragment "call_1 call_2" 
 ! was decoded in the previous sequence, flag it as "DO NOT USE" because
-! we have already decoded that station's next transmission.
+! we have already decoded and subtracted that station's next transmission.
 
-  call split77(msg1,nwords,nw,w)          !Parse msg into words
+  call split77(msg0(i,j,1),nwords,nw,w)          !Parse msg into words
   do i=1,ndec(j,0)
      if(f0(i,j,0).le.-98.0) cycle
      i2=index(msg0(i,j,0),' '//trim(w(2)))
-     if(abs(f-f0(i,j,0)).lt.2.0 .and. i2.ge.3) then
-        f0(i,j,0)=-98.0           !Remove from list of to-be-tried a7 decodes
+     if(abs(f-f0(i,j,0)).le.3.0 .and. i2.ge.3) then
+        f0(i,j,0)=-98.0           !Flag as "do not use" for a potential a7 decode
      endif
   enddo
   
@@ -73,6 +72,8 @@ end subroutine ft8_a7_save
 subroutine ft8_a7d(dd0,newdat,call_1,call_2,grid4,xdt,f1,nharderrors,dmin,  &
      msg37,xsnr)
 
+! Examine the raw data in dd0() for possible "a7" decodes.
+  
   use crc
   use timer_module, only: timer
   use packjt77
@@ -84,8 +85,9 @@ subroutine ft8_a7d(dd0,newdat,call_1,call_2,grid4,xdt,f1,nharderrors,dmin,  &
   real a(5)
   real s8(0:7,NN)
   real s2(0:511)
+  real dabcd(4)
   real bmeta(174),bmetb(174),bmetc(174),bmetd(174)
-  real llra(174),llrb(174),llrc(174),llrd(174),llrbest(174)           !Soft symbols
+  real llra(174),llrb(174),llrc(174),llrd(174)           !Soft symbols
   real dd0(15*12000)
   real ss(9)
   real rcw(174)
@@ -94,6 +96,7 @@ subroutine ft8_a7d(dd0,newdat,call_1,call_2,grid4,xdt,f1,nharderrors,dmin,  &
   integer*1 nxor(174),hdec(174)
   integer itone(NN)
   integer icos7(0:6),ip(1)
+  integer ndm(4)
   logical one(0:511,0:8)
   integer graymap(0:7)
   integer iloc(1)
@@ -103,10 +106,10 @@ subroutine ft8_a7d(dd0,newdat,call_1,call_2,grid4,xdt,f1,nharderrors,dmin,  &
   complex cs(0:7,NN)
   logical std_1,std_2
   logical first,newdat
-  data icos7/3,1,4,0,6,5,2/  ! Flipped w.r.t. original FT8 sync array
+  data icos7/3,1,4,0,6,5,2/                !Sync array
   data first/.true./
   data graymap/0,1,3,2,5,6,4,7/
-  save one
+  save one,ndm
 
   if(first) then
      one=.false.
@@ -116,13 +119,13 @@ subroutine ft8_a7d(dd0,newdat,call_1,call_2,grid4,xdt,f1,nharderrors,dmin,  &
        enddo
      enddo
      first=.false.
+     ndm=0
   endif
 
   call stdcall(call_1,std_1)
   if(call_1(1:3).eq.'CQ ') std_1=.true.
   call stdcall(call_2,std_2)
 
-  nharderrors=-1
   fs2=12000.0/NDOWN
   dt2=1.0/fs2
   twopi=8.0*atan(1.0)
@@ -135,15 +138,15 @@ subroutine ft8_a7d(dd0,newdat,call_1,call_2,grid4,xdt,f1,nharderrors,dmin,  &
 
   i0=nint((xdt+0.5)*fs2)                   !Initial guess for start of signal
   smax=0.0
-  do idt=i0-10,i0+10                         !Search over +/- one quarter symbol
-     call sync8d(cd0,idt,ctwk,0,sync)
+  do idt=i0-10,i0+10                       !Search over +/- one quarter symbol
+     call sync8d(cd0,idt,ctwk,0,sync)      !NB: ctwk not used here
      if(sync.gt.smax) then
         smax=sync
         ibest=idt
      endif
   enddo
 
-! Now peak up in frequency
+! Peak up in frequency
   smax=0.0
   do ifr=-5,5                              !Search over +/- 2.5 Hz
     delf=ifr*0.5
@@ -268,6 +271,8 @@ subroutine ft8_a7d(dd0,newdat,call_1,call_2,grid4,xdt,f1,nharderrors,dmin,  &
   MAXMSG=206
   pbest=0.
   dmin=1.e30
+  nharderrors=-1
+  
   do imsg=1,MAXMSG
      msg=trim(call_1)//' '//trim(call_2)
      i=imsg
@@ -303,11 +308,10 @@ subroutine ft8_a7d(dd0,newdat,call_1,call_2,grid4,xdt,f1,nharderrors,dmin,  &
         endif
      endif
 
-! Source-encode, then get codeword
      i3=-1
      n3=-1
-     call genft8(msg,i3,n3,msgsent,msgbits,itone)
-     call encode174_91(msgbits,cw)
+     call genft8(msg,i3,n3,msgsent,msgbits,itone) !Source-encode this message
+     call encode174_91(msgbits,cw)                !Get codeword for this message
      rcw=2*cw-1
      pa=sum(llra*rcw)
      pb=sum(llrb*rcw)
@@ -319,21 +323,165 @@ subroutine ft8_a7d(dd0,newdat,call_1,call_2,grid4,xdt,f1,nharderrors,dmin,  &
      nxor=ieor(hdec,cw)
      da=sum(nxor*abs(llra))
 
-     if(da.lt.dmin) then
-        dmin=da
-        pbest=pa
+     hdec=0
+     where(llrb.ge.0.0) hdec=1
+     nxor=ieor(hdec,cw)
+     db=sum(nxor*abs(llrb))
+
+     hdec=0
+     where(llrc.ge.0.0) hdec=1
+     nxor=ieor(hdec,cw)
+     dc=sum(nxor*abs(llrc))
+
+     hdec=0
+     where(llrd.ge.0.0) hdec=1
+     nxor=ieor(hdec,cw)
+     dd=sum(nxor*abs(llrd))
+
+     dm=min(da,db,dc,dd)
+
+     if(dm.lt.dmin) then
+        dmin=dm
+        dabcd(1)=da
+        dabcd(2)=db
+        dabcd(3)=dc
+        dabcd(4)=dd
         msgbest=msgsent
-        llrbest=llra
-        nharderrors=count((2*cw-1)*llra.lt.0.0)
+        if(dmin.le.60.0) nharderrors=count((2*cw-1)*llra.lt.0.0)
      endif
      
   enddo  ! imsg
 
-  write(41,3041) nharderrors,pbest,dmin,trim(msgbest)
-3041 format(i5,2f10.3,2x,a)
+  if(dmin.le.60.0) then
+     if(dmin.eq.dabcd(1)) ndm(1)=ndm(1)+1
+     if(dmin.eq.dabcd(2)) ndm(2)=ndm(2)+1
+     if(dmin.eq.dabcd(3)) ndm(3)=ndm(3)+1
+     if(dmin.eq.dabcd(4)) ndm(4)=ndm(4)+1
+!     write(41,3041) nharderrors,dmin,dabcd,ndm,ibest,delfbest,trim(msgbest)
+!3041 format(i5,5f8.2,4i4,i5,f7.1,1x,a)
+!  else
+!     f00=0.0
+!     call ft8q3(cd0,xdt,f00,call_1,call_2,grid4,msgbest,snr)
+!     if(snr.gt.5.0) then
+!        nharderrors=0
+!        dmin=0.
+!        xsnr=snr-25.0
+!     endif
+  endif
+
   msg37=msgbest
 
   return
 end subroutine ft8_a7d
+
+subroutine ft8q3(cd,xdt,f0,call_1,call_2,grid4,msgbest,snr)
+
+! Get q3-style decodes for FT8.
+
+  use packjt77
+  parameter(NN=79,NSPS=32)
+  parameter(NWAVE=NN*NSPS)               !2528
+  parameter(NZ=3200,NLAGS=NZ-NWAVE)
+  character*12 call_1,call_2
+  character*4 grid4
+  character*37 msg,msgbest,msgsent
+  character c77*77
+  complex cwave(0:NWAVE-1)
+  complex cd(0:NZ-1)
+  complex z
+  real xjunk(NWAVE)
+  real ccf(0:NLAGS-1)
+  real ccfmsg(206)
+  integer itone(NN)
+  integer*1 msgbits(77)
+  logical std_1,std_2
+
+  if(xdt.eq.-99.0) return                !Silence compiler warning
+  call stdcall(call_1,std_1)
+  call stdcall(call_2,std_2)
+
+  fs=200.0                               !Sample rate (Hz)
+  dt=1.0/fs                              !Sample interval (s)
+  bt=2.0
+  ccfbest=0.
+  lagbest=-1
+
+  do imsg=1,206
+     msg=trim(call_1)//' '//trim(call_2)
+     i=imsg
+     if(.not.std_1) then
+        if(i.eq.1 .or. i.ge.6)  msg='<'//trim(call_1)//'> '//trim(call_2)
+        if(i.ge.2 .and. i.le.4) msg=trim(call_1)//' <'//trim(call_2)//'>'
+     else if(.not.std_2) then
+        if(i.le.4 .or. i.eq.6) msg='<'//trim(call_1)//'> '//trim(call_2)
+        if(i.ge.7) msg=trim(call_1)//' <'//trim(call_2)//'>'
+     endif
+     j0=len(trim(msg))+2
+     if(i.eq.2) msg(j0:j0+2)='RRR'
+     if(i.eq.3) msg(j0:j0+3)='RR73'
+     if(i.eq.4) msg(j0:j0+1)='73'
+     if(i.eq.5) then
+        if(std_2) msg='CQ '//trim(call_2)//' '//grid4
+        if(.not.std_2) msg='CQ '//trim(call_2)
+     endif
+     if(i.eq.6 .and. std_2) msg(j0:j0+3)=grid4
+     if(i.ge.7 .and. i.le.206) then
+        isnr = -50 + (i-7)/2
+        if(iand(i,1).eq.1) then
+           write(msg(j0:j0+2),'(i3.2)') isnr
+           if(msg(j0:j0).eq.' ') msg(j0:j0)='+'
+        else
+           write(msg(j0:j0+3),'("R",i3.2)') isnr
+           if(msg(j0+1:j0+1).eq.' ') msg(j0+1:j0+1)='+'
+        endif
+     endif
+
+! Source-encode, then get itone()
+     i3=-1
+     n3=-1
+     call pack77(msg,i3,n3,c77)
+     call genft8(msg,i3,n3,msgsent,msgbits,itone)
+! Generate complex cwave
+     call gen_ft8wave(itone,NN,NSPS,bt,fs,f0,cwave,xjunk,1,NWAVE)
+
+     lagmax=-1
+     ccfmax=0.
+     nsum=32*2
+     do lag=0,nlags-1
+        z=0.
+        s=0.
+        do i=0,NWAVE-1
+           z=z + cd(i+lag)*conjg(cwave(i))
+           if(mod(i,nsum).eq.nsum-1 .or. i.eq.NWAVE-1) then
+              s=s + abs(z)
+              z=0.
+           endif
+        enddo
+        ccf(lag)=s
+        if(ccf(lag).gt.ccfmax) then
+           ccfmax=ccf(lag)
+           lagmax=lag
+        endif
+     enddo ! lag
+     ccfmsg(imsg)=ccfmax
+     if(ccfmax.gt.ccfbest) then
+        ccfbest=ccfmax
+        lagbest=lagmax
+        msgbest=msg
+     endif
+  enddo  ! imsg
+
+  call pctile(ccfmsg,207,50,base)
+  call pctile(ccfmsg,207,67,sigma)
+  sigma=sigma-base
+  ccfmsg=(ccfmsg-base)/sigma
+!  do imsg=1,207
+!     write(44,3044) imsg,ccfmsg(imsg)
+!3044 format(i5,f10.3)
+!  enddo
+  snr=maxval(ccfmsg)
+
+  return
+end subroutine ft8q3
 
 end module ft8_a7
