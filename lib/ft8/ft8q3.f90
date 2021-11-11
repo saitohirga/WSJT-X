@@ -15,7 +15,7 @@ subroutine ft8q3(cd,xdt,f0,call_1,call_2,grid4,msgbest,snr)
   complex z
   real xjunk(NWAVE)
   real ccf(0:NLAGS-1)
-  real ccfmsg(207)
+  real ccfmsg(206)
   integer itone(NN)
   integer*1 msgbits(77)
   logical std_1,std_2
@@ -30,7 +30,7 @@ subroutine ft8q3(cd,xdt,f0,call_1,call_2,grid4,msgbest,snr)
   ccfbest=0.
   lagbest=-1
 
-  do imsg=1,207
+  do imsg=1,206
      msg=trim(call_1)//' '//trim(call_2)
      i=imsg
      if(.not.std_1) then
@@ -59,7 +59,6 @@ subroutine ft8q3(cd,xdt,f0,call_1,call_2,grid4,msgbest,snr)
            if(msg(j0+1:j0+1).eq.' ') msg(j0+1:j0+1)='+'
         endif
      endif
-     if(i.eq.207) msg='TNX 73 GL'
 
 ! Source-encode, then get itone()
      i3=-1
@@ -68,14 +67,6 @@ subroutine ft8q3(cd,xdt,f0,call_1,call_2,grid4,msgbest,snr)
      call genft8(msg,i3,n3,msgsent,msgbits,itone)
 ! Generate complex cwave
      call gen_ft8wave(itone,NN,NSPS,bt,fs,f0,cwave,xjunk,1,NWAVE)
-
-     if(imsg.eq.79) then
-        print*,NN,NSPS,bt,fs,f0,NWAVE,itone(1:7)
-        do i=0,NWAVE-1
-           write(45,3045) i,cd(i),100*cwave(i)
-3045       format(i5,4e12.3)
-        enddo
-     endif
 
      lagmax=-1
      ccfmax=0.
@@ -107,7 +98,7 @@ subroutine ft8q3(cd,xdt,f0,call_1,call_2,grid4,msgbest,snr)
   call pctile(ccfmsg,207,50,base)
   call pctile(ccfmsg,207,67,sigma)
   sigma=sigma-base
-  ccfmsg=(ccfmsg-base)/(2.5*sigma)
+  ccfmsg=(ccfmsg-base)/sigma
 !  do imsg=1,207
 !     write(44,3044) imsg,ccfmsg(imsg)
 !3044 format(i5,f10.3)
