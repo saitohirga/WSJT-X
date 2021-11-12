@@ -882,7 +882,12 @@ void HamlibTransceiver::do_frequency (Frequency f, MODE m, bool no_ignore)
     {
       // for the 1st time as a band change may cause a recalled mode to be
       // set
-      m_->error_check (rig_set_freq (m_->rig_.data (), RIG_VFO_CURR, f), tr ("setting frequency"));
+      vfo_t target_vfo = RIG_VFO_CURR;
+      if (!(m_->rig_->state.vfo_list & RIG_VFO_B))
+        {
+          target_vfo = RIG_VFO_MAIN; // no VFO A/B so force to Rx on MAIN
+        }
+      m_->error_check (rig_set_freq (m_->rig_.data (), target_vfo, f), tr ("setting frequency"));
       update_rx_frequency (f);
 
       if (m_->mode_query_works_ && UNK != m)
@@ -890,13 +895,13 @@ void HamlibTransceiver::do_frequency (Frequency f, MODE m, bool no_ignore)
           rmode_t current_mode;
           pbwidth_t current_width;
           auto new_mode = m_->map_mode (m);
-          m_->error_check (rig_get_mode (m_->rig_.data (), RIG_VFO_CURR, &current_mode, &current_width), tr ("getting current VFO mode"));
+          m_->error_check (rig_get_mode (m_->rig_.data (), target_vfo, &current_mode, &current_width), tr ("getting current VFO mode"));
           CAT_TRACE ("rig_get_mode mode=" << rig_strrmode (current_mode) << " bw=" << current_width);
 
           if (new_mode != current_mode)
             {
               CAT_TRACE ("rig_set_mode mode=" << rig_strrmode (new_mode));
-              m_->error_check (rig_set_mode (m_->rig_.data (), RIG_VFO_CURR, new_mode, RIG_PASSBAND_NOCHANGE), tr ("setting current VFO mode"));
+              m_->error_check (rig_set_mode (m_->rig_.data (), target_vfo, new_mode, RIG_PASSBAND_NOCHANGE), tr ("setting current VFO mode"));
 
               // for the 2nd time because a mode change may have caused a
               // frequency change
@@ -905,7 +910,7 @@ void HamlibTransceiver::do_frequency (Frequency f, MODE m, bool no_ignore)
               // for the second time because some rigs change mode according
               // to frequency such as the TS-2000 auto mode setting
               CAT_TRACE ("rig_set_mode mode=" << rig_strrmode (new_mode));
-              m_->error_check (rig_set_mode (m_->rig_.data (), RIG_VFO_CURR, new_mode, RIG_PASSBAND_NOCHANGE), tr ("setting current VFO mode"));
+              m_->error_check (rig_set_mode (m_->rig_.data (), target_vfo, new_mode, RIG_PASSBAND_NOCHANGE), tr ("setting current VFO mode"));
             }
           update_mode (m);
         }
@@ -1037,16 +1042,22 @@ void HamlibTransceiver::do_mode (MODE mode)
   pbwidth_t current_width;
   auto new_mode = m_->map_mode (mode);
 
+  vfo_t target_vfo = RIG_VFO_CURR;
+  if (!(m_->rig_->state.vfo_list & RIG_VFO_B))
+    {
+      target_vfo = RIG_VFO_MAIN; // no VFO A/B so force to Rx on MAIN
+    }
+
   // only change when receiving or simplex if direct VFO addressing unavailable
   if (!(state ().ptt () && state ().split () && m_->one_VFO_))
     {
-      m_->error_check (rig_get_mode (m_->rig_.data (), RIG_VFO_CURR, &current_mode, &current_width), tr ("getting current VFO mode"));
+      m_->error_check (rig_get_mode (m_->rig_.data (), target_vfo, &current_mode, &current_width), tr ("getting current VFO mode"));
       CAT_TRACE ("rig_get_mode mode=" << rig_strrmode (current_mode) << " bw=" << current_width);
 
       if (new_mode != current_mode)
         {
           CAT_TRACE ("rig_set_mode mode=" << rig_strrmode (new_mode));
-          m_->error_check (rig_set_mode (m_->rig_.data (), RIG_VFO_CURR, new_mode, RIG_PASSBAND_NOCHANGE), tr ("setting current VFO mode"));
+          m_->error_check (rig_set_mode (m_->rig_.data (), target_vfo, new_mode, RIG_PASSBAND_NOCHANGE), tr ("setting current VFO mode"));
         }
     }
 
