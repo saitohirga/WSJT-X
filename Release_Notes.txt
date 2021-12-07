@@ -11,19 +11,21 @@
                                                          
 Copyright 2001 - 2021 by Joe Taylor, K1JT.
 
-	        Release: WSJT-X 2.5.2
-	             Nov xx, 2021
+	        Release: WSJT-X 2.5.3
+	             Dec 7, 2021
 	        ----------------------
 
-This is mostly a bug fix  release.  It has the following changes since
-release 2.5.2:
+This release has the following changes since release 2.5.2:
 
- - Repair a long standing defect with reporting low confidence decodes
-   in the UDP Decode message.
+ - Add a note in memory of G4WJS to the About window
 
- - Repair several defects in parsing of decoded messages, particularly
-   in EU Contest Mode where sequencing failed.
+ - Add a simple $DXCALL macro capability for Tx messages, and update
+   the User Guide accordingly
+
+ - Ensure that MAIN VFO is used for receiving on rigs that require it
  
+ - Repair a defect in reporting low-confidence decodes to PskReporter
+
 	        Release: WSJT-X 2.5.2
 	             Nov 4, 2021
 	        ----------------------
