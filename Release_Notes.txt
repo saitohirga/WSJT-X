@@ -26,6 +26,9 @@ This release has the following changes since release 2.5.2:
  
  - Repair a defect in reporting low-confidence decodes to PskReporter
 
+ - Updated CTY.DAT database, tnx to Jim AD1C
+
+
 	        Release: WSJT-X 2.5.2
 	             Nov 4, 2021
 	        ----------------------
