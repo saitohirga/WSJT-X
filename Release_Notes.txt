@@ -11,6 +11,22 @@
                                                          
 Copyright 2001 - 2021 by Joe Taylor, K1JT.
 
+	        Release: WSJT-X 2.5.4
+	             Dec 28, 2021
+	        ----------------------
+
+This is mostly a bug fix  release.  It has the following changes since
+release 2.5.3:
+
+WSJTX:
+ - Repair a defect that caused occasional crashes when in QSO with 
+   stations using nonstandard callsigns.
+
+MAP65:
+ - Allowing MAP65 "Best-fit Delta phi" solution to be displayed to the
+   user.
+
+
 	        Release: WSJT-X 2.5.3
 	             Dec 7, 2021
 	        ----------------------
