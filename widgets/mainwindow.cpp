@@ -3643,7 +3643,8 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
 {
   auto const& message_words = message.messageWords ();
   auto is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size();
-  auto const& msg_no_hash = message.clean_string ().mid(22).remove("<").remove(">");
+  auto msg_no_hash = message.clean_string();
+  msg_no_hash = msg_no_hash.mid(22).remove("<").remove(">");
   bool is_OK=false;
   if(m_mode=="MSK144" && msg_no_hash.indexOf(ui->dxCallEntry->text()+" R ")>0) is_OK=true;
   if (message_words.size () > 3 && (message.isStandardMessage() || (is_73 or is_OK))) {
