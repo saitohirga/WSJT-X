@@ -184,6 +184,8 @@ extern "C" {
   void get_ft4msg_(int* idecode, char* line, int len);
 
   void chk_samples_(int* m_ihsym,int* k, int* m_hsymStop);
+
+  void save_dxbase_(char* dxbase, int len);
 }
 
 int volatile itone[MAX_NUM_SYMBOLS];   //Audio tones for all Tx symbols
@@ -210,7 +212,7 @@ using SpecOp = Configuration::SpecialOperatingActivity;
 namespace
 {
   Radio::Frequency constexpr default_frequency {14076000};
-  QRegExp message_alphabet {"[- @A-Za-z0-9+./?#<>;]*"};
+  QRegExp message_alphabet {"[- @A-Za-z0-9+./?#<>;$]*"};
   // grid exact match excluding RR73
   QRegularExpression grid_regexp {"\\A(?![Rr]{2}73)[A-Ra-r]{2}[0-9]{2}([A-Xa-x]{2}){0,1}\\z"};
   auto quint32_max = std::numeric_limits<quint32>::max ();
@@ -3641,9 +3643,11 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
 {
   auto const& message_words = message.messageWords ();
   auto is_73 = message_words.filter (QRegularExpression {"^(73|RR73)$"}).size();
+  auto msg_no_hash = message.clean_string();
+  msg_no_hash = msg_no_hash.mid(22).remove("<").remove(">");
   bool is_OK=false;
-  if(m_mode=="MSK144" and message.clean_string ().indexOf(ui->dxCallEntry->text()+" R ")>0) is_OK=true;
-  if (message_words.size () > 2 && (message.isStandardMessage() || (is_73 or is_OK))) {
+  if(m_mode=="MSK144" && msg_no_hash.indexOf(ui->dxCallEntry->text()+" R ")>0) is_OK=true;
+  if (message_words.size () > 3 && (message.isStandardMessage() || (is_73 or is_OK))) {
     auto df = message.frequencyOffset ();
     auto within_tolerance = (qAbs (ui->RxFreqSpinBox->value () - df) <= int (start_tolerance)
        || qAbs (ui->TxFreqSpinBox->value () - df) <= int (start_tolerance));
@@ -3657,7 +3661,7 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
                || message_words.contains ("DE")))
           || !message.isStandardMessage ()); // free text 73/RR73
 
-    QStringList w=message.clean_string ().mid(22).remove("<").remove(">").split(" ",SkipEmptyParts);
+    auto const& w = msg_no_hash.split(" ",SkipEmptyParts);
     QString w2;
     int nrpt=0;
     if (w.size () > 2)
@@ -3675,27 +3679,29 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
     if (m_auto
         && (m_QSOProgress==REPLYING  or (!ui->tx1->isEnabled () and m_QSOProgress==REPORT))
         && qAbs (ui->TxFreqSpinBox->value () - df) <= int (stop_tolerance)
-        && message_words.at (1) != "DE"
-        && !message_words.at (1).contains (QRegularExpression {"(^(CQ|QRZ))|" + m_baseCall})
-        && message_words.at (2).contains (Radio::base_callsign (ui->dxCallEntry->text ()))) {
+        && message_words.at (2) != "DE"
+        && !message_words.at (2).contains (QRegularExpression {"(^(CQ|QRZ))|" + m_baseCall})
+        && message_words.at (3).contains (Radio::base_callsign (ui->dxCallEntry->text ()))) {
       // auto stop to avoid accidental QRM
       ui->stopTxButton->click (); // halt any transmission
     } else if (m_auto             // transmit allowed
-        && ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isEnabled () && ui->cbAutoSeq->isChecked () // auto-sequencing allowed
-        && ((!m_bCallingCQ      // not calling CQ/QRZ
-        && !m_sentFirst73       // not finished QSO
-        && ((message_words.at (1).contains (m_baseCall)
-                  // being called and not already in a QSO
-        && (message_words.at(2).contains(Radio::base_callsign(ui->dxCallEntry->text())) or bEU_VHF))
-                 // type 2 compound replies
-        || (within_tolerance &&
-            (acceptable_73 ||
-            ("DE" == message_words.at (1) &&
-             w2.contains(Radio::base_callsign (m_hisCall)))))))
-            || (m_bCallingCQ && m_bAutoReply
-                // look for type 2 compound call replies on our Tx and Rx offsets
-                && ((within_tolerance && "DE" == message_words.at (1))
-                    || message_words.at (1).contains (m_baseCall))))) {
+               && ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isEnabled () && ui->cbAutoSeq->isChecked () // auto-sequencing allowed
+               && ((!m_bCallingCQ      // not calling CQ/QRZ
+                    && !m_sentFirst73       // not finished QSO
+                    && ((message_words.at (2).contains (m_baseCall)
+                         // being called and not already in a QSO
+                         && (message_words.at(3).contains(Radio::base_callsign(ui->dxCallEntry->text()))
+                             or bEU_VHF))
+                        || message_words.at(1) == m_baseCall // <de-call> RR73; ...
+                        // type 2 compound replies
+                        || (within_tolerance &&
+                            (acceptable_73 ||
+                             ("DE" == message_words.at (2) &&
+                              w2.contains(Radio::base_callsign (m_hisCall)))))))
+                   || (m_bCallingCQ && m_bAutoReply
+                       // look for type 2 compound call replies on our Tx and Rx offsets
+                       && ((within_tolerance && "DE" == message_words.at (2))
+                           || message_words.at (2).contains (m_baseCall))))) {
       if(SpecOp::FOX != m_config.special_op_id()) processMessage (message);
     }
   }
@@ -4806,7 +4812,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   ui->txFirstCheckBox->setChecked(m_txFirst);
 
   auto const& message_words = message.messageWords ();
-  if (message_words.size () < 2) return;
+  if (message_words.size () < 3) return;
 
   QString hiscall;
   QString hisgrid;
@@ -4824,7 +4830,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   QStringList w=message.clean_string ().mid(22).remove("<").remove(">").split(" ",SkipEmptyParts);
   int nw=w.size();
   if(nw>=4) {
-    if(message_words.size()<3) return;
+    if(message_words.size()<4) return;
     int n=w.at(nw-2).toInt();
     if(n>=520001 and n<=592047) {
       hiscall=w.at(1);
@@ -4847,7 +4853,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
 
   // ignore calls by other hounds
   if (SpecOp::HOUND == m_config.special_op_id()
-      && message.messageWords ().indexOf (QRegularExpression {R"(R\+-[0-9]+)"}) >= 0)
+      && message.messageWords ().indexOf (QRegularExpression {R"(R\+-[0-9]+)"}) >= 1)
     {
       return;
     }
@@ -4926,22 +4932,22 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       MessageBox::information_message (this, tr ("Should you switch to RTTY contest mode?"));
     }
 
-    if(SpecOp::EU_VHF==m_config.special_op_id() and message_words.at(1).contains(m_baseCall) and
-       (!message_words.at(2).contains(qso_partner_base_call)) and (!m_bDoubleClicked)) {
+    if(SpecOp::EU_VHF==m_config.special_op_id() and message_words.at(2).contains(m_baseCall) and
+       (!message_words.at(3).contains(qso_partner_base_call)) and (!m_bDoubleClicked)) {
       return;
     }
 
     bool bContestOK=(m_mode=="FT4" or m_mode=="FT8" or m_mode=="Q65" or m_mode=="MSK144");
-    if(message_words.size () > 3   // enough fields for a normal message
-       && (message_words.at(1).contains(m_baseCall) || "DE" == message_words.at(1))
-       && (message_words.at(2).contains(qso_partner_base_call) or m_bDoubleClicked
+    if(message_words.size () > 4   // enough fields for a normal message
+       && (message_words.at(2).contains(m_baseCall) || "DE" == message_words.at(2))
+       && (message_words.at(3).contains(qso_partner_base_call) or m_bDoubleClicked
            or bEU_VHF_w2 or (m_QSOProgress==CALLING))) {
-      if(message_words.at(3).contains(grid_regexp) and SpecOp::EU_VHF!=m_config.special_op_id()) {
+      if(message_words.at(4).contains(grid_regexp) and SpecOp::EU_VHF!=m_config.special_op_id()) {
         if((SpecOp::NA_VHF==m_config.special_op_id() or SpecOp::WW_DIGI==m_config.special_op_id()) and bContestOK){
           setTxMsg(3);
           m_QSOProgress=ROGER_REPORT;
         } else {
-          if(m_mode=="JT65" and message_words.size()>4 and message_words.at(4)=="OOO") {
+          if(m_mode=="JT65" and message_words.size()>5 and message_words.at(5)=="OOO") {
             setTxMsg(3);
             m_QSOProgress=ROGER_REPORT;
           } else {
@@ -4981,7 +4987,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
           m_QSOProgress=ROGER_REPORT;
         }
       } else {  // no grid on end of msg
-        auto const& word_3 = message_words.at (3);
+        auto const& word_3 = message_words.at (4);
         auto word_3_as_number = word_3.toInt ();
         if (("RRR" == word_3
              || (word_3_as_number == 73 && ROGERS == m_QSOProgress)
@@ -5103,17 +5109,29 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
           }
       }
     }
+    else if (5 == message_words.size ()
+             && m_baseCall == message_words.at (1)) {
+      // dual Fox style message, possibly from MSHV
+      if (m_config.prompt_to_log() || m_config.autoLog()) {
+        logQSOTimer.start(0);
+      }
+      else {
+        cease_auto_Tx_after_QSO ();
+      }
+      m_ntx=6;
+      ui->txrb6->setChecked(true);
+    }
     else if (m_QSOProgress >= ROGERS
-             && message_words.size () > 2 && message_words.at (1).contains (m_baseCall)
-             && message_words.at (2) == "73") {
+             && message_words.size () > 3 && message_words.at (2).contains (m_baseCall)
+             && message_words.at (3) == "73") {
       // 73 back to compound call holder
       m_ntx=5;
       ui->txrb5->setChecked(true);
       m_QSOProgress = SIGNOFF;
     }
     else if (!(m_bAutoReply && (m_QSOProgress > CALLING))) {
-      if ((message_words.size () > 4 && message_words.at (1).contains (m_baseCall)
-           && message_words.at (4) == "OOO")) {
+      if ((message_words.size () > 5 && message_words.at (2).contains (m_baseCall)
+           && message_words.at (5) == "OOO")) {
         // EME short code report or MSK144/FT8 contest mode reply, send back Tx3
         m_ntx=3;
         m_QSOProgress = ROGER_REPORT;
@@ -5136,7 +5154,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
       return;
     }
   }
-  else if (firstcall == "DE" && message_words.size () > 3 && message_words.at (3) == "73") {
+  else if (firstcall == "DE" && message_words.size () > 4 && message_words.at (4) == "73") {
     if (m_QSOProgress >= ROGERS && base_call == qso_partner_base_call && m_currentMessageType) {
       // 73 back to compound call holder
       m_ntx=5;
@@ -5356,6 +5374,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
   auto is_type_one = !is77BitMode () && is_compound && shortList (my_callsign);
   auto const& my_grid = m_config.my_grid ().left (4);
   auto const& hisBase = Radio::base_callsign (hisCall);
+  save_dxbase_(const_cast <char *> ((hisBase + "   ").left (6).toLatin1().constData()),6);
   auto eme_short_codes = m_config.enable_VHF_features () && ui->cbShMsgs->isChecked ()
       && m_mode == "JT65";
 
@@ -5836,6 +5855,13 @@ void MainWindow::on_dxCallEntry_textChanged (QString const& call)
   statusChanged();
   statusUpdate ();
 }
+
+void MainWindow::on_dxCallEntry_editingFinished()
+{
+  auto const& dxBase = Radio::base_callsign (m_hisCall);
+  save_dxbase_(const_cast <char *> ((dxBase + "   ").left (6).toLatin1().constData()),6);
+}
+
 
 void MainWindow::on_dxCallEntry_returnPressed ()
 {
@@ -7743,10 +7769,11 @@ void MainWindow::replyToCQ (QTime time, qint32 snr, float delta_time, quint32 de
                             , bool /*low_confidence*/, quint8 modifiers)
 {
   QString format_string {"%1 %2 %3 %4 %5 %6"};
-  auto const& time_string = time.toString ("~" == mode || "&" == mode
-                                           || "+" == mode ? "hhmmss" : "hhmm");
+  auto const& time_string = time.toString ("~" == mode || "&" == mode || "+" == mode
+                                           || (m_TRperiod < 60. && ("`" == mode || ":" == mode))
+                                           ? "hhmmss" : "hhmm");
   auto text = message_text;
-  auto ap_pos = text.lastIndexOf (QRegularExpression {R"((?:\?\s)?a[0-9]$)"});
+  auto ap_pos = text.lastIndexOf (QRegularExpression {R"((?:\?\s)?(?:a[0-9]|q[0-9][0-9]?)$)"});
   if (ap_pos >= 0)
     {
       // beware of decodes ending on shorter version of wanted call so
@@ -7867,7 +7894,7 @@ void MainWindow::postDecode (bool is_new, QString const& message)
                                , parts[1].toInt ()
                                , parts[2].toFloat (), parts[3].toUInt (), parts[4]
                                , decode.mid (has_seconds ? 24 : 22)
-                               , QChar {'?'} == decode.mid (has_seconds ? 24 + 21 : 22 + 21, 1)
+                               , QChar {'?'} == decode.mid (has_seconds ? 24 + 36 : 22 + 36, 1)
                                , m_diskData);
     }
 }
