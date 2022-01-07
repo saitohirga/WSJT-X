@@ -7,8 +7,11 @@ messages such as the examples shown below.
 
 image::tx-macros.png[align="center",alt="Tx Macros Screen"]
 
-- To add a new message to the list, enter the desired text (up to 13
-characters) in the entry field at top, then click *Add*.
+- To add a new message to the list, enter the desired text in the
+entry field at top, then click *Add*.
+
+- Remember that a transmitted free-text message is limited to 13
+characters, including blanks.
 
 - To remove an unwanted message, click on the message and then on
 *Delete*.
@@ -18,3 +21,7 @@ new order will be preserved when _WSJT-X_ is restarted.
 
 - Messages can also be added from the main window's *Tx5*
   field. Simply hit [Enter] after the message has been entered.
+
+- If the first word of a message is $DXCALL (or the shortened form
+$DX), that word will be replaced on transmission by the base callsign
+in the *DxCall* field.

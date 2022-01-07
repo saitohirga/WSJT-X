@@ -11,7 +11,39 @@ extern "C" {
 
 namespace
 {
-  QRegularExpression words_re {R"(^(?:(?<word1>(?:CQ|DE|QRZ)(?:\s?DX|\s(?:[A-Z]{1,4}|\d{3}))|[A-Z0-9/]+|\.{3})\s)(?:(?<word2>[A-Z0-9/]+)(?:\s(?<word3>[-+A-Z0-9]+)(?:\s(?<word4>(?:OOO|(?!RR73)[A-R]{2}[0-9]{2})))?)?)?)"};
+  QRegularExpression tokens_re {R"(
+^
+  (?:(?<dual>[A-Z0-9/]+)\sRR73;\s)? # dual reply DXpedition message
+  (?:
+    (?<word1>
+      (?:CQ|DE|QRZ)
+      (?:\s?DX|\s
+        (?:[A-Z]{1,4}|\d{3})  # directional CQ
+      )
+      | [A-Z0-9/]+            # DX call
+      |\.{3}                  # unknown hash code
+    )\s
+  )
+  (?:
+    (?<word2>[A-Z0-9/]+)      # DE call
+    (?:\s
+      (?<word3>[-+A-Z0-9]+)   # report
+      (?:\s
+        (?<word4>
+          (?:
+            OOO               # EME
+            | (?!RR73)[A-R]{2}[0-9]{2} # grid square (not RR73)
+            | 5[0-9]{5}       # EU VHF Contest report & serial
+          )
+        )
+        (?:\s
+          (?<word5>[A-R]{2}[0-9]{2}[A-X]{2}) # EU VHF Contest grid locator
+        )?
+      )?
+    )?
+  )?
+)"
+                               , QRegularExpression::ExtendedPatternSyntaxOption};
 }
 
 DecodedText::DecodedText (QString const& the_string)
@@ -23,13 +55,13 @@ DecodedText::DecodedText (QString const& the_string)
   , is_standard_ {false}
 {
   // discard appended AP info
-  clean_string_.replace (QRegularExpression {R"(^(.*?)(?:\?\s)?(?:a|q)[0-9].*$)"}, "\\1");
+  clean_string_.replace (QRegularExpression {R"(^(.*?)(?:\?\s)?[aq][0-9].*$)"}, "\\1");
 
 //  qDebug () << "DecodedText: the_string:" << the_string << "Nbsp pos:" << the_string.indexOf (QChar::Nbsp);
   if (message_.length() >= 1)
     {
-       message0_ = message_.left(36);
-       message_ = message_.left(36).remove (QRegularExpression {"[<>]"});
+       message0_ = message_.left(37);
+       message_ = message_.left(37).remove (QRegularExpression {"[<>]"});
       int i1 = message_.indexOf ('\r');
       if (i1 > 0)
         {
@@ -60,11 +92,13 @@ QStringList DecodedText::messageWords () const
     // extract up to the first four message words
     QString t=message_;
     if(t.left(4)=="TU; ") t=message_.mid(4,-1);
-    return words_re.match(t).capturedTexts();
+    return tokens_re.match(t).capturedTexts();
   }
   // simple word split for free text messages
   auto words = message_.split (' ', SkipEmptyParts);
-  // add whole message as item 0 to mimic RE capture list
+  // add whole message and two empty strings as item 0 & 1 to mimic RE
+  // capture list
+  words.prepend (QString {});
   words.prepend (message_);
   return words;
 }
@@ -94,7 +128,7 @@ bool DecodedText::isTX() const
 
 bool DecodedText::isLowConfidence () const
 {
-  return QChar {'?'} == string_.mid (padding_ + column_qsoText + 21, 1);
+  return QChar {'?'} == string_.mid (padding_ + column_qsoText + 36, 1);
 }
 
 int DecodedText::frequencyOffset() const
@@ -128,31 +162,37 @@ bool DecodedText::report(QString const& myBaseCall, QString const& dxBaseCall, /
   if (message_.size () < 1) return false;
 
   QStringList const& w = message_.split(" ", SkipEmptyParts);
-  if (w.size ()
-      && is_standard_ && (w[0] == myBaseCall
-                          || w[0].endsWith ("/" + myBaseCall)
-                          || w[0].startsWith (myBaseCall + "/")
-                          || (w.size () > 1 && !dxBaseCall.isEmpty ()
-                              && (w[1] == dxBaseCall
-                                  || w[1].endsWith ("/" + dxBaseCall)
-                                  || w[1].startsWith (dxBaseCall + "/")))))
+  int offset {0};
+  if (w.size () > 2)
     {
-      QString tt="";
-      if(w.size() > 2) tt=w[2];
-      bool ok;
-      auto i1=tt.toInt(&ok);
-      if (ok and i1>=-50 and i1<50)
+      if ("RR73;" == w[1] && w.size () > 3)
         {
-          report = tt;
+          offset = 2;
         }
-      else
+      if (is_standard_ && (w[offset] == myBaseCall
+                           || w[offset].endsWith ("/" + myBaseCall)
+                           || w[offset].startsWith (myBaseCall + "/")
+                           || (w.size () > offset + 1 && !dxBaseCall.isEmpty ()
+                               && (w[offset + 1] == dxBaseCall
+                                   || w[offset + 1].endsWith ("/" + dxBaseCall)
+                                   || w[offset + 1].startsWith (dxBaseCall + "/")))))
         {
-          if (tt.mid(0,1)=="R")
+          bool ok;
+          auto tt = w[offset + 2];
+          auto i1=tt.toInt(&ok);
+          if (ok and i1>=-50 and i1<50)
             {
-              i1=tt.mid(1).toInt(&ok);
-              if(ok and i1>=-50 and i1<50)
+              report = tt;
+            }
+          else
+            {
+              if (tt.mid(0,1)=="R")
                 {
-                  report = tt.mid(1);
+                  i1=tt.mid(1).toInt(&ok);
+                  if(ok and i1>=-50 and i1<50)
+                    {
+                      report = tt.mid(1);
+                    }
                 }
             }
         }
@@ -163,7 +203,7 @@ bool DecodedText::report(QString const& myBaseCall, QString const& dxBaseCall, /
 // get the first text word, usually the call
 QString DecodedText::call() const
 {
-  return words_re.match (message_).captured ("word1");
+  return tokens_re.match (message_).captured ("word1");
 }
 
 // get the second word, most likely the de call and the third word, most likely grid
@@ -175,7 +215,7 @@ void DecodedText::deCallAndGrid(/*out*/QString& call, QString& grid) const
     {
       msg = msg.mid (p + 2);
     }
-  auto const& match = words_re.match (msg);
+  auto const& match = tokens_re.match (msg);
   call = match.captured ("word2");
   grid = match.captured ("word3");
   if ("R" == grid) grid = match.captured ("word4");

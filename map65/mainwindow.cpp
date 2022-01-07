@@ -1410,7 +1410,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 #ifdef WIN32
       m=3;
 #endif
-      if(n>=30) ui->decodedTextBrowser->append(t.mid(1,n-m));
+      if(n>=30 or t.indexOf("Best-fit")>=0) ui->decodedTextBrowser->append(t.mid(1,n-m));
       n=ui->decodedTextBrowser->verticalScrollBar()->maximum();
       ui->decodedTextBrowser->verticalScrollBar()->setValue(n);
       m_messagesText="";
@@ -1439,7 +1439,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
       int n=t.size();
       qDebug() << t.mid(1,n-3).trimmed();
     }
-
   }
 }
 
