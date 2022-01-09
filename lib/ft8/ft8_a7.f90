@@ -44,6 +44,7 @@ subroutine ft8_a7_save(nutc,dt,f,msg)
   dt0(i,j,1)=dt                          !Save dt in table
   f0(i,j,1)=f                            !Save f in table
   call split77(msg,nwords,nw,w)          !Parse msg into words
+  if(nwords.lt.1) go to 999
   msg0(i,j,1)=trim(w(1))//' '//trim(w(2)) !Save "call_1 call_2"
   if(w(1)(1:3).eq.'CQ ' .and. nw(2).le.2) then
      msg0(i,j,1)='CQ '//trim(w(2))//' '//trim(w(3)) !Save "CQ DX Call_2"
@@ -66,7 +67,7 @@ subroutine ft8_a7_save(nutc,dt,f,msg)
      endif
   enddo
   
-  return
+999 return
 end subroutine ft8_a7_save
 
 subroutine ft8_a7d(dd0,newdat,call_1,call_2,grid4,xdt,f1,nharderrors,dmin,  &
