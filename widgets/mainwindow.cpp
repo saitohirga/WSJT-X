@@ -3709,7 +3709,8 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
 
 void MainWindow::pskPost (DecodedText const& decodedtext)
 {
-  if (m_diskData || !m_config.spot_to_psk_reporter() || decodedtext.isLowConfidence ()) return;
+  if (m_diskData || !m_config.spot_to_psk_reporter() || decodedtext.isLowConfidence ()
+      || (decodedtext.string().contains(m_baseCall) && dec_data.params.mygrid)) return; // prevent self spotting when running multiple instances
 
   QString msgmode=m_mode;
   QString deCall;
@@ -6221,7 +6222,6 @@ void MainWindow::on_actionFT8_triggered()
   m_bFast9=false;
   m_bFastMode=false;
   WSPR_config(false);
-  switch_mode (Modes::FT8);
   m_nsps=6912;
   m_FFTSize = m_nsps / 2;
   Q_EMIT FFTSize (m_FFTSize);
@@ -6272,6 +6272,8 @@ void MainWindow::on_actionFT8_triggered()
     on_fox_log_action_triggered();
   }
   if(SpecOp::HOUND == m_config.special_op_id()) {
+    ui->houndButton->setChecked(true);
+    ui->houndButton->setStyleSheet("background-color: #ff0000;");
     ui->txFirstCheckBox->setChecked(false);
     ui->txFirstCheckBox->setEnabled(false);
     ui->cbAutoSeq->setEnabled(false);
@@ -6289,6 +6291,8 @@ void MainWindow::on_actionFT8_triggered()
     ui->txb4->setEnabled(false);
     ui->txb5->setEnabled(false);
     ui->txb6->setEnabled(false);
+  } else {
+    switch_mode (Modes::FT8);
   }
 
   if (SpecOp::NONE < m_config.special_op_id () && SpecOp::FOX > m_config.special_op_id ()) {
@@ -7034,6 +7038,7 @@ void MainWindow::on_rptSpinBox_valueChanged(int n)
 
 void MainWindow::on_tuneButton_clicked (bool checked)
 {
+  tuneATU_Timer.start (60000); // tune watchdog (60s)
   static bool lastChecked = false;
   if (lastChecked == checked) return;
   lastChecked = checked;
@@ -9442,4 +9447,58 @@ QString MainWindow::WSPR_message()
     msg2=m_config.my_callsign() + " " + m_config.my_grid().mid(0,4) + sdBm; // Normal WSPR message
   }
   return msg2;
+}
+
+void MainWindow::on_houndButton_clicked (bool checked)
+{
+   if (checked) {
+        ui->houndButton->setStyleSheet("background-color: #ff0000;");
+        m_config.setSpecial_Hound();
+   } else {
+       ui->houndButton->setStyleSheet("");
+       m_config.setSpecial_None();
+   }
+    on_actionFT8_triggered();
+}
+
+void MainWindow::on_ft8Button_clicked()
+{
+    ui->houndButton->setChecked(false);
+    ui->houndButton->setStyleSheet("");
+    m_config.setSpecial_None();
+    on_actionFT8_triggered();
+}
+
+void MainWindow::on_ft4Button_clicked()
+{
+    ui->houndButton->setChecked(false);
+    ui->houndButton->setStyleSheet("");
+    m_config.setSpecial_None();
+    on_actionFT4_triggered();
+}
+
+void MainWindow::on_msk144Button_clicked()
+{
+    ui->houndButton->setChecked(false);
+    ui->houndButton->setStyleSheet("");
+    m_config.setSpecial_None();
+    on_actionMSK144_triggered();
+}
+
+void MainWindow::on_q65Button_clicked()
+{
+    ui->houndButton->setChecked(false);
+    ui->houndButton->setStyleSheet("");
+    m_config.setSpecial_None();
+    on_actionQ65_triggered();
+//    ui->sbTR->setValue (m_settings->value ("TRPeriod", 30).toInt());  // set default TRPeriod to 30s
+}
+
+void MainWindow::on_fst4Button_clicked()
+{
+    ui->houndButton->setChecked(false);
+    ui->houndButton->setStyleSheet("");
+    m_config.setSpecial_None();
+    on_actionFST4_triggered();
+//    ui->sbTR->setValue (m_settings->value ("TRPeriod", 60).toInt());  // set default TRPeriod to 60s
 }

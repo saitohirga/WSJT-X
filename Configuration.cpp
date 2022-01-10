@@ -920,6 +920,30 @@ void Configuration::set_location (QString const& grid_descriptor)
   m_->dynamic_grid_ = grid_descriptor.trimmed ();
 }
 
+void Configuration::setSpecial_Hound()
+{
+  m_->bSpecialOp_=true;
+  m_->ui_->gbSpecialOpActivity->setChecked(m_->bSpecialOp_);
+  m_->ui_->rbHound->setChecked(true);
+  m_->SelectedActivity_ = static_cast<int> (SpecialOperatingActivity::HOUND);
+  m_->write_settings();
+}
+
+void Configuration::setSpecial_Fox()
+{
+  m_->bSpecialOp_=true;
+  m_->ui_->gbSpecialOpActivity->setChecked(m_->bSpecialOp_);
+  m_->ui_->rbFox->setChecked(true);
+  m_->SelectedActivity_ = static_cast<int> (SpecialOperatingActivity::FOX);
+  m_->write_settings();
+}
+
+void Configuration::setSpecial_None()
+{
+  m_->bSpecialOp_=false;
+  m_->ui_->gbSpecialOpActivity->setChecked(m_->bSpecialOp_);
+  m_->write_settings();
+}
 namespace
 {
 #if defined (Q_OS_MAC)
