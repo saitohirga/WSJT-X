@@ -7035,6 +7035,7 @@ void MainWindow::on_rptSpinBox_valueChanged(int n)
 
 void MainWindow::on_tuneButton_clicked (bool checked)
 {
+  tuneATU_Timer.start (60000); // tune watchdog (60s)
   static bool lastChecked = false;
   if (lastChecked == checked) return;
   lastChecked = checked;
