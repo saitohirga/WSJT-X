@@ -181,6 +181,9 @@ public:
   bool highlight_by_mode () const;
   bool highlight_only_fields () const;
   bool include_WAE_entities () const;
+  void setSpecial_Hound();
+  void setSpecial_Fox();
+  void setSpecial_None();
  
   enum class SpecialOperatingActivity {NONE, NA_VHF, EU_VHF, FIELD_DAY, RTTY, WW_DIGI, FOX, HOUND};
   SpecialOperatingActivity special_op_id () const;
