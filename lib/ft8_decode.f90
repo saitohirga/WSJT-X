@@ -167,9 +167,8 @@ contains
     if(ndepth.eq.1) npass=1
     do ipass=1,npass
       newdat=.true.
-      syncmin=1.2
-      if(ndepth.eq.1) syncmin=1.6
-      if(ndepth.eq.2) syncmin=1.4
+      syncmin=1.3
+      if(ndepth.le.2) syncmin=1.6
       if(ipass.eq.1) then
         lsubtract=.true.
         ndeep=ndepth
