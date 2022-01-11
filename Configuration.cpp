@@ -670,6 +670,10 @@ private:
   bool bLowSidelobes_;
   bool pwrBandTxMemory_;
   bool pwrBandTuneMemory_;
+  bool highlight_DXcall_;
+  bool clear_DXcall_;
+  bool highlight_DXgrid_;
+  bool clear_DXgrid_;
 
   QAudioDeviceInfo audio_input_device_;
   QAudioDeviceInfo next_audio_input_device_;
@@ -787,6 +791,10 @@ DecodeHighlightingModel const& Configuration::decode_highlighting () const {retu
 bool Configuration::highlight_by_mode () const {return m_->highlight_by_mode_;}
 bool Configuration::highlight_only_fields () const {return m_->highlight_only_fields_;}
 bool Configuration::include_WAE_entities () const {return m_->include_WAE_entities_;}
+bool Configuration::highlight_DXcall () const {return m_->highlight_DXcall_;}
+bool Configuration::clear_DXcall () const {return m_->clear_DXcall_;}
+bool Configuration::highlight_DXgrid () const {return m_->highlight_DXgrid_;}
+bool Configuration::clear_DXgrid () const {return m_->clear_DXgrid_;}
 
 void Configuration::set_calibration (CalibrationParams params)
 {
@@ -1422,6 +1430,10 @@ void Configuration::impl::initialize_models ()
   ui_->only_fields_check_box->setChecked (highlight_only_fields_);
   ui_->include_WAE_check_box->setChecked (include_WAE_entities_);
   ui_->LotW_days_since_upload_spin_box->setValue (LotW_days_since_upload_);
+  ui_->cbHighlightDXcall->setChecked(highlight_DXcall_);
+  ui_->cbClearDXcall->setChecked(clear_DXcall_);
+  ui_->cbHighlightDXgrid->setChecked(highlight_DXgrid_);
+  ui_->cbClearDXgrid->setChecked(clear_DXgrid_);
 
   set_rig_invariants ();
 }
@@ -1578,6 +1590,10 @@ void Configuration::impl::read_settings ()
   calibration_.slope_ppm = settings_->value ("CalibrationSlopePPM", 0.).toDouble ();
   pwrBandTxMemory_ = settings_->value("pwrBandTxMemory",false).toBool ();
   pwrBandTuneMemory_ = settings_->value("pwrBandTuneMemory",false).toBool ();
+  highlight_DXcall_ = settings_->value("highlight_DXcall",false).toBool ();
+  clear_DXcall_ = settings_->value("clear_DXcall",false).toBool ();
+  highlight_DXgrid_ = settings_->value("highlight_DXgrid",false).toBool ();
+  clear_DXgrid_ = settings_->value("clear_DXgrid",false).toBool ();
 }
 
 void Configuration::impl::find_audio_devices ()
@@ -1709,6 +1725,10 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("pwrBandTuneMemory", pwrBandTuneMemory_);
   settings_->setValue ("Region", QVariant::fromValue (region_));
   settings_->setValue ("AutoGrid", use_dynamic_grid_);
+  settings_->setValue ("highlight_DXcall", highlight_DXcall_);
+  settings_->setValue ("clear_DXcall", clear_DXcall_);
+  settings_->setValue ("highlight_DXgrid", highlight_DXgrid_);
+  settings_->setValue ("clear_DXgrid", clear_DXgrid_);
   settings_->sync ();
 }
 
@@ -2196,6 +2216,10 @@ void Configuration::impl::accept ()
     dynamic_grid_.clear ();
   }
   use_dynamic_grid_ = ui_->use_dynamic_grid->isChecked();
+  highlight_DXcall_ = ui_->cbHighlightDXcall->isChecked();
+  clear_DXcall_ = ui_->cbClearDXcall->isChecked();
+  highlight_DXgrid_ = ui_->cbHighlightDXgrid->isChecked();
+  clear_DXgrid_ = ui_->cbClearDXgrid->isChecked();
 
   write_settings ();		// make visible to all
 }
