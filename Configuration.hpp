@@ -181,6 +181,7 @@ public:
   bool highlight_by_mode () const;
   bool highlight_only_fields () const;
   bool include_WAE_entities () const;
+  bool highlight_73 () const;
   void setSpecial_Hound();
   void setSpecial_Fox();
   void setSpecial_None();
