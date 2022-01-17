@@ -2871,7 +2871,7 @@ QLabel[oob=&quot;true&quot;] {
               </size>
              </property>
              <property name="toolTip">
-              <string>Toggle FT8 hound mode on/off</string>
+              <string>Toggle FT8 hound mode On/Off</string>
              </property>
              <property name="text">
               <string>H</string>
