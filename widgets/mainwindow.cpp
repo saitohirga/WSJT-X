@@ -3457,6 +3457,15 @@ void MainWindow::readFromStdout()                             //readFromStdout
                                                       ui->cbCQonly->isVisible() && ui->cbCQonly->isChecked(),
                                                       haveFSpread, fSpread);
 
+          if (m_config.highlight_DXcall () && (m_hisCall!="") && ((decodedtext.string().contains(QRegularExpression {"(\\w+) " + m_hisCall}))
+               || (decodedtext.string().contains(QRegularExpression {"(\\w+) <" + m_hisCall +">"}))
+               || (decodedtext.string().contains(QRegularExpression {"<(\\w+)> " + m_hisCall}))))  {
+              ui->decodedTextBrowser->highlight_callsign(m_hisCall, QColor(255,0,0), QColor(255,255,255), true); // highlight dxCallEntry
+          }
+          if (m_config.highlight_DXgrid () && (m_hisGrid!="") && (decodedtext.string().contains(m_hisGrid)))  {
+              ui->decodedTextBrowser->highlight_callsign(m_hisGrid, QColor(0,0,255), QColor(255,255,255), true); // highlight dxGridEntry
+          }
+
           if(m_bBestSPArmed && m_mode=="FT4" && CALLING == m_QSOProgress) {
             QString messagePriority=ui->decodedTextBrowser->CQPriority();
             if(messagePriority!="") {
@@ -6013,6 +6022,8 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
 
   m_xSent.clear ();
   m_xRcvd.clear ();
+  if (m_config.clear_DXcall ()) ui->dxCallEntry->clear ();
+  if (m_config.clear_DXgrid ()) ui->dxGridEntry->clear ();
 }
 
 qint64 MainWindow::nWidgets(QString t)
