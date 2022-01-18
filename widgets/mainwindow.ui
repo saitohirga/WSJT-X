@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>882</width>
-    <height>718</height>
+    <height>658</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -560,7 +560,7 @@
         </layout>
        </item>
        <item>
-        <layout class="QGridLayout" name="gridLayout_5" rowstretch="1,0,0" columnstretch="0,0,0,1,4,0">
+        <layout class="QGridLayout" name="gridLayout_5" rowstretch="1,0,0" columnstretch="0,0,0,1,3,0">
          <item row="0" column="5">
           <widget class="QLabel" name="label">
            <property name="text">
@@ -2871,7 +2871,7 @@ QLabel[oob=&quot;true&quot;] {
               </size>
              </property>
              <property name="toolTip">
-              <string>Toggle FT8 hound mode on/off</string>
+              <string>Toggle FT8 hound mode On/Off</string>
              </property>
              <property name="text">
               <string>H</string>
@@ -3036,6 +3036,11 @@ QLabel[oob=&quot;true&quot;] {
     <addaction name="actionNone"/>
     <addaction name="actionSave_decoded"/>
     <addaction name="actionSave_all"/>
+    <addaction name="separator"/>
+    <addaction name="actionDon_t_split_ALL_TXT"/>
+    <addaction name="actionSplit_ALL_TXT_yearly"/>
+    <addaction name="actionSplit_ALL_TXT_monthly"/>
+    <addaction name="actionDisable_writing_of_ALL_TXT"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -3582,6 +3587,41 @@ QLabel[oob=&quot;true&quot;] {
   <action name="actionQSG_X250_M3">
    <property name="text">
     <string>Quick-Start Guide to WSJT-X 2.5.0 and MAP65 3.0</string>
+   </property>
+  </action>
+  <action name="actionDon_t_split_ALL_TXT">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Don't split ALL.TXT</string>
+   </property>
+  </action>
+  <action name="actionSplit_ALL_TXT_yearly">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Split ALL.TXT yearly</string>
+   </property>
+  </action>
+  <action name="actionSplit_ALL_TXT_monthly">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Split ALL.TXT monthly</string>
+   </property>
+  </action>
+  <action name="actionDisable_writing_of_ALL_TXT">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Disable writing of ALL.TXT</string>
    </property>
   </action>
  </widget>
