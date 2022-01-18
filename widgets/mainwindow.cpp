@@ -604,6 +604,12 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   ui->actionSave_decoded->setActionGroup(saveGroup);
   ui->actionSave_all->setActionGroup(saveGroup);
 
+  QActionGroup* alltxtGroup = new QActionGroup(this);
+  ui->actionDon_t_split_ALL_TXT->setActionGroup(alltxtGroup);
+  ui->actionSplit_ALL_TXT_yearly->setActionGroup(alltxtGroup);
+  ui->actionSplit_ALL_TXT_monthly->setActionGroup(alltxtGroup);
+  ui->actionDisable_writing_of_ALL_TXT->setActionGroup(alltxtGroup);
+
   QActionGroup* DepthGroup = new QActionGroup(this);
   ui->actionQuickDecode->setActionGroup(DepthGroup);
   ui->actionMediumDecode->setActionGroup(DepthGroup);
@@ -1188,6 +1194,10 @@ void MainWindow::writeSettings()
       }
     m_settings->setValue ("PhaseEqualizationCoefficients", QVariant {coeffs});
   }
+  m_settings->setValue ("actionDontSplitALLTXT", ui->actionDon_t_split_ALL_TXT->isChecked() );
+  m_settings->setValue ("splitAllTxtYearly", ui->actionSplit_ALL_TXT_yearly->isChecked() );
+  m_settings->setValue ("splitAllTxtMonthly", ui->actionSplit_ALL_TXT_monthly->isChecked() );
+  m_settings->setValue ("disableWritingOfAllTxt", ui->actionDisable_writing_of_ALL_TXT->isChecked() );
   m_settings->endGroup();
 }
 
@@ -1230,6 +1240,10 @@ void MainWindow::readSettings()
   ui->actionAstronomical_data->setChecked (displayAstro);
 
   m_settings->beginGroup("Common");
+  ui->actionDon_t_split_ALL_TXT->setChecked(m_settings->value("actionDontSplitALLTXT", true).toBool());
+  ui->actionSplit_ALL_TXT_yearly->setChecked(m_settings->value("splitAllTxtYearly", false).toBool());
+  ui->actionSplit_ALL_TXT_monthly->setChecked(m_settings->value("splitAllTxtMonthly", false).toBool());
+  ui->actionDisable_writing_of_ALL_TXT->setChecked(m_settings->value("disableWritingOfAllTxt", false).toBool());
   m_mode=m_settings->value("Mode","JT9").toString();
   ui->actionNone->setChecked(m_settings->value("SaveNone",true).toBool());
   ui->actionSave_decoded->setChecked(m_settings->value("SaveDecoded",false).toBool());
@@ -9237,6 +9251,7 @@ void MainWindow::foxTest()
 
 void MainWindow::write_all(QString txRx, QString message)
 {
+  if (!(ui->actionDisable_writing_of_ALL_TXT->isChecked())) {
   QString line;
   QString t;
   QString msg;
@@ -9277,6 +9292,8 @@ void MainWindow::write_all(QString txRx, QString message)
   }
 
   QString file_name="ALL.TXT";
+  if (ui->actionSplit_ALL_TXT_yearly->isChecked()) file_name=(time.toString("yyyy") + "-" + "ALL.TXT");
+  if (ui->actionSplit_ALL_TXT_monthly->isChecked()) file_name=(time.toString("yyyy-MM") + "-" + "ALL.TXT");
   if (m_mode=="WSPR") file_name="ALL_WSPR.TXT";
   QFile f{m_config.writeable_data_dir().absoluteFilePath(file_name)};
   if (f.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append)) {
@@ -9295,6 +9312,7 @@ void MainWindow::write_all(QString txRx, QString message)
     QTimer::singleShot (0, [=] {                   // don't block guiUpdate
       MessageBox::warning_message(this, tr ("Log File Error"), message2); });
   }
+ }
 }
 
 void MainWindow::chkFT4()
