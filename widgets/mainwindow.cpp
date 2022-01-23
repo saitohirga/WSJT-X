@@ -1320,7 +1320,7 @@ void MainWindow::readSettings()
   // use these initialisation settings to tune the audio o/p buffer
   // size and audio thread priority
   m_settings->beginGroup ("Tune");
-  m_audioThreadPriority = static_cast<QThread::Priority> (m_settings->value ("Audio/ThreadPriority", QThread::HighPriority).toInt ());
+  m_audioThreadPriority = static_cast<QThread::Priority> (m_settings->value ("Audio/ThreadPriority", QThread::HighPriority).toInt () % 8);
   m_settings->endGroup ();
 
   checkMSK144ContestType();
