@@ -3732,7 +3732,8 @@ void MainWindow::auto_sequence (DecodedText const& message, unsigned start_toler
 
 void MainWindow::pskPost (DecodedText const& decodedtext)
 {
-  if (m_diskData || !m_config.spot_to_psk_reporter() || decodedtext.isLowConfidence ()) return;
+  if (m_diskData || !m_config.spot_to_psk_reporter() || decodedtext.isLowConfidence ()
+      || (decodedtext.string().contains(m_baseCall) && decodedtext.string().contains(m_config.my_grid().left(4)))) return; // prevent self-spotting when running multiple instances
 
   QString msgmode=m_mode;
   QString deCall;
