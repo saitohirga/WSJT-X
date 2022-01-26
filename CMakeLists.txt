@@ -1260,6 +1260,7 @@ set (LANGUAGES
   ja				# Japanese
   #no				# Norwegian
   #pt				# Portuguese
+  ru				# Russian
   #sv				# Swedish
   zh				# Chinese
   zh_HK				# Chinese per Hong Kong
