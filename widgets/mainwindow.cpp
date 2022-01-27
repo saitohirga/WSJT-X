@@ -8004,7 +8004,6 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
     } else {
 
       int n=t.length();
-      t=t.left(85);  // truncate any apriori code
       t=t.mid(0,n-2) + "                                                  ";
       t.remove(QRegExp("\\s+$"));
       QStringList rxFields = t.split(QRegExp("\\s+"));
