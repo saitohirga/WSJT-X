@@ -90,6 +90,8 @@
 #include "ui_mainwindow.h"
 #include "moc_mainwindow.cpp"
 
+#define FCL fortran_charlen_t
+
 extern "C" {
   //----------------------------------------------------- C and Fortran routines
   void symspec_(struct dec_data *, int* k, double* trperiod, int* nsps, int* ingain,
@@ -168,8 +170,6 @@ extern "C" {
   void freqcal_(short d2[], int* k, int* nkhz,int* noffset, int* ntol,
                 char line[], fortran_charlen_t);
 
-  void fix_contest_msg_(char* MyGrid, char* msg, fortran_charlen_t, fortran_charlen_t);
-
   void calibrate_(char const * data_dir, int* iz, double* a, double* b, double* rms,
                   double* sigmaa, double* sigmab, int* irc, fortran_charlen_t);
 
@@ -177,13 +177,9 @@ extern "C" {
 
   void plotsave_(float swide[], int* m_w , int* m_h1, int* irow);
 
-  void chkcall_(char* w, char* basc_call, bool cok, int len1, int len2);
-
-  void get_ft4msg_(int* idecode, char* line, int len);
-
   void chk_samples_(int* m_ihsym,int* k, int* m_hsymStop);
 
-  void save_dxbase_(char* dxbase, int len);
+  void save_dxbase_(char* dxbase, FCL len);
 }
 
 int volatile itone[MAX_NUM_SYMBOLS];   //Audio tones for all Tx symbols
@@ -958,7 +954,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
   ui->txFirstCheckBox->setChecked(m_txFirst);
   morse_(const_cast<char *> (m_config.my_callsign ().toLatin1().constData()),
-         const_cast<int *> (icw), &m_ncw, m_config.my_callsign ().length());
+         const_cast<int *> (icw), &m_ncw, (FCL)m_config.my_callsign().length());
   on_actionWide_Waterfall_triggered();
   ui->cbShMsgs->setChecked(m_bShMsgs);
   ui->cbSWL->setChecked(m_bSWL);
@@ -1452,7 +1448,7 @@ void MainWindow::dataSink(qint64 frames)
   m_bUseRef=m_wideGraph->useRef();
   if(!m_diskData) {
     refspectrum_(&dec_data.d2[k-m_nsps/2],&m_bClearRefSpec,&m_bRefSpec,
-                 &m_bUseRef, fname.constData (), fname.size ());
+                 &m_bUseRef, fname.constData (), (FCL)fname.size ());
   }
   m_bClearRefSpec=false;
 
@@ -1492,7 +1488,7 @@ void MainWindow::dataSink(qint64 frames)
     int RxFreq=ui->RxFreqSpinBox->value ();
     int nkhz=(m_freqNominal+RxFreq)/1000;
     int ftol = ui->sbFtol->value ();
-    freqcal_(&dec_data.d2[0],&k,&nkhz,&RxFreq,&ftol,&line[0],80);
+    freqcal_(&dec_data.d2[0], &k, &nkhz, &RxFreq, &ftol, &line[0], (FCL)80);
     QString t=QString::fromLatin1(line);
     DecodedText decodedtext {t};
     ui->decodedTextBrowser->displayDecodedText (decodedtext, m_config.my_callsign (), m_mode, m_config.DXCC (),
@@ -1611,7 +1607,7 @@ void MainWindow::dataSink(qint64 frames)
         int nsec=120;
         int nbfo=1500;
         double f0m1500=m_freqNominal/1000000.0 + nbfo - 1500;
-        int err = savec2_(c2name.constData (),&nsec,&f0m1500, c2name.size ());
+        int err = savec2_(c2name.constData (),&nsec,&f0m1500, (FCL)c2name.size());
         if (err!=0) MessageBox::warning_message (this, tr ("Error saving c2 file"), c2name);
       }
     }
@@ -1732,9 +1728,10 @@ void MainWindow::fastSink(qint64 frames)
   float rmsNoGain = 0;
   int ftol = ui->sbFtol->value ();
   hspec_(dec_data.d2,&k,&nutc0,&nTRpDepth,&RxFreq,&ftol,&bmsk144,
-         &m_bTrain,m_phaseEqCoefficients.constData(),&m_inGain,&dec_data.params.mycall[0],
-         &dec_data.params.hiscall[0],&bshmsg,&bswl,
-         data_dir.constData (),fast_green,fast_s,&fast_jh,&pxmax,&rmsNoGain,&line[0],12,12,data_dir.size (),80);
+      &m_bTrain,m_phaseEqCoefficients.constData(),&m_inGain,&dec_data.params.mycall[0],
+      &dec_data.params.hiscall[0],&bshmsg,&bswl,
+      data_dir.constData (),fast_green,fast_s,&fast_jh,&pxmax,&rmsNoGain,&line[0],(FCL)12,
+      (FCL)12,(FCL)data_dir.size (),(FCL)80);
   float px = fast_green[fast_jh];
   QString t;
   t = t.asprintf(" Rx noise: %5.1f ",px);
@@ -1836,7 +1833,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       m_baseCall = Radio::base_callsign (m_config.my_callsign ());
       ui->tx1->setEnabled (elide_tx1_not_allowed () || ui->tx1->isEnabled ());
       morse_(const_cast<char *> (m_config.my_callsign ().toLatin1().constData()),
-             const_cast<int *> (icw), &m_ncw, m_config.my_callsign ().length());
+             const_cast<int *> (icw), &m_ncw, (FCL)m_config.my_callsign().length());
     }
     if (m_config.my_callsign () != callsign || m_config.my_grid () != my_grid) {
       statusUpdate ();
@@ -2549,7 +2546,7 @@ void MainWindow::on_actionSolve_FreqCal_triggered()
   auto data_dir {QDir::toNativeSeparators(m_config.writeable_data_dir().absolutePath()).toLocal8Bit ()};
   int iz,irc;
   double a,b,rms,sigmaa,sigmab;
-  calibrate_(data_dir.constData (),&iz,&a,&b,&rms,&sigmaa,&sigmab,&irc,data_dir.size ());
+  calibrate_(data_dir.constData(), &iz, &a, &b, &rms, &sigmaa, &sigmab, &irc, (FCL)data_dir.size());
   QString t2;
   if(irc==-1) t2="Cannot open " + data_dir + "/fmt.all";
   if(irc==-2) t2="Cannot open " + data_dir + "/fcal2.out";
@@ -2594,7 +2591,7 @@ void MainWindow::on_actionCopyright_Notice_triggered()
                            "\"The algorithms, source code, look-and-feel of WSJT-X and related "
                            "programs, and protocol specifications for the modes FSK441, FST4, FT8, "
                            "JT4, JT6M, JT9, JT65, JTMS, QRA64, Q65, MSK144 are Copyright (C) "
-                           "2001-2021 by one or more of the following authors: Joseph Taylor, "
+                           "2001-2022 by one or more of the following authors: Joseph Taylor, "
                            "K1JT; Bill Somerville, G4WJS; Steven Franke, K9AN; Nico Palermo, "
                            "IV3NWV; Greg Beam, KI7MT; Michael Black, W9MDB; Edson Pereira, PY2SDR; "
                            "Philip Karn, KA9Q; and other members of the WSJT Development Group.\"");
@@ -3223,9 +3220,9 @@ void MainWindow::decode()                                       //decode()
         narg[13]=-1;
         narg[14]=m_config.aggressive();
         memcpy(d2b,dec_data.d2,2*360000);
-        watcher3.setFuture (QtConcurrent::run (std::bind (fast_decode_,&d2b[0],
-                                                          &narg[0],&m_TRperiod,&m_msg[0][0],
-                                                          dec_data.params.mycall,dec_data.params.hiscall,8000,12,12)));
+        watcher3.setFuture (QtConcurrent::run (std::bind (fast_decode_, &d2b[0],
+            &narg[0],&m_TRperiod, &m_msg[0][0], dec_data.params.mycall,
+            dec_data.params.hiscall, (FCL)8000, (FCL)12, (FCL)12)));
       } else {
         mem_jt9->lock ();
         memcpy(to, from, qMin(mem_jt9->size(), size));
@@ -4041,18 +4038,18 @@ void MainWindow::guiUpdate()
       if(m_QSOProgress==REPORT || m_QSOProgress==ROGER_REPORT) m_bSentReport=true;
       if(m_bSentReport and (m_QSOProgress<REPORT or m_QSOProgress>ROGER_REPORT)) m_bSentReport=false;
       if(m_mode=="JT4") gen4_(message, &ichk , msgsent, const_cast<int *> (itone),
-                                &m_currentMessageType, 22, 22);
+                                &m_currentMessageType, (FCL)22, (FCL)22);
       if(m_mode=="JT9") gen9_(message, &ichk, msgsent, const_cast<int *> (itone),
-                                &m_currentMessageType, 22, 22);
+                                &m_currentMessageType, (FCL)22, (FCL)22);
       if(m_mode=="JT65") gen65_(message, &ichk, msgsent, const_cast<int *> (itone),
-                                  &m_currentMessageType, 22, 22);
+                                  &m_currentMessageType, (FCL)22, (FCL)22);
       if(m_mode=="WSPR") genwspr_(message, msgsent, const_cast<int *> (itone),
-                                    22, 22);
+                                    (FCL)22, (FCL)22);
       if(m_mode=="MSK144" or m_mode=="FT8" or m_mode=="FT4"
          or m_mode=="FST4" or m_mode=="FST4W" || "Q65" == m_mode) {
         if(m_mode=="MSK144") {
           genmsk_128_90_(message, &ichk, msgsent, const_cast<int *> (itone),
-                         &m_currentMessageType, 37, 37);
+                         &m_currentMessageType, (FCL)37, (FCL)37);
           if(m_restart) {
             int nsym=144;
             if(itone[40]==-40) nsym=40;
@@ -4068,7 +4065,7 @@ void MainWindow::guiUpdate()
             int n3=0;
             char ft8msgbits[77];
             genft8_(message, &i3, &n3, msgsent, const_cast<char *> (ft8msgbits),
-                    const_cast<int *> (itone), 37, 37);
+                    const_cast<int *> (itone), (FCL)37, (FCL)37);
             int nsym=79;
             int nsps=4*1920;
             float fsample=48000.0;
@@ -4095,7 +4092,7 @@ void MainWindow::guiUpdate()
           int ichk=0;
           char ft4msgbits[77];
           genft4_(message, &ichk, msgsent, const_cast<char *> (ft4msgbits),
-                  const_cast<int *>(itone), 37, 37);
+                  const_cast<int *>(itone), (FCL)37, (FCL)37);
           int nsym=103;
           int nsps=4*576;
           float fsample=48000.0;
@@ -4117,7 +4114,7 @@ void MainWindow::guiUpdate()
             ba2msg(ba,message);
           }
           genfst4_(message,&ichk,msgsent,const_cast<char *> (fst4msgbits),
-                   const_cast<int *>(itone), &iwspr, 37, 37);
+                   const_cast<int *>(itone), &iwspr, (FCL)37, (FCL)37);
           int hmod=1;
           if(m_config.x2ToneSpacing()) hmod=2;
           if(m_config.x4ToneSpacing()) hmod=4;
@@ -4144,7 +4141,7 @@ void MainWindow::guiUpdate()
         if(m_mode=="Q65") {
           int i3=-1;
           int n3=-1;
-          genq65_(message,&ichk,msgsent,const_cast<int *>(itone),&i3,&n3,37,37);
+          genq65_(message, &ichk,msgsent, const_cast<int *>(itone), &i3, &n3, (FCL)37, (FCL)37);
           int nsps=1800;
           if(m_TRperiod==30) nsps=3600;
           if(m_TRperiod==60) nsps=7200;
@@ -5396,7 +5393,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
   auto is_type_one = !is77BitMode () && is_compound && shortList (my_callsign);
   auto const& my_grid = m_config.my_grid ().left (4);
   auto const& hisBase = Radio::base_callsign (hisCall);
-  save_dxbase_(const_cast <char *> ((hisBase + "   ").left (6).toLatin1().constData()),6);
+  save_dxbase_(const_cast <char *> ((hisBase + "   ").left(6).toLatin1().constData()), (FCL)6);
   auto eme_short_codes = m_config.enable_VHF_features () && ui->cbShMsgs->isChecked ()
       && m_mode == "JT65";
 
@@ -5783,7 +5780,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
   QByteArray s=t.toUpper().toLocal8Bit();
   ba2msg(s,message);
   int ichk=1,itype=0;
-  gen65_(message,&ichk,msgsent,const_cast<int*>(itone0),&itype,22,22);
+  gen65_(message, &ichk,msgsent, const_cast<int*>(itone0), &itype, (FCL)22, (FCL)22);
   msgsent[22]=0;
   bool text=false;
   bool shortMsg=false;
@@ -5881,7 +5878,7 @@ void MainWindow::on_dxCallEntry_textChanged (QString const& call)
 void MainWindow::on_dxCallEntry_editingFinished()
 {
   auto const& dxBase = Radio::base_callsign (m_hisCall);
-  save_dxbase_(const_cast <char *> ((dxBase + "   ").left (6).toLatin1().constData()),6);
+  save_dxbase_(const_cast <char *> ((dxBase + "   ").left (6).toLatin1().constData()), (FCL)6);
 }
 
 
@@ -5902,7 +5899,7 @@ void MainWindow::on_dxGridEntry_textChanged (QString const& grid)
     int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter;
     azdist_(const_cast <char *> ((m_config.my_grid () + "      ").left (6).toLatin1().constData()),
             const_cast <char *> ((m_hisGrid + "      ").left (6).toLatin1().constData()),&utch,
-            &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,6,6);
+            &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,(FCL)6,(FCL)6);
     QString t;
     int nd=nDkm;
     if(m_config.miles()) nd=nDmiles;
@@ -8039,7 +8036,7 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
         int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter;
         azdist_(const_cast <char *> ((m_config.my_grid () + "      ").left (6).toLatin1 ().constData ()),
                 const_cast <char *> ((grid + "      ").left (6).toLatin1 ().constData ()),&utch,
-                &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,6,6);
+                &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,(FCL)6,(FCL)6);
         QString t1;
         if(m_config.miles()) {
           t1 = t1.asprintf("%7d",nDmiles);
