@@ -147,8 +147,6 @@ extern "C" {
 
   void morse_(char* msg, int* icw, int* ncw, fortran_charlen_t);
 
-  int ptt_(int nport, int ntx, int* iptt, int* nopen);
-
   void wspr_downsample_(short int d2[], int* k);
 
   int savec2_(char const * fname, int* TR_seconds, double* dial_freq, fortran_charlen_t);
