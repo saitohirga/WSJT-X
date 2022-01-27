@@ -461,7 +461,6 @@ set (wsjt_FSRCS
   lib/inter_wspr.f90
   lib/jplsubs.f
   lib/jt9fano.f90
-  lib/jtmsg.f90
   lib/libration.f90
   lib/lorentzian.f90
   lib/fst4/lorentzian_fading.f90
