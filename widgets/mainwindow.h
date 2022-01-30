@@ -146,7 +146,7 @@ private slots:
   void on_ft4Button_clicked();
   void on_msk144Button_clicked();
   void on_q65Button_clicked();
-  void on_fst4Button_clicked();
+  void on_jt65Button_clicked();
   void on_tx1_editingFinished();
   void on_tx2_editingFinished();
   void on_tx3_editingFinished();

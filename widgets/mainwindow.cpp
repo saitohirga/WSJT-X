@@ -9515,14 +9515,12 @@ void MainWindow::on_q65Button_clicked()
     ui->houndButton->setStyleSheet("");
     m_config.setSpecial_None();
     on_actionQ65_triggered();
-//    ui->sbTR->setValue (m_settings->value ("TRPeriod", 30).toInt());  // set default TRPeriod to 30s
 }
 
-void MainWindow::on_fst4Button_clicked()
+void MainWindow::on_jt65Button_clicked()
 {
     ui->houndButton->setChecked(false);
     ui->houndButton->setStyleSheet("");
     m_config.setSpecial_None();
-    on_actionFST4_triggered();
-//    ui->sbTR->setValue (m_settings->value ("TRPeriod", 60).toInt());  // set default TRPeriod to 60s
+    on_actionJT65_triggered();
 }

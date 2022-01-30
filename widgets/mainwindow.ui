@@ -2946,7 +2946,7 @@ QLabel[oob=&quot;true&quot;] {
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="fst4Button">
+            <widget class="QPushButton" name="jt65Button">
              <property name="maximumSize">
               <size>
                <width>32</width>
@@ -2954,10 +2954,10 @@ QLabel[oob=&quot;true&quot;] {
               </size>
              </property>
              <property name="toolTip">
-              <string>Switch to FST4 mode</string>
+              <string>Switch to JT65 mode</string>
              </property>
              <property name="text">
-              <string>FST4</string>
+              <string>JT65</string>
              </property>
             </widget>
            </item>
