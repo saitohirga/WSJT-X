@@ -135,8 +135,7 @@ extern "C" {
   void genmsk_128_90_(char* msg, int* ichk, char* msgsent, int itone[], int* itype,
                       fortran_charlen_t, fortran_charlen_t);
 
-  void gen65_(char* msg, int* ichk, char* msgsent, int itone[],
-              int* itext, fortran_charlen_t, fortran_charlen_t);
+  void gen65(char* msg, int* ichk, char msgsent[], int itone[], int* itext);
 
   void genq65_(char* msg, int* ichk, char* msgsent, int itone[],
               int* i3, int* n3, fortran_charlen_t, fortran_charlen_t);
@@ -4041,8 +4040,8 @@ void MainWindow::guiUpdate()
                                 &m_currentMessageType, (FCL)22, (FCL)22);
       if(m_mode=="JT9") gen9_(message, &ichk, msgsent, const_cast<int *> (itone),
                                 &m_currentMessageType, (FCL)22, (FCL)22);
-      if(m_mode=="JT65") gen65_(message, &ichk, msgsent, const_cast<int *> (itone),
-                                  &m_currentMessageType, (FCL)22, (FCL)22);
+      if(m_mode=="JT65") gen65(message, &ichk, msgsent, const_cast<int *> (itone),
+                                  &m_currentMessageType);
       if(m_mode=="WSPR") genwspr_(message, msgsent, const_cast<int *> (itone),
                                     (FCL)22, (FCL)22);
       if(m_mode=="MSK144" or m_mode=="FT8" or m_mode=="FT4"
@@ -5780,7 +5779,7 @@ void MainWindow::msgtype(QString t, QLineEdit* tx)               //msgtype()
   QByteArray s=t.toUpper().toLocal8Bit();
   ba2msg(s,message);
   int ichk=1,itype=0;
-  gen65_(message, &ichk,msgsent, const_cast<int*>(itone0), &itype, (FCL)22, (FCL)22);
+  gen65(message, &ichk,msgsent, const_cast<int*>(itone0), &itype);
   msgsent[22]=0;
   bool text=false;
   bool shortMsg=false;
