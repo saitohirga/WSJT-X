@@ -1444,7 +1444,7 @@ set_target_properties (wsjtx PROPERTIES
   )
 
 target_include_directories (wsjtx PRIVATE ${FFTW3_INCLUDE_DIRS})
-if (APPLE)
+if ((NOT ${OPENMP_FOUND}) OR APPLE)
   target_link_libraries (wsjtx wsjt_fort)
 else ()
   target_link_libraries (wsjtx wsjt_fort_omp)
