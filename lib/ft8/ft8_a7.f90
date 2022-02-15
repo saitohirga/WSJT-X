@@ -369,6 +369,7 @@ subroutine ft8_a7d(dd0,newdat,call_1,call_2,grid4,xdt,f1,nharderrors,dmin,  &
 !3041 format(i3,2f7.1,f7.2,f7.1,1x,a)
   if(dmin.gt.100.0 .or. dmin2/dmin.lt.1.3) nharderrors=-1
   msg37=msgbest
+  if(msg37(1:3).eq.'CQ ' .and. std_2 .and. grid4.eq.'    ') nharderrors=-1
 
   return
 end subroutine ft8_a7d
