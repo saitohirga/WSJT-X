@@ -275,7 +275,7 @@ subroutine ft8_a7d(dd0,newdat,call_1,call_2,grid4,xdt,f1,nharderrors,dmin,  &
   do imsg=1,MAXMSG
      msg=trim(call_1)//' '//trim(call_2)
      i=imsg
-     if(call_1(1:3).eq.'CQ ' .and. i.ne.5) msg='QQ0XYZ '//trim(call_2)
+     if(call_1(1:3).eq.'CQ ' .and. i.ne.5) msg='QU1RK '//trim(call_2)
      if(.not.std_1) then
         if(i.eq.1 .or. i.ge.6)  msg='<'//trim(call_1)//'> '//trim(call_2)
         if(i.ge.2 .and. i.le.4) msg=trim(call_1)//' <'//trim(call_2)//'>'
@@ -370,6 +370,7 @@ subroutine ft8_a7d(dd0,newdat,call_1,call_2,grid4,xdt,f1,nharderrors,dmin,  &
   if(dmin.gt.100.0 .or. dmin2/dmin.lt.1.3) nharderrors=-1
   msg37=msgbest
   if(msg37(1:3).eq.'CQ ' .and. std_2 .and. grid4.eq.'    ') nharderrors=-1
+  if(index(msg37(1:6).eq.'QU1RK ') nharderrors=-1
 
   return
 end subroutine ft8_a7d
