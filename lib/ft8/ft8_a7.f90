@@ -32,7 +32,11 @@ subroutine ft8_a7_save(nutc,dt,f,msg)
        ichar(g4(2:2)).ge.ichar('A') .and. ichar(g4(2:2)).le.ichar('R') .and.  &
        ichar(g4(3:3)).ge.ichar('0') .and. ichar(g4(3:3)).le.ichar('9') .and.  &
        ichar(g4(4:4)).ge.ichar('0') .and. ichar(g4(4:4)).le.ichar('9'))
-  
+
+  if(index(msg,'/').ge.1 .or. index(msg,'<').ge.1) go to 999
+  call split77(msg,nwords,nw,w)          !Parse msg into words
+  if(nwords.lt.1) go to 999
+  if(w(1)(1:3).eq.'CQ_') go to 999
   j=mod(nutc/5,2)                        !j is 0 or 1 for odd/even sequence
   jseq=j
 
@@ -43,8 +47,6 @@ subroutine ft8_a7_save(nutc,dt,f,msg)
 
   dt0(i,j,1)=dt                          !Save dt in table
   f0(i,j,1)=f                            !Save f in table
-  call split77(msg,nwords,nw,w)          !Parse msg into words
-  if(nwords.lt.1) go to 999
   msg0(i,j,1)=trim(w(1))//' '//trim(w(2)) !Save "call_1 call_2"
   if(w(1)(1:3).eq.'CQ ' .and. nw(2).le.2) then
      msg0(i,j,1)='CQ '//trim(w(2))//' '//trim(w(3)) !Save "CQ DX Call_2"
