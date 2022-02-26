@@ -72,7 +72,7 @@ subroutine ft8_a7_save(nutc,dt,f,msg)
 999 return
 end subroutine ft8_a7_save
 
-subroutine ft8_a7d(dd0,newdat,call_1,call_2,grid4,xdt,f1,nharderrors,dmin,  &
+subroutine ft8_a7d(dd0,newdat,call_1,call_2,grid4,xdt,f1,xbase,nharderrors,dmin,  &
      msg37,xsnr)
 
 ! Examine the raw data in dd0() for possible "a7" decodes.
@@ -314,10 +314,10 @@ subroutine ft8_a7d(dd0,newdat,call_1,call_2,grid4,xdt,f1,nharderrors,dmin,  &
      call genft8(msg,i3,n3,msgsent,msgbits,itone) !Source-encode this message
      call encode174_91(msgbits,cw)                !Get codeword for this message
      rcw=2*cw-1
-     pa=sum(llra*rcw)
-     pb=sum(llrb*rcw)
-     pc=sum(llrc*rcw)
-     pd=sum(llrd*rcw)
+     pow=0.0
+     do i=1,79
+        pow=pow+s8(itone(i),i)**2
+     enddo
 
      hdec=0
      where(llra.ge.0.0) hdec=1
@@ -344,18 +344,15 @@ subroutine ft8_a7d(dd0,newdat,call_1,call_2,grid4,xdt,f1,nharderrors,dmin,  &
      if(dm.lt.dmin) then
         dmin=dm
         msgbest=msgsent
+        pbest=pow
         if(dm.eq.da) then
            nharderrors=count((2*cw-1)*llra.lt.0.0)
-           pbest=pa
         else if(dm.eq.dbb) then
            nharderrors=count((2*cw-1)*llrb.lt.0.0)
-           pbest=pb
         else if(dm.eq.dc) then
            nharderrors=count((2*cw-1)*llrc.lt.0.0)
-           pbest=pc
         else if(dm.eq.dd) then
            nharderrors=count((2*cw-1)*llrd.lt.0.0)
-           pbest=pd
         endif
      endif
      
@@ -366,7 +363,8 @@ subroutine ft8_a7d(dd0,newdat,call_1,call_2,grid4,xdt,f1,nharderrors,dmin,  &
   iloc=minloc(dmm)
   dmin2=dmm(iloc(1))
   xsnr=-24.
-  if(pbest.gt.0.0) xsnr=db(pbest/50.0) - 24.0
+  arg=pbest/xbase/3.0e6-1.0
+  if(arg.gt.0.0) xsnr=db(arg)-27.0
 !  write(41,3041) nharderrors,dmin,dmin2,dmin2/dmin,xsnr,trim(msgbest)
 !3041 format(i3,2f7.1,f7.2,f7.1,1x,a)
   if(dmin.gt.100.0 .or. dmin2/dmin.lt.1.3) nharderrors=-1
