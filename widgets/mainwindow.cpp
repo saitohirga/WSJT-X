@@ -851,6 +851,9 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
     auto dBm = int ((10. * i / 3.) + .5);
     ui->TxPowerComboBox->addItem (QString {"%1 dBm  %2"}.arg (dBm).arg (power[i]), dBm);
   }
+  ui->respondComboBox->addItem("CQ: None");
+  ui->respondComboBox->addItem("CQ: First");
+  ui->respondComboBox->addItem("CQ: Max Pts");
 
   m_dateTimeRcvdRR73=QDateTime::currentDateTimeUtc();
   m_dateTimeSentTx3=QDateTime::currentDateTimeUtc();
@@ -1122,7 +1125,7 @@ void MainWindow::writeSettings()
   m_settings->setValue ("MsgAvgDisplayed", m_msgAvgWidget && m_msgAvgWidget->isVisible ());
   m_settings->setValue ("FoxLogDisplayed", m_foxLogWindow && m_foxLogWindow->isVisible ());
   m_settings->setValue ("ContestLogDisplayed", m_contestLogWindow && m_contestLogWindow->isVisible ());
-  m_settings->setValue("CallFirst",ui->cbFirst->isChecked());
+  m_settings->setValue("RespondCQ",ui->respondComboBox->currentIndex());
   m_settings->setValue("HoundSort",ui->comboBoxHoundSort->currentIndex());
   m_settings->setValue("FoxNlist",ui->sbNlist->value());
   m_settings->setValue("FoxNslots",ui->sbNslots->value());
@@ -1198,7 +1201,7 @@ void MainWindow::writeSettings()
 void MainWindow::readSettings()
 {
   ui->cbAutoSeq->setVisible(false);
-  ui->cbFirst->setVisible(false);
+  ui->respondComboBox->setVisible(false);
   m_settings->beginGroup("MainWindow");
   std::array<QByteArray, 3> the_geometries;
   the_geometries[0] = m_settings->value ("geometry", saveGeometry ()).toByteArray ();
@@ -1220,7 +1223,7 @@ void MainWindow::readSettings()
   auto displayMsgAvg = m_settings->value ("MsgAvgDisplayed", false).toBool ();
   auto displayFoxLog = m_settings->value ("FoxLogDisplayed", false).toBool ();
   auto displayContestLog = m_settings->value ("ContestLogDisplayed", false).toBool ();
-  ui->cbFirst->setChecked(m_settings->value("CallFirst",true).toBool());
+  ui->respondComboBox->setCurrentIndex(m_settings->value("RespondCQ",0).toInt());
   ui->comboBoxHoundSort->setCurrentIndex(m_settings->value("HoundSort",3).toInt());
   ui->sbNlist->setValue(m_settings->value("FoxNlist",12).toInt());
   m_Nslots=m_settings->value("FoxNslots",5).toInt();
@@ -1953,13 +1956,13 @@ void MainWindow::on_autoButton_clicked (bool checked)
 {
   m_auto = checked;
   if (checked
-      && ui->cbFirst->isVisible () && ui->cbFirst->isChecked()
+      && ui->respondComboBox->isVisible () && ui->respondComboBox->currentText() != "CQ: None"
       && CALLING == m_QSOProgress) {
     m_bAutoReply = false;         // ready for next
     m_bCallingCQ = true;        // allows tail-enders to be picked up
-    ui->cbFirst->setStyleSheet ("QCheckBox{color:red}");
+    ui->respondComboBox->setStyleSheet ("QCheckBox{color:red}");
   } else {
-    ui->cbFirst->setStyleSheet("");
+    ui->respondComboBox->setStyleSheet("");
   }
   if (!checked) m_bCallingCQ = false;
   statusUpdate ();
@@ -2021,12 +2024,14 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       on_pbBestSP_clicked();
     }
   return;
+  /*
     case Qt::Key_C:
       if(m_mode=="FT4" && e->modifiers() & Qt::AltModifier) {
         bool b=ui->cbFirst->isChecked();
         ui->cbFirst->setChecked(!b);
       }
     return;
+  */
     case Qt::Key_D:
       if(m_mode != "WSPR" && e->modifiers() & Qt::ShiftModifier) {
         if(!m_decoderBusy) {
@@ -2085,8 +2090,8 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       }
     case Qt::Key_F6:
       if(bAltF1F6) {
-        bool b=ui->cbFirst->isChecked();
-        ui->cbFirst->setChecked(!b);
+//        bool b=ui->cbFirst->isChecked();
+//        ui->cbFirst->setChecked(!b);
       } else {
         if(e->modifiers() & Qt::ShiftModifier) {
           on_actionDecode_remaining_files_in_directory_triggered();

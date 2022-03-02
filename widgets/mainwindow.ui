@@ -832,6 +832,19 @@ When not checked you can view the calibration results.</string>
                      </widget>
                     </item>
                     <item>
+                     <widget class="QComboBox" name="respondComboBox">
+                      <property name="currentText">
+                       <string/>
+                      </property>
+                      <property name="currentIndex">
+                       <number>-1</number>
+                      </property>
+                      <property name="maxVisibleItems">
+                       <number>3</number>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
                      <widget class="QCheckBox" name="cbFirst">
                       <property name="toolTip">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to call the first decoded responder to my CQ.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
