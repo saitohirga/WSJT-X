@@ -281,7 +281,7 @@ private slots:
   void on_cbTx6_toggled(bool b);
   void on_cbMenus_toggled(bool b);
   void on_cbCQonly_toggled(bool b);
-  void on_cbFirst_toggled(bool b);
+  void on_respondComboBox_currentIndexChanged (int n);
   void on_cbAutoSeq_toggled(bool b);
   void networkError (QString const&);
   void on_ClrAvgButton_clicked();
@@ -489,6 +489,7 @@ private:
   qint32  m_earlyDecode=41;
   qint32  m_earlyDecode2=47;
   qint32  m_nDecodes=0;
+  qint32  m_maxPoints=-1;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;

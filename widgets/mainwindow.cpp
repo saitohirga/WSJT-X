@@ -1955,11 +1955,12 @@ void MainWindow::on_actionAbout_triggered()                  //Display "About"
 void MainWindow::on_autoButton_clicked (bool checked)
 {
   m_auto = checked;
+  m_maxPoints=-1;
   if (checked
       && ui->respondComboBox->isVisible () && ui->respondComboBox->currentText() != "CQ: None"
       && CALLING == m_QSOProgress) {
     m_bAutoReply = false;         // ready for next
-    m_bCallingCQ = true;        // allows tail-enders to be picked up
+    m_bCallingCQ = true;          // allows tail-enders to be picked up
     ui->respondComboBox->setStyleSheet ("QCheckBox{color:red}");
   } else {
     ui->respondComboBox->setStyleSheet("");
@@ -2024,14 +2025,14 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       on_pbBestSP_clicked();
     }
   return;
-  /*
     case Qt::Key_C:
-      if(m_mode=="FT4" && e->modifiers() & Qt::AltModifier) {
-        bool b=ui->cbFirst->isChecked();
-        ui->cbFirst->setChecked(!b);
+//    if(m_mode=="FT4" && e->modifiers() & Qt::AltModifier) {
+    if(e->modifiers() & Qt::AltModifier) {
+        int n=ui->respondComboBox->currentIndex()+1;
+        if(n>2) n=0;
+        ui->respondComboBox->setCurrentIndex(n);
       }
     return;
-  */
     case Qt::Key_D:
       if(m_mode != "WSPR" && e->modifiers() & Qt::ShiftModifier) {
         if(!m_decoderBusy) {
@@ -2090,8 +2091,9 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
       }
     case Qt::Key_F6:
       if(bAltF1F6) {
-//        bool b=ui->cbFirst->isChecked();
-//        ui->cbFirst->setChecked(!b);
+        int n=ui->respondComboBox->currentIndex()+1;
+        if(n>2) n=0;
+        ui->respondComboBox->setCurrentIndex(n);
       } else {
         if(e->modifiers() & Qt::ShiftModifier) {
           on_actionDecode_remaining_files_in_directory_triggered();
@@ -3315,11 +3317,8 @@ void MainWindow::decodeDone ()
     mswait = 1000.0 * ( 1.6 * m_TRperiod - tdone );
   }
   m_bDecoded=m_nDecodes>0;
-//  qDebug() << "aa 3316" << m_saveDecoded << m_saveAll << m_bDecoded << m_nDecodes
-//           << m_TRperiod << tdone << mswait;
   if(!m_diskData and !m_saveAll) {
     if(m_saveDecoded and (m_nDecodes==0)) {
-//      qDebug() << "bb 3319" << mswait;
       killFileTimer.start(mswait); //Kill at 3/4 period
     }
   }
@@ -3513,29 +3512,40 @@ void MainWindow::readFromStdout()                             //readFromStdout
         if (parts.size() > 6) {
           auto for_us = parts[5].contains (m_baseCall)
             || ("DE" == parts[5] && qAbs (ui->RxFreqSpinBox->value () - audioFreq) <= ftol);
-          if(m_baseCall == m_config.my_callsign())
-            {
-              if (m_baseCall != parts[5])
-                {
-                  for_us=false;
-                }
+          if(m_baseCall == m_config.my_callsign()) {
+            if (m_baseCall != parts[5]) for_us=false;
+          } else {
+            if (m_config.my_callsign () != parts[5]) {
+// Same base call as ours but different prefix or suffix.  Rare but can happen with
+// multi-station special events.
+                  for_us = false;
             }
-          else
-            {
-              if (m_config.my_callsign () != parts[5])
-                {
-                  for_us = false; // same base call as ours but
-                                  // different prefix or suffix, rare
-                                  // but can happen with multi station
-                                  // special events
-                }
+          }
+          qDebug() << "aa" << m_bCallingCQ << m_bAutoReply << for_us;
+          if(m_bCallingCQ && !m_bAutoReply && for_us && SpecOp::FOX > m_config.special_op_id()) {
+            if(ui->respondComboBox->currentText()=="CQ: First") {
+              m_bDoubleClicked=true;
+              m_bAutoReply = true;
+              processMessage (decodedtext);
+              ui->respondComboBox->setStyleSheet("");
             }
-          if(m_bCallingCQ && !m_bAutoReply && for_us && ui->cbFirst->isChecked() and
-             SpecOp::FOX > m_config.special_op_id()) {
-            m_bDoubleClicked=true;
-            m_bAutoReply = true;
-            if(SpecOp::FOX != m_config.special_op_id()) processMessage (decodedtext);
-            ui->cbFirst->setStyleSheet("");
+            qDebug() << "bb" << m_bCallingCQ << m_bAutoReply << for_us;
+            if(ui->respondComboBox->currentText()=="CQ: Max Pts") {
+              QString deCall;
+              QString deGrid;
+              decodedtext.deCallAndGrid(/*out*/deCall,deGrid);
+              if(deGrid!="") {
+                double utch=0.0;
+                int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter;
+                azdist_(const_cast <char *> ((m_config.my_grid () + "      ").left (6).toLatin1 ().constData ()),
+                        const_cast <char *> ((deGrid + "      ").left(6).toLatin1 ().constData ()),&utch,
+                        &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,(FCL)6,(FCL)6);
+                int npts=int((500+nDkm)/500);
+                if(npts>m_maxPoints) m_maxPoints=npts;
+                qDebug() << "cc" << decodedtext.string().mid(24,-1).trimmed()
+                         << deGrid << nDkm << npts << m_maxPoints;
+              }
+            }
           }
           if(SpecOp::FOX==m_config.special_op_id() and decodedtext.string().contains(" DE ")) for_us=true; //Hound with compound callsign
           if(SpecOp::FOX==m_config.special_op_id() and for_us and (audioFreq<1000)) bDisplayRight=true;
@@ -3755,7 +3765,6 @@ void MainWindow::pskPost (DecodedText const& decodedtext)
 
 void MainWindow::killFile ()
 {
-//  qDebug() << "cc 3725" << m_saveDecoded << m_saveAll << m_bDecoded << m_nDecodes << m_fnameWE;
   if (m_fnameWE.size () && !(m_saveAll || (m_saveDecoded && m_bDecoded))) {
     QFile f1 {m_fnameWE + ".wav"};
     if(f1.exists()) f1.remove();
@@ -4188,11 +4197,12 @@ void MainWindow::guiUpdate()
     }
     m_bCallingCQ = 6 == m_ntx
       || m_currentMessage.contains (QRegularExpression {"^(CQ|QRZ) "});
+    m_maxPoints=-1;
     if(m_mode=="FT8" or m_mode=="FT4") {
-      if(m_bCallingCQ && ui->cbFirst->isVisible () && ui->cbFirst->isChecked ()) {
-        ui->cbFirst->setStyleSheet("QCheckBox{color:red}");
+      if(m_bCallingCQ && ui->respondComboBox->isVisible() && ui->respondComboBox->currentText()!="None") {
+        ui->respondComboBox->setStyleSheet("QCheckBox{color:red}");
       } else {
-        ui->cbFirst->setStyleSheet("");
+        ui->respondComboBox->setStyleSheet("");
       }
     }
 
@@ -4485,7 +4495,7 @@ void MainWindow::startTx2()
     if(snr>0.0 or snr < -50.0) snr=99.0;
     if((m_ntx==6 or m_ntx==7) and m_config.force_call_1st()) {
       ui->cbAutoSeq->setChecked(true);
-      ui->cbFirst->setChecked(true);
+      ui->respondComboBox->setCurrentIndex(1);
     }
     transmit (snr);
     ui->signal_meter_widget->setValue(0,0);
@@ -5214,6 +5224,7 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
   }
   // if we get here then we are reacting to the message
   if (m_bAutoReply) m_bCallingCQ = CALLING == m_QSOProgress;
+  m_maxPoints=-1;
   if (ui->RxFreqSpinBox->isEnabled () and m_mode != "MSK144" and !shift) {
     ui->RxFreqSpinBox->setValue (frequency);    //Set Rx freq
   }
@@ -6092,7 +6103,7 @@ void MainWindow::displayWidgets(qint64 n)
     if(i==24) ui->actionEnable_AP_FT8->setVisible (b);
     if(i==25) ui->actionEnable_AP_JT65->setVisible (b);
     if(i==26) ui->actionEnable_AP_DXcall->setVisible (b);
-    if(i==27) ui->cbFirst->setVisible(b);
+    if(i==27) ui->respondComboBox->setVisible(b);
     // if(i==28) ui->labNextCall->setVisible(b);
     if(i==29) ui->measure_check_box->setVisible(b);
     if(i==30) ui->labDXped->setVisible(b);
@@ -7122,7 +7133,8 @@ void MainWindow::on_stopTxButton_clicked()                    //Stop Tx
   m_btxok=false;
   m_bCallingCQ = false;
   m_bAutoReply = false;         // ready for next
-  ui->cbFirst->setStyleSheet ("");
+  m_maxPoints=-1;
+  ui->respondComboBox->setStyleSheet ("");
 }
 
 void MainWindow::rigOpen ()
@@ -7985,8 +7997,7 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
       }
       m_nWSPRdecodes=0;
       ui->DecodeButton->setChecked (false);
-      if (m_uploadWSPRSpots
-          && m_config.is_transceiver_online ()) { // need working rig control
+      if(m_uploadWSPRSpots && m_config.is_transceiver_online()) { // need working rig control
 #if QT_VERSION >= QT_VERSION_CHECK (5, 15, 0)
         uploadTimer.start(QRandomGenerator::global ()->bounded (0, 20000)); // Upload delay
 #else
@@ -8001,7 +8012,6 @@ void MainWindow::p1ReadFromStdout()                        //p1readFromStdout
       m_decoderBusy = false;
       statusUpdate ();
     } else {
-
       int n=t.length();
       t=t.mid(0,n-2) + "                                                  ";
       t.remove(QRegExp("\\s+$"));
@@ -8559,21 +8569,21 @@ void MainWindow::on_cbCQonly_toggled(bool)
   decodeBusy(true);
 }
 
-void MainWindow::on_cbFirst_toggled(bool b)
+void MainWindow::on_respondComboBox_currentIndexChanged (int n)
 {
-  if (b) {
-    if (m_auto && CALLING == m_QSOProgress) {
-      ui->cbFirst->setStyleSheet ("QCheckBox{color:red}");
+  if(n>0) {
+    if(m_auto && m_QSOProgress == CALLING) {
+      ui->respondComboBox->setStyleSheet ("QCheckBox{color:red}");
     }
   } else {
-    ui->cbFirst->setStyleSheet ("");
+    ui->respondComboBox->setStyleSheet ("");
   }
 }
 
 void MainWindow::on_cbAutoSeq_toggled(bool b)
 {
-  if(!b) ui->cbFirst->setChecked(false);
-  ui->cbFirst->setVisible((m_mode=="FT8" or m_mode=="FT4" or m_mode=="FST4"
+//  if(!b) ui->cbFirst->setChecked(false);
+  ui->respondComboBox->setVisible((m_mode=="FT8" or m_mode=="FT4" or m_mode=="FST4"
                            or m_mode=="Q65") and b);
 }
 
@@ -9318,10 +9328,10 @@ void MainWindow::chkFT4()
 {
   if(m_mode!="FT4") return;
   ui->cbAutoSeq->setEnabled(true);
-  ui->cbFirst->setVisible(true);
-  ui->cbFirst->setEnabled(true);
+  ui->respondComboBox->setVisible(true);
+  ui->respondComboBox->setEnabled(true);
   ui->labDXped->setVisible(m_config.special_op_id()!=SpecOp::NONE);
-  ui->cbFirst->setVisible(ui->cbAutoSeq->isChecked());
+  ui->respondComboBox->setVisible(ui->cbAutoSeq->isChecked());
 
   if (SpecOp::NONE < m_config.special_op_id () && SpecOp::FOX > m_config.special_op_id ()) {
     QString t0="";
