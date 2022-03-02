@@ -253,7 +253,7 @@ contains
               index(grid4,'-').gt.0) grid4='    '         
          xdt=dt0(i,jseq,0)
          f1=f0(i,jseq,0)
-         xbase=10.0**(0.1*(sbase(nint(f1/3.125))-40.0))
+         xbase=10.0**(0.1*(sbase(max(1,nint(f1/3.125)))-40.0))
          msg37='                                     '
          call timer('ft8_a7d ',0)
          call ft8_a7d(dd,newdat,call_1,call_2,grid4,xdt,f1,xbase,nharderrors,   &
