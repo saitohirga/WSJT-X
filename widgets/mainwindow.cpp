@@ -1961,9 +1961,9 @@ void MainWindow::on_autoButton_clicked (bool checked)
       && CALLING == m_QSOProgress) {
     m_bAutoReply = false;         // ready for next
     m_bCallingCQ = true;          // allows tail-enders to be picked up
-    ui->respondComboBox->setStyleSheet ("QCheckBox{color:red}");
+//    ui->respondComboBox->setBackgroundRole(QPalette::BrightText);
   } else {
-    ui->respondComboBox->setStyleSheet("");
+//    ui->respondComboBox->setBackgroundRole(QPalette::Text);
   }
   if (!checked) m_bCallingCQ = false;
   statusUpdate ();
@@ -3521,15 +3521,13 @@ void MainWindow::readFromStdout()                             //readFromStdout
                   for_us = false;
             }
           }
-          qDebug() << "aa" << m_bCallingCQ << m_bAutoReply << for_us;
           if(m_bCallingCQ && !m_bAutoReply && for_us && SpecOp::FOX > m_config.special_op_id()) {
             if(ui->respondComboBox->currentText()=="CQ: First") {
               m_bDoubleClicked=true;
               m_bAutoReply = true;
               processMessage (decodedtext);
-              ui->respondComboBox->setStyleSheet("");
+//              ui->respondComboBox->setBackgroundRole(QPalette::Text);
             }
-            qDebug() << "bb" << m_bCallingCQ << m_bAutoReply << for_us;
             if(ui->respondComboBox->currentText()=="CQ: Max Pts") {
               QString deCall;
               QString deGrid;
@@ -3541,9 +3539,21 @@ void MainWindow::readFromStdout()                             //readFromStdout
                         const_cast <char *> ((deGrid + "      ").left(6).toLatin1 ().constData ()),&utch,
                         &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,(FCL)6,(FCL)6);
                 int npts=int((500+nDkm)/500);
-                if(npts>m_maxPoints) m_maxPoints=npts;
-                qDebug() << "cc" << decodedtext.string().mid(24,-1).trimmed()
-                         << deGrid << nDkm << npts << m_maxPoints;
+//                qDebug() << "aa" << decodedtext.string().mid(24,-1).trimmed()
+//                         << deGrid << nDkm << npts << m_maxPoints;
+                if(npts>m_maxPoints) {
+                  m_maxPoints=npts;
+                  m_deCall=deCall;
+                  m_deGrid=deGrid;
+                  m_bDoubleClicked=true;
+//                  m_bAutoReply = true;
+//                  qDebug() << "bb" << m_bDoubleClicked << m_bAutoReply;
+                  ui->dxCallEntry->setText(deCall);
+                  ui->dxGridEntry->setText(deGrid);
+                  genStdMsgs("-10");
+                  setTxMsg(3);
+                }
+//                qDebug() << "cc" << m_deCall << m_deGrid << npts << m_maxPoints;
               }
             }
           }
@@ -4200,9 +4210,9 @@ void MainWindow::guiUpdate()
     m_maxPoints=-1;
     if(m_mode=="FT8" or m_mode=="FT4") {
       if(m_bCallingCQ && ui->respondComboBox->isVisible() && ui->respondComboBox->currentText()!="None") {
-        ui->respondComboBox->setStyleSheet("QCheckBox{color:red}");
+//        ui->respondComboBox->setBackgroundRole(QPalette::BrightText);
       } else {
-        ui->respondComboBox->setStyleSheet("");
+//        ui->respondComboBox->setBackgroundRole(QPalette::Text);
       }
     }
 
@@ -7134,7 +7144,7 @@ void MainWindow::on_stopTxButton_clicked()                    //Stop Tx
   m_bCallingCQ = false;
   m_bAutoReply = false;         // ready for next
   m_maxPoints=-1;
-  ui->respondComboBox->setStyleSheet ("");
+//  ui->respondComboBox->setBackgroundRole(QPalette::Text);
 }
 
 void MainWindow::rigOpen ()
@@ -7370,6 +7380,13 @@ void MainWindow::transmit (double snr)
            4096.0*12000.0/11025.0, ui->TxFreqSpinBox->value () - m_XIT,
            toneSpacing, m_soundOutput, m_config.audio_output_channel (),
            true, false, snr, m_TRperiod);
+  }
+
+  if((m_mode=="FT4" or m_mode=="FT8") and m_maxPoints>0 and SpecOp::NA_VHF==m_config.special_op_id()) {
+    qDebug() << "dd" << m_maxPoints << m_deCall << m_deGrid;
+    ui->dxCallEntry->setText(m_deCall);
+    ui->dxGridEntry->setText(m_deGrid);
+    genStdMsgs("-10");
   }
 
   if (m_mode == "FT8") {
@@ -8573,10 +8590,10 @@ void MainWindow::on_respondComboBox_currentIndexChanged (int n)
 {
   if(n>0) {
     if(m_auto && m_QSOProgress == CALLING) {
-      ui->respondComboBox->setStyleSheet ("QCheckBox{color:red}");
+//      ui->respondComboBox->setBackgroundRole(QPalette::BrightText);
     }
   } else {
-    ui->respondComboBox->setStyleSheet ("");
+//    ui->respondComboBox->setBackgroundRole(QPalette::Text);
   }
 }
 

@@ -641,6 +641,8 @@ private:
   QString m_fileDateTime;
   QString m_inQSOwith;
   QString m_BestCQpriority;
+  QString m_deCall;
+  QString m_deGrid;
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;
