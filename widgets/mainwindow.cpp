@@ -1021,6 +1021,9 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   }
 
   ui->pbBestSP->setVisible(m_mode=="FT4");
+  int n=ui->respondComboBox->currentIndex();
+  if(m_config.special_op_id()!=SpecOp::NA_VHF and n>1) n=0;
+  ui->respondComboBox->setCurrentIndex(n);
 
 // this must be the last statement of constructor
   if (!m_valid) throw std::runtime_error {"Fatal initialization exception"};
@@ -1907,6 +1910,9 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       MessageBox::information_message (this,
           "Fox-and-Hound operation is available only in FT8 mode.\nGo back and change your selection.");
     }
+    int n=ui->respondComboBox->currentIndex();
+    if(m_config.special_op_id()!=SpecOp::NA_VHF and n>1) n=1;
+    ui->respondComboBox->setCurrentIndex(n);
   }
 }
 
@@ -3535,15 +3541,11 @@ void MainWindow::readFromStdout()                             //readFromStdout
                         const_cast <char *> ((deGrid + "      ").left(6).toLatin1 ().constData ()),&utch,
                         &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,(FCL)6,(FCL)6);
                 int npts=int((500+nDkm)/500);
-//                qDebug() << "aa" << decodedtext.string().mid(24,-1).trimmed()
-//                         << deGrid << nDkm << npts << m_maxPoints;
                 if(npts>m_maxPoints) {
                   m_maxPoints=npts;
                   m_deCall=deCall;
                   m_deGrid=deGrid;
                   m_bDoubleClicked=true;
-//                  m_bAutoReply = true;
-//                  qDebug() << "bb" << m_bDoubleClicked << m_bAutoReply;
                   ui->dxCallEntry->setText(deCall);
                   ui->dxGridEntry->setText(deGrid);
                   genStdMsgs("-10");
@@ -8574,9 +8576,16 @@ void MainWindow::on_cbCQonly_toggled(bool)
   decodeBusy(true);
 }
 
+void MainWindow::on_respondComboBox_currentIndexChanged (int n)
+{
+  if(m_config.special_op_id()!=SpecOp::NA_VHF and n==2) {
+    ui->respondComboBox->setCurrentIndex(1);
+    MessageBox::warning_message (this, tr ("\"CQ: Max Pts\" is available only\n in NA VHF contest mode."));\
+  }
+}
+
 void MainWindow::on_cbAutoSeq_toggled(bool b)
 {
-//  if(!b) ui->cbFirst->setChecked(false);
   ui->respondComboBox->setVisible((m_mode=="FT8" or m_mode=="FT4" or m_mode=="FST4"
                            or m_mode=="Q65") and b);
 }
