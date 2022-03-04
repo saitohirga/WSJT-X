@@ -1961,9 +1961,6 @@ void MainWindow::on_autoButton_clicked (bool checked)
       && CALLING == m_QSOProgress) {
     m_bAutoReply = false;         // ready for next
     m_bCallingCQ = true;          // allows tail-enders to be picked up
-//    ui->respondComboBox->setBackgroundRole(QPalette::BrightText);
-  } else {
-//    ui->respondComboBox->setBackgroundRole(QPalette::Text);
   }
   if (!checked) m_bCallingCQ = false;
   statusUpdate ();
@@ -3526,7 +3523,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
               m_bDoubleClicked=true;
               m_bAutoReply = true;
               processMessage (decodedtext);
-//              ui->respondComboBox->setBackgroundRole(QPalette::Text);
             }
             if(ui->respondComboBox->currentText()=="CQ: Max Pts") {
               QString deCall;
@@ -4208,13 +4204,6 @@ void MainWindow::guiUpdate()
     m_bCallingCQ = 6 == m_ntx
       || m_currentMessage.contains (QRegularExpression {"^(CQ|QRZ) "});
     m_maxPoints=-1;
-    if(m_mode=="FT8" or m_mode=="FT4") {
-      if(m_bCallingCQ && ui->respondComboBox->isVisible() && ui->respondComboBox->currentText()!="None") {
-//        ui->respondComboBox->setBackgroundRole(QPalette::BrightText);
-      } else {
-//        ui->respondComboBox->setBackgroundRole(QPalette::Text);
-      }
-    }
 
     if (m_tune) {
       m_currentMessage = "TUNE";
@@ -7144,7 +7133,6 @@ void MainWindow::on_stopTxButton_clicked()                    //Stop Tx
   m_bCallingCQ = false;
   m_bAutoReply = false;         // ready for next
   m_maxPoints=-1;
-//  ui->respondComboBox->setBackgroundRole(QPalette::Text);
 }
 
 void MainWindow::rigOpen ()
@@ -8584,17 +8572,6 @@ void MainWindow::on_cbCQonly_toggled(bool)
 {  //Fix this -- no decode here?
   to_jt9(m_ihsym,1,-1);                //Send m_ihsym to jt9[.exe] and start decoding
   decodeBusy(true);
-}
-
-void MainWindow::on_respondComboBox_currentIndexChanged (int n)
-{
-  if(n>0) {
-    if(m_auto && m_QSOProgress == CALLING) {
-//      ui->respondComboBox->setBackgroundRole(QPalette::BrightText);
-    }
-  } else {
-//    ui->respondComboBox->setBackgroundRole(QPalette::Text);
-  }
 }
 
 void MainWindow::on_cbAutoSeq_toggled(bool b)
