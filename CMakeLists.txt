@@ -274,6 +274,7 @@ set (wsjtx_CXXSRCS
   widgets/about.cpp
   widgets/astro.cpp
   widgets/messageaveraging.cpp
+  widgets/arrl_digi.cpp
   widgets/colorhighlighting.cpp
   WSPR/WsprTxScheduler.cpp
   widgets/mainwindow.cpp
@@ -651,6 +652,7 @@ set (wsjtx_UISRCS
   widgets/echograph.ui
   widgets/fastgraph.ui
   widgets/messageaveraging.ui
+  widgets/arrl_digi.ui
   widgets/widegraph.ui
   widgets/logqso.ui
   Configuration.ui

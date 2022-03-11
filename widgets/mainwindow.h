@@ -78,6 +78,7 @@ class WideGraph;
 class LogQSO;
 class Transceiver;
 class MessageAveraging;
+class ARRL_Digi;
 class FoxLogWindow;
 class CabrilloLogWindow;
 class ColorHighlighting;
@@ -267,6 +268,7 @@ private slots:
   void stopTuneATU();
   void auto_tx_mode(bool);
   void on_actionMessage_averaging_triggered();
+  void on_actionARRL_Intl_Digi_triggered();
   void on_contest_log_action_triggered ();
   void on_fox_log_action_triggered ();
   void on_actionColors_triggered();
@@ -398,6 +400,7 @@ private:
   QScopedPointer<HelpTextWindow> m_prefixes;
   QScopedPointer<HelpTextWindow> m_mouseCmnds;
   QScopedPointer<MessageAveraging> m_msgAvgWidget;
+  QScopedPointer<ARRL_Digi> m_ARRL_DigiWidget;
   QScopedPointer<FoxLogWindow> m_foxLogWindow;
   QScopedPointer<CabrilloLogWindow> m_contestLogWindow;
   QScopedPointer<ColorHighlighting> m_colorHighlighting;

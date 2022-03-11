@@ -60,6 +60,7 @@
 #include "fastgraph.h"
 #include "about.h"
 #include "messageaveraging.h"
+#include "arrl_digi.h"
 #include "colorhighlighting.h"
 #include "widegraph.h"
 #include "sleep.h"
@@ -2753,6 +2754,19 @@ void MainWindow::on_actionMessage_averaging_triggered()
   m_msgAvgWidget->showNormal();
   m_msgAvgWidget->raise();
   m_msgAvgWidget->activateWindow();
+}
+
+void MainWindow::on_actionARRL_Intl_Digi_triggered()
+{
+  if(m_ARRL_DigiWidget == NULL) {
+    m_ARRL_DigiWidget.reset (new ARRL_Digi {m_settings, m_config.decoded_text_font ()});
+
+    // Connect signals from Message Averaging window
+    connect (this, &MainWindow::finished, m_ARRL_DigiWidget.data (), &ARRL_Digi::close);
+  }
+  m_ARRL_DigiWidget->showNormal();
+  m_ARRL_DigiWidget->raise();
+  m_ARRL_DigiWidget->activateWindow();
 }
 
 void MainWindow::on_actionOpen_triggered()                     //Open File
