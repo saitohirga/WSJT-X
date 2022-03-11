@@ -2758,15 +2758,15 @@ void MainWindow::on_actionMessage_averaging_triggered()
 
 void MainWindow::on_actionARRL_Intl_Digi_triggered()
 {
-  if(m_ARRL_DigiWidget == NULL) {
-    m_ARRL_DigiWidget.reset (new ARRL_Digi {m_settings, m_config.decoded_text_font ()});
+  if(m_ActiveStationsWidget == NULL) {
+    m_ActiveStationsWidget.reset (new ActiveStations {m_settings, m_config.decoded_text_font ()});
 
     // Connect signals from Message Averaging window
-    connect (this, &MainWindow::finished, m_ARRL_DigiWidget.data (), &ARRL_Digi::close);
+    connect (this, &MainWindow::finished, m_ActiveStationsWidget.data (), &ActiveStations::close);
   }
-  m_ARRL_DigiWidget->showNormal();
-  m_ARRL_DigiWidget->raise();
-  m_ARRL_DigiWidget->activateWindow();
+  m_ActiveStationsWidget->showNormal();
+  m_ActiveStationsWidget->raise();
+  m_ActiveStationsWidget->activateWindow();
 }
 
 void MainWindow::on_actionOpen_triggered()                     //Open File

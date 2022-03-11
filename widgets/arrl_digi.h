@@ -8,18 +8,18 @@ class QSettings;
 class QFont;
 
 namespace Ui {
-  class ARRL_Digi;
+  class ActiveStations;
 }
 
-class ARRL_Digi
+class ActiveStations
   : public QWidget
 {
   Q_OBJECT
 
 public:
-  explicit ARRL_Digi(QSettings *, QFont const&, QWidget * parent = 0);
-  ~ARRL_Digi();
-  void displayARRL_Digi(QString const&);
+  explicit ActiveStations(QSettings *, QFont const&, QWidget * parent = 0);
+  ~ActiveStations();
+  void displayActiveStations(QString const&);
   void changeFont (QFont const&);
 
 private:
@@ -28,7 +28,7 @@ private:
   void setContentFont (QFont const&);
   QSettings * settings_;
 
-  QScopedPointer<Ui::ARRL_Digi> ui;
+  QScopedPointer<Ui::ActiveStations> ui;
 };
 
 #endif

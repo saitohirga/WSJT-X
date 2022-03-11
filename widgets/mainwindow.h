@@ -78,7 +78,7 @@ class WideGraph;
 class LogQSO;
 class Transceiver;
 class MessageAveraging;
-class ARRL_Digi;
+class ActiveStations;
 class FoxLogWindow;
 class CabrilloLogWindow;
 class ColorHighlighting;
@@ -400,7 +400,7 @@ private:
   QScopedPointer<HelpTextWindow> m_prefixes;
   QScopedPointer<HelpTextWindow> m_mouseCmnds;
   QScopedPointer<MessageAveraging> m_msgAvgWidget;
-  QScopedPointer<ARRL_Digi> m_ARRL_DigiWidget;
+  QScopedPointer<ActiveStations> m_ActiveStationsWidget;
   QScopedPointer<FoxLogWindow> m_foxLogWindow;
   QScopedPointer<CabrilloLogWindow> m_contestLogWindow;
   QScopedPointer<ColorHighlighting> m_colorHighlighting;
