@@ -16,7 +16,7 @@ ActiveStations::ActiveStations(QSettings * settings, QFont const& font, QWidget 
   ui(new Ui::ActiveStations)
 {
   ui->setupUi(this);
-  setWindowTitle (QApplication::applicationName () + " - " + tr ("ARRL International Digital Contest"));
+  setWindowTitle (QApplication::applicationName () + " - " + tr ("Active Stations"));
   ui->ActiveStationsPlainTextEdit->setReadOnly (true);
   changeFont (font);
   read_settings ();

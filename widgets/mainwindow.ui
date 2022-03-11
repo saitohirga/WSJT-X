@@ -3630,7 +3630,7 @@ QLabel[oob=&quot;true&quot;] {
   </action>
   <action name="actionARRL_Intl_Digi">
    <property name="text">
-    <string>ARRL Intl Digi Contest</string>
+    <string>Active Stations</string>
    </property>
   </action>
  </widget>
