@@ -20,7 +20,7 @@ ARRL_Digi::ARRL_Digi(QSettings * settings, QFont const& font, QWidget *parent) :
   ui->ARRL_DigiPlainTextEdit->setReadOnly (true);
   changeFont (font);
   read_settings ();
-  ui->header_label->setText("Points Call   Grid  Az    S/N    Freq  Band");
+  ui->header_label->setText("Pts  Call   Grid  Az    S/N   Dial  Freq");
 }
 
 ARRL_Digi::~ARRL_Digi()

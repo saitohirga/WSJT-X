@@ -673,6 +673,18 @@ private:
   };
   QMap<QString,FixupQSO> m_fixupQSO;       //Key = HoundCall, value = info for QSO in progress
 
+  struct ActiveStation
+  {
+    QString grid4;
+    qint32 az;
+    qint32 snr;
+    qint64 dialFreq;
+    qint32 audioFreq;
+    qint32 points;
+    QDateTime decodeTime;
+  };
+  QMap<QString,ActiveStation> m_activeStation;
+
   QQueue<QString> m_houndQueue;        //Selected Hounds available for starting a QSO
   QQueue<QString> m_foxQSOinProgress;  //QSOs in progress: Fox has sent a report
   QQueue<qint64>  m_foxRateQueue;
