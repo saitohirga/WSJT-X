@@ -1,4 +1,4 @@
-#include "arrl_digi.h"
+#include "activeStations.h"
 
 #include <QSettings>
 #include <QApplication>
@@ -6,9 +6,9 @@
 
 #include "SettingsGroup.hpp"
 #include "qt_helpers.hpp"
-#include "ui_arrl_digi.h"
+#include "ui_activeStations.h"
 
-#include "moc_arrl_digi.cpp"
+#include "moc_activeStations.cpp"
 
 ActiveStations::ActiveStations(QSettings * settings, QFont const& font, QWidget *parent) :
   QWidget(parent),

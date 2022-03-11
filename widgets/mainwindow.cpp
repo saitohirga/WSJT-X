@@ -60,7 +60,7 @@
 #include "fastgraph.h"
 #include "about.h"
 #include "messageaveraging.h"
-#include "arrl_digi.h"
+#include "activeStations.h"
 #include "colorhighlighting.h"
 #include "widegraph.h"
 #include "sleep.h"
