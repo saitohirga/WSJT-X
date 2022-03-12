@@ -3016,7 +3016,7 @@ QLabel[oob=&quot;true&quot;] {
     <addaction name="fox_log_action"/>
     <addaction name="actionColors"/>
     <addaction name="actionSWL_Mode"/>
-    <addaction name="actionARRL_Intl_Digi"/>
+    <addaction name="actionActiveStations"/>
    </widget>
    <widget class="QMenu" name="menuDecode">
     <property name="title">
@@ -3628,7 +3628,7 @@ QLabel[oob=&quot;true&quot;] {
     <string>Disable writing of ALL.TXT</string>
    </property>
   </action>
-  <action name="actionARRL_Intl_Digi">
+  <action name="actionActiveStations">
    <property name="text">
     <string>Active Stations</string>
    </property>

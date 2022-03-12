@@ -2756,7 +2756,7 @@ void MainWindow::on_actionMessage_averaging_triggered()
   m_msgAvgWidget->activateWindow();
 }
 
-void MainWindow::on_actionARRL_Intl_Digi_triggered()
+void MainWindow::on_actionActiveStations_triggered()
 {
   if(m_ActiveStationsWidget == NULL) {
     m_ActiveStationsWidget.reset (new ActiveStations {m_settings, m_config.decoded_text_font ()});
