@@ -2632,7 +2632,7 @@ Right click for insert and delete options.</string>
              <string>NA VHF Contest</string>
             </property>
             <property name="text">
-             <string>NA VHF, ARRL Digi-DX</string>
+             <string>NA VHF</string>
             </property>
             <attribute name="buttonGroup">
              <string notr="true">special_op_activity_button_group</string>
@@ -3268,13 +3268,13 @@ Right click for insert and delete options.</string>
   </connection>
  </connections>
  <buttongroups>
+  <buttongroup name="TX_audio_source_button_group"/>
+  <buttongroup name="CAT_stop_bits_button_group"/>
+  <buttongroup name="CAT_data_bits_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
   <buttongroup name="PTT_method_button_group"/>
-  <buttongroup name="CAT_stop_bits_button_group"/>
-  <buttongroup name="split_mode_button_group"/>
   <buttongroup name="special_op_activity_button_group"/>
   <buttongroup name="TX_mode_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
-  <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="split_mode_button_group"/>
  </buttongroups>
 </ui>
