@@ -1129,6 +1129,7 @@ void MainWindow::writeSettings()
   m_settings->setValue ("MsgAvgDisplayed", m_msgAvgWidget && m_msgAvgWidget->isVisible ());
   m_settings->setValue ("FoxLogDisplayed", m_foxLogWindow && m_foxLogWindow->isVisible ());
   m_settings->setValue ("ContestLogDisplayed", m_contestLogWindow && m_contestLogWindow->isVisible ());
+  m_settings->setValue ("ActiveStationsDisplayed", m_ActiveStationsWidget && m_ActiveStationsWidget->isVisible ());
   m_settings->setValue("RespondCQ",ui->respondComboBox->currentIndex());
   m_settings->setValue("HoundSort",ui->comboBoxHoundSort->currentIndex());
   m_settings->setValue("FoxNlist",ui->sbNlist->value());
@@ -1227,6 +1228,7 @@ void MainWindow::readSettings()
   auto displayMsgAvg = m_settings->value ("MsgAvgDisplayed", false).toBool ();
   auto displayFoxLog = m_settings->value ("FoxLogDisplayed", false).toBool ();
   auto displayContestLog = m_settings->value ("ContestLogDisplayed", false).toBool ();
+  bool displayActiveStations = m_settings->value ("ActiveStationsDisplayed", false).toBool ();
   ui->respondComboBox->setCurrentIndex(m_settings->value("RespondCQ",0).toInt());
   ui->comboBoxHoundSort->setCurrentIndex(m_settings->value("HoundSort",3).toInt());
   ui->sbNlist->setValue(m_settings->value("FoxNlist",12).toInt());
@@ -1327,6 +1329,7 @@ void MainWindow::readSettings()
   if(displayMsgAvg) on_actionMessage_averaging_triggered();
   if (displayFoxLog) on_fox_log_action_triggered ();
   if (displayContestLog) on_contest_log_action_triggered ();
+  if(displayActiveStations) on_actionActiveStations_triggered();
 }
 
 void MainWindow::checkMSK144ContestType()
