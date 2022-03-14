@@ -1155,7 +1155,7 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   ui_->special_op_activity_button_group->setId (ui_->rbNA_VHF_Contest, static_cast<int> (SpecialOperatingActivity::NA_VHF));
   ui_->special_op_activity_button_group->setId (ui_->rbEU_VHF_Contest, static_cast<int> (SpecialOperatingActivity::EU_VHF));
   ui_->special_op_activity_button_group->setId (ui_->rbField_Day, static_cast<int> (SpecialOperatingActivity::FIELD_DAY));
-  ui_->special_op_activity_button_group->setId (ui_->rbRTTY_Roundup, static_cast<int> (SpecialOperatingActivity::RTTY));
+  ui_->special_op_activity_button_group->setId (ui_->rbARRL_Digi, static_cast<int> (SpecialOperatingActivity::RTTY));
   ui_->special_op_activity_button_group->setId (ui_->rbWW_DIGI, static_cast<int> (SpecialOperatingActivity::WW_DIGI));
   ui_->special_op_activity_button_group->setId (ui_->rbFox, static_cast<int> (SpecialOperatingActivity::FOX));
   ui_->special_op_activity_button_group->setId (ui_->rbHound, static_cast<int> (SpecialOperatingActivity::HOUND));
@@ -1916,7 +1916,7 @@ bool Configuration::impl::validate ()
       return false;
     }
 
-  if (ui_->rbRTTY_Roundup->isEnabled () && ui_->rbRTTY_Roundup->isChecked () &&
+  if (ui_->rbARRL_Digi->isEnabled () && ui_->rbARRL_Digi->isChecked () &&
       !ui_->RTTY_Exchange->hasAcceptableInput ())
     {
       find_tab (ui_->RTTY_Exchange);
