@@ -1329,7 +1329,10 @@ void MainWindow::readSettings()
   if(displayMsgAvg) on_actionMessage_averaging_triggered();
   if (displayFoxLog) on_fox_log_action_triggered ();
   if (displayContestLog) on_contest_log_action_triggered ();
-  if(displayActiveStations) on_actionActiveStations_triggered();
+  if(displayActiveStations) {
+    on_actionActiveStations_triggered();
+//    QFile f {m_config.writeable_data_dir ().absoluteFilePath ("activeCalls.txt")};
+  }
 }
 
 void MainWindow::checkMSK144ContestType()
@@ -3517,8 +3520,44 @@ void MainWindow::readFromStdout()                             //readFromStdout
               }
             }
           }
-
         }
+
+        if(m_mode=="FT8" and SpecOp::NA_VHF==m_config.special_op_id()) {
+// Extract and save information that's relevant for the ARRL Digi contest
+          QString deCall;
+          QString deGrid;
+          decodedtext.deCallAndGrid(/*out*/deCall,deGrid);
+          if(deGrid.contains(grid_regexp)) {
+            if(!m_activeCall.contains(deCall)) {
+              m_activeCall[deCall]=deGrid;
+              double utch=0.0;
+              int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter;
+              azdist_(const_cast <char *> (m_config.my_grid().left(4).toLatin1().constData()),
+                      const_cast <char *> (deGrid.left(4).toLatin1().constData()),&utch,
+                      &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,(FCL)6,(FCL)6);
+              int npts=int((500+nDkm)/500);
+              RecentCall rc;
+              rc.audioFreq=decodedtext.frequencyOffset();
+              rc.az=nAz;
+              rc.decodeTime=decodedtext.timeInSeconds();
+              rc.dialFreq=m_freqNominal;
+              rc.grid4=deGrid;
+              rc.points=npts;
+              rc.snr=decodedtext.snr();
+              m_recentCall[deCall]=rc;
+              qDebug() << "aa" << rc.points << deCall << rc.grid4 << rc.az << rc.snr
+                       << rc.dialFreq/1000000.0 << rc.audioFreq << rc.decodeTime;
+            }
+          } else {
+            if(m_activeCall.contains(deCall)) {
+              m_recentCall[deCall].decodeTime=decodedtext.timeInSeconds();
+              RecentCall rc=m_recentCall[deCall];
+              qDebug() << "bb" << rc.points << deCall << rc.grid4 << rc.az << rc.snr
+                       << rc.dialFreq/1000000.0 << rc.audioFreq << rc.decodeTime;
+            }
+          }
+        }
+
       }
 
 //Right (Rx Frequency) window
@@ -3547,6 +3586,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
               m_bAutoReply = true;
               processMessage (decodedtext);
             }
+
             if(ui->respondComboBox->currentText()=="CQ: Max Pts") {
               QString deCall;
               QString deGrid;
@@ -3571,6 +3611,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 //                qDebug() << "cc" << m_deCall << m_deGrid << npts << m_maxPoints;
               }
             }
+
           }
           if(SpecOp::FOX==m_config.special_op_id() and decodedtext.string().contains(" DE ")) for_us=true; //Hound with compound callsign
           if(SpecOp::FOX==m_config.special_op_id() and for_us and (audioFreq<1000)) bDisplayRight=true;
