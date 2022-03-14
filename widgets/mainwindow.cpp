@@ -1023,7 +1023,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
   ui->pbBestSP->setVisible(m_mode=="FT4");
   int n=ui->respondComboBox->currentIndex();
-  if(m_config.special_op_id()!=SpecOp::NA_VHF and n>1) n=0;
+  if(m_config.special_op_id()!=SpecOp::ARRL_DIGI and n>1) n=0;
   ui->respondComboBox->setCurrentIndex(n);
 
 // this must be the last statement of constructor
@@ -1918,7 +1918,7 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
           "Fox-and-Hound operation is available only in FT8 mode.\nGo back and change your selection.");
     }
     int n=ui->respondComboBox->currentIndex();
-    if(m_config.special_op_id()!=SpecOp::NA_VHF and n>1) n=1;
+    if(m_config.special_op_id()!=SpecOp::ARRL_DIGI and n>1) n=1;
     ui->respondComboBox->setCurrentIndex(n);
   }
 }
@@ -3522,7 +3522,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
           }
         }
 
-        if(m_mode=="FT8" and SpecOp::NA_VHF==m_config.special_op_id()) {
+        qDebug() << "aaa" << int(m_config.special_op_id());
+        if(m_mode=="FT8" and SpecOp::ARRL_DIGI==m_config.special_op_id()) {
 // Extract and save information that's relevant for the ARRL Digi contest
           QString deCall;
           QString deGrid;
@@ -4418,7 +4419,8 @@ void MainWindow::guiUpdate()
        (SpecOp::NA_VHF==m_config.special_op_id() or
         SpecOp::FIELD_DAY==m_config.special_op_id() or
         SpecOp::RTTY==m_config.special_op_id() or
-        SpecOp::WW_DIGI==m_config.special_op_id()) ) {
+        SpecOp::WW_DIGI==m_config.special_op_id() or
+        SpecOp::ARRL_DIGI==m_config.special_op_id()) ) {
       //We're in a contest-like mode other than EU_VHF: start QSO with Tx2.
       ui->tx1->setEnabled(false);
       ui->txb1->setEnabled(false);
@@ -5035,7 +5037,9 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
        && (message_words.at(3).contains(qso_partner_base_call) or m_bDoubleClicked
            or bEU_VHF_w2 or (m_QSOProgress==CALLING))) {
       if(message_words.at(4).contains(grid_regexp) and SpecOp::EU_VHF!=m_config.special_op_id()) {
-        if((SpecOp::NA_VHF==m_config.special_op_id() or SpecOp::WW_DIGI==m_config.special_op_id()) and bContestOK){
+        if((SpecOp::NA_VHF==m_config.special_op_id() or SpecOp::WW_DIGI==m_config.special_op_id() or
+            SpecOp::ARRL_DIGI==m_config.special_op_id() )
+           and bContestOK) {
           setTxMsg(3);
           m_QSOProgress=ROGER_REPORT;
         } else {
@@ -5409,6 +5413,7 @@ void MainWindow::genCQMsg ()
       if(SpecOp::FIELD_DAY == m_config.special_op_id()) m_cqStr="FD";
       if(SpecOp::RTTY == m_config.special_op_id())      m_cqStr="RU";
       if(SpecOp::WW_DIGI == m_config.special_op_id())   m_cqStr="WW";
+      if(SpecOp::ARRL_DIGI == m_config.special_op_id()) m_cqStr="TEST";
       if( tlist.at(1)==my_callsign ) {
          t="CQ " + m_cqStr + " " + tlist.at(1) + " " + tlist.at(2); 
       } else {
@@ -5518,6 +5523,7 @@ void MainWindow::genStdMsgs(QString rpt, bool unconditional)
       }
       if(SpecOp::NA_VHF==m_config.special_op_id()) sent=my_grid;
       if(SpecOp::WW_DIGI==m_config.special_op_id()) sent=my_grid;
+      if(SpecOp::ARRL_DIGI==m_config.special_op_id()) sent=my_grid;
       if(SpecOp::FIELD_DAY==m_config.special_op_id()) sent=m_config.Field_Day_Exchange();
       if(SpecOp::RTTY==m_config.special_op_id()) { 
         sent=rst + m_config.RTTY_Exchange();
@@ -6053,6 +6059,10 @@ void MainWindow::on_logQSOButton_clicked()                 //Log QSO button
         m_xSent=m_config.my_grid().left(4);
         m_xRcvd=m_hisGrid;
         break;
+      case SpecOp::ARRL_DIGI:
+        m_xSent=m_config.my_grid().left(4);
+        m_xRcvd=m_hisGrid;
+        break;
       default: break;
     }
 
@@ -6396,6 +6406,7 @@ void MainWindow::on_actionFT8_triggered()
     if(SpecOp::FIELD_DAY==m_config.special_op_id()) t0+="Field Day";
     if(SpecOp::RTTY==m_config.special_op_id()) t0+="RTTY";
     if(SpecOp::WW_DIGI==m_config.special_op_id()) t0+="WW_DIGI";
+    if(SpecOp::ARRL_DIGI==m_config.special_op_id()) t0+="ARRL_DIGI";
     if(t0=="") {
       ui->labDXped->setVisible(false);
     } else {
@@ -8636,9 +8647,9 @@ void MainWindow::on_cbCQonly_toggled(bool)
 
 void MainWindow::on_respondComboBox_currentIndexChanged (int n)
 {
-  if(m_config.special_op_id()!=SpecOp::NA_VHF and n==2) {
+  if(m_config.special_op_id()!=SpecOp::ARRL_DIGI and n==2) {
     ui->respondComboBox->setCurrentIndex(1);
-    MessageBox::warning_message (this, tr ("\"CQ: Max Pts\" is available only\n in NA VHF contest mode."));\
+    MessageBox::warning_message (this, tr ("\"CQ: Max Pts\" is available only\n in ARRL DIGI contest mode."));\
   }
 }
 

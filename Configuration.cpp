@@ -903,7 +903,7 @@ QString Configuration::Field_Day_Exchange() const
 {
   return m_->FD_exchange_;
 }
-
+/*
 void Configuration::setEU_VHF_Contest()
 { 
   m_->bSpecialOp_=true;
@@ -912,6 +912,7 @@ void Configuration::setEU_VHF_Contest()
   m_->SelectedActivity_ = static_cast<int> (SpecialOperatingActivity::EU_VHF);
   m_->write_settings();
 }
+*/
 
 QString Configuration::RTTY_Exchange() const
 {
@@ -1157,6 +1158,7 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   ui_->special_op_activity_button_group->setId (ui_->rbField_Day, static_cast<int> (SpecialOperatingActivity::FIELD_DAY));
   ui_->special_op_activity_button_group->setId (ui_->rbRTTY_Roundup, static_cast<int> (SpecialOperatingActivity::RTTY));
   ui_->special_op_activity_button_group->setId (ui_->rbWW_DIGI, static_cast<int> (SpecialOperatingActivity::WW_DIGI));
+  ui_->special_op_activity_button_group->setId (ui_->rbARRL_Digi, static_cast<int> (SpecialOperatingActivity::ARRL_DIGI));
   ui_->special_op_activity_button_group->setId (ui_->rbFox, static_cast<int> (SpecialOperatingActivity::FOX));
   ui_->special_op_activity_button_group->setId (ui_->rbHound, static_cast<int> (SpecialOperatingActivity::HOUND));
 
@@ -2227,7 +2229,6 @@ void Configuration::impl::accept ()
   clear_DXcall_ = ui_->cbClearDXcall->isChecked();
   highlight_DXgrid_ = ui_->cbHighlightDXgrid->isChecked();
   clear_DXgrid_ = ui_->cbClearDXgrid->isChecked();
-
   write_settings ();		// make visible to all
 }
 
