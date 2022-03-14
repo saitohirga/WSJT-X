@@ -2696,7 +2696,7 @@ Right click for insert and delete options.</string>
           <item row="2" column="3">
            <layout class="QHBoxLayout" name="horizontalLayout_18" stretch="2,1,1">
             <item>
-             <widget class="QRadioButton" name="rbARRL_Digi">
+             <widget class="QRadioButton" name="rbRTTY_Roundup">
               <property name="toolTip">
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ARRL RTTY Roundup and similar contests.  Exchange is US state, Canadian province, or &amp;quot;DX&amp;quot;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
@@ -3195,7 +3195,7 @@ Right click for insert and delete options.</string>
   <tabstop>rbNA_VHF_Contest</tabstop>
   <tabstop>rbField_Day</tabstop>
   <tabstop>rbEU_VHF_Contest</tabstop>
-  <tabstop>rbARRL_Digi</tabstop>
+  <tabstop>rbRTTY_Roundup</tabstop>
   <tabstop>rbWW_DIGI</tabstop>
   <tabstop>Field_Day_Exchange</tabstop>
   <tabstop>RTTY_Exchange</tabstop>
