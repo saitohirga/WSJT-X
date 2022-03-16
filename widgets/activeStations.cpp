@@ -18,9 +18,11 @@ ActiveStations::ActiveStations(QSettings * settings, QFont const& font, QWidget 
   ui->setupUi(this);
   setWindowTitle (QApplication::applicationName () + " - " + tr ("Active Stations"));
   ui->ActiveStationsPlainTextEdit->setReadOnly (true);
+  ui->RecentStationsPlainTextEdit->setReadOnly (true);
   changeFont (font);
   read_settings ();
   ui->header_label->setText("Pts  Call   Grid  Az    S/N   Dial  Freq");
+  ui->header_label2->setText(" Call    Grid  Age  Points");
 }
 
 ActiveStations::~ActiveStations()
@@ -33,9 +35,13 @@ void ActiveStations::changeFont (QFont const& font)
   ui->header_label->setStyleSheet (font_as_stylesheet (font));
   ui->ActiveStationsPlainTextEdit->setStyleSheet (font_as_stylesheet (font));
   setContentFont (font);
+
+  ui->header_label2->setStyleSheet (font_as_stylesheet (font));
+  ui->RecentStationsPlainTextEdit->setStyleSheet (font_as_stylesheet (font));
+//  setContentFont (font);
+
   updateGeometry ();
 }
-
 
 void ActiveStations::setContentFont(QFont const& font)
 {
