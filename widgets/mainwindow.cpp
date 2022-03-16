@@ -180,6 +180,8 @@ extern "C" {
   void chk_samples_(int* m_ihsym,int* k, int* m_hsymStop);
 
   void save_dxbase_(char* dxbase, FCL len);
+
+  void indexx_(float arr[], int* n, int indx[]);
 }
 
 int volatile itone[MAX_NUM_SYMBOLS];   //Audio tones for all Tx symbols
@@ -3422,6 +3424,10 @@ void MainWindow::ARRL_Digi_Display()
   int maxAge=4;
   int points=0;
   int maxPoints=0;
+  int indx[1000];
+  float pts[1000];
+  QStringList list;
+
   while (icall.hasNext()) {
     icall.next();
     deCall=icall.key();
@@ -3433,12 +3439,22 @@ void MainWindow::ARRL_Digi_Display()
       i++;
       points=m_activeCall[deCall].points;
       if(points>maxPoints) maxPoints=points;
-      QString t;
-      t = t.asprintf("  %2d  %2d",age,points);
-      t = (deCall + "   ").left(6) + "  " + m_activeCall[deCall].grid4 + t;
-      qDebug() << "cc" << t << m_activeCall.count() << m_recentCall.count();
+      pts[i-1]=points - float(age)/(maxAge+1);
+      QString t1;
+      t1 = t1.asprintf("  %2d  %2d",age,points);
+      t1 = (deCall + "   ").left(6) + "  " + m_activeCall[deCall].grid4 + t1;
+//      qDebug() << "cc" << t1 << m_activeCall.count() << m_recentCall.count() << pts[i-1];
+      list.append(t1);
     }
   }
+  int nmax=i;
+  indexx_(pts,&nmax,indx);
+  QString t;
+  for(int j=nmax-1; j>=0; j--) {
+    int k=indx[j]-1;
+    t += (list[k] + "\n");
+  }
+  if(m_ActiveStationsWidget!=NULL) m_ActiveStationsWidget->displayActiveStations(t);
 }
 
 void MainWindow::readFromStdout()                             //readFromStdout
