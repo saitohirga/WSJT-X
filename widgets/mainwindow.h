@@ -493,6 +493,7 @@ private:
   qint32  m_earlyDecode2=47;
   qint32  m_nDecodes=0;
   qint32  m_maxPoints=-1;
+  qint32  m_latestDecodeTime=-1;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
@@ -673,18 +674,23 @@ private:
   };
   QMap<QString,FixupQSO> m_fixupQSO;       //Key = HoundCall, value = info for QSO in progress
 
-  struct RecentCall
+  struct ActiveCall
   {
     QString grid4;
     qint32 az;
-    qint32 snr;
+    qint32 points;
+  };
+  QMap<QString,ActiveCall> m_activeCall;   //Key = callsign, value = grid4, az, points for ARRL_DIGI
+
+  struct RecentCall
+  {
     qint64 dialFreq;
     qint32 audioFreq;
-    qint32 points;
+    qint32 snr;
     qint32 decodeTime;
+    bool   ready2call;
   };
-  QMap<QString,RecentCall> m_recentCall;
-  QMap<QString,QString> m_activeCall;
+  QMap<QString,RecentCall> m_recentCall;   //Key = callsign, value = snr, dialFreq, audioFreq, decodeTime
 
   QQueue<QString> m_houndQueue;        //Selected Hounds available for starting a QSO
   QQueue<QString> m_foxQSOinProgress;  //QSOs in progress: Fox has sent a report

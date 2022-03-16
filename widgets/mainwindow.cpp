@@ -3362,6 +3362,37 @@ void MainWindow::decodeDone ()
     MessageBox::information_message(this, tr("No more files to open."));
     m_bNoMoreFiles=false;
   }
+
+  if((m_mode=="FT4" or m_mode=="FT8") and SpecOp::ARRL_DIGI==m_config.special_op_id()) {
+    // Update the ARRL_DIGI display, etc.
+    if(m_latestDecodeTime<0) return;
+
+    QMutableMapIterator<QString,RecentCall> icall(m_recentCall);
+    QString deCall;
+    int age=0;
+    int i=0;
+    int maxAge=4;
+    int points=0;
+    int maxPoints=0;
+    while (icall.hasNext()) {
+      icall.next();
+      deCall=icall.key();
+      age=int((m_latestDecodeTime - icall.value().decodeTime)/m_TRperiod + 0.5);
+      if(age>maxAge) {
+        qDebug() << "bb" << i << deCall << "removed";
+        icall.remove();
+      } else {
+        i++;
+        points=m_activeCall[deCall].points;
+        if(points>maxPoints) maxPoints=points;
+        QString t;
+        t = t.asprintf("  %2d  %2d",age,points);
+        t = (deCall + "   ").left(6) + "  " + m_activeCall[deCall].grid4 + t;
+        qDebug() << "cc" << t << m_activeCall.count() << m_recentCall.count();
+      }
+    }
+  }
+
 }
 
 void MainWindow::readFromStdout()                             //readFromStdout
@@ -3522,43 +3553,51 @@ void MainWindow::readFromStdout()                             //readFromStdout
           }
         }
 
-        qDebug() << "aaa" << int(m_config.special_op_id());
-        if(m_mode=="FT8" and SpecOp::ARRL_DIGI==m_config.special_op_id()) {
-// Extract and save information that's relevant for the ARRL Digi contest
+        if((m_mode=="FT4" or m_mode=="FT8") and SpecOp::ARRL_DIGI==m_config.special_op_id() and
+           decodedtext.isStandardMessage()) {
+          // Extract information relevant for the ARRL Digi contest
           QString deCall;
           QString deGrid;
           decodedtext.deCallAndGrid(/*out*/deCall,deGrid);
+          ActiveCall ac;
+          RecentCall rc;
+
           if(deGrid.contains(grid_regexp)) {
-            if(!m_activeCall.contains(deCall)) {
-              m_activeCall[deCall]=deGrid;
-              double utch=0.0;
-              int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter;
-              azdist_(const_cast <char *> (m_config.my_grid().left(4).toLatin1().constData()),
-                      const_cast <char *> (deGrid.left(4).toLatin1().constData()),&utch,
-                      &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,(FCL)6,(FCL)6);
-              int npts=int((500+nDkm)/500);
-              RecentCall rc;
-              rc.audioFreq=decodedtext.frequencyOffset();
-              rc.az=nAz;
-              rc.decodeTime=decodedtext.timeInSeconds();
-              rc.dialFreq=m_freqNominal;
-              rc.grid4=deGrid;
-              rc.points=npts;
-              rc.snr=decodedtext.snr();
-              m_recentCall[deCall]=rc;
-              qDebug() << "aa" << rc.points << deCall << rc.grid4 << rc.az << rc.snr
-                       << rc.dialFreq/1000000.0 << rc.audioFreq << rc.decodeTime;
-            }
-          } else {
-            if(m_activeCall.contains(deCall)) {
-              m_recentCall[deCall].decodeTime=decodedtext.timeInSeconds();
-              RecentCall rc=m_recentCall[deCall];
-              qDebug() << "bb" << rc.points << deCall << rc.grid4 << rc.az << rc.snr
-                       << rc.dialFreq/1000000.0 << rc.audioFreq << rc.decodeTime;
+             if(!m_activeCall.contains(deCall) or deGrid!=m_activeCall.value(deCall).grid4) {
+               // Transmitting station's call is not already in QMap "m_activeCall", or grid has changed.
+               // Insert the call, grid, and associated fixed data into the list.
+               double utch=0.0;
+               int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter;
+               azdist_(const_cast <char *> (m_config.my_grid().left(4).toLatin1().constData()),
+                       const_cast <char *> (deGrid.left(4).toLatin1().constData()),&utch,
+                       &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,(FCL)6,(FCL)6);
+               int npts=int((500+nDkm)/500);
+               ac.grid4=deGrid;
+               ac.az=nAz;
+               ac.points=npts;
+               m_activeCall[deCall]=ac;
+             }
+          }
+
+          if(m_activeCall.contains(deCall)) {
+            // Update the variable data for this deCall
+            rc.dialFreq=m_freqNominal;
+            rc.audioFreq=decodedtext.frequencyOffset();
+            rc.snr=decodedtext.snr();
+            m_latestDecodeTime=decodedtext.timeInSeconds();
+            rc.ready2call=false;
+            bool bCQ=decodedtext.messageWords()[0].left(3)=="CQ ";
+            if(bCQ or deGrid=="RR73" or deGrid=="73") rc.ready2call=true;
+            rc.decodeTime=m_latestDecodeTime;
+            m_recentCall[deCall]=rc;
+            ac=m_activeCall[deCall];
+            if(rc.ready2call != bCQ) {
+              qDebug() << "aa" << deCall << ac.grid4 << ac.az
+                       << rc.dialFreq/1000000.0 << rc.audioFreq
+                       << rc.snr << rc.decodeTime << ac.points << rc.ready2call << bCQ;
             }
           }
         }
-
       }
 
 //Right (Rx Frequency) window
@@ -3609,7 +3648,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
                   genStdMsgs("-10");
                   setTxMsg(3);
                 }
-//                qDebug() << "cc" << m_deCall << m_deGrid << npts << m_maxPoints;
               }
             }
 
