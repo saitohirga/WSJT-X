@@ -3406,12 +3406,14 @@ void MainWindow::ARRL_Digi_Update(DecodedText dt)
     if(bCQ or deGrid=="RR73" or deGrid=="73") rc.ready2call=true;
     rc.decodeTime=m_latestDecodeTime;
     m_recentCall[deCall]=rc;
+    /*
     ac=m_activeCall[deCall];
     if(rc.ready2call != bCQ) {
       qDebug() << "aa" << deCall << ac.grid4 << ac.az
                << rc.dialFreq/1000000.0 << rc.audioFreq
                << rc.snr << rc.decodeTime << ac.points << rc.ready2call << bCQ;
     }
+    */
   }
 }
 
@@ -3421,7 +3423,7 @@ void MainWindow::ARRL_Digi_Display()
   QString deCall;
   int age=0;
   int i=0;
-  int maxAge=4;
+  int maxAge=m_ActiveStationsWidget->maxAge();
   int points=0;
   int maxPoints=0;
   int indx[1000];
@@ -3433,7 +3435,7 @@ void MainWindow::ARRL_Digi_Display()
     deCall=icall.key();
     age=int((m_latestDecodeTime - icall.value().decodeTime)/m_TRperiod + 0.5);
     if(age>maxAge) {
-      qDebug() << "bb" << i << deCall << "removed";
+//      qDebug() << "bb" << i << deCall << "removed";
       icall.remove();
     } else {
       i++;
@@ -3443,18 +3445,18 @@ void MainWindow::ARRL_Digi_Display()
       QString t1;
       t1 = t1.asprintf("  %2d  %2d",age,points);
       t1 = (deCall + "   ").left(6) + "  " + m_activeCall[deCall].grid4 + t1;
-//      qDebug() << "cc" << t1 << m_activeCall.count() << m_recentCall.count() << pts[i-1];
       list.append(t1);
     }
   }
-  int nmax=i;
-  indexx_(pts,&nmax,indx);
+  int maxRecent=qMin(i,m_ActiveStationsWidget->maxRecent());
+  indexx_(pts,&maxRecent,indx);
   QString t;
-  for(int j=nmax-1; j>=0; j--) {
+  for(int j=maxRecent-1; j>=0; j--) {
     int k=indx[j]-1;
     t += (list[k] + "\n");
   }
-  if(m_ActiveStationsWidget!=NULL) m_ActiveStationsWidget->displayActiveStations(t);
+  if(m_ActiveStationsWidget!=NULL) m_ActiveStationsWidget->displayRecentStations(t);
+  qDebug() << "dd" << maxRecent << maxAge;
 }
 
 void MainWindow::readFromStdout()                             //readFromStdout

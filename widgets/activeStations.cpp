@@ -47,11 +47,8 @@ void ActiveStations::setContentFont(QFont const& font)
   cursor.mergeCharFormat (charFormat);
   cursor.clearSelection ();
   cursor.movePosition (QTextCursor::End);
-
-  // position so viewport scrolled to left
   cursor.movePosition (QTextCursor::Up);
   cursor.movePosition (QTextCursor::StartOfLine);
-
   ui->ActiveStationsPlainTextEdit->setTextCursor (cursor);
   ui->ActiveStationsPlainTextEdit->ensureCursorVisible ();
 }
@@ -60,15 +57,34 @@ void ActiveStations::read_settings ()
 {
   SettingsGroup group {settings_, "ActiveStations"};
   restoreGeometry (settings_->value ("window/geometry").toByteArray ());
+  ui->sbMaxRecent->setValue(settings_->value("MaxRecent",10).toInt());
+  ui->sbMaxAge->setValue(settings_->value("MaxAge",10).toInt());
 }
 
 void ActiveStations::write_settings ()
 {
   SettingsGroup group {settings_, "ActiveStations"};
   settings_->setValue ("window/geometry", saveGeometry ());
+  settings_->setValue("MaxRecent",ui->sbMaxRecent->value());
+  settings_->setValue("MaxAge",ui->sbMaxAge->value());
 }
 
 void ActiveStations::displayActiveStations(QString const& t)
 {
   ui->ActiveStationsPlainTextEdit->setPlainText(t);
+}
+
+void ActiveStations::displayRecentStations(QString const& t)
+{
+  ui->RecentStationsPlainTextEdit->setPlainText(t);
+}
+
+int ActiveStations::maxRecent()
+{
+  return ui->sbMaxRecent->value();
+}
+
+int ActiveStations::maxAge()
+{
+  return ui->sbMaxAge->value();
 }

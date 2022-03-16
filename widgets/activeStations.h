@@ -20,7 +20,10 @@ public:
   explicit ActiveStations(QSettings *, QFont const&, QWidget * parent = 0);
   ~ActiveStations();
   void displayActiveStations(QString const&);
+  void displayRecentStations(QString const&);
   void changeFont (QFont const&);
+  int  maxRecent();
+  int  maxAge();
 
 private:
   void read_settings ();
