@@ -813,6 +813,7 @@ private:
   bool is77BitMode () const;
   void cease_auto_Tx_after_QSO ();
   void ARRL_Digi_Display();
+  void ARRL_Digi_Update(DecodedText dt);
 };
 
 extern int killbyname(const char* progName);

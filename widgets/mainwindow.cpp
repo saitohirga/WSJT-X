@@ -3367,6 +3367,52 @@ void MainWindow::decodeDone ()
      and m_latestDecodeTime>=0) ARRL_Digi_Display();  // Update the ARRL_DIGI display
 }
 
+void MainWindow::ARRL_Digi_Update(DecodedText dt)
+{
+  // Extract information relevant for the ARRL Digi contest
+  QString deCall;
+  QString deGrid;
+  dt.deCallAndGrid(/*out*/deCall,deGrid);
+  ActiveCall ac;
+  RecentCall rc;
+
+  if(deGrid.contains(grid_regexp)) {
+     if(!m_activeCall.contains(deCall) or deGrid!=m_activeCall.value(deCall).grid4) {
+       // Transmitting station's call is not already in QMap "m_activeCall", or grid has changed.
+       // Insert the call, grid, and associated fixed data into the list.
+       double utch=0.0;
+       int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter;
+       azdist_(const_cast <char *> (m_config.my_grid().left(4).toLatin1().constData()),
+               const_cast <char *> (deGrid.left(4).toLatin1().constData()),&utch,
+               &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,(FCL)6,(FCL)6);
+       int npts=int((500+nDkm)/500);
+       ac.grid4=deGrid;
+       ac.az=nAz;
+       ac.points=npts;
+       m_activeCall[deCall]=ac;
+     }
+  }
+
+  if(m_activeCall.contains(deCall)) {
+    // Update the variable data for this deCall
+    rc.dialFreq=m_freqNominal;
+    rc.audioFreq=dt.frequencyOffset();
+    rc.snr=dt.snr();
+    m_latestDecodeTime=dt.timeInSeconds();
+    rc.ready2call=false;
+    bool bCQ=dt.messageWords()[0].left(3)=="CQ ";
+    if(bCQ or deGrid=="RR73" or deGrid=="73") rc.ready2call=true;
+    rc.decodeTime=m_latestDecodeTime;
+    m_recentCall[deCall]=rc;
+    ac=m_activeCall[deCall];
+    if(rc.ready2call != bCQ) {
+      qDebug() << "aa" << deCall << ac.grid4 << ac.az
+               << rc.dialFreq/1000000.0 << rc.audioFreq
+               << rc.snr << rc.decodeTime << ac.points << rc.ready2call << bCQ;
+    }
+  }
+}
+
 void MainWindow::ARRL_Digi_Display()
 {
   QMutableMapIterator<QString,RecentCall> icall(m_recentCall);
@@ -3555,48 +3601,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
 
         if((m_mode=="FT4" or m_mode=="FT8") and SpecOp::ARRL_DIGI==m_config.special_op_id() and
            decodedtext.isStandardMessage()) {
-          // Extract information relevant for the ARRL Digi contest
-          QString deCall;
-          QString deGrid;
-          decodedtext.deCallAndGrid(/*out*/deCall,deGrid);
-          ActiveCall ac;
-          RecentCall rc;
-
-          if(deGrid.contains(grid_regexp)) {
-             if(!m_activeCall.contains(deCall) or deGrid!=m_activeCall.value(deCall).grid4) {
-               // Transmitting station's call is not already in QMap "m_activeCall", or grid has changed.
-               // Insert the call, grid, and associated fixed data into the list.
-               double utch=0.0;
-               int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter;
-               azdist_(const_cast <char *> (m_config.my_grid().left(4).toLatin1().constData()),
-                       const_cast <char *> (deGrid.left(4).toLatin1().constData()),&utch,
-                       &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,(FCL)6,(FCL)6);
-               int npts=int((500+nDkm)/500);
-               ac.grid4=deGrid;
-               ac.az=nAz;
-               ac.points=npts;
-               m_activeCall[deCall]=ac;
-             }
-          }
-
-          if(m_activeCall.contains(deCall)) {
-            // Update the variable data for this deCall
-            rc.dialFreq=m_freqNominal;
-            rc.audioFreq=decodedtext.frequencyOffset();
-            rc.snr=decodedtext.snr();
-            m_latestDecodeTime=decodedtext.timeInSeconds();
-            rc.ready2call=false;
-            bool bCQ=decodedtext.messageWords()[0].left(3)=="CQ ";
-            if(bCQ or deGrid=="RR73" or deGrid=="73") rc.ready2call=true;
-            rc.decodeTime=m_latestDecodeTime;
-            m_recentCall[deCall]=rc;
-            ac=m_activeCall[deCall];
-            if(rc.ready2call != bCQ) {
-              qDebug() << "aa" << deCall << ac.grid4 << ac.az
-                       << rc.dialFreq/1000000.0 << rc.audioFreq
-                       << rc.snr << rc.decodeTime << ac.points << rc.ready2call << bCQ;
-            }
-          }
+          ARRL_Digi_Update(decodedtext);
         }
       }
 
