@@ -3363,36 +3363,36 @@ void MainWindow::decodeDone ()
     m_bNoMoreFiles=false;
   }
 
-  if((m_mode=="FT4" or m_mode=="FT8") and SpecOp::ARRL_DIGI==m_config.special_op_id()) {
-    // Update the ARRL_DIGI display, etc.
-    if(m_latestDecodeTime<0) return;
+  if((m_mode=="FT4" or m_mode=="FT8") and SpecOp::ARRL_DIGI==m_config.special_op_id()
+     and m_latestDecodeTime>=0) ARRL_Digi_Display();  // Update the ARRL_DIGI display
+}
 
-    QMutableMapIterator<QString,RecentCall> icall(m_recentCall);
-    QString deCall;
-    int age=0;
-    int i=0;
-    int maxAge=4;
-    int points=0;
-    int maxPoints=0;
-    while (icall.hasNext()) {
-      icall.next();
-      deCall=icall.key();
-      age=int((m_latestDecodeTime - icall.value().decodeTime)/m_TRperiod + 0.5);
-      if(age>maxAge) {
-        qDebug() << "bb" << i << deCall << "removed";
-        icall.remove();
-      } else {
-        i++;
-        points=m_activeCall[deCall].points;
-        if(points>maxPoints) maxPoints=points;
-        QString t;
-        t = t.asprintf("  %2d  %2d",age,points);
-        t = (deCall + "   ").left(6) + "  " + m_activeCall[deCall].grid4 + t;
-        qDebug() << "cc" << t << m_activeCall.count() << m_recentCall.count();
-      }
+void MainWindow::ARRL_Digi_Display()
+{
+  QMutableMapIterator<QString,RecentCall> icall(m_recentCall);
+  QString deCall;
+  int age=0;
+  int i=0;
+  int maxAge=4;
+  int points=0;
+  int maxPoints=0;
+  while (icall.hasNext()) {
+    icall.next();
+    deCall=icall.key();
+    age=int((m_latestDecodeTime - icall.value().decodeTime)/m_TRperiod + 0.5);
+    if(age>maxAge) {
+      qDebug() << "bb" << i << deCall << "removed";
+      icall.remove();
+    } else {
+      i++;
+      points=m_activeCall[deCall].points;
+      if(points>maxPoints) maxPoints=points;
+      QString t;
+      t = t.asprintf("  %2d  %2d",age,points);
+      t = (deCall + "   ").left(6) + "  " + m_activeCall[deCall].grid4 + t;
+      qDebug() << "cc" << t << m_activeCall.count() << m_recentCall.count();
     }
   }
-
 }
 
 void MainWindow::readFromStdout()                             //readFromStdout

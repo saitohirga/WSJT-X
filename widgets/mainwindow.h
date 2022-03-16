@@ -812,6 +812,7 @@ private:
   void to_jt9(qint32 n, qint32 istart, qint32 idone);
   bool is77BitMode () const;
   void cease_auto_Tx_after_QSO ();
+  void ARRL_Digi_Display();
 };
 
 extern int killbyname(const char* progName);
