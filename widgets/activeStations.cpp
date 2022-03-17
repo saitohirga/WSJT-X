@@ -3,6 +3,7 @@
 #include <QSettings>
 #include <QApplication>
 #include <QTextCharFormat>
+#include <QDateTime>
 
 #include "SettingsGroup.hpp"
 #include "qt_helpers.hpp"
@@ -20,7 +21,7 @@ ActiveStations::ActiveStations(QSettings * settings, QFont const& font, QWidget 
   ui->RecentStationsPlainTextEdit->setReadOnly (true);
   changeFont (font);
   read_settings ();
-  ui->header_label2->setText(" Call    Grid  Age  Points");
+  ui->header_label2->setText("  N   Call    Grid  Tx  Age  Points");
   connect(ui->RecentStationsPlainTextEdit, &QPlainTextEdit::selectionChanged, this, select);
 }
 
@@ -69,6 +70,9 @@ int ActiveStations::maxAge()
 
 void ActiveStations::select()
 {
+  qint64 msec=QDateTime::currentMSecsSinceEpoch();
+  if((msec-m_msec0)<500) return;
+  m_msec0=msec;
   int nline=ui->RecentStationsPlainTextEdit->textCursor().blockNumber();
   emit callSandP(nline);
 }

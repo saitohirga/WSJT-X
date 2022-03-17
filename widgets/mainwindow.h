@@ -648,7 +648,7 @@ private:
   QString m_BestCQpriority;
   QString m_deCall;
   QString m_deGrid;
-  QString m_ready2call[20];
+  QString m_ready2call[50];
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;
@@ -690,6 +690,7 @@ private:
     qint32 audioFreq;
     qint32 snr;
     qint32 decodeTime;
+    bool   txEven;
     bool   ready2call;
   };
   QMap<QString,RecentCall> m_recentCall;   //Key = callsign, value = snr, dialFreq, audioFreq, decodeTime

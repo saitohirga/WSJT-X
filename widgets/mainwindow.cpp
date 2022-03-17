@@ -3402,6 +3402,7 @@ void MainWindow::ARRL_Digi_Update(DecodedText dt)
     rc.audioFreq=dt.frequencyOffset();
     rc.snr=dt.snr();
     m_latestDecodeTime=dt.timeInSeconds();
+    rc.txEven = (m_latestDecodeTime % int(2*m_TRperiod)) > 0;
     rc.ready2call=false;
     bool bCQ=dt.messageWords()[0].left(3)=="CQ ";
     if(bCQ or deGrid=="RR73" or deGrid=="73") rc.ready2call=true;
@@ -3427,8 +3428,10 @@ void MainWindow::ARRL_Digi_Display()
     icall.next();
     deCall=icall.key();
     age=int((m_latestDecodeTime - icall.value().decodeTime)/m_TRperiod + 0.5);
+    int itx=1;
+    if(icall.value().txEven) itx=0;
     if(age>maxAge) {
-//      qDebug() << "bb" << i << deCall << "removed";
+      qDebug() << "bb" << i << deCall << "removed";
       icall.remove();
     } else {
       i++;
@@ -3436,7 +3439,7 @@ void MainWindow::ARRL_Digi_Display()
       if(points>maxPoints) maxPoints=points;
       pts[i-1]=points - float(age)/(maxAge+1);
       QString t1;
-      t1 = t1.asprintf("  %2d  %5d",age,points);
+      t1 = t1.asprintf("  %2d  %2d  %5d",itx,age,points);
       t1 = (deCall + "   ").left(6) + "  " + m_activeCall[deCall].grid4 + t1;
       list.append(t1);
     }
@@ -3449,15 +3452,17 @@ void MainWindow::ARRL_Digi_Display()
     int k=indx[j]-1;
     m_ready2call[i]=list[k];
     i++;
-    t += (list[k] + "\n");
+    QString t1=QString::number(i) + ".  ";
+    if(i<10) t1=" " + t1;
+    t += (t1 + list[k] + "\n");
   }
   if(m_ActiveStationsWidget!=NULL) m_ActiveStationsWidget->displayRecentStations(t);
 }
 
 void MainWindow::callSandP2(int n)
 {
+  if(m_ready2call[n]=="") return;
   QStringList w=m_ready2call[n].split(' ', SkipEmptyParts);
-
   m_deCall=w[0];                       //### needed?
   m_deGrid=w[1];                       //### needed?
   m_bDoubleClicked=true;               //### needed?
@@ -3465,8 +3470,10 @@ void MainWindow::callSandP2(int n)
   ui->dxGridEntry->setText(m_deGrid);
   genStdMsgs("-10");                   //### real SNR would be better here?
   setTxMsg(3);
-
+  m_txFirst = (w[2]=="0");
+  ui->txFirstCheckBox->setChecked(m_txFirst);
   if (!ui->autoButton->isChecked()) ui->autoButton->click(); // Enable Tx
+  if(m_transmitting) m_restart=true;
 }
 
 void MainWindow::readFromStdout()                             //readFromStdout

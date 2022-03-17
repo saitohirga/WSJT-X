@@ -31,7 +31,8 @@ signals:
 private:
   void read_settings ();
   void write_settings ();
-//  void setContentFont (QFont const&);
+
+  qint64 m_msec0=0;
   QSettings * settings_;
 
   QScopedPointer<Ui::ActiveStations> ui;
