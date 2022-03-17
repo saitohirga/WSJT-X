@@ -24,6 +24,10 @@ public:
   void changeFont (QFont const&);
   int  maxRecent();
   int  maxAge();
+  Q_SLOT void select();
+
+signals:
+  void callSandP(int nline);
 
 private:
   void read_settings ();

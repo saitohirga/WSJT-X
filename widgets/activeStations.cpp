@@ -23,6 +23,8 @@ ActiveStations::ActiveStations(QSettings * settings, QFont const& font, QWidget 
   read_settings ();
   ui->header_label->setText("Pts  Call   Grid  Az    S/N   Dial  Freq");
   ui->header_label2->setText(" Call    Grid  Age  Points");
+
+  connect(ui->RecentStationsPlainTextEdit, &QPlainTextEdit::selectionChanged, this, select);
 }
 
 ActiveStations::~ActiveStations()
@@ -93,4 +95,10 @@ int ActiveStations::maxRecent()
 int ActiveStations::maxAge()
 {
   return ui->sbMaxAge->value();
+}
+
+void ActiveStations::select()
+{
+  int nline=ui->RecentStationsPlainTextEdit->textCursor().blockNumber();
+  emit callSandP(nline);
 }

@@ -335,6 +335,7 @@ private slots:
   void remote_configure (QString const& mode, quint32 frequency_tolerance, QString const& submode
                          , bool fast_mode, quint32 tr_period, quint32 rx_df, QString const& dx_call
                          , QString const& dx_grid, bool generate_messages);
+  void callSandP2(int nline);
 
 private:
   Q_SIGNAL void initializeAudioOutputStream (QAudioDeviceInfo,
@@ -647,6 +648,7 @@ private:
   QString m_BestCQpriority;
   QString m_deCall;
   QString m_deGrid;
+  QString m_ready2call[20];
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;

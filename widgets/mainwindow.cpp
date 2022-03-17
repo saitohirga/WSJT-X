@@ -2775,6 +2775,7 @@ void MainWindow::on_actionActiveStations_triggered()
   m_ActiveStationsWidget->showNormal();
   m_ActiveStationsWidget->raise();
   m_ActiveStationsWidget->activateWindow();
+  connect(m_ActiveStationsWidget.data (), SIGNAL(callSandP(int)),this,SLOT(callSandP2(int)));
 }
 
 void MainWindow::on_actionOpen_triggered()                     //Open File
@@ -3443,11 +3444,29 @@ void MainWindow::ARRL_Digi_Display()
   int maxRecent=qMin(i,m_ActiveStationsWidget->maxRecent());
   indexx_(pts,&maxRecent,indx);
   QString t;
+  i=0;
   for(int j=maxRecent-1; j>=0; j--) {
     int k=indx[j]-1;
+    m_ready2call[i]=list[k];
+    i++;
     t += (list[k] + "\n");
   }
   if(m_ActiveStationsWidget!=NULL) m_ActiveStationsWidget->displayRecentStations(t);
+}
+
+void MainWindow::callSandP2(int n)
+{
+  QStringList w=m_ready2call[n].split(' ', SkipEmptyParts);
+
+  m_deCall=w[0];                       //### needed?
+  m_deGrid=w[1];                       //### needed?
+  m_bDoubleClicked=true;               //### needed?
+  ui->dxCallEntry->setText(m_deCall);
+  ui->dxGridEntry->setText(m_deGrid);
+  genStdMsgs("-10");                   //### real SNR would be better here?
+  setTxMsg(3);
+
+  if (!ui->autoButton->isChecked()) ui->autoButton->click(); // Enable Tx
 }
 
 void MainWindow::readFromStdout()                             //readFromStdout
@@ -7493,7 +7512,7 @@ void MainWindow::transmit (double snr)
            true, false, snr, m_TRperiod);
   }
 
-  if((m_mode=="FT4" or m_mode=="FT8") and m_maxPoints>0 and SpecOp::NA_VHF==m_config.special_op_id()) {
+  if((m_mode=="FT4" or m_mode=="FT8") and m_maxPoints>0 and SpecOp::ARRL_DIGI==m_config.special_op_id()) {
     qDebug() << "dd" << m_maxPoints << m_deCall << m_deGrid;
     ui->dxCallEntry->setText(m_deCall);
     ui->dxGridEntry->setText(m_deGrid);
