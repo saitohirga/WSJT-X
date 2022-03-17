@@ -19,7 +19,6 @@ class ActiveStations
 public:
   explicit ActiveStations(QSettings *, QFont const&, QWidget * parent = 0);
   ~ActiveStations();
-  void displayActiveStations(QString const&);
   void displayRecentStations(QString const&);
   void changeFont (QFont const&);
   int  maxRecent();
@@ -32,7 +31,7 @@ signals:
 private:
   void read_settings ();
   void write_settings ();
-  void setContentFont (QFont const&);
+//  void setContentFont (QFont const&);
   QSettings * settings_;
 
   QScopedPointer<Ui::ActiveStations> ui;
