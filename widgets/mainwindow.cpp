@@ -3366,8 +3366,8 @@ void MainWindow::decodeDone ()
     m_bNoMoreFiles=false;
   }
 
-  if((m_mode=="FT4" or m_mode=="FT8") and SpecOp::ARRL_DIGI==m_config.special_op_id()
-     and m_latestDecodeTime>=0) ARRL_Digi_Display();  // Update the ARRL_DIGI display
+  if((m_mode=="FT4" or m_mode=="FT8") /* and SpecOp::ARRL_DIGI==m_config.special_op_id() */
+     and m_latestDecodeTime>=0 and m_ActiveStationsWidget!=NULL) ARRL_Digi_Display();  // Update the ARRL_DIGI display
 }
 
 void MainWindow::ARRL_Digi_Update(DecodedText dt)
@@ -3379,10 +3379,13 @@ void MainWindow::ARRL_Digi_Update(DecodedText dt)
   ActiveCall ac;
   RecentCall rc;
 
+  if(dt.indexOf("HS2")>0) qDebug() << "aa" << deCall << deGrid;
+
   if(deGrid.contains(grid_regexp)) {
      if(!m_activeCall.contains(deCall) or deGrid!=m_activeCall.value(deCall).grid4) {
        // Transmitting station's call is not already in QMap "m_activeCall", or grid has changed.
        // Insert the call, grid, and associated fixed data into the list.
+
        double utch=0.0;
        int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter;
        azdist_(const_cast <char *> (m_config.my_grid().left(4).toLatin1().constData()),
@@ -3393,6 +3396,7 @@ void MainWindow::ARRL_Digi_Update(DecodedText dt)
        ac.az=nAz;
        ac.points=npts;
        m_activeCall[deCall]=ac;
+       if(dt.indexOf("HS2")>0) qDebug() << "bb" << deCall << deGrid << m_activeCall[deCall].points;
      }
   }
 
@@ -3408,13 +3412,14 @@ void MainWindow::ARRL_Digi_Update(DecodedText dt)
     if(bCQ or deGrid=="RR73" or deGrid=="73") rc.ready2call=true;
     rc.decodeTime=m_latestDecodeTime;
     m_recentCall[deCall]=rc;
+    if(dt.indexOf("HS2")>0) qDebug() << "cc" << deCall << deGrid << m_activeCall[deCall].points;
   }
 }
 
 void MainWindow::ARRL_Digi_Display()
 {
   QMutableMapIterator<QString,RecentCall> icall(m_recentCall);
-  QString deCall;
+  QString deCall,deGrid;
   int age=0;
   int i=0;
   int maxAge=m_ActiveStationsWidget->maxAge();
@@ -3430,33 +3435,42 @@ void MainWindow::ARRL_Digi_Display()
     age=int((m_latestDecodeTime - icall.value().decodeTime)/m_TRperiod + 0.5);
     int itx=1;
     if(icall.value().txEven) itx=0;
+    int snr=icall.value().snr;
     if(age>maxAge) {
-      qDebug() << "bb" << i << deCall << "removed";
       icall.remove();
     } else {
       i++;
+      deGrid=m_activeCall[deCall].grid4;
       points=m_activeCall[deCall].points;
       if(points>maxPoints) maxPoints=points;
-      pts[i-1]=points - float(age)/(maxAge+1);
+      float x=float(age)/(maxAge+1);
+      if(deCall=="HS2AQG") qDebug() << "dd" << deCall << deGrid << points << x;
+      if(x>1.0) x=0;
+      pts[i-1]=points - x;
       QString t1;
-      t1 = t1.asprintf("  %2d  %2d  %5d",itx,age,points);
+      t1 = t1.asprintf("  %+2.2d  %2d  %2d  %5d",snr,itx,age,points);
       t1 = (deCall + "   ").left(6) + "  " + m_activeCall[deCall].grid4 + t1;
       list.append(t1);
     }
   }
+  if(i==0) return;
+  int jz=i;
+  m_ActiveStationsWidget->setClickOK(false);
   int maxRecent=qMin(i,m_ActiveStationsWidget->maxRecent());
-  indexx_(pts,&maxRecent,indx);
+  indexx_(pts,&jz,indx);
   QString t;
   i=0;
-  for(int j=maxRecent-1; j>=0; j--) {
+  for(int j=jz-1; j>=0; j--) {
     int k=indx[j]-1;
     m_ready2call[i]=list[k];
     i++;
     QString t1=QString::number(i) + ".  ";
     if(i<10) t1=" " + t1;
     t += (t1 + list[k] + "\n");
+    if(i>=maxRecent) break;
   }
   if(m_ActiveStationsWidget!=NULL) m_ActiveStationsWidget->displayRecentStations(t);
+  m_ActiveStationsWidget->setClickOK(true);
 }
 
 void MainWindow::callSandP2(int n)
@@ -3469,7 +3483,7 @@ void MainWindow::callSandP2(int n)
   ui->dxCallEntry->setText(m_deCall);
   ui->dxGridEntry->setText(m_deGrid);
   genStdMsgs("-10");                   //### real SNR would be better here?
-  setTxMsg(3);
+  setTxMsg(1);
   m_txFirst = (w[2]=="0");
   ui->txFirstCheckBox->setChecked(m_txFirst);
   if (!ui->autoButton->isChecked()) ui->autoButton->click(); // Enable Tx
@@ -3634,8 +3648,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
           }
         }
 
-        if((m_mode=="FT4" or m_mode=="FT8") and SpecOp::ARRL_DIGI==m_config.special_op_id() and
-           decodedtext.isStandardMessage()) {
+        if((m_mode=="FT4" or m_mode=="FT8") /* and SpecOp::ARRL_DIGI==m_config.special_op_id() */
+           and decodedtext.isStandardMessage()) {
           ARRL_Digi_Update(decodedtext);
         }
       }

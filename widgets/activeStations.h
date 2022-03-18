@@ -23,7 +23,10 @@ public:
   void changeFont (QFont const&);
   int  maxRecent();
   int  maxAge();
+  void setClickOK(bool b);
   Q_SLOT void select();
+
+  bool m_clickOK=false;
 
 signals:
   void callSandP(int nline);

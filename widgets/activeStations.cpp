@@ -21,7 +21,7 @@ ActiveStations::ActiveStations(QSettings * settings, QFont const& font, QWidget 
   ui->RecentStationsPlainTextEdit->setReadOnly (true);
   changeFont (font);
   read_settings ();
-  ui->header_label2->setText("  N   Call    Grid  Tx  Age  Points");
+  ui->header_label2->setText("  N   Call    Grid  S/N  Tx  Age  Points");
   connect(ui->RecentStationsPlainTextEdit, &QPlainTextEdit::selectionChanged, this, select);
 }
 
@@ -70,9 +70,16 @@ int ActiveStations::maxAge()
 
 void ActiveStations::select()
 {
-  qint64 msec=QDateTime::currentMSecsSinceEpoch();
-  if((msec-m_msec0)<500) return;
-  m_msec0=msec;
-  int nline=ui->RecentStationsPlainTextEdit->textCursor().blockNumber();
-  emit callSandP(nline);
+  if(m_clickOK) {
+    qint64 msec=QDateTime::currentMSecsSinceEpoch();
+    if((msec-m_msec0)<500) return;
+    m_msec0=msec;
+    int nline=ui->RecentStationsPlainTextEdit->textCursor().blockNumber();
+    emit callSandP(nline);
+  }
+}
+
+void ActiveStations::setClickOK(bool b)
+{
+  m_clickOK=b;
 }
