@@ -3398,19 +3398,20 @@ void MainWindow::ARRL_Digi_Update(DecodedText dt)
        m_activeCall[deCall]=ac;
      }
   }
-/*
-// Don't display stations we already worked on this band.
-  QString band=m_config.bands()->find(m_freqNominal);
-  qDebug() << "aa" << band;
-  if(band=="160m" and m_activeCall[deCall].bands.indexOf("a")>=0) return;
-  if(band=="80m"  and m_activeCall[deCall].bands.indexOf("b")>=0) return;
-  if(band=="40m"  and m_activeCall[deCall].bands.indexOf("c")>=0) return;
-  if(band=="20m"  and m_activeCall[deCall].bands.indexOf("d")>=0) return;
-  if(band=="15m"  and m_activeCall[deCall].bands.indexOf("e")>=0) return;
-  if(band=="10m"  and m_activeCall[deCall].bands.indexOf("f")>=0) return;
-  if(band=="6m"   and m_activeCall[deCall].bands.indexOf("g")>=0) return;
-*/
+
+
   if(m_activeCall.contains(deCall)) {
+
+    // Don't display stations we already worked on this band.
+    QString band=m_config.bands()->find(m_freqNominal);
+    if(band=="160m" and m_activeCall[deCall].bands.indexOf("a")>=0) {m_recentCall.remove(deCall); return;}
+    if(band=="80m"  and m_activeCall[deCall].bands.indexOf("b")>=0) {m_recentCall.remove(deCall); return;}
+    if(band=="40m"  and m_activeCall[deCall].bands.indexOf("c")>=0) {m_recentCall.remove(deCall); return;}
+    if(band=="20m"  and m_activeCall[deCall].bands.indexOf("d")>=0) {m_recentCall.remove(deCall); return;}
+    if(band=="15m"  and m_activeCall[deCall].bands.indexOf("e")>=0) {m_recentCall.remove(deCall); return;}
+    if(band=="10m"  and m_activeCall[deCall].bands.indexOf("f")>=0) {m_recentCall.remove(deCall); return;}
+    if(band=="6m"   and m_activeCall[deCall].bands.indexOf("g")>=0) {m_recentCall.remove(deCall); return;}
+
     // Update the variable data for this deCall
     rc.dialFreq=m_freqNominal;
     rc.audioFreq=dt.frequencyOffset();
