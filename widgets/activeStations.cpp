@@ -21,7 +21,7 @@ ActiveStations::ActiveStations(QSettings * settings, QFont const& font, QWidget 
   ui->RecentStationsPlainTextEdit->setReadOnly (true);
   changeFont (font);
   read_settings ();
-  ui->header_label2->setText("  N   Call    Grid  S/N  Tx  Age  Points");
+  ui->header_label2->setText("  N   Call    Grid   Az  S/N  Freq Tx Age Pts   Bands");
   connect(ui->RecentStationsPlainTextEdit, &QPlainTextEdit::selectionChanged, this, select);
 }
 

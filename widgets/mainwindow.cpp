@@ -3379,7 +3379,6 @@ void MainWindow::ARRL_Digi_Update(DecodedText dt)
   ActiveCall ac;
   RecentCall rc;
 
-  if(dt.indexOf("HS2")>0) qDebug() << "aa" << deCall << deGrid;
 
   if(deGrid.contains(grid_regexp)) {
      if(!m_activeCall.contains(deCall) or deGrid!=m_activeCall.value(deCall).grid4) {
@@ -3393,10 +3392,10 @@ void MainWindow::ARRL_Digi_Update(DecodedText dt)
                &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,(FCL)6,(FCL)6);
        int npts=int((500+nDkm)/500);
        ac.grid4=deGrid;
+       ac.bands=".......";
        ac.az=nAz;
        ac.points=npts;
        m_activeCall[deCall]=ac;
-       if(dt.indexOf("HS2")>0) qDebug() << "bb" << deCall << deGrid << m_activeCall[deCall].points;
      }
   }
 
@@ -3412,14 +3411,13 @@ void MainWindow::ARRL_Digi_Update(DecodedText dt)
     if(bCQ or deGrid=="RR73" or deGrid=="73") rc.ready2call=true;
     rc.decodeTime=m_latestDecodeTime;
     m_recentCall[deCall]=rc;
-    if(dt.indexOf("HS2")>0) qDebug() << "cc" << deCall << deGrid << m_activeCall[deCall].points;
   }
 }
 
 void MainWindow::ARRL_Digi_Display()
 {
   QMutableMapIterator<QString,RecentCall> icall(m_recentCall);
-  QString deCall,deGrid;
+  QString deCall,deGrid,bands;
   int age=0;
   int i=0;
   int maxAge=m_ActiveStationsWidget->maxAge();
@@ -3436,20 +3434,22 @@ void MainWindow::ARRL_Digi_Display()
     int itx=1;
     if(icall.value().txEven) itx=0;
     int snr=icall.value().snr;
+    int freq=icall.value().audioFreq;
     if(age>maxAge) {
       icall.remove();
     } else {
       i++;
+      int az=m_activeCall[deCall].az;
       deGrid=m_activeCall[deCall].grid4;
       points=m_activeCall[deCall].points;
+      bands=m_activeCall[deCall].bands;
       if(points>maxPoints) maxPoints=points;
       float x=float(age)/(maxAge+1);
-      if(deCall=="HS2AQG") qDebug() << "dd" << deCall << deGrid << points << x;
       if(x>1.0) x=0;
       pts[i-1]=points - x;
       QString t1;
-      t1 = t1.asprintf("  %+2.2d  %2d  %2d  %5d",snr,itx,age,points);
-      t1 = (deCall + "   ").left(6) + "  " + m_activeCall[deCall].grid4 + t1;
+      t1 = t1.asprintf("  %3d  %+2.2d  %4d  %1d %2d %4d",az,snr,freq,itx,age,points);
+      t1 = (deCall + "   ").left(6) + "  " + m_activeCall[deCall].grid4 + t1 + "  " + bands;
       list.append(t1);
     }
   }
@@ -6205,10 +6205,25 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
     ui->sbSerialNumber->setValue(ui->sbSerialNumber->value() + 1);
   }
 
+  activeWorked(call,m_config.bands()->find(dial_freq));
   m_xSent.clear ();
   m_xRcvd.clear ();
   if (m_config.clear_DXcall ()) ui->dxCallEntry->clear ();
   if (m_config.clear_DXgrid ()) ui->dxGridEntry->clear ();
+}
+
+void MainWindow::activeWorked(QString call, QString band)
+{
+  QString bands=m_activeCall[call].bands;
+  QByteArray ba=bands.toLatin1();
+  if(band=="160m") ba[0]='a';
+  if(band=="80m")  ba[1]='b';
+  if(band=="40m")  ba[2]='c';
+  if(band=="20m")  ba[3]='d';
+  if(band=="15m")  ba[4]='e';
+  if(band=="10m")  ba[5]='f';
+  if(band=="6m")   ba[6]='g';
+  m_activeCall[call].bands=QString::fromLatin1(ba);
 }
 
 qint64 MainWindow::nWidgets(QString t)
@@ -7078,6 +7093,7 @@ void MainWindow::on_reset_cabrillo_log_action_triggered ()
     {
       if(m_config.RTTY_Exchange()!="SCC") ui->sbSerialNumber->setValue(1);
       m_logBook.contest_log ()->reset ();
+      m_activeCall.clear();                      //Erase the QMap of active calls
     }
 }
 

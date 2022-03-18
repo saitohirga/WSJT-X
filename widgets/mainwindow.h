@@ -679,6 +679,7 @@ private:
   struct ActiveCall
   {
     QString grid4;
+    QString bands;
     qint32 az;
     qint32 points;
   };
@@ -817,6 +818,7 @@ private:
   void cease_auto_Tx_after_QSO ();
   void ARRL_Digi_Display();
   void ARRL_Digi_Update(DecodedText dt);
+  void activeWorked(QString call, QString band);
 };
 
 extern int killbyname(const char* progName);
