@@ -3398,7 +3398,18 @@ void MainWindow::ARRL_Digi_Update(DecodedText dt)
        m_activeCall[deCall]=ac;
      }
   }
-
+/*
+// Don't display stations we already worked on this band.
+  QString band=m_config.bands()->find(m_freqNominal);
+  qDebug() << "aa" << band;
+  if(band=="160m" and m_activeCall[deCall].bands.indexOf("a")>=0) return;
+  if(band=="80m"  and m_activeCall[deCall].bands.indexOf("b")>=0) return;
+  if(band=="40m"  and m_activeCall[deCall].bands.indexOf("c")>=0) return;
+  if(band=="20m"  and m_activeCall[deCall].bands.indexOf("d")>=0) return;
+  if(band=="15m"  and m_activeCall[deCall].bands.indexOf("e")>=0) return;
+  if(band=="10m"  and m_activeCall[deCall].bands.indexOf("f")>=0) return;
+  if(band=="6m"   and m_activeCall[deCall].bands.indexOf("g")>=0) return;
+*/
   if(m_activeCall.contains(deCall)) {
     // Update the variable data for this deCall
     rc.dialFreq=m_freqNominal;
@@ -3477,17 +3488,32 @@ void MainWindow::callSandP2(int n)
 {
   if(m_ready2call[n]=="") return;
   QStringList w=m_ready2call[n].split(' ', SkipEmptyParts);
-  m_deCall=w[0];                       //### needed?
-  m_deGrid=w[1];                       //### needed?
+  m_deCall=w[0];
+  m_deGrid=w[1];
   m_bDoubleClicked=true;               //### needed?
   ui->dxCallEntry->setText(m_deCall);
   ui->dxGridEntry->setText(m_deGrid);
-  genStdMsgs("-10");                   //### real SNR would be better here?
+  genStdMsgs(w[3]);                   //### real SNR would be better here?
+  ui->RxFreqSpinBox->setValue(w[4].toInt());
   setTxMsg(1);
   m_txFirst = (w[2]=="0");
   ui->txFirstCheckBox->setChecked(m_txFirst);
   if (!ui->autoButton->isChecked()) ui->autoButton->click(); // Enable Tx
   if(m_transmitting) m_restart=true;
+}
+
+void MainWindow::activeWorked(QString call, QString band)
+{
+  QString bands=m_activeCall[call].bands;
+  QByteArray ba=bands.toLatin1();
+  if(band=="160m") ba[0]='a';
+  if(band=="80m")  ba[1]='b';
+  if(band=="40m")  ba[2]='c';
+  if(band=="20m")  ba[3]='d';
+  if(band=="15m")  ba[4]='e';
+  if(band=="10m")  ba[5]='f';
+  if(band=="6m")   ba[6]='g';
+  m_activeCall[call].bands=QString::fromLatin1(ba);
 }
 
 void MainWindow::readFromStdout()                             //readFromStdout
@@ -6210,20 +6236,6 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
   m_xRcvd.clear ();
   if (m_config.clear_DXcall ()) ui->dxCallEntry->clear ();
   if (m_config.clear_DXgrid ()) ui->dxGridEntry->clear ();
-}
-
-void MainWindow::activeWorked(QString call, QString band)
-{
-  QString bands=m_activeCall[call].bands;
-  QByteArray ba=bands.toLatin1();
-  if(band=="160m") ba[0]='a';
-  if(band=="80m")  ba[1]='b';
-  if(band=="40m")  ba[2]='c';
-  if(band=="20m")  ba[3]='d';
-  if(band=="15m")  ba[4]='e';
-  if(band=="10m")  ba[5]='f';
-  if(band=="6m")   ba[6]='g';
-  m_activeCall[call].bands=QString::fromLatin1(ba);
 }
 
 qint64 MainWindow::nWidgets(QString t)
