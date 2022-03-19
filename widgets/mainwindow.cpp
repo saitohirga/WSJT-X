@@ -3257,6 +3257,7 @@ void MainWindow::decode()                                       //decode()
         decodeBusy(true);
       }
     }
+  if((m_mode=="FT4" or m_mode=="FT8") and m_ActiveStationsWidget != NULL) m_ActiveStationsWidget->erase();
 }
 
 void::MainWindow::fast_decode_done()
