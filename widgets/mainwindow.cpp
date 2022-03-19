@@ -3445,21 +3445,21 @@ void MainWindow::ARRL_Digi_Display()
     if(age>maxAge) {
       icall.remove();
     } else {
-      if(m_recentCall.value(deCall).ready2call) {
-        i++;
-        int az=m_activeCall[deCall].az;
-        deGrid=m_activeCall[deCall].grid4;
-        points=m_activeCall[deCall].points;
-        bands=m_activeCall[deCall].bands;
-        if(points>maxPoints) maxPoints=points;
-        float x=float(age)/(maxAge+1);
-        if(x>1.0) x=0;
-        pts[i-1]=points - x;
-        QString t1;
-        t1 = t1.asprintf("  %3d  %+2.2d  %4d  %1d %2d %4d",az,snr,freq,itx,age,points);
-        t1 = (deCall + "   ").left(6) + "  " + m_activeCall[deCall].grid4 + t1 + "  " + bands;
-        list.append(t1);
-      }
+      i++;
+      int az=m_activeCall[deCall].az;
+      deGrid=m_activeCall[deCall].grid4;
+      points=m_activeCall[deCall].points;
+      bands=m_activeCall[deCall].bands;
+      if(points>maxPoints) maxPoints=points;
+      float x=float(age)/(maxAge+1);
+      if(x>1.0) x=0;
+      pts[i-1]=points - x;
+      QString t0="  ";
+      if(m_recentCall.value(deCall).ready2call) t0="* ";
+      QString t1;
+      t1 = t1.asprintf("  %3d  %+2.2d  %4d  %1d %2d %4d",az,snr,freq,itx,age,points);
+      t1 = t0 + (deCall + "   ").left(6) + "  " + m_activeCall[deCall].grid4 + t1 + "  " + bands;
+      list.append(t1);
     }
   }
   if(i==0) return;
