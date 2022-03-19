@@ -22,7 +22,7 @@ ActiveStations::ActiveStations(QSettings * settings, QFont const& font, QWidget 
   changeFont (font);
   read_settings ();
   ui->header_label2->setText("  N   Call    Grid   Az  S/N  Freq Tx Age Pts   Bands");
-  connect(ui->RecentStationsPlainTextEdit, &QPlainTextEdit::selectionChanged, this, select);
+  connect(ui->RecentStationsPlainTextEdit, SIGNAL(selectionChanged()), this, SLOT(select()));
 }
 
 ActiveStations::~ActiveStations()
