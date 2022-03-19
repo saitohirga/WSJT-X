@@ -7466,7 +7466,8 @@ void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const&
           if (m_lastDialFreq != m_freqNominal &&
               (m_mode != "MSK144"
                || !(ui->cbCQTx->isEnabled () && ui->cbCQTx->isVisible () && ui->cbCQTx->isChecked()))) {
-            if(m_lastDialFreq != m_freqNominal and m_ActiveStationsWidget->isVisible()) {
+
+            if(m_lastDialFreq != m_freqNominal and m_ActiveStationsWidget != NULL) {
               m_recentCall.clear();
               m_ActiveStationsWidget->erase();
             }
