@@ -3491,7 +3491,7 @@ void MainWindow::callSandP2(int n)
   genStdMsgs(w[3]);                   //### real SNR would be better here?
   ui->RxFreqSpinBox->setValue(w[4].toInt());
   setTxMsg(1);
-  m_txFirst = (w[2]=="0");
+  m_txFirst = (w[5]=="0");
   ui->txFirstCheckBox->setChecked(m_txFirst);
   if (!ui->autoButton->isChecked()) ui->autoButton->click(); // Enable Tx
   if(m_transmitting) m_restart=true;
