@@ -83,3 +83,8 @@ void ActiveStations::setClickOK(bool b)
 {
   m_clickOK=b;
 }
+
+void ActiveStations::erase()
+{
+  ui->RecentStationsPlainTextEdit->clear();
+}

@@ -3373,7 +3373,6 @@ void MainWindow::ARRL_Digi_Update(DecodedText dt)
   ActiveCall ac;
   RecentCall rc;
 
-
   if(deGrid.contains(grid_regexp)) {
      if(!m_activeCall.contains(deCall) or deGrid!=m_activeCall.value(deCall).grid4) {
        // Transmitting station's call is not already in QMap "m_activeCall", or grid has changed.
@@ -3444,19 +3443,21 @@ void MainWindow::ARRL_Digi_Display()
     if(age>maxAge) {
       icall.remove();
     } else {
-      i++;
-      int az=m_activeCall[deCall].az;
-      deGrid=m_activeCall[deCall].grid4;
-      points=m_activeCall[deCall].points;
-      bands=m_activeCall[deCall].bands;
-      if(points>maxPoints) maxPoints=points;
-      float x=float(age)/(maxAge+1);
-      if(x>1.0) x=0;
-      pts[i-1]=points - x;
-      QString t1;
-      t1 = t1.asprintf("  %3d  %+2.2d  %4d  %1d %2d %4d",az,snr,freq,itx,age,points);
-      t1 = (deCall + "   ").left(6) + "  " + m_activeCall[deCall].grid4 + t1 + "  " + bands;
-      list.append(t1);
+      if(m_recentCall.value(deCall).ready2call) {
+        i++;
+        int az=m_activeCall[deCall].az;
+        deGrid=m_activeCall[deCall].grid4;
+        points=m_activeCall[deCall].points;
+        bands=m_activeCall[deCall].bands;
+        if(points>maxPoints) maxPoints=points;
+        float x=float(age)/(maxAge+1);
+        if(x>1.0) x=0;
+        pts[i-1]=points - x;
+        QString t1;
+        t1 = t1.asprintf("  %3d  %+2.2d  %4d  %1d %2d %4d",az,snr,freq,itx,age,points);
+        t1 = (deCall + "   ").left(6) + "  " + m_activeCall[deCall].grid4 + t1 + "  " + bands;
+        list.append(t1);
+      }
     }
   }
   if(i==0) return;
@@ -7465,6 +7466,11 @@ void MainWindow::handle_transceiver_update (Transceiver::TransceiverState const&
           if (m_lastDialFreq != m_freqNominal &&
               (m_mode != "MSK144"
                || !(ui->cbCQTx->isEnabled () && ui->cbCQTx->isVisible () && ui->cbCQTx->isChecked()))) {
+            if(m_lastDialFreq != m_freqNominal and m_ActiveStationsWidget->isVisible()) {
+              m_recentCall.clear();
+              m_ActiveStationsWidget->erase();
+            }
+
             m_lastDialFreq = m_freqNominal;
             m_secBandChanged=QDateTime::currentMSecsSinceEpoch()/1000;
             pskSetLocal ();
