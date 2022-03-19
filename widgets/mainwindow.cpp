@@ -856,7 +856,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   }
   ui->respondComboBox->addItem("CQ: None");
   ui->respondComboBox->addItem("CQ: First");
-  ui->respondComboBox->addItem("CQ: Max Pts");
+  ui->respondComboBox->addItem("CQ: Max Dist");
 
   m_dateTimeRcvdRR73=QDateTime::currentDateTimeUtc();
   m_dateTimeSentTx3=QDateTime::currentDateTimeUtc();
@@ -1024,9 +1024,6 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   }
 
   ui->pbBestSP->setVisible(m_mode=="FT4");
-  int n=ui->respondComboBox->currentIndex();
-  if(m_config.special_op_id()!=SpecOp::ARRL_DIGI and n>1) n=0;
-  ui->respondComboBox->setCurrentIndex(n);
 
 // this must be the last statement of constructor
   if (!m_valid) throw std::runtime_error {"Fatal initialization exception"};
@@ -1919,9 +1916,6 @@ void MainWindow::on_actionSettings_triggered()               //Setup Dialog
       MessageBox::information_message (this,
           "Fox-and-Hound operation is available only in FT8 mode.\nGo back and change your selection.");
     }
-    int n=ui->respondComboBox->currentIndex();
-    if(m_config.special_op_id()!=SpecOp::ARRL_DIGI and n>1) n=1;
-    ui->respondComboBox->setCurrentIndex(n);
   }
 }
 
@@ -3708,7 +3702,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
               processMessage (decodedtext);
             }
 
-            if(ui->respondComboBox->currentText()=="CQ: Max Pts") {
+            if(ui->respondComboBox->currentText()=="CQ: Max Dist") {
               QString deCall;
               QString deGrid;
               decodedtext.deCallAndGrid(/*out*/deCall,deGrid);
@@ -8764,14 +8758,6 @@ void MainWindow::on_cbCQonly_toggled(bool)
 {  //Fix this -- no decode here?
   to_jt9(m_ihsym,1,-1);                //Send m_ihsym to jt9[.exe] and start decoding
   decodeBusy(true);
-}
-
-void MainWindow::on_respondComboBox_currentIndexChanged (int n)
-{
-  if(m_config.special_op_id()!=SpecOp::ARRL_DIGI and n==2) {
-    ui->respondComboBox->setCurrentIndex(1);
-    MessageBox::warning_message (this, tr ("\"CQ: Max Pts\" is available only\n in ARRL DIGI contest mode."));\
-  }
 }
 
 void MainWindow::on_cbAutoSeq_toggled(bool b)
