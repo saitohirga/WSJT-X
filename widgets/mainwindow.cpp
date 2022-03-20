@@ -3455,7 +3455,7 @@ void MainWindow::ARRL_Digi_Display()
       if(x>1.0) x=0;
       pts[i-1]=points - x;
       QString t0="  ";
-      if(m_recentCall.value(deCall).ready2call) t0="* ";
+      if(age==0 and m_recentCall.value(deCall).ready2call) t0="* ";
       QString t1;
       t1 = t1.asprintf("  %3d  %+2.2d  %4d  %1d %2d %4d",az,snr,freq,itx,age,points);
       t1 = t0 + (deCall + "   ").left(6) + "  " + m_activeCall[deCall].grid4 + t1 + "  " + bands;
