@@ -3485,7 +3485,7 @@ void MainWindow::ARRL_Digi_Display()
 void MainWindow::callSandP2(int n)
 {
   if(m_ready2call[n]=="") return;
-  QStringList w=m_ready2call[n].split(' ', SkipEmptyParts);
+  QStringList w=m_ready2call[n].mid(2,-1).split(' ', SkipEmptyParts);
   m_deCall=w[0];
   m_deGrid=w[1];
   m_bDoubleClicked=true;               //### needed?
