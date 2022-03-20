@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>957</width>
-    <height>658</height>
+    <width>893</width>
+    <height>662</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -2867,9 +2867,15 @@ QLabel[oob=&quot;true&quot;] {
           <layout class="QVBoxLayout" name="verticalLayout_15">
            <item>
             <widget class="QPushButton" name="houndButton">
-             <property name="maximumSize">
+             <property name="minimumSize">
               <size>
                <width>32</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -2886,9 +2892,15 @@ QLabel[oob=&quot;true&quot;] {
            </item>
            <item>
             <widget class="QPushButton" name="ft8Button">
-             <property name="maximumSize">
+             <property name="minimumSize">
               <size>
                <width>32</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -2902,9 +2914,15 @@ QLabel[oob=&quot;true&quot;] {
            </item>
            <item>
             <widget class="QPushButton" name="ft4Button">
-             <property name="maximumSize">
+             <property name="minimumSize">
               <size>
                <width>32</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -2918,9 +2936,15 @@ QLabel[oob=&quot;true&quot;] {
            </item>
            <item>
             <widget class="QPushButton" name="msk144Button">
-             <property name="maximumSize">
+             <property name="minimumSize">
               <size>
                <width>32</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -2934,9 +2958,15 @@ QLabel[oob=&quot;true&quot;] {
            </item>
            <item>
             <widget class="QPushButton" name="q65Button">
-             <property name="maximumSize">
+             <property name="minimumSize">
               <size>
                <width>32</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -2950,9 +2980,15 @@ QLabel[oob=&quot;true&quot;] {
            </item>
            <item>
             <widget class="QPushButton" name="jt65Button">
-             <property name="maximumSize">
+             <property name="minimumSize">
               <size>
                <width>32</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -2978,7 +3014,7 @@ QLabel[oob=&quot;true&quot;] {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>957</width>
+     <width>893</width>
      <height>21</height>
     </rect>
    </property>
