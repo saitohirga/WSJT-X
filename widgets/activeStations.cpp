@@ -21,7 +21,7 @@ ActiveStations::ActiveStations(QSettings * settings, QFont const& font, QWidget 
   ui->RecentStationsPlainTextEdit->setReadOnly (true);
   changeFont (font);
   read_settings ();
-  ui->header_label2->setText("  N     Call    Grid   Az  S/N  Freq Tx Age Pts   Bands");
+  ui->header_label2->setText("  N   Call    Grid   Az  S/N  Freq Tx Age Pts   Bands");
   connect(ui->RecentStationsPlainTextEdit, SIGNAL(selectionChanged()), this, SLOT(select()));
 }
 
@@ -87,4 +87,9 @@ void ActiveStations::setClickOK(bool b)
 void ActiveStations::erase()
 {
   ui->RecentStationsPlainTextEdit->clear();
+}
+
+bool ActiveStations::readyOnly()
+{
+  return ui->cbReadyOnly->isChecked();
 }

@@ -25,6 +25,7 @@ public:
   int  maxAge();
   void setClickOK(bool b);
   void erase();
+  bool readyOnly();
   Q_SLOT void select();
 
   bool m_clickOK=false;
