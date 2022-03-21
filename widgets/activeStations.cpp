@@ -43,6 +43,7 @@ void ActiveStations::read_settings ()
   restoreGeometry (settings_->value ("window/geometry").toByteArray ());
   ui->sbMaxRecent->setValue(settings_->value("MaxRecent",10).toInt());
   ui->sbMaxAge->setValue(settings_->value("MaxAge",10).toInt());
+  ui->cbReadyOnly->setChecked(settings_->value("ReadyOnly",false).toBool());
 }
 
 void ActiveStations::write_settings ()
@@ -51,6 +52,7 @@ void ActiveStations::write_settings ()
   settings_->setValue ("window/geometry", saveGeometry ());
   settings_->setValue("MaxRecent",ui->sbMaxRecent->value());
   settings_->setValue("MaxAge",ui->sbMaxAge->value());
+  settings_->setValue("ReadyOnly",ui->cbReadyOnly->isChecked());
 }
 
 void ActiveStations::displayRecentStations(QString const& t)
