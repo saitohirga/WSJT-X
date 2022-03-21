@@ -2032,7 +2032,6 @@ void MainWindow::keyPressEvent (QKeyEvent * e)
     }
   return;
     case Qt::Key_C:
-//    if(m_mode=="FT4" && e->modifiers() & Qt::AltModifier) {
     if(e->modifiers() & Qt::AltModifier) {
         int n=ui->respondComboBox->currentIndex()+1;
         if(n>2) n=0;
@@ -3711,8 +3710,11 @@ void MainWindow::readFromStdout()                             //readFromStdout
             if(ui->respondComboBox->currentText()=="CQ: Max Dist") {
               QString deCall;
               QString deGrid;
+              bool bContest=m_config.special_op_id()==SpecOp::NA_VHF or
+                  m_config.special_op_id()==SpecOp::ARRL_DIGI;
               decodedtext.deCallAndGrid(/*out*/deCall,deGrid);
-              if(deGrid!="") {
+              if(deGrid.contains(grid_regexp) or
+                 (bContest and (deGrid.contains("+") or deGrid.contains("-")))) {
                 double utch=0.0;
                 int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter;
                 azdist_(const_cast <char *> ((m_config.my_grid () + "      ").left (6).toLatin1 ().constData ()),
@@ -3726,8 +3728,10 @@ void MainWindow::readFromStdout()                             //readFromStdout
                   m_bDoubleClicked=true;
                   ui->dxCallEntry->setText(deCall);
                   ui->dxGridEntry->setText(deGrid);
-                  genStdMsgs("-10");
-                  setTxMsg(3);
+                  genStdMsgs(QString::number(decodedtext.snr()));
+                  int ntx=2;
+                  if(bContest) ntx=3;
+                  setTxMsg(ntx);
                 }
               }
             }
@@ -4673,7 +4677,8 @@ void MainWindow::startTx2()
     t=ui->tx6->text();
     if(t.mid(0,1)=="#") snr=t.mid(1,5).toDouble();
     if(snr>0.0 or snr < -50.0) snr=99.0;
-    if((m_ntx==6 or m_ntx==7) and m_config.force_call_1st()) {
+    if((m_ntx==6 or m_ntx==7) and m_config.force_call_1st() and
+       ui->respondComboBox->currentIndex()==0) {
       ui->cbAutoSeq->setChecked(true);
       ui->respondComboBox->setCurrentIndex(1);
     }
@@ -6293,7 +6298,6 @@ void MainWindow::displayWidgets(qint64 n)
     if(i==25) ui->actionEnable_AP_JT65->setVisible (b);
     if(i==26) ui->actionEnable_AP_DXcall->setVisible (b);
     if(i==27) ui->respondComboBox->setVisible(b);
-    // if(i==28) ui->labNextCall->setVisible(b);
     if(i==29) ui->measure_check_box->setVisible(b);
     if(i==30) ui->labDXped->setVisible(b);
     if(i==31) ui->cbRxAll->setVisible(b);
