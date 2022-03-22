@@ -3520,8 +3520,8 @@ void MainWindow::activeWorked(QString call, QString band)
 
 void MainWindow::readFromStdout()                             //readFromStdout
 {
-  QFile f(m_appDir + "/DisplayPoints");
-  bool bDisplayPoints = f.exists() or m_config.special_op_id()==SpecOp::ARRL_DIGI;
+  bool bDisplayPoints = (m_mode=="FT4" or m_mode=="FT8") and
+      (m_config.special_op_id()==SpecOp::ARRL_DIGI or m_ActiveStationsWidget->isVisible());
   while(proc_jt9.canReadLine()) {
     auto line_read = proc_jt9.readLine ();
     if (auto p = std::strpbrk (line_read.constData (), "\n\r")) {
