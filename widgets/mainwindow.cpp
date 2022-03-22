@@ -3519,12 +3519,15 @@ void MainWindow::activeWorked(QString call, QString band)
 
 void MainWindow::readFromStdout()                             //readFromStdout
 {
+  QFile f(m_appDir + "/DisplayPoints");
+  bool bDisplayPoints = f.exists() or m_config.special_op_id()==SpecOp::ARRL_DIGI;
   while(proc_jt9.canReadLine()) {
     auto line_read = proc_jt9.readLine ();
     if (auto p = std::strpbrk (line_read.constData (), "\n\r")) {
       // truncate before line ending chars
       line_read = line_read.left (p - line_read.constData ());
     }
+    if(bDisplayPoints) line_read=line_read.replace("a7","  ");
     bool haveFSpread {false};
     float fSpread {0.};
     if (m_mode.startsWith ("FST4"))
@@ -3628,8 +3631,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
         }
       }
 
-      QFile f(m_appDir + "/DisplayPoints");
-      bool bDisplayPoints = f.exists() or m_config.special_op_id()==SpecOp::ARRL_DIGI;
 //Left (Band activity) window
       if(!bAvgMsg) {
         if(m_mode=="FT8" and SpecOp::FOX == m_config.special_op_id()) {
