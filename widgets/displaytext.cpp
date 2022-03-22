@@ -277,6 +277,8 @@ QString DisplayText::appendWorkedB4 (QString message, QString call, QString cons
     gridB4onBand=true;
   }
 
+  if(callB4onBand) m_points=0;
+
   message = message.trimmed ();
 
   highlight_types types;
@@ -372,16 +374,16 @@ QString DisplayText::appendWorkedB4 (QString message, QString call, QString cons
     }
     m_CQPriority=DecodeHighlightingModel::highlight_name(top_highlight);
 
-    if(m_npts == -1) return message;
+    if((m_points == 00) or (m_points == -1)) return message;
     return leftJustifyAppendage (message, extra);
 }
 
 QString DisplayText::leftJustifyAppendage (QString message, QString const& appendage0) const
 {
   QString appendage=appendage0;
-  if(m_npts>0) {
-    appendage=" " + QString::number(m_npts);
-    if(m_npts<10) appendage=" " + appendage;
+  if(m_bDisplayPoints and (m_points>0)) {
+    appendage=" " + QString::number(m_points);
+    if(m_points<10) appendage=" " + appendage;
   }
   if (appendage.size ())
     {
@@ -404,8 +406,10 @@ void DisplayText::displayDecodedText(DecodedText const& decodedText, QString con
                                      QString const& mode,
                                      bool displayDXCCEntity, LogBook const& logBook,
                                      QString const& currentBand, bool ppfx, bool bCQonly,
-                                     bool haveFSpread, float fSpread)
+                                     bool haveFSpread, float fSpread, bool bDisplayPoints, int points)
 {
+  m_points=points;
+  m_bDisplayPoints=bDisplayPoints;
   m_bPrincipalPrefix=ppfx;
   QColor bg;
   QColor fg;
@@ -665,9 +669,4 @@ void DisplayText::highlight_callsign (QString const& callsign, QColor const& bg,
         }
     }
   setCurrentCharFormat (old_format);
-}
-
-void DisplayText::displayPoints(int npts)
-{
-  m_npts=npts;
 }

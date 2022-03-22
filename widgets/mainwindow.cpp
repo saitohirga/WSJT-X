@@ -1502,8 +1502,8 @@ void MainWindow::dataSink(qint64 frames)
     freqcal_(&dec_data.d2[0], &k, &nkhz, &RxFreq, &ftol, &line[0], (FCL)80);
     QString t=QString::fromLatin1(line);
     DecodedText decodedtext {t};
-    ui->decodedTextBrowser->displayDecodedText (decodedtext, m_config.my_callsign (), m_mode, m_config.DXCC (),
-          m_logBook, m_currentBand, m_config.ppfx ());
+    ui->decodedTextBrowser->displayDecodedText (decodedtext, m_config.my_callsign(),
+          m_mode, m_config.DXCC(), m_logBook, m_currentBand, m_config.ppfx());
     if (ui->measure_check_box->isChecked ()) {
       // Append results text to file "fmt.all".
       QFile f {m_config.writeable_data_dir ().absoluteFilePath ("fmt.all")};
@@ -3393,7 +3393,7 @@ void MainWindow::ARRL_Digi_Update(DecodedText dt)
      }
   }
 
-
+  m_points=-1;
   if(m_activeCall.contains(deCall)) {
 
     // Don't display stations we already worked on this band.
@@ -3417,9 +3417,7 @@ void MainWindow::ARRL_Digi_Update(DecodedText dt)
     if(bCQ or deGrid=="RR73" or deGrid=="73") rc.ready2call=true;
     rc.decodeTime=m_latestDecodeTime;
     m_recentCall[deCall]=rc;
-
-    int points=m_activeCall.value(deCall).points;
-    ui->decodedTextBrowser->displayPoints(points);
+    m_points=m_activeCall.value(deCall).points;
   }
 }
 
@@ -3630,6 +3628,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
         }
       }
 
+      QFile f(m_appDir + "/DisplayPoints");
+      bool bDisplayPoints = f.exists() or m_config.special_op_id()==SpecOp::ARRL_DIGI;
 //Left (Band activity) window
       if(!bAvgMsg) {
         if(m_mode=="FT8" and SpecOp::FOX == m_config.special_op_id()) {
@@ -3642,18 +3642,14 @@ void MainWindow::readFromStdout()                             //readFromStdout
           }
         } else {
           DecodedText decodedtext1=decodedtext0;
-          ui->decodedTextBrowser->displayPoints(-99);
-          bool bDisplayPoints=m_config.special_op_id()==SpecOp::ARRL_DIGI;
-          bDisplayPoints=true;
           if((m_mode=="FT4" or m_mode=="FT8") and bDisplayPoints
              and decodedtext1.isStandardMessage()) {
-            ui->decodedTextBrowser->displayPoints(-1);
             ARRL_Digi_Update(decodedtext1);
           }
           ui->decodedTextBrowser->displayDecodedText (decodedtext1, m_config.my_callsign (), m_mode, m_config.DXCC (),
                                                       m_logBook, m_currentBand, m_config.ppfx (),
                                                       ui->cbCQonly->isVisible() && ui->cbCQonly->isChecked(),
-                                                      haveFSpread, fSpread);
+                                                      haveFSpread, fSpread, bDisplayPoints, m_points);
 
           if (m_config.highlight_DXcall () && (m_hisCall!="") && ((decodedtext.string().contains(QRegularExpression {"(\\w+) " + m_hisCall}))
                || (decodedtext.string().contains(QRegularExpression {"(\\w+) <" + m_hisCall +">"}))
@@ -3757,7 +3753,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
         // or contains MyCall
         if(!m_bBestSPArmed or m_mode!="FT4") {
           ui->decodedTextBrowser2->displayDecodedText (decodedtext0, m_config.my_callsign (), m_mode, m_config.DXCC (),
-                m_logBook, m_currentBand, m_config.ppfx ());
+                m_logBook, m_currentBand, m_config.ppfx (), false, false, 0.0, bDisplayPoints, m_points);
         }
         m_QSOText = decodedtext.string ().trimmed ();
       }
