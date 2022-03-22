@@ -3386,7 +3386,7 @@ void MainWindow::ARRL_Digi_Update(DecodedText dt)
                &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,(FCL)6,(FCL)6);
        int npts=int((500+nDkm)/500);
        ac.grid4=deGrid;
-       ac.bands=".......";
+//       ac.bands=".......";
        ac.az=nAz;
        ac.points=npts;
        m_activeCall[deCall]=ac;
@@ -3395,7 +3395,7 @@ void MainWindow::ARRL_Digi_Update(DecodedText dt)
 
   m_points=-1;
   if(m_activeCall.contains(deCall)) {
-
+/*
     // Don't display stations we already worked on this band.
     QString band=m_config.bands()->find(m_freqNominal);
     if(band=="160m" and m_activeCall[deCall].bands.indexOf("a")>=0) {m_recentCall.remove(deCall); return;}
@@ -3405,7 +3405,7 @@ void MainWindow::ARRL_Digi_Update(DecodedText dt)
     if(band=="15m"  and m_activeCall[deCall].bands.indexOf("e")>=0) {m_recentCall.remove(deCall); return;}
     if(band=="10m"  and m_activeCall[deCall].bands.indexOf("f")>=0) {m_recentCall.remove(deCall); return;}
     if(band=="6m"   and m_activeCall[deCall].bands.indexOf("g")>=0) {m_recentCall.remove(deCall); return;}
-
+*/
     // Update the variable data for this deCall
     rc.dialFreq=m_freqNominal;
     rc.audioFreq=dt.frequencyOffset();
@@ -3424,7 +3424,7 @@ void MainWindow::ARRL_Digi_Update(DecodedText dt)
 void MainWindow::ARRL_Digi_Display()
 {
   QMutableMapIterator<QString,RecentCall> icall(m_recentCall);
-  QString deCall,deGrid,bands;
+  QString deCall,deGrid;
   int age=0;
   int i=0;
   int maxAge=m_ActiveStationsWidget->maxAge();
@@ -3452,7 +3452,7 @@ void MainWindow::ARRL_Digi_Display()
         int az=m_activeCall[deCall].az;
         deGrid=m_activeCall[deCall].grid4;
         points=m_activeCall[deCall].points;
-        bands=m_activeCall[deCall].bands;
+//        bands=m_activeCall[deCall].bands;
         if(points>maxPoints) maxPoints=points;
         float x=float(age)/(maxAge+1);
         if(x>1.0) x=0;
@@ -3460,7 +3460,8 @@ void MainWindow::ARRL_Digi_Display()
         QString t1;
         if(!bReady) t1 = t1.asprintf("  %3d  %+2.2d  %4d  %1d %2d %4d",az,snr,freq,itx,age,points);
         if(bReady)  t1 = t1.asprintf("  %3d  %+2.2d  %4d  %1d %2d*%4d",az,snr,freq,itx,age,points);
-        t1 = (deCall + "   ").left(6) + "  " + m_activeCall[deCall].grid4 + t1 + "  " + bands;
+//        t1 = (deCall + "   ").left(6) + "  " + m_activeCall[deCall].grid4 + t1 + "  " + bands;
+        t1 = (deCall + "   ").left(6) + "  " + m_activeCall[deCall].grid4 + t1;
         list.append(t1);
       }
     }
