@@ -3417,6 +3417,9 @@ void MainWindow::ARRL_Digi_Update(DecodedText dt)
     if(bCQ or deGrid=="RR73" or deGrid=="73") rc.ready2call=true;
     rc.decodeTime=m_latestDecodeTime;
     m_recentCall[deCall]=rc;
+
+    int points=m_activeCall.value(deCall).points;
+    ui->decodedTextBrowser->displayPoints(points);
   }
 }
 
@@ -3639,6 +3642,14 @@ void MainWindow::readFromStdout()                             //readFromStdout
           }
         } else {
           DecodedText decodedtext1=decodedtext0;
+          ui->decodedTextBrowser->displayPoints(-99);
+          bool bDisplayPoints=m_config.special_op_id()==SpecOp::ARRL_DIGI;
+          bDisplayPoints=true;
+          if((m_mode=="FT4" or m_mode=="FT8") and bDisplayPoints
+             and decodedtext1.isStandardMessage()) {
+            ui->decodedTextBrowser->displayPoints(-1);
+            ARRL_Digi_Update(decodedtext1);
+          }
           ui->decodedTextBrowser->displayDecodedText (decodedtext1, m_config.my_callsign (), m_mode, m_config.DXCC (),
                                                       m_logBook, m_currentBand, m_config.ppfx (),
                                                       ui->cbCQonly->isVisible() && ui->cbCQonly->isChecked(),
@@ -3672,11 +3683,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
               }
             }
           }
-        }
-
-        if((m_mode=="FT4" or m_mode=="FT8") /* and SpecOp::ARRL_DIGI==m_config.special_op_id() */
-           and decodedtext.isStandardMessage()) {
-          ARRL_Digi_Update(decodedtext);
         }
       }
 

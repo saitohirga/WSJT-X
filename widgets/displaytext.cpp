@@ -372,11 +372,17 @@ QString DisplayText::appendWorkedB4 (QString message, QString call, QString cons
     }
     m_CQPriority=DecodeHighlightingModel::highlight_name(top_highlight);
 
+    if(m_npts == -1) return message;
     return leftJustifyAppendage (message, extra);
 }
 
-QString DisplayText::leftJustifyAppendage (QString message, QString const& appendage) const
+QString DisplayText::leftJustifyAppendage (QString message, QString const& appendage0) const
 {
+  QString appendage=appendage0;
+  if(m_npts>0) {
+    appendage=" " + QString::number(m_npts);
+    if(m_npts<10) appendage=" " + appendage;
+  }
   if (appendage.size ())
     {
       // allow for seconds
@@ -659,4 +665,9 @@ void DisplayText::highlight_callsign (QString const& callsign, QColor const& bg,
         }
     }
   setCurrentCharFormat (old_format);
+}
+
+void DisplayText::displayPoints(int npts)
+{
+  m_npts=npts;
 }

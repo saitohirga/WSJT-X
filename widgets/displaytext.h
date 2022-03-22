@@ -35,7 +35,9 @@ public:
   void displayQSY(QString text);
   void displayFoxToBeCalled(QString t, QColor bg = QColor {}, QColor fg = QColor {});
   void new_period ();
+  void displayPoints(int npts);
   QString CQPriority(){return m_CQPriority;};
+  qint32 m_npts;
 
   Q_SIGNAL void selectCallsign (Qt::KeyboardModifiers);
   Q_SIGNAL void erased ();
