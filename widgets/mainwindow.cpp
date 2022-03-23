@@ -3386,7 +3386,7 @@ void MainWindow::ARRL_Digi_Update(DecodedText dt)
                &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,(FCL)6,(FCL)6);
        int npts=int((500+nDkm)/500);
        ac.grid4=deGrid;
-//       ac.bands=".......";
+       ac.bands=".......";
        ac.az=nAz;
        ac.points=npts;
        m_activeCall[deCall]=ac;
@@ -3395,8 +3395,8 @@ void MainWindow::ARRL_Digi_Update(DecodedText dt)
 
   m_points=-1;
   if(m_activeCall.contains(deCall)) {
-/*
-    // Don't display stations we already worked on this band.
+
+// Don't display stations we already worked on this band.
     QString band=m_config.bands()->find(m_freqNominal);
     if(band=="160m" and m_activeCall[deCall].bands.indexOf("a")>=0) {m_recentCall.remove(deCall); return;}
     if(band=="80m"  and m_activeCall[deCall].bands.indexOf("b")>=0) {m_recentCall.remove(deCall); return;}
@@ -3405,7 +3405,7 @@ void MainWindow::ARRL_Digi_Update(DecodedText dt)
     if(band=="15m"  and m_activeCall[deCall].bands.indexOf("e")>=0) {m_recentCall.remove(deCall); return;}
     if(band=="10m"  and m_activeCall[deCall].bands.indexOf("f")>=0) {m_recentCall.remove(deCall); return;}
     if(band=="6m"   and m_activeCall[deCall].bands.indexOf("g")>=0) {m_recentCall.remove(deCall); return;}
-*/
+
     // Update the variable data for this deCall
     rc.dialFreq=m_freqNominal;
     rc.audioFreq=dt.frequencyOffset();
