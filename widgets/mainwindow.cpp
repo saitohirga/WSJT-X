@@ -3361,7 +3361,7 @@ void MainWindow::decodeDone ()
     m_bNoMoreFiles=false;
   }
 
-  if((m_mode=="FT4" or m_mode=="FT8") /* and SpecOp::ARRL_DIGI==m_config.special_op_id() */
+  if((m_mode=="FT4" or m_mode=="FT8")
      and m_latestDecodeTime>=0 and m_ActiveStationsWidget!=NULL) ARRL_Digi_Display();  // Update the ARRL_DIGI display
 }
 
@@ -3447,12 +3447,23 @@ void MainWindow::ARRL_Digi_Display()
     } else {
       bool bReady=false;
       if(age==0 and m_recentCall.value(deCall).ready2call) bReady=true;
-      if(bReady or !m_ActiveStationsWidget->readyOnly()) {
+
+      QString bands=m_activeCall[deCall].bands;
+      bool bWorkedOnBand=false;
+      if(m_currentBand=="160m" and bands.mid(0,1)!=".") bWorkedOnBand=true;
+      if(m_currentBand=="90m"  and bands.mid(1,1)!=".") bWorkedOnBand=true;
+      if(m_currentBand=="40m"  and bands.mid(2,1)!=".") bWorkedOnBand=true;
+      if(m_currentBand=="20m"  and bands.mid(3,1)!=".") bWorkedOnBand=true;
+      if(m_currentBand=="15m"  and bands.mid(4,1)!=".") bWorkedOnBand=true;
+      if(m_currentBand=="10m"  and bands.mid(5,1)!=".") bWorkedOnBand=true;
+      if(m_currentBand=="6m"   and bands.mid(6,1)!=".") bWorkedOnBand=true;
+
+      if((bReady or !m_ActiveStationsWidget->readyOnly()) and !bWorkedOnBand) {
         i++;
         int az=m_activeCall[deCall].az;
         deGrid=m_activeCall[deCall].grid4;
         points=m_activeCall[deCall].points;
-//        bands=m_activeCall[deCall].bands;
+//        qDebug() << "bb" << m_currentBand << deCall << bands;
         if(points>maxPoints) maxPoints=points;
         float x=float(age)/(maxAge+1);
         if(x>1.0) x=0;
@@ -3647,14 +3658,20 @@ void MainWindow::readFromStdout()                             //readFromStdout
           }
         } else {
           DecodedText decodedtext1=decodedtext0;
-          if((m_mode=="FT4" or m_mode=="FT8") and bDisplayPoints
-             and decodedtext1.isStandardMessage()) {
+          if((m_mode=="FT4" or m_mode=="FT8") and bDisplayPoints and decodedtext1.isStandardMessage()) {
             ARRL_Digi_Update(decodedtext1);
           }
           ui->decodedTextBrowser->displayDecodedText (decodedtext1, m_config.my_callsign (), m_mode, m_config.DXCC (),
                                                       m_logBook, m_currentBand, m_config.ppfx (),
                                                       ui->cbCQonly->isVisible() && ui->cbCQonly->isChecked(),
                                                       haveFSpread, fSpread, bDisplayPoints, m_points);
+          if((m_mode=="FT4" or m_mode=="FT8") and bDisplayPoints and decodedtext1.isStandardMessage()) {
+            QString deCall,deGrid;
+            decodedtext.deCallAndGrid(/*out*/deCall,deGrid);
+            bool bWorkedOnBand=(ui->decodedTextBrowser->CQPriority()!="New Call on Band");
+            if(bWorkedOnBand) activeWorked(deCall,m_currentBand);
+//            qDebug() << "aa" << m_currentBand << deCall << bWorkedOnBand << m_activeCall[deCall].bands;
+          }
 
           if (m_config.highlight_DXcall () && (m_hisCall!="") && ((decodedtext.string().contains(QRegularExpression {"(\\w+) " + m_hisCall}))
                || (decodedtext.string().contains(QRegularExpression {"(\\w+) <" + m_hisCall +">"}))
