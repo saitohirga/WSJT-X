@@ -1185,6 +1185,7 @@ void MainWindow::writeSettings()
   m_settings->setValue ("AutoClearAvg", ui->actionAuto_Clear_Avg->isChecked ());
   m_settings->setValue("SplitterState",ui->decodes_splitter->saveState());
   m_settings->setValue("Blanker",ui->sbNB->value());
+  m_settings->setValue("Score",m_score);
 
   {
     QList<QVariant> coeffs;     // suitable for QSettings
@@ -1282,6 +1283,7 @@ void MainWindow::readSettings()
   ui->RoundRobin->setCurrentText(m_settings->value("RoundRobin",tr("Random")).toString());
   m_dBm=m_settings->value("dBm",37).toInt();
   m_send_RR73=m_settings->value("RR73",false).toBool();
+  m_score=m_settings->value("Score",0).toInt();
   if(m_send_RR73) {
     m_send_RR73=false;
     on_txrb4_doubleClicked();
@@ -6228,8 +6230,6 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
                             , QString const& exchange_sent, QString const& exchange_rcvd
                             , QString const& propmode, QByteArray const& ADIF)
 {
-  static QString lastBand{""};
-  static int nBandChanges{0};
   QString date = QSO_date_on.toString("yyyyMMdd");
   if (!m_logBook.add (call, grid, m_config.bands()->find(dial_freq), mode, ADIF))
     {
@@ -6262,15 +6262,31 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
     ui->sbSerialNumber->setValue(ui->sbSerialNumber->value() + 1);
   }
 
-  QString band=m_config.bands()->find(dial_freq);
-  activeWorked(call,band);
-  int points=m_activeCall[call].points;
-  m_score += points;
-  if(band!=lastBand and lastBand!="") nBandChanges+=1;
-  lastBand=band;
-  m_ActiveStationsWidget->setRate(points);
-  m_ActiveStationsWidget->setScore(m_score);
-  m_ActiveStationsWidget->setBandChanges(nBandChanges);
+  if(m_ActiveStationsWidget!=NULL) {
+    QString band=m_config.bands()->find(dial_freq);
+    activeWorked(call,band);
+    int points=m_activeCall[call].points;
+    m_score += points;
+    ARRL_logged al;
+    al.time=QDateTime::currentDateTimeUtc();
+    al.band=band;
+    al.points=points;
+    m_arrl_log.append(al);
+    int iz=m_arrl_log.size();
+    int rate=0;
+    int nbc=0;
+
+    for(int i=iz-1; i>=0; i--) {
+      double hrDiff = m_arrl_log[i].time.msecsTo(al.time)/3600000.0;
+      if(hrDiff > 1.0) break;
+      rate += m_arrl_log[i].points;
+      if(i<iz-1 and m_arrl_log[i].band != m_arrl_log[i+1].band) nbc += 1;
+    }
+
+    m_ActiveStationsWidget->setRate(rate);
+    m_ActiveStationsWidget->setScore(m_score);
+    m_ActiveStationsWidget->setBandChanges(nbc);
+  }
 
   m_xSent.clear ();
   m_xRcvd.clear ();
@@ -7145,6 +7161,7 @@ void MainWindow::on_reset_cabrillo_log_action_triggered ()
       if(m_config.RTTY_Exchange()!="SCC") ui->sbSerialNumber->setValue(1);
       m_logBook.contest_log ()->reset ();
       m_activeCall.clear();                      //Erase the QMap of active calls
+      m_score=0;
     }
 }
 

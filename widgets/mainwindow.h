@@ -697,6 +697,14 @@ private:
   };
   QMap<QString,RecentCall> m_recentCall;   //Key = callsign, value = snr, dialFreq, audioFreq, decodeTime
 
+  struct ARRL_logged
+  {
+    QDateTime time;
+    QString band;
+    qint32 points;
+  };
+  QList<ARRL_logged> m_arrl_log;
+
   QQueue<QString> m_houndQueue;        //Selected Hounds available for starting a QSO
   QQueue<QString> m_foxQSOinProgress;  //QSOs in progress: Fox has sent a report
   QQueue<qint64>  m_foxRateQueue;
