@@ -495,6 +495,7 @@ private:
   qint32  m_maxPoints=-1;
   qint32  m_latestDecodeTime=-1;
   qint32  m_points=-99;
+  qint32  m_score=0;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;

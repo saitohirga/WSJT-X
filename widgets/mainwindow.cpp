@@ -3464,7 +3464,6 @@ void MainWindow::ARRL_Digi_Display()
         int az=m_activeCall[deCall].az;
         deGrid=m_activeCall[deCall].grid4;
         points=m_activeCall[deCall].points;
-//        qDebug() << "bb" << m_currentBand << deCall << bands;
         if(points>maxPoints) maxPoints=points;
         float x=float(age)/(maxAge+1);
         if(x>1.0) x=0;
@@ -3519,7 +3518,6 @@ void MainWindow::callSandP2(int n)
 void MainWindow::activeWorked(QString call, QString band)
 {
   QString bands=m_activeCall[call].bands;
-//  qDebug() << "cc" << band << call << bands;
   QByteArray ba=bands.toLatin1();
   if(band=="160m") ba[0]='a';
   if(band=="80m")  ba[1]='b';
@@ -3529,7 +3527,6 @@ void MainWindow::activeWorked(QString call, QString band)
   if(band=="10m")  ba[5]='f';
   if(band=="6m")   ba[6]='g';
   m_activeCall[call].bands=QString::fromLatin1(ba);
-//  qDebug() << "dd" << band << call << m_activeCall[call].bands;
 }
 
 void MainWindow::readFromStdout()                             //readFromStdout
@@ -3673,8 +3670,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
             decodedtext.deCallAndGrid(/*out*/deCall,deGrid);
             bool bWorkedOnBand=(ui->decodedTextBrowser->CQPriority()!="New Call on Band") and ui->decodedTextBrowser->CQPriority()!="";
             if(bWorkedOnBand) activeWorked(deCall,m_currentBand);
-//            qDebug() << "aa" << m_currentBand << deCall << bWorkedOnBand << m_activeCall[deCall].bands
-//                     << ui->decodedTextBrowser->CQPriority();
           }
 
           if (m_config.highlight_DXcall () && (m_hisCall!="") && ((decodedtext.string().contains(QRegularExpression {"(\\w+) " + m_hisCall}))
@@ -6233,6 +6228,8 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
                             , QString const& exchange_sent, QString const& exchange_rcvd
                             , QString const& propmode, QByteArray const& ADIF)
 {
+  static QString lastBand{""};
+  static int nBandChanges{0};
   QString date = QSO_date_on.toString("yyyyMMdd");
   if (!m_logBook.add (call, grid, m_config.bands()->find(dial_freq), mode, ADIF))
     {
@@ -6265,7 +6262,16 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
     ui->sbSerialNumber->setValue(ui->sbSerialNumber->value() + 1);
   }
 
-  activeWorked(call,m_config.bands()->find(dial_freq));
+  QString band=m_config.bands()->find(dial_freq);
+  activeWorked(call,band);
+  int points=m_activeCall[call].points;
+  m_score += points;
+  if(band!=lastBand and lastBand!="") nBandChanges+=1;
+  lastBand=band;
+  m_ActiveStationsWidget->setRate(points);
+  m_ActiveStationsWidget->setScore(m_score);
+  m_ActiveStationsWidget->setBandChanges(nBandChanges);
+
   m_xSent.clear ();
   m_xRcvd.clear ();
   if (m_config.clear_DXcall ()) ui->dxCallEntry->clear ();
@@ -7601,7 +7607,6 @@ void MainWindow::transmit (double snr)
   }
 
   if((m_mode=="FT4" or m_mode=="FT8") and m_maxPoints>0 and SpecOp::ARRL_DIGI==m_config.special_op_id()) {
-//    qDebug() << "DD" << m_maxPoints << m_deCall << m_deGrid;
     ui->dxCallEntry->setText(m_deCall);
     ui->dxGridEntry->setText(m_deGrid);
     genStdMsgs("-10");

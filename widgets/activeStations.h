@@ -26,6 +26,9 @@ public:
   void setClickOK(bool b);
   void erase();
   bool readyOnly();
+  void setRate(int n);
+  void setBandChanges(int n);
+  void setScore(int n);
   Q_SLOT void select();
 
   bool m_clickOK=false;

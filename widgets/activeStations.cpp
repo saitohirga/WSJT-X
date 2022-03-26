@@ -103,3 +103,18 @@ void ActiveStations::on_cbReadyOnly_toggled(bool b)
   m_bReadyOnly=b;
   emit activeStationsDisplay();
 }
+
+void ActiveStations::setRate(int n)
+{
+  ui->rate->setText(QString::number(n));
+}
+
+void ActiveStations::setScore(int n)
+{
+  ui->score->setText(QString::number(n));
+}
+
+void ActiveStations::setBandChanges(int n)
+{
+  ui->bandChanges->setText(QString::number(n));
+}
