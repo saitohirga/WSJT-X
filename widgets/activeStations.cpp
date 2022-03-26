@@ -4,6 +4,7 @@
 #include <QApplication>
 #include <QTextCharFormat>
 #include <QDateTime>
+#include <QDebug>
 
 #include "SettingsGroup.hpp"
 #include "qt_helpers.hpp"
@@ -23,6 +24,7 @@ ActiveStations::ActiveStations(QSettings * settings, QFont const& font, QWidget 
   read_settings ();
   ui->header_label2->setText("  N   Call    Grid   Az  S/N  Freq Tx Age Pts");
   connect(ui->RecentStationsPlainTextEdit, SIGNAL(selectionChanged()), this, SLOT(select()));
+  connect(ui->cbReadyOnly, SIGNAL(toggled(bool)), this, SLOT(on_cbReadyOnly_toggled(bool)));
 }
 
 ActiveStations::~ActiveStations()
@@ -94,4 +96,10 @@ void ActiveStations::erase()
 bool ActiveStations::readyOnly()
 {
   return ui->cbReadyOnly->isChecked();
+}
+
+void ActiveStations::on_cbReadyOnly_toggled(bool b)
+{
+  m_bReadyOnly=b;
+  emit activeStationsDisplay();
 }

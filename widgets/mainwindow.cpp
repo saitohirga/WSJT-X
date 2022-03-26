@@ -2768,7 +2768,8 @@ void MainWindow::on_actionActiveStations_triggered()
   m_ActiveStationsWidget->showNormal();
   m_ActiveStationsWidget->raise();
   m_ActiveStationsWidget->activateWindow();
-  connect(m_ActiveStationsWidget.data (), SIGNAL(callSandP(int)),this,SLOT(callSandP2(int)));
+  connect(m_ActiveStationsWidget.data(), SIGNAL(callSandP(int)),this,SLOT(callSandP2(int)));
+  connect(m_ActiveStationsWidget.data(), SIGNAL(activeStationsDisplay()),this,SLOT(ARRL_Digi_Display()));
 }
 
 void MainWindow::on_actionOpen_triggered()                     //Open File
@@ -3451,7 +3452,7 @@ void MainWindow::ARRL_Digi_Display()
       QString bands=m_activeCall[deCall].bands;
       bool bWorkedOnBand=false;
       if(m_currentBand=="160m" and bands.mid(0,1)!=".") bWorkedOnBand=true;
-      if(m_currentBand=="90m"  and bands.mid(1,1)!=".") bWorkedOnBand=true;
+      if(m_currentBand=="80m"  and bands.mid(1,1)!=".") bWorkedOnBand=true;
       if(m_currentBand=="40m"  and bands.mid(2,1)!=".") bWorkedOnBand=true;
       if(m_currentBand=="20m"  and bands.mid(3,1)!=".") bWorkedOnBand=true;
       if(m_currentBand=="15m"  and bands.mid(4,1)!=".") bWorkedOnBand=true;
@@ -3518,6 +3519,7 @@ void MainWindow::callSandP2(int n)
 void MainWindow::activeWorked(QString call, QString band)
 {
   QString bands=m_activeCall[call].bands;
+//  qDebug() << "cc" << band << call << bands;
   QByteArray ba=bands.toLatin1();
   if(band=="160m") ba[0]='a';
   if(band=="80m")  ba[1]='b';
@@ -3527,6 +3529,7 @@ void MainWindow::activeWorked(QString call, QString band)
   if(band=="10m")  ba[5]='f';
   if(band=="6m")   ba[6]='g';
   m_activeCall[call].bands=QString::fromLatin1(ba);
+//  qDebug() << "dd" << band << call << m_activeCall[call].bands;
 }
 
 void MainWindow::readFromStdout()                             //readFromStdout
@@ -3668,9 +3671,10 @@ void MainWindow::readFromStdout()                             //readFromStdout
           if((m_mode=="FT4" or m_mode=="FT8") and bDisplayPoints and decodedtext1.isStandardMessage()) {
             QString deCall,deGrid;
             decodedtext.deCallAndGrid(/*out*/deCall,deGrid);
-            bool bWorkedOnBand=(ui->decodedTextBrowser->CQPriority()!="New Call on Band");
+            bool bWorkedOnBand=(ui->decodedTextBrowser->CQPriority()!="New Call on Band") and ui->decodedTextBrowser->CQPriority()!="";
             if(bWorkedOnBand) activeWorked(deCall,m_currentBand);
-//            qDebug() << "aa" << m_currentBand << deCall << bWorkedOnBand << m_activeCall[deCall].bands;
+//            qDebug() << "aa" << m_currentBand << deCall << bWorkedOnBand << m_activeCall[deCall].bands
+//                     << ui->decodedTextBrowser->CQPriority();
           }
 
           if (m_config.highlight_DXcall () && (m_hisCall!="") && ((decodedtext.string().contains(QRegularExpression {"(\\w+) " + m_hisCall}))
@@ -7597,7 +7601,7 @@ void MainWindow::transmit (double snr)
   }
 
   if((m_mode=="FT4" or m_mode=="FT8") and m_maxPoints>0 and SpecOp::ARRL_DIGI==m_config.special_op_id()) {
-    qDebug() << "dd" << m_maxPoints << m_deCall << m_deGrid;
+//    qDebug() << "DD" << m_maxPoints << m_deCall << m_deGrid;
     ui->dxCallEntry->setText(m_deCall);
     ui->dxGridEntry->setText(m_deGrid);
     genStdMsgs("-10");

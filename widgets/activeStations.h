@@ -29,13 +29,16 @@ public:
   Q_SLOT void select();
 
   bool m_clickOK=false;
+  bool m_bReadyOnly;
 
 signals:
   void callSandP(int nline);
+  void activeStationsDisplay();
 
 private:
   void read_settings ();
   void write_settings ();
+  Q_SLOT void on_cbReadyOnly_toggled(bool b);
 
   qint64 m_msec0=0;
   QSettings * settings_;
