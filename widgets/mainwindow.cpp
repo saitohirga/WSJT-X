@@ -3387,11 +3387,13 @@ void MainWindow::ARRL_Digi_Update(DecodedText dt)
        azdist_(const_cast <char *> (m_config.my_grid().left(4).toLatin1().constData()),
                const_cast <char *> (deGrid.left(4).toLatin1().constData()),&utch,
                &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,(FCL)6,(FCL)6);
-       int npts=int((500+nDkm)/500);
+       int points=nDkm/500;
+       if(nDkm > 500*points) points += 1;
+       points += 1;
        ac.grid4=deGrid;
        ac.bands=".......";
        ac.az=nAz;
-       ac.points=npts;
+       ac.points=points;
        m_activeCall[deCall]=ac;
      }
   }
@@ -3745,9 +3747,11 @@ void MainWindow::readFromStdout()                             //readFromStdout
                 azdist_(const_cast <char *> ((m_config.my_grid () + "      ").left (6).toLatin1 ().constData ()),
                         const_cast <char *> ((deGrid + "      ").left(6).toLatin1 ().constData ()),&utch,
                         &nAz,&nEl,&nDmiles,&nDkm,&nHotAz,&nHotABetter,(FCL)6,(FCL)6);
-                int npts=int((500+nDkm)/500);
-                if(npts>m_maxPoints) {
-                  m_maxPoints=npts;
+                int points=nDkm/500;
+                if(nDkm > 500*points) points += 1;
+                points += 1;
+                if(points>m_maxPoints) {
+                  m_maxPoints=points;
                   m_deCall=deCall;
                   m_deGrid=deGrid;
                   m_bDoubleClicked=true;
