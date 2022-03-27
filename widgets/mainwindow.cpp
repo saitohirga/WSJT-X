@@ -2772,6 +2772,7 @@ void MainWindow::on_actionActiveStations_triggered()
   m_ActiveStationsWidget->activateWindow();
   connect(m_ActiveStationsWidget.data(), SIGNAL(callSandP(int)),this,SLOT(callSandP2(int)));
   connect(m_ActiveStationsWidget.data(), SIGNAL(activeStationsDisplay()),this,SLOT(ARRL_Digi_Display()));
+  m_ActiveStationsWidget->setScore(m_score);
 }
 
 void MainWindow::on_actionOpen_triggered()                     //Open File
