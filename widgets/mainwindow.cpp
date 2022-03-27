@@ -7167,6 +7167,7 @@ void MainWindow::on_reset_cabrillo_log_action_triggered ()
       m_logBook.contest_log ()->reset ();
       m_activeCall.clear();                      //Erase the QMap of active calls
       m_score=0;
+      m_ActiveStationsWidget->setScore(0);
     }
 }
 
