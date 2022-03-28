@@ -3770,6 +3770,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
                     ntx=3;
                   }
                   genStdMsgs(QString::number(decodedtext.snr()));
+                  ui->RxFreqSpinBox->setValue(decodedtext.frequencyOffset());
                   setTxMsg(ntx);
                 }
               }
