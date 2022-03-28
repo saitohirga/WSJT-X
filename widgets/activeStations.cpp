@@ -116,5 +116,10 @@ void ActiveStations::setScore(int n)
 
 void ActiveStations::setBandChanges(int n)
 {
+  if(n >= 8) {
+    ui->bandChanges->setStyleSheet("QLineEdit{background: rgb(255, 64, 64)}");
+  } else {
+    ui->bandChanges->setStyleSheet ("");
+  }
   ui->bandChanges->setText(QString::number(n));
 }
