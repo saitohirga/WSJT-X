@@ -3729,7 +3729,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
             }
           }
           if(m_bCallingCQ && !m_bAutoReply && for_us && SpecOp::FOX > m_config.special_op_id()) {
-            if(ui->respondComboBox->currentText()!="CQ: First") {
+            if(ui->respondComboBox->currentText()=="CQ: First") {
               m_bDoubleClicked=true;
               m_bAutoReply = true;
               processMessage (decodedtext);
@@ -3742,7 +3742,9 @@ void MainWindow::readFromStdout()                             //readFromStdout
               if(deGrid.contains(grid_regexp) or
                  (deGrid.contains("+") or deGrid.contains("-"))) {
                 int points=0;
-                if(deGrid.contains(grid_regexp)) {
+                if(m_activeCall.contains(deCall)) {
+                  points=m_activeCall[deCall].points;
+                } else if(deGrid.contains(grid_regexp)) {
                   double utch=0.0;
                   int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter;
                   azdist_(const_cast <char *> ((m_config.my_grid () + "      ").left (6).toLatin1 ().constData ()),
@@ -3752,7 +3754,6 @@ void MainWindow::readFromStdout()                             //readFromStdout
                   if(nDkm > 500*points) points += 1;
                   points += 1;
                 }
-
                 if(points>m_maxPoints) {
                   m_maxPoints=points;
                   m_deCall=deCall;
