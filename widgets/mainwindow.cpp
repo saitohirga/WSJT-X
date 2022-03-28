@@ -3758,14 +3758,18 @@ void MainWindow::readFromStdout()                             //readFromStdout
                 if(points>m_maxPoints) {
                   m_maxPoints=points;
                   m_deCall=deCall;
-                  m_deGrid=deGrid;
                   m_bDoubleClicked=true;
                   ui->dxCallEntry->setText(deCall);
-                  ui->dxGridEntry->setText(deGrid);
-                  genStdMsgs(QString::number(decodedtext.snr()));
                   int ntx=2;
                   bool bContest=m_config.special_op_id()==SpecOp::NA_VHF or m_config.special_op_id()==SpecOp::ARRL_DIGI;
                   if(bContest) ntx=3;
+                  if(deGrid.contains(grid_regexp)) {
+                    m_deGrid=deGrid;
+                    ui->dxGridEntry->setText(deGrid);
+                  } else {
+                    ntx=3;
+                  }
+                  genStdMsgs(QString::number(decodedtext.snr()));
                   setTxMsg(ntx);
                 }
               }
