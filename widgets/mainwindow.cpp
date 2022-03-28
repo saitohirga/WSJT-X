@@ -3744,6 +3744,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
                 int points=0;
                 if(m_activeCall.contains(deCall)) {
                   points=m_activeCall[deCall].points;
+                  deGrid=m_activeCall[deCall].grid4;
                 } else if(deGrid.contains(grid_regexp)) {
                   double utch=0.0;
                   int nAz,nEl,nDmiles,nDkm,nHotAz,nHotABetter;
