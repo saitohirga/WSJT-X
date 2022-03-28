@@ -111,7 +111,7 @@ void ActiveStations::setRate(int n)
 
 void ActiveStations::setScore(int n)
 {
-  ui->score->setText(QString::number(n));
+  ui->score->setText(QLocale(QLocale::English).toString(n));
 }
 
 void ActiveStations::setBandChanges(int n)
