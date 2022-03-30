@@ -374,7 +374,7 @@ QString DisplayText::appendWorkedB4 (QString message, QString call, QString cons
     }
     m_CQPriority=DecodeHighlightingModel::highlight_name(top_highlight);
 
-    if((m_points == 00) or (m_points == -1)) return message;
+    if(((m_points == 00) or (m_points == -1)) and m_bDisplayPoints) return message;
     return leftJustifyAppendage (message, extra);
 }
 
