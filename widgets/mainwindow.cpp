@@ -3729,13 +3729,18 @@ void MainWindow::readFromStdout()                             //readFromStdout
             }
           }
           if(m_bCallingCQ && !m_bAutoReply && for_us && SpecOp::FOX > m_config.special_op_id()) {
-            if(ui->respondComboBox->currentText()=="CQ: First") {
+            bool bActiveStations=false;
+            if(ui->respondComboBox->currentText()=="CQ: First") bActiveStations=true;
+
+            if(ui->respondComboBox->currentText()=="CQ: Max Dist" and m_ActiveStationsWidget==NULL) bActiveStations=true;
+            if(m_ActiveStationsWidget!=NULL and !m_ActiveStationsWidget->isVisible()) bActiveStations=true;
+            if(bActiveStations) {
               m_bDoubleClicked=true;
               m_bAutoReply = true;
               processMessage (decodedtext);
             }
 
-            if(ui->respondComboBox->currentText()=="CQ: Max Dist") {
+            if(!bActiveStations and m_ActiveStationsWidget and ui->respondComboBox->currentText()=="CQ: Max Dist") {
               QString deCall;
               QString deGrid;
               decodedtext.deCallAndGrid(/*out*/deCall,deGrid);
@@ -3760,18 +3765,21 @@ void MainWindow::readFromStdout()                             //readFromStdout
                   m_deCall=deCall;
                   m_bDoubleClicked=true;
                   ui->dxCallEntry->setText(deCall);
-                  int ntx=2;
+                  int m_ntx=2;
                   bool bContest=m_config.special_op_id()==SpecOp::NA_VHF or m_config.special_op_id()==SpecOp::ARRL_DIGI;
-                  if(bContest) ntx=3;
+                  if(bContest) m_ntx=3;
                   if(deGrid.contains(grid_regexp)) {
                     m_deGrid=deGrid;
                     ui->dxGridEntry->setText(deGrid);
                   } else {
-                    ntx=3;
+                    m_ntx=3;
                   }
+                  if(m_ntx==2) m_QSOProgress = REPORT;
+                  if(m_ntx==3) m_QSOProgress = ROGER_REPORT;
                   genStdMsgs(QString::number(decodedtext.snr()));
                   ui->RxFreqSpinBox->setValue(decodedtext.frequencyOffset());
-                  setTxMsg(ntx);
+                  setTxMsg(m_ntx);
+                  m_currentMessageType=m_ntx;
                 }
               }
             }
@@ -4469,7 +4477,8 @@ void MainWindow::guiUpdate()
         }
     }
 
-    bool b=("FT8"==m_mode or "FT4"==m_mode or "Q65"==m_mode) and ui->cbAutoSeq->isVisible () && ui->cbAutoSeq->isEnabled () && ui->cbAutoSeq->isChecked ();
+    bool b=("FT8"==m_mode or "FT4"==m_mode or "Q65"==m_mode) and ui->cbAutoSeq->isVisible ()
+        && ui->cbAutoSeq->isEnabled () && ui->cbAutoSeq->isChecked ();
     if(is_73 and (m_config.disable_TX_on_73() or b)) {
       m_nextCall="";  //### Temporary: disable use of "TU;" messages;
       if(m_nextCall!="") {
