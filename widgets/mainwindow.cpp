@@ -3366,14 +3366,7 @@ void MainWindow::decodeDone ()
   }
 
   if((m_mode=="FT4" or m_mode=="FT8")
-     and m_latestDecodeTime>=0 and m_ActiveStationsWidget!=NULL) {
-    if(!m_diskData) {
-      m_latestDecodeTime = (QDateTime::currentMSecsSinceEpoch()/1000) % 86400;
-      m_latestDecodeTime =  int(m_latestDecodeTime/m_TRperiod);
-      m_latestDecodeTime =  int(m_latestDecodeTime*m_TRperiod);
-    }
-    ARRL_Digi_Display();  // Update the ARRL_DIGI display
-  }
+     and m_latestDecodeTime>=0 and m_ActiveStationsWidget!=NULL) ARRL_Digi_Display();  // Update the ARRL_DIGI display
 }
 
 void MainWindow::ARRL_Digi_Update(DecodedText dt)
@@ -3451,7 +3444,6 @@ void MainWindow::ARRL_Digi_Display()
     icall.next();
     deCall=icall.key();
     age=int((m_latestDecodeTime - icall.value().decodeTime)/m_TRperiod + 0.5);
-    if(age < 0) age=1;                //This probably fixes most 0h UTC wrap-round problems??
     int itx=1;
     if(icall.value().txEven) itx=0;
     int snr=icall.value().snr;
