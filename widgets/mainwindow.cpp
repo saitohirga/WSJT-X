@@ -3347,7 +3347,6 @@ void MainWindow::decodeDone ()
       killFileTimer.start(mswait); //Kill at 3/4 period
     }
   }
-  if(m_mode!="FT8" or dec_data.params.nzhsym==50) m_nDecodes=0;
 
   dec_data.params.nagain=0;
   dec_data.params.ndiskdat=0;
@@ -3366,7 +3365,16 @@ void MainWindow::decodeDone ()
   }
 
   if((m_mode=="FT4" or m_mode=="FT8")
-     and m_latestDecodeTime>=0 and m_ActiveStationsWidget!=NULL) ARRL_Digi_Display();  // Update the ARRL_DIGI display
+     and m_latestDecodeTime>=0 and m_ActiveStationsWidget!=NULL) {
+    if(!m_diskData and (m_nDecodes==0)) {
+      m_latestDecodeTime = (QDateTime::currentMSecsSinceEpoch()/1000) % 86400;
+      m_latestDecodeTime =  int(m_latestDecodeTime/m_TRperiod);
+      m_latestDecodeTime =  int(m_latestDecodeTime*m_TRperiod);
+    }
+    qDebug() << "aa" << m_ihsym << m_latestDecodeTime << m_nDecodes;
+    ARRL_Digi_Display();  // Update the ARRL_DIGI display
+  }
+  if(m_mode!="FT8" or dec_data.params.nzhsym==50) m_nDecodes=0;
 }
 
 void MainWindow::ARRL_Digi_Update(DecodedText dt)
