@@ -745,6 +745,17 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
               }
           });
 
+#if defined(Q_OS_WIN)
+  // ensure a balanced layout of the mode buttons both on Windos and MacOS
+  ui->houndButton->setMaximumWidth(40);
+  ui->ft8Button->setMaximumWidth(40);
+  ui->ft4Button->setMaximumWidth(40);
+  ui->msk144Button->setMaximumWidth(40);
+  ui->q65Button->setMaximumWidth(40);
+  ui->jt65Button->setMaximumWidth(40);
+#endif
+
+
   // hook up save WAV file exit handling
   connect (&m_saveWAVWatcher, &QFutureWatcher<QString>::finished, [this] {
       // extract the promise from the future
