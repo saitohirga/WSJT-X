@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>893</width>
-    <height>662</height>
+    <height>665</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -2875,7 +2875,7 @@ QLabel[oob=&quot;true&quot;] {
              </property>
              <property name="maximumSize">
               <size>
-               <width>16777215</width>
+               <width>40</width>
                <height>16777215</height>
               </size>
              </property>
@@ -2900,7 +2900,7 @@ QLabel[oob=&quot;true&quot;] {
              </property>
              <property name="maximumSize">
               <size>
-               <width>16777215</width>
+               <width>40</width>
                <height>16777215</height>
               </size>
              </property>
@@ -2922,7 +2922,7 @@ QLabel[oob=&quot;true&quot;] {
              </property>
              <property name="maximumSize">
               <size>
-               <width>16777215</width>
+               <width>40</width>
                <height>16777215</height>
               </size>
              </property>
@@ -2944,7 +2944,7 @@ QLabel[oob=&quot;true&quot;] {
              </property>
              <property name="maximumSize">
               <size>
-               <width>16777215</width>
+               <width>40</width>
                <height>16777215</height>
               </size>
              </property>
@@ -2966,7 +2966,7 @@ QLabel[oob=&quot;true&quot;] {
              </property>
              <property name="maximumSize">
               <size>
-               <width>16777215</width>
+               <width>40</width>
                <height>16777215</height>
               </size>
              </property>
@@ -2988,7 +2988,7 @@ QLabel[oob=&quot;true&quot;] {
              </property>
              <property name="maximumSize">
               <size>
-               <width>16777215</width>
+               <width>40</width>
                <height>16777215</height>
               </size>
              </property>
