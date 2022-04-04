@@ -6605,6 +6605,11 @@ void MainWindow::on_actionFT8_triggered()
     switch_mode (Modes::FT8);
   }
 
+  if(m_config.special_op_id() != SpecOp::HOUND) {
+      ui->houndButton->setChecked(false);
+      ui->houndButton->setStyleSheet("");
+  }
+
   if (SpecOp::NONE < m_config.special_op_id () && SpecOp::FOX > m_config.special_op_id ()) {
     QString t0="";
     if(SpecOp::NA_VHF==m_config.special_op_id()) t0+="NA VHF";
