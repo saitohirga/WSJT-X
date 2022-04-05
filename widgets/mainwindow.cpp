@@ -745,25 +745,23 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
               }
           });
 
-#if !defined(Q_OS_MAC)
-  // ensure a balanced layout of the mode buttons both on Windos and MacOS
-  ui->houndButton->setMaximumWidth(40);
-  ui->ft8Button->setMaximumWidth(40);
-  ui->ft4Button->setMaximumWidth(40);
-  ui->msk144Button->setMaximumWidth(40);
-  ui->q65Button->setMaximumWidth(40);
-  ui->jt65Button->setMaximumWidth(40);
-#endif
-
-#if defined(Q_OS_MAC)
-  // ensure a balanced layout of the mode buttons both on Windos and MacOS
-  ui->houndButton->setMinimumWidth(0);
-  ui->ft8Button->setMinimumWidth(0);
-  ui->ft4Button->setMinimumWidth(0);
-  ui->msk144Button->setMinimumWidth(0);
-  ui->q65Button->setMinimumWidth(0);
-  ui->jt65Button->setMinimumWidth(0);
-#endif
+  // ensure a balanced layout of the mode buttons
+  qreal pointSize = m_config.text_font().pointSizeF();
+  if (pointSize < 12) {
+      ui->houndButton->setMaximumWidth(40);
+      ui->ft8Button->setMaximumWidth(40);
+      ui->ft4Button->setMaximumWidth(40);
+      ui->msk144Button->setMaximumWidth(40);
+      ui->q65Button->setMaximumWidth(40);
+      ui->jt65Button->setMaximumWidth(40);
+  } else {
+      ui->houndButton->setMinimumWidth(0);
+      ui->ft8Button->setMinimumWidth(0);
+      ui->ft4Button->setMinimumWidth(0);
+      ui->msk144Button->setMinimumWidth(0);
+      ui->q65Button->setMinimumWidth(0);
+      ui->jt65Button->setMinimumWidth(0);
+  }
 
   // hook up save WAV file exit handling
   connect (&m_saveWAVWatcher, &QFutureWatcher<QString>::finished, [this] {
