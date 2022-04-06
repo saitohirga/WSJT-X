@@ -134,7 +134,6 @@ public:
   bool split_mode () const;
   bool enable_VHF_features () const;
   bool decode_at_52s () const;
-  bool Tune_watchdog_disabled () const;
   bool single_decode () const;
   bool twoPass() const;
   bool bFox() const;
