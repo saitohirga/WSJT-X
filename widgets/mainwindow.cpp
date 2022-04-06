@@ -3389,7 +3389,6 @@ void MainWindow::decodeDone ()
       m_latestDecodeTime =  int(m_latestDecodeTime/m_TRperiod);
       m_latestDecodeTime =  int(m_latestDecodeTime*m_TRperiod);
     }
-    qDebug() << "aa" << m_ihsym << m_latestDecodeTime << m_nDecodes;
     ARRL_Digi_Display();  // Update the ARRL_DIGI display
   }
   if(m_mode!="FT8" or dec_data.params.nzhsym==50) m_nDecodes=0;
