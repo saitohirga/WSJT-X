@@ -103,13 +103,13 @@ void Astro::astroUpdate(QDateTime t, QString mygrid, QString hisgrid,
   sprintf(cc,"%2.2d:%2.2d:%2.2d,%5.1f,%5.1f,Moon\n"
           "%2.2d:%2.2d:%2.2d,%5.1f,%5.1f,Sun\n"
           "%2.2d:%2.2d:%2.2d,%5.1f,%5.1f,Source\n"
-          "%4d,%6d,Doppler\n"
+          "%4d,%6d,%6d,Doppler\n"
           "%3d,%1d,fQSO\n"
           "%3d,%1d,fQSO2\n",
           nhr,nmin,isec,azmoon,elmoon,
           nhr,nmin,isec,azsun,elsun,
           nhr,nmin,isec,0.0,0.0,
-          nfreq,ndop,
+          nfreq,ndop,ndop00,
           fQSO,nsetftx,
           ntxFreq,ndiff);
   out << cc;
