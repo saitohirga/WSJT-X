@@ -3470,6 +3470,7 @@ void MainWindow::ARRL_Digi_Display()
     icall.next();
     deCall=icall.key();
     age=int((m_latestDecodeTime - icall.value().decodeTime)/m_TRperiod + 0.5);
+    if(age<0) age=age + int(86400/m_TRperiod);
     int itx=1;
     if(icall.value().txEven) itx=0;
     int snr=icall.value().snr;
