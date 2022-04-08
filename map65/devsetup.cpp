@@ -106,8 +106,8 @@ void DevSetup::initDlg()
   ui.comboBoxSndOut->setCurrentIndex(m_nDevOut);
   ui.sbPort->setValue(m_udpPort);
   ui.cbIQswap->setChecked(m_IQswap);
-  ui.cb10db->setChecked(m_10db);
   ui.cbInitIQplus->setChecked(m_initIQplus);
+  ui.sb_dB->setValue(m_dB);
   ui.mult570SpinBox->setValue(m_mult570);
   ui.mult570TxSpinBox->setValue(m_mult570Tx);
   ui.cal570SpinBox->setValue(m_cal570);
@@ -176,8 +176,8 @@ void DevSetup::accept()
   m_paOutDevice=m_outDevList[m_nDevOut];
   m_udpPort=ui.sbPort->value();
   m_IQswap=ui.cbIQswap->isChecked();
-  m_10db=ui.cb10db->isChecked();
   m_initIQplus=ui.cbInitIQplus->isChecked();
+  m_dB=ui.sb_dB->value();
   m_mult570=ui.mult570SpinBox->value();
   m_mult570Tx=ui.mult570TxSpinBox->value();
   m_cal570=ui.cal570SpinBox->value();
@@ -195,7 +195,7 @@ void DevSetup::on_soundCardRadioButton_toggled(bool checked)
   ui.label_Port->setEnabled(!checked);
   ui.sbPort->setEnabled(!checked);
   ui.cbIQswap->setEnabled(checked);
-  ui.cb10db->setEnabled(checked);
+  ui.sb_dB->setEnabled(checked);
 }
 
 void DevSetup::on_cbXpol_stateChanged(int n)
@@ -215,6 +215,11 @@ void DevSetup::on_cal570SpinBox_valueChanged(double ppm)
 void DevSetup::on_mult570SpinBox_valueChanged(int mult)
 {
   m_mult570=mult;
+}
+
+void DevSetup::on_sb_dB_valueChanged(int n)
+{
+  m_dB=n;
 }
 
 void DevSetup::updateColorLabels()

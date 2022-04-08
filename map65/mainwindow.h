@@ -192,6 +192,7 @@ private:
   qint32  m_modeJT65;
   qint32  m_modeQ65;
   qint32  m_RxState;
+  qint32  m_dB;
 
 
   double  m_fAdd;
@@ -220,7 +221,6 @@ private:
   bool    m_NB;
   bool    m_fs96000;
   bool    m_IQswap;
-  bool    m_10db;
   bool    m_initIQplus;
   bool    m_bIQxt;
 

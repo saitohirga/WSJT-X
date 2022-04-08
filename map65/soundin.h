@@ -30,7 +30,7 @@ public:
   }
 
   void setSwapIQ(bool b);
-  void set10db(bool b);
+  void setScale(qint32 n);
   void setPort(qint32 n);
   void setInputDevice(qint32 n);
   void setRate(double rate);
@@ -62,7 +62,6 @@ private:
   bool   m_monitoring;
   bool   m_bForceCenterFreq;
   bool   m_IQswap;
-  bool   m_10db;
   double m_dForceCenterFreq;
   qint32 m_nrx;
   qint32 m_hsym;
@@ -70,6 +69,7 @@ private:
   qint32 m_udpPort;
   qint32 m_TRperiod;
   qint32 m_TRperiod0;
+  qint32 m_dB;
 
   QUdpSocket *udpSocket;
 };

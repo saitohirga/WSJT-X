@@ -372,7 +372,7 @@ void MainWindow::writeSettings()
   settings.setValue("SoundOutIndex",m_nDevOut);
   settings.setValue("paOutDevice",m_paOutDevice);
   settings.setValue("IQswap",m_IQswap);
-  settings.setValue("Plus10dB",m_10db);
+  settings.setValue("Scale_dB",m_dB);
   settings.setValue("IQxt",m_bIQxt);
   settings.setValue("InitIQplus",m_initIQplus);
   settings.setValue("UDPport",m_udpPort);
@@ -447,12 +447,12 @@ void MainWindow::readSettings()
   m_nDevOut = settings.value("SoundOutIndex", 0).toInt();
   m_paOutDevice = settings.value("paOutDevice",0).toInt();
   m_IQswap = settings.value("IQswap",false).toBool();
-  m_10db = settings.value("Plus10dB",false).toBool();
+  m_dB = settings.value("Scale_dB",0).toInt();
   m_initIQplus = settings.value("InitIQplus",false).toBool();
   m_bIQxt = settings.value("IQxt",false).toBool();
   m_udpPort = settings.value("UDPport",50004).toInt();
   soundInThread.setSwapIQ(m_IQswap);
-  soundInThread.set10db(m_10db);
+  soundInThread.setScale(m_dB);
   soundInThread.setPort(m_udpPort);
   ui->actionCuteSDR->setChecked(settings.value(
                                   "PaletteCuteSDR",true).toBool());
@@ -682,7 +682,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
   dlg.m_nDevOut=m_nDevOut;
   dlg.m_udpPort=m_udpPort;
   dlg.m_IQswap=m_IQswap;
-  dlg.m_10db=m_10db;
+  dlg.m_dB=m_dB;
   dlg.m_initIQplus=m_initIQplus;
   dlg.m_bIQxt=m_bIQxt;
   dlg.m_cal570=m_cal570;
@@ -719,7 +719,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_paOutDevice=dlg.m_paOutDevice;
     m_udpPort=dlg.m_udpPort;
     m_IQswap=dlg.m_IQswap;
-    m_10db=dlg.m_10db;
+    m_dB=dlg.m_dB;
     m_initIQplus=dlg.m_initIQplus;
     m_bIQxt=dlg.m_bIQxt;
     m_colors=dlg.m_colors;
@@ -732,7 +732,7 @@ void MainWindow::on_actionDeviceSetup_triggered()               //Setup Dialog
     m_wide_graph_window->m_mult570Tx=m_mult570Tx;
     m_wide_graph_window->m_cal570=m_cal570;
     soundInThread.setSwapIQ(m_IQswap);
-    soundInThread.set10db(m_10db);
+    soundInThread.setScale(m_dB);
 
     if(dlg.m_restartSoundIn) {
       soundInThread.quit();

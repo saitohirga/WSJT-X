@@ -27,6 +27,7 @@ public:
   qint32  m_astroFont;
   qint32  m_mult570;
   qint32  m_mult570Tx;
+  qint32  m_dB;
 
   double  m_fAdd;
   double  m_cal570;
@@ -39,7 +40,6 @@ public:
   bool    m_IQswap;
   bool    m_restartSoundIn;
   bool    m_restartSoundOut;
-  bool    m_10db;
   bool    m_initIQplus;
   bool    m_bIQxt;
 
@@ -81,6 +81,7 @@ private slots:
   void on_mult570TxSpinBox_valueChanged(int arg1);
   void on_rbIQXT_toggled(bool checked);  
   void on_sbTxOffset_valueChanged(double f);
+  void on_sb_dB_valueChanged(int n);
 
 private:
   int r,g,b,r0,g0,b0,r1,g1,b1,r2,g2,b2,r3,g3,b3;

@@ -698,12 +698,21 @@
                </widget>
               </item>
               <item>
-               <widget class="QCheckBox" name="cb10db">
-                <property name="enabled">
-                 <bool>false</bool>
+               <widget class="QSpinBox" name="sb_dB">
+                <property name="suffix">
+                 <string>  dB</string>
                 </property>
-                <property name="text">
-                 <string>+10 dB</string>
+                <property name="prefix">
+                 <string>  </string>
+                </property>
+                <property name="minimum">
+                 <number>-50</number>
+                </property>
+                <property name="maximum">
+                 <number>10</number>
+                </property>
+                <property name="singleStep">
+                 <number>5</number>
                 </property>
                </widget>
               </item>
@@ -1772,8 +1781,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>257</x>
+     <y>380</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -1788,8 +1797,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>325</x>
+     <y>380</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>

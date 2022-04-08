@@ -1,4 +1,5 @@
 #include "soundin.h"
+#include <math.h>
 
 #ifdef Q_OS_WIN32
 #include <windows.h>
@@ -53,9 +54,9 @@ typedef struct
 {
   int kin;          //Parameters sent to/from the portaudio callback function
   int nrx;
+  int dB;
   bool bzero;
   bool iqswap;
-  bool b10db;
 } paUserData;
 
 //--------------------------------------------------------------- a2dCallback
@@ -91,8 +92,7 @@ extern "C" int a2dCallback( const void *inputBuffer, void *outputBuffer,
   nbytes=udata->nrx*8*framesToProcess;        //Bytes per frame
   memcpy(d4,inputBuffer,nbytes);              //Copy all samples to d4
 
-  fac=32767.0;
-  if(udata->b10db) fac=103618.35;
+  fac=32767.0 * pow(10.0,0.05*udata->dB);
 
   if(udata->nrx==2) {
     for(i=0; i<4*int(framesToProcess); i++) {     //Negate odd-numbered frames
@@ -185,7 +185,7 @@ void SoundInThread::run()                           //SoundInThread::run()
   udata.bzero=false;                        //Flag to request reset of kin
   udata.nrx=m_nrx;                          //Number of polarizations
   udata.iqswap=m_IQswap;
-  udata.b10db=m_10db;
+  udata.dB=m_dB;
 
   auto device_info = Pa_GetDeviceInfo (m_nDevIn);
 
@@ -251,7 +251,7 @@ void SoundInThread::run()                           //SoundInThread::run()
     }
     k=udata.kin;
     udata.iqswap=m_IQswap;
-    udata.b10db=m_10db;
+    udata.dB=m_dB;
     if(m_monitoring) {
       if(m_bForceCenterFreq) {
         datcom_.fcenter=m_dForceCenterFreq;
@@ -281,9 +281,9 @@ void SoundInThread::setSwapIQ(bool b)
   m_IQswap=b;
 }
 
-void SoundInThread::set10db(bool b)
+void SoundInThread::setScale(qint32 n)
 {
-  m_10db=b;
+  m_dB=n;
 }
 void SoundInThread::setPort(int n)                              //setPort()
 {
