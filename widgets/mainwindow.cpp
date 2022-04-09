@@ -1555,7 +1555,7 @@ void MainWindow::dataSink(qint64 frames)
   if(m_mode=="FT8") {
     to_jt9(m_ihsym,-1,-1);     //Allow jt9 to bail out early, if necessary
     if(m_ihsym==40 and m_decoderBusy) {
-      qDebug() << "Clearing hung decoder status";
+//      qDebug() << "Clearing hung decoder status";
       decodeDone();  //Clear a hung decoder status
     }
   }
@@ -3754,12 +3754,12 @@ void MainWindow::readFromStdout()                             //readFromStdout
                   for_us = false;
             }
           }
+          bool bActiveStations=false;
           if(m_bCallingCQ && !m_bAutoReply && for_us && SpecOp::FOX > m_config.special_op_id()) {
-            bool bActiveStations=false;
             if(ui->respondComboBox->currentText()=="CQ: First") bActiveStations=true;
 
             if(ui->respondComboBox->currentText()=="CQ: Max Dist" and m_ActiveStationsWidget==NULL) bActiveStations=true;
-            if(m_ActiveStationsWidget!=NULL and !m_ActiveStationsWidget->isVisible()) bActiveStations=true;
+            if(m_ActiveStationsWidget!=NULL and m_ActiveStationsWidget->isVisible()) bActiveStations=true;
             if(bActiveStations) {
               m_bDoubleClicked=true;
               m_bAutoReply = true;
@@ -3792,7 +3792,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
                   m_bDoubleClicked=true;
                   ui->dxCallEntry->setText(deCall);
                   int m_ntx=2;
-                  bool bContest=m_config.special_op_id()==SpecOp::NA_VHF or m_config.special_op_id()==SpecOp::ARRL_DIGI;
+                  bool bContest=m_config.special_op_id()==SpecOp::NA_VHF or m_config.special_op_id()==SpecOp::ARRL_DIGI or
+                      m_config.special_op_id()==SpecOp::WW_DIGI;
                   if(bContest) m_ntx=3;
                   if(deGrid.contains(grid_regexp)) {
                     m_deGrid=deGrid;
@@ -3800,8 +3801,10 @@ void MainWindow::readFromStdout()                             //readFromStdout
                   } else {
                     m_ntx=3;
                   }
+                  if(deGrid.contains("R+") or deGrid.contains("R-") or deGrid.contains("R ")) m_ntx=4;
                   if(m_ntx==2) m_QSOProgress = REPORT;
                   if(m_ntx==3) m_QSOProgress = ROGER_REPORT;
+                  if(m_ntx==4) m_QSOProgress = ROGERS;
                   genStdMsgs(QString::number(decodedtext.snr()));
                   ui->RxFreqSpinBox->setValue(decodedtext.frequencyOffset());
                   setTxMsg(m_ntx);
@@ -9641,6 +9644,7 @@ void MainWindow::chkFT4()
     if(SpecOp::FIELD_DAY==m_config.special_op_id()) t0+="Field Day";
     if(SpecOp::RTTY==m_config.special_op_id()) t0+="RTTY";
     if(SpecOp::WW_DIGI==m_config.special_op_id()) t0+="WW_DIGI";
+    if(SpecOp::ARRL_DIGI==m_config.special_op_id()) t0+="ARRL_DIGI";
     if(t0=="") {
       ui->labDXped->setVisible(false);
     } else {
