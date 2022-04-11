@@ -785,7 +785,6 @@ private:
   void CQTxFreq();
   void useNextCall();
   void abortQSO();
-  void updateRate();
   void write_all(QString txRx, QString message);
   bool isWorked(int itype, QString key, float fMHz=0, QString="");
 

@@ -3450,7 +3450,6 @@ void MainWindow::ARRL_Digi_Update(DecodedText dt)
     m_recentCall[deCall]=rc;
     m_points=m_activeCall.value(deCall).points;
   }
-  updateRate();
 }
 
 void MainWindow::ARRL_Digi_Display()
@@ -6326,32 +6325,27 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
     al.band=band;
     al.points=points;
     m_arrl_log.append(al);
+    int iz=m_arrl_log.size();
+    int rate=0;
+    int nbc=0;
+
+    for(int i=iz-1; i>=0; i--) {
+      double hrDiff = m_arrl_log[i].time.msecsTo(al.time)/3600000.0;
+      if(hrDiff > 1.0) break;
+      rate += m_arrl_log[i].points;
+      if(i<iz-1 and m_arrl_log[i].band != m_arrl_log[i+1].band) nbc += 1;
+    }
+
+    m_ActiveStationsWidget->setRate(rate);
+    m_ActiveStationsWidget->setScore(m_score);
+    m_ActiveStationsWidget->setBandChanges(nbc);
   }
-  updateRate();
+
   m_xSent.clear ();
   m_xRcvd.clear ();
   if (m_config.clear_DXcall ()) ui->dxCallEntry->clear ();
   if (m_config.clear_DXgrid ()) ui->dxGridEntry->clear ();
 }
-
-void MainWindow::updateRate()
-{
-  int iz=m_arrl_log.size();
-  int rate=0;
-  int nbc=0;
-  double hrDiff;
-
-  for(int i=iz-1; i>=0; i--) {
-    hrDiff = m_arrl_log[i].time.msecsTo(QDateTime::currentDateTimeUtc())/3600000.0;
-    if(hrDiff > 1.0) break;
-    rate += m_arrl_log[i].points;
-    if(i<iz-1 and m_arrl_log[i].band != m_arrl_log[i+1].band) nbc += 1;
-  }
-  m_ActiveStationsWidget->setRate(rate);
-  m_ActiveStationsWidget->setScore(m_score);
-  m_ActiveStationsWidget->setBandChanges(nbc);
-}
-
 
 qint64 MainWindow::nWidgets(QString t)
 {
