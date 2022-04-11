@@ -6326,8 +6326,8 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
     al.band=band;
     al.points=points;
     m_arrl_log.append(al);
-    updateRate();
   }
+  updateRate();
   m_xSent.clear ();
   m_xRcvd.clear ();
   if (m_config.clear_DXcall ()) ui->dxCallEntry->clear ();
