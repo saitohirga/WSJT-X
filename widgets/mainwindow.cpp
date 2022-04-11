@@ -6630,12 +6630,12 @@ void MainWindow::on_actionFT8_triggered()
 
   if (SpecOp::NONE < m_config.special_op_id () && SpecOp::FOX > m_config.special_op_id ()) {
     QString t0="";
-    if(SpecOp::NA_VHF==m_config.special_op_id()) t0+="NA VHF";
-    if(SpecOp::EU_VHF==m_config.special_op_id()) t0+="EU VHF";
-    if(SpecOp::FIELD_DAY==m_config.special_op_id()) t0+="Field Day";
-    if(SpecOp::RTTY==m_config.special_op_id()) t0+="RTTY";
-    if(SpecOp::WW_DIGI==m_config.special_op_id()) t0+="WW_DIGI";
-    if(SpecOp::ARRL_DIGI==m_config.special_op_id()) t0+="ARRL_DIGI";
+    if(SpecOp::NA_VHF==m_config.special_op_id()) t0="NA VHF";
+    if(SpecOp::EU_VHF==m_config.special_op_id()) t0="EU VHF";
+    if(SpecOp::FIELD_DAY==m_config.special_op_id()) t0="Field Day";
+    if(SpecOp::RTTY==m_config.special_op_id()) t0="RTTY";
+    if(SpecOp::WW_DIGI==m_config.special_op_id()) t0="WW_DIGI";
+    if(SpecOp::ARRL_DIGI==m_config.special_op_id()) t0="ARRL_DIGI";
     if(t0=="") {
       ui->labDXped->setVisible(false);
     } else {
@@ -6845,8 +6845,9 @@ void MainWindow::on_actionQ65_triggered()
     if(SpecOp::NA_VHF==m_config.special_op_id()) t0="NA VHF";
     if(SpecOp::EU_VHF==m_config.special_op_id()) t0="EU VHF";
     if(SpecOp::FIELD_DAY==m_config.special_op_id()) t0="Field Day";
-    if(SpecOp::RTTY==m_config.special_op_id()) t0+="RTTY";
-    if(SpecOp::WW_DIGI==m_config.special_op_id()) t0+="WW_DIGI";
+    if(SpecOp::RTTY==m_config.special_op_id()) t0="RTTY";
+    if(SpecOp::WW_DIGI==m_config.special_op_id()) t0="WW_DIGI";
+    if(SpecOp::ARRL_DIGI==m_config.special_op_id()) t0="ARRL_DIGI";
     if(t0=="") {
       ui->labDXped->setVisible(false);
     } else {
@@ -6918,8 +6919,8 @@ void MainWindow::on_actionMSK144_triggered()
   statusChanged();
 
   QString t0="";
-  if(SpecOp::NA_VHF==m_config.special_op_id()) t0+="NA VHF";
-  if(SpecOp::EU_VHF==m_config.special_op_id()) t0+="EU VHF";
+  if(SpecOp::NA_VHF==m_config.special_op_id()) t0="NA VHF";
+  if(SpecOp::EU_VHF==m_config.special_op_id()) t0="EU VHF";
   if(t0=="") {
     ui->labDXped->setVisible(false);
   } else {
@@ -9636,11 +9637,12 @@ void MainWindow::chkFT4()
 
   if (SpecOp::NONE < m_config.special_op_id () && SpecOp::FOX > m_config.special_op_id ()) {
     QString t0="";
-    if(SpecOp::NA_VHF==m_config.special_op_id()) t0+="NA VHF";
-    if(SpecOp::EU_VHF==m_config.special_op_id()) t0+="EU VHF";
-    if(SpecOp::FIELD_DAY==m_config.special_op_id()) t0+="Field Day";
-    if(SpecOp::RTTY==m_config.special_op_id()) t0+="RTTY";
-    if(SpecOp::WW_DIGI==m_config.special_op_id()) t0+="WW_DIGI";
+    if(SpecOp::NA_VHF==m_config.special_op_id()) t0="NA VHF";
+    if(SpecOp::EU_VHF==m_config.special_op_id()) t0="EU VHF";
+    if(SpecOp::FIELD_DAY==m_config.special_op_id()) t0="Field Day";
+    if(SpecOp::RTTY==m_config.special_op_id()) t0="RTTY";
+    if(SpecOp::WW_DIGI==m_config.special_op_id()) t0="WW_DIGI";
+    if(SpecOp::ARRL_DIGI==m_config.special_op_id()) t0="ARRL_DIGI";
     if(t0=="") {
       ui->labDXped->setVisible(false);
     } else {
@@ -9804,7 +9806,7 @@ void MainWindow::on_ft8Button_clicked()
 {
     ui->houndButton->setChecked(false);
     ui->houndButton->setStyleSheet("");
-    m_config.setSpecial_None();
+    if(m_config.special_op_id()==SpecOp::HOUND) m_config.setSpecial_None();
     on_actionFT8_triggered();
 }
 
@@ -9812,7 +9814,7 @@ void MainWindow::on_ft4Button_clicked()
 {
     ui->houndButton->setChecked(false);
     ui->houndButton->setStyleSheet("");
-    m_config.setSpecial_None();
+    if(m_config.special_op_id()==SpecOp::HOUND) m_config.setSpecial_None();
     on_actionFT4_triggered();
 }
 
@@ -9820,7 +9822,7 @@ void MainWindow::on_msk144Button_clicked()
 {
     ui->houndButton->setChecked(false);
     ui->houndButton->setStyleSheet("");
-    m_config.setSpecial_None();
+    if(m_config.special_op_id()==SpecOp::HOUND) m_config.setSpecial_None();
     on_actionMSK144_triggered();
 }
 
@@ -9828,7 +9830,7 @@ void MainWindow::on_q65Button_clicked()
 {
     ui->houndButton->setChecked(false);
     ui->houndButton->setStyleSheet("");
-    m_config.setSpecial_None();
+    if(m_config.special_op_id()==SpecOp::HOUND) m_config.setSpecial_None();
     on_actionQ65_triggered();
 }
 
@@ -9836,6 +9838,6 @@ void MainWindow::on_jt65Button_clicked()
 {
     ui->houndButton->setChecked(false);
     ui->houndButton->setStyleSheet("");
-    m_config.setSpecial_None();
+    if(m_config.special_op_id()==SpecOp::HOUND) m_config.setSpecial_None();
     on_actionJT65_triggered();
 }
