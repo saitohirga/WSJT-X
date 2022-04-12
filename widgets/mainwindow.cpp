@@ -3760,7 +3760,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
                 (ui->respondComboBox->currentText()=="CQ: Max Dist" and m_ActiveStationsWidget==NULL) or
                 (m_ActiveStationsWidget!=NULL and !m_ActiveStationsWidget->isVisible());
             QString t=decodedtext.messageWords()[4];
-            if(t.contains("R+") or t.contains("R-") or t=="R" or t=="RRR" or t=="RR73" or t=="73") bProcessMsgNormally=true;
+            if(t.contains("R+") or t.contains("R-") or t=="R" or t=="RRR" or t=="RR73") bProcessMsgNormally=true;
             if(bProcessMsgNormally) {
               m_bDoubleClicked=true;
               m_bAutoReply = true;
