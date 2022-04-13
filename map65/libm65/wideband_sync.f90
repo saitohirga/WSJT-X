@@ -47,6 +47,8 @@ subroutine get_candidates(ss,savg,xpol,jz,nfa,nfb,nts_jt65,nts_q65,cand,ncand)
   df3=96000.0/NFFT
   ia=nint(1000*nfa/df3) + 1
   ib=nint(1000*nfb/df3) + 1
+  if(ia.lt.1) ia=1
+  if(ib.gt.NFFT-1) ib=NFFT-1
   iz=ib-ia+1
   
   call indexx(sync(ia:ib)%ccfmax,iz,indx)   !Sort by relative snr
@@ -151,6 +153,8 @@ subroutine wb_sync(ss,savg,xpol,jz,nfa,nfb)
   df3=96000.0/NFFT
   ia=nint(1000*nfa/df3) + 1          !Flat frequency range for WSE converters
   ib=nint(1000*nfb/df3) + 1
+  if(ia.lt.1) ia=1
+  if(ib.gt.NFFT-1) ib=NFFT-1
   npol=1
   if(xpol) npol=4
 
