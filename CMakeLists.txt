@@ -382,6 +382,7 @@ set (wsjt_FSRCS
   lib/demod64a.f90
   lib/determ.f90
   lib/downsam9.f90
+  lib/echo_snr.f90
   lib/encode232.f90
   lib/encode4.f90
   lib/encode_msk40.f90
