@@ -540,6 +540,7 @@ set (wsjt_FSRCS
   lib/sync9.f90
   lib/sync9f.f90
   lib/sync9w.f90
+  lib/test_snr.f90
   lib/timf2.f90
   lib/tweak1.f90
   lib/twkfreq.f90
@@ -1126,6 +1127,9 @@ target_link_libraries (jt65sim wsjt_fort wsjt_cxx)
 
 add_executable (sumsim lib/sumsim.f90)
 target_link_libraries (sumsim wsjt_fort wsjt_cxx)
+
+add_executable (test_snr lib/test_snr.f90)
+target_link_libraries (test_snr wsjt_fort)
 
 add_executable (q65sim lib/qra/q65/q65sim.f90)
 target_link_libraries (q65sim wsjt_fort wsjt_cxx)
