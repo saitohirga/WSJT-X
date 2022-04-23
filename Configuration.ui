@@ -2798,7 +2798,7 @@ Right click for insert and delete options.</string>
           <item row="3" column="3">
            <widget class="QRadioButton" name="rbARRL_Digi">
             <property name="toolTip">
-             <string>ARRL International Digital Contest</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ARRL International Digital Contest&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
              <string>ARRL Digi Contest</string>
