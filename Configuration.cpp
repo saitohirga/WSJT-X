@@ -646,6 +646,7 @@ private:
   bool TX_messages_;
   bool enable_VHF_features_;
   bool decode_at_52s_;
+  bool Tune_watchdog_disabled_;
   bool single_decode_;
   bool twoPass_;
   bool bSpecialOp_;
@@ -755,6 +756,7 @@ int Configuration::watchdog () const {return m_->watchdog_;}
 bool Configuration::TX_messages () const {return m_->TX_messages_;}
 bool Configuration::enable_VHF_features () const {return m_->enable_VHF_features_;}
 bool Configuration::decode_at_52s () const {return m_->decode_at_52s_;}
+bool Configuration::Tune_watchdog_disabled () const {return m_->Tune_watchdog_disabled_;}
 bool Configuration::single_decode () const {return m_->single_decode_;}
 bool Configuration::twoPass() const {return m_->twoPass_;}
 bool Configuration::x2ToneSpacing() const {return m_->x2ToneSpacing_;}
@@ -903,7 +905,7 @@ QString Configuration::Field_Day_Exchange() const
 {
   return m_->FD_exchange_;
 }
-
+/*
 void Configuration::setEU_VHF_Contest()
 { 
   m_->bSpecialOp_=true;
@@ -912,6 +914,7 @@ void Configuration::setEU_VHF_Contest()
   m_->SelectedActivity_ = static_cast<int> (SpecialOperatingActivity::EU_VHF);
   m_->write_settings();
 }
+*/
 
 QString Configuration::RTTY_Exchange() const
 {
@@ -1157,6 +1160,7 @@ Configuration::impl::impl (Configuration * self, QNetworkAccessManager * network
   ui_->special_op_activity_button_group->setId (ui_->rbField_Day, static_cast<int> (SpecialOperatingActivity::FIELD_DAY));
   ui_->special_op_activity_button_group->setId (ui_->rbRTTY_Roundup, static_cast<int> (SpecialOperatingActivity::RTTY));
   ui_->special_op_activity_button_group->setId (ui_->rbWW_DIGI, static_cast<int> (SpecialOperatingActivity::WW_DIGI));
+  ui_->special_op_activity_button_group->setId (ui_->rbARRL_Digi, static_cast<int> (SpecialOperatingActivity::ARRL_DIGI));
   ui_->special_op_activity_button_group->setId (ui_->rbFox, static_cast<int> (SpecialOperatingActivity::FOX));
   ui_->special_op_activity_button_group->setId (ui_->rbHound, static_cast<int> (SpecialOperatingActivity::HOUND));
 
@@ -1355,6 +1359,7 @@ void Configuration::impl::initialize_models ()
   ui_->TX_messages_check_box->setChecked (TX_messages_);
   ui_->enable_VHF_features_check_box->setChecked(enable_VHF_features_);
   ui_->decode_at_52s_check_box->setChecked(decode_at_52s_);
+  ui_->disable_Tune_watchdog_check_box->setChecked(Tune_watchdog_disabled_);
   ui_->single_decode_check_box->setChecked(single_decode_);
   ui_->cbTwoPass->setChecked(twoPass_);
   ui_->gbSpecialOpActivity->setChecked(bSpecialOp_);
@@ -1572,6 +1577,7 @@ void Configuration::impl::read_settings ()
   TX_messages_ = settings_->value ("Tx2QSO", true).toBool ();
   enable_VHF_features_ = settings_->value("VHFUHF",false).toBool ();
   decode_at_52s_ = settings_->value("Decode52",false).toBool ();
+  Tune_watchdog_disabled_ = settings_->value("TuneWatchdogDisabled",false).toBool ();
   single_decode_ = settings_->value("SingleDecode",false).toBool ();
   twoPass_ = settings_->value("TwoPass",true).toBool ();
   bSpecialOp_ = settings_->value("SpecialOpActivity",false).toBool ();
@@ -1708,6 +1714,7 @@ void Configuration::impl::write_settings ()
   settings_->setValue ("SplitMode", QVariant::fromValue (rig_params_.split_mode));
   settings_->setValue ("VHFUHF", enable_VHF_features_);
   settings_->setValue ("Decode52", decode_at_52s_);
+  settings_->setValue ("TuneWatchdogDisabled", Tune_watchdog_disabled_);
   settings_->setValue ("SingleDecode", single_decode_);
   settings_->setValue ("TwoPass", twoPass_);
   settings_->setValue ("SelectedActivity", SelectedActivity_);
@@ -2138,6 +2145,7 @@ void Configuration::impl::accept ()
   azel_directory_.setPath (ui_->azel_path_display_label->text ());
   enable_VHF_features_ = ui_->enable_VHF_features_check_box->isChecked ();
   decode_at_52s_ = ui_->decode_at_52s_check_box->isChecked ();
+  Tune_watchdog_disabled_ = ui_->disable_Tune_watchdog_check_box->isChecked ();
   single_decode_ = ui_->single_decode_check_box->isChecked ();
   twoPass_ = ui_->cbTwoPass->isChecked ();
   bSpecialOp_ = ui_->gbSpecialOpActivity->isChecked ();
@@ -2227,7 +2235,6 @@ void Configuration::impl::accept ()
   clear_DXcall_ = ui_->cbClearDXcall->isChecked();
   highlight_DXgrid_ = ui_->cbHighlightDXgrid->isChecked();
   clear_DXgrid_ = ui_->cbClearDXgrid->isChecked();
-
   write_settings ();		// make visible to all
 }
 

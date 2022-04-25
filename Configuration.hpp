@@ -134,6 +134,7 @@ public:
   bool split_mode () const;
   bool enable_VHF_features () const;
   bool decode_at_52s () const;
+  bool Tune_watchdog_disabled () const;
   bool single_decode () const;
   bool twoPass() const;
   bool bFox() const;
@@ -190,7 +191,7 @@ public:
   bool highlight_DXgrid () const;
   bool clear_DXgrid () const;
  
-  enum class SpecialOperatingActivity {NONE, NA_VHF, EU_VHF, FIELD_DAY, RTTY, WW_DIGI, FOX, HOUND};
+  enum class SpecialOperatingActivity {NONE, NA_VHF, EU_VHF, FIELD_DAY, RTTY, WW_DIGI, ARRL_DIGI, FOX, HOUND};
   SpecialOperatingActivity special_op_id () const;
 
   struct CalibrationParams

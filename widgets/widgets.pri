@@ -4,6 +4,7 @@ SOURCES += \
   widgets/meterwidget.cpp widgets/signalmeter.cpp \
   widgets/plotter.cpp widgets/widegraph.cpp widgets/about.cpp \
   widgets/mainwindow.cpp widgets/messageaveraging.cpp \
+  widgets/activeStations.cpp \
   widgets/echoplot.cpp widgets/echograph.cpp widgets/fastgraph.cpp \
   widgets/fastplot.cpp widgets/MessageBox.cpp \
   widgets/colorhighlighting.cpp widgets/ExportCabrillo.cpp \
@@ -19,6 +20,7 @@ HEADERS  += \
   widgets/displaytext.h widgets/logqso.h widgets/LettersSpinBox.hpp \
   widgets/FrequencyLineEdit.hpp widgets/FrequencyDeltaLineEdit.hpp widgets/signalmeter.h \
   widgets/meterwidget.h widgets/messageaveraging.h \
+  widgets/activeStations.h \
   widgets/echoplot.h widgets/echograph.h widgets/fastgraph.h \
   widgets/fastplot.h widgets/MessageBox.hpp widgets/colorhighlighting.h \
   widgets/ExportCabrillo.h widgets/AbstractLogWindow.hpp \
@@ -31,6 +33,7 @@ FORMS    += \
   widgets/mainwindow.ui widgets/about.ui \
   widgets/widegraph.ui widgets/astro.ui \
   widgets/logqso.ui widgets/messageaveraging.ui \
+  widgets/activeStations.ui \
   widgets/echograph.ui widgets/fastgraph.ui \
   widgets/colorhighlighting.ui widgets/ExportCabrillo.ui \
   widgets/FoxLogWindow.ui widgets/CabrilloLogWindow.ui

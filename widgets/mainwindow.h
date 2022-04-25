@@ -78,6 +78,7 @@ class WideGraph;
 class LogQSO;
 class Transceiver;
 class MessageAveraging;
+class ActiveStations;
 class FoxLogWindow;
 class CabrilloLogWindow;
 class ColorHighlighting;
@@ -267,6 +268,7 @@ private slots:
   void stopTuneATU();
   void auto_tx_mode(bool);
   void on_actionMessage_averaging_triggered();
+  void on_actionActiveStations_triggered();
   void on_contest_log_action_triggered ();
   void on_fox_log_action_triggered ();
   void on_actionColors_triggered();
@@ -281,7 +283,6 @@ private slots:
   void on_cbTx6_toggled(bool b);
   void on_cbMenus_toggled(bool b);
   void on_cbCQonly_toggled(bool b);
-  void on_cbFirst_toggled(bool b);
   void on_cbAutoSeq_toggled(bool b);
   void networkError (QString const&);
   void on_ClrAvgButton_clicked();
@@ -333,6 +334,7 @@ private slots:
   void remote_configure (QString const& mode, quint32 frequency_tolerance, QString const& submode
                          , bool fast_mode, quint32 tr_period, quint32 rx_df, QString const& dx_call
                          , QString const& dx_grid, bool generate_messages);
+  void callSandP2(int nline);
 
 private:
   Q_SIGNAL void initializeAudioOutputStream (QAudioDeviceInfo,
@@ -398,6 +400,7 @@ private:
   QScopedPointer<HelpTextWindow> m_prefixes;
   QScopedPointer<HelpTextWindow> m_mouseCmnds;
   QScopedPointer<MessageAveraging> m_msgAvgWidget;
+  QScopedPointer<ActiveStations> m_ActiveStationsWidget;
   QScopedPointer<FoxLogWindow> m_foxLogWindow;
   QScopedPointer<CabrilloLogWindow> m_contestLogWindow;
   QScopedPointer<ColorHighlighting> m_colorHighlighting;
@@ -489,6 +492,10 @@ private:
   qint32  m_earlyDecode=41;
   qint32  m_earlyDecode2=47;
   qint32  m_nDecodes=0;
+  qint32  m_maxPoints=-1;
+  qint32  m_latestDecodeTime=-1;
+  qint32  m_points=-99;
+  qint32  m_score=0;
 
   bool    m_btxok;		//True if OK to transmit
   bool    m_diskData;
@@ -640,6 +647,9 @@ private:
   QString m_fileDateTime;
   QString m_inQSOwith;
   QString m_BestCQpriority;
+  QString m_deCall;
+  QString m_deGrid;
+  QString m_ready2call[50];
 
   QSet<QString> m_pfx;
   QSet<QString> m_sfx;
@@ -666,6 +676,34 @@ private:
     QDateTime QSO_time;
   };
   QMap<QString,FixupQSO> m_fixupQSO;       //Key = HoundCall, value = info for QSO in progress
+
+  struct ActiveCall
+  {
+    QString grid4;
+    QString bands;
+    qint32 az;
+    qint32 points;
+  };
+  QMap<QString,ActiveCall> m_activeCall;   //Key = callsign, value = grid4, az, points for ARRL_DIGI
+
+  struct RecentCall
+  {
+    qint64 dialFreq;
+    qint32 audioFreq;
+    qint32 snr;
+    qint32 decodeTime;
+    bool   txEven;
+    bool   ready2call;
+  };
+  QMap<QString,RecentCall> m_recentCall;   //Key = callsign, value = snr, dialFreq, audioFreq, decodeTime
+
+  struct ARRL_logged
+  {
+    QDateTime time;
+    QString band;
+    qint32 points;
+  };
+  QList<ARRL_logged> m_arrl_log;
 
   QQueue<QString> m_houndQueue;        //Selected Hounds available for starting a QSO
   QQueue<QString> m_foxQSOinProgress;  //QSOs in progress: Fox has sent a report
@@ -747,6 +785,7 @@ private:
   void CQTxFreq();
   void useNextCall();
   void abortQSO();
+  void updateRate();
   void write_all(QString txRx, QString message);
   bool isWorked(int itype, QString key, float fMHz=0, QString="");
 
@@ -787,6 +826,9 @@ private:
   void to_jt9(qint32 n, qint32 istart, qint32 idone);
   bool is77BitMode () const;
   void cease_auto_Tx_after_QSO ();
+  Q_SLOT void ARRL_Digi_Display();
+  void ARRL_Digi_Update(DecodedText dt);
+  void activeWorked(QString call, QString band);
 };
 
 extern int killbyname(const char* progName);

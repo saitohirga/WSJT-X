@@ -30,12 +30,14 @@ public:
   void displayDecodedText(DecodedText const& decodedText, QString const& myCall, QString const& mode,
                           bool displayDXCCEntity, LogBook const& logBook,
                           QString const& currentBand=QString {}, bool ppfx=false, bool bCQonly=false,
-                          bool haveFSpread = false, float fSpread = 0.);
+                          bool haveFSpread = false, float fSpread = 0.0, bool bDisplayPoints=false, int points=-99);
   void displayTransmittedText(QString text, QString modeTx, qint32 txFreq, bool bFastMode, double TRperiod);
   void displayQSY(QString text);
   void displayFoxToBeCalled(QString t, QColor bg = QColor {}, QColor fg = QColor {});
   void new_period ();
   QString CQPriority(){return m_CQPriority;};
+  qint32 m_points;
+  bool m_bDisplayPoints;
 
   Q_SIGNAL void selectCallsign (Qt::KeyboardModifiers);
   Q_SIGNAL void erased ();

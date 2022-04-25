@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>882</width>
-    <height>658</height>
+    <width>893</width>
+    <height>665</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -832,15 +832,18 @@ When not checked you can view the calibration results.</string>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QCheckBox" name="cbFirst">
+                     <widget class="QComboBox" name="respondComboBox">
                       <property name="toolTip">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Check to call the first decoded responder to my CQ.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select &lt;span style=&quot; font-weight:600;&quot;&gt;CQ: First&lt;/span&gt; to respond automatically to the first decoded reply to your CQ. &lt;/p&gt;&lt;p&gt;Select &lt;span style=&quot; font-weight:600;&quot;&gt;CQ: Max Pts&lt;/span&gt; to respond automatically to the reply yielding most points in the ARRL International Digital Contest.&lt;/p&gt;&lt;p&gt;Select &lt;span style=&quot; font-weight:600;&quot;&gt;CQ: None&lt;/span&gt; to choose callers manually.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
-                      <property name="accessibleDescription">
-                       <string>Check to call the first decoded responder to my CQ.</string>
+                      <property name="currentText">
+                       <string/>
                       </property>
-                      <property name="text">
-                       <string>Call 1st</string>
+                      <property name="currentIndex">
+                       <number>-1</number>
+                      </property>
+                      <property name="maxVisibleItems">
+                       <number>3</number>
                       </property>
                      </widget>
                     </item>
@@ -2864,9 +2867,15 @@ QLabel[oob=&quot;true&quot;] {
           <layout class="QVBoxLayout" name="verticalLayout_15">
            <item>
             <widget class="QPushButton" name="houndButton">
-             <property name="maximumSize">
+             <property name="minimumSize">
               <size>
                <width>32</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -2883,9 +2892,15 @@ QLabel[oob=&quot;true&quot;] {
            </item>
            <item>
             <widget class="QPushButton" name="ft8Button">
-             <property name="maximumSize">
+             <property name="minimumSize">
               <size>
                <width>32</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -2899,9 +2914,15 @@ QLabel[oob=&quot;true&quot;] {
            </item>
            <item>
             <widget class="QPushButton" name="ft4Button">
-             <property name="maximumSize">
+             <property name="minimumSize">
               <size>
                <width>32</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -2915,9 +2936,15 @@ QLabel[oob=&quot;true&quot;] {
            </item>
            <item>
             <widget class="QPushButton" name="msk144Button">
-             <property name="maximumSize">
+             <property name="minimumSize">
               <size>
                <width>32</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -2931,9 +2958,15 @@ QLabel[oob=&quot;true&quot;] {
            </item>
            <item>
             <widget class="QPushButton" name="q65Button">
-             <property name="maximumSize">
+             <property name="minimumSize">
               <size>
                <width>32</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -2947,9 +2980,15 @@ QLabel[oob=&quot;true&quot;] {
            </item>
            <item>
             <widget class="QPushButton" name="jt65Button">
-             <property name="maximumSize">
+             <property name="minimumSize">
               <size>
                <width>32</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
                <height>16777215</height>
               </size>
              </property>
@@ -2975,7 +3014,7 @@ QLabel[oob=&quot;true&quot;] {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>882</width>
+     <width>893</width>
      <height>21</height>
     </rect>
    </property>
@@ -3013,6 +3052,7 @@ QLabel[oob=&quot;true&quot;] {
     <addaction name="fox_log_action"/>
     <addaction name="actionColors"/>
     <addaction name="actionSWL_Mode"/>
+    <addaction name="actionActiveStations"/>
    </widget>
    <widget class="QMenu" name="menuDecode">
     <property name="title">
@@ -3624,6 +3664,11 @@ QLabel[oob=&quot;true&quot;] {
     <string>Disable writing of ALL.TXT</string>
    </property>
   </action>
+  <action name="actionActiveStations">
+   <property name="text">
+    <string>Active Stations</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -3706,7 +3751,6 @@ QLabel[oob=&quot;true&quot;] {
   <tabstop>cbShMsgs</tabstop>
   <tabstop>cbFast9</tabstop>
   <tabstop>cbAutoSeq</tabstop>
-  <tabstop>cbFirst</tabstop>
   <tabstop>cbTx6</tabstop>
   <tabstop>cbSWL</tabstop>
   <tabstop>pbBestSP</tabstop>
