@@ -3088,10 +3088,14 @@ void MainWindow::freezeDecode(int n)                          //freezeDecode()
 void MainWindow::on_ClrAvgButton_clicked()
 {
   m_nclearave=1;
-  if(m_msgAvgWidget != NULL) {
-    if(m_msgAvgWidget->isVisible()) m_msgAvgWidget->displayAvg("");
+  if(m_mode=="Echo") {
+    echocom_.nsum=0;
+  } else {
+    if(m_msgAvgWidget != NULL) {
+      if(m_msgAvgWidget->isVisible()) m_msgAvgWidget->displayAvg("");
+    }
+    if(m_mode=="Q65") ndecodes_label.setText("0  0");
   }
-  if(m_mode=="Q65") ndecodes_label.setText("0  0");
 }
 
 void MainWindow::msgAvgDecode2()
@@ -6992,7 +6996,7 @@ void MainWindow::on_actionEcho_triggered()
   WSPR_config(true);
   ui->lh_decodes_headings_label->setText("   UTC      N   Level    SNR     dBerr    DF    Width   Q");
   //                       01234567890123456789012345678901234567
-  displayWidgets(nWidgets("00000000000000000000001000000000000000"));
+  displayWidgets(nWidgets("00000000000000000010001000000000000000"));
   fast_config(false);
   statusChanged();
 }
