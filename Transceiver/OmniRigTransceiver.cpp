@@ -280,6 +280,7 @@ int OmniRigTransceiver::do_start ()
               resolution = 2;   // 20Hz rounded
             }
         }
+      QThread::msleep (200);   // fixing the 55 Hz issue with Omnirig v1.19 and later until we have a better solution
       if (OmniRig::PM_FREQ & writable_params_)
         {
           rig_->SetFreq (f);
