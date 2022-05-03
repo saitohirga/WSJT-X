@@ -280,7 +280,13 @@ int OmniRigTransceiver::do_start ()
               resolution = 2;   // 20Hz rounded
             }
         }
-      QThread::msleep (200);   // fixing the 55 Hz issue with Omnirig v1.19 and later until we have a better solution
+      QThread::msleep (200);   // For Omnirig v1.19 or later we need a delay here, otherwise rig QRG stays at +55 Hz.
+                               // 200 ms should do job for all modern transceivers. However, with very slow
+                               // transceivers or receivers, rig QRG may still stay at +55 Hz.
+                               // Because of the asynchronous nature of Omnirig commands, a better solution would be
+                               // to implement an event handler for the OnParamChange event of OmniRig,
+                               // and read the frequency inside that handler.
+
       if (OmniRig::PM_FREQ & writable_params_)
         {
           rig_->SetFreq (f);
