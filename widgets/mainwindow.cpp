@@ -1409,6 +1409,9 @@ void MainWindow::setDecodedTextFont (QFont const& font)
   if (m_contestLogWindow) {
     m_contestLogWindow->set_log_view_font (font);
   }
+  if(m_ActiveStationsWidget != NULL) {
+    m_ActiveStationsWidget->changeFont(font);
+  }
   updateGeometry ();
 }
 
