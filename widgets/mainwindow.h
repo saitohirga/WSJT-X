@@ -643,6 +643,7 @@ private:
   QString m_xSent;               //Contest exchange sent
   QString m_xRcvd;               //Contest exchange received
   QString m_currentBand;
+  QString m_currentBandPeriod;
   QString m_nextCall;
   QString m_nextGrid;
   QString m_fileDateTime;

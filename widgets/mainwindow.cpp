@@ -3306,7 +3306,7 @@ void::MainWindow::fast_decode_done()
     DecodedText decodedtext {message.replace (QChar::LineFeed, "")};
     if(!m_bFastDone) {
       ui->decodedTextBrowser->displayDecodedText (decodedtext, m_config.my_callsign (), m_mode, m_config.DXCC (),
-         m_logBook, m_currentBand, m_config.ppfx ());
+         m_logBook, m_currentBandPeriod, m_config.ppfx ());
     }
 
     t=message.mid(10,5).toFloat();
@@ -3702,7 +3702,7 @@ void MainWindow::readFromStdout()                             //readFromStdout
             ARRL_Digi_Update(decodedtext1);
           }
           ui->decodedTextBrowser->displayDecodedText (decodedtext1, m_config.my_callsign (), m_mode, m_config.DXCC (),
-                                                      m_logBook, m_currentBand, m_config.ppfx (),
+                                                      m_logBook, m_currentBandPeriod, m_config.ppfx (),
                                                       ui->cbCQonly->isVisible() && ui->cbCQonly->isChecked(),
                                                       haveFSpread, fSpread, bDisplayPoints, m_points);
           if((m_mode=="FT4" or m_mode=="FT8") and bDisplayPoints and decodedtext1.isStandardMessage()) {
@@ -7363,6 +7363,7 @@ void MainWindow::band_changed (Frequency f)
     setXIT (ui->TxFreqSpinBox->value ());
     QTimer::singleShot (4500, [=] {  // prevent wrong frequencies for all.txt and PSK Reporter after band changes
         m_freqNominalPeriod = m_freqNominal;
+        m_currentBandPeriod = m_currentBand;
     });
   }
 }
