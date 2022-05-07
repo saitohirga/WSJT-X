@@ -272,6 +272,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_msErase {0},
   m_secBandChanged {0},
   m_freqNominal {0},
+  m_freqNominalPeriod {0},
   m_freqTxNominal {0},
   m_reverse_Doppler {"1" == env.value ("WSJT_REVERSE_DOPPLER", "0")},
   m_tRemaining {0.},
@@ -1635,7 +1636,7 @@ void MainWindow::dataSink(qint64 frames)
       // idea to pass pointer to be processed in another thread
       m_saveWAVWatcher.setFuture (QtConcurrent::run (std::bind (&MainWindow::save_wave_file,
             this, m_fnameWE, &dec_data.d2[0], samples, m_config.my_callsign(),
-            m_config.my_grid(), m_mode, m_nSubMode, m_freqNominal, m_hisCall, m_hisGrid)));
+            m_config.my_grid(), m_mode, m_nSubMode, m_freqNominalPeriod, m_hisCall, m_hisGrid)));
       if (m_mode=="WSPR") {
         auto c2name {(m_fnameWE + ".c2").toLocal8Bit ()};
         int nsec=120;
@@ -4034,7 +4035,7 @@ void MainWindow::pskPost (DecodedText const& decodedtext)
     audioFrequency=decodedtext.string().mid(16,4).toInt();
   }
   int snr = decodedtext.snr();
-  Frequency frequency = m_freqNominal + audioFrequency;
+  Frequency frequency = m_freqNominalPeriod + audioFrequency;   // prevent spotting wrong band
   if(grid.contains (grid_regexp)) {
 //    qDebug() << "To PSKreporter:" << deCall << grid << frequency << msgmode << snr;
     if (!m_psk_Reporter.addRemoteStation (deCall, grid, frequency, msgmode, snr))
@@ -7360,6 +7361,9 @@ void MainWindow::band_changed (Frequency f)
       }
     setRig (f);
     setXIT (ui->TxFreqSpinBox->value ());
+    QTimer::singleShot (4500, [=] {  // prevent wrong frequencies for all.txt and PSK Reporter after band changes
+        m_freqNominalPeriod = m_freqNominal;
+    });
   }
 }
 
@@ -9613,7 +9617,7 @@ void MainWindow::write_all(QString txRx, QString message)
   auto time = QDateTime::currentDateTimeUtc ();
   if( txRx=="Rx" && !m_bFastMode ) time=m_dateTimeSeqStart;
 
-  t = t.asprintf("%10.3f ",m_freqNominal/1.e6);
+  t = t.asprintf("%10.3f ",m_freqNominalPeriod/1.e6);   // prevent writing of wrong frequencies
   if (m_diskData) {
     if (m_fileDateTime.size()==11) {
       line=m_fileDateTime + "  " + t + txRx + " " + mode_string + msg;

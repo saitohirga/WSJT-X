@@ -425,6 +425,7 @@ private:
   qint64  m_fullFoxCallTime;
 
   Frequency m_freqNominal;
+  Frequency m_freqNominalPeriod;
   Frequency m_freqTxNominal;
   Astro::Correction m_astroCorrection;
   bool m_reverse_Doppler;
