@@ -2278,6 +2278,11 @@ void MainWindow::displayDialFrequency ()
       m_wideGraph->setRxBand (band_name);
       m_lastBand = band_name;
       band_changed(dial_frequency);
+      // prevent wrong frequencies for all.txt, PSK Reporter and highlighting for late decodes after band changes
+      QTimer::singleShot (4500, [=] {
+          m_freqNominalPeriod = m_freqNominal;
+          m_currentBandPeriod = m_currentBand;
+      });
     }
 
   // search working frequencies for one we are within 10kHz of (1 Mhz
@@ -7361,10 +7366,6 @@ void MainWindow::band_changed (Frequency f)
       }
     setRig (f);
     setXIT (ui->TxFreqSpinBox->value ());
-    QTimer::singleShot (4500, [=] {  // prevent wrong frequencies for all.txt and PSK Reporter after band changes
-        m_freqNominalPeriod = m_freqNominal;
-        m_currentBandPeriod = m_currentBand;
-    });
   }
 }
 
