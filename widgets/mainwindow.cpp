@@ -205,6 +205,8 @@ QVector<QColor> g_ColorTbl;
 
 using SpecOp = Configuration::SpecialOperatingActivity;
 
+bool m_displayBand = false;
+
 namespace
 {
   Radio::Frequency constexpr default_frequency {14076000};
@@ -2279,9 +2281,11 @@ void MainWindow::displayDialFrequency ()
       m_lastBand = band_name;
       band_changed(dial_frequency);
       // prevent wrong frequencies for all.txt, PSK Reporter and highlighting for late decodes after band changes
-      QTimer::singleShot (4500, [=] {
+      m_displayBand = false;
+      QTimer::singleShot ((int(600.0*m_TRperiod)), [=] {
           m_freqNominalPeriod = m_freqNominal;
           m_currentBandPeriod = m_currentBand;
+          m_displayBand = true;
       });
     }
 
@@ -3663,7 +3667,8 @@ void MainWindow::readFromStdout()                             //readFromStdout
           if (m_config.insert_blank ()
               && SpecOp::FOX != m_config.special_op_id()) {
             QString band;
-            if((QDateTime::currentMSecsSinceEpoch() / 1000 - m_secBandChanged) > 4*int(m_TRperiod)/4) {
+            if(((QDateTime::currentMSecsSinceEpoch() / 1000 - m_secBandChanged) > 4*int(m_TRperiod)/4)
+                or m_displayBand) {
               band = ' ' + m_config.bands ()->find (m_freqNominal);
             }
             ui->decodedTextBrowser->insertLineSpacer (band.rightJustified  (40, '-'));
