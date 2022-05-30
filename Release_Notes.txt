@@ -11,6 +11,45 @@
                                                          
 Copyright 2001 - 2021 by Joe Taylor, K1JT.
 
+	        Release: WSJT-X 2.6.0-rc1
+	             Jun 15, 2022
+	        ----------------------
+
+This release introduces some enhancements to the GUI as well as a 
+couple of useful new features and fixes. It has the following changes
+since release 2.5.4:
+
+ - Add a new technology to increase performance of the FT8 decoder.
+   The additionally decoded messages are marked 'a7'.
+
+ - Add buttons for the frequently used modes to the GUI to allow
+   more convenient switching (useful when menus are hidden).
+
+ - A new 'H' button enables the FT8 DXpedition hound mode to be 
+   switched on / off directly via the main program window. 
+
+ - Add an option to highlight also messages with '73' or 'RR73'.
+
+ - Add options to highlight DX Call and / or DX Grid in messages.
+
+ - Add options to clear DX Call and / or DX Grid after a QSO.
+
+ - Support of the new ARRL digi DX contest and add some useful assist
+   features (Active Stations window as well as option CQ: Max Dist).
+
+ - Repair a longstanding regression that sometimes caused spotting of 
+   wrong bands to PSK Reporter after a band change.
+
+ - Add a Tune watchdog (90 seconds). It is activated by default to 
+   prevent unwanted transmissions, but can be turned off if required. 
+
+ - Allow auto reply for non-CQ messages via UDP (JTAlert, etc.) when 
+   Hold Tx Freq is enabled.
+
+ - Fix an inconsistancy in the installation package for MacOS that 
+   caused the pwr slider to behave incorrectly on macOS 12.
+
+
 	        Release: WSJT-X 2.5.4
 	             Dec 28, 2021
 	        ----------------------
@@ -94,6 +133,7 @@ release 2.5.1:
    providing updates for 32-bit only  systems. 32-bit WSJT-X can still
    be  built for  Linux Intel  and is  supported at  least until  some
    prerequisite package is no longer available.
+
    
 	        Release: WSJT-X 2.5.1
 	             Oct 21, 2021
@@ -145,6 +185,7 @@ and repairs for defects detected since the 2.5.0 GA release.
 
  - Improved main window layout to ensure TxN messages are fully
    visible.
+
  
 	        Release: WSJT-X 2.5.0
 	              Sept 27, 2021
@@ -175,6 +216,7 @@ WSJTX:
  - Ensure that CALL3.TXT is not  deleted while updating the file (this
    allows sharing using symlinks to work).
 
+
 	        Release: WSJT-X 2.5.0-rc6
 	              Sept 6, 2021
 	        -------------------------
@@ -194,6 +236,7 @@ WSJT-X:
  - Repair an issue when non-ASCII characters used in account names.
  - Repair a regression that prevented WSPR band-hopping working when
    the Tx percentage is zero.
+
  
 	        Release: WSJT-X 2.5.0-rc5
 	               Aug 5, 2021
@@ -213,6 +256,7 @@ WSJT-X:
  - Repair a regression that caused some messages involving compound
    or nonstandard callsigns to be encoded as free text
  
+
 	        Release: WSJT-X 2.5.0-rc4
 	               Aug 1, 2021
 	        -------------------------
@@ -233,6 +277,7 @@ WSJT-X:
  - Instructions in macOS ReadMe.txt to suppress App Nap energy saving
  - Revised User Guide using FT8 mode for the basic tutorial
  - Allow contest and FD operating in Q65 mode
+
 
 	        Release: WSJT-X 2.5.0-rc3
 	               Jul 5, 2021
@@ -255,6 +300,7 @@ WSJT-X:
  - Repair a long standing defect that caused UDP Protocol Heartbeat
    messages to not be sent when no other intervening messages are
    sent.
+
 
 	        Release: WSJT-X 2.5.0-rc2
 	               Jun 28, 2021
@@ -295,6 +341,7 @@ WSJT-X (including the decoder for Q65  used by MAP65):
    separate serial port via rigctld, delayed PTT with Elecraft K3
    series rigs, and support for the Icom IC-575 rig.
  - Updated CTY.DAT database
+
 
 	        Release: WSJT-X 2.5.0-rc1
 	                Jun 3, 2021
@@ -650,7 +697,6 @@ release candidate.
  - Several updates to international UI translations.
 
 
-
 		   Release: WSJT-X 2.3.0-rc2
 		         Nov 16, 2020
 		   -------------------------
@@ -681,7 +727,6 @@ includes some new functionality that missed the RC1 cut off deadline.
    multicast group address for their  server applications.  If you are
    not sure then  224.0.0.1 (or ff02::1 if IPv6 is  desired) is a safe
    choice.
-
 
 
 		   Release: WSJT-X 2.3.0-rc1
@@ -1116,6 +1161,7 @@ prior v2.1.0 release.
  - Fix a production issue with the macOS tool chain that generated
    broken executables.
 
+
 		   Release: WSJT-X 2.1
 		      July 15, 2019
 		   -------------------
@@ -1136,6 +1182,7 @@ There are numerous minor enhancements and bug fixes.
 
 We now provide a separate installation package for 64-bit Windows 7
 and later, with significant improvements in decoding speed.
+
 
 		   Release: WSJT-X 2.1.0-rc7
 		         June 3, 2019
@@ -1266,6 +1313,7 @@ feedback to guide future development.
 
 *Note* this release is not for general public release and we request
 that it is not distributed.
+
 
 		   Release: WSJT-X 2.1.0-rc1
 		        March 25, 2019
@@ -1399,6 +1447,7 @@ Some details of changes since WSJT-X-rc5 include the following:
  - Various minor bug fixes and code cleanup
  - Update the WSJT-X User Guide to v2.0 (more to come...)
  - Update cty.dat
+
 
 		     Release: WSJT-X 2.0-rc5
 		        November 26, 2018
@@ -1629,7 +1678,6 @@ Changes from WSJT-X Version 1.9.0-rc2 include the following:
   to be CAT controlled by WSJT-X.
 
 
-
 		Release: WSJT-X Version 1.9.0-rc2
 		        February 26, 2018
 		---------------------------------
@@ -1797,8 +1845,6 @@ message from populating the Tx message boxes.
 - Fix a bug involving "firstcall contains mycall" but not equal to mycall.
 
 - Fix an issue with editing IARU regions in the working frequencies table.
-
-
 
 
 		Release: WSJT-X Version 1.8.0-rc2

@@ -11,6 +11,76 @@
                                                          
 Copyright 2001 - 2021 by Joe Taylor, K1JT.
 
+	        Release: WSJT-X 2.6.0-rc1
+	             Jun 15, 2022
+	        ----------------------
+
+This release introduces some enhancements to the GUI as well as a 
+couple of useful new features and fixes. It has the following changes
+since release 2.5.4:
+
+ - Add a new technology to increase performance of the FT8 decoder.
+   The additionally decoded messages are marked 'a7'.
+
+ - Add buttons for the frequently used modes to the GUI to allow
+   more convenient switching (useful when menus are hidden).
+
+ - A new 'H' button enables the FT8 DXpedition hound mode to be 
+   switched on / off directly via the main program window. 
+
+ - Add an option to highlight also messages with '73' or 'RR73'.
+
+ - Add options to highlight DX Call and / or DX Grid in messages.
+
+ - Add options to clear DX Call and / or DX Grid after a QSO.
+
+ - Support of the new ARRL digi DX contest and add some useful assist
+   features (Active Stations window as well as option CQ: Max Dist).
+
+ - Repair a longstanding regression that sometimes caused spotting of 
+   wrong bands to PSK Reporter after a band change.
+
+ - Add a Tune watchdog (90 seconds). It is activated by default to 
+   prevent unwanted transmissions, but can be turned off if required. 
+
+ - Allow auto reply for non-CQ messages via UDP (JTAlert, etc.) when 
+   Hold Tx Freq is enabled.
+
+ - Fix an inconsistancy in the installation package for MacOS that 
+   caused the pwr slider to behave incorrectly on macOS 12.
+
+	        Release: WSJT-X 2.5.4
+	             Dec 28, 2021
+	        ----------------------
+
+This is mostly a bug fix  release.  It has the following changes since
+release 2.5.3:
+
+WSJTX:
+ - Repair a defect that caused occasional crashes when in QSO with 
+   stations using nonstandard callsigns.
+
+MAP65:
+ - Allowing MAP65 "Best-fit Delta phi" solution to be displayed to the
+   user.
+
+	        Release: WSJT-X 2.5.3
+	             Dec 7, 2021
+	        ----------------------
+
+This release has the following changes since release 2.5.2:
+
+ - Add a note in memory of G4WJS to the About window
+
+ - Add a simple $DXCALL macro capability for Tx messages, and update
+   the User Guide accordingly
+
+ - Ensure that MAIN VFO is used for receiving on rigs that require it
+ 
+ - Repair a defect in reporting low-confidence decodes to PskReporter
+
+ - Updated CTY.DAT database, tnx to Jim AD1C
+
 	        Release: WSJT-X 2.5.2
 	             Nov 4, 2021
 	        ----------------------
