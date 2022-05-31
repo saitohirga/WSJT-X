@@ -21,8 +21,9 @@ CAboutDlg::CAboutDlg(QWidget *parent) :
 
     "WSJT-X implements a number of digital modes designed for <br />"
     "weak-signal Amateur Radio communication.  <br /><br />"
-    "&copy; 2001-2021 by Joe Taylor, K1JT, Bill Somerville, G4WJS, <br />"
-    "Steve Franke, K9AN, and Nico Palermo, IV3NWV.  <br /><br />"
+    "&copy; 2001-2022 by Joe Taylor, K1JT, Bill Somerville, G4WJS, <br />"
+    "Steve Franke, K9AN, Nico Palermo, IV3NWV, <br />"
+    "Chester Fennell, KG4IYS, and Uwe Risse, DG2YCB <br /><br />"
     "We gratefully acknowledge contributions from AC6SL, AE4JY,<br />"
     "DF2ET, DJ0OT, G3WDG, G4KLA, IW3RAB, K3WYC, KA1GT,<br />"
     "KA6MAL, KA9Q, KB1ZMX, KD6EKQ, KI7MT, KK1D, ND0B, PY2SDR,<br />"

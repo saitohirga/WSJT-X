@@ -2638,7 +2638,8 @@ void MainWindow::on_actionCopyright_Notice_triggered()
                            "2001-2022 by one or more of the following authors: Joseph Taylor, "
                            "K1JT; Bill Somerville, G4WJS; Steven Franke, K9AN; Nico Palermo, "
                            "IV3NWV; Greg Beam, KI7MT; Michael Black, W9MDB; Edson Pereira, PY2SDR; "
-                           "Philip Karn, KA9Q; and other members of the WSJT Development Group.\"");
+                           "Philip Karn, KA9Q; Chester Fennell, KG4IYS; Uwe Risse, DG2YCB; "
+                           "and other members of the WSJT Development Group.\"");
   MessageBox::warning_message(this, message);
 }
 
