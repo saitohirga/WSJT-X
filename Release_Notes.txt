@@ -32,8 +32,8 @@ In program WSJT-X:
  - Accurate SNR measurements in Echo mode, including large Doppler
    spreads
 
- - Add mode selection buttons on main window for FT4, FT8, MSK144,
-   Q65, JT65, and FT8
+ - Add mode selection buttons on main window for FT4, FT8, JT65,
+   MSK144, and Q65
 
  - Add a button to toggle FT8's Hound mode ON or OFF
 
