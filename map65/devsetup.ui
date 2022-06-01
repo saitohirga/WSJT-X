@@ -699,11 +699,14 @@
               </item>
               <item>
                <widget class="QSpinBox" name="sb_dB">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adjust to scale digital I/Q data.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
                 <property name="suffix">
                  <string>  dB</string>
                 </property>
                 <property name="prefix">
-                 <string>  </string>
+                 <string>Gain  </string>
                 </property>
                 <property name="minimum">
                  <number>-50</number>
@@ -712,7 +715,7 @@
                  <number>10</number>
                 </property>
                 <property name="singleStep">
-                 <number>5</number>
+                 <number>1</number>
                 </property>
                </widget>
               </item>
