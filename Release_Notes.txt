@@ -68,7 +68,7 @@ In program WSJT-X:
 
  - Correct a flaw in WSPR mode when handling three-character callsigns
 
- - Correct a flaw that could cause Omnirig 1.19 or later to set
+ - Correct a flaw that could cause OmniRig 1.19 or later to set
    incorrect frequencies after initialization 
 
  - Clean up some ToolTips
