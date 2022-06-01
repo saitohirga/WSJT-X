@@ -6356,8 +6356,6 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
 
   m_xSent.clear ();
   m_xRcvd.clear ();
-  if (m_config.clear_DXcall ()) ui->dxCallEntry->clear ();
-  if (m_config.clear_DXgrid ()) ui->dxGridEntry->clear ();
 }
 
 void MainWindow::updateRate()

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>554</width>
-    <height>599</height>
+    <width>588</width>
+    <height>642</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -171,23 +171,6 @@
           <string>Display</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
-          <item row="3" column="0">
-           <widget class="QCheckBox" name="TX_messages_check_box">
-            <property name="toolTip">
-             <string>Show outgoing transmitted messages in the Rx frequency window.</string>
-            </property>
-            <property name="text">
-             <string>&amp;Tx messages to Rx frequency window</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QCheckBox" name="ppfx_check_box">
-            <property name="text">
-             <string>Show principal prefix instead of country name</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="1" rowspan="4">
            <layout class="QHBoxLayout" name="horizontalLayout_21">
             <item>
@@ -242,10 +225,13 @@
             </item>
            </layout>
           </item>
-          <item row="5" column="0">
-           <widget class="QCheckBox" name="cbHighlightDXcall">
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="insert_blank_check_box">
+            <property name="toolTip">
+             <string>Include a separator line between periods in the band activity window.</string>
+            </property>
             <property name="text">
-             <string>Highlight DX Call in message</string>
+             <string>&amp;Blank line between decoding periods</string>
             </property>
            </widget>
           </item>
@@ -259,16 +245,24 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
-           <widget class="QCheckBox" name="DXCC_check_box">
-            <property name="toolTip">
-             <string>Show if decoded stations are new DXCC entities or worked before.</string>
-            </property>
+          <item row="5" column="1">
+           <widget class="QCheckBox" name="cbHighlightDXgrid">
             <property name="text">
-             <string>Show &amp;DXCC, grid, and worked-before status</string>
+             <string>Highlight DX Grid in message</string>
             </property>
-            <property name="checked">
-             <bool>false</bool>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QCheckBox" name="ppfx_check_box">
+            <property name="text">
+             <string>Show principal prefix instead of country name</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QCheckBox" name="cbHighlightDXcall">
+            <property name="text">
+             <string>Highlight DX Call in message</string>
             </property>
            </widget>
           </item>
@@ -282,34 +276,26 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="1">
-           <widget class="QCheckBox" name="cbClearDXgrid">
-            <property name="text">
-             <string>Clear DX Grid after QSO</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="insert_blank_check_box">
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="TX_messages_check_box">
             <property name="toolTip">
-             <string>Include a separator line between periods in the band activity window.</string>
+             <string>Show outgoing transmitted messages in the Rx frequency window.</string>
             </property>
             <property name="text">
-             <string>&amp;Blank line between decoding periods</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="1">
-           <widget class="QCheckBox" name="cbHighlightDXgrid">
-            <property name="text">
-             <string>Highlight DX Grid in message</string>
+             <string>&amp;Tx messages to Rx frequency window</string>
             </property>
            </widget>
           </item>
-          <item row="6" column="0">
-           <widget class="QCheckBox" name="cbClearDXcall">
+          <item row="4" column="0">
+           <widget class="QCheckBox" name="DXCC_check_box">
+            <property name="toolTip">
+             <string>Show if decoded stations are new DXCC entities or worked before.</string>
+            </property>
             <property name="text">
-             <string>Clear DX Call after QSO</string>
+             <string>Show &amp;DXCC, grid, and worked-before status</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -3291,13 +3277,13 @@ Right click for insert and delete options.</string>
   </connection>
  </connections>
  <buttongroups>
-  <buttongroup name="special_op_activity_button_group"/>
   <buttongroup name="CAT_stop_bits_button_group"/>
-  <buttongroup name="CAT_data_bits_button_group"/>
-  <buttongroup name="TX_mode_button_group"/>
-  <buttongroup name="TX_audio_source_button_group"/>
+  <buttongroup name="special_op_activity_button_group"/>
   <buttongroup name="split_mode_button_group"/>
-  <buttongroup name="PTT_method_button_group"/>
   <buttongroup name="CAT_handshake_button_group"/>
+  <buttongroup name="TX_audio_source_button_group"/>
+  <buttongroup name="TX_mode_button_group"/>
+  <buttongroup name="CAT_data_bits_button_group"/>
+  <buttongroup name="PTT_method_button_group"/>
  </buttongroups>
 </ui>

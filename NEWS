@@ -12,46 +12,54 @@
 Copyright 2001 - 2021 by Joe Taylor, K1JT.
 
 	        Release: WSJT-X 2.6.0-rc1
-	             Jun 15, 2022
+	             June 16, 2022
 	        ----------------------
 
-This release introduces some enhancements to the GUI as well as a 
-couple of useful new features and fixes:
+WSJT-X 2.6.0 Release Candidate 1 introduces support for the ARRL
+International Digital Contest; performance enhancements for FT8, Q65,
+and EME Echo mode; new controls and options on the GUI; and several
+bug fixes.
 
 In program WSJT-X:
 
- - Improved decoding for FT8, additional messages are marked 'a7'
+ - Improved decoding for FT8; additional messages are marked 'a7'
 
  - Improved decoding for Q65 when AP is in use
 
+ - Optional new "Active Stations" window and other features
+   supporting the ARRL International Digital Contest
+
+ - Accurate SNR measurements in EME Echo mode, even for large Doppler
+   spreads
+
  - Add mode-select buttons on main window for FT4, FT8, MSK144, Q65,
-   JT65, and FT8 DXpedition Hound mode
+   JT65, and FT8
+
+ - Add a button to toggle FT8's Hound mode ON or OFF
+
+ - Add a "Clr Avg" button for EME Echo mode
 
  - Add optional highlighting of DX Call and DX Grid
-
- - Add "Clear DX call and grid after logging"
 
  - Add optional highlighting of messages containing RR73 or 73
 
  - New options for writing to ALL.TXT: split the file yearly, monthly,
-   or disable altogether
+   or disable writing altogether
 
  - Add Russian to available translations of the user interface
 
- - Optional new "Active Stations" window and other features
-   supporting ARRL International Digital Contest
+ - Add a Tune watchdog, defaulting to 90 s 
 
- - Accurate SNR measurements in EME Echo mode, including Measure mode
-
- - Add a "Clr Avg" button for EME Echo mode
-
- - Correct a flaw that could cause Windows to drop audio samples
+ - Allow auto reply for non-CQ messages via UDP (JTAlert, etc.) when 
+   Hold Tx Freq is enabled
 
  - Suppress transmission of blank messages
 
  - Suppress self-spotting when running multiple instances
 
  - Correct the handling of messages starting with "CQ xxxx ..."
+
+ - Correct a flaw that could cause Windows to drop audio samples
 
  - Correct a flaw that could send incorrect frequencies to ALL.TXT
    and PSK Reporter, following a band change
@@ -60,21 +68,19 @@ In program WSJT-X:
 
  - Correct a flaw in WSPR mode when handling three-character callsigns
 
- - Add a Tune watchdog, default 90 s 
-
- - Allow auto reply for non-CQ messages via UDP (JTAlert, etc.) when 
-   Hold Tx Freq is enabled
+ - Correct a flaw that could cause Omnirig 1.19 or later to set
+   incorrect frequencies after initialization 
 
  - Clean up some ToolTips
 
- - Fix an inconsistancy in the installation package for MacOS that 
-   caused the pwr slider to behave incorrectly on macOS 12
+ - Fix an inconsistancy in the macOS installation package that caused
+   the pwr slider to behave incorrectly on macOS 12
 
 In program MAP65 (Windows only):
 
  - Additional information now sent to file azel.dat
 
- - Optional scaling of input I/Q data
+ - Optional digital scaling of input I/Q data
 
  - Suppress a bounds error caused by user setting a display bandwidth
    that is too wide
