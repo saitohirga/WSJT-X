@@ -278,10 +278,10 @@ namespace
       {50318000, Modes::FT4, IARURegions::ALL}, // provisional
       {50323000, Modes::FT8, IARURegions::ALL},
       
-      {70100000, Modes::FT8, IARURegions::R1},
       {70102000, Modes::JT65, IARURegions::R1},
       {70104000, Modes::JT9, IARURegions::R1},
       {70091000, Modes::WSPR, IARURegions::R1},
+      {70154000, Modes::FT8, IARURegions::R1},
       {70230000, Modes::MSK144, IARURegions::R1},
       
       {144116000, Modes::Q65, IARURegions::ALL},
