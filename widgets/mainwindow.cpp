@@ -5334,9 +5334,13 @@ void MainWindow::processMessage (DecodedText const& message, Qt::KeyboardModifie
             ui->tx3->setText(t);
             m_bTUmsg=true;
           } else {
-            if (m_QSOProgress > CALLING && m_QSOProgress < SIGNOFF
-                && SpecOp::NONE < m_config.special_op_id () && SpecOp::FOX > m_config.special_op_id ()
-                && ("RR73" == word_3 || 73 == word_3_as_number))
+
+// The following test was to skip sending 73 after receiving RR73, in a contest mode.
+// I'm disabling it so thet we always send 73 after receiving RR73.
+//            if (m_QSOProgress > CALLING && m_QSOProgress < SIGNOFF
+//                && SpecOp::NONE < m_config.special_op_id () && SpecOp::FOX > m_config.special_op_id ()
+//                && ("RR73" == word_3 || 73 == word_3_as_number))
+            if (false)              // Always Send 73 after receiving RRR or RR73, even in contest mode.
               {
                 if (m_config.prompt_to_log() || m_config.autoLog()) {
                   logQSOTimer.start(0);
