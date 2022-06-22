@@ -153,7 +153,7 @@ extern "C" {
 
   int savec2_(char const * fname, int* TR_seconds, double* dial_freq, fortran_charlen_t);
 
-  void avecho_( short id2[], int* dop, int* nfrit, int* nqual, float* f1,
+  void avecho_( short id2[], int* dop, int* nfrit, int* nauto, int* nqual, float* f1,
                 float* level, float* sigdb, float* snr, float* dfreq,
                 float* width);
 
@@ -1576,6 +1576,8 @@ void MainWindow::dataSink(qint64 frames)
     if(m_mode=="Echo") {
       float dBerr=0.0;
       int nfrit=0;
+      int nauto=0;
+      if(m_auto) nauto=1;
       int nqual=0;
       float f1=1500.0;
       float xlevel=0.0;
@@ -1584,7 +1586,7 @@ void MainWindow::dataSink(qint64 frames)
       float width=0.0;
       echocom_.nclearave=m_nclearave;
       int nDop=0;
-      avecho_(dec_data.d2,&nDop,&nfrit,&nqual,&f1,&xlevel,&sigdb,
+      avecho_(dec_data.d2,&nDop,&nfrit,&nauto,&nqual,&f1,&xlevel,&sigdb,
           &dBerr,&dfreq,&width);
       QString t;
       t = t.asprintf("%3d %7.1f %7.1f %7.1f %7.1f %7.1f %3d",echocom_.nsum,xlevel,sigdb,
@@ -7090,7 +7092,7 @@ void MainWindow::WSPR_config(bool b)
   ui->rh_decodes_widget->setVisible(!b);
   ui->controls_stack_widget->setCurrentIndex (b && m_mode != "Echo" ? 1 : 0);
   ui->QSO_controls_widget->setVisible (!b);
-  ui->DX_controls_widget->setVisible (!b);
+  ui->DX_controls_widget->setVisible (true);
   ui->WSPR_controls_widget->setVisible (b);
   ui->lh_decodes_title_label->setVisible(!b and ui->cbMenus->isChecked());
   ui->logQSOButton->setVisible(!b);
