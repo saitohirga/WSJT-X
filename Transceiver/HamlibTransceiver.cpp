@@ -911,6 +911,7 @@ void HamlibTransceiver::do_frequency (Frequency f, MODE m, bool no_ignore)
               // to frequency such as the TS-2000 auto mode setting
               CAT_TRACE ("rig_set_mode mode=" << rig_strrmode (new_mode));
               m_->error_check (rig_set_mode (m_->rig_.data (), target_vfo, new_mode, RIG_PASSBAND_NOCHANGE), tr ("setting current VFO mode"));
+              rig_set_mode (m_->rig_.data (), RIG_VFO_B, new_mode, RIG_PASSBAND_NOCHANGE), tr ("setting VFOB mode");
             }
           update_mode (m);
         }
