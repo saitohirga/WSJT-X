@@ -88,6 +88,7 @@ CabrilloLog::impl::impl (CabrilloLog * self, Configuration const * configuration
 
   setEditStrategy (QSqlTableModel::OnFieldChange);
   setTable ("cabrillo_log_v2");
+  setHeaderData (fieldIndex ("id"), Qt::Horizontal, tr ("Qso #"));
   setHeaderData (fieldIndex ("frequency"), Qt::Horizontal, tr ("Freq(MHz)"));
   setHeaderData (fieldIndex ("mode"), Qt::Horizontal, tr ("Mode"));
   setHeaderData (fieldIndex ("when"), Qt::Horizontal, tr ("Date & Time(UTC)"));
@@ -234,8 +235,10 @@ bool CabrilloLog::add_QSO (Frequency frequency, QString const& mode, QDateTime c
   m_->adding_row_ = true;
   auto ok = m_->insertRecord (-1, record);
   transaction.submit ();
+
   m_->adding_row_ = false;
   m_->setEditStrategy (QSqlTableModel::OnFieldChange);
+
   return ok;
 }
 
