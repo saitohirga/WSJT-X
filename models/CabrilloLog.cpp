@@ -88,7 +88,6 @@ CabrilloLog::impl::impl (CabrilloLog * self, Configuration const * configuration
 
   setEditStrategy (QSqlTableModel::OnFieldChange);
   setTable ("cabrillo_log_v2");
-  setHeaderData (fieldIndex ("id"), Qt::Horizontal, tr ("Qso #"));
   setHeaderData (fieldIndex ("frequency"), Qt::Horizontal, tr ("Freq(MHz)"));
   setHeaderData (fieldIndex ("mode"), Qt::Horizontal, tr ("Mode"));
   setHeaderData (fieldIndex ("when"), Qt::Horizontal, tr ("Date & Time(UTC)"));

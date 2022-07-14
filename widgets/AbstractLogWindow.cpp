@@ -105,12 +105,12 @@ AbstractLogWindow::AbstractLogWindow (QString const& settings_key, QSettings * s
                 (void) (first);  // UNUSED
                 (void) (last);   // UNUSED
                 QTimer::singleShot(0, [=] {
-                    // if we're sorting by the contact #, then show the most-recently logged contact.
+                    // if we're sorting by the date, then show the most-recently logged contact.
                     // Otherwise, leave the scroll alone
                     auto horizontal_header = m_->log_view_->horizontalHeader ();
-                    if (horizontal_header->sortIndicatorSection() == 0) {
+                    if (horizontal_header->sortIndicatorSection() == 3) { // sorting on date?
                         if (horizontal_header->sortIndicatorOrder() == Qt::AscendingOrder) {
-                            // we're sorting 1->N, so go to bottom
+                            // we're sorting oldes->newest, so go to bottom
                             m_->log_view_->scrollToBottom();
                         } else {
                             m_->log_view_->scrollToTop();
@@ -143,13 +143,13 @@ void AbstractLogWindow::set_log_view (QTableView * log_view)
   log_view->setVerticalScrollMode (QAbstractItemView::ScrollPerPixel);
   m_->model_.setSourceModel (log_view->model ());
   log_view->setModel (&m_->model_);
-  log_view->setColumnHidden (0, false); // show the ID column, which is also QSO #
+  log_view->setColumnHidden (0, true); // hide the ID column
   auto horizontal_header = log_view->horizontalHeader ();
 
   horizontal_header->setResizeContentsPrecision (0); // visible region only
   horizontal_header->setSectionResizeMode (QHeaderView::ResizeToContents);
   horizontal_header->setSectionsMovable (true);
-  horizontal_header->setSortIndicator(0,Qt::AscendingOrder); // sort by the contact id. show 1->N
+  horizontal_header->setSortIndicator(3, Qt::AscendingOrder); // sort by the contact datetime oldest->newest
 
   auto vertical_header = log_view->horizontalHeader ();
   vertical_header->setResizeContentsPrecision (0); // visible region only
