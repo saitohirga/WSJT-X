@@ -25,7 +25,7 @@ In program WSJT-X:
 
  - Fix VFOB not getting set on some rigs (e.g. IC7610 & IC7100)
 
- - The settings for T/R period and Submode are now remembered by band. 
+ - The settings for T/R period and Submode are now remembered by mode. 
    This is especially helpful for VHF / EME activities, and on HF for 
    FST4. You can now switch directly e.g. between MSK144-15, Q65-60A, 
    JT65-C, FST4-120 or whatever, and wsjt-x_improved remembers all that.
