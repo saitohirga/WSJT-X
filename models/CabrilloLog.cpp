@@ -258,6 +258,11 @@ bool CabrilloLog::dupe (Frequency frequency, QString const& call) const
   return false;
 }
 
+int CabrilloLog::n_qso()
+{
+  return m_->rowCount();
+}
+
 void CabrilloLog::reset ()
 {
   // synchronize model

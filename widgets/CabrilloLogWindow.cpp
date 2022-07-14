@@ -89,3 +89,10 @@ void CabrilloLogWindow::log_model_changed (int row)
       m_->log_model_->select ();
     }
 }
+
+void CabrilloLogWindow::set_nQSO(int n)
+{
+  QString t;
+  t=t.asprintf("%d  QSOs",n);
+  m_->ui_.nQSO_lineEdit->setText(t);
+}

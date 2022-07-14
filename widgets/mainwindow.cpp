@@ -1423,6 +1423,7 @@ void MainWindow::setDecodedTextFont (QFont const& font)
   }
   if (m_contestLogWindow) {
     m_contestLogWindow->set_log_view_font (font);
+    m_contestLogWindow->set_nQSO(m_logBook.contest_log()->n_qso());
   }
   if(m_ActiveStationsWidget != NULL) {
     m_ActiveStationsWidget->changeFont(font);
@@ -2778,6 +2779,7 @@ void MainWindow::on_contest_log_action_triggered()
   m_contestLogWindow->showNormal ();
   m_contestLogWindow->raise ();
   m_contestLogWindow->activateWindow ();
+  m_contestLogWindow->set_nQSO(m_logBook.contest_log()->n_qso());
 }
 
 void MainWindow::on_actionColors_triggered()
@@ -4676,6 +4678,7 @@ void MainWindow::guiUpdate()
 //Once per second (onesec)
   if(nsec != m_sec0) {
 //    qDebug() << "AAA" << nsec;
+    m_contestLogWindow->set_nQSO(m_logBook.contest_log()->n_qso());
 
     if(m_mode=="FST4") chk_FST4_freq_range();
     m_currentBand=m_config.bands()->find(m_freqNominal);
@@ -6374,6 +6377,9 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
 
   m_xSent.clear ();
   m_xRcvd.clear ();
+  if(m_contestLogWindow) {
+    m_contestLogWindow->set_nQSO(m_logBook.contest_log()->n_qso());
+  }
 }
 
 void MainWindow::updateRate()
