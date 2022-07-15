@@ -41,6 +41,8 @@ In program WSJT-X :
 
  - Minor edits to display of Keyboard Shortcuts
 
+ - Make OK button the default on the LogQSO dialog window
+
  - Fix some bugs
 
 
