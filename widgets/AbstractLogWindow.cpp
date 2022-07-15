@@ -72,7 +72,7 @@ void AbstractLogWindow::impl::delete_QSOs ()
     {
       // We must work with source model indexes because we don't want row
       // removes to invalidate model indexes we haven't yet processed. We
-      // achieve that by processing them in decending row order.
+      // achieve that by processing them in descending row order.
       for (auto& row_index : row_indexes)
         {
           row_index = model_.mapToSource (row_index);
@@ -80,11 +80,12 @@ void AbstractLogWindow::impl::delete_QSOs ()
 
       // reverse sort by row
       std::sort (row_indexes.begin (), row_indexes.end (), row_is_higher);
+
       for (auto index : row_indexes)
         {
-          auto row = model_.mapFromSource (index).row ();
-          model_.removeRow (row);
-          self_->log_model_changed ();
+          auto row = model_.mapFromSource(index).row();
+          model_.removeRow(row);
+          self_->log_model_changed();
         }
     }
 }

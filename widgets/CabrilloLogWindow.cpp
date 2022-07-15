@@ -88,6 +88,7 @@ void CabrilloLogWindow::log_model_changed (int row)
     {
       m_->log_model_->select ();
     }
+  this->set_nQSO(m_->log_model_->rowCount());
 }
 
 void CabrilloLogWindow::set_nQSO(int n)
