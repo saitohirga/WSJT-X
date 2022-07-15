@@ -70,6 +70,7 @@ CabrilloLogWindow::CabrilloLogWindow (QSettings * settings, Configuration const 
   m_->ui_.log_table_view->setItemDelegateForColumn (3, new SQLiteDateTimeDelegate {this});
   m_->ui_.log_table_view->setItemDelegateForColumn (4, new CallsignDelegate {this});
   auto h_header = m_->ui_.log_table_view->horizontalHeader ();
+  m_->ui_.log_table_view->verticalHeader()->setVisible(false); // turn off line numbers for the table view
   h_header->moveSection (7, 1); // band to first column
 }
 
@@ -87,4 +88,11 @@ void CabrilloLogWindow::log_model_changed (int row)
     {
       m_->log_model_->select ();
     }
+}
+
+void CabrilloLogWindow::set_nQSO(int n)
+{
+  QString t;
+  t=t.asprintf("%d  QSOs",n);
+  m_->ui_.nQSO_lineEdit->setText(t);
 }

@@ -31,6 +31,7 @@ public:
   bool add_QSO (Frequency, QString const& mode, QDateTime const&, QString const& call
                 , QString const& report_sent, QString const& report_received);
   bool dupe (Frequency, QString const& call) const;
+  int n_qso();
 
   QSqlTableModel * model ();
   void reset ();

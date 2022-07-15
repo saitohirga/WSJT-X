@@ -153,7 +153,7 @@ extern "C" {
 
   int savec2_(char const * fname, int* TR_seconds, double* dial_freq, fortran_charlen_t);
 
-  void avecho_( short id2[], int* dop, int* nfrit, int* nqual, float* f1,
+  void avecho_( short id2[], int* dop, int* nfrit, int* nauto, int* nqual, float* f1,
                 float* level, float* sigdb, float* snr, float* dfreq,
                 float* width);
 
@@ -294,6 +294,9 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
   m_secID {0},
   m_idleMinutes {0},
   m_nSubMode {0},
+  m_nSubMode_Q65 {0},
+  m_nSubMode_JT65 {0},
+  m_nSubMode_JT4 {0},
   m_nclearave {1},
   m_nWSPRdecodes {0},
   m_k0 {9999999},
@@ -750,7 +753,7 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
 
   // ensure a balanced layout of the mode buttons
   qreal pointSize = m_config.text_font().pointSizeF();
-  if (pointSize < 12) {
+  if (pointSize < 11) {
       ui->houndButton->setMaximumWidth(40);
       ui->ft8Button->setMaximumWidth(40);
       ui->ft4Button->setMaximumWidth(40);
@@ -758,12 +761,12 @@ MainWindow::MainWindow(QDir const& temp_directory, bool multiple,
       ui->q65Button->setMaximumWidth(40);
       ui->jt65Button->setMaximumWidth(40);
   } else {
-      ui->houndButton->setMinimumWidth(0);
-      ui->ft8Button->setMinimumWidth(0);
-      ui->ft4Button->setMinimumWidth(0);
-      ui->msk144Button->setMinimumWidth(0);
-      ui->q65Button->setMinimumWidth(0);
-      ui->jt65Button->setMinimumWidth(0);
+      ui->houndButton->setMinimumWidth(50);
+      ui->ft8Button->setMinimumWidth(50);
+      ui->ft4Button->setMinimumWidth(50);
+      ui->msk144Button->setMinimumWidth(50);
+      ui->q65Button->setMinimumWidth(50);
+      ui->jt65Button->setMinimumWidth(50);
   }
 
   // hook up save WAV file exit handling
@@ -1171,7 +1174,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("FST4W_FTol",ui->sbFST4W_FTol->value());
   m_settings->setValue("FST4_FLow",ui->sbF_Low->value());
   m_settings->setValue("FST4_FHigh",ui->sbF_High->value());
-  m_settings->setValue("SubMode",ui->sbSubmode->value());
+//  m_settings->setValue("SubMode",ui->sbSubmode->value());
   m_settings->setValue("DTtol",m_DTtol);
   m_settings->setValue("Ftol", ui->sbFtol->value ());
   m_settings->setValue("MinSync",m_minSync);
@@ -1193,7 +1196,7 @@ void MainWindow::writeSettings()
   m_settings->setValue("UploadSpots",m_uploadWSPRSpots);
   m_settings->setValue("NoOwnCall",ui->cbNoOwnCall->isChecked());
   m_settings->setValue ("BandHopping", ui->band_hopping_group_box->isChecked ());
-  m_settings->setValue ("TRPeriod", ui->sbTR->value ());
+//  m_settings->setValue ("TRPeriod", ui->sbTR->value ());
   m_settings->setValue ("MaxDrift", ui->sbMaxDrift->value());
   m_settings->setValue ("TRPeriod_FST4W", ui->sbTR_FST4W->value ());
   m_settings->setValue("FastMode",m_bFastMode);
@@ -1277,8 +1280,14 @@ void MainWindow::readSettings()
   ui->sbFST4W_RxFreq->setValue(m_settings->value("FST4W_RxFreq",1500).toInt());
   ui->sbF_Low->setValue(m_settings->value("FST4_FLow",600).toInt());
   ui->sbF_High->setValue(m_settings->value("FST4_FHigh",1400).toInt());
-  m_nSubMode=m_settings->value("SubMode",0).toInt();
-  ui->sbSubmode->setValue(m_nSubMode);
+//  m_nSubMode=m_settings->value("SubMode",0).toInt();
+  if (m_mode=="Q65") m_nSubMode=m_settings->value("SubMode_Q65",0).toInt();
+  if (m_mode=="JT65") m_nSubMode=m_settings->value("SubMode_JT65",0).toInt();
+  if (m_mode=="JT4") m_nSubMode=m_settings->value("SubMode_JT4",0).toInt();
+//  ui->sbSubmode->setValue(m_nSubMode);
+  if (m_mode=="Q65") ui->sbSubmode->setValue(m_nSubMode_Q65);
+  if (m_mode=="JT65") ui->sbSubmode->setValue(m_nSubMode_JT65);
+  if (m_mode=="JT4") ui->sbSubmode->setValue(m_nSubMode_JT4);
   ui->sbFtol->setValue (m_settings->value("Ftol", 50).toInt());
   ui->sbFST4W_FTol->setValue(m_settings->value("FST4W_FTol",100).toInt());
   m_minSync=m_settings->value("MinSync",0).toInt();
@@ -1289,7 +1298,10 @@ void MainWindow::readSettings()
   m_bSWL=m_settings->value("SWL",false).toBool();
   m_bFast9=m_settings->value("Fast9",false).toBool();
   m_bFastMode=m_settings->value("FastMode",false).toBool();
-  ui->sbTR->setValue (m_settings->value ("TRPeriod", 15).toInt());
+//  ui->sbTR->setValue (m_settings->value ("TRPeriod", 15).toInt());
+  if (m_mode=="Q65") ui->sbTR->setValue (m_settings->value ("TRPeriod_Q65", 30).toInt());
+  if (m_mode=="MSK144") ui->sbTR->setValue (m_settings->value ("TRPeriod_MSK144", 15).toInt());
+  if (m_mode=="FST4") ui->sbTR->setValue (m_settings->value ("TRPeriod_FST4", 60).toInt());
   ui->sbMaxDrift->setValue (m_settings->value ("MaxDrift",0).toInt());
   ui->sbTR_FST4W->setValue (m_settings->value ("TRPeriod_FST4W", 15).toInt());
   m_lastMonitoredFrequency = m_settings->value ("DialFreq",
@@ -1411,6 +1423,7 @@ void MainWindow::setDecodedTextFont (QFont const& font)
   }
   if (m_contestLogWindow) {
     m_contestLogWindow->set_log_view_font (font);
+    m_contestLogWindow->set_nQSO(m_logBook.contest_log()->n_qso());
   }
   if(m_ActiveStationsWidget != NULL) {
     m_ActiveStationsWidget->changeFont(font);
@@ -1576,6 +1589,8 @@ void MainWindow::dataSink(qint64 frames)
     if(m_mode=="Echo") {
       float dBerr=0.0;
       int nfrit=0;
+      int nauto=0;
+      if(m_auto) nauto=1;
       int nqual=0;
       float f1=1500.0;
       float xlevel=0.0;
@@ -1584,7 +1599,7 @@ void MainWindow::dataSink(qint64 frames)
       float width=0.0;
       echocom_.nclearave=m_nclearave;
       int nDop=0;
-      avecho_(dec_data.d2,&nDop,&nfrit,&nqual,&f1,&xlevel,&sigdb,
+      avecho_(dec_data.d2,&nDop,&nfrit,&nauto,&nqual,&f1,&xlevel,&sigdb,
           &dBerr,&dfreq,&width);
       QString t;
       t = t.asprintf("%3d %7.1f %7.1f %7.1f %7.1f %7.1f %3d",echocom_.nsum,xlevel,sigdb,
@@ -2764,6 +2779,7 @@ void MainWindow::on_contest_log_action_triggered()
   m_contestLogWindow->showNormal ();
   m_contestLogWindow->raise ();
   m_contestLogWindow->activateWindow ();
+  m_contestLogWindow->set_nQSO(m_logBook.contest_log()->n_qso());
 }
 
 void MainWindow::on_actionColors_triggered()
@@ -3019,10 +3035,10 @@ void MainWindow::on_actionKeyboard_shortcuts_triggered()
   <tr><td><b>Alt+H    </b></td><td>Halt Tx</td></tr>
   <tr><td><b>Ctrl+L   </b></td><td>Lookup callsign in database, generate standard messages</td></tr>
   <tr><td><b>Alt+M    </b></td><td>Monitor</td></tr>
-  <tr><td><b>Alt+N    </b></td><td>Enable Tx</td></tr>
+  <tr><td><b>Alt+N    </b></td><td>Toggle "Enable Tx"</td></tr>
   <tr><td><b>Ctrl+O   </b></td><td>Open a .wav file</td></tr>
   <tr><td><b>Alt+O    </b></td><td>Change operator</td></tr>
-  <tr><td><b>Alt+Q    </b></td><td>Log QSO</td></tr>
+  <tr><td><b>Alt+Q    </b></td><td>Open "Log QSO" window</td></tr>
   <tr><td><b>Ctrl+R   </b></td><td>Set Tx4 message to RRR (not in FT4)</td></tr>
   <tr><td><b>Alt+R    </b></td><td>Set Tx4 message to RR73</td></tr>
   <tr><td><b>Alt+S    </b></td><td>Stop monitoring</td></tr>
@@ -4662,6 +4678,7 @@ void MainWindow::guiUpdate()
 //Once per second (onesec)
   if(nsec != m_sec0) {
 //    qDebug() << "AAA" << nsec;
+    if(m_contestLogWindow) m_contestLogWindow->set_nQSO(m_logBook.contest_log()->n_qso());
 
     if(m_mode=="FST4") chk_FST4_freq_range();
     m_currentBand=m_config.bands()->find(m_freqNominal);
@@ -6360,6 +6377,9 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
 
   m_xSent.clear ();
   m_xRcvd.clear ();
+  if(m_contestLogWindow) {
+    m_contestLogWindow->set_nQSO(m_logBook.contest_log()->n_qso());
+  }
 }
 
 void MainWindow::updateRate()
@@ -6466,7 +6486,11 @@ void MainWindow::displayWidgets(qint64 n)
 
 void MainWindow::on_actionFST4_triggered()
 {
-  m_mode="FST4";
+  QTimer::singleShot (50, [=] {
+    ui->TxFreqSpinBox->setValue(m_settings->value("TxFreq_old",1500).toInt());
+    ui->RxFreqSpinBox->setValue(m_settings->value("RxFreq_old",1500).toInt());
+    on_sbSubmode_valueChanged(ui->sbSubmode->value());
+  });
   m_mode="FST4";
   ui->actionFST4->setChecked(true);
   m_bFast9=false;
@@ -6500,7 +6524,8 @@ void MainWindow::on_actionFST4_triggered()
   switch_mode (Modes::FST4);
   m_wideGraph->setMode(m_mode);
   ui->sbTR->values ({15, 30, 60, 120, 300, 900, 1800});
-  on_sbTR_valueChanged (ui->sbTR->value());
+  ui->sbTR->setValue (m_settings->value ("TRPeriod_FST4", 60).toInt());    // remember sbTR settings by mode
+  QTimer::singleShot (50, [=] {on_sbTR_valueChanged (ui->sbTR->value());});
   statusChanged();
   m_bOK_to_chk=true;
   chk_FST4_freq_range();
@@ -6538,6 +6563,11 @@ void MainWindow::on_actionFST4W_triggered()
 
 void MainWindow::on_actionFT4_triggered()
 {
+  QTimer::singleShot (50, [=] {
+    ui->TxFreqSpinBox->setValue(m_settings->value("TxFreq_old",1500).toInt());
+    ui->RxFreqSpinBox->setValue(m_settings->value("RxFreq_old",1500).toInt());
+    on_sbSubmode_valueChanged(ui->sbSubmode->value());
+  });
   m_mode="FT4";
   m_TRperiod=7.5;
   bool bVHF=m_config.enable_VHF_features();
@@ -6581,6 +6611,11 @@ void MainWindow::on_actionFT4_triggered()
 
 void MainWindow::on_actionFT8_triggered()
 {
+  QTimer::singleShot (50, [=] {
+    ui->TxFreqSpinBox->setValue(m_settings->value("TxFreq_old",1500).toInt());
+    ui->RxFreqSpinBox->setValue(m_settings->value("RxFreq_old",1500).toInt());
+    on_sbSubmode_valueChanged(ui->sbSubmode->value());
+  });
   m_mode="FT8";
   bool bVHF=m_config.enable_VHF_features();
   m_bFast9=false;
@@ -6694,6 +6729,10 @@ void MainWindow::on_actionFT8_triggered()
 
 void MainWindow::on_actionJT4_triggered()
 {
+  QTimer::singleShot (50, [=] {
+    ui->TxFreqSpinBox->setValue(m_settings->value("TxFreq_old",1500).toInt());
+    ui->RxFreqSpinBox->setValue(m_settings->value("RxFreq_old",1500).toInt());
+  });
   m_mode="JT4";
   bool bVHF=m_config.enable_VHF_features();
   WSPR_config(false);
@@ -6720,7 +6759,10 @@ void MainWindow::on_actionJT4_triggered()
   ui->lh_decodes_headings_label->setText("UTC   dB   DT Freq    " + tr ("Message"));
   ui->rh_decodes_headings_label->setText("UTC   dB   DT Freq    " + tr ("Message"));
   if(bVHF) {
-    ui->sbSubmode->setValue(m_nSubMode);
+//    ui->sbSubmode->setValue(m_nSubMode);
+    QTimer::singleShot (50, [=] {m_nSubMode=m_settings->value("SubMode_JT4",0).toInt();});
+    QTimer::singleShot (75, [=] {ui->sbSubmode->setValue(m_settings->value("SubMode_JT4",0).toInt());});
+    QTimer::singleShot (100, [=] {on_sbSubmode_valueChanged(m_nSubMode);});
   } else {
     ui->sbSubmode->setValue(0);
   }
@@ -6736,6 +6778,7 @@ void MainWindow::on_actionJT4_triggered()
 
 void MainWindow::on_actionJT9_triggered()
 {
+  QTimer::singleShot (50, [=] {on_sbSubmode_valueChanged(ui->sbSubmode->value());});
   m_mode="JT9";
   bool bVHF=m_config.enable_VHF_features();
   m_bFast9=ui->cbFast9->isChecked();
@@ -6795,6 +6838,10 @@ void MainWindow::on_actionJT9_triggered()
 
 void MainWindow::on_actionJT65_triggered()
 {
+  QTimer::singleShot (50, [=] {
+    ui->TxFreqSpinBox->setValue(m_settings->value("TxFreq_old",1500).toInt());
+    ui->RxFreqSpinBox->setValue(m_settings->value("RxFreq_old",1500).toInt());
+  });
   on_actionJT9_triggered();
   m_mode="JT65";
   bool bVHF=m_config.enable_VHF_features();
@@ -6821,8 +6868,11 @@ void MainWindow::on_actionJT65_triggered()
   m_bFast9=false;
   ui->sbSubmode->setMaximum(2);
   if(bVHF) {
-    ui->sbSubmode->setValue(m_nSubMode);
-    ui->lh_decodes_title_label->setText(tr ("Single-Period Decodes"));
+//    ui->sbSubmode->setValue(m_nSubMode);
+      QTimer::singleShot (50, [=] {m_nSubMode=m_settings->value("SubMode_JT65",0).toInt();});
+      QTimer::singleShot (75, [=] {ui->sbSubmode->setValue(m_settings->value("SubMode_JT65",0).toInt());});
+      QTimer::singleShot (100, [=] {on_sbSubmode_valueChanged(m_nSubMode);});
+      ui->lh_decodes_title_label->setText(tr ("Single-Period Decodes"));
     ui->rh_decodes_title_label->setText(tr ("Average Decodes"));
   } else {
     ui->sbSubmode->setValue(0);
@@ -6845,6 +6895,10 @@ void MainWindow::on_actionJT65_triggered()
 
 void MainWindow::on_actionQ65_triggered()
 {
+  QTimer::singleShot (50, [=] {
+    ui->TxFreqSpinBox->setValue(m_settings->value("TxFreq_old",1500).toInt());
+    ui->RxFreqSpinBox->setValue(m_settings->value("RxFreq_old",1500).toInt());
+  });
   m_mode="Q65";
   ui->actionQ65->setChecked(true);
   switch_mode(Modes::Q65);
@@ -6857,8 +6911,12 @@ void MainWindow::on_actionQ65_triggered()
   Q_EMIT FFTSize(m_FFTSize);
   m_hsymStop=49;
   ui->sbTR->values ({15, 30, 60, 120, 300});
-  on_sbTR_valueChanged (ui->sbTR->value());
-  ui->sbSubmode->setValue(m_nSubMode);
+  ui->sbTR->setValue (m_settings->value ("TRPeriod_Q65", 30).toInt());    // remember sbTR settings by mode
+  QTimer::singleShot (50, [=] {on_sbTR_valueChanged (ui->sbTR->value());});
+//  ui->sbSubmode->setValue(m_nSubMode);
+  QTimer::singleShot (50, [=] {m_nSubMode=m_settings->value("SubMode_Q65",0).toInt();});
+  QTimer::singleShot (75, [=] {ui->sbSubmode->setValue(m_settings->value("SubMode_Q65",0).toInt());});
+  QTimer::singleShot (100, [=] {on_sbSubmode_valueChanged(m_nSubMode);});
   QString fname {QDir::toNativeSeparators(m_config.temp_dir().absoluteFilePath ("red.dat"))};
   m_wideGraph->setRedFile(fname);
   m_wideGraph->setMode(m_mode);
@@ -6928,7 +6986,11 @@ void MainWindow::on_actionMSK144_triggered()
   m_bFastMode=true;
   m_bFast9=false;
   ui->sbTR->values ({5, 10, 15, 30});
-  on_sbTR_valueChanged (ui->sbTR->value());
+  ui->sbTR->setValue (m_settings->value ("TRPeriod_MSK144", 15).toInt());    // remember sbTR settings by mode
+  QTimer::singleShot (50, [=] {
+      on_sbTR_valueChanged (ui->sbTR->value());
+      on_sbSubmode_valueChanged(ui->sbSubmode->value());
+  });
   m_wideGraph->hide();
   m_fastGraph->showNormal();
   ui->TxFreqSpinBox->setValue(1500);
@@ -7090,7 +7152,7 @@ void MainWindow::WSPR_config(bool b)
   ui->rh_decodes_widget->setVisible(!b);
   ui->controls_stack_widget->setCurrentIndex (b && m_mode != "Echo" ? 1 : 0);
   ui->QSO_controls_widget->setVisible (!b);
-  ui->DX_controls_widget->setVisible (!b);
+  ui->DX_controls_widget->setVisible (!b or (m_mode=="Echo"));
   ui->WSPR_controls_widget->setVisible (b);
   ui->lh_decodes_title_label->setVisible(!b and ui->cbMenus->isChecked());
   ui->logQSOButton->setVisible(!b);
@@ -7148,7 +7210,9 @@ void MainWindow::on_TxFreqSpinBox_valueChanged(int n)
       ui->TxFreqSpinBox->setStyleSheet("");
     }
   }
-
+  if (m_mode != "MSK144" && m_mode != "FST4W" && m_mode != "WSPR" && m_mode != "Echo" && m_mode != "FreqCal") {
+      QTimer::singleShot (200, [=] {m_settings->setValue("TxFreq_old",ui->TxFreqSpinBox->value());});
+  }
   statusUpdate ();
 }
 
@@ -7157,6 +7221,9 @@ void MainWindow::on_RxFreqSpinBox_valueChanged(int n)
   m_wideGraph->setRxFreq(n);
   if (m_mode == "FreqCal") {
     setRig ();
+  }
+  if (m_mode != "MSK144" && m_mode != "FST4W" && m_mode != "WSPR" && m_mode != "Echo" && m_mode != "FreqCal") {
+      QTimer::singleShot (200, [=] {m_settings->setValue("RxFreq_old",ui->RxFreqSpinBox->value());});
   }
   statusUpdate ();
 }
@@ -8046,7 +8113,16 @@ void MainWindow::on_sbTR_valueChanged(int value)
     m_wideGraph->setPeriod (value, m_nsps);
     progressBar.setMaximum (value);
   }
-  if(m_mode=="FST4") chk_FST4_freq_range();
+  if (m_mode=="Q65") {
+      QTimer::singleShot (200, [=] {m_settings->setValue ("TRPeriod_Q65", ui->sbTR->value ());});
+  }
+  if (m_mode=="MSK144") {
+      QTimer::singleShot (200, [=] {m_settings->setValue ("TRPeriod_MSK144", ui->sbTR->value ());});
+  }
+  if (m_mode=="FST4") {
+      chk_FST4_freq_range();
+      QTimer::singleShot (200, [=] {m_settings->setValue ("TRPeriod_FST4", ui->sbTR->value ());});
+  }
 //  if(m_transmitting) on_stopTxButton_clicked();      //### Is this needed or desirable? ###
   on_sbSubmode_valueChanged(ui->sbSubmode->value());
   statusUpdate ();
@@ -8102,6 +8178,10 @@ void MainWindow::on_sbSubmode_valueChanged(int n)
     if(m_bFast9) ui->TxFreqSpinBox->setValue(700);
   }
   if(m_transmitting and m_bFast9 and m_nSubMode>=4) transmit (99.0);
+  if (m_mode !="Q65") ui->TxFreqSpinBox->setStyleSheet("");
+  if (m_mode=="Q65") {QTimer::singleShot (200, [=] {m_settings->setValue("SubMode_Q65",ui->sbSubmode->value());});}
+  if (m_mode=="JT65") {QTimer::singleShot (200, [=] {m_settings->setValue("SubMode_JT65",ui->sbSubmode->value());});}
+  if (m_mode=="JT4") {QTimer::singleShot (200, [=] {m_settings->setValue("SubMode_JT4",ui->sbSubmode->value());});}
   statusUpdate ();
 }
 

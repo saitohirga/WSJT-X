@@ -38,7 +38,7 @@ uses information from the previous Rx sequence.
 |a4|MyCall DxCall RRR
 |a5|MyCall DxCall 73
 |a6|MyCall DxCall RR73
-|a7|Call_1 Call_2 &#160; &#160;   ?
+|a7|(Call_1 or CQ) Call_2 &#160; &#160;   ?
 |===
 
 If a codeword is found that is judged to have high (but not

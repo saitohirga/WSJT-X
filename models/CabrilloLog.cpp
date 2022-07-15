@@ -234,8 +234,10 @@ bool CabrilloLog::add_QSO (Frequency frequency, QString const& mode, QDateTime c
   m_->adding_row_ = true;
   auto ok = m_->insertRecord (-1, record);
   transaction.submit ();
+
   m_->adding_row_ = false;
   m_->setEditStrategy (QSqlTableModel::OnFieldChange);
+
   return ok;
 }
 
@@ -254,6 +256,11 @@ bool CabrilloLog::dupe (Frequency frequency, QString const& call) const
         }
     }
   return false;
+}
+
+int CabrilloLog::n_qso()
+{
+  return m_->rowCount();
 }
 
 void CabrilloLog::reset ()

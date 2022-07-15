@@ -16,6 +16,7 @@ public:
   explicit CabrilloLogWindow (QSettings *, Configuration const *, QSqlTableModel * cabrillo_log_model
                               , QWidget * parent = nullptr);
   ~CabrilloLogWindow ();
+  void set_nQSO(int n);
 
 private:
   void log_model_changed (int row) override;
