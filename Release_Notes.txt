@@ -12,7 +12,7 @@
 Copyright 2001 - 2022 by Joe Taylor, K1JT, and the WSJT Development Team
 
 	        Release: WSJT-X 2.6.0-rc2
-	             July 25, 2022
+	             July 21, 2022
 	        ----------------------
 
 WSJT-X 2.6.0 Release Candidate 2 brings a number of improvements as
@@ -44,14 +44,15 @@ well as some bug fixes.
 
  - Display of Keyboard Shortcuts has been updated.
 
- - The OK button is now has default focus in the LogQSO dialog window.
+ - The OK button now has default focus in the LogQSO dialog window.
    You may just hit Enter to log the QSO.
 
--  Bug fix: The Tx Freq spinbox remained red when comong back from
+-  Bug fix: The Tx Freq spinbox remained red when coming back from
    some Q65 submodes.  Corrected.
 
  - Hamlib bug fix: make sure that VFOB is selected when required on
    some rigs (e.g. IC7610, IC7100).
+
 
 	        Release: WSJT-X 2.6.0-rc1
 	             June 20, 2022
