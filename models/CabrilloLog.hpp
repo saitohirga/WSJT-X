@@ -39,6 +39,7 @@ public:
   worked_set unique_DXCC_entities (AD1CCty const *) const;
 
   Q_SIGNAL void data_changed () const;
+  Q_SIGNAL void qso_count_changed (int) const;
 
 private:
   class impl;

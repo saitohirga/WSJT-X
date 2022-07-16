@@ -72,6 +72,7 @@ CabrilloLogWindow::CabrilloLogWindow (QSettings * settings, Configuration const 
   auto h_header = m_->ui_.log_table_view->horizontalHeader ();
   m_->ui_.log_table_view->verticalHeader()->setVisible(false); // turn off line numbers for the table view
   h_header->moveSection (7, 1); // band to first column
+
 }
 
 CabrilloLogWindow::~CabrilloLogWindow ()

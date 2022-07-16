@@ -73,7 +73,9 @@ public:
   Configuration const * configuration_;
   QSqlQuery mutable dupe_query_;
   QSqlQuery mutable export_query_;
+  QSqlQuery mutable qso_count_query_;
   bool adding_row_;
+  int n_qso();
 };
 
 CabrilloLog::impl::impl (CabrilloLog * self, Configuration const * configuration)
@@ -109,6 +111,7 @@ CabrilloLog::impl::impl (CabrilloLog * self, Configuration const * configuration
         {
           Q_EMIT self_->data_changed ();
         }
+      Q_EMIT self_->qso_count_changed(self_->n_qso());
     });
 
   SQL_error_check (*this, &QSqlTableModel::select);
@@ -132,6 +135,10 @@ CabrilloLog::impl::impl (CabrilloLog * self, Configuration const * configuration
                    "    cabrillo_log_v2 "
                    "  ORDER BY "
                    "    \"when\"");
+
+  SQL_error_check (qso_count_query_, &QSqlQuery::prepare,
+                   "SELECT COUNT(*) FROM cabrillo_log_v2");
+
 }
 
 void CabrilloLog::impl::create_table ()
@@ -237,7 +244,7 @@ bool CabrilloLog::add_QSO (Frequency frequency, QString const& mode, QDateTime c
 
   m_->adding_row_ = false;
   m_->setEditStrategy (QSqlTableModel::OnFieldChange);
-
+  Q_EMIT this->qso_count_changed(this->n_qso());
   return ok;
 }
 
@@ -260,7 +267,9 @@ bool CabrilloLog::dupe (Frequency frequency, QString const& call) const
 
 int CabrilloLog::n_qso()
 {
-  return m_->rowCount();
+  SQL_error_check (m_->qso_count_query_, static_cast<bool (QSqlQuery::*) ()> (&QSqlQuery::exec));
+  m_->qso_count_query_.first();
+  return m_->qso_count_query_.value(0).toInt();
 }
 
 void CabrilloLog::reset ()

@@ -2779,6 +2779,8 @@ void MainWindow::on_contest_log_action_triggered()
   m_contestLogWindow->showNormal ();
   m_contestLogWindow->raise ();
   m_contestLogWindow->activateWindow ();
+  // connect signal from m_logBook.contest_log to m_contestLogWindow
+  connect(m_logBook.contest_log(), &CabrilloLog::qso_count_changed, m_contestLogWindow.data (), &CabrilloLogWindow::set_nQSO);
   m_contestLogWindow->set_nQSO(m_logBook.contest_log()->n_qso());
 }
 
@@ -4678,7 +4680,7 @@ void MainWindow::guiUpdate()
 //Once per second (onesec)
   if(nsec != m_sec0) {
 //    qDebug() << "AAA" << nsec;
-    if(m_contestLogWindow) m_contestLogWindow->set_nQSO(m_logBook.contest_log()->n_qso());
+    //if(m_contestLogWindow) m_contestLogWindow->set_nQSO(m_logBook.contest_log()->n_qso());
 
     if(m_mode=="FST4") chk_FST4_freq_range();
     m_currentBand=m_config.bands()->find(m_freqNominal);
@@ -6377,9 +6379,7 @@ void MainWindow::acceptQSO (QDateTime const& QSO_date_off, QString const& call, 
 
   m_xSent.clear ();
   m_xRcvd.clear ();
-  if(m_contestLogWindow) {
-    m_contestLogWindow->set_nQSO(m_logBook.contest_log()->n_qso());
-  }
+
 }
 
 void MainWindow::updateRate()
