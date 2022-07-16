@@ -4680,7 +4680,6 @@ void MainWindow::guiUpdate()
 //Once per second (onesec)
   if(nsec != m_sec0) {
 //    qDebug() << "AAA" << nsec;
-    //if(m_contestLogWindow) m_contestLogWindow->set_nQSO(m_logBook.contest_log()->n_qso());
 
     if(m_mode=="FST4") chk_FST4_freq_range();
     m_currentBand=m_config.bands()->find(m_freqNominal);
