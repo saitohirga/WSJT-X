@@ -54,6 +54,12 @@ contains
          width1,width2,xlst8,techo8)
 
     if (len_trim(AzElFileName) .eq. 0) go to 999
+    if(len(trim(hisgrid)).eq.0) then  !If DX grid is blank, set these to zero:
+       AzMoonB8=0
+       ElMoonB8=0
+       ndop=0
+       width2=0
+    endif
     imin=60*uth8
     isec=3600*uth8
     ih=uth8

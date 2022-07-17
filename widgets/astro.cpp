@@ -121,12 +121,6 @@ auto Astro::astroUpdate(QDateTime const& t, QString const& mygrid, QString const
            AzElFileName.toLocal8Bit ().constData (),
            jpleph.toLocal8Bit ().constData ());
 
-    if(!hisgrid.size ()) {
-    azmoondx=0.0;
-    elmoondx=0.0;
-    m_dop=0;
-    width2=0.0;
-  }
   QString message;
   {
     QTextStream out {&message};
